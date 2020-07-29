@@ -7,7 +7,7 @@
 /* eslint-env mocha */
 /* eslint no-unused-expressions: "off" */
 'use strict';
-var should = require('./utilities/assertions');
+const should = require('./utilities/assertions');
 
 describe('Titanium.UI.SearchBar', function () {
 	let win;
@@ -329,7 +329,10 @@ describe('Titanium.UI.SearchBar', function () {
 		win.open();
 	});
 
-	it('.focused', done => {
+	it('.focused', function (done) {
+		this.slow(1000);
+		this.timeout(5000);
+
 		win = Ti.UI.createWindow({ backgroundColor: '#fff' });
 		const searchbar = Ti.UI.createSearchBar({
 			backgroundColor: '#fafafa',
