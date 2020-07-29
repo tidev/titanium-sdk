@@ -268,7 +268,7 @@ describe('path', function () {
 		});
 
 		it('returns false for empty string', function () {
-			path.isAbsolute('').should.eql(false);
+			path.isAbsolute('').should.be.false();
 		});
 
 		// POSIX
@@ -281,11 +281,11 @@ describe('path', function () {
 		});
 
 		it('returns false for typical posix relative path', function () {
-			path.posix.isAbsolute('qux/').should.eql(false);
+			path.posix.isAbsolute('qux/').should.be.false();
 		});
 
 		it('returns false for posix path "."', function () {
-			path.posix.isAbsolute('.').should.eql(false);
+			path.posix.isAbsolute('.').should.be.false();
 		});
 
 		// Windows
@@ -310,15 +310,15 @@ describe('path', function () {
 		});
 
 		it('returns false for typical win32 relative path', function () {
-			path.win32.isAbsolute('bar\\baz').should.eql(false);
+			path.win32.isAbsolute('bar\\baz').should.be.false();
 		});
 
 		it('returns false for win32 relative path with POSIX separators', function () {
-			path.win32.isAbsolute('bar/baz').should.eql(false);
+			path.win32.isAbsolute('bar/baz').should.be.false();
 		});
 
 		it('returns false for win32 path "."', function () {
-			path.win32.isAbsolute('.').should.eql(false);
+			path.win32.isAbsolute('.').should.be.false();
 		});
 
 		it('throws TypeError when path is not a string', function () {

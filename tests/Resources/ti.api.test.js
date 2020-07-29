@@ -96,7 +96,7 @@ describe('Titanium.API', function () {
 	it('integer to boolean conversion', function () {
 		var view = Ti.UI.createView({ bubbleParent: 0 });
 
-		should(view.bubbleParent).be.eql(false);
+		should(view.bubbleParent).be.be.false();
 		view.bubbleParent = 1;
 		should(view.bubbleParent).be.be.true();
 	});

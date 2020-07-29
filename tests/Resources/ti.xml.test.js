@@ -95,7 +95,7 @@ describe.windowsBroken('Titanium.XML', function () {
 			e1 = doc.firstChild,
 			e2 = doc.createElement('test');
 		if (e1.ownerDocument === e2.ownerDocument) {
-			should(e2.ownerDocument === null).be.eql(false);
+			should(e2.ownerDocument === null).be.be.false();
 		}
 	});
 
@@ -164,7 +164,7 @@ describe.windowsBroken('Titanium.XML', function () {
 		var xml = Ti.XML.parseString(testSource['soap.xml']),
 			fooBarList = xml.documentElement.getElementsByTagName('FooBar'),
 			item;
-		should(fooBarList === null).be.eql(false);
+		should(fooBarList === null).be.be.false();
 		should(fooBarList.length).eql(1);
 		should(fooBarList.item(0)).be.an.Object();
 		item = fooBarList.item(0);
@@ -181,7 +181,7 @@ describe.windowsBroken('Titanium.XML', function () {
 			item,
 			docResult,
 			elResult;
-		should(fooBarList === null).be.eql(false);
+		should(fooBarList === null).be.be.false();
 		should(fooBarList.length).eql(1);
 		should(fooBarList.item(0)).be.an.Object();
 		item = fooBarList.item(0);
@@ -190,17 +190,17 @@ describe.windowsBroken('Titanium.XML', function () {
 		should(item.nodeName).eql('FooBar');
 		// test XPath against Document
 		docResult = xml.evaluate('//FooBar/text()');
-		should(docResult === null).be.eql(false);
+		should(docResult === null).be.be.false();
 		should(docResult.length).eql(1);
 		should(docResult.item(0).nodeValue).eql('true');
 		// test XPath against Element
 		elResult = xml.documentElement.evaluate('//FooBar/text()');
-		should(elResult === null).be.eql(false);
+		should(elResult === null).be.be.false();
 		should(elResult.length).eql(1);
 		should(elResult.item(0).nodeValue).eql('true');
 		// test XPath against Element
 		elResult = item.evaluate('text()');
-		should(elResult === null).be.eql(false);
+		should(elResult === null).be.be.false();
 		should(elResult.length).eql(1);
 		should(elResult.item(0).nodeValue).eql('true');
 	});
@@ -215,19 +215,19 @@ describe.windowsBroken('Titanium.XML', function () {
 			firstChild,
 			node,
 			subnodes;
-		should(nodesList === null).be.eql(false);
+		should(nodesList === null).be.be.false();
 		should(nodesList.length).eql(1);
 		nodes = nodesList.item(0);
 		elements = nodes.getElementsByTagName('node');
-		should(elements === null).be.eql(false);
+		should(elements === null).be.be.false();
 		should(elements.length).eql(13);
 		children = nodes.childNodes;
-		should(children === null).be.eql(false);
+		should(children === null).be.be.false();
 		should(children).be.an.Object();
 		should(countNodes(elements.item(0), 1)).eql(6);
 		should(children.item).be.a.Function();
 		firstChild = doc.firstChild;
-		should(firstChild === null).be.eql(false);
+		should(firstChild === null).be.be.false();
 		should(firstChild.tagName).be.eql('xml'); // iOS returns undefined, Android returns undefined
 		should(countNodes(nodes, 1)).eql(13);
 		should(nodes.nodeName).eql('nodes');
@@ -256,8 +256,8 @@ describe.windowsBroken('Titanium.XML', function () {
 		for (;next != null && next.nodeType != next.ELEMENT_NODE;) { // eslint-disable-line eqeqeq, no-eq-null
 			next = next.nextSibling;
 		}
-		should(one === null).be.eql(false);
-		should(next === null).be.eql(false);
+		should(one === null).be.be.false();
+		should(next === null).be.be.false();
 		should(one.nodeName).eql('one');
 		should(xml.documentElement.attributes.getNamedItem('id').nodeValue).eql('here');
 		should(next.getAttribute('id')).eql('bar');
@@ -299,7 +299,7 @@ describe.windowsBroken('Titanium.XML', function () {
 				break;
 			}
 		}
-		should(cData === null).be.eql(false);
+		should(cData === null).be.be.false();
 		// CharacterDataAttributes
 		fullString = cData.data;
 
@@ -540,14 +540,14 @@ describe.windowsBroken('Titanium.XML', function () {
 		// File with DTD
 		var doc = Ti.XML.parseString(testSource['with_dtd.xml']);
 		should(doc.documentElement).not.be.type('undefined');
-		should(doc.documentElement === null).be.eql(false);
+		should(doc.documentElement === null).be.be.false();
 		should(doc.documentElement).be.an.Object();
 		should(doc.documentElement.nodeName).eql('letter');
 		should(doc.implementation).not.be.type('undefined');
-		should(doc.implementation === null).be.eql(false);
+		should(doc.implementation === null).be.be.false();
 		should(doc.implementation).be.an.Object();
 		should(doc.doctype).not.be.type('undefined');
-		should(doc.doctype === null).be.eql(false); // Windows: expected true to equal false
+		should(doc.doctype === null).be.be.false(); // Windows: expected true to equal false
 		should(doc.doctype).be.an.Object();
 		// Document without DTD, to be sure doc.doctype is null as spec says
 		doc = Ti.XML.parseString('<a/>');
@@ -562,24 +562,24 @@ describe.windowsBroken('Titanium.XML', function () {
 			attr;
 		should(doc.createAttribute).be.a.Function();
 		attr = doc.createAttribute('myattr');
-		should(attr === null).be.eql(false);
+		should(attr === null).be.be.false();
 		should(attr).be.an.Object();
 		should(attr.name).eql('myattr');
 		// Per spec, value in new attribute should be empty string
-		should(attr.value === null).be.eql(false);
-		should(attr.value === undefined).be.eql(false); // Windows: expected true to equal false
+		should(attr.value === null).be.be.false();
+		should(attr.value === undefined).be.be.false(); // Windows: expected true to equal false
 		should(attr.value).be.equal('');
 		should(attr.ownerDocument).eql(doc);
 		attr = null;
 		should(doc.createAttributeNS).be.a.Function();
 		attr = doc.createAttributeNS('http://example.com', 'prefix:myattr');
-		should(attr === null).be.eql(false);
+		should(attr === null).be.be.false();
 		should(attr).be.an.Object();
 		should(attr.name).eql('prefix:myattr');
 		should(attr.namespaceURI).eql('http://example.com');
 		should(attr.prefix).eql('prefix');
-		should(attr.value === null).be.eql(false);
-		should(attr.value === undefined).be.eql(false);
+		should(attr.value === null).be.be.false();
+		should(attr.value === undefined).be.be.false();
 		should(attr.value).be.equal('');
 		should(attr.ownerDocument).eql(doc);
 	});
@@ -591,7 +591,7 @@ describe.windowsBroken('Titanium.XML', function () {
 			section;
 		should(doc.createCDATASection).be.a.Function();
 		section = doc.createCDATASection(data);
-		should(section === null).be.eql(false);
+		should(section === null).be.be.false();
 		should(section).be.an.Object();
 		should(section.data).eql(data);
 		should(section.nodeValue).eql(data);
@@ -605,7 +605,7 @@ describe.windowsBroken('Titanium.XML', function () {
 			comment;
 		should(doc.createComment).be.a.Function();
 		comment = doc.createComment(data);
-		should(comment === null).be.eql(false);
+		should(comment === null).be.be.false();
 		should(comment).be.an.Object();
 		should(comment.data).eql(data);
 		should(comment.ownerDocument).eql(doc);
@@ -617,7 +617,7 @@ describe.windowsBroken('Titanium.XML', function () {
 			frag;
 		should(doc.createDocumentFragment).be.a.Function();
 		frag = doc.createDocumentFragment();
-		should(frag === null).be.eql(false);
+		should(frag === null).be.be.false();
 		should(frag).be.an.Object();
 		should(frag.ownerDocument).eql(doc);
 	});
@@ -628,7 +628,7 @@ describe.windowsBroken('Titanium.XML', function () {
 			elem;
 		should(doc.createElement).be.a.Function();
 		elem = doc.createElement('myelement');
-		should(elem === null).be.eql(false);
+		should(elem === null).be.be.false();
 		should(elem).be.an.Object();
 		should(elem.nodeName).eql('myelement');
 		should(elem.localName === null).be.true();
@@ -643,7 +643,7 @@ describe.windowsBroken('Titanium.XML', function () {
 			elem;
 		should(doc.createElementNS).be.a.Function();
 		elem = doc.createElementNS('http://example.com', 'prefix:myelement');
-		should(elem === null).be.eql(false);
+		should(elem === null).be.be.false();
 		should(elem).be.an.Object();
 		should(elem.nodeName).eql('prefix:myelement');
 		should(elem.localName).eql('myelement');
@@ -658,7 +658,7 @@ describe.windowsBroken('Titanium.XML', function () {
 			entity;
 		should(doc.createEntityReference).be.a.Function();
 		entity = doc.createEntityReference('myentity');
-		should(entity === null).be.eql(false);
+		should(entity === null).be.be.false();
 		should(entity).be.an.Object();
 		should(entity.nodeName).eql('myentity');
 		should(entity.ownerDocument).eql(doc);
@@ -670,7 +670,7 @@ describe.windowsBroken('Titanium.XML', function () {
 			instruction;
 		should(doc.createProcessingInstruction).be.a.Function();
 		instruction = doc.createProcessingInstruction('a', 'b');
-		should(instruction === null).be.eql(false);
+		should(instruction === null).be.be.false();
 		should(instruction).be.an.Object();
 		should(instruction.target).eql('a');
 		should(instruction.data).eql('b');
@@ -684,7 +684,7 @@ describe.windowsBroken('Titanium.XML', function () {
 			text;
 		should(doc.createTextNode).be.a.Function();
 		text = doc.createTextNode(value);
-		should(text === null).be.eql(false);
+		should(text === null).be.be.false();
 		should(text).be.an.Object();
 		should(text.data).eql(value);
 		should(text.ownerDocument).eql(doc);
@@ -695,7 +695,7 @@ describe.windowsBroken('Titanium.XML', function () {
 			node;
 		should(doc.getElementById).be.a.Function();
 		node = doc.getElementById('node 1');
-		should(node === null).be.eql(false);
+		should(node === null).be.be.false();
 		should(node).be.an.Object();
 		should(node.nodeName).eql('node');
 		should(function () {
@@ -711,7 +711,7 @@ describe.windowsBroken('Titanium.XML', function () {
 			checkelem;
 		should(doc.getElementsByTagName).be.a.Function();
 		elements = doc.getElementsByTagName('node');
-		should(elements === null).be.eql(false);
+		should(elements === null).be.be.false();
 		should(elements).be.an.Object();
 		should(elements.length).be.greaterThan(0);
 		for (i = 0; i < elements.length; i++) {
@@ -722,7 +722,7 @@ describe.windowsBroken('Titanium.XML', function () {
 		should(function () {
 			elements = doc.getElementsByTagName('bogus');
 		}).not.throw();
-		should(elements === null).be.eql(false);
+		should(elements === null).be.be.false();
 		should(elements).be.an.Object();
 		should(elements.length).be.equal(0);
 	});
@@ -734,7 +734,7 @@ describe.windowsBroken('Titanium.XML', function () {
 			checkelem;
 		should(doc.getElementsByTagNameNS).be.a.Function();
 		elements = doc.getElementsByTagNameNS('http://example.com', 'cake');
-		should(elements === null).be.eql(false);
+		should(elements === null).be.be.false();
 		should(elements).be.an.Object();
 		should(elements.length).be.greaterThan(0);
 		for (i = 0; i < elements.length; i++) {
@@ -746,21 +746,21 @@ describe.windowsBroken('Titanium.XML', function () {
 		should(function () {
 			elements = doc.getElementsByTagNameNS('http://example.com', 'bogus');
 		}).not.throw();
-		should(elements === null).be.eql(false);
+		should(elements === null).be.be.false();
 		should(elements).be.an.Object();
 		should(elements.length).be.equal(0);
 		// test bogus namespace and real tagname
 		should(function () {
 			elements = doc.getElementsByTagNameNS('http://bogus.com', 'pie');
 		}).not.throw();
-		should(elements === null).be.eql(false);
+		should(elements === null).be.be.false();
 		should(elements).be.an.Object();
 		should(elements.length).be.equal(0);
 		// test bogus namespace and bogus tagname
 		should(function () {
 			elements = doc.getElementsByTagNameNS('http://bogus.com', 'bogus');
 		}).not.throw();
-		should(elements === null).be.eql(false);
+		should(elements === null).be.be.false();
 		should(elements).be.an.Object();
 		should(elements.length).be.equal(0);
 	});
@@ -772,16 +772,16 @@ describe.windowsBroken('Titanium.XML', function () {
 			cakeNodes = otherDoc.documentElement.getElementsByTagNameNS('http://example.com', 'cake'),
 			cakeNode,
 			importedNode;
-		should(cakeNodes === null).be.eql(false);
+		should(cakeNodes === null).be.be.false();
 		should(cakeNodes.length).be.greaterThan(0);
 		cakeNode = cakeNodes.item(0);
-		should(cakeNode === null).be.eql(false);
+		should(cakeNode === null).be.be.false();
 		should(doc.importNode).be.a.Function();
 		// test deep import
 		should(function () {
 			importedNode = doc.importNode(cakeNode, true);
 		}).not.throw();
-		should(importedNode.ownerDocument === null).be.eql(false);
+		should(importedNode.ownerDocument === null).be.be.false();
 		should(importedNode.ownerDocument).be.an.Object();
 		should(importedNode.ownerDocument).eql(doc);
 		should(importedNode.parentNode === null).be.true();
@@ -793,7 +793,7 @@ describe.windowsBroken('Titanium.XML', function () {
 			importedNode = doc.importNode(cakeNode, false);
 		}).not.throw();
 		should(importedNode.hasChildNodes()).be.false();
-		should(importedNode.ownerDocument === null).be.eql(false);
+		should(importedNode.ownerDocument === null).be.be.false();
 		should(importedNode.ownerDocument).be.an.Object();
 		should(importedNode.ownerDocument).eql(doc);
 		should(importedNode.parentNode === null).be.true();
@@ -815,7 +815,7 @@ describe.windowsBroken('Titanium.XML', function () {
 			processingInstructionData = 'data',
 			textNodeContents = 'this is some text',
 			textNode;
-		should(nodesList === null).be.eql(false);
+		should(nodesList === null).be.be.false();
 		should(nodesList.length).eql(1);
 		node = nodesList.item(0);
 		// verify properties
@@ -911,14 +911,14 @@ describe.windowsBroken('Titanium.XML', function () {
 		should(clonedNode.nodeName).eql(parentNode.nodeName);
 		// Though shallow, attributes should be there.
 		attrs = clonedNode.attributes;
-		should(attrs === null).be.eql(false);
+		should(attrs === null).be.be.false();
 		should(attrs.length).be.equal(1);
 		attr = attrs.getNamedItem('myattr');
-		should(attr === null).be.eql(false);
+		should(attr === null).be.be.false();
 		should(attr.nodeValue).be.equal('attr value');
 		// Fetch a different way
 		attrValue = clonedNode.getAttribute('myattr');
-		should(attrValue === null).be.eql(false);
+		should(attrValue === null).be.be.false();
 		should(attrValue).be.equal('attr value');
 		// Per spec, clone should have no parent and no children
 		should(clonedNode.parentNode === null).be.true();
@@ -931,21 +931,21 @@ describe.windowsBroken('Titanium.XML', function () {
 		should(clonedNode.nodeName).eql(parentNode.nodeName);
 		should(clonedNode.parentNode === null).be.true();
 		attrs = clonedNode.attributes;
-		should(attrs === null).be.eql(false);
+		should(attrs === null).be.be.false();
 		should(attrs.length).be.equal(1);
 		attr = attrs.getNamedItem('myattr');
-		should(attr === null).be.eql(false);
+		should(attr === null).be.be.false();
 		should(attr.nodeValue).be.equal('attr value');
 		should(clonedNode.getAttribute('myattr')).eql('attr value');
 		attrValue = clonedNode.getAttribute('myattr');
-		should(attrValue === null).be.eql(false);
+		should(attrValue === null).be.be.false();
 		should(attrValue).be.equal('attr value');
 		// this one should have children since it's deep.
 		should(clonedNode.hasChildNodes()).be.a.Boolean();
 		should(clonedNode.hasChildNodes()).be.true();
-		should(clonedNode.firstChild === null).be.eql(false);
+		should(clonedNode.firstChild === null).be.be.false();
 		should(clonedNode.firstChild.nodeValue).eql(parentNode.firstChild.nodeValue);
-		should(clonedNode.lastChild === null).be.eql(false);
+		should(clonedNode.lastChild === null).be.be.false();
 		should(clonedNode.lastChild.nodeName).eql(parentNode.lastChild.nodeName);
 	});
 
@@ -960,7 +960,7 @@ describe.windowsBroken('Titanium.XML', function () {
 		should(function () {
 			results = node.hasAttributes();
 		}).not.throw();
-		should(results).eql(false);
+		should(results).be.false();
 		should(function () {
 			results = node2.hasAttributes();
 		}).not.throw();
@@ -978,7 +978,7 @@ describe.windowsBroken('Titanium.XML', function () {
 		should(function () {
 			results = parentNode.hasChildNodes();
 		}).not.throw();
-		should(results).eql(false);
+		should(results).be.false();
 		should(function () {
 			results = parentNode2.hasChildNodes();
 		}).not.throw();
@@ -1013,7 +1013,7 @@ describe.windowsBroken('Titanium.XML', function () {
 		should(function () {
 			results = doc.isSupported('IDONTEXIST', '1.0');
 		}).not.throw();
-		should(results).eql(false);
+		should(results).be.false();
 	});
 
 	// TODO: "normalize()" is not available for Ti.XML.Node on iOS
@@ -1045,7 +1045,7 @@ describe.windowsBroken('Titanium.XML', function () {
 			results = parentNode.removeChild(childNode);
 		}).not.throw();
 		should(results).eql(childNode);
-		should(parentNode.hasChildNodes()).eql(false);
+		should(parentNode.hasChildNodes()).be.false();
 	});
 
 	// FIXME Get working on Android, fails
@@ -1069,17 +1069,17 @@ describe.windowsBroken('Titanium.XML', function () {
 		var xml = Ti.XML.parseString(testSource['nodes.xml']),
 			nodes,
 			n;
-		should(xml === null).be.eql(false);
+		should(xml === null).be.be.false();
 		nodes = xml.getElementsByTagName('node');
-		should(nodes === null).be.eql(false);
+		should(nodes === null).be.be.false();
 		should(nodes.length).be.a.Number();
 		should(nodes.item).be.a.Function();
 		should(nodes.length).eql(13);
 		n = nodes.item(0);
-		should(n === null).be.eql(false);
+		should(n === null).be.be.false();
 		should(n.getAttribute('id')).eql('node 1');
 		n = nodes.item(1);
-		should(n === null).be.eql(false);
+		should(n === null).be.be.false();
 		should(n.getAttribute('id')).eql('node 2');
 	});
 
@@ -1090,11 +1090,11 @@ describe.windowsBroken('Titanium.XML', function () {
 			count = 0,
 			i,
 			node;
-		should(xml === null).be.eql(false);
+		should(xml === null).be.be.false();
 		e = xml.documentElement;
-		should(e === null).be.eql(false);
+		should(e === null).be.be.false();
 		nodes = e.childNodes;
-		should(nodes === null).be.eql(false);
+		should(nodes === null).be.be.false();
 
 		for (i = 0; i < nodes.length; i++) {
 			node = nodes.item(i);
@@ -1108,7 +1108,7 @@ describe.windowsBroken('Titanium.XML', function () {
 	it.windowsBroken('xmlNodeListRange', function () {
 		var xml = Ti.XML.parseString(testSource['nodes.xml']),
 			nodes;
-		should(xml === null).be.eql(false);
+		should(xml === null).be.be.false();
 		nodes = xml.getElementsByTagName('node');
 		should(nodes.length).be.a.Number();
 		// item should return null if that is not a valid index
@@ -1131,7 +1131,7 @@ describe.windowsBroken('Titanium.XML', function () {
 			attr = node.attributes.item(0);
 		}).not.throw();
 		should(attr).not.be.type('undefined');
-		should(attr === null).be.eql(false);
+		should(attr === null).be.be.false();
 		should(attr).be.an.Object();
 		should(attr.name).be.a.String();
 		should(attr.name).eql('id');
@@ -1146,30 +1146,30 @@ describe.windowsBroken('Titanium.XML', function () {
 			attr = doc.createAttribute('newattr');
 		}).not.throw();
 		should(attr).not.be.type('undefined');
-		should(attr === null).be.eql(false);
+		should(attr === null).be.be.false();
 		should(attr).be.an.Object();
 		should(attr.name).be.a.String();
 		should(attr.name).eql('newattr');
 		should(attr.specified).be.a.Boolean();
 		// Per spec, the default value in an attribute is empty string not null.
-		should(attr.value === null).be.eql(false);
+		should(attr.value === null).be.be.false();
 		should(attr.value).be.equal(''); // Windows gives: expected undefined to be ''
 		// Per spec, when you set an attribute that doesn't exist yet,
 		// null is returned.
 		addedAttr = node.setAttributeNode(attr);
 		should(addedAttr === null).be.true();
-		should(attr.ownerElement === null).be.eql(false);
+		should(attr.ownerElement === null).be.be.false();
 		should(attr.ownerElement).eql(node);
 		// Per spec, when you set a new attribute of same name as one that
 		// already exists, it replaces that existing one AND returns that existing one.
 		secondNewAttr = doc.createAttribute('newattr');
 		replacedAttr = node.setAttributeNode(secondNewAttr);
-		should(replacedAttr === null).be.eql(false);
+		should(replacedAttr === null).be.be.false();
 		should(replacedAttr).eql(attr);
 		// Per spec, changing the value of an attribute automatically sets
 		// specified to true.
 		attr.value = 'new value';
-		should(attr.value === null).be.eql(false);
+		should(attr.value === null).be.be.false();
 		should(attr.value).eql('new value');
 		should(attr.specified).be.a.Boolean();
 		should(attr.specified).be.true();
@@ -1177,7 +1177,7 @@ describe.windowsBroken('Titanium.XML', function () {
 		// been created and not yet put on to an element) will have
 		// 'true' for specified.
 		thirdNewAttr = doc.createAttribute('anotherattr');
-		should(thirdNewAttr === null).be.eql(false);
+		should(thirdNewAttr === null).be.be.false();
 		should(thirdNewAttr.ownerElement === null).be.true();
 		should(thirdNewAttr.specified).be.a.Boolean();
 		should(thirdNewAttr.specified).be.true();

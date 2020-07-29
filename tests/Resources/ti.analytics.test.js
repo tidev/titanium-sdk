@@ -68,8 +68,8 @@ describe('Titanium.Analytics', function () {
 		should(Ti.Analytics.setOptedOut).be.a.Function();
 		should(Ti.Analytics.getOptedOut).be.a.Function();
 
-		should(Ti.Analytics.optedOut).eql(false);
-		should(Ti.Analytics.getOptedOut()).eql(false);
+		should(Ti.Analytics.optedOut).be.false();
+		should(Ti.Analytics.getOptedOut()).be.false();
 
 		Ti.Analytics.optedOut = true;
 
@@ -78,7 +78,7 @@ describe('Titanium.Analytics', function () {
 
 		Ti.Analytics.setOptedOut(false);
 
-		should(Ti.Analytics.optedOut).eql(false);
-		should(Ti.Analytics.getOptedOut()).eql(false);
+		should(Ti.Analytics.optedOut).be.false();
+		should(Ti.Analytics.getOptedOut()).be.false();
 	});
 });
