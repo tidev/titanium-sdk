@@ -209,7 +209,7 @@ describe('Titanium.Network.HTTPClient', function () {
 			var response;
 			should(e.code).eql(0);
 			if (xhr.status === 200) {
-				should(e.success).eql(true);
+				should(e.success).be.true();
 
 				response = JSON.parse(xhr.responseText);
 				response['adhocHeader'].should.eql('notcleared');

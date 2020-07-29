@@ -274,7 +274,7 @@ describe('Buffer', () => {
 		});
 
 		it('returns true for a Buffer', () => {
-			should(Buffer.isBuffer(Buffer.from([ 0 ]))).eql(true);
+			should(Buffer.isBuffer(Buffer.from([ 0 ]))).be.true();
 		});
 
 		// TODO: What about Ti.Buffer?
@@ -296,7 +296,7 @@ describe('Buffer', () => {
 			.reduce((es, e) => es.concat(e, e.toUpperCase()), [])
 			.forEach(encoding => {
 				it(`returns true for '${encoding}'`, () => {
-					should(Buffer.isEncoding(encoding)).eql(true);
+					should(Buffer.isEncoding(encoding)).be.true();
 				});
 			});
 
@@ -588,13 +588,13 @@ describe('Buffer', () => {
 
 		it('returns true for same Buffer object', () => {
 			const buf1 = Buffer.from('ABC');
-			should(buf1.equals(buf1)).eql(true);
+			should(buf1.equals(buf1)).be.true();
 		});
 
 		it('returns true for equivalent Buffer', () => {
 			const buf1 = Buffer.from('ABC');
 			const buf2 = Buffer.from([ 0x41, 0x42, 0x43 ]); // ascii for ABC
-			should(buf1.equals(buf2)).eql(true);
+			should(buf1.equals(buf2)).be.true();
 		});
 
 		it('returns false for Buffers having different contents', () => {

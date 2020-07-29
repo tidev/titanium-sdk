@@ -201,8 +201,8 @@ describe('Titanium.UI.ScrollView', function () {
 		function postlayout() {
 			scrollView.removeEventListener('postlayout', postlayout);
 			try {
-				should(scrollView.size.width < (win.size.width / 2)).be.eql(true);
-				should(scrollView.size.height < (win.size.height / 2)).be.eql(true);
+				should(scrollView.size.width < (win.size.width / 2)).be.be.true();
+				should(scrollView.size.height < (win.size.height / 2)).be.be.true();
 			} catch (err) {
 				return finish(err);
 			}

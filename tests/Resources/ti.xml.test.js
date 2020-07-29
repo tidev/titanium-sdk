@@ -551,7 +551,7 @@ describe.windowsBroken('Titanium.XML', function () {
 		should(doc.doctype).be.an.Object();
 		// Document without DTD, to be sure doc.doctype is null as spec says
 		doc = Ti.XML.parseString('<a/>');
-		should(doc.doctype === null).eql(true);
+		should(doc.doctype === null).be.true();
 	});
 
 	// FIXME: value property should return empty string according to spec
@@ -631,9 +631,9 @@ describe.windowsBroken('Titanium.XML', function () {
 		should(elem === null).be.eql(false);
 		should(elem).be.an.Object();
 		should(elem.nodeName).eql('myelement');
-		should(elem.localName === null).eql(true);
-		should(elem.prefix === null).eql(true);
-		should(elem.namespaceURI === null).eql(true);
+		should(elem.localName === null).be.true();
+		should(elem.prefix === null).be.true();
+		should(elem.namespaceURI === null).be.true();
 		should(elem.ownerDocument).eql(doc);
 	});
 
@@ -701,7 +701,7 @@ describe.windowsBroken('Titanium.XML', function () {
 		should(function () {
 			node = doc.getElementById('no_such_element');
 		}).not.throw();
-		should(node === null).eql(true);
+		should(node === null).be.true();
 	});
 
 	it('apiXmlDocumentGetElementsByTagName', function () {
@@ -784,7 +784,7 @@ describe.windowsBroken('Titanium.XML', function () {
 		should(importedNode.ownerDocument === null).be.eql(false);
 		should(importedNode.ownerDocument).be.an.Object();
 		should(importedNode.ownerDocument).eql(doc);
-		should(importedNode.parentNode === null).eql(true);
+		should(importedNode.parentNode === null).be.true();
 		should(importedNode.hasChildNodes()).be.true();
 		should(importedNode.childNodes.length).be.greaterThan(0);
 		should(importedNode.namespaceURI).eql('http://example.com');
@@ -796,7 +796,7 @@ describe.windowsBroken('Titanium.XML', function () {
 		should(importedNode.ownerDocument === null).be.eql(false);
 		should(importedNode.ownerDocument).be.an.Object();
 		should(importedNode.ownerDocument).eql(doc);
-		should(importedNode.parentNode === null).eql(true);
+		should(importedNode.parentNode === null).be.true();
 	});
 
 	// FIXME: some properties should be null if it is unspecified
@@ -921,7 +921,7 @@ describe.windowsBroken('Titanium.XML', function () {
 		should(attrValue === null).be.eql(false);
 		should(attrValue).be.equal('attr value');
 		// Per spec, clone should have no parent and no children
-		should(clonedNode.parentNode === null).eql(true);
+		should(clonedNode.parentNode === null).be.true();
 		should(clonedNode.hasChildNodes()).be.a.Boolean();
 		should(clonedNode.hasChildNodes()).be.false();
 		// Deep
@@ -929,7 +929,7 @@ describe.windowsBroken('Titanium.XML', function () {
 			clonedNode = parentNode.cloneNode(true);
 		}).not.throw();
 		should(clonedNode.nodeName).eql(parentNode.nodeName);
-		should(clonedNode.parentNode === null).eql(true);
+		should(clonedNode.parentNode === null).be.true();
 		attrs = clonedNode.attributes;
 		should(attrs === null).be.eql(false);
 		should(attrs.length).be.equal(1);
@@ -964,7 +964,7 @@ describe.windowsBroken('Titanium.XML', function () {
 		should(function () {
 			results = node2.hasAttributes();
 		}).not.throw();
-		should(results).eql(true);
+		should(results).be.true();
 	});
 
 	it.windowsDesktopBroken('apiXmlNodeHasChildNodes', function () {
@@ -982,7 +982,7 @@ describe.windowsBroken('Titanium.XML', function () {
 		should(function () {
 			results = parentNode2.hasChildNodes();
 		}).not.throw();
-		should(results).eql(true);
+		should(results).be.true();
 	});
 
 	// FIXME Get working on Android, fails
@@ -1009,7 +1009,7 @@ describe.windowsBroken('Titanium.XML', function () {
 		should(function () {
 			results = doc.isSupported('XML', '1.0');
 		}).not.throw(); // Windows: expected [Function] not to throw exception (got [TypeError: null is not an object (evaluating 'this.ownerDocument.implementation')])
-		should(results).eql(true);
+		should(results).be.true();
 		should(function () {
 			results = doc.isSupported('IDONTEXIST', '1.0');
 		}).not.throw();
@@ -1112,8 +1112,8 @@ describe.windowsBroken('Titanium.XML', function () {
 		nodes = xml.getElementsByTagName('node');
 		should(nodes.length).be.a.Number();
 		// item should return null if that is not a valid index
-		should(nodes.item(nodes.length) === null).eql(true); // Windows: expected false to equal true
-		should(nodes.item(100) === null).eql(true);
+		should(nodes.item(nodes.length) === null).be.true(); // Windows: expected false to equal true
+		should(nodes.item(100) === null).be.true();
 	});
 
 	// Don't know why Android fails!
@@ -1157,7 +1157,7 @@ describe.windowsBroken('Titanium.XML', function () {
 		// Per spec, when you set an attribute that doesn't exist yet,
 		// null is returned.
 		addedAttr = node.setAttributeNode(attr);
-		should(addedAttr === null).eql(true);
+		should(addedAttr === null).be.true();
 		should(attr.ownerElement === null).be.eql(false);
 		should(attr.ownerElement).eql(node);
 		// Per spec, when you set a new attribute of same name as one that
@@ -1178,7 +1178,7 @@ describe.windowsBroken('Titanium.XML', function () {
 		// 'true' for specified.
 		thirdNewAttr = doc.createAttribute('anotherattr');
 		should(thirdNewAttr === null).be.eql(false);
-		should(thirdNewAttr.ownerElement === null).eql(true);
+		should(thirdNewAttr.ownerElement === null).be.true();
 		should(thirdNewAttr.specified).be.a.Boolean();
 		should(thirdNewAttr.specified).be.true();
 	});

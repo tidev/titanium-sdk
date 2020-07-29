@@ -343,7 +343,7 @@ describe('Titanium.UI.SearchBar', function () {
 			searchbar.focused.should.eql(false); // haven't opened it yet, so shouldn't be focused
 			searchbar.addEventListener('focus', () => {
 				try {
-					searchbar.focused.should.eql(true);
+					searchbar.focused.should.be.true();
 				} catch (e) {
 					return done(e);
 				}

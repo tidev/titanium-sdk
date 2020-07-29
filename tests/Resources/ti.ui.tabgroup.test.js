@@ -106,7 +106,7 @@ describe('Titanium.UI.TabGroup', function () {
 		});
 
 		tabGroup.addTab(tab);
-		should(tabGroup.allowUserCustomization).eql(true);
+		should(tabGroup.allowUserCustomization).be.true();
 		tabGroup.setAllowUserCustomization(false);
 		should(tabGroup.allowUserCustomization).eql(false);
 	});
@@ -122,7 +122,7 @@ describe('Titanium.UI.TabGroup', function () {
 		});
 
 		tabGroup.addTab(tab);
-		should(tabGroup.tabsTranslucent).eql(true);
+		should(tabGroup.tabsTranslucent).be.true();
 		tabGroup.setTabsTranslucent(false);
 		should(tabGroup.tabsTranslucent).eql(false);
 	});
@@ -531,7 +531,7 @@ describe('Titanium.UI.TabGroup', function () {
 		});
 
 		it('.closed', done => {
-			tabGroup.closed.should.eql(true); // it's not yet opened, so treat as closed
+			tabGroup.closed.should.be.true(); // it's not yet opened, so treat as closed
 			tabGroup.addEventListener('open', () => {
 				try {
 					tabGroup.closed.should.eql(false); // we're being notified the window is open, so should report closed as false!
@@ -548,7 +548,7 @@ describe('Titanium.UI.TabGroup', function () {
 			tabGroup.addEventListener('open', () => tabGroup.close());
 			tabGroup.addEventListener('close', () => {
 				try {
-					tabGroup.closed.should.eql(true); // we're being notified the window is open, so should report closed as false!
+					tabGroup.closed.should.be.true(); // we're being notified the window is open, so should report closed as false!
 				} catch (err) {
 					return done(err);
 				}
@@ -564,7 +564,7 @@ describe('Titanium.UI.TabGroup', function () {
 			// would have seen the TabGroup report itself as not opened or focused yet!
 			tabGroup.addEventListener('focus', () => {
 				try {
-					tabGroup.focused.should.eql(true);
+					tabGroup.focused.should.be.true();
 					tabGroup.close();
 				} catch (e) {
 					return done(e);

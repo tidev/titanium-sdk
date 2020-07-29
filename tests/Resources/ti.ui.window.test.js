@@ -491,16 +491,16 @@ describe('Titanium.UI.Window', function () {
 		should(win.getLargeTitleEnabled).be.a.Function();
 		should(win.setLargeTitleEnabled).be.a.Function();
 
-		should(win.largeTitleEnabled).eql(true);
-		should(win.getLargeTitleEnabled()).eql(true);
+		should(win.largeTitleEnabled).be.true();
+		should(win.getLargeTitleEnabled()).be.true();
 
 		win.largeTitleEnabled = false;
 		should(win.largeTitleEnabled).eql(false);
 		should(win.getLargeTitleEnabled()).eql(false);
 
 		win.setLargeTitleEnabled(true);
-		should(win.largeTitleEnabled).eql(true);
-		should(win.getLargeTitleEnabled()).eql(true);
+		should(win.largeTitleEnabled).be.true();
+		should(win.getLargeTitleEnabled()).be.true();
 	});
 
 	it.ios('largeTitleDisplayMode', () => {
@@ -584,16 +584,16 @@ describe('Titanium.UI.Window', function () {
 				should(window2.getHidesBackButton).be.a.Function();
 				should(window2.setHidesBackButton).be.a.Function();
 
-				should(window2.hidesBackButton).be.eql(true);
-				should(window2.getHidesBackButton()).be.eql(true);
+				should(window2.hidesBackButton).be.be.true();
+				should(window2.getHidesBackButton()).be.be.true();
 
 				window2.hidesBackButton = false;
 				should(window2.hidesBackButton).be.eql(false);
 				should(window2.getHidesBackButton()).be.eql(false);
 
 				window2.setHidesBackButton(true);
-				should(window2.hidesBackButton).be.eql(true);
-				should(window2.getHidesBackButton()).be.eql(true);
+				should(window2.hidesBackButton).be.be.true();
+				should(window2.getHidesBackButton()).be.be.true();
 			} catch (err) {
 				return finish(err);
 			}
