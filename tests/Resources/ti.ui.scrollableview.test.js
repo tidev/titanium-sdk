@@ -54,7 +54,7 @@ describe('Titanium.UI.ScrollableView', function () {
 
 		win = Ti.UI.createWindow();
 		win.addEventListener('open', function () {
-			should(scrollableView.clipViews).eql(true);
+			should(scrollableView.clipViews).be.true();
 			finish();
 		});
 

@@ -859,7 +859,7 @@ describe('util', () => {
 
 			const stream = new MyStream();
 
-			should(stream instanceof BaseClass).eql(true);
+			should(stream instanceof BaseClass).be.true();
 			should(MyStream.super_).eql(BaseClass);
 
 			stream.on('data', data => {
@@ -1005,7 +1005,7 @@ describe('util', () => {
 			}
 			const promisified = util.promisify(callbackOriginal);
 			const result = promisified(null, 123);
-			should(result instanceof Promise).eql(true);
+			should(result instanceof Promise).be.true();
 			result.then(value => { // eslint-disable-line promise/always-return
 				should(value).eql(123);
 				finished();
@@ -1018,7 +1018,7 @@ describe('util', () => {
 			}
 			const promisified = util.promisify(callbackOriginal);
 			const result = promisified(new Error('example'), 123);
-			should(result instanceof Promise).eql(true);
+			should(result instanceof Promise).be.true();
 			result.then(value => { // eslint-disable-line promise/always-return
 				should(value).eql(123);
 				finished(new Error('Expected promise to get rejected!'));
@@ -1080,7 +1080,7 @@ describe('util', () => {
 			callbackified((err, _result) => {
 				try {
 					should(err).be.ok();
-					should(err instanceof Error).eql(true);
+					should(err instanceof Error).be.true();
 					should(err.reason).eql(null);
 					finished();
 				} catch (e) {
@@ -1275,31 +1275,31 @@ describe('util', () => {
 			});
 
 			it('returns true for Error instance', () => {
-				util.types.isNativeError(new Error()).should.eql(true);
+				util.types.isNativeError(new Error()).should.be.true();
 			});
 
 			it('returns true for EvalError instance', () => {
-				util.types.isNativeError(new EvalError()).should.eql(true);
+				util.types.isNativeError(new EvalError()).should.be.true();
 			});
 
 			it('returns true for RangeError instance', () => {
-				util.types.isNativeError(new RangeError()).should.eql(true);
+				util.types.isNativeError(new RangeError()).should.be.true();
 			});
 
 			it('returns true for ReferenceError instance', () => {
-				util.types.isNativeError(new ReferenceError()).should.eql(true);
+				util.types.isNativeError(new ReferenceError()).should.be.true();
 			});
 
 			it('returns true for SyntaxError instance', () => {
-				util.types.isNativeError(new SyntaxError()).should.eql(true);
+				util.types.isNativeError(new SyntaxError()).should.be.true();
 			});
 
 			it('returns true for TypeError instance', () => {
-				util.types.isNativeError(new TypeError()).should.eql(true);
+				util.types.isNativeError(new TypeError()).should.be.true();
 			});
 
 			it('returns true for URIError instance', () => {
-				util.types.isNativeError(new URIError()).should.eql(true);
+				util.types.isNativeError(new URIError()).should.be.true();
 			});
 
 			it('returns false for custom Error subclass', () => {
@@ -1315,7 +1315,7 @@ describe('util', () => {
 
 			it('returns true for boxed Number', () => {
 				// eslint-disable-next-line no-new-wrappers
-				util.types.isNumberObject(new Number()).should.eql(true);
+				util.types.isNumberObject(new Number()).should.be.true();
 			});
 
 			it('returns false for primitive Number', () => {
@@ -1330,7 +1330,7 @@ describe('util', () => {
 
 			it('returns true for boxed String', () => {
 				// eslint-disable-next-line no-new-wrappers
-				util.types.isStringObject(new String('foo')).should.eql(true);
+				util.types.isStringObject(new String('foo')).should.be.true();
 			});
 
 			it('returns false for primitive String', () => {
@@ -1345,7 +1345,7 @@ describe('util', () => {
 
 			it('returns true for boxed Boolean', () => {
 				// eslint-disable-next-line no-new-wrappers
-				util.types.isBooleanObject(new Boolean(false)).should.eql(true);
+				util.types.isBooleanObject(new Boolean(false)).should.be.true();
 			});
 
 			it('returns false for primitive Boolean', () => {
@@ -1361,7 +1361,7 @@ describe('util', () => {
 
 		// 	it('returns true for boxed BigInt', () => {
 		// 		// eslint-disable-next-line no-new-wrappers,no-undef
-		// 		util.types.isSymbolObject(Object(BigInt(9007199254740991))).should.eql(true);
+		// 		util.types.isSymbolObject(Object(BigInt(9007199254740991))).should.be.true();
 		// 	});
 
 		// 	it('returns false for BigInt instance', () => {
@@ -1381,7 +1381,7 @@ describe('util', () => {
 
 			it('returns true for boxed Symbol', () => {
 				// eslint-disable-next-line no-new-wrappers
-				util.types.isSymbolObject(Object(Symbol('foo'))).should.eql(true);
+				util.types.isSymbolObject(Object(Symbol('foo'))).should.be.true();
 			});
 
 			it('returns false for primitive Symbol', () => {
@@ -1400,7 +1400,7 @@ describe('util', () => {
 
 			it('returns true for boxed Boolean', () => {
 				// eslint-disable-next-line no-new-wrappers
-				util.types.isBoxedPrimitive(new Boolean(false)).should.eql(true);
+				util.types.isBoxedPrimitive(new Boolean(false)).should.be.true();
 			});
 
 			it('returns false for primitive Symbol', () => {
@@ -1408,12 +1408,12 @@ describe('util', () => {
 			});
 
 			it('returns true for boxed Symbol', () => {
-				util.types.isBoxedPrimitive(Object(Symbol('foo'))).should.eql(true);
+				util.types.isBoxedPrimitive(Object(Symbol('foo'))).should.be.true();
 			});
 
 			// it('returns true for boxed BigInt', () => {
 			// 	// eslint-disable-next-line no-undef
-			// 	util.types.isBoxedPrimitive(Object(BigInt(5))).should.eql(true);
+			// 	util.types.isBoxedPrimitive(Object(BigInt(5))).should.be.true();
 			// });
 		});
 
@@ -1423,7 +1423,7 @@ describe('util', () => {
 			});
 
 			it('returns true for Set instance', () => {
-				util.types.isSet(new Set()).should.eql(true);
+				util.types.isSet(new Set()).should.be.true();
 			});
 		});
 
@@ -1448,7 +1448,7 @@ describe('util', () => {
 			});
 
 			it('returns true for Map instance', () => {
-				util.types.isMap(new Map()).should.eql(true);
+				util.types.isMap(new Map()).should.be.true();
 			});
 		});
 
@@ -1485,7 +1485,7 @@ describe('util', () => {
 			});
 
 			it('returns true for built-in Date instance', () => {
-				util.types.isDate(new Date()).should.eql(true);
+				util.types.isDate(new Date()).should.be.true();
 			});
 		});
 
@@ -1505,11 +1505,11 @@ describe('util', () => {
 			});
 
 			it('returns true for RegExp instance', () => {
-				util.types.isRegExp(/abc/).should.eql(true);
+				util.types.isRegExp(/abc/).should.be.true();
 			});
 
 			it('returns true for RegExp primitive', () => {
-				util.types.isRegExp(new RegExp('abc')).should.eql(true);
+				util.types.isRegExp(new RegExp('abc')).should.be.true();
 			});
 		});
 

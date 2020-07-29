@@ -152,12 +152,12 @@ describe('Titanium.Filesystem', function () {
 
 	it('#getFile() should handle files with spaces in path - TIMOB-18765', function () {
 		var f = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, '/folder with spaces/comingSoon.html');
-		should(f.exists()).eql(true);
+		should(f.exists()).be.true();
 	});
 
 	// FIXME: Should this work? It is a difference versus how some other file/url resolution works...
 	it.allBroken('#getFile() should handle absolute-looking paths by resolving relative to resource dir', function () {
 		var f = Ti.Filesystem.getFile('/Logo.png'); // use absolute-looking URL, but actually relative to resources dir!
-		should(f.exists()).eql(true);
+		should(f.exists()).be.true();
 	});
 });

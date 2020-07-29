@@ -365,7 +365,7 @@ describe('Titanium.UI.TextField', function () {
 			textfield.focused.should.eql(false); // haven't opened it yet, so shouldn't be focused
 			textfield.addEventListener('focus', () => {
 				try {
-					textfield.focused.should.eql(true);
+					textfield.focused.should.be.true();
 				} catch (e) {
 					return done(e);
 				}

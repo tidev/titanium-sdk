@@ -172,8 +172,8 @@ describe('Titanium.UI.Label', function () {
 		});
 		should(label.wordWrap).be.a.Boolean();
 		should(label.getWordWrap).be.a.Function();
-		should(label.wordWrap).eql(true);
-		should(label.getWordWrap()).eql(true);
+		should(label.wordWrap).be.true();
+		should(label.getWordWrap()).be.true();
 		label.wordWrap = false;
 		should(label.getWordWrap()).eql(false);
 		should(label.wordWrap).eql(false);

@@ -42,8 +42,8 @@ describe('Titanium.UI.ListView', function () {
 		should(listView.canScroll).be.eql(false);
 		should(listView.getCanScroll()).be.eql(false);
 		listView.canScroll = !listView.canScroll;
-		should(listView.canScroll).be.eql(true);
-		should(listView.getCanScroll()).be.eql(true);
+		should(listView.canScroll).be.be.true();
+		should(listView.getCanScroll()).be.be.true();
 		listView.setCanScroll(!listView.getCanScroll());
 		should(listView.canScroll).be.eql(false);
 		should(listView.getCanScroll()).be.eql(false);
@@ -827,15 +827,15 @@ describe('Titanium.UI.ListView', function () {
 		win = Ti.UI.createWindow();
 		win.addEventListener('open', function () {
 			try {
-				should(list.allowsMultipleSelectionDuringEditing).be.eql(true);
-				should(list.getAllowsMultipleSelectionDuringEditing()).be.eql(true);
+				should(list.allowsMultipleSelectionDuringEditing).be.be.true();
+				should(list.getAllowsMultipleSelectionDuringEditing()).be.be.true();
 
 				list.allowsMultipleSelectionDuringEditing = false;
 				should(list.allowsMultipleSelectionDuringEditing).be.eql(false);
 				should(list.getAllowsMultipleSelectionDuringEditing()).be.eql(false);
 				list.setAllowsMultipleSelectionDuringEditing(true);
-				should(list.allowsMultipleSelectionDuringEditing).be.eql(true);
-				should(list.getAllowsMultipleSelectionDuringEditing()).be.eql(true);
+				should(list.allowsMultipleSelectionDuringEditing).be.be.true();
+				should(list.getAllowsMultipleSelectionDuringEditing()).be.be.true();
 			} catch (err) {
 				return finish(err);
 			}

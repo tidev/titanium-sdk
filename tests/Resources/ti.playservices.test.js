@@ -53,7 +53,7 @@ describe('ti.playservices', () => {
 
 		let result = PlayServices.isUserResolvableError(PlayServices.RESULT_SERVICE_VERSION_UPDATE_REQUIRED);
 		should(result).be.a.Boolean();
-		should(result).eql(true);
+		should(result).be.true();
 
 		result = PlayServices.isUserResolvableError(PlayServices.RESULT_SERVICE_INVALID);
 		should(result).be.a.Boolean();
