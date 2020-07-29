@@ -713,7 +713,7 @@ describe('assert', function () {
 				return finished(new Error('Expected assert.rejects to reject with Error to catch handler if supplied Promise resolves'));
 			}).catch(err => {
 				err.should.be.ok();
-				(err instanceof assert.AssertionError).should.eql(true);
+				(err instanceof assert.AssertionError).should.be.true();
 				finished();
 			});
 		});
@@ -746,7 +746,7 @@ describe('assert', function () {
 				return finished(new Error('Expected assert.doesNotReject to reject with AssertionError to catch handler'));
 			}).catch(err => {
 				err.should.not.eql(actualError);
-				(err instanceof assert.AssertionError).should.eql(true);
+				(err instanceof assert.AssertionError).should.be.true();
 				finished();
 			});
 		});

@@ -138,7 +138,7 @@ describe('Titanium.Platform', function () {
 			if (utilities.isIOS()) {
 				should(wasOpened).be.a.Boolean;
 			} else {
-				should(wasOpened).be.eql(true);
+				should(wasOpened).be.be.true();
 			}
 		});
 	});

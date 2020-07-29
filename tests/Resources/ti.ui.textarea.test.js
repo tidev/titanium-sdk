@@ -250,7 +250,7 @@ describe('Titanium.UI.TextArea', function () {
 			textarea.focused.should.eql(false); // haven't opened it yet, so shouldn't be focused
 			textarea.addEventListener('focus', () => {
 				try {
-					textarea.focused.should.eql(true);
+					textarea.focused.should.be.true();
 				} catch (e) {
 					return done(e);
 				}
