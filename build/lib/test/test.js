@@ -131,16 +131,19 @@ async function generateProject(platforms) {
  */
 async function copyMochaAssets() {
 	console.log('Copying resources to project...');
-	// TODO: Support root-level package.json!
-	const resourcesDir = path.join(PROJECT_DIR, 'Resources');
 	return Promise.all([
-		// Resources
+		// root-level package.json stuff
 		(async () => {
-			await fs.copy(path.join(SOURCE_DIR, 'Resources'), resourcesDir);
-			if (await fs.pathExists(path.join(resourcesDir, 'package.json'))) {
-				return npmInstall(resourcesDir);
-			}
+			await Promise.all([
+				fs.copy(path.join(SOURCE_DIR, 'fake_node_modules'), path.join(PROJECT_DIR, 'fake_node_modules')),
+				fs.copy(path.join(SOURCE_DIR, 'package.json'), path.join(PROJECT_DIR, 'package.json')),
+				fs.copy(path.join(SOURCE_DIR, 'package-lock.json'), path.join(PROJECT_DIR, 'package-lock.json')),
+			]);
+			// then run npm install in root of project
+			return npmInstall(PROJECT_DIR);
 		})(),
+		// Resources
+		fs.copy(path.join(SOURCE_DIR, 'Resources'), path.join(PROJECT_DIR, 'Resources')),
 		// modules
 		fs.copy(path.join(SOURCE_DIR, 'modules'), path.join(PROJECT_DIR, 'modules')),
 		// platform
