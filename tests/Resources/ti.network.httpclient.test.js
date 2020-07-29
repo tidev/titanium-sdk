@@ -393,7 +393,7 @@ describe('Titanium.Network.HTTPClient', function () {
 		};
 
 		xhr.ondatastream = function (e) {
-			should(e.progress).be.ok;
+			should(e.progress).be.ok();
 			if (e.progress >= 1) {
 				dataStreamFinished = true;
 			}
@@ -428,7 +428,7 @@ describe('Titanium.Network.HTTPClient', function () {
 			}
 		};
 		xhr.onsendstream = function (e) {
-			should(e.progress).be.ok;
+			should(e.progress).be.ok();
 			if (e.progress >= 0.99) {
 				sendStreamFinished = true;
 			}
