@@ -10,11 +10,16 @@ exports.init = (logger, config, cli) => {
 	cli.on('create.post.app', async (creator, next) => {
 		const projectName = cli.argv.name;
 		const projectPath = path.join(cli.argv['workspace-dir'], projectName);
-		copyGitIgnore(projectPath);
-		await updatePackageJson(projectPath, { name: projectName });
-		logger.info('Installing Angular project dependencies');
-		await installDependencies(projectPath);
-		next();
+		try {
+			await Promise.all([
+				copyGitIgnore(projectPath),
+				updatePackageJson(projectPath, { name: projectName }),
+				installDependencies(projectPath, logger)
+			])
+			next();
+		} catch (e) {
+			next(e);
+		}
 	});
 };
 
@@ -23,11 +28,12 @@ async function updatePackageJson(projectPath, data) {
 	if (await fs.exists(packageJsonPath)) {
 		let pkg = await fs.readJson(packageJsonPath);
 		Object.assign(pkg, data);
-		fs.writeJson(packageJsonPath, pkg);
+		return fs.writeJson(packageJsonPath, pkg);
 	}
 }
 
-async function installDependencies(projectPath) {
+async function installDependencies(projectPath, logger) {
+	logger.info('Installing Angular project dependencies');
 	let npmExecutable = 'npm';
 	const spawnOptions = {
 		cwd: projectPath,
