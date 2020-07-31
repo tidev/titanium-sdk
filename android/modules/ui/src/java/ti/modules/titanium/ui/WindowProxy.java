@@ -640,6 +640,12 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 	}
 
 	@Override
+	public String toString()
+	{
+		return "[object Window]";
+	}
+
+	@Override
 	public String getApiName()
 	{
 		return "Ti.UI.Window";
