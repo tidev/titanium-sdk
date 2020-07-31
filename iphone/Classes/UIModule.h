@@ -17,6 +17,10 @@
 #import "TiUIActivityIndicatorStyleProxy.h"
 #endif
 
+#if defined(USE_TI_UISHORTCUT) || defined(USE_TI_UISHORTCUTITEM)
+#import "TiUIShortcutProxy.h"
+#endif
+
 @interface UIModule : TiModule {
 
   @private
@@ -29,7 +33,10 @@
 #ifdef USE_TI_UICLIPBOARD
   TiProxy *clipboard;
 #endif
+#if defined(USE_TI_UISHORTCUT) || defined(USE_TI_UISHORTCUTITEM)
   NSNumber *lastEmittedMode;
+#endif
+  TiUIShortcutProxy *shortcut;
 }
 
 //TODO: review these, maybe they need to go on iPhone Animation Style - however, they are platform generic
@@ -275,6 +282,10 @@
 
 #ifdef USE_TI_UIACTIVITYINDICATORSTYLE
 @property (nonatomic, readonly) TiUIActivityIndicatorStyleProxy *ActivityIndicatorStyle;
+#endif
+
+#if defined(USE_TI_UISHORTCUT) || defined(USE_TI_UISHORTCUTITEM)
+@property (nonatomic, readonly) TiUIShortcutProxy *Shortcut;
 #endif
 
 @end

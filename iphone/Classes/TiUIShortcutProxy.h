@@ -7,26 +7,33 @@
 
 #if defined(USE_TI_UISHORTCUT) || defined(USE_TI_UISHORTCUTITEM)
 
-#import <TitaniumKit/ObjcProxy.h>
+#import <TitaniumKit/TiProxy.h>
 
 @class TiUIShortcutItemProxy;
 
+@interface TiUIShortcutProxy : TiProxy {
+  @private
+}
+
 NS_ASSUME_NONNULL_BEGIN
 
-@protocol TiUIShortcutProxyExports <JSExport>
+/*
 READONLY_PROPERTY(NSArray<TiUIShortcutItemProxy *> *, items, Items);
 READONLY_PROPERTY(NSArray<TiUIShortcutItemProxy *> *, staticItems, StaticItems);
 
 - (TiUIShortcutItemProxy *)getById:(NSString *)identifier;
-
 - (void)remove:(TiUIShortcutItemProxy *)shortcut;
-
 - (void)removeAll;
 - (void)add:(TiUIShortcutItemProxy *)shortcut;
+*/
 
-@end
+@property (nonatomic, readonly) NSArray<TiUIShortcutItemProxy *> *items;
+@property (nonatomic, readonly) NSArray<TiUIShortcutItemProxy *> *staticItems;
 
-@interface TiUIShortcutProxy : ObjcProxy <TiUIShortcutProxyExports>
+- (TiUIShortcutItemProxy *)getById:(id)args;
+- (void)remove:(id)args;
+- (void)removeAll:(id)unused;
+- (void)add:(id)args;
 
 @end
 

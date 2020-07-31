@@ -61,6 +61,9 @@
   [self forgetProxy:clipboard];
   RELEASE_TO_NIL(clipboard);
 #endif
+#if defined(USE_TI_UISHORTCUT) || defined(USE_TI_UISHORTCUTITEM)
+  RELEASE_TO_NIL(shortcut);
+#endif
   [super dealloc];
 }
 
@@ -512,6 +515,9 @@ MAKE_SYSTEM_PROP(EXTEND_EDGE_ALL, 15); //UIEdgeRectAll
 #ifdef USE_TI_UICLIPBOARD
   RELEASE_TO_NIL(clipboard);
 #endif
+#if defined(USE_TI_UISHORTCUT) || defined(USE_TI_UISHORTCUTITEM)
+  RELEASE_TO_NIL(shortcut);
+#endif
   [super didReceiveMemoryWarning:notification];
 }
 
@@ -738,6 +744,16 @@ MAKE_SYSTEM_STR(AUTOFILL_TYPE_ONE_TIME_CODE, UITextContentTypeOneTimeCode);
 
 MAKE_SYSTEM_PROP(TABLE_VIEW_SEPARATOR_STYLE_NONE, UITableViewCellSeparatorStyleNone);
 MAKE_SYSTEM_PROP(TABLE_VIEW_SEPARATOR_STYLE_SINGLE_LINE, UITableViewCellSeparatorStyleSingleLine);
+
+#if defined(USE_TI_UISHORTCUT) || defined(USE_TI_UISHORTCUTITEM)
+- (TiUIShortcutProxy *)Shortcut
+{
+  if (shortcut == nil) {
+    shortcut = [[TiUIShortcutProxy alloc] _initWithPageContext:[self executionContext]];
+  }
+  return shortcut;
+}
+#endif
 
 @end
 
