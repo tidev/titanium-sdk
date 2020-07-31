@@ -34,9 +34,9 @@
   TiProxy *clipboard;
 #endif
 #if defined(USE_TI_UISHORTCUT) || defined(USE_TI_UISHORTCUTITEM)
-  NSNumber *lastEmittedMode;
-#endif
   TiUIShortcutProxy *shortcut;
+#endif
+  NSNumber *lastEmittedMode;
 }
 
 //TODO: review these, maybe they need to go on iPhone Animation Style - however, they are platform generic
