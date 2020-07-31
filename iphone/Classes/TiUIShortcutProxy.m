@@ -95,8 +95,11 @@
   return shortcutsToReturn;
 }
 
-- (TiUIShortcutItemProxy *)getById:(NSString *)identifier
+- (TiUIShortcutItemProxy *)getById:(id)args
 {
+  ENSURE_SINGLE_ARG(args, NSString)
+  NSString *identifier = [TiUtils stringValue:args];
+
   NSArray<UIApplicationShortcutItem *> *shortcuts = [UIApplication sharedApplication].shortcutItems;
   for (UIApplicationShortcutItem *item in shortcuts) {
     if ([item.type isEqualToString:[TiUtils stringValue:identifier]]) {
@@ -107,8 +110,11 @@
   return nil;
 }
 
-- (void)remove:(TiUIShortcutItemProxy *)shortcut
+- (void)remove:(id)args
 {
+  ENSURE_SINGLE_ARG(args, TiUIShortcutItemProxy)
+  TiUIShortcutItemProxy *shortcut = args;
+
   NSString *key = [shortcut shortcutItem].type;
 
   NSMutableArray<UIApplicationShortcutItem *> *shortcuts = (NSMutableArray<UIApplicationShortcutItem *> *)[UIApplication sharedApplication].shortcutItems;
@@ -121,13 +127,16 @@
   [UIApplication sharedApplication].shortcutItems = shortcuts;
 }
 
-- (void)removeAll
+- (void)removeAll:(id)unused
 {
   [UIApplication sharedApplication].shortcutItems = nil;
 }
 
-- (void)add:(TiUIShortcutItemProxy *)shortcut
+- (void)add:(id)args
 {
+  ENSURE_SINGLE_ARG(args, TiUIShortcutItemProxy)
+  TiUIShortcutItemProxy *shortcut = args;
+
   NSMutableArray<UIApplicationShortcutItem *> *shortcuts = (NSMutableArray<UIApplicationShortcutItem *> *)[UIApplication sharedApplication].shortcutItems;
 
   // Remove previous shortcutitem of same id if exists
@@ -152,7 +161,7 @@
                                                                          localizedSubtitle:userInfo[@"subtitle"]
                                                                                       icon:nil
                                                                                   userInfo:userInfo[@"userInfo"]] autorelease];
-    [self fireEvent:@"click" withDict:@{ @"item" : [[[TiUIShortcutItemProxy alloc] initWithShortcutItem:shortcut] autorelease] }];
+    [self fireEvent:@"click" withObject:@{ @"item" : [[[TiUIShortcutItemProxy alloc] initWithShortcutItem:shortcut] autorelease] }];
   }
 }
 @end
