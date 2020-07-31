@@ -302,7 +302,7 @@ describe('Titanium.UI.TextField', function () {
 		const textField = Ti.UI.createTextField();
 		textField.addEventListener('focus', function (e) {
 			try {
-				should(e.bubbles).be.eql(false);
+				should(e.bubbles).be.be.false();
 				textField.blur();
 			} catch (err) {
 				return finish(err);
@@ -310,7 +310,7 @@ describe('Titanium.UI.TextField', function () {
 		});
 		textField.addEventListener('blur', function (e) {
 			try {
-				should(e.bubbles).be.eql(false);
+				should(e.bubbles).be.be.false();
 			} catch (err) {
 				return finish(err);
 			}
@@ -362,10 +362,10 @@ describe('Titanium.UI.TextField', function () {
 		win.add(textfield);
 		try {
 			textfield.should.have.a.property('focused').which.is.a.Boolean();
-			textfield.focused.should.eql(false); // haven't opened it yet, so shouldn't be focused
+			textfield.focused.should.be.false(); // haven't opened it yet, so shouldn't be focused
 			textfield.addEventListener('focus', () => {
 				try {
-					textfield.focused.should.eql(true);
+					textfield.focused.should.be.true();
 				} catch (e) {
 					return done(e);
 				}
@@ -377,7 +377,7 @@ describe('Titanium.UI.TextField', function () {
 			win.addEventListener('close', () => {
 				try {
 					// we've been closed (or are closing?) so hopefully shouldn't say that we're focused
-					textfield.focused.should.eql(false);
+					textfield.focused.should.be.false();
 				} catch (e) {
 					return done(e);
 				}

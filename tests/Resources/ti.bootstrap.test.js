@@ -12,12 +12,12 @@ var should = require('./utilities/assertions');
 describe.windowsMissing('Titanium.Bootstrap', function () {
 	// Determine if "bootstraps/simple.bootstrap.js" was auto-loaded on startup.
 	it('simple.bootstrap', function () {
-		should(global.wasSimpleBootstrapLoaded).be.eql(true);
+		should(global.wasSimpleBootstrapLoaded).be.be.true();
 	});
 
 	// Determine if "bootstraps/ui.bootstrap.js" was auto-loaded on startup.
 	it('ui.bootstrap', function () {
-		should(global.wasUIBootstrapLoaded).be.eql(true);
-		should(global.wasUIBootstrapExecuted).be.eql(true);
+		should(global.wasUIBootstrapLoaded).be.be.true();
+		should(global.wasUIBootstrapExecuted).be.be.true();
 	});
 });
