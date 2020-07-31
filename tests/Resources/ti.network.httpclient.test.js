@@ -209,7 +209,7 @@ describe('Titanium.Network.HTTPClient', function () {
 			var response;
 			should(e.code).eql(0);
 			if (xhr.status === 200) {
-				should(e.success).eql(true);
+				should(e.success).be.true();
 
 				response = JSON.parse(xhr.responseText);
 				response['adhocHeader'].should.eql('notcleared');
@@ -393,7 +393,7 @@ describe('Titanium.Network.HTTPClient', function () {
 		};
 
 		xhr.ondatastream = function (e) {
-			should(e.progress).be.ok;
+			should(e.progress).be.ok();
 			if (e.progress >= 1) {
 				dataStreamFinished = true;
 			}
@@ -428,7 +428,7 @@ describe('Titanium.Network.HTTPClient', function () {
 			}
 		};
 		xhr.onsendstream = function (e) {
-			should(e.progress).be.ok;
+			should(e.progress).be.ok();
 			if (e.progress >= 0.99) {
 				sendStreamFinished = true;
 			}

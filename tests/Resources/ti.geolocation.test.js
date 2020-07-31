@@ -95,7 +95,7 @@ describe.windowsBroken('Titanium.Geolocation', function () {
 
 	it.ios('.allowsBackgroundLocationUpdates', function () {
 		should(Ti.Geolocation).have.a.property('allowsBackgroundLocationUpdates').which.is.a.Boolean();
-		should(Ti.Geolocation.allowsBackgroundLocationUpdates).be.eql(false); // defaults to false (unless a special tiapp property is set, see docs)
+		should(Ti.Geolocation.allowsBackgroundLocationUpdates).be.be.false(); // defaults to false (unless a special tiapp property is set, see docs)
 	});
 
 	it.ios('#getAllowsBackgroundLocationUpdates()', function () {
@@ -106,7 +106,7 @@ describe.windowsBroken('Titanium.Geolocation', function () {
 	it.ios('#setAllowsBackgroundLocationUpdates()', function () {
 		should(Ti.Geolocation).have.a.property('setAllowsBackgroundLocationUpdates').which.is.a.Function();
 		Ti.Geolocation.setAllowsBackgroundLocationUpdates(true); // defaults to false, set to true
-		should(Ti.Geolocation.allowsBackgroundLocationUpdates).be.eql(true);
+		should(Ti.Geolocation.allowsBackgroundLocationUpdates).be.be.true();
 	});
 
 	// Intentionally skip for Android, doesn't exist
@@ -182,7 +182,7 @@ describe.windowsBroken('Titanium.Geolocation', function () {
 
 	it.ios('.pauseLocationUpdateAutomatically', function () {
 		should(Ti.Geolocation).have.a.property('pauseLocationUpdateAutomatically').which.is.a.Boolean();
-		should(Ti.Geolocation.pauseLocationUpdateAutomatically).eql(false); // defaults to false
+		should(Ti.Geolocation.pauseLocationUpdateAutomatically).be.false(); // defaults to false
 	});
 
 	it.ios('#getPauseLocationUpdateAutomatically()', function () {
@@ -193,12 +193,12 @@ describe.windowsBroken('Titanium.Geolocation', function () {
 	it.ios('#setPauseLocationUpdateAutomatically()', function () {
 		should(Ti.Geolocation).have.a.property('setPauseLocationUpdateAutomatically').which.is.a.Function();
 		Ti.Geolocation.setPauseLocationUpdateAutomatically(true); // defaults to false
-		should(Ti.Geolocation.pauseLocationUpdateAutomatically).eql(true);
+		should(Ti.Geolocation.pauseLocationUpdateAutomatically).be.true();
 	});
 
 	it.ios('.showBackgroundLocationIndicator', function () {
 		should(Ti.Geolocation).have.a.property('showBackgroundLocationIndicator').which.is.a.Boolean();
-		should(Ti.Geolocation.showBackgroundLocationIndicator).eql(false); // defaults to false
+		should(Ti.Geolocation.showBackgroundLocationIndicator).be.false(); // defaults to false
 	});
 
 	it.ios('#getShowBackgroundLocationIndicator()', function () {
@@ -209,12 +209,12 @@ describe.windowsBroken('Titanium.Geolocation', function () {
 	it.ios('#setShowBackgroundLocationIndicator()', function () {
 		should(Ti.Geolocation).have.a.property('setShowBackgroundLocationIndicator').which.is.a.Function();
 		Ti.Geolocation.setShowBackgroundLocationIndicator(true); // defaults to false
-		should(Ti.Geolocation.showBackgroundLocationIndicator).eql(true);
+		should(Ti.Geolocation.showBackgroundLocationIndicator).be.true();
 	});
 
 	it.ios('.showCalibration', function () {
 		should(Ti.Geolocation).have.a.property('showCalibration').which.is.a.Boolean();
-		should(Ti.Geolocation.showCalibration).eql(true); // defaults to true
+		should(Ti.Geolocation.showCalibration).be.true(); // defaults to true
 	});
 
 	it.ios('#getShowCalibration()', function () {
@@ -225,12 +225,12 @@ describe.windowsBroken('Titanium.Geolocation', function () {
 	it.ios('#setShowCalibration()', function () {
 		should(Ti.Geolocation).have.a.property('setShowCalibration').which.is.a.Function();
 		Ti.Geolocation.setShowCalibration(false); // defaults to true
-		should(Ti.Geolocation.showCalibration).eql(false);
+		should(Ti.Geolocation.showCalibration).be.false();
 	});
 
 	it.ios('.trackSignificantLocationChange', function () {
 		should(Ti.Geolocation).have.a.property('trackSignificantLocationChange').which.is.a.Boolean();
-		should(Ti.Geolocation.trackSignificantLocationChange).eql(false); // defaults to false
+		should(Ti.Geolocation.trackSignificantLocationChange).be.false(); // defaults to false
 	});
 
 	it.ios('#getTrackSignificantLocationChange()', function () {
@@ -241,7 +241,7 @@ describe.windowsBroken('Titanium.Geolocation', function () {
 	it.ios('#setTrackSignificantLocationChange()', function () {
 		should(Ti.Geolocation).have.a.property('setTrackSignificantLocationChange').which.is.a.Function();
 		Ti.Geolocation.setTrackSignificantLocationChange(true); // defaults to false
-		should(Ti.Geolocation.trackSignificantLocationChange).eql(true);
+		should(Ti.Geolocation.trackSignificantLocationChange).be.true();
 	});
 
 	// Methods
@@ -253,7 +253,7 @@ describe.windowsBroken('Titanium.Geolocation', function () {
 		Ti.Geolocation.forwardGeocoder('440 N Bernardo Ave, Mountain View', function (data) {
 			try {
 				should(data).have.property('success').which.is.a.Boolean();
-				should(data.success).be.eql(true);
+				should(data.success).be.be.true();
 				should(data).have.property('code').which.is.a.Number();
 				should(data.code).be.eql(0);
 				should(data.latitude).be.approximately(37.387, 0.004); // iOS: 37.38605, Windows: 37.3883645, Android: 37.3909049
@@ -273,7 +273,7 @@ describe.windowsBroken('Titanium.Geolocation', function () {
 		Ti.Geolocation.reverseGeocoder(37.3883645, -122.0512682, function (data) {
 			try {
 				should(data).have.property('success').which.is.a.Boolean();
-				should(data.success).be.eql(true);
+				should(data.success).be.be.true();
 				should(data).have.property('code').which.is.a.Number();
 				should(data.code).be.eql(0);
 				// FIXME error property is missing altogether on success for iOS...
