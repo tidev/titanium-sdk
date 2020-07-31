@@ -155,6 +155,7 @@ function loadTests() {
 	}
 	require('./ti.ui.label.test');
 	require('./ti.ui.layout.test');
+	require('./ti.ui.listsection.test');
 	require('./ti.ui.listview.test');
 	require('./ti.ui.maskedimage.test');
 	require('./ti.ui.matrix2d.test');
