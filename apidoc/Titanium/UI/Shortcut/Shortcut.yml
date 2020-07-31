@@ -44,14 +44,14 @@ methods:
   - name: getById
     summary: Fetches a shortcut item by its unique string identifier.
     description: |
-        Returns a shortcut item with a matching string [id]<Titanium.UI.Shortcut.id>.
+        Returns a shortcut item with a matching string [id](Titanium.UI.ShortcutItem.id).
         Returns `null` if a match was not found.
     parameters:
       - name: id
         summary: Identifier of shortcut item to obtain.
         type: String
     returns:
-        type: <Titanium.UI.ShortcutItem>
+        type: Titanium.UI.ShortcutItem
 
 events:
   - name: click
