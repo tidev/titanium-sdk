@@ -126,7 +126,7 @@ public class ShortcutModule extends KrollModule
 			return null;
 		}
 
-		return toShortcutItems(shortcutManager.getPinnedShortcuts());
+		return toShortcutItems(shortcutManager.getManifestShortcuts());
 	}
 
 	/**
