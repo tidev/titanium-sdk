@@ -5,8 +5,8 @@ description: |
     Allows the creation of dynamic application shortcut items which can be set in the app to 
     offer a dynamic behavior at runtime.
 
-    Use the <Titanium.UI.createShortcutItem> method to create a shortcut
-    and <Titanium.UI.createShortcut> to manage shortcuts.
+    Use the <Titanium.UI.createShortcutItem> method to create a shortcut item and pass it to
+    the <Titanium.UI.Shortcut.add> method to add it to the application.
 
     #### iOS static shortcuts
     Static shortcut items can be set in the `<ios>` section of the `tiapp.xml` before launching the app.
