@@ -33,7 +33,7 @@ describe.ios('Titanium.Network.BonjourBrowser', () => {
 		});
 
 		it('defaults to false', () => {
-			should(browser.isSearching).eql(false);
+			should(browser.isSearching).be.false();
 		});
 	});
 

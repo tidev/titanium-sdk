@@ -132,7 +132,7 @@ describe.windowsMissing('Titanium.UI.NavigationWindow', function () {
 
 		subWindow.addEventListener('close', function () {
 			try {
-				should(subWindow.navigationWindow).not.be.ok; // null or undefined
+				should(subWindow.navigationWindow).not.be.ok(); // null or undefined
 				finish();
 			} catch (err) {
 				finish(err);
@@ -149,30 +149,29 @@ describe.windowsMissing('Titanium.UI.NavigationWindow', function () {
 		nav = Ti.UI.createNavigationWindow({
 			window: rootWindow
 		});
-		should(nav.popToRootWindow).be.a.function;
+		should(nav.popToRootWindow).be.a.Function();
 
-		rootWindow.addEventListener('open', function () {
-			setTimeout(function () {
-				nav.openWindow(subWindow);
-			}, 1);
+		rootWindow.addEventListener('open', function open() {
+			rootWindow.removeEventListener('open', open);
+			setTimeout(() => nav.openWindow(subWindow), 1);
 		});
 
-		subWindow.addEventListener('close', function () {
+		subWindow.addEventListener('close', function close () {
+			subWindow.removeEventListener('close', close);
 			try {
-				should(subWindow.navigationWindow).not.be.ok; // null or undefined
+				should(subWindow.navigationWindow).not.be.ok(); // null or undefined
 				// how else can we tell it got closed? I don't think a visible check is right...
 				// win should not be closed!
 				should(rootWindow.navigationWindow).eql(nav);
-				finish();
 			} catch (err) {
-				finish(err);
+				return finish(err);
 			}
+			finish();
 		});
 
-		subWindow.addEventListener('open', function () {
-			setTimeout(function () {
-				nav.popToRootWindow();
-			}, 1);
+		subWindow.addEventListener('open', function open() {
+			subWindow.removeEventListener('open', open);
+			setTimeout(() => nav.popToRootWindow(), 1);
 		});
 
 		nav.open();

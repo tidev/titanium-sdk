@@ -247,10 +247,10 @@ describe('Titanium.UI.TextArea', function () {
 		win.add(textarea);
 		try {
 			textarea.should.have.a.property('focused').which.is.a.Boolean();
-			textarea.focused.should.eql(false); // haven't opened it yet, so shouldn't be focused
+			textarea.focused.should.be.false(); // haven't opened it yet, so shouldn't be focused
 			textarea.addEventListener('focus', () => {
 				try {
-					textarea.focused.should.eql(true);
+					textarea.focused.should.be.true();
 				} catch (e) {
 					return done(e);
 				}
@@ -262,7 +262,7 @@ describe('Titanium.UI.TextArea', function () {
 			win.addEventListener('close', () => {
 				try {
 					// we've been closed (or are closing?) so hopefully shouldn't say that we're focused
-					textarea.focused.should.eql(false);
+					textarea.focused.should.be.false();
 				} catch (e) {
 					return done(e);
 				}

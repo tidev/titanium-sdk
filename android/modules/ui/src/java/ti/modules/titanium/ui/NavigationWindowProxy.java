@@ -48,8 +48,7 @@ public class NavigationWindowProxy extends WindowProxy
 		// Keep first "root" window
 		for (int i = windows.size() - 1; i > 0; i--) {
 			TiWindowProxy window = windows.get(i);
-			window.close(arg);
-			windows.remove(window);
+			closeWindow(window, arg);
 		}
 	}
 
@@ -99,9 +98,10 @@ public class NavigationWindowProxy extends WindowProxy
 			return;
 		}
 
-		windows.remove(childToClose);
-		((TiWindowProxy) childToClose).close(arg);
-		((TiWindowProxy) childToClose).setNavigationWindow(null);
+		TiWindowProxy window = (TiWindowProxy) childToClose;
+		windows.remove(window);
+		window.setNavigationWindow(null);
+		window.close(arg);
 	}
 
 	@Override
