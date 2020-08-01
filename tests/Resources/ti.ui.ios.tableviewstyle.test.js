@@ -4,6 +4,7 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+/* global OS_VERSION_MAJOR */
 /* eslint-env mocha */
 /* eslint no-unused-expressions: "off" */
 'use strict';
@@ -14,8 +15,7 @@ describe.ios('Titanium.UI.iOS.TableViewStyle', function () {
 	it('#constants', function () {
 		should(Titanium.UI.iOS.TableViewStyle.PLAIN).be.a.Number();
 		should(Titanium.UI.iOS.TableViewStyle.GROUPED).be.a.Number();
-		const isiOS13 = parseInt(Ti.Platform.version.split('.')[0]) >= 13;
-		if (isiOS13) {
+		if (OS_VERSION_MAJOR >= 13) {
 			should(Titanium.UI.iOS.TableViewStyle.INSET_GROUPED).be.a.Number();
 		}
 	});
