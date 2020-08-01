@@ -20,3 +20,6 @@ btn.addEventListener('click', function() {
 
 win.add(btn);
 win.open();
+
+console.log("@@@ OS_VERSION_MAJOR: " + OS_VERSION_MAJOR);
+console.log("@@@ OS_VERSION_MINOR: " + OS_VERSION_MINOR);

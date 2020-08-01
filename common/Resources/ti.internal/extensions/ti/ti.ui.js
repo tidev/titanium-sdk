@@ -4,9 +4,9 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-/* globals OS_ANDROID,OS_IOS */
+/* globals OS_ANDROID,OS_IOS, OS_VERSION_MAJOR */
 import Color from '../../../../lib/color';
-const isIOS13Plus = OS_IOS && parseInt(Ti.Platform.version.split('.')[0]) >= 13;
+const isIOS13Plus = OS_IOS && (OS_VERSION_MAJOR >= 13);
 
 // As Android passes a new instance of Ti.UI to every JS file we can't just
 // Ti.UI within this file, we must call kroll.binding to get the Titanium

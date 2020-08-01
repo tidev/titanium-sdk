@@ -46,6 +46,8 @@ READONLY_PROPERTY(NSNumber *, totalMemory, TotalMemory);
 READONLY_PROPERTY(NSNumber *, uptime, Uptime);
 READONLY_PROPERTY(NSString *, username, Username);
 READONLY_PROPERTY(NSString *, version, Version);
+READONLY_PROPERTY(NSNumber *, versionMajor, VersionMajor);
+READONLY_PROPERTY(NSNumber *, versionMinor, VersionMinor);
 
 // Methods
 - (BOOL)canOpenURL:(NSString *)url;

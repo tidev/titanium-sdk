@@ -320,6 +320,25 @@ properties:
     permission: read-only
     since: "9.0.0"
 
+  - name: OS_VERSION_MAJOR
+    summary: The operation system's major version number.
+    description: |
+        ``` js
+        if (OS_IOS && (OS_VERSION_MAJOR >= 13)) {
+            // Do something on iOS 13 or higher only.
+        }
+        ```
+    type: Number
+    permission: read-only
+    since: "9.2.0"
+
+  - name: OS_VERSION_MINOR
+    summary: The operating system's minor version number.
+    description: Will return zero if OS does not have a minor version.
+    type: Number
+    permission: read-only
+    since: "9.2.0"
+
   - name: ENV_DEV
     summary: Alias for <ENV_DEVELOPMENT>
     type: Boolean
