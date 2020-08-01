@@ -49,6 +49,24 @@ describe('Titanium.UI.Shortcut', () => {
 		});
 	});
 
+	describe('.staticItems', () => {
+		it('is an Array', () => {
+			if (!androidCompatible) {
+				return;
+			}
+			should(Ti.UI.Shortcut.staticItems).be.an.Array();
+		});
+
+		it('fetch item id', () => {
+			if (!androidCompatible) {
+				return;
+			}
+			const staticItems = Ti.UI.Shortcut.staticItems;
+			should(staticItems.length).be.eql(1);
+			should(staticItems[0].id).be.eql('static_shortcut1');
+		});
+	});
+
 	describe('#removeAll()', () => {
 		it('is a function', () => {
 			if (!androidCompatible) {
