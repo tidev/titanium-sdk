@@ -357,9 +357,22 @@ properties:
     platforms: [android, iphone, ipad]
 
   - name: version
-    summary: System's OS version.
+    summary: The operating system's version string.
     type: String
     permission: read-only
+
+  - name: versionMajor
+    summary: The operating system's major version number.
+    type: Number
+    permission: read-only
+    since: "9.2.0"
+
+  - name: versionMinor
+    summary: The operating system's minor version number.
+    description: Will return zero if OS does not have a minor version.
+    type: Number
+    permission: read-only
+    since: "9.2.0"
 
 examples:
   - title: Battery Event Example

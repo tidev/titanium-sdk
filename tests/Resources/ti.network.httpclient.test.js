@@ -676,7 +676,7 @@ describe('Titanium.Network.HTTPClient', function () {
 
 	it.android('TLSv3 support', function (finish) {
 		// Only supported on Android 10+
-		if (parseInt(Ti.Platform.version.split('.')[0]) < 10) {
+		if (Ti.Platform.Android.API_LEVEL < 29) {
 			return finish();
 		}
 
