@@ -163,6 +163,7 @@
 		3A0E54371BE811CD003EE654 /* TiUIiOSMenuPopupProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 3A0E54361BE811CD003EE654 /* TiUIiOSMenuPopupProxy.m */; };
 		3A1E40511BEAC73D00943233 /* TiUIiOSMenuPopup.m in Sources */ = {isa = PBXBuildFile; fileRef = 3A1E40501BEAC73D00943233 /* TiUIiOSMenuPopup.m */; };
 		3A275F3E1BA881B300EC4912 /* TiUIActivityIndicatorStyleProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 3A275F3D1BA881B300EC4912 /* TiUIActivityIndicatorStyleProxy.m */; };
+		3A38F30424D6EBBD00CC6EFB /* TiUtils+Addons.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A38F30324D6EBBD00CC6EFB /* TiUtils+Addons.swift */; };
 		3A3BBAF51D3E2F0F008450DF /* TiAppiOSUserNotificationCenterProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 3A3BBAF41D3E2F0F008450DF /* TiAppiOSUserNotificationCenterProxy.m */; };
 		3A5AD7261BB9A6E4005B408B /* TiUIiOSPreviewActionGroupProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 3A5AD7251BB9A6E4005B408B /* TiUIiOSPreviewActionGroupProxy.m */; };
 		3A5AD7291BB9BEA8005B408B /* TiUIiOSPreviewContextProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 3A5AD7281BB9BEA8005B408B /* TiUIiOSPreviewContextProxy.m */; };
@@ -176,7 +177,6 @@
 		3AB9137C1BB60F070063A4AD /* TiPreviewingDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 3AB9137B1BB60F070063A4AD /* TiPreviewingDelegate.m */; };
 		3AB913801BB61FDA0063A4AD /* TiUIiOSPreviewActionProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 3AB9137F1BB61FDA0063A4AD /* TiUIiOSPreviewActionProxy.m */; };
 		3ABA85AB1D7204B100BCD3F1 /* TiAppiOSSearchQueryProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 3ABA85AA1D7204B100BCD3F1 /* TiAppiOSSearchQueryProxy.m */; };
-		4A4D3A9022C0CE6A003D2DB7 /* TiUtils+Addons.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A4D3A8F22C0CE6A003D2DB7 /* TiUtils+Addons.m */; };
 		673144D6211DBAD7001BDBF2 /* TiUIApplication.m in Sources */ = {isa = PBXBuildFile; fileRef = 673144D5211DBAD7001BDBF2 /* TiUIApplication.m */; };
 		6CF8E95921CDA58800519245 /* TiUITabbedBarProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 6CF8E95821CDA58800519245 /* TiUITabbedBarProxy.m */; };
 		823CC8AC1B7F0E4D00D220C7 /* WatchSessionModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 823CC8AB1B7F0E4D00D220C7 /* WatchSessionModule.m */; };
@@ -609,6 +609,8 @@
 		3A1E40501BEAC73D00943233 /* TiUIiOSMenuPopup.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIiOSMenuPopup.m; sourceTree = "<group>"; };
 		3A275F3C1BA881B300EC4912 /* TiUIActivityIndicatorStyleProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIActivityIndicatorStyleProxy.h; sourceTree = "<group>"; };
 		3A275F3D1BA881B300EC4912 /* TiUIActivityIndicatorStyleProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIActivityIndicatorStyleProxy.m; sourceTree = "<group>"; };
+		3A38F30224D6EBBD00CC6EFB /* Titanium-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Titanium-Bridging-Header.h"; sourceTree = "<group>"; };
+		3A38F30324D6EBBD00CC6EFB /* TiUtils+Addons.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TiUtils+Addons.swift"; sourceTree = "<group>"; };
 		3A3BBAF31D3E2F0F008450DF /* TiAppiOSUserNotificationCenterProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiAppiOSUserNotificationCenterProxy.h; sourceTree = "<group>"; };
 		3A3BBAF41D3E2F0F008450DF /* TiAppiOSUserNotificationCenterProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiAppiOSUserNotificationCenterProxy.m; sourceTree = "<group>"; };
 		3A5AD7241BB9A6E4005B408B /* TiUIiOSPreviewActionGroupProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIiOSPreviewActionGroupProxy.h; sourceTree = "<group>"; };
@@ -635,8 +637,6 @@
 		3AB9137F1BB61FDA0063A4AD /* TiUIiOSPreviewActionProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIiOSPreviewActionProxy.m; sourceTree = "<group>"; };
 		3ABA85A91D7204B100BCD3F1 /* TiAppiOSSearchQueryProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiAppiOSSearchQueryProxy.h; sourceTree = "<group>"; };
 		3ABA85AA1D7204B100BCD3F1 /* TiAppiOSSearchQueryProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiAppiOSSearchQueryProxy.m; sourceTree = "<group>"; };
-		4A4D3A8E22C0CE6A003D2DB7 /* TiUtils+Addons.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "TiUtils+Addons.h"; sourceTree = "<group>"; };
-		4A4D3A8F22C0CE6A003D2DB7 /* TiUtils+Addons.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "TiUtils+Addons.m"; sourceTree = "<group>"; };
 		50115A9315D5DE0500122055 /* ThirdpartyNS.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ThirdpartyNS.h; path = ../Classes/ThirdpartyNS.h; sourceTree = SOURCE_ROOT; };
 		673144D4211DBAD7001BDBF2 /* TiUIApplication.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TiUIApplication.h; path = ../Classes/TiUIApplication.h; sourceTree = "<group>"; };
 		673144D5211DBAD7001BDBF2 /* TiUIApplication.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TiUIApplication.m; path = ../Classes/TiUIApplication.m; sourceTree = "<group>"; };
@@ -1983,10 +1983,10 @@
 			children = (
 				DBF30945210F3B420001F770 /* TiApp+Addons.h */,
 				DBF30946210F3B420001F770 /* TiApp+Addons.m */,
-				4A4D3A8E22C0CE6A003D2DB7 /* TiUtils+Addons.h */,
-				4A4D3A8F22C0CE6A003D2DB7 /* TiUtils+Addons.m */,
+				3A38F30324D6EBBD00CC6EFB /* TiUtils+Addons.swift */,
 				DBF30942210F37080001F770 /* TiWindowProxy+Addons.h */,
 				DBF30943210F37080001F770 /* TiWindowProxy+Addons.m */,
+				3A38F30224D6EBBD00CC6EFB /* Titanium-Bridging-Header.h */,
 			);
 			name = "TitaniumKit Extensions";
 			sourceTree = "<group>";
@@ -2037,6 +2037,7 @@
 				LastUpgradeCheck = 1020;
 				TargetAttributes = {
 					1D6058900D05DD3D006BFB54 = {
+						LastSwiftMigration = 1150;
 						ProvisioningStyle = Manual;
 						SystemCapabilities = {
 							com.apple.BackgroundModes = {
@@ -2154,6 +2155,7 @@
 				3A1E40511BEAC73D00943233 /* TiUIiOSMenuPopup.m in Sources */,
 				84A0100417FC8D3500D4BF94 /* TiGravityBehavior.m in Sources */,
 				24CA8B79111161FE0084E2DE /* TiUITextFieldProxy.m in Sources */,
+				3A38F30424D6EBBD00CC6EFB /* TiUtils+Addons.swift in Sources */,
 				24CA8B7A111161FE0084E2DE /* TiUITextField.m in Sources */,
 				15CB44151C4ED54E00D81480 /* TiUIiOSSystemButtonProxy.m in Sources */,
 				24CA8B7B111161FE0084E2DE /* TiUITextAreaProxy.m in Sources */,
@@ -2202,7 +2204,6 @@
 				1592CC3A1C496EFB00C3DB83 /* TiUIiOSRowAnimationStyleProxy.m in Sources */,
 				24CA8BAA111161FE0084E2DE /* TiUIButton.m in Sources */,
 				24CA8BAC111161FE0084E2DE /* TiUIAlertDialogProxy.m in Sources */,
-				4A4D3A9022C0CE6A003D2DB7 /* TiUtils+Addons.m in Sources */,
 				24CA8BAE111161FE0084E2DE /* TiUIActivityIndicatorProxy.m in Sources */,
 				24CA8BAF111161FE0084E2DE /* TiUIActivityIndicator.m in Sources */,
 				24CA8BBC111161FE0084E2DE /* TiMediaVideoPlayerProxy.m in Sources */,
@@ -2374,6 +2375,7 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = NO;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
@@ -2404,6 +2406,9 @@
 				"OTHER_LDFLAGS[sdk=iphonesimulator*]" = "$(inherited)";
 				PRODUCT_BUNDLE_IDENTIFIER = com.appcelerator.titanium;
 				PRODUCT_NAME = Titanium;
+				SWIFT_OBJC_BRIDGING_HEADER = "../Classes/Titanium-Bridging-Header.h";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				WARNING_CFLAGS = "-Wno-arc-performSelector-leaks";
 			};
@@ -2417,6 +2422,7 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = NO;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
@@ -2445,6 +2451,8 @@
 				"OTHER_LDFLAGS[sdk=iphonesimulator*]" = "$(inherited)";
 				PRODUCT_BUNDLE_IDENTIFIER = com.appcelerator.titanium;
 				PRODUCT_NAME = Titanium;
+				SWIFT_OBJC_BRIDGING_HEADER = "../Classes/Titanium-Bridging-Header.h";
+				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				WARNING_CFLAGS = "-Wno-arc-performSelector-leaks";
 			};
