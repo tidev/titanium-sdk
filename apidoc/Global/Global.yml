@@ -323,6 +323,8 @@ properties:
   - name: OS_VERSION_MAJOR
     summary: The operation system's major version number.
     description: |
+        This returns the same value as the <Titanium.Platform.versionMajor> property.
+
         ``` js
         if (OS_IOS && (OS_VERSION_MAJOR >= 13)) {
             // Do something on iOS 13 or higher only.
@@ -334,8 +336,12 @@ properties:
 
   - name: OS_VERSION_MINOR
     summary: The operating system's minor version number.
-    description: Will return zero if OS does not have a minor version.
+    description: |
+        This returns the same value as the <Titanium.Platform.versionMinor> property.
+
+        Will return zero if the OS does not have a minor version.
     type: Number
+    default: 0
     permission: read-only
     since: "9.2.0"
 

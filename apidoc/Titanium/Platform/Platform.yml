@@ -363,14 +363,20 @@ properties:
 
   - name: versionMajor
     summary: The operating system's major version number.
+    description: |
+      This returns the same value as the [OS_VERSION_MAJOR](Global.OS_VERSION_MAJOR) constant.
     type: Number
     permission: read-only
     since: "9.2.0"
 
   - name: versionMinor
     summary: The operating system's minor version number.
-    description: Will return zero if OS does not have a minor version.
+    description: |
+      This returns the same value as the [OS_VERSION_MINOR](Global.OS_VERSION_MINOR) constant.
+
+      Will return zero if the OS does not have a minor version.
     type: Number
+    default: 0
     permission: read-only
     since: "9.2.0"
 
