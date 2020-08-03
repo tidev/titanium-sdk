@@ -15,7 +15,7 @@ export function createTab(options) {
 		activeTitleColor: '#E82C2A'
 	};
 	const mergedOptions = Object.assign({}, defaults);
-	if (runs('android')) {
+	if (OS_ANDROID) {
 		Object.assign(mergedOptions, {
 			titleColor: '#f8bbc2',
 			activeTitleColor: '#fff'
@@ -24,17 +24,6 @@ export function createTab(options) {
 	}
 	Object.assign(mergedOptions, options);
 	return Ti.UI.createTab(mergedOptions);
-}
-
-/**
- * Checks if the current device runs the specified platform.
- *
- * @param {string} platform Platform name to check
- * @return {boolean} True if current device is running on the specified platform, false if not.
- */
-export function runs(platform) {
-	return Ti.Platform.osname === platform
-    || (platform === 'ios' && [ 'iphone', 'ipad' ].includes(Ti.Platform.osname));
 }
 
 /**

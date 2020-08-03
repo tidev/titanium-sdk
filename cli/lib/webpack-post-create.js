@@ -17,11 +17,11 @@ module.exports = templateHookDir => (logger, config, cli) => {
 				renderReadme(projectPath, { name: projectName }),
 				installDependencies(projectPath, logger)
 			]);
-			next();
 		} catch (e) {
 			logger.error(e);
 			next(e);
 		}
+		next();
 	});
 };
 
