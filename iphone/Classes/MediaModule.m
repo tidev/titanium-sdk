@@ -36,6 +36,7 @@
 #ifdef USE_TI_MEDIAVIDEOPLAYER
 #import "TiMediaVideoPlayerProxy.h"
 #endif
+#import <UniformTypeIdentifiers/UTCoreTypes.h>
 
 // by default, we want to make the camera fullscreen and
 // these transform values will scale it when we have our own overlay
@@ -1105,8 +1106,21 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
 {
   ENSURE_SINGLE_ARG_OR_NIL(args, NSDictionary);
   ENSURE_UI_THREAD(openPhotoGallery, args);
-  [self showPicker:args isCamera:NO];
+
+  NSArray *types = (NSArray *)[args objectForKey:@"mediaTypes"];
+  // video selection is not supported in PHPicker
+#if IS_SDK_IOS_14 // && !([types containsObject:(NSString *)kUTTypeMovie]
+  if ([TiUtils isIOSVersionOrGreater:@"14.0"] && ([args objectForKey:@"selectionLimit"] || [TiUtils boolValue:[args objectForKey:@"allowMultiple"] def:NO])) {
+    [self showPHPicker:args];
+  } else {
+#endif
+    [self showPicker:args
+            isCamera:NO];
+#if IS_SDK_IOS_14
+  }
+#endif
 }
+
 #endif
 
 /**
@@ -1373,6 +1387,13 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
 #if defined(USE_TI_MEDIASHOWCAMERA) || defined(USE_TI_MEDIAOPENPHOTOGALLERY)
   RELEASE_TO_NIL(picker);
 #endif
+
+#if IS_SDK_IOS_14
+#if defined(USE_TI_MEDIAOPENPHOTOGALLERY)
+  RELEASE_TO_NIL(_phPicker);
+#endif
+#endif
+
 #if defined(USE_TI_MEDIASTARTVIDEOEDITING) || defined(USE_TI_MEDIASTOPVIDEOEDITING)
   RELEASE_TO_NIL(editor);
 #endif
@@ -1752,6 +1773,147 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
   }
 
   [self sendPickerSuccess:eventDict];
+}
+#endif
+
+#if IS_SDK_IOS_14
+- (void)showPHPicker:(NSDictionary *)args
+{
+  if (picker != nil) {
+    [self sendPickerError:MediaModuleErrorBusy];
+    return;
+  }
+
+  animatedPicker = YES;
+
+  PHPickerConfiguration *configuration = [[PHPickerConfiguration alloc] init];
+  NSMutableArray *filterList = [NSMutableArray array];
+
+  if (args != nil) {
+    [self commonPickerSetup:args];
+
+    BOOL allowMultiple = [TiUtils boolValue:[args objectForKey:@"allowMultiple"] def:NO];
+    configuration.selectionLimit = [TiUtils intValue:[args objectForKey:@"selectionLimit"] def:allowMultiple ? 0 : 1];
+
+    NSArray *mediaTypes = (NSArray *)[args objectForKey:@"mediaTypes"];
+    if (mediaTypes) {
+      for (NSString *mediaType in mediaTypes) {
+        if ([mediaType isEqualToString:(NSString *)kUTTypeImage]) {
+          [filterList addObject:PHPickerFilter.imagesFilter];
+        } else if ([mediaType isEqualToString:(NSString *)kUTTypeLivePhoto]) {
+          [filterList addObject:PHPickerFilter.livePhotosFilter];
+        } else if ([mediaType isEqualToString:(NSString *)kUTTypeMovie]) {
+          [filterList addObject:PHPickerFilter.videosFilter];
+        }
+      }
+    }
+  }
+
+  if (filterList.count == 0) {
+    [filterList addObject:PHPickerFilter.imagesFilter];
+  }
+
+  PHPickerFilter *filter = [PHPickerFilter anyFilterMatchingSubfilters:filterList];
+  configuration.filter = filter;
+
+  _phPicker = [[PHPickerViewController alloc] initWithConfiguration:configuration];
+
+  [_phPicker setDelegate:self];
+  [self displayModalPicker:_phPicker settings:args];
+}
+
+#pragma mark PHPickerViewControllerDelegate
+
+- (void)picker:(PHPickerViewController *)picker didFinishPicking:(NSArray<PHPickerResult *> *)results
+{
+  // If user cancels, results count will be 0
+  if (results.count == 0) {
+    [self closeModalPicker:picker];
+    [self sendPickerCancel];
+    return;
+  }
+
+  dispatch_group_t group = dispatch_group_create();
+  __block NSMutableArray<NSDictionary *> *imageArray = nil;
+  __block NSMutableArray<NSDictionary *> *livePhotoArray = nil;
+  __block NSMutableArray<NSDictionary *> *videoArray = nil;
+
+  for (PHPickerResult *result in results) {
+    dispatch_group_enter(group);
+
+    if ([result.itemProvider canLoadObjectOfClass:PHLivePhoto.class]) {
+      [result.itemProvider loadObjectOfClass:PHLivePhoto.class
+                           completionHandler:^(__kindof id<NSItemProviderReading> _Nullable object, NSError *_Nullable error) {
+                             if (!error) {
+                               if (!livePhotoArray) {
+                                 livePhotoArray = [[NSMutableArray alloc] init];
+                               }
+                               TiUIiOSLivePhoto *livePhoto = [[[TiUIiOSLivePhoto alloc] _initWithPageContext:[self pageContext]] autorelease];
+                               [livePhoto setLivePhoto:(PHLivePhoto *)object];
+                               [livePhotoArray addObject:@{ @"livePhoto" : livePhoto, @"mediaType" : (NSString *)kUTTypeLivePhoto }];
+                             } else {
+                               DebugLog(@"[ERROR] Failed to load live photo- %@ .", error.description);
+                             }
+                             dispatch_group_leave(group);
+                           }];
+    } else if ([result.itemProvider canLoadObjectOfClass:UIImage.class]) {
+      [result.itemProvider loadObjectOfClass:UIImage.class
+                           completionHandler:^(__kindof id<NSItemProviderReading> _Nullable object, NSError *_Nullable error) {
+                             if (!error) {
+                               if (!imageArray) {
+                                 imageArray = [[NSMutableArray alloc] init];
+                               }
+                               TiBlob *media = [[[TiBlob alloc] initWithImage:(UIImage *)object] autorelease];
+                               [imageArray addObject:@{ @"media" : media, @"mediaType" : (NSString *)kUTTypeImage }];
+                             } else {
+                               DebugLog(@"[ERROR] Failed to load image- %@ .", error.description);
+                             }
+                             dispatch_group_leave(group);
+                           }];
+    } else if ([result.itemProvider hasItemConformingToTypeIdentifier:UTTypeMovie.identifier]) {
+      [result.itemProvider loadItemForTypeIdentifier:UTTypeMovie.identifier
+                                             options:nil
+                                   completionHandler:^(__kindof id<NSSecureCoding> _Nullable item, NSError *_Null_unspecified error) {
+                                     // Bug from Apple : https://developer.apple.com/forums/thread/652695
+                                     if (!error) {
+                                       if (!videoArray) {
+                                         videoArray = [[NSMutableArray alloc] init];
+                                       }
+                                       NSURL *url = (NSURL *)item;
+                                       TiBlob *media = [[[TiBlob alloc] initWithFile:[url path]] autorelease];
+                                       if ([media mimeType] == nil) {
+                                         [media setMimeType:@"video/mpeg" type:TiBlobTypeFile];
+                                       }
+                                       [videoArray addObject:@{ @"media" : media, @"mediaType" : (NSString *)kUTTypeMovie }];
+                                     } else {
+                                       DebugLog(@"[ERROR] Failed to load video- %@ .", error.description);
+                                     }
+                                     dispatch_group_leave(group);
+                                   }];
+    } else {
+      dispatch_group_leave(group);
+      NSLog(@"Unsupported media type");
+    }
+  }
+
+  dispatch_group_notify(group, dispatch_get_global_queue(QOS_CLASS_DEFAULT, DISPATCH_QUEUE_PRIORITY_DEFAULT), ^{
+    // Perform completition block
+    NSMutableDictionary *dictionary = [TiUtils dictionaryWithCode:0 message:nil];
+    if (livePhotoArray != nil) {
+      [dictionary setObject:livePhotoArray forKey:@"livePhotos"];
+    }
+    if (imageArray != nil) {
+      [dictionary setObject:imageArray forKey:@"images"];
+    }
+    if (videoArray != nil) {
+      [dictionary setObject:videoArray forKey:@"videos"];
+    }
+    [self sendPickerSuccess:dictionary];
+  });
+
+  if (autoHidePicker) {
+    [self closeModalPicker:picker];
+  }
 }
 #endif
 

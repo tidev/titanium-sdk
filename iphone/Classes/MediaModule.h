@@ -9,6 +9,11 @@
 #if defined(USE_TI_MEDIAGETAPPMUSICPLAYER) || defined(USE_TI_MEDIAOPENMUSICLIBRARY) || defined(USE_TI_MEDIAAPPMUSICPLAYER) || defined(USE_TI_MEDIAGETSYSTEMMUSICPLAYER) || defined(USE_TI_MEDIASYSTEMMUSICPLAYER) || defined(USE_TI_MEDIAHASMUSICLIBRARYPERMISSIONS)
 #import <MediaPlayer/MediaPlayer.h>
 #endif
+#if IS_SDK_IOS_14
+#if defined(USE_TI_MEDIAOPENPHOTOGALLERY)
+#import <PhotosUI/PHPicker.h>
+#endif
+#endif
 #import "TiMediaAudioSession.h"
 #import "TiMediaMusicPlayer.h"
 #import "TiMediaTypes.h"
@@ -17,11 +22,15 @@
 #import <TitaniumKit/TiViewProxy.h>
 
 @class AVAudioRecorder;
-
 @interface MediaModule : TiModule <
                              UINavigationControllerDelegate,
 #if defined(USE_TI_MEDIASHOWCAMERA) || defined(USE_TI_MEDIAOPENPHOTOGALLERY) || defined(USE_TI_MEDIASTARTVIDEOEDITING)
                              UIImagePickerControllerDelegate,
+#endif
+#if IS_SDK_IOS_14
+#if defined(USE_TI_MEDIAOPENPHOTOGALLERY)
+                             PHPickerViewControllerDelegate,
+#endif
 #endif
 #ifdef USE_TI_MEDIAOPENMUSICLIBRARY
                              MPMediaPickerControllerDelegate,
@@ -35,6 +44,11 @@
 // Camera picker
 #if defined(USE_TI_MEDIASHOWCAMERA) || defined(USE_TI_MEDIAOPENPHOTOGALLERY) || defined(USE_TI_MEDIASTARTVIDEOEDITING)
   UIImagePickerController *picker;
+#endif
+#if IS_SDK_IOS_14
+#if defined(USE_TI_MEDIAOPENPHOTOGALLERY)
+  PHPickerViewController *_phPicker;
+#endif
 #endif
   BOOL autoHidePicker;
   BOOL saveToRoll;
