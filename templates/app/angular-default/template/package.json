@@ -5,10 +5,7 @@
   "private": true,
   "main": "src/main.ts",
   "scripts": {
-    "android": "ti build -p android",
-    "ios": "ti build -p ios",
-    "lint": "eslint src",
-    "test": "echo 'No tests specified'"
+    "lint": "eslint src"
   },
   "dependencies": {
     "@angular-eslint/eslint-plugin": "0.0.1-alpha.32",
