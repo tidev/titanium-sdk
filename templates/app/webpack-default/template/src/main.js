@@ -10,7 +10,6 @@
 
 import homeTab from './home';
 import profileTab from './profile';
-import { runs } from './utils';
 
 const options = {
 	tabs: [
@@ -18,7 +17,7 @@ const options = {
 		profileTab
 	]
 };
-if (runs('android')) {
+if (OS_ANDROID) {
 	options.tabsBackgroundColor = '#E82C2A';
 	options.title = 'My App';
 }

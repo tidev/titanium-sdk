@@ -9,7 +9,7 @@
 
 /* global tabGroup */
 
-import { createWindow, createTab, faIcon, runs } from './utils';
+import { createWindow, createTab, faIcon } from './utils';
 
 const title = 'Profile';
 const window = createWindow({ title, layout: 'vertical' });
@@ -105,7 +105,7 @@ function createRow(options) {
 		iconBgTint = '#eef0f6'
 	} = options;
 	const rowOptions = { height: 70 };
-	if (runs('ios')) {
+	if (OS_IOS) {
 		rowOptions.selectionStyle = Ti.UI.iOS.TableViewCellSelectionStyle.NONE;
 	}
 	const row = Ti.UI.createTableViewRow(rowOptions);
@@ -114,6 +114,7 @@ function createRow(options) {
 		horizontalWrap: false
 	});
 	row.add(layout);
+
 	const iconWrapper = Ti.UI.createView({
 		backgroundColor: iconBgTint,
 		width: 40,
@@ -125,6 +126,7 @@ function createRow(options) {
 	const iconLabel = faIcon(icon, null, { color: iconTint });
 	iconWrapper.add(iconLabel);
 	layout.add(iconWrapper);
+
 	const titleLabel = Ti.UI.createLabel({
 		text: title,
 		left: 20,
@@ -132,6 +134,7 @@ function createRow(options) {
 		color: titleTint
 	});
 	layout.add(titleLabel);
+
 	const arrow = faIcon('chevron-right', null, {
 		color: '#c1c2c1',
 		center: { y: 35 },
