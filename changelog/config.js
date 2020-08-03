@@ -21,7 +21,6 @@ const KNOWN_EMPLOYEE_EMAILS = [
 	'mukherjee2@users.noreply.github.com',
 	'14187093+Sajoha@users.noreply.github.com'
 ];
-// TODO: Skip bots like dependabot!
 
 // others use our company email addresses
 const KNOWN_EMPLOYEE_EMAIL_DOMAINS = [
@@ -134,16 +133,37 @@ function gatherModules() {
  * Gather up the community contributions to thank them specifically
  */
 const communityContributions = new Map();
-const breakingChanges = []; // gathe rthe breaking changes specially
+const breakingChanges = []; // gather the breaking changes specially
+
+/**
+ * @param {string} from branch/tag/commit sha to start
+ * @returns {Set<string>} array of valid commit shas
+ */
+function getFilteredShaListing(from) {
+	const stdout = execSync(`git log --cherry-pick --right-only --no-merges ${from}...HEAD --format=%H`, { encoding: 'utf8' });
+	return new Set(stdout.split(/\r?\n/));
+}
+
+const filteredCommitSHAs = getFilteredShaListing(previousBranch);
 
 module.exports = {
 	gitRawCommitsOpts: {
+		// 'right-only': true, // --right-only
+		// 'cherry-pick': true, // --cherry-pick
+		// merges: false, // --no-merges
+		// NOTE: This does a 9_0_X..HEAD comparison, but we need a 9_0_X...HEAD comparison with cherry-picks removed
+		// We do that above by getting the hashes of that subset and then skip anythign this collects that don't fall into that set
 		from: previousBranch,
 		// We override to include authorName and authorEmail!
 		format: '%B%n-hash-%n%H%n-gitTags-%n%d%n-committerDate-%n%ci%n-authorName-%n%an%n-authorEmail-%n%ae'
 	},
 	writerOpts: {
 		transform: function (commit) {
+			// skip commits that may have cherry-picks on both sides
+			if (!filteredCommitSHAs.has(commit.hash)) {
+				return;
+			}
+
 			let discard = true;
 			let community = false;
 			let breaking = false;
