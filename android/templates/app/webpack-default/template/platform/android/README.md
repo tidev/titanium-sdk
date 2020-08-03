@@ -1,6 +1,6 @@
 # Android Platform Folder
 
-This folder contains various files used für the native Android build.
+This folder contains various files used for the native Android build.
 
 ## Launch Icons
 
@@ -10,4 +10,4 @@ To replace these with your own icon we recommend generating all required files u
 
 > 💡 **NOTE**
 >
-> The above tools generate launch icons into `mipmap*` sub-folders. This folder layout is not supported by Titanium and you need to put them in the corresponding `drawable` folders. For example, `mipmap-hdpi/ic_launcher.png` needs to moved to `drawable-hdpi/ic_launcher.png`.
+> The above tools generate launch icons into `mipmap*` sub-folders. This folder layout is not supported by Titanium and you need to put them in the corresponding `drawable` folders. For example, `mipmap-hdpi/ic_launcher.png` needs to be moved to `drawable-hdpi/ic_launcher.png`.
