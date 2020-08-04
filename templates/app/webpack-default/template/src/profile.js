@@ -14,7 +14,10 @@ import { createWindow, createTab, faIcon } from './utils';
 const title = 'Profile';
 const window = createWindow({ title, layout: 'vertical' });
 
-const scrollView = Ti.UI.createScrollView({ layout: 'vertical' });
+const scrollView = Ti.UI.createScrollView({
+	layout: 'vertical',
+	scrollType: 'vertical'
+});
 window.add(scrollView);
 
 // header profile pic & username
@@ -60,7 +63,6 @@ const tableView = Ti.UI.createTableView({
 	top: 40,
 	height: Ti.UI.SIZE,
 	scrollable: false,
-	rowSeparatorInsets: { left: 20, right: 20 },
 	separatorStyle: Ti.UI.TABLE_VIEW_SEPARATOR_STYLE_NONE
 });
 tableView.addEventListener('click', (e) => {
