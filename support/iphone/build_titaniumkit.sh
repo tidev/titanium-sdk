@@ -61,7 +61,9 @@ FRAMEWORK="${UNIVERSAL_LIBRARY_DIR}/${FRAMEWORK_NAME}.framework"
 XCPRETTY="xcpretty"
 which xcpretty || XCPRETTY="cat"
 
-xcodebuild -scheme TitaniumKit -sdk iphonesimulator -configuration Release clean build CONFIGURATION_BUILD_DIR=build/Release-iphonesimulator | eval $XCPRETTY
+# Exclude arm64 architecture from simulator build - TIMOB-28042
+
+xcodebuild -scheme TitaniumKit -sdk iphonesimulator EXCLUDED_ARCHS=arm64 -configuration Release clean build CONFIGURATION_BUILD_DIR=build/Release-iphonesimulator | eval $XCPRETTY
 [[ PIPESTATUS[0] -ne 0 ]] && exit 1
 
 xcodebuild -scheme TitaniumKit -sdk iphoneos -configuration Release clean build CONFIGURATION_BUILD_DIR=build/Release-iphoneos | eval $XCPRETTY
@@ -88,11 +90,6 @@ mkdir "${FRAMEWORK}"
 
 cp -r "${DEVICE_LIBRARY_PATH}/." "${FRAMEWORK}"
 
-######################
-# Remove arm64 architecture from simulator build - TIMOB-28042
-######################
-
-lipo -remove arm64 "${SIMULATOR_LIBRARY_PATH}/${FRAMEWORK_NAME}" -o "${SIMULATOR_LIBRARY_PATH}/${FRAMEWORK_NAME}"
 
 ######################
 # Make an universal binary

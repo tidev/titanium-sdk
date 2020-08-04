@@ -21,7 +21,9 @@ FRAMEWORK="${UNIVERSAL_LIBRARY_DIR}/${FRAMEWORK_NAME}.framework"
 # Build Frameworks
 ######################
 
-xcodebuild -scheme ${PROJECT_NAME} -sdk iphonesimulator -configuration ${CONFIGURATION} clean build CONFIGURATION_BUILD_DIR=${BUILD_DIR}/${CONFIGURATION}-iphonesimulator 2>&1
+# Exclude arm64 architecture from simulator build - TIMOB-28042
+
+xcodebuild -scheme ${PROJECT_NAME} -sdk iphonesimulator EXCLUDED_ARCHS=arm64  -configuration ${CONFIGURATION} clean build CONFIGURATION_BUILD_DIR=${BUILD_DIR}/${CONFIGURATION}-iphonesimulator 2>&1
 
 xcodebuild -scheme ${PROJECT_NAME} -sdk iphoneos -configuration ${CONFIGURATION} clean build CONFIGURATION_BUILD_DIR=${BUILD_DIR}/${CONFIGURATION}-iphoneos 2>&1
 
@@ -41,12 +43,6 @@ mkdir "${FRAMEWORK}"
 ######################
 
 cp -r "${DEVICE_LIBRARY_PATH}/." "${FRAMEWORK}"
-
-######################
-# Remove arm64 architecture from simulator build - TIMOB-28042
-######################
-
-lipo -remove arm64 "${SIMULATOR_LIBRARY_PATH}/${FRAMEWORK_NAME}" -o "${SIMULATOR_LIBRARY_PATH}/${FRAMEWORK_NAME}"
 
 ######################
 # Make an universal binary

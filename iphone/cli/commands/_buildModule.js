@@ -473,6 +473,11 @@ iOSModuleBuilder.prototype.buildModule = function buildModule(next) {
 			args.push('CONFIGURATION_BUILD_DIR=' + path.join(this.projectDir, 'build', 'Release-' + target));
 		}
 
+        // Exclude arm64 architecture from simulator build - TIMOB-28042
+		if (target === 'iphonesimulator') {
+			args.push('EXCLUDED_ARCHS=arm64');
+		}
+
 		return args;
 	}.bind(this);
 
@@ -538,63 +543,39 @@ iOSModuleBuilder.prototype.createUniversalBinary = function createUniversalBinar
 		args[0] += '/' + this.moduleIdAsIdentifier;
 		args[1] += '/' + this.moduleIdAsIdentifier;
 
-		// Remove arm64 architecture from simulator build - TIMOB-28042
-		const removeArgs = [ '-remove', 'arm64', args[1], '-o', args[1] ];
+		// Prepare lipo build
+		args.push(
+			'-create',
+			'-output',
+			path.join(universalFrameworkFile, this.moduleIdAsIdentifier)
+		);
 
-		this.logger.debug(__('Running: %s', (this.xcodeEnv.executables.lipo + ' ' + removeArgs.join(' ')).cyan));
-		appc.subprocess.run(this.xcodeEnv.executables.lipo, removeArgs, function (code, out, err) {
+		this.logger.debug(__('Running: %s', (this.xcodeEnv.executables.lipo + ' ' + args.join(' ')).cyan));
+		appc.subprocess.run(this.xcodeEnv.executables.lipo, args, function (code, out, err) {
 			if (code) {
-				this.logger.debug(__('Failed to remove arm64 arch from simulator build (code %s):', code));
-				this.logger.debug(err.trim() + '\n');
+				this.logger.error(__('Failed to generate universal framework (code %s):', code));
+				this.logger.error(err.trim() + '\n');
+				process.exit(1);
 			}
-
-			// Prepare lipo build
-			args.push(
-				'-create',
-				'-output',
-				path.join(universalFrameworkFile, this.moduleIdAsIdentifier)
-			);
-
-			this.logger.debug(__('Running: %s', (this.xcodeEnv.executables.lipo + ' ' + args.join(' ')).cyan));
-			appc.subprocess.run(this.xcodeEnv.executables.lipo, args, function (code, out, err) {
-				if (code) {
-					this.logger.error(__('Failed to generate universal framework (code %s):', code));
-					this.logger.error(err.trim() + '\n');
-					process.exit(1);
-				}
-				fs.copySync(universalFrameworkFile, path.join(this.projectDir, 'build', basename));
-				fs.removeSync(universalFrameworkDir);
-				next();
-			}.bind(this));
+			fs.copySync(universalFrameworkFile, path.join(this.projectDir, 'build', basename));
+			fs.removeSync(universalFrameworkDir);
+			next();
 		}.bind(this));
-
 	} else {
-		// Remove arm64 architecture from simulator build - TIMOB-28042
-		const removeArgs = [ '-remove', 'arm64', args[1], '-o', args[1] ];
-
-		this.logger.debug(__('Running: %s', (this.xcodeEnv.executables.lipo + ' ' + removeArgs.join(' ')).cyan));
-		appc.subprocess.run(this.xcodeEnv.executables.lipo, removeArgs, function (code, out, err) {
+		args.push(
+			'-create',
+			'-output',
+			path.join(this.projectDir, 'build', moduleId)
+		);
+		this.logger.debug(__('Running: %s', (this.xcodeEnv.executables.lipo + ' ' + args.join(' ')).cyan));
+		appc.subprocess.run(this.xcodeEnv.executables.lipo, args, function (code, out, err) {
 			if (code) {
-				this.logger.debug(__('Failed to remove arm64 arch from simulator build (code %s):', code));
-				this.logger.debug(err.trim() + '\n');
+				this.logger.error(__('Failed to generate universal binary (code %s):', code));
+				this.logger.error(err.trim() + '\n');
+				process.exit(1);
 			}
-
-			args.push(
-				'-create',
-				'-output',
-				path.join(this.projectDir, 'build', moduleId)
-			);
-			this.logger.debug(__('Running: %s', (this.xcodeEnv.executables.lipo + ' ' + args.join(' ')).cyan));
-			appc.subprocess.run(this.xcodeEnv.executables.lipo, args, function (code, out, err) {
-				if (code) {
-					this.logger.error(__('Failed to generate universal binary (code %s):', code));
-					this.logger.error(err.trim() + '\n');
-					process.exit(1);
-				}
-				next();
-			}.bind(this));
+			next();
 		}.bind(this));
-
 	}
 };
 
