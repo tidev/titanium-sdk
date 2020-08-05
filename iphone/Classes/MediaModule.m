@@ -1108,8 +1108,7 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
   ENSURE_UI_THREAD(openPhotoGallery, args);
 
   NSArray *types = (NSArray *)[args objectForKey:@"mediaTypes"];
-  // video selection is not supported in PHPicker
-#if IS_SDK_IOS_14 // && !([types containsObject:(NSString *)kUTTypeMovie]
+#if IS_SDK_IOS_14
   if ([TiUtils isIOSVersionOrGreater:@"14.0"] && ([args objectForKey:@"selectionLimit"] || [TiUtils boolValue:[args objectForKey:@"allowMultiple"] def:NO])) {
     [self showPHPicker:args];
   } else {
@@ -1779,7 +1778,7 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
 #if IS_SDK_IOS_14
 - (void)showPHPicker:(NSDictionary *)args
 {
-  if (picker != nil) {
+  if (_phPicker != nil) {
     [self sendPickerError:MediaModuleErrorBusy];
     return;
   }
@@ -1850,8 +1849,9 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
                                }
                                TiUIiOSLivePhoto *livePhoto = [[[TiUIiOSLivePhoto alloc] _initWithPageContext:[self pageContext]] autorelease];
                                [livePhoto setLivePhoto:(PHLivePhoto *)object];
-                               [livePhotoArray addObject:@{ @"livePhoto" : livePhoto, @"mediaType" : (NSString *)kUTTypeLivePhoto }];
+                               [livePhotoArray addObject:@{ @"livePhoto" : livePhoto, @"mediaType" : (NSString *)kUTTypeLivePhoto, @"success" : @(YES), @"code" : @(0) }];
                              } else {
+                               [livePhotoArray addObject:@{ @"error" : error.description, @"code" : @(error.code), @"success" : @(NO), @"mediaType" : (NSString *)kUTTypeLivePhoto }];
                                DebugLog(@"[ERROR] Failed to load live photo- %@ .", error.description);
                              }
                              dispatch_group_leave(group);
@@ -1864,8 +1864,9 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
                                  imageArray = [[NSMutableArray alloc] init];
                                }
                                TiBlob *media = [[[TiBlob alloc] initWithImage:(UIImage *)object] autorelease];
-                               [imageArray addObject:@{ @"media" : media, @"mediaType" : (NSString *)kUTTypeImage }];
+                               [imageArray addObject:@{ @"media" : media, @"mediaType" : (NSString *)kUTTypeImage, @"success" : @(YES), @"code" : @(0) }];
                              } else {
+                               [imageArray addObject:@{ @"error" : error.description, @"code" : @(error.code), @"success" : @(NO), @"mediaType" : (NSString *)kUTTypeImage }];
                                DebugLog(@"[ERROR] Failed to load image- %@ .", error.description);
                              }
                              dispatch_group_leave(group);
@@ -1884,8 +1885,9 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
                                        if ([media mimeType] == nil) {
                                          [media setMimeType:@"video/mpeg" type:TiBlobTypeFile];
                                        }
-                                       [videoArray addObject:@{ @"media" : media, @"mediaType" : (NSString *)kUTTypeMovie }];
+                                       [videoArray addObject:@{ @"media" : media, @"mediaType" : (NSString *)kUTTypeMovie, @"success" : @(YES), @"code" : @(0) }];
                                      } else {
+                                       [videoArray addObject:@{ @"error" : error.description, @"code" : @(error.code), @"success" : @(NO), @"mediaType" : (NSString *)kUTTypeMovie }];
                                        DebugLog(@"[ERROR] Failed to load video- %@ .", error.description);
                                      }
                                      dispatch_group_leave(group);
