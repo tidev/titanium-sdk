@@ -6,8 +6,9 @@
 
 'use strict';
 
-const appc = require('node-appc');
 const path = require('path');
+const spawn = require('child_process').spawn; // eslint-disable-line security/detect-child-process
+const EmulatorManager = require('node-titanium-sdk/lib/emulator');
 
 exports.cliVersion = '>=3.2';
 
@@ -32,24 +33,67 @@ exports.init = (logger, config, cli) => {
 
 	cli.on('build.post.compile', async (builder, done) => {
 		if (builder.platformName === 'android') {
-			await wakeDevices(logger, builder).catch(e => logger.warn(`could not wake ${builder.deviceId}: ${e}`));
+			const emulatorManager = new EmulatorManager(config);
+
+			await wakeDevices(logger, builder, emulatorManager)
+				.catch(e => logger.warn(`Could not wake ${builder.deviceId}: ${e}`));
+			await enableAutoRotation(logger, builder, emulatorManager)
+				.catch(e => logger.warn(`Could not enable auto-rotation ${builder.deviceId}: ${e}`));
 		}
 		done();
 	});
 };
 
-async function adb(argumentArray) {
-	return new Promise(resolve => appc.subprocess.run(ADB_PATH, argumentArray, { shell: false, windowsHide: true }, (error, stdout, _stderr) => {
-		resolve(stdout);
-	}));
+async function adb(args) {
+	return new Promise((resolve, reject) => {
+		let child;
+		let stdout = '';
+		let stderr = '';
+
+		if (process.platform === 'win32') {
+			child = spawn(
+				process.env.comspec || 'cmd.exe',
+				[ '/S', '/C', '"', ADB_PATH, ...args, '"' ],
+				{
+					windowsVerbatimArguments: true
+				}
+			);
+		} else {
+			child = spawn(
+				ADB_PATH,
+				args,
+				{
+					shell: false,
+					windowsHide: true
+				}
+			);
+		}
+		if (child) {
+			child.stdout.on('data', data => {
+				stdout += data.toString();
+			});
+			child.stderr.on('data', data => {
+				stderr += data.toString();
+			});
+			child.on('exit', code => {
+				if (code !== 0) {
+					return reject(`${stdout}\n${stderr}`);
+				}
+				resolve(stdout);
+			});
+			child.on('error', reject);
+			return;
+		}
+		reject();
+	});
 }
 
-async function wakeDevices(logger, builder) {
+async function wakeDevices(logger, builder, emulatorManager) {
 
 	async function wake(device) {
 		logger.info(`Waking up ${device}`);
 
-		const deviceId = device !== 'emulator' ? [ '-s', device ] : [];
+		const deviceId = device !== 'emulator' ? [ '-s', await getDeviceId(device, emulatorManager) ] : [];
 
 		// Power on the screen if currently off.
 		const powerStatus = await adb([ ...deviceId, 'shell', 'dumpsys', 'power' ]);
@@ -77,4 +121,39 @@ async function wakeDevices(logger, builder) {
 	} else {
 		await wake(builder.deviceId);
 	}
+}
+
+async function enableAutoRotation(logger, builder, emulatorManager) {
+
+	async function autoRotate(device) {
+		const deviceId = device !== 'emulator' ? [ '-s', await getDeviceId(device, emulatorManager) ] : [];
+
+		// Enable auto-rotation if currently disabled.
+		const rotationStatus = await adb([ ...deviceId, 'shell', 'settings', 'get', 'system', 'accelerometer_rotation' ]);
+		if (rotationStatus !== '1') {
+			logger.info(`Enabling auto-rotation for ${device}`);
+
+			await adb([ ...deviceId, 'shell', 'settings', 'put', 'system', 'accelerometer_rotation', '1' ]);
+		}
+	}
+
+	if (builder.deviceId === 'all') {
+		for (const device of builder.devices) {
+			if (device.id !== 'all') {
+				await autoRotate(device.id);
+			}
+		}
+	} else {
+		await autoRotate(builder.deviceId);
+	}
+}
+
+async function getDeviceId(id, emulatorManager) {
+	return new Promise(resolve => {
+		emulatorManager.isRunning(id, {}, (err, device) => {
+
+			// Obtain running device identifier instead of AVD identifier.
+			resolve(device ? device.id : id);
+		});
+	});
 }
