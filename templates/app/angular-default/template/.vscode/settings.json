@@ -1,14 +1,20 @@
 {
 	"files.exclude": {
 		"build/": true,
+		"i18n/": true,
+		"platform/": true,
 		"Resources/": true
 	},
 	"search.exclude": {
 		"build/": true,
+		"i18n/": true,
+		"platform/": true,
 		"Resources/": true
 	},
 	"files.watcherExclude": {
 		"build/": true,
+		"i18n/": true,
+		"platform/": true,
 		"Resources/": true
 	}
 }
