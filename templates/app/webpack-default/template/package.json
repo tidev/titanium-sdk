@@ -6,7 +6,7 @@
   "scripts": {
     "lint": "eslint src"
   },
-  "dependencies": {
+  "devDependencies": {
     "@titanium-sdk/webpack-plugin-babel": "0.1.2",
     "@titanium-sdk/webpack-plugin-classic": "^0.1.0",
     "babel-eslint": "10.1.0",
