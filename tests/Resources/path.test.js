@@ -268,57 +268,57 @@ describe('path', function () {
 		});
 
 		it('returns false for empty string', function () {
-			path.isAbsolute('').should.eql(false);
+			path.isAbsolute('').should.be.false();
 		});
 
 		// POSIX
 		it('returns true for typical posix absolute path', function () {
-			path.posix.isAbsolute('/foo/bar').should.eql(true);
+			path.posix.isAbsolute('/foo/bar').should.be.true();
 		});
 
 		it('returns true for posix absolute path with .. segment', function () {
-			path.posix.isAbsolute('/baz/..').should.eql(true);
+			path.posix.isAbsolute('/baz/..').should.be.true();
 		});
 
 		it('returns false for typical posix relative path', function () {
-			path.posix.isAbsolute('qux/').should.eql(false);
+			path.posix.isAbsolute('qux/').should.be.false();
 		});
 
 		it('returns false for posix path "."', function () {
-			path.posix.isAbsolute('.').should.eql(false);
+			path.posix.isAbsolute('.').should.be.false();
 		});
 
 		// Windows
 		it('returns true for win32 UNC absolute path', function () {
-			path.win32.isAbsolute('//server').should.eql(true);
+			path.win32.isAbsolute('//server').should.be.true();
 		});
 
 		it('returns true for win32 server absolute path', function () {
-			path.win32.isAbsolute('\\\\server').should.eql(true);
+			path.win32.isAbsolute('\\\\server').should.be.true();
 		});
 
 		it('handles full UNC style path on win32', function () {
-			path.win32.isAbsolute('\\\\host-name\\share-name\\file_path').should.eql(true);
+			path.win32.isAbsolute('\\\\host-name\\share-name\\file_path').should.be.true();
 		});
 
 		it('returns true for win32 absolute path with POSIX separators', function () {
-			path.win32.isAbsolute('C:/foo/..').should.eql(true);
+			path.win32.isAbsolute('C:/foo/..').should.be.true();
 		});
 
 		it('returns true for typical win32 absolute path', function () {
-			path.win32.isAbsolute('C:\\foo\\..').should.eql(true);
+			path.win32.isAbsolute('C:\\foo\\..').should.be.true();
 		});
 
 		it('returns false for typical win32 relative path', function () {
-			path.win32.isAbsolute('bar\\baz').should.eql(false);
+			path.win32.isAbsolute('bar\\baz').should.be.false();
 		});
 
 		it('returns false for win32 relative path with POSIX separators', function () {
-			path.win32.isAbsolute('bar/baz').should.eql(false);
+			path.win32.isAbsolute('bar/baz').should.be.false();
 		});
 
 		it('returns false for win32 path "."', function () {
-			path.win32.isAbsolute('.').should.eql(false);
+			path.win32.isAbsolute('.').should.be.false();
 		});
 
 		it('throws TypeError when path is not a string', function () {

@@ -1096,9 +1096,9 @@ describe('Titanium.UI.TableView', function () {
 
 	it.windowsMissing('scrollable', function () {
 		var tableView = Ti.UI.createTableView({ scrollable: false });
-		should(tableView.scrollable).be.eql(false);
+		should(tableView.scrollable).be.be.false();
 		tableView.scrollable = !tableView.scrollable;
-		should(tableView.scrollable).be.eql(true);
+		should(tableView.scrollable).be.be.true();
 	});
 
 	it.ios('#separatorStyle', function () {
@@ -1189,9 +1189,9 @@ describe('Titanium.UI.TableView', function () {
 
 	it.windowsMissing('scrollable', function () {
 		var tableView = Ti.UI.createTableView({ scrollable: false });
-		should(tableView.scrollable).be.eql(false);
+		should(tableView.scrollable).be.be.false();
 		tableView.scrollable = !tableView.scrollable;
-		should(tableView.scrollable).be.eql(true);
+		should(tableView.scrollable).be.be.true();
 	});
 
 	// FIXME Windows throws exception
