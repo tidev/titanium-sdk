@@ -8,7 +8,6 @@
 
 const path = require('path');
 const spawn = require('child_process').spawn; // eslint-disable-line security/detect-child-process
-const EmulatorManager = require('node-titanium-sdk/lib/emulator');
 
 exports.cliVersion = '>=3.2';
 
@@ -33,11 +32,9 @@ exports.init = (logger, config, cli) => {
 
 	cli.on('build.post.compile', async (builder, done) => {
 		if (builder.platformName === 'android') {
-			const emulatorManager = new EmulatorManager(config);
-
-			await wakeDevices(logger, builder, emulatorManager)
+			await wakeDevices(logger, builder)
 				.catch(e => logger.warn(`Could not wake ${builder.deviceId}: ${e}`));
-			await enableAutoRotation(logger, builder, emulatorManager)
+			await enableAutoRotation(logger, builder)
 				.catch(e => logger.warn(`Could not enable auto-rotation ${builder.deviceId}: ${e}`));
 		}
 		done();
@@ -87,12 +84,12 @@ async function adb(args) {
 	});
 }
 
-async function wakeDevices(logger, builder, emulatorManager) {
+async function wakeDevices(logger, builder) {
 
 	async function wake(device) {
 		logger.info(`Waking up ${device}`);
 
-		const deviceId = device !== 'emulator' ? [ '-s', await getDeviceId(device, emulatorManager) ] : [];
+		const deviceId = builder.target !== 'emulator' ? [ '-s', device ] : [];
 
 		// Power on the screen if currently off.
 		const powerStatus = await adb([ ...deviceId, 'shell', 'dumpsys', 'power' ]);
@@ -122,10 +119,10 @@ async function wakeDevices(logger, builder, emulatorManager) {
 	}
 }
 
-async function enableAutoRotation(logger, builder, emulatorManager) {
+async function enableAutoRotation(logger, builder) {
 
 	async function autoRotate(device) {
-		const deviceId = device !== 'emulator' ? [ '-s', await getDeviceId(device, emulatorManager) ] : [];
+		const deviceId = builder.target !== 'emulator' ? [ '-s', device ] : [];
 
 		// Enable auto-rotation if currently disabled.
 		const rotationStatus = await adb([ ...deviceId, 'shell', 'settings', 'get', 'system', 'accelerometer_rotation' ]);
@@ -145,14 +142,4 @@ async function enableAutoRotation(logger, builder, emulatorManager) {
 	} else {
 		await autoRotate(builder.deviceId);
 	}
-}
-
-async function getDeviceId(id, emulatorManager) {
-	return new Promise(resolve => {
-		emulatorManager.isRunning(id, {}, (err, device) => {
-
-			// Obtain running device identifier instead of AVD identifier.
-			resolve(device ? device.id : id);
-		});
-	});
 }
