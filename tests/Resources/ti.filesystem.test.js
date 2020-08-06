@@ -94,7 +94,7 @@ describe('Titanium.Filesystem', function () {
 		var file;
 		should(Ti.Filesystem.getFile).be.a.Function();
 		file = Ti.Filesystem.getFile('app.js');
-		should(file).be.ok; // not null or undefined. should(file).not.be.null causes a stack overflow somehow.
+		should(file).be.ok(); // not null or undefined. should(file).not.be.null causes a stack overflow somehow.
 	});
 
 	it('openStream()', function () {
@@ -102,7 +102,7 @@ describe('Titanium.Filesystem', function () {
 		should(Ti.Filesystem.openStream).not.be.undefined();
 		should(Ti.Filesystem.openStream).be.a.Function();
 		stream = Ti.Filesystem.openStream(Ti.Filesystem.MODE_READ, 'app.js');
-		should(stream).be.ok; // not null or undefined. should(stream).not.be.null causes a stack overflow somehow.
+		should(stream).be.ok(); // not null or undefined. should(stream).not.be.null causes a stack overflow somehow.
 		stream.close();
 	});
 
@@ -125,7 +125,7 @@ describe('Titanium.Filesystem', function () {
 		should(Ti.Filesystem.createTempFile).not.be.undefined();
 		should(Ti.Filesystem.createTempFile).be.a.Function();
 		file = Ti.Filesystem.createTempFile();
-		should(file).be.ok; // not null or undefined. should(file).not.; causes a stack overflow somehow.
+		should(file).be.ok(); // not null or undefined. should(file).not.; causes a stack overflow somehow.
 		should(file.name).be.a.String();
 		should(file.exists()).be.true();
 		should(file.deleteFile()).be.true();
@@ -152,12 +152,12 @@ describe('Titanium.Filesystem', function () {
 
 	it('#getFile() should handle files with spaces in path - TIMOB-18765', function () {
 		var f = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, '/folder with spaces/comingSoon.html');
-		should(f.exists()).eql(true);
+		should(f.exists()).be.true();
 	});
 
 	// FIXME: Should this work? It is a difference versus how some other file/url resolution works...
 	it.allBroken('#getFile() should handle absolute-looking paths by resolving relative to resource dir', function () {
 		var f = Ti.Filesystem.getFile('/Logo.png'); // use absolute-looking URL, but actually relative to resources dir!
-		should(f.exists()).eql(true);
+		should(f.exists()).be.true();
 	});
 });

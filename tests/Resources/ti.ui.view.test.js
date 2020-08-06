@@ -191,11 +191,11 @@ describe('Titanium.UI.View', function () {
 
 					// backfillStart
 					should(radialGradient.backgroundGradient.backfillStart).be.a.Boolean();
-					should(radialGradient.backgroundGradient.backfillStart).eql(true);
+					should(radialGradient.backgroundGradient.backfillStart).be.true();
 
 					// backfillEnd
 					should(radialGradient.backgroundGradient.backfillEnd).be.a.Boolean();
-					should(radialGradient.backgroundGradient.backfillEnd).eql(true);
+					should(radialGradient.backgroundGradient.backfillEnd).be.true();
 				}
 			} catch (err) {
 				return finish(err);
@@ -934,7 +934,7 @@ describe('Titanium.UI.View', function () {
 				should(label.accessibilityLabel).eql('Text');
 				should(label.accessibilityValue).eql('Value');
 				should(label.accessibilityHint).eql('Hint');
-				should(label.accessibilityHidden).eql(true);
+				should(label.accessibilityHidden).be.true();
 
 				label.setAccessibilityLabel('New Text');
 				label.accessibilityValue = 'New Value';
@@ -944,7 +944,7 @@ describe('Titanium.UI.View', function () {
 				should(label.accessibilityLabel).eql('New Text');
 				should(label.accessibilityValue).eql('New Value');
 				should(label.accessibilityHint).eql('New Hint');
-				should(label.accessibilityHidden).eql(false);
+				should(label.accessibilityHidden).be.false();
 			} catch (err) {
 				return finish(err);
 			}

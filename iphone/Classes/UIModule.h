@@ -17,6 +17,10 @@
 #import "TiUIActivityIndicatorStyleProxy.h"
 #endif
 
+#if defined(USE_TI_UISHORTCUT) || defined(USE_TI_UISHORTCUTITEM)
+#import "TiUIShortcutProxy.h"
+#endif
+
 @interface UIModule : TiModule {
 
   @private
@@ -28,6 +32,9 @@
 #endif
 #ifdef USE_TI_UICLIPBOARD
   TiProxy *clipboard;
+#endif
+#if defined(USE_TI_UISHORTCUT) || defined(USE_TI_UISHORTCUTITEM)
+  TiUIShortcutProxy *shortcut;
 #endif
   NSNumber *lastEmittedMode;
 }
@@ -275,6 +282,10 @@
 
 #ifdef USE_TI_UIACTIVITYINDICATORSTYLE
 @property (nonatomic, readonly) TiUIActivityIndicatorStyleProxy *ActivityIndicatorStyle;
+#endif
+
+#if defined(USE_TI_UISHORTCUT) || defined(USE_TI_UISHORTCUTITEM)
+@property (nonatomic, readonly) TiUIShortcutProxy *Shortcut;
 #endif
 
 @end

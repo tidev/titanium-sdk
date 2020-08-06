@@ -116,6 +116,8 @@ async function copyMochaAssets() {
 		})(),
 		// modules
 		fs.copy(path.join(SOURCE_DIR, 'modules'), path.join(PROJECT_DIR, 'modules')),
+		// platform
+		fs.copy(path.join(SOURCE_DIR, 'platform'), path.join(PROJECT_DIR, 'platform')),
 		// plugins
 		fs.copy(path.join(SOURCE_DIR, 'plugins'), path.join(PROJECT_DIR, 'plugins')),
 		// i18n
@@ -169,9 +171,35 @@ async function addTiAppProperties() {
 		content.push('\t\t\t\t\t\t<category android:name="android.intent.category.DEFAULT"/>');
 		content.push('\t\t\t\t\t\t<category android:name="android.intent.category.BROWSABLE"/>');
 		content.push('\t\t\t\t\t</intent-filter>');
+		content.push('\t\t\t\t\t<meta-data android:name="android.app.shortcuts" android:resource="@xml/shortcuts"/>');
 		content.push('\t\t\t\t</activity>');
 		content.push('\t\t\t</application>');
 		content.push('\t\t\t<uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>');
+	};
+	let insertPlistSettings = () => {
+		// Enable i18n support for the following languages.
+		content.push('\t\t\t\t<key>CFBundleLocalizations</key>');
+		content.push('\t\t\t\t<array>');
+		content.push('\t\t\t\t\t<string>en</string>');
+		content.push('\t\t\t\t\t<string>ja</string>');
+		content.push('\t\t\t\t</array>');
+		content.push('\t\t\t\t<key>CFBundleAllowMixedLocalizations</key>');
+		content.push('\t\t\t\t<true/>');
+
+		// Add a static shortcut.
+		content.push('\t\t\t\t<key>UIApplicationShortcutItems</key>');
+		content.push('\t\t\t\t<array>');
+		content.push('\t\t\t\t\t<dict>');
+		content.push('\t\t\t\t\t\t<key>UIApplicationShortcutItemIconType</key>');
+		content.push('\t\t\t\t\t\t<string>UIApplicationShortcutIconTypeSearch</string>');
+		content.push('\t\t\t\t\t\t<key>UIApplicationShortcutItemTitle</key>');
+		content.push('\t\t\t\t\t\t<string>static_shortcut1_title</string>');
+		content.push('\t\t\t\t\t\t<key>UIApplicationShortcutItemSubtitle</key>');
+		content.push('\t\t\t\t\t\t<string>static_shortcut1_subtitle</string>');
+		content.push('\t\t\t\t\t\t<key>UIApplicationShortcutItemType</key>');
+		content.push('\t\t\t\t\t\t<string>static_shortcut1</string>');
+		content.push('\t\t\t\t\t</dict>');
+		content.push('\t\t\t\t</array');
 	};
 
 	// Not so smart but this should work...
@@ -187,6 +215,12 @@ async function addTiAppProperties() {
 			content.push('\t\t<use-jscore-framework>true</use-jscore-framework>');
 			// force minimum ios sdk version of 12.0
 			content.push('\t\t<min-ios-ver>12.0</min-ios-ver>');
+		} else if (line.indexOf('<dict>') >= 0) {
+			// Insert iOS plist settings after the first <dict> element.
+			if (insertPlistSettings) {
+				insertPlistSettings();
+				insertPlistSettings = null;
+			}
 		// app thinning breaks tests which expect image files to exist on filesystem normally!
 		} else if (line.indexOf('<use-app-thinning>') >= 0) {
 			content.pop();

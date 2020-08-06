@@ -7,7 +7,7 @@
 /* eslint-env mocha */
 /* eslint no-unused-expressions: "off" */
 'use strict';
-var should = require('./utilities/assertions');
+const should = require('./utilities/assertions');
 
 describe('Titanium.UI.SearchBar', function () {
 	let win;
@@ -329,7 +329,10 @@ describe('Titanium.UI.SearchBar', function () {
 		win.open();
 	});
 
-	it('.focused', done => {
+	it('.focused', function (done) {
+		this.slow(1000);
+		this.timeout(5000);
+
 		win = Ti.UI.createWindow({ backgroundColor: '#fff' });
 		const searchbar = Ti.UI.createSearchBar({
 			backgroundColor: '#fafafa',
@@ -340,10 +343,10 @@ describe('Titanium.UI.SearchBar', function () {
 		win.add(searchbar);
 		try {
 			searchbar.should.have.a.property('focused').which.is.a.Boolean();
-			searchbar.focused.should.eql(false); // haven't opened it yet, so shouldn't be focused
+			searchbar.focused.should.be.false(); // haven't opened it yet, so shouldn't be focused
 			searchbar.addEventListener('focus', () => {
 				try {
-					searchbar.focused.should.eql(true);
+					searchbar.focused.should.be.true();
 				} catch (e) {
 					return done(e);
 				}
@@ -355,7 +358,7 @@ describe('Titanium.UI.SearchBar', function () {
 			win.addEventListener('close', () => {
 				try {
 					// we've been closed (or are closing?) so hopefully shouldn't say that we're focused
-					searchbar.focused.should.eql(false);
+					searchbar.focused.should.be.false();
 				} catch (e) {
 					return done(e);
 				}

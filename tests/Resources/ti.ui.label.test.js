@@ -172,11 +172,11 @@ describe('Titanium.UI.Label', function () {
 		});
 		should(label.wordWrap).be.a.Boolean();
 		should(label.getWordWrap).be.a.Function();
-		should(label.wordWrap).eql(true);
-		should(label.getWordWrap()).eql(true);
+		should(label.wordWrap).be.true();
+		should(label.getWordWrap()).be.true();
 		label.wordWrap = false;
-		should(label.getWordWrap()).eql(false);
-		should(label.wordWrap).eql(false);
+		should(label.getWordWrap()).be.false();
+		should(label.wordWrap).be.false();
 	});
 
 	// FIXME Can't rely on Ti.UI.Window.postlayout event firing because neither platform fires it for that type (only maybe bubbles up from label)

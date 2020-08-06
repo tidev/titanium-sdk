@@ -39,14 +39,14 @@ describe('Titanium.UI.ListView', function () {
 
 	it.windowsMissing('.canScroll', function () {
 		const listView = Ti.UI.createListView({ canScroll: false });
-		should(listView.canScroll).be.eql(false);
-		should(listView.getCanScroll()).be.eql(false);
+		should(listView.canScroll).be.be.false();
+		should(listView.getCanScroll()).be.be.false();
 		listView.canScroll = !listView.canScroll;
-		should(listView.canScroll).be.eql(true);
-		should(listView.getCanScroll()).be.eql(true);
+		should(listView.canScroll).be.be.true();
+		should(listView.getCanScroll()).be.be.true();
 		listView.setCanScroll(!listView.getCanScroll());
-		should(listView.canScroll).be.eql(false);
-		should(listView.getCanScroll()).be.eql(false);
+		should(listView.canScroll).be.be.false();
+		should(listView.getCanScroll()).be.be.false();
 	});
 
 	// FIXME Get working on Android, gives us sectionCount of 0 when it should be 1
@@ -827,15 +827,15 @@ describe('Titanium.UI.ListView', function () {
 		win = Ti.UI.createWindow();
 		win.addEventListener('open', function () {
 			try {
-				should(list.allowsMultipleSelectionDuringEditing).be.eql(true);
-				should(list.getAllowsMultipleSelectionDuringEditing()).be.eql(true);
+				should(list.allowsMultipleSelectionDuringEditing).be.be.true();
+				should(list.getAllowsMultipleSelectionDuringEditing()).be.be.true();
 
 				list.allowsMultipleSelectionDuringEditing = false;
-				should(list.allowsMultipleSelectionDuringEditing).be.eql(false);
-				should(list.getAllowsMultipleSelectionDuringEditing()).be.eql(false);
+				should(list.allowsMultipleSelectionDuringEditing).be.be.false();
+				should(list.getAllowsMultipleSelectionDuringEditing()).be.be.false();
 				list.setAllowsMultipleSelectionDuringEditing(true);
-				should(list.allowsMultipleSelectionDuringEditing).be.eql(true);
-				should(list.getAllowsMultipleSelectionDuringEditing()).be.eql(true);
+				should(list.allowsMultipleSelectionDuringEditing).be.be.true();
+				should(list.getAllowsMultipleSelectionDuringEditing()).be.be.true();
 			} catch (err) {
 				return finish(err);
 			}
@@ -960,7 +960,7 @@ describe('Titanium.UI.ListView', function () {
 
 	it.android('.fastScroll', function () {
 		const listView = Ti.UI.createListView();
-		should(listView.fastScroll).be.eql(false);
+		should(listView.fastScroll).be.be.false();
 		should(listView.setFastScroll).be.a.Function();
 	});
 });
