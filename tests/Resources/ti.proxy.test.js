@@ -41,7 +41,7 @@ describe('Ti.Proxy', function () {
 					text: 'Hello World!'
 				}),
 				desc = Object.getOwnPropertyDescriptor(label, 'madeup');
-			should(desc).not.be.ok; // FIXME: We get null on iOS, according to spec we should get undefined!
+			should(desc).not.be.ok(); // FIXME: We get null on iOS, according to spec we should get undefined!
 		});
 
 		it('should report descriptor for ownProperty set in create* function', function () {

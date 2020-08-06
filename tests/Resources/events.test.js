@@ -15,7 +15,7 @@ let EventEmitter;
 describe('EventEmitter', () => {
 	it('should be available as a core module', () => {
 		EventEmitter = require('events');
-		should(EventEmitter).be.ok;
+		should(EventEmitter).be.ok();
 	});
 
 	describe('#emit()', () => {

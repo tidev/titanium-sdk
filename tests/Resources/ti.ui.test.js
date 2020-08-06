@@ -5,7 +5,7 @@
  * Please see the LICENSE included with this distribution for details.
  */
 /* eslint-env mocha */
-/* globals OS_ANDROID,OS_IOS */
+/* globals OS_ANDROID, OS_IOS, OS_VERSION_MAJOR */
 /* eslint no-unused-expressions: "off" */
 'use strict';
 const should = require('./utilities/assertions');
@@ -218,7 +218,7 @@ describe('Titanium.UI', function () {
 	});
 
 	describe('Semantic Colors', () => {
-		const isIOS13Plus = OS_IOS && parseInt(Ti.Platform.version.split('.')[0]) >= 13;
+		const isIOS13Plus = OS_IOS && (OS_VERSION_MAJOR >= 13);
 
 		it('#fetchSemanticColor() with user colors', () => {
 			const semanticColors = require('./semantic.colors.json');
