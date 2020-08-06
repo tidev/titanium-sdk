@@ -13,7 +13,7 @@ def isMainlineBranch = (env.BRANCH_NAME ==~ MAINLINE_BRANCH_REGEXP)
 // target branch of test suite to test with
 def runDanger = isPR // run Danger.JS if it's a PR by default. (should we also run on origin branches that aren't mainline?)
 def publishToS3 = isMainlineBranch // publish zips to S3 if on mainline branch, by default
-def testOnDevices = isMainlineBranch // run tests on devices
+def testOnDevices = true // run tests on devices
 
 // Variables we can change
 def nodeVersion = '10.17.0' // NOTE that changing this requires we set up the desired version on jenkins master first!
