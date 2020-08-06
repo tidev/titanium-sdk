@@ -582,9 +582,15 @@ async function handleBuild(prc, target, snapshotDir, snapshotPromises) {
 
 		prc.stderr.on('data', data => {
 			process.stderr.write(data); // pipe along the stderr as we go, retaining ANSI colors
+			if (!started) {
+				return;
+			}
 			const line = data.toString();
 			const stripped = stripAnsi(line);
 			const device = getDeviceName(stripped);
+			if (!deviceMap.has(device)) {
+				deviceMap.set(device, new DeviceTestDetails(device, target, snapshotDir, snapshotPromises));
+			}
 			deviceMap.get(device).appendStderr(line);
 		});
 
