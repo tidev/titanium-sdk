@@ -12,7 +12,7 @@ const should = require('./utilities/assertions');
 
 describe('process', () => {
 	it('should be available as a global', () => {
-		should(process).be.ok;
+		should(process).be.ok();
 	});
 
 	// FIXME: this crashes iOS, and Android gets should wrapping the error and re-throwing an AssertionError
@@ -20,9 +20,13 @@ describe('process', () => {
 	it.allBroken('uncaughtException event', finish => {
 		const errorMessage = 'KABOOM';
 		process.on('uncaughtException', err => {
-			err.should.be.ok;
-			err.message.should.eql(errorMessage); // note that we can't test it is the exact same error object!
-			// that's because we "re-construct" errors from properties
+			try {
+				err.should.be.ok();
+				err.message.should.eql(errorMessage); // note that we can't test it is the exact same error object!
+				// that's because we "re-construct" errors from properties
+			} catch (err2) {
+				return finish(err2);
+			}
 			finish();
 		});
 		setTimeout(() => {
@@ -70,7 +74,7 @@ describe('process', () => {
 
 	describe('.connected', () => {
 		it('is false', () => {
-			should(process.connected).eql(false);
+			should(process.connected).be.false();
 		});
 	});
 
@@ -96,7 +100,7 @@ describe('process', () => {
 
 	describe('.execArgv', () => {
 		it('is an Array', () => {
-			should(process.env).be.an.Array();
+			should(process.execArgv).be.an.Array();
 		});
 	});
 
@@ -114,7 +118,7 @@ describe('process', () => {
 
 	describe('.noDeprecation', () => {
 		it('is false', () => { // FIXME: Node sets to undefined by default!
-			should(process.noDeprecation).eql(false);
+			should(process.noDeprecation).be.false();
 		});
 	});
 
@@ -143,11 +147,11 @@ describe('process', () => {
 		});
 
 		it('is not a TTY', () => {
-			should(process.stderr.isTTY).eql(false);
+			should(process.stderr.isTTY).be.false();
 		});
 
 		it('is writable', () => {
-			should(process.stderr.writable).eql(true);
+			should(process.stderr.writable).be.true();
 		});
 
 		describe('#write()', () => {
@@ -163,11 +167,11 @@ describe('process', () => {
 		});
 
 		it('is not a TTY', () => {
-			should(process.stdout.isTTY).eql(false);
+			should(process.stdout.isTTY).be.false();
 		});
 
 		it('is writable', () => {
-			should(process.stdout.writable).eql(true);
+			should(process.stdout.writable).be.true();
 		});
 
 		describe('#write()', () => {
@@ -186,13 +190,13 @@ describe('process', () => {
 
 	describe('.throwDeprecation', () => {
 		it('is false', () => { // FIXME: Node sets to undefined by default!
-			should(process.throwDeprecation).eql(false);
+			should(process.throwDeprecation).be.false();
 		});
 	});
 
 	describe('.traceDeprecation', () => {
 		it('is false', () => { // FIXME: Node sets to undefined by default!
-			should(process.traceDeprecation).eql(false);
+			should(process.traceDeprecation).be.false();
 		});
 	});
 

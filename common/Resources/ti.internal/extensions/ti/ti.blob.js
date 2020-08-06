@@ -1,11 +1,12 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2019 by Axway, Inc. All Rights Reserved.
+ * Copyright (c) 2019-2020 by Axway, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+/* globals OS_IOS, OS_VERSION_MAJOR */
 
-if (Ti.Platform.osname === 'iphone' || Ti.Platform.osname === 'ipad') {
+if (OS_IOS) {
 	const buffer = Ti.createBuffer({ value: '' });
 	const blob = buffer.toBlob();
 	blob.constructor.prototype.toString = function () {
@@ -13,7 +14,7 @@ if (Ti.Platform.osname === 'iphone' || Ti.Platform.osname === 'ipad') {
 		return (value === undefined) ? '[object TiBlob]' :  value;
 	};
 
-	if ((parseInt(Ti.Platform.version.split('.')[0]) < 11)) {
+	if (OS_VERSION_MAJOR < 11) {
 		// This is hack to fix TIMOB-27707. Remove it after minimum target set iOS 11+
 		setTimeout(function () {}, Infinity);
 	}

@@ -4,35 +4,29 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+/* global OS_ANDROID, OS_IOS */
 /* eslint-env titanium, mocha */
 /* eslint no-unused-expressions: "off", no-global-assign: "off", no-native-reassign: "off" */
 'use strict';
-var utilities,
-	win,
-	$results = [],
-	failed = false,
-	should;
+
+let failed = false;
 
 require('./ti-mocha');
 // I *think* we need to load mocha first before utilities...
-utilities = require('./utilities/utilities');
-should = require('./utilities/assertions');
-
-const isWindows = utilities.isWindows();
-const isAndroid = !isWindows && utilities.isAndroid();
+const should = require('./utilities/assertions');
 
 // Must test global is available in first app.js explicitly!
 // (since app.js is treated slightly differently than required files on at least Android)
 describe('global', function () {
 	it('should be available as \'global\'', function () {
-		should(global).be.ok;
+		should(global).be.ok();
 	});
 });
 
 // Must have __dirname in the global scope, even in our app.js
 describe('__dirname', function () {
 	it.windowsMissing('should be available as \'__dirname\'', function () {
-		should(__dirname).be.ok;
+		should(__dirname).be.ok();
 		should(__dirname).be.a.String();
 		should(__dirname).be.eql('/');
 	});
@@ -41,7 +35,7 @@ describe('__dirname', function () {
 // Must have __filename in the global scope, even in our app.js
 describe('__filename', function () {
 	it.windowsMissing('should be available as \'__filename\'', function () {
-		should(__filename).be.ok;
+		should(__filename).be.ok();
 		should(__filename).be.a.String();
 		should(__filename).be.eql('/app.js');
 	});
@@ -75,26 +69,32 @@ function loadTests() {
 	// node-compat core modules
 	require('./assert.test');
 	require('./buffer.test');
+	require('./events.test');
 	require('./fs.test');
 	require('./os.test');
 	require('./path.test');
+	require('./process.test');
 	require('./string_decoder.test');
 	require('./util.test');
 	// Titanium APIs
 	require('./core.runtime.test'); // tests on how proxies behave w/regard to hasOwnProperty
 	require('./ti.accelerometer.test');
 	require('./ti.analytics.test');
-	require('./ti.android.test');
-	require('./ti.android.notificationmanager.test');
-	require('./ti.android.service.test');
+	if (OS_ANDROID) {
+		require('./ti.android.test');
+		require('./ti.android.notificationmanager.test');
+		require('./ti.android.service.test');
+	}
 	require('./ti.api.test');
 	require('./ti.app.test');
-	require('./ti.app.android.test');
-	require('./ti.app.ios.test');
-	require('./ti.app.ios.searchquery.test');
-	require('./ti.app.ios.useractivity.test');
+	if (OS_ANDROID) {
+		require('./ti.app.android.test');
+	} else if (OS_IOS) {
+		require('./ti.app.ios.test');
+		require('./ti.app.ios.searchquery.test');
+		require('./ti.app.ios.useractivity.test');
+	}
 	require('./ti.app.properties.test');
-	require('./ti.app.windows.backgroundservice.test');
 	require('./ti.blob.test');
 	require('./ti.bootstrap.test');
 	require('./ti.buffer.test');
@@ -110,14 +110,15 @@ function loadTests() {
 	require('./ti.geolocation.test');
 	require('./ti.gesture.test');
 	require('./ti.locale.test');
-	require('./ti.map.test');
 	require('./ti.media.test');
 	require('./ti.media.audioplayer.test');
 	require('./ti.media.sound.test');
 	require('./ti.media.videoplayer.test');
 	require('./ti.network.test');
-	require('./ti.network.bonjourbrowser.test');
-	require('./ti.network.bonjourservice.test');
+	if (OS_IOS) {
+		require('./ti.network.bonjourbrowser.test');
+		require('./ti.network.bonjourservice.test');
+	}
 	require('./ti.network.cookie.test');
 	require('./ti.network.httpclient.test');
 	require('./ti.network.socket.tcp.test');
@@ -129,29 +130,34 @@ function loadTests() {
 	require('./ti.test');
 	require('./ti.ui.test');
 	require('./ti.ui.2dmatrix.test');
-	require('./ti.ui.matrix2d.test');
 	require('./ti.ui.activityindicator.test');
 	require('./ti.ui.alertdialog.test');
-	require('./ti.ui.android.test');
-	require('./ti.ui.android.drawerlayout.test');
-	require('./ti.ui.android.progressindicator.test');
+	if (OS_ANDROID) {
+		require('./ti.ui.android.test');
+		require('./ti.ui.android.drawerlayout.test');
+		require('./ti.ui.android.progressindicator.test');
+	}
 	require('./ti.ui.attributedstring.test');
 	require('./ti.ui.button.test');
 	require('./ti.ui.constants.test');
 	require('./ti.ui.emaildialog.test');
 	require('./ti.ui.imageview.test');
-	require('./ti.ui.ios.test');
-	require('./ti.ui.ios.navigationwindow.test');
-	require('./ti.ui.ios.previewcontext.test');
-	require('./ti.ui.ios.splitwindow.test');
-	require('./ti.ui.ios.statusbar.test');
-	require('./ti.ui.ios.tableviewstyle.test');
-	require('./ti.ui.ios.webviewconfiguration.test');
-	require('./ti.ui.ipad.popover.test');
+	if (OS_IOS) {
+		require('./ti.ui.ios.test');
+		require('./ti.ui.ios.navigationwindow.test');
+		require('./ti.ui.ios.previewcontext.test');
+		require('./ti.ui.ios.splitwindow.test');
+		require('./ti.ui.ios.statusbar.test');
+		require('./ti.ui.ios.tabbedbar.test');
+		require('./ti.ui.ios.tableviewstyle.test');
+		require('./ti.ui.ios.webviewconfiguration.test');
+		require('./ti.ui.ipad.popover.test');
+	}
 	require('./ti.ui.label.test');
 	require('./ti.ui.layout.test');
 	require('./ti.ui.listview.test');
 	require('./ti.ui.maskedimage.test');
+	require('./ti.ui.matrix2d.test');
 	require('./ti.ui.navigationwindow.test');
 	require('./ti.ui.optiondialog.test');
 	require('./ti.ui.picker.test');
@@ -173,41 +179,16 @@ function loadTests() {
 	require('./ti.ui.view.test');
 	require('./ti.ui.webview.test');
 	require('./ti.ui.window.test');
-	require('./ti.ui.windows.commandbar.test');
 	require('./ti.utils.test');
-	require('./ti.watchsession.test');
-	require('./ti.xml.test');
-
-	// Load in any of the files added to the test/Resources folder of the SDK repos
-
-	loadAddonTestFiles(Ti.Filesystem.resourcesDirectory);
-}
-
-/**
- * @param {string} name directory or filepath to look for addon tests
- */
-function loadAddonTestFiles(name) {
-	const info = Ti.Filesystem.getFile(name);
-	if (!info) {
-		console.warn(`could not load addon test files: ${name}`);
-		return;
+	if (OS_IOS) {
+		require('./ti.watchsession.test');
 	}
-
-	if (info.isDirectory()) {
-		// ios has a trailing / in Ti.Filesystem.resourcesDirectory so we get too many slashes here!
-		if (name.endsWith('/')) {
-			name = name.slice(0, name.length - 1);
-		}
-		info.getDirectoryListing().forEach(listing => loadAddonTestFiles(`${name}/${listing}`));
-	} else if (/\w+.addontest\.js$/i.test(info.name)) { // Only load the test files
-		try {
-			// convert app:/// to just '/' on Android
-			const absolutePathWithoutExtension = name.replace(/.js$/, '').replace(Ti.Filesystem.resourcesDirectory, '/');
-			console.log(`Loading addon test: ${absolutePathWithoutExtension}`);
-			require(absolutePathWithoutExtension); // eslint-disable-line security/detect-non-literal-require
-		} catch (e) {
-			console.log(e);
-		}
+	require('./ti.xml.test');
+	// Modules
+	require('./ti.cloudpush.test');
+	require('./ti.map.test');
+	if (OS_ANDROID) {
+		require('./ti.playservices.test');
 	}
 }
 
@@ -223,28 +204,27 @@ function loadAddonTestFiles(name) {
  * @return {object}
  */
 function suiteAndTitle(suites, testTitle) {
-	var i;
-	var char;
-	var index = -1;
-	var suiteName = '';
-	var newTestTitle = '';
-	for (i = 0; i < suites.length; i++) {
-		char = suites[i].charAt(0);
+	let index = -1;
+	for (let i = 0; i < suites.length; i++) {
+		const char = suites[i].charAt(0);
 		if (char === '.' || char === '#') {
 			index = i;
 			break;
 		}
 	}
+
+	let suite = '';
+	let title = '';
 	if (index !== -1) {
-		suiteName = suites.slice(0, index).join('.');
-		newTestTitle = suites.slice(index).join(' ') + ' ' + testTitle;
+		suite = suites.slice(0, index).join('.');
+		title = suites.slice(index).join(' ') + ' ' + testTitle;
 	} else {
-		suiteName = suites.join('.');
-		newTestTitle = testTitle;
+		suite = suites.join('.');
+		title = testTitle;
 	}
 	return {
-		suite: suiteName,
-		title: newTestTitle
+		suite,
+		title
 	};
 }
 
@@ -278,9 +258,7 @@ function escapeCharacters(string) {
 // add a special mocha reporter that will time each test run using
 // our microsecond timer
 function $Reporter(runner) {
-	var started,
-		suites = [];
-
+	const suites = [];
 	runner.on('suite', function (suite) {
 		if (suite.title) {
 			suites.push(suite.title);
@@ -293,11 +271,11 @@ function $Reporter(runner) {
 		}
 	});
 
+	let started;
 	runner.on('test', function (test) {
 		Ti.API.info('!TEST_START: ' + test.title);
 		started = new Date().getTime();
 	});
-
 	runner.on('pending', function () {
 		// TODO Spit out something like !TEST_SKIP:  ?
 		started = new Date().getTime(); // reset timer. pending/skipped tests basically start and end immediately
@@ -348,7 +326,7 @@ function $Reporter(runner) {
 		// and print that chunk etc.
 		// In practice it seems to get cut off at 4067 characters,
 		// and we take up the first 19 with the log level and !TEST_END stuff - leaving us with up to 4048 characters
-		if (isAndroid && stringified.length > 4000) {
+		if (OS_ANDROID && stringified.length > 4000) {
 			let prefix = '!TEST_END: ';
 			while (stringified.length > 4000) {
 				const splitIndex = stringified.lastIndexOf('","', 4000);
@@ -369,21 +347,14 @@ function $Reporter(runner) {
 		} else {
 			Ti.API.info('!TEST_END: ' + stringified);
 		}
-		$results.push(result);
 	});
-}
-
-if (isWindows) {
-	if (Ti.App.Windows.requestExtendedExecution) {
-		Ti.App.Windows.requestExtendedExecution();
-	}
 }
 
 // Emit OS version
 Ti.API.info('OS_VERSION: ' + Ti.Platform.version);
 
 // Display a window to host the test and show the final result.
-win = Ti.UI.createWindow({
+const win = Ti.UI.createWindow({
 	backgroundColor: 'yellow',
 	keepScreenOn: true
 });
@@ -399,11 +370,6 @@ win.addEventListener('open', function () {
 			// We've finished executing all tests.
 			win.backgroundColor = failed ? 'red' : 'green';
 			Ti.API.info('!TEST_RESULTS_STOP!');
-			if (isWindows) {
-				if (Ti.App.Windows.closeExtendedExecution) {
-					Ti.App.Windows.closeExtendedExecution();
-				}
-			}
 		});
 	}, 25);
 });

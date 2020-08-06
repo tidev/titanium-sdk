@@ -33,16 +33,16 @@ describe('Titanium.UI.Switch', function () {
 
 		// Validate switch value
 		Ti.API.info('Switch value : ' + switch_ctrl.value);
-		should(switch_ctrl.value).be.eql(true);
+		should(switch_ctrl.value).be.be.true();
 		switch_ctrl.value = false;
-		should(switch_ctrl.value).be.eql(false);
+		should(switch_ctrl.value).be.be.false();
 	});
 
 	it('.value', function () {
 		const switch_ctrl = Ti.UI.createSwitch();
-		should(switch_ctrl.value).be.eql(false);
+		should(switch_ctrl.value).be.be.false();
 		switch_ctrl.value = true;
-		should(switch_ctrl.value).be.eql(true);
+		should(switch_ctrl.value).be.be.true();
 	});
 
 });

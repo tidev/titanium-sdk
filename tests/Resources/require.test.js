@@ -284,6 +284,6 @@ describe('require()', function () {
 	it('should handle directory with package.json main pointing at directory with index.js', function () {
 		const result = require('./package_with_main_dir');
 		should(result).have.property('success');
-		should(result.success).eql(true);
+		should(result.success).be.true();
 	});
 });
