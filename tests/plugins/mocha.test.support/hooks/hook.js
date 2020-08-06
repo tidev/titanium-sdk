@@ -75,13 +75,12 @@ async function adb(args) {
 			child.stderr.on('data', data => {
 				stderr += data.toString();
 			});
-			child.on('exit', code => {
+			child.on('close', code => {
 				if (code !== 0) {
 					return reject(`${stdout}\n${stderr}`);
 				}
 				resolve(stdout);
 			});
-			child.on('error', reject);
 			return;
 		}
 		reject();
