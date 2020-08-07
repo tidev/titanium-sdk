@@ -2956,7 +2956,7 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 				obj.path = xobjs.PBXFileReference[id + '_comment'] = '"' + appName + '.entitlements"';
 			} else if (obj.path === 'Titanium.app') {
 				obj.path = xobjs.PBXFileReference[id + '_comment'] = '"' + appName + '.app"';
-			}	else if (obj.path === 'Titanium-Bridging-Header.h') {
+			}	else if (obj.path === '"Titanium-Bridging-Header.h"') {
 				obj.path = xobjs.PBXFileReference[id + '_comment'] = '"' + scrubbedAppName + '-Bridging-Header.h"';
 			} else if (relPathRegExp.test(obj.path)) {
 				obj.path = obj.path.replace(relPathRegExp, '$1');
