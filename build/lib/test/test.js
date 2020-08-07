@@ -522,10 +522,9 @@ async function handleBuild(prc, target, snapshotDir, snapshotPromises) {
 			// Workaround to launch iOS application on device.
 			if (token.includes('Please manually launch the application')) {
 				console.log('Launching application using ios-deploy');
-				const deploy = spawn('ios-deploy', [ '-L', '-b', path.join(__dirname, 'mocha/build/iphone/build/Products/Debug-iphoneos/mocha.app') ]);
-				let result = '';
-				deploy.stdout.on('data', data => result += data);
-				deploy.on('close', _e => console.log(result));
+				const deploy = spawn('ios-deploy', [ '-L', '-b', path.join(PROJECT_DIR, `build/iphone/build/Products/Debug-iphoneos/${PROJECT_NAME}.app`) ]);
+				deploy.stdout.on('data', data => process.stdout.write(data));
+				deploy.stderr.on('data', data => process.stderr.write(data));
 			}
 
 			// Fail immediately if android emulator is forcing restart
