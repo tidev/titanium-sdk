@@ -4,6 +4,7 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+/* globals OS_VERSION_MAJOR */
 /* eslint-env mocha */
 /* eslint no-unused-expressions: "off" */
 'use strict';
@@ -731,7 +732,7 @@ describe('Titanium.UI.WebView', function () {
 	});
 
 	it.ios('#findString', function (finish) {
-		if (!isiOS14) {
+		if (OS_VERSION_MAJOR < 14) {
 			return finish();
 		}
 		win = Ti.UI.createWindow();
@@ -754,7 +755,7 @@ describe('Titanium.UI.WebView', function () {
 	});
 
 	it.ios('#createPdf', function (finish) {
-		if (!isiOS14) {
+		if (OS_VERSION_MAJOR < 14) {
 			return finish();
 		}
 		win = Ti.UI.createWindow();
@@ -778,7 +779,7 @@ describe('Titanium.UI.WebView', function () {
 	});
 
 	it.ios('#createWebArchive', function (finish) {
-		if (!isiOS14) {
+		if (OS_VERSION_MAJOR < 14) {
 			return finish();
 		}
 		win = Ti.UI.createWindow();
