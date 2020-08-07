@@ -4,14 +4,13 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+/* global OS_VERSION_MAJOR */
 /* eslint-env mocha */
 /* eslint no-unused-expressions: "off" */
 'use strict';
 const should = require('./utilities/assertions');
 
 describe.ios('Titanium.UI.iOS', function () {
-	const isiOS13 =  (parseInt(Ti.Platform.version.split('.')[0]) >= 13);
-
 	// --- properties ---
 	it.iosBroken('.appBadge', function () {
 		should(Ti.UI.iOS.appBadge).be.undefined(); // FIXME: Defaults to 0!
@@ -147,7 +146,7 @@ describe.ios('Titanium.UI.iOS', function () {
 	});
 
 	it('#systemImage()', function () {
-		if (isiOS13) {
+		if (OS_VERSION_MAJOR >= 13) {
 			should(Ti.UI.iOS.systemImage).not.be.undefined();
 			should(Ti.UI.iOS.systemImage).be.a.Function();
 			const systemImage = Ti.UI.iOS.systemImage('drop.triangle.fill');
@@ -157,7 +156,7 @@ describe.ios('Titanium.UI.iOS', function () {
 
 	it('.BLUR_EFFECT_STYLE_SYSTEM_* constants', function () {
 		// Used in BlurView.effect. Need to copy under #constatnt test case
-		if (isiOS13) {
+		if (OS_VERSION_MAJOR >= 13) {
 			should(Ti.UI.iOS.BLUR_EFFECT_STYLE_SYSTEM_ULTRA_THIN_MATERIAL).be.a.Number();
 			should(Ti.UI.iOS.BLUR_EFFECT_STYLE_SYSTEM_THIN_MATERIAL).be.a.Number();
 			should(Ti.UI.iOS.BLUR_EFFECT_STYLE_SYSTEM_MATERIAL).be.a.Number();

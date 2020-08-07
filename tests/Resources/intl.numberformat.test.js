@@ -4,7 +4,7 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-/* global OS_IOS */
+/* global OS_IOS, OS_VERSION_MAJOR */
 /* eslint-env mocha */
 /* eslint no-unused-expressions: "off" */
 'use strict';
@@ -141,7 +141,7 @@ describe('Intl.NumberFormat', () => {
 	});
 
 	describe('#formatToParts()', () => {
-		if (OS_IOS && (parseInt(Ti.Platform.version.split('.')[0]) < 13)) {
+		if (OS_IOS && (OS_VERSION_MAJOR < 13)) {
 			return;
 		}
 
