@@ -215,7 +215,13 @@ describe('Titanium.Platform', function () {
 
 	it('.id', () => {
 		should(Ti.Platform).have.readOnlyProperty('id').which.is.a.String();
-		// TODO Verify format?!
+		if (OS_IOS) {
+			const platformId = Ti.Platform.id;
+			should(platformId).be.a.String();
+			should(platformId.length).eql(36);
+			// Verify format using regexp!
+			should(platformId.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)).not.eql(null);
+		}
 	});
 
 	it('.locale', () => {
@@ -225,6 +231,13 @@ describe('Titanium.Platform', function () {
 
 	it('.macaddress', () => {
 		should(Ti.Platform).have.readOnlyProperty('macaddress').which.is.a.String();
+		if (OS_IOS) {
+			const platformId = Ti.Platform.id;
+			should(platformId).be.a.String();
+			should(platformId.length).eql(36);
+			// Verify format using regexp!
+			should(platformId.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)).not.eql(null);
+		}
 	});
 
 	it('.manufacturer', () => {
