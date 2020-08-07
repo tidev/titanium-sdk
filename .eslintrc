@@ -35,7 +35,7 @@
       }
     },
     {
-      "files": [ "android/cli/tests/test-android-manifest.js" ],
+      "files": [ "android/cli/tests/test-android-manifest.js", "build/**/test-*.js" ],
       "extends": [ "axway/env-node", "axway/+mocha"]
     },
     {
