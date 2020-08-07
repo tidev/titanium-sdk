@@ -1,9 +1,9 @@
-//
-//  TiUtils+Addons.swift
-//  Titanium
-//
-//  Created by Hans Knoechel on 02.08.20.
-//
+/**
+ * Appcelerator Titanium Mobile
+ * Copyright (c) 2020-present by Appcelerator, Inc. All Rights Reserved.
+ * Licensed under the terms of the Apache Public License
+ * Please see the LICENSE included with this distribution for details.
+ */
 
 import TitaniumKit
 
