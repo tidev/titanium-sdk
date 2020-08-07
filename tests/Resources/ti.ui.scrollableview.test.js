@@ -4,6 +4,7 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+/* globals OS_VERSION_MAJOR */
 /* eslint-env mocha */
 /* eslint no-unused-expressions: "off" */
 'use strict';
@@ -11,7 +12,6 @@ const should = require('./utilities/assertions');
 
 describe('Titanium.UI.ScrollableView', function () {
 	this.timeout(5000);
-	const isiOS14 =  (parseInt(Ti.Platform.version.split('.')[0]) >= 14);
 
 	let win;
 	afterEach(done => { // fires after every test in sub-suites too...
@@ -165,7 +165,7 @@ describe('Titanium.UI.ScrollableView', function () {
 	});
 
 	it.ios('preferredIndicatorImage', function (finish) {
-		if (!isiOS14) {
+		if (OS_VERSION_MAJOR < 14) {
 			return finish();
 		}
 
@@ -203,7 +203,7 @@ describe('Titanium.UI.ScrollableView', function () {
 	});
 
 	it.ios('setIndicatorImageForPage', function (finish) {
-		if (!isiOS14) {
+		if (OS_VERSION_MAJOR < 14) {
 			return finish();
 		}
 		const view1 = Ti.UI.createView({ id: 'view1', backgroundColor: '#836' });
