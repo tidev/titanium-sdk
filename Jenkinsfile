@@ -241,7 +241,7 @@ timestamps {
 					if (runDanger) { // Stash files for danger.js later
 						stash includes: 'package.json,package-lock.json,dangerfile.js,.eslintignore,.eslintrc,npm_test.log,android/**/*.java', name: 'danger'
 					}
-					stash includes: 'package.json,package-lock.json,android/cli/**,iphone/cli/**', name: 'cli-unit-tests'
+					stash includes: 'package.json,package-lock.json,android/cli/**,iphone/cli/**,build/**', name: 'cli-unit-tests'
 					stash includes: 'package.json,package-lock.json,tests/**,build/**', name: 'mocha-tests'
 					// was it a failure?
 					if (npmTestResult != 0) {
