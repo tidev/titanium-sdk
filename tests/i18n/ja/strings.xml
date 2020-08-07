@@ -3,4 +3,7 @@
   <string name="this_is_my_key">これは私の値です</string>
   <string name="greeting">こんにちは</string>
   <string name="signoff">さようなら</string>
+  <string name="static_shortcut1_title">静的ショートカットのタイトル</string>
+  <string name="static_shortcut1_subtitle">静的ショートカット字幕</string>
+  <string name="static_shortcut1_disabled">静的ショートカットが無効</string>
 </resources>
