@@ -13,6 +13,7 @@ const StreamSplitter = require('stream-splitter');
 const spawn = require('child_process').spawn; // eslint-disable-line security/detect-child-process
 const titanium = require.resolve('titanium');
 const { promisify } = require('util');
+const stripAnsi = require('strip-ansi');
 const exec = promisify(require('child_process').exec); // eslint-disable-line security/detect-child-process
 
 const ROOT_DIR = path.join(__dirname, '../../..');
@@ -364,6 +365,154 @@ async function killiOSSimulator() {
 	});
 }
 
+class DeviceTestDetails {
+	/**
+	 *
+	 * @param {string} name device/emulator name (as reported via log output. Defaults to empty string)
+	 * @param {'emulator'|'device'|'simulator'} target
+	 * @param {string} snapshotDir
+	 * @param {Promise[]} snapshotPromises
+	 */
+	constructor(name, target, snapshotDir, snapshotPromises) {
+		this.name = name;
+		this.results = [];
+		// FIXME: These things don't feel right to pass in here.
+		this.target = target;
+		this.snapshotDir = snapshotDir;
+		this.snapshotPromises = snapshotPromises;
+		// set to completed as true by default because for multi-device build we'll end up with default entry that just corresponds to
+		// log output from CLI or not from a specific device. If the device specific test suites finish we want to ignore this one
+		// We'll set to false as soon as we see a version or test start
+		this.completed = true;
+		this.resetTestState();
+	}
+
+	appendStderr(line) {
+		this.stderr += line.trim() + '\n';
+	}
+
+	/**
+	 * 	We saw test end before, but failed to parse as JSON because we got partial output, so continue
+	 * trying until it's happy (and resets sawTestEnd to false)
+	 * @param {string} token
+	 */
+	handleTestContinuation(token) {
+		let modifiedToken = token;
+		let hasAnsi = true;
+
+		// strip off leading log level prefix!
+		if (modifiedToken.startsWith('[INFO]')) {
+			modifiedToken = modifiedToken.substring(8);
+			hasAnsi = false;
+			// colored output?
+		} else if (modifiedToken.startsWith('\u001b[32m[INFO] \u001b[39m')) {
+			// technically we get these characters on a colored [INFO] log prefix:
+			// <Buffer 1b 5b 33 32 6d 5b 49 4e 46 4f 5d 20 1b 5b 33 39 6d 3a 20 08 08 20 08 20>
+			//     \u001b [  3  2  m  [  I  N  F  O  ]  <space>\u001b[39m :  <space><backspace><backspace><space><backspace><space>
+			modifiedToken = modifiedToken.substring(24);
+		}
+
+		if (hasAnsi && this.name) {
+			modifiedToken = modifiedToken.substring(this.name.length + 13); // strip ansi color code, '[, device name, '] ', ansi color code
+		} else {
+			modifiedToken = modifiedToken.substring(this.name.length + 3);
+		}
+
+		// FIXME: IF we see another !TEST_START or !TEST_RESULTS_STOP, can we fail this test and move on?
+		return this.tryParsingTestResult(this.partialTestEnd + modifiedToken);
+	}
+
+	/**
+	 * Handle a new line of output for a given device/emulator
+	 * @param {string} token line of output (raw)
+	 * @param {string} stripped output stripped of ansi colors
+	 * @returns {boolean} true if successfully finished the test suite (completed, may have test failures/errors)
+	 */
+	handleLine(token, stripped) {
+		if (this.testEndIncomplete) {
+			this.handleTestContinuation(token);
+			// TODO: If we fail here it may go for 3+ lines, but more than likely we're in a bad state if this keeps happening...
+			// Should we try the other checks below if we failed?
+			return false;
+		}
+
+		// check for test start
+		if (token.includes(TEST_START_PREFIX)) {
+			// new test, wipe the state
+			this.resetTestState();
+			return false;
+		}
+
+		// check for generated images
+		if (token.includes(GENERATED_IMAGE_PREFIX)) {
+			this.snapshotPromises.push(grabGeneratedImage(token, this.target, this.snapshotDir));
+			return false;
+		}
+
+		// check for mismatched images
+		if (token.includes(DIFF_IMAGE_PREFIX)) {
+			this.snapshotPromises.push(handleMismatchedImage(token, this.target, this.snapshotDir));
+			return false;
+		}
+
+		// obtain os version
+		if (token.includes(OS_VERSION_PREFIX)) {
+			this.version = token.slice(token.indexOf(OS_VERSION_PREFIX) + OS_VERSION_PREFIX.length).trim();
+			this.completed = false; // it's a real device/emulator and not the entry for generic CLI output!
+			return false;
+		}
+
+		// check for test end
+		const testEndIndex = token.indexOf(TEST_END_PREFIX);
+		if (testEndIndex !== -1) {
+			if (!this.tryParsingTestResult(token.slice(testEndIndex + TEST_END_PREFIX.length).trim())) {
+				console.log('test end not DONE!');
+			}
+			// if this fails, we retry at top of next call to handleLine()
+			// success or failure, we're done with this line
+			return false;
+		}
+
+		// check for suite end
+		if (token.includes(TEST_SUITE_STOP)) {
+			// device completed tests
+			this.completed = true;
+			return true;
+		}
+
+		// normal output (no test start/end, suite end/crash)
+		// append output to our string for stdout
+		this.output += token + '\n';
+		return false;
+	}
+
+	tryParsingTestResult(resultJSON) {
+		//  grab out the JSON and add to our result set
+		try {
+			const result = JSON.parse(massageJSONString(resultJSON));
+			result.stdout = this.output; // record what we saw in output during the test
+			result.stderr = this.stderr; // record what we saw in output during the test
+			result.device = this.name.length ? this.name : undefined; // specify device if available
+			result.os_version = this.version; // specify os version if available
+			this.results.push(result);
+			this.testEndIncomplete = false;
+			return true;
+		} catch (err) {
+			// if we fail to parse as JSON, assume we got truncated output!
+			this.partialTestEnd = resultJSON;
+			this.testEndIncomplete = true;
+			return false;
+		}
+	}
+
+	resetTestState() {
+		this.output = ''; // reset output
+		this.stderr = ''; // reset stderr
+		this.partialTestEnd = ''; // reset partial test output
+		this.testEndIncomplete = false; // reset flag indicating we saw partial test output
+	}
+}
+
 /**
  * Once a build has been spawned off this handles grabbing the test results from the output.
  * @param {child_process} prc  Handle of the running process from spawn
@@ -374,38 +523,12 @@ async function killiOSSimulator() {
  */
 async function handleBuild(prc, target, snapshotDir, snapshotPromises) {
 	return new Promise((resolve, reject) => {
-		const results = [];
-		let output = '';
-		let stderr = '';
-		let sawTestEnd = false;
-		let partialTestEnd = '';
-		let devices = {};
+		const deviceMap = new Map();
+		let started = false;
 
 		const splitter = prc.stdout.pipe(StreamSplitter('\n'));
 		// Set encoding on the splitter Stream, so tokens come back as a String.
 		splitter.encoding = 'utf8';
-
-		function tryParsingTestResult(resultJSON, device, os_version) {
-			//  grab out the JSON and add to our result set
-			try {
-				const result = JSON.parse(massageJSONString(resultJSON));
-				result.stdout = output; // record what we saw in output during the test
-				result.stderr = stderr; // record what we saw in output during the test
-				result.device = device && device.length ? device : undefined; // specify device if available
-				result.os_version = os_version; // specify os version if available
-				results.push(result);
-				output = ''; // reset output
-				stderr = ''; // reset stderr
-				partialTestEnd = ''; // reset partial test output
-				sawTestEnd = false; // reset flag indicating we saw partial test output
-				return true;
-			} catch (err) {
-				// if we fail to parse as JSON, assume we got truncated output!
-				partialTestEnd = resultJSON;
-				sawTestEnd = true;
-				return false;
-			}
-		}
 
 		function getDeviceName(token) {
 			const matches = /^[\s\b]+\[([^\]]+)\]\s/g.exec(token.substring(token.indexOf(':') + 1));
@@ -429,87 +552,10 @@ async function handleBuild(prc, target, snapshotDir, snapshotPromises) {
 			}
 
 			// Fail immediately if android emulator is forcing restart
+			// TODO: Can we restart/retry test suite in this case?
 			if (token.includes('Module config changed, forcing restart due')) {
 				prc.kill(); // quit this build...
-				return reject(new Error(`Failed to finish test suite before Android emulator killed ap due to updated module: ${token}`));
-			}
-
-			// we saw test end before, but failed to parse as JSON because we got partial output, so continue
-			// trying until it's happy (and resets sawTestEnd to false)
-			if (sawTestEnd) {
-				let modifiedToken = token;
-				// strip off leading log level prefix!
-				if (modifiedToken.startsWith('[INFO]')) {
-					modifiedToken = modifiedToken.substring(8);
-					// colored output?
-				} else if (modifiedToken.startsWith('\u001b[32m[INFO] \u001b[39m')) {
-					// technically we get these characters on a colored [INFO] log prefix:
-					// <Buffer 1b 5b 33 32 6d 5b 49 4e 46 4f 5d 20 1b 5b 33 39 6d 3a 20 08 08 20 08 20>
-					//     \u001b [  3  2  m  [  I  N  F  O  ]  <space>\u001b[39m :  <space><backspace><backspace><space><backspace><space>
-					modifiedToken = modifiedToken.substring(24);
-				}
-				// FIXME: IF we see another !TEST_START or !TEST_RESULTS_STOP, can we fail this test and move on?
-				tryParsingTestResult(partialTestEnd + modifiedToken);
-				return;
-			}
-
-			// check for test start
-			if (token.includes(TEST_START_PREFIX)) {
-				// grab out the JSON and add to our result set
-				output = '';
-				stderr = '';
-				return;
-			}
-
-			// check for generated images
-			if (token.includes(GENERATED_IMAGE_PREFIX)) {
-				snapshotPromises.push(grabGeneratedImage(token, target, snapshotDir));
-				return;
-			}
-
-			// check for mismatched images
-			if (token.includes(DIFF_IMAGE_PREFIX)) {
-				snapshotPromises.push(handleMismatchedImage(token, target, snapshotDir));
-				return;
-			}
-
-			// obtain os version
-			if (token.includes(OS_VERSION_PREFIX)) {
-				const device = getDeviceName(token);
-				devices[device] = {
-					version: token.slice(token.indexOf(OS_VERSION_PREFIX) + OS_VERSION_PREFIX.length).trim(),
-					completed: false
-				};
-				return;
-			}
-
-			// check for test end
-			const testEndIndex = token.indexOf(TEST_END_PREFIX);
-			if (testEndIndex !== -1) {
-				const device = getDeviceName(token);
-				tryParsingTestResult(token.slice(testEndIndex + TEST_END_PREFIX.length).trim(), device, devices[device].version);
-				return;
-			}
-
-			// check for suite end
-			if (token.includes(TEST_SUITE_STOP)) {
-
-				// device completed tests
-				const device = getDeviceName(token);
-				devices[device].completed = true;
-
-				// check if all devices have completed tests
-				for (const d in devices) {
-
-					// not all devices have completed tests
-					// continue without processing results
-					if (!devices[d].completed) {
-						return;
-					}
-				}
-
-				prc.kill(); // ok, tests finished as expected, kill the process
-				return resolve({ date: (new Date()).toISOString(), results: results });
+				return reject(new Error(`Failed to finish test suite before Android emulator killed app due to updated module: ${token}`));
 			}
 
 			// Handle when app crashes and we haven't finished tests yet!
@@ -518,9 +564,38 @@ async function handleBuild(prc, target, snapshotDir, snapshotPromises) {
 				return reject(new Error('Failed to finish test suite before app crashed and logs ended!')); // failed too many times
 			}
 
-			// normal output (no test start/end, suite end/crash)
-			// append output to our string for stdout
-			output += token + '\n';
+			// ignore the build output until the app actually starts
+			if (!started) {
+				if (token.includes('-- Start application log ---') || token.includes('-- Start simulator log ---')) {
+					started = true;
+				}
+				return;
+			}
+
+			// We should not be checking the line for a device name until after the app starts!
+			// Otherwise we create an entry for '' (default) device which will never be completed
+			const stripped = stripAnsi(token);
+			const device = getDeviceName(stripped);
+			if (!deviceMap.has(device)) {
+				deviceMap.set(device, new DeviceTestDetails(device, target, snapshotDir, snapshotPromises));
+			}
+			const curTest = deviceMap.get(device);
+			const done = curTest.handleLine(token, stripped);
+			if (done) {
+				let results = [];
+				// check if all devices have completed tests
+				for (const d of deviceMap.values()) {
+					// not all devices have completed tests
+					// continue without processing results
+					if (!d.completed) {
+						return;
+					}
+					results = results.concat(d.results);
+				}
+
+				prc.kill(); // ok, tests finished as expected, kill the process
+				return resolve({ date: (new Date()).toISOString(), results });
+			}
 		});
 		// Any errors that occur on a source stream will be emitted on the
 		// splitter Stream, if the source stream is piped into the splitter
@@ -530,7 +605,16 @@ async function handleBuild(prc, target, snapshotDir, snapshotPromises) {
 
 		prc.stderr.on('data', data => {
 			process.stderr.write(data); // pipe along the stderr as we go, retaining ANSI colors
-			stderr += data.toString().trim() + '\n'; // store the color-stripped version?
+			if (!started) {
+				return;
+			}
+			const line = data.toString();
+			const stripped = stripAnsi(line);
+			const device = getDeviceName(stripped);
+			if (!deviceMap.has(device)) {
+				deviceMap.set(device, new DeviceTestDetails(device, target, snapshotDir, snapshotPromises));
+			}
+			deviceMap.get(device).appendStderr(line);
 		});
 
 		prc.on('close', code => {
@@ -541,6 +625,11 @@ async function handleBuild(prc, target, snapshotDir, snapshotPromises) {
 	});
 }
 
+/**
+ *
+ * @param {string} testResults
+ * @returns {string}
+ */
 function massageJSONString(testResults) {
 	// preserve newlines, etc - use valid JSON
 	return testResults.replace(/\\n/g, '\\n')
@@ -760,3 +849,4 @@ async function outputResults(results) {
 // public API
 exports.test = test;
 exports.outputResults = outputResults;
+exports.handleBuild = handleBuild;
