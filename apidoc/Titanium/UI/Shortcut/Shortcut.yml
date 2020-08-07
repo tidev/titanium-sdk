@@ -5,17 +5,16 @@ description: |
     Allows the creation of application shortcuts, which can be detected using
     the `click` event from <Titanium.UI.Shortcut>.
 
-    Use the <Titanium.UI.createShortcut> method to manage shortcut creation.
-    
-    In iOS, to use this feature make sure you have a 3D Touch compatible device. To
-    check for the feature, use the <Titanium.UI.iOS.forceTouchSupported> property.
+    On iOS, shortcuts are only supported on a 3D Touch compatible device.
+    Use the <Titanium.UI.iOS.forceTouchSupported> property to see if it's supported.
 extends: Titanium.Proxy
 since: "9.1.0"
 platforms: [android, iphone, ipad]
 osver: {android: {min: "7.1"}}
 properties:
   - name: items
-    summary: List current shortcuts.
+    summary: List dynamic shortcuts.
+    description: Array of shortcut items that were added to the app via the <Titanium.UI.Shortcut.add> method.
     type: Array<Titanium.UI.ShortcutItem>
     permission: read-only
 
@@ -26,32 +25,37 @@ properties:
 
 methods:
   - name: add
-    summary: Add shortcut to application.
+    summary: Adds a shortcut item to the application.
     parameters:
       - name: item
         summary: <Titanium.UI.ShortcutItem> to add.
         type: Titanium.UI.ShortcutItem
 
   - name: remove
-    summary: Remove shortcut from application.
+    summary: Removes the given shortcut item from the application.
     parameters:
       - name: item
         summary: <Titanium.UI.ShortcutItem> to remove.
         type: Titanium.UI.ShortcutItem
 
   - name: removeAll
-    summary: Remove all shortcuts from application.
+    summary: Removes all shortcut items from the application.
 
   - name: getById
-    summary: Get shortcut by identifier.
+    summary: Fetches a shortcut item by its unique string identifier.
+    description: |
+        Returns a shortcut item with a matching string [id](Titanium.UI.ShortcutItem.id).
+        Returns `null` if a match was not found.
     parameters:
       - name: id
-        summary: Identifier of shortcut to obtain.
+        summary: Identifier of shortcut item to obtain.
         type: String
+    returns:
+        type: Titanium.UI.ShortcutItem
 
 events:
   - name: click
-    summary: Fired when a <Titanium.UI.ShortcutItem> is clicked.
+    summary: Fired when a <Titanium.UI.ShortcutItem> was clicked on.
     properties:
       - name: item
         summary: The shortcut item clicked.
@@ -66,27 +70,27 @@ examples:
 
         ``` javascript
         const win = Ti.UI.createWindow({ backgroundColor: 'grey' });
-        
-        const shortcut = Ti.UI.createShortcut();
-        shortcut.addEventListener('click', e => {
+
+        // Listen for shortcut item clicks from the end-user.
+        Ti.UI.Shortcut.addEventListener('click', e => {
+            // Event's "item" property indicates which shortcut item was clicked on.
             console.log(`id: ${e.item.id}`);
 
-            // Set background to 'blue' on shortcut click event.
+            // Set background to 'blue' when a shortcut was clicked on.
             win.backgroundColor = 'blue';
         });
 
-        // Button to add a shortcut item
+        // Button to add a shortcut item.
         const btn = Ti.UI.createButton({ title: 'ADD SHORTCUT' });
         btn.addEventListener('click', () => {
-            // Add shortcut item to shortcut
             const shortcutItem = Ti.UI.createShortcutItem({
                 id: 'test_shortcut',
                 title: 'TEST',
                 description: 'DESCRIPTION'
             });
-            shortcut.add(shortcutItem);
+            Ti.UI.Shortcut.add(shortcutItem);
         });
-
         win.add(btn);
+
         win.open();
         ```
