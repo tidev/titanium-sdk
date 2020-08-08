@@ -95,7 +95,7 @@ def androidUnitTests(nodeVersion, npmVersion, testOnDevices) {
 								sh label: 'Run Test Suite on device(s)', script: "npm run test:integration -- android -T device -C all"
 							// run PR tests on emulator
 							} else {
-								sh label: 'Run Test Suite on emulator', script: "npm run test:integration -- android -T emulator -D test -C android-28-playstore-x86"
+								sh label: 'Run Test Suite on emulator', script: "npm run test:integration -- android -T emulator -D test -C android-30-playstore-x86"
 							}
 						} // timeout
 					} catch (e) {
@@ -241,7 +241,7 @@ timestamps {
 					if (runDanger) { // Stash files for danger.js later
 						stash includes: 'package.json,package-lock.json,dangerfile.js,.eslintignore,.eslintrc,npm_test.log,android/**/*.java', name: 'danger'
 					}
-					stash includes: 'package.json,package-lock.json,android/cli/**,iphone/cli/**', name: 'cli-unit-tests'
+					stash includes: 'package.json,package-lock.json,android/cli/**,iphone/cli/**,build/**', name: 'cli-unit-tests'
 					stash includes: 'package.json,package-lock.json,tests/**,build/**', name: 'mocha-tests'
 					// was it a failure?
 					if (npmTestResult != 0) {
@@ -266,14 +266,14 @@ timestamps {
 
 					ansiColor('xterm') {
 						timeout(15) {
-							def buildCommand = "npm run clean -- --android-ndk ${env.ANDROID_NDK_R16B}"
+							def buildCommand = "npm run clean -- --android-ndk ${env.ANDROID_NDK_R21D}"
 							if (isMainlineBranch) {
 								buildCommand += ' --all'
 							}
 							sh label: 'clean', script: buildCommand
 						} // timeout
 						timeout(15) {
-							def buildCommand = "npm run build -- --android-ndk ${env.ANDROID_NDK_R16B}"
+							def buildCommand = "npm run build -- --android-ndk ${env.ANDROID_NDK_R21D}"
 							if (isMainlineBranch) {
 								buildCommand += ' --all'
 							}

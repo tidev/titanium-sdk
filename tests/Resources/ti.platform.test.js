@@ -4,6 +4,7 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+/* global OS_VERSION_MAJOR, OS_VERSION_MINOR */
 /* eslint-env mocha */
 /* eslint no-unused-expressions: "off" */
 'use strict';
@@ -277,6 +278,21 @@ describe('Titanium.Platform', function () {
 
 	it('.version', () => {
 		should(Ti.Platform).have.readOnlyProperty('version').which.is.a.String();
+	});
+
+	it('.versionMajor', () => {
+		should(Ti.Platform).have.readOnlyProperty('versionMajor').which.is.a.Number();
+		should(Ti.Platform.versionMajor).be.eql(OS_VERSION_MAJOR);
+		should(Ti.Platform.versionMajor).be.eql(parseInt(Ti.Platform.version.split('.')[0]));
+	});
+
+	it('.versionMinor', () => {
+		should(Ti.Platform).have.readOnlyProperty('versionMinor').which.is.a.Number();
+		should(Ti.Platform.versionMinor).be.eql(OS_VERSION_MINOR);
+
+		const versionComponents = Ti.Platform.version.split('.');
+		const versionMinor = (versionComponents.length >= 2) ? parseInt(versionComponents[1]) : 0;
+		should(Ti.Platform.versionMinor).be.eql(versionMinor);
 	});
 
 	it.ios('.identifierForVendor', () => {
