@@ -33,7 +33,7 @@ describe.ios('Ti.Network.BonjourService', () => {
 		});
 
 		it('defaults to true', () => {
-			should(service.isLocal).eql(true);
+			should(service.isLocal).be.true();
 		});
 	});
 
