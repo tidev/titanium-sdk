@@ -53,17 +53,20 @@ async function loadPackageJson() {
  */
 async function debugGenerateSnapshot(v8SnapshotHeaderFilePath, rollupFileContent) {
 
-	// Generate startup.js
-	const STARTUP_PATH = path.join(__dirname, '../../dist/tmp', 'startup.js');
-	await fs.writeFile(STARTUP_PATH, `this._startSnapshot = global => { ${rollupFileContent} };`);
+	const distTmpPath = path.join(__dirname, '..', '..', 'dist', 'tmp');
+	const startupPath = path.join(distTmpPath, 'startup.js');
+
+	// Create startup.js
+	await fs.ensureDir(distTmpPath);
+	await fs.writeFile(startupPath, `this._startSnapshot = global => { ${rollupFileContent} };`);
 
 	const packageJsonData = await loadPackageJson();
 	const v8TargetVersion = packageJsonData.v8.version;
 	const v8TargetMode = packageJsonData.v8.mode;
-	const V8_LIB_DIRECTORY = path.join(__dirname, '../../dist/android/libv8', v8TargetVersion, v8TargetMode, 'libs');
+	const v8LibDirectory = path.join(__dirname, '..', '..', 'dist', 'android', 'libv8', v8TargetVersion, v8TargetMode, 'libs');
 
 	// Obtain V8 architectures.
-	const archs = (await fs.readdir(V8_LIB_DIRECTORY, { withFileTypes: true }))
+	const archs = (await fs.readdir(v8LibDirectory, { withFileTypes: true }))
 		.filter(entry => entry.isDirectory())
 		.map(entry => entry.name);
 
@@ -73,29 +76,29 @@ async function debugGenerateSnapshot(v8SnapshotHeaderFilePath, rollupFileContent
 
 	// Generate snapshots.
 	for (const arch of archs) {
-		const MKSNAPSHOT_PATH = path.join(V8_LIB_DIRECTORY, arch, 'mksnapshot');
-		const BLOB_PATH = path.join(V8_LIB_DIRECTORY, arch, 'blob.bin');
-		const EMBEDDED_PATH = path.join(V8_LIB_DIRECTORY, arch, 'embedded.S');
+		const mksnapshotPath = path.join(v8LibDirectory, arch, 'mksnapshot');
+		const blobPath = path.join(v8LibDirectory, arch, 'blob.bin');
+		const emboddedPath = path.join(v8LibDirectory, arch, 'embedded.S');
 
 		// Delete existing snapshot blob.
 		try {
-			await fs.unlink(BLOB_PATH);
+			await fs.unlink(blobPath);
 		} catch (e) {
 			// Do nothing...
 		}
 
 		const args = [
-			'--startup_blob=' + BLOB_PATH,
-			STARTUP_PATH
+			'--startup_blob=' + blobPath,
+			startupPath
 		];
 
 		console.log(`Generating snapshot blob for ${arch}...`);
 
 		// Include embedded blob.
-		if (await fs.exists(EMBEDDED_PATH)) {
+		if (await fs.exists(emboddedPath)) {
 			args.unshift(
 				'--turbo_instruction_scheduling',
-				'--embedded_src=' + EMBEDDED_PATH,
+				'--embedded_src=' + emboddedPath,
 				'--embedded_variant=Default',
 				'--no-native-code-counters',
 			);
@@ -103,15 +106,15 @@ async function debugGenerateSnapshot(v8SnapshotHeaderFilePath, rollupFileContent
 
 		// Generate snapshot blob.
 		try {
-			await fs.chmod(MKSNAPSHOT_PATH, 0o755);
-			await execFile(MKSNAPSHOT_PATH, args);
+			await fs.chmod(mksnapshotPath, 0o755);
+			await execFile(mksnapshotPath, args);
 		} catch (e) {
 			console.error(e);
 		}
 
 		// Load snapshot blob.
-		if (await fs.exists(BLOB_PATH)) {
-			blobs[arch] = Buffer.from(await fs.readFile(BLOB_PATH, 'binary'), 'binary');
+		if (await fs.exists(blobPath)) {
+			blobs[arch] = Buffer.from(await fs.readFile(blobPath, 'binary'), 'binary');
 			console.log(`Generated ${arch} snapshot blob.`);
 		}
 	}
