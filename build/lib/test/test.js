@@ -139,13 +139,36 @@ async function npmInstall(dir) {
 		args = [ 'install', '--production' ];
 	}
 	return new Promise((resolve, reject) => {
-		spawn('npm', args, { cwd: dir, stdio: 'inherit' })
-			.on('exit', code => {
+		let child;
+		if (process.platform === 'win32') {
+			child = spawn(
+				process.env.comspec || 'cmd.exe',
+				[ '/S', '/C', '"', 'npm', ...args, '"' ],
+				{
+					cwd: dir,
+					stdio: 'inherit',
+					windowsVerbatimArguments: true
+				}
+			);
+		} else {
+			child = spawn(
+				'npm',
+				args,
+				{
+					cwd: dir,
+					stdio: 'inherit'
+				}
+			);
+		}
+		if (child) {
+			child.on('exit', code => {
 				if (code !== 0) {
 					return reject(new Error(`Failed with exit code: ${code}`));
 				}
 				resolve();
-			}).on('error', reject);
+			});
+			child.on('error', reject);
+		}
 	});
 }
 
