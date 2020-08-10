@@ -138,8 +138,10 @@ public class DateTimeFormatProxy extends KrollProxy
 
 				// Have Android generate a localized date/time pattern string from above skeleton pattern.
 				// This will inject needed separators and auto-swap components like month/day according to locale.
+				// Note: Android 8 sometimes inserts invalid pattern char 'b' for AM/PM. Should be 'a' instead.
 				String datePattern = android.text.format.DateFormat.getBestDateTimePattern(
 					locale, stringBuilder.toString());
+				datePattern = datePattern.replace('b', 'a');
 				this.dateFormat = new SimpleDateFormat(datePattern, locale);
 			} catch (Exception ex) {
 				Log.e(TAG, "Failed to generate 'best' date pattern.", ex);
