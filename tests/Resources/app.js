@@ -144,6 +144,7 @@ function loadTests() {
 	require('./ti.ui.imageview.test');
 	if (OS_IOS) {
 		require('./ti.ui.ios.test');
+		require('./ti.ui.ios.collisionbehavior.test');
 		require('./ti.ui.ios.navigationwindow.test');
 		require('./ti.ui.ios.previewcontext.test');
 		require('./ti.ui.ios.splitwindow.test');
