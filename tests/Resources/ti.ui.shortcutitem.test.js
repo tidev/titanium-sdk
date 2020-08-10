@@ -14,9 +14,7 @@ const should = require('./utilities/assertions');
 // ONLY compatible with Android 7.1+, end test early.
 let androidCompatible = true;
 if (OS_ANDROID) {
-	androidCompatible = false;
-//	TODO: Re-enable Android unit tests once it implements 'Ti.UI.Shortcut" as a module.
-//	androidCompatible = (Ti.Platform.Android.API_LEVEL >= 25);
+	androidCompatible = (Ti.Platform.Android.API_LEVEL >= 25);
 }
 
 describe('Titanium.UI', () => {
