@@ -1,5 +1,5 @@
 ---
-name: Collator
+name: Global.Intl.Collator
 summary: Immutable object used to perform language sensitive string comparisons.
 description: |
     A collator is used to perform a localized string compare or sort using a given language locale.
@@ -29,7 +29,7 @@ examples:
         console.log(collator.compare('a', 'A') === 0);  // Not Equal
         console.log(collator.compare('a', 'b') === 0);  // Not Equal
 
-        // Match strings that are the same case, ignoring accent marks.
+        // Case sensitive matching, ignoring accents marks.
         console.log('Case Sensitivity:');
         collator = new Intl.Collator(Ti.Locale.currentLocale, { sensitivity: 'case' });
         console.log(collator.compare('a', 'a') === 0);  // Equal
@@ -111,21 +111,27 @@ properties:
 
       #### Parameters
 
-      *    locales: [String](Global.String)/Array<[String](Global.String)> (optional)
+      *    `locales`: [String](Global.String)/[String](Global.String)`[]` (optional)
+
            The [BCP 47](https://www.unicode.org/reports/tr35/tr35.html#BCP_47_Conformance) language and country
            code(s) to use for localized string comparisons. Can provide multiple locales where the best-supported
            locale will be favored in the order provided by the array. If parameter is not assigned, then
-           the system may use the 'en-US' locale by default instead of the system's current locale.
+           the system may use the `'en-US'` locale by default instead of the system's current locale.
            It's recommended to set this parameter using <Titanium.Locale.currentLocale>.
-      *    options: <CollatorOptions> (optional)
+
+      *    `options`: <CollatorOptions> (optional)
+
            Provides settings indicating how strings should be compared.
 
-    type: Collator
+    type: Global.Intl.Collator
     permission: read-only
 
 ---
 name: CollatorOptions
-summary: Options to be passed into the <Collator.constructor> method.
+summary: Options to be passed into the <Global.Intl.Collator.constructor> method.
+platforms: [iphone, ipad, android]
+since: {iphone: "6.0.0", ipad: "6.0.0", android: "9.1.0"}
+osver: {ios: {min: "10.3"}}
 properties:
   - name: localeMatcher
     type: String
