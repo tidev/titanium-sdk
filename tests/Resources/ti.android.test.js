@@ -44,7 +44,7 @@ describe.android('Titanium.Android', function () {
 					should(intent.packageName).eql(newIntent.packageName);
 					should(intent.className).eql(newIntent.className);
 					should(intent.hasExtra('MyBoolean')).be.true();
-					should(intent.getBooleanExtra('MyBoolean', false)).eql(true);
+					should(intent.getBooleanExtra('MyBoolean', false)).be.true();
 					should(intent.hasExtra('MyDouble')).be.true();
 					should(intent.getDoubleExtra('MyDouble', 0)).eql(123.456);
 					should(intent.hasExtra('MyString')).be.true();
