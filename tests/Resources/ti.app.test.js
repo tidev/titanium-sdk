@@ -320,6 +320,13 @@ describe('Titanium.App', function () {
 
 	it.android('pause/resume events', function (finish) {
 		this.timeout(5000);
+
+		// Cannot resume activity on Android 10.0+
+		if (parseInt(Ti.Platform.version) >= 10) {
+			console.warn('Skipping, cannot run test on Android 10.0+');
+			return finish();
+		}
+
 		let wasPauseEventReceived = false;
 		let wasResumeEventReceived = false;
 

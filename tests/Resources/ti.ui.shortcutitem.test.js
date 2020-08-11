@@ -14,10 +14,7 @@ const should = require('./utilities/assertions');
 // ONLY compatible with Android 7.1+, end test early.
 let androidCompatible = true;
 if (OS_ANDROID) {
-	const version = Ti.Platform.version.split('.');
-	if (parseInt(`${version[0]}${version[1]}`) < 71) {
-		androidCompatible = false;
-	}
+	androidCompatible = (Ti.Platform.Android.API_LEVEL >= 25);
 }
 
 describe('Titanium.UI', () => {

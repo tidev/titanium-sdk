@@ -44,6 +44,8 @@ sed -i '' 's@__GITHASH__@'"$GIT_HASH"'@g' TitaniumKit/Sources/API/TopTiModule.m
 
 REVEAL_ARCHIVE_IN_FINDER=false
 
+XCODE_VERSION=$(/usr/libexec/PlistBuddy -c "Print :DTXcode" "$(xcode-select -p)/../Info.plist")
+
 FRAMEWORK_NAME="TitaniumKit"
 
 SIMULATOR_LIBRARY_PATH="$(pwd)/build/Release-iphonesimulator/${FRAMEWORK_NAME}.framework"
@@ -61,8 +63,15 @@ FRAMEWORK="${UNIVERSAL_LIBRARY_DIR}/${FRAMEWORK_NAME}.framework"
 XCPRETTY="xcpretty"
 which xcpretty || XCPRETTY="cat"
 
+# Exclude arm64 architecture from simulator build in XCode 12+ - TIMOB-28042
+
+if [[ $XCODE_VERSION -ge 1200 ]];  then
+xcodebuild -scheme TitaniumKit -sdk iphonesimulator EXCLUDED_ARCHS=arm64 -configuration Release clean build CONFIGURATION_BUILD_DIR=build/Release-iphonesimulator | eval $XCPRETTY
+[[ PIPESTATUS[0] -ne 0 ]] && exit 1
+ else
 xcodebuild -scheme TitaniumKit -sdk iphonesimulator -configuration Release clean build CONFIGURATION_BUILD_DIR=build/Release-iphonesimulator | eval $XCPRETTY
 [[ PIPESTATUS[0] -ne 0 ]] && exit 1
+fi
 
 xcodebuild -scheme TitaniumKit -sdk iphoneos -configuration Release clean build CONFIGURATION_BUILD_DIR=build/Release-iphoneos | eval $XCPRETTY
 [[ PIPESTATUS[0] -ne 0 ]] && exit 1

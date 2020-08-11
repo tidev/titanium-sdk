@@ -101,9 +101,9 @@ public class TiBorderWrapperView extends FrameLayout
 			}
 			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
 				// Set specified border corners.
-				outerPath.addRoundRect(innerRect, innerRadius, Direction.CW);
+				outerPath.addRoundRect(innerRect, innerRadius, Direction.CCW);
 			} else {
-				outerPath.addRoundRect(innerRect, innerRadius[0], innerRadius[0], Direction.CW);
+				outerPath.addRoundRect(innerRect, innerRadius[0], innerRadius[0], Direction.CCW);
 			}
 			Path innerPath = new Path(outerPath);
 
@@ -112,7 +112,7 @@ public class TiBorderWrapperView extends FrameLayout
 				// Set specified border corners.
 				outerPath.addRoundRect(outerRect, this.radius, Direction.CW);
 			} else {
-				outerPath.addRoundRect(outerRect, this.radius[0], this.radius[0], Direction.CCW);
+				outerPath.addRoundRect(outerRect, this.radius[0], this.radius[0], Direction.CW);
 			}
 			canvas.drawPath(outerPath, paint);
 
