@@ -306,14 +306,14 @@ describe('Titanium.UI.WebView', function () {
 	});
 
 	it.windowsBroken('userAgent', function (finish) {
-		this.slow(10000);
+		this.slow(15000);
 		this.timeout(60000);
 		const webView = Ti.UI.createWebView({
 			userAgent: 'TEST AGENT',
 			ignoreSslError: true // Older Android complains about the cert at this site!
 		});
 		const url = 'https://www.whatismybrowser.com/detect/what-is-my-user-agent';
-		let retry = 3;
+		let retry = 5;
 
 		win = Ti.UI.createWindow({ backgroundColor: 'gray' });
 
@@ -327,7 +327,7 @@ describe('Titanium.UI.WebView', function () {
 				Ti.API.warn('could not obtain userAgent, retrying...');
 				setTimeout(function () {
 					webView.url = url;
-				}, 100);
+				}, 3000);
 			} else {
 				return finish(new Error('invalid userAgent'));
 			}

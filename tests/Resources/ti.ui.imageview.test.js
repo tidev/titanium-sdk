@@ -378,9 +378,9 @@ describe('Titanium.UI.ImageView', function () {
 		var icon = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, 'Logo.png');
 		var dest = Ti.Filesystem.getFile(Ti.Filesystem.applicationDataDirectory, 'Logo.png');
 
-		should(icon.exists()).eql(true);
+		should(icon.exists()).be.true();
 		dest.write(icon.read());
-		should(dest.exists()).eql(true);
+		should(dest.exists()).be.true();
 
 		imageView.addEventListener('error', function () {
 			finish('Failed to load PNG file from applicationDataDirectory');
