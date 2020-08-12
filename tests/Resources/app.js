@@ -17,15 +17,15 @@ const should = require('./utilities/assertions');
 
 // Must test global is available in first app.js explicitly!
 // (since app.js is treated slightly differently than required files on at least Android)
-describe('global', function () {
-	it('should be available as \'global\'', function () {
+describe('global', () => {
+	it('should be available as \'global\'', () => {
 		should(global).be.ok();
 	});
 });
 
 // Must have __dirname in the global scope, even in our app.js
-describe('__dirname', function () {
-	it.windowsMissing('should be available as \'__dirname\'', function () {
+describe('__dirname', () => {
+	it.windowsMissing('should be available as \'__dirname\'', () => {
 		should(__dirname).be.ok();
 		should(__dirname).be.a.String();
 		should(__dirname).be.eql('/');
@@ -33,8 +33,8 @@ describe('__dirname', function () {
 });
 
 // Must have __filename in the global scope, even in our app.js
-describe('__filename', function () {
-	it.windowsMissing('should be available as \'__filename\'', function () {
+describe('__filename', () => {
+	it.windowsMissing('should be available as \'__filename\'', () => {
 		should(__filename).be.ok();
 		should(__filename).be.a.String();
 		should(__filename).be.eql('/app.js');
@@ -145,6 +145,7 @@ function loadTests() {
 	if (OS_IOS) {
 		require('./ti.ui.ios.test');
 		require('./ti.ui.ios.collisionbehavior.test');
+		require('./ti.ui.ios.feedbackgenerator.test');
 		require('./ti.ui.ios.navigationwindow.test');
 		require('./ti.ui.ios.previewcontext.test');
 		require('./ti.ui.ios.splitwindow.test');
