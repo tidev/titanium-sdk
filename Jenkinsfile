@@ -129,7 +129,7 @@ def androidUnitTests(nodeVersion, npmVersion, testOnDevices) {
 def iosUnitTests(deviceFamily, nodeVersion, npmVersion, testOnDevices) {
 	return {
 		def labels = 'git && osx && xcode-11' // Use xcode-11 to make use of ios 13 APIs
-		if (testOnDevices) {
+		if (testOnDevices && deviceFamily == 'iphone') {
 			labels += ' && macos-darwin' // run main branch tests on devices, use node with devices connected
 		}
 		node(labels) {
