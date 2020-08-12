@@ -113,6 +113,11 @@
   case NSNetServicesTimeoutError:
     return @"TimeoutError";
     break;
+#if IS_SDK_IOS_14
+  case NSNetServicesMissingRequiredConfigurationError:
+    return @"MissingRequiredConfigurationError";
+    break;
+#endif
   }
 
   return @"";
