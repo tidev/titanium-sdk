@@ -82,7 +82,7 @@
   },
   "dependencies": {
     "adm-zip": "^0.4.16",
-    "ansi-escapes": "^4.3.0",
+    "ansi-escapes": "^4.3.1",
     "appc-tasks": "^1.0.2",
     "archiver": "^5.0.0",
     "async": "^2.6.1",
@@ -108,7 +108,7 @@
     "semver": "^7.3.2",
     "sprintf": "0.1.5",
     "temp": "0.9.1",
-    "wrap-ansi": "^6.2.0",
+    "wrap-ansi": "^7.0.0",
     "xcode": "^3.0.1",
     "xmldom": "^0.3.0"
   },

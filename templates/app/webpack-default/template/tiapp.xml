@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ti:app xmlns:ti="http://ti.appcelerator.org">
+	<id>__PROJECT_ID__</id>
+	<name>__PROJECT_NAME__</name>
+	<version>__PROJECT_VERSION__</version>
+	<publisher>not specified</publisher>
+	<url>not specified</url>
+	<description></description>
+	<copyright>not specified</copyright>
+	<icon>appicon.png</icon>
+	<fullscreen>false</fullscreen>
+	<navbar-hidden>false</navbar-hidden>
+	<analytics>true</analytics>
+	<guid></guid>
+	<property name="ti.ui.defaultunit">dp</property>
+	<ios>
+		<use-app-thinning>true</use-app-thinning>
+		<enable-launch-screen-storyboard>true</enable-launch-screen-storyboard>
+		<plist>
+			<dict>
+				<key>UISupportedInterfaceOrientations~iphone</key>
+				<array>
+					<string>UIInterfaceOrientationPortrait</string>
+				</array>
+				<key>UISupportedInterfaceOrientations~ipad</key>
+				<array>
+					<string>UIInterfaceOrientationPortrait</string>
+					<string>UIInterfaceOrientationPortraitUpsideDown</string>
+					<string>UIInterfaceOrientationLandscapeLeft</string>
+					<string>UIInterfaceOrientationLandscapeRight</string>
+				</array>
+				<key>UIRequiresPersistentWiFi</key>
+				<false/>
+				<key>UIPrerenderedIcon</key>
+				<false/>
+				<key>UIStatusBarHidden</key>
+				<false/>
+				<key>UIStatusBarStyle</key>
+				<string>UIStatusBarStyleLightContent</string>
+			</dict>
+		</plist>
+	</ios>
+	<android xmlns:android="http://schemas.android.com/apk/res/android">
+		<manifest android:versionCode="1">
+			<application
+				android:icon="@drawable/ic_launcher"
+				android:roundIcon="@drawable/ic_launcher_round"
+				android:theme="@style/AppTheme"
+			/>
+		</manifest>
+	</android>
+	<modules>
+	</modules>
+</ti:app>
