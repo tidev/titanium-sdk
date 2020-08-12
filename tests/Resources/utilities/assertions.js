@@ -1,7 +1,8 @@
 'use strict';
-/* globals OS_ANDROID */
+/* globals OS_ANDROID,OS_IOS */
 const should = require('should');
 const utilities = require('./utilities');
+const isIOSDevice = OS_IOS && !Ti.Platform.model.includes('(Simulator)');
 
 // Copied from newer should.js
 // Verifies the descriptor for an own property on a target
@@ -152,14 +153,15 @@ should.Assertion.add('matchImage', function (imageFilePath) {
 	const zlib = require('browserify-zlib');
 	global.binding.register('zlib', zlib);
 	const PNG = require('pngjs').PNG;
+	const cgbiToPng = isIOSDevice ? require('cgbi-to-png') : { revert: (buf) => buf };
 	const pixelmatch = require('pixelmatch');
 
 	// Need to create a Buffer around the contents of each image!
 	const expectedBuffer = Buffer.from(snapshotBlob.toArrayBuffer());
-	const expectedImg = PNG.sync.read(expectedBuffer);
+	const expectedImg = PNG.sync.read(cgbiToPng.revert(expectedBuffer));
 
 	const actualBuffer = Buffer.from(blob.toArrayBuffer());
-	const actualImg = PNG.sync.read(actualBuffer);
+	const actualImg = PNG.sync.read(cgbiToPng.revert(actualBuffer));
 
 	const { width, height } = actualImg;
 	const diff = new PNG({ width, height });
