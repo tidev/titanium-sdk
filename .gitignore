@@ -37,7 +37,10 @@ junit_report.xml
 /iphone/TitaniumKit/build
 /iphone/lib/libTiCore.a
 
-/.vscode
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+
 /android/runtime/v8/src/native/V8Snapshots.h
 
 .nyc_output/
