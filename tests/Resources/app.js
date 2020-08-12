@@ -74,6 +74,7 @@ function loadTests() {
 	require('./os.test');
 	require('./path.test');
 	require('./process.test');
+	require('./stream.test');
 	require('./string_decoder.test');
 	require('./util.test');
 	// Titanium APIs
