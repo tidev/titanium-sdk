@@ -4,13 +4,14 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-/* global OS_ANDROID */
+/* global OS_ANDROID, OS_IOS */
 /* eslint-env mocha */
 /* eslint no-unused-expressions: "off" */
 'use strict';
 const should = require('./utilities/assertions');
 
 // handy tool: https://www.fileformat.info/tool/hash.htm
+const isIOSDevice = OS_IOS && !Ti.Platform.model.includes('(Simulator)');
 
 describe('Titanium.Utils', function () {
 	let win;
@@ -197,7 +198,11 @@ describe('Titanium.Utils', function () {
 			const binaryFile = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, 'Logo.png');
 			const result = Ti.Utils.md5HexDigest(binaryFile.read());
 			should(result).be.a.String();
-			should(result).eql('803fd0b8dd9a3ca5238390732db54062');
+			if (isIOSDevice) { // due to iOS pngcrush converting png to CgBI extension PNG
+				should(result).eql('a5e38885bb8aebe6c084e7afa1b0414d');
+			} else {
+				should(result).eql('803fd0b8dd9a3ca5238390732db54062');
+			}
 		});
 	});
 
@@ -221,7 +226,11 @@ describe('Titanium.Utils', function () {
 		it('Ti.Blob with binary data', () => {
 			const binaryFile = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, 'Logo.png');
 			const blob = binaryFile.read();
-			should(Ti.Utils.sha1(blob)).eql('668e98c66d8a11ef38ab442d9d6d4a21d8593645');
+			if (isIOSDevice) { // due to iOS pngcrush converting png to CgBI extension PNG
+				should(Ti.Utils.sha1(blob)).eql('96a74b4c11f5f6578fe49b318b49e30745a56c8e');
+			} else {
+				should(Ti.Utils.sha1(blob)).eql('668e98c66d8a11ef38ab442d9d6d4a21d8593645');
+			}
 		});
 	});
 
@@ -245,7 +254,11 @@ describe('Titanium.Utils', function () {
 		it('Ti.Blob with binary data', () => {
 			const binaryFile = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, 'Logo.png');
 			const blob = binaryFile.read();
-			should(Ti.Utils.sha256(blob)).eql('54be80ae48e4242d56170248e730ffac60a2828d07260a048e2ac0fd62386234');
+			if (isIOSDevice) { // due to iOS pngcrush converting png to CgBI extension PNG
+				should(Ti.Utils.sha256(blob)).eql('f8d00ab3f1ed1b709556391fd0e0c377bcbe0776f7274e2929ed41e2f9938065');
+			} else {
+				should(Ti.Utils.sha256(blob)).eql('54be80ae48e4242d56170248e730ffac60a2828d07260a048e2ac0fd62386234');
+			}
 		});
 	});
 
