@@ -107,6 +107,12 @@ public class HTTPClientProxy extends KrollProxy
 		return client.getAllResponseHeaders();
 	}
 
+	@Kroll.getProperty
+	public KrollDict getResponseHeaders()
+	{
+		return client.getResponseHeaders();
+	}
+
 	@Kroll.method
 	@Kroll.getProperty
 	public int getReadyState()
