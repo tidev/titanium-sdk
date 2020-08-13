@@ -757,6 +757,12 @@ public class TiHTTPClient
 			// Iterate through response headers.
 			for (Map.Entry<String, List<String>> entry : entrySet) {
 				final String key = entry.getKey();
+
+				// Skip empty key that holds response status.
+				if (key == null) {
+					continue;
+				}
+
 				final List<String> values = entry.getValue();
 				final String[] stringValues = new String[values.size()];
 
