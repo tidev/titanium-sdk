@@ -953,7 +953,7 @@ describe('Titanium.UI.View', function () {
 		win.open();
 	});
 
-	describe('borderRadius corners', () => {
+	describe.only('borderRadius corners', () => {
 		const density = Ti.Platform.displayCaps.logicalDensityFactor;
 		// FIXME: Don't use dp/pts in the actual radii so we can avoid needing separate images per density?
 		// Do separate tests for verifying use of pts/dp versus density?
