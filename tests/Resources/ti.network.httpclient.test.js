@@ -177,6 +177,37 @@ describe('Titanium.Network.HTTPClient', function () {
 		xhr.send();
 	});
 
+	it('responseHeaders', function (finish) {
+		const xhr = Ti.Network.createHTTPClient({
+			timeout: 5000
+		});
+		xhr.onload = e => {
+			try {
+				const responseHeaders = e.source.responseHeaders;
+
+				if (responseHeaders['Content-Type']
+					&& responseHeaders['Content-Type'].startsWith('text/html')) {
+					finish();
+				}
+			} catch (err) {
+				return finish(err);
+			}
+		};
+
+		let attempts = 3;
+		xhr.onerror = e => {
+			if (attempts-- > 0) {
+				Ti.API.warn('failed, attempting to retry request...');
+				xhr.send();
+			} else {
+				Ti.API.debug(JSON.stringify(e, null, 2));
+				finish(new Error('failed to retrieve headers: ' + e));
+			}
+		};
+		xhr.open('GET', 'https://google.com');
+		xhr.send();
+	});
+
 	// https://appcelerator.lighthouseapp.com/projects/32238/tickets/2339
 	it('responseHeadersBug', function (finish) {
 		const xhr = Ti.Network.createHTTPClient({
