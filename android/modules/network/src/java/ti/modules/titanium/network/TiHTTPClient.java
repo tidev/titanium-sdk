@@ -746,6 +746,40 @@ public class TiHTTPClient
 		return result;
 	}
 
+	public KrollDict getResponseHeaders()
+	{
+		final KrollDict result = new KrollDict();
+
+		// Obtain response headers.
+		if (responseHeaders != null && !responseHeaders.isEmpty()) {
+			final Set<Map.Entry<String, List<String>>> entrySet = responseHeaders.entrySet();
+
+			// Iterate through response headers.
+			for (Map.Entry<String, List<String>> entry : entrySet) {
+				final String key = entry.getKey();
+				final List<String> values = entry.getValue();
+				final String[] stringValues = new String[values.size()];
+
+				// Handle multiple values such as cookies.
+				if (values.size() > 1) {
+
+					// Parse response headers into string array.
+					for (int i = 0; i < values.size(); i++) {
+						stringValues[i] = values.get(i);
+					}
+
+					// Store response headers in dictionary.
+					result.put(key, stringValues);
+				} else {
+
+					// Store response header in dictionary.
+					result.put(key, values.get(0));
+				}
+			}
+		}
+		return result;
+	}
+
 	public void clearCookies(String url)
 	{
 		if (url == null) {
