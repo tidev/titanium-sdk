@@ -128,7 +128,7 @@ def androidUnitTests(nodeVersion, npmVersion, testOnDevices) {
 
 def iosUnitTests(deviceFamily, nodeVersion, npmVersion) {
 	return {
-		node('git && osx && xcode-11') { // Use xcode-11 to make use of ios 13 APIs
+		node('git && osx && xcode-12') { // Use xcode-12 to make use of ios 14 APIs
 			// TODO: Do a shallow checkout rather than stash/unstash?
 			unstash 'mocha-tests'
 			try {
@@ -185,7 +185,7 @@ def cliUnitTests(nodeVersion, npmVersion) {
 // Wrap in timestamper
 timestamps {
 	try {
-		node('git && android-sdk && android-ndk && ant && gperf && osx && xcode-11') {
+		node('git && android-sdk && android-ndk && ant && gperf && osx && xcode-12') {
 			stage('Checkout') {
 				// Update our shared reference repo for all branches/PRs
 				dir('..') {
