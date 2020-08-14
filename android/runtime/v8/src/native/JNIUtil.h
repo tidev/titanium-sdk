@@ -78,6 +78,7 @@ public:
 	static jclass booleanClass;
 	static jclass stringArrayClass;
 	static jclass objectArrayClass;
+	static jclass byteArrayClass;
 	static jclass shortArrayClass;
 	static jclass intArrayClass;
 	static jclass longArrayClass;

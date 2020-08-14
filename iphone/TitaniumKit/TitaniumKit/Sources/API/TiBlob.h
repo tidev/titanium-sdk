@@ -79,6 +79,7 @@ JSExportAs(compare,
            -(BOOL)compare
            : (TiBlob *)blob withTolerence
            : (CGFloat)tolerence);
+- (JSValue *)toArrayBuffer;
 
 @end
 

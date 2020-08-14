@@ -455,4 +455,23 @@ GETTER_IMPL(NSUInteger, length, Length);
   return [super toString];
 }
 
+static void jsArrayBufferFreeDeallocator(void *data, void *ctx)
+{
+  free(data);
+}
+
+- (JSValue *)toArrayBuffer
+{
+  NSData *theData = [self data];
+  // Copy the raw bytes of the NSData we're wrapping
+  NSUInteger len = [theData length];
+  void *arrayBytes = malloc(len);
+  [theData getBytes:arrayBytes length:len];
+
+  // Now make an ArrayBuffer with the copied bytes
+  JSContext *context = JSContext.currentContext;
+  JSValueRef *exception;
+  JSObjectRef arrayBuffer = JSObjectMakeArrayBufferWithBytesNoCopy(context.JSGlobalContextRef, arrayBytes, len, jsArrayBufferFreeDeallocator, nil, exception);
+  return [JSValue valueWithJSValueRef:arrayBuffer inContext:context];
+}
 @end
