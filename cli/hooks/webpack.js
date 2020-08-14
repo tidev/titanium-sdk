@@ -99,7 +99,7 @@ exports.init = (logger, config, cli) => {
 				if (e.status === 404) {
 					badgedLogger.info('Daemon was unable to find the Webpack plugin. To continue you need to:');
 					badgedLogger.info('');
-					const installCommand = 'npm i -g @appcd/webpack-plugin';
+					const installCommand = 'npm i -g @appcd/plugin-webpack';
 					badgedLogger.info(`- Install it with ${installCommand.cyan}`);
 					const restartCommand = `${isAppcCli ? 'appc ' : ''}appcd restart`;
 					badgedLogger.info(`- Restart the daemon with ${restartCommand.cyan}`);
