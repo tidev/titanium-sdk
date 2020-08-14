@@ -1,0 +1,14 @@
+{
+	"files.exclude": {
+		"build/": true,
+		"Resources/": true
+	},
+	"search.exclude": {
+		"build/": true,
+		"Resources/": true
+	},
+	"files.watcherExclude": {
+		"build/": true,
+		"Resources/": true
+	}
+}
