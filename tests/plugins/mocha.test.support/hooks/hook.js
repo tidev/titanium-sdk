@@ -8,6 +8,7 @@
 
 const appc = require('node-appc');
 const path = require('path');
+const fs = require('fs-extra');
 
 exports.cliVersion = '>=3.2';
 
@@ -69,6 +70,8 @@ async function wakeDevices(logger, builder) {
 	}
 
 	if (builder.deviceId === 'all') {
+		//  Write out the listing of devices to disk so test suite can grab mapping/details
+		await fs.writeJSON(path.join(builder.projectDir, 'android-devices.json'), builder.devices);
 		for (const device of builder.devices) {
 			if (device.id !== 'all') {
 				await wake(device.id);

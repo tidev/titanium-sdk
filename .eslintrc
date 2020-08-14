@@ -35,7 +35,7 @@
       }
     },
     {
-      "files": [ "android/cli/tests/test-android-manifest.js" ],
+      "files": [ "android/cli/tests/test-android-manifest.js", "build/**/test-*.js" ],
       "extends": [ "axway/env-node", "axway/+mocha"]
     },
     {
@@ -60,6 +60,13 @@
         "node/no-deprecated-api": "off",
         "node/no-unsupported-features/es-syntax": "off",
         "node/no-unsupported-features/node-builtins": ["warn", { "version": "10.11.0" }]
+      }
+    },
+    {
+      "files": [ "cli/lib/tasks/*.js", "cli/hooks/webpack.js", "cli/lib/webpack/**/*.js" ],
+      "parserOptions": {
+        "ecmaVersion": 2017,
+        "sourceType": "module"
       }
     }
   ]

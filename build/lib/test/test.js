@@ -13,6 +13,7 @@ const StreamSplitter = require('stream-splitter');
 const spawn = require('child_process').spawn; // eslint-disable-line security/detect-child-process
 const titanium = require.resolve('titanium');
 const { promisify } = require('util');
+const stripAnsi = require('strip-ansi');
 const exec = promisify(require('child_process').exec); // eslint-disable-line security/detect-child-process
 
 const ROOT_DIR = path.join(__dirname, '../../..');
@@ -30,6 +31,9 @@ const TEST_END_PREFIX = '!TEST_END: ';
 const TEST_START_PREFIX = '!TEST_START: ';
 const TEST_SUITE_STOP = '!TEST_RESULTS_STOP!';
 const OS_VERSION_PREFIX = 'OS_VERSION: ';
+
+// Sniff if we're on Travis/Jenkins
+const isCI = !!(process.env.BUILD_NUMBER || process.env.CI || false);
 
 /**
  * Generates a test app, then runs the app for each platform with our
@@ -278,7 +282,7 @@ async function addTiAppProperties() {
  * @param {string} [deployType=undefined] 'development' || 'test'
  * @param {string} [deviceFamily=undefined] 'ipad' || 'iphone' || undefined
  * @param {string} snapshotDir directory to place generated images
- * @param {Promise[]} snapshotPromises array to hold promises for grabbign generated images
+ * @param {Promise[]} snapshotPromises array to hold promises for grabbing generated images
  * @returns {Promise<object>}
  */
 async function runBuild(platform, target, deviceId, deployType, deviceFamily, snapshotDir, snapshotPromises) {
@@ -341,6 +345,277 @@ async function killiOSSimulator() {
 	});
 }
 
+class DeviceTestDetails {
+	/**
+	 *
+	 * @param {string} name device/emulator name (as reported via log output. Defaults to empty string)
+	 * @param {'emulator'|'device'|'simulator'} target --target passed to CLI/build
+	 * @param {string} snapshotDir path to dir we should save generated snapshot images
+	 * @param {Promise[]} snapshotPromises Array of Promises we gather/create for collecting/pulling snapshot images fromd evces/emulators
+	 */
+	constructor(name, target, snapshotDir, snapshotPromises) {
+		this.name = name;
+		this.results = [];
+		// FIXME: These things don't feel right to pass in here.
+		this.target = target;
+		this.snapshotDir = snapshotDir;
+		this.snapshotPromises = snapshotPromises;
+		// set to completed as true by default because for multi-device build we'll end up with default entry that just corresponds to
+		// log output from CLI or not from a specific device. If the device specific test suites finish we want to ignore this one
+		// We'll set to false as soon as we see a version or test start
+		this.completed = true;
+		this.resetTestState();
+	}
+
+	appendStderr(line) {
+		this.stderr += line.trim() + '\n';
+	}
+
+	/**
+	 * We saw test end before, but failed to parse as JSON because we got partial output, so continue
+	 * trying until it's happy (and resets sawTestEnd to false)
+	 * @param {string} token line out log output
+	 * @returns {boolean}
+	 */
+	handleTestContinuation(token) {
+		let modifiedToken = token;
+		let hasAnsi = true;
+
+		// strip off leading log level prefix!
+		if (modifiedToken.startsWith('[INFO]')) {
+			modifiedToken = modifiedToken.substring(8);
+			hasAnsi = false;
+			// colored output?
+		} else if (modifiedToken.startsWith('\u001b[32m[INFO] \u001b[39m')) {
+			// technically we get these characters on a colored [INFO] log prefix:
+			// <Buffer 1b 5b 33 32 6d 5b 49 4e 46 4f 5d 20 1b 5b 33 39 6d 3a 20 08 08 20 08 20>
+			//     \u001b [  3  2  m  [  I  N  F  O  ]  <space>\u001b[39m :  <space><backspace><backspace><space><backspace><space>
+			modifiedToken = modifiedToken.substring(24);
+		}
+
+		if (this.name) {
+			if (hasAnsi) {
+				modifiedToken = modifiedToken.substring(this.name.length + 13); // strip ansi color code, '[, device name, '] ', ansi color code
+			} else {
+				modifiedToken = modifiedToken.substring(this.name.length + 3);
+			}
+		}
+
+		return this.tryParsingTestResult(this.partialTestEnd + modifiedToken);
+	}
+
+	/**
+	 * Handle a new line of output for a given device/emulator
+	 * @param {string} token line of output (raw)
+	 * @param {string} stripped output stripped of ansi colors
+	 * @returns {boolean} true if successfully finished the test suite (completed, may have test failures/errors)
+	 */
+	handleLine(token, stripped) {
+		if (this.testEndIncomplete) {
+			if (token.includes(TEST_START_PREFIX) || token.includes(TEST_SUITE_STOP)) {
+				// Make up a failed test result
+				this.recordIncompleteTestResult();
+			} else {
+				this.handleTestContinuation(token);
+				return false;
+			}
+		}
+
+		// check for test start
+		if (token.includes(TEST_START_PREFIX)) {
+			// new test, wipe the state
+			this.resetTestState();
+			return false;
+		}
+
+		// check for generated images
+		if (token.includes(GENERATED_IMAGE_PREFIX)) {
+			this.snapshotPromises.push(this.grabGeneratedImage(token));
+			return false;
+		}
+
+		// check for mismatched images
+		if (token.includes(DIFF_IMAGE_PREFIX)) {
+			this.snapshotPromises.push(this.handleMismatchedImage(token));
+			return false;
+		}
+
+		// obtain os version
+		if (token.includes(OS_VERSION_PREFIX)) {
+			this.version = token.slice(token.indexOf(OS_VERSION_PREFIX) + OS_VERSION_PREFIX.length).trim();
+			this.completed = false; // it's a real device/emulator and not the entry for generic CLI output!
+			return false;
+		}
+
+		// check for test end
+		const testEndIndex = token.indexOf(TEST_END_PREFIX);
+		if (testEndIndex !== -1) {
+			this.tryParsingTestResult(token.slice(testEndIndex + TEST_END_PREFIX.length).trim());
+			// if this fails, we retry at top of next call to handleLine()
+			// success or failure, we're done with this line
+			return false;
+		}
+
+		// check for suite end
+		if (token.includes(TEST_SUITE_STOP)) {
+			// device completed tests
+			this.completed = true;
+			return true;
+		}
+
+		// normal output (no test start/end, suite end/crash)
+		// append output to our string for stdout
+		this.output += token + '\n';
+		return false;
+	}
+
+	recordIncompleteTestResult() {
+		const result = {
+			state: 'failed',
+			duration: 0,
+			suite: 'Unknown',
+			title: `Unknown imcomplete test ${Date.now()}`,
+			message: 'build/lib/test.js failed to parse reported test result',
+			stack: this.partialTestEnd, // where should we stick this?
+			stdout: this.output,
+			stderr: this.stderr,
+			device: this.name.length ? this.name : undefined,
+			os_version: this.version
+		};
+		this.results.push(result);
+		this.testEndIncomplete = false;
+		return true;
+	}
+
+	/**
+	 * @param {string} resultJSON json string of test details
+	 * @return {boolean} indicating if we were able to parse test result
+	 */
+	tryParsingTestResult(resultJSON) {
+		//  grab out the JSON and add to our result set
+		try {
+			const result = JSON.parse(massageJSONString(resultJSON));
+			result.stdout = this.output; // record what we saw in output during the test
+			result.stderr = this.stderr; // record what we saw in output during the test
+			result.device = this.name.length ? this.name : undefined; // specify device if available
+			result.os_version = this.version; // specify os version if available
+			this.results.push(result);
+			this.testEndIncomplete = false;
+			return true;
+		} catch (err) {
+			// if we fail to parse as JSON, assume we got truncated output!
+			this.partialTestEnd = resultJSON;
+			this.testEndIncomplete = true;
+			return false;
+		}
+	}
+
+	resetTestState() {
+		this.output = ''; // reset output
+		this.stderr = ''; // reset stderr
+		this.partialTestEnd = ''; // reset partial test output
+		this.testEndIncomplete = false; // reset flag indicating we saw partial test output
+	}
+
+	/**
+	 * Attempts to "grab" the actual image and place it in known location side-by-side with expected image
+	 * @param {string} token line of output
+	 * @returns {Promise<string>}
+	 */
+	async handleMismatchedImage(token) {
+		const imageIndex = token.indexOf(DIFF_IMAGE_PREFIX);
+		const trimmed = token.slice(imageIndex + DIFF_IMAGE_PREFIX.length).trim();
+		const details = JSON.parse(trimmed);
+
+		const expected = path.join(this.snapshotDir, details.platform, details.relativePath);
+		const diffDir = path.join(this.snapshotDir, '..', 'diffs', details.platform, details.relativePath.slice(0, -4)); // drop '.png'
+		await fs.ensureDir(diffDir);
+		await fs.copy(expected, path.join(diffDir, 'expected.png'));
+
+		const actual = path.join(diffDir, 'actual.png');
+		await this.grabAppImage(details.platform, details.path, actual);
+		try {
+			const diff = path.join(diffDir, 'diff.png');
+			await this.grabAppImage(details.platform, details.path.slice(0, -4) + '_diff.png', diff);
+		} catch (err) {
+			// ignore, diff image may not exist
+		}
+		return actual;
+	}
+
+	/**
+	 * Attempts to "grab" generated images
+	 * @param {string} token line of output
+	 * @returns {Promise<string>}
+	 */
+	async grabGeneratedImage(token) {
+		const imageIndex = token.indexOf(GENERATED_IMAGE_PREFIX);
+		const trimmed = token.slice(imageIndex + GENERATED_IMAGE_PREFIX.length).trim();
+		const details = JSON.parse(trimmed);
+
+		// grab image and place into test suite
+		const dest = path.join(this.snapshotDir, details.platform, details.relativePath);
+		const grabbed = await this.grabAppImage(details.platform, details.path, dest);
+		if (isCI) {
+			// Now also place into location that we can archive on CI/Jenkins
+			const generated = path.join(this.snapshotDir, '..', 'generated', details.platform, details.relativePath);
+			const diffDir = path.dirname(generated);
+			await fs.ensureDir(diffDir);
+			await fs.copy(grabbed, generated);
+		}
+		return grabbed;
+	}
+
+	/**
+	 * Lazily try and match the reported namee in the logs back to the underlying id/serial
+	 * Then we can direct adb commands to this device specifically.
+	 */
+	async deviceId() {
+		if (!this._deviceId) {
+			if (!this.name) {
+				this._deviceId = 'device';
+			} else {
+				const devices = await fs.readJSON(path.join(PROJECT_DIR, 'android-devices.json'));
+				// android's cli uses model || manufacturer || id as log prefix, see android/cli/hooks/run.js
+				const device = devices.find(d => (d.model || d.manufacturer || d.id) === this.name);
+				this._deviceId = device.id;
+			}
+		}
+		return this._deviceId;
+	}
+
+	/**
+	 * Copies an image from sim/device to local disk
+	 * @param {string} platform 'android' || 'ios'
+	 * @param {string} filepath remote filepath
+	 * @param {string} dest where to save locally
+	 * @returns {Promise<string>} file path where it was saved
+	 */
+	async grabAppImage(platform, filepath, dest) {
+		if (filepath.startsWith('file://')) {
+			filepath = filepath.slice(7);
+		}
+		console.log(`Copying generated image ${filepath} to ${dest}`);
+		if (platform === 'android') {
+			// Pull the file via adb shell
+			if (this.target === 'device') {
+				await exec(`adb -s ${await this.deviceId()} shell "run-as ${APP_ID} cat '${filepath}'" > ${dest}`);
+			} else {
+				await exec(`adb shell "run-as ${APP_ID} cat '${filepath}'" > ${dest}`);
+			}
+			return dest;
+		}
+		// Can't grab images from iOS device
+		// FIXME: We could always transfer bytes somehow! client/server socket?
+		if (this.target === 'device') {
+			throw new Error(`Cannot grab generated image ${filepath} from a device. Please run locally on a simulator and add the image to the suite.`);
+		}
+		// iOS sim: copy the expected image to destination
+		await fs.copy(filepath, dest);
+		return dest;
+	}
+}
+
 /**
  * Once a build has been spawned off this handles grabbing the test results from the output.
  * @param {child_process} prc  Handle of the running process from spawn
@@ -351,38 +626,12 @@ async function killiOSSimulator() {
  */
 async function handleBuild(prc, target, snapshotDir, snapshotPromises) {
 	return new Promise((resolve, reject) => {
-		const results = [];
-		let output = '';
-		let stderr = '';
-		let sawTestEnd = false;
-		let partialTestEnd = '';
-		let devices = {};
+		const deviceMap = new Map();
+		let started = false;
 
 		const splitter = prc.stdout.pipe(StreamSplitter('\n'));
 		// Set encoding on the splitter Stream, so tokens come back as a String.
 		splitter.encoding = 'utf8';
-
-		function tryParsingTestResult(resultJSON, device, os_version) {
-			//  grab out the JSON and add to our result set
-			try {
-				const result = JSON.parse(massageJSONString(resultJSON));
-				result.stdout = output; // record what we saw in output during the test
-				result.stderr = stderr; // record what we saw in output during the test
-				result.device = device && device.length ? device : undefined; // specify device if available
-				result.os_version = os_version; // specify os version if available
-				results.push(result);
-				output = ''; // reset output
-				stderr = ''; // reset stderr
-				partialTestEnd = ''; // reset partial test output
-				sawTestEnd = false; // reset flag indicating we saw partial test output
-				return true;
-			} catch (err) {
-				// if we fail to parse as JSON, assume we got truncated output!
-				partialTestEnd = resultJSON;
-				sawTestEnd = true;
-				return false;
-			}
-		}
 
 		function getDeviceName(token) {
 			const matches = /^[\s\b]+\[([^\]]+)\]\s/g.exec(token.substring(token.indexOf(':') + 1));
@@ -399,94 +648,16 @@ async function handleBuild(prc, target, snapshotDir, snapshotPromises) {
 			// Workaround to launch iOS application on device.
 			if (token.includes('Please manually launch the application')) {
 				console.log('Launching application using ios-deploy');
-				const deploy = spawn('ios-deploy', [ '-L', '-b', path.join(__dirname, 'mocha/build/iphone/build/Products/Debug-iphoneos/mocha.app') ]);
-				let result = '';
-				deploy.stdout.on('data', data => result += data);
-				deploy.on('close', _e => console.log(result));
+				const deploy = spawn('ios-deploy', [ '-L', '-b', path.join(PROJECT_DIR, `build/iphone/build/Products/Debug-iphoneos/${PROJECT_NAME}.app`) ]);
+				deploy.stdout.on('data', data => process.stdout.write(data));
+				deploy.stderr.on('data', data => process.stderr.write(data));
 			}
 
 			// Fail immediately if android emulator is forcing restart
+			// TODO: Can we restart/retry test suite in this case?
 			if (token.includes('Module config changed, forcing restart due')) {
 				prc.kill(); // quit this build...
-				return reject(new Error(`Failed to finish test suite before Android emulator killed ap due to updated module: ${token}`));
-			}
-
-			// we saw test end before, but failed to parse as JSON because we got partial output, so continue
-			// trying until it's happy (and resets sawTestEnd to false)
-			if (sawTestEnd) {
-				let modifiedToken = token;
-				// strip off leading log level prefix!
-				if (modifiedToken.startsWith('[INFO]')) {
-					modifiedToken = modifiedToken.substring(8);
-					// colored output?
-				} else if (modifiedToken.startsWith('\u001b[32m[INFO] \u001b[39m')) {
-					// technically we get these characters on a colored [INFO] log prefix:
-					// <Buffer 1b 5b 33 32 6d 5b 49 4e 46 4f 5d 20 1b 5b 33 39 6d 3a 20 08 08 20 08 20>
-					//     \u001b [  3  2  m  [  I  N  F  O  ]  <space>\u001b[39m :  <space><backspace><backspace><space><backspace><space>
-					modifiedToken = modifiedToken.substring(24);
-				}
-				// FIXME: IF we see another !TEST_START or !TEST_RESULTS_STOP, can we fail this test and move on?
-				tryParsingTestResult(partialTestEnd + modifiedToken);
-				return;
-			}
-
-			// check for test start
-			if (token.includes(TEST_START_PREFIX)) {
-				// grab out the JSON and add to our result set
-				output = '';
-				stderr = '';
-				return;
-			}
-
-			// check for generated images
-			if (token.includes(GENERATED_IMAGE_PREFIX)) {
-				snapshotPromises.push(grabGeneratedImage(token, target, snapshotDir));
-				return;
-			}
-
-			// check for mismatched images
-			if (token.includes(DIFF_IMAGE_PREFIX)) {
-				snapshotPromises.push(handleMismatchedImage(token, target, snapshotDir));
-				return;
-			}
-
-			// obtain os version
-			if (token.includes(OS_VERSION_PREFIX)) {
-				const device = getDeviceName(token);
-				devices[device] = {
-					version: token.slice(token.indexOf(OS_VERSION_PREFIX) + OS_VERSION_PREFIX.length).trim(),
-					completed: false
-				};
-				return;
-			}
-
-			// check for test end
-			const testEndIndex = token.indexOf(TEST_END_PREFIX);
-			if (testEndIndex !== -1) {
-				const device = getDeviceName(token);
-				tryParsingTestResult(token.slice(testEndIndex + TEST_END_PREFIX.length).trim(), device, devices[device].version);
-				return;
-			}
-
-			// check for suite end
-			if (token.includes(TEST_SUITE_STOP)) {
-
-				// device completed tests
-				const device = getDeviceName(token);
-				devices[device].completed = true;
-
-				// check if all devices have completed tests
-				for (const d in devices) {
-
-					// not all devices have completed tests
-					// continue without processing results
-					if (!devices[d].completed) {
-						return;
-					}
-				}
-
-				prc.kill(); // ok, tests finished as expected, kill the process
-				return resolve({ date: (new Date()).toISOString(), results: results });
+				return reject(new Error(`Failed to finish test suite before Android emulator killed app due to updated module: ${token}`));
 			}
 
 			// Handle when app crashes and we haven't finished tests yet!
@@ -495,9 +666,38 @@ async function handleBuild(prc, target, snapshotDir, snapshotPromises) {
 				return reject(new Error('Failed to finish test suite before app crashed and logs ended!')); // failed too many times
 			}
 
-			// normal output (no test start/end, suite end/crash)
-			// append output to our string for stdout
-			output += token + '\n';
+			// ignore the build output until the app actually starts
+			if (!started) {
+				if (token.includes('-- Start application log ---') || token.includes('-- Start simulator log ---')) {
+					started = true;
+				}
+				return;
+			}
+
+			// We should not be checking the line for a device name until after the app starts!
+			// Otherwise we create an entry for '' (default) device which will never be completed
+			const stripped = stripAnsi(token);
+			const device = getDeviceName(stripped);
+			if (!deviceMap.has(device)) {
+				deviceMap.set(device, new DeviceTestDetails(device, target, snapshotDir, snapshotPromises));
+			}
+			const curTest = deviceMap.get(device);
+			const done = curTest.handleLine(token, stripped);
+			if (done) {
+				let results = [];
+				// check if all devices have completed tests
+				for (const d of deviceMap.values()) {
+					// not all devices have completed tests
+					// continue without processing results
+					if (!d.completed) {
+						return;
+					}
+					results = results.concat(d.results);
+				}
+
+				prc.kill(); // ok, tests finished as expected, kill the process
+				return resolve({ date: (new Date()).toISOString(), results });
+			}
 		});
 		// Any errors that occur on a source stream will be emitted on the
 		// splitter Stream, if the source stream is piped into the splitter
@@ -507,7 +707,16 @@ async function handleBuild(prc, target, snapshotDir, snapshotPromises) {
 
 		prc.stderr.on('data', data => {
 			process.stderr.write(data); // pipe along the stderr as we go, retaining ANSI colors
-			stderr += data.toString().trim() + '\n'; // store the color-stripped version?
+			if (!started) {
+				return;
+			}
+			const line = data.toString();
+			const stripped = stripAnsi(line);
+			const device = getDeviceName(stripped);
+			if (!deviceMap.has(device)) {
+				deviceMap.set(device, new DeviceTestDetails(device, target, snapshotDir, snapshotPromises));
+			}
+			deviceMap.get(device).appendStderr(line);
 		});
 
 		prc.on('close', code => {
@@ -518,6 +727,11 @@ async function handleBuild(prc, target, snapshotDir, snapshotPromises) {
 	});
 }
 
+/**
+ *
+ * @param {string} testResults
+ * @returns {string}
+ */
 function massageJSONString(testResults) {
 	// preserve newlines, etc - use valid JSON
 	return testResults.replace(/\\n/g, '\\n')
@@ -530,99 +744,6 @@ function massageJSONString(testResults) {
 		.replace(/\\f/g, '\\f')
 		// remove non-printable and other non-valid JSON chars
 		.replace(/[\u0000-\u0019]+/g, ''); // eslint-disable-line no-control-regex
-}
-
-/**
- * Attempts to "grab" generated images
- * @param {string} token line of output
- * @param {string} target 'emulator' || 'simulator' || 'device'
- * @param {string} snapshotDir directory to place generated images
- * @returns {Promise<string>}
- */
-async function grabGeneratedImage(token, target, snapshotDir) {
-	const imageIndex = token.indexOf(GENERATED_IMAGE_PREFIX);
-	const trimmed = token.slice(imageIndex + GENERATED_IMAGE_PREFIX.length).trim();
-	const details = JSON.parse(trimmed);
-	if (target === 'device') {
-		// TODO: Give details on the current test that generated it?
-		console.error(`Cannot grab generated image ${details.relativePath} from a device. Please run locally on a simulator and add the image to the suite.`);
-		return;
-	}
-
-	const dest = path.join(snapshotDir, details.platform, details.relativePath);
-	// copied from sim/emu to file system...
-	const grabbed = await saveAppImage(details, dest);
-	// Now also place in diffs dir too with no expected.png
-	const diffDir = path.join(snapshotDir, '..', 'diffs', details.platform, details.relativePath.slice(0, -4)); // drop '.png'
-	await fs.ensureDir(diffDir);
-	const actual = path.join(diffDir, 'actual.png');
-	await fs.copy(grabbed, actual);
-	return grabbed;
-}
-
-/**
- * @param {object} details json from test output about image
- * @param {string} details.path path to generated image file
- * @param {string} details.platform name of the platform
- * @param {string} dest destination filepath
- */
-async function saveAppImage(details, dest) {
-	return grabAppImage(details.platform, details.path, dest);
-}
-
-async function grabAppImage(platform, filepath, dest) {
-	if (filepath.startsWith('file://')) {
-		filepath = filepath.slice(7);
-	}
-	console.log(`Copying generated image ${filepath} to ${dest}`);
-	if (platform === 'android') {
-		// Pull the file via adb shell
-		// FIXME: what if android sdk platform-tools/bin isn't on PATH!?
-		await exec(`adb shell "run-as ${APP_ID} cat '${filepath}'" > ${dest}`);
-		// TODO: handle device(s) vs emulator(s)
-		return dest;
-	} else {
-		// copy the expected image to some location
-		// iOS - How do we grab the image?
-		// For ios sim, we should just be able to do a file copy
-		// FIXME: iOS device isn't (and may not be able to be) handled!
-		await fs.copy(filepath, dest);
-		return dest;
-	}
-}
-
-/**
- * Attempts to "grab" the actual image and place it in known location side-by-side with expected image
- * @param {string} token line of output
- * @param {string} target 'emulator' || 'simulator' || 'device'
- * @param {string} snapshotDir directory to place generated images
- * @returns {Promise<string>}
- */
-async function handleMismatchedImage(token, target, snapshotDir) {
-	const imageIndex = token.indexOf(DIFF_IMAGE_PREFIX);
-	const trimmed = token.slice(imageIndex + DIFF_IMAGE_PREFIX.length).trim();
-	const details = JSON.parse(trimmed);
-
-	const expected = path.join(snapshotDir, details.platform, details.relativePath);
-	const diffDir = path.join(snapshotDir, '..', 'diffs', details.platform, details.relativePath.slice(0, -4)); // drop '.png'
-	await fs.ensureDir(diffDir);
-	await fs.copy(expected, path.join(diffDir, 'expected.png'));
-
-	if (target === 'device') {
-		// TODO: Give details on the current test that generated it?
-		console.error(`Cannot grab generated image ${details.relativePath} from a device. Please run locally on a simulator and add the image to the suite.`);
-		return;
-	}
-
-	const actual = path.join(diffDir, 'actual.png');
-	await saveAppImage(details, actual);
-	try {
-		const diff = path.join(diffDir, 'diff.png');
-		await grabAppImage(details.platform, details.path.slice(0, -4) + '_diff.png', diff);
-	} catch (err) {
-		// ignore, diff image may not exist
-	}
-	return actual;
 }
 
 /**
@@ -737,3 +858,4 @@ async function outputResults(results) {
 // public API
 exports.test = test;
 exports.outputResults = outputResults;
+exports.handleBuild = handleBuild;
