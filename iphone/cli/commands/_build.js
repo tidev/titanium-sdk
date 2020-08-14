@@ -2957,7 +2957,7 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 			} else if (obj.path === 'Titanium.app') {
 				obj.path = xobjs.PBXFileReference[id + '_comment'] = '"' + appName + '.app"';
 			}	else if (obj.path === '"Titanium-Bridging-Header.h"') {
-				obj.path = xobjs.PBXFileReference[id + '_comment'] = '"' + scrubbedAppName + '-Bridging-Header.h"';
+				obj.path = xobjs.PBXFileReference[id + '_comment'] = `"${scrubbedAppName}-Bridging-Header.h"`;
 			} else if (relPathRegExp.test(obj.path)) {
 				obj.path = obj.path.replace(relPathRegExp, '$1');
 			} else if (obj.path === 'LaunchScreen.storyboard' && appc.version.lt(this.xcodeEnv.version, '7.0.0')) {
@@ -4628,7 +4628,7 @@ iOSBuilder.prototype.copyTitaniumiOSFiles = function copyTitaniumiOSFiles() {
 	copyAndReplaceFile.call(
 		this,
 		path.join(this.platformPath, 'iphone', 'Titanium-Bridging-Header.h'),
-		path.join(this.buildDir, name + '-Bridging-Header.h')
+		path.join(this.buildDir, `${name}-Bridging-Header.h`)
 	);
 	copyAndReplaceFile.call(
 		this,
