@@ -32,6 +32,9 @@ const TEST_START_PREFIX = '!TEST_START: ';
 const TEST_SUITE_STOP = '!TEST_RESULTS_STOP!';
 const OS_VERSION_PREFIX = 'OS_VERSION: ';
 
+// Sniff if we're on Travis/Jenkins
+const isCI = !!(process.env.BUILD_NUMBER || process.env.CI || false);
+
 /**
  * Generates a test app, then runs the app for each platform with our
  * test suite. Outputs the results in a JUnit test report,
@@ -346,9 +349,9 @@ class DeviceTestDetails {
 	/**
 	 *
 	 * @param {string} name device/emulator name (as reported via log output. Defaults to empty string)
-	 * @param {'emulator'|'device'|'simulator'} target
-	 * @param {string} snapshotDir
-	 * @param {Promise[]} snapshotPromises
+	 * @param {'emulator'|'device'|'simulator'} target --target passed to CLI/build
+	 * @param {string} snapshotDir path to dir we should save generated snapshot images
+	 * @param {Promise[]} snapshotPromises Array of Promises we gather/create for collecting/pulling snapshot images fromd evces/emulators
 	 */
 	constructor(name, target, snapshotDir, snapshotPromises) {
 		this.name = name;
@@ -410,10 +413,12 @@ class DeviceTestDetails {
 	handleLine(token, stripped) {
 		if (this.testEndIncomplete) {
 			if (token.includes(TEST_START_PREFIX) || token.includes(TEST_SUITE_STOP)) {
-				// TODO: Make up a failed test result somehow?
+				// Make up a failed test result
+				this.recordIncompleteTestResult();
+			} else {
+				this.handleTestContinuation(token);
+				return false;
 			}
-			this.handleTestContinuation(token);
-			return false;
 		}
 
 		// check for test start
@@ -445,9 +450,7 @@ class DeviceTestDetails {
 		// check for test end
 		const testEndIndex = token.indexOf(TEST_END_PREFIX);
 		if (testEndIndex !== -1) {
-			if (!this.tryParsingTestResult(token.slice(testEndIndex + TEST_END_PREFIX.length).trim())) {
-				console.log('test end not DONE!');
-			}
+			this.tryParsingTestResult(token.slice(testEndIndex + TEST_END_PREFIX.length).trim());
 			// if this fails, we retry at top of next call to handleLine()
 			// success or failure, we're done with this line
 			return false;
@@ -464,6 +467,24 @@ class DeviceTestDetails {
 		// append output to our string for stdout
 		this.output += token + '\n';
 		return false;
+	}
+
+	recordIncompleteTestResult() {
+		const result = {
+			state: 'failed',
+			duration: 0,
+			suite: 'Unknown',
+			title: `Unknown imcomplete test ${Date.now()}`,
+			message: 'build/lib/test.js failed to parse reported test result',
+			stack: this.partialTestEnd, // where should we stick this?
+			stdout: this.output,
+			stderr: this.stderr,
+			device: this.name.length ? this.name : undefined,
+			os_version: this.version
+		};
+		this.results.push(result);
+		this.testEndIncomplete = false;
+		return true;
 	}
 
 	/**
@@ -532,14 +553,16 @@ class DeviceTestDetails {
 		const trimmed = token.slice(imageIndex + GENERATED_IMAGE_PREFIX.length).trim();
 		const details = JSON.parse(trimmed);
 
+		// grab image and place into test suite
 		const dest = path.join(this.snapshotDir, details.platform, details.relativePath);
-		// copied from sim/emu to file system...
 		const grabbed = await this.grabAppImage(details.platform, details.path, dest);
-		// Now also place in diffs dir too with no expected.png
-		const diffDir = path.join(this.snapshotDir, '..', 'diffs', details.platform, details.relativePath.slice(0, -4)); // drop '.png'
-		await fs.ensureDir(diffDir);
-		const actual = path.join(diffDir, 'actual.png');
-		await fs.copy(grabbed, actual);
+		if (isCI) {
+			// Now also place into location that we can archive on CI/Jenkins
+			const generated = path.join(this.snapshotDir, '..', 'generated', details.platform, details.relativePath);
+			const diffDir = path.dirname(generated);
+			await fs.ensureDir(diffDir);
+			await fs.copy(grabbed, generated);
+		}
 		return grabbed;
 	}
 
