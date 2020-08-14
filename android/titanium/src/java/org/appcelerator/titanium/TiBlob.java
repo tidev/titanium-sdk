@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2020 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -292,6 +292,7 @@ public class TiBlob extends KrollProxy
 	 * @return binary data.
 	 * @module.api
 	 */
+	@Kroll.method(name = "toArrayBuffer")
 	public byte[] getBytes()
 	{
 		byte[] bytes = new byte[0];
