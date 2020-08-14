@@ -73,7 +73,7 @@ def gatherAndroidCrashReports() {
 def androidUnitTests(nodeVersion, npmVersion, testOnDevices) {
 	return {
 		def labels = 'git && osx && android-emulator && android-sdk' // FIXME get working on windows/linux!
-		if (true) {
+		if (testOnDevices) {
 			labels += ' && macos-rocket' // run main branch tests on devices, use node with devices connected
 		}
 
@@ -315,7 +315,7 @@ timestamps {
 		// Run unit tests in parallel for android/iOS
 		stage('Test') {
 			parallel(
-				'android unit tests': androidUnitTests(nodeVersion, npmVersion, testOnDevices),
+				'android unit tests': androidUnitTests(nodeVersion, npmVersion, true),
 				'iPhone unit tests': iosUnitTests('iphone', nodeVersion, npmVersion, testOnDevices),
 				'iPad unit tests': iosUnitTests('ipad', nodeVersion, npmVersion, testOnDevices),
 				'cli unit tests': cliUnitTests(nodeVersion, npmVersion),
