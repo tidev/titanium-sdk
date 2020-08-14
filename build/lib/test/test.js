@@ -576,7 +576,7 @@ class DeviceTestDetails {
 		if (platform === 'android') {
 			// Pull the file via adb shell
 			if (this.target === 'device') {
-				await exec(`adb shell -s ${await this.deviceId()} "run-as ${APP_ID} cat '${filepath}'" > ${dest}`);
+				await exec(`adb -s ${await this.deviceId()} shell "run-as ${APP_ID} cat '${filepath}'" > ${dest}`);
 			} else {
 				await exec(`adb shell "run-as ${APP_ID} cat '${filepath}'" > ${dest}`);
 			}
