@@ -68,7 +68,7 @@ typedef NS_ENUM(NSInteger, APSRequestError) {
 @property (nonatomic, strong, readwrite) NSOperationQueue *theQueue;
 
 /*!
- @discussion An optioanl array of run loop modes for delegate calllbacks
+ @discussion An optional array of run loop modes for delegate callbacks
  on the run loop of the caller's thread. The default is one element 
  array containing NSDefaultRunLoopMode. This is an advanced property,
  and is ignored if synchronous is YES or theQueue is not nil. It is
