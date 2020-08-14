@@ -548,17 +548,17 @@ class DeviceTestDetails {
 	 * Then we can direct adb commands to this device specifically.
 	 */
 	async deviceId() {
-		if (!this.deviceId) {
+		if (!this._deviceId) {
 			if (!this.name) {
-				this.deviceId = 'device';
+				this._deviceId = 'device';
 			} else {
 				const devices = await fs.readJSON(path.join(PROJECT_DIR, 'android-devices.json'));
 				// android's cli uses model || manufacturer || id as log prefix, see android/cli/hooks/run.js
 				const device = devices.find(d => (d.model || d.manufacturer || d.id) === this.name);
-				this.deviceId = device.id;
+				this._deviceId = device.id;
 			}
 		}
-		return this.deviceId;
+		return this._deviceId;
 	}
 
 	/**
