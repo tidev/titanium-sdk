@@ -123,7 +123,7 @@ function saveImage(blob, imageFilePath) {
 	return file;
 }
 
-should.Assertion.add('matchImage', function (imageFilePath) {
+should.Assertion.add('matchImage', function (imageFilePath, threshold = 0.1) {
 	this.params = { operator: `view to match snapshot image: ${imageFilePath}` };
 	if (this.obj.apiName) {
 		this.params.obj = this.obj.apiName;
@@ -165,7 +165,7 @@ should.Assertion.add('matchImage', function (imageFilePath) {
 
 	const { width, height } = actualImg;
 	const diff = new PNG({ width, height });
-	const pixelsDiff = pixelmatch(actualImg.data, expectedImg.data, diff.data, width, height, { threshold: 0 });
+	const pixelsDiff = pixelmatch(actualImg.data, expectedImg.data, diff.data, width, height, { threshold });
 	if (pixelsDiff !== 0) {
 		const file = saveImage(blob, imageFilePath); // save "actual"
 		// Save diff image!
