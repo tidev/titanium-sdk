@@ -2371,6 +2371,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_NO_LIMITS = "noLimits";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_NOTE = "note";
 
 	/**

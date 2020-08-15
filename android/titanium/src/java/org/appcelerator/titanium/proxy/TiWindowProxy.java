@@ -534,6 +534,13 @@ public abstract class TiWindowProxy extends TiViewProxy
 			}
 		}
 
+		if (hasProperty(TiC.PROPERTY_NO_LIMITS)) {
+			boolean flagVal = TiConvert.toBoolean(getProperty(TiC.PROPERTY_NO_LIMITS), false);
+			if (flagVal) {
+				windowFlags = windowFlags | WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS;
+			}
+		}
+
 		//Stuff flags in intent
 		intent.putExtra(TiC.PROPERTY_WINDOW_FLAGS, windowFlags);
 
