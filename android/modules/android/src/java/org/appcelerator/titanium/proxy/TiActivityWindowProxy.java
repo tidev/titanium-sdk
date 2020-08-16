@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-Present by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -14,6 +14,7 @@ import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.android.AndroidModule;
 import android.app.Activity;
+import androidx.annotation.NonNull;
 
 @Kroll.proxy(creatableInModule = AndroidModule.class)
 public class TiActivityWindowProxy extends TiWindowProxy
@@ -35,9 +36,10 @@ public class TiActivityWindowProxy extends TiWindowProxy
 	}
 
 	@Override
-	protected void handleClose(KrollDict options)
+	protected void handleClose(@NonNull KrollDict options)
 	{
 		Log.d(TAG, "handleClose", Log.DEBUG_MODE);
+		opened = false;
 		fireEvent("close", null);
 
 		if (view != null) {
@@ -45,7 +47,6 @@ public class TiActivityWindowProxy extends TiWindowProxy
 		}
 
 		releaseViews();
-		opened = false;
 	}
 
 	@Override

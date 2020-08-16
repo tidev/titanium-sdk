@@ -284,16 +284,22 @@ class ProcessJsTask extends IncrementalFileTask {
 			transpile,
 		});
 
-		const modified = jsanalyze.analyzeJs(source, analyzeOptions);
-		const newContents = modified.contents;
-
-		// we want to sort by the "to" filename so that we correctly handle file overwriting
-		this.data.tiSymbols[to] = modified.symbols;
+		let newContents;
+		if (this.builder.useWebpack && !isFileFromCommonFolder) {
+			// Webpack already did all the work, just copy the file's content
+			newContents = source;
+			this.logger.debug(__('Copying %s => %s', from.cyan, to.cyan));
+		} else {
+			// legacy JS processing
+			const modified = jsanalyze.analyzeJs(source, analyzeOptions);
+			newContents = modified.contents;
+			// we want to sort by the "to" filename so that we correctly handle file overwriting
+			this.data.tiSymbols[to] = modified.symbols;
+			this.logger.debug(__(`Copying${this.builder.minifyJS ? ' and minifying' : ''} %s => %s`, from.cyan, to.cyan));
+		}
 
 		const dir = path.dirname(to);
 		await fs.ensureDir(dir);
-
-		this.logger.debug(__('Copying and minifying %s => %s', from.cyan, to.cyan));
 		await fs.writeFile(to, newContents);
 		this.builder.jsFilesChanged = true;
 		this.builder.unmarkBuildDirFile(to);

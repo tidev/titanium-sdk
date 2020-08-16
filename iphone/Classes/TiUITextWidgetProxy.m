@@ -86,6 +86,18 @@ DEFINE_DEF_BOOL_PROP(suppressReturn, YES);
   }
 }
 
+// This is exposed to JS as "focused" property
+- (BOOL)isFocused
+{
+  if ([self viewAttached]) {
+    // we explicitly defer to underlying class
+    // because the focus event gets fired *before* isFirstResponder call would return true (impl in focused method below)
+    // So we toggle a boolean flag in the impl's focus/blur methods
+    return [(TiUITextWidget *)[self view] isFocused];
+  }
+  return NO;
+}
+
 - (BOOL)focused:(id)unused
 {
   if (![NSThread isMainThread]) {
@@ -107,7 +119,8 @@ DEFINE_DEF_BOOL_PROP(suppressReturn, YES);
 
 - (void)noteValueChange:(NSString *)newValue
 {
-  if (![[self valueForKey:@"value"] isEqual:newValue]) {
+  NSString *oldValue = [TiUtils stringValue:[self valueForKey:@"value"]];
+  if (![oldValue isEqual:newValue]) {
     [self replaceValue:newValue forKey:@"value" notification:NO];
     [self contentsWillChange];
     [self fireEvent:@"change" withObject:[NSDictionary dictionaryWithObject:newValue forKey:@"value"]];

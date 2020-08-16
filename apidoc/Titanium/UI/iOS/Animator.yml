@@ -79,12 +79,10 @@ description: |
       * Down: pi / 2
       * Left: pi
       * Up: pi / 2 * 3
-    
 extends: Titanium.Proxy
 since: "3.2"
 platforms: [iphone, ipad]
 osver: {ios: {min: "7.0"}}
-
 properties:
   - name: behaviors
     summary: Behaviors associated with this animator.

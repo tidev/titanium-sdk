@@ -22,11 +22,13 @@ description: |
     source (S) layer. For example, to use an image as an alpha mask for another image,
     you could use the following code:
 
-        var imageMask = Titanium.UI.createMaskedImage({
-            mask : 'mask.png', // alpha mask
-            image : 'demo_image.png', // image to mask
-            mode : Titanium.UI.BLEND_MODE_SOURCE_OUT
-        });
+    ``` js
+    var imageMask = Titanium.UI.createMaskedImage({
+        mask : 'mask.png', // alpha mask
+        image : 'demo_image.png', // image to mask
+        mode : Titanium.UI.BLEND_MODE_SOURCE_OUT
+    });
+    ```
 
     Note that this control lacks many of the features associated with a standard
     [ImageView](Titanium.UI.ImageView) control.
@@ -43,11 +45,14 @@ examples:
     example: |
         The following code excerpt blends the background image with the given `tint` color:
 
-            var imageMask = Titanium.UI.createMaskedImage({
-                mask : 'demo_image.png', // background image
-                tint: 'red',
-                mode : Titanium.UI.BLEND_MODE_LIGHTEN,
-            });
+        ``` js
+        var imageMask = Titanium.UI.createMaskedImage({
+            mask : 'demo_image.png', // background image
+            tint: 'red',
+            mode : Titanium.UI.BLEND_MODE_LIGHTEN,
+        });
+        ```
+
 properties:
   - name: mask
     summary: Image drawn as the background image.

@@ -12,7 +12,6 @@ extends: Titanium.Module
 since: "0.9"
 platforms: [android, iphone, ipad]
 methods:
-
   - name: parseString
     summary: |
         Parses an XML string into a <Titanium.XML.Document> object.
