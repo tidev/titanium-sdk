@@ -8,7 +8,6 @@ yarn-error.log*
 # Build dirs and files
 /build
 /i18n
-/platform
 /Resources
 
 # Dependency directories
