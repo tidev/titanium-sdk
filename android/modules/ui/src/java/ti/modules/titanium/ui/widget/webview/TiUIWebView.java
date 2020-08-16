@@ -596,13 +596,18 @@ public class TiUIWebView extends TiUIView
 	{
 		reloadMethod = reloadTypes.URL;
 		reloadData = url;
-		String finalUrl = url;
-		Uri uri = Uri.parse(finalUrl);
-		boolean originalUrlHasScheme = (uri.getScheme() != null);
+		final Uri uri = Uri.parse(url);
 
-		if (!originalUrlHasScheme) {
-			finalUrl = getProxy().resolveUrl(null, finalUrl);
-		}
+		// Extract URL query parameters.
+		final String query = uri.getQuery() != null ? "?" + uri.getQuery() : "";
+		final String fragment = uri.getFragment();
+
+		// Resolve URL path.
+		// The scheme is processed by `resolveUrl()`.
+		final Uri finalUri = Uri.parse(getProxy().resolveUrl(null, url));
+
+		// Reconstruct URL, ommiting any query parameters.
+		final String finalUrl = finalUri.toString().replace(query, "");
 
 		if (TiFileFactory.isLocalScheme(finalUrl) && mightBeHtml(finalUrl)) {
 			TiBaseFile tiFile = TiFileFactory.createTitaniumFile(finalUrl, false);
@@ -638,9 +643,9 @@ public class TiUIWebView extends TiUIView
 					}
 					String baseUrl = tiFile.nativePath();
 					if (baseUrl == null) {
-						baseUrl = originalUrlHasScheme ? url : finalUrl;
+						baseUrl = finalUrl;
 					}
-					setHtmlInternal(out.toString(), baseUrl, "text/html");
+					setHtmlInternal(out.toString(), baseUrl + query, "text/html");
 					return;
 				} catch (IOException ioe) {
 					Log.e(TAG,
@@ -668,9 +673,9 @@ public class TiUIWebView extends TiUIView
 		}
 		isLocalHTML = false;
 		if (extraHeaders.size() > 0) {
-			getWebView().loadUrl(finalUrl, extraHeaders);
+			getWebView().loadUrl(finalUrl + query, extraHeaders);
 		} else {
-			getWebView().loadUrl(finalUrl);
+			getWebView().loadUrl(finalUrl + query);
 		}
 	}
 

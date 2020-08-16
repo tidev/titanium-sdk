@@ -128,7 +128,7 @@ public final class JSDebugger
 				Log.w(TAG, "Debugger listening on ws://" + url);
 				Log.w(
 					TAG,
-					"To connect Chrome DevTools, open Chrome to chrome-devtools://devtools/bundled/inspector.html?experiments=true&v8only=true&ws="
+					"To connect Chrome DevTools, open Chrome to devtools://devtools/bundled/inspector.html?experiments=true&v8only=true&ws="
 						+ url);
 				Log.w(TAG, "Waiting for debugger to connect for next 60 seconds...");
 				this.waitLock.wait(60000); // wait up to 60 seconds for debugger

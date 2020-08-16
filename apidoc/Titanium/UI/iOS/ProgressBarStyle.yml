@@ -6,7 +6,6 @@ extends: Titanium.Proxy
 platforms: [iphone, ipad]
 since: "0.8"
 createable: false
-
 properties:
   - name: BAR
     summary: The style of progress view that is used in a toolbar.

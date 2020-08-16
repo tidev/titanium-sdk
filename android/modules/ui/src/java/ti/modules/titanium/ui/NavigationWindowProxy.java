@@ -30,11 +30,12 @@ public class NavigationWindowProxy extends WindowProxy
 	public void open(@Kroll.argument(optional = true) Object arg)
 	{
 		// FIXME: Shouldn't this complain/blow up if window isn't specified?
-		if (getProperties().containsKeyAndNotNull(TiC.PROPERTY_WINDOW)) {
+		if (!opened && getProperties().containsKeyAndNotNull(TiC.PROPERTY_WINDOW)) {
 			opened = true;
 			Object rootView = getProperties().get(TiC.PROPERTY_WINDOW);
 			if (rootView instanceof WindowProxy || rootView instanceof TabGroupProxy) {
 				openWindow(rootView, arg);
+				fireEvent(TiC.EVENT_OPEN, null);
 			}
 			return;
 		}
@@ -47,8 +48,7 @@ public class NavigationWindowProxy extends WindowProxy
 		// Keep first "root" window
 		for (int i = windows.size() - 1; i > 0; i--) {
 			TiWindowProxy window = windows.get(i);
-			window.close(arg);
-			windows.remove(window);
+			closeWindow(window, arg);
 		}
 	}
 
@@ -56,8 +56,12 @@ public class NavigationWindowProxy extends WindowProxy
 	@Kroll.method
 	public void close(@Kroll.argument(optional = true) Object arg)
 	{
-		popToRootWindow(arg);
-		closeWindow(windows.get(0), arg); // close the root window
+		if (opened) {
+			opened = false;
+			popToRootWindow(arg);
+			closeWindow(windows.get(0), arg); // close the root window
+			fireEvent(TiC.EVENT_CLOSE, null);
+		}
 		super.close(arg);
 	}
 
@@ -94,9 +98,10 @@ public class NavigationWindowProxy extends WindowProxy
 			return;
 		}
 
-		windows.remove(childToClose);
-		((TiWindowProxy) childToClose).close(arg);
-		((TiWindowProxy) childToClose).setNavigationWindow(null);
+		TiWindowProxy window = (TiWindowProxy) childToClose;
+		windows.remove(window);
+		window.setNavigationWindow(null);
+		window.close(arg);
 	}
 
 	@Override
