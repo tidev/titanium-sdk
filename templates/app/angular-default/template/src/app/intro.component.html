@@ -1,0 +1,68 @@
+<window #window backgroundColor="#fafafa">
+  <vertical-layout>
+    <view height="300">
+      <view #gradient [backgroundGradient]="skyGradient" top="-40" height="260" width="120%"></view>
+      <horizontal-layout top="0">
+        <view width="50%">
+          <image-view image="images/angular.png" width="180" right="0"></image-view>
+        </view>
+        <view width="50%">
+          <label color="white" [font]="{ fontSize: 32 }" top="100" left="10">Now on Titanium</label>
+        </view>
+      </horizontal-layout>
+    </view>
+    <view height="200">
+      <view
+        *platform="'ios'"
+        backgroundColor="white"
+        top="5"
+        left="40"
+        right="40"
+        bottom="5"
+        borderRadius="4"
+        viewShadowColor="#5510141f"
+        [viewShadowOffset]="{x: 0, y: 2}"
+        viewShadowRadius="2"
+      >
+        <vertical-layout top="10" left="10" right="10" bottom="10">
+          <label
+            top="5"
+            [font]="{ fontSize: 18, fontWeight: 'bold' }"
+            color="#1976d2"
+            textAlign="center"
+          >
+            {{ cardTitle }}
+          </label>
+          <label top="15" color="black">{{ cardText }}</label>
+        </vertical-layout>
+      </view>
+      <view *platform="'android'">
+        <card-view padding="10" top="5" left="40" right="40" bottom="5" borderRadius="4">
+          <vertical-layout>
+            <label
+              top="5"
+              [font]="{ fontSize: 18, fontWeight: 'bold' }"
+              color="#1976d2"
+              textAlign="center"
+            >
+              {{ cardTitle }}
+            </label>
+            <label top="15" color="black">{{ cardText }}</label>
+          </vertical-layout>
+        </card-view>
+      </view>
+    </view>
+    <view>
+      <button
+        bottom="40"
+        height="40"
+        width="150"
+        backgroundColor="#1976d2"
+        color="white"
+        borderRadius="20"
+        tiRouterLink="/home"
+        [clearHistory]="true"
+      >LET'S GO!</button>
+    </view>
+  </vertical-layout>
+</window>

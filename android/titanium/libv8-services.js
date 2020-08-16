@@ -53,11 +53,11 @@ async function createSnapshot() {
 	const rollupOutputFilePath = path.join(rollupOutputDirPath, 'ti.main.js');
 	await fs.ensureDir(rollupOutputDirPath);
 
-	const program = { args: [ 'ios' ] };
+	const program = { args: [ 'android' ] };
 	const mainBuilder = new Builder(program);
 	await mainBuilder.ensureGitHash();
 	const androidBuilder = new AndroidBuilder({
-		sdkVersion: require('../package.json').version,
+		sdkVersion: require('../../package.json').version,
 		gitHash: program.gitHash,
 		timestamp: program.timestamp
 	});

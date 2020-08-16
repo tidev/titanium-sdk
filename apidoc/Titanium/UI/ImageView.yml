@@ -93,7 +93,6 @@ events:
   - name: start
     summary: Fired when the animation starts.
 
-
   - name: stop
     summary: Fired when the animation stops.
 
@@ -256,13 +255,16 @@ examples:
     example: |
         In this example, we create a simple image view:
 
-            Ti.UI.backgroundColor = 'white';
-            var win = Ti.UI.createWindow();
-            var image = Ti.UI.createImageView({
-              image:'/images/myimage.png'
-            });
-            win.add(image);
-            win.open();
+        ``` js
+        Ti.UI.backgroundColor = 'white';
+        var win = Ti.UI.createWindow();
+        var image = Ti.UI.createImageView({
+          image:'/images/myimage.png'
+        });
+        win.add(image);
+        win.open();
+        ```
+
   - title: Button with Nine-patch Background Image
     example: |
         Create a button with a nine-patch image background, that swaps with another image when
@@ -271,33 +273,37 @@ examples:
         Note that images are referenced in the code without the `.9` part of the filename, and that
         the project should be cleaned to ensure that the files are correctly copied to the project.
 
-            var win = Ti.UI.createWindow({
-                backgroundColor: 'white',
-                exitOnClose: true,
-                fullscreen: false,
-                title: 'Click button to test'
-            });
+        ``` js
+        var win = Ti.UI.createWindow({
+            backgroundColor: 'white',
+            exitOnClose: true,
+            fullscreen: false,
+            title: 'Click button to test'
+        });
 
-            var button = Ti.UI.createButton({
-                backgroundImage: '/images/custom-slider-right.png',
-                backgroundSelectedImage:'/images/custom-slider-left.png',
-                title: 'Click me!',
-                top: 10,
-                width: 300,
-                height: 200
-            });
-            button.addEventListener('click',function(e){
-                Ti.API.info("You clicked the button");
-            });
-            win.add(button);
-            win.open();
+        var button = Ti.UI.createButton({
+            backgroundImage: '/images/custom-slider-right.png',
+            backgroundSelectedImage:'/images/custom-slider-left.png',
+            title: 'Click me!',
+            top: 10,
+            width: 300,
+            height: 200
+        });
+        button.addEventListener('click',function(e){
+            Ti.API.info("You clicked the button");
+        });
+        win.add(button);
+        win.open();
+        ```
 
   - title: Alloy XML Markup
     example: |
         Previous basic image view example as an Alloy view.
 
-            <Alloy>
-                <Window id="win" backgroundColor="white">
-                    <ImageView id="image" image="/images/myimage.png" />
-                </Window>
-            </Alloy>
+        ``` xml
+        <Alloy>
+            <Window id="win" backgroundColor="white">
+                <ImageView id="image" image="/images/myimage.png" />
+            </Window>
+        </Alloy>
+        ```

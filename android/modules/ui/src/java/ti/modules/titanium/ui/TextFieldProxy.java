@@ -109,4 +109,14 @@ public class TextFieldProxy extends TiViewProxy
 	{
 		return "Ti.UI.TextField";
 	}
+
+	@Kroll.getProperty(name = "focused")
+	public boolean isFocused()
+	{
+		TiUIView v = peekView();
+		if (v != null) {
+			return v.isFocused();
+		}
+		return false;
+	}
 }

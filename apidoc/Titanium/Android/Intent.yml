@@ -104,7 +104,6 @@ description: |
       * [Android Intents guide](https://docs.appcelerator.com/platform/latest/#!/guide/Android_Intents)
       * [Android Developer: Intent](https://developer.android.com/reference/android/content/Intent.html)
 
-
 extends: Titanium.Proxy
 platforms: [android]
 since: "1.5"
@@ -233,7 +232,6 @@ methods:
     summary:
         Put a URI property on this `Intent` (useful for <Titanium.Android.EXTRA_STREAM>).
     parameters:
-
       - name: name
         summary: The property name.
         type: String
@@ -243,7 +241,6 @@ methods:
         type: Object
 
 properties:
-
   - name: action
     summary: The action associated with this intent.
     description:
@@ -303,32 +300,38 @@ examples:
     example: |
         This example creates an intent and uses it to launch a new activity.
 
-            var intent = Ti.Android.createIntent({
-                action: Ti.Android.ACTION_MAIN,
-                url: 'activity1.js'
-            });
-            intent.addCategory(Ti.Android.CATEGORY_LAUNCHER);
-            Ti.Android.currentActivity.startActivity(intent);
+        ``` js
+        var intent = Ti.Android.createIntent({
+            action: Ti.Android.ACTION_MAIN,
+            url: 'activity1.js'
+        });
+        intent.addCategory(Ti.Android.CATEGORY_LAUNCHER);
+        Ti.Android.currentActivity.startActivity(intent);
+        ```
 
   - title: Create an Intent to get a Contact URI
     example: |
         This example creates an intent to retrieve contact information from the user's
         contacts.
 
-            var intent = Ti.Android.createIntent({
-                action: Ti.Android.ACTION_GET_CONTENT,
-                type: "vnd.android.cursor.item/phone"
-            });
+        ``` js
+        var intent = Ti.Android.createIntent({
+            action: Ti.Android.ACTION_GET_CONTENT,
+            type: "vnd.android.cursor.item/phone"
+        });
+        ```
 
   - title: Pick a Photo from the Photo Gallery
     example: |
         This example creates an intent to pick an image from the photo gallery.
 
-            var intent = Ti.Android.createIntent({
-                action: Ti.Android.ACTION_PICK,
-                type: "image/*"
-            });
-            intent.addCategory(Ti.Android.CATEGORY_DEFAULT);
+        ``` js
+        var intent = Ti.Android.createIntent({
+            action: Ti.Android.ACTION_PICK,
+            type: "image/*"
+        });
+        intent.addCategory(Ti.Android.CATEGORY_DEFAULT);
+        ```
 
   - title: Create an ImageView from an Image Send Intent
     example: |
@@ -342,46 +345,47 @@ examples:
         and selecting "share".
 
         `tiapp.xml`:
-
-            <ti:app>
-                <android>
-                    <manifest>
-                        <application>
-                            <activity android:name=".YourapplicationnameActivity">
-                                <intent-filter>
-                                    <data android:mimeType="image/*"/>
-                                    <action android:name="android.intent.action.SEND"/>
-                                    <category android:name="android.intent.category.DEFAULT"/>
-                                </intent-filter>
-                            </activity>
-                        </application>
-                    </manifest>
-                </android>
-            </ti:app>
+        ``` xml
+        <ti:app>
+            <android>
+                <manifest>
+                    <application>
+                        <activity android:name=".YourapplicationnameActivity">
+                            <intent-filter>
+                                <data android:mimeType="image/*"/>
+                                <action android:name="android.intent.action.SEND"/>
+                                <category android:name="android.intent.category.DEFAULT"/>
+                            </intent-filter>
+                        </activity>
+                    </application>
+                </manifest>
+            </android>
+        </ti:app>
+        ```
 
         `app.js`:
-
-             var win = Ti.UI.createWindow({
-                 backgroundColor: '#fff',
-                 fullscreen: false,
-                 exitOnClose: true
-             });
-             win.addEventListener('open', function(e) {
-                 var intent = Ti.Android.currentActivity.getIntent();
-                 var iname = Ti.Android.EXTRA_STREAM;
-                 if (intent && intent.hasExtra(iname)) {
-                     // Create ImageView from TiBlob
-                     var blob = intent.getBlobExtra(iname);
-                     win.add(Ti.UI.createImageView({
-                         image: blob,
-                         height: 300,
-                         width: 300,
-                         left: 0,
-                         top: 0
-                     }));
-                 } else {
-                     Ti.API.info('No extra named "' + iname + '" found in Intent');
-                 }
-             });
-             win.open();
-
+        ``` js
+        var win = Ti.UI.createWindow({
+              backgroundColor: '#fff',
+              fullscreen: false,
+              exitOnClose: true
+          });
+          win.addEventListener('open', function(e) {
+              var intent = Ti.Android.currentActivity.getIntent();
+              var iname = Ti.Android.EXTRA_STREAM;
+              if (intent && intent.hasExtra(iname)) {
+                  // Create ImageView from TiBlob
+                  var blob = intent.getBlobExtra(iname);
+                  win.add(Ti.UI.createImageView({
+                      image: blob,
+                      height: 300,
+                      width: 300,
+                      left: 0,
+                      top: 0
+                  }));
+              } else {
+                  Ti.API.info('No extra named "' + iname + '" found in Intent');
+              }
+          });
+          win.open();
+          ```

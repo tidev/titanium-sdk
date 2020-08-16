@@ -36,6 +36,7 @@ public class TiUITabbedBar extends TiUIView implements MenuItem.OnMenuItemClickL
 	private int style = AndroidModule.TABS_STYLE_DEFAULT;
 	private ArrayList<MenuItem> bottomNavigationMenuItems = new ArrayList<>();
 	private int bottomNavigationIndex = -1;
+	private boolean skipClickEvent = false;
 
 	/**
 	 * Constructs a TiUIView object with the associated proxy.
@@ -251,6 +252,7 @@ public class TiUITabbedBar extends TiUIView implements MenuItem.OnMenuItemClickL
 	// Recreate the native views from scratch in case the data set has been changed
 	public void setNewLabels()
 	{
+		skipClickEvent = true;
 		switch (((int) getProxy().getProperty(TiC.PROPERTY_STYLE))) {
 			case AndroidModule.TABS_STYLE_DEFAULT:
 				if (this.tabLayout != null) {
@@ -268,6 +270,7 @@ public class TiUITabbedBar extends TiUIView implements MenuItem.OnMenuItemClickL
 				break;
 		}
 		parseDataSet();
+		skipClickEvent = false;
 	}
 
 	private void setSelectedIndex(Object value)
@@ -338,9 +341,11 @@ public class TiUITabbedBar extends TiUIView implements MenuItem.OnMenuItemClickL
 			proxy.setProperty(TiC.PROPERTY_INDEX, index);
 
 			// Last, fire a "click" event.
-			KrollDict data = new KrollDict();
-			data.put(TiC.PROPERTY_INDEX, index);
-			proxy.fireEvent(TiC.EVENT_CLICK, data);
+			if (!skipClickEvent) {
+				KrollDict data = new KrollDict();
+				data.put(TiC.PROPERTY_INDEX, index);
+				proxy.fireEvent(TiC.EVENT_CLICK, data);
+			}
 		}
 	}
 

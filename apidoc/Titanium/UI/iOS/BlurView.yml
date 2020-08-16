@@ -8,12 +8,10 @@ summary: |
     For more information on BlurView, please refer to the official [Apple documentation](https://developer.apple.com/documentation/uikit/uivisualeffectview).
     Note: Apple introduced two new constants <Titanium.UI.iOS.BLUR_EFFECT_STYLE_REGULAR> and <Titanium.UI.iOS.BLUR_EFFECT_STYLE_PROMINENT> in
     iOS 10. These are internally mapped to <Titanium.UI.iOS.BLUR_EFFECT_STYLE_LIGHT> and <Titanium.UI.iOS.BLUR_EFFECT_STYLE_EXTRA_LIGHT>.
-
 extends: Titanium.UI.View
 platforms: [iphone,ipad]
 since: "5.4.0"
 osver: {ios:{min: "8.0"}}
-
 properties:
   - name: effect
     summary: The effect you provide for the view.
@@ -26,43 +24,45 @@ examples:
     example: |
         The following example shows how to create a simple blur view:
         
-            var win = Ti.UI.createWindow({
-                backgroundColor: "#fff"
-            });
-            
-            // Reference image (or view)
-            var img = Ti.UI.createImageView({
-                image: "/default_app_logo.png",
-                top: 100,
-                width: 300,
-                height: 300
-            });
-            
-            // Blur view
-            var blur = Ti.UI.iOS.createBlurView({
-                width: Ti.UI.FILL,
-                height: Ti.UI.FILL
-            });
-            
-            img.add(blur);
-            
-            // Effect controls
-            var tabs = Ti.UI.iOS.createTabbedBar({
-                labels: ["Extra light", "Light", "Dark"],
-                bottom: 100
-            });
+        ``` js
+        var win = Ti.UI.createWindow({
+            backgroundColor: "#fff"
+        });
+        
+        // Reference image (or view)
+        var img = Ti.UI.createImageView({
+            image: "/default_app_logo.png",
+            top: 100,
+            width: 300,
+            height: 300
+        });
+        
+        // Blur view
+        var blur = Ti.UI.iOS.createBlurView({
+            width: Ti.UI.FILL,
+            height: Ti.UI.FILL
+        });
+        
+        img.add(blur);
+        
+        // Effect controls
+        var tabs = Ti.UI.iOS.createTabbedBar({
+            labels: ["Extra light", "Light", "Dark"],
+            bottom: 100
+        });
 
-            // Available blur effects
-            var effects = [
-                Ti.UI.iOS.BLUR_EFFECT_STYLE_EXTRA_LIGHT,
-                Ti.UI.iOS.BLUR_EFFECT_STYLE_LIGHT,
-                Ti.UI.iOS.BLUR_EFFECT_STYLE_DARK,
-            ];
+        // Available blur effects
+        var effects = [
+            Ti.UI.iOS.BLUR_EFFECT_STYLE_EXTRA_LIGHT,
+            Ti.UI.iOS.BLUR_EFFECT_STYLE_LIGHT,
+            Ti.UI.iOS.BLUR_EFFECT_STYLE_DARK,
+        ];
 
-            tabs.addEventListener("click", function(e) {
-                blur.setEffect(effects[e.index]);
-            });
+        tabs.addEventListener("click", function(e) {
+            blur.setEffect(effects[e.index]);
+        });
 
-            win.add(tabs);
-            win.add(img);
-            win.open();
+        win.add(tabs);
+        win.add(img);
+        win.open();
+        ```
