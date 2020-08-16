@@ -30,7 +30,7 @@ NSString *const DATA_IFACE = @"pdp_ip0";
 
 @implementation PlatformModule
 
-@synthesize architecture, availableMemory, model, name, osname, ostype, processorCount, totalMemory, uptime, username, version;
+@synthesize architecture, availableMemory, model, name, osname, ostype, processorCount, totalMemory, uptime, username, version, versionMajor, versionMinor;
 
 #pragma mark Internal
 
@@ -40,6 +40,15 @@ NSString *const DATA_IFACE = @"pdp_ip0";
     UIDevice *theDevice = [UIDevice currentDevice];
     name = [[theDevice systemName] retain];
     version = [[theDevice systemVersion] retain];
+
+    // Extract "<major>.<minor>" integers from OS version string.
+    NSArray *versionComponents = [version componentsSeparatedByString:@"."];
+    versionMajor = [NSNumber numberWithInt:[versionComponents[0] intValue]];
+    if ([versionComponents count] >= 2) {
+      versionMinor = [NSNumber numberWithInt:[versionComponents[1] intValue]];
+    } else {
+      versionMinor = @0;
+    }
 
     // grab logical CPUs
     int cores = 1;
@@ -90,6 +99,8 @@ NSString *const DATA_IFACE = @"pdp_ip0";
   RELEASE_TO_NIL(name);
   RELEASE_TO_NIL(model);
   RELEASE_TO_NIL(version);
+  RELEASE_TO_NIL(versionMajor);
+  RELEASE_TO_NIL(versionMinor);
   RELEASE_TO_NIL(architecture);
   RELEASE_TO_NIL(processorCount);
   RELEASE_TO_NIL(username);
@@ -309,6 +320,12 @@ GETTER_IMPL(NSNumber *, availableMemory, AvailableMemory);
   } else if ([options isObject]) {
     optionsDict = [options toDictionary];
   }
+  // Ensure callback is actually a function. If not, make it nil so we don't fire it
+  // Since callback is optional, this may be a JSValue representing 'undefined' here wich is not nil
+  // So we need this special guard
+  if (![callback isFunction]) {
+    callback = nil;
+  }
 
   if (newUrl != nil) {
     [[UIApplication sharedApplication] openURL:newUrl
@@ -454,6 +471,8 @@ GETTER_IMPL(NSNumber *, totalMemory, TotalMemory);
 GETTER_IMPL(NSNumber *, uptime, Uptime);
 GETTER_IMPL(NSString *, username, Username);
 GETTER_IMPL(NSString *, version, Version);
+GETTER_IMPL(NSNumber *, versionMajor, VersionMajor);
+GETTER_IMPL(NSNumber *, versionMinor, VersionMinor);
 
 MAKE_SYSTEM_PROP(BATTERY_STATE_UNKNOWN, UIDeviceBatteryStateUnknown);
 MAKE_SYSTEM_PROP(BATTERY_STATE_UNPLUGGED, UIDeviceBatteryStateUnplugged);

@@ -15,7 +15,6 @@ createable: false
 since: "0.9"
 platforms: [android, iphone, ipad]
 properties:
-
   - name: doctype
     summary: An interface to the list of entities that are defined for the
         document, such as via a Document Type Definition (DTD).
@@ -42,9 +41,7 @@ methods:
     returns:
         type: Titanium.XML.Attr
         summary: Attribute object, ready to be added to an element.
-
     parameters:
-
       - name: name
         type: String
         summary: Name for the new attribute.
@@ -54,9 +51,7 @@ methods:
     returns:
         type: Titanium.XML.Attr
         summary: Attribute object, ready to be added to an element.
-
     parameters:
-
       - name: namespaceURI
         type: String
         summary: Namespace URI for the new attribute.
@@ -70,26 +65,20 @@ methods:
     returns:
         type: Titanium.XML.CDATASection
         summary: CDATA section with the given data, ready to be added to an element.
-
     parameters:
-
       - name: data
         type: String
         summary: String data to go into the CDATA section.
-
 
   - name: createComment
     summary: Creates a [Comment](Titanium.XML.Comment) with the supplied string data.
     returns:
         type: Titanium.XML.Comment
         summary: Comment object, ready to be appended to the DOM tree.
-
     parameters:
-
       - name: data
         type: String
         summary: Comment text.
-
 
   - name: createDocumentFragment
     summary: Creates an empty [DocumentFragment](Titanium.XML.DocumentFragment).
@@ -102,22 +91,17 @@ methods:
     returns:
         type: Titanium.XML.Element
         summary: Newly created element.
-
     parameters:
-
       - name: tagName
         type: String
         summary: Name for the created element.
-
 
   - name: createElementNS
     summary: Create a new element with the given namespace and name.
     returns:
         type: Titanium.XML.Element
         summary: New namespace-qualified element.
-
     parameters:
-
       - name: namespaceURI
         type: String
         summary: URI for the namespace the new element belongs to.
@@ -126,13 +110,11 @@ methods:
         type: String
         summary: Qualified for the new element (can include a prefix).
 
-
   - name: createEntityReference
     summary: Creates an [EntityReference](Titanium.XML.EntityReference) with the given name.
     returns:
         type: Titanium.XML.EntityReference
         summary: Newly-created entity reference.
-
     parameters:
       - name: name
         type: String
@@ -143,9 +125,7 @@ methods:
     returns:
         type: Titanium.XML.ProcessingInstruction
         summary: New processing instruction.
-
     parameters:
-
       - name: target
         type: String
         summary: Target part for the processing instruction.
@@ -159,9 +139,7 @@ methods:
     returns:
         type: Titanium.XML.Text
         summary: Newly-created text node.
-
     parameters:
-
       - name: data
         type: String
         summary: The string value for the text node.
@@ -171,7 +149,6 @@ methods:
     returns:
         type: Titanium.XML.Element
         summary: The Element matching the given ID, if any.
-
     parameters:
       - name: elementId
         type: String
@@ -182,7 +159,6 @@ methods:
     returns:
         type: Titanium.XML.NodeList
         summary: List of elements in the document which have the given tag name.
-
     parameters:
       - name: tagname
         type: String
@@ -195,7 +171,6 @@ methods:
         type: Titanium.XML.NodeList
         summary: List of elements in the document which belong to
             the given namespace and have the given tag name.
-
     parameters:
       - name: namespaceURI
         type: String
@@ -217,13 +192,10 @@ methods:
 
         For more on node ownership, see [ownerDocument issues](https://www.w3.org/DOM/faq.html#ownerdoc)
         in the W3C DOM FAQ.
-
     returns:
         type: Titanium.XML.Node
         summary: Imported node that belongs now to this document.
-
     parameters:
-
       - name: importedNode
         summary: Node to import.
         type: Titanium.XML.Node

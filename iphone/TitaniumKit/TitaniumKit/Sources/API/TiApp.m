@@ -922,8 +922,7 @@ TI_INLINE void waitForMemoryPanicCleared(void); //WARNING: This must never be ru
   NSMutableDictionary *responseObj = [uploadTaskResponses objectForKey:@(dataTask.taskIdentifier)];
   if (!responseObj) {
     NSMutableData *responseData = [NSMutableData dataWithData:data];
-    NSInteger statusCode = [(NSHTTPURLResponse *)[dataTask response] statusCode];
-    responseObj = [NSMutableDictionary dictionaryWithObjectsAndKeys:@(statusCode), @"statusCode", responseData, @"responseData", nil];
+    responseObj = [NSMutableDictionary dictionaryWithObjectsAndKeys:responseData, @"responseData", nil];
     [uploadTaskResponses setValue:responseObj forKey:(NSString *)@(dataTask.taskIdentifier)];
   } else {
     [[responseObj objectForKey:@"responseData"] appendData:data];
@@ -947,20 +946,22 @@ TI_INLINE void waitForMemoryPanicCleared(void); //WARNING: This must never be ru
                                             nil];
     [dict addEntriesFromDictionary:errorinfo];
   } else {
+    NSInteger statusCode = [(NSHTTPURLResponse *)[task response] statusCode];
+
+    NSMutableDictionary *successResponse = [NSMutableDictionary dictionaryWithObjectsAndKeys:NUMBOOL(YES), @"success",
+                                                                NUMINT(0), @"errorCode",
+                                                                @(statusCode), @"statusCode", nil];
     NSMutableDictionary *responseObj = [uploadTaskResponses objectForKey:@(task.taskIdentifier)];
+
     if (responseObj != nil) {
       // We only send "responseText" as the "responsesData" is only set with data from uploads
       NSString *responseText = [[NSString alloc] initWithData:[responseObj objectForKey:@"responseData"] encoding:NSUTF8StringEncoding];
-      NSInteger statusCode = [[responseObj valueForKey:@"statusCode"] integerValue];
+
+      [successResponse setValue:responseText forKey:@"responseText"];
       [uploadTaskResponses removeObjectForKey:@(task.taskIdentifier)];
-      NSDictionary *successResponse = [NSMutableDictionary dictionaryWithObjectsAndKeys:@(YES), @"success",
-                                                           @(0), @"errorCode",
-                                                           responseText, @"responseText",
-                                                           @(statusCode), @"statusCode",
-                                                           nil];
-      [dict addEntriesFromDictionary:successResponse];
       RELEASE_TO_NIL(responseText);
     }
+    [dict addEntriesFromDictionary:successResponse];
   }
   [[NSNotificationCenter defaultCenter] postNotificationName:kTiURLSessionCompleted object:self userInfo:dict];
 }

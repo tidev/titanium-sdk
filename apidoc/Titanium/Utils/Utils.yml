@@ -6,7 +6,6 @@ summary: |
 extends: Titanium.Module
 since: "0.9"
 platforms: [android, iphone, ipad]
-
 methods:
   - name: base64decode
     summary: Returns the specified data decoded from Base64.

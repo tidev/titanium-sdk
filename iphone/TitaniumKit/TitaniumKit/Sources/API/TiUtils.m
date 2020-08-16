@@ -597,8 +597,10 @@ static NSDictionary *sizeMap = nil;
     return @"#000000";
   }
   if (lroundf(alpha * 255.0) != 255) {
-    return [NSString stringWithFormat:@"#%02lX%02lX%02lX%02lX", lroundf(red * 255.0), lroundf(green * 255.0), lroundf(blue * 255.0), lroundf(alpha * 255.0)];
+    // AARRGGBB
+    return [NSString stringWithFormat:@"#%02lX%02lX%02lX%02lX", lroundf(alpha * 255.0), lroundf(red * 255.0), lroundf(green * 255.0), lroundf(blue * 255.0)];
   }
+  // RRGGBB
   return [NSString stringWithFormat:@"#%02lX%02lX%02lX", lroundf(red * 255.0), lroundf(green * 255.0), lroundf(blue * 255.0)];
 }
 
@@ -1558,15 +1560,21 @@ If the new path starts with / and the base url is app://..., we have to massage 
 + (NSData *)loadAppResource:(NSURL *)url
 {
   BOOL app = [[url scheme] hasPrefix:@"app"];
+  BOOL isFileURL = [url isFileURL];
 
-  if ([url isFileURL] || app) {
+  if (isFileURL || app) {
     BOOL leadingSlashRemoved = NO;
     NSString *urlstring = [[url standardizedURL] path];
-    NSString *resourceurl = [[NSBundle mainBundle] resourcePath];
-    NSRange range = [urlstring rangeOfString:resourceurl];
     NSString *appurlstr = urlstring;
-    if (range.location != NSNotFound) {
-      appurlstr = [urlstring substringFromIndex:range.location + range.length + 1];
+    if (isFileURL) {
+      // strip resources dir filepath prefix (if it's there)
+      NSString *resourceurl = [[NSBundle mainBundle] resourcePath];
+      NSString *standardized = [resourceurl stringByStandardizingPath];
+      if ([urlstring hasPrefix:resourceurl]) {
+        appurlstr = [urlstring stringByReplacingOccurrencesOfString:resourceurl withString:@""];
+      } else if (![resourceurl isEqualToString:standardized] && [urlstring hasPrefix:standardized]) {
+        appurlstr = [urlstring stringByReplacingOccurrencesOfString:standardized withString:@""];
+      }
     }
     if ([appurlstr hasPrefix:@"/"]) {
 #ifndef __clang_analyzer__

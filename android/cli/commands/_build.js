@@ -1530,8 +1530,8 @@ AndroidBuilder.prototype.run = async function run(logger, config, cli, finished)
 		await this.checkIfNeedToRecompile();
 
 		// Notify plugins that we're prepping to compile.
-		await new Promise((resolve) => {
-			cli.emit('build.pre.compile', this, resolve);
+		await new Promise((resolve, reject) => {
+			cli.emit('build.pre.compile', this, e => (e ? reject(e) : resolve()));
 		});
 
 		// Make sure we have an "app.js" script. Will exit with a build failure if not found.
@@ -1959,9 +1959,23 @@ AndroidBuilder.prototype.checkIfShouldForceRebuild = function checkIfShouldForce
 };
 
 AndroidBuilder.prototype.checkIfNeedToRecompile = async function checkIfNeedToRecompile() {
-	// Delete all files under the "./build/android" if we need to do a full rebuild.
+	// Determine if we should do a "clean" build.
 	this.forceRebuild = this.checkIfShouldForceRebuild();
 	if (this.forceRebuild) {
+		// On Windows, stop gradle daemon to make it release its file locks so that they can be deleted.
+		if (process.platform === 'win32') {
+			try {
+				const gradlew = new GradleWrapper(this.buildDir);
+				gradlew.logger = this.logger;
+				if (await gradlew.hasWrapperFiles()) {
+					await gradlew.stopDaemon();
+				}
+			} catch (err) {
+				this.logger.error(`Failed to stop gradle daemon. Reason:\n${err}`);
+			}
+		}
+
+		// Delete all files under the "./build/android" directory.
 		await fs.emptyDir(this.buildDir);
 		this.unmarkBuildDirFiles(this.buildDir);
 	}
@@ -2860,7 +2874,16 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 				});
 			})
 			.then(() => {
-				this.tiSymbols = task.data.tiSymbols;
+				if (this.useWebpack) {
+					// Merge Ti symbols from Webpack with the ones from legacy js processing
+					Object.keys(task.data.tiSymbols).forEach(file => {
+						const existingSymbols = this.tiSymbols[file] || [];
+						const additionalSymbols = task.data.tiSymbols[file];
+						this.tiSymbols[file] = Array.from(new Set(existingSymbols.concat(additionalSymbols)));
+					});
+				} else {
+					this.tiSymbols = task.data.tiSymbols;
+				}
 
 				// Copy all unprocessed files to "app" project's APK "assets" directory.
 				appc.async.parallel(this, copyUnmodified.map(relPath => {
@@ -3537,10 +3560,9 @@ AndroidBuilder.prototype.generateAndroidManifest = async function generateAndroi
 
 	// Choose app theme to be used by all activities depending on following "tiapp.xml" settings.
 	let appThemeName = '@style/Theme.AppCompat';
-	if (this.tiapp.fullscreen || this.tiapp['statusbar-hidden']) {
-		if (this.tiapp['navbar-hidden']) {
-			appThemeName += '.NoTitleBar';
-		} else {
+	if (this.tiapp.fullscreen || this.tiapp['statusbar-hidden'] || this.tiapp['navbar-hidden']) {
+		appThemeName += '.NoTitleBar';
+		if (this.tiapp.fullscreen || this.tiapp['statusbar-hidden']) {
 			appThemeName += '.Fullscreen';
 		}
 	}

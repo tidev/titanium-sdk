@@ -44,5 +44,3 @@ methods:
         summary: Creation parameters.
         type: Dictionary<Titanium.Network.Socket.TCP>
         optional: true
-
-

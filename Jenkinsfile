@@ -11,7 +11,6 @@ def isMainlineBranch = (env.BRANCH_NAME ==~ MAINLINE_BRANCH_REGEXP)
 
 // These values could be changed manually on PRs/branches, but be careful we don't merge the changes in. We want this to be the default behavior for now!
 // target branch of test suite to test with
-def targetBranch = isPR ? env.CHANGE_TARGET : (env.BRANCH_NAME ?: 'master')
 def runDanger = isPR // run Danger.JS if it's a PR by default. (should we also run on origin branches that aren't mainline?)
 def publishToS3 = isMainlineBranch // publish zips to S3 if on mainline branch, by default
 def testOnDevices = isMainlineBranch // run tests on devices
@@ -51,49 +50,27 @@ def hasAPIDocChanges() {
 	return false
 }
 
-def setupTestSuite(branch) {
+def getBuiltSDK() {
 	// Unarchive the osx build of the SDK (as a zip)
 	sh 'rm -rf osx.zip' // delete osx.zip file if it already exists
 	unarchive mapping: ['dist/mobilesdk-*-osx.zip': 'osx.zip'] // grab the osx zip from our current build
-	def zipName = sh(returnStdout: true, script: 'ls osx.zip/dist/mobilesdk-*-osx.zip').trim()
-	// if our test suite already exists, delete it...
-	sh 'rm -rf titanium-mobile-mocha-suite'
-	// clone the tests suite fresh
-	// FIXME Clone once on initial node and use stash/unstash to ensure all OSes use exact same checkout revision
-	dir('titanium-mobile-mocha-suite') {
-		// TODO Do a shallow clone, using same credentials as from scm object
-		try {
-			timeout(5) {
-				git changelog: false, poll: false, credentialsId: 'd05dad3c-d7f9-4c65-9cb6-19fef98fc440', url: 'https://github.com/appcelerator/titanium-mobile-mocha-suite.git', branch: branch
-			}
-		} catch (e) {
-			def msg = "Failed to clone the titanium-mobile-mocha-suite test suite from branch ${branch}. Are you certain that the test suite repo has that branch created?"
-			echo msg
-			manager.addWarningBadge(msg)
-			throw e
-		}
-	} // dir
-	// copy over any overridden unit tests into this workspace
-	sh 'rm -rf tests'
-	unstash 'override-tests'
-	sh 'cp -R tests/ titanium-mobile-mocha-suite'
-	return zipName
+	return sh(returnStdout: true, script: 'ls osx.zip/dist/mobilesdk-*-osx.zip').trim()
 }
 
 def gatherAndroidCrashReports() {
 	// gather crash reports/tombstones for Android
 	timeout(5) {
-		sh label: 'gather crash reports/tombstones for Android', returnStatus: true, script: './adb-all.sh pull /data/tombstones'
+		sh label: 'gather crash reports/tombstones for Android', returnStatus: true, script: './tests/adb-all.sh pull /data/tombstones'
 		archiveArtifacts allowEmptyArchive: true, artifacts: 'tombstones/'
 		sh returnStatus: true, script: 'rm -rf tombstones/'
 		// wipe tombstones and re-build dir with proper permissions/ownership on emulator
-		sh returnStatus: true, script: './adb-all.sh shell rm -rf /data/tombstones'
-		sh returnStatus: true, script: './adb-all.sh shell mkdir -m 771 /data/tombstones'
-		sh returnStatus: true, script: './adb-all.sh shell chown system:system /data/tombstones'
+		sh returnStatus: true, script: './tests/adb-all.sh shell rm -rf /data/tombstones'
+		sh returnStatus: true, script: './tests/adb-all.sh shell mkdir -m 771 /data/tombstones'
+		sh returnStatus: true, script: './tests/adb-all.sh shell chown system:system /data/tombstones'
 	}
 }
 
-def androidUnitTests(nodeVersion, npmVersion, testSuiteBranch, testOnDevices) {
+def androidUnitTests(nodeVersion, npmVersion, testOnDevices) {
 	return {
 		def labels = 'git && osx && android-emulator && android-sdk' // FIXME get working on windows/linux!
 		if (testOnDevices) {
@@ -101,79 +78,92 @@ def androidUnitTests(nodeVersion, npmVersion, testSuiteBranch, testOnDevices) {
 		}
 
 		node(labels) {
+			// TODO: Do a shallow checkout rather than stash/unstash?
+			unstash 'mocha-tests'
 			try {
-				def zipName = setupTestSuite(testSuiteBranch)
-				// Now run the unit test suite
-				// FIXME: Use "npm run test:android -- -b ../../${zipName}" (and additional args based on device/emulator)
-				// We'd need some way to expose the gathering of crash reports/killing app via adb-all.sh in test suite repo!
-				dir('titanium-mobile-mocha-suite') {
-					nodejs(nodeJSInstallationName: "node ${nodeVersion}") {
-						ensureNPM(npmVersion)
-						sh 'npm ci'
-						dir('scripts') {
-							try {
-								timeout(30) {
-									// Forcibly remove value for specific build tools version to use (set by module builds)
-									sh returnStatus: true, script: 'ti config android.buildTools.selectedVersion --remove'
-									// run main branch tests on devices
-									if (testOnDevices) {
-										sh label: 'Run Test Suite on device(s)', script: "node test.js -T device -C all -b ../../${zipName} -p android"
-									// run PR tests on emulator
-									} else {
-										sh label: 'Run Test Suite on emulator', script: "node test.js -T emulator -D test -C android-28-playstore-x86 -b ../../${zipName} -p android"
-									}
-								}
-							} catch (e) {
-								gatherAndroidCrashReports()
-								throw e
-							} finally {
-								// Kill the app and emulators!
-								timeout(5) {
-									sh returnStatus: true, script: './adb-all.sh shell am force-stop com.appcelerator.testApp.testing'
-									sh returnStatus: true, script: './adb-all.sh uninstall com.appcelerator.testApp.testing'
-								}
-								killAndroidEmulators()
-							} // finally
-							// save the junit reports as artifacts explicitly so danger.js can use them later
-							stash includes: 'junit.*.xml', name: 'test-report-android'
-							junit 'junit.*.xml'
-						} // dir('scripts')
-					} // nodejs
-				} // dir('titanium-mobile-mocha-suite')
+				nodejs(nodeJSInstallationName: "node ${nodeVersion}") {
+					ensureNPM(npmVersion)
+					sh 'npm ci'
+					def zipName = getBuiltSDK()
+					sh label: 'Install SDK', script: "npm run deploy -- ${zipName} --select" // installs the sdk
+					try {
+						timeout(30) {
+							// Forcibly remove value for specific build tools version to use (set by module builds)
+							sh returnStatus: true, script: 'ti config android.buildTools.selectedVersion --remove'
+							// run main branch tests on devices
+							if (testOnDevices) {
+								sh label: 'Run Test Suite on device(s)', script: "npm run test:integration -- android -T device -C all"
+							// run PR tests on emulator
+							} else {
+								sh label: 'Run Test Suite on emulator', script: "npm run test:integration -- android -T emulator -D test -C android-28-playstore-x86"
+							}
+						} // timeout
+					} catch (e) {
+						gatherAndroidCrashReports()
+						throw e
+					} finally {
+						try {
+							// Kill the app and emulators!
+							timeout(5) {
+								sh returnStatus: true, script: './tests/adb-all.sh shell am force-stop com.appcelerator.testApp.testing'
+								sh returnStatus: true, script: './tests/adb-all.sh uninstall com.appcelerator.testApp.testing'
+							}
+							killAndroidEmulators()
+						} finally {
+							sh 'npm run clean:sdks' // remove non-GA sdks
+							sh 'npm run clean:modules' // remove modules
+						}
+					} // try/catch/finally
+					// save the junit reports as artifacts explicitly so danger.js can use them later
+					stash includes: 'junit.*.xml', name: 'test-report-android'
+					junit 'junit.*.xml'
+					archiveArtifacts allowEmptyArchive: true, artifacts: 'tests/diffs/,tests/generated/'
+				} // nodejs
 			} finally {
 				deleteDir()
 			}
-		}
+		} // node
 	}
 }
 
-def iosUnitTests(deviceFamily, nodeVersion, npmVersion, testSuiteBranch) {
+def iosUnitTests(deviceFamily, nodeVersion, npmVersion, testOnDevices) {
 	return {
-		node('git && osx && xcode-11') { // Use xcode-11 to make use of ios 13 APIs
+		def labels = 'git && osx'
+		if (testOnDevices && deviceFamily == 'iphone') {
+			labels += ' && macos-darwin' // run main branch tests on devices, use node with devices connected
+		} else {
+			labels += '&& xcode-12' // Use xcode-12 to make use of ios 14 APIs
+		}
+		node(labels) {
+			// TODO: Do a shallow checkout rather than stash/unstash?
+			unstash 'mocha-tests'
 			try {
-				def zipName = setupTestSuite(testSuiteBranch)
-				// Now run the unit test suite
-				// FIXME: Use "npm run test:${deviceFamily} -- -D test -b ../../${zipName}"
-				// we'd need to not clone the suite and copy tests in "setupTestSuite"
-				dir('titanium-mobile-mocha-suite') {
-					nodejs(nodeJSInstallationName: "node ${nodeVersion}") {
-						ensureNPM(npmVersion)
-						sh 'npm ci'
-						dir('scripts') {
-							try {
-								timeout(20) {
-									sh label: 'Run Test Suite', script: "node test.js -D test -b ../../${zipName} -p ios -F ${deviceFamily}"
-								}
-							} catch (e) {
-								gatherIOSCrashReports('mocha') // app name is mocha
-								throw e
+				nodejs(nodeJSInstallationName: "node ${nodeVersion}") {
+					ensureNPM(npmVersion)
+					sh 'npm ci'
+					def zipName = getBuiltSDK()
+					sh label: 'Install SDK', script: "npm run deploy -- ${zipName} --select" // installs the sdk
+					try {
+						timeout(20) {
+							if (testOnDevices && deviceFamily == 'iphone') {
+								sh label: 'Run Test Suite on device(s)', script: "npm run test:integration -- ios -F ${deviceFamily} -T device -C all"
+							} else { // run PR tests on simulator
+								sh label: 'Run Test Suite on simulator', script: "npm run test:integration -- ios -F ${deviceFamily}"
 							}
-							// save the junit reports as artifacts explicitly so danger.js can use them later
-							stash includes: 'junit.ios.*.xml', name: "test-report-ios-${deviceFamily}"
-							junit 'junit.ios.*.xml'
-						} // dir('scripts')
-					} // nodejs
-				} // dir('titanium-mobile-mocha-suite')
+						}
+					} catch (e) {
+						gatherIOSCrashReports('mocha') // app name is mocha
+						throw e
+					} finally {
+						sh 'npm run clean:sdks' // remove non-GA sdks
+						sh 'npm run clean:modules' // remove modules
+					}
+					// save the junit reports as artifacts explicitly so danger.js can use them later
+					stash includes: 'junit.ios.*.xml', name: "test-report-ios-${deviceFamily}"
+					junit 'junit.ios.*.xml'
+					// Save any diffed images
+					archiveArtifacts allowEmptyArchive: true, artifacts: 'tests/diffs/'
+				} // nodejs
 			} finally {
 				deleteDir()
 			}
@@ -205,7 +195,7 @@ def cliUnitTests(nodeVersion, npmVersion) {
 // Wrap in timestamper
 timestamps {
 	try {
-		node('git && android-sdk && android-ndk && ant && gperf && osx && xcode-11') {
+		node('git && android-sdk && android-ndk && ant && gperf && osx && xcode-12') {
 			stage('Checkout') {
 				// Update our shared reference repo for all branches/PRs
 				dir('..') {
@@ -261,7 +251,8 @@ timestamps {
 					if (runDanger) { // Stash files for danger.js later
 						stash includes: 'package.json,package-lock.json,dangerfile.js,.eslintignore,.eslintrc,npm_test.log,android/**/*.java', name: 'danger'
 					}
-					stash includes: 'package.json,package-lock.json,android/cli/**,iphone/cli/**', name: 'cli-unit-tests'
+					stash includes: 'package.json,package-lock.json,android/cli/**,iphone/cli/**,build/**', name: 'cli-unit-tests'
+					stash includes: 'package.json,package-lock.json,tests/**,build/**', name: 'mocha-tests'
 					// was it a failure?
 					if (npmTestResult != 0) {
 						error readFile('npm_test.log')
@@ -317,7 +308,6 @@ timestamps {
 
 					archiveArtifacts artifacts: "${basename}-*.zip"
 					stash includes: 'dist/parity.html', name: 'parity'
-					stash includes: 'tests/', name: 'override-tests'
 				} // end 'Build' stage
 			} // nodeJs
 		} // end node for checkout/build
@@ -325,9 +315,9 @@ timestamps {
 		// Run unit tests in parallel for android/iOS
 		stage('Test') {
 			parallel(
-				'android unit tests': androidUnitTests(nodeVersion, npmVersion, targetBranch, testOnDevices),
-				'iPhone unit tests': iosUnitTests('iphone', nodeVersion, npmVersion, targetBranch),
-				'iPad unit tests': iosUnitTests('ipad', nodeVersion, npmVersion, targetBranch),
+				'android unit tests': androidUnitTests(nodeVersion, npmVersion, testOnDevices),
+				'iPhone unit tests': iosUnitTests('iphone', nodeVersion, npmVersion, testOnDevices),
+				'iPad unit tests': iosUnitTests('ipad', nodeVersion, npmVersion, testOnDevices),
 				'cli unit tests': cliUnitTests(nodeVersion, npmVersion),
 				failFast: true
 			)
