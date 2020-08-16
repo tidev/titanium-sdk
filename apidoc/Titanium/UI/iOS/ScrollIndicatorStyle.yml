@@ -5,7 +5,6 @@ extends: Titanium.Proxy
 since: "5.4.0"
 platforms: [iphone, ipad]
 createable: false
-
 properties:
   - name: BLACK
     summary: |

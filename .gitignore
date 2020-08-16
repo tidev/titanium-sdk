@@ -13,7 +13,7 @@
 ._*
 npm-debug.log
 
-node_modules/
+/node_modules
 
 retirejs.output.json
 
@@ -22,6 +22,7 @@ retirejs.output.json
 /titanium-mobile-mocha-suite
 junit.*.xml
 junit_report.xml
+/tmp
 
 /android/.project
 /android/app/.classpath
@@ -36,8 +37,13 @@ junit_report.xml
 /iphone/TitaniumKit/build
 /iphone/lib/libTiCore.a
 
-.vscode/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+
 /android/runtime/v8/src/native/V8Snapshots.h
 
 .nyc_output/
 coverage/
+
+tests/diffs/

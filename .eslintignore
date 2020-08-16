@@ -6,13 +6,20 @@ android/runtime/v8/tools/bootstrap.js
 android/dev
 android/modules/ui/assets/Resources/ti.internal/webview/*.js
 android/titanium/build
+android/**/generated/
 
 iphone/Resources/app.js
 
 # TODO: We probably do want to lint these eventually!
 templates/**
 
+tests/Resources/fake_node_modules/
+tests/Resources/ti-mocha.js
+tests/Resources/should.js
+tests/Resources/node_modules/
+tests/Resources/fake_node_modules/abbrev
+tests/scripts/mocha/
 
-titanium-mobile-mocha-suite/
 dist/
-android/**/generated/
+
+tmp/

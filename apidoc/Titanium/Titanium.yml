@@ -13,17 +13,19 @@ description: |
 
     For example, the following pairs of Titanium calls behave exactly the same.
 
-        Titanium.API.info('Hello Titanium!');
-        Ti.API.info('Hello Titanium!');
+    ``` js
+    Titanium.API.info('Hello Titanium!');
+    Ti.API.info('Hello Titanium!');
 
-        Titanium.Utils.sha256('Hello Titanium!');
-        Ti.Utils.sha256('Hello Titanium!');
+    Titanium.Utils.sha256('Hello Titanium!');
+    Ti.Utils.sha256('Hello Titanium!');
 
-        Titanium.App.Properties.setString('hello_msg','Hello Titanium!');
-        Ti.App.Properties.setString('hello_msg','Hello Titanium!');
+    Titanium.App.Properties.setString('hello_msg','Hello Titanium!');
+    Ti.App.Properties.setString('hello_msg','Hello Titanium!');
 
-        Titanium.Database.open('mydb');
-        Ti.Database.open('mydb');
+    Titanium.Database.open('mydb');
+    Ti.Database.open('mydb');
+    ```
 
     #### Global APIs
 
@@ -67,20 +69,22 @@ methods:
     examples:
       - title: Create a buffer with 1K bytes
         example: |
-
-                var buffer = Ti.createBuffer({ length: 1024 });
+            ``` js
+            var buffer = Ti.createBuffer({ length: 1024 });
+            ```
       - title: Create a buffer with string
         example: |
             Create a buffer with the string "hello world" encoded in UTF-8
-
-                var buffer = Ti.createBuffer({ value: "hello world" });
+            ``` js
+            var buffer = Ti.createBuffer({ value: "hello world" });
+            ```
       - title: Create a buffer with encoded float
         example: |
             Create a buffer with the encoded value of the double-precision floating point
             number 1.234567 in Big Endian (network) byte order
-
-                var buffer = Ti.createBuffer({ value: 1.234567, type: Ti.Codec.TYPE_DOUBLE, byteOrder: Ti.Codec.BIG_ENDIAN });
-
+            ``` js
+            var buffer = Ti.createBuffer({ value: 1.234567, type: Ti.Codec.TYPE_DOUBLE, byteOrder: Ti.Codec.BIG_ENDIAN });
+            ```
 
 ---
 name: CreateBufferArgs

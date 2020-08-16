@@ -1,0 +1,358 @@
+---
+name: Global.Intl.DateTimeFormat
+summary: Immutable object used to generate localized date and time formatted strings.
+description: |
+    A `DateTimeFormat` object is used to format a `Date` object to a localized date and/or time string.
+    This will respect the system's current language setting when outputting a full month or weekday name.
+    It will also respect the current locale's date component ordering such as Month/Day/Year,
+    Day/Month/Year, and Year/Month/Day.
+
+    For more detail, see the MDN website about
+    [Intl.DateTimeFormat](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Intl/DateTimeFormat).
+
+examples:
+  - title: Output Numeric Date
+    example: |
+        ``` js
+        // 2020-March-1st
+        const date = new Date(Date.UTC(2020, 2, 1));
+
+        // Logs "3/1/2020" for US English locale.
+        // Logs "1.3.2020" for German locale.
+        // Logs "2020/3/1" for Japanese locale.
+        const formatter = new Intl.DateTimeFormat(Ti.Locale.currentLocale, {
+            year: 'numeric',
+            month: 'numeric',
+            day: 'numeric',
+            timeZone: 'UTC'
+        });
+        console.log(`Time: ${formatter.format(date)}`);
+        ```
+
+  - title: Output 12-Hour Time
+    example: |
+        ``` js
+        // 2020-January-1st 08:02:05 PM
+        const date = new Date(Date.UTC(2020, 0, 1, 20, 2, 5));
+
+        // Logs "8:02:05 PM" for English locales.
+        // Logs "8:02:05 nachm." for German locales.
+        const formatter = new Intl.DateTimeFormat(Ti.Locale.currentLocale, {
+            hour: 'numeric',
+            minute: '2-digit',
+            second: '2-digit',
+            hour12: true,
+            dayPeriod: 'narrow',
+            timeZone: 'UTC'
+        });
+        console.log(`Time: ${formatter.format(date)}`);
+        ```
+
+  - title: Output 24-Hour Time
+    example: |
+        ``` js
+        // 2020-January-1st 08:02:05 PM
+        const date = new Date(Date.UTC(2020, 0, 1, 20, 2, 5));
+
+        // Logs "20:02:05".
+        const formatter = new Intl.DateTimeFormat(Ti.Locale.currentLocale, {
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+            hour12: false,
+            timeZone: 'UTC'
+        });
+        console.log(`Time: ${formatter.format(date)}`);
+        ```
+
+  - title: Output Localized Weekday Name
+    example: |
+        ``` js
+        // Log current weekday name (such as "Monday") using system's selected language.
+        const formatter = new Intl.DateTimeFormat(Ti.Locale.currentLocale, { weekday: 'long' });
+        console.log(formatter.format(new Date()));
+        ```
+
+platforms: [iphone, ipad, android]
+since: {iphone: "6.0.0", ipad: "6.0.0", android: "9.1.0"}
+osver: {ios: {min: "10.3"}}
+
+methods:
+  - name: format
+    summary: Formats the given date object to a localized date and/or time string.
+    parameters:
+      - name: date
+        summary: The date to be formatted.
+        type: Date
+    returns:
+        type: String
+        summary: The localized date and/or time string.
+
+  - name: formatToParts
+    summary: Formats given date to an array of components describing what the formmated string would produce.
+    description: |
+      Returns an array of objects providing the "type" and "value" of each component the formatted
+      string would produce. Can be used to detect month/day/year ordering for the current locale,
+      to fetch the localized separators between date and time components, etc.
+
+      For more detail, see the MDN website about
+      [formatToParts](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Intl/DateTimeFormat/formatToParts).
+    parameters:
+      - name: date
+        summary: The date to be formatted into parts.
+        type: Date
+    returns:
+        type: Array<Object>
+        summary: Array of objects providing the "type" and "value" of each component in formatted string.
+    osver: {ios: {min: "11.2"}}
+
+  - name: resolvedOptions
+    summary: Gets the object's formatting options.
+    description: |
+      Returns the formatting options the format object uses.
+
+      For more detail, see the MDN website about
+      [resolvedOptions](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Intl/DateTimeFormat/resolvedOptions).
+    returns:
+        type: Object
+        summary: Returns the formatting options used.
+
+  - name: supportedLocalesOf
+    summary: Static method indicating what locales are supported by `DateTimeFormat` from the given locale(s).
+    description: |
+      For more detail, see the MDN website about
+      [supportedLocalesOf](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Intl/DateTimeFormat/supportedLocalesOf).
+    parameters:
+      - name: locales
+        summary: A string or array of strings providing BCP 47 locale identifiers to query.
+        type: [String, Array<String>]
+    returns:
+        type: Array<String>
+        summary: Array containing a subset of the given locale strings supported by `DateTimeFormat` objects.
+
+properties:
+  - name: constructor
+    summary: Creates a new `Intl.DateTimeFormat` object with the given locale and formatting options.
+    description: |
+      #### Syntax
+
+      ``` js
+      new Intl.DateTimeFormat([locales[, options]])
+      ```
+
+      #### Parameters
+
+      *    `locales`: [String](Global.String)/[String](Global.String)`[]` (optional)
+
+           The [BCP 47](https://www.unicode.org/reports/tr35/tr35.html#BCP_47_Conformance) language and country
+           code(s) to use for localized formatting. Can provide multiple locales where the best-supported
+           locale will be favored in the order provided by the array. If parameter is not assigned, then
+           the system may use the `'en-US'` locale by default instead of the system's current locale.
+           It's recommended to set this parameter using <Titanium.Locale.currentLocale>.
+
+      *    `options`: <DateTimeFormatOptions> (optional)
+
+           Provides settings indicating how a `Date` object should be formatted to a `String`.
+
+    type: Global.Intl.DateTimeFormat
+    permission: read-only
+
+---
+name: DateTimeFormatOptions
+summary: Options to be passed into the <Global.Intl.DateTimeFormat.constructor> method.
+platforms: [iphone, ipad, android]
+since: {iphone: "6.0.0", ipad: "6.0.0", android: "9.1.0"}
+osver: {ios: {min: "10.3"}}
+properties:
+  - name: dateStyle
+    type: String
+    summary: Specifies the locale's built-in month, day, and year formatting styles.
+    description: |
+      Can be set to one of the following:
+
+      *    `'short'` Outputs a numeric string such as `1/1/20`.
+      *    `'medium'` Outputs a string such as `Jan 1, 2020`.
+      *    `'long'` Outputs a string such as `January 1, 2020`.
+      *    `'full'` Outputs all components such as `Wednesday, January 1, 2020 AD`.
+
+      This option is only supported on Android.
+
+      This option will be ignored if you assign other date related options
+      such as `month`, `day`, `year`, etc.
+    platforms: [android]
+
+  - name: timeStyle
+    type: String
+    summary: Specifies the locale's built-in hour, minute, and second formatting styles.
+    description: |
+      Can be set to one of the following:
+
+      *    `'short'` Outputs a string such as `3:30 PM`.
+      *    `'medium'` Outputs a string such as `3:30 PM`.
+      *    `'long'` Outputs a string such as `3:30:32 PM`.
+      *    `'full'` Outputs all time components such as `3:30:32 PM PST`.
+
+      This option is only supported on Android.
+
+      This option will be ignored if you assign other date related options
+      such as `hour`, `minute`, `second`, etc.
+    platforms: [android]
+
+  - name: fractionalSecondDigits
+    type: Number
+    default: 0
+    summary: Number of millisecond digits to show. Valid values are 0-3.
+    platforms: [android]
+
+  - name: dayPeriod
+    type: String
+    summary: Indicates how the AM/PM time component should be shown.
+    description: |
+      Can be set to one of the following:
+
+      *    `'narrow'` Output the shortest AM/PM name.
+      *    `'short'` Output a short AM/PM name.
+      *    `'long'` Outputs the longest AM/PM name.
+
+      This option is only relevant in non-English languages where this component can have a much longer name.
+
+  - name: timeZone
+    type: String
+    summary: The time zone the `Date` object's value should be converted to when formatted.
+    description: |
+      Sets the time zone name to use. Can be set to `'UTC'` to use Universal Time.
+      Can also be set to a time zone name defined by the [IANA time zone database](https://www.iana.org/time-zones)
+      such as `'America/New_York'`, `'Asia/Shanghai'`, etc.
+
+      By default, the formatter object will use the system assigned time zone.
+
+  - name: hour12
+    type: Boolean
+    summary: Indicates if formatter should output to either 12-hour or 24-hour time.
+    description: |
+      Set `true` to output to 12-hour time, which means the AM/PM `dayPeriod` option becomes applicable.
+      Set `false` to output to 24-hour time.
+
+      By default, the formatter object will use the system's assigned time setting.
+
+  - name: hourCycle
+    type: String
+    summary: Indicates how the hour should be formatted.
+    description: |
+      Can be set to one of the following:
+
+      *    `'h11'` Outputs hour between `0` and `11`.
+      *    `'h12'` Outputs hour between `1` and `12`. (a.k.a.: 12-hour time)
+      *    `'h23'` Outputs hour between `0` and `23`. (a.k.a.: 24-hour time)
+      *    `'h24'` Outputs hour between `1` and `24`.
+
+      This option is ignored if the `hour12` option has been set.
+
+  - name: localeMatcher
+    type: String
+    default: "best fit"
+    summary: The locale matching algorithm to use.
+    description: |
+      Can be set to `'lookup'` or `'best fit'`.
+
+      This option is ignored on Android.
+    platforms: [iphone, ipad]
+
+  - name: formatMatcher
+    type: String
+    default: "basic"
+    summary: The format matching algorithm to use.
+    description: |
+      Can be set to `'basic'` or `'best fit'`.
+      The `'basic'` setting is documented [here](https://www.ecma-international.org/ecma-402/1.0/#BasicFormatMatcher).
+
+      This option is ignored on Android.
+    platforms: [iphone, ipad]
+
+  - name: weekday
+    type: String
+    summary: Indicates how a weekday name should be shown.
+    description: |
+      Can be set to one of the following:
+
+      *    `'narrow'` Outputs weekday such as `'T'` for Thursday.
+      *    `'short'` Outputs weekday such as `'Thu'` for Thursday.
+      *    `'long'` Outputs weekday such as `'Thursday'`.
+
+  - name: era
+    type: String
+    summary: Indicates how the era name, such as AD or BC, should be shown.
+    description: |
+      Can be set to one of the following:
+
+      *    `'narrow'` Outputs era such as `'A'` for AD.
+      *    `'short'` Outputs era such as `'AD'`.
+      *    `'long'` Outputs full era name such as `'Anno Domini'` for AD.
+
+  - name: year
+    type: String
+    summary: Indicates how the year should be formatted.
+    description: |
+      Can be set to one of the following:
+
+      *    `'numeric'` Outputs to a 4 digit year such as `'2020'`.
+      *    `'2-digit'` Outputs to a 2 digit year such as `'20'` for the year 2020.
+
+  - name: month
+    type: String
+    summary: Indicates how the month should be formatted.
+    description: |
+      Can be set to one of the following:
+
+      *    `'numeric'` Outputs without a leading zero such as `'3'` for March.
+      *    `'2-digit'` Outputs a 2 digit month such as `'03'` for March.
+      *    `'narrow'` Outputs a very short month name such as `'M'` for March.
+           (Android treats `'narrow'` as `'short'` instead.)
+      *    `'short'` Outputs an abbreviated month name such as `'Mar'` for March.
+      *    `'long'` Outputs the full month name such as `'March'`.
+
+  - name: day
+    type: String
+    summary: Indicates how the numeric day should be formatted.
+    description: |
+      Can be set to one of the following:
+
+      *    `'numeric'` Outputs without a leading zero such as `'1'`.
+      *    `'2-digit'` Outputs to a 2 digit day such as `'01'`.
+
+  - name: hour
+    type: String
+    summary: Indicates how the hour should be formatted.
+    description: |
+      Can be set to one of the following:
+
+      *    `'numeric'` Outputs without a leading zero such as `'1'`.
+      *    `'2-digit'` Outputs with a leading zero such as `'01'` when configured for 24-hour time.
+           This setting is ignored when using 12-hour time.
+
+  - name: minute
+    type: String
+    summary: Indicates how minutes should be formatted.
+    description: |
+      Can be set to one of the following:
+
+      *    `'numeric'` Outputs without a leading zero such as `'1'`.
+      *    `'2-digit'` Outputs with a leading zero such as `'01'`.
+
+  - name: second
+    type: String
+    summary: Indicates how seconds should be formatted.
+    description: |
+      Can be set to one of the following:
+
+      *    `'numeric'` Outputs without a leading zero such as `'1'`.
+      *    `'2-digit'` Outputs with a leading zero such as `'01'`.
+
+  - name: timeZoneName
+    type: String
+    summary: Indicates how the time zone should be shown.
+    description: |
+      Can be set to one of the following:
+
+      *    `'short'` Outputs the GMT offset such as `'GMT-8'` for US Pacific Time.
+      *    `'long'` Outputs the full time zone name such as `'British Summer Time'`.

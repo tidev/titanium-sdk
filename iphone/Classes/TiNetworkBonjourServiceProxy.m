@@ -227,7 +227,7 @@ READWRITE_IMPL(BOOL, isLocal, IsLocal);
                                             port:[port intValue]];
   [service setDelegate:self];
 
-  if (callback != nil) {
+  if (callback != nil && [callback isFunction]) {
     publishCallback = [callback retain];
   }
   [service publish];
@@ -261,7 +261,7 @@ READWRITE_IMPL(BOOL, isLocal, IsLocal);
     timeout = 120.0;
   }
 
-  if (callback != nil) {
+  if (callback != nil && [callback isFunction]) {
     resolveCallback = [callback retain];
   }
 
@@ -270,7 +270,7 @@ READWRITE_IMPL(BOOL, isLocal, IsLocal);
 
 - (void)stop:(JSValue *)callback
 {
-  if (callback != nil) {
+  if (callback != nil && [callback isFunction]) {
     stopCallback = [callback retain];
   }
   [service stop];

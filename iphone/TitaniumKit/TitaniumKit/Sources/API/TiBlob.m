@@ -68,7 +68,7 @@ static NSString *const MIMETYPE_JPEG = @"image/jpeg";
 {
   [self ensureImageLoaded];
   if (image != nil) {
-    return image.size.width;
+    return image.size.width * image.scale;
   }
   return 0;
 }
@@ -78,7 +78,7 @@ GETTER_IMPL(NSUInteger, width, Width);
 {
   [self ensureImageLoaded];
   if (image != nil) {
-    return image.size.height;
+    return image.size.height * image.scale;
   }
   return 0;
 }
@@ -88,7 +88,7 @@ GETTER_IMPL(NSUInteger, height, Height);
 {
   [self ensureImageLoaded];
   if (image != nil) {
-    return image.size.width * image.size.height;
+    return image.size.width * image.size.height * image.scale * image.scale;
   }
   switch (type) {
   case TiBlobTypeData: {
@@ -446,4 +446,23 @@ GETTER_IMPL(NSUInteger, length, Length);
   return [super toString];
 }
 
+static void jsArrayBufferFreeDeallocator(void *data, void *ctx)
+{
+  free(data);
+}
+
+- (JSValue *)toArrayBuffer
+{
+  NSData *theData = [self data];
+  // Copy the raw bytes of the NSData we're wrapping
+  NSUInteger len = [theData length];
+  void *arrayBytes = malloc(len);
+  [theData getBytes:arrayBytes length:len];
+
+  // Now make an ArrayBuffer with the copied bytes
+  JSContext *context = JSContext.currentContext;
+  JSValueRef *exception;
+  JSObjectRef arrayBuffer = JSObjectMakeArrayBufferWithBytesNoCopy(context.JSGlobalContextRef, arrayBytes, len, jsArrayBufferFreeDeallocator, nil, exception);
+  return [JSValue valueWithJSValueRef:arrayBuffer inContext:context];
+}
 @end

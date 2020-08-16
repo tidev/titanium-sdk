@@ -61,6 +61,9 @@
   [self forgetProxy:clipboard];
   RELEASE_TO_NIL(clipboard);
 #endif
+#if defined(USE_TI_UISHORTCUT) || defined(USE_TI_UISHORTCUTITEM)
+  RELEASE_TO_NIL(shortcut);
+#endif
   [super dealloc];
 }
 
@@ -405,75 +408,14 @@ MAKE_SYSTEM_PROP(EXTEND_EDGE_ALL, 15); //UIEdgeRectAll
 }
 #endif
 
-- (UIColor *)getSystemColor:(NSString *)color
-{
-  if (systemColors == nil) {
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
-    systemColors = [NSMutableDictionary dictionary];
-
-    [systemColors addEntriesFromDictionary:@{
-      @"systemRedColor" : UIColor.systemRedColor,
-      @"systemGreenColor" : UIColor.systemGreenColor,
-      @"systemBlueColor" : UIColor.systemBlueColor,
-      @"systemOrangeColor" : UIColor.systemOrangeColor,
-      @"systemYellowColor" : UIColor.systemYellowColor,
-      @"systemPinkColor" : UIColor.systemPinkColor,
-      @"systemPurpleColor" : UIColor.systemPurpleColor,
-      @"systemTealColor" : UIColor.systemTealColor,
-      @"systemGrayColor" : UIColor.systemGrayColor
-    }];
-
-    if ([TiUtils isIOSVersionOrGreater:@"13.0"]) {
-      [systemColors addEntriesFromDictionary:@{
-        @"systemIndigoColor" : UIColor.systemIndigoColor,
-        @"systemGray2Color" : UIColor.systemGray2Color,
-        @"systemGray3Color" : UIColor.systemGray3Color,
-        @"systemGray4Color" : UIColor.systemGray4Color,
-        @"systemGray5Color" : UIColor.systemGray5Color,
-        @"systemGray6Color" : UIColor.systemGray6Color,
-        @"labelColor" : UIColor.labelColor,
-        @"secondaryLabelColor" : UIColor.secondaryLabelColor,
-        @"tertiaryLabelColor" : UIColor.tertiaryLabelColor,
-        @"quaternaryLabelColor" : UIColor.quaternaryLabelColor,
-        @"linkColor" : UIColor.linkColor,
-        @"placeholderTextColor" : UIColor.placeholderTextColor,
-        @"separatorColor" : UIColor.separatorColor,
-        @"opaqueSeparatorColor" : UIColor.opaqueSeparatorColor,
-        @"systemBackgroundColor" : UIColor.systemBackgroundColor,
-        @"secondarySystemBackgroundColor" : UIColor.secondarySystemBackgroundColor,
-        @"tertiarySystemBackgroundColor" : UIColor.tertiarySystemBackgroundColor,
-        @"systemGroupedBackgroundColor" : UIColor.systemGroupedBackgroundColor,
-        @"secondarySystemGroupedBackgroundColor" : UIColor.secondarySystemGroupedBackgroundColor,
-        @"tertiarySystemGroupedBackgroundColor" : UIColor.tertiarySystemGroupedBackgroundColor,
-        @"systemFillColor" : UIColor.systemFillColor,
-        @"secondarySystemFillColor" : UIColor.secondarySystemFillColor,
-        @"tertiarySystemFillColor" : UIColor.tertiarySystemFillColor,
-        @"quaternarySystemFillColor" : UIColor.quaternarySystemFillColor
-      }];
-    }
-#endif
-  }
-  return [systemColors objectForKey:color];
-}
-
 - (TiColor *)fetchSemanticColor:(id)color
 {
   ENSURE_SINGLE_ARG(color, NSString);
-
-  if ([TiUtils isIOSVersionOrGreater:@"11.0"]) {
-    UIColor *colorObj = [UIColor colorNamed:color];
-    if (colorObj == nil) {
-      // not defined in user Assets
-      // See if it's a system color!
-      colorObj = [self getSystemColor:color];
-    }
-    if (colorObj != nil) {
-      return [[TiColor alloc] initWithColor:colorObj name:nil];
-    }
-    // not in our asset catalog *or* in system pre-defined colors. log a warning and return black
-    NSLog(@"[WARN] Unable to find color named %@, returning black", color);
+  TiColor *tiColor = [TiColor colorNamed:color];
+  if (tiColor == nil) {
+    return [TiColor colorNamed:@"black"];
   }
-  return [[TiColor alloc] initWithColor:UIColor.blackColor name:@"black"];
+  return tiColor;
 }
 
 - (NSNumber *)isLandscape:(id)args
@@ -799,6 +741,16 @@ MAKE_SYSTEM_STR(AUTOFILL_TYPE_ONE_TIME_CODE, UITextContentTypeOneTimeCode);
 
 MAKE_SYSTEM_PROP(TABLE_VIEW_SEPARATOR_STYLE_NONE, UITableViewCellSeparatorStyleNone);
 MAKE_SYSTEM_PROP(TABLE_VIEW_SEPARATOR_STYLE_SINGLE_LINE, UITableViewCellSeparatorStyleSingleLine);
+
+#if defined(USE_TI_UISHORTCUT) || defined(USE_TI_UISHORTCUTITEM)
+- (TiUIShortcutProxy *)Shortcut
+{
+  if (shortcut == nil) {
+    shortcut = [[TiUIShortcutProxy alloc] init];
+  }
+  return shortcut;
+}
+#endif
 
 @end
 

@@ -64,12 +64,12 @@ properties:
 examples:
   - title: Simple 3 image cover flow example
     example: |
-        
         Create a simple cover flow view.
-        
-            var view = Titanium.UI.createCoverFlowView({
-            	images:['a.png','b.png','c.png'],
-            	backgroundColor:'#000'
-            });
-            window.add(view);
-        
+
+        ``` js        
+        var view = Titanium.UI.createCoverFlowView({
+          images:['a.png','b.png','c.png'],
+          backgroundColor:'#000'
+        });
+        window.add(view);
+        ```

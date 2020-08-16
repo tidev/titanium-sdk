@@ -11,7 +11,6 @@ excludes:
     methods: [addEventListener,applyProperties,fireEvent,removeEventListener]
     properties: [bubbleParent]
 createable: false
-
 properties:
   - name: BLUE
     summary: The cell when selected has a blue background. This is the default value.

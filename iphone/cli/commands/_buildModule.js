@@ -473,6 +473,11 @@ iOSModuleBuilder.prototype.buildModule = function buildModule(next) {
 			args.push('CONFIGURATION_BUILD_DIR=' + path.join(this.projectDir, 'build', 'Release-' + target));
 		}
 
+		// Exclude arm64 architecture from simulator build in XCode 12+ - TIMOB-28042
+		if (target === 'iphonesimulator' && parseFloat(this.xcodeEnv.version) >= 12.0) {
+			args.push('EXCLUDED_ARCHS=arm64');
+		}
+
 		return args;
 	}.bind(this);
 
