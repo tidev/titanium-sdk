@@ -15,7 +15,6 @@ description: |
 platforms: [iphone, ipad]
 extends: Titanium.Proxy
 since: "3.2"
-
 properties:
   - name: type
     summary: Attribute to apply to the text.
@@ -37,11 +36,13 @@ properties:
         use the foreground color on the text you would use <Titanium.UI.iOS.ATTRIBUTE_FOREGROUND_COLOR>
         for the `type` and a color value for the `value`:
 
-            {
-                type: Titanium.UI.iOS.ATTRIBUTE_FOREGROUND_COLOR,
-                value: '#DDD',
-                range: [0, 100]
-            }
+        ``` js
+        {
+            type: Titanium.UI.iOS.ATTRIBUTE_FOREGROUND_COLOR,
+            value: '#DDD',
+            range: [0, 100]
+        }
+        ```
 
         If you use <Titanium.UI.iOS.ATTRIBUTE_UNDERLINES_STYLE> or <Titanium.UI.iOS.ATTRIBUTE_STRIKETHROUGH_COLOR>,
         you must use one or more of these constants:
@@ -59,11 +60,13 @@ properties:
 
         These can be combined:
 
-            {
-                type: Titanium.UI.iOS.ATTRIBUTE_UNDERLINES_STYLE,
-                value: Titanium.UI.iOS.ATTRIBUTE_UNDERLINE_STYLE_SINGLE | Titanium.UI.iOS.ATTRIBUTE_UNDERLINE_PATTERN_DASH,
-                range: [0, 100]
-            }
+        ``` js
+        {
+            type: Titanium.UI.iOS.ATTRIBUTE_UNDERLINES_STYLE,
+            value: Titanium.UI.iOS.ATTRIBUTE_UNDERLINE_STYLE_SINGLE | Titanium.UI.iOS.ATTRIBUTE_UNDERLINE_PATTERN_DASH,
+            range: [0, 100]
+        }
+        ```
 
         If you use the <Titanium.UI.iOS.ATTRIBUTE_WRITING_DIRECTION>, you must use one or more of
         these constants:
@@ -79,14 +82,16 @@ properties:
         If you use the <Titanium.UI.iOS.ATTRIBUTE_SHADOW>, the `value` must be a JavaScript object containing
         any of the `offset`, `blurRadius` or `color` properties:
 
-            {
-                offset: {
-                    width: 10,
-                    height: 10
-                },
-                blurRadius: 10,
-                color: 'red'
-            }
+        ``` js
+        {
+            offset: {
+                width: 10,
+                height: 10
+            },
+            blurRadius: 10,
+            color: 'red'
+        }
+        ```
 
         If you use the <Titanium.UI.iOS.ATTRIBUTE_TEXT_EFFECT>, you must use the <Titanium.UI.iOS.ATTRIBUTE_LETTERPRESS_STYLE> constant.
 

@@ -65,7 +65,7 @@
     return nil;
   }
 
-  self.nextTimerIdentifier = 0;
+  self.nextTimerIdentifier = 1;
   self.timers = [NSMapTable strongToWeakObjectsMapTable];
 
   NSUInteger (^setInterval)(JSValue *, double) = ^(JSValue *callback, double interval) {

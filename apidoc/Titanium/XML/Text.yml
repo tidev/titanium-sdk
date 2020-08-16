@@ -21,7 +21,6 @@ methods:
         type: Number
 
 properties:
-
   - name: textContent
     summary: Content (value) of all text nodes within this node.
     description: |

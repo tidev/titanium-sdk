@@ -32,6 +32,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Message;
 import android.view.LayoutInflater;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -64,7 +65,6 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 	private WeakReference<AppCompatActivity> tabGroupActivity;
 	private TabProxy selectedTab;
 	private String tabGroupTitle = null;
-	private boolean isFocused;
 	private static int id_toolbar;
 
 	public TabGroupProxy()
@@ -496,7 +496,7 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 	}
 
 	@Override
-	protected void handleClose(KrollDict options)
+	protected void handleClose(@NonNull KrollDict options)
 	{
 		Log.d(TAG, "handleClose: " + options, Log.DEBUG_MODE);
 
@@ -516,6 +516,8 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		if (activity != null && !activity.isFinishing() && !activity.isDestroyed()) {
 			activity.finish();
 		}
+
+		// NOTE: this does not directly fire the close event, but is fired by closeFromActivity()
 	}
 
 	@Override

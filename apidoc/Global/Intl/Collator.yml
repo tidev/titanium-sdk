@@ -1,0 +1,203 @@
+---
+name: Global.Intl.Collator
+summary: Immutable object used to perform language sensitive string comparisons.
+description: |
+    A collator is used to perform a localized string compare or sort using a given language locale.
+
+    For more detail, see the MDN website about
+    [Intl.Collator](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Intl/Collator).
+
+examples:
+  - title: Array Sorting
+    example: |
+        ``` js
+        // Sort using collator. Array becomes: [ 'a', 'b', 'c' ]
+        const elements = [ 'c', 'b', 'a' ];
+        elements.sort(new Intl.Collator().compare);
+        console.log(`Sorted Elements: ${elements}`);
+        ```
+
+  - title: String Compare Sensitivity
+    example: |
+        ``` js
+        // Case sensitive and accent sensitive string matching.
+        // This is the default collator sensitivity.
+        console.log('Variant Sensitivity:');
+        let collator = new Intl.Collator(Ti.Locale.currentLocale, { sensitivity: 'variant' });
+        console.log(collator.compare('a', 'a') === 0);  // Equal
+        console.log(collator.compare('a', 'á') === 0);  // Not Equal
+        console.log(collator.compare('a', 'A') === 0);  // Not Equal
+        console.log(collator.compare('a', 'b') === 0);  // Not Equal
+
+        // Case sensitive matching, ignoring accents marks.
+        console.log('Case Sensitivity:');
+        collator = new Intl.Collator(Ti.Locale.currentLocale, { sensitivity: 'case' });
+        console.log(collator.compare('a', 'a') === 0);  // Equal
+        console.log(collator.compare('a', 'á') === 0);  // Equal
+        console.log(collator.compare('a', 'A') === 0);  // Not Equal
+        console.log(collator.compare('a', 'b') === 0);  // Not Equal
+
+        // Do an accent sensitive match, ignoring case.
+        console.log('Accent Sensitivity:');
+        collator = new Intl.Collator(Ti.Locale.currentLocale, { sensitivity: 'accent' });
+        console.log(collator.compare('a', 'a') === 0);  // Equal
+        console.log(collator.compare('a', 'á') === 0);  // Not Equal
+        console.log(collator.compare('a', 'A') === 0);  // Equal
+        console.log(collator.compare('a', 'b') === 0);  // Not Equal
+
+        // Match strings having same base letters, ignoring case and accents.
+        console.log('Base Sensitivity:');
+        collator = new Intl.Collator(Ti.Locale.currentLocale, { sensitivity: 'base' });
+        console.log(collator.compare('a', 'a') === 0);  // Equal
+        console.log(collator.compare('a', 'á') === 0);  // Equal
+        console.log(collator.compare('a', 'A') === 0);  // Equal
+        console.log(collator.compare('a', 'b') === 0);  // Not Equal
+        ```
+
+platforms: [iphone, ipad, android]
+since: {iphone: "6.0.0", ipad: "6.0.0", android: "9.1.0"}
+osver: {ios: {min: "10.3"}}
+
+methods:
+  - name: compare
+    summary: Determines the sort order of the given strings or if they match.
+    parameters:
+      - name: string1
+        summary: The string to be compared with argument `string2`.
+        type: String
+      - name: string2
+        summary: The string to be compared with argument `string1`.
+        type: String
+    returns:
+        type: Number
+        summary: |
+          Returns zero if strings are equal.
+          Returns a negative value if `string1` sorts before `string2`.
+          Returns a positive value if `string1` sorts after `string2`.
+
+  - name: resolvedOptions
+    summary: Gets the object's collation options.
+    description: |
+      Returns the collation options the collator object uses.
+
+      For more detail, see the MDN website about
+      [resolvedOptions](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Intl/Collator/resolvedOptions).
+    returns:
+        type: Object
+        summary: Returns the collation options used.
+
+  - name: supportedLocalesOf
+    summary: Static method indicating what locales are supported by collators from the given locale(s).
+    description: |
+      For more detail, see the MDN website about
+      [supportedLocalesOf](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Intl/Collator/supportedLocalesOf).
+    parameters:
+      - name: locales
+        summary: A string or array of strings providing BCP 47 locale identifiers to query.
+        type: [String, Array<String>]
+    returns:
+        type: Array<String>
+        summary: Array containing a subset of the given locale strings supported by collators.
+
+properties:
+  - name: constructor
+    summary: Creates a new `Intl.Collator` object with the given locale and comparison options.
+    description: |
+      #### Syntax
+
+      ``` js
+      new Intl.Collator([locales[, options]])
+      ```
+
+      #### Parameters
+
+      *    `locales`: [String](Global.String)/[String](Global.String)`[]` (optional)
+
+           The [BCP 47](https://www.unicode.org/reports/tr35/tr35.html#BCP_47_Conformance) language and country
+           code(s) to use for localized string comparisons. Can provide multiple locales where the best-supported
+           locale will be favored in the order provided by the array. If parameter is not assigned, then
+           the system may use the `'en-US'` locale by default instead of the system's current locale.
+           It's recommended to set this parameter using <Titanium.Locale.currentLocale>.
+
+      *    `options`: <CollatorOptions> (optional)
+
+           Provides settings indicating how strings should be compared.
+
+    type: Global.Intl.Collator
+    permission: read-only
+
+---
+name: CollatorOptions
+summary: Options to be passed into the <Global.Intl.Collator.constructor> method.
+platforms: [iphone, ipad, android]
+since: {iphone: "6.0.0", ipad: "6.0.0", android: "9.1.0"}
+osver: {ios: {min: "10.3"}}
+properties:
+  - name: localeMatcher
+    type: String
+    default: "best fit"
+    summary: The locale matching algorithm to use.
+    description: |
+      Can be set to `'lookup'` or `'best fit'`.
+
+      This option is ignored on Android.
+    platforms: [iphone, ipad]
+
+  - name: usage
+    type: String
+    default: "sort"
+    summary: Indicates if the comparison is for sorting or searching when matching strings.
+    description: |
+      Can be set to `'sort'` or `'search'`.
+
+      This option is ignored on Android.
+    platforms: [iphone, ipad]
+
+  - name: sensitivity
+    type: String
+    default: "variant"
+    summary: Indicates how characters should be compared.
+    description: |
+      Can be set to one of the following:
+
+      *    `'base'` Strings that differ in base letters are unequal.
+           For example `a !== b`, `a === á`, `a === A`
+      *    `'accent'` Strings that differ in base letters and accents are unequal.
+           For example `a !== b`, `a !== á`, `a === A`
+      *    `'case'` Strings that differ in base letters or casing are unequal.
+           For example `a !== b`, `a === á`, `a !== A`
+      *    `'variant'` Strings that differ in base letters, accents, or casing are unequal.
+           For example `a !== b`, `a !== á`, `a !== A`
+
+  - name: ignorePunctuation
+    type: Boolean
+    default: false
+    summary: Indicates if punctuation characters should be ignored during the compare.
+    description: |
+      This option is ignored on Android.
+    platforms: [iphone, ipad]
+
+  - name: numeric
+    type: Boolean
+    default: false
+    summary: Indicates if numbers in string should be compared as integers.
+    description: |
+      When set `true`, strings containing numbers will be sorted as `'1' < '2' < '10'` by their numeric
+      value instead of by their character codes.
+
+      This option is ignored on Android.
+    platforms: [iphone, ipad]
+
+  - name: caseFirst
+    type: String
+    default: "false"
+    summary: Indicates if upper case or lower case characters should sort first.
+    description: |
+      Can be set to one of the following:
+
+      *    `'upper'` Upper case characters are sorted before lower case characters.
+      *    `'lower'` Lower case characters are sorted before upper case characters.
+      *    `'false'` Use the locale's default case handling.
+
+      This option is ignored on Android.
+    platforms: [iphone, ipad]

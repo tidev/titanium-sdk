@@ -349,7 +349,9 @@ methods:
         before the pattern starts, and the remaining numbers are interpreted as
         alternating periods of on and off times. For example, the following pattern:
 
+        ``` js
         [ 0, 500, 100, 500, 100, 500 ]
+        ```
 
         Would cause the vibration to start immediately (delay = 0), and perform three
         long vibrations (500 ms) separated by short pauses (100ms).
@@ -1770,11 +1772,14 @@ properties:
         single value that represents the bitwise-OR of the desired media types. For example,
         the following values are equivalent:
 
-            mediaTypes: [Titanium.Media.MUSIC_MEDIA_TYPE_MUSIC, Titanium.Media.MUSIC_MEDIA_TYPE_PODCAST]
+        ``` js
+        mediaTypes: [Titanium.Media.MUSIC_MEDIA_TYPE_MUSIC, Titanium.Media.MUSIC_MEDIA_TYPE_PODCAST]
+        ```
 
         Or:
-
-            mediaTypes: Titanium.Media.MUSIC_MEDIA_TYPE_MUSIC|Titanium.Media.MUSIC_MEDIA_TYPE_PODCAST
+        ``` js
+        mediaTypes: Titanium.Media.MUSIC_MEDIA_TYPE_MUSIC|Titanium.Media.MUSIC_MEDIA_TYPE_PODCAST
+        ```
     type: [Number, Array<Number>]
     constants: Titanium.Media.MUSIC_MEDIA_TYPE_*
     default: All available types.
