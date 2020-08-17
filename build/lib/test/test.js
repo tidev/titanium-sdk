@@ -676,6 +676,11 @@ async function handleBuild(prc, target, snapshotDir, snapshotPromises) {
 				deploy.stderr.on('data', data => process.stderr.write(data));
 			}
 
+			if (token.includes('Application failed to install')) {
+				prc.kill(); // quit this build...
+				return reject(new Error('Failed to install test app to device/sim'));
+			}
+
 			// Fail immediately if android emulator is forcing restart
 			// TODO: Can we restart/retry test suite in this case?
 			if (token.includes('Module config changed, forcing restart due')) {
