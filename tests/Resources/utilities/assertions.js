@@ -123,51 +123,77 @@ function saveImage(blob, imageFilePath) {
 	return file;
 }
 
+/**
+ * @param {string|Ti.Blob} imageFilePath path to imeg file on disk (relative), or an in-memory Ti.Blob instance (holding an image)
+ * @param {Number} [threshold=0.1] threshold for comparing images
+ */
 should.Assertion.add('matchImage', function (imageFilePath, threshold = 0.1) {
-	this.params = { operator: `view to match snapshot image: ${imageFilePath}` };
+	let isBlob = false;
+	if (imageFilePath.apiName && imageFilePath.apiName === 'Ti.Blob') {
+		isBlob = true;
+		this.params = { operator: 'view to match Ti.Blob' };
+	} else {
+		this.params = { operator: `view to match snapshot image: ${imageFilePath}` };
+	}
 	if (this.obj.apiName) {
 		this.params.obj = this.obj.apiName;
 	}
 
+	this.obj.should.have.property('toImage').which.is.a.Function();
 	const view = this.obj;
-	this.have.property('toImage').which.is.a.Function();
-	// FIXME: What if use provides a non-view?
-	const blob = view.toImage();
-	const snapshot = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, imageFilePath);
-	if (!snapshot.exists()) {
-		// No snapshot. Generate one, then fail test
-		const file = saveImage(blob, imageFilePath);
-		console.log(`!IMAGE: {"path":"${file.nativePath}","platform":"${OS_ANDROID ? 'android' : 'ios'}","relativePath":"${imageFilePath}"}`);
-		this.fail(`No snapshot image to compare for platform "${OS_ANDROID ? 'android' : 'ios'}": ${imageFilePath}\nGenerated image at ${file.nativePath}`);
-		return;
+	const actualBlob = view.toImage();
+	const timestamp = Date.now();
+	let expectedBlob;
+	if (isBlob) {
+		expectedBlob = imageFilePath;
+		// save any generated image to a made up path
+		imageFilePath = `snapshots/${OS_ANDROID ? 'android' : 'ios'}/${timestamp}/actual.png`;
+	} else {
+		const snapshot = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, imageFilePath);
+		if (!snapshot.exists()) {
+			// No snapshot. Generate one, then fail test
+			const file = saveImage(actualBlob, imageFilePath);
+			console.log(`!IMAGE: {"path":"${file.nativePath}","platform":"${OS_ANDROID ? 'android' : 'ios'}","relativePath":"${imageFilePath}"}`);
+			this.fail(`No snapshot image to compare for platform "${OS_ANDROID ? 'android' : 'ios'}": ${imageFilePath}\nGenerated image at ${file.nativePath}`);
+			return;
+		}
+		expectedBlob = snapshot.read();
 	}
 
 	// Compare versus existing image
-	const snapshotBlob = snapshot.read();
 	try {
-		this(blob.width).equal(snapshotBlob.width, 'width');
-		this(blob.height).equal(snapshotBlob.height, 'height');
-		this(blob.size).equal(snapshotBlob.size, 'size');
+		should(actualBlob.width).equal(expectedBlob.width, 'width');
+		should(actualBlob.height).equal(expectedBlob.height, 'height');
+		should(actualBlob.size).equal(expectedBlob.size, 'size');
 	} catch (e) {
 		// assume we failed some assertion, let's try and save the image for reference!
 		// The wrapping script should basically generate a "diffs" folder with actual vs expected PNGs in subdirectories
-		const file = saveImage(blob, imageFilePath);
+		const file = saveImage(actualBlob, imageFilePath);
 		console.log(`!IMG_DIFF: {"path":"${file.nativePath}","platform":"${OS_ANDROID ? 'android' : 'ios'}","relativePath":"${imageFilePath}"}`);
 		throw e;
 	}
 
 	// Need to create a Buffer around the contents of each image!
-	const expectedBuffer = Buffer.from(snapshotBlob.toArrayBuffer());
+	const expectedBuffer = Buffer.from(expectedBlob.toArrayBuffer());
 	const expectedImg = PNG.sync.read(cgbiToPng.revert(expectedBuffer));
 
-	const actualBuffer = Buffer.from(blob.toArrayBuffer());
+	const actualBuffer = Buffer.from(actualBlob.toArrayBuffer());
 	const actualImg = PNG.sync.read(cgbiToPng.revert(actualBuffer));
 
 	const { width, height } = actualImg;
 	const diff = new PNG({ width, height });
 	const pixelsDiff = pixelmatch(actualImg.data, expectedImg.data, diff.data, width, height, { threshold });
+	// TODO: I don't see how, but if we're negated - ideally we'd save the images if diff === 0. `this.negate` is always false here...
 	if (pixelsDiff !== 0) {
-		const file = saveImage(blob, imageFilePath); // save "actual"
+		const file = saveImage(actualBlob, imageFilePath); // save "actual"
+		if (isBlob) {
+			console.log(`!IMAGE: {"path":"${file.nativePath}","platform":"${OS_ANDROID ? 'android' : 'ios'}","relativePath":"${imageFilePath}"}`);
+			// If we're comparing against a blob, let's save something to disk to look at
+			// Save expected blob
+			const expectedPath = `snapshots/${OS_ANDROID ? 'android' : 'ios'}/${timestamp}/expected.png`;
+			const file2 = saveImage(expectedBlob, expectedPath);
+			console.log(`!IMAGE: {"path":"${file2.nativePath}","platform":"${OS_ANDROID ? 'android' : 'ios'}","relativePath":"${expectedPath}"}`);
+		}
 		// Save diff image!
 		const diffBuffer = PNG.sync.write(diff);
 		const diffFilePath = imageFilePath.slice(0, -4) + '_diff.png';
@@ -175,7 +201,7 @@ should.Assertion.add('matchImage', function (imageFilePath, threshold = 0.1) {
 		console.log(`!IMG_DIFF: {"path":"${file.nativePath}","platform":"${OS_ANDROID ? 'android' : 'ios'}","relativePath":"${imageFilePath}"}`);
 		this.fail(`Image ${imageFilePath} failed to match, had ${pixelsDiff} differing pixels. View actual/expected/diff images to compare manually.`);
 	}
-});
+}, false);
 
 // TODO Add an assertion for "exclusive" group of constants: A set of constants whose values must be unique (basically an enum), i.e. Ti.UI.FILL vs SIZE vs UNKNOWN
 // TODO Use more custom assertions for things like color properties?
