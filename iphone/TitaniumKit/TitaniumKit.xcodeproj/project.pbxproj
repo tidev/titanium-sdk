@@ -27,8 +27,6 @@
 		4AF8DEEC1F0C27D9006270E1 /* libAPSHTTPClient.a in Frameworks */ = {isa = PBXBuildFile; fileRef = DBA197511F0C20E300B12D31 /* libAPSHTTPClient.a */; };
 		B106A6FD24535CB800B1305E /* JSValue+Addons.h in Headers */ = {isa = PBXBuildFile; fileRef = B106A6FB24535CB800B1305E /* JSValue+Addons.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		B106A6FE24535CB800B1305E /* JSValue+Addons.m in Sources */ = {isa = PBXBuildFile; fileRef = B106A6FC24535CB800B1305E /* JSValue+Addons.m */; };
-		B13237DD24C7836C005EBD3A /* UIImage+Compare.h in Headers */ = {isa = PBXBuildFile; fileRef = B13237DB24C7836C005EBD3A /* UIImage+Compare.h */; };
-		B13237DE24C7836C005EBD3A /* UIImage+Compare.m in Sources */ = {isa = PBXBuildFile; fileRef = B13237DC24C7836C005EBD3A /* UIImage+Compare.m */; };
 		B7624B6C216663C7000C365A /* ObjcProxy.h in Headers */ = {isa = PBXBuildFile; fileRef = B7624B6A216663C7000C365A /* ObjcProxy.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		B7624B6D216663C7000C365A /* ObjcProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = B7624B6B216663C7000C365A /* ObjcProxy.m */; };
 		DB1596592075389000292B19 /* APIModule.m in Sources */ = {isa = PBXBuildFile; fileRef = DB1596572075389000292B19 /* APIModule.m */; };
@@ -185,8 +183,6 @@
 		4A175275218B64E70094C7B6 /* KrollTimerManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KrollTimerManager.m; sourceTree = "<group>"; };
 		B106A6FB24535CB800B1305E /* JSValue+Addons.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "JSValue+Addons.h"; sourceTree = "<group>"; };
 		B106A6FC24535CB800B1305E /* JSValue+Addons.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "JSValue+Addons.m"; sourceTree = "<group>"; };
-		B13237DB24C7836C005EBD3A /* UIImage+Compare.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "UIImage+Compare.h"; sourceTree = "<group>"; };
-		B13237DC24C7836C005EBD3A /* UIImage+Compare.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "UIImage+Compare.m"; sourceTree = "<group>"; };
 		B7624B6A216663C7000C365A /* ObjcProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ObjcProxy.h; sourceTree = "<group>"; };
 		B7624B6B216663C7000C365A /* ObjcProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ObjcProxy.m; sourceTree = "<group>"; };
 		DB1596572075389000292B19 /* APIModule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = APIModule.m; sourceTree = "<group>"; };
@@ -558,8 +554,6 @@
 				DB15FC481F0A83A700A82C45 /* WebFont.m */,
 				B106A6FB24535CB800B1305E /* JSValue+Addons.h */,
 				B106A6FC24535CB800B1305E /* JSValue+Addons.m */,
-				B13237DB24C7836C005EBD3A /* UIImage+Compare.h */,
-				B13237DC24C7836C005EBD3A /* UIImage+Compare.m */,
 			);
 			name = API;
 			path = Sources/API;
@@ -686,7 +680,6 @@
 				DB3908672075228900AE31EC /* APSHTTPRequest.h in Headers */,
 				DB39086A2075228900AE31EC /* APSHTTPPostForm.h in Headers */,
 				DB15FD081F0A892500A82C45 /* Ti3DMatrix.h in Headers */,
-				B13237DD24C7836C005EBD3A /* UIImage+Compare.h in Headers */,
 				DB15FBEE1F0A80E400A82C45 /* TiDimension.h in Headers */,
 				DB15FC7F1F0A855F00A82C45 /* UIImage+Alpha.h in Headers */,
 				DB15965A2075389000292B19 /* APIModule.h in Headers */,
@@ -806,7 +799,6 @@
 				DB15FC4E1F0A848200A82C45 /* TiApp.m in Sources */,
 				DB15FCB11F0A86E600A82C45 /* TiBindingTiValue.m in Sources */,
 				DB15FC461F0A838E00A82C45 /* TiColor.m in Sources */,
-				B13237DE24C7836C005EBD3A /* UIImage+Compare.m in Sources */,
 				DB15FBF51F0A80FA00A82C45 /* TiPublicAPI.m in Sources */,
 				B7624B6D216663C7000C365A /* ObjcProxy.m in Sources */,
 				DB15FC8C1F0A859800A82C45 /* UIImage+RoundedCorner.m in Sources */,
@@ -1018,7 +1010,7 @@
 					"$(PROJECT_DIR)/TitaniumKit/Libraries/APSAnalytics",
 					"$(PROJECT_DIR)/TitaniumKit/Libraries/APSHTTPClient",
 				);
-				ONLY_ACTIVE_ARCH = NO;
+				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CFLAGS = "-DTARGET_OS_IPHONE";
 				OTHER_LDFLAGS = (
 					"$(inherited)",
