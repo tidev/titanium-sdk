@@ -138,16 +138,16 @@ should.Assertion.add('matchImage', function (imageFilePath, threshold = 0.1) {
 		// No snapshot. Generate one, then fail test
 		const file = saveImage(blob, imageFilePath);
 		console.log(`!IMAGE: {"path":"${file.nativePath}","platform":"${OS_ANDROID ? 'android' : 'ios'}","relativePath":"${imageFilePath}"}`);
-		should.fail(undefined, undefined, `No snapshot image to compare for platform "${OS_ANDROID ? 'android' : 'ios'}": ${imageFilePath}\nGenerated image at ${file.nativePath}`);
+		this.fail(`No snapshot image to compare for platform "${OS_ANDROID ? 'android' : 'ios'}": ${imageFilePath}\nGenerated image at ${file.nativePath}`);
 		return;
 	}
 
 	// Compare versus existing image
 	const snapshotBlob = snapshot.read();
 	try {
-		should(blob.width).equal(snapshotBlob.width, 'width');
-		should(blob.height).equal(snapshotBlob.height, 'height');
-		should(blob.size).equal(snapshotBlob.size, 'size');
+		this(blob.width).equal(snapshotBlob.width, 'width');
+		this(blob.height).equal(snapshotBlob.height, 'height');
+		this(blob.size).equal(snapshotBlob.size, 'size');
 	} catch (e) {
 		// assume we failed some assertion, let's try and save the image for reference!
 		// The wrapping script should basically generate a "diffs" folder with actual vs expected PNGs in subdirectories
@@ -173,7 +173,7 @@ should.Assertion.add('matchImage', function (imageFilePath, threshold = 0.1) {
 		const diffFilePath = imageFilePath.slice(0, -4) + '_diff.png';
 		saveImage(diffBuffer.toTiBuffer().toBlob(), diffFilePath); // TODO Pass along path to diff file?
 		console.log(`!IMG_DIFF: {"path":"${file.nativePath}","platform":"${OS_ANDROID ? 'android' : 'ios'}","relativePath":"${imageFilePath}"}`);
-		should.fail(undefined, undefined, `Image ${imageFilePath} failed to match, had ${pixelsDiff} differing pixels. View actual/expected/diff images to compare manually.`);
+		this.fail(`Image ${imageFilePath} failed to match, had ${pixelsDiff} differing pixels. View actual/expected/diff images to compare manually.`);
 	}
 });
 
