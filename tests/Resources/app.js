@@ -57,6 +57,9 @@ function loadTests() {
 	require('./require.test');
 	require('./string.test');
 	require('./timers.test');
+	if (OS_ANDROID) {
+		require('./wasm.test');
+	}
 	// ES6 syntax/compatability tests
 	require('./es6.arrows.test');
 	require('./es6.async.await.test');
