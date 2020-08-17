@@ -18,6 +18,9 @@ module.exports = {
 	'iphone/**/*.{m,h}': [
 		'npx clang-format -style=file -i'
 	],
+	'iphone/Classes/**/*.swift': [
+		'swiftlint autocorrect'
+	],
 	'iphone/TitaniumKit/TitaniumKit/Sources/API/TopTiModule.m': [
 		'npm run ios-sanity-check --'
 	],
