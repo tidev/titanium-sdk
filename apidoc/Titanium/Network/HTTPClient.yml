@@ -568,10 +568,13 @@ properties:
     summary: |
         The maximum amount of time (in milliseconds) that a resource request should be allowed to take.
     description: |
+        The resource timeout controls how long (in milliseconds) to wait for an entire resource to transfer before giving up.
+        The resource timer starts when the request is initiated and counts until either the request completes or this timeout is reached, whichever comes first.
         For more detail see [timeoutintervalforresource](https://developer.apple.com/documentation/foundation/nsurlsessionconfiguration/1408153-timeoutintervalforresource?language=objc)
         from Apple documentation.
+        This property also applies if <Ti.Network.HttpClient.waitsForConnectivity> is set to `true`.
     default: |
-        The default is 7*24*60*60*1000 milliseconds (7 days).
+        The default is `7*24*60*60*1000` milliseconds (7 days).
     type: Number
     platforms: [iphone, ipad]
     since: '9.2.0'
