@@ -28,14 +28,14 @@ describe('Titanium.UI.ScrollableView', function () {
 		}
 	});
 
-	it('apiName', function () {
-		const scrollableView = Ti.UI.createScrollableView({});
+	it('apiName', () => {
+		const scrollableView = Ti.UI.createScrollableView();
 		should(scrollableView).have.readOnlyProperty('apiName').which.is.a.String();
 		should(scrollableView.apiName).be.eql('Ti.UI.ScrollableView');
 	});
 
-	it('views', function () {
-		const bar = Ti.UI.createScrollableView({});
+	it('views', () => {
+		const bar = Ti.UI.createScrollableView();
 		should(bar.views).be.an.Array(); // iOS returns undefined
 		should(bar.getViews).be.a.Function();
 		should(bar.views).be.empty;
@@ -176,23 +176,22 @@ describe('Titanium.UI.ScrollableView', function () {
 		const scrollableView = Ti.UI.createScrollableView({
 			preferredIndicatorImage: backwardImage,
 			views: [ view1, view2 ],
-			showPagingControl: true,
+			showPagingControl: true
 		});
 
-		win = Ti.UI.createWindow({ extendSafeArea: false });
+		// must set a bg color so don't have full alpha, or else image compare doesn't work as intended
+		win = Ti.UI.createWindow({ extendSafeArea: false, backgroundColor: 'orange' });
 		win.addEventListener('postlayout', function listener () {
 			win.removeEventListener('postlayout', listener);
 			try {
 				const preferredBackwardImage = win.toImage();
 				scrollableView.preferredIndicatorImage = forwardImage;
-				const preferredForwardImage = win.toImage();
-				should(preferredBackwardImage.compare(preferredForwardImage, 0)).eql(false);
+				should(win).not.matchImage(preferredBackwardImage, 0);
 
 				scrollableView.preferredIndicatorImage = backwardImage;
-				const preferredBackwardImage2 = win.toImage();
-				should(preferredBackwardImage.compare(preferredBackwardImage2, 0)).eql(true);
+				should(win).matchImage(preferredBackwardImage, 0);
 			} catch (error) {
-				finish(error);
+				return finish(error);
 			}
 
 			finish();
@@ -214,20 +213,19 @@ describe('Titanium.UI.ScrollableView', function () {
 			showPagingControl: true,
 		});
 
-		win = Ti.UI.createWindow({ extendSafeArea: false });
+		// must set a bg color so don't have full alpha, or else image compare doesn't work as intended
+		win = Ti.UI.createWindow({ extendSafeArea: false, backgroundColor: 'orange' });
 		win.addEventListener('postlayout', function listener () {
 			win.removeEventListener('postlayout', listener);
 			try {
 				const defaultImage = win.toImage();
 				scrollableView.setIndicatorImageForPage(image, 1);
-				const backwardImage = win.toImage();
-				should(defaultImage.compare(backwardImage, 0)).eql(false);
+				should(win).not.matchImage(defaultImage, 0);
 
 				scrollableView.setIndicatorImageForPage(null, 1); // null will change to default
-				const defaultImage2 = win.toImage();
-				should(defaultImage.compare(defaultImage2, 0)).eql(true);
+				should(win).matchImage(defaultImage, 0);
 			} catch (error) {
-				finish(error);
+				return finish(error);
 			}
 			finish();
 		});
