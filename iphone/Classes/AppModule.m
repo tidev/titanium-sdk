@@ -7,7 +7,6 @@
 #ifdef USE_TI_APP
 
 #import "AppModule.h"
-#import "TiUtils+Addons.h"
 #import <TitaniumKit/ListenerEntry.h>
 #import <TitaniumKit/TiApp.h>
 #import <TitaniumKit/TiHost.h>
