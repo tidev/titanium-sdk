@@ -114,7 +114,7 @@
   },
   "devDependencies": {
     "@commitlint/cli": "^9.1.2",
-    "@commitlint/config-conventional": "^9.1.1",
+    "@commitlint/config-conventional": "^9.1.2",
     "@seadub/clang-format-lint": "0.0.2",
     "@seadub/danger-plugin-dependencies": "0.1.0",
     "@seadub/danger-plugin-eslint": "^2.0.0",
