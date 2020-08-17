@@ -123,22 +123,21 @@ function saveImage(blob, imageFilePath) {
 	return file;
 }
 
-should.Assertion.add('matchImage', function (imageFilePath) {
+should.Assertion.add('matchImage', function (imageFilePath, threshold = 0.1) {
 	this.params = { operator: `view to match snapshot image: ${imageFilePath}` };
 	if (this.obj.apiName) {
 		this.params.obj = this.obj.apiName;
 	}
 
+	this.obj.should.have.property('toImage').which.is.a.Function();
 	const view = this.obj;
-	this.have.property('toImage').which.is.a.Function();
-	// FIXME: What if use provides a non-view?
 	const blob = view.toImage();
 	const snapshot = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, imageFilePath);
 	if (!snapshot.exists()) {
 		// No snapshot. Generate one, then fail test
 		const file = saveImage(blob, imageFilePath);
 		console.log(`!IMAGE: {"path":"${file.nativePath}","platform":"${OS_ANDROID ? 'android' : 'ios'}","relativePath":"${imageFilePath}"}`);
-		should.fail(`No snapshot image to compare for platform "${OS_ANDROID ? 'android' : 'ios'}": ${imageFilePath}\nGenerated image at ${file.nativePath}`);
+		this.fail(`No snapshot image to compare for platform "${OS_ANDROID ? 'android' : 'ios'}": ${imageFilePath}\nGenerated image at ${file.nativePath}`);
 		return;
 	}
 
@@ -165,7 +164,7 @@ should.Assertion.add('matchImage', function (imageFilePath) {
 
 	const { width, height } = actualImg;
 	const diff = new PNG({ width, height });
-	const pixelsDiff = pixelmatch(actualImg.data, expectedImg.data, diff.data, width, height, { threshold: 0 });
+	const pixelsDiff = pixelmatch(actualImg.data, expectedImg.data, diff.data, width, height, { threshold });
 	if (pixelsDiff !== 0) {
 		const file = saveImage(blob, imageFilePath); // save "actual"
 		// Save diff image!
@@ -173,7 +172,7 @@ should.Assertion.add('matchImage', function (imageFilePath) {
 		const diffFilePath = imageFilePath.slice(0, -4) + '_diff.png';
 		saveImage(diffBuffer.toTiBuffer().toBlob(), diffFilePath); // TODO Pass along path to diff file?
 		console.log(`!IMG_DIFF: {"path":"${file.nativePath}","platform":"${OS_ANDROID ? 'android' : 'ios'}","relativePath":"${imageFilePath}"}`);
-		should.fail(`Image ${imageFilePath} failed to match, had ${pixelsDiff} differing pixels. View actual/expected/diff images to compare manually.`);
+		this.fail(`Image ${imageFilePath} failed to match, had ${pixelsDiff} differing pixels. View actual/expected/diff images to compare manually.`);
 	}
 });
 
