@@ -1156,9 +1156,9 @@ properties:
     summary: Adds the FLAG_LAYOUT_NO_LIMITS to the window.
     description: |
         In combination with `extendSafeArea` it will extend the window below the statusbar but also
-        set the statusbar to completly transparent.
+        set the statusbar to be completely transparent.
     type: Boolean
-    default: {android: false}
+    default: false
     since: {android: "9.2.0"}
     availability: creation
     osver: {android: {min: "4.4"}}
