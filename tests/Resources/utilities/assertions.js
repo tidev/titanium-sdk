@@ -129,9 +129,8 @@ should.Assertion.add('matchImage', function (imageFilePath, threshold = 0.1) {
 		this.params.obj = this.obj.apiName;
 	}
 
+	this.obj.should.have.property('toImage').which.is.a.Function();
 	const view = this.obj;
-	this.have.property('toImage').which.is.a.Function();
-	// FIXME: What if use provides a non-view?
 	const blob = view.toImage();
 	const snapshot = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, imageFilePath);
 	if (!snapshot.exists()) {
@@ -145,9 +144,9 @@ should.Assertion.add('matchImage', function (imageFilePath, threshold = 0.1) {
 	// Compare versus existing image
 	const snapshotBlob = snapshot.read();
 	try {
-		this(blob.width).equal(snapshotBlob.width, 'width');
-		this(blob.height).equal(snapshotBlob.height, 'height');
-		this(blob.size).equal(snapshotBlob.size, 'size');
+		should(blob.width).equal(snapshotBlob.width, 'width');
+		should(blob.height).equal(snapshotBlob.height, 'height');
+		should(blob.size).equal(snapshotBlob.size, 'size');
 	} catch (e) {
 		// assume we failed some assertion, let's try and save the image for reference!
 		// The wrapping script should basically generate a "diffs" folder with actual vs expected PNGs in subdirectories
