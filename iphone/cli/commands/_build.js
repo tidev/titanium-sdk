@@ -3493,7 +3493,8 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 				// add the groups and files
 				let hasSwiftFiles = false;
 				extObjs.PBXGroup[extPBXProject.mainGroup].children.some(function (child) {
-					if (child.comment !== target.name) {
+					// While creating Widget Extention, in target name 'Extension' is appended.
+					if (child.comment !== target.name && `${child.comment}Extension` !== target.name) {
 						return false;
 					}
 
