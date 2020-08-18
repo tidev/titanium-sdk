@@ -1434,6 +1434,12 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 		}
 	}
 
+	@Kroll.method
+	public String toString()
+	{
+		return "[object Object]";
+	}
+
 	// For subclasses to override
 	@Kroll.method
 	@Kroll.getProperty

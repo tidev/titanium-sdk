@@ -117,7 +117,7 @@ def androidUnitTests(nodeVersion, npmVersion, testOnDevices) {
 					// save the junit reports as artifacts explicitly so danger.js can use them later
 					stash includes: 'junit.*.xml', name: 'test-report-android'
 					junit 'junit.*.xml'
-					archiveArtifacts allowEmptyArchive: true, artifacts: 'tests/diffs/'
+					archiveArtifacts allowEmptyArchive: true, artifacts: 'tests/diffs/,tests/generated/'
 				} // nodejs
 			} finally {
 				deleteDir()
@@ -126,9 +126,15 @@ def androidUnitTests(nodeVersion, npmVersion, testOnDevices) {
 	}
 }
 
-def iosUnitTests(deviceFamily, nodeVersion, npmVersion) {
+def iosUnitTests(deviceFamily, nodeVersion, npmVersion, testOnDevices) {
 	return {
-		node('git && osx && xcode-11') { // Use xcode-11 to make use of ios 13 APIs
+		def labels = 'git && osx'
+		if (testOnDevices && deviceFamily == 'iphone') {
+			labels += ' && macos-darwin' // run main branch tests on devices, use node with devices connected
+		} else {
+			labels += '&& xcode-12' // Use xcode-12 to make use of ios 14 APIs
+		}
+		node(labels) {
 			// TODO: Do a shallow checkout rather than stash/unstash?
 			unstash 'mocha-tests'
 			try {
@@ -139,7 +145,11 @@ def iosUnitTests(deviceFamily, nodeVersion, npmVersion) {
 					sh label: 'Install SDK', script: "npm run deploy -- ${zipName} --select" // installs the sdk
 					try {
 						timeout(20) {
-							sh label: 'Run Test Suite', script: "npm run test:integration -- ios -F ${deviceFamily}"
+							if (testOnDevices && deviceFamily == 'iphone') {
+								sh label: 'Run Test Suite on device(s)', script: "npm run test:integration -- ios -F ${deviceFamily} -T device -C all"
+							} else { // run PR tests on simulator
+								sh label: 'Run Test Suite on simulator', script: "npm run test:integration -- ios -F ${deviceFamily}"
+							}
 						}
 					} catch (e) {
 						gatherIOSCrashReports('mocha') // app name is mocha
@@ -185,7 +195,7 @@ def cliUnitTests(nodeVersion, npmVersion) {
 // Wrap in timestamper
 timestamps {
 	try {
-		node('git && android-sdk && android-ndk && ant && gperf && osx && xcode-11') {
+		node('git && android-sdk && android-ndk && ant && gperf && osx && xcode-12') {
 			stage('Checkout') {
 				// Update our shared reference repo for all branches/PRs
 				dir('..') {
@@ -306,8 +316,8 @@ timestamps {
 		stage('Test') {
 			parallel(
 				'android unit tests': androidUnitTests(nodeVersion, npmVersion, testOnDevices),
-				'iPhone unit tests': iosUnitTests('iphone', nodeVersion, npmVersion),
-				'iPad unit tests': iosUnitTests('ipad', nodeVersion, npmVersion),
+				'iPhone unit tests': iosUnitTests('iphone', nodeVersion, npmVersion, testOnDevices),
+				'iPad unit tests': iosUnitTests('ipad', nodeVersion, npmVersion, testOnDevices),
 				'cli unit tests': cliUnitTests(nodeVersion, npmVersion),
 				failFast: true
 			)

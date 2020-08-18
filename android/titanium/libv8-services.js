@@ -4,14 +4,18 @@
  * Licensed under the terms of the Apache Public License.
  * Please see the LICENSE included with this distribution for details.
  */
-
+/* eslint no-unused-expressions: "off" */
+/* eslint security/detect-child-process: "off" */
 'use strict';
 
 const AndroidBuilder = require('../../build/lib/android');
 const Builder = require('../../build/lib/builder');
 const BuildUtils = require('../../build/lib/utils');
 const util = require('util');
-const exec = util.promisify(require('child_process').exec); // eslint-disable-line security/detect-child-process
+const ejs = require('ejs');
+const child_process = require('child_process');
+const exec = util.promisify(child_process.exec);
+const execFile = util.promisify(child_process.execFile);
 const fs = require('fs-extra');
 const path = require('path');
 const request = require('request-promise-native');
@@ -43,6 +47,84 @@ async function loadPackageJson() {
 }
 
 /**
+ * Debug snapshot generation locally.
+ * @param {String} v8SnapshotHeaderFilePath The path to save generated snapshot header.
+ * @param {String} rollupFileContent Javascript content to store in snapshot.
+ */
+async function debugGenerateSnapshot(v8SnapshotHeaderFilePath, rollupFileContent) {
+
+	const distTmpPath = path.join(__dirname, '..', '..', 'dist', 'tmp');
+	const startupPath = path.join(distTmpPath, 'startup.js');
+
+	// Create startup.js
+	await fs.ensureDir(distTmpPath);
+	await fs.writeFile(startupPath, `this._startSnapshot = global => { ${rollupFileContent} };`);
+
+	const packageJsonData = await loadPackageJson();
+	const v8TargetVersion = packageJsonData.v8.version;
+	const v8TargetMode = packageJsonData.v8.mode;
+	const v8LibDirectory = path.join(__dirname, '..', '..', 'dist', 'android', 'libv8', v8TargetVersion, v8TargetMode, 'libs');
+
+	// Obtain V8 architectures.
+	const archs = (await fs.readdir(v8LibDirectory, { withFileTypes: true }))
+		.filter(entry => entry.isDirectory())
+		.map(entry => entry.name);
+
+	console.log(`Found architectures ${archs.join(', ')}`);
+
+	let blobs = {};
+
+	// Generate snapshots.
+	for (const arch of archs) {
+		const mksnapshotPath = path.join(v8LibDirectory, arch, 'mksnapshot');
+		const blobPath = path.join(v8LibDirectory, arch, 'blob.bin');
+		const emboddedPath = path.join(v8LibDirectory, arch, 'embedded.S');
+
+		// Delete existing snapshot blob.
+		try {
+			await fs.unlink(blobPath);
+		} catch (e) {
+			// Do nothing...
+		}
+
+		const args = [
+			'--startup_blob=' + blobPath,
+			startupPath
+		];
+
+		console.log(`Generating snapshot blob for ${arch}...`);
+
+		// Include embedded blob.
+		if (await fs.exists(emboddedPath)) {
+			args.unshift(
+				'--turbo_instruction_scheduling',
+				'--embedded_src=' + emboddedPath,
+				'--embedded_variant=Default',
+				'--no-native-code-counters',
+			);
+		}
+
+		// Generate snapshot blob.
+		try {
+			await fs.chmod(mksnapshotPath, 0o755);
+			await execFile(mksnapshotPath, args);
+		} catch (e) {
+			console.error(e);
+		}
+
+		// Load snapshot blob.
+		if (await fs.exists(blobPath)) {
+			blobs[arch] = Buffer.from(await fs.readFile(blobPath, 'binary'), 'binary');
+			console.log(`Generated ${arch} snapshot blob.`);
+		}
+	}
+
+	// Generate 'V8Snapshots.h' from template
+	const template = await util.promisify(ejs.renderFile)('V8Snapshots.h.ejs', { blobs }, {});
+	await fs.writeFile(v8SnapshotHeaderFilePath, template);
+}
+
+/**
  * Does a transpile/polyfill/rollup of our "titanium_mobile/common/Resources" JS files.
  * Will then generate a C++ header file providing a V8 snapshot of the rolled-up JS for fast startup times.
  */
@@ -69,13 +151,17 @@ async function createSnapshot() {
 	const v8SnapshotHeaderFilePath = path.join(cppOutputDirPath, 'V8Snapshots.h');
 	await fs.ensureDir(cppOutputDirPath);
 
+	// DEBUG: Generate snapshots locally.
+	// await debugGenerateSnapshot(v8SnapshotHeaderFilePath, rollupFileContent);
+	// return;
+
 	// Requests our server to create snapshot of rolled-up "ti.main" in a C++ header file.
 	let wasSuccessful = false;
 	try {
 		// Post rolled-up "ti.main" script to server and obtain a snapshot ID as a response.
 		// We will send an HTTP request for the snapshot code later.
 		console.log('Attempting to request snapshot...');
-		const snapshotUrl = 'http://v8-snapshot.appcelerator.com';
+		const snapshotUrl = 'https://v8-snapshot.appcelerator.com';
 		const packageJsonData = await loadPackageJson();
 		const requestOptions = {
 			body: {
