@@ -923,7 +923,7 @@ properties:
         Read more about the safe-area layout-guide in the [Human Interface Guidelines](https://developer.apple.com/ios/human-interface-guidelines/overview/iphone-x/).
     platforms: [android, iphone, ipad]
     type: Boolean
-    default: `false` on Android, `true` on iOS.
+    default: '`false` on Android, `true` on iOS.'
     since: {android: "7.5.0", iphone: "6.3.0", ipad: "6.3.0"}
     availability: creation
     osver: {android: {min: "4.4"}}
