@@ -631,7 +631,7 @@ properties:
         See also: [url](Titanium.UI.WebView.url)
     type: Boolean
     default: false
-    since: {android: "5.0.0"}
+    since: {android: "9.3.0"}
     platforms: [android]
     availability: creation
 
