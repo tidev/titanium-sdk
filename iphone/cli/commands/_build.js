@@ -6846,7 +6846,7 @@ iOSBuilder.prototype.invokeXcodeBuild = function invokeXcodeBuild(next) {
 	if (this.target === 'simulator' && parseFloat(this.xcodeEnv.version) >= 12.0) {
 		args.push('EXCLUDED_ARCHS=arm64');
 	}
-	
+
 	xcodebuildHook(
 		this.xcodeEnv.executables.xcodebuild,
 		args,
