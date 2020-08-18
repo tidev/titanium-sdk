@@ -3422,11 +3422,8 @@ AndroidBuilder.prototype.generateTheme = async function generateTheme() {
 	let customizableParentThemeName = this.defaultAppThemeName;
 	if (this.customAndroidManifest) {
 		const appTheme = this.customAndroidManifest.getAppAttribute('android:theme');
-		if (appTheme) {
-			const appThemeWithoutPrefix = appTheme.replace('@style/', '');
-			if (!appThemeWithoutPrefix.startsWith('Theme.Titanium') && !appThemeWithoutPrefix.startsWith('Base.Theme.Titanium')) {
-				customizableParentThemeName = appTheme;
-			}
+		if (appTheme && !appTheme.startsWith('@style/Theme.Titanium') && !appTheme.startsWith('@style/Base.Theme.Titanium')) {
+			customizableParentThemeName = appTheme;
 		}
 	}
 
