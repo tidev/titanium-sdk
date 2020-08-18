@@ -4803,8 +4803,8 @@ iOSBuilder.prototype.cleanXcodeDerivedData = function cleanXcodeDerivedData(next
 	// exception". To fix it, we simply retry up to 3 times. If we detect a
 	// failure, we wait 500ms between tries. Super hacky, but seems to work.
 	async.whilst(
-		function () {
-			return tries++ < 3 && !done;
+		function (cb) {
+			return cb(null, tries++ < 3 && !done);
 		},
 
 		function (cb) {
