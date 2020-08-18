@@ -113,8 +113,8 @@ describe.android('Titanium.UI.Android.DrawerLayout', function () {
 	});
 
 	// Test for theme with disabled default ActionBar
-	it.android('toolbarEnabled for Theme.AppCompat.NoTitleBar', function () {
-		const window = Ti.UI.createWindow({ theme: 'Theme.AppCompat.NoTitleBar' });
+	it.android('toolbarEnabled for Theme.Titanium.NoTitleBar', function () {
+		const window = Ti.UI.createWindow({ theme: 'Theme.Titanium.NoTitleBar' });
 		const drawerLayout = Titanium.UI.Android.createDrawerLayout();
 		window.add(drawerLayout);
 		should(drawerLayout.toolbarEnabled).be.a.Boolean();
@@ -128,7 +128,7 @@ describe.android('Titanium.UI.Android.DrawerLayout', function () {
 	});
 
 	it.android('Toolbar used as toolbar', function (finish) {
-		const window = Ti.UI.createWindow({ theme: 'Theme.AppCompat.NoTitleBar' });
+		const window = Ti.UI.createWindow({ theme: 'Theme.Titanium.NoTitleBar' });
 		const toolbar = Ti.UI.createToolbar({ titleTextColor: 'red', backgroundColor: 'cyan' });
 		const drawerLayout = Ti.UI.Android.createDrawerLayout({ toolbar: toolbar });
 		window.add(drawerLayout);

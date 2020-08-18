@@ -673,7 +673,7 @@ describe('Titanium.UI.Window', function () {
 
 		win = Ti.UI.createWindow({
 			extendSafeArea: true,
-			theme: 'Theme.AppCompat.NoTitleBar',
+			theme: 'Theme.Titanium.NoTitleBar',
 			orientationModes: [ Ti.UI.PORTRAIT ],
 			windowFlags: Ti.UI.Android.FLAG_TRANSLUCENT_STATUS | Ti.UI.Android.FLAG_TRANSLUCENT_NAVIGATION
 		});
@@ -888,7 +888,7 @@ describe('Titanium.UI.Window', function () {
 		win = Ti.UI.createWindow({
 			barColor: 'blue',
 			title: 'My Title',
-			theme: 'Theme.AppCompat.NoTitleBar',
+			theme: 'Theme.Titanium.NoTitleBar',
 		});
 		win.add(Ti.UI.createLabel({ text: 'Window Title Test' }));
 		win.open();
