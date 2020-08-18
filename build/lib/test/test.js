@@ -53,10 +53,7 @@ async function test(platforms, target, deviceId, deployType, deviceFamily, snaps
 
 	// delete old test app (if does not exist, this will no-op)
 	await fs.remove(PROJECT_DIR);
-
-	console.log('Generating project');
 	await generateProject(platforms);
-
 	await copyMochaAssets();
 	await addTiAppProperties();
 
@@ -82,6 +79,7 @@ async function test(platforms, target, deviceId, deployType, deviceFamily, snaps
  * @param  {string[]} platforms array of platform ids to create a project targeted for
  */
 async function generateProject(platforms) {
+	console.log('Generating project');
 	return new Promise((resolve, reject) => {
 		// NOTE: Cannot use fork, because the titanium CLI does not call process.exit()!
 		const prc = spawn(process.execPath, [ titanium, 'create', '--force',
@@ -109,10 +107,10 @@ async function generateProject(platforms) {
 async function copyMochaAssets() {
 	console.log('Copying resources to project...');
 	// TODO: Support root-level package.json!
-	const resourcesDir = path.join(PROJECT_DIR, 'Resources');
 	return Promise.all([
 		// Resources
 		(async () => {
+			const resourcesDir = path.join(PROJECT_DIR, 'Resources');
 			await fs.copy(path.join(SOURCE_DIR, 'Resources'), resourcesDir);
 			if (await fs.pathExists(path.join(resourcesDir, 'package.json'))) {
 				return npmInstall(resourcesDir);
@@ -157,6 +155,7 @@ async function npmInstall(dir) {
  * @returns {Promise<void>}
  */
 async function addTiAppProperties() {
+	console.log('Modifying tiapp.xml');
 	const tiapp_xml = path.join(PROJECT_DIR, 'tiapp.xml');
 	const tiapp_xml_string = await fs.readFile(tiapp_xml, 'utf8');
 	const content = [];
@@ -286,7 +285,7 @@ async function addTiAppProperties() {
  * @returns {Promise<object>}
  */
 async function runBuild(platform, target, deviceId, deployType, deviceFamily, snapshotDir, snapshotPromises) {
-
+	console.log('Building project...');
 	if (target === undefined) {
 		switch (platform) {
 			case 'android':
