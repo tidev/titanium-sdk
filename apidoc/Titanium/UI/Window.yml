@@ -1347,7 +1347,7 @@ properties:
         // This will only work on Android 4.4 and newer OS versions.
         var win = Ti.UI.createWindow({
             extendSafeArea: true,
-            theme: 'Theme.AppCompat.NoTitleBar',
+            theme: 'Theme.Titanium.NoTitleBar',
             windowFlags: Ti.UI.Android.FLAG_TRANSLUCENT_NAVIGATION | Ti.UI.Android.FLAG_TRANSLUCENT_STATUS
         });
 

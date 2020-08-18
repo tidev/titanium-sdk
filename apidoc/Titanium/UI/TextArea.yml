@@ -299,15 +299,15 @@ properties:
     platforms: [android]
     since: 4.1.0
     description: |
-        Hint text color in Android is determined by the theme of the application. By default, the
-        theme is `Theme.AppCompat` which is a Dark theme. When you create the background to be white,
+        Hint text color in Android is determined by the theme of the application.
+        By default, a Titanium app uses a Dark theme. When you create the background to be white,
         the hint text color would also be white, hence not visible to the user. To change this, you can
-        edit the tiapp.xml file with another theme. Example as follows:
+        edit the "tiapp.xml" file with another theme. Example as follows:
 
         ``` xml
         <android xmlns:android="http://schemas.android.com/apk/res/android">
             <manifest>
-                <application android:theme="@style/Theme.AppCompat.Light"/>
+                <application android:theme="@style/Theme.MaterialComponents.Light.Bridge"/>
             </manifest>
         </android>
         ```

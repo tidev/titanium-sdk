@@ -23,8 +23,8 @@ description: |
     On Android a toolbar can also be used as an ActionBar for [activities](Titanium.Android.Activity). This allows a toolbar to
     inherit [ActionBar's](Titanium.Android.ActionBar) methods, properties and events as well as provide a better customization of this
     design element. For example you can provide your own images to be used as navigation button icon, overflow menu icon and logo.
-    In order to do that, an application must be using Theme.AppCompat.NoTitleBar.
-    It can be set in the tiapp.xml file of the application.
+    In order to do that, an application must use a theme without a title bar. For Titanium 9.3.0 and higher,
+    set the theme to `Theme.Titanium.NoTitleBar`. For older Titanium versions, set the theme to `Theme.AppCompat.NoTitleBar`.
 
     See also:
 
