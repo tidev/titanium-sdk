@@ -117,7 +117,7 @@ def androidUnitTests(nodeVersion, npmVersion, testOnDevices) {
 					// save the junit reports as artifacts explicitly so danger.js can use them later
 					stash includes: 'junit.*.xml', name: 'test-report-android'
 					junit 'junit.*.xml'
-					archiveArtifacts allowEmptyArchive: true, artifacts: 'tests/diffs/'
+					archiveArtifacts allowEmptyArchive: true, artifacts: 'tests/diffs/,tests/generated/'
 				} // nodejs
 			} finally {
 				deleteDir()
