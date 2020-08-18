@@ -16,8 +16,7 @@
                android:layout_height="wrap_content"
                android:layout_width="match_parent"
                android:minHeight="?attr/actionBarSize"
-               android:background="?attr/colorPrimary"
-               app:popupTheme="@style/ThemeOverlay.MaterialComponents.Light"/>
+               android:background="?attr/colorPrimary"/>
 
            <org.appcelerator.titanium.view.TiCompositeLayout
                android:layout_width="match_parent"
