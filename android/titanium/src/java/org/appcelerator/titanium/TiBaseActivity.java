@@ -774,9 +774,10 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 				String message
 					= "You cannot use a Toolbar as an ActionBar if the current theme has an ActionBar.\n"
 					+ "You must set 'windowActionBar' to false in your theme or use one of the following themes:\n"
-					+ "- Theme.Titanium\n"
-					+ "- Theme.AppCompat.Translucent.NoTitleBar\n"
-					+ "- Theme.AppCompat.NoTitleBar";
+					+ "- Theme.Titanium.NoTitleBar\n"
+					+ "- Theme.Titanium.Fullscreen\n"
+					+ "- Theme.Titanium.Translucent.NoTitleBar\n"
+					+ "- Theme.Titanium.Translucent.Fullscreen";
 				Log.e(TAG, message);
 				TiApplication.terminateActivityStack();
 				finish();
