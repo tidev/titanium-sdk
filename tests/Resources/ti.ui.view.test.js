@@ -4,6 +4,7 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+/* globals OS_ANDROID */
 /* eslint-env mocha */
 /* eslint no-unused-expressions: "off" */
 'use strict';
@@ -954,9 +955,7 @@ describe('Titanium.UI.View', function () {
 	});
 
 	describe('borderRadius corners', () => {
-		// FIXME: Due to very slow performance, I'm not turning on the image comparisons right now
-		// We need to speed up the code (presumably Buffer)
-		// const density = Ti.Platform.displayCaps.logicalDensityFactor;
+		const density = Ti.Platform.displayCaps.logicalDensityFactor;
 		// FIXME: Don't use dp/pts in the actual radii so we can avoid needing separate images per density?
 		// Do separate tests for verifying use of pts/dp versus density?
 
@@ -979,7 +978,9 @@ describe('Titanium.UI.View', function () {
 				try {
 					should(view.borderRadius).be.a.String();
 					should(view.borderRadius).eql('12px 12 12dp 12');
-					// should(outerView).matchImage(`snapshots/borderRadius12px_12_12dp_12_${density}x.png`);
+					if (!OS_ANDROID || Ti.Platform.Android.API_LEVEL > 20) {
+						should(outerView).matchImage(`snapshots/borderRadius12px_12_12dp_12_${density}x.png`);
+					}
 				} catch (e) {
 					return finish(e);
 				}
@@ -1011,7 +1012,9 @@ describe('Titanium.UI.View', function () {
 					should(view.borderRadius.length).eql(4);
 					should(view.borderRadius).eql([ '12px', 12, '12dp', '12' ]);
 					// should be the exact same as above
-					// should(outerView).matchImage(`snapshots/borderRadius12px_12_12dp_12_${density}x.png`);
+					if (!OS_ANDROID || Ti.Platform.Android.API_LEVEL > 20) {
+						should(outerView).matchImage(`snapshots/borderRadius12px_12_12dp_12_${density}x.png`);
+					}
 				} catch (err) {
 					return finish(err);
 				}
@@ -1042,7 +1045,9 @@ describe('Titanium.UI.View', function () {
 				try {
 					should(view.borderRadius).be.a.String();
 					should(view.borderRadius).eql('12px 12');
-					// should(outerView).matchImage(`snapshots/borderRadius12px_12_${density}x.png`);
+					if (!OS_ANDROID || Ti.Platform.Android.API_LEVEL > 20) {
+						should(outerView).matchImage(`snapshots/borderRadius12px_12_${density}x.png`);
+					}
 				} catch (e) {
 					return finish(e);
 				}
@@ -1074,7 +1079,9 @@ describe('Titanium.UI.View', function () {
 					should(view.borderRadius.length).eql(2);
 					should(view.borderRadius).eql([ '12px', 12 ]);
 					// should be the exact same as above
-					// should(outerView).matchImage(`snapshots/borderRadius12px_12_${density}x.png`);
+					if (!OS_ANDROID || Ti.Platform.Android.API_LEVEL > 20) {
+						should(outerView).matchImage(`snapshots/borderRadius12px_12_${density}x.png`);
+					}
 				} catch (err) {
 					return finish(err);
 				}

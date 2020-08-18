@@ -105,7 +105,6 @@ properties:
     permission: read-only
 
 methods:
-
   - name: toString
     returns:
         type: String
@@ -188,7 +187,6 @@ methods:
         type: Titanium.Blob
         summary: The image thumbnail in a blob.
     parameters:
-
       - name: size
         type: Number
         summary: Size of the thumbnail, in either width or height.
@@ -250,3 +248,13 @@ methods:
     returns:
         type: Titanium.Blob
         summary: The image with a transparent border in a blob, or `null` if this blob is not an image.
+
+  - name: toArrayBuffer
+    returns:
+        type: ArrayBuffer
+    summary: Returns an `ArrayBuffer` representation of this blob.
+
+  - name: arrayBuffer
+    returns:
+        type: Promise<ArrayBuffer>
+    summary: Returns a `Promise` that resolves with the contents of the blob as binary data contained in an `ArrayBuffer`.
