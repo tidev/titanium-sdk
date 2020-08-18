@@ -540,6 +540,28 @@ Local<Array> TypeConverter::javaArrayToJsArray(Isolate* isolate, JNIEnv *env, ji
 	return jsArray;
 }
 
+Local<ArrayBuffer> TypeConverter::javaByteArrayToJsArrayBuffer(Isolate* isolate, jbyteArray javaByteArray)
+{
+	JNIEnv *env = JNIScope::getEnv();
+	if (env == NULL) {
+		return Local<ArrayBuffer>();
+	}
+	return TypeConverter::javaByteArrayToJsArrayBuffer(isolate, env, javaByteArray);
+}
+
+Local<ArrayBuffer> TypeConverter::javaByteArrayToJsArrayBuffer(Isolate* isolate, JNIEnv *env, jbyteArray javaByteArray)
+{
+	size_t byteCount = env->GetArrayLength(javaByteArray);
+	Local<ArrayBuffer> jsArray = ArrayBuffer::New(isolate, byteCount);
+	if (byteCount > 0) {
+		void* sourcePointer = (void*)(env->GetByteArrayElements(javaByteArray, 0));
+		void* destinationPointer = jsArray->GetContents().Data();
+		memcpy(destinationPointer, sourcePointer, byteCount);
+		env->ReleaseByteArrayElements(javaByteArray, reinterpret_cast<jbyte*>(sourcePointer), JNI_ABORT);
+	}
+	return jsArray;
+}
+
 jlongArray TypeConverter::jsArrayToJavaLongArray(Isolate* isolate, Local<Array> jsArray)
 {
 	JNIEnv *env = JNIScope::getEnv();
@@ -1032,6 +1054,9 @@ Local<Value> TypeConverter::javaObjectToJsValue(Isolate* isolate, JNIEnv *env, j
 
 	} else if (env->IsInstanceOf(javaObject, JNIUtil::objectArrayClass)) {
 		return javaArrayToJsArray(isolate, (jobjectArray) javaObject);
+
+	} else if (env->IsInstanceOf(javaObject, JNIUtil::byteArrayClass)) {
+		return javaByteArrayToJsArrayBuffer(isolate, (jbyteArray) javaObject);
 
 	} else if (env->IsInstanceOf(javaObject, JNIUtil::shortArrayClass)) {
 		return javaArrayToJsArray(isolate, (jshortArray) javaObject);
