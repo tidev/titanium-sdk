@@ -923,7 +923,7 @@ properties:
         Read more about the safe-area layout-guide in the [Human Interface Guidelines](https://developer.apple.com/ios/human-interface-guidelines/overview/iphone-x/).
     platforms: [android, iphone, ipad]
     type: Boolean
-    default: {android: false, ios: true}
+    default: false on Android, true on iOS.
     since: {android: "7.5.0", iphone: "6.3.0", ipad: "6.3.0"}
     availability: creation
     osver: {android: {min: "4.4"}}
@@ -1025,11 +1025,11 @@ properties:
   - name: hidesSearchBarWhenScrolling
     summary: A Boolean value indicating whether the integrated search bar is hidden when scrolling any underlying content.
     description: |
-        When the value of this property is true, the search bar is visible only when the scroll position 
-        equals the top of your content view. When the user scrolls down, the search bar collapses into 
-        the navigation bar. Scrolling back to the top reveals the search bar again. When the value of 
-        this property is false, the search bar remains regardless of the current scroll position. 
-        You must set <Titanium.UI.ListView.showSearchBarInNavBar> or <Titanium.UI.TableView.showSearchBarInNavBar> 
+        When the value of this property is true, the search bar is visible only when the scroll position
+        equals the top of your content view. When the user scrolls down, the search bar collapses into
+        the navigation bar. Scrolling back to the top reveals the search bar again. When the value of
+        this property is false, the search bar remains regardless of the current scroll position.
+        You must set <Titanium.UI.ListView.showSearchBarInNavBar> or <Titanium.UI.TableView.showSearchBarInNavBar>
         property for this property to have any effect.
     default: true
     type: Boolean
