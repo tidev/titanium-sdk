@@ -1,67 +1,114 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-	<!-- Base theme applied to all Titanium transluent windows and splash activity. -->
-	<!-- Our "_build.js" script will replace it with ".Fullscreen" theme if set in "tiapp.xml" file. -->
-	<style name="Base.Theme.Titanium.Basic" parent="Theme.AppCompat"/>
+	<!-- Base theme applied to Titanium's splash screen activity. -->
+	<!-- Our "_build.js" will replace it with ".NoActionBar" or ".Fullscreen" theme if set in "tiapp.xml" file. -->
+	<style name="Base.Theme.Titanium.Basic" parent="Theme.MaterialComponents.Bridge"/>
 
 	<!-- Base theme applied to all Titanium opaque windows. -->
 	<!-- Our "_build.js" script will replace it if custom theme is applied to application in manifest. -->
 	<style name="Base.Theme.Titanium.Customizable" parent="Theme.AppCompat"/>
 
 	<!-- Base theme to be used by the "TiRootActivity" class. -->
-	<style name="Base.Theme.Titanium.Splash" parent="@style/Base.Theme.Titanium.Basic">
+	<style name="Base.Theme.Titanium.Splash" parent="Base.Theme.Titanium.Basic">
 		<item name="android:windowActionBar">false</item>
 		<item name="android:windowNoTitle">true</item>
 		<item name="windowActionBar">false</item>
 		<item name="windowNoTitle">true</item>
 	</style>
-
-	<style name="Theme.AppCompat.NoTitleBar">
-		<item name="android:windowNoTitle">true</item>
-		<item name="android:windowContentOverlay">@null</item>
-		<item name="android:windowActionBar">false</item>
-		<!-- AppCompat Compatibility -->
-		<item name="windowActionBar">false</item>
-		<item name="windowNoTitle">true</item>
-	</style>
-
-	<style name="Theme.AppCompat.NoTitleBar.Fullscreen">
-		<item name="android:windowFullscreen">true</item>
-	</style>
-
-	<style name="Theme.AppCompat.Fullscreen" parent="@style/Theme.AppCompat.NoTitleBar.Fullscreen"/>
 
 	<!-- Theme to be replaced by app project and have a "windowBackground" image applied to it. -->
 	<!-- Our Android "_build.js" script will replace this theme via the generateTheme() method. -->
-	<style name="Theme.Titanium" parent="@style/Base.Theme.Titanium.Splash"/>
+	<style name="Theme.Titanium" parent="Base.Theme.Titanium.Splash"/>
 
-	<!-- Theme to be used by Titanium's translucent windows and modal windows. -->
-	<style name="Theme.Titanium.Translucent" parent="@style/Base.Theme.Titanium.Customizable">
-		<item name="android:windowBackground">@android:color/transparent</item>
-		<item name="android:colorBackgroundCacheHint">@null</item>
-		<item name="android:windowIsTranslucent">true</item>
-		<item name="android:windowAnimationStyle">@android:style/Animation</item>
+	<!-- Activity theme used to remove top title bar, but keeps status bar and app theme. -->
+	<style name="Theme.Titanium.NoTitleBar" parent="Base.Theme.Titanium.Customizable">
+		<item name="android:windowActionBar">false</item>
+		<item name="android:windowContentOverlay">@null</item>
+		<item name="android:windowNoTitle">true</item>
+		<item name="windowActionBar">false</item>
+		<item name="windowNoTitle">true</item>
 	</style>
 
-	<style name="Theme.AppCompat.Translucent" parent="@style/Base.Theme.Titanium.Basic">
+	<!-- Activity theme used to remove top status bar and title bar while preserving app theme. -->
+	<style name="Theme.Titanium.Fullscreen" parent="Theme.Titanium.NoTitleBar">
+		<item name="android:windowFullscreen">true</item>
+	</style>
+
+	<!-- Activity theme applying transparent background while preserving app theme. -->
+	<style name="Theme.Titanium.Translucent" parent="Base.Theme.Titanium.Customizable">
+		<item name="android:colorBackgroundCacheHint">@null</item>
+		<item name="android:windowAnimationStyle">@null</item>
+		<item name="android:windowBackground">@android:color/transparent</item>
+		<item name="android:windowIsTranslucent">true</item>
+	</style>
+
+	<!-- Activity theme applying transparent background and removes title bar, while preserving app theme. -->
+	<style name="Theme.Titanium.Translucent.NoTitleBar" parent="Theme.Titanium.Translucent">
+		<item name="android:windowActionBar">false</item>
+		<item name="android:windowContentOverlay">@null</item>
+		<item name="android:windowNoTitle">true</item>
+		<item name="windowActionBar">false</item>
+		<item name="windowNoTitle">true</item>
+	</style>
+
+	<!-- Activity theme with transparent background, removes status bar and title bar while preserving app theme. -->
+	<style name="Theme.Titanium.Translucent.Fullscreen" parent="Theme.Titanium.Translucent.NoTitleBar">
+		<item name="android:windowFullscreen">true</item>
+	</style>
+
+	<!-- Inherits Google's "Theme.MaterialComponents.Bridge" and removes top status and title bar. -->
+	<style name="Theme.MaterialComponents.Fullscreen.Bridge" parent="Theme.MaterialComponents.Bridge">
+		<item name="android:windowActionBar">false</item>
+		<item name="android:windowContentOverlay">@null</item>
+		<item name="android:windowFullscreen">true</item>
+		<item name="android:windowNoTitle">true</item>
+		<item name="windowActionBar">false</item>
+		<item name="windowNoTitle">true</item>
+	</style>
+
+	<!-- Google's dark AppCompat activity theme without a top title bar. -->
+	<!-- DEPRECATED: Should use MaterialComponents theme instead in order to use material widgets. -->
+	<style name="Theme.AppCompat.NoTitleBar" parent="Theme.AppCompat">
+		<item name="android:windowActionBar">false</item>
+		<item name="android:windowContentOverlay">@null</item>
+		<item name="android:windowNoTitle">true</item>
+		<item name="windowActionBar">false</item>
+		<item name="windowNoTitle">true</item>
+	</style>
+
+	<!-- Google's dark AppCompat activity theme without a top status bar and title bar. -->
+	<!-- DEPRECATED: Should use MaterialComponents theme instead in order to use material widgets. -->
+	<style name="Theme.AppCompat.NoTitleBar.Fullscreen" parent="Theme.AppCompat.NoTitleBar">
+		<item name="android:windowFullscreen">true</item>
+	</style>
+
+	<!-- Google's dark AppCompat activity theme without a top status bar and title bar. -->
+	<!-- DEPRECATED: Should use MaterialComponents theme instead in order to use material widgets. -->
+	<style name="Theme.AppCompat.Fullscreen" parent="Theme.AppCompat.NoTitleBar.Fullscreen"/>
+
+	<!-- Google's dark AppCompat activity theme with a transparent background. -->
+	<!-- DEPRECATED: Should use MaterialComponents theme instead in order to use material widgets. -->
+	<style name="Theme.AppCompat.Translucent" parent="Theme.AppCompat">
 		<item name="android:windowBackground">@android:color/transparent</item>
 		<item name="android:colorBackgroundCacheHint">@null</item>
 		<item name="android:windowIsTranslucent">true</item>
 		<item name="android:actionBarStyle">@style/Base.Widget.AppCompat.ActionBar.Solid</item>
-		<!-- AppCompat Compatibility -->
 		<item name="actionBarStyle">@style/Base.Widget.AppCompat.ActionBar.Solid</item>
 	</style>
-	
-	<style name="Theme.AppCompat.Translucent.NoTitleBar">
-		<item name="android:windowNoTitle">true</item>
-		<item name="android:windowContentOverlay">@null</item>
+
+	<!-- Google's dark AppCompat activity theme with a transparent background without a title bar. -->
+	<!-- DEPRECATED: Should use MaterialComponents theme instead in order to use material widgets. -->
+	<style name="Theme.AppCompat.Translucent.NoTitleBar" parent="Theme.AppCompat.Translucent">
 		<item name="android:windowActionBar">false</item>
-		<!-- AppCompat Compatibility -->
+		<item name="android:windowContentOverlay">@null</item>
+		<item name="android:windowNoTitle">true</item>
 		<item name="windowActionBar">false</item>
 		<item name="windowNoTitle">true</item>
 	</style>
-	
-	<style name="Theme.AppCompat.Translucent.NoTitleBar.Fullscreen">
+
+	<!-- Google's dark AppCompat activity theme with a transparent background without a status bar and title bar. -->
+	<!-- DEPRECATED: Should use MaterialComponents theme instead in order to use material widgets. -->
+	<style name="Theme.AppCompat.Translucent.NoTitleBar.Fullscreen" parent="Theme.AppCompat.Translucent.NoTitleBar">
 		<item name="android:windowFullscreen">true</item>
 	</style>
 </resources>
