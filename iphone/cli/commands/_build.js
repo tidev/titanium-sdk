@@ -2544,7 +2544,7 @@ iOSBuilder.prototype.determineLogServerPort = function determineLogServerPort(ne
 
 	let done = false;
 	async.whilst(
-		() => !done,
+		cb => { return cb(null, !done); },
 		cb => {
 			// for simulator builds, the port is shared with the local machine, so we
 			// just need to detect if the port is available with the help of Node
@@ -6197,14 +6197,14 @@ iOSBuilder.prototype.encryptJSFiles = function encryptJSFiles(next) {
 		this.jsFilesToEncrypt.forEach(file => this.logger.debug(__('Preparing %s', file.cyan)));
 
 		async.whilst(
-			function () {
+			function (cb) {
 				if (!completed && tries > 3) {
 					// we failed 3 times, so just give up
 					this.logger.error(__('titanium_prep failed to complete successfully'));
 					this.logger.error(__('Try cleaning this project and build again') + '\n');
 					process.exit(1);
 				}
-				return !completed;
+				return cb(null, !completed);
 			},
 			function (cb) {
 				this.logger.debug(__('Running %s', (exe + ' "' + args.slice(0, -1).join('" "') + '"').cyan));
