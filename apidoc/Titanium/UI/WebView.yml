@@ -432,7 +432,7 @@ methods:
     returns:
         type: BackForwardList
 
-  - name: createPdf
+  - name: createPDF
     summary: |
         Create a PDF document representation from the web page currently displayed in the WebView.
     description: |
@@ -1128,7 +1128,7 @@ properties:
 
 ---
 name: DataCreationResult
-summary: The parameter passed to the <Titanium.UI.WebView.createPdf> or <Titanium.UI.WebView.createWebArchive>callback.
+summary: The parameter passed to the <Titanium.UI.WebView.createPDF> or <Titanium.UI.WebView.createWebArchive>callback.
 platforms: [iphone, ipad]
 since: "9.2.0"
 properties:

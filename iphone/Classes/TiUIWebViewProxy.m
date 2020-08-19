@@ -459,7 +459,7 @@ static NSArray *webViewKeySequence;
              }];
 }
 
-- (void)createPdf:(id)args
+- (void)createPDF:(id)args
 {
   KrollCallback *callback = (KrollCallback *)[args objectAtIndex:0];
   ENSURE_TYPE(callback, KrollCallback);

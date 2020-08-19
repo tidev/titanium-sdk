@@ -15,7 +15,6 @@ describe('Titanium.UI.WebView', function () {
 	this.slow(3000);
 	this.timeout(30000);
 
-	const isiOS14 =  (parseInt(Ti.Platform.version.split('.')[0]) >= 14);
 	let win;
 	afterEach(done => { // fires after every test in sub-suites too...
 		if (win && !win.closed) {
@@ -754,7 +753,7 @@ describe('Titanium.UI.WebView', function () {
 		win.open();
 	});
 
-	it.ios('#createPdf', function (finish) {
+	it.ios('#createPDF', function (finish) {
 		if (OS_VERSION_MAJOR < 14) {
 			return finish();
 		}
@@ -764,13 +763,15 @@ describe('Titanium.UI.WebView', function () {
 		});
 
 		webView.addEventListener('load', function () {
-			webView.createPdf(function (e) {
-				if (e.success) {
-					should(e.data).be.an.object;
-					finish();
-				} else {
-					finish(e.error);
+			webView.createPDF(function (e) {
+				try {
+					should(e.success).be.true();
+					should(e.data).be.an.Object();
+					should(e.data).have.a.property('apiName').which.eql('Ti.Blob');
+				} catch (err) {
+					return finish(err);
 				}
+				finish();
 			});
 		});
 
@@ -789,16 +790,77 @@ describe('Titanium.UI.WebView', function () {
 
 		webView.addEventListener('load', function () {
 			webView.createWebArchive(function (e) {
-				if (e.success) {
-					should(e.data).be.an.object;
-					finish();
-				} else {
-					finish(e.error);
+				try {
+					should(e.success).be.true();
+					should(e.data).be.an.Object();
+					should(e.data).have.a.property('apiName').which.eql('Ti.Blob');
+				} catch (err) {
+					return finish(err);
 				}
+				finish();
 			});
 		});
 
 		win.add(webView);
 		win.open();
+	});
+
+	describe.ios('#findString()', function () {
+		it('is a Function', () => {
+			if (OS_VERSION_MAJOR < 14) {
+				return finish();
+			}
+			const webView = Ti.UI.createWebView({
+				url: 'https://www.appcelerator.com'
+			});
+			should(webView.findString).be.a.Function();
+		});
+
+		it('#findString without configuration', function (finish) {
+			if (OS_VERSION_MAJOR < 14) {
+				return finish();
+			}
+			win = Ti.UI.createWindow();
+			const webView = Ti.UI.createWebView({
+				url: 'https://www.appcelerator.com'
+			});
+
+			webView.addEventListener('load', function () {
+				webView.findString('APPCELERATOR', function (e) {
+					if (e.success) {
+						finish();
+					} else {
+						finish(e.error);
+					}
+				});
+			});
+
+			win.add(webView);
+			win.open();
+		});
+
+		it('#findString with configuration', function (finish) {
+			if (OS_VERSION_MAJOR < 14) {
+				return finish();
+			}
+			win = Ti.UI.createWindow();
+			const webView = Ti.UI.createWebView({
+				url: 'https://www.appcelerator.com'
+			});
+
+			webView.addEventListener('load', function () {
+				// It should fail.
+				webView.findString('APPCELERATOR', { caseSensitive: true, backwards: false, wraps: true }, function (e) {
+					if (e.success) {
+						finish(new Error('Search should fail'));
+					} else {
+						finish();
+					}
+				});
+			});
+
+			win.add(webView);
+			win.open();
+		});
 	});
 });
