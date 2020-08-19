@@ -808,7 +808,7 @@ describe('Titanium.UI.WebView', function () {
 	describe.ios('#findString()', function () {
 		it('is a Function', () => {
 			if (OS_VERSION_MAJOR < 14) {
-				return finish();
+				return;
 			}
 			const webView = Ti.UI.createWebView({
 				url: 'https://www.appcelerator.com'
