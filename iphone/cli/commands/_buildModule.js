@@ -268,14 +268,14 @@ iOSModuleBuilder.prototype.compileJS = function compileJS(next) {
 			}, this);
 
 			async.whilst(
-				function () {
+				function (cb) {
 					if (tries > 3) {
 						// we failed 3 times, so just give up
 						this.logger.error(__('titanium_prep failed to complete successfully'));
 						this.logger.error(__('Try cleaning this project and build again') + '\n');
 						process.exit(1);
 					}
-					return !completed;
+					return cb(null, !completed);
 				},
 				function (cb) {
 					const child = spawn(exe, args, opts),
