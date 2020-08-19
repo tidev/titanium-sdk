@@ -2493,8 +2493,8 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 		}
 
 		async.whilst(
-			function () {
-				return files.length;
+			function (cb) {
+				return cb(null, files.length);
 			},
 
 			function (next) {
