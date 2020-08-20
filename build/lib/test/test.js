@@ -334,6 +334,7 @@ async function runBuild(platform, target, deviceId, deployType, deviceFamily, sn
 
 	args.push('--no-prompt');
 	args.push('--color');
+	console.log(`Running spawn(node, ${args})...`);
 	const prc = spawn('node', args);
 	return handleBuild(prc, target, snapshotDir, snapshotPromises);
 }
