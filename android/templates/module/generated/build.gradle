@@ -247,10 +247,14 @@ publishing {
 				list.addAll(configurations.implementation.allDependencies)
 				list.each {
 					if ((it.group != null) && (it.name != null)) {
-						def childNode = dependenciesNode.appendNode('dependency')
-						childNode.appendNode('groupId', it.group)
-						childNode.appendNode('artifactId', it.name)
-						childNode.appendNode('version', it.version)
+
+						// Skip Titanium SDK dependency.
+						if (it.group != 'org.appcelerator') {
+							def childNode = dependenciesNode.appendNode('dependency')
+							childNode.appendNode('groupId', it.group)
+							childNode.appendNode('artifactId', it.name)
+							childNode.appendNode('version', it.version)
+						}
 					}
 				}
 			}
