@@ -2544,7 +2544,7 @@ iOSBuilder.prototype.determineLogServerPort = function determineLogServerPort(ne
 
 	let done = false;
 	async.whilst(
-		() => !done,
+		cb => { return cb(null, !done); },
 		cb => {
 			// for simulator builds, the port is shared with the local machine, so we
 			// just need to detect if the port is available with the help of Node
@@ -4803,8 +4803,8 @@ iOSBuilder.prototype.cleanXcodeDerivedData = function cleanXcodeDerivedData(next
 	// exception". To fix it, we simply retry up to 3 times. If we detect a
 	// failure, we wait 500ms between tries. Super hacky, but seems to work.
 	async.whilst(
-		function () {
-			return tries++ < 3 && !done;
+		function (cb) {
+			return cb(null, tries++ < 3 && !done);
 		},
 
 		function (cb) {
@@ -6197,14 +6197,14 @@ iOSBuilder.prototype.encryptJSFiles = function encryptJSFiles(next) {
 		this.jsFilesToEncrypt.forEach(file => this.logger.debug(__('Preparing %s', file.cyan)));
 
 		async.whilst(
-			function () {
+			function (cb) {
 				if (!completed && tries > 3) {
 					// we failed 3 times, so just give up
 					this.logger.error(__('titanium_prep failed to complete successfully'));
 					this.logger.error(__('Try cleaning this project and build again') + '\n');
 					process.exit(1);
 				}
-				return !completed;
+				return cb(null, !completed);
 			},
 			function (cb) {
 				this.logger.debug(__('Running %s', (exe + ' "' + args.slice(0, -1).join('" "') + '"').cyan));
@@ -6840,6 +6840,11 @@ iOSBuilder.prototype.invokeXcodeBuild = function invokeXcodeBuild(next) {
 		if (this.simOnlyActiveArch) {
 			args.push('ONLY_ACTIVE_ARCH=1');
 		}
+	}
+
+	// Exclude arm64 architecture from simulator build in XCode 12+ - TIMOB-28042
+	if (this.target === 'simulator' && parseFloat(this.xcodeEnv.version) >= 12.0) {
+		args.push('EXCLUDED_ARCHS=arm64');
 	}
 
 	xcodebuildHook(
