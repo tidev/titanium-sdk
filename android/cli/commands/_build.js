@@ -2494,7 +2494,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 
 		async.whilst(
 			function (cb) {
-				return cb(null, files.length);
+				process.nextTick(() => cb(null, files.length));
 			},
 
 			function (next) {
