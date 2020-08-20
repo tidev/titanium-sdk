@@ -247,12 +247,14 @@ publishing {
 				list.addAll(configurations.implementation.allDependencies)
 				list.each {
 					if ((it.group != null) && (it.name != null)) {
+						def childNode = dependenciesNode.appendNode('dependency')
+						childNode.appendNode('groupId', it.group)
+						childNode.appendNode('artifactId', it.name)
 
-						// Skip Titanium SDK dependency.
-						if (it.group != 'org.appcelerator') {
-							def childNode = dependenciesNode.appendNode('dependency')
-							childNode.appendNode('groupId', it.group)
-							childNode.appendNode('artifactId', it.name)
+						// Use minimum SDK specified by module manifest.
+						if ((it.group == 'org.appcelerator') && (it.name == 'titanium')) {
+							childNode.appendNode('version', '<%- moduleMinSdkVersion %>')
+						} else {
 							childNode.appendNode('version', it.version)
 						}
 					}
