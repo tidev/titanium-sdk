@@ -253,13 +253,24 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
 
 - (void)setBlacklistedURLs_:(id)blacklistedURLs
 {
-  ENSURE_TYPE(blacklistedURLs, NSArray);
+  DEPRECATED_REPLACED(@"UI.WebView.blacklistedURLs", @"9.2.0", @"UI.WebView.blockedURLs");
 
-  for (id blacklistedURL in blacklistedURLs) {
-    ENSURE_TYPE(blacklistedURL, NSString);
+  ENSURE_TYPE(blacklistedURLs, NSArray);
+  for (id nextURL in blacklistedURLs) {
+    ENSURE_TYPE(nextURL, NSString);
   }
 
   _blacklistedURLs = blacklistedURLs;
+}
+
+- (void)setBlockedURLs_:(id)blockedURLs
+{
+  ENSURE_TYPE(blockedURLs, NSArray);
+  for (id nextURL in blockedURLs) {
+    ENSURE_TYPE(nextURL, NSString);
+  }
+
+  _blockedURLs = blockedURLs;
 }
 
 - (void)setHtml_:(id)args
@@ -1018,12 +1029,12 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
   }
   NSArray<NSString *> *allowedURLSchemes = [[self proxy] valueForKey:@"allowedURLSchemes"];
 
-  // Handle blacklisted URL's
+  // Do not load the URL if it's black-listed.
+  // DEPRECATED: Should use "blockedURLs" property with a "blockedurl" event listener instead.
+  NSString *urlCandidate = navigationAction.request.URL.absoluteString;
   if (_blacklistedURLs != nil && _blacklistedURLs.count > 0) {
-    NSString *urlCandidate = navigationAction.request.URL.absoluteString;
-
-    for (NSString *blackListedURL in _blacklistedURLs) {
-      if ([urlCandidate rangeOfString:blackListedURL options:NSCaseInsensitiveSearch].location != NSNotFound) {
+    for (NSString *blockedURL in _blacklistedURLs) {
+      if ([urlCandidate rangeOfString:blockedURL options:NSCaseInsensitiveSearch].location != NSNotFound) {
         if ([[self proxy] _hasListeners:@"blacklisturl"]) {
           [[self proxy] fireEvent:@"blacklisturl"
                        withObject:@{
@@ -1031,7 +1042,24 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
                          @"message" : @"Webview did not load blacklisted url."
                        }];
         }
+        decisionHandler(WKNavigationActionPolicyCancel);
+        [self _cleanupLoadingIndicator];
+        return;
+      }
+    }
+  }
 
+  // Do not load the URL if it's on the block-list.
+  if (_blockedURLs != nil && _blockedURLs.count > 0) {
+    for (NSString *blockedURL in _blockedURLs) {
+      if ([urlCandidate rangeOfString:blockedURL options:NSCaseInsensitiveSearch].location != NSNotFound) {
+        if ([[self proxy] _hasListeners:@"blockedurl"]) {
+          [[self proxy] fireEvent:@"blockedurl"
+                       withObject:@{
+                         @"url" : urlCandidate,
+                         @"message" : @"Webview did not load blocked url."
+                       }];
+        }
         decisionHandler(WKNavigationActionPolicyCancel);
         [self _cleanupLoadingIndicator];
         return;

@@ -598,6 +598,21 @@ events:
       - name: url
         summary: The URL of the web document that is stopped.
         type: String
+    deprecated:
+        since: "9.2.0"
+        notes: Use the `blockedurl` event instead.
+
+  - name: blockedurl
+    summary: Fired when a URL has been blocked from loading.
+    description: |
+        This event is fired when the end-user attempts to navigate to a website matching a URL in
+        the <Titanium.UI.WebView.blockedURLs> property.
+    platforms: [android, iphone, ipad]
+    since: {android: "9.2.0", iphone: "9.2.0", ipad: "9.2.0"}
+    properties:
+      - name: url
+        summary: The URL of the web document that has been blocked from loading.
+        type: String
 
   - name: message
     summary: Fired when a script message is received from a webpage.
@@ -690,6 +705,21 @@ properties:
         that is loaded will not be stopped even if it matches the blacklist.
     type: Array<String>
     since: {android: "5.4.0", iphone: "6.1.0", ipad: "6.1.0"}
+    platforms: [android, iphone, ipad]
+    availability: creation
+    deprecated:
+        since: "9.2.0"
+        notes: Use the <Titanium.UI.WebView.blockedURLs> property instead.
+
+  - name: blockedURLs
+    summary: |
+        An array of url strings to be blocked.
+    description: |
+        An array of url strings to be blocked from loading. This will stop the webview from going to urls
+        listed in this array. Note that this only applies to the links tapped on by the end-user.
+        The first website that is loaded will not be stopped, even if it is listed in the blocklist.
+    type: Array<String>
+    since: {android: "9.2.0", iphone: "9.2.0", ipad: "9.2.0"}
     platforms: [android, iphone, ipad]
     availability: creation
 

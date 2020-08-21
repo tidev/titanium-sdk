@@ -488,6 +488,7 @@ describe('Titanium.UI.WebView', function () {
 		win.open();
 	});
 
+	// DEPRECATED: Since Titanium 9.2.0
 	it.ios('blacklisturl', function (finish) {
 		win = Ti.UI.createWindow();
 		const webView = Ti.UI.createWebView({
@@ -496,6 +497,47 @@ describe('Titanium.UI.WebView', function () {
 		});
 
 		webView.addEventListener('blacklisturl', function () {
+			finish();
+		});
+		win.add(webView);
+		win.open();
+	});
+
+	it.ios('blockedurl', function (finish) {
+		win = Ti.UI.createWindow();
+		const webView = Ti.UI.createWebView({
+			url: 'https://google.com',
+			blockedURLs: [ 'https://google.com' ]
+		});
+
+		webView.addEventListener('blockedurl', function () {
+			finish();
+		});
+		win.add(webView);
+		win.open();
+	});
+
+	// DEPRECATED: Since Titanium 9.2.0
+	it('blacklistedURLs', (finish) => {
+		win = Ti.UI.createWindow();
+		const webView = Ti.UI.createWebView({
+			url: 'https://www.axway.com',
+			blacklistedURLs: [ 'www.apple.com', 'www.google.com' ]
+		});
+		webView.addEventListener('load', () => {
+			finish();
+		});
+		win.add(webView);
+		win.open();
+	});
+
+	it('blockedURLs', (finish) => {
+		win = Ti.UI.createWindow();
+		const webView = Ti.UI.createWebView({
+			url: 'https://www.axway.com',
+			blockedURLs: [ 'www.apple.com', 'www.google.com' ]
+		});
+		webView.addEventListener('load', () => {
 			finish();
 		});
 		win.add(webView);
