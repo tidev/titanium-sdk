@@ -58,6 +58,25 @@ describe('Buffer', () => {
 		should.exist(global.Buffer);
 	});
 
+	it('is FastBuffer treated as Buffer', () => {
+		const fast = Buffer.from([ 0x62, 0x75, 0x66, 0x66, 0x65, 0x72 ]); // 'buffer' ascii codes as hex
+		should(fast instanceof Buffer).be.true();
+	});
+
+	it('is SlowBuffer treated as Buffer', () => {
+		const slow = Buffer.from(Ti.createBuffer({ value: 'buffer', type: Ti.Codec.ASCII }));
+		should(slow instanceof Buffer).be.true();
+	});
+
+	it('is eql between FastBuffer and SlowBuffer', () => {
+		const slow = Buffer.from(Ti.createBuffer({ value: 'buffer', type: Ti.Codec.ASCII }));
+		const fast = Buffer.from([ 0x62, 0x75, 0x66, 0x66, 0x65, 0x72 ]); // 'buffer' ascii codes as hex
+		should(slow.equals(fast)).be.true();
+		should(fast.equals(slow)).be.true();
+		// should(slow).eql(fast); // FIME: fails
+		// should(fast).eql(slow); // FIXME: fails
+	});
+
 	describe('constructor', () => {
 		before(() => {
 			process.noDeprecation = true;
@@ -412,7 +431,6 @@ describe('Buffer', () => {
 			const copy = Buffer.from(buf.toString('hex'), 'hex');
 			should(buf.toString('hex')).eql(copy.toString('hex'));
 		});
-		// TODO: Test some bad hex!
 	});
 
 	describe('ascii', () => {
@@ -538,7 +556,7 @@ describe('Buffer', () => {
 			}
 
 			// Copy `buf1` bytes 16 through 19 into `buf2` starting at byte 8 of `buf2`.
-			buf1.copy(buf2, 8, 16, 20);
+			buf1.copy(buf2, 8, 16, 20).should.eql(4);
 
 			should(buf2.toString('ascii', 0, 25)).eql('!!!!!!!!qrst!!!!!!!!!!!!!');
 		});
@@ -548,7 +566,7 @@ describe('Buffer', () => {
 			const buf2 = Buffer.allocUnsafe(10).fill('!');
 
 			// Copy `buf1` bytes into `buf2` starting at byte 8 of `buf2`.
-			buf1.copy(buf2, 8);
+			buf1.copy(buf2, 8).should.eql(2);
 
 			should(buf2.toString('ascii')).eql('!!!!!!!!\u0000\u0001');
 		});
