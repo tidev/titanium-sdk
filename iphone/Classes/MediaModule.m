@@ -1371,6 +1371,9 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
   RELEASE_TO_NIL(musicPicker);
 #endif
 #if defined(USE_TI_MEDIASHOWCAMERA) || defined(USE_TI_MEDIAOPENPHOTOGALLERY)
+  if ([TiUtils isIOSVersionOrGreater:@"13.0"]) {
+    picker.presentationController.delegate = nil;
+  }
   RELEASE_TO_NIL(picker);
 #endif
 #if defined(USE_TI_MEDIASTARTVIDEOEDITING) || defined(USE_TI_MEDIASTOPVIDEOEDITING)
@@ -1469,6 +1472,9 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
 {
   TiApp *tiApp = [TiApp app];
   if (![TiUtils isIPad]) {
+    if ([TiUtils isIOSVersionOrGreater:@"13.0"]) {
+      picker_.presentationController.delegate = self;
+    }
     [tiApp showModalController:picker_ animated:animatedPicker];
   } else {
     TiViewProxy *popoverViewProxy = [args objectForKey:@"popoverView"];
@@ -1811,6 +1817,16 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
 #endif
   [self sendPickerCancel];
 }
+
+#pragma mark UIAdaptivePresentationControllerDelegate
+
+#if IS_SDK_IOS_13
+- (void)presentationControllerDidDismiss:(UIPresentationController *)presentationController
+{
+  [self closeModalPicker:picker];
+  [self sendPickerCancel];
+}
+#endif
 
 #pragma mark UIImagePickerControllerDelegate
 
