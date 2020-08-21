@@ -66,10 +66,29 @@ properties:
     description: |
         If this blob doesn't represent an image, `height` is reported as 0.
 
-        **NOTE**: On SDK versions prior to 9.1.0, Ti.Blob images may have reported in points, not pixels.
+        **NOTE 1**: On SDK versions prior to 9.1.0, Ti.Blob images may have reported in points, not pixels.
         This would occur for images with a higher density/scale returned by <Titanium.UI.View.toImage> or images with `@dx` density suffixes.
         You may multiply by <Ti.Platform.displayCaps.logicalDensityFactor> to try and determine the pixels, but this value may be off for some pixel/density combinations.
         (i.e. a `10px` image would report as `3` on a `3x` density screen, so multiplying would give you `9` pixels, which is still incorrect)
+
+        **NOTE 2**: This represents the height the platform decodes the image to in memory. iOS will automatically
+        rotate a JPEG based on its EXIF orientation when loaded into memory, but Android does not and instead
+        rotates it when shown on-screen. You can read the [uprightHeight](Titanium.Blob.uprightHeight) to determine
+        what the image height will be after rotation, if applicable.
+    permission: read-only
+
+  - name: uprightHeight
+    type: Number
+    summary: If the blob references an image, this provides the height in pixels after factoring in EXIF orientation.
+    description: |
+        The height of the image in pixels after rotating/flipping it based on its EXIF orientation,
+        which is commonly the case with JPEGs. Will return the save value as the [height](Titanium.Blob.height)
+        property if image does not have an EXIF orientation or if the orientation is already upright.
+
+        On iOS, properties [height](Titanium.Blob.height) and [uprightHeight](Titanium.Blob.uprightHeight) will always match.
+        On Android, these properties may differ when loading a JPEG since this platform does not automatically
+        rotate the loaded image in memory, but it is rotated when displaying it on-screen.
+    since: "9.2.0"
     permission: read-only
 
   - name: width
@@ -78,10 +97,29 @@ properties:
     description: |
         If this blob doesn't represent an image, `width` is reported as 0.
 
-        **NOTE**: On SDK versions prior to 9.1.0, Ti.Blob images may have reported in points, not pixels.
+        **NOTE 1**: On SDK versions prior to 9.1.0, Ti.Blob images may have reported in points, not pixels.
         This would occur for images with a higher density/scale returned by <Titanium.UI.View.toImage> or images with `@dx` density suffixes.
         You may multiply by <Ti.Platform.displayCaps.logicalDensityFactor> to try and determine the pixels, but this value may be off for some pixel/density combinations.
         (i.e. a `10px` image would report as `3` on a `3x` density screen, so multiplying would give you `9` pixels, which is still incorrect)
+
+        **NOTE 2**: This represents the width the platform decodes the image to in memory. iOS will automatically
+        rotate a JPEG based on its EXIF orientation when loaded into memory, but Android does not and instead
+        rotates it when shown on-screen. You can read the [uprightWidth](Titanium.Blob.uprightWidth) to determine
+        what the image width will be after rotation, if applicable.
+    permission: read-only
+
+  - name: uprightWidth
+    type: Number
+    summary: If the blob references an image, this provides the width in pixels after factoring in EXIF orientation.
+    description: |
+        The width of the image in pixels after rotating/flipping it based on its EXIF orientation,
+        which is commonly the case with JPEGs. Will return the save value as the [width](Titanium.Blob.width)
+        property if image does not have an EXIF orientation or if the orientation is already upright.
+
+        On iOS, properties [width](Titanium.Blob.width) and [uprightWidth](Titanium.Blob.uprightWidth) will always match.
+        On Android, these properties may differ when loading a JPEG since this platform does not automatically
+        rotate the loaded image in memory, but it is rotated when displaying it on-screen.
+    since: "9.2.0"
     permission: read-only
 
   - name: nativePath
