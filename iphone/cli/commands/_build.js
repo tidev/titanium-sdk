@@ -6842,6 +6842,11 @@ iOSBuilder.prototype.invokeXcodeBuild = function invokeXcodeBuild(next) {
 		}
 	}
 
+	// Exclude arm64 architecture from simulator build in XCode 12+ - TIMOB-28042
+	if (this.target === 'simulator' && parseFloat(this.xcodeEnv.version) >= 12.0) {
+		args.push('EXCLUDED_ARCHS=arm64');
+	}
+
 	xcodebuildHook(
 		this.xcodeEnv.executables.xcodebuild,
 		args,
