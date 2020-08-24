@@ -57,7 +57,8 @@ describe('Titanium.UI.TabGroup', function () {
 		should(tabGroup.activeTintColor).eql('red');
 	});
 
-	it.windowsBroken('add Map.View to TabGroup', function (finish) {
+	// FIXME: macOS doesn't have ti.map module yet!
+	it.macMissingAndWindowsBroken('add Map.View to TabGroup', function (finish) {
 		this.slow(5000);
 		this.timeout(15000);
 

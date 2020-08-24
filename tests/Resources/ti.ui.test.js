@@ -189,11 +189,11 @@ describe('Titanium.UI', function () {
 	// Constants are tested in ti.ui.constants.test.js
 
 	it('.SEMANTIC_COLOR_TYPE_DARK', () => {
-		should(Ti.UI).have.a.constant('SEMANTIC_COLOR_TYPE_DARK').which.is.a.String;
+		should(Ti.UI).have.a.constant('SEMANTIC_COLOR_TYPE_DARK').which.is.a.String();
 	});
 
 	it('.SEMANTIC_COLOR_TYPE_LIGHT', () => {
-		should(Ti.UI).have.a.constant('SEMANTIC_COLOR_TYPE_LIGHT').which.is.a.String;
+		should(Ti.UI).have.a.constant('SEMANTIC_COLOR_TYPE_LIGHT').which.is.a.String();
 	});
 
 	it('.semanticColorType defaults to SEMANTIC_COLOR_TYPE_LIGHT', () => {
@@ -201,15 +201,15 @@ describe('Titanium.UI', function () {
 	});
 
 	it('.USER_INTERFACE_STYLE_LIGHT', () => {
-		should(Ti.UI).have.a.constant('USER_INTERFACE_STYLE_LIGHT').which.is.a.Number;
+		should(Ti.UI).have.a.constant('USER_INTERFACE_STYLE_LIGHT').which.is.a.Number();
 	});
 
 	it('.USER_INTERFACE_STYLE_DARK', () => {
-		should(Ti.UI).have.a.constant('USER_INTERFACE_STYLE_DARK').which.is.a.Number;
+		should(Ti.UI).have.a.constant('USER_INTERFACE_STYLE_DARK').which.is.a.Number();
 	});
 
 	it('.USER_INTERFACE_STYLE_UNSPECIFIED', () => {
-		should(Ti.UI).have.a.constant('USER_INTERFACE_STYLE_UNSPECIFIED').which.is.a.Number;
+		should(Ti.UI).have.a.constant('USER_INTERFACE_STYLE_UNSPECIFIED').which.is.a.Number();
 	});
 
 	it('.userInterfaceStyle defaults to USER_INTERFACE_STYLE_LIGHT', () => {
@@ -226,7 +226,7 @@ describe('Titanium.UI', function () {
 			const result = Ti.UI.fetchSemanticColor('textColor');
 			if (OS_IOS) {
 				// We get a Ti.UI.Color proxy on iOS
-				should(result).be.an.Object;
+				should(result).be.an.Object();
 				should(result.apiName).eql('Ti.UI.Color');
 				result.toHex().toLowerCase().should.eql(semanticColors.textColor[Ti.UI.semanticColorType].toLowerCase());
 			} else {
