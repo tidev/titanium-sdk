@@ -250,7 +250,7 @@ describe('Titanium.Platform', function () {
 
 	it('.name', () => {
 		should(Ti.Platform).have.readOnlyProperty('name').which.is.a.String();
-		should(Ti.Platform.name).be.equalOneOf([ 'android', 'iOS', 'windows', 'mobileweb' ]);
+		should(Ti.Platform.name).be.equalOneOf([ 'android', 'iOS', 'windows', 'mobileweb', 'Mac OS X' ]);
 		// TODO match with osname!
 	});
 
@@ -333,6 +333,7 @@ describe('Titanium.Platform', function () {
 		should(Ti.Platform.isAdvertisingTrackingEnabled).be.a.Boolean();
 	});
 
+	// FIXME: macOS pops dialogs abotu no application set to open this url scheme
 	it.ios('#openURL(url, callback)', function (finish) {
 		Ti.Platform.openURL('randomapp://', _e => finish());
 	});
