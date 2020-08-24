@@ -785,7 +785,11 @@ describe('Titanium.Filesystem.File', function () {
 	});
 
 	// TIMOB-14364
+	// FIXME: This pops a prompt dialog for permission to Documents folder on macOS
 	it.ios('#setRemoteBackup()', function () {
+		if (utilities.isMacOS()) {
+			return;
+		}
 		should(function () {
 			Ti.Filesystem.getFile(Ti.Filesystem.applicationDataDirectory).setRemoteBackup(false);
 		}).not.throw();
@@ -815,7 +819,8 @@ describe('Titanium.Filesystem.File', function () {
 		should(destFile.exists()).be.true();
 	});
 
-	describe.windowsBroken('constructed via URIs', () => {
+	// FIXME: macOS pops a permission prompt for Documents folder
+	describe.macAndWindowsBroken('constructed via URIs', () => {
 		let noSchemeTempAppJS;
 		let fileURI;
 		before(() => {
