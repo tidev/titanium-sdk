@@ -1092,6 +1092,41 @@ describe('Titanium.UI.View', function () {
 			win.add(outerView);
 			win.open();
 		});
+
+		it('set property post layout', finish => {
+			win = Ti.UI.createWindow({ backgroundColor: 'blue' });
+			const outerView = Ti.UI.createView({
+				width: '90px',
+				height: '90px',
+				backgroundColor: 'green'
+			});
+			const view = Ti.UI.createView({
+				width: '60px',
+				height: '60px',
+				backgroundColor: 'yellow'
+			});
+
+			win.addEventListener('postlayout', function postlayout() {
+				win.removeEventListener('postlayout', postlayout); // only run once
+				try {
+					view.borderRadius = [ '12px', 12 ];
+					should(view.borderRadius).be.an.Array();
+					should(view.borderRadius.length).eql(2);
+					should(view.borderRadius).eql([ '12px', 12 ]);
+					// should be the exact same as above
+					if (!OS_ANDROID || Ti.Platform.Android.API_LEVEL > 20) {
+						should(outerView).matchImage(`snapshots/borderRadius12px_12_${density}x.png`);
+					}
+				} catch (err) {
+					return finish(err);
+				}
+				finish();
+			});
+
+			outerView.add(view);
+			win.add(outerView);
+			win.open();
+		});
 	});
 
 	it.android('touchFeedback', finish => {
