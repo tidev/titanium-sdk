@@ -126,7 +126,7 @@
     "chai": "^4.2.0",
     "clang-format": "1.4.0",
     "commander": "^6.0.0",
-    "commitizen": "^4.1.5",
+    "commitizen": "^4.2.0",
     "conventional-changelog-cli": "^2.1.0",
     "core-js": "^3.6.5",
     "cz-conventional-changelog": "^3.2.0",
