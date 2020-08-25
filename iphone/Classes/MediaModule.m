@@ -1392,6 +1392,7 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
 
 #if IS_SDK_IOS_14
 #if defined(USE_TI_MEDIAOPENPHOTOGALLERY)
+  _phPicker.presentationController.delegate = nil;
   RELEASE_TO_NIL(_phPicker);
 #endif
 #endif
@@ -1847,12 +1848,12 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
     dispatch_group_enter(group);
 
     if ([result.itemProvider canLoadObjectOfClass:PHLivePhoto.class]) {
+      if (!livePhotoArray) {
+        livePhotoArray = [[NSMutableArray alloc] init];
+      }
       [result.itemProvider loadObjectOfClass:PHLivePhoto.class
                            completionHandler:^(__kindof id<NSItemProviderReading> _Nullable object, NSError *_Nullable error) {
                              if (!error) {
-                               if (!livePhotoArray) {
-                                 livePhotoArray = [[NSMutableArray alloc] init];
-                               }
                                TiUIiOSLivePhoto *livePhoto = [[[TiUIiOSLivePhoto alloc] _initWithPageContext:[self pageContext]] autorelease];
                                [livePhoto setLivePhoto:(PHLivePhoto *)object];
                                [livePhotoArray addObject:@{@"livePhoto" : livePhoto,
@@ -1869,12 +1870,12 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
                              dispatch_group_leave(group);
                            }];
     } else if ([result.itemProvider canLoadObjectOfClass:UIImage.class]) {
+      if (!imageArray) {
+        imageArray = [[NSMutableArray alloc] init];
+      }
       [result.itemProvider loadObjectOfClass:UIImage.class
                            completionHandler:^(__kindof id<NSItemProviderReading> _Nullable object, NSError *_Nullable error) {
                              if (!error) {
-                               if (!imageArray) {
-                                 imageArray = [[NSMutableArray alloc] init];
-                               }
                                TiBlob *media = [[[TiBlob alloc] initWithImage:(UIImage *)object] autorelease];
                                [imageArray addObject:@{@"media" : media,
                                  @"mediaType" : (NSString *)kUTTypeImage,
@@ -1889,15 +1890,17 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
                              }
                              dispatch_group_leave(group);
                            }];
-    } else if ([result.itemProvider hasItemConformingToTypeIdentifier:UTTypeMovie.identifier]) {
+    } else if (false /*[result.itemProvider hasItemConformingToTypeIdentifier:UTTypeMovie.identifier]*/) {
+      // Due to ongoing bug from Apple  https://developer.apple.com/forums/thread/652695 this code block is not working as expected.
+      // Probably this will get fix in upcoming releases. As a workaround next else if block is used. Restore this if get fixed by apple.
+      if (!videoArray) {
+        videoArray = [[NSMutableArray alloc] init];
+      }
       [result.itemProvider loadItemForTypeIdentifier:UTTypeMovie.identifier
                                              options:nil
                                    completionHandler:^(__kindof id<NSSecureCoding> _Nullable item, NSError *_Null_unspecified error) {
                                      // Bug from Apple : https://developer.apple.com/forums/thread/652695
                                      if (!error) {
-                                       if (!videoArray) {
-                                         videoArray = [[NSMutableArray alloc] init];
-                                       }
                                        NSURL *url = (NSURL *)item;
                                        TiBlob *media = [[[TiBlob alloc] initWithFile:[url path]] autorelease];
                                        if ([media mimeType] == nil) {
@@ -1916,6 +1919,41 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
                                      }
                                      dispatch_group_leave(group);
                                    }];
+    } else if ([result.itemProvider hasItemConformingToTypeIdentifier:UTTypeMovie.identifier]) {
+      if (!videoArray) {
+        videoArray = [[NSMutableArray alloc] init];
+      }
+      [result.itemProvider loadFileRepresentationForTypeIdentifier:UTTypeMovie.identifier
+                                                 completionHandler:^(NSURL *_Nullable url, NSError *_Nullable error) {
+                                                   // Bug from Apple : https://developer.apple.com/forums/thread/652695
+                                                   // This is workaround. Delete it once Apple fixes it.
+                                                   if (!error) {
+                                                     NSString *filename = url.lastPathComponent;
+                                                     NSFileManager *fileManager = NSFileManager.defaultManager;
+                                                     NSURL *destPath = [fileManager.temporaryDirectory URLByAppendingPathComponent:filename];
+
+                                                     NSError *copyError;
+
+                                                     [fileManager copyItemAtURL:url
+                                                                          toURL:destPath
+                                                                          error:&copyError];
+                                                     TiBlob *media = [[[TiBlob alloc] initWithFile:[destPath path]] autorelease];
+                                                     if ([media mimeType] == nil) {
+                                                       [media setMimeType:@"video/mpeg" type:TiBlobTypeFile];
+                                                     }
+                                                     [videoArray addObject:@{@"media" : media,
+                                                       @"mediaType" : (NSString *)kUTTypeMovie,
+                                                       @"success" : @(YES),
+                                                       @"code" : @(0)}];
+                                                   } else {
+                                                     [videoArray addObject:@{@"error" : error.description,
+                                                       @"code" : @(error.code),
+                                                       @"success" : @(NO),
+                                                       @"mediaType" : (NSString *)kUTTypeMovie}];
+                                                     DebugLog(@"[ERROR] Failed to load video- %@ .", error.description);
+                                                   }
+                                                   dispatch_group_leave(group);
+                                                 }];
     } else {
       dispatch_group_leave(group);
       NSLog(@"Unsupported media type");
@@ -2005,7 +2043,7 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
 #if IS_SDK_IOS_13
 - (void)presentationControllerDidDismiss:(UIPresentationController *)presentationController
 {
-  [self closeModalPicker:picker];
+  [self closeModalPicker:picker ?: _phPicker];
   [self sendPickerCancel];
 }
 #endif
