@@ -674,9 +674,11 @@ DEFINE_EXCEPTIONS
     bottomLeftRadius = radius;
     topRightRadius = radius;
   } else if (radiusArray.count == 1) {
-    // For same corner radius, no need to create bezier path. Use CALayer's cornerRadius.
-    viewLayer.cornerRadius = [self radiusFromObject:radiusArray[0]];
-    return;
+    CGFloat radius = [self radiusFromObject:radiusArray[0]];
+    topLeftRadius = radius;
+    topRightRadius = radius;
+    bottomRightRadius = radius;
+    bottomLeftRadius = radius;
   }
 
   CAShapeLayer *shapeLayer = [[CAShapeLayer alloc] initWithLayer:viewLayer];
@@ -725,6 +727,11 @@ DEFINE_EXCEPTIONS
     [self addCornerRadius:cornerRadiusArray toLayer:gradientLayer];
   }
   [self updateClipping];
+}
+
+- (void)setBorderRadius_:(id)radius
+{
+  [self updateBorderRadius:radius];
 }
 
 - (void)setAnchorPoint_:(id)point
