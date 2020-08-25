@@ -1086,7 +1086,7 @@ describe('Titanium.UI.View', function () {
 			win.open();
 		});
 
-		it('set property post layout', finish => {
+		it.ios('set property post layout', finish => {
 			win = Ti.UI.createWindow({ backgroundColor: 'blue' });
 			const outerView = Ti.UI.createView({
 				width: '90px',
@@ -1107,9 +1107,7 @@ describe('Titanium.UI.View', function () {
 					should(view.borderRadius.length).eql(2);
 					should(view.borderRadius).eql([ '12px', 12 ]);
 					// should be the exact same as above
-					if (!OS_ANDROID || Ti.Platform.Android.API_LEVEL > 20) {
-						should(outerView).matchImage(`snapshots/borderRadius12px_12_${density}x.png`);
-					}
+					should(outerView).matchImage(`snapshots/borderRadius12px_12_${density}x.png`);
 				} catch (err) {
 					return finish(err);
 				}
