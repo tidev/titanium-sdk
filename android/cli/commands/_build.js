@@ -1530,8 +1530,8 @@ AndroidBuilder.prototype.run = async function run(logger, config, cli, finished)
 		await this.checkIfNeedToRecompile();
 
 		// Notify plugins that we're prepping to compile.
-		await new Promise((resolve) => {
-			cli.emit('build.pre.compile', this, resolve);
+		await new Promise((resolve, reject) => {
+			cli.emit('build.pre.compile', this, e => (e ? reject(e) : resolve()));
 		});
 
 		// Make sure we have an "app.js" script. Will exit with a build failure if not found.
@@ -2493,8 +2493,8 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 		}
 
 		async.whilst(
-			function () {
-				return files.length;
+			function (cb) {
+				return cb(null, files.length);
 			},
 
 			function (next) {
@@ -2874,7 +2874,16 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 				});
 			})
 			.then(() => {
-				this.tiSymbols = task.data.tiSymbols;
+				if (this.useWebpack) {
+					// Merge Ti symbols from Webpack with the ones from legacy js processing
+					Object.keys(task.data.tiSymbols).forEach(file => {
+						const existingSymbols = this.tiSymbols[file] || [];
+						const additionalSymbols = task.data.tiSymbols[file];
+						this.tiSymbols[file] = Array.from(new Set(existingSymbols.concat(additionalSymbols)));
+					});
+				} else {
+					this.tiSymbols = task.data.tiSymbols;
+				}
 
 				// Copy all unprocessed files to "app" project's APK "assets" directory.
 				appc.async.parallel(this, copyUnmodified.map(relPath => {
