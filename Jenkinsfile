@@ -319,7 +319,7 @@ timestamps {
 				'iPhone unit tests': iosUnitTests('iphone', nodeVersion, npmVersion, testOnDevices),
 				'iPad unit tests': iosUnitTests('ipad', nodeVersion, npmVersion, testOnDevices),
 				'cli unit tests': cliUnitTests(nodeVersion, npmVersion),
-				failFast: true
+				failFast: false
 			)
 		}
 
