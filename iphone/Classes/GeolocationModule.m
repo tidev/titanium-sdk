@@ -625,14 +625,14 @@ READWRITE_IMPL(CLLocationDegrees, headingFilter, HeadingFilter);
   DebugLog(@"[ERROR] The showBackgroundLocationIndicator property is only available on iOS 11.0+. Ignoring call ...");
 }
 
-READWRITE_IMPL(BOOL, showBackgroundLocationIndicator, ShowBackgroundLocationIndicator);
+READWRITE_IMPL(bool, showBackgroundLocationIndicator, ShowBackgroundLocationIndicator);
 
-- (BOOL)locationServicesEnabled
+- (bool)locationServicesEnabled
 {
   return [CLLocationManager locationServicesEnabled];
 }
 
-GETTER_IMPL(BOOL, locationServicesEnabled, LocationServicesEnabled);
+GETTER_IMPL(bool, locationServicesEnabled, LocationServicesEnabled);
 
 - (CLAuthorizationStatus)locationServicesAuthorization
 {
@@ -641,12 +641,12 @@ GETTER_IMPL(BOOL, locationServicesEnabled, LocationServicesEnabled);
 
 GETTER_IMPL(CLAuthorizationStatus, locationServicesAuthorization, LocationServicesAuthorization);
 
-- (BOOL)trackSignificantLocationChange
+- (bool)trackSignificantLocationChange
 {
   return trackSignificantLocationChange;
 }
 
-- (void)setTrackSignificantLocationChange:(BOOL)newval
+- (void)setTrackSignificantLocationChange:(bool)newval
 {
   if ([CLLocationManager significantLocationChangeMonitoringAvailable]) {
     if (newval != trackSignificantLocationChange) {
@@ -672,7 +672,7 @@ GETTER_IMPL(CLAuthorizationStatus, locationServicesAuthorization, LocationServic
   }
 }
 
-READWRITE_IMPL(BOOL, trackSignificantLocationChange, TrackSignificantLocationChange);
+READWRITE_IMPL(bool, trackSignificantLocationChange, TrackSignificantLocationChange);
 
 // Activity Type for CLlocationManager.
 - (CLActivityType)activityType
@@ -694,12 +694,12 @@ READWRITE_IMPL(CLActivityType, activityType, ActivityType);
 
 // Flag to decide whether or not the app should continue to send location updates while the app is in background.
 
-- (BOOL)pauseLocationUpdateAutomatically
+- (bool)pauseLocationUpdateAutomatically
 {
   return pauseLocationUpdateAutomatically;
 }
 
-- (void)setPauseLocationUpdateAutomatically:(BOOL)value
+- (void)setPauseLocationUpdateAutomatically:(bool)value
 {
   pauseLocationUpdateAutomatically = value;
   TiThreadPerformOnMainThread(
@@ -709,7 +709,7 @@ READWRITE_IMPL(CLActivityType, activityType, ActivityType);
       NO);
 }
 
-READWRITE_IMPL(BOOL, pauseLocationUpdateAutomatically, PauseLocationUpdateAutomatically);
+READWRITE_IMPL(bool, pauseLocationUpdateAutomatically, PauseLocationUpdateAutomatically);
 
 - (void)restart:(id)arg
 {
@@ -766,7 +766,7 @@ MAKE_SYSTEM_PROP(ACTIVITYTYPE_OTHER_NAVIGATION, CLActivityTypeOtherNavigation);
   return locationPermissionManager;
 }
 
-- (BOOL)hasLocationPermissions:(CLAuthorizationStatus)authorizationType
+- (bool)hasLocationPermissions:(CLAuthorizationStatus)authorizationType
 {
   BOOL locationServicesEnabled = [CLLocationManager locationServicesEnabled];
   CLAuthorizationStatus currentPermissionLevel = [CLLocationManager authorizationStatus];
@@ -847,9 +847,9 @@ MAKE_SYSTEM_PROP(ACTIVITYTYPE_OTHER_NAVIGATION, CLActivityTypeOtherNavigation);
   }
 }
 
-READWRITE_IMPL(BOOL, allowsBackgroundLocationUpdates, AllowsBackgroundLocationUpdates);
+READWRITE_IMPL(bool, allowsBackgroundLocationUpdates, AllowsBackgroundLocationUpdates);
 GETTER_IMPL(NSString *, lastGeolocation, LastGeolocation);
-READWRITE_IMPL(BOOL, showCalibration, ShowCalibration);
+READWRITE_IMPL(bool, showCalibration, ShowCalibration);
 
 #pragma mark Internal
 

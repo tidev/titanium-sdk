@@ -78,11 +78,11 @@ GETTER_IMPL(EKParticipantType, type, Type);
 }
 GETTER_IMPL(EKParticipantStatus, status, Status);
 
-- (BOOL)isOrganizer
+- (bool)isOrganizer
 {
   return [[self participant] isCurrentUser];
 }
-GETTER_IMPL(BOOL, isOrganizer, IsOrganizer);
+GETTER_IMPL(bool, isOrganizer, IsOrganizer);
 
 @end
 
