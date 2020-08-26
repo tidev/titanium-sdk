@@ -380,6 +380,17 @@ properties:
     permission: read-only
     since: "9.2.0"
 
+  - name: versionPatch
+    summary: The operating system's patch version number.
+    description: |
+      This returns the same value as the [OS_VERSION_PATCH](Global.OS_VERSION_PATCH) constant.
+
+      Will return zero if the OS does not have a patch version.
+    type: Number
+    default: 0
+    permission: read-only
+    since: "9.2.0"
+
 examples:
   - title: Battery Event Example
     example: |
