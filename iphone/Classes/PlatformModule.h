@@ -48,6 +48,7 @@ READONLY_PROPERTY(NSString *, username, Username);
 READONLY_PROPERTY(NSString *, version, Version);
 READONLY_PROPERTY(NSNumber *, versionMajor, VersionMajor);
 READONLY_PROPERTY(NSNumber *, versionMinor, VersionMinor);
+READONLY_PROPERTY(NSNumber *, versionPatch, VersionPatch);
 
 // Methods
 - (BOOL)canOpenURL:(NSString *)url;
