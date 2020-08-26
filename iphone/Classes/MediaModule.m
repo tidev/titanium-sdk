@@ -1820,14 +1820,14 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
 
 #pragma mark UIAdaptivePresentationControllerDelegate
 
-#ifdef USE_TI_MEDIAOPENPHOTOGALLERY
 #if IS_SDK_IOS_13
 - (void)presentationControllerDidDismiss:(UIPresentationController *)presentationController
 {
+#if defined(USE_TI_MEDIASHOWCAMERA) || defined(USE_TI_MEDIAOPENPHOTOGALLERY) || defined(USE_TI_MEDIASTARTVIDEOEDITING)
   [self closeModalPicker:picker];
   [self sendPickerCancel];
-}
 #endif
+}
 #endif
 
 #pragma mark UIImagePickerControllerDelegate
