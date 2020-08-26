@@ -793,6 +793,8 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 		} else if (key.equals(TiC.PROPERTY_TOUCH_ENABLED)) {
 			nativeView.setEnabled(TiConvert.toBoolean(newValue));
 			doSetClickable(TiConvert.toBoolean(newValue));
+		} else if (key.equals(TiC.PROPERTY_FILTER_TOUCHES_WHEN_OBSCURED)) {
+			setFilterTouchesWhenObscured(TiConvert.toBoolean(newValue, false));
 		} else if (key.equals(TiC.PROPERTY_VISIBLE)) {
 			newValue = (newValue == null) ? false : newValue;
 			this.setVisibility(TiConvert.toBoolean(newValue) ? View.VISIBLE : View.INVISIBLE);
@@ -1020,6 +1022,11 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 		if (canApplyTouchFeedback(d)) {
 			String colorString = TiConvert.toString(d.get(TiC.PROPERTY_TOUCH_FEEDBACK_COLOR));
 			applyTouchFeedback((colorString != null) ? TiConvert.toColor(colorString) : null);
+		}
+
+		if (d.containsKey(TiC.PROPERTY_FILTER_TOUCHES_WHEN_OBSCURED) && !nativeViewNull) {
+			setFilterTouchesWhenObscured(
+				TiConvert.toBoolean(d.get(TiC.PROPERTY_FILTER_TOUCHES_WHEN_OBSCURED), false));
 		}
 
 		if (d.containsKey(TiC.PROPERTY_HIDDEN_BEHAVIOR) && !nativeViewNull) {
@@ -1551,6 +1558,43 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 		motionEvents.put(MotionEvent.ACTION_CANCEL, TiC.EVENT_TOUCH_CANCEL);
 	}
 
+	private void setFilterTouchesWhenObscured(boolean isEnabled)
+	{
+		// Validate.
+		if (this.nativeView == null) {
+			return;
+		}
+
+		// Enable/disable tapjacking filter.
+		this.nativeView.setFilterTouchesWhenObscured(isEnabled);
+
+		// Android 4.4.2 and older has a bug where the above method sets it to the opposite.
+		// Google fixed it in Android 4.4.3, but we can't detect that patch version via API Level.
+		if ((Build.VERSION.SDK_INT < 21) && (isEnabled != this.nativeView.getFilterTouchesWhenObscured())) {
+			this.nativeView.setFilterTouchesWhenObscured(!isEnabled);
+		}
+	}
+
+	/**
+	 * Determines if touch event was obscurred by an overlapping translucent window belonging to another app.
+	 * This is used for security purposes to detect "tapjacking".
+	 * @param event The touch event to be analyzed. Can be null.
+	 * @return Returns true if touch event was obscurred. Returns false if not or if given a null argument.
+	 */
+	private boolean wasObscured(MotionEvent event)
+	{
+		if (event != null) {
+			int flags = event.getFlags();
+			if ((flags & MotionEvent.FLAG_WINDOW_IS_OBSCURED) != 0) {
+				return true;
+			}
+			if ((Build.VERSION.SDK_INT >= 29) && ((flags & MotionEvent.FLAG_WINDOW_IS_PARTIALLY_OBSCURED) != 0)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 	protected KrollDict dictFromEvent(MotionEvent e)
 	{
 		TiDimension xDimension = new TiDimension((double) e.getX(), TiDimension.TYPE_LEFT);
@@ -1560,6 +1604,7 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 		data.put(TiC.EVENT_PROPERTY_X, xDimension.getAsDefault(this.nativeView));
 		data.put(TiC.EVENT_PROPERTY_Y, yDimension.getAsDefault(this.nativeView));
 		data.put(TiC.EVENT_PROPERTY_FORCE, (double) e.getPressure());
+		data.put(TiC.EVENT_PROPERTY_OBSCURED, wasObscured(e));
 		data.put(TiC.EVENT_PROPERTY_SIZE, (double) e.getSize());
 		data.put(TiC.EVENT_PROPERTY_SOURCE, proxy);
 		return data;
@@ -1582,6 +1627,11 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 			data.put(TiC.EVENT_PROPERTY_FORCE, dictToCopy.get(TiC.EVENT_PROPERTY_FORCE));
 		} else {
 			data.put(TiC.EVENT_PROPERTY_FORCE, (double) 0);
+		}
+		if (dictToCopy.containsKey(TiC.EVENT_PROPERTY_OBSCURED)) {
+			data.put(TiC.EVENT_PROPERTY_OBSCURED, dictToCopy.get(TiC.EVENT_PROPERTY_OBSCURED));
+		} else {
+			data.put(TiC.EVENT_PROPERTY_OBSCURED, false);
 		}
 		if (dictToCopy.containsKey(TiC.EVENT_PROPERTY_SIZE)) {
 			data.put(TiC.EVENT_PROPERTY_SIZE, dictToCopy.get(TiC.EVENT_PROPERTY_SIZE));
@@ -1743,6 +1793,7 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 					TiDimension yDimension = new TiDimension((double) event.getY(), TiDimension.TYPE_TOP);
 					lastUpEvent.put(TiC.EVENT_PROPERTY_X, xDimension.getAsDefault(view));
 					lastUpEvent.put(TiC.EVENT_PROPERTY_Y, yDimension.getAsDefault(view));
+					lastUpEvent.put(TiC.EVENT_PROPERTY_OBSCURED, wasObscured(event));
 				}
 
 				if (proxy != null && proxy.hierarchyHasListener(TiC.EVENT_PINCH)) {

@@ -96,6 +96,36 @@ excludes:
     properties: [children]
     methods: [add, remove, removeAllChildren, replaceAt]
 since: "0.8"
+
+events:
+  - name: touchfiltered
+    summary: Fired when the device detects a swipe gesture against the view.
+    description: |
+        If the button's [filterTouchesWhenObscured](Titanium.UI.View.filterTouchesWhenObscured) property
+        is set `true`, then this event will be fired if the touch event was discarded because another app's
+        overlapping window obscured it.
+
+        This is a security feature to protect an app from "tapjacking", where a malicious app can use a
+        system overlay to intercept touch events in your app or to trick the end-user to tap on UI
+        in your app intended for the overlay.
+
+        You can use this event to display an alert dialog explaining why the button's action has been disabled.
+        Especially if the overlapping window is completely invisible.
+    platforms: [android]
+    since: "9.3.0"
+    properties:
+      - name: x
+        summary: X coordinate of the event from the `source` view's coordinate system.
+        type: Number
+
+      - name: y
+        summary: Y coordinate of the event from the `source` view's coordinate system.
+        type: Number
+
+      - name: obscured
+        type: Boolean
+        summary: Always `true` since the touch event passed through another app's overlapping window.
+
 properties:
   - name: attributedString
     summary: Specify an attributed string for the label.

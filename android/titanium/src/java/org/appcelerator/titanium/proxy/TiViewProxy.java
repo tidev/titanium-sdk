@@ -79,6 +79,7 @@ import android.view.ViewAnimationUtils;
 	// others
 	TiC.PROPERTY_FOCUSABLE,
 	TiC.PROPERTY_TOUCH_ENABLED,
+	TiC.PROPERTY_FILTER_TOUCHES_WHEN_OBSCURED,
 	TiC.PROPERTY_VISIBLE,
 	TiC.PROPERTY_ENABLED,
 	TiC.PROPERTY_OPACITY,
@@ -126,6 +127,7 @@ public abstract class TiViewProxy extends KrollProxy
 		pendingAnimationLock = new Object();
 
 		defaultValues.put(TiC.PROPERTY_TOUCH_ENABLED, true);
+		defaultValues.put(TiC.PROPERTY_FILTER_TOUCHES_WHEN_OBSCURED, false);
 		defaultValues.put(TiC.PROPERTY_SOUND_EFFECTS_ENABLED, true);
 		defaultValues.put(TiC.PROPERTY_BACKGROUND_REPEAT, false);
 		defaultValues.put(TiC.PROPERTY_VISIBLE, true);
