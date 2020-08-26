@@ -235,8 +235,9 @@ events:
 
       - name: obscured
         type: Boolean
-        summary: Returns `true` if the click passed through an overlapping window belonging to another app.
-        description: |
+        summary: |
+            Returns `true` if the click passed through an overlapping window belonging to another app.
+
             This is a security feature to protect an app from "tapjacking", where a malicious app can use a
             system overlay to intercept touch events in your app or to trick the end-user to tap on UI
             in your app intended for the overlay.
@@ -254,8 +255,9 @@ events:
         type: Number
       - name: obscured
         type: Boolean
-        summary: Returns `true` if the double click passed through an overlapping window belonging to another app.
-        description: |
+        summary: |
+            Returns `true` if the double click passed through an overlapping window belonging to another app.
+
             This is a security feature to protect an app from "tapjacking", where a malicious app can use a
             system overlay to intercept touch events in your app or to trick the end-user to tap on UI
             in your app intended for the overlay.
@@ -274,8 +276,9 @@ events:
         type: Number
       - name: obscured
         type: Boolean
-        summary: Returns `true` if the double tap passed through an overlapping window belonging to another app.
-        description: |
+        summary: |
+            Returns `true` if the double tap passed through an overlapping window belonging to another app.
+
             This is a security feature to protect an app from "tapjacking", where a malicious app can use a
             system overlay to intercept touch events in your app or to trick the end-user to tap on UI
             in your app intended for the overlay.
@@ -341,8 +344,9 @@ events:
 
       - name: obscured
         type: Boolean
-        summary: Returns `true` if the long press passed through an overlapping window belonging to another app.
-        description: |
+        summary: |
+            Returns `true` if the long press passed through an overlapping window belonging to another app.
+
             This is a security feature to protect an app from "tapjacking", where a malicious app can use a
             system overlay to intercept touch events in your app or to trick the end-user to tap on UI
             in your app intended for the overlay.
@@ -475,8 +479,9 @@ events:
 
       - name: obscured
         type: Boolean
-        summary: Returns `true` if the single tap passed through an overlapping window belonging to another app.
-        description: |
+        summary: |
+            Returns `true` if the single tap passed through an overlapping window belonging to another app.
+
             This is a security feature to protect an app from "tapjacking", where a malicious app can use a
             system overlay to intercept touch events in your app or to trick the end-user to tap on UI
             in your app intended for the overlay.
@@ -501,8 +506,9 @@ events:
 
       - name: obscured
         type: Boolean
-        summary: Returns `true` if the swipe passed through an overlapping window belonging to another app.
-        description: |
+        summary: |
+            Returns `true` if the swipe passed through an overlapping window belonging to another app.
+
             This is a security feature to protect an app from "tapjacking", where a malicious app can use a
             system overlay to intercept touch events in your app or to trick the end-user to tap on UI
             in your app intended for the overlay.
@@ -572,8 +578,9 @@ events:
 
       - name: obscured
         type: Boolean
-        summary: Returns `true` if the touch passed through an overlapping window belonging to another app.
-        description: |
+        summary: |
+            Returns `true` if the touch passed through an overlapping window belonging to another app.
+
             This is a security feature to protect an app from "tapjacking", where a malicious app can use a
             system overlay to intercept touch events in your app or to trick the end-user to tap on UI
             in your app intended for the overlay.
@@ -643,8 +650,9 @@ events:
 
       - name: obscured
         type: Boolean
-        summary: Returns `true` if the touch passed through an overlapping window belonging to another app.
-        description: |
+        summary: |
+            Returns `true` if the touch passed through an overlapping window belonging to another app.
+
             This is a security feature to protect an app from "tapjacking", where a malicious app can use a
             system overlay to intercept touch events in your app or to trick the end-user to tap on UI
             in your app intended for the overlay.
@@ -713,8 +721,9 @@ events:
 
       - name: obscured
         type: Boolean
-        summary: Returns `true` if the touch passed through an overlapping window belonging to another app.
-        description: |
+        summary: |
+            Returns `true` if the touch passed through an overlapping window belonging to another app.
+
             This is a security feature to protect an app from "tapjacking", where a malicious app can use a
             system overlay to intercept touch events in your app or to trick the end-user to tap on UI
             in your app intended for the overlay.
@@ -781,8 +790,9 @@ events:
 
       - name: obscured
         type: Boolean
-        summary: Returns `true` if the touch passed through an overlapping window belonging to another app.
-        description: |
+        summary: |
+            Returns `true` if the touch passed through an overlapping window belonging to another app.
+
             This is a security feature to protect an app from "tapjacking", where a malicious app can use a
             system overlay to intercept touch events in your app or to trick the end-user to tap on UI
             in your app intended for the overlay.
@@ -803,8 +813,9 @@ events:
 
       - name: obscured
         type: Boolean
-        summary: Returns `true` if the tap passed through an overlapping window belonging to another app.
-        description: |
+        summary: |
+            Returns `true` if the tap passed through an overlapping window belonging to another app.
+
             This is a security feature to protect an app from "tapjacking", where a malicious app can use a
             system overlay to intercept touch events in your app or to trick the end-user to tap on UI
             in your app intended for the overlay.
