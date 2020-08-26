@@ -29,24 +29,30 @@ NSString *const DATA_IFACE = @"pdp_ip0";
 
 @implementation PlatformModule
 
-@synthesize architecture, availableMemory, model, name, osname, ostype, processorCount, totalMemory, uptime, username, version, versionMajor, versionMinor;
+@synthesize architecture, availableMemory, model, name, osname, ostype, processorCount, totalMemory, uptime, username, version, versionMajor, versionMinor, versionPatch;
 
 #pragma mark Internal
 
 - (id)init
 {
   if (self = [super init]) {
-    UIDevice *theDevice = [UIDevice currentDevice];
-    name = [[theDevice systemName] retain];
-    version = [[theDevice systemVersion] retain];
+    UIDevice *theDevice = UIDevice.currentDevice;
+    name = [theDevice.systemName retain];
+    version = [theDevice.systemVersion retain];
 
     // Extract "<major>.<minor>" integers from OS version string.
     NSArray *versionComponents = [version componentsSeparatedByString:@"."];
     versionMajor = [NSNumber numberWithInt:[versionComponents[0] intValue]];
     if ([versionComponents count] >= 2) {
       versionMinor = [NSNumber numberWithInt:[versionComponents[1] intValue]];
+      if ([versionComponents count] >= 3) {
+        versionPatch = [NSNumber numberWithInt:[versionComponents[2] intValue]];
+      } else {
+        versionPatch = @0;
+      }
     } else {
       versionMinor = @0;
+      versionPatch = @0;
     }
 
     // grab logical CPUs
@@ -58,7 +64,7 @@ NSString *const DATA_IFACE = @"pdp_ip0";
     }
     processorCount = [[NSNumber numberWithInt:cores] retain];
 
-    username = [[theDevice name] retain];
+    username = [theDevice.name retain];
 #ifdef __LP64__
     ostype = [@"64bit" retain];
 #else
@@ -73,7 +79,7 @@ NSString *const DATA_IFACE = @"pdp_ip0";
       osname = [@"iphone" retain];
     }
 
-    NSString *themodel = [theDevice model];
+    NSString *themodel = theDevice.model;
 
     // attempt to determine extended phone info
     struct utsname u;
@@ -88,7 +94,7 @@ NSString *const DATA_IFACE = @"pdp_ip0";
     architecture = [[TiUtils currentArchitecture] retain];
 
     // needed for platform displayCaps orientation to be correct
-    [[UIDevice currentDevice] beginGeneratingDeviceOrientationNotifications];
+    [theDevice beginGeneratingDeviceOrientationNotifications];
   }
   return self;
 }
@@ -100,6 +106,7 @@ NSString *const DATA_IFACE = @"pdp_ip0";
   RELEASE_TO_NIL(version);
   RELEASE_TO_NIL(versionMajor);
   RELEASE_TO_NIL(versionMinor);
+  RELEASE_TO_NIL(versionPatch);
   RELEASE_TO_NIL(architecture);
   RELEASE_TO_NIL(processorCount);
   RELEASE_TO_NIL(username);
