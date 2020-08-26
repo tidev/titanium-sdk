@@ -1125,6 +1125,37 @@ describe('Titanium.UI.View', function () {
 			win.add(outerView);
 			win.open();
 		});
+
+		it.ios('1 value to create circle', finish => {
+			win = Ti.UI.createWindow({ backgroundColor: 'blue' });
+			const outerView = Ti.UI.createView({
+				width: '90px',
+				height: '90px',
+				backgroundColor: 'green'
+			});
+			const view = Ti.UI.createView({
+				width: '60px',
+				height: '60px',
+				borderRadius: '30px',
+				backgroundColor: 'yellow'
+			});
+
+			win.addEventListener('postlayout', function postlayout() {
+				win.removeEventListener('postlayout', postlayout); // only run once
+				try {
+					should(view.borderRadius).be.a.String();
+					should(view.borderRadius).eql('30px');
+					should(outerView).matchImage(`snapshots/borderRadius30px_30px_${density}x.png`);
+				} catch (err) {
+					return finish(err);
+				}
+				finish();
+			});
+
+			outerView.add(view);
+			win.add(outerView);
+			win.open();
+		});
 	});
 
 	it.android('touchFeedback', finish => {
