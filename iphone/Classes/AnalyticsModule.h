@@ -12,7 +12,7 @@
 
 // Properties (and accessors)
 READONLY_PROPERTY(NSString *, lastEvent, LastEvent);
-PROPERTY(BOOL, optedOut, OptedOut);
+PROPERTY(bool, optedOut, OptedOut);
 
 // Methods
 JSExportAs(featureEvent,

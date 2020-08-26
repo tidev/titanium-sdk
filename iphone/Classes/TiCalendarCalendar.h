@@ -14,7 +14,7 @@
 
 @protocol TiCalendarCalendarExports <JSExport>
 // properties (and accessors)
-READONLY_PROPERTY(BOOL, hidden, Hidden);
+READONLY_PROPERTY(bool, hidden, Hidden);
 READONLY_PROPERTY(NSString *, id, Id);
 READONLY_PROPERTY(NSString *, name, Name);
 //READONLY_PROPERTY(BOOL, selected, Selected); // not implemented on iOS
