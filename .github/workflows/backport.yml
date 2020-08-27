@@ -11,7 +11,7 @@ jobs:
     name: Backport
     steps:
       - name: Backport
-        uses: ewanharris/backport@v1.0.28-13
+        uses: ewanharris/backport@v1.0.28-21
         with:
           bot_username: build
           bot_token: d5bd2737eafb4b5b5c1040e2d71e86626f8ce1b5
