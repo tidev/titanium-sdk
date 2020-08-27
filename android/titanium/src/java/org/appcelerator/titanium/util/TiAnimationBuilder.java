@@ -40,18 +40,16 @@ import android.view.animation.AnimationSet;
 import android.view.animation.Transformation;
 import android.widget.TextView;
 
-import com.nineoldandroids.animation.Animator;
-import com.nineoldandroids.animation.AnimatorSet;
-import com.nineoldandroids.animation.ArgbEvaluator;
-import com.nineoldandroids.animation.ObjectAnimator;
-import com.nineoldandroids.animation.ValueAnimator;
+import android.animation.Animator;
+import android.animation.AnimatorSet;
+import android.animation.ArgbEvaluator;
+import android.animation.ObjectAnimator;
+import android.animation.ValueAnimator;
 
 import ti.modules.titanium.ui.widget.TiUILabel;
 
 /**
- * Builds and starts animations. When possible, Honeycomb+ animations
- * (i.e., Property Animators) are used, even on pre-Honeycomb, which is
- * possible because we use the NineOldAndroids compatibility library.
+ * Builds and starts animations. When possible, "Property Animators" are used.
  * The only time Property Animators are not used -- i.e., the only time
  * we revert to using old-style view animations -- is when the animation's
  * transform property is set to a Ti2DMatrix that is "complicated", where
@@ -95,7 +93,7 @@ import ti.modules.titanium.ui.widget.TiUILabel;
  * }
  * </pre>
  * ...would be fine since no operation is duplicated. In such a case, a set of
- * Honeycomb+ property Animators can be safely derived.
+ * property Animators can be safely derived.
  */
 public class TiAnimationBuilder
 {
@@ -259,7 +257,7 @@ public class TiAnimationBuilder
 	}
 
 	/**
-	 * Builds the Animators used for Honeycomb+ animations
+	 * Builds the Animators used for animations
 	 * @return AnimatorSet containing the Animator instances
 	 * that will be used to accomplish this animation.
 	 */
@@ -283,8 +281,7 @@ public class TiAnimationBuilder
 	}
 
 	/**
-	 * Builds the Animators used for Honeycomb+ animations (i.e.,
-	 * property animation instead of view animation.)
+	 * Builds the Animators used for animations. (i.e. Property animation instead of view animation.)
 	 * @param x The view's left property.
 	 * @param y The view's top property.
 	 * @param w The view's width.
@@ -339,7 +336,7 @@ public class TiAnimationBuilder
 
 			// Derive a set of property Animators from the
 			// operations in the matrix so we can go ahead
-			// and use Honeycomb+ animations rather than
+			// and use animations rather than
 			// our custom TiMatrixAnimation.
 			List<Operation> operations = tdm.getAllOperations();
 			if (operations.size() == 0) {
@@ -351,8 +348,7 @@ public class TiAnimationBuilder
 				addAnimator(animators, ObjectAnimator.ofFloat(view, "translationX", 0f));
 				addAnimator(animators, ObjectAnimator.ofFloat(view, "translationY", 0f));
 
-				// Relayout child in pre-Honeycomb so that touch targets get
-				// updated.
+				// Relayout child in so that touch targets get updated.
 				relayoutChild = (autoreverse == null || !autoreverse.booleanValue());
 
 			} else {
@@ -556,12 +552,10 @@ public class TiAnimationBuilder
 				addAnimator(animators, ObjectAnimator.ofInt(animatorHelper, "centerY", beforeCenterY, afterCenterY));
 			}
 
-			// Pre-Honeycomb, we will need to update layout params at end of
-			// animation so that touch events will be recognized at new location,
-			// and so that view will stay at new location after changes in
-			// orientation. But if autoreversing to original layout, no
-			// need to re-layout. Also, don't do it if a rotation is included,
-			// since the re-layout will lose the rotation.
+			// Update layout params at end of animation so that touch events will be recognized at new location
+			// and so that view will stay at new location after changes in orientation.
+			// But if autoreversing to original layout, no need to re-layout.
+			// Also, don't do it if a rotation is included, since the re-layout will lose the rotation.
 			relayoutChild = !includesRotation && (autoreverse == null || !autoreverse.booleanValue());
 		}
 
@@ -602,13 +596,10 @@ public class TiAnimationBuilder
 
 			setAnchor(w, h);
 
-			// Pre-Honeycomb, will need to update layout params at end of
-			// animation so that touch events will be recognized within new
-			// size rectangle, and so that new size will survive
-			// any changes in orientation. But if autoreversing
-			// to original layout, no need to re-layout.
-			// Also, don't do it if a rotation is included,
-			// since the re-layout will lose the rotation.
+			// Will need to update layout params at end of animation so that touch events will be recognized within
+			// new size rectangle and so that new size will survive any changes in orientation.
+			// But if autoreversing to original layout, no need to re-layout.
+			// Also, don't do it if a rotation is included since the re-layout will lose the rotation.
 			relayoutChild = !includesRotation && (autoreverse == null || !autoreverse.booleanValue());
 		}
 
@@ -687,9 +678,7 @@ public class TiAnimationBuilder
 		return new TiMatrixAnimation(matrix, anchorX, anchorY);
 	}
 
-	/**
-	 * Pre-Honeycomb matrix animation.
-	 */
+	/** Applies an animation to a view using Titanium's "Ti2DMatrix" class. */
 	public static class TiMatrixAnimation extends Animation
 	{
 		protected Ti2DMatrix matrix;
@@ -753,7 +742,7 @@ public class TiAnimationBuilder
 	}
 
 	/**
-	 * A helper class for Honeycomb+ Property Animators to animate width/height/top/bottom/left/right/center.
+	 * A helper class for Property Animators to animate width/height/top/bottom/left/right/center.
 	 * Based on the Android doc http://developer.android.com/guide/topics/graphics/prop-animation.html, to have
 	 * the ObjectAnimator update properties correctly, the property must have a setter function.
 	 */
@@ -875,6 +864,7 @@ public class TiAnimationBuilder
 	 */
 	protected class AnimatorUpdateListener implements ValueAnimator.AnimatorUpdateListener
 	{
+		@Override
 		public void onAnimationUpdate(ValueAnimator animation)
 		{
 			ViewParent vp = view.getParent();
@@ -885,12 +875,10 @@ public class TiAnimationBuilder
 		}
 	}
 
-	/**
-	 * The listener for Honeycomb+ property Animators.
-	 */
+	/** The listener for property Animators. */
 	protected class AnimatorListener implements Animator.AnimatorListener
 	{
-
+		@Override
 		public void onAnimationCancel(Animator animator)
 		{
 			if (animator instanceof AnimatorSet) {
@@ -898,6 +886,7 @@ public class TiAnimationBuilder
 			}
 		}
 
+		@Override
 		@SuppressWarnings("unchecked")
 		public void onAnimationEnd(Animator animator)
 		{
@@ -921,10 +910,12 @@ public class TiAnimationBuilder
 			}
 		}
 
+		@Override
 		public void onAnimationRepeat(Animator animator)
 		{
 		}
 
+		@Override
 		public void onAnimationStart(Animator animator)
 		{
 			if (animationProxy != null) {
@@ -933,11 +924,10 @@ public class TiAnimationBuilder
 		}
 	}
 
-	/**
-	 * Listener for "classic" view animations (e.g., pre-Honeycomb.)
-	 */
+	/** Listener for "classic" view animations. */
 	protected class AnimationListener implements Animation.AnimationListener
 	{
+		@Override
 		@SuppressWarnings("unchecked")
 		public void onAnimationEnd(Animation a)
 		{
@@ -990,10 +980,12 @@ public class TiAnimationBuilder
 			}
 		}
 
+		@Override
 		public void onAnimationRepeat(Animation a)
 		{
 		}
 
+		@Override
 		public void onAnimationStart(Animation a)
 		{
 			if (animationProxy != null) {
@@ -1024,8 +1016,6 @@ public class TiAnimationBuilder
 		this.viewProxy = viewProxy;
 
 		if (tdm == null || tdm.canUsePropertyAnimators()) {
-			// We can use Honeycomb+ property Animators via the
-			// NineOldAndroids library.
 			buildPropertyAnimators().start();
 		}
 	}
