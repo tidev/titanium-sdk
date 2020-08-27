@@ -129,7 +129,7 @@
     "commitizen": "^4.2.1",
     "conventional-changelog-cli": "^2.1.0",
     "core-js": "^3.6.5",
-    "cz-conventional-changelog": "^3.2.1",
+    "cz-conventional-changelog": "^3.3.0",
     "danger": "^10.4.0",
     "dateformat": "^3.0.3",
     "eslint": "^7.7.0",
