@@ -1010,7 +1010,7 @@
 					"$(PROJECT_DIR)/TitaniumKit/Libraries/APSAnalytics",
 					"$(PROJECT_DIR)/TitaniumKit/Libraries/APSHTTPClient",
 				);
-				ONLY_ACTIVE_ARCH = NO;
+				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CFLAGS = "-DTARGET_OS_IPHONE";
 				OTHER_LDFLAGS = (
 					"$(inherited)",

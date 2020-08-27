@@ -88,6 +88,16 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String EVENT_BLACKLIST_URL = "blacklisturl";
+
+	/**
+	 * @module.api
+	 */
+	public static final String EVENT_BLOCKED_URL = "blockedurl";
+
+	/**
+	 * @module.api
+	 */
 	public static final String EVENT_BLUR = "blur";
 
 	/**
@@ -1110,12 +1120,12 @@ public class TiC
 	/**
 	 * @module.api
 	 */
-	public static final String PROPERTY_BLACKLIST_URL = "blacklisturl";
+	public static final String PROPERTY_BLACKLISTED_URLS = "blacklistedURLs";
 
 	/**
 	 * @module.api
 	 */
-	public static final String PROPERTY_BLACKLISTED_URLS = "blacklistedURLs";
+	public static final String PROPERTY_BLOCKED_URLS = "blockedURLs";
 
 	/**
 	 * @module.api

@@ -30,7 +30,8 @@
                              UIVideoEditorControllerDelegate,
 #endif
                              UIPopoverControllerDelegate,
-                             UIPopoverPresentationControllerDelegate> {
+                             UIPopoverPresentationControllerDelegate,
+                             UIAdaptivePresentationControllerDelegate> {
   @private
 // Camera picker
 #if defined(USE_TI_MEDIASHOWCAMERA) || defined(USE_TI_MEDIAOPENPHOTOGALLERY) || defined(USE_TI_MEDIASTARTVIDEOEDITING)
