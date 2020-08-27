@@ -1168,16 +1168,10 @@ describe('Titanium.UI.View', function () {
 		win.open();
 	});
 
-	it.android('filterTouchesWhenObscured', finish => {
+	it.android('filterTouchesWhenObscured', () => {
 		const view1 = Ti.UI.createView();
 		should(view1.filterTouchesWhenObscured).be.false();
 		const view2 = Ti.UI.createView({ filterTouchesWhenObscured: true });
 		should(view2.filterTouchesWhenObscured).be.true();
-
-		win = Ti.UI.createWindow();
-		win.add(view1);
-		win.add(view2);
-		win.addEventListener('open', () => finish());
-		win.open();
 	});
 });
