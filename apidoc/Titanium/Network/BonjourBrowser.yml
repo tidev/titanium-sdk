@@ -45,7 +45,7 @@ description: |
     ```
 extends: Titanium.Proxy
 since: "1.2.0"
-platforms: [iphone, ipad]
+platforms: [iphone, ipad, macos]
 methods:
   - name: search
     summary: Conduct a search for Bonjour services matching the type and domain specified during creation

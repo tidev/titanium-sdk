@@ -129,7 +129,7 @@ events:
         [scroll](Titanium.UI.TableView.scroll) event cannot occur concurrently. If a table begins
         to scroll during a touch event, the appropriate row or table `touchcancel` event fire
         before the `scroll` event begins.
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     properties:
       - name: x
         summary: X coordinate of the event from the `source` view's coordinate system.
@@ -146,7 +146,7 @@ events:
         [scroll](Titanium.UI.TableView.scroll) event cannot occur concurrently. If a table begins
         to scroll during a touch event, the appropriate row or table `touchcancel` event fire
         before the `scroll` event begins.
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     properties:
       - name: x
         summary: X coordinate of the event from the `source` view's coordinate system.
@@ -163,7 +163,7 @@ events:
         [scroll](Titanium.UI.TableView.scroll) event cannot occur concurrently. If a table begins
         to scroll during a touch event, the appropriate row or table `touchcancel` event fire
         before the `scroll` event begins.
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     properties:
       - name: x
         summary: X coordinate of the event from the `source` view's coordinate system.
@@ -180,7 +180,7 @@ events:
         [scroll](Titanium.UI.TableView.scroll) event cannot occur concurrently. If a table begins
         to scroll during a touch event, the appropriate row or table `touchcancel` event fire
         before the `scroll` event begins.
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: {iphone: "3.0.1", ipad: "3.0.1"}
     properties:
       - name: x
@@ -238,7 +238,7 @@ properties:
         If you want to change the title of the delete button, use the [deleteButtonTitle](Titanium.UI.TableViewRow.deleteButtonTitle] property
     type: Boolean
     default: undefined
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: font
     summary: Font to use for the row title.
@@ -251,7 +251,7 @@ properties:
         The `footer` property is used to assign a footer title to a row. It has the same effect as setting
         the `footerTitle` property of a <Titanium.UI.TableViewSection>.
     type: String
-    platforms: [iphone, ipad, android]
+    platforms: [iphone, ipad, android, macos]
 
   - name: hasCheck
     summary: |
@@ -289,7 +289,7 @@ properties:
         For rows that have `hasDetail` set to false, the `detail` flag is always `false`.
     type: Boolean
     default: false
-    platforms: [iphone,ipad]
+    platforms: [iphone,ipad, macos]
 
   - name: header
     summary: The header title of the row.
@@ -297,14 +297,14 @@ properties:
         The `header` property is used to assign a header title to a row. It has the same effect as setting
         the `headerTitle` property of a <Titanium.UI.TableViewSection>.
     type: String
-    platforms: [iphone, ipad, android]
+    platforms: [iphone, ipad, android, macos]
 
   - name: indentionLevel
     summary: Indention level for the row.
     description: Indentation values greater than 0 indent the row text.
     type: Number
     default: 0
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: leftImage
     summary: Image to render in the left image area of the row, specified as a local path or URL.
@@ -323,7 +323,7 @@ properties:
         row `editing` and `moving` modes.
     type: Boolean
     default: undefined
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: opacity
     description: |
@@ -350,14 +350,14 @@ properties:
     description: |
         For information about color values, see the "Colors" section of <Titanium.UI>.
     type: [String, Titanium.UI.Color]
-    platforms: [iphone,ipad]
+    platforms: [iphone,ipad, macos]
 
   - name: selectionStyle
     summary: Selection style constant to control the selection color.
     description: |
         Specify one of the constants from <Titanium.UI.iOS.TableViewCellSelectionStyle>.
     type: Number
-    platforms: [iphone,ipad]
+    platforms: [iphone,ipad, macos]
 
   - name: title
     summary: Text to display on the row.
@@ -369,7 +369,7 @@ properties:
     description: |
         See <Titanium.UI.View.accessibilityLabel> description.
     since: "3.0.0"
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     type: String
 
 examples:

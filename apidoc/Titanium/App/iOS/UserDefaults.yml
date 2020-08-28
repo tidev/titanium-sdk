@@ -11,7 +11,7 @@ description: |
 createable: false
 extends: Titanium.App.Properties
 since: "4.0.0"
-platforms: [iphone, ipad]
+platforms: [iphone, ipad, macos]
 
 properties:
   - name: suiteName

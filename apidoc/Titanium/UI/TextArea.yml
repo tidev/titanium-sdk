@@ -35,7 +35,7 @@ methods:
 
   - name: setSelection
     summary: Selects the text in range (start, end).
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     since: 3.0.0
     osver: {ios: {min: "5.0"}}
     parameters:
@@ -69,7 +69,7 @@ properties:
     type: Number
     constants: Titanium.UI.KEYBOARD_APPEARANCE_*
     default: <Titanium.UI.KEYBOARD_APPEARANCE_DEFAULT>
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: attributedHintText
     summary: Hint text attributed string.
@@ -116,7 +116,7 @@ properties:
         }
         ```
     type: Titanium.UI.AttributedString
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     since:
         android: 3.6.0
         iphone: 3.2.0
@@ -165,7 +165,7 @@ properties:
         }
         ```
     type: Titanium.UI.AttributedString
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     since:
         android: 3.6.0
         iphone: 3.2.0
@@ -176,7 +176,7 @@ properties:
     type: Number
     constants: Titanium.UI.TEXT_AUTOCAPITALIZATION_*
     default: <Titanium.UI.TEXT_AUTOCAPITALIZATION_NONE>
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: autocorrect
     summary: Determines whether to automatically correct text entered into this text area.
@@ -187,7 +187,7 @@ properties:
 
         On Android and iOS, the returned default value is undefined, but behave as if the value is `true`.
     type: Boolean
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: autofillType
     summary: Sets the autofill type for the text area.
@@ -198,7 +198,7 @@ properties:
     default: undefined
     since: "6.3.0"
     osver: {ios: {min: "10.0"}, android: {min: "8.0"}}
-    platforms: [iphone, ipad, android]
+    platforms: [iphone, ipad, android, macos]
 
   - name: autoLink
     summary: Automatically convert text to clickable links.
@@ -222,7 +222,7 @@ properties:
     constants: Titanium.UI.AUTOLINK_*
     default: <Titanium.UI.AUTOLINK_NONE>
     since: {android: "3.0.0"}
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: clearOnEdit
     summary: Determines whether the value of this text area should be cleared when it is focused.
@@ -336,7 +336,7 @@ properties:
         this property controls if the system should handle that link automatically.
     type: Boolean
     default: false
-    platforms: [iphone,ipad]
+    platforms: [iphone,ipad, macos]
     osver: {ios: {min: "7.0"}}
     since: 3.2.0
 
@@ -350,19 +350,19 @@ properties:
         can instead use a single [toolbar](Titanium.UI.iOS.Toolbar) instead of having arrays sharing
         toolbar buttons.
     type: [Array<Titanium.UI.View>, Titanium.UI.Toolbar, Titanium.UI.iOS.Toolbar]
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: keyboardToolbarColor
     summary: Color of the keyboard toolbar if keyboardToolbar is an array, as a color name or hex triplet.
     description: |
         For information about color values, see the "Colors" section of <Titanium.UI>.
     type: [String, Titanium.UI.Color]
-    platforms: [iphone,ipad]
+    platforms: [iphone,ipad, macos]
 
   - name: keyboardToolbarHeight
     summary: Height of the keyboard toolbar if keyboardToolbar is an array.
     type: Number
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: keyboardType
     summary: Keyboard type to display when this text area is focused.
@@ -372,7 +372,7 @@ properties:
     type: Number
     constants: Titanium.UI.KEYBOARD_*
     default: <Titanium.UI.KEYBOARD_DEFAULT>
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: lines
     summary: Number of lines tall the text area height will be, if set.
@@ -390,7 +390,7 @@ properties:
     default: -1
     type: Number
     since: {android: "3.0.0", iphone: "3.0.0", ipad: "3.0.0"}
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: maxLines
     summary: Maximum line count of text field input.
@@ -403,7 +403,7 @@ properties:
   - name: padding
     summary: Sets the left and right padding of this TextArea. The text will always be vertically centered.
     type: Padding
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     since: {android: "6.0.0", iphone: "6.1.0", ipad: "6.1.0"}
 
   - name: returnKeyType
@@ -412,7 +412,7 @@ properties:
     type: Number
     constants: Titanium.UI.RETURNKEY_*
     default: <Titanium.UI.RETURNKEY_DEFAULT>
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: scrollsToTop
     summary: Controls whether the scroll-to-top gesture is effective.
@@ -424,21 +424,21 @@ properties:
         behaviour on. The remaining view will then respond to scroll-to-top gesture.
     type: Boolean
     default: true
-    platforms: [iphone,ipad]
+    platforms: [iphone,ipad, macos]
     since: 2.1.2
 
   - name: showUndoRedoActions
     summary: Determinates if the undo and redo buttons on the left side of the keyboard should be displayed or not. Only valid on iOS9 and above. This property can only be set upon creation.
     type: Boolean
     default: true
-    platforms: [ipad]
+    platforms: [ipad, macos]
     osver: {ios: {min: "9.0"}}
     since: 5.0.0
 
   - name: suppressReturn
     summary: Determines if the return key should be suppressed during text entry.
     type: Boolean
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: textAlign
     summary: |
@@ -464,7 +464,7 @@ properties:
     summary: Determines whether this text area can be scrolled.
     type: Boolean
     default: true
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: selection
     summary: Returns the currently selected text of the text area.
@@ -476,7 +476,7 @@ properties:
         to the window.
     type: textAreaSelectedParams
     permission: read-only
-    platforms: [iphone, ipad, android]
+    platforms: [iphone, ipad, android, macos]
     since: "3.3.0"
 
   - name: verticalAlign
@@ -523,7 +523,7 @@ events:
       - name: bubbles
         summary: This is false. This event does not bubble.
         type: Boolean
-    platforms: [iphone,ipad]
+    platforms: [iphone,ipad, macos]
     osver: {ios: {min: "7.0"}}
     since: 3.2.0
 
@@ -540,7 +540,7 @@ events:
       - name: range
         summary: Dictionary that describes the position and length of the selected text.
         type: textAreaSelectedParams
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
 examples:
   - title: Basic Text Area with Customizations

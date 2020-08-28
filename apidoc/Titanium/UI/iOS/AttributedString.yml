@@ -18,6 +18,7 @@ description: |
 platforms: [iphone, ipad]
 extends: Titanium.Proxy
 since: "3.2"
+exclude-platforms: [macos]
 properties:
   - name: text
     summary: The text applied to the attributed string.

@@ -40,7 +40,7 @@ excludes:
     events: [longclick, twofingertap]
     methods: [add, remove, removeAllChildren, replaceAt]
 since: "6.2.0"
-platforms: [iphone, ipad, android]
+platforms: [iphone, ipad, android, macos]
 
 properties:
   - name: barColor
@@ -55,12 +55,12 @@ properties:
 
         For information about color values, see the "Colors" section of <Titanium.UI>.
     type: [String, Titanium.UI.Color]
-    platforms: [iphone, ipad, android]
+    platforms: [iphone, ipad, android, macos]
 
   - name: items
     summary: An array of buttons (or other widgets) contained in the toolbar.
     type: Array<Titanium.UI.View>
-    platforms: [iphone, ipad, android]
+    platforms: [iphone, ipad, android, macos]
 
   - name: extendBackground
     summary: If `true`, the background of the toolbar extends upwards.
@@ -72,7 +72,7 @@ properties:
         This **must** be specified at creation.
     type: Boolean
     default: Undefined. Behaves as if set to false.
-    platforms: [iphone, ipad, android]
+    platforms: [iphone, ipad, android, macos]
     availability: creation
     accessors: false
 
@@ -84,7 +84,7 @@ properties:
         transparent color.
     type: Boolean
     default: true
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: contentInsetEndWithActions
     summary: Returns the margin after the toolbar's content when there are action buttons.
