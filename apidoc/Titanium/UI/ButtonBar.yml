@@ -25,7 +25,7 @@ description: |
     [View](Titanium.UI.View) to create the appearance of a button bar.
 extends: Titanium.UI.View
 since: "0.8"
-platforms: [iphone, ipad]
+platforms: [iphone, ipad, macos]
 excludes:
     events: [ 'touchstart', 'touchmove', 'touchend', 'touchcancel', 'dblclick',
         'doubletap', 'longclick', 'singletap', 'swipe', 'twofingertap' ]
@@ -82,7 +82,7 @@ properties:
     description: |
         For information about color values, see the "Colors" section of <Titanium.UI>.
     type: [String, Titanium.UI.Color]
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "9.0.0"
 
   - name: selectedTextColor
@@ -90,7 +90,7 @@ properties:
     description: |
         For information about color values, see the "Colors" section of <Titanium.UI>.
     type: [String, Titanium.UI.Color]
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "9.0.0"
 
   - name: selectedButtonColor
@@ -98,7 +98,7 @@ properties:
     description: |
         For information about color values, see the "Colors" section of <Titanium.UI>.
     type: [String, Titanium.UI.Color]
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "9.0.0"
     osver: {ios: {min: "13.0"}}
 

@@ -13,7 +13,7 @@ description: |
     device's media library.
 extends: Titanium.Proxy
 since: "1.4.0"
-platforms: [iphone, ipad]
+platforms: [iphone, ipad, macos]
 createable: false
 methods:
 

@@ -29,9 +29,7 @@ description: |
     #### Locale
 
     The `L` macro can also be used as an alias for the <Titanium.Locale.getString> method.
-
-platforms: [android, iphone, ipad]
-
+platforms: [android, iphone, ipad, macos]
 methods:
   - name: alert
     summary: Displays a pop-up alert dialog with the passed in `message`.

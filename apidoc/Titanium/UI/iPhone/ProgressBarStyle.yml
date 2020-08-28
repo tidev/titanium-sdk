@@ -10,7 +10,6 @@ deprecated:
     since: "5.4.0"
     removed: "7.0.0"
     notes: Use [Titanium.UI.iOS.ProgressBarStyle](Titanium.UI.iOS.ProgressBarStyle) instead.
-
 properties:
   - name: BAR
     summary: The style of progress view that is used in a toolbar.

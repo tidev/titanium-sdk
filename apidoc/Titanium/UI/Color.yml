@@ -21,7 +21,7 @@ description: |
     <Titanium.Android.UI.getColorResource> on Android.
 extends: Titanium.Proxy
 since: "9.1.0"
-platforms: [iphone, ipad, android]
+platforms: [iphone, ipad, android, macos]
 methods:
   - name: toHex
     summary: Returns a hex string representation of the color (in the RRGGBB or AARRGGBB formats)

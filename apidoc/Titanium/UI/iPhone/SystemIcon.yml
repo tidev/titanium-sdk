@@ -9,7 +9,6 @@ deprecated:
     since: "5.4.0"
     removed: "7.0.0"
     notes: Use [Titanium.UI.iOS.SystemIcon](Titanium.UI.iOS.SystemIcon) instead.
-
 properties:
   - name: BOOKMARKS
     summary: Bookmark style icon
