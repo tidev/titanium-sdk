@@ -39,7 +39,7 @@ excludes:
         backgroundSelectedColor,backgroundSelectedImage,backgroundTopCap,center,layout,tintColor,zIndex]
     methods: [remove, removeAllChildren, replaceAt]
 since: "0.8"
-platforms: [android, iphone, ipad]
+platforms: [android, iphone, ipad, macos]
 methods:
   - name: add
     summary: Adds rows or columns to the picker.
@@ -68,7 +68,7 @@ methods:
       - name: column
         summary: Column to repopulate.
         type: Titanium.UI.PickerColumn
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: setSelectedRow
     summary: Selects a column's row.
@@ -96,7 +96,7 @@ methods:
     description: |
         Applicable to the <Titanium.UI.PICKER_TYPE_DATE> and <Titanium.UI.PICKER_TYPE_DATE_AND_TIME>
         picker types.
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     parameters:
       - name: date
         summary: A Javascript `Date` object.
@@ -205,7 +205,7 @@ properties:
     description: |
         For information about color values, see the "Colors" section of <Titanium.UI>.
     type: [String, Titanium.UI.Color]
-    platforms: [iphone, ipad, android]
+    platforms: [iphone, ipad, android, macos]
     since: { iphone: "5.2.0", ipad: "5.2.0", android: "0.9.0"}
     default: White (iOS), Transparent (Android)
 
@@ -244,7 +244,7 @@ properties:
     description: |
         Applicable to <Titanium.UI.PICKER_TYPE_COUNT_DOWN_TIMER> picker types.
     type: Number
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: dateTimeColor
     summary: Sets the text color of date- and time-pickers.
@@ -253,7 +253,7 @@ properties:
         The picker type <Titanium.UI.PICKER_TYPE_DATE> does not support text customizing as stated in the
         [UIKit User Interface Catalog](https://developer.apple.com/documentation/uikit/uidatepicker).
     type: [String, Titanium.UI.Color]
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "5.2.0"
     default: "black"
 
@@ -338,7 +338,7 @@ properties:
         into 60, the default value is used.
     type: Number
     default: 1
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: selectionIndicator
     summary: |
@@ -350,7 +350,7 @@ properties:
         The selection indicator is always shown, so setting this property to `false` has no effect.
     type: Boolean
     default: true (Android), false (iPhone, iPad)
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: selectionOpens
     summary: |

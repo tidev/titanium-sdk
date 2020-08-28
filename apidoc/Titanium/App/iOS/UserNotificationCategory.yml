@@ -16,7 +16,7 @@ description: |
     property.
 extends: Titanium.Proxy
 since: "3.4.0"
-platforms: [iphone, ipad]
+platforms: [iphone, ipad, macos]
 excludes:
     methods: [addEventListener, applyProperties, fireEvent, removeEventListener]
     properties: [bubbleParent]

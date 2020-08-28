@@ -4,7 +4,7 @@ summary: The JavaScript built-in String type.
 description: |
     This module contains Titanium-only extensions for formatting data into locale-specific strings. 
     The target locale is configured by the user in the device's system Settings.
-platforms: [android, iphone, ipad]
+platforms: [android, iphone, ipad, macos]
 
 methods:
   - name: format

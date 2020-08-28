@@ -19,15 +19,14 @@ description: |
 
     * Note that the stepper cannot be re-sized.
 extends: Titanium.UI.View
-since: "5.4.0"
-platforms: [iphone, ipad]
+platforms: [iphone, ipad, macos]
+since: {iphone: "5.4.0", ipad: "5.4.0", macos: "9.2.0"}
 excludes:
     events: [doubletap, focus, keypressed, longclick, longpress, pinch, postlayout,
              singletap, swipe, twofingertap]
     properties: [children]
     methods: [add, remove, removeAllChildren, replaceAt]
 properties:
-
   - name: enabled
     summary: Determines if the stepper is enabled or disabled.
     type: Boolean

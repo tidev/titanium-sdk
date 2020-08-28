@@ -231,7 +231,7 @@ methods:
       - name: host
         summary: The URL of the host/domain to clear cookies for.
         type: String
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: getResponseHeader
     summary: Returns the value of the specified response header.
@@ -371,7 +371,7 @@ properties:
         See also: [getResponseHeader](Titanium.Network.HTTPClient.getResponseHeader).
     type: Dictionary
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: autoEncodeUrl
     summary: Determines whether automatic encoding is enabled for the specified URL.
@@ -385,7 +385,7 @@ properties:
     description: Set to `false` to disable automatic HTTP redirects handling.
     type: Boolean
     default: true
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: connected
     summary: Indicates whether the response was successful.
@@ -407,7 +407,7 @@ properties:
         Must be set before calling [open](Titanium.Network.HTTPClient.open).
     type: String
     default: Undefined
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     since: "3.0.0"
 
   - name: enableKeepAlive
@@ -415,7 +415,7 @@ properties:
     description: Set to `true` to maintain a persistent connection.
     type: Boolean
     default: false
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: file
     summary: Target local file or file path to receive data.
@@ -423,7 +423,7 @@ properties:
         This property can be set anytime prior to calling [send](Titanium.Network.HTTPClient.send).
         The file must be writable such as the application data directory or temp directory.
     type: [String, Titanium.Filesystem.File]
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     since: {android: 3.4.0}
 
   - name: location
@@ -494,7 +494,7 @@ properties:
     description: Must be set before calling [open](Titanium.Network.HTTPClient.open).
     type: String
     default: Undefined
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     since: "3.0.0"
 
   - name: readyState
@@ -544,7 +544,7 @@ properties:
         of the connection.
         See <SecurityManagerProtocol> for further information.
     type: SecurityManagerProtocol
-    platforms: [ipad, iphone, android]
+    platforms: [ipad, iphone, android, macos]
     since: "3.3.0"
     availability: creation
 
@@ -597,7 +597,7 @@ properties:
     description: Must be set before calling [open](Titanium.Network.HTTPClient.open).
     type: String
     default: Undefined
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     since: "3.0.0"
 
   - name: validatesSecureCertificate
@@ -609,7 +609,7 @@ properties:
     default: |
         False when running in the simulator or on device in testing mode, and true if built for
         release in distribution mode.
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: tlsVersion
     summary: Sets the TLS version to use for handshakes.
@@ -643,7 +643,7 @@ properties:
     type: Boolean
     since: "2.0.0"
     default: false
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
 examples:
   - title: Simple GET Request
@@ -705,7 +705,7 @@ methods:
       - name: url
         summary: The [NSURL](https://developer.apple.com/documentation/foundation/nsurl?language=objc) representing the end point of this connection.
         type: Object
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: getTrustManagers
     summary: Returns an array of objects implementing the [X509TrustManager](https://developer.android.com/reference/javax/net/ssl/X509TrustManager.html) protocol for the SSL Context.
@@ -736,7 +736,7 @@ methods:
     platforms: [android]
 
 since: "3.3.0"
-platforms: [iphone, ipad, android]
+platforms: [iphone, ipad, android, macos]
 
 ---
 name: APSConnectionDelegate
@@ -762,11 +762,11 @@ description: |
     value is assumed to be `true` and all challenges will be forwarded to the connection delegate.
 
 since: "3.3.0"
-platforms: [iphone, ipad]
+platforms: [iphone, ipad, macos]
 ---
 name: ReadyStatePayload
 summary: An Object describing the current ready state. See [onreadystatechange](Titanium.Network.HTTPClient.onreadystatechange) for more information.
-platforms: [iphone, ipad, android]
+platforms: [iphone, ipad, android, macos]
 since: "3.4.2"
 properties:
   - name: readyState

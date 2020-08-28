@@ -14,7 +14,7 @@ description: |
     see the [Push Notifications guide](https://docs.appcelerator.com/platform/latest/#!/guide/Push_Notifications).
 extends: Titanium.Module
 excludes: { methods: [ 'addEventListener', 'fireEvent', 'removeEventListener',  ] }
-platforms: [android, iphone, ipad]
+platforms: [android, iphone, ipad, macos]
 since: 3.2.0
 
 methods:
