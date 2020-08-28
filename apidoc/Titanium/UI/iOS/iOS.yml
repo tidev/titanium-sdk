@@ -1348,6 +1348,41 @@ properties:
     since: "3.2.0"
     osver: {ios: {min: "7.0"}}
 
+  - name: DATE_PICKER_STYLE_AUTOMATIC
+    summary: |
+        Use with <Titanium.UI.Picker.datePickerStyle> to automatically pick the best style
+        available for the current platform & mode.
+    description: "Note: Prior to iOS 14, this property is only used on iOS Catalyst apps."
+    type: Number
+    permission: read-only
+    since: "9.2.0"
+    osver: { ios: { min: "13.4" } }
+
+  - name: DATE_PICKER_STYLE_WHEELS
+    summary: |
+        Use with <Titanium.UI.Picker.datePickerStyle> to show the picker the wheels. Editing occurs inline.
+    type: Number
+    permission: read-only
+    since: "9.2.0"
+    osver: { ios: { min: "13.4" } }
+
+  - name: DATE_PICKER_STYLE_COMPACT
+    summary: |
+        Use with <Titanium.UI.Picker.datePickerStyle> to show the picker with a compact style. Editing occurs in an overlay.
+    description: "Note: Prior to iOS 14, this property is only used on iOS Catalyst apps."
+    type: Number
+    permission: read-only
+    since: "9.2.0"
+    osver: { ios: { min: "13.4" } }
+
+  - name: DATE_PICKER_STYLE_INLINE
+    summary: |
+        Use with <Titanium.UI.Picker.datePickerStyle> to allow editing in place (as a calendar).
+    type: Number
+    permission: read-only
+    since: "9.2.0"
+    osver: { ios: { min: "14.0" } }
+
   - name: forceTouchSupported
     summary: Determines if the 3D-Touch capability "Force Touch" is supported (`true`) or not (`false`) by the device.
     description: |
