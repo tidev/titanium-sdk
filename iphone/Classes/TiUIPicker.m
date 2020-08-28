@@ -177,6 +177,14 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
   }
 }
 
+- (void)setDatePickerStyle_:(id)style
+{
+  UIControl *picker = [self picker];
+  if ([self isDatePicker]) {
+    [(UIDatePicker *)picker setPreferredDatePickerStyle:[TiUtils intValue:style]];
+  }
+}
+
 // We're order-dependent on type being set first, so we need to make sure that anything that relies
 // on whether or not this is a date picker needs to be set AFTER the initial configuration.
 - (void)setSelectionIndicator_:(id)value
