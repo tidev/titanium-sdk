@@ -101,7 +101,7 @@ methods:
     parameters:
       - name: image
         summary: |
-            The image for the indicator, defined using a local filesystem path, 
+            The image for the indicator, defined using a local filesystem path,
             or a `Blob` object containing image data. Resets to the default if image is null.
         type: [String, Titanium.Blob]
       - name: pageNo
@@ -303,7 +303,7 @@ properties:
     summary: |
         The preferred image for indicators, defined using a local filesystem path, or a `Blob` object containing image data.
     description: |
-        Symbol images are recommended. Use <Titanium.UI.iOS.systemImage> to get system-supplied symbol images. 
+        Symbol images are recommended. Use <Titanium.UI.iOS.systemImage> to get system-supplied symbol images.
         See examples section for usage.
     type: [String, Titanium.Blob]
     platforms: [iphone,ipad]
@@ -493,7 +493,7 @@ examples:
         // iOS specific params
         params.width = '90%';
       }
-
+      var scrollableView = Ti.UI.createScrollableView(params);
       win.add(scrollableView);
       win.open();
       ```
