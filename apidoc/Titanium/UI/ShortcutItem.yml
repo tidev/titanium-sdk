@@ -90,7 +90,7 @@ description: |
     methods described [in the Wiki](https://wiki.appcelerator.org/display/guides2/Internationalization).
 extends: Titanium.Proxy
 since: { android: 7.5.0, iphone: 9.1.0, ipad: 9.1.0 }
-platforms: [android, iphone, ipad]
+platforms: [android, iphone, ipad, macos]
 
 methods:
   - name: show
@@ -117,7 +117,7 @@ properties:
     summary: Determines shortcut id.
     description: This should be a unique identifier for the shortcut.
     type: String
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     availability: creation
 
   - name: title
@@ -126,7 +126,7 @@ properties:
         In iOS the title can be localized. See [here](https://wiki.appcelerator.org/display/guides2/Internationalization)
         for more infos.
     type: String
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     availability: creation
 
   - name: description
@@ -135,7 +135,7 @@ properties:
         In iOS the description can be localized. See [here](https://wiki.appcelerator.org/display/guides2/Internationalization)
         for more infos. 
     type: String
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     availability: creation
 
   - name: icon
@@ -162,14 +162,14 @@ properties:
         The recommended size for image files is 35dp (@2px: 70dp, @3x: 105dp). Also check the [Apple documentation](https://developer.apple.com/documentation/uikit/uiapplicationshortcuticon)  
         for more information on shortcut icons.
     type: [String, Number]
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     availability: creation
 
   - name: data
     summary: Shortcut data.
     description: Additional data that can be stored with the shortcut.
     type: Object
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     availability: creation
 
   - name: visible

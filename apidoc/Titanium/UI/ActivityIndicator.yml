@@ -76,7 +76,7 @@ properties:
     since: "2.1.0"
     type: [ String, Titanium.UI.Color ]
     default: "white"
-    platforms: [iphone,ipad,android]
+    platforms: [iphone,ipad, android, macos]
 
   - name: left
     summary: Left position of the view.

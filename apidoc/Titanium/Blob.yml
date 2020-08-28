@@ -32,8 +32,8 @@ description: |
     In both cases, the conversion involves copying the data from one object to another, so
     you should be conscious of the amount of the data being copied.
 extends: Titanium.Proxy
-since: "0.9"
-platforms: [android, iphone, ipad]
+platforms: [android, iphone, ipad, macos]
+since: {iphone: "0.9", ipad: "0.9", android: "0.9", macos: "9.2.0"}
 createable: false
 properties:
   - name: file
@@ -138,8 +138,8 @@ properties:
     description: |
         If this blob represents an image, this is the total number of pixels in the image.
         Otherwise it returns the number of bytes in the binary data.
-    platforms: [android, iphone, ipad]
-    since: {android: "7.2.0", iphone: "0.9.0", ipad: "0.9.0"}
+    platforms: [android, iphone, ipad, macos]
+    since: {android: "7.2.0", iphone: "0.9.0", ipad: "0.9.0", macos: "9.2.0"}
     permission: read-only
 
 methods:
@@ -162,8 +162,8 @@ methods:
         Returns the cropped image as a blob.
 
         If this blob doesn't represent an image, returns `null`.
-    platforms: [android, iphone, ipad]
-    since: {android: "3.0.0"}
+    platforms: [android, iphone, ipad, macos]
+    since: {android: "3.0.0", macos: "9.2.0"}
     parameters:
       - name: options
         summary: |
@@ -181,8 +181,8 @@ methods:
         Returns the resized image as a blob.
 
         If this blob doesn't represent an image, returns `null`.
-    platforms: [android, iphone, ipad]
-    since: {android: "3.0.0"}
+    platforms: [android, iphone, ipad, macos]
+    since: {android: "3.0.0", macos: "9.2.0"}
     parameters:
       - name: width
         type: Number
@@ -200,8 +200,8 @@ methods:
         Returns the compressed image as a blob.
 
         If this blob doesn't represent an image, returns `null`.
-    platforms: [android, iphone, ipad]
-    since: 6.1.0
+    platforms: [android, iphone, ipad, macos]
+    since: {iphone: "6.1.0", ipad: "6.1.0", android: "6.1.0", macos: "9.2.0"}
     parameters:
       - name: quality
         type: Number
@@ -219,8 +219,8 @@ methods:
 
         The final height/width of the image will actually be `size + (2 * borderSize)` as the border is added around the image.
         By default the `borderSize` is `1`.
-    platforms: [android, iphone, ipad]
-    since: {android: "3.0.0"}
+    platforms: [android, iphone, ipad, macos]
+    since: {android: "3.0.0", macos: "9.2.0"}
     returns:
         type: Titanium.Blob
         summary: The image thumbnail in a blob.
@@ -245,8 +245,8 @@ methods:
     summary: Returns a copy of the underlying image with an added alpha channel.
     description: |
         Returns the new image as a blob, or `null` if this blob is not an image.
-    platforms: [android, iphone, ipad]
-    since: {android: "3.0.0"}
+    platforms: [android, iphone, ipad, macos]
+    since: {android: "3.0.0", macos: "9.2.0"}
     returns:
         type: Titanium.Blob
         summary: The image with an alpha channel in a blob, or `null` if this blob is not an image.
@@ -257,8 +257,8 @@ methods:
         Returns the new image as a blob, or `null` if this blob is not an image.
         The image will grow in height and width by `(2 * borderSize)` as the border is added around the image to avoid scaling.
         By default the `borderSize` is `1`.
-    platforms: [android, iphone, ipad]
-    since: {android: "3.0.0"}
+    platforms: [android, iphone, ipad, macos]
+    since: {android: "3.0.0", macos: "9.2.0"}
     parameters:
       - name: cornerSize
         type: Number
@@ -277,8 +277,8 @@ methods:
     description: |
         Returns the new image as a blob, or `null` if this blob is not an image.
         The image will grow in height and width by `(2 * borderSize)` as the border is added around the image to avoid scaling.
-    platforms: [android, iphone, ipad]
-    since: {android: "3.0.0"}
+    platforms: [android, iphone, ipad, macos]
+    since: {android: "3.0.0", macos: "9.2.0"}
     parameters:
       - name: size
         type: Number

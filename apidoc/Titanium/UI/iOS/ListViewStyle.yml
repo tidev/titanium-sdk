@@ -7,8 +7,8 @@ extends: Titanium.Proxy
 excludes:
     properties: [bubbleParent]
     methods: [addEventListener, applyProperties, fireEvent, removeEventListener]
-platforms: [iphone, ipad]
-since: "3.1.0"
+platforms: [iphone, ipad, macos]
+since: {iphone: "3.1.0", ipad: "3.1.0", macos: "9.2.0"}
 createable: false
 properties:
   - name: GROUPED
