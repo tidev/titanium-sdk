@@ -502,10 +502,13 @@ class AndroidManifest {
 				return;
 			}
 
-			// We only support merging child nodes immediately under <manifest/> or <application/> elements.
+			// We only support merging child nodes immediately under <manifest/>, <queries/>, or <application/>.
 			// For all other XML elements, we simply replace the child nodes, but only if children were provided.
 			const isManifestElement = (sourceElement.tagName === 'manifest');
-			const canMergeChildren = isManifestElement || (sourceElement.tagName === 'application');
+			const canMergeChildren
+				=  isManifestElement
+				|| (sourceElement.tagName === 'application')
+				|| (sourceElement.tagName === 'queries');
 			if (!canMergeChildren) {
 				while (destinationElement.hasChildNodes()) {
 					destinationElement.removeChild(destinationElement.firstChild);
@@ -531,8 +534,9 @@ class AndroidManifest {
 				}
 
 				// Attempt to find a matching child element under destination.
+				// Note: Never merge <intent/> block. Only append them. (Duplicate intent blocks are okay.)
 				let destinationChildElement = null;
-				if (tagName) {
+				if (tagName && (tagName !== 'intent')) {
 					if (androidName) {
 						destinationChildElement = getFirstChildElementByTagAndAndroidName(destinationElement, tagName, androidName);
 					} else {

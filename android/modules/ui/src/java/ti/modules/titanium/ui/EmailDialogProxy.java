@@ -109,32 +109,13 @@ public class EmailDialogProxy extends TiViewProxy implements ActivityTransitionL
 		}
 	}
 
-	private String baseMimeType(boolean isHtml)
-	{
-		String result = isHtml ? "text/html" : "text/plain";
-		// After 1.6 (api 4, "Donut"), message/rfc822 will work and still recognize
-		// html encoded text.  The advantage to putting it to message/rfc822 is that
-		// it will most likely "force" the e-mail dialog as opposed to the intent leading
-		// to a chooser that might include other applications that can handle text/plain
-		// or text/html. Since this is all for our "EmailDialogProxy", we want to
-		// force the e-mail dialog as much as possible.
-		if (android.os.Build.VERSION.SDK_INT > android.os.Build.VERSION_CODES.DONUT) {
-			result = "message/rfc822";
-		}
-		return result;
-	}
-
 	private Intent buildIntent()
 	{
 		ArrayList<Uri> uris = getAttachmentUris();
+		boolean isHtml = TiConvert.toBoolean(getProperty("html"), false);
 		Intent sendIntent =
 			new Intent((uris != null && uris.size() > 1) ? Intent.ACTION_SEND_MULTIPLE : Intent.ACTION_SEND);
-		boolean isHtml = false;
-		if (hasProperty("html")) {
-			isHtml = TiConvert.toBoolean(getProperty("html"));
-		}
-		String intentType = baseMimeType(isHtml);
-		sendIntent.setType(intentType);
+		sendIntent.setType("message/rfc822");
 		putAddressExtra(sendIntent, Intent.EXTRA_EMAIL, "toRecipients");
 		putAddressExtra(sendIntent, Intent.EXTRA_CC, "ccRecipients");
 		putAddressExtra(sendIntent, Intent.EXTRA_BCC, "bccRecipients");
@@ -386,11 +367,7 @@ public class EmailDialogProxy extends TiViewProxy implements ActivityTransitionL
 
 		// Enable read-only access to the attached files to the app that consumes the intent.
 		// Note: These flags only apply to intent's main data URI and clip data, not the EXTRA_STREAM.
-		int flags = Intent.FLAG_GRANT_READ_URI_PERMISSION;
-		if (android.os.Build.VERSION.SDK_INT >= 19) {
-			flags |= Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION;
-		}
-		sendIntent.addFlags(flags);
+		sendIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION);
 	}
 
 	private void putStringExtra(Intent intent, String extraType, String ourKey)
