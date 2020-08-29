@@ -541,6 +541,10 @@ public class AndroidModule extends KrollModule
 	@Kroll.constant
 	public static final int FOREGROUND_SERVICE_TYPE_MEDIA_PROJECTION =
 		ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PROJECTION;
+	@Kroll.constant
+	public static final int FOREGROUND_SERVICE_TYPE_MICROPHONE = ServiceInfo.FOREGROUND_SERVICE_TYPE_MICROPHONE;
+	@Kroll.constant
+	public static final int FOREGROUND_SERVICE_TYPE_CAMERA = ServiceInfo.FOREGROUND_SERVICE_TYPE_CAMERA;
 
 	protected RProxy r;
 	private LinkedList<BroadcastReceiverProxy> registeredBroadcastReceiverProxyList = new LinkedList<>();
