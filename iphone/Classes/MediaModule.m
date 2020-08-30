@@ -2043,8 +2043,10 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
 #if IS_SDK_IOS_13
 - (void)presentationControllerDidDismiss:(UIPresentationController *)presentationController
 {
+#if defined(USE_TI_MEDIASHOWCAMERA) || defined(USE_TI_MEDIAOPENPHOTOGALLERY) || defined(USE_TI_MEDIASTARTVIDEOEDITING)
   [self closeModalPicker:picker ?: _phPicker];
   [self sendPickerCancel];
+#endif
 }
 #endif
 

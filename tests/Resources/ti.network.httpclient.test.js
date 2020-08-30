@@ -735,4 +735,26 @@ describe('Titanium.Network.HTTPClient', function () {
 		xhr.open('GET', 'https://www.google .com/'); // URL with space
 		xhr.send();
 	});
+
+	it.ios('#timeoutForResource', function (finish) {
+		const xhr = Ti.Network.createHTTPClient({
+			timeout: 6e4,
+			timeoutForResource: 50
+		});
+
+		xhr.onload = _e => finish(new Error('onload shouldn\'t fire. Resource request timeout should reach before transferring entire resource.'));
+
+		xhr.onerror = e => {
+			try {
+				// Resource timeout is very less (50 milliseconds) so it should timeout before whole resource transferred
+				should(e.code).eql(Ti.UI.URL_ERROR_TIMEOUT);
+			} catch (err) {
+				return finish(err);
+			}
+			finish();
+		};
+
+		xhr.open('GET', 'https://www.google.com/');
+		xhr.send();
+	});
 });

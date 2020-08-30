@@ -361,6 +361,21 @@
   [super willChangeLayout];
 }
 
+#if IS_SDK_IOS_14
+- (void)setIndicatorImageForPage:(id)args
+{
+  if (![TiUtils isIOSVersionOrGreater:@"14.0"]) {
+    DebugLog(@"[WARN] Supported on iOS 14.0+");
+    return;
+  }
+  ENSURE_ARRAY(args);
+  ENSURE_ARG_COUNT(args, 2);
+  ENSURE_TYPE(args[1], NSNumber)
+  UIImage *image = [TiUtils toImage:args[0] proxy:self];
+  NSInteger page = [args[1] integerValue];
+  [(TiUIScrollableView *)self.view setIndicatorImage:image forPage:page];
+}
+#endif
 @end
 
 #endif
