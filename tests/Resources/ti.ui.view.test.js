@@ -1119,7 +1119,7 @@ describe('Titanium.UI.View', function () {
 			win.open();
 		});
 
-		it.ios('1 value to create circle', finish => {
+		it('1 value to create circle', finish => {
 			win = Ti.UI.createWindow({ backgroundColor: 'blue' });
 			const outerView = Ti.UI.createView({
 				width: '90px',
@@ -1138,7 +1138,7 @@ describe('Titanium.UI.View', function () {
 				try {
 					should(view.borderRadius).be.a.String();
 					should(view.borderRadius).eql('30px');
-					should(outerView).matchImage(`snapshots/borderRadius30px_30px_${density}x.png`);
+					should(outerView).matchImage(`snapshots/borderRadius30px_${density}x.png`);
 				} catch (err) {
 					return finish(err);
 				}
