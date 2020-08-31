@@ -12,6 +12,7 @@
 #import "UIImage+Resize.h"
 #import "UIImage+RoundedCorner.h"
 //NOTE:FilesystemFile is conditionally compiled based on the filesystem module.
+#import "KrollPromise.h"
 #import "TiFilesystemFileProxy.h"
 
 static NSString *const MIMETYPE_PNG = @"image/png";
@@ -475,5 +476,31 @@ static void jsArrayBufferFreeDeallocator(void *data, void *ctx)
   JSValueRef *exception;
   JSObjectRef arrayBuffer = JSObjectMakeArrayBufferWithBytesNoCopy(context.JSGlobalContextRef, arrayBytes, len, jsArrayBufferFreeDeallocator, nil, exception);
   return [JSValue valueWithJSValueRef:arrayBuffer inContext:context];
+}
+
+- (JSValue *)arrayBuffer
+{
+  JSContext *context = [self currentContext];
+  KrollPromise *promise = [[KrollPromise alloc] initInContext:context];
+  TiThreadPerformOnMainThread(
+      ^{
+        NSData *theData = [self data];
+        // Copy the raw bytes of the NSData we're wrapping
+        NSUInteger len = [theData length];
+        void *arrayBytes = malloc(len);
+        [theData getBytes:arrayBytes length:len];
+
+        // Now make an ArrayBuffer with the copied bytes
+        JSValueRef *exception;
+        JSObjectRef arrayBuffer = JSObjectMakeArrayBufferWithBytesNoCopy(context.JSGlobalContextRef, arrayBytes, len, jsArrayBufferFreeDeallocator, nil, exception);
+        if (exception) {
+          [promise reject:@[ [JSValue valueWithJSValueRef:exception inContext:context] ]];
+        } else {
+          JSValue *buffer = [JSValue valueWithJSValueRef:arrayBuffer inContext:context];
+          [promise resolve:@[ buffer ]];
+        }
+      },
+      NO);
+  return promise.JSValue;
 }
 @end
