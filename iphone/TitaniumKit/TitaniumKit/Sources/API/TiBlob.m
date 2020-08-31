@@ -454,7 +454,7 @@ GETTER_IMPL(NSUInteger, length, Length);
   if (t != nil) {
     return t;
   }
-  return [super toString];
+  return @"[object TiBlob]";
 }
 
 static void jsArrayBufferFreeDeallocator(void *data, void *ctx)
