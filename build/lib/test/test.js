@@ -619,6 +619,7 @@ class DeviceTestDetails {
 			filepath = filepath.slice(7);
 		}
 		console.log(`Copying generated image ${filepath} to ${dest}`);
+		await fs.ensureDir(path.dirname(dest));
 		if (platform === 'android') {
 			// Pull the file via adb shell
 			if (this.target === 'device') {
