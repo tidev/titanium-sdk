@@ -1890,43 +1890,13 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
                              }
                              dispatch_group_leave(group);
                            }];
-    } else if (false /*[result.itemProvider hasItemConformingToTypeIdentifier:UTTypeMovie.identifier]*/) {
-      // Due to ongoing bug from Apple  https://developer.apple.com/forums/thread/652695 this code block is not working as expected.
-      // Probably this will get fix in upcoming releases. As a workaround next else if block is used. Restore this if get fixed by apple.
-      if (!videoArray) {
-        videoArray = [[NSMutableArray alloc] init];
-      }
-      [result.itemProvider loadItemForTypeIdentifier:UTTypeMovie.identifier
-                                             options:nil
-                                   completionHandler:^(__kindof id<NSSecureCoding> _Nullable item, NSError *_Null_unspecified error) {
-                                     // Bug from Apple : https://developer.apple.com/forums/thread/652695
-                                     if (!error) {
-                                       NSURL *url = (NSURL *)item;
-                                       TiBlob *media = [[[TiBlob alloc] initWithFile:[url path]] autorelease];
-                                       if ([media mimeType] == nil) {
-                                         [media setMimeType:@"video/mpeg" type:TiBlobTypeFile];
-                                       }
-                                       [videoArray addObject:@{@"media" : media,
-                                         @"mediaType" : (NSString *)kUTTypeMovie,
-                                         @"success" : @(YES),
-                                         @"code" : @(0)}];
-                                     } else {
-                                       [videoArray addObject:@{@"error" : error.description,
-                                         @"code" : @(error.code),
-                                         @"success" : @(NO),
-                                         @"mediaType" : (NSString *)kUTTypeMovie}];
-                                       DebugLog(@"[ERROR] Failed to load video- %@ .", error.description);
-                                     }
-                                     dispatch_group_leave(group);
-                                   }];
     } else if ([result.itemProvider hasItemConformingToTypeIdentifier:UTTypeMovie.identifier]) {
       if (!videoArray) {
         videoArray = [[NSMutableArray alloc] init];
       }
       [result.itemProvider loadFileRepresentationForTypeIdentifier:UTTypeMovie.identifier
                                                  completionHandler:^(NSURL *_Nullable url, NSError *_Nullable error) {
-                                                   // Bug from Apple : https://developer.apple.com/forums/thread/652695
-                                                   // This is workaround. Delete it once Apple fixes it.
+                                                   // As per discussion- https://developer.apple.com/forums/thread/652695
                                                    if (!error) {
                                                      NSString *filename = url.lastPathComponent;
                                                      NSFileManager *fileManager = NSFileManager.defaultManager;

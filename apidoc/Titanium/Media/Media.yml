@@ -2054,7 +2054,9 @@ summary: |
 properties:
   - name: success
     summary: Function to call when the photo gallery is closed after a successful selection.
-    type: Callback<CameraMediaItemType>
+    description: |
+        If <Titanium.Media.allowMultiple> is `true` or <Titanium.Media.selectionLimit> is set, Callback<CameraMediaMultipleItemsType> is called otherwise Callback<CameraMediaItemType>.
+    type: Callback<CameraMediaItemType>/Callback<CameraMediaMultipleItemsType>
   - name: error
     summary: Function to call upon receiving an error.
     type: Callback<FailureResponse>
@@ -2104,8 +2106,15 @@ properties:
     description: |
         The allowMultiple property is only available on Android API 18 and above.
     type: Boolean
-    platforms: [android]
-    since: "6.0.0"
+    platforms: [android, iPhone, iPad]
+    osver: {ios: {min: "14.0"}}
+    since: { android: "6.0.0", iphone: "9.2.0", ipad: "9.2.0" }
+  - name: selectionLimit
+    summary: Specifies number of assets that can be selected.
+    type: Boolean
+    platforms: [iPhone, iPad]
+    osver: {ios: {min: "14.0"}}
+    since: "9.2.0"
   - name: allowTranscoding
     summary: Specifies if the video should be transcoded (using highest quality preset) . If set to false no video transcoding will be performed.
     type: Boolean
@@ -2114,6 +2123,39 @@ properties:
     since: "8.1.0"
     osver: {ios: {min: "11.0"}}
 
+---
+name: CameraMediaMultipleItemsType
+summary: A media object from photo gallery when <Titanium.Media.allowMultiple> is `true` or in iOS <Titanium.Media.selectionLimit> is set.
+extends: SuccessResponse
+properties:
+  - name: success
+    summary: Indicates if the operation succeeded. Returns `true`.
+    description: Returns `true`.
+    type: Boolean
+  - name: error
+    summary: Error message, if any returned.
+    description: Will be undefined.
+    type: String
+  - name: code
+    summary: Error code. Returns 0.
+    description: Error code will be 0.
+    type: Number
+  - name: images
+    summary: |
+        The list of selected images.
+    type: Array<CameraMediaItemType>
+    optional: true
+  - name: livePhotos
+    summary: |
+        The list of selected live photo objects.
+    type: Array<Titanium.UI.iOS.LivePhoto>
+    platforms: [iphone, ipad]
+    optional: true
+  - name: videos
+    summary: |
+        The list of selected videos.
+    type: Array<CameraMediaItemType>
+    optional: true
 ---
 name: CameraMediaItemType
 summary: A media object from the camera or photo gallery.
