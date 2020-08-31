@@ -2056,7 +2056,7 @@ properties:
     summary: Function to call when the photo gallery is closed after a successful selection.
     description: |
         If <Titanium.Media.allowMultiple> is `true` or <Titanium.Media.selectionLimit> is set, Callback<CameraMediaMultipleItemsType> is called otherwise Callback<CameraMediaItemType>.
-    type: Callback<CameraMediaItemType>/Callback<CameraMediaMultipleItemsType>
+    type: [Callback<CameraMediaItemType>, Callback<CameraMediaMultipleItemsType>]
   - name: error
     summary: Function to call upon receiving an error.
     type: Callback<FailureResponse>
@@ -2106,13 +2106,13 @@ properties:
     description: |
         The allowMultiple property is only available on Android API 18 and above.
     type: Boolean
-    platforms: [android, iPhone, iPad]
+    platforms: [android, iphone, ipad]
     osver: {ios: {min: "14.0"}}
     since: { android: "6.0.0", iphone: "9.2.0", ipad: "9.2.0" }
   - name: selectionLimit
     summary: Specifies number of assets that can be selected.
     type: Boolean
-    platforms: [iPhone, iPad]
+    platforms: [iphone, ipad]
     osver: {ios: {min: "14.0"}}
     since: "9.2.0"
   - name: allowTranscoding
