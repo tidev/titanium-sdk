@@ -138,6 +138,34 @@ description: |
     <Titanium.Network.getHTTPCookies>, <Titanium.Network.getHTTPCookiesForDomain>, <Titanium.Network.getSystemCookies>,
     <Titanium.Network.removeHTTPCookie>, <Titanium.Network.removeHTTPCookiesForDomain>, <Titanium.Network.removeAllHTTPCookies>,
     <Titanium.Network.removeSystemCookie>, <Titanium.Network.removeAllSystemCookies>.
+
+    #### Connect to local network in iOS
+
+    On iOS 14 and later, while connecting to local network a prompt will be shown to request user's permission.
+    Add key `NSLocalNetworkUsageDescription` to the `ios plist` section of the tiapp.xml file to show the message on prompt.
+    If this key is not added default message will be shown in prompt.
+    
+    Example:
+
+    ``` xml
+    <ti:app>
+      <!-- ... -->
+      <ios>
+        <plist>
+          <dict>
+            <!-- Reason to access local network-->
+            <key>NSLocalNetworkUsageDescription</key>
+            <string>
+                Specify the reason for accessing the local network.
+                This appears in the alert dialog when asking the user 
+                for permission to access local network.
+            </string>
+          </dict>
+        </plist>
+      </ios>
+      <!-- ... -->
+    </ti:app>
+    ```
 extends: Titanium.Proxy
 since: "0.1"
 
@@ -535,6 +563,34 @@ properties:
     default: |
         On iOS, the default is 15000 (15 seconds).
     type: Number
+
+  - name: timeoutForResource
+    summary: |
+        The maximum amount of time (in milliseconds) that a resource request should be allowed to take.
+    description: |
+        The resource timeout controls how long (in milliseconds) to wait for an entire resource to transfer before giving up.
+        The resource timer starts when the request is initiated and counts until either the request completes or this timeout is reached, whichever comes first.
+        For more detail see [timeoutintervalforresource](https://developer.apple.com/documentation/foundation/nsurlsessionconfiguration/1408153-timeoutintervalforresource?language=objc)
+        from Apple documentation.
+        This property also applies if <Ti.Network.HttpClient.waitsForConnectivity> is set to `true`.
+    default: |
+        The default is `7*24*60*60*1000` milliseconds (7 days).
+    type: Number
+    platforms: [iphone, ipad]
+    since: '9.2.0'
+
+  - name: waitsForConnectivity
+    summary: |
+        A Boolean value that indicates whether the session should wait for connectivity to become available, or fail immediately.
+    description: |
+        Causes tasks to wait for network connectivity to become available, rather than immediately failing 
+        with an error when it is not. When waiting for connectivity, the <Ti.Network.HttpClient.timeout> 
+        property does not apply, but the <Ti.Network.HttpClient.timeoutForResource> property does.
+    default: false
+    type: Boolean
+    platforms: [iphone, ipad]
+    osver: {ios: {min: "11.0"}}
+    since: '9.2.0'
 
   - name: username
     summary: Sets the username parameter for authentication credentials.

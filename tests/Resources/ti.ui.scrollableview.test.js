@@ -1,9 +1,10 @@
 /*
  * Appcelerator Titanium Mobile
- * Copyright (c) 2011-2018 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2011-Present by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+/* globals OS_VERSION_MAJOR */
 /* eslint-env mocha */
 /* eslint no-unused-expressions: "off" */
 'use strict';
@@ -27,14 +28,14 @@ describe('Titanium.UI.ScrollableView', function () {
 		}
 	});
 
-	it('apiName', function () {
-		const scrollableView = Ti.UI.createScrollableView({});
+	it('apiName', () => {
+		const scrollableView = Ti.UI.createScrollableView();
 		should(scrollableView).have.readOnlyProperty('apiName').which.is.a.String();
 		should(scrollableView.apiName).be.eql('Ti.UI.ScrollableView');
 	});
 
-	it('views', function () {
-		const bar = Ti.UI.createScrollableView({});
+	it('views', () => {
+		const bar = Ti.UI.createScrollableView();
 		should(bar.views).be.an.Array(); // iOS returns undefined
 		should(bar.getViews).be.a.Function();
 		should(bar.views).be.empty;
@@ -160,6 +161,76 @@ describe('Titanium.UI.ScrollableView', function () {
 				doNextTest();
 			}
 		});
+		win.open();
+	});
+
+	it.ios('preferredIndicatorImage', function (finish) {
+		if (OS_VERSION_MAJOR < 14) {
+			return finish();
+		}
+
+		const view1 = Ti.UI.createView({ id: 'view1', backgroundColor: '#836' });
+		const view2 = Ti.UI.createView({ id: 'view2', backgroundColor: '#246' });
+		const backwardImage = Ti.UI.iOS.systemImage('backward');
+		const forwardImage = Ti.UI.iOS.systemImage('forward');
+		const scrollableView = Ti.UI.createScrollableView({
+			preferredIndicatorImage: backwardImage,
+			views: [ view1, view2 ],
+			showPagingControl: true
+		});
+
+		// must set a bg color so don't have full alpha, or else image compare doesn't work as intended
+		win = Ti.UI.createWindow({ extendSafeArea: false, backgroundColor: 'orange' });
+		win.addEventListener('postlayout', function listener () {
+			win.removeEventListener('postlayout', listener);
+			try {
+				const preferredBackwardImage = win.toImage();
+				scrollableView.preferredIndicatorImage = forwardImage;
+				should(win).not.matchImage(preferredBackwardImage, 0);
+
+				scrollableView.preferredIndicatorImage = backwardImage;
+				should(win).matchImage(preferredBackwardImage, 0);
+			} catch (error) {
+				return finish(error);
+			}
+
+			finish();
+		});
+
+		win.add(scrollableView);
+		win.open();
+	});
+
+	it.ios('setIndicatorImageForPage', function (finish) {
+		if (OS_VERSION_MAJOR < 14) {
+			return finish();
+		}
+		const view1 = Ti.UI.createView({ id: 'view1', backgroundColor: '#836' });
+		const view2 = Ti.UI.createView({ id: 'view2', backgroundColor: '#246' });
+		const image = Ti.UI.iOS.systemImage('backward');
+		const scrollableView = Ti.UI.createScrollableView({
+			views: [ view1, view2 ],
+			showPagingControl: true,
+		});
+
+		// must set a bg color so don't have full alpha, or else image compare doesn't work as intended
+		win = Ti.UI.createWindow({ extendSafeArea: false, backgroundColor: 'orange' });
+		win.addEventListener('postlayout', function listener () {
+			win.removeEventListener('postlayout', listener);
+			try {
+				const defaultImage = win.toImage();
+				scrollableView.setIndicatorImageForPage(image, 1);
+				should(win).not.matchImage(defaultImage, 0);
+
+				scrollableView.setIndicatorImageForPage(null, 1); // null will change to default
+				should(win).matchImage(defaultImage, 0);
+			} catch (error) {
+				return finish(error);
+			}
+			finish();
+		});
+
+		win.add(scrollableView);
 		win.open();
 	});
 });

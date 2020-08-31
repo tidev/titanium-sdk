@@ -345,6 +345,17 @@ properties:
     permission: read-only
     since: "9.2.0"
 
+  - name: OS_VERSION_PATCH
+    summary: The operating system's patch version number.
+    description: |
+        This returns the same value as the <Titanium.Platform.versionPatch> property.
+
+        Will return zero if the OS does not have a patch version.
+    type: Number
+    default: 0
+    permission: read-only
+    since: "9.2.0"
+
   - name: ENV_DEV
     summary: Alias for <ENV_DEVELOPMENT>
     type: Boolean
