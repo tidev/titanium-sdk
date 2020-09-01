@@ -1145,7 +1145,7 @@ describe('Titanium.UI.View', function () {
 				try {
 					should(view.borderRadius).be.a.String();
 					should(view.borderRadius).eql('30px');
-					should(outerView).matchImage(`snapshots/borderRadius30px.png`);
+					should(outerView).matchImage('snapshots/borderRadius30px.png');
 				} catch (err) {
 					return finish(err);
 				}
