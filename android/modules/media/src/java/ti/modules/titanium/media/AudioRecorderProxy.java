@@ -9,6 +9,7 @@ package ti.modules.titanium.media;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiFileProxy;
+import org.appcelerator.titanium.io.TiBaseFile;
 import org.appcelerator.titanium.io.TiFileFactory;
 
 @Kroll.proxy(creatableInModule = MediaModule.class)
@@ -72,7 +73,14 @@ public class AudioRecorderProxy extends KrollProxy
 	@Kroll.method
 	public TiFileProxy stop()
 	{
-		return new TiFileProxy(TiFileFactory.createTitaniumFile(tiAudioRecorder.stopRecording(), false));
+		String filePath = tiAudioRecorder.stopRecording();
+		if (filePath != null) {
+			TiBaseFile tiBaseFile = TiFileFactory.createTitaniumFile(filePath, false);
+			if (tiBaseFile != null) {
+				return new TiFileProxy(tiBaseFile);
+			}
+		}
+		return null;
 	}
 
 	@Kroll.method
@@ -85,5 +93,11 @@ public class AudioRecorderProxy extends KrollProxy
 	public void pause()
 	{
 		tiAudioRecorder.pauseRecording();
+	}
+
+	@Override
+	public String getApiName()
+	{
+		return "Ti.Media.AudioRecorder";
 	}
 }

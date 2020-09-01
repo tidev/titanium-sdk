@@ -49,17 +49,17 @@ public class TiAudioRecorder
 
 	public boolean isPaused()
 	{
-		return paused;
+		return this.paused;
 	}
 
 	public boolean isRecording()
 	{
-		return recording;
+		return this.recording;
 	}
 
 	public boolean isStopped()
 	{
-		return stopped;
+		return this.stopped;
 	}
 
 	public void startRecording()
@@ -82,7 +82,9 @@ public class TiAudioRecorder
 			audioRecord.setPositionNotificationPeriod(bufferSize / 4);
 			audioRecord.startRecording();
 			audioRecord.read(audioData, 0, bufferSize);
-			recording = true;
+			this.recording = true;
+			this.paused = false;
+			this.stopped = false;
 		}
 	}
 
@@ -91,6 +93,12 @@ public class TiAudioRecorder
 		File resultFile = null;
 		//Guard for calling stop before starting the recording
 		if (audioRecord != null) {
+			// Update state.
+			this.recording = false;
+			this.paused = false;
+			this.stopped = true;
+
+			// Stop recording.
 			int recordState = audioRecord.getState();
 			if (recordState == 1) {
 				audioRecord.stop();
@@ -98,6 +106,8 @@ public class TiAudioRecorder
 			audioRecord.setRecordPositionUpdateListener(null);
 			audioRecord.release();
 			audioRecord = null;
+
+			// Write recording to file.
 			try {
 				resultFile = TiFileHelper.getInstance().getTempFile(AUDIO_RECORDER_FILE_EXT_WAV, true);
 				createWaveFile(resultFile.getAbsolutePath());
@@ -105,15 +115,17 @@ public class TiAudioRecorder
 				e.printStackTrace();
 			}
 		}
-		return resultFile != null ? resultFile.getAbsolutePath() : "";
+		return resultFile != null ? resultFile.getAbsolutePath() : null;
 	}
 
 	public void pauseRecording()
 	{
 		//Guard for calling pause before starting the recording
 		if (audioRecord != null) {
-			paused = true;
 			audioRecord.stop();
+			this.recording = false;
+			this.paused = true;
+			this.stopped = false;
 		}
 	}
 
@@ -121,9 +133,11 @@ public class TiAudioRecorder
 	{
 		//Guard for calling resume before starting the recording
 		if (audioRecord != null) {
-			paused = false;
 			audioRecord.startRecording();
 			audioRecord.read(audioData, 0, bufferSize);
+			this.recording = true;
+			this.paused = false;
+			this.stopped = false;
 		}
 	}
 
