@@ -530,7 +530,14 @@ class DeviceTestDetails {
 		const expected = path.join(this.snapshotDir, details.platform, details.relativePath);
 		const diffDir = path.join(this.snapshotDir, '..', 'diffs', details.platform, details.relativePath.slice(0, -4)); // drop '.png'
 		await fs.ensureDir(diffDir);
-		await fs.copy(expected, path.join(diffDir, 'expected.png'));
+		if (!details.blob) {
+			await fs.copy(expected, path.join(diffDir, 'expected.png'));
+		} else {
+			// With ti.blob direct comparisons we have no input image on-disk already
+			const expected = path.join(diffDir, 'expected.png');
+			const expectedPath = `${details.path.slice(0, -4)}/expected.png`; // drop .png, place unde folder named via basenam eof image, save as 'expected.png'
+			await this.grabAppImage(details.platform, expectedPath, expected);
+		}
 
 		const actual = path.join(diffDir, 'actual.png');
 		await this.grabAppImage(details.platform, details.path, actual);
