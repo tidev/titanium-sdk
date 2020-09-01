@@ -1390,11 +1390,9 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
   RELEASE_TO_NIL(picker);
 #endif
 
-#if IS_SDK_IOS_14
-#if defined(USE_TI_MEDIAOPENPHOTOGALLERY)
+#if IS_SDK_IOS_14 && defined(USE_TI_MEDIAOPENPHOTOGALLERY)
   _phPicker.presentationController.delegate = nil;
   RELEASE_TO_NIL(_phPicker);
-#endif
 #endif
 
 #if defined(USE_TI_MEDIASTARTVIDEOEDITING) || defined(USE_TI_MEDIASTOPVIDEOEDITING)
