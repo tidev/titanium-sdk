@@ -202,6 +202,7 @@ async function addTiAppProperties() {
 		content.push('\t\t\t\t</activity>');
 		content.push('\t\t\t</application>');
 		content.push('\t\t\t<uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>');
+		content.push('\t\t\t<uses-permission android:name="android.permission.RECORD_AUDIO"/>');
 	};
 	let insertPlistSettings = () => {
 		// Enable i18n support for the following languages.
@@ -212,6 +213,12 @@ async function addTiAppProperties() {
 		content.push('\t\t\t\t</array>');
 		content.push('\t\t\t\t<key>CFBundleAllowMixedLocalizations</key>');
 		content.push('\t\t\t\t<true/>');
+
+		// Add permission usage descriptions.
+		content.push('\t\t\t\t<key>NSLocationWhenInUseUsageDescription</key>');
+		content.push('\t\t\t\t<string>Requesting location permission</string>');
+		content.push('\t\t\t\t<key>NSMicrophoneUsageDescription</key>');
+		content.push('\t\t\t\t<string>Requesting microphone permission</string>');
 
 		// Add a static shortcut.
 		content.push('\t\t\t\t<key>UIApplicationShortcutItems</key>');
