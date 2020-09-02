@@ -6,8 +6,9 @@
  */
 package ti.modules.titanium.media;
 
-import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.kroll.KrollProxy;
+import org.appcelerator.kroll.KrollRuntime;
 import org.appcelerator.titanium.TiFileProxy;
 import org.appcelerator.titanium.io.TiBaseFile;
 import org.appcelerator.titanium.io.TiFileFactory;
@@ -15,7 +16,24 @@ import org.appcelerator.titanium.io.TiFileFactory;
 @Kroll.proxy(creatableInModule = MediaModule.class)
 public class AudioRecorderProxy extends KrollProxy
 {
-	TiAudioRecorder tiAudioRecorder = new TiAudioRecorder();
+	TiAudioRecorder tiAudioRecorder;
+	KrollRuntime.OnDisposingListener runtimeOnDisposingListener;
+
+	public AudioRecorderProxy()
+	{
+		// Create the microphone handler.
+		this.tiAudioRecorder = new TiAudioRecorder();
+
+		// Stop recording when the JavaScript runtime is being terminated.
+		// This releases the microphone to be used by another audio recorder instance.
+		this.runtimeOnDisposingListener = new KrollRuntime.OnDisposingListener() {
+			@Override
+			public void onDisposing(KrollRuntime runtime)
+			{
+				stop();
+			}
+		};
+	}
 
 	@Kroll.method
 	@Kroll.setProperty
@@ -67,13 +85,15 @@ public class AudioRecorderProxy extends KrollProxy
 	@Kroll.method
 	public void start()
 	{
-		tiAudioRecorder.startRecording();
+		this.tiAudioRecorder.startRecording();
+		KrollRuntime.addOnDisposingListener(this.runtimeOnDisposingListener);
 	}
 
 	@Kroll.method
 	public TiFileProxy stop()
 	{
-		String filePath = tiAudioRecorder.stopRecording();
+		KrollRuntime.removeOnDisposingListener(this.runtimeOnDisposingListener);
+		String filePath = this.tiAudioRecorder.stopRecording();
 		if (filePath != null) {
 			TiBaseFile tiBaseFile = TiFileFactory.createTitaniumFile(filePath, false);
 			if (tiBaseFile != null) {
@@ -93,6 +113,13 @@ public class AudioRecorderProxy extends KrollProxy
 	public void pause()
 	{
 		tiAudioRecorder.pauseRecording();
+	}
+
+	@Override
+	public void release()
+	{
+		stop();
+		super.release();
 	}
 
 	@Override
