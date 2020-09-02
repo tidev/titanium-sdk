@@ -9,6 +9,7 @@ package ti.modules.titanium.media;
 import android.media.AudioFormat;
 import android.media.AudioRecord;
 import android.media.MediaRecorder;
+import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.util.TiFileHelper;
 
 import java.io.File;
@@ -18,12 +19,15 @@ import java.io.IOException;
 
 public class TiAudioRecorder
 {
+	private static final String TAG = "TiWindowProxy";
 
 	//Constant used in the WAV container header corresponding to the 16 bit PCM encoding
 	private static final int RECORDER_BPP = 16;
+
 	//Extensions for the temporary file and the result
 	private static final String AUDIO_RECORDER_FILE_EXT_WAV = ".wav";
 	private static final String AUDIO_RECORDER_TEMP_FILE = ".raw";
+
 	//Parameters for the default recording format
 	//TODO:Allow picking up quality for the recording. Although only 44,1Khz is guaranteed to work on all devices
 	private static final int RECORDER_SAMPLE_RATE = 44100;
@@ -44,7 +48,8 @@ public class TiAudioRecorder
 	public TiAudioRecorder()
 	{
 		//Get the minimum buffer size according to the device recording capabilities
-		bufferSize = AudioRecord.getMinBufferSize(RECORDER_SAMPLE_RATE, RECORDER_CHANNELS, RECORDER_AUDIO_ENCODING);
+		this.bufferSize = AudioRecord.getMinBufferSize(
+			RECORDER_SAMPLE_RATE, RECORDER_CHANNELS, RECORDER_AUDIO_ENCODING);
 	}
 
 	public boolean isPaused()
@@ -64,65 +69,91 @@ public class TiAudioRecorder
 
 	public void startRecording()
 	{
-		try {
-			tempFileReference = TiFileHelper.getInstance().getTempFile(AUDIO_RECORDER_TEMP_FILE, true);
-			fileOutputStream = new FileOutputStream(tempFileReference);
-		} catch (IOException e) {
-			e.printStackTrace();
+		// Do not continue if already started recording.
+		// Thie member variable will be null when stopped.
+		if (this.audioRecord != null) {
+			Log.w(TAG, "AudioRecorder has already been started.");
+			return;
 		}
 
-		//Initialize the audio recorded with big enough buffer to ensure smooth reading from it without overlap
-		audioRecord = new AudioRecord(MediaRecorder.AudioSource.MIC, RECORDER_SAMPLE_RATE, RECORDER_CHANNELS,
-									  RECORDER_AUDIO_ENCODING, bufferSize * 4);
+		// Set up and start audio recording.
+		try {
+			// Create a temp file to record raw microphone data to.
+			tempFileReference = TiFileHelper.getInstance().getTempFile(AUDIO_RECORDER_TEMP_FILE, true);
+			fileOutputStream = new FileOutputStream(tempFileReference);
 
-		audioData = new byte[bufferSize];
+			// Initialize audio recorder with a big enough buffer to ensure smooth reading from it without overlap.
+			this.audioRecord = new AudioRecord(
+				MediaRecorder.AudioSource.MIC, RECORDER_SAMPLE_RATE, RECORDER_CHANNELS,
+				RECORDER_AUDIO_ENCODING, bufferSize * 4);
+			this.audioData = new byte[bufferSize];
+			if (this.audioRecord.getState() == AudioRecord.STATE_INITIALIZED) {
+				this.audioRecord.setRecordPositionUpdateListener(onRecordPositionUpdateListener);
+				this.audioRecord.setPositionNotificationPeriod(bufferSize / 4);
+				this.audioRecord.startRecording();
+				if (this.audioRecord.getRecordingState() == AudioRecord.RECORDSTATE_RECORDING) {
+					this.recording = true;
+					this.paused = false;
+					this.stopped = false;
+				} else {
+					Log.e(TAG, "AudioRecorder.start() failed to start recording. Reason: Unknown");
+				}
+			}
+		} catch (Exception ex) {
+			Log.e(TAG, "AudioRecorder.start() failed to start recording.", ex);
+		}
 
-		if (audioRecord.getState() == 1) {
-			audioRecord.setRecordPositionUpdateListener(onRecordPositionUpdateListener);
-			audioRecord.setPositionNotificationPeriod(bufferSize / 4);
-			audioRecord.startRecording();
-			audioRecord.read(audioData, 0, bufferSize);
-			this.recording = true;
-			this.paused = false;
-			this.stopped = false;
+		// If we failed to start recording above, then clean-up any hanging resources.
+		if (!this.recording) {
+			stopRecording();
 		}
 	}
 
 	public String stopRecording()
 	{
+		// Stop recording and produce the WAV file.
 		File resultFile = null;
-		//Guard for calling stop before starting the recording
-		if (audioRecord != null) {
+		if (this.audioRecord != null) {
 			// Update state.
 			this.recording = false;
 			this.paused = false;
 			this.stopped = true;
 
 			// Stop recording.
-			int recordState = audioRecord.getState();
-			if (recordState == 1) {
+			if (this.audioRecord.getState() == AudioRecord.STATE_INITIALIZED) {
 				audioRecord.stop();
 			}
-			audioRecord.setRecordPositionUpdateListener(null);
-			audioRecord.release();
-			audioRecord = null;
+			this.audioRecord.setRecordPositionUpdateListener(null);
+			this.audioRecord.release();
+			this.audioRecord = null;
 
 			// Write recording to file.
 			try {
 				resultFile = TiFileHelper.getInstance().getTempFile(AUDIO_RECORDER_FILE_EXT_WAV, true);
 				createWaveFile(resultFile.getAbsolutePath());
-			} catch (IOException e) {
-				e.printStackTrace();
+			} catch (Exception ex) {
+				Log.e(TAG, "AudioRecorder.stop() failed to create audio file.", ex);
 			}
 		}
-		return resultFile != null ? resultFile.getAbsolutePath() : null;
+
+		// Close the output file.
+		if (this.fileOutputStream != null) {
+			try {
+				this.fileOutputStream.close();
+			} catch (Exception ex) {
+				ex.printStackTrace();
+			}
+			this.fileOutputStream = null;
+		}
+
+		// Return the file path if successfully recorded to file.
+		return (resultFile != null) ? resultFile.getAbsolutePath() : null;
 	}
 
 	public void pauseRecording()
 	{
-		//Guard for calling pause before starting the recording
-		if (audioRecord != null) {
-			audioRecord.stop();
+		if (this.audioRecord != null) {
+			this.audioRecord.stop();
 			this.recording = false;
 			this.paused = true;
 			this.stopped = false;
@@ -131,10 +162,8 @@ public class TiAudioRecorder
 
 	public void resumeRecording()
 	{
-		//Guard for calling resume before starting the recording
-		if (audioRecord != null) {
-			audioRecord.startRecording();
-			audioRecord.read(audioData, 0, bufferSize);
+		if (this.audioRecord != null) {
+			this.audioRecord.startRecording();
 			this.recording = true;
 			this.paused = false;
 			this.stopped = false;
@@ -173,8 +202,8 @@ public class TiAudioRecorder
 			//Close both streams
 			in.close();
 			out.close();
-		} catch (IOException e) {
-			e.printStackTrace();
+		} catch (Exception ex) {
+			ex.printStackTrace();
 		}
 	}
 
@@ -216,7 +245,7 @@ public class TiAudioRecorder
 		out.write(header, 0, header.length);
 	}
 
-	AudioRecord.OnRecordPositionUpdateListener onRecordPositionUpdateListener =
+	private AudioRecord.OnRecordPositionUpdateListener onRecordPositionUpdateListener =
 		new AudioRecord.OnRecordPositionUpdateListener() {
 			@Override
 			public void onMarkerReached(AudioRecord recorder)
@@ -227,9 +256,11 @@ public class TiAudioRecorder
 			public void onPeriodicNotification(AudioRecord recorder)
 			{
 				try {
-					audioRecord.read(audioData, 0, bufferSize);
-					fileOutputStream.write(audioData);
-				} catch (IOException e) {
+					recorder.read(audioData, 0, bufferSize);
+					if (fileOutputStream != null) {
+						fileOutputStream.write(audioData);
+					}
+				} catch (Exception e) {
 					e.printStackTrace();
 				}
 			}
