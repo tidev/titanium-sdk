@@ -39,20 +39,31 @@ describe('Titanium.Media.AudioRecorder', function () {
 			Ti.Media.audioSessionCategory = Ti.Media.AUDIO_SESSION_CATEGORY_PLAY_AND_RECORD;
 		}
 
-		// We can't do the below tests unless we have permission to use the microphone.
-		if (!Ti.Media.hasAudioRecorderPermissions()) {
+		// We can't do the below tests unless we have access to the device's microphone.
+		if (!Ti.Media.canRecord || !Ti.Media.hasAudioRecorderPermissions()) {
+			return finish();
+		}
+
+		Ti.API.info('AudioRecorder.start()');
+		recorder.start();
+		if (recorder.recording) {
+			// Recording has started. Continue running the rest of the tests.
+			should(recorder.paused).be.false();
+			should(recorder.stopped).be.false();
+		} else {
+			// Failed to start recording. Give up now without failing the test.
+			// Note: This happens if microphone exists, but is disconnected or in use.
+			should(recorder.paused).be.false();
+			should(recorder.stopped).be.true();
 			return finish();
 		}
 
 		Promise.resolve()
 			.then(() => {
-				recorder.start();
-				should(recorder.recording).be.true();
-				should(recorder.paused).be.false();
-				should(recorder.stopped).be.false();
 				return new Promise((resolve) => setTimeout(resolve, 100));
 			})
 			.then(() => {
+				Ti.API.info('AudioRecorder.pause()');
 				recorder.pause();
 				should(recorder.recording).be.false();
 				should(recorder.paused).be.true();
@@ -60,13 +71,7 @@ describe('Titanium.Media.AudioRecorder', function () {
 				return new Promise((resolve) => setTimeout(resolve, 100));
 			})
 			.then(() => {
-				recorder.pause();
-				should(recorder.recording).be.false();
-				should(recorder.paused).be.true();
-				should(recorder.stopped).be.false();
-				return new Promise((resolve) => setTimeout(resolve, 100));
-			})
-			.then(() => {
+				Ti.API.info('AudioRecorder.resume()');
 				recorder.resume();
 				should(recorder.recording).be.true();
 				should(recorder.paused).be.false();
@@ -74,6 +79,7 @@ describe('Titanium.Media.AudioRecorder', function () {
 				return new Promise((resolve) => setTimeout(resolve, 100));
 			})
 			.then(() => {
+				Ti.API.info('AudioRecorder.stop()');
 				const file = recorder.stop();
 				should(file).be.an.Object();
 				should(file.exists()).be.true();
