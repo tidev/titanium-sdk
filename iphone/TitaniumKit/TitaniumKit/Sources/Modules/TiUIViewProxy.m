@@ -8,6 +8,19 @@
 #import "TiUIViewProxy.h"
 
 @implementation TiUIViewProxy
+
+static NSArray *uiviewKeySequence;
+
+#pragma mark Internal
+
+- (NSArray *)keySequence
+{
+  if (uiviewKeySequence == nil) {
+    uiviewKeySequence = [[NSArray arrayWithObjects:@"borderRadius", @"borderWidth", @"borderColor", @"viewShadowColor", @"viewShadowRadius", @"viewShadowOffset", nil] retain];
+  }
+  return uiviewKeySequence;
+}
+
 - (NSString *)apiName
 {
   return @"Ti.UI.View";
