@@ -4,7 +4,7 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#ifdef USE_TI_CONTACTS
+#if defined(USE_TI_CONTACTS) && (!TARGET_OS_MACCATALYST || IS_SDK_IOS_14)
 
 #import "ContactsModule.h"
 #import "TiContactsGroup.h"
