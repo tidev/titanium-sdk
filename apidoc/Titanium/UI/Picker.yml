@@ -364,6 +364,17 @@ properties:
     platforms: [android]
     since: "5.0.0"
 
+  - name: datePickerStyle
+    summary: Request a style if the picker is a date picker (`PICKER_TYPE_DATE`).
+    description: |
+        If the style changed, then the date picker may need to be resized and will
+        generate a layout pass to display correctly.
+    type: Number
+    platforms: [iphone, ipad]
+    constants: Titanium.UI.iOS.DATE_PICKER_STYLE_*
+    default: <Titanium.UI.iOS.DATE_PICKER_STYLE_AUTOMATIC>
+    osver: { ios: { min: "13.4" } }
+
   - name: type
     summary: Determines the type of picker displayed
     description: |

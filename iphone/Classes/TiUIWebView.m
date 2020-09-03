@@ -158,7 +158,12 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
 - (void)setZoomLevel_:(id)zoomLevel
 {
   ENSURE_TYPE(zoomLevel, NSNumber);
-
+#if IS_SDK_IOS_14
+  if ([TiUtils isIOSVersionOrGreater:@"14.0"]) {
+    [self webView].pageZoom = [zoomLevel floatValue];
+    return;
+  }
+#endif
   [[self webView] evaluateJavaScript:[NSString stringWithFormat:@"document.body.style.zoom = %@;", zoomLevel]
                    completionHandler:nil];
 }
@@ -223,9 +228,11 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
   }
 
   NSData *data = nil;
+  NSString *mimeType = nil;
 
   if ([value isKindOfClass:[TiBlob class]]) {
     data = [(TiBlob *)value data];
+    mimeType = [(TiBlob *)value mimeType];
   } else if ([value isKindOfClass:[TiFile class]]) {
 #ifdef USE_TI_FILESYSTEM
     data = [[(TiFilesystemFileProxy *)value blob] data];
@@ -237,8 +244,9 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
   [_webView.configuration.userContentController removeScriptMessageHandlerForName:@"_Ti_"];
   [_webView.configuration.userContentController addScriptMessageHandler:self name:@"_Ti_"];
 
+  mimeType = mimeType ?: [self mimeTypeForData:data];
   [[self webView] loadData:data
-                   MIMEType:[self mimeTypeForData:data]
+                   MIMEType:mimeType
       characterEncodingName:@"UTF-8"
                     baseURL:[[NSBundle mainBundle] resourceURL]];
 }

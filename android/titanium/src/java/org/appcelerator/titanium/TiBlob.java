@@ -67,7 +67,10 @@ public class TiBlob extends KrollProxy
 	private Object data;
 	private String mimetype;
 	private Bitmap image;
-	private int width, height;
+	private int width;
+	private int height;
+	private int uprightWidth;
+	private int uprightHeight;
 
 	// This handles the memory cache of images.
 	private TiBlobLruCache mMemoryCache = TiBlobLruCache.getInstance();
@@ -81,6 +84,8 @@ public class TiBlob extends KrollProxy
 		this.image = null;
 		this.width = 0;
 		this.height = 0;
+		this.uprightWidth = 0;
+		this.uprightHeight = 0;
 	}
 
 	/**
@@ -151,6 +156,8 @@ public class TiBlob extends KrollProxy
 		blob.image = image;
 		blob.width = image.getWidth();
 		blob.height = image.getHeight();
+		blob.uprightWidth = blob.width;
+		blob.uprightHeight = blob.height;
 		return blob;
 	}
 
@@ -280,8 +287,17 @@ public class TiBlob extends KrollProxy
 
 			// Update width and height after the file / data is decoded successfully
 			if (opts.outWidth != -1 && opts.outHeight != -1) {
-				width = opts.outWidth;
-				height = opts.outHeight;
+				this.width = opts.outWidth;
+				this.height = opts.outHeight;
+
+				int rotation = getImageOrientation();
+				if ((rotation == 90) || (rotation == 270)) {
+					this.uprightWidth = opts.outHeight;
+					this.uprightHeight = opts.outWidth;
+				} else {
+					this.uprightWidth = opts.outWidth;
+					this.uprightHeight = opts.outHeight;
+				}
 			}
 		}
 	}
@@ -459,6 +475,12 @@ public class TiBlob extends KrollProxy
 		return width;
 	}
 
+	@Kroll.getProperty
+	public int getUprightWidth()
+	{
+		return this.uprightWidth;
+	}
+
 	@Kroll.method
 	@Kroll.getProperty
 	public int getSize()
@@ -476,6 +498,12 @@ public class TiBlob extends KrollProxy
 	public int getHeight()
 	{
 		return height;
+	}
+
+	@Kroll.getProperty
+	public int getUprightHeight()
+	{
+		return this.uprightHeight;
 	}
 
 	@Kroll.method
