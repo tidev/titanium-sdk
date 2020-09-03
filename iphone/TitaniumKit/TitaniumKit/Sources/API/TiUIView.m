@@ -686,13 +686,13 @@ DEFINE_EXCEPTIONS
   UIBezierPath *bezierPath = [UIBezierPath bezierPath];
   [bezierPath moveToPoint:CGPointMake(0 + topLeftRadius, 0)];
   [bezierPath addLineToPoint:CGPointMake(size.width - topRightRadius, 0)];
-  [bezierPath addQuadCurveToPoint:CGPointMake(size.width, topRightRadius) controlPoint:CGPointMake(size.width, 0)];
+  [bezierPath addArcWithCenter:CGPointMake(size.width - topRightRadius, topRightRadius) radius:topRightRadius startAngle:3 * M_PI_2 endAngle:0 clockwise:YES];
   [bezierPath addLineToPoint:CGPointMake(size.width, size.height - bottomRightRadius)];
-  [bezierPath addQuadCurveToPoint:CGPointMake(size.width - bottomRightRadius, size.height) controlPoint:CGPointMake(size.width, size.height)];
+  [bezierPath addArcWithCenter:CGPointMake(size.width - bottomRightRadius, size.height - bottomRightRadius) radius:bottomRightRadius startAngle:0 endAngle:M_PI_2 clockwise:YES];
   [bezierPath addLineToPoint:CGPointMake(bottomLeftRadius, size.height)];
-  [bezierPath addQuadCurveToPoint:CGPointMake(0, size.height - bottomLeftRadius) controlPoint:CGPointMake(0, size.height)];
+  [bezierPath addArcWithCenter:CGPointMake(bottomLeftRadius, size.height - bottomLeftRadius) radius:bottomLeftRadius startAngle:M_PI_2 endAngle:M_PI clockwise:YES];
   [bezierPath addLineToPoint:CGPointMake(0, topLeftRadius)];
-  [bezierPath addQuadCurveToPoint:CGPointMake(0 + topLeftRadius, 0) controlPoint:CGPointMake(0, 0)];
+  [bezierPath addArcWithCenter:CGPointMake(topLeftRadius, topLeftRadius) radius:topLeftRadius startAngle:M_PI endAngle:3 * M_PI_2 clockwise:YES];
   [bezierPath closePath];
 
   shapeLayer.path = bezierPath.CGPath;
