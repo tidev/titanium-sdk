@@ -122,7 +122,7 @@ describe.ios('Titanium.UI.iOS.CollisionBehavior', () => {
 		let win;
 
 		this.slow(2000);
-		this.timeout(10000);
+		this.timeout(15000);
 
 		afterEach(done => { // fires after every test in sub-suites too...
 			if (win && !win.closed) {
@@ -151,23 +151,30 @@ describe.ios('Titanium.UI.iOS.CollisionBehavior', () => {
 			const collision = Ti.UI.iOS.createCollisionBehavior();
 
 			// After 3 boundary collitions and 5 item collisions end the test
-			let boundaryCount = 3;
-			let itemCount = 5;
+			let boundaryCount = 0;
+			let itemCount = 0;
 			let done = false;
-			collision.addEventListener('itemcollision', _e => {
-				itemCount--;
-				if (itemCount <= 0 && boundaryCount <= 0 && !done) {
-					done = true;
-					finish();
+			function itemListener() {
+				itemCount++;
+				console.log(`${itemCount} item collisons`);
+				checkDone();
+			}
+			function boundaryListener() {
+				boundaryCount++;
+				console.log(`${boundaryCount} boundary collisons`);
+				checkDone();
+			}
+			function checkDone() {
+				if (itemCount < 3 || boundaryCount < 5 || done) {
+					return;
 				}
-			});
-			collision.addEventListener('boundarycollision', _e => {
-				boundaryCount--;
-				if (itemCount <= 0 && boundaryCount <= 0 && !done) {
-					done = true;
-					finish();
-				}
-			});
+				done = true;
+				collision.removeEventListener('itemcollision', itemListener);
+				collision.removeEventListener('boundarycollision', boundaryListener);
+				finish();
+			}
+			collision.addEventListener('itemcollision', itemListener);
+			collision.addEventListener('boundarycollision', boundaryListener);
 
 			// Simulate Earth's gravity
 			const gravity = Ti.UI.iOS.createGravityBehavior({
@@ -176,6 +183,8 @@ describe.ios('Titanium.UI.iOS.CollisionBehavior', () => {
 
 			const WIDTH = Ti.Platform.displayCaps.platformWidth;
 			const HEIGHT = Ti.Platform.displayCaps.platformHeight;
+			const BLOCK_WIDTH = 25;
+			const BLOCK_HEIGHT = 25;
 
 			// Create a bunch of random blocks; add to the window and behaviors
 			const blocks = [];
@@ -186,10 +195,10 @@ describe.ios('Titanium.UI.iOS.CollisionBehavior', () => {
 				const rgb = `rgb(${r},${g},${b})`;
 
 				blocks[i] = Ti.UI.createView({
-					width: 25,
-					height: 25,
-					top: Math.round(Math.random() * (HEIGHT / 4) + 25),
-					left: Math.round(Math.random() * (WIDTH - 25) + 25),
+					width: BLOCK_WIDTH,
+					height: BLOCK_HEIGHT,
+					top: Math.round(Math.random() * (HEIGHT / 4) + BLOCK_HEIGHT), // somewhere in top 1/4 of screen
+					left: Math.round(Math.random() * (WIDTH - BLOCK_WIDTH)), // anywhere in horizontal area of screen
 					backgroundColor: rgb
 				});
 				win.add(blocks[i]);
