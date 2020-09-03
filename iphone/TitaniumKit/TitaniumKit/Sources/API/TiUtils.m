@@ -162,6 +162,11 @@ static NSDictionary *sizeMap = nil;
   return scale > 1.0; // TODO: In the future (next major), this should be == 2.0 which is a breaking change
 }
 
++ (BOOL)isMacOS
+{
+  return [[[UIDevice currentDevice] systemName] isEqualToString:@"Mac OS X"];
+}
+
 + (BOOL)isRetinaHDDisplay
 {
   return [TiUtils is3xRetina];
