@@ -69,7 +69,6 @@
 
 - (void)setTintColor:(id)value
 {
-  ENSURE_SINGLE_ARG_OR_NIL(value, NSString);
   [self replaceValue:value forKey:@"tintColor" notification:NO];
 
   TiThreadPerformOnMainThread(
