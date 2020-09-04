@@ -1852,6 +1852,19 @@ properties:
     description: |
         This constant is passed to the <Titanium.Android.Service.foregroundNotify> method.
 
+        To use this constant, you must also set your `<service/>` element to the
+        `foregroundServieType` attribute value as shown below.
+
+        ``` xml
+        <ti:app>
+            <android>
+                <services>
+                    <service url="<YourService.js>" android:foregroundServiceType="mediaPlayback"/>
+                </services>
+            </android>
+        </ti:app>
+        ```
+
         See Google's [ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK](https://developer.android.com/reference/android/content/pm/ServiceInfo.html#FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK)
         documentation for more details.
     type: Number
@@ -1863,6 +1876,19 @@ properties:
         Allows ongoing phone call or video conferencing access while the app is in the background.
     description: |
         This constant is passed to the <Titanium.Android.Service.foregroundNotify> method.
+
+        To use this constant, you must also set your `<service/>` element to the
+        `foregroundServieType` attribute value as shown below.
+
+        ``` xml
+        <ti:app>
+            <android>
+                <services>
+                    <service url="<YourService.js>" android:foregroundServiceType="phoneCall"/>
+                </services>
+            </android>
+        </ti:app>
+        ```
 
         See Google's [ServiceInfo.FOREGROUND_SERVICE_TYPE_PHONE_CALL](https://developer.android.com/reference/android/content/pm/ServiceInfo.html#FOREGROUND_SERVICE_TYPE_PHONE_CALL)
         documentation for more details.
@@ -1876,6 +1902,19 @@ properties:
     description: |
         This constant is passed to the <Titanium.Android.Service.foregroundNotify> method.
 
+        To use this constant, you must also set your `<service/>` element to the
+        `foregroundServieType` attribute value as shown below.
+
+        ``` xml
+        <ti:app>
+            <android>
+                <services>
+                    <service url="<YourService.js>" android:foregroundServiceType="location"/>
+                </services>
+            </android>
+        </ti:app>
+        ```
+
         See Google's [ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION](https://developer.android.com/reference/android/content/pm/ServiceInfo.html#FOREGROUND_SERVICE_TYPE_LOCATION)
         documentation for more details.
     type: Number
@@ -1887,6 +1926,19 @@ properties:
         Allows connecting to Android Auto, bluetooth, TV or other devices while app is in the background.
     description: |
         This constant is passed to the <Titanium.Android.Service.foregroundNotify> method.
+
+        To use this constant, you must also set your `<service/>` element to the
+        `foregroundServieType` attribute value as shown below.
+
+        ``` xml
+        <ti:app>
+            <android>
+                <services>
+                    <service url="<YourService.js>" android:foregroundServiceType="connectedDevice"/>
+                </services>
+            </android>
+        </ti:app>
+        ```
 
         See Google's [ServiceInfo.FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE](https://developer.android.com/reference/android/content/pm/ServiceInfo.html#FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE)
         documentation for more details.
@@ -1901,6 +1953,19 @@ properties:
     description: |
         This constant is passed to the <Titanium.Android.Service.foregroundNotify> method.
 
+        To use this constant, you must also set your `<service/>` element to the
+        `foregroundServieType` attribute value as shown below.
+
+        ``` xml
+        <ti:app>
+            <android>
+                <services>
+                    <service url="<YourService.js>" android:foregroundServiceType="mediaProjection"/>
+                </services>
+            </android>
+        </ti:app>
+        ```
+
         See Google's [ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PROJECTION](https://developer.android.com/reference/android/content/pm/ServiceInfo.html#FOREGROUND_SERVICE_TYPE_MEDIA_PROJECTION)
         documentation for more details.
     type: Number
@@ -1912,6 +1977,19 @@ properties:
     description: |
         This constant is passed to the <Titanium.Android.Service.foregroundNotify> method.
 
+        To use this constant, you must also set your `<service/>` element to the
+        `foregroundServieType` attribute value as shown below.
+
+        ``` xml
+        <ti:app>
+            <android>
+                <services>
+                    <service url="<YourService.js>" android:foregroundServiceType="microphone"/>
+                </services>
+            </android>
+        </ti:app>
+        ```
+
         See Google's [ServiceInfo.FOREGROUND_SERVICE_TYPE_MICROPHONE](https://developer.android.com/reference/android/content/pm/ServiceInfo.html#FOREGROUND_SERVICE_TYPE_MICROPHONE)
         documentation for more details.
     type: Number
@@ -1922,6 +2000,19 @@ properties:
     summary: Allows the camera to be used while the app is in the background.
     description: |
         This constant is passed to the <Titanium.Android.Service.foregroundNotify> method.
+
+        To use this constant, you must also set your `<service/>` element to the
+        `foregroundServieType` attribute value as shown below.
+
+        ``` xml
+        <ti:app>
+            <android>
+                <services>
+                    <service url="<YourService.js>" android:foregroundServiceType="camera"/>
+                </services>
+            </android>
+        </ti:app>
+        ```
 
         See Google's [ServiceInfo.FOREGROUND_SERVICE_TYPE_CAMERA](https://developer.android.com/reference/android/content/pm/ServiceInfo.html#FOREGROUND_SERVICE_TYPE_CAMERA)
         documentation for more details.
