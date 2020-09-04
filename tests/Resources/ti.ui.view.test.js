@@ -1149,6 +1149,38 @@ describe('Titanium.UI.View', function () {
 			win.add(outerView);
 			win.open();
 		});
+
+		it.ios('1 value with shadow effect', finish => {
+			win = Ti.UI.createWindow({ backgroundColor: 'blue' });
+			const outerView = Ti.UI.createView({
+				width: '90px',
+				height: '90px',
+				backgroundColor: 'green'
+			});
+			const view = Ti.UI.createView({
+				width: '60px',
+				height: '60px',
+				borderRadius: '30px',
+				backgroundColor: 'yellow',
+				viewShadowColor: '#d000',
+				viewShadowRadius: 10,
+				viewShadowOffset: { x: 5, y: 10 },
+			});
+
+			view.addEventListener('postlayout', function postlayout() {
+				view.removeEventListener('postlayout', postlayout); // only run once
+				try {
+					should(outerView).matchImage('snapshots/borderRadiusWithShadow30px.png');
+				} catch (err) {
+					return finish(err);
+				}
+				finish();
+			});
+
+			outerView.add(view);
+			win.add(outerView);
+			win.open();
+		});
 	});
 
 	it.android('touchFeedback', finish => {
