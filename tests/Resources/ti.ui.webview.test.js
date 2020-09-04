@@ -4,6 +4,7 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+/* globals OS_VERSION_MAJOR */
 /* eslint-env mocha */
 /* eslint no-unused-expressions: "off" */
 'use strict';
@@ -487,6 +488,7 @@ describe('Titanium.UI.WebView', function () {
 		win.open();
 	});
 
+	// DEPRECATED: Since Titanium 9.2.0
 	it.ios('blacklisturl', function (finish) {
 		win = Ti.UI.createWindow();
 		const webView = Ti.UI.createWebView({
@@ -495,6 +497,47 @@ describe('Titanium.UI.WebView', function () {
 		});
 
 		webView.addEventListener('blacklisturl', function () {
+			finish();
+		});
+		win.add(webView);
+		win.open();
+	});
+
+	it.ios('blockedurl', function (finish) {
+		win = Ti.UI.createWindow();
+		const webView = Ti.UI.createWebView({
+			url: 'https://google.com',
+			blockedURLs: [ 'https://google.com' ]
+		});
+
+		webView.addEventListener('blockedurl', function () {
+			finish();
+		});
+		win.add(webView);
+		win.open();
+	});
+
+	// DEPRECATED: Since Titanium 9.2.0
+	it('blacklistedURLs', (finish) => {
+		win = Ti.UI.createWindow();
+		const webView = Ti.UI.createWebView({
+			url: 'https://www.axway.com',
+			blacklistedURLs: [ 'www.apple.com', 'www.google.com' ]
+		});
+		webView.addEventListener('load', () => {
+			finish();
+		});
+		win.add(webView);
+		win.open();
+	});
+
+	it('blockedURLs', (finish) => {
+		win = Ti.UI.createWindow();
+		const webView = Ti.UI.createWebView({
+			url: 'https://www.axway.com',
+			blockedURLs: [ 'www.apple.com', 'www.google.com' ]
+		});
+		webView.addEventListener('load', () => {
 			finish();
 		});
 		win.add(webView);
@@ -727,5 +770,139 @@ describe('Titanium.UI.WebView', function () {
 			url: 'https://www.google.com'
 		});
 		should(webView).have.a.property('progress').which.is.a.Number(); // should default to 0 until we start loading the page.
+	});
+
+	it.ios('#findString', function (finish) {
+		if (OS_VERSION_MAJOR < 14) {
+			return finish();
+		}
+		win = Ti.UI.createWindow();
+		const webView = Ti.UI.createWebView({
+			url: 'https://www.google.com'
+		});
+
+		webView.addEventListener('load', function () {
+			webView.findString('google', function (e) {
+				if (e.success) {
+					finish();
+				} else {
+					finish(e.error);
+				}
+			});
+		});
+
+		win.add(webView);
+		win.open();
+	});
+
+	it.ios('#createPDF', function (finish) {
+		if (OS_VERSION_MAJOR < 14) {
+			return finish();
+		}
+		win = Ti.UI.createWindow();
+		const webView = Ti.UI.createWebView({
+			url: 'https://www.google.com'
+		});
+
+		webView.addEventListener('load', function () {
+			webView.createPDF(function (e) {
+				try {
+					should(e.success).be.true();
+					should(e.data).be.an.Object();
+					should(e.data).have.a.property('apiName').which.eql('Ti.Blob');
+				} catch (err) {
+					return finish(err);
+				}
+				finish();
+			});
+		});
+
+		win.add(webView);
+		win.open();
+	});
+
+	it.ios('#createWebArchive', function (finish) {
+		if (OS_VERSION_MAJOR < 14) {
+			return finish();
+		}
+		win = Ti.UI.createWindow();
+		const webView = Ti.UI.createWebView({
+			url: 'https://www.google.com'
+		});
+
+		webView.addEventListener('load', function () {
+			webView.createWebArchive(function (e) {
+				try {
+					should(e.success).be.true();
+					should(e.data).be.an.Object();
+					should(e.data).have.a.property('apiName').which.eql('Ti.Blob');
+				} catch (err) {
+					return finish(err);
+				}
+				finish();
+			});
+		});
+
+		win.add(webView);
+		win.open();
+	});
+
+	describe.ios('#findString()', function () {
+		it('is a Function', () => {
+			if (OS_VERSION_MAJOR < 14) {
+				return;
+			}
+			const webView = Ti.UI.createWebView({
+				url: 'https://www.appcelerator.com'
+			});
+			should(webView.findString).be.a.Function();
+		});
+
+		it('#findString without configuration', function (finish) {
+			if (OS_VERSION_MAJOR < 14) {
+				return finish();
+			}
+			win = Ti.UI.createWindow();
+			const webView = Ti.UI.createWebView({
+				url: 'https://www.appcelerator.com'
+			});
+
+			webView.addEventListener('load', function () {
+				webView.findString('APPCELERATOR', function (e) {
+					if (e.success) {
+						finish();
+					} else {
+						finish(e.error);
+					}
+				});
+			});
+
+			win.add(webView);
+			win.open();
+		});
+
+		it('#findString with configuration', function (finish) {
+			if (OS_VERSION_MAJOR < 14) {
+				return finish();
+			}
+			win = Ti.UI.createWindow();
+			const webView = Ti.UI.createWebView({
+				url: 'https://www.appcelerator.com'
+			});
+
+			webView.addEventListener('load', function () {
+				// It should fail.
+				webView.findString('APPCELERATOR', { caseSensitive: true, backwards: false, wraps: true }, function (e) {
+					if (e.success) {
+						finish(new Error('Search should fail'));
+					} else {
+						finish();
+					}
+				});
+			});
+
+			win.add(webView);
+			win.open();
+		});
 	});
 });

@@ -307,4 +307,8 @@ describe('process', () => {
 			});
 		});
 	});
+
+	it('#toString() returns "[object process]"', () => {
+		should(process.toString()).eql('[object process]');
+	});
 });

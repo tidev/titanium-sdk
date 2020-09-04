@@ -93,6 +93,24 @@ methods:
         summary: An integer index or <Titanium.UI.View> object to set as the current page.
         type: [Number, Titanium.UI.View]
 
+  - name: setIndicatorImageForPage
+    summary: Sets the indicator image for the specified page.
+    description: |
+        Override the indicator image for a specific page. Symbol images are recommended.
+        Use <Titanium.UI.iOS.systemImage> to get system-supplied symbol images. See examples section for usage.
+    parameters:
+      - name: image
+        summary: |
+            The image for the indicator, defined using a local filesystem path,
+            or a `Blob` object containing image data. Resets to the default if image is null.
+        type: [String, Titanium.Blob]
+      - name: pageNo
+        summary: Page number to set the image.
+        type: Number
+    since: 9.2.0
+    platforms: [iphone, ipad]
+    osver: {ios: {min: "14.0"}}
+
 events:
   - name: dblclick
     summary: Fired when the device detects a double click against the view.
@@ -281,6 +299,17 @@ properties:
     default: "black"
     platforms: [iphone,ipad]
 
+  - name: preferredIndicatorImage
+    summary: |
+        The preferred image for indicators, defined using a local filesystem path, or a `Blob` object containing image data.
+    description: |
+        Symbol images are recommended. Use <Titanium.UI.iOS.systemImage> to get system-supplied symbol images.
+        See examples section for usage.
+    type: [String, Titanium.Blob]
+    platforms: [iphone,ipad]
+    since: "9.2.0"
+    osver: {ios: {min: "14.0"}}
+
   - name: pagingControlHeight
     summary: Height of the paging control, in pixels.
     type: Number
@@ -464,7 +493,7 @@ examples:
         // iOS specific params
         params.width = '90%';
       }
-
+      var scrollableView = Ti.UI.createScrollableView(params);
       win.add(scrollableView);
       win.open();
       ```
@@ -490,3 +519,30 @@ examples:
             </Window>
         </Alloy>
         ```
+
+  - title: Scrollable View with indicator image (iOS only)
+    example: |
+      Create three views and assign them as pages to a scrollable view. Assign preferred indicator image.
+      After window opens, update second page indicator image.
+
+      ``` js
+      var win = Ti.UI.createWindow({ extendSafeArea: false });
+
+      var view1 = Ti.UI.createView({ backgroundColor:'#123' });
+      var view2 = Ti.UI.createView({ backgroundColor:'#246' });
+      var view3 = Ti.UI.createView({ backgroundColor:'#48b' });
+      var backwardImage = Ti.UI.iOS.systemImage('backward');
+      var scrollableView = Ti.UI.createScrollableView({
+        views:[view1,view2,view3],
+        showPagingControl:true,
+        preferredIndicatorImage: backwardImage
+      });
+
+      win.add(scrollableView);
+      win.addEventListener('open', function () {
+        var forwardImage = Ti.UI.iOS.systemImage('forward');
+        scrollableView.setIndicatorImageForPage(forwardImage, 1);
+      });
+
+      win.open();
+      ```
