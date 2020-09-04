@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2020 by Axway, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -9,29 +9,31 @@ package ti.modules.titanium.media;
 import android.media.AudioFormat;
 import android.media.AudioRecord;
 import android.media.MediaRecorder;
+import java.io.File;
+import java.io.IOException;
+import java.io.RandomAccessFile;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.util.TiFileHelper;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-
 public class TiAudioRecorder
 {
-	private static final String TAG = "TiWindowProxy";
+	private static final String TAG = "TiAudioRecorder";
+
+	private static final int WAV_FILE_HEADER_RIFF_SUBCHUNK_BYTE_COUNT = 8;
+	private static final int WAV_FILE_HEADER_FORMAT_SUBCHUNK_BYTE_COUNT = 28;
+	private static final int WAV_FILE_HEADER_DATA_SUBCHUNK_BYTE_COUNT = 8;
+	private static final int WAV_FILE_HEADER_TOTAL_BYTE_COUNT
+		= WAV_FILE_HEADER_RIFF_SUBCHUNK_BYTE_COUNT
+		+ WAV_FILE_HEADER_FORMAT_SUBCHUNK_BYTE_COUNT
+		+ WAV_FILE_HEADER_DATA_SUBCHUNK_BYTE_COUNT;
 
 	//Constant used in the WAV container header corresponding to the 16 bit PCM encoding
 	private static final int RECORDER_BPP = 16;
 
-	//Extensions for the temporary file and the result
-	private static final String AUDIO_RECORDER_FILE_EXT_WAV = ".wav";
-	private static final String AUDIO_RECORDER_TEMP_FILE = ".raw";
-
 	//Parameters for the default recording format
 	//TODO:Allow picking up quality for the recording. Although only 44,1Khz is guaranteed to work on all devices
 	private static final int RECORDER_SAMPLE_RATE = 44100;
-	private static final int RECORDER_CHANNELS = AudioFormat.CHANNEL_IN_STEREO;
+	private static final int RECORDER_CHANNEL_CONFIG = AudioFormat.CHANNEL_IN_STEREO;
 	private static final int RECORDER_AUDIO_ENCODING = AudioFormat.ENCODING_PCM_16BIT;
 
 	private boolean paused = false;
@@ -42,14 +44,14 @@ public class TiAudioRecorder
 	private byte[] audioData;
 	private int bufferSize = 0;
 	private File tempFileReference;
-	private FileOutputStream fileOutputStream = null;
+	private RandomAccessFile randomAccessFile;
 	private AudioRecord audioRecord;
 
 	public TiAudioRecorder()
 	{
 		//Get the minimum buffer size according to the device recording capabilities
 		this.bufferSize = AudioRecord.getMinBufferSize(
-			RECORDER_SAMPLE_RATE, RECORDER_CHANNELS, RECORDER_AUDIO_ENCODING);
+			RECORDER_SAMPLE_RATE, RECORDER_CHANNEL_CONFIG, RECORDER_AUDIO_ENCODING);
 	}
 
 	public boolean isPaused()
@@ -78,13 +80,16 @@ public class TiAudioRecorder
 
 		// Set up and start audio recording.
 		try {
-			// Create a temp file to record raw microphone data to.
-			tempFileReference = TiFileHelper.getInstance().getTempFile(AUDIO_RECORDER_TEMP_FILE, true);
-			fileOutputStream = new FileOutputStream(tempFileReference);
+			// Create a WAV file to write microphone data to.
+			// We'll update the WAV file's header with the correct info when we stop recording.
+			this.tempFileReference = TiFileHelper.getInstance().getTempFile(".wav", true);
+			this.randomAccessFile = new RandomAccessFile(this.tempFileReference, "rw");
+			this.randomAccessFile.setLength(0);
+			writeWaveFileHeader(this.randomAccessFile, 0, 0, 0, 0, 0);
 
 			// Initialize audio recorder with a big enough buffer to ensure smooth reading from it without overlap.
 			this.audioRecord = new AudioRecord(
-				MediaRecorder.AudioSource.MIC, RECORDER_SAMPLE_RATE, RECORDER_CHANNELS,
+				MediaRecorder.AudioSource.MIC, RECORDER_SAMPLE_RATE, RECORDER_CHANNEL_CONFIG,
 				RECORDER_AUDIO_ENCODING, bufferSize * 4);
 			this.audioData = new byte[bufferSize];
 			if (this.audioRecord.getState() == AudioRecord.STATE_INITIALIZED) {
@@ -120,6 +125,7 @@ public class TiAudioRecorder
 			this.stopped = true;
 
 			// Stop recording.
+			int channelCount = this.audioRecord.getChannelCount();
 			if (this.audioRecord.getState() == AudioRecord.STATE_INITIALIZED) {
 				audioRecord.stop();
 			}
@@ -127,23 +133,33 @@ public class TiAudioRecorder
 			this.audioRecord.release();
 			this.audioRecord = null;
 
-			// Write recording to file.
+			// Update recorded WAV file's header info.
 			try {
-				resultFile = TiFileHelper.getInstance().getTempFile(AUDIO_RECORDER_FILE_EXT_WAV, true);
-				createWaveFile(resultFile.getAbsolutePath());
+				if (this.randomAccessFile != null) {
+					this.randomAccessFile.seek(0);
+					long totalFileBytes = this.randomAccessFile.length();
+					writeWaveFileHeader(
+						this.randomAccessFile,
+						totalFileBytes - WAV_FILE_HEADER_TOTAL_BYTE_COUNT,
+						totalFileBytes - WAV_FILE_HEADER_RIFF_SUBCHUNK_BYTE_COUNT,
+						RECORDER_SAMPLE_RATE,
+						channelCount,
+						RECORDER_BPP * RECORDER_SAMPLE_RATE * channelCount / 8);
+					resultFile = this.tempFileReference;
+				}
 			} catch (Exception ex) {
-				Log.e(TAG, "AudioRecorder.stop() failed to create audio file.", ex);
+				Log.e(TAG, "AudioRecorder.stop() failed to write audio file.", ex);
 			}
 		}
 
 		// Close the output file.
-		if (this.fileOutputStream != null) {
+		if (this.randomAccessFile != null) {
 			try {
-				this.fileOutputStream.close();
+				this.randomAccessFile.close();
 			} catch (Exception ex) {
 				ex.printStackTrace();
 			}
-			this.fileOutputStream = null;
+			this.randomAccessFile = null;
 		}
 
 		// Return the file path if successfully recorded to file.
@@ -170,45 +186,9 @@ public class TiAudioRecorder
 		}
 	}
 
-	private void createWaveFile(String outFilename)
-	{
-		//Input stream from the temporary file with raw audio recording
-		FileInputStream in;
-		//Output stream to the WAV file
-		FileOutputStream out;
-		//Length of the audio recording
-		long totalAudioLen;
-		//Length of the whole file
-		long totalDataLen;
-		int channels = 2;
-		long byteRate = RECORDER_BPP * RECORDER_SAMPLE_RATE * channels / 8;
-		byte[] data = new byte[bufferSize];
-
-		try {
-			//set the result file output stream
-			out = new FileOutputStream(outFilename);
-			in = new FileInputStream(tempFileReference);
-			totalAudioLen = in.getChannel().size();
-			totalDataLen = totalAudioLen + 36;
-
-			//Write the WAV header
-			writeWaveFileHeader(out, totalAudioLen, totalDataLen, RECORDER_SAMPLE_RATE, channels, byteRate);
-
-			//Write the audio data
-			while (in.read(data) != -1) {
-				out.write(data);
-			}
-
-			//Close both streams
-			in.close();
-			out.close();
-		} catch (Exception ex) {
-			ex.printStackTrace();
-		}
-	}
-
-	private void writeWaveFileHeader(FileOutputStream out, long totalAudioLen, long totalDataLen, long longSampleRate,
-									 int channels, long byteRate) throws IOException
+	private static void writeWaveFileHeader(
+		RandomAccessFile out, long totalAudioLen, long totalDataLen, long longSampleRate,
+		int channels, long byteRate) throws IOException
 	{
 		byte[] header = {
 			'R', 'I', 'F', 'F', // RIFF/WAVE header
@@ -256,9 +236,9 @@ public class TiAudioRecorder
 			public void onPeriodicNotification(AudioRecord recorder)
 			{
 				try {
-					recorder.read(audioData, 0, bufferSize);
-					if (fileOutputStream != null) {
-						fileOutputStream.write(audioData);
+					int bytesRead = recorder.read(audioData, 0, bufferSize);
+					if ((randomAccessFile != null) && (bytesRead > 0)) {
+						randomAccessFile.write(audioData, 0, bytesRead);
 					}
 				} catch (Exception e) {
 					e.printStackTrace();
