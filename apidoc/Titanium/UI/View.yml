@@ -208,6 +208,11 @@ description: |
     * If none of the conditions are met, clipping is disabled.
 
     In earlier versions of Titanium Mobile, views had clipping enabled by default.
+
+    #### iOS Animation on shadow associated with view
+
+    If `borderRadius` property has multiple values, animation on shadow associated with the view will not work.
+
 extends: Titanium.Proxy
 since: "0.9"
 
