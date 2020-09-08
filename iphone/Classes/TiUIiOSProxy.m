@@ -192,6 +192,7 @@
 
 #ifdef USE_TI_UIPICKER
 
+#if __IPHONE_13_4
 - (NSNumber *)DATE_PICKER_STYLE_AUTOMATIC
 {
   if (![TiUtils isIOSVersionOrGreater:@"13.4"]) {
@@ -218,6 +219,7 @@
 
   return @(UIDatePickerStyleCompact);
 }
+#endif
 
 #if IS_SDK_IOS_14
 - (NSNumber *)DATE_PICKER_STYLE_INLINE
