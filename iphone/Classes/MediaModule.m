@@ -1109,7 +1109,7 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
 
   NSArray *types = (NSArray *)[args objectForKey:@"mediaTypes"];
 #if IS_SDK_IOS_14
-  if ([TiUtils isIOSVersionOrGreater:@"14.0"] && ([args objectForKey:@"selectionLimit"] || [TiUtils boolValue:[args objectForKey:@"allowMultiple"] def:NO])) {
+  if ([TiUtils isIOSVersionOrGreater:@"14.0"] && [TiUtils boolValue:[args objectForKey:@"allowMultiple"] def:NO]) {
     [self showPHPicker:args];
   } else {
 #endif

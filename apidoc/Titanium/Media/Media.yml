@@ -2055,7 +2055,7 @@ properties:
   - name: success
     summary: Function to call when the photo gallery is closed after a successful selection.
     description: |
-        If <Titanium.Media.allowMultiple> is `true` or <Titanium.Media.selectionLimit> is set, then Callback<CameraMediaMultipleItemsType> will be invoked.
+        If <Titanium.Media.allowMultiple> is `true`, then Callback<CameraMediaMultipleItemsType> will be invoked.
         Otherwise Callback<CameraMediaItemType> will be invoked for single selection.
     type: [Callback<CameraMediaItemType>, Callback<CameraMediaMultipleItemsType>]
   - name: error
@@ -2111,9 +2111,10 @@ properties:
     osver: {ios: {min: "14.0"}}
     since: { android: "6.0.0", iphone: "9.2.0", ipad: "9.2.0" }
   - name: selectionLimit
-    summary: Specifies number of assets that can be selected.
+    summary: Specifies number of media item that can be selected.
     description: |
         Setting this property to zero allows you to select maximum number of media supported by system.
+        This will work only when <Titanium.Media.allowMultiple> is `true`.
     type: Boolean
     platforms: [iphone, ipad]
     osver: {ios: {min: "14.0"}}
@@ -2128,7 +2129,7 @@ properties:
 
 ---
 name: CameraMediaMultipleItemsType
-summary: A media object from photo gallery when <Titanium.Media.allowMultiple> is `true` or in iOS <Titanium.Media.selectionLimit> is set.
+summary: A media object from photo gallery when <Titanium.Media.allowMultiple> is `true`.
 extends: SuccessResponse
 properties:
   - name: images
