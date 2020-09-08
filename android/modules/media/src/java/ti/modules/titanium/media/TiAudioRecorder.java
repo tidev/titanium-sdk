@@ -36,10 +36,6 @@ public class TiAudioRecorder
 	private static final int RECORDER_CHANNEL_CONFIG = AudioFormat.CHANNEL_IN_STEREO;
 	private static final int RECORDER_AUDIO_ENCODING = AudioFormat.ENCODING_PCM_16BIT;
 
-	private boolean paused = false;
-	private boolean recording = false;
-	private boolean stopped = true;
-
 	//Byte array used for reading from the native buffer to the output stream
 	private byte[] audioData;
 	private int bufferSize = 0;
@@ -56,24 +52,30 @@ public class TiAudioRecorder
 
 	public boolean isPaused()
 	{
-		return this.paused;
+		if (this.audioRecord != null) {
+			return (this.audioRecord.getRecordingState() != AudioRecord.RECORDSTATE_RECORDING);
+		}
+		return false;
 	}
 
 	public boolean isRecording()
 	{
-		return this.recording;
+		if (this.audioRecord != null) {
+			return (this.audioRecord.getRecordingState() == AudioRecord.RECORDSTATE_RECORDING);
+		}
+		return false;
 	}
 
 	public boolean isStopped()
 	{
-		return this.stopped;
+		return (this.audioRecord == null);
 	}
 
 	public void startRecording()
 	{
 		// Do not continue if already started recording.
-		// Thie member variable will be null when stopped.
-		if (this.audioRecord != null) {
+		// Note: If currently paused, then you must resume or stop then start.
+		if (!isStopped()) {
 			Log.w(TAG, "AudioRecorder has already been started.");
 			return;
 		}
@@ -96,11 +98,7 @@ public class TiAudioRecorder
 				this.audioRecord.setRecordPositionUpdateListener(onRecordPositionUpdateListener);
 				this.audioRecord.setPositionNotificationPeriod(bufferSize / 4);
 				this.audioRecord.startRecording();
-				if (this.audioRecord.getRecordingState() == AudioRecord.RECORDSTATE_RECORDING) {
-					this.recording = true;
-					this.paused = false;
-					this.stopped = false;
-				} else {
+				if (!isRecording()) {
 					Log.e(TAG, "AudioRecorder.start() failed to start recording. Reason: Unknown");
 				}
 			}
@@ -109,7 +107,7 @@ public class TiAudioRecorder
 		}
 
 		// If we failed to start recording above, then clean-up any hanging resources.
-		if (!this.recording) {
+		if (!isRecording()) {
 			stopRecording();
 		}
 	}
@@ -119,22 +117,16 @@ public class TiAudioRecorder
 		// Stop recording and produce the WAV file.
 		File resultFile = null;
 		if (this.audioRecord != null) {
-			// Update state.
-			this.recording = false;
-			this.paused = false;
-			this.stopped = true;
-
-			// Stop recording.
-			int channelCount = this.audioRecord.getChannelCount();
-			if (this.audioRecord.getState() == AudioRecord.STATE_INITIALIZED) {
-				audioRecord.stop();
-			}
-			this.audioRecord.setRecordPositionUpdateListener(null);
-			this.audioRecord.release();
-			this.audioRecord = null;
-
-			// Update recorded WAV file's header info.
 			try {
+				// Stop recording.
+				int channelCount = this.audioRecord.getChannelCount();
+				if (this.audioRecord.getState() == AudioRecord.STATE_INITIALIZED) {
+					audioRecord.stop();
+				}
+				this.audioRecord.setRecordPositionUpdateListener(null);
+				this.audioRecord.release();
+
+				// Update recorded WAV file's header info.
 				if (this.randomAccessFile != null) {
 					this.randomAccessFile.seek(0);
 					long totalFileBytes = this.randomAccessFile.length();
@@ -150,6 +142,7 @@ public class TiAudioRecorder
 			} catch (Exception ex) {
 				Log.e(TAG, "AudioRecorder.stop() failed to write audio file.", ex);
 			}
+			this.audioRecord = null;
 		}
 
 		// Close the output file.
@@ -168,21 +161,15 @@ public class TiAudioRecorder
 
 	public void pauseRecording()
 	{
-		if (this.audioRecord != null) {
+		if (isRecording()) {
 			this.audioRecord.stop();
-			this.recording = false;
-			this.paused = true;
-			this.stopped = false;
 		}
 	}
 
 	public void resumeRecording()
 	{
-		if (this.audioRecord != null) {
+		if (isPaused()) {
 			this.audioRecord.startRecording();
-			this.recording = true;
-			this.paused = false;
-			this.stopped = false;
 		}
 	}
 
