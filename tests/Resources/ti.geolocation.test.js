@@ -4,6 +4,7 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+/* globals OS_VERSION_MAJOR */
 /* eslint-env mocha */
 /* eslint no-unused-expressions: "off" */
 'use strict';
@@ -13,6 +14,7 @@ var should = require('./utilities/assertions');
 // Skip on Windows 10 Mobile device family due to prompt,
 // however we might be able to run some tests?
 describe.windowsBroken('Titanium.Geolocation', function () {
+
 	it('.apiName', function () {
 		should(Ti.Geolocation).have.readOnlyProperty('apiName').which.is.a.String();
 		should(Ti.Geolocation.apiName).be.eql('Ti.Geolocation');
@@ -244,7 +246,52 @@ describe.windowsBroken('Titanium.Geolocation', function () {
 		should(Ti.Geolocation.trackSignificantLocationChange).be.true();
 	});
 
+	it.ios('.ACCURACY_REDUCED', function () {
+		if (OS_VERSION_MAJOR >= 14) {
+			should(Ti.Geolocation).have.constant('ACCURACY_REDUCED').which.is.a.Number();
+		}
+	});
+
+	it.ios('.ACCURACY_AUTHORIZATION_FULL', function () {
+		if (OS_VERSION_MAJOR >= 14) {
+			should(Ti.Geolocation).have.constant('ACCURACY_AUTHORIZATION_FULL').which.is.a.Number();
+		}
+	});
+
+	it.ios('.ACCURACY_AUTHORIZATION_REDUCED', function () {
+		if (OS_VERSION_MAJOR >= 14) {
+			should(Ti.Geolocation).have.constant('ACCURACY_AUTHORIZATION_REDUCED').which.is.a.Number();
+		}
+	});
+
+	it.ios('.locationAccuracyAuthorization', function () {
+		if (OS_VERSION_MAJOR >= 14) {
+			should(Ti.Geolocation).have.a.property('locationAccuracyAuthorization').which.is.a.Number();
+		}
+	});
+
 	// Methods
+	it.ios('#requestTemporaryFullAccuracyAuthorization()', function (finish) {
+		this.timeout(6e4); // 60 sec
+		if (OS_VERSION_MAJOR < 14) {
+			return finish();
+		}
+
+		should(Ti.Geolocation.requestTemporaryFullAccuracyAuthorization).be.a.Function();
+		Ti.Geolocation.requestTemporaryFullAccuracyAuthorization('purposekey', function (e) {
+			try {
+				// It will always give error because 'purposekey' is not in tiapp.xml.
+				should(e).have.property('success').which.is.a.Boolean();
+				should(e.success).be.false();
+				should(e).have.property('code').which.is.a.Number();
+				should(e.code).be.eql(1);
+				should(e).have.property('error').which.is.a.String();
+				finish();
+			} catch (err) {
+				return finish(err);
+			}
+		});
+	});
 
 	it('#forwardGeocoder()', function (finish) {
 		this.timeout(6e4); // 60 sec
