@@ -282,6 +282,63 @@ methods:
     platforms: [iphone, ipad, android]
     since: "5.1.0"
 
+  - name: requestTemporaryFullAccuracyAuthorization
+    summary: Requests the user's permission to temporarily use location services with full accuracy.
+    description: |
+        If your app doesn't have permission to access accurate location (see [locationAccuracyAuthorization](Ti.Geolocation.locationAccuracyAuthorization), 
+        you can use this method to request temporary access to accurate location.  This access will expire automatically, 
+        but it won't expire while the user is still engaged with your app.  So, for example, while your app is in 
+        the foreground your app will retain the temporary access it was granted. Similarly, if your app starts a 
+        Continuous Background Location session with the background location indicator enabled (see [showBackgroundLocationIndicator](Ti.Geolocation.showBackgroundLocationIndicator), 
+        your access to accurate location will remain as long as the background location indicator remains enabled.  
+        This allows your app to provide session-oriented experiences which require accurate location (e.g. fitness or navigation), 
+        even if the user has decided not to grant your app persistent access to accurate location. 
+
+        You need to add key `NSLocationTemporaryUsageDescriptionDictionary` in `tiapp.xml`. See following example -
+
+        ``` xml
+        <ti:app>
+            <ios>
+                <plist>
+                    <dict>
+                        <key>NSLocationTemporaryUsageDescriptionDictionary</key>
+                        <dict>
+                            <key>PurposeKey1</key>
+                            <string>
+                                Specify the reason for accessing the user's location data with full accuracy.
+                                This appears in the alert dialog when asking the user for permission to
+                                access their location.
+                            </string>
+                            <key>PurposeKey2</key>
+                            <string>
+                                Specify the reason for accessing the user's location data with full accuracy.
+                                This appears in the alert dialog when asking the user for permission to
+                                access their location.
+                            </string>
+                        </dict>
+                    </dict>
+                </plist>
+            </ios>
+        </ti:app>
+        ```
+
+        When CoreLocation prepares the prompt for display, it will look at the NSLocationTemporaryUsageDescriptionDictionary key 
+        in your tiapp.xml.  The value should be a dictionary containing usage descriptions.  The purposeKey you provide to 
+        this method must correspond to an entry in that dictionary.
+    parameters:
+      - name: purposeKey
+        summary: |
+            A key in the NSLocationTemporaryUsageDescriptionDictionary dictionary of the app's tiapp.xml file. 
+            The value for this key is an app-provided string that describes the reason for accessing 
+            location data with full accuracy.
+        type: String
+      - name: callback
+        summary: Function to call upon user decision to grant authorization.
+        type: Callback<LocationAccuracyAuthorizationResponse>
+    platforms: [iphone, ipad]
+    osver: {ios: {min: "14.0"}}
+    since: "9.2.0"
+
   - name: reverseGeocoder
     summary: Tries to resolve a location to an address.
     description: |
@@ -485,6 +542,23 @@ properties:
     platforms: [android, iphone, ipad]
     since: "2.0.0"
 
+  - name: ACCURACY_REDUCED
+    summary: |
+        The level of accuracy used when an app isn’t authorized for full accuracy location data.
+    description: |
+        Use with [accuracy](Titanium.Geolocation.accuracy).
+        The accuracy of location data is reduced in both space and time using approaches like 
+        selecting a nearby point of interest and updating the location at most a few times per hour. 
+        The approximate location preserves the user’s country, typically preserves the city, 
+        and is usually within 1–20 kilometers of the actual location.
+        If your app is authorized to access location information with full accuracy, you can use 
+        this constant to access location data as if the app didn’t have that authorization.
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad]
+    osver: {ios: {min: "14.0"}}
+    since: "9.2.0"
+
   - name: AUTHORIZATION_AUTHORIZED
     summary: |
         A [locationServicesAuthorization](Titanium.Geolocation.locationServicesAuthorization) value
@@ -629,6 +703,22 @@ properties:
     permission: read-only
     platforms: [iphone,ipad]
     since: "3.1.0"
+
+  - name: ACCURACY_AUTHORIZATION_FULL
+    summary: The user authorized the app to access location data with full accuracy.
+    type: Number
+    permission: read-only
+    osver: {ios: {min: "14.0"}}
+    platforms: [iphone,ipad]
+    since: "9.2.0"
+
+  - name: ACCURACY_AUTHORIZATION_REDUCED
+    summary: The user authorized the app to access location data with reduced accuracy.
+    type: Number
+    permission: read-only
+    osver: {ios: {min: "14.0"}}
+    platforms: [iphone,ipad]
+    since: "9.2.0"
 
   - name: accuracy
     summary: Specifies the requested accuracy for location updates.
@@ -808,6 +898,21 @@ properties:
     default: <Titanium.Geolocation.ACTIVITYTYPE_OTHER>
     since: "3.1.0"
     platforms: [iphone,ipad]
+
+  - name: locationAccuracyAuthorization
+    summary: A value that indicates the level of location accuracy the app has permission to use.
+    description: |
+        If the value of this property is <Titanium.Geolocation.ACCURACY_AUTHORIZATION_FULL>, 
+        you can set any constant to [accuracy](Titanium.Geolocation.accuracy). If value is 
+        <Titanium.Geolocation.ACCURACY_AUTHORIZATION_REDUCED> setting [accuracy](Titanium.Geolocation.accuracy)
+        to a value other than <Titanium.Geolocation.ACCURACY_REDUCED> has no effect on the location information.
+    type: Number
+    constants: [Titanium.Geolocation.ACCURACY_AUTHORIZATION_FULL, Titanium.Geolocation.ACCURACY_AUTHORIZATION_REDUCED]
+    default: <Titanium.Geolocation.ACCURACY_AUTHORIZATION_REDUCED>
+    osver: {ios: {min: "14.0"}}
+    since: "9.2.0"
+    platforms: [iphone,ipad]
+    permission: read-only
 
   - name: pauseLocationUpdateAutomatically
     summary: Indicates whether the location updates may be paused.
@@ -1258,3 +1363,15 @@ properties:
 name: LocationAuthorizationResponse
 summary: Argument passed to the callback when a request finishes successfully or erroneously.
 extends: ErrorResponse
+
+---
+name: LocationAccuracyAuthorizationResponse
+summary: Argument passed to the callback when a request finishes successfully or erroneously.
+extends: ErrorResponse
+properties:
+  - name: accuracyAuthorization
+    summary: The level of location accuracy the app has granted.
+    description: Will be undefined if `error` is `true`.
+    optional: true
+    type: Number
+    constants: [Titanium.Geolocation.ACCURACY_AUTHORIZATION_FULL, Titanium.Geolocation.ACCURACY_AUTHORIZATION_REDUCED]
