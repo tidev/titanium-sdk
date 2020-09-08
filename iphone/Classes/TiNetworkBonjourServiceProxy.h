@@ -18,7 +18,7 @@
 @protocol TiNetworkBonjourServiceProxyExports <JSExport>
 // Properties (and accessors)
 PROPERTY(NSString *, domain, Domain);
-PROPERTY(BOOL, isLocal, IsLocal);
+PROPERTY(bool, isLocal, IsLocal);
 PROPERTY(NSString *, name, Name);
 PROPERTY(JSValue *, socket, Socket);
 PROPERTY(NSString *, type, Type);

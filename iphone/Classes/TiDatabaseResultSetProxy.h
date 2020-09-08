@@ -16,7 +16,7 @@
 // Properties (and accessors)
 READONLY_PROPERTY(NSInteger, fieldCount, FieldCount);
 READONLY_PROPERTY(NSInteger, rowCount, RowCount);
-READONLY_PROPERTY(BOOL, validRow, ValidRow);
+READONLY_PROPERTY(bool, validRow, ValidRow);
 
 // Methods
 - (void)close;
@@ -30,8 +30,8 @@ JSExportAs(fieldByName,
            : (JSValue *)optionalType);
 - (NSString *)fieldName:(NSInteger)index;
 - (NSString *)getFieldName:(NSInteger)index;
-- (BOOL)isValidRow;
-- (BOOL)next;
+- (bool)isValidRow;
+- (bool)next;
 
 @end
 
