@@ -177,7 +177,7 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
   }
 }
 
-#if IS_SDK_IOS_134
+#if IS_SDK_IOS_13_4
 - (void)setDatePickerStyle_:(id)style
 {
   if (![TiUtils isIOSVersionOrGreater:@"13.4"]) {
