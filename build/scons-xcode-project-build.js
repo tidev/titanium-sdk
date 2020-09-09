@@ -13,7 +13,10 @@ const projectDir = program.args[0];
 const targetBuildDir = program.args[1];
 const productName = program.args[2];
 
-const appDir = path.join(targetBuildDir, `${productName}.app`);
+let appDir = path.join(targetBuildDir, `${productName}.app`);
+if (targetBuildDir.includes('mac')) {
+	appDir = path.join(targetBuildDir, `${productName}.app`, 'Contents/Resources');
+}
 const xcodeProjectResources = path.join(projectDir, '../Resources');
 
 async function generateIndexJSON(dirToTraverse) {
