@@ -2161,6 +2161,7 @@ iOSBuilder.prototype.validate = function validate(logger, config, cli) {
 
 					this.commonJsModules = [];
 					this.nativeLibModules = [];
+					this.legacyModules = new Set();
 
 					const nativeHashes = [];
 
@@ -2202,6 +2203,7 @@ iOSBuilder.prototype.validate = function validate(logger, config, cli) {
 								module.isFramework = false;
 
 								// For Obj-C static libraries, use the .a library or hashing
+								this.legacyModules.add(module.id); // Record that this won't support macos or arm64 sim!
 								nativeHashes.push(module.hash = this.hash(fs.readFileSync(module.libFile)));
 								// Try to load native module as framework (Swift)
 							} else if (fs.existsSync(path.join(module.modulePath, frameworkName))) {
@@ -2210,6 +2212,7 @@ iOSBuilder.prototype.validate = function validate(logger, config, cli) {
 								module.isFramework = true;
 
 								// For Swift frameworks, use the binary inside the .framework for hashing
+								this.legacyModules.add(module.id); // Record that this won't support macos or arm64 sim!
 								nativeHashes.push(module.hash = this.hash(fs.readFileSync(path.join(module.libFile, this.scrubbedModuleId(module.id)))));
 							} else if (fs.existsSync(path.join(module.modulePath, xcFrameworkOfLib))) {
 								module.libName = xcFrameworkOfLib;
@@ -2221,6 +2224,7 @@ iOSBuilder.prototype.validate = function validate(logger, config, cli) {
 								if (!fs.existsSync(path.join(module.libFile, archDir))) {
 									// Try XCode 11 dir w/o arm64 support
 									archDir = 'ios-i386_x86_64-simulator';
+									this.legacyModules.add(module.id);// Record that this won't support arm64 sim!
 								}
 								// TODO: Change hash calculation
 								nativeHashes.push(module.hash = this.hash(fs.readFileSync(path.join(module.libFile, archDir,  'lib' + module.id.toLowerCase() + '.a'))));
@@ -2234,6 +2238,7 @@ iOSBuilder.prototype.validate = function validate(logger, config, cli) {
 								if (!fs.existsSync(path.join(module.libFile, archDir))) {
 									// Try XCode 11 dir w/o arm64 support
 									archDir = 'ios-i386_x86_64-simulator';
+									this.legacyModules.add(module.id);// Record that this won't support arm64 sim!
 								}
 								// TODO: Change hash calculation
 								nativeHashes.push(module.hash = this.hash(fs.readFileSync(path.join(module.libFile, archDir,  this.scrubbedModuleId(module.id) + '.framework', this.scrubbedModuleId(module.id)))));
@@ -6905,11 +6910,14 @@ iOSBuilder.prototype.invokeXcodeBuild = function invokeXcodeBuild(next) {
 		if (this.simOnlyActiveArch) {
 			args.push('ONLY_ACTIVE_ARCH=1');
 		}
-	}
-
-	// Exclude arm64 architecture from simulator build in XCode 12+ - TIMOB-28042
-	if (this.target === 'simulator' && parseFloat(this.xcodeEnv.version) >= 12.0) {
-		args.push('EXCLUDED_ARCHS=arm64');
+		// Exclude arm64 architecture from simulator build in XCode 12+ - TIMOB-28042
+		if (this.legacyModules.size > 0 && parseFloat(this.xcodeEnv.version) >= 12.0) {
+			if (process.arch === 'arm64') {
+				return next(new Error('The app is using native modules that do not support arm64 simulators and you are on an arm64 device.'));
+			}
+			this.logger.warn(`The app is using native modules (${Array.from(this.legacyModules)}) that do not support arm64 simulators, we will exclude arm64. This may fail if you're on an arm64 Apple Silicon device.`);
+			args.push('EXCLUDED_ARCHS=arm64');
+		}
 	}
 
 	xcodebuildHook(
