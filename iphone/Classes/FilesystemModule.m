@@ -109,7 +109,7 @@
   return TI_WRITE;
 }
 
-- (BOOL)isExternalStoragePresent
+- (bool)isExternalStoragePresent
 {
   //IOS treats the camera connection kit as just that, and does not allow
   //R/W access to it, which is just as well as it'd mess up cameras.

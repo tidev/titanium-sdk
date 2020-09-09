@@ -15,7 +15,7 @@
 @protocol TiCalendarAttendeeExports <JSExport>
 
 READONLY_PROPERTY(NSString *, email, Email);
-READONLY_PROPERTY(BOOL, isOrganizer, IsOrganizer);
+READONLY_PROPERTY(bool, isOrganizer, IsOrganizer);
 READONLY_PROPERTY(NSString *, name, Name);
 READONLY_PROPERTY(EKParticipantRole, role, Role);
 READONLY_PROPERTY(EKParticipantStatus, status, Status);

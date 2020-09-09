@@ -27,7 +27,6 @@ const appc = require('node-appc'),
 	ioslib = require('ioslib'),
 	jsanalyze = require('node-titanium-sdk/lib/jsanalyze'),
 	moment = require('moment'),
-	net = require('net'),
 	path = require('path'),
 	PNG = require('pngjs').PNG,
 	ProcessJsTask = require('../../../cli/lib/tasks/process-js-task'),
@@ -2520,6 +2519,7 @@ iOSBuilder.prototype.findProvisioningProfile = function findProvisioningProfile(
 iOSBuilder.prototype.determineLogServerPort = function determineLogServerPort(next) {
 	this.tiLogServerPort = 0;
 
+	// We only turn the log server on for a device
 	if (this.target !== 'device') {
 		// we don't allow the log server in production
 		return next();
@@ -2530,45 +2530,7 @@ iOSBuilder.prototype.determineLogServerPort = function determineLogServerPort(ne
 	// the app's id. this is VERY prone to collisions, but we will show an
 	// error if two different apps have been assigned the same port.
 	this.tiLogServerPort = this.tiapp.ios['log-server-port'] || (parseInt(sha1(this.tiapp.id), 16) % 50000 + 10000);
-
-	if (this.target === 'device') {
-		return next();
-	}
-
-	// The Plan
-	//
-	// We are going to try to create a Node.js server to see if the port is available.
-	//
-	// If the port is NOT available, then we're gonna randomly try to pick a port until we find an
-	// open one.
-
-	let done = false;
-	async.whilst(
-		cb => { return cb(null, !done); },
-		cb => {
-			// for simulator builds, the port is shared with the local machine, so we
-			// just need to detect if the port is available with the help of Node
-			const server = net.createServer();
-
-			server.on('error', () => {
-				server.close(() => {
-					this.logger.debug(__('Log server port %s is in use, trying another port', cyan(String(this.tiLogServerPort))));
-					this.tiLogServerPort = parseInt(Math.random() * 50000) + 10000;
-					cb();
-				});
-			});
-
-			server.listen({
-				host: '127.0.0.1',
-				port: this.tiLogServerPort
-			}, () => {
-				this.logger.debug(__('Using log server port %s', cyan(String(this.tiLogServerPort))));
-				done = true;
-				server.close(cb);
-			});
-		},
-		next
-	);
+	next();
 };
 
 iOSBuilder.prototype.loginfo = function loginfo() {

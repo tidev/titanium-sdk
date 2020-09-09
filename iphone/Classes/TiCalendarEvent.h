@@ -18,14 +18,14 @@
 @protocol TiCalendarEventExports <JSExport>
 // properties (and accessors)
 PROPERTY(NSArray<TiCalendarAlert *> *, alerts, Alerts);
-PROPERTY(BOOL, allDay, AllDay);
+PROPERTY(bool, allDay, AllDay);
 READONLY_PROPERTY(NSArray<TiCalendarAttendee *> *, attendees, Attendees);
 PROPERTY(EKEventAvailability, availability, Availability);
 PROPERTY(NSDate *, begin, Begin);
 PROPERTY(NSDate *, end, End);
-READONLY_PROPERTY(BOOL, hasAlarm, HasAlarm);
+READONLY_PROPERTY(bool, hasAlarm, HasAlarm);
 READONLY_PROPERTY(NSString *, id, Id);
-READONLY_PROPERTY(BOOL, isDetached, IsDetached);
+READONLY_PROPERTY(bool, isDetached, IsDetached);
 PROPERTY(NSString *, location, Location);
 PROPERTY(NSString *, notes, Notes);
 PROPERTY(NSArray<TiCalendarRecurrenceRule *> *, recurrenceRules, RecurrenceRules);
@@ -36,10 +36,10 @@ PROPERTY(NSString *, title, Title);
 - (void)addRecurrenceRule:(TiCalendarRecurrenceRule *)rule;
 - (TiCalendarAlert *)createAlert:(NSDictionary *)properties;
 - (TiCalendarRecurrenceRule *)createRecurrenceRule:(NSDictionary *)properties;
-- (BOOL)refresh;
-- (BOOL)remove:(EKSpan)span;
+- (bool)refresh;
+- (bool)remove:(EKSpan)span;
 - (void)removeRecurrenceRule:(TiCalendarRecurrenceRule *)rule;
-- (BOOL)save:(EKSpan)span;
+- (bool)save:(EKSpan)span;
 
 @end
 

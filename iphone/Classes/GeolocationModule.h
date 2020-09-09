@@ -14,6 +14,7 @@
 NSString *const kTiGeolocationUsageDescriptionWhenInUse = @"NSLocationWhenInUseUsageDescription";
 NSString *const kTiGeolocationUsageDescriptionAlways = @"NSLocationAlwaysUsageDescription";
 NSString *const kTiGeolocationUsageDescriptionAlwaysAndWhenInUse = @"NSLocationAlwaysAndWhenInUseUsageDescription";
+NSString *const kTiGeolocationTemporaryUsageDescriptionDictionary = @"NSLocationTemporaryUsageDescriptionDictionary";
 
 @protocol GeolocationExports <JSExport>
 
@@ -21,6 +22,7 @@ NSString *const kTiGeolocationUsageDescriptionAlwaysAndWhenInUse = @"NSLocationA
 CONSTANT(NSNumber *, ACCURACY_BEST_FOR_NAVIGATION);
 CONSTANT(NSNumber *, ACCURACY_HIGH);
 CONSTANT(NSNumber *, ACCURACY_LOW);
+CONSTANT(NSNumber *, ACCURACY_REDUCED);
 
 // iOS-specific values, (deprecated on Android)
 CONSTANT(NSNumber *, ACCURACY_BEST);
@@ -42,6 +44,10 @@ CONSTANT(NSNumber *, AUTHORIZATION_RESTRICTED);
 CONSTANT(NSNumber *, AUTHORIZATION_UNKNOWN);
 CONSTANT(NSNumber *, AUTHORIZATION_WHEN_IN_USE);
 
+//Accuracy Authorization to use location
+CONSTANT(NSNumber *, ACCURACY_AUTHORIZATION_FULL);
+CONSTANT(NSNumber *, ACCURACY_AUTHORIZATION_REDUCED);
+
 // Error codes
 CONSTANT(NSNumber *, ERROR_DENIED);
 CONSTANT(NSNumber *, ERROR_HEADING_FAILURE);
@@ -55,17 +61,20 @@ CONSTANT(NSNumber *, ERROR_REGION_MONITORING_FAILURE);
 // Properties
 PROPERTY(CLLocationAccuracy, accuracy, Accuracy);
 PROPERTY(CLActivityType, activityType, ActivityType);
-PROPERTY(BOOL, allowsBackgroundLocationUpdates, AllowsBackgroundLocationUpdates);
+PROPERTY(bool, allowsBackgroundLocationUpdates, AllowsBackgroundLocationUpdates);
 PROPERTY(CLLocationDistance, distanceFilter, DistanceFilter);
-READONLY_PROPERTY(BOOL, hasCompass, HasCompass);
+READONLY_PROPERTY(bool, hasCompass, HasCompass);
 PROPERTY(CLLocationDegrees, headingFilter, HeadingFilter);
 READONLY_PROPERTY(NSString *, lastGeolocation, LastGeolocation);
 READONLY_PROPERTY(CLAuthorizationStatus, locationServicesAuthorization, LocationServicesAuthorization);
-READONLY_PROPERTY(BOOL, locationServicesEnabled, LocationServicesEnabled);
-PROPERTY(BOOL, pauseLocationUpdateAutomatically, PauseLocationUpdateAutomatically);
-PROPERTY(BOOL, showBackgroundLocationIndicator, ShowBackgroundLocationIndicator);
-PROPERTY(BOOL, showCalibration, ShowCalibration);
-PROPERTY(BOOL, trackSignificantLocationChange, TrackSignificantLocationChange);
+#if IS_SDK_IOS_14
+READONLY_PROPERTY(CLAccuracyAuthorization, locationAccuracyAuthorization, AccuracyAuthorization);
+#endif
+READONLY_PROPERTY(bool, locationServicesEnabled, LocationServicesEnabled);
+PROPERTY(bool, pauseLocationUpdateAutomatically, PauseLocationUpdateAutomatically);
+PROPERTY(bool, showBackgroundLocationIndicator, ShowBackgroundLocationIndicator);
+PROPERTY(bool, showCalibration, ShowCalibration);
+PROPERTY(bool, trackSignificantLocationChange, TrackSignificantLocationChange);
 
 // methods
 JSExportAs(forwardGeocoder,
@@ -74,7 +83,7 @@ JSExportAs(forwardGeocoder,
            : (JSValue *)callback);
 - (void)getCurrentHeading:(JSValue *)callback;
 - (void)getCurrentPosition:(JSValue *)callback;
-- (BOOL)hasLocationPermissions:(CLAuthorizationStatus)authorizationType;
+- (bool)hasLocationPermissions:(CLAuthorizationStatus)authorizationType;
 JSExportAs(requestLocationPermissions,
            -(void)requestLocationPermissions
            : (CLAuthorizationStatus)authorizationType withCallback
@@ -85,6 +94,12 @@ JSExportAs(reverseGeocoder,
            : (double)longitude withCallback
            : (JSValue *)callback);
 
+#if IS_SDK_IOS_14
+JSExportAs(requestTemporaryFullAccuracyAuthorization,
+           -(void)requestTemporaryFullAccuracyAuthorization
+           : (NSString *)purposeString withCallback
+           : (JSValue *)callback);
+#endif
 @end
 
 @interface GeolocationModule : ObjcProxy <GeolocationExports, CLLocationManagerDelegate> {
@@ -101,7 +116,7 @@ JSExportAs(reverseGeocoder,
   BOOL trackingHeading;
   BOOL trackingLocation;
   BOOL trackSignificantLocationChange;
-  BOOL allowsBackgroundLocationUpdates;
+  bool allowsBackgroundLocationUpdates;
   BOOL showBackgroundLocationIndicator;
   JSManagedValue *authorizationCallback;
   CLAuthorizationStatus requestedAuthorizationStatus;

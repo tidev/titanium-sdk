@@ -4,6 +4,7 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+/* globals OS_IOS */
 /* eslint-env mocha */
 /* eslint no-unused-expressions: "off" */
 'use strict';
@@ -454,16 +455,14 @@ describe('Titanium.UI.ImageView', function () {
 	});
 
 	it('image error event', function (finish) {
+		if (OS_IOS) {
+			this.timeout(21000); // default timeout of underlying request is 20 seconds, so let's wait one extra
+		}
 		win = Ti.UI.createWindow();
 
-		const img = Ti.UI.createImageView({
-			image: 'https://invalid.host.com/image.jpg'
-		});
-
-		img.addEventListener('error', () => {
-			finish();
-		});
-
+		const img = Ti.UI.createImageView({});
+		img.addEventListener('error', () => finish());
+		img.image = 'https://invalid.host.com/image.jpg';
 		win.add(img);
 		win.open();
 	});

@@ -237,7 +237,7 @@ GETTER_IMPL(NSString *, macaddress, Macaddress);
 GETTER_IMPL(NSString *, identifierForVendor, IdentifierForVendor);
 
 #if defined(USE_TI_PLATFORMIDENTIFIERFORADVERTISING) || defined(USE_TI_PLATFORMGETIDENTIFIERFORADVERTISING)
-- (BOOL)isAdvertisingTrackingEnabled
+- (bool)isAdvertisingTrackingEnabled
 {
   return [[ASIdentifierManager sharedManager] isAdvertisingTrackingEnabled];
 }
@@ -247,7 +247,7 @@ GETTER_IMPL(NSString *, identifierForVendor, IdentifierForVendor);
   return [[[ASIdentifierManager sharedManager] advertisingIdentifier] UUIDString];
 }
 #else
-- (BOOL)isAdvertisingTrackingEnabled
+- (bool)isAdvertisingTrackingEnabled
 {
   return NO;
 }
@@ -258,7 +258,7 @@ GETTER_IMPL(NSString *, identifierForVendor, IdentifierForVendor);
 }
 #endif
 
-GETTER_IMPL(BOOL, isAdvertisingTrackingEnabled, IsAdvertisingTrackingEnabled);
+GETTER_IMPL(bool, isAdvertisingTrackingEnabled, IsAdvertisingTrackingEnabled);
 GETTER_IMPL(NSString *, identifierForAdvertising, IdentifierForAdvertising);
 
 - (NSString *)id
@@ -315,7 +315,7 @@ GETTER_IMPL(NSString *, id, Id);
 }
 GETTER_IMPL(NSNumber *, availableMemory, AvailableMemory);
 
-- (BOOL)openURL:(NSString *)url withOptions:(JSValue *)options andCallback:(JSValue *)callback
+- (bool)openURL:(NSString *)url withOptions:(JSValue *)options andCallback:(JSValue *)callback
 {
   NSURL *newUrl = [TiUtils toURL:url proxy:self];
   BOOL result = NO;
@@ -343,10 +343,10 @@ GETTER_IMPL(NSNumber *, availableMemory, AvailableMemory);
                              }];
   }
 
-  return [NSNumber numberWithBool:result];
+  return result;
 }
 
-- (BOOL)canOpenURL:(NSString *)arg
+- (bool)canOpenURL:(NSString *)arg
 {
   NSURL *url = [TiUtils toURL:arg proxy:self];
   return [[UIApplication sharedApplication] canOpenURL:url];
@@ -362,7 +362,7 @@ GETTER_IMPL(TiPlatformDisplayCaps *, displayCaps, DisplayCaps);
   return [self displayCaps];
 }
 
-- (void)setBatteryMonitoring:(BOOL)yn
+- (void)setBatteryMonitoring:(bool)yn
 {
   if (![NSThread isMainThread]) {
     TiThreadPerformOnMainThread(
@@ -374,7 +374,7 @@ GETTER_IMPL(TiPlatformDisplayCaps *, displayCaps, DisplayCaps);
   [[UIDevice currentDevice] setBatteryMonitoringEnabled:yn];
 }
 
-- (BOOL)batteryMonitoring
+- (bool)batteryMonitoring
 {
   if (![NSThread isMainThread]) {
     __block BOOL result = NO;
@@ -387,7 +387,7 @@ GETTER_IMPL(TiPlatformDisplayCaps *, displayCaps, DisplayCaps);
   }
   return [UIDevice currentDevice].batteryMonitoringEnabled;
 }
-READWRITE_IMPL(BOOL, batteryMonitoring, BatteryMonitoring);
+READWRITE_IMPL(bool, batteryMonitoring, BatteryMonitoring);
 
 - (NSNumber *)batteryState
 {

@@ -11,9 +11,9 @@
 @protocol GestureExports <JSExport>
 
 // Properties (and accessors)
-READONLY_PROPERTY(BOOL, landscape, Landscape);
+READONLY_PROPERTY(bool, landscape, Landscape);
 READONLY_PROPERTY(NSNumber *, orientation, Orientation);
-READONLY_PROPERTY(BOOL, portrait, Portrait);
+READONLY_PROPERTY(bool, portrait, Portrait);
 
 @end
 
