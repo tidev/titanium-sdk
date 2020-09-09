@@ -282,7 +282,7 @@
 
   // Update the modified properties on the view!
   if (animatedViewProxy != nil) {
-    if (!isReverse && ![autoreverse boolValue] && properties != nil) {
+    if (!isReverse && ![self isTransitionAnimation] && ![autoreverse boolValue] && properties != nil) {
       [animatedViewProxy applyProperties:properties];
     }
     // TODO: What about center?
