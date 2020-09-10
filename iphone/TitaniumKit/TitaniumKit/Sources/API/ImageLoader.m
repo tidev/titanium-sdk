@@ -458,11 +458,7 @@ DEFINE_EXCEPTIONS
       NSRange range = [path rangeOfString:@".app"];
       NSString *imageArg = nil;
       if (range.location != NSNotFound) {
-        if ([TiUtils isMacOS]) {
-          imageArg = [path substringFromIndex:range.location + 24]; //Contents/Resources/ for mac
-        } else {
-          imageArg = [path substringFromIndex:range.location + 5];
-        }
+        imageArg = [path substringFromIndex:range.location + 5];
       }
       //remove suffixes.
       imageArg = [imageArg stringByReplacingOccurrencesOfString:@"@3x" withString:@""];

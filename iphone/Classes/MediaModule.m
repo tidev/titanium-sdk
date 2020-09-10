@@ -29,7 +29,7 @@
 #import <Photos/Photos.h>
 #import <QuartzCore/QuartzCore.h>
 #import <UIKit/UIPopoverController.h>
-#if defined(USE_TI_MEDIAHASPHOTOGALLERYPERMISSIONS) && !TARGET_OS_MACCATALYST
+#ifdef USE_TI_MEDIAHASPHOTOGALLERYPERMISSIONS
 #import <AssetsLibrary/AssetsLibrary.h>
 #endif
 #import "TiUIiOSLivePhoto.h"
@@ -415,7 +415,6 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
 {
   DEPRECATED_REPLACED(@"Media.audioSessionMode", @"7.0.0", @"Media.audioSessionCategory");
 
-#if !TARGET_OS_MACCATALYST
   switch ([mode unsignedIntegerValue]) {
   case kAudioSessionCategory_AmbientSound:
     [self setAudioSessionCategory:[self AUDIO_SESSION_CATEGORY_AMBIENT]];
@@ -436,7 +435,6 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
     DebugLog(@"Unsupported audioSessionMode specified");
     break;
   }
-#endif
 }
 
 - (void)setAudioSessionCategory:(NSString *)mode

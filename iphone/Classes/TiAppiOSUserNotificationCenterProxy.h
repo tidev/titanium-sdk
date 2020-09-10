@@ -4,7 +4,7 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#if defined(USE_TI_APPIOS) && defined(USE_TI_APPIOSUSERNOTIFICATIONCENTER)
+#ifdef USE_TI_APPIOS
 
 #import <TitaniumKit/TiApp.h>
 #import <TitaniumKit/TiProxy.h>

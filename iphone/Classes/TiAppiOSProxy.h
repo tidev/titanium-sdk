@@ -14,7 +14,7 @@
   @private
   NSMutableDictionary *backgroundServices;
 
-#if defined(USE_TI_APPIOSUSERNOTIFICATIONCENTER)
+#ifdef USE_TI_APPIOSUSERNOTIFICATIONCENTER
   TiProxy *UserNotificationCenter;
 #endif
 }

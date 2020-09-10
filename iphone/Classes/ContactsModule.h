@@ -6,7 +6,7 @@
  */
 #import <TitaniumKit/TiModule.h>
 
-#if defined(USE_TI_CONTACTS) && (!TARGET_OS_MACCATALYST || IS_SDK_IOS_14)
+#ifdef USE_TI_CONTACTS
 
 #import "TiContactsPerson.h"
 #import <AddressBook/AddressBook.h>

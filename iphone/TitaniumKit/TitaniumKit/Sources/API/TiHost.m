@@ -20,7 +20,7 @@
 
 + (NSString *)resourcePath
 {
-  NSString *resourcePath = [[NSBundle mainBundle] resourcePath];
+  NSString *resourcePath = [[NSBundle mainBundle] bundlePath];
 
 #if TARGET_IPHONE_SIMULATOR
   NSString *resourcesDir = [[TiSharedConfig defaultConfig] applicationResourcesDirectory];

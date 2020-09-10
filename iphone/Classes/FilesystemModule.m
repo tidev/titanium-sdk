@@ -209,12 +209,7 @@ GETTER_IMPL(NSString *, lineEnding, LineEnding);
     if ([newpath hasPrefix:resourcesDir] || [newpath hasPrefix:[resourcesDir stringByStandardizingPath]]) {
       NSRange range = [newpath rangeOfString:@".app"];
       if (range.location != NSNotFound) {
-        NSString *imageArg = nil;
-        if ([TiUtils isMacOS]) {
-          imageArg = [newpath substringFromIndex:range.location + 24]; //Contents/Resources/ for mac
-        } else {
-          imageArg = [newpath substringFromIndex:range.location + 5];
-        }
+        NSString *imageArg = [newpath substringFromIndex:range.location + 5];
         //remove suffixes.
         imageArg = [imageArg stringByReplacingOccurrencesOfString:@"@3x" withString:@""];
         imageArg = [imageArg stringByReplacingOccurrencesOfString:@"@2x" withString:@""];

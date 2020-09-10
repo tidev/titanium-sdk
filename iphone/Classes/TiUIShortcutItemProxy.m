@@ -9,7 +9,7 @@
 #import "TiUIShortcutItemProxy.h"
 #import <TitaniumKit/TiBlob.h>
 #import <TitaniumKit/TiUtils.h>
-#if defined(USE_TI_CONTACTS) && !TARGET_OS_MACCATALYST
+#ifdef USE_TI_CONTACTS
 #import "TiContactsPerson.h"
 #import <ContactsUI/ContactsUI.h>
 #endif
@@ -65,7 +65,7 @@
     return nil;
   }
 
-#if defined(USE_TI_CONTACTS) && !TARGET_OS_MACCATALYST
+#ifdef USE_TI_CONTACTS
   if ([value isKindOfClass:[TiContactsPerson class]]) {
     ENSURE_TYPE(value, TiContactsPerson);
     return [UIApplicationShortcutIcon iconWithContact:[(TiContactsPerson *)value nativePerson]];
