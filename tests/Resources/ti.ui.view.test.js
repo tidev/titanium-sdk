@@ -653,6 +653,38 @@ describe('Titanium.UI.View', function () {
 		win.open();
 	});
 
+	it.ios('animate (transition) - FLIP (app should not crash)', function (finish) {
+		win = Ti.UI.createWindow();
+		const controlView = Ti.UI.createView({
+			backgroundColor: 'red',
+			width: 100, height: 100,
+			left: 100,  top: 100
+		});
+
+		win.addEventListener('open', function () {
+			const view = Ti.UI.createView({
+				top: 150,
+				left: 150,
+				width: 150,
+				height: 150,
+				backgroundColor: 'green'
+			});
+			controlView.add(view);
+			try {
+				controlView.animate({
+					view: view,
+					backgroundColor: 'green',
+					transition: Ti.UI.iOS.AnimationStyle.FLIP_FROM_LEFT
+				});
+			} catch (err) {
+				return finish(err);
+			}
+			finish();
+		});
+		win.add(controlView);
+		win.open();
+	});
+
 	// FIXME: I think there's a parity issue here!
 	// Android returns x/y values as pixels *always*. while the input '100' uses the default unit (dip)
 	// which may vary based on screen density (Ti.Platform.DisplayCaps.ydpi) - so may be 100 or 200 pixels!
