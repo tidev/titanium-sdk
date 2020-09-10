@@ -4,7 +4,7 @@
  * @module cli/_buildModule
  *
  * @copyright
- * Copyright (c) 2014-2020 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2014-2018 by Appcelerator, Inc. All Rights Reserved.
  *
  * @license
  * Licensed under the terms of the Apache Public License
@@ -13,9 +13,8 @@
 
 'use strict';
 
-const { exec, spawn } = require('child_process'); // eslint-disable-line security/detect-child-process
-
 const appc = require('node-appc'),
+	AdmZip = require('adm-zip'),
 	archiver = require('archiver'),
 	async = require('async'),
 	Builder = require('node-titanium-sdk/lib/builder'),
@@ -26,6 +25,7 @@ const appc = require('node-appc'),
 	fs = require('fs-extra'),
 	markdown = require('markdown').markdown,
 	path = require('path'),
+	spawn = require('child_process').spawn, // eslint-disable-line security/detect-child-process
 	temp = require('temp'),
 	util = require('util'),
 	__ = appc.i18n(__dirname).__,
@@ -45,13 +45,14 @@ iOSModuleBuilder.prototype.validate = function validate(logger, config, cli) {
 	this.manifest      = cli.manifest;
 	this.moduleId      = cli.manifest.moduleid;
 	this.moduleName    = cli.manifest.name;
-	this.moduleIdAsIdentifier = this.scrubbedName(this.moduleId);
+	this.moduleIdAsIdentifier = this.scrubbedModuleId();
 	this.moduleVersion = cli.manifest.version;
 	this.moduleGuid    = cli.manifest.guid;
 	this.isFramework   = fs.existsSync(path.join(this.projectDir, 'Info.plist')); // TODO: There MUST be a better way to determine if it's a framework (Swift)
 
 	this.buildOnly     = cli.argv['build-only'];
 	this.xcodeEnv      = null;
+
 	const sdkModuleAPIVersion = cli.sdk.manifest && cli.sdk.manifest.moduleAPIVersion && cli.sdk.manifest.moduleAPIVersion['iphone'];
 	if (this.manifest.apiversion && sdkModuleAPIVersion && this.manifest.apiversion !== sdkModuleAPIVersion) {
 		logger.error(__('The module manifest apiversion is currently set to %s', this.manifest.apiversion));
@@ -210,11 +211,11 @@ iOSModuleBuilder.prototype.processTiXcconfig = function processTiXcconfig(next) 
 	if (fs.existsSync(this.tiXcconfigFile)) {
 		const contents = fs.readFileSync(this.tiXcconfigFile).toString();
 		// with move to 8.0.0, we needed to add FRAMEWORK_SEARCH_PATHS to titanium.xcconfig
-		if (!contents.includes('FRAMEWORK_SEARCH_PATHS = $(inherited) "$(TITANIUM_SDK)/iphone/Frameworks/**"')) {
+		if (!contents.includes('FRAMEWORK_SEARCH_PATHS = $(inherited) "$(TITANIUM_SDK)/iphone/Frameworks"')) {
 			this.logger.warn(`Build may fail due to missing FRAMEWORK_SEARCH_PATHS value in ${this.tiXcconfigFile.cyan}
 Please append the following line to that file:
 
-FRAMEWORK_SEARCH_PATHS = $(inherited) "$(TITANIUM_SDK)/iphone/Frameworks/**"`);
+FRAMEWORK_SEARCH_PATHS = $(inherited) "$(TITANIUM_SDK)/iphone/Frameworks"`);
 		}
 		contents.split('\n').forEach(function (line) {
 			const match = line.match(re);
@@ -459,208 +460,156 @@ iOSModuleBuilder.prototype.buildModule = function buildModule(next) {
 
 	const xcodeBuildArgumentsForTarget = function (target) {
 		let args = [
-			'archive',
 			'-configuration', 'Release',
 			'-sdk', target,
-			'-archivePath', path.join(this.projectDir, 'build', target + '.xcarchive'),
-			'-UseNewBuildSystem=YES',
+			'-UseNewBuildSystem=NO',
 			'ONLY_ACTIVE_ARCH=NO',
-			'BUILD_LIBRARY_FOR_DISTRIBUTION=YES',
-			'SKIP_INSTALL=NO',
+			'clean', 'build'
 		];
-		const scheme = this.isFramework ? this.moduleIdAsIdentifier : this.moduleName;
-		args.push('-scheme');
-		args.push(scheme);
 
-		if (target === 'macosx') {
-			args.push('SUPPORTS_MACCATALYST=YES');
+		if (this.isFramework) {
+			args.push('-scheme');
+			args.push(this.moduleIdAsIdentifier);
+			args.push('CONFIGURATION_BUILD_DIR=' + path.join(this.projectDir, 'build', 'Release-' + target));
+		}
+
+		// Exclude arm64 architecture from simulator build in XCode 12+ - TIMOB-28042
+		if (target === 'iphonesimulator' && parseFloat(this.xcodeEnv.version) >= 12.0) {
+			args.push('EXCLUDED_ARCHS=arm64');
 		}
 
 		return args;
 	}.bind(this);
 
-	this.cli.env.getOSInfo(function (osInfo) {
-		const macOsVersion = osInfo.osver;
-
-		// 1. Create a build for the simulator
-		xcodebuildHook(xcBuild, xcodeBuildArgumentsForTarget('iphonesimulator'), opts, 'xcode-sim', () => {
-			// 2. Create a build for device
-			xcodebuildHook(xcBuild, xcodeBuildArgumentsForTarget('iphoneos'), opts, 'xcode-dist', () => {
-				const osVersionParts = macOsVersion.split('.').map(n => parseInt(n));
-				if (osVersionParts[0] > 10 || (osVersionParts[0] === 10 && osVersionParts[1] >= 15)) {
-					// 3. Create a build for the maccatalyst
-					xcodebuildHook(xcBuild, xcodeBuildArgumentsForTarget('macosx'), opts, 'xcode-macos', next);
-				} else {
-					this.logger.warn(__('Ignoring build for mac as mac target is < 10.15'));
-					next();
-				}
-			});
-		});
+	// 1. Create a build for the simulator
+	xcodebuildHook(xcBuild, xcodeBuildArgumentsForTarget('iphonesimulator'), opts, 'xcode-sim', () => {
+		// 2. Create a build for the device
+		xcodebuildHook(xcBuild, xcodeBuildArgumentsForTarget('iphoneos'), opts, 'xcode-dist', next);
 	});
 };
 
 iOSModuleBuilder.prototype.createUniversalBinary = function createUniversalBinary(next) {
 	this.logger.info(__('Creating universal library'));
 
-	const moduleId = this.isFramework ? this.moduleIdAsIdentifier : this.moduleId;
+	const moduleId = this.isFramework ? this.moduleIdAsIdentifier + '.framework' : 'lib' + this.moduleId + '.a';
 	const findLib = function (dest) {
-		let libPath = this.isFramework ? '.xcarchive/Products/Library/Frameworks/' + moduleId + '.framework' : '.xcarchive/Products/usr/local/lib/lib' + this.moduleId + '.a';
-
-		const lib = path.join(this.projectDir, 'build', dest + libPath);
-		this.logger.info(__('Looking for ' + lib));
-
+		let lib = path.join(this.projectDir, 'build', 'Release-' + dest, moduleId);
 		if (!fs.existsSync(lib)) {
 			// unfortunately the initial module project template incorrectly
 			// used the camel-cased module id
-			libPath = '.xcarchive/Products/usr/local/lib/lib' + this.moduleIdAsIdentifier + '.a';
-			const newLib = path.join(this.projectDir, 'build', dest + libPath);
-			this.logger.debug('Searching library: ' + newLib);
-			if (!fs.existsSync(newLib)) {
+			lib = path.join(this.projectDir, 'build', 'Release-' + dest, 'lib' + this.moduleIdAsIdentifier + '.a');
+			this.logger.debug('Searching library: ' + lib);
+			if (!fs.existsSync(lib)) {
 				return new Error(__('Unable to find the built %s library', 'Release-' + dest));
-			} else {
-				// rename file to 'lib' + moduleId + '.a'
-				fs.renameSync(newLib, lib);
 			}
 		}
 		return lib;
 	}.bind(this);
 
-	// Create xcframework
+	// Create a universal build by merging the all builds to a single binary
 	const args = [];
-
-	const headerPath = path.join(this.projectDir, 'build', 'dummyheader/');
-	if (!this.isFramework && !fs.existsSync(headerPath)) {
-		fs.mkdirSync(headerPath);
-	}
-	const buildType = this.isFramework ? '-framework' : '-library';
 
 	let lib = findLib('iphoneos');
 	if (lib instanceof Error) {
 		return next(lib);
 	}
-
-	args.push('-create-xcframework');
-	args.push(buildType);
 	args.push(lib);
-
-	if (!this.isFramework) {
-		args.push('-headers');
-		args.push(headerPath);
-	}
 
 	lib = findLib('iphonesimulator');
 	if (lib instanceof Error) {
 		return next(lib);
 	}
-	args.push(buildType);
 	args.push(lib);
-	if (!this.isFramework) {
-		args.push('-headers');
-		args.push(headerPath);
-	}
-	lib = findLib('macosx');
-	if (lib instanceof Error) {
-		this.logger.warn(__('The module is missing 64-bit support of macos. Ignoring mac target for this module...'));
+
+	// Frameworks are handled differently. Based on https://gist.github.com/cromandini/1a9c4aeab27ca84f5d79
+	if (this.isFramework) {
+		const simFramework = args[1];
+		const deviceFramework = args[0];
+		const basename = path.basename(simFramework); // Same for sim and dist
+		const universalFrameworkDir = path.join(this.projectDir, 'build', 'universal');
+		const universalFrameworkFile = path.join(universalFrameworkDir, basename);
+		const swiftModulesDir = path.join(this.projectDir, 'build', 'Release-iphonesimulator', basename, 'Modules', this.moduleIdAsIdentifier + '.swiftmodule');
+
+		// Create universal framework directory, e.g. <module-project>/build/universal
+		fs.emptyDirSync(universalFrameworkDir);
+		fs.copySync(deviceFramework, universalFrameworkFile); // Copy device framework to universal dir
+		// If exists, copy .swiftmodule directory to <module-project>/build/universal/<module-name>.framework/Modules/<module-name>.swiftmodule/
+		if (fs.existsSync(swiftModulesDir)) {
+			fs.copySync(swiftModulesDir, path.join(universalFrameworkFile, 'Modules', path.basename(swiftModulesDir)));
+		}
+
+		// Append executive name, e.g. <module-name>.framework/<module-name>
+		// FIXME: Use less hacky approach here
+		args[0] += '/' + this.moduleIdAsIdentifier;
+		args[1] += '/' + this.moduleIdAsIdentifier;
+
+		// Prepare lipo build
+		args.push(
+			'-create',
+			'-output',
+			path.join(universalFrameworkFile, this.moduleIdAsIdentifier)
+		);
+
+		this.logger.debug(__('Running: %s', (this.xcodeEnv.executables.lipo + ' ' + args.join(' ')).cyan));
+		appc.subprocess.run(this.xcodeEnv.executables.lipo, args, function (code, out, err) {
+			if (code) {
+				this.logger.error(__('Failed to generate universal framework (code %s):', code));
+				this.logger.error(err.trim() + '\n');
+				process.exit(1);
+			}
+			fs.copySync(universalFrameworkFile, path.join(this.projectDir, 'build', basename));
+			fs.removeSync(universalFrameworkDir);
+			next();
+		}.bind(this));
 	} else {
-		args.push(buildType);
-		args.push(lib);
-		if (!this.isFramework) {
-			args.push('-headers');
-			args.push(headerPath);
-		}
+		args.push(
+			'-create',
+			'-output',
+			path.join(this.projectDir, 'build', moduleId)
+		);
+		this.logger.debug(__('Running: %s', (this.xcodeEnv.executables.lipo + ' ' + args.join(' ')).cyan));
+		appc.subprocess.run(this.xcodeEnv.executables.lipo, args, function (code, out, err) {
+			if (code) {
+				this.logger.error(__('Failed to generate universal binary (code %s):', code));
+				this.logger.error(err.trim() + '\n');
+				process.exit(1);
+			}
+			next();
+		}.bind(this));
 	}
-
-	// Wipe the destination folder first to avoid "couldn't be copied" errors on rebuilds
-	const xcframeworkDest = path.join(this.projectDir, 'build', moduleId + '.xcframework');
-	if (fs.pathExistsSync(xcframeworkDest)) {
-		fs.removeSync(xcframeworkDest);
-	}
-
-	args.push(
-		'-output',
-		xcframeworkDest
-	);
-
-	this.logger.debug(__('Running: %s', (this.xcodeEnv.executables.xcodebuild + ' ' + args.join(' ')).cyan));
-	appc.subprocess.run(this.xcodeEnv.executables.xcodebuild, args, function (code, out, err) {
-		if (code) {
-			this.logger.error(__('Failed to generate universal binary (code %s):', code));
-			this.logger.error(err.trim() + '\n');
-			process.exit(1);
-		}
-		next();
-	}.bind(this));
 };
 
 iOSModuleBuilder.prototype.verifyBuildArch = function verifyBuildArch(next) {
+	const args = [ '-info', path.join(this.projectDir, 'build', this.isFramework ? this.moduleIdAsIdentifier + '.framework/' + this.moduleIdAsIdentifier : 'lib' + this.moduleId + '.a') ];
+
 	this.logger.info(__('Verifying universal library'));
+	this.logger.debug(__('Running: %s', (this.xcodeEnv.executables.lipo + ' ' + args.join(' ')).cyan));
 
-	// TODO: We want to verify the set of targets/arches built
-	// The manifest shouldn't matter any more?
-	// Can we just ensure it's an xcframework?
-
-	const findLib = function (dest) {
-		const moduleId = this.isFramework ? this.moduleIdAsIdentifier  : this.moduleId;
-		const libName = this.isFramework ? this.moduleIdAsIdentifier + '.framework' : 'lib' + this.moduleId + '.a';
-		const lib = path.join(this.projectDir, 'build', moduleId + '.xcframework', dest, libName);
-		this.logger.info(__('Looking for ' + lib));
-
-		if (!fs.existsSync(lib)) {
-			return new Error(__('Unable to find the built %s library', 'Release-' + dest));
+	appc.subprocess.run(this.xcodeEnv.executables.lipo, args, function (code, out, err) {
+		if (code) {
+			this.logger.error(__('Unable to determine the compiled module\'s architecture (code %s):', code));
+			this.logger.error(err.trim() + '\n');
+			process.exit(1);
 		}
-		return lib;
-	}.bind(this);
 
-	const buildArchs = new Set();
+		const manifestArchs = this.manifest.architectures.split(' '),
+			buildArchs    = out.substr(out.lastIndexOf(':') + 1).trim().split(' '),
+			buildDiff     = manifestArchs.filter(function (i) { return buildArchs.indexOf(i) < 0; });
 
-	let lib = findLib('ios-arm64_armv7');
-	if (lib instanceof Error) {
-		this.logger.warn(__('The module is missing 64-bit support.'));
-	} else {
-		buildArchs.add('armv7');
-		buildArchs.add('arm64');
-	}
-
-	lib = findLib('ios-arm64_i386_x86_64-simulator');
-	if (lib instanceof Error) {
-		// fall back to xcode 11 xcframework w/o arm64 sim support
-		lib = findLib('ios-i386_x86_64-simulator');
-		if (lib instanceof Error) {
-			// neither is available, so no sim support!
-			this.logger.warn(__('The module is missing ios simulator support.'));
-		} else {
-			this.logger.warn(__('The module is missing arm64 ios simulator support.'));
-			buildArchs.add('i386');
-			buildArchs.add('x86_64');
+		if (buildArchs.length !== manifestArchs.length || buildDiff.length > 0) {
+			this.logger.error(__('There is discrepancy between the architectures specified in module manifest and compiled binary.'));
+			this.logger.error(__('Architectures in manifest: %s', manifestArchs.join(', ')));
+			this.logger.error(__('Compiled binary architectures: %s', buildArchs.join(', ')));
+			this.logger.error(__('Please update manifest to match module binary architectures.') + '\n');
+			process.exit(1);
 		}
-	} else {
-		buildArchs.add('i386');
-		buildArchs.add('x86_64');
-		buildArchs.add('arm64');
-	}
 
-	lib = findLib('ios-arm64_x86_64-maccatalyst');
-	if (lib instanceof Error) {
-		this.logger.warn(__('The module is missing maccatalyst support.'));
-	// } else {
-		// TODO: Do we want to add these here? Traditionally they were assumed to be arm64 ios device and x86_64 ios sim!
-		// buildArchs.add('x86_64');
-		// buildArchs.add('arm64');
-	}
+		if (buildArchs.indexOf('arm64') === -1) {
+			this.logger.warn(__('The module is missing 64-bit support.'));
+		}
 
-	const manifestArchs = new Set(this.manifest.architectures.split(' '));
-	if (buildArchs.size !== manifestArchs.size) {
-		this.logger.error(__('There is discrepancy between the architectures specified in module manifest and compiled binary.'));
-		this.logger.error(__('Architectures in manifest: %s', manifestArchs));
-		this.logger.error(__('Compiled binary architectures: %s', buildArchs));
-		this.logger.error(__('Please update manifest to match module binary architectures.') + '\n');
-		process.exit(1);
-	}
-
-	if (!buildArchs.has('arm64')) {
-		this.logger.warn(__('The module is missing 64-bit support.'));
-	}
-	next();
+		next();
+	}.bind(this));
 };
 
 iOSModuleBuilder.prototype.packageModule = function packageModule(next) {
@@ -673,10 +622,8 @@ iOSModuleBuilder.prototype.packageModule = function packageModule(next) {
 		moduleZipName = [ moduleId, '-iphone-', version, '.zip' ].join(''),
 		moduleZipFullPath = path.join(this.distDir, moduleZipName),
 		moduleFolders = path.join('modules', 'iphone', moduleId, version),
-		binarylibName = this.isFramework ? this.moduleIdAsIdentifier + '.xcframework' : moduleId + '.xcframework',
+		binarylibName = this.isFramework ? this.moduleIdAsIdentifier + '.framework' : 'lib' + moduleId + '.a',
 		binarylibFile = path.join(this.projectDir, 'build', binarylibName);
-
-	this.logger.info(__('binarylibFile is ' + binarylibFile));
 
 	this.moduleZipPath = moduleZipFullPath;
 
@@ -777,9 +724,16 @@ iOSModuleBuilder.prototype.packageModule = function packageModule(next) {
 			}.bind(this));
 		}
 
-		// 7. Add the xcframework dir
-		// DO NOT WALK THE DIR! Include it as-is to preserve the folder/file symlinks used by mac catalsyt frameworks!
-		dest.directory(binarylibFile, path.join(moduleFolders, binarylibName));
+		// 7. Append the framework/library file
+		// If it is a (Swift) framework, we handle it as a directory (which it acttually is)
+		if (this.isFramework) {
+			this.dirWalker(binarylibFile, function (file) {
+				var stat = fs.statSync(file);
+				dest.append(fs.createReadStream(file), { name: path.join(moduleFolders, binarylibName, path.relative(binarylibFile, file)), mode: stat.mode });
+			});
+		} else {
+			dest.append(fs.createReadStream(binarylibFile), { name: path.join(moduleFolders, binarylibName) });
+		}
 
 		// 8. LICENSE file
 		dest.append(fs.createReadStream(this.licenseFile), { name: path.join(moduleFolders, 'LICENSE') });
@@ -883,13 +837,11 @@ iOSModuleBuilder.prototype.runModule = function runModule(next) {
 				}
 			);
 
-			// 5. unzip module to the tmp dir. Use native binary on macOS, as AdmZip doesn't support symlinks used in mac catalyst frameworks
-			exec(`unzip -o ${this.moduleZipPath} -d ${tmpProjectDir}`, (err, _stdout, _stderr) => {
-				if (err) {
-					return cb(err);
-				}
-				cb();
-			});
+			// 5. unzip module to the tmp dir
+			const zip = new AdmZip(this.moduleZipPath);
+			zip.extractAllTo(tmpProjectDir, true);
+
+			cb();
 		},
 
 		function (cb) {
@@ -910,8 +862,8 @@ iOSModuleBuilder.prototype.runModule = function runModule(next) {
 	], next);
 };
 
-iOSModuleBuilder.prototype.scrubbedName = function (name) {
-	return name.replace(/[\s-]/g, '_').replace(/_+/g, '_').split(/\./).map(function (s) {
+iOSModuleBuilder.prototype.scrubbedModuleId = function () {
+	return this.moduleId.replace(/[\s-]/g, '_').replace(/_+/g, '_').split(/\./).map(function (s) {
 		return s.substring(0, 1).toUpperCase() + s.substring(1);
 	}).join('');
 };
