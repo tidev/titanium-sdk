@@ -138,7 +138,13 @@ GETTER_IMPL(NSString *, applicationSupportDirectory, ApplicationSupportDirectory
 
 - (NSString *)applicationDataDirectory
 {
+#if TARGET_OS_MACCATALYST
+  NSString *home = NSHomeDirectory();
+  return [NSString stringWithFormat:@"%@/Documents/", fileURLify(home)];
+#else
+  // TODO: Unify these. Appending /Documents to the home directory appears to give the same path as below code for ios sim (probably also device)
   return [NSString stringWithFormat:@"%@/", fileURLify([NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) objectAtIndex:0])];
+#endif
 }
 GETTER_IMPL(NSString *, applicationDataDirectory, ApplicationDataDirectory);
 
