@@ -87,7 +87,7 @@
     "adm-zip": "^0.4.16",
     "ansi-escapes": "^4.3.1",
     "appc-tasks": "^1.0.2",
-    "archiver": "^5.0.0",
+    "archiver": "^5.0.1",
     "async": "^3.2.0",
     "boxen": "^4.2.0",
     "buffer-equal": "1.0.0",
