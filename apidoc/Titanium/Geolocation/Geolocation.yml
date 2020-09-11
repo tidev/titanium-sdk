@@ -739,7 +739,8 @@ properties:
         is recommended to maximize accuracy and battery life.
         See <Titanium.Geolocation.Android> for details on using manual mode.
     type: Number
-    constants: Titanium.Geolocation.ACCURACY_*
+    constants: [Titanium.Geolocation.ACCURACY_HIGH, Titanium.Geolocation.ACCURACY_BEST_FOR_NAVIGATION, Titanium.Geolocation.ACCURACY_LOW, Titanium.Geolocation.ACCURACY_BEST, Titanium.Geolocation.ACCURACY_NEAREST_TEN_METERS,
+    Titanium.Geolocation.ACCURACY_HUNDRED_METERS, Titanium.Geolocation.ACCURACY_KILOMETER, Titanium.Geolocation.ACCURACY_THREE_KILOMETERS, Titanium.Geolocation.ACCURACY_REDUCED]
 
   - name: distanceFilter
     summary: The minimum change of position (in meters) before a 'location' event is fired.
