@@ -99,6 +99,7 @@ def androidUnitTests(nodeVersion, npmVersion, testOnDevices) {
 							}
 						} // timeout
 					} catch (e) {
+						archiveArtifacts 'tmp/mocha/build/build_*.log' // save build log if build failed
 						gatherAndroidCrashReports()
 						throw e
 					} finally {
@@ -152,6 +153,7 @@ def iosUnitTests(deviceFamily, nodeVersion, npmVersion, testOnDevices) {
 							}
 						}
 					} catch (e) {
+						archiveArtifacts 'tmp/mocha/build/build_*.log' // save build log if build failed
 						gatherIOSCrashReports('mocha') // app name is mocha
 						throw e
 					} finally {

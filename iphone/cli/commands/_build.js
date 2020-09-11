@@ -2161,6 +2161,7 @@ iOSBuilder.prototype.validate = function validate(logger, config, cli) {
 
 					this.commonJsModules = [];
 					this.nativeLibModules = [];
+					this.legacyModules = new Set();
 
 					const nativeHashes = [];
 
@@ -2188,6 +2189,12 @@ iOSBuilder.prototype.validate = function validate(logger, config, cli) {
 						} else {
 							module.native = true;
 							const frameworkName = this.scrubbedModuleId(module.id) + '.framework';
+							const xcFrameworkOfLib = module.id + '.xcframework';
+							const xcFrameworkOfFramework = this.scrubbedModuleId(module.id) + '.xcframework';
+
+							module.isFramework = false;
+							module.isXCFrameworkOfLib = false;
+							module.isXCFrameworkOfFramework = false;
 
 							// Try to load native module as static library (Obj-C)
 							if (fs.existsSync(path.join(module.modulePath, 'lib' + module.id.toLowerCase() + '.a'))) {
@@ -2196,16 +2203,45 @@ iOSBuilder.prototype.validate = function validate(logger, config, cli) {
 								module.isFramework = false;
 
 								// For Obj-C static libraries, use the .a library or hashing
+								this.legacyModules.add(module.id); // Record that this won't support macos or arm64 sim!
 								nativeHashes.push(module.hash = this.hash(fs.readFileSync(module.libFile)));
 								// Try to load native module as framework (Swift)
 							} else if (fs.existsSync(path.join(module.modulePath, frameworkName))) {
 								module.libName = frameworkName;
 								module.libFile = path.join(module.modulePath, module.libName);
 								module.isFramework = true;
-								// For Swift frameworks, use the binary inside the .framework for hashing
-								nativeHashes.push(module.hash = this.hash(fs.readFileSync(path.join(module.libFile, this.scrubbedModuleId(module.id)))));
 
-								// Else - fail
+								// For Swift frameworks, use the binary inside the .framework for hashing
+								this.legacyModules.add(module.id); // Record that this won't support macos or arm64 sim!
+								nativeHashes.push(module.hash = this.hash(fs.readFileSync(path.join(module.libFile, this.scrubbedModuleId(module.id)))));
+							} else if (fs.existsSync(path.join(module.modulePath, xcFrameworkOfLib))) {
+								module.libName = xcFrameworkOfLib;
+								module.libFile = path.join(module.modulePath, module.libName);
+								module.isXCFrameworkOfLib = true;
+
+								// TODO: read Info.plist to get the full scope of targets/arches supported!
+								let archDir = 'ios-arm64_i386_x86_64-simulator';
+								if (!fs.existsSync(path.join(module.libFile, archDir))) {
+									// Try XCode 11 dir w/o arm64 support
+									archDir = 'ios-i386_x86_64-simulator';
+									this.legacyModules.add(module.id);// Record that this won't support arm64 sim!
+								}
+								// TODO: Change hash calculation
+								nativeHashes.push(module.hash = this.hash(fs.readFileSync(path.join(module.libFile, archDir,  'lib' + module.id.toLowerCase() + '.a'))));
+							} else if (fs.existsSync(path.join(module.modulePath, xcFrameworkOfFramework))) {
+								module.libName = xcFrameworkOfFramework;
+								module.libFile = path.join(module.modulePath, module.libName);
+								module.isXCFrameworkOfFramework = true;
+
+								// TODO: read Info.plist to get the full scope of targets/arches supported!
+								let archDir = 'ios-arm64_i386_x86_64-simulator';
+								if (!fs.existsSync(path.join(module.libFile, archDir))) {
+									// Try XCode 11 dir w/o arm64 support
+									archDir = 'ios-i386_x86_64-simulator';
+									this.legacyModules.add(module.id);// Record that this won't support arm64 sim!
+								}
+								// TODO: Change hash calculation
+								nativeHashes.push(module.hash = this.hash(fs.readFileSync(path.join(module.libFile, archDir,  this.scrubbedModuleId(module.id) + '.framework', this.scrubbedModuleId(module.id)))));
 							} else {
 								this.logger.error(__('Module %s (%s) is missing library or framework file.', module.id.cyan, (module.manifest.version || 'latest').cyan) + '\n');
 								this.logger.error(__('Please validate that your module has been packaged correctly and try it again.'));
@@ -2285,7 +2321,6 @@ iOSBuilder.prototype.run = function (logger, config, cli, finished) {
 		'writeInfoPlist',
 		'writeMain',
 		'writeXcodeConfigFiles',
-		'copyTitaniumLibraries',
 		'copyTitaniumiOSFiles',
 		'copyExtensionFiles',
 		'cleanXcodeDerivedData',
@@ -3238,45 +3273,100 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 			// Framworks are handled by our framework manager!
 			if (isFramework) {
 				return;
+			} else if (lib.isXCFrameworkOfFramework || lib.isXCFrameworkOfLib) {
+				const frameworkFileRefUuid = this.generateXcodeUuid(xcodeProject);
+				const frameworkBuildFileUuid = this.generateXcodeUuid(xcodeProject);
+
+				xobjs.PBXFileReference[frameworkFileRefUuid] = {
+					isa: 'PBXFileReference',
+					lastKnownFileType: 'wrapper.xcframework',
+					name: lib.libName,
+					path: '"' + lib.libFile + '"',
+					sourceTree: '"<group>"'
+				};
+				xobjs.PBXFileReference[frameworkFileRefUuid + '_comment'] = lib.libName;
+
+				xobjs.PBXBuildFile[frameworkBuildFileUuid] = {
+					isa: 'PBXBuildFile',
+					fileRef: frameworkFileRefUuid,
+					fileRef_comment: lib.libName
+				};
+				xobjs.PBXBuildFile[frameworkBuildFileUuid + '_comment'] = lib.libName + ' in Frameworks';
+
+				frameworksBuildPhase.files.push({
+					value: frameworkBuildFileUuid,
+					comment: xobjs.PBXBuildFile[frameworkBuildFileUuid + '_comment']
+				});
+
+				if (lib.isXCFrameworkOfFramework) {
+					const embedFrameworkBuildFileUuid = this.generateXcodeUuid(xcodeProject);
+					// add the build file
+					xobjs.PBXBuildFile[buildFileUuid] = {
+						isa: 'PBXBuildFile',
+						fileRef: fileRefUuid,
+						fileRef_comment: lib.libName,
+						platformFilter: 'ios'
+					};
+					xobjs.PBXBuildFile[buildFileUuid + '_comment'] = lib.libName + ' in Frameworks';
+
+					xobjs.PBXBuildFile[embedFrameworkBuildFileUuid] = {
+						isa: 'PBXBuildFile',
+						fileRef: frameworkFileRefUuid,
+						fileRef_comment: lib.libName,
+						settings: { ATTRIBUTES: [ 'CodeSignOnCopy', 'RemoveHeadersOnCopy' ] }
+					};
+					xobjs.PBXBuildFile[embedFrameworkBuildFileUuid + '_comment'] = lib.libName + ' in Embed Frameworks';
+
+					copyFilesBuildPhase.files.push({
+						value: embedFrameworkBuildFileUuid,
+						comment: xobjs.PBXBuildFile[embedFrameworkBuildFileUuid + '_comment']
+					});
+				}
+
+				frameworksGroup.children.push({
+					value: frameworkFileRefUuid,
+					comment: lib.libName
+				});
+			} else {
+				// add the file reference
+				xobjs.PBXFileReference[fileRefUuid] = {
+					isa: 'PBXFileReference',
+					lastKnownFileType: 'archive.ar',
+					name: lib.libName,
+					path: '"' + lib.libFile + '"',
+					sourceTree: '"<absolute>"'
+				};
+				xobjs.PBXFileReference[fileRefUuid + '_comment'] = lib.libName;
+
+				// add the library to the Frameworks group
+				frameworksGroup.children.push({
+					value: fileRefUuid,
+					comment: lib.libName
+				});
+
+				// add the build file
+				xobjs.PBXBuildFile[buildFileUuid] = {
+					isa: 'PBXBuildFile',
+					fileRef: fileRefUuid,
+					fileRef_comment: lib.libName,
+					platformFilter: 'ios'
+				};
+				xobjs.PBXBuildFile[buildFileUuid + '_comment'] = lib.libName + ' in Frameworks';
+
+				// add the library to the frameworks build phase
+				frameworksBuildPhase.files.push({
+					value: buildFileUuid,
+					comment: lib.libName + ' in Frameworks'
+				});
+
+				// add the library / framework to the dedicated search paths
+				xobjs.XCConfigurationList[xobjs.PBXNativeTarget[mainTargetUuid].buildConfigurationList].buildConfigurations.forEach(function (buildConf) {
+					var buildSettings = xobjs.XCBuildConfiguration[buildConf.value].buildSettings;
+
+					buildSettings.LIBRARY_SEARCH_PATHS || (buildSettings.LIBRARY_SEARCH_PATHS = []);
+					buildSettings.LIBRARY_SEARCH_PATHS.push('"\\"' + path.dirname(lib.libFile) + '\\""');
+				});
 			}
-
-			// add the file reference
-			xobjs.PBXFileReference[fileRefUuid] = {
-				isa: 'PBXFileReference',
-				lastKnownFileType: 'archive.ar',
-				name: lib.libName,
-				path: '"' + lib.libFile + '"',
-				sourceTree: '"<absolute>"'
-			};
-			xobjs.PBXFileReference[fileRefUuid + '_comment'] = lib.libName;
-
-			// add the library to the Frameworks group
-			frameworksGroup.children.push({
-				value: fileRefUuid,
-				comment: lib.libName
-			});
-
-			// add the build file
-			xobjs.PBXBuildFile[buildFileUuid] = {
-				isa: 'PBXBuildFile',
-				fileRef: fileRefUuid,
-				fileRef_comment: lib.libName
-			};
-			xobjs.PBXBuildFile[buildFileUuid + '_comment'] = lib.libName + ' in Frameworks';
-
-			// add the library to the frameworks build phase
-			frameworksBuildPhase.files.push({
-				value: buildFileUuid,
-				comment: lib.libName + ' in Frameworks'
-			});
-
-			// add the library / framework to the dedicated search paths
-			xobjs.XCConfigurationList[xobjs.PBXNativeTarget[mainTargetUuid].buildConfigurationList].buildConfigurations.forEach(function (buildConf) {
-				var buildSettings = xobjs.XCBuildConfiguration[buildConf.value].buildSettings;
-
-				buildSettings.LIBRARY_SEARCH_PATHS || (buildSettings.LIBRARY_SEARCH_PATHS = []);
-				buildSettings.LIBRARY_SEARCH_PATHS.push('"\\"' + path.dirname(lib.libFile) + '\\""');
-			});
 		}, this);
 	} else {
 		this.logger.trace(__('No native module libraries to add'));
@@ -3768,19 +3858,19 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 
 	xobjs.PBXFileReference[frameworkFileRefUuid] = {
 		isa: 'PBXFileReference',
-		lastKnownFileType: 'wrapper.framework',
-		name: '"TitaniumKit.framework"',
-		path: '"Frameworks/TitaniumKit.framework"',
+		lastKnownFileType: 'wrapper.xcframework',
+		name: '"TitaniumKit.xcframework"',
+		path: '"Frameworks/TitaniumKit.xcframework"',
 		sourceTree: '"<group>"'
 	};
-	xobjs.PBXFileReference[frameworkFileRefUuid + '_comment'] = 'TitaniumKit.framework';
+	xobjs.PBXFileReference[frameworkFileRefUuid + '_comment'] = 'TitaniumKit.xcframework';
 
 	xobjs.PBXBuildFile[frameworkBuildFileUuid] = {
 		isa: 'PBXBuildFile',
 		fileRef: frameworkFileRefUuid,
-		fileRef_comment: 'TitaniumKit.framework'
+		fileRef_comment: 'TitaniumKit.xcframework'
 	};
-	xobjs.PBXBuildFile[frameworkBuildFileUuid + '_comment'] = 'TitaniumKit.framework in Frameworks';
+	xobjs.PBXBuildFile[frameworkBuildFileUuid + '_comment'] = 'TitaniumKit.xcframework in Frameworks';
 
 	frameworksBuildPhase.files.push({
 		value: frameworkBuildFileUuid,
@@ -3790,10 +3880,10 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 	xobjs.PBXBuildFile[embedFrameworkBuildFileUuid] = {
 		isa: 'PBXBuildFile',
 		fileRef: frameworkFileRefUuid,
-		fileRef_comment: 'TitaniumKit.framework',
+		fileRef_comment: 'TitaniumKit.xcframework',
 		settings: { ATTRIBUTES: [ 'CodeSignOnCopy', 'RemoveHeadersOnCopy' ] }
 	};
-	xobjs.PBXBuildFile[embedFrameworkBuildFileUuid + '_comment'] = 'TitaniumKit.framework in Embed Frameworks';
+	xobjs.PBXBuildFile[embedFrameworkBuildFileUuid + '_comment'] = 'TitaniumKit.xcframework in Embed Frameworks';
 
 	copyFilesBuildPhase.files.push({
 		value: embedFrameworkBuildFileUuid,
@@ -3802,7 +3892,39 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 
 	frameworksGroup.children.push({
 		value: frameworkFileRefUuid,
-		comment: 'TitaniumKit.framework'
+		comment: 'TitaniumKit.xcframework'
+	});
+
+	// add tiverify.framework
+	xcodeProject.removeFramework('tiverify.xcframework', { customFramework: true, embed: true });
+
+	const tiverifyFrameworkFileRefUuid = this.generateXcodeUuid(xcodeProject);
+	const tiverifyFrameworkBuildFileUuid = this.generateXcodeUuid(xcodeProject);
+
+	xobjs.PBXFileReference[tiverifyFrameworkFileRefUuid] = {
+		isa: 'PBXFileReference',
+		lastKnownFileType: 'wrapper.xcframework',
+		name: '"tiverify.xcframework"',
+		path: '"Frameworks/tiverify.xcframework"',
+		sourceTree: '"<group>"'
+	};
+	xobjs.PBXFileReference[tiverifyFrameworkFileRefUuid + '_comment'] = 'tiverify.xcframework';
+
+	xobjs.PBXBuildFile[tiverifyFrameworkBuildFileUuid] = {
+		isa: 'PBXBuildFile',
+		fileRef: tiverifyFrameworkFileRefUuid,
+		fileRef_comment: 'tiverify.xcframework'
+	};
+	xobjs.PBXBuildFile[tiverifyFrameworkBuildFileUuid + '_comment'] = 'tiverify.xcframework in Frameworks';
+
+	frameworksBuildPhase.files.push({
+		value: tiverifyFrameworkBuildFileUuid,
+		comment: xobjs.PBXBuildFile[tiverifyFrameworkBuildFileUuid + '_comment']
+	});
+
+	frameworksGroup.children.push({
+		value: tiverifyFrameworkFileRefUuid,
+		comment: 'tiverify.xcframework'
 	});
 
 	// run the xcode project hook
@@ -4404,37 +4526,6 @@ iOSBuilder.prototype.writeXcodeConfigFiles = function writeXcodeConfigFiles() {
 	this.unmarkBuildDirFile(dest);
 };
 
-iOSBuilder.prototype.copyTitaniumLibraries = function copyTitaniumLibraries() {
-	this.logger.info(__('Copying Titanium libraries'));
-
-	const libDir = path.join(this.buildDir, 'lib');
-	fs.ensureDirSync(libDir);
-
-	[ 'libtiverify.a' ].forEach(function (filename) {
-		const src = path.join(this.platformPath, filename),
-			srcStat = fs.statSync(src),
-			srcMtime = JSON.parse(JSON.stringify(srcStat.mtime)),
-			dest = path.join(libDir, filename),
-			destExists = fs.existsSync(dest),
-			rel = src.replace(path.dirname(this.titaniumSdkPath) + '/', ''),
-			prev = this.previousBuildManifest.files && this.previousBuildManifest.files[rel],
-			fileChanged = !destExists || !prev || prev.size !== srcStat.size || prev.mtime !== srcMtime;
-
-		// note: we're skipping the hash check so that we don't have to read in 36MB of data
-		// this isn't going to be bulletproof, but hopefully the size and mtime will be enough to catch any changes
-		if (!fileChanged || !this.copyFileSync(src, dest, { forceSymlink: this.symlinkLibrariesOnCopy, forceCopy: false })) {
-			this.logger.trace(__('No change, skipping %s', dest.cyan));
-		}
-		this.currentBuildManifest.files[rel] = {
-			hash:  null,
-			mtime: srcMtime,
-			size:  srcStat.size
-		};
-
-		this.unmarkBuildDirFile(dest);
-	}, this);
-};
-
 iOSBuilder.prototype._scrubiOSSourceFile = function _scrubiOSSourceFile(contents) {
 	const name = this.tiapp.name.replace(/[-\W]/g, '_'),
 		namespace = /^[0-9]/.test(name) ? 'k' + name : name,
@@ -4466,6 +4557,7 @@ iOSBuilder.prototype.copyTitaniumiOSFiles = function copyTitaniumiOSFiles() {
 
 		// files to watch for while copying
 		appFiles = {};
+	let copyFrameworks = true;
 
 	appFiles['ApplicationDefaults.m'] = {
 		props:      this.tiapp.properties || {},
@@ -4522,7 +4614,7 @@ iOSBuilder.prototype.copyTitaniumiOSFiles = function copyTitaniumiOSFiles() {
 				if (extRegExp.test(srcFile)) {
 					// look up the file to see if the original source changed
 					const prev = this.previousBuildManifest.files && this.previousBuildManifest.files[rel];
-					if (destExists && !nameChanged && prev && prev.size === srcStat.size && prev.mtime === srcMtime && prev.hash === srcHash) {
+					if (destExists && !nameChanged && prev && prev.size === srcStat.size && prev.mtime === srcMtime && prev.hash === srcHash && !(dir === 'Frameworks' && !copyFrameworks)) {
 						// the original hasn't changed, so let's assume that there's nothing to do
 						return null;
 					}
@@ -4541,6 +4633,16 @@ iOSBuilder.prototype.copyTitaniumiOSFiles = function copyTitaniumiOSFiles() {
 						this.logger.info(__('Forcing rebuild: %s has changed since last build', rel));
 						this.forceRebuild = true;
 					}
+
+					if (dir === 'Frameworks' && copyFrameworks) {
+						// The content of Frameworks directory only change if we change SDK version. So it is safe to copy whole directory.
+						// Copy whole 'Frameworks' directory from SDK to build directory, to preserve symlink available in Titaniumkit.xcframework.
+						// TODO: Is there any better way to do this?
+
+						fs.copySync(path.join(this.platformPath, dir), path.join(this.buildDir, dir));
+						copyFrameworks = false;
+					}
+
 					this.logger.debug(__('Writing %s', destFile.cyan));
 					fs.writeFileSync(destFile, contents);
 
@@ -4553,6 +4655,10 @@ iOSBuilder.prototype.copyTitaniumiOSFiles = function copyTitaniumiOSFiles() {
 				}
 			}.bind(this)
 		});
+
+		if (dir === 'Frameworks') {
+			this.unmarkBuildDirFiles(path.join(this.buildDir, dir));
+		}
 	}, this);
 
 	function copyAndReplaceFile(src, dest, processContent) {
@@ -6532,11 +6638,12 @@ iOSBuilder.prototype.removeFiles = function removeFiles(next) {
 			}
 		}, this);
 
-		// remove invalid architectures from TitaniumKit.framework for App Store distributions
+		// TODO: This should not be required as xcframework builds for specified target
+		// remove invalid architectures from TitaniumKit.xcframework for App Store distributions
 		if (this.target === 'dist-appstore' || this.target === 'dist-adhoc') {
-			this.logger.info(__('Removing invalid architectures from TitaniumKit.framework'));
+			this.logger.info(__('Removing invalid architectures from TitaniumKit.xcframework'));
 
-			const titaniumKitPath = path.join(this.buildDir, 'Frameworks', 'TitaniumKit.framework', 'TitaniumKit');
+			const titaniumKitPath = path.join(this.buildDir, 'Frameworks', 'TitaniumKit.xcframework', 'TitaniumKit');
 			async.eachSeries([ 'x86_64', 'i386' ], function (architecture, next) {
 				const args = [ '-remove', architecture, titaniumKitPath, '-o', titaniumKitPath ];
 				this.logger.debug(__('Running: %s', (this.xcodeEnv.executables.lipo + ' ' + args.join(' ')).cyan));
@@ -6803,11 +6910,14 @@ iOSBuilder.prototype.invokeXcodeBuild = function invokeXcodeBuild(next) {
 		if (this.simOnlyActiveArch) {
 			args.push('ONLY_ACTIVE_ARCH=1');
 		}
-	}
-
-	// Exclude arm64 architecture from simulator build in XCode 12+ - TIMOB-28042
-	if (this.target === 'simulator' && parseFloat(this.xcodeEnv.version) >= 12.0) {
-		args.push('EXCLUDED_ARCHS=arm64');
+		// Exclude arm64 architecture from simulator build in XCode 12+ - TIMOB-28042
+		if (this.legacyModules.size > 0 && parseFloat(this.xcodeEnv.version) >= 12.0) {
+			if (process.arch === 'arm64') {
+				return next(new Error('The app is using native modules that do not support arm64 simulators and you are on an arm64 device.'));
+			}
+			this.logger.warn(`The app is using native modules (${Array.from(this.legacyModules)}) that do not support arm64 simulators, we will exclude arm64. This may fail if you're on an arm64 Apple Silicon device.`);
+			args.push('EXCLUDED_ARCHS=arm64');
+		}
 	}
 
 	xcodebuildHook(
