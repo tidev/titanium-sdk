@@ -1329,11 +1329,6 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
 
 - (void)setPreviewContext:(id)context
 {
-  if (![TiUtils forceTouchSupported]) {
-    NSLog(@"[WARN] 3DTouch is not available on this device.");
-    return;
-  }
-
   Class TiUIiOSPreviewContextProxy = NSClassFromString(@"TiUIiOSPreviewContextProxy");
 
   ENSURE_TYPE(context, TiUIiOSPreviewContextProxy);
