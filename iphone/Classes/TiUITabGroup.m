@@ -393,6 +393,40 @@ DEFINE_EXCEPTIONS
   controller.tabBar.selectionIndicatorImage = [self loadImage:value];
 }
 
+- (void)setTabsTransparent_:(id)value
+{
+  UITabBar *tabBar = [controller tabBar];
+
+  if ([TiUtils boolValue:value def:NO]) {
+    if (@available(iOS 13, *)) {
+      UITabBarAppearance *appearance = [tabBar.standardAppearance copy];
+
+      if ([TiUtils boolValue:value def:YES]) {
+        [appearance configureWithTransparentBackground];
+      } else {
+        [appearance configureWithDefaultBackground];
+      }
+
+      tabBar.standardAppearance = appearance;
+    } else {
+      UIGraphicsBeginImageContextWithOptions(CGSizeMake(1, 1), NO, 0.0);
+      UIImage *blank = UIGraphicsGetImageFromCurrentImageContext();
+      UIGraphicsEndImageContext();
+
+      tabBar.backgroundImage = blank;
+      tabBar.shadowImage = blank;
+    }
+  }
+}
+
+- (void)setTabsBackgroundView_:(id)value
+{
+  TiViewProxy *child = (TiViewProxy *)value;
+
+  [controller.tabBar addSubview:child.view];
+  [controller.tabBar sendSubviewToBack:child.view];
+}
+
 - (void)setShadowImage_:(id)value
 {
   //Because we still support XCode 4.3, we cannot use the shadowImage property
