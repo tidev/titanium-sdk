@@ -36,7 +36,9 @@
 #ifdef USE_TI_MEDIAVIDEOPLAYER
 #import "TiMediaVideoPlayerProxy.h"
 #endif
+#if IS_SDK_IOS_14
 #import <UniformTypeIdentifiers/UTCoreTypes.h>
+#endif
 
 // by default, we want to make the camera fullscreen and
 // these transform values will scale it when we have our own overlay
@@ -2014,7 +2016,11 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
 - (void)presentationControllerDidDismiss:(UIPresentationController *)presentationController
 {
 #if defined(USE_TI_MEDIASHOWCAMERA) || defined(USE_TI_MEDIAOPENPHOTOGALLERY) || defined(USE_TI_MEDIASTARTVIDEOEDITING)
+#if IS_SDK_IOS_14
   [self closeModalPicker:picker ?: _phPicker];
+#else
+  [self closeModalPicker:picker];
+#endif
   [self sendPickerCancel];
 #endif
 }
