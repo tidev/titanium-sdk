@@ -6687,13 +6687,19 @@ iOSBuilder.prototype.removeFiles = function removeFiles(next) {
 	this.unmarkBuildDirFiles(path.join(this.buildDir, 'export_options.plist'));
 	this.unmarkBuildDirFiles(path.join(this.buildDir, this.tiapp.name + '.xcarchive'));
 
+	const productsDir = path.join(this.buildDir, 'build', 'Products');
 	try {
-		const releaseDir = path.join(this.buildDir, 'build', 'Products', 'Release-iphoneos');
+		const releaseDir = path.join(productsDir, 'Release-iphoneos');
 		if (fs.lstatSync(path.join(releaseDir, this.tiapp.name + '.app')).isSymbolicLink()) {
 			this.unmarkBuildDirFiles(releaseDir);
 		}
 	} catch (e) {
 		// ignore
+	}
+
+	const product = `${this.xcodeTarget}-${this.xcodeTargetOS}`;
+	if (fs.existsSync(path.join(productsDir, product))) {
+		this.unmarkBuildDirFiles(path.join(productsDir, product));
 	}
 
 	this.logger.info(__('Removing files'));
