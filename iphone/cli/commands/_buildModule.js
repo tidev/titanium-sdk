@@ -658,8 +658,8 @@ iOSModuleBuilder.prototype.verifyBuildArch = function verifyBuildArch(next) {
 	const manifestArchs = new Set(this.manifest.architectures.split(' '));
 	if (buildArchs.size !== manifestArchs.size) {
 		this.logger.error(__('There is discrepancy between the architectures specified in module manifest and compiled binary.'));
-		this.logger.error(__('Architectures in manifest: %s', manifestArchs));
-		this.logger.error(__('Compiled binary architectures: %s', buildArchs));
+		this.logger.error(__('Architectures in manifest: %s', Array.from(manifestArchs)));
+		this.logger.error(__('Compiled binary architectures: %s', Array.from(buildArchs)));
 		this.logger.error(__('Please update manifest to match module binary architectures.') + '\n');
 		process.exit(1);
 	}
