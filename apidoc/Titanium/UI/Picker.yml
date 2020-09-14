@@ -371,6 +371,7 @@ properties:
         generate a layout pass to display correctly.
     type: Number
     platforms: [iphone, ipad]
+    since: "9.2.0"
     constants: Titanium.UI.iOS.DATE_PICKER_STYLE_*
     default: <Titanium.UI.iOS.DATE_PICKER_STYLE_AUTOMATIC>
     osver: { ios: { min: "13.4" } }
