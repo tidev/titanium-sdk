@@ -615,7 +615,14 @@ iOSModuleBuilder.prototype.verifyBuildArch = function verifyBuildArch(next) {
 
 	let lib = findLib('ios-arm64_armv7');
 	if (lib instanceof Error) {
-		this.logger.warn(__('The module is missing 64-bit support.'));
+		// fallback to xcode 11 xcframework
+		lib = findLib('ios-armv7_arm64');
+		if (lib instanceof Error) {
+			this.logger.warn(__('The module is missing 64-bit support.'));
+		} else {
+			buildArchs.add('armv7');
+			buildArchs.add('arm64');
+		}
 	} else {
 		buildArchs.add('armv7');
 		buildArchs.add('arm64');
@@ -636,7 +643,7 @@ iOSModuleBuilder.prototype.verifyBuildArch = function verifyBuildArch(next) {
 	} else {
 		buildArchs.add('i386');
 		buildArchs.add('x86_64');
-		buildArchs.add('arm64');
+		// buildArchs.add('arm64'); // Don't include as we traditionally meant 'arm64' to be ios device arm64 (not sim!)
 	}
 
 	lib = findLib('ios-arm64_x86_64-maccatalyst');
