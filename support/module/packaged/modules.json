@@ -21,8 +21,8 @@
 			"integrity": "sha512-aFWIrGUk8J1/vU9seSz/wSz3YBFajCwrtGUu/wpulbZxfJQ1YdmMQH3xRW+RWCrvlV090vNH5IEcSllBhCD4fQ=="
 		},
 		"ti.identity": {
-			"url": "https://github.com/appcelerator-modules/titanium-identity/releases/download/v1.1.0-iphone/ti.identity-iphone-1.1.0.zip",
-			"integrity": "sha512-QAbhMon2oo8xbzfmb65PALgeBX+CRwVd1rdDif8rCMaltzE6dzaOr+uJAHZEkEexzakmcnIwf7Wc5iRLX7pCrg=="
+			"url": "https://github.com/appcelerator-modules/titanium-identity/releases/download/v2.0.0-iphone/ti.identity-iphone-2.0.0.zip",
+			"integrity": "sha512-jZ/RgyWFprQlVpdNvboZYL90tghgBgKIKeQGyABPLqWBsqsvoCjYqcRMKbD1CJRCFH4amQ3yMkTY9tKdsyMz3g=="
 		},
 		"ti.applesignin": {
 			"url": "https://github.com/appcelerator-modules/titanium-apple-sign-in/releases/download/v1.1.1/ti.applesignin-iphone-1.1.1.zip",
