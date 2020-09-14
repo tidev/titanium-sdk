@@ -91,8 +91,8 @@ description: |
 
     Read more about the issue in [TIMOB-25680](https://jira.appcelerator.org/browse/TIMOB-25680).
 extends: Titanium.Proxy
-platforms: [iphone, ipad]
-since: "2.1.1"
+platforms: [iphone, ipad, macos]
+since: {iphone: "2.1.1", ipad: "2.1.1", macos: "9.2.0"}
 properties:
   - name: name
     summary: Name of the file (without the path).
@@ -193,8 +193,8 @@ examples:
 name: DocumentViewerOptions
 summary: A simple object for specifying options when showing or dismissing a <Titanium.UI.iOS.DocumentViewer>.
 description: The `view` property does not apply to the `hide` method.
-platforms: [iphone, ipad]
-since: '2.1.1'
+platforms: [iphone, ipad, macos]
+since: {iphone: "2.1.1", ipad: "2.1.1", macos: "9.2.0"}
 properties:
   - name: animated
     summary: Indicates whether to animate the transition.

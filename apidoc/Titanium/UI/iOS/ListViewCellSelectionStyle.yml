@@ -5,8 +5,8 @@ summary: |
     ListItem, which is set in the `properties` dictionary of either the <ListDataItem> or
     <ItemTemplate>.
 extends: Titanium.Proxy
-since: "5.4.0"
-platforms: [iphone, ipad]
+platforms: [iphone, ipad, macos]
+since: {iphone: "5.4.0", ipad: "5.4.0", macos: "9.2.0"}
 excludes:
     methods: [addEventListener,applyProperties,fireEvent,removeEventListener]
     properties: [bubbleParent]

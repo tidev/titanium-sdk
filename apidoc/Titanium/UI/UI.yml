@@ -186,7 +186,7 @@ events:
         summary: The new userInterfaceStyle value.
         type: Number
         constants: Titanium.UI.USER_INTERFACE_STYLE_*
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     osver: {ios: {min: "13.0"}}
 
 methods:
@@ -274,7 +274,7 @@ properties:
         slowly and speeds up.
     type: Number
     permission: read-only
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     since: { android: "8.0.0", iphone: "0.9", ipad: "0.9" }
 
   - name: ANIMATION_CURVE_EASE_IN_OUT
@@ -283,7 +283,7 @@ properties:
         slowly, and speeds up, then slows down at the end of the animation.
     type: Number
     permission: read-only
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     since: { android: "8.0.0", iphone: "0.9", ipad: "0.9" }
 
   - name: ANIMATION_CURVE_EASE_OUT
@@ -292,7 +292,7 @@ properties:
         quickly, then slows down at the end of the animation.
     type: Number
     permission: read-only
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     since: { android: "8.0.0", iphone: "0.9", ipad: "0.9" }
 
   - name: ANIMATION_CURVE_LINEAR
@@ -301,7 +301,7 @@ properties:
         at a constant rate.
     type: Number
     permission: read-only
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     since: { android: "8.0.0", iphone: "0.9", ipad: "0.9" }
 
   - name: ATTRIBUTE_FONT
@@ -312,7 +312,7 @@ properties:
 
         See <Attribute> for more information.
     type: Number
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     since: "3.6.0"
     osver: {ios: {min: "6.0"}}
     permission: read-only
@@ -325,7 +325,7 @@ properties:
 
         See <Attribute> for more information.
     type: Number
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     since: "3.6.0"
     osver: {ios: {min: "6.0"}}
     permission: read-only
@@ -338,7 +338,7 @@ properties:
 
         See <Attribute> for more information.
     type: Number
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     since: "3.6.0"
     osver: {ios: {min: "6.0"}}
     permission: read-only
@@ -352,7 +352,7 @@ properties:
 
         See <Attribute> for more information.
     type: Number
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "3.6.0"
     osver: {ios: {min: "6.0"}}
     permission: read-only
@@ -366,7 +366,7 @@ properties:
 
         See <Attribute> for more information.
     type: Number
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "3.6.0"
     osver: {ios: {min: "7.0"}}
     permission: read-only
@@ -380,7 +380,7 @@ properties:
 
         See <Attribute> for more information.
     type: Number
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "3.6.0"
     osver: {ios: {min: "6.0"}}
     permission: read-only
@@ -393,7 +393,7 @@ properties:
 
         See <Attribute> for more information.
     type: Number
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     since: "3.6.0"
     osver: {ios: {min: "6.0"}}
     permission: read-only
@@ -406,7 +406,7 @@ properties:
 
         See <Attribute> for more information.
     type: Number
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     since: "3.6.0"
     osver: {ios: {min: "6.0"}}
     permission: read-only
@@ -439,7 +439,7 @@ properties:
 
         See <Attribute> for more information on type modes.
     type: Number
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "3.6.0"
     osver: {ios: {min: "6.0"}}
     permission: read-only
@@ -452,7 +452,7 @@ properties:
         Range for this should be whole string.
         See <Attribute> for more information on type modes.
     type: Number
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "7.5.0"
     permission: read-only
 
@@ -466,7 +466,7 @@ properties:
 
         See <Attribute> for more information.
     type: Number
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "3.6.0"
     osver: {ios: {min: "6.0"}}
     permission: read-only
@@ -479,7 +479,7 @@ properties:
 
         See <Attribute> for more information.
     type: Number
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "3.6.0"
     osver: {ios: {min: "6.0"}}
     permission: read-only
@@ -492,7 +492,7 @@ properties:
 
         See <Attribute> for more information on type modes.
     type: Number
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "3.6.0"
     osver: {ios: {min: "7.0"}}
     permission: read-only
@@ -506,7 +506,7 @@ properties:
 
         See <Attribute> for more information.
     type: Number
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "3.6.0"
     osver: {ios: {min: "7.0"}}
     permission: read-only
@@ -522,7 +522,7 @@ properties:
 
         See <Attribute> for more information.
     type: Number
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     since: "3.6.0"
     osver: {ios: {min: "7.0"}}
     permission: read-only
@@ -535,7 +535,7 @@ properties:
 
         See <Attribute> for more information.
     type: Number
-    platforms: [iphone, ipad, android]
+    platforms: [iphone, ipad, android, macos]
     since: {iphone: "3.6.0", ipad: "3.6.0", android: "7.0.0"}
     osver: {ios: {min: "7.0"}}
     permission: read-only
@@ -548,7 +548,7 @@ properties:
 
         See <Attribute> for more information.
     type: Number
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "3.6.0"
     osver: {ios: {min: "7.0"}}
     permission: read-only
@@ -561,7 +561,7 @@ properties:
 
         See <Attribute> for more information.
     type: Number
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "3.6.0"
     osver: {ios: {min: "7.0"}}
     permission: read-only
@@ -574,7 +574,7 @@ properties:
 
         See <Attribute> for more information.
     type: Number
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "3.6.0"
     osver: {ios: {min: "7.0"}}
     permission: read-only
@@ -590,7 +590,7 @@ properties:
 
         See <Attribute> for more information.
     type: Number
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "3.6.0"
     osver: {ios: {min: "7.0"}}
     permission: read-only
@@ -606,7 +606,7 @@ properties:
 
         See <Attribute> for more information on type modes.
     type: Number
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "5.0.0"
     osver: {ios: {min: "7.0"}}
     permission: read-only
@@ -621,7 +621,7 @@ properties:
 
         See <Attribute> for more information.
     type: Number
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "3.6.0"
     osver: {ios: {min: "6.0"}}
     permission: read-only
@@ -636,7 +636,7 @@ properties:
 
         See <Attribute> for more information.
     type: Number
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "3.6.0"
     osver: {ios: {min: "6.0"}}
     permission: read-only
@@ -651,7 +651,7 @@ properties:
 
         See <Attribute> for more information.
     type: Number
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "3.6.0"
     osver: {ios: {min: "7.0"}}
     permission: read-only
@@ -666,7 +666,7 @@ properties:
 
         See <Attribute> for more information.
     type: Number
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "3.6.0"
     osver: {ios: {min: "7.0"}}
     permission: read-only
@@ -681,7 +681,7 @@ properties:
 
         See <Attribute> for more information.
     type: Number
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "3.6.0"
     osver: {ios: {min: "7.0"}}
     permission: read-only
@@ -696,7 +696,7 @@ properties:
 
         See <Attribute> for more information.
     type: Number
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "3.6.0"
     osver: {ios: {min: "7.0"}}
     permission: read-only
@@ -711,7 +711,7 @@ properties:
 
         See <Attribute> for more information.
     type: Number
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "3.6.0"
     osver: {ios: {min: "7.0"}}
     permission: read-only
@@ -726,7 +726,7 @@ properties:
 
         See <Attribute> for more information.
     type: Number
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "3.6.0"
     osver: {ios: {min: "7.0"}}
     permission: read-only
@@ -741,7 +741,7 @@ properties:
 
         See <Attribute> for more information.
     type: Number
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "3.6.0"
     osver: {ios: {min: "7.0"}}
     permission: read-only
@@ -756,7 +756,7 @@ properties:
 
         See <Attribute> for more information.
     type: Number
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "3.6.0"
     osver: {ios: {min: "7.0"}}
     permission: read-only
@@ -770,7 +770,7 @@ properties:
 
         See <Attribute> for more information.
     type: Number
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "3.6.0"
     osver: {ios: {min: "7.0"}}
     permission: read-only
@@ -784,7 +784,7 @@ properties:
 
         See <Attribute> for more information.
     type: Number
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "3.6.0"
     osver: {ios: {min: "7.0"}}
     permission: read-only
@@ -800,7 +800,7 @@ properties:
 
         See <Attribute> for more information.
     type: Number
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "3.6.0"
     osver: {ios: {min: "7.0"}}
     permission: read-only
@@ -814,7 +814,7 @@ properties:
 
         See <Attribute> for more information.
     type: Number
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "3.6.0"
     osver: {ios: {min: "7.0"}}
     permission: read-only
@@ -828,7 +828,7 @@ properties:
 
         See <Attribute> for more information.
     type: Number
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "3.6.0"
     osver: {ios: {min: "7.0"}}
     permission: read-only
@@ -842,7 +842,7 @@ properties:
 
         See <Attribute> for more information.
     type: Number
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "5.0.0"
     osver: {ios: {min: "7.0"}}
     permission: read-only
@@ -856,7 +856,7 @@ properties:
 
         See <Attribute> for more information.
     type: Number
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "5.0.0"
     osver: {ios: {min: "7.0"}}
     permission: read-only
@@ -870,7 +870,7 @@ properties:
 
         See <Attribute> for more information.
     type: Number
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "5.0.0"
     osver: {ios: {min: "7.0"}}
     permission: read-only
@@ -884,7 +884,7 @@ properties:
 
         See <Attribute> for more information.
     type: Number
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "5.0.0"
     osver: {ios: {min: "7.0"}}
     permission: read-only
@@ -898,7 +898,7 @@ properties:
 
         See <Attribute> for more information.
     type: Number
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "5.0.0"
     osver: {ios: {min: "7.0"}}
     permission: read-only
@@ -912,7 +912,7 @@ properties:
 
         See <Attribute> for more information.
     type: Number
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "5.0.0"
     osver: {ios: {min: "7.0"}}
     permission: read-only
@@ -982,7 +982,7 @@ properties:
   - name: AUTOFILL_TYPE_USERNAME
     summary: Specifies the expectation of an account or login name.
     type: String
-    platforms: [iphone, ipad, android]
+    platforms: [iphone, ipad, android, macos]
     since: "6.3.0"
     osver: {ios: {min: "11.0"}, android: {min: "8.0"}}
     permission: read-only
@@ -990,7 +990,7 @@ properties:
   - name: AUTOFILL_TYPE_PASSWORD
     summary: Specifies the expectation of a password.
     type: String
-    platforms: [iphone, ipad, android]
+    platforms: [iphone, ipad, android, macos]
     since: "6.3.0"
     osver: {ios: {min: "11.0"}, android: {min: "8.0"}}
     permission: read-only
@@ -998,7 +998,7 @@ properties:
   - name: AUTOFILL_TYPE_NAME
     summary: Specifies the expectation of a name.
     type: String
-    platforms: [iphone, ipad, android]
+    platforms: [iphone, ipad, android, macos]
     since: "6.3.0"
     osver: {ios: {min: "10.0"}, android: {min: "8.0"}}
     permission: read-only
@@ -1006,7 +1006,7 @@ properties:
   - name: AUTOFILL_TYPE_NAME_PREFIX
     summary: Specifies the expectation of a prefix or title, such as 'Dr.'
     type: String
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "6.3.0"
     osver: {ios: {min: "10.0"}}
     permission: read-only
@@ -1014,7 +1014,7 @@ properties:
   - name: AUTOFILL_TYPE_GIVEN_NAME
     summary: Specifies the expectation of a given name.
     type: String
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "6.3.0"
     osver: {ios: {min: "10.0"}}
     permission: read-only
@@ -1022,7 +1022,7 @@ properties:
   - name: AUTOFILL_TYPE_MIDDLE_NAME
     summary: Specifies the expectation of a middle name.
     type: String
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "6.3.0"
     osver: {ios: {min: "10.0"}}
     permission: read-only
@@ -1030,7 +1030,7 @@ properties:
   - name: AUTOFILL_TYPE_FAMILY_NAME
     summary: Specifies the expectation of a family name.
     type: String
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "6.3.0"
     osver: {ios: {min: "10.0"}}
     permission: read-only
@@ -1038,7 +1038,7 @@ properties:
   - name: AUTOFILL_TYPE_NAME_SUFFIX
     summary: Specifies the expectation of a suffix, such as 'Jr.'
     type: String
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "6.3.0"
     osver: {ios: {min: "10.0"}}
     permission: read-only
@@ -1046,7 +1046,7 @@ properties:
   - name: AUTOFILL_TYPE_NICKNAME
     summary: Specifies the expectation of a nickname.
     type: String
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "6.3.0"
     osver: {ios: {min: "10.0"}}
     permission: read-only
@@ -1054,7 +1054,7 @@ properties:
   - name: AUTOFILL_TYPE_JOB_TITLE
     summary: Specifies the expectation of a job title.
     type: String
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "6.3.0"
     osver: {ios: {min: "10.0"}}
     permission: read-only
@@ -1062,7 +1062,7 @@ properties:
   - name: AUTOFILL_TYPE_ORGANIZATION_NAME
     summary: Specifies the expectation of an organization name.
     type: String
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "6.3.0"
     osver: {ios: {min: "10.0"}}
     permission: read-only
@@ -1070,7 +1070,7 @@ properties:
   - name: AUTOFILL_TYPE_LOCATION
     summary: Specifies the expectation of a location, such as a point of interest, an address, or another way to identify a location.
     type: String
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "6.3.0"
     osver: {ios: {min: "10.0"}}
     permission: read-only
@@ -1078,7 +1078,7 @@ properties:
   - name: AUTOFILL_TYPE_ADDRESS
     summary: Specifies the expectation of an address.
     type: String
-    platforms: [iphone, ipad, android]
+    platforms: [iphone, ipad, android, macos]
     since: "6.3.0"
     osver: {ios: {min: "10.0"}, android: {min: "8.0"}}
     permission: read-only
@@ -1086,7 +1086,7 @@ properties:
   - name: AUTOFILL_TYPE_ADDRESS_LINE1
     summary: Specifies the expectation of the first line of a street address.
     type: String
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "6.3.0"
     osver: {ios: {min: "10.0"}}
     permission: read-only
@@ -1094,7 +1094,7 @@ properties:
   - name: AUTOFILL_TYPE_ADDRESS_LINE2
     summary: Specifies the expectation of the second line of a street address.
     type: String
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "6.3.0"
     osver: {ios: {min: "10.0"}}
     permission: read-only
@@ -1102,7 +1102,7 @@ properties:
   - name: AUTOFILL_TYPE_ADDRESS_CITY
     summary: Specifies the expectation of a city name.
     type: String
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "6.3.0"
     osver: {ios: {min: "10.0"}}
     permission: read-only
@@ -1110,7 +1110,7 @@ properties:
   - name: AUTOFILL_TYPE_ADDRESS_STATE
     summary: Specifies the expectation of a state name.
     type: String
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "6.3.0"
     osver: {ios: {min: "10.0"}}
     permission: read-only
@@ -1118,7 +1118,7 @@ properties:
   - name: AUTOFILL_TYPE_ADDRESS_CITY_STATE
     summary: Specifies the expectation of a city name combined with a state name.
     type: String
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "6.3.0"
     osver: {ios: {min: "10.0"}}
     permission: read-only
@@ -1126,7 +1126,7 @@ properties:
   - name: AUTOFILL_TYPE_SUBLOCALITY
     summary: Specifies the expectation of a sublocality.
     type: String
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "6.3.0"
     osver: {ios: {min: "10.0"}}
     permission: read-only
@@ -1134,7 +1134,7 @@ properties:
   - name: AUTOFILL_TYPE_COUNTRY_NAME
     summary: Specifies the expectation of a country name.
     type: String
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "6.3.0"
     osver: {ios: {min: "10.0"}}
     permission: read-only
@@ -1142,7 +1142,7 @@ properties:
   - name: AUTOFILL_TYPE_POSTAL_CODE
     summary: Specifies the expectation of a postal code.
     type: String
-    platforms: [iphone, ipad, android]
+    platforms: [iphone, ipad, android, macos]
     since: "6.3.0"
     osver: {ios: {min: "10.0"}, android: {min: "8.0"}}
     permission: read-only
@@ -1150,7 +1150,7 @@ properties:
   - name: AUTOFILL_TYPE_PHONE
     summary: Specifies the expectation of a telephone number.
     type: String
-    platforms: [iphone, ipad, android]
+    platforms: [iphone, ipad, android, macos]
     since: "6.3.0"
     osver: {ios: {min: "10.0"}, android: {min: "8.0"}}
     permission: read-only
@@ -1158,7 +1158,7 @@ properties:
   - name: AUTOFILL_TYPE_EMAIL
     summary: Specifies the expectation of an email address.
     type: String
-    platforms: [iphone, ipad, android]
+    platforms: [iphone, ipad, android, macos]
     since: "6.3.0"
     osver: {ios: {min: "10.0"}, android: {min: "8.0"}}
     permission: read-only
@@ -1166,7 +1166,7 @@ properties:
   - name: AUTOFILL_TYPE_URL
     summary: Specifies the expectation of a URL.
     type: String
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "6.3.0"
     osver: {ios: {min: "10.0"}}
     permission: read-only
@@ -1174,7 +1174,7 @@ properties:
   - name: AUTOFILL_TYPE_CARD_NUMBER
     summary: Specifies the expectation of a card number.
     type: String
-    platforms: [iphone, ipad, android]
+    platforms: [iphone, ipad, android, macos]
     since: "6.3.0"
     osver: {ios: {min: "10.0"}, android: {min: "8.0"}}
     permission: read-only
@@ -1222,7 +1222,7 @@ properties:
   - name: AUTOFILL_TYPE_NEW_PASSWORD
     summary: Specifies the expectation of a new password.
     type: String
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "7.4.0"
     osver: { ios: { min: "12.0" } }
     permission: read-only
@@ -1230,7 +1230,7 @@ properties:
   - name: AUTOFILL_TYPE_ONE_TIME_CODE
     summary: Specifies the expectation of a single-factor SMS login code.
     type: String
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "7.4.0"
     osver: { ios: { min: "12.0" } }
     permission: read-only
@@ -1249,7 +1249,7 @@ properties:
     osver: {ios: {min: "4.0"}}
     since: "3.0.0"
     permission: read-only
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: AUTOLINK_ALL
     summary: Converts all detectable types of data into clickable links.
@@ -1264,7 +1264,7 @@ properties:
     type: Number
     since: "3.0.0"
     permission: read-only
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: AUTOLINK_CALENDAR
     summary: Converts strings formatted as calendar events into clickable links.
@@ -1273,7 +1273,7 @@ properties:
     osver: {ios: {min: "4.0"}}
     since: "3.0.0"
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: AUTOLINK_URLS
     summary: Converts strings formatted as URLs into clickable links.
@@ -1289,7 +1289,7 @@ properties:
     type: Number
     since: "3.0.0"
     permission: read-only
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: AUTOLINK_NONE
     summary: Disables converting strings into clickable links.
@@ -1304,7 +1304,7 @@ properties:
     type: Number
     permission: read-only
     since: "3.0.0"
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: AUTOLINK_PHONE_NUMBERS
     summary: Converts strings formatted as phone numbers into clickable links.
@@ -1319,7 +1319,7 @@ properties:
     type: Number
     permission: read-only
     since: "3.0.0"
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: AUTOLINK_EMAIL_ADDRESSES
     summary: Converts strings formatted as email addresses into clickable links.
@@ -1335,7 +1335,7 @@ properties:
     type: Number
     permission: read-only
     since: "3.0.0"
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: BLEND_MODE_CLEAR
     summary: |
@@ -1343,7 +1343,7 @@ properties:
     type: Number
     permission: read-only
     since: "7.3.0"
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: BLEND_MODE_COLOR
     summary: |
@@ -1351,7 +1351,7 @@ properties:
     type: Number
     permission: read-only
     since: "7.3.0"
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: BLEND_MODE_COLOR_BURN
     summary: |
@@ -1359,7 +1359,7 @@ properties:
     type: Number
     permission: read-only
     since: "7.3.0"
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: BLEND_MODE_COLOR_DODGE
     summary: |
@@ -1367,7 +1367,7 @@ properties:
     type: Number
     permission: read-only
     since: "7.3.0"
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: BLEND_MODE_COPY
     summary: |
@@ -1375,7 +1375,7 @@ properties:
     type: Number
     permission: read-only
     since: "7.3.0"
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: BLEND_MODE_DARKEN
     summary: |
@@ -1383,7 +1383,7 @@ properties:
     type: Number
     permission: read-only
     since: "7.3.0"
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: BLEND_MODE_DESTINATION_ATOP
     summary: |
@@ -1391,7 +1391,7 @@ properties:
     type: Number
     permission: read-only
     since: "7.3.0"
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: BLEND_MODE_DESTINATION_IN
     summary: |
@@ -1399,7 +1399,7 @@ properties:
     type: Number
     permission: read-only
     since: "7.3.0"
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: BLEND_MODE_DESTINATION_OUT
     summary: |
@@ -1407,7 +1407,7 @@ properties:
     type: Number
     permission: read-only
     since: "7.3.0"
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: BLEND_MODE_DESTINATION_OVER
     summary: |
@@ -1415,7 +1415,7 @@ properties:
     type: Number
     permission: read-only
     since: "7.3.0"
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: BLEND_MODE_DIFFERENCE
     summary: |
@@ -1423,7 +1423,7 @@ properties:
     type: Number
     permission: read-only
     since: "7.3.0"
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: BLEND_MODE_EXCLUSION
     summary: |
@@ -1431,7 +1431,7 @@ properties:
     type: Number
     permission: read-only
     since: "7.3.0"
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: BLEND_MODE_HARD_LIGHT
     summary: |
@@ -1439,7 +1439,7 @@ properties:
     type: Number
     permission: read-only
     since: "7.3.0"
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: BLEND_MODE_HUE
     summary: |
@@ -1447,7 +1447,7 @@ properties:
     type: Number
     permission: read-only
     since: "7.3.0"
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: BLEND_MODE_LIGHTEN
     summary: |
@@ -1455,7 +1455,7 @@ properties:
     type: Number
     permission: read-only
     since: "7.3.0"
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: BLEND_MODE_LUMINOSITY
     summary: |
@@ -1463,7 +1463,7 @@ properties:
     type: Number
     permission: read-only
     since: "7.3.0"
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: BLEND_MODE_MULTIPLY
     summary: |
@@ -1471,7 +1471,7 @@ properties:
     type: Number
     permission: read-only
     since: "7.3.0"
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: BLEND_MODE_NORMAL
     summary: |
@@ -1479,7 +1479,7 @@ properties:
     type: Number
     permission: read-only
     since: "7.3.0"
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: BLEND_MODE_OVERLAY
     summary: |
@@ -1487,7 +1487,7 @@ properties:
     type: Number
     permission: read-only
     since: "7.3.0"
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: BLEND_MODE_PLUS_DARKER
     summary: |
@@ -1495,7 +1495,7 @@ properties:
     type: Number
     permission: read-only
     since: "7.3.0"
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: BLEND_MODE_PLUS_LIGHTER
     summary: |
@@ -1503,7 +1503,7 @@ properties:
     type: Number
     permission: read-only
     since: "7.3.0"
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: BLEND_MODE_SATURATION
     summary: |
@@ -1511,7 +1511,7 @@ properties:
     type: Number
     permission: read-only
     since: "7.3.0"
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: BLEND_MODE_SCREEN
     summary: |
@@ -1519,7 +1519,7 @@ properties:
     type: Number
     permission: read-only
     since: "7.3.0"
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: BLEND_MODE_SOFT_LIGHT
     summary: |
@@ -1527,7 +1527,7 @@ properties:
     type: Number
     permission: read-only
     since: "7.3.0"
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: BLEND_MODE_SOURCE_ATOP
     summary: |
@@ -1535,7 +1535,7 @@ properties:
     type: Number
     permission: read-only
     since: "7.3.0"
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: BLEND_MODE_SOURCE_IN
     summary: |
@@ -1543,7 +1543,7 @@ properties:
     type: Number
     permission: read-only
     since: "7.3.0"
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: BLEND_MODE_SOURCE_OUT
     summary: |
@@ -1551,7 +1551,7 @@ properties:
     type: Number
     permission: read-only
     since: "7.3.0"
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: BLEND_MODE_XOR
     summary: |
@@ -1559,7 +1559,7 @@ properties:
     type: Number
     permission: read-only
     since: "7.3.0"
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: HINT_TYPE_STATIC
     summary: |
@@ -1581,7 +1581,7 @@ properties:
         One of the group of constants for the <Titanium.UI.Label.ellipsize> property.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "6.0.0"
 
   - name: TEXT_ELLIPSIZE_TRUNCATE_CHAR_WRAP
@@ -1590,7 +1590,7 @@ properties:
         One of the group of constants for the <Titanium.UI.Label.ellipsize> property.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "6.0.0"
 
   - name: TEXT_ELLIPSIZE_TRUNCATE_CLIP
@@ -1599,7 +1599,7 @@ properties:
         One of the group of constants for the <Titanium.UI.Label.ellipsize> property.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "6.0.0"
 
   - name: TEXT_ELLIPSIZE_TRUNCATE_START
@@ -1608,7 +1608,7 @@ properties:
         One of the group of constants for the <Titanium.UI.Label.ellipsize> property.
     type: Number
     permission: read-only
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     since: "4.1.0"
 
   - name: TEXT_ELLIPSIZE_TRUNCATE_MIDDLE
@@ -1617,7 +1617,7 @@ properties:
         One of the group of constants for the <Titanium.UI.Label.ellipsize> property.
     type: Number
     permission: read-only
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     since: "4.1.0"
 
   - name: TEXT_ELLIPSIZE_TRUNCATE_END
@@ -1626,7 +1626,7 @@ properties:
         One of the group of constants for the <Titanium.UI.Label.ellipsize> property.
     type: Number
     permission: read-only
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     since: "4.1.0"
 
   - name: TEXT_ELLIPSIZE_TRUNCATE_MARQUEE
@@ -1653,7 +1653,7 @@ properties:
         One of the group of constants for the <Titanium.UI.Window.extendEdges> property.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "3.1.3"
 
   - name: EXTEND_EDGE_BOTTOM
@@ -1662,7 +1662,7 @@ properties:
         One of the group of constants for the <Titanium.UI.Window.extendEdges> property.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "3.1.3"
 
   - name: EXTEND_EDGE_LEFT
@@ -1671,7 +1671,7 @@ properties:
         One of the group of constants for the <Titanium.UI.Window.extendEdges> property.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "3.1.3"
 
   - name: EXTEND_EDGE_RIGHT
@@ -1680,7 +1680,7 @@ properties:
         One of the group of constants for the <Titanium.UI.Window.extendEdges> property.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "3.1.3"
 
   - name: EXTEND_EDGE_NONE
@@ -1689,7 +1689,7 @@ properties:
         One of the group of constants for the <Titanium.UI.Window.extendEdges> property.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "3.1.3"
 
   - name: EXTEND_EDGE_ALL
@@ -1698,7 +1698,7 @@ properties:
         One of the group of constants for the <Titanium.UI.Window.extendEdges> property.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "3.1.3"
 
   - name: FACE_DOWN
@@ -1782,7 +1782,7 @@ properties:
         and <Titanium.UI.TextField.rightButtonMode> properties.
     type: Number
     permission: read-only
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: INPUT_BUTTONMODE_NEVER
     summary: Never show buttons on the input field.
@@ -1792,7 +1792,7 @@ properties:
         and <Titanium.UI.TextField.rightButtonMode> properties.
     type: Number
     permission: read-only
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: INPUT_BUTTONMODE_ONBLUR
     summary: Show buttons on the input field when it loses focus.
@@ -1802,7 +1802,7 @@ properties:
         and <Titanium.UI.TextField.rightButtonMode> properties.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: INPUT_BUTTONMODE_ONFOCUS
     summary: Show buttons on the input field when it gains focus.
@@ -1812,7 +1812,7 @@ properties:
         and <Titanium.UI.TextField.rightButtonMode> properties.
     type: Number
     permission: read-only
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: INPUT_TYPE_CLASS_NUMBER
     summary: Use a keyboard with a number pad only, with the pad keyboard layout. Accepts only numbers.
@@ -1845,20 +1845,20 @@ properties:
     summary: Use the platform-specific default keyboard appearance.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: KEYBOARD_APPEARANCE_DARK
     summary: Use the platform-specific dark keyboard appearance.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "5.2.0"
 
   - name: KEYBOARD_APPEARANCE_LIGHT
     summary: Use the platform-specific light keyboard appearance.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "5.2.0"
 
   - name: KEYBOARD_ASCII
@@ -1903,6 +1903,7 @@ properties:
         properties.
     type: Number
     permission: read-only
+    exclude-platforms: [macos]
     deprecated:
         since: "5.2.0"
         removed: "8.0.0"
@@ -1915,6 +1916,7 @@ properties:
         properties.
     type: Number
     permission: read-only
+    exclude-platforms: [macos]
     deprecated:
         since: "5.2.0"
         removed: "8.0.0"
@@ -1962,6 +1964,7 @@ properties:
         On iPad, this behaves the same as <Titanium.UI.KEYBOARD_NUMBERS_PUNCTUATION>.
     type: Number
     permission: read-only
+    exclude-platforms: [macos]
     deprecated:
         since: "5.2.0"
         removed: "8.0.0"
@@ -1976,6 +1979,7 @@ properties:
         On iPad, this behaves the same as <Titanium.UI.KEYBOARD_NUMBERS_PUNCTUATION>.
     type: Number
     permission: read-only
+    exclude-platforms: [macos]
     deprecated:
         since: "5.2.0"
         removed: "8.0.0"
@@ -1988,6 +1992,7 @@ properties:
         properties.
     type: Number
     permission: read-only
+    exclude-platforms: [macos]
     deprecated:
         since: "5.2.0"
         removed: "8.0.0"
@@ -2003,7 +2008,7 @@ properties:
         On iPad, this behaves the same as <Titanium.UI.KEYBOARD_TYPE_DEFAULT>.
         type: Number
     permission: read-only
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     since: "5.2.0"
 
   - name: KEYBOARD_TYPE_ASCII
@@ -2020,7 +2025,7 @@ properties:
         properties.
     type: Number
     permission: read-only
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     since: "5.2.0"
 
   - name: KEYBOARD_TYPE_DEFAULT
@@ -2048,7 +2053,7 @@ properties:
         properties.
     type: Number
     permission: read-only
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     since: "5.2.0"
 
   - name: KEYBOARD_TYPE_NUMBERS_PUNCTUATION
@@ -2065,7 +2070,7 @@ properties:
         properties.
     type: Number
     permission: read-only
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     since: "5.2.0"
 
   - name: KEYBOARD_TYPE_NUMBER_PAD
@@ -2099,7 +2104,7 @@ properties:
         Note: This keyboard automatically sets the return key to "Go" (localized).
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "5.2.0"
 
   - name: KEYBOARD_TYPE_TWITTER
@@ -2109,7 +2114,7 @@ properties:
         properties.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "5.2.0"
 
   - name: KEYBOARD_TYPE_URL
@@ -2148,13 +2153,13 @@ properties:
         and <Titanium.UI.UNKNOWN>.
     type: Number
     permission: read-only
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: LIST_ACCESSORY_TYPE_NONE
     summary: Do not display anything on the right side of an item in a list view.
     type: Number
     permission: read-only
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     since: '3.1.0'
 
   - name: LIST_ACCESSORY_TYPE_CHECKMARK
@@ -2163,7 +2168,7 @@ properties:
         Use to indicate an item in a list is selected.
     type: Number
     permission: read-only
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     since: '3.1.0'
 
   - name: LIST_ACCESSORY_TYPE_DETAIL
@@ -2172,7 +2177,7 @@ properties:
         Use to indicate that selecting this item results in the display of a detailed view of that item.
     type: Number
     permission: read-only
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     since: '3.1.0'
 
   - name: LIST_ACCESSORY_TYPE_DISCLOSURE
@@ -2182,7 +2187,7 @@ properties:
         the next level in the data model hierarchy.
     type: Number
     permission: read-only
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     since: '3.1.0'
 
   - name: LIST_ITEM_TEMPLATE_DEFAULT
@@ -2196,7 +2201,7 @@ properties:
         on the left side of the cell.
     type: Number
     permission: read-only
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     since: '3.1.0'
 
   - name: LIST_ITEM_TEMPLATE_SETTINGS
@@ -2209,7 +2214,7 @@ properties:
         element is not displayed.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: '3.1.0'
 
   - name: LIST_ITEM_TEMPLATE_CONTACTS
@@ -2222,7 +2227,7 @@ properties:
         displayed.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: '3.1.0'
 
   - name: LIST_ITEM_TEMPLATE_SUBTITLE
@@ -2235,7 +2240,7 @@ properties:
         element is not displayed.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: '3.1.0'
 
   - name: NOTIFICATION_DURATION_LONG
@@ -2254,7 +2259,7 @@ properties:
     summary: Specifies that the clipboard items should not be available to other devices through Handoff.
     type: String
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     osver: {ios: {min: "10.0"}}
     since: "5.5.0"
 
@@ -2262,7 +2267,7 @@ properties:
     summary: Specifies the time and date that you want the system to remove the clipboard items from the clipboard.
     type: String
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     osver: {ios: {min: "10.0"}}
     since: "5.5.0"
 
@@ -2273,7 +2278,7 @@ properties:
         to update the picker values.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: PICKER_TYPE_DATE
     summary: Use a date picker.
@@ -2319,7 +2324,7 @@ properties:
         devices will display <Titanium.UI.RETURNKEY_DEFAULT>.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     osver: {ios: {min: "9.0"}}
     since: "5.2.0"
 
@@ -2340,7 +2345,7 @@ properties:
         <Titanium.UI.TextArea.returnKeyType> properties.
     type: Number
     permission: read-only
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: RETURNKEY_EMERGENCY_CALL
     summary: Set the return key text to "Emergency Call".
@@ -2349,7 +2354,7 @@ properties:
         <Titanium.UI.TextArea.returnKeyType> properties.
     type: Number
     permission: read-only
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: RETURNKEY_GO
     summary: Set the return key text to "Go".
@@ -2375,7 +2380,7 @@ properties:
         <Titanium.UI.TextArea.returnKeyType> properties.
     type: Number
     permission: read-only
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: RETURNKEY_NEXT
     summary: Set the return key text to "Next".
@@ -2384,7 +2389,7 @@ properties:
         <Titanium.UI.TextArea.returnKeyType> properties.
     type: Number
     permission: read-only
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: RETURNKEY_ROUTE
     summary: Set the return key text to "Route".
@@ -2393,7 +2398,7 @@ properties:
         <Titanium.UI.TextArea.returnKeyType> properties.
     type: Number
     permission: read-only
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: RETURNKEY_SEARCH
     summary: Set the return key text to "Search".
@@ -2410,7 +2415,7 @@ properties:
         <Titanium.UI.TextArea.returnKeyType> properties.
     type: Number
     permission: read-only
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: RETURNKEY_YAHOO
     summary: Set the return key text to "Yahoo".
@@ -2459,14 +2464,14 @@ properties:
   - name: TABLE_VIEW_SEPARATOR_STYLE_NONE
     summary: The row divider is hidden.
     type: Number
-    platforms: [iphone, ipad, android]
+    platforms: [iphone, ipad, android, macos]
     since: "5.2.0"
     permission: read-only
 
   - name: TABLE_VIEW_SEPARATOR_STYLE_SINGLE_LINE
     summary: The row divider is shown as a single line.
     type: Number
-    platforms: [iphone, ipad, android]
+    platforms: [iphone, ipad, android, macos]
     since: "5.2.0"
     permission: read-only
 
@@ -2489,7 +2494,7 @@ properties:
         This constant is a number and only available on iOS.
     type: [Number, String]
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "6.1.0"
 
   - name: TEXT_ALIGNMENT_LEFT
@@ -2546,7 +2551,7 @@ properties:
         <Titanium.UI.TextArea.autocapitalization> properties.
     type: Number
     permission: read-only
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: TEXT_STYLE_HEADLINE
     summary: The font used for headings.
@@ -2554,7 +2559,7 @@ properties:
         One of the group of textStyle constants for the <Font> Object.
     type: String
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     osver: {ios: {min: "7.0"}}
     since: "3.2.0"
 
@@ -2564,7 +2569,7 @@ properties:
         One of the group of textStyle constants for the <Font> Object.
     type: String
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     osver: {ios: {min: "7.0"}}
     since: "3.2.0"
 
@@ -2574,7 +2579,7 @@ properties:
         One of the group of textStyle constants for the <Font> Object.
     type: String
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     osver: {ios: {min: "7.0"}}
     since: "3.2.0"
 
@@ -2584,7 +2589,7 @@ properties:
         One of the group of textStyle constants for the <Font> Object.
     type: String
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     osver: {ios: {min: "7.0"}}
     since: "3.2.0"
 
@@ -2594,7 +2599,7 @@ properties:
         One of the group of textStyle constants for the <Font> Object.
     type: String
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     osver: {ios: {min: "7.0"}}
     since: "3.2.0"
 
@@ -2604,7 +2609,7 @@ properties:
         One of the group of textStyle constants for the <Font> Object.
     type: String
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     osver: {ios: {min: "7.0"}}
     since: "3.2.0"
 
@@ -2614,7 +2619,7 @@ properties:
         One of the group of textStyle constants for the <Font> Object.
     type: String
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     osver: {ios: {min: "9.0"}}
     since: "6.0.0"
 
@@ -2624,7 +2629,7 @@ properties:
         One of the group of textStyle constants for the <Font> Object.
     type: String
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     osver: {ios: {min: "9.0"}}
     since: "6.0.0"
 
@@ -2634,7 +2639,7 @@ properties:
         One of the group of textStyle constants for the <Font> Object.
     type: String
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     osver: {ios: {min: "9.0"}}
     since: "6.0.0"
 
@@ -2644,7 +2649,7 @@ properties:
         One of the group of textStyle constants for the <Font> Object.
     type: String
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     osver: {ios: {min: "9.0"}}
     since: "6.0.0"
 
@@ -2654,7 +2659,7 @@ properties:
         One of the group of textStyle constants for the <Font> Object.
     type: String
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     osver: {ios: {min: "11.0"}}
     since: "8.1.0"
 
@@ -2745,26 +2750,26 @@ properties:
         and <Titanium.UI.UNKNOWN>.
     type: Number
     permission: read-only
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: URL_ERROR_AUTHENTICATION
     summary: Authentication error code reported via <Titanium.UI.WebView.error>.
     type: Number
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     since: "3.0.0"
     permission: read-only
 
   - name: URL_ERROR_BAD_URL
     summary: Bad url error code reported via <Titanium.UI.WebView.error>.
     type: Number
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     since: "3.0.0"
     permission: read-only
 
   - name: URL_ERROR_CONNECT
     summary: Error code reported via <Titanium.UI.WebView.error> for a failure to connect to host.
     type: Number
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     since: "3.0.0"
     permission: read-only
 
@@ -2772,56 +2777,56 @@ properties:
   - name: URL_ERROR_SSL_FAILED
     summary: Error code reported via <Titanium.UI.WebView.error> for an SSL failure.
     type: Number
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     since: "3.0.0"
     permission: read-only
 
   - name: URL_ERROR_FILE
     summary: Error code reported via <Titanium.UI.WebView.error> for a failure to access a file resource on a host, except "file not found", which has its own constant.
     type: Number
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     since: "3.0.0"
     permission: read-only
 
   - name: URL_ERROR_FILE_NOT_FOUND
     summary: Error code reported via <Titanium.UI.WebView.error> when a requested file does not exist on the host.
     type: Number
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     since: "3.0.0"
     permission: read-only
 
   - name: URL_ERROR_HOST_LOOKUP
     summary: Error code reported via <Titanium.UI.WebView.error> when a host name cannot be resolved, such as via a DNS lookup error.
     type: Number
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     since: "3.0.0"
     permission: read-only
 
   - name: URL_ERROR_REDIRECT_LOOP
     summary: Error code reported via <Titanium.UI.WebView.error> when a redirect loop is detected.
     type: Number
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     since: "3.0.0"
     permission: read-only
 
   - name: URL_ERROR_TIMEOUT
     summary: Error code reported via <Titanium.UI.WebView.error> when a timeout occurs.
     type: Number
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     since: "3.0.0"
     permission: read-only
 
   - name: URL_ERROR_UNKNOWN
     summary: Error code reported via <Titanium.UI.WebView.error> when an unknown error occurs.
     type: Number
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     since: "3.0.0"
     permission: read-only
 
   - name: URL_ERROR_UNSUPPORTED_SCHEME
     summary: Error code reported via <Titanium.UI.WebView.error> when a url contains an unsupported scheme.
     type: Number
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     since: "3.0.0"
     permission: read-only
 
@@ -2891,6 +2896,7 @@ properties:
         JavaScript files in their own contexts.
     type: Titanium.UI.Window
     permission: read-only
+    exclude-platforms: [macos]
     deprecated:
         since: "3.5.0"
         removed: "6.0.0"
@@ -2910,7 +2916,7 @@ properties:
         overwritten by them using the `tintColor` property.
     type: [String, Titanium.UI.Color]
     since: "6.0.0"
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: userInterfaceStyle
     summary: The style associated with the user interface.

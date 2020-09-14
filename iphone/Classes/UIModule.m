@@ -382,7 +382,7 @@ MAKE_SYSTEM_PROP(EXTEND_EDGE_ALL, 15); //UIEdgeRectAll
 
 - (NSNumber *)USER_INTERFACE_STYLE_UNSPECIFIED
 {
-  if ([TiUtils isIOSVersionOrGreater:@"13.0"]) {
+  if ([TiUtils isIOSVersionOrGreater:@"13.0"] || [TiUtils isMacOS]) {
     return NUMINT(UIUserInterfaceStyleUnspecified);
   }
 
@@ -391,7 +391,7 @@ MAKE_SYSTEM_PROP(EXTEND_EDGE_ALL, 15); //UIEdgeRectAll
 
 - (NSNumber *)USER_INTERFACE_STYLE_LIGHT
 {
-  if ([TiUtils isIOSVersionOrGreater:@"13.0"]) {
+  if ([TiUtils isIOSVersionOrGreater:@"13.0"] || [TiUtils isMacOS]) {
     return NUMINT(UIUserInterfaceStyleLight);
   }
 
@@ -400,7 +400,7 @@ MAKE_SYSTEM_PROP(EXTEND_EDGE_ALL, 15); //UIEdgeRectAll
 
 - (NSNumber *)USER_INTERFACE_STYLE_DARK
 {
-  if ([TiUtils isIOSVersionOrGreater:@"13.0"]) {
+  if ([TiUtils isIOSVersionOrGreater:@"13.0"] || [TiUtils isMacOS]) {
     return NUMINT(UIUserInterfaceStyleDark);
   }
 

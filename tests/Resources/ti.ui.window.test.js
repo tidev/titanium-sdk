@@ -696,6 +696,9 @@ describe('Titanium.UI.Window', function () {
 		const model = Ti.Platform.model;
 		const trimmed = model.replace(' (Simulator)', '').trim();
 		const matches = trimmed.match(/(iPhone|iPad)(\d+),(\d+)/);
+		if (!matches) { // regexp doesn't match. Presumably macos
+			return false;
+		}
 		const iPhoneOriPad = matches[1];
 		const majorVersion = parseInt(matches[2], 10);
 		if (iPhoneOriPad === 'iPhone') {
@@ -748,7 +751,9 @@ describe('Titanium.UI.Window', function () {
 					should(padding.bottom).be.eql(0);
 				} else {
 					let bottom;
-					if (utilities.isIPad()) {
+					if (utilities.isMacOS()) {
+						bottom = 0;
+					} else if (utilities.isIPad()) {
 						// https://useyourloaf.com/blog/supporting-new-ipad-pro-models/
 						// Top: 24 pts, bottom: 20 pts in Portrait *and* landscape
 						bottom = 20;
