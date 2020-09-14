@@ -190,9 +190,7 @@ function loadTests() {
 	require('./ti.xml.test');
 	// Modules
 	require('./ti.cloudpush.test');
-	if (!OS_MACOS) {
-		require('./ti.map.test');
-	}
+	require('./ti.map.test');
 	if (OS_ANDROID) {
 		require('./ti.playservices.test');
 	}
