@@ -14,11 +14,6 @@
 
 - (void)_initWithProperties:(NSDictionary *)properties
 {
-  if (![TiUtils forceTouchSupported]) {
-    NSLog(@"[WARN] 3DTouch is not available on this device.");
-    return;
-  }
-
   [self setPreview:[properties valueForKey:@"preview"]];
   [self setContentHeight:[TiUtils intValue:@"contentHeight" def:0]];
 
