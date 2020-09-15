@@ -1,8 +1,8 @@
 {
 	"ios": {
 		"urlSession": {
-			"url": "https://github.com/appcelerator-modules/ti.urlsession/releases/download/v2.2.0/com.appcelerator.urlSession-iphone-2.2.0.zip",
-			"integrity": "sha512-fyilD5d27RYZaq/s3XEWxJDzUSEjKiTeu+2W552q8JDk33kmTq3nA1yX6Q5k7Tyl3RFhkSPJ0cPgEzREvwCCzg=="
+			"url": "https://github.com/appcelerator-modules/ti.urlsession/releases/download/v3.0.0/com.appcelerator.urlSession-iphone-3.0.0.zip",
+			"integrity": "sha512-66Isv52+jqxSS7GGFmlxdU5Ir1e0ELZOQ5buZSdm84mof94o/r1brJi39T9womyiRoekkxkmO6kG4llW0tgbHA=="
 		},
 		"facebook": {
 			"url": "https://github.com/appcelerator-modules/ti.facebook/releases/download/v8.0.0-iphone/facebook-iphone-8.0.0.zip",
