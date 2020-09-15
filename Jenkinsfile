@@ -180,7 +180,7 @@ def iosUnitTests(deviceFamily, nodeVersion, npmVersion, testOnDevices) {
 					def zipName = getBuiltSDK()
 					sh label: 'Install SDK', script: "npm run deploy -- ${zipName} --select" // installs the sdk
 					try {
-						timeout(20) {
+						timeout(30) {
 							if (testOnDevices && deviceFamily == 'iphone') {
 								sh label: 'Run Test Suite on device(s)', script: "npm run test:integration -- ios -F ${deviceFamily} -T device -C all"
 							} else { // run PR tests on simulator
