@@ -15,6 +15,10 @@ Utility.isIOS = function () {
 	return this.isIPhone() || this.isIPad();
 };
 
+Utility.isMacOS = function () {
+	return Ti.Platform.name === 'Mac OS X';
+};
+
 Utility.isAndroid = function () {
 	return (Ti.Platform.osname === 'android');
 };
@@ -55,9 +59,8 @@ filters = {
 	ipad: function () {
 		return Utility.isIPad();
 	},
-	iphone: function () {
-		return Utility.isIPhone();
-	},
+	iphone: () => Utility.isIPhone(),
+	mac: () => Utility.isMacOS(),
 	windows: function () {
 		return Utility.isWindows();
 	},
@@ -70,6 +73,12 @@ filters = {
 	},
 	iosMissing: function () {
 		if (Utility.isIOS()) {
+			return 'skip';
+		}
+		return true;
+	},
+	macMissing: function () {
+		if (Utility.isMacOS()) {
 			return 'skip';
 		}
 		return true;
@@ -95,6 +104,12 @@ filters = {
 	// to mark when there's a bug in both iOS and Android impl
 	androidAndIosBroken: function () {
 		if (Utility.isAndroid() || Utility.isIOS()) {
+			return 'skip';
+		}
+		return true;
+	},
+	androidAndMacBroken: function () {
+		if (Utility.isAndroid() || Utility.isMacOS()) {
 			return 'skip';
 		}
 		return true;
@@ -135,6 +150,18 @@ filters = {
 	},
 	iosAndWindowsDesktopBroken: function () {
 		if (Utility.isWindowsDesktop() || Utility.isIOS()) {
+			return 'skip';
+		}
+		return true;
+	},
+	macAndWindowsBroken: function () {
+		if (Utility.isWindows() || Utility.isMacOS()) {
+			return 'skip';
+		}
+		return true;
+	},
+	macAndWindowsDesktopBroken: function () {
+		if (Utility.isWindowsDesktop() || Utility.isMacOS()) {
 			return 'skip';
 		}
 		return true;
@@ -190,6 +217,7 @@ filters = {
 // This is just handy to try and label where we have gaps in our APIs versus where we have bugs in our impl for a given platform
 filters.androidBroken = filters.androidMissing;
 filters.iosBroken = filters.iosMissing;
+filters.macBroken = filters.macMissing;
 filters.windowsBroken = filters.windowsMissing;
 filters.androidAndWindowsMissing = filters.androidAndWindowsBroken;
 filters.androidBrokenAndIosMissing = filters.androidAndIosBroken;
@@ -197,6 +225,9 @@ filters.androidMissingAndIosBroken = filters.androidAndIosBroken;
 filters.androidMissingAndWindowsBroken = filters.androidAndWindowsMissing;
 filters.androidMissingAndWindowsDesktopBroken = filters.androidAndWindowsDesktopBroken;
 filters.iosMissingAndWindowsDesktopBroken = filters.iosAndWindowsDesktopBroken;
+filters.macBrokenAndWindowsMissing = filters.macAndWindowsBroken;
+filters.macMissingAndWindowsBroken = filters.macAndWindowsBroken;
+filters.macAndWindowsMissing = filters.macAndWindowsBroken;
 // Add our custom filters
 filter.addFilters(filters);
 

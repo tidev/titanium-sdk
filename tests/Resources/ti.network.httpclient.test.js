@@ -334,7 +334,11 @@ describe('Titanium.Network.HTTPClient', function () {
 			}, 1);
 		};
 		xhr.onerror = function (e) {
-			should(e).should.be.type('undefined');
+			try {
+				should(e).should.be.type('undefined');
+			} catch (err) {
+				finish(err);
+			}
 		};
 		xhr.open('GET', 'https://www.google.com');
 		xhr.send();

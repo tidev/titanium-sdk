@@ -8,10 +8,9 @@
 /* eslint no-unused-expressions: "off" */
 'use strict';
 
-var should = require('./utilities/assertions');
+const should = require('./utilities/assertions');
 
 describe('Titanium.Filesystem.FileStream', function () {
-
 	before(function () {
 		// prepare resource
 		var file = Ti.Filesystem.getFile(Ti.Filesystem.applicationDataDirectory, 'stream_test_in.txt');

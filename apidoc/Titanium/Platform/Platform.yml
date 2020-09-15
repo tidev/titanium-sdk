@@ -18,7 +18,7 @@ events:
       - name: level
         summary: Percentage battery power level.
         type: Number
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
 methods:
   - name: canOpenURL
@@ -28,7 +28,7 @@ methods:
         On iOS, this method might return false if you have not whitelisted the URL schemes you query in your [tiapp.xml](https://docs.appcelerator.com/platform/latest/#!/guide/tiapp.xml_and_timodule.xml_Reference-section-src-29004921_tiapp.xmlandtimodule.xmlReference-iOS9SecurityandcanOpenUrl).
     returns:
         type: Boolean
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     since: {android: "8.1.0", iphone: "0.8", ipad: "0.8"}
     parameters:
       - name: url
@@ -47,7 +47,7 @@ methods:
 
   - name: createUUID
     summary: Creates a globally-unique identifier.
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     returns:
         type: String
 
@@ -80,7 +80,7 @@ methods:
         });
         ```
 
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     returns:
         type: Boolean
     parameters:
@@ -109,7 +109,7 @@ methods:
     summary: Returns whether the system settings are configured to show times in 24-hour format.
     returns:
         type: Boolean
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
 properties:
   - name: BATTERY_STATE_CHARGING
@@ -136,19 +136,19 @@ properties:
     summary: System's WIFI IP address. No other network types are supported.
     type: String
     permission: read-only
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: architecture
     summary: System's processor architecture.
     type: String
     permission: read-only
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: availableMemory
     summary: System's unused memory, measured in bytes.
     type: Number
     permission: read-only
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: batteryLevel
     summary: |
@@ -159,7 +159,7 @@ properties:
 
   - name: batteryMonitoring
     summary: Determines whether battery monitoring is enabled.
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     default: false
     type: Boolean
 
@@ -194,7 +194,7 @@ properties:
 
         To use a UUID for tracking / advertising purposes,
         use <Titanium.Platform.identifierForAdvertising> instead.
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     type: String
     permission: read-only
 
@@ -205,7 +205,7 @@ properties:
         vendor running on the same device. A different value is returned for apps
         on the same device that come from different vendors, and for apps on
         different devices regardless of vendor. See the [Apple docs](https://developer.apple.com/reference/uikit/uidevice/1620059-identifierforvendor) for more infos.
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     type: String
     permission: read-only
     since: "7.0.0"
@@ -224,7 +224,7 @@ properties:
         for example, after the device has been restarted but before the user has
         unlocked the device.
     type: String
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "7.0.0"
 
   - name: isAdvertisingTrackingEnabled
@@ -234,7 +234,7 @@ properties:
         If the value is false, use the advertising identifier only for the following
         purposes: frequency capping, attribution, conversion events, estimating the
         number of unique users, advertising fraud detection, and debugging.
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     type: Boolean
     permission: read-only
     since: "7.0.0"
@@ -247,7 +247,7 @@ properties:
         [ISO 639-1](http://en.wikipedia.org/wiki/ISO_639-1) and
         [ISO 3166-1 alpha-2](http://en.wikipedia.org/wiki/ISO_3166-1_alpha-2#Officially_assigned_code_elements)
         sections of wikipedia for reference.
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     type: String
     permission: read-only
 
@@ -259,7 +259,7 @@ properties:
         unique device identification, which they have prohibited.
     type: String
     permission: read-only
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: manufacturer
     summary: Manufacturer of the device.
@@ -268,7 +268,7 @@ properties:
         Virtual devices return `unknown`.
     type: String
     permission: read-only
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     since: "3.0.0"
 
   - name: model
@@ -281,7 +281,7 @@ properties:
         `Simulator` for iOS running in a simulator.
     type: String
     permission: read-only
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     examples:
       - title: Testing for a Virtual Device
         example: |
@@ -308,7 +308,7 @@ properties:
     summary: System's WIFI network mask. No other network types are supported.
     type: String
     permission: read-only
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: osname
     summary: |
@@ -320,7 +320,7 @@ properties:
 
   - name: ostype
     summary: Operating System architecture. On Android, this is `32bit`.
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     type: String
     permission: read-only
 
@@ -328,7 +328,7 @@ properties:
     summary: Number of logical processing cores.
     type: Number
     permission: read-only
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: runtime
     summary: Short name of the JavaScript runtime in use.
@@ -341,20 +341,20 @@ properties:
     summary: System's total memory, measured in bytes.
     type: Number
     permission: read-only
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: uptime
     summary: System uptime since last boot in seconds.
     type: Number
     permission: read-only
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: username
     summary: |
       System name, if set. On iOS, this can be found in Settings > General > About > Name.
     type: String
     permission: read-only
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: version
     summary: The operating system's version string.

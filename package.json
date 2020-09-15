@@ -62,6 +62,7 @@
     "test:ios": "npm run test:iphone",
     "test:iphone": "npm run cleanbuild:ios -- --skip-zip --no-docs --symlink && ti sdk select $npm_package_version && npm run test:integration -- ios -F iphone",
     "test:ipad": "npm run cleanbuild:ios -- --skip-zip --no-docs --symlink && ti sdk select $npm_package_version && npm run test:integration -- ios -F ipad",
+    "test:mac": "npm run cleanbuild:ios -- --skip-zip --no-docs --symlink && ti sdk select $npm_package_version && npm run test:integration -- ios -T macos",
     "test:integration": "./build/scons test"
   },
   "husky": {
@@ -85,9 +86,10 @@
   },
   "dependencies": {
     "adm-zip": "^0.4.16",
+    "always-tail": "^0.2.0",
     "ansi-escapes": "^4.3.1",
     "appc-tasks": "^1.0.2",
-    "archiver": "^5.0.1",
+    "archiver": "^5.0.2",
     "async": "^3.2.0",
     "boxen": "^4.2.0",
     "buffer-equal": "1.0.0",
@@ -100,8 +102,8 @@
     "ioslib": "^1.7.21",
     "liveview": "^1.5.4",
     "markdown": "0.5.0",
-    "moment": "^2.27.0",
-    "node-appc": "^1.0.1",
+    "moment": "^2.28.0",
+    "node-appc": "^1.1.0",
     "node-titanium-sdk": "^5.1.1",
     "node-uuid": "1.4.8",
     "nodeify": "^1.0.1",
@@ -116,8 +118,8 @@
     "xmldom": "^0.3.0"
   },
   "devDependencies": {
-    "@commitlint/cli": "^9.1.2",
-    "@commitlint/config-conventional": "^9.1.2",
+    "@commitlint/cli": "^11.0.0",
+    "@commitlint/config-conventional": "^11.0.0",
     "@seadub/clang-format-lint": "0.0.2",
     "@seadub/danger-plugin-dependencies": "0.1.0",
     "@seadub/danger-plugin-eslint": "^2.0.0",
@@ -132,7 +134,7 @@
     "cz-conventional-changelog": "^3.3.0",
     "danger": "^10.4.0",
     "dateformat": "^3.0.3",
-    "eslint": "^7.8.1",
+    "eslint": "^7.9.0",
     "eslint-config-axway": "^4.7.3",
     "eslint-plugin-mocha": "^8.0.0",
     "folder-hash": "^3.3.3",
@@ -151,8 +153,8 @@
     "ssri": "^8.0.0",
     "stream-splitter": "^0.3.2",
     "strip-ansi": "^6.0.0",
-    "titanium": "^5.2.2",
-    "titanium-docgen": "^4.6.0"
+    "titanium": "^5.2.3",
+    "titanium-docgen": "^4.7.0"
   },
   "repository": {
     "type": "git",

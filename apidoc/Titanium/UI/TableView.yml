@@ -164,18 +164,18 @@ events:
       - name: x
         summary: X coordinate of the event from the `source` view's coordinate system.
         type: Number
-        platforms: [iphone, ipad]
+        platforms: [iphone, ipad, macos]
 
       - name: y
         summary: Y coordinate of the event from the `source` view's coordinate system.
         type: Number
-        platforms: [iphone, ipad]
+        platforms: [iphone, ipad, macos]
 
   - name: rowsselected
     summary: |
         Fired when user stops two-pan gesture interaction for selecting multiple rows. 
         It is used in conjunction with <Titanium.UI.TableView.allowsMultipleSelectionInteraction>.
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: 8.2.0
     properties:
       - name: selectedRows
@@ -188,7 +188,7 @@ events:
 
   - name: delete
     summary: Fired when a table row is deleted by the user.
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     properties:
       - name: detail
         summary: Indicates whether the delete button was clicked. Always `false` for this event.
@@ -273,7 +273,7 @@ events:
       - name: index
         summary: The index number clicked.
         type: Number
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: 3.4.0
 
   - name: longpress
@@ -321,7 +321,7 @@ events:
 
   - name: move
     summary: Fired when a table row is moved by the user.
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     properties:
       - name: detail
         summary: Boolean to indicate if the right area was clicked. Always `false` for this event.
@@ -363,14 +363,14 @@ events:
       - name: contentOffset
         summary: Dictionary with `x` and `y` properties containing the content offset.
         type: Point
-        platforms: [iphone, ipad]
+        platforms: [iphone, ipad, macos]
 
       - name: contentSize
         summary: |
             Dictionary with `width` and `height` properties containing the size of the content
             (regardless of the display size in the case of scrolling).
         type: Size
-        platforms: [iphone, ipad]
+        platforms: [iphone, ipad, macos]
 
       - name: firstVisibleItem
         summary: Row index of the topmost visible row in the view.
@@ -401,12 +401,12 @@ events:
             Dictionary with `width` and `height` properties containing the size of the content
             (regardless of the display size in the case of scrolling).
         type: Size
-        platforms: [iphone, ipad]
+        platforms: [iphone, ipad, macos]
 
       - name: contentOffset
         summary: Dictionary with `x` and `y` properties containing the content offset.
         type: Point
-        platforms: [iphone, ipad]
+        platforms: [iphone, ipad, macos]
 
       - name: size
         summary: |
@@ -504,7 +504,7 @@ events:
         [scroll](Titanium.UI.TableView.scroll) event cannot occur concurrently. If a table begins
         to scroll during a touch event, the appropriate row or table `touchcancel` event fire
         before the `scroll` event begins.
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     properties:
       - name: x
         summary: X coordinate of the event from the `source` view's coordinate system.
@@ -610,7 +610,7 @@ events:
         [scroll](Titanium.UI.TableView.scroll) event cannot occur concurrently. If a table begins
         to scroll during a touch event, the appropriate row or table `touchcancel` event fire
         before the `scroll` event begins.
-    platforms: [iphone, ipad, android]
+    platforms: [iphone, ipad, android, macos]
     properties:
       - name: index
         summary: Row index.
@@ -670,7 +670,7 @@ events:
 
   - name: twofingertap
     summary: Fired when the device detects a two-finger tap against the view.
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     properties:
       - name: x
         summary: X coordinate of the event from the `source` view's coordinate system.
@@ -685,7 +685,7 @@ events:
     description: |
         A dragging gesture is when a touch remains in contact with the display to physically drag
         the view, as opposed to it being the result of scrolling momentum.
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: '3.0.0'
 
   - name: dragend
@@ -693,7 +693,7 @@ events:
     description: |
         A dragging gesture is when a touch remains in contact with the display to physically drag
         the view, as opposed to it being the result of scrolling momentum.
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     properties:
       - name: decelerate
         summary: |
@@ -741,7 +741,7 @@ methods:
         type: TableViewAnimationProperties
         optional: true
     since: 3.0.0
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: deleteRow
     summary: Deletes an existing row.
@@ -772,7 +772,7 @@ methods:
         type: TableViewAnimationProperties
         optional: true
     since: 3.0.0
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: deselectRow
     summary: Programmatically deselects a row.
@@ -780,7 +780,7 @@ methods:
       - name: row
         summary: Row index to deselect.
         type: Number
-    platforms: [iphone,ipad]
+    platforms: [iphone,ipad, macos]
 
   - name: insertRowAfter
     summary: Inserts a row after another row.
@@ -829,7 +829,7 @@ methods:
         type: TableViewAnimationProperties
         optional: true
     since: 3.0.0
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: insertRowBefore
     summary: Inserts a row before another row.
@@ -877,7 +877,7 @@ methods:
         type: TableViewAnimationProperties
         optional: true
     since: 3.0.0
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: scrollToIndex
     summary: Scrolls the table view to ensure that the specified row is on screen.
@@ -951,12 +951,12 @@ methods:
             Note that the default here is equivalent to passing in `{ animated: false }`
         type: AnimatedWithDurationOptions
         optional: true
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "2.1.0"
 
   - name: setContentOffset
     summary: Sets the value of the content offset of the table view without animation by default.
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     parameters:
       - name: contentOffset
         summary: |
@@ -982,7 +982,7 @@ methods:
       - name: row
         summary: Row index to select.
         type: Number
-    platforms: [iphone, ipad, android]
+    platforms: [iphone, ipad, android, macos]
     since: {iphone: "1.8.2", ipad: "1.8.2", android: "3.0.0"}
 
   - name: setData
@@ -1010,7 +1010,7 @@ methods:
       - name: view
         summary: View to display.
         type: Titanium.UI.View
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "2.1.0"
 
   - name: updateRow
@@ -1049,7 +1049,7 @@ methods:
         summary: Animation properties. (iOS only.)
         type: TableViewAnimationProperties
     since: 3.0.0
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
 properties:
   - name: allowsSelection
@@ -1057,14 +1057,14 @@ properties:
     description: Set to `false` to prevent rows from being selected.
     type: Boolean
     default: true
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: allowsSelectionDuringEditing
     summary: Determines whether this table's rows can be selected while editing the table.
     description: Set to `true` to allow rows to be selected.
     type: Boolean
     default: false
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: backgroundColor
     summary: Background color of the view, as a color name or hex triplet.
@@ -1089,7 +1089,7 @@ properties:
         `editing` and `moving` modes.
     type: Boolean
     default: Depends on `editing` and `moving` mode
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: editing
     summary: |
@@ -1103,7 +1103,7 @@ properties:
         `editing` and `moving` modes.
     type: Boolean
     default: false
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: filterAttribute
     summary: Filter attribute to be used when searching.
@@ -1126,14 +1126,14 @@ properties:
         and 'Jonathan'.
 
     type: String
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: filterAnchored
     summary: Determines whether the search is limited to the start of the string
     description: Set to `true` to enable case anchored search.
     type: Boolean
     default: false
-    platforms: [ android, iphone, ipad]
+    platforms: [ android, iphone, ipad, macos]
     since: "3.3.0"
 
   - name: filterCaseInsensitive
@@ -1141,7 +1141,7 @@ properties:
     description: Set to `false` to enable case sensitive search.
     type: Boolean
     default: true
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: footerDividersEnabled
     summary: When set to false, the ListView will not draw the divider before the footer view.
@@ -1194,7 +1194,7 @@ properties:
         </Alloy>
         ```
     type: Titanium.UI.View
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "2.1.0"
 
   - name: refreshControl
@@ -1202,7 +1202,7 @@ properties:
     description: |
         An alternate to the headerPullView property. See <Titanium.UI.RefreshControl> for usage and examples.
     type: Titanium.UI.RefreshControl
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     since: { android: "6.2.0", iphone: "3.2.0", ipad: "3.2.0" }
 
   - name: hideSearchOnSelection
@@ -1217,14 +1217,14 @@ properties:
         The Android platform behaves as though this value were `false`.
     type: Boolean
     default: true
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: allowsMultipleSelectionDuringEditing
     summary: Determines whether multiple items of this table view can be selected at the same time while editing the table.
     type: Boolean
     default: false
     since: 8.2.0
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: allowsMultipleSelectionInteraction
     summary: Allows a two-finger pan gesture to automatically transition the table view into editing mode and start selecting rows.
@@ -1237,7 +1237,7 @@ properties:
     type: Boolean
     default: false
     since: 8.2.0
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: footerView
     summary: Table view footer as a view that will be rendered instead of a label.
@@ -1295,7 +1295,7 @@ properties:
         index associated with that title. If the index is -1 the table view will scroll to the top.
 
     type: Array<TableViewIndexEntry>
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: maxRowHeight
     summary: Maximum row height for table view rows.
@@ -1317,7 +1317,7 @@ properties:
         `editing` and `moving` modes.
     type: Boolean
     default: Depends on `editing` and `moving` mode
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: moving
     summary: |
@@ -1331,7 +1331,7 @@ properties:
         `editing` and `moving` modes.
     type: Boolean
     default: false
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: overScrollMode
     summary: Determines the behavior when the user overscrolls the view.
@@ -1350,7 +1350,7 @@ properties:
     type: Boolean
     default: true
     since: { android: 7.3.0, iphone: 0.8, ipad: 0.8 }
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: scrollIndicatorStyle
     summary: Style of the scrollbar.
@@ -1358,7 +1358,7 @@ properties:
     constants: Titanium.UI.iOS.ScrollIndicatorStyle.*
     default: <Titanium.UI.iOS.ScrollIndicatorStyle.DEFAULT>
     since: 2.1.0
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: scrollsToTop
     summary: Controls whether the scroll-to-top gesture is effective.
@@ -1370,7 +1370,7 @@ properties:
         behaviour on. The remaining view will then respond to scroll-to-top gesture.
     type: Boolean
     default: true
-    platforms: [iphone,ipad]
+    platforms: [iphone,ipad, macos]
     since: 2.1.2
 
   - name: search
@@ -1389,7 +1389,7 @@ properties:
         </Alloy>
         ```
     type: [Titanium.UI.SearchBar, Titanium.UI.Android.SearchView]
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: dimBackgroundForSearch
     summary: A Boolean indicating whether the underlying content is dimmed during a search.
@@ -1399,7 +1399,7 @@ properties:
     type: Boolean
     default: true
     since: 6.2.0
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     availability: creation
 
   - name: showSearchBarInNavBar
@@ -1411,7 +1411,7 @@ properties:
     type: Boolean
     default: false
     since: 8.1.0
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     osver: {ios: {min: "11.0"}}
     availability: creation
     
@@ -1428,14 +1428,14 @@ properties:
     description: Set to `true` to hide the search field.
     type: Boolean
     default: false (search field visible)
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: sectionCount
     summary: Number of sections in this table view.
     type: Number
     permission: read-only
     since: 3.0.0
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: sections
     summary: Sections of this table.
@@ -1446,7 +1446,7 @@ properties:
         for adding sections on iOS.
     type: Array<Titanium.UI.TableViewSection>
     since: { android: 3.1.0, iphone: 3.0.0, ipad: 3.0.0 }
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: separatorColor
     summary: Separator line color between rows, as a color name or hex triplet.
@@ -1478,7 +1478,7 @@ properties:
     type: HorizontalInsets
     since: 3.2.0
     osver: {ios: {min: "7.0"}}
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: tableSeparatorInsets
     summary: The insets for the table view header and footer.
@@ -1497,7 +1497,7 @@ properties:
     type: HorizontalInsets
     since: "5.2.0"
     osver: {ios: {min: "7.0"}}
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: rowSeparatorInsets
     summary: The insets for table view cells (applies to all cells).
@@ -1516,13 +1516,13 @@ properties:
     type: HorizontalInsets
     since: "5.2.0"
     osver: {ios: {min: "7.0"}}
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: separatorStyle
     summary: Separator style constant.
     type: Number
     constants: Titanium.UI.TABLE_VIEW_SEPARATOR_STYLE_*
-    platforms: [iphone, ipad, android]
+    platforms: [iphone, ipad, android, macos]
     since: {android: "5.2.0"}
 
   - name: showVerticalScrollIndicator
@@ -1530,7 +1530,7 @@ properties:
     description: Set to `false` to hide the vertical scroll indicator.
     type: Boolean
     default: true
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: style
     summary: |
@@ -1539,7 +1539,7 @@ properties:
     description: Style should always be set before setting the `data` on table view.
     type: Number
     constants: Titanium.UI.iOS.TableViewStyle.*
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: resultsBackgroundColor
     summary: The background color of the search results (iOS-only).
@@ -1550,7 +1550,7 @@ properties:
     type: [String, Titanium.UI.Color]
     default: undefined (behaves as white)
     since: 7.3.0
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     availability: creation
 
   - name: resultsSeparatorColor
@@ -1564,7 +1564,7 @@ properties:
     type: [String, Titanium.UI.Color]
     default: undefined (behaves as gray)
     since: 7.3.0
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     availability: creation
 
   - name: resultsSeparatorStyle
@@ -1572,7 +1572,7 @@ properties:
     type: Number
     constants: Titanium.UI.TABLE_VIEW_SEPARATOR_STYLE_*
     since: 7.3.0
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     availability: creation
 
   - name: resultsSeparatorInsets
@@ -1585,7 +1585,7 @@ properties:
         specifying the inset from the right edge.
     type: HorizontalInsets
     since: "7.3.0"
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     availability: creation
 
 examples:
@@ -1795,7 +1795,7 @@ properties:
 name: SelectedRowObject
 summary: The arguments for the <Titanium.UI.TableView.rowsselected> event.
 since: 8.2.0
-platforms: [iphone, ipad]    
+platforms: [iphone, ipad, macos]    
 properties:
   - name: index
     summary: Row index.

@@ -277,7 +277,7 @@ async function addTiAppProperties() {
 
 /**
  * @param {string} platform 'android' || 'ios' || 'windows'
- * @param {string} [target] 'emulator' || 'simulator' || 'device'
+ * @param {string} [target] 'emulator' || 'simulator' || 'device' || 'macos'
  * @param {string} [deviceId] uuid of device/simulator to launch
  * @param {string} [deployType=undefined] 'development' || 'test'
  * @param {string} [deviceFamily=undefined] 'ipad' || 'iphone' || undefined
@@ -674,14 +674,18 @@ async function handleBuild(prc, target, snapshotDir, snapshotPromises) {
 			}
 
 			// Handle when app crashes and we haven't finished tests yet!
-			if (token.includes('-- End application log ----') || token.includes('-- End simulator log ---')) {
+			if (token.includes('-- End application log ----')
+				|| token.includes('-- End simulator log ---')
+				|| token.includes('-- End mac application log ---')) {
 				prc.kill(); // quit this build...
 				return reject(new Error('Failed to finish test suite before app crashed and logs ended!')); // failed too many times
 			}
 
 			// ignore the build output until the app actually starts
 			if (!started) {
-				if (token.includes('-- Start application log ---') || token.includes('-- Start simulator log ---')) {
+				if (token.includes('-- Start application log ---')
+					|| token.includes('-- Start simulator log ---')
+					|| token.includes('-- Start mac application log ---')) {
 					started = true;
 				}
 				return;

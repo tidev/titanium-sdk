@@ -8,7 +8,8 @@
 /* eslint-env mocha */
 /* eslint no-unused-expressions: "off" */
 'use strict';
-var should = require('./utilities/assertions');
+const should = require('./utilities/assertions');
+const isMacOS = Ti.Platform.name === 'Mac OS X';
 
 // FIXME This pops a prompt on Windows 10 and will hang tests. We can log on and allow manually...
 // Skip on Windows 10 Mobile device family due to prompt,
@@ -199,16 +200,25 @@ describe.windowsBroken('Titanium.Geolocation', function () {
 	});
 
 	it.ios('.showBackgroundLocationIndicator', function () {
+		if (isMacOS) {
+			return; // FIXME: How can we limit to ios only, and skip on macos?
+		}
 		should(Ti.Geolocation).have.a.property('showBackgroundLocationIndicator').which.is.a.Boolean();
 		should(Ti.Geolocation.showBackgroundLocationIndicator).be.false(); // defaults to false
 	});
 
 	it.ios('#getShowBackgroundLocationIndicator()', function () {
+		if (isMacOS) {
+			return; // FIXME: How can we limit to ios only, and skip on macos?
+		}
 		should(Ti.Geolocation).have.a.property('getShowBackgroundLocationIndicator').which.is.a.Function();
 		should(Ti.Geolocation.getShowBackgroundLocationIndicator()).be.a.Boolean();
 	});
 
 	it.ios('#setShowBackgroundLocationIndicator()', function () {
+		if (isMacOS) {
+			return; // FIXME: How can we limit to ios only, and skip on macos?
+		}
 		should(Ti.Geolocation).have.a.property('setShowBackgroundLocationIndicator').which.is.a.Function();
 		Ti.Geolocation.setShowBackgroundLocationIndicator(true); // defaults to false
 		should(Ti.Geolocation.showBackgroundLocationIndicator).be.true();

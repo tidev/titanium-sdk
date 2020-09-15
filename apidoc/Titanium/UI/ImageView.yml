@@ -49,12 +49,12 @@ methods:
   - name: pause
     summary: Pauses a running animation. Use `resume` method to continue.
     description:  This method only works if multiple images are specified.
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: resume
     summary: Resumes an animation from a `pause` state.
     description:  This method only works if multiple images are specified.
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: start
     summary: |
@@ -67,7 +67,7 @@ methods:
 
   - name: toBlob
     summary: Returns the image as a Blob object.
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     returns:
         type: Titanium.Blob
 
@@ -121,7 +121,7 @@ events:
 
   - name: pause
     summary: Fired when the animation pauses.
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     since: { android: "2.1.1" }
 
 properties:
@@ -140,7 +140,7 @@ properties:
     default: false on android, true on iOS.
     availability: creation
     since: 3.0.0
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: decodeRetries
     summary: |
@@ -153,7 +153,7 @@ properties:
   - name: defaultImage
     summary: Local path to the default image to display while loading a remote image.
     type: String
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: duration
     summary: Amount of time in milliseconds to animate one cycle.
@@ -188,7 +188,7 @@ properties:
         filenames, and thus this property is only applicable to remote images.
     type: Boolean
     default: false
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: image
     summary: Image to display.
@@ -223,7 +223,7 @@ properties:
         is ignored when the `defaultImage` property is set.
     type: Boolean
     default: false
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: repeatCount
     summary: Number of times to repeat the image animation.
@@ -239,11 +239,12 @@ properties:
     summary: The view's tintColor. Android does not support setting instances of <Titanium.UI.Color>
     type: [String, Titanium.UI.Color]
     default: null
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     since: { android: "5.4.0", iphone: "5.4.0", ipad: "5.4.0"}
 
   - name: url
     summary: URL to the image to display.
+    exclude-platforms: [macos]
     deprecated:
         since: "1.5.0"
         removed: "3.0.0"

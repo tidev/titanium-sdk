@@ -44,7 +44,7 @@ description: |
 
 extends: Titanium.Proxy
 since: "0.9"
-platforms: [android, iphone, ipad]
+platforms: [android, iphone, ipad, macos]
 deprecated:
     since: "8.0.0"
     notes: Use [Titanium.UI.Matrix2D](Titanium.UI.Matrix2D) for improved ES6+ compatibility instead.

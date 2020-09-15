@@ -59,11 +59,13 @@ function iOSBuilder() {
 		simulator: 'development',
 		device: 'test',
 		'dist-appstore': 'production',
-		'dist-adhoc': 'production'
+		'dist-adhoc': 'production',
+		macos: 'development',
+		'dist-macappstore': 'production'
 	};
 
 	// list of available build-targets
-	this.targets = [ 'simulator', 'device', 'dist-appstore', 'dist-adhoc' ];
+	this.targets = [ 'simulator', 'device', 'dist-appstore', 'dist-adhoc', 'macos', 'dist-macappstore' ];
 
 	// object of device families to map the --device-family parameter to the
 	// native TARGETED_DEVICE_FAMILY build-setting
@@ -336,8 +338,9 @@ iOSBuilder.prototype.getDeviceInfo = function getDeviceInfo() {
 					}
 				}, this);
 			}, this);
+	} else if (argv.target === 'macos') {
+		deviceInfo.devices = {};
 	}
-
 	return this.deviceInfoCache = deviceInfo;
 };
 
@@ -1168,7 +1171,7 @@ iOSBuilder.prototype.configOptionPPuuid = function configOptionPPuuid(order) {
 		validate: function (value, callback) {
 			const target = cli.argv.target;
 
-			if (target === 'simulator') {
+			if (target === 'simulator'  || target === 'macos') {
 				return callback(null, value);
 			}
 
@@ -1221,7 +1224,7 @@ iOSBuilder.prototype.configOptionTarget = function configOptionTarget(order) {
 	return {
 		abbr: 'T',
 		callback: function (value) {
-			if (value !== 'simulator') {
+			if (value !== 'simulator' && value !== 'macos') {
 				_t.assertIssue(iosInfo.issues, 'IOS_NO_KEYCHAINS_FOUND');
 				_t.assertIssue(iosInfo.issues, 'IOS_NO_WWDR_CERT_FOUND');
 			}
@@ -1269,6 +1272,11 @@ iOSBuilder.prototype.configOptionTarget = function configOptionTarget(order) {
 					iosInfo.provisioning.distribution.forEach(function (p) {
 						_t.provisioningProfileLookup[p.uuid.toLowerCase()] = p;
 					});
+					break;
+
+				case 'macos':
+					_t.conf.options['device-id'].required = false;
+					break;
 			}
 		},
 		default: 'simulator',
@@ -1664,7 +1672,7 @@ iOSBuilder.prototype.initTiappSettings = function initTiappSettings() {
 				return true;
 			});
 
-			if (cli.argv.target !== 'simulator') {
+			if (cli.argv.target !== 'simulator' && cli.argv.target !== 'macos') {
 				// check that all target provisioning profile uuids are valid
 				if (!tiappTargets[targetName].ppUUIDs || !tiappTargets[targetName].ppUUIDs[cli.argv.target]) {
 					if (cli.argv['pp-uuid']) {
@@ -1881,7 +1889,7 @@ iOSBuilder.prototype.validate = function validate(logger, config, cli) {
 		}, this);
 
 		// if in the prepare phase and doing a device/dist build...
-		if (cli.argv.target !== 'simulator') {
+		if (cli.argv.target !== 'simulator' || cli.argv.target !== 'macos') {
 			// make sure they have Apple's WWDR cert installed
 			if (!this.iosInfo.certs.wwdr) {
 				logger.error(__('WWDR Intermediate Certificate not found') + '\n');
@@ -2460,12 +2468,21 @@ iOSBuilder.prototype.initialize = function initialize() {
 	this.keychain      = argv['keychain'];
 	this.deviceId      = argv['device-id'];
 	this.deviceInfo    = this.deviceId ? this.getDeviceInfo().udids[this.deviceId] : null;
-	this.xcodeTarget   = /^device|simulator$/.test(this.target) ? 'Debug' : 'Release';
-	this.xcodeTargetOS = this.target === 'simulator' ? 'iphonesimulator' : 'iphoneos';
+	this.xcodeTarget   = /^device|simulator|macos$/.test(this.target) ? 'Debug' : 'Release';
+
+	if (this.target === 'macos' || this.target === 'dist-macappstore') {
+		this.xcodeTargetOS = 'maccatalyst';
+	} else if (this.target === 'simulator') {
+		this.xcodeTargetOS = 'iphonesimulator';
+	} else {
+		this.xcodeTargetOS = 'iphoneos';
+	}
 
 	this.iosBuildDir            = path.join(this.buildDir, 'build', 'Products', this.xcodeTarget + '-' + this.xcodeTargetOS);
-	if (this.target === 'dist-appstore' || this.target === 'dist-adhoc') {
+	if (this.target === 'dist-appstore' || this.target === 'dist-adhoc' || this.target === 'dist-macappstore') {
 		this.xcodeAppDir        = path.join(this.buildDir, 'ArchiveStaging');
+	} else if (this.target === 'macos') {
+		this.xcodeAppDir        = path.join(this.iosBuildDir, this.tiapp.name + '.app/Contents/Resources');
 	} else {
 		this.xcodeAppDir        = path.join(this.iosBuildDir, this.tiapp.name + '.app');
 	}
@@ -2583,6 +2600,8 @@ iOSBuilder.prototype.loginfo = function loginfo() {
 		this.logger.debug(__('Simulator version: %s', cyan(this.simHandle.version)));
 	} else if (this.target === 'device') {
 		this.logger.info(__('Building for iOS device: %s', cyan(this.deviceId)));
+	} else if (this.target === 'macos') {
+		this.logger.info(__('Building for maccatalyst'));
 	}
 
 	this.logger.info(__('Building for device family: %s', cyan(this.deviceFamily)));
@@ -3106,7 +3125,7 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 		legacySwift = version.lt(this.xcodeEnv.version, '8.0.0');
 
 	// set additional build settings
-	if (this.target === 'simulator') {
+	if (this.target === 'simulator' || this.target === 'macos') {
 		gccDefs.push('__LOG__ID__=' + this.tiapp.guid);
 		gccDefs.push('DEBUG=1');
 		gccDefs.push('TI_VERSION=' + this.titaniumSdkVersion);
@@ -3169,6 +3188,35 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 	} else if (this.target === 'device') {
 		buildSettings.CODE_SIGN_IDENTITY = `"${this.certDeveloperName}"`;
 		buildSettings.CODE_SIGN_STYLE = 'Manual';
+	} else if (this.target === 'macos') {
+		buildSettings['"CODE_SIGN_IDENTITY[sdk=macosx*]"'] = '"-"';
+		buildSettings.CODE_SIGN_STYLE = 'Manual';
+	}  else if (this.target === 'dist-macappstore') {
+		buildSettings['"CODE_SIGN_IDENTITY[sdk=macosx*]"'] = '"-"';
+		buildSettings.CODE_SIGN_STYLE = 'Manual';
+
+		xobjs.PBXShellScriptBuildPhase || (xobjs.PBXShellScriptBuildPhase = {});
+		const buildPhaseUuid = this.generateXcodeUuid(xcodeProject);
+		const name = 'Copy Resources to Archive';
+
+		xobjs.PBXNativeTarget[mainTargetUuid].buildPhases.push({
+			value: buildPhaseUuid,
+			comment: '"' + name + '"'
+		});
+
+		xobjs.PBXShellScriptBuildPhase[buildPhaseUuid] = {
+			isa: 'PBXShellScriptBuildPhase',
+			buildActionMask: 2147483647,
+			files: [],
+			inputPaths: [],
+			name: '"' + name + '"',
+			outputPaths: [],
+			runOnlyForDeploymentPostprocessing: 0,
+			shellPath: '/bin/sh',
+			shellScript: '"/bin/cp -rf \\"$PROJECT_DIR/ArchiveStaging\\"/ \\"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/Resources/\\""',
+			showEnvVarsInLog: 0
+		};
+		xobjs.PBXShellScriptBuildPhase[buildPhaseUuid + '_comment'] = '"' + name + '"';
 	}
 
 	// inject the team id and app groups
@@ -3196,13 +3244,15 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 		delete buildSettings['"CODE_SIGN_IDENTITY[sdk=iphoneos*]"'];
 	}, this);
 
+	const isMacOS = this.target === 'macos' || this.target === 'dist-macappstore';
+
 	// set the target-specific build settings
 	xobjs.XCConfigurationList[xobjs.PBXNativeTarget[mainTargetUuid].buildConfigurationList].buildConfigurations.forEach(function (buildConf) {
 		const bs = appc.util.mix(xobjs.XCBuildConfiguration[buildConf.value].buildSettings, buildSettings);
 		delete bs['"CODE_SIGN_IDENTITY[sdk=iphoneos*]"'];
 
 		bs.PRODUCT_BUNDLE_IDENTIFIER = '"' + this.tiapp.id + '"';
-
+		bs.SUPPORTS_MACCATALYST = isMacOS;
 		if (this.provisioningProfile) {
 			bs.DEVELOPMENT_TEAM = this.teamId;
 			bs.PROVISIONING_PROFILE = '"' + this.provisioningProfile.uuid + '"';
@@ -4057,6 +4107,26 @@ iOSBuilder.prototype.writeEntitlementsPlist = function writeEntitlementsPlist(ne
 		if (!plist['keychain-access-groups'].some(id => id === plist['application-identifier'])) {
 			plist['keychain-access-groups'].push(plist['application-identifier']);
 		}
+	}
+
+	if (this.target === 'macos' || this.target === 'dist-macappstore') {
+		plist['com.apple.security.app-sandbox'] = true; // required for app store
+		plist['com.apple.security.cs.disable-library-validation'] = true; // To run locally, disable library validation
+		plist['com.apple.security.cs.allow-jit'] = true; // allow JIT for JavaScriptCore fast code paths
+
+		// FIXME: Based on API usage we really need to turn on other entitlements!
+		// Can we copyResources first and then write the entitlements plist based on tiSymbol usage?
+		// Do we rely on the end developer adding entitlements to their app?
+		// See https://developer.apple.com/documentation/security/app_sandbox?language=objc
+		plist['com.apple.security.device.audio-input'] = true;
+		plist['com.apple.security.device.camera'] = true;
+		plist['com.apple.security.device.microphone'] = true;
+		plist['com.apple.security.network.client'] = true;
+		plist['com.apple.security.network.server'] = true;
+		plist['com.apple.security.personal-information.addressbook'] = true;
+		plist['com.apple.security.personal-information.calendars'] = true;
+		plist['com.apple.security.personal-information.location'] = true;
+		plist['com.apple.security.personal-information.photos-library'] = true;
 	}
 
 	this._embedCapabilitiesAndWriteEntitlementsPlist(plist, path.join(this.buildDir, this.tiapp.name + '.entitlements'), false, next);
@@ -4960,7 +5030,7 @@ iOSBuilder.prototype.writeDebugProfilePlists = function writeDebugProfilePlists(
 			};
 
 			if (!exists || !prev || prev.size !== contents.length || prev.hash !== hash) {
-				if (!this.forceRebuild && /device|dist-appstore|dist-adhoc/.test(this.target)) {
+				if (!this.forceRebuild && /device|dist-appstore|dist-macappstore|dist-adhoc/.test(this.target)) {
 					this.logger.info(__('Forcing rebuild: %s changed since last build', filename));
 					this.forceRebuild = true;
 				}
@@ -6401,7 +6471,7 @@ iOSBuilder.prototype.writeI18NFiles = function writeI18NFiles() {
 			};
 
 			if (!fs.existsSync(dest) || contents !== fs.readFileSync(dest).toString()) {
-				if (!this.forceRebuild && /device|dist-appstore|dist-adhoc/.test(this.target)) {
+				if (!this.forceRebuild && /device|dist-appstore|dist-macappstore|dist-adhoc/.test(this.target)) {
 					this.logger.info(__('Forcing rebuild: %s changed since last build', rel));
 					this.forceRebuild = true;
 				}
@@ -6524,7 +6594,7 @@ iOSBuilder.prototype.processTiSymbols = function processTiSymbols() {
 	}
 	// if we're doing a simulator build or we're including all titanium modules,
 	// return now since we don't care about writing the defines.h
-	if (this.target === 'simulator' || this.includeAllTiModules) {
+	if (this.target === 'simulator' || this.target === 'macos' || this.includeAllTiModules) {
 		const definesFile = path.join(this.platformPath, 'Classes', 'defines.h');
 
 		contents = fs.readFileSync(definesFile).toString();
@@ -6666,7 +6736,7 @@ iOSBuilder.prototype.removeFiles = function removeFiles(next) {
 
 iOSBuilder.prototype.optimizeFiles = function optimizeFiles(next) {
 	// if we're doing a simulator build, return now since we don't care about optimizing images
-	if (this.target === 'simulator') {
+	if (this.target === 'simulator' || this.target === 'macos') {
 		return next();
 	}
 
@@ -6892,7 +6962,7 @@ iOSBuilder.prototype.invokeXcodeBuild = function invokeXcodeBuild(next) {
 	});
 
 	const args = [
-		this.target === 'dist-appstore' || this.target === 'dist-adhoc' ? 'archive' : 'build',
+		this.target === 'dist-appstore' || this.target === 'dist-adhoc' || this.target === 'dist-macappstore' ? 'archive' : 'build',
 		'-target', this.tiapp.name,
 		'-configuration', this.xcodeTarget,
 		'-scheme', this.sanitizedAppName(),
@@ -6903,7 +6973,7 @@ iOSBuilder.prototype.invokeXcodeBuild = function invokeXcodeBuild(next) {
 		'SYMROOT=' + path.join(this.buildDir, 'build', 'Products'),
 	];
 
-	if (this.simHandle) {
+	if (this.simHandle && this.target !== 'macos' && this.target !== 'dist-macappstore') {
 		args.push('-destination', 'generic/platform=iOS Simulator');
 
 		// only build active architecture, which is 64-bit, if simulator is not 32-bit (iPhone 5s or newer, iPhone 5 and older are not 64-bit)
