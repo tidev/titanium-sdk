@@ -4709,6 +4709,10 @@ iOSBuilder.prototype.copyTitaniumiOSFiles = function copyTitaniumiOSFiles() {
 						// Copy whole 'Frameworks' directory from SDK to build directory, to preserve symlink available in Titaniumkit.xcframework.
 						// TODO: Is there any better way to do this?
 
+						// We remove the directory before copying due to frameworks making extensive use of symlinks
+						// when copying symlinks over we commonly get errors about trying to place a directory under itself
+						// so if anything needs copying, then blow the whole thing away and start fresh
+						fs.emptyDirSync(path.join(this.buildDir, dir));
 						fs.copySync(path.join(this.platformPath, dir), path.join(this.buildDir, dir));
 						copyFrameworks = false;
 					}
@@ -6687,13 +6691,19 @@ iOSBuilder.prototype.removeFiles = function removeFiles(next) {
 	this.unmarkBuildDirFiles(path.join(this.buildDir, 'export_options.plist'));
 	this.unmarkBuildDirFiles(path.join(this.buildDir, this.tiapp.name + '.xcarchive'));
 
+	const productsDir = path.join(this.buildDir, 'build', 'Products');
 	try {
-		const releaseDir = path.join(this.buildDir, 'build', 'Products', 'Release-iphoneos');
+		const releaseDir = path.join(productsDir, 'Release-iphoneos');
 		if (fs.lstatSync(path.join(releaseDir, this.tiapp.name + '.app')).isSymbolicLink()) {
 			this.unmarkBuildDirFiles(releaseDir);
 		}
 	} catch (e) {
 		// ignore
+	}
+
+	const product = `${this.xcodeTarget}-${this.xcodeTargetOS}`;
+	if (fs.existsSync(path.join(productsDir, product))) {
+		this.unmarkBuildDirFiles(path.join(productsDir, product));
 	}
 
 	this.logger.info(__('Removing files'));
