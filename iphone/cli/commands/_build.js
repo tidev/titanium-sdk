@@ -4708,6 +4708,10 @@ iOSBuilder.prototype.copyTitaniumiOSFiles = function copyTitaniumiOSFiles() {
 						// The content of Frameworks directory only change if we change SDK version. So it is safe to copy whole directory.
 						// Copy whole 'Frameworks' directory from SDK to build directory, to preserve symlink available in Titaniumkit.xcframework.
 						// TODO: Is there any better way to do this?
+
+						// We remove the directory before copying due to frameworks making extensive use of symlinks
+						// when copying symlinks over we commonly get errors about trying to place a directory under itself
+						// so if anything needs copying, then blow the whole thing away and start fresh
 						fs.emptyDirSync(path.join(this.buildDir, dir));
 						fs.copySync(path.join(this.platformPath, dir), path.join(this.buildDir, dir));
 						copyFrameworks = false;
