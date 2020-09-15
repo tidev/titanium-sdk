@@ -165,11 +165,11 @@ def macosUnitTests(nodeVersion, npmVersion) {
 def iosUnitTests(deviceFamily, nodeVersion, npmVersion, testOnDevices) {
 	return {
 		def labels = 'git && osx'
-		if (testOnDevices && deviceFamily == 'iphone') {
-			labels += ' && macos-darwin' // run main branch tests on devices, use node with devices connected
-		} else {
+		// if (testOnDevices && deviceFamily == 'iphone') {
+		// 	labels += ' && macos-darwin' // run main branch tests on devices, use node with devices connected
+		// } else {
 			labels += '&& xcode-12' // Use xcode-12 to make use of ios 14 APIs
-		}
+		// }
 		node(labels) {
 			// TODO: Do a shallow checkout rather than stash/unstash?
 			unstash 'mocha-tests'
@@ -180,12 +180,12 @@ def iosUnitTests(deviceFamily, nodeVersion, npmVersion, testOnDevices) {
 					def zipName = getBuiltSDK()
 					sh label: 'Install SDK', script: "npm run deploy -- ${zipName} --select" // installs the sdk
 					try {
-						timeout(20) {
-							if (testOnDevices && deviceFamily == 'iphone') {
-								sh label: 'Run Test Suite on device(s)', script: "npm run test:integration -- ios -F ${deviceFamily} -T device -C all"
-							} else { // run PR tests on simulator
+						timeout(40) {
+							// if (testOnDevices && deviceFamily == 'iphone') {
+							// 	sh label: 'Run Test Suite on device(s)', script: "npm run test:integration -- ios -F ${deviceFamily} -T device -C all"
+							// } else { // run PR tests on simulator
 								sh label: 'Run Test Suite on simulator', script: "npm run test:integration -- ios -F ${deviceFamily}"
-							}
+							// }
 						}
 					} catch (e) {
 						archiveArtifacts 'tmp/mocha/build/build_*.log' // save build log if build failed

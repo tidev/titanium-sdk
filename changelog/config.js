@@ -19,7 +19,10 @@ const KNOWN_EMPLOYEE_EMAILS = [
 	'yordan.banev@gmail.com',
 	'iw@whitfin.io',
 	'mukherjee2@users.noreply.github.com',
-	'14187093+Sajoha@users.noreply.github.com'
+	'14187093+Sajoha@users.noreply.github.com',
+	'Topener@users.noreply.github.com',
+	'brenton.house@gmail.com',
+	'build@users.noreply.github.com'
 ];
 
 // others use our company email addresses
