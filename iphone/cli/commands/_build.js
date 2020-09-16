@@ -41,6 +41,7 @@ const appc = require('node-appc'),
 	__n = i18n.__n,
 	parallel = appc.async.parallel,
 	series = appc.async.series,
+	plist = require('simple-plist'),
 	version = appc.version;
 const platformsRegExp = new RegExp('^(' + ti.allPlatformNames.join('|') + ')$'); // eslint-disable-line security/detect-non-literal-regexp
 const pemCertRegExp = /(^-----BEGIN CERTIFICATE-----)|(-----END CERTIFICATE-----.*$)|\n/g;
@@ -2225,29 +2226,32 @@ iOSBuilder.prototype.validate = function validate(logger, config, cli) {
 								module.libFile = path.join(module.modulePath, module.libName);
 								module.isFramework = true;
 
-								// TODO: read Info.plist to get the full scope of targets/arches supported!
-								let archDir = 'ios-arm64_i386_x86_64-simulator';
-								if (!fs.existsSync(path.join(module.libFile, archDir))) {
-									// Try XCode 11 dir w/o arm64 support
-									archDir = 'ios-i386_x86_64-simulator';
-									this.legacyModules.add(module.id);// Record that this won't support arm64 sim!
+								const xcFrameworkInfo = plist.readFileSync(path.join(module.libFile, 'Info.plist'));
+								for (const libInfo of xcFrameworkInfo.AvailableLibraries) {
+									if (libInfo.SupportedPlatformVariant === undefined) {
+										// Device library is used for hash calculation.
+										// TODO: Probably we want to add other varient's library as well.
+										nativeHashes.push(module.hash = this.hash(fs.readFileSync(path.join(module.libFile, libInfo.LibraryIdentifier,  'lib' + module.id.toLowerCase() + '.a'))));
+									} else if (libInfo.SupportedPlatformVariant === 'simulator' && !libInfo.SupportedArchitectures.includes('arm64')) {
+										this.legacyModules.add(module.id);// Record that this won't support arm64 sim!
+									}
 								}
-								// TODO: Change hash calculation
-								nativeHashes.push(module.hash = this.hash(fs.readFileSync(path.join(module.libFile, archDir,  'lib' + module.id.toLowerCase() + '.a'))));
 							} else if (fs.existsSync(path.join(module.modulePath, xcFrameworkOfFramework))) {
 								module.libName = xcFrameworkOfFramework;
 								module.libFile = path.join(module.modulePath, module.libName);
 								module.isFramework = true;
 
-								// TODO: read Info.plist to get the full scope of targets/arches supported!
-								let archDir = 'ios-arm64_i386_x86_64-simulator';
-								if (!fs.existsSync(path.join(module.libFile, archDir))) {
-									// Try XCode 11 dir w/o arm64 support
-									archDir = 'ios-i386_x86_64-simulator';
-									this.legacyModules.add(module.id);// Record that this won't support arm64 sim!
+								const xcFrameworkInfo = plist.readFileSync(path.join(module.libFile, 'Info.plist'));
+								const scrubbedModuleId = this.scrubbedModuleId(module.id);
+								for (const libInfo of xcFrameworkInfo.AvailableLibraries) {
+									if (libInfo.SupportedPlatformVariant === undefined) {
+										// Device library is used for hash calculation.
+										// TODO: Probably we want to add other varient's library as well.
+										nativeHashes.push(module.hash = this.hash(fs.readFileSync(path.join(module.libFile, libInfo.LibraryIdentifier, scrubbedModuleId + '.framework', scrubbedModuleId))));
+									} else if (libInfo.SupportedPlatformVariant === 'simulator' && !libInfo.SupportedArchitectures.includes('arm64')) {
+										this.legacyModules.add(module.id);// Record that this won't support arm64 sim!
+									}
 								}
-								// TODO: Change hash calculation
-								nativeHashes.push(module.hash = this.hash(fs.readFileSync(path.join(module.libFile, archDir,  this.scrubbedModuleId(module.id) + '.framework', this.scrubbedModuleId(module.id)))));
 							} else {
 								this.logger.error(__('Module %s (%s) is missing library or framework file.', module.id.cyan, (module.manifest.version || 'latest').cyan) + '\n');
 								this.logger.error(__('Please validate that your module has been packaged correctly and try it again.'));
