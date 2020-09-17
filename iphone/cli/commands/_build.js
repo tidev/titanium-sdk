@@ -3946,7 +3946,9 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 	});
 
 	// add tiverify.framework
-	xcodeProject.removeFramework('tiverify.xcframework', { customFramework: true, embed: true });
+	// technically the `lastKNownFileType` option is wrong, but the xcode module
+	// does not properly handle `.xcframework` extensions without it yet
+	xcodeProject.removeFramework('tiverify.xcframework', { lastKnownFileType: 'wrapper.framework' });
 
 	const tiverifyFrameworkFileRefUuid = this.generateXcodeUuid(xcodeProject);
 	const tiverifyFrameworkBuildFileUuid = this.generateXcodeUuid(xcodeProject);
