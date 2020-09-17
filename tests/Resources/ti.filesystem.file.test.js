@@ -569,15 +569,15 @@ describe('Titanium.Filesystem.File', function () {
 			}
 
 			// write some initial contents
-			should(fileATxt.write('text initial ')).eql.true;
-			should(fileATxt.exists()).eql.true;
+			should(fileATxt.write('text initial ')).be.true();
+			should(fileATxt.exists()).be.true();
 
 			// Now move the file
-			should(fileATxt.move(destPath)).eql.true;
+			should(fileATxt.move(destPath)).be.true();
 
 			// Now verify that the original file doesn't exist and the new file does
-			should(fileATxt.exists()).eql.false;
-			should(dest.exists()).eql.true;
+			should(fileATxt.exists()).be.false();
+			should(dest.exists()).be.true();
 		});
 
 		it('moves file to another directory', function () {
@@ -594,19 +594,19 @@ describe('Titanium.Filesystem.File', function () {
 			}
 
 			if (!subdir.exists()) {
-				should(subdir.createDirectory()).eql.true;
+				should(subdir.createDirectory()).be.true();
 			}
 
 			// write some initial contents
-			should(fileATxt.write('text initial ')).eql.true;
-			should(fileATxt.exists()).eql.true;
+			should(fileATxt.write('text initial ')).be.true();
+			should(fileATxt.exists()).be.true();
 
 			// Now move the file
-			should(fileATxt.move(dest.nativePath)).eql.true;
+			should(fileATxt.move(dest.nativePath)).be.true();
 
 			// Now verify that the original file doesn't exist and the new file does
-			should(fileATxt.exists()).eql.false;
-			should(dest.exists()).eql.true;
+			should(fileATxt.exists()).be.false();
+			should(dest.exists()).be.true();
 		});
 	});
 
@@ -630,15 +630,15 @@ describe('Titanium.Filesystem.File', function () {
 			}
 
 			// write some initial contents
-			should(fileATxt.write('text initial ')).eql.true;
-			should(fileATxt.exists()).eql.true;
+			should(fileATxt.write('text initial ')).be.true();
+			should(fileATxt.exists()).be.true();
 
 			// Now rename the file
-			should(fileATxt.rename(destPath)).eql.true;
+			should(fileATxt.rename(destPath)).be.true();
 
 			// Now verify that the original file doesn't exist and the new file does
-			should(fileATxt.exists()).eql.false;
-			should(dest.exists()).eql.true;
+			should(fileATxt.exists()).be.false();
+			should(dest.exists()).be.true();
 		});
 
 		it('fails to rename file to another directory', function () {
@@ -655,19 +655,19 @@ describe('Titanium.Filesystem.File', function () {
 			}
 
 			if (!subdir.exists()) {
-				should(subdir.createDirectory()).eql.true;
+				should(subdir.createDirectory()).be.true();
 			}
 
 			// write some initial contents
-			should(fileATxt.write('text initial ')).eql.true;
-			should(fileATxt.exists()).eql.true;
+			should(fileATxt.write('text initial ')).be.true();
+			should(fileATxt.exists()).be.true();
 
 			// Now move the file
-			should(fileATxt.rename(dest.nativePath)).eql.false;
+			should(fileATxt.rename(dest.nativePath)).be.false();
 
 			// Now verify that the original file still exists and the new file doesn't
-			should(fileATxt.exists()).eql.true;
-			should(dest.exists()).eql.false;
+			should(fileATxt.exists()).be.true();
+			should(dest.exists()).be.false();
 		});
 	});
 
