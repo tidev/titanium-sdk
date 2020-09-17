@@ -295,7 +295,11 @@ describe('Titanium.Network.HTTPClient', function () {
 			}, 1);
 		};
 		xhr.onerror = function (e) {
-			should(e).should.be.type('undefined');
+			try {
+				should(e).should.be.type('undefined');
+			} catch (err) {
+				finish(err);
+			}
 		};
 		xhr.open('GET', 'https://www.google.com');
 		xhr.send();
@@ -642,7 +646,16 @@ describe('Titanium.Network.HTTPClient', function () {
 				finish(err);
 			}
 		};
-		xhr.onerror = e => finish(e);
+		let attempts = 3;
+		xhr.onerror = function (e) {
+			if (attempts-- > 0) {
+				Ti.API.warn('failed, attempting to retry request...');
+				xhr.send();
+			} else {
+				Ti.API.debug(JSON.stringify(e, null, 2));
+				finish(new Error(e.error || this.responseText));
+			}
+		};
 
 		xhr.open('POST', 'http://httpbin.org/post');
 		xhr.setRequestHeader('Content-Type', 'application/json; charset=utf8');
@@ -671,7 +684,17 @@ describe('Titanium.Network.HTTPClient', function () {
 			}
 			finish();
 		};
-		xhr.onerror = e => finish(e);
+
+		let attempts = 3;
+		xhr.onerror = function (e) {
+			if (attempts-- > 0) {
+				Ti.API.warn('failed, attempting to retry request...');
+				xhr.send();
+			} else {
+				Ti.API.debug(JSON.stringify(e, null, 2));
+				finish(new Error(e.error || this.responseText));
+			}
+		};
 
 		xhr.open('GET', 'https://avatars1.githubusercontent.com/u/82188?s=200&v=4');
 		xhr.setRequestHeader('Accept-Encoding', 'identity');
