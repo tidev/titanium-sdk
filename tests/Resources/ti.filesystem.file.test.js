@@ -616,7 +616,8 @@ describe('Titanium.Filesystem.File', function () {
 			should(file.rename).be.a.Function();
 		});
 
-		it('renames file within same directory', function () {
+		// FIXME: https://jira.appcelerator.org/browse/TIMOB-28146
+		it.androidBroken('renames file within same directory', function () {
 			const destPath = Ti.Filesystem.applicationDataDirectory + Ti.Filesystem.separator + 'renamed.txt';
 			const dest = Ti.Filesystem.getFile(destPath);
 			const fileATxt = Ti.Filesystem.getFile(Ti.Filesystem.applicationDataDirectory, 'fileA.txt');
