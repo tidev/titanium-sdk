@@ -279,7 +279,6 @@ class Packager {
 		// then unzip to temp dir (again with caching based on inut integrity hash)
 		const tmpZipPath = utils.cachedDownloadPath(m.url);
 		const tmpOutDir = tmpZipPath.substring(0, tmpZipPath.length - '.zip'.length); // drop .zip
-		console.log(`Unzipping ${zipFile} to ${tmpOutDir}`);
 		await utils.cacheUnzip(zipFile, m.integrity, tmpOutDir);
 		// then copy from tmp dir over to this.zipDir
 		// Might have to tweak this a bit! probably want to copy some subdir
