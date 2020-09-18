@@ -119,7 +119,7 @@ static NSDictionary *sizeMap = nil;
 
 + (BOOL)isSuperRetina5_8Inch
 {
-  CGSize mainScreenBoundsSize = [[UIScreen mainScreen] bounds].size;
+  CGSize mainScreenBoundsSize = UIScreen.mainScreen.bounds.size;
   return (mainScreenBoundsSize.height == 812 || mainScreenBoundsSize.width == 812);
 }
 
@@ -158,7 +158,7 @@ static NSDictionary *sizeMap = nil;
         return NO;
       }
     }
-    scale = [[UIScreen mainScreen] scale];
+    scale = UIScreen.mainScreen.scale;
   }
   return scale > 1.0; // TODO: In the future (next major), this should be == 2.0 which is a breaking change
 }
