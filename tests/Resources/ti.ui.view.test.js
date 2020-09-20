@@ -1222,14 +1222,14 @@ describe('Titanium.UI.View', function () {
 				borderRadius: '30px',
 				backgroundColor: 'yellow',
 				viewShadowColor: '#d000',
-				viewShadowRadius: 10,
+				viewShadowRadius: 10, // TODO: Use pixel values for shadows when we can! https://jira.appcelerator.org/browse/TIMOB-28145
 				viewShadowOffset: { x: 5, y: 10 },
 			});
 
 			view.addEventListener('postlayout', function postlayout() {
 				view.removeEventListener('postlayout', postlayout); // only run once
 				try {
-					should(outerView).matchImage('snapshots/borderRadiusWithShadow30px.png');
+					should(outerView).matchImage(`snapshots/borderRadiusWithShadow30px_${density}x.png`);
 				} catch (err) {
 					return finish(err);
 				}
