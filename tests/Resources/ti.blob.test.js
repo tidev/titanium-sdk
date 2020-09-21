@@ -468,7 +468,7 @@ describe('Titanium.Blob', function () {
 	// i.e. a 10 x 10 pixel image/view on a 3x device woudl report width/height of 3 and scale of 3, so just multiplying those we'd get 9
 	// when the real image was actually 10px.
 	// However, natively we *can* properly generate true pixel size because image would report scale like 3.33 that we coudl multiply by before returning
-	it('image dimensions should be reported in pixels', finish => {
+	it.only('image dimensions should be reported in pixels', finish => {
 		win = Ti.UI.createWindow();
 		const view = Ti.UI.createView({
 			backgroundColor: 'green',
@@ -479,8 +479,11 @@ describe('Titanium.Blob', function () {
 		win.addEventListener('postlayout', function postlayout() {
 			win.removeEventListener('postlayout', postlayout); // only run once
 			try {
+				Ti.API.info('Got postlayout event');
+				Ti.API.info(JSON.stringify(view.rect));
+				Ti.API.info(JSON.stringify(view.size));
 				const blob = view.toImage();
-				should(blob.width).equal(11);
+				should(blob.width).equal(11); // we're getting 6 here on macos-walle
 				should(blob.height).equal(13);
 			} catch (e) {
 				return finish(e);
