@@ -612,7 +612,7 @@ iOSModuleBuilder.prototype.verifyBuildArch = function verifyBuildArch(next) {
 	}.bind(this);
 
 	const buildArchs = new Set();
-
+	// TODO: Just read the Info.plist and take it's listing!
 	let lib = findLib('ios-arm64_armv7');
 	if (lib instanceof Error) {
 		// fallback to xcode 11 xcframework
@@ -648,11 +648,13 @@ iOSModuleBuilder.prototype.verifyBuildArch = function verifyBuildArch(next) {
 
 	lib = findLib('ios-arm64_x86_64-maccatalyst');
 	if (lib instanceof Error) {
-		this.logger.warn(__('The module is missing maccatalyst support.'));
-	// } else {
-		// TODO: Do we want to add these here? Traditionally they were assumed to be arm64 ios device and x86_64 ios sim!
-		// buildArchs.add('x86_64');
-		// buildArchs.add('arm64');
+		// fall back to Xcode 12 GM variant (betas include arm64, but xcode 12 final does not)
+		lib = findLib('ios-x86_64-maccatalyst');
+		if (lib instanceof Error) {
+			this.logger.warn(__('The module is missing maccatalyst support.'));
+		} else {
+			this.logger.warn(__('The module is missing arm64 maccatalyst support. This will not work on Apple Silicon devices 9and is likley due to use of an Xcode that does not support arm64 maccatalyst).'));
+		}
 	}
 
 	const manifestArchs = new Set(this.manifest.architectures.split(' '));
