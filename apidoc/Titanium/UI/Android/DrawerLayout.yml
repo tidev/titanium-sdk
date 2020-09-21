@@ -229,7 +229,7 @@ examples:
         The following code shows an Alloy version of the drawer-layout.
         ``` xml
         <Alloy>
-            <Window class='container'>
+            <Window class="container">
                 <ActionBar platform="android" displayHomeAsUp="true" onHomeIconItemSelected="onClickDrawer" />
                 <DrawerLayout id="drawer" platform="android">
                     <LeftView>
