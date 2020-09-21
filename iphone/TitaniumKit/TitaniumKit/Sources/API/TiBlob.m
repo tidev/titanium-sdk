@@ -67,6 +67,7 @@ static NSString *const MIMETYPE_JPEG = @"image/jpeg";
 {
   [self ensureImageLoaded];
   if (image != nil) {
+    NSLog(@"[ERROR] image scale: %f", image.scale);
     return image.size.width * image.scale;
   }
   return 0;
