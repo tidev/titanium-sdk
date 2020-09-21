@@ -129,7 +129,7 @@ def androidUnitTests(nodeVersion, npmVersion, testOnDevices) {
 
 def macosUnitTests(nodeVersion, npmVersion) {
 	return {
-		node('git && osx && xcode-12 && osx-10.15') {
+		node('macos-walle') {
 			// TODO: Do a shallow checkout rather than stash/unstash?
 			unstash 'mocha-tests'
 			try {
@@ -352,11 +352,11 @@ timestamps {
 		// Run unit tests in parallel for android/iOS
 		stage('Test') {
 			parallel(
-				'android unit tests': androidUnitTests(nodeVersion, npmVersion, testOnDevices),
-				'iPhone unit tests': iosUnitTests('iphone', nodeVersion, npmVersion, testOnDevices),
-				'iPad unit tests': iosUnitTests('ipad', nodeVersion, npmVersion, testOnDevices),
+				// 'android unit tests': androidUnitTests(nodeVersion, npmVersion, testOnDevices),
+				// 'iPhone unit tests': iosUnitTests('iphone', nodeVersion, npmVersion, testOnDevices),
+				// 'iPad unit tests': iosUnitTests('ipad', nodeVersion, npmVersion, testOnDevices),
 				'macOS unit tests': macosUnitTests(nodeVersion, npmVersion),
-				'cli unit tests': cliUnitTests(nodeVersion, npmVersion),
+				// 'cli unit tests': cliUnitTests(nodeVersion, npmVersion),
 				failFast: false
 			)
 		}
