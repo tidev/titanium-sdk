@@ -753,6 +753,10 @@ async function handleBuild(prc, target, snapshotDir, snapshotPromises) {
 			}
 			const line = data.toString();
 			const stripped = stripAnsi(line);
+			if (stripped.includes('Application failed to install')) {
+				prc.kill(); // quit this build...
+				return reject(new Error('Failed to install test app to device/sim'));
+			}
 			const device = getDeviceName(stripped);
 			if (!deviceMap.has(device)) {
 				deviceMap.set(device, new DeviceTestDetails(device, target, snapshotDir, snapshotPromises));
