@@ -653,7 +653,7 @@ iOSModuleBuilder.prototype.verifyBuildArch = function verifyBuildArch(next) {
 		if (lib instanceof Error) {
 			this.logger.warn(__('The module is missing maccatalyst support.'));
 		} else {
-			this.logger.warn(__('The module is missing arm64 maccatalyst support. This will not work on Apple Silicon devices 9and is likley due to use of an Xcode that does not support arm64 maccatalyst).'));
+			this.logger.warn(__('The module is missing arm64 maccatalyst support. This will not work on Apple Silicon devices (and is likley due to use of an Xcode that does not support arm64 maccatalyst).'));
 		}
 	}
 
@@ -894,6 +894,8 @@ iOSModuleBuilder.prototype.runModule = function runModule(next) {
 
 			// 5. unzip module to the tmp dir. Use native binary on macOS, as AdmZip doesn't support symlinks used in mac catalyst frameworks
 			const proc = spawn('unzip', [ '-o', this.moduleZipPath, '-d', tmpProjectDir ]);
+			proc.stdout.on('data', data => this.logger.info(data.toString().trimEnd()));
+			proc.stderr.on('data', data => this.logger.error(data.toString().trimEnd()));
 			proc.once('error', err => cb(err));
 			proc.on('exit', () => cb());
 		},
