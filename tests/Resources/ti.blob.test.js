@@ -479,6 +479,8 @@ describe('Titanium.Blob', function () {
 		win.addEventListener('postlayout', function postlayout() {
 			win.removeEventListener('postlayout', postlayout); // only run once
 			try {
+				Ti.API.info('Density: ' + Ti.Platform.displayCaps.density);
+				Ti.API.info('logicalDensityFactor: ' + Ti.Platform.displayCaps.logicalDensityFactor);
 				Ti.API.info('Got postlayout event');
 				Ti.API.info(JSON.stringify(view.rect));
 				Ti.API.info(JSON.stringify(view.size));
