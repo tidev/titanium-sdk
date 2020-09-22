@@ -13,7 +13,7 @@
 
 'use strict';
 
-const { exec, spawn } = require('child_process'); // eslint-disable-line security/detect-child-process
+const { spawn } = require('child_process'); // eslint-disable-line security/detect-child-process
 
 const appc = require('node-appc'),
 	archiver = require('archiver'),
@@ -29,7 +29,11 @@ const appc = require('node-appc'),
 	temp = require('temp'),
 	util = require('util'),
 	__ = appc.i18n(__dirname).__,
-	series = appc.async.series;
+	series = appc.async.series,
+	xcode = require('xcode');
+
+const plist = require('simple-plist');
+const parsePlist = util.promisify(plist.readFile);
 
 function iOSModuleBuilder() {
 	Builder.apply(this, arguments);
@@ -47,6 +51,7 @@ iOSModuleBuilder.prototype.validate = function validate(logger, config, cli) {
 	this.moduleName    = cli.manifest.name;
 	this.moduleIdAsIdentifier = this.scrubbedName(this.moduleId);
 	this.moduleVersion = cli.manifest.version;
+	this.isMacOSEnabled  = this.detectMacOSTarget();
 	this.moduleGuid    = cli.manifest.guid;
 	this.isFramework   = fs.existsSync(path.join(this.projectDir, 'Info.plist')); // TODO: There MUST be a better way to determine if it's a framework (Swift)
 
@@ -86,6 +91,32 @@ iOSModuleBuilder.prototype.validate = function validate(logger, config, cli) {
 	}.bind(this);
 };
 
+iOSModuleBuilder.prototype.detectMacOSTarget = function detectMacOSTarget() {
+	if (this.manifest.mac !== undefined) {
+		return this.manifest.mac === 'true';
+	}
+	const pbxFilePath = path.join(this.projectDir, `${this.moduleName}.xcodeproj`, 'project.pbxproj');
+
+	if (!fs.existsSync(pbxFilePath)) {
+		this.logger.warn(__(`The Xcode project does not contain the default naming scheme. This is required to detect macOS targets in your module.\nPlease rename your Xcode project to "${this.moduleName}.xcodeproj"`));
+		return true;
+	}
+
+	let isMacOSEnabled = true;
+	const proj = xcode.project(pbxFilePath).parseSync();
+	const configurations = proj.hash.project.objects.XCBuildConfiguration;
+
+	for (const key of Object.keys(proj.hash.project.objects.XCBuildConfiguration)) {
+		const configuration = configurations[key];
+		if (typeof configuration === 'object' && configuration.buildSettings.SUPPORTS_MACCATALYST) {
+			isMacOSEnabled = configuration.buildSettings.SUPPORTS_MACCATALYST === 'YES';
+			break;
+		}
+	}
+
+	return isMacOSEnabled;
+};
+
 iOSModuleBuilder.prototype.run = function run(logger, config, cli, finished) {
 	Builder.prototype.run.apply(this, arguments);
 
@@ -107,7 +138,9 @@ iOSModuleBuilder.prototype.run = function run(logger, config, cli, finished) {
 		'compileJS',
 		'buildModule',
 		'createUniversalBinary',
-		'verifyBuildArch',
+		function (next) {
+			this.verifyBuildArch().then(next, next);
+		},
 		'packageModule',
 		'runModule',
 
@@ -447,6 +480,9 @@ iOSModuleBuilder.prototype.buildModule = function buildModule(next) {
 					this.logger.error('[' + type + '] ' + line);
 				}, this);
 				this.logger.log();
+				if (type === 'xcode-macos') {
+					this.logger.info(__('To exclude mac target, set/add mac: false in manifest file.'));
+				}
 				process.exit(1);
 			}
 
@@ -476,10 +512,43 @@ iOSModuleBuilder.prototype.buildModule = function buildModule(next) {
 			args.push('SUPPORTS_MACCATALYST=YES');
 		}
 
+		if (target === 'iphonesimulator') {
+			// Search for third party framewrok included in module. If found any, exclude arm64 from simulator build.
+			// Assumption is that simulator arm64  architecture can only be supported via .xcframework.
+			const frameworksPath = path.join(this.projectDir, 'platform');
+			const legacyFrameworks = new Set();
+
+			fs.readdirSync(frameworksPath).forEach(filename => {
+				if (filename.endsWith('.framework')) {
+					legacyFrameworks.add(filename);
+				}
+			});
+			if (legacyFrameworks.size > 0) {
+				const pbxFilePath = path.join(this.projectDir, `${this.moduleName}.xcodeproj`, 'project.pbxproj');
+				const proj = xcode.project(pbxFilePath).parseSync();
+				const configurations = proj.hash.project.objects.XCBuildConfiguration;
+				let excludeArchs = 'EXCLUDED_ARCHS=arm64 ';
+
+				// Merge with excluded archs in xcode setting
+				for (const key of Object.keys(proj.hash.project.objects.XCBuildConfiguration)) {
+					const configuration = configurations[key];
+					if (typeof configuration === 'object' && configuration.name === 'Release' && configuration.buildSettings.EXCLUDED_ARCHS) {
+						let archs = configuration.buildSettings.EXCLUDED_ARCHS;  // e.g. "i386 arm64 x86_64"
+						archs = archs.replace(/["]/g, '');
+						excludeArchs = excludeArchs.concat(archs);
+						break;
+					}
+				}
+
+				args.push(excludeArchs);
+				this.logger.warn(__(`The module is using frameworks (${Array.from(legacyFrameworks)}) that do not support simulator arm64. Excluding simulator arm64. The app using this module may fail if you're on an arm64 Apple Silicon device.`));
+			}
+		}
+
 		return args;
 	}.bind(this);
 
-	this.cli.env.getOSInfo(function (osInfo) {
+	this.cli.env.getOSInfo(osInfo => {
 		const macOsVersion = osInfo.osver;
 
 		// 1. Create a build for the simulator
@@ -488,8 +557,13 @@ iOSModuleBuilder.prototype.buildModule = function buildModule(next) {
 			xcodebuildHook(xcBuild, xcodeBuildArgumentsForTarget('iphoneos'), opts, 'xcode-dist', () => {
 				const osVersionParts = macOsVersion.split('.').map(n => parseInt(n));
 				if (osVersionParts[0] > 10 || (osVersionParts[0] === 10 && osVersionParts[1] >= 15)) {
-					// 3. Create a build for the maccatalyst
-					xcodebuildHook(xcBuild, xcodeBuildArgumentsForTarget('macosx'), opts, 'xcode-macos', next);
+					// 3. Create a build for the mac-catalyst if enabled
+					if (this.isMacOSEnabled) {
+						xcodebuildHook(xcBuild, xcodeBuildArgumentsForTarget('macosx'), opts, 'xcode-macos', next);
+					} else {
+						this.logger.info(__('macOS support disabled in Xcode project. Skipping …'));
+						next();
+					}
 				} else {
 					this.logger.warn(__('Ignoring build for mac as mac target is < 10.15'));
 					next();
@@ -558,15 +632,17 @@ iOSModuleBuilder.prototype.createUniversalBinary = function createUniversalBinar
 		args.push('-headers');
 		args.push(headerPath);
 	}
-	lib = findLib('macosx');
-	if (lib instanceof Error) {
-		this.logger.warn(__('The module is missing 64-bit support of macos. Ignoring mac target for this module...'));
-	} else {
-		args.push(buildType);
-		args.push(lib);
-		if (!this.isFramework) {
-			args.push('-headers');
-			args.push(headerPath);
+	if (this.isMacOSEnabled) {
+		lib = findLib('macosx');
+		if (lib instanceof Error) {
+			this.logger.warn(__('The module is missing macOS support. Ignoring mac target for this module...'));
+		} else {
+			args.push(buildType);
+			args.push(lib);
+			if (!this.isFramework) {
+				args.push('-headers');
+				args.push(headerPath);
+			}
 		}
 	}
 
@@ -592,82 +668,89 @@ iOSModuleBuilder.prototype.createUniversalBinary = function createUniversalBinar
 	}.bind(this));
 };
 
-iOSModuleBuilder.prototype.verifyBuildArch = function verifyBuildArch(next) {
+iOSModuleBuilder.prototype.verifyBuildArch = async function verifyBuildArch() {
 	this.logger.info(__('Verifying universal library'));
 
-	// TODO: We want to verify the set of targets/arches built
-	// The manifest shouldn't matter any more?
-	// Can we just ensure it's an xcframework?
+	const moduleId = this.isFramework ? this.moduleIdAsIdentifier  : this.moduleId;
+	const frameworkPath = path.join(this.projectDir, 'build', moduleId + '.xcframework');
+	// Make sure xcframework exists...
+	if (!(await fs.pathExists(frameworkPath))) {
+		throw new Error(__(`Unable to find "${moduleId}.xcframework"`));
+	}
 
-	const findLib = function (dest) {
-		const moduleId = this.isFramework ? this.moduleIdAsIdentifier  : this.moduleId;
-		const libName = this.isFramework ? this.moduleIdAsIdentifier + '.framework' : 'lib' + this.moduleId + '.a';
-		const lib = path.join(this.projectDir, 'build', moduleId + '.xcframework', dest, libName);
-		this.logger.info(__('Looking for ' + lib));
-
-		if (!fs.existsSync(lib)) {
-			return new Error(__('Unable to find the built %s library', 'Release-' + dest));
+	// Confirm that the library/binary the Info.plist is pointing at actually exists on disk
+	const verifyLibraryExists = async (libInfo) => {
+		let libraryPath = path.join(frameworkPath, libInfo.LibraryIdentifier, libInfo.LibraryPath);
+		if (libraryPath.endsWith('.framework')) {
+			const frameworkName = path.basename(libraryPath, '.framework');
+			libraryPath = path.join(libraryPath, frameworkName);
 		}
-		return lib;
-	}.bind(this);
+		if (!(await fs.pathExists(libraryPath))) {
+			throw new Error(__('Unable to find the built library %s', libraryPath));
+		}
+	};
 
+	// Verify the architectures and platform variants
 	const buildArchs = new Set();
 
-	let lib = findLib('ios-arm64_armv7');
-	if (lib instanceof Error) {
-		// fallback to xcode 11 xcframework
-		lib = findLib('ios-armv7_arm64');
-		if (lib instanceof Error) {
-			this.logger.warn(__('The module is missing 64-bit support.'));
-		} else {
-			buildArchs.add('armv7');
-			buildArchs.add('arm64');
-		}
+	const xcFrameworkInfo = await parsePlist(path.join(frameworkPath, 'Info.plist'));
+
+	// Check iOS device
+	const iosDevice = xcFrameworkInfo.AvailableLibraries.find(l => l.SupportedPlatform === 'ios' && !l.SupportedPlatformVariant);
+	if (!iosDevice) {
+		throw new Error('The module is missing iOS device support.');
+	}
+	await verifyLibraryExists(iosDevice);
+	if (!iosDevice.SupportedArchitectures.includes('arm64')) {
+		this.logger.warn(__('The module is missing iOS device 64-bit support.'));
+	}
+	iosDevice.SupportedArchitectures.forEach(arch => buildArchs.add(arch));
+
+	// Check iOS Simulator
+	const iosSim = xcFrameworkInfo.AvailableLibraries.find(l => l.SupportedPlatformVariant === 'simulator');
+	if (!iosSim) {
+		throw new Error(__('The module is missing iOS simulator support.'));
+	}
+	await verifyLibraryExists(iosSim);
+	if (!iosSim.SupportedArchitectures.includes('arm64')) {
+		this.logger.warn(__('The module is missing arm64 iOS simulator support.'));
+	}
+	iosSim.SupportedArchitectures.forEach(arch => buildArchs.add(arch));
+
+	// MacOS Catalyst support is optional
+	const macos = xcFrameworkInfo.AvailableLibraries.find(l => l.SupportedPlatformVariant === 'maccatalyst');
+	if (!macos) {
+		this.logger.warn(__('The module is missing macOS support.'));
 	} else {
-		buildArchs.add('armv7');
-		buildArchs.add('arm64');
-	}
-
-	lib = findLib('ios-arm64_i386_x86_64-simulator');
-	if (lib instanceof Error) {
-		// fall back to xcode 11 xcframework w/o arm64 sim support
-		lib = findLib('ios-i386_x86_64-simulator');
-		if (lib instanceof Error) {
-			// neither is available, so no sim support!
-			this.logger.warn(__('The module is missing ios simulator support.'));
-		} else {
-			this.logger.warn(__('The module is missing arm64 ios simulator support.'));
-			buildArchs.add('i386');
-			buildArchs.add('x86_64');
+		await verifyLibraryExists(macos);
+		if (!macos.SupportedArchitectures.includes('arm64')) {
+			this.logger.warn(__('The module is missing arm64 macOS support. This will not work on Apple Silicon devices (and is likley due to use of an Xcode that does not support arm64 maccatalyst).'));
 		}
-	} else {
-		buildArchs.add('i386');
-		buildArchs.add('x86_64');
-		// buildArchs.add('arm64'); // Don't include as we traditionally meant 'arm64' to be ios device arm64 (not sim!)
 	}
 
-	lib = findLib('ios-arm64_x86_64-maccatalyst');
-	if (lib instanceof Error) {
-		this.logger.warn(__('The module is missing maccatalyst support.'));
-	// } else {
-		// TODO: Do we want to add these here? Traditionally they were assumed to be arm64 ios device and x86_64 ios sim!
-		// buildArchs.add('x86_64');
-		// buildArchs.add('arm64');
+	// Spit out the platform variants and their architectures
+	for (const libInfo of xcFrameworkInfo.AvailableLibraries) {
+		let target;
+		if (libInfo.SupportedPlatformVariant === 'maccatalyst') {
+			target = 'Mac';
+		} else if (libInfo.SupportedPlatformVariant === 'simulator') {
+			target = 'Simulator';
+		} else {
+			target = 'Device';
+		}
+		this.logger.info(__(`${target} has architectures: ${libInfo.SupportedArchitectures}`));
 	}
 
+	// Match against manifest
+	// TODO: Drop architectures from manifest altogether now?
 	const manifestArchs = new Set(this.manifest.architectures.split(' '));
 	if (buildArchs.size !== manifestArchs.size) {
 		this.logger.error(__('There is discrepancy between the architectures specified in module manifest and compiled binary.'));
 		this.logger.error(__('Architectures in manifest: %s', Array.from(manifestArchs)));
 		this.logger.error(__('Compiled binary architectures: %s', Array.from(buildArchs)));
 		this.logger.error(__('Please update manifest to match module binary architectures.') + '\n');
-		process.exit(1);
+		process.exit(1); // TODO: Just throw an Error!
 	}
-
-	if (!buildArchs.has('arm64')) {
-		this.logger.warn(__('The module is missing 64-bit support.'));
-	}
-	next();
 };
 
 iOSModuleBuilder.prototype.packageModule = function packageModule(next) {
@@ -892,6 +975,8 @@ iOSModuleBuilder.prototype.runModule = function runModule(next) {
 
 			// 5. unzip module to the tmp dir. Use native binary on macOS, as AdmZip doesn't support symlinks used in mac catalyst frameworks
 			const proc = spawn('unzip', [ '-o', this.moduleZipPath, '-d', tmpProjectDir ]);
+			proc.stdout.on('data', data => this.logger.trace(data.toString().trimEnd()));
+			proc.stderr.on('data', data => this.logger.error(data.toString().trimEnd()));
 			proc.once('error', err => cb(err));
 			proc.on('exit', () => cb());
 		},

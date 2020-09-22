@@ -41,6 +41,7 @@ const appc = require('node-appc'),
 	__n = i18n.__n,
 	parallel = appc.async.parallel,
 	series = appc.async.series,
+	plist = require('simple-plist'),
 	version = appc.version;
 const platformsRegExp = new RegExp('^(' + ti.allPlatformNames.join('|') + ')$'); // eslint-disable-line security/detect-non-literal-regexp
 const pemCertRegExp = /(^-----BEGIN CERTIFICATE-----)|(-----END CERTIFICATE-----.*$)|\n/g;
@@ -2201,8 +2202,6 @@ iOSBuilder.prototype.validate = function validate(logger, config, cli) {
 							const xcFrameworkOfFramework = this.scrubbedModuleId(module.id) + '.xcframework';
 
 							module.isFramework = false;
-							module.isXCFrameworkOfLib = false;
-							module.isXCFrameworkOfFramework = false;
 
 							// Try to load native module as static library (Obj-C)
 							if (fs.existsSync(path.join(module.modulePath, 'lib' + module.id.toLowerCase() + '.a'))) {
@@ -2225,31 +2224,34 @@ iOSBuilder.prototype.validate = function validate(logger, config, cli) {
 							} else if (fs.existsSync(path.join(module.modulePath, xcFrameworkOfLib))) {
 								module.libName = xcFrameworkOfLib;
 								module.libFile = path.join(module.modulePath, module.libName);
-								module.isXCFrameworkOfLib = true;
+								module.isFramework = true;
 
-								// TODO: read Info.plist to get the full scope of targets/arches supported!
-								let archDir = 'ios-arm64_i386_x86_64-simulator';
-								if (!fs.existsSync(path.join(module.libFile, archDir))) {
-									// Try XCode 11 dir w/o arm64 support
-									archDir = 'ios-i386_x86_64-simulator';
-									this.legacyModules.add(module.id);// Record that this won't support arm64 sim!
+								const xcFrameworkInfo = plist.readFileSync(path.join(module.libFile, 'Info.plist'));
+								for (const libInfo of xcFrameworkInfo.AvailableLibraries) {
+									if (libInfo.SupportedPlatformVariant === undefined) {
+										// Device library is used for hash calculation.
+										// TODO: Probably we want to add other varient's library as well.
+										nativeHashes.push(module.hash = this.hash(fs.readFileSync(path.join(module.libFile, libInfo.LibraryIdentifier,  'lib' + module.id.toLowerCase() + '.a'))));
+									} else if (libInfo.SupportedPlatformVariant === 'simulator' && !libInfo.SupportedArchitectures.includes('arm64')) {
+										this.legacyModules.add(module.id);// Record that this won't support arm64 sim!
+									}
 								}
-								// TODO: Change hash calculation
-								nativeHashes.push(module.hash = this.hash(fs.readFileSync(path.join(module.libFile, archDir,  'lib' + module.id.toLowerCase() + '.a'))));
 							} else if (fs.existsSync(path.join(module.modulePath, xcFrameworkOfFramework))) {
 								module.libName = xcFrameworkOfFramework;
 								module.libFile = path.join(module.modulePath, module.libName);
-								module.isXCFrameworkOfFramework = true;
+								module.isFramework = true;
 
-								// TODO: read Info.plist to get the full scope of targets/arches supported!
-								let archDir = 'ios-arm64_i386_x86_64-simulator';
-								if (!fs.existsSync(path.join(module.libFile, archDir))) {
-									// Try XCode 11 dir w/o arm64 support
-									archDir = 'ios-i386_x86_64-simulator';
-									this.legacyModules.add(module.id);// Record that this won't support arm64 sim!
+								const xcFrameworkInfo = plist.readFileSync(path.join(module.libFile, 'Info.plist'));
+								const scrubbedModuleId = this.scrubbedModuleId(module.id);
+								for (const libInfo of xcFrameworkInfo.AvailableLibraries) {
+									if (libInfo.SupportedPlatformVariant === undefined) {
+										// Device library is used for hash calculation.
+										// TODO: Probably we want to add other varient's library as well.
+										nativeHashes.push(module.hash = this.hash(fs.readFileSync(path.join(module.libFile, libInfo.LibraryIdentifier, scrubbedModuleId + '.framework', scrubbedModuleId))));
+									} else if (libInfo.SupportedPlatformVariant === 'simulator' && !libInfo.SupportedArchitectures.includes('arm64')) {
+										this.legacyModules.add(module.id);// Record that this won't support arm64 sim!
+									}
 								}
-								// TODO: Change hash calculation
-								nativeHashes.push(module.hash = this.hash(fs.readFileSync(path.join(module.libFile, archDir,  this.scrubbedModuleId(module.id) + '.framework', this.scrubbedModuleId(module.id)))));
 							} else {
 								this.logger.error(__('Module %s (%s) is missing library or framework file.', module.id.cyan, (module.manifest.version || 'latest').cyan) + '\n');
 								this.logger.error(__('Please validate that your module has been packaged correctly and try it again.'));
@@ -3323,60 +3325,6 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 			// Framworks are handled by our framework manager!
 			if (isFramework) {
 				return;
-			} else if (lib.isXCFrameworkOfFramework || lib.isXCFrameworkOfLib) {
-				const frameworkFileRefUuid = this.generateXcodeUuid(xcodeProject);
-				const frameworkBuildFileUuid = this.generateXcodeUuid(xcodeProject);
-
-				xobjs.PBXFileReference[frameworkFileRefUuid] = {
-					isa: 'PBXFileReference',
-					lastKnownFileType: 'wrapper.xcframework',
-					name: lib.libName,
-					path: '"' + lib.libFile + '"',
-					sourceTree: '"<group>"'
-				};
-				xobjs.PBXFileReference[frameworkFileRefUuid + '_comment'] = lib.libName;
-
-				xobjs.PBXBuildFile[frameworkBuildFileUuid] = {
-					isa: 'PBXBuildFile',
-					fileRef: frameworkFileRefUuid,
-					fileRef_comment: lib.libName
-				};
-				xobjs.PBXBuildFile[frameworkBuildFileUuid + '_comment'] = lib.libName + ' in Frameworks';
-
-				frameworksBuildPhase.files.push({
-					value: frameworkBuildFileUuid,
-					comment: xobjs.PBXBuildFile[frameworkBuildFileUuid + '_comment']
-				});
-
-				if (lib.isXCFrameworkOfFramework) {
-					const embedFrameworkBuildFileUuid = this.generateXcodeUuid(xcodeProject);
-					// add the build file
-					xobjs.PBXBuildFile[buildFileUuid] = {
-						isa: 'PBXBuildFile',
-						fileRef: fileRefUuid,
-						fileRef_comment: lib.libName,
-						platformFilter: 'ios'
-					};
-					xobjs.PBXBuildFile[buildFileUuid + '_comment'] = lib.libName + ' in Frameworks';
-
-					xobjs.PBXBuildFile[embedFrameworkBuildFileUuid] = {
-						isa: 'PBXBuildFile',
-						fileRef: frameworkFileRefUuid,
-						fileRef_comment: lib.libName,
-						settings: { ATTRIBUTES: [ 'CodeSignOnCopy', 'RemoveHeadersOnCopy' ] }
-					};
-					xobjs.PBXBuildFile[embedFrameworkBuildFileUuid + '_comment'] = lib.libName + ' in Embed Frameworks';
-
-					copyFilesBuildPhase.files.push({
-						value: embedFrameworkBuildFileUuid,
-						comment: xobjs.PBXBuildFile[embedFrameworkBuildFileUuid + '_comment']
-					});
-				}
-
-				frameworksGroup.children.push({
-					value: frameworkFileRefUuid,
-					comment: lib.libName
-				});
 			} else {
 				// add the file reference
 				xobjs.PBXFileReference[fileRefUuid] = {
@@ -3946,7 +3894,9 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 	});
 
 	// add tiverify.framework
-	xcodeProject.removeFramework('tiverify.xcframework', { customFramework: true, embed: true });
+	// technically the `lastKNownFileType` option is wrong, but the xcode module
+	// does not properly handle `.xcframework` extensions without it yet
+	xcodeProject.removeFramework('tiverify.xcframework', { lastKnownFileType: 'wrapper.framework' });
 
 	const tiverifyFrameworkFileRefUuid = this.generateXcodeUuid(xcodeProject);
 	const tiverifyFrameworkBuildFileUuid = this.generateXcodeUuid(xcodeProject);
