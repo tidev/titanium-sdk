@@ -2472,15 +2472,19 @@ iOSBuilder.prototype.initialize = function initialize() {
 	this.deviceInfo    = this.deviceId ? this.getDeviceInfo().udids[this.deviceId] : null;
 	this.xcodeTarget   = /^device|simulator|macos$/.test(this.target) ? 'Debug' : 'Release';
 
-	if (this.target === 'macos' || this.target === 'dist-macappstore') {
-		this.xcodeTargetOS = 'maccatalyst';
-	} else if (this.target === 'simulator') {
+	if (this.target === 'simulator') {
 		this.xcodeTargetOS = 'iphonesimulator';
 	} else {
 		this.xcodeTargetOS = 'iphoneos';
 	}
 
-	this.iosBuildDir            = path.join(this.buildDir, 'build', 'Products', this.xcodeTarget + '-' + this.xcodeTargetOS);
+	let osName = this.xcodeTargetOS;
+	if (this.target === 'macos' || this.target === 'dist-macappstore') {
+		osName = 'maccatalyst';
+	}
+	const xcodeProductName = `${this.xcodeTarget}-${osName}`;
+
+	this.iosBuildDir            = path.join(this.buildDir, 'build', 'Products', xcodeProductName);
 	if (this.target === 'dist-appstore' || this.target === 'dist-adhoc' || this.target === 'dist-macappstore') {
 		this.xcodeAppDir        = path.join(this.buildDir, 'ArchiveStaging');
 	} else if (this.target === 'macos') {
@@ -6651,9 +6655,8 @@ iOSBuilder.prototype.removeFiles = function removeFiles(next) {
 		// ignore
 	}
 
-	const product = `${this.xcodeTarget}-${this.xcodeTargetOS}`;
-	if (fs.existsSync(path.join(productsDir, product))) {
-		this.unmarkBuildDirFiles(path.join(productsDir, product));
+	if (fs.existsSync(this.iosBuildDir)) {
+		this.unmarkBuildDirFiles(this.iosBuildDir);
 	}
 
 	this.logger.info(__('Removing files'));
