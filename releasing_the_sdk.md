@@ -76,7 +76,7 @@ git push origin master
 
 ## Release Notes
 
-Once the changelog has been generated, I typically open it in an editor like VSCode and open a markdown to HTML preview (Cmd+P, Markdown: Open Preview to Side). I then copy the new release's section to my clipboard and paste it into the Wiki. Note that this will only pick up changes that have been committed so far. If you're producing the release notes ahead of time the listing may be incomplete, the Community Contributions migh tbe incomplete, and the module versions may be outdated.
+Once the changelog has been generated, I typically open it in an editor like VSCode and open a markdown to HTML preview (Cmd+P, Markdown: Open Preview to Side). I then copy the new release's section to my clipboard and paste it into the Wiki. Note that this will only pick up changes that have been committed so far. If you're producing the release notes ahead of time the listing may be incomplete, the Community Contributions might tbe incomplete, and the module versions may be outdated.
 
 ### Staging Release Notes
 
