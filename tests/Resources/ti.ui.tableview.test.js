@@ -1443,4 +1443,29 @@ describe('Titanium.UI.TableView', function () {
 		});
 		win.open();
 	});
+
+	it('TIMOB-28148 : adding view on row causing crash', function (finish) {
+		var row = Ti.UI.createTableViewRow({ title: 'click me' });
+		var tableView = Ti.UI.createTableView({
+			data: [ row ]
+		});
+
+		win = Ti.UI.createWindow({
+			backgroundColor: 'blue'
+		});
+		win.addEventListener('focus', function () {
+			setTimeout(function () {
+				try {
+					const label = Ti.UI.createLabel({ text: 'REQUIRED' });
+					row.add(label);
+					finish();
+				} catch (err) {
+					return finish(err);
+				}
+			}, 2000);
+		});
+
+		win.add(tableView);
+		win.open();
+	});
 });

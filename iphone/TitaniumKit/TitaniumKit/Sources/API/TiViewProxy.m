@@ -213,7 +213,9 @@ static NSArray *touchEventsArray;
 
   if (windowOpened) {
     // Turn on clipping because I have children
-    [[self view] updateClipping];
+    if ([[self view] respondsToSelector:@selector(updateClipping)]) {
+      [[self view] updateClipping];
+    }
     [self contentsWillChange];
 
     if (parentVisible && !hidden) {
@@ -416,7 +418,9 @@ static NSArray *touchEventsArray;
         }
         [self windowWillOpen]; // we need to manually attach the window if you're animating
         [parent layoutChildrenIfNeeded];
-        [[self view] animate:newAnimation];
+        if ([[self view] respondsToSelector:@selector(animate:)]) {
+          [[self view] animate:newAnimation];
+        }
       },
       NO);
 }
@@ -1632,7 +1636,9 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
 - (void)animationCompleted:(TiAnimation *)animation
 {
   [self forgetProxy:animation];
-  [[self view] animationCompleted];
+  if ([[self view] respondsToSelector:@selector(animationCompleted)]) {
+    [[self view] animationCompleted];
+  }
   //Let us add ourselves to the queue to cleanup layout
   OSAtomicTestAndClearBarrier(TiRefreshViewEnqueued, &dirtyflags);
   [self willEnqueue];
@@ -2788,7 +2794,7 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
 - (void)setAccessibilityLabel:(id)accessibilityLabel
 {
   ENSURE_UI_THREAD(setAccessibilityLabel, accessibilityLabel);
-  if ([self viewAttached]) {
+  if ([self viewAttached] && [[self view] respondsToSelector:@selector(setAccessibilityLabel_:)]) {
     [[self view] setAccessibilityLabel_:accessibilityLabel];
   }
   [self replaceValue:accessibilityLabel forKey:@"accessibilityLabel" notification:NO];
@@ -2797,7 +2803,7 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
 - (void)setAccessibilityValue:(id)accessibilityValue
 {
   ENSURE_UI_THREAD(setAccessibilityValue, accessibilityValue);
-  if ([self viewAttached]) {
+  if ([self viewAttached] && [[self view] respondsToSelector:@selector(setAccessibilityValue_:)]) {
     [[self view] setAccessibilityValue_:accessibilityValue];
   }
   [self replaceValue:accessibilityValue forKey:@"accessibilityValue" notification:NO];
@@ -2806,7 +2812,7 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
 - (void)setAccessibilityHint:(id)accessibilityHint
 {
   ENSURE_UI_THREAD(setAccessibilityHint, accessibilityHint);
-  if ([self viewAttached]) {
+  if ([self viewAttached] && [[self view] respondsToSelector:@selector(setAccessibilityHint_:)]) {
     [[self view] setAccessibilityHint_:accessibilityHint];
   }
   [self replaceValue:accessibilityHint forKey:@"accessibilityHint" notification:NO];
