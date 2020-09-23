@@ -1593,6 +1593,7 @@ iOSBuilder.prototype.initTiappSettings = function initTiappSettings() {
 				productType:           productType,
 				isWatchAppV1Extension: productType === 'com.apple.product-type.watchkit-extension',
 				isExtension:           containsExtension && (!containsWatchKit || productType === 'com.apple.product-type.watchkit-extension'),
+				isAppClip:             productType === 'com.apple.product-type.application.on-demand-install-capable',
 				isWatchAppV1:          productType === 'com.apple.product-type.application.watchapp',
 				isWatchAppV2orNewer:   containsWatchApp && productType !== 'com.apple.product-type.application.watchapp',
 				sdkRoot:               productType === 'com.apple.product-type.application.watchapp' ? 'watchos' : (buildSettings.SDKROOT || globalBuildSettings.SDKROOT || null),
@@ -2472,15 +2473,19 @@ iOSBuilder.prototype.initialize = function initialize() {
 	this.deviceInfo    = this.deviceId ? this.getDeviceInfo().udids[this.deviceId] : null;
 	this.xcodeTarget   = /^device|simulator|macos$/.test(this.target) ? 'Debug' : 'Release';
 
-	if (this.target === 'macos' || this.target === 'dist-macappstore') {
-		this.xcodeTargetOS = 'maccatalyst';
-	} else if (this.target === 'simulator') {
+	if (this.target === 'simulator') {
 		this.xcodeTargetOS = 'iphonesimulator';
 	} else {
 		this.xcodeTargetOS = 'iphoneos';
 	}
 
-	this.iosBuildDir            = path.join(this.buildDir, 'build', 'Products', this.xcodeTarget + '-' + this.xcodeTargetOS);
+	let osName = this.xcodeTargetOS;
+	if (this.target === 'macos' || this.target === 'dist-macappstore') {
+		osName = 'maccatalyst';
+	}
+	const xcodeProductName = `${this.xcodeTarget}-${osName}`;
+
+	this.iosBuildDir            = path.join(this.buildDir, 'build', 'Products', xcodeProductName);
 	if (this.target === 'dist-appstore' || this.target === 'dist-adhoc' || this.target === 'dist-macappstore') {
 		this.xcodeAppDir        = path.join(this.buildDir, 'ArchiveStaging');
 	} else if (this.target === 'macos') {
@@ -3721,9 +3726,16 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 					this.unmarkBuildDirFiles(path.join(this.xcodeAppDir, 'PlugIns', xobjs.PBXFileReference[productUuid].path.replace(/^"/, '').replace(/"$/, '')));
 				} else if (targetInfo.isWatchAppV2orNewer) {
 					this.unmarkBuildDirFiles(path.join(this.xcodeAppDir, 'Watch', xobjs.PBXFileReference[productUuid].path.replace(/^"/, '').replace(/"$/, '')));
+				} else if (targetInfo.isAppClip) {
+					const xcodeProj = path.basename(ext.projectPath);
+					const originPath = path.join(ext.projectPath.split(xcodeProj)[0], ext.targets[0].name);
+					const destinationPath = path.join(this.buildDir, ext.targets[0].name);
+
+					this.unmarkBuildDirFiles(path.join(this.xcodeAppDir, 'AppClips', xobjs.PBXFileReference[productUuid].path.replace(/^"/, '').replace(/"$/, '')));
+					this.copyDirSync(originPath, destinationPath);
 				}
 
-				if (targetInfo.isExtension || targetInfo.isWatchAppV2orNewer) {
+				if (targetInfo.isExtension || targetInfo.isWatchAppV2orNewer || targetInfo.isAppClip) {
 					// add this target as a dependency of the titanium app's project
 					const proxyUuid = this.generateXcodeUuid(xcodeProject);
 					xobjs.PBXContainerItemProxy || (xobjs.PBXContainerItemProxy = {});
@@ -3801,8 +3813,10 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 
 					if (targetInfo.isWatchAppV2orNewer) {
 						addEmbedBuildPhase.call(this, 'Embed Watch Content', '$(CONTENTS_FOLDER_PATH)/Watch', 16 /* type "watch app" */);
-					} else {
+					} else if (targetInfo.isExtension) {
 						addEmbedBuildPhase.call(this, 'Embed App Extensions', null, 13 /* type "plugin" */);
+					} else if (targetInfo.isAppClip) {
+						addEmbedBuildPhase.call(this, 'Embed App Clips', '$(CONTENTS_FOLDER_PATH)/AppClips', 16 /* type "application.on-demand-install-capable" */);
 					}
 				}
 			}, this);
@@ -6651,9 +6665,8 @@ iOSBuilder.prototype.removeFiles = function removeFiles(next) {
 		// ignore
 	}
 
-	const product = `${this.xcodeTarget}-${this.xcodeTargetOS}`;
-	if (fs.existsSync(path.join(productsDir, product))) {
-		this.unmarkBuildDirFiles(path.join(productsDir, product));
+	if (fs.existsSync(this.iosBuildDir)) {
+		this.unmarkBuildDirFiles(this.iosBuildDir);
 	}
 
 	this.logger.info(__('Removing files'));
