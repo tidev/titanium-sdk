@@ -11,7 +11,6 @@
 #import "UIImage+Alpha.h"
 #import "UIImage+Resize.h"
 #import "UIImage+RoundedCorner.h"
-
 //NOTE:FilesystemFile is conditionally compiled based on the filesystem module.
 #import "TiFilesystemFileProxy.h"
 
@@ -74,6 +73,12 @@ static NSString *const MIMETYPE_JPEG = @"image/jpeg";
 }
 GETTER_IMPL(NSUInteger, width, Width);
 
+- (NSUInteger)uprightWidth
+{
+  return [self width];
+}
+GETTER_IMPL(NSUInteger, uprightWidth, UprightWidth);
+
 - (NSUInteger)height
 {
   [self ensureImageLoaded];
@@ -83,6 +88,12 @@ GETTER_IMPL(NSUInteger, width, Width);
   return 0;
 }
 GETTER_IMPL(NSUInteger, height, Height);
+
+- (NSUInteger)uprightHeight
+{
+  return [self height];
+}
+GETTER_IMPL(NSUInteger, uprightHeight, UprightHeight);
 
 - (NSUInteger)size
 {

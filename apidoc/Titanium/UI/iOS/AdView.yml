@@ -9,6 +9,7 @@ deprecated:
   removed: "7.0.0"
   notes: iAd has been deprecated in iOS 10 and SDK 5.5.0. It was removed as part of the SDK 7.0.0.
 platforms: [iphone, ipad]
+exclude-platforms: [macos]
 excludes:
     events: [longclick]
     methods: [getBackgroundDisabledColor, getBackgroundDisabledImage, getBackgroundFocusedColor,

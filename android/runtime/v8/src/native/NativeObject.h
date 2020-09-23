@@ -33,9 +33,9 @@ class NativeObject
 
 
   virtual ~NativeObject() {
-    if (persistent().IsEmpty())
+    if (persistent().IsEmpty()) {
       return;
-    assert(persistent().IsNearDeath());
+    }
     persistent().ClearWeak();
     persistent().Reset();
   }
@@ -117,14 +117,13 @@ class NativeObject
   static void WeakCallback(const v8::WeakCallbackInfo<NativeObject>& data) {
     NativeObject* wrap = data.GetParameter();
     assert(wrap->refs_ == 0);
-    assert(wrap->handle_.IsNearDeath());
     wrap->handle_.Reset();
     delete wrap;
   }
 
   v8::Persistent<v8::Object> handle_;
 
-	friend class ProxyFactory;
+  friend class ProxyFactory;
 };
 
 }

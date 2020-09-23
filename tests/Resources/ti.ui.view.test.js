@@ -4,6 +4,7 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+/* globals OS_ANDROID */
 /* eslint-env mocha */
 /* eslint no-unused-expressions: "off" */
 'use strict';
@@ -653,6 +654,38 @@ describe('Titanium.UI.View', function () {
 		win.open();
 	});
 
+	it.ios('animate (transition) - FLIP (app should not crash)', function (finish) {
+		win = Ti.UI.createWindow();
+		const controlView = Ti.UI.createView({
+			backgroundColor: 'red',
+			width: 100, height: 100,
+			left: 100,  top: 100
+		});
+
+		win.addEventListener('open', function () {
+			const view = Ti.UI.createView({
+				top: 150,
+				left: 150,
+				width: 150,
+				height: 150,
+				backgroundColor: 'green'
+			});
+			controlView.add(view);
+			try {
+				controlView.animate({
+					view: view,
+					backgroundColor: 'green',
+					transition: Ti.UI.iOS.AnimationStyle.FLIP_FROM_LEFT
+				});
+			} catch (err) {
+				return finish(err);
+			}
+			finish();
+		});
+		win.add(controlView);
+		win.open();
+	});
+
 	// FIXME: I think there's a parity issue here!
 	// Android returns x/y values as pixels *always*. while the input '100' uses the default unit (dip)
 	// which may vary based on screen density (Ti.Platform.DisplayCaps.ydpi) - so may be 100 or 200 pixels!
@@ -977,7 +1010,9 @@ describe('Titanium.UI.View', function () {
 				try {
 					should(view.borderRadius).be.a.String();
 					should(view.borderRadius).eql('12px 12 12dp 12');
-					should(outerView).matchImage(`snapshots/borderRadius12px_12_12dp_12_${density}x.png`);
+					if (!OS_ANDROID || Ti.Platform.Android.API_LEVEL > 20) {
+						should(outerView).matchImage(`snapshots/borderRadius12px_12_12dp_12_${density}x.png`);
+					}
 				} catch (e) {
 					return finish(e);
 				}
@@ -1009,7 +1044,9 @@ describe('Titanium.UI.View', function () {
 					should(view.borderRadius.length).eql(4);
 					should(view.borderRadius).eql([ '12px', 12, '12dp', '12' ]);
 					// should be the exact same as above
-					should(outerView).matchImage(`snapshots/borderRadius12px_12_12dp_12_${density}x.png`);
+					if (!OS_ANDROID || Ti.Platform.Android.API_LEVEL > 20) {
+						should(outerView).matchImage(`snapshots/borderRadius12px_12_12dp_12_${density}x.png`);
+					}
 				} catch (err) {
 					return finish(err);
 				}
@@ -1040,7 +1077,9 @@ describe('Titanium.UI.View', function () {
 				try {
 					should(view.borderRadius).be.a.String();
 					should(view.borderRadius).eql('12px 12');
-					should(outerView).matchImage(`snapshots/borderRadius12px_12_${density}x.png`);
+					if (!OS_ANDROID || Ti.Platform.Android.API_LEVEL > 20) {
+						should(outerView).matchImage(`snapshots/borderRadius12px_12_${density}x.png`);
+					}
 				} catch (e) {
 					return finish(e);
 				}
@@ -1072,7 +1111,105 @@ describe('Titanium.UI.View', function () {
 					should(view.borderRadius.length).eql(2);
 					should(view.borderRadius).eql([ '12px', 12 ]);
 					// should be the exact same as above
+					if (!OS_ANDROID || Ti.Platform.Android.API_LEVEL > 20) {
+						should(outerView).matchImage(`snapshots/borderRadius12px_12_${density}x.png`);
+					}
+				} catch (err) {
+					return finish(err);
+				}
+				finish();
+			});
+
+			outerView.add(view);
+			win.add(outerView);
+			win.open();
+		});
+
+		it.ios('set property post layout', finish => {
+			win = Ti.UI.createWindow({ backgroundColor: 'blue' });
+			const outerView = Ti.UI.createView({
+				width: '90px',
+				height: '90px',
+				backgroundColor: 'green'
+			});
+			const view = Ti.UI.createView({
+				width: '60px',
+				height: '60px',
+				backgroundColor: 'yellow'
+			});
+
+			win.addEventListener('postlayout', function postlayout() {
+				win.removeEventListener('postlayout', postlayout); // only run once
+				try {
+					view.borderRadius = [ '12px', 12 ];
+					should(view.borderRadius).be.an.Array();
+					should(view.borderRadius.length).eql(2);
+					should(view.borderRadius).eql([ '12px', 12 ]);
+					// should be the exact same as above
 					should(outerView).matchImage(`snapshots/borderRadius12px_12_${density}x.png`);
+				} catch (err) {
+					return finish(err);
+				}
+				finish();
+			});
+
+			outerView.add(view);
+			win.add(outerView);
+			win.open();
+		});
+
+		it('1 value to create circle', finish => {
+			win = Ti.UI.createWindow({ backgroundColor: 'blue' });
+			const outerView = Ti.UI.createView({
+				width: '90px',
+				height: '90px',
+				backgroundColor: 'green'
+			});
+			const view = Ti.UI.createView({
+				width: '60px',
+				height: '60px',
+				borderRadius: '30px',
+				backgroundColor: 'yellow'
+			});
+
+			win.addEventListener('postlayout', function postlayout() {
+				win.removeEventListener('postlayout', postlayout); // only run once
+				try {
+					should(view.borderRadius).be.a.String();
+					should(view.borderRadius).eql('30px');
+					should(outerView).matchImage('snapshots/borderRadius30px.png');
+				} catch (err) {
+					return finish(err);
+				}
+				finish();
+			});
+
+			outerView.add(view);
+			win.add(outerView);
+			win.open();
+		});
+
+		it.ios('1 value with shadow effect', finish => {
+			win = Ti.UI.createWindow({ backgroundColor: 'blue' });
+			const outerView = Ti.UI.createView({
+				width: '90px',
+				height: '90px',
+				backgroundColor: 'green'
+			});
+			const view = Ti.UI.createView({
+				width: '60px',
+				height: '60px',
+				borderRadius: '30px',
+				backgroundColor: 'yellow',
+				viewShadowColor: '#d000',
+				viewShadowRadius: 10,
+				viewShadowOffset: { x: 5, y: 10 },
+			});
+
+			view.addEventListener('postlayout', function postlayout() {
+				view.removeEventListener('postlayout', postlayout); // only run once
+				try {
+					should(outerView).matchImage('snapshots/borderRadiusWithShadow30px.png');
 				} catch (err) {
 					return finish(err);
 				}

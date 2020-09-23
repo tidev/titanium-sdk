@@ -43,7 +43,7 @@ READONLY_PROPERTY(NSString *, tempDirectory, TempDirectory);
 // TODO: Change JSValue* to TiFile* once TiFile is migrated
 // Note that this accepts varargs, which we handle special in impl
 - (JSValue *)getFile;
-- (BOOL)isExternalStoragePresent;
+- (bool)isExternalStoragePresent;
 // TODO: Change JSValue* to TiFile* once TiFile is migrated
 // Note that this accepts varargs, which we handle special in impl
 - (JSValue *)openStream:(TiStreamMode)mode;

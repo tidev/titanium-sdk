@@ -39,7 +39,7 @@ excludes:
     properties: [children]
     methods: [add, remove, removeAllChildren, replaceAt]
 since: { android: "7.3.0", iphone: "0.8", ipad: "0.8" }
-platforms: [android, iphone, ipad]
+platforms: [android, iphone, ipad, macos]
 examples:
   - title: Lighten Blend Mode
     example: |

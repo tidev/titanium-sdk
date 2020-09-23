@@ -30,7 +30,7 @@ excludes:
   events: [click, dblclick, doubletap, keypressed, longpress, pinch, singletap, swipe, touchcancel,
     touchend, touchmove, touchstart, twofingertap]
 since: "0.9"
-platforms: [android, iphone, ipad]
+platforms: [android, iphone, ipad, macos]
 
 methods:
   - name: addRow

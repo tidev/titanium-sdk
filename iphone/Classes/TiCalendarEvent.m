@@ -133,9 +133,9 @@
     return currEvent.PROP_NAME;             \
   }
 
-EVENT_GETTER_PRIMITIVE(BOOL, allDay, allDay, NO);
-EVENT_SETTER(BOOL, AllDay, allDay);
-READWRITE_IMPL(BOOL, allDay, AllDay);
+EVENT_GETTER_PRIMITIVE(bool, allDay, allDay, NO);
+EVENT_SETTER(bool, AllDay, allDay);
+READWRITE_IMPL(bool, allDay, AllDay);
 
 EVENT_GETTER_PRIMITIVE(EKEventAvailability, availability, availability, EKEventAvailabilityUnavailable);
 EVENT_SETTER(EKEventAvailability, Availability, availability);
@@ -149,14 +149,14 @@ EVENT_GETTER(NSDate *, end, endDate);
 EVENT_SETTER(NSDate *, End, endDate);
 READWRITE_IMPL(NSDate *, end, End);
 
-EVENT_GETTER_PRIMITIVE(BOOL, hasAlarm, hasAlarms, NO);
-GETTER_IMPL(BOOL, hasAlarm, HasAlarm);
+EVENT_GETTER_PRIMITIVE(bool, hasAlarm, hasAlarms, NO);
+GETTER_IMPL(bool, hasAlarm, HasAlarm);
 
 EVENT_GETTER(NSString *, id, eventIdentifier);
 GETTER_IMPL(NSString *, id, Id);
 
-EVENT_GETTER_PRIMITIVE(BOOL, isDetached, isDetached, NO);
-GETTER_IMPL(BOOL, isDetached, IsDetached);
+EVENT_GETTER_PRIMITIVE(bool, isDetached, isDetached, NO);
+GETTER_IMPL(bool, isDetached, IsDetached);
 
 EVENT_GETTER(NSString *, location, location);
 EVENT_SETTER(NSString *, Location, location);
@@ -458,7 +458,7 @@ READWRITE_IMPL(NSArray<TiCalendarRecurrenceRule *> *, recurrenceRules, Recurrenc
   [currEvent removeRecurrenceRule:rule];
 }
 
-- (BOOL)save:(EKSpan)span
+- (bool)save:(EKSpan)span
 {
   if ([[JSContext currentArguments] count] < 1) {
     span = EKSpanThisEvent;
@@ -489,7 +489,7 @@ READWRITE_IMPL(NSArray<TiCalendarRecurrenceRule *> *, recurrenceRules, Recurrenc
   return result;
 }
 
-- (BOOL)remove:(EKSpan)span
+- (bool)remove:(EKSpan)span
 {
   if ([[JSContext currentArguments] count] < 1) {
     span = EKSpanThisEvent;
@@ -511,7 +511,7 @@ READWRITE_IMPL(NSArray<TiCalendarRecurrenceRule *> *, recurrenceRules, Recurrenc
   return result;
 }
 
-- (BOOL)refresh
+- (bool)refresh
 {
   __block BOOL result;
   TiThreadPerformOnMainThread(

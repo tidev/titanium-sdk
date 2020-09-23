@@ -13,6 +13,7 @@ description: |
     For examples of using Attributed Strings, see the
     [Attributed Strings guide](https://docs.appcelerator.com/platform/latest/#!/api/Titanium.UI.iOS.AttributedString).
 platforms: [iphone, ipad]
+exclude-platforms: [macos]
 extends: Titanium.Proxy
 since: "3.2"
 properties:

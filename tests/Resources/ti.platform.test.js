@@ -4,7 +4,7 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-/* global OS_VERSION_MAJOR, OS_VERSION_MINOR */
+/* global OS_VERSION_MAJOR, OS_VERSION_MINOR, OS_VERSION_PATCH, OS_IOS */
 /* eslint-env mocha */
 /* eslint no-unused-expressions: "off" */
 'use strict';
@@ -215,7 +215,13 @@ describe('Titanium.Platform', function () {
 
 	it('.id', () => {
 		should(Ti.Platform).have.readOnlyProperty('id').which.is.a.String();
-		// TODO Verify format?!
+		if (OS_IOS) {
+			const platformId = Ti.Platform.id;
+			should(platformId).be.a.String();
+			should(platformId.length).eql(36);
+			// Verify format using regexp!
+			platformId.should.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i);
+		}
 	});
 
 	it('.locale', () => {
@@ -225,6 +231,13 @@ describe('Titanium.Platform', function () {
 
 	it('.macaddress', () => {
 		should(Ti.Platform).have.readOnlyProperty('macaddress').which.is.a.String();
+		if (OS_IOS) {
+			const macaddress = Ti.Platform.macaddress;
+			should(macaddress).be.a.String();
+			should(macaddress.length).eql(36);
+			// Verify format using regexp!
+			macaddress.should.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i);
+		}
 	});
 
 	it('.manufacturer', () => {
@@ -237,7 +250,7 @@ describe('Titanium.Platform', function () {
 
 	it('.name', () => {
 		should(Ti.Platform).have.readOnlyProperty('name').which.is.a.String();
-		should(Ti.Platform.name).be.equalOneOf([ 'android', 'iOS', 'windows', 'mobileweb' ]);
+		should(Ti.Platform.name).be.equalOneOf([ 'android', 'iOS', 'windows', 'mobileweb', 'Mac OS X' ]);
 		// TODO match with osname!
 	});
 
@@ -295,6 +308,15 @@ describe('Titanium.Platform', function () {
 		should(Ti.Platform.versionMinor).be.eql(versionMinor);
 	});
 
+	it('.versionPatch', () => {
+		should(Ti.Platform).have.readOnlyProperty('versionPatch').which.is.a.Number();
+		should(Ti.Platform.versionPatch).be.eql(OS_VERSION_PATCH);
+
+		const versionComponents = Ti.Platform.version.split('.');
+		const versionPatch = (versionComponents.length >= 3) ? parseInt(versionComponents[2]) : 0;
+		should(Ti.Platform.versionPatch).be.eql(versionPatch);
+	});
+
 	it.ios('.identifierForVendor', () => {
 		should(Ti.Platform.identifierForVendor).be.a.String();
 		should(Ti.Platform.getIdentifierForVendor).be.a.Function();
@@ -311,6 +333,7 @@ describe('Titanium.Platform', function () {
 		should(Ti.Platform.isAdvertisingTrackingEnabled).be.a.Boolean();
 	});
 
+	// FIXME: macOS pops dialogs abotu no application set to open this url scheme
 	it.ios('#openURL(url, callback)', function (finish) {
 		Ti.Platform.openURL('randomapp://', _e => finish());
 	});

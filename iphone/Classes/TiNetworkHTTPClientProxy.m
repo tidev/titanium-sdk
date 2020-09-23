@@ -123,6 +123,16 @@ extern NSString *const TI_APPLICATION_GUID;
   if ([self valueForUndefinedKey:@"timeout"]) {
     [httpRequest setTimeout:[TiUtils doubleValue:[self valueForUndefinedKey:@"timeout"] def:15000] / 1000];
   }
+
+  if ([self valueForUndefinedKey:@"timeoutForResource"]) {
+    httpRequest.timeoutForResource = [TiUtils doubleValue:[self valueForUndefinedKey:@"timeoutForResource"] def:7 * 24 * 60 * 60 * 1000] / 1000;
+  }
+
+  if ([self valueForUndefinedKey:@"waitsForConnectivity"]) {
+    httpRequest.waitsForConnectivity = [TiUtils boolValue:[self valueForUndefinedKey:@"waitsForConnectivity"]
+                                                      def:NO];
+  }
+
   if ([self valueForUndefinedKey:@"autoRedirect"]) {
     [httpRequest setRedirects:
                      [TiUtils boolValue:[self valueForUndefinedKey:@"autoRedirect"]

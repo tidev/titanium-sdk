@@ -250,7 +250,13 @@ publishing {
 						def childNode = dependenciesNode.appendNode('dependency')
 						childNode.appendNode('groupId', it.group)
 						childNode.appendNode('artifactId', it.name)
-						childNode.appendNode('version', it.version)
+
+						// Use minimum SDK specified by module manifest.
+						if ((it.group == 'org.appcelerator') && (it.name == 'titanium')) {
+							childNode.appendNode('version', '<%- moduleMinSdkVersion %>')
+						} else {
+							childNode.appendNode('version', it.version)
+						}
 					}
 				}
 			}
