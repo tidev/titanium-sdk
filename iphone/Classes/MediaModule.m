@@ -1784,7 +1784,7 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
 }
 #endif
 
-#if IS_SDK_IOS_14
+#if IS_SDK_IOS_14 && defined(USE_TI_MEDIAOPENPHOTOGALLERY)
 - (void)showPHPicker:(NSDictionary *)args
 {
   if (_phPicker != nil) {
