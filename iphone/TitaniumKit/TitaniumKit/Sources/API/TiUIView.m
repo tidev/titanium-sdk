@@ -658,7 +658,11 @@ DEFINE_EXCEPTIONS
   if (backgroundRepeat) {
     [self renderRepeatedBackground:bgImage];
   } else {
+    // To fix TIMOB-28150
+    [CATransaction begin];
+    [CATransaction setValue:(id)kCFBooleanTrue forKey:kCATransactionDisableActions];
     [self backgroundImageLayer].contents = (id)bgImage.CGImage;
+    [CATransaction commit];
     if (bgImage != nil) {
       [self backgroundImageLayer].contentsScale = [bgImage scale];
       [self backgroundImageLayer].contentsCenter = TiDimensionLayerContentCenter(topCap, leftCap, topCap, leftCap, [bgImage size]);
