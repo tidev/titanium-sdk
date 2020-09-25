@@ -4685,6 +4685,11 @@ iOSBuilder.prototype.copyTitaniumiOSFiles = function copyTitaniumiOSFiles() {
 					fs.writeFileSync(destFile, contents);
 
 					return null; // tell copyDirSync not to copy the file because we wrote it ourselves
+				} else if (destExists && !changed) {
+					// if the destination exists and the file contents haven't changed, return null
+					// so that copyDirSync doesn't copy over a file where the contents need to be ran
+					// through _scrubiOSSourceFile
+					return null;
 				}
 			}.bind(this),
 			afterCopy: function (srcFile, destFile, srcStat, result) {
