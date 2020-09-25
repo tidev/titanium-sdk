@@ -660,7 +660,7 @@ DEFINE_EXCEPTIONS
   } else {
     // To fix TIMOB-28150
     [CATransaction begin];
-    [CATransaction setValue:(id)kCFBooleanTrue forKey:kCATransactionDisableActions];
+    [CATransaction setDisableActions:YES];
     [self backgroundImageLayer].contents = (id)bgImage.CGImage;
     [CATransaction commit];
     if (bgImage != nil) {
