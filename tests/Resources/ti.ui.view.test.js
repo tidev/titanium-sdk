@@ -1315,4 +1315,11 @@ describe('Titanium.UI.View', function () {
 		win.addEventListener('open', () => finish());
 		win.open();
 	});
+
+	it.android('filterTouchesWhenObscured', () => {
+		const view1 = Ti.UI.createView();
+		should(view1.filterTouchesWhenObscured).be.false();
+		const view2 = Ti.UI.createView({ filterTouchesWhenObscured: true });
+		should(view2.filterTouchesWhenObscured).be.true();
+	});
 });
