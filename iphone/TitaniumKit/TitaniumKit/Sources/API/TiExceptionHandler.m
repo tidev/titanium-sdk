@@ -117,22 +117,17 @@ static NSUncaughtExceptionHandler *prevUncaughtExceptionHandler = NULL;
 
 @end
 
-@interface TiScriptError () {
-  NSArray<NSString *> *_preparedNativeStack;
-  NSString *_sourceLine;
-}
-
-@end
-
 @implementation TiScriptError
 
 @synthesize message = _message;
 @synthesize sourceURL = _sourceURL;
+@synthesize sourceLine = _sourceLine;
 @synthesize lineNo = _lineNo;
 @synthesize column = _column;
 @synthesize dictionaryValue = _dictionaryValue;
 @synthesize backtrace = _backtrace;
 @synthesize nativeStack = _nativeStack;
+@synthesize formattedNativeStack = _formattedNativeStack;
 
 - (id)initWithMessage:(NSString *)message sourceURL:(NSString *)sourceURL lineNo:(NSInteger)lineNo
 {
@@ -171,11 +166,11 @@ static NSUncaughtExceptionHandler *prevUncaughtExceptionHandler = NULL;
 {
   RELEASE_TO_NIL(_message);
   RELEASE_TO_NIL(_sourceURL);
+  RELEASE_TO_NIL(_sourceLine);
   RELEASE_TO_NIL(_backtrace);
   RELEASE_TO_NIL(_dictionaryValue);
   RELEASE_TO_NIL(_nativeStack);
-  RELEASE_TO_NIL(_preparedNativeStack);
-  RELEASE_TO_NIL(_sourceLine);
+  RELEASE_TO_NIL(_formattedNativeStack);
   [super dealloc];
 }
 
@@ -188,7 +183,7 @@ static NSUncaughtExceptionHandler *prevUncaughtExceptionHandler = NULL;
     [message appendFormat:@"%@:%ld\n", [self.sourceURL stringByReplacingOccurrencesOfString:encodedBundlePath withString:@""], (long)self.lineNo];
     [message appendFormat:@"%@\n", self.sourceLine];
     NSString *columnIndicatorPadding = [@"" stringByPaddingToLength:self.column withString:@" " startingAtIndex:0];
-    [message appendFormat:@"%@^\n\n", columnIndicatorPadding];
+    [message appendFormat:@"%@^\n", columnIndicatorPadding];
   }
 
   NSString *type = self.dictionaryValue[@"type"] != nil ? self.dictionaryValue[@"type"] : @"Error";
@@ -213,7 +208,7 @@ static NSUncaughtExceptionHandler *prevUncaughtExceptionHandler = NULL;
   }
   [message appendString:formattedJsStack];
 
-  [message appendFormat:@"\n\nNative Stack:\n    %@", [self.formattedNativeStack componentsJoinedByString:@"\n    "]];
+  [message appendFormat:@"\n\n    %@", [self.formattedNativeStack componentsJoinedByString:@"\n    "]];
 
   return message;
 }
@@ -225,8 +220,8 @@ static NSUncaughtExceptionHandler *prevUncaughtExceptionHandler = NULL;
 
 - (NSArray<NSString *> *)formattedNativeStack
 {
-  if (_preparedNativeStack != nil) {
-    return _preparedNativeStack;
+  if (_formattedNativeStack != nil) {
+    return _formattedNativeStack;
   }
 
   NSArray<NSString *> *stackTrace = self.nativeStack;
@@ -236,15 +231,15 @@ static NSUncaughtExceptionHandler *prevUncaughtExceptionHandler = NULL;
   NSMutableArray<NSString *> *formattedStackTrace = [[[NSMutableArray alloc] init] autorelease];
   NSUInteger stackTraceLength = [stackTrace count];
   // re-size stack trace and format results. starting at index = 2 to not include this method and callee
-  for (NSInteger i = 1; i < (stackTraceLength >= 20 ? 20 : stackTraceLength); i++) {
+  for (NSInteger i = 2; i < (stackTraceLength >= 20 ? 20 : stackTraceLength); i++) {
     NSString *line = [self removeWhitespace:stackTrace[i]];
     // remove stack index
     line = [line substringFromIndex:[line rangeOfString:@" "].location + 1];
     [formattedStackTrace addObject:line];
   }
-  _preparedNativeStack = [formattedStackTrace copy];
+  _formattedNativeStack = [formattedStackTrace copy];
 
-  return _preparedNativeStack;
+  return _formattedNativeStack;
 }
 
 - (NSString *)sourceLine

@@ -59,6 +59,11 @@
  */
 @property (nonatomic, readonly) NSArray<NSString *> *nativeStack;
 
+/**
+ * Returns the pre-formated and cleaned native stack trace.
+ */
+@property (nonatomic, readonly) NSArray<NSString *> *formattedNativeStack;
+
 - (id)initWithMessage:(NSString *)message sourceURL:(NSString *)sourceURL lineNo:(NSInteger)lineNo;
 - (id)initWithDictionary:(NSDictionary *)dictionary;
 
@@ -66,11 +71,6 @@
  * Returns detailed description.
  */
 - (NSString *)detailedDescription;
-
-/**
- * Returns the pre-formated and cleaned native stack trace.
- */
-- (NSArray<NSString *> *)formattedNativeStack;
 
 @end
 
