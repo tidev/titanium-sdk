@@ -41,6 +41,7 @@ const appc = require('node-appc'),
 	__n = i18n.__n,
 	parallel = appc.async.parallel,
 	series = appc.async.series,
+	plist = require('simple-plist'),
 	version = appc.version;
 const platformsRegExp = new RegExp('^(' + ti.allPlatformNames.join('|') + ')$'); // eslint-disable-line security/detect-non-literal-regexp
 const pemCertRegExp = /(^-----BEGIN CERTIFICATE-----)|(-----END CERTIFICATE-----.*$)|\n/g;
@@ -1592,6 +1593,7 @@ iOSBuilder.prototype.initTiappSettings = function initTiappSettings() {
 				productType:           productType,
 				isWatchAppV1Extension: productType === 'com.apple.product-type.watchkit-extension',
 				isExtension:           containsExtension && (!containsWatchKit || productType === 'com.apple.product-type.watchkit-extension'),
+				isAppClip:             productType === 'com.apple.product-type.application.on-demand-install-capable',
 				isWatchAppV1:          productType === 'com.apple.product-type.application.watchapp',
 				isWatchAppV2orNewer:   containsWatchApp && productType !== 'com.apple.product-type.application.watchapp',
 				sdkRoot:               productType === 'com.apple.product-type.application.watchapp' ? 'watchos' : (buildSettings.SDKROOT || globalBuildSettings.SDKROOT || null),
@@ -2225,29 +2227,32 @@ iOSBuilder.prototype.validate = function validate(logger, config, cli) {
 								module.libFile = path.join(module.modulePath, module.libName);
 								module.isFramework = true;
 
-								// TODO: read Info.plist to get the full scope of targets/arches supported!
-								let archDir = 'ios-arm64_i386_x86_64-simulator';
-								if (!fs.existsSync(path.join(module.libFile, archDir))) {
-									// Try XCode 11 dir w/o arm64 support
-									archDir = 'ios-i386_x86_64-simulator';
-									this.legacyModules.add(module.id);// Record that this won't support arm64 sim!
+								const xcFrameworkInfo = plist.readFileSync(path.join(module.libFile, 'Info.plist'));
+								for (const libInfo of xcFrameworkInfo.AvailableLibraries) {
+									if (libInfo.SupportedPlatformVariant === undefined) {
+										// Device library is used for hash calculation.
+										// TODO: Probably we want to add other varient's library as well.
+										nativeHashes.push(module.hash = this.hash(fs.readFileSync(path.join(module.libFile, libInfo.LibraryIdentifier,  'lib' + module.id.toLowerCase() + '.a'))));
+									} else if (libInfo.SupportedPlatformVariant === 'simulator' && !libInfo.SupportedArchitectures.includes('arm64')) {
+										this.legacyModules.add(module.id);// Record that this won't support arm64 sim!
+									}
 								}
-								// TODO: Change hash calculation
-								nativeHashes.push(module.hash = this.hash(fs.readFileSync(path.join(module.libFile, archDir,  'lib' + module.id.toLowerCase() + '.a'))));
 							} else if (fs.existsSync(path.join(module.modulePath, xcFrameworkOfFramework))) {
 								module.libName = xcFrameworkOfFramework;
 								module.libFile = path.join(module.modulePath, module.libName);
 								module.isFramework = true;
 
-								// TODO: read Info.plist to get the full scope of targets/arches supported!
-								let archDir = 'ios-arm64_i386_x86_64-simulator';
-								if (!fs.existsSync(path.join(module.libFile, archDir))) {
-									// Try XCode 11 dir w/o arm64 support
-									archDir = 'ios-i386_x86_64-simulator';
-									this.legacyModules.add(module.id);// Record that this won't support arm64 sim!
+								const xcFrameworkInfo = plist.readFileSync(path.join(module.libFile, 'Info.plist'));
+								const scrubbedModuleId = this.scrubbedModuleId(module.id);
+								for (const libInfo of xcFrameworkInfo.AvailableLibraries) {
+									if (libInfo.SupportedPlatformVariant === undefined) {
+										// Device library is used for hash calculation.
+										// TODO: Probably we want to add other varient's library as well.
+										nativeHashes.push(module.hash = this.hash(fs.readFileSync(path.join(module.libFile, libInfo.LibraryIdentifier, scrubbedModuleId + '.framework', scrubbedModuleId))));
+									} else if (libInfo.SupportedPlatformVariant === 'simulator' && !libInfo.SupportedArchitectures.includes('arm64')) {
+										this.legacyModules.add(module.id);// Record that this won't support arm64 sim!
+									}
 								}
-								// TODO: Change hash calculation
-								nativeHashes.push(module.hash = this.hash(fs.readFileSync(path.join(module.libFile, archDir,  this.scrubbedModuleId(module.id) + '.framework', this.scrubbedModuleId(module.id)))));
 							} else {
 								this.logger.error(__('Module %s (%s) is missing library or framework file.', module.id.cyan, (module.manifest.version || 'latest').cyan) + '\n');
 								this.logger.error(__('Please validate that your module has been packaged correctly and try it again.'));
@@ -2468,15 +2473,19 @@ iOSBuilder.prototype.initialize = function initialize() {
 	this.deviceInfo    = this.deviceId ? this.getDeviceInfo().udids[this.deviceId] : null;
 	this.xcodeTarget   = /^device|simulator|macos$/.test(this.target) ? 'Debug' : 'Release';
 
-	if (this.target === 'macos' || this.target === 'dist-macappstore') {
-		this.xcodeTargetOS = 'maccatalyst';
-	} else if (this.target === 'simulator') {
+	if (this.target === 'simulator') {
 		this.xcodeTargetOS = 'iphonesimulator';
 	} else {
 		this.xcodeTargetOS = 'iphoneos';
 	}
 
-	this.iosBuildDir            = path.join(this.buildDir, 'build', 'Products', this.xcodeTarget + '-' + this.xcodeTargetOS);
+	let osName = this.xcodeTargetOS;
+	if (this.target === 'macos' || this.target === 'dist-macappstore') {
+		osName = 'maccatalyst';
+	}
+	const xcodeProductName = `${this.xcodeTarget}-${osName}`;
+
+	this.iosBuildDir            = path.join(this.buildDir, 'build', 'Products', xcodeProductName);
 	if (this.target === 'dist-appstore' || this.target === 'dist-adhoc' || this.target === 'dist-macappstore') {
 		this.xcodeAppDir        = path.join(this.buildDir, 'ArchiveStaging');
 	} else if (this.target === 'macos') {
@@ -3717,9 +3726,16 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 					this.unmarkBuildDirFiles(path.join(this.xcodeAppDir, 'PlugIns', xobjs.PBXFileReference[productUuid].path.replace(/^"/, '').replace(/"$/, '')));
 				} else if (targetInfo.isWatchAppV2orNewer) {
 					this.unmarkBuildDirFiles(path.join(this.xcodeAppDir, 'Watch', xobjs.PBXFileReference[productUuid].path.replace(/^"/, '').replace(/"$/, '')));
+				} else if (targetInfo.isAppClip) {
+					const xcodeProj = path.basename(ext.projectPath);
+					const originPath = path.join(ext.projectPath.split(xcodeProj)[0], ext.targets[0].name);
+					const destinationPath = path.join(this.buildDir, ext.targets[0].name);
+
+					this.unmarkBuildDirFiles(path.join(this.xcodeAppDir, 'AppClips', xobjs.PBXFileReference[productUuid].path.replace(/^"/, '').replace(/"$/, '')));
+					this.copyDirSync(originPath, destinationPath);
 				}
 
-				if (targetInfo.isExtension || targetInfo.isWatchAppV2orNewer) {
+				if (targetInfo.isExtension || targetInfo.isWatchAppV2orNewer || targetInfo.isAppClip) {
 					// add this target as a dependency of the titanium app's project
 					const proxyUuid = this.generateXcodeUuid(xcodeProject);
 					xobjs.PBXContainerItemProxy || (xobjs.PBXContainerItemProxy = {});
@@ -3797,8 +3813,10 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 
 					if (targetInfo.isWatchAppV2orNewer) {
 						addEmbedBuildPhase.call(this, 'Embed Watch Content', '$(CONTENTS_FOLDER_PATH)/Watch', 16 /* type "watch app" */);
-					} else {
+					} else if (targetInfo.isExtension) {
 						addEmbedBuildPhase.call(this, 'Embed App Extensions', null, 13 /* type "plugin" */);
+					} else if (targetInfo.isAppClip) {
+						addEmbedBuildPhase.call(this, 'Embed App Clips', '$(CONTENTS_FOLDER_PATH)/AppClips', 16 /* type "application.on-demand-install-capable" */);
 					}
 				}
 			}, this);
@@ -4667,6 +4685,11 @@ iOSBuilder.prototype.copyTitaniumiOSFiles = function copyTitaniumiOSFiles() {
 					fs.writeFileSync(destFile, contents);
 
 					return null; // tell copyDirSync not to copy the file because we wrote it ourselves
+				} else if (destExists && !changed) {
+					// if the destination exists and the file contents haven't changed, return null
+					// so that copyDirSync doesn't copy over a file where the contents need to be ran
+					// through _scrubiOSSourceFile
+					return null;
 				}
 			}.bind(this),
 			afterCopy: function (srcFile, destFile, srcStat, result) {
@@ -6647,9 +6670,8 @@ iOSBuilder.prototype.removeFiles = function removeFiles(next) {
 		// ignore
 	}
 
-	const product = `${this.xcodeTarget}-${this.xcodeTargetOS}`;
-	if (fs.existsSync(path.join(productsDir, product))) {
-		this.unmarkBuildDirFiles(path.join(productsDir, product));
+	if (fs.existsSync(this.iosBuildDir)) {
+		this.unmarkBuildDirFiles(this.iosBuildDir);
 	}
 
 	this.logger.info(__('Removing files'));

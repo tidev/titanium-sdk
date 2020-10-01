@@ -373,6 +373,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String EVENT_PROPERTY_OBSCURED = "obscured";
+
+	/**
+	 * @module.api
+	 */
 	public static final String EVENT_PROPERTY_PLAYBACK_STATE = "playbackState";
 
 	/**
@@ -683,6 +688,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String EVENT_TOUCH_END = "touchend";
+
+	/**
+	 * @module.api
+	 */
+	public static final String EVENT_TOUCH_FILTERED = "touchfiltered";
 
 	/**
 	 * @module.api
@@ -1686,6 +1696,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_FILTER_CASE_INSENSITIVE = "filterCaseInsensitive";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_FILTER_TOUCHES_WHEN_OBSCURED = "filterTouchesWhenObscured";
 
 	/**
 	 * @module.api

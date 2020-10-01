@@ -85,4 +85,5 @@ dependencies {
 	}
 
 	implementation "androidx.appcompat:appcompat:${project.ext.tiAndroidXAppCompatLibVersion}"
+	implementation "com.google.android.material:material:${project.ext.tiMaterialLibVersion}"
 }
