@@ -7,7 +7,6 @@
 package ti.modules.titanium.media;
 
 import java.io.BufferedOutputStream;
-import java.io.File;
 import java.io.OutputStream;
 import java.util.List;
 
@@ -19,12 +18,13 @@ import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.io.TiFile;
+import org.appcelerator.titanium.io.TitaniumBlob;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 
+import android.Manifest;
 import android.app.Activity;
+import android.content.ContentResolver;
 import android.content.Context;
-import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.hardware.Camera;
@@ -38,7 +38,7 @@ import android.media.CamcorderProfile;
 import android.media.MediaRecorder;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
+import android.os.ParcelFileDescriptor;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.Surface;
@@ -49,7 +49,6 @@ import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
-import androidx.appcompat.app.ActionBar;
 
 @SuppressWarnings("deprecation")
 public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Callback, MediaRecorder.OnInfoListener
@@ -93,7 +92,8 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 	public static int cameraType = 0;
 	private static int cameraRotation = 0;
 	private static MediaRecorder recorder;
-	private static File videoFile = null;
+	private static Uri videoContentUri;
+	private static ParcelFileDescriptor videoParcelFileDescriptor;
 
 	private static class PreviewLayout extends FrameLayout
 	{
@@ -109,13 +109,9 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 		{
 			runAfterMeasure = runnable;
 
-			this.post(new Runnable() {
-				@Override
-				public void run()
-				{
-					PreviewLayout.this.requestLayout();
-					PreviewLayout.this.invalidate();
-				}
+			this.post(() -> {
+				PreviewLayout.this.requestLayout();
+				PreviewLayout.this.invalidate();
 			});
 		}
 
@@ -186,18 +182,16 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 		setContentView(cameraLayout);
 	}
 
+	@Override
 	public void surfaceChanged(SurfaceHolder previewHolder, int format, int width, int height)
 	{
 		// force initial onMeasure
-		previewLayout.prepareNewPreview(new Runnable() {
-			@Override
-			public void run()
-			{
-				startPreview(preview.getHolder());
-			}
+		previewLayout.prepareNewPreview(() -> {
+			startPreview(preview.getHolder());
 		});
 	}
 
+	@Override
 	public void surfaceCreated(SurfaceHolder previewHolder)
 	{
 		try {
@@ -208,27 +202,24 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 			}
 			camera.setPreviewDisplay(previewHolder);
 			surfaceHolder = true;
+			currentRotation = getWindowManager().getDefaultDisplay().getRotation();
 		} catch (Exception e) {
 			onError(MediaModule.UNKNOWN_ERROR, "Unable to setup preview surface: " + e.getMessage());
 			cancelCallback = null;
 			finish();
-			return;
 		}
-		currentRotation = getWindowManager().getDefaultDisplay().getRotation();
 	}
 
-	// make sure to call release() otherwise you will have to force kill the app before
-	// the built in camera will open
+	@Override
 	public void surfaceDestroyed(SurfaceHolder previewHolder)
 	{
+		// Release the camera preview so that other apps can use the camera.
 		stopPreview();
 		if (camera != null) {
 			camera.release();
 			camera = null;
 		}
 		surfaceHolder = false;
-
-		releaseMediaRecorder();
 	}
 
 	@Override
@@ -249,18 +240,6 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 		}
 		if (camera == null) {
 			return; // openCamera will have logged error.
-		}
-
-		try {
-			//This needs to be called to make sure action bar is gone
-			if (android.os.Build.VERSION.SDK_INT < 11) {
-				ActionBar actionBar = getSupportActionBar();
-				if (actionBar != null) {
-					actionBar.hide();
-				}
-			}
-		} catch (Throwable t) {
-			//Ignore this
 		}
 
 		cameraActivity = this;
@@ -301,20 +280,31 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 	{
 		super.onPause();
 
+		// Stop video capture if recording.
+		stopVideoCapture();
+
+		// Stop the camera preview so that other apps can use the camera.
 		stopPreview();
 		previewLayout.removeView(preview);
 		cameraLayout.removeView(localOverlayProxy.getOrCreateView().getNativeView());
-
 		try {
 			camera.release();
 			camera = null;
 		} catch (Throwable t) {
 			Log.d(TAG, "Camera is not open, unable to release", Log.DEBUG_MODE);
 		}
+	}
 
-		releaseMediaRecorder();
+	@Override
+	protected void onDestroy()
+	{
+		// Release our camera activity reference.
+		if (cameraActivity == this) {
+			cameraActivity = null;
+		}
 
-		cameraActivity = null;
+		// Destroy this activity.
+		super.onDestroy();
 	}
 
 	private void startPreview(SurfaceHolder previewHolder)
@@ -423,7 +413,6 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 		} catch (Exception e) {
 			onError(MediaModule.UNKNOWN_ERROR, "Unable to setup preview surface: " + e.getMessage());
 			finish();
-			return;
 		}
 	}
 
@@ -436,28 +425,27 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 		previewRunning = false;
 	}
 
-	static public void startVideoCapture()
+	public static void startVideoCapture()
 	{
-		// state "Initial"
+		// Do not continue if already started.
+		if (recorder != null) {
+			return;
+		}
+
+		// Unlock the camera for recorder use, only if necessary.
 		try {
-			// Unlock the camera for recorder use, only if nessecarry.
 			camera.unlock();
 		} catch (Exception e) {
 			onError(MediaModule.UNKNOWN_ERROR, "Unable to unlock camera: " + e.getMessage());
 			return;
 		}
 
-		videoFile = MediaModule.createExternalStorageFile(".mp4", Environment.DIRECTORY_MOVIES, saveToPhotoGallery);
-
-		if (recorder == null) {
-			recorder = new MediaRecorder();
-			recorder.setOnInfoListener(cameraActivity);
-		}
+		// Create and configure a new video recorder.
+		recorder = new MediaRecorder();
+		recorder.setOnInfoListener(cameraActivity);
 		recorder.setCamera(camera);
 		recorder.setVideoSource(MediaRecorder.VideoSource.CAMERA);
-
 		CamcorderProfile profile = CamcorderProfile.get(whichCamera, videoQuality);
-
 		if (optimalVideoSize != null) {
 			profile.videoFrameWidth = optimalVideoSize.width;
 			profile.videoFrameHeight = optimalVideoSize.height;
@@ -468,8 +456,7 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 				profile.videoFrameHeight = videoSize.height;
 			}
 		}
-		int result = TiApplication.getInstance().getRootActivity().checkCallingOrSelfPermission(
-			"android.permission.RECORD_AUDIO");
+		int result = TiApplication.getInstance().checkCallingOrSelfPermission(Manifest.permission.RECORD_AUDIO);
 		if (result == PackageManager.PERMISSION_GRANTED) {
 			recorder.setAudioSource(MediaRecorder.AudioSource.CAMCORDER);
 			recorder.setProfile(profile);
@@ -482,87 +469,132 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 			recorder.setVideoEncodingBitRate(profile.videoBitRate);
 			recorder.setVideoEncoder(profile.videoCodec);
 		}
-
 		recorder.setOrientationHint(cameraRotation);
-
 		if (videoMaximumDuration > 0) {
 			recorder.setMaxDuration(videoMaximumDuration);
 		}
 
-		recorder.setOutputFile(videoFile.getPath());
+		// Create a new video file and open it.
+		ContentResolver contentResolver = TiApplication.getInstance().getContentResolver();
+		videoParcelFileDescriptor = null;
 		try {
-			recorder.prepare();
-		} catch (Exception e) {
-			onError(MediaModule.UNKNOWN_ERROR, "Unable to prepare recorder: " + e.getMessage());
+			videoContentUri = MediaModule.createExternalVideoFileUri(saveToPhotoGallery);
+			videoParcelFileDescriptor = contentResolver.openFileDescriptor(videoContentUri, "rw");
+		} catch (Exception ex) {
+			try {
+				if (saveToPhotoGallery) {
+					Log.e(TAG, "Failed to open video file in gallery. Creating file in app's sandbox instead.", ex);
+					if (videoContentUri != null) {
+						contentResolver.delete(videoContentUri, null, null);
+					}
+					videoContentUri = MediaModule.createExternalVideoFileUri(false);
+					videoParcelFileDescriptor = contentResolver.openFileDescriptor(videoContentUri, "rw");
+				}
+			} catch (Exception ex2) {
+			}
+		}
+		if (videoParcelFileDescriptor == null) {
+			onError(MediaModule.UNKNOWN_ERROR, "Failed to create video file.");
+			stopVideoCapture(false);
 			return;
 		}
+		recorder.setOutputFile(videoParcelFileDescriptor.getFileDescriptor());
 
+		// Start video recording.
 		try {
+			recorder.prepare();
 			recorder.start();
 		} catch (Exception e) {
 			onError(MediaModule.UNKNOWN_ERROR, "Unable to start recording: " + e.getMessage());
-			return;
+			stopVideoCapture(false);
 		}
 	}
 
-	static public void stopVideoCapture()
+	public static void stopVideoCapture()
 	{
+		stopVideoCapture(true);
+	}
+
+	private static void stopVideoCapture(boolean useCallbacks)
+	{
+		// Do not continue if not started.
+		if (recorder == null) {
+			return;
+		}
+
+		// Determine if the activity is closing/closed.
+		boolean isFinishing = (cameraActivity != null) ? cameraActivity.isFinishing() : false;
+		if (isFinishing) {
+			useCallbacks = false;
+		}
+
+		// Stop and release the media recorder.
+		boolean wasSuccessful = false;
 		try {
 			recorder.stop();
+			recorder.release();
+			wasSuccessful = !isFinishing && (videoContentUri != null);
 		} catch (Exception e) {
 			onError(MediaModule.UNKNOWN_ERROR, "Unable to stop recording: " + e.getMessage());
+			useCallbacks = false;
+		} finally {
+			recorder = null;
 		}
 
+		// Lock camera for preview surface now that we're done recording.
 		try {
-			camera.reconnect();
-		} catch (Exception e) {
-			onError(MediaModule.UNKNOWN_ERROR, "Unable to reconnect to camera after recording: " + e.getMessage());
+			if (camera != null) {
+				camera.reconnect();
+				camera.lock();
+			}
+		} catch (Exception ex) {
+			Log.e(TAG, "Unable to reconnect to camera after recording.", ex);
 		}
 
-		try {
-			if (successCallback != null) {
-				TiFile theFile = new TiFile(videoFile, videoFile.toURI().toURL().toExternalForm(), false);
-				TiBlob theBlob = TiBlob.blobFromFile(theFile);
-				KrollDict response = MediaModule.createDictForImage(theBlob, theBlob.getMimeType());
+		// Close the video file. Delete it if failed to record or if we're canceling out of activity.
+		if (videoParcelFileDescriptor != null) {
+			try {
+				videoParcelFileDescriptor.close();
+				if (!wasSuccessful && (videoContentUri != null)) {
+					ContentResolver contentResolver = TiApplication.getInstance().getContentResolver();
+					contentResolver.delete(videoContentUri, null, null);
+				}
+			} catch (Exception ex) {
+				Log.e(TAG, "Failed to close video file.", ex);
+			}
+			videoParcelFileDescriptor = null;
+		}
 
+		// Notify the caller that the recording has stopped.
+		if (wasSuccessful) {
+			if (useCallbacks && (successCallback != null)) {
+				TiBlob blob = TiBlob.blobFromFile(new TitaniumBlob(videoContentUri));
+				KrollDict response = MediaModule.createDictForImage(blob, blob.getMimeType());
 				KrollDict previewRect = new KrollDict();
 				previewRect.put(TiC.PROPERTY_WIDTH, 0);
 				previewRect.put(TiC.PROPERTY_HEIGHT, 0);
 				response.put("previewRect", previewRect);
-
 				successCallback.callAsync(callbackContext, response);
 			}
-		} catch (Throwable t) {
-			if (errorCallback != null) {
-				KrollDict response = new KrollDict();
-				response.putCodeAndMessage(MediaModule.UNKNOWN_ERROR, t.getMessage());
-				errorCallback.callAsync(callbackContext, response);
+		} else if (!isFinishing) {
+			String message = "Failed to record video.";
+			if (useCallbacks) {
+				onError(MediaModule.UNKNOWN_ERROR, message);
+			} else {
+				Log.e(TAG, message);
 			}
 		}
 
-		releaseMediaRecorder();
-
+		// Close the activity if auto-hide is enabled.
+		// Otherwise, restart the camera preview.
 		if (autohide) {
 			hide();
-		} else {
-			if (camera != null) {
-				camera.startPreview();
-			}
+		} else if (camera != null) {
+			camera.startPreview();
 		}
 	}
 
-	private static void releaseMediaRecorder()
-	{
-		if (recorder != null) {
-			recorder.reset();
-			recorder.release();
-			recorder = null;
-			if (camera != null) {
-				camera.lock();
-			}
-		}
-	}
-
+	@Override
 	public void onInfo(MediaRecorder mr, int what, int extra)
 	{
 		if (what == MediaRecorder.MEDIA_RECORDER_INFO_MAX_DURATION_REACHED) {
@@ -582,11 +614,9 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 
 	/**
 	 * Computes the optimal preview size given the target display size and aspect ratio.
-	 *
-	 * @param supportPreviewSizes
-	 *            a list of preview sizes the camera supports
-	 * @param targetSize
-	 *            the target display size that will render the preview
+	 * @param sizes A list of preview sizes the camera supports
+	 * @param w The pixel width of the view to render the preview in.
+	 * @param h The pixel height of the view to render the preview in.
 	 * @return the optimal size of the preview
 	 */
 	private static Size getOptimalPreviewSize(List<Size> sizes, int w, int h)
@@ -662,33 +692,10 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 		KrollDict dict = new KrollDict();
 		dict.putCodeAndMessage(code, message);
 		dict.put(TiC.PROPERTY_MESSAGE, message);
-
 		errorCallback.callAsync(callbackContext, dict);
 	}
 
-	private static File writeToFile(byte[] data, boolean saveToGallery) throws Throwable
-	{
-		final boolean isVideo = MEDIA_TYPE_VIDEO.equals(mediaType);
-		final String extension = isVideo ? ".mp4" : ".jpg";
-		final File mediaFile = MediaModule.createExternalStorageFile(
-			extension, isVideo ? Environment.DIRECTORY_MOVIES : Environment.DIRECTORY_PICTURES, saveToGallery);
-		final Uri mediaUri = MediaModule.getMediaUriFrom(mediaFile);
-		final OutputStream mediaOutputStream =
-			TiApplication.getInstance().getContentResolver().openOutputStream(mediaUri);
-
-		BufferedOutputStream imageOut = new BufferedOutputStream(mediaOutputStream);
-		imageOut.write(data);
-		imageOut.close();
-
-		if (saveToGallery) {
-			Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
-			mediaScanIntent.setData(mediaUri);
-			TiApplication.getInstance().sendBroadcast(mediaScanIntent);
-		}
-		return mediaFile;
-	}
-
-	static public void takePicture()
+	public static void takePicture()
 	{
 		if (!takingPicture) {
 			takingPicture = true;
@@ -744,13 +751,15 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 		return this.previewRunning;
 	}
 
-	static public void hide()
+	public static void hide()
 	{
-		cameraActivity.setResult(Activity.RESULT_OK);
-		cameraActivity.finish();
+		if (cameraActivity != null) {
+			cameraActivity.setResult(Activity.RESULT_OK);
+			cameraActivity.finish();
+		}
 	}
 
-	static ShutterCallback shutterCallback = new ShutterCallback() {
+	private static ShutterCallback shutterCallback = new ShutterCallback() {
 		// Just the presence of a shutter callback will
 		// allow the shutter click sound to occur (at least
 		// on Jelly Bean on a stock Google phone, which
@@ -762,15 +771,22 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 		}
 	};
 
-	static PictureCallback jpegCallback = new PictureCallback() {
+	private static PictureCallback jpegCallback = new PictureCallback() {
+		@Override
 		public void onPictureTaken(byte[] data, Camera camera)
 		{
 			try {
-				File imageFile = writeToFile(data, saveToPhotoGallery);
+				// Write the captured image to file.
+				ContentResolver contentResolver = TiApplication.getInstance().getContentResolver();
+				Uri contentUri = MediaModule.createExternalPictureContentUri(saveToPhotoGallery);
+				try (OutputStream stream = new BufferedOutputStream(contentResolver.openOutputStream(contentUri))) {
+					stream.write(data);
+					stream.flush();
+				}
+
 				if (successCallback != null) {
-					TiFile theFile = new TiFile(imageFile, imageFile.toURI().toURL().toExternalForm(), false);
-					TiBlob theBlob = TiBlob.blobFromFile(theFile);
-					KrollDict response = MediaModule.createDictForImage(theBlob, theBlob.getMimeType());
+					TiBlob blob = TiBlob.blobFromFile(new TitaniumBlob(contentUri));
+					KrollDict response = MediaModule.createDictForImage(blob, blob.getMimeType());
 
 					// add previewRect to response
 					KrollDict previewRect = new KrollDict();
@@ -794,8 +810,10 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 			}
 
 			if (autohide) {
-				cameraActivity.finish();
-			} else {
+				if (cameraActivity != null) {
+					cameraActivity.finish();
+				}
+			} else if (camera != null) {
 				camera.startPreview();
 			}
 			takingPicture = false;
@@ -923,12 +941,8 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 		// measures. The runnable will start the camera preview.
 		// This all guarantees us that the camera preview won't start until
 		// after the layout has been measured.
-		previewLayout.prepareNewPreview(new Runnable() {
-			@Override
-			public void run()
-			{
-				startPreview(preview.getHolder());
-			}
+		previewLayout.prepareNewPreview(() -> {
+			startPreview(preview.getHolder());
 		});
 	}
 
@@ -945,16 +959,15 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 				response.putCodeAndMessage(-1, "User cancelled the request");
 				cancelCallback.callAsync(callbackContext, response);
 			}
-			super.onBackPressed();
+			finish();
 		}
 	}
 
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event)
 	{
+		// Workaround for http://code.google.com/p/android/issues/detail?id=61394
 		if (keyCode == KeyEvent.KEYCODE_MENU) {
-			//Workaround for http://code.google.com/p/android/issues/detail?id=61394
-			//Exists atleast till version 19.1 of support library
 			return true;
 		}
 

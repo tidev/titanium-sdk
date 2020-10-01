@@ -4,6 +4,7 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+/* global OS_IOS */
 /* eslint-env mocha */
 /* eslint no-unused-expressions: "off" */
 'use strict';
@@ -154,5 +155,45 @@ describe('Titanium.Media', function () {
 	it('openPhotoGallery', function () {
 		should(Ti.Media.openPhotoGallery).not.be.undefined();
 		should(Ti.Media.openPhotoGallery).be.a.Function();
+	});
+
+	describe('saveToPhotoGallery', function () {
+		it('blob', function (finish) {
+			if (OS_IOS && !Ti.Media.hasPhotoGalleryPermissions()) {
+				return finish();
+			}
+			const blob = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, 'Logo.png').read();
+			Ti.Media.saveToPhotoGallery(blob, {
+				success: () => { finish(); },
+				error: (e) => { finish(new Error(e.message)); }
+			});
+		});
+
+		it('file - resourcesDirectory', function (finish) {
+			if (OS_IOS && !Ti.Media.hasPhotoGalleryPermissions()) {
+				return finish();
+			}
+			const file = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, 'Logo.png');
+			Ti.Media.saveToPhotoGallery(file, {
+				success: () => { finish(); },
+				error: (e) => { finish(new Error(e.message)); }
+			});
+		});
+
+		it('file - applicationDataDirectory', function (finish) {
+			if (OS_IOS && !Ti.Media.hasPhotoGalleryPermissions()) {
+				return finish();
+			}
+			const internalFile = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, 'Logo.png');
+			const externalFile = Ti.Filesystem.getFile(Ti.Filesystem.applicationDataDirectory, 'SaveToPhotoGallery.png');
+			if (externalFile.exists()) {
+				externalFile.deleteFile();
+			}
+			internalFile.copy(externalFile.nativePath);
+			Ti.Media.saveToPhotoGallery(externalFile, {
+				success: () => { finish(); },
+				error: (e) => { finish(new Error(e.message)); }
+			});
+		});
 	});
 });
