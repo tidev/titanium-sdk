@@ -23,9 +23,13 @@ import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBlob;
 
-public class TitaniumBlob extends TiBaseFile
+/**
+ * Uses a ContentResolver/ContentProvider to access a file referenced by a "content://" or "android.resource://" URL.
+ * Typically used to expose file access between apps or to provide access to a file embedded within a file.
+ */
+public class TiContentFile extends TiBaseFile
 {
-	private static final String TAG = "TitaniumBlob";
+	private static final String TAG = "TiContentFile";
 
 	/** The "content://" URI referencing the file. Can be null. */
 	private Uri uri;
@@ -45,14 +49,22 @@ public class TitaniumBlob extends TiBaseFile
 	/** The file's modfication time in milliseconds since 1970. Will be negative if unknown. */
 	private long modifiedTime = -1L;
 
-	public TitaniumBlob(String url)
+	/**
+	 * Creates an object used to access a file via a ContentResolver/ContentProvider.
+	 * @param url Reference to a file via a "content://" or "android.resource://" scheme. Can be null.
+	 */
+	public TiContentFile(String url)
 	{
 		super(TYPE_BLOB);
 		this.uri = (url != null) ? Uri.parse(url) : null;
 		init();
 	}
 
-	public TitaniumBlob(Uri uri)
+	/**
+	 * Creates an object used to access a file via a ContentResolver/ContentProvider.
+	 * @param uri Reference to a file via a "content://" or "android.resource://" scheme. Can be null.
+	 */
+	public TiContentFile(Uri uri)
 	{
 		super(TYPE_BLOB);
 		this.uri = uri;
@@ -176,19 +188,8 @@ public class TitaniumBlob extends TiBaseFile
 		}
 	}
 
-	public void setUrl(String url)
-	{
-		this.uri = (url != null) ? Uri.parse(url) : null;
-		init();
-	}
-
 	@Override
 	public String nativePath()
-	{
-		return toURL();
-	}
-
-	public String toURL()
 	{
 		return (this.uri != null) ? this.uri.toString() : null;
 	}
@@ -215,11 +216,6 @@ public class TitaniumBlob extends TiBaseFile
 		return null;
 	}
 
-	public File getFile()
-	{
-		return getNativeFile();
-	}
-
 	@Override
 	public File getNativeFile()
 	{
@@ -227,19 +223,6 @@ public class TitaniumBlob extends TiBaseFile
 			return null;
 		}
 		return new File(path);
-	}
-
-	public String getNativePath()
-	{
-		return this.path;
-	}
-
-	public String getContentType()
-	{
-		if (this.uri == null) {
-			return null;
-		}
-		return TiApplication.getInstance().getContentResolver().getType(this.uri);
 	}
 
 	@Override

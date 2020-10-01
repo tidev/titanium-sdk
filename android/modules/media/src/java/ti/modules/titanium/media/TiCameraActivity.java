@@ -18,7 +18,7 @@ import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.io.TitaniumBlob;
+import org.appcelerator.titanium.io.TiContentFile;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 
 import android.Manifest;
@@ -568,7 +568,7 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 		// Notify the caller that the recording has stopped.
 		if (wasSuccessful) {
 			if (useCallbacks && (successCallback != null)) {
-				TiBlob blob = TiBlob.blobFromFile(new TitaniumBlob(videoContentUri));
+				TiBlob blob = TiBlob.blobFromFile(new TiContentFile(videoContentUri));
 				KrollDict response = MediaModule.createDictForImage(blob, blob.getMimeType());
 				KrollDict previewRect = new KrollDict();
 				previewRect.put(TiC.PROPERTY_WIDTH, 0);
@@ -785,7 +785,7 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 				}
 
 				if (successCallback != null) {
-					TiBlob blob = TiBlob.blobFromFile(new TitaniumBlob(contentUri));
+					TiBlob blob = TiBlob.blobFromFile(new TiContentFile(contentUri));
 					KrollDict response = MediaModule.createDictForImage(blob, blob.getMimeType());
 
 					// add previewRect to response
