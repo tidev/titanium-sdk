@@ -78,7 +78,7 @@ public class TiFileFactory
 	{
 		String possibleURI = joinPathSegments(parts);
 		String scheme = null;
-		String path = null;
+		String path = "";
 		int colonIndex = possibleURI.indexOf(':');
 		if (colonIndex != -1) {
 			// probably a URI
