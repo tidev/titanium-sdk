@@ -533,7 +533,12 @@ class FrameworkIntegrator {
 		if (frameworkInfo.type === FRAMEWORK_TYPE_DYNAMIC) {
 			this.addEmbedFrameworkBuildPhase(frameworkInfo, fileRefUuid);
 		}
-		this.addFrameworkSearchPath(frameworkInfo.searchPath);
+		// Xcode has a special build phase step that handles XCFrameworks and
+		// extracts the correct .framework for an architecture. This works without
+		// consulting FRAMEWORK_SEARCH_PATHS so we don't need to modify it.
+		if (!frameworkInfo.isBinaryFramework) {
+			this.addFrameworkSearchPath(frameworkInfo.searchPath);
+		}
 	}
 
 	/**
