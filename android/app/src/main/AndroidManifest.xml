@@ -7,7 +7,7 @@
 	<uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
 	<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
 	<uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION"/>
-	<application android:name=".TitaniumTestApplication" android:icon="@drawable/appicon" android:label="TitaniumTest" android:theme="@style/Theme.AppCompat" android:usesCleartextTraffic="true">
+	<application android:name=".TitaniumTestApplication" android:icon="@drawable/appicon" android:label="TitaniumTest" android:theme="@style/Theme.MaterialComponents.Bridge" android:usesCleartextTraffic="true">
 		<activity android:name=".TitaniumTestActivity" android:theme="@style/Theme.Titanium" android:alwaysRetainTaskState="true" android:configChanges="${tiActivityConfigChanges}">
 			<intent-filter>
 				<action android:name="android.intent.action.MAIN"/>

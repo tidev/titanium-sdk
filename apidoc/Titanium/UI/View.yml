@@ -238,6 +238,17 @@ events:
         summary: Y coordinate of the event from the `source` view's coordinate system.
         type: Number
 
+      - name: obscured
+        type: Boolean
+        summary: |
+            Returns `true` if the click passed through an overlapping window belonging to another app.
+
+            This is a security feature to protect an app from "tapjacking", where a malicious app can use a
+            system overlay to intercept touch events in your app or to trick the end-user to tap on UI
+            in your app intended for the overlay.
+        platforms: [android]
+        since: "9.3.0"
+
   - name: dblclick
     summary: Fired when the device detects a double click against the view.
     properties:
@@ -247,7 +258,16 @@ events:
       - name: y
         summary: Y coordinate of the event from the `source` view's coordinate system.
         type: Number
+      - name: obscured
+        type: Boolean
+        summary: |
+            Returns `true` if the double click passed through an overlapping window belonging to another app.
 
+            This is a security feature to protect an app from "tapjacking", where a malicious app can use a
+            system overlay to intercept touch events in your app or to trick the end-user to tap on UI
+            in your app intended for the overlay.
+        platforms: [android]
+        since: "9.3.0"
 
   - name: doubletap
     summary: Fired when the device detects a double tap against the view.
@@ -259,6 +279,16 @@ events:
       - name: y
         summary: Y coordinate of the event from the `source` view's coordinate system.
         type: Number
+      - name: obscured
+        type: Boolean
+        summary: |
+            Returns `true` if the double tap passed through an overlapping window belonging to another app.
+
+            This is a security feature to protect an app from "tapjacking", where a malicious app can use a
+            system overlay to intercept touch events in your app or to trick the end-user to tap on UI
+            in your app intended for the overlay.
+        platforms: [android]
+        since: "9.3.0"
 
   - name: focus
     summary: Fired when the view element gains focus.
@@ -316,6 +346,17 @@ events:
       - name: y
         summary: Y coordinate of the event from the `source` view's coordinate system.
         type: Number
+
+      - name: obscured
+        type: Boolean
+        summary: |
+            Returns `true` if the long press passed through an overlapping window belonging to another app.
+
+            This is a security feature to protect an app from "tapjacking", where a malicious app can use a
+            system overlay to intercept touch events in your app or to trick the end-user to tap on UI
+            in your app intended for the overlay.
+        platforms: [android]
+        since: "9.3.0"
 
   - name: pinch
     summary: Fired when the device detects a pinch gesture.
@@ -441,6 +482,17 @@ events:
         summary: Y coordinate of the event from the `source` view's coordinate system.
         type: Number
 
+      - name: obscured
+        type: Boolean
+        summary: |
+            Returns `true` if the single tap passed through an overlapping window belonging to another app.
+
+            This is a security feature to protect an app from "tapjacking", where a malicious app can use a
+            system overlay to intercept touch events in your app or to trick the end-user to tap on UI
+            in your app intended for the overlay.
+        platforms: [android]
+        since: "9.3.0"
+
   - name: swipe
     summary: Fired when the device detects a swipe gesture against the view.
     platforms: [android, iphone, ipad, macos]
@@ -456,6 +508,17 @@ events:
       - name: y
         summary: Y coordinate of the event's endpoint from the `source` view's coordinate system.
         type: Number
+
+      - name: obscured
+        type: Boolean
+        summary: |
+            Returns `true` if the swipe passed through an overlapping window belonging to another app.
+
+            This is a security feature to protect an app from "tapjacking", where a malicious app can use a
+            system overlay to intercept touch events in your app or to trick the end-user to tap on UI
+            in your app intended for the overlay.
+        platforms: [android]
+        since: "9.3.0"
 
   - name: touchcancel
     summary: Fired when a touch event is interrupted by the device.
@@ -518,6 +581,17 @@ events:
         type: Number
         platforms: [iphone, ipad, macos]
 
+      - name: obscured
+        type: Boolean
+        summary: |
+            Returns `true` if the touch passed through an overlapping window belonging to another app.
+
+            This is a security feature to protect an app from "tapjacking", where a malicious app can use a
+            system overlay to intercept touch events in your app or to trick the end-user to tap on UI
+            in your app intended for the overlay.
+        platforms: [android]
+        since: "9.3.0"
+
   - name: touchend
     summary: Fired when a touch event is completed.
     description: |
@@ -579,6 +653,17 @@ events:
         type: Number
         platforms: [iphone, ipad, macos]
 
+      - name: obscured
+        type: Boolean
+        summary: |
+            Returns `true` if the touch passed through an overlapping window belonging to another app.
+
+            This is a security feature to protect an app from "tapjacking", where a malicious app can use a
+            system overlay to intercept touch events in your app or to trick the end-user to tap on UI
+            in your app intended for the overlay.
+        platforms: [android]
+        since: "9.3.0"
+
   - name: touchmove
     summary: Fired as soon as the device detects movement of a touch.
     description: |
@@ -639,6 +724,17 @@ events:
         type: Number
         platforms: [iphone, ipad, macos]
 
+      - name: obscured
+        type: Boolean
+        summary: |
+            Returns `true` if the touch passed through an overlapping window belonging to another app.
+
+            This is a security feature to protect an app from "tapjacking", where a malicious app can use a
+            system overlay to intercept touch events in your app or to trick the end-user to tap on UI
+            in your app intended for the overlay.
+        platforms: [android]
+        since: "9.3.0"
+
   - name: touchstart
     summary: Fired as soon as the device detects a touch gesture.
     properties:
@@ -697,6 +793,17 @@ events:
         type: Number
         platforms: [iphone, ipad, macos]
 
+      - name: obscured
+        type: Boolean
+        summary: |
+            Returns `true` if the touch passed through an overlapping window belonging to another app.
+
+            This is a security feature to protect an app from "tapjacking", where a malicious app can use a
+            system overlay to intercept touch events in your app or to trick the end-user to tap on UI
+            in your app intended for the overlay.
+        platforms: [android]
+        since: "9.3.0"
+
   - name: twofingertap
     summary: Fired when the device detects a two-finger tap against the view.
     since: { android: "3.0.0" }
@@ -709,6 +816,16 @@ events:
         summary: Y coordinate of the event from the `source` view's coordinate system.
         type: Number
 
+      - name: obscured
+        type: Boolean
+        summary: |
+            Returns `true` if the tap passed through an overlapping window belonging to another app.
+
+            This is a security feature to protect an app from "tapjacking", where a malicious app can use a
+            system overlay to intercept touch events in your app or to trick the end-user to tap on UI
+            in your app intended for the overlay.
+        platforms: [android]
+        since: "9.3.0"
 
 methods:
   - name: add
@@ -1308,7 +1425,7 @@ properties:
         `focusable` must be true for normal views.
 
         Defaults to background color of this view.
-    type: String
+    type: [String, Titanium.UI.Color]
     platforms: [android]
 
   - name: backgroundSelectedImage
@@ -1408,6 +1525,20 @@ properties:
     platforms: [android]
     since: 5.0.0
     osver: {android: {min: 5.0}}
+
+  - name: filterTouchesWhenObscured
+    summary: Discards touch related events if another app's system overlay covers the view.
+    description: |
+        This is a security feature to protect an app from "tapjacking", where a malicious app can use a
+        system overlay to intercept touch events in your app or to trick the end-user to tap on UI
+        in your app intended for the overlay.
+
+        Setting this property to `true` causes touch related events (including "click") to not be fired
+        if a system overlay overlaps the view.
+    type: Boolean
+    default: false
+    platforms: [android]
+    since: "9.3.0"
 
   - name: focusable
     summary: Whether view should be focusable while navigating with the trackball.

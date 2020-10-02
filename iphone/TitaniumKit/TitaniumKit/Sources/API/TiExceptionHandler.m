@@ -73,7 +73,7 @@ static NSUncaughtExceptionHandler *prevUncaughtExceptionHandler = NULL;
 
 - (void)reportScriptError:(TiScriptError *)scriptError
 {
-  DebugLog(@"[ERROR] Script Error %@", [scriptError detailedDescription]);
+  DebugLog(@"[ERROR] %@", scriptError);
 
   id<TiExceptionHandlerDelegate> currentDelegate = _delegate;
   if (currentDelegate == nil) {
@@ -94,43 +94,13 @@ static NSUncaughtExceptionHandler *prevUncaughtExceptionHandler = NULL;
 
 - (void)showScriptError:(TiScriptError *)error
 {
-  NSArray<NSString *> *exceptionStackTrace = [error valueForKey:@"nativeStack"];
-  if (exceptionStackTrace == nil) {
-    exceptionStackTrace = [NSThread callStackSymbols];
-  }
-
   NSMutableDictionary *errorDict = [error.dictionaryValue mutableCopy];
   [errorDict setObject:[NSNumber numberWithLong:error.column] forKey:@"column"];
   [errorDict setObject:[NSNumber numberWithLong:error.lineNo] forKey:@"line"];
-  if (exceptionStackTrace == nil) {
-    [[TiApp app] showModalError:[error description]];
-  } else {
-    NSMutableArray<NSString *> *formattedStackTrace = [[[NSMutableArray alloc] init] autorelease];
-    NSUInteger exceptionStackTraceLength = [exceptionStackTrace count];
-
-    // re-size stack trace and format results. Starting at index = 1 to not include showScriptError call
-    for (NSInteger i = 1; i < (exceptionStackTraceLength >= 20 ? 20 : exceptionStackTraceLength); i++) {
-      NSString *line = [self removeWhitespace:[exceptionStackTrace objectAtIndex:i]];
-
-      // remove stack index
-      line = [line substringFromIndex:[line rangeOfString:@" "].location + 1];
-
-      [formattedStackTrace addObject:line];
-    }
-    NSString *stackTrace = [formattedStackTrace componentsJoinedByString:@"\n"];
-    [errorDict setObject:stackTrace forKey:@"nativeStack"];
-
-    [[TiApp app] showModalError:[NSString stringWithFormat:@"%@\n\n%@", [error description], stackTrace]];
-  }
+  NSString *stackTrace = [error.formattedNativeStack componentsJoinedByString:@"\n"];
+  [errorDict setObject:stackTrace forKey:@"nativeStack"];
+  [[TiApp app] showModalError:[error description]];
   [[NSNotificationCenter defaultCenter] postNotificationName:kTiErrorNotification object:self userInfo:errorDict];
-}
-
-- (NSString *)removeWhitespace:(NSString *)line
-{
-  while ([line rangeOfString:@"  "].length > 0) {
-    line = [line stringByReplacingOccurrencesOfString:@"  " withString:@" "];
-  }
-  return line;
 }
 
 #pragma mark - TiExceptionHandlerDelegate
@@ -151,11 +121,13 @@ static NSUncaughtExceptionHandler *prevUncaughtExceptionHandler = NULL;
 
 @synthesize message = _message;
 @synthesize sourceURL = _sourceURL;
+@synthesize sourceLine = _sourceLine;
 @synthesize lineNo = _lineNo;
 @synthesize column = _column;
 @synthesize dictionaryValue = _dictionaryValue;
 @synthesize backtrace = _backtrace;
 @synthesize nativeStack = _nativeStack;
+@synthesize formattedNativeStack = _formattedNativeStack;
 
 - (id)initWithMessage:(NSString *)message sourceURL:(NSString *)sourceURL lineNo:(NSInteger)lineNo
 {
@@ -194,41 +166,112 @@ static NSUncaughtExceptionHandler *prevUncaughtExceptionHandler = NULL;
 {
   RELEASE_TO_NIL(_message);
   RELEASE_TO_NIL(_sourceURL);
+  RELEASE_TO_NIL(_sourceLine);
   RELEASE_TO_NIL(_backtrace);
   RELEASE_TO_NIL(_dictionaryValue);
   RELEASE_TO_NIL(_nativeStack);
+  RELEASE_TO_NIL(_formattedNativeStack);
   [super dealloc];
 }
 
 - (NSString *)description
 {
-  if (self.sourceURL != nil) {
-    // attempt to load encrypted source code
-    NSURL *sourceURL = [NSURL URLWithString:self.sourceURL];
-    NSData *data = [TiUtils loadAppResource:sourceURL];
-    NSString *source = nil;
-    if (data == nil) {
-      source = [NSString stringWithContentsOfFile:[sourceURL path] encoding:NSUTF8StringEncoding error:NULL];
-    } else {
-      source = [[[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding] autorelease];
-    }
-    NSArray *lines = [source componentsSeparatedByCharactersInSet:[NSCharacterSet newlineCharacterSet]];
-    NSString *line = [lines objectAtIndex:self.lineNo - 1];
-    NSString *linePointer = [@"" stringByPaddingToLength:self.column withString:@" " startingAtIndex:0];
+  NSMutableString *message = [[NSMutableString new] autorelease];
+  NSString *encodedBundlePath = [NSString stringWithFormat:@"file://%@", [[NSBundle mainBundle].bundlePath stringByReplacingOccurrencesOfString:@" " withString:@"%20"]];
 
-    // remove bundle path from source paths
-    NSString *encodedBundlePath = [NSString stringWithFormat:@"file://%@", [[NSBundle mainBundle].bundlePath stringByReplacingOccurrencesOfString:@" " withString:@"%20"]];
-    NSString *jsStack = [self.backtrace stringByReplacingOccurrencesOfString:encodedBundlePath withString:@""];
-
-    return [NSString stringWithFormat:@"/%@:%ld\n%@\n%@^\n%@\n%@", [self.sourceURL lastPathComponent], (long)self.lineNo, line, linePointer, self.message, jsStack];
-  } else {
-    return [NSString stringWithFormat:@"%@", self.message];
+  if (self.sourceURL) {
+    [message appendFormat:@"%@:%ld\n", [self.sourceURL stringByReplacingOccurrencesOfString:encodedBundlePath withString:@""], (long)self.lineNo];
+    [message appendFormat:@"%@\n", self.sourceLine];
+    NSString *columnIndicatorPadding = [@"" stringByPaddingToLength:self.column withString:@" " startingAtIndex:0];
+    [message appendFormat:@"%@^\n", columnIndicatorPadding];
   }
+
+  NSString *type = self.dictionaryValue[@"type"] != nil ? self.dictionaryValue[@"type"] : @"Error";
+  [message appendFormat:@"%@: %@", type, self.message];
+
+  NSString *jsStack = [self.backtrace stringByReplacingOccurrencesOfString:encodedBundlePath withString:@""];
+  NSArray *jsStackLines = [jsStack componentsSeparatedByCharactersInSet:NSCharacterSet.newlineCharacterSet];
+  NSMutableString *formattedJsStack = [[NSMutableString new] autorelease];
+  for (NSString *line in jsStackLines) {
+    NSRange atSymbolRange = [line rangeOfString:@"@"];
+    NSInteger atSymbolIndex = atSymbolRange.location == NSNotFound ? -1 : atSymbolRange.location;
+    NSString *source = [line substringFromIndex:atSymbolIndex + 1];
+    NSString *symbolName = @"Object.<anonymous>";
+    if (atSymbolIndex != -1) {
+      symbolName = [line substringWithRange:NSMakeRange(0, atSymbolIndex)];
+    }
+    // global code is our module wrapper code which can be ignored
+    if ([symbolName isEqualToString:@"global code"]) {
+      continue;
+    }
+    [formattedJsStack appendFormat:@"\n    at %@ (%@)", symbolName, source];
+  }
+  [message appendString:formattedJsStack];
+
+  [message appendFormat:@"\n\n    %@", [self.formattedNativeStack componentsJoinedByString:@"\n    "]];
+
+  return message;
 }
 
 - (NSString *)detailedDescription
 {
   return _dictionaryValue != nil ? [_dictionaryValue description] : [self description];
+}
+
+- (NSArray<NSString *> *)formattedNativeStack
+{
+  if (_formattedNativeStack != nil) {
+    return _formattedNativeStack;
+  }
+
+  NSArray<NSString *> *stackTrace = self.nativeStack;
+  if (stackTrace == nil) {
+    stackTrace = [NSThread callStackSymbols];
+  }
+  NSMutableArray<NSString *> *formattedStackTrace = [[[NSMutableArray alloc] init] autorelease];
+  NSUInteger stackTraceLength = [stackTrace count];
+  // re-size stack trace and format results. starting at index = 2 to not include this method and callee
+  for (NSInteger i = 2; i < (stackTraceLength >= 20 ? 20 : stackTraceLength); i++) {
+    NSString *line = [self removeWhitespace:stackTrace[i]];
+    // remove stack index
+    line = [line substringFromIndex:[line rangeOfString:@" "].location + 1];
+    [formattedStackTrace addObject:line];
+  }
+  _formattedNativeStack = [formattedStackTrace copy];
+
+  return _formattedNativeStack;
+}
+
+- (NSString *)sourceLine
+{
+  if (_sourceURL == nil) {
+    return nil;
+  }
+
+  if (_sourceLine != nil) {
+    return _sourceLine;
+  }
+
+  NSURL *sourceURL = [NSURL URLWithString:self.sourceURL];
+  NSData *data = [TiUtils loadAppResource:sourceURL];
+  NSString *source = nil;
+  if (data == nil) {
+    source = [NSString stringWithContentsOfFile:[sourceURL path] encoding:NSUTF8StringEncoding error:NULL];
+  } else {
+    source = [[[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding] autorelease];
+  }
+  NSArray<NSString *> *lines = [source componentsSeparatedByCharactersInSet:[NSCharacterSet newlineCharacterSet]];
+  _sourceLine = [[lines objectAtIndex:self.lineNo - 1] retain];
+
+  return _sourceLine;
+}
+
+- (NSString *)removeWhitespace:(NSString *)line
+{
+  while ([line rangeOfString:@"  "].length > 0) {
+    line = [line stringByReplacingOccurrencesOfString:@"  " withString:@" "];
+  }
+  return line;
 }
 
 @end

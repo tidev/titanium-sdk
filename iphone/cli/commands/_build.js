@@ -42,7 +42,8 @@ const appc = require('node-appc'),
 	parallel = appc.async.parallel,
 	series = appc.async.series,
 	plist = require('simple-plist'),
-	version = appc.version;
+	version = appc.version,
+	merge = require('lodash.merge');
 const platformsRegExp = new RegExp('^(' + ti.allPlatformNames.join('|') + ')$'); // eslint-disable-line security/detect-non-literal-regexp
 const pemCertRegExp = /(^-----BEGIN CERTIFICATE-----)|(-----END CERTIFICATE-----.*$)|\n/g;
 
@@ -3255,7 +3256,7 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 
 	// set the target-specific build settings
 	xobjs.XCConfigurationList[xobjs.PBXNativeTarget[mainTargetUuid].buildConfigurationList].buildConfigurations.forEach(function (buildConf) {
-		const bs = appc.util.mix(xobjs.XCBuildConfiguration[buildConf.value].buildSettings, buildSettings);
+		const bs = merge(xobjs.XCBuildConfiguration[buildConf.value].buildSettings, buildSettings);
 		delete bs['"CODE_SIGN_IDENTITY[sdk=iphoneos*]"'];
 
 		bs.PRODUCT_BUNDLE_IDENTIFIER = '"' + this.tiapp.id + '"';
@@ -4685,6 +4686,11 @@ iOSBuilder.prototype.copyTitaniumiOSFiles = function copyTitaniumiOSFiles() {
 					fs.writeFileSync(destFile, contents);
 
 					return null; // tell copyDirSync not to copy the file because we wrote it ourselves
+				} else if (destExists && !changed) {
+					// if the destination exists and the file contents haven't changed, return null
+					// so that copyDirSync doesn't copy over a file where the contents need to be ran
+					// through _scrubiOSSourceFile
+					return null;
 				}
 			}.bind(this),
 			afterCopy: function (srcFile, destFile, srcStat, result) {

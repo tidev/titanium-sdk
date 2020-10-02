@@ -518,11 +518,13 @@ iOSModuleBuilder.prototype.buildModule = function buildModule(next) {
 			const frameworksPath = path.join(this.projectDir, 'platform');
 			const legacyFrameworks = new Set();
 
-			fs.readdirSync(frameworksPath).forEach(filename => {
-				if (filename.endsWith('.framework')) {
-					legacyFrameworks.add(filename);
-				}
-			});
+			if (fs.existsSync(frameworksPath)) {
+				fs.readdirSync(frameworksPath).forEach(filename => {
+					if (filename.endsWith('.framework')) {
+						legacyFrameworks.add(filename);
+					}
+				});
+			}
 			if (legacyFrameworks.size > 0) {
 				const pbxFilePath = path.join(this.projectDir, `${this.moduleName}.xcodeproj`, 'project.pbxproj');
 				const proj = xcode.project(pbxFilePath).parseSync();
