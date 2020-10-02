@@ -116,4 +116,31 @@ describe('Error', function () {
 		should(jsonTable.error.message).be.eql(errorTop.message);
 		should(jsonTable.error.nestedError.message).be.eql(errorTop.nestedError.message);
 	});
+
+	it.ios('should include native reason in message', () => {
+		try {
+			Ti.UI.createView({
+				top: 20,
+				backgroundGradient: {
+					type: 'invalid'
+				}
+			});
+		} catch (e) {
+			e.message.should.equal('Invalid type passed to function. Must be either \'linear\' or \'radial\'');
+			e.nativeReason.should.equal('Must be either \'linear\' or \'radial\'');
+		}
+	});
+
+	it.ios('should include full native call stack', () => {
+		try {
+			Ti.UI.createView({
+				top: 20,
+				backgroundGradient: {
+					type: 'invalid'
+				}
+			});
+		} catch (e) {
+			e.nativeStack.should.match(/TiGradient setType:/);
+		}
+	});
 });
