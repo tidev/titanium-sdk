@@ -13,8 +13,8 @@
 			"integrity": "sha512-qr7W/JYkAjDUCj80kH2wB9B6V9T7jsxs+4MdrEMyCev6v/JvkMWwEu4yz7z1hf7s/TKhbmZ/nHlTNYUd96+oQg=="
 		},
 		"ti.map": {
-			"url": "https://github.com/appcelerator-modules/ti.map/releases/download/v4.0.0-iphone/ti.map-iphone-4.0.0.zip",
-			"integrity": "sha512-gU0iIJnkQOG5sxpEOAiwpBssgkPTpwdqer2nqVallhLvdL1DXZoL9561mzpg3seQwinlB2YN4ReLFK7fD1jpmg=="
+			"url": "https://github.com/appcelerator-modules/ti.map/releases/download/v4.0.1-iphone/ti.map-iphone-4.0.1.zip",
+			"integrity": "sha512-eZ+t+kSiCDnLuCsQRl0y15JrzGhfpTbeuIzyf2uF0Qo2q9tsdkn7Xp5HbcekefEXWiLpuS53URqV1RyTB+metA=="
 		},
 		"ti.webdialog": {
 			"url": "https://github.com/appcelerator-modules/titanium-web-dialog/releases/download/v2.0.0-iphone/ti.webdialog-iphone-2.0.0.zip",
@@ -63,8 +63,8 @@
 	},
 	"hyperloop": {
 		"hyperloop": {
-			"url": "https://github.com/appcelerator-modules/hyperloop-builds/releases/download/v6.0.0/hyperloop-6.0.0.zip",
-			"integrity": "sha512-kPjwQT5PV5JcBzshyni8o34JsMkNrCPrh3PKyAPBYEpPaFYenPYMVaGA1uLSQo4tKPhWbgmq5OSafjghHtjhfQ=="
+			"url":"https://github.com/appcelerator-modules/hyperloop-builds/releases/download/v6.0.1/hyperloop-6.0.1.zip",
+			"integrity":"sha512-okDVPvoUHnyHB2PZOolFa2VH8TbKDJ7Q+165K0uV7M63QpDb5HgQ5rPlMfMfUPMRPXWOYKM7tFH4ECRH6he4lA=="
 		}
 	}
 }

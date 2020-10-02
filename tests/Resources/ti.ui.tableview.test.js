@@ -1387,7 +1387,8 @@ describe('Titanium.UI.TableView', function () {
 		win.open();
 	});
 
-	it.ios('row#rect', function (finish) {
+	it.iosBroken('row#rect', function (finish) {
+		// FIXME: TIMOB-27935
 		if (isCI && utilities.isMacOS()) { // FIXME: On macOS CI (maybe < 10.15.6?), times out! Does app need explicit focus added?
 			return finish(); // FIXME: skip when we move to official mocha package
 		}
@@ -1441,6 +1442,31 @@ describe('Titanium.UI.TableView', function () {
 			}
 			finish();
 		});
+		win.open();
+	});
+
+	it('TIMOB-28148 : adding view on row causing crash', function (finish) {
+		var row = Ti.UI.createTableViewRow({ title: 'click me' });
+		var tableView = Ti.UI.createTableView({
+			data: [ row ]
+		});
+
+		win = Ti.UI.createWindow({
+			backgroundColor: 'blue'
+		});
+		win.addEventListener('focus', function () {
+			setTimeout(function () {
+				try {
+					const label = Ti.UI.createLabel({ text: 'REQUIRED' });
+					row.add(label);
+					finish();
+				} catch (err) {
+					return finish(err);
+				}
+			}, 2000);
+		});
+
+		win.add(tableView);
 		win.open();
 	});
 });
