@@ -588,10 +588,8 @@ public class TiWebChromeClient extends WebChromeClient
 			normalizedAppName = normalizedAppName.replaceAll("[^\\w.-]", "_");
 
 			// Generate file name to be used under the system's "Pictures" directory.
-			String fileName
-				= TiApplication.getInstance().getAppInfo().getName().replaceAll("[^\\w.-]", "_")
-				+ "_"
-				+ (new SimpleDateFormat("yyyyMMdd_HHmmssSSS")).format(new Date());
+			String fileName =
+				normalizedAppName + "_" + (new SimpleDateFormat("yyyyMMdd_HHmmssSSS")).format(new Date());
 
 			// Insert new image to "Pictures" and get a "content://" URI to it.
 			// Set up a new image under "Pictures" and fetch its "content://" URI.
