@@ -15,7 +15,8 @@ describe('Titanium.Media', () => {
 });
 
 describe('Titanium.Media.AudioRecorder', function () {
-	this.timeout(5000);
+	this.slow(5000);
+	this.timeout(15000);
 
 	it('apiName', () => {
 		const recorder = Ti.Media.createAudioRecorder();
