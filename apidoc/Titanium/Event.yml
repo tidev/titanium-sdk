@@ -15,12 +15,12 @@ properties:
     summary: True if the event will try to bubble up if possible.
     permission: read-only
     type: Boolean
-    platforms: [iphone, ipad, android]
-    since: "3.0.0"
+    platforms: [iphone, ipad, android, macos]
+    since: {android: "3.0.0", iphone: "3.0.0", ipad: "3.0.0", macos: "9.2.0"}
   - name: cancelBubble
     summary: Set to true to stop the event from bubbling.
     default: false
     type: Boolean
-    platforms: [iphone, ipad, android]
-    since: "3.0.0"
+    platforms: [iphone, ipad, android, macos]
+    since: {android: "3.0.0", iphone: "3.0.0", ipad: "3.0.0", macos: "9.2.0"}
 

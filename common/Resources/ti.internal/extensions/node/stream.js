@@ -120,5 +120,9 @@ util.inherits(Transform, Duplex);
 
 Stream.Stream = Stream; // legacy compat
 Stream.Transform = Transform;
+Stream.Readable = Readable;
+Stream.Writable = Writable;
+Stream.Duplex = Duplex;
+// Stream.PassThrough = PassThrough;
 
 export default Stream;

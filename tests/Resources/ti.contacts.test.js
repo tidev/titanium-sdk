@@ -7,10 +7,11 @@
 /* eslint-env mocha */
 /* eslint no-unused-expressions: "off" */
 'use strict';
-var should = require('./utilities/assertions'),
-	utilities = require('./utilities/utilities');
+const should = require('./utilities/assertions');
+const utilities = require('./utilities/utilities');
 
-describe('Titanium.Contacts', function () {
+// FIXME: Need to move from AddressBook framework to Contacts
+describe.macMissing('Titanium.Contacts', function () {
 	it('apiName', function () {
 		should(Ti.Contacts.apiName).be.eql('Ti.Contacts');
 		should(Ti.Contacts).have.a.readOnlyProperty('apiName').which.is.a.String();

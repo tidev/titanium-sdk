@@ -9,6 +9,7 @@
 @import TitaniumKit.APSAnalytics;
 @import TitaniumKit.TiBase;
 @import TitaniumKit.TiUtils;
+#import <objc/runtime.h>
 
 extern BOOL const TI_APPLICATION_ANALYTICS;
 static NSMutableArray *_filteredEvents;
@@ -111,17 +112,17 @@ static const NSInteger ANALYTICS_DISABLED = -2;
   }
 }
 
-- (void)setOptedOut:(BOOL)optedOut
+- (void)setOptedOut:(bool)optedOut
 {
   [[APSAnalytics sharedInstance] setOptedOut:optedOut];
 }
 
-- (BOOL)optedOut
+- (bool)optedOut
 {
-  return [[APSAnalytics sharedInstance] isOptedOut];
+  return [APSAnalytics.sharedInstance isOptedOut];
 }
 
-READWRITE_IMPL(BOOL, optedOut, OptedOut);
+READWRITE_IMPL(bool, optedOut, OptedOut);
 
 + (BOOL)isEventFiltered:(NSString *)eventName
 {

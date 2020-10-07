@@ -414,6 +414,8 @@ CFMutableSetRef krollBridgeRegistry = nil;
                 JSPropertyDescriptorConfigurableKey : @NO,
                 JSPropertyDescriptorValueKey : global
               }];
+  // TODO: Move to real paths for __dirname/__filename, but that affects Android and may break users/debugging?
+  //  NSString *dirname = [[TiHost resourcePath] stringByStandardizingPath];
   // Set the __dirname and __filename for the app.js.
   // For other files, it will be injected via the `TitaniumModuleRequireFormat` property
   [global defineProperty:@"__dirname"
@@ -423,6 +425,7 @@ CFMutableSetRef krollBridgeRegistry = nil;
                 JSPropertyDescriptorConfigurableKey : @NO,
                 JSPropertyDescriptorValueKey : @"/"
               }];
+  //  NSString *filename = [dirname stringByAppendingString:@"/app.js"];
   [global defineProperty:@"__filename"
               descriptor:@{
                 JSPropertyDescriptorEnumerableKey : @NO,
@@ -672,12 +675,22 @@ CFMutableSetRef krollBridgeRegistry = nil;
 
 - (KrollWrapper *)loadCommonJSModule:(NSString *)code withSourceURL:(NSURL *)sourceURL
 {
-  // FIXME: Can we skip all of this now? Doesn't we already properly resolve paths?
+  // FIXME: Can we skip this now? Don't we already properly resolve paths?
   // This takes care of resolving paths like `../../foo.js`
-  sourceURL = [NSURL fileURLWithPath:[[sourceURL path] stringByStandardizingPath]];
+  sourceURL = [sourceURL URLByStandardizingPath];
+  NSString *filename = [sourceURL path];
 
-  // Get the relative path to the Resources directory
-  NSString *filename = [[sourceURL path] stringByReplacingOccurrencesOfString:[[[NSBundle mainBundle] resourceURL] path] withString:@""];
+  // TODO: We should likely move away from "faked" / root being resources dir
+  // And report the real full path in __filename/__dirname, but that may be a breaking change and would impact Android for parity
+  NSString *resourcesPath = [TiHost resourcePath];
+  NSString *standardized = [resourcesPath stringByStandardizingPath];
+  // Strip resources dir from prefix of file url (if it matches) for __filename
+  if ([filename hasPrefix:resourcesPath]) {
+    filename = [filename stringByReplacingOccurrencesOfString:resourcesPath withString:@""];
+  } else if (![resourcesPath isEqualToString:standardized] && [filename hasPrefix:standardized]) {
+    filename = [filename stringByReplacingOccurrencesOfString:standardized withString:@""];
+  }
+  // strip basename for __dirname
   NSString *dirname = [filename stringByDeletingLastPathComponent];
 
   NSString *js = [[NSString alloc] initWithFormat:TitaniumModuleRequireFormat, dirname, filename, code];

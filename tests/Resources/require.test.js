@@ -200,7 +200,7 @@ describe('require()', function () {
 		should(abbrev('foo', 'fool', 'folding', 'flop')).eql({ fl: 'flop', flo: 'flop', flop: 'flop', fol: 'folding', fold: 'folding', foldi: 'folding', foldin: 'folding', folding: 'folding', foo: 'foo', fool: 'fool' });
 	});
 
-	// FIXME We have no native ti.identity module for windows!
+	// FIXME: We have no native ti.identity module for windows!
 	it.windowsMissing('loads native module by id', function () {
 		var object = require('ti.identity');
 		should(object).have.property('apiName');

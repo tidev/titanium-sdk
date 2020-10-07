@@ -4,8 +4,8 @@ summary: |
     Apple iOS specific UI capabilities.  All properties, methods and events in this namespace will
     only work on Apple iOS devices.
 extends: Titanium.Module
-since: "1.4"
-platforms: [iphone, ipad]
+platforms: [iphone, ipad, macos]
+since: {iphone: "1.4.0", ipad: "1.4.0", macos: "9.2.0"}
 methods:
   - name: createLivePhotoBadge
     summary: |
@@ -104,6 +104,7 @@ properties:
         slowly and speeds up.
     type: Number
     permission: read-only
+    exclude-platforms: [macos]
 
   - name: ANIMATION_CURVE_EASE_IN_OUT
     deprecated:
@@ -115,6 +116,7 @@ properties:
         slowly, and speeds up, then slows down at the end of the animation.
     type: Number
     permission: read-only
+    exclude-platforms: [macos]
 
   - name: ANIMATION_CURVE_EASE_OUT
     deprecated:
@@ -126,6 +128,7 @@ properties:
         quickly, then slows down at the end of the animation.
     type: Number
     permission: read-only
+    exclude-platforms: [macos]
 
   - name: ANIMATION_CURVE_LINEAR
     deprecated:
@@ -137,6 +140,7 @@ properties:
         at a constant rate.
     type: Number
     permission: read-only
+    exclude-platforms: [macos]
 
   - name: ATTRIBUTE_FONT
     summary: |
@@ -152,6 +156,7 @@ properties:
     type: Number
     osver: {ios: {min: "6.0"}}
     permission: read-only
+    exclude-platforms: [macos]
 
   - name: ATTRIBUTE_FOREGROUND_COLOR
     summary: |
@@ -167,6 +172,7 @@ properties:
     type: Number
     osver: {ios: {min: "6.0"}}
     permission: read-only
+    exclude-platforms: [macos]
 
   - name: ATTRIBUTE_BACKGROUND_COLOR
     summary: |
@@ -182,6 +188,7 @@ properties:
     type: Number
     osver: {ios: {min: "6.0"}}
     permission: read-only
+    exclude-platforms: [macos]
 
   - name: ATTRIBUTE_LIGATURE
     summary: |
@@ -198,6 +205,7 @@ properties:
     type: Number
     osver: {ios: {min: "6.0"}}
     permission: read-only
+    exclude-platforms: [macos]
 
   - name: ATTRIBUTE_LETTERPRESS_STYLE
     summary: |
@@ -214,6 +222,7 @@ properties:
     type: Number
     osver: {ios: {min: "7.0"}}
     permission: read-only
+    exclude-platforms: [macos]
 
   - name: ATTRIBUTE_KERN
     summary: |
@@ -230,6 +239,7 @@ properties:
     type: Number
     osver: {ios: {min: "6.0"}}
     permission: read-only
+    exclude-platforms: [macos]
 
   - name: ATTRIBUTE_STRIKETHROUGH_STYLE
     summary: |
@@ -245,6 +255,7 @@ properties:
     type: Number
     osver: {ios: {min: "6.0"}}
     permission: read-only
+    exclude-platforms: [macos]
 
   - name: ATTRIBUTE_UNDERLINES_STYLE
     summary: |
@@ -260,6 +271,7 @@ properties:
     type: Number
     osver: {ios: {min: "6.0"}}
     permission: read-only
+    exclude-platforms: [macos]
 
   - name: ATTRIBUTE_STROKE_COLOR
     summary: |
@@ -275,6 +287,7 @@ properties:
     type: Number
     osver: {ios: {min: "6.0"}}
     permission: read-only
+    exclude-platforms: [macos]
 
   - name: ATTRIBUTE_STROKE_WIDTH
     summary: |
@@ -292,6 +305,7 @@ properties:
     type: Number
     osver: {ios: {min: "6.0"}}
     permission: read-only
+    exclude-platforms: [macos]
 
   - name: ATTRIBUTE_SHADOW
     summary: |
@@ -307,6 +321,7 @@ properties:
     type: Number
     osver: {ios: {min: "6.0"}}
     permission: read-only
+    exclude-platforms: [macos]
 
   - name: ATTRIBUTE_WRITING_DIRECTION
     summary: |
@@ -322,6 +337,7 @@ properties:
     type: Number
     osver: {ios: {min: "7.0"}}
     permission: read-only
+    exclude-platforms: [macos]
 
   - name: ATTRIBUTE_TEXT_EFFECT
     summary: |
@@ -338,6 +354,7 @@ properties:
     type: Number
     osver: {ios: {min: "7.0"}}
     permission: read-only
+    exclude-platforms: [macos]
 
   - name: ATTRIBUTE_LINK
     summary: |
@@ -356,6 +373,7 @@ properties:
     type: Number
     osver: {ios: {min: "7.0"}}
     permission: read-only
+    exclude-platforms: [macos]
 
   - name: ATTRIBUTE_BASELINE_OFFSET
     summary: |
@@ -371,6 +389,7 @@ properties:
     type: Number
     osver: {ios: {min: "7.0"}}
     permission: read-only
+    exclude-platforms: [macos]
 
   - name: ATTRIBUTE_UNDERLINE_COLOR
     summary: |
@@ -386,6 +405,7 @@ properties:
     type: Number
     osver: {ios: {min: "7.0"}}
     permission: read-only
+    exclude-platforms: [macos]
 
   - name: ATTRIBUTE_STRIKETHROUGH_COLOR
     summary: |
@@ -401,6 +421,7 @@ properties:
     type: Number
     osver: {ios: {min: "7.0"}}
     permission: read-only
+    exclude-platforms: [macos]
 
   - name: ATTRIBUTE_OBLIQUENESS
     summary: |
@@ -416,6 +437,7 @@ properties:
     type: Number
     osver: {ios: {min: "7.0"}}
     permission: read-only
+    exclude-platforms: [macos]
 
   - name: ATTRIBUTE_EXPANSION
     summary: |
@@ -431,6 +453,7 @@ properties:
     type: Number
     osver: {ios: {min: "7.0"}}
     permission: read-only
+    exclude-platforms: [macos]
 
   - name: ATTRIBUTE_UNDERLINE_STYLE_NONE
     summary: |
@@ -448,6 +471,7 @@ properties:
     type: Number
     osver: {ios: {min: "6.0"}}
     permission: read-only
+    exclude-platforms: [macos]
 
   - name: ATTRIBUTE_UNDERLINE_STYLE_SINGLE
     summary: |
@@ -465,6 +489,7 @@ properties:
     type: Number
     osver: {ios: {min: "6.0"}}
     permission: read-only
+    exclude-platforms: [macos]
 
   - name: ATTRIBUTE_UNDERLINE_STYLE_THICK
     summary: |
@@ -482,6 +507,7 @@ properties:
     type: Number
     osver: {ios: {min: "7.0"}}
     permission: read-only
+    exclude-platforms: [macos]
 
   - name: ATTRIBUTE_UNDERLINE_STYLE_DOUBLE
     summary: |
@@ -499,6 +525,7 @@ properties:
     type: Number
     osver: {ios: {min: "7.0"}}
     permission: read-only
+    exclude-platforms: [macos]
 
   - name: ATTRIBUTE_UNDERLINE_PATTERN_SOLID
     summary: |
@@ -516,6 +543,7 @@ properties:
     type: Number
     osver: {ios: {min: "7.0"}}
     permission: read-only
+    exclude-platforms: [macos]
 
   - name: ATTRIBUTE_UNDERLINE_PATTERN_DOT
     summary: |
@@ -533,6 +561,7 @@ properties:
     type: Number
     osver: {ios: {min: "7.0"}}
     permission: read-only
+    exclude-platforms: [macos]
 
   - name: ATTRIBUTE_UNDERLINE_PATTERN_DASH
     summary: |
@@ -550,6 +579,7 @@ properties:
     type: Number
     osver: {ios: {min: "7.0"}}
     permission: read-only
+    exclude-platforms: [macos]
 
   - name: ATTRIBUTE_UNDERLINE_PATTERN_DASH_DOT
     summary: |
@@ -567,6 +597,7 @@ properties:
     type: Number
     osver: {ios: {min: "7.0"}}
     permission: read-only
+    exclude-platforms: [macos]
 
   - name: ATTRIBUTE_UNDERLINE_PATTERN_DASH_DOT_DOT
     summary: |
@@ -584,6 +615,7 @@ properties:
     type: Number
     osver: {ios: {min: "7.0"}}
     permission: read-only
+    exclude-platforms: [macos]
 
   - name: ATTRIBUTE_UNDERLINE_BY_WORD
     summary: |
@@ -601,6 +633,7 @@ properties:
     type: Number
     osver: {ios: {min: "7.0"}}
     permission: read-only
+    exclude-platforms: [macos]
 
   - name: ATTRIBUTE_WRITING_DIRECTION_EMBEDDING
     summary: |
@@ -617,6 +650,7 @@ properties:
     type: Number
     osver: {ios: {min: "7.0"}}
     permission: read-only
+    exclude-platforms: [macos]
 
   - name: ATTRIBUTE_WRITING_DIRECTION_OVERRIDE
     summary: |
@@ -633,6 +667,7 @@ properties:
     type: Number
     osver: {ios: {min: "7.0"}}
     permission: read-only
+    exclude-platforms: [macos]
 
   - name: ATTRIBUTE_WRITING_DIRECTION_NATURAL
     summary: |
@@ -651,6 +686,7 @@ properties:
     type: Number
     osver: {ios: {min: "7.0"}}
     permission: read-only
+    exclude-platforms: [macos]
 
   - name: ATTRIBUTE_WRITING_DIRECTION_LEFT_TO_RIGHT
     summary: |
@@ -667,6 +703,7 @@ properties:
     type: Number
     osver: {ios: {min: "7.0"}}
     permission: read-only
+    exclude-platforms: [macos]
 
   - name: ATTRIBUTE_WRITING_DIRECTION_RIGHT_TO_LEFT
     summary: |
@@ -683,6 +720,7 @@ properties:
     type: Number
     osver: {ios: {min: "7.0"}}
     permission: read-only
+    exclude-platforms: [macos]
 
   - name: AUTODETECT_ADDRESS
     deprecated:
@@ -693,7 +731,7 @@ properties:
     type: Number
     osver: {ios: {min: "4.0"}}
     permission: read-only
-    platforms: [iphone, ipad]
+    exclude-platforms: [macos]
 
   - name: AUTODETECT_ALL
     deprecated:
@@ -703,7 +741,7 @@ properties:
     summary: Converts all detectable types of data into clickable links.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    exclude-platforms: [macos]
 
   - name: AUTODETECT_CALENDAR
     deprecated:
@@ -714,7 +752,7 @@ properties:
     type: Number
     osver: {ios: {min: "4.0"}}
     permission: read-only
-    platforms: [iphone, ipad]
+    exclude-platforms: [macos]
 
   - name: AUTODETECT_LINK
     deprecated:
@@ -724,7 +762,7 @@ properties:
     summary: Converts strings formatted as URLs into clickable links.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    exclude-platforms: [macos]
 
   - name: AUTODETECT_NONE
     deprecated:
@@ -734,7 +772,7 @@ properties:
     summary: Disables converting strings into clickable links.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    exclude-platforms: [macos]
 
   - name: AUTODETECT_PHONE
     deprecated:
@@ -744,7 +782,7 @@ properties:
     summary: Converts strings formatted as phone numbers into clickable links.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    exclude-platforms: [macos]
 
   - name: BLEND_MODE_CLEAR
     deprecated:
@@ -757,6 +795,7 @@ properties:
         See <Titanium.UI.MaskedImage> for more information on blend modes.
     type: Number
     permission: read-only
+    exclude-platforms: [macos]
 
   - name: BLEND_MODE_COLOR
     deprecated:
@@ -769,6 +808,7 @@ properties:
         See <Titanium.UI.MaskedImage> for more information on blend modes.
     type: Number
     permission: read-only
+    exclude-platforms: [macos]
 
   - name: BLEND_MODE_COLOR_BURN
     deprecated:
@@ -781,6 +821,7 @@ properties:
         See <Titanium.UI.MaskedImage> for more information on blend modes.
     type: Number
     permission: read-only
+    exclude-platforms: [macos]
 
   - name: BLEND_MODE_COLOR_DODGE
     deprecated:
@@ -793,6 +834,7 @@ properties:
         See <Titanium.UI.MaskedImage> for more information on blend modes.
     type: Number
     permission: read-only
+    exclude-platforms: [macos]
 
   - name: BLEND_MODE_COPY
     deprecated:
@@ -805,6 +847,7 @@ properties:
         See <Titanium.UI.MaskedImage> for more information on blend modes.
     type: Number
     permission: read-only
+    exclude-platforms: [macos]
 
   - name: BLEND_MODE_DARKEN
     deprecated:
@@ -817,6 +860,7 @@ properties:
         See <Titanium.UI.MaskedImage> for more information on blend modes.
     type: Number
     permission: read-only
+    exclude-platforms: [macos]
 
   - name: BLEND_MODE_DESTINATION_ATOP
     deprecated:
@@ -829,6 +873,7 @@ properties:
         See <Titanium.UI.MaskedImage> for more information on blend modes.
     type: Number
     permission: read-only
+    exclude-platforms: [macos]
 
   - name: BLEND_MODE_DESTINATION_IN
     deprecated:
@@ -841,6 +886,7 @@ properties:
         See <Titanium.UI.MaskedImage> for more information on blend modes.
     type: Number
     permission: read-only
+    exclude-platforms: [macos]
 
   - name: BLEND_MODE_DESTINATION_OUT
     deprecated:
@@ -853,6 +899,7 @@ properties:
         See <Titanium.UI.MaskedImage> for more information on blend modes.
     type: Number
     permission: read-only
+    exclude-platforms: [macos]
 
   - name: BLEND_MODE_DESTINATION_OVER
     deprecated:
@@ -865,6 +912,7 @@ properties:
         See <Titanium.UI.MaskedImage> for more information on blend modes.
     type: Number
     permission: read-only
+    exclude-platforms: [macos]
 
   - name: BLEND_MODE_DIFFERENCE
     deprecated:
@@ -877,6 +925,7 @@ properties:
         See <Titanium.UI.MaskedImage> for more information on blend modes.
     type: Number
     permission: read-only
+    exclude-platforms: [macos]
 
   - name: BLEND_MODE_EXCLUSION
     deprecated:
@@ -889,6 +938,7 @@ properties:
         See <Titanium.UI.MaskedImage> for more information on blend modes.
     type: Number
     permission: read-only
+    exclude-platforms: [macos]
 
   - name: BLEND_MODE_HARD_LIGHT
     deprecated:
@@ -901,6 +951,7 @@ properties:
         See <Titanium.UI.MaskedImage> for more information on blend modes.
     type: Number
     permission: read-only
+    exclude-platforms: [macos]
 
   - name: BLEND_MODE_HUE
     deprecated:
@@ -913,6 +964,7 @@ properties:
         See <Titanium.UI.MaskedImage> for more information on blend modes.
     type: Number
     permission: read-only
+    exclude-platforms: [macos]
 
   - name: BLEND_MODE_LIGHTEN
     deprecated:
@@ -925,6 +977,7 @@ properties:
         See <Titanium.UI.MaskedImage> for more information on blend modes.
     type: Number
     permission: read-only
+    exclude-platforms: [macos]
 
   - name: BLEND_MODE_LUMINOSITY
     deprecated:
@@ -937,6 +990,7 @@ properties:
         See <Titanium.UI.MaskedImage> for more information on blend modes.
     type: Number
     permission: read-only
+    exclude-platforms: [macos]
 
   - name: BLEND_MODE_MULTIPLY
     deprecated:
@@ -949,6 +1003,7 @@ properties:
         See <Titanium.UI.MaskedImage> for more information on blend modes.
     type: Number
     permission: read-only
+    exclude-platforms: [macos]
 
   - name: BLEND_MODE_NORMAL
     deprecated:
@@ -961,6 +1016,7 @@ properties:
         See <Titanium.UI.MaskedImage> for more information on blend modes.
     type: Number
     permission: read-only
+    exclude-platforms: [macos]
 
   - name: BLEND_MODE_OVERLAY
     deprecated:
@@ -973,6 +1029,7 @@ properties:
         See <Titanium.UI.MaskedImage> for more information on blend modes.
     type: Number
     permission: read-only
+    exclude-platforms: [macos]
 
   - name: BLEND_MODE_PLUS_DARKER
     deprecated:
@@ -985,6 +1042,7 @@ properties:
         See <Titanium.UI.MaskedImage> for more information on blend modes.
     type: Number
     permission: read-only
+    exclude-platforms: [macos]
 
   - name: BLEND_MODE_PLUS_LIGHTER
     deprecated:
@@ -997,6 +1055,7 @@ properties:
         See <Titanium.UI.MaskedImage> for more information on blend modes.
     type: Number
     permission: read-only
+    exclude-platforms: [macos]
 
   - name: BLEND_MODE_SATURATION
     deprecated:
@@ -1009,6 +1068,7 @@ properties:
         See <Titanium.UI.MaskedImage> for more information on blend modes.
     type: Number
     permission: read-only
+    exclude-platforms: [macos]
 
   - name: BLEND_MODE_SCREEN
     deprecated:
@@ -1021,6 +1081,7 @@ properties:
         See <Titanium.UI.MaskedImage> for more information on blend modes.
     type: Number
     permission: read-only
+    exclude-platforms: [macos]
 
   - name: BLEND_MODE_SOFT_LIGHT
     deprecated:
@@ -1033,6 +1094,7 @@ properties:
         See <Titanium.UI.MaskedImage> for more information on blend modes.
     type: Number
     permission: read-only
+    exclude-platforms: [macos]
 
   - name: BLEND_MODE_SOURCE_ATOP
     deprecated:
@@ -1045,6 +1107,7 @@ properties:
         See <Titanium.UI.MaskedImage> for more information on blend modes.
     type: Number
     permission: read-only
+    exclude-platforms: [macos]
 
   - name: BLEND_MODE_SOURCE_IN
     deprecated:
@@ -1057,6 +1120,7 @@ properties:
         See <Titanium.UI.MaskedImage> for more information on blend modes.
     type: Number
     permission: read-only
+    exclude-platforms: [macos]
 
   - name: BLEND_MODE_SOURCE_OUT
     deprecated:
@@ -1069,6 +1133,7 @@ properties:
         See <Titanium.UI.MaskedImage> for more information on blend modes.
     type: Number
     permission: read-only
+    exclude-platforms: [macos]
 
   - name: BLEND_MODE_XOR
     deprecated:
@@ -1081,6 +1146,7 @@ properties:
         See <Titanium.UI.MaskedImage> for more information on blend modes.
     type: Number
     permission: read-only
+    exclude-platforms: [macos]
 
   - name: BLUR_EFFECT_STYLE_EXTRA_LIGHT
     summary: |
@@ -1347,6 +1413,41 @@ properties:
     permission: read-only
     since: "3.2.0"
     osver: {ios: {min: "7.0"}}
+
+  - name: DATE_PICKER_STYLE_AUTOMATIC
+    summary: |
+        Use with <Titanium.UI.Picker.datePickerStyle> to automatically pick the best style
+        available for the current platform & mode.
+    description: "Note: Prior to iOS 14, this property is only used on iOS Catalyst apps."
+    type: Number
+    permission: read-only
+    since: "9.2.0"
+    osver: { ios: { min: "13.4" } }
+
+  - name: DATE_PICKER_STYLE_WHEELS
+    summary: |
+        Use with <Titanium.UI.Picker.datePickerStyle> to show the picker the wheels. Editing occurs inline.
+    type: Number
+    permission: read-only
+    since: "9.2.0"
+    osver: { ios: { min: "13.4" } }
+
+  - name: DATE_PICKER_STYLE_COMPACT
+    summary: |
+        Use with <Titanium.UI.Picker.datePickerStyle> to show the picker with a compact style. Editing occurs in an overlay.
+    description: "Note: Prior to iOS 14, this property is only used on iOS Catalyst apps."
+    type: Number
+    permission: read-only
+    since: "9.2.0"
+    osver: { ios: { min: "13.4" } }
+
+  - name: DATE_PICKER_STYLE_INLINE
+    summary: |
+        Use with <Titanium.UI.Picker.datePickerStyle> to allow editing in place (as a calendar).
+    type: Number
+    permission: read-only
+    since: "9.2.0"
+    osver: { ios: { min: "14.0" } }
 
   - name: forceTouchSupported
     summary: Determines if the 3D-Touch capability "Force Touch" is supported (`true`) or not (`false`) by the device.
@@ -1790,6 +1891,7 @@ properties:
     type: Number
     permission: read-only
     since: "2.1.0"
+    exclude-platforms: [macos]
     deprecated:
         since: "8.2.0"
         removed: "8.2.0"
@@ -1804,6 +1906,7 @@ properties:
     type: Number
     permission: read-only
     since: "2.1.0"
+    exclude-platforms: [macos]
     deprecated:
         since: "8.2.0"
         removed: "8.2.0"
@@ -1818,6 +1921,7 @@ properties:
     type: Number
     permission: read-only
     since: "2.1.0"
+    exclude-platforms: [macos]
     deprecated:
         since: "8.2.0"
         removed: "8.2.0"
@@ -1832,6 +1936,7 @@ properties:
     type: Number
     permission: read-only
     since: "2.1.0"
+    exclude-platforms: [macos]
     deprecated:
         since: "8.2.0"
         removed: "8.2.0"
@@ -1846,6 +1951,7 @@ properties:
     type: Number
     permission: read-only
     since: "2.1.0"
+    exclude-platforms: [macos]
     deprecated:
         since: "8.2.0"
         removed: "8.2.0"
@@ -1860,6 +1966,7 @@ properties:
     type: Number
     permission: read-only
     since: "2.1.0"
+    exclude-platforms: [macos]
     deprecated:
         since: "8.2.0"
         removed: "8.2.0"

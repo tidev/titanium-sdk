@@ -2,7 +2,7 @@
 
 const path = require('path');
 
-const ROOT_DIR = path.join(__dirname, '../..');
+const ROOT_DIR = path.join(__dirname, '../../..');
 const LOCAL_TESTS = path.join(ROOT_DIR, 'tests');
 const { test, outputResults } = require('./test');
 

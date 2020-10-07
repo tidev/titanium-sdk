@@ -148,6 +148,16 @@ function addCodeToName(err, name, code) {
 	}
 }
 
+E('ERR_BUFFER_OUT_OF_BOUNDS',
+	// Using a default argument here is important so the argument is not counted
+	// towards `Function#length`.
+	(name = undefined) => {
+		if (name) {
+			return `"${name}" is outside of buffer bounds`;
+		}
+		return 'Attempt to access memory outside buffer bounds';
+	}, RangeError);
+
 E('ERR_INTERNAL_ASSERTION', (message) => {
 	const suffix = 'This is caused by either a bug in Titanium '
 		+ 'or incorrect usage of Titanium internals.\n'

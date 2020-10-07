@@ -168,6 +168,8 @@ describe('Titanium.Blob', function () {
 			const blob = Ti.Filesystem.getFile('Logo.png').read();
 			should(blob.width).be.a.Number();
 			should(blob.width).be.eql(150);
+			should(blob.uprightWidth).be.a.Number();
+			should(blob.uprightWidth).be.eql(blob.width);
 			// TODO Test that it's read-only
 		});
 
@@ -184,6 +186,8 @@ describe('Titanium.Blob', function () {
 			const blob = Ti.Filesystem.getFile('Logo.png').read();
 			should(blob.height).be.a.Number();
 			should(blob.height).be.eql(150);
+			should(blob.uprightHeight).be.a.Number();
+			should(blob.uprightHeight).be.eql(blob.height);
 			// TODO Test that it's read-only
 		});
 
@@ -391,6 +395,44 @@ describe('Titanium.Blob', function () {
 		});
 	});
 
+	describe('EXIF orientation', () => {
+		it('rotate 90', () => {
+			const blob = Ti.Filesystem.getFile('ExifRotate90.jpg').read();
+			should(blob.uprightWidth).be.eql(1200);
+			should(blob.uprightHeight).be.eql(1800);
+		});
+		it('rotate 180', () => {
+			const blob = Ti.Filesystem.getFile('ExifRotate180.jpg').read();
+			should(blob.uprightWidth).be.eql(1200);
+			should(blob.uprightHeight).be.eql(1800);
+		});
+		it('rotate 270', () => {
+			const blob = Ti.Filesystem.getFile('ExifRotate270.jpg').read();
+			should(blob.uprightWidth).be.eql(1200);
+			should(blob.uprightHeight).be.eql(1800);
+		});
+		it('flip horizontal', () => {
+			const blob = Ti.Filesystem.getFile('ExifFlipHorizontal.jpg').read();
+			should(blob.uprightWidth).be.eql(1200);
+			should(blob.uprightHeight).be.eql(1800);
+		});
+		it('flip vertical', () => {
+			const blob = Ti.Filesystem.getFile('ExifFlipVertical.jpg').read();
+			should(blob.uprightWidth).be.eql(1200);
+			should(blob.uprightHeight).be.eql(1800);
+		});
+		it('transpose', () => {
+			const blob = Ti.Filesystem.getFile('ExifTranspose.jpg').read();
+			should(blob.uprightWidth).be.eql(1200);
+			should(blob.uprightHeight).be.eql(1800);
+		});
+		it('transverse', () => {
+			const blob = Ti.Filesystem.getFile('ExifTransverse.jpg').read();
+			should(blob.uprightWidth).be.eql(1200);
+			should(blob.uprightHeight).be.eql(1800);
+		});
+	});
+
 	// FIXME: This is breaking on Android emulator when setting the image view to the blob
 	// Canvas: trying to draw too large(211527936bytes) bitmap.
 	// it breaks on older android devices with an OutOfMemory Error on calling imageAsResized
@@ -446,5 +488,53 @@ describe('Titanium.Blob', function () {
 			finish();
 		});
 		win.open();
+	});
+
+	describe('#toArrayBuffer()', () => {
+		it('is a Function', () => {
+			const buffer = Ti.createBuffer({ value: '' });
+			const blob = buffer.toBlob();
+			should(blob.toArrayBuffer).be.a.Function();
+		});
+
+		it('returns ArrayBuffer holding expected bytes', () => {
+			const buffer = Ti.createBuffer({ value: 'This is a string', type: Ti.Codec.ASCII });
+			const blob = buffer.toBlob();
+			const arrayBuffer = blob.toArrayBuffer();
+			const array = new Uint8Array(arrayBuffer);
+			should(array.length).eql(16); // single byte characters in ASCII
+			should(array[0]).eql(84); // ascii decimal code for 'T'
+			should(array[4]).eql(32); // ascii decimal code for ' '
+			should(array[5]).eql(105); // ascii decimal code for 'i'
+			should(array[6]).eql(115); // ascii decimal code for 's'
+		});
+	});
+
+	describe('#arrayBuffer()', () => {
+		it('is a Function', () => {
+			const buffer = Ti.createBuffer({ value: '' });
+			const blob = buffer.toBlob();
+			should(blob.arrayBuffer).be.a.Function();
+		});
+
+		it('returns Promise which resolves to ArrayBuffer holding expected bytes', finish => {
+			const buffer = Ti.createBuffer({ value: 'This is a string', type: Ti.Codec.ASCII });
+			const blob = buffer.toBlob();
+			const promise = blob.arrayBuffer();
+			promise.then(arrayBuffer => {
+				// eslint-disable-next-line promise/always-return
+				try {
+					const array = new Uint8Array(arrayBuffer);
+					should(array.length).eql(16); // single byte characters in ASCII
+					should(array[0]).eql(84); // ascii decimal code for 'T'
+					should(array[4]).eql(32); // ascii decimal code for ' '
+					should(array[5]).eql(105); // ascii decimal code for 'i'
+					should(array[6]).eql(115); // ascii decimal code for 's'
+				} catch (err) {
+					return finish(err);
+				}
+				finish();
+			}).catch(err => finish(err));
+		});
 	});
 });

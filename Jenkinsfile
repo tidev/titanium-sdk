@@ -99,6 +99,7 @@ def androidUnitTests(nodeVersion, npmVersion, testOnDevices) {
 							}
 						} // timeout
 					} catch (e) {
+						archiveArtifacts 'tmp/mocha/build/build_*.log' // save build log if build failed
 						gatherAndroidCrashReports()
 						throw e
 					} finally {
@@ -117,7 +118,7 @@ def androidUnitTests(nodeVersion, npmVersion, testOnDevices) {
 					// save the junit reports as artifacts explicitly so danger.js can use them later
 					stash includes: 'junit.*.xml', name: 'test-report-android'
 					junit 'junit.*.xml'
-					archiveArtifacts allowEmptyArchive: true, artifacts: 'tests/diffs/'
+					archiveArtifacts allowEmptyArchive: true, artifacts: 'tests/diffs/,tests/generated/'
 				} // nodejs
 			} finally {
 				deleteDir()
@@ -126,9 +127,9 @@ def androidUnitTests(nodeVersion, npmVersion, testOnDevices) {
 	}
 }
 
-def iosUnitTests(deviceFamily, nodeVersion, npmVersion) {
+def macosUnitTests(nodeVersion, npmVersion) {
 	return {
-		node('git && osx && xcode-11') { // Use xcode-11 to make use of ios 13 APIs
+		node('git && osx && xcode-12 && osx-10.15') {
 			// TODO: Do a shallow checkout rather than stash/unstash?
 			unstash 'mocha-tests'
 			try {
@@ -139,9 +140,55 @@ def iosUnitTests(deviceFamily, nodeVersion, npmVersion) {
 					sh label: 'Install SDK', script: "npm run deploy -- ${zipName} --select" // installs the sdk
 					try {
 						timeout(20) {
-							sh label: 'Run Test Suite', script: "npm run test:integration -- ios -F ${deviceFamily}"
+							sh label: 'Run Test Suite on macOS', script: 'npm run test:integration -- ios -T macos'
 						}
 					} catch (e) {
+						gatherIOSCrashReports('mocha') // app name is mocha
+						throw e
+					} finally {
+						sh 'npm run clean:sdks' // remove non-GA sdks
+						sh 'npm run clean:modules' // remove modules
+					}
+					// save the junit reports as artifacts explicitly so danger.js can use them later
+					stash includes: 'junit.ios.macos.xml', name: "test-report-ios-macos"
+					junit 'junit.ios.macos.xml'
+					// Save any diffed images
+					archiveArtifacts allowEmptyArchive: true, artifacts: 'tests/diffs/'
+				} // nodejs
+			} finally {
+				deleteDir()
+			}
+		}
+	}
+}
+
+def iosUnitTests(deviceFamily, nodeVersion, npmVersion, testOnDevices) {
+	return {
+		def labels = 'git && osx'
+		if (testOnDevices && deviceFamily == 'iphone') {
+			labels += ' && macos-darwin' // run main branch tests on devices, use node with devices connected
+		} else {
+			labels += '&& xcode-12' // Use xcode-12 to make use of ios 14 APIs
+		}
+		node(labels) {
+			// TODO: Do a shallow checkout rather than stash/unstash?
+			unstash 'mocha-tests'
+			try {
+				nodejs(nodeJSInstallationName: "node ${nodeVersion}") {
+					ensureNPM(npmVersion)
+					sh 'npm ci'
+					def zipName = getBuiltSDK()
+					sh label: 'Install SDK', script: "npm run deploy -- ${zipName} --select" // installs the sdk
+					try {
+						timeout(40) {
+							if (testOnDevices && deviceFamily == 'iphone') {
+								sh label: 'Run Test Suite on device(s)', script: "npm run test:integration -- ios -F ${deviceFamily} -T device -C all"
+							} else { // run PR tests on simulator
+								sh label: 'Run Test Suite on simulator', script: "npm run test:integration -- ios -F ${deviceFamily}"
+							}
+						}
+					} catch (e) {
+						archiveArtifacts 'tmp/mocha/build/build_*.log' // save build log if build failed
 						gatherIOSCrashReports('mocha') // app name is mocha
 						throw e
 					} finally {
@@ -185,7 +232,7 @@ def cliUnitTests(nodeVersion, npmVersion) {
 // Wrap in timestamper
 timestamps {
 	try {
-		node('git && android-sdk && android-ndk && ant && gperf && osx && xcode-11') {
+		node('git && android-sdk && android-ndk && ant && gperf && osx && xcode-12 && osx-10.15') {
 			stage('Checkout') {
 				// Update our shared reference repo for all branches/PRs
 				dir('..') {
@@ -306,10 +353,11 @@ timestamps {
 		stage('Test') {
 			parallel(
 				'android unit tests': androidUnitTests(nodeVersion, npmVersion, testOnDevices),
-				'iPhone unit tests': iosUnitTests('iphone', nodeVersion, npmVersion),
-				'iPad unit tests': iosUnitTests('ipad', nodeVersion, npmVersion),
+				'iPhone unit tests': iosUnitTests('iphone', nodeVersion, npmVersion, testOnDevices),
+				'iPad unit tests': iosUnitTests('ipad', nodeVersion, npmVersion, testOnDevices),
+				'macOS unit tests': macosUnitTests(nodeVersion, npmVersion),
 				'cli unit tests': cliUnitTests(nodeVersion, npmVersion),
-				failFast: true
+				failFast: false
 			)
 		}
 
@@ -469,7 +517,7 @@ timestamps {
 						} catch (e) {}
 
 						// it's ok to not grab all test results, still run Danger.JS (even if some platforms crashed or we failed before tests)
-						def reports = [ 'ios-ipad', 'ios-iphone', 'android', 'cli' ]
+						def reports = [ 'ios-ipad', 'ios-iphone', 'ios-macos', 'android', 'cli' ]
 						for (int i = 0; i < reports.size(); i++) {
 							try {
 								unstash "test-report-${reports[i]}"

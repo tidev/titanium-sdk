@@ -31,7 +31,8 @@ import ti.modules.titanium.ui.widget.webview.TiUIWebView;
 
 @Kroll.proxy(creatableInModule = UIModule.class,
 	propertyAccessors = {
-		TiC.PROPERTY_BLACKLISTED_URLS,
+		TiC.PROPERTY_BLACKLISTED_URLS,  // DEPRECATED: Superseded by PROPERTY_BLOCKED_URLS.
+		TiC.PROPERTY_BLOCKED_URLS,
 		TiC.PROPERTY_DATA,
 		TiC.PROPERTY_ON_CREATE_WINDOW,
 		TiC.PROPERTY_SCALES_PAGE_TO_FIT,

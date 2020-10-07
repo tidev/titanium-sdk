@@ -27,8 +27,8 @@ describe('AndroidManifest', () => {
 	it('set/getAppAttribute()', () => {
 		const manifest = new AndroidManifest();
 		manifest.setAppAttribute('android:icon', '@drawable/app_icon');
-		manifest.setAppAttribute('android:theme', '@style/Theme.AppCompat');
+		manifest.setAppAttribute('android:theme', '@style/Theme.MaterialComponents.Bridge');
 		expect(manifest.getAppAttribute('android:icon')).to.equal('@drawable/app_icon');
-		expect(manifest.getAppAttribute('android:theme')).to.equal('@style/Theme.AppCompat');
+		expect(manifest.getAppAttribute('android:theme')).to.equal('@style/Theme.MaterialComponents.Bridge');
 	});
 });

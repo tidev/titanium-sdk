@@ -69,11 +69,9 @@ description: |
     * <Titanium.App.iOS.SearchableItemAttributeSet> - Used to create metadata related to the `Ti.App.iOS.SearchableItem`
     * <Titanium.App.iOS.SearchableItem> - Used to assemble metadata into a unique object package to be used by `Ti.App.iOS.SearchableIndex`
     * <Titanium.App.iOS.SearchableIndex> - Used to add and remove `Ti.App.iOS.SearchableItem` objects to the device search index
-
 extends: Titanium.Module
-platforms: [iphone, ipad]
-since: "1.5"
-
+platforms: [iphone, ipad, macos]
+since: {iphone: "1.5.0", ipad: "1.5.0", macos: "9.2.0"}
 methods:
   - name: createUserDefaults
     summary: |
@@ -1016,9 +1014,9 @@ events:
             Unique string identifier for the `backgroundfetch` event. This identifier should be passed as the argument
             to the [endBackgroundHandler](Titanium.App.iOS.endBackgroundHandler) method.
         type: String
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     osver: {ios: {min: "7.0"}}
-    since: '3.2.0'
+    since: {iphone: "3.2.0", ipad: "3.2.0", macos: "9.2.0"}
 
   - name: silentpush
     summary: Fired when the application is woken up by a silent remote notification. Available only on iOS 7 and later.
@@ -1087,7 +1085,7 @@ events:
             Unique string identifier for the `silentpush` event. This identifier should be passed as the argument
             to the [endBackgroundHandler](Titanium.App.iOS.endBackgroundHandler) method.
         type: String
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     osver: {ios: {min: "7.0"}}
     since: '3.2.0'
 
@@ -1128,7 +1126,7 @@ events:
             The identifier of the URL session requiring attention. If your app was just launched,
             you can use this identifier to create a new `urlSession` object that can receive the events.
         type: String
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     osver: {ios: {min: "7.0"}}
     since: '3.2.0'
 
@@ -1346,7 +1344,7 @@ events:
         summary: |
             The payload passed to the `openParentApplication:reply` method from the WatchKit extension.
         type: Dictionary
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     osver: {ios: {min: "8.2"}}
     since: '4.1.0'
 
@@ -1385,7 +1383,7 @@ events:
             The optional userInfo provided to the user activity. The userInfo is a custom dictionary and can contain any information needed
             to create your handoff or Core Spotlight session.
         type: Dictionary
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     osver: {ios: {min: "8.2"}}
     since: '5.0.0'
 
@@ -1425,12 +1423,12 @@ events:
 
   - name: traitcollectionchange
     summary: Fired when the trait collection of the device changes, e.g. the user interface style.
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "8.2.0"
 
   - name: screenshotcaptured
     summary: Fired after the user takes a screenshot, e.g. by pressing both the home and lock screen buttons.
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "9.1.0"
 
 ---
@@ -1439,7 +1437,7 @@ summary: |
     Dictionary object of parameters used to create a notification using
     <Titanium.App.iOS.scheduleLocalNotification>.
 since: "1.7"
-platforms: [iphone, ipad]
+platforms: [iphone, ipad, macos]
 
 properties:
   - name: identifier
@@ -1559,7 +1557,7 @@ summary: |
     image, sound or video. If your media is invalid, the API will throw an error log and
     skip the invalid attachment.
 since: "7.3.0"
-platforms: [iphone, ipad]
+platforms: [iphone, ipad, macos]
 osver: {ios: {min: "10.0"}}
 properties:
   - name: identifier
@@ -1589,7 +1587,7 @@ summary: |
     Dictionary object of parameters used to identify an incoming URL that is handled
     by the application.
 since: "6.0.0"
-platforms: [iphone, ipad]
+platforms: [iphone, ipad, macos]
 properties:
   - name: source
     summary: The application or service that triggered the handled URL.
@@ -1607,7 +1605,7 @@ summary: |
     To retrieve the current notification settings, use the
     <Titanium.App.iOS.UserNotificationCenter.requestUserNotificationSettings> method.
 since: "3.4.0"
-platforms: [iphone, ipad]
+platforms: [iphone, ipad, macos]
 
 properties:
 

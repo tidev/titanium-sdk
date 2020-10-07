@@ -29,12 +29,15 @@
 #import <Photos/Photos.h>
 #import <QuartzCore/QuartzCore.h>
 #import <UIKit/UIPopoverController.h>
-#ifdef USE_TI_MEDIAHASPHOTOGALLERYPERMISSIONS
+#if defined(USE_TI_MEDIAHASPHOTOGALLERYPERMISSIONS) && !TARGET_OS_MACCATALYST
 #import <AssetsLibrary/AssetsLibrary.h>
 #endif
 #import "TiUIiOSLivePhoto.h"
 #ifdef USE_TI_MEDIAVIDEOPLAYER
 #import "TiMediaVideoPlayerProxy.h"
+#endif
+#if IS_SDK_IOS_14
+#import <UniformTypeIdentifiers/UTCoreTypes.h>
 #endif
 
 // by default, we want to make the camera fullscreen and
@@ -415,6 +418,7 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
 {
   DEPRECATED_REPLACED(@"Media.audioSessionMode", @"7.0.0", @"Media.audioSessionCategory");
 
+#if !TARGET_OS_MACCATALYST
   switch ([mode unsignedIntegerValue]) {
   case kAudioSessionCategory_AmbientSound:
     [self setAudioSessionCategory:[self AUDIO_SESSION_CATEGORY_AMBIENT]];
@@ -435,6 +439,7 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
     DebugLog(@"Unsupported audioSessionMode specified");
     break;
   }
+#endif
 }
 
 - (void)setAudioSessionCategory:(NSString *)mode
@@ -1105,8 +1110,20 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
 {
   ENSURE_SINGLE_ARG_OR_NIL(args, NSDictionary);
   ENSURE_UI_THREAD(openPhotoGallery, args);
-  [self showPicker:args isCamera:NO];
+
+  NSArray *types = (NSArray *)[args objectForKey:@"mediaTypes"];
+#if IS_SDK_IOS_14
+  if ([TiUtils isIOSVersionOrGreater:@"14.0"] && [TiUtils boolValue:[args objectForKey:@"allowMultiple"] def:NO]) {
+    [self showPHPicker:args];
+  } else {
+#endif
+    [self showPicker:args
+            isCamera:NO];
+#if IS_SDK_IOS_14
+  }
+#endif
 }
+
 #endif
 
 /**
@@ -1371,8 +1388,17 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
   RELEASE_TO_NIL(musicPicker);
 #endif
 #if defined(USE_TI_MEDIASHOWCAMERA) || defined(USE_TI_MEDIAOPENPHOTOGALLERY)
+  if ([TiUtils isIOSVersionOrGreater:@"13.0"]) {
+    picker.presentationController.delegate = nil;
+  }
   RELEASE_TO_NIL(picker);
 #endif
+
+#if IS_SDK_IOS_14 && defined(USE_TI_MEDIAOPENPHOTOGALLERY)
+  _phPicker.presentationController.delegate = nil;
+  RELEASE_TO_NIL(_phPicker);
+#endif
+
 #if defined(USE_TI_MEDIASTARTVIDEOEDITING) || defined(USE_TI_MEDIASTOPVIDEOEDITING)
   RELEASE_TO_NIL(editor);
 #endif
@@ -1469,6 +1495,9 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
 {
   TiApp *tiApp = [TiApp app];
   if (![TiUtils isIPad]) {
+    if ([TiUtils isIOSVersionOrGreater:@"13.0"]) {
+      picker_.presentationController.delegate = self;
+    }
     [tiApp showModalController:picker_ animated:animatedPicker];
   } else {
     TiViewProxy *popoverViewProxy = [args objectForKey:@"popoverView"];
@@ -1755,6 +1784,175 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
 }
 #endif
 
+#if IS_SDK_IOS_14
+- (void)showPHPicker:(NSDictionary *)args
+{
+  if (_phPicker != nil) {
+    [self sendPickerError:MediaModuleErrorBusy];
+    return;
+  }
+
+  animatedPicker = YES;
+
+  PHPickerConfiguration *configuration = [[PHPickerConfiguration alloc] init];
+  NSMutableArray *filterList = [NSMutableArray array];
+
+  if (args != nil) {
+    [self commonPickerSetup:args];
+
+    BOOL allowMultiple = [TiUtils boolValue:[args objectForKey:@"allowMultiple"] def:NO];
+    configuration.selectionLimit = [TiUtils intValue:[args objectForKey:@"selectionLimit"] def:allowMultiple ? 0 : 1];
+
+    NSArray *mediaTypes = (NSArray *)[args objectForKey:@"mediaTypes"];
+    if (mediaTypes) {
+      for (NSString *mediaType in mediaTypes) {
+        if ([mediaType isEqualToString:(NSString *)kUTTypeImage]) {
+          [filterList addObject:PHPickerFilter.imagesFilter];
+        } else if ([mediaType isEqualToString:(NSString *)kUTTypeLivePhoto]) {
+          [filterList addObject:PHPickerFilter.livePhotosFilter];
+        } else if ([mediaType isEqualToString:(NSString *)kUTTypeMovie]) {
+          [filterList addObject:PHPickerFilter.videosFilter];
+        }
+      }
+    }
+  }
+
+  if (filterList.count == 0) {
+    [filterList addObject:PHPickerFilter.imagesFilter];
+  }
+
+  PHPickerFilter *filter = [PHPickerFilter anyFilterMatchingSubfilters:filterList];
+  configuration.filter = filter;
+
+  _phPicker = [[PHPickerViewController alloc] initWithConfiguration:configuration];
+
+  [_phPicker setDelegate:self];
+  [self displayModalPicker:_phPicker settings:args];
+}
+
+#pragma mark PHPickerViewControllerDelegate
+
+- (void)picker:(PHPickerViewController *)picker didFinishPicking:(NSArray<PHPickerResult *> *)results
+{
+  // If user cancels, results count will be 0
+  if (results.count == 0) {
+    [self closeModalPicker:picker];
+    [self sendPickerCancel];
+    return;
+  }
+
+  dispatch_group_t group = dispatch_group_create();
+  __block NSMutableArray<NSDictionary *> *imageArray = nil;
+  __block NSMutableArray<NSDictionary *> *livePhotoArray = nil;
+  __block NSMutableArray<NSDictionary *> *videoArray = nil;
+
+  for (PHPickerResult *result in results) {
+    dispatch_group_enter(group);
+
+    if ([result.itemProvider canLoadObjectOfClass:PHLivePhoto.class]) {
+      if (!livePhotoArray) {
+        livePhotoArray = [[NSMutableArray alloc] init];
+      }
+      [result.itemProvider loadObjectOfClass:PHLivePhoto.class
+                           completionHandler:^(__kindof id<NSItemProviderReading> _Nullable object, NSError *_Nullable error) {
+                             if (!error) {
+                               TiUIiOSLivePhoto *livePhoto = [[[TiUIiOSLivePhoto alloc] _initWithPageContext:[self pageContext]] autorelease];
+                               [livePhoto setLivePhoto:(PHLivePhoto *)object];
+                               [livePhotoArray addObject:@{@"livePhoto" : livePhoto,
+                                 @"mediaType" : (NSString *)kUTTypeLivePhoto,
+                                 @"success" : @(YES),
+                                 @"code" : @(0)}];
+                             } else {
+                               [livePhotoArray addObject:@{@"error" : error.description,
+                                 @"code" : @(error.code),
+                                 @"success" : @(NO),
+                                 @"mediaType" : (NSString *)kUTTypeLivePhoto}];
+                               DebugLog(@"[ERROR] Failed to load live photo- %@ .", error.description);
+                             }
+                             dispatch_group_leave(group);
+                           }];
+    } else if ([result.itemProvider canLoadObjectOfClass:UIImage.class]) {
+      if (!imageArray) {
+        imageArray = [[NSMutableArray alloc] init];
+      }
+      [result.itemProvider loadObjectOfClass:UIImage.class
+                           completionHandler:^(__kindof id<NSItemProviderReading> _Nullable object, NSError *_Nullable error) {
+                             if (!error) {
+                               TiBlob *media = [[[TiBlob alloc] initWithImage:(UIImage *)object] autorelease];
+                               [imageArray addObject:@{@"media" : media,
+                                 @"mediaType" : (NSString *)kUTTypeImage,
+                                 @"success" : @(YES),
+                                 @"code" : @(0)}];
+                             } else {
+                               [imageArray addObject:@{@"error" : error.description,
+                                 @"code" : @(error.code),
+                                 @"success" : @(NO),
+                                 @"mediaType" : (NSString *)kUTTypeImage}];
+                               DebugLog(@"[ERROR] Failed to load image- %@ .", error.description);
+                             }
+                             dispatch_group_leave(group);
+                           }];
+    } else if ([result.itemProvider hasItemConformingToTypeIdentifier:UTTypeMovie.identifier]) {
+      if (!videoArray) {
+        videoArray = [[NSMutableArray alloc] init];
+      }
+      [result.itemProvider loadFileRepresentationForTypeIdentifier:UTTypeMovie.identifier
+                                                 completionHandler:^(NSURL *_Nullable url, NSError *_Nullable error) {
+                                                   // As per discussion- https://developer.apple.com/forums/thread/652695
+                                                   if (!error) {
+                                                     NSString *filename = url.lastPathComponent;
+                                                     NSFileManager *fileManager = NSFileManager.defaultManager;
+                                                     NSURL *destPath = [fileManager.temporaryDirectory URLByAppendingPathComponent:filename];
+
+                                                     NSError *copyError;
+
+                                                     [fileManager copyItemAtURL:url
+                                                                          toURL:destPath
+                                                                          error:&copyError];
+                                                     TiBlob *media = [[[TiBlob alloc] initWithFile:[destPath path]] autorelease];
+                                                     if ([media mimeType] == nil) {
+                                                       [media setMimeType:@"video/mpeg" type:TiBlobTypeFile];
+                                                     }
+                                                     [videoArray addObject:@{@"media" : media,
+                                                       @"mediaType" : (NSString *)kUTTypeMovie,
+                                                       @"success" : @(YES),
+                                                       @"code" : @(0)}];
+                                                   } else {
+                                                     [videoArray addObject:@{@"error" : error.description,
+                                                       @"code" : @(error.code),
+                                                       @"success" : @(NO),
+                                                       @"mediaType" : (NSString *)kUTTypeMovie}];
+                                                     DebugLog(@"[ERROR] Failed to load video- %@ .", error.description);
+                                                   }
+                                                   dispatch_group_leave(group);
+                                                 }];
+    } else {
+      dispatch_group_leave(group);
+      NSLog(@"Unsupported media type");
+    }
+  }
+
+  dispatch_group_notify(group, dispatch_get_global_queue(QOS_CLASS_DEFAULT, DISPATCH_QUEUE_PRIORITY_DEFAULT), ^{
+    // Perform completition block
+    NSMutableDictionary *dictionary = [TiUtils dictionaryWithCode:0 message:nil];
+    if (livePhotoArray != nil) {
+      [dictionary setObject:livePhotoArray forKey:@"livePhotos"];
+    }
+    if (imageArray != nil) {
+      [dictionary setObject:imageArray forKey:@"images"];
+    }
+    if (videoArray != nil) {
+      [dictionary setObject:videoArray forKey:@"videos"];
+    }
+    [self sendPickerSuccess:dictionary];
+  });
+
+  if (autoHidePicker) {
+    [self closeModalPicker:picker];
+  }
+}
+#endif
+
 #pragma mark UIPopoverPresentationControllerDelegate
 
 - (void)prepareForPopoverPresentation:(UIPopoverPresentationController *)popoverPresentationController
@@ -1811,6 +2009,22 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
 #endif
   [self sendPickerCancel];
 }
+
+#pragma mark UIAdaptivePresentationControllerDelegate
+
+#if IS_SDK_IOS_13
+- (void)presentationControllerDidDismiss:(UIPresentationController *)presentationController
+{
+#if defined(USE_TI_MEDIASHOWCAMERA) || defined(USE_TI_MEDIAOPENPHOTOGALLERY) || defined(USE_TI_MEDIASTARTVIDEOEDITING)
+#if IS_SDK_IOS_14
+  [self closeModalPicker:picker ?: _phPicker];
+#else
+  [self closeModalPicker:picker];
+#endif
+  [self sendPickerCancel];
+#endif
+}
+#endif
 
 #pragma mark UIImagePickerControllerDelegate
 

@@ -15,10 +15,9 @@ description: |
     * <Titanium.BufferStream>
     * <Titanium.Filesystem.FileStream>
     * <Titanium.Network.Socket.TCP>
-
 extends: Titanium.Module
 since: "1.7"
-platforms: [android, iphone, ipad]
+platforms: [android, iphone, ipad, macos]
 examples: 
   - title: Stream.pump Example
     example: |
@@ -283,7 +282,7 @@ methods:
 
 ---
 name: CreateStreamArgs
-platforms: [android, iphone, ipad]
+platforms: [android, iphone, ipad, macos]
 summary: Argument passed to [createStream](Titanium.Stream.createStream).
 since: "1.7"
 properties:
@@ -300,7 +299,7 @@ properties:
 
 ---
 name: ReadCallbackArgs
-platforms: [android, iphone, ipad]
+platforms: [android, iphone, ipad, macos]
 summary: |
     Argument passed to the read callback when an asynchronous [read](Titanium.Stream.read) operation
     finishes.
@@ -329,6 +328,7 @@ properties:
   - name: errorDescription
     summary: Text description of the error.
     type: String
+    exclude-platforms: [macos]
     deprecated:
         since: "3.1.0"
         notes: Use error property to determine error message
@@ -357,7 +357,7 @@ properties:
 
 ---
 name: WriteCallbackArgs
-platforms: [android, iphone, ipad]
+platforms: [android, iphone, ipad, macos]
 summary: |
     Argument passed to the write callback when an asynchronous
     [write](Titanium.Stream.write) operation
@@ -387,6 +387,7 @@ properties:
   - name: errorDescription
     summary: Text description of the error.
     type: String
+    exclude-platforms: [macos]
     deprecated:
         since: "3.1.0"
         notes: Use error property to determine error message
@@ -415,7 +416,7 @@ properties:
 
 ---
 name: WriteStreamCallbackArgs
-platforms: [android, iphone, ipad]
+platforms: [android, iphone, ipad, macos]
 summary: |
     Argument passed to the callback when an asynchronous
     [writeStream](Titanium.Stream.writeStream) operation finishes.
@@ -448,6 +449,7 @@ properties:
   - name: errorDescription
     summary: Text description of the error.
     type: String
+    exclude-platforms: [macos]
     deprecated:
         since: "3.1.0"
         notes: Use error property to determine error message
@@ -455,7 +457,7 @@ properties:
 
 ---
 name: PumpCallbackArgs
-platforms: [android, iphone, ipad]
+platforms: [android, iphone, ipad, macos]
 summary: |
     Argument passed to the callback each time the 
     [pump](Titanium.Stream.pump) operation has new data to deliver.
@@ -500,6 +502,7 @@ properties:
   - name: errorDescription
     summary: Text description of the error.
     type: String
+    exclude-platforms: [macos]
     deprecated:
         since: "3.1.0"
         notes: Use error property to determine error message
