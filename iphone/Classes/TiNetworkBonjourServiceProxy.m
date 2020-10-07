@@ -183,16 +183,16 @@ READWRITE_IMPL(NSString *, domain, Domain);
 }
 GETTER_IMPL(JSValue *, socket, Socket);
 
-- (void)setIsLocal:(BOOL)isLocal
+- (void)setIsLocal:(bool)isLocal
 {
   local = isLocal;
 }
 
-- (BOOL)isLocal
+- (bool)isLocal
 {
   return local;
 }
-READWRITE_IMPL(BOOL, isLocal, IsLocal);
+READWRITE_IMPL(bool, isLocal, IsLocal);
 
 - (NSNetService *)service
 {

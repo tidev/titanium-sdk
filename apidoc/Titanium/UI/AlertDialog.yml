@@ -108,14 +108,14 @@ events:
             Value of login field if dialog `style` property is defined as
             <Titanium.UI.iOS.AlertDialogStyle.LOGIN_AND_PASSWORD_INPUT>.
         type: String
-        platforms: [iphone, ipad]
+        platforms: [iphone, ipad, macos]
 
       - name: password
         summary: |
             Value of password field if dialog `style` property is defined as
             <Titanium.UI.iOS.AlertDialogStyle.LOGIN_AND_PASSWORD_INPUT>.
         type: String
-        platforms: [iphone, ipad]
+        platforms: [iphone, ipad, macos]
 
       - name: text
         summary: |
@@ -123,7 +123,7 @@ events:
             <Titanium.UI.iOS.AlertDialogStyle.PLAIN_TEXT_INPUT> or
             <Titanium.UI.iOS.AlertDialogStyle.SECURE_TEXT_INPUT>.
         type: String
-        platforms: [iphone, ipad]
+        platforms: [iphone, ipad, macos]
 
 methods:
   - name: show
@@ -217,7 +217,7 @@ properties:
 
   - name: destructive
     summary: Index to define the destructive button.
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     description: Setting this property to -1 disables this option.
     type: Number
     default: -1
@@ -232,7 +232,7 @@ properties:
         <Titanium.UI.iOS.AlertDialogStyle.SECURE_TEXT_INPUT>.
     type: String
     since: "5.4.0"
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: hinttextid
     summary: |
@@ -241,7 +241,7 @@ properties:
     description: Only one of `hintText` or `hinttextid` should be specified.
     type: String
     since: "6.2.0"
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: keyboardType
     summary: Keyboard type to display when this text field inside the dialog is focused.
@@ -251,7 +251,7 @@ properties:
         <Titanium.UI.iOS.AlertDialogStyle.SECURE_TEXT_INPUT>.
     type: Number
     since: 5.1.0
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     constants: Titanium.UI.KEYBOARD_TYPE_*
     default: <Titanium.UI.KEYBOARD_TYPE_DEFAULT>
 
@@ -263,7 +263,7 @@ properties:
         <Titanium.UI.iOS.AlertDialogStyle.SECURE_TEXT_INPUT>.
     type: Number
     since: 5.2.0
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     constants: Titanium.UI.KEYBOARD_APPEARANCE_*
     default: <Titanium.UI.KEYBOARD_APPEARANCE_DEFAULT>
 
@@ -277,7 +277,7 @@ properties:
         <Titanium.UI.iOS.AlertDialogStyle.LOGIN_AND_PASSWORD_INPUT>.
     type: String
     since: 5.1.0
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: loginHintText
     summary: Hint text of the login text field inside the dialog.
@@ -286,7 +286,7 @@ properties:
         <Titanium.UI.iOS.AlertDialogStyle.LOGIN_AND_PASSWORD_INPUT>.
     type: String
     since: "5.4.0"
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: loginhinttextid
     summary: |
@@ -295,7 +295,7 @@ properties:
     description: Only one of `loginHintText` or `loginhinttextid` should be specified.
     type: String
     since: "6.2.0"
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: loginReturnKeyType
     summary: Specifies the text to display on the keyboard `Return` key when this field is focused.
@@ -314,7 +314,7 @@ properties:
         <Titanium.UI.iOS.AlertDialogStyle.LOGIN_AND_PASSWORD_INPUT>.
     type: String
     since: "6.1.0"
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: loginKeyboardType
     summary: Keyboard type to display when this text field inside the dialog is focused.
@@ -333,7 +333,7 @@ properties:
   - name: messageid
     summary: Key identifying a string in the locale file to use for the message text.
     type: String
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: ok
     summary: Text for the `OK` button.
@@ -347,7 +347,7 @@ properties:
     description: |
         If `buttonNames` is defined, this property is ignored.
     type: String
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: passwordPlaceholder
     summary: Placeholder of the password text field inside the dialog.
@@ -359,7 +359,7 @@ properties:
         <Titanium.UI.iOS.AlertDialogStyle.LOGIN_AND_PASSWORD_INPUT>.
     type: String
     since: 5.1.0
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: passwordHintText
     summary: Hint text of the password text field inside the dialog.
@@ -368,7 +368,7 @@ properties:
         <Titanium.UI.iOS.AlertDialogStyle.LOGIN_AND_PASSWORD_INPUT>.
     type: String
     since: "5.4.0"
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: passwordhinttextid
     summary: |
@@ -377,7 +377,7 @@ properties:
     description: Only one of `passwordHintText` or `hinttextid` should be specified.
     type: String
     since: "6.2.0"
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: passwordReturnKeyType
     summary: Specifies the text to display on the keyboard `Return` key when this field is focused.
@@ -396,7 +396,7 @@ properties:
         <Titanium.UI.iOS.AlertDialogStyle.LOGIN_AND_PASSWORD_INPUT>.
     type: String
     since: "6.1.0"
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: passwordKeyboardType
     summary: Keyboard type to display when this text field inside the dialog is focused.
@@ -419,7 +419,7 @@ properties:
         <Titanium.UI.iOS.AlertDialogStyle.SECURE_TEXT_INPUT>.
     type: String
     since: 5.1.0
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: persistent
     summary: Boolean value indicating if the alert dialog should only be cancelled by user gesture or by hide method.
@@ -429,11 +429,11 @@ properties:
     type: Boolean
     default: false on iOS, true on Android
     since: "3.0.0"
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: preferred
     summary: Index to define the preferred button.
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     description: |
         When you specify a preferred action, the alert dialog highlights the text of that
         action to give it emphasis. (If the alert also contains a cancel button, the preferred
@@ -454,7 +454,7 @@ properties:
         <Titanium.UI.iOS.AlertDialogStyle.SECURE_TEXT_INPUT>.
     type: Number
     since: 5.1.0
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     constants: Titanium.UI.RETURNKEY_*
     default: <Titanium.UI.RETURNKEY_DEFAULT>
 
@@ -470,7 +470,7 @@ properties:
     type: Number
     default: <Titanium.UI.iOS.AlertDialogStyle.DEFAULT>
     since: 3.0.0
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: tintColor
     summary: The tint-color of the dialog.
@@ -481,7 +481,7 @@ properties:
     type: [ String, Titanium.UI.Color ]
     since: "6.2.0"
     osver: {ios: {min: "8.0"}}
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: title
     summary: Title of the dialog.
@@ -491,7 +491,7 @@ properties:
   - name: titleid
     summary: Key identifying a string in the locale file to use for the title text.
     type: String
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: value
     summary: Value of the text field inside the dialog.
@@ -501,7 +501,7 @@ properties:
         <Titanium.UI.iOS.AlertDialogStyle.SECURE_TEXT_INPUT>.
     type: String
     since: "6.1.0"
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
 examples:
   - title: Single-button Alert Dialog (using alias)

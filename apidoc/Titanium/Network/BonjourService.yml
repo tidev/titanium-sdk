@@ -43,7 +43,7 @@ description: |
     ```
 extends: Titanium.Proxy
 since: "1.2.0"
-platforms: [iphone, ipad]
+platforms: [iphone, ipad, macos]
 methods:
   - name: publish
     summary: Asynchronously publish a Bonjour service to the network.  Only works if isLocal is TRUE

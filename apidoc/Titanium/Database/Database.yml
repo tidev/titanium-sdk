@@ -5,7 +5,7 @@ summary: |
   in-application SQLite database.
 extends: Titanium.Module
 since: "0.1"
-platforms: [android, iphone, ipad]
+platforms: [android, iphone, ipad, macos]
 methods:
   - name: install
     summary: Installs an SQLite database to device's internal storage.
@@ -111,7 +111,7 @@ methods:
         absolute path provided.
 
         * `file:///sdcard/path/to/mydb2Installed`
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
   - name: open
     summary: Opens an SQLite database.
     description: |

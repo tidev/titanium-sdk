@@ -90,8 +90,8 @@ properties:
         to their views. Set this property to false to disable the bubbling to the proxy's parent.
     type: Boolean
     default: true
-    platforms: [iphone, ipad, android]
-    since: "3.0.0"
+    platforms: [iphone, ipad, android, macos]
+    since: {android: "3.0.0",  iphone: "3.0.0", ipad: "3.0.0", macos: "9.2.0"}
 
   - name: apiName
     summary: The name of the API that this proxy corresponds to.
@@ -100,8 +100,8 @@ properties:
       returns `Ti.UI.Button`.
     permission: read-only
     type: String
-    platforms: [android, iphone, ipad]
-    since: "3.2.0"
+    platforms: [android, iphone, ipad, macos]
+    since: {android: "3.2.0",  iphone: "3.2.0", ipad: "3.2.0", macos: "9.2.0"}
 
   - name: lifecycleContainer
     summary: The Window or TabGroup whose Activity lifecycle should be triggered on the proxy.

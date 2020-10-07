@@ -1,6 +1,5 @@
 ---
 name: Titanium.UI.iPad.Popover
-platforms: [ipad]
 summary: A Popover is used to manage the presentation of content in a popover.
 description: |
     A popover is created using the <Titanium.UI.iPad.createPopover> method or **`<Popover>`** Alloy element.
@@ -14,7 +13,8 @@ description: |
     Adding top-level view containers may have unintended side effects. See the [contentView](Titanium.UI.iPad.Popover.contentView)
     property for more information.
 extends: Titanium.UI.View
-since: "1.2"
+platforms: [ipad, macos]
+since: {ipad: "1.2.0", macos: "9.2.0"}
 excludes:
     events: [click, dblclick, doubletap, focus, keypressed, longclick, longpress, pinch, postlayout,
              singletap, swipe, touchcancel, touchend, touchmove, touchstart, twofingertap]
@@ -110,6 +110,7 @@ properties:
         notes: This property is deprecated. Set the height on the [Titanium.UI.iPad.Popover.contentView](Titanium.UI.iPad.Popover.contentView) property instead.
         removed: "9.0.0"
     type: [Number, String]
+    exclude-platforms: [macos]
 
   - name: leftNavButton
     summary: Left button in the navigation area of the popover.
@@ -117,6 +118,7 @@ properties:
         since: "3.4.2"
         notes: This property is no longer supported.
         removed: "3.4.2"
+    exclude-platforms: [macos]
     description: |
         Ignored when [Titanium.UI.iPad.Popover.contentView](Titanium.UI.iPad.Popover.contentView) is set.
 
@@ -147,6 +149,7 @@ properties:
         since: "3.4.2"
         notes: This property is no longer supported.
         removed: "3.4.2"
+    exclude-platforms: [macos]
     description: |
         Ignored when [Titanium.UI.iPad.Popover.contentView](Titanium.UI.iPad.Popover.contentView) is set.
 
@@ -170,6 +173,7 @@ properties:
         since: "3.4.2"
         notes: This property is no longer supported.
         removed: "3.4.2"
+    exclude-platforms: [macos]
     description: |
         Ignored when [Titanium.UI.iPad.Popover.contentView](Titanium.UI.iPad.Popover.contentView) is set.
     type: String
@@ -180,6 +184,7 @@ properties:
         since: "3.4.2"
         notes: This property is deprecated. Set the width on the [Titanium.UI.iPad.Popover.contentView](Titanium.UI.iPad.Popover.contentView) property instead.
         removed: "9.0.0"
+    exclude-platforms: [macos]
     type: [Number, String]
 
 examples:

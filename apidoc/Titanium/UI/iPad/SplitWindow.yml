@@ -32,10 +32,9 @@ description: |
     The SplitWindow is a top-level window and cannot be contained within another window or view.
 extends: Titanium.UI.Window
 platforms: [ipad]
-since: "1.2"
+since: "1.2.0"
 excludes:
     properties: [transitionAnimation, swipeToClose]
-
 events:
   - name: visible
     summary: Fired when the `masterView` or `detailView` becomes visible.

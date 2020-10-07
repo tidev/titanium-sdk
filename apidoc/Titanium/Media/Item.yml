@@ -11,7 +11,7 @@ description: |
     returns an array of `Item` objects.
 extends: Titanium.Proxy
 since: "1.4.0"
-platforms: [iphone, ipad]
+platforms: [iphone, ipad, macos]
 createable: false
 properties:
 

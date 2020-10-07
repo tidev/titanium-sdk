@@ -11,7 +11,6 @@ deprecated:
     since: "5.4.0"
     removed: "7.0.0"
     notes: Use [Titanium.UI.iOS.TableViewCellSelectionStyle](Titanium.UI.iOS.TableViewCellSelectionStyle) instead.
-
 properties:
   - name: BLUE
     summary: The cell when selected has a blue background. This is the default value.

@@ -271,10 +271,10 @@ Utils.cacheExtract = async function (inFile, integrity, outDir, extractFunc) {
 	const cacheFile = cachedDownloadPath(`${integrity.replace(/\//g, '-')}.json`);
 	// if the extracted directory already exists...
 	if (exists) {
-		// we need to hash and verify it matches expectations
-		const hash = await hashElement(outDir);
-		// Read the cache file and compare hashes!
 		try {
+			// we need to hash and verify it matches expectations
+			const hash = await hashElement(outDir); // TODO: pass in options around symlinks?
+			// Read the cache file and compare hashes!
 			const cachedHash = await fs.readJson(cacheFile);
 			// eslint-disable-next-line security/detect-possible-timing-attacks
 			if (hash.hash === cachedHash.hash) { // we're only checking top-level dir hash
@@ -284,6 +284,7 @@ Utils.cacheExtract = async function (inFile, integrity, outDir, extractFunc) {
 		} catch (err) {
 			// ignore, assume cache file didn't exist
 		}
+		await fs.remove(outDir); // hashing failed or didn't match, so wipe the target and re-extract
 	}
 
 	// ok the output dir doesn't exist, or it's hash doesn't match expectations

@@ -625,14 +625,14 @@ READWRITE_IMPL(CLLocationDegrees, headingFilter, HeadingFilter);
   DebugLog(@"[ERROR] The showBackgroundLocationIndicator property is only available on iOS 11.0+. Ignoring call ...");
 }
 
-READWRITE_IMPL(BOOL, showBackgroundLocationIndicator, ShowBackgroundLocationIndicator);
+READWRITE_IMPL(bool, showBackgroundLocationIndicator, ShowBackgroundLocationIndicator);
 
-- (BOOL)locationServicesEnabled
+- (bool)locationServicesEnabled
 {
   return [CLLocationManager locationServicesEnabled];
 }
 
-GETTER_IMPL(BOOL, locationServicesEnabled, LocationServicesEnabled);
+GETTER_IMPL(bool, locationServicesEnabled, LocationServicesEnabled);
 
 - (CLAuthorizationStatus)locationServicesAuthorization
 {
@@ -641,12 +641,12 @@ GETTER_IMPL(BOOL, locationServicesEnabled, LocationServicesEnabled);
 
 GETTER_IMPL(CLAuthorizationStatus, locationServicesAuthorization, LocationServicesAuthorization);
 
-- (BOOL)trackSignificantLocationChange
+- (bool)trackSignificantLocationChange
 {
   return trackSignificantLocationChange;
 }
 
-- (void)setTrackSignificantLocationChange:(BOOL)newval
+- (void)setTrackSignificantLocationChange:(bool)newval
 {
   if ([CLLocationManager significantLocationChangeMonitoringAvailable]) {
     if (newval != trackSignificantLocationChange) {
@@ -672,7 +672,7 @@ GETTER_IMPL(CLAuthorizationStatus, locationServicesAuthorization, LocationServic
   }
 }
 
-READWRITE_IMPL(BOOL, trackSignificantLocationChange, TrackSignificantLocationChange);
+READWRITE_IMPL(bool, trackSignificantLocationChange, TrackSignificantLocationChange);
 
 // Activity Type for CLlocationManager.
 - (CLActivityType)activityType
@@ -694,12 +694,12 @@ READWRITE_IMPL(CLActivityType, activityType, ActivityType);
 
 // Flag to decide whether or not the app should continue to send location updates while the app is in background.
 
-- (BOOL)pauseLocationUpdateAutomatically
+- (bool)pauseLocationUpdateAutomatically
 {
   return pauseLocationUpdateAutomatically;
 }
 
-- (void)setPauseLocationUpdateAutomatically:(BOOL)value
+- (void)setPauseLocationUpdateAutomatically:(bool)value
 {
   pauseLocationUpdateAutomatically = value;
   TiThreadPerformOnMainThread(
@@ -709,7 +709,7 @@ READWRITE_IMPL(CLActivityType, activityType, ActivityType);
       NO);
 }
 
-READWRITE_IMPL(BOOL, pauseLocationUpdateAutomatically, PauseLocationUpdateAutomatically);
+READWRITE_IMPL(bool, pauseLocationUpdateAutomatically, PauseLocationUpdateAutomatically);
 
 - (void)restart:(id)arg
 {
@@ -733,7 +733,13 @@ MAKE_SYSTEM_PROP_DBL(ACCURACY_HUNDRED_METERS, kCLLocationAccuracyHundredMeters);
 MAKE_SYSTEM_PROP_DBL(ACCURACY_KILOMETER, kCLLocationAccuracyKilometer);
 MAKE_SYSTEM_PROP_DBL(ACCURACY_THREE_KILOMETERS, kCLLocationAccuracyThreeKilometers);
 MAKE_SYSTEM_PROP_DBL(ACCURACY_LOW, kCLLocationAccuracyThreeKilometers);
-MAKE_SYSTEM_PROP(ACCURACY_BEST_FOR_NAVIGATION, kCLLocationAccuracyBestForNavigation); //Since 2.1.3
+MAKE_SYSTEM_PROP_DBL(ACCURACY_BEST_FOR_NAVIGATION, kCLLocationAccuracyBestForNavigation);
+#if IS_SDK_IOS_14
+MAKE_SYSTEM_PROP_DBL(ACCURACY_REDUCED, kCLLocationAccuracyReduced);
+
+MAKE_SYSTEM_PROP(ACCURACY_AUTHORIZATION_FULL, CLAccuracyAuthorizationFullAccuracy);
+MAKE_SYSTEM_PROP(ACCURACY_AUTHORIZATION_REDUCED, CLAccuracyAuthorizationReducedAccuracy);
+#endif
 
 MAKE_SYSTEM_PROP(AUTHORIZATION_UNKNOWN, kCLAuthorizationStatusNotDetermined);
 MAKE_SYSTEM_PROP(AUTHORIZATION_AUTHORIZED, kCLAuthorizationStatusAuthorizedAlways);
@@ -766,7 +772,7 @@ MAKE_SYSTEM_PROP(ACTIVITYTYPE_OTHER_NAVIGATION, CLActivityTypeOtherNavigation);
   return locationPermissionManager;
 }
 
-- (BOOL)hasLocationPermissions:(CLAuthorizationStatus)authorizationType
+- (bool)hasLocationPermissions:(CLAuthorizationStatus)authorizationType
 {
   BOOL locationServicesEnabled = [CLLocationManager locationServicesEnabled];
   CLAuthorizationStatus currentPermissionLevel = [CLLocationManager authorizationStatus];
@@ -847,9 +853,43 @@ MAKE_SYSTEM_PROP(ACTIVITYTYPE_OTHER_NAVIGATION, CLActivityTypeOtherNavigation);
   }
 }
 
-READWRITE_IMPL(BOOL, allowsBackgroundLocationUpdates, AllowsBackgroundLocationUpdates);
+#if IS_SDK_IOS_14
+- (void)requestTemporaryFullAccuracyAuthorization:(NSString *)purposeKey withCallback:(JSValue *)callback
+{
+  if (![TiUtils isIOSVersionOrGreater:@"14.0"]) {
+    NSMutableDictionary *propertiesDict = [TiUtils dictionaryWithCode:1 message:@"Supported on iOS 14+"];
+    [callback callWithArguments:@[ propertiesDict ]];
+    return;
+  }
+  NSDictionary *descriptionDict = [[NSBundle mainBundle] objectForInfoDictionaryKey:kTiGeolocationTemporaryUsageDescriptionDictionary];
+  if (!descriptionDict || ![descriptionDict valueForKey:purposeKey]) {
+    DebugLog(@"[WARN] Add %@ key with purpose key %@ in info.plist", kTiGeolocationTemporaryUsageDescriptionDictionary, purposeKey);
+  }
+  [[self locationPermissionManager] requestTemporaryFullAccuracyAuthorizationWithPurposeKey:purposeKey
+                                                                                 completion:^(NSError *_Nullable error) {
+                                                                                   NSMutableDictionary *propertiesDict = [TiUtils dictionaryWithCode:0 message:nil];
+                                                                                   if (error != nil) {
+                                                                                     propertiesDict = [TiUtils dictionaryWithCode:1 message:error.description];
+                                                                                   } else {
+                                                                                     propertiesDict[@"accuracyAuthorization"] = @([[self locationPermissionManager] accuracyAuthorization]);
+                                                                                   }
+                                                                                   [callback callWithArguments:@[ propertiesDict ]];
+                                                                                 }];
+}
+
+- (CLAccuracyAuthorization)locationAccuracyAuthorization
+{
+  if (![TiUtils isIOSVersionOrGreater:@"14.0"]) {
+    DebugLog(@"[ERROR] This property is available on iOS 14 and above.");
+    return -1;
+  }
+  return [[self locationPermissionManager] accuracyAuthorization];
+}
+#endif
+
+READWRITE_IMPL(bool, allowsBackgroundLocationUpdates, AllowsBackgroundLocationUpdates);
 GETTER_IMPL(NSString *, lastGeolocation, LastGeolocation);
-READWRITE_IMPL(BOOL, showCalibration, ShowCalibration);
+READWRITE_IMPL(bool, showCalibration, ShowCalibration);
 
 #pragma mark Internal
 

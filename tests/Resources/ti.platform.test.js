@@ -4,7 +4,7 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-/* global OS_VERSION_MAJOR, OS_VERSION_MINOR, OS_IOS */
+/* global OS_VERSION_MAJOR, OS_VERSION_MINOR, OS_VERSION_PATCH, OS_IOS */
 /* eslint-env mocha */
 /* eslint no-unused-expressions: "off" */
 'use strict';
@@ -250,7 +250,7 @@ describe('Titanium.Platform', function () {
 
 	it('.name', () => {
 		should(Ti.Platform).have.readOnlyProperty('name').which.is.a.String();
-		should(Ti.Platform.name).be.equalOneOf([ 'android', 'iOS', 'windows', 'mobileweb' ]);
+		should(Ti.Platform.name).be.equalOneOf([ 'android', 'iOS', 'windows', 'mobileweb', 'Mac OS X' ]);
 		// TODO match with osname!
 	});
 
@@ -308,6 +308,15 @@ describe('Titanium.Platform', function () {
 		should(Ti.Platform.versionMinor).be.eql(versionMinor);
 	});
 
+	it('.versionPatch', () => {
+		should(Ti.Platform).have.readOnlyProperty('versionPatch').which.is.a.Number();
+		should(Ti.Platform.versionPatch).be.eql(OS_VERSION_PATCH);
+
+		const versionComponents = Ti.Platform.version.split('.');
+		const versionPatch = (versionComponents.length >= 3) ? parseInt(versionComponents[2]) : 0;
+		should(Ti.Platform.versionPatch).be.eql(versionPatch);
+	});
+
 	it.ios('.identifierForVendor', () => {
 		should(Ti.Platform.identifierForVendor).be.a.String();
 		should(Ti.Platform.getIdentifierForVendor).be.a.Function();
@@ -324,6 +333,7 @@ describe('Titanium.Platform', function () {
 		should(Ti.Platform.isAdvertisingTrackingEnabled).be.a.Boolean();
 	});
 
+	// FIXME: macOS pops dialogs abotu no application set to open this url scheme
 	it.ios('#openURL(url, callback)', function (finish) {
 		Ti.Platform.openURL('randomapp://', _e => finish());
 	});

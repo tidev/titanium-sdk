@@ -47,3 +47,6 @@ junit_report.xml
 coverage/
 
 tests/diffs/
+# in-memory blobs written to disk as the expected image for image compariosn tests
+tests/Resources/ios/snapshots/1[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9].png
+tests/Resources/android/snapshots/1[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9].png

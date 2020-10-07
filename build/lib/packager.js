@@ -32,7 +32,7 @@ const TITANIUM_PREP_LOCATIONS = [
  */
 async function zip(cwd, filename) {
 	const command = os.platform() === 'win32' ? path.join(ROOT_DIR, 'build/win32/zip') : 'zip';
-	await exec(`${command} -9 -q -r "${path.join('..', path.basename(filename))}" *`, { cwd });
+	await exec(`${command} -9 -q -r -y "${path.join('..', path.basename(filename))}" *`, { cwd });
 
 	const outputFolder = path.resolve(cwd, '..');
 	const outputFile = path.join(outputFolder, path.basename(filename));
@@ -250,16 +250,16 @@ class Packager {
 		const modulesDir = path.join(this.zipDir, 'modules');
 
 		// We have a race condition problem where where the top-level modules folder and the platform-specific
-		// sub-folders are trying to be created at the same time if we copy moduels in parallel
+		// sub-folders are trying to be created at the same time if we copy modules in parallel
 		// How can we avoid? Pre-create the common folder structure in advance!
-		await fs.ensureDir(modulesDir);
+		await fs.emptyDir(modulesDir);
 		const subDirs = this.platforms.concat([ 'commonjs' ]);
 		// Convert ios to iphone
 		const iosIndex = subDirs.indexOf('ios');
 		if (iosIndex !== -1) {
 			subDirs[iosIndex] = 'iphone';
 		}
-		await Promise.all(subDirs.map(d => fs.ensureDir(path.join(modulesDir, d))));
+		await Promise.all(subDirs.map(d => fs.emptyDir(path.join(modulesDir, d))));
 		// Now download/extract/copy the modules
 		await Promise.all(modules.map(m => this.handleModule(m)));
 
@@ -279,7 +279,6 @@ class Packager {
 		// then unzip to temp dir (again with caching based on inut integrity hash)
 		const tmpZipPath = utils.cachedDownloadPath(m.url);
 		const tmpOutDir = tmpZipPath.substring(0, tmpZipPath.length - '.zip'.length); // drop .zip
-		console.log(`Unzipping ${zipFile} to ${tmpOutDir}`);
 		await utils.cacheUnzip(zipFile, m.integrity, tmpOutDir);
 		// then copy from tmp dir over to this.zipDir
 		// Might have to tweak this a bit! probably want to copy some subdir
@@ -296,7 +295,7 @@ class Packager {
 		if (this.targetOS !== 'win32') {
 			ignoreDirs.push(path.join(SUPPORT_DIR, 'win32'));
 		}
-		// FIXME: Usee Array.prototype.some to filter more succinctly
+		// FIXME: Use Array.prototype.some to filter more succinctly
 		const filter = src => {
 			for (const ignore of ignoreDirs) {
 				if (src.includes(ignore)) {
