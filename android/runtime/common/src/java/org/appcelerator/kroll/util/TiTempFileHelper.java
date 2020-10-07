@@ -6,6 +6,8 @@
  */
 package org.appcelerator.kroll.util;
 
+//TODO: Delete this file...
+
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;

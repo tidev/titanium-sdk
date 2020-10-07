@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2015 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2020 by Axway, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -33,7 +33,6 @@ import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.kroll.common.TiDeployData;
 import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.kroll.util.KrollAssetHelper;
-import org.appcelerator.kroll.util.TiTempFileHelper;
 import org.appcelerator.titanium.util.TiBlobLruCache;
 import org.appcelerator.titanium.util.TiFileHelper;
 import org.appcelerator.titanium.util.TiImageLruCache;
@@ -92,13 +91,10 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	private WeakReference<Activity> currentActivity;
 	private String density;
 	private String defaultUnit;
-	private TiResponseCache responseCache;
 	private BroadcastReceiver localeReceiver;
-	private BroadcastReceiver externalStorageReceiver;
 	private AccessibilityManager accessibilityManager = null;
 
 	protected TiDeployData deployData;
-	protected TiTempFileHelper tempFileHelper;
 	protected ITiAppInfo appInfo;
 	protected TiStylesheet stylesheet;
 	protected HashMap<String, WeakReference<KrollModule>> modules;
@@ -361,11 +357,12 @@ public abstract class TiApplication extends Application implements KrollApplicat
 
 		proxyMap = new HashMap<String, SoftReference<KrollProxy>>(5);
 
-		tempFileHelper = new TiTempFileHelper(this);
-
 		deployData = new TiDeployData(this);
 
 		registerActivityLifecycleCallbacks(new TiApplicationLifecycle());
+
+		// Delete all Titanium temp files created from previous app execution.
+		deleteTiTempFiles();
 
 		// Set up a listener to be invoked just before Titanium's JavaScript runtime gets terminated.
 		// Note: Runtime will be terminated once all Titanium activities have been destroyed.
@@ -381,6 +378,9 @@ public abstract class TiApplication extends Application implements KrollApplicat
 
 				// Cancel all Titanium timers.
 				cancelTimers();
+
+				// Delete all Titanium temp files.
+				deleteTiTempFiles();
 			}
 		});
 	}
@@ -389,7 +389,6 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	public void onTerminate()
 	{
 		stopLocaleMonitor();
-		stopExternalStorageMonitor();
 		accessibilityManager = null;
 		super.onTerminate();
 	}
@@ -469,23 +468,158 @@ public abstract class TiApplication extends Application implements KrollApplicat
 		TiConfig.DEBUG = TiConfig.LOGD = appProperties.getBool("ti.android.debug", false);
 		USE_LEGACY_WINDOW = appProperties.getBool(PROPERTY_USE_LEGACY_WINDOW, false);
 
+		// Start listening for system locale changes.
 		startLocaleMonitor();
-		startExternalStorageMonitor();
 
-		// Register the default cache handler
-		responseCache = new TiResponseCache(getRemoteCacheDir(), this);
-		TiResponseCache.setDefault(responseCache);
+		// Register our custom HTTP response cache handler.
+		TiResponseCache.setDefault(new TiResponseCache(
+			tryCreateDir(getTiInternalCacheDir(), "http-response-cache"), this));
+
+		// Set up an unhandled exception handler.
 		KrollRuntime.setPrimaryExceptionHandler(new TiExceptionHandler());
 	}
 
-	private File getRemoteCacheDir()
+	/**
+	 * Gets Titanium's hidden caches directory on internal storage.
+	 * @return Return a file object referencing the specified directory.
+	 */
+	private File getTiInternalCacheDir()
 	{
-		File cacheDir = new File(tempFileHelper.getTempDirectory(), "remote-cache");
-		if (!cacheDir.exists()) {
-			cacheDir.mkdirs();
-			tempFileHelper.excludeFileOnCleanup(cacheDir);
+		return tryCreateDir(getCacheDir(), ".titanium");
+	}
+
+	/**
+	 * Gets the "Ti.Filesystem.tempDirectory" folder on internal storage.
+	 * @return Return a file object referencing the specified directory.
+	 */
+	public File getTiTempDir()
+	{
+		return tryCreateDir(getTiInternalCacheDir(), "tmp");
+	}
+
+	/**
+	 * Creates the given directory. Will catch and log any exception that may occur doing so.
+	 * @param directory Reference to the directory to be created. Can be null.
+	 * @return Returns the "directory" argument reference.
+	 */
+	private File tryCreateDir(File directory)
+	{
+		return tryCreateDir(directory, null);
+	}
+
+	/**
+	 * Creates the given directory. Will catch and log any exception that may occur doing so.
+	 * @param parent Reference to the directory to be created. Can be null.
+	 * @param child The relative subdirectory path to be appended to the given parent. Can be null.
+	 * @return
+	 * Returns a new file object referencing the combined "parent" and "child" path.
+	 * Returns the "parent" argument if the "child" argument is null.
+	 */
+	private File tryCreateDir(File parent, String child)
+	{
+		// Validate argument.
+		if (parent == null) {
+			return null;
 		}
-		return cacheDir.getAbsoluteFile();
+
+		// Append the child path to the parent folder and create the directory tree.
+		File file = (child != null) ? new File(parent, child) : parent;
+		try {
+			file.mkdirs();
+		} catch (Throwable ex) {
+			Log.w(TAG, "Failed to create directory tree.", ex);
+		}
+		return file;
+	}
+
+	/** Deletes all temporary files created under the "Ti.Filesystem.tempDirectory" folder. */
+	private void deleteTiTempFiles()
+	{
+		// Create the "trash" directory if it doesn't already exist.
+		File trashDir = tryCreateDir(getTiInternalCacheDir(), "trash");
+
+		// Set up an array of all temp directories to be trashed.
+		File[] dirArray = new File[] {
+			// The "Ti.Filesystem.tempDirectory" folder.
+			getTiTempDir(),
+
+			// The legacy temp folder used before Titanium 9.3.0. Won't exist for new app installations.
+			new File(getCacheDir(), "_tmp")
+		};
+
+		// Trash the above directories.
+		String renameSuffix = "_" + System.currentTimeMillis();
+		for (File nextDir : dirArray) {
+			boolean wasTrashed = true;
+			try {
+				// Move folder under the "trash" folder to be deleted asynchronously.
+				if (nextDir.exists()) {
+					wasTrashed = false;
+					wasTrashed = nextDir.renameTo(new File(trashDir, nextDir.getName() + renameSuffix));
+				}
+			} catch (Exception ex) {
+				Log.e(TAG, "Failed to trash directory: " + nextDir, ex);
+			} finally {
+				// If failed to move existing folder to "trash", then do a blocking delete. (Should never happen.)
+				if (!wasTrashed) {
+					tryDeleteTree(nextDir);
+				}
+			}
+		}
+
+		// Async delete the "trash" directory tree.
+		Thread thread = new Thread(() -> {
+			tryDeleteTree(trashDir);
+		});
+		thread.start();
+	}
+
+	/**
+	 * Recursively deletes the given directory tree.
+	 * Will never throw an exception and will return the result as a boolean instead.
+	 * @param file Reference to a file or directory. Can be null.
+	 * @return
+	 * Returns true if successfully deleted all files and folders under given directory tree.
+	 * Returns false if at least 1 deletion failed or if given a null argument.
+	 */
+	private boolean tryDeleteTree(File file)
+	{
+		boolean wasSuccessful = false;
+		try {
+			if (file != null) {
+				wasSuccessful = deleteTree(file);
+			}
+		} catch (Throwable ex) {
+			Log.e(TAG, "Failed to delete directory tree: " + file, ex);
+		}
+		return wasSuccessful;
+	}
+
+	/**
+	 * Recursively deletes the given directory tree.
+	 * @param file Reference to a directory or a single file. Can be null, in which case this method no-ops.
+	 * @return
+	 * Returns true if successfully deleted all files and folders under given directory tree.
+	 * Returns false if at least 1 deletion failed or if given a null argument.
+	 * @exception SecurityException Thrown if don't have permission to delete at least 1 file in the tree.
+	 */
+	private boolean deleteTree(File file) throws SecurityException
+	{
+		// Validate argument.
+		if (file == null) {
+			return false;
+		}
+
+		// If given a directory, then recursively delete the entire tree.
+		boolean wasDeleted = true;
+		if (file.isDirectory()) {
+			for (File nextFile : file.listFiles()) {
+				wasDeleted = deleteTree(nextFile) && wasDeleted;
+			}
+		}
+
+		// Delete the given directory/file.
+		return (file.delete() && wasDeleted);
 	}
 
 	public void setRootActivity(TiRootActivity rootActivity)
@@ -512,8 +646,6 @@ public abstract class TiApplication extends Application implements KrollApplicat
 				break;
 			}
 		}
-
-		tempFileHelper.scheduleCleanTempDir();
 	}
 
 	/**
@@ -845,12 +977,6 @@ public abstract class TiApplication extends Application implements KrollApplicat
 		TiApplication.launch();
 	}
 
-	@Override
-	public TiTempFileHelper getTempFileHelper()
-	{
-		return tempFileHelper;
-	}
-
 	/**
 	 * @return true if the current thread is the main thread, false otherwise.
 	 * @module.api
@@ -916,41 +1042,6 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	private void stopLocaleMonitor()
 	{
 		unregisterReceiver(localeReceiver);
-	}
-
-	private void startExternalStorageMonitor()
-	{
-		externalStorageReceiver = new BroadcastReceiver() {
-			@Override
-			public void onReceive(Context context, Intent intent)
-			{
-				if (Intent.ACTION_MEDIA_MOUNTED.equals(intent.getAction())) {
-					responseCache.setCacheDir(getRemoteCacheDir());
-					TiResponseCache.setDefault(responseCache);
-					Log.i(TAG, "SD card has been mounted. Enabling cache for http responses.", Log.DEBUG_MODE);
-
-				} else {
-					// if the sd card is removed, we don't cache http responses
-					TiResponseCache.setDefault(null);
-					Log.i(TAG, "SD card has been unmounted. Disabling cache for http responses.", Log.DEBUG_MODE);
-				}
-			}
-		};
-
-		IntentFilter filter = new IntentFilter();
-
-		filter.addAction(Intent.ACTION_MEDIA_MOUNTED);
-		filter.addAction(Intent.ACTION_MEDIA_REMOVED);
-		filter.addAction(Intent.ACTION_MEDIA_UNMOUNTED);
-		filter.addAction(Intent.ACTION_MEDIA_BAD_REMOVAL);
-		filter.addDataScheme("file");
-
-		registerReceiver(externalStorageReceiver, filter);
-	}
-
-	private void stopExternalStorageMonitor()
-	{
-		unregisterReceiver(externalStorageReceiver);
 	}
 
 	@Override
