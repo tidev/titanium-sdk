@@ -25,7 +25,9 @@ import android.app.Activity;
 		TiC.PROPERTY_ICON,
 		TiC.PROPERTY_TITLE,
 		TiC.PROPERTY_TITLE_COLOR,
-		TiC.PROPERTY_TITLEID
+		TiC.PROPERTY_TITLEID,
+		TiC.PROPERTY_BADGE,
+		TiC.PROPERTY_BADGE_COLOR
 	})
 public class TabProxy extends TiViewProxy
 {
@@ -252,6 +254,12 @@ public class TabProxy extends TiViewProxy
 		}
 		if (name.equals(TiC.PROPERTY_ICON)) {
 			((TiUIAbstractTabGroup) tabGroupProxy.getOrCreateView()).updateTabIcon(tabGroupProxy.getTabIndex(this));
+		}
+		if (name.equals(TiC.PROPERTY_BADGE)) {
+			((TiUIAbstractTabGroup) tabGroupProxy.getOrCreateView()).updateBadge(tabGroupProxy.getTabIndex(this));
+		}
+		if (name.equals(TiC.PROPERTY_BADGE_COLOR)) {
+			((TiUIAbstractTabGroup) tabGroupProxy.getOrCreateView()).updateBadgeColor(tabGroupProxy.getTabIndex(this));
 		}
 	}
 
