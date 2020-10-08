@@ -92,6 +92,20 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 	public abstract void setBackgroundColor(int colorInt);
 
 	/**
+	 * Update the tab badge
+	 *
+	 * @param index of the Tab to update.
+	 */
+	public abstract void updateBadge(int index);
+
+	/**
+	 * Update the tab badge color
+	 *
+	 * @param index of the Tab to update.
+	 */
+	public abstract void updateBadgeColor(int index);
+
+	/**
 	 * Updates the tab's background drawables to the proper color states.
 	 *
 	 * @param index of the Tab to update.
