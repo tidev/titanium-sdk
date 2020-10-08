@@ -632,7 +632,7 @@ class DeviceTestDetails {
 			if (this.target === 'device') {
 				await exec(`adb -s ${await this.deviceId()} shell "run-as ${APP_ID} cat '${filepath}'" > ${dest}`);
 			} else {
-				await exec(`adb shell "run-as ${APP_ID} cat '${filepath}'" > ${dest}`);
+				await exec(`adb -e shell "run-as ${APP_ID} cat '${filepath}'" > ${dest}`);
 			}
 			return dest;
 		}
