@@ -300,6 +300,44 @@ describe('Titanium.UI.Picker', function () {
 		win.open();
 	});
 
+	it('DatePicker dateTimeColor (valid "type" - TIMOB-28181)', function (finish) {
+		const dp = Ti.UI.createPicker({
+			type: Ti.UI.PICKER_TYPE_PLAIN,
+			dateTimeColor: 'red'
+		});
+
+		win = Ti.UI.createWindow();
+		win.addEventListener('open', function () {
+			try {
+				should(dp.dateTimeColor).be.eql('red');
+				finish();
+			} catch (err) {
+				return finish(err);
+			}
+		});
+		win.add(dp);
+		win.open();
+	});
+
+	it('DatePicker dateTimeColor (invalid "type" - TIMOB-28181)', function (finish) {
+		const dp = Ti.UI.createPicker({
+			type: Ti.UI.PICKER_TYPE_DATE,
+			dateTimeColor: 'red'
+		});
+
+		win = Ti.UI.createWindow();
+		win.addEventListener('open', function () {
+			try {
+				should(dp.dateTimeColor).be.eql('red');
+				finish();
+			} catch (err) {
+				return finish(err);
+			}
+		});
+		win.add(dp);
+		win.open();
+	});
+
 	it('DatePicker postlayout event', function (finish) {
 		const dp = Ti.UI.createPicker({
 			type: Ti.UI.PICKER_TYPE_DATE
