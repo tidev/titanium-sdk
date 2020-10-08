@@ -7,8 +7,8 @@
 package org.appcelerator.titanium;
 
 import java.lang.ref.WeakReference;
+import java.util.HashMap;
 import java.util.Iterator;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.appcelerator.kroll.KrollDict;
@@ -62,6 +62,7 @@ import android.os.Message;
 import android.os.Messenger;
 import android.os.PowerManager;
 import android.os.RemoteException;
+import androidx.annotation.NonNull;
 import androidx.appcompat.widget.Toolbar;
 
 import android.view.KeyEvent;
@@ -99,37 +100,19 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 	private TiActionBarStyleHandler actionBarStyleHandler;
 	private TiActivitySafeAreaMonitor safeAreaMonitor;
 
-	public static class PermissionContextData
-	{
-		private final Integer requestCode;
-		private final KrollObject context;
-		private final KrollFunction callback;
-
-		public PermissionContextData(Integer requestCode, KrollFunction callback, KrollObject context)
-		{
-			this.requestCode = requestCode;
-			this.callback = callback;
-			this.context = context;
-		}
-
-		public Integer getRequestCode()
-		{
-			return requestCode;
-		}
-
-		public KrollFunction getCallback()
-		{
-			return callback;
-		}
-
-		public KrollObject getContext()
-		{
-			return context;
-		}
+	/**
+	 * Callback to be invoked when the TiBaseActivity.onRequestPermissionsResult() has been called,
+	 * providing the results of a requestPermissions() call. Instances of this interface are to
+	 * be passed to the TiBaseActivity.registerPermissionRequestCallback() method.
+	 */
+	public interface OnRequestPermissionsResultCallback {
+		void onRequestPermissionsResult(
+			@NonNull TiBaseActivity activity, int requestCode,
+			@NonNull String[] permissions, @NonNull int[] grantResults);
 	}
 
-	private static ConcurrentHashMap<Integer, PermissionContextData> callbackDataByPermission =
-		new ConcurrentHashMap<Integer, PermissionContextData>();
+	private static HashMap<Integer, TiBaseActivity.OnRequestPermissionsResultCallback>
+		permissionsResultCallbackMap = new HashMap<>();
 
 	protected View layout;
 	protected TiActivitySupportHelper supportHelper;
@@ -401,65 +384,91 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 	}
 
 	@Override
-	public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults)
+	public void onRequestPermissionsResult(
+		int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults)
 	{
-		if (!callbackDataByPermission.isEmpty()) {
-			handlePermissionRequestResult(requestCode, permissions, grantResults);
-		}
-	}
-
-	private void handlePermissionRequestResult(Integer requestCode, String[] permissions, int[] grantResults)
-	{
-		PermissionContextData cbd = callbackDataByPermission.get(requestCode);
-		if (cbd == null) {
-			return;
-		}
-
-		String deniedPermissions = "";
-		for (int i = 0; i < grantResults.length; ++i) {
-			if (grantResults[i] == PackageManager.PERMISSION_DENIED) {
-				if (deniedPermissions.isEmpty()) {
-					deniedPermissions = permissions[i];
-				} else {
-					deniedPermissions = deniedPermissions + ", " + permissions[i];
-				}
-			}
-		}
-
-		KrollDict response = new KrollDict();
-
-		if (deniedPermissions.isEmpty()) {
-			response.putCodeAndMessage(0, null);
-		} else {
-			response.putCodeAndMessage(-1, "Permission(s) denied: " + deniedPermissions);
-		}
-
-		KrollFunction callback = cbd.getCallback();
+		OnRequestPermissionsResultCallback callback = permissionsResultCallbackMap.get(requestCode);
 		if (callback != null) {
-			KrollObject context = cbd.getContext();
-			if (context == null) {
-				Log.w(TAG, "Permission callback context object is null");
-			}
-			callback.callAsync(context, response);
-		} else {
-			Log.w(TAG, "Permission callback function has not been set");
+			callback.onRequestPermissionsResult(this, requestCode, permissions, grantResults);
 		}
 	}
 
 	/**
-	 * register permission request result callback for activity
-	 *
-	 * @param requestCode request code (8 Bit) to associate callback with request
-	 * @param callback callback function which receives a KrollDict with success,
-	 *                 code, optional message and requestCode
-	 * @param context KrollObject as required by async callback pattern
+	 * Removes the global callback assigned via the registerPermissionRequestCallback() method.
+	 * @param requestCode The unique integer ID associated with the callback.
+	 * @return Returns true if callback was removed. Returns false if callback for given request code was not found.
 	 */
-	public static void registerPermissionRequestCallback(Integer requestCode, KrollFunction callback,
-														 KrollObject context)
+	public static boolean unregisterPermissionRequestCallback(int requestCode)
 	{
-		if (callback != null && context != null) {
-			callbackDataByPermission.put(requestCode, new PermissionContextData(requestCode, callback, context));
+		return (permissionsResultCallbackMap.remove(requestCode) != null);
+	}
+
+	/**
+	 * Registers a global callback to be invoked when onRequestPermissionsResult() is called for the given
+	 * request code. Indicates if permissions were granted from a requestPermissions() method call.
+	 * <p>
+	 * The registered callback can be removed via the TiBaseActivity.unregisterPermissionRequestCallback() method.
+	 * @param requestCode Unique 8-bit integer ID to be used by the requestPermissions() method.
+	 * @param callback Callback to be invoked when the activity's onRequestPermissionsResult() method has been called.
+	 */
+	public static void registerPermissionRequestCallback(
+		int requestCode, @NonNull TiBaseActivity.OnRequestPermissionsResultCallback callback)
+	{
+		if (callback != null) {
+			permissionsResultCallbackMap.put(requestCode, callback);
 		}
+	}
+
+	/**
+	 * Registers a global KrollCallback to be invoked when onRequestPermissionsResult() is called for the given
+	 * request code. Indicates if permissions were granted from a requestPermissions() method call.
+	 * <p>
+	 * The registered callback can be removed via the TiBaseActivity.unregisterPermissionRequestCallback() method.
+	 * @param requestCode Unique 8-bit integer ID to be used by the requestPermissions() method.
+	 * @param callback
+	 * Callback to be invoked with KrollDict properties "success", "code", and an optional "message". Can be null.
+	 * @param context KrollObject providing the JavaScript context needed to invoke a JS callback.
+	 */
+	public static void registerPermissionRequestCallback(
+		Integer requestCode, final KrollFunction callback, final KrollObject context)
+	{
+		if (requestCode == null) {
+			return;
+		}
+
+		permissionsResultCallbackMap.put(requestCode, new OnRequestPermissionsResultCallback() {
+			@Override
+			public void onRequestPermissionsResult(
+				@NonNull TiBaseActivity activity, int requestCode,
+				@NonNull String[] permissions, @NonNull int[] grantResults)
+			{
+				if (callback == null) {
+					return;
+				}
+
+				String deniedPermissions = "";
+				for (int i = 0; i < grantResults.length; ++i) {
+					if (grantResults[i] == PackageManager.PERMISSION_DENIED) {
+						if (deniedPermissions.isEmpty()) {
+							deniedPermissions = permissions[i];
+						} else {
+							deniedPermissions = deniedPermissions + ", " + permissions[i];
+						}
+					}
+				}
+
+				KrollDict response = new KrollDict();
+				if (deniedPermissions.isEmpty()) {
+					response.putCodeAndMessage(0, null);
+				} else {
+					response.putCodeAndMessage(-1, "Permission(s) denied: " + deniedPermissions);
+				}
+				if (context == null) {
+					Log.w(TAG, "Permission callback context object is null");
+				}
+				callback.callAsync(context, response);
+			}
+		});
 	}
 
 	protected void setFullscreen(boolean fullscreen)
