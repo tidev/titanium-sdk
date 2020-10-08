@@ -300,7 +300,7 @@ describe('Titanium.UI.Picker', function () {
 		win.open();
 	});
 
-	it('DatePicker dateTimeColor (valid "type" - TIMOB-28181)', function (finish) {
+	it('DatePicker dateTimeColor (invalid "type" - TIMOB-28181)', function (finish) {
 		const dp = Ti.UI.createPicker({
 			type: Ti.UI.PICKER_TYPE_PLAIN,
 			dateTimeColor: 'red'
@@ -319,9 +319,10 @@ describe('Titanium.UI.Picker', function () {
 		win.open();
 	});
 
-	it('DatePicker dateTimeColor (invalid "type" - TIMOB-28181)', function (finish) {
+	it('DatePicker dateTimeColor (valid "type" + "datePickerStyle" - TIMOB-28181)', function (finish) {
 		const dp = Ti.UI.createPicker({
 			type: Ti.UI.PICKER_TYPE_DATE,
+			datePickerStyle: Ti.UI.iOS.DATE_PICKER_STYLE_WHEELS,
 			dateTimeColor: 'red'
 		});
 

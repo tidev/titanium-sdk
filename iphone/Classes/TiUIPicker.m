@@ -235,7 +235,6 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
   // Guard iOS 14 date picker style
   if (@available(iOS 14.0, *)) {
     if (![self isDatePicker] || [(UIDatePicker *)[self picker] preferredDatePickerStyle] != UIDatePickerStyleWheels) {
-      DebugLog(@"[ERROR] The \"dateTimeColor\" property is only supported on iOS 14+ if you set the \"datePickerStyle\" to \"Ti.UI.iOS.DATE_PICKER_STYLE_WHEELS\"");
       return;
     }
   }
