@@ -61,20 +61,26 @@ async function test(platforms, target, deviceId, deployType, deviceFamily, snaps
 	await addTiAppProperties();
 
 	// run build for each platform, and spit out JUnit report
-	const results = {};
-	for (const platform of platforms) {
-		const result = await runBuild(platform, target, deviceId, deployType, deviceFamily, snapshotDir, snapshotPromises);
-		const prefix = generateJUnitPrefix(platform, target, deviceFamily);
-		results[prefix] = result;
-		await outputJUnitXML(result, prefix);
-	}
+	try {
+		const results = {};
+		for (const platform of platforms) {
+			const result = await runBuild(platform, target, deviceId, deployType, deviceFamily, snapshotDir, snapshotPromises);
+			const prefix = generateJUnitPrefix(platform, target, deviceFamily);
+			results[prefix] = result;
+			await outputJUnitXML(result, prefix);
+		}
 
-	// If we're gathering images, make sure we get them all before we move on
-	if (snapshotPromises.length !== 0) {
-		await Promise.all(snapshotPromises);
-	}
+		// If we're gathering images, make sure we get them all before we move on
+		if (snapshotPromises.length !== 0) {
+			await Promise.all(snapshotPromises);
+		}
 
-	return results;
+		return results;
+	} finally {
+		if (target === 'macos') {
+			exec(`osascript "${path.join(__dirname, 'close_modals.scpt')}"`);
+		}
+	}
 }
 
 /**
@@ -633,7 +639,7 @@ class DeviceTestDetails {
 			if (this.target === 'device') {
 				await exec(`adb -s ${await this.deviceId()} shell "run-as ${APP_ID} cat '${filepath}'" > ${dest}`);
 			} else {
-				await exec(`adb shell "run-as ${APP_ID} cat '${filepath}'" > ${dest}`);
+				await exec(`adb -e shell "run-as ${APP_ID} cat '${filepath}'" > ${dest}`);
 			}
 			return dest;
 		}
