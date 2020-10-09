@@ -156,7 +156,7 @@
     "stream-splitter": "^0.3.2",
     "strip-ansi": "^6.0.0",
     "titanium": "^5.2.5",
-    "titanium-docgen": "^4.7.0"
+    "titanium-docgen": "^4.8.1"
   },
   "repository": {
     "type": "git",
