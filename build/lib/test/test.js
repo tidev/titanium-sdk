@@ -300,7 +300,7 @@ async function addTiAppProperties() {
 
 /**
  * @param {string} platform 'android' || 'ios' || 'windows'
- * @param {string} [target] 'emulator' || 'simulator' || 'device'
+ * @param {string} [target] 'emulator' || 'simulator' || 'device' || 'macos'
  * @param {string} [deviceId] uuid of device/simulator to launch
  * @param {string} [deployType=undefined] 'development' || 'test'
  * @param {string} [deviceFamily=undefined] 'ipad' || 'iphone' || undefined
@@ -553,7 +553,14 @@ class DeviceTestDetails {
 		const expected = path.join(this.snapshotDir, details.platform, details.relativePath);
 		const diffDir = path.join(this.snapshotDir, '..', 'diffs', details.platform, details.relativePath.slice(0, -4)); // drop '.png'
 		await fs.ensureDir(diffDir);
-		await fs.copy(expected, path.join(diffDir, 'expected.png'));
+		if (!details.blob) {
+			await fs.copy(expected, path.join(diffDir, 'expected.png'));
+		} else {
+			// With ti.blob direct comparisons we have no input image on-disk already
+			const expected = path.join(diffDir, 'expected.png');
+			const expectedPath = `${details.path.slice(0, -4)}/expected.png`; // drop .png, place unde folder named via basenam eof image, save as 'expected.png'
+			await this.grabAppImage(details.platform, expectedPath, expected);
+		}
 
 		const actual = path.join(diffDir, 'actual.png');
 		await this.grabAppImage(details.platform, details.path, actual);
@@ -619,12 +626,13 @@ class DeviceTestDetails {
 			filepath = filepath.slice(7);
 		}
 		console.log(`Copying generated image ${filepath} to ${dest}`);
+		await fs.ensureDir(path.dirname(dest));
 		if (platform === 'android') {
 			// Pull the file via adb shell
 			if (this.target === 'device') {
 				await exec(`adb -s ${await this.deviceId()} shell "run-as ${APP_ID} cat '${filepath}'" > ${dest}`);
 			} else {
-				await exec(`adb shell "run-as ${APP_ID} cat '${filepath}'" > ${dest}`);
+				await exec(`adb -e shell "run-as ${APP_ID} cat '${filepath}'" > ${dest}`);
 			}
 			return dest;
 		}
@@ -689,14 +697,18 @@ async function handleBuild(prc, target, snapshotDir, snapshotPromises) {
 			}
 
 			// Handle when app crashes and we haven't finished tests yet!
-			if (token.includes('-- End application log ----') || token.includes('-- End simulator log ---')) {
+			if (token.includes('-- End application log ----')
+				|| token.includes('-- End simulator log ---')
+				|| token.includes('-- End mac application log ---')) {
 				prc.kill(); // quit this build...
 				return reject(new Error('Failed to finish test suite before app crashed and logs ended!')); // failed too many times
 			}
 
 			// ignore the build output until the app actually starts
 			if (!started) {
-				if (token.includes('-- Start application log ---') || token.includes('-- Start simulator log ---')) {
+				if (token.includes('-- Start application log ---')
+					|| token.includes('-- Start simulator log ---')
+					|| token.includes('-- Start mac application log ---')) {
 					started = true;
 				}
 				return;

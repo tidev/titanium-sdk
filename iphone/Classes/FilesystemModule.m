@@ -109,7 +109,7 @@
   return TI_WRITE;
 }
 
-- (BOOL)isExternalStoragePresent
+- (bool)isExternalStoragePresent
 {
   //IOS treats the camera connection kit as just that, and does not allow
   //R/W access to it, which is just as well as it'd mess up cameras.
@@ -138,7 +138,13 @@ GETTER_IMPL(NSString *, applicationSupportDirectory, ApplicationSupportDirectory
 
 - (NSString *)applicationDataDirectory
 {
+#if TARGET_OS_MACCATALYST
+  NSString *home = NSHomeDirectory();
+  return [NSString stringWithFormat:@"%@/Documents/", fileURLify(home)];
+#else
+  // TODO: Unify these. Appending /Documents to the home directory appears to give the same path as below code for ios sim (probably also device)
   return [NSString stringWithFormat:@"%@/", fileURLify([NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) objectAtIndex:0])];
+#endif
 }
 GETTER_IMPL(NSString *, applicationDataDirectory, ApplicationDataDirectory);
 
@@ -209,7 +215,12 @@ GETTER_IMPL(NSString *, lineEnding, LineEnding);
     if ([newpath hasPrefix:resourcesDir] || [newpath hasPrefix:[resourcesDir stringByStandardizingPath]]) {
       NSRange range = [newpath rangeOfString:@".app"];
       if (range.location != NSNotFound) {
-        NSString *imageArg = [newpath substringFromIndex:range.location + 5];
+        NSString *imageArg = nil;
+        if ([TiUtils isMacOS]) {
+          imageArg = [newpath substringFromIndex:range.location + 24]; //Contents/Resources/ for mac
+        } else {
+          imageArg = [newpath substringFromIndex:range.location + 5];
+        }
         //remove suffixes.
         imageArg = [imageArg stringByReplacingOccurrencesOfString:@"@3x" withString:@""];
         imageArg = [imageArg stringByReplacingOccurrencesOfString:@"@2x" withString:@""];

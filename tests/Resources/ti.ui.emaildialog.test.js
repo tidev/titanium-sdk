@@ -104,7 +104,8 @@ describe('Titanium.UI.EmailDialog', function () {
 		should(email.getBccRecipients()).eql([ 'other@example.com' ]);
 	});
 
-	(utilities.isWindowsDesktop() ? it.skip : it)('addAttachment', function () {
+	// FIXME: macOS pops a permission prompt for Documents folder
+	it.macAndWindowsDesktopBroken('addAttachment', function () {
 		var file = Ti.Filesystem.getFile(Ti.Filesystem.applicationDataDirectory, 'File.txt'),
 			blob,
 			email;

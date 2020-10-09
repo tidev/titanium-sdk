@@ -58,7 +58,7 @@ extends: Titanium.UI.View
 excludes:
     methods: [add, remove, removeAllChildren, replaceAt]
 since: "0.8"
-platforms: [android, iphone, ipad]
+platforms: [android, iphone, ipad, macos]
 methods:
 
   - name: blur
@@ -164,13 +164,13 @@ properties:
     summary: Determines how text is capitalized during typing.
     type: Number
     constants: Titanium.UI.TEXT_AUTOCAPITALIZATION_*
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     default: Titanium.UI.TEXT_AUTOCAPITALIZATION_NONE
 
   - name: autocorrect
     summary: Determines whether the text in the search bar is autocorrected during typing.
     type: Boolean
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     default: false
 
   - name: barColor
@@ -181,7 +181,7 @@ properties:
         On iOS and Android, `barColor` specifies the color of the "frame" around the search text field.
         On Windows, `barColor` specifies the color of the whole surrounding area of the search text field.
     type: [String, Titanium.UI.Color]
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     default: System default bar color.
 
   - name: cancelButtonTitle
@@ -190,14 +190,14 @@ properties:
     type: String
     default: System-localized 'Cancel'
     since: "5.4.0"
-    platforms: [iphone,ipad]
+    platforms: [iphone,ipad, macos]
 
   - name: color
     summary: Color of the text in this text field, as a color name or hex triplet.
     description: |
         For information about color values, see the "Colors" section of <Titanium.UI>.
     type: [String, Titanium.UI.Color]
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     since: "7.1.0"
 
   - name: fieldBackgroundImage
@@ -205,7 +205,7 @@ properties:
     description: |
       If this property is not specified, the default white background is used.
     type: String
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "7.5.0"
 
   - name: fieldBackgroundDisabledImage
@@ -213,7 +213,7 @@ properties:
     description: |
       If this property is not specified, the default white background is used.
     type: String
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "7.5.0"
 
   - name: focused
@@ -230,7 +230,7 @@ properties:
 
   - name: hintTextColor
     summary: Hint text color to display when the field is empty.
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     since: "7.1.0"
     description: |
         Sets the color of the <Titanium.UI.SearchBar.hintText>.
@@ -247,7 +247,7 @@ properties:
   - name: keyboardType
     summary: Keyboard type constant to use when the field is focused.
     type: Number
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     constants: Titanium.UI.KEYBOARD_TYPE_*
     default: Titanium.UI.KEYBOARD_TYPE_DEFAULT
 
@@ -255,14 +255,14 @@ properties:
     summary: Determines the appearance of the keyboard to be displayed the field is focused.
     type: Number
     since: 5.2.0
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     constants: Titanium.UI.KEYBOARD_APPEARANCE_*
     default: Titanium.UI.KEYBOARD_APPEARANCE_DEFAULT
 
   - name: prompt
     summary: Single line of text displayed at the top of the search bar.
     type: String
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     default: No prompt.
 
   - name: promptid
@@ -270,12 +270,12 @@ properties:
         Key identifying a string from the locale file to use for the
         [prompt](Titanium.UI.SearchBar.prompt) property.
     type: String
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: showBookmark
     summary: Determines whether the bookmark button is displayed.
     type: Boolean
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     default: false
 
   - name: showCancel
@@ -291,7 +291,7 @@ properties:
     summary: Determines the style of the search bar.
     type: Number
     since: 5.4.0
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     constants: Titanium.UI.iOS.SEARCH_BAR_STYLE_*
     default: Titanium.UI.iOS.SEARCH_BAR_STYLE_PROMINENT
 
@@ -359,7 +359,7 @@ name: SearchBarToken
 summary: The search bar token for the <Titanium.UI.SearchBar.insertTokenAtIndex> method.
 since: 9.1.0
 osver: { ios: { min: "13.0" } }
-platforms: [iphone, ipad]
+platforms: [iphone, ipad, macos]
 properties:
   - name: identifier
     summary: The identifier of the search bar token.

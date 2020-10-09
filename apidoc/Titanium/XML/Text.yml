@@ -5,7 +5,8 @@ summary: Represents the textual content of an <Titanium.XML.Element> or <Titaniu
     [DOM Level 2 API](https://www.w3.org/TR/DOM-Level-2-Core/core.html#ID-1312295772)
     on Android and iOS.
 createable: false
-platforms: [android, iphone, ipad]
+since: {android: "0.9", iphone: "0.9", ipad: "0.9", macos: "9.2.0"}
+platforms: [android, iphone, ipad, macos]
 methods:
   - name: splitText
     summary: Breaks this node into two nodes at the specified by offset,
@@ -28,4 +29,4 @@ properties:
         [Text](Titanium.XML.Text) nodes only.
     type: String
     permission: read-only
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]

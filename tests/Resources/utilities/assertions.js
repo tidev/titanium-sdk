@@ -147,7 +147,7 @@ should.Assertion.add('matchImage', function (imageFilePath, threshold = 0.1) {
 	if (isBlob) {
 		expectedBlob = imageFilePath;
 		// save any generated image to a made up path
-		imageFilePath = `snapshots/${OS_ANDROID ? 'android' : 'ios'}/${timestamp}/actual.png`;
+		imageFilePath = `snapshots/${timestamp}.png`;
 	} else {
 		const snapshot = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, imageFilePath);
 		if (!snapshot.exists()) {
@@ -190,15 +190,14 @@ should.Assertion.add('matchImage', function (imageFilePath, threshold = 0.1) {
 			console.log(`!IMAGE: {"path":"${file.nativePath}","platform":"${OS_ANDROID ? 'android' : 'ios'}","relativePath":"${imageFilePath}"}`);
 			// If we're comparing against a blob, let's save something to disk to look at
 			// Save expected blob
-			const expectedPath = `snapshots/${OS_ANDROID ? 'android' : 'ios'}/${timestamp}/expected.png`;
-			const file2 = saveImage(expectedBlob, expectedPath);
-			console.log(`!IMAGE: {"path":"${file2.nativePath}","platform":"${OS_ANDROID ? 'android' : 'ios'}","relativePath":"${expectedPath}"}`);
+			const expectedPath = `snapshots/${timestamp}/expected.png`;
+			saveImage(expectedBlob, expectedPath);
 		}
 		// Save diff image!
 		const diffBuffer = PNG.sync.write(diff);
 		const diffFilePath = imageFilePath.slice(0, -4) + '_diff.png';
 		saveImage(diffBuffer.toTiBuffer().toBlob(), diffFilePath); // TODO Pass along path to diff file?
-		console.log(`!IMG_DIFF: {"path":"${file.nativePath}","platform":"${OS_ANDROID ? 'android' : 'ios'}","relativePath":"${imageFilePath}"}`);
+		console.log(`!IMG_DIFF: {"path":"${file.nativePath}","platform":"${OS_ANDROID ? 'android' : 'ios'}","relativePath":"${imageFilePath}","blob":${isBlob}}`);
 		this.fail(`Image ${imageFilePath} failed to match, had ${pixelsDiff} differing pixels. View actual/expected/diff images to compare manually.`);
 	}
 }, false);

@@ -157,7 +157,7 @@ describe('Titanium.Database', function () {
 	describe('.open()', () => {
 		// Check if open exists and make sure it does not throw exception
 		// FIXME Get working on Android, either lastInsertRowId or rowsAffected is starting as 1, not 0
-		it.androidBroken('opens or creates database', function () {
+		it.androidAndMacBroken('opens or creates database', function () {
 			should(Ti.Database.open).not.be.undefined();
 			should(Ti.Database.open).be.a.Function();
 

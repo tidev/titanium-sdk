@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 46;
+	objectVersion = 52;
 	objects = {
 
 /* Begin PBXAggregateTarget section */
@@ -28,6 +28,7 @@
 		24DE9E1211C5FE74003F90F6 /* <%- moduleIdAsIdentifier %>ModuleAssets.m in Sources */ = {isa = PBXBuildFile; fileRef = 24DE9E1011C5FE74003F90F6 /* <%- moduleIdAsIdentifier %>ModuleAssets.m */; };
 		AA747D9F0F9514B9006C5449 /* <%- moduleIdAsIdentifier %>_Prefix.pch in Headers */ = {isa = PBXBuildFile; fileRef = AA747D9E0F9514B9006C5449 /* <%- moduleIdAsIdentifier %>_Prefix.pch */; };
 		AACBBE4A0F95108600F1A2B1 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AACBBE490F95108600F1A2B1 /* Foundation.framework */; };
+		B11E042C241AC5C100EFA7DC /* TitaniumKit.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = B11E042B241AC5C100EFA7DC /* TitaniumKit.xcframework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -48,6 +49,7 @@
 		24DE9E1011C5FE74003F90F6 /* <%- moduleIdAsIdentifier %>ModuleAssets.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "<%- moduleIdAsIdentifier %>ModuleAssets.m"; path = "Classes/<%- moduleIdAsIdentifier %>ModuleAssets.m"; sourceTree = "<group>"; };
 		AA747D9E0F9514B9006C5449 /* <%- moduleIdAsIdentifier %>_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "<%- moduleIdAsIdentifier %>_Prefix.pch"; sourceTree = SOURCE_ROOT; };
 		AACBBE490F95108600F1A2B1 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		B11E042B241AC5C100EFA7DC /* TitaniumKit.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = TitaniumKit.xcframework; path = "<%- tisdkPath %>/iphone/Frameworks/TitaniumKit.xcframework"; sourceTree = "<group>"; };
 		D2AAC07E0554694100DB518D /* lib<%- moduleId %>.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "lib<%- moduleId %>.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -57,6 +59,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				AACBBE4A0F95108600F1A2B1 /* Foundation.framework in Frameworks */,
+				B11E042C241AC5C100EFA7DC /* TitaniumKit.xcframework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -85,6 +88,7 @@
 		0867D69AFE84028FC02AAC07 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				B11E042B241AC5C100EFA7DC /* TitaniumKit.xcframework */,
 				AACBBE490F95108600F1A2B1 /* Foundation.framework */,
 			);
 			name = Frameworks;
@@ -151,8 +155,8 @@
 			attributes = {
 				LastUpgradeCheck = 0800;
 			};
-			buildConfigurationList = 1DEB922208733DC00010E9CD /* Build configuration list for PBXProject "<%- moduleName %>" */;
-			compatibilityVersion = "Xcode 7.0";
+			buildConfigurationList = 1DEB922208733DC00010E9CD /* Build configuration list for PBXProject "{{ModuleName}}" */;
+			compatibilityVersion = "Xcode 9.3";
 			developmentRegion = English;
 			hasScannedForEncodings = 1;
 			knownRegions = (
@@ -448,7 +452,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		1DEB922208733DC00010E9CD /* Build configuration list for PBXProject "<%- moduleName %>" */ = {
+		1DEB922208733DC00010E9CD /* Build configuration list for PBXProject "{{ModuleName}}" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				1DEB922308733DC00010E9CD /* Debug */,

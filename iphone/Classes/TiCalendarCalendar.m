@@ -179,7 +179,7 @@
 }
 GETTER_IMPL(NSString *, id, Id);
 
-- (BOOL)hidden
+- (bool)hidden
 {
   if (![NSThread isMainThread]) {
     __block BOOL result;
@@ -193,7 +193,7 @@ GETTER_IMPL(NSString *, id, Id);
 
   return [[self calendar] isImmutable];
 }
-GETTER_IMPL(BOOL, hidden, Hidden);
+GETTER_IMPL(bool, hidden, Hidden);
 
 - (NSString *)name
 {

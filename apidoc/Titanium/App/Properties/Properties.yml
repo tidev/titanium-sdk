@@ -251,7 +251,7 @@ events:
 
         The event is also fired when the application changes a property directly using one of the 
         `Ti.App.iOS.UserDefaults` or `Ti.App.Properties` methods.
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "3.0.0"
 
 examples:

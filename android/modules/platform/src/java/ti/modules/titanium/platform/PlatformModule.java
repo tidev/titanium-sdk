@@ -73,6 +73,7 @@ public class PlatformModule extends KrollModule
 	private List<Processor> processors;
 	private int versionMajor;
 	private int versionMinor;
+	private int versionPatch;
 	protected int batteryState;
 	protected double batteryLevel;
 	protected boolean batteryStateReady;
@@ -92,6 +93,9 @@ public class PlatformModule extends KrollModule
 			this.versionMajor = Integer.parseInt(versionComponents[0]);
 			if (versionComponents.length >= 2) {
 				this.versionMinor = Integer.parseInt(versionComponents[1]);
+				if (versionComponents.length >= 3) {
+					this.versionPatch = Integer.parseInt(versionComponents[2]);
+				}
 			}
 		} catch (Exception ex) {
 			Log.e(TAG, "Failed to parse OS version string.", ex);
@@ -161,6 +165,12 @@ public class PlatformModule extends KrollModule
 	public int getVersionMinor()
 	{
 		return this.versionMinor;
+	}
+
+	@Kroll.getProperty
+	public int getVersionPatch()
+	{
+		return this.versionPatch;
 	}
 
 	@Kroll.method

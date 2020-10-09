@@ -73,8 +73,8 @@ examples:
         console.log(formatter.format(new Date()));
         ```
 
-platforms: [iphone, ipad, android]
-since: {iphone: "6.0.0", ipad: "6.0.0", android: "9.1.0"}
+platforms: [iphone, ipad, android, macos]
+since: {iphone: "6.0.0", ipad: "6.0.0", android: "9.1.0", macos: "9.2.0"}
 osver: {ios: {min: "10.3"}}
 
 methods:
@@ -160,8 +160,8 @@ properties:
 ---
 name: DateTimeFormatOptions
 summary: Options to be passed into the <Global.Intl.DateTimeFormat.constructor> method.
-platforms: [iphone, ipad, android]
-since: {iphone: "6.0.0", ipad: "6.0.0", android: "9.1.0"}
+platforms: [iphone, ipad, android, macos]
+since: {iphone: "6.0.0", ipad: "6.0.0", android: "9.1.0", macos: "9.2.0"}
 osver: {ios: {min: "10.3"}}
 properties:
   - name: dateStyle
@@ -256,7 +256,7 @@ properties:
       Can be set to `'lookup'` or `'best fit'`.
 
       This option is ignored on Android.
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: formatMatcher
     type: String
@@ -267,7 +267,7 @@ properties:
       The `'basic'` setting is documented [here](https://www.ecma-international.org/ecma-402/1.0/#BasicFormatMatcher).
 
       This option is ignored on Android.
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: weekday
     type: String

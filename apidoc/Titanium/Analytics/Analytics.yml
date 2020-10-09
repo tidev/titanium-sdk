@@ -39,16 +39,15 @@ extends: Titanium.Module
 excludes: { methods: [ addEventListener, applyProperties, fireEvent, removeEventListener ] }
 since: "0.1"
 methods:
-
   - name: addEvent
     summary: |
         Sends a generic event for this application session.
         **Not displayed in Analytics UI**.
+    exclude-platforms: [macos]
     deprecated: 
         since: "2.0.0"
         removed: "3.3.0"
     parameters:
-
       - name: type
         summary: Event type.
         type: String
@@ -77,7 +76,6 @@ methods:
       If this is successful, you will get a return number of 0. -1 is returned if it is a JSON
       Validation error. -2 is returned if Analytics is disabled.
     parameters:
-
       - name: name
         summary: Event name, displayed in Analytics UI.
         type: String
@@ -95,8 +93,8 @@ methods:
       - name: events
         summary: List of events to be filtered.
         type: Array<String>
-    since: 4.1.0
-    platforms: [android, iphone, ipad]
+    since: {android: "4.1.0", iphone: "4.1.0", ipad: "4.1.0", macos: "9.2.0"}
+    platforms: [android, iphone, ipad, macos]
 
   - name: navEvent
     summary: |
@@ -105,7 +103,6 @@ methods:
     deprecated: 
         since: "8.3.0"
     parameters:
-
       - name: from
         summary: String describing the location the user navigated from.
         type: String
@@ -126,16 +123,15 @@ methods:
         optional: true
         default: null
 
-
   - name: settingsEvent
     summary: |
         Sends a settings event for this application session.
         **Not displayed in Analytics UI**.
+    exclude-platforms: [macos]
     deprecated: 
         since: "2.0.0"
         removed: "3.3.0"
     parameters:
-
       - name: name
         summary: Event name.
         type: String
@@ -146,16 +142,15 @@ methods:
         optional: true
         default: null
 
-
   - name: timedEvent
     summary: |
         Send a timed event for this application session.
         **Not displayed in Analytics UI**.
+    exclude-platforms: [macos]
     deprecated: 
         since: "2.0.0"
         removed: "3.3.0"
     parameters:
-
       - name: name
         summary: Event name.
         type: String
@@ -178,16 +173,15 @@ methods:
         optional: true
         default: null
 
-
   - name: userEvent
-    summary: 
+    summary: |
         Sends a user event for this application session.
         **Not displayed in Analytics UI**.
+    exclude-platforms: [macos]
     deprecated: 
         since: "2.0.0"
         removed: "3.3.0"
     parameters:
-
       - name: name
         summary: Event name.
         type: String
@@ -206,9 +200,9 @@ properties:
          during the application's session. This value may be null or undefined if no such
          event was queued.
     type: String
-    since: "3.1.2"
+    since: {android: "3.1.2", iphone: "3.1.2", ipad: "3.1.2", macos: "9.2.0"}
     permission: read-only
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: optedOut
     summary: Allows the user to opt out from Analytics during runtime to comply to GPDR.
@@ -227,8 +221,8 @@ properties:
 
         Read more about GDPR on the [official website](https://www.eugdpr.org/).
     type: Boolean
-    since: "7.2.0"
-    platforms: [android, iphone, ipad]
+    since: {android: "7.2.0", iphone: "7.2.0", ipad: "7.2.0", macos: "9.2.0"}
+    platforms: [android, iphone, ipad, macos]
 
 examples:
   - title: Custom Feature Event

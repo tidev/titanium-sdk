@@ -1658,6 +1658,14 @@ AndroidBuilder.prototype.initialize = async function initialize() {
 	const loadFromSDCardProp = this.tiapp.properties['ti.android.loadfromsdcard'];
 	this.loadFromSDCard = loadFromSDCardProp && loadFromSDCardProp.value === true;
 
+	// Set default theme to be used in "AndroidManifest.xml" and style resources.
+	this.defaultAppThemeName = 'Theme.MaterialComponents.Bridge';
+	if (this.tiapp.fullscreen || this.tiapp['statusbar-hidden']) {
+		this.defaultAppThemeName = 'Theme.MaterialComponents.Fullscreen.Bridge';
+	} else if (this.tiapp['navbar-hidden']) {
+		this.defaultAppThemeName = 'Theme.MaterialComponents.NoActionBar.Bridge';
+	}
+
 	// Array of gradle/maven compatible library reference names the app project depends on.
 	// Formatted as: "<group.id>:<artifact-id>:<version>"
 	// Example: "com.google.android.gms:play-services-base:11.0.4"
@@ -3283,35 +3291,49 @@ AndroidBuilder.prototype.generateI18N = async function generateI18N() {
 		return locale;
 	}
 
-	for (const locale of Object.keys(data)) {
-		const localeSuffixName = (locale === 'en' ? '' : '-' + resolveRegionName(locale));
-		const dirPath = path.join(this.buildAppMainResDir, `values${localeSuffixName}`);
-		const filePath = path.join(dirPath, 'ti_i18n_strings.xml');
+	// Traverse all loaded i18n locales and write them to XML files under the Android "res" folder.
+	for (const locale in data) {
+		// Create a localized strings dictionary if no i18n "strings.xml" file was found.
+		const localeData = data[locale];
+		if (!localeData.strings) {
+			localeData.strings = {};
+		}
+
+		// Add localized app name to strings dictionary under the "app_name" key:
+		// 1) If not already defined in i18n "strings.xml" file. (This is undocumented, but some devs do this.)
+		// 2) If defined in i18n "app.xml". (The preferred cross-platform way to localize it.)
+		// 3) Default to "tiapp.xml" file's <name/> if not defined under i18n. (Not localized.)
+		let appName = localeData.strings.app_name;
+		if (!appName) {
+			appName = localeData.app && localeData.app.appname;
+			if (!appName) {
+				appName = this.tiapp.name;
+			}
+			localeData.strings.app_name = appName;
+		}
+
+		// Create the XML content for all localized strings.
 		const dom = new DOMParser().parseFromString('<resources/>', 'text/xml');
 		const root = dom.documentElement;
-		const appname = data[locale].app && data[locale].app.appname || this.tiapp.name;
-		const appnameNode = dom.createElement('string');
-
-		appnameNode.setAttribute('name', 'app_name');
-		appnameNode.setAttribute('formatted', 'false');
-		appnameNode.appendChild(dom.createTextNode(appname));
-		root.appendChild(dom.createTextNode('\n\t'));
-		root.appendChild(appnameNode);
-		data[locale].strings && Object.keys(data[locale].strings).forEach(function (name) {
+		for (const name in localeData.strings) {
 			if (name.indexOf(' ') !== -1) {
 				badStringNames[locale] || (badStringNames[locale] = []);
 				badStringNames[locale].push(name);
-			} else if (name !== 'appname') {
+			} else {
 				const node = dom.createElement('string');
 				node.setAttribute('name', name);
 				node.setAttribute('formatted', 'false');
-				node.appendChild(dom.createTextNode(data[locale].strings[name].replace(/\\?'/g, '\\\'').replace(/^\s+/g, replaceSpaces).replace(/\s+$/g, replaceSpaces)));
+				node.appendChild(dom.createTextNode(localeData.strings[name].replace(/\\?'/g, '\\\'').replace(/^\s+/g, replaceSpaces).replace(/\s+$/g, replaceSpaces)));
 				root.appendChild(dom.createTextNode('\n\t'));
 				root.appendChild(node);
 			}
-		});
+		}
 		root.appendChild(dom.createTextNode('\n'));
 
+		// Create the XML file under the Android "res/values-<locale>" folder.
+		const localeSuffixName = (locale === 'en' ? '' : '-' + resolveRegionName(locale));
+		const dirPath = path.join(this.buildAppMainResDir, `values${localeSuffixName}`);
+		const filePath = path.join(dirPath, 'ti_i18n_strings.xml');
 		this.logger.debug(__('Writing %s strings => %s', locale.cyan, filePath.cyan));
 		await fs.ensureDir(dirPath);
 		await fs.writeFile(filePath, '<?xml version="1.0" encoding="UTF-8"?>\n' + dom.documentElement.toString());
@@ -3409,20 +3431,13 @@ AndroidBuilder.prototype.generateTheme = async function generateTheme() {
 	const xmlFilePath = path.join(valuesDirPath, 'ti_styles.xml');
 	this.logger.info(__('Generating theme file: %s', xmlFilePath.cyan));
 
-	// Set up all "Base.Theme.Titanium.Basic" inherited themed activities to be fullscreen if enabled in "tiapp.xml".
-	let basicParentThemeName = 'Theme.AppCompat';
-	if (this.tiapp.fullscreen || this.tiapp['statusbar-hidden']) {
-		basicParentThemeName += '.Fullscreen';
-	}
-
-	// Set up all "Base.Theme.Titanium.Customizable" inherited themes to use one of the following:
-	// - The custom theme applied to the <application/> element in "AndroidManifest.xml".
-	// - The above fullsceen enabled basic theme if custom theme was not applied.
-	let customizableParentThemeName = basicParentThemeName;
+	// Set up "Base.Theme.Titanium.Customizable" inherited themes to use <application/> defined theme, if provided.
+	// Note: Do not assign it if set to a Titanium theme, which would cause a circular reference.
+	let customizableParentThemeName = this.defaultAppThemeName;
 	if (this.customAndroidManifest) {
-		let appTheme = this.customAndroidManifest.getAppAttribute('android:theme');
-		if (appTheme && appTheme.startsWith('@style/') && (appTheme !== '@style/Theme.Titanium.Translucent')) {
-			customizableParentThemeName = appTheme.replace('@style/', '');
+		const appTheme = this.customAndroidManifest.getAppAttribute('android:theme');
+		if (appTheme && !appTheme.startsWith('@style/Theme.Titanium') && !appTheme.startsWith('@style/Base.Theme.Titanium')) {
+			customizableParentThemeName = appTheme;
 		}
 	}
 
@@ -3431,7 +3446,7 @@ AndroidBuilder.prototype.generateTheme = async function generateTheme() {
 	let xmlLines = [
 		'<?xml version="1.0" encoding="utf-8"?>',
 		'<resources>',
-		`	<style name="Base.Theme.Titanium.Basic" parent="${basicParentThemeName}"/>`,
+		`	<style name="Base.Theme.Titanium.Basic" parent="${this.defaultAppThemeName}"/>`,
 		`	<style name="Base.Theme.Titanium.Customizable" parent="${customizableParentThemeName}"/>`,
 		'',
 		'	<!-- Theme used by "TiRootActivity" derived class which displays the splash screen. -->',
@@ -3588,15 +3603,6 @@ AndroidBuilder.prototype.generateAndroidManifest = async function generateAndroi
 		this.logger.warn(__n(message));
 	}
 
-	// Choose app theme to be used by all activities depending on following "tiapp.xml" settings.
-	let appThemeName = '@style/Theme.AppCompat';
-	if (this.tiapp.fullscreen || this.tiapp['statusbar-hidden'] || this.tiapp['navbar-hidden']) {
-		appThemeName += '.NoTitleBar';
-		if (this.tiapp.fullscreen || this.tiapp['statusbar-hidden']) {
-			appThemeName += '.Fullscreen';
-		}
-	}
-
 	// Generate all XML lines to be added as children within the manifest's <application/> block.
 	const appChildXmlLines = [];
 	if (this.tiapp.android) {
@@ -3670,7 +3676,7 @@ AndroidBuilder.prototype.generateAndroidManifest = async function generateAndroi
 		appChildXmlLines: appChildXmlLines,
 		appIcon: '@drawable/' + this.tiapp.icon.replace(/((\.9)?\.(png|jpg))$/, ''),
 		appLabel: this.tiapp.name,
-		appTheme: appThemeName,
+		appTheme: `@style/${this.defaultAppThemeName}`,
 		classname: this.classname,
 		packageName: this.appid,
 		queries: neededManifestSettings.queries,

@@ -29,9 +29,7 @@ description: |
     #### Locale
 
     The `L` macro can also be used as an alias for the <Titanium.Locale.getString> method.
-
-platforms: [android, iphone, ipad]
-
+platforms: [android, iphone, ipad, macos]
 methods:
   - name: alert
     summary: Displays a pop-up alert dialog with the passed in `message`.
@@ -340,6 +338,17 @@ properties:
         This returns the same value as the <Titanium.Platform.versionMinor> property.
 
         Will return zero if the OS does not have a minor version.
+    type: Number
+    default: 0
+    permission: read-only
+    since: "9.2.0"
+
+  - name: OS_VERSION_PATCH
+    summary: The operating system's patch version number.
+    description: |
+        This returns the same value as the <Titanium.Platform.versionPatch> property.
+
+        Will return zero if the OS does not have a patch version.
     type: Number
     default: 0
     permission: read-only

@@ -3,8 +3,8 @@ name: Titanium.UI.iOS.ProgressBarStyle
 summary: |
     A set of constants for the bar styles used on the `style` property of <Titanium.UI.ProgressBar>.
 extends: Titanium.Proxy
-platforms: [iphone, ipad]
-since: "0.8"
+platforms: [iphone, ipad, macos]
+since: {iphone: "0.8", ipad: "0.8", macos: "9.2.0"}
 createable: false
 properties:
   - name: BAR
