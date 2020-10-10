@@ -5263,7 +5263,7 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 						defaultIconHasAlpha = false;
 
 					// Add macOS icons if target is macOS
-					if (this.target === 'macos') {
+					if (this.target === 'macos' || this.target === 'dist-macappstore') {
 						Object.assign(lookup, {
 							'-16':    		{ height: 16, width: 16, scale: 1, idioms: [ 'mac' ], required: true, minXcodeVer: '12.0' },
 							'-16@2x':    	{ height: 16, width: 16, scale: 2, idioms: [ 'mac' ], required: true, minXcodeVer: '12.0' },
