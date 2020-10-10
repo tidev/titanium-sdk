@@ -232,11 +232,9 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
 
 - (void)setDateTimeColor_:(id)value
 {
-  // Guard iOS 14 date picker style
-  if (@available(iOS 14.0, *)) {
-    if (![self isDatePicker] || [(UIDatePicker *)[self picker] preferredDatePickerStyle] != UIDatePickerStyleWheels) {
-      return;
-    }
+  // Guard date picker and iOS 14+ date picker style
+  if (![self isDatePicker] || [(UIDatePicker *)[self picker] preferredDatePickerStyle] != UIDatePickerStyleWheels) {
+    return;
   }
 
   [[self proxy] replaceValue:value forKey:@"dateTimeColor" notification:NO];
