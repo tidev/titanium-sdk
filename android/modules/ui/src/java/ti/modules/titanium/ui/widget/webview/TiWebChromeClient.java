@@ -1,45 +1,47 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2020 by Axway, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 package ti.modules.titanium.ui.widget.webview;
 
+import android.Manifest;
 import android.app.Activity;
+import android.content.ClipData;
+import android.content.ContentValues;
 import android.content.DialogInterface;
-import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
-import android.os.Environment;
 import android.os.Message;
 import android.provider.MediaStore;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.ConsoleMessage;
+import android.webkit.GeolocationPermissions;
+import android.webkit.PermissionRequest;
 import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
 import android.webkit.WebStorage.QuotaUpdater;
 import android.webkit.WebView;
 import android.widget.FrameLayout;
-import java.io.File;
-import java.io.IOException;
+import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollFunction;
-import org.appcelerator.kroll.KrollObject;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.proxy.ActivityProxy;
-import org.appcelerator.titanium.proxy.IntentProxy;
 import org.appcelerator.titanium.proxy.TiViewProxy;
+import org.appcelerator.titanium.util.TiActivityResultHandler;
 import org.appcelerator.titanium.util.TiUIHelper;
 import ti.modules.titanium.ui.WebViewProxy;
 
@@ -53,11 +55,7 @@ public class TiWebChromeClient extends WebChromeClient
 	private FrameLayout mCustomViewContainer;
 	private CustomViewCallback mCustomViewCallback;
 	private View mCustomView;
-
-	private ValueCallback<Uri[]> mFilePathCallback;
-	private ValueCallback<Uri> mFilePathCallbackLegacy;
-	private String mCameraPhotoPath;
-	private Uri mCameraPhotoUri;
+	private Uri mCaptureFileUri;
 
 	public TiWebChromeClient(TiUIWebView webView)
 	{
@@ -65,39 +63,204 @@ public class TiWebChromeClient extends WebChromeClient
 		this.tiWebView = webView;
 	}
 
+	/**
+	 * Called when the HTML attempts to use the geolocation APIs and needs permission from the end-user.
+	 * @param origin The website requesting permission.
+	 * @param callback To be invoked to grant/deny permission to location data.
+	 */
 	@Override
-	public void onGeolocationPermissionsShowPrompt(String origin,
-												   android.webkit.GeolocationPermissions.Callback callback)
+	public void onGeolocationPermissionsShowPrompt(
+		final String origin, final GeolocationPermissions.Callback callback)
 	{
+		// Validate.
+		if (callback == null) {
+			return;
+		}
+
+		// Fetch the WebView's activity.
+		TiBaseActivity activity = getTiBaseActivity();
+		if (activity == null) {
+			callback.invoke(origin, false, false);
+			return;
+		}
+
+		// Prompt end-user for permission on Android 6.0 and higher if needed.
+		if (Build.VERSION.SDK_INT >= 23) {
+			int permissionResult = activity.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION);
+			if (permissionResult != PackageManager.PERMISSION_GRANTED) {
+				TiBaseActivity.OnRequestPermissionsResultCallback activityCallback;
+				activityCallback = new TiBaseActivity.OnRequestPermissionsResultCallback() {
+					@Override
+					public void onRequestPermissionsResult(
+						@NonNull TiBaseActivity activity, int requestCode,
+						@NonNull String[] permissions, @NonNull int[] grantResults)
+					{
+						// Unregister this callback.
+						TiBaseActivity.unregisterPermissionRequestCallback(TiC.PERMISSION_CODE_LOCATION);
+
+						// Determine if location permission was granted.
+						boolean wasGranted = false;
+						if (permissions.length == grantResults.length) {
+							for (int index = 0; index < permissions.length; index++) {
+								if (Manifest.permission.ACCESS_FINE_LOCATION.equals(permissions[index])) {
+									wasGranted = (grantResults[index] == PackageManager.PERMISSION_GRANTED);
+									break;
+								}
+							}
+						}
+
+						// Notify WebView whether or not location access was granted.
+						callback.invoke(origin, wasGranted, false);
+					}
+				};
+				TiBaseActivity.registerPermissionRequestCallback(TiC.PERMISSION_CODE_LOCATION, activityCallback);
+				String[] permissions = new String[] { Manifest.permission.ACCESS_FINE_LOCATION };
+				activity.requestPermissions(permissions, TiC.PERMISSION_CODE_LOCATION);
+				return;
+			}
+		}
+
+		// Notify WebView that location access is granted.
 		callback.invoke(origin, true, false);
+	}
+
+	/**
+	 * Called when the HTML is requesting permission to do WebRTC audio/video capture or access a media resource.
+	 * This method will prompt the end-user for permission to grant access to the requested web resource.
+	 * @param request Object providing the grant/deny callback and the resoruces being requested.
+	 */
+	@Override
+	@RequiresApi(21)
+	public void onPermissionRequest(final PermissionRequest request)
+	{
+		// Validate argument
+		if (request == null) {
+			return;
+		}
+
+		// Fetch resources that the WebView is requesting permissions for.
+		// Note: Array will be empty for resources Android does not support, such as screen sharing.
+		String[] resourceNames = request.getResources();
+		if ((resourceNames == null) || (resourceNames.length <= 0)) {
+			request.deny();
+			return;
+		}
+
+		// Fetch the WebView's activity.
+		TiBaseActivity tiActivity = getTiBaseActivity();
+		if (tiActivity == null) {
+			request.deny();
+			return;
+		}
+
+		// Prompt end-user for permission on Android 6.0 and higher if needed.
+		if (Build.VERSION.SDK_INT >= 23) {
+			// Determine if we need to request for any permissions.
+			boolean isAudioRecordingPermissionRequired = false;
+			boolean isCameraPermissionRequired = false;
+			for (String nextName : resourceNames) {
+				if (PermissionRequest.RESOURCE_AUDIO_CAPTURE.equals(nextName)) {
+					int result = tiActivity.checkSelfPermission(Manifest.permission.RECORD_AUDIO);
+					isAudioRecordingPermissionRequired = (result != PackageManager.PERMISSION_GRANTED);
+				} else if (PermissionRequest.RESOURCE_VIDEO_CAPTURE.equals(nextName)) {
+					int result = tiActivity.checkSelfPermission(Manifest.permission.CAMERA);
+					isCameraPermissionRequired = (result != PackageManager.PERMISSION_GRANTED);
+				}
+			}
+
+			// Request permissions from end-user if needed.
+			if (isAudioRecordingPermissionRequired || isCameraPermissionRequired) {
+				ArrayList<String> permissionNameList = new ArrayList<>();
+				if (isAudioRecordingPermissionRequired) {
+					permissionNameList.add(Manifest.permission.RECORD_AUDIO);
+				}
+				if (isCameraPermissionRequired) {
+					permissionNameList.add(Manifest.permission.CAMERA);
+				}
+				TiBaseActivity.OnRequestPermissionsResultCallback callback;
+				callback = new TiBaseActivity.OnRequestPermissionsResultCallback() {
+					@Override
+					public void onRequestPermissionsResult(
+						@NonNull TiBaseActivity activity, int requestCode,
+						@NonNull String[] permissions, @NonNull int[] grantResults)
+					{
+						// Unregister this callback.
+						TiBaseActivity.unregisterPermissionRequestCallback(TiC.PERMISSION_CODE_CAMERA);
+
+						// Create a new resource name list with all granted permissions.
+						ArrayList<String> resourceNameList = new ArrayList<>();
+						for (String resourceName : request.getResources()) {
+							String permissionName = null;
+							if (PermissionRequest.RESOURCE_AUDIO_CAPTURE.equals(resourceName)) {
+								permissionName = Manifest.permission.RECORD_AUDIO;
+							} else if (PermissionRequest.RESOURCE_VIDEO_CAPTURE.equals(resourceName)) {
+								permissionName = Manifest.permission.CAMERA;
+							}
+							if (permissionName != null) {
+								// Check if resource was granted permission. If so, then add it to the list.
+								for (int index = 0; index < permissions.length; index++) {
+									if (permissionName.equals(permissions[index])) {
+										if (grantResults[index] == PackageManager.PERMISSION_GRANTED) {
+											resourceNameList.add(resourceName);
+											break;
+										}
+									}
+								}
+							} else {
+								// This resource does not require permission. Add it to the granted list.
+								resourceNameList.add(resourceName);
+							}
+						}
+
+						// Notify WebView if which resources were granted permission.
+						if (resourceNameList.isEmpty()) {
+							request.deny();
+						} else {
+							request.grant(resourceNameList.toArray(new String[0]));
+						}
+					}
+				};
+				TiBaseActivity.registerPermissionRequestCallback(TiC.PERMISSION_CODE_CAMERA, callback);
+				tiActivity.requestPermissions(permissionNameList.toArray(new String[0]), TiC.PERMISSION_CODE_CAMERA);
+				return;
+			}
+		}
+
+		// Grant permission to all resources.
+		request.grant(resourceNames);
 	}
 
 	@Override
 	public boolean onConsoleMessage(ConsoleMessage message)
 	{
+		String text = message.message() + " (" + message.lineNumber() + ":" + message.sourceId() + ")";
 		switch (message.messageLevel()) {
 			case DEBUG:
-				Log.d(CONSOLE_TAG, message.message() + " (" + message.lineNumber() + ":" + message.sourceId() + ")");
+				Log.d(CONSOLE_TAG, text);
+				break;
+			case ERROR:
+				Log.e(CONSOLE_TAG, text);
+				break;
+			case WARNING:
+				Log.w(CONSOLE_TAG, text);
 				break;
 			default:
-				Log.i(CONSOLE_TAG, message.message() + " (" + message.lineNumber() + ":" + message.sourceId() + ")");
+				Log.i(CONSOLE_TAG, text);
 				break;
 		}
 		return true;
 	}
 
-	public boolean onJsAlert(WebView view, String url, String message, final android.webkit.JsResult result)
+	@Override
+	public boolean onJsAlert(WebView view, String url, String message, android.webkit.JsResult result)
 	{
-		TiUIHelper.doOkDialog("Alert", message, new OnClickListener() {
-			public void onClick(DialogInterface dialog, int which)
-			{
-				result.confirm();
-			}
+		TiUIHelper.doOkDialog("Alert", message, (DialogInterface dialog, int which) -> {
+			result.confirm();
 		});
-
 		return true;
 	}
 
+	@Override
 	public void onProgressChanged(WebView view, int progress)
 	{
 		WebViewProxy proxy = (WebViewProxy) tiWebView.getProxy();
@@ -224,256 +387,261 @@ public class TiWebChromeClient extends WebChromeClient
 		return false;
 	}
 
-	// See: https://code.google.com/p/android/issues/detail?id=62220
-	// This is unsupported by Google Android
-	// openFileChooser for Android 3.0+
-	public void openFileChooser(ValueCallback<Uri> filePathCallback, String acceptType)
+	/**
+	 * Called when an HTML <input/> element has been tapped on for file selection or photo/video capture.
+	 * @param webView The WebView requesting the file.
+	 * @param filePathCallback The callback to be invoked with the file(s) selected or null if nothing was selected.
+	 * @param chooserParams Provides title to be shown in dialog, mime types to filter by, etc.
+	 * @return
+	 * Returns true if this method will invoke the "filePathCallback" argument.
+	 * Returns false if not and the system should do its default handling.
+	 */
+	@Override
+	@RequiresApi(21)
+	public boolean onShowFileChooser(
+		final WebView webView, final ValueCallback<Uri[]> filePathCallback,
+		final WebChromeClient.FileChooserParams chooserParams)
 	{
-		if (mFilePathCallbackLegacy != null) {
-			mFilePathCallbackLegacy.onReceiveValue(null);
-		}
-		mFilePathCallbackLegacy = filePathCallback;
-
-		TiViewProxy proxy = tiWebView.getProxy();
-		Activity activity = null;
-		PackageManager packageManager = null;
-		ActivityProxy activityProxy = null;
-
-		if (proxy != null) {
-			activity = proxy.getActivity();
-			activityProxy = proxy.getActivityProxy();
+		// Validate arguments.
+		if (filePathCallback == null) {
+			return false;
 		}
 
-		if (activity != null) {
-			packageManager = activity.getPackageManager();
+		// Fetch the WebView's activity.
+		TiBaseActivity activity = getTiBaseActivity();
+		if (activity == null) {
+			filePathCallback.onReceiveValue(null);
+			return true;
 		}
 
-		if (activityProxy != null) {
-			activityProxy.startActivityForResult(prepareFileChooserIntent(packageManager),
-												 new OpenFileChooserCallbackFunction());
-		}
-	}
+		// Prompt the end-user for camera permission if required.
+		if (chooserParams.isCaptureEnabled() && (Build.VERSION.SDK_INT >= 23)) {
+			int permissionResult = activity.checkSelfPermission(Manifest.permission.CAMERA);
+			if (permissionResult != PackageManager.PERMISSION_GRANTED) {
+				TiBaseActivity.OnRequestPermissionsResultCallback permissionsCallback;
+				permissionsCallback = new TiBaseActivity.OnRequestPermissionsResultCallback() {
+					@Override
+					public void onRequestPermissionsResult(
+						@NonNull TiBaseActivity activity, int requestCode,
+						@NonNull String[] permissions, @NonNull int[] grantResults)
+					{
+						// Unregister this callback.
+						TiBaseActivity.unregisterPermissionRequestCallback(TiC.PERMISSION_CODE_CAMERA);
 
-	protected IntentProxy prepareFileChooserIntent(PackageManager packageManager)
-	{
-		Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-		Activity currentActivity = TiApplication.getInstance().getCurrentActivity();
+						// Determine if camera permission was granted.
+						boolean wasGranted = false;
+						if (permissions.length == grantResults.length) {
+							for (int index = 0; index < permissions.length; index++) {
+								if (Manifest.permission.CAMERA.equals(permissions[index])) {
+									wasGranted = (grantResults[index] == PackageManager.PERMISSION_GRANTED);
+									break;
+								}
+							}
+						}
 
-		if (Build.VERSION.SDK_INT < 23
-			|| (Build.VERSION.SDK_INT >= 23 && currentActivity != null
-				&& currentActivity.checkSelfPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
-					   == PackageManager.PERMISSION_GRANTED)) {
-			if (packageManager != null && takePictureIntent.resolveActivity(packageManager) != null) {
-				// Create the File where the photo should go
-				File photoFile = null;
-				try {
-					photoFile = createImageFile();
-					takePictureIntent.putExtra("PhotoPath", mCameraPhotoPath);
-				} catch (IOException ex) {
-					// Error occurred while creating the File
-					Log.e(TAG, "Unable to create Image File", ex);
-				}
-
-				// Continue only if the File was successfully created
-				if (photoFile != null) {
-					mCameraPhotoPath = "file:" + photoFile.getAbsolutePath();
-					mCameraPhotoUri = Uri.fromFile(photoFile);
-					takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, mCameraPhotoUri);
-				} else {
-					takePictureIntent = null;
-				}
+						// Retry file chooser if permission was granted.
+						// If denied, then invoke callback with null file results.
+						if (wasGranted) {
+							onShowFileChooser(webView, filePathCallback, chooserParams);
+						} else {
+							filePathCallback.onReceiveValue(null);
+						}
+					}
+				};
+				TiBaseActivity.registerPermissionRequestCallback(TiC.PERMISSION_CODE_CAMERA, permissionsCallback);
+				activity.requestPermissions(new String[] { Manifest.permission.CAMERA }, TiC.PERMISSION_CODE_CAMERA);
+				return true;
 			}
-		} else {
-			takePictureIntent = null;
 		}
 
-		Intent contentSelectionIntent = new Intent(Intent.ACTION_GET_CONTENT);
-		contentSelectionIntent.addCategory(Intent.CATEGORY_OPENABLE);
-		contentSelectionIntent.setType("*/*");
+		// Set up the onActivityResult() handler.
+		TiActivityResultHandler resultHandler = new TiActivityResultHandler() {
+			@Override
+			public void onResult(Activity activity, int requestCode, int resultCode, Intent data)
+			{
+				// Fetch the child activity's results.
+				Uri[] results = null;
+				if (resultCode == Activity.RESULT_OK) {
+					// Check the intent's results.
+					if (data != null) {
+						ClipData clipData = data.getClipData();
+						if ((clipData != null) && (clipData.getItemCount() > 0)) {
+							// Multiple files have been selected.
+							results = new Uri[clipData.getItemCount()];
+							for (int index = 0; index < clipData.getItemCount(); index++) {
+								ClipData.Item item = clipData.getItemAt(index);
+								if (item != null) {
+									results[index] = item.getUri();
+								}
+							}
+						} else if (data.getData() != null) {
+							// Only 1 file has been selected.
+							results = new Uri[] { data.getData() };
+						}
+					}
 
-		Intent[] intentArray = null;
-		if (takePictureIntent != null) {
-			intentArray = new Intent[] { takePictureIntent };
-		} else {
-			intentArray = new Intent[0];
-		}
+					// If intent did not provide any results, then check if we have a camera capture file.
+					if ((results == null) && (mCaptureFileUri != null)) {
+						results = new Uri[] { mCaptureFileUri };
+					}
+				}
 
-		Intent chooserIntent = new Intent(Intent.ACTION_CHOOSER);
-		chooserIntent.putExtra(Intent.EXTRA_INTENT, contentSelectionIntent);
-		chooserIntent.putExtra(Intent.EXTRA_TITLE, "Image Chooser");
-		if (intentArray != null) {
-			chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, intentArray);
-		}
+				// Invoke WebView's callback with selected file(s).
+				filePathCallback.onReceiveValue(results);
+			}
 
-		return new IntentProxy(chooserIntent);
-	}
+			@Override
+			public void onError(Activity activity, int requestCode, Exception ex)
+			{
+				Log.e(TAG, "onShowFileChooser() failed to get permission.", ex);
+				filePathCallback.onReceiveValue(null);
+			}
+		};
 
-	// See: https://code.google.com/p/android/issues/detail?id=62220
-	// This is unsupported by Google Android
-	// openFileChooser for Android < 3.0
-	public void openFileChooser(ValueCallback<Uri> filePathCallback)
-	{
-		openFileChooser(filePathCallback, "");
-	}
-
-	// See: https://code.google.com/p/android/issues/detail?id=62220
-	// This is unsupported by Google Android
-	//openFileChooser for other Android versions
-	public void openFileChooser(ValueCallback<Uri> filePathCallback, String acceptType, String capture)
-	{
-		openFileChooser(filePathCallback, acceptType);
-	}
-
-	// This is officially supported by Google Android
-	// This is available on API level 21 and above
-	public boolean onShowFileChooser(WebView webView, ValueCallback<Uri[]> filePathCallback,
-									 WebChromeClient.FileChooserParams fileChooserParams)
-	{
-
-		if (mFilePathCallback != null) {
-			mFilePathCallback.onReceiveValue(null);
-		}
-		mFilePathCallback = filePathCallback;
-
-		TiViewProxy proxy = tiWebView.getProxy();
-		Activity activity = null;
-		PackageManager packageManager = null;
-		ActivityProxy activityProxy = null;
-
-		if (proxy != null) {
-			activity = proxy.getActivity();
-			activityProxy = proxy.getActivityProxy();
-		}
-
-		if (activity != null) {
-			packageManager = activity.getPackageManager();
-		}
-
-		if (activityProxy != null) {
-			activityProxy.startActivityForResult(prepareFileChooserIntent(packageManager),
-												 new ShowFileChooserCallbackFunction());
+		// Display the file chooser or catpure activity.
+		try {
+			Intent intent = createFileChooserIntentFrom(chooserParams);
+			activity.launchActivityForResult(intent, activity.getUniqueResultCode(), resultHandler);
+		} catch (Exception ex) {
+			Log.w(TAG, "onShowFileChooser() could not open window. Reason: " + ex.getMessage());
+			filePathCallback.onReceiveValue(null);
 		}
 		return true;
 	}
 
-	class ShowFileChooserCallbackFunction implements KrollFunction
+	/**
+	 * Creates an intent for selecting file(s) from the given parameters.
+	 * Intended to be called by the onShowFileChooser() method.
+	 * @param chooserParams Provides the HTML <input/> element's settings for file selection or image/video capture.
+	 * @return Returns an intent to be passed to the startActivityForResult() method.
+	 */
+	@NonNull
+	@RequiresApi(21)
+	private Intent createFileChooserIntentFrom(WebChromeClient.FileChooserParams chooserParams)
 	{
+		// Create the intent.
+		Intent intent = new Intent();
 
-		@Override
-		public Object call(KrollObject krollObject, HashMap args)
-		{
-			return null;
+		// Set the intent's category, if needed.
+		if (!chooserParams.isCaptureEnabled()) {
+			intent.addCategory(Intent.CATEGORY_OPENABLE);
 		}
 
-		@Override
-		public Object call(KrollObject krollObject, Object[] args)
-		{
-			return null;
+		// Fetch the file mime-types, if any.
+		String[] acceptTypes = chooserParams.getAcceptTypes();
+		if (acceptTypes == null) {
+			acceptTypes = new String[0];
 		}
 
-		@Override
-		public void callAsync(KrollObject krollObject, HashMap args)
-		{
-			int resultCode = Activity.RESULT_CANCELED;
-			Object objectResults = args.get(TiC.EVENT_PROPERTY_RESULT_CODE);
-			if (objectResults instanceof Integer) {
-				resultCode = (Integer) objectResults;
-			}
-			IntentProxy intentProxy = (IntentProxy) args.get(TiC.EVENT_PROPERTY_INTENT);
-			Intent data = null;
-			if (intentProxy != null) {
-				data = intentProxy.getIntent();
-			}
-
-			Uri[] results = null;
-			if (resultCode == Activity.RESULT_OK) {
-				if (data == null || (data.getDataString() == null || data.getDataString().isEmpty())) {
-					// If there is no data, then we may have taken a photo
-					if (mCameraPhotoPath != null) {
-						results = new Uri[] { Uri.parse(mCameraPhotoPath) };
-					}
-				} else {
-					String dataString = data.getDataString();
-					if (dataString != null) {
-						results = new Uri[] { Uri.parse(dataString) };
-					}
+		// Fetch info about all mime types given.
+		boolean hasAudioMimeType = false;
+		boolean hasImageMimeType = false;
+		boolean hasVideoMimeType = false;
+		for (String nextType : acceptTypes) {
+			if (nextType != null) {
+				String lowerCaseType = nextType.toLowerCase();
+				if (lowerCaseType.startsWith("audio/")) {
+					hasAudioMimeType = true;
+				} else if (lowerCaseType.startsWith("image/")) {
+					hasImageMimeType = true;
+				} else if (lowerCaseType.startsWith("video/")) {
+					hasVideoMimeType = true;
 				}
 			}
-
-			mFilePathCallback.onReceiveValue(results);
-			mFilePathCallback = null;
 		}
 
-		@Override
-		public void callAsync(KrollObject krollObject, Object[] args)
-		{
-		}
-	}
-
-	class OpenFileChooserCallbackFunction implements KrollFunction
-	{
-
-		@Override
-		public Object call(KrollObject krollObject, HashMap args)
-		{
-			return null;
-		}
-
-		@Override
-		public Object call(KrollObject krollObject, Object[] args)
-		{
-			return null;
-		}
-
-		@Override
-		public void callAsync(KrollObject krollObject, HashMap args)
-		{
-			int resultCode = Activity.RESULT_CANCELED;
-			Object objectResults = args.get(TiC.EVENT_PROPERTY_RESULT_CODE);
-			if (objectResults instanceof Integer) {
-				resultCode = (Integer) objectResults;
+		// Set the intent's action.
+		String actionName = Intent.ACTION_GET_CONTENT;
+		if (chooserParams.isCaptureEnabled()) {
+			// Use camera photo/video taking action. (There is no action for capturing audio only.)
+			if (hasVideoMimeType || hasAudioMimeType) {
+				actionName = MediaStore.ACTION_VIDEO_CAPTURE;
+			} else {
+				actionName = MediaStore.ACTION_IMAGE_CAPTURE;
 			}
-			IntentProxy intentProxy = (IntentProxy) args.get(TiC.EVENT_PROPERTY_INTENT);
-			Intent data = null;
-			if (intentProxy != null) {
-				data = intentProxy.getIntent();
-			}
+		} else if ((acceptTypes.length > 1) && !hasImageMimeType && !hasVideoMimeType) {
+			// Only use this action when given multiple mime types, but none of them are photos/videos.
+			// Will show files from storage, but won't show files from photo gallery or camera's sandbox.
+			actionName = Intent.ACTION_OPEN_DOCUMENT;
+		}
+		intent.setAction(actionName);
 
-			Uri results = null;
-			if (resultCode == Activity.RESULT_OK) {
-				if (data == null || (data.getDataString() == null || data.getDataString().isEmpty())) {
-					// If there is no data, then we may have taken a photo
-					if (mCameraPhotoUri != null) {
-						results = mCameraPhotoUri;
-					}
-				} else {
-					String dataString = data.getDataString();
-					if (dataString != null) {
-						results = Uri.parse(dataString);
-					}
+		// Set the mime type(s) of the files allowed to be chosen. Default to all types if not set.
+		if (!chooserParams.isCaptureEnabled()) {
+			intent.setType("*/*");
+			if (acceptTypes.length > 1) {
+				// Set multiple mime types. (Main type must be "*/*" or else this Extra will be ignored.)
+				intent.putExtra(Intent.EXTRA_MIME_TYPES, acceptTypes);
+			} else if (acceptTypes.length == 1) {
+				// Only given 1 mime type. Use it as the main type.
+				String mimeType = acceptTypes[0];
+				if ((mimeType != null) && !mimeType.isEmpty()) {
+					intent.setType(mimeType);
 				}
 			}
-
-			mFilePathCallbackLegacy.onReceiveValue(results);
-			mFilePathCallbackLegacy = null;
 		}
 
-		@Override
-		public void callAsync(KrollObject krollObject, Object[] args)
-		{
+		// Set up camera capture handling if needed.
+		if (actionName.equals(MediaStore.ACTION_IMAGE_CAPTURE)) {
+			// Fetch app name and restrict it to chars: a-z, A-Z, 0-9, periods, dashes, and underscores
+			String normalizedAppName = TiApplication.getInstance().getAppInfo().getName();
+			normalizedAppName = normalizedAppName.replaceAll("[^\\w.-]", "_");
+
+			// Generate file name to be used under the system's "Pictures" directory.
+			String fileName =
+				normalizedAppName + "_" + (new SimpleDateFormat("yyyyMMdd_HHmmssSSS")).format(new Date());
+
+			// Insert new image to "Pictures" and get a "content://" URI to it.
+			// Set up a new image under "Pictures" and fetch its "content://" URI.
+			long unixTime = System.currentTimeMillis();
+			ContentValues contentValues = new ContentValues();
+			contentValues.put(MediaStore.Images.Media.TITLE, fileName);
+			contentValues.put(MediaStore.Images.Media.DISPLAY_NAME, fileName);
+			contentValues.put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg");
+			contentValues.put(MediaStore.Images.Media.DATE_ADDED, unixTime / 1000L);
+			contentValues.put(MediaStore.Images.Media.DATE_MODIFIED, unixTime / 1000L);
+			if (Build.VERSION.SDK_INT >= 29) {
+				contentValues.put(MediaStore.Images.Media.DATE_TAKEN, unixTime);
+			}
+			mCaptureFileUri = TiApplication.getInstance().getContentResolver().insert(
+				MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues);
+
+			// Add the above image URI to the intent. Given the camera write access to it.
+			intent.setFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION | Intent.FLAG_GRANT_READ_URI_PERMISSION);
+			intent.setClipData(ClipData.newRawUri("", mCaptureFileUri));
+			intent.putExtra(MediaStore.EXTRA_OUTPUT, mCaptureFileUri);
+		} else {
+			// We're not capturing a photo. Null out our last capture file reference.
+			mCaptureFileUri = null;
 		}
+
+		// Set up multiple file selection if enabled.
+		if (chooserParams.getMode() == WebChromeClient.FileChooserParams.MODE_OPEN_MULTIPLE) {
+			intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
+		}
+
+		// If multiple apps can handle the intent, then let the end-user choose which one to use.
+		intent = Intent.createChooser(intent, chooserParams.getTitle());
+
+		// Return the final intent for file selection or image/video capturing.
+		return intent;
 	}
 
-	private File createImageFile() throws IOException
+	/**
+	 * Gets the "TiBaseActivity" the WebView is assigned to.
+	 * @return
+	 * Returns the "TiBaseActivity" instance.
+	 * Returns null if WebView belongs to a non-TiBaseActivity derived activity or if detached from an activity.
+	 */
+	private TiBaseActivity getTiBaseActivity()
 	{
-		// Create an image file name
-		String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-		String imageFileName = "JPEG_" + timeStamp + "_";
-		File storageDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
-		File imageFile = File.createTempFile(imageFileName, /* prefix */
-											 ".jpg",        /* suffix */
-											 storageDir     /* directory */
-		);
-		return imageFile;
+		TiViewProxy webViewProxy = this.tiWebView.getProxy();
+		if (webViewProxy != null) {
+			Activity activity = webViewProxy.getActivity();
+			if (activity instanceof TiBaseActivity) {
+				return (TiBaseActivity) activity;
+			}
+		}
+		return null;
 	}
 }
