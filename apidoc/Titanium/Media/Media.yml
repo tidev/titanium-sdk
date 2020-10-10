@@ -100,11 +100,12 @@ methods:
         but `video1.tmp` does not. Currently, the `.mp4` extension is not supported, but MP4
         files may be imported by saving them with the `.mov` extension.
 
-        On Android this method *only supports saving images* to the device gallery prior to Titanium SDK 6.1.0.
+        Make sure to check for gallery access permissions with <Titanium.Media.hasPhotoGalleryPermissions>
+        and request the permissions with <Titanium.Media.requestPhotoGalleryPermissions> if not granted.
+        On iOS, the `NSPhotoLibraryAddUsageDescription` plist key is required in the tiapp.xml in order
+        to use this API.
 
-        On iOS the `NSPhotoLibraryAddUsageDescription` plist key is required in the tiapp.xml in order
-        to use this API. Also make sure to check for the gallery permissions with <Titanium.Media.hasPhotoGalleryPermissions>
-        and request the permissions with <Titanium.Media.requestPhotoGalleryPermissions> if not granted so far.
+        On Android, this method does not support saving videos to the gallery prior to Titanium SDK 6.1.0.
 
     platforms: [iphone, ipad, android, macos]
     parameters:
@@ -193,7 +194,7 @@ methods:
         for more information.
     parameters:
       - name: callback
-        summary: Function to call upon user decision to grant camera access.
+        summary: Function to call indicating if permission was granted or denied.
         type: Callback<RequestMusicLibraryAccessResult>
     platforms: [iphone, ipad, macos]
     since: "6.0.0"
@@ -277,7 +278,7 @@ methods:
         change it in the device settings.
     parameters:
       - name: callback
-        summary: Function to call upon user decision to grant camera access.
+        summary: Function to call indicating if permission was granted or denied.
         type: Callback<RequestCameraAccessResult>
     platforms: [iphone, ipad, android, macos]
     since: "5.1.0"
@@ -287,8 +288,11 @@ methods:
     summary: Returns `true` if the app has photo gallery permissions.
     returns:
         type: Boolean
-    platforms: [iphone, ipad, macos]
-    since: "6.0.0"
+    platforms: [android, iphone, ipad, macos]
+    since:
+        android: "9.3.0"
+        iphone: "6.0.0"
+        ipad: "6.0.0"
 
   - name: requestPhotoGalleryPermissions
     summary: Requests for photo gallery permissions.
@@ -302,10 +306,13 @@ methods:
         iOS Apps that do not include this method, will present the system-dialog while the dialog is opened with <Titanium.Media.openPhotoGallery>.
     parameters:
       - name: callback
-        summary: Function to call upon user decision to grant camera access.
+        summary: Function to call indicating if permission was granted or denied.
         type: Callback<RequestPhotoGalleryAccessResult>
-    platforms: [iphone, ipad, macos]
-    since: "6.0.0"
+    platforms: [android, iphone, ipad, macos]
+    since:
+        android: "9.3.0"
+        iphone: "6.0.0"
+        ipad: "6.0.0"
     osver: {ios: {min: "8.0"}}
 
   - name: requestCameraAccess
@@ -321,7 +328,7 @@ methods:
        to be made, the user has to change it in the device settings.
     parameters:
       - name: callback
-        summary: Function to call upon user decision to grant camera access.
+        summary: Function to call indicating if permission was granted or denied.
         type: Callback<RequestCameraAccessResult>
     platforms: [iphone, ipad]
     since: "4.0.0"
