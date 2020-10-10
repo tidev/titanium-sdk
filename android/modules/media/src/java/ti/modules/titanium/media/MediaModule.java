@@ -465,8 +465,19 @@ public class MediaModule extends KrollModule implements Handler.Callback
 		if (Build.VERSION.SDK_INT < 23) {
 			return true;
 		}
-		int status = TiApplication.getInstance().checkSelfPermission(Manifest.permission.CAMERA);
-		return (status == PackageManager.PERMISSION_GRANTED);
+
+		TiApplication app = TiApplication.getInstance();
+		int status = app.checkSelfPermission(Manifest.permission.CAMERA);
+		if (status != PackageManager.PERMISSION_GRANTED) {
+			return false;
+		}
+		if (Build.VERSION.SDK_INT < 29) {
+			status = app.checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+			if (status != PackageManager.PERMISSION_GRANTED) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 	@Kroll.method
@@ -476,6 +487,24 @@ public class MediaModule extends KrollModule implements Handler.Callback
 			return true;
 		}
 		int status = TiApplication.getInstance().checkSelfPermission(Manifest.permission.RECORD_AUDIO);
+		return (status == PackageManager.PERMISSION_GRANTED);
+	}
+
+	@Kroll.method
+	public boolean hasPhotoGalleryPermissions()
+	{
+		// We don't have to request permission on versions older than Android 6.0.
+		if (Build.VERSION.SDK_INT < 23) {
+			return true;
+		}
+
+		// We don't need write permission on Android 10 and above.
+		if (Build.VERSION.SDK_INT >= 29) {
+			return true;
+		}
+
+		// Check if we can write to external storage.
+		int status = TiApplication.getInstance().checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE);
 		return (status == PackageManager.PERMISSION_GRANTED);
 	}
 
@@ -529,10 +558,17 @@ public class MediaModule extends KrollModule implements Handler.Callback
 			return;
 		}
 
+		// Create the permission list. On Android 10+, we don't need external storage permission anymore.
+		ArrayList<String> permissionList = new ArrayList<>();
+		permissionList.add(Manifest.permission.CAMERA);
+		if (Build.VERSION.SDK_INT < 29) {
+			permissionList.add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+		}
+
 		// Show dialog requesting permission.
 		TiBaseActivity.registerPermissionRequestCallback(
 			TiC.PERMISSION_CODE_CAMERA, permissionCallback, getKrollObject());
-		activity.requestPermissions(new String[] { Manifest.permission.CAMERA }, TiC.PERMISSION_CODE_CAMERA);
+		activity.requestPermissions(permissionList.toArray(new String[0]), TiC.PERMISSION_CODE_CAMERA);
 	}
 
 	@Kroll.method
@@ -564,6 +600,38 @@ public class MediaModule extends KrollModule implements Handler.Callback
 			TiC.PERMISSION_CODE_MICROPHONE, permissionCallback, getKrollObject());
 		activity.requestPermissions(
 			new String[] { Manifest.permission.RECORD_AUDIO }, TiC.PERMISSION_CODE_MICROPHONE);
+	}
+
+	@Kroll.method
+	public void requestPhotoGalleryPermissions(@Kroll.argument(optional = true) KrollFunction permissionCallback)
+	{
+		// Do not continue if we already have permission.
+		if (hasPhotoGalleryPermissions()) {
+			if (permissionCallback != null) {
+				KrollDict response = new KrollDict();
+				response.putCodeAndMessage(0, null);
+				permissionCallback.callAsync(getKrollObject(), response);
+			}
+			return;
+		}
+
+		// Do not continue if there is no activity to host the request dialog.
+		Activity activity = TiApplication.getInstance().getCurrentActivity();
+		if (activity == null) {
+			if (permissionCallback != null) {
+				KrollDict response = new KrollDict();
+				response.putCodeAndMessage(
+					-1, "There are no activities to host the external storage permission request dialog.");
+				permissionCallback.callAsync(getKrollObject(), response);
+			}
+			return;
+		}
+
+		// Show dialog requesting permission.
+		TiBaseActivity.registerPermissionRequestCallback(
+			TiC.PERMISSION_CODE_EXTERNAL_STORAGE, permissionCallback, getKrollObject());
+		activity.requestPermissions(
+			new String[] { Manifest.permission.WRITE_EXTERNAL_STORAGE }, TiC.PERMISSION_CODE_EXTERNAL_STORAGE);
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -629,6 +697,7 @@ public class MediaModule extends KrollModule implements Handler.Callback
 			if (Build.VERSION.SDK_INT >= 29) {
 				contentValues.put(MediaStore.MediaColumns.DATE_TAKEN, unixTime);
 			}
+			ensureExternalPublicMediaDirectoryExists();
 			if (isVideo) {
 				contentUri = contentResolver.insert(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, contentValues);
 			} else {
@@ -697,7 +766,7 @@ public class MediaModule extends KrollModule implements Handler.Callback
 		return createExternalMediaContentUri(isVideo, isPublic);
 	}
 
-	public static Uri createExternalVideoFileUri(boolean isPublic)
+	public static Uri createExternalVideoContentUri(boolean isPublic)
 	{
 		boolean isVideo = true;
 		return createExternalMediaContentUri(isVideo, isPublic);
@@ -724,6 +793,7 @@ public class MediaModule extends KrollModule implements Handler.Callback
 			if (Build.VERSION.SDK_INT >= 29) {
 				contentValues.put(MediaStore.MediaColumns.DATE_TAKEN, unixTime);
 			}
+			ensureExternalPublicMediaDirectoryExists();
 			if (isVideo) {
 				contentUri = contentResolver.insert(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, contentValues);
 			} else {
@@ -755,6 +825,20 @@ public class MediaModule extends KrollModule implements Handler.Callback
 
 		// Generate file name.
 		return normalizedAppName + "_" + (new SimpleDateFormat("yyyyMMdd_HHmmssSSS")).format(new Date());
+	}
+
+	private static void ensureExternalPublicMediaDirectoryExists()
+	{
+		// Work-around bug on Android 5.x and below where saving a file to gallery via MediaStore insert()
+		// will fail if its directory on external storage doesn't exist yet. Create it if needed.
+		// Bug Report: https://issuetracker.google.com/issues/37002888
+		if (Build.VERSION.SDK_INT < 23) {
+			File externalDir = Environment.getExternalStorageDirectory();
+			if (externalDir != null) {
+				File cameraDir = new File(externalDir, "DCIM/Camera");
+				cameraDir.mkdirs();
+			}
+		}
 	}
 
 	@Kroll.method

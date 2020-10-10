@@ -478,7 +478,7 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 		ContentResolver contentResolver = TiApplication.getInstance().getContentResolver();
 		videoParcelFileDescriptor = null;
 		try {
-			videoContentUri = MediaModule.createExternalVideoFileUri(saveToPhotoGallery);
+			videoContentUri = MediaModule.createExternalVideoContentUri(saveToPhotoGallery);
 			videoParcelFileDescriptor = contentResolver.openFileDescriptor(videoContentUri, "rw");
 		} catch (Exception ex) {
 			try {
@@ -487,7 +487,7 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 					if (videoContentUri != null) {
 						contentResolver.delete(videoContentUri, null, null);
 					}
-					videoContentUri = MediaModule.createExternalVideoFileUri(false);
+					videoContentUri = MediaModule.createExternalVideoContentUri(false);
 					videoParcelFileDescriptor = contentResolver.openFileDescriptor(videoContentUri, "rw");
 				}
 			} catch (Exception ex2) {

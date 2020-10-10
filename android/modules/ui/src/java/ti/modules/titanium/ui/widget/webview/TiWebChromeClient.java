@@ -9,7 +9,6 @@ package ti.modules.titanium.ui.widget.webview;
 import android.Manifest;
 import android.app.Activity;
 import android.content.ClipData;
-import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -30,9 +29,7 @@ import android.webkit.WebView;
 import android.widget.FrameLayout;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollFunction;
@@ -43,6 +40,7 @@ import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiActivityResultHandler;
 import org.appcelerator.titanium.util.TiUIHelper;
+import ti.modules.titanium.media.MediaModule;
 import ti.modules.titanium.ui.WebViewProxy;
 
 @SuppressWarnings("deprecation")
@@ -415,9 +413,23 @@ public class TiWebChromeClient extends WebChromeClient
 		}
 
 		// Prompt the end-user for camera permission if required.
+		// Note: We only need external storage permission on OS versions older than Android 10.
 		if (chooserParams.isCaptureEnabled() && (Build.VERSION.SDK_INT >= 23)) {
 			int permissionResult = activity.checkSelfPermission(Manifest.permission.CAMERA);
-			if (permissionResult != PackageManager.PERMISSION_GRANTED) {
+			boolean isCameraPermissionRequired = (permissionResult != PackageManager.PERMISSION_GRANTED);
+			boolean isStoragePermissionRequired = (Build.VERSION.SDK_INT < 29);
+			if (isStoragePermissionRequired) {
+				permissionResult = activity.checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+				isStoragePermissionRequired = (permissionResult != PackageManager.PERMISSION_GRANTED);
+			}
+			if (isCameraPermissionRequired || isStoragePermissionRequired) {
+				final ArrayList<String> permissionList = new ArrayList<>();
+				if (isCameraPermissionRequired) {
+					permissionList.add(Manifest.permission.CAMERA);
+				}
+				if (isStoragePermissionRequired) {
+					permissionList.add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+				}
 				TiBaseActivity.OnRequestPermissionsResultCallback permissionsCallback;
 				permissionsCallback = new TiBaseActivity.OnRequestPermissionsResultCallback() {
 					@Override
@@ -428,14 +440,18 @@ public class TiWebChromeClient extends WebChromeClient
 						// Unregister this callback.
 						TiBaseActivity.unregisterPermissionRequestCallback(TiC.PERMISSION_CODE_CAMERA);
 
-						// Determine if camera permission was granted.
+						// Determine if all needed permissions were granted.
 						boolean wasGranted = false;
-						if (permissions.length == grantResults.length) {
+						for (String permissionName : permissionList) {
+							wasGranted = false;
 							for (int index = 0; index < permissions.length; index++) {
-								if (Manifest.permission.CAMERA.equals(permissions[index])) {
+								if (permissionName.equals(permissions[index])) {
 									wasGranted = (grantResults[index] == PackageManager.PERMISSION_GRANTED);
 									break;
 								}
+							}
+							if (!wasGranted) {
+								break;
 							}
 						}
 
@@ -449,7 +465,7 @@ public class TiWebChromeClient extends WebChromeClient
 					}
 				};
 				TiBaseActivity.registerPermissionRequestCallback(TiC.PERMISSION_CODE_CAMERA, permissionsCallback);
-				activity.requestPermissions(new String[] { Manifest.permission.CAMERA }, TiC.PERMISSION_CODE_CAMERA);
+				activity.requestPermissions(permissionList.toArray(new String[0]), TiC.PERMISSION_CODE_CAMERA);
 				return true;
 			}
 		}
@@ -486,6 +502,22 @@ public class TiWebChromeClient extends WebChromeClient
 					}
 				}
 
+				// Delete pre-generated capture file if canceled out or camera created its own file.
+				if (mCaptureFileUri != null) {
+					boolean wasFound = false;
+					if (results != null) {
+						for (Uri nextUri : results) {
+							if (mCaptureFileUri.equals(nextUri)) {
+								wasFound = true;
+								break;
+							}
+						}
+					}
+					if (!wasFound) {
+						deleteCaptureFileUri();
+					}
+				}
+
 				// Invoke WebView's callback with selected file(s).
 				filePathCallback.onReceiveValue(results);
 			}
@@ -494,6 +526,7 @@ public class TiWebChromeClient extends WebChromeClient
 			public void onError(Activity activity, int requestCode, Exception ex)
 			{
 				Log.e(TAG, "onShowFileChooser() failed to get permission.", ex);
+				deleteCaptureFileUri();
 				filePathCallback.onReceiveValue(null);
 			}
 		};
@@ -504,6 +537,7 @@ public class TiWebChromeClient extends WebChromeClient
 			activity.launchActivityForResult(intent, activity.getUniqueResultCode(), resultHandler);
 		} catch (Exception ex) {
 			Log.w(TAG, "onShowFileChooser() could not open window. Reason: " + ex.getMessage());
+			deleteCaptureFileUri();
 			filePathCallback.onReceiveValue(null);
 		}
 		return true;
@@ -581,38 +615,22 @@ public class TiWebChromeClient extends WebChromeClient
 			}
 		}
 
-		// Set up camera capture handling if needed.
-		if (actionName.equals(MediaStore.ACTION_IMAGE_CAPTURE)) {
-			// Fetch app name and restrict it to chars: a-z, A-Z, 0-9, periods, dashes, and underscores
-			String normalizedAppName = TiApplication.getInstance().getAppInfo().getName();
-			normalizedAppName = normalizedAppName.replaceAll("[^\\w.-]", "_");
-
-			// Generate file name to be used under the system's "Pictures" directory.
-			String fileName =
-				normalizedAppName + "_" + (new SimpleDateFormat("yyyyMMdd_HHmmssSSS")).format(new Date());
-
-			// Insert new image to "Pictures" and get a "content://" URI to it.
-			// Set up a new image under "Pictures" and fetch its "content://" URI.
-			long unixTime = System.currentTimeMillis();
-			ContentValues contentValues = new ContentValues();
-			contentValues.put(MediaStore.Images.Media.TITLE, fileName);
-			contentValues.put(MediaStore.Images.Media.DISPLAY_NAME, fileName);
-			contentValues.put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg");
-			contentValues.put(MediaStore.Images.Media.DATE_ADDED, unixTime / 1000L);
-			contentValues.put(MediaStore.Images.Media.DATE_MODIFIED, unixTime / 1000L);
-			if (Build.VERSION.SDK_INT >= 29) {
-				contentValues.put(MediaStore.Images.Media.DATE_TAKEN, unixTime);
-			}
-			mCaptureFileUri = TiApplication.getInstance().getContentResolver().insert(
-				MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues);
-
-			// Add the above image URI to the intent. Given the camera write access to it.
+		// If capturing a photo/video, create a file for it in the gallery and get a "content://" URI to it.
+		switch (actionName) {
+			case MediaStore.ACTION_IMAGE_CAPTURE:
+				mCaptureFileUri = MediaModule.createExternalPictureContentUri(true);
+				break;
+			case MediaStore.ACTION_VIDEO_CAPTURE:
+				mCaptureFileUri = MediaModule.createExternalVideoContentUri(true);
+				break;
+			default:
+				mCaptureFileUri = null;
+				break;
+		}
+		if (mCaptureFileUri != null) {
 			intent.setFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION | Intent.FLAG_GRANT_READ_URI_PERMISSION);
 			intent.setClipData(ClipData.newRawUri("", mCaptureFileUri));
 			intent.putExtra(MediaStore.EXTRA_OUTPUT, mCaptureFileUri);
-		} else {
-			// We're not capturing a photo. Null out our last capture file reference.
-			mCaptureFileUri = null;
 		}
 
 		// Set up multiple file selection if enabled.
@@ -625,6 +643,29 @@ public class TiWebChromeClient extends WebChromeClient
 
 		// Return the final intent for file selection or image/video capturing.
 		return intent;
+	}
+
+	/**
+	 * Deletes the photo/video file referenced by member variable "mCaptureFileUri" if currently assigned
+	 * and then nulls out the references. To be called when canceling/erroring out from onShowFileChooser().
+	 * @return
+	 * Returns true if successfully deleted the file.
+	 * Returns false if failed to delete or "mCaptureFileUri" is not assigned.
+	 */
+	private boolean deleteCaptureFileUri()
+	{
+		boolean wasDeleted = false;
+		try {
+			if (mCaptureFileUri != null) {
+				int rowCount = TiApplication.getInstance().getContentResolver().delete(mCaptureFileUri, null, null);
+				wasDeleted = (rowCount > 0);
+			}
+		} catch (Exception ex) {
+			Log.e(TAG, "Failed to delete WebView capture file.", ex);
+		} finally {
+			mCaptureFileUri = null;
+		}
+		return wasDeleted;
 	}
 
 	/**
