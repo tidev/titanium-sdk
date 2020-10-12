@@ -242,7 +242,9 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
   }
 #endif
 
-  [[self proxy] replaceValue:value forKey:@"dateTimeColor" notification:NO];
+  [[self proxy] replaceValue:value
+                      forKey:@"dateTimeColor"
+                notification:NO];
 
   if (picker != nil) {
     [(UIDatePicker *)[self picker] setValue:[[TiUtils colorValue:value] _color] forKeyPath:@"textColor"];
