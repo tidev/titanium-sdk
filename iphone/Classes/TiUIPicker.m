@@ -237,7 +237,7 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
     return;
   }
 #if IS_SDK_IOS_13_4
-  if ((UIDatePicker *)[self picker].preferredDatePickerStyle != UIDatePickerStyleWheels) {
+  if (((UIDatePicker *)[self picker]).preferredDatePickerStyle != UIDatePickerStyleWheels) {
     return;
   }
 #endif
