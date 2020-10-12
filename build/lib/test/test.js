@@ -613,6 +613,7 @@ class DeviceTestDetails {
 		if (isCI) {
 			// Now also place into location that we can archive on CI/Jenkins
 			const generated = path.join(this.snapshotDir, '..', 'generated', details.platform, details.relativePath);
+			console.log(`Copying generated image ${grabbed} to ${generated}`);
 			const diffDir = path.dirname(generated);
 			await fs.ensureDir(diffDir);
 			await fs.copy(grabbed, generated);
