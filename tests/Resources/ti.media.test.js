@@ -4,7 +4,6 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-/* global OS_IOS */
 /* eslint-env mocha */
 /* eslint no-unused-expressions: "off" */
 'use strict';
