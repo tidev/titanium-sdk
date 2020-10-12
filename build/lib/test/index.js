@@ -1,6 +1,7 @@
 'use strict';
 
 const path = require('path');
+const fs = require('fs-extra');
 
 const ROOT_DIR = path.join(__dirname, '../../..');
 const LOCAL_TESTS = path.join(ROOT_DIR, 'tests');
@@ -18,7 +19,13 @@ const { test, outputResults } = require('./test');
  * @returns {Promise<object>} returns an object whose keys are platform names
  */
 async function runTests(platforms, program) {
-	return test(platforms, program.target, program.deviceId, program.deployType, program.deviceFamily, path.join(LOCAL_TESTS, 'Resources'));
+	const snapshotDir = path.join(LOCAL_TESTS, 'Resources');
+	// wipe generated images and diffs from previous run
+	await Promise.all([
+		fs.emptyDir(path.join(snapshotDir, '..', 'generated')),
+		fs.emptyDir(path.join(snapshotDir, '..', 'diffs'))
+	]);
+	return test(platforms, program.target, program.deviceId, program.deployType, program.deviceFamily, snapshotDir);
 }
 
 /**
