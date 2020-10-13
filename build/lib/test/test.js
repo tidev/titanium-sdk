@@ -219,6 +219,18 @@ async function addTiAppProperties() {
 		content.push('\t\t\t\t<key>CFBundleAllowMixedLocalizations</key>');
 		content.push('\t\t\t\t<true/>');
 
+		// Add permission usage descriptions.
+		content.push('\t\t\t\t<key>NSAppleMusicUsageDescription</key>');
+		content.push('\t\t\t\t<string>Requesting music library permission</string>');
+		content.push('\t\t\t\t<key>NSCameraUsageDescription</key>');
+		content.push('\t\t\t\t<string>Requesting camera permission</string>');
+		content.push('\t\t\t\t<key>NSMicrophoneUsageDescription</key>');
+		content.push('\t\t\t\t<string>Requesting microphone permission</string>');
+		content.push('\t\t\t\t<key>NSPhotoLibraryUsageDescription</key>');
+		content.push('\t\t\t\t<string>Requesting photo library read permission</string>');
+		content.push('\t\t\t\t<key>NSPhotoLibraryAddUsageDescription</key>');
+		content.push('\t\t\t\t<string>Requesting photo library write permission</string>');
+
 		// Add a static shortcut.
 		content.push('\t\t\t\t<key>UIApplicationShortcutItems</key>');
 		content.push('\t\t\t\t<array>');

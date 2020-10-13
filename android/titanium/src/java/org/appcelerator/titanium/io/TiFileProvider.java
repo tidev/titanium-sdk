@@ -20,6 +20,8 @@ import android.provider.OpenableColumns;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.net.URI;
+import java.nio.file.Files;
+import java.nio.file.attribute.BasicFileAttributes;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
@@ -45,7 +47,7 @@ public class TiFileProvider extends ContentProvider
 	}
 
 	@Override
-	public AssetFileDescriptor openAssetFile(Uri uri, String mode) throws FileNotFoundException
+	public AssetFileDescriptor openAssetFile(Uri uri, String mode) throws FileNotFoundException, SecurityException
 	{
 		// Validate.
 		if (uri == null) {
@@ -69,6 +71,9 @@ public class TiFileProvider extends ContentProvider
 				descriptor = new AssetFileDescriptor(fileDescriptor, 0, AssetFileDescriptor.UNKNOWN_LENGTH);
 			} else if (uriString.startsWith(APK_ASSETS_URI_PREFIX)) {
 				// Received a "content://<PackageName>.tifilesystem/assets/" URL.
+				if ((mode != null) && (mode.indexOf('w') >= 0)) {
+					throw new SecurityException("Cannot open APK asset file with write access.");
+				}
 				String assetPath = uriString.substring(APK_ASSETS_URI_PREFIX.length());
 				assetPath = Uri.parse(assetPath).getPath();
 				descriptor = getContext().getAssets().openFd(assetPath);
@@ -79,6 +84,8 @@ public class TiFileProvider extends ContentProvider
 				resourceUrl += "://" + uriString.substring(EXTERNAL_RESOURCE_URI_PREFIX.length());
 				descriptor = getContext().getContentResolver().openAssetFileDescriptor(Uri.parse(resourceUrl), mode);
 			}
+		} catch (SecurityException ex) {
+			throw ex;
 		} catch (Exception ex) {
 		}
 
@@ -112,16 +119,23 @@ public class TiFileProvider extends ContentProvider
 
 		// Convert given URI to an absolute path in case it contains any "." or ".." segments.
 		uri = makeAbsolute(uri);
+		String uriString = uri.toString();
+
+		// If "content://" references an external file, then fetch it.
+		final File file = getFileFrom(uri);
 
 		// Set up the columns to return data for.
 		String[] columnNames;
 		if ((projection != null) && (projection.length > 0)) {
 			// Given projection provides the columns the caller is interested in.
-			columnNames = (String[]) projection.clone();
+			columnNames = projection.clone();
 		} else {
 			// Have this query provide the following column data by default since caller did not specify.
-			columnNames =
-				new String[] { OpenableColumns.DISPLAY_NAME, OpenableColumns.SIZE, MediaStore.MediaColumns.MIME_TYPE };
+			columnNames = new String[] {
+				OpenableColumns.DISPLAY_NAME,
+				OpenableColumns.SIZE,
+				MediaStore.MediaColumns.MIME_TYPE
+			};
 		}
 
 		// Fetch file info based on the given column names.
@@ -134,15 +148,13 @@ public class TiFileProvider extends ContentProvider
 					case OpenableColumns.DISPLAY_NAME:
 					case MediaStore.MediaColumns.TITLE: {
 						// Fetch the file name.
-						File file = new File(uri.getPath());
-						nextColumnValue = file.getName();
+						nextColumnValue = (new File(uri.getPath())).getName();
 						break;
 					}
 					case MediaStore.MediaColumns.DATA: {
 						// Fetch the file system path if it's an external file.
 						// Note: Android 7.0 and above no longer allows direct file access between apps.
 						if (Build.VERSION.SDK_INT < 24) {
-							File file = getFileFrom(uri);
 							if (file != null) {
 								nextColumnValue = file.getAbsolutePath();
 							}
@@ -151,15 +163,55 @@ public class TiFileProvider extends ContentProvider
 					}
 					case OpenableColumns.SIZE: {
 						// Fetch the file's byte count.
-						try (AssetFileDescriptor descriptor = openAssetFile(uri, "r")) {
-							nextColumnValue = descriptor.getLength();
-						} catch (Exception ex) {
+						if (file != null) {
+							try {
+								nextColumnValue = file.length();
+							} catch (Exception ex) {
+							}
+						}
+						if (nextColumnValue == null) {
+							try (AssetFileDescriptor descriptor = openAssetFile(uri, "r")) {
+								nextColumnValue = descriptor.getLength();
+							} catch (Exception ex) {
+							}
 						}
 						break;
 					}
 					case MediaStore.MediaColumns.MIME_TYPE: {
 						// Fetch the file's mime type. (Typically based on its extension.)
 						nextColumnValue = getType(uri);
+						break;
+					}
+					case MediaStore.MediaColumns.DATE_ADDED:
+					case MediaStore.MediaColumns.DATE_MODIFIED: {
+						// Fetch the file's timestamp.
+						// Note: If file is embedded within APK, then use APK file's timestamp.
+						File targetFile = file;
+						if (targetFile == null) {
+							boolean useApkFile = false;
+							String packageName = getContext().getPackageName();
+							if (uriString.startsWith(getApkAssetsUriPrefix())) {
+								useApkFile = true;
+							} else if (uriString.startsWith(getExternalResourceUriPrefix() + "/" + packageName)) {
+								useApkFile = true;
+							}
+							if (useApkFile) {
+								targetFile = new File(getContext().getPackageCodePath());
+							}
+						}
+						if (targetFile != null) {
+							try {
+								nextColumnValue = targetFile.lastModified() / 1000L;
+								if (Build.VERSION.SDK_INT >= 26) {
+									if (nextColumnName.equals(MediaStore.MediaColumns.DATE_ADDED)) {
+										BasicFileAttributes attr = Files.readAttributes(
+											targetFile.toPath(), BasicFileAttributes.class);
+										nextColumnValue = attr.creationTime().toMillis() / 1000L;
+									}
+								}
+							} catch (Exception ex) {
+							}
+						}
 						break;
 					}
 				}
@@ -199,10 +251,25 @@ public class TiFileProvider extends ContentProvider
 		throw new UnsupportedOperationException();
 	}
 
+	/**
+	 * Deletes the file referenced by the given "content://" URI.
+	 * @param uri A content URI returned by this class' createUriFrom() method. Cannot be null.
+	 * @param selection Not used.
+	 * @param selectionArgs Not used.
+	 * @return Returns 1 if the file was deleted. Returns 0 if file not found or could not be deleted.
+	 */
 	@Override
 	public int delete(Uri uri, String selection, String[] selectionArgs)
 	{
-		throw new UnsupportedOperationException();
+		boolean wasDeleted = false;
+		try {
+			File file = getFileFrom(uri);
+			if (file != null) {
+				wasDeleted = file.delete();
+			}
+		} catch (Exception ex) {
+		}
+		return wasDeleted ? 1 : 0;
 	}
 
 	/**
@@ -331,10 +398,11 @@ public class TiFileProvider extends ContentProvider
 
 	/**
 	 * Gets a File object from the given "content://" URI if possible.
+	 * Will only work if URI belongs to this provider, which can be identified via the isMyUri() method.
 	 * @param uri A "content://" URI generated by this class' createUriFrom() method for an external file.
 	 * @return Returns a file object if given URI references a file in the file system. Returns null if not.
 	 */
-	private static File getFileFrom(Uri uri)
+	public static File getFileFrom(Uri uri)
 	{
 		// Validate argument.
 		if (uri == null) {

@@ -64,7 +64,6 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	private static final String TAG = "TiApplication";
 	private static final String PROPERTY_THREAD_STACK_SIZE = "ti.android.threadstacksize";
 	private static final String PROPERTY_COMPILE_JS = "ti.android.compilejs";
-	private static final String PROPERTY_ENABLE_COVERAGE = "ti.android.enablecoverage";
 	private static final String PROPERTY_DEFAULT_UNIT = "ti.ui.defaultunit";
 	private static final String PROPERTY_USE_LEGACY_WINDOW = "ti.android.useLegacyWindow";
 	private static long mainThreadId = 0;
@@ -759,14 +758,6 @@ public abstract class TiApplication extends Application implements KrollApplicat
 			return false;
 		}
 		return getAppProperties().getBool(TiApplication.PROPERTY_FASTDEV, development);
-	}
-
-	public boolean isCoverageEnabled()
-	{
-		if (!getDeployType().equals(TiApplication.DEPLOY_TYPE_PRODUCTION)) {
-			return getAppProperties().getBool(TiApplication.PROPERTY_ENABLE_COVERAGE, false);
-		}
-		return false;
 	}
 
 	public static void launch()
