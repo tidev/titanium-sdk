@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2016-2017 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2016-2020 by Axway, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -13,14 +13,11 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.util.UUID;
-
-import org.java_websocket.WebSocket;
-import org.java_websocket.framing.Framedata;
-import org.java_websocket.handshake.ClientHandshake;
-import org.java_websocket.server.WebSocketServer;
-
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiMessenger;
+import org.java_websocket.WebSocket;
+import org.java_websocket.handshake.ClientHandshake;
+import org.java_websocket.server.WebSocketServer;
 
 public final class JSDebugger
 {
@@ -233,11 +230,6 @@ public final class JSDebugger
 		public void onMessage(WebSocket conn, ByteBuffer blob)
 		{
 			// TODO How do we handle binary messages?
-		}
-
-		@Override
-		public void onWebsocketMessageFragment(WebSocket conn, Framedata frame)
-		{
 		}
 	}
 

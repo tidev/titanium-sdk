@@ -208,7 +208,7 @@ public class FilesystemModule extends KrollModule
 	@Kroll.getProperty
 	public String getLineEnding()
 	{
-		return System.getProperty("line.separator");
+		return System.lineSeparator();
 	}
 
 	@Kroll.method

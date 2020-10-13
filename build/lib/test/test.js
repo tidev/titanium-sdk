@@ -61,20 +61,26 @@ async function test(platforms, target, deviceId, deployType, deviceFamily, snaps
 	await addTiAppProperties();
 
 	// run build for each platform, and spit out JUnit report
-	const results = {};
-	for (const platform of platforms) {
-		const result = await runBuild(platform, target, deviceId, deployType, deviceFamily, snapshotDir, snapshotPromises);
-		const prefix = generateJUnitPrefix(platform, target, deviceFamily);
-		results[prefix] = result;
-		await outputJUnitXML(result, prefix);
-	}
+	try {
+		const results = {};
+		for (const platform of platforms) {
+			const result = await runBuild(platform, target, deviceId, deployType, deviceFamily, snapshotDir, snapshotPromises);
+			const prefix = generateJUnitPrefix(platform, target, deviceFamily);
+			results[prefix] = result;
+			await outputJUnitXML(result, prefix);
+		}
 
-	// If we're gathering images, make sure we get them all before we move on
-	if (snapshotPromises.length !== 0) {
-		await Promise.all(snapshotPromises);
-	}
+		// If we're gathering images, make sure we get them all before we move on
+		if (snapshotPromises.length !== 0) {
+			await Promise.all(snapshotPromises);
+		}
 
-	return results;
+		return results;
+	} finally {
+		if (target === 'macos') {
+			exec(`osascript "${path.join(__dirname, 'close_modals.scpt')}"`);
+		}
+	}
 }
 
 /**
@@ -212,6 +218,18 @@ async function addTiAppProperties() {
 		content.push('\t\t\t\t</array>');
 		content.push('\t\t\t\t<key>CFBundleAllowMixedLocalizations</key>');
 		content.push('\t\t\t\t<true/>');
+
+		// Add permission usage descriptions.
+		content.push('\t\t\t\t<key>NSAppleMusicUsageDescription</key>');
+		content.push('\t\t\t\t<string>Requesting music library permission</string>');
+		content.push('\t\t\t\t<key>NSCameraUsageDescription</key>');
+		content.push('\t\t\t\t<string>Requesting camera permission</string>');
+		content.push('\t\t\t\t<key>NSMicrophoneUsageDescription</key>');
+		content.push('\t\t\t\t<string>Requesting microphone permission</string>');
+		content.push('\t\t\t\t<key>NSPhotoLibraryUsageDescription</key>');
+		content.push('\t\t\t\t<string>Requesting photo library read permission</string>');
+		content.push('\t\t\t\t<key>NSPhotoLibraryAddUsageDescription</key>');
+		content.push('\t\t\t\t<string>Requesting photo library write permission</string>');
 
 		// Add a static shortcut.
 		content.push('\t\t\t\t<key>UIApplicationShortcutItems</key>');
@@ -633,7 +651,7 @@ class DeviceTestDetails {
 			if (this.target === 'device') {
 				await exec(`adb -s ${await this.deviceId()} shell "run-as ${APP_ID} cat '${filepath}'" > ${dest}`);
 			} else {
-				await exec(`adb shell "run-as ${APP_ID} cat '${filepath}'" > ${dest}`);
+				await exec(`adb -e shell "run-as ${APP_ID} cat '${filepath}'" > ${dest}`);
 			}
 			return dest;
 		}
