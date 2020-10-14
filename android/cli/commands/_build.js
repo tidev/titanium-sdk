@@ -1515,9 +1515,7 @@ AndroidBuilder.prototype.run = async function run(logger, config, cli, finished)
 		Builder.prototype.run.apply(this, arguments);
 
 		// Notify plugins that we're about to begin.
-		await new Promise((resolve) => {
-			cli.emit('build.pre.construct', this, resolve);
-		});
+		await new Promise(resolve => cli.emit('build.pre.construct', this, resolve));
 
 		// Post build anlytics.
 		await this.doAnalytics();
@@ -1545,13 +1543,9 @@ AndroidBuilder.prototype.run = async function run(logger, config, cli, finished)
 		await this.generateAppProject();
 
 		// Build the app.
-		await new Promise((resolve) => {
-			cli.emit('build.pre.build', this, resolve);
-		});
+		await new Promise(resolve => cli.emit('build.pre.build', this, resolve));
 		await this.buildAppProject();
-		await new Promise((resolve) => {
-			cli.emit('build.post.build', this, resolve);
-		});
+		await new Promise(resolve => cli.emit('build.post.build', this, resolve));
 
 		// Write Titanium build settings to file. Used to determine if next build can be incremental or not.
 		await this.writeBuildManifest();
@@ -1563,12 +1557,8 @@ AndroidBuilder.prototype.run = async function run(logger, config, cli, finished)
 		}
 
 		// Notify plugins that the build is done.
-		await new Promise((resolve) => {
-			cli.emit('build.post.compile', this, resolve);
-		});
-		await new Promise((resolve) => {
-			cli.emit('build.finalize', this, resolve);
-		});
+		await new Promise(resolve => cli.emit('build.post.compile', this, resolve));
+		await new Promise(resolve => cli.emit('build.finalize', this, resolve));
 	} catch (err) {
 		// Failed to build app. Print the error message and stack trace (if possible), then exit out.
 		// Note: "err" can be whatever type (including undefined) that was passed into Promise.reject().
