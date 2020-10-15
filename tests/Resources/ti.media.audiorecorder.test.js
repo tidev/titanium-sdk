@@ -93,6 +93,13 @@ describe('Titanium.Media.AudioRecorder', function () {
 	});
 
 	it('#stop without starting', () => {
+		// We can't do this test unless we have access to the device's microphone.
+		if (!Ti.Media.canRecord || !Ti.Media.hasAudioRecorderPermissions()) {
+			return;
+		}
+		if (OS_IOS) {
+			Ti.Media.audioSessionCategory = Ti.Media.AUDIO_SESSION_CATEGORY_PLAY_AND_RECORD;
+		}
 		const recorder = Ti.Media.createAudioRecorder();
 		should(recorder.stop()).be.equalOneOf([ null, undefined ]);
 	});
