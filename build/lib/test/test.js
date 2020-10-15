@@ -61,20 +61,26 @@ async function test(platforms, target, deviceId, deployType, deviceFamily, snaps
 	await addTiAppProperties();
 
 	// run build for each platform, and spit out JUnit report
-	const results = {};
-	for (const platform of platforms) {
-		const result = await runBuild(platform, target, deviceId, deployType, deviceFamily, snapshotDir, snapshotPromises);
-		const prefix = generateJUnitPrefix(platform, target, deviceFamily);
-		results[prefix] = result;
-		await outputJUnitXML(result, prefix);
-	}
+	try {
+		const results = {};
+		for (const platform of platforms) {
+			const result = await runBuild(platform, target, deviceId, deployType, deviceFamily, snapshotDir, snapshotPromises);
+			const prefix = generateJUnitPrefix(platform, target, deviceFamily);
+			results[prefix] = result;
+			await outputJUnitXML(result, prefix);
+		}
 
-	// If we're gathering images, make sure we get them all before we move on
-	if (snapshotPromises.length !== 0) {
-		await Promise.all(snapshotPromises);
-	}
+		// If we're gathering images, make sure we get them all before we move on
+		if (snapshotPromises.length !== 0) {
+			await Promise.all(snapshotPromises);
+		}
 
-	return results;
+		return results;
+	} finally {
+		if (target === 'macos') {
+			exec(`osascript "${path.join(__dirname, 'close_modals.scpt')}"`);
+		}
+	}
 }
 
 /**
@@ -215,6 +221,16 @@ async function addTiAppProperties() {
 		content.push('\t\t\t\t<true/>');
 
 		// Add permission usage descriptions.
+		content.push('\t\t\t\t<key>NSAppleMusicUsageDescription</key>');
+		content.push('\t\t\t\t<string>Requesting music library permission</string>');
+		content.push('\t\t\t\t<key>NSCameraUsageDescription</key>');
+		content.push('\t\t\t\t<string>Requesting camera permission</string>');
+		content.push('\t\t\t\t<key>NSMicrophoneUsageDescription</key>');
+		content.push('\t\t\t\t<string>Requesting microphone permission</string>');
+		content.push('\t\t\t\t<key>NSPhotoLibraryUsageDescription</key>');
+		content.push('\t\t\t\t<string>Requesting photo library read permission</string>');
+		content.push('\t\t\t\t<key>NSPhotoLibraryAddUsageDescription</key>');
+		content.push('\t\t\t\t<string>Requesting photo library write permission</string>');
 		content.push('\t\t\t\t<key>NSLocationWhenInUseUsageDescription</key>');
 		content.push('\t\t\t\t<string>Requesting location permission</string>');
 		content.push('\t\t\t\t<key>NSMicrophoneUsageDescription</key>');
@@ -284,6 +300,7 @@ async function addTiAppProperties() {
 			content.push('\t<property name="presetDouble" type="double">1.23456</property>');
 			content.push('\t<property name="presetInt" type="int">1337</property>');
 			content.push('\t<property name="presetString" type="string">Hello!</property>');
+			content.push(`\t<property name="isCI" type="bool">${isCI}</property>`);
 			content.push('\t<transpile>true</transpile>');
 		} else if (line.indexOf('<android xmlns:android') >= 0) {
 			// Insert manifest
@@ -759,6 +776,10 @@ async function handleBuild(prc, target, snapshotDir, snapshotPromises) {
 			}
 			const line = data.toString();
 			const stripped = stripAnsi(line);
+			if (stripped.includes('Application failed to install')) {
+				prc.kill(); // quit this build...
+				return reject(new Error('Failed to install test app to device/sim'));
+			}
 			const device = getDeviceName(stripped);
 			if (!deviceMap.has(device)) {
 				deviceMap.set(device, new DeviceTestDetails(device, target, snapshotDir, snapshotPromises));

@@ -78,7 +78,7 @@ public class TiFileFactory
 	{
 		String possibleURI = joinPathSegments(parts);
 		String scheme = null;
-		String path = null;
+		String path = "";
 		int colonIndex = possibleURI.indexOf(':');
 		if (colonIndex != -1) {
 			// probably a URI
@@ -122,7 +122,7 @@ public class TiFileFactory
 		}
 
 		if (CONTENT_URL_SCHEME.equals(scheme) || ANDROID_RESOURCE_URL_SCHEME.equals(scheme)) {
-			return new TitaniumBlob(possibleURI); // TODO: Forward along the actual URI instance?
+			return new TiContentFile(possibleURI); // TODO: Forward along the actual URI instance?
 		}
 
 		if (FILE_URL_SCHEME.equals(scheme)) {

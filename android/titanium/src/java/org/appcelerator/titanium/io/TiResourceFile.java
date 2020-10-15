@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2020 by Axway, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -15,14 +15,12 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.util.List;
-
+import javax.crypto.CipherInputStream;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.util.KrollAssetHelper;
-import org.appcelerator.titanium.TiBlob;
+import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.util.TiFileHelper2;
-
-import javax.crypto.CipherInputStream;
 
 public class TiResourceFile extends TiBaseFile
 {
@@ -110,12 +108,6 @@ public class TiResourceFile extends TiBaseFile
 	}
 
 	@Override
-	public TiBlob read() throws IOException
-	{
-		return TiBlob.blobFromFile(this);
-	}
-
-	@Override
 	public String readLine() throws IOException
 	{
 		if (!opened) {
@@ -141,6 +133,24 @@ public class TiResourceFile extends TiBaseFile
 			fetchStats();
 		}
 		return this.exists;
+	}
+
+	@Override
+	public long createTimestamp()
+	{
+		return modificationTimestamp();
+	}
+
+	@Override
+	public long modificationTimestamp()
+	{
+		// Since resource files are embedded within the APK, use the APK file's timestamp.
+		try {
+			File apkFile = new File(TiApplication.getInstance().getPackageCodePath());
+			return apkFile.lastModified();
+		} catch (Exception ex) {
+		}
+		return 0L;
 	}
 
 	@Override
@@ -183,41 +193,34 @@ public class TiResourceFile extends TiBaseFile
 		return TiC.URL_ANDROID_ASSET_RESOURCES + path;
 	}
 
+	@Override
 	public long size()
 	{
+		// Do not continue if referencing a directory.
 		if (!isFile()) {
 			return 0L;
 		}
 
-		InputStream is = null;
-		try {
-			is = getInputStream();
-
-			// CipherInputStream.available() always returns 0
-			// Iterate through stream to obtain true size.
+		// Fetch the number of bytes.
+		long size = 0L;
+		try (InputStream is = getInputStream()) {
 			if (is instanceof CipherInputStream) {
-				long size = 0;
+				// CipherInputStream.available() always returns 0
+				// Iterate through stream to obtain true size.
+				long byteCount = 0;
 				long read = 0;
 				byte[] buffer = new byte[1024];
 				while ((read = is.read(buffer)) != -1) {
-					size += read;
+					byteCount += read;
 				}
-				return size;
+				size = byteCount;
+			} else {
+				size = is.available();
 			}
-
-			return is.available();
 		} catch (IOException e) {
 			Log.w(TAG, "Error while trying to determine file size: " + e.getMessage(), e);
-		} finally {
-			if (is != null) {
-				try {
-					is.close();
-				} catch (IOException e) {
-					Log.w(TAG, e.getMessage(), e, Log.DEBUG_MODE);
-				}
-			}
 		}
-		return 0L;
+		return size;
 	}
 
 	@Override

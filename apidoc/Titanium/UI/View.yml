@@ -1425,7 +1425,7 @@ properties:
         `focusable` must be true for normal views.
 
         Defaults to background color of this view.
-    type: String
+    type: [String, Titanium.UI.Color]
     platforms: [android]
 
   - name: backgroundSelectedImage

@@ -876,7 +876,7 @@ CFMutableSetRef krollBridgeRegistry = nil;
   KrollWrapper *module = [self loadCommonJSModule:data withSourceURL:url_];
 
   if (![module respondsToSelector:@selector(replaceValue:forKey:notification:)]) {
-    @throw [NSException exceptionWithName:@"org.appcelerator.kroll"
+    @throw [NSException exceptionWithName:@"org.appcelerator.kroll.invalidmodule"
                                    reason:[NSString stringWithFormat:@"Module \"%@\" failed to leave a valid exports object", filename]
                                  userInfo:nil];
   }
@@ -1325,6 +1325,11 @@ CFMutableSetRef krollBridgeRegistry = nil;
 
     default:
       break;
+    }
+  }
+  @catch (NSException *exception) {
+    if ([exception.name isEqualToString:@"org.appcelerator.kroll.invalidmodule"]) {
+      return nil;
     }
   }
   @finally {

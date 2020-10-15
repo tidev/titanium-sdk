@@ -8,6 +8,7 @@
 /* eslint no-unused-expressions: "off" */
 'use strict';
 const should = require('./utilities/assertions');
+const utilities = require('./utilities/utilities');
 
 describe.ios('Titanium.UI.iOS', () => {
 	it('#createCollisionBehavior()', () => {
@@ -185,10 +186,11 @@ describe.ios('Titanium.UI.iOS.CollisionBehavior', () => {
 			const HEIGHT = Ti.Platform.displayCaps.platformHeight;
 			const BLOCK_WIDTH = 25;
 			const BLOCK_HEIGHT = 25;
+			const BLOCK_COUNT = utilities.isIPhone() ? 25 : 50;
 
 			// Create a bunch of random blocks; add to the window and behaviors
 			const blocks = [];
-			for (var i = 0; i < 25; i++) {
+			for (let i = 0; i < BLOCK_COUNT; i++) {
 				const r = Math.round(Math.random() * 255);
 				const g = Math.round(Math.random() * 255);
 				const b = Math.round(Math.random() * 255);
