@@ -1004,13 +1004,17 @@ public class TiCompositeLayout extends ViewGroup implements OnHierarchyChangeLis
 
 		TiDimension optionLeft = params.optionLeft;
 		TiDimension optionRight = params.optionRight;
+		boolean lastChild = currentIndex == getChildCount() - 1;
 		int left = horizontalLayoutCurrentLeft + horiztonalLayoutPreviousRight;
+		horiztonalLayoutPreviousRight = (optionRight == null) ? 0 : optionRight.getAsPixels(this);
 		int optionLeftValue = 0;
 		if (optionLeft != null) {
 			optionLeftValue = optionLeft.getAsPixels(this);
 			left += optionLeftValue;
+		} else if (horiztonalLayoutPreviousRight > 0 && lastChild) {
+			// Take into account 'right' value for last child in row.
+			left = layoutRight - measuredWidth - horiztonalLayoutPreviousRight;
 		}
-		horiztonalLayoutPreviousRight = (optionRight == null) ? 0 : optionRight.getAsPixels(this);
 
 		// If it's fill width with horizontal wrap, just take up remaining
 		// space.
