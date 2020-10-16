@@ -227,6 +227,10 @@ exports.init = function (logger, config, cli) {
 				},
 
 				function (next) {
+					cli.emit('build.post.install', builder, next);
+				},
+
+				function (next) {
 					if (!cli.argv.launch) {
 						logger.info(__('Skipping launch of: %s', (builder.appid + '/.' + builder.classname + 'Activity').cyan));
 						return next(true);

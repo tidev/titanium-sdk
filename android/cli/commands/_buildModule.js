@@ -309,18 +309,19 @@ AndroidModuleBuilder.prototype.run = async function run(logger, config, cli, fin
 
 		// Build the library and output it to "dist" directory.
 		await this.buildModuleProject();
-		await this.packageZip();
-
-		// Run the built module via "example" project.
-		await this.runModule();
-
 		// Notify plugins that the build is done.
 		await new Promise((resolve) => {
 			cli.emit('build.module.post.compile', this, resolve);
 		});
+
+		await this.packageZip();
+
 		await new Promise((resolve) => {
 			cli.emit('build.module.finalize', this, resolve);
 		});
+
+		// Run the built module via "example" project.
+		await this.runModule(cli);
 	} catch (err) {
 		// Failed to build module. Print the error message and stack trace (if possible).
 		// Note: "err" can be whatever type (including undefined) that was passed into Promise.reject().
@@ -801,7 +802,7 @@ AndroidModuleBuilder.prototype.packageZip = async function () {
 	dest.finalize();
 };
 
-AndroidModuleBuilder.prototype.runModule = async function () {
+AndroidModuleBuilder.prototype.runModule = async function (cli) {
 	// Do not run built module in an app if given command line argument "--build-only".
 	if (this.buildOnly) {
 		return;
@@ -900,6 +901,9 @@ AndroidModuleBuilder.prototype.runModule = async function () {
 	// Unzip module into temp app's "modules" directory.
 	const zip = new AdmZip(this.moduleZipPath);
 	zip.extractAllTo(tmpProjectDir, true);
+
+	// Emit hook so modules can also alter project before launch
+	await new Promise(resolve => cli.emit('create.module.app.finalize', [ this, tmpProjectDir ], resolve));
 
 	// Run the temp app.
 	this.logger.debug(__('Running example project...', tmpDir.cyan));
