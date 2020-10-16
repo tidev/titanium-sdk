@@ -40,6 +40,25 @@ exports.init = (logger, config, cli) => {
 		}
 		done();
 	});
+
+	cli.on('build.post.install', async (builder, done) => {
+		try {
+			if (builder.platformName === 'android') {
+				// Grand all needed permissions on the Android device.
+				await grantAndroidPermissions(logger, builder);
+
+			} else if ((builder.platformName === 'iphone') && (cli.argv.target === 'simulator')) {
+				// Grant all needed permissions on the iOS simulator.
+				await xcrun([ 'simctl', 'privacy', builder.simHandle.udid, 'grant', 'all', builder.tiapp.id ]);
+
+				// Re-launch app in case granting permissions forced-quit it.
+				await xcrun([ 'simctl', 'launch', builder.simHandle.udid, builder.tiapp.id ]);
+			}
+		} catch (err) {
+			logger.warn(`Could not grant permissions to ${builder.deviceId}: ${err}`);
+		}
+		done();
+	});
 };
 
 async function adb(args) {
@@ -82,6 +101,31 @@ async function adb(args) {
 			return;
 		}
 		reject();
+	});
+}
+
+async function xcrun(args) {
+	return new Promise((resolve, reject) => {
+		const child = spawn('xcrun', args, { shell: true });
+		if (child) {
+			let stdout = '';
+			let stderr = '';
+			child.stdout.on('data', data => {
+				stdout += data.toString();
+			});
+			child.stderr.on('data', data => {
+				stderr += data.toString();
+			});
+			child.on('close', code => {
+				if (code === 0) {
+					resolve(stdout);
+				} else {
+					reject(`${stdout}\n${stderr}`);
+				}
+			});
+		} else {
+			reject();
+		}
 	});
 }
 
@@ -144,5 +188,26 @@ async function enableAutoRotation(logger, builder) {
 		}
 	} else {
 		await autoRotate(builder.deviceId);
+	}
+}
+
+async function grantAndroidPermissions(logger, builder) {
+
+	async function grantPermissionTo(device) {
+		const deviceId = builder.target !== 'emulator' ? [ '-s', device ] : [];
+		const args = [ ...deviceId, 'shell', 'pm', 'grant', builder.tiapp.id ];
+		await adb(args.concat('android.permission.ACCESS_COARSE_LOCATION'));
+		await adb(args.concat('android.permission.ACCESS_FINE_LOCATION'));
+		await adb(args.concat('android.permission.RECORD_AUDIO'));
+	}
+
+	if (builder.deviceId === 'all') {
+		for (const device of builder.devices) {
+			if (device.id !== 'all') {
+				await grantPermissionTo(device.id);
+			}
+		}
+	} else {
+		await grantPermissionTo(builder.deviceId);
 	}
 }

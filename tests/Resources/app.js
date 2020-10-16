@@ -117,6 +117,7 @@ function loadTests() {
 	require('./ti.locale.test');
 	require('./ti.media.test');
 	require('./ti.media.audioplayer.test');
+	require('./ti.media.audiorecorder.test');
 	require('./ti.media.sound.test');
 	require('./ti.media.videoplayer.test');
 	require('./ti.network.test');
