@@ -46,7 +46,7 @@
     "ios-sanity-check": "./build/scons check-ios-toplevel",
     "link": "npm run deploy -- --symlink",
     "lint": "npm-run-all --parallel lint:!\\(ios\\)",
-    "lint:android": "./android/gradlew checkJavaStyle -p ./android --console plain",
+    "lint:android": "./build/scons gradlew checkJavaStyle",
     "lint:docs": "tdoc-validate ./apidoc",
     "lint:ios": "npm-run-all --parallel lint:objc lint:swift",
     "lint:objc": "clang-format-lint $npm_package_config_format_objc",
