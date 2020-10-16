@@ -157,7 +157,9 @@ iOSModuleBuilder.prototype.run = function run(logger, config, cli, finished) {
 			this.verifyBuildArch().then(next, next);
 		},
 		'packageModule',
-		'runModule',
+		function (next) {
+			this.runModule(cli, next);
+		},
 
 		function (next) {
 			cli.emit('build.module.post.compile', this, next);
@@ -967,7 +969,7 @@ iOSModuleBuilder.prototype.packageModule = function packageModule(next) {
 	}
 };
 
-iOSModuleBuilder.prototype.runModule = function runModule(next) {
+iOSModuleBuilder.prototype.runModule = function runModule(cli, next) {
 	if (this.buildOnly) {
 		return next();
 	}
@@ -1050,6 +1052,11 @@ iOSModuleBuilder.prototype.runModule = function runModule(next) {
 			proc.stderr.on('data', data => this.logger.error(data.toString().trimEnd()));
 			proc.once('error', err => cb(err));
 			proc.on('exit', () => cb());
+		},
+
+		// Emit hook so modules can also alter project before launch
+		function (cb) {
+			cli.emit('create.module.app.finalize', [ this, tmpProjectDir ], cb);
 		},
 
 		function (cb) {
