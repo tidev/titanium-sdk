@@ -538,7 +538,7 @@ public abstract class TiApplication extends Application implements KrollApplicat
 		File trashDir = tryCreateDir(getTiInternalCacheDir(), "trash");
 
 		// Set up an array of all temp directories to be trashed.
-		File[] dirArray = new File[] {
+		File[] dirArray = {
 			// The "Ti.Filesystem.tempDirectory" folder.
 			getTiTempDir(),
 
@@ -585,9 +585,7 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	{
 		boolean wasSuccessful = false;
 		try {
-			if (file != null) {
-				wasSuccessful = deleteTree(file);
-			}
+			wasSuccessful = deleteTree(file);
 		} catch (Throwable ex) {
 			Log.e(TAG, "Failed to delete directory tree: " + file, ex);
 		}
@@ -618,7 +616,7 @@ public abstract class TiApplication extends Application implements KrollApplicat
 		}
 
 		// Delete the given directory/file.
-		return (file.delete() && wasDeleted);
+		return (wasDeleted && file.delete());
 	}
 
 	public void setRootActivity(TiRootActivity rootActivity)
