@@ -2016,7 +2016,7 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
 - (void)presentationControllerDidDismiss:(UIPresentationController *)presentationController
 {
 #if defined(USE_TI_MEDIASHOWCAMERA) || defined(USE_TI_MEDIAOPENPHOTOGALLERY) || defined(USE_TI_MEDIASTARTVIDEOEDITING)
-#if IS_SDK_IOS_14
+#if IS_SDK_IOS_14 && defined(USE_TI_MEDIAOPENPHOTOGALLERY)
   [self closeModalPicker:picker ?: _phPicker];
 #else
   [self closeModalPicker:picker];
