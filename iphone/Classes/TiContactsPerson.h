@@ -7,8 +7,8 @@
 
 #if defined(USE_TI_CONTACTS)
 
-#import <TitaniumKit/TiProxy.h>
 #import <Contacts/Contacts.h>
+#import <TitaniumKit/TiProxy.h>
 
 @class TiContactsPerson, ContactsModule;
 

@@ -6,11 +6,11 @@
  */
 #ifdef USE_TI_CONTACTS
 
+#import "TiContactsPerson.h"
 #import <Contacts/Contacts.h>
 #import <ContactsUI/ContactsUI.h>
 #import <TitaniumKit/KrollCallback.h>
 #import <TitaniumKit/TiModule.h>
-#import "TiContactsPerson.h"
 
 @interface ContactsModule : TiModule <CNContactPickerDelegate, CNContactViewControllerDelegate, TiContactsPersonUpdateObserver> {
   @private

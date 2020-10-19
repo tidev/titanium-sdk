@@ -6,9 +6,9 @@
  */
 #ifdef USE_TI_CONTACTS
 
+#import "ContactsModule.h"
 #import <Contacts/Contacts.h>
 #import <TitaniumKit/TiProxy.h>
-#import "ContactsModule.h"
 
 @interface TiContactsGroup : TiProxy {
   CNMutableGroup *group;
