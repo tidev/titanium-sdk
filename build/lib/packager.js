@@ -148,10 +148,7 @@ class Packager {
 		}
 
 		// Include 'ti.cloak'
-		await utils.unzip(path.join(ROOT_DIR, 'support', 'ti.cloak.zip'), path.join(this.zipSDKDir, 'node_modules'));
-
-		// hack the fake titanium-sdk npm package in
-		return this.hackTitaniumSDKModule();
+		return utils.unzip(path.join(ROOT_DIR, 'support', 'ti.cloak.zip'), path.join(this.zipSDKDir, 'node_modules'));
 	}
 
 	/**
@@ -199,20 +196,6 @@ class Packager {
 	 */
 	async copy(files) {
 		return copyFiles(this.srcDir, this.zipSDKDir, files);
-	}
-
-	async hackTitaniumSDKModule() {
-		// FIXME Remove these hacks for titanium-sdk when titanium-cli has been released and the tisdk3fixes.js hook is gone!
-		// Now copy over hacked titanium-sdk fake node_module
-		console.log('Copying titanium-sdk node_module stub for backwards compatibility with titanium-cli');
-		await fs.copy(path.join(__dirname, '../titanium-sdk'), path.join(this.zipSDKDir, 'node_modules/titanium-sdk'));
-
-		// Hack the package.json to include "titanium-sdk": "*" in dependencies
-		console.log('Inserting titanium-sdk as production dependency');
-		const packageJSONPath = path.join(this.zipSDKDir, 'package.json');
-		const packageJSON = require(packageJSONPath); // eslint-disable-line security/detect-non-literal-require
-		packageJSON.dependencies['titanium-sdk'] = '*';
-		return fs.writeJSON(packageJSONPath, packageJSON);
 	}
 
 	/**
