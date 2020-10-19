@@ -6,11 +6,11 @@
  */
 #ifdef USE_TI_CONTACTS
 
-#import <TitaniumKit/TiApp.h>
-#import <TitaniumKit/TiBase.h>
 #import "ContactsModule.h"
 #import "TiContactsGroup.h"
 #import "TiContactsPerson.h"
+#import <TitaniumKit/TiApp.h>
+#import <TitaniumKit/TiBase.h>
 
 #define appleUndocumentedBirthdayProperty 999
 #define appleUndocumentedToneProperty 16
