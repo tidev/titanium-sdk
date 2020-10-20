@@ -555,7 +555,7 @@
   //won't have any problems in the case that it is actually nil.
   TiUITableViewProxy *ourProxy = (TiUITableViewProxy *)[self proxy];
 
-  NSUInteger oldCount = ourProxy.sectionCount.unsignedIntegerValue;;
+  NSUInteger oldCount = ourProxy.sectionCount.unsignedIntegerValue;
 
   for (TiUITableViewSectionProxy *section in [(TiUITableViewProxy *)[self proxy] internalSections]) {
     if ([section parent] == ourProxy) {
