@@ -555,7 +555,7 @@
   //won't have any problems in the case that it is actually nil.
   TiUITableViewProxy *ourProxy = (TiUITableViewProxy *)[self proxy];
 
-  NSUInteger oldCount = [ourProxy sectionCount];
+  NSUInteger oldCount = ourProxy.sectionCount.unsignedIntegerValue;;
 
   for (TiUITableViewSectionProxy *section in [(TiUITableViewProxy *)[self proxy] internalSections]) {
     if ([section parent] == ourProxy) {
@@ -1313,7 +1313,8 @@
   }
   NSEnumerator *searchResultIndexEnumerator;
   if (searchResultIndexes == nil) {
-    searchResultIndexes = [[NSMutableArray alloc] initWithCapacity:[(TiUITableViewProxy *)[self proxy] sectionCount]];
+    NSUInteger sectionCount = [(TiUITableViewProxy *)[self proxy] sectionCount].unsignedIntegerValue;
+    searchResultIndexes = [[NSMutableArray alloc] initWithCapacity:sectionCount];
     searchResultIndexEnumerator = nil;
   } else {
     searchResultIndexEnumerator = [searchResultIndexes objectEnumerator];
@@ -2124,7 +2125,7 @@
     return 1;
   }
   // One quirk of UITableView is that it really hates having 0 sections. Instead, supply 1 section, no rows.
-  NSUInteger result = [(TiUITableViewProxy *)[self proxy] sectionCount];
+  NSUInteger result = [(TiUITableViewProxy *)[self proxy] sectionCount].unsignedIntegerValue;
   return MAX(1, result);
 }
 
@@ -2166,7 +2167,7 @@
     [table beginUpdates];
     if (emptySection) {
       NSIndexSet *thisSectionSet = [NSIndexSet indexSetWithIndex:[indexPath section]];
-      if ([(TiUITableViewProxy *)[self proxy] sectionCount] > 0) {
+      if ([(TiUITableViewProxy *)[self proxy] sectionCount].unsignedIntegerValue > 0) {
         [table deleteSections:thisSectionSet withRowAnimation:UITableViewRowAnimationFade];
       } else //There always must be at least one section. So instead, we have it reload to clear out the header and footer, etc.
       {
