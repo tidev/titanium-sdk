@@ -13,8 +13,7 @@
 
 'use strict';
 
-const AdmZip = require('adm-zip'),
-	androidDetect = require('../lib/detect').detect,
+const androidDetect = require('../lib/detect').detect,
 	AndroidManifest = require('../lib/android-manifest'),
 	appc = require('node-appc'),
 	archiver = require('archiver'),
@@ -899,8 +898,7 @@ AndroidModuleBuilder.prototype.runModule = async function (cli) {
 	);
 
 	// Unzip module into temp app's "modules" directory.
-	const zip = new AdmZip(this.moduleZipPath);
-	zip.extractAllTo(tmpProjectDir, true);
+	await util.promisify(appc.zip.unzip)(this.moduleZipPath, tmpProjectDir, null);
 
 	// Emit hook so modules can also alter project before launch
 	await new Promise(resolve => cli.emit('create.module.app.finalize', [ this, tmpProjectDir ], resolve));
