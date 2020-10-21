@@ -14,7 +14,6 @@
 'use strict';
 
 const ADB = require('node-titanium-sdk/lib/adb'),
-	AdmZip = require('adm-zip'),
 	android = require('node-titanium-sdk/lib/android'),
 	androidDetect = require('../lib/detect').detect,
 	AndroidManifest = require('../lib/android-manifest'),
@@ -3069,27 +3068,46 @@ AndroidBuilder.prototype.generateRequireIndex = async function generateRequireIn
 	await fs.writeFile(cacheJsonFilePath, JSON.stringify(cacheAssets));
 };
 
-AndroidBuilder.prototype.getNativeModuleBindings = function getNativeModuleBindings(jarFile) {
-	var zip = new AdmZip(jarFile),
-		zipEntries = zip.getEntries(),
-		i = 0,
-		len = zipEntries.length,
-		pathName = 'org/appcelerator/titanium/bindings/',
-		pathNameLen = pathName.length,
-		entry, name;
-
-	for (; i < len; i++) {
-		entry = zipEntries[i];
-		name = entry.entryName.toString();
-		if (name.length > pathNameLen && name.indexOf(pathName) === 0) {
-			try {
-				return JSON.parse(entry.getData());
-			} catch (e) {
-				// ignore
+/**
+ * @param {string} jarFile filepath to JAR
+ * @returns {Promis<Object>} parsed JSON of the module's bindings
+ */
+AndroidBuilder.prototype.getNativeModuleBindings = async function getNativeModuleBindings(jarFile) {
+	return new Promise((resolve, reject) => {
+		const yauzl = require('yauzl');
+		yauzl.open(jarFile, { lazyEntries: true }, (err, zipfile) => {
+			if (err) {
+				return reject(err);
 			}
-			return;
-		}
-	}
+
+			zipfile.once('error', reject);
+			zipfile.on('entry', entry => {
+				if (!entry.fileName.startsWith('org/appcelerator/titanium/bindings/')) {
+					zipfile.readEntry(); // move on
+					return;
+				}
+				// read the entry
+				zipfile.openReadStream(entry, function (err, readStream) {
+					if (err) {
+						return reject(err);
+					}
+
+					// read file contents and when done, parse as JSON
+					const chunks = [];
+					readStream.once('error', reject);
+					readStream.on('data', chunk => chunks.push(chunk));
+					readStream.on('end', () => {
+						try {
+							const str = Buffer.concat(chunks).toString('utf8');
+							return resolve(JSON.parse(str));
+						} catch (error) {
+							reject(error);
+						}
+					});
+				});
+			});
+		});
+	});
 };
 
 AndroidBuilder.prototype.generateJavaFiles = async function generateJavaFiles() {
@@ -3136,7 +3154,7 @@ AndroidBuilder.prototype.generateJavaFiles = async function generateJavaFiles() 
 			const jarFilePath = path.join(module.modulePath, moduleName + '.jar');
 			try {
 				if (await fs.exists(jarFilePath)) {
-					javaBindings = this.getNativeModuleBindings(jarFilePath);
+					javaBindings = await this.getNativeModuleBindings(jarFilePath);
 				}
 			} catch (ex) {
 				this.logger.error(__n('The module "%s" has an invalid jar file: %s', module.id, jarFilePath));
