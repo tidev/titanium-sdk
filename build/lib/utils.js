@@ -300,22 +300,7 @@ Utils.cacheExtract = async function (inFile, integrity, outDir, extractFunc) {
 * @returns {Promise<void>}
 */
 Utils.unzip = function unzip(zipfile, dest) {
-	return new Promise((resolve, reject) => {
-		console.log(`Unzipping ${zipfile} to ${dest}`);
-		const command = os.platform() === 'win32' ? path.join(ROOT_DIR, 'build/win32/unzip') : 'unzip';
-		const child = spawn(command, [ '-o', zipfile, '-d', dest ], { stdio: [ 'ignore', 'ignore', 'pipe' ] });
-		let err = '';
-		child.stderr.on('data', buffer => {
-			err += buffer.toString();
-		});
-		child.on('error', err => reject(err));
-		child.on('close', code => {
-			if (code !== 0) {
-				return reject(new Error(`Unzipping of ${zipfile} exited with non-zero exit code ${code}. ${err}`));
-			}
-			resolve();
-		});
-	});
+	return util.promisify(appc.zip.unzip)(zipfile, dest, null);
 };
 
 /**
