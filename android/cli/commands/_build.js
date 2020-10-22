@@ -3070,7 +3070,7 @@ AndroidBuilder.prototype.generateRequireIndex = async function generateRequireIn
 
 /**
  * @param {string} jarFile filepath to JAR
- * @returns {Promis<Object>} parsed JSON of the module's bindings
+ * @returns {Promise<Object>} parsed JSON of the module's bindings
  */
 AndroidBuilder.prototype.getNativeModuleBindings = async function getNativeModuleBindings(jarFile) {
 	return new Promise((resolve, reject) => {
@@ -3098,6 +3098,7 @@ AndroidBuilder.prototype.getNativeModuleBindings = async function getNativeModul
 					readStream.on('data', chunk => chunks.push(chunk));
 					readStream.on('end', () => {
 						try {
+							zipfile.close();
 							const str = Buffer.concat(chunks).toString('utf8');
 							return resolve(JSON.parse(str));
 						} catch (error) {
@@ -3106,6 +3107,7 @@ AndroidBuilder.prototype.getNativeModuleBindings = async function getNativeModul
 					});
 				});
 			});
+			zipfile.readEntry();
 		});
 	});
 };
