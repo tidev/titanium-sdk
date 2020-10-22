@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2020 by Axway, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -13,7 +13,6 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
-import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -50,8 +49,7 @@ public class TiResponseCache extends ResponseCache
 	private static final int DEFAULT_CACHE_SIZE = 25 * 1024 * 1024; // 25MB
 	private static final int INITIAL_DELAY = 10000;
 	private static final int CLEANUP_DELAY = 60000;
-	private static HashMap<String, ArrayList<CompleteListener>> completeListeners =
-		new HashMap<String, ArrayList<CompleteListener>>();
+	private static HashMap<String, ArrayList<CompleteListener>> completeListeners = new HashMap<>();
 	private static long maxCacheSize = 0;
 
 	// List of Video Media Formats from http://developer.android.com/guide/appendix/media-formats.html
@@ -74,18 +72,12 @@ public class TiResponseCache extends ResponseCache
 			this.maxSize = maxSize;
 		}
 
-		// TODO @Override
+		@Override
 		public void run()
 		{
 			// Build up a list of access times
 			HashMap<Long, File> lastTime = new HashMap<Long, File>();
-			for (File hdrFile : cacheDir.listFiles(new FilenameFilter() {
-					// TODO @Override
-					public boolean accept(File dir, String name)
-					{
-						return name.endsWith(HEADER_SUFFIX);
-					}
-				})) {
+			for (File hdrFile : cacheDir.listFiles((dir, name) -> name.endsWith(HEADER_SUFFIX))) {
 				lastTime.put(hdrFile.lastModified(), hdrFile);
 			}
 
@@ -400,7 +392,7 @@ public class TiResponseCache extends ResponseCache
 	{
 		super();
 		assert cachedir.isDirectory() : "cachedir MUST be a directory";
-		cacheDir = cachedir;
+		this.cacheDir = cachedir;
 
 		maxCacheSize = tiApp.getAppProperties().getInt(CACHE_SIZE_KEY, DEFAULT_CACHE_SIZE) * 1024;
 		Log.d(TAG, "max cache size is:" + maxCacheSize, Log.DEBUG_MODE);

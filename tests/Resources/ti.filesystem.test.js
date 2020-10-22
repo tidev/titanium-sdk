@@ -104,14 +104,14 @@ describe('Titanium.Filesystem', () => {
 		stream.close();
 	});
 
-	// FIXME Get working on Android. Either exists() or deleteDirectory() is returning false
-	it.androidBroken('createTempDirectory()', () => {
+	it('createTempDirectory()', () => {
 		should(Ti.Filesystem.createTempDirectory).not.be.undefined();
 		should(Ti.Filesystem.createTempDirectory).be.a.Function();
 		const dir = Ti.Filesystem.createTempDirectory();
 		should.exist(dir);
 		should.exist(dir.name);
 		should(dir.exists()).be.true();
+		should(dir.nativePath).be.eql(Ti.Filesystem.getFile(Ti.Filesystem.tempDirectory, dir.name).nativePath);
 		should(dir.deleteDirectory()).be.true();
 		should(dir.exists()).be.false();
 	});
@@ -124,6 +124,7 @@ describe('Titanium.Filesystem', () => {
 		should(file).be.ok(); // not null or undefined. should(file).not.; causes a stack overflow somehow.
 		should(file.name).be.a.String();
 		should(file.exists()).be.true();
+		should(file.nativePath).be.eql(Ti.Filesystem.getFile(Ti.Filesystem.tempDirectory, file.name).nativePath);
 		should(file.deleteFile()).be.true();
 		should(file.exists()).be.false();
 	});

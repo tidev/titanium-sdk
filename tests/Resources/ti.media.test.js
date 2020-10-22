@@ -79,6 +79,42 @@ describe('Titanium.Media', function () {
 		should(Ti.Media.QUALITY_MEDIUM).not.be.undefined();
 	});
 
+	it('hasAudioRecorderPermissions()', function () {
+		should(Ti.Media.hasAudioRecorderPermissions).be.a.Function();
+		should(Ti.Media.hasAudioRecorderPermissions()).be.a.Boolean();
+	});
+
+	it('hasCameraPermissions()', function () {
+		should(Ti.Media.hasCameraPermissions).be.a.Function();
+		should(Ti.Media.hasCameraPermissions()).be.a.Boolean();
+	});
+
+	it.ios('hasMusicLibraryPermissions()', function () {
+		should(Ti.Media.hasMusicLibraryPermissions).be.a.Function();
+		should(Ti.Media.hasMusicLibraryPermissions()).be.a.Boolean();
+	});
+
+	it('hasPhotoGalleryPermissions()', function () {
+		should(Ti.Media.hasPhotoGalleryPermissions).be.a.Function();
+		should(Ti.Media.hasPhotoGalleryPermissions()).be.a.Boolean();
+	});
+
+	it('requestAudioRecorderPermissions()', function () {
+		should(Ti.Media.requestAudioRecorderPermissions).be.a.Function();
+	});
+
+	it('requestCameraPermissions()', function () {
+		should(Ti.Media.requestCameraPermissions).be.a.Function();
+	});
+
+	it.ios('requestMusicLibraryPermissions()', function () {
+		should(Ti.Media.requestMusicLibraryPermissions).be.a.Function();
+	});
+
+	it('requestPhotoGalleryPermissions()', function () {
+		should(Ti.Media.requestPhotoGalleryPermissions).be.a.Function();
+	});
+
 	it.windowsMissing('takeScreenshot', function (finish) {
 		should(Ti.Media.takeScreenshot).not.be.undefined();
 		should(Ti.Media.takeScreenshot).be.a.Function();
@@ -154,5 +190,45 @@ describe('Titanium.Media', function () {
 	it('openPhotoGallery', function () {
 		should(Ti.Media.openPhotoGallery).not.be.undefined();
 		should(Ti.Media.openPhotoGallery).be.a.Function();
+	});
+
+	describe('saveToPhotoGallery', function () {
+		it('blob', function (finish) {
+			if (!Ti.Media.hasPhotoGalleryPermissions()) {
+				return finish();
+			}
+			const blob = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, 'Logo.png').read();
+			Ti.Media.saveToPhotoGallery(blob, {
+				success: () => { finish(); },
+				error: (e) => { finish(new Error(e.message)); }
+			});
+		});
+
+		it('file - resourcesDirectory', function (finish) {
+			if (!Ti.Media.hasPhotoGalleryPermissions()) {
+				return finish();
+			}
+			const file = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, 'Logo.png');
+			Ti.Media.saveToPhotoGallery(file, {
+				success: () => { finish(); },
+				error: (e) => { finish(new Error(e.message)); }
+			});
+		});
+
+		it('file - applicationDataDirectory', function (finish) {
+			if (!Ti.Media.hasPhotoGalleryPermissions()) {
+				return finish();
+			}
+			const internalFile = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, 'Logo.png');
+			const externalFile = Ti.Filesystem.getFile(Ti.Filesystem.applicationDataDirectory, 'SaveToPhotoGallery.png');
+			if (externalFile.exists()) {
+				externalFile.deleteFile();
+			}
+			internalFile.copy(externalFile.nativePath);
+			Ti.Media.saveToPhotoGallery(externalFile, {
+				success: () => { finish(); },
+				error: (e) => { finish(new Error(e.message)); }
+			});
+		});
 	});
 });
