@@ -551,6 +551,148 @@ describe('Titanium.UI.ListView', function () {
 		win.open();
 	});
 
+	it('replaceItemsAt', (finish) => {
+		const section1 = Ti.UI.createListSection({
+			headerTitle: 'Section 1',
+			items: [
+				{ properties: { title: 'Row 1' } },
+				{ properties: { title: 'Row 2' } },
+				{ properties: { title: 'Row 3' } },
+			]
+		});
+		const listView = Ti.UI.createListView({
+			sections: [
+				section1,
+				Ti.UI.createListSection({
+					headerTitle: 'Section 2',
+					items: [
+						{ properties: { title: 'Row 1' } },
+						{ properties: { title: 'Row 2' } },
+						{ properties: { title: 'Row 3' } },
+					]
+				}),
+			]
+		});
+
+		// Verify we can replace items via original proxy object.
+		section1.replaceItemsAt(0, 2, [
+			{ properties: { title: 'Row A' } },
+			{ properties: { title: 'Row B' } },
+		]);
+		should(listView.sections[0].items.length).be.eql(3);
+		should(listView.sections[0].items[0].properties.title).be.eql('Row A');
+		should(listView.sections[0].items[1].properties.title).be.eql('Row B');
+		should(listView.sections[0].items[2].properties.title).be.eql('Row 3');
+
+		// Replace first item only.
+		listView.sections[1].replaceItemsAt(0, 1, [
+			{ properties: { title: 'Row A' } },
+		]);
+		should(listView.sections[1].items.length).be.eql(3);
+		should(listView.sections[1].items[0].properties.title).be.eql('Row A');
+		should(listView.sections[1].items[1].properties.title).be.eql('Row 2');
+		should(listView.sections[1].items[2].properties.title).be.eql('Row 3');
+
+		// Replace last item only.
+		listView.sections[1].replaceItemsAt(2, 1, [
+			{ properties: { title: 'Row C' } },
+		]);
+		should(listView.sections[1].items.length).be.eql(3);
+		should(listView.sections[1].items[0].properties.title).be.eql('Row A');
+		should(listView.sections[1].items[1].properties.title).be.eql('Row 2');
+		should(listView.sections[1].items[2].properties.title).be.eql('Row C');
+
+		// Replace middle item only.
+		listView.sections[1].replaceItemsAt(1, 1, [
+			{ properties: { title: 'Row B' } },
+		]);
+		should(listView.sections[1].items.length).be.eql(3);
+		should(listView.sections[1].items[0].properties.title).be.eql('Row A');
+		should(listView.sections[1].items[1].properties.title).be.eql('Row B');
+		should(listView.sections[1].items[2].properties.title).be.eql('Row C');
+
+		// Replace middle item with 2 items. Increases item count to 4.
+		listView.sections[1].replaceItemsAt(1, 1, [
+			{ properties: { title: 'Row B1' } },
+			{ properties: { title: 'Row B2' } },
+		]);
+		should(listView.sections[1].items.length).be.eql(4);
+		should(listView.sections[1].items[0].properties.title).be.eql('Row A');
+		should(listView.sections[1].items[1].properties.title).be.eql('Row B1');
+		should(listView.sections[1].items[2].properties.title).be.eql('Row B2');
+		should(listView.sections[1].items[3].properties.title).be.eql('Row C');
+
+		// Replace last item with 2 items. Increases item count to 5.
+		listView.sections[1].replaceItemsAt(3, 1, [
+			{ properties: { title: 'Row C1' } },
+			{ properties: { title: 'Row C2' } },
+		]);
+		should(listView.sections[1].items.length).be.eql(5);
+		should(listView.sections[1].items[0].properties.title).be.eql('Row A');
+		should(listView.sections[1].items[1].properties.title).be.eql('Row B1');
+		should(listView.sections[1].items[2].properties.title).be.eql('Row B2');
+		should(listView.sections[1].items[3].properties.title).be.eql('Row C1');
+		should(listView.sections[1].items[4].properties.title).be.eql('Row C2');
+
+		// Replace all items with 1 item. Decreases item count to 1.
+		listView.sections[1].replaceItemsAt(0, listView.sections[1].items.length, [
+			{ properties: { title: 'Lonely Row' } },
+		]);
+		should(listView.sections[1].items.length).be.eql(1);
+		should(listView.sections[1].items[0].properties.title).be.eql('Lonely Row');
+
+		// Replace the 1 and only item with 3 items. Increases item count to 3.
+		listView.sections[1].replaceItemsAt(0, 1, [
+			{ properties: { title: 'Row 1' } },
+			{ properties: { title: 'Row 2' } },
+			{ properties: { title: 'Row 3' } },
+		]);
+		should(listView.sections[1].items.length).be.eql(3);
+		should(listView.sections[1].items[0].properties.title).be.eql('Row 1');
+		should(listView.sections[1].items[1].properties.title).be.eql('Row 2');
+		should(listView.sections[1].items[2].properties.title).be.eql('Row 3');
+
+		// Replace rows while displayed onscreen.
+		win = Ti.UI.createWindow();
+		win.add(listView);
+		win.addEventListener('open', () => {
+			try {
+				// Verify we can replace items via original proxy object.
+				section1.replaceItemsAt(0, 2, [
+					{ properties: { title: 'Row 1' } },
+					{ properties: { title: 'Row 2' } },
+				]);
+				should(listView.sections[0].items.length).be.eql(3);
+				should(listView.sections[0].items[0].properties.title).be.eql('Row 1');
+				should(listView.sections[0].items[1].properties.title).be.eql('Row 2');
+				should(listView.sections[0].items[2].properties.title).be.eql('Row 3');
+
+				// Replace all items with 1 item. Decreases item count to 1.
+				listView.sections[1].replaceItemsAt(0, listView.sections[1].items.length, [
+					{ properties: { title: 'Lonely Row' } },
+				]);
+				should(listView.sections[1].items.length).be.eql(1);
+				should(listView.sections[1].items[0].properties.title).be.eql('Lonely Row');
+
+				// Replace the 1 and only item with 3 items. Increases item count to 3.
+				listView.sections[1].replaceItemsAt(0, 1, [
+					{ properties: { title: 'Row 1' } },
+					{ properties: { title: 'Row 2' } },
+					{ properties: { title: 'Row 3' } },
+				]);
+				should(listView.sections[1].items.length).be.eql(3);
+				should(listView.sections[1].items[0].properties.title).be.eql('Row 1');
+				should(listView.sections[1].items[1].properties.title).be.eql('Row 2');
+				should(listView.sections[1].items[2].properties.title).be.eql('Row 3');
+
+				finish();
+			} catch (err) {
+				finish(err);
+			}
+		});
+		win.open();
+	});
+
 	describe('ListItem', function () {
 		// Since the tested API is iOS only, we will skip all other platforms
 		it.ios('properties', () => {
@@ -940,6 +1082,133 @@ describe('Titanium.UI.ListView', function () {
 
 		win.add(listView);
 		win.open();
+	});
+
+	describe('marker', function () {
+		function createItemsStartingFrom(startIndex) {
+			const items = [];
+			const maxIndex = startIndex + 49;
+			for (let index = startIndex; index <= maxIndex; index++) {
+				items.push({ properties: { title: `Row ${index}` } });
+			}
+			return items;
+		}
+
+		it('#setMarker()', (finish) => {
+			let markerCount = 0;
+			const listView = Ti.UI.createListView({
+				sections: [ Ti.UI.createListSection({ items: createItemsStartingFrom(0) }) ]
+			});
+			listView.setMarker({ sectionIndex: 0, itemIndex: listView.sections[0].items.length - 1 });
+			listView.addEventListener('marker', (e) => {
+				try {
+					// Verify marker event index reference last item in ListView.
+					const section = listView.sections[0];
+					const oldItemCount = section.items.length;
+					should(e.sectionIndex).be.eql(0);
+					should(e.itemIndex).be.eql(oldItemCount - 1);
+
+					// End test when receiving the 2nd marker event.
+					if (markerCount > 0) {
+						return finish();
+					}
+					markerCount++;
+
+					// Add more list items, set new marker, and scroll to bottom.
+					section.appendItems(createItemsStartingFrom(oldItemCount));
+					const newItemCount = section.items.length;
+					listView.setMarker({ sectionIndex: 0, itemIndex: newItemCount - 1 });
+					setTimeout(() => {
+						listView.scrollToItem(0, newItemCount - 1);
+					});
+				} catch (err) {
+					finish(err);
+				}
+			});
+			win = Ti.UI.createWindow();
+			win.add(listView);
+			win.addEventListener('open', () => {
+				setTimeout(() => {
+					listView.scrollToItem(0, listView.sections[0].items.length - 1);
+				}, 50);
+			});
+			win.open();
+		});
+
+		it('#addMarker() - bottom', (finish) => {
+			let markerCount = 0;
+			const listView = Ti.UI.createListView({
+				sections: [ Ti.UI.createListSection({ items: createItemsStartingFrom(0) }) ]
+			});
+			listView.addMarker({ sectionIndex: 0, itemIndex: listView.sections[0].items.length - 1 });
+			listView.addEventListener('marker', (e) => {
+				try {
+					// Verify marker event index reference last item in ListView.
+					const section = listView.sections[0];
+					const oldItemCount = section.items.length;
+					should(e.sectionIndex).be.eql(0);
+					should(e.itemIndex).be.eql(oldItemCount - 1);
+
+					// End test when receiving the 2nd marker event.
+					if (markerCount > 0) {
+						return finish();
+					}
+					markerCount++;
+
+					// Add more list items, add new marker, and scroll to bottom.
+					section.appendItems(createItemsStartingFrom(oldItemCount));
+					const newItemCount = section.items.length;
+					listView.addMarker({ sectionIndex: 0, itemIndex: newItemCount - 1 });
+					setTimeout(() => {
+						listView.scrollToItem(0, newItemCount - 1);
+					});
+				} catch (err) {
+					finish(err);
+				}
+			});
+			win = Ti.UI.createWindow();
+			win.add(listView);
+			win.addEventListener('open', () => {
+				setTimeout(() => {
+					listView.scrollToItem(0, listView.sections[0].items.length - 1);
+				}, 50);
+			});
+			win.open();
+		});
+
+		// Adds marker at top and bottom of ListView and show center most row when opened.
+		it('#addMarker() - top/bottom', (finish) => {
+			const listView = Ti.UI.createListView({
+				sections: [ Ti.UI.createListSection({ items: createItemsStartingFrom(0) }) ]
+			});
+			const itemCount = listView.sections[0].items.length;
+			listView.addEventListener('marker', (e) => {
+				if (e.itemIndex === (itemCount - 1)) {
+					setTimeout(() => {
+						listView.scrollToItem(0, 0);
+					});
+				} else if (e.itemIndex === 0) {
+					finish();
+				} else {
+					finish(new Error(`Event "marker.itemIndex" has unexpected value: ${e.itemIndex}`));
+				}
+			});
+			win = Ti.UI.createWindow();
+			win.add(listView);
+			win.addEventListener('open', () => {
+				// Scroll to the middle of the ListView.
+				listView.scrollToItem(0, Math.floor(itemCount / 2));
+				setTimeout(() => {
+					// Add markers to first and last rows in ListView.
+					listView.addMarker({ sectionIndex: 0, itemIndex: 0 });
+					listView.addMarker({ sectionIndex: 0, itemIndex: itemCount - 1 });
+
+					// Scroll to bottom.
+					listView.scrollToItem(0, itemCount - 1);
+				}, 100);
+			});
+			win.open();
+		});
 	});
 
 	it.android('listView with Ti.UI.Android.CardView', function (finish) {
