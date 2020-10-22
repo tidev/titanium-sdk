@@ -279,10 +279,15 @@ public class TiUITabLayoutTabGroup extends TiUIAbstractTabGroup implements TabLa
 			return;
 		}
 
+		Object badgeValue = tabProxy.getProperty(TiC.PROPERTY_BADGE);
+		if ((badgeValue == null) && !TiUIHelper.isUsingMaterialTheme(this.mTabLayout.getContext())) {
+			return;
+		}
+
 		BadgeDrawable badgeDrawable = this.mTabLayout.getTabAt(index).getOrCreateBadge();
-		if (tabProxy.getProperty(TiC.PROPERTY_BADGE) != null) {
+		if (badgeValue != null) {
 			badgeDrawable.setVisible(true);
-			badgeDrawable.setNumber(TiConvert.toInt(tabProxy.getProperty(TiC.PROPERTY_BADGE), 0));
+			badgeDrawable.setNumber(TiConvert.toInt(badgeValue, 0));
 		} else {
 			badgeDrawable.setVisible(false);
 		}
@@ -300,8 +305,8 @@ public class TiUITabLayoutTabGroup extends TiUIAbstractTabGroup implements TabLa
 			return;
 		}
 
-		BadgeDrawable badgeDrawable = this.mTabLayout.getTabAt(index).getOrCreateBadge();
 		if (tabProxy.getProperty(TiC.PROPERTY_BADGE_COLOR) != null) {
+			BadgeDrawable badgeDrawable = this.mTabLayout.getTabAt(index).getOrCreateBadge();
 			badgeDrawable.setVisible(true);
 			badgeDrawable.setBackgroundColor(
 				TiConvert.toColor((String) tabProxy.getProperty(TiC.PROPERTY_BADGE_COLOR)));
