@@ -97,7 +97,7 @@
     "ejs": "^3.1.5",
     "fields": "0.1.24",
     "fs-extra": "^9.0.1",
-    "ioslib": "^1.7.21",
+    "ioslib": "^1.7.23",
     "liveview": "^1.5.4",
     "lodash.merge": "^4.6.2",
     "markdown": "0.5.0",
@@ -154,8 +154,8 @@
     "ssri": "^8.0.0",
     "stream-splitter": "^0.3.2",
     "strip-ansi": "^6.0.0",
-    "titanium": "^5.2.5",
-    "titanium-docgen": "^4.8.2"
+    "titanium": "^5.3.0",
+    "titanium-docgen": "^4.8.3"
   },
   "repository": {
     "type": "git",
