@@ -9,7 +9,6 @@ package ti.modules.titanium.media;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileDescriptor;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -62,7 +61,6 @@ import android.os.Build;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
-import android.os.ParcelFileDescriptor;
 import android.os.Vibrator;
 import android.provider.MediaStore;
 import android.view.Window;
@@ -967,11 +965,10 @@ public class MediaModule extends KrollModule implements Handler.Callback
 					return;
 				}
 				Log.d(TAG, "OnResult called: " + resultCode, Log.DEBUG_MODE);
-				Uri uri = data.getData();
-				String path = null;
-				if (data != null) {
-					path = uri.toString();
-				}
+				// Fetch a URI to file selected. (Only applicable to single file selection.)
+				Uri uri = (data != null) ? data.getData() : null;
+				String path = (uri != null) ? uri.toString() : null;
+
 				//Starting with Android-L, backing out of the gallery no longer returns cancel code, but with
 				//an ok code and a null data.
 				if (resultCode == Activity.RESULT_CANCELED || (Build.VERSION.SDK_INT >= 20 && data == null)) {
@@ -1103,38 +1100,13 @@ public class MediaModule extends KrollModule implements Handler.Callback
 
 		// Determine the mime type for the given file.
 		String mimeType = null;
-		boolean isPhoto = false;
 		try {
 			mimeType = contentResolver.getType(Uri.parse(path));
-			if ((mimeType != null) && mimeType.toLowerCase().startsWith("image")) {
-				isPhoto = true;
-			}
 		} catch (Exception ex) {
 		}
 
 		// Wrap the given file in a blob.
-		String[] parts = { path };
-		TiBlob imageData = null;
-		if (isPhoto && path.startsWith("content://com.google.android.apps.photos.contentprovider")) {
-			// This is an image file from the Google Photos cloud.
-			// We don't have direct file access to it. So, load it into memory.
-			ParcelFileDescriptor parcelFileDescriptor;
-			Bitmap image;
-			try {
-				parcelFileDescriptor = contentResolver.openFileDescriptor(Uri.parse(path), "r");
-				FileDescriptor fileDescriptor = parcelFileDescriptor.getFileDescriptor();
-				image = BitmapFactory.decodeFileDescriptor(fileDescriptor);
-				parcelFileDescriptor.close();
-				if (image != null) {
-					imageData = TiBlob.blobFromImage(image);
-				}
-			} catch (Exception ex) {
-			}
-		}
-		if (imageData == null) {
-			// Have the blob wrap the file path or URL.
-			imageData = createImageData(parts, mimeType);
-		}
+		TiBlob imageData = createImageData(new String[] { path }, mimeType);
 
 		// Return a Titanium "CameraMediaItemType" dictionary which wraps the given file.
 		return createDictForImage(imageData, mimeType);
