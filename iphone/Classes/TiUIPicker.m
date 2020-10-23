@@ -330,7 +330,7 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
 - (NSInteger)pickerView:(UIPickerView *)pickerView numberOfRowsInComponent:(NSInteger)component
 {
   TiUIPickerColumnProxy *proxy = [[self columns] objectAtIndex:component];
-  return [proxy rowCount];
+  return proxy.rowCount.integerValue;
 }
 
 #pragma mark Delegates (only for UIPickerView)
