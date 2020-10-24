@@ -10,7 +10,7 @@
 const should = require('./utilities/assertions');
 
 describe('Titanium.UI.ListView', function () {
-	this.timeout(5000);
+	this.timeout(10000);
 
 	let win;
 	afterEach(done => { // fires after every test in sub-suites too...
@@ -1120,7 +1120,7 @@ describe('Titanium.UI.ListView', function () {
 					listView.setMarker({ sectionIndex: 0, itemIndex: newItemCount - 1 });
 					setTimeout(() => {
 						listView.scrollToItem(0, newItemCount - 1);
-					});
+					}, 50);
 				} catch (err) {
 					finish(err);
 				}
@@ -1161,7 +1161,7 @@ describe('Titanium.UI.ListView', function () {
 					listView.addMarker({ sectionIndex: 0, itemIndex: newItemCount - 1 });
 					setTimeout(() => {
 						listView.scrollToItem(0, newItemCount - 1);
-					});
+					}, 50);
 				} catch (err) {
 					finish(err);
 				}
@@ -1186,7 +1186,7 @@ describe('Titanium.UI.ListView', function () {
 				if (e.itemIndex === (itemCount - 1)) {
 					setTimeout(() => {
 						listView.scrollToItem(0, 0);
-					});
+					}, 50);
 				} else if (e.itemIndex === 0) {
 					finish();
 				} else {
