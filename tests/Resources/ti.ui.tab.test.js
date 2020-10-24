@@ -81,4 +81,25 @@ describe('Titanium.UI.Tab', () => {
 		should(tab.activeTintColor).be.a.String();
 		should(tab.activeTintColor).eql('red');
 	});
+
+	// NOTE: These badge tests require a custom theme extending Material theme on Android
+	// We do that in our tiapp.xml
+	it('.badge', () => {
+		const tab = Ti.UI.createTab({
+			badge: 3
+		});
+
+		should(tab.badge).be.a.Number();
+		should(tab.badge).eql(3);
+	});
+
+	it('.badgeColor', () => {
+		const tab = Ti.UI.createTab({
+			badge: 3,
+			badgeColor: '#123'
+		});
+
+		should(tab.badgeColor).be.a.String();
+		should(tab.badgeColor).eql('#123');
+	});
 });

@@ -161,8 +161,11 @@ exports.init = function (logger, config, cli) {
 						logger.error('[' + simHandle.appName + '] ' + msg);
 					})
 					.on('app-started', function () {
-						finished && finished();
-						finished = null;
+						// TODO: Add "installed" event to "ioslib" module for simulators and emit below event from there.
+						cli.emit('build.post.install', builder, () => {
+							finished && finished();
+							finished = null;
+						});
 					})
 					.on('app-quit', function (code) {
 						if (code) {

@@ -1,3 +1,46 @@
+## [9.2.1](https://github.com/appcelerator/titanium_mobile/compare/9_2_0_GA...9.2.1) (2020-10-05)
+
+## About this release
+
+Titanium SDK 9.2.1 is a patch release of the SDK, addressing high-priority issues from previous releases.
+
+As of this GA release, the previous Titanium SDK patch release (9.2.0) is no longer supported. End of support for this version will be 2021-04-05 or until the next patch release. Note: major and minor releases continue to be supported according to their nominal lifetime.
+See [Axway Appcelerator Deprecation Policy](https://docs.axway.com/bundle/AMPLIFY_Appcelerator_Services_Overview_allOS_en/page/axway_appcelerator_deprecation_policy.html) and [Nominal Lifetimes](https://docs.axway.com/bundle/AMPLIFY_Appcelerator_Services_Overview_allOS_en/page/axway_appcelerator_product_lifecycle.html#AxwayAppceleratorProductLifecycle-NominalLifetimes) documents for details.
+
+:warning: With the release of Titanium SDK 9.0.0, we no longer support Node.js 8.X. Node 10.13.0 is the new minimum supported version.
+
+## Bug Fixes
+
+### iOS platform
+
+* [TIMOB-28127](https://jira.appcelerator.org/browse/TIMOB-28127) - TiUIListItemProxy overreleased causing intermittent crashing w/ macOS ([6d22e29](https://github.com/appcelerator/titanium_mobile/commit/6d22e297bb686afa974c0701c578265557acc2e0))
+* [TIMOB-28156](https://jira.appcelerator.org/browse/TIMOB-28156) - Module build failing for modules not having platform directory ([c4d90fe](https://github.com/appcelerator/titanium_mobile/commit/c4d90fe0e1cc65f7481c5e715182f0f73f28048f))
+* [TIMOB-28150](https://jira.appcelerator.org/browse/TIMOB-28150) - Updating backgroundImage displays irrelavant image inbetween change ([de88803](https://github.com/appcelerator/titanium_mobile/commit/de88803637c7956aba8160fff7e6e1489830bf1b))
+* [TIMOB-28152](https://jira.appcelerator.org/browse/TIMOB-28152) - Compile error when SDK forces a rebuild ([9b516e4](https://github.com/appcelerator/titanium_mobile/commit/9b516e4e0163f89187b3ab1ddd2b0f750fad0893))
+* [TIMOB-27812](https://jira.appcelerator.org/browse/TIMOB-27812) - format js errors in cli output ([bc32947](https://github.com/appcelerator/titanium_mobile/commit/bc32947554f94acd51561e0bba4585c5a74c56b5))
+* [TIMOB-28151](https://jira.appcelerator.org/browse/TIMOB-28151) - Compile error if using Ti.Media APIs without openPhotoGallery ([c5d6d8d](https://github.com/appcelerator/titanium_mobile/commit/c5d6d8d2083db0cc18d03a7c67158101bafcae35))
+* [TIMOB-28158](https://jira.appcelerator.org/browse/TIMOB-28158) - Duplicate framework search paths ([35e4058](https://github.com/appcelerator/titanium_mobile/commit/35e4058784e5ad6c104cf6ea2b16f3887e8f58b9))
+* [TIMOB-28148](https://jira.appcelerator.org/browse/TIMOB-28148) - app crashes when updating tableview ([23c01db](https://github.com/appcelerator/titanium_mobile/commit/23c01db715a486898f401f68c2aa032550528176))
+* [TIMOB-28154](https://jira.appcelerator.org/browse/TIMOB-28154) - Build failing on 9.2.0 with Hyperloop
+* [TIMOB-28159](https://jira.appcelerator.org/browse/TIMOB-28159) - Building Swift module created with sdk < 9.2.0.GA fails
+* [TIMOB-27812](https://jira.appcelerator.org/browse/TIMOB-27812) - Improve display of uncaught errors
+
+## SDK Module Versions
+
+| Module      | Android version | iOS Version |
+| ----------- | --------------- | ----------- |
+| facebook | 10.0.0 | 9.0.0 |
+| ti.cloudpush | 7.1.0 | n/a |
+| ti.map | 5.0.1 | 4.0.1 |
+| ti.webdialog | 2.0.0 | 2.0.0 |
+| ti.playservices | 17.1.1 | n/a |
+| ti.identity | 3.0.2 | 2.0.0 |
+| urlSession | n/a | 3.0.0 |
+| ti.coremotion | n/a | 3.0.0 |
+| ti.applesignin | n/a | 2.0.0 |
+| ti.cloud | 3.2.11 | 3.2.11 |
+| hyperloop | 6.0.1 | 6.0.1 |
+
 # [9.2.0](https://github.com/appcelerator/titanium_mobile/compare/9_1_X...9.2.0) (2020-09-15)
 
 ## About this release
@@ -12,6 +55,7 @@ See [Axway Appcelerator Deprecation Policy](https://docs.axway.com/bundle/AMPLIF
 ## Community Credits
 
 * Hans Knöchel
+  * [TIMOB-28147](https://jira.appcelerator.org/browse/TIMOB-28147) - support app clips ([56b8da4](https://github.com/appcelerator/titanium_mobile/commit/56b8da4407e44a64da69d6e32e6eb4a1b696772f))
   * add since version for Ti.UI.Picker.datePickerStyle ([ab250c3](https://github.com/appcelerator/titanium_mobile/commit/ab250c32cb52d8a6a0c2aa301a1fcd719ca84868))
   * [TIMOB-28104](https://jira.appcelerator.org/browse/TIMOB-28104) - support new date picker styles ([d3cdfc5](https://github.com/appcelerator/titanium_mobile/commit/d3cdfc59bd7707ca2d5a1c27420e91f85019cf3f))
 
@@ -27,6 +71,16 @@ See [Axway Appcelerator Deprecation Policy](https://docs.axway.com/bundle/AMPLIF
 
 ### iOS platform
 
+* [TIMOB-27132](https://jira.appcelerator.org/browse/TIMOB-27132) - fix location of Ti.Filesystem.applicationDataDirectory on macos ([9caf847](https://github.com/appcelerator/titanium_mobile/commit/9caf8475b5c55ffac256c181896809d01a5b62e3))
+* [TIMOB-28138](https://jira.appcelerator.org/browse/TIMOB-28138) - optionally build macos and/or ios arm64 sim ([ed7d149](https://github.com/appcelerator/titanium_mobile/commit/ed7d149314e7c0efaa5a3150f87d81c104f6c591))
+* [TIMOB-28130](https://jira.appcelerator.org/browse/TIMOB-28130) - remove Frameworks directory prior to copying ([405e179](https://github.com/appcelerator/titanium_mobile/commit/405e1799ac15b2a3983d5af55df11543b241a447))
+* [TIMOB-28099](https://jira.appcelerator.org/browse/TIMOB-28099) - remove old tiverify.xcframework references from project ([cd7c270](https://github.com/appcelerator/titanium_mobile/commit/cd7c270d538c71deb02c1df8c0be42391b806033))
+* tweak titanium.xcconfig template to use variables in sdk path ([7da6dbd](https://github.com/appcelerator/titanium_mobile/commit/7da6dbd54696a004940a0ce4146f7598624eaade)) 
+* [TIMOB-28130](https://jira.appcelerator.org/browse/TIMOB-28130) - unmark product directory to prevent removing required files ([635d08c](https://github.com/appcelerator/titanium_mobile/commit/635d08cc843e098b95e181f792af3ec6993a5df5))
+* [TIMOB-28143](https://jira.appcelerator.org/browse/TIMOB-28143) - use TITANIUM_SDK variable to point at xcframework path in xcode project ([559b5bc](https://github.com/appcelerator/titanium_mobile/commit/559b5bca4a2d2f3d58a41018fb61074d157e08dd))
+* use xcodeTargetOS of 'iphoneos' for mac catalyst ([60220c7](https://github.com/appcelerator/titanium_mobile/commit/60220c72a5d35f6ef231d833d911cc2b7408062e))
+* [TIMOB-28142](https://jira.appcelerator.org/browse/TIMOB-28142) - when building module test project, unzip via spawn to avoid max buffer error ([345eee1](https://github.com/appcelerator/titanium_mobile/commit/345eee1a3a902f812e461ca9aa9906cd84409993))
+* added missing left (“) ([ff27c9b](https://github.com/appcelerator/titanium_mobile/commit/ff27c9b01f44fee1517ef566af2166f450f07bcd))
 * [TIMOB-28108](https://jira.appcelerator.org/browse/TIMOB-28108) - allow Ti.UI.RefreshControl.tintColor to accept a semantic color ([815a0fc](https://github.com/appcelerator/titanium_mobile/commit/815a0fcceeda984578b3451e5688e7dcac429376))
 * [TIMOB-28113](https://jira.appcelerator.org/browse/TIMOB-28113) - do not update properties if transition animation ([4a835fd](https://github.com/appcelerator/titanium_mobile/commit/4a835fd1581c7f949a0e05a2ff23b22112b6b7e3))
 * [TIMOB-28062](https://jira.appcelerator.org/browse/TIMOB-28062) - enable swift development in Titanium ([2b4aa7b](https://github.com/appcelerator/titanium_mobile/commit/2b4aa7b3a0b7a7ef18c0824a2900db5945206871))
@@ -54,6 +108,7 @@ See [Axway Appcelerator Deprecation Policy](https://docs.axway.com/bundle/AMPLIF
 
 ### iOS platform
 
+* [TIMOB-27986](https://jira.appcelerator.org/browse/TIMOB-27986) - support xcframeworks in modules/platform folders ([b2ccfbf](https://github.com/appcelerator/titanium_mobile/commit/b2ccfbf7fb44d5ffa03dd358ad8d5930258be838))
 * [TIMOB-28077](https://jira.appcelerator.org/browse/TIMOB-28077) - added new error constant and updated doc for local network privacy ([f8de8c0](https://github.com/appcelerator/titanium_mobile/commit/f8de8c08c68398b5b5b871e655455f6d8c529d6e))
 * add Ti.Blob.toArrayBuffer() ([e42bbcb](https://github.com/appcelerator/titanium_mobile/commit/e42bbcbf1295123c3a0f7d8fb94179df89358a28))
 * [TIMOB-28098](https://jira.appcelerator.org/browse/TIMOB-28098) - add Ti.Platform.versionPatch ([a78e9cc](https://github.com/appcelerator/titanium_mobile/commit/a78e9ccf9b937fd9066ba13bbc855f3a37557482))
@@ -91,17 +146,17 @@ See [Axway Appcelerator Deprecation Policy](https://docs.axway.com/bundle/AMPLIF
 
 | Module      | Android version | iOS Version |
 | ----------- | --------------- | ----------- |
-| facebook | 9.0.0 | 8.0.0 |
+| facebook | 10.0.0 | 9.0.0 |
 | ti.cloudpush | 7.1.0 | n/a |
 | ti.map | 5.0.1 | 4.0.0 |
-| ti.webdialog | 2.0.0 | 1.2.0 |
+| ti.webdialog | 2.0.0 | 2.0.0 |
 | ti.playservices | 17.1.1 | n/a |
 | ti.identity | 3.0.2 | 2.0.0 |
-| urlSession | n/a | 2.2.0 |
-| ti.coremotion | n/a | 2.1.0 |
-| ti.applesignin | n/a | 1.1.1 |
+| urlSession | n/a | 3.0.0 |
+| ti.coremotion | n/a | 3.0.0 |
+| ti.applesignin | n/a | 2.0.0 |
 | ti.cloud | 3.2.11 | 3.2.11 |
-| hyperloop | 5.0.3 | 5.0.3 |
+| hyperloop | 6.0.0 | 6.0.0 |
 
 # [9.1.0](https://github.com/appcelerator/titanium_mobile/compare/9_0_X...9.1.0) (2020-08-06)
 
