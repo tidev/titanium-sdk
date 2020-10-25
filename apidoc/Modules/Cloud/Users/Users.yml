@@ -190,7 +190,7 @@ methods:
         since: "3.2.3"
         removed: "3.2.3"
         notes: OAuth authentication is no longer supported in the ti.cloud module.
-    since: 2.1.2
+    since: "2.1.2"
     platforms: [android, iphone, ipad]
     summary: Create a new user using 3-Legged OAuth.
     description: |
@@ -216,7 +216,7 @@ methods:
         since: "3.2.3"
         removed: "3.2.3"
         notes: OAuth authentication is no longer supported in the ti.cloud module.
-    since: 2.1.2
+    since: "2.1.2"
     platforms: [android, iphone, ipad]
     summary: Log in a user using 3-Legged OAuth.
     description: |
@@ -242,7 +242,7 @@ methods:
         since: "3.2.3"
         removed: "3.2.3"
         notes: OAuth authentication is no longer supported in the ti.cloud module.
-    since: 2.1.2
+    since: "2.1.2"
     platforms: [android, iphone, ipad]
     summary: Checks if the user is authenticated with 3-Legged OAuth.
     description: |

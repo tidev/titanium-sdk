@@ -55,12 +55,13 @@ public class TiJSService extends TiBaseService
 		if (!fullUrl.contains("://") && !fullUrl.startsWith("/") && proxy.getCreationUrl().baseUrl != null) {
 			fullUrl = proxy.getCreationUrl().baseUrl + fullUrl;
 		}
+
 		if (Log.isDebugModeEnabled()) {
-			if (url != fullUrl) {
-				Log.d(TAG, "Eval JS Service:" + url + " (" + fullUrl + ")");
-			} else {
-				Log.d(TAG, "Eval JS Service:" + url);
+			String message = "Eval JS Service: " + url;
+			if (!url.equals(fullUrl)) {
+				message += " (" + fullUrl + ")";
 			}
+			Log.d(TAG, message);
 		}
 
 		if (fullUrl.startsWith(TiC.URL_APP_PREFIX)) {

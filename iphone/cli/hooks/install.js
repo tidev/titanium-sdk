@@ -126,7 +126,7 @@ exports.init = function (logger, config, cli) {
 									}
 								}, 50);
 							}
-							next();
+							cli.emit('build.post.install', builder, next);
 						})
 						.on('app-started', function () {
 							runningCount++;

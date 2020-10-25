@@ -581,15 +581,10 @@ public class TiVideoView8 extends SurfaceView implements MediaPlayerControl
 			if (mMediaController != null) {
 				mMediaController.hide();
 			}
-			if (mp != null) {
-				mp.release();
-			}
 
 			/* If an error handler has been supplied, use it and finish. */
 			if (mOnErrorListener != null) {
-				if (mOnErrorListener.onError(mMediaPlayer, framework_err, impl_err)) {
-					return true;
-				}
+				mOnErrorListener.onError(mMediaPlayer, framework_err, impl_err);
 			}
 
 			return true;
@@ -694,7 +689,6 @@ public class TiVideoView8 extends SurfaceView implements MediaPlayerControl
 	public void release(boolean cleartargetstate)
 	{
 		if (mMediaPlayer != null) {
-			mMediaPlayer.reset();
 			mMediaPlayer.release();
 			mMediaPlayer = null;
 			mCurrentState = STATE_IDLE;

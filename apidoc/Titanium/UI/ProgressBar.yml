@@ -27,7 +27,7 @@ description: |
     Make sure the window is modal and not full screen, and that the navigation bar is not hidden.
 extends: Titanium.UI.View
 since: "0.8"
-platforms: [android, iphone, ipad]
+platforms: [android, iphone, ipad, macos]
 excludes:
     properties: [children]
     methods: [add, remove, removeAllChildren, replaceAt]
@@ -57,7 +57,7 @@ properties:
   - name: trackTintColor
     summary: The color shown for the portion of the progress bar that is not filled.
     type: [String, Titanium.UI.Color]
-    platforms: [iphone, ipad, android]
+    platforms: [iphone, ipad, android, macos]
     since: {iphone: "5.2.0", ipad: "5.2.0", android: "8.0.0"}
     osver: {android: {min: "5.0"}}
 
@@ -69,7 +69,7 @@ properties:
     summary: Style of the progress bar.
     description: For iOS, progress bar styles are constants defined in [ProgressBarStyle](Titanium.UI.iOS.ProgressBarStyle).
     type: Number
-    platforms: [iphone,ipad]
+    platforms: [iphone,ipad, macos]
 
   - name: value
     summary: Current value of the progress bar.

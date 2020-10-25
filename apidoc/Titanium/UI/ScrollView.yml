@@ -54,7 +54,7 @@ methods:
 
   - name: setContentOffset
     summary: Sets the value of the [contentOffset](Titanium.UI.ScrollView.contentOffset) property.
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     parameters:
       - name: contentOffsetXY
         summary: |
@@ -71,7 +71,7 @@ methods:
 
   - name: setZoomScale
     summary: Sets the value of the [zoomScale](Titanium.UI.ScrollView.zoomScale) property.
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     parameters:
       - name: zoomScale
         summary: Scaling factor of the scroll view's content.
@@ -96,7 +96,7 @@ methods:
 
         On iOS, `scrollToBottom` moves the bottom-right corner of the scrollable region into the
         viewable area.
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     since: {iphone: "2.1.0", ipad: "2.1.0"}
 
   - name: scrollToTop
@@ -109,13 +109,13 @@ methods:
 
         On iOS, `scrollToTop` moves the top-left corner of the scrollable region into the
         viewable area.
-    platforms: [iphone, ipad, android]
+    platforms: [iphone, ipad, android, macos]
     since: "7.0.0"
 
 events:
   - name: scale
     summary: Fired when the zoom scale factor changes.
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     properties:
       - name: scale
         summary: New scaling factor as a float.
@@ -129,13 +129,13 @@ events:
         summary: |
             The current content size of the scroll view defined by its `width` and `height` properties.
         type: Size
-        platforms: [android, iphone, ipad]
+        platforms: [android, iphone, ipad, macos]
         since: { iphone: "5.2.0", ipad: "5.2.0", android: "8.3.0" }
 
       - name: decelerating
         summary: Indicates whether the scroll is decelerating.
         type: Boolean
-        platforms: [iphone, ipad]
+        platforms: [iphone, ipad, macos]
 
       - name: dragging
         summary: |
@@ -143,14 +143,14 @@ events:
             remained in contact with the display to physically drag the view, as opposed to it being
             the result of scrolling momentum.
         type: Boolean
-        platforms: [iphone, ipad]
+        platforms: [iphone, ipad, macos]
 
       - name: zooming
         summary: |
             Indicates whether the event was fired during a zooming operation. This is only available
             from Release 3.2.3 of the Titanium Mobile SDK.
         type: Boolean
-        platforms: [iphone, ipad]
+        platforms: [iphone, ipad, macos]
 
       - name: curZoomScale
         summary: |
@@ -158,7 +158,7 @@ events:
             the `zoomScale` property or be within the range specified by `minZoomScale` and `maxZoomScale`.
             This is only available from Release 3.2.3 of the Titanium Mobile SDK.
         type: Number
-        platforms: [iphone, ipad]
+        platforms: [iphone, ipad, macos]
 
       - name: x
         summary: X coordinate of the event from the `source` view's coordinate system.
@@ -175,7 +175,7 @@ events:
 
         A dragging gesture is when a touch remains in contact with the display to physically drag
         the view, as opposed to it being the result of scrolling momentum.
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: dragEnd
     summary: Fired when the scrollable region stops being dragged.
@@ -184,7 +184,7 @@ events:
 
         A dragging gesture is when a touch remains in contact with the display to physically drag
         the view, as opposed to it being the result of scrolling momentum.
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     properties:
       - name: decelerate
         summary: |
@@ -197,7 +197,7 @@ events:
     description: |
         A dragging gesture is when a touch remains in contact with the display to physically drag
         the view, as opposed to it being the result of scrolling momentum.
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     since: { iphone: "3.0.0", ipad: "3.0.0", android: "6.2.0" }
 
   - name: dragend
@@ -205,7 +205,7 @@ events:
     description: |
         A dragging gesture is when a touch remains in contact with the display to physically drag
         the view, as opposed to it being the result of scrolling momentum.
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     properties:
       - name: decelerate
         summary: |
@@ -226,7 +226,7 @@ properties:
         any touch events from its subviews. Note that this behavior may be slightly different from iOS.
     type: Boolean
     default: true
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: contentHeight
     summary: Height of the scrollable region.
@@ -256,7 +256,7 @@ properties:
     type: Number
     constants: Titanium.UI.iOS.SCROLL_DECELERATION_RATE_*
     default: Undefined.
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "3.2.3"
 
   - name: disableBounce
@@ -267,7 +267,7 @@ properties:
         This property takes precedence over the `horizontalBounce` and `verticalBounce` properties.
     type: Boolean
     default: false
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: horizontalBounce
     summary: Determines whether horizontal scroll bounce of the scrollable region is enabled.
@@ -282,13 +282,13 @@ properties:
         `verticalBounce` properties.
     type: Boolean
     default: true
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: keyboardDismissMode
     summary: The manner in which the keyboard is dismissed when a drag begins in the scroll view.
     type: Number
     constants: Titanium.UI.iOS.KEYBOARD_DISMISS_MODE_*
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     default: Undefined (behaves like Titanium.UI.iOS.KEYBOARD_DISMISS_MODE_NONE)
     since: "6.0.0"
 
@@ -302,7 +302,7 @@ properties:
         Note that specifying a value less than or equal to 0 will hide all contents of the scroll view.
     type: Number
     default: 1.0
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: minZoomScale
     summary: Minimum scaling factor of the scrollable region and its content.
@@ -312,7 +312,7 @@ properties:
         The default value is 1.0 unless otherwise specified.
     type: Number
     default: 1.0
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: overScrollMode
     summary: Determines the behavior when the user overscolls the view.
@@ -328,7 +328,7 @@ properties:
         An alternate to the pullView property. See <Titanium.UI.RefreshControl> for usage and examples. Since Titanium
         SDK 7.5.0, the RefreshControl API is also available on iOS < 10.
     type: Titanium.UI.RefreshControl
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     since: { android: "6.3.0", iphone: "6.0.0", ipad: "6.0.0" }
 
   - name: scrollsToTop
@@ -341,7 +341,7 @@ properties:
         behaviour on. The remaining view will then respond to scroll-to-top gesture.
     type: Boolean
     default: true
-    platforms: [iphone,ipad]
+    platforms: [iphone,ipad, macos]
     since: 2.0.0
 
   - name: scrollIndicatorStyle
@@ -349,7 +349,7 @@ properties:
     type: Number
     constants: Titanium.UI.iOS.ScrollIndicatorStyle.*
     default: Titanium.UI.iOS.ScrollIndicatorStyle.DEFAULT
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: scrollType
     summary: |
@@ -366,7 +366,7 @@ properties:
     summary: Determines whether scrolling is enabled for the view.
     type: Boolean
     default: true
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     since: { iphone: "3.0.0", ipad: "3.0.0", android: "3.0.0" }
 
   - name: showHorizontalScrollIndicator
@@ -396,7 +396,7 @@ properties:
         `verticalBounce` properties.
     type: Boolean
     default: true
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: zoomScale
     summary: Scaling factor of the scroll view's content.
@@ -404,7 +404,7 @@ properties:
         This value is bound by the [minZoomScale](Titanium.UI.ScrollView.minZoomScale) and [maxZoomScale](Titanium.UI.ScrollView.maxZoomScale) properties.
     type: Number
     default: 1
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 examples:
   - title: Simple Scroll View
     example: |

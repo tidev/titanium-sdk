@@ -115,7 +115,7 @@
   validRow = NO;
 }
 
-- (BOOL)next
+- (bool)next
 {
   if (results != nil) {
     validRow = [results next];
@@ -213,13 +213,13 @@
   return 0;
 }
 
-- (BOOL)validRow
+- (bool)validRow
 {
   return validRow;
 }
-GETTER_IMPL(BOOL, validRow, ValidRow);
+GETTER_IMPL(bool, validRow, ValidRow);
 
-- (BOOL)isValidRow
+- (bool)isValidRow
 {
   return [self validRow];
 }

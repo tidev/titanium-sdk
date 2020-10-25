@@ -11,7 +11,7 @@ description: |
     [tiapp.xml and timodule.xml Reference](https://docs.appcelerator.com/platform/latest/#!/guide/tiapp.xml_and_timodule.xml_Reference).
 
 extends: Titanium.Module
-platforms: [android, iphone, ipad]
+platforms: [android, iphone, ipad, macos]
 since: {android: "3.2.0", iphone: "3.1.0", ipad: "3.1.0"}
 createable: false
 
@@ -26,7 +26,7 @@ events:
         do not wish to refetch it unless it is absolutely necessary to do so, you can call
         the [refresh](Titanium.Calendar.Event.refresh) method on it. If the method returns
         YES, you do not need to refetch the event.
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "3.1.0"
 
 methods:
@@ -38,13 +38,13 @@ methods:
       - name: id
         summary: Identifier of the calendar.
         type: String
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: hasCalendarPermissions
     summary: Returns `true` if the app has calendar access.
     returns:
         type: Boolean
-    platforms: [iphone, ipad, android]
+    platforms: [iphone, ipad, android, macos]
     since: "5.1.0"
 
   - name: requestCalendarPermissions
@@ -63,7 +63,7 @@ methods:
       - name: callback
         summary: Function to call upon user decision to grant calendar access.
         type: Callback<EventsAuthorizationResponse>
-    platforms: [iphone, ipad, android]
+    platforms: [iphone, ipad, android, macos]
     since: "5.1.0"
 
   - name: requestEventsAuthorization
@@ -189,7 +189,7 @@ properties:
         and [STATUS_TENTATIVE](Titanium.Calendar.STATUS_TENTATIVE).
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: STATUS_CANCELLED
     summary: Event canceled status.
@@ -221,7 +221,7 @@ properties:
         and [STATUS_TENTATIVE](Titanium.Calendar.STATUS_TENTATIVE).
     type: Number
     permission: read-only
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: STATUS_CONFIRMED
     summary: Event confirmed status.
@@ -235,7 +235,7 @@ properties:
         and [STATUS_TENTATIVE](Titanium.Calendar.STATUS_TENTATIVE).
     type: Number
     permission: read-only
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: STATUS_TENTATIVE
     summary: Event tentative status.
@@ -249,7 +249,7 @@ properties:
         and [STATUS_TENTATIVE](Titanium.Calendar.STATUS_TENTATIVE).
     type: Number
     permission: read-only
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: AVAILABILITY_NOTSUPPORTED
     summary: Availability settings are not supported by the event's calendar.
@@ -264,7 +264,7 @@ properties:
         and [AVAILABILITY_UNAVAILABLE](Titanium.Calendar.AVAILABILITY_UNAVAILABLE).
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: AVAILABILITY_BUSY
     summary: Event has a busy availability setting.
@@ -279,7 +279,7 @@ properties:
         and [AVAILABILITY_UNAVAILABLE](Titanium.Calendar.AVAILABILITY_UNAVAILABLE).
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: AVAILABILITY_FREE
     summary: Event has a free availability setting.
@@ -294,7 +294,7 @@ properties:
         and [AVAILABILITY_UNAVAILABLE](Titanium.Calendar.AVAILABILITY_UNAVAILABLE).
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: AVAILABILITY_TENTATIVE
     summary: Event has a tentative availability setting.
@@ -309,7 +309,7 @@ properties:
         and [AVAILABILITY_UNAVAILABLE](Titanium.Calendar.AVAILABILITY_UNAVAILABLE).
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: AVAILABILITY_UNAVAILABLE
     summary: Event has a tentative availability setting.
@@ -324,7 +324,7 @@ properties:
         and [AVAILABILITY_UNAVAILABLE](Titanium.Calendar.AVAILABILITY_UNAVAILABLE).
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: AUTHORIZATION_AUTHORIZED
     summary: |
@@ -334,7 +334,7 @@ properties:
         This value is always returned if the device is running an iOS release prior to 6.0.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: AUTHORIZATION_DENIED
     summary: |
@@ -342,7 +342,7 @@ properties:
         indicating that the application is not authorized to use events in the Calendar.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: AUTHORIZATION_RESTRICTED
     summary: |
@@ -351,7 +351,7 @@ properties:
         the user cannot change this application's status.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: AUTHORIZATION_UNKNOWN
     summary: |
@@ -359,7 +359,7 @@ properties:
         indicating that the authorization state is unknown.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: SPAN_THISEVENT
     summary: |
@@ -367,7 +367,7 @@ properties:
         indicating modifications to this event instance should affect only this instance.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: SPAN_FUTUREEVENTS
     summary: |
@@ -375,7 +375,7 @@ properties:
         indicating modifications to this event instance should also affect future instances of this event.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: RECURRENCEFREQUENCY_DAILY
     summary: Indicates a daily recurrence rule for a events reccurance frequency.
@@ -389,7 +389,7 @@ properties:
         and [RECURRENCEFREQUENCY_YEARLY](Titanium.Calendar.RECURRENCEFREQUENCY_YEARLY).
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, android]
+    platforms: [iphone, ipad, android, macos]
     since: {iphone: "3.1.0", ipad: "3.1.0", android: "7.1.0"}
 
   - name: RECURRENCEFREQUENCY_WEEKLY
@@ -404,7 +404,7 @@ properties:
         and [RECURRENCEFREQUENCY_YEARLY](Titanium.Calendar.RECURRENCEFREQUENCY_YEARLY).
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, android]
+    platforms: [iphone, ipad, android, macos]
     since: {iphone: "3.1.0", ipad: "3.1.0", android: "7.1.0"}
 
   - name: RECURRENCEFREQUENCY_MONTHLY
@@ -419,7 +419,7 @@ properties:
         and [RECURRENCEFREQUENCY_YEARLY](Titanium.Calendar.RECURRENCEFREQUENCY_YEARLY).
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, android]
+    platforms: [iphone, ipad, android, macos]
     since: {iphone: "3.1.0", ipad: "3.1.0", android: "7.1.0"}
 
   - name: RECURRENCEFREQUENCY_YEARLY
@@ -434,7 +434,7 @@ properties:
         and [RECURRENCEFREQUENCY_YEARLY](Titanium.Calendar.RECURRENCEFREQUENCY_YEARLY).
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, android]
+    platforms: [iphone, ipad, android, macos]
     since: {iphone: "3.1.0", ipad: "3.1.0", android: "7.1.0"}
 
   - name: VISIBILITY_CONFIDENTIAL
@@ -497,35 +497,35 @@ properties:
     summary: Attendee status is unknown.
     type: Number
     permission: read-only
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     since: {android: "6.2.0", iphone: "6.0.0", ipad: "6.0.0"}
 
   - name: ATTENDEE_STATUS_PENDING
     summary: Attendee status is pending.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "6.0.0"
 
   - name: ATTENDEE_STATUS_ACCEPTED
     summary: Attendee status is accepted.
     type: Number
     permission: read-only
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     since: {android: "6.2.0", iphone: "6.0.0", ipad: "6.0.0"}
 
   - name: ATTENDEE_STATUS_DECLINED
     summary: Attendee status is declined.
     type: Number
     permission: read-only
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     since: {android: "6.2.0", iphone: "6.0.0", ipad: "6.0.0"}
 
   - name: ATTENDEE_STATUS_TENTATIVE
     summary: Attendee status is tentative.
     type: Number
     permission: read-only
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     since: {android: "6.2.0", iphone: "6.0.0", ipad: "6.0.0"}
 
   - name: ATTENDEE_STATUS_INVITED
@@ -546,14 +546,14 @@ properties:
     summary: Attendee status is delegated.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "6.0.0"
 
   - name: ATTENDEE_STATUS_IN_PROCESS
     summary: Attendee status is in process.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "6.0.0"
 
   - name: RELATIONSHIP_ATTENDEE
@@ -602,63 +602,63 @@ properties:
     summary: Attendee role is unknown.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "6.0.0"
 
   - name: ATTENDEE_ROLE_OPTIONAL
     summary: Attendee role is optional.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "6.0.0"
 
   - name: ATTENDEE_ROLE_REQUIRED
     summary: Attendee role is required.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "6.0.0"
 
   - name: ATTENDEE_ROLE_CHAIR
     summary: Attendee role is chair.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "6.0.0"
 
   - name: ATTENDEE_ROLE_NON_PARTICIPANT
     summary: Attendee is not a participant.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "6.0.0"
 
   - name: ATTENDEE_TYPE_UNKNOWN
     summary: Attendee type is unknown.
     type: Number
     permission: read-only
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     since: {android: "6.2.0", iphone: "6.0.0", ipad: "6.0.0"}
 
   - name: ATTENDEE_TYPE_PERSON
     summary: Attendee type is person.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "6.0.0"
 
   - name: ATTENDEE_TYPE_ROOM
     summary: Attendee type is room.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "6.0.0"
 
   - name: ATTENDEE_TYPE_RESOURCE
     summary: Attendee type is resource.
     type: Number
     permission: read-only
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     since: {android: "6.2.0", iphone: "6.0.0", ipad: "6.0.0"}
 
   - name: ATTENDEE_TYPE_NONE
@@ -679,49 +679,49 @@ properties:
     summary: Attendee type is group.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "6.0.0"
 
   - name: SOURCE_TYPE_LOCAL
     summary: A local calendar source.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "6.1.0"
 
   - name: SOURCE_TYPE_EXCHANGE
     summary: A microsoft exchange calendar source.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "6.1.0"
 
   - name: SOURCE_TYPE_CALDAV
     summary: A calDev calendar source.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "6.1.0"
 
   - name: SOURCE_TYPE_MOBILEME
     summary: A mobileMe calendar source.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "6.1.0"
 
   - name: SOURCE_TYPE_SUBSCRIBED
     summary: A subscribed calendar source.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "6.1.0"
 
   - name: SOURCE_TYPE_BIRTHDAYS
     summary: A birthday calendar source.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "6.1.0"
 
   - name: eventsAuthorization
@@ -746,7 +746,7 @@ properties:
     constants: Titanium.Calendar.AUTHORIZATION_*
     permission: read-only
     type: Number
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: allAlerts
     summary: All alerts in selected calendars.
@@ -758,7 +758,7 @@ properties:
     summary: All calendars known to the native calendar app.
     type: Array<Titanium.Calendar.Calendar>
     permission: read-only
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: allEditableCalendars
     summary: |
@@ -766,7 +766,7 @@ properties:
         delete items in the calendar.
     type: Array<Titanium.Calendar.Calendar>
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: selectableCalendars
     summary: |
@@ -784,7 +784,7 @@ properties:
         Calendar that events are added to by default, as specified by user settings.
     type: Titanium.Calendar.Calendar
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
 examples:
   - title: All Calendars vs Selectable Calendars
@@ -1165,7 +1165,7 @@ examples:
 name: EventsAuthorizationResponse
 summary: Argument passed to the callback when a request finishes successfully or erroneously.
 since: "3.1.0"
-platforms: [iphone, ipad]
+platforms: [iphone, ipad, macos]
 properties:
   - name: success
     summary: Indicates whether the request succeeded.
