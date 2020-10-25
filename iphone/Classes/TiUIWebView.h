@@ -23,6 +23,7 @@
 
   BOOL _willHandleTouches;
   NSArray<NSString *> *_blacklistedURLs;
+  NSArray<NSString *> *_blockedURLs;
   NSURL *_currentURL;
   UIActivityIndicatorView *_loadingIndicator;
   BOOL _isViewDetached;

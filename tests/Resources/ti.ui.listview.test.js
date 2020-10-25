@@ -10,7 +10,7 @@
 const should = require('./utilities/assertions');
 
 describe('Titanium.UI.ListView', function () {
-	this.timeout(6e4);
+	this.timeout(5000);
 
 	let win;
 	afterEach(done => { // fires after every test in sub-suites too...
@@ -551,9 +551,10 @@ describe('Titanium.UI.ListView', function () {
 		win.open();
 	});
 
-	// Since the tested API is iOS only, we will skip all other platforms
-	it.ios('ListItem.properties', function () {
-		var list = Ti.UI.createListView({
+	describe('ListItem', function () {
+		// Since the tested API is iOS only, we will skip all other platforms
+		it.ios('properties', () => {
+			const listView = Ti.UI.createListView({
 				sections: [ Ti.UI.createListSection({
 					items: [ {
 						template: Ti.UI.LIST_ITEM_TEMPLATE_CONTACTS,
@@ -565,59 +566,92 @@ describe('Titanium.UI.ListView', function () {
 						}
 					} ]
 				}) ]
-			}),
-			section,
-			items,
-			item,
-			template,
-			properties;
+			});
 
-		win = Ti.UI.createWindow();
-		win.add(list);
-		win.open();
+			// Validate list and section
+			should(listView.apiName).be.eql('Ti.UI.ListView');
+			const section = listView.sections[0];
+			should(section.apiName).be.eql('Ti.UI.ListSection');
 
-		// Validate list and section
-		should(list.apiName).be.eql('Ti.UI.ListView');
-		section = list.sections[0];
-		should(section.apiName).be.eql('Ti.UI.ListSection');
+			// Validate items
+			const items = section.items;
+			should(items).be.an.Array();
+			should(items.length).be.a.Number();
+			should(items.length).be.eql(1);
 
-		// Validate items
-		items = section.items;
-		should(items).be.an.Array();
-		should(items.length).be.a.Number();
-		should(items.length).be.eql(1);
+			// Validate single item
+			const item = items[0];
+			const template = item.template;
+			const properties = item.properties;
 
-		// Validate single item
-		item = items[0];
-		template = item.template;
-		properties = item.properties;
+			// Validate item template
+			should(item).have.ownProperty('template');
+			should(template).not.be.undefined();
+			should(template).be.a.Number();
+			should(template).eql(Ti.UI.LIST_ITEM_TEMPLATE_CONTACTS);
 
-		// Validate item template
-		should(item).have.ownProperty('template');
-		should(template).not.be.undefined();
-		should(template).be.a.Number();
-		should(template).eql(Ti.UI.LIST_ITEM_TEMPLATE_CONTACTS);
+			// Validate item properties
+			should(item).have.ownProperty('properties');
+			should(properties).not.be.undefined();
+			should(properties).be.an.Object();
 
-		// Validate item properties
-		should(item).have.ownProperty('properties');
-		should(properties).not.be.undefined();
-		should(properties).be.an.Object();
+			// Validate properties subtitleColor and selectedSubtitleColor
+			should(properties).have.ownProperty('subtitleColor');
+			should(properties.subtitleColor).be.a.String();
+			should(properties.subtitleColor).be.eql('red');
+			should(properties).have.ownProperty('selectedSubtitleColor');
+			should(properties.selectedSubtitleColor).be.a.String();
+			should(properties.selectedSubtitleColor).be.eql('green');
 
-		// Validate properties subtitleColor and selectedSubtitleColor
-		should(properties).have.ownProperty('subtitleColor');
-		should(properties.subtitleColor).be.a.String();
-		should(properties.subtitleColor).be.eql('red');
-		should(properties).have.ownProperty('selectedSubtitleColor');
-		should(properties.selectedSubtitleColor).be.a.String();
-		should(properties.selectedSubtitleColor).be.eql('green');
+			// Validate properties title & subtitle
+			should(properties).have.ownProperty('title');
+			should(properties.title).be.a.String();
+			should(properties.title).be.eql('My Title');
+			should(properties).have.ownProperty('subtitle');
+			should(properties.subtitle).be.a.String();
+			should(properties.subtitle).be.eql('My Subtitle');
+		});
 
-		// Validate properties title & subtitle
-		should(properties).have.ownProperty('title');
-		should(properties.title).be.a.String();
-		should(properties.title).be.eql('My Title');
-		should(properties).have.ownProperty('subtitle');
-		should(properties.subtitle).be.a.String();
-		should(properties.subtitle).be.eql('My Subtitle');
+		it('itemId', () => {
+			const listView = Ti.UI.createListView({
+				sections: [
+					Ti.UI.createListSection({
+						items: [
+							{ properties: { title: 'Row 1', itemId: 'Foo' } },
+						]
+					})
+				]
+			});
+			const section = listView.sections[0];
+			const item = section.getItemAt(0);
+			should(item.properties.itemId).be.eql('Foo');
+			item.properties.itemId = 'Bar';
+			section.updateItemAt(0, item);
+			should(section.getItemAt(0).properties.itemId).be.eql('Bar');
+		});
+
+		it('custom properties', () => {
+			const listView = Ti.UI.createListView({
+				sections: [
+					Ti.UI.createListSection({
+						items: [
+							{ properties: { title: 'Row 1', myNumber: 1 } },
+						]
+					})
+				]
+			});
+			const section = listView.sections[0];
+			section.appendItems([
+				{ properties: { title: 'Row 2', myNumber: 2 } },
+			]);
+			should(section.getItemAt(0).properties.myNumber).be.eql(1);
+			should(section.getItemAt(1).properties.myNumber).be.eql(2);
+
+			const item = section.getItemAt(0);
+			item.myString = 'my_string';
+			section.updateItemAt(0, item);
+			should(section.getItemAt(0).myString).be.eql('my_string');
+		});
 	});
 
 	// Crashes Windows 10 Desktop

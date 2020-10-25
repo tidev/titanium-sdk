@@ -168,6 +168,8 @@ describe('Titanium.Blob', function () {
 			const blob = Ti.Filesystem.getFile('Logo.png').read();
 			should(blob.width).be.a.Number();
 			should(blob.width).be.eql(150);
+			should(blob.uprightWidth).be.a.Number();
+			should(blob.uprightWidth).be.eql(blob.width);
 			// TODO Test that it's read-only
 		});
 
@@ -184,6 +186,8 @@ describe('Titanium.Blob', function () {
 			const blob = Ti.Filesystem.getFile('Logo.png').read();
 			should(blob.height).be.a.Number();
 			should(blob.height).be.eql(150);
+			should(blob.uprightHeight).be.a.Number();
+			should(blob.uprightHeight).be.eql(blob.height);
 			// TODO Test that it's read-only
 		});
 
@@ -388,6 +392,44 @@ describe('Titanium.Blob', function () {
 		it('returns ascii text content for buffer with ascii text content', () => {
 			const blob = Ti.createBuffer({ value: 'test toString()' }).toBlob();
 			should(blob.toString()).eql('test toString()');
+		});
+	});
+
+	describe('EXIF orientation', () => {
+		it('rotate 90', () => {
+			const blob = Ti.Filesystem.getFile('ExifRotate90.jpg').read();
+			should(blob.uprightWidth).be.eql(1200);
+			should(blob.uprightHeight).be.eql(1800);
+		});
+		it('rotate 180', () => {
+			const blob = Ti.Filesystem.getFile('ExifRotate180.jpg').read();
+			should(blob.uprightWidth).be.eql(1200);
+			should(blob.uprightHeight).be.eql(1800);
+		});
+		it('rotate 270', () => {
+			const blob = Ti.Filesystem.getFile('ExifRotate270.jpg').read();
+			should(blob.uprightWidth).be.eql(1200);
+			should(blob.uprightHeight).be.eql(1800);
+		});
+		it('flip horizontal', () => {
+			const blob = Ti.Filesystem.getFile('ExifFlipHorizontal.jpg').read();
+			should(blob.uprightWidth).be.eql(1200);
+			should(blob.uprightHeight).be.eql(1800);
+		});
+		it('flip vertical', () => {
+			const blob = Ti.Filesystem.getFile('ExifFlipVertical.jpg').read();
+			should(blob.uprightWidth).be.eql(1200);
+			should(blob.uprightHeight).be.eql(1800);
+		});
+		it('transpose', () => {
+			const blob = Ti.Filesystem.getFile('ExifTranspose.jpg').read();
+			should(blob.uprightWidth).be.eql(1200);
+			should(blob.uprightHeight).be.eql(1800);
+		});
+		it('transverse', () => {
+			const blob = Ti.Filesystem.getFile('ExifTransverse.jpg').read();
+			should(blob.uprightWidth).be.eql(1200);
+			should(blob.uprightHeight).be.eql(1800);
 		});
 	});
 

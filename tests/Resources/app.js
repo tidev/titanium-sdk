@@ -8,7 +8,8 @@
 /* eslint-env titanium, mocha */
 /* eslint no-unused-expressions: "off", no-global-assign: "off", no-native-reassign: "off" */
 'use strict';
-
+// TODO: Move this into something we define globally and in our babel plugin!
+const OS_MACOS = Ti.Platform.name === 'Mac OS X';
 let failed = false;
 
 require('./ti-mocha');
@@ -57,6 +58,9 @@ function loadTests() {
 	require('./require.test');
 	require('./string.test');
 	require('./timers.test');
+	if (OS_ANDROID) {
+		require('./wasm.test');
+	}
 	// ES6 syntax/compatability tests
 	require('./es6.arrows.test');
 	require('./es6.async.await.test');
@@ -113,6 +117,7 @@ function loadTests() {
 	require('./ti.locale.test');
 	require('./ti.media.test');
 	require('./ti.media.audioplayer.test');
+	require('./ti.media.audiorecorder.test');
 	require('./ti.media.sound.test');
 	require('./ti.media.videoplayer.test');
 	require('./ti.network.test');

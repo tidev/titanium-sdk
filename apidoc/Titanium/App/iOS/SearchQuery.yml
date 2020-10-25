@@ -16,7 +16,7 @@ description: |
     At minimum, you must set the [attributeSet](Titanium.App.iOS.SearchableItem.attributeSet) property, which associates
     the metadata with the SearchableItem object.
 extends: Titanium.Proxy
-platforms: [iphone,ipad]
+platforms: [iphone,ipad, macos]
 osver: {ios: {min: "10.0"}}
 since: "5.5.0"
 createable: true

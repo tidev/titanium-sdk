@@ -74,13 +74,13 @@ static NSArray *webViewKeySequence;
   // Refresh the "html" property async to be able to use the remote HTML content.
   // This should be deprecated asap, since it is an overhead that should be done using
   // webView.evalJS() within the app if required.
-  [[[self webView] webView] evaluateJavaScript:code
-                             completionHandler:^(id result, NSError *error) {
-                               if (error != nil) {
-                                 return;
-                               }
-                               [self replaceValue:result forKey:@"html" notification:NO];
-                             }];
+  [[self wkWebView] evaluateJavaScript:code
+                     completionHandler:^(id result, NSError *error) {
+                       if (error != nil) {
+                         return;
+                       }
+                       [self replaceValue:result forKey:@"html" notification:NO];
+                     }];
 }
 
 - (void)windowWillClose
@@ -109,6 +109,11 @@ static NSArray *webViewKeySequence;
     _pageToken = nil;
   }
   [super _destroy];
+}
+
+- (WKWebView *)wkWebView
+{
+  return (WKWebView *)[[self webView] webView];
 }
 
 #pragma mark - TiEvaluator Protocol
@@ -142,9 +147,9 @@ static NSArray *webViewKeySequence;
   }
 
   NSString *code = [NSString stringWithContentsOfURL:url_ encoding:NSUTF8StringEncoding error:nil];
-  [[[self webView] webView] evaluateJavaScript:code
-                             completionHandler:^(id _Nullablecresult, NSError *_Nullable error){
-                             }];
+  [[self wkWebView] evaluateJavaScript:code
+                     completionHandler:^(id _Nullablecresult, NSError *_Nullable error){
+                     }];
 }
 
 - (NSString *)evalJSAndWait:(NSString *)code
@@ -197,47 +202,47 @@ static NSArray *webViewKeySequence;
 
 - (NSNumber *)disableBounce
 {
-  return @(![[[[self webView] webView] scrollView] bounces]);
+  return @(![[[self wkWebView] scrollView] bounces]);
 }
 
 - (NSNumber *)scrollsToTop
 {
-  return @([[[[self webView] webView] scrollView] scrollsToTop]);
+  return @([[[self wkWebView] scrollView] scrollsToTop]);
 }
 
 - (NSNumber *)allowsBackForwardNavigationGestures
 {
-  return @([[[self webView] webView] allowsBackForwardNavigationGestures]);
+  return @([[self wkWebView] allowsBackForwardNavigationGestures]);
 }
 
 - (NSString *)userAgent
 {
-  return [[[self webView] webView] customUserAgent];
+  return [[self wkWebView] customUserAgent];
 }
 
 - (NSString *)url
 {
-  return [[[[self webView] webView] URL] absoluteString];
+  return [[[self wkWebView] URL] absoluteString];
 }
 
 - (NSString *)title
 {
-  return [[[self webView] webView] title];
+  return [[self wkWebView] title];
 }
 
 - (NSNumber *)progress
 {
-  return @([[[self webView] webView] estimatedProgress]);
+  return @([[self wkWebView] estimatedProgress]);
 }
 
 - (NSNumber *)secure
 {
-  return @([[[self webView] webView] hasOnlySecureContent]);
+  return @([[self wkWebView] hasOnlySecureContent]);
 }
 
 - (NSDictionary *)backForwardList
 {
-  WKBackForwardList *list = [[[self webView] webView] backForwardList];
+  WKBackForwardList *list = [[self wkWebView] backForwardList];
 
   NSMutableArray *backList = [NSMutableArray arrayWithCapacity:list.backList.count];
   NSMutableArray *forwardList = [NSMutableArray arrayWithCapacity:list.forwardList.count];
@@ -262,40 +267,40 @@ static NSArray *webViewKeySequence;
 - (NSDictionary *)preferences
 {
   return @{
-    @"minimumFontSize" : NUMFLOAT([[[[[self webView] webView] configuration] preferences] minimumFontSize]),
-    @"javaScriptEnabled" : NUMBOOL([[[[[self webView] webView] configuration] preferences] javaScriptEnabled]),
-    @"javaScriptCanOpenWindowsAutomatically" : NUMBOOL([[[[[self webView] webView] configuration] preferences] javaScriptCanOpenWindowsAutomatically]),
+    @"minimumFontSize" : NUMFLOAT([[[[self wkWebView] configuration] preferences] minimumFontSize]),
+    @"javaScriptEnabled" : NUMBOOL([[[[self wkWebView] configuration] preferences] javaScriptEnabled]),
+    @"javaScriptCanOpenWindowsAutomatically" : NUMBOOL([[[[self wkWebView] configuration] preferences] javaScriptCanOpenWindowsAutomatically]),
   };
 }
 
 - (NSNumber *)selectionGranularity
 {
-  return @([[[[self webView] webView] configuration] selectionGranularity]);
+  return @([[[self wkWebView] configuration] selectionGranularity]);
 }
 
 - (NSNumber *)mediaTypesRequiringUserActionForPlayback
 {
-  return @([[[[self webView] webView] configuration] mediaTypesRequiringUserActionForPlayback]);
+  return @([[[self wkWebView] configuration] mediaTypesRequiringUserActionForPlayback]);
 }
 
 - (NSNumber *)suppressesIncrementalRendering
 {
-  return @([[[[self webView] webView] configuration] suppressesIncrementalRendering]);
+  return @([[[self wkWebView] configuration] suppressesIncrementalRendering]);
 }
 
 - (NSNumber *)allowsInlineMediaPlayback
 {
-  return @([[[[self webView] webView] configuration] allowsInlineMediaPlayback]);
+  return @([[[self wkWebView] configuration] allowsInlineMediaPlayback]);
 }
 
 - (NSNumber *)allowsAirPlayMediaPlayback
 {
-  return @([[[[self webView] webView] configuration] allowsAirPlayForMediaPlayback]);
+  return @([[[self wkWebView] configuration] allowsAirPlayForMediaPlayback]);
 }
 
 - (NSNumber *)allowsPictureInPictureMediaPlayback
 {
-  return @([[[[self webView] webView] configuration] allowsPictureInPictureMediaPlayback]);
+  return @([[[self wkWebView] configuration] allowsPictureInPictureMediaPlayback]);
 }
 
 - (NSArray<NSString *> *)allowedURLSchemes
@@ -305,6 +310,12 @@ static NSArray *webViewKeySequence;
 
 - (NSNumber *)zoomLevel
 {
+#if IS_SDK_IOS_14
+  if ([TiUtils isIOSVersionOrGreater:@"14.0"]) {
+    return @([self wkWebView].pageZoom);
+  }
+#endif
+
   NSString *zoomLevel = [self evalJS:@[ @"document.body.style.zoom" ]];
 
   if (zoomLevel == nil || zoomLevel.length == 0) {
@@ -365,13 +376,13 @@ static NSArray *webViewKeySequence;
   BOOL mainFrameOnly = [TiUtils boolValue:@"mainFrameOnly" properties:args];
 
   WKUserScript *script = [[WKUserScript alloc] initWithSource:source injectionTime:injectionTime forMainFrameOnly:mainFrameOnly];
-  WKUserContentController *controller = [[[[self webView] webView] configuration] userContentController];
+  WKUserContentController *controller = [[[self wkWebView] configuration] userContentController];
   [controller addUserScript:script];
 }
 
 - (void)removeAllUserScripts:(id)unused
 {
-  WKUserContentController *controller = [[[[self webView] webView] configuration] userContentController];
+  WKUserContentController *controller = [[[self wkWebView] configuration] userContentController];
   [controller removeAllUserScripts];
 }
 
@@ -379,7 +390,7 @@ static NSArray *webViewKeySequence;
 {
   ENSURE_SINGLE_ARG(value, NSString);
 
-  WKUserContentController *controller = [[[[self webView] webView] configuration] userContentController];
+  WKUserContentController *controller = [[[self wkWebView] configuration] userContentController];
   [controller addScriptMessageHandler:[self webView] name:value];
 }
 
@@ -387,13 +398,13 @@ static NSArray *webViewKeySequence;
 {
   ENSURE_SINGLE_ARG(value, NSString);
 
-  WKUserContentController *controller = [[[[self webView] webView] configuration] userContentController];
+  WKUserContentController *controller = [[[self wkWebView] configuration] userContentController];
   [controller removeScriptMessageHandlerForName:value];
 }
 
 - (void)stopLoading:(id)unused
 {
-  [[[self webView] webView] stopLoading];
+  [[self wkWebView] stopLoading];
 }
 
 - (void)reload:(id)unused
@@ -412,27 +423,103 @@ static NSArray *webViewKeySequence;
 
 - (void)goBack:(id)unused
 {
-  [[[self webView] webView] goBack];
+  [[self wkWebView] goBack];
 }
+
+#if IS_SDK_IOS_14
+- (void)findString:(id)args
+{
+  NSString *searchString = [args objectAtIndex:0];
+  ENSURE_STRING(searchString);
+  KrollCallback *callback;
+  NSDictionary *options = nil;
+  if ([args count] > 2) {
+    options = [args objectAtIndex:1];
+    ENSURE_DICT(options);
+    callback = [args objectAtIndex:2];
+  } else {
+    callback = [args objectAtIndex:1];
+  }
+  ENSURE_TYPE(callback, KrollCallback);
+
+  if (![TiUtils isIOSVersionOrGreater:@"14.0"]) {
+    [callback call:@[ @{ @"success" : NUMBOOL(NO), @"error" : @"Supported on iOS 14+" } ] thisObject:self];
+    return;
+  }
+
+  WKFindConfiguration *configuration = [[WKFindConfiguration alloc] init];
+  configuration.backwards = [TiUtils boolValue:@"backwards" properties:options def:NO];
+  configuration.caseSensitive = [TiUtils boolValue:@"caseSensitive" properties:options def:NO];
+  configuration.wraps = [TiUtils boolValue:@"wraps" properties:options def:YES];
+
+  [[self wkWebView] findString:searchString
+             withConfiguration:configuration
+             completionHandler:^(WKFindResult *_Nonnull result) {
+               [callback call:@[ @{ @"success" : NUMBOOL(result.matchFound) } ] thisObject:self];
+             }];
+}
+
+- (void)createPDF:(id)args
+{
+  KrollCallback *callback = (KrollCallback *)[args objectAtIndex:0];
+  ENSURE_TYPE(callback, KrollCallback);
+
+  if (![TiUtils isIOSVersionOrGreater:@"14.0"]) {
+    [callback call:@[ @{ @"success" : NUMBOOL(NO), @"error" : @"Supported on iOS 14+" } ] thisObject:self];
+    return;
+  }
+
+  [[self wkWebView] createPDFWithConfiguration:nil
+                             completionHandler:^(NSData *_Nullable pdfDocumentData, NSError *_Nullable error) {
+                               if (error != nil) {
+                                 [callback call:@[ @{ @"success" : NUMBOOL(NO), @"error" : error.localizedDescription } ] thisObject:self];
+                                 return;
+                               }
+                               TiBlob *blob = [[[TiBlob alloc] initWithData:pdfDocumentData mimetype:@"application/pdf"] autorelease];
+                               [callback call:@[ @{ @"success" : NUMBOOL(YES), @"data" : blob } ] thisObject:self];
+                             }];
+}
+
+- (void)createWebArchive:(id)args
+{
+  KrollCallback *callback = (KrollCallback *)[args objectAtIndex:0];
+  ENSURE_TYPE(callback, KrollCallback);
+
+  if (![TiUtils isIOSVersionOrGreater:@"14.0"]) {
+    [callback call:@[ @{ @"success" : NUMBOOL(NO), @"error" : @"Supported on iOS 14+" } ] thisObject:self];
+    return;
+  }
+
+  [[self wkWebView] createWebArchiveDataWithCompletionHandler:^(NSData *_Nonnull archiveData, NSError *_Nonnull error) {
+    if (error != nil) {
+      [callback call:@[ @{ @"success" : NUMBOOL(NO), @"error" : error.localizedDescription } ] thisObject:self];
+      return;
+    }
+
+    TiBlob *blob = [[[TiBlob alloc] initWithData:archiveData mimetype:@"application/x-webarchive"] autorelease];
+    [callback call:@[ @{ @"success" : NUMBOOL(YES), @"data" : blob } ] thisObject:self];
+  }];
+}
+#endif
 
 - (void)goForward:(id)unused
 {
-  [[[self webView] webView] goForward];
+  [[self wkWebView] goForward];
 }
 
 - (NSNumber *)canGoBack:(id)unused
 {
-  return NUMBOOL([[[self webView] webView] canGoBack]);
+  return NUMBOOL([[self wkWebView] canGoBack]);
 }
 
 - (NSNumber *)canGoForward:(id)unused
 {
-  return NUMBOOL([[[self webView] webView] canGoForward]);
+  return NUMBOOL([[self wkWebView] canGoForward]);
 }
 
 - (NSNumber *)loading
 {
-  return @([[[self webView] webView] isLoading]);
+  return @([[self wkWebView] isLoading]);
 }
 
 - (void)startListeningToProperties:(id)args
@@ -445,7 +532,7 @@ static NSArray *webViewKeySequence;
   for (id property in args) {
     ENSURE_TYPE(property, NSString);
     [_genericProperties addObject:property];
-    [[[self webView] webView] addObserver:self forKeyPath:property options:NSKeyValueObservingOptionNew context:NULL];
+    [[self wkWebView] addObserver:self forKeyPath:property options:NSKeyValueObservingOptionNew context:NULL];
   }
 }
 
@@ -456,7 +543,7 @@ static NSArray *webViewKeySequence;
   for (id property in args) {
     ENSURE_TYPE(property, NSString);
 
-    [[[self webView] webView] removeObserver:self forKeyPath:property];
+    [[self wkWebView] removeObserver:self forKeyPath:property];
     [_genericProperties removeObject:property];
   }
 }
@@ -489,14 +576,14 @@ static NSArray *webViewKeySequence;
 
   TiThreadPerformOnMainThread(
       ^{
-        [[[self webView] webView] evaluateJavaScript:code
-                                   completionHandler:^(id result, NSError *error) {
-                                     if (!callback) {
-                                       return;
-                                     }
-                                     result = result ?: [NSNull null];
-                                     [callback call:@[ result ] thisObject:self];
-                                   }];
+        [[self wkWebView] evaluateJavaScript:code
+                           completionHandler:^(id result, NSError *error) {
+                             if (!callback) {
+                               return;
+                             }
+                             result = result ?: [NSNull null];
+                             [callback call:@[ result ] thisObject:self];
+                           }];
       },
       NO);
   return nil;
@@ -511,11 +598,11 @@ static NSArray *webViewKeySequence;
 
   ENSURE_ARG_AT_INDEX(code, args, 0, NSString);
 
-  [[[self webView] webView] evaluateJavaScript:code
-                             completionHandler:^(id result, NSError *error) {
-                               resultString = [NULL_IF_NIL(result) retain];
-                               finishedEvaluation = YES;
-                             }];
+  [[self wkWebView] evaluateJavaScript:code
+                     completionHandler:^(id result, NSError *error) {
+                       resultString = [NULL_IF_NIL(result) retain];
+                       finishedEvaluation = YES;
+                     }];
 
   while (!finishedEvaluation) {
     [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:[NSDate distantFuture]];
@@ -531,15 +618,15 @@ static NSArray *webViewKeySequence;
 
 #if __IPHONE_11_0
   if ([TiUtils isIOSVersionOrGreater:@"11.0"]) {
-    [[[self webView] webView] takeSnapshotWithConfiguration:nil
-                                          completionHandler:^(UIImage *snapshotImage, NSError *error) {
-                                            if (error != nil) {
-                                              [callback call:@[ @{ @"success" : NUMBOOL(NO), @"error" : error.localizedDescription } ] thisObject:self];
-                                              return;
-                                            }
+    [[self wkWebView] takeSnapshotWithConfiguration:nil
+                                  completionHandler:^(UIImage *snapshotImage, NSError *error) {
+                                    if (error != nil) {
+                                      [callback call:@[ @{ @"success" : NUMBOOL(NO), @"error" : error.localizedDescription } ] thisObject:self];
+                                      return;
+                                    }
 
-                                            [callback call:@[ @{ @"success" : NUMBOOL(YES), @"snapshot" : [[TiBlob alloc] initWithImage:snapshotImage] } ] thisObject:self];
-                                          }];
+                                    [callback call:@[ @{ @"success" : NUMBOOL(YES), @"snapshot" : [[TiBlob alloc] initWithImage:snapshotImage] } ] thisObject:self];
+                                  }];
   } else {
 #endif
     [callback call:@[ @{ @"success" : NUMBOOL(YES), @"snapshot" : [self toImage:nil] } ]
@@ -564,8 +651,8 @@ static NSArray *webViewKeySequence;
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
 {
   for (NSString *property in _genericProperties) {
-    if ([self _hasListeners:property] && [keyPath isEqualToString:property] && object == [[self webView] webView]) {
-      [self fireEvent:property withObject:@{ @"value" : NULL_IF_NIL([[[self webView] webView] valueForKey:property]) }];
+    if ([self _hasListeners:property] && [keyPath isEqualToString:property] && object == [self wkWebView]) {
+      [self fireEvent:property withObject:@{ @"value" : NULL_IF_NIL([[self wkWebView] valueForKey:property]) }];
       return;
     }
   }

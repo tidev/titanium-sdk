@@ -7,15 +7,15 @@
 /* eslint-env mocha */
 /* eslint no-unused-expressions: "off" */
 'use strict';
-var should = require('./utilities/assertions');
+const should = require('./utilities/assertions');
 
-describe.android('Titanium.Android', function () {
-	it('currentActivity', function () {
+describe.android('Titanium.Android', () => {
+	it('currentActivity', () => {
 		should(Ti.Android.currentActivity).not.be.undefined();
 		should(Ti.Android.currentActivity).be.a.Object();
 	});
 
-	it('rootActivity', function () {
+	it('rootActivity', () => {
 		should(Ti.Android.rootActivity).not.be.undefined();
 		should(Ti.Android.rootActivity).be.a.Object();
 		should(Ti.Android.rootActivity.intent).not.be.undefined();
@@ -63,6 +63,7 @@ describe.android('Titanium.Android', function () {
 	});
 
 	it('activity callbacks', function (finish) {
+		let childWindow = null;
 		let wasOnCreateCalled = false;
 		let wasOnRestartCalled = false;
 		let wasOnStartCalled = false;
@@ -74,52 +75,48 @@ describe.android('Titanium.Android', function () {
 		this.timeout(5000);
 
 		const win = Ti.UI.createWindow();
-		win.activity.onCreate = function () {
+		win.activity.onCreate = () => {
 			wasOnCreateCalled = true;
 			win.activity.onCreate = null;
 		};
-		win.activity.onRestart = function () {
+		win.activity.onRestart = () => {
 			wasOnRestartCalled = true;
 			win.activity.onRestart = null;
-			setTimeout(function () {
-				// Now that app was resumed from background, test destroy behavior.
+			setTimeout(() => {
+				// Now that we've returned to this activity, test destroy behavior.
 				win.close();
 			}, 50);
 		};
-		win.activity.onStart = function () {
+		win.activity.onStart = () => {
 			wasOnStartCalled = true;
 			win.activity.onStart = null;
 		};
-		win.activity.onResume = function () {
+		win.activity.onResume = () => {
 			wasOnResumeCalled = true;
 			win.activity.onResume = null;
 		};
-		win.activity.onPause = function () {
+		win.activity.onPause = () => {
 			wasOnPauseCalled = true;
 			win.activity.onPause = null;
 		};
-		win.activity.onStop = function () {
+		win.activity.onStop = () => {
 			wasOnStopCalled = true;
 			win.activity.onStop = null;
-			setTimeout(function () {
-				// App was put into the background. Next, resume it to trigger onRestart() callback.
-				Ti.Android.currentActivity.startActivity(Ti.App.Android.launchIntent);
-			}, 50);
+			if (childWindow) {
+				// Close child activity to invoke parent's onRestart() callback.
+				childWindow.close();
+			}
 		};
-		win.activity.onDestroy = function () {
+		win.activity.onDestroy = () => {
 			wasOnDestroyCalled = true;
 			win.activity.onDestroy = null;
 		};
-		win.addEventListener('open', function () {
-			// Navigate to the device's home screen. Equivalent to pressing the "home" button.
-			const homeIntent = Ti.Android.createIntent({
-				action: Ti.Android.ACTION_MAIN,
-			});
-			homeIntent.addCategory(Ti.Android.CATEGORY_HOME);
-			homeIntent.flags = Ti.Android.FLAG_ACTIVITY_NEW_TASK;
-			Ti.Android.currentActivity.startActivity(homeIntent);
+		win.addEventListener('open', () => {
+			// Open child activity to invoke parent's onPause() and onStop() callbacks.
+			childWindow = Ti.UI.createWindow();
+			childWindow.open();
 		});
-		win.addEventListener('close', function () {
+		win.addEventListener('close', () => {
 			try {
 				should(wasOnCreateCalled).be.true();
 				should(wasOnRestartCalled).be.true();

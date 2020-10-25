@@ -882,9 +882,9 @@ DEFINE_DEF_PROP(scrollsToTop, [NSNumber numberWithBool:YES]);
   [(TiUITableView *)[self view] refreshSearchControllerUsingReload:YES];
 }
 
-- (NSUInteger)sectionCount
+- (NSNumber *)sectionCount
 { //TODO: Shouldn't this be in the main thread, too?
-  return [sections count];
+  return NUMUINTEGER((sections != nil) ? sections.count : 0);
 }
 
 - (TiUITableViewSectionProxy *)tableSectionFromArg:(id)arg

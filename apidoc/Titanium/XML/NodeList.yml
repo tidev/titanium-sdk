@@ -4,9 +4,9 @@ extends: Titanium.Proxy
 summary: A list of <Titanium.XML.Node> objects. Implements the
     [DOM Level 2 API](https://www.w3.org/TR/DOM-Level-2-Core/core.html#ID-536297177)
     on Android and iOS.
-since: "0.9"
 createable: false
-platforms: [android, iphone, ipad]
+since: {android: "0.9", iphone: "0.9", ipad: "0.9", macos: "9.2.0"}
+platforms: [android, iphone, ipad, macos]
 methods:
   - name: item
     summary: Returns the <Titanium.XML.Node> object at the specified index.

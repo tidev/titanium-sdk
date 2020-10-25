@@ -10,7 +10,6 @@ deprecated:
     since: "5.4.0"
     removed: "7.0.0"
     notes: Use the unified [Titanium.UI.iOS](Titanium.UI.iOS) namespace instead.
-        
 properties:
   - name: MODAL_PRESENTATION_CURRENT_CONTEXT
     summary: View presented with the same style as its parent window.

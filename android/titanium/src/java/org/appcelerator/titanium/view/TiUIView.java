@@ -31,7 +31,6 @@ import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiCompositeLayout.LayoutParams;
 
 import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
 import android.content.res.ColorStateList;
@@ -70,8 +69,6 @@ import android.view.animation.Animation;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 
-import com.nineoldandroids.view.ViewHelper;
-
 /**
  * This class is for Titanium View implementations, that correspond with TiViewProxy.
  * A TiUIView is responsible for creating and maintaining a native Android View instance.
@@ -79,10 +76,7 @@ import com.nineoldandroids.view.ViewHelper;
 @SuppressWarnings("deprecation")
 public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListener
 {
-
-	private static final boolean HONEYCOMB_OR_GREATER = (Build.VERSION.SDK_INT >= 11);
 	private static final boolean LOLLIPOP_OR_GREATER = (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP);
-	private static final boolean LOWER_THAN_JELLYBEAN = (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR2);
 	private static final boolean LOWER_THAN_MARSHMALLOW = (Build.VERSION.SDK_INT < Build.VERSION_CODES.M);
 
 	private static final String TAG = "TiUIView";
@@ -351,22 +345,6 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 			return;
 		}
 
-		// Pre-honeycomb, if one animation clobbers another you get a problem whereby the background of the
-		// animated view's parent (or the grandparent) bleeds through.  It seems to improve if you cancel and clear
-		// the older animation.  So here we cancel and clear, then re-queue the desired animation.
-
-		if (Build.VERSION.SDK_INT < TiC.API_LEVEL_HONEYCOMB) {
-			Animation currentAnimation = outerView.getAnimation();
-			if (currentAnimation != null && currentAnimation.hasStarted() && !currentAnimation.hasEnded()) {
-				// Cancel existing animation and
-				// re-queue desired animation.
-				currentAnimation.cancel();
-				outerView.clearAnimation();
-				proxy.handlePendingAnimation(true);
-				return;
-			}
-		}
-
 		TiAnimationBuilder builder = proxy.getPendingAnimation();
 		if (builder == null) {
 			return;
@@ -497,7 +475,7 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 
 		animBuilder.applyOptions(options);
 
-		// When using Honeycomb+ property Animators, we can only use absolute values to specify the anchor point, eg. "50px".
+		// When using property Animators, we can only use absolute values to specify the anchor point, eg. "50px".
 		// Therefore, we must start the transformation after the layout pass when we get the height and width of the view.
 		if (animBuilder.isUsingPropertyAnimators()) {
 			startTransformAfterLayout(outerView);
@@ -509,7 +487,7 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 	}
 
 	/**
-	 * When using Honeycomb+ property Animators, we start the transformation after the layout pass.
+	 * When using property Animators, we start the transformation after the layout pass.
 	 * @param v the view to animate
 	 */
 	protected void startTransformAfterLayout(final View v)
@@ -539,11 +517,7 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 				});
 				animBuilder.start(p, v);
 				try {
-					if (Build.VERSION.SDK_INT < TiC.API_LEVEL_JELLY_BEAN) {
-						v.getViewTreeObserver().removeGlobalOnLayoutListener(this);
-					} else {
-						v.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-					}
+					v.getViewTreeObserver().removeOnGlobalLayoutListener(this);
 				} catch (IllegalStateException e) {
 					if (Log.isDebugModeEnabled()) {
 						Log.w(TAG, "Unable to remove the OnGlobalLayoutListener.", e.getMessage());
@@ -553,31 +527,27 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 		};
 		v.getViewTreeObserver().addOnGlobalLayoutListener(layoutListener);
 
-		// On Jelly Bean+, the view will visibly transform if the transformation starts after the layout pass,
-		// so we add OnPreDrawListener to skip the drawing pass before the animation is ended.
-		// This mechanism only works for Honeycomb+ property Animators. Because if we use pre-Honeycomb view
-		// animations and skip the drawing pass, the AnimationListener will not be triggered so
-		// TiAnimationBuilder.isAnimationRunningFor(view) will always return true.
-		if (Build.VERSION.SDK_INT >= TiC.API_LEVEL_JELLY_BEAN) {
-			final OnPreDrawListener preDrawListener = new OnPreDrawListener() {
-				public boolean onPreDraw()
-				{
-					if (TiAnimationBuilder.isAnimationRunningFor(v)) {
-						// Skip the current drawing pass.
-						return false;
-					}
-					try {
-						v.getViewTreeObserver().removeOnPreDrawListener(this);
-					} catch (IllegalStateException e) {
-						if (Log.isDebugModeEnabled()) {
-							Log.w(TAG, "Unable to remove the OnPreDrawListener.", e.getMessage());
-						}
-					}
-					return true;
+		// The view will visibly transform if the transformation starts after the layout pass.
+		// So, we add OnPreDrawListener to skip the drawing pass before the animation is ended.
+		final OnPreDrawListener preDrawListener = new OnPreDrawListener() {
+			@Override
+			public boolean onPreDraw()
+			{
+				if (TiAnimationBuilder.isAnimationRunningFor(v)) {
+					// Skip the current drawing pass.
+					return false;
 				}
-			};
-			v.getViewTreeObserver().addOnPreDrawListener(preDrawListener);
-		}
+				try {
+					v.getViewTreeObserver().removeOnPreDrawListener(this);
+				} catch (IllegalStateException e) {
+					if (Log.isDebugModeEnabled()) {
+						Log.w(TAG, "Unable to remove the OnPreDrawListener.", e.getMessage());
+					}
+				}
+				return true;
+			}
+		};
+		v.getViewTreeObserver().addOnPreDrawListener(preDrawListener);
 	}
 
 	public void forceLayoutNativeView(boolean informParent)
@@ -615,15 +585,12 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 			if (v != null) {
 				bLayoutPending.set(true);
 				OnGlobalLayoutListener layoutListener = new OnGlobalLayoutListener() {
+					@Override
 					public void onGlobalLayout()
 					{
 						bLayoutPending.set(false);
 						try {
-							if (Build.VERSION.SDK_INT < TiC.API_LEVEL_JELLY_BEAN) {
-								v.getViewTreeObserver().removeGlobalOnLayoutListener(this);
-							} else {
-								v.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-							}
+							v.getViewTreeObserver().removeOnGlobalLayoutListener(this);
 						} catch (IllegalStateException e) {
 							if (Log.isDebugModeEnabled()) {
 								Log.w(TAG, "Unable to remove the OnGlobalLayoutListener.", e.getMessage());
@@ -656,25 +623,23 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 	}
 
 	/**
-	 * On Honeycomb+ devices, we use property animations, which may affect
-	 * translation values. We need to reset translationX when 'left', 'right'
-	 * or 'center' property is changed.
+	 * Property animations may affect translation values.
+	 * We need to reset translationX when 'left', 'right', or 'center' property is changed.
 	 */
 	private void resetTranslationX()
 	{
-		if (HONEYCOMB_OR_GREATER && nativeView != null) {
+		if (nativeView != null) {
 			nativeView.setTranslationX(0);
 		}
 	}
 
 	/**
-	 * On Honeycomb+ devices, we use property animations, which may affect
-	 * translation values. We need to reset translationX when 'top', 'bottom'
-	 * or 'center' property is changed.
+	 * Property animations may affect translation values.
+	 * We need to reset translationX when 'top', 'bottom', or 'center' property is changed.
 	 */
 	private void resetTranslationY()
 	{
-		if (HONEYCOMB_OR_GREATER && nativeView != null) {
+		if (nativeView != null) {
 			nativeView.setTranslationY(0);
 		}
 	}
@@ -798,6 +763,8 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 				nativeView.setEnabled(TiConvert.toBoolean(newValue));
 				doSetClickable(TiConvert.toBoolean(newValue));
 			}
+		} else if (key.equals(TiC.PROPERTY_FILTER_TOUCHES_WHEN_OBSCURED)) {
+			setFilterTouchesWhenObscured(TiConvert.toBoolean(newValue, false));
 		} else if (key.equals(TiC.PROPERTY_VISIBLE)) {
 			newValue = (newValue == null) ? false : newValue;
 			this.setVisibility(TiConvert.toBoolean(newValue) ? View.VISIBLE : View.INVISIBLE);
@@ -1025,6 +992,11 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 		if (canApplyTouchFeedback(d)) {
 			String colorString = TiConvert.toString(d.get(TiC.PROPERTY_TOUCH_FEEDBACK_COLOR));
 			applyTouchFeedback((colorString != null) ? TiConvert.toColor(colorString) : null);
+		}
+
+		if (d.containsKey(TiC.PROPERTY_FILTER_TOUCHES_WHEN_OBSCURED) && !nativeViewNull) {
+			setFilterTouchesWhenObscured(
+				TiConvert.toBoolean(d.get(TiC.PROPERTY_FILTER_TOUCHES_WHEN_OBSCURED), false));
 		}
 
 		if (d.containsKey(TiC.PROPERTY_HIDDEN_BEHAVIOR) && !nativeViewNull) {
@@ -1556,6 +1528,43 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 		motionEvents.put(MotionEvent.ACTION_CANCEL, TiC.EVENT_TOUCH_CANCEL);
 	}
 
+	private void setFilterTouchesWhenObscured(boolean isEnabled)
+	{
+		// Validate.
+		if (this.nativeView == null) {
+			return;
+		}
+
+		// Enable/disable tapjacking filter.
+		this.nativeView.setFilterTouchesWhenObscured(isEnabled);
+
+		// Android 4.4.2 and older has a bug where the above method sets it to the opposite.
+		// Google fixed it in Android 4.4.3, but we can't detect that patch version via API Level.
+		if ((Build.VERSION.SDK_INT < 21) && (isEnabled != this.nativeView.getFilterTouchesWhenObscured())) {
+			this.nativeView.setFilterTouchesWhenObscured(!isEnabled);
+		}
+	}
+
+	/**
+	 * Determines if touch event was obscurred by an overlapping translucent window belonging to another app.
+	 * This is used for security purposes to detect "tapjacking".
+	 * @param event The touch event to be analyzed. Can be null.
+	 * @return Returns true if touch event was obscurred. Returns false if not or if given a null argument.
+	 */
+	private boolean wasObscured(MotionEvent event)
+	{
+		if (event != null) {
+			int flags = event.getFlags();
+			if ((flags & MotionEvent.FLAG_WINDOW_IS_OBSCURED) != 0) {
+				return true;
+			}
+			if ((Build.VERSION.SDK_INT >= 29) && ((flags & MotionEvent.FLAG_WINDOW_IS_PARTIALLY_OBSCURED) != 0)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 	protected KrollDict dictFromEvent(MotionEvent e)
 	{
 		TiDimension xDimension = new TiDimension((double) e.getX(), TiDimension.TYPE_LEFT);
@@ -1565,6 +1574,7 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 		data.put(TiC.EVENT_PROPERTY_X, xDimension.getAsDefault(this.nativeView));
 		data.put(TiC.EVENT_PROPERTY_Y, yDimension.getAsDefault(this.nativeView));
 		data.put(TiC.EVENT_PROPERTY_FORCE, (double) e.getPressure());
+		data.put(TiC.EVENT_PROPERTY_OBSCURED, wasObscured(e));
 		data.put(TiC.EVENT_PROPERTY_SIZE, (double) e.getSize());
 		data.put(TiC.EVENT_PROPERTY_SOURCE, proxy);
 		return data;
@@ -1587,6 +1597,11 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 			data.put(TiC.EVENT_PROPERTY_FORCE, dictToCopy.get(TiC.EVENT_PROPERTY_FORCE));
 		} else {
 			data.put(TiC.EVENT_PROPERTY_FORCE, (double) 0);
+		}
+		if (dictToCopy.containsKey(TiC.EVENT_PROPERTY_OBSCURED)) {
+			data.put(TiC.EVENT_PROPERTY_OBSCURED, dictToCopy.get(TiC.EVENT_PROPERTY_OBSCURED));
+		} else {
+			data.put(TiC.EVENT_PROPERTY_OBSCURED, false);
 		}
 		if (dictToCopy.containsKey(TiC.EVENT_PROPERTY_SIZE)) {
 			data.put(TiC.EVENT_PROPERTY_SIZE, dictToCopy.get(TiC.EVENT_PROPERTY_SIZE));
@@ -1748,6 +1763,7 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 					TiDimension yDimension = new TiDimension((double) event.getY(), TiDimension.TYPE_TOP);
 					lastUpEvent.put(TiC.EVENT_PROPERTY_X, xDimension.getAsDefault(view));
 					lastUpEvent.put(TiC.EVENT_PROPERTY_Y, yDimension.getAsDefault(view));
+					lastUpEvent.put(TiC.EVENT_PROPERTY_OBSCURED, wasObscured(event));
 				}
 
 				if (proxy != null && proxy.hierarchyHasListener(TiC.EVENT_PINCH)) {
@@ -1940,11 +1956,10 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 	}
 
 	/**
-	 * Sets the view's alpha (Honeycomb or later).
+	 * Sets the view's alpha.
 	 * @param view The native view object
 	 * @param alpha The new alpha value
 	 */
-	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	protected void setAlpha(View view, float alpha)
 	{
 		view.setAlpha(alpha);
@@ -1952,7 +1967,7 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 	}
 
 	/**
-	 * Sets the view's opacity (pre-Honeycomb).
+	 * Sets the view's opacity.
 	 * @param view the view object.
 	 * @param opacity the opacity to set.
 	 */
@@ -1963,11 +1978,7 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 			return;
 		}
 
-		if (HONEYCOMB_OR_GREATER) {
-			setAlpha(view, opacity);
-		} else {
-			ViewHelper.setAlpha(view, opacity);
-		}
+		setAlpha(view, opacity);
 
 		if (opacity == 1.0f) {
 			clearOpacity(view);

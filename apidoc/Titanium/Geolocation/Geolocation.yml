@@ -209,7 +209,7 @@ methods:
       - name: callback
         summary: Function to invoke on success or failure.
         type: Callback<ForwardGeocodeResponse>
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: getCurrentHeading
     summary: Retrieves the current compass heading.
@@ -217,7 +217,7 @@ methods:
       - name: callback
         summary: Function to invoke on success or failure of obtaining the current heading.
         type: Callback<HeadingResponse>
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: getCurrentPosition
     summary: Retrieves the last known location from the device.
@@ -230,7 +230,7 @@ methods:
       - name: callback
         summary: Function to invoke on success or failure of obtaining the current location.
         type: Callback<LocationResults>
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: hasLocationPermissions
     summary: Returns `true` if the app has location access.
@@ -241,7 +241,7 @@ methods:
         type: Number
     returns:
         type: Boolean
-    platforms: [iphone, ipad, android]
+    platforms: [iphone, ipad, android, macos]
     since: "5.1.0"
 
   - name: requestLocationPermissions
@@ -279,8 +279,65 @@ methods:
       - name: callback
         summary: Function to call upon user decision to grant location access.
         type: Callback<LocationAuthorizationResponse>
-    platforms: [iphone, ipad, android]
+    platforms: [iphone, ipad, android, macos]
     since: "5.1.0"
+
+  - name: requestTemporaryFullAccuracyAuthorization
+    summary: Requests the user's permission to temporarily use location services with full accuracy.
+    description: |
+        If your app doesn't have permission to access accurate location (see [locationAccuracyAuthorization](Ti.Geolocation.locationAccuracyAuthorization), 
+        you can use this method to request temporary access to accurate location.  This access will expire automatically, 
+        but it won't expire while the user is still engaged with your app.  So, for example, while your app is in 
+        the foreground your app will retain the temporary access it was granted. Similarly, if your app starts a 
+        Continuous Background Location session with the background location indicator enabled (see [showBackgroundLocationIndicator](Ti.Geolocation.showBackgroundLocationIndicator), 
+        your access to accurate location will remain as long as the background location indicator remains enabled.  
+        This allows your app to provide session-oriented experiences which require accurate location (e.g. fitness or navigation), 
+        even if the user has decided not to grant your app persistent access to accurate location. 
+
+        You need to add key `NSLocationTemporaryUsageDescriptionDictionary` in `tiapp.xml`. See following example -
+
+        ``` xml
+        <ti:app>
+            <ios>
+                <plist>
+                    <dict>
+                        <key>NSLocationTemporaryUsageDescriptionDictionary</key>
+                        <dict>
+                            <key>PurposeKey1</key>
+                            <string>
+                                Specify the reason for accessing the user's location data with full accuracy.
+                                This appears in the alert dialog when asking the user for permission to
+                                access their location.
+                            </string>
+                            <key>PurposeKey2</key>
+                            <string>
+                                Specify the reason for accessing the user's location data with full accuracy.
+                                This appears in the alert dialog when asking the user for permission to
+                                access their location.
+                            </string>
+                        </dict>
+                    </dict>
+                </plist>
+            </ios>
+        </ti:app>
+        ```
+
+        When CoreLocation prepares the prompt for display, it will look at the NSLocationTemporaryUsageDescriptionDictionary key 
+        in your tiapp.xml.  The value should be a dictionary containing usage descriptions.  The purposeKey you provide to 
+        this method must correspond to an entry in that dictionary.
+    parameters:
+      - name: purposeKey
+        summary: |
+            A key in the NSLocationTemporaryUsageDescriptionDictionary dictionary of the app's tiapp.xml file. 
+            The value for this key is an app-provided string that describes the reason for accessing 
+            location data with full accuracy.
+        type: String
+      - name: callback
+        summary: Function to call upon user decision to grant authorization.
+        type: Callback<LocationAccuracyAuthorizationResponse>
+    platforms: [iphone, ipad]
+    osver: {ios: {min: "14.0"}}
+    since: "9.2.0"
 
   - name: reverseGeocoder
     summary: Tries to resolve a location to an address.
@@ -300,7 +357,7 @@ methods:
       - name: callback
         summary: Function to invoke on success or failure.
         type: Callback<ReverseGeocodeResponse>
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
 events:
 
@@ -308,7 +365,7 @@ events:
     summary: Fired when the device detects interface and requires calibration.
     description: |
         When this event is fired, the iOS calibration UI is being displayed to the end user.
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: heading
     summary: Fired when an heading update is received.
@@ -316,17 +373,17 @@ events:
       - name: code
         summary: If `success` is `false`, the error code is available.
         type: Number
-        platforms: [android, iphone, ipad]
+        platforms: [android, iphone, ipad, macos]
 
       - name: success
         summary: Indicate if the heading event was successfully received. Android returns this since SDK 7.5.0.
         type: Boolean
-        platforms: [android, iphone, ipad]
+        platforms: [android, iphone, ipad, macos]
 
       - name: error
         summary: If `success` is false, a string describing the error.
         type: String
-        platforms: [android, iphone, ipad]
+        platforms: [android, iphone, ipad, macos]
 
       - name: heading
         summary: Dictionary object containing the heading data.
@@ -364,7 +421,7 @@ events:
         is set to `true` and if the OS detects that the device's location is not changing,
         causing it to pause the delivery of updates in order to shut down the appropriate
         hardware and save power.
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "3.1.0"
 
   - name: locationupdateresumed
@@ -373,7 +430,7 @@ events:
         When location updates are paused and need to be resumed (perhaps because the user
         is moving again), this event is fired to let the app know that it is about to
         begin the delivery of those updates again.
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "3.1.0"
 
   - name: authorization
@@ -386,7 +443,7 @@ events:
         summary: New authorization status for the application.
         type: Number
         constants: Titanium.Geolocation.AUTHORIZATION_*
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     osver: {ios: {min: "8.0"}}
     since: "3.4.0"
 
@@ -404,7 +461,7 @@ properties:
         recommended.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: ACCURACY_HUNDRED_METERS
     summary: |
@@ -415,7 +472,7 @@ properties:
         recommended.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: ACCURACY_KILOMETER
     summary: |
@@ -426,7 +483,7 @@ properties:
         recommended.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: ACCURACY_NEAREST_TEN_METERS
     summary: |
@@ -437,7 +494,7 @@ properties:
         recommended.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: ACCURACY_THREE_KILOMETERS
     summary: |
@@ -448,7 +505,7 @@ properties:
         recommended.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: ACCURACY_HIGH
     summary: |
@@ -458,7 +515,7 @@ properties:
         Using this value on Android enables *simple mode* operation.
     type: Number
     permission: read-only
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     since: "2.0.0"
 
   - name: ACCURACY_BEST_FOR_NAVIGATION
@@ -471,7 +528,7 @@ properties:
         the device is plugged in.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "3.1.0"
 
   - name: ACCURACY_LOW
@@ -482,8 +539,25 @@ properties:
         Using this value on Android enables *simple mode* operation.
     type: Number
     permission: read-only
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     since: "2.0.0"
+
+  - name: ACCURACY_REDUCED
+    summary: |
+        The level of accuracy used when an app isn’t authorized for full accuracy location data.
+    description: |
+        Use with [accuracy](Titanium.Geolocation.accuracy).
+        The accuracy of location data is reduced in both space and time using approaches like 
+        selecting a nearby point of interest and updating the location at most a few times per hour. 
+        The approximate location preserves the user’s country, typically preserves the city, 
+        and is usually within 1–20 kilometers of the actual location.
+        If your app is authorized to access location information with full accuracy, you can use 
+        this constant to access location data as if the app didn’t have that authorization.
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad]
+    osver: {ios: {min: "14.0"}}
+    since: "9.2.0"
 
   - name: AUTHORIZATION_AUTHORIZED
     summary: |
@@ -491,7 +565,7 @@ properties:
         indicating that the application is authorized to use location services.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     deprecated:
         since: "7.0.0"
         notes: Use [Titanium.Geolocation.AUTHORIZATION_ALWAYS](Titanium.Geolocation.AUTHORIZATION_ALWAYS) as advised by Apple.
@@ -503,7 +577,7 @@ properties:
         location services are disabled.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: AUTHORIZATION_RESTRICTED
     summary: |
@@ -512,7 +586,7 @@ properties:
         the user cannot change this application's status.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: AUTHORIZATION_UNKNOWN
     summary: |
@@ -520,7 +594,7 @@ properties:
         indicating that the authorization state is unknown.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: AUTHORIZATION_ALWAYS
     summary: |
@@ -529,7 +603,7 @@ properties:
         includes the use of all location services, including monitoring regions and significant location changes.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     osver: {ios: {min: "8.0"}}
     since: "3.4.0"
 
@@ -539,37 +613,37 @@ properties:
         indicating that the application is authorized to start most location services only while running in the foreground.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     osver: {ios: {min: "8.0"}}
     since: "3.4.0"
 
   - name: ERROR_DENIED
     summary: Error code indicating that the user denied access to the location service.
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     type: Number
     permission: read-only
 
   - name: ERROR_HEADING_FAILURE
     summary: Error code indicating that the heading could not be determined.
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     type: Number
     permission: read-only
 
   - name: ERROR_LOCATION_UNKNOWN
     summary: Error code indicating that the user's location could not be determined.
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     type: Number
     permission: read-only
 
   - name: ERROR_NETWORK
     summary: Error code indicating that the network was unavailable.
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     type: Number
     permission: read-only
 
   - name: ERROR_REGION_MONITORING_DELAYED
     summary: Error code indicating that region monitoring is delayed.
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     permission: read-only
     type: Number
 
@@ -577,13 +651,13 @@ properties:
     summary: Error code indicating that region monitoring is denied.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: ERROR_REGION_MONITORING_FAILURE
     summary: Error code indicating a region monitoring failure.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: ACTIVITYTYPE_OTHER
     summary: The location data is being used for an unknown activity.
@@ -591,7 +665,7 @@ properties:
         Used with [activityType](Titanium.Geolocation.activityType).
     type: String
     permission: read-only
-    platforms: [iphone,ipad]
+    platforms: [iphone,ipad, macos]
     since: "3.1.0"
 
   - name: ACTIVITYTYPE_AUTOMOTIVE_NAVIGATION
@@ -602,7 +676,7 @@ properties:
         extended period of time.
     type: String
     permission: read-only
-    platforms: [iphone,ipad]
+    platforms: [iphone,ipad, macos]
     since: "3.1.0"
 
   - name: ACTIVITYTYPE_FITNESS
@@ -613,7 +687,7 @@ properties:
         distance over a period of time.
     type: String
     permission: read-only
-    platforms: [iphone,ipad]
+    platforms: [iphone,ipad, macos]
     since: "3.1.0"
 
   - name: ACTIVITYTYPE_OTHER_NAVIGATION
@@ -627,8 +701,24 @@ properties:
         when the vehicle does not move a significant distance over a period of time.
     type: String
     permission: read-only
-    platforms: [iphone,ipad]
+    platforms: [iphone,ipad, macos]
     since: "3.1.0"
+
+  - name: ACCURACY_AUTHORIZATION_FULL
+    summary: The user authorized the app to access location data with full accuracy.
+    type: Number
+    permission: read-only
+    osver: {ios: {min: "14.0"}}
+    platforms: [iphone,ipad]
+    since: "9.2.0"
+
+  - name: ACCURACY_AUTHORIZATION_REDUCED
+    summary: The user authorized the app to access location data with reduced accuracy.
+    type: Number
+    permission: read-only
+    osver: {ios: {min: "14.0"}}
+    platforms: [iphone,ipad]
+    since: "9.2.0"
 
   - name: accuracy
     summary: Specifies the requested accuracy for location updates.
@@ -649,7 +739,8 @@ properties:
         is recommended to maximize accuracy and battery life.
         See <Titanium.Geolocation.Android> for details on using manual mode.
     type: Number
-    constants: Titanium.Geolocation.ACCURACY_*
+    constants: [Titanium.Geolocation.ACCURACY_HIGH, Titanium.Geolocation.ACCURACY_BEST_FOR_NAVIGATION, Titanium.Geolocation.ACCURACY_LOW, Titanium.Geolocation.ACCURACY_BEST, Titanium.Geolocation.ACCURACY_NEAREST_TEN_METERS,
+    Titanium.Geolocation.ACCURACY_HUNDRED_METERS, Titanium.Geolocation.ACCURACY_KILOMETER, Titanium.Geolocation.ACCURACY_THREE_KILOMETERS, Titanium.Geolocation.ACCURACY_REDUCED]
 
   - name: distanceFilter
     summary: The minimum change of position (in meters) before a 'location' event is fired.
@@ -658,7 +749,7 @@ properties:
         generated continuously.
     type: Number
     default: 0
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: frequency
     deprecated:
@@ -681,7 +772,7 @@ properties:
     summary: Indicates whether the current device supports a compass.
     type: Boolean
     permission: read-only
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: headingFilter
     summary: Minimum heading change (in degrees) before a `heading` event is fired.
@@ -689,7 +780,7 @@ properties:
         Set to a value greater than zero to reduce the number of heading events generated.
     type: Number
     default: 0 (No limit on heading updates)
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: locationServicesAuthorization
     summary: Returns an authorization constant indicating if the application has access to location services.
@@ -698,7 +789,7 @@ properties:
         attempt to re-authorize: this will lead to issues.
     type: Number
     constants: Titanium.Geolocation.AUTHORIZATION_*
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     permission: read-only
 
   - name: locationServicesEnabled
@@ -739,7 +830,7 @@ properties:
         in invalid heading data.
     type: Boolean
     default: true
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: showBackgroundLocationIndicator
     summary: |
@@ -759,7 +850,7 @@ properties:
     default: false
     since: "7.3.0"
     osver: { ios: { min: "11.0" } }
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: trackSignificantLocationChange
     summary: |
@@ -777,7 +868,7 @@ properties:
         order to deliver new location data.
     type: Boolean
     default: false
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "2.1.2"
 
   - name: allowsBackgroundLocationUpdates
@@ -788,7 +879,7 @@ properties:
         set to `true` by default.
     type: Boolean
     default: false
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     osver: {ios: {min: "9.0"}}
     since: "5.0.0"
 
@@ -807,7 +898,22 @@ properties:
     constants: Titanium.Geolocation.ACTIVITYTYPE_*
     default: <Titanium.Geolocation.ACTIVITYTYPE_OTHER>
     since: "3.1.0"
+    platforms: [iphone,ipad, macos]
+
+  - name: locationAccuracyAuthorization
+    summary: A value that indicates the level of location accuracy the app has permission to use.
+    description: |
+        If the value of this property is <Titanium.Geolocation.ACCURACY_AUTHORIZATION_FULL>, 
+        you can set any constant to [accuracy](Titanium.Geolocation.accuracy). If value is 
+        <Titanium.Geolocation.ACCURACY_AUTHORIZATION_REDUCED> setting [accuracy](Titanium.Geolocation.accuracy)
+        to a value other than <Titanium.Geolocation.ACCURACY_REDUCED> has no effect on the location information.
+    type: Number
+    constants: [Titanium.Geolocation.ACCURACY_AUTHORIZATION_FULL, Titanium.Geolocation.ACCURACY_AUTHORIZATION_REDUCED]
+    default: <Titanium.Geolocation.ACCURACY_AUTHORIZATION_REDUCED>
+    osver: {ios: {min: "14.0"}}
+    since: "9.2.0"
     platforms: [iphone,ipad]
+    permission: read-only
 
   - name: pauseLocationUpdateAutomatically
     summary: Indicates whether the location updates may be paused.
@@ -821,7 +927,7 @@ properties:
         by assigning a value to the [activityType](Titanium.Geolocation.activityType) property.
     type: Boolean
     default: false
-    platforms: [iphone,ipad]
+    platforms: [iphone,ipad, macos]
     since: "3.1.0"
 
   - name: lastGeolocation
@@ -833,7 +939,7 @@ properties:
     type: String
     since: "3.1.2"
     permission: read-only
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
 ---
 name: LocationResults
@@ -901,7 +1007,7 @@ properties:
     type: LocationCoordinatesFloor
     osver: {ios: {min: "8.0"}}
     since: { iphone: "3.6.0", ipad: "3.6.0" }
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
 ---
 name: LocationCoordinatesFloor
@@ -936,13 +1042,13 @@ properties:
     summary: Indicates if the operation succeeded.
     description: Returns `true` if request succeeded, `false` otherwise.
     type: Boolean
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: error
     summary: Error message, if any returned.
     description: Will be undefined if `success` is `true`.
     type: String
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: code
     summary: Error code. Returns 0 if `success` is `true`.
@@ -952,22 +1058,22 @@ properties:
         Otherwise, this value will be -1.
     type: Number
     since: { android: "3.1.0", iphone: "3.1.0", ipad: "3.1.0" }
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: accuracy
     summary: Estimated accuracy of the geocoding, in meters.
     type: Number
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: longitude
     summary: Longitude of the geocoded address.
     type: String
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: latitude
     summary: Latitude of the geocoded address.
     type: String
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: street
     summary: Street name, without street address.
@@ -1035,13 +1141,13 @@ properties:
     summary: Indicates a successful operation.
     description: Returns `true` if request succeeded, `false` otherwise.
     type: Boolean
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: error
     summary: Error message, if any returned.
     description: Will be undefined if `success` is `true`.
     type: String
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: code
     summary: Error code.
@@ -1050,7 +1156,7 @@ properties:
         was generated by the operating system, that system's error value is used.
         Otherwise, this value will be -1.
     type: Number
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: heading
     summary: If `success` is true, the actual heading data.
@@ -1090,7 +1196,7 @@ properties:
         On Android, `trueHeading` is `undefined` if a recent location fix is not available.
 
     type: Number
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: timestamp
     summary: Timestamp for the heading data, in milliseconds.
@@ -1099,17 +1205,17 @@ properties:
   - name: x
     summary: Raw geomagnetic data for the X axis.
     type: Number
-    platforms: [iphone, ipad, android]
+    platforms: [iphone, ipad, android, macos]
 
   - name: y
     summary: Raw geomagnetic data for the Y axis.
     type: Number
-    platforms: [iphone, ipad, android]
+    platforms: [iphone, ipad, android, macos]
 
   - name: z
     summary: Raw geomagnetic data for the Z axis.
     type: Number
-    platforms: [iphone, ipad, android]
+    platforms: [iphone, ipad, android, macos]
 
 ---
 name: LocationProviderDict
@@ -1178,7 +1284,7 @@ properties:
   - name: street
     summary: Street name, without street address.
     type: String
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: street1
     summary: Street name.
@@ -1188,7 +1294,7 @@ properties:
   - name: city
     summary: City name.
     type: String
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: region1
     summary: First line of region.
@@ -1203,7 +1309,7 @@ properties:
   - name: postalCode
     summary: Postal code
     type: String
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: zipcode
     summary: Postal code. To be replaced by `postalCode`
@@ -1216,12 +1322,12 @@ properties:
   - name: country
     summary: Country name.
     type: String
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: countryCode
     summary: Country code.
     type: String
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: country_code
     summary: Country code. To be replaced by `countryCode`.
@@ -1234,12 +1340,12 @@ properties:
   - name: longitude
     summary: Longitude of the geocoded point.
     type: Number
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: latitude
     summary: Latitude of the geocoded point.
     type: Number
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: displayAddress
     summary: Display address. Identical to `address`.
@@ -1252,9 +1358,21 @@ properties:
   - name: address
     summary: Full address.
     type: String
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
 ---
 name: LocationAuthorizationResponse
 summary: Argument passed to the callback when a request finishes successfully or erroneously.
 extends: ErrorResponse
+
+---
+name: LocationAccuracyAuthorizationResponse
+summary: Argument passed to the callback when a request finishes successfully or erroneously.
+extends: ErrorResponse
+properties:
+  - name: accuracyAuthorization
+    summary: The level of location accuracy the app has granted.
+    description: Will be undefined if `error` is `true`.
+    optional: true
+    type: Number
+    constants: [Titanium.Geolocation.ACCURACY_AUTHORIZATION_FULL, Titanium.Geolocation.ACCURACY_AUTHORIZATION_REDUCED]

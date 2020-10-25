@@ -177,6 +177,37 @@ describe('Titanium.Network.HTTPClient', function () {
 		xhr.send();
 	});
 
+	it('responseHeaders', function (finish) {
+		const xhr = Ti.Network.createHTTPClient({
+			timeout: 5000
+		});
+		xhr.onload = e => {
+			try {
+				const responseHeaders = e.source.responseHeaders;
+
+				if (responseHeaders['Content-Type']
+					&& responseHeaders['Content-Type'].startsWith('text/html')) {
+					finish();
+				}
+			} catch (err) {
+				return finish(err);
+			}
+		};
+
+		let attempts = 3;
+		xhr.onerror = e => {
+			if (attempts-- > 0) {
+				Ti.API.warn('failed, attempting to retry request...');
+				xhr.send();
+			} else {
+				Ti.API.debug(JSON.stringify(e, null, 2));
+				finish(new Error('failed to retrieve headers: ' + e));
+			}
+		};
+		xhr.open('GET', 'https://google.com');
+		xhr.send();
+	});
+
 	// https://appcelerator.lighthouseapp.com/projects/32238/tickets/2339
 	it('responseHeadersBug', function (finish) {
 		const xhr = Ti.Network.createHTTPClient({
@@ -295,7 +326,11 @@ describe('Titanium.Network.HTTPClient', function () {
 			}, 1);
 		};
 		xhr.onerror = function (e) {
-			should(e).should.be.type('undefined');
+			try {
+				should(e).should.be.type('undefined');
+			} catch (err) {
+				finish(err);
+			}
 		};
 		xhr.open('GET', 'https://www.google.com');
 		xhr.send();
@@ -334,7 +369,11 @@ describe('Titanium.Network.HTTPClient', function () {
 			}, 1);
 		};
 		xhr.onerror = function (e) {
-			should(e).should.be.type('undefined');
+			try {
+				should(e).should.be.type('undefined');
+			} catch (err) {
+				finish(err);
+			}
 		};
 		xhr.open('GET', 'https://www.google.com');
 		xhr.send();
@@ -638,7 +677,16 @@ describe('Titanium.Network.HTTPClient', function () {
 				finish(err);
 			}
 		};
-		xhr.onerror = e => finish(e);
+		let attempts = 3;
+		xhr.onerror = function (e) {
+			if (attempts-- > 0) {
+				Ti.API.warn('failed, attempting to retry request...');
+				xhr.send();
+			} else {
+				Ti.API.debug(JSON.stringify(e, null, 2));
+				finish(new Error(e.error || this.responseText));
+			}
+		};
 
 		xhr.open('POST', 'http://httpbin.org/post');
 		xhr.setRequestHeader('Content-Type', 'application/json; charset=utf8');
@@ -667,7 +715,17 @@ describe('Titanium.Network.HTTPClient', function () {
 			}
 			finish();
 		};
-		xhr.onerror = e => finish(e);
+
+		let attempts = 3;
+		xhr.onerror = function (e) {
+			if (attempts-- > 0) {
+				Ti.API.warn('failed, attempting to retry request...');
+				xhr.send();
+			} else {
+				Ti.API.debug(JSON.stringify(e, null, 2));
+				finish(new Error(e.error || this.responseText));
+			}
+		};
 
 		xhr.open('GET', 'https://avatars1.githubusercontent.com/u/82188?s=200&v=4');
 		xhr.setRequestHeader('Accept-Encoding', 'identity');
@@ -733,6 +791,28 @@ describe('Titanium.Network.HTTPClient', function () {
 		});
 		xhr.onerror = _e => finish();
 		xhr.open('GET', 'https://www.google .com/'); // URL with space
+		xhr.send();
+	});
+
+	it.ios('#timeoutForResource', function (finish) {
+		const xhr = Ti.Network.createHTTPClient({
+			timeout: 6e4,
+			timeoutForResource: 50
+		});
+
+		xhr.onload = _e => finish(new Error('onload shouldn\'t fire. Resource request timeout should reach before transferring entire resource.'));
+
+		xhr.onerror = e => {
+			try {
+				// Resource timeout is very less (50 milliseconds) so it should timeout before whole resource transferred
+				should(e.code).eql(Ti.UI.URL_ERROR_TIMEOUT);
+			} catch (err) {
+				return finish(err);
+			}
+			finish();
+		};
+
+		xhr.open('GET', 'https://www.google.com/');
 		xhr.send();
 	});
 });
