@@ -1372,11 +1372,13 @@
 {
   WARN_IF_BACKGROUND_THREAD_OBJ;
   if ([self presentedViewController] == nil && isCurrentlyVisible) {
+#if !TARGET_OS_MACCATALYST
     [self refreshOrientationWithDuration:nil];
+#endif
     [self updateStatusBar];
   }
 
-  if ([TiUtils isIOSVersionOrGreater:@"11.0"] && [self respondsToSelector:@selector(setNeedsUpdateOfHomeIndicatorAutoHidden)]) {
+  if (([TiUtils isIOSVersionOrGreater:@"11.0"] || [TiUtils isMacOS]) && [self respondsToSelector:@selector(setNeedsUpdateOfHomeIndicatorAutoHidden)]) {
     [self setNeedsUpdateOfHomeIndicatorAutoHidden];
   }
 }

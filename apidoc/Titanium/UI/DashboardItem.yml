@@ -5,7 +5,7 @@ description: A DashboardItem is created using the <Titanium.UI.createDashboardIt
  Alloy element.
 extends: Titanium.Proxy
 since: "1.2"
-platforms: [iphone, ipad]
+platforms: [iphone, ipad, macos]
 
 events:
   - name: click

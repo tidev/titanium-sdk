@@ -29,7 +29,7 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
 
 @implementation TiUIListView {
   UITableView *_tableView;
-  NSDictionary *_templates;
+  NSDictionary<id, TiViewTemplate *> *_templates;
   id _defaultItemTemplate;
 
   TiDimension _rowHeight;
@@ -46,10 +46,10 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
   UISearchController *searchController;
   UIViewController *searchControllerPresenter;
 
-  NSMutableArray *sectionTitles;
-  NSMutableArray *sectionIndices;
-  NSMutableArray *filteredTitles;
-  NSMutableArray *filteredIndices;
+  NSMutableArray<NSString *> *sectionTitles;
+  NSMutableArray<NSNumber *> *sectionIndices;
+  NSMutableArray<NSString *> *filteredTitles;
+  NSMutableArray<NSNumber *> *filteredIndices;
 
   UIView *_pullViewWrapper;
   CGFloat pullThreshhold;
@@ -67,7 +67,7 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
   UIEdgeInsets _defaultSeparatorInsets;
   UIEdgeInsets _rowSeparatorInsets;
 
-  NSMutableDictionary *_measureProxies;
+  NSMutableDictionary<id, TiUIListItem *> *_measureProxies;
 
   BOOL canFireScrollStart;
   BOOL canFireScrollEnd;
@@ -509,7 +509,7 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
         if (sectionTitles != nil && sectionIndices != nil) {
           NSNumber *theIndex = [NSNumber numberWithInt:i];
           if ([sectionIndices containsObject:theIndex]) {
-            id theTitle = [sectionTitles objectAtIndex:[sectionIndices indexOfObject:theIndex]];
+            NSString *theTitle = [sectionTitles objectAtIndex:[sectionIndices indexOfObject:theIndex]];
             if (filteredTitles == nil) {
               filteredTitles = [[NSMutableArray alloc] init];
             }
@@ -989,7 +989,7 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
 
 #pragma mark - SectionIndexTitle Support Datasource methods.
 
-- (NSArray *)sectionIndexTitlesForTableView:(UITableView *)tableView
+- (NSArray<NSString *> *)sectionIndexTitlesForTableView:(UITableView *)tableView
 {
   if (editing) {
     return nil;

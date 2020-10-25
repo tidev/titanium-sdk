@@ -270,15 +270,16 @@ properties:
     summary: Indicates whether to use SSL when sending requests to ArrowDB.
     type: Boolean
     default: true
+    exclude-platforms: [macos]
     deprecated:
         since: "2.0"
         removed: "3.1.1"
         notes: |
             To disable SSL, set the `acs-base-url` and `acs-authbase-url` properties in the `tiapp.xml` using the HTTP URL.
             To enable SSL, use the HTTPS URL.
-
-                <property name="acs-base-url" type="string">https://api.cloud.appcelerator.com</property>
-
+            ``` xml
+            <property name="acs-base-url" type="string">https://api.cloud.appcelerator.com</property>
+            ```
   - name: sessionId
     since: "2.1.2"
     summary: Identifies the current session

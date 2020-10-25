@@ -8,6 +8,9 @@
 /* eslint no-unused-expressions: "off" */
 'use strict';
 const should = require('./utilities/assertions');
+const utilities = require('./utilities/utilities');
+
+const isCI = Ti.App.Properties.getBool('isCI', false);
 
 describe('Titanium.UI.TableView', function () {
 	this.timeout(5000);
@@ -1194,6 +1197,26 @@ describe('Titanium.UI.TableView', function () {
 		should(tableView.scrollable).be.be.true();
 	});
 
+	it('refreshControl', (finish) => {
+		const refreshControl = Ti.UI.createRefreshControl();
+		refreshControl.addEventListener('refreshstart', () => {
+			setTimeout(() => {
+				refreshControl.endRefreshing();
+			}, 1000);
+		});
+		refreshControl.addEventListener('refreshend', () => {
+			finish();
+		});
+		win = Ti.UI.createWindow();
+		win.add(Ti.UI.createListView({
+			refreshControl: refreshControl
+		}));
+		win.addEventListener('open', function () {
+			refreshControl.beginRefreshing();
+		});
+		win.open();
+	});
+
 	// FIXME Windows throws exception
 	it.windowsBroken('Add and remove headerView/footerView ', function (finish) {
 		win = Ti.UI.createWindow({ backgroundColor: 'gray' });
@@ -1353,6 +1376,79 @@ describe('Titanium.UI.TableView', function () {
 		win.open();
 	});
 
+	it('row - custom properties', () => {
+		const tableView = Ti.UI.createTableView({
+			data: [
+				Ti.UI.createTableViewRow({ title: 'Row 1', myNumber: 1 }),
+				{ title: 'Row 2', myNumber: 2 }
+			]
+		});
+		tableView.appendRow(Ti.UI.createTableViewRow({ title: 'Row 3', myNumber: 3 }));
+		const sectionRows = tableView.sections[0].rows;
+		should(sectionRows[0].myNumber).be.eql(1);
+		should(sectionRows[1].myNumber).be.eql(2);
+		should(sectionRows[2].myNumber).be.eql(3);
+
+		const row = sectionRows[0];
+		row.myNumber = 10;
+		tableView.updateRow(0, row);
+		should(tableView.sections[0].rows[0].myNumber).be.eql(10);
+	});
+
+	it.androidBroken('row#getViewById()', (finish) => {
+		const section1 = Ti.UI.createTableViewSection({ headerTitle: 'My Section' });
+		for (let index = 1; index <= 3; index++) {
+			const row = Ti.UI.createTableViewRow();
+			row.add(Ti.UI.createLabel({ text: `Row ${index}`, id: 'myLabelId' }));
+			section1.add(row);
+		}
+		const tableView = Ti.UI.createTableView({
+			data: [ section1 ]
+		});
+		win = Ti.UI.createWindow();
+		win.add(tableView);
+		win.addEventListener('open', () => {
+			try {
+				for (let index = 1; index <= 3; index++) {
+					const row = tableView.sections[0].rows[index - 1];
+					const view = row.getViewById('myLabelId');
+					should(view).be.a.Object();
+					should(view.apiName).be.eql('Ti.UI.Label');
+					should(view.text).be.eql(`Row ${index}`);
+				}
+				finish();
+			} catch (err) {
+				finish(err);
+			}
+		});
+		win.open();
+	});
+
+	// Exercise TableViewRow "className" template handling.
+	it('row.className', (finish) => {
+		const section1 = Ti.UI.createTableViewSection({ headerTitle: 'Section 1' });
+		for (let index = 1; index <= 3; index++) {
+			const row = Ti.UI.createTableViewRow({ className: 'rowType1' });
+			row.add(Ti.UI.createLabel({ text: `Row ${index}`, left: 20 }));
+			section1.add(row);
+		}
+		const section2 = Ti.UI.createTableViewSection({ headerTitle: 'Section 2' });
+		for (let index = 1; index <= 3; index++) {
+			const row = Ti.UI.createTableViewRow({ className: 'rowType2' });
+			row.add(Ti.UI.createLabel({ text: `Row ${index}`, right: 20 }));
+			section1.add(row);
+		}
+
+		win = Ti.UI.createWindow();
+		win.add(Ti.UI.createTableView({
+			data: [ section1, section2 ]
+		}));
+		win.addEventListener('open', () => {
+			finish();
+		});
+		win.open();
+	});
+
 	it.iosBroken('resize row with Ti.UI.SIZE on content height change', function (finish) {
 		var heights = [ 100, 200, 50 ];
 		var tableView = Ti.UI.createTableView({});
@@ -1384,7 +1480,12 @@ describe('Titanium.UI.TableView', function () {
 		win.open();
 	});
 
-	it.ios('row#rect', function (finish) {
+	it.iosBroken('row#rect', function (finish) {
+		// FIXME: TIMOB-27935
+		if (isCI && utilities.isMacOS()) { // FIXME: On macOS CI (maybe < 10.15.6?), times out! Does app need explicit focus added?
+			return finish(); // FIXME: skip when we move to official mocha package
+		}
+
 		win = Ti.UI.createWindow();
 		const tableView = Ti.UI.createTableView();
 		const row = Ti.UI.createTableViewRow({
@@ -1434,6 +1535,31 @@ describe('Titanium.UI.TableView', function () {
 			}
 			finish();
 		});
+		win.open();
+	});
+
+	it('TIMOB-28148 : adding view on row causing crash', function (finish) {
+		var row = Ti.UI.createTableViewRow({ title: 'click me' });
+		var tableView = Ti.UI.createTableView({
+			data: [ row ]
+		});
+
+		win = Ti.UI.createWindow({
+			backgroundColor: 'blue'
+		});
+		win.addEventListener('focus', function () {
+			setTimeout(function () {
+				try {
+					const label = Ti.UI.createLabel({ text: 'REQUIRED' });
+					row.add(label);
+					finish();
+				} catch (err) {
+					return finish(err);
+				}
+			}, 2000);
+		});
+
+		win.add(tableView);
 		win.open();
 	});
 });

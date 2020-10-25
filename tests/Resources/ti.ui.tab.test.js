@@ -7,21 +7,19 @@
 /* eslint-env mocha */
 /* eslint no-unused-expressions: "off" */
 'use strict';
+const should = require('./utilities/assertions');
 
-require('ti-mocha');
-var should = require('./utilities/assertions');
-
-describe('Titanium.UI.Tab', function () {
-	it('apiName', function () {
-		var tab = Ti.UI.createTab({
+describe('Titanium.UI.Tab', () => {
+	it('.apiName', () => {
+		const tab = Ti.UI.createTab({
 			text: 'this is some text'
 		});
 		should(tab).have.readOnlyProperty('apiName').which.is.a.String();
 		should(tab.apiName).be.eql('Ti.UI.Tab');
 	});
 
-	it('title', function () {
-		var tab = Ti.UI.createTab({
+	it('.title', () => {
+		const tab = Ti.UI.createTab({
 			title: 'this is some text'
 		});
 		should(tab.title).be.a.String();
@@ -33,8 +31,8 @@ describe('Titanium.UI.Tab', function () {
 		should(tab.getTitle()).eql('other text');
 	});
 
-	it('titleid', function () {
-		var bar = Ti.UI.createTab({
+	it('.titleid', () => {
+		const bar = Ti.UI.createTab({
 			titleid: 'this_is_my_key'
 		});
 		should(bar.titleid).be.a.String();
@@ -82,5 +80,26 @@ describe('Titanium.UI.Tab', function () {
 
 		should(tab.activeTintColor).be.a.String();
 		should(tab.activeTintColor).eql('red');
+	});
+
+	// NOTE: These badge tests require a custom theme extending Material theme on Android
+	// We do that in our tiapp.xml
+	it('.badge', () => {
+		const tab = Ti.UI.createTab({
+			badge: 3
+		});
+
+		should(tab.badge).be.a.Number();
+		should(tab.badge).eql(3);
+	});
+
+	it('.badgeColor', () => {
+		const tab = Ti.UI.createTab({
+			badge: 3,
+			badgeColor: '#123'
+		});
+
+		should(tab.badgeColor).be.a.String();
+		should(tab.badgeColor).eql('#123');
 	});
 });

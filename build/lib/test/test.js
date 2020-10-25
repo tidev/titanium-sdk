@@ -61,20 +61,26 @@ async function test(platforms, target, deviceId, deployType, deviceFamily, snaps
 	await addTiAppProperties();
 
 	// run build for each platform, and spit out JUnit report
-	const results = {};
-	for (const platform of platforms) {
-		const result = await runBuild(platform, target, deviceId, deployType, deviceFamily, snapshotDir, snapshotPromises);
-		const prefix = generateJUnitPrefix(platform, target, deviceFamily);
-		results[prefix] = result;
-		await outputJUnitXML(result, prefix);
-	}
+	try {
+		const results = {};
+		for (const platform of platforms) {
+			const result = await runBuild(platform, target, deviceId, deployType, deviceFamily, snapshotDir, snapshotPromises);
+			const prefix = generateJUnitPrefix(platform, target, deviceFamily);
+			results[prefix] = result;
+			await outputJUnitXML(result, prefix);
+		}
 
-	// If we're gathering images, make sure we get them all before we move on
-	if (snapshotPromises.length !== 0) {
-		await Promise.all(snapshotPromises);
-	}
+		// If we're gathering images, make sure we get them all before we move on
+		if (snapshotPromises.length !== 0) {
+			await Promise.all(snapshotPromises);
+		}
 
-	return results;
+		return results;
+	} finally {
+		if (target === 'macos') {
+			exec(`osascript "${path.join(__dirname, 'close_modals.scpt')}"`);
+		}
+	}
 }
 
 /**
@@ -142,13 +148,36 @@ async function npmInstall(dir) {
 		args = [ 'install', '--production' ];
 	}
 	return new Promise((resolve, reject) => {
-		spawn('npm', args, { cwd: dir, stdio: 'inherit' })
-			.on('exit', code => {
+		let child;
+		if (process.platform === 'win32') {
+			child = spawn(
+				process.env.comspec || 'cmd.exe',
+				[ '/S', '/C', '"', 'npm', ...args, '"' ],
+				{
+					cwd: dir,
+					stdio: 'inherit',
+					windowsVerbatimArguments: true
+				}
+			);
+		} else {
+			child = spawn(
+				'npm',
+				args,
+				{
+					cwd: dir,
+					stdio: 'inherit'
+				}
+			);
+		}
+		if (child) {
+			child.on('exit', code => {
 				if (code !== 0) {
 					return reject(new Error(`Failed with exit code: ${code}`));
 				}
 				resolve();
-			}).on('error', reject);
+			});
+			child.on('error', reject);
+		}
 	});
 }
 
@@ -179,6 +208,7 @@ async function addTiAppProperties() {
 		content.push('\t\t\t\t</activity>');
 		content.push('\t\t\t</application>');
 		content.push('\t\t\t<uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>');
+		content.push('\t\t\t<uses-permission android:name="android.permission.RECORD_AUDIO"/>');
 	};
 	let insertPlistSettings = () => {
 		// Enable i18n support for the following languages.
@@ -189,6 +219,22 @@ async function addTiAppProperties() {
 		content.push('\t\t\t\t</array>');
 		content.push('\t\t\t\t<key>CFBundleAllowMixedLocalizations</key>');
 		content.push('\t\t\t\t<true/>');
+
+		// Add permission usage descriptions.
+		content.push('\t\t\t\t<key>NSAppleMusicUsageDescription</key>');
+		content.push('\t\t\t\t<string>Requesting music library permission</string>');
+		content.push('\t\t\t\t<key>NSCameraUsageDescription</key>');
+		content.push('\t\t\t\t<string>Requesting camera permission</string>');
+		content.push('\t\t\t\t<key>NSMicrophoneUsageDescription</key>');
+		content.push('\t\t\t\t<string>Requesting microphone permission</string>');
+		content.push('\t\t\t\t<key>NSPhotoLibraryUsageDescription</key>');
+		content.push('\t\t\t\t<string>Requesting photo library read permission</string>');
+		content.push('\t\t\t\t<key>NSPhotoLibraryAddUsageDescription</key>');
+		content.push('\t\t\t\t<string>Requesting photo library write permission</string>');
+		content.push('\t\t\t\t<key>NSLocationWhenInUseUsageDescription</key>');
+		content.push('\t\t\t\t<string>Requesting location permission</string>');
+		content.push('\t\t\t\t<key>NSMicrophoneUsageDescription</key>');
+		content.push('\t\t\t\t<string>Requesting microphone permission</string>');
 
 		// Add a static shortcut.
 		content.push('\t\t\t\t<key>UIApplicationShortcutItems</key>');
@@ -254,6 +300,7 @@ async function addTiAppProperties() {
 			content.push('\t<property name="presetDouble" type="double">1.23456</property>');
 			content.push('\t<property name="presetInt" type="int">1337</property>');
 			content.push('\t<property name="presetString" type="string">Hello!</property>');
+			content.push(`\t<property name="isCI" type="bool">${isCI}</property>`);
 			content.push('\t<transpile>true</transpile>');
 		} else if (line.indexOf('<android xmlns:android') >= 0) {
 			// Insert manifest
@@ -277,7 +324,7 @@ async function addTiAppProperties() {
 
 /**
  * @param {string} platform 'android' || 'ios' || 'windows'
- * @param {string} [target] 'emulator' || 'simulator' || 'device'
+ * @param {string} [target] 'emulator' || 'simulator' || 'device' || 'macos'
  * @param {string} [deviceId] uuid of device/simulator to launch
  * @param {string} [deployType=undefined] 'development' || 'test'
  * @param {string} [deviceFamily=undefined] 'ipad' || 'iphone' || undefined
@@ -530,7 +577,14 @@ class DeviceTestDetails {
 		const expected = path.join(this.snapshotDir, details.platform, details.relativePath);
 		const diffDir = path.join(this.snapshotDir, '..', 'diffs', details.platform, details.relativePath.slice(0, -4)); // drop '.png'
 		await fs.ensureDir(diffDir);
-		await fs.copy(expected, path.join(diffDir, 'expected.png'));
+		if (!details.blob) {
+			await fs.copy(expected, path.join(diffDir, 'expected.png'));
+		} else {
+			// With ti.blob direct comparisons we have no input image on-disk already
+			const expected = path.join(diffDir, 'expected.png');
+			const expectedPath = `${details.path.slice(0, -4)}/expected.png`; // drop .png, place unde folder named via basenam eof image, save as 'expected.png'
+			await this.grabAppImage(details.platform, expectedPath, expected);
+		}
 
 		const actual = path.join(diffDir, 'actual.png');
 		await this.grabAppImage(details.platform, details.path, actual);
@@ -596,12 +650,13 @@ class DeviceTestDetails {
 			filepath = filepath.slice(7);
 		}
 		console.log(`Copying generated image ${filepath} to ${dest}`);
+		await fs.ensureDir(path.dirname(dest));
 		if (platform === 'android') {
 			// Pull the file via adb shell
 			if (this.target === 'device') {
 				await exec(`adb -s ${await this.deviceId()} shell "run-as ${APP_ID} cat '${filepath}'" > ${dest}`);
 			} else {
-				await exec(`adb shell "run-as ${APP_ID} cat '${filepath}'" > ${dest}`);
+				await exec(`adb -e shell "run-as ${APP_ID} cat '${filepath}'" > ${dest}`);
 			}
 			return dest;
 		}
@@ -653,6 +708,11 @@ async function handleBuild(prc, target, snapshotDir, snapshotPromises) {
 				deploy.stderr.on('data', data => process.stderr.write(data));
 			}
 
+			if (token.includes('Application failed to install')) {
+				prc.kill(); // quit this build...
+				return reject(new Error('Failed to install test app to device/sim'));
+			}
+
 			// Fail immediately if android emulator is forcing restart
 			// TODO: Can we restart/retry test suite in this case?
 			if (token.includes('Module config changed, forcing restart due')) {
@@ -661,14 +721,18 @@ async function handleBuild(prc, target, snapshotDir, snapshotPromises) {
 			}
 
 			// Handle when app crashes and we haven't finished tests yet!
-			if (token.includes('-- End application log ----') || token.includes('-- End simulator log ---')) {
+			if (token.includes('-- End application log ----')
+				|| token.includes('-- End simulator log ---')
+				|| token.includes('-- End mac application log ---')) {
 				prc.kill(); // quit this build...
 				return reject(new Error('Failed to finish test suite before app crashed and logs ended!')); // failed too many times
 			}
 
 			// ignore the build output until the app actually starts
 			if (!started) {
-				if (token.includes('-- Start application log ---') || token.includes('-- Start simulator log ---')) {
+				if (token.includes('-- Start application log ---')
+					|| token.includes('-- Start simulator log ---')
+					|| token.includes('-- Start mac application log ---')) {
 					started = true;
 				}
 				return;
@@ -712,6 +776,10 @@ async function handleBuild(prc, target, snapshotDir, snapshotPromises) {
 			}
 			const line = data.toString();
 			const stripped = stripAnsi(line);
+			if (stripped.includes('Application failed to install')) {
+				prc.kill(); // quit this build...
+				return reject(new Error('Failed to install test app to device/sim'));
+			}
 			const device = getDeviceName(stripped);
 			if (!deviceMap.has(device)) {
 				deviceMap.set(device, new DeviceTestDetails(device, target, snapshotDir, snapshotPromises));

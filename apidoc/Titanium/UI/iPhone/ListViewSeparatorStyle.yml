@@ -13,7 +13,6 @@ deprecated:
     notes: |
       Use [Titanium.UI.TABLE_VIEW_SEPARATOR_STYLE_SINGLE_LINE](Titanium.UI.TABLE_VIEW_SEPARATOR_STYLE_SINGLE_LINE)
       and [Titanium.UI.TABLE_VIEW_SEPARATOR_STYLE_NONE](Titanium.UI.TABLE_VIEW_SEPARATOR_STYLE_NONE) instead.
-
 properties:
   - name: NONE
     summary: The separator cell has no distinct style.

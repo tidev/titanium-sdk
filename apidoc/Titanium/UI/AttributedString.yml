@@ -11,7 +11,7 @@ description: |
 
     For examples of Attributed Strings, see the
     [Attributed Strings guide](https://docs.appcelerator.com/platform/latest/#!/guide/Attributed_Strings).
-platforms: [iphone, ipad, android]
+platforms: [iphone, ipad, android, macos]
 extends: Titanium.Proxy
 since: "3.6.0"
 

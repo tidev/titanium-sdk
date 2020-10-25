@@ -88,18 +88,9 @@
       [_collisionBehavior setTranslatesReferenceBoundsIntoBoundary:NO];
     }
     [viewItems release];
-    void (^update)(void) = ^{
-      [self updateItems];
-    };
-    [_collisionBehavior setAction:update];
   }
   _needsRefresh = NO;
   return _collisionBehavior;
-}
-
-- (void)updateItems
-{
-  //Nothing to do here
 }
 
 - (void)updatePositioning

@@ -5,7 +5,7 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-#ifdef USE_TI_APPIOS
+#if defined(USE_TI_APPIOS) && defined(USE_TI_APPIOSUSERNOTIFICATIONCENTER)
 
 #import "TiAppiOSUserNotificationCenterProxy.h"
 #import "TiAppiOSLocalNotificationProxy.h"
@@ -173,6 +173,7 @@
 
   if ([[request trigger] isKindOfClass:[UNCalendarNotificationTrigger class]]) {
     [event setObject:NULL_IF_NIL([(UNCalendarNotificationTrigger *)[request trigger] nextTriggerDate]) forKey:@"date"];
+#if !TARGET_OS_MACCATALYST
   } else if ([[request trigger] isKindOfClass:[UNLocationNotificationTrigger class]]) {
     CLCircularRegion *region = (CLCircularRegion *)[(UNLocationNotificationTrigger *)[request trigger] region];
 
@@ -183,6 +184,7 @@
       @"identifier" : region.identifier
     };
     [event setObject:dict forKey:@"region"];
+#endif
   }
 
   return event;
