@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2015 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2020 by Axway, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -52,7 +52,6 @@ import javax.net.ssl.X509TrustManager;
 import android.util.Base64;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.kroll.util.TiTempFileHelper;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiC;
@@ -281,11 +280,6 @@ public class TiHTTPClient
 			outFile = tiFile.getFile();
 			try {
 				responseOut = new FileOutputStream(outFile, dumpResponseOut);
-				// If the response file is in the temp folder, don't delete it during cleanup.
-				TiApplication app = TiApplication.getInstance();
-				if (app != null) {
-					app.getTempFileHelper().excludeFileOnCleanup(outFile);
-				}
 			} catch (FileNotFoundException e) {
 				responseFile = null;
 				tiFile = null;
@@ -299,12 +293,8 @@ public class TiHTTPClient
 		}
 
 		if (tiFile == null) {
-			TiApplication app = TiApplication.getInstance();
-			if (app != null) {
-				TiTempFileHelper tempFileHelper = app.getTempFileHelper();
-				outFile = tempFileHelper.createTempFile("tihttp", "tmp");
-				tiFile = new TiFile(outFile, outFile.getAbsolutePath(), false);
-			}
+			outFile = File.createTempFile("tihttp", ".tmp", TiApplication.getInstance().getTiTempDir());
+			tiFile = new TiFile(outFile, outFile.getAbsolutePath(), false);
 		}
 
 		if (dumpResponseOut) {
@@ -746,6 +736,46 @@ public class TiHTTPClient
 		return result;
 	}
 
+	public KrollDict getResponseHeaders()
+	{
+		final KrollDict result = new KrollDict();
+
+		// Obtain response headers.
+		if (responseHeaders != null && !responseHeaders.isEmpty()) {
+			final Set<Map.Entry<String, List<String>>> entrySet = responseHeaders.entrySet();
+
+			// Iterate through response headers.
+			for (Map.Entry<String, List<String>> entry : entrySet) {
+				final String key = entry.getKey();
+
+				// Skip empty key that holds response status.
+				if (key == null) {
+					continue;
+				}
+
+				final List<String> values = entry.getValue();
+				final String[] stringValues = new String[values.size()];
+
+				// Handle multiple values such as cookies.
+				if (values.size() > 1) {
+
+					// Parse response headers into string array.
+					for (int i = 0; i < values.size(); i++) {
+						stringValues[i] = values.get(i);
+					}
+
+					// Store response headers in dictionary.
+					result.put(key, stringValues);
+				} else {
+
+					// Store response header in dictionary.
+					result.put(key, values.get(0));
+				}
+			}
+		}
+		return result;
+	}
+
 	public void clearCookies(String url)
 	{
 		if (url == null) {
@@ -978,8 +1008,10 @@ public class TiHTTPClient
 					blob = ((TiResourceFile) value).read();
 				}
 				String mimeType = blob.getMimeType();
-				File tmpFile =
-					File.createTempFile("tixhr", "." + TiMimeTypeHelper.getFileExtensionFromMimeType(mimeType, "txt"));
+				File tmpFile = File.createTempFile(
+					"tixhr",
+					"." + TiMimeTypeHelper.getFileExtensionFromMimeType(mimeType, "txt"),
+					TiApplication.getInstance().getTiTempDir());
 				createFileFromBlob(blob, tmpFile);
 
 				tmpFiles.add(tmpFile);
@@ -1092,8 +1124,10 @@ public class TiHTTPClient
 					blob = ((TiResourceFile) value).read();
 				}
 				String mimeType = blob.getMimeType();
-				File tmpFile =
-					File.createTempFile("tixhr", "." + TiMimeTypeHelper.getFileExtensionFromMimeType(mimeType, "txt"));
+				File tmpFile = File.createTempFile(
+					"tixhr",
+					"." + TiMimeTypeHelper.getFileExtensionFromMimeType(mimeType, "txt"),
+					TiApplication.getInstance().getTiTempDir());
 				createFileFromBlob(blob, tmpFile);
 
 				tmpFiles.add(tmpFile);

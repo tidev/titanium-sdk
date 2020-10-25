@@ -10,6 +10,7 @@ methods:
   - name: isLandscape
     summary: Returns whether or not the device is currently held in landscape form.
     description: Value returns `true` if in landscape, and `false` otherwise.
+    exclude-platforms: [macos]
     deprecated:
         since: "6.1.0"
         removed: "7.0.0"
@@ -20,6 +21,7 @@ methods:
   - name: isPortrait
     summary: Returns whether or not the device is currently held in portrait form.
     description: Value returns `true` if in portrait, and `false` otherwise.
+    exclude-platforms: [macos]
     deprecated:
         since: "6.1.0"
         removed: "7.0.0"
@@ -35,7 +37,7 @@ properties:
     type: Boolean
     accessors: false
     permission: read-only
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: landscape
     summary: Indicates if the device is currently held in landscape form.
@@ -44,7 +46,7 @@ properties:
     type: Boolean
     accessors: false
     permission: read-only
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: orientation
     summary: Orientation of the device.

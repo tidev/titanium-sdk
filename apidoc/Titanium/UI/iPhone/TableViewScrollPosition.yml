@@ -11,7 +11,6 @@ deprecated:
     since: "5.4.0"
     removed: "7.0.0"
     notes: Use [Titanium.UI.iOS.TableViewScrollPosition](Titanium.UI.iOS.TableViewScrollPosition) instead.
-
 properties:
   - name: BOTTOM
     summary: The table view scrolls the row of interest to the bottom of the visible table view.

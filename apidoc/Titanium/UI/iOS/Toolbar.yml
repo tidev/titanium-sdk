@@ -40,11 +40,11 @@ excludes:
             softKeyboardOnFocus]
     events: [longclick, twofingertap]
     methods: [add, remove, removeAllChildren, replaceAt]
-since: "0.8"
 deprecated:
     since: "6.2.0"
     notes: Use the cross-platform [Titanium.UI.Toolbar](Titanium.UI.Toolbar) instead.
-platforms: [iphone, ipad]
+platforms: [iphone, ipad, macos]
+since: {iphone: "0.8", ipad: "0.8", macos: "9.2.0"}
 
 properties:
   - name: barColor
@@ -73,8 +73,8 @@ properties:
     type: Boolean
     default: Undefined. Behaves as if set to false.
     osver: {ios: {min: "7.0"}}
-    platforms: [iphone,ipad]
-    since: "3.3.0"
+    platforms: [iphone, ipad, macos]
+    since: {iphone: "3.3.0", ipad: "3.3.0", macos: "9.2.0"}
     availability: creation
 
   - name: translucent

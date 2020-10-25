@@ -26,7 +26,7 @@ description: |
         a device token. The device token is passed to the `success` callback.
 extends: Titanium.Module
 excludes: { methods: [ 'addEventListener', 'fireEvent', 'removeEventListener',  ] }
-platforms: [android, iphone, ipad]
+platforms: [android, iphone, ipad, macos]
 
 methods:
   - name: notify

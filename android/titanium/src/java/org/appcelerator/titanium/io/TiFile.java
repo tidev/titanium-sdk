@@ -115,9 +115,7 @@ public class TiFile extends TiBaseFile
 	public boolean createFile()
 	{
 		try {
-			if (!file.getParentFile().exists()) {
-				file.mkdirs();
-			}
+			file.getParentFile().mkdirs();
 			if (!file.exists()) {
 				return file.createNewFile();
 			}
@@ -301,7 +299,8 @@ public class TiFile extends TiBaseFile
 
 	public OutputStream getOutputStream(int mode) throws IOException
 	{
-		return new FileOutputStream(file, mode == MODE_APPEND ? true : false);
+		this.file.getParentFile().mkdirs();
+		return new FileOutputStream(this.file, (mode == MODE_APPEND));
 	}
 
 	public File getNativeFile()
@@ -378,12 +377,6 @@ public class TiFile extends TiBaseFile
 	}
 
 	@Override
-	public TiBlob read() throws IOException
-	{
-		return TiBlob.blobFromFile(this);
-	}
-
-	@Override
 	public String readLine() throws IOException
 	{
 		String result = null;
@@ -404,6 +397,7 @@ public class TiFile extends TiBaseFile
 		return result;
 	}
 
+	@Override
 	public void write(TiBlob blob, boolean append) throws IOException
 	{
 		Log.d(TAG, "write called for file = " + file, Log.DEBUG_MODE);
@@ -431,6 +425,7 @@ public class TiFile extends TiBaseFile
 		}
 	}
 
+	@Override
 	public void writeFromUrl(String url, boolean append) throws IOException
 	{
 		Log.d(TAG, "write called for file = " + file, Log.DEBUG_MODE);

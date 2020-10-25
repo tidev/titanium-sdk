@@ -650,6 +650,31 @@
   }
 }
 
+#if IS_SDK_IOS_14
+- (void)setPreferredIndicatorImage_:(id)args
+{
+  if (![TiUtils isIOSVersionOrGreater:@"14.0"]) {
+    DebugLog(@"[WARN] Supported on iOS 14.0+");
+    return;
+  }
+
+  if (showPageControl) {
+    [[self pagecontrol] setPreferredIndicatorImage:[TiUtils toImage:args proxy:self.proxy]];
+  }
+}
+
+- (void)setIndicatorImage:(UIImage *)image forPage:(NSInteger)page
+{
+  if (page > [self pagecontrol].numberOfPages) {
+    DebugLog(@"[WARN] Page no. can not be greater than total no of pages");
+    return;
+  }
+  if (showPageControl) {
+    [[self pagecontrol] setIndicatorImage:image forPage:page];
+  }
+}
+#endif
+
 - (void)setPagingControlOnTop_:(id)args
 {
 #ifdef TI_USE_AUTOLAYOUT

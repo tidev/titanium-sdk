@@ -387,16 +387,15 @@ public class Ti2DMatrix extends KrollProxy
 	}
 
 	/**
-	 * Determines whether we can use Honeycomb+ style
-	 * animations, namely property Animator instances.
+	 * Determines whether we can use property Animator instances.
 	 * We can do that if the matrix is not "complicated".
 	 * See the class documentation for
 	 * {@link org.appcelerator.titanium.util.TiAnimationBuilder TiAnimationBuilder}
 	 * for a detailed description of what makes a matrix too
 	 * complicated for property Animators.
-	 * @return true if property animators (i.e., Honeycomb+
-	 * animation) can be used, false if we need to stick
-	 * with the old-style view animations.
+	 * @return
+	 * Returns true if property animators can be used
+	 * Returns false if we need to stick with the old-style view animations.
 	 */
 	public boolean canUsePropertyAnimators()
 	{

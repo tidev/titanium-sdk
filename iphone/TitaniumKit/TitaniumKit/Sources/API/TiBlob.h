@@ -25,6 +25,10 @@ READONLY_PROPERTY(JSValue *, file, File);
  */
 READONLY_PROPERTY(NSUInteger, height, Height);
 /**
+ Returns height of image after factoring in EXIF orientation, _0_ otherwise.
+ */
+READONLY_PROPERTY(NSUInteger, uprightHeight, UprightHeight);
+/**
  Returns the data length.
  */
 READONLY_PROPERTY(NSUInteger, length, Length);
@@ -54,6 +58,10 @@ READONLY_PROPERTY(NSString *, text, Text);
  Returns width if the blob object is an image, _0_ otherwise.
  */
 READONLY_PROPERTY(NSUInteger, width, Width);
+/**
+ Returns width of image after factoring in EXIF orientation, _0_ otherwise.
+ */
+READONLY_PROPERTY(NSUInteger, uprightWidth, UprightWidth);
 
 // Methods
 - (void)append:(TiBlob *)blob;

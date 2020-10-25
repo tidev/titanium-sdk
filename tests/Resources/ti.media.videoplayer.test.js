@@ -124,9 +124,7 @@ describe('Titanium.Media.VideoPlayer', function () {
 
 	it.ios('playableDuration in milliseconds', function (finish) {
 		const videoPlayer = Ti.Media.createVideoPlayer({
-			// url: 'https://raw.githubusercontent.com/appcelerator/titanium_mobile/master/tests/remote/mov_bbb.mp4',
-			// FIXME: Use url above once this is merged to master?
-			url: 'https://raw.githubusercontent.com/appcelerator/titanium-mobile-mocha-suite/master/remote/mov_bbb.mp4',
+			url: 'https://raw.githubusercontent.com/appcelerator/titanium_mobile/master/tests/remote/mov_bbb.mp4',
 			autoplay: true,
 			showsControls: false,
 			height: 200
@@ -173,15 +171,14 @@ describe('Titanium.Media.VideoPlayer', function () {
 		should(player).have.readOnlyProperty('playbackState').which.is.a.Number();
 	});
 
-	// FIXME: Skipping until TIMOB-26299 is fixed
-	it.allBroken('Close window containing a video player (TIMOB-25574)', function (finish) {
+	it('Close window containing a video player (TIMOB-25574)', function (finish) {
 		var nav;
 		this.timeout(15000);
 
 		win = Ti.UI.createWindow({
 			backgroundColor: 'white'
 		});
-		nav = Ti.UI.iOS.createNavigationWindow({
+		nav = Ti.UI.createNavigationWindow({
 			window: win
 		});
 
@@ -198,7 +195,7 @@ describe('Titanium.Media.VideoPlayer', function () {
 			});
 
 			videoPlayer = Ti.Media.createVideoPlayer({
-				url: 'https://www.w3schools.com/html/mov_bbb.mp4',
+				url: 'https://raw.githubusercontent.com/appcelerator/titanium_mobile/master/tests/remote/mov_bbb.mp4',
 				autoplay: true,
 				backgroundColor: 'blue',
 				height: 300,
@@ -227,11 +224,10 @@ describe('Titanium.Media.VideoPlayer', function () {
 		}
 	});
 
-	// FIXME: Skipping until TIMOB-26299 is fixed.
-	it.allBroken('Release video player and close window (TIMOB-26033)', function (finish) {
+	it('Release video player and close window (TIMOB-26033)', function (finish) {
 		var videoWindow = Ti.UI.createWindow();
 		var videoPlayer = Ti.Media.createVideoPlayer({
-			url: 'https://www.w3schools.com/html/mov_bbb.mp4',
+			url: 'https://raw.githubusercontent.com/appcelerator/titanium_mobile/master/tests/remote/mov_bbb.mp4',
 			top: 2,
 			autoplay: true,
 			backgroundColor: 'blue',
