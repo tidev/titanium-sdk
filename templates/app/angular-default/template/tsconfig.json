@@ -14,7 +14,11 @@
       "es2018",
       "dom"
     ],
-    "preserveSymlinks": true
+    "preserveSymlinks": true,
+    "typeRoots": [
+      "typings",
+      "node_modules/@types"
+    ]
   },
   "files": [
     "src/main.ts",
