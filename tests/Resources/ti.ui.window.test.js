@@ -60,7 +60,7 @@ describe('Titanium.UI.Window', function () {
 
 	// TODO: Why not run this on iOS? Seems to fail, though.
 	// TODO: Also broken on Android, need to figure out why this test is unreliable.
-	describe.skip('.orientationModes', () => {
+	describe.allBroken('.orientationModes', () => {
 		this.slow(5000);
 		this.timeout(20000);
 
