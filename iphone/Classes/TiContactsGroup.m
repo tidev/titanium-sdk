@@ -4,7 +4,8 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#if defined(USE_TI_CONTACTS) && (!TARGET_OS_MACCATALYST || IS_SDK_IOS_14)
+#ifdef USE_TI_CONTACTS
+
 #import "TiContactsGroup.h"
 
 @implementation TiContactsGroup
@@ -121,10 +122,10 @@
   CNContactSortOrder sortOrder;
   int sortType = [value intValue];
   switch (sortType) {
-  case kABPersonSortByFirstName:
+  case CNContactSortOrderGivenName:
     sortOrder = CNContactSortOrderGivenName;
     break;
-  case kABPersonSortByLastName:
+  case CNContactSortOrderFamilyName:
     sortOrder = CNContactSortOrderFamilyName;
     break;
   default:
