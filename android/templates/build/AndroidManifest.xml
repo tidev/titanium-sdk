@@ -4,6 +4,21 @@
 	package="<%- packageName %>"
 	android:versionCode="1">
 
+<% if (usesPermissions) { for (const nextPermission of usesPermissions) { %>
+	<uses-permission android:name="<%- nextPermission %>"/>
+<% } } %>
+
+<% if (queries && (Object.keys(queries).length > 0)) { %>
+	<queries>
+<% if (queries.sendEmail) { %>
+		<intent>
+			<action android:name="android.intent.action.SEND"/>
+			<data android:mimeType="message/rfc822"/>
+		</intent>
+<% } %>
+	</queries>
+<% } %>
+
 	<application
 		android:icon="<%- appIcon %>"
 		android:label="<%- appLabel %>"
@@ -23,7 +38,7 @@
 			</intent-filter>
 		</activity>
 
-<% if (appChildXmlLines) { for (let nextLine of appChildXmlLines) { %>
+<% if (appChildXmlLines) { for (const nextLine of appChildXmlLines) { %>
 		<%- nextLine %>
 <% } } %>
 
