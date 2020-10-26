@@ -1364,6 +1364,7 @@ describe('Titanium.UI.TableView', function () {
 			if (Ti.Android) {
 				value = row1.backgroundDisabledColor;
 				value = row1.backgroundFocusedColor;
+				// eslint-disable-next-line no-unused-vars
 				value = row1.backgroundSelectedColor;
 			}
 		}
