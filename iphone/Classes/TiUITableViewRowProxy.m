@@ -29,7 +29,7 @@ NSString *const defaultRowTableClass = @"_default_";
 #ifdef TI_USE_AUTOLAYOUT
 @interface TiUITableViewRowContainer : TiLayoutView
 #else
-@interface TiUITableViewRowContainer : UIView
+@interface TiUITableViewRowContainer : TiUIView
 #endif
 {
   TiProxy *hitTarget;
