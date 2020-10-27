@@ -528,7 +528,7 @@ TiProxy *DeepScanForProxyOfViewContainingPoint(UIView *targetView, CGPoint point
 
 - (UIView *)view
 {
-  return nil;
+  return rowContainerView;
 }
 
 //Private method : For internal use only
