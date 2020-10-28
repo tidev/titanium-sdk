@@ -141,6 +141,7 @@ function loadTests() {
 	}
 	require('./ti.ui.attributedstring.test');
 	require('./ti.ui.button.test');
+	require('./ti.ui.clipboard.test');
 	require('./ti.ui.constants.test');
 	require('./ti.ui.emaildialog.test');
 	require('./ti.ui.imageview.test');
