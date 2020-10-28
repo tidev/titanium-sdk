@@ -447,7 +447,7 @@ TiProxy *DeepScanForProxyOfViewContainingPoint(UIView *targetView, CGPoint point
       }
     }
     selectedBGView.fillColor = theColor;
-    NSInteger count = [section rowCount];
+    NSUInteger count = section.rowCount.unsignedIntegerValue;
     if (count == 1) {
       selectedBGView.position = TiCellBackgroundViewPositionSingleLine;
     } else {
