@@ -129,6 +129,9 @@ function loadTests() {
 	require('./ti.network.socket.tcp.test');
 	require('./ti.network.socket.udp.test');
 	require('./ti.platform.test');
+	if (OS_ANDROID) {
+		require('./ti.platform.android.test');
+	}
 	require('./ti.platform.displaycaps.test');
 	require('./ti.proxy.test');
 	require('./ti.stream.test');
