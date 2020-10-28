@@ -98,7 +98,7 @@ static NSString *mimeTypeToUTType(NSString *mimeType)
   BOOL value = [TiUtils boolValue:arg def:true];
   shouldCreatePasteboard = value;
   if (!isUnique && pasteboardName && !shouldCreatePasteboard) {
-    [self remove];
+    [self remove:nil];
     _pasteboard = [UIPasteboard pasteboardWithName:pasteboardName create:value];
     isNamedPasteBoard = true;
   }
@@ -114,7 +114,7 @@ static NSString *mimeTypeToUTType(NSString *mimeType)
   }
 }
 
-- (void)remove
+- (void)remove:(id)unused
 {
   [UIPasteboard removePasteboardWithName:[self pasteboard].name];
   _pasteboard = nil;
