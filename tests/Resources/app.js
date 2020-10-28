@@ -117,6 +117,9 @@ function loadTests() {
 	require('./ti.media.test');
 	require('./ti.media.audioplayer.test');
 	require('./ti.media.audiorecorder.test');
+	if (OS_IOS) {
+		require('./ti.media.musicplayer.test');
+	}
 	require('./ti.media.sound.test');
 	require('./ti.media.videoplayer.test');
 	require('./ti.network.test');
