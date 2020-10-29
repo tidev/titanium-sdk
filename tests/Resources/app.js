@@ -292,10 +292,15 @@ function $Reporter(runner) {
 
 	runner.on('fail', function (test, err) {
 		test.err = err;
+		if (test.type && test.type === 'hook') {
+			// report hook as failiure, the rest of the suite won't execute
+			reportTestEnd(test);
+		}
+
 		failed = true;
 	});
 
-	runner.on('test end', function (test) {
+	function reportTestEnd(test) {
 		const tdiff = new Date().getTime() - started;
 		const fixedNames = suiteAndTitle(suites, test.title);
 		const result = {
@@ -354,7 +359,9 @@ function $Reporter(runner) {
 		} else {
 			Ti.API.info('!TEST_END: ' + stringified);
 		}
-	});
+	}
+
+	runner.on('test end', reportTestEnd);
 }
 
 // Emit OS version
