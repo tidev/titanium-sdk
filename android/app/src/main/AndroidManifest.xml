@@ -1,13 +1,36 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android" xmlns:tools="http://schemas.android.com/tools" package="com.titanium.test">
+	<!-- Permissions added to all Titanium apps by default. -->
 	<uses-permission android:name="android.permission.INTERNET"/>
 	<uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
 	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
 	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+
+	<!-- Permissions needed to test Ti.Geolocation module. -->
 	<uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
 	<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
 	<uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION"/>
+
+	<!-- Allows this app to detect other apps which support below intents on Android 11+. -->
+	<queries>
+		<!-- Needed to make Ti.Platform.canOpenURL() work with these URLS schemes. -->
+		<intent>
+			<action android:name="android.intent.action.VIEW"/>
+			<data android:scheme="https"/>
+		</intent>
+		<intent>
+			<action android:name="android.intent.action.VIEW"/>
+			<data android:scheme="mailto"/>
+		</intent>
+		<!-- Needed to make Ti.UI.EmailDialog.isSupported() work. -->
+		<intent>
+			<action android:name="android.intent.action.SEND"/>
+			<data android:mimeType="message/rfc822"/>
+		</intent>
+	</queries>
+
 	<application android:name=".TitaniumTestApplication" android:icon="@drawable/appicon" android:label="TitaniumTest" android:theme="@style/Theme.MaterialComponents.Bridge" android:usesCleartextTraffic="true">
+		<!-- The root Titanium splash activity which hosts the JS runtime. -->
 		<activity android:name=".TitaniumTestActivity" android:theme="@style/Theme.Titanium" android:alwaysRetainTaskState="true" android:configChanges="${tiActivityConfigChanges}">
 			<intent-filter>
 				<action android:name="android.intent.action.MAIN"/>

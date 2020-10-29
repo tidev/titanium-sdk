@@ -610,13 +610,14 @@ class DeviceTestDetails {
 		// grab image and place into test suite
 		const dest = path.join(this.snapshotDir, details.platform, details.relativePath);
 		const grabbed = await this.grabAppImage(details.platform, details.path, dest);
-		if (isCI) {
-			// Now also place into location that we can archive on CI/Jenkins
-			const generated = path.join(this.snapshotDir, '..', 'generated', details.platform, details.relativePath);
-			const diffDir = path.dirname(generated);
-			await fs.ensureDir(diffDir);
-			await fs.copy(grabbed, generated);
-		}
+
+		// Now also place into location that we can archive on CI/Jenkins (and see exactly which images are "new" for this run)
+		const generated = path.join(this.snapshotDir, '..', 'generated', details.platform, details.relativePath);
+		console.log(`Copying generated image ${grabbed} to ${generated}`); // TODO: Symlink instead?
+		const diffDir = path.dirname(generated);
+		await fs.ensureDir(diffDir);
+		await fs.copy(grabbed, generated);
+
 		return grabbed;
 	}
 
