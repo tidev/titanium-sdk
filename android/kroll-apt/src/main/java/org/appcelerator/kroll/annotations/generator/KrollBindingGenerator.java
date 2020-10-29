@@ -13,7 +13,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.StringWriter;
-import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -345,21 +344,10 @@ public class KrollBindingGenerator
 			if (!cmakeStringContent.equals(readFileAsString(cmakeFile))) {
 				try (FileWriter fileWriter = new FileWriter(cmakeFile)) {
 					fileWriter.write(cmakeStringContent);
+					fileWriter.flush();
 				} catch (Exception ex) {
 					ex.printStackTrace();
 				}
-			}
-
-			try (Writer writer = new FileWriter(cmakeFile)) {
-				writer.write("# This file was generated.\n");
-				writer.write("target_sources(${PROJECT_NAME} PRIVATE\n");
-				for (String fileName : sourceFileList) {
-					writer.write("\t${CMAKE_CURRENT_SOURCE_DIR}/" + fileName + "\n");
-				}
-				writer.write(")\n");
-				writer.flush();
-			} catch (Exception ex) {
-				ex.printStackTrace();
 			}
 		}
 	}
