@@ -70,7 +70,7 @@ void TiLogMessage(NSString *str, ...)
 }
 
 NSString *const kTiASCIIEncoding = @"ascii";
-NSString *const kTiISOLatin1Encoding = @"ios-latin-1";
+NSString *const kTiISOLatin1Encoding = @"latin1";
 NSString *const kTiUTF8Encoding = @"utf8";
 NSString *const kTiUTF16Encoding = @"utf16";
 NSString *const kTiUTF16LEEncoding = @"utf16le";
