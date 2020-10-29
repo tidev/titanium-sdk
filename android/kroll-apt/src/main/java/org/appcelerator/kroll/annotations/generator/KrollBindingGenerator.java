@@ -12,7 +12,9 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.StringWriter;
 import java.io.Writer;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -86,30 +88,34 @@ public class KrollBindingGenerator
 
 	protected void saveTypeTemplate(Template template, String outFile, Map<Object, Object> root)
 	{
-		Writer writer = null;
+		FileWriter fileWriter = null;
 		try {
-			File file = new File(outPath, outFile);
-			File parent = file.getParentFile();
-			if (!parent.exists()) {
-				parent.mkdirs();
-			}
-
-			if (this.canOverwrite || !file.exists()) {
+			File file = new File(this.outPath, outFile);
+			if (!file.exists()) {
+				// Generate a new source file.
 				System.out.println("Generating " + file.getAbsolutePath());
-				writer = new FileWriter(file);
-				template.process(root, writer);
+				fileWriter = new FileWriter(file);
+				template.process(root, fileWriter);
+			} else if (this.canOverwrite) {
+				// Generate source code content and only overwrite existing file if content has changed.
+				// This significantly improves incremental build times.
+				StringWriter stringWriter = new StringWriter();
+				template.process(root, stringWriter);
+				String stringContent = stringWriter.toString();
+				if (!stringContent.equals(readFileAsString(file))) {
+					System.out.println("Generating " + file.getAbsolutePath());
+					fileWriter = new FileWriter(file);
+					fileWriter.write(stringContent);
+				}
 			}
-
 		} catch (Exception e) {
 			e.printStackTrace();
-
 		} finally {
-			if (writer != null) {
+			if (fileWriter != null) {
 				try {
-					writer.flush();
-					writer.close();
-
-				} catch (IOException e) {
+					fileWriter.flush();
+					fileWriter.close();
+				} catch (Exception e) {
 					e.printStackTrace();
 				}
 			}
@@ -290,6 +296,16 @@ public class KrollBindingGenerator
 	{
 		generateApiTree();
 
+		// Create the output directory if it doesn't already exist.
+		try {
+			File outDir = new File(this.outPath);
+			outDir.mkdirs();
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+
+		// Generate all of the proxy "*.cpp" and "*.h" files.
+		ArrayList<String> sourceFileList = new ArrayList<>(this.proxies.size());
 		for (String proxyName : proxies.keySet()) {
 			Map<Object, Object> proxy = jsonUtils.getMap(proxies, proxyName);
 
@@ -303,10 +319,48 @@ public class KrollBindingGenerator
 
 			String v8ProxyHeader = proxyName + ".h";
 			String v8ProxySource = proxyName + ".cpp";
+			sourceFileList.add(v8ProxySource);
 
 			saveTypeTemplate(v8HeaderTemplate, v8ProxyHeader, root);
 			validateProxyShape(root);
 			saveTypeTemplate(v8SourceTemplate, v8ProxySource, root);
+		}
+
+		// Generate a "CMakeLists.txt" which lists every source file generated above.
+		File cmakeFile = new File(this.outPath, "CMakeLists.txt");
+		if (this.canOverwrite || !cmakeFile.exists()) {
+			// Create the cmake file's string content.
+			StringWriter stringWriter = new StringWriter();
+			stringWriter.write("# This file was generated.\n");
+			stringWriter.write("target_sources(${PROJECT_NAME} PRIVATE\n");
+			sourceFileList.sort(null);
+			for (String fileName : sourceFileList) {
+				stringWriter.write("\t${CMAKE_CURRENT_SOURCE_DIR}/" + fileName + "\n");
+			}
+			stringWriter.write(")\n");
+			String cmakeStringContent = stringWriter.toString();
+
+			// Write the file, but only if file doesn't already exist with the exact same content.
+			// Note: This optimizes incremental build times.
+			if (!cmakeStringContent.equals(readFileAsString(cmakeFile))) {
+				try (FileWriter fileWriter = new FileWriter(cmakeFile)) {
+					fileWriter.write(cmakeStringContent);
+				} catch (Exception ex) {
+					ex.printStackTrace();
+				}
+			}
+
+			try (Writer writer = new FileWriter(cmakeFile)) {
+				writer.write("# This file was generated.\n");
+				writer.write("target_sources(${PROJECT_NAME} PRIVATE\n");
+				for (String fileName : sourceFileList) {
+					writer.write("\t${CMAKE_CURRENT_SOURCE_DIR}/" + fileName + "\n");
+				}
+				writer.write(")\n");
+				writer.flush();
+			} catch (Exception ex) {
+				ex.printStackTrace();
+			}
 		}
 	}
 
@@ -474,5 +528,28 @@ public class KrollBindingGenerator
 				}
 			}
 		}
+	}
+
+	private static String readFileAsString(File file)
+	{
+		if (file == null) {
+			return null;
+		}
+		if (!file.exists()) {
+			return null;
+		}
+
+		String content = null;
+		try (StringWriter writer = new StringWriter(); FileReader reader = new FileReader(file)) {
+			char[] charArray = new char[8192];
+			int charCount;
+			while ((charCount = reader.read(charArray)) > 0) {
+				writer.write(charArray, 0, charCount);
+			}
+			content = writer.toString();
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+		return content;
 	}
 }
