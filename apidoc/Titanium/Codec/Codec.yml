@@ -64,7 +64,7 @@ properties:
     summary: ISO 8859-1 (Latin-1) character encoding.
     description: |
         See also: [ISO/IEC 8859-1](http://en.wikipedia.org/wiki/ISO/IEC_8859-1) on Wikipedia.
-    value: "iso-latin-1"
+    value: "latin1"
     permission: read-only
 
   - name: CHARSET_UTF8
