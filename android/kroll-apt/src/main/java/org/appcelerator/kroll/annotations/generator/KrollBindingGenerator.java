@@ -329,15 +329,17 @@ public class KrollBindingGenerator
 		File cmakeFile = new File(this.outPath, "CMakeLists.txt");
 		if (this.canOverwrite || !cmakeFile.exists()) {
 			// Create the cmake file's string content.
-			StringWriter stringWriter = new StringWriter();
-			stringWriter.write("# This file was generated.\n");
-			stringWriter.write("target_sources(${PROJECT_NAME} PRIVATE\n");
+			StringBuilder stringBuilder = new StringBuilder();
+			stringBuilder.append("# This file was generated.\n");
+			stringBuilder.append("target_sources(${PROJECT_NAME} PRIVATE\n");
 			sourceFileList.sort(null);
 			for (String fileName : sourceFileList) {
-				stringWriter.write("\t${CMAKE_CURRENT_SOURCE_DIR}/" + fileName + "\n");
+				stringBuilder.append("\t${CMAKE_CURRENT_SOURCE_DIR}/");
+				stringBuilder.append(fileName);
+				stringBuilder.append('\n');
 			}
-			stringWriter.write(")\n");
-			String cmakeStringContent = stringWriter.toString();
+			stringBuilder.append(")\n");
+			String cmakeStringContent = stringBuilder.toString();
 
 			// Write the file, but only if file doesn't already exist with the exact same content.
 			// Note: This optimizes incremental build times.
