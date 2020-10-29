@@ -8,8 +8,6 @@
  * This allows ACA to be the first module to load on startup.
  */
 
-try {
-	import('com.appcelerator.aca');
-} catch (e) {
-	// Could not load module, silently ignore exception.
-}
+import('com.appcelerator.aca').catch(e => {
+	// No need to notify of ACA load failure.
+});
