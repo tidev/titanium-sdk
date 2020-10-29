@@ -158,6 +158,7 @@ function loadTests() {
 		require('./ti.ui.ios.tabbedbar.test');
 		require('./ti.ui.ios.tableviewstyle.test');
 		require('./ti.ui.ios.webviewconfiguration.test');
+		require('./ti.ui.ipad.test');
 		require('./ti.ui.ipad.popover.test');
 	}
 	require('./ti.ui.label.test');
