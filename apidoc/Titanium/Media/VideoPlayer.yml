@@ -544,9 +544,8 @@ properties:
 
   - name: initialPlaybackTime
     summary: The start time of movie playback, in milliseconds.
-    description: |
-        Defaults to NaN in iOS and 0 in Android, indicating the natural start time of the movie.
     type: Number
+    default: 0
 
   - name: loadState
     deprecated:
