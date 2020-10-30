@@ -1403,14 +1403,13 @@ public class MediaModule extends KrollModule implements Handler.Callback
 	public int[] getAvailableCameras()
 	{
 		int cameraCount = Camera.getNumberOfCameras();
-		if (cameraCount == 0) {
-			return null;
-		}
-
 		int[] result = new int[cameraCount];
 
-		CameraInfo cameraInfo = new CameraInfo();
+		if (cameraCount == 0) {
+			return result;
+		}
 
+		CameraInfo cameraInfo = new CameraInfo();
 		for (int i = 0; i < cameraCount; i++) {
 			Camera.getCameraInfo(i, cameraInfo);
 			switch (cameraInfo.facing) {
