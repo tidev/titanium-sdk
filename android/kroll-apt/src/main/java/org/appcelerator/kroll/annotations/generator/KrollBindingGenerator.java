@@ -459,19 +459,6 @@ public class KrollBindingGenerator
 					getterName = "get" + Character.toUpperCase(propertyName.charAt(0)) + propertyName.substring(1);
 				}
 
-				// Turns out implying @Kroll.method from @Kroll.getProperty/setProperty is a pain in the ass
-				// (as they have properties that can change their names!), so let's warn when they're not paired up.
-
-				// method has @Kroll.getProperty but no @Kroll.method. This is ok in some cases,
-				// but generally we want getter accessors until they get removed in SDK 10.
-				if (hasGetter && !methods.containsKey(getterName)) {
-					// There are rare cases where we don't want this, like Ti.Android.R (I assume we don't want Ti.Android#getR())
-					System.out.println(
-						"[WARN] Property has getter defined with @Kroll.getProperty on " + proxyClassName + "#"
-						+ getterName + "(), but has no @Kroll.method annotation. Consider adding one to expose the "
-						+ "getter accessor to JS.");
-				}
-
 				// there's no getProperty defined, but there's a method with the target name
 				if (!hasGetter && methods.containsKey(getterName)) {
 					System.err.println("There is no getter assigned to property " + propertyName
@@ -488,15 +475,6 @@ public class KrollBindingGenerator
 				if (setterName == null) {
 					hasSetter = false;
 					setterName = "set" + Character.toUpperCase(propertyName.charAt(0)) + propertyName.substring(1);
-				}
-
-				if (hasSetter && !methods.containsKey(setterName)) {
-					// method has @Kroll.setProperty but no @Kroll.method. This is ok in some cases,
-					// but generally we want setter accessors unitl they get removed in SDK 10.
-					System.out.println(
-						"[WARN] Property has setter defined with @Kroll.getProperty on " + proxyClassName + "#"
-						+ setterName + "(), but has no @Kroll.method annotation. Consider adding one to expose "
-						+ "the setter accessor to JS.");
 				}
 
 				// there's no setProperty defined, but there's a method with the target name
