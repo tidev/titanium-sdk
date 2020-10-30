@@ -545,6 +545,7 @@ properties:
         [durationavailable](Titanium.Media.VideoPlayer.durationavailable) event is
         fired when the duration is known.
     type: Number
+    default: 0
 
   - name: endPlaybackTime
     summary: The end time of movie playback, in milliseconds.
@@ -557,6 +558,7 @@ properties:
         On Android, this is always the same as [duration](Titanium.Media.VideoPlayer.duration)
         (the natural end time), and changing the value has no effect.
     type: Number
+    default: 0
 
   - name: fullscreen
     exclude-platforms: [macos]
@@ -639,6 +641,7 @@ properties:
     type: Number
     permission: read-only
     platforms: [iphone, ipad, macos]
+    constants: Titanium.Media.VIDEO_LOAD_STATE_*
 
   - name: naturalSize
     summary: Returns the natural size of the movie.
@@ -690,6 +693,7 @@ properties:
         On Android, this is always the same as [duration](Titanium.Media.VideoPlayer.duration).
     type: Number
     permission: read-only
+    default: 0
 
   - name: playbackState
     summary: Current playback state of the video player.
@@ -752,7 +756,7 @@ properties:
     summary: URL of the media to play.
     description: |
         URL identifying a local or remote video to play.
-    type: [String, Array<String>]
+    type: String
 
   - name: volume
     summary: |
@@ -810,7 +814,6 @@ name: MovieSize
 summary: Simple object used to describe the size of a movie.
 platforms: [iphone, ipad, macos]
 properties:
-
   - name: width
     summary: Width of the movie.
     type: Number
