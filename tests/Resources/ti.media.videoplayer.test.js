@@ -285,9 +285,9 @@ describe('Titanium.Media.VideoPlayer', () => {
 				}
 			});
 
-			it('defaults to Ti.Media.VIDEO_SCALING_RESIZE_ASPECT_FIT on Android, VIDEO_SCALING_RESIZE on iOS', () => {
+			it('defaults to Ti.Media.VIDEO_SCALING_RESIZE_ASPECT on Android, Ti.Media.VIDEO_SCALING_RESIZE on iOS', () => {
 				if (OS_ANDROID) {
-					should(player.scalingMode).eql(Ti.Media.VIDEO_SCALING_RESIZE_ASPECT_FIT);
+					should(player.scalingMode).eql(Ti.Media.VIDEO_SCALING_RESIZE_ASPECT);
 				} else {
 					should(player.scalingMode).eql(Ti.Media.VIDEO_SCALING_RESIZE);
 				}
