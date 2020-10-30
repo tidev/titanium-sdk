@@ -1501,21 +1501,24 @@ properties:
 
   - name: VIDEO_SCALING_RESIZE
     summary: Specifies that the video should be stretched to fill the bounds of layer.
-    type: String
+    description: This is a `String` on iOS, a `Number` on Android.
+    type: [String, Number]
     permission: read-only
     platforms: [iphone, ipad, android, macos]
     since: {iphone: "7.0.0", ipad: "7.0.0", android: "8.3.0"}
 
   - name: VIDEO_SCALING_RESIZE_ASPECT
     summary: Specifies that the player should preserve the aspect ratio of video and fit the video within the bounds of layer.
-    type: String
+    description: This is a `String` on iOS, a `Number` on Android.
+    type: [String, Number]
     permission: read-only
     platforms: [iphone, ipad, android, macos]
     since: {iphone: "7.0.0", ipad: "7.0.0", android: "8.3.0"}
 
   - name: VIDEO_SCALING_RESIZE_ASPECT_FILL
     summary: Specifies that the player should preserve the aspect ratio of video and fill the bounds of layer.
-    type: String
+    description: This is a `String` on iOS, a `Number` on Android.
+    type: [String, Number]
     permission: read-only
     platforms: [iphone, ipad, android, macos]
     since: {iphone: "7.0.0", ipad: "7.0.0", android: "8.3.0"}
