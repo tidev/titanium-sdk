@@ -10,6 +10,9 @@
 #import <TitaniumKit/TiUtils.h>
 #import <TitaniumKit/TiViewProxy.h>
 #import <TitaniumKit/Webcolor.h>
+#import <TitaniumKit/TiWindowProxy.h>
+#import <TitaniumKit/TiViewProxy.h>
+#import <TitaniumKit/TiApp.h>
 
 @implementation TiMediaVideoPlayer
 
@@ -61,7 +64,9 @@
     // don't add the movie more than once if the same
     return;
   }
+  [controller willMoveToParentViewController:nil];
   [[controller view] removeFromSuperview];
+  [controller didMoveToParentViewController:nil];
   [spinner removeFromSuperview];
   RELEASE_TO_NIL(spinner);
   RELEASE_TO_NIL(controller);
@@ -71,9 +76,24 @@
   }
   controller = [controller_ retain];
 
+  // Set parent for AVPlayerViewController controller
+  if (!parentController) {
+    id proxy = [(TiViewProxy *)self.proxy parent];
+    while ([proxy isKindOfClass:[TiViewProxy class]] && ![proxy isKindOfClass:[TiWindowProxy class]]) {
+      proxy = [proxy parent];
+    }
+    if ([proxy isKindOfClass:[TiWindowProxy class]]) {
+      parentController = [[proxy windowHoldingController] retain];
+    } else {
+      parentController = [[[TiApp app] controller] retain];
+    }
+  }
+  
+  [parentController addChildViewController:controller];
   [TiUtils setView:[controller view] positionRect:self.bounds];
   [self addSubview:[controller view]];
   [self sendSubviewToBack:[controller view]];
+  [controller didMoveToParentViewController:parentController];
 
   TiColor *bgcolor = [TiUtils colorValue:[self.proxy valueForKey:@"backgroundColor"]];
   UIActivityIndicatorViewStyle style = UIActivityIndicatorViewStyleGray;
