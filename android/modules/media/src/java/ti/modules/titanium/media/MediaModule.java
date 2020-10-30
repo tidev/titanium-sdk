@@ -169,7 +169,7 @@ public class MediaModule extends KrollModule implements Handler.Callback
 	@Kroll.constant
 	public static final String MEDIA_TYPE_PHOTO = "public.image";
 	@Kroll.constant
-	public static final String MEDIA_TYPE_VIDEO = "public.video";
+	public static final String MEDIA_TYPE_VIDEO = "public.movie";
 
 	@Kroll.constant
 	public static final int CAMERA_FRONT = 0;
