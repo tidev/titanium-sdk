@@ -80,6 +80,8 @@ public class VideoPlayerProxy extends TiViewProxy implements TiLifecycle.OnLifec
 	private int playbackState = MediaModule.VIDEO_PLAYBACK_STATE_STOPPED;
 	private int repeatMode = MediaModule.VIDEO_REPEAT_MODE_NONE;
 
+	private boolean fullscreen = false;
+
 	// Used only if TiVideoActivity is used (fullscreen == true)
 	private Handler videoActivityHandler;
 	private WeakReference<Activity> activityListeningTo = null;
@@ -95,6 +97,7 @@ public class VideoPlayerProxy extends TiViewProxy implements TiLifecycle.OnLifec
 		defaultValues.put(TiC.PROPERTY_DURATION, 0);
 		defaultValues.put(TiC.PROPERTY_END_PLAYBACK_TIME, 0); // match duration
 		defaultValues.put(TiC.PROPERTY_PLAYABLE_DURATION, 0); // match duration
+		defaultValues.put(TiC.PROPERTY_INITIAL_PLAYBACK_TIME, 0);
 	}
 
 	@Override
@@ -163,7 +166,6 @@ public class VideoPlayerProxy extends TiViewProxy implements TiLifecycle.OnLifec
 		// whether we use a TiVideoActivity versus a standard
 		// embedded view.  Setting "fullscreen" after this currently
 		// has no effect.
-		boolean fullscreen = false;
 		Object fullscreenObj = options.get(TiC.PROPERTY_FULLSCREEN);
 		if (fullscreenObj != null) {
 			fullscreen = TiConvert.toBoolean(fullscreenObj);
@@ -279,6 +281,12 @@ public class VideoPlayerProxy extends TiViewProxy implements TiLifecycle.OnLifec
 	public void start()
 	{
 		play();
+	}
+
+	@Kroll.getProperty
+	public boolean getFullscreen()
+	{
+		return fullscreen;
 	}
 
 	@Kroll.method
