@@ -6,7 +6,7 @@ description: |
     support streaming, use the [AudioPlayer](Titanium.Media.AudioPlayer) API.
 
     You can control how the sound interacts with other system sounds
-    by setting <Titanium.Media.audioSessionMode>.
+    by setting <Titanium.Media.audioSessionCategory>.
 
     Use the <Titanium.Media.createSound> method to create a `Sound` object. You can play audio 
     in any format supported by the target platform(s), as described in the following documents:
@@ -334,10 +334,10 @@ properties:
         volume setting for the device.
 
         On iOS, to adjust the volume of the device, set the `volume` property of
-        <Titanium.Media.appMusicPlayer> and set the <Titanium.Media.audioSessionMode> property
+        <Titanium.Media.appMusicPlayer> and set the <Titanium.Media.audioSessionCategory> property
         to either <Titanium.Media.AUDIO_SESSION_CATEGORY_SOLO_AMBIENT>,
         <Titanium.Media.AUDIO_SESSION_CATEGORY_PLAYBACK>,
-        or <Titanium.Media.AUDIO_SESSION_CATEGORY_PLAYBACK>.
+        or <Titanium.Media.AUDIO_SESSION_CATEGORY_PLAY_AND_RECORD>.
     type: Number
 
 examples:
