@@ -1626,7 +1626,7 @@ properties:
     constants: Titanium.Media.CAMERA_FLASH_*
     platforms: [android, iphone, ipad, macos]
     since: {android: "3.3.0", iphone: "1.4.0", ipad: "1.4.0"}
-    default: Titanium.Media.CAMERA_FLASH_AUTO
+    default: <Titanium.Media.CAMERA_FLASH_AUTO> on iOS, <Titanium.Media.CAMERA_FLASH_OFF> on Android
 
   - name: canRecord
     summary: |
