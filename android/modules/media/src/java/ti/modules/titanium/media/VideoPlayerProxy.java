@@ -75,7 +75,7 @@ public class VideoPlayerProxy extends TiViewProxy implements TiLifecycle.OnLifec
 	public static final String PROPERTY_SEEK_TO_ON_RESUME = "__seek_to_on_resume__";
 
 	protected int mediaControlStyle = MediaModule.VIDEO_CONTROL_DEFAULT;
-	protected int scalingMode = MediaModule.VIDEO_SCALING_ASPECT_FIT;
+	protected int scalingMode = MediaModule.VIDEO_SCALING_RESIZE_ASPECT;
 	private int loadState = MediaModule.VIDEO_LOAD_STATE_UNKNOWN;
 	private int playbackState = MediaModule.VIDEO_PLAYBACK_STATE_STOPPED;
 	private int repeatMode = MediaModule.VIDEO_REPEAT_MODE_NONE;
