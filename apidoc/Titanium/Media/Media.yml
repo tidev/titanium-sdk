@@ -958,7 +958,7 @@ properties:
     summary: Music library media containing music content.
     type: Number
     permission: read-only
-   exclude-platforms: [android]
+    exclude-platforms: [android]
 
   - name: MUSIC_MEDIA_TYPE_PODCAST
     summary: Music library media containing podcast content.
