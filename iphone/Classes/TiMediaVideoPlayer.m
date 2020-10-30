@@ -65,7 +65,7 @@
   }
   [controller willMoveToParentViewController:nil];
   [[controller view] removeFromSuperview];
-  [controller didMoveToParentViewController:nil];
+  [controller removeFromParentViewController];
   [spinner removeFromSuperview];
   RELEASE_TO_NIL(spinner);
   RELEASE_TO_NIL(controller);
@@ -137,7 +137,11 @@
 
 - (void)dealloc
 {
+  [controller willMoveToParentViewController:nil];
   [[controller view] removeFromSuperview];
+  [controller removeFromParentViewController];
+
+  RELEASE_TO_NIL(parentController);
   RELEASE_TO_NIL(controller);
   RELEASE_TO_NIL(spinner);
   [super dealloc];

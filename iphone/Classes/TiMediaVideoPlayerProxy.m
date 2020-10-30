@@ -181,7 +181,9 @@ NSArray *moviePlayerKeys = nil;
 {
   [super windowWillClose];
   [[movie player] pause];
-  [(TiMediaVideoPlayer *)self.view setMovie:nil];
+  if ([self viewAttached]) {
+    [(TiMediaVideoPlayer *)self.view setMovie:nil];
+  }
 }
 
 #pragma mark Public APIs
