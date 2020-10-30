@@ -542,7 +542,7 @@ properties:
 
         This property was removed on iOS in SDK 7.0.0
     type: Boolean
-    permission: creation-only
+    availability: creation
     default: false
 
   - name: initialPlaybackTime
