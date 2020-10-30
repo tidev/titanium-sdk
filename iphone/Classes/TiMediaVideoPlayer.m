@@ -7,12 +7,11 @@
 #ifdef USE_TI_MEDIAVIDEOPLAYER
 
 #import "TiMediaVideoPlayer.h"
+#import <TitaniumKit/TiApp.h>
 #import <TitaniumKit/TiUtils.h>
 #import <TitaniumKit/TiViewProxy.h>
-#import <TitaniumKit/Webcolor.h>
 #import <TitaniumKit/TiWindowProxy.h>
-#import <TitaniumKit/TiViewProxy.h>
-#import <TitaniumKit/TiApp.h>
+#import <TitaniumKit/Webcolor.h>
 
 @implementation TiMediaVideoPlayer
 
@@ -88,7 +87,7 @@
       parentController = [[[TiApp app] controller] retain];
     }
   }
-  
+
   [parentController addChildViewController:controller];
   [TiUtils setView:[controller view] positionRect:self.bounds];
   [self addSubview:[controller view]];
