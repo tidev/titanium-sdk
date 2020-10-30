@@ -509,15 +509,6 @@ properties:
     platforms: [iphone, ipad, macos]
     type: Titanium.UI.View
 
-  - name: contentURL
-    summary: URL of the media to play.
-    exclude-platforms: [macos]
-    deprecated:
-        since: "1.4.0"
-        removed: "3.0.0"
-        notes: Use [Titanium.Media.VideoPlayer.url](Titanium.Media.VideoPlayer.url) instead.
-    type: String
-
   - name: currentPlaybackTime
     summary: Current playback time of the current movie in milliseconds.
     type: Number
@@ -545,18 +536,14 @@ properties:
     default: 0
 
   - name: fullscreen
-    exclude-platforms: [macos]
+    platforms: [android]
     deprecated:
         since: "7.0.0"
-        notes: This method has been removed for iOS in Titanium SDK 7.0.0 as of the official deprecation by Apple.
-        removed: "7.0.0"
+        notes: This property has been removed for iOS in Titanium SDK 7.0.0 as of the official deprecation by Apple.
     summary: |
         Determines if the movie is presented in the entire screen (obscuring all other application content).
     description: |
         Note that this must be set at different times on different platforms:
-
-        On iOS, setting this property to `true` before the movie player's view is visible
-        has no effect.
 
         On Android, this property must be set at creation time. For example:
 
@@ -566,7 +553,10 @@ properties:
 
         On Android, setting this value to `true` means that the video will have its own Android Activity
         rather than being embedded as a view.
+
+        This property was removed on iOS in SDK 7.0.0
     type: Boolean
+    permission: creation-only
     default: false
 
   - name: initialPlaybackTime
@@ -584,7 +574,7 @@ properties:
     permission: read-only
 
   - name: media
-    summary: Media object to play, as either a `File`,  a `Blob`, or a URL.
+    summary: Media object to play, as either a `Ti.Filesystem.File`, a `Ti.Blob`, or an URL `String`.
     platforms: [iphone, ipad, macos]
     type: [Titanium.Blob, Titanium.Filesystem.File, String]
     permission: write-only
@@ -663,7 +653,7 @@ properties:
     summary: Whether or not the receiver allows Picture in Picture playback.
     platforms: [iphone, ipad, macos]
     type: Boolean
-    default: true
+    default: false
     osver: {ios: {min: "9.0"}}
 
   - name: playableDuration
