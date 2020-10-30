@@ -1137,6 +1137,66 @@ describe('Titanium.Media', () => {
 			});
 		});
 
+		describe.ios('.VIDEO_MEDIA_TYPE_AUDIO', () => {
+			it('is a String', () => {
+				should(Ti.Media).have.a.constant('VIDEO_MEDIA_TYPE_AUDIO').which.is.a.String();
+			});
+		});
+
+		describe.ios('.VIDEO_MEDIA_TYPE_CLOSED_CAPTION', () => {
+			it('is a String', () => {
+				should(Ti.Media).have.a.constant('VIDEO_MEDIA_TYPE_CLOSED_CAPTION').which.is.a.String();
+			});
+		});
+
+		describe.ios('.VIDEO_MEDIA_TYPE_DEPTH_DATA', () => {
+			it('is a String', () => {
+				should(Ti.Media).have.a.constant('VIDEO_MEDIA_TYPE_DEPTH_DATA').which.is.a.String();
+			});
+		});
+
+		describe.ios('.VIDEO_MEDIA_TYPE_METADATA', () => {
+			it('is a String', () => {
+				should(Ti.Media).have.a.constant('VIDEO_MEDIA_TYPE_METADATA').which.is.a.String();
+			});
+		});
+
+		describe.ios('.VIDEO_MEDIA_TYPE_METADATA_OBJECT', () => {
+			it('is a String', () => {
+				should(Ti.Media).have.a.constant('VIDEO_MEDIA_TYPE_METADATA_OBJECT').which.is.a.String();
+			});
+		});
+
+		describe.ios('.VIDEO_MEDIA_TYPE_MUXED', () => {
+			it('is a String', () => {
+				should(Ti.Media).have.a.constant('VIDEO_MEDIA_TYPE_MUXED').which.is.a.String();
+			});
+		});
+
+		describe.ios('.VIDEO_MEDIA_TYPE_SUBTITLE', () => {
+			it('is a String', () => {
+				should(Ti.Media).have.a.constant('VIDEO_MEDIA_TYPE_SUBTITLE').which.is.a.String();
+			});
+		});
+
+		describe.ios('.VIDEO_MEDIA_TYPE_TEXT', () => {
+			it('is a String', () => {
+				should(Ti.Media).have.a.constant('VIDEO_MEDIA_TYPE_TEXT').which.is.a.String();
+			});
+		});
+
+		describe.ios('.VIDEO_MEDIA_TYPE_TIMECODE', () => {
+			it('is a String', () => {
+				should(Ti.Media).have.a.constant('VIDEO_MEDIA_TYPE_TIMECODE').which.is.a.String();
+			});
+		});
+
+		describe.ios('.VIDEO_MEDIA_TYPE_VIDEO', () => {
+			it('is a String', () => {
+				should(Ti.Media).have.a.constant('VIDEO_MEDIA_TYPE_VIDEO').which.is.a.String();
+			});
+		});
+
 		describe('.VIDEO_PLAYBACK_STATE_INTERRUPTED', () => {
 			it('is a Number', () => {
 				should(Ti.Media).have.a.constant('VIDEO_PLAYBACK_STATE_INTERRUPTED').which.is.a.Number();
