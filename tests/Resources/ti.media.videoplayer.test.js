@@ -4,7 +4,7 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-/* global OS_IOS */
+/* global OS_ANDROID, OS_IOS */
 /* eslint-env mocha */
 /* eslint no-unused-expressions: "off" */
 'use strict';
@@ -231,14 +231,17 @@ describe('Titanium.Media.VideoPlayer', () => {
 			});
 
 			it('is one of Ti.Media.VIDEO_PLAYBACK_STATE_*', () => {
-				should([
+				const values = [
 					Ti.Media.VIDEO_PLAYBACK_STATE_INTERRUPTED,
 					Ti.Media.VIDEO_PLAYBACK_STATE_PAUSED,
 					Ti.Media.VIDEO_PLAYBACK_STATE_PLAYING,
-					Ti.Media.VIDEO_PLAYBACK_STATE_SEEKING_BACKWARD,
-					Ti.Media.VIDEO_PLAYBACK_STATE_SEEKING_FORWARD,
 					Ti.Media.VIDEO_PLAYBACK_STATE_STOPPED,
-				]).containEql(player.playbackState);
+				];
+				if (OS_ANDROID) {
+					values.push(Ti.Media.VIDEO_PLAYBACK_STATE_SEEKING_BACKWARD);
+					values.push(Ti.Media.VIDEO_PLAYBACK_STATE_SEEKING_FORWARD);
+				}
+				should(values).containEql(player.playbackState);
 			});
 		});
 
@@ -274,20 +277,27 @@ describe('Titanium.Media.VideoPlayer', () => {
 				}
 			});
 
-			it('defaults to Titanium.Media.VIDEO_SCALING_ASPECT_FIT', () => {
-				should(player.scalingMode).eql(Titanium.Media.VIDEO_SCALING_ASPECT_FIT);
+			it('defaults to Ti.Media.VIDEO_SCALING_ASPECT_FIT on Android, VIDEO_SCALING_RESIZE on iOS', () => {
+				if (OS_ANDROID) {
+					should(player.scalingMode).eql(Ti.Media.VIDEO_SCALING_ASPECT_FIT);
+				} else {
+					should(player.scalingMode).eql(Ti.Media.VIDEO_SCALING_RESIZE);
+				}
 			});
 
-			it('is one of Ti.Media.VIDEO_SCALING_ASPECT_*', () => {
-				should([
-					Ti.Media.VIDEO_SCALING_ASPECT_FILL,
-					Ti.Media.VIDEO_SCALING_ASPECT_FIT,
-					Ti.Media.VIDEO_SCALING_MODE_FILL,
-					Ti.Media.VIDEO_SCALING_NONE,
+			it('is one of Ti.Media.VIDEO_SCALING_*', () => {
+				const values = [
 					Ti.Media.VIDEO_SCALING_RESIZE,
 					Ti.Media.VIDEO_SCALING_RESIZE_ASPECT,
 					Ti.Media.VIDEO_SCALING_RESIZE_ASPECT_FILL,
-				]).containEql(player.scalingMode);
+				];
+				if (OS_ANDROID) {
+					values.push(Ti.Media.VIDEO_SCALING_NONE);
+					values.push(Ti.Media.VIDEO_SCALING_ASPECT_FILL);
+					values.push(Ti.Media.VIDEO_SCALING_ASPECT_FIT);
+					values.push(Ti.Media.VIDEO_SCALING_MODE_FILL);
+				}
+				should(values).containEql(player.scalingMode);
 			});
 		});
 
@@ -298,24 +308,6 @@ describe('Titanium.Media.VideoPlayer', () => {
 
 			it('defaults to true', () => {
 				should(player.showsControls).be.true();
-			});
-		});
-
-		describe.ios('.sourceType', () => {
-			it('is a Number', () => { // eslint-disable-line mocha/no-identical-title
-				should(player).have.a.property('sourceType').which.is.a.Number();
-			});
-
-			it('defaults to Titanium.Media.VIDEO_SOURCE_TYPE_UNKNOWN', () => {
-				should(player.sourceType).eql(Titanium.Media.VIDEO_SOURCE_TYPE_UNKNOWN);
-			});
-
-			it('is one of Ti.Media.VIDEO_SOURCE_TYPE_*', () => {
-				should([
-					Ti.Media.VIDEO_SOURCE_TYPE_FILE,
-					Ti.Media.VIDEO_SOURCE_TYPE_STREAMING,
-					Ti.Media.VIDEO_SOURCE_TYPE_UNKNOWN,
-				]).containEql(player.sourceType);
 			});
 		});
 
@@ -408,7 +400,7 @@ describe('Titanium.Media.VideoPlayer', () => {
 				height: 300,
 				width: 300,
 				mediaControlStyle: Ti.Media.VIDEO_CONTROL_NONE,
-				scalingMode: Ti.Media.VIDEO_SCALING_ASPECT_FILL,
+				scalingMode: Ti.Media.VIDEO_SCALING_ASPECT_FILL, // Android-only
 				repeatMode: Ti.Media.VIDEO_REPEAT_MODE_ONE,
 				showsControls: false
 			});
@@ -439,8 +431,8 @@ describe('Titanium.Media.VideoPlayer', () => {
 			backgroundColor: 'blue',
 			height: 300,
 			width: 300,
-			mediaControlStyle: Ti.Media.VIDEO_CONTROL_DEFAULT,
-			scalingMode: Ti.Media.VIDEO_SCALING_ASPECT_FIT
+			mediaControlStyle: Ti.Media.VIDEO_CONTROL_DEFAULT, // Android-only!
+			scalingMode: Ti.Media.VIDEO_SCALING_ASPECT_FIT // Android-only!
 		});
 
 		win = Ti.UI.createWindow();
