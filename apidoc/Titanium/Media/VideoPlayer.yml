@@ -330,20 +330,6 @@ events:
         summary: Current value of the [loadState](Titanium.Media.VideoPlayer.loadState) property.
         type: Number
 
-  - name: mediatypesavailable
-    deprecated:
-        since: "7.0.0"
-        notes: This event has been removed in Titanium SDK 7.0.0 as of the official deprecation by Apple.
-        removed: "7.0.0"
-    summary: Fired when the media types in the current movie are determined.
-    platforms: [iphone, ipad]
-    properties:
-      - name: mediaTypes
-        summary: Current value of the [mediaTypes](Titanium.Media.VideoPlayer.mediaTypes) property.
-        type: Number
-        constants: Titanium.Media.VIDEO_MEDIA_TYPE_*
-    since: '3.0.0'
-
   - name: naturalsizeavailable
     summary: Fired when the natural size of the current movie is determined.
     platforms: [iphone, ipad, macos]
@@ -591,20 +577,10 @@ properties:
     default: System default video controls (<Titanium.Media.VIDEO_CONTROL_DEFAULT>).
 
   - name: mediaTypes
-    summary: The types of media in the movie, or <Titanium.Media.VIDEO_MEDIA_TYPE_NONE> if not known.
-    description: |
-        A movie can contain video
-        ([VIDEO_MEDIA_TYPE_VIDEO](Titanium.Media.VIDEO_MEDIA_TYPE_VIDEO)),
-        audio, ([VIDEO_MEDIA_TYPE_AUDIO](Titanium.Media.VIDEO_MEDIA_TYPE_AUDIO)), or both.
-
-        A movie with both audio and video media is represented by a bitwise OR of the two
-        constants:
-
-        ``` js
-        Titanium.Media.VIDEO_MEDIA_TYPE_VIDEO|Titanium.Media.VIDEO_MEDIA_TYPE_AUDIO
-        ```
-    platforms: [iphone, ipad, macos]
+    summary: The type of media in the player's current item first track.
+    exclude-platforms: [android]
     type: String
+    default: <Titanium.Media.VIDEO_MEDIA_TYPE_VIDEO>
     constants: Titanium.Media.VIDEO_MEDIA_TYPE_*
 
   - name: moviePlayerStatus
