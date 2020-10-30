@@ -505,11 +505,12 @@
 - (void)windowDidOpen
 {
   // Set parent for navigation controller
-  UINavigationController *navControlleer = [self controller];
+  if (navController) {
+    UIViewController *parentController = [self windowHoldingController];
+    [parentController addChildViewController:navController];
+    [navController didMoveToParentViewController:parentController];
+  }
 
-  UIViewController *parentController = [self windowHoldingController];
-  [parentController addChildViewController:navControlleer];
-  [navControlleer didMoveToParentViewController:parentController];
   [super windowDidOpen];
 }
 

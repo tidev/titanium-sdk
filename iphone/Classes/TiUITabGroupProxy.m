@@ -153,11 +153,13 @@ static NSArray *tabGroupKeySequence;
 - (void)windowDidOpen
 {
   // Set parent view controller for UITabBarController
-  UITabBarController *tabController = [(TiUITabGroup *)[self view] tabController];
-
-  UIViewController *parentController = [self windowHoldingController];
-  [parentController addChildViewController:tabController];
-  [tabController didMoveToParentViewController:parentController];
+  TiUITabGroup *tabGroup = (TiUITabGroup *)self.view;
+  if (tabGroup) {
+    UITabBarController *tabController = [tabGroup tabController];
+    UIViewController *parentController = [self windowHoldingController];
+    [parentController addChildViewController:tabController];
+    [tabController didMoveToParentViewController:parentController];
+  }
   [super windowDidOpen];
 }
 
