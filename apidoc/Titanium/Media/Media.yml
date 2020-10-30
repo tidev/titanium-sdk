@@ -1795,19 +1795,19 @@ properties:
 
   - name: availableCameraMediaTypes
     summary: Array of media type constants supported for the camera.
-    type: Array<Object>
+    type: Array<String>
     constants: Titanium.Media.MEDIA_TYPE_*
     platforms: [iphone, ipad, macos]
 
   - name: availablePhotoGalleryMediaTypes
     summary: Array of media type constants supported for saving to the device's camera roll or saved images album.
-    type: Array<Object>
+    type: Array<String>
     constants: Titanium.Media.MEDIA_TYPE_*
     platforms: [iphone, ipad, macos]
 
   - name: availablePhotoMediaTypes
     summary: Array of media type constants supported for the photo library.
-    type: Array<Object>
+    type: Array<String>
     constants: Titanium.Media.MEDIA_TYPE_*
     platforms: [iphone, ipad, macos]
 
