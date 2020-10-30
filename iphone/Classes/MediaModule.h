@@ -183,7 +183,7 @@
 @property (nonatomic, readonly) NSNumber *MUSIC_PLAYER_STATE_PLAYING;
 @property (nonatomic, readonly) NSNumber *MUSIC_PLAYER_STATE_PAUSED;
 @property (nonatomic, readonly) NSNumber *MUSIC_PLAYER_STATE_INTERRUPTED;
-@property (nonatomic, readonly) NSNumber *MUSIC_PLAYER_STATE_SKEEK_FORWARD;
+@property (nonatomic, readonly) NSNumber *MUSIC_PLAYER_STATE_SEEK_FORWARD;
 @property (nonatomic, readonly) NSNumber *MUSIC_PLAYER_STATE_SEEK_BACKWARD;
 
 @property (nonatomic, readonly) NSNumber *MUSIC_PLAYER_REPEAT_DEFAULT;
