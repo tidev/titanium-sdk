@@ -402,46 +402,6 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
 }
 #endif
 
-- (void)setDefaultAudioSessionMode:(NSNumber *)mode
-{
-  DEPRECATED_REPLACED(@"Media.defaultAudioSessionMode", @"7.0.0", @"Media.audioSessionCategory");
-  [self setAudioSessionMode:mode];
-}
-
-- (NSNumber *)defaultAudioSessionMode
-{
-  DEPRECATED_REPLACED(@"Media.defaultAudioSessionMode", @"7.0.0", @"Media.audioSessionCategory");
-  return [self audioSessionMode];
-}
-
-- (void)setAudioSessionMode:(NSNumber *)mode
-{
-  DEPRECATED_REPLACED(@"Media.audioSessionMode", @"7.0.0", @"Media.audioSessionCategory");
-
-#if !TARGET_OS_MACCATALYST
-  switch ([mode unsignedIntegerValue]) {
-  case kAudioSessionCategory_AmbientSound:
-    [self setAudioSessionCategory:[self AUDIO_SESSION_CATEGORY_AMBIENT]];
-    break;
-  case kAudioSessionCategory_SoloAmbientSound:
-    [self setAudioSessionCategory:[self AUDIO_SESSION_CATEGORY_SOLO_AMBIENT]];
-    break;
-  case kAudioSessionCategory_PlayAndRecord:
-    [self setAudioSessionCategory:[self AUDIO_SESSION_CATEGORY_PLAY_AND_RECORD]];
-    break;
-  case kAudioSessionCategory_RecordAudio:
-    [self setAudioSessionCategory:[self AUDIO_SESSION_CATEGORY_RECORD]];
-    break;
-  case kAudioSessionCategory_MediaPlayback:
-    [self setAudioSessionCategory:[self AUDIO_SESSION_CATEGORY_PLAYBACK]];
-    break;
-  default:
-    DebugLog(@"Unsupported audioSessionMode specified");
-    break;
-  }
-#endif
-}
-
 - (void)setAudioSessionCategory:(NSString *)mode
 {
   [[TiMediaAudioSession sharedSession] setSessionMode:mode];
