@@ -67,12 +67,12 @@ describe('Titanium.Media.VideoPlayer', () => {
 			});
 		});
 
-		describe.ios('.backgroundView', () => {
-			it('is an Object', () => {
-				// TODO: test instance of Titanium.UI.View
-				should(player).have.a.property('backgroundView').which.is.an.Object();
-			});
-		});
+		// describe.ios('.backgroundView', () => {
+		// 	it('is an Object', () => {
+		// 		// TODO: test instance of Titanium.UI.View
+		// 		should(player).have.a.property('backgroundView').which.is.an.Object();
+		// 	});
+		// });
 
 		describe('.currentPlaybackTime', () => {
 			it('is a Number', () => {
@@ -139,9 +139,16 @@ describe('Titanium.Media.VideoPlayer', () => {
 			it('is one of Ti.Media.VIDEO_MEDIA_TYPE_*', () => {
 				should([
 					Ti.Media.VIDEO_MEDIA_TYPE_AUDIO,
-					Ti.Media.VIDEO_MEDIA_TYPE_NONE,
+					Ti.Media.VIDEO_MEDIA_TYPE_CLOSED_CAPTION,
+					Ti.Media.VIDEO_MEDIA_TYPE_DEPTH_DATA,
+					Ti.Media.VIDEO_MEDIA_TYPE_METADATA,
+					Ti.Media.VIDEO_MEDIA_TYPE_METADATA_OBJECT,
+					Ti.Media.VIDEO_MEDIA_TYPE_MUXED,
+					Ti.Media.VIDEO_MEDIA_TYPE_SUBTITLE,
+					Ti.Media.VIDEO_MEDIA_TYPE_TEXT,
+					Ti.Media.VIDEO_MEDIA_TYPE_TIMECODE,
 					Ti.Media.VIDEO_MEDIA_TYPE_VIDEO,
-				]).containEql(player.mediaTypes); // FIXME: These constants no longer exist. The property name is misleading and should not be plural. We need to define the set of constant values it could return!
+				]).containEql(player.mediaTypes);
 			});
 		});
 
@@ -168,20 +175,21 @@ describe('Titanium.Media.VideoPlayer', () => {
 			});
 		});
 
-		describe.ios('.overlayView', () => {
-			it('is an Object', () => { // eslint-disable-line mocha/no-identical-title
-				// TODO: Test for Ti.UI.View instance!
-				should(player).have.a.property('overlayView').which.is.an.Object();
-			});
-		});
+		// FIXME: I don't think we can get the value of overlayView property!
+		// describe.ios('.overlayView', () => {
+		// 	it('is an Object', () => { // eslint-disable-line mocha/no-identical-title
+		// 		// TODO: Test for Ti.UI.View instance!
+		// 		should(player).have.a.property('overlayView').which.is.an.Object();
+		// 	});
+		// });
 
 		describe.ios('.pictureInPictureEnabled', () => {
 			it('is a Boolean', () => { // eslint-disable-line mocha/no-identical-title
 				should(player).have.a.property('pictureInPictureEnabled').which.is.a.Boolean();
 			});
 
-			it('defaults to true', () => {
-				should(player.pictureInPictureEnabled).be.true();
+			it('defaults to false', () => { // eslint-disable-line mocha/no-identical-title
+				should(player.pictureInPictureEnabled).be.false();
 			});
 		});
 
