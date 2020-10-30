@@ -339,14 +339,26 @@ MAKE_SYSTEM_PROP(QUALITY_IFRAME_1280x720, UIImagePickerControllerQualityTypeIFra
 MAKE_SYSTEM_PROP(QUALITY_IFRAME_960x540, UIImagePickerControllerQualityTypeIFrame960x540);
 #endif
 
-//Constants for MediaTypes in VideoPlayer
+// Constants for MediaTypes in VideoPlayer
 #ifdef USE_TI_MEDIAVIDEOPLAYER
-//Constants for VideoPlayer scalingMode
+// Constants for VideoPlayer scalingMode
 MAKE_SYSTEM_STR(VIDEO_SCALING_RESIZE, AVLayerVideoGravityResize);
 MAKE_SYSTEM_STR(VIDEO_SCALING_RESIZE_ASPECT, AVLayerVideoGravityResizeAspect);
 MAKE_SYSTEM_STR(VIDEO_SCALING_RESIZE_ASPECT_FILL, AVLayerVideoGravityResizeAspectFill);
 
-//Constants for VideoPlayer loadState
+// Constants for VideoPlayer mediaTypes
+MAKE_SYSTEM_STR(VIDEO_MEDIA_TYPE_AUDIO, AVMediaTypeAudio);
+MAKE_SYSTEM_STR(VIDEO_MEDIA_TYPE_CLOSED_CAPTION, AVMediaTypeClosedCaption);
+MAKE_SYSTEM_STR(VIDEO_MEDIA_TYPE_DEPTH_DATA, AVMediaTypeDepthData);
+MAKE_SYSTEM_STR(VIDEO_MEDIA_TYPE_METADATA, AVMediaTypeMetadata);
+MAKE_SYSTEM_STR(VIDEO_MEDIA_TYPE_METADATA_OBJECT, AVMediaTypeMetadataObject);
+MAKE_SYSTEM_STR(VIDEO_MEDIA_TYPE_MUXED, AVMediaTypeMuxed);
+MAKE_SYSTEM_STR(VIDEO_MEDIA_TYPE_SUBTITLE, AVMediaTypeSubtitle);
+MAKE_SYSTEM_STR(VIDEO_MEDIA_TYPE_TEXT, AVMediaTypeText);
+MAKE_SYSTEM_STR(VIDEO_MEDIA_TYPE_TIMECODE, AVMediaTypeTimecode);
+MAKE_SYSTEM_STR(VIDEO_MEDIA_TYPE_VIDEO, AVMediaTypeVideo);
+
+// Constants for VideoPlayer loadState
 MAKE_SYSTEM_PROP(VIDEO_LOAD_STATE_UNKNOWN, AVPlayerStatusUnknown);
 MAKE_SYSTEM_PROP(VIDEO_LOAD_STATE_PLAYABLE, AVPlayerStatusReadyToPlay);
 MAKE_SYSTEM_PROP(VIDEO_LOAD_STATE_FAILED, AVPlayerStatusFailed);
