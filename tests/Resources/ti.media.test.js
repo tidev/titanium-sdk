@@ -143,8 +143,12 @@ describe('Titanium.Media', () => {
 				should(Ti.Media).have.a.property('cameraFlashMode').which.is.a.Number();
 			});
 
-			it('defaults to Titanium.Media.CAMERA_FLASH_AUTO', () => {
-				should(Ti.Media.cameraFlashMode).eql(Titanium.Media.CAMERA_FLASH_AUTO);
+			it('defaults to Ti.Media.CAMERA_FLASH_AUTO on iOS, Ti.Media.CAMERA_FLASH_OFF on Android', () => {
+				if (OS_ANDROID) {
+					should(Ti.Media.cameraFlashMode).eql(Titanium.Media.CAMERA_FLASH_OFF);
+				} else {
+					should(Ti.Media.cameraFlashMode).eql(Titanium.Media.CAMERA_FLASH_AUTO);
+				}
 			});
 
 			it('is one of Ti.Media.CAMERA_FLASH_*', () => {
@@ -1270,20 +1274,32 @@ describe('Titanium.Media', () => {
 		});
 
 		describe('.VIDEO_SCALING_RESIZE', () => {
-			it('is a String', () => {
-				should(Ti.Media).have.a.constant('VIDEO_SCALING_RESIZE').which.is.a.String();
+			it('is a String on iOS, Number on Android', () => {
+				if (OS_ANDROID) {
+					should(Ti.Media).have.a.constant('VIDEO_SCALING_RESIZE').which.is.a.Number();
+				} else {
+					should(Ti.Media).have.a.constant('VIDEO_SCALING_RESIZE').which.is.a.String();
+				}
 			});
 		});
 
 		describe('.VIDEO_SCALING_RESIZE_ASPECT', () => {
-			it('is a String', () => {
-				should(Ti.Media).have.a.constant('VIDEO_SCALING_RESIZE_ASPECT').which.is.a.String();
+			it('is a String on iOS, Number on Android', () => {
+				if (OS_ANDROID) {
+					should(Ti.Media).have.a.constant('VIDEO_SCALING_RESIZE_ASPECT').which.is.a.Number();
+				} else {
+					should(Ti.Media).have.a.constant('VIDEO_SCALING_RESIZE_ASPECT').which.is.a.String();
+				}
 			});
 		});
 
 		describe('.VIDEO_SCALING_RESIZE_ASPECT_FILL', () => {
-			it('is a String', () => {
-				should(Ti.Media).have.a.constant('VIDEO_SCALING_RESIZE_ASPECT_FILL').which.is.a.String();
+			it('is a String on iOS, Number on Android', () => {
+				if (OS_ANDROID) {
+					should(Ti.Media).have.a.constant('VIDEO_SCALING_RESIZE_ASPECT_FILL').which.is.a.Number();
+				} else {
+					should(Ti.Media).have.a.constant('VIDEO_SCALING_RESIZE_ASPECT_FILL').which.is.a.String();
+				}
 			});
 		});
 
