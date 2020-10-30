@@ -51,12 +51,9 @@ description: |
     to reveal the video.  Because the content of the SurfaceView does not reside in the application
     window, the video content cannot be transformed (moved, scaled or rotated) with the window.
     This makes it difficult for the content to render properly inside a ScrollView.
-
-
 extends: Titanium.UI.View
 excludes:
     events: ['focus', 'pinch', 'longclick', 'twofingertap']
-
 since: "0.9"
 examples:
   - title: Simple Video Player Example
@@ -65,18 +62,18 @@ examples:
 
         ``` js
         var vidWin = Titanium.UI.createWindow({
-            title : 'Video View Demo',
-            backgroundColor : '#fff'
+            title: 'Video View Demo',
+            backgroundColor: '#fff'
         });
 
         var videoPlayer = Titanium.Media.createVideoPlayer({
-            top : 2,
-            autoplay : true,
-            backgroundColor : 'blue',
-            height : 300,
-            width : 300,
-            mediaControlStyle : Titanium.Media.VIDEO_CONTROL_DEFAULT,
-            scalingMode : Titanium.Media.VIDEO_SCALING_ASPECT_FIT
+            top: 2,
+            autoplay: true,
+            backgroundColor: 'blue',
+            height: 300,
+            width: 300,
+            mediaControlStyle: Titanium.Media.VIDEO_CONTROL_DEFAULT,
+            scalingMode: Titanium.Media.VIDEO_SCALING_RESIZE_ASPECT
         });
 
         videoPlayer.url = 'movie.mp4';
@@ -98,38 +95,38 @@ examples:
         ``` js
         Titanium.UI.setBackgroundColor('#000');
         var win = Titanium.UI.createWindow({
-            title : 'Test',
-            backgroundColor : '#fff',
-            exitOnClose : true
+            title: 'Test',
+            backgroundColor: '#fff',
+            exitOnClose: true
         });
 
         // Change to a valid URL
         var contentURL = "http://www.example.com/stream.mp4";
 
         var openButton = Ti.UI.createButton({
-            title : "Start Video",
-            top : "0dp",
-            height : "40dp",
-            left : "10dp",
-            right : "10dp"
+            title: "Start Video",
+            top: "0dp",
+            height: "40dp",
+            left: "10dp",
+            right: "10dp"
         });
 
         openButton.addEventListener('click', function() {
             var activeMovie = Titanium.Media.createVideoPlayer({
-                url : contentURL,
-                backgroundColor : 'blue',
-                mediaControlStyle : Titanium.Media.VIDEO_CONTROL_DEFAULT,
-                scalingMode : Titanium.Media.VIDEO_SCALING_ASPECT_FILL,
-                fullscreen : true,
-                autoplay : true
+                url: contentURL,
+                backgroundColor: 'blue',
+                mediaControlStyle: Titanium.Media.VIDEO_CONTROL_DEFAULT,
+                scalingMode: Titanium.Media.VIDEO_SCALING_RESIZE_ASPECT_FILL,
+                fullscreen: true,
+                autoplay: true
             });
 
             var closeButton = Ti.UI.createButton({
-                title : "Exit Video",
-                top : "0dp",
-                height : "40dp",
-                left : "10dp",
-                right : "10dp"
+                title: "Exit Video",
+                top: "0dp",
+                height: "40dp",
+                left: "10dp",
+                right: "10dp"
             });
 
             closeButton.addEventListener('click', function() {
@@ -474,16 +471,16 @@ properties:
 
         ``` js
         var videoPlayer = Ti.Media.createVideoPlayer({
-            height : 300,
-            width : 300,
-            backgroundView : Ti.UI.createView({
+            height: 300,
+            width: 300,
+            backgroundView: Ti.UI.createView({
                 backgroundImage: 'videoPlayerBG.png
-                width : 300,
-                height : 300
+                width: 300,
+                height: 300
             }),
-            borderRadius : 20,
-            borderWidth : 2,
-            borderColor : 'blue',
+            borderRadius: 20,
+            borderWidth: 2,
+            borderColor: 'blue',
         });
         ```
 
@@ -667,7 +664,7 @@ properties:
     summary: Determines how the content scales to fit the view.
     type: Number
     constants: Titanium.Media.VIDEO_SCALING_*
-    default: <Titanium.Media.VIDEO_SCALING_RESIZE_ASPECT_FIT> on Android, <Titanium.Media.VIDEO_SCALING_RESIZE> on iOS
+    default: <Titanium.Media.VIDEO_SCALING_RESIZE_ASPECT> on Android, <Titanium.Media.VIDEO_SCALING_RESIZE> on iOS
 
   - name: showsControls
     summary: Whether or not the receiver shows playback controls. Default is true.
