@@ -502,8 +502,8 @@ properties:
         ```
 
         Note that if [scalingMode](Titanium.Media.VideoPlayer.scalingMode) is set to
-        [VIDEO_SCALING_MODE_FILL](Titanium.Media.VIDEO_SCALING_MODE_FILL) or
-        [VIDEO_SCALING_ASPECT_FILL](Titanium.Media.VIDEO_SCALING_ASPECT_FILL),
+        [VIDEO_SCALING_RESIZE](Titanium.Media.VIDEO_SCALING_RESIZE) or
+        [VIDEO_SCALING_RESIZE_ASPECT_FILL](Titanium.Media.VIDEO_SCALING_RESIZE_ASPECT_FILL),
         the playing video will fill the entire video player area, obscuring any background
         view.
     platforms: [iphone, ipad, macos]
@@ -691,7 +691,7 @@ properties:
     summary: Determines how the content scales to fit the view.
     type: Number
     constants: Titanium.Media.VIDEO_SCALING_*
-    default: <Titanium.Media.VIDEO_SCALING_ASPECT_FIT> on Android, <Titanium.Media.VIDEO_SCALING_RESIZE> on iOS
+    default: <Titanium.Media.VIDEO_SCALING_RESIZE_ASPECT_FIT> on Android, <Titanium.Media.VIDEO_SCALING_RESIZE> on iOS
 
   - name: showsControls
     summary: Whether or not the receiver shows playback controls. Default is true.
