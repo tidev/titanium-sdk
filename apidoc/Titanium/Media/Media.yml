@@ -882,7 +882,7 @@ properties:
     summary: Constant specifying that app is authorized to use camera. This is available on iOS7 and later.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, macos]
+    exclude-platforms: [android]
     since: "4.0.0"
     osver: {ios: {min: "7.0"}}
 
@@ -890,7 +890,7 @@ properties:
     summary: Constant specifying that app is denied usage of camera. This is available on iOS7 and later.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, macos]
+    exclude-platforms: [android]
     since: "4.0.0"
     osver: {ios: {min: "7.0"}}
 
@@ -898,7 +898,7 @@ properties:
     summary: Constant specifying that app is restricted from using camera. This is available on iOS7 and later.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, macos]
+    exclude-platforms: [android]
     since: "4.0.0"
     osver: {ios: {min: "7.0"}}
 
@@ -906,7 +906,7 @@ properties:
     summary: Constant specifying that app is not yet authorized to use camera. This is available on iOS7 and later.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, macos]
+    exclude-platforms: [android]
     since: "5.2.0"
     osver: {ios: {min: "7.0"}}
 
@@ -925,7 +925,7 @@ properties:
     type: String
     permission: read-only
     since: "5.2.0"
-    platforms: [iphone, ipad, macos]
+    exclude-platforms: [android]
     osver: {ios: {min: "9.1"}}
 
   - name: MEDIA_TYPE_VIDEO
@@ -937,171 +937,171 @@ properties:
     summary: Music library media containing any type of content.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, macos]
+    exclude-platforms: [android]
 
   - name: MUSIC_MEDIA_TYPE_ANY_AUDIO
     summary: Music library media containing any type of audio content.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, macos]
+    exclude-platforms: [android]
 
   - name: MUSIC_MEDIA_TYPE_AUDIOBOOK
     summary: Music library media containing audiobook content.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, macos]
+    exclude-platforms: [android]
 
   - name: MUSIC_MEDIA_TYPE_MUSIC
     summary: Music library media containing music content.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, macos]
+   exclude-platforms: [android]
 
   - name: MUSIC_MEDIA_TYPE_PODCAST
     summary: Music library media containing podcast content.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, macos]
+    exclude-platforms: [android]
 
   - name: MUSIC_MEDIA_GROUP_TITLE
     summary: Constant for grouping query results by title.
     value: 0
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, macos]
+    exclude-platforms: [android]
 
   - name: MUSIC_MEDIA_GROUP_ALBUM
     summary: Constant for grouping query results by album.
     value: 1
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, macos]
+    exclude-platforms: [android]
 
   - name: MUSIC_MEDIA_GROUP_ARTIST
     summary: Constant for grouping query results by artist.
     value: 2
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, macos]
+    exclude-platforms: [android]
 
   - name: MUSIC_MEDIA_GROUP_ALBUM_ARTIST
     summary: Constant for grouping query results by album and artist.
     value: 3
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, macos]
+    exclude-platforms: [android]
 
   - name: MUSIC_MEDIA_GROUP_COMPOSER
     summary: Constant for grouping query results by composer.
     value: 4
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, macos]
+    exclude-platforms: [android]
 
   - name: MUSIC_MEDIA_GROUP_GENRE
     summary: Constant for grouping query results by genre.
     value: 5
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, macos]
+    exclude-platforms: [android]
 
   - name: MUSIC_MEDIA_GROUP_PLAYLIST
     summary: Constant for grouping query results by playlist.
     value: 6
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, macos]
+    exclude-platforms: [android]
 
   - name: MUSIC_MEDIA_GROUP_PODCAST_TITLE
     summary: Constant for grouping query results by podcast title.
     value: 7
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, macos]
+    exclude-platforms: [android]
 
   - name: MUSIC_PLAYER_REPEAT_ALL
     summary: Constant for "Repeat All" setting.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, macos]
+    exclude-platforms: [android]
 
   - name: MUSIC_PLAYER_REPEAT_DEFAULT
     summary: Constant for user's default repeat setting.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, macos]
+    exclude-platforms: [android]
 
   - name: MUSIC_PLAYER_REPEAT_NONE
     summary: Constant for "No Repeat" setting.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, macos]
+    exclude-platforms: [android]
 
   - name: MUSIC_PLAYER_REPEAT_ONE
     summary: Constant for "Repeat one item" setting.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, macos]
+    exclude-platforms: [android]
 
   - name: MUSIC_PLAYER_SHUFFLE_ALBUMS
     summary: Constant for shuffling complete albums setting.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, macos]
+    exclude-platforms: [android]
 
   - name: MUSIC_PLAYER_SHUFFLE_DEFAULT
     summary: Constant for user's default shuffle setting.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, macos]
+    exclude-platforms: [android]
 
   - name: MUSIC_PLAYER_SHUFFLE_NONE
     summary: Constant for "no shuffle" setting.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, macos]
+    exclude-platforms: [android]
 
   - name: MUSIC_PLAYER_SHUFFLE_SONGS
     summary: Constant for shuffling songs setting.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, macos]
+    exclude-platforms: [android]
 
   - name: MUSIC_PLAYER_STATE_INTERRUPTED
     summary: Constant for interrupted state.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, macos]
+    exclude-platforms: [android]
 
   - name: MUSIC_PLAYER_STATE_PAUSED
     summary: Constant for paused state.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, macos]
+    exclude-platforms: [android]
 
   - name: MUSIC_PLAYER_STATE_PLAYING
     summary: Constant for playing state.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, macos]
+    exclude-platforms: [android]
 
   - name: MUSIC_PLAYER_STATE_SEEK_BACKWARD
     summary: Constant for backward seek state.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, macos]
+    exclude-platforms: [android]
 
   - name: MUSIC_PLAYER_STATE_SEEK_FORWARD
     summary: Constant for forward seek state.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, macos]
+    exclude-platforms: [android]
 
   - name: MUSIC_PLAYER_STATE_STOPPED
     summary: Constant for stopped state.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, macos]
+    exclude-platforms: [android]
 
   - name: NO_CAMERA
     summary: Constant for media no camera error.
