@@ -918,6 +918,7 @@ properties:
   - name: MEDIA_TYPE_PHOTO
     summary: Media type constant for photo media.
     type: String
+    value: "public.image"
     permission: read-only
 
   - name: MEDIA_TYPE_LIVEPHOTO
@@ -925,12 +926,14 @@ properties:
     type: String
     permission: read-only
     since: "5.2.0"
+    value: "com.apple.live-photo"
     exclude-platforms: [android]
     osver: {ios: {min: "9.1"}}
 
   - name: MEDIA_TYPE_VIDEO
     summary: Media type constant for video media.
     type: String
+    value: "public.movie"
     permission: read-only
 
   - name: MUSIC_MEDIA_TYPE_ALL
@@ -1324,6 +1327,66 @@ properties:
     type: Number
     permission: read-only
     platforms: [android, iphone, ipad, macos]
+
+  - name: VIDEO_MEDIA_TYPE_AUDIO
+    summary: The media contains audio media.
+    type: String
+    permission: read-only
+    exclude-platforms: [android]
+
+  - name: VIDEO_MEDIA_TYPE_CLOSED_CAPTION
+    summary: The media contains closed-caption content.
+    type: String
+    permission: read-only
+    exclude-platforms: [android]
+
+  - name: VIDEO_MEDIA_TYPE_DEPTH_DATA
+    summary: The media contains depth data.
+    type: String
+    permission: read-only
+    exclude-platforms: [android]
+
+  - name: VIDEO_MEDIA_TYPE_METADATA
+    summary: The media contains metadata.
+    type: String
+    permission: read-only
+    exclude-platforms: [android]
+
+  - name: VIDEO_MEDIA_TYPE_METADATA_OBJECT
+    summary: The media contains metadata objects.
+    type: String
+    permission: read-only
+    exclude-platforms: [android]
+
+  - name: VIDEO_MEDIA_TYPE_MUXED
+    summary: The media contains muxed media.
+    type: String
+    permission: read-only
+    exclude-platforms: [android]
+
+  - name: VIDEO_MEDIA_TYPE_SUBTITLE
+    summary: The media contains subtitles.
+    type: String
+    permission: read-only
+    exclude-platforms: [android]
+
+  - name: VIDEO_MEDIA_TYPE_TEXT
+    summary: The media contains text.
+    type: String
+    permission: read-only
+    exclude-platforms: [android]
+
+  - name: VIDEO_MEDIA_TYPE_TIMECODE
+    summary: The media contains a time code.
+    type: String
+    permission: read-only
+    exclude-platforms: [android]
+
+  - name: VIDEO_MEDIA_TYPE_VIDEO
+    summary: The media contains video.
+    type: String
+    permission: read-only
+    exclude-platforms: [android]
 
   - name: VIDEO_PLAYBACK_STATE_INTERRUPTED
     summary: Video playback has been interrupted.
