@@ -180,12 +180,18 @@ properties:
 
         For information about color values, see the "Colors" section of <Titanium.UI>.
     platforms: [android]
-    since: {android: 3.0.0}
+    since: {android: "3.0.0"}
 
   - name: badge
     summary: Badge value for this tab. `null` indicates no badge.
+    description: |
+        On the Android platform you will need to use a Theme with `parent="Theme.MaterialComponents.*"`
+        in order to use a badge. You have to pass a number as a string. Non-numberic characters will not be displayed.
+
+        On iOS, a badge will only be shown if the tab has been assigned an icon. Text only tabs do not support badges.
     type: String
-    platforms: [iphone,ipad, macos]
+    platforms: [android, iphone, ipad, macos]
+    since: {android: "9.3.0"}
 
   - name: badgeColor
     summary: |
@@ -194,9 +200,9 @@ properties:
     description: |
         For information about color values, see the "Colors" section of <Titanium.UI>.
     type: [String, Titanium.UI.Color]
-    since: 6.1.0
     osver: {ios: {min: "10.0"}}
-    platforms: [iphone, ipad, macos]
+    platforms: [android, iphone, ipad, macos]
+    since: {android: "9.3.0", iphone: "6.1.0", ipad: "6.1.0", macos: "9.2.0"}
 
   - name: icon
     summary: Icon URL for this tab.

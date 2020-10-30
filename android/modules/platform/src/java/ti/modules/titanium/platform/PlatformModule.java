@@ -255,77 +255,17 @@ public class PlatformModule extends KrollModule
 		}
 
 		// Determine if the system has a registered activity intent-filter for the given URL.
-		Intent intent = createOpenUrlIntentFrom(invocation, url);
-		return canOpen(intent);
-	}
-
-	private boolean canOpen(Intent intent)
-	{
-		// Validate argument.
-		if (intent == null) {
-			return false;
-		}
-
-		// If the intent references a local file, then make sure it exists.
-		Uri uri = intent.getData();
-		String scheme = (uri != null) ? uri.getScheme() : null;
-		if (scheme != null) {
-			if (scheme.equals(ContentResolver.SCHEME_CONTENT)) {
-				// We were given a "content://" URL. Check if its ContentProvider can provide file access.
-				// Note: Will typically throw a "FileNotFoundException" or return null if file doesn't exist.
-				ContentResolver contentResolver = TiApplication.getInstance().getContentResolver();
-				if (contentResolver != null) {
-					// First, check if we're referencing an existing file embedded within a file.
-					// Example: A file under the APK's "assets" or "res" folder.
-					boolean wasFileFound = false;
-					try (AssetFileDescriptor descriptor = contentResolver.openAssetFileDescriptor(uri, "r")) {
-						wasFileFound = (descriptor != null);
-					} catch (Exception ex) {
-					}
-
-					// If above failed, check if referencing an existing sandboxed file in the file system.
-					if (wasFileFound == false) {
-						try (ParcelFileDescriptor descriptor = contentResolver.openFileDescriptor(uri, "r")) {
-							wasFileFound = (descriptor != null);
-						} catch (Exception ex) {
-						}
-					}
-
-					// If above failed, then check if we can open a file stream. (The most expensive check.)
-					// This can happen with in-memory files or decoded files.
-					if (wasFileFound == false) {
-						try (InputStream stream = contentResolver.openInputStream(uri)) {
-							wasFileFound = (stream != null);
-						} catch (Exception ex) {
-						}
-					}
-
-					// Do not continue if cannot access file via ContentProvider.
-					if (wasFileFound == false) {
-						return false;
-					}
-				}
-			} else if (scheme.equals(ContentResolver.SCHEME_FILE)) {
-				// We were given a "file://" URL. Check if it exists in file system.
-				File file = new File(uri.getPath());
-				if (file.exists() == false) {
-					return false;
-				}
-			}
-		}
-
-		// Check if there is at least 1 activity registered into the system that can open the given intent.
-		// Note: This means the activity has to have a matching intent-filter in the app's "AndroidManifest.xml".
 		boolean canOpen = false;
 		try {
-			PackageManager packageManager = TiApplication.getInstance().getPackageManager();
-			if (intent.resolveActivity(packageManager) != null) {
-				canOpen = true;
+			Intent intent = createOpenUrlIntentFrom(invocation, url);
+			if (hasValidFileReference(intent)) {
+				PackageManager packageManager = TiApplication.getInstance().getPackageManager();
+				if (intent.resolveActivity(packageManager) != null) {
+					canOpen = true;
+				}
 			}
 		} catch (Exception ex) {
 		}
-
-		// Returns true if given URL can be opened by our openURL() method.
 		return canOpen;
 	}
 
@@ -382,8 +322,8 @@ public class PlatformModule extends KrollModule
 			return false;
 		}
 
-		// Do not continue if system cannot open the given URL/intent.
-		if (canOpen(intent) == false) {
+		// If intent references a local file, then make sure it exists.
+		if (hasValidFileReference(intent) == false) {
 			return false;
 		}
 
@@ -751,6 +691,72 @@ public class PlatformModule extends KrollModule
 			}
 		}
 		return intent;
+	}
+
+	/**
+	 * If given intent references a local file, then this method checks if it exists.
+	 * @param intent The intent to be validated. Can be null.
+	 * @return
+	 * Returns true if intent's reference file exists or if intent does not reference a file.
+	 * Returns false if intent's referenced file does not exist or if given a null argument.
+	 */
+	private boolean hasValidFileReference(Intent intent)
+	{
+		// Validate argument.
+		if (intent == null) {
+			return false;
+		}
+
+		// If the intent references a local file, then make sure it exists.
+		Uri uri = intent.getData();
+		String scheme = (uri != null) ? uri.getScheme() : null;
+		if (scheme != null) {
+			if (scheme.equals(ContentResolver.SCHEME_CONTENT)) {
+				// We were given a "content://" URL. Check if its ContentProvider can provide file access.
+				// Note: Will typically throw a "FileNotFoundException" or return null if file doesn't exist.
+				ContentResolver contentResolver = TiApplication.getInstance().getContentResolver();
+				if (contentResolver != null) {
+					// First, check if we're referencing an existing file embedded within a file.
+					// Example: A file under the APK's "assets" or "res" folder.
+					boolean wasFileFound = false;
+					try (AssetFileDescriptor descriptor = contentResolver.openAssetFileDescriptor(uri, "r")) {
+						wasFileFound = (descriptor != null);
+					} catch (Exception ex) {
+					}
+
+					// If above failed, check if referencing an existing sandboxed file in the file system.
+					if (wasFileFound == false) {
+						try (ParcelFileDescriptor descriptor = contentResolver.openFileDescriptor(uri, "r")) {
+							wasFileFound = (descriptor != null);
+						} catch (Exception ex) {
+						}
+					}
+
+					// If above failed, then check if we can open a file stream. (The most expensive check.)
+					// This can happen with in-memory files or decoded files.
+					if (wasFileFound == false) {
+						try (InputStream stream = contentResolver.openInputStream(uri)) {
+							wasFileFound = (stream != null);
+						} catch (Exception ex) {
+						}
+					}
+
+					// Do not continue if cannot access file via ContentProvider.
+					if (wasFileFound == false) {
+						return false;
+					}
+				}
+			} else if (scheme.equals(ContentResolver.SCHEME_FILE)) {
+				// We were given a "file://" URL. Check if it exists in file system.
+				File file = new File(uri.getPath());
+				if (file.exists() == false) {
+					return false;
+				}
+			}
+		}
+
+		// Intent references an existing file or does not reference a file at all.
+		return true;
 	}
 
 	private static class Processor

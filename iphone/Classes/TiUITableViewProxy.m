@@ -108,23 +108,23 @@ USE_VIEW_FOR_CONTENT_HEIGHT
 
 - (NSInteger)indexForRow:(TiUITableViewRowProxy *)row
 {
-  int index = 0;
+  NSInteger index = 0;
   for (TiUITableViewSectionProxy *thisSection in sections) {
     if (thisSection == row.section) {
       return index + row.row;
     }
-    index += [thisSection rowCount];
+    index += thisSection.rowCount.integerValue;
   }
   return index;
 }
 
 - (NSInteger)sectionIndexForIndex:(NSInteger)theindex
 {
-  int index = 0;
-  int section = 0;
+  NSInteger index = 0;
+  NSInteger section = 0;
 
   for (TiUITableViewSectionProxy *thisSection in sections) {
-    index += [thisSection rowCount];
+    index += thisSection.rowCount.integerValue;
     if (theindex < index) {
       return section;
     }
@@ -141,7 +141,7 @@ USE_VIEW_FOR_CONTENT_HEIGHT
   int sectionIdx = 0;
 
   for (TiUITableViewSectionProxy *sectionProxy in sections) {
-    NSInteger rowCount = [sectionProxy rowCount];
+    NSUInteger rowCount = sectionProxy.rowCount.unsignedIntegerValue;
     if (rowCount + current > index) {
       if (section != nil) {
         *section = sectionIdx;
@@ -166,7 +166,7 @@ USE_VIEW_FOR_CONTENT_HEIGHT
   NSInteger row = index;
 
   for (TiUITableViewSectionProxy *thisSection in sections) {
-    NSInteger rowCount = [thisSection rowCount];
+    NSUInteger rowCount = thisSection.rowCount.unsignedIntegerValue;
     if (rowCount + current > index) {
       NSMutableArray *searchIndex = ((TiUITableView *)self.view).searchResultIndexes;
       if (searchIndex.count > 0) {
@@ -200,7 +200,7 @@ USE_VIEW_FOR_CONTENT_HEIGHT
 
 - (NSInteger)indexForIndexPath:(NSIndexPath *)path
 {
-  int index = 0;
+  NSInteger index = 0;
   int section = 0;
 
   for (TiUITableViewSectionProxy *thisSection in sections) {
@@ -208,7 +208,7 @@ USE_VIEW_FOR_CONTENT_HEIGHT
       return index + [path row];
     }
     section++;
-    index += [thisSection rowCount];
+    index += thisSection.rowCount.integerValue;
   }
 
   return 0;
@@ -275,15 +275,15 @@ USE_VIEW_FOR_CONTENT_HEIGHT
 
 - (TiUITableViewSectionProxy *)sectionForIndex:(NSInteger)index row:(TiUITableViewRowProxy **)rowOut
 {
-  int current = 0;
+  NSUInteger current = 0;
   NSInteger row = index;
-  int sectionIdx = 0;
+  NSUInteger sectionIdx = 0;
 
   TiUITableViewRowProxy *rowProxy = nil;
   TiUITableViewSectionProxy *sectionProxy = nil;
 
   for (sectionProxy in sections) {
-    NSInteger rowCount = [sectionProxy rowCount];
+    NSUInteger rowCount = sectionProxy.rowCount.unsignedIntegerValue;
     if (rowCount + current > index) {
       rowProxy = [sectionProxy rowAtIndex:row];
       if (rowOut != nil) {
@@ -394,7 +394,7 @@ USE_VIEW_FOR_CONTENT_HEIGHT
   id data = nil;
   NSDictionary *anim = nil;
 
-  ENSURE_INT_AT_INDEX(index, args, 0);
+  ENSURE_INT_AT_INDEX(index, args, 0); // FIXME: Support larger number by coercing to uint32?
   ENSURE_ARG_AT_INDEX(data, args, 1, NSObject);
   ENSURE_ARG_OR_NIL_AT_INDEX(anim, args, 2, NSDictionary);
 
@@ -404,13 +404,13 @@ USE_VIEW_FOR_CONTENT_HEIGHT
 
   TiThreadPerformOnMainThread(
       ^{
-        int current = 0;
-        int row = index;
-        int sectionIdx = 0;
+        NSUInteger current = 0;
+        NSUInteger row = index;
+        NSUInteger sectionIdx = 0;
         TiUITableViewSectionProxy *sectionProxy = nil;
 
         for (sectionProxy in sections) {
-          NSInteger rowCount = [sectionProxy rowCount];
+          NSUInteger rowCount = sectionProxy.rowCount.unsignedIntegerValue;
           if (rowCount + current > index) {
             rowProxy = [sectionProxy rowAtIndex:row];
             break;
@@ -882,9 +882,9 @@ DEFINE_DEF_PROP(scrollsToTop, [NSNumber numberWithBool:YES]);
   [(TiUITableView *)[self view] refreshSearchControllerUsingReload:YES];
 }
 
-- (NSUInteger)sectionCount
+- (NSNumber *)sectionCount
 { //TODO: Shouldn't this be in the main thread, too?
-  return [sections count];
+  return NUMUINTEGER((sections != nil) ? sections.count : 0);
 }
 
 - (TiUITableViewSectionProxy *)tableSectionFromArg:(id)arg

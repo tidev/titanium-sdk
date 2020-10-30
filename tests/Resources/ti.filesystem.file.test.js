@@ -171,11 +171,7 @@ describe('Titanium.Filesystem.File', function () {
 			const file = Ti.Filesystem.getFile('app.js');
 			const create_date = file.createTimestamp();
 			should(create_date).be.a.Number(); // iOS returns a Date (or maybe a string in iso date format?) Docs say Number
-			if (isAndroid) { // Android returns 0 for createTimestamp on files under Resources dir
-				should(create_date).eql(0);
-			} else {
-				should(create_date).be.above(0);
-			}
+			should(create_date).be.above(0);
 		});
 	});
 
@@ -189,9 +185,8 @@ describe('Titanium.Filesystem.File', function () {
 			const file = Ti.Filesystem.getFile('app.js');
 			const create_date = file.createdAt();
 			should(create_date).be.a.Date();
-			// Android returns 0 for timestamp on files under Resources dir
-			// we also can't get real modification/create times for encrypted files
-			if (isAndroid || Ti.App.Properties.getBool('js.encrypted', false)) {
+			// We can't get a real modification/create times for encrypted files on iOS.
+			if (isIOS && Ti.App.Properties.getBool('js.encrypted', false)) {
 				should(create_date.getTime()).be.eql(0);
 			} else {
 				should(create_date.getTime()).be.above(0);
@@ -218,11 +213,7 @@ describe('Titanium.Filesystem.File', function () {
 			const file = Ti.Filesystem.getFile('app.js');
 			const mod_date = file.modificationTimestamp();
 			should(mod_date).be.a.Number(); // iOS returns a Date (or maybe a string in iso date format?) Docs say Number
-			if (isAndroid) { // Android returns 0 for modificationTimestamp on files under Resources dir
-				should(mod_date).eql(0);
-			} else {
-				should(mod_date).be.above(0);
-			}
+			should(mod_date).be.above(0);
 		});
 	});
 
@@ -236,9 +227,8 @@ describe('Titanium.Filesystem.File', function () {
 			const file = Ti.Filesystem.getFile('app.js');
 			const mod_date = file.modifiedAt();
 			should(mod_date).be.a.Date();
-			// Android returns 0 for modificationTimestamp on files under Resources dir
-			// we also can't get real modification/create times for encrypted files
-			if (isAndroid || Ti.App.deployType === 'test') {
+			// We can't get real modification/create times for encrypted files on iOS.
+			if (isIOS && Ti.App.deployType === 'test') {
 				should(mod_date.getTime()).eql(0);
 			} else {
 				should(mod_date.getTime()).be.above(0);
@@ -296,9 +286,7 @@ describe('Titanium.Filesystem.File', function () {
 		should(newFile.exists()).be.true();
 		const blob = newFile.read();
 		should(blob).be.ok(); // not null or undefined.
-		if (!isAndroid) {
-			should(blob.size).be.above(0);
-		}
+		should(blob.size).be.above(0);
 		should(blob.text.length).be.above(0);
 	});
 
@@ -309,9 +297,7 @@ describe('Titanium.Filesystem.File', function () {
 
 		const blob = msg.read();
 		should(blob).be.ok(); // not null or undefined
-		if (!isAndroid) {
-			should(blob.size).be.above(0);
-		}
+		should(blob.size).be.above(0);
 		should(blob.text.length).be.above(0);
 		should(blob.text).be.eql('Appcelerator');
 
@@ -328,9 +314,7 @@ describe('Titanium.Filesystem.File', function () {
 
 		const blob = msg.read();
 		should(blob).be.ok(); // not null or undefined.
-		if (!isAndroid) {
-			should(blob.size).be.above(0);
-		}
+		should(blob.size).be.above(0);
 		should(blob.text.length).be.above(0);
 		should(blob.text).be.eql('AppceleratorAppcelerator');
 
@@ -349,9 +333,7 @@ describe('Titanium.Filesystem.File', function () {
 
 		const blob = to.read();
 		should(blob).be.ok(); // not null or undefined.
-		if (!isAndroid) {
-			should(blob.size).be.above(0);
-		}
+		should(blob.size).be.above(0);
 		should(blob.text.length).be.above(0);
 		should(blob.text).be.eql('Appcelerator');
 
@@ -374,9 +356,7 @@ describe('Titanium.Filesystem.File', function () {
 
 		const blob = to.read();
 		should(blob).be.ok(); // not null or undefined.
-		if (!isAndroid) {
-			should(blob.size).be.above(0);
-		}
+		should(blob.size).be.above(0);
 		should(blob.text.length).be.above(0);
 		should(blob.text).be.eql('AppceleratorAppcelerator');
 
@@ -397,9 +377,7 @@ describe('Titanium.Filesystem.File', function () {
 
 		const blob = to.read();
 		should(blob).be.ok(); // not null or undefined.
-		if (!isAndroid) {
-			should(blob.size).be.above(0);
-		}
+		should(blob.size).be.above(0);
 		should(blob.text.length).be.above(0);
 		should(blob.text).be.eql('Appcelerator');
 
@@ -423,9 +401,7 @@ describe('Titanium.Filesystem.File', function () {
 
 		const blob = to.read();
 		should(blob).be.ok(); // not null or undefined.
-		if (!isAndroid) {
-			should(blob.size).be.above(0);
-		}
+		should(blob.size).be.above(0);
 		should(blob.text.length).be.above(0);
 		should(blob.text).be.eql('AppceleratorAppcelerator');
 
@@ -446,9 +422,7 @@ describe('Titanium.Filesystem.File', function () {
 
 		const blob = msg.read();
 		should(blob).be.ok(); // not null or undefined.
-		if (!isAndroid) {
-			should(blob.size).be.above(0);
-		}
+		should(blob.size).be.above(0);
 		should(blob.text.length).be.above(0);
 		should(blob.text).be.eql('AppceleratorAppcelerator');
 
@@ -470,9 +444,7 @@ describe('Titanium.Filesystem.File', function () {
 
 		const blob = to.read();
 		should(blob).be.ok(); // not null or undefined.
-		if (!isAndroid) {
-			should(blob.size).be.above(0);
-		}
+		should(blob.size).be.above(0);
 		should(blob.text.length).be.above(0);
 		should(blob.text).be.eql('AppceleratorAppcelerator');
 
@@ -496,9 +468,7 @@ describe('Titanium.Filesystem.File', function () {
 
 		const blob = to.read();
 		should(blob).be.ok(); // not null or undefined.
-		if (!isAndroid) {
-			should(blob.size).be.above(0);
-		}
+		should(blob.size).be.above(0);
 		should(blob.text.length).be.above(0);
 		should(blob.text).be.eql('AppceleratorAppcelerator');
 
@@ -616,8 +586,25 @@ describe('Titanium.Filesystem.File', function () {
 			should(file.rename).be.a.Function();
 		});
 
-		// FIXME: https://jira.appcelerator.org/browse/TIMOB-28146
-		it.androidBroken('renames file within same directory', function () {
+		it('renames using filename only', function () {
+			const sourceFile = Ti.Filesystem.getFile(Ti.Filesystem.applicationDataDirectory, 'fileA.txt');
+			const newFileName = 'fileA-renamed.txt';
+			const destinationFile = Ti.Filesystem.getFile(Ti.Filesystem.applicationDataDirectory, newFileName);
+
+			if (destinationFile.exists()) {
+				destinationFile.deleteFile();
+			}
+			if (sourceFile.exists()) {
+				sourceFile.deleteFile();
+			}
+
+			sourceFile.createFile();
+			should(sourceFile.rename(newFileName)).be.true();
+			should(sourceFile.exists()).be.false();
+			should(destinationFile.exists()).be.true();
+		});
+
+		it('renames file within same directory', function () {
 			const destPath = Ti.Filesystem.applicationDataDirectory + Ti.Filesystem.separator + 'renamed.txt';
 			const dest = Ti.Filesystem.getFile(destPath);
 			const fileATxt = Ti.Filesystem.getFile(Ti.Filesystem.applicationDataDirectory, 'fileA.txt');
@@ -828,7 +815,7 @@ describe('Titanium.Filesystem.File', function () {
 			const appJSURI = isIOS ? 'app.js' : 'app://app.js'; // iOS doesn't support app: uris!
 			const appJS = Ti.Filesystem.getFile(appJSURI);
 
-			// Generate a file:// URI for the temp dir. Android reports one as-is, iOS reports an sbolute filepath so we pre-pend file:// to it
+			// Generate a file:// URI for the temp dir. Android reports one as-is, iOS reports an absolute filepath so we pre-pend file:// to it
 			// file:///data/user/0/com.appcelerator.testApp.testing/cache/_tmp on Android
 			// Note also, that IOS reports trailing slash, Android does not
 			const prefix = isIOS ? `file://${Ti.Filesystem.tempDirectory}` : `${Ti.Filesystem.tempDirectory}/`;
@@ -846,7 +833,7 @@ describe('Titanium.Filesystem.File', function () {
 		it('file:// absolute path', () => {
 			const file = Ti.Filesystem.getFile(fileURI);
 			should.exist(file);
-			should(file.exists()).equal(true); // FIXME: Fails on Android, but only if run as part of full suite!
+			should(file.exists()).be.true(); // FIXME: Fails on Android, but only if run as part of full suite!
 		});
 
 		it.androidAndIosBroken('file:// relative path', () => {
@@ -854,7 +841,7 @@ describe('Titanium.Filesystem.File', function () {
 			// FIXME: iOS does not seem to try and resolve relative paths for file:// URIs
 			const file = Ti.Filesystem.getFile('file://app.js'); // app.js should be relative to this file...
 			should.exist(file);
-			should(file.exists()).equal(true);
+			should(file.exists()).be.true();
 		});
 
 		it.androidAndIosBroken('file: relative path', () => {
@@ -862,14 +849,14 @@ describe('Titanium.Filesystem.File', function () {
 			// FIXME: Android ends up calling startsWith on a null String reference (likely TiFileProxy.java, line 73)
 			const file = Ti.Filesystem.getFile('file:app.js');
 			should.exist(file);
-			should(file.exists()).equal(true);
+			should(file.exists()).be.true();
 		});
 
 		it.iosBroken('file: absolute path', () => {
 			// FIXME: iOS does not seem to support file: URIs without file:// (see FilesystemModule.m, line 38)
 			const file = Ti.Filesystem.getFile(`file:${noSchemeTempAppJS}`);
 			should.exist(file);
-			should(file.exists()).equal(true); // FIXME: Fails on Android, but only if run as part of full suite!
+			should(file.exists()).be.true(); // FIXME: Fails on Android, but only if run as part of full suite!
 		});
 
 		it.androidBroken('no scheme - absolute path', () => {
@@ -877,56 +864,104 @@ describe('Titanium.Filesystem.File', function () {
 			// Whereas my fix was in TiFileFactory, used internally by webview, database, file.move(), file.copy()
 			const file = Ti.Filesystem.getFile(noSchemeTempAppJS);
 			should.exist(file);
-			should(file.exists()).equal(true);
+			should(file.exists()).be.true();
 		});
 
 		it('no scheme - relative path', () => {
 			const file = Ti.Filesystem.getFile('app.js');
 			should.exist(file);
-			should(file.exists()).equal(true);
+			should(file.exists()).be.true();
 		});
 
 		// TODO: appdata-private:// (which getFile assumes if no scheme!)
 		it.android('appdata-private://', () => {
-			// becomes a TitaniumBlob so exists()/read() don't work on it!
-			// How can we check it "worked"?
 			const file = Ti.Filesystem.getFile('appdata-private://appdata-private.js');
 			should.exist(file);
-			should(file.exists()).equal(true);
+			should(file.exists()).be.true();
 		});
 
-		it.android('content://', () => {
-			// becomes a TitaniumBlob so exists()/read() don't work on it!
-			// How can we check it "worked"?
-			const file = Ti.Filesystem.getFile(`content://${Ti.App.id}.tifileprovider/assets/Resources/app.js`);
+		it.android('content:// - assets', () => {
+			// Verify we can read asset file within APK via "content://" and our Java "TiFileProvider" class.
+			const url = `content://${Ti.App.id}.tifileprovider/assets/Resources/image folder/Logo.png`;
+			const file = Ti.Filesystem.getFile(url);
 			should.exist(file);
+			should(file.exists()).be.true();
+			should(file.nativePath).be.eql(url);
+			should(file.name).be.eql('Logo.png');
+			should(file.extension()).be.eql('png');
+			should(file.size).be.above(0);
+			should(file.createdAt().getTime()).be.above(0);
+			should(file.modifiedAt().getTime()).be.above(0);
+			should(file.readonly).be.true();
+			should(file.writable).be.false();
+			should(file.isDirectory()).be.false();
+			should(file.isFile()).be.true();
+			const blob = file.read();
+			should(blob).be.ok(); // not null or undefined.
+			should(blob.width).be.eql(150);
+			should(blob.height).be.eql(150);
+		});
+
+		it.android('content:// - filesystem', () => {
+			// Create a new text file in the file-system.
+			const nativeFile = Ti.Filesystem.getFile(Ti.Filesystem.applicationDataDirectory, 'ContentUriTest.txt');
+			if (nativeFile.exists()) {
+				nativeFile.deleteFile();
+			}
+			const text = 'This is a test.';
+			nativeFile.write(text);
+
+			// Verify we can access above file via "content://" and our Java "TiFileProvider" class.
+			const absolutePath = nativeFile.nativePath.replace('file://', '');
+			const url = `content://${Ti.App.id}.tifileprovider/filesystem${absolutePath}`;
+			const contentFile = Ti.Filesystem.getFile(url);
+			should.exist(contentFile);
+			should(contentFile.exists()).be.true();
+			should(contentFile.nativePath).be.eql(url);
+			should(contentFile.name).be.eql(nativeFile.name);
+			should(contentFile.extension()).be.eql(nativeFile.extension());
+			should(contentFile.size).be.eql(nativeFile.size);
+			should(contentFile.createdAt().getTime()).be.eql(nativeFile.createdAt().getTime());
+			should(contentFile.modifiedAt().getTime()).be.eql(nativeFile.modifiedAt().getTime());
+			should(contentFile.readonly).be.false();
+			should(contentFile.writable).be.true();
+			should(contentFile.isDirectory()).be.false();
+			should(contentFile.isFile()).be.true();
+			const contentBlob = contentFile.read();
+			should(contentBlob).be.ok(); // not null or undefined.
+			should(contentBlob.text).be.eql(text);
+
+			// Verify we can write to the file via "content://".
+			should(contentFile.write('Hello')).be.true();
+			should(contentFile.read().text).be.eql('Hello');
+			should(contentFile.write(' World', true)).be.true();
+			should(contentFile.read().text).be.eql('Hello World');
 		});
 
 		it.iosBroken('app:// - absolute path', () => {
 			// FIXME: iOS doesn't support app: URIs in getFile!
 			const file = Ti.Filesystem.getFile('app:///app.js');
 			should.exist(file);
-			should(file.exists()).equal(true);
+			should(file.exists()).be.true();
 		});
 
 		it.iosBroken('app:// - relative path', () => {
 			// FIXME: iOS doesn't support app: URIs in getFile!
 			const file = Ti.Filesystem.getFile('app://app.js');
 			should.exist(file);
-			should(file.exists()).equal(true);
+			should(file.exists()).be.true();
 		});
 
 		it.android('android.resource://', () => {
-			// becomes a TitaniumBlob so exists()/read() don't work on it!
-			// How can we check it "worked"?
 			const file = Ti.Filesystem.getFile(`android.resource://${Ti.App.id}/drawable/appicon`);
 			should.exist(file);
+			should(file.exists()).be.true();
 		});
 
 		it.android('file:///android_asset absolute path', () => {
-			const file = Ti.Filesystem.getFile('file:///android_asset/Resources/app.js');
+			const file = Ti.Filesystem.getFile('file:///android_asset/Resources/txtFiles/file.txt');
 			should.exist(file);
-			should(file.exists()).equal(true);
+			should(file.exists()).be.true();
 		});
 	});
 });

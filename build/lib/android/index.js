@@ -71,17 +71,11 @@ class Android {
 	}
 
 	async clean() {
-		// Create "local.properties" file which tells gradle where to find the Android SDK/NDK directories.
-		await createLocalPropertiesFile(this.androidSdk, this.androidNdk);
-
 		// Clean all Titanium Android projects.
-		await gradlew('clean');
+		await this.runGradleTask('clean');
 	}
 
 	async build() {
-		// Create "local.properties" file which tells gradle where to find the Android SDK/NDK directories.
-		await createLocalPropertiesFile(this.androidSdk, this.androidNdk);
-
 		// Set up the build system to fail if unable to generate a V8 snapshot. Needed for fast app startup times.
 		// Note: Allow system to override this behavior if environment variable is already defined.
 		if (typeof process.env.TI_SDK_BUILD_REQUIRES_V8_SNAPSHOTS === 'undefined') {
@@ -93,7 +87,7 @@ class Android {
 		process.env.TI_SDK_BUILD_GIT_HASH = this.gitHash;
 		process.env.TI_SDK_BUILD_TIMESTAMP = this.timestamp;
 		process.env.TI_SDK_VERSION_TAG = this.versionTag;
-		await gradlew(':titanium:assembleRelease');
+		await this.runGradleTask(':titanium:assembleRelease');
 	}
 
 	async package(packager) {
@@ -103,14 +97,11 @@ class Android {
 		const ZIP_ANDROID_PATH = path.join(packager.zipSDKDir, 'android');
 		await fs.mkdirs(ZIP_ANDROID_PATH);
 
-		// Create "local.properties" file which tells gradle where to find the Android SDK/NDK directories.
-		await createLocalPropertiesFile(this.androidSdk, this.androidNdk);
-
 		// Generate a maven repo directory structure and dependencies POM file for last built Titanium AAR library.
 		process.env.TI_SDK_BUILD_VERSION = this.sdkVersion;
 		process.env.TI_SDK_BUILD_GIT_HASH = this.gitHash;
 		process.env.TI_SDK_VERSION_TAG = this.versionTag;
-		await gradlew(':titanium:publish');
+		await this.runGradleTask(':titanium:publish');
 
 		// Copy the above created maven directory tree to the destination.
 		await copyFile(path.join(TITANIUM_ANDROID_PATH, 'titanium', 'build', 'outputs'), ZIP_ANDROID_PATH, 'm2repository');
@@ -166,11 +157,24 @@ class Android {
 		// This generates C/C++ interop code between JavaScript and the Java APIs which have these annotations.
 		await copyFile(path.join(TITANIUM_ANDROID_PATH, 'kroll-apt', 'build', 'libs'), ZIP_ANDROID_PATH, 'kroll-apt.jar');
 	}
+
+	async runGradleTask(task, args) {
+		// Create "local.properties" file which tells gradle where to find the Android SDK/NDK directories.
+		await createLocalPropertiesFile(this.androidSdk, this.androidNdk);
+
+		// Run the given gradle task.
+		const newArgs = [ task ];
+		if (Array.isArray(args)) {
+			newArgs.push(...args);
+		} else {
+			newArgs.push('--console', GRADLE_CONSOLE_MODE, '--warning-mode', 'all');
+		}
+		await gradlew(newArgs);
+	}
 }
 
-async function gradlew(task) {
+async function gradlew(args) {
 	await new Promise((resolve, reject) => {
-		const args = [ task, '--console', GRADLE_CONSOLE_MODE, '--warning-mode', 'all' ];
 		const childProcess = spawn(GRADLEW_FILE_PATH, args, { cwd: TITANIUM_ANDROID_PATH, stdio: 'inherit' });
 		childProcess.on('error', reject);
 		childProcess.on('exit', (exitCode) => {

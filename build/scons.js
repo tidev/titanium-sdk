@@ -21,6 +21,9 @@ commander
 	.command('xcode-test', 'Hacks the XCode project for iOS to copy in the unit test suite so it can be run under XCode\'s debugger')
 	.command('check-ios-toplevel', 'Ensures we don\'t check in prefilled values for version/hash/timestamp')
 	.command('xcode-project-build <projectDir> <targetBuildDir> <productName>', 'Runs the portion of the xcode project setup')
+	.command('gradlew <task>', 'Executes an Android gradle task via the gradlew command line tool')
 	.command('deprecations', 'Checks the apidocs for deprecated but unremoved types/properties/methods')
 	.command('removals <minVersion>', 'Checks the apidocs for deprecated and removed types/properties/methods older than a given version')
+	.command('generate-test <pathToapidocYmlFile>', 'Generates a unit test suite for a given type')
+	.command('missing-tests [apiDocDir]', 'List types defined in APIdocs that don\'t have a test suite')
 	.parse(process.argv);

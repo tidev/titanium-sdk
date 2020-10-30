@@ -8,8 +8,7 @@
 /* eslint-env titanium, mocha */
 /* eslint no-unused-expressions: "off", no-global-assign: "off", no-native-reassign: "off" */
 'use strict';
-// TODO: Move this into something we define globally and in our babel plugin!
-const OS_MACOS = Ti.Platform.name === 'Mac OS X';
+
 let failed = false;
 
 require('./ti-mocha');
@@ -117,6 +116,7 @@ function loadTests() {
 	require('./ti.locale.test');
 	require('./ti.media.test');
 	require('./ti.media.audioplayer.test');
+	require('./ti.media.audiorecorder.test');
 	require('./ti.media.sound.test');
 	require('./ti.media.videoplayer.test');
 	require('./ti.network.test');
@@ -129,6 +129,9 @@ function loadTests() {
 	require('./ti.network.socket.tcp.test');
 	require('./ti.network.socket.udp.test');
 	require('./ti.platform.test');
+	if (OS_ANDROID) {
+		require('./ti.platform.android.test');
+	}
 	require('./ti.platform.displaycaps.test');
 	require('./ti.proxy.test');
 	require('./ti.stream.test');
@@ -158,6 +161,7 @@ function loadTests() {
 		require('./ti.ui.ios.tabbedbar.test');
 		require('./ti.ui.ios.tableviewstyle.test');
 		require('./ti.ui.ios.webviewconfiguration.test');
+		require('./ti.ui.ipad.test');
 		require('./ti.ui.ipad.popover.test');
 	}
 	require('./ti.ui.label.test');
@@ -292,10 +296,15 @@ function $Reporter(runner) {
 
 	runner.on('fail', function (test, err) {
 		test.err = err;
+		if (test.type && test.type === 'hook') {
+			// report hook as failiure, the rest of the suite won't execute
+			reportTestEnd(test);
+		}
+
 		failed = true;
 	});
 
-	runner.on('test end', function (test) {
+	function reportTestEnd(test) {
 		const tdiff = new Date().getTime() - started;
 		const fixedNames = suiteAndTitle(suites, test.title);
 		const result = {
@@ -354,7 +363,9 @@ function $Reporter(runner) {
 		} else {
 			Ti.API.info('!TEST_END: ' + stringified);
 		}
-	});
+	}
+
+	runner.on('test end', reportTestEnd);
 }
 
 // Emit OS version

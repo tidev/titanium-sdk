@@ -6,11 +6,9 @@
  */
 package org.appcelerator.kroll;
 
+import android.app.Activity;
 import org.appcelerator.kroll.common.CurrentActivityListener;
 import org.appcelerator.kroll.common.TiDeployData;
-import org.appcelerator.kroll.util.TiTempFileHelper;
-
-import android.app.Activity;
 
 /**
  * An interface for things Kroll needs from the application instance
@@ -23,8 +21,6 @@ public interface KrollApplication {
 	Activity getCurrentActivity();
 
 	void waitForCurrentActivity(CurrentActivityListener l);
-
-	TiTempFileHelper getTempFileHelper();
 
 	TiDeployData getDeployData();
 

@@ -1197,6 +1197,26 @@ describe('Titanium.UI.TableView', function () {
 		should(tableView.scrollable).be.be.true();
 	});
 
+	it('refreshControl', (finish) => {
+		const refreshControl = Ti.UI.createRefreshControl();
+		refreshControl.addEventListener('refreshstart', () => {
+			setTimeout(() => {
+				refreshControl.endRefreshing();
+			}, 1000);
+		});
+		refreshControl.addEventListener('refreshend', () => {
+			finish();
+		});
+		win = Ti.UI.createWindow();
+		win.add(Ti.UI.createListView({
+			refreshControl: refreshControl
+		}));
+		win.addEventListener('open', function () {
+			refreshControl.beginRefreshing();
+		});
+		win.open();
+	});
+
 	// FIXME Windows throws exception
 	it.windowsBroken('Add and remove headerView/footerView ', function (finish) {
 		win = Ti.UI.createWindow({ backgroundColor: 'gray' });
@@ -1344,6 +1364,7 @@ describe('Titanium.UI.TableView', function () {
 			if (Ti.Android) {
 				value = row1.backgroundDisabledColor;
 				value = row1.backgroundFocusedColor;
+				// eslint-disable-next-line no-unused-vars
 				value = row1.backgroundSelectedColor;
 			}
 		}
@@ -1351,6 +1372,79 @@ describe('Titanium.UI.TableView', function () {
 
 		win.addEventListener('open', function () {
 			validateRow();
+			finish();
+		});
+		win.open();
+	});
+
+	it('row - custom properties', () => {
+		const tableView = Ti.UI.createTableView({
+			data: [
+				Ti.UI.createTableViewRow({ title: 'Row 1', myNumber: 1 }),
+				{ title: 'Row 2', myNumber: 2 }
+			]
+		});
+		tableView.appendRow(Ti.UI.createTableViewRow({ title: 'Row 3', myNumber: 3 }));
+		const sectionRows = tableView.sections[0].rows;
+		should(sectionRows[0].myNumber).be.eql(1);
+		should(sectionRows[1].myNumber).be.eql(2);
+		should(sectionRows[2].myNumber).be.eql(3);
+
+		const row = sectionRows[0];
+		row.myNumber = 10;
+		tableView.updateRow(0, row);
+		should(tableView.sections[0].rows[0].myNumber).be.eql(10);
+	});
+
+	it.androidBroken('row#getViewById()', (finish) => {
+		const section1 = Ti.UI.createTableViewSection({ headerTitle: 'My Section' });
+		for (let index = 1; index <= 3; index++) {
+			const row = Ti.UI.createTableViewRow();
+			row.add(Ti.UI.createLabel({ text: `Row ${index}`, id: 'myLabelId' }));
+			section1.add(row);
+		}
+		const tableView = Ti.UI.createTableView({
+			data: [ section1 ]
+		});
+		win = Ti.UI.createWindow();
+		win.add(tableView);
+		win.addEventListener('open', () => {
+			try {
+				for (let index = 1; index <= 3; index++) {
+					const row = tableView.sections[0].rows[index - 1];
+					const view = row.getViewById('myLabelId');
+					should(view).be.a.Object();
+					should(view.apiName).be.eql('Ti.UI.Label');
+					should(view.text).be.eql(`Row ${index}`);
+				}
+				finish();
+			} catch (err) {
+				finish(err);
+			}
+		});
+		win.open();
+	});
+
+	// Exercise TableViewRow "className" template handling.
+	it('row.className', (finish) => {
+		const section1 = Ti.UI.createTableViewSection({ headerTitle: 'Section 1' });
+		for (let index = 1; index <= 3; index++) {
+			const row = Ti.UI.createTableViewRow({ className: 'rowType1' });
+			row.add(Ti.UI.createLabel({ text: `Row ${index}`, left: 20 }));
+			section1.add(row);
+		}
+		const section2 = Ti.UI.createTableViewSection({ headerTitle: 'Section 2' });
+		for (let index = 1; index <= 3; index++) {
+			const row = Ti.UI.createTableViewRow({ className: 'rowType2' });
+			row.add(Ti.UI.createLabel({ text: `Row ${index}`, right: 20 }));
+			section1.add(row);
+		}
+
+		win = Ti.UI.createWindow();
+		win.add(Ti.UI.createTableView({
+			data: [ section1, section2 ]
+		}));
+		win.addEventListener('open', () => {
 			finish();
 		});
 		win.open();
