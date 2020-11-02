@@ -190,7 +190,7 @@ public class TiVideoView8 extends SurfaceView implements MediaPlayerControl
 				break;
 			case MediaModule.VIDEO_SCALING_ASPECT_FIT:
 				message = String.format(MESSAGE_FORMAT, "Ti.Media.VIDEO_SCALING_ASPECT_FIT",
-										"Ti.Media.VIDEO_SCALING_RESIZE_ASPECT_FIT");
+										"Ti.Media.VIDEO_SCALING_RESIZE_ASPECT");
 				break;
 			case MediaModule.VIDEO_SCALING_MODE_FILL:
 				message =

@@ -169,7 +169,7 @@ public class MediaModule extends KrollModule implements Handler.Callback
 	@Kroll.constant
 	public static final String MEDIA_TYPE_PHOTO = "public.image";
 	@Kroll.constant
-	public static final String MEDIA_TYPE_VIDEO = "public.video";
+	public static final String MEDIA_TYPE_VIDEO = "public.movie";
 
 	@Kroll.constant
 	public static final int CAMERA_FRONT = 0;
@@ -1403,14 +1403,13 @@ public class MediaModule extends KrollModule implements Handler.Callback
 	public int[] getAvailableCameras()
 	{
 		int cameraCount = Camera.getNumberOfCameras();
-		if (cameraCount == 0) {
-			return null;
-		}
-
 		int[] result = new int[cameraCount];
 
-		CameraInfo cameraInfo = new CameraInfo();
+		if (cameraCount == 0) {
+			return result;
+		}
 
+		CameraInfo cameraInfo = new CameraInfo();
 		for (int i = 0; i < cameraCount; i++) {
 			Camera.getCameraInfo(i, cameraInfo);
 			switch (cameraInfo.facing) {

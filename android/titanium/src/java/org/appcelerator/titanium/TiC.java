@@ -1440,11 +1440,6 @@ public class TiC
 	/**
 	 * @module.api
 	 */
-	public static final String PROPERTY_CONTENT_URL = "contentURL";
-
-	/**
-	 * @module.api
-	 */
 	public static final String PROPERTY_CONTENT_VIEW = "contentView";
 
 	/**
