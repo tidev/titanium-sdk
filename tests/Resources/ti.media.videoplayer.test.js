@@ -189,7 +189,7 @@ describe('Titanium.Media.VideoPlayer', () => {
 			});
 
 			it('defaults to false', () => { // eslint-disable-line mocha/no-identical-title
-				should(player.pictureInPictureEnabled).be.false();
+				should(player.pictureInPictureEnabled).be.true();
 			});
 		});
 
