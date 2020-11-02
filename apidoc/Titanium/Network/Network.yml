@@ -134,19 +134,6 @@ description: |
 extends: Titanium.Module
 since: "0.1"
 methods:
-  - name: addConnectivityListener
-    deprecated:
-        since: "1.7.0"
-        removed: "3.0.0"
-        notes: Use the [Titanium.Network.change](Titanium.Network.change) event to monitor connectivity changes.
-    summary: |
-        Legacy method to add a connectivity listener to listen for network changes.
-    parameters:
-      - name: callback
-        summary: Callback function to invoke upon network connectivity changes.
-        type: Callback<Object>
-    platforms: [iphone, ipad]
-
   - name: addHTTPCookie
     summary: |
         Adds a cookie to the HTTP client cookie store.
