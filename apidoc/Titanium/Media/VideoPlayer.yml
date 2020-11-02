@@ -525,15 +525,6 @@ properties:
     platforms: [iphone, ipad, macos]
     type: Titanium.UI.View
 
-  - name: contentURL
-    summary: URL of the media to play.
-    exclude-platforms: [macos]
-    deprecated:
-        since: "1.4.0"
-        removed: "3.0.0"
-        notes: Use [Titanium.Media.VideoPlayer.url](Titanium.Media.VideoPlayer.url) instead.
-    type: String
-
   - name: currentPlaybackTime
     summary: Current playback time of the current movie in milliseconds.
     type: Number
