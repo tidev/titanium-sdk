@@ -481,25 +481,6 @@ events:
     summary: Fires when the camera overlay is ready to take pictures.
     platforms: [android]
     since: "6.0.0"
-  - name: linechange
-    deprecated:
-        since: "3.4.2"
-        removed: "3.5.1"
-        notes: Titanium no longer fires this event. Use the [Titanium.Media.routechange](Titanium.Media.routechange) event instead.
-    summary: Fired when an audio line type change is detected.
-    platforms: [iphone, ipad]
-
-  - name: recordinginput
-    deprecated:
-        since: "3.4.2"
-        removed: "3.5.1"
-        notes: Titanium no longer fires this event. Use the [Titanium.Media.canRecord](Titanium.Media.canRecord) property to check if an input hardware is available.
-    summary: Fired when the availablity of recording input changes.
-    properties:
-      - name: available
-        summary: Indicates whether the recording device is available.
-        type: Boolean
-    platforms: [iphone, ipad]
 
   - name: routechange
     summary: Fired when an audio line type change is detected.

@@ -452,10 +452,6 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
     WARN_IF_BACKGROUND_THREAD_OBJ; //NSNotificationCenter is not threadsafe!
     [[TiMediaAudioSession sharedSession] startAudioSession]; // Have to start a session to get a listener
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(audioVolumeChanged:) name:kTiMediaAudioSessionVolumeChange object:[TiMediaAudioSession sharedSession]];
-  } else if (count == 1 && [type isEqualToString:@"recordinginput"]) {
-    DebugLog(@"[WARN] This event is no longer supported by the MediaModule. Check the inputs property fo the currentRoute property to check if an input line is available");
-  } else if (count == 1 && [type isEqualToString:@"linechange"]) {
-    DebugLog(@"[WARN] This event is no longer supported by the MediaModule. Listen for the routechange event instead");
   }
 }
 
