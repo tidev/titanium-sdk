@@ -96,7 +96,7 @@ describe<%= filter(apidoc) %>('<%= apidoc.name %>', () => {
 <%
 	}
 
-	if (Array.isArray(apidoc.constants)) {
+	if (Array.isArray(apidoc.constants) && apidoc.constants.length > 0) {
 -%>
 
 	describe('constants', () => {
@@ -104,6 +104,30 @@ describe<%= filter(apidoc) %>('<%= apidoc.name %>', () => {
 		for (const prop of apidoc.constants) {
 -%>
 <%- include('property', { prop, instanceName, apiName, filter }); %>
+<%
+		}
+-%>
+	});
+<%
+	}
+
+	if (Array.isArray(apidoc.examples) && apidoc.examples.length > 0) {
+-%>
+
+	describe('examples', () => {
+<%
+		for (const example of apidoc.examples) {
+			let array;
+			let indent = '			';
+			const regex = /```( \w+)([^`]+)```/g;
+			let code = '';
+			while ((array = regex.exec(example.example)) !== null) {
+				code += array[2].replace(/\n/g, '\n' + indent);
+			}
+-%>
+		it('<%= example.title %>', () => {
+			<%- code %>
+		});
 <%
 		}
 -%>
