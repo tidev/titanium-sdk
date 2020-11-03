@@ -329,7 +329,7 @@ describe('Titanium.UI.TextField', function () {
 		should(textField.passwordRules).equal('required: upper; required: lower; required: digit; max-consecutive: 2');
 	});
 
-	it.ios('#hasText()', function () {
+	it.ios('#hasText()', () => {
 		win = Ti.UI.createWindow();
 		const textFieldA = Ti.UI.createTextField({
 			top: '60dip',
@@ -347,8 +347,6 @@ describe('Titanium.UI.TextField', function () {
 
 		should(textFieldA.hasText()).be.true();
 		should(textFieldB.hasText()).be.true();
-
-		win.open();
 	});
 
 	it('.focused', done => {

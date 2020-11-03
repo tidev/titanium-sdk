@@ -665,17 +665,6 @@ NSArray *moviePlayerKeys = nil;
   }
 }
 
-- (NSNumber *)sourceType
-{
-  DEPRECATED_REMOVED(@"Media.VideoPlayer.sourceType", @"7.0.0", @"7.0.0");
-  return NUMINT(-1);
-}
-
-- (void)setSourceType:(id)type
-{
-  DEPRECATED_REMOVED(@"Media.VideoPlayer.sourceType", @"7.0.0", @"7.0.0");
-}
-
 - (NSNumber *)playbackState
 {
   if (_playbackState != TiVideoPlayerPlaybackStateUnknown) {

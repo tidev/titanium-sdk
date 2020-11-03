@@ -24,4 +24,6 @@ commander
 	.command('gradlew <task>', 'Executes an Android gradle task via the gradlew command line tool')
 	.command('deprecations', 'Checks the apidocs for deprecated but unremoved types/properties/methods')
 	.command('removals <minVersion>', 'Checks the apidocs for deprecated and removed types/properties/methods older than a given version')
+	.command('generate-test <pathToapidocYmlFile>', 'Generates a unit test suite for a given type')
+	.command('missing-tests [apiDocDir]', 'List types defined in APIdocs that don\'t have a test suite')
 	.parse(process.argv);
