@@ -485,6 +485,9 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 			return null;
 		}
 
+		// Clone existing drawable so color filter applies correctly.
+		drawable = drawable.getConstantState().newDrawable();
+
 		final KrollDict tabProperties = tabProxy.getProperties();
 		final KrollDict properties = getProxy().getProperties();
 
