@@ -52,7 +52,7 @@
     "lint:objc": "clang-format-lint $npm_package_config_format_objc",
     "lint:swift": "swiftlint",
     "lint:js": "eslint .",
-    "lint:lockfile": "./build/scons check-lockfile",
+    "lint:lockfile": "./build/scons check-lockfile && lockfile-lint --path package-lock.json --type npm --allowed-hosts npm yarn --validate-https",
     "package": "./build/scons package",
     "package:android": "npm run package -- android",
     "package:ios": "npm run package -- ios",
