@@ -527,6 +527,48 @@ describe('Titanium.UI.TabGroup', function () {
 		tabGroup.open();
 	});
 
+	it.android('icon and title tint - android bottom style', finish => {
+		this.timeout(5000);
+
+		tabGroup = Ti.UI.createTabGroup({
+			style: Ti.UI.Android.TABS_STYLE_BOTTOM_NAVIGATION
+		});
+		const tab_a = Ti.UI.createTab({
+			icon: '/SmallLogo.png',
+			title: 'TAB A',
+			titleColor: 'red',
+			activeTitleColor: 'blue',
+			window: Ti.UI.createWindow({ backgroundColor: 'gray' })
+		});
+		const tab_b = Ti.UI.createTab({
+			icon: '/SmallLogo.png',
+			title: 'TAB B',
+			tintColor: 'red',
+			activeTintColor: 'blue',
+			window: Ti.UI.createWindow({ backgroundColor: 'gray' })
+		});
+
+		tabGroup.addEventListener('open', () => {
+			try {
+				const image = tabGroup.toImage();
+				const navImage = image.imageAsCropped({
+					width: image.width,
+					height: 150,
+					y: image.height - 274
+				});
+
+				should(navImage).matchImage('snapshots/tabGroup_bottomNavigation.png');
+			} catch (e) {
+				return finish(e);
+			}
+			finish();
+		});
+
+		tabGroup.addTab(tab_a);
+		tabGroup.addTab(tab_b);
+		tabGroup.open();
+	});
+
 	describe('closed/focused', () => {
 		beforeEach(() => {
 			tabGroup = Ti.UI.createTabGroup();
