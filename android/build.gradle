@@ -1,20 +1,20 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2019 by Axway. All Rights Reserved.
+ * Copyright (c) 2009-2020 by Axway. All Rights Reserved.
  * Licensed under the terms of the Apache Public License.
  * Please see the LICENSE included with this distribution for details.
  */
 
 buildscript {
-	ext.kotlin_version = '1.4.0'
+	ext.kotlin_version = '1.4.10'
 
 	repositories {
 		google()
 		jcenter()
 	}
 	dependencies {
-		classpath 'com.android.tools.build:gradle:4.0.1'
-		classpath 'com.google.gms:google-services:4.3.3'
+		classpath 'com.android.tools.build:gradle:4.1.0'
+		classpath 'com.google.gms:google-services:4.3.4'
 		classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
 	}
 }
@@ -28,7 +28,7 @@ allprojects {
 	// Load plugin used to enforce our Java coding style guidelines.
 	project.apply plugin: 'checkstyle'
 	checkstyle {
-		toolVersion = '8.34'
+		toolVersion = '8.36.2'
 		configFile file("${rootDir}/checkstyle.xml");
 		ignoreFailures false
 		showViolations true

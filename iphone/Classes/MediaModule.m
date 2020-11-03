@@ -302,7 +302,7 @@ MAKE_SYSTEM_PROP(MUSIC_PLAYER_STATE_STOPPED, MPMusicPlaybackStateStopped);
 MAKE_SYSTEM_PROP(MUSIC_PLAYER_STATE_PLAYING, MPMusicPlaybackStatePlaying);
 MAKE_SYSTEM_PROP(MUSIC_PLAYER_STATE_PAUSED, MPMusicPlaybackStatePaused);
 MAKE_SYSTEM_PROP(MUSIC_PLAYER_STATE_INTERRUPTED, MPMusicPlaybackStateInterrupted);
-MAKE_SYSTEM_PROP(MUSIC_PLAYER_STATE_SKEEK_FORWARD, MPMusicPlaybackStateSeekingForward);
+MAKE_SYSTEM_PROP(MUSIC_PLAYER_STATE_SEEK_FORWARD, MPMusicPlaybackStateSeekingForward);
 MAKE_SYSTEM_PROP(MUSIC_PLAYER_STATE_SEEK_BACKWARD, MPMusicPlaybackStateSeekingBackward);
 
 //Constants for MusicPlayer repeatMode
@@ -339,21 +339,26 @@ MAKE_SYSTEM_PROP(QUALITY_IFRAME_1280x720, UIImagePickerControllerQualityTypeIFra
 MAKE_SYSTEM_PROP(QUALITY_IFRAME_960x540, UIImagePickerControllerQualityTypeIFrame960x540);
 #endif
 
-//Constants for MediaTypes in VideoPlayer
+// Constants for MediaTypes in VideoPlayer
 #ifdef USE_TI_MEDIAVIDEOPLAYER
-//Constants for VideoPlayer mediaControlStyle
-MAKE_SYSTEM_STR(VIDEO_SCALE_MODE_KEY, AVVideoScalingModeKey);
-MAKE_SYSTEM_STR(VIDEO_SCALE_MODE_FIT, AVVideoScalingModeFit);
-MAKE_SYSTEM_STR(VIDEO_SCALE_MODE_RESIZE, AVVideoScalingModeResize);
-MAKE_SYSTEM_STR(VIDEO_SCALE_MODE_RESIZE_ASPECT, AVVideoScalingModeResizeAspect);
-MAKE_SYSTEM_STR(VIDEO_SCALE_MODE_RESIZE_ASPECT_FILL, AVVideoScalingModeResizeAspectFill);
-
-//Constants for VideoPlayer scalingMode
+// Constants for VideoPlayer scalingMode
 MAKE_SYSTEM_STR(VIDEO_SCALING_RESIZE, AVLayerVideoGravityResize);
 MAKE_SYSTEM_STR(VIDEO_SCALING_RESIZE_ASPECT, AVLayerVideoGravityResizeAspect);
 MAKE_SYSTEM_STR(VIDEO_SCALING_RESIZE_ASPECT_FILL, AVLayerVideoGravityResizeAspectFill);
 
-//Constants for VideoPlayer loadState
+// Constants for VideoPlayer mediaTypes
+MAKE_SYSTEM_STR(VIDEO_MEDIA_TYPE_AUDIO, AVMediaTypeAudio);
+MAKE_SYSTEM_STR(VIDEO_MEDIA_TYPE_CLOSED_CAPTION, AVMediaTypeClosedCaption);
+MAKE_SYSTEM_STR(VIDEO_MEDIA_TYPE_DEPTH_DATA, AVMediaTypeDepthData);
+MAKE_SYSTEM_STR(VIDEO_MEDIA_TYPE_METADATA, AVMediaTypeMetadata);
+MAKE_SYSTEM_STR(VIDEO_MEDIA_TYPE_METADATA_OBJECT, AVMediaTypeMetadataObject);
+MAKE_SYSTEM_STR(VIDEO_MEDIA_TYPE_MUXED, AVMediaTypeMuxed);
+MAKE_SYSTEM_STR(VIDEO_MEDIA_TYPE_SUBTITLE, AVMediaTypeSubtitle);
+MAKE_SYSTEM_STR(VIDEO_MEDIA_TYPE_TEXT, AVMediaTypeText);
+MAKE_SYSTEM_STR(VIDEO_MEDIA_TYPE_TIMECODE, AVMediaTypeTimecode);
+MAKE_SYSTEM_STR(VIDEO_MEDIA_TYPE_VIDEO, AVMediaTypeVideo);
+
+// Constants for VideoPlayer loadState
 MAKE_SYSTEM_PROP(VIDEO_LOAD_STATE_UNKNOWN, AVPlayerStatusUnknown);
 MAKE_SYSTEM_PROP(VIDEO_LOAD_STATE_PLAYABLE, AVPlayerStatusReadyToPlay);
 MAKE_SYSTEM_PROP(VIDEO_LOAD_STATE_FAILED, AVPlayerStatusFailed);
@@ -402,46 +407,6 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
 }
 #endif
 
-- (void)setDefaultAudioSessionMode:(NSNumber *)mode
-{
-  DEPRECATED_REPLACED(@"Media.defaultAudioSessionMode", @"7.0.0", @"Media.audioSessionCategory");
-  [self setAudioSessionMode:mode];
-}
-
-- (NSNumber *)defaultAudioSessionMode
-{
-  DEPRECATED_REPLACED(@"Media.defaultAudioSessionMode", @"7.0.0", @"Media.audioSessionCategory");
-  return [self audioSessionMode];
-}
-
-- (void)setAudioSessionMode:(NSNumber *)mode
-{
-  DEPRECATED_REPLACED(@"Media.audioSessionMode", @"7.0.0", @"Media.audioSessionCategory");
-
-#if !TARGET_OS_MACCATALYST
-  switch ([mode unsignedIntegerValue]) {
-  case kAudioSessionCategory_AmbientSound:
-    [self setAudioSessionCategory:[self AUDIO_SESSION_CATEGORY_AMBIENT]];
-    break;
-  case kAudioSessionCategory_SoloAmbientSound:
-    [self setAudioSessionCategory:[self AUDIO_SESSION_CATEGORY_SOLO_AMBIENT]];
-    break;
-  case kAudioSessionCategory_PlayAndRecord:
-    [self setAudioSessionCategory:[self AUDIO_SESSION_CATEGORY_PLAY_AND_RECORD]];
-    break;
-  case kAudioSessionCategory_RecordAudio:
-    [self setAudioSessionCategory:[self AUDIO_SESSION_CATEGORY_RECORD]];
-    break;
-  case kAudioSessionCategory_MediaPlayback:
-    [self setAudioSessionCategory:[self AUDIO_SESSION_CATEGORY_PLAYBACK]];
-    break;
-  default:
-    DebugLog(@"Unsupported audioSessionMode specified");
-    break;
-  }
-#endif
-}
-
 - (void)setAudioSessionCategory:(NSString *)mode
 {
   [[TiMediaAudioSession sharedSession] setSessionMode:mode];
@@ -487,10 +452,6 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
     WARN_IF_BACKGROUND_THREAD_OBJ; //NSNotificationCenter is not threadsafe!
     [[TiMediaAudioSession sharedSession] startAudioSession]; // Have to start a session to get a listener
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(audioVolumeChanged:) name:kTiMediaAudioSessionVolumeChange object:[TiMediaAudioSession sharedSession]];
-  } else if (count == 1 && [type isEqualToString:@"recordinginput"]) {
-    DebugLog(@"[WARN] This event is no longer supported by the MediaModule. Check the inputs property fo the currentRoute property to check if an input line is available");
-  } else if (count == 1 && [type isEqualToString:@"linechange"]) {
-    DebugLog(@"[WARN] This event is no longer supported by the MediaModule. Listen for the routechange event instead");
   }
 }
 
@@ -2016,7 +1977,7 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
 - (void)presentationControllerDidDismiss:(UIPresentationController *)presentationController
 {
 #if defined(USE_TI_MEDIASHOWCAMERA) || defined(USE_TI_MEDIAOPENPHOTOGALLERY) || defined(USE_TI_MEDIASTARTVIDEOEDITING)
-#if IS_SDK_IOS_14
+#if IS_SDK_IOS_14 && defined(USE_TI_MEDIAOPENPHOTOGALLERY)
   [self closeModalPicker:picker ?: _phPicker];
 #else
   [self closeModalPicker:picker];

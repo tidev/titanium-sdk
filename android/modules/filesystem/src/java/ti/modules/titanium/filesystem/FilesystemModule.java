@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2020 by Axway, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -52,24 +52,32 @@ public class FilesystemModule extends KrollModule
 	public FileProxy createTempFile(KrollInvocation invocation)
 	{
 		try {
-			File f = File.createTempFile("tifile", "tmp");
-			String[] parts = { f.getAbsolutePath() };
+			File file = File.createTempFile("tifile", ".tmp", TiApplication.getInstance().getTiTempDir());
+			String[] parts = { file.getAbsolutePath() };
 			return new FileProxy(invocation.getSourceUrl(), parts, false);
-		} catch (IOException e) {
-			Log.e(TAG, "Unable to create tmp file: " + e.getMessage(), e);
-			return null;
+		} catch (Exception ex) {
+			Log.e(TAG, "Unable to create tmp file: " + ex.getMessage(), ex);
 		}
+		return null;
 	}
 
 	@Kroll.method
 	public FileProxy createTempDirectory(KrollInvocation invocation)
 	{
-		String dir = String.valueOf(System.currentTimeMillis());
-		File tmpdir = new File(System.getProperty("java.io.tmpdir"));
-		File f = new File(tmpdir, dir);
-		f.mkdirs();
-		String[] parts = { f.getAbsolutePath() };
-		return new FileProxy(invocation.getSourceUrl(), parts);
+		try {
+			File parentDir = TiApplication.getInstance().getTiTempDir();
+			String tempDirName = "tidir" + System.currentTimeMillis();
+			File tempDir = new File(parentDir, tempDirName);
+			for (int index = 0; tempDir.exists(); index++) {
+				tempDir = new File(parentDir, tempDirName + index);
+			}
+			tempDir.mkdirs();
+			String[] parts = { tempDir.getAbsolutePath() };
+			return new FileProxy(invocation.getSourceUrl(), parts, false);
+		} catch (Exception ex) {
+			Log.e(TAG, "Unable to create tmp directory: " + ex.getMessage(), ex);
+		}
+		return null;
 	}
 
 	@Kroll.method
@@ -186,8 +194,7 @@ public class FilesystemModule extends KrollModule
 	@Kroll.getProperty
 	public String getTempDirectory()
 	{
-		TiApplication tiApplication = TiApplication.getInstance();
-		return "file://" + tiApplication.getTempFileHelper().getTempDirectory().getAbsolutePath();
+		return "file://" + TiApplication.getInstance().getTiTempDir().getAbsolutePath();
 	}
 
 	@Kroll.method

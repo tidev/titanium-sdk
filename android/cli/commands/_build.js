@@ -14,7 +14,6 @@
 'use strict';
 
 const ADB = require('node-titanium-sdk/lib/adb'),
-	AdmZip = require('adm-zip'),
 	android = require('node-titanium-sdk/lib/android'),
 	androidDetect = require('../lib/detect').detect,
 	AndroidManifest = require('../lib/android-manifest'),
@@ -1515,9 +1514,7 @@ AndroidBuilder.prototype.run = async function run(logger, config, cli, finished)
 		Builder.prototype.run.apply(this, arguments);
 
 		// Notify plugins that we're about to begin.
-		await new Promise((resolve) => {
-			cli.emit('build.pre.construct', this, resolve);
-		});
+		await new Promise(resolve => cli.emit('build.pre.construct', this, resolve));
 
 		// Post build anlytics.
 		await this.doAnalytics();
@@ -1545,13 +1542,9 @@ AndroidBuilder.prototype.run = async function run(logger, config, cli, finished)
 		await this.generateAppProject();
 
 		// Build the app.
-		await new Promise((resolve) => {
-			cli.emit('build.pre.build', this, resolve);
-		});
+		await new Promise(resolve => cli.emit('build.pre.build', this, resolve));
 		await this.buildAppProject();
-		await new Promise((resolve) => {
-			cli.emit('build.post.build', this, resolve);
-		});
+		await new Promise(resolve => cli.emit('build.post.build', this, resolve));
 
 		// Write Titanium build settings to file. Used to determine if next build can be incremental or not.
 		await this.writeBuildManifest();
@@ -1563,12 +1556,8 @@ AndroidBuilder.prototype.run = async function run(logger, config, cli, finished)
 		}
 
 		// Notify plugins that the build is done.
-		await new Promise((resolve) => {
-			cli.emit('build.post.compile', this, resolve);
-		});
-		await new Promise((resolve) => {
-			cli.emit('build.finalize', this, resolve);
-		});
+		await new Promise(resolve => cli.emit('build.post.compile', this, resolve));
+		await new Promise(resolve => cli.emit('build.finalize', this, resolve));
 	} catch (err) {
 		// Failed to build app. Print the error message and stack trace (if possible), then exit out.
 		// Note: "err" can be whatever type (including undefined) that was passed into Promise.reject().
@@ -3079,27 +3068,48 @@ AndroidBuilder.prototype.generateRequireIndex = async function generateRequireIn
 	await fs.writeFile(cacheJsonFilePath, JSON.stringify(cacheAssets));
 };
 
-AndroidBuilder.prototype.getNativeModuleBindings = function getNativeModuleBindings(jarFile) {
-	var zip = new AdmZip(jarFile),
-		zipEntries = zip.getEntries(),
-		i = 0,
-		len = zipEntries.length,
-		pathName = 'org/appcelerator/titanium/bindings/',
-		pathNameLen = pathName.length,
-		entry, name;
-
-	for (; i < len; i++) {
-		entry = zipEntries[i];
-		name = entry.entryName.toString();
-		if (name.length > pathNameLen && name.indexOf(pathName) === 0) {
-			try {
-				return JSON.parse(entry.getData());
-			} catch (e) {
-				// ignore
+/**
+ * @param {string} jarFile filepath to JAR
+ * @returns {Promise<Object>} parsed JSON of the module's bindings
+ */
+AndroidBuilder.prototype.getNativeModuleBindings = async function getNativeModuleBindings(jarFile) {
+	return new Promise((resolve, reject) => {
+		const yauzl = require('yauzl');
+		yauzl.open(jarFile, { lazyEntries: true }, (err, zipfile) => {
+			if (err) {
+				return reject(err);
 			}
-			return;
-		}
-	}
+
+			zipfile.once('error', reject);
+			zipfile.on('entry', entry => {
+				if (!entry.fileName.startsWith('org/appcelerator/titanium/bindings/')) {
+					zipfile.readEntry(); // move on
+					return;
+				}
+				// read the entry
+				zipfile.openReadStream(entry, function (err, readStream) {
+					if (err) {
+						return reject(err);
+					}
+
+					// read file contents and when done, parse as JSON
+					const chunks = [];
+					readStream.once('error', reject);
+					readStream.on('data', chunk => chunks.push(chunk));
+					readStream.on('end', () => {
+						try {
+							zipfile.close();
+							const str = Buffer.concat(chunks).toString('utf8');
+							return resolve(JSON.parse(str));
+						} catch (error) {
+							reject(error);
+						}
+					});
+				});
+			});
+			zipfile.readEntry();
+		});
+	});
 };
 
 AndroidBuilder.prototype.generateJavaFiles = async function generateJavaFiles() {
@@ -3146,7 +3156,7 @@ AndroidBuilder.prototype.generateJavaFiles = async function generateJavaFiles() 
 			const jarFilePath = path.join(module.modulePath, moduleName + '.jar');
 			try {
 				if (await fs.exists(jarFilePath)) {
-					javaBindings = this.getNativeModuleBindings(jarFilePath);
+					javaBindings = await this.getNativeModuleBindings(jarFilePath);
 				}
 			} catch (ex) {
 				this.logger.error(__n('The module "%s" has an invalid jar file: %s', module.id, jarFilePath));
