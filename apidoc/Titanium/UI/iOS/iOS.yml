@@ -94,54 +94,6 @@ properties:
     osver: {ios: {min: "9.1"}}
     permission: read-only
 
-  - name: ANIMATION_CURVE_EASE_IN
-    deprecated:
-        since: "2.1.0"
-        notes: Use [Titanium.UI.ANIMATION_CURVE_EASE_IN](Titanium.UI.ANIMATION_CURVE_EASE_IN) instead.
-        removed: "6.0.0"
-    summary: |
-        Use with [Animation.curve](Titanium.UI.Animation.curve) to specify an animation that starts
-        slowly and speeds up.
-    type: Number
-    permission: read-only
-    exclude-platforms: [macos]
-
-  - name: ANIMATION_CURVE_EASE_IN_OUT
-    deprecated:
-        since: "2.1.0"
-        notes: Use [Titanium.UI.ANIMATION_CURVE_EASE_IN_OUT](Titanium.UI.ANIMATION_CURVE_EASE_IN_OUT) instead.
-        removed: "6.0.0"
-    summary: |
-        Use with [Animation.curve](Titanium.UI.Animation.curve) to specify an animation that starts
-        slowly, and speeds up, then slows down at the end of the animation.
-    type: Number
-    permission: read-only
-    exclude-platforms: [macos]
-
-  - name: ANIMATION_CURVE_EASE_OUT
-    deprecated:
-        since: "2.1.0"
-        notes: Use [Titanium.UI.ANIMATION_CURVE_EASE_OUT](Titanium.UI.ANIMATION_CURVE_EASE_OUT) instead.
-        removed: "6.0.0"
-    summary: |
-        Use with [Animation.curve](Titanium.UI.Animation.curve) to specify an animation that starts
-        quickly, then slows down at the end of the animation.
-    type: Number
-    permission: read-only
-    exclude-platforms: [macos]
-
-  - name: ANIMATION_CURVE_LINEAR
-    deprecated:
-        since: "2.1.0"
-        notes: Use [Titanium.UI.ANIMATION_CURVE_LINEAR](Titanium.UI.ANIMATION_CURVE_LINEAR) instead.
-        removed: "6.0.0"
-    summary: |
-        Use with [Animation.curve](Titanium.UI.Animation.curve) to specify an animation that proceeds
-        at a constant rate.
-    type: Number
-    permission: read-only
-    exclude-platforms: [macos]
-
   - name: BLEND_MODE_CLEAR
     deprecated:
         since: "7.3.0"
