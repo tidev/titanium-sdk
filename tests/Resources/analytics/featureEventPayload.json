@@ -1,0 +1,315 @@
+{
+	"largeInvalid": {
+		"a": {
+			"k1": {
+				"k": "v"
+			},
+			"k2": {
+				"k": "v"
+			},
+			"k3": {
+				"k": "v"
+			},
+			"k4": {
+				"k": "v"
+			},
+			"k5": {
+				"k": "v"
+			},
+			"k6": [
+				{"a":1}, {"b":2}, {"c": 3},
+				{"d":4}, {"e":5}, {"f": 6}
+			]
+		},
+
+		"b": {
+			"k1": {
+				"k": "v"
+			},
+			"k2": {
+				"k": "v"
+			},
+			"k3": {
+				"k": "v"
+			},
+			"k4": {
+				"k": "v"
+			},
+			"k5": {
+				"k": "v"
+			},
+			"k6": [
+				{"a":1}, {"b":2}, {"c": 3},
+				{"d":4}, {"e":5}, {"f": 6}
+			]
+		},
+
+		"c": {
+		    "glossary": {
+		        "title": "example glossary",
+				"GlossDiv": {
+		            "title": "S",
+					"GlossList": {
+		                "GlossEntry": {
+		                    "ID": "SGML",
+							"SortAs": "SGML",
+							"GlossTerm": "Standard Generalized Markup Language",
+							"Acronym": "SGML",
+							"Abbrev": "ISO 8879:1986",
+							"GlossSee": "markup"
+		                }
+		            }
+		        }
+		    }
+		},
+
+		"d": {
+		    "glossary": {
+		        "title": "example glossary",
+				"GlossDiv": {
+		            "title": "S",
+					"GlossList": {
+		                "GlossEntry": {
+		                    "ID": "SGML",
+							"SortAs": "SGML",
+							"GlossTerm": "Standard Generalized Markup Language",
+							"Acronym": "SGML",
+							"Abbrev": "ISO 8879:1986",
+							"GlossSee": "markup"
+		                }
+		            }
+		        }
+		    }
+		},
+
+		"f": {
+		    "glossary": {
+		        "title": "example glossary",
+				"GlossDiv": {
+		            "title": "S",
+					"GlossList": {
+		                "GlossEntry": {
+		                    "ID": "SGML",
+							"SortAs": "SGML",
+							"GlossTerm": "Standard Generalized Markup Language",
+							"Acronym": "SGML",
+							"Abbrev": "ISO 8879:1986",
+							"GlossSee": "markup"
+		                }
+		            }
+		        }
+		    }
+		},
+
+		"g": {
+		    "glossary": {
+		        "title": "example glossary",
+				"GlossDiv": {
+		            "title": "S",
+					"GlossList": {
+		                "GlossEntry": {
+		                    "ID": "SGML",
+							"SortAs": "SGML",
+							"GlossTerm": "Standard Generalized Markup Language",
+							"Acronym": "SGML",
+							"Abbrev": "ISO 8879:1986",
+							"GlossSee": "markup"
+		                }
+		            }
+		        }
+		    }
+		},
+
+		"h": {
+		    "glossary": {
+		        "title": "example glossary",
+				"GlossDiv": {
+		            "title": "S",
+					"GlossList": {
+		                "GlossEntry": {
+		                    "ID": "SGML",
+							"SortAs": "SGML",
+							"GlossTerm": "Standard Generalized Markup Language",
+							"Acronym": "SGML",
+							"Abbrev": "ISO 8879:1986",
+							"GlossSee": "markup"
+		                }
+		            }
+		        }
+		    }
+		},
+
+		"i": {
+		    "glossary": {
+		        "title": "example glossary",
+				"GlossDiv": {
+		            "title": "S",
+					"GlossList": {
+		                "GlossEntry": {
+		                    "ID": "SGML",
+							"SortAs": "SGML",
+							"GlossTerm": "Standard Generalized Markup Language",
+							"Acronym": "SGML",
+							"Abbrev": "ISO 8879:1986",
+							"GlossSee": "markup"
+		                }
+		            }
+		        }
+		    }
+		},
+
+		"j": {
+		    "glossary": {
+		        "title": "example glossary",
+				"GlossDiv": {
+		            "title": "S",
+					"GlossList": {
+		                "GlossEntry": {
+		                    "ID": "SGML",
+							"SortAs": "SGML",
+							"GlossTerm": "Standard Generalized Markup Language",
+							"Acronym": "SGML",
+							"Abbrev": "ISO 8879:1986",
+							"GlossSee": "markup"
+		                }
+		            }
+		        }
+		    }
+		},
+
+		"k": {
+		    "glossary": {
+		        "title": "example glossary",
+				"GlossDiv": {
+		            "title": "S",
+					"GlossList": {
+		                "GlossEntry": {
+		                    "ID": "SGML",
+							"SortAs": "SGML",
+							"GlossTerm": "Standard Generalized Markup Language",
+							"Acronym": "SGML",
+							"Abbrev": "ISO 8879:1986",
+							"GlossSee": "markup"
+		                }
+		            }
+		        }
+		    }
+		}
+	},
+	"complexInvalid": {
+		"foo": true,
+		"bar": {
+			"k1": {
+				"k": "v"
+			},
+			"k2": {
+				"k": "v"
+			},
+			"k3": {
+				"k": "v"
+			},
+			"k4": {
+				"k": "v"
+			},
+			"k5": {
+				"k": "v"
+			},
+			"k6": [
+				{"a":1}, {"b":2}, {"c": 3},
+				{"d":4}, {"e":5}, {"f": {"k1":{"k2":{"k3": [{"k4": {"k5": "v"}}] }}}}
+			]
+		}
+	},
+	"complexValid": {
+		"foo": true,
+		"bar": {
+			"k1": {
+				"k": "v"
+			},
+			"k2": {
+				"k": "v"
+			},
+			"k3": {
+				"k": "v"
+			},
+			"k4": {
+				"k": "v"
+			},
+			"k5": {
+				"k": "v"
+			},
+			"k6": [
+				{"a":1}, {"b":2}, {"c": 3},
+				{"d":4}, {"e":5}, {"f": 6}
+			]
+		}
+	},
+	"maxKeysInvalid":  {
+	 	"key": [{
+	    "_id": "569",
+	    "index": 0,
+	    "guid": "c55",
+	    "isActive": true,
+	    "balance": "na",
+	    "picture": "na",
+	    "age": 23,
+	    "eye": "blue",
+	    "name_first": "na",
+	    "name_last": "na",
+	    "company": "na",
+	    "email": "na",
+	    "phone": "+na",
+	    "address": "na",
+	    "about": "na",
+	    "reg": "na",
+	    "lat": "na",
+	    "lon": "na",
+	    "tags": "na",
+	    "range": 0,
+	    "friends": 0,
+	    "greeting": "H",
+	    "fruit": "na",
+	    "twitter": "na",
+	    "fb": "na",
+	    "linkedin": "na",
+	    "github": "na",
+	    "seconlife": "na",
+	    "sof": "na",
+	    "machine": "mac",
+	    "phone": "iphone",
+	    "telco": "na",
+	    "balance": 0,
+	    "blog": "na",
+	    "married" : true,
+	    "sons" : 0,
+	    "daughters": 1,
+	    "spouse": "na",
+	    "homecity":"na",
+	    "car": "na",
+	    "txno": "na",
+	    "serno": "na",
+	    "created_date" : "1998/12/15",
+	    "created_time" : "17:54:44",
+		"eliminado": false,
+	    "leido": false,
+	    "contenidoPublico": false,
+		"idContenido": 2,
+		"link1": "na",
+		"link2": "na",
+		"link3": "na",
+		"link4": "na",
+		"link5": "na",
+		"link6": "na",
+		"link7": "na",
+		"link8": "na",
+		"link9": "na",
+		"link2": "na",
+		"link3": "na",
+		"link4": "na",
+		"link5": "na",
+		"link6": "na",
+		"link7": "na",
+		"link8": "na"
+	  }]
+	}
+}

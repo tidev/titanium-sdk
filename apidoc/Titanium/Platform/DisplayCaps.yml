@@ -48,7 +48,7 @@ properties:
         Note for iPhone 6+, this value is 3.
     type: Number
     permission: read-only
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     since: {iphone: "3.4.1", ipad: "3.4.1"}
 
   - name: platformHeight

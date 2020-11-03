@@ -4,9 +4,11 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-/* globals OS_ANDROID,OS_IOS */
+/* globals OS_ANDROID,OS_IOS, OS_VERSION_MAJOR, OS_VERSION_MINOR */
 import Color from '../../../../lib/color';
-const isIOS13Plus = OS_IOS && parseInt(Ti.Platform.version.split('.')[0]) >= 13;
+const isIOS13Plus = OS_IOS && (OS_VERSION_MAJOR >= 13);
+const isMacOS = Ti.Platform.name === 'Mac OS X';
+const isMACOSXCatalinaPlus = isMacOS && (OS_VERSION_MAJOR > 10 || (OS_VERSION_MAJOR === 10 && OS_VERSION_MINOR >= 15));
 
 // As Android passes a new instance of Ti.UI to every JS file we can't just
 // Ti.UI within this file, we must call kroll.binding to get the Titanium
@@ -37,9 +39,9 @@ Object.defineProperty(UI, 'semanticColorType', {
 
 // on Android/iOS < 13, we need to roll our own fetchSemanticColor impl
 // on iOS 13+, we have a native version
-if (!isIOS13Plus) {
+if (!isIOS13Plus && !isMACOSXCatalinaPlus) {
 	// On iOS < 13, we don't have the theme constants defined, which breaks our tests
-	if (OS_IOS) {
+	if (OS_IOS && !isMacOS) {
 		Object.defineProperty(UI, 'USER_INTERFACE_STYLE_UNSPECIFIED', {
 			value: 0,
 			writable: false

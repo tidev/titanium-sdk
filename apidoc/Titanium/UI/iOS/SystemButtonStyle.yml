@@ -34,10 +34,9 @@ description: |
     * `BORDERED`. Creates a bar like the `PLAIN` bar, but with a heavier border.
     translucent buttons that allow the bar's background color to show through.
 extends: Titanium.Proxy
-since: "5.4.0"
-platforms: [iphone, ipad]
+platforms: [iphone, ipad, macos]
+since: {iphone: "5.4.0", ipad: "5.4.0", macos: "9.2.0"}
 createable: false
-
 properties:
   - name: BORDERED
     summary: A simple button style with a border. 

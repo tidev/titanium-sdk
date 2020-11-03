@@ -27,7 +27,7 @@ description: |
     Use the <Titanium.Network.Socket.createTCP> method to create a TCP socket.
 extends: Titanium.IOStream
 since: "1.7"
-platforms: [android, iphone, ipad]
+platforms: [android, iphone, ipad, macos]
 examples:
   - title: Simple Socket IO using Stream.pump
     example: |
@@ -307,6 +307,7 @@ properties:
   - name: errorCode
     summary: The error code of the error (potentially system-dependent).
     type: Number
+    exclude-platforms: [macos]
     deprecated:
         since: "3.1.0"
         removed: "9.0.0"

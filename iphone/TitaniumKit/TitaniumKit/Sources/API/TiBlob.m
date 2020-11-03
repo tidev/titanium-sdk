@@ -11,7 +11,6 @@
 #import "UIImage+Alpha.h"
 #import "UIImage+Resize.h"
 #import "UIImage+RoundedCorner.h"
-
 //NOTE:FilesystemFile is conditionally compiled based on the filesystem module.
 #import "TiFilesystemFileProxy.h"
 
@@ -74,6 +73,12 @@ static NSString *const MIMETYPE_JPEG = @"image/jpeg";
 }
 GETTER_IMPL(NSUInteger, width, Width);
 
+- (NSUInteger)uprightWidth
+{
+  return [self width];
+}
+GETTER_IMPL(NSUInteger, uprightWidth, UprightWidth);
+
 - (NSUInteger)height
 {
   [self ensureImageLoaded];
@@ -83,6 +88,12 @@ GETTER_IMPL(NSUInteger, width, Width);
   return 0;
 }
 GETTER_IMPL(NSUInteger, height, Height);
+
+- (NSUInteger)uprightHeight
+{
+  return [self height];
+}
+GETTER_IMPL(NSUInteger, uprightHeight, UprightHeight);
 
 - (NSUInteger)size
 {
@@ -446,4 +457,23 @@ GETTER_IMPL(NSUInteger, length, Length);
   return [super toString];
 }
 
+static void jsArrayBufferFreeDeallocator(void *data, void *ctx)
+{
+  free(data);
+}
+
+- (JSValue *)toArrayBuffer
+{
+  NSData *theData = [self data];
+  // Copy the raw bytes of the NSData we're wrapping
+  NSUInteger len = [theData length];
+  void *arrayBytes = malloc(len);
+  [theData getBytes:arrayBytes length:len];
+
+  // Now make an ArrayBuffer with the copied bytes
+  JSContext *context = JSContext.currentContext;
+  JSValueRef *exception;
+  JSObjectRef arrayBuffer = JSObjectMakeArrayBufferWithBytesNoCopy(context.JSGlobalContextRef, arrayBytes, len, jsArrayBufferFreeDeallocator, nil, exception);
+  return [JSValue valueWithJSValueRef:arrayBuffer inContext:context];
+}
 @end

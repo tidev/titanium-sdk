@@ -5,7 +5,7 @@ summary: |
     and receive details about the system-wide notification settings.
 
 extends: Titanium.Module
-platforms: [iphone, ipad]
+platforms: [iphone, ipad, macos]
 osver: {ios: {min: "8.0"}}
 since: "7.3.0"
 excludes:
@@ -171,7 +171,7 @@ name: GetUserNotificationSettings
 summary: |
     Dictionary object of parameters used to register the application with local notifications using
     the <Titanium.App.iOS.registerUserNotificationSettings> method.
-platforms: [iphone, ipad]
+platforms: [iphone, ipad, macos]
 
 properties:
   - name: types

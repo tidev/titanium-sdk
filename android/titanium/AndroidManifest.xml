@@ -11,11 +11,11 @@
 		<activity
 			android:name="ti.modules.titanium.media.TiCameraActivity"
 			android:configChanges="${tiActivityConfigChanges}"
-			android:theme="@style/Theme.AppCompat.Translucent.NoTitleBar.Fullscreen"/>
+			android:theme="@style/Theme.Titanium.Translucent.Fullscreen"/>
 		<activity
 			android:name="ti.modules.titanium.media.TiVideoActivity"
 			android:configChanges="${tiActivityConfigChanges}"
-			android:theme="@style/Theme.AppCompat.Fullscreen"/>
+			android:theme="@style/Theme.Titanium.Fullscreen"/>
 		<activity android:name="ti.modules.titanium.ui.android.TiPreferencesActivity"/>
 
 		<provider

@@ -1,0 +1,25 @@
+<navigation-window>
+  <window
+    title="Titanium Angular"
+    ios:barColor="#1976d2"
+    [ios:titleAttributes]="{ color: '#fff' }"
+    layout="vertical"
+  >
+    <label [font]="{ fontSize: 22 }" top="20" left="20">Simple Counter</label>
+    <button (click)="increaseTaps()" top="40">
+      Tap Me!
+    </button>
+    <view top="40" [height]="Ti.UI.SIZE">
+      <label
+        *ngIf="tapCount === 0; else countBlock"
+      >
+        Tap the button to start counting
+      </label>
+      <ng-template #countBlock>
+        <label>
+          You have tapped {{ tapCount }} times!
+        </label>
+      </ng-template>
+    </view>
+  </window>
+</navigation-window>

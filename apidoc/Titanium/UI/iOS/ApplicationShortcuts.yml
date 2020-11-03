@@ -51,6 +51,9 @@ extends: Titanium.Proxy
 platforms: [iphone]
 osver: {ios: {min: "9.0"}}
 since: "5.1.0"
+deprecated:
+    since: "9.1.0"
+    notes: Use [Titanium.UI.Shortcut](Titanium.UI.Shortcut) instead.
 createable: true
 methods:
   - name: listDynamicShortcuts

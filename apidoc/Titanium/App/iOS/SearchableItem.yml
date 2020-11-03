@@ -19,7 +19,7 @@ description: |
     [addToDefaultSearchableIndex()](Titanium.App.iOS.SearchableIndex.addToDefaultSearchableIndex) method to add the item
     to the device's search index.
 extends: Titanium.Proxy
-platforms: [iphone,ipad]
+platforms: [iphone,ipad, macos]
 osver: {ios: {min: "9.0"}}
 since: "5.0.0"
 createable: true

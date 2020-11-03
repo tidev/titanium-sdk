@@ -305,6 +305,18 @@ namespace ${ns?lower_case} {
 		"javaDeleteLocalRef":true,
 		"defaultValue": "null"
 	},
+	"byte[]":{
+		"jsType":"ArrayBuffer",
+		"jsHandleCast":"ArrayBuffer",
+		"jsToJavaConverter":"jsArrayBufferToJavaByteArray",
+		"javaToJsConverter":"javaByteArrayToJsArrayBuffer",
+		"jvalue":"l", "signature":"[B",
+		"javaCallMethodType":"Object",
+		"javaReturnType":"jbyteArray",
+		"javaValidation":true,
+		"javaDeleteLocalRef":true,
+		"defaultValue": "null"
+	},
 	"int[]":{
 		"jsType":"Array",
 		"jsHandleCast":"Array",

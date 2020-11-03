@@ -190,6 +190,50 @@
 }
 #endif
 
+#ifdef USE_TI_UIPICKER
+
+#if IS_SDK_IOS_13_4
+- (NSNumber *)DATE_PICKER_STYLE_AUTOMATIC
+{
+  if (![TiUtils isIOSVersionOrGreater:@"13.4"]) {
+    return @(-1);
+  }
+
+  return @(UIDatePickerStyleAutomatic);
+}
+
+- (NSNumber *)DATE_PICKER_STYLE_WHEELS
+{
+  if (![TiUtils isIOSVersionOrGreater:@"13.4"]) {
+    return @(-1);
+  }
+
+  return @(UIDatePickerStyleWheels);
+}
+
+- (NSNumber *)DATE_PICKER_STYLE_COMPACT
+{
+  if (![TiUtils isIOSVersionOrGreater:@"13.4"]) {
+    return @(-1);
+  }
+
+  return @(UIDatePickerStyleCompact);
+}
+#endif
+
+#if IS_SDK_IOS_14
+- (NSNumber *)DATE_PICKER_STYLE_INLINE
+{
+  if (![TiUtils isIOSVersionOrGreater:@"14.0"]) {
+    return @(-1);
+  }
+
+  return @(UIDatePickerStyleInline);
+}
+#endif
+
+#endif
+
 #ifdef USE_TI_UIIOSPREVIEWCONTEXT
 - (NSNumber *)PREVIEW_ACTION_STYLE_DEFAULT
 {
@@ -750,11 +794,12 @@ MAKE_SYSTEM_STR(TABLEVIEW_INDEX_SEARCH, UITableViewIndexSearch);
 #ifdef USE_TI_UIIOSAPPLICATIONSHORTCUTS
 - (id)createApplicationShortcuts:(id)args
 {
+  DEPRECATED_REPLACED(@"UI.iOS.ApplicationShortcuts", @"9.1.0", @"UI.Shortcut");
   return [[[TiUIiOSApplicationShortcutsProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
 }
 #endif
 
-#if defined(USE_TI_UIIOSAPPLICATIONSHORTCUTS) || defined(USE_TI_UIAPPLICATIONSHORTCUTS)
+#if defined(USE_TI_UIIOSAPPLICATIONSHORTCUTS) || defined(USE_TI_UIAPPLICATIONSHORTCUTS) || defined(USE_TI_UISHORTCUT) || defined(USE_TI_UISHORTCUTITEM)
 MAKE_SYSTEM_PROP(SHORTCUT_ICON_TYPE_COMPOSE, UIApplicationShortcutIconTypeCompose);
 MAKE_SYSTEM_PROP(SHORTCUT_ICON_TYPE_PLAY, UIApplicationShortcutIconTypePlay);
 MAKE_SYSTEM_PROP(SHORTCUT_ICON_TYPE_PAUSE, UIApplicationShortcutIconTypePause);

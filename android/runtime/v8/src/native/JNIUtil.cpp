@@ -30,6 +30,7 @@ jclass JNIUtil::doubleClass = NULL;
 jclass JNIUtil::booleanClass = NULL;
 jclass JNIUtil::stringArrayClass = NULL;
 jclass JNIUtil::objectArrayClass = NULL;
+jclass JNIUtil::byteArrayClass = NULL;
 jclass JNIUtil::shortArrayClass = NULL;
 jclass JNIUtil::intArrayClass = NULL;
 jclass JNIUtil::longArrayClass = NULL;
@@ -312,6 +313,7 @@ void JNIUtil::initCache()
 	floatClass = findClass("java/lang/Float");
 	doubleClass = findClass("java/lang/Double");
 	booleanClass = findClass("java/lang/Boolean");
+	byteArrayClass = findClass("[B");
 	shortArrayClass = findClass("[S");
 	intArrayClass = findClass("[I");
 	longArrayClass = findClass("[J");

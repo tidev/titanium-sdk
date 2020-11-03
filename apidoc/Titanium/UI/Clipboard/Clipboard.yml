@@ -28,9 +28,8 @@ description: |
     Any data type that is specified but not correctly mapped to a clipboard type by the system is
     retrieved as a <Titanium.Blob> type.
 extends: Titanium.Module
-since: "1.5"
-platforms: [android, iphone, ipad]
-
+platforms: [iphone, ipad, macos]
+since: {iphone: "1.5.0", ipad: "1.5.0", macos: "9.2.0"}
 methods:
   - name: clearData
     summary: |
@@ -80,25 +79,25 @@ methods:
 
   - name: hasURLs
     summary: Indicates whether any URLs are stored in the clipboard.
-    since: "6.0.0"
     osver: {ios: {min: "10.0"}}
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
+    since: {iphone: "6.0.0", ipad: "6.0.0", macos: "9.2.0"}
     returns:
         type: Boolean
 
   - name: hasImages
     summary: Indicates whether any images are stored in the clipboard.
-    since: "6.0.0"
     osver: {ios: {min: "10.0"}}
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
+    since: {iphone: "6.0.0", ipad: "6.0.0", macos: "9.2.0"}
     returns:
         type: Boolean
 
   - name: hasColors
     summary: Indicates whether any colors are stored in the clipboard.
-    since: "6.0.0"
     osver: {ios: {min: "10.0"}}
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
+    since: {iphone: "6.0.0", ipad: "6.0.0", macos: "9.2.0"}
     returns:
         type: Boolean
 
@@ -142,29 +141,29 @@ methods:
         summary: |
             An array of key-value items to add to the clipboard. The key must a valid mime-type
             matching the mime-type of the value.
-    since: "5.5.0"
     osver: {ios: {min: "10.0"}}
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
+    since: {iphone: "5.5.0", ipad: "5.5.0", macos: "9.2.0"}
 
   - name: getItems
     summary: Gets the items that have been specified earlier using <Titanium.UI.Clipboard.setItems>.
     returns:
         - type: Array<Dictionary>
-    since: "5.5.0"
     osver: {ios: {min: "10.0"}}
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
+    since: {iphone: "5.5.0", ipad: "5.5.0", macos: "9.2.0"}
 
   - name: remove
     summary: Removes the clipboard.
     since: "6.1.0"
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
 properties:
   - name: name
     summary: Create a new named clipboard.
     description: Create a new clipboard with a given name. See the example on how to use this.
     since: "6.1.0"
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     availability: creation
     type: String
 
@@ -174,7 +173,7 @@ properties:
         Create a new clipboard identified by a unique system-generated name.
         See the example on how to use this.
     since: "6.1.0"
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     availability: creation
     type: Boolean
 
@@ -186,7 +185,7 @@ properties:
         If "create" is true, it will return the existing clipboard (if exists). Otherwise
         it will create new clipboard with given name.
     since: "6.1.0"
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     availability: creation
     type: Boolean
 

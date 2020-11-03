@@ -8,7 +8,6 @@
 
 #import "PlatformModule.h"
 #import "TiPlatformDisplayCaps.h"
-#import "TiUtils+Addons.h"
 #import <TitaniumKit/JSValue+Addons.h>
 #import <TitaniumKit/TiApp.h>
 
@@ -30,16 +29,31 @@ NSString *const DATA_IFACE = @"pdp_ip0";
 
 @implementation PlatformModule
 
-@synthesize architecture, availableMemory, model, name, osname, ostype, processorCount, totalMemory, uptime, username, version;
+@synthesize architecture, availableMemory, model, name, osname, ostype, processorCount, totalMemory, uptime, username, version, versionMajor, versionMinor, versionPatch;
 
 #pragma mark Internal
 
 - (id)init
 {
   if (self = [super init]) {
-    UIDevice *theDevice = [UIDevice currentDevice];
-    name = [[theDevice systemName] retain];
-    version = [[theDevice systemVersion] retain];
+    UIDevice *theDevice = UIDevice.currentDevice;
+    name = [theDevice.systemName retain];
+    version = [theDevice.systemVersion retain];
+
+    // Extract "<major>.<minor>" integers from OS version string.
+    NSArray *versionComponents = [version componentsSeparatedByString:@"."];
+    versionMajor = [NSNumber numberWithInt:[versionComponents[0] intValue]];
+    if ([versionComponents count] >= 2) {
+      versionMinor = [NSNumber numberWithInt:[versionComponents[1] intValue]];
+      if ([versionComponents count] >= 3) {
+        versionPatch = [NSNumber numberWithInt:[versionComponents[2] intValue]];
+      } else {
+        versionPatch = @0;
+      }
+    } else {
+      versionMinor = @0;
+      versionPatch = @0;
+    }
 
     // grab logical CPUs
     int cores = 1;
@@ -50,7 +64,7 @@ NSString *const DATA_IFACE = @"pdp_ip0";
     }
     processorCount = [[NSNumber numberWithInt:cores] retain];
 
-    username = [[theDevice name] retain];
+    username = [theDevice.name retain];
 #ifdef __LP64__
     ostype = [@"64bit" retain];
 #else
@@ -65,7 +79,7 @@ NSString *const DATA_IFACE = @"pdp_ip0";
       osname = [@"iphone" retain];
     }
 
-    NSString *themodel = [theDevice model];
+    NSString *themodel = theDevice.model;
 
     // attempt to determine extended phone info
     struct utsname u;
@@ -80,7 +94,7 @@ NSString *const DATA_IFACE = @"pdp_ip0";
     architecture = [[TiUtils currentArchitecture] retain];
 
     // needed for platform displayCaps orientation to be correct
-    [[UIDevice currentDevice] beginGeneratingDeviceOrientationNotifications];
+    [theDevice beginGeneratingDeviceOrientationNotifications];
   }
   return self;
 }
@@ -90,6 +104,9 @@ NSString *const DATA_IFACE = @"pdp_ip0";
   RELEASE_TO_NIL(name);
   RELEASE_TO_NIL(model);
   RELEASE_TO_NIL(version);
+  RELEASE_TO_NIL(versionMajor);
+  RELEASE_TO_NIL(versionMinor);
+  RELEASE_TO_NIL(versionPatch);
   RELEASE_TO_NIL(architecture);
   RELEASE_TO_NIL(processorCount);
   RELEASE_TO_NIL(username);
@@ -220,7 +237,7 @@ GETTER_IMPL(NSString *, macaddress, Macaddress);
 GETTER_IMPL(NSString *, identifierForVendor, IdentifierForVendor);
 
 #if defined(USE_TI_PLATFORMIDENTIFIERFORADVERTISING) || defined(USE_TI_PLATFORMGETIDENTIFIERFORADVERTISING)
-- (BOOL)isAdvertisingTrackingEnabled
+- (bool)isAdvertisingTrackingEnabled
 {
   return [[ASIdentifierManager sharedManager] isAdvertisingTrackingEnabled];
 }
@@ -230,7 +247,7 @@ GETTER_IMPL(NSString *, identifierForVendor, IdentifierForVendor);
   return [[[ASIdentifierManager sharedManager] advertisingIdentifier] UUIDString];
 }
 #else
-- (BOOL)isAdvertisingTrackingEnabled
+- (bool)isAdvertisingTrackingEnabled
 {
   return NO;
 }
@@ -241,7 +258,7 @@ GETTER_IMPL(NSString *, identifierForVendor, IdentifierForVendor);
 }
 #endif
 
-GETTER_IMPL(BOOL, isAdvertisingTrackingEnabled, IsAdvertisingTrackingEnabled);
+GETTER_IMPL(bool, isAdvertisingTrackingEnabled, IsAdvertisingTrackingEnabled);
 GETTER_IMPL(NSString *, identifierForAdvertising, IdentifierForAdvertising);
 
 - (NSString *)id
@@ -298,7 +315,7 @@ GETTER_IMPL(NSString *, id, Id);
 }
 GETTER_IMPL(NSNumber *, availableMemory, AvailableMemory);
 
-- (BOOL)openURL:(NSString *)url withOptions:(JSValue *)options andCallback:(JSValue *)callback
+- (bool)openURL:(NSString *)url withOptions:(JSValue *)options andCallback:(JSValue *)callback
 {
   NSURL *newUrl = [TiUtils toURL:url proxy:self];
   BOOL result = NO;
@@ -308,6 +325,12 @@ GETTER_IMPL(NSNumber *, availableMemory, AvailableMemory);
     callback = options;
   } else if ([options isObject]) {
     optionsDict = [options toDictionary];
+  }
+  // Ensure callback is actually a function. If not, make it nil so we don't fire it
+  // Since callback is optional, this may be a JSValue representing 'undefined' here wich is not nil
+  // So we need this special guard
+  if (![callback isFunction]) {
+    callback = nil;
   }
 
   if (newUrl != nil) {
@@ -320,10 +343,10 @@ GETTER_IMPL(NSNumber *, availableMemory, AvailableMemory);
                              }];
   }
 
-  return [NSNumber numberWithBool:result];
+  return result;
 }
 
-- (BOOL)canOpenURL:(NSString *)arg
+- (bool)canOpenURL:(NSString *)arg
 {
   NSURL *url = [TiUtils toURL:arg proxy:self];
   return [[UIApplication sharedApplication] canOpenURL:url];
@@ -339,7 +362,7 @@ GETTER_IMPL(TiPlatformDisplayCaps *, displayCaps, DisplayCaps);
   return [self displayCaps];
 }
 
-- (void)setBatteryMonitoring:(BOOL)yn
+- (void)setBatteryMonitoring:(bool)yn
 {
   if (![NSThread isMainThread]) {
     TiThreadPerformOnMainThread(
@@ -351,7 +374,7 @@ GETTER_IMPL(TiPlatformDisplayCaps *, displayCaps, DisplayCaps);
   [[UIDevice currentDevice] setBatteryMonitoringEnabled:yn];
 }
 
-- (BOOL)batteryMonitoring
+- (bool)batteryMonitoring
 {
   if (![NSThread isMainThread]) {
     __block BOOL result = NO;
@@ -364,7 +387,7 @@ GETTER_IMPL(TiPlatformDisplayCaps *, displayCaps, DisplayCaps);
   }
   return [UIDevice currentDevice].batteryMonitoringEnabled;
 }
-READWRITE_IMPL(BOOL, batteryMonitoring, BatteryMonitoring);
+READWRITE_IMPL(bool, batteryMonitoring, BatteryMonitoring);
 
 - (NSNumber *)batteryState
 {
@@ -454,6 +477,8 @@ GETTER_IMPL(NSNumber *, totalMemory, TotalMemory);
 GETTER_IMPL(NSNumber *, uptime, Uptime);
 GETTER_IMPL(NSString *, username, Username);
 GETTER_IMPL(NSString *, version, Version);
+GETTER_IMPL(NSNumber *, versionMajor, VersionMajor);
+GETTER_IMPL(NSNumber *, versionMinor, VersionMinor);
 
 MAKE_SYSTEM_PROP(BATTERY_STATE_UNKNOWN, UIDeviceBatteryStateUnknown);
 MAKE_SYSTEM_PROP(BATTERY_STATE_UNPLUGGED, UIDeviceBatteryStateUnplugged);

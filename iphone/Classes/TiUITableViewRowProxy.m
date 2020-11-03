@@ -447,7 +447,7 @@ TiProxy *DeepScanForProxyOfViewContainingPoint(UIView *targetView, CGPoint point
       }
     }
     selectedBGView.fillColor = theColor;
-    NSInteger count = [section rowCount];
+    NSUInteger count = section.rowCount.unsignedIntegerValue;
     if (count == 1) {
       selectedBGView.position = TiCellBackgroundViewPositionSingleLine;
     } else {
@@ -528,8 +528,7 @@ TiProxy *DeepScanForProxyOfViewContainingPoint(UIView *targetView, CGPoint point
 
 - (UIView *)view
 {
-  //TIMOB-27935: TiUITableViewRowProxy do not have corresponding view class. So return corresponding cell
-  return callbackCell;
+  return nil;
 }
 
 //Private method : For internal use only

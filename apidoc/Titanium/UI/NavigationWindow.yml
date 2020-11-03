@@ -13,7 +13,7 @@ description: |
     `<NavigationWindow>` element. See examples below.
 
     This object is not meant to be added to other windows. However, it can be used within a <Titanium.UI.iPad.SplitWindow>.
-platforms: [android, iphone, ipad]
+platforms: [android, iphone, ipad, macos]
 extends: Titanium.UI.Window
 since: "8.0.0"
 excludes:

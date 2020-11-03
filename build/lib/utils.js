@@ -5,7 +5,8 @@ const promisify = util.promisify;
 const path = require('path');
 const fs = require('fs-extra');
 const os = require('os');
-const spawn = require('child_process').spawn; // eslint-disable-line security/detect-child-process
+const titanium = require.resolve('titanium');
+const exec = util.promisify(require('child_process').exec); // eslint-disable-line security/detect-child-process
 
 const glob = promisify(require('glob'));
 const appc = require('node-appc');
@@ -14,7 +15,6 @@ const ssri = require('ssri');
 
 const tempDir = os.tmpdir();
 const Utils = {};
-const ROOT_DIR = path.join(__dirname, '../..');
 
 function leftpad(str, len, ch) {
 	str = String(str);
@@ -269,10 +269,10 @@ Utils.cacheExtract = async function (inFile, integrity, outDir, extractFunc) {
 	const cacheFile = cachedDownloadPath(`${integrity.replace(/\//g, '-')}.json`);
 	// if the extracted directory already exists...
 	if (exists) {
-		// we need to hash and verify it matches expectations
-		const hash = await hashElement(outDir);
-		// Read the cache file and compare hashes!
 		try {
+			// we need to hash and verify it matches expectations
+			const hash = await hashElement(outDir); // TODO: pass in options around symlinks?
+			// Read the cache file and compare hashes!
 			const cachedHash = await fs.readJson(cacheFile);
 			// eslint-disable-next-line security/detect-possible-timing-attacks
 			if (hash.hash === cachedHash.hash) { // we're only checking top-level dir hash
@@ -282,6 +282,7 @@ Utils.cacheExtract = async function (inFile, integrity, outDir, extractFunc) {
 		} catch (err) {
 			// ignore, assume cache file didn't exist
 		}
+		await fs.remove(outDir); // hashing failed or didn't match, so wipe the target and re-extract
 	}
 
 	// ok the output dir doesn't exist, or it's hash doesn't match expectations
@@ -297,28 +298,15 @@ Utils.cacheExtract = async function (inFile, integrity, outDir, extractFunc) {
 * @returns {Promise<void>}
 */
 Utils.unzip = function unzip(zipfile, dest) {
-	return new Promise((resolve, reject) => {
-		console.log(`Unzipping ${zipfile} to ${dest}`);
-		const command = os.platform() === 'win32' ? path.join(ROOT_DIR, 'build/win32/unzip') : 'unzip';
-		const child = spawn(command, [ '-o', zipfile, '-d', dest ], { stdio: [ 'ignore', 'ignore', 'pipe' ] });
-		let err = '';
-		child.stderr.on('data', buffer => {
-			err += buffer.toString();
-		});
-		child.on('error', err => reject(err));
-		child.on('close', code => {
-			if (code !== 0) {
-				return reject(new Error(`Unzipping of ${zipfile} exited with non-zero exit code ${code}. ${err}`));
-			}
-			resolve();
-		});
-	});
+	return util.promisify(appc.zip.unzip)(zipfile, dest, null);
 };
 
 /**
  * @returns {string} absolute path to SDK install root
  */
 Utils.sdkInstallDir = function () {
+	// TODO: try ti cli first as below?
+	// TODO: Cache value
 	switch (os.platform()) {
 		case 'win32':
 			return path.join(process.env.ProgramData, 'Titanium');
@@ -331,6 +319,25 @@ Utils.sdkInstallDir = function () {
 			return path.join(process.env.HOME, '.titanium');
 	}
 };
+
+// /**
+//  * @return {Promise<string>} path to Titanium SDK root dir
+//  */
+// async function sdkDir() {
+// 	try {
+// 		const { stdout, _stderr } = await exec(`node "${titanium}" config sdk.defaultInstallLocation -o json`);
+// 		return JSON.parse(stdout.trim());
+// 	} catch (error) {
+// 		const osName = require('os').platform();
+// 		if (osName === 'win32') {
+// 			return path.join(process.env.ProgramData, 'Titanium');
+// 		} else if (osName === 'darwin') {
+// 			return path.join(process.env.HOME, 'Library', 'Application Support', 'Titanium');
+// 		} else if (osName === 'linux') {
+// 			return path.join(process.env.HOME, '.titanium');
+// 		}
+// 	}
+// }
 
 /**
  * @param  {String}   versionTag [description]
@@ -345,25 +352,13 @@ Utils.installSDK = async function (versionTag, symlinkIfPossible = false) {
 		osName = 'osx';
 	}
 
-	const destDir = path.join(dest, 'mobilesdk', osName, versionTag);
-	try {
-		const destStats = fs.lstatSync(destDir);
-		if (destStats.isDirectory()) {
-			console.log('Destination exists, deleting %s...', destDir);
-			await fs.remove(destDir);
-		} else if (destStats.isSymbolicLink()) {
-			console.log('Destination exists as symlink, unlinking %s...', destDir);
-			fs.unlinkSync(destDir);
-		}
-	} catch (error) {
-		// Do nothing
-	}
+	const destDir = await wipeInstalledSDK(dest, osName, versionTag);
 
+	// Check for locally built unzipped directory
+	// if there, symlink or copy that first
 	const distDir = path.join(__dirname, '../../dist');
-
 	const zipDir = path.join(distDir, `mobilesdk-${versionTag}-${osName}`);
 	const dirExists = await fs.pathExists(zipDir);
-
 	if (dirExists) {
 		console.log('Installing %s...', zipDir);
 		if (symlinkIfPossible) {
@@ -377,15 +372,92 @@ Utils.installSDK = async function (versionTag, symlinkIfPossible = false) {
 
 	// try the zip
 	const zipfile = path.join(distDir, `mobilesdk-${versionTag}-${osName}.zip`);
-	console.log('Installing %s...', zipfile);
-	return new Promise((resolve, reject) => {
-		appc.zip.unzip(zipfile, dest, {}, function (err) {
-			if (err) {
-				return reject(err);
+	return Utils.unzip(zipfile, dest);
+};
+
+/**
+ * @param {string} zipfile path to zipfile to install
+ * @param {boolean} [select=false] select the sdk in ti cli after install?
+ * @returns {Promise<void>}
+ */
+Utils.installSDKFromZipFile = async function (zipfile, select = false) {
+	const regexp = /mobilesdk-([^-]+)-(osx|win32|linux)\.zip$/;
+	const matches = zipfile.match(regexp);
+	const osName = matches[2];
+	const versionTag = matches[1];
+
+	// wipe existing
+	const dest = Utils.sdkInstallDir();
+	await wipeInstalledSDK(dest, osName, versionTag);
+
+	await Utils.unzip(zipfile, dest);
+	if (select) {
+		return exec(`node "${titanium}" sdk select ${versionTag}`);
+	}
+};
+
+/**
+ * @param {string} dest base dir of SDK installs
+ * @param {string} osName 'osx' || 'linux' || 'win32'
+ * @param {string} versionTag i.e. '9.2.0'
+ * @returns {Promise<string>}
+ */
+async function wipeInstalledSDK(dest, osName, versionTag) {
+	const destDir = path.join(dest, 'mobilesdk', osName, versionTag);
+	try {
+		const destStats = fs.lstatSync(destDir);
+		if (destStats.isDirectory()) {
+			console.log('Destination exists, deleting %s...', destDir);
+			await fs.remove(destDir);
+		} else if (destStats.isSymbolicLink()) {
+			console.log('Destination exists as symlink, unlinking %s...', destDir);
+			fs.unlinkSync(destDir);
+		}
+	} catch (error) {
+		// Do nothing
+	}
+	return destDir;
+}
+
+/**
+ * Remove all CI SDKs installed. Skip GA releases.
+ * @returns {Promise<void>}
+ */
+Utils.cleanNonGaSDKs = async function cleanNonGaSDKs() {
+	const { stdout } = await exec(`node "${titanium}" sdk list -o json`);
+	const out = JSON.parse(stdout);
+	const installedSDKs = out.installed;
+	let sdkToSelect;
+	// Loop over the SDKs and remove any where the key doesn't end in GA, or the value isn't sdkPath
+	await Promise.all(Object.keys(installedSDKs).map(async item => {
+		const thisSDKPath = installedSDKs[item];
+		if (item.slice(-2) === 'GA') { // skip GA releases
+			if (!sdkToSelect) {
+				sdkToSelect = item;
 			}
-			return resolve();
-		});
-	});
+			return;
+		}
+		console.log(`Removing ${thisSDKPath}`);
+		return fs.remove(thisSDKPath);
+	}));
+	if (sdkToSelect) {
+		console.log(`Setting ${sdkToSelect} as the selected SDK`);
+		await exec(`node "${titanium}" sdk select ${sdkToSelect}`);
+	} else {
+		console.log('No GA SDK installed, you might find that your next ti command execution will error');
+	}
+};
+
+/**
+ * Removes the global modules and plugins dirs
+ * @param {string} sdkDir filepath to sdk root install directory
+ * @returns {Promise<void>}
+ */
+Utils.cleanupModules = async function cleanupModules(sdkDir) {
+	const moduleDir = path.join(sdkDir, 'modules');
+	const pluginDir = path.join(sdkDir, 'plugins');
+
+	return Promise.all([ moduleDir, pluginDir ].map(dir => fs.remove(dir)));
 };
 
 module.exports = Utils;

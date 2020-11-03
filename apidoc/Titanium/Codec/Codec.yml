@@ -48,7 +48,7 @@ description: |
 
 extends: Titanium.Module
 since: "1.7"
-platforms: [android, iphone, ipad]
+platforms: [android, iphone, ipad, macos]
 
 properties:
   - name: CHARSET_ASCII
@@ -64,7 +64,7 @@ properties:
     summary: ISO 8859-1 (Latin-1) character encoding.
     description: |
         See also: [ISO/IEC 8859-1](http://en.wikipedia.org/wiki/ISO/IEC_8859-1) on Wikipedia.
-    value: "iso-latin-1"
+    value: "latin1"
     permission: read-only
 
   - name: CHARSET_UTF8
@@ -411,7 +411,7 @@ properties:
     summary: Index in the `dest` buffer of the first byte of encoded data.
     optional: true
     default: 0
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: byteOrder
     type: Number
@@ -441,14 +441,14 @@ properties:
     summary: Index in the `source` buffer of the first byte of data to decode.
     optional: true
     default: 0
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: byteOrder
     type: Number
     summary: byte order to decode with.
     optional: true
     default: Native byte order.
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
 ---
 name: EncodeStringDict

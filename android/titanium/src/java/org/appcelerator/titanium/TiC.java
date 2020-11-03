@@ -88,6 +88,16 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String EVENT_BLACKLIST_URL = "blacklisturl";
+
+	/**
+	 * @module.api
+	 */
+	public static final String EVENT_BLOCKED_URL = "blockedurl";
+
+	/**
+	 * @module.api
+	 */
 	public static final String EVENT_BLUR = "blur";
 
 	/**
@@ -359,6 +369,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String EVENT_PROPERTY_MESSAGE = "message";
+
+	/**
+	 * @module.api
+	 */
+	public static final String EVENT_PROPERTY_OBSCURED = "obscured";
 
 	/**
 	 * @module.api
@@ -673,6 +688,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String EVENT_TOUCH_END = "touchend";
+
+	/**
+	 * @module.api
+	 */
+	public static final String EVENT_TOUCH_FILTERED = "touchfiltered";
 
 	/**
 	 * @module.api
@@ -1050,6 +1070,16 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_BADGE = "badge";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_BADGE_COLOR = "badgeColor";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_TOUCH_FEEDBACK = "touchFeedback";
 
 	/**
@@ -1110,12 +1140,12 @@ public class TiC
 	/**
 	 * @module.api
 	 */
-	public static final String PROPERTY_BLACKLIST_URL = "blacklisturl";
+	public static final String PROPERTY_BLACKLISTED_URLS = "blacklistedURLs";
 
 	/**
 	 * @module.api
 	 */
-	public static final String PROPERTY_BLACKLISTED_URLS = "blacklistedURLs";
+	public static final String PROPERTY_BLOCKED_URLS = "blockedURLs";
 
 	/**
 	 * @module.api
@@ -1410,11 +1440,6 @@ public class TiC
 	/**
 	 * @module.api
 	 */
-	public static final String PROPERTY_CONTENT_URL = "contentURL";
-
-	/**
-	 * @module.api
-	 */
 	public static final String PROPERTY_CONTENT_VIEW = "contentView";
 
 	/**
@@ -1676,6 +1701,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_FILTER_CASE_INSENSITIVE = "filterCaseInsensitive";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_FILTER_TOUCHES_WHEN_OBSCURED = "filterTouchesWhenObscured";
 
 	/**
 	 * @module.api
@@ -1998,6 +2028,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_INTERVAL = "interval";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_ITEM = "item";
 
 	/**
 	 * @module.api
@@ -2372,6 +2407,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_NUMBER = "number";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_NUMBERING_SYSTEM = "numberingSystem";
 
 	/**
 	 * @module.api

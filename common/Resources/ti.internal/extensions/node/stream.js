@@ -1,7 +1,7 @@
 import EventEmitter from './events';
 import util from './util';
 
-function Stream(opts) {
+function Stream(_opts) {
 	// FIXME: Can't call EventEmitter as a function!
 	this._eventsToListeners = {};
 	this._maxListeners = undefined;
@@ -36,7 +36,7 @@ util.inherits(Readable, Stream);
 Readable.prototype._destroy = function (err, cb) {
 	cb(err);
 };
-Readable.prototype._read = function (n) {
+Readable.prototype._read = function (_n) {
 	throw new Error('method not implemented: _read()');
 };
 
@@ -120,5 +120,9 @@ util.inherits(Transform, Duplex);
 
 Stream.Stream = Stream; // legacy compat
 Stream.Transform = Transform;
+Stream.Readable = Readable;
+Stream.Writable = Writable;
+Stream.Duplex = Duplex;
+// Stream.PassThrough = PassThrough;
 
 export default Stream;

@@ -25,6 +25,11 @@
 @property (nonatomic, readonly) NSString *sourceURL;
 
 /**
+ * Returns the actual source code line as a string where the error happened.
+ */
+@property (nonatomic, readonly) NSString *sourceLine;
+
+/**
  * Returns line number where error happened.
  */
 @property (nonatomic, readonly) NSInteger lineNo;
@@ -53,6 +58,11 @@
  * Returns the native stack as a static string.
  */
 @property (nonatomic, readonly) NSArray<NSString *> *nativeStack;
+
+/**
+ * Returns the pre-formated and cleaned native stack trace.
+ */
+@property (nonatomic, readonly) NSArray<NSString *> *formattedNativeStack;
 
 - (id)initWithMessage:(NSString *)message sourceURL:(NSString *)sourceURL lineNo:(NSInteger)lineNo;
 - (id)initWithDictionary:(NSDictionary *)dictionary;

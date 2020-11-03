@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+  <string name="this_is_my_key">this is my value</string>
+  <string name="greeting">hello</string>
+  <string name="signoff">goodbye</string>
+  <string name="phrase">You say %2$s and I say %1$s!</string>
+  <string name="static_shortcut1_title">Static Shortcut Title</string>
+  <string name="static_shortcut1_subtitle">Static Shortcut Subtitle</string>
+  <string name="static_shortcut1_disabled">Static Shortcut Disabled</string>
+</resources>

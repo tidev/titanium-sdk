@@ -29,9 +29,7 @@ description: |
     #### Locale
 
     The `L` macro can also be used as an alias for the <Titanium.Locale.getString> method.
-
-platforms: [android, iphone, ipad]
-
+platforms: [android, iphone, ipad, macos]
 methods:
   - name: alert
     summary: Displays a pop-up alert dialog with the passed in `message`.
@@ -320,8 +318,44 @@ properties:
     permission: read-only
     since: "9.0.0"
 
+  - name: OS_VERSION_MAJOR
+    summary: The operation system's major version number.
+    description: |
+        This returns the same value as the <Titanium.Platform.versionMajor> property.
+
+        ``` js
+        if (OS_IOS && (OS_VERSION_MAJOR >= 13)) {
+            // Do something on iOS 13 or higher only.
+        }
+        ```
+    type: Number
+    permission: read-only
+    since: "9.2.0"
+
+  - name: OS_VERSION_MINOR
+    summary: The operating system's minor version number.
+    description: |
+        This returns the same value as the <Titanium.Platform.versionMinor> property.
+
+        Will return zero if the OS does not have a minor version.
+    type: Number
+    default: 0
+    permission: read-only
+    since: "9.2.0"
+
+  - name: OS_VERSION_PATCH
+    summary: The operating system's patch version number.
+    description: |
+        This returns the same value as the <Titanium.Platform.versionPatch> property.
+
+        Will return zero if the OS does not have a patch version.
+    type: Number
+    default: 0
+    permission: read-only
+    since: "9.2.0"
+
   - name: ENV_DEV
-    summary: Alias for <ENV_DEVELOPMENT>
+    summary: Alias for <Global.ENV_DEVELOPMENT>
     type: Boolean
     permission: read-only
     since: "9.0.0"
@@ -329,8 +363,6 @@ properties:
   - name: ENV_DEVELOPMENT
     summary: A special constant that is replaced during the app build with a boolean `true`/`false` value, based on whether deploy type is `'development'`. Typically true for simulator/emulator builds.
     description: |
-        This value is replaced by an injected boolean literal value indicating if the deploy type is `'development'`.
-
         The replacement is done by a Babel plugin during JS transpilation phase of the app build.
         This is an easy way to guard deploy type-specific codepaths (and make it easier for Babel to strip away dead code paths).
 
@@ -340,7 +372,7 @@ properties:
     since: "9.0.0"
 
   - name: ENV_PROD
-    summary: Alias for <ENV_PRODUCTION>
+    summary: Alias for <Global.ENV_PRODUCTION>
     type: Boolean
     permission: read-only
     since: "9.0.0"
@@ -348,8 +380,6 @@ properties:
   - name: ENV_PRODUCTION
     summary: A special constant that is replaced during the app build with a boolean `true`/`false` value, based on whether deploy type is `'production'`. Typically true for app store/ad-hoc builds.
     description: |
-        This value is replaced by an injected boolean literal value indicating if the deploy type is `'production'`.
-
         The replacement is done by a Babel plugin during JS transpilation phase of the app build.
         This is an easy way to guard deploy type-specific codepaths (and make it easier for Babel to strip away dead code paths).
 
@@ -361,8 +391,6 @@ properties:
   - name: ENV_TEST
     summary: A special constant that is replaced during the app build with a boolean `true`/`false` value, based on whether deploy type is `'test'`. Typically true for device builds.
     description: |
-        This value is replaced by an injected boolean literal value indicating if the deploy type is `'test'`.
-
         The replacement is done by a Babel plugin during JS transpilation phase of the app build.
         This is an easy way to guard deploy type-specific codepaths (and make it easier for Babel to strip away dead code paths).
 
@@ -374,8 +402,6 @@ properties:
   - name: DIST_ADHOC
     summary: A special constant that is replaced during the app build with a boolean `true`/`false` value, based on whether build target is `'dist-adhoc'`.
     description: |
-        This value is replaced by an injected boolean literal value indicating if the deploy type is `'test'`.
-
         The replacement is done by a Babel plugin during JS transpilation phase of the app build.
         This is an easy way to guard deploy type-specific codepaths (and make it easier for Babel to strip away dead code paths).
 
@@ -387,8 +413,6 @@ properties:
   - name: DIST_STORE
     summary: A special constant that is replaced during the app build with a boolean `true`/`false` value, based on whether build target is `'dist-appstore'` or `'dist-playstore'`.
     description: |
-        This value is replaced by an injected boolean literal value indicating if the deploy type is `'test'`.
-
         The replacement is done by a Babel plugin during JS transpilation phase of the app build.
         This is an easy way to guard deploy type-specific codepaths (and make it easier for Babel to strip away dead code paths).
 

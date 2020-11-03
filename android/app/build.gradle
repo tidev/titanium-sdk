@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2019 by Axway. All Rights Reserved.
+ * Copyright (c) 2009-2020 by Axway. All Rights Reserved.
  * Licensed under the terms of the Apache Public License.
  * Please see the LICENSE included with this distribution for details.
  */
@@ -9,7 +9,7 @@ apply plugin: 'com.android.application'
 
 // Set up Android app project.
 android {
-	compileSdkVersion 29
+	compileSdkVersion 30
 	defaultConfig {
 		applicationId 'com.titanium.test'
 		minSdkVersion 19
@@ -85,4 +85,5 @@ dependencies {
 	}
 
 	implementation "androidx.appcompat:appcompat:${project.ext.tiAndroidXAppCompatLibVersion}"
+	implementation "com.google.android.material:material:${project.ext.tiMaterialLibVersion}"
 }
