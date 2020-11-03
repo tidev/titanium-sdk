@@ -174,10 +174,8 @@ description:  |
       * logo-dark@3x.png
 
     And you would reference the image as before using `logo-dark.png`
-
 extends: Titanium.Module
 since: "0.4"
-
 events:
   - name: userinterfacestyle
     summary: Fired when the `userInterfaceStyle` changes.
@@ -916,68 +914,6 @@ properties:
     since: "5.0.0"
     osver: {ios: {min: "7.0"}}
     permission: read-only
-
-  - name: AUTODETECT_ADDRESS
-    deprecated:
-        since: "1.8.0"
-        removed: "6.0.0"
-        notes: Use [Titanium.UI.AUTOLINK_MAP_ADDRESSES](Titanium.UI.AUTOLINK_MAP_ADDRESSES) instead.
-    summary: Converts strings formatted as addresses into clickable links.
-    type: Number
-    osver: {ios: {min: "4.0"}}
-    permission: read-only
-    platforms: [iphone, ipad]
-
-  - name: AUTODETECT_ALL
-    deprecated:
-        since: "1.8.0"
-        removed: "6.0.0"
-        notes: Use [Titanium.UI.AUTOLINK_ALL](Titanium.UI.AUTOLINK_ALL) instead.
-    summary: Converts all detectable types of data into clickable links.
-    type: Number
-    permission: read-only
-    platforms: [iphone, ipad]
-
-  - name: AUTODETECT_CALENDAR
-    deprecated:
-        since: "1.8.0"
-        removed: "6.0.0"
-        notes: Use [Titanium.UI.AUTOLINK_CALENDAR](Titanium.UI.AUTOLINK_CALENDAR) instead.
-    summary: Converts strings formatted as calendar events into clickable links.
-    type: Number
-    osver: {ios: {min: "4.0"}}
-    permission: read-only
-    platforms: [iphone, ipad]
-
-  - name: AUTODETECT_LINK
-    deprecated:
-        since: "1.8.0"
-        removed: "6.0.0"
-        notes: Use [Titanium.UI.AUTOLINK_URLS](Titanium.UI.AUTOLINK_URLS) instead.
-    summary: Converts strings formatted as URLs into clickable links.
-    type: Number
-    permission: read-only
-    platforms: [iphone, ipad]
-
-  - name: AUTODETECT_NONE
-    deprecated:
-        since: "1.8.0"
-        removed: "6.0.0"
-        notes: Use [Titanium.UI.AUTOLINK_NONE](Titanium.UI.AUTOLINK_NONE) instead.
-    summary: Disables converting strings into clickable links.
-    type: Number
-    permission: read-only
-    platforms: [iphone, ipad]
-
-  - name: AUTODETECT_PHONE
-    deprecated:
-        since: "1.8.0"
-        removed: "6.0.0"
-        notes: Use [Titanium.UI.AUTOLINK_PHONE_NUMBERS](Titanium.UI.AUTOLINK_PHONE_NUMBERS) instead.
-    summary: Converts strings formatted as phone numbers into clickable links.
-    type: Number
-    permission: read-only
-    platforms: [iphone, ipad]
 
   - name: AUTOFILL_TYPE_USERNAME
     summary: Specifies the expectation of an account or login name.
