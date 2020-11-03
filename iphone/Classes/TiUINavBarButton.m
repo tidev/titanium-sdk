@@ -119,6 +119,7 @@ DEFINE_EXCEPTIONS
       self = [super initWithImage:theimage style:[self style:proxy_] target:self action:@selector(clicked:)];
     } else {
       self = [super initWithTitle:[self title:proxy_] style:[self style:proxy_] target:self action:@selector(clicked:)];
+      self.tintColor = [TiUtils colorValue:[proxy_ valueForKey:@"color"]].color;
     }
   }
   proxy = proxy_; // Don't retain
