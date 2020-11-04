@@ -180,7 +180,7 @@ events:
     deprecated:
         since: "5.2.0"
         removed: "9.0.0"
-        notes: Use [Titanium.UI.Tab.focus](Titanium.UI.Tab.focus) instead.
+        notes: Use [Titanium.UI.Tab.focus](Titanium.UI.Tab.focus) event instead.
     properties:
       - name: index
         summary: Index of the current active tab.
@@ -206,7 +206,7 @@ events:
     deprecated:
         since: "5.2.0"
         removed: "9.0.0"
-        notes: Use [Titanium.UI.Tab.blur](Titanium.UI.Tab.blur) instead.
+        notes: Use [Titanium.UI.Tab.blur](Titanium.UI.Tab.blur) event instead.
     properties:
       - name: index
         summary: |

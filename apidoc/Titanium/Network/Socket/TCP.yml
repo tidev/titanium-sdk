@@ -298,7 +298,6 @@ summary: Object passed to the error callback when the socket enters
     the [ERROR](Titanium.Network.Socket.ERROR) state.
 since: "1.7"
 extends: FailureResponse
-
 properties:
   - name: socket
     summary: Socket that experienced the error.
@@ -311,7 +310,7 @@ properties:
     deprecated:
         since: "3.1.0"
         removed: "9.0.0"
-        notes: Use the code property for a numeric error code
+        notes: Use the `code` property for a numeric error code.
 
   - name: success
     summary: Indicates if the operation succeeded. Returns `false`.

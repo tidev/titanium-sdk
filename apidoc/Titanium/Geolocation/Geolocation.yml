@@ -1278,9 +1278,7 @@ name: GeocodedAddress
 summary: |
     Simple object representing a place, returned in the callback from the
     [reverseGeocoder](Titanium.Geolocation.reverseGeocoder) method.
-
 properties:
-
   - name: street
     summary: Street name, without street address.
     type: String
@@ -1318,6 +1316,7 @@ properties:
     deprecated:
         since: {iphone: "8.0.0", ipad: "8.0.0"}
         removed: "9.0.0"
+        notes: Use the `postalCode` property for parity.
 
   - name: country
     summary: Country name.
@@ -1336,6 +1335,7 @@ properties:
     deprecated:
         since: {android: "8.0.0", iphone: "8.0.0", ipad: "8.0.0"}
         removed: "9.0.0"
+        notes: Use the `countryCode` property for parity.
 
   - name: longitude
     summary: Longitude of the geocoded point.
@@ -1354,6 +1354,7 @@ properties:
     deprecated:
         since: {android: "8.0.0"}
         removed: "9.0.0"
+        notes: Use the `address` property for parity.
 
   - name: address
     summary: Full address.
