@@ -100,23 +100,47 @@ async function js2c(headerFilepath, inputFiles) {
 }
 
 /**
+ * Overwrite "outFile" with "inFile" if file content is different and then removes "inFile".
+ * Intended to improve incremental build times by only updating files if they've actually changed.
+ * @param {string} inFile Path to the file intended to replace the "outFile".
+ * @param {string} outFile Ptah to the destination file to be replaced. Does not have to exist.
+ */
+async function replaceFileIfDifferent(inFile, outFile) {
+	// Do not continue if the 2 files have the same content.
+	if (await fs.exists(outFile)) {
+		const inFileContent = await fs.readFile(inFile);
+		const outFileContent = await fs.readFile(outFile);
+		if (inFileContent.toString() === outFileContent.toString()) {
+			return fs.unlink(inFile);
+		}
+	}
+
+	// Move file to destination. Will overwrite if destination already exists.
+	return fs.rename(inFile, outFile);
+}
+
+/**
  * Generate a "KrollNativeBindings.h" file with perfect hashes via gperf tool.
  * @param {string} outDir dir to place generated KrollNativeBindings.h file
  */
 async function generateKrollNativeBindings(outDir) {
 	// Note: 2nd argument is inserted into file as-is. Use relative path since absolute may contain user name.
-	return gperf(
-		runtimeV8DirPath, 'src/native/KrollNativeBindings.gperf',
-		path.join(outDir, 'KrollNativeBindings.h'));
+	const headerFilePath = path.join(outDir, 'KrollNativeBindings.h');
+	const tempFilePath = headerFilePath + '.temp';
+	await gperf(runtimeV8DirPath, 'src/native/KrollNativeBindings.gperf', tempFilePath);
+	return replaceFileIfDifferent(tempFilePath, headerFilePath);
 }
 
 async function generateBootstrapAndKrollGeneratedBindings(outDir) {
+	// Generate "bootstrap.js" and "KrollGeneratedBindings.gperf" files.
 	await generateBootstrap(outDir);
+
 	// Generate a "KrollGeneratedBindings.h" file with perfect hashes via gperf tool.
 	// Note: 2nd argument is inserted into file as-is. Use relative path since absolute may contain user name.
-	return gperf(
-		runtimeV8DirPath, 'generated/KrollGeneratedBindings.gperf',
-		path.join(outDir, 'KrollGeneratedBindings.h'));
+	const headerFilePath = path.join(outDir, 'KrollGeneratedBindings.h');
+	const tempFilePath = headerFilePath + '.temp';
+	await gperf(runtimeV8DirPath, 'generated/KrollGeneratedBindings.gperf', tempFilePath);
+	return replaceFileIfDifferent(tempFilePath, headerFilePath);
 }
 
 /** Generates C/C++ source files containing internal JS files and from gperf templates. */
@@ -125,7 +149,6 @@ async function generateSourceCode() {
 	await fs.mkdirs(outDir);
 	await Promise.all([
 		generateKrollNativeBindings(outDir),
-		// Create "bootstrap.js" and "KrollGeneratedBindings.gperf" which generates create*() functions for all Titanium internal modules.
 		generateBootstrapAndKrollGeneratedBindings(outDir),
 	]);
 
@@ -154,7 +177,10 @@ async function generateSourceCode() {
 	for (const nextPath of filePaths) {
 		files.set(path.basename(nextPath, '.js'), nextPath);
 	}
-	return js2c(path.join(outDir, 'KrollJS.h'), files);
+	const headerFilePath = path.join(outDir, 'KrollJS.h');
+	const tempFilePath = headerFilePath + '.temp';
+	await js2c(tempFilePath, files);
+	return replaceFileIfDifferent(tempFilePath, headerFilePath);
 }
 
 /** Executes the pre-build step. */

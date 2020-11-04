@@ -576,6 +576,7 @@ properties:
     summary: The type of media in the player's current item first track.
     exclude-platforms: [android]
     type: String
+    permission: read-only
     default: <Titanium.Media.VIDEO_MEDIA_TYPE_VIDEO>
     constants: Titanium.Media.VIDEO_MEDIA_TYPE_*
 
@@ -625,7 +626,7 @@ properties:
     summary: Whether or not the receiver allows Picture in Picture playback.
     platforms: [iphone, ipad, macos]
     type: Boolean
-    default: false
+    default: true
     osver: {ios: {min: "9.0"}}
 
   - name: playableDuration
