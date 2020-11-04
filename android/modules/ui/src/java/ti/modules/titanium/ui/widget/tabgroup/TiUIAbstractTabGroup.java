@@ -494,26 +494,18 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 		int color = this.textColorInt;
 		if (selected) {
 			if (tabProperties.containsKeyAndNotNull(TiC.PROPERTY_ACTIVE_TINT_COLOR)
-				|| properties.containsKeyAndNotNull(TiC.PROPERTY_ACTIVE_TINT_COLOR)
-				|| tabProperties.containsKeyAndNotNull(TiC.PROPERTY_ACTIVE_TITLE_COLOR)
-				|| properties.containsKeyAndNotNull(TiC.PROPERTY_ACTIVE_TITLE_COLOR)) {
+				|| properties.containsKeyAndNotNull(TiC.PROPERTY_ACTIVE_TINT_COLOR)) {
 				final String colorString = tabProperties.optString(TiC.PROPERTY_ACTIVE_TINT_COLOR,
-					properties.optString(TiC.PROPERTY_ACTIVE_TINT_COLOR,
-						tabProperties.optString(TiC.PROPERTY_ACTIVE_TITLE_COLOR,
-							properties.getString(TiC.PROPERTY_ACTIVE_TITLE_COLOR))));
+					properties.getString(TiC.PROPERTY_ACTIVE_TINT_COLOR));
 				color = TiColorHelper.parseColor(colorString);
 			}
 			drawable.setColorFilter(color, PorterDuff.Mode.SRC_IN);
 		} else {
 			color = this.unselectedTextColorInt;
 			if (tabProperties.containsKeyAndNotNull(TiC.PROPERTY_TINT_COLOR)
-				|| properties.containsKeyAndNotNull(TiC.PROPERTY_TINT_COLOR)
-				|| tabProperties.containsKeyAndNotNull(TiC.PROPERTY_TITLE_COLOR)
-				|| properties.containsKeyAndNotNull(TiC.PROPERTY_TITLE_COLOR)) {
+				|| properties.containsKeyAndNotNull(TiC.PROPERTY_TINT_COLOR)) {
 				final String colorString = tabProperties.optString(TiC.PROPERTY_TINT_COLOR,
-					properties.optString(TiC.PROPERTY_TINT_COLOR,
-						tabProperties.optString(TiC.PROPERTY_TITLE_COLOR,
-							properties.getString(TiC.PROPERTY_TITLE_COLOR))));
+					properties.getString(TiC.PROPERTY_TINT_COLOR));
 				color = TiColorHelper.parseColor(colorString);
 			}
 			drawable.setColorFilter(color, PorterDuff.Mode.SRC_IN);
