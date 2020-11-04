@@ -96,6 +96,86 @@ describe('Titanium.UI.Window', function () {
 		});
 	});
 
+	it.ios('#leftNavButtons and #rightNavButtons', finish => {
+		var rightButton1 = Ti.UI.createButton({
+			title: 'Right1',
+			color: 'green',
+		});
+
+		var rightButton2 = Ti.UI.createButton({
+			title: 'Right2',
+			color: 'green',
+		});
+
+		var leftButton = Ti.UI.createButton({
+			title: 'Left',
+			color: 'blue'
+		});
+
+		var rootWindow = Ti.UI.createWindow({
+			backgroundColor: 'white',
+			leftNavButtons: [ leftButton ],
+			rightNavButtons: [ rightButton1, rightButton2 ],
+		});
+
+		win = Ti.UI.createNavigationWindow({
+			window: rootWindow
+		});
+
+		win.open();
+
+		rootWindow.addEventListener('focus', function () {
+			try {
+				should(rootWindow.rightNavButtons).be.an.Array();
+				should(rootWindow.rightNavButtons.length).be.eql(2);
+				rootWindow.rightNavButtons = [ rightButton1 ];
+				should(rootWindow.rightNavButtons.length).be.eql(1);
+
+				should(rootWindow.leftNavButtons).be.an.Array();
+				should(rootWindow.leftNavButtons.length).be.eql(1);
+			} catch (e) {
+				return finish(e);
+			}
+			finish();
+		});
+	});
+
+	it.ios('#leftNavButton and #rightNavButton', finish => {
+		var rightButton = Ti.UI.createButton({
+			title: 'Right',
+			color: 'green',
+		});
+
+		var leftButton = Ti.UI.createButton({
+			title: 'Left',
+			color: 'blue'
+		});
+
+		var rootWindow = Ti.UI.createWindow({
+			backgroundColor: 'white',
+			leftNavButton: leftButton,
+			rightNavButton: rightButton,
+		});
+
+		win = Ti.UI.createNavigationWindow({
+			window: rootWindow
+		});
+
+		win.open();
+
+		rootWindow.addEventListener('postlayout', function postlayout() {
+			rootWindow.removeEventListener('postlayout', postlayout);
+			try {
+				should(rootWindow.leftNavButton).be.an.Object();
+				should(rootWindow.rightNavButton).be.an.Object();
+				// Can we match different simulators window snapshot
+			} catch (e) {
+				return finish(e);
+			}
+			finish();
+		});
+	});
+
 	// FIXME Move these rect/size tests into Ti.UI.View!
 	it.windowsBroken('.size is read-only', finish => {
 		win = Ti.UI.createWindow({
