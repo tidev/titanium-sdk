@@ -583,7 +583,7 @@ events:
     deprecated:
         since: "3.0.0"
         removed: "9.0.0"
-        notes: Use [Titanium.UI.Window.androidback](Titanium.UI.Window.androidback) instead.
+        notes: Use the [Titanium.UI.Window.androidback](Titanium.UI.Window.androidback) event instead.
     platforms: [android]
     summary: Fired when the Back button is released.
     description: |
@@ -595,7 +595,7 @@ events:
     deprecated:
         since: "3.0.0"
         removed: "9.0.0"
-        notes: Use [Titanium.UI.Window.androidcamera](Titanium.UI.Window.androidcamera) instead.
+        notes: Use the [Titanium.UI.Window.androidcamera](Titanium.UI.Window.androidcamera) event instead.
     summary: Fired when the Camera button is released.
     description: |
         Setting a listener disables the default key handling for this button. To restore
@@ -607,7 +607,7 @@ events:
     deprecated:
         since: "3.0.0"
         removed: "9.0.0"
-        notes: Use [Titanium.UI.Window.androidfocus](Titanium.UI.Window.androidfocus) instead.
+        notes: Use the [Titanium.UI.Window.androidfocus](Titanium.UI.Window.androidfocus) event instead.
     summary: Fired when the Camera button is half-pressed then released.
     description: |
         Setting a listener disables the default key handling for this button. To restore
@@ -619,7 +619,7 @@ events:
     deprecated:
         since: "3.0.0"
         removed: "9.0.0"
-        notes: Use [Titanium.UI.Window.androidsearch](Titanium.UI.Window.androidsearch) instead.
+        notes: Use the [Titanium.UI.Window.androidsearch](Titanium.UI.Window.androidsearch) event instead.
     summary: Fired when the Search button is released.
     description: |
         Setting a listener disables the default key handling for this button. To restore
@@ -631,7 +631,7 @@ events:
     deprecated:
         since: "3.0.0"
         removed: "9.0.0"
-        notes: Use [Titanium.UI.Window.androidvoldown](Titanium.UI.Window.androidvoldown) instead.
+        notes: Use the [Titanium.UI.Window.androidvoldown](Titanium.UI.Window.androidvoldown) event instead.
     summary: Fired when the volume down button is released.
     description: |
         Setting a listener disables the default key handling for this button. To restore
@@ -643,7 +643,7 @@ events:
     deprecated:
         since: "3.0.0"
         removed: "9.0.0"
-        notes: Use [Titanium.UI.Window.androidvolup](Titanium.UI.Window.androidvolup) instead.
+        notes: Use the [Titanium.UI.Window.androidvolup](Titanium.UI.Window.androidvolup) event instead.
     summary: Fired when the volume up button is released.
     description: |
         Setting a listener disables the default key handling for this button. To restore

@@ -294,6 +294,7 @@ events:
         deprecated: 
           since: "8.0.0"
           removed: "8.0.0"
+          notes: Use the `stack` property instead.
         platforms: [iphone, ipad]
       - name: title
         summary: The title for the error.
