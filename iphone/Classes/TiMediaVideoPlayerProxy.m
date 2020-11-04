@@ -446,12 +446,20 @@ NSArray *moviePlayerKeys = nil;
 
 - (NSNumber *)pictureInPictureEnabled
 {
-  return @([movie allowsPictureInPicturePlayback]);
+  if (movie) {
+    return @(movie.allowsPictureInPicturePlayback);
+  } else {
+    RETURN_FROM_LOAD_PROPERTIES(@"pictureInPictureEnabled", @YES);
+  }
 }
 
 - (void)setPictureInPictureEnabled:(NSNumber *)value
 {
-  [movie setAllowsPictureInPicturePlayback:[TiUtils boolValue:value]];
+  if (movie) {
+    movie.allowsPictureInPicturePlayback = [TiUtils boolValue:value def:YES];
+  } else {
+    [loadProperties setValue:value forKey:@"pictureInPictureEnabled"];
+  }
 }
 
 - (NSNumber *)showsControls

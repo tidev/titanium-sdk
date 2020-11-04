@@ -133,7 +133,7 @@ describe('Titanium.Media.VideoPlayer', () => {
 
 		describe.ios('.mediaTypes', () => {
 			it('is a String', () => {
-				should(player).have.a.property('mediaTypes').which.is.a.String();
+				should(player).have.a.readOnlyProperty('mediaTypes').which.is.a.String();
 			});
 
 			it('is one of Ti.Media.VIDEO_MEDIA_TYPE_*', () => {
@@ -189,7 +189,7 @@ describe('Titanium.Media.VideoPlayer', () => {
 			});
 
 			it('defaults to false', () => { // eslint-disable-line mocha/no-identical-title
-				should(player.pictureInPictureEnabled).be.false();
+				should(player.pictureInPictureEnabled).be.true();
 			});
 		});
 
