@@ -55,6 +55,22 @@ static NSString *mimeTypeToUTType(NSString *mimeType)
 
 @implementation TiUIClipboardProxy
 
+NSArray<NSString *> *clipboardKeySequence;
+
+- (NSArray<NSString *> *)keySequence
+{
+  if (clipboardKeySequence == nil) {
+    clipboardKeySequence = [[NSArray alloc] initWithObjects:@"unique", @"name", @"allowCreation", nil];
+  }
+  return clipboardKeySequence;
+}
+
+- (void)_destroy
+{
+  RELEASE_TO_NIL(_pasteboard);
+  [super _destroy];
+}
+
 - (id)init
 {
   if (self = [super init]) {
@@ -75,7 +91,7 @@ static NSString *mimeTypeToUTType(NSString *mimeType)
   if (isNamedPasteBoard) {
     return _pasteboard;
   }
-  return [UIPasteboard generalPasteboard];
+  return UIPasteboard.generalPasteboard;
 }
 
 - (void)setName:(id)arg
@@ -83,14 +99,14 @@ static NSString *mimeTypeToUTType(NSString *mimeType)
   if (!isUnique) {
     ENSURE_STRING(arg);
     pasteboardName = arg;
-    _pasteboard = [UIPasteboard pasteboardWithName:arg create:shouldCreatePasteboard];
+    _pasteboard = [[UIPasteboard pasteboardWithName:arg create:shouldCreatePasteboard] retain];
     isNamedPasteBoard = true;
   }
 }
 
 - (NSString *)name
 {
-  return [[self pasteboard] name];
+  return [self pasteboard].name;
 }
 
 - (void)setAllowCreation:(id)arg
@@ -98,8 +114,8 @@ static NSString *mimeTypeToUTType(NSString *mimeType)
   BOOL value = [TiUtils boolValue:arg def:true];
   shouldCreatePasteboard = value;
   if (!isUnique && pasteboardName && !shouldCreatePasteboard) {
-    [self remove];
-    _pasteboard = [UIPasteboard pasteboardWithName:pasteboardName create:value];
+    [self remove:nil];
+    _pasteboard = [[UIPasteboard pasteboardWithName:pasteboardName create:value] retain];
     isNamedPasteBoard = true;
   }
 }
@@ -109,15 +125,17 @@ static NSString *mimeTypeToUTType(NSString *mimeType)
   BOOL value = [TiUtils boolValue:arg def:false];
   isUnique = value;
   if (isUnique) {
-    _pasteboard = [UIPasteboard pasteboardWithUniqueName];
+    _pasteboard = [[UIPasteboard pasteboardWithUniqueName] retain];
     isNamedPasteBoard = true;
   }
 }
 
-- (void)remove
+- (void)remove:(id)unused
 {
-  [UIPasteboard removePasteboardWithName:[self pasteboard].name];
-  _pasteboard = nil;
+  if (_pasteboard != nil) {
+    [UIPasteboard removePasteboardWithName:[self pasteboard].name];
+    RELEASE_TO_NIL(_pasteboard);
+  }
 }
 
 - (void)clearData:(id)arg

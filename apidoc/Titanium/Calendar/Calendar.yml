@@ -713,7 +713,7 @@ properties:
     deprecated:
         since: "5.2.0"
         removed: "8.1.0"
-        notes: Use [Titanium.Calendar.calendarAuthorization](Titanium.Calendar.calendarAuthorization) instead.
+        notes: Use the [Titanium.Calendar.calendarAuthorization](Titanium.Calendar.calendarAuthorization) property instead.
     type: Number
     constants: Titanium.Calendar.AUTHORIZATION_*
     permission: read-only
