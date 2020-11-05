@@ -87,6 +87,7 @@ function loadTests() {
 	if (OS_ANDROID) {
 		require('./ti.android.test');
 		require('./ti.android.notificationmanager.test');
+		require('./ti.android.r.test');
 		require('./ti.android.service.test');
 	}
 	require('./ti.api.test');
@@ -150,6 +151,7 @@ function loadTests() {
 	}
 	require('./ti.ui.attributedstring.test');
 	require('./ti.ui.button.test');
+	require('./ti.ui.clipboard.test');
 	require('./ti.ui.constants.test');
 	require('./ti.ui.emaildialog.test');
 	require('./ti.ui.imageview.test');

@@ -315,7 +315,7 @@ events:
     deprecated:
         since: "5.2.0"
         removed: "9.0.0"
-        notes: Use [Titanium.UI.Tab.unselected](Titanium.UI.Tab.unselected) instead.
+        notes: Use [Titanium.UI.Tab.unselected](Titanium.UI.Tab.unselected) event instead.
     properties:
       - name: index
         summary: Index of the current active tab.
@@ -358,7 +358,7 @@ events:
     deprecated:
         since: "5.2.0"
         removed: "9.0.0"
-        notes: Use [Titanium.UI.Tab.selected](Titanium.UI.Tab.selected) instead.
+        notes: Use [Titanium.UI.Tab.selected](Titanium.UI.Tab.selected) event instead.
     properties:
       - name: index
         summary: Index of the current active tab.

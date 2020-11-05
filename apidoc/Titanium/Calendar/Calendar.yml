@@ -191,24 +191,6 @@ properties:
     permission: read-only
     platforms: [iphone, ipad, macos]
 
-  - name: STATUS_CANCELLED
-    summary: Event canceled status.
-    description: |
-        An [event's status](Titanium.Calendar.Event.status) value.
-
-        One of the group of event "status" constants,
-        [STATUS_NONE](Titanium.Calendar.STATUS_NONE),
-        [STATUS_CANCELED](Titanium.Calendar.STATUS_CANCELED),
-        [STATUS_CONFIRMED](Titanium.Calendar.STATUS_CONFIRMED),
-        and [STATUS_TENTATIVE](Titanium.Calendar.STATUS_TENTATIVE).
-    type: Number
-    permission: read-only
-    platforms: [android, iphone, ipad]
-    deprecated:
-        since: "5.2.0"
-        removed: "7.0.0"
-        notes: Use [Titanium.Calendar.STATUS_CANCELED](Titanium.Calendar.STATUS_CANCELED) instead.
-
   - name: STATUS_CANCELED
     summary: Event canceled status.
     description: |
@@ -731,7 +713,7 @@ properties:
     deprecated:
         since: "5.2.0"
         removed: "8.1.0"
-        notes: Use [Titanium.Calendar.calendarAuthorization](Titanium.Calendar.calendarAuthorization) instead.
+        notes: Use the [Titanium.Calendar.calendarAuthorization](Titanium.Calendar.calendarAuthorization) property instead.
     type: Number
     constants: Titanium.Calendar.AUTHORIZATION_*
     permission: read-only
