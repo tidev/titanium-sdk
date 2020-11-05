@@ -205,6 +205,14 @@ if (isIOS) {
 	// Now a giant hack for looking up CPU info for OS.cpus() on iOS
 	// https://www.theiphonewiki.com/wiki/List_of_iPhones
 	const AppleMap = {
+		// iPhone 12 Pro Max
+		'iPhone13,4': [ 'Apple A14 Bionic @ 2.99 GHz', 2990 ],
+		// iPhone 12 Pro
+		'iPhone13,3': [ 'Apple A14 Bionic @ 2.99 GHz', 2990 ],
+		// iPhone 12
+		'iPhone13,2': [ 'Apple A14 Bionic @ 2.99 GHz', 2990 ],
+		// iPhone 12 mini
+		'iPhone13,1': [ 'Apple A14 Bionic @ 2.99 GHz', 2990 ],
 		// iPhone SE (2nd gen)
 		'iPhone12,8': [ 'Apple A13 Bionic @ 2.66 GHz', 2660 ],
 		// iPhone 11 Pro Max

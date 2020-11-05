@@ -12,7 +12,7 @@
 
 const should = require('./utilities/assertions');
 
-describe('Titanium.Media', () => {
+describe.only('Titanium.Media', () => {
 
 	describe('properties', () => {
 		describe('.apiName', () => {
@@ -74,6 +74,7 @@ describe('Titanium.Media', () => {
 			it('is an Array', () => {
 				// TODO: Verify it's an array of numbers
 				should(Ti.Media).have.a.readOnlyProperty('availableCameras').which.is.an.Array();
+				should(Ti.Media.availableCameras).be.an.Array(); // necessary for ios devices due to way we sniff api usage to turn on/off defines
 			});
 
 			// TODO: Verify the members of the array are one of these constants!
@@ -177,6 +178,7 @@ describe('Titanium.Media', () => {
 		describe('.isCameraSupported', () => {
 			it('is a Boolean', () => {
 				should(Ti.Media).have.a.readOnlyProperty('isCameraSupported').which.is.a.Boolean();
+				should(Ti.Media.isCameraSupported).be.a.Boolean(); // necessary for ios devices due to way we sniff api usage to turn on/off defines
 			});
 		});
 
