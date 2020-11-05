@@ -96,23 +96,23 @@ describe('Titanium.UI.Window', function () {
 		});
 	});
 
-	it.ios('#leftNavButtons and #rightNavButtons', finish => {
-		var rightButton1 = Ti.UI.createButton({
+	it.ios('.leftNavButtons and .rightNavButtons', finish => {
+		const rightButton1 = Ti.UI.createButton({
 			title: 'Right1',
 			color: 'green',
 		});
 
-		var rightButton2 = Ti.UI.createButton({
+		const rightButton2 = Ti.UI.createButton({
 			title: 'Right2',
 			color: 'green',
 		});
 
-		var leftButton = Ti.UI.createButton({
+		const leftButton = Ti.UI.createButton({
 			title: 'Left',
 			color: 'blue'
 		});
 
-		var rootWindow = Ti.UI.createWindow({
+		const rootWindow = Ti.UI.createWindow({
 			backgroundColor: 'white',
 			leftNavButtons: [ leftButton ],
 			rightNavButtons: [ rightButton1, rightButton2 ],
@@ -124,7 +124,8 @@ describe('Titanium.UI.Window', function () {
 
 		win.open();
 
-		rootWindow.addEventListener('focus', function () {
+		rootWindow.addEventListener('focus', function focus() {
+			rootWindow.removeEventListener('focus', focus);
 			try {
 				should(rootWindow.rightNavButtons).be.an.Array();
 				should(rootWindow.rightNavButtons.length).be.eql(2);
@@ -140,21 +141,27 @@ describe('Titanium.UI.Window', function () {
 		});
 	});
 
-	it.ios('#leftNavButton and #rightNavButton', finish => {
-		var rightButton = Ti.UI.createButton({
+	it.ios('.leftNavButton and .rightNavButton  with color', finish => {
+		this.timeout(10000);
+
+		const nonColorButton = Ti.UI.createButton({
+			title: 'Right',
+		});
+
+		const greenColorButton = Ti.UI.createButton({
 			title: 'Right',
 			color: 'green',
 		});
 
-		var leftButton = Ti.UI.createButton({
+		const leftButton = Ti.UI.createButton({
 			title: 'Left',
 			color: 'blue'
 		});
 
-		var rootWindow = Ti.UI.createWindow({
+		const rootWindow = Ti.UI.createWindow({
 			backgroundColor: 'white',
 			leftNavButton: leftButton,
-			rightNavButton: rightButton,
+			rightNavButton: nonColorButton,
 		});
 
 		win = Ti.UI.createNavigationWindow({
@@ -165,14 +172,67 @@ describe('Titanium.UI.Window', function () {
 
 		rootWindow.addEventListener('postlayout', function postlayout() {
 			rootWindow.removeEventListener('postlayout', postlayout);
-			try {
-				should(rootWindow.leftNavButton).be.an.Object();
-				should(rootWindow.rightNavButton).be.an.Object();
-				// Can we match different simulators window snapshot
-			} catch (e) {
-				return finish(e);
-			}
-			finish();
+			setTimeout(function () {
+				const nonColorButtonImage = win.toImage();
+				rootWindow.rightNavButton = greenColorButton;
+				setTimeout(function () {
+					try {
+						should(rootWindow.leftNavButton).be.an.Object();
+						should(rootWindow.rightNavButton).be.an.Object();
+						should(win).not.matchImage(nonColorButtonImage, 0); //  Navbutton without color should be different with a colored one
+					} catch (e) {
+						return finish(e);
+					}
+					finish();
+				}, 1000);
+			}, 1000);
+		});
+	});
+
+	it.ios('.leftNavButton and .rightNavButton with tintColor', finish => {
+		this.timeout(10000);
+		const nonColorButton = Ti.UI.createButton({
+			title: 'Right',
+		});
+
+		const greenColorButton = Ti.UI.createButton({
+			title: 'Right',
+			tintColor: 'green',
+		});
+
+		const leftButton = Ti.UI.createButton({
+			title: 'Left',
+			tintColor: 'blue'
+		});
+
+		const rootWindow = Ti.UI.createWindow({
+			backgroundColor: 'white',
+			leftNavButton: leftButton,
+			rightNavButton: nonColorButton,
+		});
+
+		win = Ti.UI.createNavigationWindow({
+			window: rootWindow
+		});
+
+		win.open();
+
+		rootWindow.addEventListener('postlayout', function postlayout() {
+			rootWindow.removeEventListener('postlayout', postlayout);
+			setTimeout(function () {
+				const nonColorButtonImage = win.toImage();
+				rootWindow.rightNavButton = greenColorButton;
+				setTimeout(function () {
+					try {
+						should(rootWindow.leftNavButton).be.an.Object();
+						should(rootWindow.rightNavButton).be.an.Object();
+						should(win).not.matchImage(nonColorButtonImage, 0); //  Navbutton without color should be different with a colored one
+					} catch (e) {
+						return finish(e);
+					}
+					finish();
+				}, 1000);
+			}, 1000);
 		});
 	});
 
