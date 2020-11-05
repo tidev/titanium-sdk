@@ -45,15 +45,8 @@ bool V8Runtime::debuggerEnabled = false;
 bool V8Runtime::DBG = false;
 bool V8Runtime::initialized = false;
 
-class ArrayBufferAllocator : public v8::ArrayBuffer::Allocator {
- public:
-	virtual void* Allocate(size_t length) { return calloc(length, 1); }
-	virtual void* AllocateUninitialized(size_t length) { return malloc(length); }
-	virtual void Free(void* data, size_t) { free(data); }
-};
-
-// Make allocator global so it sticks around?
-ArrayBufferAllocator allocator;
+typedef std::unique_ptr<v8::ArrayBuffer::Allocator> V8ArrayBufferAllocator;
+V8ArrayBufferAllocator v8Allocator;
 
 /* static */
 void V8Runtime::collectWeakRef(Persistent<Value> ref, void *parameter)
@@ -227,7 +220,8 @@ JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeIn
 	if (V8Runtime::v8_isolate == nullptr) {
 		// Create a new Isolate and make it the current one.
 		Isolate::CreateParams create_params;
-		create_params.array_buffer_allocator = &allocator;
+		v8Allocator = V8ArrayBufferAllocator(v8::ArrayBuffer::Allocator::NewDefaultAllocator());
+		create_params.array_buffer_allocator = v8Allocator.get();
 #ifdef V8_SNAPSHOT_H
 		create_params.snapshot_blob = &snapshot;
 #endif

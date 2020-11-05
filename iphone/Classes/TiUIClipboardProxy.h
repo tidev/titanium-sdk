@@ -27,6 +27,7 @@
 - (id)hasText:(id)unused;
 - (void)setData:(id)args;
 - (void)setText:(id)args;
+- (void)remove:(id)unused;
 
 @end
 #endif
