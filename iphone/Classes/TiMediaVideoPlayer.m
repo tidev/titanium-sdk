@@ -78,11 +78,11 @@
   // Set parent for AVPlayerViewController controller
   if (!parentController) {
     id proxy = [(TiViewProxy *)self.proxy parent];
-    while ([proxy isKindOfClass:[TiViewProxy class]] && ![proxy isKindOfClass:[TiWindowProxy class]]) {
+    while (proxy != nil && ![proxy isKindOfClass:[TiWindowProxy class]]) {
       proxy = [proxy parent];
     }
-    if ([proxy isKindOfClass:[TiWindowProxy class]]) {
-      parentController = [[proxy windowHoldingController] retain];
+    if (proxy != nil) {
+      parentController = [[(TiWindowProxy *)proxy windowHoldingController] retain];
     } else {
       parentController = [[[TiApp app] controller] retain];
     }
