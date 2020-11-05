@@ -142,8 +142,6 @@ describe('Titanium.UI.Window', function () {
 	});
 
 	it.ios('.leftNavButton and .rightNavButton  with color', finish => {
-		this.timeout(10000);
-
 		const nonColorButton = Ti.UI.createButton({
 			title: 'Right',
 		});
@@ -184,13 +182,12 @@ describe('Titanium.UI.Window', function () {
 						return finish(e);
 					}
 					finish();
-				}, 1000);
-			}, 1000);
+				}, 10);
+			}, 10);
 		});
 	});
 
 	it.ios('.leftNavButton and .rightNavButton with tintColor', finish => {
-		this.timeout(10000);
 		const nonColorButton = Ti.UI.createButton({
 			title: 'Right',
 		});
@@ -231,8 +228,8 @@ describe('Titanium.UI.Window', function () {
 						return finish(e);
 					}
 					finish();
-				}, 1000);
-			}, 1000);
+				}, 10);
+			}, 10);
 		});
 	});
 
