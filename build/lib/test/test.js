@@ -19,6 +19,10 @@ const exec = promisify(require('child_process').exec); // eslint-disable-line se
 const ROOT_DIR = path.join(__dirname, '../../..');
 const SOURCE_DIR = path.join(ROOT_DIR, 'tests');
 const PROJECT_NAME = 'mocha';
+// cert/profile used to build to iOS device
+const DEVELOPER_NAME = 'QE Department (C64864TF2L)';
+const PROVISIONING_PROFILE_UUID = '4a3fc2c3-4647-4472-90e5-15cba3a576df';
+// app id used
 const APP_ID = 'com.appcelerator.testApp.testing';
 const PROJECT_DIR = path.join(ROOT_DIR, 'tmp', PROJECT_NAME);
 const REPORT_DIR = ROOT_DIR; // Write junit xml files to root of repo
@@ -323,9 +327,9 @@ async function runBuild(platform, target, deviceId, deployType, deviceFamily, sn
 
 		if (target === 'device') {
 			args.push('--developer-name');
-			args.push('QE Department (C64864TF2L)');
+			args.push(DEVELOPER_NAME);
 			args.push('--pp-uuid');
-			args.push('20109694-2d18-4c78-ab6a-2195e3719c6b');
+			args.push(PROVISIONING_PROFILE_UUID);
 		}
 
 		if (deviceFamily) {
