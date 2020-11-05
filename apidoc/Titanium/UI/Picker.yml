@@ -252,8 +252,11 @@ properties:
         Applicable to <Titanium.UI.PICKER_TYPE_TIME> and <Titanium.UI.PICKER_TYPE_DATE_AND_TIME> picker types.
         The picker type <Titanium.UI.PICKER_TYPE_DATE> does not support text customizing as stated in the
         [UIKit User Interface Catalog](https://developer.apple.com/documentation/uikit/uidatepicker).
+
+        Important: On iOS 14+, you also have to set the <Titanium.UI.Picker.datePickerStyle> to <Titanium.UI.iOS.DATE_PICKER_STYLE_WHEELS>
+        in order to use this property.
     type: [String, Titanium.UI.Color]
-    platforms: [iphone, ipad, macos]
+    platforms: [iphone, ipad]
     since: "5.2.0"
     default: "black"
 

@@ -1364,6 +1364,7 @@ describe('Titanium.UI.TableView', function () {
 			if (Ti.Android) {
 				value = row1.backgroundDisabledColor;
 				value = row1.backgroundFocusedColor;
+				// eslint-disable-next-line no-unused-vars
 				value = row1.backgroundSelectedColor;
 			}
 		}
@@ -1480,8 +1481,7 @@ describe('Titanium.UI.TableView', function () {
 		win.open();
 	});
 
-	it.iosBroken('row#rect', function (finish) {
-		// FIXME: TIMOB-27935
+	it('row#rect', function (finish) {
 		if (isCI && utilities.isMacOS()) { // FIXME: On macOS CI (maybe < 10.15.6?), times out! Does app need explicit focus added?
 			return finish(); // FIXME: skip when we move to official mocha package
 		}

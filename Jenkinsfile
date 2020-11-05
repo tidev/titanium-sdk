@@ -153,7 +153,7 @@ def macosUnitTests(nodeVersion, npmVersion) {
 					stash includes: 'junit.ios.macos.xml', name: "test-report-ios-macos"
 					junit 'junit.ios.macos.xml'
 					// Save any diffed images
-					archiveArtifacts allowEmptyArchive: true, artifacts: 'tests/diffs/'
+					archiveArtifacts allowEmptyArchive: true, artifacts: 'tests/diffs/,tests/generated/'
 				} // nodejs
 			} finally {
 				deleteDir()
@@ -199,7 +199,7 @@ def iosUnitTests(deviceFamily, nodeVersion, npmVersion, testOnDevices) {
 					stash includes: 'junit.ios.*.xml', name: "test-report-ios-${deviceFamily}"
 					junit 'junit.ios.*.xml'
 					// Save any diffed images
-					archiveArtifacts allowEmptyArchive: true, artifacts: 'tests/diffs/'
+					archiveArtifacts allowEmptyArchive: true, artifacts: 'tests/diffs/,tests/generated/'
 				} // nodejs
 			} finally {
 				deleteDir()

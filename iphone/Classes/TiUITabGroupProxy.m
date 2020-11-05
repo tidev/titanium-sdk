@@ -210,6 +210,12 @@ static NSArray *tabGroupKeySequence;
 
 - (void)resignFocus
 {
+  if ([self _hasListeners:@"blur"]) {
+    // focus event and blur event has same parameters
+    NSDictionary *event = [((TiUITabGroup *)self.view) focusEvent];
+    [self fireEvent:@"blur" withObject:event];
+  }
+
   if (focussed) {
     UITabBarController *tabController = [(TiUITabGroup *)[self view] tabController];
     NSUInteger blessedController = [tabController selectedIndex];

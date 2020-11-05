@@ -14,7 +14,6 @@
 'use strict';
 
 const ADB = require('node-titanium-sdk/lib/adb'),
-	AdmZip = require('adm-zip'),
 	android = require('node-titanium-sdk/lib/android'),
 	androidDetect = require('../lib/detect').detect,
 	AndroidManifest = require('../lib/android-manifest'),
@@ -3069,27 +3068,48 @@ AndroidBuilder.prototype.generateRequireIndex = async function generateRequireIn
 	await fs.writeFile(cacheJsonFilePath, JSON.stringify(cacheAssets));
 };
 
-AndroidBuilder.prototype.getNativeModuleBindings = function getNativeModuleBindings(jarFile) {
-	var zip = new AdmZip(jarFile),
-		zipEntries = zip.getEntries(),
-		i = 0,
-		len = zipEntries.length,
-		pathName = 'org/appcelerator/titanium/bindings/',
-		pathNameLen = pathName.length,
-		entry, name;
-
-	for (; i < len; i++) {
-		entry = zipEntries[i];
-		name = entry.entryName.toString();
-		if (name.length > pathNameLen && name.indexOf(pathName) === 0) {
-			try {
-				return JSON.parse(entry.getData());
-			} catch (e) {
-				// ignore
+/**
+ * @param {string} jarFile filepath to JAR
+ * @returns {Promise<Object>} parsed JSON of the module's bindings
+ */
+AndroidBuilder.prototype.getNativeModuleBindings = async function getNativeModuleBindings(jarFile) {
+	return new Promise((resolve, reject) => {
+		const yauzl = require('yauzl');
+		yauzl.open(jarFile, { lazyEntries: true }, (err, zipfile) => {
+			if (err) {
+				return reject(err);
 			}
-			return;
-		}
-	}
+
+			zipfile.once('error', reject);
+			zipfile.on('entry', entry => {
+				if (!entry.fileName.startsWith('org/appcelerator/titanium/bindings/')) {
+					zipfile.readEntry(); // move on
+					return;
+				}
+				// read the entry
+				zipfile.openReadStream(entry, function (err, readStream) {
+					if (err) {
+						return reject(err);
+					}
+
+					// read file contents and when done, parse as JSON
+					const chunks = [];
+					readStream.once('error', reject);
+					readStream.on('data', chunk => chunks.push(chunk));
+					readStream.on('end', () => {
+						try {
+							zipfile.close();
+							const str = Buffer.concat(chunks).toString('utf8');
+							return resolve(JSON.parse(str));
+						} catch (error) {
+							reject(error);
+						}
+					});
+				});
+			});
+			zipfile.readEntry();
+		});
+	});
 };
 
 AndroidBuilder.prototype.generateJavaFiles = async function generateJavaFiles() {
@@ -3136,7 +3156,7 @@ AndroidBuilder.prototype.generateJavaFiles = async function generateJavaFiles() 
 			const jarFilePath = path.join(module.modulePath, moduleName + '.jar');
 			try {
 				if (await fs.exists(jarFilePath)) {
-					javaBindings = this.getNativeModuleBindings(jarFilePath);
+					javaBindings = await this.getNativeModuleBindings(jarFilePath);
 				}
 			} catch (ex) {
 				this.logger.error(__n('The module "%s" has an invalid jar file: %s', module.id, jarFilePath));
@@ -3449,11 +3469,10 @@ AndroidBuilder.prototype.generateTheme = async function generateTheme() {
 	await fs.writeFile(xmlFilePath, xmlLines.join('\n'));
 };
 
-AndroidBuilder.prototype.fetchNeededAndroidPermissions = function fetchNeededAndroidPermissions() {
-	// Do not continue if permission injection has been disabled in "tiapp.xml".
-	if (this.tiapp['override-permissions']) {
-		return [];
-	}
+AndroidBuilder.prototype.fetchNeededManifestSettings = function fetchNeededManifestSettings() {
+	// Check if permission injection is disabled in "tiapp.xml".
+	// Note: Recommended solution is to use 'tools:node="remove"' attributes within <manifest/> instead.
+	const canAddPermissions = !this.tiapp['override-permissions'];
 
 	// Define Android <uses-permission/> names needed by our core Titanium APIs.
 	const calendarPermissions = [ 'android.permission.READ_CALENDAR', 'android.permission.WRITE_CALENDAR' ];
@@ -3493,12 +3512,24 @@ AndroidBuilder.prototype.fetchNeededAndroidPermissions = function fetchNeededAnd
 	// Add Titanium's default permissions.
 	// Note: You would normally define needed permissions in AAR library's manifest file,
 	//       but we want "tiapp.xml" property "override-permissions" to be able to override this behavior.
-	const neededPermissionDictionary = {
-		'android.permission.INTERNET': true,
-		'android.permission.ACCESS_WIFI_STATE': true,
-		'android.permission.ACCESS_NETWORK_STATE': true,
-		'android.permission.WRITE_EXTERNAL_STORAGE': true
+	const neededPermissionDictionary = {};
+	if (canAddPermissions) {
+		neededPermissionDictionary['android.permission.INTERNET'] = true;
+		neededPermissionDictionary['android.permission.ACCESS_WIFI_STATE'] = true;
+		neededPermissionDictionary['android.permission.ACCESS_NETWORK_STATE'] = true;
+		neededPermissionDictionary['android.permission.WRITE_EXTERNAL_STORAGE'] = true;
+	}
+
+	// Define JavaScript methods that need manifest <queries> entries.
+	// The value strings are used as boolean property names in our "AndroidManifest.xml" EJS template.
+	const tiMethodQueries = {
+		'UI.createEmailDialog': 'sendEmail',
+		'UI.EmailDialog': 'sendEmail'
 	};
+
+	// To be populated with <queries/> needed by the app.
+	// Uses the string values from "tiMethodQueries" as keys.
+	const neededQueriesDictionary = {};
 
 	// Make sure Titanium symbols variable "tiSymbols" is valid.
 	if (!this.tiSymbols) {
@@ -3506,7 +3537,7 @@ AndroidBuilder.prototype.fetchNeededAndroidPermissions = function fetchNeededAnd
 	}
 
 	// Traverse all accessed namespaces/methods in JavaScript.
-	// Add any Android permissions needed if matching the above mappings.
+	// Add any Android permissions/queries needed if matching the above mappings.
 	const accessedSymbols = {};
 	for (const file in this.tiSymbols) {
 		// Fetch all symbols from the next JavaScript file.
@@ -3523,29 +3554,48 @@ AndroidBuilder.prototype.fetchNeededAndroidPermissions = function fetchNeededAnd
 			}
 			accessedSymbols[symbol] = true;
 
-			// If symbol is a namespace, then check if it needs permission.
-			// Note: Check each namespace component separately, split via periods.
-			const namespaceParts = symbol.split('.').slice(0, -1);
-			for (;namespaceParts.length > 0; namespaceParts.pop()) {
-				const namespace = namespaceParts.join('.');
-				if (namespace && tiNamespacePermissions[namespace]) {
-					for (const permission of tiNamespacePermissions[namespace]) {
+			// Check if symbol requires any Android permissions.
+			if (canAddPermissions) {
+				let permissionArray;
+
+				// If symbol is a namespace, then check if it needs permission.
+				// Note: Check each namespace component separately, split via periods.
+				const namespaceParts = symbol.split('.').slice(0, -1);
+				for (;namespaceParts.length > 0; namespaceParts.pop()) {
+					const namespace = namespaceParts.join('.');
+					if (namespace) {
+						permissionArray = tiNamespacePermissions[namespace];
+						if (permissionArray) { // eslint-disable-line max-depth
+							for (const permission of permissionArray) { // eslint-disable-line max-depth
+								neededPermissionDictionary[permission] = true;
+							}
+						}
+					}
+				}
+
+				// If symbol is a method, then check if it needs permission.
+				permissionArray = tiMethodPermissions[symbol];
+				if (permissionArray) {
+					for (const permission of permissionArray) {
 						neededPermissionDictionary[permission] = true;
 					}
 				}
 			}
 
-			// If symbol is a method, then check if it needs permission.
-			if (tiMethodPermissions[symbol]) {
-				for (const permission of tiMethodPermissions[symbol]) {
-					neededPermissionDictionary[permission] = true;
-				}
+			// Check if symbol requires an Android <queries/> entry.
+			const queryName = tiMethodQueries[symbol];
+			if (queryName) {
+				neededQueriesDictionary[queryName] = true;
 			}
 		}
 	}
 
-	// Return an array of Android <uses-permission/> names needed.
-	return Object.keys(neededPermissionDictionary);
+	// Return the entries needed to be injected into the generated "AndroidManifest.xml" file.
+	const neededSettings = {
+		usesPermissions: Object.keys(neededPermissionDictionary),
+		queries: neededQueriesDictionary
+	};
+	return neededSettings;
 };
 
 AndroidBuilder.prototype.generateAndroidManifest = async function generateAndroidManifest() {
@@ -3627,6 +3677,9 @@ AndroidBuilder.prototype.generateAndroidManifest = async function generateAndroi
 		}
 	}
 
+	// Scan app's JS code to see what <uses-permission/> and <queries/> entries should be auto-injected into manifest.
+	const neededManifestSettings = this.fetchNeededManifestSettings();
+
 	// Generate the app's main manifest from EJS template.
 	let mainManifestContent = await fs.readFile(path.join(this.templatesDir, 'AndroidManifest.xml'));
 	mainManifestContent = ejs.render(mainManifestContent.toString(), {
@@ -3635,12 +3688,11 @@ AndroidBuilder.prototype.generateAndroidManifest = async function generateAndroi
 		appLabel: this.tiapp.name,
 		appTheme: `@style/${this.defaultAppThemeName}`,
 		classname: this.classname,
-		packageName: this.appid
+		packageName: this.appid,
+		queries: neededManifestSettings.queries,
+		usesPermissions: neededManifestSettings.usesPermissions
 	});
 	const mainManifest = AndroidManifest.fromXmlString(mainManifestContent);
-
-	// Add <uses-permission/> needed by Titanium. Will add permissions based on JS APIs used such as geolocation.
-	mainManifest.addUsesPermissions(this.fetchNeededAndroidPermissions());
 
 	// Write the main "AndroidManifest.xml" file providing Titanium's default app manifest settings.
 	const mainManifestFilePath = path.join(this.buildAppMainDir, 'AndroidManifest.xml');

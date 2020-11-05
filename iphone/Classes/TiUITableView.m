@@ -503,7 +503,7 @@
       dataIndex += rowIndex;
       break;
     }
-    dataIndex += [section rowCount];
+    dataIndex += section.rowCount.integerValue;
     c++;
   }
   return dataIndex;
@@ -941,11 +941,11 @@
 
 - (TiUITableViewRowProxy *)rowForIndexPath:(NSIndexPath *)indexPath
 {
-  TiUITableViewSectionProxy *section = [self sectionForIndex:[indexPath section]];
-  if (!indexPath || [section rowCount] <= [indexPath row]) {
+  TiUITableViewSectionProxy *section = [self sectionForIndex:indexPath.section];
+  if (!indexPath || section.rowCount.unsignedIntegerValue <= indexPath.row) {
     return nil;
   }
-  return [section rowAtIndex:[indexPath row]];
+  return [section rowAtIndex:indexPath.row];
 }
 
 - (void)changeEditing:(BOOL)yn
@@ -2068,7 +2068,7 @@
   }
 
   TiUITableViewSectionProxy *sectionProxy = [self sectionForIndex:section];
-  return sectionProxy.rowCount;
+  return sectionProxy.rowCount.integerValue;
 }
 
 // Row display. Implementers should *always* try to reuse cells by setting each cell's reuseIdentifier and querying for available reusable cells with dequeueReusableCellWithIdentifier:

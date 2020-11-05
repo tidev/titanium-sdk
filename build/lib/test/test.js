@@ -19,6 +19,10 @@ const exec = promisify(require('child_process').exec); // eslint-disable-line se
 const ROOT_DIR = path.join(__dirname, '../../..');
 const SOURCE_DIR = path.join(ROOT_DIR, 'tests');
 const PROJECT_NAME = 'mocha';
+// cert/profile used to build to iOS device
+const DEVELOPER_NAME = 'QE Department (C64864TF2L)';
+const PROVISIONING_PROFILE_UUID = '4a3fc2c3-4647-4472-90e5-15cba3a576df';
+// app id used
 const APP_ID = 'com.appcelerator.testApp.testing';
 const PROJECT_DIR = path.join(ROOT_DIR, 'tmp', PROJECT_NAME);
 const REPORT_DIR = ROOT_DIR; // Write junit xml files to root of repo
@@ -369,9 +373,9 @@ async function runBuild(platform, target, deviceId, deployType, deviceFamily, sn
 
 		if (target === 'device') {
 			args.push('--developer-name');
-			args.push('QE Department (C64864TF2L)');
+			args.push(DEVELOPER_NAME);
 			args.push('--pp-uuid');
-			args.push('20109694-2d18-4c78-ab6a-2195e3719c6b');
+			args.push(PROVISIONING_PROFILE_UUID);
 		}
 
 		if (deviceFamily) {
@@ -610,13 +614,14 @@ class DeviceTestDetails {
 		// grab image and place into test suite
 		const dest = path.join(this.snapshotDir, details.platform, details.relativePath);
 		const grabbed = await this.grabAppImage(details.platform, details.path, dest);
-		if (isCI) {
-			// Now also place into location that we can archive on CI/Jenkins
-			const generated = path.join(this.snapshotDir, '..', 'generated', details.platform, details.relativePath);
-			const diffDir = path.dirname(generated);
-			await fs.ensureDir(diffDir);
-			await fs.copy(grabbed, generated);
-		}
+
+		// Now also place into location that we can archive on CI/Jenkins (and see exactly which images are "new" for this run)
+		const generated = path.join(this.snapshotDir, '..', 'generated', details.platform, details.relativePath);
+		console.log(`Copying generated image ${grabbed} to ${generated}`); // TODO: Symlink instead?
+		const diffDir = path.dirname(generated);
+		await fs.ensureDir(diffDir);
+		await fs.copy(grabbed, generated);
+
 		return grabbed;
 	}
 
