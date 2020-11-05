@@ -12,7 +12,7 @@
 
 const should = require('./utilities/assertions');
 
-describe.only('Titanium.Media', () => {
+describe('Titanium.Media', () => {
 
 	describe('properties', () => {
 		describe('.apiName', () => {
