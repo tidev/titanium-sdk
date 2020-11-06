@@ -233,7 +233,7 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
 - (void)setDateTimeColor_:(id)value
 {
   // Guard date picker and iOS 14+ date picker style
-  if (![self isDatePicker]) {
+  if (![self isDatePicker] || [TiUtils isMacOS]) {
     return;
   }
 #if IS_SDK_IOS_13_4
