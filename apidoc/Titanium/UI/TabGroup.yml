@@ -340,7 +340,7 @@ properties:
   - name: titleColor
     summary: Defines the color of the title of tab when it's inactive.
     description: |
-        The color of the title of the tab when it's inactive. If not defined, it will use the default tint color.
+        The color of the title of the tab when it's inactive.
     type: [String, Titanium.UI.Color]
     since: {iphone: "9.0.3", ipad: "9.0.3", android: "9.0.3"}
     platforms: [iphone, ipad, android, macos]
@@ -348,7 +348,7 @@ properties:
   - name: activeTitleColor
     summary: Defines the color of the title of tab when it's active.
     description: |
-        The color of the title of the tab when it's active. If not defined, it will use the default tint color.
+        The color of the title of the tab when it's active.
     type: [String, Titanium.UI.Color]
     since: {iphone: "9.0.3", ipad: "9.0.3", android: "9.0.3"}
     platforms: [iphone, ipad, android, macos]
@@ -504,7 +504,7 @@ properties:
   - name: activeTintColor
     summary: The activeTintColor to apply to tabs.
     description: |
-        This property affects the tint of selected tab icons. Will fallback to activeTitleColor when not defined.
+        This property affects the tint of selected tab icons.
     type: String
     since: "9.0.3"
     default: null
@@ -513,7 +513,7 @@ properties:
   - name: tintColor
     summary: The tintColor to apply to tabs.
     description: |
-        This property affects the tint of unselected tab icons. Will fallback to titleColor when not defined.
+        This property affects the tint of unselected tab icons.
     type: String
     since: "9.0.3"
     default: null
