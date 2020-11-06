@@ -30,11 +30,9 @@ public class NodeListProxy extends KrollProxy
 		this.offset = offset;
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public int getLength()
-	// clang-format on
 	{
 		return list.getLength() - offset;
 	}

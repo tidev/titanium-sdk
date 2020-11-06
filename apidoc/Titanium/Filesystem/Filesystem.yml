@@ -12,13 +12,15 @@ examples:
     example: |
         This example writes a string to a text file in a shared directory
 
-            var suiteDir = Ti.Filesystem.directoryForSuite('group.appc.Sharing');
-            if (!suiteDir) {
-                logInApp('Suite Directory not found, check Entitlements.');
-                return;
-            }
-            var f = Ti.Filesystem.getFile(suiteDir,'emptyfile.txt');
-            f.write('The file is no longer empty!');
+        ``` js
+        var suiteDir = Ti.Filesystem.directoryForSuite('group.appc.Sharing');
+        if (!suiteDir) {
+            logInApp('Suite Directory not found, check Entitlements.');
+            return;
+        }
+        var f = Ti.Filesystem.getFile(suiteDir,'emptyfile.txt');
+        f.write('The file is no longer empty!');
+        ```
 methods:
   - name: createTempDirectory
     summary: Creates a temporary directory and returns a [File](Titanium.Filesystem.File) object representing the new directory.
@@ -49,7 +51,9 @@ methods:
         to the current file. For example, if the file `Resources/login/login.js`
         contains the following code:
 
-            var icon = Titanium.Filesystem.getFile('icon.png');
+        ``` js
+        var icon = Titanium.Filesystem.getFile('icon.png');
+        ```
 
         The path is interpreted as `Resources/login/icon.png`.
 
@@ -69,6 +73,7 @@ methods:
         summary: One or more path components. Path arguments are joined together using
             the platform specific path separator to form the full path.
         type: [String, Array<String>]
+        repeatable: true
 
   - name: getAsset
     summary: Returns a `Blob` object representing the asset catalog image identified by the path
@@ -89,7 +94,9 @@ methods:
         to the current file. For example, if the file `Resources/login/login.js`
         contains the following code:
 
-            var icon = Titanium.Filesystem.getAsset('icon.png');
+        ``` js
+        var icon = Titanium.Filesystem.getAsset('icon.png');
+        ```
 
         The path is interpreted as `Resources/login/icon.png`.
 
@@ -104,7 +111,8 @@ methods:
         summary: One or more path components. Path arguments are joined together using
             the platform specific path separator to form the full path.
         type: String
-    platforms: [iphone, ipad]
+        repeatable: true
+    platforms: [iphone, ipad, macos]
     osver: {ios: {min: "9.0"}}
     since: "5.4.0"
 
@@ -174,7 +182,7 @@ methods:
         type: String
     returns:
         type: String
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "4.0.0"
 properties:
   - name: MODE_APPEND
@@ -199,7 +207,7 @@ properties:
         to at any time.
     type: String
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "4.1.0"
 
   - name: IOS_FILE_PROTECTION_COMPLETE
@@ -209,7 +217,7 @@ properties:
         the device is locked or booting.
     type: String
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "4.1.0"
 
   - name: IOS_FILE_PROTECTION_COMPLETE_UNLESS_OPEN
@@ -220,7 +228,7 @@ properties:
         unlocked, you may continue to access the file normally, even if the user locks the device.
     type: String
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "4.1.0"
 
   - name: IOS_FILE_PROTECTION_COMPLETE_UNTIL_FIRST_USER_AUTHENTICATION
@@ -231,7 +239,7 @@ properties:
         access it even if the user subsequently locks the device.
     type: String
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "4.1.0"
 
   - name: applicationCacheDirectory
@@ -247,7 +255,7 @@ properties:
         cleans the directory to recover the disk space.
     type: String
     permission: read-only
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     since: "1.8.3"
   - name: applicationDataDirectory
     summary: Path to the application's data directory.
@@ -273,7 +281,7 @@ properties:
     summary: Path to the iOS application directory.
     type: String
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
   - name: applicationSupportDirectory
     summary: Path to the application support directory.
     description: |
@@ -284,7 +292,7 @@ properties:
         [remoteBackup](Titanium.Filesystem.File.remoteBackup) flag is set to false.
     type: String
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
   - name: externalStorageDirectory
     summary: Path to a directory on removable storage, such as SD card.
     description: |

@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2020 by Axway, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -15,6 +15,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Build;
+import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.KrollInvocation;
 import org.appcelerator.kroll.KrollModule;
@@ -51,31 +52,37 @@ public class FilesystemModule extends KrollModule
 	public FileProxy createTempFile(KrollInvocation invocation)
 	{
 		try {
-			File f = File.createTempFile("tifile", "tmp");
-			String[] parts = { f.getAbsolutePath() };
+			File file = File.createTempFile("tifile", ".tmp", TiApplication.getInstance().getTiTempDir());
+			String[] parts = { file.getAbsolutePath() };
 			return new FileProxy(invocation.getSourceUrl(), parts, false);
-		} catch (IOException e) {
-			Log.e(TAG, "Unable to create tmp file: " + e.getMessage(), e);
-			return null;
+		} catch (Exception ex) {
+			Log.e(TAG, "Unable to create tmp file: " + ex.getMessage(), ex);
 		}
+		return null;
 	}
 
 	@Kroll.method
 	public FileProxy createTempDirectory(KrollInvocation invocation)
 	{
-		String dir = String.valueOf(System.currentTimeMillis());
-		File tmpdir = new File(System.getProperty("java.io.tmpdir"));
-		File f = new File(tmpdir, dir);
-		f.mkdirs();
-		String[] parts = { f.getAbsolutePath() };
-		return new FileProxy(invocation.getSourceUrl(), parts);
+		try {
+			File parentDir = TiApplication.getInstance().getTiTempDir();
+			String tempDirName = "tidir" + System.currentTimeMillis();
+			File tempDir = new File(parentDir, tempDirName);
+			for (int index = 0; tempDir.exists(); index++) {
+				tempDir = new File(parentDir, tempDirName + index);
+			}
+			tempDir.mkdirs();
+			String[] parts = { tempDir.getAbsolutePath() };
+			return new FileProxy(invocation.getSourceUrl(), parts, false);
+		} catch (Exception ex) {
+			Log.e(TAG, "Unable to create tmp directory: " + ex.getMessage(), ex);
+		}
+		return null;
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public boolean isExternalStoragePresent()
-	// clang-format on
 	{
 		return android.os.Environment.getExternalStorageState().equals(android.os.Environment.MEDIA_MOUNTED);
 	}
@@ -111,50 +118,47 @@ public class FilesystemModule extends KrollModule
 	public void requestStoragePermissions(@Kroll.argument(optional = true) KrollFunction permissionCallback)
 	{
 		if (hasStoragePermissions()) {
+			KrollDict response = new KrollDict();
+			response.putCodeAndMessage(0, null);
+			permissionCallback.callAsync(getKrollObject(), response);
 			return;
 		}
 
-		String[] permissions = new String[] { android.Manifest.permission.READ_EXTERNAL_STORAGE,
-											  android.Manifest.permission.WRITE_EXTERNAL_STORAGE };
+		String[] permissions = new String[] {
+			android.Manifest.permission.READ_EXTERNAL_STORAGE,
+			android.Manifest.permission.WRITE_EXTERNAL_STORAGE
+		};
 		Activity currentActivity = TiApplication.getInstance().getCurrentActivity();
 		TiBaseActivity.registerPermissionRequestCallback(TiC.PERMISSION_CODE_EXTERNAL_STORAGE, permissionCallback,
 														 getKrollObject());
 		currentActivity.requestPermissions(permissions, TiC.PERMISSION_CODE_EXTERNAL_STORAGE);
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public FileProxy getApplicationDirectory()
-	// clang-format on
 	{
 		return null;
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public String getApplicationDataDirectory()
-	// clang-format on
 	{
 		return "appdata-private://";
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public String getResRawDirectory()
-	// clang-format on
 	{
 		return "android.resource://" + TiApplication.getInstance().getPackageName() + "/raw/";
 	}
 
 	@SuppressWarnings("deprecation")
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public String getApplicationCacheDirectory()
-	// clang-format on
 	{
 		TiApplication app = TiApplication.getInstance();
 		if (app == null) {
@@ -172,50 +176,39 @@ public class FilesystemModule extends KrollModule
 		}
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public String getResourcesDirectory()
-	// clang-format on
 	{
 		return "app://";
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public String getExternalStorageDirectory()
-	// clang-format on
 	{
 		return "appdata://";
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public String getTempDirectory()
-	// clang-format on
 	{
-		TiApplication tiApplication = TiApplication.getInstance();
-		return "file://" + tiApplication.getTempFileHelper().getTempDirectory().getAbsolutePath();
+		return "file://" + TiApplication.getInstance().getTiTempDir().getAbsolutePath();
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public String getSeparator()
-	// clang-format on
 	{
 		return File.separator;
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public String getLineEnding()
-	// clang-format on
 	{
-		return System.getProperty("line.separator");
+		return System.lineSeparator();
 	}
 
 	@Kroll.method

@@ -10,6 +10,8 @@ package ti.modules.titanium.calendar;
 import java.util.ArrayList;
 
 import android.provider.CalendarContract;
+
+import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
@@ -127,6 +129,9 @@ public class CalendarModule extends KrollModule
 	public void requestCalendarPermissions(@Kroll.argument(optional = true) KrollFunction permissionCallback)
 	{
 		if (hasCalendarPermissions()) {
+			KrollDict response = new KrollDict();
+			response.putCodeAndMessage(0, null);
+			permissionCallback.callAsync(getKrollObject(), response);
 			return;
 		}
 
@@ -138,21 +143,17 @@ public class CalendarModule extends KrollModule
 			TiC.PERMISSION_CODE_CALENDAR);
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public CalendarProxy[] getAllCalendars()
-	// clang-format on
 	{
 		ArrayList<CalendarProxy> calendars = CalendarProxy.queryCalendars(null, null);
 		return calendars.toArray(new CalendarProxy[calendars.size()]);
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public CalendarProxy[] getSelectableCalendars()
-	// clang-format on
 	{
 		ArrayList<CalendarProxy> calendars;
 		// selectable calendars are "visible"
@@ -184,11 +185,9 @@ public class CalendarModule extends KrollModule
 		}
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public AlertProxy[] getAllAlerts()
-	// clang-format on
 	{
 		ArrayList<AlertProxy> alerts = AlertProxy.queryAlerts(null, null, null);
 		return alerts.toArray(new AlertProxy[alerts.size()]);

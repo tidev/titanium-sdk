@@ -280,9 +280,10 @@ bool KrollSetProperty(JSContextRef jsContext, JSObjectRef object, JSStringRef pr
     } else {
       [o forgetObjectForTiString:prop context:jsContext];
     }
-    TiThreadPerformOnMainThread(^{
-      [o setValue:v forKey:name];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          [o setValue:v forKey:name];
+        },
         YES);
     return true;
   }
@@ -580,7 +581,7 @@ bool KrollHasInstance(JSContextRef ctx, JSObjectRef constructor, JSValueRef poss
         if ([target respondsToSelector:NSSelectorFromString(propertyKey)]) {
           // This is the code path for delegating something like Ti.Filesystem.File#setHidden(), see KrollMethod for other cases (when type is KrollMethodPropertySetter, the last option in this if block below)
           // Spit out a deprecation warning to use normal property setter!
-          DebugLog(@"[WARN] Automatic setter methods for properties are deprecated in SDK 8.0.0 and will be removed in SDK 9.0.0. Please modify the property in standard JS style: obj.%@ = value; or obj['%@'] = value;", propertyKey, propertyKey);
+          DebugLog(@"[WARN] Automatic setter methods for properties are deprecated in SDK 8.0.0 and will be removed in SDK 10.0.0. Please modify the property in standard JS style: obj.%@ = value; or obj['%@'] = value;", propertyKey, propertyKey);
         }
         [result setSelector:selector];
       } else {
@@ -619,7 +620,7 @@ bool KrollHasInstance(JSContextRef ctx, JSObjectRef constructor, JSValueRef poss
     if ([target respondsToSelector:selector]) {
       // Spit out a deprecation warning to use normal property accessor!
       // This is the code path for delegating something like Ti.Filesystem.File#getHidden(), see KrollMethod for other cases (when type is KrollMethodPropertyGetter, the last option in this if block below)
-      DebugLog(@"[WARN] Automatic getter methods for properties are in SDK 8.0.0 and will be removed in SDK 9.0.0. Please access the property in standard JS style: obj.%@ or obj['%@']", partkey, partkey);
+      DebugLog(@"[WARN] Automatic getter methods for properties are deprecated in SDK 8.0.0 and will be removed in SDK 10.0.0. Please access the property in standard JS style: obj.%@ or obj['%@']", partkey, partkey);
       [result setSelector:selector];
       [result setType:KrollMethodGetter];
       return [result autorelease];
@@ -651,6 +652,9 @@ bool KrollHasInstance(JSContextRef ctx, JSObjectRef constructor, JSValueRef poss
         return [[[KrollMethod alloc] initWithTarget:target selector:@selector(toString:) argcount:0 type:KrollMethodInvoke name:nil context:[self context]] autorelease];
       }
 
+      // For something like TiUiTextWidgetProxy focused:(id)unused - this will assume it's a function/method
+      // So to work around this, we need to explicitly declare a property named "focused" with a different underlying getter
+      // to expose it as a property to JS
       SEL selector = NSSelectorFromString([NSString stringWithFormat:@"%@:", key]);
       if ([target respondsToSelector:selector]) {
         return [[[KrollMethod alloc] initWithTarget:target
@@ -687,7 +691,15 @@ bool KrollHasInstance(JSContextRef ctx, JSObjectRef constructor, JSValueRef poss
       }
     } else {
       NSString *attributes = [NSString stringWithCString:property_getAttributes(p) encoding:NSUTF8StringEncoding];
-      SEL selector = NSSelectorFromString([NSString stringWithCString:property_getName(p) encoding:NSUTF8StringEncoding]);
+      // look up getter name from the property attributes
+      SEL selector;
+      const char *getterName = property_copyAttributeValue(p, "G");
+      if (getterName != nil) {
+        selector = sel_getUid(getterName);
+      } else {
+        // not set, so use the property name
+        selector = NSSelectorFromString([NSString stringWithCString:property_getName(p) encoding:NSUTF8StringEncoding]);
+      }
 
       if ([attributes hasPrefix:@"T@"]) {
         // this means its a return type of id
@@ -1043,8 +1055,7 @@ TI_INLINE JSStringRef TiStringCreateWithPointerValue(int value)
     JSValueRef jsEventData = ConvertIdTiValue(context, eventData);
     JSValueRef result = JSObjectCallAsFunction(jsContext, jsCallback, [_thisObject jsobject], 1, &jsEventData, &exception);
     if (exception != NULL) {
-      id excm = [KrollObject toID:context value:exception];
-      [[TiExceptionHandler defaultExceptionHandler] reportScriptError:[TiUtils scriptErrorValue:excm]];
+      [TiExceptionHandler.defaultExceptionHandler reportScriptError:exception inKrollContext:context];
     }
 
     if (block != nil) {
@@ -1279,8 +1290,7 @@ TI_INLINE JSStringRef TiStringCreateWithPointerValue(int value)
     JSValueRef exception = NULL;
     JSObjectCallAsFunction(jsContext, (JSObjectRef)currentCallback, [thisObject jsobject], 1, &jsEventData, &exception);
     if (exception != NULL) {
-      id excm = [KrollObject toID:context value:exception];
-      [[TiExceptionHandler defaultExceptionHandler] reportScriptError:[TiUtils scriptErrorValue:excm]];
+      [TiExceptionHandler.defaultExceptionHandler reportScriptError:exception inKrollContext:context];
     }
   }
 }

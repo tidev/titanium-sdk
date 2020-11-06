@@ -112,9 +112,7 @@ public class TiWebViewClient extends WebViewClientClassicExt
 		}
 		KrollDict data = new KrollDict();
 		data.put("url", failingUrl);
-		data.put("errorCode", errorCode);
 		data.putCodeAndMessage(errorCode, description);
-		data.put("message", description);
 		proxy.fireEvent("error", data);
 	}
 
@@ -139,19 +137,35 @@ public class TiWebViewClient extends WebViewClientClassicExt
 				}
 			}
 		}
-		if (proxy.hasProperty(TiC.PROPERTY_BLACKLISTED_URLS)) {
-			String[] blacklistedSites =
-				TiConvert.toStringArray((Object[]) proxy.getProperty(TiC.PROPERTY_BLACKLISTED_URLS));
-			for (String site : blacklistedSites) {
+
+		// Do not load the URL if it's on the proxy's black-list.
+		// DEPRECATED: Superseded by PROPERTY_BLOCKED_URLS down below.
+		Object value = proxy.getProperty(TiC.PROPERTY_BLACKLISTED_URLS);
+		if ((value != null) && value.getClass().isArray()) {
+			String message
+				= "Property '" + TiC.PROPERTY_BLACKLISTED_URLS + "' is deprecated. Use '"
+				+ TiC.PROPERTY_BLOCKED_URLS + "' instead.";
+			Log.w(TAG, message);
+			for (String site : TiConvert.toStringArray((Object[]) value)) {
 				if (url.equalsIgnoreCase(site) || (url.indexOf(site) > -1)) {
 					KrollDict data = new KrollDict();
 					data.put("url", url);
 					data.put("message", "Webview did not load blacklisted url.");
-					proxy.fireEvent(TiC.PROPERTY_BLACKLIST_URL, data);
+					proxy.fireEvent(TiC.EVENT_BLACKLIST_URL, data);
+					return true;
+				}
+			}
+		}
 
-					// Deprecated since 6.1.0, leave here until we remove it (7.0.0?)
-					proxy.fireEvent(TiC.PROPERTY_ON_STOP_BLACKLISTED_URL, data);
-
+		// Do not load the URL if it's on the proxy's block-list.
+		value = proxy.getProperty(TiC.PROPERTY_BLOCKED_URLS);
+		if ((value != null) && value.getClass().isArray()) {
+			for (String site : TiConvert.toStringArray((Object[]) value)) {
+				if (url.equalsIgnoreCase(site) || (url.indexOf(site) > -1)) {
+					KrollDict data = new KrollDict();
+					data.put("url", url);
+					data.put("message", "Webview did not load blocked url.");
+					proxy.fireEvent(TiC.EVENT_BLOCKED_URL, data);
 					return true;
 				}
 			}

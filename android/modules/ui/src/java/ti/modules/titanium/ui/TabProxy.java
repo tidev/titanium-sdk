@@ -18,16 +18,17 @@ import org.appcelerator.titanium.view.TiUIView;
 import ti.modules.titanium.ui.widget.tabgroup.TiUIAbstractTabGroup;
 
 import android.app.Activity;
-// clang-format off
+
 @Kroll.proxy(creatableInModule = UIModule.class,
 	propertyAccessors = {
 		TiC.PROPERTY_ACTIVE_TITLE_COLOR,
 		TiC.PROPERTY_ICON,
 		TiC.PROPERTY_TITLE,
 		TiC.PROPERTY_TITLE_COLOR,
-		TiC.PROPERTY_TITLEID
+		TiC.PROPERTY_TITLEID,
+		TiC.PROPERTY_BADGE,
+		TiC.PROPERTY_BADGE_COLOR
 	})
-// clang-format on
 public class TabProxy extends TiViewProxy
 {
 	@SuppressWarnings("unused")
@@ -67,11 +68,9 @@ public class TabProxy extends TiViewProxy
 		}
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public boolean getActive()
-	// clang-format on
 	{
 		if (tabGroupProxy != null) {
 			return tabGroupProxy.getActiveTab() == this;
@@ -80,11 +79,9 @@ public class TabProxy extends TiViewProxy
 		return false;
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.setProperty
 	public void setActive(boolean active)
-	// clang-format on
 	{
 		if (tabGroupProxy != null) {
 			tabGroupProxy.setActiveTab(this);
@@ -123,11 +120,9 @@ public class TabProxy extends TiViewProxy
 		return this.window;
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public TabGroupProxy getTabGroup()
-	// clang-format on
 	{
 		return this.tabGroupProxy;
 	}
@@ -208,7 +203,8 @@ public class TabProxy extends TiViewProxy
 		String event = focused ? TiC.EVENT_FOCUS : TiC.EVENT_BLUR;
 
 		if (window != null) {
-			window.fireEvent(event, null, false);
+			// Let window proxy handle setting state boolean and firing event
+			window.onWindowFocusChange(focused);
 		}
 		fireEvent(event, eventData, true);
 	}
@@ -258,6 +254,12 @@ public class TabProxy extends TiViewProxy
 		}
 		if (name.equals(TiC.PROPERTY_ICON)) {
 			((TiUIAbstractTabGroup) tabGroupProxy.getOrCreateView()).updateTabIcon(tabGroupProxy.getTabIndex(this));
+		}
+		if (name.equals(TiC.PROPERTY_BADGE)) {
+			((TiUIAbstractTabGroup) tabGroupProxy.getOrCreateView()).updateBadge(tabGroupProxy.getTabIndex(this));
+		}
+		if (name.equals(TiC.PROPERTY_BADGE_COLOR)) {
+			((TiUIAbstractTabGroup) tabGroupProxy.getOrCreateView()).updateBadgeColor(tabGroupProxy.getTabIndex(this));
 		}
 	}
 

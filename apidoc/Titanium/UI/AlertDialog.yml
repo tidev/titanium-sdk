@@ -4,22 +4,9 @@ summary: |
     An alert dialog is a modal view that includes an optional title, a message and buttons,
     positioned in the middle of the display.
 description: |
-    <table id="platformComparison">
-      <tbody>
-        <tr>
-          <td><img src="images/alertdialog/alertdialog_android.png" height="75" /></td>
-          <td><img src="images/alertdialog/alertdialog_ios.png" height="75" /></td>
-          <td><img src="images/alertdialog/alertdialog_wp.png" height="75" /></td>
-        </tr>
-      </tbody>
-      <tfoot>
-        <tr>
-          <th>Android</th>
-          <th>iOS</th>
-          <th>Windows Phone</th>
-        </tr>
-      </tfoot>
-    </table>
+    | Android | iOS | Windows |
+    | ------- | --- | ------- |
+    | ![Android](./alertdialog_android.png) | ![iOS](./alertdialog_ios.png) | ![Windows](./alertdialog_wp.png) |
 
     An alert dialog is created using <Titanium.UI.createAlertDialog> or **`<AlertDialog>`** Alloy element.
 
@@ -65,7 +52,9 @@ description: |
     A global method `alert()` is aliased to this object, and can be invoked with a single message.
     For example
 
-        alert('this is a message');
+    ``` js
+    alert('this is a message');
+    ```
 
     This will generate an alert with a title of "Alert" and an "OK" button.
 
@@ -93,7 +82,6 @@ excludes:
 events:
   - name: click
     summary: Fired when a button in the dialog is clicked.
-
     properties:
       - name: cancel
         summary: |
@@ -120,14 +108,14 @@ events:
             Value of login field if dialog `style` property is defined as
             <Titanium.UI.iOS.AlertDialogStyle.LOGIN_AND_PASSWORD_INPUT>.
         type: String
-        platforms: [iphone, ipad]
+        platforms: [iphone, ipad, macos]
 
       - name: password
         summary: |
             Value of password field if dialog `style` property is defined as
             <Titanium.UI.iOS.AlertDialogStyle.LOGIN_AND_PASSWORD_INPUT>.
         type: String
-        platforms: [iphone, ipad]
+        platforms: [iphone, ipad, macos]
 
       - name: text
         summary: |
@@ -135,7 +123,7 @@ events:
             <Titanium.UI.iOS.AlertDialogStyle.PLAIN_TEXT_INPUT> or
             <Titanium.UI.iOS.AlertDialogStyle.SECURE_TEXT_INPUT>.
         type: String
-        platforms: [iphone, ipad]
+        platforms: [iphone, ipad, macos]
 
 methods:
   - name: show
@@ -151,22 +139,23 @@ properties:
         In an Alloy application you can specify this property with either an `<AndroidView/>` or
         `<View/>` element inside the `<AlertDialog/>` element, for example:
 
-            <Alloy>
-                <AlertDialog onClick="doClick" title="Delete"
-                    message="Would you like to delete the file?" cancel="1">
+        ``` xml
+        <Alloy>
+            <AlertDialog onClick="doClick" title="Delete"
+                message="Would you like to delete the file?" cancel="1">
 
-                    <!--  Add View or AndroidView for the androidView property  -->
-                    <View platform="android">
-                        <Label color="red" text="Warning!  This change is permanent and you cannot undo it!" />
-                    </View>
+                <!--  Add View or AndroidView for the androidView property  -->
+                <View platform="android">
+                    <Label color="red" text="Warning!  This change is permanent and you cannot undo it!" />
+                </View>
 
-                    <ButtonNames>
-                        <ButtonName>Confirm</ButtonName>
-                        <ButtonName>Cancel</ButtonName>
-                    </ButtonNames>
-                </AlertDialog>
-            </Alloy>
-
+                <ButtonNames>
+                    <ButtonName>Confirm</ButtonName>
+                    <ButtonName>Cancel</ButtonName>
+                </ButtonNames>
+            </AlertDialog>
+        </Alloy>
+        ```
     type: Titanium.UI.View
     platforms: [android]
     accessors: false
@@ -174,7 +163,6 @@ properties:
 
   - name: buttonNames
     summary: Name of each button to create.
-
     description: |
         On iOS, a button will automatically be created if none are explicitly defined, because
         without it users would be unable to dismiss the dialog. Conversely, a dialog with no
@@ -185,23 +173,23 @@ properties:
         Alloy applications can specify this property with a `<ButtonNames>` element containing
         one or more `<ButtonName>` elements (see example).
 
-            <Alloy>
-                <AlertDialog id="dialog" onClick="doClick" title="Decide!" message="Do you really want to do that?" cancel="1">
-                    <ButtonNames>
-                        <ButtonName>Confirm</ButtonName>
-                        <ButtonName>Cancel</ButtonName>
-                        <ButtonName>Help</ButtonName>
-                    </ButtonNames>
-                </AlertDialog>
-            </Alloy>
-
+        ``` xml
+        <Alloy>
+            <AlertDialog id="dialog" onClick="doClick" title="Decide!" message="Do you really want to do that?" cancel="1">
+                <ButtonNames>
+                    <ButtonName>Confirm</ButtonName>
+                    <ButtonName>Cancel</ButtonName>
+                    <ButtonName>Help</ButtonName>
+                </ButtonNames>
+            </AlertDialog>
+        </Alloy>
+        ```
     type: Array<String>
     default: No buttons (Android), Single "OK" button (iOS)
     availability: creation
 
   - name: cancel
     summary: Index to define the cancel button.
-
     description: |
         On iOS, set to `-1` to disable the cancel option.
     type: Number
@@ -229,7 +217,7 @@ properties:
 
   - name: destructive
     summary: Index to define the destructive button.
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     description: Setting this property to -1 disables this option.
     type: Number
     default: -1
@@ -244,7 +232,7 @@ properties:
         <Titanium.UI.iOS.AlertDialogStyle.SECURE_TEXT_INPUT>.
     type: String
     since: "5.4.0"
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: hinttextid
     summary: |
@@ -253,7 +241,7 @@ properties:
     description: Only one of `hintText` or `hinttextid` should be specified.
     type: String
     since: "6.2.0"
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: keyboardType
     summary: Keyboard type to display when this text field inside the dialog is focused.
@@ -263,7 +251,7 @@ properties:
         <Titanium.UI.iOS.AlertDialogStyle.SECURE_TEXT_INPUT>.
     type: Number
     since: 5.1.0
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     constants: Titanium.UI.KEYBOARD_TYPE_*
     default: <Titanium.UI.KEYBOARD_TYPE_DEFAULT>
 
@@ -275,7 +263,7 @@ properties:
         <Titanium.UI.iOS.AlertDialogStyle.SECURE_TEXT_INPUT>.
     type: Number
     since: 5.2.0
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     constants: Titanium.UI.KEYBOARD_APPEARANCE_*
     default: <Titanium.UI.KEYBOARD_APPEARANCE_DEFAULT>
 
@@ -289,7 +277,7 @@ properties:
         <Titanium.UI.iOS.AlertDialogStyle.LOGIN_AND_PASSWORD_INPUT>.
     type: String
     since: 5.1.0
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: loginHintText
     summary: Hint text of the login text field inside the dialog.
@@ -298,7 +286,7 @@ properties:
         <Titanium.UI.iOS.AlertDialogStyle.LOGIN_AND_PASSWORD_INPUT>.
     type: String
     since: "5.4.0"
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: loginhinttextid
     summary: |
@@ -307,7 +295,7 @@ properties:
     description: Only one of `loginHintText` or `loginhinttextid` should be specified.
     type: String
     since: "6.2.0"
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: loginReturnKeyType
     summary: Specifies the text to display on the keyboard `Return` key when this field is focused.
@@ -326,7 +314,7 @@ properties:
         <Titanium.UI.iOS.AlertDialogStyle.LOGIN_AND_PASSWORD_INPUT>.
     type: String
     since: "6.1.0"
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: loginKeyboardType
     summary: Keyboard type to display when this text field inside the dialog is focused.
@@ -345,7 +333,7 @@ properties:
   - name: messageid
     summary: Key identifying a string in the locale file to use for the message text.
     type: String
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: ok
     summary: Text for the `OK` button.
@@ -359,7 +347,7 @@ properties:
     description: |
         If `buttonNames` is defined, this property is ignored.
     type: String
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: passwordPlaceholder
     summary: Placeholder of the password text field inside the dialog.
@@ -371,7 +359,7 @@ properties:
         <Titanium.UI.iOS.AlertDialogStyle.LOGIN_AND_PASSWORD_INPUT>.
     type: String
     since: 5.1.0
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: passwordHintText
     summary: Hint text of the password text field inside the dialog.
@@ -380,7 +368,7 @@ properties:
         <Titanium.UI.iOS.AlertDialogStyle.LOGIN_AND_PASSWORD_INPUT>.
     type: String
     since: "5.4.0"
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: passwordhinttextid
     summary: |
@@ -389,7 +377,7 @@ properties:
     description: Only one of `passwordHintText` or `hinttextid` should be specified.
     type: String
     since: "6.2.0"
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: passwordReturnKeyType
     summary: Specifies the text to display on the keyboard `Return` key when this field is focused.
@@ -408,7 +396,7 @@ properties:
         <Titanium.UI.iOS.AlertDialogStyle.LOGIN_AND_PASSWORD_INPUT>.
     type: String
     since: "6.1.0"
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: passwordKeyboardType
     summary: Keyboard type to display when this text field inside the dialog is focused.
@@ -431,7 +419,7 @@ properties:
         <Titanium.UI.iOS.AlertDialogStyle.SECURE_TEXT_INPUT>.
     type: String
     since: 5.1.0
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: persistent
     summary: Boolean value indicating if the alert dialog should only be cancelled by user gesture or by hide method.
@@ -441,11 +429,11 @@ properties:
     type: Boolean
     default: false on iOS, true on Android
     since: "3.0.0"
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: preferred
     summary: Index to define the preferred button.
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     description: |
         When you specify a preferred action, the alert dialog highlights the text of that
         action to give it emphasis. (If the alert also contains a cancel button, the preferred
@@ -466,7 +454,7 @@ properties:
         <Titanium.UI.iOS.AlertDialogStyle.SECURE_TEXT_INPUT>.
     type: Number
     since: 5.1.0
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     constants: Titanium.UI.RETURNKEY_*
     default: <Titanium.UI.RETURNKEY_DEFAULT>
 
@@ -482,17 +470,18 @@ properties:
     type: Number
     default: <Titanium.UI.iOS.AlertDialogStyle.DEFAULT>
     since: 3.0.0
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: tintColor
     summary: The tint-color of the dialog.
     description: |
         This property is a direct correspondant of the `tintColor` property of
         UIView on iOS. For a dialog, it will tint the color of it's buttons.
-    type: [String]
+        For information about color values, see the "Colors" section of <Titanium.UI>.
+    type: [ String, Titanium.UI.Color ]
     since: "6.2.0"
     osver: {ios: {min: "8.0"}}
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: title
     summary: Title of the dialog.
@@ -502,7 +491,7 @@ properties:
   - name: titleid
     summary: Key identifying a string in the locale file to use for the title text.
     type: String
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: value
     summary: Value of the text field inside the dialog.
@@ -512,79 +501,85 @@ properties:
         <Titanium.UI.iOS.AlertDialogStyle.SECURE_TEXT_INPUT>.
     type: String
     since: "6.1.0"
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
 examples:
   - title: Single-button Alert Dialog (using alias)
     example: |
         Create a single-button alert dialog using the global `alert()` alias.
 
-            Ti.UI.setBackgroundColor('white');
-            var win = Ti.UI.createWindow({
-              title: 'Click window to test',
-              backgroundColor: 'white',
-              exitOnClose: true,
-              fullscreen: false
-            });
+        ``` js
+        Ti.UI.setBackgroundColor('white');
+        var win = Ti.UI.createWindow({
+          title: 'Click window to test',
+          backgroundColor: 'white',
+          exitOnClose: true,
+          fullscreen: false
+        });
 
-            win.addEventListener('click', function(e) {
-              alert('The file has been deleted');
-            });
-            win.open();
+        win.addEventListener('click', function(e) {
+          alert('The file has been deleted');
+        });
+        win.open();
+        ```
 
   - title: Single-button Alert Dialog (standard)
     example: |
         Create a single-button alert dialog, without explicitly defining it using the `buttonNames`
         property, which is invoked when the app window is clicked.
 
-            Ti.UI.setBackgroundColor('white');
-            var win = Ti.UI.createWindow({
-              title: 'Click window to test',
-              backgroundColor: 'white',
-            exitOnClose: true,
-            fullscreen: false
-            });
+        ``` js
+        Ti.UI.setBackgroundColor('white');
+        var win = Ti.UI.createWindow({
+          title: 'Click window to test',
+          backgroundColor: 'white',
+        exitOnClose: true,
+        fullscreen: false
+        });
 
-            win.addEventListener('click', function(e) {
-              var dialog = Ti.UI.createAlertDialog({
-                message: 'The file has been deleted',
-                ok: 'Okay',
-                title: 'File Deleted'
-              });
-              dialog.show();
-            });
-            win.open();
+        win.addEventListener('click', function(e) {
+          var dialog = Ti.UI.createAlertDialog({
+            message: 'The file has been deleted',
+            ok: 'Okay',
+            title: 'File Deleted'
+          });
+          dialog.show();
+        });
+        win.open();
+        ```
 
   - title: Three-button Alert Dialog
     example: |
         Create a three-button alert dialog, which is invoked when the app window is clicked.
         Output a message to the log when the cancel button is clicked.
 
-            Ti.UI.setBackgroundColor('white');
-            var win = Ti.UI.createWindow({
-              title: 'Click window to test',
-              backgroundColor: 'white',
-              exitOnClose: true,
-              fullscreen: false
-            });
-            win.addEventListener('click', function(e) {
-              var dialog = Ti.UI.createAlertDialog({
-                cancel: 1,
-                buttonNames: ['Confirm', 'Cancel', 'Help'],
-                message: 'Would you like to delete the file?',
-                title: 'Delete'
-              });
-              dialog.addEventListener('click', function(e) {
-                if (e.index === e.source.cancel) {
-                  Ti.API.info('The cancel button was clicked');
-                }
-                Ti.API.info('e.cancel: ' + e.cancel);
-                Ti.API.info('e.source.cancel: ' + e.source.cancel);
-                Ti.API.info('e.index: ' + e.index);
-              });
-              dialog.show();
-            });
-            win.open();
+        ``` js
+        Ti.UI.setBackgroundColor('white');
+        var win = Ti.UI.createWindow({
+          title: 'Click window to test',
+          backgroundColor: 'white',
+          exitOnClose: true,
+          fullscreen: false
+        });
+        win.addEventListener('click', function(e) {
+          var dialog = Ti.UI.createAlertDialog({
+            cancel: 1,
+            buttonNames: ['Confirm', 'Cancel', 'Help'],
+            message: 'Would you like to delete the file?',
+            title: 'Delete'
+          });
+          dialog.addEventListener('click', function(e) {
+            if (e.index === e.source.cancel) {
+              Ti.API.info('The cancel button was clicked');
+            }
+            Ti.API.info('e.cancel: ' + e.cancel);
+            Ti.API.info('e.source.cancel: ' + e.source.cancel);
+            Ti.API.info('e.index: ' + e.index);
+          });
+          dialog.show();
+        });
+        win.open();
+        ```
 
   - title: Alert Dialog with Plain Text Input
     example: |
@@ -592,54 +587,58 @@ examples:
         app window is clicked.
         Output entered text value to the log when the OK button is clicked.
 
-            Ti.UI.setBackgroundColor('white');
-            var win = Ti.UI.createWindow({
-              title: 'Click window to test'
-            });
-            win.addEventListener('click', function(e) {
-              var dialog = Ti.UI.createAlertDialog({
-                title: 'Enter text',
-                style: Ti.UI.iOS.AlertDialogStyle.PLAIN_TEXT_INPUT,
-                buttonNames: ['OK']
-              });
-              dialog.addEventListener('click', function(e) {
-                Ti.API.info('e.text: ' + e.text);
-              });
-              dialog.show();
-            });
-            win.open();
+        ``` js
+        Ti.UI.setBackgroundColor('white');
+        var win = Ti.UI.createWindow({
+          title: 'Click window to test'
+        });
+        win.addEventListener('click', function(e) {
+          var dialog = Ti.UI.createAlertDialog({
+            title: 'Enter text',
+            style: Ti.UI.iOS.AlertDialogStyle.PLAIN_TEXT_INPUT,
+            buttonNames: ['OK']
+          });
+          dialog.addEventListener('click', function(e) {
+            Ti.API.info('e.text: ' + e.text);
+          });
+          dialog.show();
+        });
+        win.open();
+        ```
 
   - title: Alloy XML Markup
     example: |
         Previous three-button alert dialog example as an Alloy view.
 
         alertdialog.xml:
+        ``` xml
+        <Alloy>
+            <Window id="win" onClick="showDialog" title="Click window to test" backgroundColor="white"
+                exitOnClose="true" fullscreen="false" >
 
-            <Alloy>
-                <Window id="win" onClick="showDialog" title="Click window to test" backgroundColor="white"
-                    exitOnClose="true" fullscreen="false" >
+                <AlertDialog id="dialog" onClick="doClick" title="Delete"
+                    message="Would you like to delete the file?" cancel="1">
 
-                    <AlertDialog id="dialog" onClick="doClick" title="Delete"
-                        message="Would you like to delete the file?" cancel="1">
-
-                        <!-- The ButtonNames tag sets the buttonNames property. -->
-                        <ButtonNames>
-                            <ButtonName>Confirm</ButtonName>
-                            <ButtonName>Cancel</ButtonName>
-                            <ButtonName>Help</ButtonName>
-                        </ButtonNames>
-                    </AlertDialog>
-                </Window>
-            </Alloy>
+                    <!-- The ButtonNames tag sets the buttonNames property. -->
+                    <ButtonNames>
+                        <ButtonName>Confirm</ButtonName>
+                        <ButtonName>Cancel</ButtonName>
+                        <ButtonName>Help</ButtonName>
+                    </ButtonNames>
+                </AlertDialog>
+            </Window>
+        </Alloy>
+        ```
 
         alertdialog.js:
+        ``` js
+        function showDialog() {
+            $.dialog.show();
+        }
 
-            function showDialog() {
-                $.dialog.show();
-            }
+        function doClick(e) {
+            Ti.API.info('e.text: ' + e.text);
+        }
 
-            function doClick(e) {
-                Ti.API.info('e.text: ' + e.text);
-            }
-
-            $.win.open();
+        $.win.open();
+        ```

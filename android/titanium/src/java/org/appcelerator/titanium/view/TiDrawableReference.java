@@ -6,7 +6,6 @@
  */
 package org.appcelerator.titanium.view;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.ref.SoftReference;
@@ -206,9 +205,10 @@ public class TiDrawableReference
 		if (dict.containsKey("media")) {
 			return fromBlob(activity, TiConvert.toBlob(new KrollDict(dict), "media"));
 		} else {
-			Log.w(
-				TAG,
-				"Unknown drawable reference inside dictionary.  Expected key 'media' to be a blob.  Returning null drawable reference");
+			String message
+				= "Unknown drawable reference inside dictionary. Expected key 'media' to be a blob. "
+				+ "Returning null drawable reference.";
+			Log.w(TAG, message);
 			return fromObject(activity, null);
 		}
 	}
@@ -868,9 +868,10 @@ public class TiDrawableReference
 			try {
 				stream = TiApplication.getInstance().getResources().openRawResource(resourceId);
 			} catch (Resources.NotFoundException e) {
-				Log.e(
-					TAG,
-					"Drawable resource could not be opened. Are you sure you have the resource for the current device configuration (orientation, screen size, etc.)?");
+				String errorMessage
+					= "Drawable resource could not be opened. Are you sure you have the resource for the current "
+					+ "device configuration (orientation, screen size, etc.)?";
+				Log.e(TAG, errorMessage);
 				throw e;
 			}
 		}

@@ -21,7 +21,7 @@ public:
 	static Persistent<Array> moduleContexts;
 	
 	static Isolate* v8_isolate;
-	static Platform* platform;
+	static std::unique_ptr<v8::Platform> platform;
 
 	static jobject javaInstance;
 

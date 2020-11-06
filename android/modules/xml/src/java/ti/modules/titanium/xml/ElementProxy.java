@@ -7,7 +7,6 @@
 package ti.modules.titanium.xml;
 
 import org.appcelerator.kroll.annotations.Kroll;
-import org.appcelerator.kroll.common.Log;
 import org.w3c.dom.CDATASection;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Element;
@@ -28,11 +27,9 @@ public class ElementProxy extends NodeProxy
 		this.element = element;
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public String getTextContent()
-	// clang-format on
 	{
 		StringBuilder sb = new StringBuilder();
 		getTextImpl(element, sb);
@@ -109,11 +106,9 @@ public class ElementProxy extends NodeProxy
 		return filterThisFromNodeList(element.getElementsByTagNameNS(namespaceURI, localName));
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public String getTagName()
-	// clang-format on
 	{
 		return element.getTagName();
 	}

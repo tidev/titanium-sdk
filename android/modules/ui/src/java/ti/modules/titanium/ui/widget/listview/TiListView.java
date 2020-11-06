@@ -14,8 +14,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import android.util.TypedValue;
-import android.view.MotionEvent;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
@@ -31,24 +29,16 @@ import org.appcelerator.titanium.view.TiCompositeLayout.LayoutArrangement;
 import org.appcelerator.titanium.view.TiCompositeLayout.LayoutParams;
 import org.appcelerator.titanium.view.TiUIView;
 
-import ti.modules.titanium.ui.RefreshControlProxy;
-import ti.modules.titanium.ui.SearchBarProxy;
-import ti.modules.titanium.ui.UIModule;
-import ti.modules.titanium.ui.android.SearchViewProxy;
-import ti.modules.titanium.ui.widget.searchbar.TiUISearchBar;
-import ti.modules.titanium.ui.widget.searchbar.TiUISearchBar.OnSearchChangeListener;
-import ti.modules.titanium.ui.widget.searchview.TiUISearchView;
-import ti.modules.titanium.ui.widget.TiSwipeRefreshLayout;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
-import android.util.AttributeSet;
 import android.util.Pair;
-import android.view.Gravity;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.widget.AbsListView;
@@ -57,6 +47,15 @@ import android.widget.BaseAdapter;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import ti.modules.titanium.ui.RefreshControlProxy;
+import ti.modules.titanium.ui.SearchBarProxy;
+import ti.modules.titanium.ui.UIModule;
+import ti.modules.titanium.ui.android.SearchViewProxy;
+import ti.modules.titanium.ui.widget.TiSwipeRefreshLayout;
+import ti.modules.titanium.ui.widget.searchbar.TiUISearchBar;
+import ti.modules.titanium.ui.widget.searchbar.TiUISearchBar.OnSearchChangeListener;
+import ti.modules.titanium.ui.widget.searchview.TiUISearchView;
 
 public class TiListView extends TiUIView implements OnSearchChangeListener
 {
@@ -406,7 +405,14 @@ public class TiListView extends TiUIView implements OnSearchChangeListener
 				_firstVisibleItem = firstVisibleItem;
 				_visibleItemCount = visibleItemCount;
 				int scrolledOffset = listView.getVerticalScrollOffset();
-				if (scrolledOffset != mInitialScroll) {
+
+				ViewConfiguration viewConfiguration = ViewConfiguration.get(activity);
+				int scrollDamping = 0;
+				if (viewConfiguration != null) {
+					scrollDamping = viewConfiguration.getScaledTouchSlop();
+				}
+
+				if (Math.abs(mInitialScroll - scrolledOffset) > scrollDamping) {
 					if (scrolledOffset > mInitialScroll) {
 						scrollUp = 1;
 					} else {

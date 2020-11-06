@@ -15,7 +15,7 @@ import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.widget.TiUILabel;
 import android.app.Activity;
-// clang-format off
+
 @Kroll.proxy(creatableInModule = UIModule.class,
 	propertyAccessors = {
 		TiC.PROPERTY_AUTO_LINK,
@@ -39,7 +39,6 @@ import android.app.Activity;
 		TiC.PROPERTY_INCLUDE_FONT_PADDING,
 		TiC.PROPERTY_MINIMUM_FONT_SIZE
 })
-// clang-format on
 public class LabelProxy extends TiViewProxy
 {
 	private static final String TAG = "LabelProxy";

@@ -54,11 +54,7 @@
 - (void)setMediaTypesRequiringUserActionForPlayback:(id)value
 {
   ENSURE_TYPE(value, NSNumber);
-  if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
-    [[self configuration] setMediaTypesRequiringUserActionForPlayback:[TiUtils intValue:value def:WKAudiovisualMediaTypeNone]];
-  } else {
-    DebugLog(@"[ERROR] The \"mediaTypesRequiringUserActionForPlayback\" property is only available on iOS 10 and later.");
-  }
+  [[self configuration] setMediaTypesRequiringUserActionForPlayback:[TiUtils intValue:value def:WKAudiovisualMediaTypeNone]];
 }
 
 - (void)setSuppressesIncrementalRendering:(id)value

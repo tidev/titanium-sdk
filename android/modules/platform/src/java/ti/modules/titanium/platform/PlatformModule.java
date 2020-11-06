@@ -7,6 +7,7 @@
 package ti.modules.titanium.platform;
 
 import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.KrollInvocation;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.KrollProxy;
@@ -70,7 +71,9 @@ public class PlatformModule extends KrollModule
 	protected DisplayCapsProxy displayCaps;
 
 	private List<Processor> processors;
-
+	private int versionMajor;
+	private int versionMinor;
+	private int versionPatch;
 	protected int batteryState;
 	protected double batteryLevel;
 	protected boolean batteryStateReady;
@@ -83,40 +86,46 @@ public class PlatformModule extends KrollModule
 
 		batteryState = BATTERY_STATE_UNKNOWN;
 		batteryLevel = -1;
+
+		// Extract "<major>.<minor>" integers from OS version string.
+		String[] versionComponents = Build.VERSION.RELEASE.split("\\.");
+		try {
+			this.versionMajor = Integer.parseInt(versionComponents[0]);
+			if (versionComponents.length >= 2) {
+				this.versionMinor = Integer.parseInt(versionComponents[1]);
+				if (versionComponents.length >= 3) {
+					this.versionPatch = Integer.parseInt(versionComponents[2]);
+				}
+			}
+		} catch (Exception ex) {
+			Log.e(TAG, "Failed to parse OS version string.", ex);
+		}
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public String getName()
-	// clang-format on
 	{
 		return APSAnalyticsMeta.getPlatform();
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public String getOsname()
-	// clang-format on
 	{
 		return APSAnalyticsMeta.getPlatform();
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public String getLocale()
-	// clang-format on
 	{
 		return TiPlatformHelper.getInstance().getLocale();
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public DisplayCapsProxy getDisplayCaps()
-	// clang-format on
 	{
 		if (displayCaps == null) {
 			displayCaps = new DisplayCapsProxy();
@@ -125,101 +134,97 @@ public class PlatformModule extends KrollModule
 		return displayCaps;
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public int getProcessorCount()
-	// clang-format on
 	{
 		return Runtime.getRuntime().availableProcessors();
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public String getUsername()
-	// clang-format on
 	{
 		return Build.USER;
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public String getVersion()
-	// clang-format on
 	{
 		return APSAnalyticsMeta.getOsVersion();
 	}
 
-	// clang-format off
+	@Kroll.getProperty
+	public int getVersionMajor()
+	{
+		return this.versionMajor;
+	}
+
+	@Kroll.getProperty
+	public int getVersionMinor()
+	{
+		return this.versionMinor;
+	}
+
+	@Kroll.getProperty
+	public int getVersionPatch()
+	{
+		return this.versionPatch;
+	}
+
 	@Kroll.method
 	@Kroll.getProperty
 	public double getAvailableMemory()
-	// clang-format on
 	{
 		return Runtime.getRuntime().freeMemory();
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public double getTotalMemory()
-	// clang-format on
 	{
 		return Runtime.getRuntime().totalMemory();
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public String getModel()
-	// clang-format on
 	{
 		return Build.MODEL;
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public String getManufacturer()
-	// clang-format on
 	{
 		return Build.MANUFACTURER;
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public String getOstype()
-	// clang-format on
 	{
 		return APSAnalyticsMeta.getOsType();
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public String getArchitecture()
-	// clang-format on
 	{
 		return APSAnalyticsMeta.getArchitecture();
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public String getAddress()
-	// clang-format on
 	{
 		return TiPlatformHelper.getInstance().getIpAddress();
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public String getNetmask()
-	// clang-format on
 	{
 		return TiPlatformHelper.getInstance().getNetmask();
 	}
@@ -250,83 +255,51 @@ public class PlatformModule extends KrollModule
 		}
 
 		// Determine if the system has a registered activity intent-filter for the given URL.
-		Intent intent = createOpenUrlIntentFrom(invocation, url);
-		return canOpen(intent);
-	}
-
-	private boolean canOpen(Intent intent)
-	{
-		// Validate argument.
-		if (intent == null) {
-			return false;
-		}
-
-		// If the intent references a local file, then make sure it exists.
-		Uri uri = intent.getData();
-		String scheme = (uri != null) ? uri.getScheme() : null;
-		if (scheme != null) {
-			if (scheme.equals(ContentResolver.SCHEME_CONTENT)) {
-				// We were given a "content://" URL. Check if its ContentProvider can provide file access.
-				// Note: Will typically throw a "FileNotFoundException" or return null if file doesn't exist.
-				ContentResolver contentResolver = TiApplication.getInstance().getContentResolver();
-				if (contentResolver != null) {
-					// First, check if we're referencing an existing file embedded within a file.
-					// Example: A file under the APK's "assets" or "res" folder.
-					boolean wasFileFound = false;
-					try (AssetFileDescriptor descriptor = contentResolver.openAssetFileDescriptor(uri, "r")) {
-						wasFileFound = (descriptor != null);
-					} catch (Exception ex) {
-					}
-
-					// If above failed, check if referencing an existing sandboxed file in the file system.
-					if (wasFileFound == false) {
-						try (ParcelFileDescriptor descriptor = contentResolver.openFileDescriptor(uri, "r")) {
-							wasFileFound = (descriptor != null);
-						} catch (Exception ex) {
-						}
-					}
-
-					// If above failed, then check if we can open a file stream. (The most expensive check.)
-					// This can happen with in-memory files or decoded files.
-					if (wasFileFound == false) {
-						try (InputStream stream = contentResolver.openInputStream(uri)) {
-							wasFileFound = (stream != null);
-						} catch (Exception ex) {
-						}
-					}
-
-					// Do not continue if cannot access file via ContentProvider.
-					if (wasFileFound == false) {
-						return false;
-					}
-				}
-			} else if (scheme.equals(ContentResolver.SCHEME_FILE)) {
-				// We were given a "file://" URL. Check if it exists in file system.
-				File file = new File(uri.getPath());
-				if (file.exists() == false) {
-					return false;
-				}
-			}
-		}
-
-		// Check if there is at least 1 activity registered into the system that can open the given intent.
-		// Note: This means the activity has to have a matching intent-filter in the app's "AndroidManifest.xml".
 		boolean canOpen = false;
 		try {
-			PackageManager packageManager = TiApplication.getInstance().getPackageManager();
-			if (intent.resolveActivity(packageManager) != null) {
-				canOpen = true;
+			Intent intent = createOpenUrlIntentFrom(invocation, url);
+			if (hasValidFileReference(intent)) {
+				PackageManager packageManager = TiApplication.getInstance().getPackageManager();
+				if (intent.resolveActivity(packageManager) != null) {
+					canOpen = true;
+				}
 			}
 		} catch (Exception ex) {
 		}
-
-		// Returns true if given URL can be opened by our openURL() method.
 		return canOpen;
 	}
 
 	@Kroll.method
-	public boolean openURL(KrollInvocation invocation, String url)
+	public boolean openURL(KrollInvocation invocation, String url,
+						   @Kroll.argument(optional = true) Object arg2, @Kroll.argument(optional = true) Object arg3)
 	{
+		// If given an optional callback, then call this method recursively without the callback.
+		// Note: We might also receieve an optional KrollDict argument. This is iOS only and should be ignored.
+		KrollFunction callback = null;
+		if (arg2 instanceof KrollFunction) {
+			callback = (KrollFunction) arg2;
+		} else if (arg3 instanceof KrollFunction) {
+			callback = (KrollFunction) arg3;
+		}
+		if (callback != null) {
+			// Attempt to open the URL.
+			boolean wasOpened = false;
+			String errorMessage = null;
+			try {
+				wasOpened = openURL(invocation, url, null, null);
+			} catch (Exception ex) {
+				errorMessage = ex.getMessage();
+			}
+
+			// Invoke callback with the result on the next message pump. (Mimics iOS' behavior.)
+			KrollDict event = new KrollDict();
+			event.putCodeAndMessage(wasOpened ? 0 : 1, errorMessage);
+			callback.callAsync(getKrollObject(), event);
+
+			// Return the result immediately for backward compatibility.
+			return wasOpened;
+		}
+
 		Log.d(TAG, "Launching viewer for: " + url, Log.DEBUG_MODE);
 
 		// Validate argument.
@@ -349,8 +322,8 @@ public class PlatformModule extends KrollModule
 			return false;
 		}
 
-		// Do not continue if system cannot open the given URL/intent.
-		if (canOpen(intent) == false) {
+		// If intent references a local file, then make sure it exists.
+		if (hasValidFileReference(intent) == false) {
 			return false;
 		}
 
@@ -371,11 +344,9 @@ public class PlatformModule extends KrollModule
 		return wasSuccessful;
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public String getMacaddress()
-	// clang-format on
 	{
 		String macaddr = null;
 		TiApplication tiApp = TiApplication.getInstance();
@@ -418,20 +389,16 @@ public class PlatformModule extends KrollModule
 		return macaddr;
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public String getId()
-	// clang-format on
 	{
 		return APSAnalytics.getInstance().getMachineId();
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.setProperty
 	public void setBatteryMonitoring(boolean monitor)
-	// clang-format on
 	{
 		if (monitor && batteryStateReceiver == null) {
 			registerBatteryStateReceiver();
@@ -440,55 +407,44 @@ public class PlatformModule extends KrollModule
 			batteryStateReceiver = null;
 		}
 	}
-	// clang-format off
+
 	@Kroll.method
 	@Kroll.getProperty
 	public boolean getBatteryMonitoring()
-	// clang-format on
 	{
 		return batteryStateReceiver != null;
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public int getBatteryState()
-	// clang-format on
 	{
 		return batteryState;
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public double getBatteryLevel()
-	// clang-format on
 	{
 		return batteryLevel;
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public String getRuntime()
-	// clang-format on
 	{
 		return KrollRuntime.getInstance().getRuntimeName();
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public double getUptime()
-	// clang-format on
 	{
 		return SystemClock.uptimeMillis() / 1000.0;
 	}
 
-	// clang-format off
 	@Kroll.method
 	public Object[] cpus()
-	// clang-format on
 	{
 		List<Processor> processors = getProcessors();
 		List<KrollDict> result = new ArrayList<KrollDict>(processors.size());
@@ -737,6 +693,72 @@ public class PlatformModule extends KrollModule
 		return intent;
 	}
 
+	/**
+	 * If given intent references a local file, then this method checks if it exists.
+	 * @param intent The intent to be validated. Can be null.
+	 * @return
+	 * Returns true if intent's reference file exists or if intent does not reference a file.
+	 * Returns false if intent's referenced file does not exist or if given a null argument.
+	 */
+	private boolean hasValidFileReference(Intent intent)
+	{
+		// Validate argument.
+		if (intent == null) {
+			return false;
+		}
+
+		// If the intent references a local file, then make sure it exists.
+		Uri uri = intent.getData();
+		String scheme = (uri != null) ? uri.getScheme() : null;
+		if (scheme != null) {
+			if (scheme.equals(ContentResolver.SCHEME_CONTENT)) {
+				// We were given a "content://" URL. Check if its ContentProvider can provide file access.
+				// Note: Will typically throw a "FileNotFoundException" or return null if file doesn't exist.
+				ContentResolver contentResolver = TiApplication.getInstance().getContentResolver();
+				if (contentResolver != null) {
+					// First, check if we're referencing an existing file embedded within a file.
+					// Example: A file under the APK's "assets" or "res" folder.
+					boolean wasFileFound = false;
+					try (AssetFileDescriptor descriptor = contentResolver.openAssetFileDescriptor(uri, "r")) {
+						wasFileFound = (descriptor != null);
+					} catch (Exception ex) {
+					}
+
+					// If above failed, check if referencing an existing sandboxed file in the file system.
+					if (wasFileFound == false) {
+						try (ParcelFileDescriptor descriptor = contentResolver.openFileDescriptor(uri, "r")) {
+							wasFileFound = (descriptor != null);
+						} catch (Exception ex) {
+						}
+					}
+
+					// If above failed, then check if we can open a file stream. (The most expensive check.)
+					// This can happen with in-memory files or decoded files.
+					if (wasFileFound == false) {
+						try (InputStream stream = contentResolver.openInputStream(uri)) {
+							wasFileFound = (stream != null);
+						} catch (Exception ex) {
+						}
+					}
+
+					// Do not continue if cannot access file via ContentProvider.
+					if (wasFileFound == false) {
+						return false;
+					}
+				}
+			} else if (scheme.equals(ContentResolver.SCHEME_FILE)) {
+				// We were given a "file://" URL. Check if it exists in file system.
+				File file = new File(uri.getPath());
+				if (file.exists() == false) {
+					return false;
+				}
+			}
+		}
+
+		// Intent references an existing file or does not reference a file at all.
+		return true;
+	}
+
 	private static class Processor
 	{
 		private Map<String, String> details;
@@ -796,8 +818,10 @@ public class PlatformModule extends KrollModule
 		{
 			BufferedReader in = null;
 			try {
-				String[] args = { "/system/bin/cat",
-								  "/sys/devices/system/cpu/cpu" + getIndex() + "/cpufreq/scaling_cur_freq" };
+				String[] args = {
+					"/system/bin/cat",
+					"/sys/devices/system/cpu/cpu" + getIndex() + "/cpufreq/scaling_cur_freq"
+				};
 				ProcessBuilder cmd = new ProcessBuilder(args);
 				Process process = cmd.start();
 				InputStream inStream = process.getInputStream();

@@ -67,11 +67,9 @@ public class ClipboardModule extends KrollModule
 		}
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public String getText()
-	// clang-format on
 	{
 		return board().getText().toString();
 	}
@@ -102,11 +100,9 @@ public class ClipboardModule extends KrollModule
 		}
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.setProperty
 	public void setText(String text)
-	// clang-format on
 	{
 		board().setText(text);
 	}

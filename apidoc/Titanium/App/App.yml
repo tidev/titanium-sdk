@@ -119,7 +119,9 @@ description: |
     application. By convention, application-level events are set on the `Titanium.App`
     module, like this:
 
-        Ti.App.addEventListener('app:myCustomEvent', myHandlerFunction);
+    ``` js
+    Ti.App.addEventListener('app:myCustomEvent', myHandlerFunction);
+    ```
 
     Adding a prefix (like 'app:' in this example) is optional, but can help ensure that
     your custom event names don't conflict with any future Titanium events.
@@ -163,7 +165,9 @@ description: |
     depends on what accessibility services are activated on the device. The most common are VoiceOver on
     iOS and TalkBack on Android. Each of those would read the announcement aloud.
 
-            Ti.App.fireSystemEvent(Ti.App.EVENT_ACCESSIBILITY_ANNOUNCEMENT, "Welcome to my App");
+    ``` js
+    Ti.App.fireSystemEvent(Ti.App.EVENT_ACCESSIBILITY_ANNOUNCEMENT, "Welcome to my App");
+    ```
 
     * <Titanium.App.iOS.EVENT_ACCESSIBILITY_LAYOUT_CHANGED>, available only on iOS, can be used to alert
     the accessibility system that the layout of the screen has changed, such as when an element
@@ -191,8 +195,8 @@ since: "0.1"
 events:
   - name: accessibilitychanged
     summary: Fired by the system when the device's accessibility service is turned on or off.
-    platforms: [android, iphone, ipad]
-    since: "3.0.0"
+    platforms: [android, iphone, ipad, macos]
+    since: {android: "3.0.0", iphone: "3.0.0", ipad: "3.0.0", macos: "9.2.0"}
     osver:
         android:
             min: "4.0"
@@ -204,13 +208,13 @@ events:
   - name: close
     summary: Fired by the system when the application is about to be terminated.
     description: It is the last event that can be received before the application gets closed.
-    platforms: [android, iphone, ipad]
-    since: {android: "8.3.0", iphone: "1.5.0", ipad: "1.5.0"}
+    platforms: [android, iphone, ipad, macos]
+    since: {android: "8.3.0", iphone: "1.5.0", ipad: "1.5.0", macos: "9.2.0"}
 
   - name: memorywarning
     summary: Fired when the app receives a warning from the operating system about low memory availability.
-    platforms: [iphone, ipad]
-    since: "3.2.3"
+    platforms: [iphone, ipad, macos]
+    since: {iphone: "3.2.3", ipad: "3.2.3", macos: "9.2.0"}
 
   - name: pause
     summary: Fired when the application transitions from active to inactive state on a multitasked system.
@@ -227,8 +231,8 @@ events:
         Note that calls to functions that modify the UI during this event may be partially executed,
         **up to** the UI call before the suspension. See [paused](Titanium.App.paused) event. If this happens, the remainder of the code will
         be executed after the application is resumed, but before the `resume` event is triggered.
-    platforms: [android, iphone, ipad]
-    since: {android: "7.5.0", iphone: "0.8", ipad: "0.8"}
+    platforms: [android, iphone, ipad, macos]
+    since: {android: "7.5.0", iphone: "0.8", ipad: "0.8", macos: "9.2.0"}
 
   - name: paused
     summary: Fired when the application transitions to the background on a multitasked system.
@@ -242,8 +246,8 @@ events:
         [Monitoring Application State Changes](https://developer.apple.com/documentation/uikit/uiapplicationdelegate/1622997-applicationdidenterbackground?language=objc)
         for the exact behavior that triggers this event.
 
-    platforms: [android, iphone, ipad]
-    since: {android: "7.5.0", iphone: "2.1.0", ipad: "2.1.0"}
+    platforms: [android, iphone, ipad, macos]
+    since: {android: "7.5.0", iphone: "2.1.0", ipad: "2.1.0", macos: "9.2.0"}
 
   - name: proximity
     summary: Fired when the proximity sensor changes state.
@@ -256,6 +260,7 @@ events:
     properties:
       - name: state
         summary: Proximity state value.
+        type: Boolean
     platforms: [iphone, android]
     since: {android: "3.3.0"}
 
@@ -267,34 +272,79 @@ events:
     properties:
       - name: message
         summary: The error message.
+        type: String
       - name: line
         summary: The line where the error occurred.
+        type: Number
       - name: sourceId
         summary: A unique identification for the source file.
-        platforms: [iphone, ipad]
+        type: Number
+        platforms: [iphone, ipad, macos]
       - name: type
         summary: The type of error.
-        platforms: [iphone, ipad]
+        type: String
+        platforms: [iphone, ipad, macos]
       - name: sourceURL
         summary: The URL to the source file.
-        platforms: [iphone, ipad]
+        type: String
+        platforms: [iphone, ipad, macos]
       - name: backtrace
         summary: The backtrace of function calls when the error occurred.
+        type: String
+        deprecated: 
+          since: "8.0.0"
+          removed: "8.0.0"
+          notes: Use the `stack` property instead.
         platforms: [iphone, ipad]
       - name: title
         summary: The title for the error.
+        type: String
         platforms: [android]
       - name: sourceName
         summary: The name of the source file.
+        type: String
         platforms: [android]
       - name: lineSource
         summary: The line source reference.
+        type: String
         platforms: [android]
       - name: lineOffset
         summary: The offset on the line where the error occurred.
+        type: Number
+        deprecated: 
+          since: "9.0.0"
+          notes: Use `column` property for cross-platform parity.
         platforms: [android]
-    platforms: [android, iphone, ipad]
-    since: '4.1.0'
+      - name: jsStack
+        summary: The javascript stack trace of the exception.
+        type: String
+        since: "8.0.0"
+        deprecated: 
+          since: "9.0.0"
+          notes: Use `stack` property for cross-platform parity.
+        platforms: [android]
+      - name: javaStack
+        summary: The java stack trace of the exception.
+        type: String
+        since: "8.0.0"
+        deprecated: 
+          since: "9.0.0"
+          notes: Use `nativeStack` property for cross-platform parity.
+        platforms: [android]
+      - name: stack
+        summary: The javascript stack trace of the exception.
+        type: String
+        since: "9.0.0"
+      - name: nativeStack
+        summary: The native platform stack trace of the exception.
+        type: String
+        since: "9.0.0"
+      - name: column
+        summary: The column offset on the line where the error occured.
+        type: Number
+        since: {android: "9.0.0",  iphone: "4.1.0", ipad: "4.1.0", macos: "9.2.0"}
+    platforms: [android, iphone, ipad, macos]
+    since: "4.1.0"
 
   - name: resume
     summary: Fired when the application returns to the foreground on a multitasked system.
@@ -308,8 +358,8 @@ events:
         See the `applicationWillEnterForeground` section of the official Apple documentation about
         [Monitoring Application State Changes](https://developer.apple.com/documentation/uikit/uiapplicationdelegate/1623076-applicationwillenterforeground)
         for the exact behavior that triggers this event.
-    platforms: [android, iphone, ipad]
-    since: {android: "7.5.0", iphone: "0.8", ipad: "0.8"}
+    platforms: [android, iphone, ipad, macos]
+    since: {android: "7.5.0", iphone: "0.8", ipad: "0.8", macos: "9.2.0"}
 
   - name: resumed
     summary: Fired when the application returns to the foreground.
@@ -325,8 +375,8 @@ events:
         Note: This event will not be fired for URL's in iOS 10+ that are handled by the <Modules.SafariDialog>
         or <Titanium.UI.WebView>, because Apple does not call the `applicationDidBecomeActive` for
         URL-handling anymore. Instead, use the `handleurl` event in <Titanium.App.iOS>.
-    platforms: [android, iphone, ipad]
-    since: {android: "7.5.0", iphone: "0.8", ipad: "0.8"}
+    platforms: [android, iphone, ipad, macos]
+    since: {android: "7.5.0", iphone: "0.8", ipad: "0.8", macos: "9.2.0"}
 
   - name: started
     summary: Fired after the "app.js" or "alloy.js" gets executed during application startup.
@@ -350,13 +400,13 @@ events:
     properties:
       - name: keyboardFrame
         summary: A dictionary with keys x, y, width and height representing the frame of keyboard on screen.
-        type: Dictionary
+        type: Dimension
 
       - name: animationDuration
         summary: The duration of the keyboard animation. This parameter is only available on Titanium SDK 4.0.0 and later.
         type: Number
-    platforms: [iphone, ipad]
-    since: '3.0.0'
+    platforms: [iphone, ipad, macos]
+    since: {iphone: "3.0.0", ipad: "3.0.0", macos: "9.2.0"}
 
   - name: significanttimechange
     summary: Fired when there is a significant change in the time.
@@ -365,8 +415,8 @@ events:
         and the change to daylight savings time. If your application is currently in `paused` state, this message
         will be is queued until your application returns to the foreground, at which point it is delievered. If multiple
         changes occur, only the most recent one is delievered.
-    platforms: [iphone, ipad]
-    since: '3.1.0'
+    platforms: [iphone, ipad, macos]
+    since: {iphone: "3.1.0", ipad: "3.1.0", macos: "9.2.0"}
 
   - name: shortcutitemclick
     summary: Fired when a <Titanium.UI.ShortcutItem> is clicked.
@@ -374,8 +424,8 @@ events:
       - name: id
         summary: Identifier of the clicked shortcut item.
         type: String
-    platforms: [iphone, ipad, android]
-    since: '7.5.0'
+    platforms: [iphone, ipad, android, macos]
+    since: {android: "7.5.0", iphone: "7.5.0", ipad: "7.5.0", macos: "9.2.0"}
 
   - name: userinteraction
     summary: Called whenever an interaction with the window occurred. To be used together with the <Titanium.App.trackUserInteraction> property.
@@ -389,15 +439,14 @@ events:
         See also:
           - Android: See the [onUserInteraction](https://developer.android.com/reference/android/app/Activity.html#onUserInteraction()) callback
           - iOS: See the [sendEvent](https://developer.apple.com/documentation/uikit/uiapplication/1623043-sendevent) delegate
-
-    platforms: [android, iphone, ipad]
-    since: "7.5.0"
+    platforms: [android, iphone, ipad, macos]
+    since: {android: "7.5.0", iphone: "7.5.0", ipad: "7.5.0", macos: "9.2.0"}
 
 methods:
   - name: fireSystemEvent
     summary: Fire a system-level event such as <Titanium.App.EVENT_ACCESSIBILITY_ANNOUNCEMENT>.
-    platforms: [android, iphone, ipad]
-    since: "3.0.0"
+    platforms: [android, iphone, ipad, macos]
+    since: {android: "3.0.0", iphone: "3.0.0", ipad: "3.0.0", macos: "9.2.0"}
     parameters:
       - name: eventName
         summary: The name of the event to fire.
@@ -413,8 +462,8 @@ methods:
         On Android, fetch the [Ti.Android.rootActivity](Titanium.Android.rootActivity) object and
         read its [intent](Titanium.Android.Activity.intent) property to retrieve the parameters used
         to launch the application activity. Note that this [intent](Titanium.Android.Activity.intent)
-        will change when a ["newintent"](Titanium.Android.Activity.newintent) event has been fired.
-    platforms: [iphone, ipad]
+        will change when a "[newintent](Titanium.Android.Activity.newintent)" event has been fired.
+    platforms: [iphone, ipad, macos]
     returns:
         type: launchOptions
 
@@ -423,34 +472,36 @@ properties:
     summary: Convenience constant for system event "accessibilityannouncement".
     type: String
     permission: read-only
-    platforms: [android, iphone, ipad]
-    since: "3.0.0"
-
+    platforms: [android, iphone, ipad, macos]
+    since: {android: "3.0.0", iphone: "3.0.0", ipad: "3.0.0", macos: "9.2.0"}
 
   - name: EVENT_ACCESSIBILITY_CHANGED
     summary: Convenience constant for system event "accessibilitychanged".
     type: String
     permission: read-only
-    platforms: [android, iphone, ipad]
-    since: "3.0.0"
+    platforms: [android, iphone, ipad, macos]
+    since: {android: "3.0.0", iphone: "3.0.0", ipad: "3.0.0", macos: "9.2.0"}
 
   - name: accessibilityEnabled
     summary: Indicates whether Accessibility is enabled by the system.
     type: Boolean
     permission: read-only
 
-
   - name: analytics
     summary: Indicates whether Analytics is enabled, determined by `tiapp.xml`.
     type: Boolean
     permission: read-only
-
 
   - name: copyright
     summary: Application copyright statement, determined by `tiapp.xml`.
     type: String
     permission: read-only
 
+  - name: currentService
+    summary: A reference to the currnet background service running when the application is placed in the background.
+    type: Titanium.App.iOS.BackgroundService
+    permission: read-only
+    platforms: [iphone, ipad, macos]
 
   - name: deployType
     summary: |
@@ -463,19 +514,16 @@ properties:
     type: String
     permission: read-only
 
-
   - name: description
     summary: Application description, determined by `tiapp.xml`.
     type: String
     permission: read-only
-
 
   - name: guid
     summary: Application globally-unique ID, determined by `tiapp.xml`.
     description: This value is system-generated and consistent through all versions.
     type: String
     permission: read-only
-
 
   - name: forceSplashAsSnapshot
     summary: Shows the application's splash screen on app resume.
@@ -485,7 +533,7 @@ properties:
         the app resumes that screenshot is shown for brief moment. To disable this behavior, set
         this property to `true` and the default splash screen will show on app resume instead.
     type: Boolean
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: id
     summary: Application ID, from `tiapp.xml`.
@@ -493,7 +541,6 @@ properties:
         The application ID is a required property that must be specified when creating a new project.
     type: String
     permission: read-only
-
 
   - name: installId
     summary: The install ID for this application.
@@ -503,21 +550,20 @@ properties:
         only when an application is initially installed, or removed and
         re-installed.
     type: String
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     permission: read-only
-    since: "2.0.0"
+    since: {iphone: "2.0.0", ipad: "2.0.0", macos: "9.2.0"}
 
   - name: idleTimerDisabled
     summary: Determines whether the screen is locked when the device is idle.
     description: Set to `true` to disable the timer.
     type: Boolean
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: name
     summary: Application name, determined by `tiapp.xml`.
     type: String
     permission: read-only
-
 
   - name: proximityDetection
     summary: Determines whether proximity detection is enabled.
@@ -525,8 +571,8 @@ properties:
         Set to `true` to receive <Titanium.App.proximity> events.
     type: Boolean
     default: false
-    platforms: [iphone, ipad, android]
-    since: {android: "3.3.0"}
+    platforms: [iphone, ipad, android, macos]
+    since: {android: "3.3.0", macos: "9.2.0"}
 
   - name: proximityState
     summary: |
@@ -551,38 +597,34 @@ properties:
         **NOTE: In general, the user should always be made aware of network activity. The network activity indicator should only be disabled for very brief network activity (a few seconds).**
     type: Boolean
     default: false
-    platforms: [iphone, ipad]
-    since: '3.0.0'
+    platforms: [iphone, ipad, macos]
+    since: {iphone: "3.0.0", ipad: "3.0.0", macos: "9.2.0"}
 
   - name: publisher
     summary: Application publisher, from `tiapp.xml`.
     type: String
     permission: read-only
 
-
   - name: sessionId
     summary: Unique session identifier for the current continuous run of the application.
     type: String
     permission: read-only
-
 
   - name: url
     summary: Application URL, from `tiapp.xml`.
     type: String
     permission: read-only
 
-
   - name: version
     summary: Application version, from `tiapp.xml`.
     type: String
     permission: read-only
 
-
   - name: keyboardVisible
     summary: Indicates whether or not the soft keyboard is visible.
     type: Boolean
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: trackUserInteraction
     summary: Indicates whether or not the user interaction shoud be tracked.
@@ -592,8 +634,8 @@ properties:
         property to be set explicitely. For iOS, this is done to prevent additional overhead.
     type: Boolean
     accessors: false
-    platforms: [iphone, ipad]
-    since: "7.5.0"
+    platforms: [iphone, ipad, macos]
+    since: {iphone: "7.5.0", ipad: "7.5.0", macos: "9.2.0"}
 
 ---
 name: launchOptions

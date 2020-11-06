@@ -11,19 +11,17 @@
  * - Load the app developer's main "app.js" script after doing all of the above.
  */
 
+// Attempt to load crash analytics module.
+// NOTE: This should always be the first module that loads on startup.
+import './ti.internal/aca';
+
 // Log the app name, app version, and Titanium version on startup.
 Ti.API.info(`${Ti.App.name} ${Ti.App.version} (Powered by Titanium ${Ti.version}.${Ti.buildHash})`);
 
-// Attempt to load crash analytics module.
-// NOTE: This should be the first module that loads on startup.
-try {
-	require('com.appcelerator.aca');
-} catch (e) {
-	// Could not load module, silently ignore exception.
-}
-
 // Load JS language polyfills
-import '@babel/polyfill';
+import 'core-js/es';
+// Load polyfill for async/await usage
+import 'regenerator-runtime/runtime';
 // import all of our polyfills/extensions
 import './ti.internal/extensions';
 

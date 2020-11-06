@@ -1,0 +1,28 @@
+---
+name: HorizontalInsets
+summary: Dictionary object of parameters for horizontal-only insets applied to [Table](Titanium.UI.TableView) and [List](Titanium.UI.ListView) views. Only `left` and `right` properties are used (see <Padding>).
+properties:
+  - name: left
+    type: Number
+    summary: Left padding/inset
+    default: 0
+
+  - name: right
+    type: Number
+    summary: Right padding/inset
+    default: 0
+
+---
+name: Padding
+extends: HorizontalInsets
+summary: Dictionary object of parameters for the padding/insets applied to all kinds of views.
+properties:
+  - name: top
+    type: Number
+    summary: Top padding/inset
+    default: 0
+
+  - name: bottom
+    type: Number
+    summary: Bottom padding/inset
+    default: 0

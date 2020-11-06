@@ -4,22 +4,9 @@ summary: |
     A table view is used to present information, organized in sections and rows, in a
     vertically-scrolling view.
 description: |
-    <table id="platformComparison">
-      <tbody>
-        <tr>
-          <td><img src="images/tableview/tableview_android.png" height="200" /></td>
-          <td><img src="images/tableview/tableview_ios.png" height="200" /></td>
-          <td><img src="images/tableview/tableview_wp.png" height="200" /></td>
-        </tr>
-      </tbody>
-      <tfoot>
-        <tr>
-          <th>Android</th>
-          <th>iOS</th>
-          <th>Windows Phone</th>
-        </tr>
-      </tfoot>
-    </table>
+    | Android | iOS | Windows |
+    | ------- | --- | ------- |
+    | ![Android](./tableview_android.png) | ![iOS](./tableview_ios.png) | ![Windows](./tableview_wp.png) |
 
     A `TableView` object is a container for [TableViewSection](Titanium.UI.TableViewSection)
     objects that are, in turn, containers for [TableViewRow](Titanium.UI.TableViewRow) objects.
@@ -160,9 +147,10 @@ events:
 
             Here's an example of creating a row implicitly, which is not the recommended way.
 
-                var data = [{title:'Row 1', hasChild:true, color:'red', selectedColor:'#fff', special:'special 1'},];
-                var table = Ti.UI.createTableView({data: data});
-
+            ``` js
+            var data = [{title:'Row 1', hasChild:true, color:'red', selectedColor:'#fff', special:'special 1'},];
+            var table = Ti.UI.createTableView({data: data});
+            ```
         type: Dictionary<Titanium.UI.TableViewRow>
 
       - name: searchMode
@@ -176,18 +164,18 @@ events:
       - name: x
         summary: X coordinate of the event from the `source` view's coordinate system.
         type: Number
-        platforms: [iphone, ipad]
+        platforms: [iphone, ipad, macos]
 
       - name: y
         summary: Y coordinate of the event from the `source` view's coordinate system.
         type: Number
-        platforms: [iphone, ipad]
+        platforms: [iphone, ipad, macos]
 
   - name: rowsselected
     summary: |
         Fired when user stops two-pan gesture interaction for selecting multiple rows. 
         It is used in conjunction with <Titanium.UI.TableView.allowsMultipleSelectionInteraction>.
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: 8.2.0
     properties:
       - name: selectedRows
@@ -200,7 +188,7 @@ events:
 
   - name: delete
     summary: Fired when a table row is deleted by the user.
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     properties:
       - name: detail
         summary: Indicates whether the delete button was clicked. Always `false` for this event.
@@ -257,9 +245,10 @@ events:
 
             Here's an example of creating a row implicitly, which is not the recommended way.
 
-                var data = [{title:'Row 1', hasChild:true, color:'red', selectedColor:'#fff', special:'special 1'},];
-                var table = Ti.UI.createTableView({data: data});
-
+            ``` js
+            var data = [{title:'Row 1', hasChild:true, color:'red', selectedColor:'#fff', special:'special 1'},];
+            var table = Ti.UI.createTableView({data: data});
+            ```
         type: Dictionary<Titanium.UI.TableViewRow>
 
       - name: x
@@ -284,7 +273,7 @@ events:
       - name: index
         summary: The index number clicked.
         type: Number
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: 3.4.0
 
   - name: longpress
@@ -316,9 +305,10 @@ events:
 
             Here's an example of creating a row implicitly, which is not the recommended way.
 
-                var data = [{title:'Row 1', hasChild:true, color:'red', selectedColor:'#fff', special:'special 1'},];
-                var table = Ti.UI.createTableView({data: data});
-
+            ``` js
+            var data = [{title:'Row 1', hasChild:true, color:'red', selectedColor:'#fff', special:'special 1'},];
+            var table = Ti.UI.createTableView({data: data});
+            ```
         type: Dictionary<Titanium.UI.TableViewRow>
       - name: y
         summary: Y coordinate of the event from the `source` view's coordinate system.
@@ -331,7 +321,7 @@ events:
 
   - name: move
     summary: Fired when a table row is moved by the user.
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     properties:
       - name: detail
         summary: Boolean to indicate if the right area was clicked. Always `false` for this event.
@@ -373,14 +363,14 @@ events:
       - name: contentOffset
         summary: Dictionary with `x` and `y` properties containing the content offset.
         type: Point
-        platforms: [iphone, ipad]
+        platforms: [iphone, ipad, macos]
 
       - name: contentSize
         summary: |
             Dictionary with `width` and `height` properties containing the size of the content
             (regardless of the display size in the case of scrolling).
-        type: Dictionary
-        platforms: [iphone, ipad]
+        type: Size
+        platforms: [iphone, ipad, macos]
 
       - name: firstVisibleItem
         summary: Row index of the topmost visible row in the view.
@@ -391,7 +381,7 @@ events:
         summary: |
             Dictionary with `width` and `height` properties containing the size of the visible
             table view
-        type: Dictionary
+        type: Size
 
       - name: totalItemCount
         summary: Total number of rows in the view.
@@ -410,19 +400,19 @@ events:
         summary: |
             Dictionary with `width` and `height` properties containing the size of the content
             (regardless of the display size in the case of scrolling).
-        type: Dictionary
-        platforms: [iphone, ipad]
+        type: Size
+        platforms: [iphone, ipad, macos]
 
       - name: contentOffset
         summary: Dictionary with `x` and `y` properties containing the content offset.
         type: Point
-        platforms: [iphone, ipad]
+        platforms: [iphone, ipad, macos]
 
       - name: size
         summary: |
             Dictionary with `width` and `height` properties containing the size of the visible
             table view.
-        type: Dictionary
+        type: Size
 
       - name: x
         summary: X coordinate of the event from the `source` view's coordinate system.
@@ -432,7 +422,6 @@ events:
         summary: Y coordinate of the event from the `source` view's coordinate system.
         type: Number
     since: '3.0.0'
-
 
   - name: singletap
     summary: Fired when the device detects a single tap against the view.
@@ -491,8 +480,10 @@ events:
 
             Here's an example of creating a row implicitly, which is not the recommended way.
 
-                var data = [{title:'Row 1', hasChild:true, color:'red', selectedColor:'#fff', special:'special 1'},];
-                var table = Ti.UI.createTableView({data: data});
+            ``` js
+            var data = [{title:'Row 1', hasChild:true, color:'red', selectedColor:'#fff', special:'special 1'},];
+            var table = Ti.UI.createTableView({data: data});
+            ```
         type: Dictionary<Titanium.UI.TableViewRow>
 
       - name: x
@@ -502,7 +493,6 @@ events:
       - name: y
         summary: Y coordinate of the event's endpoint from the `source` view's coordinate system.
         type: Number
-
 
   - name: touchcancel
     summary: Fired when a touch gesture is interrupted by the device.
@@ -514,7 +504,7 @@ events:
         [scroll](Titanium.UI.TableView.scroll) event cannot occur concurrently. If a table begins
         to scroll during a touch event, the appropriate row or table `touchcancel` event fire
         before the `scroll` event begins.
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     properties:
       - name: x
         summary: X coordinate of the event from the `source` view's coordinate system.
@@ -574,8 +564,10 @@ events:
 
             Here's an example of creating a row implicitly, which is not the recommended way.
 
-                var data = [{title:'Row 1', hasChild:true, color:'red', selectedColor:'#fff', special:'special 1'},];
-                var table = Ti.UI.createTableView({data: data});
+            ``` js
+            var data = [{title:'Row 1', hasChild:true, color:'red', selectedColor:'#fff', special:'special 1'},];
+            var table = Ti.UI.createTableView({data: data});
+            ```
         type: Dictionary<Titanium.UI.TableViewRow>
 
       - name: x
@@ -618,7 +610,7 @@ events:
         [scroll](Titanium.UI.TableView.scroll) event cannot occur concurrently. If a table begins
         to scroll during a touch event, the appropriate row or table `touchcancel` event fire
         before the `scroll` event begins.
-    platforms: [iphone, ipad, android]
+    platforms: [iphone, ipad, android, macos]
     properties:
       - name: index
         summary: Row index.
@@ -637,8 +629,10 @@ events:
 
             Here's an example of creating a row implicitly, which is not the recommended way.
 
-                var data = [{title:'Row 1', hasChild:true, color:'red', selectedColor:'#fff', special:'special 1'},];
-                var table = Ti.UI.createTableView({data: data});
+            ``` js
+            var data = [{title:'Row 1', hasChild:true, color:'red', selectedColor:'#fff', special:'special 1'},];
+            var table = Ti.UI.createTableView({data: data});
+            ```
         type: Dictionary<Titanium.UI.TableViewRow>
 
       - name: x
@@ -676,7 +670,7 @@ events:
 
   - name: twofingertap
     summary: Fired when the device detects a two-finger tap against the view.
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     properties:
       - name: x
         summary: X coordinate of the event from the `source` view's coordinate system.
@@ -691,7 +685,7 @@ events:
     description: |
         A dragging gesture is when a touch remains in contact with the display to physically drag
         the view, as opposed to it being the result of scrolling momentum.
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: '3.0.0'
 
   - name: dragend
@@ -699,7 +693,7 @@ events:
     description: |
         A dragging gesture is when a touch remains in contact with the display to physically drag
         the view, as opposed to it being the result of scrolling momentum.
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     properties:
       - name: decelerate
         summary: |
@@ -747,7 +741,7 @@ methods:
         type: TableViewAnimationProperties
         optional: true
     since: 3.0.0
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: deleteRow
     summary: Deletes an existing row.
@@ -764,7 +758,6 @@ methods:
         type: TableViewAnimationProperties
         optional: true
 
-
   - name: deleteSection
     summary: Deletes an existing section.
     description: |
@@ -779,7 +772,7 @@ methods:
         type: TableViewAnimationProperties
         optional: true
     since: 3.0.0
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: deselectRow
     summary: Programmatically deselects a row.
@@ -787,8 +780,7 @@ methods:
       - name: row
         summary: Row index to deselect.
         type: Number
-    platforms: [iphone,ipad]
-
+    platforms: [iphone,ipad, macos]
 
   - name: insertRowAfter
     summary: Inserts a row after another row.
@@ -837,7 +829,7 @@ methods:
         type: TableViewAnimationProperties
         optional: true
     since: 3.0.0
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: insertRowBefore
     summary: Inserts a row before another row.
@@ -860,7 +852,6 @@ methods:
         summary: Animation properties. (iOS only.)
         type: TableViewAnimationProperties
         optional: true
-
 
   - name: insertSectionBefore
     summary: Inserts a section before another section.
@@ -886,7 +877,7 @@ methods:
         type: TableViewAnimationProperties
         optional: true
     since: 3.0.0
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: scrollToIndex
     summary: Scrolls the table view to ensure that the specified row is on screen.
@@ -944,26 +935,42 @@ methods:
         Typically used with the [headerPullView](Titanium.UI.TableView.headerPullView) property.
     parameters:
       - name: edgeInsets
-        summary: Dictionary to describe the insets.
-        type: TableViewEdgeInsets
+        summary: |
+          Sets the distance that the content view is inset from the enclosing scroll view of the table.
+          For example:
 
-      - name: animated
-        summary: Determines whether, and how, the content inset change should be animated.
-        type: TableViewContentInsetOption
+          ``` js
+          setContentInset({ top: 50, bottom: 10, right: 10, left: 10 }, { animated: true });
+          ```
+        type: Padding
+
+      - name: options
+        summary: |
+            Determines whether, and how, the content inset change should be animated.
+
+            Note that the default here is equivalent to passing in `{ animated: false }`
+        type: AnimatedWithDurationOptions
         optional: true
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "2.1.0"
 
   - name: setContentOffset
     summary: Sets the value of the content offset of the table view without animation by default.
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     parameters:
       - name: contentOffset
         summary: |
-            Dictionary with the properties `x`, `y`, and `animated`. The `x` and `y` coordinates
-            reposition the top-left point of the scrollable region of the table view.
-            The `animated` property is optional and set to `false` by default.
-        type: Dictionary
+            Dictionary with the properties `x`, `y`.
+            The `x` and `y` coordinates reposition the top-left point of the scrollable region of the table view.
+        type: Point
+      - name: options
+        summary: |
+            Pass in `{ animated: true }` to animate the transition.
+
+            Note that the default here is equivalent to passing in `{ animated: false }`
+        type: AnimatedOptions
+        optional: true
+        default: "{ animated: false }"
     since: 3.4.0
 
   - name: selectRow
@@ -975,7 +982,7 @@ methods:
       - name: row
         summary: Row index to select.
         type: Number
-    platforms: [iphone, ipad, android]
+    platforms: [iphone, ipad, android, macos]
     since: {iphone: "1.8.2", ipad: "1.8.2", android: "3.0.0"}
 
   - name: setData
@@ -995,6 +1002,7 @@ methods:
       - name: animation
         summary: Animation properties. (iOS only.)
         type: TableViewAnimationProperties
+        optional: true
 
   - name: setHeaderPullView
     summary: Sets the value of the [Titanium.UI.TableView.headerPullView] property.
@@ -1002,7 +1010,7 @@ methods:
       - name: view
         summary: View to display.
         type: Titanium.UI.View
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "2.1.0"
 
   - name: updateRow
@@ -1041,7 +1049,7 @@ methods:
         summary: Animation properties. (iOS only.)
         type: TableViewAnimationProperties
     since: 3.0.0
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
 properties:
   - name: allowsSelection
@@ -1049,20 +1057,20 @@ properties:
     description: Set to `false` to prevent rows from being selected.
     type: Boolean
     default: true
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: allowsSelectionDuringEditing
     summary: Determines whether this table's rows can be selected while editing the table.
     description: Set to `true` to allow rows to be selected.
     type: Boolean
     default: false
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: backgroundColor
     summary: Background color of the view, as a color name or hex triplet.
     description: |
         For information about color values, see the "Colors" section of <Titanium.UI>.
-    type: String
+    type: [String, Titanium.UI.Color]
     default: transparent on non-iOS platforms, white on the iOS platform
 
   - name: data
@@ -1081,7 +1089,7 @@ properties:
         `editing` and `moving` modes.
     type: Boolean
     default: Depends on `editing` and `moving` mode
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: editing
     summary: |
@@ -1095,7 +1103,7 @@ properties:
         `editing` and `moving` modes.
     type: Boolean
     default: false
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: filterAttribute
     summary: Filter attribute to be used when searching.
@@ -1104,9 +1112,11 @@ properties:
         TableViewRow object, such as `title`.  To search text stored in a different attribute, set the `title`
         property of the TableViewRow object to the property to be searched. For example:
 
-            var label = Ti.UI.createLabel({text: 'Foobar'}),
-            var row = Ti.UI.createTableViewRow(title: label.text);
-            row.add(label);
+        ``` js
+        var label = Ti.UI.createLabel({text: 'Foobar'}),
+        var row = Ti.UI.createTableViewRow(title: label.text);
+        row.add(label);
+        ```
 
         On the iOS platform, this property can be set to any property on the TableViewRow object,
         including arbitrary properties set on the object, not only Titanium-defined properties.
@@ -1116,14 +1126,14 @@ properties:
         and 'Jonathan'.
 
     type: String
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: filterAnchored
     summary: Determines whether the search is limited to the start of the string
     description: Set to `true` to enable case anchored search.
     type: Boolean
     default: false
-    platforms: [ android, iphone, ipad]
+    platforms: [ android, iphone, ipad, macos]
     since: "3.3.0"
 
   - name: filterCaseInsensitive
@@ -1131,7 +1141,7 @@ properties:
     description: Set to `false` to enable case sensitive search.
     type: Boolean
     default: true
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: footerDividersEnabled
     summary: When set to false, the ListView will not draw the divider before the footer view.
@@ -1172,17 +1182,19 @@ properties:
 
         Alloy applications can use a `<HeaderPullView>` element inside a `<TableView>` element.
 
-            <Alloy>
-                <TableView>
-                    <HeaderPullView platform="ios">
-                        <View class="pull">
-                            <Label color="#F2F4F4" bottom="25dp">Header pull view</Label>
-                        </View>
-                    </HeaderPullView>
-                </TableView>
-            </Alloy>
+        ``` xml
+        <Alloy>
+            <TableView>
+                <HeaderPullView platform="ios">
+                    <View class="pull">
+                        <Label color="#F2F4F4" bottom="25dp">Header pull view</Label>
+                    </View>
+                </HeaderPullView>
+            </TableView>
+        </Alloy>
+        ```
     type: Titanium.UI.View
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "2.1.0"
 
   - name: refreshControl
@@ -1190,7 +1202,7 @@ properties:
     description: |
         An alternate to the headerPullView property. See <Titanium.UI.RefreshControl> for usage and examples.
     type: Titanium.UI.RefreshControl
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     since: { android: "6.2.0", iphone: "3.2.0", ipad: "3.2.0" }
 
   - name: hideSearchOnSelection
@@ -1205,14 +1217,14 @@ properties:
         The Android platform behaves as though this value were `false`.
     type: Boolean
     default: true
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: allowsMultipleSelectionDuringEditing
     summary: Determines whether multiple items of this table view can be selected at the same time while editing the table.
     type: Boolean
     default: false
     since: 8.2.0
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: allowsMultipleSelectionInteraction
     summary: Allows a two-finger pan gesture to automatically transition the table view into editing mode and start selecting rows.
@@ -1225,26 +1237,25 @@ properties:
     type: Boolean
     default: false
     since: 8.2.0
-    platforms: [iphone, ipad]
-
+    platforms: [iphone, ipad, macos]
 
   - name: footerView
     summary: Table view footer as a view that will be rendered instead of a label.
     description: |
         In Alloy you can use a `<FooterView>` element nested in a `<TableView>` element:
 
-            <Alloy>
-                <TableView>
-                    <FooterView>
-                        <View backgroundColor="#a00" height="50dp"/>
-                    </FooterView>
-                    <TableViewRow><Label>Row 1</Label></TableViewRow>
-                    <TableViewRow><Label>Row 2</Label></TableViewRow>
-                </TableView>
-            </Alloy>
-
+        ``` xml
+        <Alloy>
+            <TableView>
+                <FooterView>
+                    <View backgroundColor="#a00" height="50dp"/>
+                </FooterView>
+                <TableViewRow><Label>Row 1</Label></TableViewRow>
+                <TableViewRow><Label>Row 2</Label></TableViewRow>
+            </TableView>
+        </Alloy>
+        ```
     type: Titanium.UI.View
-
 
   - name: headerDividersEnabled
     summary: When set to false, the ListView will not draw the divider after the header view.
@@ -1258,24 +1269,23 @@ properties:
     summary: Table view header title.
     type: String
 
-
   - name: headerView
     summary: Table view header as a view that will be rendered instead of a label.
     description: |
         In Alloy you can use a `<HeaderView>` element nested in a `<TableView>` element:
 
-            <Alloy>
-                <TableView>
-                    <HeaderView>
-                        <View backgroundColor="#a00" height="50dp"/>
-                    </HeaderView>
-                    <TableViewRow><Label>Row 1</Label></TableViewRow>
-                    <TableViewRow><Label>Row 2</Label></TableViewRow>
-                </TableView>
-            </Alloy>
-
+        ``` js
+        <Alloy>
+            <TableView>
+                <HeaderView>
+                    <View backgroundColor="#a00" height="50dp"/>
+                </HeaderView>
+                <TableViewRow><Label>Row 1</Label></TableViewRow>
+                <TableViewRow><Label>Row 2</Label></TableViewRow>
+            </TableView>
+        </Alloy>
+        ```
     type: Titanium.UI.View
-
 
   - name: index
     summary: Array of objects (with `title` and `index` properties) to control the table view index.
@@ -1285,17 +1295,15 @@ properties:
         index associated with that title. If the index is -1 the table view will scroll to the top.
 
     type: Array<TableViewIndexEntry>
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: maxRowHeight
     summary: Maximum row height for table view rows.
     type: Number
 
-
   - name: minRowHeight
     summary: Minimum row height for table view rows.
     type: Number
-
 
   - name: moveable
     summary: |
@@ -1309,7 +1317,7 @@ properties:
         `editing` and `moving` modes.
     type: Boolean
     default: Depends on `editing` and `moving` mode
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: moving
     summary: |
@@ -1323,7 +1331,7 @@ properties:
         `editing` and `moving` modes.
     type: Boolean
     default: false
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: overScrollMode
     summary: Determines the behavior when the user overscrolls the view.
@@ -1337,13 +1345,12 @@ properties:
     summary: Default row height for table view rows.
     type: Number
 
-
   - name: scrollable
     summary: If `true`, the tableview can be scrolled.
     type: Boolean
     default: true
     since: { android: 7.3.0, iphone: 0.8, ipad: 0.8 }
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: scrollIndicatorStyle
     summary: Style of the scrollbar.
@@ -1351,7 +1358,7 @@ properties:
     constants: Titanium.UI.iOS.ScrollIndicatorStyle.*
     default: <Titanium.UI.iOS.ScrollIndicatorStyle.DEFAULT>
     since: 2.1.0
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: scrollsToTop
     summary: Controls whether the scroll-to-top gesture is effective.
@@ -1363,7 +1370,7 @@ properties:
         behaviour on. The remaining view will then respond to scroll-to-top gesture.
     type: Boolean
     default: true
-    platforms: [iphone,ipad]
+    platforms: [iphone,ipad, macos]
     since: 2.1.2
 
   - name: search
@@ -1371,17 +1378,18 @@ properties:
     description: |
         In an Alloy application, you can use a `<SearchView>` or `<SearchBar>` element inside a `<TableView>` element.
 
-            <Alloy>
-                <TableView>
-                  <!-- search, shorthand with Ti.UI.SearchBar -->
-                  <SearchBar platform="ios"/>
-                  <!-- search, shorthand with Ti.UI.Android.SearchView -->
-                  <SearchView ns="Ti.UI.Android" platform="android"/>
-                </TableView>
-            </Alloy>
-
+        ``` xml
+        <Alloy>
+            <TableView>
+              <!-- search, shorthand with Ti.UI.SearchBar -->
+              <SearchBar platform="ios"/>
+              <!-- search, shorthand with Ti.UI.Android.SearchView -->
+              <SearchView ns="Ti.UI.Android" platform="android"/>
+            </TableView>
+        </Alloy>
+        ```
     type: [Titanium.UI.SearchBar, Titanium.UI.Android.SearchView]
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: dimBackgroundForSearch
     summary: A Boolean indicating whether the underlying content is dimmed during a search.
@@ -1391,7 +1399,7 @@ properties:
     type: Boolean
     default: true
     since: 6.2.0
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     availability: creation
 
   - name: showSearchBarInNavBar
@@ -1403,7 +1411,7 @@ properties:
     type: Boolean
     default: false
     since: 8.1.0
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     osver: {ios: {min: "11.0"}}
     availability: creation
     
@@ -1420,14 +1428,14 @@ properties:
     description: Set to `true` to hide the search field.
     type: Boolean
     default: false (search field visible)
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: sectionCount
     summary: Number of sections in this table view.
     type: Number
     permission: read-only
     since: 3.0.0
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: sections
     summary: Sections of this table.
@@ -1438,7 +1446,7 @@ properties:
         for adding sections on iOS.
     type: Array<Titanium.UI.TableViewSection>
     since: { android: 3.1.0, iphone: 3.0.0, ipad: 3.0.0 }
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: separatorColor
     summary: Separator line color between rows, as a color name or hex triplet.
@@ -1447,7 +1455,7 @@ properties:
         [backgroundColor](Titanium.UI.TableView.backgroundColor) property.
 
         For information about color values, see the "Colors" section of <Titanium.UI>.
-    type: String
+    type: [String, Titanium.UI.Color]
     default: platform-specific default color
 
   - name: separatorInsets
@@ -1461,16 +1469,16 @@ properties:
         with two keys, `left` specifying inset from left edge and `right` specifying the inset from the right edge.
 
         For example:
-
-            tableView1.setSeparatorInsets({
-                left:10,
-                right:10
-            });
-
-    type: Dictionary
+        ``` js
+        tableView1.setSeparatorInsets({
+            left:10,
+            right:10
+        });
+        ```
+    type: HorizontalInsets
     since: 3.2.0
     osver: {ios: {min: "7.0"}}
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: tableSeparatorInsets
     summary: The insets for the table view header and footer.
@@ -1480,17 +1488,16 @@ properties:
         right edge. If the rowSeparatorInsets is not set, the tableSeparatorInsets will also set the cell insets.
 
         For example:
-
-            tableView1.setTableSeparatorInsets({
-                left:10,
-                right:10
-            });
-
-
-    type: Dictionary
+        ``` js
+        tableView1.setTableSeparatorInsets({
+            left:10,
+            right:10
+        });
+        ```
+    type: HorizontalInsets
     since: "5.2.0"
     osver: {ios: {min: "7.0"}}
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: rowSeparatorInsets
     summary: The insets for table view cells (applies to all cells).
@@ -1500,23 +1507,22 @@ properties:
         right edge. This property is only available upon creation of the cells.
 
         For example:
-
-            tableView1.setRowSeparatorInsets({
-                left:10,
-                right:10
-            });
-
-
-    type: Dictionary
+        ``` js
+        tableView1.setRowSeparatorInsets({
+            left:10,
+            right:10
+        });
+        ```
+    type: HorizontalInsets
     since: "5.2.0"
     osver: {ios: {min: "7.0"}}
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: separatorStyle
     summary: Separator style constant.
     type: Number
     constants: Titanium.UI.TABLE_VIEW_SEPARATOR_STYLE_*
-    platforms: [iphone, ipad, android]
+    platforms: [iphone, ipad, android, macos]
     since: {android: "5.2.0"}
 
   - name: showVerticalScrollIndicator
@@ -1524,7 +1530,7 @@ properties:
     description: Set to `false` to hide the vertical scroll indicator.
     type: Boolean
     default: true
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: style
     summary: |
@@ -1533,7 +1539,7 @@ properties:
     description: Style should always be set before setting the `data` on table view.
     type: Number
     constants: Titanium.UI.iOS.TableViewStyle.*
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: resultsBackgroundColor
     summary: The background color of the search results (iOS-only).
@@ -1541,10 +1547,10 @@ properties:
         For information about color values, see the "Colors" section of <Titanium.UI>.
         Note: A transparent background-color is not officially supported by Apple to
         prevent that the list of results overlaps with the list view below it.
-    type: String
+    type: [String, Titanium.UI.Color]
     default: undefined (behaves as white)
     since: 7.3.0
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     availability: creation
 
   - name: resultsSeparatorColor
@@ -1555,10 +1561,10 @@ properties:
         To make the line invisible, set this property to `transparent`, or the same value as the
         [backgroundColor](Titanium.UI.TableView.backgroundColor) property.
         For information about color values, see the "Colors" section of <Titanium.UI>.
-    type: String
+    type: [String, Titanium.UI.Color]
     default: undefined (behaves as gray)
     since: 7.3.0
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     availability: creation
 
   - name: resultsSeparatorStyle
@@ -1566,7 +1572,7 @@ properties:
     type: Number
     constants: Titanium.UI.TABLE_VIEW_SEPARATOR_STYLE_*
     since: 7.3.0
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     availability: creation
 
   - name: resultsSeparatorInsets
@@ -1577,9 +1583,9 @@ properties:
         This property sets the default inset for all cells in the table.
         Set this to a dictionary with two keys, `left` specifying inset from left edge and `right`
         specifying the inset from the right edge.
-    type: Dictionary
-    since: 7.3.0
-    platforms: [iphone, ipad]
+    type: HorizontalInsets
+    since: "7.3.0"
+    platforms: [iphone, ipad, macos]
     availability: creation
 
 examples:
@@ -1587,154 +1593,162 @@ examples:
     example: |
         Create a basic table view.
 
-            Ti.UI.backgroundColor = 'white';
-            var win = Ti.UI.createWindow();
+        ``` js
+        Ti.UI.backgroundColor = 'white';
+        var win = Ti.UI.createWindow();
 
-            var tableData = [ {title: 'Apples'}, {title: 'Bananas'}, {title: 'Carrots'}, {title: 'Potatoes'} ];
+        var tableData = [ {title: 'Apples'}, {title: 'Bananas'}, {title: 'Carrots'}, {title: 'Potatoes'} ];
 
-            var table = Ti.UI.createTableView({
-              data: tableData
-            });
-            win.add(table);
-            win.open();
+        var table = Ti.UI.createTableView({
+          data: tableData
+        });
+        win.add(table);
+        win.open();
+        ```
 
   - title: Table View Sections
     example: |
         Create a table with three sections, each with two rows. Add two sections to the table
         before and one after it is rendered. This sample only works on Release 3.0 and later.
 
-            Ti.UI.backgroundColor = 'white';
-            var win = Ti.UI.createWindow();
+        ``` js
+        Ti.UI.backgroundColor = 'white';
+        var win = Ti.UI.createWindow();
 
-            var sectionFruit = Ti.UI.createTableViewSection({ headerTitle: 'Fruit' });
-            sectionFruit.add(Ti.UI.createTableViewRow({ title: 'Apples' }));
-            sectionFruit.add(Ti.UI.createTableViewRow({ title: 'Bananas' }));
+        var sectionFruit = Ti.UI.createTableViewSection({ headerTitle: 'Fruit' });
+        sectionFruit.add(Ti.UI.createTableViewRow({ title: 'Apples' }));
+        sectionFruit.add(Ti.UI.createTableViewRow({ title: 'Bananas' }));
 
-            var sectionVeg = Ti.UI.createTableViewSection({ headerTitle: 'Vegetables' });
-            sectionVeg.add(Ti.UI.createTableViewRow({ title: 'Carrots' }));
-            sectionVeg.add(Ti.UI.createTableViewRow({ title: 'Potatoes' }));
+        var sectionVeg = Ti.UI.createTableViewSection({ headerTitle: 'Vegetables' });
+        sectionVeg.add(Ti.UI.createTableViewRow({ title: 'Carrots' }));
+        sectionVeg.add(Ti.UI.createTableViewRow({ title: 'Potatoes' }));
 
-            var table = Ti.UI.createTableView({
-              data: [sectionFruit, sectionVeg]
-            });
+        var table = Ti.UI.createTableView({
+          data: [sectionFruit, sectionVeg]
+        });
 
-            win.add(table);
-            win.open();
+        win.add(table);
+        win.open();
 
-            var sectionFish = Ti.UI.createTableViewSection({ headerTitle: 'Fish' });
-            sectionFish.add(Ti.UI.createTableViewRow({ title: 'Cod' }));
-            sectionFish.add(Ti.UI.createTableViewRow({ title: 'Haddock' }));
+        var sectionFish = Ti.UI.createTableViewSection({ headerTitle: 'Fish' });
+        sectionFish.add(Ti.UI.createTableViewRow({ title: 'Cod' }));
+        sectionFish.add(Ti.UI.createTableViewRow({ title: 'Haddock' }));
 
-            // Prior to Release 3.0, you can only add and remove sections by setting the data property
-            // table.data = [ sectionFish, sectionFruit, sectionVeg ];
-            // Due to a known issue, TIMOB-12616, the section access methods and sections
-            // property should not be used on iOS with Release 3.0.x.
-            table.insertSectionBefore(0, sectionFish);
+        // Prior to Release 3.0, you can only add and remove sections by setting the data property
+        // table.data = [ sectionFish, sectionFruit, sectionVeg ];
+        // Due to a known issue, TIMOB-12616, the section access methods and sections
+        // property should not be used on iOS with Release 3.0.x.
+        table.insertSectionBefore(0, sectionFish);
+        ```
 
   - title: Table View with Composite Layout
     example: |
         Create a table of rows that contain a custom child-view layout.
 
-            Ti.UI.setBackgroundColor('#000');
-            var win = Ti.UI.createWindow({
-              backgroundColor: 'black',
-              exitOnClose: true,
-              fullscreen: false,
-              title: 'TableView Demo'
-            });
+        ``` js
+        Ti.UI.setBackgroundColor('#000');
+        var win = Ti.UI.createWindow({
+          backgroundColor: 'black',
+          exitOnClose: true,
+          fullscreen: false,
+          title: 'TableView Demo'
+        });
 
-            // generate random number, used to make each row appear distinct for this example
-            function randomInt(max){
-              return Math.floor(Math.random() * max) + 1;
-            }
+        // generate random number, used to make each row appear distinct for this example
+        function randomInt(max){
+          return Math.floor(Math.random() * max) + 1;
+        }
 
-            var IMG_BASE = 'images/';
-            var defaultFontSize = Ti.Platform.name === 'android' ? 16 : 14;
+        var IMG_BASE = 'images/';
+        var defaultFontSize = Ti.Platform.name === 'android' ? 16 : 14;
 
-            var tableData = [];
+        var tableData = [];
 
-            for (var i=1; i<=20; i++){
-              var row = Ti.UI.createTableViewRow({
-                className:'forumEvent', // used to improve table performance
-                selectedBackgroundColor:'white',
-                rowIndex:i, // custom property, useful for determining the row during events
-                height:110
-              });
+        for (var i=1; i<=20; i++){
+          var row = Ti.UI.createTableViewRow({
+            className:'forumEvent', // used to improve table performance
+            selectedBackgroundColor:'white',
+            rowIndex:i, // custom property, useful for determining the row during events
+            height:110
+          });
 
-              var imageAvatar = Ti.UI.createImageView({
-                image: IMG_BASE + 'custom_tableview/user.png',
-                left:10, top:5,
-                width:50, height:50
-              });
-              row.add(imageAvatar);
+          var imageAvatar = Ti.UI.createImageView({
+            image: IMG_BASE + 'custom_tableview/user.png',
+            left:10, top:5,
+            width:50, height:50
+          });
+          row.add(imageAvatar);
 
-              var labelUserName = Ti.UI.createLabel({
-                color:'#576996',
-                font:{fontFamily:'Arial', fontSize:defaultFontSize+6, fontWeight:'bold'},
-                text:'Fred Smith ' + i,
-                left:70, top: 6,
-                width:200, height: 30
-              });
-              row.add(labelUserName);
+          var labelUserName = Ti.UI.createLabel({
+            color:'#576996',
+            font:{fontFamily:'Arial', fontSize:defaultFontSize+6, fontWeight:'bold'},
+            text:'Fred Smith ' + i,
+            left:70, top: 6,
+            width:200, height: 30
+          });
+          row.add(labelUserName);
 
-              var labelDetails = Ti.UI.createLabel({
-                color:'#222',
-                font:{fontFamily:'Arial', fontSize:defaultFontSize+2, fontWeight:'normal'},
-                text:'Replied to post with id ' + randomInt(1000) + '.',
-                left:70, top:44,
-                width:360
-              });
-              row.add(labelDetails);
+          var labelDetails = Ti.UI.createLabel({
+            color:'#222',
+            font:{fontFamily:'Arial', fontSize:defaultFontSize+2, fontWeight:'normal'},
+            text:'Replied to post with id ' + randomInt(1000) + '.',
+            left:70, top:44,
+            width:360
+          });
+          row.add(labelDetails);
 
-              var imageCalendar = Ti.UI.createImageView({
-                image:IMG_BASE + 'custom_tableview/eventsButton.png',
-                left:70, bottom: 2,
-                width:32, height: 32
-              });
-              row.add(imageCalendar);
+          var imageCalendar = Ti.UI.createImageView({
+            image:IMG_BASE + 'custom_tableview/eventsButton.png',
+            left:70, bottom: 2,
+            width:32, height: 32
+          });
+          row.add(imageCalendar);
 
-              var labelDate = Ti.UI.createLabel({
-                color:'#999',
-                font:{fontFamily:'Arial', fontSize:defaultFontSize, fontWeight:'normal'},
-                text:'on ' + randomInt(30) + ' Nov 2012',
-                left:105, bottom:10,
-                width:200, height:20
-              });
-              row.add(labelDate);
+          var labelDate = Ti.UI.createLabel({
+            color:'#999',
+            font:{fontFamily:'Arial', fontSize:defaultFontSize, fontWeight:'normal'},
+            text:'on ' + randomInt(30) + ' Nov 2012',
+            left:105, bottom:10,
+            width:200, height:20
+          });
+          row.add(labelDate);
 
-              tableData.push(row);
-            }
+          tableData.push(row);
+        }
 
-            var tableView = Ti.UI.createTableView({
-              backgroundColor:'white',
-              data:tableData
-            });
+        var tableView = Ti.UI.createTableView({
+          backgroundColor:'white',
+          data:tableData
+        });
 
-            win.add(tableView);
-            win.open();
+        win.add(tableView);
+        win.open();
+        ```
 
   - title: Alloy XML Markup
     example: |
         Previous table view sections example as an Alloy view.
 
-            <Alloy>
-                <Window id="win" backgroundColor="white">
-                    <TableView id="table">
-                        <TableViewSection id="sectionFruit" headerTitle="Fruit">
-                            <TableViewRow title="Apple"/>
-                            <TableViewRow title="Bananas"/>
-                        </TableViewSection>
-                        <TableViewSection id="sectionVeg" headerTitle="Vegetables">
-                            <TableViewRow title="Carrots"/>
-                            <TableViewRow title="Potatoes"/>
-                        </TableViewSection>
-                        <TableViewSection id="sectionFish" headerTitle="Fish">
-                            <TableViewRow title="Cod"/>
-                            <TableViewRow title="Haddock"/>
-                        </TableViewSection>
-                    </TableView>
-                </Window>
-            </Alloy>
+        ``` xml
+        <Alloy>
+            <Window id="win" backgroundColor="white">
+                <TableView id="table">
+                    <TableViewSection id="sectionFruit" headerTitle="Fruit">
+                        <TableViewRow title="Apple"/>
+                        <TableViewRow title="Bananas"/>
+                    </TableViewSection>
+                    <TableViewSection id="sectionVeg" headerTitle="Vegetables">
+                        <TableViewRow title="Carrots"/>
+                        <TableViewRow title="Potatoes"/>
+                    </TableViewSection>
+                    <TableViewSection id="sectionFish" headerTitle="Fish">
+                        <TableViewRow title="Cod"/>
+                        <TableViewRow title="Haddock"/>
+                    </TableViewSection>
+                </TableView>
+            </Window>
+        </Alloy>
+        ```
 
 ---
 name: TableViewAnimationProperties
@@ -1778,60 +1792,10 @@ properties:
     type: Number
 
 ---
-name: TableViewContentInsetOption
-summary: Optional parameter for [setContentInsets](Titanium.UI.TableView.setContentInsets) method.
-description: |
-    On iOS, the optional parameters `animated` and `duration`to enable the animation and duration
-    for animation while the content insets are updated. For example
-
-        setContentInset({top:50,bottom:100}, {animated:true, duration:3000})
-since: 2.1.0
-platforms: [iphone, ipad]
-
-properties:
-  - name: animated
-    summary: Determines whether the table view's content inset change is animated.
-    type: Boolean
-    default: false
-
-  - name: duration
-    summary: The duration in `milleseconds` for animation while the content inset is  being changed.
-    type: Number
-
----
-name: TableViewEdgeInsets
-summary: The parameter for [setContentInsets](Titanium.UI.TableView.setContentInsets) method.
-description: |
-    On iOS, the parameter `edgeInsets` can be specified to set the distance(`top`, `bottom`,
-    `right`, `left`) that the content view is inset from the enclosing scroll view of the table.
-    For example
-
-        setContentInset({top:50,bottom:10,right:10,left:10}, {animated:true})
-since: 2.1.0
-platforms: [iphone, ipad]
-
-properties:
-  - name: top
-    summary: Value specifying the top insets for the enclosing scroll view of the table.
-    type: Number
-
-  - name: left
-    summary: Value specifying the left insets for the enclosing scroll view of the table.
-    type: Number
-
-  - name: right
-    summary: Value specifying the right insets for the enclosing scroll view of the table.
-    type: Number
-
-  - name: bottom
-    summary: Value specifying the bottom insets for the enclosing scroll view of the table.
-    type: Number
-
----
 name: SelectedRowObject
 summary: The arguments for the <Titanium.UI.TableView.rowsselected> event.
 since: 8.2.0
-platforms: [iphone, ipad]    
+platforms: [iphone, ipad, macos]    
 properties:
   - name: index
     summary: Row index.

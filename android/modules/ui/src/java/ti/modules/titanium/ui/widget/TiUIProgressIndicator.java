@@ -279,6 +279,10 @@ public class TiUIProgressIndicator
 	@Override
 	public void onCancel(DialogInterface dialog)
 	{
+		if (dialog != this.progressDialog) {
+			return;
+		}
+
 		this.visible = false;
 		this.progressDialog = null;
 		fireEvent(TiC.EVENT_CANCEL, null);
@@ -287,6 +291,10 @@ public class TiUIProgressIndicator
 	@Override
 	public void onDismiss(DialogInterface dialog)
 	{
+		if (dialog != this.progressDialog) {
+			return;
+		}
+
 		this.visible = false;
 		this.progressDialog = null;
 	}

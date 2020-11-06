@@ -196,9 +196,10 @@ DEFINE_EXCEPTIONS
   if ([NSThread isMainThread]) {
     [super removeFromSuperview];
   } else {
-    TiThreadPerformOnMainThread(^{
-      [super removeFromSuperview];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          [super removeFromSuperview];
+        },
         YES);
   }
 }
@@ -384,6 +385,9 @@ DEFINE_EXCEPTIONS
   if (backgroundRepeat) {
     [self renderRepeatedBackground:backgroundImage];
   }
+  if ([proxy valueForUndefinedKey:@"borderRadius"]) {
+    [self updateBorderRadius:[proxy valueForUndefinedKey:@"borderRadius"]];
+  }
   [self updateViewShadowPath];
 }
 
@@ -423,6 +427,18 @@ DEFINE_EXCEPTIONS
       [CATransaction commit];
     }
     [self frameSizeChanged:[TiUtils viewPositionRect:self] bounds:newBounds];
+  }
+
+  if (_shadowLayer && _shadowLayer.shadowOpacity > 0.0f && self.layer.superlayer && _shadowLayer != self.layer) {
+    // Set _shadowLayer frame and insert at right place
+    [self.layer.superlayer insertSublayer:_shadowLayer below:self.layer];
+    _shadowLayer.frame = CGRectMake(self.frame.origin.x, self.frame.origin.y, self.bounds.size.width, self.bounds.size.height);
+  }
+
+  if (_borderLayer && _borderLayer != self.layer) {
+    // Set _borderLayer frame and path
+    _borderLayer.path = [self bezierPathOfView].CGPath;
+    _borderLayer.frame = self.bounds;
   }
 #endif
 }
@@ -470,6 +486,27 @@ DEFINE_EXCEPTIONS
   [rect setRect:r];
 }
 
+- (CAShapeLayer *)borderLayer
+{
+  // If borderRadius has multiple values, create a custom borderlayer and add as sublayer on self.layer. Otherwise use self.layer.
+  NSArray *array = [self cornerArrayFromRadius:[proxy valueForUndefinedKey:@"borderRadius"]];
+  if ((!array || array.count <= 1) && _borderLayer != self.layer) {
+    self.layer.mask = nil;
+    self.layer.borderColor = _borderLayer.strokeColor;
+    self.layer.borderWidth = _borderLayer.lineWidth / 2;
+    [_borderLayer removeFromSuperlayer];
+    RELEASE_TO_NIL(_borderLayer);
+    _borderLayer = (CAShapeLayer *)self.layer;
+  } else if ((array.count > 1) && (!_borderLayer || _borderLayer == self.layer)) {
+    _borderLayer = [[CAShapeLayer alloc] init];
+    _borderLayer.fillColor = UIColor.clearColor.CGColor;
+    _borderLayer.strokeColor = self.layer.borderColor;
+    _borderLayer.lineWidth = self.layer.borderWidth * 2;
+    [self.layer addSublayer:_borderLayer];
+  }
+  return _borderLayer;
+}
+
 #pragma mark Public APIs
 
 - (void)setTintColor_:(id)color
@@ -481,17 +518,29 @@ DEFINE_EXCEPTIONS
 - (void)setBorderColor_:(id)color
 {
   TiColor *ticolor = [TiUtils colorValue:color];
-  self.layer.borderWidth = MAX(self.layer.borderWidth, 1);
-  self.layer.borderColor = [ticolor _color].CGColor;
+  CAShapeLayer *layer = [self borderLayer];
+  if (layer == self.layer) {
+    layer.borderWidth = MAX(layer.borderWidth, 1);
+    layer.borderColor = [ticolor _color].CGColor;
+  } else {
+    layer.lineWidth = MAX(layer.lineWidth * 2, 1 * 2);
+    layer.strokeColor = [ticolor _color].CGColor;
+  }
 }
 
 - (void)setBorderWidth_:(id)w
 {
   TiDimension theDim = TiDimensionFromObject(w);
+  CGFloat borderWidth = 0;
   if (TiDimensionIsDip(theDim)) {
-    self.layer.borderWidth = MAX(theDim.value, 0);
+    borderWidth = MAX(theDim.value, 0);
+  }
+
+  CAShapeLayer *layer = [self borderLayer];
+  if (layer == self.layer) {
+    layer.borderWidth = MAX(borderWidth, 0);
   } else {
-    self.layer.borderWidth = 0;
+    layer.lineWidth = MAX(borderWidth * 2, 0);
   }
   [self updateClipping];
 }
@@ -532,9 +581,10 @@ DEFINE_EXCEPTIONS
 - (void)renderRepeatedBackground:(id)image
 {
   if (![NSThread isMainThread]) {
-    TiThreadPerformOnMainThread(^{
-      [self renderRepeatedBackground:image];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          [self renderRepeatedBackground:image];
+        },
         NO);
     return;
   }
@@ -592,7 +642,12 @@ DEFINE_EXCEPTIONS
     bgdImageLayer = [[CALayer alloc] init];
     [bgdImageLayer setFrame:[self bounds]];
     bgdImageLayer.masksToBounds = YES;
-    bgdImageLayer.cornerRadius = self.layer.cornerRadius;
+    NSArray *cornerRadiusArray = [self cornerArrayFromRadius:[proxy valueForUndefinedKey:@"borderRadius"]];
+    if (cornerRadiusArray && cornerRadiusArray.count > 0) {
+      [self addCornerRadius:cornerRadiusArray toLayer:bgdImageLayer];
+    } else {
+      bgdImageLayer.cornerRadius = self.layer.cornerRadius;
+    }
     if (gradientLayer != nil) {
       [[self gradientWrapperView].layer insertSublayer:bgdImageLayer above:gradientLayer];
     } else {
@@ -603,7 +658,11 @@ DEFINE_EXCEPTIONS
   if (backgroundRepeat) {
     [self renderRepeatedBackground:bgImage];
   } else {
+    // To fix TIMOB-28150
+    [CATransaction begin];
+    [CATransaction setDisableActions:YES];
     [self backgroundImageLayer].contents = (id)bgImage.CGImage;
+    [CATransaction commit];
     if (bgImage != nil) {
       [self backgroundImageLayer].contentsScale = [bgImage scale];
       [self backgroundImageLayer].contentsCenter = TiDimensionLayerContentCenter(topCap, leftCap, topCap, leftCap, [bgImage size]);
@@ -642,21 +701,134 @@ DEFINE_EXCEPTIONS
   }
 }
 
-- (void)setBorderRadius_:(id)radius
+- (CGFloat)radiusFromObject:(id)object
 {
-  TiDimension theDim = TiDimensionFromObject(radius);
-  if (TiDimensionIsDip(theDim)) {
-    self.layer.cornerRadius = MAX(theDim.value, 0);
+  TiDimension theDim = TiDimensionFromObject(object);
+  return TiDimensionIsDip(theDim) ? MAX(theDim.value, 0) : 0;
+}
+
+- (UIBezierPath *)bezierPathOfSize:(CGSize)size forRadiusArray:(NSArray *)radiusArray
+{
+  CGFloat topLeftRadius;
+  CGFloat bottomLeftRadius;
+  CGFloat topRightRadius;
+  CGFloat bottomRightRadius;
+
+  if (radiusArray.count >= 4) {
+    topLeftRadius = [self radiusFromObject:radiusArray[0]];
+    topRightRadius = [self radiusFromObject:radiusArray[1]];
+    bottomRightRadius = [self radiusFromObject:radiusArray[2]];
+    bottomLeftRadius = [self radiusFromObject:radiusArray[3]];
+  } else if (radiusArray.count >= 2) {
+    CGFloat radius = [self radiusFromObject:radiusArray[0]];
+    topLeftRadius = radius;
+    bottomRightRadius = radius;
+
+    radius = [self radiusFromObject:radiusArray[1]];
+    bottomLeftRadius = radius;
+    topRightRadius = radius;
+  } else if (radiusArray.count == 1) {
+    CGFloat radius = [self radiusFromObject:radiusArray[0]];
+    topLeftRadius = radius;
+    topRightRadius = radius;
+    bottomRightRadius = radius;
+    bottomLeftRadius = radius;
+  }
+
+  UIBezierPath *borderPath = [UIBezierPath bezierPath];
+  [borderPath moveToPoint:CGPointMake(0 + topLeftRadius, 0)];
+  [borderPath addLineToPoint:CGPointMake(size.width - topRightRadius, 0)];
+  [borderPath addArcWithCenter:CGPointMake(size.width - topRightRadius, topRightRadius) radius:topRightRadius startAngle:3 * M_PI_2 endAngle:0 clockwise:YES];
+  [borderPath addLineToPoint:CGPointMake(size.width, size.height - bottomRightRadius)];
+  [borderPath addArcWithCenter:CGPointMake(size.width - bottomRightRadius, size.height - bottomRightRadius) radius:bottomRightRadius startAngle:0 endAngle:M_PI_2 clockwise:YES];
+  [borderPath addLineToPoint:CGPointMake(bottomLeftRadius, size.height)];
+  [borderPath addArcWithCenter:CGPointMake(bottomLeftRadius, size.height - bottomLeftRadius) radius:bottomLeftRadius startAngle:M_PI_2 endAngle:M_PI clockwise:YES];
+  [borderPath addLineToPoint:CGPointMake(0, topLeftRadius)];
+  [borderPath addArcWithCenter:CGPointMake(topLeftRadius, topLeftRadius) radius:topLeftRadius startAngle:M_PI endAngle:3 * M_PI_2 clockwise:YES];
+  [borderPath closePath];
+  return borderPath;
+}
+
+- (void)addCornerRadius:(NSArray *)radiusArray toLayer:(CALayer *)viewLayer
+{
+  CAShapeLayer *shapeLayer = [[[CAShapeLayer alloc] initWithLayer:viewLayer] autorelease];
+  CGSize size = viewLayer.bounds.size;
+  UIBezierPath *bezierPath = [self bezierPathOfSize:size forRadiusArray:radiusArray];
+
+  shapeLayer.path = bezierPath.CGPath;
+  shapeLayer.frame = viewLayer.bounds;
+  viewLayer.mask = shapeLayer;
+  [self updateViewShadowPath];
+}
+
+- (NSArray *)cornerArrayFromRadius:(id)radius
+{
+  NSArray *cornerRadiusArray = nil;
+  if ([radius isKindOfClass:[NSString class]]) {
+    cornerRadiusArray = [(NSString *)radius componentsSeparatedByString:@" "];
+  } else if ([radius isKindOfClass:[NSArray class]]) {
+    cornerRadiusArray = radius;
+  } else if ([radius isKindOfClass:[NSNumber class]]) {
+    cornerRadiusArray = [NSArray arrayWithObject:radius];
+  }
+  return cornerRadiusArray;
+}
+
+- (void)updateBorderRadius:(id)radius
+{
+  NSArray *cornerRadiusArray = [self cornerArrayFromRadius:radius];
+
+  if (!cornerRadiusArray) {
+    NSLog(@"[WARN] No value specified for borderRadius.");
+    return;
+  }
+
+  if (cornerRadiusArray.count == 0) {
+    NSLog(@"[WARN] No value specified for borderRadius.");
+    return;
+  }
+
+  // If there is 1 corner radius to be set for all corner, use cornerRadius of self.layer. Otherwise use bezierpath.
+  if (cornerRadiusArray.count == 1) {
+    CGFloat cornerRadius = [self radiusFromObject:cornerRadiusArray[0]];
+    self.layer.mask = nil;
+    self.layer.cornerRadius = cornerRadius;
+    if (bgdImageLayer != nil) {
+      bgdImageLayer.mask = nil;
+      bgdImageLayer.cornerRadius = cornerRadius;
+    }
+    if (gradientLayer != nil) {
+      gradientLayer.mask = nil;
+      gradientLayer.cornerRadius = cornerRadius;
+    }
   } else {
     self.layer.cornerRadius = 0;
-  }
-  if (bgdImageLayer != nil) {
-    bgdImageLayer.cornerRadius = self.layer.cornerRadius;
-  }
-  if (gradientLayer != nil) {
-    gradientLayer.cornerRadius = self.layer.cornerRadius;
+    [self addCornerRadius:cornerRadiusArray toLayer:self.layer];
+    if (bgdImageLayer != nil) {
+      bgdImageLayer.cornerRadius = 0;
+      [self addCornerRadius:cornerRadiusArray toLayer:bgdImageLayer];
+    }
+    if (gradientLayer != nil) {
+      gradientLayer.cornerRadius = 0;
+      [self addCornerRadius:cornerRadiusArray toLayer:gradientLayer];
+    }
   }
   [self updateClipping];
+  [self updateViewShadowPath];
+}
+
+- (void)setBorderRadius_:(id)radius
+{
+  // Ensure that proper shadowLayer and borderLayer is there.
+  // e.g if raidus has multiple values, custom shadowLayer and borderLayer need to added. if it has single value self.layer should be used.
+
+  if (_shadowLayer) {
+    [self shadowLayer];
+  }
+  if (_borderLayer) {
+    [self borderLayer];
+  }
+  [self updateBorderRadius:radius];
 }
 
 - (void)setAnchorPoint_:(id)point
@@ -714,7 +886,12 @@ DEFINE_EXCEPTIONS
     [gradientLayer setNeedsDisplayOnBoundsChange:YES];
     [gradientLayer setFrame:[self bounds]];
     [gradientLayer setNeedsDisplay];
-    gradientLayer.cornerRadius = self.layer.cornerRadius;
+    NSArray *cornerRadiusArray = [self cornerArrayFromRadius:[proxy valueForUndefinedKey:@"borderRadius"]];
+    if (cornerRadiusArray && cornerRadiusArray.count > 0) {
+      [self addCornerRadius:cornerRadiusArray toLayer:gradientLayer];
+    } else {
+      gradientLayer.cornerRadius = self.layer.cornerRadius;
+    }
     gradientLayer.masksToBounds = YES;
     [[self gradientWrapperView].layer insertSublayer:gradientLayer atIndex:0];
   } else {
@@ -729,14 +906,14 @@ DEFINE_EXCEPTIONS
     //Explicitly overridden
     self.clipsToBounds = (clipMode > 0);
   } else {
-    if ([self shadowLayer].shadowOpacity > 0) {
+    if (_shadowLayer.shadowOpacity > 0) {
       //If shadow is visible, disble clipping
       self.clipsToBounds = NO;
-    } else if (self.layer.borderWidth > 0 || self.layer.cornerRadius > 0) {
+    } else if (self.layer.borderWidth > 0 || self.layer.cornerRadius > 0 || [proxy valueForUndefinedKey:@"borderRadius"]) {
       //If borderWidth > 0, or borderRadius > 0 enable clipping
       self.clipsToBounds = YES;
     } else if ([[self proxy] isKindOfClass:[TiViewProxy class]]) {
-      self.clipsToBounds = ([[((TiViewProxy *)self.proxy)children] count] > 0);
+      self.clipsToBounds = ([[((TiViewProxy *)self.proxy) children] count] > 0);
     } else {
       DeveloperLog(@"[WARN] Proxy is nil or not of kind TiViewProxy. Check");
       self.clipsToBounds = NO;
@@ -755,9 +932,46 @@ DEFINE_EXCEPTIONS
  This section of code for shadow support adapted from contributions by Martin Guillon
  See https://github.com/appcelerator/titanium_mobile/pull/2996
  */
-- (CALayer *)shadowLayer
+- (void)assignShadowPropertyFromLayer:(CALayer *)fromLayer toLayer:(CALayer *)toLayer
 {
-  return [self layer];
+  toLayer.shadowColor = fromLayer.shadowColor;
+  toLayer.shadowOffset = fromLayer.shadowOffset;
+  toLayer.shadowRadius = fromLayer.shadowRadius;
+  toLayer.shadowOpacity = fromLayer.shadowOpacity;
+}
+
+- (CAShapeLayer *)shadowLayer
+{
+  // If there is single cborderRadius, use self.layer as shadwoLayer.
+  // Shadow animation does not work if shadowLayer is added on self.layer.superlayer
+  // But in this case, shadwoLayer is self.layer. So animation will work on shadow as well.
+  NSArray *array = [self cornerArrayFromRadius:[proxy valueForUndefinedKey:@"borderRadius"]];
+  if ((!array || array.count <= 1) && _shadowLayer != self.layer) {
+    self.layer.mask = nil;
+    [self assignShadowPropertyFromLayer:_shadowLayer toLayer:self.layer];
+    [_shadowLayer removeFromSuperlayer];
+    RELEASE_TO_NIL(_shadowLayer);
+    _shadowLayer = self.layer;
+  } else if ((array.count > 1) && (!_shadowLayer || _shadowLayer == self.layer)) {
+    _shadowLayer = [[CAShapeLayer alloc] init];
+    _shadowLayer.fillColor = UIColor.clearColor.CGColor;
+    [self assignShadowPropertyFromLayer:self.layer toLayer:_shadowLayer];
+    if (self.layer.superlayer) {
+      [self.layer.superlayer insertSublayer:_shadowLayer below:self.layer];
+    }
+  }
+  return _shadowLayer;
+}
+
+- (UIBezierPath *)bezierPathOfView
+{
+  if ([proxy valueForUndefinedKey:@"borderRadius"]) {
+    NSArray *array = [self cornerArrayFromRadius:[proxy valueForUndefinedKey:@"borderRadius"]];
+    if (array.count > 1) {
+      return [self bezierPathOfSize:self.bounds.size forRadiusArray:array];
+    }
+  }
+  return [UIBezierPath bezierPathWithRoundedRect:[self bounds] cornerRadius:self.layer.cornerRadius];
 }
 
 - (void)setViewShadowOffset_:(id)arg
@@ -818,9 +1032,19 @@ DEFINE_EXCEPTIONS
 
 - (void)updateViewShadowPath
 {
-  if ([self shadowLayer].shadowOpacity > 0.0f) {
+  if (_shadowLayer.shadowOpacity > 0.0f) {
     //to speedup things
-    [self shadowLayer].shadowPath = [UIBezierPath bezierPathWithRoundedRect:[self bounds] cornerRadius:self.layer.cornerRadius].CGPath;
+    UIBezierPath *bezierPath = [self bezierPathOfView];
+    if (_shadowLayer != self.layer) {
+      _shadowLayer.frame = CGRectMake(self.frame.origin.x, self.frame.origin.y, self.bounds.size.width, self.bounds.size.height);
+    } else {
+      _shadowLayer.bounds = self.bounds;
+    }
+    _shadowLayer.shadowPath = bezierPath.CGPath;
+  }
+  if (_borderLayer && _borderLayer != self.layer) {
+    _borderLayer.path = [self bezierPathOfView].CGPath;
+    _borderLayer.bounds = self.bounds;
   }
 }
 

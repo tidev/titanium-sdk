@@ -27,8 +27,6 @@ import org.appcelerator.titanium.util.TiActivitySupport;
 import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.os.Build;
 
 @Kroll.module
 @ContextSpecific
@@ -64,11 +62,9 @@ public class ContactsModule extends KrollModule implements TiActivityResultHandl
 		contactsApi = CommonContactsApi.getInstance();
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public int getContactsAuthorization()
-	// clang-format on
 	{
 		return AUTHORIZATION_AUTHORIZED;
 	}
@@ -83,6 +79,9 @@ public class ContactsModule extends KrollModule implements TiActivityResultHandl
 	public void requestContactsPermissions(@Kroll.argument(optional = true) KrollFunction permissionCallback)
 	{
 		if (hasContactsPermissions()) {
+			KrollDict response = new KrollDict();
+			response.putCodeAndMessage(0, null);
+			permissionCallback.callAsync(getKrollObject(), response);
 			return;
 		}
 
@@ -135,16 +134,6 @@ public class ContactsModule extends KrollModule implements TiActivityResultHandl
 	}
 
 	@Kroll.method
-	public PersonProxy getPersonByID(long id)
-	{
-		Log.w(
-			TAG,
-			"Ti.Contacts.getPersonByID() has been deprecated in favor of Ti.Contacts.getPersonByIdentifier() for cross-platform parity",
-			Log.DEBUG_MODE);
-		return contactsApi.getPersonById(id);
-	}
-
-	@Kroll.method
 	public PersonProxy getPersonByIdentifier(long id)
 	{
 		return contactsApi.getPersonById(id);
@@ -154,14 +143,6 @@ public class ContactsModule extends KrollModule implements TiActivityResultHandl
 	public void removePerson(PersonProxy person)
 	{
 		contactsApi.removePerson(person);
-	}
-
-	@Kroll.method
-	public void requestAuthorization(KrollFunction function)
-	{
-		KrollDict dict = new KrollDict();
-		dict.putCodeAndMessage(TiC.ERROR_CODE_NO_ERROR, null);
-		function.callAsync(getKrollObject(), dict);
 	}
 
 	@Kroll.method

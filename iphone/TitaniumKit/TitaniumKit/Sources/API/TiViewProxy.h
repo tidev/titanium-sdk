@@ -140,7 +140,7 @@ enum {
   BOOL viewInitialized;
   BOOL repositioning;
   BOOL isUsingBarButtonItem;
-  //This flag is set to true on startLayout() call and false on finishLayout() call
+  //This flag is set to true on beginning of _initWithProperties() call and false near the end of the method
   BOOL updateStarted;
   BOOL allowLayoutUpdate;
 
@@ -168,9 +168,6 @@ enum {
  */
 @property (nonatomic, readonly) NSArray *children;
 
-- (void)startLayout:(id)arg; //Deprecated since 3.0.0
-- (void)finishLayout:(id)arg; //Deprecated since 3.0.0
-- (void)updateLayout:(id)arg; //Deprecated since 3.0.0
 - (void)setTempProperty:(id)propVal forKey:(id)propName;
 - (void)processTempProperties:(NSDictionary *)arg;
 - (BOOL)_hasListeners:(NSString *)type checkParent:(BOOL)check;

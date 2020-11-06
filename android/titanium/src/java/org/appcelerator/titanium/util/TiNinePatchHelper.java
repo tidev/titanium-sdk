@@ -18,12 +18,11 @@ import android.graphics.drawable.NinePatchDrawable;
 @SuppressWarnings("deprecation")
 public class TiNinePatchHelper
 {
-
 	class SegmentColor
 	{
 		int index;
 		int color;
-	};
+	}
 
 	public Drawable process(Drawable d)
 	{

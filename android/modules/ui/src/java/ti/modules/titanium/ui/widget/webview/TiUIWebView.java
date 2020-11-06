@@ -1,27 +1,37 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2018 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2020 by Axway, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 package ti.modules.titanium.ui.widget.webview;
 
+import android.content.Context;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.FeatureInfo;
+import android.graphics.Color;
+import android.graphics.Rect;
+import android.net.Uri;
+import android.os.Build;
+import android.view.ActionMode;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MotionEvent;
+import android.view.View;
+import android.view.ViewParent;
+import android.webkit.WebSettings;
+import android.webkit.WebView;
+import androidx.annotation.RequiresApi;
+import androidx.annotation.StringRes;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
-
-import android.support.annotation.StringRes;
-import android.view.ActionMode;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.ViewParent;
+import javax.crypto.CipherInputStream;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
@@ -37,20 +47,8 @@ import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiBackgroundDrawable;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiUIView;
-
 import ti.modules.titanium.ui.WebViewProxy;
 import ti.modules.titanium.ui.android.AndroidModule;
-import android.content.Context;
-import android.content.pm.FeatureInfo;
-import android.content.pm.ApplicationInfo;
-import android.graphics.Color;
-import android.graphics.Rect;
-import android.net.Uri;
-import android.os.Build;
-import android.view.MotionEvent;
-import android.view.View;
-import android.webkit.WebSettings;
-import android.webkit.WebView;
 
 @SuppressWarnings("deprecation")
 public class TiUIWebView extends TiUIView
@@ -66,13 +64,6 @@ public class TiUIWebView extends TiUIView
 	private float zoomLevel =
 		TiApplication.getInstance().getApplicationContext().getResources().getDisplayMetrics().density;
 	private float initScale = zoomLevel;
-
-	private static Enum<?> enumPluginStateOff;
-	private static Enum<?> enumPluginStateOn;
-	private static Enum<?> enumPluginStateOnDemand;
-	private static Method internalSetPluginState;
-	private static Method internalWebViewPause;
-	private static Method internalWebViewResume;
 
 	public static final int PLUGIN_STATE_OFF = 0;
 	public static final int PLUGIN_STATE_ON = 1;
@@ -102,10 +93,8 @@ public class TiUIWebView extends TiUIView
 			return super.startActionMode(callback);
 		}
 
-		/**
-		 * API 23 or higher is required for this startActionMode to be invoked otherwise other startActionMode is invoked.
-		 */
 		@Override
+		@RequiresApi(23)
 		public ActionMode startActionMode(ActionMode.Callback callback, int type)
 		{
 			if (disableContextMenu) {
@@ -201,7 +190,6 @@ public class TiUIWebView extends TiUIView
 		@Override
 		public boolean onTouchEvent(MotionEvent ev)
 		{
-
 			boolean handled = false;
 
 			// In Android WebView, all the click events are directly sent to WebKit. As a result, OnClickListener() is
@@ -251,7 +239,7 @@ public class TiUIWebView extends TiUIView
 		@Override
 		public boolean onCheckIsTextEditor()
 		{
-			if (proxy.hasProperty(TiC.PROPERTY_SOFT_KEYBOARD_ON_FOCUS)) {
+			if ((proxy != null) && proxy.hasProperty(TiC.PROPERTY_SOFT_KEYBOARD_ON_FOCUS)) {
 				int value = TiConvert.toInt(proxy.getProperty(TiC.PROPERTY_SOFT_KEYBOARD_ON_FOCUS),
 											TiUIView.SOFT_KEYBOARD_DEFAULT_ON_FOCUS);
 
@@ -292,14 +280,9 @@ public class TiUIWebView extends TiUIView
 	{
 		super(proxy);
 
-		// We can only support debugging in API 19 and higher
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-			// Only enable webview debugging, when app is debuggable
-			if (0
-				!= (proxy.getActivity().getApplicationContext().getApplicationInfo().flags &=
-					ApplicationInfo.FLAG_DEBUGGABLE)) {
-				WebView.setWebContentsDebuggingEnabled(true);
-			}
+		// Only enable WebView debugging if running a debug version of the app.
+		if ((TiApplication.getInstance().getApplicationInfo().flags & ApplicationInfo.FLAG_DEBUGGABLE) != 0) {
+			WebView.setWebContentsDebuggingEnabled(true);
 		}
 
 		TiWebView webView = null;
@@ -329,10 +312,10 @@ public class TiUIWebView extends TiUIView
 			settings.setAppCachePath(cacheDir.getAbsolutePath());
 		}
 
-		// mixed content mode, allow HTTP resource requests from HTTPS page
+		// Enable mixed content mode to allow loading HTTP resources within an HTTPS page.
+		// Note: This is an API Level 21 method. Use reflection to invoke it on older API Levels.
 		boolean mixedContentMode = TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_MIXED_CONTENT_MODE), false);
 		if (mixedContentMode) {
-			// use reflection for compatiblity with Android 4.3 and below
 			try {
 				Method mixedContentModeMethod = WebSettings.class.getMethod("setMixedContentMode", int.class);
 				if (mixedContentModeMethod != null) {
@@ -352,15 +335,7 @@ public class TiUIWebView extends TiUIView
 
 		settings.setBuiltInZoomControls(enableZoom);
 		settings.setSupportZoom(enableZoom);
-
-		if (Build.VERSION.SDK_INT >= TiC.API_LEVEL_JELLY_BEAN) {
-			settings.setAllowUniversalAccessFromFileURLs(true); // default is "false" for JellyBean, TIMOB-13065
-		}
-
-		// We can only support webview settings for plugin/flash in API 8 and higher.
-		if (Build.VERSION.SDK_INT > Build.VERSION_CODES.ECLAIR_MR1) {
-			initializePluginAPI(webView);
-		}
+		settings.setAllowUniversalAccessFromFileURLs(true);
 
 		boolean enableJavascriptInterface =
 			TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_ENABLE_JAVASCRIPT_INTERFACE), true);
@@ -368,7 +343,7 @@ public class TiUIWebView extends TiUIView
 		webView.setWebChromeClient(chromeClient);
 		client = new TiWebViewClient(this, webView);
 		webView.setWebViewClient(client);
-		if (Build.VERSION.SDK_INT > 16 || enableJavascriptInterface) {
+		if (enableJavascriptInterface) {
 			client.getBinding().addJavascriptInterfaces();
 		}
 
@@ -396,53 +371,25 @@ public class TiUIWebView extends TiUIView
 		return (WebView) getNativeView();
 	}
 
-	private void initializePluginAPI(TiWebView webView)
-	{
-		try {
-			synchronized (this.getClass())
-			{
-				// Initialize
-				if (enumPluginStateOff == null) {
-					Class<?> webSettings = Class.forName("android.webkit.WebSettings");
-					Class<?> pluginState = Class.forName("android.webkit.WebSettings$PluginState");
-
-					Field f = pluginState.getDeclaredField("OFF");
-					enumPluginStateOff = (Enum<?>) f.get(null);
-					f = pluginState.getDeclaredField("ON");
-					enumPluginStateOn = (Enum<?>) f.get(null);
-					f = pluginState.getDeclaredField("ON_DEMAND");
-					enumPluginStateOnDemand = (Enum<?>) f.get(null);
-					internalSetPluginState = webSettings.getMethod("setPluginState", pluginState);
-					// Hidden APIs
-					// http://android.git.kernel.org/?p=platform/frameworks/base.git;a=blob;f=core/java/android/webkit/WebView.java;h=bbd8b95c7bea66b7060b5782fae4b3b2c4f04966;hb=4db1f432b853152075923499768639e14403b73a#l2558
-					internalWebViewPause = webView.getClass().getMethod("onPause");
-					internalWebViewResume = webView.getClass().getMethod("onResume");
-				}
-			}
-		} catch (ClassNotFoundException e) {
-			Log.e(TAG, "ClassNotFound: " + e.getMessage(), e);
-		} catch (NoSuchMethodException e) {
-			Log.e(TAG, "NoSuchMethod: " + e.getMessage(), e);
-		} catch (NoSuchFieldException e) {
-			Log.e(TAG, "NoSuchField: " + e.getMessage(), e);
-		} catch (IllegalAccessException e) {
-			Log.e(TAG, "IllegalAccess: " + e.getMessage(), e);
-		}
-	}
-
 	@Override
 	public void processProperties(KrollDict d)
 	{
 		super.processProperties(d);
 
+		WebView webView = getWebView();
+		if (webView == null) {
+			return;
+		}
+
+		WebSettings settings = webView.getSettings();
+
 		if (d.containsKey(TiC.PROPERTY_SCALES_PAGE_TO_FIT)) {
-			WebSettings settings = getWebView().getSettings();
 			settings.setLoadWithOverviewMode(TiConvert.toBoolean(d, TiC.PROPERTY_SCALES_PAGE_TO_FIT));
 		}
 
 		if (d.containsKey(TiC.PROPERTY_CACHE_MODE)) {
 			int mode = TiConvert.toInt(d.get(TiC.PROPERTY_CACHE_MODE), AndroidModule.WEBVIEW_LOAD_DEFAULT);
-			getWebView().getSettings().setCacheMode(mode);
+			settings.setCacheMode(mode);
 		}
 
 		if (d.containsKey(TiC.PROPERTY_REQUEST_HEADERS)) {
@@ -471,15 +418,14 @@ public class TiUIWebView extends TiUIView
 		}
 
 		if (d.containsKey(TiC.PROPERTY_LIGHT_TOUCH_ENABLED)) {
-			WebSettings settings = getWebView().getSettings();
 			settings.setLightTouchEnabled(TiConvert.toBoolean(d, TiC.PROPERTY_LIGHT_TOUCH_ENABLED));
 		}
 
 		// If TiUIView's processProperties ended up making a TiBackgroundDrawable
 		// for the background, we must set the WebView background color to transparent
 		// in order to see any of it.
-		if (nativeView != null && nativeView.getBackground() instanceof TiBackgroundDrawable) {
-			nativeView.setBackgroundColor(Color.TRANSPARENT);
+		if (webView.getBackground() instanceof TiBackgroundDrawable) {
+			webView.setBackgroundColor(Color.TRANSPARENT);
 		}
 
 		if (d.containsKey(TiC.PROPERTY_PLUGIN_STATE)) {
@@ -487,10 +433,7 @@ public class TiUIWebView extends TiUIView
 		}
 
 		if (d.containsKey(TiC.PROPERTY_OVER_SCROLL_MODE)) {
-			if (Build.VERSION.SDK_INT >= 9) {
-				nativeView.setOverScrollMode(
-					TiConvert.toInt(d.get(TiC.PROPERTY_OVER_SCROLL_MODE), View.OVER_SCROLL_ALWAYS));
-			}
+			webView.setOverScrollMode(TiConvert.toInt(d.get(TiC.PROPERTY_OVER_SCROLL_MODE), View.OVER_SCROLL_ALWAYS));
 		}
 
 		if (d.containsKey(TiC.PROPERTY_DISABLE_CONTEXT_MENU)) {
@@ -505,6 +448,7 @@ public class TiUIWebView extends TiUIView
 	@Override
 	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy)
 	{
+		WebView webView = getWebView();
 		if (TiC.PROPERTY_URL.equals(key)) {
 			setUrl(TiConvert.toString(newValue));
 		} else if (TiC.PROPERTY_HTML.equals(key)) {
@@ -514,17 +458,21 @@ public class TiUIWebView extends TiUIView
 				setData((TiBlob) newValue);
 			}
 		} else if (TiC.PROPERTY_SCALES_PAGE_TO_FIT.equals(key)) {
-			WebSettings settings = getWebView().getSettings();
-			settings.setLoadWithOverviewMode(TiConvert.toBoolean(newValue));
+			if (webView != null) {
+				webView.getSettings().setLoadWithOverviewMode(TiConvert.toBoolean(newValue));
+			}
 		} else if (TiC.PROPERTY_OVER_SCROLL_MODE.equals(key)) {
-			if (Build.VERSION.SDK_INT >= 9) {
-				nativeView.setOverScrollMode(TiConvert.toInt(newValue, View.OVER_SCROLL_ALWAYS));
+			if (webView != null) {
+				webView.setOverScrollMode(TiConvert.toInt(newValue, View.OVER_SCROLL_ALWAYS));
 			}
 		} else if (TiC.PROPERTY_CACHE_MODE.equals(key)) {
-			getWebView().getSettings().setCacheMode(TiConvert.toInt(newValue));
+			if (webView != null) {
+				webView.getSettings().setCacheMode(TiConvert.toInt(newValue));
+			}
 		} else if (TiC.PROPERTY_LIGHT_TOUCH_ENABLED.equals(key)) {
-			WebSettings settings = getWebView().getSettings();
-			settings.setLightTouchEnabled(TiConvert.toBoolean(newValue));
+			if (webView != null) {
+				webView.getSettings().setLightTouchEnabled(TiConvert.toBoolean(newValue));
+			}
 		} else if (TiC.PROPERTY_REQUEST_HEADERS.equals(key)) {
 			if (newValue instanceof HashMap) {
 				setRequestHeaders((HashMap) newValue);
@@ -532,7 +480,7 @@ public class TiUIWebView extends TiUIView
 		} else if (TiC.PROPERTY_DISABLE_CONTEXT_MENU.equals(key)) {
 			disableContextMenu = TiConvert.toBoolean(newValue);
 		} else if (TiC.PROPERTY_ZOOM_LEVEL.equals(key)) {
-			zoomBy(getWebView(), TiConvert.toFloat(newValue, 1.0f));
+			zoomBy(webView, TiConvert.toFloat(newValue, 1.0f));
 		} else if (TiC.PROPERTY_USER_AGENT.equals(key)) {
 			((WebViewProxy) getProxy()).setUserAgent(TiConvert.toString(newValue));
 		} else {
@@ -544,8 +492,8 @@ public class TiUIWebView extends TiUIView
 		// in order to see any of it.
 		boolean isBgRelated =
 			(key.startsWith(TiC.PROPERTY_BACKGROUND_PREFIX) || key.startsWith(TiC.PROPERTY_BORDER_PREFIX));
-		if (isBgRelated && nativeView != null && nativeView.getBackground() instanceof TiBackgroundDrawable) {
-			nativeView.setBackgroundColor(Color.TRANSPARENT);
+		if (isBgRelated && (webView != null) && (webView.getBackground() instanceof TiBackgroundDrawable)) {
+			webView.setBackgroundColor(Color.TRANSPARENT);
 		}
 	}
 
@@ -595,15 +543,25 @@ public class TiUIWebView extends TiUIView
 
 	public void setUrl(String url)
 	{
+		WebView webView = getWebView();
+		if (webView == null) {
+			return;
+		}
+
 		reloadMethod = reloadTypes.URL;
 		reloadData = url;
-		String finalUrl = url;
-		Uri uri = Uri.parse(finalUrl);
-		boolean originalUrlHasScheme = (uri.getScheme() != null);
+		final Uri uri = Uri.parse(url);
 
-		if (!originalUrlHasScheme) {
-			finalUrl = getProxy().resolveUrl(null, finalUrl);
-		}
+		// Extract URL query parameters.
+		final String query = uri.getQuery() != null ? "?" + uri.getQuery() : "";
+		final String fragment = uri.getFragment();
+
+		// Resolve URL path.
+		// The scheme is processed by `resolveUrl()`.
+		final Uri finalUri = Uri.parse(getProxy().resolveUrl(null, url));
+
+		// Reconstruct URL, ommiting any query parameters.
+		final String finalUrl = finalUri.toString().replace(query, "");
 
 		if (TiFileFactory.isLocalScheme(finalUrl) && mightBeHtml(finalUrl)) {
 			TiBaseFile tiFile = TiFileFactory.createTitaniumFile(finalUrl, false);
@@ -639,9 +597,9 @@ public class TiUIWebView extends TiUIView
 					}
 					String baseUrl = tiFile.nativePath();
 					if (baseUrl == null) {
-						baseUrl = originalUrlHasScheme ? url : finalUrl;
+						baseUrl = finalUrl;
 					}
-					setHtmlInternal(out.toString(), baseUrl, "text/html");
+					setHtmlInternal(out.toString(), baseUrl + query, "text/html");
 					return;
 				} catch (IOException ioe) {
 					Log.e(TAG,
@@ -665,19 +623,21 @@ public class TiUIWebView extends TiUIView
 		// explicitly sets the native webview's setScalesPageToFit to YES if the
 		// Ti scalesPageToFit property has _not_ been set.
 		if (!proxy.hasProperty(TiC.PROPERTY_SCALES_PAGE_TO_FIT)) {
-			getWebView().getSettings().setLoadWithOverviewMode(true);
+			webView.getSettings().setLoadWithOverviewMode(true);
 		}
 		isLocalHTML = false;
 		if (extraHeaders.size() > 0) {
-			getWebView().loadUrl(finalUrl, extraHeaders);
+			webView.loadUrl(finalUrl + query, extraHeaders);
 		} else {
-			getWebView().loadUrl(finalUrl);
+			webView.loadUrl(finalUrl + query);
 		}
 	}
 
 	public void changeProxyUrl(String url)
 	{
-		getProxy().setProperty("url", url);
+		if (this.proxy != null) {
+			this.proxy.setProperty("url", url);
+		}
 		if (!TiC.URL_ANDROID_ASSET_RESOURCES.equals(url)) {
 			reloadMethod = reloadTypes.URL;
 			reloadData = url;
@@ -689,7 +649,7 @@ public class TiUIWebView extends TiUIView
 		return getWebView().getUrl();
 	}
 
-	private static final char escapeChars[] = new char[] { '%', '#', '\'', '?' };
+	private static final char[] escapeChars = new char[] { '%', '#', '\'', '?' };
 
 	private String escapeContent(String content)
 	{
@@ -810,14 +770,9 @@ public class TiUIWebView extends TiUIView
 		// iOS parity: for whatever reason, when html is set directly, the iOS implementation
 		// explicitly sets the native webview's setScalesPageToFit to NO if the
 		// Ti scalesPageToFit property has _not_ been set.
-		boolean enableJavascriptInjection = true;
 		if (this.proxy != null) {
 			if (!this.proxy.hasProperty(TiC.PROPERTY_SCALES_PAGE_TO_FIT)) {
 				webView.getSettings().setLoadWithOverviewMode(false);
-			}
-			if (this.proxy.hasProperty(TiC.PROPERTY_ENABLE_JAVASCRIPT_INTERFACE)) {
-				enableJavascriptInjection =
-					TiConvert.toBoolean(this.proxy.getProperty(TiC.PROPERTY_ENABLE_JAVASCRIPT_INTERFACE), true);
 			}
 		}
 
@@ -831,12 +786,6 @@ public class TiUIWebView extends TiUIView
 
 		// Set flag to indicate that it's local html (used to determine whether we want to inject binding code)
 		isLocalHTML = true;
-		enableJavascriptInjection = (Build.VERSION.SDK_INT > 16 || enableJavascriptInjection);
-
-		if (!enableJavascriptInjection) {
-			webView.loadDataWithBaseURL(baseUrl, html, mimeType, "utf-8", baseUrl);
-			return;
-		}
 
 		if (html.contains(TiWebViewBinding.SCRIPT_INJECTION_ID)) {
 			// Our injection code is in there already, go ahead and show.
@@ -867,6 +816,11 @@ public class TiUIWebView extends TiUIView
 
 	public void setData(TiBlob blob)
 	{
+		WebView webView = getWebView();
+		if (webView == null) {
+			return;
+		}
+
 		reloadMethod = reloadTypes.DATA;
 		reloadData = blob;
 		String mimeType = "text/html";
@@ -875,10 +829,10 @@ public class TiUIWebView extends TiUIView
 		// explicitly sets the native webview's setScalesPageToFit to YES if the
 		// Ti scalesPageToFit property has _not_ been set.
 		if (!proxy.hasProperty(TiC.PROPERTY_SCALES_PAGE_TO_FIT)) {
-			getWebView().getSettings().setLoadWithOverviewMode(true);
+			webView.getSettings().setLoadWithOverviewMode(true);
 		}
 
-		if (blob.getType() == TiBlob.TYPE_FILE) {
+		if (blob.getType() == TiBlob.TYPE_FILE && !(blob.getInputStream() instanceof CipherInputStream)) {
 			String fullPath = blob.getNativePath();
 			if (fullPath != null) {
 				setUrl(fullPath);
@@ -890,9 +844,9 @@ public class TiUIWebView extends TiUIView
 			mimeType = blob.getMimeType();
 		}
 		if (TiMimeTypeHelper.isBinaryMimeType(mimeType)) {
-			getWebView().loadData(blob.toBase64(), mimeType, "base64");
+			webView.loadData(blob.toBase64(), mimeType, "base64");
 		} else {
-			getWebView().loadData(escapeContent(new String(blob.getBytes())), mimeType, "utf-8");
+			webView.loadData(escapeContent(new String(blob.getBytes())), mimeType, "utf-8");
 		}
 	}
 
@@ -913,69 +867,48 @@ public class TiUIWebView extends TiUIView
 
 	public void setPluginState(int pluginState)
 	{
-		if (Build.VERSION.SDK_INT > Build.VERSION_CODES.ECLAIR_MR1) {
-			TiWebView webView = (TiWebView) getNativeView();
+		WebView webView = getWebView();
+		if (webView != null) {
 			WebSettings webSettings = webView.getSettings();
-			if (webView != null) {
-				try {
-					switch (pluginState) {
-						case PLUGIN_STATE_OFF:
-							internalSetPluginState.invoke(webSettings, enumPluginStateOff);
-							break;
-						case PLUGIN_STATE_ON:
-							internalSetPluginState.invoke(webSettings, enumPluginStateOn);
-							break;
-						case PLUGIN_STATE_ON_DEMAND:
-							internalSetPluginState.invoke(webSettings, enumPluginStateOnDemand);
-							break;
-						default:
-							Log.w(TAG, "Not a valid plugin state. Ignoring setPluginState request");
-					}
-				} catch (InvocationTargetException e) {
-					Log.e(TAG, "Method not supported", e);
-				} catch (IllegalAccessException e) {
-					Log.e(TAG, "Illegal Access", e);
-				}
+			switch (pluginState) {
+				case PLUGIN_STATE_OFF:
+					webSettings.setPluginState(WebSettings.PluginState.OFF);
+					break;
+				case PLUGIN_STATE_ON:
+					webSettings.setPluginState(WebSettings.PluginState.ON);
+					break;
+				case PLUGIN_STATE_ON_DEMAND:
+					webSettings.setPluginState(WebSettings.PluginState.ON_DEMAND);
+					break;
+				default:
+					Log.w(TAG, "Not a valid plugin state. Ignoring setPluginState request");
 			}
 		}
 	}
 
 	public void pauseWebView()
 	{
-		if (Build.VERSION.SDK_INT > Build.VERSION_CODES.ECLAIR_MR1) {
-			View v = getNativeView();
-			if (v != null) {
-				try {
-					internalWebViewPause.invoke(v);
-				} catch (InvocationTargetException e) {
-					Log.e(TAG, "Method not supported", e);
-				} catch (IllegalAccessException e) {
-					Log.e(TAG, "Illegal Access", e);
-				}
-			}
+		WebView webView = getWebView();
+		if (webView != null) {
+			webView.onPause();
 		}
 	}
 
 	public void resumeWebView()
 	{
-		if (Build.VERSION.SDK_INT > Build.VERSION_CODES.ECLAIR_MR1) {
-			View v = getNativeView();
-			if (v != null) {
-				try {
-					internalWebViewResume.invoke(v);
-				} catch (InvocationTargetException e) {
-					Log.e(TAG, "Method not supported", e);
-				} catch (IllegalAccessException e) {
-					Log.e(TAG, "Illegal Access", e);
-				}
-			}
+		WebView webView = getWebView();
+		if (webView != null) {
+			webView.onResume();
 		}
 	}
 
 	public void setEnableZoomControls(boolean enabled)
 	{
-		getWebView().getSettings().setSupportZoom(enabled);
-		getWebView().getSettings().setBuiltInZoomControls(enabled);
+		WebView webView = getWebView();
+		if (webView != null) {
+			webView.getSettings().setSupportZoom(enabled);
+			webView.getSettings().setBuiltInZoomControls(enabled);
+		}
 	}
 
 	public void setUserAgentString(String userAgentString)
@@ -1007,22 +940,30 @@ public class TiUIWebView extends TiUIView
 
 	public boolean canGoBack()
 	{
-		return getWebView().canGoBack();
+		WebView webView = getWebView();
+		return (webView != null) ? webView.canGoBack() : false;
 	}
 
 	public boolean canGoForward()
 	{
-		return getWebView().canGoForward();
+		WebView webView = getWebView();
+		return (webView != null) ? webView.canGoForward() : false;
 	}
 
 	public void goBack()
 	{
-		getWebView().goBack();
+		WebView webView = getWebView();
+		if (webView != null) {
+			webView.goBack();
+		}
 	}
 
 	public void goForward()
 	{
-		getWebView().goForward();
+		WebView webView = getWebView();
+		if (webView != null) {
+			webView.goForward();
+		}
 	}
 
 	public void reload()
@@ -1039,7 +980,7 @@ public class TiUIWebView extends TiUIView
 				break;
 
 			case HTML:
-				if (reloadData == null || (reloadData instanceof HashMap<?, ?>) ) {
+				if (reloadData == null || (reloadData instanceof HashMap<?, ?>)) {
 					setHtml(TiConvert.toString(getProxy().getProperty(TiC.PROPERTY_HTML)),
 							(HashMap<String, Object>) reloadData);
 				} else {
@@ -1066,13 +1007,10 @@ public class TiUIWebView extends TiUIView
 
 	public void stopLoading()
 	{
-		getWebView().getHandler().post(new Runnable() {
-			@Override
-			public void run()
-			{
-				getWebView().stopLoading();
-			}
-		});
+		WebView webView = getWebView();
+		if (webView != null) {
+			webView.getHandler().post(webView::stopLoading);
+		}
 	}
 
 	public boolean shouldInjectBindingCode()
@@ -1091,13 +1029,15 @@ public class TiUIWebView extends TiUIView
 		return chromeClient.interceptOnBackPressed();
 	}
 
+	public int getProgress()
+	{
+		WebView webView = getWebView();
+		return (webView != null) ? webView.getProgress() : 0;
+	}
+
 	@Override
 	protected void disableHWAcceleration()
 	{
-		if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.JELLY_BEAN) {
-			super.disableHWAcceleration();
-		} else {
-			Log.d(TAG, "Do not disable HW acceleration for WebView.", Log.DEBUG_MODE);
-		}
+		Log.d(TAG, "Do not disable HW acceleration for WebView.", Log.DEBUG_MODE);
 	}
 }

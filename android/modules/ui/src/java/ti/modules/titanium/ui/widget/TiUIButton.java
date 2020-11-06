@@ -6,7 +6,6 @@
  */
 package ti.modules.titanium.ui.widget;
 
-import java.lang.CharSequence;
 import java.util.HashMap;
 
 import org.appcelerator.kroll.KrollDict;
@@ -26,10 +25,10 @@ import ti.modules.titanium.ui.AttributedStringProxy;
 import android.graphics.Color;
 import android.graphics.PorterDuff.Mode;
 import android.graphics.drawable.Drawable;
-import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.Gravity;
-import android.support.v7.widget.AppCompatButton;
+import android.view.MotionEvent;
+import androidx.appcompat.widget.AppCompatButton;
 
 public class TiUIButton extends TiUIView
 {
@@ -47,6 +46,16 @@ public class TiUIButton extends TiUIView
 		super(proxy);
 		Log.d(TAG, "Creating a button", Log.DEBUG_MODE);
 		AppCompatButton btn = new AppCompatButton(proxy.getActivity()) {
+			@Override
+			public boolean onFilterTouchEventForSecurity(MotionEvent event)
+			{
+				boolean isTouchAllowed = super.onFilterTouchEventForSecurity(event);
+				if (!isTouchAllowed) {
+					fireEvent(TiC.EVENT_TOUCH_FILTERED, dictFromEvent(event));
+				}
+				return isTouchAllowed;
+			}
+
 			@Override
 			protected void onLayout(boolean changed, int left, int top, int right, int bottom)
 			{

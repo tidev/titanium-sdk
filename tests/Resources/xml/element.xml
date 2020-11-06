@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<dessertshop>
+    <dessert category="icecream">
+        <title>Banana Split</title>
+	<ingredient>icecream</ingredient>
+        <ingredient>banana</ingredient>
+        <price>5.00</price>
+    </dessert>
+    <dessert category="pie">
+        <title>Banana Cream Pie</title>
+	<ingredient>banana</ingredient>
+        <ingredient>cream</ingredient>
+        <price>9.99</price>
+    </dessert>
+    <dessert category="cake">
+        <title>Ice Cream Cake</title>
+       	<ingredient>eggs</ingredient>
+        <ingredient>flour</ingredient>        
+	<price>9.99</price>
+    </dessert>
+</dessertshop>

@@ -39,21 +39,14 @@ Persistent<Object> V8Runtime::moduleObject;
 Persistent<Function> V8Runtime::runModuleFunction;
 
 jobject V8Runtime::javaInstance;
-Platform* V8Runtime::platform = nullptr;
+std::unique_ptr<v8::Platform> V8Runtime::platform;
 Isolate* V8Runtime::v8_isolate = nullptr;
 bool V8Runtime::debuggerEnabled = false;
 bool V8Runtime::DBG = false;
 bool V8Runtime::initialized = false;
 
-class ArrayBufferAllocator : public v8::ArrayBuffer::Allocator {
- public:
-	virtual void* Allocate(size_t length) { return calloc(length, 1); }
-	virtual void* AllocateUninitialized(size_t length) { return malloc(length); }
-	virtual void Free(void* data, size_t) { free(data); }
-};
-
-// Make allocator global so it sticks around?
-ArrayBufferAllocator allocator;
+typedef std::unique_ptr<v8::ArrayBuffer::Allocator> V8ArrayBufferAllocator;
+V8ArrayBufferAllocator v8Allocator;
 
 /* static */
 void V8Runtime::collectWeakRef(Persistent<Value> ref, void *parameter)
@@ -165,8 +158,8 @@ void V8Runtime::bootstrap(Local<Context> context)
 
 	// Set the __dirname and __filename for the app.js.
 	// For other files, it will be injected via the `NativeModule` JavaScript class
-	global->Set(NEW_SYMBOL(isolate, "__filename"), STRING_NEW(isolate, "/app.js"));
-	global->Set(NEW_SYMBOL(isolate, "__dirname"), STRING_NEW(isolate, "/"));
+	global->Set(context, NEW_SYMBOL(isolate, "__filename"), STRING_NEW(isolate, "/app.js"));
+	global->Set(context, NEW_SYMBOL(isolate, "__dirname"), STRING_NEW(isolate, "/"));
 
 	Local<Function> mainFunction = result.As<Function>();
 	Local<Value> args[] = { kroll };
@@ -182,13 +175,15 @@ static void logV8Exception(Local<Message> msg, Local<Value> data)
 {
 	HandleScope scope(V8Runtime::v8_isolate);
 	Local<Context> context = V8Runtime::v8_isolate->GetCurrentContext();
+
 	// Log reason and location of the error.
-	LOGD(TAG, *String::Utf8Value(V8Runtime::v8_isolate, msg->Get()));
+	String::Utf8Value utf8Message(V8Runtime::v8_isolate, msg->Get());
+	String::Utf8Value utf8ScriptName(V8Runtime::v8_isolate, msg->GetScriptResourceName());
+	LOGD(TAG, *utf8Message);
 	LOGD(TAG, "%s @ %d >>> %s",
-		*String::Utf8Value(V8Runtime::v8_isolate, msg->GetScriptResourceName()),
+		*utf8ScriptName,
 		msg->GetLineNumber(context).FromMaybe(-1),
-		*String::Utf8Value(V8Runtime::v8_isolate,
-		msg->GetSourceLine(context).FromMaybe(-1)));
+		msg->GetSourceLine(context).ToLocalChecked());
 }
 
 } // namespace titanium
@@ -208,8 +203,8 @@ JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeIn
 		// Initialize V8.
 		// TODO Enable this when we use snapshots?
 		//V8::InitializeExternalStartupData(argv[0]);
-		V8Runtime::platform = platform::CreateDefaultPlatform();
-		V8::InitializePlatform(V8Runtime::platform);
+		V8Runtime::platform = platform::NewDefaultPlatform();
+		V8::InitializePlatform(V8Runtime::platform.get());
 		V8::Initialize();
 		V8Runtime::initialized = true;
 	}
@@ -225,7 +220,8 @@ JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeIn
 	if (V8Runtime::v8_isolate == nullptr) {
 		// Create a new Isolate and make it the current one.
 		Isolate::CreateParams create_params;
-		create_params.array_buffer_allocator = &allocator;
+		v8Allocator = V8ArrayBufferAllocator(v8::ArrayBuffer::Allocator::NewDefaultAllocator());
+		create_params.array_buffer_allocator = v8Allocator.get();
 #ifdef V8_SNAPSHOT_H
 		create_params.snapshot_blob = &snapshot;
 #endif
@@ -259,6 +255,58 @@ JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeIn
 	V8Runtime::bootstrap(context);
 
 	LOG_HEAP_STATS(isolate, TAG);
+}
+
+/*
+ * Class:     org_appcelerator_kroll_runtime_v8_V8Runtime
+ * Method:    nativeRunModule
+ * Signature: (Ljava/lang/String;Ljava/lang/String;)V
+ */
+JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeRunModuleBytes
+	(JNIEnv *env, jobject self, jbyteArray source, jstring filename, jobject activityProxy)
+{
+	HandleScope scope(V8Runtime::v8_isolate);
+	titanium::JNIScope jniScope(env);
+	Local<Context> context = V8Runtime::v8_isolate->GetCurrentContext();
+
+	if (V8Runtime::moduleObject.IsEmpty()) {
+		Local<Object> module;
+		{
+			v8::TryCatch tryCatch(V8Runtime::v8_isolate);
+			Local<Value> moduleValue;
+			MaybeLocal<Value> maybeModule = V8Runtime::Global()->Get(context, STRING_NEW(V8Runtime::v8_isolate, "Module"));
+			if (!maybeModule.ToLocal(&moduleValue)) {
+				titanium::V8Util::fatalException(V8Runtime::v8_isolate, tryCatch);
+				return;
+			}
+			module = moduleValue.As<Object>();
+			V8Runtime::moduleObject.Reset(V8Runtime::v8_isolate, module);
+		}
+
+		{
+			v8::TryCatch tryCatch(V8Runtime::v8_isolate);
+			Local<Value> runModule;
+			MaybeLocal<Value> maybeRunModule = module->Get(context, STRING_NEW(V8Runtime::v8_isolate, "runModule"));
+			if (!maybeRunModule.ToLocal(&runModule)) {
+				titanium::V8Util::fatalException(V8Runtime::v8_isolate, tryCatch);
+				return;
+			}
+			V8Runtime::runModuleFunction.Reset(V8Runtime::v8_isolate, runModule.As<Function>());
+		}
+	}
+
+	Local<Value> jsSource = TypeConverter::javaBytesToJsString(V8Runtime::v8_isolate, env, source);
+	Local<Value> jsFilename = TypeConverter::javaStringToJsString(V8Runtime::v8_isolate, env, filename);
+	Local<Value> jsActivity = TypeConverter::javaObjectToJsValue(V8Runtime::v8_isolate, env, activityProxy);
+
+	Local<Value> args[] = { jsSource, jsFilename, jsActivity };
+	TryCatch tryCatch(V8Runtime::v8_isolate);
+	V8Runtime::RunModuleFunction()->Call(context, V8Runtime::ModuleObject(), 3, args);
+
+	if (tryCatch.HasCaught()) {
+		V8Util::openJSErrorDialog(V8Runtime::v8_isolate, tryCatch);
+		V8Util::reportException(V8Runtime::v8_isolate, tryCatch, true);
+	}
 }
 
 /*

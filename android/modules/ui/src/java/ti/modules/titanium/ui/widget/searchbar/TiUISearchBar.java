@@ -16,7 +16,7 @@ import org.appcelerator.titanium.util.TiUIHelper;
 
 import ti.modules.titanium.ui.widget.TiUIText;
 import android.graphics.drawable.Drawable;
-import android.support.design.widget.TextInputLayout;
+import com.google.android.material.textfield.TextInputLayout;
 import android.text.TextUtils.TruncateAt;
 import android.view.Gravity;
 import android.view.KeyEvent;
@@ -38,7 +38,7 @@ public class TiUISearchBar extends TiUIText
 	private TextView promptText;
 
 	public interface OnSearchChangeListener {
-		public void filterBy(String text);
+		void filterBy(String text);
 	}
 
 	protected OnSearchChangeListener searchChangeListener;

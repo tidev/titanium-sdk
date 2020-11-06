@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<style name="Theme.Titanium" parent="@style/Base.Theme.Titanium.Splash">
+		<item name="android:windowBackground">@drawable/background</item>
+	</style>
+</resources>

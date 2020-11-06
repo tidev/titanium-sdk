@@ -13,7 +13,7 @@ description: |
     `<NavigationWindow>` element. See examples below.
 
     This object is not meant to be added to other windows. However, it can be used within a <Titanium.UI.iPad.SplitWindow>.
-platforms: [android, iphone, ipad]
+platforms: [android, iphone, ipad, macos]
 extends: Titanium.UI.Window
 since: "8.0.0"
 excludes:
@@ -40,6 +40,7 @@ methods:
         type: Titanium.UI.Window
 
       - name: options
+        # TODO: This should be AnimatedOptions on iOS, equivalent to Ti.UI.Window.close arg on Android!
         summary: |
             Options supporting a single `animated` boolean property to determine whether the window
             will be animated (default) while being closed (default: true).
@@ -53,20 +54,26 @@ methods:
         type: Titanium.UI.Window
 
       - name: options
+        # TODO: this should be of a type equivalent to Ti.Ui.Window.open args!
         summary: |
             Options supporting a single `animated` boolean property to determine whether the window
             will be animated (default) while being opened (default: true).
-        type: Dictionary
+        type: AnimatedOptions
+        optional: true
+        default: "{ animated: true }"
 
   - name: popToRootWindow
     summary: Closes all windows that are currently opened inside the navigation window.
     description: Note that only the `close` event of the most recently opened window is fired.
     parameters:
       - name: options
+        # TODO: this should be of type equivalent to Ti.UI.Window.close arg on Android, AnimatedOptions on iOS!
         summary: |
             Options supporting a single `animated` boolean property to determine whether the windows
             will be animated while being closed (default: false).
-        type: Dictionary
+        type: AnimatedOptions
+        optional: true
+        default: "{ animated: false }"
 
 examples:
   - title: Simple Navigation Window
@@ -75,71 +82,77 @@ examples:
         Press the button to open the blue window.
         Use the back button to return to the red root window.
 
-            var win2 = Titanium.UI.createWindow({
-                backgroundColor: 'red',
-                title: 'Red Window'
-            });
+        ``` js
+        var win2 = Titanium.UI.createWindow({
+            backgroundColor: 'red',
+            title: 'Red Window'
+        });
 
-            var win1 = Titanium.UI.createNavigationWindow({
-               window: win2
-            });
+        var win1 = Titanium.UI.createNavigationWindow({
+            window: win2
+        });
 
-            var win3 = Titanium.UI.createWindow({
-                backgroundColor: 'blue',
-                title: 'Blue Window'
-            });
+        var win3 = Titanium.UI.createWindow({
+            backgroundColor: 'blue',
+            title: 'Blue Window'
+        });
 
-            var button = Titanium.UI.createButton({
-                title: 'Open Blue Window'
-            });
-            button.addEventListener('click', function(){
-                win1.openWindow(win3, {animated:true});
-            });
+        var button = Titanium.UI.createButton({
+            title: 'Open Blue Window'
+        });
+        button.addEventListener('click', function(){
+            win1.openWindow(win3, {animated:true});
+        });
 
-            win2.add(button);
-            var button2 = Titanium.UI.createButton({
-                title: 'Close Blue Window'
-            });
-            button2.addEventListener('click', function(){
-                win1.closeWindow(win3, {animated:false}); //win3.close() will also work!!
-            });
+        win2.add(button);
+        var button2 = Titanium.UI.createButton({
+            title: 'Close Blue Window'
+        });
+        button2.addEventListener('click', function(){
+            win1.closeWindow(win3, {animated:false}); //win3.close() will also work!!
+        });
 
-            win3.add(button2);
-            win1.open();
+        win3.add(button2);
+        win1.open();
+        ```
 
   - title: Alloy XML Markup
     example: |
         Previous example as two Alloy view-controllers.  Requires Alloy 1.2.2 and later.
 
         app/views/index.xml:
-
-            <Alloy>
-                <NavigationWindow id="win1">
-                    <Window id="win2" title="Red Window" backgroundColor="red">
-                        <Button id="button" onClick="openBlueWindow">Open Blue Window</Button>
-                    </Window>
-                </NavigationWindow>
-            </Alloy>
+        ``` xml
+        <Alloy>
+            <NavigationWindow id="win1">
+                <Window id="win2" title="Red Window" backgroundColor="red">
+                    <Button id="button" onClick="openBlueWindow">Open Blue Window</Button>
+                </Window>
+            </NavigationWindow>
+        </Alloy>
+        ```
 
         app/controllers/index.js:
+        ``` js
+        function openBlueWindow(e) {
+            var win3 = Alloy.createController('bluewin').getView();
+            $.win1.openWindow(win3);
+        }
 
-            function openBlueWindow(e) {
-                var win3 = Alloy.createController('bluewin').getView();
-                $.win1.openWindow(win3);
-            }
-
-            $.win1.open();
+        $.win1.open();
+        ```
 
         app/views/bluewin.xml:
-
-            <Alloy>
-                <Window id="win3" title="Blue Window" backgroundColor="blue">
-                    <Button onClick="closeWindow">Close Window</Button>
-                </Window>
-            </Alloy>
+        ``` xml
+        <Alloy>
+            <Window id="win3" title="Blue Window" backgroundColor="blue">
+                <Button onClick="closeWindow">Close Window</Button>
+            </Window>
+        </Alloy>
+        ```
 
         app/controllers/bluewin.js:
-
-            function closeWindow(){
-                $.win3.close();
-            }
+        ``` js
+        function closeWindow(){
+            $.win3.close();
+        }
+        ```

@@ -140,7 +140,7 @@
 
   xmlNsPtr theNewNs = xmlNewNs(NULL, // parent node
       href, pre);
-  [resultNode XMLNode] -> ns = theNewNs;
+  [resultNode XMLNode]->ns = theNewNs;
   [result setDocument:[self document]];
   [result setNode:resultNode];
   [result setAttribute:tagName value:@"" owner:nil];
@@ -254,9 +254,9 @@
 
   xmlNsPtr theNewNs = xmlNewNs(NULL, // parent node
       href, pre);
-  [resultElement XMLNode] -> ns = theNewNs;
+  [resultElement XMLNode]->ns = theNewNs;
   //Assume that this NS is defined on this node. Will be fixed later when added to tree
-  [resultElement XMLNode] -> nsDef = theNewNs;
+  [resultElement XMLNode]->nsDef = theNewNs;
   [result setDocument:[self document]];
   [result setElement:resultElement];
   [TiDOMNodeProxy setNode:result forXMLNode:[resultElement XMLNode]];
@@ -411,7 +411,7 @@
   BOOL deep = [TiUtils boolValue:recursive];
 
   if (theNodeToImport != nil) {
-    xmlElementType type = [[theNodeToImport node] XMLNode] -> type;
+    xmlElementType type = [[theNodeToImport node] XMLNode]->type;
     if ((type == XML_DOCUMENT_NODE) || (type == XML_DOCUMENT_TYPE_NODE)) {
       [self throwException:@"document/documenttype nodes can not be imported" subreason:nil location:CODELOCATION];
       return nil;

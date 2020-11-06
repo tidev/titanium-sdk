@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2015 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2020 by Axway, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -52,7 +52,6 @@ import javax.net.ssl.X509TrustManager;
 import android.util.Base64;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.kroll.util.TiTempFileHelper;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiC;
@@ -82,7 +81,6 @@ import ti.modules.titanium.xml.DocumentProxy;
 import ti.modules.titanium.xml.XMLModule;
 import android.net.Uri;
 import android.os.Build;
-import android.util.Base64OutputStream;
 
 public class TiHTTPClient
 {
@@ -282,29 +280,21 @@ public class TiHTTPClient
 			outFile = tiFile.getFile();
 			try {
 				responseOut = new FileOutputStream(outFile, dumpResponseOut);
-				// If the response file is in the temp folder, don't delete it during cleanup.
-				TiApplication app = TiApplication.getInstance();
-				if (app != null) {
-					app.getTempFileHelper().excludeFileOnCleanup(outFile);
-				}
 			} catch (FileNotFoundException e) {
 				responseFile = null;
 				tiFile = null;
 				if (Log.isDebugModeEnabled()) {
-					Log.e(
-						TAG,
-						"Unable to create / write to the response file. Will write the response data to the internal data directory.");
+					String errorMessage
+						= "Unable to create / write to the response file. "
+						+ "Will write the response data to the internal data directory.";
+					Log.e(TAG, errorMessage);
 				}
 			}
 		}
 
 		if (tiFile == null) {
-			TiApplication app = TiApplication.getInstance();
-			if (app != null) {
-				TiTempFileHelper tempFileHelper = app.getTempFileHelper();
-				outFile = tempFileHelper.createTempFile("tihttp", "tmp");
-				tiFile = new TiFile(outFile, outFile.getAbsolutePath(), false);
-			}
+			outFile = File.createTempFile("tihttp", ".tmp", TiApplication.getInstance().getTiTempDir());
+			tiFile = new TiFile(outFile, outFile.getAbsolutePath(), false);
 		}
 
 		if (dumpResponseOut) {
@@ -391,7 +381,7 @@ public class TiHTTPClient
 	}
 
 	private interface ProgressListener {
-		public void progress(int progress);
+		void progress(int progress);
 	}
 
 	private class ProgressOutputStream extends FilterOutputStream
@@ -417,11 +407,24 @@ public class TiHTTPClient
 		@Override
 		public void write(int b) throws IOException
 		{
-			//Donot write if request is aborted
+			//Do not write if request is aborted
 			if (!aborted) {
 				super.write(b);
 				transferred++;
 				fireProgress();
+			}
+		}
+
+		// Send the last progress callback when the
+		// writing is done.
+		@Override
+		public void close() throws IOException
+		{
+			super.close();
+
+			if (!aborted && (transferred > 0)) {
+				lastTransferred = transferred;
+				listener.progress(transferred);
 			}
 		}
 	}
@@ -733,6 +736,46 @@ public class TiHTTPClient
 		return result;
 	}
 
+	public KrollDict getResponseHeaders()
+	{
+		final KrollDict result = new KrollDict();
+
+		// Obtain response headers.
+		if (responseHeaders != null && !responseHeaders.isEmpty()) {
+			final Set<Map.Entry<String, List<String>>> entrySet = responseHeaders.entrySet();
+
+			// Iterate through response headers.
+			for (Map.Entry<String, List<String>> entry : entrySet) {
+				final String key = entry.getKey();
+
+				// Skip empty key that holds response status.
+				if (key == null) {
+					continue;
+				}
+
+				final List<String> values = entry.getValue();
+				final String[] stringValues = new String[values.size()];
+
+				// Handle multiple values such as cookies.
+				if (values.size() > 1) {
+
+					// Parse response headers into string array.
+					for (int i = 0; i < values.size(); i++) {
+						stringValues[i] = values.get(i);
+					}
+
+					// Store response headers in dictionary.
+					result.put(key, stringValues);
+				} else {
+
+					// Store response header in dictionary.
+					result.put(key, values.get(0));
+				}
+			}
+		}
+		return result;
+	}
+
 	public void clearCookies(String url)
 	{
 		if (url == null) {
@@ -965,8 +1008,10 @@ public class TiHTTPClient
 					blob = ((TiResourceFile) value).read();
 				}
 				String mimeType = blob.getMimeType();
-				File tmpFile =
-					File.createTempFile("tixhr", "." + TiMimeTypeHelper.getFileExtensionFromMimeType(mimeType, "txt"));
+				File tmpFile = File.createTempFile(
+					"tixhr",
+					"." + TiMimeTypeHelper.getFileExtensionFromMimeType(mimeType, "txt"),
+					TiApplication.getInstance().getTiTempDir());
 				createFileFromBlob(blob, tmpFile);
 
 				tmpFiles.add(tmpFile);
@@ -1034,7 +1079,7 @@ public class TiHTTPClient
 					sslSocketFactory = null;
 				}
 			} else if (!validating) {
-				TrustManager trustManagerArray[] = new TrustManager[] { new NonValidatingTrustManager() };
+				TrustManager[] trustManagerArray = new TrustManager[] { new NonValidatingTrustManager() };
 				try {
 					sslSocketFactory = new TiSocketFactory(null, trustManagerArray, tlsVersion);
 				} catch (Exception e) {
@@ -1079,8 +1124,10 @@ public class TiHTTPClient
 					blob = ((TiResourceFile) value).read();
 				}
 				String mimeType = blob.getMimeType();
-				File tmpFile =
-					File.createTempFile("tixhr", "." + TiMimeTypeHelper.getFileExtensionFromMimeType(mimeType, "txt"));
+				File tmpFile = File.createTempFile(
+					"tixhr",
+					"." + TiMimeTypeHelper.getFileExtensionFromMimeType(mimeType, "txt"),
+					TiApplication.getInstance().getTiTempDir());
 				createFileFromBlob(blob, tmpFile);
 
 				tmpFiles.add(tmpFile);
@@ -1103,7 +1150,6 @@ public class TiHTTPClient
 		aborted = false;
 
 		// TODO consider using task manager
-		int totalLength = 0;
 		needMultipart = false;
 
 		if (userData != null) {
@@ -1139,12 +1185,11 @@ public class TiHTTPClient
 						}
 
 						if (value instanceof TiBaseFile || value instanceof TiBlob || value instanceof HashMap) {
-							totalLength += addTitaniumFileAsPostData(key, value);
+							addTitaniumFileAsPostData(key, value);
 
 						} else {
 							String str = TiConvert.toString(value);
 							addPostData(key, str);
-							totalLength += str.length();
 						}
 
 					} else if (isGet) {
@@ -1175,8 +1220,7 @@ public class TiHTTPClient
 		Log.d(TAG, "Instantiating http request with method='" + method + "' and this url:", Log.DEBUG_MODE);
 		Log.d(TAG, this.url, Log.DEBUG_MODE);
 
-		clientThread =
-			new Thread(new ClientRunnable(totalLength), "TiHttpClient-" + httpClientThreadCounter.incrementAndGet());
+		clientThread = new Thread(new ClientRunnable(), "TiHttpClient-" + httpClientThreadCounter.incrementAndGet());
 		clientThread.setPriority(Thread.MIN_PRIORITY);
 		clientThread.start();
 
@@ -1185,16 +1229,14 @@ public class TiHTTPClient
 
 	private class ClientRunnable implements Runnable
 	{
-		private final int totalLength;
 		private int contentLength;
 		private PrintWriter printWriter;
 		private OutputStream outputStream;
 		private String boundary;
 		private static final String LINE_FEED = "\r\n";
 
-		public ClientRunnable(int totalLength)
+		public ClientRunnable()
 		{
-			this.totalLength = totalLength;
 			this.contentLength = 0;
 		}
 
@@ -1278,8 +1320,11 @@ public class TiHTTPClient
 						outputStream = new ProgressOutputStream(client.getOutputStream(), new ProgressListener() {
 							public void progress(int progress)
 							{
+								if (contentLength <= 0) {
+									return;
+								}
 								KrollDict data = new KrollDict();
-								double currentProgress = ((double) progress / totalLength);
+								double currentProgress = ((double) progress / contentLength);
 								if (currentProgress > 1)
 									currentProgress = 1;
 								data.put("progress", currentProgress);
@@ -1319,6 +1364,7 @@ public class TiHTTPClient
 						} else {
 							handleURLEncodedData(form);
 						}
+						printWriter.close();
 					}
 
 					// Fix for https://jira.appcelerator.org/browse/TIMOB-23309
@@ -1495,10 +1541,9 @@ public class TiHTTPClient
 			printWriter.flush();
 		}
 
-		public void completeSendingMultipart() throws IOException
+		public void completeSendingMultipart()
 		{
 			printWriter.append("--" + boundary + "--").append(LINE_FEED);
-			printWriter.close();
 		}
 
 		private void handleURLEncodedData(UrlEncodedFormEntity form) throws IOException
@@ -1587,10 +1632,10 @@ public class TiHTTPClient
 	protected void addKeyManager(X509KeyManager manager)
 	{
 		if (Log.isDebugModeEnabled()) {
-			Log.d(
-				TAG,
-				"addKeyManager method is deprecated. Use the securityManager property on the HttpClient to define custom SSL Contexts",
-				Log.DEBUG_MODE);
+			String message
+				= "addKeyManager() method is deprecated. "
+				+ "Use the securityManager property on the HttpClient to define custom SSL Contexts.";
+			Log.d(TAG, message, Log.DEBUG_MODE);
 		}
 		keyManagers.add(manager);
 	}
@@ -1598,10 +1643,10 @@ public class TiHTTPClient
 	protected void addTrustManager(X509TrustManager manager)
 	{
 		if (Log.isDebugModeEnabled()) {
-			Log.d(
-				TAG,
-				"addTrustManager method is deprecated. Use the securityManager property on the HttpClient to define custom SSL Contexts",
-				Log.DEBUG_MODE);
+			String message
+				= "addTrustManager() method is deprecated. "
+				+ "Use the securityManager property on the HttpClient to define custom SSL Contexts.";
+			Log.d(TAG, message, Log.DEBUG_MODE);
 		}
 		trustManagers.add(manager);
 	}

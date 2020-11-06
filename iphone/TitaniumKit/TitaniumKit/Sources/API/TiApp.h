@@ -137,7 +137,7 @@ TI_INLINE void waitForMemoryPanicCleared() //WARNING: This must never be run on 
 /**
  Returns singleton instance of TiApp application object.
  */
-+ (TiApp *)app;
++ (TiApp *)app NS_SWIFT_NAME(sharedApp());
 
 /**
  * Returns a read-only dictionary from tiapp.xml properties
@@ -259,7 +259,7 @@ TI_INLINE void waitForMemoryPanicCleared() //WARNING: This must never be run on 
 /**
  Returns a dictionary containing the native notification information.
  */
-+ (NSDictionary *)dictionaryWithLocalNotification:(UILocalNotification *)notification withIdentifier:(NSString *)identifier;
++ (NSDictionary *)dictionaryWithLocalNotification:(id)notification withIdentifier:(NSString *)identifier;
 
 /**
  Tries to invoke a given selector with the given arguments. If the app did not finish launching so far, it will be queued

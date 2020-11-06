@@ -7,14 +7,15 @@
 
 #import <Foundation/Foundation.h>
 
-#define ENSURE_UI_THREAD_1_ARG(x)                   \
-  if (![NSThread isMainThread]) {                   \
-    SEL callback = _cmd;                            \
-    TiThreadPerformOnMainThread(^{                  \
-      [self performSelector:callback withObject:x]; \
-    },                                              \
-        NO);                                        \
-    return;                                         \
+#define ENSURE_UI_THREAD_1_ARG(x)                       \
+  if (![NSThread isMainThread]) {                       \
+    SEL callback = _cmd;                                \
+    TiThreadPerformOnMainThread(                        \
+        ^{                                              \
+          [self performSelector:callback withObject:x]; \
+        },                                              \
+        NO);                                            \
+    return;                                             \
   }
 
 #define ENSURE_UI_THREAD_0_ARGS ENSURE_UI_THREAD_1_ARG(nil)
@@ -24,13 +25,14 @@
 //We may want phase out asking the method explicitly when the compiler can do it for us
 //For now, leaving it unchanged and using _X_ARG(S) to denote no method name used.
 
-#define ENSURE_UI_THREAD(x, y)     \
-  if (![NSThread isMainThread]) {  \
-    TiThreadPerformOnMainThread(^{ \
-      [self x:y];                  \
-    },                             \
-        NO);                       \
-    return;                        \
+#define ENSURE_UI_THREAD(x, y)    \
+  if (![NSThread isMainThread]) { \
+    TiThreadPerformOnMainThread(  \
+        ^{                        \
+          [self x:y];             \
+        },                        \
+        NO);                      \
+    return;                       \
   }
 
 #define ENSURE_IOS_API(version, message)                                                                          \
@@ -43,9 +45,10 @@
 #define ENSURE_UI_THREAD_WITH_OBJ(x, y, z)                                         \
   if (![NSThread isMainThread]) {                                                  \
     id o = [NSArray arrayWithObjects:@"" #x, NULL_IF_NIL(y), NULL_IF_NIL(z), nil]; \
-    TiThreadPerformOnMainThread(^{                                                 \
-      [self _dispatchWithObjectOnUIThread:o];                                      \
-    },                                                                             \
+    TiThreadPerformOnMainThread(                                                   \
+        ^{                                                                         \
+          [self _dispatchWithObjectOnUIThread:o];                                  \
+        },                                                                         \
         NO);                                                                       \
     return;                                                                        \
   }
@@ -56,23 +59,24 @@
                                                       \
     type *result = nil;
 
-#define END_UI_THREAD_PROTECTED_VALUE(method)         \
-  if (array_ != nil)                                  \
-    [array_ addObject:result];                        \
-  return result;                                      \
-  }                                                   \
-  -(id)method                                         \
-  {                                                   \
-    if (![NSThread isMainThread]) {                   \
-      __block id result = nil;                        \
-      __block id bself = self;                        \
-      TiThreadPerformOnMainThread(^{                  \
-        result = [[bself _sync_##method:nil] retain]; \
-      },                                              \
-          YES);                                       \
-      return [result autorelease];                    \
-    }                                                 \
-    return [self _sync_##method:nil];                 \
+#define END_UI_THREAD_PROTECTED_VALUE(method)             \
+  if (array_ != nil)                                      \
+    [array_ addObject:result];                            \
+  return result;                                          \
+  }                                                       \
+  -(id)method                                             \
+  {                                                       \
+    if (![NSThread isMainThread]) {                       \
+      __block id result = nil;                            \
+      __block id bself = self;                            \
+      TiThreadPerformOnMainThread(                        \
+          ^{                                              \
+            result = [[bself _sync_##method:nil] retain]; \
+          },                                              \
+          YES);                                           \
+      return [result autorelease];                        \
+    }                                                     \
+    return [self _sync_##method:nil];                     \
   }
 
 #ifdef VERBOSE

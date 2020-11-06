@@ -18,7 +18,7 @@ import android.os.Build;
 import android.util.DisplayMetrics;
 
 /**
- * This class allows us to retrieve Android resource IDs 
+ * This class allows us to retrieve Android resource IDs
  * from the various Android R classes using
  * strings at runtime.
  */
@@ -78,9 +78,10 @@ public class TiRHelper
 		throws ResourceNotFoundException
 	{
 		if (prefix != null && path != null && prefix.startsWith("android.R") && path.startsWith("drawable.")) {
-			Log.w(
-				TAG,
-				"Using android.R.drawable is not recommended since they are changed/removed across Android versions. Instead copy images to res folder.");
+			String message
+				= "Using android.R.drawable is not recommended since they are changed/removed across Android versions."
+				+ " Instead copy images to res folder.";
+			Log.w(TAG, message);
 		}
 
 		// Get the clsPrefixApplication if this is the first time
@@ -144,6 +145,22 @@ public class TiRHelper
 	public static int getResource(String path) throws ResourceNotFoundException
 	{
 		return getResource(path, true);
+	}
+
+	/**
+	 * Checks if the given resource path exists. Refer to {@link #getResource(String)} for more details.
+	 * @param path the resource's path
+	 * @return whether or not the resource exists in the application's resource bundle.
+	 * @module.api
+	 */
+	public static boolean hasResource(String path)
+	{
+		try {
+			int id = TiRHelper.getResource(path);
+			return id != 0;
+		} catch (ResourceNotFoundException e) {
+			return false;
+		}
 	}
 
 	/**

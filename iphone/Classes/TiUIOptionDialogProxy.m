@@ -142,14 +142,15 @@
     return;
   }
 
-  TiThreadPerformOnMainThread(^{
-    if (alertController != nil) {
-      [alertController dismissViewControllerAnimated:animated
-                                          completion:^{
-                                            [self cleanup];
-                                          }];
-    }
-  },
+  TiThreadPerformOnMainThread(
+      ^{
+        if (alertController != nil) {
+          [alertController dismissViewControllerAnimated:animated
+                                              completion:^{
+                                                [self cleanup];
+                                              }];
+        }
+      },
       NO);
 }
 
@@ -247,10 +248,11 @@
                                                       NUMINT(destructiveButtonIndex), @"destructive",
                                                       nil];
 
-    TiThreadPerformOnMainThread(^{
-      [self fireEvent:@"click" withObject:event];
-      [self cleanup];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          [self fireEvent:@"click" withObject:event];
+          [self cleanup];
+        },
         YES);
   } else {
     [self cleanup];

@@ -10,8 +10,7 @@
 #include <android/log.h>
 #include <stdlib.h>
 
-#define _LOG_LEVEL(level) ANDROID_LOG_ ## level
-#define LOG(level, tag, ...) __android_log_print(_LOG_LEVEL(level), tag, __VA_ARGS__)
+#define LOG(level, tag, ...) __android_log_print(ANDROID_LOG_##level, tag, __VA_ARGS__)
 
 #ifdef TI_DEBUG
 # define LOGV(tag, format, ...) LOG(VERBOSE, tag, "[%s:%d] " format, __FILE__, __LINE__, ##__VA_ARGS__)

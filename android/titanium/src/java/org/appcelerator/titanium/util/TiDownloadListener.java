@@ -9,11 +9,11 @@ package org.appcelerator.titanium.util;
 import java.net.URI;
 
 public interface TiDownloadListener {
-	public void downloadTaskFinished(URI uri);
+	void downloadTaskFinished(URI uri);
 
-	public void downloadTaskFailed(URI uri);
+	void downloadTaskFailed(URI uri);
 
 	// This method will be called after the download is finished in the
 	// same background thread, but BEFORE TaskFinished is called.
-	public void postDownload(URI uri);
+	void postDownload(URI uri);
 }

@@ -1,3 +1,0 @@
-<project name="design" default="build">
-	<import file="../../build/build-module.xml"/>
-</project>

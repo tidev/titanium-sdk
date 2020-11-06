@@ -33,9 +33,10 @@
 {
   if (![NSThread isMainThread]) {
     __block id result = nil;
-    TiThreadPerformOnMainThread(^{
-      result = [[self allEventKitCalendars] retain];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          result = [[self allEventKitCalendars] retain];
+        },
         YES);
     return [result autorelease];
   }
@@ -80,9 +81,10 @@
 {
   if (![NSThread isMainThread]) {
     __block id result = nil;
-    TiThreadPerformOnMainThread(^{
-      result = [[self allCalendars] retain];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          result = [[self allCalendars] retain];
+        },
         YES);
     return [result autorelease];
   }
@@ -103,9 +105,10 @@ GETTER_IMPL(NSArray<TiCalendarCalendar *> *, allCalendars, AllCalendars);
 {
   if (![NSThread isMainThread]) {
     __block id result = nil;
-    TiThreadPerformOnMainThread(^{
-      result = [[self allEditableCalendars] retain];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          result = [[self allEditableCalendars] retain];
+        },
         YES);
     return [result autorelease];
   }
@@ -128,9 +131,10 @@ GETTER_IMPL(NSArray<TiCalendarCalendar *> *, allEditableCalendars, AllEditableCa
 {
   if (![NSThread isMainThread]) {
     __block id result = nil;
-    TiThreadPerformOnMainThread(^{
-      result = [[self getCalendarById:calendarId] retain];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          result = [[self getCalendarById:calendarId] retain];
+        },
         YES);
     return [result autorelease];
   }
@@ -163,9 +167,10 @@ GETTER_IMPL(NSArray<TiCalendarCalendar *> *, allEditableCalendars, AllEditableCa
 {
   if (![NSThread isMainThread]) {
     __block id result = nil;
-    TiThreadPerformOnMainThread(^{
-      result = [[self defaultCalendar] retain];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          result = [[self defaultCalendar] retain];
+        },
         YES);
     return [result autorelease];
   }
@@ -214,23 +219,25 @@ GETTER_IMPL(TiCalendarCalendar *, defaultCalendar, DefaultCalendar);
     return;
   }
 
-  TiThreadPerformOnMainThread(^() {
-    EKEventStore *ourstore = [self store];
-    [ourstore requestAccessToEntityType:EKEntityTypeEvent
-                             completion:^(BOOL granted, NSError *error) {
-                               NSDictionary *propertiesDict;
-                               if (error == nil) {
-                                 NSString *errorMsg = granted ? nil : @"The user has denied access to events in Calendar.";
-                                 propertiesDict = [TiUtils dictionaryWithCode:(granted ? 0 : 1) message:errorMsg];
-                               } else {
-                                 propertiesDict = [TiUtils dictionaryWithCode:[error code] message:[TiUtils messageFromError:error]];
-                               }
-                               TiThreadPerformOnMainThread(^{
-                                 [callback callWithArguments:@[ propertiesDict ]];
-                               },
-                                   [NSThread isMainThread]);
-                             }];
-  },
+  TiThreadPerformOnMainThread(
+      ^() {
+        EKEventStore *ourstore = [self store];
+        [ourstore requestAccessToEntityType:EKEntityTypeEvent
+                                 completion:^(BOOL granted, NSError *error) {
+                                   NSDictionary *propertiesDict;
+                                   if (error == nil) {
+                                     NSString *errorMsg = granted ? nil : @"The user has denied access to events in Calendar.";
+                                     propertiesDict = [TiUtils dictionaryWithCode:(granted ? 0 : 1) message:errorMsg];
+                                   } else {
+                                     propertiesDict = [TiUtils dictionaryWithCode:[error code] message:[TiUtils messageFromError:error]];
+                                   }
+                                   TiThreadPerformOnMainThread(
+                                       ^{
+                                         [callback callWithArguments:@[ propertiesDict ]];
+                                       },
+                                       [NSThread isMainThread]);
+                                 }];
+      },
       NO);
 }
 
@@ -240,7 +247,7 @@ GETTER_IMPL(TiCalendarCalendar *, defaultCalendar, DefaultCalendar);
 {
   NSString *calendarPermission = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSCalendarsUsageDescription"];
 
-  if ([TiUtils isIOSVersionOrGreater:@"10.0"] && !calendarPermission) {
+  if (!calendarPermission) {
     NSLog(@"[ERROR] iOS 10 and later requires the key \"NSCalendarsUsageDescription\" inside the plist in your tiapp.xml when accessing the native calendar. Please add the key and re-run the application.");
   }
 

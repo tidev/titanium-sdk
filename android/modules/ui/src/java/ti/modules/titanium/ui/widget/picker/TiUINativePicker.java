@@ -25,7 +25,6 @@ import ti.modules.titanium.ui.PickerColumnProxy;
 import ti.modules.titanium.ui.PickerProxy;
 import android.app.Activity;
 import android.content.Context;
-import android.os.Build;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -185,7 +184,7 @@ public class TiUINativePicker extends TiUIPicker
 	{
 		Spinner view = (Spinner) nativeView;
 		view.performClick();
-	};
+	}
 
 	@Override
 	public int getSelectedRowIndex(int columnIndex)

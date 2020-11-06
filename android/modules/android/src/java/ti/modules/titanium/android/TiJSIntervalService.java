@@ -147,7 +147,7 @@ public class TiJSIntervalService extends TiJSService
 		private TimerTask task = null;
 		private String serviceSimpleName;
 		private String url;
-		private String source;
+		private byte[] source;
 		private AtomicInteger counter = new AtomicInteger();
 
 		IntervalServiceRunner(Service service, ServiceProxy proxy, long interval, String url)
@@ -155,7 +155,7 @@ public class TiJSIntervalService extends TiJSService
 			this.proxy = proxy;
 			this.interval = interval;
 			this.url = url;
-			this.source = KrollAssetHelper.readAsset(url);
+			this.source = KrollAssetHelper.readAssetBytes(url);
 			this.serviceSimpleName = service.getClass().getSimpleName();
 		}
 
@@ -199,7 +199,7 @@ public class TiJSIntervalService extends TiJSService
 						KrollDict event = new KrollDict();
 						event.put("iteration", iteration);
 						proxy.fireEvent(TiC.EVENT_RESUME, event);
-						KrollRuntime.getInstance().runModule(source, url, proxy);
+						KrollRuntime.getInstance().runModuleBytes(source, url, proxy);
 						proxy.fireEvent(TiC.EVENT_PAUSE, event);
 					} catch (Throwable e) {
 						Log.e(TAG, "Failure evaluating service JS " + url + ": " + e.getMessage(), e);

@@ -267,9 +267,10 @@
                                                               multiplier:1
                                                                 constant:0]];
     // FIX : TIMOB-20513
-    TiThreadPerformOnMainThread(^{
-      [self updateIndicatorViewFrame];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          [self updateIndicatorViewFrame];
+        },
         NO);
   }
   [super updateConstraints];

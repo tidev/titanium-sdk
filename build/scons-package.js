@@ -7,7 +7,7 @@ program
 	.option('-a, --all', 'Build a zipfile for every OS')
 	.option('-v, --sdk-version [version]', 'Override the SDK version we report', process.env.PRODUCT_VERSION || version)
 	.option('-t, --version-tag [tag]', 'Override the SDK version tag we report')
-	.option('-s, --skip-zip', 'Do not zip up the package')
+	.option('-z, --skip-zip', 'Do not zip up the package')
 	.option('--no-docs', 'Do not produce docs')
 	.parse(process.argv);
 

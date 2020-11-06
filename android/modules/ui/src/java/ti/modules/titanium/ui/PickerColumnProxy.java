@@ -8,9 +8,6 @@ package ti.modules.titanium.ui;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.annotations.Kroll;
-import org.appcelerator.kroll.common.AsyncResult;
-import org.appcelerator.kroll.common.TiMessenger;
-import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.view.TiUIView;
 
@@ -18,7 +15,6 @@ import ti.modules.titanium.ui.PickerRowProxy.PickerRowListener;
 import ti.modules.titanium.ui.widget.picker.TiUIPickerColumn;
 import ti.modules.titanium.ui.widget.picker.TiUISpinnerColumn;
 import android.app.Activity;
-import android.os.Message;
 import android.util.Log;
 
 @Kroll.proxy(creatableInModule = UIModule.class)
@@ -126,11 +122,9 @@ public class PickerColumnProxy extends TiViewProxy implements PickerRowListener
 		}
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public PickerRowProxy[] getRows()
-	// clang-format on
 	{
 		if (children == null || children.size() == 0) {
 			return null;
@@ -138,11 +132,9 @@ public class PickerColumnProxy extends TiViewProxy implements PickerRowListener
 		return children.toArray(new PickerRowProxy[children.size()]);
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.setProperty
 	public void setRows(Object[] rows)
-	// clang-format on
 	{
 		try {
 			suppressListenerEvents = true;
@@ -161,11 +153,9 @@ public class PickerColumnProxy extends TiViewProxy implements PickerRowListener
 		}
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public int getRowCount()
-	// clang-format on
 	{
 		return children.size();
 	}

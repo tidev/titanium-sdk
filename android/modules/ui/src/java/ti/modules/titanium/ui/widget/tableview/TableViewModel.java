@@ -44,6 +44,7 @@ public class TableViewModel
 		public TiViewProxy proxy;
 		public Object rowData;
 	}
+
 	private TableViewProxy proxy;
 
 	private boolean dirty;

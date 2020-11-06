@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<!DOCTYPE letter [
+<!ELEMENT letter (recipient,sender,subject,message)>
+<!ELEMENT recipient (#PCDATA)>
+<!ELEMENT sender (#PCDATA)>
+<!ELEMENT subject (#PCDATA)>
+<!ELEMENT message (#PCDATA)>
+]>
+<letter>
+<recipient>Jimmy Baglieteri</recipient>
+<sender>Richie Valipocelli</sender>
+<subject>That job</subject>
+<message>Meet me at Sal's just before midnight.  Bring the tools.</message>
+</letter>

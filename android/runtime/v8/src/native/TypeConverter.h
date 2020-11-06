@@ -94,11 +94,13 @@ public:
 	static jstring jsStringToJavaString(v8::Isolate* isolate, v8::Local<v8::String> jsString);
 	static jstring jsValueToJavaString(v8::Isolate* isolate, v8::Local<v8::Value> jsValue);
 	static v8::Local<v8::Value> javaStringToJsString(v8::Isolate* isolate, jstring javaString);
+	static v8::Local<v8::Value> javaBytesToJsString(v8::Isolate* isolate, jbyteArray javaBytes);
 
 	static jstring jsStringToJavaString(JNIEnv *env, v8::Local<v8::String> jsString);
 	static jstring jsStringToJavaString(v8::Isolate* isolate, JNIEnv *env, v8::Local<v8::String> jsString);
 	static jstring jsValueToJavaString(v8::Isolate* isolate, JNIEnv *env, v8::Local<v8::Value> jsValue);
 	static v8::Local<v8::Value> javaStringToJsString(v8::Isolate* isolate, JNIEnv *env, jstring javaString);
+	static v8::Local<v8::Value> javaBytesToJsString(v8::Isolate* isolate, JNIEnv *env, jbyteArray javaBytes);
 
 	// date convert methods
 	static jobject jsDateToJavaDate(v8::Local<v8::Date> jsDate);
@@ -139,6 +141,7 @@ public:
 	static v8::Local<v8::Array> javaArrayToJsArray(v8::Isolate* isolate, jbooleanArray javaBooleanArray);
 	static jshortArray jsArrayToJavaShortArray(v8::Isolate* isolate, v8::Local<v8::Array> jsArray);
 	static v8::Local<v8::Array> javaArrayToJsArray(v8::Isolate* isolate, jshortArray javaShortArray);
+	static v8::Local<v8::ArrayBuffer> javaByteArrayToJsArrayBuffer(v8::Isolate* isolate, jbyteArray javaByteArray);
 	static jintArray jsArrayToJavaIntArray(v8::Isolate* isolate, v8::Local<v8::Array> jsArray);
 	static v8::Local<v8::Array> javaArrayToJsArray(v8::Isolate* isolate, jintArray javaIntArray);
 	static jlongArray jsArrayToJavaLongArray(v8::Isolate* isolate, v8::Local<v8::Array> jsArray);
@@ -152,6 +155,7 @@ public:
 	static jarray jsArrayToJavaArray(v8::Isolate* isolate, JNIEnv *env, v8::Local<v8::Array> jsArray);
 	static jobjectArray jsArrayToJavaStringArray(v8::Isolate* isolate, JNIEnv *env, v8::Local<v8::Array> jsArray);
 	static v8::Local<v8::Array> javaArrayToJsArray(v8::Isolate* isolate, JNIEnv *env, jbooleanArray javaBooleanArray);
+	static v8::Local<v8::ArrayBuffer> javaByteArrayToJsArrayBuffer(v8::Isolate* isolate, JNIEnv *env, jbyteArray javaByteArray);
 	static jshortArray jsArrayToJavaShortArray(v8::Isolate* isolate, JNIEnv *env, v8::Local<v8::Array> jsArray);
 	static v8::Local<v8::Array> javaArrayToJsArray(v8::Isolate* isolate, JNIEnv *env, jshortArray javaShortArray);
 	static jintArray jsArrayToJavaIntArray(v8::Isolate* isolate, JNIEnv *env, v8::Local<v8::Array> jsArray);

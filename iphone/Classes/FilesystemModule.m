@@ -77,12 +77,21 @@
 
   // allow variadic file components to be passed
   NSString *resolvedPath = [self pathFromComponents:[args subarrayWithRange:NSMakeRange(1, [args count] - 1)]];
-  NSArray *payload = [NSArray arrayWithObjects:resolvedPath, [NSNumber numberWithInt:mode], nil];
-
-  KrollContext *context = GetKrollContext([[JSContext currentContext] JSGlobalContextRef]);
-  KrollBridge *ourBridge = (KrollBridge *)[context delegate];
-  id file = [[[TiFilesystemFileStreamProxy alloc] _initWithPageContext:ourBridge args:payload] autorelease];
-  return [self NativeToJSValue:file];
+  @try {
+    // Let's re-use code! we're effectively calling: getFile(path).open(mode);
+    TiFile *fileProxy = [self getFileProxy:resolvedPath];
+    if (fileProxy != nil) {
+      NSArray *payload = @[ [NSNumber numberWithInt:mode] ];
+      TiStreamProxy *streamProxy = [fileProxy open:payload];
+      if (streamProxy != nil) {
+        return [self NativeToJSValue:streamProxy];
+      }
+    }
+  } @catch (NSException *exception) {
+    JSValue *jsException = [self NativeToJSValue:exception];
+    [[JSContext currentContext] setException:jsException];
+  }
+  return nil;
 }
 
 - (TiStreamMode)MODE_APPEND
@@ -100,7 +109,7 @@
   return TI_WRITE;
 }
 
-- (BOOL)isExternalStoragePresent
+- (bool)isExternalStoragePresent
 {
   //IOS treats the camera connection kit as just that, and does not allow
   //R/W access to it, which is just as well as it'd mess up cameras.
@@ -129,7 +138,13 @@ GETTER_IMPL(NSString *, applicationSupportDirectory, ApplicationSupportDirectory
 
 - (NSString *)applicationDataDirectory
 {
+#if TARGET_OS_MACCATALYST
+  NSString *home = NSHomeDirectory();
+  return [NSString stringWithFormat:@"%@/Documents/", fileURLify(home)];
+#else
+  // TODO: Unify these. Appending /Documents to the home directory appears to give the same path as below code for ios sim (probably also device)
   return [NSString stringWithFormat:@"%@/", fileURLify([NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) objectAtIndex:0])];
+#endif
 }
 GETTER_IMPL(NSString *, applicationDataDirectory, ApplicationDataDirectory);
 
@@ -169,53 +184,54 @@ GETTER_IMPL(NSString *, lineEnding, LineEnding);
 
 - (JSValue *)getFile
 {
-  NSArray *args = [JSContext currentArguments];
+  NSArray *args = JSContext.currentArguments;
   NSString *newpath = [self pathFromComponents:args];
+  TiFile *fileProxy = [self getFileProxy:newpath];
+  return [self NativeToJSValue:fileProxy];
+}
 
-  if ([newpath hasPrefix:[self resourcesDirectory]] && ([newpath hasSuffix:@".html"] || [newpath hasSuffix:@".js"] || [newpath hasSuffix:@".css"] || [newpath hasSuffix:@".json"])) {
-    NSURL *url = [NSURL fileURLWithPath:newpath];
-    NSData *data = [TiUtils loadAppResource:url];
-    if (data != nil) {
-      return [self NativeToJSValue:[[[TiFilesystemBlobProxy alloc] initWithURL:url data:data] autorelease]];
+- (TiFile *)getFileProxy:(NSString *)path
+{
+  if ([path hasSuffix:@".js"] || [path hasSuffix:@".json"]) {
+    NSString *resourcesDir = [self resourcesDirectory];
+    if ([path hasPrefix:resourcesDir] || [path hasPrefix:[resourcesDir stringByStandardizingPath]]) {
+      NSURL *url = [NSURL fileURLWithPath:path];
+      NSData *data = [TiUtils loadAppResource:url];
+      if (data != nil) {
+        return [[[TiFilesystemBlobProxy alloc] initWithURL:url data:data] autorelease];
+      }
     }
   }
 
-  return [self NativeToJSValue:[[[TiFilesystemFileProxy alloc] initWithFile:newpath] autorelease]];
+  return [[[TiFilesystemFileProxy alloc] initWithFile:path] autorelease];
 }
 
 - (TiBlob *)getAsset
 {
-  NSArray *args = [JSContext currentArguments];
+  NSArray *args = JSContext.currentArguments;
   NSString *newpath = [self pathFromComponents:args];
-
-  if ([newpath hasPrefix:[self resourcesDirectory]] && ([newpath hasSuffix:@".jpg"] || [newpath hasSuffix:@".png"])) {
-    UIImage *image = nil;
-    NSRange range = [newpath rangeOfString:@".app"];
-    NSString *imageArg = nil;
-    if (range.location != NSNotFound) {
-      imageArg = [newpath substringFromIndex:range.location + 5];
-    }
-    //remove suffixes.
-    imageArg = [imageArg stringByReplacingOccurrencesOfString:@"@3x" withString:@""];
-    imageArg = [imageArg stringByReplacingOccurrencesOfString:@"@2x" withString:@""];
-    imageArg = [imageArg stringByReplacingOccurrencesOfString:@"~iphone" withString:@""];
-    imageArg = [imageArg stringByReplacingOccurrencesOfString:@"~ipad" withString:@""];
-
-    if (imageArg != nil) {
-      unsigned char digest[CC_SHA1_DIGEST_LENGTH];
-      NSData *stringBytes = [imageArg dataUsingEncoding:NSUTF8StringEncoding];
-      if (CC_SHA1([stringBytes bytes], (CC_LONG)[stringBytes length], digest)) {
-        // SHA-1 hash has been calculated and stored in 'digest'.
-        NSMutableString *sha = [[NSMutableString alloc] init];
-        for (int i = 0; i < CC_SHA1_DIGEST_LENGTH; i++) {
-          [sha appendFormat:@"%02x", digest[i]];
+  if ([newpath hasSuffix:@".jpg"] || [newpath hasSuffix:@".png"]) {
+    NSString *resourcesDir = [self resourcesDirectory];
+    if ([newpath hasPrefix:resourcesDir] || [newpath hasPrefix:[resourcesDir stringByStandardizingPath]]) {
+      NSRange range = [newpath rangeOfString:@".app"];
+      if (range.location != NSNotFound) {
+        NSString *imageArg = nil;
+        if ([TiUtils isMacOS]) {
+          imageArg = [newpath substringFromIndex:range.location + 24]; //Contents/Resources/ for mac
+        } else {
+          imageArg = [newpath substringFromIndex:range.location + 5];
         }
-        [sha appendString:[newpath substringFromIndex:[newpath length] - 4]];
-        image = [UIImage imageNamed:sha];
-        RELEASE_TO_NIL(sha)
+        //remove suffixes.
+        imageArg = [imageArg stringByReplacingOccurrencesOfString:@"@3x" withString:@""];
+        imageArg = [imageArg stringByReplacingOccurrencesOfString:@"@2x" withString:@""];
+        imageArg = [imageArg stringByReplacingOccurrencesOfString:@"~iphone" withString:@""];
+        imageArg = [imageArg stringByReplacingOccurrencesOfString:@"~ipad" withString:@""];
+
+        UIImage *image = [UIImage imageNamed:imageArg];
+
+        return [[[TiBlob alloc] initWithImage:image] autorelease];
       }
     }
-    return [[[TiBlob alloc] initWithImage:image] autorelease];
   }
   return nil;
 }

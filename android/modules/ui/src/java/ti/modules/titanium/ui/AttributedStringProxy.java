@@ -91,9 +91,10 @@ public class AttributedStringProxy extends KrollProxy
 				attributeProxy.handleCreationDict(attributeDict);
 			}
 			if (attributeProxy == null) {
-				Log.e(
-					TAG,
-					"Unable to create attribute proxy for object, likely an error in the type of the object passed in.");
+				String errorMessage
+					= "Unable to create attribute proxy for object, "
+					+ "likely an error in the type of the object passed in.";
+				Log.e(TAG, errorMessage);
 			}
 
 			return attributeProxy;

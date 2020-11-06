@@ -14,7 +14,6 @@ import android.graphics.ComposeShader;
 import android.graphics.Shader;
 import android.content.Context;
 import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.LinearGradient;
 import android.graphics.Matrix;

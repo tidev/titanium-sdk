@@ -7,7 +7,6 @@
 #ifdef USE_TI_GEOLOCATION
 
 #import "GeolocationModule.h"
-#import "TiUtils+Addons.h"
 #import <TitaniumKit/APSHTTPClient.h>
 #import <TitaniumKit/NSData+Additions.h>
 #import <TitaniumKit/TiApp.h>
@@ -60,10 +59,11 @@ extern NSString *const TI_APPLICATION_GUID;
   [req setMethod:@"GET"];
   // Place it in the main thread since we're not using a queue and yet we need the
   // delegate methods to be called...
-  TiThreadPerformOnMainThread(^{
-    [req send];
-    [req autorelease];
-  },
+  TiThreadPerformOnMainThread(
+      ^{
+        [req send];
+        [req autorelease];
+      },
       NO);
 }
 
@@ -143,14 +143,13 @@ extern NSString *const TI_APPLICATION_GUID;
     BOOL success = [TiUtils boolValue:@"success" properties:event def:YES];
     NSMutableDictionary *revisedEvent = [TiUtils dictionaryWithCode:success ? 0 : -1 message:success ? nil : @"error reverse geocoding"];
     [revisedEvent setValuesForKeysWithDictionary:event];
-    // TODO: Remove the zipcode and country_code values after on SDK 9.0.0!
     NSArray<NSMutableDictionary *> *places = (NSArray<NSMutableDictionary *> *)revisedEvent[@"places"];
     for (NSMutableDictionary *dict in places) {
       dict[@"postalCode"] = dict[@"zipcode"];
+      [dict removeObjectForKey:@"zipcode"];
       dict[@"countryCode"] = dict[@"country_code"];
+      [dict removeObjectForKey:@"country_code"];
     }
-    NSLog(@"[WARN] GeocodedAddress properties country_code and zipcode are deprecated in SDK 8.0.0 and will be removed in 9.0.0");
-    NSLog(@"[WARN] Please replace usage with the respective properties: countryCode and postalCode");
     [callback callWithArguments:@[ revisedEvent ]];
   }
 }
@@ -317,11 +316,10 @@ extern NSString *const TI_APPLICATION_GUID;
 
     locationManager.allowsBackgroundLocationUpdates = allowsBackgroundLocationUpdates;
 
-#if IS_SDK_IOS_11
     if ([TiUtils isIOSVersionOrGreater:@"11.0"]) {
       locationManager.showsBackgroundLocationIndicator = showBackgroundLocationIndicator;
     }
-#endif
+
     locationManager.activityType = activityType;
     locationManager.pausesLocationUpdatesAutomatically = pauseLocationUpdateAutomatically;
 
@@ -422,9 +420,10 @@ extern NSString *const TI_APPLICATION_GUID;
   }
 
   if (startStop) {
-    TiThreadPerformOnMainThread(^{
-      [self startStopLocationManagerIfNeeded];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          [self startStopLocationManagerIfNeeded];
+        },
         NO);
   }
 }
@@ -447,9 +446,10 @@ extern NSString *const TI_APPLICATION_GUID;
   }
 
   if (check && ![self _hasListeners:@"heading"] && ![self _hasListeners:@"location"]) {
-    TiThreadPerformOnMainThread(^{
-      [self startStopLocationManagerIfNeeded];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          [self startStopLocationManagerIfNeeded];
+        },
         YES);
     [self shutdownLocationManager];
     trackingLocation = NO;
@@ -479,14 +479,18 @@ GETTER_IMPL(BOOL, hasCompass, HasCompass);
   id aguid = TI_APPLICATION_GUID;
   id sid = [[TiApp app] sessionId];
 
-  NSDictionary *params = @{
+  NSMutableDictionary *params = [@{
     @"d" : direction,
     @"aguid" : aguid,
     @"mid" : [TiUtils appIdentifier],
     @"sid" : sid,
     @"q" : address,
-    @"c" : [[NSLocale currentLocale] objectForKey:NSLocaleCountryCode]
-  };
+  } mutableCopy];
+
+  NSString *countryCode = [[NSLocale currentLocale] objectForKey:NSLocaleCountryCode];
+  if (countryCode) {
+    [params setValue:countryCode forKey:@"c"];
+  }
   [callback start:params];
 }
 
@@ -605,34 +609,30 @@ READWRITE_IMPL(CLLocationDegrees, headingFilter, HeadingFilter);
 
 - (BOOL)showBackgroundLocationIndicator
 {
-#if IS_SDK_IOS_11
   if ([TiUtils isIOSVersionOrGreater:@"11.0"]) {
     return showBackgroundLocationIndicator;
   }
-#endif
   DebugLog(@"[ERROR] The showBackgroundLocationIndicator property is only available on iOS 11.0+. Returning \"false\" ...");
   return NO;
 }
 
 - (void)setShowBackgroundLocationIndicator:(BOOL)value
 {
-#if IS_SDK_IOS_11
   if ([TiUtils isIOSVersionOrGreater:@"11.0"]) {
     showBackgroundLocationIndicator = value;
     return;
   }
-#endif
   DebugLog(@"[ERROR] The showBackgroundLocationIndicator property is only available on iOS 11.0+. Ignoring call ...");
 }
 
-READWRITE_IMPL(BOOL, showBackgroundLocationIndicator, ShowBackgroundLocationIndicator);
+READWRITE_IMPL(bool, showBackgroundLocationIndicator, ShowBackgroundLocationIndicator);
 
-- (BOOL)locationServicesEnabled
+- (bool)locationServicesEnabled
 {
   return [CLLocationManager locationServicesEnabled];
 }
 
-GETTER_IMPL(BOOL, locationServicesEnabled, LocationServicesEnabled);
+GETTER_IMPL(bool, locationServicesEnabled, LocationServicesEnabled);
 
 - (CLAuthorizationStatus)locationServicesAuthorization
 {
@@ -641,12 +641,12 @@ GETTER_IMPL(BOOL, locationServicesEnabled, LocationServicesEnabled);
 
 GETTER_IMPL(CLAuthorizationStatus, locationServicesAuthorization, LocationServicesAuthorization);
 
-- (BOOL)trackSignificantLocationChange
+- (bool)trackSignificantLocationChange
 {
   return trackSignificantLocationChange;
 }
 
-- (void)setTrackSignificantLocationChange:(BOOL)newval
+- (void)setTrackSignificantLocationChange:(bool)newval
 {
   if ([CLLocationManager significantLocationChangeMonitoringAvailable]) {
     if (newval != trackSignificantLocationChange) {
@@ -657,9 +657,10 @@ GETTER_IMPL(CLAuthorizationStatus, locationServicesAuthorization, LocationServic
         trackingLocation = NO;
         trackSignificantLocationChange = newval;
         [lock unlock];
-        TiThreadPerformOnMainThread(^{
-          [self startStopLocationManagerIfNeeded];
-        },
+        TiThreadPerformOnMainThread(
+            ^{
+              [self startStopLocationManagerIfNeeded];
+            },
             NO);
         return;
       }
@@ -671,7 +672,7 @@ GETTER_IMPL(CLAuthorizationStatus, locationServicesAuthorization, LocationServic
   }
 }
 
-READWRITE_IMPL(BOOL, trackSignificantLocationChange, TrackSignificantLocationChange);
+READWRITE_IMPL(bool, trackSignificantLocationChange, TrackSignificantLocationChange);
 
 // Activity Type for CLlocationManager.
 - (CLActivityType)activityType
@@ -682,9 +683,10 @@ READWRITE_IMPL(BOOL, trackSignificantLocationChange, TrackSignificantLocationCha
 - (void)setActivityType:(CLActivityType)value
 {
   activityType = value;
-  TiThreadPerformOnMainThread(^{
-    [locationManager setActivityType:activityType];
-  },
+  TiThreadPerformOnMainThread(
+      ^{
+        [locationManager setActivityType:activityType];
+      },
       NO);
 }
 
@@ -692,21 +694,22 @@ READWRITE_IMPL(CLActivityType, activityType, ActivityType);
 
 // Flag to decide whether or not the app should continue to send location updates while the app is in background.
 
-- (BOOL)pauseLocationUpdateAutomatically
+- (bool)pauseLocationUpdateAutomatically
 {
   return pauseLocationUpdateAutomatically;
 }
 
-- (void)setPauseLocationUpdateAutomatically:(BOOL)value
+- (void)setPauseLocationUpdateAutomatically:(bool)value
 {
   pauseLocationUpdateAutomatically = value;
-  TiThreadPerformOnMainThread(^{
-    [locationManager setPausesLocationUpdatesAutomatically:pauseLocationUpdateAutomatically];
-  },
+  TiThreadPerformOnMainThread(
+      ^{
+        [locationManager setPausesLocationUpdatesAutomatically:pauseLocationUpdateAutomatically];
+      },
       NO);
 }
 
-READWRITE_IMPL(BOOL, pauseLocationUpdateAutomatically, PauseLocationUpdateAutomatically);
+READWRITE_IMPL(bool, pauseLocationUpdateAutomatically, PauseLocationUpdateAutomatically);
 
 - (void)restart:(id)arg
 {
@@ -716,9 +719,10 @@ READWRITE_IMPL(BOOL, pauseLocationUpdateAutomatically, PauseLocationUpdateAutoma
   trackingLocation = NO;
   [lock unlock];
   // must be on UI thread
-  TiThreadPerformOnMainThread(^{
-    [self startStopLocationManagerIfNeeded];
-  },
+  TiThreadPerformOnMainThread(
+      ^{
+        [self startStopLocationManagerIfNeeded];
+      },
       NO);
 }
 
@@ -729,7 +733,13 @@ MAKE_SYSTEM_PROP_DBL(ACCURACY_HUNDRED_METERS, kCLLocationAccuracyHundredMeters);
 MAKE_SYSTEM_PROP_DBL(ACCURACY_KILOMETER, kCLLocationAccuracyKilometer);
 MAKE_SYSTEM_PROP_DBL(ACCURACY_THREE_KILOMETERS, kCLLocationAccuracyThreeKilometers);
 MAKE_SYSTEM_PROP_DBL(ACCURACY_LOW, kCLLocationAccuracyThreeKilometers);
-MAKE_SYSTEM_PROP(ACCURACY_BEST_FOR_NAVIGATION, kCLLocationAccuracyBestForNavigation); //Since 2.1.3
+MAKE_SYSTEM_PROP_DBL(ACCURACY_BEST_FOR_NAVIGATION, kCLLocationAccuracyBestForNavigation);
+#if IS_SDK_IOS_14
+MAKE_SYSTEM_PROP_DBL(ACCURACY_REDUCED, kCLLocationAccuracyReduced);
+
+MAKE_SYSTEM_PROP(ACCURACY_AUTHORIZATION_FULL, CLAccuracyAuthorizationFullAccuracy);
+MAKE_SYSTEM_PROP(ACCURACY_AUTHORIZATION_REDUCED, CLAccuracyAuthorizationReducedAccuracy);
+#endif
 
 MAKE_SYSTEM_PROP(AUTHORIZATION_UNKNOWN, kCLAuthorizationStatusNotDetermined);
 MAKE_SYSTEM_PROP(AUTHORIZATION_AUTHORIZED, kCLAuthorizationStatusAuthorizedAlways);
@@ -762,7 +772,7 @@ MAKE_SYSTEM_PROP(ACTIVITYTYPE_OTHER_NAVIGATION, CLActivityTypeOtherNavigation);
   return locationPermissionManager;
 }
 
-- (BOOL)hasLocationPermissions:(CLAuthorizationStatus)authorizationType
+- (bool)hasLocationPermissions:(CLAuthorizationStatus)authorizationType
 {
   BOOL locationServicesEnabled = [CLLocationManager locationServicesEnabled];
   CLAuthorizationStatus currentPermissionLevel = [CLLocationManager authorizationStatus];
@@ -805,9 +815,10 @@ MAKE_SYSTEM_PROP(ACTIVITYTYPE_OTHER_NAVIGATION, CLActivityTypeOtherNavigation);
       if (currentPermissionLevel == kCLAuthorizationStatusAuthorizedAlways) {
         errorMessage = @"Cannot change already granted permission from AUTHORIZATION_ALWAYS to the lower permission-level AUTHORIZATION_WHEN_IN_USE";
       } else {
-        TiThreadPerformOnMainThread(^{
-          [[self locationPermissionManager] requestWhenInUseAuthorization];
-        },
+        TiThreadPerformOnMainThread(
+            ^{
+              [[self locationPermissionManager] requestWhenInUseAuthorization];
+            },
             NO);
       }
     } else {
@@ -817,9 +828,10 @@ MAKE_SYSTEM_PROP(ACTIVITYTYPE_OTHER_NAVIGATION, CLActivityTypeOtherNavigation);
   }
   if (requestedAuthorizationStatus == kCLAuthorizationStatusAuthorizedAlways) {
     if ([GeolocationModule hasAlwaysPermissionKeys]) {
-      TiThreadPerformOnMainThread(^{
-        [[self locationPermissionManager] requestAlwaysAuthorization];
-      },
+      TiThreadPerformOnMainThread(
+          ^{
+            [[self locationPermissionManager] requestAlwaysAuthorization];
+          },
           NO);
     } else if ([TiUtils isIOSVersionOrGreater:@"11.0"]) {
       errorMessage = [[NSString alloc] initWithFormat:
@@ -841,9 +853,43 @@ MAKE_SYSTEM_PROP(ACTIVITYTYPE_OTHER_NAVIGATION, CLActivityTypeOtherNavigation);
   }
 }
 
-READWRITE_IMPL(BOOL, allowsBackgroundLocationUpdates, AllowsBackgroundLocationUpdates);
+#if IS_SDK_IOS_14
+- (void)requestTemporaryFullAccuracyAuthorization:(NSString *)purposeKey withCallback:(JSValue *)callback
+{
+  if (![TiUtils isIOSVersionOrGreater:@"14.0"]) {
+    NSMutableDictionary *propertiesDict = [TiUtils dictionaryWithCode:1 message:@"Supported on iOS 14+"];
+    [callback callWithArguments:@[ propertiesDict ]];
+    return;
+  }
+  NSDictionary *descriptionDict = [[NSBundle mainBundle] objectForInfoDictionaryKey:kTiGeolocationTemporaryUsageDescriptionDictionary];
+  if (!descriptionDict || ![descriptionDict valueForKey:purposeKey]) {
+    DebugLog(@"[WARN] Add %@ key with purpose key %@ in info.plist", kTiGeolocationTemporaryUsageDescriptionDictionary, purposeKey);
+  }
+  [[self locationPermissionManager] requestTemporaryFullAccuracyAuthorizationWithPurposeKey:purposeKey
+                                                                                 completion:^(NSError *_Nullable error) {
+                                                                                   NSMutableDictionary *propertiesDict = [TiUtils dictionaryWithCode:0 message:nil];
+                                                                                   if (error != nil) {
+                                                                                     propertiesDict = [TiUtils dictionaryWithCode:1 message:error.description];
+                                                                                   } else {
+                                                                                     propertiesDict[@"accuracyAuthorization"] = @([[self locationPermissionManager] accuracyAuthorization]);
+                                                                                   }
+                                                                                   [callback callWithArguments:@[ propertiesDict ]];
+                                                                                 }];
+}
+
+- (CLAccuracyAuthorization)locationAccuracyAuthorization
+{
+  if (![TiUtils isIOSVersionOrGreater:@"14.0"]) {
+    DebugLog(@"[ERROR] This property is available on iOS 14 and above.");
+    return -1;
+  }
+  return [[self locationPermissionManager] accuracyAuthorization];
+}
+#endif
+
+READWRITE_IMPL(bool, allowsBackgroundLocationUpdates, AllowsBackgroundLocationUpdates);
 GETTER_IMPL(NSString *, lastGeolocation, LastGeolocation);
-READWRITE_IMPL(BOOL, showCalibration, ShowCalibration);
+READWRITE_IMPL(bool, showCalibration, ShowCalibration);
 
 #pragma mark Internal
 
@@ -1044,11 +1090,12 @@ READWRITE_IMPL(BOOL, showCalibration, ShowCalibration);
       errorStr = @"The requested permissions do not match the selected permission (the user likely declined AUTHORIZATION_ALWAYS permissions) in iOS 11+";
     }
 
-    TiThreadPerformOnMainThread(^{
-      NSMutableDictionary *propertiesDict = [TiUtils dictionaryWithCode:code message:errorStr];
-      [propertiesDict setObject:NUMINT([CLLocationManager authorizationStatus]) forKey:@"authorizationStatus"];
-      [[authorizationCallback value] callWithArguments:@[ propertiesDict ]];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          NSMutableDictionary *propertiesDict = [TiUtils dictionaryWithCode:code message:errorStr];
+          [propertiesDict setObject:NUMINT([CLLocationManager authorizationStatus]) forKey:@"authorizationStatus"];
+          [[authorizationCallback value] callWithArguments:@[ propertiesDict ]];
+        },
         YES);
     [[authorizationCallback value].context.virtualMachine removeManagedReference:authorizationCallback withOwner:self];
     RELEASE_TO_NIL(authorizationCallback);
@@ -1086,11 +1133,12 @@ READWRITE_IMPL(BOOL, showCalibration, ShowCalibration);
 
 - (void)locationManager:(CLLocationManager *)manager didFailWithError:(NSError *)error
 {
+  NSMutableDictionary *event = [TiUtils dictionaryWithCode:[error code] message:[TiUtils messageFromError:error]];
+
   if ([self _hasListeners:@"location"]) {
-    [self fireEvent:@"location" withObject:nil errorCode:[error code] message:[TiUtils messageFromError:error]];
+    [self fireEvent:@"location" withDict:event];
   }
 
-  NSMutableDictionary *event = [TiUtils dictionaryWithCode:[error code] message:[TiUtils messageFromError:error]];
   BOOL recheck = [self fireSingleShotLocationIfNeeded:event stopIfNeeded:NO];
   recheck = recheck || [self fireSingleShotHeadingIfNeeded:event stopIfNeeded:NO];
 

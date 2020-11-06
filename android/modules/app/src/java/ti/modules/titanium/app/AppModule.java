@@ -9,30 +9,23 @@ package ti.modules.titanium.app;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.KrollProxy;
-import org.appcelerator.kroll.KrollRuntime;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.kroll.util.KrollAssetHelper;
 import org.appcelerator.titanium.ITiAppInfo;
 import org.appcelerator.titanium.TiApplication;
-import org.appcelerator.titanium.TiBaseActivity;
-import org.appcelerator.titanium.TiRootActivity;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.util.TiConvert;
-import org.appcelerator.titanium.util.TiPlatformHelper;
 import org.appcelerator.titanium.util.TiSensorHelper;
 
-import android.app.Application;
-import android.content.Intent;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Build;
 import android.provider.Settings;
-import android.support.v4.view.accessibility.AccessibilityEventCompat;
-import android.support.v4.view.accessibility.AccessibilityManagerCompat;
-import android.support.v4.view.accessibility.AccessibilityManagerCompat.AccessibilityStateChangeListenerCompat;
+import androidx.core.view.accessibility.AccessibilityEventCompat;
+import androidx.core.view.accessibility.AccessibilityManagerCompat;
+import androidx.core.view.accessibility.AccessibilityManagerCompat.AccessibilityStateChangeListenerCompat;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityManager;
 
@@ -68,11 +61,9 @@ public class AppModule extends KrollModule implements SensorEventListener
 		TiApplication.getInstance().removeAppEventProxy(this);
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public String getId()
-	// clang-format on
 	{
 		return appInfo.getId();
 	}
@@ -83,38 +74,30 @@ public class AppModule extends KrollModule implements SensorEventListener
 		return getId();
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public String getName()
-	// clang-format on
 	{
 		return appInfo.getName();
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public String getVersion()
-	// clang-format on
 	{
 		return appInfo.getVersion();
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public String getPublisher()
-	// clang-format on
 	{
 		return appInfo.getPublisher();
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public String getUrl()
-	// clang-format on
 	{
 		return appInfo.getUrl();
 	}
@@ -125,29 +108,23 @@ public class AppModule extends KrollModule implements SensorEventListener
 		return getUrl();
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public String getDescription()
-	// clang-format on
 	{
 		return appInfo.getDescription();
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public String getCopyright()
-	// clang-format on
 	{
 		return appInfo.getCopyright();
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public String getGuid()
-	// clang-format on
 	{
 		return appInfo.getGUID();
 	}
@@ -158,29 +135,23 @@ public class AppModule extends KrollModule implements SensorEventListener
 		return getGuid();
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public String getDeployType()
-	// clang-format on
 	{
 		return TiApplication.getInstance().getDeployType();
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public String getSessionId()
-	// clang-format on
 	{
 		return APSAnalytics.getInstance().getCurrentSessionId();
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public boolean getAnalytics()
-	// clang-format on
 	{
 		return appInfo.isAnalyticsEnabled();
 	}
@@ -191,11 +162,9 @@ public class AppModule extends KrollModule implements SensorEventListener
 		return resolveUrl(null, url);
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public boolean getAccessibilityEnabled()
-	// clang-format on
 	{
 		AccessibilityManager manager = TiApplication.getInstance().getAccessibilityManager();
 		boolean enabled = manager.isEnabled();
@@ -284,20 +253,16 @@ public class AppModule extends KrollModule implements SensorEventListener
 		}
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public boolean getProximityDetection()
-	// clang-format on
 	{
 		return proximityDetection;
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.setProperty
 	public void setProximityDetection(Object value)
-	// clang-format on
 	{
 		proximityDetection = TiConvert.toBoolean(value);
 		if (proximityDetection) {
@@ -309,11 +274,9 @@ public class AppModule extends KrollModule implements SensorEventListener
 		}
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public boolean getProximityState()
-	// clang-format on
 	{
 		return proximityState;
 	}

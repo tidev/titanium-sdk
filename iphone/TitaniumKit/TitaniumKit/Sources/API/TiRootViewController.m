@@ -11,6 +11,7 @@
 #import "TiLayoutQueue.h"
 #import "TiSharedConfig.h"
 #import "TiUtils.h"
+#import "TiViewController.h"
 
 #ifdef FORCE_WITH_MODAL
 @interface ForcingController : UIViewController {
@@ -236,9 +237,10 @@
   }
   [bgImage release];
   bgImage = [newImage retain];
-  TiThreadPerformOnMainThread(^{
-    [self updateBackground];
-  },
+  TiThreadPerformOnMainThread(
+      ^{
+        [self updateBackground];
+      },
       NO);
 }
 
@@ -249,9 +251,10 @@
   }
   [bgColor release];
   bgColor = [newColor retain];
-  TiThreadPerformOnMainThread(^{
-    [self updateBackground];
-  },
+  TiThreadPerformOnMainThread(
+      ^{
+        [self updateBackground];
+      },
       NO);
 }
 
@@ -824,6 +827,10 @@
     }
   }
   [self dismissKeyboard];
+  if ([theController isKindOfClass:[TiViewController class]] && theController.popoverPresentationController == nil) {
+    TiViewController *controller = (TiViewController *)theController;
+    controller.presentationController.delegate = controller;
+  }
   [topVC presentViewController:theController animated:trulyAnimated completion:nil];
 }
 
@@ -1365,11 +1372,13 @@
 {
   WARN_IF_BACKGROUND_THREAD_OBJ;
   if ([self presentedViewController] == nil && isCurrentlyVisible) {
+#if !TARGET_OS_MACCATALYST
     [self refreshOrientationWithDuration:nil];
+#endif
     [self updateStatusBar];
   }
 
-  if ([TiUtils isIOSVersionOrGreater:@"11.0"] && [self respondsToSelector:@selector(setNeedsUpdateOfHomeIndicatorAutoHidden)]) {
+  if (([TiUtils isIOSVersionOrGreater:@"11.0"] || [TiUtils isMacOS]) && [self respondsToSelector:@selector(setNeedsUpdateOfHomeIndicatorAutoHidden)]) {
     [self setNeedsUpdateOfHomeIndicatorAutoHidden];
   }
 }
@@ -1420,7 +1429,7 @@
 {
   [self resetTransformAndForceLayout:YES];
 
-  [[NSNotificationCenter defaultCenter] postNotificationName:kTiTraitCollectionChanged];
+  [[NSNotificationCenter defaultCenter] postNotificationName:kTiTraitCollectionChanged object:self];
 
   [super traitCollectionDidChange:previousTraitCollection];
 }

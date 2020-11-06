@@ -98,14 +98,16 @@ static void SetEventOverrideDelegateRecursive(NSArray *children, id<TiViewEventO
 - (void)propertyChanged:(NSString *)key oldValue:(id)oldValue newValue:(id)newValue proxy:(TiProxy *)proxy_
 {
   if ([key isEqualToString:@"accessoryType"]) {
-    TiThreadPerformOnMainThread(^{
-      _listItem.accessoryType = [TiUtils intValue:newValue def:UITableViewCellAccessoryNone];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          _listItem.accessoryType = [TiUtils intValue:newValue def:UITableViewCellAccessoryNone];
+        },
         YES);
   } else if ([key isEqualToString:@"selectionStyle"]) {
-    TiThreadPerformOnMainThread(^{
-      _listItem.selectionStyle = [TiUtils intValue:newValue def:UITableViewCellSelectionStyleBlue];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          _listItem.selectionStyle = [TiUtils intValue:newValue def:UITableViewCellSelectionStyleBlue];
+        },
         YES);
   }
 }

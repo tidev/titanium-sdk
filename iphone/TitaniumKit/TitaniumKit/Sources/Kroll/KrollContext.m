@@ -535,8 +535,7 @@ static JSValueRef StringFormatDecimalCallback(JSContextRef jsContext, JSObjectRe
   [self jsInvokeInContext:context exception:&exception];
 
   if (exception != NULL) {
-    id excm = [KrollObject toID:context value:exception];
-    [[TiExceptionHandler defaultExceptionHandler] reportScriptError:[TiUtils scriptErrorValue:excm]];
+    [TiExceptionHandler.defaultExceptionHandler reportScriptError:exception inKrollContext:context];
     pthread_mutex_unlock(&KrollEntryLock);
   }
   pthread_mutex_unlock(&KrollEntryLock);
@@ -549,8 +548,7 @@ static JSValueRef StringFormatDecimalCallback(JSContextRef jsContext, JSObjectRe
   JSValueRef result = [self jsInvokeInContext:context exception:&exception];
 
   if (exception != NULL) {
-    id excm = [KrollObject toID:context value:exception];
-    [[TiExceptionHandler defaultExceptionHandler] reportScriptError:[TiUtils scriptErrorValue:excm]];
+    [TiExceptionHandler.defaultExceptionHandler reportScriptError:exception inKrollContext:context];
     pthread_mutex_unlock(&KrollEntryLock);
   }
   pthread_mutex_unlock(&KrollEntryLock);
@@ -691,9 +689,10 @@ static JSValueRef StringFormatDecimalCallback(JSContextRef jsContext, JSObjectRe
                                  userInfo:nil];
   }
   stopped = NO;
-  TiThreadPerformOnMainThread(^{
-    [self main];
-  },
+  TiThreadPerformOnMainThread(
+      ^{
+        [self main];
+      },
       NO);
 }
 

@@ -11,7 +11,7 @@ description: |
 createable: false
 extends: Titanium.App.Properties
 since: "4.0.0"
-platforms: [iphone, ipad]
+platforms: [iphone, ipad, macos]
 
 properties:
   - name: suiteName
@@ -23,8 +23,9 @@ examples:
   - title: Create a UserDefaults object
     example: |
         Creating a UserDefaults object
-        
-            var props = Ti.App.iOS.createUserDefaults({
-                suiteName: 'group.mySuite'
-            });
 
+        ``` js
+        var props = Ti.App.iOS.createUserDefaults({
+            suiteName: 'group.mySuite'
+        });
+        ```

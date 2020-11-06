@@ -2,22 +2,9 @@
 name: Titanium.UI.SearchBar
 summary: A specialized text field for entering search text.
 description: |
-    <table id="platformComparison">
-      <tbody>
-        <tr>
-          <td><img src="images/searchbar/searchbar_android.png" height="25" /></td>
-          <td><img src="images/searchbar/searchbar_ios.png" height="25" /></td>
-          <td><img src="images/searchbar/searchbar_windows.png" height="25" /></td>
-        </tr>
-      </tbody>
-      <tfoot>
-        <tr>
-          <th>Android</th>
-          <th>iOS</th>
-          <th>Windows</th>
-        </tr>
-      </tfoot>
-    </table>
+    | Android | iOS | Windows |
+    | ------- | --- | ------- |
+    | ![Android](./searchbar_android.png) | ![iOS](./searchbar_ios.png) | ![Windows](./searchbar_windows.png) |
 
     The `SearchBar` object is closely modeled on an iOS native search bar.
     As such, not all features are supported on other platforms. For Android applications,
@@ -52,24 +39,26 @@ description: |
     the search bar and dismiss the onscreen keyboard when the user selects a row, you
     could add code like this to the `click` event handler on your table view:
 
-        myTableView.addEventListener('click', function(e) {
-            if (Ti.Platform.name === 'android') {
-                // Clear search bar
-                mySearchBar.value ="";
-                // hiding and showing the search bar forces it back to its non-focused appearance.
-                mySearchBar.hide();
-                mySearchBar.show();
-            }
-            // standard click event handling here
+    ``` js
+    myTableView.addEventListener('click', function(e) {
+        if (Ti.Platform.name === 'android') {
+            // Clear search bar
+            mySearchBar.value ="";
+            // hiding and showing the search bar forces it back to its non-focused appearance.
+            mySearchBar.hide();
+            mySearchBar.show();
+        }
+        // standard click event handling here
+    });
+    ```
 
     **Note**: Due to native limitations, the SearchBar's positional properties may not work properly
     when nested within a TableView or ListView (properties such as left, right, width and so on).
-
 extends: Titanium.UI.View
 excludes:
     methods: [add, remove, removeAllChildren, replaceAt]
 since: "0.8"
-platforms: [android, iphone, ipad]
+platforms: [android, iphone, ipad, macos]
 methods:
 
   - name: blur
@@ -86,22 +75,46 @@ methods:
         On iOS, this method can be used to specify animation properties when changing the
         state of the cancel button.
 
-            searchBar.setShowCancel(true, { animated: true });
-
+        ``` js
+        searchBar.setShowCancel(true, { animated: true });
+        ```
     parameters:
       - name: showCancel
         summary: New value for [showCancel](Titanium.UI.SearchBar.showCancel).
         type: Boolean
 
-      - name: animated
+      - name: options
         summary: |
             Dictionary of animation properties. Currently only a
             single boolean property, `animated` is supported. Only used on iOS.
-        type: Dictionary
-        optional: true
-        default: No animation.
-events:
 
+            Note that the default here is equivalent to passing in `{ animated: false }`
+        type: AnimatedOptions
+        optional: true
+        default: "{ animated: false }"
+  
+  - name: insertTokenAtIndex
+    summary: Inserts a new search token at the specified index.
+    parameters:
+      - name: token
+        type: SearchBarToken
+        summary: The token to insert
+      - name: index
+        type: Number
+        summary: The index to insert the token at.
+    osver: { ios: { min: "13.0" } }
+    since: 9.1.0
+
+  - name: removeTokenAtIndex
+    summary: Removes an existing token at the specified index.
+    parameters:
+      - name: index
+        type: Number
+        summary: The index to remove the token at.
+    osver: { ios: { min: "13.0" } }
+    since: 9.1.0
+
+events:
   - name: blur
     summary: Fired when the search bar loses focus.
     properties:
@@ -147,18 +160,17 @@ events:
         type: String
 
 properties:
-
   - name: autocapitalization
     summary: Determines how text is capitalized during typing.
     type: Number
     constants: Titanium.UI.TEXT_AUTOCAPITALIZATION_*
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     default: Titanium.UI.TEXT_AUTOCAPITALIZATION_NONE
 
   - name: autocorrect
     summary: Determines whether the text in the search bar is autocorrected during typing.
     type: Boolean
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     default: false
 
   - name: barColor
@@ -168,8 +180,8 @@ properties:
 
         On iOS and Android, `barColor` specifies the color of the "frame" around the search text field.
         On Windows, `barColor` specifies the color of the whole surrounding area of the search text field.
-    type: String
-    platforms: [android, iphone, ipad]
+    type: [String, Titanium.UI.Color]
+    platforms: [android, iphone, ipad, macos]
     default: System default bar color.
 
   - name: cancelButtonTitle
@@ -178,14 +190,14 @@ properties:
     type: String
     default: System-localized 'Cancel'
     since: "5.4.0"
-    platforms: [iphone,ipad]
+    platforms: [iphone,ipad, macos]
 
   - name: color
     summary: Color of the text in this text field, as a color name or hex triplet.
     description: |
         For information about color values, see the "Colors" section of <Titanium.UI>.
-    type: String
-    platforms: [android, iphone, ipad]
+    type: [String, Titanium.UI.Color]
+    platforms: [android, iphone, ipad, macos]
     since: "7.1.0"
 
   - name: fieldBackgroundImage
@@ -193,7 +205,7 @@ properties:
     description: |
       If this property is not specified, the default white background is used.
     type: String
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "7.5.0"
 
   - name: fieldBackgroundDisabledImage
@@ -201,8 +213,15 @@ properties:
     description: |
       If this property is not specified, the default white background is used.
     type: String
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "7.5.0"
+
+  - name: focused
+    summary: Determines whether this SearchBar has focus.
+    type: Boolean
+    default: false
+    permission: read-only
+    since: "9.1.0"
 
   - name: hintText
     summary: Text to show when the search bar field is not focused.
@@ -211,11 +230,11 @@ properties:
 
   - name: hintTextColor
     summary: Hint text color to display when the field is empty.
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     since: "7.1.0"
     description: |
         Sets the color of the <Titanium.UI.SearchBar.hintText>.
-    type: String
+    type: [String, Titanium.UI.Color]
     default: The platform's default hint text color.
 
   - name: hinttextid
@@ -228,7 +247,7 @@ properties:
   - name: keyboardType
     summary: Keyboard type constant to use when the field is focused.
     type: Number
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     constants: Titanium.UI.KEYBOARD_TYPE_*
     default: Titanium.UI.KEYBOARD_TYPE_DEFAULT
 
@@ -236,14 +255,14 @@ properties:
     summary: Determines the appearance of the keyboard to be displayed the field is focused.
     type: Number
     since: 5.2.0
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     constants: Titanium.UI.KEYBOARD_APPEARANCE_*
     default: Titanium.UI.KEYBOARD_APPEARANCE_DEFAULT
 
   - name: prompt
     summary: Single line of text displayed at the top of the search bar.
     type: String
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     default: No prompt.
 
   - name: promptid
@@ -251,12 +270,12 @@ properties:
         Key identifying a string from the locale file to use for the
         [prompt](Titanium.UI.SearchBar.prompt) property.
     type: String
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: showBookmark
     summary: Determines whether the bookmark button is displayed.
     type: Boolean
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     default: false
 
   - name: showCancel
@@ -272,7 +291,7 @@ properties:
     summary: Determines the style of the search bar.
     type: Number
     since: 5.4.0
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     constants: Titanium.UI.iOS.SEARCH_BAR_STYLE_*
     default: Titanium.UI.iOS.SEARCH_BAR_STYLE_PROMINENT
 
@@ -282,42 +301,77 @@ properties:
         On Android, the value cannot be set until after the search bar is created.
     type: String
 
+  - name: tokens
+    summary: The token of a search text field
+    since: 9.1.0
+    osver: { ios: { min: "13.0" } }
+    type: Array<String>
+    default: []
+
 examples:
 
   - title: Simple Search Bar
     example: |
-
-            var search = Titanium.UI.createSearchBar({
-            	barColor:'#000',
-            	showCancel:true,
-            	height:43,
-            	top:0,
-            });
+        ``` js
+        var search = Titanium.UI.createSearchBar({
+          barColor:'#000',
+          showCancel:true,
+          height:43,
+          top:0,
+        });
+        ```
 
   - title: Alloy XML Markup
     example: |
         Previous example as an Alloy view.
 
-            <Alloy>
-                <SearchBar id="search" barColor="#000" showCancel="true" height="43" top="0" />
-            </Alloy>
+        ``` xml
+        <Alloy>
+            <SearchBar id="search" barColor="#000" showCancel="true" height="43" top="0" />
+        </Alloy>
+        ```
 
   - title: Search Bar with TableView
     example: |
-            var search = Ti.UI.createSearchBar({
-                showCancel: true
-            });
-            var tableview = Ti.UI.createTableView({
-                search: search
-            });
+        ``` js
+        var search = Ti.UI.createSearchBar({
+            showCancel: true
+        });
+        var tableview = Ti.UI.createTableView({
+            search: search
+        });
+        ```
 
   - title: Alloy XML Markup
     example: |
         Previous example as an Alloy view.
 
-            <Alloy>
-                <TableView id="tableview">
-                    <SearchBar id="search" showCancel="true" />
-                </TableView>
-            </Alloy>
+        ``` xml
+        <Alloy>
+            <TableView id="tableview">
+                <SearchBar id="search" showCancel="true" />
+            </TableView>
+        </Alloy>
+        ```
 
+---
+name: SearchBarToken
+summary: The search bar token for the <Titanium.UI.SearchBar.insertTokenAtIndex> method.
+since: 9.1.0
+osver: { ios: { min: "13.0" } }
+platforms: [iphone, ipad, macos]
+properties:
+  - name: identifier
+    summary: The identifier of the search bar token.
+    type: String
+    optional: false
+
+  - name: text
+    summary: The text of the search bar token (displayed in the search bar).
+    type: String
+    optional: false
+
+  - name: image
+    summary: The image of the search bar token.
+    type: String
+    optional: true

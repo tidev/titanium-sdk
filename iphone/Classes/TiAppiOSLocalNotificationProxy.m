@@ -28,22 +28,13 @@
 {
   DEPRECATED_REPLACED(@"App.iOS.LocalNotification.cancel()", @"7.3.0", @"App.iOS.UserNotificationCenter.removePendingNotifications()");
 
-  if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
-    NSString *identifier = @"notification";
-    NSDictionary *userInfo = [(UNMutableNotificationContent *)self.notification userInfo];
+  NSString *identifier = @"notification";
+  NSDictionary *userInfo = [(UNMutableNotificationContent *)self.notification userInfo];
 
-    if (userInfo != nil && [userInfo objectForKey:@"id"] != nil) {
-      identifier = [TiUtils stringValue:[userInfo objectForKey:@"id"]];
-    }
-    [[UNUserNotificationCenter currentNotificationCenter] removePendingNotificationRequestsWithIdentifiers:@[ [TiUtils stringValue:identifier] ]];
-  } else {
-    UILocalNotification *cancelledNotification = [self.notification retain];
-    TiThreadPerformOnMainThread(^{
-      [[UIApplication sharedApplication] cancelLocalNotification:cancelledNotification];
-      [cancelledNotification release];
-    },
-        NO);
+  if (userInfo != nil && [userInfo objectForKey:@"id"] != nil) {
+    identifier = [TiUtils stringValue:[userInfo objectForKey:@"id"]];
   }
+  [[UNUserNotificationCenter currentNotificationCenter] removePendingNotificationRequestsWithIdentifiers:@[ [TiUtils stringValue:identifier] ]];
 }
 
 @end

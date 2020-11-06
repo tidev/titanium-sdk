@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2011-2015 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2011-2020 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -19,6 +19,7 @@ import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import androidx.annotation.Nullable;
 
 /**
  * The common Javascript runtime instance that Titanium interacts with.
@@ -39,6 +40,7 @@ public abstract class KrollRuntime implements Handler.Callback
 	private static final int MSG_DISPOSE = 101;
 	private static final int MSG_RUN_MODULE = 102;
 	private static final int MSG_EVAL_STRING = 103;
+	private static final int MSG_RUN_MODULE_BYTES = 104;
 	private static final String PROPERTY_FILENAME = "filename";
 	private static final String PROPERTY_SOURCE = "source";
 
@@ -63,7 +65,7 @@ public abstract class KrollRuntime implements Handler.Callback
 
 	protected Handler handler;
 
-	public static final int MSG_LAST_ID = MSG_RUN_MODULE + 100;
+	public static final int MSG_LAST_ID = MSG_RUN_MODULE_BYTES + 100;
 
 	public static final Object UNDEFINED = new Object() {
 		public String toString()
@@ -108,16 +110,43 @@ public abstract class KrollRuntime implements Handler.Callback
 		runtime.doInit();
 	}
 
+	@Nullable
 	public static KrollRuntime getInstance()
 	{
+		// TODO: Prevent this method from requiring `null` checks.
 		return instance;
 	}
 
+	/**
+	 * Suggest V8 garbage collection during idle.
+	 */
 	public static void suggestGC()
 	{
 		if (instance != null) {
 			instance.setGCFlag();
 		}
+	}
+
+	/**
+	 * Force V8 garbage collection.
+	 */
+	public static void softGC()
+	{
+		// Force V8 garbage collection.
+		if (instance != null) {
+			instance.forceGC();
+		}
+	}
+
+	/**
+	 * Force both V8 and JVM garbage collection.
+	 */
+	public static void hardGC()
+	{
+		softGC();
+
+		// Force JVM garbage collection.
+		System.gc();
 	}
 
 	public static boolean isInitialized()
@@ -203,6 +232,19 @@ public abstract class KrollRuntime implements Handler.Callback
 		// Dispose the runtime on the thread it was created on.
 		Log.d(TAG, "Disposing runtime.", Log.DEBUG_MODE);
 		internalDispose();
+	}
+
+	public void runModuleBytes(byte[] source, String filename, KrollProxySupport activityProxy)
+	{
+		if (isRuntimeThread()) {
+			doRunModuleBytes(source, filename, activityProxy);
+
+		} else {
+			Message message = handler.obtainMessage(MSG_RUN_MODULE_BYTES, activityProxy);
+			message.getData().putByteArray(PROPERTY_SOURCE, source);
+			message.getData().putString(PROPERTY_FILENAME, filename);
+			message.sendToTarget();
+		}
 	}
 
 	public void runModule(String source, String filename, KrollProxySupport activityProxy)
@@ -295,6 +337,15 @@ public abstract class KrollRuntime implements Handler.Callback
 				String filename = msg.getData().getString(PROPERTY_FILENAME);
 
 				doEvalString(source, filename);
+				return true;
+			}
+
+			case MSG_RUN_MODULE_BYTES: {
+				byte[] source = msg.getData().getByteArray(PROPERTY_SOURCE);
+				String filename = msg.getData().getString(PROPERTY_FILENAME);
+				KrollProxySupport activityProxy = (KrollProxySupport) msg.obj;
+
+				doRunModuleBytes(source, filename, activityProxy);
 				return true;
 			}
 		}
@@ -414,6 +465,11 @@ public abstract class KrollRuntime implements Handler.Callback
 	}
 
 	public void setGCFlag()
+	{
+		// No-op V8 should override.
+	}
+
+	public void forceGC()
 	{
 		// No-op V8 should override.
 	}
@@ -545,6 +601,7 @@ public abstract class KrollRuntime implements Handler.Callback
 	}
 
 	public abstract void doDispose();
+	public abstract void doRunModuleBytes(byte[] source, String filename, KrollProxySupport activityProxy);
 	public abstract void doRunModule(String source, String filename, KrollProxySupport activityProxy);
 	public abstract Object doEvalString(String source, String filename);
 

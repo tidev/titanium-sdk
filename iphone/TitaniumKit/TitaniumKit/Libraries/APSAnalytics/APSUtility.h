@@ -8,15 +8,14 @@
 @import CoreLocation;
 @import UIKit;
 
-
-#import <sys/sysctl.h>
 #import <mach/mach.h>
+#import <sys/sysctl.h>
 #import <sys/utsname.h>
 
-#import <sys/types.h>
-#import <sys/socket.h>
-#import <ifaddrs.h>
 #import <arpa/inet.h>
+#import <ifaddrs.h>
+#import <sys/socket.h>
+#import <sys/types.h>
 
 #ifdef DebugLog
 #undef DebugLog
@@ -42,14 +41,14 @@
 
 @interface APSUtility : NSObject
 
-+(NSString*)deviceModel;
-+(NSString*)jsonStringify:(id)value error:(NSError**)error;
-+(id)jsonParse:(NSString*)value error:(NSError**)error;
-+(NSString*)createUUID;
-+(NSString*)appIdentifier;
-+(NSString *)getArchitecture;
-+(NSString*)stringValue:(id)value;
-+(BOOL)isEmptyString:(NSString*)value;
-+(NSDictionary *)locationDictionary:(CLLocation *)newLocation;
++ (NSString *_Nonnull)deviceModel;
++ (NSString *_Nullable)jsonStringify:(id _Nonnull)value error:(NSError *_Nullable *_Nullable)error;
++ (id _Nullable)jsonParse:(NSString *_Nonnull)value error:(NSError *_Nullable *_Nullable)error;
++ (NSString *_Nonnull)createUUID;
++ (NSString *_Nonnull)appIdentifier;
++ (NSString *_Nonnull)getArchitecture;
++ (NSString *_Nullable)stringValue:(id _Nullable)value;
++ (BOOL)isEmptyString:(NSString *_Nullable)value;
++ (NSDictionary *_Nullable)locationDictionary:(CLLocation *_Nonnull)newLocation;
 
 @end

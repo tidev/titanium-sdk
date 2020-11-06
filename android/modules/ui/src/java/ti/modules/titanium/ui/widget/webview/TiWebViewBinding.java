@@ -20,6 +20,7 @@ import org.appcelerator.kroll.KrollEventCallback;
 import org.appcelerator.kroll.KrollLogging;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.common.Log;
+import org.appcelerator.kroll.util.KrollAssetHelper;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.util.TiConvert;
 import org.json.JSONException;
@@ -122,15 +123,15 @@ public class TiWebViewBinding
 
 	private static StringBuilder readResourceFile(String fileName)
 	{
-		InputStream stream = TiWebViewBinding.class.getClassLoader().getResourceAsStream(
-			"ti/modules/titanium/ui/widget/webview/" + fileName);
-		BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
+		InputStream stream = null;
 		StringBuilder code = new StringBuilder();
 		try {
+			stream = KrollAssetHelper.openAsset("Resources/ti.internal/webview/" + fileName);
+			BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
 			for (String line = reader.readLine(); line != null; line = reader.readLine()) {
 				code.append(line + "\n");
 			}
-		} catch (IOException e) {
+		} catch (Exception e) {
 			Log.e(TAG, "Error reading input stream", e);
 			return null;
 		} finally {

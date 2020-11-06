@@ -171,29 +171,23 @@ public class GestureModule extends KrollModule implements SensorEventListener
 		}
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public boolean getPortrait()
-	// clang-format on
 	{
 		return this.deviceOrientationMonitor.getLastReadOrientation().isPortrait();
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public boolean getLandscape()
-	// clang-format on
 	{
 		return this.deviceOrientationMonitor.getLastReadOrientation().isLandscape();
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public int getOrientation()
-	// clang-format on
 	{
 		return this.deviceOrientationMonitor.getLastReadOrientation().toTiIntId();
 	}

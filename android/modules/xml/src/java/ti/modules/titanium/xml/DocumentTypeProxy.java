@@ -21,65 +21,51 @@ public class DocumentTypeProxy extends NodeProxy
 		this.type = type;
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public DocumentType getDocumentType()
-	// clang-format on
 	{
 		return type;
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public NamedNodeMapProxy getEntities()
-	// clang-format on
 	{
 		return new NamedNodeMapProxy(type.getEntities());
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public String getInternalSubset()
-	// clang-format on
 	{
 		return type.getInternalSubset();
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public String getName()
-	// clang-format on
 	{
 		return type.getName();
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public NamedNodeMapProxy getNotations()
-	// clang-format on
 	{
 		return new NamedNodeMapProxy(type.getNotations());
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public String getPublicId()
-	// clang-format on
 	{
 		return type.getPublicId();
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public String getSystemId()
-	// clang-format on
 	{
 		return type.getSystemId();
 	}

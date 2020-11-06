@@ -18,7 +18,6 @@ import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.util.TiConvert;
 
-// clang-format off
 @Kroll.proxy(creatableInModule = NetworkModule.class,
 	propertyAccessors = {
 		TiC.PROPERTY_VALUE,
@@ -30,7 +29,6 @@ import org.appcelerator.titanium.util.TiConvert;
 		TiC.PROPERTY_HTTP_ONLY,
 		TiC.PROPERTY_VERSION
 })
-// clang-format on
 public class CookieProxy extends KrollProxy
 {
 	private static final String TAG = "CookieProxy";
@@ -158,11 +156,9 @@ public class CookieProxy extends KrollProxy
 		return httpCookie;
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public String getName()
-	// clang-format on
 	{
 		return TiConvert.toString(getProperty(TiC.PROPERTY_NAME));
 	}

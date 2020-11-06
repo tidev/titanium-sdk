@@ -7,7 +7,6 @@
 package ti.modules.titanium.xml;
 
 import org.appcelerator.kroll.annotations.Kroll;
-import org.appcelerator.kroll.common.Log;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
 import org.w3c.dom.Text;
@@ -65,11 +64,9 @@ public class TextProxy extends CharacterDataProxy
 		return getProxy(returnNode);
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public String getTextContent()
-	// clang-format on
 	{
 		return this.text.getNodeValue();
 	}

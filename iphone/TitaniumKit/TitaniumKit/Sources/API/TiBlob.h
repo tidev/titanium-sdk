@@ -25,6 +25,10 @@ READONLY_PROPERTY(JSValue *, file, File);
  */
 READONLY_PROPERTY(NSUInteger, height, Height);
 /**
+ Returns height of image after factoring in EXIF orientation, _0_ otherwise.
+ */
+READONLY_PROPERTY(NSUInteger, uprightHeight, UprightHeight);
+/**
  Returns the data length.
  */
 READONLY_PROPERTY(NSUInteger, length, Length);
@@ -54,6 +58,10 @@ READONLY_PROPERTY(NSString *, text, Text);
  Returns width if the blob object is an image, _0_ otherwise.
  */
 READONLY_PROPERTY(NSUInteger, width, Width);
+/**
+ Returns width of image after factoring in EXIF orientation, _0_ otherwise.
+ */
+READONLY_PROPERTY(NSUInteger, uprightWidth, UprightWidth);
 
 // Methods
 - (void)append:(TiBlob *)blob;
@@ -75,6 +83,7 @@ JSExportAs(imageWithRoundedCorner,
            : (NSNumber *)optionalBorderSize);
 - (TiBlob *)imageWithTransparentBorder:(NSUInteger)size;
 - (NSString *)toString; // FIXME This doesn't seem to override the JS impl. I think we need to find a way to modify the property post-init to override it!
+- (JSValue *)toArrayBuffer;
 
 @end
 
@@ -148,6 +157,13 @@ Initialize the blob with a system image.
  @param mimetype_ The data mime type.
  */
 - (id)initWithData:(NSData *)data_ mimetype:(NSString *)mimetype_;
+
+/**
+ Initialize the blob with data. Used for encrypted files/assets.
+ @param data_ The raw data.
+ @param path_ The path to the file.
+ */
+- (id)initWithData:(NSData *)data_ andPath:(NSString *)path_;
 
 /**
  Initialize the blob with contents of a file.

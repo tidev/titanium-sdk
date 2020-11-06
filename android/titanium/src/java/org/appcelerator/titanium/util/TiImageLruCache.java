@@ -6,10 +6,8 @@
  */
 package org.appcelerator.titanium.util;
 
-import org.appcelerator.titanium.TiC;
-
 import android.graphics.Bitmap;
-import android.support.v4.util.LruCache;
+import androidx.collection.LruCache;
 
 public class TiImageLruCache extends LruCache<Integer, Bitmap>
 {

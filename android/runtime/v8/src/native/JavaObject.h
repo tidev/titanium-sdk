@@ -7,7 +7,6 @@
 #ifndef TI_KROLL_NATIVE_OBJECT_H
 #define TI_KROLL_NATIVE_OBJECT_H
 
-#include <v8.h>
 #include <jni.h>
 
 #include "EventEmitter.h"

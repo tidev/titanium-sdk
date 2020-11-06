@@ -1,13 +1,15 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2020 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 package ti.modules.titanium.ui;
 
+import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.KrollProxy;
+import org.appcelerator.kroll.KrollRuntime;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
@@ -22,6 +24,11 @@ import org.appcelerator.titanium.util.TiDeviceOrientation;
 import org.appcelerator.titanium.util.TiUIHelper;
 
 import android.app.Activity;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
@@ -31,11 +38,8 @@ import android.view.View;
 import android.webkit.WebViewClient;
 import android.widget.Toast;
 
-// clang-format off
 @Kroll.module
-
 public class UIModule extends KrollModule
-// clang-format on
 {
 	private static final String TAG = "TiUIModule";
 
@@ -380,18 +384,41 @@ public class UIModule extends KrollModule
 	@Kroll.constant
 	public static final int HIDDEN_BEHAVIOR_INVISIBLE = View.INVISIBLE;
 
+	@Kroll.constant
+	public static final int USER_INTERFACE_STYLE_LIGHT = Configuration.UI_MODE_NIGHT_NO;
+	@Kroll.constant
+	public static final int USER_INTERFACE_STYLE_DARK = Configuration.UI_MODE_NIGHT_YES;
+	@Kroll.constant
+	public static final int USER_INTERFACE_STYLE_UNSPECIFIED = Configuration.UI_MODE_NIGHT_UNDEFINED;
+
 	protected static final int MSG_LAST_ID = KrollProxy.MSG_LAST_ID + 101;
 
 	public UIModule()
 	{
 		super();
+
+		// Register the module's broadcast receiver.
+		final UIModule.Receiver broadcastReceiver = new UIModule.Receiver(this);
+		TiApplication.getInstance().registerReceiver(broadcastReceiver,
+													 new IntentFilter(Intent.ACTION_CONFIGURATION_CHANGED));
+
+		// Set up a listener to be invoked when the JavaScript runtime is about to be terminated/disposed.
+		KrollRuntime.addOnDisposingListener(new KrollRuntime.OnDisposingListener() {
+			@Override
+			public void onDisposing(KrollRuntime runtime)
+			{
+				// Remove this listener from the runtime's static collection.
+				KrollRuntime.removeOnDisposingListener(this);
+
+				// Unregister this module's broadcast receviers.
+				TiApplication.getInstance().unregisterReceiver(broadcastReceiver);
+			}
+		});
 	}
 
-	// clang-format off
 	@Kroll.setProperty(runOnUiThread = true)
 	@Kroll.method(runOnUiThread = true)
 	public void setBackgroundColor(String color)
-	// clang-format off
 	{
 		doSetBackgroundColor(color);
 	}
@@ -404,11 +431,9 @@ public class UIModule extends KrollModule
 		}
 	}
 
-	// clang-format off
 	@Kroll.setProperty(runOnUiThread = true)
 	@Kroll.method(runOnUiThread = true)
 	public void setBackgroundImage(Object image)
-	// clang-format on
 	{
 		doSetBackgroundImage(image);
 	}
@@ -423,9 +448,10 @@ public class UIModule extends KrollModule
 				try {
 					imageDrawable = TiUIHelper.getResourceDrawable((Integer) image);
 				} catch (Resources.NotFoundException e) {
-					Log.w(
-						TAG,
-						"Unable to set background drawable for root window.  An integer id was provided but no such drawable resource exists.");
+					String warningMessage
+						= "Unable to set background drawable for root window. "
+						+ "An integer id was provided but no such drawable resource exists.";
+					Log.w(TAG, warningMessage);
 				}
 			} else {
 				imageDrawable = TiUIHelper.getResourceDrawable(image);
@@ -489,9 +515,43 @@ public class UIModule extends KrollModule
 		}
 	}
 
+	@Kroll.getProperty
+	public int getUserInterfaceStyle()
+	{
+		return TiApplication.getInstance().getApplicationContext().getResources().getConfiguration().uiMode
+			& Configuration.UI_MODE_NIGHT_MASK;
+	}
+
 	@Override
 	public String getApiName()
 	{
 		return "Ti.UI";
+	}
+
+	private class Receiver extends BroadcastReceiver
+	{
+		private UIModule module;
+		private int lastEmittedStyle;
+
+		public Receiver(UIModule module)
+		{
+			super();
+			this.module = module;
+			lastEmittedStyle = this.module.getUserInterfaceStyle();
+		}
+
+		@Override
+		public void onReceive(Context context, Intent intent)
+		{
+			int currentMode = this.module.getUserInterfaceStyle();
+			if (currentMode == lastEmittedStyle) {
+				return;
+			}
+			lastEmittedStyle = currentMode;
+
+			KrollDict event = new KrollDict();
+			event.put(TiC.PROPERTY_VALUE, lastEmittedStyle);
+			this.module.fireEvent(TiC.EVENT_USER_INTERFACE_STYLE, event);
+		}
 	}
 }

@@ -18,7 +18,6 @@ import android.os.Looper;
 import android.provider.Settings;
 import android.view.OrientationEventListener;
 import android.view.Surface;
-import java.util.List;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.util.TiDeviceOrientation;
 import org.appcelerator.titanium.TiApplication;
@@ -37,7 +36,7 @@ public final class TiDeviceOrientationMonitor
 		 * Called when the device orientation has changed.
 		 * You can access the new orientation via the monitor's getLastReadOrientation() method.
 		 */
-		public void onDeviceOrientationChanged();
+		void onDeviceOrientationChanged();
 	}
 
 	/** The default Android log tag name to be used by this class. */

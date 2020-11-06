@@ -98,9 +98,10 @@
 
   if ([self.listView isSearchActive]) {
     block(nil);
-    TiThreadPerformOnMainThread(^{
-      [self.listView updateSearchResults:nil];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          [self.listView updateSearchResults:nil];
+        },
         [NSThread isMainThread]);
     return;
   }
@@ -111,9 +112,10 @@
   [_operationQueue addObject:Block_copy(block)];
   pthread_mutex_unlock(&_operationQueueMutex);
   if (triggerMainThread) {
-    TiThreadPerformOnMainThread(^{
-      [self processUpdateActions];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          [self processUpdateActions];
+        },
         [NSThread isMainThread]);
   }
 }
@@ -127,9 +129,10 @@
   if ([NSThread isMainThread]) {
     return block(self.listView.tableView);
   }
-  TiThreadPerformOnMainThread(^{
-    block(self.listView.tableView);
-  },
+  TiThreadPerformOnMainThread(
+      ^{
+        block(self.listView.tableView);
+      },
       YES);
 }
 
@@ -140,9 +143,10 @@
   }
 
   __block id result = nil;
-  TiThreadPerformOnMainThread(^{
-    result = [block() retain];
-  },
+  TiThreadPerformOnMainThread(
+      ^{
+        result = [block() retain];
+      },
       YES);
   return [result autorelease];
 }
@@ -232,9 +236,10 @@
     }
   }];
 
-  TiThreadPerformOnMainThread(^{
-    [self.listView setDictTemplates_:templates];
-  },
+  TiThreadPerformOnMainThread(
+      ^{
+        [self.listView setDictTemplates_:templates];
+      },
       [NSThread isMainThread]);
   [templates release];
 }
@@ -421,15 +426,16 @@
     NSDictionary *properties = [args count] > 2 ? [args objectAtIndex:2] : nil;
     UITableViewScrollPosition scrollPosition = [TiUtils intValue:@"position" properties:properties def:UITableViewScrollPositionNone];
     BOOL animated = [TiUtils boolValue:@"animated" properties:properties def:YES];
-    TiThreadPerformOnMainThread(^{
-      if ([_sections count] <= sectionIndex) {
-        DebugLog(@"[WARN] ListView: Scroll to section index is out of range");
-        return;
-      }
-      TiUIListSectionProxy *section = [_sections objectAtIndex:sectionIndex];
-      NSIndexPath *indexPath = [NSIndexPath indexPathForRow:MIN(itemIndex, section.itemCount) inSection:sectionIndex];
-      [self.listView.tableView scrollToRowAtIndexPath:indexPath atScrollPosition:scrollPosition animated:animated];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          if ([_sections count] <= sectionIndex) {
+            DebugLog(@"[WARN] ListView: Scroll to section index is out of range");
+            return;
+          }
+          TiUIListSectionProxy *section = [_sections objectAtIndex:sectionIndex];
+          NSIndexPath *indexPath = [NSIndexPath indexPathForRow:MIN(itemIndex, section.itemCount) inSection:sectionIndex];
+          [self.listView.tableView scrollToRowAtIndexPath:indexPath atScrollPosition:scrollPosition animated:animated];
+        },
         [NSThread isMainThread]);
   }
 }
@@ -453,10 +459,11 @@
     }
     NSIndexPath *indexPath = [NSIndexPath indexPathForRow:itemIndex inSection:sectionIndex];
 
-    TiThreadPerformOnMainThread(^{
-      [self.listView.tableView selectRowAtIndexPath:indexPath animated:YES scrollPosition:UITableViewScrollPositionNone];
-      [self.listView.tableView scrollToRowAtIndexPath:indexPath atScrollPosition:UITableViewScrollPositionNone animated:YES];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          [self.listView.tableView selectRowAtIndexPath:indexPath animated:YES scrollPosition:UITableViewScrollPositionNone];
+          [self.listView.tableView scrollToRowAtIndexPath:indexPath atScrollPosition:UITableViewScrollPositionNone animated:YES];
+        },
         [NSThread isMainThread]);
   }
 }
@@ -467,19 +474,20 @@
     ENSURE_ARG_COUNT(args, 2);
     NSUInteger sectionIndex = [TiUtils intValue:[args objectAtIndex:0]];
     NSUInteger itemIndex = [TiUtils intValue:[args objectAtIndex:1]];
-    TiThreadPerformOnMainThread(^{
-      if ([_sections count] <= sectionIndex) {
-        DebugLog(@"[WARN] ListView: Select section index is out of range");
-        return;
-      }
-      TiUIListSectionProxy *section = [_sections objectAtIndex:sectionIndex];
-      if (section.itemCount <= itemIndex) {
-        DebugLog(@"[WARN] ListView: Select item index is out of range");
-        return;
-      }
-      NSIndexPath *indexPath = [NSIndexPath indexPathForRow:itemIndex inSection:sectionIndex];
-      [self.listView.tableView deselectRowAtIndexPath:indexPath animated:YES];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          if ([_sections count] <= sectionIndex) {
+            DebugLog(@"[WARN] ListView: Select section index is out of range");
+            return;
+          }
+          TiUIListSectionProxy *section = [_sections objectAtIndex:sectionIndex];
+          if (section.itemCount <= itemIndex) {
+            DebugLog(@"[WARN] ListView: Select item index is out of range");
+            return;
+          }
+          NSIndexPath *indexPath = [NSIndexPath indexPathForRow:itemIndex inSection:sectionIndex];
+          [self.listView.tableView deselectRowAtIndexPath:indexPath animated:YES];
+        },
         [NSThread isMainThread]);
   }
 }
@@ -495,9 +503,10 @@
     arg1 = [args objectAtIndex:0];
     arg2 = [args count] > 1 ? [args objectAtIndex:1] : nil;
   }
-  TiThreadPerformOnMainThread(^{
-    [self.listView setContentOffset_:arg1 withObject:arg2];
-  },
+  TiThreadPerformOnMainThread(
+      ^{
+        [self.listView setContentOffset_:arg1 withObject:arg2];
+      },
       NO);
 }
 
@@ -512,9 +521,10 @@
     arg1 = [args objectAtIndex:0];
     arg2 = [args count] > 1 ? [args objectAtIndex:1] : nil;
   }
-  TiThreadPerformOnMainThread(^{
-    [self.listView setContentInsets_:arg1 withObject:arg2];
-  },
+  TiThreadPerformOnMainThread(
+      ^{
+        [self.listView setContentInsets_:arg1 withObject:arg2];
+      },
       [NSThread isMainThread]);
 }
 
@@ -524,26 +534,27 @@
   NSArray *selectedRows = [[self.listView tableView] indexPathsForSelectedRows];
 
   if (selectedRows != nil) {
-    TiThreadPerformOnMainThread(^{
-      for (NSIndexPath *indexPath in [self.listView.tableView indexPathsForSelectedRows]) {
-        NSIndexPath *realIndexPath = [self.listView pathForSearchPath:indexPath];
-        TiUIListSectionProxy *section = [self sectionForIndex:realIndexPath.section];
-        NSDictionary *item = [section itemAtIndex:realIndexPath.row];
-        NSMutableDictionary *eventObject = [[NSMutableDictionary alloc] initWithObjectsAndKeys:
-                                                                            section, @"section",
-                                                                        NUMINTEGER(realIndexPath.section), @"sectionIndex",
-                                                                        NUMINTEGER(realIndexPath.row), @"itemIndex",
-                                                                        nil];
-        id propertiesValue = [item objectForKey:@"properties"];
-        NSDictionary *properties = ([propertiesValue isKindOfClass:[NSDictionary class]]) ? propertiesValue : nil;
-        id itemId = [properties objectForKey:@"itemId"];
-        if (itemId != nil) {
-          [eventObject setObject:itemId forKey:@"itemId"];
-        }
-        [result addObject:eventObject];
-        [eventObject release];
-      }
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          for (NSIndexPath *indexPath in [self.listView.tableView indexPathsForSelectedRows]) {
+            NSIndexPath *realIndexPath = [self.listView pathForSearchPath:indexPath];
+            TiUIListSectionProxy *section = [self sectionForIndex:realIndexPath.section];
+            NSDictionary *item = [section itemAtIndex:realIndexPath.row];
+            NSMutableDictionary *eventObject = [[NSMutableDictionary alloc] initWithObjectsAndKeys:
+                                                                                section, @"section",
+                                                                            NUMINTEGER(realIndexPath.section), @"sectionIndex",
+                                                                            NUMINTEGER(realIndexPath.row), @"itemIndex",
+                                                                            nil];
+            id propertiesValue = [item objectForKey:@"properties"];
+            NSDictionary *properties = ([propertiesValue isKindOfClass:[NSDictionary class]]) ? propertiesValue : nil;
+            id itemId = [properties objectForKey:@"itemId"];
+            if (itemId != nil) {
+              [eventObject setObject:itemId forKey:@"itemId"];
+            }
+            [result addObject:eventObject];
+            [eventObject release];
+          }
+        },
         YES);
   }
   return result;
@@ -569,12 +580,13 @@
 {
   //Checks if the marker is part of currently visible rows.
   __block BOOL canAddMarker = YES;
-  TiThreadPerformOnMainThread(^{
-    if ([self viewInitialized] && !self.listView.isSearchActive) {
-      NSArray *visibleRows = [self.listView.tableView indexPathsForVisibleRows];
-      canAddMarker = ![visibleRows containsObject:marker];
-    }
-  },
+  TiThreadPerformOnMainThread(
+      ^{
+        if ([self viewInitialized] && !self.listView.isSearchActive) {
+          NSArray *visibleRows = [self.listView.tableView indexPathsForVisibleRows];
+          canAddMarker = ![visibleRows containsObject:marker];
+        }
+      },
       [NSThread isMainThread]);
 
   return canAddMarker;

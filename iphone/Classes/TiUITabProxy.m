@@ -56,6 +56,8 @@
   [self replaceValue:NUMBOOL(YES) forKey:@"activeIconIsMask" notification:NO];
   [self replaceValue:nil forKey:@"titleColor" notification:NO];
   [self replaceValue:nil forKey:@"activeTitleColor" notification:NO];
+  [self replaceValue:nil forKey:@"tintColor" notification:NO];
+  [self replaceValue:nil forKey:@"activeTintColor" notification:NO];
   [[NSNotificationCenter defaultCenter] addObserver:self
                                            selector:@selector(didChangeTraitCollection:)
                                                name:kTiTraitCollectionChanged
@@ -77,30 +79,31 @@
 
 - (void)cleanNavStack:(BOOL)removeTab
 {
-  TiThreadPerformOnMainThread(^{
-    UIViewController *rootController = [self rootController];
-    [controller setDelegate:nil];
-    if ([[controller viewControllers] count] > 1) {
-      NSMutableArray *doomedVcs = [[controller viewControllers] mutableCopy];
-      [doomedVcs removeObject:rootController];
-      [controller setViewControllers:[NSArray arrayWithObject:rootController]];
-      if (current != nil) {
-        RELEASE_TO_NIL(current);
-        current = [(TiWindowProxy *)[(TiViewController *)rootController proxy] retain];
-      }
-      for (TiViewController *doomedVc in doomedVcs) {
-        [self closeWindowProxy:(TiWindowProxy *)[doomedVc proxy] animated:NO];
-      }
-      RELEASE_TO_NIL(doomedVcs);
-    }
-    if (removeTab) {
-      [self closeWindowProxy:rootWindow animated:NO];
-      RELEASE_TO_NIL(controller);
-      RELEASE_TO_NIL(current);
-    } else {
-      [controller setDelegate:self];
-    }
-  },
+  TiThreadPerformOnMainThread(
+      ^{
+        UIViewController *rootController = [self rootController];
+        [controller setDelegate:nil];
+        if ([[controller viewControllers] count] > 1) {
+          NSMutableArray *doomedVcs = [[controller viewControllers] mutableCopy];
+          [doomedVcs removeObject:rootController];
+          [controller setViewControllers:[NSArray arrayWithObject:rootController]];
+          if (current != nil) {
+            RELEASE_TO_NIL(current);
+            current = [(TiWindowProxy *)[(TiViewController *)rootController proxy] retain];
+          }
+          for (TiViewController *doomedVc in doomedVcs) {
+            [self closeWindowProxy:(TiWindowProxy *)[doomedVc proxy] animated:NO];
+          }
+          RELEASE_TO_NIL(doomedVcs);
+        }
+        if (removeTab) {
+          [self closeWindowProxy:rootWindow animated:NO];
+          RELEASE_TO_NIL(controller);
+          RELEASE_TO_NIL(current);
+        } else {
+          [controller setDelegate:self];
+        }
+      },
       YES);
 }
 
@@ -269,9 +272,8 @@
   TiWindowProxy *window = [args objectAtIndex:0];
   ENSURE_TYPE(window, TiWindowProxy);
 
-#if IS_SDK_IOS_11
   [window processForSafeArea];
-#endif
+
   if (window == rootWindow) {
     [rootWindow windowWillOpen];
     [rootWindow windowDidOpen];
@@ -295,9 +297,10 @@
   }
 
   [[[TiApp app] controller] dismissKeyboard];
-  TiThreadPerformOnMainThread(^{
-    [self openOnUIThread:args];
-  },
+  TiThreadPerformOnMainThread(
+      ^{
+        [self openOnUIThread:args];
+      },
       YES);
 }
 
@@ -310,9 +313,10 @@
     DebugLog(@"[ERROR] Can not close root window of the tab. Use removeTab instead");
     return;
   }
-  TiThreadPerformOnMainThread(^{
-    [self closeOnUIThread:args];
-  },
+  TiThreadPerformOnMainThread(
+      ^{
+        [self closeOnUIThread:args];
+      },
       YES);
 }
 
@@ -359,7 +363,7 @@
     TiViewController *toViewController = (TiViewController *)viewController;
     if ([[toViewController proxy] isKindOfClass:[TiWindowProxy class]]) {
       TiWindowProxy *windowProxy = (TiWindowProxy *)[toViewController proxy];
-      [((TiUITabGroup *)(tabGroup.view))tabController].view.backgroundColor = windowProxy.view.backgroundColor;
+      [((TiUITabGroup *)(tabGroup.view)) tabController].view.backgroundColor = windowProxy.view.backgroundColor;
     }
   }
   [self handleWillShowViewController:viewController animated:animated];
@@ -404,9 +408,8 @@
     }
   }
   TiWindowProxy *theWindow = (TiWindowProxy *)[(TiViewController *)viewController proxy];
-#if IS_SDK_IOS_11
   [theWindow processForSafeArea];
-#endif
+
   if (theWindow == rootWindow) {
     //This is probably too late for the root view controller.
     //Figure out how to call open before this callback
@@ -470,10 +473,6 @@
       }
     }
   }
-  if ([self _hasListeners:@"blur"]) {
-    DEPRECATED_REPLACED(@"UI.Tab.Event.blur", @"5.2.0", @"UI.Tab.Event.unselected");
-    [self fireEvent:@"blur" withObject:event withSource:self propagate:NO reportSuccess:NO errorCode:0 message:nil];
-  }
 
   if ([self _hasListeners:@"unselected"]) {
     [self fireEvent:@"unselected" withObject:event withSource:self propagate:NO reportSuccess:NO errorCode:0 message:nil];
@@ -498,10 +497,6 @@
         [(id<TiWindowProtocol>)theProxy gainFocus];
       }
     }
-  }
-  if ([self _hasListeners:@"focus"]) {
-    DEPRECATED_REPLACED(@"UI.Tab.Event.focus", @"5.2.0", @"UI.Tab.Event.selected");
-    [self fireEvent:@"focus" withObject:event withSource:self propagate:NO reportSuccess:NO errorCode:0 message:nil];
   }
 
   if ([self _hasListeners:@"selected"]) {
@@ -545,7 +540,7 @@
     UITabBarItem *newItem = [[UITabBarItem alloc] initWithTabBarSystemItem:value tag:value];
     [newItem setBadgeValue:badgeValue];
 
-    if (badgeColor != nil && [TiUtils isIOSVersionOrGreater:@"10.0"]) {
+    if (badgeColor != nil) {
       [newItem setBadgeColor:[[TiUtils colorValue:badgeColor] color]];
     }
 
@@ -583,31 +578,69 @@
     } else if ([activeIcon isKindOfClass:[TiBlob class]]) {
       activeImage = [(TiBlob *)activeIcon image];
     }
+
+    if (image != nil) {
+      if ([image respondsToSelector:@selector(imageWithRenderingMode:)]) {
+        NSInteger theMode = iconOriginal ? UIImageRenderingModeAlwaysOriginal : UIImageRenderingModeAlwaysTemplate;
+        image = [image imageWithRenderingMode:theMode];
+      }
+    }
+    if (activeImage != nil) {
+      if ([activeImage respondsToSelector:@selector(imageWithRenderingMode:)]) {
+        NSInteger theMode = activeIconOriginal ? UIImageRenderingModeAlwaysOriginal : UIImageRenderingModeAlwaysTemplate;
+        activeImage = [activeImage imageWithRenderingMode:theMode];
+      }
+    }
+
+    TiColor *tintColor = [TiUtils colorValue:[self valueForKey:@"tintColor"]];
+    if (tintColor == nil) {
+      tintColor = [TiUtils colorValue:[tabGroup valueForKey:@"tintColor"]];
+    }
+    if (tintColor == nil) {
+      tintColor = [TiUtils colorValue:[self valueForKey:@"titleColor"]];
+    }
+    if (tintColor == nil) {
+      tintColor = [TiUtils colorValue:[tabGroup valueForKey:@"titleColor"]];
+    }
+    if (tintColor != nil && image != nil) {
+      image = [TiUtils imageWithTint:image tintColor:[tintColor color]];
+    }
+
+    TiColor *activeTintColor = [TiUtils colorValue:[self valueForKey:@"activeTintColor"]];
+    if (activeTintColor == nil) {
+      activeTintColor = [TiUtils colorValue:[tabGroup valueForKey:@"activeTintColor"]];
+    }
+    if (activeTintColor == nil) {
+      activeTintColor = [TiUtils colorValue:[self valueForKey:@"activeTitleColor"]];
+    }
+    if (activeTintColor == nil) {
+      activeTintColor = [TiUtils colorValue:[tabGroup valueForKey:@"activeTitleColor"]];
+    }
+    if (activeTintColor != nil) {
+      if (activeImage != nil) {
+        activeImage = [TiUtils imageWithTint:activeImage tintColor:[activeTintColor color]];
+      } else if (image != nil) {
+        activeImage = [TiUtils imageWithTint:image tintColor:[activeTintColor color]];
+      }
+    }
   }
   [rootController setTitle:title];
   UITabBarItem *ourItem = nil;
-
-  if (image != nil) {
-    if ([image respondsToSelector:@selector(imageWithRenderingMode:)]) {
-      NSInteger theMode = iconOriginal ? UIImageRenderingModeAlwaysOriginal : UIImageRenderingModeAlwaysTemplate;
-      image = [image imageWithRenderingMode:theMode];
-    }
-  }
-  if (activeImage != nil) {
-    if ([activeImage respondsToSelector:@selector(imageWithRenderingMode:)]) {
-      NSInteger theMode = activeIconOriginal ? UIImageRenderingModeAlwaysOriginal : UIImageRenderingModeAlwaysTemplate;
-      activeImage = [activeImage imageWithRenderingMode:theMode];
-    }
-  }
 
   systemTab = NO;
   ourItem = [[[UITabBarItem alloc] initWithTitle:title image:image selectedImage:activeImage] autorelease];
 
   TiColor *titleColor = [TiUtils colorValue:[self valueForKey:@"titleColor"]];
+  if (titleColor == nil) {
+    titleColor = [TiUtils colorValue:[tabGroup valueForKey:@"titleColor"]];
+  }
   if (titleColor != nil) {
     [ourItem setTitleTextAttributes:[NSDictionary dictionaryWithObjectsAndKeys:[titleColor color], NSForegroundColorAttributeName, nil] forState:UIControlStateNormal];
   }
   TiColor *activeTitleColor = [TiUtils colorValue:[self valueForKey:@"activeTitleColor"]];
+  if (activeTitleColor == nil) {
+    activeTitleColor = [TiUtils colorValue:[tabGroup valueForKey:@"activeTitleColor"]];
+  }
   if (activeTitleColor != nil) {
     [ourItem setTitleTextAttributes:[NSDictionary dictionaryWithObjectsAndKeys:[activeTitleColor color], NSForegroundColorAttributeName, nil] forState:UIControlStateSelected];
   }
@@ -618,7 +651,7 @@
     }
   }
 
-  if (badgeColor != nil && [TiUtils isIOSVersionOrGreater:@"10.0"]) {
+  if (badgeColor != nil) {
     [ourItem setBadgeColor:[[TiUtils colorValue:badgeColor] color]];
   }
 
@@ -756,9 +789,10 @@
 {
   ENSURE_SINGLE_ARG_OR_NIL(args, NSDictionary);
 
-  TiThreadPerformOnMainThread(^{
-    [controller popToRootViewControllerAnimated:[TiUtils boolValue:@"animated" properties:args def:NO]];
-  },
+  TiThreadPerformOnMainThread(
+      ^{
+        [controller popToRootViewControllerAnimated:[TiUtils boolValue:@"animated" properties:args def:NO]];
+      },
       YES);
 }
 
@@ -766,7 +800,6 @@
 
 @synthesize parentOrientationController;
 
-#if IS_SDK_IOS_11
 - (BOOL)homeIndicatorAutoHide
 {
   if (rootWindow == nil) {
@@ -783,7 +816,7 @@
   }
   return NO;
 }
-#endif
+
 - (BOOL)hidesStatusBar
 {
   if (rootWindow == nil) {

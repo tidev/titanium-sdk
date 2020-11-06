@@ -88,6 +88,16 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String EVENT_BLACKLIST_URL = "blacklisturl";
+
+	/**
+	 * @module.api
+	 */
+	public static final String EVENT_BLOCKED_URL = "blockedurl";
+
+	/**
+	 * @module.api
+	 */
 	public static final String EVENT_BLUR = "blur";
 
 	/**
@@ -124,11 +134,6 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String EVENT_COMPLETE = "complete";
-
-	/**
-	 * @module.api
-	 */
-	public static final String EVENT_CREATE = "create";
 
 	/**
 	 * @module.api
@@ -368,6 +373,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String EVENT_PROPERTY_OBSCURED = "obscured";
+
+	/**
+	 * @module.api
+	 */
 	public static final String EVENT_PROPERTY_PLAYBACK_STATE = "playbackState";
 
 	/**
@@ -547,11 +557,6 @@ public class TiC
 	/**
 	 * @module.api
 	 */
-	public static final String EVENT_RESTART = "restart";
-
-	/**
-	 * @module.api
-	 */
 	public static final String EVENT_RESUME = "resume";
 
 	/**
@@ -687,6 +692,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String EVENT_TOUCH_FILTERED = "touchfiltered";
+
+	/**
+	 * @module.api
+	 */
 	public static final String EVENT_TOUCH_MOVE = "touchmove";
 
 	/**
@@ -707,12 +717,17 @@ public class TiC
 	/**
 	 * @module.api
 	 */
-	public static final String EVENT_USER_LEAVE_HINT = "userleavehint";
+	public static final String EVENT_USER_INTERACTION = "userinteraction";
 
 	/**
 	 * @module.api
 	 */
-	public static final String EVENT_USER_INTERACTION = "userinteraction";
+	public static final String EVENT_USER_INTERFACE_STYLE = "userinterfacestyle";
+
+	/**
+	 * @module.api
+	 */
+	public static final String EVENT_USER_LEAVE_HINT = "userleavehint";
 
 	/**
 	 * @module.api
@@ -808,9 +823,14 @@ public class TiC
 	public static final String PROPERTY_ACTIVE_TAB = "activeTab";
 
 	/**
-	 * @module.ape
+	 * @module.api
 	 */
 	public static final String PROPERTY_ACTIVE_TITLE_COLOR = "activeTitleColor";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_ACTIVE_TINT_COLOR = "activeTintColor";
 
 	/**
 	 * @module.api
@@ -1050,6 +1070,16 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_BADGE = "badge";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_BADGE_COLOR = "badgeColor";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_TOUCH_FEEDBACK = "touchFeedback";
 
 	/**
@@ -1110,12 +1140,12 @@ public class TiC
 	/**
 	 * @module.api
 	 */
-	public static final String PROPERTY_BLACKLIST_URL = "blacklisturl";
+	public static final String PROPERTY_BLACKLISTED_URLS = "blacklistedURLs";
 
 	/**
 	 * @module.api
 	 */
-	public static final String PROPERTY_BLACKLISTED_URLS = "blacklistedURLs";
+	public static final String PROPERTY_BLOCKED_URLS = "blockedURLs";
 
 	/**
 	 * @module.api
@@ -1410,11 +1440,6 @@ public class TiC
 	/**
 	 * @module.api
 	 */
-	public static final String PROPERTY_CONTENT_URL = "contentURL";
-
-	/**
-	 * @module.api
-	 */
 	public static final String PROPERTY_CONTENT_VIEW = "contentView";
 
 	/**
@@ -1439,9 +1464,8 @@ public class TiC
 
 	/**
 	 * @module.api
-	 * @deprecated Value will be changed to "countryCode" in SDK 9.0.0
 	 */
-	public static final String PROPERTY_COUNTRY_CODE = "country_code";
+	public static final String PROPERTY_COUNTRY_CODE = "countryCode";
 
 	/**
 	 * @module.api
@@ -1677,6 +1701,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_FILTER_CASE_INSENSITIVE = "filterCaseInsensitive";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_FILTER_TOUCHES_WHEN_OBSCURED = "filterTouchesWhenObscured";
 
 	/**
 	 * @module.api
@@ -1999,6 +2028,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_INTERVAL = "interval";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_ITEM = "item";
 
 	/**
 	 * @module.api
@@ -2382,6 +2416,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_NUMBERING_SYSTEM = "numberingSystem";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_NUMERIC_MONTHS = "numericMonths";
 
 	/**
@@ -2393,6 +2432,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_OKID = "okid";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_OPEN = "open";
 
 	/**
 	 * @module.api
@@ -2438,11 +2482,6 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_ON_STOP = "onStop";
-
-	/**
-	 * @module.api
-	 */
-	public static final String PROPERTY_ON_STOP_BLACKLISTED_URL = "onStopBlacklistedUrl"; // Deprecated in 6.1.0
 
 	/**
 	 * @module.api

@@ -6,7 +6,6 @@
  */
 package org.appcelerator.titanium;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -15,13 +14,10 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
-import android.content.Context;
-import android.content.ContextWrapper;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.io.TiBaseFile;
-import org.appcelerator.titanium.io.TiFile;
 import org.appcelerator.titanium.io.TiFileFactory;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiFileHelper2;
@@ -125,20 +121,16 @@ public class TiFileProxy extends KrollProxy
 		return tbf.isDirectory();
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public boolean getReadonly()
-	// clang-format on
 	{
 		return tbf.isReadonly();
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public boolean getWritable()
-	// clang-format on
 	{
 		return tbf.isWriteable();
 	}
@@ -201,29 +193,23 @@ public class TiFileProxy extends KrollProxy
 		return tbf.extension();
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public boolean getSymbolicLink()
-	// clang-format on
 	{
 		return tbf.isSymbolicLink();
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public boolean getExecutable()
-	// clang-format on
 	{
 		return tbf.isExecutable();
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public boolean getHidden()
-	// clang-format on
 	{
 		return tbf.isHidden();
 	}
@@ -238,11 +224,9 @@ public class TiFileProxy extends KrollProxy
 		return dl != null ? dl.toArray(new String[0]) : null;
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public TiFileProxy getParent()
-	// clang-format on
 	{
 		TiBaseFile bf = tbf.getParent();
 		return bf != null ? new TiFileProxy(bf) : null;
@@ -254,20 +238,16 @@ public class TiFileProxy extends KrollProxy
 		return tbf.move(destination);
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public String getName()
-	// clang-format on
 	{
 		return tbf.name();
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public String getNativePath()
-	// clang-format on
 	{
 		return tbf.nativePath();
 	}
@@ -285,7 +265,7 @@ public class TiFileProxy extends KrollProxy
 	}
 
 	@Kroll.method
-	public boolean rename(String destination)
+	public boolean rename(String destination) throws IOException
 	{
 		return tbf.rename(destination);
 	}
@@ -296,11 +276,9 @@ public class TiFileProxy extends KrollProxy
 		return getNativePath();
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public long getSize()
-	// clang-format on
 	{
 		return tbf.size();
 	}
@@ -315,7 +293,6 @@ public class TiFileProxy extends KrollProxy
 	public boolean write(Object[] args)
 	{
 		try {
-
 			if (args != null && args.length > 0) {
 				boolean append = false;
 				if (args.length > 1 && args[1] instanceof Boolean) {
@@ -323,24 +300,21 @@ public class TiFileProxy extends KrollProxy
 				}
 
 				if (args[0] instanceof TiBlob) {
-					((TiFile) tbf).write((TiBlob) args[0], append);
+					tbf.write((TiBlob) args[0], append);
 				} else if (args[0] instanceof String) {
-					((TiFile) tbf).write((String) args[0], append);
+					tbf.write((String) args[0], append);
 				} else if (args[0] instanceof TiFileProxy) {
-					((TiFile) tbf).write(((TiFileProxy) args[0]).read(), append);
+					tbf.write(((TiFileProxy) args[0]).read(), append);
 				} else {
 					Log.i(TAG, "Unable to write to an unrecognized file type");
 					return false;
 				}
-
 				return true;
 			}
-
-			return false;
 		} catch (IOException e) {
 			Log.e(TAG, "IOException encountered", e);
-			return false;
 		}
+		return false;
 	}
 
 	@Kroll.method
@@ -352,18 +326,21 @@ public class TiFileProxy extends KrollProxy
 	@Kroll.method
 	public long createTimestamp()
 	{
-		Log.w(
-			TAG,
-			"createTimestamp() has been deprecated in 7.2.0 in favor of createdAt() to avoid platform-differences for return type between iOS and Android. createdAt() will return a Date object on all platforms.");
+		String message
+			= "createTimestamp() has been deprecated in 7.2.0 in favor of createdAt() to avoid platform-differences"
+			+ " for return type between iOS and Android. createdAt() will return a Date object on all platforms.";
+		Log.w(TAG, message);
 		return tbf.createTimestamp();
 	}
 
 	@Kroll.method
 	public long modificationTimestamp()
 	{
-		Log.w(
-			TAG,
-			"modificationTimestamp() has been deprecated in 7.2.0 in favor of modifiedAt() to avoid platform-differences for return type between iOS and Android. modifiedAt() will return a Date object on all platforms.");
+		String message
+			= "modificationTimestamp() has been deprecated in 7.2.0 in favor of modifiedAt() to avoid"
+			+ " platform-differences for return type between iOS and Android. modifiedAt() will return a"
+			+ " Date object on all platforms.";
+		Log.w(TAG, message);
 		return tbf.modificationTimestamp();
 	}
 

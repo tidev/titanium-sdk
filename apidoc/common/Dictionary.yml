@@ -15,8 +15,10 @@ description: |
     a new window by passing a `Dictionary<` `Titanium.UI.Window` `>` object to the 
     [createWindow](Titanium.UI.createWindow) method:
     
-        var window = Ti.UI.createWindow({
-            title: "Test", 
-            fullscreen: true, 
-            backgroundColor: '#aea'
-        });
+    ``` js
+    var window = Ti.UI.createWindow({
+        title: "Test", 
+        fullscreen: true, 
+        backgroundColor: '#aea'
+    });
+    ```

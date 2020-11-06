@@ -110,9 +110,10 @@
     [_linearVelocities addObject:newPoint];
     [newPoint release];
     if (_dynamicItemBehavior != nil) {
-      TiThreadPerformOnMainThread(^{
-        [_dynamicItemBehavior addItem:[(TiViewProxy *)args view]];
-      },
+      TiThreadPerformOnMainThread(
+          ^{
+            [_dynamicItemBehavior addItem:[(TiViewProxy *)args view]];
+          },
           YES);
     }
   }
@@ -123,9 +124,10 @@
   ENSURE_SINGLE_ARG(args, TiViewProxy);
   if ([_items containsObject:args]) {
     if (_dynamicItemBehavior != nil) {
-      TiThreadPerformOnMainThread(^{
-        [_dynamicItemBehavior removeItem:[(TiViewProxy *)args view]];
-      },
+      TiThreadPerformOnMainThread(
+          ^{
+            [_dynamicItemBehavior removeItem:[(TiViewProxy *)args view]];
+          },
           YES);
     }
     NSUInteger theIndex = [_items indexOfObject:args];
@@ -146,9 +148,10 @@
   ENSURE_SINGLE_ARG(args, NSObject);
   _allowsRotation = [TiUtils boolValue:args def:YES];
   if (_dynamicItemBehavior != nil) {
-    TiThreadPerformOnMainThread(^{
-      [_dynamicItemBehavior setAllowsRotation:_allowsRotation];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          [_dynamicItemBehavior setAllowsRotation:_allowsRotation];
+        },
         YES);
   }
 }
@@ -163,9 +166,10 @@
   ENSURE_SINGLE_ARG(args, NSNumber);
   _angularResistance = [TiUtils floatValue:args def:_angularResistance];
   if (_dynamicItemBehavior != nil) {
-    TiThreadPerformOnMainThread(^{
-      [_dynamicItemBehavior setAngularResistance:_angularResistance];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          [_dynamicItemBehavior setAngularResistance:_angularResistance];
+        },
         YES);
   }
 }
@@ -180,9 +184,10 @@
   ENSURE_SINGLE_ARG(args, NSNumber);
   _resistance = [TiUtils floatValue:args def:_resistance];
   if (_dynamicItemBehavior != nil) {
-    TiThreadPerformOnMainThread(^{
-      [_dynamicItemBehavior setResistance:_resistance];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          [_dynamicItemBehavior setResistance:_resistance];
+        },
         YES);
   }
 }
@@ -197,9 +202,10 @@
   ENSURE_SINGLE_ARG(args, NSNumber);
   _density = [TiUtils floatValue:args def:_density];
   if (_dynamicItemBehavior != nil) {
-    TiThreadPerformOnMainThread(^{
-      [_dynamicItemBehavior setDensity:_density];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          [_dynamicItemBehavior setDensity:_density];
+        },
         YES);
   }
 }
@@ -221,9 +227,10 @@
     _elasticity = newVal;
   }
   if (_dynamicItemBehavior != nil) {
-    TiThreadPerformOnMainThread(^{
-      [_dynamicItemBehavior setElasticity:_elasticity];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          [_dynamicItemBehavior setElasticity:_elasticity];
+        },
         YES);
   }
 }
@@ -245,9 +252,10 @@
     _friction = newVal;
   }
   if (_dynamicItemBehavior != nil) {
-    TiThreadPerformOnMainThread(^{
-      [_dynamicItemBehavior setFriction:_friction];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          [_dynamicItemBehavior setFriction:_friction];
+        },
         YES);
   }
 }
@@ -269,10 +277,11 @@
       NSUInteger theIndex = [_items indexOfObject:theItem];
       __block CGFloat curVal = 0;
       if (_dynamicItemBehavior != nil) {
-        TiThreadPerformOnMainThread(^{
-          [_dynamicItemBehavior addAngularVelocity:floatVal forItem:[theItem view]];
-          curVal = [_dynamicItemBehavior angularVelocityForItem:[theItem view]];
-        },
+        TiThreadPerformOnMainThread(
+            ^{
+              [_dynamicItemBehavior addAngularVelocity:floatVal forItem:[theItem view]];
+              curVal = [_dynamicItemBehavior angularVelocityForItem:[theItem view]];
+            },
             YES);
       } else {
         curVal = [TiUtils floatValue:[_angularVelocities objectAtIndex:theIndex] def:0] + floatVal;
@@ -296,11 +305,12 @@
       NSUInteger theIndex = [_items indexOfObject:theItem];
       TiPoint *thePoint = [_linearVelocities objectAtIndex:theIndex];
       if (_dynamicItemBehavior != nil) {
-        TiThreadPerformOnMainThread(^{
-          [_dynamicItemBehavior addLinearVelocity:newPoint forItem:[theItem view]];
-          CGPoint newValue = [_dynamicItemBehavior linearVelocityForItem:[theItem view]];
-          [thePoint setPoint:newValue];
-        },
+        TiThreadPerformOnMainThread(
+            ^{
+              [_dynamicItemBehavior addLinearVelocity:newPoint forItem:[theItem view]];
+              CGPoint newValue = [_dynamicItemBehavior linearVelocityForItem:[theItem view]];
+              [thePoint setPoint:newValue];
+            },
             YES);
       } else {
         CGPoint curPoint = [thePoint point];
@@ -320,9 +330,10 @@
   if ([_items containsObject:args]) {
     NSUInteger theIndex = [_items indexOfObject:args];
     __block NSNumber *returnVal = nil;
-    TiThreadPerformOnMainThread(^{
-      returnVal = [[_angularVelocities objectAtIndex:theIndex] copy];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          returnVal = [[_angularVelocities objectAtIndex:theIndex] copy];
+        },
         YES);
     return [returnVal autorelease];
   } else {
@@ -336,9 +347,10 @@
   if ([_items containsObject:args]) {
     NSUInteger theIndex = [_items indexOfObject:args];
     __block TiPoint *returnVal = nil;
-    TiThreadPerformOnMainThread(^{
-      returnVal = [[_linearVelocities objectAtIndex:theIndex] retain];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          returnVal = [[_linearVelocities objectAtIndex:theIndex] retain];
+        },
         YES);
 
     NSDictionary *result = [TiUtils pointToDictionary:[returnVal point]];

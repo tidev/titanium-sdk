@@ -1,0 +1,20 @@
+{
+	"files.exclude": {
+		"build/": true,
+		"node_modules/": true,
+		"package-lock.json": true,
+		"Resources/": true
+	},
+	"search.exclude": {
+		"build/": true,
+		"node_modules/": true,
+		"package-lock.json": true,
+		"Resources/": true
+	},
+	"files.watcherExclude": {
+		"build/": true,
+		"node_modules/": true,
+		"package-lock.json": true,
+		"Resources/": true
+	}
+}

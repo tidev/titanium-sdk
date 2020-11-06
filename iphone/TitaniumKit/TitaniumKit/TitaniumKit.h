@@ -20,6 +20,7 @@ FOUNDATION_EXPORT const unsigned char TitaniumKitVersionString[];
 #import <TitaniumKit/APSAnalytics.h>
 #import <TitaniumKit/APSHTTPClient.h>
 #import <TitaniumKit/ImageLoader.h>
+#import <TitaniumKit/JSValue+Addons.h>
 #import <TitaniumKit/Mimetypes.h>
 #import <TitaniumKit/NSData+Additions.h>
 #import <TitaniumKit/ObjcProxy.h>

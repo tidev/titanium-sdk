@@ -1,0 +1,26 @@
+
+buildscript {
+	ext.kotlin_version = '1.4.10'
+
+	repositories {
+		google()
+		jcenter()
+	}
+	dependencies {
+		classpath 'com.android.tools.build:gradle:4.1.0'
+		classpath 'com.google.gms:google-services:4.3.4'
+		classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+	}
+}
+
+allprojects {
+	repositories {
+		google()
+		jcenter()
+	}
+	project.apply from: "${rootDir}/ti.constants.gradle"
+}
+
+task clean(type: Delete) {
+	delete rootProject.buildDir
+}

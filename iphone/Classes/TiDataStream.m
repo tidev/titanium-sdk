@@ -45,8 +45,6 @@
     if (callback != nil) {
       NSMutableDictionary *event = [TiUtils dictionaryWithCode:-1 message:errorMessage];
       [event setObject:NUMINT(0) forKey:@"bytesProcessed"];
-      [event setObject:NUMINT(-1) forKey:@"errorState"];
-      [event setObject:errorMessage forKey:@"errorDescription"];
       [self _fireEventToListener:@"read" withObject:event listener:callback thisObject:nil];
     }
     return 0;
@@ -57,8 +55,6 @@
     if (callback != nil) {
       NSMutableDictionary *event = [TiUtils dictionaryWithCode:-1 message:nil];
       [event setObject:NUMINT(-1) forKey:@"bytesProcessed"];
-      [event setObject:NUMINT(-1) forKey:@"errorState"];
-      [event setObject:@"" forKey:@"errorDescription"];
       [self _fireEventToListener:@"read" withObject:event listener:callback thisObject:nil];
     }
     return -1;
@@ -81,8 +77,6 @@
     NSMutableDictionary *event = [TiUtils dictionaryWithCode:0 message:nil];
     [event setObject:self forKey:@"source"];
     [event setObject:NUMUINTEGER(bytesToWrite) forKey:@"bytesProcessed"];
-    [event setObject:NUMINT(0) forKey:@"errorState"];
-    [event setObject:@"" forKey:@"errorDescription"];
     [self _fireEventToListener:@"read" withObject:event listener:callback thisObject:nil];
   }
 
@@ -106,8 +100,6 @@
       NSMutableDictionary *event = [TiUtils dictionaryWithCode:-1 message:errorStr];
       [event setObject:self forKey:@"source"];
       [event setObject:NUMINT(-1) forKey:@"bytesProcessed"];
-      [event setObject:errorStr forKey:@"errorDescription"];
-      [event setObject:NUMINT(-1) forKey:@"errorState"];
       [self _fireEventToListener:@"write" withObject:event listener:callback thisObject:nil];
     }
     return -1;
@@ -119,8 +111,6 @@
       NSMutableDictionary *event = [TiUtils dictionaryWithCode:0 message:nil];
       [event setObject:self forKey:@"source"];
       [event setObject:NUMINT(0) forKey:@"bytesProcessed"];
-      [event setObject:NUMINT(0) forKey:@"errorState"];
-      [event setObject:@"" forKey:@"errorDescription"];
       [self _fireEventToListener:@"write" withObject:event listener:callback thisObject:nil];
     }
     return 0;
@@ -149,8 +139,6 @@
     NSMutableDictionary *event = [TiUtils dictionaryWithCode:0 message:nil];
     [event setObject:self forKey:@"source"];
     [event setObject:NUMUINTEGER(length) forKey:@"bytesProcessed"];
-    [event setObject:NUMINT(0) forKey:@"errorState"];
-    [event setObject:@"" forKey:@"errorDescription"];
     [self _fireEventToListener:@"write" withObject:event listener:callback thisObject:nil];
   }
 
@@ -193,8 +181,6 @@
         [event setObject:self forKey:@"fromStream"];
         [event setObject:output forKey:@"toStream"];
         [event setObject:NUMUINTEGER(totalBytes) forKey:@"bytesWritten"];
-        [event setObject:[e reason] forKey:@"errorDescription"];
-        [event setObject:NUMINT(-1) forKey:@"errorState"];
         [self _fireEventToListener:@"writeToStream" withObject:event listener:callback thisObject:nil];
       } else {
         @throw e;
@@ -213,8 +199,6 @@
     [event setObject:self forKey:@"fromStream"];
     [event setObject:output forKey:@"toStream"];
     [event setObject:NUMUINTEGER(totalBytes) forKey:@"bytesProcessed"];
-    [event setObject:NUMINT(0) forKey:@"errorState"];
-    [event setObject:@"" forKey:@"errorDescription"];
     [self _fireEventToListener:@"writeToStream" withObject:event listener:callback thisObject:nil];
   }
 
@@ -246,8 +230,6 @@
       [event setObject:[NSNull null] forKey:@"buffer"];
       [event setObject:NUMINT(-1) forKey:@"bytesProcessed"];
       [event setObject:NUMUINTEGER(totalBytes) forKey:@"totalBytesProcessed"];
-      [event setObject:NUMINT(1) forKey:@"errorState"];
-      [event setObject:message forKey:@"errorDescription"];
       [self _fireEventToListener:@"pump" withObject:event listener:callback thisObject:nil];
       break;
     }
@@ -262,8 +244,6 @@
     [event setObject:tempBuffer forKey:@"buffer"];
     [event setObject:NUMUINTEGER(bytesToWrite) forKey:@"bytesProcessed"];
     [event setObject:NUMUINTEGER(totalBytes) forKey:@"totalBytesProcessed"];
-    [event setObject:NUMINT(0) forKey:@"errorState"];
-    [event setObject:@"" forKey:@"errorDescription"];
     [self _fireEventToListener:@"pump" withObject:event listener:callback thisObject:nil];
   }
 
@@ -273,8 +253,6 @@
   [event setObject:[NSNull null] forKey:@"buffer"];
   [event setObject:NUMINT(-1) forKey:@"bytesProcessed"];
   [event setObject:NUMUINTEGER(totalBytes) forKey:@"totalBytesProcessed"];
-  [event setObject:NUMINT(0) forKey:@"errorState"];
-  [event setObject:@"" forKey:@"errorDescription"];
   [self _fireEventToListener:@"pump" withObject:event listener:callback thisObject:nil];
 }
 

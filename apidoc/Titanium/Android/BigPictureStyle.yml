@@ -9,29 +9,33 @@ description: |
 examples:
   - title: Big picture style Example
     example: |
-
         This example will be use image that placed in one of the density-specific folder
         under `Resources/android/images`
 
-            var bigPictureStyle = Titanium.Android.createBigPictureStyle({
-                bigPicture: "/images/bigPicture.png",
-                bigContentTitle: "Title for big picture",
-                summaryText: "Summary for big picture"
-            });
+        ``` js
+        var bigPictureStyle = Titanium.Android.createBigPictureStyle({
+            bigPicture: "/images/bigPicture.png",
+            bigContentTitle: "Title for big picture",
+            summaryText: "Summary for big picture"
+        });
+        ```
 
         Create big image style notification
 
-            var notification = Titanium.Android.createNotification({
-                contentTitle: 'Something Happened',
-                contentText : 'Click to return to the application.',
-                style: bigPictureStyle,
-                time: Date.now()
-            });
+        ``` js
+        var notification = Titanium.Android.createNotification({
+            contentTitle: 'Something Happened',
+            contentText : 'Click to return to the application.',
+            style: bigPictureStyle,
+            time: Date.now()
+        });
+        ```
 
         Send the notification.
 
-            Titanium.Android.NotificationManager.notify(1, notification);
-
+        ``` js
+        Titanium.Android.NotificationManager.notify(1, notification);
+        ```
 since: "5.4.0"
 platforms: [android]
 extends: Titanium.Proxy
@@ -45,19 +49,25 @@ properties:
         `my_big_large_icon.png`, you would create high- and medium-density versions of the icons
         with the following paths:
 
-            Resources/android/images/res-hdpi/my_big_large_icon.png
-            Resources/android/images/res-mdpi/my_big_large_icon.png
+        ```
+        Resources/android/images/res-hdpi/my_big_large_icon.png
+        Resources/android/images/res-mdpi/my_big_large_icon.png
+        ```
 
         To access this icon, you'd use the URL '/images/my_big_large_icon.png'.
 
         To access the same icon using an Android resource ID, place the icon in:
 
-            platform/android/res/drawable/my_big_large_icon.png
+        ```
+        platform/android/res/drawable/my_big_large_icon.png
+        ```
 
         This icon's resource ID can be referenced through the <Titanium.App.Android.R>
         object:
 
-            icon: Ti.App.Android.R.drawable.my_big_large_icon,
+        ``` js
+        icon: Ti.App.Android.R.drawable.my_big_large_icon,
+        ```
 
         See <Titanium.App.Android.R> for more information on accessing
         Android resources by ID.
@@ -78,19 +88,25 @@ properties:
         `my_big_picture.png`, you would create high- and medium-density versions of the bigPicture
         with the following paths:
 
-            Resources/android/images/res-hdpi/my_big_picture.png
-            Resources/android/images/res-mdpi/my_big_picture.png
+        ```
+        Resources/android/images/res-hdpi/my_big_picture.png
+        Resources/android/images/res-mdpi/my_big_picture.png
+        ```
 
         To access this bigPicture, you'd use the URL '/images/my_big_picture.png'.
 
         To access the same bigPicture using an Android resource ID, place the bigPicture in:
 
-            platform/android/res/drawable/my_big_picture.png
+        ```
+        platform/android/res/drawable/my_big_picture.png
+        ```
 
         This bigPicture's resource ID can be referenced through the <Titanium.App.Android.R>
         object:
 
-            bigPicture: Ti.App.Android.R.drawable.my_big_picture,
+        ``` js
+        bigPicture: Ti.App.Android.R.drawable.my_big_picture,
+        ```
 
         See <Titanium.App.Android.R> for more information on accessing
         Android resources by ID.

@@ -9,8 +9,6 @@
 #ifndef EVENT_EMITTER_H
 #define EVENT_EMITTER_H
 
-#include <v8.h>
-
 #include "NativeObject.h"
 
 namespace titanium {

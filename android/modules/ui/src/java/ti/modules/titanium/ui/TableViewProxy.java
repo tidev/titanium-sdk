@@ -24,9 +24,7 @@ import ti.modules.titanium.ui.widget.tableview.TableViewModel.Item;
 
 import android.app.Activity;
 import android.os.Message;
-import android.widget.RelativeLayout;
 
-// clang-format off
 @Kroll.proxy(creatableInModule = UIModule.class,
 	propertyAccessors = {
 		TiC.PROPERTY_FILTER_ATTRIBUTE,
@@ -47,7 +45,6 @@ import android.widget.RelativeLayout;
 		TiC.PROPERTY_REFRESH_CONTROL,
 		TiC.PROPERTY_SCROLLABLE
 	})
-// clang-format on
 public class TableViewProxy extends TiViewProxy
 {
 	private static final String TAG = "TableViewProxy";
@@ -87,7 +84,7 @@ public class TableViewProxy extends TiViewProxy
 	@Override
 	public void handleCreationDict(KrollDict dict)
 	{
-		Object data[] = null;
+		Object[] data = null;
 		if (dict.containsKey(TiC.PROPERTY_DATA)) {
 			Object o = dict.get(TiC.PROPERTY_DATA);
 			if (o != null && o instanceof Object[]) {
@@ -463,21 +460,17 @@ public class TableViewProxy extends TiViewProxy
 		}
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public TableViewSectionProxy[] getSections()
-	// clang-format on
 	{
 		ArrayList<TableViewSectionProxy> sections = getSectionsArray();
 		return sections.toArray(new TableViewSectionProxy[sections.size()]);
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public int getSectionCount()
-	// clang-format on
 	{
 		ArrayList<TableViewSectionProxy> sections = getSectionsArray();
 		return sections.size();
@@ -568,11 +561,9 @@ public class TableViewProxy extends TiViewProxy
 		sections.clear();
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.setProperty
 	public void setData(Object[] args)
-	// clang-format on
 	{
 		Object[] data = args;
 		if (args != null && args.length > 0 && args[0] instanceof Object[]) {
@@ -581,11 +572,9 @@ public class TableViewProxy extends TiViewProxy
 		handleSetData(data);
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.setProperty
 	public void setSections(Object[] args)
-	// clang-format on
 	{
 		Object[] data = args;
 		if (args != null && args.length > 0 && args[0] instanceof Object[]) {
@@ -608,11 +597,9 @@ public class TableViewProxy extends TiViewProxy
 		}
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public Object[] getData()
-	// clang-format on
 	{
 		ArrayList<TableViewSectionProxy> sections = getSectionsArray();
 		if (sections != null) {
@@ -651,9 +638,10 @@ public class TableViewProxy extends TiViewProxy
 		}
 
 		if (rowProxy == null) {
-			Log.e(
-				TAG,
-				"Unable to create table view row proxy for object, likely an error in the type of the object passed in...");
+			String errorMessage
+				= "Unable to create table view row proxy for object, "
+				+ "likely an error in the type of the object passed in...";
+			Log.e(TAG, errorMessage);
 			return null;
 		}
 
@@ -693,9 +681,10 @@ public class TableViewProxy extends TiViewProxy
 		}
 
 		if (sectionProxy == null) {
-			Log.e(
-				TAG,
-				"Unable to create table view section proxy for object, likely an error in the type of the object passed in...");
+			String errorMessage
+				= "Unable to create table view section proxy for object, "
+				+ "likely an error in the type of the object passed in...";
+			Log.e(TAG, errorMessage);
 			return null;
 		}
 

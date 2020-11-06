@@ -21,29 +21,23 @@ public class EntityProxy extends NodeProxy
 		this.entity = entity;
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public String getNotationName()
-	// clang-format on
 	{
 		return entity.getNotationName();
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public String getPublicId()
-	// clang-format on
 	{
 		return entity.getPublicId();
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public String getSystemId()
-	// clang-format on
 	{
 		return entity.getSystemId();
 	}

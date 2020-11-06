@@ -6,11 +6,9 @@
  */
 package org.appcelerator.kroll;
 
+import android.app.Activity;
 import org.appcelerator.kroll.common.CurrentActivityListener;
 import org.appcelerator.kroll.common.TiDeployData;
-import org.appcelerator.kroll.util.TiTempFileHelper;
-
-import android.app.Activity;
 
 /**
  * An interface for things Kroll needs from the application instance
@@ -18,33 +16,31 @@ import android.app.Activity;
 public interface KrollApplication {
 	boolean DEFAULT_RUN_ON_MAIN_THREAD = false;
 
-	public int getThreadStackSize();
+	int getThreadStackSize();
 
-	public Activity getCurrentActivity();
+	Activity getCurrentActivity();
 
-	public void waitForCurrentActivity(CurrentActivityListener l);
+	void waitForCurrentActivity(CurrentActivityListener l);
 
-	public TiTempFileHelper getTempFileHelper();
+	TiDeployData getDeployData();
 
-	public TiDeployData getDeployData();
+	boolean isFastDevMode();
 
-	public boolean isFastDevMode();
+	String getAppGUID();
 
-	public String getAppGUID();
+	boolean isDebuggerEnabled();
 
-	public boolean isDebuggerEnabled();
+	boolean runOnMainThread();
 
-	public boolean runOnMainThread();
+	void dispose();
 
-	public void dispose();
+	String getDeployType();
 
-	public String getDeployType();
+	String getDefaultUnit();
 
-	public String getDefaultUnit();
+	String getSDKVersion();
 
-	public String getSDKVersion();
+	void cancelTimers();
 
-	public void cancelTimers();
-
-	public void loadAppProperties();
+	void loadAppProperties();
 }

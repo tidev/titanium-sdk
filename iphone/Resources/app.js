@@ -15,7 +15,7 @@ var btn = Ti.UI.createButton({
 });
 
 btn.addEventListener('click', function() {
-    Ti.API.info('Hello world!');
+    Ti.API.info(L('hello_world'));
 });
 
 win.add(btn);

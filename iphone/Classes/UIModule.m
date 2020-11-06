@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2015 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2020 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -42,8 +42,8 @@
 
 #import <TitaniumKit/ImageLoader.h>
 #import <TitaniumKit/TiApp.h>
+#import <TitaniumKit/TiColor.h>
 #import <TitaniumKit/TiUtils.h>
-#import <TitaniumKit/Webcolor.h>
 
 @implementation UIModule
 
@@ -61,7 +61,46 @@
   [self forgetProxy:clipboard];
   RELEASE_TO_NIL(clipboard);
 #endif
+#if defined(USE_TI_UISHORTCUT) || defined(USE_TI_UISHORTCUTITEM)
+  RELEASE_TO_NIL(shortcut);
+#endif
   [super dealloc];
+}
+
+- (void)_listenerAdded:(NSString *)type count:(int)count
+{
+  if ((count == 1) && [type isEqual:@"userinterfacestyle"]) {
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
+    if ([TiUtils isIOSVersionOrGreater:@"13.0"]) {
+      lastEmittedMode = self.userInterfaceStyle;
+    }
+#endif
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(didChangeTraitCollection:)
+                                                 name:kTiTraitCollectionChanged
+                                               object:nil];
+  }
+}
+
+- (void)_listenerRemoved:(NSString *)type count:(int)count
+{
+  if ((count == 1) && [type isEqual:@"userinterfacestyle"]) {
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:kTiTraitCollectionChanged object:nil];
+  }
+}
+
+- (void)didChangeTraitCollection:(NSNotification *)info
+{
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
+  if ([TiUtils isIOSVersionOrGreater:@"13.0"]) {
+    NSNumber *currentMode = self.userInterfaceStyle;
+    if (currentMode == lastEmittedMode) {
+      return;
+    }
+    lastEmittedMode = currentMode;
+    [self fireEvent:@"userinterfacestyle" withObject:@{ @"value" : currentMode }];
+  }
+#endif
 }
 
 - (NSString *)apiName
@@ -334,6 +373,51 @@ MAKE_SYSTEM_PROP(EXTEND_EDGE_ALL, 15); //UIEdgeRectAll
 
   return @"";
 }
+
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
+- (NSNumber *)userInterfaceStyle
+{
+  return @(TiApp.controller.traitCollection.userInterfaceStyle);
+}
+
+- (NSNumber *)USER_INTERFACE_STYLE_UNSPECIFIED
+{
+  if ([TiUtils isIOSVersionOrGreater:@"13.0"] || [TiUtils isMacOS]) {
+    return NUMINT(UIUserInterfaceStyleUnspecified);
+  }
+
+  return NUMINT(0);
+}
+
+- (NSNumber *)USER_INTERFACE_STYLE_LIGHT
+{
+  if ([TiUtils isIOSVersionOrGreater:@"13.0"] || [TiUtils isMacOS]) {
+    return NUMINT(UIUserInterfaceStyleLight);
+  }
+
+  return NUMINT(0);
+}
+
+- (NSNumber *)USER_INTERFACE_STYLE_DARK
+{
+  if ([TiUtils isIOSVersionOrGreater:@"13.0"] || [TiUtils isMacOS]) {
+    return NUMINT(UIUserInterfaceStyleDark);
+  }
+
+  return NUMINT(0);
+}
+#endif
+
+- (TiColor *)fetchSemanticColor:(id)color
+{
+  ENSURE_SINGLE_ARG(color, NSString);
+  TiColor *tiColor = [TiColor colorNamed:color];
+  if (tiColor == nil) {
+    return [TiColor colorNamed:@"black"];
+  }
+  return tiColor;
+}
+
 - (NSNumber *)isLandscape:(id)args
 {
   return NUMBOOL([UIApplication sharedApplication].statusBarOrientation != UIInterfaceOrientationPortrait);
@@ -635,10 +719,8 @@ MAKE_SYSTEM_STR(AUTOFILL_TYPE_EMAIL, UITextContentTypeEmailAddress);
 MAKE_SYSTEM_STR(AUTOFILL_TYPE_URL, UITextContentTypeURL);
 MAKE_SYSTEM_STR(AUTOFILL_TYPE_CARD_NUMBER, UITextContentTypeCreditCardNumber);
 
-#if IS_SDK_IOS_11
 MAKE_SYSTEM_STR(AUTOFILL_TYPE_USERNAME, UITextContentTypeUsername);
 MAKE_SYSTEM_STR(AUTOFILL_TYPE_PASSWORD, UITextContentTypePassword);
-#endif
 
 #if IS_SDK_IOS_12
 MAKE_SYSTEM_STR(AUTOFILL_TYPE_NEW_PASSWORD, UITextContentTypeNewPassword);
@@ -649,24 +731,26 @@ MAKE_SYSTEM_STR(AUTOFILL_TYPE_ONE_TIME_CODE, UITextContentTypeOneTimeCode);
 #ifdef USE_TI_UICLIPBOARD
 - (NSString *)CLIPBOARD_OPTION_LOCAL_ONLY
 {
-  if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
-    return UIPasteboardOptionLocalOnly;
-  } else {
-    return @"";
-  }
+  return UIPasteboardOptionLocalOnly;
 }
 - (NSString *)CLIPBOARD_OPTION_EXPIRATION_DATE
 {
-  if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
-    return UIPasteboardOptionExpirationDate;
-  } else {
-    return @"";
-  }
+  return UIPasteboardOptionExpirationDate;
 }
 #endif
 
 MAKE_SYSTEM_PROP(TABLE_VIEW_SEPARATOR_STYLE_NONE, UITableViewCellSeparatorStyleNone);
 MAKE_SYSTEM_PROP(TABLE_VIEW_SEPARATOR_STYLE_SINGLE_LINE, UITableViewCellSeparatorStyleSingleLine);
+
+#if defined(USE_TI_UISHORTCUT) || defined(USE_TI_UISHORTCUTITEM)
+- (TiUIShortcutProxy *)Shortcut
+{
+  if (shortcut == nil) {
+    shortcut = [[TiUIShortcutProxy alloc] init];
+  }
+  return shortcut;
+}
+#endif
 
 @end
 

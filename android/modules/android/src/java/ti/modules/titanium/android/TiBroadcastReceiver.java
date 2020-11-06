@@ -43,7 +43,7 @@ public class TiBroadcastReceiver extends BroadcastReceiver
 	{
 		if (url != null) {
 			KrollRuntime.isInitialized();
-			KrollRuntime.getInstance().runModule(KrollAssetHelper.readAsset(url), url, proxy);
+			KrollRuntime.getInstance().runModuleBytes(KrollAssetHelper.readAssetBytes(url), url, proxy);
 		} else if (callback != null) {
 			KrollDict event = new KrollDict();
 			event.put(TiC.EVENT_PROPERTY_INTENT, new IntentProxy(intent));

@@ -8,7 +8,7 @@
 #import "TiNetworkSocketTCPProxy.h"
 #import <TitaniumKit/TiBase.h>
 
-#ifdef USE_TI_NETWORKSOCKET
+#if defined(USE_TI_NETWORKSOCKET) || (defined(USE_TI_NETWORK))
 @implementation TiNetworkSocketProxy
 
 - (id)createTCP:(id)args

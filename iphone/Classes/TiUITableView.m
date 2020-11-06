@@ -503,7 +503,7 @@
       dataIndex += rowIndex;
       break;
     }
-    dataIndex += [section rowCount];
+    dataIndex += section.rowCount.integerValue;
     c++;
   }
   return dataIndex;
@@ -517,9 +517,10 @@
   // way, meaning that we have to explicitly reload the whole visible table to get
   // the "right" behavior.
   if (animation == UITableViewRowAnimationNone) {
-    TiThreadPerformOnMainThread(^{
-      [table reloadData];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          [table reloadData];
+        },
         YES);
     return;
   }
@@ -554,7 +555,7 @@
   //won't have any problems in the case that it is actually nil.
   TiUITableViewProxy *ourProxy = (TiUITableViewProxy *)[self proxy];
 
-  NSUInteger oldCount = [ourProxy sectionCount];
+  NSUInteger oldCount = ourProxy.sectionCount.unsignedIntegerValue;
 
   for (TiUITableViewSectionProxy *section in [(TiUITableViewProxy *)[self proxy] internalSections]) {
     if ([section parent] == ourProxy) {
@@ -940,11 +941,11 @@
 
 - (TiUITableViewRowProxy *)rowForIndexPath:(NSIndexPath *)indexPath
 {
-  TiUITableViewSectionProxy *section = [self sectionForIndex:[indexPath section]];
-  if (!indexPath || [section rowCount] <= [indexPath row]) {
+  TiUITableViewSectionProxy *section = [self sectionForIndex:indexPath.section];
+  if (!indexPath || section.rowCount.unsignedIntegerValue <= indexPath.row) {
     return nil;
   }
-  return [section rowAtIndex:[indexPath row]];
+  return [section rowAtIndex:indexPath.row];
 }
 
 - (void)changeEditing:(BOOL)yn
@@ -1312,7 +1313,8 @@
   }
   NSEnumerator *searchResultIndexEnumerator;
   if (searchResultIndexes == nil) {
-    searchResultIndexes = [[NSMutableArray alloc] initWithCapacity:[(TiUITableViewProxy *)[self proxy] sectionCount]];
+    NSUInteger sectionCount = [(TiUITableViewProxy *)[self proxy] sectionCount].unsignedIntegerValue;
+    searchResultIndexes = [[NSMutableArray alloc] initWithCapacity:sectionCount];
     searchResultIndexEnumerator = nil;
   } else {
     searchResultIndexEnumerator = [searchResultIndexes objectEnumerator];
@@ -1688,17 +1690,18 @@
 
 - (void)proxyDidRelayout:(id)sender
 {
-  TiThreadPerformOnMainThread(^{
-    if ((sender == headerViewProxy) && (headerViewProxy != nil)) {
-      UIView *headerView = [[self tableView] tableHeaderView];
-      [headerView setFrame:[headerView bounds]];
-      [[self tableView] setTableHeaderView:headerView];
-    } else if ((sender == footerViewProxy) && (footerViewProxy != nil)) {
-      UIView *footerView = [[self tableView] tableFooterView];
-      [footerView setFrame:[footerView bounds]];
-      [[self tableView] setTableFooterView:footerView];
-    }
-  },
+  TiThreadPerformOnMainThread(
+      ^{
+        if ((sender == headerViewProxy) && (headerViewProxy != nil)) {
+          UIView *headerView = [[self tableView] tableHeaderView];
+          [headerView setFrame:[headerView bounds]];
+          [[self tableView] setTableHeaderView:headerView];
+        } else if ((sender == footerViewProxy) && (footerViewProxy != nil)) {
+          UIView *footerView = [[self tableView] tableFooterView];
+          [footerView setFrame:[footerView bounds]];
+          [[self tableView] setTableFooterView:footerView];
+        }
+      },
       NO);
 }
 
@@ -1903,9 +1906,10 @@
 
   // Instead of calling back through our mechanism to reload specific sections, because the entire index of the table
   // has been regenerated, we can assume it's okay to just reload the whole dataset.
-  TiThreadPerformOnMainThread(^{
-    [[self tableView] reloadData];
-  },
+  TiThreadPerformOnMainThread(
+      ^{
+        [[self tableView] reloadData];
+      },
       NO);
 }
 
@@ -1982,12 +1986,7 @@
   [[self proxy] replaceValue:args forKey:@"refreshControl" notification:NO];
   if (args != nil) {
     _refreshControlProxy = [args retain];
-
-    if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
-      [[self tableView] setRefreshControl:_refreshControlProxy.control];
-    } else {
-      [[self tableView] addSubview:[_refreshControlProxy control]];
-    }
+    [[self tableView] setRefreshControl:_refreshControlProxy.control];
   }
 #endif
 }
@@ -2069,7 +2068,7 @@
   }
 
   TiUITableViewSectionProxy *sectionProxy = [self sectionForIndex:section];
-  return sectionProxy.rowCount;
+  return sectionProxy.rowCount.integerValue;
 }
 
 // Row display. Implementers should *always* try to reuse cells by setting each cell's reuseIdentifier and querying for available reusable cells with dequeueReusableCellWithIdentifier:
@@ -2126,7 +2125,7 @@
     return 1;
   }
   // One quirk of UITableView is that it really hates having 0 sections. Instead, supply 1 section, no rows.
-  NSUInteger result = [(TiUITableViewProxy *)[self proxy] sectionCount];
+  NSUInteger result = [(TiUITableViewProxy *)[self proxy] sectionCount].unsignedIntegerValue;
   return MAX(1, result);
 }
 
@@ -2168,7 +2167,7 @@
     [table beginUpdates];
     if (emptySection) {
       NSIndexSet *thisSectionSet = [NSIndexSet indexSetWithIndex:[indexPath section]];
-      if ([(TiUITableViewProxy *)[self proxy] sectionCount] > 0) {
+      if ([(TiUITableViewProxy *)[self proxy] sectionCount].unsignedIntegerValue > 0) {
         [table deleteSections:thisSectionSet withRowAnimation:UITableViewRowAnimationFade];
       } else //There always must be at least one section. So instead, we have it reload to clear out the header and footer, etc.
       {
@@ -2390,7 +2389,6 @@
 
 - (void)viewGetFocus
 {
-#if IS_SDK_IOS_11
   if (isSearchBarInNavigation) {
     id proxy = [(TiViewProxy *)self.proxy parent];
     while ([proxy isKindOfClass:[TiViewProxy class]] && ![proxy isKindOfClass:[TiWindowProxy class]]) {
@@ -2406,7 +2404,6 @@
       controller.navigationItem.searchController = searchController;
     }
   }
-#endif
   if (!hideOnSearch && isSearched && self.searchedString && ![searchController isActive]) {
     isSearched = NO;
     searchController.searchBar.text = self.searchedString;
@@ -2818,6 +2815,7 @@
     return;
   }
 
+  [self hideDimmingView];
   animateHide = YES;
   [self performSelector:@selector(hideSearchScreen:) withObject:nil afterDelay:0.2];
   // Since we clear the searchbar, the search string and indexes can be cleared as well.

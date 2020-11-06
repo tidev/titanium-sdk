@@ -7,7 +7,6 @@
 package ti.modules.titanium.ui;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.appcelerator.kroll.KrollDict;
@@ -23,7 +22,7 @@ import org.appcelerator.titanium.view.TiUIView;
 import ti.modules.titanium.ui.widget.TiUIScrollableView;
 import android.app.Activity;
 import android.os.Message;
-// clang-format off
+
 @Kroll.proxy(creatableInModule = UIModule.class,
 	propertyAccessors = {
 		TiC.PROPERTY_CACHE_SIZE,
@@ -32,7 +31,6 @@ import android.os.Message;
 		TiC.PROPERTY_SHOW_PAGING_CONTROL,
 		TiC.PROPERTY_OVER_SCROLL_MODE
 })
-// clang-format on
 public class ScrollableViewProxy extends TiViewProxy
 {
 	private static final String TAG = "TiScrollableView";
@@ -192,11 +190,9 @@ public class ScrollableViewProxy extends TiViewProxy
 		return handled;
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public Object getViews()
-	// clang-format on
 	{
 		TiViewProxy[] childViewArray = new TiViewProxy[0];
 		TiUIScrollableView view = getView();
@@ -206,11 +202,9 @@ public class ScrollableViewProxy extends TiViewProxy
 		return childViewArray;
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.setProperty
 	public void setViews(Object viewsObject)
-	// clang-format on
 	{
 		TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_SET_VIEWS), viewsObject);
 	}
@@ -323,40 +317,32 @@ public class ScrollableViewProxy extends TiViewProxy
 		}
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.setProperty
 	public void setScrollingEnabled(Object enabled)
-	// clang-format on
 	{
 		getMainHandler().obtainMessage(MSG_SET_ENABLED, enabled).sendToTarget();
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public boolean getScrollingEnabled()
-	// clang-format on
 	{
 		TiUIScrollableView view = getView();
 		return (view != null) ? view.getEnabled() : false;
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public int getCurrentPage()
-	// clang-format on
 	{
 		TiUIScrollableView view = getView();
 		return (view != null) ? view.getCurrentPage() : 0;
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.setProperty
 	public void setCurrentPage(Object page)
-	// clang-format on
 	{
 		getMainHandler().obtainMessage(MSG_SET_CURRENT, page).sendToTarget();
 	}

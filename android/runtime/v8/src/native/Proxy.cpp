@@ -124,7 +124,12 @@ void Proxy::getProperty(const FunctionCallbackInfo<Value>& args)
 
 	// Spit out deprecation notice to use normal property getter
 	v8::String::Utf8Value propertyKey(isolate, name);
-	LOGW(TAG, "Automatic getter methods for properties are deprecated in SDK 8.0.0 and will be removed in SDK 9.0.0. Please access the property in standard JS style: obj.%s; or obj['%s'];", *propertyKey, *propertyKey);
+	char* deprecationMessage;
+	asprintf(&deprecationMessage, "Getter method deprecated, please use \"obj.%s;\" or \"obj['%s'];\" instead.", *propertyKey, *propertyKey);
+	if (deprecationMessage != nullptr) {
+		Proxy::logDeprecation(isolate, deprecationMessage);
+		free(deprecationMessage);
+	}
 
 	args.GetReturnValue().Set(getPropertyForProxy(isolate, name, args.Holder()));
 }
@@ -197,7 +202,8 @@ static void onPropertyChangedForProxy(Isolate* isolate, Local<String> property, 
 void Proxy::onPropertyChanged(Local<Name> property, Local<Value> value, const v8::PropertyCallbackInfo<void>& info)
 {
 	Isolate* isolate = info.GetIsolate();
-	onPropertyChangedForProxy(isolate, property->ToString(isolate), value, info.Holder());
+	Local<Context> context = isolate->GetCurrentContext();
+	onPropertyChangedForProxy(isolate, property->ToString(context).ToLocalChecked(), value, info.Holder());
 }
 
 // This variant is used when accessing a property through a getter method (i.e. setText('whatever'))
@@ -212,10 +218,16 @@ void Proxy::onPropertyChanged(const v8::FunctionCallbackInfo<v8::Value>& args)
 	Local<Name> name = args.Data().As<Name>();
 	// Spit out deprecation notice to use normal property setter, not setX() style method.
 	v8::String::Utf8Value propertyKey(isolate, name);
-	LOGW(TAG, "Automatic setter methods for properties are deprecated in SDK 8.0.0 and will be removed in SDK 9.0.0. Please modify the property in standard JS style: obj.%s = value; or obj['%s'] = value;", *propertyKey, *propertyKey);
+	char* deprecationMessage;
+	asprintf(&deprecationMessage, "Setter method deprecated, please use \"obj.%s = value;\" or \"obj['%s'] = value;\" instead.", *propertyKey, *propertyKey);
+	if (deprecationMessage != nullptr) {
+		Proxy::logDeprecation(isolate, deprecationMessage);
+		free(deprecationMessage);
+	}
 
 	Local<Value> value = args[0];
-	onPropertyChangedForProxy(isolate, name->ToString(isolate), value, args.Holder());
+	Local<Context> context = isolate->GetCurrentContext();
+	onPropertyChangedForProxy(isolate, name->ToString(context).ToLocalChecked(), value, args.Holder());
 }
 
 void Proxy::getIndexedProperty(uint32_t index, const PropertyCallbackInfo<Value>& info)
@@ -580,6 +592,29 @@ jobject Proxy::unwrapJavaProxy(const v8::FunctionCallbackInfo<v8::Value>& args)
 
 	Local<Value> firstArgument = args[0];
 	return firstArgument->IsExternal() ? (jobject) (firstArgument.As<External>()->Value()) : NULL;
+}
+
+void Proxy::logDeprecation(Isolate* isolate, const char* message)
+{
+	// Print deprecation message.
+	LOGW(TAG, message);
+
+	// Create exception to obtain current stack and source line.
+	Local<Message> exception = Exception::CreateMessage(isolate, Exception::Error(v8::String::NewFromUtf8(isolate, message, v8::NewStringType::kNormal).ToLocalChecked()));
+
+	// Obtain and print source line.
+	v8::String::Utf8Value sourceLine(isolate, exception->GetSourceLine(isolate->GetCurrentContext()).ToLocalChecked());
+	std::string sourceLineString = std::string(*sourceLine, sourceLine.length());
+	LOGW(TAG, sourceLineString.c_str());
+
+	// Log erroneous column.
+	if (exception->GetEndColumn() > 0) {
+		LOGW(TAG, (std::string(exception->GetEndColumn() - 1, ' ') + std::string("^")).c_str());
+	}
+
+	// Log location of deprecated usage.
+	std::string stackString = V8Util::stackTraceString(isolate, exception->GetStackTrace(), 1);
+	LOGW(TAG, stackString.c_str());
 }
 
 } // namespace titanium

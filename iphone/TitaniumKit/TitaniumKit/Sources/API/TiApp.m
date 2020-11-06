@@ -186,11 +186,7 @@ TI_INLINE void waitForMemoryPanicCleared(void); //WARNING: This must never be ru
     UIApplication *app = [UIApplication sharedApplication];
     NSURL *url = [NSURL URLWithString:[launchDefaults objectForKey:@"application-launch-url"]];
     if ([app canOpenURL:url]) {
-      if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
-        [app openURL:url options:@{} completionHandler:nil];
-      } else {
-        [app openURL:url];
-      }
+      [app openURL:url options:@{} completionHandler:nil];
     } else {
       DebugLog(@"[WARN] The launch-url provided : %@ is invalid.", [launchDefaults objectForKey:@"application-launch-url"]);
     }
@@ -256,9 +252,10 @@ TI_INLINE void waitForMemoryPanicCleared(void); //WARNING: This must never be ru
       [_queuedApplicationSelectors removeAllObjects];
     }
 
-    TiThreadPerformOnMainThread(^{
-      [self validator];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          [self validator];
+        },
         YES);
   }
 }
@@ -354,10 +351,7 @@ TI_INLINE void waitForMemoryPanicCleared(void); //WARNING: This must never be ru
     remoteDeviceUUID = [apnsUUID copy];
   }
 
-  // iOS 10+: Register our notification delegate
-  if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
-    [[UNUserNotificationCenter currentNotificationCenter] setDelegate:self];
-  }
+  [[UNUserNotificationCenter currentNotificationCenter] setDelegate:self];
 
   // Get some launch options to validate before finish launching. Some of them
   // need to be mapepd from native to JS-types to be used by the client
@@ -928,8 +922,7 @@ TI_INLINE void waitForMemoryPanicCleared(void); //WARNING: This must never be ru
   NSMutableDictionary *responseObj = [uploadTaskResponses objectForKey:@(dataTask.taskIdentifier)];
   if (!responseObj) {
     NSMutableData *responseData = [NSMutableData dataWithData:data];
-    NSInteger statusCode = [(NSHTTPURLResponse *)[dataTask response] statusCode];
-    responseObj = [NSMutableDictionary dictionaryWithObjectsAndKeys:@(statusCode), @"statusCode", responseData, @"responseData", nil];
+    responseObj = [NSMutableDictionary dictionaryWithObjectsAndKeys:responseData, @"responseData", nil];
     [uploadTaskResponses setValue:responseObj forKey:(NSString *)@(dataTask.taskIdentifier)];
   } else {
     [[responseObj objectForKey:@"responseData"] appendData:data];
@@ -953,20 +946,22 @@ TI_INLINE void waitForMemoryPanicCleared(void); //WARNING: This must never be ru
                                             nil];
     [dict addEntriesFromDictionary:errorinfo];
   } else {
+    NSInteger statusCode = [(NSHTTPURLResponse *)[task response] statusCode];
+
+    NSMutableDictionary *successResponse = [NSMutableDictionary dictionaryWithObjectsAndKeys:NUMBOOL(YES), @"success",
+                                                                NUMINT(0), @"errorCode",
+                                                                @(statusCode), @"statusCode", nil];
     NSMutableDictionary *responseObj = [uploadTaskResponses objectForKey:@(task.taskIdentifier)];
+
     if (responseObj != nil) {
       // We only send "responseText" as the "responsesData" is only set with data from uploads
       NSString *responseText = [[NSString alloc] initWithData:[responseObj objectForKey:@"responseData"] encoding:NSUTF8StringEncoding];
-      NSInteger statusCode = [[responseObj valueForKey:@"statusCode"] integerValue];
+
+      [successResponse setValue:responseText forKey:@"responseText"];
       [uploadTaskResponses removeObjectForKey:@(task.taskIdentifier)];
-      NSDictionary *successResponse = [NSMutableDictionary dictionaryWithObjectsAndKeys:@(YES), @"success",
-                                                           @(0), @"errorCode",
-                                                           responseText, @"responseText",
-                                                           @(statusCode), @"statusCode",
-                                                           nil];
-      [dict addEntriesFromDictionary:successResponse];
       RELEASE_TO_NIL(responseText);
     }
+    [dict addEntriesFromDictionary:successResponse];
   }
   [[NSNotificationCenter defaultCenter] postNotificationName:kTiURLSessionCompleted object:self userInfo:dict];
 }
@@ -1077,12 +1072,13 @@ TI_INLINE void waitForMemoryPanicCleared(void); //WARNING: This must never be ru
   bgTask = [app beginBackgroundTaskWithExpirationHandler:^{
     // Synchronize the cleanup call on the main thread in case
     // the task actually finishes at around the same time.
-    TiThreadPerformOnMainThread(^{
-      if (bgTask != UIBackgroundTaskInvalid) {
-        [app endBackgroundTask:bgTask];
-        bgTask = UIBackgroundTaskInvalid;
-      }
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          if (bgTask != UIBackgroundTaskInvalid) {
+            [app endBackgroundTask:bgTask];
+            bgTask = UIBackgroundTaskInvalid;
+          }
+        },
         NO);
   }];
   // Start the long-running task and return immediately.
@@ -1345,12 +1341,13 @@ TI_INLINE void waitForMemoryPanicCleared(void); //WARNING: This must never be ru
   if ([runningServices count] == 0) {
     // Synchronize the cleanup call on the main thread in case
     // the expiration handler is fired at the same time.
-    TiThreadPerformOnMainThread(^{
-      if (bgTask != UIBackgroundTaskInvalid) {
-        [[UIApplication sharedApplication] endBackgroundTask:bgTask];
-        bgTask = UIBackgroundTaskInvalid;
-      }
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          if (bgTask != UIBackgroundTaskInvalid) {
+            [[UIApplication sharedApplication] endBackgroundTask:bgTask];
+            bgTask = UIBackgroundTaskInvalid;
+          }
+        },
         NO);
   }
 }
@@ -1393,9 +1390,9 @@ TI_INLINE void waitForMemoryPanicCleared(void); //WARNING: This must never be ru
     [event setObject:notification.request.content.userInfo[@"aps"][@"sound"] forKey:@"sound"];
   }
 
+#if !TARGET_OS_MACCATALYST
   // Inject the trigger (time- or location-based) into the payload
   UNNotificationTrigger *trigger = notification.request.trigger;
-
   if (trigger != nil) {
     if ([trigger isKindOfClass:[UNCalendarNotificationTrigger class]]) {
       [event setObject:NULL_IF_NIL([(UNCalendarNotificationTrigger *)trigger nextTriggerDate]) forKey:@"date"];
@@ -1410,11 +1407,11 @@ TI_INLINE void waitForMemoryPanicCleared(void); //WARNING: This must never be ru
       [event setObject:dict forKey:@"region"];
     }
   }
-
+#endif
   return event;
 }
 
-+ (NSDictionary *)dictionaryWithLocalNotification:(UILocalNotification *)notification withIdentifier:(NSString *)identifier
++ (NSDictionary *)dictionaryWithLocalNotification:(id)notification withIdentifier:(NSString *)identifier
 {
   if (notification == nil) {
     return nil;

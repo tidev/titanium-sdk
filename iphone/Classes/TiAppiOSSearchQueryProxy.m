@@ -74,9 +74,10 @@
           [dict setValue:[error localizedDescription] forKey:@"error"];
         }
 
-        TiThreadPerformOnMainThread(^{
-          [self fireEvent:@"completed" withObject:dict];
-        },
+        TiThreadPerformOnMainThread(
+            ^{
+              [self fireEvent:@"completed" withObject:dict];
+            },
             NO);
       }
     }];

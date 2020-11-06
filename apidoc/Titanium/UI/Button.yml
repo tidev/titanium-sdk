@@ -3,22 +3,9 @@ name: Titanium.UI.Button
 summary: |
     A button widget that has four states: normal, disabled, focused and selected.
 description: |
-    <table id="platformComparison">
-      <tbody>
-        <tr>
-          <td><img src="images/button/button_android.png" height="50" /></td>
-          <td><img src="images/button/button_ios.png" height="50" /></td>
-          <td><img src="images/button/button_wp.png" height="50" /></td>
-        </tr>
-      </tbody>
-      <tfoot>
-        <tr>
-          <th>Android</th>
-          <th>iOS</th>
-          <th>Windows Phone</th>
-        </tr>
-      </tfoot>
-    </table>
+    | Android | iOS | Windows |
+    | ------- | --- | ------- |
+    | ![Android](./button_android.png) | ![iOS](./button_ios.png) | ![Windows](./button_wp.png) |
 
     A button displays its  selected state while it is being pressed. The focused state is
     only used on Android devices that have navigation keys or a keyboard, to indicate
@@ -79,11 +66,15 @@ description: |
 
     For example:
 
-        var cancelButton = Ti.UI.createButton({ systemButton: Ti.UI.iOS.SystemButton.CANCEL });
+    ``` js
+    var cancelButton = Ti.UI.createButton({ systemButton: Ti.UI.iOS.SystemButton.CANCEL });
+    ```
 
     In Alloy, you can omit the namespace when setting the `systemButton` property:
 
-        <Button id="cancelbtn" systemButton="CANCEL"></Button>
+    ``` xml
+    <Button id="cancelbtn" systemButton="CANCEL"></Button>
+    ```
 
     Note that the `systemButton` property specifies *appearance*, not behavior. For
     example, to bring up the camera when the user presses the **Camera** button, you must
@@ -100,12 +91,41 @@ description: |
     or use system icons such as [CAMERA](Titanium.UI.iOS.SystemButton.CAMERA), a glow effect is
     used. The glow effect shows as a white circular glow or highlight at the center of the button
     when the button is pressed.
-
 extends: Titanium.UI.View
 excludes:
     properties: [children]
     methods: [add, remove, removeAllChildren, replaceAt]
 since: "0.8"
+
+events:
+  - name: touchfiltered
+    summary: Fired when the device detects a swipe gesture against the view.
+    description: |
+        If the button's [filterTouchesWhenObscured](Titanium.UI.View.filterTouchesWhenObscured) property
+        is set `true`, then this event will be fired if the touch event was discarded because another app's
+        overlapping window obscured it.
+
+        This is a security feature to protect an app from "tapjacking", where a malicious app can use a
+        system overlay to intercept touch events in your app or to trick the end-user to tap on UI
+        in your app intended for the overlay.
+
+        You can use this event to display an alert dialog explaining why the button's action has been disabled.
+        Especially if the overlapping window is completely invisible.
+    platforms: [android]
+    since: "9.3.0"
+    properties:
+      - name: x
+        summary: X coordinate of the event from the `source` view's coordinate system.
+        type: Number
+
+      - name: y
+        summary: Y coordinate of the event from the `source` view's coordinate system.
+        type: Number
+
+      - name: obscured
+        type: Boolean
+        summary: Always `true` since the touch event passed through another app's overlapping window.
+
 properties:
   - name: attributedString
     summary: Specify an attributed string for the label.
@@ -117,7 +137,7 @@ properties:
         is enabled. To do so, set the `type` to <Titanium.UI.ATTRIBUTE_UNDERLINES_STYLE> and the
         `value` to <Titanium.UI.ATTRIBUTE_UNDERLINE_STYLE_NONE>.
     type: Titanium.UI.AttributedString
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     since:
         android: 7.5.0
         iphone: 7.5.0
@@ -129,7 +149,7 @@ properties:
     description: |
         Also sets the background image for the other button states (disabled, focused, selected),
         unless they've been specified explicitly. On iOS, if backgroundDisabledImage is unset, the
-        image will appear faded to indicate being disabled. Also on iOS, if backgroundSelectedImage
+        image will appear faded to indicate being disabled. Also on iOS, if `backgroundSelectedImage`
         is unset, the image will be darkened to indicate being selected.
     type: String
 
@@ -141,7 +161,7 @@ properties:
         Also sets the background image for the other button states (normal, focused, selected),
         unless they've been specified explicitly, except for iOS, which requires a backgroundImage.
     type: String
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: backgroundFocusedImage
     summary: |
@@ -151,14 +171,14 @@ properties:
         Focusable must be true for normal views. Sets the background image for the focused
         state only. For iOS, since there is not a trackball, this does nothing.
     type: String
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: backgroundSelectedColor
     summary: Selected background color of the view, as a color name or hex triplet.
     description: |
         For information about color values, see the "Colors" section of <Titanium.UI>.
-    type: String
-    platforms: [iphone, ipad, android]
+    type: [ String, Titanium.UI.Color ]
+    platforms: [iphone, ipad, android, macos]
     default: Background color of this view.
     since: {iphone: "6.1.0", ipad: "6.1.0", android: 0.9.0}
 
@@ -170,19 +190,19 @@ properties:
         On Android, Focusable must be true in order to be selected. Sets the background image for the selected
         state only.
     type: String
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: color
     summary: Default button text color, as a color name or hex triplet.
     description: |
         For information about color values, see the "Colors" section of <Titanium.UI>.
-    type: String
+    type: [ String, Titanium.UI.Color ]
 
   - name: disabledColor
     summary: Text color of the button in its disabled state, as a color name or hex triplet.
-    type: String
+    type: [ String, Titanium.UI.Color ]
     since: "3.2.0"
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: enabled
     summary: Set to `true` to enable the button, `false` to disable the button.
@@ -207,24 +227,24 @@ properties:
     summary: Button text color used to indicate the selected state, as a color name or hex triplet.
     description: |
         For information about color values, see the "Colors" section of <Titanium.UI>.
-    type: String
-    platforms: [iphone,ipad]
+    type: [ String, Titanium.UI.Color ]
+    platforms: [iphone,ipad, macos]
 
   - name: shadowColor
     summary: Shadow color of the [title](Titanium.UI.Button.title), as a color name or hex triplet.
     description: |
         Use in conjunction with [shadowOffset](Titanium.UI.Button.shadowOffset) and [shadowRadius](Titanium.UI.Button.shadowRadius).
         For information about color values, see the "Colors" section of <Titanium.UI>.
-    type: String
-    platforms: [android]
+    type: [ String, Titanium.UI.Color ]
+    platforms: [android, iphone, ipad, macos]
     since: "3.2.0"
 
   - name: shadowOffset
     summary: Shadow offset of the [title](Titanium.UI.Button.title), as a dictionary with the properties `x` and `y`.
     description: |
         Use in conjunction with [shadowColor](Titanium.UI.Button.shadowColor) and [shadowRadius](Titanium.UI.Button.shadowRadius).
-    type: Dictionary
-    platforms: [android]
+    type: Point
+    platforms: [android, iphone, ipad, macos]
     since: "3.2.0"
 
   - name: shadowRadius
@@ -238,25 +258,27 @@ properties:
   - name: style
     summary: Style constant for the button, as defined in <Titanium.UI.iOS.SystemButtonStyle>.
     type: Number
-    platforms: [iphone,ipad]
+    platforms: [iphone,ipad, macos]
 
   - name: systemButton
     summary: Specifies an iOS system button appearance, as defined in <Titanium.UI.iOS.SystemButton>.
     description: |
         In JavaScript:
 
-            var cancelButton = Ti.UI.createButton({
-                systemButton: Ti.UI.iOS.SystemButton.CANCEL
-            });
+        ``` js
+        var cancelButton = Ti.UI.createButton({
+            systemButton: Ti.UI.iOS.SystemButton.CANCEL
+        });
+        ```
 
         In Alloy, you can omit the namespace when setting the `systemButton` property on a `<Button>`
         element:
-
-            <Button systemButton="CAMERA"/>
-
+        ``` xml
+        <Button systemButton="CAMERA"/>
+        ```
     type: Number
     constants: Titanium.UI.iOS.SystemButton.*
-    platforms: [iphone,ipad]
+    platforms: [iphone,ipad, macos]
 
   - name: textAlign
     summary: |
@@ -268,7 +290,7 @@ properties:
   - name: tintColor
     summary: Button tint color.
     type: String
-    platforms: [android,iphone,ipad]
+    platforms: [android,iphone,ipad, macos]
     osver: {ios: {min: "7.0"}}
     since:
         android: 5.4.0
@@ -285,7 +307,6 @@ properties:
     type: String
     since: "1.5"
 
-
   - name: verticalAlign
     summary: |
         Vertical alignment for the text field, specified using one of the
@@ -298,34 +319,37 @@ properties:
 examples:
   - title: Simple Button Example
     example: |
-
-            var button = Titanium.UI.createButton({
-               title: 'Hello',
-               top: 10,
-               width: 100,
-               height: 50
-            });
-            button.addEventListener('click',function(e)
-            {
-               Titanium.API.info("You clicked the button");
-            });
+        ``` js
+        var button = Titanium.UI.createButton({
+            title: 'Hello',
+            top: 10,
+            width: 100,
+            height: 50
+        });
+        button.addEventListener('click',function(e)
+        {
+            Titanium.API.info("You clicked the button");
+        });
+        ```
 
   - title: Alloy XML Markup
     example: |
         Previous example as an Alloy view.
 
         button.xml:
-
-            <Alloy>
-                <Window id="win" backgroundColor="white">
-                    <!-- The title property can also be defined as node text. -->
-                    <Button id="button" onClick="doClick" title="Hello"
-                        top="10" width="100" height="50" />
-                </Window>
-            </Alloy>
+        ``` xml
+        <Alloy>
+            <Window id="win" backgroundColor="white">
+                <!-- The title property can also be defined as node text. -->
+                <Button id="button" onClick="doClick" title="Hello"
+                    top="10" width="100" height="50" />
+            </Window>
+        </Alloy>
+        ```
 
         button.js:
-
-            function doClick(e){
-                Titanium.API.info("You clicked the button");
-            };
+        ``` js
+        function doClick(e){
+            Titanium.API.info("You clicked the button");
+        };
+        ```

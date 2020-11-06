@@ -9,7 +9,7 @@ package org.appcelerator.titanium.util;
 import android.graphics.Bitmap;
 
 public interface TiLoadImageListener {
-	public void loadImageFinished(int hash, Bitmap bitmap);
+	void loadImageFinished(int hash, Bitmap bitmap);
 
-	public void loadImageFailed();
+	void loadImageFailed();
 }

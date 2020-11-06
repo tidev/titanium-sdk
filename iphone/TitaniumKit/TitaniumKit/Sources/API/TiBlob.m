@@ -11,7 +11,6 @@
 #import "UIImage+Alpha.h"
 #import "UIImage+Resize.h"
 #import "UIImage+RoundedCorner.h"
-
 //NOTE:FilesystemFile is conditionally compiled based on the filesystem module.
 #import "TiFilesystemFileProxy.h"
 
@@ -68,27 +67,39 @@ static NSString *const MIMETYPE_JPEG = @"image/jpeg";
 {
   [self ensureImageLoaded];
   if (image != nil) {
-    return image.size.width;
+    return image.size.width * image.scale;
   }
   return 0;
 }
 GETTER_IMPL(NSUInteger, width, Width);
 
+- (NSUInteger)uprightWidth
+{
+  return [self width];
+}
+GETTER_IMPL(NSUInteger, uprightWidth, UprightWidth);
+
 - (NSUInteger)height
 {
   [self ensureImageLoaded];
   if (image != nil) {
-    return image.size.height;
+    return image.size.height * image.scale;
   }
   return 0;
 }
 GETTER_IMPL(NSUInteger, height, Height);
 
+- (NSUInteger)uprightHeight
+{
+  return [self height];
+}
+GETTER_IMPL(NSUInteger, uprightHeight, UprightHeight);
+
 - (NSUInteger)size
 {
   [self ensureImageLoaded];
   if (image != nil) {
-    return image.size.width * image.size.height;
+    return image.size.width * image.size.height * image.scale * image.scale;
   }
   switch (type) {
   case TiBlobTypeData: {
@@ -132,7 +143,7 @@ GETTER_IMPL(NSUInteger, size, Size);
   if (self = [super init]) {
     image = [image_ retain];
     type = TiBlobTypeImage;
-    mimetype = [([UIImageAlpha hasAlpha:image_] ? MIMETYPE_PNG : MIMETYPE_JPEG)copy];
+    mimetype = [([UIImageAlpha hasAlpha:image_] ? MIMETYPE_PNG : MIMETYPE_JPEG) copy];
   }
   return self;
 }
@@ -148,7 +159,7 @@ GETTER_IMPL(NSUInteger, size, Size);
     image = [[UIImage systemImageNamed:imageName] retain];
     type = TiBlobTypeSystemImage;
     systemImageName = [imageName retain];
-    mimetype = [([UIImageAlpha hasAlpha:image] ? MIMETYPE_PNG : MIMETYPE_JPEG)copy];
+    mimetype = [([UIImageAlpha hasAlpha:image] ? MIMETYPE_PNG : MIMETYPE_JPEG) copy];
   }
   return self;
 }
@@ -165,6 +176,17 @@ GETTER_IMPL(NSUInteger, size, Size);
     data = [data_ retain];
     type = TiBlobTypeData;
     mimetype = [mimetype_ copy];
+  }
+  return self;
+}
+
+- (id)initWithData:(NSData *)data_ andPath:(NSString *)path_
+{
+  if (self = [super init]) {
+    data = [data_ retain];
+    type = TiBlobTypeData;
+    path = [path_ retain];
+    mimetype = [[Mimetypes mimeTypeForExtension:path] copy];
   }
   return self;
 }
@@ -435,4 +457,23 @@ GETTER_IMPL(NSUInteger, length, Length);
   return [super toString];
 }
 
+static void jsArrayBufferFreeDeallocator(void *data, void *ctx)
+{
+  free(data);
+}
+
+- (JSValue *)toArrayBuffer
+{
+  NSData *theData = [self data];
+  // Copy the raw bytes of the NSData we're wrapping
+  NSUInteger len = [theData length];
+  void *arrayBytes = malloc(len);
+  [theData getBytes:arrayBytes length:len];
+
+  // Now make an ArrayBuffer with the copied bytes
+  JSContext *context = JSContext.currentContext;
+  JSValueRef *exception;
+  JSObjectRef arrayBuffer = JSObjectMakeArrayBufferWithBytesNoCopy(context.JSGlobalContextRef, arrayBytes, len, jsArrayBufferFreeDeallocator, nil, exception);
+  return [JSValue valueWithJSValueRef:arrayBuffer inContext:context];
+}
 @end

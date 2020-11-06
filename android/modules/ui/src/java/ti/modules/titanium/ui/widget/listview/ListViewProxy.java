@@ -21,7 +21,7 @@ import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.UIModule;
 import android.app.Activity;
-// clang-format off
+
 @Kroll.proxy(creatableInModule = UIModule.class,
 	propertyAccessors = {
 		TiC.PROPERTY_CAN_SCROLL,
@@ -39,10 +39,8 @@ import android.app.Activity;
 		TiC.PROPERTY_REFRESH_CONTROL,
 		TiC.PROPERTY_SEPARATOR_HEIGHT
 })
-// clang-format on
 public class ListViewProxy extends TiViewProxy
 {
-
 	private static final String TAG = "ListViewProxy";
 
 	//indicate if user attempts to add/modify/delete sections before TiListView is created
@@ -138,11 +136,9 @@ public class ListViewProxy extends TiViewProxy
 		}
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public int getSectionCount()
-	// clang-format on
 	{
 		return handleSectionCount();
 	}
@@ -165,7 +161,7 @@ public class ListViewProxy extends TiViewProxy
 							 @SuppressWarnings("rawtypes") @Kroll.argument(optional = true) HashMap options)
 	{
 		boolean animated = true;
-		if ((options != null) && (options instanceof HashMap<?, ?>) ) {
+		if ((options != null) && (options instanceof HashMap<?, ?>)) {
 			@SuppressWarnings("unchecked")
 			KrollDict animationargs = new KrollDict(options);
 			if (animationargs.containsKeyAndNotNull(TiC.PROPERTY_ANIMATED)) {
@@ -268,11 +264,9 @@ public class ListViewProxy extends TiViewProxy
 		}
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public ListSectionProxy[] getSections()
-	// clang-format on
 	{
 		if (peekView() == null && getParent() != null) {
 			getParent().getOrCreateView();
@@ -286,11 +280,9 @@ public class ListViewProxy extends TiViewProxy
 		return preloadedSections.toArray(new ListSectionProxy[preloadedSections.size()]);
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.setProperty
 	public void setSections(Object sections)
-	// clang-format on
 	{
 		if (!(sections instanceof Object[])) {
 			Log.e(TAG, "Invalid argument type to setSection(), needs to be an array", Log.DEBUG_MODE);

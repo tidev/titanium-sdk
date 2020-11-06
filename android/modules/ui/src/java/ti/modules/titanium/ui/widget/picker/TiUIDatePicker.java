@@ -29,7 +29,8 @@ public class TiUIDatePicker extends TiUIView implements OnDateChangedListener
 	private boolean suppressChangeEvent = false;
 	private static final String TAG = "TiUIDatePicker";
 
-	protected Date minDate, maxDate;
+	protected Date minDate;
+	protected Date maxDate;
 	protected int minuteInterval;
 
 	public TiUIDatePicker(TiViewProxy proxy)
@@ -81,29 +82,15 @@ public class TiUIDatePicker extends TiUIView implements OnDateChangedListener
 			valueExistsInProxy = true;
 		}
 		if (d.containsKey(TiC.PROPERTY_MIN_DATE)) {
-			Calendar minDateCalendar = Calendar.getInstance();
-			minDateCalendar.setTime((Date) d.get(TiC.PROPERTY_MIN_DATE));
-			minDateCalendar.set(Calendar.HOUR_OF_DAY, 0);
-			minDateCalendar.set(Calendar.MINUTE, 0);
-			minDateCalendar.set(Calendar.SECOND, 0);
-			minDateCalendar.set(Calendar.MILLISECOND, 0);
-
-			this.minDate = minDateCalendar.getTime();
-			picker.setMinDate(minDateCalendar.getTimeInMillis());
+			this.minDate = createDateWithoutTimeFrom((Date) d.get(TiC.PROPERTY_MIN_DATE));
+			picker.setMinDate(this.minDate.getTime());
 		}
 		if (d.containsKey(TiC.PROPERTY_CALENDAR_VIEW_SHOWN)) {
 			setCalendarView(TiConvert.toBoolean(d, TiC.PROPERTY_CALENDAR_VIEW_SHOWN));
 		}
 		if (d.containsKey(TiC.PROPERTY_MAX_DATE)) {
-			Calendar maxDateCalendar = Calendar.getInstance();
-			maxDateCalendar.setTime((Date) d.get(TiC.PROPERTY_MAX_DATE));
-			maxDateCalendar.set(Calendar.HOUR_OF_DAY, 0);
-			maxDateCalendar.set(Calendar.MINUTE, 0);
-			maxDateCalendar.set(Calendar.SECOND, 0);
-			maxDateCalendar.set(Calendar.MILLISECOND, 0);
-
-			this.maxDate = maxDateCalendar.getTime();
-			picker.setMaxDate(maxDateCalendar.getTimeInMillis());
+			this.maxDate = createDateWithoutTimeFrom((Date) d.get(TiC.PROPERTY_MAX_DATE));
+			picker.setMaxDate(this.maxDate.getTime());
 		}
 		if (d.containsKey(TiC.PROPERTY_MINUTE_INTERVAL)) {
 			int mi = d.getInt(TiC.PROPERTY_MINUTE_INTERVAL);
@@ -136,13 +123,14 @@ public class TiUIDatePicker extends TiUIView implements OnDateChangedListener
 		if (key.equals(TiC.PROPERTY_VALUE)) {
 			Date date = (Date) newValue;
 			setValue(date.getTime());
-		}
-		if (key.equals(TiC.PROPERTY_CALENDAR_VIEW_SHOWN)) {
+		} else if (key.equals(TiC.PROPERTY_CALENDAR_VIEW_SHOWN)) {
 			setCalendarView(TiConvert.toBoolean(newValue));
 		} else if (TiC.PROPERTY_MIN_DATE.equals(key)) {
-			((DatePicker) getNativeView()).setMinDate(TiConvert.toDate(newValue).getTime());
+			this.minDate = createDateWithoutTimeFrom((Date) newValue);
+			((DatePicker) getNativeView()).setMinDate(this.minDate.getTime());
 		} else if (TiC.PROPERTY_MAX_DATE.equals(key)) {
-			((DatePicker) getNativeView()).setMaxDate(TiConvert.toDate(newValue).getTime());
+			this.maxDate = createDateWithoutTimeFrom((Date) newValue);
+			((DatePicker) getNativeView()).setMaxDate(this.maxDate.getTime());
 		}
 		super.propertyChanged(key, oldValue, newValue, proxy);
 	}
@@ -158,13 +146,13 @@ public class TiUIDatePicker extends TiUIView implements OnDateChangedListener
 		targetCalendar.set(Calendar.SECOND, 0);
 		targetCalendar.set(Calendar.MILLISECOND, 0);
 
-		if ((null != minDate) && (targetCalendar.getTime().before(minDate))) {
-			targetCalendar.setTime(minDate);
-			setValue(minDate.getTime(), true);
+		if ((null != this.minDate) && (targetCalendar.getTime().before(this.minDate))) {
+			targetCalendar.setTime(this.minDate);
+			setValue(this.minDate.getTime(), true);
 		}
-		if ((null != maxDate) && (targetCalendar.getTime().after(maxDate))) {
-			targetCalendar.setTime(maxDate);
-			setValue(maxDate.getTime(), true);
+		if ((null != this.maxDate) && (targetCalendar.getTime().after(this.maxDate))) {
+			targetCalendar.setTime(this.maxDate);
+			setValue(this.maxDate.getTime(), true);
 		}
 
 		Date newTime = targetCalendar.getTime();
@@ -208,9 +196,22 @@ public class TiUIDatePicker extends TiUIView implements OnDateChangedListener
 
 	public void setCalendarView(boolean value)
 	{
-		if (Build.VERSION.SDK_INT >= 11) {
-			DatePicker picker = (DatePicker) getNativeView();
-			picker.setCalendarViewShown(value);
+		DatePicker picker = (DatePicker) getNativeView();
+		picker.setCalendarViewShown(value);
+	}
+
+	private Date createDateWithoutTimeFrom(Date value)
+	{
+		if (value == null) {
+			return null;
 		}
+
+		Calendar calendar = Calendar.getInstance();
+		calendar.setTime(value);
+		calendar.set(Calendar.HOUR_OF_DAY, 0);
+		calendar.set(Calendar.MINUTE, 0);
+		calendar.set(Calendar.SECOND, 0);
+		calendar.set(Calendar.MILLISECOND, 0);
+		return calendar.getTime();
 	}
 }

@@ -6,6 +6,8 @@ const fs = require('fs-extra');
 const eslint = require('@seadub/danger-plugin-eslint').default;
 const junit = require('@seadub/danger-plugin-junit').default;
 const dependencies = require('@seadub/danger-plugin-dependencies').default;
+const load = require('@commitlint/load').default;
+const lint = require('@commitlint/lint').default;
 const packageJSON = require('./package.json');
 // Due to bug in danger, we hack env variables in build process.
 const ENV = fs.existsSync('./env.json') ? require('./env.json') : process.env;
@@ -51,9 +53,7 @@ async function checkNPMTestOutput() {
 
 // Check that the commit messages adhere to our conventions!
 async function checkCommitMessages() {
-	const load = require('@commitlint/load');
 	const { rules, parserPreset } = await load();
-	const lint = require('@commitlint/lint');
 	const allWarnings = await Promise.all(danger.git.commits.map(async commit => {
 		const report = await lint(commit.message, rules, parserPreset ? { parserOpts: parserPreset.parserOpts } : {});
 		// Bunch warnings/errors together for same commit!
@@ -96,7 +96,13 @@ async function checkCommitMessages() {
 
 // Check that we have a JIRA Link in the body
 async function checkJIRA() {
+	// Don't require dependabot dependency updates require a JIRA ticket
+	if (github.pr.user.login === 'dependabot-preview[bot]') {
+		return;
+	}
+
 	const body = github.pr.body;
+	// TODO: Cross-reference JIRA tickets linked in PR body versus in commit messages!
 	const hasJIRALink = body.match(/https:\/\/jira\.appcelerator\.org\/browse\/[A-Z]+-\d+/);
 	if (!hasJIRALink) {
 		labelsToAdd.add(Label.NEEDS_JIRA);
@@ -127,7 +133,7 @@ async function checkChangedFileLocations() {
 	}
 	// Mark hasAppChanges if 'common' dir is changed too!
 	const common = danger.git.fileMatch('common/**');
-	// TODO: Should we add ios/android/windows labels if common dir is changed?
+	// TODO: Should we add ios/android labels if common dir is changed?
 	const hasAppChanges = android.edited || ios.edited || common.edited;
 
 	// Check if any tests were changed/added
@@ -162,10 +168,11 @@ async function checkMergeable() {
 
 // Check PR author to see if it's community, etc
 async function checkCommunity() {
-	// Don't give special thanks to the greenkeeper bot account
-	if (github.pr.user.login === 'greenkeeper[bot]') {
+	// Don't give special thanks to bot accounts
+	if (github.pr.user.login === 'dependabot-preview[bot]') {
 		return;
 	}
+
 	if (github.pr.author_association === 'FIRST_TIMER') {
 		labelsToAdd.add(Label.COMMUNITY);
 		// Thank them profusely! This is their first ever github commit!
@@ -189,7 +196,7 @@ async function addMissingLabels() {
 	if (filteredLabels.length === 0) {
 		return;
 	}
-	await github.api.issues.addLabels({ owner: github.pr.base.repo.owner.login, repo: github.pr.base.repo.name, number: github.pr.number, labels: filteredLabels });
+	await github.api.issues.addLabels({ owner: github.pr.base.repo.owner.login, repo: github.pr.base.repo.name, issue_number: github.pr.number, labels: filteredLabels });
 }
 
 async function requestReviews() {
@@ -223,7 +230,7 @@ async function requestReviews() {
 	const filtered = teamsToReview.filter(t => !teamSlugs.includes(t));
 	if (filtered.length > 0) {
 		debug(`Assigning PR reviews to teams: ${filtered}`);
-		await github.api.pullRequests.createReviewRequest({ owner: github.pr.base.repo.owner.login, repo: github.pr.base.repo.name, number: github.pr.number, team_reviewers: filtered });
+		await github.api.pullRequests.createReviewRequest({ owner: github.pr.base.repo.owner.login, repo: github.pr.base.repo.name, pull_number: github.pr.number, team_reviewers: filtered });
 	}
 }
 
@@ -319,6 +326,7 @@ async function main() {
 		eslint(),
 		dependencies({ type: 'npm' }),
 	]);
+
 	// ...once we've gathered what labels to add/remove, do that last
 	await requestReviews();
 	await removeLabels();

@@ -244,7 +244,8 @@ Creator.prototype.configOptionId = function configOptionId(order) {
 };
 
 /**
- * Defines the -c option to selec the code base (Swift or Obj-C).
+ * Defines the -c option to select the code base (Swift or Obj-C).
+ * Kept for backwards compatibility, remove in SDK 10
  *
  * @param {Integer} order - The order to apply to this option.
  *
@@ -268,22 +269,10 @@ Creator.prototype.configOptionCodeBase = function configCodeBase(order) {
 		desc: __('the code base of the iOS project'),
 		order: order,
 		default: !cli.argv.prompt ? 'objc' : undefined, // if we're prompting, then force the platforms to be prompted for, otherwise force 'all'
-		prompt: function (callback) {
-			callback(fields.text({
-				promptLabel: __('iOS code base (' + validTypes.join('|') + ')'),
-				default: 'objc',
-				validate: validate
-			}));
-		},
-		required: true,
+		required: false,
 		validate: validate,
 		values: validTypes,
-		verifyIfRequired: function (callback) {
-			if (cli.argv.platforms.includes('ios') || cli.argv.platforms.includes('iphone') || cli.argv.platforms.includes('ipad')) {
-				return callback(true);
-			}
-			return callback();
-		}
+		hidden: true
 	};
 };
 

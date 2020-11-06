@@ -6,14 +6,7 @@
  */
 package ti.modules.titanium.ui.widget.tabgroup;
 
-import android.graphics.Rect;
-import android.graphics.drawable.Drawable;
-import android.support.design.internal.BottomNavigationItemView;
-import android.support.design.internal.BottomNavigationMenuView;
-import android.support.design.widget.BottomNavigationView;
-import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewParent;
+import java.util.ArrayList;
 
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiBaseActivity;
@@ -24,8 +17,18 @@ import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 
-import java.lang.reflect.Field;
-import java.util.ArrayList;
+import android.annotation.SuppressLint;
+import android.graphics.Rect;
+import android.graphics.drawable.Drawable;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewParent;
+
+import com.google.android.material.badge.BadgeDrawable;
+import com.google.android.material.bottomnavigation.BottomNavigationItemView;
+import com.google.android.material.bottomnavigation.BottomNavigationMenuView;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.bottomnavigation.LabelVisibilityMode;
 
 import ti.modules.titanium.ui.TabGroupProxy;
 import ti.modules.titanium.ui.TabProxy;
@@ -158,7 +161,7 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 			return;
 		}
 		// Create a new item with id representing its index in mMenuItemsArray.
-		MenuItem menuItem = this.mBottomNavigationView.getMenu().add(null);
+		MenuItem menuItem = this.mBottomNavigationView.getMenu().add(0, this.mMenuItemsArray.size(), 0, "");
 		// Set the click listener.
 		menuItem.setOnMenuItemClickListener(this);
 		// Add the MenuItem to the menu of BottomNavigationView.
@@ -167,10 +170,18 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 		int index = this.mMenuItemsArray.size() - 1;
 		updateDrawablesAfterNewItem(index);
 		// Handle shift mode.
-		if (this.proxy.hasPropertyAndNotNull(TiC.PROPERTY_SHIFT_MODE)) {
-			if (!((Boolean) proxy.getProperty(TiC.PROPERTY_SHIFT_MODE))) {
-				disableShiftMode();
-			}
+		final int shiftMode = proxy.getProperties().optInt(TiC.PROPERTY_SHIFT_MODE, 1);
+		switch (shiftMode) {
+			case 0:
+				this.mBottomNavigationView.setLabelVisibilityMode(LabelVisibilityMode.LABEL_VISIBILITY_LABELED);
+				break;
+			case 1:
+				this.mBottomNavigationView.setLabelVisibilityMode(LabelVisibilityMode.LABEL_VISIBILITY_AUTO);
+				break;
+			case 2:
+				// NOTE: Undocumented for now, will create new property that has parity with iOS.
+				this.mBottomNavigationView.setLabelVisibilityMode(LabelVisibilityMode.LABEL_VISIBILITY_UNLABELED);
+				break;
 		}
 	}
 
@@ -180,37 +191,15 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 		updateTabTitle(index);
 		// Set the icon.
 		updateTabIcon(index);
+		// Set the badge
+		updateBadge(index);
+		// Set the badge color
+		updateBadgeColor(index);
 		for (int i = 0; i < this.mBottomNavigationView.getMenu().size(); i++) {
 			// Set the title text color.
 			updateTabTitleColor(i);
 			// Set the background drawable.
 			updateTabBackgroundDrawable(i);
-		}
-	}
-
-	/**
-	 * Disabling shift mode for BottomNavigation currently needs to be done a bit dirty.
-	 * The property is expected to be exposed in future Design library versions, so it will
-	 * be revisited once Titanium takes advantage of them.
-	 *
-	 */
-	private void disableShiftMode()
-	{
-		BottomNavigationMenuView menuView = ((BottomNavigationMenuView) this.mBottomNavigationView.getChildAt(0));
-		try {
-			Field shiftingMode = menuView.getClass().getDeclaredField("mShiftingMode");
-			shiftingMode.setAccessible(true);
-			shiftingMode.setBoolean(menuView, false);
-			shiftingMode.setAccessible(false);
-			for (int i = 0; i < menuView.getChildCount(); i++) {
-				BottomNavigationItemView item = (BottomNavigationItemView) menuView.getChildAt(i);
-				item.setShiftingMode(false);
-				item.setChecked(item.getItemData().isChecked());
-			}
-		} catch (NoSuchFieldException e) {
-			Log.e(TAG, "Unable to get shift mode field", e);
-		} catch (IllegalAccessException e) {
-			Log.e(TAG, "Unable to change value of shift mode", e);
 		}
 	}
 
@@ -290,6 +279,54 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 		this.mBottomNavigationView.getMenu().getItem(index).setTitle(title);
 	}
 
+	@SuppressLint("RestrictedApi")
+	@Override
+	public void updateBadge(int index)
+	{
+		if ((index < 0) || (index >= this.tabs.size())) {
+			return;
+		}
+
+		TiViewProxy tabProxy = this.tabs.get(index).getProxy();
+		if (tabProxy == null) {
+			return;
+		}
+
+		Object badgeValue = tabProxy.getProperty(TiC.PROPERTY_BADGE);
+		if ((badgeValue == null) && !TiUIHelper.isUsingMaterialTheme(this.mBottomNavigationView.getContext())) {
+			return;
+		}
+
+		int menuItemId = this.mBottomNavigationView.getMenu().getItem(index).getItemId();
+		BadgeDrawable badgeDrawable = this.mBottomNavigationView.getOrCreateBadge(menuItemId);
+		if (badgeValue != null) {
+			badgeDrawable.setVisible(true);
+			badgeDrawable.setNumber(TiConvert.toInt(badgeValue, 0));
+		} else {
+			badgeDrawable.setVisible(false);
+		}
+	}
+
+	@Override
+	public void updateBadgeColor(int index)
+	{
+		if ((index < 0) || (index >= this.tabs.size())) {
+			return;
+		}
+
+		TiViewProxy tabProxy = this.tabs.get(index).getProxy();
+		if (tabProxy == null) {
+			return;
+		}
+
+		if (tabProxy.getProperty(TiC.PROPERTY_BADGE_COLOR) != null) {
+			int menuItemId = this.mBottomNavigationView.getMenu().getItem(index).getItemId();
+			BadgeDrawable badgeDrawable = this.mBottomNavigationView.getOrCreateBadge(menuItemId);
+			badgeDrawable.setBackgroundColor(
+				TiConvert.toColor((String) tabProxy.getProperty(TiC.PROPERTY_BADGE_COLOR)));
+		}
+	}
+
 	@Override
 	public void updateTabTitleColor(int index)
 	{
@@ -318,7 +355,7 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 			return;
 		}
 
-		Drawable drawable = TiUIHelper.getResourceDrawable(tabProxy.getProperty(TiC.PROPERTY_ICON));
+		final Drawable drawable = TiUIHelper.getResourceDrawable(tabProxy.getProperty(TiC.PROPERTY_ICON));
 		this.mBottomNavigationView.getMenu().getItem(index).setIcon(drawable);
 	}
 
@@ -343,6 +380,11 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 	{
 		// The controller has changed its selected item.
 		int index = this.mMenuItemsArray.indexOf(item);
+		// Guard for clicking on the currently selected tab.
+		// This is required to have parity with the default style tab.
+		if (index == this.currentlySelectedIndex) {
+			return true;
+		}
 		if ((index != currentlySelectedIndex) && (getProxy() != null)) {
 			if ((currentlySelectedIndex >= 0) && (currentlySelectedIndex < this.tabs.size())) {
 				TiViewProxy tabProxy = this.tabs.get(currentlySelectedIndex).getProxy();
@@ -354,8 +396,32 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 		}
 		// Make the ViewPager to select the proper page too.
 		selectTab(index);
+
 		// Trigger the select event firing for the new tab.
 		((TabGroupProxy) getProxy()).onTabSelected(index);
 		return false;
+	}
+
+	private void updateIconTint()
+	{
+		for (int i = 0; i < this.tabs.size(); i++) {
+			final TiUITab tab = this.tabs.get(i);
+			if (tab.getProxy() != null) {
+				final TiViewProxy tabProxy = tab.getProxy();
+				final boolean selected = i == currentlySelectedIndex;
+				Drawable drawable = this.mBottomNavigationView.getMenu().getItem(i).getIcon();
+				drawable = updateIconTint(tabProxy, drawable, selected);
+				this.mBottomNavigationView.getMenu().getItem(i).setIcon(drawable);
+			}
+		}
+	}
+
+	@Override
+	public void selectTab(int tabIndex)
+	{
+		super.selectTab(tabIndex);
+
+		updateIconTint();
+		updateTabBackgroundDrawable(tabIndex);
 	}
 }

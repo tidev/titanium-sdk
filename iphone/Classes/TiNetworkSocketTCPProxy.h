@@ -10,7 +10,7 @@
 // * Explicit synchronization (no more conditions, flags, or race conditons!)
 // * Maybe even synchronize with the context itself (when TIMOB-6990 complete)
 
-#ifdef USE_TI_NETWORKSOCKET
+#if defined(USE_TI_NETWORKSOCKET) || (defined(USE_TI_NETWORK))
 #import "AsyncSocket.h"
 #import "TiNetworkSocketProxy.h"
 #import <Foundation/Foundation.h>

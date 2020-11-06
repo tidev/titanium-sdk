@@ -1,10 +1,16 @@
 {{#if noteGroups}}
 {{#each noteGroups}}
 
+## {{title}}
+{{#each scopeGroups}}
+
+{{#if title}}
 ### {{title}}
 
-{{#each notes}}
-* {{#if commit.scope}}**{{commit.scope}}:** {{/if}}{{text}}
+{{/if}}
+{{#each commits}}
+{{> commit root=@root}}
+{{/each}}
 {{/each}}
 {{/each}}
 

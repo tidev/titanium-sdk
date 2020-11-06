@@ -9,7 +9,6 @@ description: |
 
       * [Android Notifications guide](https://docs.appcelerator.com/platform/latest/#!/guide/Android_Notifications)
       * [Android Developer: Notifications](https://developer.android.com/guide/topics/ui/notifiers/notifications.html)
-
 extends: Titanium.Module
 platforms: [android]
 since: "1.5"
@@ -55,7 +54,6 @@ methods:
     since: "7.1.0"
 
 properties:
-
   - name: DEFAULT_ALL
     summary: Use <Titanium.Android.DEFAULT_ALL> instead.
     type: Number

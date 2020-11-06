@@ -7,7 +7,6 @@
 #ifndef SCRIPTS_MODULE_H
 #define SCRIPTS_MODULE_H
 
-#include <v8.h>
 #include "../NativeObject.h"
 
 namespace titanium {

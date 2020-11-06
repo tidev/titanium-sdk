@@ -201,30 +201,34 @@ DEFINE_EXCEPTIONS
   id changeView = (self.customView != nil) ? (id)self.customView : (id)self;
 
   if ([key isEqualToString:@"title"]) {
-    TiThreadPerformOnMainThread(^{
-      [changeView setTitle_:newValue];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          [changeView setTitle_:newValue];
+        },
         NO);
     return;
   }
   if ([key isEqualToString:@"image"]) {
-    TiThreadPerformOnMainThread(^{
-      [changeView setImage_:newValue];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          [changeView setImage_:newValue];
+        },
         NO);
     return;
   }
   if ([key isEqualToString:@"width"]) {
-    TiThreadPerformOnMainThread(^{
-      [changeView setWidth_:newValue];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          [changeView setWidth_:newValue];
+        },
         NO);
     return;
   }
   if ([key isEqualToString:@"enabled"]) {
-    TiThreadPerformOnMainThread(^{
-      [self setEnabled_:newValue];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          [self setEnabled_:newValue];
+        },
         NO);
     return;
   }

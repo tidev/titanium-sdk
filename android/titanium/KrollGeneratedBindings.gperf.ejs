@@ -1,0 +1,23 @@
+%define lookup-function-name lookupGeneratedInit
+%define class-name generated
+%{
+
+#include <string.h>
+#include <v8.h>
+<% for (const proxy of proxies) { -%>
+#include "<%- proxy %>.h"
+<% } -%>
+
+
+namespace titanium {
+namespace bindings {
+
+%}
+struct BindEntry;
+%%
+<% for (const entry of bindEntries) { -%>
+<%- entry.className %>, ::<%- entry.namespace %>::bindProxy, ::<%- entry.namespace %>::dispose
+<% } -%>
+%%
+} // namespace bindings
+} // namespace titanium

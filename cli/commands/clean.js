@@ -16,7 +16,8 @@ const appc = require('node-appc'),
 	path = require('path'),
 	sprintf = require('sprintf'),
 	async = require('async'),
-	tiappxml = require('node-titanium-sdk/lib/tiappxml');
+	tiappxml = require('node-titanium-sdk/lib/tiappxml'),
+	fields = require('fields');
 
 exports.cliVersion = '>=3.2.1';
 exports.desc = __('removes previous build directories');
@@ -109,6 +110,16 @@ exports.config = function (logger, config, cli) {
 						desc: __('the directory containing the project, otherwise the current working directory'),
 						default: process.env.SOURCE_ROOT ? path.join(process.env.SOURCE_ROOT, '..', '..') : '.',
 						order: 1,
+						prompt: function (callback) {
+							callback(fields.file({
+								promptLabel: __('Where is the __project directory__?'),
+								complete: true,
+								showHidden: true,
+								ignoreDirs: new RegExp(config.get('cli.ignoreDirs')), // eslint-disable-line security/detect-non-literal-regexp
+								ignoreFiles: /.*/,
+								validate: conf.options['project-dir'].validate
+							}));
+						},
 						validate: function (projectDir, callback) {
 							const isDefault = (projectDir == conf.options['project-dir'].default); // eslint-disable-line eqeqeq
 							let dir = appc.fs.resolvePath(projectDir);
@@ -402,7 +413,7 @@ function patchLogger(logger, cli) {
 		fs.ensureDirSync(buildDir, 0o766);
 
 		// create our write stream
-		logger.log.filestream = fs.createWriteStream(path.join(buildDir, 'build_' + platform + '.log'), { flags: 'w', encoding: 'utf8', mode: 0o666 });
+		logger.log.filestream = fs.createWriteStream(path.join(buildDir, 'clean_' + platform + '.log'), { flags: 'w', encoding: 'utf8', mode: 0o666 });
 
 		function styleHeading(s) {
 			return ('' + s).bold;

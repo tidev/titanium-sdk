@@ -129,7 +129,7 @@ public class TiConvert
 	}
 
 	/**
-	 * This is a wrapper method. 
+	 * This is a wrapper method.
 	 * Refer to {@link TiColorHelper#parseColor(String)} for more details.
 	 * @param value  color value to convert.
 	 * @return an int representation of the color.
@@ -141,7 +141,7 @@ public class TiConvert
 	}
 
 	/**
-	 * This is a wrapper method. 
+	 * This is a wrapper method.
 	 * Refer to {@link TiColorHelper#parseColor(String)} for more details.
 	 * @param hashMap the HashMap contains the String representation of the color.
 	 * @param key the color lookup key.
@@ -415,6 +415,9 @@ public class TiConvert
 		} else if (value instanceof String) {
 			return Integer.parseInt((String) value);
 
+		} else if (value instanceof Boolean) {
+			return ((Boolean) value) ? 1 : 0;
+
 		} else {
 			throw new NumberFormatException("Unable to convert " + (value == null ? "null" : value));
 		}
@@ -645,7 +648,7 @@ public class TiConvert
 	}
 
 	/**
-	 * Converts value to String, and if value is a Number, appends "px" to value, 
+	 * Converts value to String, and if value is a Number, appends "px" to value,
 	 * then creates and returns a new TiDimension object with the new value and valueType.
 	 * Refer to {@link TiDimension#TiDimension(String, int)} for more details.
 	 * @param value the dimension value.
@@ -675,7 +678,7 @@ public class TiConvert
 	}
 
 	/**
-	 * Returns a url string by appending the 
+	 * Returns a url string by appending the
 	 * String representation of 'uri' to file:///android_asset/Resources/
 	 * @param uri the uri, cannot be null.
 	 * @return url string.

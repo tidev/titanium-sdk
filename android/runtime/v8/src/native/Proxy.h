@@ -7,10 +7,8 @@
 #ifndef PROXY_H
 #define PROXY_H
 
-#include <jni.h>
-#include <v8.h>
-
 #include "JavaObject.h"
+#include "V8Util.h"
 
 namespace titanium {
 
@@ -124,12 +122,13 @@ public:
 		v8::Isolate* isolate = args.GetIsolate();
 		v8::HandleScope scope(isolate);
 		v8::Local<v8::Function> fn = args[0].As<v8::Function>();
+		v8::Local<v8::Context> context = isolate->GetCurrentContext();
  		v8::Local<v8::FunctionTemplate> newType = inheritProxyTemplate(
 			isolate,
 			ProxyClass::getProxyTemplate(isolate),
 			ProxyClass::javaClass,
-			fn->GetName()->ToString(isolate), fn);
-		args.GetReturnValue().Set(newType->GetFunction());
+			fn->GetName()->ToString(context).FromMaybe(STRING_NEW(isolate, "unknown")), fn);
+		args.GetReturnValue().Set(newType->GetFunction(context).FromMaybe(v8::Local<v8::Function>()));
 	}
 
 	/**
@@ -143,6 +142,11 @@ public:
 		v8::Local<v8::Function> callback = v8::Local<v8::Function>());
 
 	static void dispose(v8::Isolate* isolate);
+
+	/**
+     * Log detailed deprecation warning.
+     */
+	static void logDeprecation(v8::Isolate* isolate, const char* message);
 
 private:
 

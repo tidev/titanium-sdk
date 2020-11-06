@@ -1,8 +1,0 @@
-<project name="titanium-mobile" default="build">
-	<property name="ti.android.root" location="${basedir}"/>
-	<import file="build/common.xml"/>
-
-	<target name="full.build" depends="clean,build" />
-	<target name="clean" depends="clean.all" />
-	<target name="build" depends="build.all" />
-</project>
