@@ -121,9 +121,9 @@ public class TiFileFactory
 				}
 				break;
 			}
-			case APPDATA_URL_SCHEME:			// Use internal storage.
-			case APPDATA_PRIVATE_URL_SCHEME:	// Use external storage.
-			case TI_URL_SCHEME: {				// Use external storage.
+			case APPDATA_URL_SCHEME:            // Use external storage.
+			case APPDATA_PRIVATE_URL_SCHEME:    // Use internal storage.
+			case TI_URL_SCHEME: {               // Use internal storage.
 				boolean isInternal = !scheme.equals(APPDATA_URL_SCHEME);
 				File dataDir = getDataDirectory(isInternal);
 				if (dataDir != null) {
