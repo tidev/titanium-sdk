@@ -5,7 +5,11 @@
 	android:versionCode="1">
 
 <% if (usesPermissions) { for (const nextPermission of usesPermissions) { %>
+<% if ((nextPermission === 'android.permission.WRITE_EXTERNAL_STORAGE') && storagePermissionMaxSdkVersion) { %>
+	<uses-permission android:name="<%- nextPermission %>" android:maxSdkVersion="<%- storagePermissionMaxSdkVersion %>"/>
+<% } else { %>
 	<uses-permission android:name="<%- nextPermission %>"/>
+<% } %>
 <% } } %>
 
 <% if (queries && (Object.keys(queries).length > 0)) { %>
