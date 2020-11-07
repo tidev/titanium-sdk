@@ -899,11 +899,18 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void *payload)
   if (![self _hasListeners:type]) {
     return;
   }
+  
+  __weak TiProxy *weakSelf = self;
 
   TiThreadPerformOnMainThread(
       ^{
+        TiProxy *strongSelf = weakSelf;
+        if (strongSelf == nil) {
+          return;
+        }
+
         TiBindingEvent ourEvent;
-        ourEvent = TiBindingEventCreateWithNSObjects(self, self, type, obj);
+        ourEvent = TiBindingEventCreateWithNSObjects(strongSelf, strongSelf, type, obj);
         if (report || (code != 0)) {
           TiBindingEventSetErrorCode(ourEvent, code);
         }

@@ -2402,6 +2402,7 @@
     if (!controller.navigationItem.searchController) {
       controller.navigationItem.searchController = searchController;
     }
+    RELEASE_TO_NIL(controller);
   }
   if (!hideOnSearch && isSearched && self.searchedString && ![searchController isActive]) {
     isSearched = NO;
