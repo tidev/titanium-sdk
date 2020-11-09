@@ -1,13 +1,18 @@
 #!groovy
 library 'pipeline-library'
 
-// Keep logs/reports/etc of last 30 builds, only keep build artifacts of last 3 builds
-properties([buildDiscarder(logRotator(numToKeepStr: '30', artifactNumToKeepStr: '3'))])
-
 // Some branch flags to alter behavior
 def isPR = env.CHANGE_ID || false // CHANGE_ID is set if this is a PR. (We used to look whether branch name started with PR-, which would not be true for a branch from origin filed as PR)
 def MAINLINE_BRANCH_REGEXP = /master|next|\d_\d_(X|\d)/ // a branch is considered mainline if 'master' or like: 6_2_X, 7_0_X, 6_2_1
 def isMainlineBranch = (env.BRANCH_NAME ==~ MAINLINE_BRANCH_REGEXP)
+
+// Keep logs/reports/etc of last 30 builds, only keep build artifacts of last 3 builds
+def buildProperties = [buildDiscarder(logRotator(numToKeepStr: '30', artifactNumToKeepStr: '3'))]
+// For mainline branches, notify Teams channel of failures
+// if (isMainlineBranch) {
+	buildProperties << office365ConnectorWebhooks([[notifyBackToNormal: true, notifyFailure: true, notifyNotBuilt: true, notifyUnstable: true, url: 'https://outlook.office.com/webhook/ba1960f7-fcca-4b2c-a5f3-095ff9c87b22@300f59df-78e6-436f-9b27-b64973e34f7d/JenkinsCI/95439e5a0bef45539af8023b563dd345/72931ee3-e99d-4daf-84d2-1427168af2d9']])
+// }
+properties(buildProperties)
 
 // These values could be changed manually on PRs/branches, but be careful we don't merge the changes in. We want this to be the default behavior for now!
 // target branch of test suite to test with
