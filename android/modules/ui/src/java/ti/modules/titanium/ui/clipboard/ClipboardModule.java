@@ -75,7 +75,7 @@ public class ClipboardModule extends KrollModule
 	}
 
 	@Kroll.method
-	public boolean hasData(String type)
+	public boolean hasData(@Kroll.argument(optional = true) String type)
 	{
 		if (type == null || isTextType(type)) {
 			return hasText();
