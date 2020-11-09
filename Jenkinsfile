@@ -10,7 +10,15 @@ def isMainlineBranch = (env.BRANCH_NAME ==~ MAINLINE_BRANCH_REGEXP)
 def buildProperties = [buildDiscarder(logRotator(numToKeepStr: '30', artifactNumToKeepStr: '3'))]
 // For mainline branches, notify Teams channel of failures
 // if (isMainlineBranch) {
-	buildProperties << office365ConnectorWebhooks([[notifyBackToNormal: true, notifyFailure: true, notifyNotBuilt: true, notifyUnstable: true, url: 'https://outlook.office.com/webhook/ba1960f7-fcca-4b2c-a5f3-095ff9c87b22@300f59df-78e6-436f-9b27-b64973e34f7d/JenkinsCI/95439e5a0bef45539af8023b563dd345/72931ee3-e99d-4daf-84d2-1427168af2d9']])
+	buildProperties << office365ConnectorWebhooks([[
+		startNotification: true,
+		notifyBackToNormal: true,
+		notifyFailure: true,
+		notifyNotBuilt: true,
+		notifyUnstable: true,
+		notifySuccess: true,
+		url: 'https://outlook.office.com/webhook/ba1960f7-fcca-4b2c-a5f3-095ff9c87b22@300f59df-78e6-436f-9b27-b64973e34f7d/JenkinsCI/95439e5a0bef45539af8023b563dd345/72931ee3-e99d-4daf-84d2-1427168af2d9'
+	]])
 // }
 properties(buildProperties)
 
