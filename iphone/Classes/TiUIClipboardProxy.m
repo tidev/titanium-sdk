@@ -1,16 +1,15 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-Present by Axway, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 
 #ifdef USE_TI_UICLIPBOARD
 #import "TiUIClipboardProxy.h"
-#import <TitaniumKit/TiApp.h>
-#import <TitaniumKit/TiBlob.h>
-#import <TitaniumKit/TiFile.h>
-#import <TitaniumKit/TiUtils.h>
+@import TitaniumKit.TiBlob;
+@import TitaniumKit.TiFile;
+@import TitaniumKit.TiUtils;
 
 #import <MobileCoreServices/UTCoreTypes.h>
 #import <MobileCoreServices/UTType.h>
@@ -29,23 +28,44 @@ static ClipboardType mimeTypeToDataType(NSString *mimeType)
 
   // Types "URL" and "Text" are for IE compatibility. We want to have
   // a consistent interface with WebKit's HTML 5 DataTransfer.
-  if ([mimeType isEqualToString:@"text"] || [mimeType hasPrefix:@"text/plain"]) {
+  // support text, text.plain, public.text, public.plain-text, public.utf8-plain-text
+  if ([mimeType isEqualToString:@"text"] || [mimeType hasPrefix:@"text/plain"] || UTTypeConformsTo((CFStringRef)mimeType, kUTTypeText)) {
     return CLIPBOARD_TEXT;
-  } else if ([mimeType isEqualToString:@"url"] || [mimeType hasPrefix:@"text/uri-list"]) {
-    return CLIPBOARD_URI_LIST;
-  } else if ([mimeType hasPrefix:@"image"]) {
-    return CLIPBOARD_IMAGE;
-  } else if ([mimeType isEqualToString:@"color"]) {
-    return CLIPBOARD_COLOR;
-  } else {
-    // Something else, work from the MIME type.
-    return CLIPBOARD_UNKNOWN;
   }
+
+  if ([mimeType isEqualToString:@"url"] || [mimeType hasPrefix:@"text/uri-list"] || UTTypeConformsTo((CFStringRef)mimeType, kUTTypeURL)) {
+    return CLIPBOARD_URI_LIST;
+  }
+
+  if ([mimeType hasPrefix:@"image"] || UTTypeConformsTo((CFStringRef)mimeType, kUTTypeImage)) {
+    return CLIPBOARD_IMAGE;
+  }
+
+  if ([mimeType isEqualToString:@"color"] || [mimeType isEqualToString:@"com.apple.uikit.color"]) {
+    return CLIPBOARD_COLOR;
+  }
+
+  // Something else, work from the MIME type.
+  return CLIPBOARD_UNKNOWN;
 }
 
 static NSString *mimeTypeToUTType(NSString *mimeType)
 {
+  if ([mimeType isEqualToString:@"text"] || [mimeType hasPrefix:@"text/plain"]) {
+    return @"public.plain-text";
+  }
+  if ([mimeType isEqualToString:@"url"] || [mimeType hasPrefix:@"text/uri-list"]) {
+    return @"public.url";
+  }
+  if ([mimeType hasPrefix:@"image"]) {
+    return @"public.image";
+  }
+  if ([mimeType isEqualToString:@"color"]) {
+    return @"com.apple.uikit.color";
+  }
+
   NSString *uti = [(NSString *)UTTypeCreatePreferredIdentifierForTag(kUTTagClassMIMEType, (CFStringRef)mimeType, NULL) autorelease];
+  // FIXME: If we get back a dyn. prefix, something is up!
   if (uti == nil) {
     // Should we do this? Lets us copy/paste custom data, anyway.
     uti = mimeType;
@@ -54,16 +74,6 @@ static NSString *mimeTypeToUTType(NSString *mimeType)
 }
 
 @implementation TiUIClipboardProxy
-
-NSArray<NSString *> *clipboardKeySequence;
-
-- (NSArray<NSString *> *)keySequence
-{
-  if (clipboardKeySequence == nil) {
-    clipboardKeySequence = [[NSArray alloc] initWithObjects:@"unique", @"name", @"allowCreation", nil];
-  }
-  return clipboardKeySequence;
-}
 
 - (void)_destroy
 {
@@ -74,10 +84,25 @@ NSArray<NSString *> *clipboardKeySequence;
 - (id)init
 {
   if (self = [super init]) {
-    shouldCreatePasteboard = true;
-    isNamedPasteBoard = false;
+    _pasteboard = nil;
     isUnique = false;
-  };
+    shouldCreatePasteboard = false;
+  }
+  return self;
+}
+
+- (id)initWithProperties:(NSDictionary *)dict
+{
+  if (self = [super init]) {
+    isUnique = [TiUtils boolValue:dict[@"unique"] def:false];
+    shouldCreatePasteboard = [TiUtils boolValue:dict[@"allowCreation"] def:true];
+    if (isUnique) {
+      _pasteboard = [[UIPasteboard pasteboardWithUniqueName] retain];
+    } else {
+      NSString *pasteboardName = dict[@"name"];
+      _pasteboard = [[UIPasteboard pasteboardWithName:pasteboardName create:shouldCreatePasteboard] retain];
+    }
+  }
   return self;
 }
 
@@ -88,49 +113,31 @@ NSArray<NSString *> *clipboardKeySequence;
 
 - (UIPasteboard *)pasteboard
 {
-  if (isNamedPasteBoard) {
+  if (_pasteboard != nil) {
     return _pasteboard;
   }
   return UIPasteboard.generalPasteboard;
-}
-
-- (void)setName:(id)arg
-{
-  if (!isUnique) {
-    ENSURE_STRING(arg);
-    pasteboardName = arg;
-    _pasteboard = [[UIPasteboard pasteboardWithName:arg create:shouldCreatePasteboard] retain];
-    isNamedPasteBoard = true;
-  }
 }
 
 - (NSString *)name
 {
   return [self pasteboard].name;
 }
+GETTER_IMPL(NSString *, name, Name);
 
-- (void)setAllowCreation:(id)arg
+- (bool)unique
 {
-  BOOL value = [TiUtils boolValue:arg def:true];
-  shouldCreatePasteboard = value;
-  if (!isUnique && pasteboardName && !shouldCreatePasteboard) {
-    [self remove:nil];
-    _pasteboard = [[UIPasteboard pasteboardWithName:pasteboardName create:value] retain];
-    isNamedPasteBoard = true;
-  }
+  return isUnique;
 }
+GETTER_IMPL(bool, unique, Unique);
 
-- (void)setUnique:(id)arg
+- (bool)allowCreation
 {
-  BOOL value = [TiUtils boolValue:arg def:false];
-  isUnique = value;
-  if (isUnique) {
-    _pasteboard = [[UIPasteboard pasteboardWithUniqueName] retain];
-    isNamedPasteBoard = true;
-  }
+  return shouldCreatePasteboard;
 }
+GETTER_IMPL(bool, allowCreation, AllowCreation);
 
-- (void)remove:(id)unused
+- (void)remove
 {
   if (_pasteboard != nil) {
     [UIPasteboard removePasteboardWithName:[self pasteboard].name];
@@ -138,15 +145,14 @@ NSArray<NSString *> *clipboardKeySequence;
   }
 }
 
-- (void)clearData:(id)arg
+- (void)clearData:(NSString *)mimeType
 {
-  ENSURE_UI_THREAD(clearData, arg);
-  ENSURE_SINGLE_ARG_OR_NIL(arg, NSString);
-
-  NSString *mimeType = arg ?: @"application/octet-stream";
+  if (mimeType == nil) {
+    mimeType = @"application/octet-stream";
+  }
   UIPasteboard *board = [self pasteboard];
-  ClipboardType dataType = mimeTypeToDataType(mimeType);
 
+  ClipboardType dataType = mimeTypeToDataType(mimeType);
   switch (dataType) {
   case CLIPBOARD_TEXT: {
     board.strings = nil;
@@ -171,26 +177,15 @@ NSArray<NSString *> *clipboardKeySequence;
   }
 }
 
-- (void)clearText:(id)args
+- (void)clearText
 {
-  ENSURE_UI_THREAD(clearText, args);
-
   UIPasteboard *board = [self pasteboard];
   board.strings = nil;
 }
 
-- (id)getData:(id)args
+- (id)getData:(NSString *)mimeType
 {
-  id arg = nil;
-  if ([args isKindOfClass:[NSArray class]]) {
-    if ([args count] > 0) {
-      arg = [args objectAtIndex:0];
-    }
-  } else {
-    arg = args;
-  }
-  ENSURE_STRING(arg);
-  NSString *mimeType = arg;
+  // FIXME: Support array arg?
   __block id result;
   TiThreadPerformOnMainThread(
       ^{
@@ -236,24 +231,20 @@ NSArray<NSString *> *clipboardKeySequence;
   }
 }
 
-- (NSString *)getText:(id)args
+- (NSString *)getText
 {
   return [self getData:@"text/plain"];
 }
 
-- (id)hasData:(id)args
+- (bool)hasData:(id)type
 {
-  id arg = nil;
-  if ([args isKindOfClass:[NSArray class]]) {
-    if ([args count] > 0) {
-      arg = [args objectAtIndex:0];
-    }
-  } else {
-    arg = args;
-  }
-  ENSURE_STRING_OR_NIL(arg);
-  NSString *mimeType = arg;
   __block BOOL result = NO;
+  // type is an optional string
+  NSString *mimeType = @"text/plain";
+  if (type != nil) {
+    mimeType = [TiUtils stringValue:type];
+  }
+
   TiThreadPerformOnMainThread(
       ^{
         UIPasteboard *board = [self pasteboard];
@@ -284,40 +275,37 @@ NSArray<NSString *> *clipboardKeySequence;
         }
       },
       YES);
-  return NUMBOOL(result);
+  return result;
 }
 
-- (id)hasText:(id)unused
+- (bool)hasText
 {
-  return NUMBOOL([[self pasteboard] hasStrings]);
+  return [[self pasteboard] hasStrings];
 }
 
-- (id)hasColors:(id)unused
+- (bool)hasColors
 {
-  return NUMBOOL([[self pasteboard] hasColors]);
+  return [[self pasteboard] hasColors];
 }
 
-- (id)hasImages:(id)unused
+- (bool)hasImages
 {
-  return NUMBOOL([[self pasteboard] hasImages]);
+  return [[self pasteboard] hasImages];
 }
 
-- (id)hasURLs:(id)unused
+- (bool)hasURLs
 {
-  return NUMBOOL([[self pasteboard] hasURLs]);
+  return [[self pasteboard] hasURLs];
 }
 
-- (void)setItems:(id)args
+- (void)setItems:(NSDictionary<NSString *, id> *)args
 {
-  NSArray *items = [args objectForKey:@"items"];
-  NSDictionary *options = [args objectForKey:@"options"];
-
-  __block NSMutableArray *result = [[[NSMutableArray alloc] init] retain];
-
+  NSArray<NSDictionary<NSString *, id> *> *items = args[@"items"];
+  __block NSMutableArray<NSDictionary<NSString *, id> *> *result = [[[NSMutableArray alloc] init] retain];
   // The key of the items must be a string (mime-type)
-  for (id item in items) {
-    NSMutableDictionary *newDict = [[NSMutableDictionary alloc] init];
-    for (id key in item) {
+  for (NSDictionary<NSString *, id> *item in items) {
+    NSMutableDictionary<NSString *, id> *newDict = [[NSMutableDictionary alloc] init];
+    for (NSString *key in item) {
       ENSURE_TYPE(key, NSString);
       [newDict setValue:[item valueForKey:key] forKey:mimeTypeToUTType(key)];
     }
@@ -327,6 +315,7 @@ NSArray<NSString *> *clipboardKeySequence;
     RELEASE_TO_NIL(newDict);
   }
 
+  NSDictionary<UIPasteboardOption, id> *options = args[@"options"];
   TiThreadPerformOnMainThread(
       ^{
         if (options == nil) {
@@ -339,49 +328,58 @@ NSArray<NSString *> *clipboardKeySequence;
       YES);
 }
 
-- (id)getItems:(id)unused
+- (NSArray<NSDictionary<NSString *, id> *> *)getItems
 {
-  __block id items;
-
+  __block NSMutableArray<NSDictionary<NSString *, id> *> *result = [[[NSMutableArray alloc] init] retain];
   TiThreadPerformOnMainThread(
       ^{
-        items = [[[self pasteboard] items] retain];
+        NSArray<NSDictionary<NSString *, id> *> *items = [self pasteboard].items;
 
         // Check for invalid UTI's / mime-types to prevent a runtime-crash
-        for (NSDictionary *item in items) {
-          for (NSString *key in [item allKeys]) {
-            if ([key hasPrefix:@"dyn."]) {
-              NSLog(@"[ERROR] Invalid mime-type specified to setItems() before. Returning an empty result ...");
-
-              RELEASE_TO_NIL(items);
-              items = @[];
-              break;
+        for (NSDictionary<NSString *, id> *item in items) {
+          NSMutableDictionary<NSString *, id> *newItem = item.mutableCopy;
+          for (NSString *key in newItem.allKeys) {
+            if ([key isEqualToString:@"com.apple.uikit.color"]) {
+              // Convert colors back to hex strings
+              newItem[key] = [TiUtils hexColorValue:item[key]];
+            } else if (UTTypeConformsTo((CFStringRef)key, kUTTypeURL)) {
+              // Convert public.url and public.file-url values from NSURL to NSString
+              newItem[key] = [TiUtils stringValue:item[key]];
+            } else if (UTTypeConformsTo((CFStringRef)key, kUTTypeImage)) {
+              // Convert UIImage to TiBlob!
+              newItem[key] = [[[TiBlob alloc] initWithImage:(UIImage *)item[key]] autorelease];
             }
           }
-          if ([items count] == 0) {
-            break;
-          }
+          [result addObject:newItem];
         }
       },
       YES);
 
-  return [items autorelease];
+  return [result autorelease];
 }
 
-- (void)setData:(id)args
+- (void)setData:(NSString *)mimeType withData:(id)data
 {
-  ENSURE_ARG_COUNT(args, 2);
-  ENSURE_UI_THREAD(setData, args);
-
-  NSString *mimeType = [TiUtils stringValue:[args objectAtIndex:0]];
-  id data = [args objectAtIndex:1];
   if (data == nil) {
     DebugLog(@"[WARN] setData: data object was nil.");
     return;
   }
+  // FIXME: data doesn't get converted properly if it's a TiFile, because trhat's not one of the "new" proxies
+  // Can we convert id to JSValue* in the signature and handle it?\
+  // Or do we need ot keep this ugly code?
+  if ([data isKindOfClass:[NSDictionary class]]) {
+    NSDictionary *dict = (NSDictionary *)data;
+    if (dict.count == 0) {
+      id whatever = JSContext.currentArguments[1];
+      id converted = [self JSValueToNative:whatever];
+      if ([converted isKindOfClass:[TiFile class]]) {
+        data = converted;
+      }
+    }
+  }
+
   UIPasteboard *board = [self pasteboard];
   ClipboardType dataType = mimeTypeToDataType(mimeType);
-
   switch (dataType) {
   case CLIPBOARD_TEXT: {
     board.string = [TiUtils stringValue:data];
@@ -415,11 +413,9 @@ NSArray<NSString *> *clipboardKeySequence;
   }
 }
 
-- (void)setText:(id)arg
+- (void)setText:(NSString *)text
 {
-  ENSURE_STRING(arg);
-  NSString *text = arg;
-  [self setData:[NSArray arrayWithObjects:@"text/plain", text, nil]];
+  [self setData:@"text/plain" withData:text];
 }
 
 @end
