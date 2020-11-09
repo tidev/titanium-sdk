@@ -304,6 +304,34 @@ describe('Titanium.UI.TabGroup', function () {
 			tabGroup.addTab(tab);
 			tabGroup.open();
 		});
+
+		it('blur event on opening new window', finish => {
+			const win = Ti.UI.createWindow();
+			tabGroup = Ti.UI.createTabGroup();
+			const tab = Ti.UI.createTab({
+				title: 'Tab',
+				window: win
+			});
+
+			function openNewWindow() {
+				setTimeout(() => {
+					tabGroup.addEventListener('blur', done);
+					const newWin = Ti.UI.createWindow();
+					newWin.open();
+				}, 1);
+			}
+
+			function done() {
+				tabGroup.removeEventListener('open', openNewWindow);
+				tabGroup.removeEventListener('blur', done);
+				finish();
+			}
+
+			tabGroup.addEventListener('focus', openNewWindow);
+
+			tabGroup.addTab(tab);
+			tabGroup.open();
+		});
 	});
 
 	it.windowsBroken('#setActiveTab()', finish => {

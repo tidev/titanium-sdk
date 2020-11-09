@@ -1440,11 +1440,6 @@ public class TiC
 	/**
 	 * @module.api
 	 */
-	public static final String PROPERTY_CONTENT_URL = "contentURL";
-
-	/**
-	 * @module.api
-	 */
 	public static final String PROPERTY_CONTENT_VIEW = "contentView";
 
 	/**
@@ -2108,6 +2103,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_LAYOUT_ID = "layoutId";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_LEFT_DRAWER_LOCK_MODE = "leftDrawerLockMode";
 
 	/**
 	 * @module.api
@@ -2787,6 +2787,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_RIGHT_BUTTON = "rightButton";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_RIGHT_DRAWER_LOCK_MODE = "rightDrawerLockMode";
 
 	/**
 	 * @module.api

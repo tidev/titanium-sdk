@@ -71,10 +71,9 @@
   return [rows countByEnumeratingWithState:state objects:stackbuf count:len];
 }
 
-- (NSInteger)rowCount
+- (NSNumber *)rowCount
 {
-  //The result of a method call on a nil is 0;
-  return [rows count];
+  return NUMUINTEGER((rows != nil) ? rows.count : 0);
 }
 
 - (void)add:(id)proxy
@@ -103,7 +102,7 @@
   return nil;
 }
 
-- (TiUITableViewRowProxy *)rowAtIndex:(NSInteger)index
+- (TiUITableViewRowProxy *)rowAtIndex:(NSUInteger)index
 {
   //Because rowAtIndex is used internally, with an int, it can't be used by the Javascript.
   //The javascript passes in an NSArray pointer, not an index. And things blow up.

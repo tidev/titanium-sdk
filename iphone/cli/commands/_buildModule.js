@@ -1046,12 +1046,8 @@ iOSModuleBuilder.prototype.runModule = function runModule(cli, next) {
 				}
 			);
 
-			// 5. unzip module to the tmp dir. Use native binary on macOS, as AdmZip doesn't support symlinks used in mac catalyst frameworks
-			const proc = spawn('unzip', [ '-o', this.moduleZipPath, '-d', tmpProjectDir ]);
-			proc.stdout.on('data', data => this.logger.trace(data.toString().trimEnd()));
-			proc.stderr.on('data', data => this.logger.error(data.toString().trimEnd()));
-			proc.once('error', err => cb(err));
-			proc.on('exit', () => cb());
+			// 5. unzip module to the tmp dir
+			appc.zip.unzip(this.moduleZipPath, tmpProjectDir, null, cb);
 		},
 
 		// Emit hook so modules can also alter project before launch

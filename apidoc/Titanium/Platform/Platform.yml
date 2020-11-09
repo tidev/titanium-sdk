@@ -25,7 +25,39 @@ methods:
     summary: |
         Returns whether the system is configured with a default application to handle the URL's protocol/scheme.
     description: |
-        On iOS, this method might return false if you have not whitelisted the URL schemes you query in your [tiapp.xml](https://docs.appcelerator.com/platform/latest/#!/guide/tiapp.xml_and_timodule.xml_Reference-section-src-29004921_tiapp.xmlandtimodule.xmlReference-iOS9SecurityandcanOpenUrl).
+        As of iOS 9, this method may return `false` if you have not added the URL schemes you query to the
+        "tiapp.xml" file. You can do this by adding a `<key>LSApplicationQueriesSchemes</key>` plist section
+        as shown [here](https://docs.appcelerator.com/platform/latest/#!/guide/tiapp.xml_and_timodule.xml_Reference-section-src-29004921_tiapp.xmlandtimodule.xmlReference-iOS9SecurityandcanOpenUrl).
+
+        As of Android 11, this method may return `false` if you have not added the URL schemes to a `<queries/>`
+        manifest section in the "tiapp.xml" file. Google documents examples how to do
+        this [here](https://developer.android.com/preview/privacy/package-visibility).
+
+        ```xml
+        <ti:app xmlns:ti="http://ti.appcelerator.org">
+            <android>
+                <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+                    <queries>
+                        <!-- Allows "http://" and "https://" web URLs. -->
+                        <intent>
+                            <action android:name="android.intent.action.VIEW"/>
+                            <data android:scheme="https"/>
+                        </intent>
+                        <!-- Allows "mailto:" URLs to an e-mail app. -->
+                        <intent>
+                            <action android:name="android.intent.action.VIEW"/>
+                            <data android:scheme="mailto"/>
+                        </intent>
+                        <!-- Allows file URLs to local image files. -->
+                        <intent>
+                            <action android:name="android.intent.action.VIEW"/>
+                            <data android:mimeType="image/*"/>
+                        </intent>
+                    </queries>
+                </manifest>
+            </android>
+        </ti:app>
+        ```
     returns:
         type: Boolean
     platforms: [android, iphone, ipad, macos]

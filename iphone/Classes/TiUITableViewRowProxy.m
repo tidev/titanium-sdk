@@ -29,7 +29,7 @@ NSString *const defaultRowTableClass = @"_default_";
 #ifdef TI_USE_AUTOLAYOUT
 @interface TiUITableViewRowContainer : TiLayoutView
 #else
-@interface TiUITableViewRowContainer : UIView
+@interface TiUITableViewRowContainer : TiUIView
 #endif
 {
   TiProxy *hitTarget;
@@ -447,7 +447,7 @@ TiProxy *DeepScanForProxyOfViewContainingPoint(UIView *targetView, CGPoint point
       }
     }
     selectedBGView.fillColor = theColor;
-    NSInteger count = [section rowCount];
+    NSUInteger count = section.rowCount.unsignedIntegerValue;
     if (count == 1) {
       selectedBGView.position = TiCellBackgroundViewPositionSingleLine;
     } else {
@@ -528,7 +528,7 @@ TiProxy *DeepScanForProxyOfViewContainingPoint(UIView *targetView, CGPoint point
 
 - (UIView *)view
 {
-  return nil;
+  return rowContainerView;
 }
 
 //Private method : For internal use only

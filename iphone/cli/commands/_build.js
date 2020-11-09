@@ -5241,6 +5241,7 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 							}
 						},
 						lookup = {
+							// iOS (iPhone / iPad / universal)
 							'-Small':       { height: 29,   width: 29,   scale: 1, idioms: [ 'ipad' ] },
 							'-Small@2x':    { height: 29,   width: 29,   scale: 2, idioms: [ 'iphone', 'ipad' ] },
 							'-Small@3x':    { height: 29,   width: 29,   scale: 3, idioms: [ 'iphone' ] },
@@ -5252,7 +5253,7 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 							'-76':          { height: 76,   width: 76,   scale: 1, idioms: [ 'ipad' ], required: true },
 							'-76@2x':       { height: 76,   width: 76,   scale: 2, idioms: [ 'ipad' ], required: true },
 							'-83.5@2x':     { height: 83.5, width: 83.5, scale: 2, idioms: [ 'ipad' ], minXcodeVer: '7.2' },
-							'-Marketing':   { height: 1024, width: 1024, scale: 1, idioms: [ 'ios-marketing' ], required: true, minXcodeVer: '9.0' }
+							'-Marketing':   { height: 1024, width: 1024, scale: 1, idioms: [ 'ios-marketing' ], required: true, minXcodeVer: '9.0' },
 						},
 						deviceFamily = this.deviceFamily,
 						flattenIcons = [],
@@ -5260,6 +5261,22 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 						missingIcons = [];
 					let defaultIconChanged = false,
 						defaultIconHasAlpha = false;
+
+					// Add macOS icons if target is macOS
+					if (this.target === 'macos' || this.target === 'dist-macappstore') {
+						Object.assign(lookup, {
+							'-16':    		{ height: 16, width: 16, scale: 1, idioms: [ 'mac' ], required: true, minXcodeVer: '12.0' },
+							'-16@2x':    	{ height: 16, width: 16, scale: 2, idioms: [ 'mac' ], required: true, minXcodeVer: '12.0' },
+							'-32':    		{ height: 32, width: 32, scale: 1, idioms: [ 'mac' ], required: true, minXcodeVer: '12.0' },
+							'-32@2x':    	{ height: 32, width: 32, scale: 2, idioms: [ 'mac' ], required: true, minXcodeVer: '12.0' },
+							'-128':    		{ height: 128, width: 128, scale: 1, idioms: [ 'mac' ], required: true, minXcodeVer: '12.0' },
+							'-128@2x':    	{ height: 128, width: 128, scale: 2, idioms: [ 'mac' ], required: true, minXcodeVer: '12.0' },
+							'-256':    		{ height: 256, width: 256, scale: 1, idioms: [ 'mac' ], required: true, minXcodeVer: '12.0' },
+							'-256@2x':    	{ height: 256, width: 256, scale: 2, idioms: [ 'mac' ], required: true, minXcodeVer: '12.0' },
+							'-AppStore':    { height: 512, width: 512, scale: 1, idioms: [ 'mac' ], required: true, minXcodeVer: '12.0' },
+							'-AppStore@2x': { height: 512, width: 512, scale: 2, idioms: [ 'mac' ], required: true, minXcodeVer: '12.0' }
+						});
+					}
 
 					const defaultIcon = this.defaultIcons.find(icon => fs.existsSync(icon));
 

@@ -49,6 +49,7 @@ import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.res.AssetManager;
 import android.content.res.Resources;
+import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
 import android.graphics.Bitmap.Config;
@@ -1286,6 +1287,25 @@ public class TiUIHelper
 			Log.w(TAG, e.toString());
 		}
 		return null;
+	}
+
+	/**
+	 * Determines if the given context has been assigned a "Theme.MaterialComponents" derived theme.
+	 * @param context Reference to the context such as an Activity or Application object to inspect. Can be null.
+	 * @return Returns true if assigned a material theme. Returns false if not or argument is null.
+	 */
+	public static boolean isUsingMaterialTheme(Context context)
+	{
+		if (context == null) {
+			return false;
+		}
+
+		TypedArray typedArray = context.obtainStyledAttributes(new int[] {
+			com.google.android.material.R.attr.colorPrimaryVariant
+		});
+		boolean isMaterial = typedArray.hasValue(0);
+		typedArray.recycle();
+		return isMaterial;
 	}
 
 	public static String hexStringFrom(int colorInt)

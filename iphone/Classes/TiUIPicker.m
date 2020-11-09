@@ -232,7 +232,19 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
 
 - (void)setDateTimeColor_:(id)value
 {
-  [[self proxy] replaceValue:value forKey:@"dateTimeColor" notification:NO];
+  // Guard date picker and iOS 14+ date picker style
+  if (![self isDatePicker] || [TiUtils isMacOS]) {
+    return;
+  }
+#if IS_SDK_IOS_13_4
+  if (((UIDatePicker *)[self picker]).preferredDatePickerStyle != UIDatePickerStyleWheels) {
+    return;
+  }
+#endif
+
+  [[self proxy] replaceValue:value
+                      forKey:@"dateTimeColor"
+                notification:NO];
 
   if (picker != nil) {
     [(UIDatePicker *)[self picker] setValue:[[TiUtils colorValue:value] _color] forKeyPath:@"textColor"];
@@ -318,7 +330,7 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
 - (NSInteger)pickerView:(UIPickerView *)pickerView numberOfRowsInComponent:(NSInteger)component
 {
   TiUIPickerColumnProxy *proxy = [[self columns] objectAtIndex:component];
-  return [proxy rowCount];
+  return proxy.rowCount.integerValue;
 }
 
 #pragma mark Delegates (only for UIPickerView)
