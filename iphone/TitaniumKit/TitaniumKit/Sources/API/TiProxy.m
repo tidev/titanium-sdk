@@ -899,7 +899,7 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void *payload)
   if (![self _hasListeners:type]) {
     return;
   }
-  
+
   __weak TiProxy *weakSelf = self;
 
   TiThreadPerformOnMainThread(
