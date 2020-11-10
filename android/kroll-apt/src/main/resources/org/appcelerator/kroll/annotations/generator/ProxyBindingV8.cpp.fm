@@ -278,10 +278,20 @@ void ${className}::${method.apiName}(const FunctionCallbackInfo<Value>& args)
 
 	<#if method.args?size == 0 && name[0..2] == "get" && isDynamic>
 		<#assign propertyName = name[3]?lower_case + name[4..]>
-	Proxy::logDeprecation(isolate, "Getter method deprecated, please use \"obj.${propertyName};\" or \"obj['${propertyName}'];\" instead.");
+	const char *deprecationMessage = "Getter method deprecated, please use \"obj.${propertyName};\" or \"obj['${propertyName}'];\" instead.";
+		<#if isTitaniumSdk>
+	Proxy::logDeprecation(isolate, deprecationMessage);
+		<#else>
+	LOGW(TAG, deprecationMessage);
+		</#if>
 	<#elseif method.args?size == 1 && name[0..2] == "set" && isDynamic>
 		<#assign propertyName = name[3]?lower_case + name[4..]>
-	Proxy::logDeprecation(isolate, "Setter method deprecated, please use \"obj.${propertyName} = val;\" or \"obj['${propertyName}'] = val;\" instead.");
+	const char *deprecationMessage = "Setter method deprecated, please use \"obj.${propertyName} = val;\" or \"obj['${propertyName}'] = val;\" instead.";
+		<#if isTitaniumSdk>
+	Proxy::logDeprecation(isolate, deprecationMessage);
+		<#else>
+	LOGW(TAG, deprecationMessage);
+		</#if>
 	</#if>
 
 	jobject javaProxy = proxy->getJavaObject();
