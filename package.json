@@ -112,7 +112,7 @@
     "semver": "^7.3.2",
     "simple-plist": "^1.1.1",
     "sprintf": "0.1.5",
-    "temp": "0.9.2",
+    "temp": "0.9.4",
     "wrap-ansi": "^7.0.0",
     "xcode": "^3.0.1",
     "xmldom": "^0.4.0",
