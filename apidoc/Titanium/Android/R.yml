@@ -150,6 +150,7 @@ properties:
     accessors: false
     permission: read-only
     since: "7.3.0"
+    osver: {android: {min: "3.0"}}
 
   - name: layout
     summary: |
@@ -236,6 +237,7 @@ properties:
     accessors: false
     permission: read-only
     since: "7.3.0"
+    osver: {android: {min: "5.0"}}
 
   - name: xml
     summary: |
