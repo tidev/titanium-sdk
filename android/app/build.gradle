@@ -13,7 +13,7 @@ android {
 	defaultConfig {
 		applicationId 'com.titanium.test'
 		minSdkVersion 19
-		targetSdkVersion 29
+		targetSdkVersion 30
 		versionCode 1
 		versionName '1.0'
 		manifestPlaceholders = project.ext.tiManifestPlaceholders
