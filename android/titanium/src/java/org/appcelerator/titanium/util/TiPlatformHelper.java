@@ -6,7 +6,6 @@
  */
 package org.appcelerator.titanium.util;
 
-import java.lang.reflect.Method;
 import java.util.Currency;
 import java.util.HashMap;
 import java.util.Locale;
@@ -19,8 +18,8 @@ import org.appcelerator.titanium.TiApplication;
 import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
+import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
-import android.content.res.Resources;
 import android.net.DhcpInfo;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
@@ -62,13 +61,10 @@ public class TiPlatformHelper
 		DisplayMetrics dm = new DisplayMetrics();
 		activity.getWindowManager().getDefaultDisplay().getMetrics(dm);
 
-		// Note: this isn't public API, so there should be lots of error checking here
-		try {
-			Method gciMethod = Resources.class.getMethod("getCompatibilityInfo");
-			Object compatInfo = gciMethod.invoke(activity.getResources());
-			applicationScaleFactor = (Float) compatInfo.getClass().getField("applicationScale").get(compatInfo);
-		} catch (Exception e) {
-			Log.w(TAG, "Unable to get application scale factor, using reported density and its factor", Log.DEBUG_MODE);
+		if ((activity.getApplicationInfo().flags & ApplicationInfo.FLAG_SUPPORTS_SCREEN_DENSITIES) != 0) {
+			applicationScaleFactor = 1.0f;
+		} else {
+			applicationScaleFactor = dm.densityDpi / (float) DisplayMetrics.DENSITY_DEFAULT;
 		}
 
 		if (applicationScaleFactor == 1.0f) {
