@@ -430,3 +430,8 @@ properties:
     summary: Reference to the global object itself.
     type: Global
     accessors: false
+
+  - name: Buffer
+    summary: a global reference to the [Buffer](buffer.Buffer) class.
+    type: buffer.Buffer
+    accessors: false
