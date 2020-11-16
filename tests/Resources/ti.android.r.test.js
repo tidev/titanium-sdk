@@ -163,7 +163,7 @@ describe.android('Titanium.Android.R', () => {
 				'alphabeticShortcut',
 				'alwaysDrawnWithCache',
 				'alwaysRetainTaskState',
-				'amPmBackgroundColor',
+				[ 'amPmBackgroundColor', 21 ],
 				[ 'amPmTextColor', 21 ],
 				[ 'ambientShadowAlpha', 21 ],
 				'angle',
@@ -1510,8 +1510,8 @@ describe.android('Titanium.Android.R', () => {
 			];
 			for (let prop of properties) {
 				if (Array.isArray(prop)) {
-					prop = prop[0];
 					const apiLevel = prop[1];
+					prop = prop[0];
 					if (Ti.Platform.Android.API_LEVEL < apiLevel) {
 						continue; // skip
 					}
@@ -1666,8 +1666,8 @@ describe.android('Titanium.Android.R', () => {
 			];
 			for (let prop of properties) {
 				if (Array.isArray(prop)) {
-					prop = prop[0];
 					const apiLevel = prop[1];
+					prop = prop[0];
 					if (Ti.Platform.Android.API_LEVEL < apiLevel) {
 						continue; // skip
 					}
@@ -1788,8 +1788,8 @@ describe.android('Titanium.Android.R', () => {
 			];
 			for (let prop of properties) {
 				if (Array.isArray(prop)) {
-					prop = prop[0];
 					const apiLevel = prop[1];
+					prop = prop[0];
 					if (Ti.Platform.Android.API_LEVEL < apiLevel) {
 						continue; // skip
 					}
