@@ -26,13 +26,10 @@ public class TiFileFactory
 {
 	private static final String TAG = "TiFileFactory";
 	private static final String ANDROID_RESOURCE_URL_SCHEME = ContentResolver.SCHEME_ANDROID_RESOURCE;
-	private static final String ANDROID_RESOURCE_URL_PREFIX = ANDROID_RESOURCE_URL_SCHEME + "://";
-	private static final String APPDATA_URL_SCHEME = "appdata";
-	private static final String APPDATA_URL_PREFIX = APPDATA_URL_SCHEME + "://";
-	private static final String APPDATA_PRIVATE_URL_SCHEME = "appdata-private";
-	private static final String APPDATA_PRIVATE_URL_PREFIX = APPDATA_PRIVATE_URL_SCHEME + "://";
+	public static final String APPCACHE_EXTERNAL_URL_SCHEME = "appcache-external";
+	public static final String APPDATA_URL_SCHEME = "appdata";
+	public static final String APPDATA_PRIVATE_URL_SCHEME = "appdata-private";
 	private static final String CONTENT_URL_SCHEME = ContentResolver.SCHEME_CONTENT;
-	private static final String CONTENT_URL_PREFIX = CONTENT_URL_SCHEME + "://";
 	private static final String FILE_URL_SCHEME = ContentResolver.SCHEME_FILE;
 	private static final String FILE_URL_PREFIX = FILE_URL_SCHEME + "://";
 	// strip file:// prefix off the special URL we need to handle like app:
@@ -45,6 +42,7 @@ public class TiFileFactory
 	{
 		localSchemeSet = new HashSet<String>();
 		localSchemeSet.add(TiC.URL_APP_SCHEME.toLowerCase());
+		localSchemeSet.add(APPCACHE_EXTERNAL_URL_SCHEME.toLowerCase());
 		localSchemeSet.add(APPDATA_URL_SCHEME.toLowerCase());
 		localSchemeSet.add(APPDATA_PRIVATE_URL_SCHEME.toLowerCase());
 		localSchemeSet.add(FILE_URL_SCHEME.toLowerCase());
@@ -76,8 +74,9 @@ public class TiFileFactory
 	 */
 	public static TiBaseFile createTitaniumFile(String[] parts, boolean stream)
 	{
+		// Parse for the URL scheme and file path.
 		String possibleURI = joinPathSegments(parts);
-		String scheme = null;
+		String scheme = "";
 		String path = "";
 		int colonIndex = possibleURI.indexOf(':');
 		if (colonIndex != -1) {
@@ -107,45 +106,59 @@ public class TiFileFactory
 			}
 		}
 
-		if (TiC.URL_APP_SCHEME.equals(scheme)) {
-			return new TiResourceFile(trimFront(path, '/'));
-		}
-
-		if (APPDATA_PRIVATE_URL_SCHEME.equals(scheme)) {
-			File f = new File(getDataDirectory(true), path);
-			return new TiFile(f, possibleURI, stream);
-		}
-
-		if (APPDATA_URL_SCHEME.equals(scheme)) {
-			File f = new File(getDataDirectory(false), path);
-			return new TiFile(f, possibleURI, stream);
-		}
-
-		if (CONTENT_URL_SCHEME.equals(scheme) || ANDROID_RESOURCE_URL_SCHEME.equals(scheme)) {
-			return new TiContentFile(possibleURI); // TODO: Forward along the actual URI instance?
-		}
-
-		if (FILE_URL_SCHEME.equals(scheme)) {
-			// check for fake "file:///android_asset/Resources/" URL, treat like app:
-			if (path.startsWith(ANDROID_ASSET_RESOURCES)) {
-				// Strip this fake base path
-				path = path.substring(ANDROID_ASSET_RESOURCES.length());
-				return new TiResourceFile(trimFront(path, '/')); // remove leading '/' characters
+		// Create a Titanium file object capable of accessing the file referenced by given URL.
+		TiBaseFile tiFile = null;
+		switch (scheme) {
+			case TiC.URL_APP_SCHEME: {
+				tiFile = new TiResourceFile(trimFront(path, '/'));
+				break;
 			}
-
-			// Normal file
-			return new TiFile(new File(path), possibleURI, stream);
+			case APPCACHE_EXTERNAL_URL_SCHEME: {
+				File cacheDir = TiApplication.getInstance().getExternalCacheDir();
+				if (cacheDir != null) {
+					File file = new File(cacheDir, path);
+					tiFile = new TiFile(file, possibleURI, stream);
+				}
+				break;
+			}
+			case APPDATA_URL_SCHEME:            // Use external storage.
+			case APPDATA_PRIVATE_URL_SCHEME:    // Use internal storage.
+			case TI_URL_SCHEME: {               // Use internal storage.
+				boolean isInternal = !scheme.equals(APPDATA_URL_SCHEME);
+				File dataDir = getDataDirectory(isInternal);
+				if (dataDir != null) {
+					File file = new File(dataDir, path);
+					tiFile = new TiFile(file, possibleURI, stream);
+				}
+				break;
+			}
+			case CONTENT_URL_SCHEME:
+			case ANDROID_RESOURCE_URL_SCHEME: {
+				tiFile = new TiContentFile(possibleURI);
+				break;
+			}
+			case FILE_URL_SCHEME: {
+				if (path.startsWith(ANDROID_ASSET_RESOURCES)) {
+					// This is a "file:///android_asset/Resources/" referencing an APK "assets" file.
+					path = path.substring(ANDROID_ASSET_RESOURCES.length());
+					tiFile = new TiResourceFile(trimFront(path, '/'));
+				} else {
+					// This is a normal file system path.
+					tiFile = new TiFile(new File(path), possibleURI, stream);
+				}
+				break;
+			}
 		}
 
-		if (TI_URL_SCHEME.equals(scheme)) { // treat like appdata-private
-			// TODO: Do we need to trim leading '/'?
-			File f = new File(getDataDirectory(true), path);
-			return new TiFile(f, possibleURI, stream);
+		// Create a mock file object whose methods no-op if we failed to handle given path. Can happen if:
+		// - Given an invalid/unknown URL scheme.
+		// - Unable to access destination, such as external storage not being available.
+		if (tiFile == null) {
+			tiFile = new TiMockFile(possibleURI);
 		}
 
-		// TODO: Throw an exception? Ideally this shouldn't ever happen, but could if an unhandled scheme URI came in here
-		// i.e. http:, ftp:, https:, mailto:, etc.
-		return null;
+		// Return a TiBaseFile wrapping the given path. Will never be null.
+		return tiFile;
 	}
 
 	private static String joinPathSegments(String[] parts)
@@ -204,8 +217,7 @@ public class TiFileFactory
 	 */
 	public static File getDataDirectory(boolean privateStorage)
 	{
-		TiFileHelper tfh = new TiFileHelper(TiApplication.getInstance());
-		return tfh.getDataDirectory(privateStorage);
+		return TiFileHelper.getInstance().getDataDirectory(privateStorage);
 	}
 
 	public static boolean isLocalScheme(String url)
