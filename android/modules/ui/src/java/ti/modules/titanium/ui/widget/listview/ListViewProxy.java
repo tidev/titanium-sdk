@@ -13,7 +13,6 @@ import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
-import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiUIView;
 
 import android.app.Activity;
@@ -251,16 +250,6 @@ public class ListViewProxy extends TiViewProxy
 
 			// Set list sections.
 			setSections((Object[]) value);
-		}
-
-		if (name.equals(TiC.PROPERTY_SHOW_VERTICAL_SCROLL_INDICATOR)) {
-			final TiListView listView = getListView();
-
-			if (listView != null) {
-
-				// Set vertical scroll indicator.
-				listView.getRecyclerView().setVerticalScrollBarEnabled(TiConvert.toBoolean(value, true));
-			}
 		}
 	}
 

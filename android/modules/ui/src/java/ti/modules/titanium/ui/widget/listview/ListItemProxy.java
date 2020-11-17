@@ -12,6 +12,8 @@ import java.util.List;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollEventCallback;
+import org.appcelerator.kroll.KrollObject;
+import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.runtime.v8.V8Function;
@@ -218,18 +220,55 @@ public class ListItemProxy extends TiViewProxy
 			// Iterate through template events.
 			for (final String eventName : events.keySet()) {
 				final V8Function callback = (V8Function) events.get(eventName);
+				final KrollProxy proxy = parent;
+				final KrollObject krollObject = parent.getKrollObject();
 
 				// Add template event to item.
-				this.addEventListener(eventName, new KrollEventCallback()
+				proxy.addEventListener(eventName, new KrollEventCallback()
 				{
 
 					@Override
 					public void call(Object data)
 					{
+						if (data instanceof KrollDict) {
+							final KrollDict payload = new KrollDict((KrollDict) data);
+
+							// Inject row data into events.
+							final ListViewProxy listViewProxy = getListViewProxy();
+							if (listViewProxy != null) {
+
+								final Object parent = getParent();
+								if (parent instanceof ListSectionProxy) {
+									final ListSectionProxy section = (ListSectionProxy) parent;
+
+									// Include section specific properties.
+									payload.put(TiC.PROPERTY_SECTION, section);
+									payload.put(TiC.PROPERTY_SECTION_INDEX, listViewProxy.getIndexOfSection(section));
+									payload.put(TiC.PROPERTY_ITEM_INDEX, indexInSection);
+								}
+
+								final String itemId = getProperties().optString(TiC.PROPERTY_ITEM_ID, null);
+								if (itemId != null) {
+
+									// Include `itemId` if specified.
+									payload.put(TiC.PROPERTY_ITEM_ID, itemId);
+								}
+
+								if (template.containsKey(TiC.PROPERTY_BIND_ID)) {
+
+									// Include `bindId` of template if specified.
+									payload.put(TiC.PROPERTY_BIND_ID, template.getString(TiC.PROPERTY_BIND_ID));
+								}
+							}
+
+							data = payload;
+						}
+
 						// Call callback defined in template.
 						callback.call(krollObject, new Object[] { data });
 					}
 				});
+				krollObject.setHasListenersForEventType(eventName, true);
 			}
 		}
 
@@ -446,7 +485,7 @@ public class ListItemProxy extends TiViewProxy
 			}
 
 			// Handle title font.
-			if (name.equals(TiC.PROPERTY_FONT) && value instanceof KrollDict) {
+			if (name.equals(TiC.PROPERTY_FONT) && value instanceof HashMap) {
 				titleProperties.put(TiC.PROPERTY_FONT, value);
 			}
 

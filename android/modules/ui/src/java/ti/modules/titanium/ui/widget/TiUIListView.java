@@ -175,6 +175,12 @@ public class TiUIListView extends TiUIView
 			}
 		}
 
+		if (name.equals(TiC.PROPERTY_SHOW_VERTICAL_SCROLL_INDICATOR)) {
+
+			// Set vertical scroll indicator.
+			this.listView.getRecyclerView().setVerticalScrollBarEnabled(TiConvert.toBoolean(value, true));
+		}
+
 		if (name.equals(TiC.PROPERTY_HEADER_TITLE)
 			|| name.equals(TiC.PROPERTY_HEADER_VIEW)
 			|| name.equals(TiC.PROPERTY_FOOTER_TITLE)
