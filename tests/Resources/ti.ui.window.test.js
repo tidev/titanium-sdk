@@ -141,74 +141,26 @@ describe('Titanium.UI.Window', function () {
 		});
 	});
 
-	it.ios('.leftNavButton and .rightNavButton  with color', finish => {
-		const nonColorButton = Ti.UI.createButton({
-			title: 'Right',
-		});
-
-		const greenColorButton = Ti.UI.createButton({
-			title: 'Right',
-			color: 'green',
-		});
-
-		const leftButton = Ti.UI.createButton({
-			title: 'Left',
-			color: 'blue'
-		});
-
-		const rootWindow = Ti.UI.createWindow({
-			backgroundColor: 'white',
-			leftNavButton: leftButton,
-			rightNavButton: nonColorButton,
-		});
-
-		win = Ti.UI.createNavigationWindow({
-			window: rootWindow
-		});
-
-		win.open();
-
-		rootWindow.addEventListener('postlayout', function postlayout() {
-			rootWindow.removeEventListener('postlayout', postlayout);
-			setTimeout(function () {
-				const nonColorButtonImage = win.toImage();
-				rootWindow.rightNavButton = greenColorButton;
-				setTimeout(function () {
-					try {
-						should(rootWindow.leftNavButton).be.an.Object();
-						should(rootWindow.rightNavButton).be.an.Object();
-						should(win).not.matchImage(nonColorButtonImage, 0); //  Navbutton without color should be different with a colored one
-					} catch (e) {
-						return finish(e);
-					}
-					finish();
-				}, 10);
-			}, 10);
-		});
-	});
-
-	it.ios('.leftNavButton and .rightNavButton with tintColor', finish => {
-		const nonColorButton = Ti.UI.createButton({
-			title: 'Right',
-		});
-
-		const greenColorButton = Ti.UI.createButton({
+	it.ios('.leftNavButton with default color (no color value) and .rightNavButton with tintColor', finish => {
+		const density = Ti.Platform.displayCaps.logicalDensityFactor;
+		const rightButton = Ti.UI.createButton({
 			title: 'Right',
 			tintColor: 'green',
 		});
 
 		const leftButton = Ti.UI.createButton({
 			title: 'Left',
-			tintColor: 'blue'
 		});
 
 		const rootWindow = Ti.UI.createWindow({
 			backgroundColor: 'white',
 			leftNavButton: leftButton,
-			rightNavButton: nonColorButton,
+			rightNavButton: rightButton,
 		});
 
 		win = Ti.UI.createNavigationWindow({
+			height: '400px',
+			width: '400px',
 			window: rootWindow
 		});
 
@@ -217,18 +169,57 @@ describe('Titanium.UI.Window', function () {
 		rootWindow.addEventListener('postlayout', function postlayout() {
 			rootWindow.removeEventListener('postlayout', postlayout);
 			setTimeout(function () {
-				const nonColorButtonImage = win.toImage();
-				rootWindow.rightNavButton = greenColorButton;
-				setTimeout(function () {
-					try {
-						should(rootWindow.leftNavButton).be.an.Object();
-						should(rootWindow.rightNavButton).be.an.Object();
-						should(win).not.matchImage(nonColorButtonImage, 0); //  Navbutton without color should be different with a colored one
-					} catch (e) {
-						return finish(e);
-					}
-					finish();
-				}, 10);
+				try {
+					should(rootWindow.leftNavButton).be.an.Object();
+					should(rootWindow.rightNavButton).be.an.Object();
+					should(win).matchImage(`snapshots/navButton_left_defaultColor_right_greenColor_${density}x.png`);
+				} catch (e) {
+					return finish(e);
+				}
+				finish();
+			}, 10);
+		});
+	});
+
+	it.ios('.leftNavButton and .rightNavButton  with color and tintColor', finish => {
+		const density = Ti.Platform.displayCaps.logicalDensityFactor;
+
+		const rightButton = Ti.UI.createButton({
+			title: 'Right',
+			tintColor: 'red',
+			color: 'green', // should have preference
+		});
+
+		const leftButton = Ti.UI.createButton({
+			title: 'Left',
+			tintColor: 'red'
+		});
+
+		const rootWindow = Ti.UI.createWindow({
+			backgroundColor: 'white',
+			leftNavButton: leftButton,
+			rightNavButton: rightButton,
+		});
+
+		win = Ti.UI.createNavigationWindow({
+			height: '400px',
+			width: '400px',
+			window: rootWindow
+		});
+
+		win.open();
+
+		rootWindow.addEventListener('postlayout', function postlayout() {
+			rootWindow.removeEventListener('postlayout', postlayout);
+			setTimeout(function () {
+				try {
+					should(rootWindow.leftNavButton).be.an.Object();
+					should(rootWindow.rightNavButton).be.an.Object();
+					should(win).matchImage(`snapshots/navButton_left_redColor_right_greenColor_${density}x.png`);
+				} catch (e) {
+					return finish(e);
+				}
+				finish();
 			}, 10);
 		});
 	});
