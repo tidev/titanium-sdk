@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/titanium_ui_listview_holder"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <!-- Header Container -->
+    <RelativeLayout
+        android:id="@+id/titanium_ui_listview_holder_header_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true">
+
+        <org.appcelerator.titanium.view.TiCompositeLayout
+            android:id="@+id/titanium_ui_listview_holder_header"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:focusable="false"
+            android:focusableInTouchMode="false"/>
+        <TextView
+            android:id="@+id/titanium_ui_listview_holder_header_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="18dp"
+            android:paddingLeft="5dp"
+            android:paddingRight="5dp"
+            android:gravity="center_vertical"
+            android:focusable="false"
+            android:focusableInTouchMode="false"/>
+    </RelativeLayout>
+
+    <!-- Outer Content Container -->
+    <RelativeLayout
+        android:id="@+id/titanium_ui_listview_holder_outer_content_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/titanium_ui_listview_holder_header_container">
+
+            <org.appcelerator.titanium.view.TiCompositeLayout
+                android:id="@+id/titanium_ui_listview_holder_content"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:foreground="?attr/selectableItemBackgroundBorderless"
+                android:addStatesFromChildren="true"/>
+
+            <ImageView
+                android:id="@+id/titanium_ui_listview_holder_right_image"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:layout_marginRight="6dp"
+                android:focusable="false"
+                android:focusableInTouchMode="false"/>
+
+    </RelativeLayout>
+
+    <!-- Footer Container -->
+    <RelativeLayout
+        android:id="@+id/titanium_ui_listview_holder_footer_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_below="@id/titanium_ui_listview_holder_outer_content_container">
+
+        <org.appcelerator.titanium.view.TiCompositeLayout
+            android:id="@+id/titanium_ui_listview_holder_footer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:focusable="false"
+            android:focusableInTouchMode="false"/>
+        <TextView
+            android:id="@+id/titanium_ui_listview_holder_footer_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="18dp"
+            android:paddingLeft="5dp"
+            android:paddingRight="5dp"
+            android:gravity="center_vertical"
+            android:focusable="false"
+            android:focusableInTouchMode="false" />
+    </RelativeLayout>
+</RelativeLayout>
