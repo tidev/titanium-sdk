@@ -435,3 +435,8 @@ properties:
     summary: a global reference to the [Buffer](buffer.Buffer) class.
     type: buffer.Buffer
     accessors: false
+
+  - name: process
+    summary: Reference to the global `process` object.
+    type: process
+    accessors: false
