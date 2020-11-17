@@ -481,13 +481,13 @@ class DeviceTestDetails {
 
 		// check for generated images
 		if (token.includes(GENERATED_IMAGE_PREFIX)) {
-			this.snapshotPromises.push(this.grabGeneratedImage(token));
+			this.snapshotPromises.push(this.grabGeneratedImage(token).catch(e => console.error(e.message)));
 			return false;
 		}
 
 		// check for mismatched images
 		if (token.includes(DIFF_IMAGE_PREFIX)) {
-			this.snapshotPromises.push(this.handleMismatchedImage(token));
+			this.snapshotPromises.push(this.handleMismatchedImage(token).catch(e => console.error(e.message)));
 			return false;
 		}
 
@@ -578,27 +578,36 @@ class DeviceTestDetails {
 		const trimmed = token.slice(imageIndex + DIFF_IMAGE_PREFIX.length).trim();
 		const details = JSON.parse(trimmed);
 
-		const expected = path.join(this.snapshotDir, details.platform, details.relativePath);
-		const diffDir = path.join(this.snapshotDir, '..', 'diffs', details.platform, details.relativePath.slice(0, -4)); // drop '.png'
+		const suffixEx = /(_expected|_diff)\.png/g;
+		const baseImagePath = details.path.replace(suffixEx, '');
+		const baseImageRelativePath = details.relativePath.replace(suffixEx, '');
+		const diffDir = path.join(this.snapshotDir, '..', 'diffs', details.platform);
+
+		const actualOutputPath = path.join(diffDir, `${baseImageRelativePath}.png`);
+		const expectedOutputPath = path.join(diffDir, `${baseImageRelativePath}_expected.png`);
+		const diffOutputPath = path.join(diffDir, `${baseImageRelativePath}_diff.png`);
+
 		await fs.ensureDir(diffDir);
+
+		// Grab actual output image.
+		await this.grabAppImage(details.platform, `${baseImagePath}.png`, actualOutputPath);
+
+		// Grab expected output image.
 		if (!details.blob) {
-			await fs.copy(expected, path.join(diffDir, 'expected.png'));
+			await fs.copy(`${baseImagePath}_expected.png`, expectedOutputPath);
 		} else {
-			// With ti.blob direct comparisons we have no input image on-disk already
-			const expected = path.join(diffDir, 'expected.png');
-			const expectedPath = `${details.path.slice(0, -4)}/expected.png`; // drop .png, place unde folder named via basenam eof image, save as 'expected.png'
-			await this.grabAppImage(details.platform, expectedPath, expected);
+			// ti.blob generates expected output image for comparison.
+			await this.grabAppImage(details.platform, `${baseImagePath}_expected.png`, expectedOutputPath);
 		}
 
-		const actual = path.join(diffDir, 'actual.png');
-		await this.grabAppImage(details.platform, details.path, actual);
+		// Attempt to grab diff image.
 		try {
-			const diff = path.join(diffDir, 'diff.png');
-			await this.grabAppImage(details.platform, details.path.slice(0, -4) + '_diff.png', diff);
+			await this.grabAppImage(details.platform, `${baseImagePath}_diff.png`, diffOutputPath);
 		} catch (err) {
-			// ignore, diff image may not exist
+			// Ignore, diff image may not exist.
 		}
-		return actual;
+
+		return actualOutputPath;
 	}
 
 	/**
