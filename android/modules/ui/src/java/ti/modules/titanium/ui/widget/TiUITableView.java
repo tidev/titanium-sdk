@@ -150,9 +150,10 @@ public class TiUITableView extends TiUIView
 			}
 		}
 
-		if (name.equals(TiC.PROPERTY_SEPARATOR_STYLE)
+		if ((name.equals(TiC.PROPERTY_SEPARATOR_STYLE)
 			|| name.equals(TiC.PROPERTY_SEPARATOR_HEIGHT)
-			|| name.equals(TiC.PROPERTY_SEPARATOR_COLOR)) {
+			|| name.equals(TiC.PROPERTY_SEPARATOR_COLOR))
+			&& value != null) {
 			final Context context = getProxy().getActivity();
 			final KrollDict properties = getProxy().getProperties();
 
