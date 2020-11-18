@@ -1514,7 +1514,7 @@ summary: |
     The directory entry is a combination of the file name and file type pairs.
 
     **NOTE:** Titanium does not currently implement this type.
-platforms: []
+exclude-platforms: [ android, iphone, ipad, macos ]
 properties:
   - name: name
     type: [ String, buffer.Buffer ]
