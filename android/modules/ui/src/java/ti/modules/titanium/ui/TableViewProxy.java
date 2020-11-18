@@ -132,19 +132,36 @@ public class TableViewProxy extends TiViewProxy
 			return;
 		}
 
-		// Create section if one does not exist.
-		if (this.sections.size() == 0) {
-			final TableViewSectionProxy section = new TableViewSectionProxy();
-			section.setParent(this);
-			this.sections.add(section);
-		}
-
-		// Obtain last section.
-		final TableViewSectionProxy section = this.sections.get(this.sections.size() - 1);
-
 		// Append rows to last section.
 		// NOTE: Will notify TableView of update.
 		for (TableViewRowProxy row : rowList) {
+
+			// Create section if one does not exist.
+			// Or create new section if `headerTitle` is specified.
+			if (this.sections.size() == 0
+				|| row.hasPropertyAndNotNull(TiC.PROPERTY_HEADER)
+				|| row.hasPropertyAndNotNull(TiC.PROPERTY_HEADER_TITLE)
+			) {
+				final TableViewSectionProxy section = new TableViewSectionProxy();
+
+				// Set `headerTitle` of section from row.
+				section.setProperty(TiC.PROPERTY_HEADER_TITLE,
+					row.getProperties().optString(TiC.PROPERTY_HEADER_TITLE,
+						row.getProperties().getString(TiC.PROPERTY_HEADER)));
+
+				section.setParent(this);
+				this.sections.add(section);
+			}
+
+			// Obtain last section.
+			final TableViewSectionProxy section = this.sections.get(this.sections.size() - 1);
+
+			// Override footer of section.
+			section.setProperty(TiC.PROPERTY_FOOTER_TITLE,
+				row.getProperties().optString(TiC.PROPERTY_FOOTER_TITLE,
+					row.getProperties().getString(TiC.PROPERTY_FOOTER)));
+
+			// Add row to section.
 			section.add(row);
 		}
 	}

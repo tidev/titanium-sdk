@@ -260,7 +260,7 @@ public class ListViewHolder extends RecyclerView.ViewHolder
 			final int indexInSection = proxy.getIndexInSection();
 			final int filteredIndex = proxy.getFilteredIndex();
 
-			if (indexInSection == 0 || filteredIndex == 0) {
+			if (indexInSection <= 0 || filteredIndex <= 0) {
 
 				// Only set header on first row in section.
 				setHeaderFooter(sectionProperties, true, false);

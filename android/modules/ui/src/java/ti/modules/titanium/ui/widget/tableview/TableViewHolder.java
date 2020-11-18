@@ -235,164 +235,163 @@ public class TableViewHolder extends RecyclerView.ViewHolder
 
 		// Obtain row view.
 		final TableViewRowProxy.RowView rowView = (TableViewRowProxy.RowView) proxy.getOrCreateView();
-		if (rowView == null) {
-			return;
-		}
+		if (rowView != null) {
 
-		// We use `getContent()` as the native view of a recycled row is changed to our TableViewHolder view.
-		// When instead we want the row contents to recycle and display in our new TableViewHolder.
-		final ViewGroup nativeRowView = (ViewGroup) rowView.getContent();
-		if (nativeRowView == null) {
-			return;
-		}
-
-		// Set minimum row height.
-		final String rawMinHeight = properties.optString(TiC.PROPERTY_MIN_ROW_HEIGHT, "0");
-		final int minHeight = TiConvert.toTiDimension(rawMinHeight, TiDimension.TYPE_HEIGHT).getAsPixels(itemView);
-		this.container.setMinimumHeight(minHeight);
-
-		// Set font and text color for title.
-		TiUIHelper.styleText(this.title, properties.getKrollDict(TiC.PROPERTY_FONT));
-
-		// Set title color.
-		int titleColor = 0;
-		if (properties.containsKeyAndNotNull(TiC.PROPERTY_COLOR)) {
-			final int color = TiConvert.toColor(properties.getString(TiC.PROPERTY_COLOR));
-
-			if (color != Color.TRANSPARENT) {
-
-				// Found `color` property, set as title color.
-				titleColor = color;
-			}
-
-		} else {
-
-			// Determine title color based on background.
-			final int tableBackgroundColor =
-				TiConvert.toColor(tableViewProxy.getProperties(), TiC.PROPERTY_BACKGROUND_COLOR);
-			final int rowBackgroundColor = TiConvert.toColor(properties, TiC.PROPERTY_BACKGROUND_COLOR);
-			final int backgroundColor = rowBackgroundColor != Color.TRANSPARENT
-				? rowBackgroundColor : tableBackgroundColor;
-			final int defaultTitleColor = backgroundColor < (Color.BLACK / 2) ? Color.WHITE : Color.BLACK;
-
-			if (backgroundColor != Color.TRANSPARENT) {
-
-				// Found background color, set as contrasting title color.
-				titleColor = defaultTitleColor;
-			}
-		}
-		if (titleColor != Color.TRANSPARENT) {
-
-			// Set specified `title` color.
-			this.title.setTextColor(titleColor);
-		} else {
-
-			// Set default `title` color from current theme.
-			this.title.setTextColor(defaultTextColors);
-		}
-
-		// Handle row left and right images.
-		if (properties.containsKeyAndNotNull(TiC.PROPERTY_LEFT_IMAGE)) {
-			final String url = properties.getString(TiC.PROPERTY_LEFT_IMAGE);
-			final Drawable drawable = fileHelper.loadDrawable(url, false);
-			this.leftImage.setImageDrawable(drawable);
-			this.leftImage.setVisibility(View.VISIBLE);
-		}
-		if (properties.containsKeyAndNotNull(TiC.PROPERTY_RIGHT_IMAGE)) {
-			final String url = properties.getString(TiC.PROPERTY_RIGHT_IMAGE);
-			final Drawable drawable = fileHelper.loadDrawable(url, false);
-			this.rightImage.setImageDrawable(drawable);
-			this.rightImage.setVisibility(View.VISIBLE);
-		} else {
-			final boolean hasCheck = properties.optBoolean(TiC.PROPERTY_HAS_CHECK, false);
-			final boolean hasChild = properties.optBoolean(TiC.PROPERTY_HAS_CHILD, false);
-			final boolean hasDetail = properties.optBoolean(TiC.PROPERTY_HAS_DETAIL, false);
-
-			// Handle integrated right-side icons.
-			if (hasCheck) {
-				this.rightImage.setImageDrawable(checkDrawable);
-				this.rightImage.setVisibility(View.VISIBLE);
-			} else if (hasChild) {
-				this.rightImage.setImageDrawable(moreDrawable);
-				this.rightImage.setVisibility(View.VISIBLE);
-			} else if (hasDetail) {
-				this.rightImage.setImageDrawable(disclosureDrawable);
-				this.rightImage.setVisibility(View.VISIBLE);
-			}
-		}
-
-		// Include row content.
-		if (proxy != null) {
-			final TiUITableView tableView = (TiUITableView) tableViewProxy.getOrCreateView();
-			if (tableView == null) {
+			// We use `getContent()` as the native view of a recycled row is changed to our TableViewHolder view.
+			// When instead we want the row contents to recycle and display in our new TableViewHolder.
+			final ViewGroup nativeRowView = (ViewGroup) rowView.getContent();
+			if (nativeRowView == null) {
 				return;
 			}
-			final View nativeTableView = tableView.getOuterView();
-			if (nativeTableView == null) {
-				return;
+
+			// Set minimum row height.
+			final String rawMinHeight = properties.optString(TiC.PROPERTY_MIN_ROW_HEIGHT, "0");
+			final int minHeight = TiConvert.toTiDimension(rawMinHeight, TiDimension.TYPE_HEIGHT).getAsPixels(itemView);
+			this.container.setMinimumHeight(minHeight);
+
+			// Set font and text color for title.
+			TiUIHelper.styleText(this.title, properties.getKrollDict(TiC.PROPERTY_FONT));
+
+			// Set title color.
+			int titleColor = 0;
+			if (properties.containsKeyAndNotNull(TiC.PROPERTY_COLOR)) {
+				final int color = TiConvert.toColor(properties.getString(TiC.PROPERTY_COLOR));
+
+				if (color != Color.TRANSPARENT) {
+
+					// Found `color` property, set as title color.
+					titleColor = color;
+				}
+
+			} else {
+
+				// Determine title color based on background.
+				final int tableBackgroundColor =
+					TiConvert.toColor(tableViewProxy.getProperties(), TiC.PROPERTY_BACKGROUND_COLOR);
+				final int rowBackgroundColor = TiConvert.toColor(properties, TiC.PROPERTY_BACKGROUND_COLOR);
+				final int backgroundColor = rowBackgroundColor != Color.TRANSPARENT
+					? rowBackgroundColor : tableBackgroundColor;
+				final int defaultTitleColor = backgroundColor < (Color.BLACK / 2) ? Color.WHITE : Color.BLACK;
+
+				if (backgroundColor != Color.TRANSPARENT) {
+
+					// Found background color, set as contrasting title color.
+					titleColor = defaultTitleColor;
+				}
 			}
-			final ViewGroup parentView = (ViewGroup) nativeRowView.getParent();
+			if (titleColor != Color.TRANSPARENT) {
 
-			if (parentView != null) {
-				parentView.removeView(nativeRowView);
+				// Set specified `title` color.
+				this.title.setTextColor(titleColor);
+			} else {
+
+				// Set default `title` color from current theme.
+				this.title.setTextColor(defaultTextColors);
 			}
 
-			Drawable backgroundDrawable = rowView.getBackground();
+			// Handle row left and right images.
+			if (properties.containsKeyAndNotNull(TiC.PROPERTY_LEFT_IMAGE)) {
+				final String url = properties.getString(TiC.PROPERTY_LEFT_IMAGE);
+				final Drawable drawable = fileHelper.loadDrawable(url, false);
+				this.leftImage.setImageDrawable(drawable);
+				this.leftImage.setVisibility(View.VISIBLE);
+			}
+			if (properties.containsKeyAndNotNull(TiC.PROPERTY_RIGHT_IMAGE)) {
+				final String url = properties.getString(TiC.PROPERTY_RIGHT_IMAGE);
+				final Drawable drawable = fileHelper.loadDrawable(url, false);
+				this.rightImage.setImageDrawable(drawable);
+				this.rightImage.setVisibility(View.VISIBLE);
+			} else {
+				final boolean hasCheck = properties.optBoolean(TiC.PROPERTY_HAS_CHECK, false);
+				final boolean hasChild = properties.optBoolean(TiC.PROPERTY_HAS_CHILD, false);
+				final boolean hasDetail = properties.optBoolean(TiC.PROPERTY_HAS_DETAIL, false);
 
-			if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-
-				// To enable the ripple effect, we set the foreground to `selectableItemBackgroundBorderless`.
-				// However, this is not supported below Android 7.0 so we set the background instead.
-				backgroundDrawable = generateRippleDrawable(backgroundDrawable);
+				// Handle integrated right-side icons.
+				if (hasCheck) {
+					this.rightImage.setImageDrawable(checkDrawable);
+					this.rightImage.setVisibility(View.VISIBLE);
+				} else if (hasChild) {
+					this.rightImage.setImageDrawable(moreDrawable);
+					this.rightImage.setVisibility(View.VISIBLE);
+				} else if (hasDetail) {
+					this.rightImage.setImageDrawable(disclosureDrawable);
+					this.rightImage.setVisibility(View.VISIBLE);
+				}
 			}
 
-			// Set container background.
-			this.container.setBackground(generateSelectedDrawable(properties, backgroundDrawable));
-			this.container.setActivated(selected);
+			// Include row content.
+			if (proxy != null) {
+				final TiUITableView tableView = (TiUITableView) tableViewProxy.getOrCreateView();
+				if (tableView == null) {
+					return;
+				}
+				final View nativeTableView = tableView.getOuterView();
+				if (nativeTableView == null) {
+					return;
+				}
+				final ViewGroup parentView = (ViewGroup) nativeRowView.getParent();
 
-			// Remove original background as it has been set on `container`.
-			nativeRowView.setBackgroundColor(Color.TRANSPARENT);
+				if (parentView != null) {
+					parentView.removeView(nativeRowView);
+				}
 
-			// Allow states to bubble up for ripple effect.
-			nativeRowView.setAddStatesFromChildren(true);
+				Drawable backgroundDrawable = rowView.getBackground();
 
-			// Amend maximum size for content to parent TableView measured height.
-			this.content.setChildFillHeight(nativeTableView.getMeasuredHeight());
+				if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
 
-			// Add row to content.
-			this.content.addView(nativeRowView, rowView.getLayoutParams());
-			this.content.setVisibility(View.VISIBLE);
+					// To enable the ripple effect, we set the foreground to `selectableItemBackgroundBorderless`.
+					// However, this is not supported below Android 7.0 so we set the background instead.
+					backgroundDrawable = generateRippleDrawable(backgroundDrawable);
+				}
 
-		}
-		if (properties.containsKeyAndNotNull(TiC.PROPERTY_TITLE)
-			&& proxy.getChildren().length == 0) {
+				// Set container background.
+				this.container.setBackground(generateSelectedDrawable(properties, backgroundDrawable));
+				this.container.setActivated(selected);
 
-			int left = this.title.getPaddingLeft();
-			if (properties.containsKeyAndNotNull(TiC.PROPERTY_LEFT)) {
-				left = TiConvert.toTiDimension(properties.get(TiC.PROPERTY_LEFT), TiDimension.TYPE_LEFT)
-					.getAsPixels(this.itemView);
+				// Remove original background as it has been set on `container`.
+				nativeRowView.setBackgroundColor(Color.TRANSPARENT);
+
+				// Allow states to bubble up for ripple effect.
+				nativeRowView.setAddStatesFromChildren(true);
+
+				// Amend maximum size for content to parent TableView measured height.
+				this.content.setChildFillHeight(nativeTableView.getMeasuredHeight());
+
+				// Add row to content.
+				this.content.addView(nativeRowView, rowView.getLayoutParams());
+				this.content.setVisibility(View.VISIBLE);
+
 			}
-			int right = this.title.getPaddingRight();
-			if (properties.containsKeyAndNotNull(TiC.PROPERTY_RIGHT)) {
-				right = TiConvert.toTiDimension(properties.get(TiC.PROPERTY_RIGHT), TiDimension.TYPE_RIGHT)
-					.getAsPixels(this.itemView);
-			}
-			int top = this.title.getPaddingTop();
-			if (properties.containsKeyAndNotNull(TiC.PROPERTY_TOP)) {
-				top = TiConvert.toTiDimension(properties.get(TiC.PROPERTY_TOP), TiDimension.TYPE_TOP)
-					.getAsPixels(this.itemView);
-			}
-			int bottom = this.title.getPaddingBottom();
-			if (properties.containsKeyAndNotNull(TiC.PROPERTY_BOTTOM)) {
-				bottom = TiConvert.toTiDimension(properties.get(TiC.PROPERTY_BOTTOM), TiDimension.TYPE_BOTTOM)
-					.getAsPixels(this.itemView);
-			}
-			this.title.setPadding(left, top, right, bottom);
+			if (properties.containsKeyAndNotNull(TiC.PROPERTY_TITLE)
+				&& proxy.getChildren().length == 0) {
 
-			// No child views.
-			// Only title specified, display row title.
-			this.title.setText(properties.optString(TiC.PROPERTY_TITLE, ""));
-			this.title.setVisibility(View.VISIBLE);
+				int left = this.title.getPaddingLeft();
+				if (properties.containsKeyAndNotNull(TiC.PROPERTY_LEFT)) {
+					left = TiConvert.toTiDimension(properties.get(TiC.PROPERTY_LEFT), TiDimension.TYPE_LEFT)
+						.getAsPixels(this.itemView);
+				}
+				int right = this.title.getPaddingRight();
+				if (properties.containsKeyAndNotNull(TiC.PROPERTY_RIGHT)) {
+					right = TiConvert.toTiDimension(properties.get(TiC.PROPERTY_RIGHT), TiDimension.TYPE_RIGHT)
+						.getAsPixels(this.itemView);
+				}
+				int top = this.title.getPaddingTop();
+				if (properties.containsKeyAndNotNull(TiC.PROPERTY_TOP)) {
+					top = TiConvert.toTiDimension(properties.get(TiC.PROPERTY_TOP), TiDimension.TYPE_TOP)
+						.getAsPixels(this.itemView);
+				}
+				int bottom = this.title.getPaddingBottom();
+				if (properties.containsKeyAndNotNull(TiC.PROPERTY_BOTTOM)) {
+					bottom = TiConvert.toTiDimension(properties.get(TiC.PROPERTY_BOTTOM), TiDimension.TYPE_BOTTOM)
+						.getAsPixels(this.itemView);
+				}
+				this.title.setPadding(left, top, right, bottom);
+
+				// No child views.
+				// Only title specified, display row title.
+				this.title.setText(properties.optString(TiC.PROPERTY_TITLE, ""));
+				this.title.setVisibility(View.VISIBLE);
+			}
 		}
 
 		// Handle `header` and `footer` for rows.
@@ -406,7 +405,7 @@ public class TableViewHolder extends RecyclerView.ViewHolder
 			final int indexInSection = proxy.getIndexInSection();
 			final int filteredIndex = proxy.getFilteredIndex();
 
-			if (indexInSection == 0 || filteredIndex == 0) {
+			if (indexInSection <= 0 || filteredIndex <= 0) {
 
 				// Only set header on first row in section.
 				setHeaderFooter(sectionProperties, true, false);
