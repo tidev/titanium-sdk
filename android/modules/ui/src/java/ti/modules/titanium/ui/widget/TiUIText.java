@@ -930,6 +930,15 @@ public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionLis
 		}
 	}
 
+	@Override
+	public void release()
+	{
+		super.release();
+
+		tv = null;
+		textInputLayout = null;
+	}
+
 	/** Adds/Removes input filters such as all-caps and max-length to an EditText. */
 	private static class InputFilterHandler
 	{

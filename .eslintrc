@@ -7,7 +7,7 @@
     {
       "files": [ "android/runtime/common/src/js/**/*.js", "android/modules/**/src/js/**/*.js" ],
       "parserOptions": {
-        "ecmaVersion": 6
+        "ecmaVersion": 2020
       },
       "globals": {
         "kroll": "readonly",

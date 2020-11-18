@@ -1403,8 +1403,6 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 	 */
 	public void release()
 	{
-		releaseKroll();
-
 		if (eventListeners != null) {
 			eventListeners.clear();
 			eventListeners = null;
