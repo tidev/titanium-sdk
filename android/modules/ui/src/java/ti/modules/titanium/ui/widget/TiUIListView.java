@@ -145,18 +145,27 @@ public class TiUIListView extends TiUIView
 			final Context context = getProxy().getActivity();
 			final KrollDict properties = getProxy().getProperties();
 
-			final int style = TiConvert.toInt(name.equals(TiC.PROPERTY_SEPARATOR_STYLE)
-				? value : properties.optInt(TiC.PROPERTY_SEPARATOR_STYLE,
-				UIModule.TABLE_VIEW_SEPARATOR_STYLE_SINGLE_LINE));
+			int style = properties.optInt(TiC.PROPERTY_SEPARATOR_STYLE,
+				UIModule.TABLE_VIEW_SEPARATOR_STYLE_SINGLE_LINE);
+			if (name.equals(TiC.PROPERTY_SEPARATOR_STYLE)) {
+				style = TiConvert.toInt(value);
+			}
+
+			String heightString = properties.optString(TiC.PROPERTY_SEPARATOR_HEIGHT, "1dp");
+			if (name.equals(TiC.PROPERTY_SEPARATOR_HEIGHT)) {
+				heightString = TiConvert.toString(value);
+			}
 			final int height = style == UIModule.TABLE_VIEW_SEPARATOR_STYLE_SINGLE_LINE
-				? TiConvert.toTiDimension(name.equals(TiC.PROPERTY_SEPARATOR_HEIGHT)
-					? value : properties.optString(TiC.PROPERTY_SEPARATOR_HEIGHT, "1dp"),
-				TiDimension.TYPE_HEIGHT).getAsPixels((View) getNativeView().getParent()) : 0;
+				? TiConvert.toTiDimension(heightString, TiDimension.TYPE_HEIGHT)
+				.getAsPixels((View) getNativeView().getParent()) : 0;
 
 			if (name.equals(TiC.PROPERTY_SEPARATOR_COLOR)
 				|| properties.containsKey(TiC.PROPERTY_SEPARATOR_COLOR)) {
-				final int color = TiConvert.toColor(name.equals(TiC.PROPERTY_SEPARATOR_COLOR)
-					? (String) value : properties.getString(TiC.PROPERTY_SEPARATOR_COLOR));
+				String colorString = properties.getString(TiC.PROPERTY_SEPARATOR_COLOR);
+				if (name.equals(TiC.PROPERTY_SEPARATOR_COLOR)) {
+					colorString = TiConvert.toString(value);
+				}
+				final int color = TiConvert.toColor(colorString);
 
 				// Set separator with specified color.
 				this.listView.setSeparator(color, height);
