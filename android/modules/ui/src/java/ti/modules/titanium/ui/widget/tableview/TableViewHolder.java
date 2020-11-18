@@ -405,13 +405,14 @@ public class TableViewHolder extends RecyclerView.ViewHolder
 			final int indexInSection = proxy.getIndexInSection();
 			final int filteredIndex = proxy.getFilteredIndex();
 
-			if (indexInSection <= 0 || filteredIndex <= 0) {
+			if (indexInSection == 0 || filteredIndex == 0 || proxy.isPlaceholder()) {
 
 				// Only set header on first row in section.
 				setHeaderFooter(sectionProperties, true, false);
 			}
 			if ((indexInSection >= section.getRowCount() - 1)
-				|| (filteredIndex >= section.getFilteredRowCount() - 1)) {
+				|| (filteredIndex >= section.getFilteredRowCount() - 1)
+				|| proxy.isPlaceholder()) {
 
 				// Only set footer on last row in section.
 				setHeaderFooter(sectionProperties, false, true);
