@@ -123,8 +123,10 @@ public class TableViewRowProxy extends TiViewProxy
 	{
 		// Inject row data into events.
 		final TableViewProxy tableViewProxy = getTableViewProxy();
-		if (tableViewProxy != null && data instanceof HashMap) {
-			final KrollDict payload = new KrollDict((HashMap<String, Object>) data);
+
+		if (tableViewProxy != null) {
+			final KrollDict payload = data instanceof HashMap
+				? new KrollDict((HashMap<String, Object>) data) : new KrollDict();
 			final TiTableView tableView = tableViewProxy.getTableView();
 
 			payload.put(TiC.PROPERTY_ROW_DATA, properties);

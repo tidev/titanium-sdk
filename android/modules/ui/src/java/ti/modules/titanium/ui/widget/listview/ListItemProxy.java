@@ -129,8 +129,9 @@ public class ListItemProxy extends TiViewProxy
 	{
 		// Inject row data into events.
 		final ListViewProxy listViewProxy = getListViewProxy();
-		if (listViewProxy != null && data instanceof HashMap) {
-			final KrollDict payload = new KrollDict((HashMap<String, Object>) data);
+		if (listViewProxy != null) {
+			final KrollDict payload = data instanceof HashMap
+				? new KrollDict((HashMap<String, Object>) data) : new KrollDict();
 
 			final Object parent = getParent();
 			if (parent instanceof ListSectionProxy) {
