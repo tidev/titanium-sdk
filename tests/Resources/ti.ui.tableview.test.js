@@ -4,6 +4,7 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+/* globals OS_ANDROID */
 /* eslint-env mocha */
 /* eslint no-unused-expressions: "off" */
 'use strict';
@@ -1195,6 +1196,90 @@ describe('Titanium.UI.TableView', function () {
 		should(tableView.scrollable).be.be.false();
 		tableView.scrollable = !tableView.scrollable;
 		should(tableView.scrollable).be.be.true();
+	});
+
+	it('#scrollToIndex()', (finish) => {
+		const rows = [];
+		for (let index = 1; index <= 200; index++) {
+			rows.push(Ti.UI.createTableViewRow({ title: `Row ${index}` }));
+		}
+		const tableView = Ti.UI.createTableView({ data: rows });
+		win = Ti.UI.createWindow();
+		win.add(tableView);
+		win.addEventListener('open', () => {
+			const lastRowIndex = tableView.sections[0].rowCount - 1;
+			if (OS_ANDROID) {
+				// Wait for "scroll" event indicating we've reached the desired position.
+				tableView.addEventListener('scroll', (e) => {
+					const lastVisibleItem = (e.firstVisibleItem + e.visibleItemCount);
+					if ((lastRowIndex >= e.firstVisibleItem) && (lastRowIndex < lastVisibleItem)) {
+						finish();
+					}
+				});
+			} else {
+				// iOS does not fire events when scrolling programmatically.
+				setTimeout(finish, 200);
+			}
+			tableView.scrollToIndex(lastRowIndex);
+		});
+		win.open();
+	});
+
+	it('#scrollToTop()', (finish) => {
+		const rows = [];
+		for (let index = 1; index <= 200; index++) {
+			rows.push(Ti.UI.createTableViewRow({ title: `Row ${index}` }));
+		}
+		const tableView = Ti.UI.createTableView({ data: rows });
+		win = Ti.UI.createWindow();
+		win.add(tableView);
+		win.addEventListener('open', () => {
+			// First, scroll to bottom.
+			tableView.scrollToIndex(tableView.sections[0].rowCount - 1);
+			setTimeout(() => {
+				// Now scroll to top.
+				tableView.scrollToTop(0);
+				if (OS_ANDROID) {
+					// Wait for "scroll" event indicating we've reached the top.
+					tableView.addEventListener('scroll', (e) => {
+						if (e.firstVisibleItem === 0) {
+							finish();
+						}
+					});
+				} else {
+					// iOS does not fire events when scrolling programmatically.
+					setTimeout(finish, 200);
+				}
+			}, 500);
+		});
+		win.open();
+	});
+
+	it('#selectRow()', (finish) => {
+		const rows = [];
+		for (let index = 1; index <= 200; index++) {
+			rows.push(Ti.UI.createTableViewRow({ title: `Row ${index}` }));
+		}
+		const tableView = Ti.UI.createTableView({ data: rows });
+		win = Ti.UI.createWindow();
+		win.add(tableView);
+		win.addEventListener('open', () => {
+			const lastRowIndex = tableView.sections[0].rowCount - 1;
+			if (OS_ANDROID) {
+				// Wait for "scroll" event indicating we've reached the desired position.
+				tableView.addEventListener('scroll', (e) => {
+					const lastVisibleItem = (e.firstVisibleItem + e.visibleItemCount);
+					if ((lastRowIndex >= e.firstVisibleItem) && (lastRowIndex < lastVisibleItem)) {
+						finish();
+					}
+				});
+			} else {
+				// iOS does not fire events when scrolling programmatically.
+				setTimeout(finish, 200);
+			}
+			tableView.selectRow(lastRowIndex);
+		});
+		win.open();
 	});
 
 	it('refreshControl', (finish) => {
