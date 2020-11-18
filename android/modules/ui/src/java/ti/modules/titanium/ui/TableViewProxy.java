@@ -14,7 +14,6 @@ import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
-import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiUIView;
 
 import android.app.Activity;
@@ -413,7 +412,7 @@ public class TableViewProxy extends TiViewProxy
 					}
 
 					// Row is in section, modify section rows.
-					section.add(existingRow.indexInSection + 1, row);
+					section.add(existingRow.getIndexInSection() + 1, row);
 
 					// Notify TableView of update.
 					update();
@@ -447,7 +446,7 @@ public class TableViewProxy extends TiViewProxy
 					}
 
 					// Row is in section, modify section rows.
-					section.add(existingRow.indexInSection, row);
+					section.add(existingRow.getIndexInSection(), row);
 
 					// Notify TableView of update.
 					update();
@@ -498,6 +497,22 @@ public class TableViewProxy extends TiViewProxy
 			// Notify TableView of update.
 			update();
 		}
+	}
+
+	/**
+	 * Is TableView currently filtered by search results.
+	 *
+	 * @return Boolean
+	 */
+	public boolean isFiltered()
+	{
+		final TiTableView tableView = getTableView();
+
+		if (tableView != null) {
+			return tableView.isFiltered();
+		}
+
+		return false;
 	}
 
 	/**
@@ -553,7 +568,7 @@ public class TableViewProxy extends TiViewProxy
 			final RecyclerView recyclerView = tableView.getRecyclerView();
 
 			if (recyclerView != null) {
-				recyclerView.scrollToPosition(index);
+				recyclerView.scrollToPosition(tableView.getAdapterIndex(index));
 			}
 		}
 	}
@@ -613,16 +628,6 @@ public class TableViewProxy extends TiViewProxy
 		if (name.equals(TiC.PROPERTY_DATA) || name.equals(TiC.PROPERTY_SECTIONS)) {
 			setData((Object[]) value);
 		}
-
-		if (name.equals(TiC.PROPERTY_SHOW_VERTICAL_SCROLL_INDICATOR)) {
-			final TiTableView tableView = getTableView();
-
-			if (tableView != null) {
-
-				// Set vertical scroll indicator.
-				tableView.getRecyclerView().setVerticalScrollBarEnabled(TiConvert.toBoolean(value, true));
-			}
-		}
 	}
 
 	/**
@@ -662,7 +667,7 @@ public class TableViewProxy extends TiViewProxy
 					}
 
 					// Row is in section, modify section row.
-					section.set(existingRow.indexInSection, row);
+					section.set(existingRow.getIndexInSection(), row);
 
 					// Notify TableView of new items.
 					update();

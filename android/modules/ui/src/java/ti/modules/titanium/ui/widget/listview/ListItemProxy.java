@@ -45,17 +45,26 @@ public class ListItemProxy extends TiViewProxy
 	private  final List<String> ignoredTemplateKeys = new ArrayList<>();
 
 	public int index;
-	public int indexInSection;
 
+	private int filteredIndex = -1;
 	private ListViewHolder holder;
 	private KrollDict template;
 	private String templateId;
+	private boolean placeholder = false;
 
 	public ListItemProxy()
 	{
 		super();
 
 		defaultValues.put(TiC.PROPERTY_ACCESSORY_TYPE, UIModule.LIST_ACCESSORY_TYPE_NONE);
+	}
+
+	public ListItemProxy(boolean placeholder)
+	{
+		this();
+
+		// Determine if item is placeholder for header or footer.
+		this.placeholder = placeholder;
 	}
 
 	/**
@@ -67,6 +76,12 @@ public class ListItemProxy extends TiViewProxy
 	@Override
 	public TiUIView createView(Activity activity)
 	{
+		if (placeholder) {
+
+			// Placeholder for header or footer, do not create view.
+			return null;
+		}
+
 		final ListViewProxy listViewProxy = getListViewProxy();
 
 		if (listViewProxy != null) {
@@ -124,7 +139,7 @@ public class ListItemProxy extends TiViewProxy
 				// Include section specific properties.
 				payload.put(TiC.PROPERTY_SECTION, section);
 				payload.put(TiC.PROPERTY_SECTION_INDEX, listViewProxy.getIndexOfSection(section));
-				payload.put(TiC.PROPERTY_ITEM_INDEX, indexInSection);
+				payload.put(TiC.PROPERTY_ITEM_INDEX, getIndexInSection());
 			}
 
 			final String itemId = getProperties().optString(TiC.PROPERTY_ITEM_ID, null);
@@ -244,7 +259,7 @@ public class ListItemProxy extends TiViewProxy
 									// Include section specific properties.
 									payload.put(TiC.PROPERTY_SECTION, section);
 									payload.put(TiC.PROPERTY_SECTION_INDEX, listViewProxy.getIndexOfSection(section));
-									payload.put(TiC.PROPERTY_ITEM_INDEX, indexInSection);
+									payload.put(TiC.PROPERTY_ITEM_INDEX, getIndexInSection());
 								}
 
 								final String itemId = getProperties().optString(TiC.PROPERTY_ITEM_ID, null);
@@ -316,6 +331,26 @@ public class ListItemProxy extends TiViewProxy
 	}
 
 	/**
+	 * Get filtered index of row in section.
+	 *
+	 * @return Integer of filtered index.
+	 */
+	public int getFilteredIndex()
+	{
+		return this.filteredIndex;
+	}
+
+	/**
+	 * Set filtered index of row in section.
+	 *
+	 * @param index Filtered index to set.
+	 */
+	public void setFilteredIndex(int index)
+	{
+		this.filteredIndex = index;
+	}
+
+	/**
 	 * Get current ListViewHolder for item.
 	 *
 	 * @return ListViewHolder
@@ -333,6 +368,24 @@ public class ListItemProxy extends TiViewProxy
 	public void setHolder(ListViewHolder holder)
 	{
 		this.holder = holder;
+	}
+
+	/**
+	 * Get item index in section.
+	 *
+	 * @return Integer of index.
+	 */
+	public int getIndexInSection()
+	{
+		final TiViewProxy parent = getParent();
+
+		if (parent instanceof ListSectionProxy) {
+			final ListSectionProxy section = (ListSectionProxy) parent;
+
+			return section.getListItemIndex(this);
+		}
+
+		return -1;
 	}
 
 	/**
@@ -459,6 +512,16 @@ public class ListItemProxy extends TiViewProxy
 		if (this.holder != null) {
 			this.holder.bind(this, this.holder.itemView.isActivated());
 		}
+	}
+
+	/**
+	 * Is current item a placeholder for header or footer.
+	 *
+	 * @return Boolean
+	 */
+	public boolean isPlaceholder()
+	{
+		return this.placeholder;
 	}
 
 	@Override

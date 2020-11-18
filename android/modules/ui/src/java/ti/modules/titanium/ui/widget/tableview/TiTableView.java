@@ -7,17 +7,19 @@
 package ti.modules.titanium.ui.widget.tableview;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.util.TiUIHelper;
 
+import android.app.Activity;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.RectShape;
+import android.os.Handler;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -173,49 +175,14 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 	public void filterBy(String query)
 	{
 		if (query == null || query.isEmpty()) {
-			this.adapter.replaceModels(this.rows);
+
+			// No query, update adapter with original items.
+			update();
 			this.isFiltered = false;
 			return;
 		}
 
-		final KrollDict properties = proxy.getProperties();
-		final boolean caseInsensitive = properties.optBoolean(TiC.PROPERTY_FILTER_CASE_INSENSITIVE, true);
-		final boolean anchored = properties.optBoolean(TiC.PROPERTY_FILTER_ANCHORED, false);
-		final String filterAttribute = properties.optString(TiC.PROPERTY_FILTER_ATTRIBUTE, TiC.PROPERTY_TITLE);
-		final List<TableViewRowProxy> filteredRows = new ArrayList<>();
-
-		if (caseInsensitive) {
-
-			// Case insensitive, convert query to lower case.
-			query = query.toLowerCase();
-		}
-
-		for (TableViewRowProxy row : this.rows) {
-			String attribute = row.getProperties().optString(filterAttribute, null);
-
-			if (attribute != null) {
-				if (caseInsensitive) {
-
-					// Case insensitive, convert search text to lower case.
-					attribute = attribute.toLowerCase();
-				}
-				if ((anchored && attribute.startsWith(query)) || (!anchored && attribute.contains(query))) {
-
-					// Found match, include in filtered item list.
-					filteredRows.add(row);
-				}
-			}
-		}
-		Collections.sort(filteredRows, (row_a, row_b) -> {
-			String a = row_a.getProperties().optString(filterAttribute, null);
-			String b = row_b.getProperties().optString(filterAttribute, null);
-
-			if (a != null && b != null) {
-				return a.compareTo(b);
-			}
-			return 0;
-		});
-		this.adapter.replaceModels(filteredRows);
+		update(query);
 		this.isFiltered = true;
 	}
 
@@ -253,6 +220,22 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 			}
 		}
 		return null;
+	}
+
+	/**
+	 * Obtain adapter index from list item index.
+	 *
+	 * @param index List item index.
+	 * @return Integer of adapter index.
+	 */
+	public int getAdapterIndex(int index)
+	{
+		for (TableViewRowProxy row : this.rows) {
+			if (row.index == index) {
+				return this.rows.indexOf(row);
+			}
+		}
+		return -1;
 	}
 
 	/**
@@ -303,10 +286,15 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 		decoration.setDrawable(drawable);
 	}
 
+	public void update()
+	{
+		this.update(null);
+	}
+
 	/**
 	 * Update table rows, including headers and footers.
 	 */
-	public void update()
+	public void update(String query)
 	{
 		final KrollDict properties = this.proxy.getProperties();
 		final boolean hasHeader = properties.containsKeyAndNotNull(TiC.PROPERTY_HEADER_TITLE)
@@ -314,12 +302,20 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 		final boolean hasFooter = properties.containsKeyAndNotNull(TiC.PROPERTY_FOOTER_TITLE)
 			|| properties.containsKeyAndNotNull(TiC.PROPERTY_FOOTER_VIEW);
 
+		final boolean caseInsensitive = properties.optBoolean(TiC.PROPERTY_FILTER_CASE_INSENSITIVE, true);
+		final boolean filterAnchored = properties.optBoolean(TiC.PROPERTY_FILTER_ANCHORED, false);
+		final String filterAttribute = properties.optString(TiC.PROPERTY_FILTER_ATTRIBUTE, TiC.PROPERTY_TITLE);
+
+		if (query != null && caseInsensitive) {
+			query = query.toLowerCase();
+		}
+
 		// Clear current models.
 		this.rows.clear();
 
 		// Add placeholder item for TableView header.
 		if (hasHeader) {
-			final TableViewRowProxy row = new TableViewRowProxy();
+			final TableViewRowProxy row = new TableViewRowProxy(true);
 
 			row.getProperties().put(TiC.PROPERTY_HEADER_TITLE, properties.get(TiC.PROPERTY_HEADER_TITLE));
 			row.getProperties().put(TiC.PROPERTY_HEADER_VIEW, properties.get(TiC.PROPERTY_HEADER_VIEW));
@@ -331,35 +327,52 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 		// Iterate through data, processing each supported entry.
 		for (final Object entry : proxy.getData()) {
 
-			// TableViewRow
-			if (entry instanceof TableViewRowProxy) {
-				final TableViewRowProxy row = (TableViewRowProxy) entry;
-				this.rows.add(row);
-
-			// TableViewSection
-			} else if (entry instanceof TableViewSectionProxy) {
+			if (entry instanceof TableViewSectionProxy) {
 				final TableViewSectionProxy section = (TableViewSectionProxy) entry;
 				final TableViewRowProxy[] rows = section.getRows();
 
 				// Add placeholder item for TableViewSection header/footer.
 				if (rows.length == 0 && (section.hasHeader() || section.hasFooter())) {
-					final TableViewRowProxy row = new TableViewRowProxy();
+					final TableViewRowProxy row = new TableViewRowProxy(true);
 
 					row.setParent(section);
 					this.rows.add(row);
 				}
 
+				int filteredIndex = 0;
 				for (int i = 0; i < rows.length; i++) {
 					final TableViewRowProxy row = rows[i];
-					row.indexInSection = i;
+
+					// Handle search query.
+					if (query != null) {
+						String attribute = row.getProperties().optString(filterAttribute, null);
+
+						if (attribute != null) {
+							if (caseInsensitive) {
+								attribute = attribute.toLowerCase();
+							}
+
+							if (!((filterAnchored && attribute.startsWith(query))
+								|| (!filterAnchored && attribute.contains(query)))) {
+								continue;
+							}
+						}
+					}
+
+					// Update filtered index of row.
+					row.setFilteredIndex(query != null ? filteredIndex++ : -1);
+
 					this.rows.add(row);
 				}
+
+				// Update section filtered row count.
+				section.setFilteredRowCount(query != null ? filteredIndex : -1);
 			}
 		}
 
 		// Add placeholder item for TableView footer.
 		if (hasFooter) {
-			final TableViewRowProxy row = new TableViewRowProxy();
+			final TableViewRowProxy row = new TableViewRowProxy(true);
 
 			row.getProperties().put(TiC.PROPERTY_FOOTER_TITLE, properties.get(TiC.PROPERTY_FOOTER_TITLE));
 			row.getProperties().put(TiC.PROPERTY_FOOTER_VIEW, properties.get(TiC.PROPERTY_FOOTER_VIEW));
@@ -385,22 +398,35 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 	{
 		int i = 0;
 		for (TableViewRowProxy row : this.rows) {
-			final KrollDict properties = row.getProperties();
-
-			if (properties.containsKey(TiC.PROPERTY_HEADER)
-				|| properties.containsKey(TiC.PROPERTY_HEADER_TITLE)
-				|| properties.containsKey(TiC.PROPERTY_HEADER_VIEW)
-				|| properties.containsKey(TiC.PROPERTY_FOOTER)
-				|| properties.containsKey(TiC.PROPERTY_FOOTER_TITLE)
-				|| properties.containsKey(TiC.PROPERTY_FOOTER_VIEW)) {
+			if (row.isPlaceholder()) {
 				continue;
 			}
 
-			// Update row index.
+			// Update row index, ignoring placeholder entries.
 			row.index = i++;
 		}
 
+		final Activity activity = TiApplication.getAppCurrentActivity();
+		final View previousFocus = activity != null ? activity.getCurrentFocus() : null;
+
 		// Notify the adapter of changes.
 		this.adapter.notifyDataSetChanged();
+
+		// FIXME: This is not an ideal workaround for an issue where recycled rows that were in focus
+		//        lose their focus when the data set changes. There are improvements to be made here.
+		//        This can be reproduced when setting a Ti.UI.TextField in the Ti.UI.TableView.headerView for search.
+		new Handler().post(new Runnable()
+		{
+			public void run()
+			{
+				final View currentFocus = activity != null ? activity.getCurrentFocus() : null;
+
+				if (previousFocus != null && currentFocus != previousFocus) {
+
+					// Request focus on previous component before dataset changed.
+					previousFocus.requestFocus();
+				}
+			}
+		});
 	}
 }

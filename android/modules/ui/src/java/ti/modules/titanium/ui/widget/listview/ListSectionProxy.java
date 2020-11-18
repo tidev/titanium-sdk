@@ -32,6 +32,8 @@ public class ListSectionProxy extends TiViewProxy
 
 	protected List<ListItemProxy> items = new ArrayList<>();
 
+	private int filteredItemCount = -1;
+
 	public ListSectionProxy()
 	{
 		super();
@@ -102,26 +104,21 @@ public class ListSectionProxy extends TiViewProxy
 	@Kroll.getProperty
 	public int getFilteredItemCount()
 	{
-		final ListViewProxy listViewProxy = getListViewProxy();
-
-		if (listViewProxy != null) {
-			final List<ListItemProxy> filteredItems = listViewProxy.getCurrentItems();
-
-			int count = 0;
-
-			// Iterate through current items.
-			for (final ListItemProxy item : filteredItems) {
-				if (item.getParent() == this) {
-
-					// Count items in current section.
-					count++;
-				}
-			}
-
-			return count;
+		if (this.filteredItemCount != -1) {
+			return this.filteredItemCount;
 		}
 
 		return getItemCount();
+	}
+
+	/**
+	 * Set number of items that are filtered in section.
+	 *
+	 * @param filteredItemCount Number of filtered items.
+	 */
+	public void setFilteredItemCount(int filteredItemCount)
+	{
+		this.filteredItemCount = filteredItemCount;
 	}
 
 	/**

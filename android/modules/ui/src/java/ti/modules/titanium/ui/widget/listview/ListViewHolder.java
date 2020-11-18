@@ -163,6 +163,12 @@ public class ListViewHolder extends RecyclerView.ViewHolder
 		// Update model proxy holder.
 		this.proxy = new WeakReference<>(proxy);
 
+		// Obtain ListView proxy for item.
+		final ListViewProxy listViewProxy = proxy.getListViewProxy();
+		if (listViewProxy == null) {
+			return;
+		}
+
 		// Attempt to obtain parent section proxy is available.
 		final ListSectionProxy section =
 			proxy.getParent() instanceof ListSectionProxy ? (ListSectionProxy) proxy.getParent() : null;
@@ -202,7 +208,6 @@ public class ListViewHolder extends RecyclerView.ViewHolder
 				final ViewGroup nativeView = (ViewGroup) view.getNativeView();
 
 				if (nativeView != null) {
-					final ListViewProxy listViewProxy = proxy.getListViewProxy();
 					final TiUIListView listView = (TiUIListView) listViewProxy.getOrCreateView();
 					final View nativeListView = listView.getOuterView();
 					final ViewGroup parentView = (ViewGroup) borderView.getParent();
@@ -252,16 +257,18 @@ public class ListViewHolder extends RecyclerView.ViewHolder
 			// Handle `header` and `footer` for  rows with a parent section.
 			// Obtain parent section properties.
 			final KrollDict sectionProperties = section.getProperties();
+			final int indexInSection = proxy.getIndexInSection();
+			final int filteredIndex = proxy.getFilteredIndex();
 
-			// Only set header on first row in section.
-			if (proxy.indexInSection == 0) {
+			if (indexInSection == 0 || filteredIndex == 0) {
 
+				// Only set header on first row in section.
 				setHeaderFooter(sectionProperties, true, false);
 			}
+			if ((indexInSection >= section.getItems().length - 1)
+				|| (filteredIndex >= section.getFilteredItemCount() - 1)) {
 
-			// Only set footer on last row in section.
-			if (proxy.indexInSection >= section.getItems().length - 1) {
-
+				// Only set footer on last row in section.
 				setHeaderFooter(sectionProperties, false, true);
 			}
 		}

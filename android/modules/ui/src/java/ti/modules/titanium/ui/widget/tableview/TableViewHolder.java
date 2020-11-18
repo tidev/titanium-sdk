@@ -403,13 +403,16 @@ public class TableViewHolder extends RecyclerView.ViewHolder
 			// Handle `header` and `footer` for  rows with a parent section.
 			// Obtain parent section properties.
 			final KrollDict sectionProperties = section.getProperties();
+			final int indexInSection = proxy.getIndexInSection();
+			final int filteredIndex = proxy.getFilteredIndex();
 
-			if (proxy.indexInSection == 0) {
+			if (indexInSection == 0 || filteredIndex == 0) {
 
 				// Only set header on first row in section.
 				setHeaderFooter(sectionProperties, true, false);
 			}
-			if (proxy.indexInSection >= section.getRowCount() - 1) {
+			if ((indexInSection >= section.getRowCount() - 1)
+				|| (filteredIndex >= section.getFilteredRowCount() - 1)) {
 
 				// Only set footer on last row in section.
 				setHeaderFooter(sectionProperties, false, true);

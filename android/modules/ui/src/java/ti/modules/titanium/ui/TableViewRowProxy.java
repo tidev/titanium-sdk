@@ -50,9 +50,10 @@ public class TableViewRowProxy extends TiViewProxy
 	private static final String TAG = "TableViewRowProxy";
 
 	public int index;
-	public int indexInSection;
 
+	private int filteredIndex = -1;
 	private TableViewHolder holder;
+	private boolean placeholder = false;
 
 	// FIXME: On iOS the same row can be added to a table multiple times.
 	//        Due to constraints, we need to create a new proxy and track changes.
@@ -61,6 +62,14 @@ public class TableViewRowProxy extends TiViewProxy
 	public TableViewRowProxy()
 	{
 		super();
+	}
+
+	public TableViewRowProxy(boolean placeholder)
+	{
+		this();
+
+		// Determine if row is placeholder for header or footer.
+		this.placeholder = placeholder;
 	}
 
 	/**
@@ -92,6 +101,12 @@ public class TableViewRowProxy extends TiViewProxy
 	@Override
 	public TiUIView createView(Activity activity)
 	{
+		if (placeholder) {
+
+			// Placeholder for header or footer, do not create view.
+			return null;
+		}
+
 		return new RowView(this);
 	}
 
@@ -133,6 +148,26 @@ public class TableViewRowProxy extends TiViewProxy
 	public String getApiName()
 	{
 		return "Ti.UI.TableViewRow";
+	}
+
+	/**
+	 * Get filtered index of row in section.
+	 *
+	 * @return Integer of filtered index.
+	 */
+	public int getFilteredIndex()
+	{
+		return this.filteredIndex;
+	}
+
+	/**
+	 * Set filtered index of row in section.
+	 *
+	 * @param index Filtered index to set.
+	 */
+	public void setFilteredIndex(int index)
+	{
+		this.filteredIndex = index;
 	}
 
 	/**
@@ -188,6 +223,24 @@ public class TableViewRowProxy extends TiViewProxy
 			view = this.holder.getNativeView();
 		}
 		return getViewRect(view);
+	}
+
+	/**
+	 * Get item index in section.
+	 *
+	 * @return Integer of index.
+	 */
+	public int getIndexInSection()
+	{
+		final TiViewProxy parent = getParent();
+
+		if (parent instanceof TableViewSectionProxy) {
+			final TableViewSectionProxy section = (TableViewSectionProxy) parent;
+
+			return section.getRowIndex(this);
+		}
+
+		return -1;
 	}
 
 	/**
@@ -267,6 +320,16 @@ public class TableViewRowProxy extends TiViewProxy
 		if (this.holder != null) {
 			this.holder.bind(this, this.holder.itemView.isActivated());
 		}
+	}
+
+	/**
+	 * Is current item a placeholder for header or footer.
+	 *
+	 * @return Boolean
+	 */
+	public boolean isPlaceholder()
+	{
+		return this.placeholder;
 	}
 
 	@Override

@@ -236,6 +236,22 @@ public class ListViewProxy extends TiViewProxy
 	}
 
 	/**
+	 * Is ListView currently filtered by search results.
+	 *
+	 * @return Boolean
+	 */
+	public boolean isFiltered()
+	{
+		final TiListView listView = getListView();
+
+		if (listView != null) {
+			return listView.isFiltered();
+		}
+
+		return false;
+	}
+
+	/**
 	 * Handle setting of property.
 	 *
 	 * @param name Property name.
@@ -306,7 +322,7 @@ public class ListViewProxy extends TiViewProxy
 	public void handleMarker(ListItemProxy item)
 	{
 		if (markers.contains(item)) {
-			final int itemIndex = item.indexInSection;
+			final int itemIndex = item.getIndexInSection();
 			final int sectionIndex = this.sections.indexOf(item.getParent());
 			final KrollDict data = new KrollDict();
 
@@ -456,7 +472,7 @@ public class ListViewProxy extends TiViewProxy
 				final ListItemProxy item = section.getListItemAt(itemIndex);
 
 				if (item != null) {
-					listView.getRecyclerView().smoothScrollToPosition(item.index);
+					listView.getRecyclerView().smoothScrollToPosition(listView.getAdapterIndex(item.index));
 				}
 			}
 		}

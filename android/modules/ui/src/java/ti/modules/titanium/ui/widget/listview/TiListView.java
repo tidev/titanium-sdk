@@ -7,19 +7,21 @@
 package ti.modules.titanium.ui.widget.listview;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.util.TiUIHelper;
 
+import android.app.Activity;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.RectShape;
 import android.view.MotionEvent;
 import android.view.View;
+import android.os.Handler;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -47,6 +49,8 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 	private final ListViewProxy proxy;
 	private final TiNestedRecyclerView recyclerView;
 	private final SelectionTracker tracker;
+
+	private boolean isFiltered = false;
 
 	public TiListView(ListViewProxy proxy)
 	{
@@ -172,51 +176,13 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 		if (query == null || query.isEmpty()) {
 
 			// No query, update adapter with original items.
-			this.adapter.replaceModels(this.items);
+			update();
+			this.isFiltered = false;
 			return;
 		}
 
-		final KrollDict properties = proxy.getProperties();
-		final boolean caseInsensitive = properties.optBoolean(TiC.PROPERTY_CASE_INSENSITIVE_SEARCH, true);
-		final List<ListItemProxy> filteredItems = new ArrayList<>();
-
-		if (caseInsensitive) {
-
-			// Case insensitive, convert query to lower case.
-			query = query.toLowerCase();
-		}
-
-		for (ListItemProxy item : this.items) {
-			String searchableText = item.getProperties().optString(TiC.PROPERTY_SEARCHABLE_TEXT, null);
-
-			if (searchableText != null) {
-				if (caseInsensitive) {
-
-					// Case insensitive, convert search text to lower case.
-					searchableText = searchableText.toLowerCase();
-				}
-
-				if (searchableText.contains(query)) {
-
-					// Found match, include in filtered item list.
-					filteredItems.add(item);
-				}
-			}
-		}
-
-		// Sort filtered items.
-		Collections.sort(filteredItems, (row_a, row_b) -> {
-			final String a = row_a.getProperties().optString(TiC.PROPERTY_SEARCHABLE_TEXT, null);
-			final String b = row_b.getProperties().optString(TiC.PROPERTY_SEARCHABLE_TEXT, null);
-
-			if (a != null && b != null) {
-				return a.compareTo(b);
-			}
-			return 0;
-		});
-
-		// Update adapter with filtered items.
-		this.adapter.replaceModels(filteredItems);
+		update(query);
+		this.isFiltered = true;
 	}
 
 	/**
@@ -253,6 +219,32 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 			}
 		}
 		return null;
+	}
+
+	/**
+	 * Obtain adapter index from list item index.
+	 *
+	 * @param index List item index.
+	 * @return Integer of adapter index.
+	 */
+	public int getAdapterIndex(int index)
+	{
+		for (ListItemProxy item : this.items) {
+			if (item.index == index) {
+				return this.items.indexOf(item);
+			}
+		}
+		return -1;
+	}
+
+	/**
+	 * Determine if table results are filtered by query.
+	 *
+	 * @return Boolean
+	 */
+	public boolean isFiltered()
+	{
+		return this.isFiltered;
 	}
 
 	/**
@@ -293,10 +285,15 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 		decoration.setDrawable(drawable);
 	}
 
+	public void update()
+	{
+		this.update(null);
+	}
+
 	/**
 	 * Update list items for adapter.
 	 */
-	public void update()
+	private void update(String query)
 	{
 		final KrollDict properties = proxy.getProperties();
 
@@ -305,16 +302,26 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 		final boolean hasFooter = properties.containsKeyAndNotNull(TiC.PROPERTY_FOOTER_TITLE)
 			|| properties.containsKeyAndNotNull(TiC.PROPERTY_FOOTER_VIEW);
 
+		final boolean caseInsensitive = properties.optBoolean(TiC.PROPERTY_CASE_INSENSITIVE_SEARCH, true);
+
+		if (query == null) {
+			query = properties.getString(TiC.PROPERTY_SEARCH_TEXT);
+		}
+		if (query != null && caseInsensitive) {
+			query = query.toLowerCase();
+		}
+
 		// Clear current items.
 		this.items.clear();
 
 		// Add placeholder item for ListView header.
 		if (hasHeader) {
-			final ListItemProxy item = new ListItemProxy();
+			final ListItemProxy item = new ListItemProxy(true);
 
 			item.getProperties().put(TiC.PROPERTY_HEADER_TITLE, properties.get(TiC.PROPERTY_HEADER_TITLE));
 			item.getProperties().put(TiC.PROPERTY_HEADER_VIEW, properties.get(TiC.PROPERTY_HEADER_VIEW));
 
+			item.setParent(proxy);
 			this.items.add(item);
 		}
 
@@ -323,12 +330,31 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 			final KrollDict sectionProperties = section.getProperties();
 			final List<ListItemProxy> sectionItems = section.getListItems();
 
-			int indexInSection = 0;
+			int filteredIndex = 0;
 			for (final ListItemProxy item : sectionItems) {
 
-				// Update index in section.
-				item.indexInSection = indexInSection++;
+				// Handle search query.
+				if (query != null) {
+					String searchableText = item.getProperties().optString(TiC.PROPERTY_SEARCHABLE_TEXT, null);
+					if (searchableText != null) {
+						if (caseInsensitive) {
+							searchableText = searchableText.toLowerCase();
+						}
+						if (!searchableText.contains(query)) {
+							continue;
+						}
+					}
+				}
+
+				// Update filtered index of item.
+				item.setFilteredIndex(query != null ? filteredIndex++ : -1);
+
+				// Add item.
+				this.items.add(item);
 			}
+
+			// Update section filtered row count.
+			section.setFilteredItemCount(query != null ? filteredIndex : -1);
 
 			final boolean sectionHasHeader = sectionProperties.containsKeyAndNotNull(TiC.PROPERTY_HEADER_TITLE)
 				|| sectionProperties.containsKeyAndNotNull(TiC.PROPERTY_HEADER_VIEW);
@@ -337,7 +363,7 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 
 			// Allow header and footer to show when no items are present.
 			if ((sectionHasHeader || sectionHasFooter) && sectionItems.size() == 0) {
-				final ListItemProxy item = new ListItemProxy();
+				final ListItemProxy item = new ListItemProxy(true);
 
 				// Add a placeholder item that will display the section header/footer.
 				item.getProperties().put(TiC.PROPERTY_HEADER_TITLE, sectionProperties.get(TiC.PROPERTY_HEADER_TITLE));
@@ -345,20 +371,19 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 				item.getProperties().put(TiC.PROPERTY_FOOTER_TITLE, sectionProperties.get(TiC.PROPERTY_FOOTER_TITLE));
 				item.getProperties().put(TiC.PROPERTY_FOOTER_VIEW, sectionProperties.get(TiC.PROPERTY_FOOTER_VIEW));
 
+				item.setParent(proxy);
 				this.items.add(item);
 			}
-
-			// Add all items.
-			this.items.addAll(sectionItems);
 		}
 
 		// Add placeholder item for ListView footer.
 		if (hasFooter) {
-			final ListItemProxy item = new ListItemProxy();
+			final ListItemProxy item = new ListItemProxy(true);
 
 			item.getProperties().put(TiC.PROPERTY_FOOTER_TITLE, properties.get(TiC.PROPERTY_FOOTER_TITLE));
 			item.getProperties().put(TiC.PROPERTY_FOOTER_VIEW, properties.get(TiC.PROPERTY_FOOTER_VIEW));
 
+			item.setParent(proxy);
 			this.items.add(item);
 		}
 
@@ -380,20 +405,35 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 		// Amend final index of items.
 		int i = 0;
 		for (ListItemProxy item : this.items) {
-			final KrollDict properties = item.getProperties();
-
-			if (properties.containsKey(TiC.PROPERTY_HEADER_TITLE)
-				|| properties.containsKey(TiC.PROPERTY_HEADER_VIEW)
-				|| properties.containsKey(TiC.PROPERTY_FOOTER_TITLE)
-				|| properties.containsKey(TiC.PROPERTY_FOOTER_VIEW)) {
+			if (item.isPlaceholder()) {
 				continue;
 			}
 
-			// Update item index, ignoring header and footer entries.
+			// Update item index, ignoring placeholder entries.
 			item.index = i++;
 		}
 
+		final Activity activity = TiApplication.getAppCurrentActivity();
+		final View previousFocus = activity != null ? activity.getCurrentFocus() : null;
+
 		// Notify the adapter of changes.
 		this.adapter.notifyDataSetChanged();
+
+		// FIXME: This is not an ideal workaround for an issue where recycled items that were in focus
+		//        lose their focus when the data set changes. There are improvements to be made here.
+		//        This can be reproduced when setting a Ti.UI.TextField in the Ti.UI.ListView.headerView for search.
+		new Handler().post(new Runnable()
+		{
+			public void run()
+			{
+				final View currentFocus = activity != null ? activity.getCurrentFocus() : null;
+
+				if (previousFocus != null && currentFocus != previousFocus) {
+
+					// Request focus on previous component before dataset changed.
+					previousFocus.requestFocus();
+				}
+			}
+		});
 	}
 }

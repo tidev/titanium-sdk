@@ -29,6 +29,8 @@ public class TableViewSectionProxy extends TiViewProxy
 
 	protected List<TableViewRowProxy> rows = new ArrayList<>();
 
+	private int filteredRowCount = -1;
+
 	public TableViewSectionProxy()
 	{
 		super();
@@ -115,6 +117,26 @@ public class TableViewSectionProxy extends TiViewProxy
 	public int getRowCount()
 	{
 		return this.rows.size();
+	}
+
+	/**
+	 * Get number of filtered rows in section when search query is active.
+	 *
+	 * @return Integer of filtered row count.
+	 */
+	public int getFilteredRowCount()
+	{
+		return this.filteredRowCount;
+	}
+
+	/**
+	 * Set number of rows that are filtered in section.
+	 *
+	 * @param filteredRowCount Number of filtered rows.
+	 */
+	public void setFilteredRowCount(int filteredRowCount)
+	{
+		this.filteredRowCount = filteredRowCount;
 	}
 
 	/**

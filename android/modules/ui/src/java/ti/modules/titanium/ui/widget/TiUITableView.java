@@ -91,6 +91,12 @@ public class TiUITableView extends TiUIView
 			this.tableView.getRecyclerView().setScrollEnabled(isScrollable);
 		}
 
+		if (name.equals(TiC.PROPERTY_SHOW_VERTICAL_SCROLL_INDICATOR)) {
+
+			// Set vertical scroll indicator.
+			this.tableView.getRecyclerView().setVerticalScrollBarEnabled(TiConvert.toBoolean(value, true));
+		}
+
 		if (name.equals(TiC.PROPERTY_SEARCH) || name.equals(TiC.PROPERTY_SEARCH_AS_CHILD)) {
 			final KrollDict properties = getProxy().getProperties();
 			final boolean searchAsChild = TiConvert.toBoolean(

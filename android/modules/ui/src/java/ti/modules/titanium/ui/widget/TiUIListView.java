@@ -138,10 +138,6 @@ public class TiUIListView extends TiUIView
 			setNativeView(view);
 		}
 
-		if (name.equals(TiC.PROPERTY_SEARCH_TEXT)) {
-			this.listView.filterBy(TiConvert.toString(value));
-		}
-
 		if (name.equals(TiC.PROPERTY_SEPARATOR_STYLE)
 			|| name.equals(TiC.PROPERTY_SEPARATOR_HEIGHT)
 			|| name.equals(TiC.PROPERTY_SEPARATOR_COLOR)) {
@@ -184,7 +180,8 @@ public class TiUIListView extends TiUIView
 		if (name.equals(TiC.PROPERTY_HEADER_TITLE)
 			|| name.equals(TiC.PROPERTY_HEADER_VIEW)
 			|| name.equals(TiC.PROPERTY_FOOTER_TITLE)
-			|| name.equals(TiC.PROPERTY_FOOTER_VIEW)) {
+			|| name.equals(TiC.PROPERTY_FOOTER_VIEW)
+			|| name.equals(TiC.PROPERTY_SEARCH_TEXT)) {
 			this.listView.update();
 		}
 	}
