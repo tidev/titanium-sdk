@@ -234,7 +234,7 @@ describe('os', function () {
 			const userInfo = os.userInfo();
 			userInfo.should.be.an.Object();
 			userInfo.should.have.a.property('uid').which.eql(-1);
-			userInfo.should.have.a.property('guid').which.eql(-1);
+			userInfo.should.have.a.property('gid').which.eql(-1);
 			userInfo.should.have.a.property('username').which.is.a.String(); // "iPhone 7 Plus" on ios Simulator, "android-build" on android emulator
 			userInfo.should.have.a.property('homedir').which.eql(os.homedir());
 			userInfo.should.have.a.property('shell').which.eql(null);
