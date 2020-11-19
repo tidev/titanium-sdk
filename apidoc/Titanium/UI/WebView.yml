@@ -227,12 +227,12 @@ methods:
     parameters:
       - name: html
         summary: New HTML to display in the web view.
-        type: Object
+        type: String
 
       - name: options
         summary: Optional parameters for the content. Only used by iOS and Android.
         optional: true
-        type: Dictionary
+        type: setHtmlOptions
     since: {android: "8.1.0", iphone: "2.0.0", ipad: "2.0.0", macos: "9.2.0"}
     platforms: [android, iphone, ipad, macos]
 
@@ -1345,4 +1345,18 @@ properties:
         main frame (true) or into all frames (false).
     type: Boolean
     default: false
+    optional: true
+
+---
+name: setHtmlOptions
+summary: Options used by <Titanium.UI.WebView.setHtml>
+properties:
+  - name: baseURL
+    summary: Sets the URL that the web content's paths will be relative to.
+    type: String
+
+  - name: mimeType
+    type: String
+    summary: Sets the MIME type for the content. Defaults to "text/html" if not specified.
+    default: "text/html"
     optional: true

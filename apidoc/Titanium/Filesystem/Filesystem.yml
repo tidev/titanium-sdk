@@ -137,7 +137,7 @@ methods:
   - name: requestStoragePermissions
     summary: Requests for storage permissions
     description: |
-        On Android, the request view will show if the permission is not accepted by the user, and the user did
+        On Android, the dialog will only appear if the permission is not accepted by the user and the user did
         not check the box "Never ask again" when denying the request. If the user checks the box "Never ask again,"
         the user has to manually enable the permission in device settings.
 
@@ -269,12 +269,6 @@ properties:
 
         On iOS, files in this directory are backed up unless the
         [remoteBackup](Titanium.Filesystem.File.remoteBackup) flag is set to false.
-
-        On Android, files in this directory cannot be accessed by other applications, so
-        it should not be used for files that must be used by another application
-        (for example, a video file that will be passed to the system's video player application).
-        These files should be stored in the
-        [externalStorageDirectory](Titanium.Filesystem.externalStorageDirectory).
     type: String
     permission: read-only
   - name: applicationDirectory
@@ -293,25 +287,41 @@ properties:
     type: String
     permission: read-only
     platforms: [iphone, ipad, macos]
-  - name: externalStorageDirectory
-    summary: Path to a directory on removable storage, such as SD card.
+  - name: externalCacheDirectory
+    summary: Path to the app's sandboxed cache folder on removable storage, such as SD card.
     description: |
-        This directory can be used for storing arbitrary data. It is read/write and files
-        in this directory can be passed to other applications, such as video
-        players--which is not possible with the
-        [applicationDataDirectory](Titanium.Filesystem.applicationDataDirectory).
-
-        This directory may not be subject to as many memory limitations as the
-        `applicationDataDirectory`, which is stored in the device's internal storage.
-        Note, however, that the user may remove or replace the removable storage device
-        without warning, so the application must be prepared to handle this case gracefully.
+        This directory is intended to be used to store large temporary files since external storage
+        typically has a larger capacity than internal storage. This is a good place to store
+        videos and large photos.
 
         The application should check
         [isExternalStoragePresent](Titanium.Filesystem.isExternalStoragePresent) before
-        accessing this location. The application should also handle any exceptions generated
-        if the storage device is unmounted during use, or if the files stored on external
-        storage are not available.
+        accessing this location. This is because external storage is sometimes removable
+        on same devices, such as an SD card.
 
+        This directory does not require the `Manifest.permission.READ_EXTERNAL_STORAGE` and
+        `Manifest.permission.WRITE_EXTERNAL_STORAGE` permissions.
+    type: String
+    permission: read-only
+    platforms: [android]
+    since: "9.3.0"
+  - name: externalStorageDirectory
+    summary: Path to the app's sandboxed folder on removable storage, such as SD card.
+    description: |
+        This directory is intended to be used to store large files since external storage
+        typically has a larger capacity than internal storage. This is a good place to store
+        videos and large photos.
+
+        The application should check
+        [isExternalStoragePresent](Titanium.Filesystem.isExternalStoragePresent) before
+        accessing this location. This is because external storage is sometimes removable
+        on same devices, such as an SD card.
+
+        As of Titanium 9.3.0, this directory does not require the `Manifest.permission.READ_EXTERNAL_STORAGE`
+        and `Manifest.permission.WRITE_EXTERNAL_STORAGE` permissions. For older Titanium SDK versions,
+        these permission are required and you must call the
+        [requestStoragePermissions()](Titanium.Filesystem.requestStoragePermissions) method
+        to request the end-user's permission to read/write to external storage.
     type: String
     permission: read-only
     platforms: [android]

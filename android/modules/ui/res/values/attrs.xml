@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<attr name="ti_headerTitleSize" format="string" />
+	<attr name="ti_headerTitleStyle" format="string" />
+	<attr name="ti_headerTitleColor" format="color" />
+	<attr name="ti_headerTitleBackground" format="reference" />
+	<attr name="ti_headerTitleBackgroundColor" format="color" />
+	<attr name="ti_footerTitleSize" format="string" />
+	<attr name="ti_footerTitleStyle" format="string" />
+	<attr name="ti_footerTitleColor" format="color" />
+	<attr name="ti_footerTitleBackground" format="reference" />
+	<attr name="ti_footerTitleBackgroundColor" format="color" />
+</resources>

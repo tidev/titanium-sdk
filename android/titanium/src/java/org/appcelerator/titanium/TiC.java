@@ -303,6 +303,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String EVENT_PROPERTY_ACCESSORY_CLICKED = "accessoryClicked";
+
+	/**
+	 * @module.api
+	 */
 	public static final String EVENT_PROPERTY_CLICKSOURCE = "clicksource";
 
 	/**
@@ -1655,6 +1660,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_EVENTS = "events";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_EXIT_ON_CLOSE = "exitOnClose";
 
 	/**
@@ -1858,6 +1868,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_HAS_CHILD = "hasChild";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_HAS_DETAIL = "hasDetail";
 
 	/**
 	 * @module.api
@@ -2103,6 +2118,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_LAYOUT_ID = "layoutId";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_LEFT_DRAWER_LOCK_MODE = "leftDrawerLockMode";
 
 	/**
 	 * @module.api
@@ -2782,6 +2802,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_RIGHT_BUTTON = "rightButton";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_RIGHT_DRAWER_LOCK_MODE = "rightDrawerLockMode";
 
 	/**
 	 * @module.api

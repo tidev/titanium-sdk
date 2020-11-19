@@ -9,7 +9,7 @@ description: |
     <Titanium.UI.fetchSemanticColor> method, which will return an instance to be passed to UI components.
     This instance will automatically "adapt" the receiver to light/dark mode changes.
 
-    The only current instance you'd receive this type on Android is through the <Titanium.Android.UI.getColorResource> method.
+    The only current instance you'd receive this type on Android is through the <Titanium.UI.Android.getColorResource> method.
     Note that Android does not currently support passing in instances of this type for UI components/properties!
     You must convert to a hex string representation to pass this in to any color properties on Android.
 
@@ -18,7 +18,7 @@ description: |
     named colors to pass to <Titanium.UI.fetchSemanticColor> on iOS.
 
     See [R.color](https://developer.android.com/reference/android/R.color) for a list of system color names to use to pass to
-    <Titanium.Android.UI.getColorResource> on Android.
+    <Titanium.UI.Android.getColorResource> on Android.
 extends: Titanium.Proxy
 since: "9.1.0"
 platforms: [iphone, ipad, android, macos]
@@ -26,8 +26,8 @@ methods:
   - name: toHex
     summary: Returns a hex string representation of the color (in the RRGGBB or AARRGGBB formats)
     description: |
-        The returned value is an uppercase hex representation of the color with a leading '#'. If fully opaque,
-        the alpha hex values will be omitted. For example, black would return '#000000'. Black with a 50% opacity
-        would return '#80000000'
+        The returned value is an uppercase hex representation of the color with a leading `'#'`. If fully opaque,
+        the alpha hex values will be omitted. For example, black would return `'#000000'`. Black with a 50% opacity
+        would return `'#80000000'`
     returns:
       - type: String

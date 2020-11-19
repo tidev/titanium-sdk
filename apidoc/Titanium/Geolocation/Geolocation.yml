@@ -285,11 +285,11 @@ methods:
   - name: requestTemporaryFullAccuracyAuthorization
     summary: Requests the user's permission to temporarily use location services with full accuracy.
     description: |
-        If your app doesn't have permission to access accurate location (see [locationAccuracyAuthorization](Ti.Geolocation.locationAccuracyAuthorization), 
+        If your app doesn't have permission to access accurate location (see [locationAccuracyAuthorization](Titanium.Geolocation.locationAccuracyAuthorization), 
         you can use this method to request temporary access to accurate location.  This access will expire automatically, 
         but it won't expire while the user is still engaged with your app.  So, for example, while your app is in 
         the foreground your app will retain the temporary access it was granted. Similarly, if your app starts a 
-        Continuous Background Location session with the background location indicator enabled (see [showBackgroundLocationIndicator](Ti.Geolocation.showBackgroundLocationIndicator), 
+        Continuous Background Location session with the background location indicator enabled (see [showBackgroundLocationIndicator](Titanium.Geolocation.showBackgroundLocationIndicator), 
         your access to accurate location will remain as long as the background location indicator remains enabled.  
         This allows your app to provide session-oriented experiences which require accurate location (e.g. fitness or navigation), 
         even if the user has decided not to grant your app persistent access to accurate location. 

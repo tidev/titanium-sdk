@@ -8,6 +8,9 @@
 /* eslint no-unused-expressions: "off" */
 'use strict';
 const should = require('./utilities/assertions');
+const utilities = require('./utilities/utilities');
+
+const isCI = Ti.App.Properties.getBool('isCI', false);
 
 describe('Titanium.UI.ListView', function () {
 	this.timeout(5000);
@@ -31,96 +34,98 @@ describe('Titanium.UI.ListView', function () {
 		should(Ti.UI.ListView).not.be.undefined();
 	});
 
-	it('.apiName', function () {
+	it('.apiName', () => {
 		const listView = Ti.UI.createListView();
 		should(listView).have.readOnlyProperty('apiName').which.is.a.String();
 		should(listView.apiName).be.eql('Ti.UI.ListView');
 	});
 
-	it.windowsMissing('.canScroll', function () {
+	it('.canScroll', () => {
 		const listView = Ti.UI.createListView({ canScroll: false });
 		should(listView.canScroll).be.be.false();
-		should(listView.getCanScroll()).be.be.false();
 		listView.canScroll = !listView.canScroll;
 		should(listView.canScroll).be.be.true();
-		should(listView.getCanScroll()).be.be.true();
-		listView.setCanScroll(!listView.getCanScroll());
-		should(listView.canScroll).be.be.false();
-		should(listView.getCanScroll()).be.be.false();
 	});
 
-	// FIXME Get working on Android, gives us sectionCount of 0 when it should be 1
-	it.androidBroken('createListView', function () {
-		var listView,
-			section_0,
-			section_0_set,
-			section_1,
-			section_1_set;
-		// Validate createListView()
+	it('createListView', () => {
+
+		// Validate createListView() factory.
 		should(Ti.UI.createListView).not.be.undefined();
 		should(Ti.UI.createListView).be.a.Function();
 
-		// Create ListView
-		listView = Ti.UI.createListView();
+		// Create ListView.
+		const listView = Ti.UI.createListView();
 		should(listView).be.a.Object();
 
-		// Create list section
-		section_0 = Ti.UI.createListSection({ headerTitle: 'Zero' });
+		// Create list section.
+		const section_0 = Ti.UI.createListSection({ headerTitle: 'Zero' });
 		should(section_0).be.a.Object();
 
-		// Set section items
-		section_0_set = [
+		// Set section items.
+		section_0.setItems([
 			{ properties: { title: 'Red' } },
 			{ properties: { title: 'White' } }
-		];
-		section_0.setItems(section_0_set);
+		]);
 		should(section_0.items.length).be.eql(2);
 
-		// Append item to section
+		// Append item to section.
 		section_0.appendItems([ { properties: { title: 'Purple' } } ]);
 
-		// Validate section items length
+		// Validate section items length.
 		should(section_0.items.length).be.eql(3);
 
-		// Create list section
-		section_1 = Ti.UI.createListSection({ headerTitle: 'One' });
+		// Create list section.
+		const section_1 = Ti.UI.createListSection({ headerTitle: 'One' });
 		should(section_1).be.a.Object();
 
-		// Set section items
-		section_1_set = [
+		// Set section items.
+		section_1.setItems([
 			{ properties: { title: 'Green' } },
 			{ properties: { title: 'Yellow' } },
 			{ properties: { title: 'Blue' } }
-		];
-		section_1.setItems(section_1_set);
+		]);
 		should(section_1.items.length).be.eql(3);
 
-		// Set listView sections
+		// Set listView sections.
 		listView.sections = [ section_0 ];
 
-		// Validate listView section count
-		should(listView.sectionCount).be.eql(1); // Android gives 0
+		// Validate listView section count.
+		should(listView.sectionCount).be.eql(1);
 
-		// Apend section to listView
+		// Apend section to listView.
 		listView.appendSection([ section_1 ]);
 
-		// Validate listView section count
+		// Validate listView section count.
 		should(listView.sectionCount).be.eql(2);
 	});
 
 	//
 	// Making sure setting header & footer doesn't throw exception
 	//
-	it('section header & footer', function (finish) {
-		var listView = Ti.UI.createListView(),
-			ukHeaderView = Ti.UI.createView({ backgroundColor: 'black', height: 42 }),
-			ukFooterView = Ti.UI.createView({ backgroundColor: 'black', height: 42 }),
-			ukSection = Ti.UI.createListSection({ headerView: ukHeaderView, footerView: ukFooterView }),
-			usSection = Ti.UI.createListSection({ headerTitle: 'English US Header', footerTitle: 'English US Footer' });
+	it('Basic ListSection header and footer', finish => {
+		const listView = Ti.UI.createListView();
+		const ukHeaderView = Ti.UI.createView({
+			backgroundColor: 'black',
+			height: 42
+		});
+		const ukFooterView = Ti.UI.createView({
+			backgroundColor: 'black',
+			height: 42
+		});
+		const ukSection = Ti.UI.createListSection({
+			headerView: ukHeaderView,
+			footerView: ukFooterView
+		});
+		const usSection = Ti.UI.createListSection({
+			headerTitle: 'English US Header',
+			footerTitle: 'English US Footer'
+		});
+
 		win = Ti.UI.createWindow({ backgroundColor: 'green' });
 
 		ukHeaderView.add(Ti.UI.createLabel({ text: 'English UK Header', color: 'white' }));
 		ukFooterView.add(Ti.UI.createLabel({ text: 'English UK Footer', color: 'white' }));
+
 		ukSection.setItems([
 			{ properties: { title: 'Lift', color: 'black' } },
 			{ properties: { title: 'Lorry', color: 'black' } },
@@ -135,14 +140,24 @@ describe('Titanium.UI.ListView', function () {
 		]);
 		listView.appendSection(usSection);
 
-		win.addEventListener('focus', function () {
+		win.addEventListener('open', () => {
 			try {
+
+				// Validate section count.
 				should(listView.sectionCount).be.eql(2);
+
+				// Validate first section item count.
 				should(listView.sections[0].items.length).be.eql(3);
+
+				// Validate first section items.
 				should(listView.sections[0].items[0].properties.title).be.eql('Lift');
 				should(listView.sections[0].items[1].properties.title).be.eql('Lorry');
 				should(listView.sections[0].items[2].properties.title).be.eql('Motorway');
+
+				// Validate second sectiion count.
 				should(listView.sections[1].items.length).be.eql(3);
+
+				// Validate second section items.
 				should(listView.sections[1].items[0].properties.title).be.eql('Elevator');
 				should(listView.sections[1].items[1].properties.title).be.eql('Truck');
 				should(listView.sections[1].items[2].properties.title).be.eql('Freeway');
@@ -156,45 +171,61 @@ describe('Titanium.UI.ListView', function () {
 		win.open();
 	});
 
-	//
-	// Making sure setting header & footer doesn't mess up section items
-	//
-	it('headerView', function (finish) {
-		var listView = Ti.UI.createListView(),
-			sections = [],
-			fruitSection = Ti.UI.createListSection({ headerTitle: 'Fruits' }),
-			fruitDataSet = [
-				{ properties: { title: 'Apple' } },
-				{ properties: { title: 'Banana' } },
-			],
-			vegSection,
-			vegDataSet;
-		win = Ti.UI.createWindow({ backgroundColor: 'green' });
-		fruitSection.setItems(fruitDataSet);
-		fruitSection.headerView = Ti.UI.createView({ backgroundColor: 'black', height: 42 });
-		fruitSection.footerView = Ti.UI.createView({ backgroundColor: 'black', height: 42 });
-
-		sections.push(fruitSection);
-
-		vegSection = Ti.UI.createListSection({ headerTitle: 'Vegetables' });
-		vegDataSet = [
+	/**
+	 * Validate ListSection header and footer properties.
+	 */
+	it('headerView', finish => {
+		const listView = Ti.UI.createListView();
+		const sections = [];
+		const fruitSection = Ti.UI.createListSection({ headerTitle: 'Fruits' });
+		const fruitDataSet = [
+			{ properties: { title: 'Apple' } },
+			{ properties: { title: 'Banana' } },
+		];
+		const vegSection = Ti.UI.createListSection({ headerTitle: 'Vegetables' });
+		const vegDataSet = [
 			{ properties: { title: 'Carrots' } },
 			{ properties: { title: 'Potatoes' } },
 		];
+
+		win = Ti.UI.createWindow({ backgroundColor: 'green' });
+
+		// Set section items.
+		fruitSection.setItems(fruitDataSet);
 		vegSection.setItems(vegDataSet);
+
+		// Set header and footer views for first section.
+		fruitSection.headerView = Ti.UI.createView({ backgroundColor: 'black', height: 42 });
+		fruitSection.footerView = Ti.UI.createView({ backgroundColor: 'black', height: 42 });
+		sections.push(fruitSection);
+
+		// Set header and footer views for second section.
 		vegSection.headerView = Ti.UI.createView({ backgroundColor: 'black', height: 42 });
 		vegSection.footerView = Ti.UI.createView({ backgroundColor: 'black', height: 42 });
 		sections.push(vegSection);
 
+		// NOTE: Since a headerTitle has already been defined, headerTitle will have priority.
+
+		// Set ListView sections.
 		listView.sections = sections;
 
-		win.addEventListener('focus', function () {
+		win.addEventListener('open', () => {
 			try {
+
+				// Validate section count.
 				should(listView.sectionCount).be.eql(2);
+
+				// Validate first section count.
 				should(listView.sections[0].items.length).be.eql(2);
+
+				// Validate first section items.
 				should(listView.sections[0].items[0].properties.title).be.eql('Apple');
 				should(listView.sections[0].items[1].properties.title).be.eql('Banana');
+
+				// Validate second section count.
 				should(listView.sections[1].items.length).be.eql(2);
+
+				// Validate second section items.
 				should(listView.sections[1].items[0].properties.title).be.eql('Carrots');
 				should(listView.sections[1].items[1].properties.title).be.eql('Potatoes');
 			} catch (err) {
@@ -207,88 +238,102 @@ describe('Titanium.UI.ListView', function () {
 		win.open();
 	});
 
-	//
-	// Making sure custom template doesn't throw exception
-	// FIXME Windows desktop crashes on this test
-	it.windowsDesktopBroken('Custom template', function (finish) {
-		var myTemplate = {
-				childTemplates: [
-					{
-						type: 'Ti.UI.ImageView',
-						bindId: 'pic',
-						properties: {
-							width: '50', height: '50', left: 0
+	/**
+	 * Basic custom template test.
+	 */
+	it('template', finish => {
+		const listView = Ti.UI.createListView({
+			templates: {
+				template: {
+					childTemplates: [
+						{
+							type: 'Ti.UI.ImageView',
+							bindId: 'pic',
+							properties: {
+								width: 50,
+								height: 50,
+								left: 0
+							}
+						},
+						{
+							type: 'Ti.UI.Label',
+							bindId: 'info',
+							properties: {
+								color: 'black',
+								font: {
+									fontSize: 20,
+									fontWeight: 'bold'
+								},
+								left: 60,
+								top: 0,
+							}
+						},
+						{
+							type: 'Ti.UI.Label',
+							bindId: 'es_info',
+							properties: {
+								color: 'gray',
+								font: { fontSize: 14 },
+								left: 60,
+								top: 25,
+							}
 						}
-					},
-					{
-						type: 'Ti.UI.Label',
-						bindId: 'info',
-						properties: {
-							color: 'black',
-							font: { fontSize: '20', fontWeight: 'bold' },
-							left: '60', top: 0,
-						}
-					},
-					{
-						type: 'Ti.UI.Label',
-						bindId: 'es_info',
-						properties: {
-							color: 'gray',
-							font: { fontSize: '14' },
-							left: '60', top: '25',
-						}
-					}
-				]
+					]
+				}
 			},
-			listView = Ti.UI.createListView({
-				templates: { template: myTemplate },
-				defaultItemTemplate: 'template'
-			}),
-			sections = [],
-			fruitSection,
-			fruitDataSet,
-			vegSection,
-			vegDataSet,
-			grainSection,
-			grainDataSet;
+			defaultItemTemplate: 'template'
+		});
+		const sections = [];
+
 		win = Ti.UI.createWindow({ backgroundColor: 'green' });
 
-		fruitSection = Ti.UI.createListSection({ headerTitle: 'Fruits / Frutas' });
-		fruitDataSet = [
+		const fruitSection = Ti.UI.createListSection({ headerTitle: 'Fruits / Frutas' });
+		fruitSection.setItems([
 			{ info: { text: 'Apple' }, es_info: { text: 'Manzana' }, pic: { image: 'Logo.png' } },
 			{ info: { text: 'Banana' }, es_info: { text: 'Banana' }, pic: { image: 'Logo.png' } }
-		];
-		fruitSection.setItems(fruitDataSet);
+		]);
 		sections.push(fruitSection);
 
-		vegSection = Ti.UI.createListSection({ headerTitle: 'Vegetables / Verduras' });
-		vegDataSet = [
+		const vegSection = Ti.UI.createListSection({ headerTitle: 'Vegetables / Verduras' });
+		vegSection.setItems([
 			{ info: { text: 'Carrot' }, es_info: { text: 'Zanahoria' }, pic: { image: 'Logo.png' } },
 			{ info: { text: 'Potato' }, es_info: { text: 'Patata' }, pic: { image: 'Logo.png' } }
-		];
-		vegSection.setItems(vegDataSet);
+		]);
 		sections.push(vegSection);
 
-		grainSection = Ti.UI.createListSection({ headerTitle: 'Grains / Granos' });
-		grainDataSet = [
+		const grainSection = Ti.UI.createListSection({ headerTitle: 'Grains / Granos' });
+		grainSection.setItems([
 			{ info: { text: 'Corn' }, es_info: { text: 'Maiz' }, pic: { image: 'Logo.png' } },
 			{ info: { text: 'Rice' }, es_info: { text: 'Arroz' }, pic: { image: 'Logo.png' } }
-		];
-		grainSection.setItems(grainDataSet);
+		]);
 		sections.push(grainSection);
 
-		listView.setSections(sections);
+		listView.sections = sections;
 
-		win.addEventListener('focus', function () {
+		win.addEventListener('open', () => {
 			try {
+
+				// Validate section count.
 				should(listView.sectionCount).be.eql(3);
+
+				// Validate first section item count.
 				should(listView.sections[0].items.length).be.eql(2);
+
+				// Validate first section items.
 				should(listView.sections[0].items[0].info.text).be.eql('Apple');
 				should(listView.sections[0].items[1].info.text).be.eql('Banana');
+
+				// Validate second section item count.
 				should(listView.sections[1].items.length).be.eql(2);
+
+				// Validate second section items.
 				should(listView.sections[1].items[0].info.text).be.eql('Carrot');
 				should(listView.sections[1].items[1].info.text).be.eql('Potato');
+
+				// Validate last section item count.
 				should(listView.sections[2].items.length).be.eql(2);
+
+				// Validate last section items.
 				should(listView.sections[2].items[0].info.text).be.eql('Corn');
 				should(listView.sections[2].items[1].info.text).be.eql('Rice');
 			} catch (err) {
@@ -301,57 +346,70 @@ describe('Titanium.UI.ListView', function () {
 		win.open();
 	});
 
-	it('appendSection', function (finish) {
-		var listView = Ti.UI.createListView(),
-			fruitSection,
-			fruitDataSet,
-			vegSection,
-			vegDataSet,
-			fishSection,
-			fishDataSet;
+	/**
+	 * Basic appendSection test.
+	 */
+	it('appendSection', finish => {
+		const listView = Ti.UI.createListView();
 
 		win = Ti.UI.createWindow({ backgroundColor: 'green' });
-		fruitSection = Ti.UI.createListSection({ headerTitle: 'Fruits' });
-		fruitDataSet = [
+
+		const fruitSection = Ti.UI.createListSection({ headerTitle: 'Fruits' });
+		fruitSection.setItems([
 			{ properties: { title: 'Apple' } },
 			{ properties: { title: 'Banana' } },
-		];
-		fruitSection.setItems(fruitDataSet);
+		]);
 
-		vegSection = Ti.UI.createListSection({ headerTitle: 'Vegetables' });
-		vegDataSet = [
+		const vegSection = Ti.UI.createListSection({ headerTitle: 'Vegetables' });
+		vegSection.setItems([
 			{ properties: { title: 'Carrots' } },
 			{ properties: { title: 'Potatoes' } },
-		];
-		vegSection.setItems(vegDataSet);
+		]);
 
-		fishSection = Ti.UI.createListSection({ headerTitle: 'Fish' });
-		fishDataSet = [
+		const fishSection = Ti.UI.createListSection({ headerTitle: 'Fish' });
+		fishSection.setItems([
 			{ properties: { title: 'Cod' } },
 			{ properties: { title: 'Haddock' } },
-		];
-		fishSection.setItems(fishDataSet);
+		]);
 
 		listView.sections = [ fruitSection ];
 
-		win.addEventListener('focus', function () {
+		win.addEventListener('open', () => {
 			try {
+
+				// Validate section count.
 				should(listView.sectionCount).be.eql(1);
+
+				// Validate first section item count.
 				should(listView.sections[0].items.length).be.eql(2);
+
+				// Validate first section items.
 				should(listView.sections[0].items[0].properties.title).be.eql('Apple');
 				should(listView.sections[0].items[1].properties.title).be.eql('Banana');
 
+				// Append second section.
 				listView.appendSection(vegSection);
 
+				// Validate new section count.
 				should(listView.sectionCount).be.eql(2);
+
+				// Validate second section item count.
 				should(listView.sections[1].items.length).be.eql(2);
+
+				// Validate second section items.
 				should(listView.sections[1].items[0].properties.title).be.eql('Carrots');
 				should(listView.sections[1].items[1].properties.title).be.eql('Potatoes');
 
-				// appenSection with an array
+				// Append last section using an array.
 				listView.appendSection([ fishSection ]);
+
+				// Validate new section count.
 				should(listView.sectionCount).be.eql(3);
+
+				// Validate last section item count.
 				should(listView.sections[2].items.length).be.eql(2);
+
+				// Validate last section items.
 				should(listView.sections[2].items[0].properties.title).be.eql('Cod');
 				should(listView.sections[2].items[1].properties.title).be.eql('Haddock');
 			} catch (err) {
@@ -364,56 +422,73 @@ describe('Titanium.UI.ListView', function () {
 		win.open();
 	});
 
-	it('insertSectionAt', function (finish) {
-		var listView = Ti.UI.createListView(),
-			fruitSection,
-			fruitDataSet,
-			vegSection,
-			vegDataSet,
-			fishSection,
-			fishDataSet;
+	/**
+	 * Basic insertSectionAt test.
+	 */
+	it('insertSectionAt', finish => {
+		const listView = Ti.UI.createListView();
 
 		win = Ti.UI.createWindow({ backgroundColor: 'green' });
 
-		fruitSection = Ti.UI.createListSection({ headerTitle: 'Fruits' });
-		fruitDataSet = [
+		const fruitSection = Ti.UI.createListSection({ headerTitle: 'Fruits' });
+		fruitSection.setItems([
 			{ properties: { title: 'Apple' } },
 			{ properties: { title: 'Banana' } },
-		];
-		fruitSection.setItems(fruitDataSet);
+		]);
 
-		vegSection = Ti.UI.createListSection({ headerTitle: 'Vegetables' });
-		vegDataSet = [
+		const vegSection = Ti.UI.createListSection({ headerTitle: 'Vegetables' });
+		vegSection.setItems([
 			{ properties: { title: 'Carrots' } },
 			{ properties: { title: 'Potatoes' } },
-		];
-		vegSection.setItems(vegDataSet);
+		]);
 
-		fishSection = Ti.UI.createListSection({ headerTitle: 'Fish' });
-		fishDataSet = [
+		const fishSection = Ti.UI.createListSection({ headerTitle: 'Fish' });
+		fishSection.setItems([
 			{ properties: { title: 'Cod' } },
 			{ properties: { title: 'Haddock' } },
-		];
-		fishSection.setItems(fishDataSet);
+		]);
 
 		listView.sections = [ fruitSection, fishSection ];
 
-		win.addEventListener('focus', function () {
+		win.addEventListener('open', () => {
 			try {
+
+				// Validate section count.
 				should(listView.sectionCount).be.eql(2);
+
+				// Validate first section item count.
 				should(listView.sections[0].items.length).be.eql(2);
+
+				// Validate first section items.
 				should(listView.sections[0].items[0].properties.title).be.eql('Apple');
 				should(listView.sections[0].items[1].properties.title).be.eql('Banana');
 
-				listView.insertSectionAt(0, vegSection);
-
-				should(listView.sectionCount).be.eql(3);
-				should(listView.sections[0].items.length).be.eql(2);
-				should(listView.sections[0].items[0].properties.title).be.eql('Carrots');
-				should(listView.sections[0].items[1].properties.title).be.eql('Potatoes');
+				// Validate second section item count.
 				should(listView.sections[1].items.length).be.eql(2);
-				should(listView.sections[1].items[0].properties.title).be.eql('Apple');
-				should(listView.sections[1].items[1].properties.title).be.eql('Banana');
+
+				// Validate second section items.
+				should(listView.sections[1].items[0].properties.title).be.eql('Cod');
+				should(listView.sections[1].items[1].properties.title).be.eql('Haddock');
+
+				// Append new section.
+				listView.insertSectionAt(1, vegSection);
+
+				// Validate new section count.
+				should(listView.sectionCount).be.eql(3);
+
+				// Validate second section item count.
+				should(listView.sections[1].items.length).be.eql(2);
+
+				// Validate second section items.
+				should(listView.sections[1].items[0].properties.title).be.eql('Carrots');
+				should(listView.sections[1].items[1].properties.title).be.eql('Potatoes');
+
+				// Validate last section item count.
+				should(listView.sections[2].items.length).be.eql(2);
+
+				// Validate last section items.
+				should(listView.sections[2].items[0].properties.title).be.eql('Cod');
+				should(listView.sections[2].items[1].properties.title).be.eql('Haddock');
 			} catch (err) {
 				return finish(err);
 			}
@@ -424,58 +499,66 @@ describe('Titanium.UI.ListView', function () {
 		win.open();
 	});
 
-	it('replaceSectionAt', function (finish) {
-		var listView = Ti.UI.createListView(),
-			fruitSection,
-			fruitDataSet,
-			vegSection,
-			vegDataSet,
-			fishSection,
-			fishDataSet;
+	/**
+	 * Basic replaceSectionAt test.
+	 */
+	it('replaceSectionAt', finish => {
+		const listView = Ti.UI.createListView();
 
 		win = Ti.UI.createWindow({ backgroundColor: 'green' });
-		fruitSection = Ti.UI.createListSection({ headerTitle: 'Fruits' });
-		fruitDataSet = [
+
+		const fruitSection = Ti.UI.createListSection({ headerTitle: 'Fruits' });
+		fruitSection.setItems([
 			{ properties: { title: 'Apple' } },
 			{ properties: { title: 'Banana' } },
-		];
-		fruitSection.setItems(fruitDataSet);
+		]);
 
-		vegSection = Ti.UI.createListSection({ headerTitle: 'Vegetables' });
-		vegDataSet = [
+		const vegSection = Ti.UI.createListSection({ headerTitle: 'Vegetables' });
+		vegSection.setItems([
 			{ properties: { title: 'Carrots' } },
 			{ properties: { title: 'Potatoes' } },
-		];
-		vegSection.setItems(vegDataSet);
+		]);
 
-		fishSection = Ti.UI.createListSection({ headerTitle: 'Fish' });
-		fishDataSet = [
+		const fishSection = Ti.UI.createListSection({ headerTitle: 'Fish' });
+		fishSection.setItems([
 			{ properties: { title: 'Cod' } },
 			{ properties: { title: 'Haddock' } },
-		];
-		fishSection.setItems(fishDataSet);
+		]);
 
-		listView.sections = [ fruitSection, vegSection ];
+		listView.sections = [ fruitSection, fishSection ];
 
-		win.addEventListener('focus', function () {
+		win.addEventListener('open', () => {
 			try {
+
+				// Validate section count.
 				should(listView.sectionCount).be.eql(2);
+
+				// Validate first section item count.
 				should(listView.sections[0].items.length).be.eql(2);
+
+				// Validate first section items.
 				should(listView.sections[0].items[0].properties.title).be.eql('Apple');
 				should(listView.sections[0].items[1].properties.title).be.eql('Banana');
-				should(listView.sections[1].items.length).be.eql(2);
-				should(listView.sections[1].items[0].properties.title).be.eql('Carrots');
-				should(listView.sections[1].items[1].properties.title).be.eql('Potatoes');
 
-				listView.replaceSectionAt(1, fishSection);
-
-				should(listView.sectionCount).be.eql(2);
-				should(listView.sections[0].items.length).be.eql(2);
-				should(listView.sections[0].items[0].properties.title).be.eql('Apple');
-				should(listView.sections[0].items[1].properties.title).be.eql('Banana');
+				// Validate second section item count.
 				should(listView.sections[1].items.length).be.eql(2);
+
+				// Validate second section items.
 				should(listView.sections[1].items[0].properties.title).be.eql('Cod');
 				should(listView.sections[1].items[1].properties.title).be.eql('Haddock');
+
+				// Append new section.
+				listView.replaceSectionAt(1, vegSection);
+
+				// Validate section count.
+				should(listView.sectionCount).be.eql(2);
+
+				// Validate second section item count.
+				should(listView.sections[1].items.length).be.eql(2);
+
+				// Validate second section items.
+				should(listView.sections[1].items[0].properties.title).be.eql('Carrots');
+				should(listView.sections[1].items[1].properties.title).be.eql('Potatoes');
 			} catch (err) {
 				return finish(err);
 			}
@@ -487,58 +570,64 @@ describe('Titanium.UI.ListView', function () {
 	});
 
 	it('deleteSectionAt', function (finish) {
-		var listView = Ti.UI.createListView(),
-			fruitSection,
-			fruitDataSet,
-			vegSection,
-			vegDataSet,
-			fishSection,
-			fishDataSet;
+		const listView = Ti.UI.createListView();
 
 		win = Ti.UI.createWindow({ backgroundColor: 'green' });
-		fruitSection = Ti.UI.createListSection({ headerTitle: 'Fruits' });
-		fruitDataSet = [
+
+		const fruitSection = Ti.UI.createListSection({ headerTitle: 'Fruits' });
+		fruitSection.setItems([
 			{ properties: { title: 'Apple' } },
 			{ properties: { title: 'Banana' } },
-		];
-		fruitSection.setItems(fruitDataSet);
+		]);
 
-		vegSection = Ti.UI.createListSection({ headerTitle: 'Vegetables' });
-		vegDataSet = [
+		const vegSection = Ti.UI.createListSection({ headerTitle: 'Vegetables' });
+		vegSection.setItems([
 			{ properties: { title: 'Carrots' } },
 			{ properties: { title: 'Potatoes' } },
-		];
-		vegSection.setItems(vegDataSet);
+		]);
 
-		fishSection = Ti.UI.createListSection({ headerTitle: 'Fish' });
-		fishDataSet = [
+		const fishSection = Ti.UI.createListSection({ headerTitle: 'Fish' });
+		fishSection.setItems([
 			{ properties: { title: 'Cod' } },
 			{ properties: { title: 'Haddock' } },
-		];
-		fishSection.setItems(fishDataSet);
+		]);
 
 		listView.sections = [ fruitSection, vegSection, fishSection ];
 
-		win.addEventListener('focus', function () {
+		win.addEventListener('open', () => {
 			try {
+
+				// Validate section count.
 				should(listView.sectionCount).be.eql(3);
+
+				// Validate first section item count.
 				should(listView.sections[0].items.length).be.eql(2);
+
+				// Validate first section items.
 				should(listView.sections[0].items[0].properties.title).be.eql('Apple');
 				should(listView.sections[0].items[1].properties.title).be.eql('Banana');
+
+				// Validate second section item count.
 				should(listView.sections[1].items.length).be.eql(2);
+
+				// Validate second section items.
 				should(listView.sections[1].items[0].properties.title).be.eql('Carrots');
 				should(listView.sections[1].items[1].properties.title).be.eql('Potatoes');
+
+				// Validate last section item count.
 				should(listView.sections[2].items.length).be.eql(2);
+
+				// Validate last section items.
 				should(listView.sections[2].items[0].properties.title).be.eql('Cod');
 				should(listView.sections[2].items[1].properties.title).be.eql('Haddock');
 
+				// Delete second section.
 				listView.deleteSectionAt(1);
 
-				should(listView.sectionCount).be.eql(2);
-				should(listView.sections[0].items.length).be.eql(2);
-				should(listView.sections[0].items[0].properties.title).be.eql('Apple');
-				should(listView.sections[0].items[1].properties.title).be.eql('Banana');
+				// Validate new second section item count.
 				should(listView.sections[1].items.length).be.eql(2);
+
+				// Validate new second section items.
 				should(listView.sections[1].items[0].properties.title).be.eql('Cod');
 				should(listView.sections[1].items[1].properties.title).be.eql('Haddock');
 			} catch (err) {
@@ -654,149 +743,161 @@ describe('Titanium.UI.ListView', function () {
 		});
 	});
 
-	// Crashes Windows 10 Desktop
-	it.windowsDesktopBroken('fireListSectionEvent', function () {
-		var section = Ti.UI.createListSection({
-				items: [
-					{ properties: { title: 'B' } },
-					{ properties: { title: 'A' } },
-					{ properties: { title: 'E' } },
-					{ properties: { title: 'G' } }
-				]
-			}),
-			listView = Ti.UI.createListView({ sections: [ section ] }), // eslint-disable-line no-unused-vars
-			items_a = [
+	it('ListSection.items manipulation', () => {
+		const section = Ti.UI.createListSection({
+			items: [
+				{ properties: { title: 'B' } },
 				{ properties: { title: 'A' } },
-			],
-			items_b = [
-				{ properties: { title: 'C' } },
-				{ properties: { title: 'D' } }
-			],
-			items_c = [
 				{ properties: { title: 'E' } },
-				{ properties: { title: 'F' } },
-			],
-			validation = [ 'A', 'B', 'C', 'D', 'E', 'F' ],
-			items,
-			i,
-			item;
+				{ properties: { title: 'G' } }
+			]
+		});
+		const items_a = [
+			{ properties: { title: 'A' } },
+		];
+		const items_b = [
+			{ properties: { title: 'C' } },
+			{ properties: { title: 'D' } }
+		];
+		const items_c = [
+			{ properties: { title: 'E' } },
+			{ properties: { title: 'F' } }
+		];
+		const validation = [ 'A', 'B', 'C', 'D', 'E', 'F' ];
 
 		section.updateItemAt(0, { properties: { title: 'A' } });
 		section.updateItemAt(1, { properties: { title: 'B' } });
 		section.updateItemAt(3, { properties: { title: 'F' } });
+
 		section.insertItemsAt(2, items_b);
+
 		section.deleteItemsAt(0, 1);
 		section.deleteItemsAt(3, 2);
+
 		section.appendItems(items_c);
 		section.insertItemsAt(0, items_a);
 
-		items = section.getItems();
+		const items = section.items;
 		should(items.length).be.eql(6);
-		for (i = 0; i < items.length; i++) {
-			item = items[i].properties.title;
+		for (let i = 0; i < items.length; i++) {
+			const item = items[i].properties.title;
 			should(item).be.eql(validation[i]);
 		}
 	});
 
-	// Crashes Windows 10 Desktop
-	it.windowsDesktopBroken('fireListSectionEvent (header and footer)', function () {
-		var section = Ti.UI.createListSection({
-				headerTitle: 'HEADER',
-				footerTitle: 'FOOTER',
-				items: [
-					{ properties: { title: 'B' } },
-					{ properties: { title: 'A' } },
-					{ properties: { title: 'E' } },
-					{ properties: { title: 'G' } }
-				]
-			}),
-			listView = Ti.UI.createListView({ sections: [ section ] }), // eslint-disable-line no-unused-vars
-			items_a = [
+	it('ListSection.items manipulation (header & footer)', () => {
+		const section = Ti.UI.createListSection({
+			headerTitle: 'HEADER',
+			footerTitle: 'FOOTER',
+			items: [
+				{ properties: { title: 'B' } },
 				{ properties: { title: 'A' } },
-			],
-			items_b = [
-				{ properties: { title: 'C' } },
-				{ properties: { title: 'D' } }
-			],
-			items_c = [
 				{ properties: { title: 'E' } },
-				{ properties: { title: 'F' } },
-			],
-			validation = [ 'A', 'B', 'C', 'D', 'E', 'F' ],
-			items,
-			i,
-			item;
+				{ properties: { title: 'G' } }
+			]
+		});
+		const items_a = [
+			{ properties: { title: 'A' } },
+		];
+		const items_b = [
+			{ properties: { title: 'C' } },
+			{ properties: { title: 'D' } }
+		];
+		const items_c = [
+			{ properties: { title: 'E' } },
+			{ properties: { title: 'F' } }
+		];
+		const validation = [ 'A', 'B', 'C', 'D', 'E', 'F' ];
 
 		section.updateItemAt(0, { properties: { title: 'A' } });
 		section.updateItemAt(1, { properties: { title: 'B' } });
 		section.updateItemAt(3, { properties: { title: 'F' } });
+
 		section.insertItemsAt(2, items_b);
+
 		section.deleteItemsAt(0, 1);
 		section.deleteItemsAt(3, 2);
+
 		section.appendItems(items_c);
 		section.insertItemsAt(0, items_a);
 
-		items = section.getItems();
+		const items = section.items;
 		should(items.length).be.eql(6);
-		for (i = 0; i < items.length; i++) {
-			item = items[i].properties.title;
+		for (let i = 0; i < items.length; i++) {
+			const item = items[i].properties.title;
 			should(item).be.eql(validation[i]);
 		}
 	});
 
 	// Making sure sections data is saved even when it's filtered (TIMOB-24019)
-	// Crashes Windows 10 Desktop
-	it.windowsDesktopBroken('TIMOB-24019', function (finish) {
-		var listView = Ti.UI.createListView({ width: Ti.UI.FILL, height: Ti.UI.FILL, caseInsensitiveSearch: true }),
-			fruitSection,
-			fruitDataSet,
-			vegSection,
-			vegDataSet;
+	it('TIMOB-24019', finish => {
+		const listView = Ti.UI.createListView({
+			width: Ti.UI.FILL,
+			height: Ti.UI.FILL,
+			caseInsensitiveSearch: true
+		});
 
 		win = Ti.UI.createWindow({ backgroundColor: 'green' });
 
-		fruitSection = Ti.UI.createListSection({ headerTitle: 'Fruits' });
-		fruitDataSet = [
+		const fruitSection = Ti.UI.createListSection({ headerTitle: 'Fruits' });
+		fruitSection.setItems([
 			{ properties: { title: 'Apple', searchableText: 'Apple' } },
 			{ properties: { title: 'Banana', searchableText: 'Banana' } },
-		];
-		fruitSection.setItems(fruitDataSet);
+		]);
 
-		vegSection = Ti.UI.createListSection({ headerTitle: 'Vegetables' });
-		vegDataSet = [
+		const vegSection = Ti.UI.createListSection({ headerTitle: 'Vegetables' });
+		vegSection.setItems([
 			{ properties: { title: 'Carrots', searchableText: 'Carrots' } },
 			{ properties: { title: 'Potatoes', searchableText: 'Potatoes' } },
-		];
-		vegSection.setItems(vegDataSet);
+		]);
 
 		listView.sections = [ fruitSection, vegSection ];
 
-		win.addEventListener('open', function () {
+		win.addEventListener('open', () => {
+
+			// Validate section count.
 			should(listView.sectionCount).be.eql(2);
+
+			// Validate first section item count.
 			should(listView.sections[0].items.length).be.eql(2);
+
+			// Validate first section items.
 			should(listView.sections[0].items[0].properties.title).be.eql('Apple');
 			should(listView.sections[0].items[1].properties.title).be.eql('Banana');
+
+			// Validate second section item count.
 			should(listView.sections[1].items.length).be.eql(2);
+
+			// Validate section items.
 			should(listView.sections[1].items[0].properties.title).be.eql('Carrots');
 			should(listView.sections[1].items[1].properties.title).be.eql('Potatoes');
 
-			// This should show 'Apple' and 'Potatoes'
+			// Filter to show 'Apple' and 'Potatoes'.
 			listView.searchText = 'p';
 
-			setTimeout(function () {
+			// Validate original section items still exist.
+			setTimeout(() => {
 				try {
-					// Make sure ListView reserves original data
+
+					// Validate section count.
 					should(listView.sectionCount).be.eql(2);
+
+					// Validate first section item count.
 					should(listView.sections[0].items.length).be.eql(2);
+
+					// Validate first section items.
 					should(listView.sections[0].items[0].properties.title).be.eql('Apple');
 					should(listView.sections[0].items[1].properties.title).be.eql('Banana');
+
+					// Validate second section item count.
 					should(listView.sections[1].items.length).be.eql(2);
+
+					// Validate section items.
 					should(listView.sections[1].items[0].properties.title).be.eql('Carrots');
 					should(listView.sections[1].items[1].properties.title).be.eql('Potatoes');
 				} catch (err) {
 					return finish(err);
 				}
-
 				finish();
 			}, 2000);
 		});
@@ -879,7 +980,7 @@ describe('Titanium.UI.ListView', function () {
 		win.open();
 	});
 
-	it.androidAndWindowsMissing('.refreshControl (in NavigationWindow)', function (finish) {
+	it('.refreshControl (in NavigationWindow)', function (finish) {
 		const window = Ti.UI.createWindow({
 			title: 'Hello World',
 			largeTitleEnabled: true,
@@ -890,7 +991,7 @@ describe('Titanium.UI.ListView', function () {
 			control.beginRefreshing();
 		});
 
-		const nav = Ti.UI.iOS.createNavigationWindow({
+		const nav = Ti.UI.createNavigationWindow({
 			window: window
 		});
 
@@ -915,26 +1016,25 @@ describe('Titanium.UI.ListView', function () {
 		nav.open();
 	});
 
-	it.windowsMissing('.refreshControl (Basic)', function (finish) {
-		win = Ti.UI.createWindow();
-
-		win.addEventListener('open', function () {
-			control.beginRefreshing();
-		});
-
+	it('.refreshControl (Basic)', finish => {
 		const control = Ti.UI.createRefreshControl();
-
 		const listView = Ti.UI.createListView({
 			refreshControl: control
 		});
 
-		control.addEventListener('refreshstart', function () {
-			setTimeout(function () {
+		win = Ti.UI.createWindow();
+
+		win.addEventListener('open', () => {
+			control.beginRefreshing();
+		});
+
+		control.addEventListener('refreshstart', () => {
+			setTimeout(() => {
 				control.endRefreshing();
 			}, 2000);
 		});
 
-		control.addEventListener('refreshend', function () {
+		control.addEventListener('refreshend', () => {
 			finish();
 		});
 
@@ -942,49 +1042,52 @@ describe('Titanium.UI.ListView', function () {
 		win.open();
 	});
 
-	it.android('listView with Ti.UI.Android.CardView', function (finish) {
+	it.android('listView with Ti.UI.Android.CardView', finish => {
+		const listView = Ti.UI.createListView({
+			templates: {
+				test: {
+					childTemplates: [ {
+						type: 'Ti.UI.Android.CardView',
+						childTemplates: [ {
+							type: 'Ti.UI.Label',
+							bindId: 'label',
+							properties: {
+								color: 'black',
+								bindId: 'label'
+							}
+						} ],
+						properties: {
+							width: Ti.UI.FILL,
+							height: Ti.UI.SIZE,
+							cardUseCompatPadding: true,
+							backgroundColor: 'white',
+							layout: 'vertical'
+						}
+					} ]
+				}
+			},
+			defaultItemTemplate: 'test'
+		});
+		const section = Ti.UI.createListSection();
+		const items = [];
+
+		[ 'A', 'B', 'C' ].forEach(
+			item => items.push({
+				label: { text: item },
+				template: 'test'
+			})
+		);
+
 		win = Ti.UI.createWindow({
 			backgroundColor: 'gray'
 		});
-		const listView = Ti.UI.createListView({
-				templates: {
-					test: {
-						childTemplates: [ {
-							type: 'Ti.UI.Android.CardView',
-							childTemplates: [ {
-								type: 'Ti.UI.Label',
-								bindId: 'label',
-								properties: {
-									color: 'black',
-									bindId: 'label'
-								}
-							} ],
-							properties: {
-								width: Ti.UI.FILL,
-								height: Ti.UI.SIZE,
-								cardUseCompatPadding: true,
-								backgroundColor: 'white',
-								layout: 'vertical'
-							}
-						} ]
-					}
-				},
-				defaultItemTemplate: 'test'
-			}),
-			section = Ti.UI.createListSection(),
-			items = [];
-
-		[ 'A', 'B', 'C' ].forEach(item => items.push({
-			label: { text: item },
-			template: 'test'
-		}));
 
 		section.setItems(items);
-		listView.setSections([ section ]);
+		listView.sections = [ section ];
 
-		// should not crash after drawing listView
-		win.addEventListener('postlayout', function listener () {
-			win.removeEventListener('postlayout', listener);
+		win.addEventListener('open', () => {
+
+			// Validated CardView renders without error.
 			finish();
 		});
 
@@ -992,9 +1095,347 @@ describe('Titanium.UI.ListView', function () {
 		win.open();
 	});
 
-	it.android('.fastScroll', function () {
+	it.android('.fastScroll', () => {
 		const listView = Ti.UI.createListView();
 		should(listView.fastScroll).be.be.false();
-		should(listView.setFastScroll).be.a.Function();
+	});
+
+	it('ListViewItem scaling (percent)', finish => {
+
+		// FIXME: Does not honour scale correctly on macOS.
+		if (isCI && utilities.isMacOS()) {
+			return finish();
+		}
+
+		const view = Ti.UI.createView({
+			width: '540px',
+			height: '960px'
+		});
+		const listView = Ti.UI.createListView({
+			backgroundColor: 'white',
+			height: '50%',
+			templates: {
+				template: {
+					properties: {
+						backgroundColor: 'blue',
+						height: '50%'
+					}
+				}
+			},
+			defaultItemTemplate: 'template'
+		});
+
+		listView.sections = [
+			Ti.UI.createListSection({
+				items: [ {} ]
+			})
+		];
+
+		view.add(listView);
+
+		try {
+
+			// ListViewItem should fill 50% of its parent ListView.
+			should(view).matchImage('snapshots/listViewItemScaling_percent.png');
+		} catch (e) {
+			return finish(e);
+		}
+		finish();
+	});
+
+	it('ListViewItem scaling (FILL)', finish => {
+
+		// FIXME: Does not honour scale correctly on macOS.
+		if (isCI && utilities.isMacOS()) {
+			return finish();
+		}
+
+		const view = Ti.UI.createView({
+			width: '540px',
+			height: '960px'
+		});
+		const listView = Ti.UI.createListView({
+			backgroundColor: 'white',
+			height: '50%',
+			templates: {
+				template: {
+					properties: {
+						backgroundColor: 'blue',
+						height: Ti.UI.FILL
+					}
+				}
+			},
+			defaultItemTemplate: 'template'
+		});
+
+		listView.sections = [
+			Ti.UI.createListSection({
+				items: [ {} ]
+			})
+		];
+
+		view.add(listView);
+
+		try {
+
+			// ListViewItem should fill the height of its parent ListView.
+			should(view).matchImage('snapshots/listViewItemScaling_fill.png');
+		} catch (e) {
+			return finish(e);
+		}
+		finish();
+	});
+
+	it('ListViewItem accessoryType', finish => {
+
+		// FIXME: Does not honour scale correctly on macOS.
+		if (isCI && utilities.isMacOS()) {
+			return finish();
+		}
+
+		const view = Ti.UI.createView({
+			width: '540px',
+			height: '960px'
+		});
+		const listView = Ti.UI.createListView();
+
+		listView.sections = [
+			Ti.UI.createListSection({
+				items: [
+					{ properties: { accessoryType: Ti.UI.LIST_ACCESSORY_TYPE_NONE } },
+					{ properties: { accessoryType: Ti.UI.LIST_ACCESSORY_TYPE_CHECKMARK } },
+					{ properties: { accessoryType: Ti.UI.LIST_ACCESSORY_TYPE_DETAIL } },
+					{ properties: { accessoryType: Ti.UI.LIST_ACCESSORY_TYPE_DISCLOSURE } },
+				]
+			})
+		];
+
+		view.add(listView);
+
+		try {
+
+			// Validate items accessoryType.
+			should(listView.sections[0].items[0].properties.accessoryType).be.eql(Ti.UI.LIST_ACCESSORY_TYPE_NONE);
+			should(listView.sections[0].items[1].properties.accessoryType).be.eql(Ti.UI.LIST_ACCESSORY_TYPE_CHECKMARK);
+			should(listView.sections[0].items[2].properties.accessoryType).be.eql(Ti.UI.LIST_ACCESSORY_TYPE_DETAIL);
+			should(listView.sections[0].items[3].properties.accessoryType).be.eql(Ti.UI.LIST_ACCESSORY_TYPE_DISCLOSURE);
+
+			// Validate items accessoryType icons.
+			should(view).matchImage('snapshots/listViewItem_accessoryTypes.png');
+		} catch (e) {
+			return finish(e);
+		}
+		finish();
+	});
+
+	it('ListViewItem borderRadius', finish => {
+
+		// FIXME: Does not honour scale correctly on macOS.
+		if (isCI && utilities.isMacOS()) {
+			return finish();
+		}
+
+		const view = Ti.UI.createView({
+			width: '540px',
+			height: '960px'
+		});
+		const listView = Ti.UI.createListView({
+			backgroundColor: 'white',
+			templates: {
+				template: {
+					properties: {
+						backgroundColor: 'blue',
+						height: '64px',
+						borderRadius: '16px'
+					}
+				}
+			},
+			defaultItemTemplate: 'template'
+		});
+
+		listView.sections = [
+			Ti.UI.createListSection({
+				items: [ {} ]
+			})
+		];
+
+		view.add(listView);
+
+		try {
+
+			// ListViewItem should fill the height of its parent ListView.
+			should(view).matchImage('snapshots/listViewItem_borderRadius.png');
+		} catch (e) {
+			return finish(e);
+		}
+		finish();
+	});
+
+	it('ListItem default template layout', finish => {
+
+		// FIXME: Does not honour scale correctly on macOS.
+		if (isCI && utilities.isMacOS()) {
+			return finish();
+		}
+
+		const view = Ti.UI.createView({
+			width: '540px',
+			height: '960px'
+		});
+		const listView = Ti.UI.createListView({
+			backgroundColor: 'blue'
+		});
+
+		listView.sections = [
+			Ti.UI.createListSection({
+				items: [
+					{
+						properties: {
+							title: 'ListItem.title',
+							image: 'Logo.png'
+						}
+					}
+				]
+			})
+		];
+
+		view.add(listView);
+
+		try {
+
+			// Validate default template displays `title` and `image` correctly.
+			should(view).matchImage('snapshots/listItem_defaultTemplate.png');
+		} catch (e) {
+			return finish(e);
+		}
+		finish();
+	});
+
+	it('ListItem template property', finish => {
+
+		// FIXME: Does not honour scale correctly on macOS.
+		if (isCI && utilities.isMacOS()) {
+			return finish();
+		}
+
+		const view = Ti.UI.createView({
+			width: '540px',
+			height: '960px'
+		});
+		const listView = Ti.UI.createListView({
+			backgroundColor: 'white',
+			templates: {
+				template: {
+					childTemplates: [
+						{
+							type: 'Ti.UI.Label',
+							bindId: 'label',
+							properties: {
+								right: '5px',
+								color: 'black'
+							}
+						}
+					]
+				}
+			}
+		});
+
+		listView.sections = [
+			Ti.UI.createListSection({
+				items: [
+					{
+						template: 'template',
+						label: { text: 'Red', color: 'red' }
+					},
+					{
+						template: 'template',
+						label: { text: 'Green', color: 'green' }
+					},
+					{
+						// Validate no `template` property renders incorrectly.
+						label: { text: 'Blue', color: 'blue' }
+					}
+				]
+			})
+		];
+
+		view.add(listView);
+
+		try {
+
+			// Validate ListView only renders two items with specified `template`.
+			should(view).matchImage('snapshots/listViewItem_template.png');
+		} catch (e) {
+			return finish(e);
+		}
+		finish();
+	});
+
+	it('ListView header & footer', finish => {
+
+		// FIXME: Does not honour scale correctly on macOS.
+		if (isCI && utilities.isMacOS()) {
+			return finish();
+		}
+
+		const view = Ti.UI.createView({
+			width: '540px',
+			height: '960px'
+		});
+		const listView = Ti.UI.createListView({
+			headerTitle: 'ListView.headerTitle',
+			footerTitle: 'ListView.footerTitle',
+			backgroundColor: 'white'
+		});
+
+		view.add(listView);
+
+		try {
+
+			// Both ListView header and footer should be visible.
+			// Even without defining a ListSection.
+			should(view).matchImage('snapshots/listView_header_footer.png');
+		} catch (err) {
+			return finish(err);
+		}
+		finish();
+	});
+
+	it('ListView + ListSection header & footer', finish => {
+
+		// FIXME: Does not honour scale correctly on macOS.
+		if (isCI && utilities.isMacOS()) {
+			return finish();
+		}
+
+		const view = Ti.UI.createView({
+			width: '540px',
+			height: '960px'
+		});
+		const listView = Ti.UI.createListView({
+			headerTitle: 'ListView.headerTitle',
+			footerTitle: 'ListView.footerTitle',
+			backgroundColor: 'white'
+		});
+
+		listView.sections = [
+			Ti.UI.createListSection({
+				headerTitle: 'ListSection.headerTitle',
+				footerTitle: 'ListSection.footerTitle',
+				items: []
+			})
+		];
+
+		view.add(listView);
+
+		try {
+
+			// Both ListView and ListSection header and footer should be visible.
+			// Even without defining ListSection items.
+			should(view).matchImage('snapshots/listView_listSection_header_footer.png');
+		} catch (e) {
+			return finish(e);
+		}
+		finish();
 	});
 });
