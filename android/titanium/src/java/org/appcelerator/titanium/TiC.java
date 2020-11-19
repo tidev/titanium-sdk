@@ -1842,6 +1842,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_GRID_COLUMNS = "gridColumns";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_GROUP_ID = "groupId";
 
 	/**
