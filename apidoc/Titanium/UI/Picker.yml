@@ -100,7 +100,7 @@ methods:
     parameters:
       - name: date
         summary: A Javascript `Date` object.
-        type: Object
+        type: Date
 
       - name: suppressEvent
         summary: Determines whether a `change` event is fired.
