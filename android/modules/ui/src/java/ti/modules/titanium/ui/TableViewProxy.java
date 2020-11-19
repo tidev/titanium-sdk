@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2020 by Axway, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -8,24 +8,24 @@ package ti.modules.titanium.ui;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import org.appcelerator.kroll.KrollDict;
-import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
-import org.appcelerator.kroll.common.AsyncResult;
-import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
-import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiUIView;
 
-import ti.modules.titanium.ui.widget.TiUITableView;
-import ti.modules.titanium.ui.widget.tableview.TableViewModel.Item;
-
 import android.app.Activity;
-import android.os.Message;
 
-@Kroll.proxy(creatableInModule = UIModule.class,
+import androidx.recyclerview.widget.RecyclerView;
+
+import ti.modules.titanium.ui.widget.TiUITableView;
+import ti.modules.titanium.ui.widget.tableview.TableViewAdapter;
+import ti.modules.titanium.ui.widget.tableview.TiTableView;
+
+@Kroll.proxy(
+	creatableInModule = UIModule.class,
 	propertyAccessors = {
 		TiC.PROPERTY_FILTER_ATTRIBUTE,
 		TiC.PROPERTY_FILTER_ANCHORED,
@@ -43,111 +43,162 @@ import android.os.Message;
 		TiC.PROPERTY_FOOTER_DIVIDERS_ENABLED,
 		TiC.PROPERTY_MAX_CLASSNAME,
 		TiC.PROPERTY_REFRESH_CONTROL,
-		TiC.PROPERTY_SCROLLABLE
-	})
+		TiC.PROPERTY_SCROLLABLE,
+		TiC.PROPERTY_SHOW_VERTICAL_SCROLL_INDICATOR
+	}
+)
 public class TableViewProxy extends TiViewProxy
 {
 	private static final String TAG = "TableViewProxy";
 
-	private static final int INSERT_ROW_BEFORE = 0;
-	private static final int INSERT_ROW_AFTER = 1;
-	private static final int INSERT_SECTION_BEFORE = 0;
-	private static final int INSERT_SECTION_AFTER = 1;
-
-	private static final int MSG_SCROLL_TO_INDEX = TiViewProxy.MSG_LAST_ID + 5002;
-	private static final int MSG_SCROLL_TO_TOP = TiViewProxy.MSG_LAST_ID + 5007;
-	private static final int MSG_SELECT_ROW = TiViewProxy.MSG_LAST_ID + 5008;
-
-	public static final String CLASSNAME_DEFAULT = "__default__";
-	public static final String CLASSNAME_HEADER = "__header__";
-	public static final String CLASSNAME_HEADERVIEW = "__headerView__";
-	public static final String CLASSNAME_NORMAL = "__normal__";
-
-	class RowResult
-	{
-		int sectionIndex;
-		TableViewSectionProxy section;
-		TableViewRowProxy row;
-		int rowIndexInSection;
-	}
-
-	private ArrayList<TableViewSectionProxy> localSections;
+	private final List<TableViewSectionProxy> sections = new ArrayList<>();
 
 	public TableViewProxy()
 	{
 		super();
+
 		defaultValues.put(TiC.PROPERTY_OVER_SCROLL_MODE, 0);
 		defaultValues.put(TiC.PROPERTY_SCROLLABLE, true);
-		// eventManager.addOnEventChangeListener(this);
 	}
 
-	@Override
-	public void handleCreationDict(KrollDict dict)
+	/**
+	 * Process TableViewRow input to convert dictionaries into proxy instances.
+	 *
+	 * @param obj TableViewRow proxy or dictionary.
+	 * @return TableViewRowProxy
+	 */
+	static public TableViewRowProxy processRow(Object obj)
 	{
-		Object[] data = null;
-		if (dict.containsKey(TiC.PROPERTY_DATA)) {
-			Object o = dict.get(TiC.PROPERTY_DATA);
-			if (o != null && o instanceof Object[]) {
-				data = (Object[]) o;
-				dict.remove(TiC.PROPERTY_DATA); // don't override our data accessor
+		if (obj instanceof HashMap) {
+			final TableViewRowProxy row = new TableViewRowProxy();
+
+			row.handleCreationDict(new KrollDict((HashMap) obj));
+			return row;
+		} else if (obj instanceof TableViewRowProxy) {
+			return (TableViewRowProxy) obj;
+		}
+		return null;
+	}
+
+	/**
+	 * Process TableViewSection input to convert dictionaries into proxy instances.
+	 *
+	 * @param obj TableViewSection proxy or dictionary.
+	 * @return TableViewSection
+	 */
+	static public TableViewSectionProxy processSection(Object obj)
+	{
+		if (obj instanceof HashMap) {
+			final TableViewSectionProxy section = new TableViewSectionProxy();
+
+			section.handleCreationDict(new KrollDict((HashMap) obj));
+			return section;
+		} else if (obj instanceof TableViewSectionProxy) {
+			return (TableViewSectionProxy) obj;
+		}
+		return null;
+	}
+
+	/**
+	 * Append row or rows to table.
+	 *
+	 * @param rows      Row object or array of rows to append.
+	 * @param animation Ignored, for iOS parameter compatibility.
+	 */
+	@Kroll.method
+	public void appendRow(Object rows, @Kroll.argument(optional = true) KrollDict animation)
+	{
+		final List<TableViewRowProxy> rowList = new ArrayList<>();
+
+		if (rows instanceof Object[]) {
+
+			// Handle array of rows.
+			for (Object rowObj : (Object[]) rows) {
+				final TableViewRowProxy row = processRow(rowObj);
+
+				if (row != null) {
+					rowList.add(row);
+				}
+			}
+		} else {
+			final TableViewRowProxy row = processRow(rows);
+
+			// Handle single row.
+			if (row != null) {
+				rowList.add(row);
 			}
 		}
-		// Treat sections in the creation dict just like data. Unlike the setter, we don't
-		// check whether the items are sections first. This is consistent with the handling
-		// of the data property--a bad object is dropped silently.
-		if (dict.containsKey(TiC.PROPERTY_SECTIONS)) {
-			Object o = dict.get(TiC.PROPERTY_SECTIONS);
-			if (o != null && o instanceof Object[]) {
-				data = (Object[]) o;
-				dict.remove(TiC.PROPERTY_SECTIONS); // don't override our data accessor
-			}
+		if (rowList.size() == 0) {
+			return;
 		}
-		super.handleCreationDict(dict);
-		if (data != null) {
-			processData(data);
+
+		// Append rows to last section.
+		// NOTE: Will notify TableView of update.
+		for (TableViewRowProxy row : rowList) {
+
+			// Create section if one does not exist.
+			// Or create new section if `headerTitle` is specified.
+			if (this.sections.size() == 0
+				|| row.hasPropertyAndNotNull(TiC.PROPERTY_HEADER)
+				|| row.hasPropertyAndNotNull(TiC.PROPERTY_HEADER_TITLE)
+			) {
+				final TableViewSectionProxy section = new TableViewSectionProxy();
+
+				// Set `headerTitle` of section from row.
+				section.setProperty(TiC.PROPERTY_HEADER_TITLE,
+					row.getProperties().optString(TiC.PROPERTY_HEADER_TITLE,
+						row.getProperties().getString(TiC.PROPERTY_HEADER)));
+
+				section.setParent(this);
+				this.sections.add(section);
+			}
+
+			// Obtain last section.
+			final TableViewSectionProxy section = this.sections.get(this.sections.size() - 1);
+
+			// Override footer of section.
+			section.setProperty(TiC.PROPERTY_FOOTER_TITLE,
+				row.getProperties().optString(TiC.PROPERTY_FOOTER_TITLE,
+					row.getProperties().getString(TiC.PROPERTY_FOOTER)));
+
+			// Add row to section.
+			section.add(row);
 		}
 	}
 
-	@Override
-	public void setActivity(Activity activity)
+	/**
+	 * Append section or sections to table.
+	 *
+	 * @param sectionObj Section object or array of sections to append.
+	 * @param animation  Ignored, for iOS parameter compatibility.
+	 */
+	@Kroll.method
+	public void appendSection(Object sectionObj, @Kroll.argument(optional = true) KrollDict animation)
 	{
-		super.setActivity(activity);
-		if (localSections != null) {
-			for (TableViewSectionProxy section : localSections) {
-				section.setActivity(activity);
+		if (sectionObj instanceof Object[]) {
+
+			// Append TableViewSection array.
+			for (final Object o : (Object[]) sectionObj) {
+				final TableViewSectionProxy section = processSection(o);
+
+				if (section != null) {
+					section.setParent(this);
+					this.sections.add(section);
+				}
+			}
+		} else {
+			final TableViewSectionProxy section = processSection(sectionObj);
+
+			if (section != null) {
+
+				// Append TableViewSection.
+				section.setParent(this);
+				this.sections.add(section);
 			}
 		}
-	}
 
-	@Override
-	public void releaseViews()
-	{
-		super.releaseViews();
-
-		if (localSections != null) {
-			for (TableViewSectionProxy section : localSections) {
-				section.releaseViews();
-			}
-		}
-	}
-
-	@Override
-	public void release()
-	{
-		// Release search bar proxy if there is one
-		if (hasPropertyAndNotNull(TiC.PROPERTY_SEARCH)) {
-			TiViewProxy searchView = (TiViewProxy) getProperty(TiC.PROPERTY_SEARCH);
-			searchView.release();
-		}
-
-		super.release();
-
-		releaseViews();
-
-		if (localSections != null) {
-			localSections.clear();
-			localSections = null;
-		}
+		// Notify TableView of update.
+		update();
 	}
 
 	@Override
@@ -156,669 +207,509 @@ public class TableViewProxy extends TiViewProxy
 		return new TiUITableView(this);
 	}
 
-	public TiUITableView getTableView()
+	/**
+	 * Delete row from table.
+	 *
+	 * @param rowObj    Row object or row index to remove.
+	 * @param animation Ignored, for iOS parameter compatibility.
+	 */
+	@Kroll.method
+	public void deleteRow(Object rowObj, @Kroll.argument(optional = true) KrollDict animation)
 	{
-		return (TiUITableView) getOrCreateView();
-	}
+		if (rowObj instanceof Integer) {
+			final int index = ((Integer) rowObj).intValue();
 
-	@Override
-	public boolean fireEvent(String eventName, Object data, boolean bubbles)
-	{
-		if (data instanceof HashMap) {
-			// The data object may already be in use by the runtime thread
-			// due to a child view's event fire. Create a copy to be thread safe.
-			@SuppressWarnings("unchecked")
-			KrollDict dataCopy = new KrollDict((HashMap<String, Object>) data);
-			if (dataCopy.containsKey(TiC.PROPERTY_X) && dataCopy.containsKey(TiC.PROPERTY_Y)) {
-				double x = dataCopy.getDouble(TiC.PROPERTY_X);
-				double y = dataCopy.getDouble(TiC.PROPERTY_Y);
-				Object source = dataCopy.get(TiC.PROPERTY_SOURCE);
-				int index = getTableView().getTableView().getIndexFromXY(x, y);
-				if (index != -1 && source == this) {
-					Item item = getTableView().getTableView().getItemAtPosition(index);
-					if (item != null) {
-						dataCopy.put(TiC.PROPERTY_SOURCE, item.proxy);
-						return item.proxy.fireEvent(eventName, dataCopy, bubbles);
-					}
+			deleteRow(getRowByIndex(index), null);
+		} else {
+			final TableViewRowProxy row = processRow(rowObj);
+
+			if (row == null) {
+				return;
+			}
+
+			final TiViewProxy parent = row.getParent();
+
+			if (parent != null) {
+				if (parent instanceof TableViewSectionProxy) {
+					final TableViewSectionProxy section = (TableViewSectionProxy) parent;
+
+					// Row is in section, modify section rows.
+					section.remove(row);
+
+					// Notify TableView of update.
+					update();
 				}
 			}
 		}
-
-		return super.fireEvent(eventName, data, bubbles);
-	}
-
-	@Kroll.method
-	public void updateRow(Object row, Object data, @Kroll.argument(optional = true) KrollDict options)
-	{
-		TableViewSectionProxy sectionProxy = null;
-		int rowIndex = -1;
-		if (row instanceof Number) {
-			RowResult rr = new RowResult();
-			rowIndex = ((Number) row).intValue();
-			locateIndex(rowIndex, rr);
-			sectionProxy = rr.section;
-			rowIndex = rr.rowIndexInSection;
-		} else if (row instanceof TableViewRowProxy) {
-			ArrayList<TableViewSectionProxy> sections = getSectionsArray();
-		sectionLoop:
-			for (int i = 0; i < sections.size(); i++) {
-				ArrayList<TableViewRowProxy> rows = sections.get(i).rows;
-				for (int j = 0; j < rows.size(); j++) {
-					if (rows.get(j) == row) {
-						sectionProxy = sections.get(i);
-						rowIndex = j;
-						break sectionLoop;
-					}
-				}
-			}
-		}
-		TableViewRowProxy rowProxy = rowProxyFor(data);
-		if (rowProxy == null) {
-			Log.e(TAG, "Unable to update row. Invalid type for row: " + data);
-			return;
-		}
-		if (sectionProxy != null) {
-			sectionProxy.updateRowAt(rowIndex, rowProxy);
-			updateView();
-		} else {
-			Log.e(TAG, "Unable to update row. Non-existent row: " + row);
-		}
-	}
-
-	@Kroll.method
-	public void updateSection(Number index, Object data, @Kroll.argument(optional = true) KrollDict options)
-	{
-		int sectionIndex = index.intValue();
-		TableViewSectionProxy sectionProxy = sectionProxyFor(data);
-
-		if (sectionProxy == null) {
-			Log.e(TAG, "Unable to update section. Invalid type for section: " + data);
-			return;
-		}
-		try {
-			ArrayList<TableViewSectionProxy> currentSections = getSectionsArray();
-			TableViewSectionProxy oldSection = currentSections.get(sectionIndex);
-			currentSections.set(sectionIndex, sectionProxy);
-			if (sectionProxy != oldSection) {
-				sectionProxy.setParent(this);
-				if (oldSection.getParent() == this) {
-					oldSection.setParent(null);
-				}
-			}
-			updateView();
-		} catch (IndexOutOfBoundsException e) {
-			Log.e(TAG, "Unable to update section. Index out of range. Non-existent section at " + index);
-		}
-	}
-
-	// options argument exists in order to maintain parity with iOS, do not remove
-	@Kroll.method
-	public void appendRow(Object rows, @Kroll.argument(optional = true) KrollDict options)
-	{
-		Object[] rowList = null;
-
-		if (rows instanceof Object[]) {
-			rowList = (Object[]) rows;
-		} else {
-			rowList = new Object[] { rows };
-		}
-
-		ArrayList<TableViewSectionProxy> sections = getSectionsArray();
-		if (sections.size() == 0) {
-			processData(rowList);
-		} else {
-			for (int i = 0; i < rowList.length; i++) {
-				TableViewRowProxy rowProxy = rowProxyFor(rowList[i]);
-
-				TableViewSectionProxy lastSection = sections.get(sections.size() - 1);
-				TableViewSectionProxy addedToSection = addRowToSection(rowProxy, lastSection);
-				if (lastSection == null || !lastSection.equals(addedToSection)) {
-					sections.add(addedToSection);
-					addedToSection.setParent(this);
-				}
-			}
-		}
-
-		updateView();
-	}
-
-	@Kroll.method
-	public void appendSection(Object sections, @Kroll.argument(optional = true) KrollDict options)
-	{
-		Object[] sectionList = null;
-
-		if (sections instanceof Object[]) {
-			sectionList = (Object[]) sections;
-		} else {
-			sectionList = new Object[] { sections };
-		}
-
-		ArrayList<TableViewSectionProxy> currentSections = getSectionsArray();
-		for (int i = 0; i < sectionList.length; i++) {
-			TableViewSectionProxy sectionProxy = sectionProxyFor(sectionList[i]);
-			if (sectionProxy != null) {
-				currentSections.add(sectionProxy);
-				sectionProxy.setParent(this);
-			}
-		}
-
-		updateView();
-	}
-
-	@Kroll.method
-	public void deleteRow(Object row, @Kroll.argument(optional = true) KrollDict options)
-	{
-		if (row instanceof Integer) {
-			int index = (Integer) row;
-			RowResult rr = new RowResult();
-			if (locateIndex(index, rr)) {
-				rr.section.removeRowAt(rr.rowIndexInSection);
-				updateView();
-			} else {
-				Log.e(TAG, "Unable to delete row. Index out of range. Non-existent row at " + index);
-			}
-		} else if (row instanceof TableViewRowProxy) {
-			TableViewRowProxy rowProxy = (TableViewRowProxy) row;
-			TiViewProxy section = rowProxy.getParent();
-			if (section instanceof TableViewSectionProxy) {
-				((TableViewSectionProxy) section).remove(rowProxy);
-				updateView();
-			} else {
-				Log.e(TAG, "Unable to delete row. The row is not added to the table yet.");
-			}
-		} else {
-			Log.e(TAG, "Unable to delete row. Invalid type of row: " + row);
-		}
-	}
-
-	private void setModelDirtyIfNecessary()
-	{
-		TiUITableView nativeTableViewReference = ((TiUITableView) peekView());
-		if (nativeTableViewReference != null) {
-			nativeTableViewReference.setModelDirty();
-		}
-	}
-
-	@Kroll.method
-	public void deleteSection(int index, @Kroll.argument(optional = true) KrollDict options)
-	{
-		ArrayList<TableViewSectionProxy> currentSections = getSectionsArray();
-		try {
-			TableViewSectionProxy section = currentSections.get(index);
-			currentSections.remove(index);
-			if (section.getParent() == this) {
-				section.setParent(null);
-			}
-			updateView();
-		} catch (IndexOutOfBoundsException e) {
-			throw new IllegalStateException("Unable to delete section. Index out of range. Non-existent section at "
-											+ index);
-		}
-	}
-
-	@Kroll.method
-	public int getIndexByName(String name)
-	{
-		int index = -1;
-		int idx = 0;
-		if (name != null) {
-			for (TableViewSectionProxy section : getSections()) {
-				for (TableViewRowProxy row : section.getRows()) {
-					String rname = TiConvert.toString(row.getProperty(TiC.PROPERTY_NAME));
-					if (rname != null && name.equals(rname)) {
-						index = idx;
-						break;
-					}
-					idx++;
-				}
-				if (index > -1) {
-					break;
-				}
-			}
-		}
-		return index;
-	}
-
-	@Kroll.method
-	public void insertRowBefore(int index, Object data, @Kroll.argument(optional = true) KrollDict options)
-	{
-		if (getSectionsArray().size() > 0) {
-			if (index < 0) {
-				index = 0;
-			}
-
-			RowResult rr = new RowResult();
-			if (locateIndex(index, rr)) {
-				TableViewRowProxy rowProxy = rowProxyFor(data);
-				rr.section.insertRowAt(rr.rowIndexInSection, rowProxy);
-			} else {
-				throw new IllegalStateException("Index out of range. Non-existent row at " + index);
-			}
-		} else {
-			// Add first row.
-			Object[] args = { rowProxyFor(data) };
-			processData(args);
-		}
-
-		updateView();
-	}
-
-	@Kroll.method
-	public void insertSectionBefore(int index, Object data, @Kroll.argument(optional = true) KrollDict options)
-	{
-		TableViewSectionProxy sectionProxy = sectionProxyFor(data);
-		if (sectionProxy == null) {
-			throw new IllegalStateException("Unable to insert section. Invalid type for section: " + data);
-		}
-
-		try {
-			ArrayList<TableViewSectionProxy> currentSections = getSectionsArray();
-			currentSections.add(index, sectionProxy);
-			sectionProxy.setParent(this);
-			updateView();
-		} catch (IndexOutOfBoundsException e) {
-			throw new IllegalStateException("Unable to insert section. Index out of range. Non-existent row at "
-											+ index);
-		}
-	}
-
-	@Kroll.method
-	public void insertRowAfter(int index, Object data, @Kroll.argument(optional = true) KrollDict options)
-	{
-		RowResult rr = new RowResult();
-		if (locateIndex(index, rr)) {
-			// TODO check for section
-			TableViewRowProxy rowProxy = rowProxyFor(data);
-			rr.section.insertRowAt(rr.rowIndexInSection + 1, rowProxy);
-			updateView();
-		} else {
-			throw new IllegalStateException("Index out of range. Non-existent row at " + index);
-		}
-	}
-
-	@Kroll.method
-	public void insertSectionAfter(int index, Object data, @Kroll.argument(optional = true) KrollDict options)
-	{
-		TableViewSectionProxy sectionProxy = sectionProxyFor(data);
-		if (sectionProxy == null) {
-			throw new IllegalStateException("Unable to insert section. Invalid type for section: " + data);
-		}
-
-		if (index < 0) {
-			throw new IllegalStateException("Unable to insert section. Index out of range. Non-existent row at "
-											+ index);
-		}
-
-		try {
-			ArrayList<TableViewSectionProxy> currentSections = getSectionsArray();
-			currentSections.add(index + 1, sectionProxy);
-			sectionProxy.setParent(this);
-			updateView();
-		} catch (IndexOutOfBoundsException e) {
-			throw new IllegalStateException("Unable to insert section. Index out of range. Non-existent row at "
-											+ index);
-		}
-	}
-
-	@Kroll.method
-	@Kroll.getProperty
-	public TableViewSectionProxy[] getSections()
-	{
-		ArrayList<TableViewSectionProxy> sections = getSectionsArray();
-		return sections.toArray(new TableViewSectionProxy[sections.size()]);
-	}
-
-	@Kroll.method
-	@Kroll.getProperty
-	public int getSectionCount()
-	{
-		ArrayList<TableViewSectionProxy> sections = getSectionsArray();
-		return sections.size();
-	}
-
-	public ArrayList<TableViewSectionProxy> getSectionsArray()
-	{
-		ArrayList<TableViewSectionProxy> sections = localSections;
-		if (sections == null) {
-			sections = new ArrayList<TableViewSectionProxy>();
-			localSections = sections;
-		}
-		return sections;
 	}
 
 	/**
-	 * If the row does not carry section information, it will be added
-	 * to the currentSection. If it does carry section information (i.e., a header),
-	 * that section will be created and the row added to it. Either way,
-	 * whichever section the row gets added to will be returned.
+	 * Delete section from table.
+	 *
+	 * @param index     Section index to remove.
+	 * @param animation Ignored, for iOS parameter compatibility.
 	 */
-	private TableViewSectionProxy addRowToSection(TableViewRowProxy row, TableViewSectionProxy currentSection)
-	{
-		TableViewSectionProxy addedToSection = null;
-		if (currentSection == null || row.hasProperty(TiC.PROPERTY_HEADER)) {
-			addedToSection = new TableViewSectionProxy();
-		} else {
-			addedToSection = currentSection;
-		}
-		if (row.hasProperty(TiC.PROPERTY_HEADER)) {
-			addedToSection.setProperty(TiC.PROPERTY_HEADER_TITLE, row.getProperty(TiC.PROPERTY_HEADER));
-		}
-		if (row.hasProperty(TiC.PROPERTY_FOOTER)) {
-			addedToSection.setProperty(TiC.PROPERTY_FOOTER_TITLE, row.getProperty(TiC.PROPERTY_FOOTER));
-		}
-		addedToSection.add(row);
-		return addedToSection;
-	}
-
-	public void processData(Object[] data)
-	{
-		ArrayList<TableViewSectionProxy> sections = getSectionsArray();
-		cleanupSections();
-
-		TableViewSectionProxy currentSection = null;
-		if (hasProperty(TiC.PROPERTY_HEADER_TITLE)) {
-			currentSection = new TableViewSectionProxy();
-			currentSection.setActivity(getActivity());
-			sections.add(currentSection);
-			currentSection.setParent(this);
-			currentSection.setProperty(TiC.PROPERTY_HEADER_TITLE, getProperty(TiC.PROPERTY_HEADER_TITLE));
-		}
-		if (hasProperty(TiC.PROPERTY_FOOTER_TITLE)) {
-			if (currentSection == null) {
-				currentSection = new TableViewSectionProxy();
-				currentSection.setActivity(getActivity());
-				sections.add(currentSection);
-				currentSection.setParent(this);
-			}
-			currentSection.setProperty(TiC.PROPERTY_FOOTER_TITLE, getProperty(TiC.PROPERTY_FOOTER_TITLE));
-		}
-
-		for (int i = 0; i < data.length; i++) {
-			Object o = data[i];
-			if (o instanceof HashMap || o instanceof TableViewRowProxy) {
-				TableViewRowProxy rowProxy = rowProxyFor(o);
-				TableViewSectionProxy addedToSection = addRowToSection(rowProxy, currentSection);
-				if (currentSection == null || !currentSection.equals(addedToSection)) {
-					currentSection = addedToSection;
-					sections.add(currentSection);
-					currentSection.setParent(this);
-				}
-			} else if (o instanceof TableViewSectionProxy) {
-				currentSection = (TableViewSectionProxy) o;
-				sections.add(currentSection);
-				currentSection.setParent(this);
-			}
-		}
-	}
-
-	private void cleanupSections()
-	{
-		ArrayList<TableViewSectionProxy> sections = getSectionsArray();
-		for (TableViewSectionProxy section : sections) {
-			section.releaseViews();
-			section.setParent(null);
-		}
-		sections.clear();
-	}
-
 	@Kroll.method
-	@Kroll.setProperty
-	public void setData(Object[] args)
+	public void deleteSection(int index, @Kroll.argument(optional = true) KrollDict animation)
 	{
-		Object[] data = args;
-		if (args != null && args.length > 0 && args[0] instanceof Object[]) {
-			data = (Object[]) args[0];
-		}
-		handleSetData(data);
-	}
+		this.sections.remove(getSectionByIndex(index));
 
-	@Kroll.method
-	@Kroll.setProperty
-	public void setSections(Object[] args)
-	{
-		Object[] data = args;
-		if (args != null && args.length > 0 && args[0] instanceof Object[]) {
-			data = (Object[]) args[0];
-		}
-		for (Object section : data) {
-			if (!(section instanceof TableViewSectionProxy)) {
-				Log.e(TAG, "Unable to set sections. Invalid type for section: " + section);
-				return;
-			}
-		}
-		handleSetData(data);
-	}
-
-	private void handleSetData(Object[] data)
-	{
-		if (data != null) {
-			processData(data);
-			updateView();
-		}
-	}
-
-	@Kroll.method
-	@Kroll.getProperty
-	public Object[] getData()
-	{
-		ArrayList<TableViewSectionProxy> sections = getSectionsArray();
-		if (sections != null) {
-			return sections.toArray();
-		}
-
-		return new Object[0];
-	}
-
-	@SuppressWarnings("unchecked")
-	private TableViewRowProxy rowProxyFor(Object row)
-	{
-		TableViewRowProxy rowProxy = null;
-		if (row instanceof TableViewRowProxy) {
-			rowProxy = (TableViewRowProxy) row;
-			rowProxy.setProperty(TiC.PROPERTY_ROW_DATA, new KrollDict(rowProxy.getProperties()));
-
-		} else {
-			KrollDict rowDict = null;
-			if (row instanceof KrollDict) {
-				rowDict = (KrollDict) row;
-
-			} else if (row instanceof HashMap) {
-				rowDict = new KrollDict((HashMap<String, Object>) row);
-			}
-
-			if (rowDict != null) {
-				rowProxy = new TableViewRowProxy();
-				rowProxy.setCreationUrl(creationUrl.getNormalizedUrl());
-				rowProxy.handleCreationDict(rowDict);
-				rowProxy.setProperty(TiC.PROPERTY_CLASS_NAME, CLASSNAME_NORMAL);
-				rowProxy.setCreationProperties(rowDict);
-				rowProxy.setProperty(TiC.PROPERTY_ROW_DATA, row);
-				rowProxy.setActivity(getActivity());
-			}
-		}
-
-		if (rowProxy == null) {
-			String errorMessage
-				= "Unable to create table view row proxy for object, "
-				+ "likely an error in the type of the object passed in...";
-			Log.e(TAG, errorMessage);
-			return null;
-		}
-
-		return rowProxy;
-	}
-
-	@SuppressWarnings("unchecked")
-	private TableViewSectionProxy sectionProxyFor(Object section)
-	{
-		TableViewSectionProxy sectionProxy = null;
-		if (section instanceof TableViewSectionProxy) {
-			sectionProxy = (TableViewSectionProxy) section;
-			sectionProxy.setActivity(getActivity());
-		} else {
-			KrollDict sectionDict = null;
-			if (section instanceof KrollDict) {
-				sectionDict = (KrollDict) section;
-			} else if (section instanceof HashMap) {
-				sectionDict = new KrollDict((HashMap<String, Object>) section);
-			}
-			if (sectionDict != null) {
-				sectionProxy = new TableViewSectionProxy();
-				if (sectionDict.containsKey(TiC.PROPERTY_HEADER_TITLE)) {
-					sectionProxy.setProperty(TiC.PROPERTY_HEADER_TITLE, sectionDict.get(TiC.PROPERTY_HEADER_TITLE));
-				}
-				if (sectionDict.containsKey(TiC.PROPERTY_FOOTER_TITLE)) {
-					sectionProxy.setProperty(TiC.PROPERTY_FOOTER_TITLE, sectionDict.get(TiC.PROPERTY_FOOTER_TITLE));
-				}
-				if (sectionDict.containsKey(TiC.PROPERTY_HEADER_VIEW)) {
-					sectionProxy.setProperty(TiC.PROPERTY_HEADER_VIEW, sectionDict.get(TiC.PROPERTY_HEADER_VIEW));
-				}
-				if (sectionDict.containsKey(TiC.PROPERTY_FOOTER_VIEW)) {
-					sectionProxy.setProperty(TiC.PROPERTY_FOOTER_VIEW, sectionDict.get(TiC.PROPERTY_FOOTER_VIEW));
-				}
-				sectionProxy.setActivity(getActivity());
-			}
-		}
-
-		if (sectionProxy == null) {
-			String errorMessage
-				= "Unable to create table view section proxy for object, "
-				+ "likely an error in the type of the object passed in...";
-			Log.e(TAG, errorMessage);
-			return null;
-		}
-
-		return sectionProxy;
-	}
-
-	private boolean locateIndex(int index, RowResult rowResult)
-	{
-		boolean found = false;
-		int rowCount = 0;
-		int sectionIndex = 0;
-
-		if (index < 0) {
-			return found;
-		}
-
-		for (TableViewSectionProxy section : getSections()) {
-			int sectionRowCount = (int) section.getRowCount();
-			if (sectionRowCount + rowCount > index) {
-				rowResult.section = section;
-				rowResult.sectionIndex = sectionIndex;
-				TableViewRowProxy[] rowsInSection = section.getRows();
-				int rowIndexInSection = index - rowCount;
-				if (rowIndexInSection >= 0 && rowIndexInSection < rowsInSection.length) {
-					rowResult.row = rowsInSection[rowIndexInSection];
-					rowResult.rowIndexInSection = rowIndexInSection;
-					found = true;
-					break;
-				}
-			} else {
-				rowCount += sectionRowCount;
-			}
-
-			sectionIndex += 1;
-		}
-
-		return found;
-	}
-
-	public void updateView()
-	{
-		setModelDirtyIfNecessary();
-	}
-
-	@Kroll.method
-	public void scrollToIndex(int index)
-	{
-		Message message = getMainHandler().obtainMessage(MSG_SCROLL_TO_INDEX);
-		// Message msg = getUIHandler().obtainMessage(MSG_SCROLL_TO_INDEX);
-		message.arg1 = index;
-		message.sendToTarget();
-	}
-
-	@Kroll.method
-	public void selectRow(int row_id)
-	{
-		Message message = getMainHandler().obtainMessage(MSG_SELECT_ROW);
-		message.arg1 = row_id;
-		message.sendToTarget();
-	}
-
-	@Kroll.method
-	public void scrollToTop(int index)
-	{
-		Message message = getMainHandler().obtainMessage(MSG_SCROLL_TO_TOP);
-		// Message msg = getUIHandler().obtainMessage(MSG_SCROLL_TO_TOP);
-		message.arg1 = index;
-		message.sendToTarget();
-	}
-
-	@Override
-	public boolean handleMessage(Message msg)
-	{
-
-		TiUITableView tableNativeView = ((TiUITableView) peekView());
-		boolean tableNativeViewCreated = (tableNativeView != null);
-		AsyncResult result = null;
-		Object asyncResult = null;
-		switch (msg.what) {
-			case MSG_SCROLL_TO_INDEX:
-				if (tableNativeViewCreated) {
-					tableNativeView.scrollToIndex(msg.arg1);
-				}
-				return true;
-			case MSG_SCROLL_TO_TOP:
-				if (tableNativeViewCreated) {
-					tableNativeView.scrollToTop(msg.arg1);
-				}
-				break;
-			case MSG_SELECT_ROW:
-				if (tableNativeViewCreated) {
-					tableNativeView.selectRow(msg.arg1);
-				}
-				break;
-			default:
-				return super.handleMessage(msg);
-		}
-		if (result != null) {
-			result.setResult(asyncResult);
-		}
-		return true;
-	}
-
-	// labels only send out click events when they are explicitly told to do so.
-	// we need to tell each label child to enable clicks when a click listener is added
-	@Override
-	public void eventListenerAdded(String eventName, int count, KrollProxy proxy)
-	{
-		super.eventListenerAdded(eventName, count, proxy);
-		if (eventName.equals(TiC.EVENT_CLICK) && proxy == this) {
-			for (TableViewSectionProxy section : getSections()) {
-				for (TableViewRowProxy row : section.getRows()) {
-					row.setLabelsClickable(true);
-				}
-			}
-		}
-	}
-
-	@Override
-	public void eventListenerRemoved(String eventName, int count, KrollProxy proxy)
-	{
-		super.eventListenerRemoved(eventName, count, proxy);
-		if (eventName.equals(TiC.EVENT_CLICK) && count == 0 && proxy == this) {
-			for (TableViewSectionProxy section : getSections()) {
-				for (TableViewRowProxy row : section.getRows()) {
-					row.setLabelsClickable(false);
-				}
-			}
-		}
+		update();
 	}
 
 	@Override
 	public String getApiName()
 	{
 		return "Ti.UI.TableView";
+	}
+
+	/**
+	 * Get current table data.
+	 *
+	 * @return Array of TableViewRow or TableViewSection proxies.
+	 */
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public Object[] getData()
+	// clang-format on
+	{
+		return this.sections.toArray();
+	}
+
+	/**
+	 * Set table data.
+	 *
+	 * @param data Array of TableViewRows or TableViewSections
+	 */
+	@Kroll.method
+	@Kroll.setProperty
+	public void setData(Object[] data)
+	// clang-format on
+	{
+		this.sections.clear();
+
+		for (Object d : data) {
+			if (d instanceof TableViewRowProxy) {
+				final TableViewRowProxy row = (TableViewRowProxy) d;
+
+				// Handle TableViewRow.
+				appendRow(row, null);
+
+			} else if (d instanceof Object[]) {
+				setData((Object[]) d);
+				return;
+
+			} else if (d instanceof HashMap) {
+				final TableViewRowProxy row = new TableViewRowProxy();
+
+				// Handle TableViewRow dictionary.
+				row.handleCreationDict(new KrollDict((HashMap) d));
+				appendRow(row, null);
+
+			} else if (d instanceof TableViewSectionProxy) {
+				final TableViewSectionProxy section = (TableViewSectionProxy) d;
+
+				// Handle TableViewSection.
+				appendSection(section, null);
+			}
+		}
+
+		update();
+	}
+
+	/**
+	 * Obtain row from specified table index.
+	 *
+	 * @param index Index of row in table (not index of row in section).
+	 * @return TableViewRowProxy
+	 */
+	private TableViewRowProxy getRowByIndex(int index)
+	{
+		for (TableViewSectionProxy section : this.sections) {
+			for (TableViewRowProxy row : section.rows) {
+				if (row.index == index) {
+					return row;
+				}
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * Obtain section from specified table index.
+	 *
+	 * @param index Index of section in table.
+	 * @return TableViewSectionProxy
+	 */
+	private TableViewSectionProxy getSectionByIndex(int index)
+	{
+		return this.sections.get(index);
+	}
+
+	/**
+	 * Get current section count.
+	 *
+	 * @return Integer of section count.
+	 */
+	@Kroll.method
+	@Kroll.getProperty
+	public int getSectionCount()
+	{
+		return getSections().length;
+	}
+
+	/**
+	 * Get current sections in table.
+	 *
+	 * @return Array of TableViewSectionProxy
+	 */
+	@Kroll.method
+	@Kroll.getProperty
+	public TableViewSectionProxy[] getSections()
+	{
+		return this.sections.toArray(new TableViewSectionProxy[this.sections.size()]);
+	}
+
+	/**
+	 * Obtain table view instance.
+	 *
+	 * @return TiTableView
+	 */
+	public TiTableView getTableView()
+	{
+		final TiUITableView view = (TiUITableView) this.view;
+
+		if (view != null) {
+			return view.getTableView();
+		}
+		return null;
+	}
+
+	/**
+	 * Override view handler.
+	 *
+	 * @return TiUIView
+	 */
+	@Override
+	protected TiUIView handleGetView()
+	{
+		final TiUIView view = super.handleGetView();
+
+		// Update table if being re-used.
+		if (view != null) {
+			update();
+		}
+
+		return view;
+	}
+
+	/**
+	 * Insert row after specified index.
+	 *
+	 * @param index     Index to insert row after.
+	 * @param rowObj    Row to insert.
+	 * @param animation Ignored, for iOS parameter compatibility.
+	 */
+	@Kroll.method
+	public void insertRowAfter(int index, Object rowObj, @Kroll.argument(optional = true) KrollDict animation)
+	{
+		final TableViewRowProxy existingRow = getRowByIndex(index);
+
+		if (existingRow != null) {
+			final TiViewProxy parent = existingRow.getParent();
+
+			if (parent != null) {
+				if (parent instanceof TableViewSectionProxy) {
+					final TableViewSectionProxy section = (TableViewSectionProxy) parent;
+					final TableViewRowProxy row = processRow(rowObj);
+
+					if (row == null) {
+						return;
+					}
+
+					// Row is in section, modify section rows.
+					section.add(existingRow.getIndexInSection() + 1, row);
+
+					// Notify TableView of update.
+					update();
+				}
+			}
+		}
+	}
+
+	/**
+	 * Insert row before specified index.
+	 *
+	 * @param index     Index to insert row before.
+	 * @param rowObj    Row to insert.
+	 * @param animation Ignored, for iOS parameter compatibility.
+	 */
+	@Kroll.method
+	public void insertRowBefore(int index, Object rowObj, @Kroll.argument(optional = true) KrollDict animation)
+	{
+		final TableViewRowProxy existingRow = getRowByIndex(index);
+
+		if (existingRow != null) {
+			final TiViewProxy parent = existingRow.getParent();
+
+			if (parent != null) {
+				if (parent instanceof TableViewSectionProxy) {
+					final TableViewSectionProxy section = (TableViewSectionProxy) parent;
+					final TableViewRowProxy row = processRow(rowObj);
+
+					if (row == null) {
+						return;
+					}
+
+					// Row is in section, modify section rows.
+					section.add(existingRow.getIndexInSection(), row);
+
+					// Notify TableView of update.
+					update();
+				}
+			}
+		}
+	}
+
+	/**
+	 * Insert section after specified section index.
+	 *
+	 * @param index      Index of section to insert after.
+	 * @param sectionObj Section to insert.
+	 * @param animation  Ignored, for iOS parameter compatibility.
+	 */
+	@Kroll.method
+	public void insertSectionAfter(int index, Object sectionObj,
+								   @Kroll.argument(optional = true) KrollDict animation)
+	{
+		final TableViewSectionProxy section = processSection(sectionObj);
+
+		if (index > -1 && index <= this.sections.size()) {
+			section.setParent(this);
+			this.sections.add(index + 1, section);
+
+			// Notify TableView of update.
+			update();
+		}
+	}
+
+	/**
+	 * Insert section before specified section index.
+	 *
+	 * @param index      Index of section to insert before.
+	 * @param sectionObj Section to insert.
+	 * @param animation  Ignored, for iOS parameter compatibility.
+	 */
+	@Kroll.method
+	public void insertSectionBefore(int index, Object sectionObj,
+									@Kroll.argument(optional = true) KrollDict animation)
+	{
+		final TableViewSectionProxy section = processSection(sectionObj);
+
+		if (index > -1 && index <= this.sections.size()) {
+			section.setParent(this);
+			this.sections.add(index, section);
+
+			// Notify TableView of update.
+			update();
+		}
+	}
+
+	/**
+	 * Is TableView currently filtered by search results.
+	 *
+	 * @return Boolean
+	 */
+	public boolean isFiltered()
+	{
+		final TiTableView tableView = getTableView();
+
+		if (tableView != null) {
+			return tableView.isFiltered();
+		}
+
+		return false;
+	}
+
+	/**
+	 * Release all views and rows.
+	 */
+	@Override
+	public void release()
+	{
+		if (hasPropertyAndNotNull(TiC.PROPERTY_SEARCH)) {
+			final TiViewProxy search = (TiViewProxy) getProperty(TiC.PROPERTY_SEARCH);
+			search.releaseViews();
+		}
+		if (hasPropertyAndNotNull(TiC.PROPERTY_HEADER_VIEW)) {
+			final TiViewProxy header = (TiViewProxy) getProperty(TiC.PROPERTY_HEADER_VIEW);
+			header.releaseViews();
+		}
+		if (hasPropertyAndNotNull(TiC.PROPERTY_FOOTER_VIEW)) {
+			final TiViewProxy footer = (TiViewProxy) getProperty(TiC.PROPERTY_FOOTER_VIEW);
+			footer.releaseViews();
+		}
+
+		releaseViews();
+		this.sections.clear();
+
+		super.release();
+	}
+
+	/**
+	 * Release all views associated with TableView.
+	 */
+	@Override
+	public void releaseViews()
+	{
+		super.releaseViews();
+
+		for (TableViewSectionProxy section : this.sections) {
+			section.releaseViews();
+		}
+	}
+
+	/**
+	 * Scroll to index in table.
+	 *
+	 * @param index     Index to scroll to.
+	 * @param animation Ignored, for iOS parameter compatibility.
+	 */
+	@Kroll.method
+	public void scrollToIndex(int index, @Kroll.argument(optional = true) KrollDict animation)
+	{
+		final TiTableView tableView = getTableView();
+
+		if (tableView != null) {
+			final RecyclerView recyclerView = tableView.getRecyclerView();
+
+			if (recyclerView != null) {
+				recyclerView.scrollToPosition(tableView.getAdapterIndex(index));
+			}
+		}
+	}
+
+	/**
+	 * Scroll to index in table.
+	 *
+	 * @param index     Index to scroll to.
+	 * @param animation Ignored, for iOS parameter compatibility.
+	 */
+	@Kroll.method
+	public void scrollToTop(int index, @Kroll.argument(optional = true) KrollDict animation)
+	{
+		scrollToIndex(index, animation);
+	}
+
+	/**
+	 * Select row at specified index in table.
+	 *
+	 * @param index Index of row to select.
+	 */
+	@Kroll.method
+	public void selectRow(int index)
+	{
+		scrollToIndex(index, null);
+
+		final TableViewRowProxy row = getRowByIndex(index);
+
+		if (row != null) {
+			final TiTableView tableView = getTableView();
+
+			if (tableView != null) {
+				final RecyclerView recyclerView = tableView.getRecyclerView();
+
+				if (recyclerView != null) {
+					final TableViewAdapter adapter = (TableViewAdapter) recyclerView.getAdapter();
+
+					if (adapter != null) {
+						adapter.getTracker().select(row);
+					}
+				}
+			}
+		}
+	}
+
+	/**
+	 * Handle setting of property.
+	 *
+	 * @param name Property name.
+	 * @param value Property value.
+	 */
+	@Override
+	public void setProperty(String name, Object value)
+	{
+		super.setProperty(name, value);
+
+		if (name.equals(TiC.PROPERTY_DATA) || name.equals(TiC.PROPERTY_SECTIONS)) {
+			setData((Object[]) value);
+		}
+	}
+
+	/**
+	 * Notify TableView to update all adapter rows.
+	 */
+	public void update()
+	{
+		final TiTableView tableView = getTableView();
+
+		if (tableView != null) {
+			tableView.update();
+		}
+	}
+
+	/**
+	 * Update row at specified table index.
+	 *
+	 * @param index     Index of table row to update.
+	 * @param rowObj    New row to replace existing row with.
+	 * @param animation Ignored, for iOS parameter compatibility.
+	 */
+	@Kroll.method
+	public void updateRow(int index, Object rowObj, @Kroll.argument(optional = true) KrollDict animation)
+	{
+		final TableViewRowProxy existingRow = getRowByIndex(index);
+
+		if (existingRow != null) {
+			final TiViewProxy parent = existingRow.getParent();
+
+			if (parent != null) {
+				if (parent instanceof TableViewSectionProxy) {
+					final TableViewSectionProxy section = (TableViewSectionProxy) parent;
+					final TableViewRowProxy row = processRow(rowObj);
+
+					if (row == null) {
+						return;
+					}
+
+					// Row is in section, modify section row.
+					section.set(existingRow.getIndexInSection(), row);
+
+					// Notify TableView of new items.
+					update();
+				}
+			}
+		}
+	}
+
+	/**
+	 * Update section at specified table index.
+	 *
+	 * @param index     Index of section to update.
+	 * @param section   New section to replace existing section with.
+	 * @param animation Ignored, for iOS parameter compatibility.
+	 */
+	@Kroll.method
+	public void updateSection(int index, TableViewSectionProxy section,
+							  @Kroll.argument(optional = true) KrollDict animation)
+	{
+		if (index > -1 && index <= this.sections.size()) {
+			section.setParent(this);
+			this.sections.set(index, section);
+
+			// Notify TableView of update.
+			update();
+		}
 	}
 }

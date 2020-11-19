@@ -1,15 +1,15 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2020 by Axway, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 package ti.modules.titanium.ui;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.appcelerator.kroll.annotations.Kroll;
-import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.view.TiUIView;
@@ -22,16 +22,77 @@ import android.app.Activity;
 		TiC.PROPERTY_HEADER_VIEW,
 		TiC.PROPERTY_FOOTER_TITLE,
 		TiC.PROPERTY_FOOTER_VIEW
-})
+	})
 public class TableViewSectionProxy extends TiViewProxy
 {
 	private static final String TAG = "TableViewSectionProxy";
-	protected ArrayList<TableViewRowProxy> rows = new ArrayList<TableViewRowProxy>();
+
+	protected List<TableViewRowProxy> rows = new ArrayList<>();
+
+	private int filteredRowCount = -1;
 
 	public TableViewSectionProxy()
 	{
 		super();
-		rows = new ArrayList<TableViewRowProxy>();
+	}
+
+	/**
+	 * Add row to section at specified index.
+	 *
+	 * @param index Index to add row to.
+	 * @param rowObj Row to add.
+	 */
+	public void add(int index, Object rowObj)
+	{
+		TableViewRowProxy row = TableViewProxy.processRow(rowObj);
+
+		if (row != null) {
+
+			if (row.getParent() != null) {
+
+				// Row already exists, clone.
+				row = row.clone();
+			}
+
+			row.setParent(this);
+			this.rows.add(index, row);
+		}
+	}
+
+	/**
+	 * Add row to section.
+	 *
+	 * @param rowObj Row to add.
+	 */
+	@Kroll.method
+	public void add(Object rowObj)
+	{
+		// Handle array input.
+		if (rowObj instanceof Object[]) {
+			for (Object o : (Object[]) rowObj) {
+				this.add(o);
+			}
+			return;
+		}
+
+		TableViewRowProxy row = TableViewProxy.processRow(rowObj);
+
+		if (row != null) {
+
+			if (row.getParent() != null) {
+
+				// Row already exists, clone.
+				row = row.clone();
+			}
+
+			row.setParent(this);
+			this.rows.add(row);
+
+			final TableViewProxy tableViewProxy = getTableViewProxy();
+			if (tableViewProxy != null) {
+				tableViewProxy.update();
+			}
+		}
 	}
 
 	@Override
@@ -41,120 +102,100 @@ public class TableViewSectionProxy extends TiViewProxy
 	}
 
 	@Override
-	public void setActivity(Activity activity)
+	public String getApiName()
 	{
-		super.setActivity(activity);
-		if (rows != null) {
-			for (TableViewRowProxy row : rows) {
-				row.setActivity(activity);
-			}
-		}
+		return "Ti.UI.TableViewSection";
 	}
 
+	/**
+	 * Obtain current row count in section.
+	 *
+	 * @return Integer of row count.
+	 */
+	@Kroll.method
+	@Kroll.getProperty
+	public int getRowCount()
+	{
+		return this.rows.size();
+	}
+
+	/**
+	 * Get number of filtered rows in section when search query is active.
+	 *
+	 * @return Integer of filtered row count.
+	 */
+	public int getFilteredRowCount()
+	{
+		return this.filteredRowCount;
+	}
+
+	/**
+	 * Set number of rows that are filtered in section.
+	 *
+	 * @param filteredRowCount Number of filtered rows.
+	 */
+	public void setFilteredRowCount(int filteredRowCount)
+	{
+		this.filteredRowCount = filteredRowCount;
+	}
+
+	/**
+	 * Get section index for specified row.
+	 *
+	 * @param row Row to obtain index.
+	 * @return Integer of index.
+	 */
+	public int getRowIndex(TableViewRowProxy row)
+	{
+		return this.rows.indexOf(row);
+	}
+
+	/**
+	 * Get array of current rows in section.
+	 *
+	 * @return TableViewRowProxy array.
+	 */
 	@Kroll.method
 	@Kroll.getProperty
 	public TableViewRowProxy[] getRows()
 	{
-		return rows.toArray(new TableViewRowProxy[rows.size()]);
+		return this.rows.toArray(new TableViewRowProxy[this.rows.size()]);
 	}
 
-	@Kroll.method
-	@Kroll.getProperty
-	public double getRowCount()
+	/**
+	 * Obtain TableView proxy for section.
+	 *
+	 * @return TableViewProxy
+	 */
+	public TableViewProxy getTableViewProxy()
 	{
-		return rows.size();
-	}
-
-	@Kroll.method
-	public void add(TableViewRowProxy rowProxy)
-	{
-		if (rowProxy != null) {
-			rows.add(rowProxy);
-			rowProxy.setParent(this);
+		TiViewProxy parent = getParent();
+		while (!(parent instanceof TableViewProxy) && parent != null) {
+			parent = parent.getParent();
 		}
+		return (TableViewProxy) parent;
 	}
 
-	@Kroll.method
-	public void remove(TableViewRowProxy rowProxy)
+	/**
+	 * Determine if section contains a footer.
+	 *
+	 * @return Boolean
+	 */
+	public boolean hasFooter()
 	{
-		if (rowProxy != null) {
-			rows.remove(rowProxy);
-			if (rowProxy.getParent() == this) {
-				rowProxy.setParent(null);
-			}
-		}
+		return hasPropertyAndNotNull(TiC.PROPERTY_FOOTER_TITLE)
+			|| hasPropertyAndNotNull(TiC.PROPERTY_FOOTER_VIEW);
 	}
 
-	@Kroll.method
-	public TableViewRowProxy rowAtIndex(int index)
+	/**
+	 * Determine if section contains a header.
+	 *
+	 * @return Boolean
+	 */
+	public boolean hasHeader()
 	{
-		TableViewRowProxy result = null;
-		if (index > -1 && index < rows.size()) {
-			result = rows.get(index);
-		}
-
-		return result;
-	}
-
-	@Kroll.method
-	public void insertRowAt(int index, TableViewRowProxy row)
-	{
-		if (index > -1 && index <= rows.size()) {
-			rows.add(index, row);
-			row.setParent(this);
-		} else {
-			Log.e(TAG, "Index out of range. Unable to insert row at index " + index, Log.DEBUG_MODE);
-		}
-	}
-
-	@Kroll.method
-	public void removeRowAt(int index)
-	{
-		if (index > -1 && index < rows.size()) {
-			TableViewRowProxy rowProxy = rows.get(index);
-			rows.remove(index);
-			if (rowProxy.getParent() == this) {
-				rowProxy.setParent(null);
-			}
-		} else {
-			Log.e(TAG, "Index out of range. Unable to remove row at index " + index, Log.DEBUG_MODE);
-		}
-	}
-
-	@Kroll.method
-	public void updateRowAt(int index, TableViewRowProxy row)
-	{
-		TableViewRowProxy oldRow = rows.get(index);
-		if (row == oldRow) {
-			return;
-		}
-		if (index > -1 && index < rows.size()) {
-			rows.set(index, row);
-			row.setParent(this);
-			if (oldRow.getParent() == this && !rows.contains(oldRow)) {
-				oldRow.setParent(null);
-			}
-		} else {
-			Log.e(TAG, "Index out of range. Unable to update row at index " + index, Log.DEBUG_MODE);
-		}
-	}
-
-	@Override
-	public String toString()
-	{
-		return "[object TableViewSectionProxy]";
-	}
-
-	@Override
-	public void releaseViews()
-	{
-		super.releaseViews();
-
-		if (rows != null) {
-			for (TableViewRowProxy row : rows) {
-				row.releaseViews();
-			}
-		}
+		return hasPropertyAndNotNull(TiC.PROPERTY_HEADER_TITLE)
+			|| hasPropertyAndNotNull(TiC.PROPERTY_HEADER_VIEW);
 	}
 
 	@Override
@@ -162,17 +203,93 @@ public class TableViewSectionProxy extends TiViewProxy
 	{
 		super.release();
 
-		releaseViews();
+		this.rows.clear();
+	}
 
-		if (rows != null) {
-			rows.clear();
-			rows = null;
+	/**
+	 * Release section views.
+	 */
+	@Override
+	public void releaseViews()
+	{
+		if (hasPropertyAndNotNull(TiC.PROPERTY_HEADER_VIEW)) {
+			final TiViewProxy header = (TiViewProxy) getProperty(TiC.PROPERTY_HEADER_VIEW);
+			header.releaseViews();
+		}
+		if (hasPropertyAndNotNull(TiC.PROPERTY_FOOTER_VIEW)) {
+			final TiViewProxy footer = (TiViewProxy) getProperty(TiC.PROPERTY_FOOTER_VIEW);
+			footer.releaseViews();
+		}
+
+		for (TableViewRowProxy row : this.rows) {
+			row.releaseViews();
+		}
+
+		super.releaseViews();
+	}
+
+	/**
+	 * Remove row from section.
+	 *
+	 * @param row Row to remove.
+	 */
+	@Kroll.method
+	public void remove(TableViewRowProxy row)
+	{
+		if (row != null && this.rows.contains(row)) {
+			this.rows.remove(row);
+			row.setParent(null);
+
+			final TableViewProxy tableViewProxy = getTableViewProxy();
+			if (tableViewProxy != null) {
+
+				// Notify TableView of update.
+				tableViewProxy.update();
+			}
 		}
 	}
 
-	@Override
-	public String getApiName()
+	/**
+	 * Get row at specified index in section.
+	 *
+	 * @param index Index of row to obtain.
+	 * @return TableViewRowProxy
+	 */
+	@Kroll.method
+	public TableViewRowProxy rowAtIndex(int index)
 	{
-		return "Ti.UI.TableViewSection";
+		TableViewRowProxy result = null;
+
+		if (index > -1 && index < rows.size()) {
+			result = rows.get(index);
+		}
+		return result;
+	}
+
+	/**
+	 * Set row at specified index.
+	 *
+	 * @param index Index to set row.
+	 * @param rowObj Row to set.
+	 */
+	public void set(int index, Object rowObj)
+	{
+		final TableViewRowProxy existingRow = rowAtIndex(index);
+		final TableViewRowProxy row = TableViewProxy.processRow(rowObj);
+
+		if (existingRow != null && row != null && existingRow != row) {
+			existingRow.setParent(null);
+			row.setParent(this);
+			this.rows.set(index, row);
+		}
+	}
+
+	/**
+	 * String definition of proxy instance.
+	 */
+	@Override
+	public String toString()
+	{
+		return "[object TableViewSectionProxy]";
 	}
 }

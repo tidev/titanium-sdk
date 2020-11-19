@@ -783,6 +783,26 @@ describe('Titanium.Filesystem.File', function () {
 		}).not.throw();
 	});
 
+	it.android('externalCacheDirectory read/write', () => {
+		if (!Ti.Filesystem.isExternalStoragePresent()) {
+			return;
+		}
+		const stringContent = 'My external file content.';
+		const file = Ti.Filesystem.getFile(Ti.Filesystem.externalCacheDirectory, 'MyFile.txt');
+		should(file.write(stringContent)).be.true();
+		should(file.read().text).be.eql(stringContent);
+	});
+
+	it.android('externalStorageDirectory read/write', () => {
+		if (!Ti.Filesystem.isExternalStoragePresent()) {
+			return;
+		}
+		const stringContent = 'My external file content.';
+		const file = Ti.Filesystem.getFile(Ti.Filesystem.externalStorageDirectory, 'MyFile.txt');
+		should(file.write(stringContent)).be.true();
+		should(file.read().text).be.eql(stringContent);
+	});
+
 	it.android('TIMOB-27193', () => {
 		const filename = `TIMOB-27193_${Date.now()}.txt`;
 		const file = Ti.Filesystem.getFile(Ti.Filesystem.tempDirectory, filename);

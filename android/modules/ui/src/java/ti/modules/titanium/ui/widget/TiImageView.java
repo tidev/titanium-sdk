@@ -182,6 +182,14 @@ public class TiImageView extends ViewGroup implements Handler.Callback, OnClickL
 	 */
 	public void setImageBitmap(Bitmap bitmap)
 	{
+		if (bitmap == null) {
+
+			// Reset drawable to null.
+			// setImageBitmap() will create a drawable that will affect width/height.
+			imageView.setImageDrawable(null);
+			return;
+		}
+
 		imageView.setImageBitmap(bitmap);
 	}
 

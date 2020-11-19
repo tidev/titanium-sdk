@@ -109,11 +109,11 @@ public abstract class TiViewProxy extends KrollProxy
 	private static final int MSG_QUEUED_ANIMATE = MSG_FIRST_ID + 114;
 	protected static final int MSG_LAST_ID = MSG_FIRST_ID + 999;
 
-	protected ArrayList<TiViewProxy> children;
+	protected ArrayList<TiViewProxy> children = new ArrayList<>();
 	protected WeakReference<TiViewProxy> parent;
 
 	protected TiUIView view;
-	protected Object pendingAnimationLock;
+	protected Object pendingAnimationLock = new Object();
 	protected TiAnimationBuilder pendingAnimation;
 	private boolean isDecorView = false;
 	private boolean overrideCurrentAnimation = false;
@@ -124,8 +124,6 @@ public abstract class TiViewProxy extends KrollProxy
 	 */
 	public TiViewProxy()
 	{
-		pendingAnimationLock = new Object();
-
 		defaultValues.put(TiC.PROPERTY_TOUCH_ENABLED, true);
 		defaultValues.put(TiC.PROPERTY_FILTER_TOUCHES_WHEN_OBSCURED, false);
 		defaultValues.put(TiC.PROPERTY_SOUND_EFFECTS_ENABLED, true);
@@ -565,9 +563,6 @@ public abstract class TiViewProxy extends KrollProxy
 			Log.e(TAG, "Add called with a null child");
 			return;
 		}
-		if (children == null) {
-			children = new ArrayList<TiViewProxy>();
-		}
 		if (args instanceof Object[]) {
 			for (Object arg : (Object[]) args) {
 				if (arg instanceof TiViewProxy) {
@@ -628,10 +623,6 @@ public abstract class TiViewProxy extends KrollProxy
 		}
 		@SuppressWarnings("rawtypes")
 		HashMap options = (HashMap) params;
-
-		if (children == null) {
-			children = new ArrayList<TiViewProxy>();
-		}
 
 		TiViewProxy child = null;
 		Integer position = -1;
