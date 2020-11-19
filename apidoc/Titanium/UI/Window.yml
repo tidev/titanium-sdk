@@ -13,7 +13,7 @@ description: |
     other views. There are a few specialized views that manage windows:
 
     * [NavigationWindow](Titanium.UI.NavigationWindow)
-    * [SplitWindow](Titanium.UI.iPad.SplitWindow)
+    * [SplitWindow](Titanium.UI.iOS.SplitWindow)
     * [TabGroup](Titanium.UI.TabGroup)
     * [Tab](Titanium.UI.Tab)
 
