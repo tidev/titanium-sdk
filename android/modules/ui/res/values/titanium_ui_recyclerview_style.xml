@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<style xmlns:android="http://schemas.android.com/apk/res/android" name="RecyclerView" parent="android:Widget">
+		<item name="android:scrollbars">vertical</item>
+
+		<item name="android:fastScrollEnabled">true</item>
+		<item name="android:fastScrollThumbDrawable">@drawable/titanium_fastscroll_thumb_drawable</item>
+		<item name="android:fastScrollTrackDrawable">@drawable/titanium_fastscroll_line_drawable</item>
+	</style>
+</resources>

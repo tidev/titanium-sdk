@@ -1,305 +1,152 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2015 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2020 by Axway, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-
 package ti.modules.titanium.ui.widget.listview;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.List;
 
 import org.appcelerator.kroll.KrollDict;
-import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
-import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
-import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiUIView;
 
-import ti.modules.titanium.ui.UIModule;
 import android.app.Activity;
 
-@Kroll.proxy(creatableInModule = UIModule.class,
+import ti.modules.titanium.ui.UIModule;
+import ti.modules.titanium.ui.widget.TiUIListView;
+
+@Kroll.proxy(
+	creatableInModule = ti.modules.titanium.ui.UIModule.class,
 	propertyAccessors = {
 		TiC.PROPERTY_CAN_SCROLL,
-		TiC.PROPERTY_HEADER_TITLE,
-		TiC.PROPERTY_FOOTER_TITLE,
+		TiC.PROPERTY_CASE_INSENSITIVE_SEARCH,
 		TiC.PROPERTY_DEFAULT_ITEM_TEMPLATE,
 		TiC.PROPERTY_FAST_SCROLL,
-		TiC.PROPERTY_SHOW_VERTICAL_SCROLL_INDICATOR,
-		TiC.PROPERTY_SEPARATOR_COLOR,
+		TiC.PROPERTY_FOOTER_TITLE,
+		TiC.PROPERTY_FOOTER_VIEW,
+		TiC.PROPERTY_HEADER_TITLE,
+		TiC.PROPERTY_HEADER_VIEW,
+		TiC.PROPERTY_REFRESH_CONTROL,
 		TiC.PROPERTY_SEARCH_TEXT,
 		TiC.PROPERTY_SEARCH_VIEW,
-		TiC.PROPERTY_CASE_INSENSITIVE_SEARCH,
-		TiC.PROPERTY_HEADER_DIVIDERS_ENABLED,
-		TiC.PROPERTY_FOOTER_DIVIDERS_ENABLED,
-		TiC.PROPERTY_REFRESH_CONTROL,
-		TiC.PROPERTY_SEPARATOR_HEIGHT
-})
+		TiC.PROPERTY_SEPARATOR_COLOR,
+		TiC.PROPERTY_SEPARATOR_HEIGHT,
+		TiC.PROPERTY_SEPARATOR_STYLE,
+		TiC.PROPERTY_SHOW_VERTICAL_SCROLL_INDICATOR,
+		TiC.PROPERTY_TEMPLATES
+	}
+)
 public class ListViewProxy extends TiViewProxy
 {
 	private static final String TAG = "ListViewProxy";
 
-	//indicate if user attempts to add/modify/delete sections before TiListView is created
-	private boolean preload = false;
-	private ArrayList<ListSectionProxy> preloadSections;
-	private ArrayList<HashMap<String, Integer>> preloadMarkers;
+	private List<ListSectionProxy> sections = new ArrayList<>();
+	private List<ListItemProxy> markers = new ArrayList<>();
 
 	public ListViewProxy()
 	{
 		super();
+
+		defaultValues.put(TiC.PROPERTY_CAN_SCROLL, true);
+		defaultValues.put(TiC.PROPERTY_CASE_INSENSITIVE_SEARCH, true);
+		defaultValues.put(TiC.PROPERTY_DEFAULT_ITEM_TEMPLATE, UIModule.LIST_ITEM_TEMPLATE_DEFAULT);
+		defaultValues.put(TiC.PROPERTY_FAST_SCROLL, false);
 	}
 
+	/**
+	 * Add marker for list item.
+	 * This will fire the `marker` event when the item is scrolled into view.
+	 *
+	 * @param markerProperties Dictionary defining marker.
+	 */
+	@Kroll.method
+	public void addMarker(KrollDict markerProperties)
+	{
+		final int itemIndex = markerProperties.getInt(TiC.PROPERTY_ITEM_INDEX);
+		final int sectionIndex = markerProperties.getInt(TiC.PROPERTY_SECTION_INDEX);
+		final ListSectionProxy section = getSectionByIndex(sectionIndex);
+
+		if (section != null) {
+			final ListItemProxy item = section.getListItemAt(itemIndex);
+
+			if (item != null) {
+				markers.add(item);
+			}
+		}
+	}
+
+	/**
+	 * Append sections to list.
+	 *
+	 * @param sections Sections to append.
+	 * @param animation Ignored, for iOS parameter compatibility.
+	 */
+	@Kroll.method
+	public void appendSection(Object sections, @Kroll.argument(optional = true) KrollDict animation)
+	{
+		if (sections instanceof Object[]) {
+
+			// Append ListSection array.
+			for (final Object o : (Object[]) sections) {
+				if (o instanceof ListSectionProxy) {
+					final ListSectionProxy section = (ListSectionProxy) o;
+
+					section.setParent(this);
+					this.sections.add(section);
+				}
+			}
+
+			// Notify ListView of new sections.
+			update();
+
+		} else if (sections instanceof ListSectionProxy) {
+			final ListSectionProxy section = (ListSectionProxy) sections;
+
+			// Append ListSection.
+			section.setParent(this);
+			this.sections.add(section);
+
+			// Notify ListView of new section.
+			update();
+		}
+	}
+
+	/**
+	 * Create TiUIListView for proxy.
+	 *
+	 * @param activity the context activity.
+	 * @return TiUIView
+	 */
+	@Override
 	public TiUIView createView(Activity activity)
 	{
-		return new TiListView(this, activity);
+		return new TiUIListView(this);
 	}
 
-	public void handleCreationArgs(KrollModule createdInModule, Object[] args)
-	{
-		preloadSections = new ArrayList<ListSectionProxy>();
-		preloadMarkers = new ArrayList<HashMap<String, Integer>>();
-		defaultValues.put(TiC.PROPERTY_DEFAULT_ITEM_TEMPLATE, UIModule.LIST_ITEM_TEMPLATE_DEFAULT);
-		defaultValues.put(TiC.PROPERTY_CASE_INSENSITIVE_SEARCH, true);
-		defaultValues.put(TiC.PROPERTY_CAN_SCROLL, true);
-		defaultValues.put(TiC.PROPERTY_FAST_SCROLL, false);
-		super.handleCreationArgs(createdInModule, args);
-	}
-
-	public void handleCreationDict(KrollDict options)
-	{
-		super.handleCreationDict(options);
-		//Adding sections to preload sections, so we can handle appendSections/insertSection
-		//accordingly if user call these before TiListView is instantiated.
-		if (options.containsKey(TiC.PROPERTY_SECTIONS)) {
-			Object obj = options.get(TiC.PROPERTY_SECTIONS);
-			if (obj instanceof Object[]) {
-				addPreloadSections((Object[]) obj, -1, true);
-			}
-		}
-		if (options.containsKey(TiC.PROPERTY_DEFAULT_ITEM_TEMPLATE)) {
-			setProperty(TiC.PROPERTY_DEFAULT_ITEM_TEMPLATE, options.get(TiC.PROPERTY_DEFAULT_ITEM_TEMPLATE));
-		}
-	}
-
-	public void clearPreloadSections()
-	{
-		if (preloadSections != null) {
-			preloadSections.clear();
-		}
-	}
-
-	public ArrayList<ListSectionProxy> getPreloadSections()
-	{
-		return preloadSections;
-	}
-
-	public boolean getPreload()
-	{
-		return preload;
-	}
-
-	public void setPreload(boolean pload)
-	{
-		preload = pload;
-	}
-
-	public ArrayList<HashMap<String, Integer>> getPreloadMarkers()
-	{
-		return preloadMarkers;
-	}
-
-	private void addPreloadSections(Object secs, int index, boolean arrayOnly)
-	{
-		if (secs instanceof Object[]) {
-			Object[] sections = (Object[]) secs;
-			for (int i = 0; i < sections.length; i++) {
-				Object section = sections[i];
-				addPreloadSection(section, -1);
-			}
-		} else if (!arrayOnly) {
-			addPreloadSection(secs, -1);
-		}
-	}
-
-	private void addPreloadSection(Object section, int index)
-	{
-		if (section instanceof ListSectionProxy) {
-			if (index == -1) {
-				preloadSections.add((ListSectionProxy) section);
-			} else {
-				preloadSections.add(index, (ListSectionProxy) section);
-			}
-		}
-	}
-
+	/**
+	 * Remove section from list at specified index.
+	 *
+	 * @param index Index of section to remove.
+	 * @param animation Ignored, for iOS parameter compatibility.
+	 */
 	@Kroll.method
-	@Kroll.getProperty
-	public int getSectionCount()
+	public void deleteSectionAt(int index, @Kroll.argument(optional = true) KrollDict animation)
 	{
-		return handleSectionCount();
-	}
+		final ListSectionProxy section = getSectionByIndex(index);
 
-	public int handleSectionCount()
-	{
-		if (peekView() == null && getParent() != null) {
-			getParent().getOrCreateView();
-		}
-		TiUIView listView = peekView();
+		if (section != null) {
 
-		if (listView != null) {
-			return ((TiListView) listView).getSectionCount();
-		}
-		return preloadSections.size();
-	}
+			// Remove section from list.
+			section.setParent(null);
+			this.sections.remove(section);
 
-	@Kroll.method
-	public void scrollToItem(int sectionIndex, int itemIndex,
-							 @SuppressWarnings("rawtypes") @Kroll.argument(optional = true) HashMap options)
-	{
-		boolean animated = true;
-		if ((options != null) && (options instanceof HashMap<?, ?>)) {
-			@SuppressWarnings("unchecked")
-			KrollDict animationargs = new KrollDict(options);
-			if (animationargs.containsKeyAndNotNull(TiC.PROPERTY_ANIMATED)) {
-				animated = TiConvert.toBoolean(animationargs.get(TiC.PROPERTY_ANIMATED), true);
-			}
-		}
-		TiUIView listView = peekView();
-		if (listView != null) {
-			((TiListView) listView).scrollToItem(sectionIndex, itemIndex, animated);
-		}
-	}
-
-	@Kroll.method
-	public void setMarker(Object marker)
-	{
-		setMarkerHelper(marker);
-	}
-
-	public void setMarkerHelper(Object marker)
-	{
-		if (marker instanceof HashMap) {
-			HashMap<String, Integer> m = (HashMap<String, Integer>) marker;
-			TiUIView listView = peekView();
-			if (listView != null) {
-				((TiListView) listView).setMarker(m);
-			} else {
-				preloadMarkers.clear();
-				preloadMarkers.add(m);
-			}
-		}
-	}
-
-	@Kroll.method
-	public void addMarker(Object marker)
-	{
-		if (marker instanceof HashMap) {
-			HashMap<String, Integer> m = (HashMap<String, Integer>) marker;
-			TiUIView listView = peekView();
-			if (listView != null) {
-				((TiListView) listView).addMarker(m);
-			} else {
-				preloadMarkers.add(m);
-			}
-		}
-	}
-
-	@Kroll.method
-	public void appendSection(Object section)
-	{
-		TiUIView listView = peekView();
-		if (listView != null) {
-			((TiListView) listView).appendSection(section);
-		} else {
-			preload = true;
-			addPreloadSections(section, -1, false);
-		}
-	}
-
-	@Kroll.method
-	public void deleteSectionAt(int index)
-	{
-		TiUIView listView = peekView();
-		if (listView != null) {
-			((TiListView) listView).deleteSectionAt(index);
-		} else {
-			if (index < 0 || index >= preloadSections.size()) {
-				Log.e(TAG, "Invalid index to delete section");
-				return;
-			}
-			preload = true;
-			preloadSections.remove(index);
-		}
-	}
-
-	@Kroll.method
-	public void insertSectionAt(int index, Object section)
-	{
-		TiUIView listView = peekView();
-		if (listView != null) {
-			((TiListView) listView).insertSectionAt(index, section);
-		} else {
-			if (index < 0 || index > preloadSections.size()) {
-				Log.e(TAG, "Invalid index to insertSection");
-				return;
-			}
-			preload = true;
-			addPreloadSections(section, index, false);
-		}
-	}
-
-	@Kroll.method
-	public void replaceSectionAt(int index, Object section)
-	{
-		TiUIView listView = peekView();
-		if (listView != null) {
-			((TiListView) listView).replaceSectionAt(index, section);
-		} else {
-			deleteSectionAt(index);
-			insertSectionAt(index, section);
-		}
-	}
-
-	@Kroll.method
-	@Kroll.getProperty
-	public ListSectionProxy[] getSections()
-	{
-		if (peekView() == null && getParent() != null) {
-			getParent().getOrCreateView();
-		}
-		TiUIView listView = peekView();
-
-		if (listView != null) {
-			return ((TiListView) listView).getSections();
-		}
-		ArrayList<ListSectionProxy> preloadedSections = getPreloadSections();
-		return preloadedSections.toArray(new ListSectionProxy[preloadedSections.size()]);
-	}
-
-	@Kroll.method
-	@Kroll.setProperty
-	public void setSections(Object sections)
-	{
-		if (!(sections instanceof Object[])) {
-			Log.e(TAG, "Invalid argument type to setSection(), needs to be an array", Log.DEBUG_MODE);
-			return;
-		}
-		//Update java and javascript property
-		setProperty(TiC.PROPERTY_SECTIONS, sections);
-
-		Object[] sectionsArray = (Object[]) sections;
-		TiUIView listView = peekView();
-		//Preload sections if listView is not opened.
-		if (listView == null) {
-			preload = true;
-			clearPreloadSections();
-			addPreloadSections(sectionsArray, -1, true);
-		} else {
-			((TiListView) listView).processSectionsAndNotify(sectionsArray);
+			// Notify ListView of removed section.
+			update();
 		}
 	}
 
@@ -307,5 +154,378 @@ public class ListViewProxy extends TiViewProxy
 	public String getApiName()
 	{
 		return "Ti.UI.ListView";
+	}
+
+	public List<ListItemProxy> getCurrentItems()
+	{
+		final TiListView listView = getListView();
+
+		if (listView != null) {
+			final ListViewAdapter adapter = listView.getAdapter();
+
+			if (adapter != null) {
+				return adapter.getModels();
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * Get index for specified section.
+	 *
+	 * @param section Section of index to obtain.
+	 * @return Integer of index.
+	 */
+	public int getIndexOfSection(ListSectionProxy section)
+	{
+		return this.sections.indexOf(section);
+	}
+
+	/**
+	 * Get native ListView implementation.
+	 *
+	 * @return TiListView
+	 */
+	private TiListView getListView()
+	{
+		final TiUIListView view = (TiUIListView) this.view;
+
+		if (view != null) {
+			return view.getListView();
+		}
+		return null;
+	}
+
+	/**
+	 * Get section for specified index.
+	 *
+	 * @param index Index of section to obtain.
+	 * @return ListSectionProxy.
+	 */
+	public ListSectionProxy getSectionByIndex(int index)
+	{
+		final ListSectionProxy section = this.sections.get(index);
+
+		if (section != null) {
+			return section;
+		}
+		return null;
+	}
+
+	/**
+	 * Get current section count.
+	 *
+	 * @return Number of sections in list.
+	 */
+	@Kroll.getProperty
+	public int getSectionCount()
+	{
+		return sections.size();
+	}
+
+	/**
+	 * Get current sections.
+	 *
+	 * @return Array of ListSections.
+	 */
+	@Kroll.method
+	@Kroll.getProperty
+	public ListSectionProxy[] getSections()
+	{
+		return this.sections.toArray(new ListSectionProxy[this.sections.size()]);
+	}
+
+	/**
+	 * Is ListView currently filtered by search results.
+	 *
+	 * @return Boolean
+	 */
+	public boolean isFiltered()
+	{
+		final TiListView listView = getListView();
+
+		if (listView != null) {
+			return listView.isFiltered();
+		}
+
+		return false;
+	}
+
+	/**
+	 * Handle setting of property.
+	 *
+	 * @param name Property name.
+	 * @param value Property value.
+	 */
+	@Override
+	public void setProperty(String name, Object value)
+	{
+		super.setProperty(name, value);
+
+		if (name.equals(TiC.PROPERTY_SECTIONS)) {
+
+			// Set list sections.
+			setSections((Object[]) value);
+		}
+	}
+
+	/**
+	 * Set sections for list.
+	 *
+	 * @param sections Array of sections to set.
+	 */
+	@Kroll.method
+	@Kroll.setProperty
+	public void setSections(Object sections)
+	{
+		this.sections.clear();
+
+		if (sections instanceof Object[]) {
+			for (Object o : (Object[]) sections) {
+				if (o instanceof ListSectionProxy) {
+					final ListSectionProxy section = (ListSectionProxy) o;
+
+					// Add section.
+					section.setParent(this);
+					this.sections.add(section);
+				}
+			}
+		}
+
+		update();
+	}
+
+	/**
+	 * Override `handleGetView()` to update table if it has been re-used.
+	 * (removed and re-added to a view)
+	 *
+	 * @return TiUIView
+	 */
+	@Override
+	protected TiUIView handleGetView()
+	{
+		final TiUIView view = super.handleGetView();
+
+		// Update table if being re-used.
+		if (view != null) {
+			update();
+		}
+
+		return view;
+	}
+
+	/**
+	 * Determine if `marker` event should be fired for specified item.
+	 *
+	 * @param item Item to handle for `marker` event.
+	 */
+	public void handleMarker(ListItemProxy item)
+	{
+		if (markers.contains(item)) {
+			final int itemIndex = item.getIndexInSection();
+			final int sectionIndex = this.sections.indexOf(item.getParent());
+			final KrollDict data = new KrollDict();
+
+			// Create and fire marker event.
+			data.put(TiC.PROPERTY_SECTION_INDEX, sectionIndex);
+			data.put(TiC.PROPERTY_ITEM_INDEX, itemIndex);
+			fireEvent(TiC.EVENT_MARKER, data, false);
+
+			// One time event, remove marker.
+			markers.remove(item);
+		}
+	}
+
+	/**
+	 * Insert sections at specified index.
+	 *
+	 * @param index Index to insert sections at.
+	 * @param sections Sections to insert into list.
+	 * @param animation Ignored, for iOS parameter compatibility.
+	 */
+	@Kroll.method
+	public void insertSectionAt(int index, Object sections,
+								@Kroll.argument(optional = true) KrollDict animation)
+	{
+		final int rawIndex = this.sections.indexOf(getSectionByIndex(index));
+
+		if (rawIndex > -1) {
+			if (sections instanceof Object[]) {
+
+				// Insert ListSection array.
+				for (final Object o : (Object[]) sections) {
+					if (o instanceof ListSectionProxy) {
+						final ListSectionProxy section = (ListSectionProxy) o;
+
+						// Inset ListSection.
+						section.setParent(this);
+						this.sections.add(rawIndex, section);
+					}
+				}
+
+				// Notify ListView of new sections.
+				update();
+
+			} else if (sections instanceof ListSectionProxy) {
+				final ListSectionProxy section = (ListSectionProxy) sections;
+
+				// Insert ListSection.
+				section.setParent(this);
+				this.sections.add(rawIndex, section);
+
+				// Notify ListView of new section.
+				update();
+			}
+		}
+	}
+
+	/**
+	 * Release all views and items.
+	 */
+	@Override
+	public void release()
+	{
+		releaseViews();
+
+		if (this.sections != null) {
+			this.sections.clear();
+			this.sections = null;
+		}
+
+		if (this.markers != null) {
+			this.markers.clear();
+			this.markers = null;
+		}
+
+		super.release();
+	}
+
+	/**
+	 * Release all sections.
+	 */
+	public void releaseSections()
+	{
+		for (ListSectionProxy section : this.sections) {
+			section.releaseViews();
+		}
+	}
+
+	/**
+	 * Release all views associated with ListView.
+	 */
+	@Override
+	public void releaseViews()
+	{
+		super.releaseViews();
+
+		if (hasPropertyAndNotNull(TiC.PROPERTY_SEARCH)) {
+			final TiViewProxy search = (TiViewProxy) getProperty(TiC.PROPERTY_SEARCH);
+			search.releaseViews();
+		}
+
+		// Release all section views.
+		releaseSections();
+	}
+
+	/**
+	 * Replace section at specified index.
+	 *
+	 * @param index Index of section to replace.
+	 * @param section Sections replace with.
+	 * @param animation Ignored, for iOS parameter compatibility.
+	 */
+	@Kroll.method
+	public void replaceSectionAt(int index, ListSectionProxy section,
+								 @Kroll.argument(optional = true) KrollDict animation)
+	{
+		final ListSectionProxy previousSection = getSectionByIndex(index);
+		final int rawIndex = this.sections.indexOf(previousSection);
+
+		if (rawIndex > -1) {
+
+			// Replace section.
+			previousSection.setParent(null);
+			section.setParent(this);
+			this.sections.remove(rawIndex);
+			this.sections.add(rawIndex, section);
+
+			// Notify ListView of section.
+			update();
+		}
+	}
+
+	/**
+	 * Scroll to item in list.
+	 *
+	 * @param sectionIndex Index of section for item.
+	 * @param itemIndex Index of item in section.
+	 */
+	@Kroll.method
+	public void scrollToItem(int sectionIndex, int itemIndex)
+	{
+		final TiListView listView = getListView();
+
+		if (listView != null) {
+			final ListSectionProxy section = getSectionByIndex(sectionIndex);
+
+			if (section != null) {
+				final ListItemProxy item = section.getListItemAt(itemIndex);
+
+				if (item != null) {
+					listView.getRecyclerView().smoothScrollToPosition(listView.getAdapterIndex(item.index));
+				}
+			}
+		}
+	}
+
+	/**
+	 * Select item in list.
+	 *
+	 * @param sectionIndex Index of section for item.
+	 * @param itemIndex Index of item in section.
+	 */
+	@Kroll.method
+	public void selectItem(int sectionIndex, int itemIndex)
+	{
+		scrollToItem(sectionIndex, itemIndex);
+
+		final TiListView listView = getListView();
+
+		if (listView != null) {
+			final ListSectionProxy section = getSectionByIndex(sectionIndex);
+
+			if (section != null) {
+				final ListItemProxy item = section.getListItemAt(itemIndex);
+
+				if (item != null) {
+					((ListViewAdapter) listView.getRecyclerView().getAdapter()).getTracker().select(item);
+				}
+			}
+		}
+	}
+
+	/**
+	 * Set marker for list item.
+	 * This will fire the `marker` event when the item is scrolled into view.
+	 *
+	 * @param markerProperties Dictionary defining marker.
+	 */
+	@Kroll.method
+	public void setMarker(KrollDict markerProperties)
+	{
+		this.markers.clear();
+		addMarker(markerProperties);
+	}
+
+	/**
+	 * Notify ListView to update all adapter items.
+	 */
+	public void update()
+	{
+		final TiListView listView = getListView();
+
+		if (listView != null) {
+			listView.update();
+		}
 	}
 }
