@@ -232,7 +232,7 @@ methods:
       - name: options
         summary: Optional parameters for the content. Only used by iOS and Android.
         optional: true
-        type: Titanium.UI.WebView.setHtml.options
+        type: setHtmlOptions
     since: {android: "8.1.0", iphone: "2.0.0", ipad: "2.0.0", macos: "9.2.0"}
     platforms: [android, iphone, ipad, macos]
 
@@ -1348,7 +1348,7 @@ properties:
     optional: true
 
 ---
-name: Titanium.UI.WebView.setHtml.options
+name: setHtmlOptions
 summary: Options used by <Titanium.UI.WebView.setHtml>
 properties:
   - name: baseURL
