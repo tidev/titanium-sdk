@@ -187,7 +187,7 @@ const OS = {
 	userInfo: () => { // fake it!
 		return {
 			uid: -1,
-			guid: -1,
+			gid: -1,
 			username: Ti.Platform.username,
 			homedir: Ti.Filesystem.applicationDataDirectory,
 			shell: null

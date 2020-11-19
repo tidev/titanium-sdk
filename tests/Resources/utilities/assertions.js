@@ -8,7 +8,7 @@ const isIOSDevice = OS_IOS && !Ti.Platform.model.includes('(Simulator)');
 const zlib = require('browserify-zlib');
 global.binding.register('zlib', zlib);
 const PNG = require('pngjs').PNG;
-const cgbiToPng = isIOSDevice ? require('cgbi-to-png') : { revert: (buf) => buf };
+const cgbiToPng = isIOSDevice ? require('cgbi-to-png') : { revert: buf => buf };
 const pixelmatch = require('pixelmatch');
 
 // Copied from newer should.js
@@ -124,56 +124,74 @@ function saveImage(blob, imageFilePath) {
 }
 
 /**
- * @param {string|Ti.Blob} imageFilePath path to imeg file on disk (relative), or an in-memory Ti.Blob instance (holding an image)
- * @param {Number} [threshold=0.1] threshold for comparing images
+ * @param {string|Ti.Blob} image path to image file on disk (relative), or an in-memory Ti.Blob instance (holding an image).
+ * @param {Number} [threshold=0.1] threshold for comparing images.
  */
-should.Assertion.add('matchImage', function (imageFilePath, threshold = 0.1) {
-	let isBlob = false;
-	if (imageFilePath.apiName && imageFilePath.apiName === 'Ti.Blob') {
-		isBlob = true;
-		this.params = { operator: 'view to match Ti.Blob' };
-	} else {
-		this.params = { operator: `view to match snapshot image: ${imageFilePath}` };
-	}
-	if (this.obj.apiName) {
-		this.params.obj = this.obj.apiName;
-	}
+should.Assertion.add('matchImage', function (image, threshold = 0.1) {
 
+	// Validate object is valid view.
 	this.obj.should.have.property('toImage').which.is.a.Function();
-	const view = this.obj;
-	const actualBlob = view.toImage();
-	const timestamp = Date.now();
-	let expectedBlob;
-	if (isBlob) {
-		expectedBlob = imageFilePath;
-		// save any generated image to a made up path
-		imageFilePath = `snapshots/${timestamp}.png`;
+
+	const actualBlob = this.obj.toImage();
+	const isExpectedBlob = image.apiName === 'Ti.Blob';
+	const platform = OS_ANDROID ? 'android' : 'ios';
+	const now = Date.now();
+
+	let expectedBlob = null;
+
+	if (isExpectedBlob) {
+		this.params = {
+			obj: this.obj.apiName,
+			operator: 'to match Ti.Blob'
+		};
+		expectedBlob = image;
+		image = `snapshots/${now}_${expectedBlob.width}x${expectedBlob.height}.png`;
 	} else {
-		const snapshot = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, imageFilePath);
+
+		// Amend image path for correct snapshot size.
+		image = `${image.substr(0, image.length - 4)}_${actualBlob.width}x${actualBlob.height}.png`;
+
+		this.params = {
+			obj: this.obj.apiName,
+			operator: `to match image ('${image}')`
+		};
+
+		// Attempt to load snapshot.
+		const snapshot = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, image);
 		if (!snapshot.exists()) {
-			// No snapshot. Generate one, then fail test
-			const file = saveImage(actualBlob, imageFilePath);
-			console.log(`!IMAGE: {"path":"${file.nativePath}","platform":"${OS_ANDROID ? 'android' : 'ios'}","relativePath":"${imageFilePath}"}`);
-			this.fail(`No snapshot image to compare for platform "${OS_ANDROID ? 'android' : 'ios'}": ${imageFilePath}\nGenerated image at ${file.nativePath}`);
+
+			// No snapshot, save current view as snapshot for platform.
+			const file = saveImage(actualBlob, image);
+			console.log(`!IMAGE: {"path":"${file.nativePath}","platform":"${platform}","relativePath":"${image}"}`);
+			this.fail(null, null, `No snapshot image to compare for platform '${platform}' ('${image}'), generated image at '${file.nativePath}'.`);
 			return;
 		}
+
+		// Load expected snapshot blob.
 		expectedBlob = snapshot.read();
 	}
 
-	// Compare versus existing image
+	// Validate size of blobs.
 	try {
 		should(actualBlob.width).equal(expectedBlob.width, 'width');
 		should(actualBlob.height).equal(expectedBlob.height, 'height');
 		should(actualBlob.size).equal(expectedBlob.size, 'size');
 	} catch (e) {
-		// assume we failed some assertion, let's try and save the image for reference!
-		// The wrapping script should basically generate a "diffs" folder with actual vs expected PNGs in subdirectories
-		const file = saveImage(actualBlob, imageFilePath);
-		console.log(`!IMG_DIFF: {"path":"${file.nativePath}","platform":"${OS_ANDROID ? 'android' : 'ios'}","relativePath":"${imageFilePath}"}`);
-		throw e;
+
+		// Invalid size, save current view for investigation.
+		const actualOut = saveImage(actualBlob, image);
+		console.log(`!IMAGE: {"path":"${actualOut.nativePath}","platform":"${platform}","relativePath":"${image}"}`);
+
+		// Save expected blob for investigation.
+		const expectedPath = image.slice(0, -4) + '_expected.png';
+		const expectedOut = saveImage(expectedBlob, expectedPath);
+		console.log(`!IMG_DIFF: {"path":"${expectedOut.nativePath}","platform":"${platform}","relativePath":"${expectedPath}"}`);
+
+		this.fail(null, null, `Invalid size for snapshot comparision for platform '${platform}' ('${image}'), generated image at '${actualOut.nativePath}'.`);
+		return;
 	}
 
-	// Need to create a Buffer around the contents of each image!
+	// Create a Buffer around the contents of each snapshot.
 	const expectedBuffer = Buffer.from(expectedBlob.toArrayBuffer());
 	const expectedImg = PNG.sync.read(cgbiToPng.revert(expectedBuffer));
 
@@ -181,24 +199,34 @@ should.Assertion.add('matchImage', function (imageFilePath, threshold = 0.1) {
 	const actualImg = PNG.sync.read(cgbiToPng.revert(actualBuffer));
 
 	const { width, height } = actualImg;
-	const diff = new PNG({ width, height });
-	const pixelsDiff = pixelmatch(actualImg.data, expectedImg.data, diff.data, width, height, { threshold });
-	// TODO: I don't see how, but if we're negated - ideally we'd save the images if diff === 0. `this.negate` is always false here...
-	if (pixelsDiff !== 0) {
-		const file = saveImage(actualBlob, imageFilePath); // save "actual"
-		if (isBlob) {
-			console.log(`!IMAGE: {"path":"${file.nativePath}","platform":"${OS_ANDROID ? 'android' : 'ios'}","relativePath":"${imageFilePath}"}`);
-			// If we're comparing against a blob, let's save something to disk to look at
-			// Save expected blob
-			const expectedPath = `snapshots/${timestamp}/expected.png`;
-			saveImage(expectedBlob, expectedPath);
+	const diffImg = new PNG({ width, height });
+	const diff = pixelmatch(actualImg.data, expectedImg.data, diffImg.data, width, height, { threshold });
+
+	if (diff !== 0) {
+
+		// Snapshots did not match, save current view.
+		const actualOut = saveImage(actualBlob, image);
+		console.log(`!IMAGE: {"path":"${actualOut.nativePath}","platform":"${platform}","relativePath":"${image}"}`);
+
+		// Save expected blob for investigation.
+		if (isExpectedBlob) {
+			const expectedPath = `snapshots/${now}_${expectedBlob.width}x${expectedBlob.height}_expected.png`;
+			const expectedOut = saveImage(expectedBlob, expectedPath);
+			console.log(`!IMG_DIFF: {"path":"${expectedOut.nativePath}","platform":"${platform}","relativePath":"${expectedPath}"}`);
+		} else {
+			const expectedPath = image.slice(0, -4) + '_expected.png';
+			const expectedOut = saveImage(expectedBlob, expectedPath);
+			console.log(`!IMG_DIFF: {"path":"${expectedOut.nativePath}","platform":"${platform}","relativePath":"${expectedPath}"}`);
 		}
-		// Save diff image!
-		const diffBuffer = PNG.sync.write(diff);
-		const diffFilePath = imageFilePath.slice(0, -4) + '_diff.png';
-		saveImage(diffBuffer.toTiBuffer().toBlob(), diffFilePath); // TODO Pass along path to diff file?
-		console.log(`!IMG_DIFF: {"path":"${file.nativePath}","platform":"${OS_ANDROID ? 'android' : 'ios'}","relativePath":"${imageFilePath}","blob":${isBlob}}`);
-		this.fail(`Image ${imageFilePath} failed to match, had ${pixelsDiff} differing pixels. View actual/expected/diff images to compare manually.`);
+
+		const diffBuffer = PNG.sync.write(diffImg);
+		const diffPath = image.slice(0, -4) + '_diff.png';
+
+		// Save difference image for investigation.
+		const diffOut = saveImage(diffBuffer.toTiBuffer().toBlob(), diffPath);
+		console.log(`!IMG_DIFF: {"path":"${diffOut.nativePath}","platform":"${platform}","relativePath":"${diffPath}","blob":${isExpectedBlob}}`);
+
+		this.fail(null, null, `Image ${image} failed to match, had ${diff} differing pixels, generated diff image at '${diffPath}'.`);
 	}
 }, false);
 

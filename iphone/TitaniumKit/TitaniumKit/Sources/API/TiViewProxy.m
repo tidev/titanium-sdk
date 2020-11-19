@@ -729,9 +729,6 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
         [blob setMimeType:@"image/png" type:TiBlobTypeImage];
         UIGraphicsEndImageContext();
         if (callback != nil) {
-          DebugLog(@"[DEBUG] Since Titanium SDK 7.0.0, the toImage callback returns a single blob on iOS to match the Android / Windows behavior.");
-          DebugLog(@"[DEBUG] Please migrate your code in case you still use the old behavior. This debug-log will be removed in Titanium SDK 8.0.0");
-
           [callback call:@[ blob ] thisObject:self];
         }
       },

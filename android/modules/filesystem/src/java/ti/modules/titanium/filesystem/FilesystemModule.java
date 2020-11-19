@@ -8,7 +8,6 @@ package ti.modules.titanium.filesystem;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.MalformedURLException;
 
 import android.Manifest;
 import android.app.Activity;
@@ -21,6 +20,7 @@ import org.appcelerator.kroll.KrollInvocation;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
+import org.appcelerator.titanium.io.TiFileFactory;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
@@ -39,8 +39,6 @@ public class FilesystemModule extends KrollModule
 	public static final int MODE_WRITE = 1;
 	@Kroll.constant
 	public static final int MODE_APPEND = 2;
-
-	private static String[] RESOURCES_DIR = { "app://" };
 
 	// Methods
 	public FilesystemModule()
@@ -145,7 +143,7 @@ public class FilesystemModule extends KrollModule
 	@Kroll.getProperty
 	public String getApplicationDataDirectory()
 	{
-		return "appdata-private://";
+		return TiFileFactory.APPDATA_PRIVATE_URL_SCHEME + "://";
 	}
 
 	@Kroll.method
@@ -155,39 +153,31 @@ public class FilesystemModule extends KrollModule
 		return "android.resource://" + TiApplication.getInstance().getPackageName() + "/raw/";
 	}
 
-	@SuppressWarnings("deprecation")
 	@Kroll.method
 	@Kroll.getProperty
 	public String getApplicationCacheDirectory()
 	{
-		TiApplication app = TiApplication.getInstance();
-		if (app == null) {
-			return null;
-		}
-
-		File cacheDir = app.getCacheDir();
-
-		try {
-			return cacheDir.toURL().toString();
-
-		} catch (MalformedURLException e) {
-			Log.e(TAG, "Exception converting cache directory to URL", e);
-			return null;
-		}
+		return "file://" + TiApplication.getInstance().getCacheDir().getAbsolutePath();
 	}
 
 	@Kroll.method
 	@Kroll.getProperty
 	public String getResourcesDirectory()
 	{
-		return "app://";
+		return TiC.URL_APP_PREFIX;
+	}
+
+	@Kroll.getProperty
+	public String getExternalCacheDirectory()
+	{
+		return TiFileFactory.APPCACHE_EXTERNAL_URL_SCHEME + "://";
 	}
 
 	@Kroll.method
 	@Kroll.getProperty
 	public String getExternalStorageDirectory()
 	{
-		return "appdata://";
+		return TiFileFactory.APPDATA_URL_SCHEME + "://";
 	}
 
 	@Kroll.method
