@@ -538,13 +538,12 @@ public class TiFileHelper
 	 */
 	public boolean tryDeleteTree(File file)
 	{
-		boolean wasSuccessful = false;
 		try {
-			wasSuccessful = deleteTree(file);
+			return deleteTree(file);
 		} catch (Throwable ex) {
 			Log.e(TAG, "Failed to delete directory tree: " + file, ex);
 		}
-		return wasSuccessful;
+		return false;
 	}
 
 	/**
