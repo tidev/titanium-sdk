@@ -16,15 +16,12 @@ import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
 
 import android.Manifest;
-import android.app.Activity;
 import android.content.Context;
-import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.net.DhcpInfo;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.text.format.Formatter;
-import android.util.DisplayMetrics;
 
 @SuppressWarnings("deprecation")
 public class TiPlatformHelper
@@ -39,9 +36,6 @@ public class TiPlatformHelper
 	private static final Map<String, String> currencySymbolsByCode =
 		java.util.Collections.synchronizedMap(new HashMap<String, String>());
 
-	public static float applicationScaleFactor = 1.0F;
-	public static int applicationLogicalDensity = DisplayMetrics.DENSITY_MEDIUM;
-
 	private static class InstanceHolder
 	{
 		private static final TiPlatformHelper INSTANCE = new TiPlatformHelper();
@@ -54,26 +48,6 @@ public class TiPlatformHelper
 
 	private TiPlatformHelper()
 	{
-	}
-
-	public synchronized void intializeDisplayMetrics(Activity activity)
-	{
-		DisplayMetrics dm = new DisplayMetrics();
-		activity.getWindowManager().getDefaultDisplay().getMetrics(dm);
-
-		if ((activity.getApplicationInfo().flags & ApplicationInfo.FLAG_SUPPORTS_SCREEN_DENSITIES) != 0) {
-			applicationScaleFactor = 1.0f;
-		} else {
-			applicationScaleFactor = dm.densityDpi / (float) DisplayMetrics.DENSITY_DEFAULT;
-		}
-
-		if (applicationScaleFactor == 1.0f) {
-			applicationLogicalDensity = dm.densityDpi;
-		} else if (applicationScaleFactor > 1.0f) {
-			applicationLogicalDensity = DisplayMetrics.DENSITY_MEDIUM;
-		} else {
-			applicationLogicalDensity = DisplayMetrics.DENSITY_LOW;
-		}
 	}
 
 	public String getLocale()
