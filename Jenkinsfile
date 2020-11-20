@@ -1,13 +1,26 @@
 #!groovy
 library 'pipeline-library'
 
-// Keep logs/reports/etc of last 30 builds, only keep build artifacts of last 3 builds
-properties([buildDiscarder(logRotator(numToKeepStr: '30', artifactNumToKeepStr: '3'))])
-
 // Some branch flags to alter behavior
 def isPR = env.CHANGE_ID || false // CHANGE_ID is set if this is a PR. (We used to look whether branch name started with PR-, which would not be true for a branch from origin filed as PR)
 def MAINLINE_BRANCH_REGEXP = /master|next|\d_\d_(X|\d)/ // a branch is considered mainline if 'master' or like: 6_2_X, 7_0_X, 6_2_1
 def isMainlineBranch = (env.BRANCH_NAME ==~ MAINLINE_BRANCH_REGEXP)
+
+// Keep logs/reports/etc of last 30 builds, only keep build artifacts of last 3 builds
+def buildProperties = [buildDiscarder(logRotator(numToKeepStr: '30', artifactNumToKeepStr: '3'))]
+// For mainline branches, notify Teams channel of failures/success/not built/etc
+if (isMainlineBranch) {
+	buildProperties << office365ConnectorWebhooks([[
+		notifyBackToNormal: true,
+		notifyFailure: true,
+		notifyNotBuilt: true,
+		notifyUnstable: true,
+		notifySuccess: true,
+        notifyRepeatedFailure: true,
+		url: 'https://outlook.office.com/webhook/ba1960f7-fcca-4b2c-a5f3-095ff9c87b22@300f59df-78e6-436f-9b27-b64973e34f7d/JenkinsCI/95439e5a0bef45539af8023b563dd345/72931ee3-e99d-4daf-84d2-1427168af2d9'
+	]])
+}
+properties(buildProperties)
 
 // These values could be changed manually on PRs/branches, but be careful we don't merge the changes in. We want this to be the default behavior for now!
 // target branch of test suite to test with
@@ -87,17 +100,19 @@ def androidUnitTests(nodeVersion, npmVersion, testOnDevices) {
 					def zipName = getBuiltSDK()
 					sh label: 'Install SDK', script: "npm run deploy -- ${zipName} --select" // installs the sdk
 					try {
-						timeout(30) {
-							// Forcibly remove value for specific build tools version to use (set by module builds)
-							sh returnStatus: true, script: 'ti config android.buildTools.selectedVersion --remove'
-							// run main branch tests on devices
-							if (testOnDevices) {
-								sh label: 'Run Test Suite on device(s)', script: "npm run test:integration -- android -T device -C all"
-							// run PR tests on emulator
-							} else {
-								sh label: 'Run Test Suite on emulator', script: "npm run test:integration -- android -T emulator -D test -C android-30-playstore-x86"
-							}
-						} // timeout
+						withEnv(['CI=1']) {
+							timeout(30) {
+								// Forcibly remove value for specific build tools version to use (set by module builds)
+								sh returnStatus: true, script: 'ti config android.buildTools.selectedVersion --remove'
+								// run main branch tests on devices
+								if (testOnDevices) {
+									sh label: 'Run Test Suite on device(s)', script: "npm run test:integration -- android -T device -C all"
+								// run PR tests on emulator
+								} else {
+									sh label: 'Run Test Suite on emulator', script: "npm run test:integration -- android -T emulator -D test -C android-30-playstore-x86"
+								}
+							} // timeout
+						}
 					} catch (e) {
 						archiveArtifacts 'tmp/mocha/build/build_*.log' // save build log if build failed
 						gatherAndroidCrashReports()
@@ -139,8 +154,10 @@ def macosUnitTests(nodeVersion, npmVersion) {
 					def zipName = getBuiltSDK()
 					sh label: 'Install SDK', script: "npm run deploy -- ${zipName} --select" // installs the sdk
 					try {
-						timeout(20) {
-							sh label: 'Run Test Suite on macOS', script: 'npm run test:integration -- ios -T macos'
+						withEnv(['CI=1']) {
+							timeout(20) {
+								sh label: 'Run Test Suite on macOS', script: 'npm run test:integration -- ios -T macos'
+							}
 						}
 					} catch (e) {
 						gatherIOSCrashReports('mocha') // app name is mocha
@@ -180,11 +197,13 @@ def iosUnitTests(deviceFamily, nodeVersion, npmVersion, testOnDevices) {
 					def zipName = getBuiltSDK()
 					sh label: 'Install SDK', script: "npm run deploy -- ${zipName} --select" // installs the sdk
 					try {
-						timeout(40) {
-							if (testOnDevices && deviceFamily == 'iphone') {
-								sh label: 'Run Test Suite on device(s)', script: "npm run test:integration -- ios -F ${deviceFamily} -T device -C all"
-							} else { // run PR tests on simulator
-								sh label: 'Run Test Suite on simulator', script: "npm run test:integration -- ios -F ${deviceFamily}"
+						withEnv(['CI=1']) {
+							timeout(40) {
+								if (testOnDevices && deviceFamily == 'iphone') {
+									sh label: 'Run Test Suite on device(s)', script: "npm run test:integration -- ios -F ${deviceFamily} -T device -C all"
+								} else { // run PR tests on simulator
+									sh label: 'Run Test Suite on simulator', script: "npm run test:integration -- ios -F ${deviceFamily}"
+								}
 							}
 						}
 					} catch (e) {

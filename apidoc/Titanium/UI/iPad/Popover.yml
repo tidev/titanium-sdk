@@ -81,7 +81,7 @@ properties:
         Set this property to any <Titanium.UI.View> object, including a <Titanium.UI.Window> or
         <Titanium.UI.NavigationWindow> object.
 
-        This property does not support the <Titanium.UI.iPad.SplitWindow> or <Titanium.UI.TabGroup> objects.
+        This property does not support the <Titanium.UI.iOS.SplitWindow> or <Titanium.UI.TabGroup> objects.
 
         When this property is set to a valid object, the popover **does not include the navigation
         controller** unless it is set to a <Titanium.UI.NavigationWindow> object.

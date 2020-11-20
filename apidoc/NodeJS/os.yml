@@ -1,0 +1,302 @@
+---
+name: os
+summary: A Node.js-compatible implementation of the core `os` module
+description: |
+    Titanium provides a number of shims and ports of core Node.js module functionality.
+
+    This module is intended to provide a Node-compatible port of the `os` core module.
+    
+    More details on the Node.js API can be found in their [os module documentation](https://nodejs.org/api/os.html)
+platforms: [android, iphone, ipad, macos]
+since: '8.1.0'
+properties:
+  - name: EOL
+    type: String
+    summary: |
+        The operating system-specific end-of-line marker.
+
+        `\n` on POSIX
+        `\r\n` on Windows
+
+  - name: constants
+    type: os.constants
+    summary: Contains commonly used operating system-specific constants for error codes, process signals, and so on.
+
+methods:
+  - name: arch
+    summary: |
+        Returns the operating system CPU architecture for which the binary was compiled. Possible values are return `'arm'`, `'arm64'`, `'ia32'`, `'x64'`, `'mips'`, and `'unknown'`.
+
+        The return value is equivalent to <process.arch>. Relates strongly to <Titanium.Platform.architecture>.
+    returns:
+        type: String
+
+  - name: cpus
+    summary: Returns an array of objects containing information about each logical CPU core.
+    returns:
+        type: Array<CPUInfo>
+
+  - name: endianness
+    summary: |
+        Returns a string identifying the endianness of the CPU for which the binary was compiled.
+
+        Possible values are `'BE'` for big endian and `'LE'` for little endian.
+
+        Related to <Titanium.Codec.getNativeByteOrder>() on Titanium.
+    returns:
+        type: String
+
+  - name: freemem
+    summary: Returns the amount of free system memory in bytes as an integer.
+    returns:
+        type: Number
+
+  - name: getPriority
+    summary: |
+        Returns the scheduling priority for the process specified by `pid`. If `pid` is not provided or is `0`, the priority of the current process is returned.
+
+        Titanium's shim, will always return `0`.
+    parameters:
+      - name: pid
+        summary: The process ID to retrieve scheduling priority for.
+        default: 0
+        optional: true
+        type: Number
+    returns:
+        type: Number
+
+  - name: homedir
+    summary: Returns the string path of the current user's home directory.
+    description: |
+        On Titanium, returns the same value as <Titanium.Filesystem.applicationDataDirectory>.
+    returns:
+        type: String
+
+  - name: hostname
+    summary: Returns the host name of the operating system as a string. On Titanium, this will return the value of <Titanium.Platform.address>
+    returns:
+        type: String
+
+  - name: loadavg
+    summary: |
+        Returns an array containing the 1, 5, and 15 minute load averages.
+
+        On Titanium, the return value is always `[0, 0, 0]`.
+    returns:
+        type: Array<Number>
+
+  - name: networkInterfaces
+    summary: |
+        Returns an object containing network interfaces that have been assigned a network address.
+
+        Each key on the returned object identifies a network interface. The associated value is an array of objects that each describe an assigned network address.
+
+        On Titanium, an empty object (`{}`) is always returned.
+    returns:
+        type: Object
+
+  - name: platform
+    summary: |
+        Returns a string identifying the operating system platform. Possible values are `'android'`, `'iphone'`, `'ipad'`, `'windowsphone'`, and `'windowsstore'`.
+
+        The return value is equivalent to <process.platform>.
+
+        On Titanium, this is equivalent to <Titanium.Platform.osname>.
+    returns:
+        type: String
+
+  - name: release
+    summary: |
+        Returns the operating system as a string.
+
+        On Titanium, this is equivalent to <Titanium.Platform.version>.
+    returns:
+        type: String
+
+  - name: setPriority
+    summary: |
+        Attempts to set the scheduling priority for the process specified by `pid`. If `pid` is not provided or is `0`, the process ID of the current process is used.
+
+        On Titanium, this method is a no-op.
+    parameters:
+      - name: pid
+        summary: The process ID to set scheduling priority for.
+        default: 0
+        optional: true
+        type: Number
+
+      - name: priority
+        summary: The scheduling priority to assign to the process.
+        type: Number
+
+  - name: tmpdir
+    summary: |
+        Returns the operating system's default directory for temporary files as a string.
+
+        On Titanium, this is equivalent to <Titanium.Filesystem.tempDirectory>.
+    returns:
+        type: String
+
+  - name: totalmem
+    summary: |
+        Returns the total amount of system memory in bytes as an integer.
+
+        On Titanium, this is equivalent to <Ti.Platform.totalMemory>.
+    returns: 
+      type: Number
+
+  - name: type
+    summary: |
+        Returns the operating system as a string.
+
+        On Titanium, this returns `'Darwin'` for iOS, or `'Linux'` for Android. May return `'Unknown'` for others.
+    returns:
+        type: String
+
+  - name: uptime
+    summary: |
+        Returns the system uptime in number of seconds.
+        
+        On Titanium, this is equivalent to <Titanium.Platform.uptime>.
+    returns:
+        type: Number
+
+  - name: userInfo
+    summary: Returns information about the currently effective user.
+    parameters:  
+      - name: options
+        summary: Simple object with `encoding` property. Ignored on Titanium.
+        optional: true
+        type: EncodingOptions
+    returns:
+        type: OSUserInfo
+
+---
+name: os.constants
+summary: Abstract type defined for <os.constants>.
+properties:
+  - name: signals
+    summary: Signal constants
+    type: Object
+# TODO: Define type for signals constants
+
+  - name: priority
+    summary: Priority constants
+    type: os.constants.priority
+
+  - name: errno
+    summary: Error constants
+    type: Object
+# TODO: Define type for errno constants
+
+---
+name: os.constants.priority
+summary: Abstract type defined for [os.constants.priority](os.constants.priority)
+properties:
+  - name: PRIORITY_LOW
+    summary: The lowest process scheduling priority.
+    type: Number
+    value: 19
+
+  - name: PRIORITY_BELOW_NORMAL
+    summary: The process scheduling priority above `PRIORITY_LOW` and below `PRIORITY_NORMAL`.
+    type: Number
+    value: 10
+
+  - name: PRIORITY_NORMAL
+    summary: The default process scheduling priority.
+    type: Number
+    value: 0
+
+  - name: PRIORITY_ABOVE_NORMAL
+    summary: The process scheduling priority above `PRIORITY_NORMAL` and below `PRIORITY_HIGH`.
+    type: Number
+    value: -7
+
+  - name: PRIORITY_HIGH
+    summary: The process scheduling priority above `PRIORITY_ABOVE_NORMAL` and below `PRIORITY_HIGHEST`.
+    type: Number
+    value: -14
+
+  - name: PRIORITY_HIGHEST
+    summary: The highest process scheduling priority.
+    type: Number
+    value: -20
+
+---
+name: CPUInfo
+summary: Abstract type defined for the return value <os.cpus>`()`.
+description: |
+    Note that by default this will return simple default values which are not useful on Android. On iOS, this will report
+    back a static set of values based on the detected Simulator/Device model using a lookup table.
+    `times` may be an empty object or simply report `0` values for all properties.
+properties:
+  - name: model
+    summary: CPU model
+    type: String
+
+  - name: speed
+    summary: (in MHz)
+    type: Number
+
+  - name: times
+    summary: CPU Timings
+    type: CPUInfoTimes
+
+---
+name: CPUInfoTimes
+summary: Abstract type defined for the return value of <os.cpus>`()`.
+properties:
+  - name: user
+    summary: The number of milliseconds the CPU has spent in user mode.
+    type: Number
+
+  - name: nice
+    summary: The number of milliseconds the CPU has spent in nice mode.
+    type: Number
+
+  - name: sys
+    summary: The number of milliseconds the CPU has spent in sys mode.
+    type: Number
+
+  - name: idle
+    summary: The number of milliseconds the CPU has spent in idle mode.
+    type: Number
+
+  - name: irq
+    summary: The number of milliseconds the CPU has spent in irq mode.
+    type: Number
+
+---
+name: OSUserInfo
+summary: Abstract type returned by <os.userInfo>`()`.
+properties:
+  - name: uid
+    summary: user id. Always `-1` on Titanium.
+    type: Number
+
+  - name: gid
+    summary: group id. Always `-1` on Titanium.
+    type: Number
+
+  - name: username
+    summary: Always <Titanium.Platform.username> on Titanium.
+    type: String
+      
+  - name: homedir
+    summary: Always <Titanium.Filesystem.applicationDataDirectory> on Titanium.
+    type: String
+      
+  - name: shell
+    summary: command shell. Always `null` on Titanium
+    type: String
+
+---
+name: EncodingOptions
+summary: Abstract type defined for <os.userInfo>`()`. **NOTE** that these options are currently ignored by Titanium!
+properties:
+  - name: encoding
+    type: String
+    summary: Character encoding used to interpret resulting strings. If encoding is set to `'buffer'` the `username`, `shell`, and `homedir` values will be [Buffer](buffer.Buffer) instances.
+    default: 'utf8'
+    optional: true

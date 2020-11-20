@@ -28,8 +28,8 @@ description: |
     Any data type that is specified but not correctly mapped to a clipboard type by the system is
     retrieved as a <Titanium.Blob> type.
 extends: Titanium.Module
-platforms: [iphone, ipad, macos]
-since: {iphone: "1.5.0", ipad: "1.5.0", macos: "9.2.0"}
+platforms: [android, iphone, ipad, macos]
+since: {android: "1.8.0", iphone: "1.5.0", ipad: "1.5.0", macos: "9.2.0"}
 methods:
   - name: clearData
     summary: |
@@ -258,13 +258,13 @@ examples:
     example: |
         ``` js
         var clipboard1 = Ti.UI.createClipboard({
-            name : 'myClipboard',
-            allowCreation : true
+            name: 'myClipboard',
+            allowCreation: true
         });
         clipboard1.setText('hello');
 
         var clipboard2 = Ti.UI.createClipboard({
-            name : 'myClipboard'
+            name: 'myClipboard'
         });
 
         Ti.API.info('Clipboard name is: ' + clipboard1.name);
@@ -277,7 +277,7 @@ examples:
     example: |
         ``` js
         var clipboard = Ti.UI.createClipboard({
-            unique : true
+            unique: true
         });
         clipboard.setText('hello');
 
