@@ -136,6 +136,7 @@ should.Assertion.add('matchImage', function (image, threshold = 0.1) {
 	const isExpectedBlob = image.apiName === 'Ti.Blob';
 	const platform = OS_ANDROID ? 'android' : 'ios';
 	const now = Date.now();
+	const density = Ti.Platform.displayCaps.logicalDensityFactor;
 
 	let expectedBlob = null;
 
@@ -145,11 +146,11 @@ should.Assertion.add('matchImage', function (image, threshold = 0.1) {
 			operator: 'to match Ti.Blob'
 		};
 		expectedBlob = image;
-		image = `snapshots/${now}_${expectedBlob.width}x${expectedBlob.height}.png`;
+		image = `snapshots/${now}_${expectedBlob.width}x${expectedBlob.height}_${density}.png`;
 	} else {
 
 		// Amend image path for correct snapshot size.
-		image = `${image.substr(0, image.length - 4)}_${actualBlob.width}x${actualBlob.height}.png`;
+		image = `${image.substr(0, image.length - 4)}_${actualBlob.width}x${actualBlob.height}_${density}.png`;
 
 		this.params = {
 			obj: this.obj.apiName,
@@ -210,7 +211,7 @@ should.Assertion.add('matchImage', function (image, threshold = 0.1) {
 
 		// Save expected blob for investigation.
 		if (isExpectedBlob) {
-			const expectedPath = `snapshots/${now}_${expectedBlob.width}x${expectedBlob.height}_expected.png`;
+			const expectedPath = `snapshots/${now}_${expectedBlob.width}x${expectedBlob.height}_${density}_expected.png`;
 			const expectedOut = saveImage(expectedBlob, expectedPath);
 			console.log(`!IMG_DIFF: {"path":"${expectedOut.nativePath}","platform":"${platform}","relativePath":"${expectedPath}"}`);
 		} else {
