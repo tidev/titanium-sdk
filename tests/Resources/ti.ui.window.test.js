@@ -143,6 +143,12 @@ describe('Titanium.UI.Window', function () {
 
 	it.ios('.leftNavButton with default color (no color value) and .rightNavButton with tintColor', finish => {
 		const density = Ti.Platform.displayCaps.logicalDensityFactor;
+
+		let imagePath = `snapshots/navButton_left_defaultColor_right_greenColor_${density}x.png`;
+		if (utilities.isMacOS()) {
+			imagePath = 'snapshots/navButton_left_defaultColor_right_greenColor_macos.png';
+		}
+
 		const rightButton = Ti.UI.createButton({
 			title: 'Right',
 			tintColor: 'green',
@@ -172,7 +178,7 @@ describe('Titanium.UI.Window', function () {
 				try {
 					should(rootWindow.leftNavButton).be.an.Object();
 					should(rootWindow.rightNavButton).be.an.Object();
-					should(win).matchImage(`snapshots/navButton_left_defaultColor_right_greenColor_${density}x.png`);
+					should(win).matchImage(imagePath);
 				} catch (e) {
 					return finish(e);
 				}
@@ -183,6 +189,11 @@ describe('Titanium.UI.Window', function () {
 
 	it.ios('.leftNavButton and .rightNavButton  with color and tintColor', finish => {
 		const density = Ti.Platform.displayCaps.logicalDensityFactor;
+
+		let imagePath = `snapshots/navButton_left_redColor_right_greenColor_${density}x.png`;
+		if (utilities.isMacOS()) {
+			imagePath = 'snapshots/navButton_left_redColor_right_greenColor_macos.png';
+		}
 
 		const rightButton = Ti.UI.createButton({
 			title: 'Right',
@@ -215,7 +226,7 @@ describe('Titanium.UI.Window', function () {
 				try {
 					should(rootWindow.leftNavButton).be.an.Object();
 					should(rootWindow.rightNavButton).be.an.Object();
-					should(win).matchImage(`snapshots/navButton_left_redColor_right_greenColor_${density}x.png`);
+					should(win).matchImage(imagePath);
 				} catch (e) {
 					return finish(e);
 				}
