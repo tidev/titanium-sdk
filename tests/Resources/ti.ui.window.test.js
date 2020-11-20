@@ -148,8 +148,6 @@ describe('Titanium.UI.Window', function () {
 			return finish(); // how to skip for iPad?
 		}
 
-		const density = Ti.Platform.displayCaps.logicalDensityFactor;
-
 		const rightButton = Ti.UI.createButton({
 			title: 'Right',
 			tintColor: 'green',
@@ -179,7 +177,7 @@ describe('Titanium.UI.Window', function () {
 				try {
 					should(rootWindow.leftNavButton).be.an.Object();
 					should(rootWindow.rightNavButton).be.an.Object();
-					should(win).matchImage(`snapshots/navButton_left_defaultColor_right_greenColor_${density}x.png`);
+					should(win).matchImage('snapshots/navButton_left_defaultColor_right_greenColor.png');
 				} catch (e) {
 					return finish(e);
 				}
@@ -194,8 +192,6 @@ describe('Titanium.UI.Window', function () {
 		if (utilities.isMacOS() || utilities.isIPad()) {
 			return finish(); // how to skip for iPad?
 		}
-
-		const density = Ti.Platform.displayCaps.logicalDensityFactor;
 
 		const rightButton = Ti.UI.createButton({
 			title: 'Right',
@@ -228,7 +224,7 @@ describe('Titanium.UI.Window', function () {
 				try {
 					should(rootWindow.leftNavButton).be.an.Object();
 					should(rootWindow.rightNavButton).be.an.Object();
-					should(win).matchImage(`snapshots/navButton_left_redColor_right_greenColor_${density}x.png`);
+					should(win).matchImage('snapshots/navButton_left_redColor_right_greenColor.png');
 				} catch (e) {
 					return finish(e);
 				}
