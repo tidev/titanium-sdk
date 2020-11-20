@@ -4,6 +4,7 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+/* global OS_IOS */
 /* eslint-env mocha */
 /* eslint no-unused-expressions: "off" */
 'use strict';
@@ -1100,11 +1101,10 @@ describe('Titanium.UI.ListView', function () {
 		should(listView.fastScroll).be.be.false();
 	});
 
-	it('ListViewItem scaling (percent)', finish => {
-
+	it('ListViewItem scaling (percent)', () => {
 		// FIXME: Does not honour scale correctly on macOS.
 		if (isCI && utilities.isMacOS()) {
-			return finish();
+			return;
 		}
 
 		const view = Ti.UI.createView({
@@ -1133,21 +1133,14 @@ describe('Titanium.UI.ListView', function () {
 
 		view.add(listView);
 
-		try {
-
-			// ListViewItem should fill 50% of its parent ListView.
-			should(view).matchImage('snapshots/listViewItemScaling_percent.png');
-		} catch (e) {
-			return finish(e);
-		}
-		finish();
+		// ListViewItem should fill 50% of its parent ListView.
+		should(view).matchImage('snapshots/listViewItemScaling_percent.png', { maxPixelMismatch: OS_IOS ? 2 : 0 }); // 2 pixels differ on actual iPhone
 	});
 
-	it('ListViewItem scaling (FILL)', finish => {
-
+	it('ListViewItem scaling (FILL)', () => {
 		// FIXME: Does not honour scale correctly on macOS.
 		if (isCI && utilities.isMacOS()) {
-			return finish();
+			return;
 		}
 
 		const view = Ti.UI.createView({
@@ -1176,21 +1169,14 @@ describe('Titanium.UI.ListView', function () {
 
 		view.add(listView);
 
-		try {
-
-			// ListViewItem should fill the height of its parent ListView.
-			should(view).matchImage('snapshots/listViewItemScaling_fill.png');
-		} catch (e) {
-			return finish(e);
-		}
-		finish();
+		// ListViewItem should fill the height of its parent ListView.
+		should(view).matchImage('snapshots/listViewItemScaling_fill.png', { maxPixelMismatch: OS_IOS ? 10 : 0 }); // 10 pixels differ on actual iPhone
 	});
 
-	it('ListViewItem accessoryType', finish => {
-
+	it('ListViewItem accessoryType', () => {
 		// FIXME: Does not honour scale correctly on macOS.
 		if (isCI && utilities.isMacOS()) {
-			return finish();
+			return;
 		}
 
 		const view = Ti.UI.createView({
@@ -1212,27 +1198,20 @@ describe('Titanium.UI.ListView', function () {
 
 		view.add(listView);
 
-		try {
+		// Validate items accessoryType.
+		should(listView.sections[0].items[0].properties.accessoryType).be.eql(Ti.UI.LIST_ACCESSORY_TYPE_NONE);
+		should(listView.sections[0].items[1].properties.accessoryType).be.eql(Ti.UI.LIST_ACCESSORY_TYPE_CHECKMARK);
+		should(listView.sections[0].items[2].properties.accessoryType).be.eql(Ti.UI.LIST_ACCESSORY_TYPE_DETAIL);
+		should(listView.sections[0].items[3].properties.accessoryType).be.eql(Ti.UI.LIST_ACCESSORY_TYPE_DISCLOSURE);
 
-			// Validate items accessoryType.
-			should(listView.sections[0].items[0].properties.accessoryType).be.eql(Ti.UI.LIST_ACCESSORY_TYPE_NONE);
-			should(listView.sections[0].items[1].properties.accessoryType).be.eql(Ti.UI.LIST_ACCESSORY_TYPE_CHECKMARK);
-			should(listView.sections[0].items[2].properties.accessoryType).be.eql(Ti.UI.LIST_ACCESSORY_TYPE_DETAIL);
-			should(listView.sections[0].items[3].properties.accessoryType).be.eql(Ti.UI.LIST_ACCESSORY_TYPE_DISCLOSURE);
-
-			// Validate items accessoryType icons.
-			should(view).matchImage('snapshots/listViewItem_accessoryTypes.png');
-		} catch (e) {
-			return finish(e);
-		}
-		finish();
+		// Validate items accessoryType icons.
+		should(view).matchImage('snapshots/listViewItem_accessoryTypes.png', { maxPixelMismatch: OS_IOS ? 378 : 0 }); // iphone device can differ by 378
 	});
 
-	it('ListViewItem borderRadius', finish => {
-
+	it('ListViewItem borderRadius', () => {
 		// FIXME: Does not honour scale correctly on macOS.
 		if (isCI && utilities.isMacOS()) {
-			return finish();
+			return;
 		}
 
 		const view = Ti.UI.createView({
@@ -1261,21 +1240,14 @@ describe('Titanium.UI.ListView', function () {
 
 		view.add(listView);
 
-		try {
-
-			// ListViewItem should fill the height of its parent ListView.
-			should(view).matchImage('snapshots/listViewItem_borderRadius.png');
-		} catch (e) {
-			return finish(e);
-		}
-		finish();
+		// ListViewItem should fill the height of its parent ListView.
+		should(view).matchImage('snapshots/listViewItem_borderRadius.png', { maxPixelMismatch: OS_IOS ? 28 : 0 }); // 28 pixels differ on actual iPhone
 	});
 
-	it('ListItem default template layout', finish => {
-
+	it('ListItem default template layout', () => {
 		// FIXME: Does not honour scale correctly on macOS.
 		if (isCI && utilities.isMacOS()) {
-			return finish();
+			return;
 		}
 
 		const view = Ti.UI.createView({
@@ -1301,21 +1273,14 @@ describe('Titanium.UI.ListView', function () {
 
 		view.add(listView);
 
-		try {
-
-			// Validate default template displays `title` and `image` correctly.
-			should(view).matchImage('snapshots/listItem_defaultTemplate.png');
-		} catch (e) {
-			return finish(e);
-		}
-		finish();
+		// Validate default template displays `title` and `image` correctly.
+		should(view).matchImage('snapshots/listItem_defaultTemplate.png', { maxPixelMismatch: OS_IOS ? 21 : 0 }); // 21 pixels differ on actual iPhone
 	});
 
-	it('ListItem template property', finish => {
-
+	it('ListItem template property', () => {
 		// FIXME: Does not honour scale correctly on macOS.
 		if (isCI && utilities.isMacOS()) {
-			return finish();
+			return;
 		}
 
 		const view = Ti.UI.createView({
@@ -1361,21 +1326,14 @@ describe('Titanium.UI.ListView', function () {
 
 		view.add(listView);
 
-		try {
-
-			// Validate ListView only renders two items with specified `template`.
-			should(view).matchImage('snapshots/listViewItem_template.png');
-		} catch (e) {
-			return finish(e);
-		}
-		finish();
+		// Validate ListView only renders two items with specified `template`.
+		should(view).matchImage('snapshots/listViewItem_template.png', { maxPixelMismatch: OS_IOS ? 23 : 0 }); // 23 pixels differ on actual iPhone
 	});
 
-	it('ListView header & footer', finish => {
-
+	it('ListView header & footer', () => {
 		// FIXME: Does not honour scale correctly on macOS.
 		if (isCI && utilities.isMacOS()) {
-			return finish();
+			return;
 		}
 
 		const view = Ti.UI.createView({
@@ -1390,22 +1348,15 @@ describe('Titanium.UI.ListView', function () {
 
 		view.add(listView);
 
-		try {
-
-			// Both ListView header and footer should be visible.
-			// Even without defining a ListSection.
-			should(view).matchImage('snapshots/listView_header_footer.png');
-		} catch (err) {
-			return finish(err);
-		}
-		finish();
+		// Both ListView header and footer should be visible.
+		// Even without defining a ListSection.
+		should(view).matchImage('snapshots/listView_header_footer.png', { threshold: OS_IOS ? 0.2 : 0.1 });
 	});
 
-	it('ListView + ListSection header & footer', finish => {
-
+	it('ListView + ListSection header & footer', () => {
 		// FIXME: Does not honour scale correctly on macOS.
 		if (isCI && utilities.isMacOS()) {
-			return finish();
+			return;
 		}
 
 		const view = Ti.UI.createView({
@@ -1428,14 +1379,10 @@ describe('Titanium.UI.ListView', function () {
 
 		view.add(listView);
 
-		try {
-
-			// Both ListView and ListSection header and footer should be visible.
-			// Even without defining ListSection items.
-			should(view).matchImage('snapshots/listView_listSection_header_footer.png');
-		} catch (e) {
-			return finish(e);
-		}
-		finish();
+		// Both ListView and ListSection header and footer should be visible.
+		// Even without defining ListSection items.
+		should(view).matchImage('snapshots/listView_listSection_header_footer.png', {
+			maxPixelMismatch: OS_IOS ? 478 : 0 // iPad differs by ~4 pixels, iphone by 478
+		});
 	});
 });
