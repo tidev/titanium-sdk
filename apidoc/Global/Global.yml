@@ -196,7 +196,7 @@ methods:
         ```
     returns:
         summary: Exported `exports` object of the required module.
-        type: Object
+        type: any
     parameters:
       - name: moduleId
         summary: Native module ID or local path to a JavaScript file *minus* the `.js` extension.

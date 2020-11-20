@@ -71,7 +71,7 @@ methods:
         type: String
       - name: args
         summary: Optional arguments to pass along to event listeners
-        type: Object
+        type: any
         optional: true
         repeatable: true
     returns:
