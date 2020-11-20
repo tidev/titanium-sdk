@@ -125,9 +125,12 @@ function saveImage(blob, imageFilePath) {
 
 /**
  * @param {string|Ti.Blob} image path to image file on disk (relative), or an in-memory Ti.Blob instance (holding an image).
- * @param {Number} [threshold=0.1] threshold for comparing images.
+ * @param {object} [options] options for comparing images
+ * @param {Number} [options.threshold=0.1] threshold for comparing images
+ * @param {Number} [options.maxPixelMismatch=0] maximum number of pixels this match will tolerate
  */
-should.Assertion.add('matchImage', function (image, threshold = 0.1) {
+should.Assertion.add('matchImage', function (image, options = { threshold: 0.1, maxPixelMismatch: 0 }) {
+	options.maxPixelMismatch = options.maxPixelMismatch || 0;
 
 	// Validate object is valid view.
 	this.obj.should.have.property('toImage').which.is.a.Function();
@@ -187,8 +190,7 @@ should.Assertion.add('matchImage', function (image, threshold = 0.1) {
 		const expectedOut = saveImage(expectedBlob, expectedPath);
 		console.log(`!IMG_DIFF: {"path":"${expectedOut.nativePath}","platform":"${platform}","relativePath":"${expectedPath}"}`);
 
-		this.fail(null, null, `Invalid size for snapshot comparision for platform '${platform}' ('${image}'), generated image at '${actualOut.nativePath}'.`);
-		return;
+		throw e;
 	}
 
 	// Create a Buffer around the contents of each snapshot.
@@ -200,10 +202,11 @@ should.Assertion.add('matchImage', function (image, threshold = 0.1) {
 
 	const { width, height } = actualImg;
 	const diffImg = new PNG({ width, height });
-	const diff = pixelmatch(actualImg.data, expectedImg.data, diffImg.data, width, height, { threshold });
+	const diff = pixelmatch(actualImg.data, expectedImg.data, diffImg.data, width, height, { threshold: options.threshold });
 
-	if (diff !== 0) {
-
+	try {
+		should(diff).be.belowOrEqual(options.maxPixelMismatch);
+	} catch (err) {
 		// Snapshots did not match, save current view.
 		const actualOut = saveImage(actualBlob, image);
 		console.log(`!IMAGE: {"path":"${actualOut.nativePath}","platform":"${platform}","relativePath":"${image}"}`);
@@ -226,7 +229,7 @@ should.Assertion.add('matchImage', function (image, threshold = 0.1) {
 		const diffOut = saveImage(diffBuffer.toTiBuffer().toBlob(), diffPath);
 		console.log(`!IMG_DIFF: {"path":"${diffOut.nativePath}","platform":"${platform}","relativePath":"${diffPath}","blob":${isExpectedBlob}}`);
 
-		this.fail(null, null, `Image ${image} failed to match, had ${diff} differing pixels, generated diff image at '${diffPath}'.`);
+		throw err;
 	}
 }, false);
 
