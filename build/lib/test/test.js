@@ -595,7 +595,8 @@ class DeviceTestDetails {
 
 		// Grab expected output image.
 		if (!details.blob) {
-			await fs.copy(`${baseImagePath}_expected.png`, expectedOutputPath);
+			// We're comparing against a snapshot in the suite, copy the original file from the suite over
+			await fs.copy(path.join(PROJECT_DIR, 'Resources', details.platform, baseImageRelativePath), expectedOutputPath);
 		} else {
 			// ti.blob generates expected output image for comparison.
 			await this.grabAppImage(details.platform, `${baseImagePath}_expected.png`, expectedOutputPath);
