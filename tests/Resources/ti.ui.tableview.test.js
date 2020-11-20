@@ -4,6 +4,7 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+/* global OS_IOS */
 /* eslint-env mocha */
 /* eslint no-unused-expressions: "off" */
 'use strict';
@@ -1524,11 +1525,10 @@ describe('Titanium.UI.TableView', function () {
 		win.open();
 	});
 
-	it('TableViewRow scaling (percent)', finish => {
-
+	it('TableViewRow scaling (percent)', () => {
 		// FIXME: Does not honour scale correctly on macOS.
 		if (isCI && utilities.isMacOS()) {
-			return finish();
+			return;
 		}
 
 		const view = Ti.UI.createView({
@@ -1548,21 +1548,14 @@ describe('Titanium.UI.TableView', function () {
 
 		view.add(tableView);
 
-		try {
-
-			// TableViewRow should fill 50% of its parent TableView.
-			should(view).matchImage('snapshots/tableViewRowScaling_percent.png');
-		} catch (e) {
-			return finish(e);
-		}
-		finish();
+		// TableViewRow should fill 50% of its parent TableView.
+		should(view).matchImage('snapshots/tableViewRowScaling_percent.png', { maxPixelMismatch: OS_IOS ? 2 : 0 }); // 2 pixels differ on actual iPhone
 	});
 
-	it('TableViewRow scaling (FILL)', finish => {
-
+	it('TableViewRow scaling (FILL)', () => {
 		// FIXME: Does not honour scale correctly on macOS.
 		if (isCI && utilities.isMacOS()) {
-			return finish();
+			return;
 		}
 
 		const view = Ti.UI.createView({
@@ -1582,21 +1575,14 @@ describe('Titanium.UI.TableView', function () {
 
 		view.add(tableView);
 
-		try {
-
-			// TableViewRow should fill 50% of its parent TableView.
-			should(view).matchImage('snapshots/tableViewRowScaling_fill.png');
-		} catch (e) {
-			return finish(e);
-		}
-		finish();
+		// TableViewRow should fill 50% of its parent TableView.
+		should(view).matchImage('snapshots/tableViewRowScaling_fill.png', { maxPixelMismatch: OS_IOS ? 8 : 0 }); // 8 pixels differ on actual iPhone
 	});
 
-	it('TableViewRow internal icons', finish => {
-
+	it('TableViewRow internal icons', () => {
 		// FIXME: Does not honour scale correctly on macOS.
 		if (isCI && utilities.isMacOS()) {
-			return finish();
+			return;
 		}
 
 		const view = Ti.UI.createView({
@@ -1615,22 +1601,18 @@ describe('Titanium.UI.TableView', function () {
 
 		view.add(tableView);
 
-		try {
-
-			// TableView should display rows of internal icons.
-			should(view).matchImage('snapshots/tableViewRow_icons.png');
-		} catch (e) {
-			return finish(e);
-		}
-		finish();
+		// TableView should display rows of internal icons.
+		should(view).matchImage('snapshots/tableViewRow_icons.png', {
+			maxPixelMismatch: OS_IOS ? 378 : 0 // iPhoen XR differs by 378 pixels
+		});
 	});
 
 	// FIXME: Unsupported on iOS.
-	it.iosBroken('TableViewRow borderRadius', finish => {
+	it.iosBroken('TableViewRow borderRadius', () => {
 
 		// FIXME: Does not honour scale correctly on macOS.
 		if (isCI && utilities.isMacOS()) {
-			return finish();
+			return;
 		}
 
 		const view = Ti.UI.createView({
@@ -1651,21 +1633,14 @@ describe('Titanium.UI.TableView', function () {
 
 		view.add(tableView);
 
-		try {
-
-			// TableView should display rows of internal icons.
-			should(view).matchImage('snapshots/tableViewRow_borderRadius.png');
-		} catch (e) {
-			return finish(e);
-		}
-		finish();
+		// TableView should display rows of internal icons.
+		should(view).matchImage('snapshots/tableViewRow_borderRadius.png');
 	});
 
-	it('TableViewRow default title & image', finish => {
-
+	it('TableViewRow default title & image', () => {
 		// FIXME: Does not honour scale correctly on macOS.
 		if (isCI && utilities.isMacOS()) {
-			return finish();
+			return;
 		}
 
 		const view = Ti.UI.createView({
@@ -1685,21 +1660,16 @@ describe('Titanium.UI.TableView', function () {
 
 		view.add(tableView);
 
-		try {
-
-			// TableView should display rows of internal icons.
-			should(view).matchImage('snapshots/tableViewRow_default.png');
-		} catch (e) {
-			return finish(e);
-		}
-		finish();
+		// TableView should display rows of internal icons.
+		should(view).matchImage('snapshots/tableViewRow_default.png', {
+			maxPixelMismatch: OS_IOS ? 380 : 0 // iphone XR differs by 380 pixels
+		});
 	});
 
-	it('TableView headerTitle & footerTitle', finish => {
-
+	it('TableView headerTitle & footerTitle', () => {
 		// FIXME: Does not honour scale correctly on macOS.
 		if (isCI && utilities.isMacOS()) {
-			return finish();
+			return;
 		}
 
 		const view = Ti.UI.createView({
@@ -1716,23 +1686,18 @@ describe('Titanium.UI.TableView', function () {
 
 		view.add(tableView);
 
-		try {
-
-			// TableView should display rows of internal icons.
-			should(view).matchImage('snapshots/tableView_headerTitle_footerTitle.png');
-		} catch (e) {
-			return finish(e);
-		}
-		finish();
+		// TableView should display rows of internal icons.
+		should(view).matchImage('snapshots/tableView_headerTitle_footerTitle.png', {
+			maxPixelMismatch: OS_IOS ? 290 : 0 // iphone differs by 290
+		});
 	});
 
 	// FIXME: For an unknown reason, this test causes an 'signal error code: 11' exception on iOS
 	// shortly after running successfully.
-	it.iosBroken('TableView headerView & footerView', finish => {
-
+	it.iosBroken('TableView headerView & footerView', () => {
 		// FIXME: Does not honour scale correctly on macOS.
 		if (isCI && utilities.isMacOS()) {
-			return finish();
+			return;
 		}
 
 		const view = Ti.UI.createView({
@@ -1757,23 +1722,16 @@ describe('Titanium.UI.TableView', function () {
 
 		view.add(tableView);
 
-		try {
-
-			// TableView should display rows of internal icons.
-			should(view).matchImage('snapshots/tableView_header_footer.png');
-		} catch (e) {
-			return finish(e);
-		}
-		finish();
+		// TableView should display rows of internal icons.
+		should(view).matchImage('snapshots/tableView_header_footer.png');
 	});
 
 	// FIXME: For an unknown reason, this test causes an 'signal error code: 11' exception on iOS
 	// shortly after running successfully.
-	it.iosBroken('TableView + TableViewSection headerView & footerView', finish => {
-
+	it.iosBroken('TableView + TableViewSection headerView & footerView', () => {
 		// FIXME: Does not honour scale correctly on macOS.
 		if (isCI && utilities.isMacOS()) {
-			return finish();
+			return;
 		}
 
 		const view = Ti.UI.createView({
@@ -1803,13 +1761,7 @@ describe('Titanium.UI.TableView', function () {
 
 		view.add(tableView);
 
-		try {
-
-			// TableView should display rows of internal icons.
-			should(view).matchImage('snapshots/tableView_tableViewSection_header_footer.png');
-		} catch (e) {
-			return finish(e);
-		}
-		finish();
+		// TableView should display rows of internal icons.
+		should(view).matchImage('snapshots/tableView_tableViewSection_header_footer.png');
 	});
 });
