@@ -406,8 +406,8 @@ public class TiFileHelper
 			AssetManager am = ctx.getAssets();
 			walkAssets(am, "", paths);
 
-			// TODO clean old dir
-			deleteTree(dest);
+			// Delete all files and subdirectories under given directory.
+			emptyDirectory(dest);
 
 			// copy from assets to dest dir
 			BufferedInputStream bis = null;
@@ -462,7 +462,7 @@ public class TiFileHelper
 
 	public void deployFromZip(File fname, File dest) throws IOException
 	{
-		deleteTree(dest);
+		emptyDirectory(dest);
 
 		ZipInputStream zis = null;
 		ZipEntry ze = null;
@@ -571,6 +571,40 @@ public class TiFileHelper
 
 		// Delete the given directory/file.
 		return (wasDeleted && file.delete());
+	}
+
+	/**
+	 * Deletes all files and subdirectories under the given directory while leaving the given directory intact.
+	 * If given directory does not exist, then it is created.
+	 * @param directory The directory to be emptied. Can be null.
+	 * @return
+	 * Returns true if successfully deleted all files and folders under given directory.
+	 * Returns false if at least 1 deletion failed or if given a null argument.
+	 * @exception SecurityException Thrown if don't have permission to delete at least 1 file in the tree.
+	 */
+	public boolean emptyDirectory(File directory) throws SecurityException
+	{
+		// Validate argument.
+		if (directory == null) {
+			return false;
+		}
+
+		// If directory does not exist, then create it and stop here.
+		if (!directory.exists()) {
+			return directory.mkdirs();
+		}
+
+		// Do not continue if referencing a file instead of a directory.
+		if (!directory.isDirectory()) {
+			return false;
+		}
+
+		// Delete all file and subdirectories under given directory.
+		boolean wasSuccessful = true;
+		for (File nextFile : directory.listFiles()) {
+			wasSuccessful = deleteTree(nextFile) && wasSuccessful;
+		}
+		return wasSuccessful;
 	}
 
 	public File getTempFile(String suffix, boolean destroyOnExit) throws IOException
