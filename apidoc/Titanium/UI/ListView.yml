@@ -729,10 +729,11 @@ properties:
   - name: gridColumns
     summary: Will create a simple grid layout.
     description: |
-        Setting a value > 0 will create a grid layout with evenly spaces columns.
+        Setting a value > 0 will create a grid layout with evenly spaced columns. `headerTitles` will also be placed in
+        those columns, they will not spread over all columns.
     type: Number
     default: 0
-    since: 9.3.0
+    since: 10.0.0
     platforms: [android]
 
   - name: allowsSelectionDuringEditing
