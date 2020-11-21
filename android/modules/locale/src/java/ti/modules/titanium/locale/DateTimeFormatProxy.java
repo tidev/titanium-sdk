@@ -194,6 +194,7 @@ public class DateTimeFormatProxy extends KrollProxy
 		this.resolvedOptions = new KrollDict();
 		this.resolvedOptions.putAll(options);
 		this.resolvedOptions.put(TiC.PROPERTY_LOCALE, locale.toString().replace("_", "-"));
+		this.resolvedOptions.put("timeZone", this.dateFormat.getTimeZone().getID());
 		NumberingSystem numberingSystem = NumberingSystem.from(locale);
 		if (numberingSystem == null) {
 			numberingSystem = NumberingSystem.LATN;

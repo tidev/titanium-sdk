@@ -205,11 +205,23 @@ describe('Intl.DateTimeFormat',  () => {
 		});
 	});
 
-	it('#resolvedOptions()', () => {
-		const formatter = new Intl.DateTimeFormat();
-		should(formatter.resolvedOptions).not.be.undefined();
-		should(formatter.resolvedOptions).be.a.Function();
-		should(formatter.resolvedOptions()).be.an.Object();
+	describe('#resolvedOptions()', () => {
+		it('validate function', () => {
+			const formatter = new Intl.DateTimeFormat();
+			should(formatter.resolvedOptions).not.be.undefined();
+			should(formatter.resolvedOptions).be.a.Function();
+			should(formatter.resolvedOptions()).be.an.Object();
+		});
+
+		it('timeZone', () => {
+			should(Intl.DateTimeFormat().resolvedOptions().timeZone).be.a.String();
+			let formatter = new Intl.DateTimeFormat('en-US', { timeZone: 'UTC' });
+			should(formatter.resolvedOptions().timeZone).be.eql('UTC');
+			formatter = new Intl.DateTimeFormat('en-US', { timeZone: 'Etc/GMT+8' });
+			should(formatter.resolvedOptions().timeZone).be.eql('Etc/GMT+8');
+			formatter = new Intl.DateTimeFormat('en-US', { timeZone: 'America/Los_Angeles' });
+			should(formatter.resolvedOptions().timeZone).be.eql('America/Los_Angeles');
+		});
 	});
 
 	describe('#supportedLocalesOf()', () => {
