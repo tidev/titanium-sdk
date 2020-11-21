@@ -4,6 +4,7 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+/* global OS_IOS */
 /* eslint-env mocha */
 /* eslint no-unused-expressions: "off" */
 'use strict';
@@ -93,6 +94,143 @@ describe('Titanium.UI.Window', function () {
 
 		it('LANDSCAPE_RIGHT', finish => {
 			doOrientationModeTest(Ti.UI.LANDSCAPE_RIGHT, finish);
+		});
+	});
+
+	it.ios('.leftNavButtons and .rightNavButtons', finish => {
+		const rightButton1 = Ti.UI.createButton({
+			title: 'Right1',
+			color: 'green',
+		});
+
+		const rightButton2 = Ti.UI.createButton({
+			title: 'Right2',
+			color: 'green',
+		});
+
+		const leftButton = Ti.UI.createButton({
+			title: 'Left',
+			color: 'blue'
+		});
+
+		const rootWindow = Ti.UI.createWindow({
+			backgroundColor: 'white',
+			leftNavButtons: [ leftButton ],
+			rightNavButtons: [ rightButton1, rightButton2 ],
+		});
+
+		win = Ti.UI.createNavigationWindow({
+			window: rootWindow
+		});
+
+		win.open();
+
+		rootWindow.addEventListener('focus', function focus() {
+			rootWindow.removeEventListener('focus', focus);
+			try {
+				should(rootWindow.rightNavButtons).be.an.Array();
+				should(rootWindow.rightNavButtons.length).be.eql(2);
+				rootWindow.rightNavButtons = [ rightButton1 ];
+				should(rootWindow.rightNavButtons.length).be.eql(1);
+
+				should(rootWindow.leftNavButtons).be.an.Array();
+				should(rootWindow.leftNavButtons.length).be.eql(1);
+			} catch (e) {
+				return finish(e);
+			}
+			finish();
+		});
+	});
+
+	it.ios('.leftNavButton with default color (no color value) and .rightNavButton with tintColor', finish => {
+		// TO DO: Snapshots for different iPads are different. Can not test with static image.
+		// Probably try with snapshot comparision (with and without color) at run time
+		if (utilities.isMacOS() || utilities.isIPad()) {
+			return finish(); // how to skip for iPad?
+		}
+
+		const rightButton = Ti.UI.createButton({
+			title: 'Right',
+			tintColor: 'green',
+		});
+
+		const leftButton = Ti.UI.createButton({
+			title: 'Left',
+		});
+
+		const rootWindow = Ti.UI.createWindow({
+			backgroundColor: 'white',
+			leftNavButton: leftButton,
+			rightNavButton: rightButton,
+		});
+
+		win = Ti.UI.createNavigationWindow({
+			height: '400px',
+			width: '400px',
+			window: rootWindow
+		});
+
+		win.open();
+
+		rootWindow.addEventListener('postlayout', function postlayout() {
+			rootWindow.removeEventListener('postlayout', postlayout);
+			setTimeout(function () {
+				try {
+					should(rootWindow.leftNavButton).be.an.Object();
+					should(rootWindow.rightNavButton).be.an.Object();
+					should(win).matchImage('snapshots/navButton_left_defaultColor_right_greenColor.png', { maxPixelMismatch: OS_IOS ? 27 : 0 }); // iphone XR differs by 27 pixels
+				} catch (e) {
+					return finish(e);
+				}
+				finish();
+			}, 10);
+		});
+	});
+
+	it.ios('.leftNavButton and .rightNavButton  with color and tintColor', finish => {
+		// TO DO: Snapshots for different iPads are different. Can not test with static image.
+		// Probably try with snapshot comparision (with and without color) at run time
+		if (utilities.isMacOS() || utilities.isIPad()) {
+			return finish(); // how to skip for iPad?
+		}
+
+		const rightButton = Ti.UI.createButton({
+			title: 'Right',
+			tintColor: 'red',
+			color: 'green', // should have preference
+		});
+
+		const leftButton = Ti.UI.createButton({
+			title: 'Left',
+			tintColor: 'red'
+		});
+
+		const rootWindow = Ti.UI.createWindow({
+			backgroundColor: 'white',
+			leftNavButton: leftButton,
+			rightNavButton: rightButton,
+		});
+
+		win = Ti.UI.createNavigationWindow({
+			height: '400px',
+			width: '400px',
+			window: rootWindow
+		});
+
+		win.open();
+
+		rootWindow.addEventListener('postlayout', function postlayout() {
+			rootWindow.removeEventListener('postlayout', postlayout);
+			setTimeout(function () {
+				try {
+					should(rootWindow.leftNavButton).be.an.Object();
+					should(rootWindow.rightNavButton).be.an.Object();
+					should(win).matchImage('snapshots/navButton_left_redColor_right_greenColor.png', { maxPixelMismatch: OS_IOS ? 27 : 0 }); // iphone XR differs by 27 pixels
+				} catch (e) {
+					return finish(e);
+				}
+				finish();
+			}, 10);
 		});
 	});
 

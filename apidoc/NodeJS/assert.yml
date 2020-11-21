@@ -33,10 +33,10 @@ methods:
         `assert.deepEqual()` can have surprising results.
     parameters:
       - name: actual
-        type: Object
+        type: any
         summary: The actual value
       - name: expected
-        type: Object
+        type: any
         summary: The expected value
       - name: message
         type: [ String, Error ]
@@ -49,10 +49,10 @@ methods:
         "Deep" equality means that the enumerable "own" properties of child objects are recursively evaluated also by the following rules.
     parameters:
       - name: actual
-        type: Object
+        type: any
         summary: The actual value
       - name: expected
-        type: Object
+        type: any
         summary: The expected value
       - name: message
         type: [ String, Error ]
@@ -116,10 +116,10 @@ methods:
         `NaN` is special handled and treated as being identical in case both sides are `NaN`.
     parameters:
       - name: actual
-        type: Object
+        type: any
         summary: The actual value
       - name: expected
-        type: Object
+        type: any
         summary: The expected value
       - name: message
         type: [ String, Error ]
@@ -147,7 +147,7 @@ methods:
         The stack trace contains all frames from the error passed to `ifError()` including the potential new frames for `ifError()` itself.
     parameters:
       - name: value
-        type: Object
+        type: any
         summary: potentially thrown value/object
 
   # TODO: Implement assert.match
@@ -173,10 +173,10 @@ methods:
         Tests for any deep inequality. Opposite of `assert.deepEqual()`.
     parameters:
       - name: actual
-        type: Object
+        type: any
         summary: The actual value
       - name: expected
-        type: Object
+        type: any
         summary: The expected value
       - name: message
         type: [ String, Error ]
@@ -188,10 +188,10 @@ methods:
         Tests for deep strict inequality. Opposite of `assert.deepStrictEqual()`.
     parameters:
       - name: actual
-        type: Object
+        type: any
         summary: The actual value
       - name: expected
-        type: Object
+        type: any
         summary: The expected value
       - name: message
         type: [ String, Error ]
@@ -204,10 +204,10 @@ methods:
         `NaN` is special handled and treated as being identical in case both sides are `NaN`.
     parameters:
       - name: actual
-        type: Object
+        type: any
         summary: The actual value
       - name: expected
-        type: Object
+        type: any
         summary: The expected value
       - name: message
         type: [ String, Error ]
@@ -219,10 +219,10 @@ methods:
         Tests strict inequality between the actual and expected parameters as determined by the [SameValue Comparison](https://tc39.github.io/ecma262/#sec-samevalue).
     parameters:
       - name: actual
-        type: Object
+        type: any
         summary: The actual value
       - name: expected
-        type: Object
+        type: any
         summary: The expected value
       - name: message
         type: [ String, Error ]
@@ -239,7 +239,7 @@ methods:
         If no arguments are passed in at all message will be set to the string: `'No value argument passed to \`assert.ok()\`'`.
     parameters:
       - name: value
-        type: Object
+        type: any
         summary: The input that is checked for being truthy.
       - name: message
         type: [ String, Error ]
@@ -259,7 +259,7 @@ methods:
         If specified, `message` will be the message provided by the `AssertionError` if the `asyncFn` fails to reject.
     parameters:
       - name: asyncFn
-        type: [ Function, Promise<Object> ]
+        type: [ Function, Promise<any> ]
         summary: function to invoke
       - name: error
         type: [ RegExp, Function, Object, Error ]
@@ -275,10 +275,10 @@ methods:
         Tests strict equality between the actual and expected parameters as determined by the [SameValue Comparison](https://tc39.github.io/ecma262/#sec-samevalue).
     parameters:
       - name: actual
-        type: Object
+        type: any
         summary: The actual value
       - name: expected
-        type: Object
+        type: any
         summary: The expected value
       - name: message
         type: [ String, Error ]
@@ -333,11 +333,11 @@ summary: |
     Indicates the failure of an assertion. All errors thrown by the <assert> module will be instances of the `AssertionError` class.
 properties:
   - name: actual
-    type: Object
+    type: any
     summary: Set to the actual argument for methods such as `assert.strictEqual()`.
 
   - name: expected
-    type: Object 
+    type: any 
     summary: Set to the expected value for methods such as `assert.strictEqual()`.
 
   - name: generatedMessage
@@ -357,7 +357,7 @@ methods:
     summary: A subclass of `Error` that indicates the failure of an assertion.
     parameters:
       - name: options
-        type: Object
+        type: assert.AssertionError.options
         optional: true
         summary: options
     returns:
@@ -373,11 +373,11 @@ properties:
     optional: true
   
   - name: actual
-    type: Object
+    type: any
     summary: The `actual` property on the error instance.
 
   - name: expected
-    type: Object
+    type: any
     summary: The `expected` property on the error instance.
 
   - name: operator
