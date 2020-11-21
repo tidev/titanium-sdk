@@ -21,6 +21,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RelativeLayout;
 
+import androidx.recyclerview.widget.GridLayoutManager;
+
 import ti.modules.titanium.ui.RefreshControlProxy;
 import ti.modules.titanium.ui.SearchBarProxy;
 import ti.modules.titanium.ui.TableViewProxy;
@@ -81,6 +83,15 @@ public class TiUITableView extends TiUIView
 				((RefreshControlProxy) value).assignTo(this.tableView);
 			} else if (value == null) {
 				RefreshControlProxy.unassignFrom(this.tableView);
+			}
+		}
+
+		if (name.equals(TiC.PROPERTY_GRID_COLUMNS)) {
+			// create a simple GridLayout
+			final int gridColumns = TiConvert.toInt(value, 0);
+			if (gridColumns > 1) {
+				this.tableView.getRecyclerView().setLayoutManager(new GridLayoutManager(
+					getProxy().getActivity(), gridColumns));
 			}
 		}
 
