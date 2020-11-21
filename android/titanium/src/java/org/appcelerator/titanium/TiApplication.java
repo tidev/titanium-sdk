@@ -561,62 +561,16 @@ public abstract class TiApplication extends Application implements KrollApplicat
 			} finally {
 				// If failed to move existing folder to "trash", then do a blocking delete. (Should never happen.)
 				if (!wasTrashed) {
-					tryDeleteTree(nextDir);
+					TiFileHelper.getInstance().tryDeleteTree(nextDir);
 				}
 			}
 		}
 
 		// Async delete the "trash" directory tree.
 		Thread thread = new Thread(() -> {
-			tryDeleteTree(trashDir);
+			TiFileHelper.getInstance().tryDeleteTree(trashDir);
 		});
 		thread.start();
-	}
-
-	/**
-	 * Recursively deletes the given directory tree.
-	 * Will never throw an exception and will return the result as a boolean instead.
-	 * @param file Reference to a file or directory. Can be null.
-	 * @return
-	 * Returns true if successfully deleted all files and folders under given directory tree.
-	 * Returns false if at least 1 deletion failed or if given a null argument.
-	 */
-	private boolean tryDeleteTree(File file)
-	{
-		boolean wasSuccessful = false;
-		try {
-			wasSuccessful = deleteTree(file);
-		} catch (Throwable ex) {
-			Log.e(TAG, "Failed to delete directory tree: " + file, ex);
-		}
-		return wasSuccessful;
-	}
-
-	/**
-	 * Recursively deletes the given directory tree.
-	 * @param file Reference to a directory or a single file. Can be null, in which case this method no-ops.
-	 * @return
-	 * Returns true if successfully deleted all files and folders under given directory tree.
-	 * Returns false if at least 1 deletion failed or if given a null argument.
-	 * @exception SecurityException Thrown if don't have permission to delete at least 1 file in the tree.
-	 */
-	private boolean deleteTree(File file) throws SecurityException
-	{
-		// Validate argument.
-		if (file == null) {
-			return false;
-		}
-
-		// If given a directory, then recursively delete the entire tree.
-		boolean wasDeleted = true;
-		if (file.isDirectory()) {
-			for (File nextFile : file.listFiles()) {
-				wasDeleted = deleteTree(nextFile) && wasDeleted;
-			}
-		}
-
-		// Delete the given directory/file.
-		return (wasDeleted && file.delete());
 	}
 
 	public void setRootActivity(TiRootActivity rootActivity)
@@ -1038,7 +992,6 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	{
 		TiActivityWindows.dispose();
 		TiActivitySupportHelpers.dispose();
-		TiFileHelper.getInstance().destroyTempFiles();
 	}
 
 	@Override
