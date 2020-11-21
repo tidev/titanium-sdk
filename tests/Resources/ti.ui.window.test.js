@@ -4,6 +4,7 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+/* global OS_IOS */
 /* eslint-env mocha */
 /* eslint no-unused-expressions: "off" */
 'use strict';
@@ -148,8 +149,6 @@ describe('Titanium.UI.Window', function () {
 			return finish(); // how to skip for iPad?
 		}
 
-		const density = Ti.Platform.displayCaps.logicalDensityFactor;
-
 		const rightButton = Ti.UI.createButton({
 			title: 'Right',
 			tintColor: 'green',
@@ -179,7 +178,7 @@ describe('Titanium.UI.Window', function () {
 				try {
 					should(rootWindow.leftNavButton).be.an.Object();
 					should(rootWindow.rightNavButton).be.an.Object();
-					should(win).matchImage(`snapshots/navButton_left_defaultColor_right_greenColor_${density}x.png`);
+					should(win).matchImage('snapshots/navButton_left_defaultColor_right_greenColor.png', { maxPixelMismatch: OS_IOS ? 27 : 0 }); // iphone XR differs by 27 pixels
 				} catch (e) {
 					return finish(e);
 				}
@@ -194,8 +193,6 @@ describe('Titanium.UI.Window', function () {
 		if (utilities.isMacOS() || utilities.isIPad()) {
 			return finish(); // how to skip for iPad?
 		}
-
-		const density = Ti.Platform.displayCaps.logicalDensityFactor;
 
 		const rightButton = Ti.UI.createButton({
 			title: 'Right',
@@ -228,7 +225,7 @@ describe('Titanium.UI.Window', function () {
 				try {
 					should(rootWindow.leftNavButton).be.an.Object();
 					should(rootWindow.rightNavButton).be.an.Object();
-					should(win).matchImage(`snapshots/navButton_left_redColor_right_greenColor_${density}x.png`);
+					should(win).matchImage('snapshots/navButton_left_redColor_right_greenColor.png', { maxPixelMismatch: OS_IOS ? 27 : 0 }); // iphone XR differs by 27 pixels
 				} catch (e) {
 					return finish(e);
 				}
