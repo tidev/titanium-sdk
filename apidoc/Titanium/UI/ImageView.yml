@@ -8,16 +8,16 @@ description: |
 
     Specifying either a `width` or `height` property for this view will scale its image(s) with
     the aspect ratio maintained, up to a maximum size that does not exceed its parent view.
-    
+
     #### Remote Images
-    
-    You can display both local and remote images in an ImageView. When loading remote images, you should 
-    set the defaultImage property to a local image, which will be displayed while the remote image is being 
+
+    You can display both local and remote images in an ImageView. When loading remote images, you should
+    set the defaultImage property to a local image, which will be displayed while the remote image is being
     downloaded. Remote images are cached automatically on the iOS-, Android- and Windows platform.
-    
-    Android Note: Android 6 and later uses runtime permissions to secure the user's privacy. 
+
+    Android Note: Android 6 and later uses runtime permissions to secure the user's privacy.
     Therefore, you should call <Titanium.Filesystem.requestStoragePermissions> before attempting to load remote images.
-    
+
     Read more about remote images and general best practices in the [Image Best Practices Guide](https://wiki.appcelerator.org/display/guides2/Image+Best+Practices#ImageBestPractices-Cachingremoteimages).
 
     #### Android 9-Patch Scaled Images
@@ -234,6 +234,14 @@ properties:
     summary: Run the animation in reverse.
     type: Boolean
     default: false
+
+  - name: scaleType
+    summary: Scale the content of the ImageView.
+    type: Number
+    constants: [Titanium.Media.IMAGE_SCALING_DEFAULT, Titanium.Media.IMAGE_SCALING_CENTER, Titanium.Media.IMAGE_SCALING_CENTER_CROP, Titanium.Media.IMAGE_SCALING_CENTER_INSIDE]
+    default: Titanium.Media.IMAGE_SCALING_DEFAULT
+    platforms: [android]
+    since: "10.0.0"
 
   - name: tintColor
     summary: The view's tintColor. Android does not support setting instances of <Titanium.UI.Color>

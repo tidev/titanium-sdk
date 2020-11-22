@@ -102,6 +102,15 @@ public class MediaModule extends KrollModule implements Handler.Callback
 	public static final int VIDEO_SCALING_RESIZE_ASPECT_FILL = 6;
 
 	@Kroll.constant
+	public static final int IMAGE_SCALING_DEFAULT = 0;
+	@Kroll.constant
+	public static final int IMAGE_SCALING_CENTER = 1;
+	@Kroll.constant
+	public static final int IMAGE_SCALING_CENTER_CROP = 2;
+	@Kroll.constant
+	public static final int IMAGE_SCALING_CENTER_INSIDE = 3;
+
+	@Kroll.constant
 	public static final int VIDEO_CONTROL_DEFAULT = 0;
 	@Kroll.constant
 	public static final int VIDEO_CONTROL_EMBEDDED = 1;

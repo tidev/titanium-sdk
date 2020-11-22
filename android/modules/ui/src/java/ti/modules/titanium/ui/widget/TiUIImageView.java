@@ -813,6 +813,9 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 		if (d.containsKey(TiC.PROPERTY_DEFAULT_IMAGE)) {
 			setDefaultImageSource(d.get(TiC.PROPERTY_DEFAULT_IMAGE));
 		}
+		if (d.containsKey(TiC.PROPERTY_SCALE_TYPE)) {
+			view.setScaleType(TiConvert.toInt(d, TiC.PROPERTY_SCALE_TYPE));
+		}
 		if (d.containsKey(TiC.PROPERTY_IMAGE)) {
 			// processProperties is also called from TableView, we need check if we changed before re-creating the
 			// bitmap
@@ -890,6 +893,8 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 					setImages();
 				}
 			}
+		} else if (key.equals(TiC.PROPERTY_SCALE_TYPE)) {
+			view.setScaleType(TiConvert.toInt(newValue, 0));
 		} else {
 			if (key.equals(TiC.PROPERTY_WIDTH)) {
 				String widthProperty = TiConvert.toString(newValue);

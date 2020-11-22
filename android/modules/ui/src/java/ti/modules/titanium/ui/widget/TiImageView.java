@@ -30,6 +30,7 @@ import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
 import android.widget.ZoomControls;
 import android.graphics.PorterDuff.Mode;
+import ti.modules.titanium.media.MediaModule;
 import org.appcelerator.titanium.util.TiColorHelper;
 
 public class TiImageView extends ViewGroup implements Handler.Callback, OnClickListener
@@ -64,6 +65,7 @@ public class TiImageView extends ViewGroup implements Handler.Callback, OnClickL
 
 	private int orientation;
 	private int tintColor;
+	private int customScaleType;
 	private WeakReference<TiViewProxy> proxy;
 
 	public TiImageView(Context context)
@@ -80,6 +82,7 @@ public class TiImageView extends ViewGroup implements Handler.Callback, OnClickL
 		scaleMin = 1.0f;
 		scaleMax = 5.0f;
 		orientation = 0;
+		customScaleType = 0;
 
 		baseMatrix = new Matrix();
 		changeMatrix = new Matrix();
@@ -168,6 +171,12 @@ public class TiImageView extends ViewGroup implements Handler.Callback, OnClickL
 	public void setEnableZoomControls(boolean enableZoomControls)
 	{
 		this.enableZoomControls = enableZoomControls;
+		updateScaleType();
+	}
+
+	public void setScaleType(int scaleType)
+	{
+		this.customScaleType = scaleType;
 		updateScaleType();
 	}
 
@@ -441,19 +450,30 @@ public class TiImageView extends ViewGroup implements Handler.Callback, OnClickL
 
 	private void updateScaleType()
 	{
-		if (orientation > 0 || enableZoomControls) {
-			imageView.setScaleType(ScaleType.MATRIX);
+		if (customScaleType > 0) {
+			if (customScaleType == MediaModule.IMAGE_SCALING_CENTER) {
+				imageView.setScaleType(ScaleType.CENTER);
+			} else if (customScaleType == MediaModule.IMAGE_SCALING_CENTER_CROP) {
+				imageView.setScaleType(ScaleType.CENTER_CROP);
+			} else if (customScaleType == MediaModule.IMAGE_SCALING_CENTER_INSIDE) {
+				imageView.setScaleType(ScaleType.CENTER_INSIDE);
+			}
 			imageView.setAdjustViewBounds(false);
 		} else {
-			if (viewWidthDefined && viewHeightDefined) {
+			if (orientation > 0 || enableZoomControls) {
+				imageView.setScaleType(ScaleType.MATRIX);
 				imageView.setAdjustViewBounds(false);
-				imageView.setScaleType(ScaleType.FIT_XY);
-			} else if (!enableScale) {
-				imageView.setAdjustViewBounds(false);
-				imageView.setScaleType(ScaleType.CENTER);
 			} else {
-				imageView.setAdjustViewBounds(true);
-				imageView.setScaleType(ScaleType.FIT_CENTER);
+				if (viewWidthDefined && viewHeightDefined) {
+					imageView.setAdjustViewBounds(false);
+					imageView.setScaleType(ScaleType.FIT_XY);
+				} else if (!enableScale) {
+					imageView.setAdjustViewBounds(false);
+					imageView.setScaleType(ScaleType.CENTER);
+				} else {
+					imageView.setAdjustViewBounds(true);
+					imageView.setScaleType(ScaleType.FIT_CENTER);
+				}
 			}
 		}
 		requestLayout();

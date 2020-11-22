@@ -2861,6 +2861,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_SCALE_TYPE = "scaleType";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_SCALE_X = "scaleX";
 
 	/**
