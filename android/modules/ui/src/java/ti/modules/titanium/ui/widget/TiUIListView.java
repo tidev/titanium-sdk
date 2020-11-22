@@ -14,6 +14,7 @@ import android.view.ViewGroup;
 import android.widget.RelativeLayout;
 
 import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
@@ -89,6 +90,9 @@ public class TiUIListView extends TiUIView
 			if (gridColumns > 1) {
 				this.listView.getRecyclerView().setLayoutManager(new GridLayoutManager(
 					getProxy().getActivity(), gridColumns));
+			} else {
+				this.listView.getRecyclerView().setLayoutManager(new LinearLayoutManager(
+					getProxy().getActivity()));
 			}
 		}
 

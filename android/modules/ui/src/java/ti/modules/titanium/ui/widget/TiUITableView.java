@@ -22,6 +22,7 @@ import android.view.ViewGroup;
 import android.widget.RelativeLayout;
 
 import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
 
 import ti.modules.titanium.ui.RefreshControlProxy;
 import ti.modules.titanium.ui.SearchBarProxy;
@@ -92,6 +93,9 @@ public class TiUITableView extends TiUIView
 			if (gridColumns > 1) {
 				this.tableView.getRecyclerView().setLayoutManager(new GridLayoutManager(
 					getProxy().getActivity(), gridColumns));
+			} else {
+				this.tableView.getRecyclerView().setLayoutManager(new LinearLayoutManager(
+					getProxy().getActivity()));
 			}
 		}
 
