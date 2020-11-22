@@ -134,7 +134,9 @@ methods:
 
       - name: format
         summary: Optional format arguments for the String resource. May be repeated.
-        type: Object
+        type: any
+        repeatable: true
+        optional: true
 
   - name: invalidateOptionsMenu
     summary: Declares that the option menu has changed and should be recreated.

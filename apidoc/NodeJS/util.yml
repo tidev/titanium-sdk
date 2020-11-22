@@ -87,7 +87,7 @@ methods:
         summary: A `printf`-like format string.
 
       - name: args
-        type: Object
+        type: any
         summary: variable arguments to inject into the formatted string
         optional: true
         repeatable: true
@@ -125,7 +125,7 @@ methods:
     parameters:
       - name: object
         summary: Any JavaScript primitive or Object.
-        type: Object
+        type: any
       - name: options
         type: UtilInspectOptions
         summary: Additional options to modify the output of the inspect function
@@ -140,7 +140,7 @@ methods:
         Returns `true` if the given `object` is an `Array`. Otherwise, returns `false`.
     parameters:
       - name: object
-        type: Object
+        type: any
         summary: any value
     returns:
       type: Boolean
@@ -149,7 +149,7 @@ methods:
     summary: Returns `true` if the given `object` is a `Boolean`. Otherwise, returns `false`.
     parameters:
       - name: object
-        type: Object
+        type: any
         summary: any value
     returns:
       type: Boolean
@@ -158,7 +158,7 @@ methods:
     summary: Returns `true` if the given `object` is a `Buffer`. Otherwise, returns `false`.
     parameters:
       - name: object
-        type: Object
+        type: any
         summary: any value
     returns:
       type: Boolean
@@ -167,7 +167,7 @@ methods:
     summary: Returns `true` if the given `object` is a `Date`. Otherwise, returns `false`.
     parameters:
       - name: object
-        type: Object
+        type: any
         summary: any value
     returns:
       type: Boolean
@@ -176,7 +176,7 @@ methods:
     summary: Returns `true` if the given `object` is an `Error`. Otherwise, returns `false`.
     parameters:
       - name: object
-        type: Object
+        type: any
         summary: any value
     returns:
       type: Boolean
@@ -185,7 +185,7 @@ methods:
     summary: Returns `true` if the given `object` is a `Function`. Otherwise, returns `false`.
     parameters:
       - name: object
-        type: Object
+        type: any
         summary: any value
     returns:
       type: Boolean
@@ -194,7 +194,7 @@ methods:
     summary: Returns `true` if the given `object` is strictly `null`. Otherwise, returns `false`.
     parameters:
       - name: object
-        type: Object
+        type: any
         summary: any value
     returns:
       type: Boolean
@@ -203,7 +203,7 @@ methods:
     summary: Returns `true` if the given `object` is `null` or `undefined`. Otherwise, returns `false`.
     parameters:
       - name: object
-        type: Object
+        type: any
         summary: any value
     returns:
       type: Boolean
@@ -212,7 +212,7 @@ methods:
     summary: Returns `true` if the given `object` is a `Number`. Otherwise, returns `false`.
     parameters:
       - name: object
-        type: Object
+        type: any
         summary: any value
     returns:
       type: Boolean
@@ -221,7 +221,7 @@ methods:
     summary: Returns `true` if the given `object` is strictly an `Object` **and** not a `Function` (even though functions are objects in JavaScript). Otherwise, returns `false`.
     parameters:
       - name: object
-        type: Object
+        type: any
         summary: any value
     returns:
       type: Boolean
@@ -230,7 +230,7 @@ methods:
     summary: Returns `true` if the given `object` is a primitive type. Otherwise, returns `false`.
     parameters:
       - name: object
-        type: Object
+        type: any
         summary: any value
     returns:
       type: Boolean
@@ -239,7 +239,7 @@ methods:
     summary: Returns `true` if the given `object` is a `RegExp`. Otherwise, returns `false`.
     parameters:
       - name: object
-        type: Object
+        type: any
         summary: any value
     returns:
       type: Boolean
@@ -248,7 +248,7 @@ methods:
     summary: Returns `true` if the given `object` is a `string`. Otherwise, returns `false`.
     parameters:
       - name: object
-        type: Object
+        type: any
         summary: any value
     returns:
       type: Boolean
@@ -257,7 +257,7 @@ methods:
     summary: Returns `true` if the given `object` is a `Symbol`. Otherwise, returns `false`.
     parameters:
       - name: object
-        type: Object
+        type: any
         summary: any value
     returns:
       type: Boolean
@@ -266,7 +266,7 @@ methods:
     summary: Returns `true` if the given `object` is `undefined`. Otherwise, returns `false`.
     parameters:
       - name: object
-        type: Object
+        type: any
         summary: any value
     returns:
       type: Boolean
@@ -378,7 +378,7 @@ methods:
         See also `util.types.isArrayBuffer()` and `util.types.isSharedArrayBuffer()`.
     parameters:
     - name: value
-      type: Object
+      type: any
       summary: value to check
     returns:
       type: Boolean
@@ -387,7 +387,7 @@ methods:
     summary: Returns `true` if the `value` is an `arguments` object.
     parameters:
     - name: value
-      type: Object
+      type: any
       summary: value to check
     returns:
       type: Boolean
@@ -397,7 +397,7 @@ methods:
         Returns `true` if the `value` is a built-in `ArrayBuffer` instance. This does not include `SharedArrayBuffer` instances. Usually, it is desirable to test for both; See `util.types.isAnyArrayBuffer()` for that.
     parameters:
     - name: value
-      type: Object
+      type: any
       summary: value to check
     returns:
       type: Boolean
@@ -407,7 +407,7 @@ methods:
         Returns `true` if the `value` is an instance of one of the `ArrayBuffer` views, such as typed array objects or `DataView`. Equivalent to `ArrayBuffer.isView()`.
     parameters:
     - name: value
-      type: Object
+      type: any
       summary: value to check
     returns:
       type: Boolean
@@ -417,7 +417,7 @@ methods:
         Returns `true` if the `value` is an `async` function. This only reports back what the JavaScript engine is seeing; in particular, the return value may not match the original source code if a transpilation tool was used.
     parameters:
     - name: value
-      type: Object
+      type: any
       summary: value to check
     returns:
       type: Boolean
@@ -426,7 +426,7 @@ methods:
     summary: Returns `true` if the `value` is a `Bigint64Array` instance.
     parameters:
     - name: value
-      type: Object
+      type: any
       summary: value to check
     returns:
       type: Boolean
@@ -435,7 +435,7 @@ methods:
     summary: Returns `true` if the `value` is a `BigUint64Array` instance.
     parameters:
     - name: value
-      type: Object
+      type: any
       summary: value to check
     returns:
       type: Boolean
@@ -444,7 +444,7 @@ methods:
     summary: Returns `true` if the `value` is a boolean object, e.g. created by `new Boolean()`.
     parameters:
     - name: value
-      type: Object
+      type: any
       summary: value to check
     returns:
       type: Boolean
@@ -453,7 +453,7 @@ methods:
     summary: Returns `true` if the `value` is any boxed primitive object, e.g. created by `new Boolean()`, `new String()` or `Object(Symbol())`.
     parameters:
     - name: value
-      type: Object
+      type: any
       summary: value to check
     returns:
       type: Boolean
@@ -462,7 +462,7 @@ methods:
     summary: Returns `true` if the `value` is a built-in `DataView` instance.
     parameters:
     - name: value
-      type: Object
+      type: any
       summary: value to check
     returns:
       type: Boolean
@@ -471,7 +471,7 @@ methods:
     summary: Returns `true` if the `value` is a built-in `Date` instance.
     parameters:
     - name: value
-      type: Object
+      type: any
       summary: value to check
     returns:
       type: Boolean
@@ -480,7 +480,7 @@ methods:
     summary: Returns `true` if the `value` is a built-in `Float32Array` instance.
     parameters:
     - name: value
-      type: Object
+      type: any
       summary: value to check
     returns:
       type: Boolean
@@ -489,7 +489,7 @@ methods:
     summary: Returns `true` if the `value` is a built-in `Float64Array` instance.
     parameters:
     - name: value
-      type: Object
+      type: any
       summary: value to check
     returns:
       type: Boolean
@@ -498,7 +498,7 @@ methods:
     summary: Returns `true` if the `value` is a generator function. This only reports back what the JavaScript engine is seeing; in particular, the return value may not match the original source code if a transpilation tool was used.
     parameters:
     - name: value
-      type: Object
+      type: any
       summary: value to check
     returns:
       type: Boolean
@@ -507,7 +507,7 @@ methods:
     summary: Returns `true` if the `value` is a generator object as returned from a built-in generator function. This only reports back what the JavaScript engine is seeing; in particular, the return value may not match the original source code if a transpilation tool was used.
     parameters:
     - name: value
-      type: Object
+      type: any
       summary: value to check
     returns:
       type: Boolean
@@ -516,7 +516,7 @@ methods:
     summary: Returns `true` if the `value` is a built-in `Int8Array` instance.
     parameters:
     - name: value
-      type: Object
+      type: any
       summary: value to check
     returns:
       type: Boolean
@@ -525,7 +525,7 @@ methods:
     summary: Returns `true` if the `value` is a built-in `Int16Array` instance.
     parameters:
     - name: value
-      type: Object
+      type: any
       summary: value to check
     returns:
       type: Boolean
@@ -534,7 +534,7 @@ methods:
     summary: Returns `true` if the `value` is a built-in `Int32Array` instance.
     parameters:
     - name: value
-      type: Object
+      type: any
       summary: value to check
     returns:
       type: Boolean
@@ -543,7 +543,7 @@ methods:
     summary: Returns `true` if the `value` is a built-in `Map` instance.
     parameters:
     - name: value
-      type: Object
+      type: any
       summary: value to check
     returns:
       type: Boolean
@@ -552,7 +552,7 @@ methods:
     summary: Returns `true` if the `value` is an iterator returned for a built-in `Map` instance.
     parameters:
     - name: value
-      type: Object
+      type: any
       summary: value to check
     returns:
       type: Boolean
@@ -561,7 +561,7 @@ methods:
     summary: Returns `true` if the `value` is an instance of a built-in `Error` type.
     parameters:
     - name: value
-      type: Object
+      type: any
       summary: value to check
     returns:
       type: Boolean
@@ -570,7 +570,7 @@ methods:
     summary: Returns `true` if the `value` is a number object, e.g. created by `new Number()`.
     parameters:
     - name: value
-      type: Object
+      type: any
       summary: value to check
     returns:
       type: Boolean
@@ -579,7 +579,7 @@ methods:
     summary: Returns `true` if the `value` is a built-in `Promise`.
     parameters:
     - name: value
-      type: Object
+      type: any
       summary: value to check
     returns:
       type: Boolean
@@ -588,7 +588,7 @@ methods:
     summary: Returns `true` if the `value` is a regular expression object.
     parameters:
     - name: value
-      type: Object
+      type: any
       summary: value to check
     returns:
       type: Boolean
@@ -597,7 +597,7 @@ methods:
     summary: Returns `true` if the `value` is a built-in `Set` instance.
     parameters:
     - name: value
-      type: Object
+      type: any
       summary: value to check
     returns:
       type: Boolean
@@ -606,7 +606,7 @@ methods:
     summary: Returns `true` if the `value` is an iterator returned for a built-in `Set` instance.
     parameters:
     - name: value
-      type: Object
+      type: any
       summary: value to check
     returns:
       type: Boolean
@@ -615,7 +615,7 @@ methods:
     summary: Returns `true` if the `value` is a built-in `SharedArrayBuffer` instance. This does not include `ArrayBuffer` instances. Usually, it is desirable to test for both; See `util.types.isAnyArrayBuffer()` for that.
     parameters:
     - name: value
-      type: Object
+      type: any
       summary: value to check
     returns:
       type: Boolean
@@ -624,7 +624,7 @@ methods:
     summary: Returns `true` if the `value` is a string object, e.g. created by new `String()`.
     parameters:
     - name: value
-      type: Object
+      type: any
       summary: value to check
     returns:
       type: Boolean
@@ -633,7 +633,7 @@ methods:
     summary: Returns `true` if the `value` is a symbol object, created by calling `Object()` on a `Symbol` primitive.
     parameters:
     - name: value
-      type: Object
+      type: any
       summary: value to check
     returns:
       type: Boolean
@@ -642,7 +642,7 @@ methods:
     summary: Returns `true` if the `value` is a built-in `TypedArray` instance.
     parameters:
     - name: value
-      type: Object
+      type: any
       summary: value to check
     returns:
       type: Boolean
@@ -651,7 +651,7 @@ methods:
     summary: Returns `true` if the `value` is a built-in `Uint8Array` instance.
     parameters:
     - name: value
-      type: Object
+      type: any
       summary: value to check
     returns:
       type: Boolean
@@ -660,7 +660,7 @@ methods:
     summary: Returns `true` if the `value` is a built-in `Uint8ClampedArray` instance.
     parameters:
     - name: value
-      type: Object
+      type: any
       summary: value to check
     returns:
       type: Boolean
@@ -669,7 +669,7 @@ methods:
     summary: Returns `true` if the `value` is a built-in `Uint16Array` instance.
     parameters:
     - name: value
-      type: Object
+      type: any
       summary: value to check
     returns:
       type: Boolean
@@ -678,7 +678,7 @@ methods:
     summary: Returns `true` if the `value` is a built-in `Uint32Array` instance.
     parameters:
     - name: value
-      type: Object
+      type: any
       summary: value to check
     returns:
       type: Boolean
@@ -687,7 +687,7 @@ methods:
     summary: Returns `true` if the `value` is a built-in `WeakMap` instance.
     parameters:
     - name: value
-      type: Object
+      type: any
       summary: value to check
     returns:
       type: Boolean
@@ -696,7 +696,7 @@ methods:
     summary: Returns `true` if the `value` is a built-in `WeakSet` instance.
     parameters:
     - name: value
-      type: Object
+      type: any
       summary: value to check
     returns:
       type: Boolean
