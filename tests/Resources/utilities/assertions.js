@@ -125,9 +125,12 @@ function saveImage(blob, imageFilePath) {
 
 /**
  * @param {string|Ti.Blob} image path to image file on disk (relative), or an in-memory Ti.Blob instance (holding an image).
- * @param {Number} [threshold=0.1] threshold for comparing images.
+ * @param {object} [options] options for comparing images
+ * @param {Number} [options.threshold=0.1] threshold for comparing images
+ * @param {Number} [options.maxPixelMismatch=0] maximum number of pixels this match will tolerate
  */
-should.Assertion.add('matchImage', function (image, threshold = 0.1) {
+should.Assertion.add('matchImage', function (image, options = { threshold: 0.1, maxPixelMismatch: 0 }) {
+	options.maxPixelMismatch = options.maxPixelMismatch || 0;
 
 	// Validate object is valid view.
 	this.obj.should.have.property('toImage').which.is.a.Function();
@@ -136,6 +139,8 @@ should.Assertion.add('matchImage', function (image, threshold = 0.1) {
 	const isExpectedBlob = image.apiName === 'Ti.Blob';
 	const platform = OS_ANDROID ? 'android' : 'ios';
 	const now = Date.now();
+	const density = Ti.Platform.displayCaps.logicalDensityFactor;
+	const suffix = density === 1 ? '' : `@${density}x`;
 
 	let expectedBlob = null;
 
@@ -145,11 +150,12 @@ should.Assertion.add('matchImage', function (image, threshold = 0.1) {
 			operator: 'to match Ti.Blob'
 		};
 		expectedBlob = image;
-		image = `snapshots/${now}_${expectedBlob.width}x${expectedBlob.height}.png`;
+		image = `snapshots/${now}_${expectedBlob.width}x${expectedBlob.height}${suffix}.png`;
 	} else {
 
 		// Amend image path for correct snapshot size.
-		image = `${image.substr(0, image.length - 4)}_${actualBlob.width}x${actualBlob.height}.png`;
+		// TODO: Append @#x suffix if density is > 1
+		image = `${image.substr(0, image.length - 4)}_${actualBlob.width}x${actualBlob.height}${suffix}.png`;
 
 		this.params = {
 			obj: this.obj.apiName,
@@ -158,13 +164,14 @@ should.Assertion.add('matchImage', function (image, threshold = 0.1) {
 
 		// Attempt to load snapshot.
 		const snapshot = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, image);
-		if (!snapshot.exists()) {
-
+		try {
+			should(snapshot.exists()).be.true(`No snapshot image to compare for platform '${platform}' ('${image}')`);
+		} catch (err) {
 			// No snapshot, save current view as snapshot for platform.
 			const file = saveImage(actualBlob, image);
 			console.log(`!IMAGE: {"path":"${file.nativePath}","platform":"${platform}","relativePath":"${image}"}`);
-			this.fail(null, null, `No snapshot image to compare for platform '${platform}' ('${image}'), generated image at '${file.nativePath}'.`);
-			return;
+
+			throw err;
 		}
 
 		// Load expected snapshot blob.
@@ -173,9 +180,9 @@ should.Assertion.add('matchImage', function (image, threshold = 0.1) {
 
 	// Validate size of blobs.
 	try {
-		should(actualBlob.width).equal(expectedBlob.width, 'width');
-		should(actualBlob.height).equal(expectedBlob.height, 'height');
-		should(actualBlob.size).equal(expectedBlob.size, 'size');
+		should(actualBlob).have.property('width').equal(expectedBlob.width);
+		should(actualBlob).have.property('height').equal(expectedBlob.height);
+		should(actualBlob).have.property('size').equal(expectedBlob.size);
 	} catch (e) {
 
 		// Invalid size, save current view for investigation.
@@ -187,8 +194,7 @@ should.Assertion.add('matchImage', function (image, threshold = 0.1) {
 		const expectedOut = saveImage(expectedBlob, expectedPath);
 		console.log(`!IMG_DIFF: {"path":"${expectedOut.nativePath}","platform":"${platform}","relativePath":"${expectedPath}"}`);
 
-		this.fail(null, null, `Invalid size for snapshot comparision for platform '${platform}' ('${image}'), generated image at '${actualOut.nativePath}'.`);
-		return;
+		throw e;
 	}
 
 	// Create a Buffer around the contents of each snapshot.
@@ -200,17 +206,18 @@ should.Assertion.add('matchImage', function (image, threshold = 0.1) {
 
 	const { width, height } = actualImg;
 	const diffImg = new PNG({ width, height });
-	const diff = pixelmatch(actualImg.data, expectedImg.data, diffImg.data, width, height, { threshold });
+	const diff = pixelmatch(actualImg.data, expectedImg.data, diffImg.data, width, height, { threshold: options.threshold });
 
-	if (diff !== 0) {
-
+	try {
+		should(diff).be.belowOrEqual(options.maxPixelMismatch, 'mismatched pixels');
+	} catch (err) {
 		// Snapshots did not match, save current view.
 		const actualOut = saveImage(actualBlob, image);
 		console.log(`!IMAGE: {"path":"${actualOut.nativePath}","platform":"${platform}","relativePath":"${image}"}`);
 
 		// Save expected blob for investigation.
 		if (isExpectedBlob) {
-			const expectedPath = `snapshots/${now}_${expectedBlob.width}x${expectedBlob.height}_expected.png`;
+			const expectedPath = `snapshots/${now}_${expectedBlob.width}x${expectedBlob.height}${suffix}_expected.png`;
 			const expectedOut = saveImage(expectedBlob, expectedPath);
 			console.log(`!IMG_DIFF: {"path":"${expectedOut.nativePath}","platform":"${platform}","relativePath":"${expectedPath}"}`);
 		} else {
@@ -226,7 +233,7 @@ should.Assertion.add('matchImage', function (image, threshold = 0.1) {
 		const diffOut = saveImage(diffBuffer.toTiBuffer().toBlob(), diffPath);
 		console.log(`!IMG_DIFF: {"path":"${diffOut.nativePath}","platform":"${platform}","relativePath":"${diffPath}","blob":${isExpectedBlob}}`);
 
-		this.fail(null, null, `Image ${image} failed to match, had ${diff} differing pixels, generated diff image at '${diffPath}'.`);
+		throw err;
 	}
 }, false);
 
