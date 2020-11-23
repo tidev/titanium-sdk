@@ -186,10 +186,10 @@ describe('Titanium.UI.ScrollableView', function () {
 			try {
 				const preferredBackwardImage = win.toImage();
 				scrollableView.preferredIndicatorImage = forwardImage;
-				should(win).not.matchImage(preferredBackwardImage, 0);
+				should(win).not.matchImage(preferredBackwardImage, { threshold: 0 });
 
 				scrollableView.preferredIndicatorImage = backwardImage;
-				should(win).matchImage(preferredBackwardImage, 0);
+				should(win).matchImage(preferredBackwardImage, { threshold: 0 });
 			} catch (error) {
 				return finish(error);
 			}
@@ -220,10 +220,10 @@ describe('Titanium.UI.ScrollableView', function () {
 			try {
 				const defaultImage = win.toImage();
 				scrollableView.setIndicatorImageForPage(image, 1);
-				should(win).not.matchImage(defaultImage, 0);
+				should(win).not.matchImage(defaultImage, { threshold: 0 });
 
 				scrollableView.setIndicatorImageForPage(null, 1); // null will change to default
-				should(win).matchImage(defaultImage, 0);
+				should(win).matchImage(defaultImage, { threshold: 0 });
 			} catch (error) {
 				return finish(error);
 			}
