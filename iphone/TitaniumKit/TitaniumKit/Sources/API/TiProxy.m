@@ -448,20 +448,9 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void *payload)
   return nil;
 }
 
-- (TiProxy *)currentWindow
-{
-  return [[self pageContext] preloadForKey:@"currentWindow" name:@"UI"];
-}
-
 - (NSURL *)_baseURL
 {
   if (baseURL == nil) {
-    TiProxy *currentWindow = [self currentWindow];
-    if (currentWindow != nil) {
-      // cache it
-      [self _setBaseURL:[currentWindow _baseURL]];
-      return baseURL;
-    }
     return [[self _host] baseURL];
   }
   return baseURL;
