@@ -2754,15 +2754,6 @@ properties:
         since: "3.5.0"
         removed: "6.0.0"
 
-  - name: orientation
-    summary: Updates the orientation of the current window to the specified orientation value.
-    deprecated:
-        since: "1.7.2"
-        removed: "3.0.0"
-        notes: Use [Titanium.UI.Window.orientationModes](Titanium.UI.Window.orientationModes) instead.
-    type: Number
-    platforms: [android, iphone, ipad]
-
   - name: tintColor
     summary: |
         Sets the global tint color of the application. It is inherited by the child views and can be
