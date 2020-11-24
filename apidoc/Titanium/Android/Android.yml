@@ -2237,14 +2237,13 @@ properties:
     permission: read-only
     since: "6.2.0"
 
-# Constants that should probably be removed
-
   - name: PENDING_INTENT_FOR_ACTIVITY
     summary: Not used.
     type: Number
     permission: read-only
     deprecated:
         since: "2.0.0"
+        removed: "10.0.0"
 
   - name: PENDING_INTENT_FOR_BROADCAST
     summary: Not used.
@@ -2252,6 +2251,7 @@ properties:
     permission: read-only
     deprecated:
         since: "2.0.0"
+        removed: "10.0.0"
 
   - name: PENDING_INTENT_FOR_SERVICE
     summary: Not used.
@@ -2259,6 +2259,7 @@ properties:
     permission: read-only
     deprecated:
         since: "2.0.0"
+        removed: "10.0.0"
 
   - name: PENDING_INTENT_MAX_VALUE
     summary: Not used.
@@ -2266,8 +2267,7 @@ properties:
     permission: read-only
     deprecated:
         since: "2.0.0"
-
-# end of deprecated constants
+        removed: "10.0.0"
 
   - name: R
     summary: Accessor for Android system resources.
