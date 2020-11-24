@@ -37,16 +37,27 @@ function determineBabelOptions(babelOptions) {
 	const options = {
 		...babelOptions,
 		useBuiltIns: 'entry',
-		corejs: 3
+		corejs: '3.7.0' // this should match the dependency version exactly
 	};
 	// extract out options.transform used by babel-plugin-transform-titanium
 	const transform = options.transform || {};
 	delete options.transform;
 
+	// Validate that the core-js dependency and version are matched, we use require here to make
+	// use of the cache if this is called multiple times
+	const packageLock = require('../../package-lock');
+	if (packageLock.dependencies && packageLock.dependencies['core-js']) {
+		const { version } = packageLock.dependencies['core-js'];
+		if (version !== options.corejs) {
+			console.warn(`core-js dependency is at ${version} but babel option is at ${options.corejs}. These should be in sync`);
+		}
+	}
+
 	return {
 		presets: [ [ '@babel/env', options ] ],
 		plugins: [ [ require.resolve('babel-plugin-transform-titanium'), transform ] ],
-		exclude: 'node_modules/**'
+		exclude: 'node_modules/**',
+		babelHelpers: 'bundled'
 	};
 }
 
