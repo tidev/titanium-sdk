@@ -121,14 +121,12 @@ public class TiFileProxy extends KrollProxy
 		return tbf.isDirectory();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public boolean getReadonly()
 	{
 		return tbf.isReadonly();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public boolean getWritable()
 	{
@@ -193,21 +191,18 @@ public class TiFileProxy extends KrollProxy
 		return tbf.extension();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public boolean getSymbolicLink()
 	{
 		return tbf.isSymbolicLink();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public boolean getExecutable()
 	{
 		return tbf.isExecutable();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public boolean getHidden()
 	{
@@ -224,7 +219,6 @@ public class TiFileProxy extends KrollProxy
 		return dl != null ? dl.toArray(new String[0]) : null;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public TiFileProxy getParent()
 	{
@@ -238,14 +232,12 @@ public class TiFileProxy extends KrollProxy
 		return tbf.move(destination);
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getName()
 	{
 		return tbf.name();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getNativePath()
 	{
@@ -276,7 +268,6 @@ public class TiFileProxy extends KrollProxy
 		return getNativePath();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public long getSize()
 	{

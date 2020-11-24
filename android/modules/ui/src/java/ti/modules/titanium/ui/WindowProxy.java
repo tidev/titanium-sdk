@@ -411,7 +411,6 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 		super.onPropertyChanged(name, value);
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setSustainedPerformanceMode(boolean mode)
 	{
@@ -422,7 +421,6 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 		}
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public boolean getSustainedPerformanceMode()
 	{

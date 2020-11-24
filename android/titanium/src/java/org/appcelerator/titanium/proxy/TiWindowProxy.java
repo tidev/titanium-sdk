@@ -306,14 +306,12 @@ public abstract class TiWindowProxy extends TiViewProxy
 		TiUIHelper.firePostLayoutEvent(this);
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setLeftNavButton(Object button)
 	{
 		Log.w(TAG, "setLeftNavButton not supported in Android");
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setOrientationModes(int[] modes)
 	{
@@ -392,7 +390,6 @@ public abstract class TiWindowProxy extends TiViewProxy
 		}
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public int[] getOrientationModes()
 	{
@@ -417,7 +414,6 @@ public abstract class TiWindowProxy extends TiViewProxy
 		}
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public KrollDict getSafeAreaPadding()
 	{
@@ -593,7 +589,6 @@ public abstract class TiWindowProxy extends TiViewProxy
 		}
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public int getOrientation()
 	{
@@ -626,7 +621,6 @@ public abstract class TiWindowProxy extends TiViewProxy
 		sharedElementPairs.clear();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public TiWindowProxy getNavigationWindow()
 	{

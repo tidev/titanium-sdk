@@ -73,21 +73,18 @@ public class ImageViewProxy extends ViewProxy
 		getImageView().resume();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public boolean getAnimating()
 	{
 		return getImageView().isAnimating();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public boolean getPaused()
 	{
 		return getImageView().isPaused();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public boolean getReverse()
 	{
@@ -114,7 +111,6 @@ public class ImageViewProxy extends ViewProxy
 		getImageView().setTintColor(color);
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public int getTintColor()
 	{
