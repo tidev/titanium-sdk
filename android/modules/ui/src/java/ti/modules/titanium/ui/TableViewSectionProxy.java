@@ -112,7 +112,6 @@ public class TableViewSectionProxy extends TiViewProxy
 	 *
 	 * @return Integer of row count.
 	 */
-	@Kroll.method
 	@Kroll.getProperty
 	public int getRowCount()
 	{
@@ -155,7 +154,6 @@ public class TableViewSectionProxy extends TiViewProxy
 	 *
 	 * @return TableViewRowProxy array.
 	 */
-	@Kroll.method
 	@Kroll.getProperty
 	public TableViewRowProxy[] getRows()
 	{

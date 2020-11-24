@@ -764,14 +764,12 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 		krollObject.setProperty(name, value);
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public boolean getBubbleParent()
 	{
 		return bubbleParent;
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setBubbleParent(Object value)
 	{
@@ -1457,7 +1455,6 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 	}
 
 	// For subclasses to override
-	@Kroll.method
 	@Kroll.getProperty
 	public String getApiName()
 	{

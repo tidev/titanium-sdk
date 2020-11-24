@@ -23,7 +23,6 @@ public class AndroidModule extends PlatformModule
 	@Kroll.constant
 	public static final int PHYSICAL_SIZE_CATEGORY_XLARGE = 4; // Configuration.SCREENLAYOUT_SIZE_XLARGE (API 9)
 
-	@Kroll.method
 	@Kroll.getProperty
 	public int getPhysicalSizeCategory()
 	{
