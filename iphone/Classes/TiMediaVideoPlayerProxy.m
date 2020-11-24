@@ -815,7 +815,7 @@ NSArray *moviePlayerKeys = nil;
   _playbackState = TiVideoPlayerPlaybackStateInterrupted;
 
   if ([self _hasListeners:@"error"]) {
-    NSDictionary *event = [NSDictionary dictionaryWithObject:[error localizedDescription] forKey:@"error"];
+    NSDictionary *event = [TiUtils dictionaryWithCode:[error code] message:[TiUtils messageFromError:error]];
     [self fireEvent:@"error" withObject:event];
   }
 }
