@@ -1563,34 +1563,6 @@ properties:
     default: true on iOS7 and above, false otherwise.
     type: Boolean
 
-  - name: url
-    summary: Loads a JavaScript file from a local URL.
-    deprecated:
-        since: "3.5.0"
-        removed: "6.0.0"
-    exclude-platforms: [macos]
-    description: |
-        **Note:** The recommended way of creating windows with their own context is to either use the
-        [Alloy Framework](https://docs.appcelerator.com/platform/latest/#!/guide/Alloy_Framework) or a
-        [CommonJS module](https://docs.appcelerator.com/platform/latest/#!/guide/CommonJS_Modules_in_Titanium)
-        than using this property. One benefit of using a CommonJS module is that it consumes less
-        resources.
-
-        Use this property to have Windows load a JavaScript file in its own subcontext and thread,
-        separate from the `app.js` global context.
-        Reference a file relative to your project's `Resources` folder for classic Titanium
-        projects or `app/lib` folder for Alloy projects.
-
-        Note that Titanium will refuse to load JavaScript files from a remote URL. Loading
-        remote JavaScript from a URL and providing it with the full capabilities of the Titanium
-        API would be very dangerous.
-
-        When loading JavaScript files using this property, the special property
-        <Titanium.UI.currentWindow> is available inside a multi-context
-        application that points to the JavaScript instance by reference in the global context.
-    type: String
-    availability: creation
-
   - name: windowFlags
     summary: Additional flags to set on the Activity Window.
     description: |
