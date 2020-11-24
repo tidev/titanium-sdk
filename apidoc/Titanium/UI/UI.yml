@@ -2731,18 +2731,6 @@ properties:
         windows.
     type: String
 
-  - name: currentWindow
-    summary: The active window associated with the executing JavaScript context.
-    description: |
-        This property is only available when using the <Titanium.UI.Window.url> property to load
-        JavaScript files in their own contexts.
-    type: Titanium.UI.Window
-    permission: read-only
-    exclude-platforms: [macos]
-    deprecated:
-        since: "3.5.0"
-        removed: "6.0.0"
-
   - name: tintColor
     summary: |
         Sets the global tint color of the application. It is inherited by the child views and can be
