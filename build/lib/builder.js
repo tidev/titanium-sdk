@@ -4,9 +4,9 @@ const os = require('os');
 const path = require('path');
 const fs = require('fs-extra');
 const rollup = require('rollup').rollup;
-const babel = require('rollup-plugin-babel');
-const resolve = require('rollup-plugin-node-resolve');
-const commonjs = require('rollup-plugin-commonjs');
+const { babel } = require('@rollup/plugin-babel');
+const { nodeResolve } = require('@rollup/plugin-node-resolve');
+const commonjs = require('@rollup/plugin-commonjs');
 
 const git = require('./git');
 const utils = require('./utils');
@@ -111,7 +111,7 @@ class Builder {
 		const bundle = await rollup({
 			input: `${TMP_COMMON_PLAFORM_DIR}/Resources/ti.main.js`,
 			plugins: [
-				resolve(),
+				nodeResolve(),
 				commonjs(),
 				babel(determineBabelOptions(babelOptions))
 			],
