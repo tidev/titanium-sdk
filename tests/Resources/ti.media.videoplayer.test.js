@@ -376,12 +376,6 @@ describe.androidARM64Broken('Titanium.Media.VideoPlayer', () => {
 				should(player.stop).be.a.Function();
 			});
 		});
-
-		describe.ios('#thumbnailImageAtTime', () => {
-			it('is a Function', () => {
-				should(player.thumbnailImageAtTime).be.a.Function();
-			});
-		});
 	});
 
 	it('Close window containing a video player (TIMOB-25574)', function (finish) {
