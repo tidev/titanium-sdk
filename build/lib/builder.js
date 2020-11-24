@@ -37,21 +37,11 @@ function determineBabelOptions(babelOptions) {
 	const options = {
 		...babelOptions,
 		useBuiltIns: 'entry',
-		corejs: '3.7.0' // this should match the dependency version exactly
+		corejs: getCorejsVersion()
 	};
 	// extract out options.transform used by babel-plugin-transform-titanium
 	const transform = options.transform || {};
 	delete options.transform;
-
-	// Validate that the core-js dependency and version are matched, we use require here to make
-	// use of the cache if this is called multiple times
-	const packageLock = require('../../package-lock');
-	if (packageLock.dependencies && packageLock.dependencies['core-js']) {
-		const { version } = packageLock.dependencies['core-js'];
-		if (version !== options.corejs) {
-			console.warn(`core-js dependency is at ${version} but babel option is at ${options.corejs}. These should be in sync`);
-		}
-	}
 
 	return {
 		presets: [ [ '@babel/env', options ] ],
@@ -59,6 +49,21 @@ function determineBabelOptions(babelOptions) {
 		exclude: 'node_modules/**',
 		babelHelpers: 'bundled'
 	};
+}
+
+/**
+ * Returns the exact core-js version from package-lock file, this is required to ensure that the
+ * correct polyfills are loaded for the environment
+ *
+ * @returns {String}
+ */
+function getCorejsVersion() {
+	const packageLock = require('../../package-lock');
+	if (packageLock.dependencies && packageLock.dependencies['core-js']) {
+		const { version } = packageLock.dependencies['core-js'];
+		return version;
+	}
+	throw new Error('Could not lookup core-js version in package-lock file.');
 }
 
 class Builder {
