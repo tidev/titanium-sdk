@@ -492,30 +492,6 @@ NSArray *moviePlayerKeys = nil;
       NO);
 }
 
-- (TiBlob *)thumbnailImageAtTime:(id)args
-{
-  ENSURE_ARG_COUNT(args, 1);
-
-  CGFloat seconds = [TiUtils floatValue:@"time" properties:[args objectAtIndex:0] def:0.0];
-
-  if (seconds == 0.0) {
-    NSLog(@"[ERROR] Please provide a valid \"time\" argument to generate a thumbnail.");
-    return nil;
-  }
-
-  AVPlayerLayer *layer = [AVPlayerLayer playerLayerWithPlayer:[movie player]];
-  CGSize layerSize = CGSizeMake(layer.videoRect.size.width, layer.videoRect.size.height);
-
-  UIImage *screenshot = [self takeScreenshotFromPlayer:layerSize andSpecifiedTime:CMTimeMakeWithSeconds(seconds, 1)];
-
-  if (screenshot == nil) {
-    NSLog(@"[ERROR] The thumbnail could not be generated! Please make sure the player is initialized.");
-    return nil;
-  }
-
-  return [[[TiBlob alloc] initWithImage:screenshot] autorelease];
-}
-
 - (void)setInitialPlaybackTime:(id)time
 {
   ENSURE_UI_THREAD_1_ARG(time);
