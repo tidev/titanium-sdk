@@ -1412,7 +1412,6 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 	{
 		KrollDict error = new KrollDict();
 		error.putCodeAndMessage(code, message);
-		error.put(TiC.ERROR_PROPERTY_MESSAGE, message);
 		return error;
 	}
 
