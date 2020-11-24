@@ -233,6 +233,18 @@ methods:
         type: String
     platforms: [android, iphone, ipad, macos]
 
+  - name: getAllResponseHeaders
+    summary: All of the response headers.
+    description: |
+        Contains a single string, or an empty string if no headers are available.
+
+        See also: [getResponseHeader](Titanium.Network.HTTPClient.getResponseHeader).
+
+        Intended to match the `XMLHTTPRequest` [getAllResponseHeaders API](https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/getAllResponseHeaders).
+    returns:
+        type: String
+    since: {iphone: "10.0.0", ipad: "10.0.0", macos: "10.0.0"}
+
   - name: getResponseHeader
     summary: Returns the value of the specified response header.
     returns:
