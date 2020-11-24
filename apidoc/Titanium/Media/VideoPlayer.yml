@@ -206,25 +206,6 @@ methods:
   - name: stop
     summary: Stops playing the video.
 
-  - name: thumbnailImageAtTime
-    deprecated:
-        since: '3.4.2'
-        notes: Use [Titanium.Media.VideoPlayer.requestThumbnailImagesAtTimes](Titanium.Media.VideoPlayer.requestThumbnailImagesAtTimes) instead.
-        removed: '3.6.0'
-    summary: Returns a thumbnail image for the video at the specified time.
-    platforms: [iphone, ipad]
-    returns:
-        type: Titanium.Blob
-    parameters:
-      - name: time
-        summary: Playback time, in **seconds**.
-        type: Number
-
-      - name: option
-        summary: Video time precision.
-        type: Number
-        constants: Titanium.Media.VIDEO_TIME_OPTION_*
-
 events:
   - name: complete
     summary: Fired when movie playback ends or a user exits playback.
