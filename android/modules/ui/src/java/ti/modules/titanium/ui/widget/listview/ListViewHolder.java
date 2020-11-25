@@ -36,14 +36,12 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import androidx.recyclerview.widget.RecyclerView;
-
 import java.lang.ref.WeakReference;
 
 import ti.modules.titanium.ui.UIModule;
 import ti.modules.titanium.ui.widget.TiUIListView;
 
-public class ListViewHolder extends RecyclerView.ViewHolder
+public class ListViewHolder extends TiRecyclerViewHolder
 {
 	private static final String TAG = "ListViewHolder";
 	private static final int COLOR_GRAY = Color.rgb(169, 169, 169);
@@ -65,8 +63,6 @@ public class ListViewHolder extends RecyclerView.ViewHolder
 	private final TiCompositeLayout header;
 	private final TextView headerTitle;
 	private final ImageView rightImage;
-
-	private WeakReference<TiViewProxy> proxy;
 
 	public ListViewHolder(final Context context, final ViewGroup viewGroup)
 	{
@@ -332,19 +328,6 @@ public class ListViewHolder extends RecyclerView.ViewHolder
 		}
 
 		return drawable;
-	}
-
-	/**
-	 * Get current proxy assigned to holder.
-	 *
-	 * @return TiViewProxy
-	 */
-	public TiViewProxy getProxy()
-	{
-		if (this.proxy != null) {
-			return this.proxy.get();
-		}
-		return null;
 	}
 
 	/**
