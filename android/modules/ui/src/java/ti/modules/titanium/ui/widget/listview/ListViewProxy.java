@@ -34,6 +34,7 @@ import ti.modules.titanium.ui.widget.TiUIListView;
 		TiC.PROPERTY_CAN_SCROLL,
 		TiC.PROPERTY_CASE_INSENSITIVE_SEARCH,
 		TiC.PROPERTY_DEFAULT_ITEM_TEMPLATE,
+		TiC.PROPERTY_EDITING,
 		TiC.PROPERTY_FAST_SCROLL,
 		TiC.PROPERTY_FOOTER_TITLE,
 		TiC.PROPERTY_FOOTER_VIEW,
@@ -49,7 +50,7 @@ import ti.modules.titanium.ui.widget.TiUIListView;
 		TiC.PROPERTY_TEMPLATES
 	}
 )
-public class ListViewProxy extends TiViewProxy
+public class ListViewProxy extends RecyclerViewProxy
 {
 	private static final String TAG = "ListViewProxy";
 
@@ -138,6 +139,48 @@ public class ListViewProxy extends TiViewProxy
 	public TiUIView createView(Activity activity)
 	{
 		return new TiUIListView(this);
+	}
+
+	/**
+	 * Delete a list item from specified adapter position.
+	 *
+	 * @param adapterIndex Index of item in adapter.
+	 */
+	public void swipeItem(int adapterIndex)
+	{
+		final TiListView listView = getListView();
+
+		if (listView != null) {
+			final ListItemProxy item = listView.getAdapterItem(adapterIndex);
+			final ListSectionProxy section = (ListSectionProxy) item.getParent();
+
+			section.deleteItemsAt(item.getIndexInSection(), 1, null);
+		}
+	}
+
+	/**
+	 * Move a list item from one position to another.
+	 *
+	 * @param fromAdapterIndex Index of item in adapter.
+	 * @param toAdapterIndex Index of item in adapter.
+	 */
+	public void moveItem(int fromAdapterIndex, int toAdapterIndex)
+	{
+		final TiListView listView = getListView();
+
+		if (listView != null) {
+			final ListItemProxy fromItem = listView.getAdapterItem(fromAdapterIndex);
+			final ListSectionProxy fromSection = (ListSectionProxy) fromItem.getParent();
+			final int fromIndex = fromItem.getIndexInSection();
+			final ListItemProxy toItem = listView.getAdapterItem(toAdapterIndex);
+			final ListSectionProxy toSection = (ListSectionProxy) toItem.getParent();
+			final int toIndex = toItem.getIndexInSection();
+
+			fromSection.deleteItemsAt(fromIndex, 1, null);
+			toSection.insertItemsAt(toIndex, fromItem, null);
+
+			fromItem.fireEvent(TiC.EVENT_MOVE, null);
+		}
 	}
 
 	/**

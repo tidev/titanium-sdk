@@ -36,7 +36,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-import androidx.recyclerview.widget.RecyclerView;
 
 import java.lang.ref.WeakReference;
 
@@ -44,8 +43,9 @@ import ti.modules.titanium.ui.TableViewProxy;
 import ti.modules.titanium.ui.TableViewRowProxy;
 import ti.modules.titanium.ui.TableViewSectionProxy;
 import ti.modules.titanium.ui.widget.TiUITableView;
+import ti.modules.titanium.ui.widget.listview.TiRecyclerViewHolder;
 
-public class TableViewHolder extends RecyclerView.ViewHolder
+public class TableViewHolder extends TiRecyclerViewHolder
 {
 	private static String TAG = "TableViewHolder";
 
@@ -75,8 +75,6 @@ public class TableViewHolder extends RecyclerView.ViewHolder
 	// Bottom
 	private final TiCompositeLayout footer;
 	private final TextView footerTitle;
-
-	private WeakReference<TiViewProxy> proxy;
 
 	public TableViewHolder(final Context context, final ViewGroup viewGroup)
 	{
@@ -195,18 +193,6 @@ public class TableViewHolder extends RecyclerView.ViewHolder
 		this.rightImage.setVisibility(View.GONE);
 
 		this.border.reset();
-	}
-
-	/**
-	 * Get current proxy assigned to holder.
-	 * @return TiViewProxy
-	 */
-	public TiViewProxy getProxy()
-	{
-		if (this.proxy != null) {
-			return this.proxy.get();
-		}
-		return null;
 	}
 
 	/**

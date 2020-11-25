@@ -32,6 +32,8 @@ import ti.modules.titanium.ui.widget.TiView;
 	creatableInModule = ti.modules.titanium.ui.UIModule.class,
 	propertyAccessors = {
 		TiC.PROPERTY_ACCESSORY_TYPE,
+		TiC.PROPERTY_CAN_EDIT,
+		TiC.PROPERTY_CAN_MOVE,
 		TiC.PROPERTY_ITEM_ID,
 		TiC.PROPERTY_SEARCHABLE_TEXT
 	}
@@ -533,6 +535,12 @@ public class ListItemProxy extends TiViewProxy
 		processProperty(name, value);
 	}
 
+	/**
+	 * Process property set on proxy.
+	 *
+	 * @param name Property name.
+	 * @param value Property value.
+	 */
 	private void processProperty(String name, Object value)
 	{
 		// Handle convenience properties for default template.

@@ -547,6 +547,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String EVENT_MOVE = "move";
+
+	/**
+	 * @module.api
+	 */
 	public static final String EVENT_REFRESH_END = "refreshend";
 
 	/**
@@ -1290,6 +1295,16 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_CAN_EDIT = "canEdit";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_CAN_MOVE = "canMove";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_CAN_SCROLL = "canScroll";
 
 	/**
@@ -1596,6 +1611,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_EDITABLE = "editable";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_EDITING = "editing";
 
 	/**
 	 * @module.api
@@ -2392,6 +2412,16 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_MOTHER = "mother";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_MOVABLE = "movable";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_MOVING = "moving";
 
 	/**
 	 * @module.api
