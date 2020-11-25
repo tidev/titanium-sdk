@@ -19,11 +19,11 @@ import android.widget.RelativeLayout;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.selection.SelectionTracker;
-import androidx.recyclerview.widget.RecyclerView;
 
 import ti.modules.titanium.ui.TableViewRowProxy;
+import ti.modules.titanium.ui.widget.listview.TiRecyclerViewAdapter;
 
-public class TableViewAdapter extends RecyclerView.Adapter<TableViewHolder>
+public class TableViewAdapter extends TiRecyclerViewAdapter<TableViewHolder>
 {
 	private static final String TAG = "TableViewAdapter";
 
@@ -35,6 +35,8 @@ public class TableViewAdapter extends RecyclerView.Adapter<TableViewHolder>
 
 	public TableViewAdapter(@NonNull Context context, @NonNull List<TableViewRowProxy> models)
 	{
+		this.context = context;
+
 		// Obtain layout inflater instance.
 		if (inflater == null) {
 			inflater = LayoutInflater.from(context);

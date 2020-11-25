@@ -21,12 +21,15 @@ import android.app.Activity;
 import androidx.recyclerview.widget.RecyclerView;
 
 import ti.modules.titanium.ui.widget.TiUITableView;
+import ti.modules.titanium.ui.widget.listview.RecyclerViewProxy;
 import ti.modules.titanium.ui.widget.tableview.TableViewAdapter;
 import ti.modules.titanium.ui.widget.tableview.TiTableView;
 
 @Kroll.proxy(
 	creatableInModule = UIModule.class,
 	propertyAccessors = {
+		TiC.PROPERTY_EDITABLE,
+		TiC.PROPERTY_EDITING,
 		TiC.PROPERTY_FILTER_ATTRIBUTE,
 		TiC.PROPERTY_FILTER_ANCHORED,
 		TiC.PROPERTY_FILTER_CASE_INSENSITIVE,
@@ -39,6 +42,8 @@ import ti.modules.titanium.ui.widget.tableview.TiTableView;
 		TiC.PROPERTY_SEPARATOR_STYLE,
 		TiC.PROPERTY_OVER_SCROLL_MODE,
 		TiC.PROPERTY_MIN_ROW_HEIGHT,
+		TiC.PROPERTY_MOVABLE,
+		TiC.PROPERTY_MOVING,
 		TiC.PROPERTY_HEADER_DIVIDERS_ENABLED,
 		TiC.PROPERTY_FOOTER_DIVIDERS_ENABLED,
 		TiC.PROPERTY_MAX_CLASSNAME,
@@ -47,7 +52,7 @@ import ti.modules.titanium.ui.widget.tableview.TiTableView;
 		TiC.PROPERTY_SHOW_VERTICAL_SCROLL_INDICATOR
 	}
 )
-public class TableViewProxy extends TiViewProxy
+public class TableViewProxy extends RecyclerViewProxy
 {
 	private static final String TAG = "TableViewProxy";
 
@@ -205,6 +210,49 @@ public class TableViewProxy extends TiViewProxy
 	public TiUIView createView(Activity activity)
 	{
 		return new TiUITableView(this);
+	}
+
+	/**
+	 * Delete a list item from specified adapter position.
+	 *
+	 * @param adapterIndex Index of item in adapter.
+	 */
+	public void swipeItem(int adapterIndex)
+	{
+		final TiTableView tableView = getTableView();
+
+		if (tableView != null) {
+			final TableViewRowProxy item = tableView.getAdapterItem(adapterIndex);
+			final TableViewSectionProxy section = (TableViewSectionProxy) item.getParent();
+
+			section.remove(item);
+		}
+	}
+
+	/**
+	 * Move a list item from one position to another.
+	 *
+	 * @param fromAdapterIndex Index of item in adapter.
+	 * @param toAdapterIndex Index of item in adapter.
+	 */
+	public void moveItem(int fromAdapterIndex, int toAdapterIndex)
+	{
+		final TiTableView tableView = getTableView();
+
+		if (tableView != null) {
+			final TableViewRowProxy fromItem = tableView.getAdapterItem(fromAdapterIndex);
+			final TableViewSectionProxy fromSection = (TableViewSectionProxy) fromItem.getParent();
+			final TableViewRowProxy toItem = tableView.getAdapterItem(toAdapterIndex);
+			final TableViewSectionProxy toSection = (TableViewSectionProxy) toItem.getParent();
+			final int toIndex = toItem.getIndexInSection();
+
+			fromSection.remove(fromItem);
+			toSection.add(toIndex, fromItem);
+
+			update();
+
+			fromItem.fireEvent(TiC.EVENT_MOVE, null);
+		}
 	}
 
 	/**
