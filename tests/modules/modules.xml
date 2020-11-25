@@ -12,4 +12,8 @@
 		<module platform="ios">ti.identity</module>
 		<module platform="android">ti.playservices</module>
 		<module platform="android">ti.cloudpush</module>
+
+		<!-- Modules built manually from: titanium_mobile/tests/modules-source -->
+		<module platform="android">ti.modulesdk920</module>
+		<module platform="ios">ti.modulesdk920</module>
 	</modules>
