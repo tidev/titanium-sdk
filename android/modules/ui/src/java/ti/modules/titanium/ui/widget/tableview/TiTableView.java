@@ -31,12 +31,14 @@ import androidx.recyclerview.selection.SelectionPredicates;
 import androidx.recyclerview.selection.SelectionTracker;
 import androidx.recyclerview.selection.StorageStrategy;
 import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import ti.modules.titanium.ui.TableViewProxy;
 import ti.modules.titanium.ui.TableViewRowProxy;
 import ti.modules.titanium.ui.TableViewSectionProxy;
 import ti.modules.titanium.ui.widget.TiSwipeRefreshLayout;
+import ti.modules.titanium.ui.widget.listview.ItemTouchHandler;
 import ti.modules.titanium.ui.widget.listview.TiNestedRecyclerView;
 import ti.modules.titanium.ui.widget.searchbar.TiUISearchBar.OnSearchChangeListener;
 
@@ -80,6 +82,11 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 
 		this.adapter = new TableViewAdapter(getContext(), this.rows);
 		this.recyclerView.setAdapter(this.adapter);
+
+		// Create ItemTouchHelper for swipe-to-delete and move gestures.
+		final ItemTouchHandler itemTouchHandler = new ItemTouchHandler(this.adapter, this.proxy);
+		final ItemTouchHelper itemTouchHelper = new ItemTouchHelper(itemTouchHandler);
+		itemTouchHelper.attachToRecyclerView(this.recyclerView);
 
 		// Fire `postlayout` on layout changes.
 		this.addOnLayoutChangeListener(new OnLayoutChangeListener()
@@ -236,6 +243,17 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 			}
 		}
 		return -1;
+	}
+
+	/**
+	 * Obtain row from adapter index.
+	 *
+	 * @param index List item adapter index.
+	 * @return Row at specified adapter index.
+	 */
+	public TableViewRowProxy getAdapterItem(int index)
+	{
+		return this.rows.get(index);
 	}
 
 	/**

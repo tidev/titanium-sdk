@@ -32,6 +32,8 @@ import ti.modules.titanium.ui.widget.tableview.TiTableView;
 		TiC.PROPERTY_HAS_CHECK,
 		TiC.PROPERTY_HAS_CHILD,
 		TiC.PROPERTY_HAS_DETAIL,
+		TiC.PROPERTY_EDITABLE,
+		TiC.PROPERTY_MOVABLE,
 		TiC.PROPERTY_CLASS_NAME,
 		TiC.PROPERTY_LAYOUT,
 		TiC.PROPERTY_LEFT_IMAGE,
@@ -350,6 +352,12 @@ public class TableViewRowProxy extends TiViewProxy
 		}
 	}
 
+	/**
+	 * Process property set on proxy.
+	 *
+	 * @param name Property name.
+	 * @param value Property value.
+	 */
 	private void processProperty(String name, Object value)
 	{
 		if (name.equals(TiC.PROPERTY_SELECTED_BACKGROUND_COLOR)) {

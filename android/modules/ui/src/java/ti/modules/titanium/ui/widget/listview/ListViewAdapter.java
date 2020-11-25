@@ -19,9 +19,8 @@ import android.widget.RelativeLayout;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.selection.SelectionTracker;
-import androidx.recyclerview.widget.RecyclerView;
 
-public class ListViewAdapter extends RecyclerView.Adapter<ListViewHolder>
+public class ListViewAdapter extends TiRecyclerViewAdapter<ListViewHolder>
 {
 	private static final String TAG = "ListViewAdapter";
 
@@ -33,6 +32,8 @@ public class ListViewAdapter extends RecyclerView.Adapter<ListViewHolder>
 
 	public ListViewAdapter(@NonNull Context context, @NonNull List<ListItemProxy> models)
 	{
+		this.context = context;
+
 		// Obtain layout inflater instance.
 		if (inflater == null) {
 			inflater = LayoutInflater.from(context);
@@ -83,26 +84,6 @@ public class ListViewAdapter extends RecyclerView.Adapter<ListViewHolder>
 	public List<ListItemProxy> getModels()
 	{
 		return this.models;
-	}
-
-	/**
-	 * Get selection tracker object.
-	 *
-	 * @return Selection tracker.
-	 */
-	public SelectionTracker getTracker()
-	{
-		return tracker;
-	}
-
-	/**
-	 * Set selection tracker for adapter.
-	 *
-	 * @param tracker Selection tracker.
-	 */
-	public void setTracker(SelectionTracker tracker)
-	{
-		this.tracker = tracker;
 	}
 
 	/**

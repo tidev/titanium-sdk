@@ -31,6 +31,7 @@ import androidx.recyclerview.selection.SelectionPredicates;
 import androidx.recyclerview.selection.SelectionTracker;
 import androidx.recyclerview.selection.StorageStrategy;
 import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import ti.modules.titanium.ui.widget.TiSwipeRefreshLayout;
@@ -75,8 +76,14 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 		decoration = new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL);
 		this.recyclerView.addItemDecoration(decoration);
 
+		// Create list adapter.
 		this.adapter = new ListViewAdapter(getContext(), this.items);
 		this.recyclerView.setAdapter(this.adapter);
+
+		// Create ItemTouchHelper for swipe-to-delete and move gestures.
+		final ItemTouchHandler itemTouchHandler = new ItemTouchHandler(this.adapter, this.proxy);
+		final ItemTouchHelper itemTouchHelper = new ItemTouchHelper(itemTouchHandler);
+		itemTouchHelper.attachToRecyclerView(this.recyclerView);
 
 		// Fire `postlayout` on layout changes.
 		this.addOnLayoutChangeListener(new OnLayoutChangeListener()
@@ -235,6 +242,17 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 			}
 		}
 		return -1;
+	}
+
+	/**
+	 * Obtain item from adapter index.
+	 *
+	 * @param index List item adapter index.
+	 * @return Item at specified adapter index.
+	 */
+	public ListItemProxy getAdapterItem(int index)
+	{
+		return this.items.get(index);
 	}
 
 	/**
