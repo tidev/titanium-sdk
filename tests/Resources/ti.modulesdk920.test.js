@@ -248,7 +248,7 @@ describe('Module Built with SDK 9.2.0', function () {
 	});
 
 	it('Resource File', () => {
-		const jsonData = require('/ti.modulesdk920/test.json');
+		const jsonData = require('./ti.modulesdk920/test.json');
 		should(jsonData.foo).be.eql('bar');
 	});
 });
