@@ -156,7 +156,7 @@ description: |
     To mitigate this, a `ScrollView` may be used instead of a list view, as demonstrated in the
     [ScrollView](Titanium.UI.ScrollView), "Scroll View as a Table View", example.
 
-    #### Editing Support (iOS)
+    #### Editing Support
 
     Editing a ListView through user initiated actions is supported through the following properties.
 
@@ -390,8 +390,8 @@ events:
 
         Note that the `sectionIndex`,`itemIndex`,`targetSectionIndex` and `targetItemIndex` properties of this event correspond to the List View state
         before the user action.
-    platforms: [iphone, ipad, macos]
-    since: 3.2.0
+    platforms: [android, iphone, ipad, macos]
+    since: {android: "9.3.0", iphone: "3.2.0", ipad: "3.2.0", macos: "9.2.0"}
     properties:
       - name: section
         summary: List section from which the item is moved.
@@ -713,8 +713,8 @@ properties:
         For more information see the "Editing Support" section of <Titanium.UI.ListView>.
     type: Boolean
     default: false
-    since: 3.2.0
-    platforms: [iphone, ipad, macos]
+    since: {android: "9.3.0", iphone: "3.2.0", ipad: "3.2.0", macos: "9.2.0"}
+    platforms: [android, iphone, ipad, macos]
 
   - name: fastScroll
     summary: Sets the fastScroll mode on Android ListViews.
