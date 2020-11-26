@@ -1,7 +1,6 @@
-/*/android/build/
-/*/android/dist/
+/*/*/build/
+/*/*/dist/*
+!/*/*/dist/*.zip
 
-/*/ios/build/
-/*/ios/dist/
 /*/ios/*.xcodeproj/xcuserdata/
 /*/ios/*.xcodeproj/project.xcworkspace/xcuserdata/
