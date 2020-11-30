@@ -7,14 +7,12 @@
 package ti.modules.titanium.ui.widget.listview;
 
 import org.appcelerator.kroll.KrollDict;
-import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.R;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
-import org.appcelerator.titanium.util.TiFileHelper;
 import org.appcelerator.titanium.util.TiRHelper;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiCompositeLayout;
@@ -44,85 +42,23 @@ import ti.modules.titanium.ui.widget.TiUIListView;
 public class ListViewHolder extends TiRecyclerViewHolder
 {
 	private static final String TAG = "ListViewHolder";
-	private static final int COLOR_GRAY = Color.rgb(169, 169, 169);
 
-	private static Drawable checkDrawable;
-	private static Drawable disclosureDrawable;
-	private static TiFileHelper fileHelper;
-	private static Drawable moreDrawable;
-	private static Resources resources;
-	private static int selectableItemBackgroundId = 0;
+	// Top
+	private final ViewGroup header;
+	private final TextView headerTitle;
 
 	// Middle
 	private final ViewGroup container;
 	private final TiCompositeLayout content;
+	private final ImageView rightImage;
+
 	// Bottom
 	private final TiCompositeLayout footer;
 	private final TextView footerTitle;
-	// Top
-	private final TiCompositeLayout header;
-	private final TextView headerTitle;
-	private final ImageView rightImage;
 
 	public ListViewHolder(final Context context, final ViewGroup viewGroup)
 	{
-		super(viewGroup);
-
-		if (resources == null) {
-
-			// Obtain resources instance.
-			resources = context.getResources();
-		}
-		if (resources != null) {
-
-			// Attempt to load `icon_more` drawable.
-			if (moreDrawable == null) {
-				try {
-					final int icon_more_id = R.drawable.titanium_icon_more;
-					moreDrawable = resources.getDrawable(icon_more_id);
-				} catch (Exception e) {
-					Log.w(TAG, "Drawable 'drawable.icon_more' not found.");
-				}
-			}
-
-			// Attempt to load `icon_checkmark` drawable.
-			if (checkDrawable == null) {
-				try {
-					final int icon_checkmark_id = R.drawable.titanium_icon_checkmark;
-					checkDrawable = resources.getDrawable(icon_checkmark_id);
-				} catch (Exception e) {
-					Log.w(TAG, "Drawable 'drawable.icon_checkmark' not found.");
-				}
-			}
-
-			// Attempt to load `icon_disclosure` drawable.
-			if (disclosureDrawable == null) {
-				try {
-					final int icon_disclosure_id = R.drawable.titanium_icon_disclosure;
-					disclosureDrawable = resources.getDrawable(icon_disclosure_id);
-				} catch (Exception e) {
-					Log.w(TAG, "Drawable 'drawable.icon_disclosure' not found.");
-				}
-			}
-
-			if (selectableItemBackgroundId == 0) {
-				try {
-					final TypedValue selectableItemBackgroundValue = new TypedValue();
-					context.getTheme().resolveAttribute(android.R.attr.selectableItemBackground,
-						selectableItemBackgroundValue, true);
-					selectableItemBackgroundId = selectableItemBackgroundValue.resourceId;
-				} catch (Exception e) {
-					Log.w(TAG, "Drawable for default background not found.");
-				}
-			}
-		} else {
-			Log.w(TAG, "Could not obtain context resources instance.");
-		}
-		if (fileHelper == null) {
-
-			// Obtain file helper instance.
-			fileHelper = new TiFileHelper(context);
-		}
+		super(context, viewGroup);
 
 		// Obtain views from identifiers.
 		this.header = viewGroup.findViewById(R.id.titanium_ui_listview_holder_header);
@@ -164,6 +100,7 @@ public class ListViewHolder extends TiRecyclerViewHolder
 		if (listViewProxy == null) {
 			return;
 		}
+		final KrollDict listViewProperties = listViewProxy.getProperties();
 
 		// Attempt to obtain parent section proxy is available.
 		final ListSectionProxy section =
@@ -194,6 +131,15 @@ public class ListViewHolder extends TiRecyclerViewHolder
 			if (accessorType != UIModule.LIST_ACCESSORY_TYPE_NONE) {
 				this.rightImage.setVisibility(View.VISIBLE);
 			}
+		}
+
+		// Display drag drawable when item can move.
+		final boolean isEditing = listViewProperties.optBoolean(TiC.PROPERTY_EDITING, false);
+		final boolean canMove = properties.optBoolean(TiC.PROPERTY_CAN_MOVE,
+			listViewProperties.optBoolean(TiC.PROPERTY_CAN_MOVE, false));
+		if (isEditing && canMove) {
+			this.rightImage.setImageDrawable(dragDrawable);
+			this.rightImage.setVisibility(View.VISIBLE);
 		}
 
 		if (proxy != null) {

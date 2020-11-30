@@ -679,6 +679,14 @@ public class TableViewProxy extends RecyclerViewProxy
 		}
 	}
 
+	@Override
+	public void onPropertyChanged(String name, Object value)
+	{
+		super.onPropertyChanged(name, value);
+
+		processProperty(name, value);
+	}
+
 	/**
 	 * Handle setting of property.
 	 *
@@ -690,8 +698,26 @@ public class TableViewProxy extends RecyclerViewProxy
 	{
 		super.setProperty(name, value);
 
+		processProperty(name, value);
+	}
+
+	/**
+	 * Process property set on proxy.
+	 *
+	 * @param name Property name.
+	 * @param value Property value.
+	 */
+	private void processProperty(String name, Object value)
+	{
 		if (name.equals(TiC.PROPERTY_DATA) || name.equals(TiC.PROPERTY_SECTIONS)) {
 			setData((Object[]) value);
+		}
+
+		if (name.equals(TiC.PROPERTY_EDITING)
+			|| name.equals(TiC.PROPERTY_MOVING)) {
+
+			// Update table to display drag-handles.
+			update();
 		}
 	}
 
