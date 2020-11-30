@@ -306,6 +306,14 @@ public class ListViewProxy extends RecyclerViewProxy
 		return false;
 	}
 
+	@Override
+	public void onPropertyChanged(String name, Object value)
+	{
+		super.onPropertyChanged(name, value);
+
+		processProperty(name, value);
+	}
+
 	/**
 	 * Handle setting of property.
 	 *
@@ -317,10 +325,27 @@ public class ListViewProxy extends RecyclerViewProxy
 	{
 		super.setProperty(name, value);
 
+		processProperty(name, value);
+	}
+
+	/**
+	 * Process property set on proxy.
+	 *
+	 * @param name Property name.
+	 * @param value Property value.
+	 */
+	private void processProperty(String name, Object value)
+	{
 		if (name.equals(TiC.PROPERTY_SECTIONS)) {
 
 			// Set list sections.
 			setSections((Object[]) value);
+		}
+
+		if (name.equals(TiC.PROPERTY_EDITING)) {
+
+			// Update list to display drag-handles.
+			update();
 		}
 	}
 

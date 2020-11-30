@@ -629,6 +629,10 @@ public class ListItemProxy extends TiViewProxy
 			Log.w(TAG, "selectedBackgroundImage is deprecated, use backgroundSelectedImage instead.");
 			setProperty(TiC.PROPERTY_BACKGROUND_SELECTED_IMAGE, value);
 		}
+
+		if (name.equals(TiC.PROPERTY_CAN_MOVE)) {
+			invalidate();
+		}
 	}
 
 	/**
