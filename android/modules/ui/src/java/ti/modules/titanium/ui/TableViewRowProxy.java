@@ -360,6 +360,8 @@ public class TableViewRowProxy extends TiViewProxy
 	 */
 	private void processProperty(String name, Object value)
 	{
+		final TableViewProxy tableViewProxy = getTableViewProxy();
+
 		if (name.equals(TiC.PROPERTY_SELECTED_BACKGROUND_COLOR)) {
 			Log.w(TAG, "selectedBackgroundColor is deprecated, use backgroundSelectedColor instead.");
 			setProperty(TiC.PROPERTY_BACKGROUND_SELECTED_COLOR, value);
@@ -392,7 +394,8 @@ public class TableViewRowProxy extends TiViewProxy
 			|| name.equals(TiC.PROPERTY_LEFT)
 			|| name.equals(TiC.PROPERTY_RIGHT)
 			|| name.equals(TiC.PROPERTY_TOP)
-			|| name.equals(TiC.PROPERTY_BOTTOM)) {
+			|| name.equals(TiC.PROPERTY_BOTTOM)
+			|| name.equals(TiC.PROPERTY_MOVABLE)) {
 
 			// Force re-bind of row.
 			invalidate();
