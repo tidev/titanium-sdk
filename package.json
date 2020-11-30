@@ -136,7 +136,7 @@
     "conventional-changelog-cli": "^2.1.1",
     "core-js": "^3.8.0",
     "cz-conventional-changelog": "^3.3.0",
-    "danger": "^10.5.3",
+    "danger": "^10.5.4",
     "dateformat": "^4.0.0",
     "eslint": "^7.14.0",
     "eslint-config-axway": "^5.0.0",
