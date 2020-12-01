@@ -40,15 +40,13 @@
   SETTER_IMPL(TYPE, UPPER);
 
 #define PROPERTY(TYPE, LOWER, UPPER) \
-  @property TYPE LOWER;              \
-  READWRITE(TYPE, UPPER);
+  @property TYPE LOWER;
 
 #define CONSTANT(TYPE, NAME) \
   @property (readonly) TYPE NAME;
 
 #define READONLY_PROPERTY(TYPE, LOWER, UPPER) \
-  CONSTANT(TYPE, LOWER);                      \
-  GETTER(TYPE, UPPER);
+  CONSTANT(TYPE, LOWER);
 
 // TODO: Log a warning/error if negative?
 // We could also define as NSUInteger and do: if (arg - 1 == NSIntegerMax) as NaN check
