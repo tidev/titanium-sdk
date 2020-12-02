@@ -25,8 +25,8 @@ public class ListViewAdapter extends TiRecyclerViewAdapter<ListViewHolder>
 	private static final String TAG = "ListViewAdapter";
 
 	private static int id_holder;
-	private static LayoutInflater inflater;
 
+	private LayoutInflater inflater;
 	private List<ListItemProxy> models;
 	private SelectionTracker tracker;
 
@@ -35,9 +35,7 @@ public class ListViewAdapter extends TiRecyclerViewAdapter<ListViewHolder>
 		this.context = context;
 
 		// Obtain layout inflater instance.
-		if (inflater == null) {
-			inflater = LayoutInflater.from(context);
-		}
+		inflater = LayoutInflater.from(context);
 
 		// Obtain TableViewHolder layout identifier.
 		try {
@@ -122,7 +120,7 @@ public class ListViewAdapter extends TiRecyclerViewAdapter<ListViewHolder>
 	public ListViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType)
 	{
 		// Create new TableViewHolder instance.
-		final RelativeLayout layout = (RelativeLayout) inflater.inflate(id_holder, parent, false);
+		final RelativeLayout layout = (RelativeLayout) inflater.inflate(id_holder, null);
 		return new ListViewHolder(parent.getContext(), layout);
 	}
 

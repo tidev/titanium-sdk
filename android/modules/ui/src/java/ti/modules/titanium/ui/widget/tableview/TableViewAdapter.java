@@ -28,8 +28,8 @@ public class TableViewAdapter extends TiRecyclerViewAdapter<TableViewHolder>
 	private static final String TAG = "TableViewAdapter";
 
 	private static int id_holder;
-	private static LayoutInflater inflater;
 
+	private LayoutInflater inflater;
 	private List<TableViewRowProxy> models;
 	private SelectionTracker tracker;
 
@@ -38,9 +38,7 @@ public class TableViewAdapter extends TiRecyclerViewAdapter<TableViewHolder>
 		this.context = context;
 
 		// Obtain layout inflater instance.
-		if (inflater == null) {
-			inflater = LayoutInflater.from(context);
-		}
+		inflater = LayoutInflater.from(context);
 
 		// Obtain TableViewHolder layout identifier.
 		try {
@@ -129,7 +127,7 @@ public class TableViewAdapter extends TiRecyclerViewAdapter<TableViewHolder>
 	public TableViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType)
 	{
 		// Create new TableViewHolder instance.
-		final RelativeLayout layout = (RelativeLayout) inflater.inflate(id_holder, parent, false);
+		final RelativeLayout layout = (RelativeLayout) inflater.inflate(id_holder, null);
 		return new TableViewHolder(parent.getContext(), layout);
 	}
 
