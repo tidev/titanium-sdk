@@ -133,7 +133,7 @@ async function copyMochaAssets() {
 		})(),
 		// modules
 		(async () => {
-			fs.copy(path.join(SOURCE_DIR, 'modules'), path.join(PROJECT_DIR, 'modules'));
+			await fs.copy(path.join(SOURCE_DIR, 'modules'), path.join(PROJECT_DIR, 'modules'));
 			const modulesSourceDir = path.join(SOURCE_DIR, 'modules-source');
 			const zipPaths = await glob('*/*/dist/*.zip', { cwd: modulesSourceDir });
 			for (const nextZipPath of zipPaths) {
