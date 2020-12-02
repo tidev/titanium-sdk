@@ -366,7 +366,6 @@ public class WebViewProxy extends ViewProxy implements Handler.Callback, OnLifec
 		}
 	}
 
-	@Kroll.method(runOnUiThread = true)
 	@Kroll.setProperty(runOnUiThread = true)
 	public void setEnableZoomControls(boolean enabled)
 	{

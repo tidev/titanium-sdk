@@ -92,7 +92,6 @@ public class ImageViewProxy extends ViewProxy
 	}
 
 	@Kroll.setProperty(runOnUiThread = true)
-	@Kroll.method(runOnUiThread = true)
 	public void setReverse(boolean reverse)
 	{
 		getImageView().setReverse(reverse);
@@ -105,7 +104,6 @@ public class ImageViewProxy extends ViewProxy
 	}
 
 	@Kroll.setProperty(runOnUiThread = true)
-	@Kroll.method(runOnUiThread = true)
 	public void setTintColor(String color)
 	{
 		getImageView().setTintColor(color);
