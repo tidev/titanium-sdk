@@ -156,7 +156,7 @@ describe('Titanium.UI.TabGroup', function () {
 				should(tabGroup.activeTintColor).eql('blue');
 			});
 
-			it('has accessors', () => {
+			it.androidBroken('has accessors', () => { // Windows are created during open
 				should(tabGroup).have.accessors('activeTintColor');
 			});
 		});
@@ -205,7 +205,7 @@ describe('Titanium.UI.TabGroup', function () {
 				should(tabGroup.barColor).eql('blue');
 			});
 
-			it('has accessors', () => {
+			it.androidBroken('has accessors', () => { // Windows are created during open
 				should(tabGroup).have.accessors('barColor');
 			});
 		});
@@ -235,7 +235,7 @@ describe('Titanium.UI.TabGroup', function () {
 				should(tabGroup.tabs).eql([ tabA, tabB ]);
 			});
 
-			it('has accessors', () => {
+			it.androidBroken('has accessors', () => { // Windows are created during open
 				should(tabGroup).have.accessors('barColor');
 			});
 
@@ -297,7 +297,7 @@ describe('Titanium.UI.TabGroup', function () {
 				should(tabGroup.tintColor).eql('blue');
 			});
 
-			it('has accessors', () => {
+			it.androidBroken('has accessors', () => { // Windows are created during open
 				should(tabGroup).have.accessors('tintColor');
 			});
 		});
