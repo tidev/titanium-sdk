@@ -22,6 +22,7 @@ import android.app.Activity;
 @Kroll.proxy(creatableInModule = UIModule.class,
 	propertyAccessors = {
 		TiC.PROPERTY_ACTIVE_TITLE_COLOR,
+		TiC.PROPERTY_ACTIVE_TINT_COLOR,
 		TiC.PROPERTY_ICON,
 		TiC.PROPERTY_TITLE,
 		TiC.PROPERTY_TITLE_COLOR,
