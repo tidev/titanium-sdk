@@ -7,6 +7,7 @@
 /* eslint-env mocha */
 /* eslint no-unused-expressions: "off" */
 /* eslint no-undef: "off" */
+/* eslint mocha/no-identical-title: "off" */
 'use strict';
 
 const should = require('./utilities/assertions');
@@ -55,7 +56,8 @@ describe('Titanium.UI.ProgressBar', () => {
 			});
 		});
 
-		describe('.font', () => {
+		// FIXME: Add android support for the font property
+		describe.ios('.font', () => {
 			beforeEach(() => {
 				bar = Ti.UI.createProgressBar({
 					font: {
