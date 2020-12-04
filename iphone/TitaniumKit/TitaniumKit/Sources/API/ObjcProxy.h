@@ -92,6 +92,9 @@ JSExportAs(removeEventListener,
            -(void)removeEventListener
            : (NSString *)name withCallback
            : (JSValue *)callback);
+JSExportAs(hasEventListener,
+           -(BOOL)hasEventListener
+           : (NSString *)type);
 JSExportAs(fireEvent,
            -(void)fireEvent
            : (NSString *)name withDict

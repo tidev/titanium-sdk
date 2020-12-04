@@ -810,6 +810,11 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void *payload)
   [self _listenerRemoved:type count:ourCallbackCount];
 }
 
+- (BOOL)hasEventListener:(NSArray *)args
+{
+  return [self _hasListeners:[args objectAtIndex:0]];
+}
+
 - (BOOL)doesntOverrideFireEventWithSource
 {
   IMP proxySourceImp = [[TiProxy class] instanceMethodForSelector:@selector(fireEvent:withObject:withSource:propagate:)];

@@ -79,6 +79,9 @@ public final class TiActivityWindows
 
 	public static boolean hasWindow(int windowId)
 	{
+		if (windowId == INVALID_WINDOW_ID) {
+			return false;
+		}
 		return (windowMap.get(Integer.valueOf(windowId)) != null);
 	}
 

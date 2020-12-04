@@ -6,9 +6,12 @@
  */
 package org.appcelerator.titanium;
 
+import java.util.Date;
 import java.util.HashMap;
 
 import org.appcelerator.kroll.common.Log;
+import org.appcelerator.kroll.KrollModule;
+import org.appcelerator.kroll.KrollRuntime;
 import org.appcelerator.titanium.util.TiUrl;
 
 import android.app.Activity;
@@ -32,15 +35,19 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 	 */
 	private static HashMap<String, String> jsActivityClassScriptMap = new HashMap<>();
 
+	/** Timestamp when the 1st instance of this activity was created, expressed in Unix time. */
+	private static long firstLaunchTime = (new Date()).getTime();
+
 	/** JavaScript file URL to be loaded by loadScript() method. This URL is assigned in onCreate() method. */
 	private TiUrl url;
+
+	/** Determines if Titanium runtime has been launched by this activity or not. */
+	private boolean hasLaunched = false;
 
 	/**
 	 * @return The Javascript URL that this Activity should run
 	 */
 	public abstract String getUrl();
-
-	private boolean hasLoadedScript = false;
 
 	/**
 	 * The JavaScript URL that should be ran for the given TiJSActivity derived class name.
@@ -171,18 +178,57 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 	@Override
 	protected void onResume()
 	{
-		// Prevent script from loading on future resumes
-		if (!hasLoadedScript) {
-			hasLoadedScript = true;
-			loadScript();
-			Log.d(TAG, "Launched in " + (SystemClock.uptimeMillis() - TiApplication.START_TIME_MS) + " ms");
+		// Launch the Titanium UI, if not done already.
+		if (!hasLaunched) {
+			if (KrollRuntime.isBoundToUI() || !TiApplication.isScriptRunning()) {
+				// Create the runtime and load the main Titanium script.
+				hasLaunched = true;
+				loadScript();
+			} else {
+				// JS runtime was backgrounded without UI. So, this is a new UI session.
+				// Fire a session begin event from the Ti.UI module signaling scripts to create its windows.
+				// Note: Our "bootstrap.loader.js" will handle event first so it can show bootstrap UI before app UI.
+				KrollModule uiModule = getTiApp().getModuleByName("UI");
+				if (uiModule != null) {
+					hasLaunched = true;
+					uiModule.fireEvent("bootstrapsessionbegin", null);
+				}
+			}
+			if (hasLaunched) {
+				Log.d(TAG, "Launched in " + (SystemClock.uptimeMillis() - TiApplication.START_TIME_MS) + " ms");
+			}
 		}
+
+		// Resume this activity.
 		super.onResume();
 
 		// Prevent duplicate launch animation.
 		// Windows opened before TiRootActivity has animated may cause an unwanted stutter animation.
 		if (TiApplication.firstOnActivityStack()) {
 			overridePendingTransition(0, 0);
+		}
+	}
+
+	@Override
+	protected void onSaveInstanceState(Bundle outState)
+	{
+		super.onSaveInstanceState(outState);
+
+		// Store below settings. To be restored when this activity has been recreated.
+		outState.putLong("firstLaunchTime", TiLaunchActivity.firstLaunchTime);
+		outState.putBoolean("hasLaunched", this.hasLaunched);
+	}
+
+	@Override
+	protected void onRestoreInstanceState(Bundle savedInstanceState)
+	{
+		super.onRestoreInstanceState(savedInstanceState);
+
+		// This activity is being recreated/restored. Reload last instance's settings.
+		// Note: If stored "firstLaunchTime" doesn't match actual time, then app was restarted. We need to re-launch.
+		long value = savedInstanceState.getLong("firstLaunchTime", 0);
+		if (value == TiLaunchActivity.firstLaunchTime) {
+			this.hasLaunched = savedInstanceState.getBoolean("hasLaunched", false);
 		}
 	}
 

@@ -14,6 +14,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Build;
+import android.os.Handler;
 import android.os.Looper;
 import android.os.SystemClock;
 import androidx.multidex.MultiDex;
@@ -33,6 +34,7 @@ import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.kroll.common.TiDeployData;
 import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.kroll.util.KrollAssetHelper;
+import org.appcelerator.titanium.proxy.ActivityProxy;
 import org.appcelerator.titanium.util.TiBlobLruCache;
 import org.appcelerator.titanium.util.TiFileHelper;
 import org.appcelerator.titanium.util.TiImageLruCache;
@@ -80,6 +82,9 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	// Whether or not using legacy window. This is set in the application's tiapp.xml with the
 	// "ti.android.useLegacyWindow" property.
 	public static boolean USE_LEGACY_WINDOW = false;
+
+	/** Set true if Titanium's main script is currently running. Set false if not. */
+	private boolean isScriptRunning;
 
 	private String baseUrl;
 	private String startUrl;
@@ -183,25 +188,30 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	// application (typically when the root activity is destroyed)
 	public static void terminateActivityStack()
 	{
-		// Do not continue if there are no activities on the stack.
-		if ((activityStack == null) || (activityStack.size() <= 0)) {
-			return;
-		}
-
 		// Remove all activities from the stack and finish/destroy them.
 		// Note: The finish() method can add/remove activities to the stack.
-		WeakReference<Activity> activityRef;
-		Activity currentActivity;
-		while (activityStack.size() > 0) {
-			activityRef = activityStack.get(activityStack.size() - 1);
-			activityStack.remove(activityRef);
-			if (activityRef != null) {
-				currentActivity = activityRef.get();
-				if (currentActivity != null && !currentActivity.isFinishing()) {
-					currentActivity.finish();
+		if (activityStack != null) {
+			WeakReference<Activity> activityRef;
+			Activity currentActivity;
+			while (activityStack.size() > 0) {
+				activityRef = activityStack.get(activityStack.size() - 1);
+				activityStack.remove(activityRef);
+				if (activityRef != null) {
+					currentActivity = activityRef.get();
+					if (currentActivity != null && !currentActivity.isFinishing()) {
+						currentActivity.finish();
+					}
 				}
 			}
 		}
+
+		// Dispose all window proxies.
+		// Note: We might have more window proxies than activities here.
+		//       Happens if destroyed/removed activity was not finished, which means it might be restored later.
+		TiActivityWindows.dispose();
+
+		// Remove all onActivityResult() handlers.
+		TiActivitySupportHelpers.dispose();
 	}
 
 	public boolean activityStackHasLaunchActivity()
@@ -380,6 +390,9 @@ public abstract class TiApplication extends Application implements KrollApplicat
 
 				// Delete all Titanium temp files.
 				deleteTiTempFiles();
+
+				// Flag that the main Titanium script is no longer running.
+				TiApplication.this.isScriptRunning = false;
 			}
 		});
 	}
@@ -467,6 +480,11 @@ public abstract class TiApplication extends Application implements KrollApplicat
 		TiConfig.DEBUG = TiConfig.LOGD = appProperties.getBool("ti.android.debug", false);
 		USE_LEGACY_WINDOW = appProperties.getBool(PROPERTY_USE_LEGACY_WINDOW, false);
 
+		// By default, have the runtime auto-dispose itself when the last activity window has been destroyed
+		// unless backgrounding has been enabled in "tiapp.xml" file.
+		boolean canRunInBackground = getAppProperties().getBool("run-in-background", false);
+		KrollRuntime.setBoundToUI(!canRunInBackground);
+
 		// Start listening for system locale changes.
 		startLocaleMonitor();
 
@@ -476,6 +494,15 @@ public abstract class TiApplication extends Application implements KrollApplicat
 
 		// Set up an unhandled exception handler.
 		KrollRuntime.setPrimaryExceptionHandler(new TiExceptionHandler());
+
+		// Start up the Titanium JS runtime now if backgrounding is enabled.
+		// In this case, runtime is bound to the lifetime of the application process, not the root activity.
+		if (canRunInBackground) {
+			Handler handler = new Handler(Looper.getMainLooper());
+			handler.post(() -> {
+				launch();
+			});
+		}
 	}
 
 	/**
@@ -844,32 +871,60 @@ public abstract class TiApplication extends Application implements KrollApplicat
 		return getAppProperties().getBool(TiApplication.PROPERTY_FASTDEV, development);
 	}
 
+	/**
+	 * Determines if main Titanium script has been loaded via launch() method and is currently running.
+	 * @return
+	 * Returns true if main Titanium script has been launched and is actively running.
+	 * <p>
+	 * Returns false if script has never been loaded or has runtime has been disposed/terminated.
+	 */
+	public static boolean isScriptRunning()
+	{
+		return tiApp.isScriptRunning;
+	}
+
 	public static void launch()
 	{
+		// Do not continue if script has already been loaded.
+		if (tiApp.isScriptRunning) {
+			return;
+		}
+
+		// Fetch the root activity that which will host the runtime.
+		ActivityProxy activityProxy = null;
 		final TiRootActivity rootActivity = TiApplication.getInstance().getRootActivity();
-		if (rootActivity == null) {
+		if (rootActivity != null) {
+			activityProxy = rootActivity.getActivityProxy();
+		}
+
+		// If runtime's lifetime is bound to the UI, then do not continue if failed to find root activity.
+		// We only allow this if "run-in-background" setting is enabled in "tiapp.xml".
+		if (KrollRuntime.isBoundToUI() && (rootActivity == null)) {
 			return;
 		}
 
 		// Fetch a path to the main script that was last loaded.
-		String appPath = rootActivity.getUrl();
+		String appPath = (rootActivity != null) ? rootActivity.getUrl() : TiRootActivity.getDefaultUrl();
 		if ((appPath == null) || appPath.isEmpty()) {
 			return;
 		}
 		appPath = "Resources/" + appPath;
 
-		final KrollRuntime runtime = KrollRuntime.getInstance();
-		final boolean hasSnapshot = runtime.evalString("global._startSnapshot") != null;
-		if (hasSnapshot) {
-
-			// Snapshot available, start snapshot.
-			runtime.doRunModule("global._startSnapshot(global)", appPath, rootActivity.getActivityProxy());
-
-		} else {
-
-			// Could not find snapshot, fallback to launch script.
-			runtime.doRunModuleBytes(KrollAssetHelper.readAssetBytes(appPath), appPath,
-									 rootActivity.getActivityProxy());
+		// Execute the main script.
+		try {
+			tiApp.isScriptRunning = true;
+			final KrollRuntime runtime = KrollRuntime.getInstance();
+			final boolean hasSnapshot = runtime.evalString("global._startSnapshot") != null;
+			if (hasSnapshot) {
+				// Snapshot available, start snapshot.
+				runtime.doRunModule("global._startSnapshot(global)", appPath, activityProxy);
+			} else {
+				// Could not find snapshot, fallback to launch script.
+				runtime.doRunModuleBytes(KrollAssetHelper.readAssetBytes(appPath), appPath, activityProxy);
+			}
+		} catch (Throwable ex) {
+			tiApp.isScriptRunning = false;
+			Log.e(TAG, "Failed to execute main Titanium script.", ex);
 		}
 	}
 
@@ -877,7 +932,7 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	{
 		// Fetch the root activity hosting the JavaScript runtime.
 		TiRootActivity rootActivity = getRootActivity();
-		if (rootActivity == null) {
+		if ((rootActivity == null) && KrollRuntime.isBoundToUI()) {
 			// Root activity not found. This can happen when:
 			// - No UI is currently displayed. (Never launched or has been fully exited.)
 			// - The UI is in the middle of exiting. (CLEAR_TOP flag usually destroys root activity first.)
@@ -913,8 +968,9 @@ public abstract class TiApplication extends Application implements KrollApplicat
 
 		// restart kroll runtime
 		KrollRuntime runtime = KrollRuntime.getInstance();
-		runtime.doDispose();
-		runtime.initRuntime();
+		if (runtime != null) {
+			runtime.reinitialize();
+		}
 
 		// manually re-launch app
 		TiApplication.launch();

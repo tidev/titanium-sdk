@@ -304,3 +304,17 @@ Object.defineProperty(EventEmitter.prototype, 'listeners', {
 	},
 	enumerable: false
 });
+
+Object.defineProperty(EventEmitter.prototype, 'listenerCount', {
+	value: function (type) {
+		return this.listeners(type).length;
+	},
+	enumerable: false
+});
+
+Object.defineProperty(EventEmitter.prototype, 'hasEventListener', {
+	value: function (type) {
+		return (this.listeners(type).length > 0);
+	},
+	enumerable: false
+});

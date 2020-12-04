@@ -551,12 +551,13 @@ Module.prototype._runScript = function (source, filename) {
 	}
 	require.main = Module.main;
 
-	// This "first time" run is really only for app.js, AFAICT, and needs
-	// an activity. If app was restarted for Service only, we don't want
-	// to go this route. So added currentActivity check. (bill)
-	if (self.id === '.' && self.context.currentActivity) {
+	// Make above require() function global, if not done already.
+	if (!global.require) {
 		global.require = require;
+	}
 
+	// If this is the first script we're running, then initialize the following.
+	if (self.id === '.') {
 		// check if we have an inspector binding...
 		const inspector = kroll.binding('inspector');
 		if (inspector) {

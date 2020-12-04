@@ -209,6 +209,11 @@
   }
 }
 
+- (BOOL)hasEventListener:(NSString *)type
+{
+  return [self _hasListeners:type];
+}
+
 - (BOOL)_hasListeners:(NSString *)type
 {
   pthread_rwlock_rdlock(&_listenerLock);
