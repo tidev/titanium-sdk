@@ -40,7 +40,7 @@ for (nextString in tiBuildVersionString.split('\\.')) {
 android {
 	compileSdkVersion 30
 	defaultConfig {
-		minSdkVersion 19
+		minSdkVersion 21
 		targetSdkVersion 30
 		versionName tiBuildVersionString
 		versionCode tiBuildVersionCode
@@ -257,9 +257,6 @@ dependencies {
 	implementation 'androidx.vectordrawable:vectordrawable-animated:1.1.0'
 	implementation 'androidx.viewpager:viewpager:1.0.0'
 	compileOnly 'androidx.annotation:annotation:1.1.0'
-
-	//TODO: Remove multidex library when our min OS version supported is Android 5.0 or higher.
-	implementation 'androidx.multidex:multidex:2.0.1'
 
 	// Google's "Material Components" themed UI library.
 	implementation "com.google.android.material:material:${project.ext.tiMaterialLibVersion}"
