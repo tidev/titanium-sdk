@@ -105,7 +105,7 @@ public class TiUIListView extends TiUIView
 				((TiUISearchView) search).setOnSearchChangeListener(listView);
 			}
 
-			final View searchView = search.getNativeView();
+			final View searchView = search.getOuterView();
 			final ViewGroup searchViewParent = (ViewGroup) searchView.getParent();
 			final ViewGroup listViewParent = (ViewGroup) listView.getParent();
 			searchView.setId(SEARCHVIEW_ID);
