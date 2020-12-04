@@ -432,20 +432,18 @@ public class TableViewHolder extends RecyclerView.ViewHolder
 	 */
 	protected Drawable generateRippleDrawable(Drawable drawable)
 	{
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-			if (!(drawable instanceof RippleDrawable)) {
-				final int[][] rippleStates = new int[][] { new int[] { android.R.attr.state_pressed } };
-				final TypedValue typedValue = new TypedValue();
-				final Activity activity = TiApplication.getAppRootOrCurrentActivity();
-				final TypedArray colorControlHighlight = activity.obtainStyledAttributes(
-					typedValue.data, new int[] { android.R.attr.colorControlHighlight });
-				final int colorControlHighlightInt = colorControlHighlight.getColor(0, 0);
-				final int[] rippleColors = new int[] { colorControlHighlightInt };
-				final ColorStateList colorStateList = new ColorStateList(rippleStates, rippleColors);
+		if (!(drawable instanceof RippleDrawable)) {
+			final int[][] rippleStates = new int[][] { new int[] { android.R.attr.state_pressed } };
+			final TypedValue typedValue = new TypedValue();
+			final Activity activity = TiApplication.getAppRootOrCurrentActivity();
+			final TypedArray colorControlHighlight = activity.obtainStyledAttributes(
+				typedValue.data, new int[] { android.R.attr.colorControlHighlight });
+			final int colorControlHighlightInt = colorControlHighlight.getColor(0, 0);
+			final int[] rippleColors = new int[] { colorControlHighlightInt };
+			final ColorStateList colorStateList = new ColorStateList(rippleStates, rippleColors);
 
-				// Create the RippleDrawable.
-				drawable = new RippleDrawable(colorStateList, drawable, null);
-			}
+			// Create the RippleDrawable.
+			drawable = new RippleDrawable(colorStateList, drawable, null);
 		}
 		return drawable;
 	}
@@ -554,11 +552,7 @@ public class TableViewHolder extends RecyclerView.ViewHolder
 		if (backgroundValue.resourceId != 0) {
 
 			// Set title background drawable.
-			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-				title.setBackground(resources.getDrawable(backgroundValue.resourceId, theme));
-			} else {
-				title.setBackground(resources.getDrawable(backgroundValue.resourceId));
-			}
+			title.setBackground(resources.getDrawable(backgroundValue.resourceId, theme));
 
 		} else if (backgroundColorValue.resourceId != 0) {
 

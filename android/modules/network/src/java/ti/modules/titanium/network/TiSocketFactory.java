@@ -33,8 +33,6 @@ public class TiSocketFactory extends SSLSocketFactory
 	private SSLContext sslContext;
 	private String tlsVersion;
 	private static final String TAG = "TiSocketFactory";
-	private static final boolean JELLYBEAN_OR_GREATER = Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN;
-	private static final boolean Q_OR_GREATER = Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q;
 	private static final String TLS_VERSION_1_3_PROTOCOL = "TLSv1.3";
 	private static final String TLS_VERSION_1_2_PROTOCOL = "TLSv1.2";
 	private static final String TLS_VERSION_1_1_PROTOCOL = "TLSv1.1";
@@ -48,9 +46,9 @@ public class TiSocketFactory extends SSLSocketFactory
 
 		// Select appropriate default based on Android version.
 		if (protocol == NetworkModule.TLS_DEFAULT) {
-			if (Q_OR_GREATER) {
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
 				protocol = NetworkModule.TLS_VERSION_1_3;
-			} else if (JELLYBEAN_OR_GREATER) {
+			} else {
 				protocol = NetworkModule.TLS_VERSION_1_2;
 			}
 		}

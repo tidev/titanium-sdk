@@ -4,13 +4,11 @@ import android.app.Activity;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.Rect;
-import android.os.Build;
 
 import androidx.appcompat.widget.Toolbar;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowInsets;
-import android.view.WindowManager;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
@@ -146,11 +144,6 @@ public class TiToolbar extends TiUIView
 	 */
 	public void setToolbarExtendBackground()
 	{
-		// This feature is only supported on Android 4.4 or higher.
-		if (Build.VERSION.SDK_INT < 19) {
-			return;
-		}
-
 		// Fetch the currently displayed activity window and its root decor view.
 		// Note: Will be null if all activities have just been destroyed.
 		Activity activity = TiApplication.getAppCurrentActivity();
@@ -183,11 +176,7 @@ public class TiToolbar extends TiUIView
 		int flags = decorView.getSystemUiVisibility();
 		flags |= View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN;
 		decorView.setSystemUiVisibility(flags);
-		if (Build.VERSION.SDK_INT >= 21) {
-			window.setStatusBarColor(Color.TRANSPARENT);
-		} else {
-			window.addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-		}
+		window.setStatusBarColor(Color.TRANSPARENT);
 
 		// Request window to re-fit its views.
 		toolbar.requestFitSystemWindows();

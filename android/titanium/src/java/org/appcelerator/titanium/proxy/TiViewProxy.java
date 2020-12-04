@@ -39,7 +39,6 @@ import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.os.Message;
 import android.view.View;
 import android.view.ViewAnimationUtils;
@@ -744,7 +743,7 @@ public abstract class TiViewProxy extends KrollProxy
 	protected void handleShow(KrollDict options)
 	{
 		if (view != null) {
-			if (Build.VERSION.SDK_INT >= 21 && TiConvert.toBoolean(options, TiC.PROPERTY_ANIMATED, false)) {
+			if (TiConvert.toBoolean(options, TiC.PROPERTY_ANIMATED, false)) {
 				View nativeView = view.getOuterView();
 				int width = nativeView.getWidth();
 				int height = nativeView.getHeight();
@@ -774,7 +773,7 @@ public abstract class TiViewProxy extends KrollProxy
 					handlePendingAnimation(false);
 				}
 			}
-			if (Build.VERSION.SDK_INT >= 21 && TiConvert.toBoolean(options, TiC.PROPERTY_ANIMATED, false)) {
+			if (TiConvert.toBoolean(options, TiC.PROPERTY_ANIMATED, false)) {
 				View nativeView = view.getOuterView();
 				int width = nativeView.getWidth();
 				int height = nativeView.getHeight();
@@ -826,14 +825,7 @@ public abstract class TiViewProxy extends KrollProxy
 	{
 		if (pendingAnimation != null && peekView() != null) {
 			if (forceQueue) {
-				if (Build.VERSION.SDK_INT < TiC.API_LEVEL_HONEYCOMB) {
-					// Even this very small delay can help eliminate the bug
-					// whereby the animated view's parent suddenly becomes
-					// transparent (pre-honeycomb). cf. TIMOB-9813.
-					getMainHandler().sendEmptyMessageDelayed(MSG_ANIMATE, 10);
-				} else {
-					getMainHandler().sendEmptyMessage(MSG_ANIMATE);
-				}
+				getMainHandler().sendEmptyMessage(MSG_ANIMATE);
 			} else {
 				handleAnimate();
 			}

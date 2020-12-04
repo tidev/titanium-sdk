@@ -561,13 +561,6 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 			}
 		}
 
-		if (modal) {
-			if (Build.VERSION.SDK_INT < TiC.API_LEVEL_ICE_CREAM_SANDWICH) {
-				// This flag is deprecated in API 14. On ICS, the background is not blurred but straight black.
-				getWindow().addFlags(WindowManager.LayoutParams.FLAG_BLUR_BEHIND);
-			}
-		}
-
 		if (hasSoftInputMode) {
 			Log.d(TAG, "windowSoftInputMode: " + softInputMode, Log.DEBUG_MODE);
 			getWindow().setSoftInputMode(softInputMode);
@@ -693,9 +686,7 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 		// we need to set window features before calling onCreate
 		this.requestWindowFeature(Window.FEATURE_PROGRESS);
 		this.requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-			this.requestWindowFeature(Window.FEATURE_ACTIVITY_TRANSITIONS);
-		}
+		this.requestWindowFeature(Window.FEATURE_ACTIVITY_TRANSITIONS);
 		super.onCreate(savedInstanceState);
 
 		// If activity is using Google's default ActionBar, then the below will return an ActionBar style handler
@@ -1649,12 +1640,6 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 	@Override
 	public void finishAfterTransition()
 	{
-		// This is only supported on Android 5.0 and above. Do a normal finish on older OS versions.
-		if (Build.VERSION.SDK_INT < 21) {
-			finish();
-			return;
-		}
-
 		// Remove this activity from the app-wide Titanium UI stack.
 		TiApplication.removeFromActivityStack(this);
 
