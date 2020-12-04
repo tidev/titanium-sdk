@@ -115,8 +115,8 @@ describe('Titanium.UI.Window', function () {
 				should(win.hidesBackButton).be.false();
 			});
 
-			it('has accessors', () => {
-				should(win).have.accessors('hidesBackButton');
+			it('has no accessors', () => {
+				should(win).not.have.accessors('hidesBackButton');
 			});
 
 			// TODO: Add snapshot test
@@ -142,8 +142,8 @@ describe('Titanium.UI.Window', function () {
 				should(win.homeIndicatorAutoHidden).be.true();
 			});
 
-			it('has accessors', () => {
-				should(win).have.accessors('homeIndicatorAutoHidden');
+			it('has no accessors', () => {
+				should(win).not.have.accessors('homeIndicatorAutoHidden');
 			});
 		});
 
@@ -168,8 +168,8 @@ describe('Titanium.UI.Window', function () {
 				should(win.largeTitleEnabled).be.false();
 			});
 
-			it('has accessors', () => {
-				should(win).have.accessors('largeTitleEnabled');
+			it('has no accessors', () => {
+				should(win).not.have.accessors('largeTitleEnabled');
 			});
 		});
 
@@ -194,8 +194,8 @@ describe('Titanium.UI.Window', function () {
 				should(win.largeTitleDisplayMode).eql(Ti.UI.iOS.LARGE_TITLE_DISPLAY_MODE_AUTOMATIC);
 			});
 
-			it('has accessors', () => {
-				should(win).have.accessors('largeTitleDisplayMode');
+			it('has no accessors', () => {
+				should(win).not.have.accessors('largeTitleDisplayMode');
 			});
 		});
 
@@ -542,8 +542,8 @@ describe('Titanium.UI.Window', function () {
 				should(win.title).eql('other text');
 			});
 
-			it('has accessors', () => {
-				should(win).have.accessors('title');
+			it('has no accessors', () => {
+				should(win).not.have.accessors('title');
 			});
 		});
 
@@ -572,8 +572,8 @@ describe('Titanium.UI.Window', function () {
 				should(win.title).eql('this is my value'); // FIXME Windows: https://jira.appcelerator.org/browse/TIMOB-23498
 			});
 
-			it('has accessors', () => {
-				should(win).have.accessors('titleid');
+			it('has no accessors', () => {
+				should(win).not.have.accessors('titleid');
 			});
 		});
 

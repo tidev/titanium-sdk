@@ -784,9 +784,9 @@ describe('Titanium.Filesystem.File', function () {
 			}).not.throw();
 		});
 
-		it('has accessors', () => {
+		it('has no accessors', () => {
 			const file = Ti.Filesystem.getFile(Ti.Filesystem.applicationDataDirectory);
-			should(file).have.accessors('remoteBackup');
+			should(file).not.have.accessors('remoteBackup');
 		});
 	});
 
