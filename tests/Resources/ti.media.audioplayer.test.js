@@ -211,8 +211,8 @@ describe('Titanium.Media.AudioPlayer', () => {
 				should(audioPlayer).have.a.property('url').which.is.a.String();
 			});
 
-			it('has accessors', () => {
-				should(audioPlayer).have.accessors('url');
+			it('does not have accessors', () => {
+				should(audioPlayer).not.have.accessors('url');
 			});
 
 			it('re-setting does not crash (TIMOB-26334)', () => {

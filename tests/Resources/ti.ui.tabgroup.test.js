@@ -151,8 +151,8 @@ describe('Titanium.UI.TabGroup', function () {
 				should(tabGroup.activeTintColor).eql('blue');
 			});
 
-			it.androidBroken('has accessors', () => { // Windows are created during open
-				should(tabGroup).have.accessors('activeTintColor');
+			it.androidBroken('has no accessors', () => { // Windows are created during open
+				should(tabGroup).not.have.accessors('activeTintColor');
 			});
 		});
 
@@ -174,8 +174,8 @@ describe('Titanium.UI.TabGroup', function () {
 				should(tabGroup.allowUserCustomization).be.false();
 			});
 
-			it('has accessors', () => {
-				should(tabGroup).have.accessors('allowUserCustomization');
+			it('has no accessors', () => {
+				should(tabGroup).not.have.accessors('allowUserCustomization');
 			});
 		});
 
@@ -200,8 +200,8 @@ describe('Titanium.UI.TabGroup', function () {
 				should(tabGroup.barColor).eql('blue');
 			});
 
-			it.androidBroken('has accessors', () => { // Windows are created during open
-				should(tabGroup).have.accessors('barColor');
+			it.androidBroken('has no accessors', () => { // Windows are created during open
+				should(tabGroup).not.have.accessors('barColor');
 			});
 		});
 
@@ -230,8 +230,8 @@ describe('Titanium.UI.TabGroup', function () {
 				should(tabGroup.tabs).eql([ tabA, tabB ]);
 			});
 
-			it.androidBroken('has accessors', () => { // Windows are created during open
-				should(tabGroup).have.accessors('barColor');
+			it.androidBroken('has no accessors', () => { // Windows are created during open
+				should(tabGroup).not.have.accessors('barColor');
 			});
 
 			it('#addTab() and #removeTab() affect value', () => {
@@ -266,8 +266,8 @@ describe('Titanium.UI.TabGroup', function () {
 				should(tabGroup.tabsTranslucent).be.false();
 			});
 
-			it('has accessors', () => {
-				should(tabGroup).have.accessors('tabsTranslucent');
+			it('has no accessors', () => {
+				should(tabGroup).not.have.accessors('tabsTranslucent');
 			});
 		});
 
@@ -292,8 +292,8 @@ describe('Titanium.UI.TabGroup', function () {
 				should(tabGroup.tintColor).eql('blue');
 			});
 
-			it.androidBroken('has accessors', () => { // Windows are created during open
-				should(tabGroup).have.accessors('tintColor');
+			it.androidBroken('has no accessors', () => { // Windows are created during open
+				should(tabGroup).not.have.accessors('tintColor');
 			});
 		});
 
@@ -312,9 +312,9 @@ describe('Titanium.UI.TabGroup', function () {
 				should(tabGroup.title).eql('My title'); // null on Android!
 			});
 
-			it('has accessors', () => {
+			it('has no accessors', () => {
 				tabGroup = Ti.UI.createTabGroup();
-				should(tabGroup).have.accessors('title');
+				should(tabGroup).not.have.accessors('title');
 			});
 
 			it('assign after drawing the TabGroup', () => {

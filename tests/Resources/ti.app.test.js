@@ -32,8 +32,8 @@ describe('Titanium.App', () => {
 				should(Ti.App.apiName).be.eql('Ti.App');
 			});
 
-			it('has a getter', () => {
-				should(Ti.App).have.a.getter('apiName');
+			it('has no getter', () => {
+				should(Ti.App).not.have.a.getter('apiName');
 			});
 		});
 
@@ -42,8 +42,8 @@ describe('Titanium.App', () => {
 				should(Ti.App).have.a.readOnlyProperty('accessibilityEnabled').which.is.a.Boolean();
 			});
 
-			it('has a getter', () => {
-				should(Ti.App).have.a.getter('accessibilityEnabled');
+			it('has no getter', () => {
+				should(Ti.App).not.have.a.getter('accessibilityEnabled');
 			});
 		});
 
@@ -52,8 +52,8 @@ describe('Titanium.App', () => {
 				should(Ti.App).have.a.readOnlyProperty('analytics').which.is.a.Boolean();
 			});
 
-			it('has a getter', () => {
-				should(Ti.App).have.a.getter('analytics');
+			it('has no getter', () => {
+				should(Ti.App).not.have.a.getter('analytics');
 			});
 		});
 
@@ -62,8 +62,8 @@ describe('Titanium.App', () => {
 				should(Ti.App).have.a.readOnlyProperty('copyright').which.is.a.String();
 			});
 
-			it('has a getter', () => {
-				should(Ti.App).have.a.getter('copyright');
+			it('has no getter', () => {
+				should(Ti.App).not.have.a.getter('copyright');
 			});
 		});
 
@@ -72,8 +72,8 @@ describe('Titanium.App', () => {
 				should(Ti.App).have.a.readOnlyProperty('deployType').which.is.a.String();
 			});
 
-			it('has a getter', () => {
-				should(Ti.App).have.a.getter('deployType');
+			it('has no getter', () => {
+				should(Ti.App).not.have.a.getter('deployType');
 			});
 		});
 
@@ -82,8 +82,8 @@ describe('Titanium.App', () => {
 				should(Ti.App).have.a.readOnlyProperty('description').which.is.a.String();
 			});
 
-			it('has a getter', () => {
-				should(Ti.App).have.a.getter('description');
+			it('has no getter', () => {
+				should(Ti.App).not.have.a.getter('description');
 			});
 		});
 
@@ -101,8 +101,8 @@ describe('Titanium.App', () => {
 				should(Ti.App.disableNetworkActivityIndicator).be.true();
 			});
 
-			it('has accessors', () => {
-				should(Ti.App).have.accessors('disableNetworkActivityIndicator');
+			it('has no accessors', () => {
+				should(Ti.App).not.have.accessors('disableNetworkActivityIndicator');
 			});
 		});
 
@@ -116,8 +116,8 @@ describe('Titanium.App', () => {
 				should(Ti.App.forceSplashAsSnapshot).be.true();
 			});
 
-			it('has accessors', () => {
-				should(Ti.App).have.accessors('forceSplashAsSnapshot');
+			it('has no accessors', () => {
+				should(Ti.App).not.have.accessors('forceSplashAsSnapshot');
 			});
 		});
 
@@ -126,8 +126,8 @@ describe('Titanium.App', () => {
 				should(Ti.App).have.a.readOnlyProperty('guid').which.is.a.String();
 			});
 
-			it('has a getter', () => {
-				should(Ti.App).have.a.getter('guid');
+			it('has no getter', () => {
+				should(Ti.App).not.have.a.getter('guid');
 			});
 		});
 
@@ -136,8 +136,8 @@ describe('Titanium.App', () => {
 				should(Ti.App).have.a.readOnlyProperty('id').which.is.a.String();
 			});
 
-			it('has a getter', () => {
-				should(Ti.App).have.a.getter('id');
+			it('has no getter', () => {
+				should(Ti.App).not.have.a.getter('id');
 			});
 		});
 
@@ -151,8 +151,8 @@ describe('Titanium.App', () => {
 				should(Ti.App.idleTimerDisabled).be.true();
 			});
 
-			it('has accessors', () => {
-				should(Ti.App).have.accessors('idleTimerDisabled');
+			it('has no accessors', () => {
+				should(Ti.App).not.have.accessors('idleTimerDisabled');
 			});
 		});
 
@@ -161,8 +161,8 @@ describe('Titanium.App', () => {
 				should(Ti.App).have.a.readOnlyProperty('installId').which.is.a.String();
 			});
 
-			it('has a getter', () => {
-				should(Ti.App).have.a.getter('installId');
+			it('has no getter', () => {
+				should(Ti.App).not.have.a.getter('installId');
 			});
 		});
 
@@ -171,8 +171,8 @@ describe('Titanium.App', () => {
 				should(Ti.App).have.a.readOnlyProperty('keyboardVisible').which.is.a.Boolean();
 			});
 
-			it('has a getter', () => {
-				should(Ti.App).have.a.getter('keyboardVisible');
+			it('has no getter', () => {
+				should(Ti.App).not.have.a.getter('keyboardVisible');
 			});
 		});
 
@@ -181,8 +181,8 @@ describe('Titanium.App', () => {
 				should(Ti.App).have.a.readOnlyProperty('name').which.is.a.String();
 			});
 
-			it('has a getter', () => {
-				should(Ti.App).have.a.getter('name');
+			it('has no getter', () => {
+				should(Ti.App).not.have.a.getter('name');
 			});
 		});
 
@@ -200,8 +200,8 @@ describe('Titanium.App', () => {
 				should(Ti.App.proximityDetection).be.true();
 			});
 
-			it('has accessors', () => {
-				should(Ti.App).have.accessors('proximityDetection');
+			it('has no accessors', () => {
+				should(Ti.App).not.have.accessors('proximityDetection');
 			});
 		});
 
@@ -210,8 +210,8 @@ describe('Titanium.App', () => {
 				should(Ti.App).have.a.readOnlyProperty('proximityState').which.is.a.Boolean();
 			});
 
-			it('has a getter', () => {
-				should(Ti.App).have.a.getter('proximityState');
+			it('has no getter', () => {
+				should(Ti.App).not.have.a.getter('proximityState');
 			});
 		});
 
@@ -220,8 +220,8 @@ describe('Titanium.App', () => {
 				should(Ti.App).have.a.readOnlyProperty('publisher').which.is.a.String();
 			});
 
-			it('has a getter', () => {
-				should(Ti.App).have.a.getter('publisher');
+			it('has no getter', () => {
+				should(Ti.App).not.have.a.getter('publisher');
 			});
 		});
 
@@ -230,8 +230,8 @@ describe('Titanium.App', () => {
 				should(Ti.App).have.a.readOnlyProperty('sessionId').which.is.a.String();
 			});
 
-			it('has a getter', () => {
-				should(Ti.App).have.a.getter('sessionId');
+			it('has no getter', () => {
+				should(Ti.App).not.have.a.getter('sessionId');
 			});
 		});
 
@@ -240,8 +240,8 @@ describe('Titanium.App', () => {
 				should(Ti.App).have.a.readOnlyProperty('url').which.is.a.String();
 			});
 
-			it('has a getter', () => {
-				should(Ti.App).have.a.getter('url');
+			it('has no getter', () => {
+				should(Ti.App).not.have.a.getter('url');
 			});
 		});
 
@@ -250,8 +250,8 @@ describe('Titanium.App', () => {
 				should(Ti.App).have.a.readOnlyProperty('version').which.is.a.String();
 			});
 
-			it('has a getter', () => {
-				should(Ti.App).have.a.getter('version');
+			it('has no getter', () => {
+				should(Ti.App).not.have.a.getter('version');
 			});
 		});
 	});
