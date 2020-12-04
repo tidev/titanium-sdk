@@ -76,7 +76,6 @@ import android.widget.AdapterView;
 @SuppressWarnings("deprecation")
 public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListener
 {
-	private static final boolean LOLLIPOP_OR_GREATER = (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP);
 	private static final boolean LOWER_THAN_MARSHMALLOW = (Build.VERSION.SDK_INT < Build.VERSION_CODES.M);
 
 	private static final String TAG = "TiUIView";
@@ -915,7 +914,7 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 				ViewCompat.setTranslationZ(getOuterView(), TiConvert.toFloat(newValue));
 			}
 		} else if (key.equals(TiC.PROPERTY_TRANSITION_NAME)) {
-			if (LOLLIPOP_OR_GREATER && (nativeView != null)) {
+			if (nativeView != null) {
 				ViewCompat.setTransitionName(nativeView, TiConvert.toString(newValue));
 			}
 		} else if (key.equals(TiC.PROPERTY_SCALE_X)) {
@@ -1090,7 +1089,7 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 			ViewCompat.setTranslationZ(nativeView, TiConvert.toFloat(d, TiC.PROPERTY_TRANSLATION_Z));
 		}
 
-		if (LOLLIPOP_OR_GREATER && !nativeViewNull && d.containsKeyAndNotNull(TiC.PROPERTY_TRANSITION_NAME)) {
+		if (!nativeViewNull && d.containsKeyAndNotNull(TiC.PROPERTY_TRANSITION_NAME)) {
 			ViewCompat.setTransitionName(nativeView, d.getString(TiC.PROPERTY_TRANSITION_NAME));
 		}
 	}
@@ -1152,8 +1151,7 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 	 */
 	protected boolean canApplyTouchFeedback(@NonNull KrollDict props)
 	{
-		return ((Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
-				&& props.optBoolean(TiC.PROPERTY_TOUCH_FEEDBACK, false));
+		return props.optBoolean(TiC.PROPERTY_TOUCH_FEEDBACK, false);
 	}
 
 	/**
@@ -1529,18 +1527,8 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 
 	private void setFilterTouchesWhenObscured(boolean isEnabled)
 	{
-		// Validate.
-		if (this.nativeView == null) {
-			return;
-		}
-
-		// Enable/disable tapjacking filter.
-		this.nativeView.setFilterTouchesWhenObscured(isEnabled);
-
-		// Android 4.4.2 and older has a bug where the above method sets it to the opposite.
-		// Google fixed it in Android 4.4.3, but we can't detect that patch version via API Level.
-		if ((Build.VERSION.SDK_INT < 21) && (isEnabled != this.nativeView.getFilterTouchesWhenObscured())) {
-			this.nativeView.setFilterTouchesWhenObscured(!isEnabled);
+		if (this.nativeView != null) {
+			this.nativeView.setFilterTouchesWhenObscured(isEnabled);
 		}
 	}
 

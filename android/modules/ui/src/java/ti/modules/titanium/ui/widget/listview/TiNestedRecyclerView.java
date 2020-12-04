@@ -8,7 +8,6 @@
 package ti.modules.titanium.ui.widget.listview;
 
 import android.content.Context;
-import android.os.Build;
 import android.util.AttributeSet;
 import android.view.ContextThemeWrapper;
 import android.view.MotionEvent;
@@ -107,9 +106,7 @@ public class TiNestedRecyclerView extends RecyclerView implements NestedScrollin
 	@Override
 	public void onNestedScroll(View target, int dxConsumed, int dyConsumed, int dxUnconsumed, int dyUnconsumed)
 	{
-		if (Build.VERSION.SDK_INT > Build.VERSION_CODES.KITKAT) {
-			super.onNestedScroll(target, dxConsumed, dyConsumed, dxUnconsumed, dyUnconsumed);
-		}
+		super.onNestedScroll(target, dxConsumed, dyConsumed, dxUnconsumed, dyUnconsumed);
 
 		if (target == nestedScrollTarget && !nestedScrollTargetIsBeingDragged) {
 			if (dyConsumed != 0) {
@@ -138,22 +135,18 @@ public class TiNestedRecyclerView extends RecyclerView implements NestedScrollin
 			nestedScrollTargetWasUnableToScroll = false;
 		}
 
-		if (Build.VERSION.SDK_INT > Build.VERSION_CODES.KITKAT) {
-			super.onNestedScrollAccepted(child, target, axes);
-		}
+		super.onNestedScrollAccepted(child, target, axes);
 	}
 
 	@Override
 	public void onNestedPreScroll(View target, int dx, int dy, int[] consumed)
 	{
-		// Implement abstract method for compatibility with Android 4.4.
 	}
 
 	@Override
 	public boolean onStartNestedScroll(View child, View target, int nestedScrollAxes)
 	{
-		return nestedScrollAxes != 0
-			&& (Build.VERSION.SDK_INT < 21 || View.SCROLL_AXIS_VERTICAL != 0);
+		return (nestedScrollAxes != 0) && (View.SCROLL_AXIS_VERTICAL != 0);
 	}
 
 	@Override
