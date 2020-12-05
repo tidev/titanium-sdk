@@ -1256,8 +1256,8 @@ public abstract class TiViewProxy extends KrollProxy
 
 		// The spec says to throw an exception if x or y cannot be converted to numbers.
 		// TiConvert does that automatically for us.
-		int x = TiConvert.toInt(point, TiC.PROPERTY_X);
-		int y = TiConvert.toInt(point, TiC.PROPERTY_Y);
+		double xValue = TiConvert.toDouble(point, TiC.PROPERTY_X);
+		double yValue = TiConvert.toDouble(point, TiC.PROPERTY_Y);
 
 		TiUIView view = peekView();
 		TiUIView destView = dest.peekView();
@@ -1295,16 +1295,15 @@ public abstract class TiViewProxy extends KrollProxy
 				  Log.DEBUG_MODE);
 		}
 
-		int pointWindowX = viewLocation[0] + x;
-		int pointWindowY = viewLocation[1] + y;
-
 		// Apply reverse transformation to get the original location
-		float[] points = new float[] { pointWindowX - destLocation[0], pointWindowY - destLocation[1] };
+		float[] points = new float[] { viewLocation[0] - destLocation[0], viewLocation[1] - destLocation[1] };
 		points = destView.getPreTranslationValue(points);
+		TiDimension dimensionX = new TiDimension((double) points[0], TiDimension.TYPE_LEFT);
+		TiDimension dimensionY = new TiDimension((double) points[1], TiDimension.TYPE_TOP);
 
 		KrollDict destPoint = new KrollDict();
-		destPoint.put(TiC.PROPERTY_X, (int) points[0]);
-		destPoint.put(TiC.PROPERTY_Y, (int) points[1]);
+		destPoint.put(TiC.PROPERTY_X, dimensionX.getAsDefault(destNativeView) + xValue);
+		destPoint.put(TiC.PROPERTY_Y, dimensionY.getAsDefault(destNativeView) + yValue);
 		return destPoint;
 	}
 

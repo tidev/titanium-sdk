@@ -705,12 +705,7 @@ describe('Titanium.UI.View', function () {
 		win.open();
 	});
 
-	// FIXME: I think there's a parity issue here!
-	// Android returns x/y values as pixels *always*. while the input '100' uses the default unit (dip)
-	// which may vary based on screen density (Ti.Platform.DisplayCaps.ydpi) - so may be 100 or 200 pixels!
-	// But iOS *always* returns 123 for our value, so it must report the convertPointToView results in the default units too!
-	// So I think iOS always reports back dip values here and Android always reports back pixels
-	it.androidAndWindowsBroken('convertPointToView', function (finish) {
+	it.windowsBroken('convertPointToView', function (finish) {
 		win = Ti.UI.createWindow();
 		const a = Ti.UI.createView({ backgroundColor: 'red' });
 		const b = Ti.UI.createView({ top: '100', backgroundColor: 'blue' });
@@ -728,7 +723,7 @@ describe('Titanium.UI.View', function () {
 				should(result.x).be.a.Number(); // Windows: expected '123.000000' to be a number
 				should(result.y).be.a.Number();
 				should(result.x).eql(123);
-				should(result.y).eql(123); // Android sometimes gives 223? I assume this is a screen density thing?
+				should(result.y).eql(123);
 			} catch (err) {
 				return finish(err);
 			}
