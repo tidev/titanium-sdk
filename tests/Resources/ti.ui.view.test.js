@@ -21,13 +21,13 @@ describe('Titanium.UI.View', function () {
 	this.slow(2000);
 	this.timeout(10000);
 
-	before(function (finish) {
+	before(finish => {
 		rootWindow = Ti.UI.createWindow();
 		rootWindow.addEventListener('open', () => finish());
 		rootWindow.open();
 	});
 
-	after(function (finish) {
+	after(finish => {
 		rootWindow.addEventListener('close', () => finish());
 		rootWindow.close();
 	});
@@ -747,12 +747,9 @@ describe('Titanium.UI.View', function () {
 			try {
 				should(view.parent).be.an.Object();
 				should(view.parent).eql(win);
-				should(view.getParent).be.a.Function();
-				should(view.setParent).be.a.Function();
-				should(view.getParent()).eql(win);
 
 				// parent is not read-only
-				view.setParent(null);
+				view.parent = null;
 				should.not.exist(view.parent);
 			} catch (err) {
 				return finish(err);
@@ -988,7 +985,7 @@ describe('Titanium.UI.View', function () {
 				should(label.accessibilityHint).eql('Hint');
 				should(label.accessibilityHidden).be.true();
 
-				label.setAccessibilityLabel('New Text');
+				label.accessibilityLabel = 'New Text';
 				label.accessibilityValue = 'New Value';
 				label.accessibilityHint = 'New Hint';
 				label.accessibilityHidden = false;
