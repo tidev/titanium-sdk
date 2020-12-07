@@ -301,7 +301,7 @@ GETTER_IMPL(bool, allowCreation, AllowCreation);
 - (void)setItems:(NSDictionary<NSString *, id> *)args
 {
   NSArray<NSDictionary<NSString *, id> *> *items = args[@"items"];
-  __block NSMutableArray<NSDictionary<NSString *, id> *> *result = [[[NSMutableArray alloc] init] retain];
+  __block NSMutableArray<NSDictionary<NSString *, id> *> *result = [[NSMutableArray alloc] init];
   // The key of the items must be a string (mime-type)
   for (NSDictionary<NSString *, id> *item in items) {
     NSMutableDictionary<NSString *, id> *newDict = [[NSMutableDictionary alloc] init];
@@ -348,9 +348,12 @@ GETTER_IMPL(bool, allowCreation, AllowCreation);
             } else if (UTTypeConformsTo((CFStringRef)key, kUTTypeImage)) {
               // Convert UIImage to TiBlob!
               newItem[key] = [[[TiBlob alloc] initWithImage:(UIImage *)item[key]] autorelease];
+            } else if ([key hasPrefix:@"dyn."]) {
+              [newItem removeObjectForKey:key];
             }
           }
           [result addObject:newItem];
+          [newItem release];
         }
       },
       YES);

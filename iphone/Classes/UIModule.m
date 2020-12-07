@@ -494,7 +494,7 @@ MAKE_SYSTEM_PROP(EXTEND_EDGE_ALL, 15); //UIEdgeRectAll
 - (id)Clipboard
 {
   if (clipboard == nil) {
-    clipboard = [[[TiUIClipboardProxy alloc] _initWithPageContext:[self executionContext]] retain];
+    clipboard = [[TiUIClipboardProxy alloc] _initWithPageContext:[self executionContext]];
   }
   return clipboard;
 }
