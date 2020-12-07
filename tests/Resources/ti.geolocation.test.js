@@ -195,6 +195,12 @@ describe.windowsBroken('Titanium.Geolocation', () => {
 			});
 		});
 
+		it.ios('.locationAccuracyAuthorization', () => {
+			if (OS_VERSION_MAJOR >= 14) {
+				should(Ti.Geolocation).have.a.property('locationAccuracyAuthorization').which.is.a.Number();
+			}
+		});
+
 		describe.androidMissing('.locationServicesAuthorization', () => {
 			it('is a Number', () => {
 				should(Ti.Geolocation).have.a.property('locationServicesAuthorization').which.is.a.Number();
@@ -294,24 +300,56 @@ describe.windowsBroken('Titanium.Geolocation', () => {
 				should(Ti.Geolocation).have.accessors('trackSignificantLocationChange');
 			});
 		});
-
-		it.ios('.locationAccuracyAuthorization', () => {
-			if (OS_VERSION_MAJOR >= 14) {
-				should(Ti.Geolocation).have.a.property('locationAccuracyAuthorization').which.is.a.Number();
-			}
-		});
 	});
 
 	describe('methods', () => {
-		it('#getCurrentHeading()', () => {
+		describe('#getCurrentHeading()', () => {
 			it('is a Function', () => {
 				should(Ti.Geolocation).have.a.property('getCurrentHeading').which.is.a.Function();
 			});
 		});
 
-		it('#getCurrentPosition()', () => {
+		describe('#getCurrentPosition()', () => {
 			it('is a Function', () => {
 				should(Ti.Geolocation).have.a.property('getCurrentPosition').which.is.a.Function();
+			});
+		});
+
+		describe('#forwardGeocoder()', () => {
+			it('is a Function', () => should(Ti.Geolocation.forwardGeocoder).be.a.Function());
+
+			it('works via callback argument', function (finish) {
+				this.timeout(6e4); // 60 sec
+
+				Ti.Geolocation.forwardGeocoder('440 N Bernardo Ave, Mountain View', function (data) {
+					try {
+						should(data).have.property('success').which.is.a.Boolean();
+						should(data.success).be.be.true();
+						should(data).have.property('code').which.is.a.Number();
+						should(data.code).be.eql(0);
+						should(data.latitude).be.approximately(37.387, 0.005); // iOS: 37.38605, Windows: 37.3883645, Android: 37.3910366
+						should(data.longitude).be.approximately(-122.065, 0.02); // Windows: -122.0512682, iOS: -122.08385, Android: -122.0472468
+					} catch (err) {
+						return finish(err);
+					}
+					finish();
+				});
+			});
+
+			it.android('works via Promise return value', function (finish) {
+				this.timeout(6e4); // 60 sec
+
+				const result = Ti.Geolocation.forwardGeocoder('440 N Bernardo Ave, Mountain View');
+				result.should.be.a.Promise();
+				result.then(data => {
+					should(data).have.property('success').which.is.a.Boolean();
+					should(data.success).be.eql(true);
+					should(data).have.property('code').which.is.a.Number();
+					should(data.code).be.eql(0);
+					should(data.latitude).be.approximately(37.387, 0.005); // iOS: 37.38605, Windows: 37.3883645, Android: 37.3910366
+					should(data.longitude).be.approximately(-122.065, 0.02); // Windows: -122.0512682, iOS: -122.08385, Android: -122.
+					return finish();
+				}).catch(e => finish(e));
 			});
 		});
 
@@ -337,33 +375,44 @@ describe.windowsBroken('Titanium.Geolocation', () => {
 			});
 		});
 
-		it('#forwardGeocoder()', function (finish) {
-			this.timeout(6e4); // 60 sec
+		// FIXME The address object is different from platform to platform! https://jira.appcelerator.org/browse/TIMOB-23496
+		describe('#reverseGeocoder()', () => {
+			it('is a Function', () => should(Ti.Geolocation.reverseGeocoder).be.a.Function());
 
-			should(Ti.Geolocation.forwardGeocoder).be.a.Function();
-			Ti.Geolocation.forwardGeocoder('440 N Bernardo Ave, Mountain View', function (data) {
-				try {
-					should(data).have.property('success').which.is.a.Boolean();
-					should(data.success).be.true();
-					should(data).have.property('code').which.is.a.Number();
-					should(data.code).be.eql(0);
-					should(data.latitude).be.approximately(37.387, 0.005); // iOS: 37.38605, Windows: 37.3883645, Android: 37.3910366
-					should(data.longitude).be.approximately(-122.065, 0.02); // Windows: -122.0512682, iOS: -122.08385, Android: -122.0472468
+			it('works via function callback', function (finish) {
+				this.timeout(6e4); // 60 sec
+
+				Ti.Geolocation.reverseGeocoder(37.3883645, -122.0512682, function (data) {
+					try {
+						should(data).have.property('success').which.is.a.Boolean();
+						should(data.success).be.be.true();
+						should(data).have.property('code').which.is.a.Number();
+						should(data.code).be.eql(0);
+						// FIXME error property is missing altogether on success for iOS...
+						// should(data).have.property('error'); // undefined on success, holds error message as String otherwise.
+						should(data).have.property('places').which.is.an.Array();
+
+						should(data.places[0].postalCode).be.eql('94043');
+						should(data.places[0]).have.property('latitude').which.is.a.Number();
+						should(data.places[0]).have.property('longitude').which.is.a.Number();
+						should(data.places[0].country).be.oneOf('USA', 'United States of America');
+						should(data.places[0].state).be.eql('California');
+						should(data.places[0].countryCode).be.eql('US');
+						should(data.places[0]).have.property('city').which.is.a.String();
+						should(data.places[0]).have.property('address').which.is.a.String();
+					} catch (err) {
+						return finish(err);
+					}
 					finish();
-				} catch (err) {
-					finish(err);
-				}
+				});
 			});
-		});
 
-		it('#reverseGeocoder()', function (finish) {
-			this.timeout(6e4); // 60 sec
-
-			should(Ti.Geolocation.reverseGeocoder).be.a.Function();
-			Ti.Geolocation.reverseGeocoder(37.3883645, -122.0512682, function (data) {
-				try {
+			it.android('works via Promise return value', function (finish) {
+				const result = Ti.Geolocation.reverseGeocoder(37.3883645, -122.0512682);
+				result.should.be.a.Promise();
+				result.then(data => {
 					should(data).have.property('success').which.is.a.Boolean();
-					should(data.success).be.true();
+					should(data.success).be.eql(true);
 					should(data).have.property('code').which.is.a.Number();
 					should(data.code).be.eql(0);
 					// FIXME error property is missing altogether on success for iOS...
@@ -378,11 +427,8 @@ describe.windowsBroken('Titanium.Geolocation', () => {
 					should(data.places[0].countryCode).be.eql('US');
 					should(data.places[0]).have.property('city').which.is.a.String();
 					should(data.places[0]).have.property('address').which.is.a.String();
-
-					finish();
-				} catch (err) {
-					finish(err);
-				}
+					return finish();
+				}).catch(e => finish(e));
 			});
 		});
 	});
