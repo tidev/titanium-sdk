@@ -453,7 +453,7 @@ methods:
         type: String
       - name: param
         summary: A parameter to be passed to the system event.
-        type: Object
+        type: String
         optional: true
 
   - name: getArguments

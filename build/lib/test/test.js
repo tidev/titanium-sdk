@@ -24,7 +24,8 @@ const DEVELOPER_NAME = 'QE Department (C64864TF2L)';
 const PROVISIONING_PROFILE_UUID = '4a3fc2c3-4647-4472-90e5-15cba3a576df';
 // app id used
 const APP_ID = 'com.appcelerator.testApp.testing';
-const PROJECT_DIR = path.join(ROOT_DIR, 'tmp', PROJECT_NAME);
+const TMP_DIR = path.join(ROOT_DIR, 'tmp');
+const PROJECT_DIR = path.join(TMP_DIR, PROJECT_NAME);
 const REPORT_DIR = ROOT_DIR; // Write junit xml files to root of repo
 const JUNIT_TEMPLATE = path.join(__dirname, 'junit.xml.ejs');
 
@@ -481,13 +482,13 @@ class DeviceTestDetails {
 
 		// check for generated images
 		if (token.includes(GENERATED_IMAGE_PREFIX)) {
-			this.snapshotPromises.push(this.grabGeneratedImage(token));
+			this.snapshotPromises.push(this.grabGeneratedImage(token).catch(e => console.error(e.message)));
 			return false;
 		}
 
 		// check for mismatched images
 		if (token.includes(DIFF_IMAGE_PREFIX)) {
-			this.snapshotPromises.push(this.handleMismatchedImage(token));
+			this.snapshotPromises.push(this.handleMismatchedImage(token).catch(e => console.error(e.message)));
 			return false;
 		}
 
@@ -578,27 +579,37 @@ class DeviceTestDetails {
 		const trimmed = token.slice(imageIndex + DIFF_IMAGE_PREFIX.length).trim();
 		const details = JSON.parse(trimmed);
 
-		const expected = path.join(this.snapshotDir, details.platform, details.relativePath);
-		const diffDir = path.join(this.snapshotDir, '..', 'diffs', details.platform, details.relativePath.slice(0, -4)); // drop '.png'
+		const suffixEx = /(_expected|_diff)\.png/g;
+		const baseImagePath = details.path.replace(suffixEx, '');
+		const baseImageRelativePath = details.relativePath.replace(suffixEx, '');
+		const diffDir = path.join(this.snapshotDir, '..', 'diffs', details.platform);
+
+		const actualOutputPath = path.join(diffDir, `${baseImageRelativePath}.png`);
+		const expectedOutputPath = path.join(diffDir, `${baseImageRelativePath}_expected.png`);
+		const diffOutputPath = path.join(diffDir, `${baseImageRelativePath}_diff.png`);
+
 		await fs.ensureDir(diffDir);
+
+		// Grab actual output image.
+		await this.grabAppImage(details.platform, `${baseImagePath}.png`, actualOutputPath);
+
+		// Grab expected output image.
 		if (!details.blob) {
-			await fs.copy(expected, path.join(diffDir, 'expected.png'));
+			// We're comparing against a snapshot in the suite, copy the original file from the suite over
+			await fs.copy(path.join(PROJECT_DIR, 'Resources', details.platform, `${baseImageRelativePath}.png`), expectedOutputPath);
 		} else {
-			// With ti.blob direct comparisons we have no input image on-disk already
-			const expected = path.join(diffDir, 'expected.png');
-			const expectedPath = `${details.path.slice(0, -4)}/expected.png`; // drop .png, place unde folder named via basenam eof image, save as 'expected.png'
-			await this.grabAppImage(details.platform, expectedPath, expected);
+			// ti.blob generates expected output image for comparison.
+			await this.grabAppImage(details.platform, `${baseImagePath}_expected.png`, expectedOutputPath);
 		}
 
-		const actual = path.join(diffDir, 'actual.png');
-		await this.grabAppImage(details.platform, details.path, actual);
+		// Attempt to grab diff image.
 		try {
-			const diff = path.join(diffDir, 'diff.png');
-			await this.grabAppImage(details.platform, details.path.slice(0, -4) + '_diff.png', diff);
+			await this.grabAppImage(details.platform, `${baseImagePath}_diff.png`, diffOutputPath);
 		} catch (err) {
-			// ignore, diff image may not exist
+			// Ignore, diff image may not exist.
 		}
-		return actual;
+
+		return actualOutputPath;
 	}
 
 	/**
@@ -666,9 +677,21 @@ class DeviceTestDetails {
 			return dest;
 		}
 		// Can't grab images from iOS device
-		// FIXME: We could always transfer bytes somehow! client/server socket?
 		if (this.target === 'device') {
-			throw new Error(`Cannot grab generated image ${filepath} from a device. Please run locally on a simulator and add the image to the suite.`);
+			// Need to strip the filepath to start with /Documents (basically need an absolute path that actually is relative to app folder)
+			// i.e. filepath is: /var/mobile/Containers/Data/Application/1B331056-14FC-4948-B3D1-EFD376A894B1/Documents/snapshots/tableViewRowScaling_percent_540x960.png
+			// strip to /Documents/snapshots/tableViewRowScaling_percent_540x960.png
+			const index = filepath.indexOf('/Documents');
+			filepath = filepath.slice(index);
+			// copy to ../../../tmp, results in ../../../tmp/Documents/snapshots/tableViewRowScaling_percent_540x960.png
+			await exec(`ios-deploy --download=${filepath} --bundle_id ${APP_ID} --to ${TMP_DIR}`);
+			// copy ../../../tmp/Documents/snapshots/tableViewRowScaling_percent_540x960.png to dest
+			const actualDest = path.join(TMP_DIR, filepath);
+			await fs.copyFile(actualDest, dest);
+			// delete ../../../tmp/Documents/snapshots/tableViewRowScaling_percent_540x960.png?
+			// No need to wait for it to happen
+			fs.unlink(actualDest);
+			return dest;
 		}
 		// iOS sim: copy the expected image to destination
 		await fs.copy(filepath, dest);

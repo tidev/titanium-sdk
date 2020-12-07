@@ -126,7 +126,10 @@ public class KrollDict extends HashMap<String, Object>
 		boolean result = defaultValue;
 
 		if (containsKey(key)) {
-			result = getBoolean(key);
+			try {
+				result = getBoolean(key);
+			} catch (Exception e) {
+			}
 		}
 		return result;
 	}
@@ -136,12 +139,16 @@ public class KrollDict extends HashMap<String, Object>
 		return TiConvert.toString(get(key));
 	}
 
-	public String optString(String key, String defalt)
+	public String optString(String key, String defaultString)
 	{
+		String result = defaultString;
 		if (containsKey(key)) {
-			return getString(key);
+			try {
+				result = getString(key);
+			} catch (Exception e) {
+			}
 		}
-		return defalt;
+		return result;
 	}
 
 	public Integer getInt(String key)
@@ -154,7 +161,10 @@ public class KrollDict extends HashMap<String, Object>
 		Integer result = defaultValue;
 
 		if (containsKey(key)) {
-			result = getInt(key);
+			try {
+				result = getInt(key);
+			} catch (Exception e) {
+			}
 		}
 		return result;
 	}

@@ -289,7 +289,8 @@ properties:
         For rows that have `hasDetail` set to false, the `detail` flag is always `false`.
     type: Boolean
     default: false
-    platforms: [iphone,ipad, macos]
+    platforms: [iphone,ipad, android, macos]
+    since: {android: "9.3.0"}
 
   - name: header
     summary: The header title of the row.

@@ -110,6 +110,7 @@ public class KrollJSONGenerator extends AbstractProcessor
 	protected String jarJsonPackageName;
 	protected String jarJsonFileName;
 	protected String jsonFilePath;
+	protected boolean isTitaniumSdk = true;
 	protected boolean initialized = false;
 	private boolean hasPropertiesChanged = true;
 
@@ -189,6 +190,7 @@ public class KrollJSONGenerator extends AbstractProcessor
 		if ((stringValue != null) && !stringValue.isEmpty()) {
 			this.jsonFilePath = stringValue;
 		}
+		isTitaniumSdk = (processingEnv.getOptions().get(OPTION_TI_BINDINGS_JSON_FILE_PATH_NAME) == null);
 
 		// If we're set up to generate a JSON file within a JAR,
 		// then attempt to read our previously generated JSON file if it exists.
@@ -327,6 +329,7 @@ public class KrollJSONGenerator extends AbstractProcessor
 						proxyProperties.put("superProxyClassName", superTypeName);
 					}
 
+					proxyProperties.put("isTitaniumSdk", isTitaniumSdk);
 					proxyProperties.put("isModule", isModule);
 					proxyProperties.put("packageName", packageName);
 					proxyProperties.put("proxyClassName", proxyClassName);

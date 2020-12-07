@@ -3476,10 +3476,11 @@ AndroidBuilder.prototype.fetchNeededManifestSettings = function fetchNeededManif
 
 	// Define Android <uses-permission/> names needed by our core Titanium APIs.
 	const calendarPermissions = [ 'android.permission.READ_CALENDAR', 'android.permission.WRITE_CALENDAR' ];
-	const cameraPermissions = [ 'android.permission.CAMERA' ];
+	const cameraPermissions = [ 'android.permission.CAMERA', 'android.permission.WRITE_EXTERNAL_STORAGE' ];
 	const contactsPermissions = [ 'android.permission.READ_CONTACTS', 'android.permission.WRITE_CONTACTS' ];
 	const contactsReadPermissions = [ 'android.permission.READ_CONTACTS' ];
 	const geoPermissions = [ 'android.permission.ACCESS_COARSE_LOCATION', 'android.permission.ACCESS_FINE_LOCATION' ];
+	const storagePermissions = [ 'android.permission.WRITE_EXTERNAL_STORAGE' ];
 	const vibratePermissions = [ 'android.permission.VIBRATE' ];
 	const wallpaperPermissions = [ 'android.permission.SET_WALLPAPER' ];
 
@@ -3504,7 +3505,10 @@ AndroidBuilder.prototype.fetchNeededManifestSettings = function fetchNeededManif
 		'Contacts.getAllPeople': contactsReadPermissions,
 		'Contacts.getAllGroups': contactsReadPermissions,
 
+		'Filesystem.requestStoragePermissions': storagePermissions,
+
 		'Media.Android.setSystemWallpaper': wallpaperPermissions,
+		'Media.saveToPhotoGallery': storagePermissions,
 		'Media.showCamera': cameraPermissions,
 		'Media.vibrate': vibratePermissions,
 	};
@@ -3517,8 +3521,11 @@ AndroidBuilder.prototype.fetchNeededManifestSettings = function fetchNeededManif
 		neededPermissionDictionary['android.permission.INTERNET'] = true;
 		neededPermissionDictionary['android.permission.ACCESS_WIFI_STATE'] = true;
 		neededPermissionDictionary['android.permission.ACCESS_NETWORK_STATE'] = true;
-		neededPermissionDictionary['android.permission.WRITE_EXTERNAL_STORAGE'] = true;
 	}
+
+	// Set the max API Level the "WRITE_EXTERNAL_STORAGE" permission should use.
+	// Android 10 and higher doesn't need this permission unless requestStoragePermissions() method is used.
+	let storagePermissionMaxSdkVersion = 28;
 
 	// Define JavaScript methods that need manifest <queries> entries.
 	// The value strings are used as boolean property names in our "AndroidManifest.xml" EJS template.
@@ -3579,6 +3586,9 @@ AndroidBuilder.prototype.fetchNeededManifestSettings = function fetchNeededManif
 					for (const permission of permissionArray) {
 						neededPermissionDictionary[permission] = true;
 					}
+					if (symbol === 'Filesystem.requestStoragePermissions') {
+						storagePermissionMaxSdkVersion = undefined;
+					}
 				}
 			}
 
@@ -3592,8 +3602,9 @@ AndroidBuilder.prototype.fetchNeededManifestSettings = function fetchNeededManif
 
 	// Return the entries needed to be injected into the generated "AndroidManifest.xml" file.
 	const neededSettings = {
-		usesPermissions: Object.keys(neededPermissionDictionary),
-		queries: neededQueriesDictionary
+		queries: neededQueriesDictionary,
+		storagePermissionMaxSdkVersion: storagePermissionMaxSdkVersion,
+		usesPermissions: Object.keys(neededPermissionDictionary)
 	};
 	return neededSettings;
 };
@@ -3688,6 +3699,7 @@ AndroidBuilder.prototype.generateAndroidManifest = async function generateAndroi
 		appLabel: this.tiapp.name,
 		appTheme: `@style/${this.defaultAppThemeName}`,
 		classname: this.classname,
+		storagePermissionMaxSdkVersion: neededManifestSettings.storagePermissionMaxSdkVersion,
 		packageName: this.appid,
 		queries: neededManifestSettings.queries,
 		usesPermissions: neededManifestSettings.usesPermissions

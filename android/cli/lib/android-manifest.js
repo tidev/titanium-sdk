@@ -434,6 +434,23 @@ class AndroidManifest {
 		// Apply "tools:replace" attribute to <manifest/> element. (Must be done after setting namespace above.)
 		applyToolsReplaceToElement(manifestElement);
 
+		// Apply 'tools:node="replace"' to WRITE_EXTERNAL_STORAGE permission if no other tools attribute is set.
+		// Titanium adds "maxSdkVersion" attribute to this permission by default. This removes that attribute.
+		const permissionElement = getFirstChildElementByTagAndAndroidName(
+			manifestElement, 'uses-permission', 'android.permission.WRITE_EXTERNAL_STORAGE');
+		if (permissionElement) {
+			let hasToolsAttribute = false;
+			for (let index = 0; index < permissionElement.attributes.length; index++) {
+				if (permissionElement.attributes.item(index).name.startsWith('tools:')) {
+					hasToolsAttribute = true;
+					break;
+				}
+			}
+			if (!hasToolsAttribute) {
+				permissionElement.setAttribute('tools:node', 'replace');
+			}
+		}
+
 		// Fetch the <application/> element.
 		const appElement = getFirstChildElementByTagName(manifestElement, 'application');
 		if (!appElement) {

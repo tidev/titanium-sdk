@@ -36,7 +36,6 @@ import org.appcelerator.titanium.util.TiActivitySupportHelper;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiLocaleManager;
 import org.appcelerator.titanium.util.TiMenuSupport;
-import org.appcelerator.titanium.util.TiPlatformHelper;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.util.TiWeakList;
 import org.appcelerator.titanium.view.TiActionBarStyleHandler;
@@ -653,9 +652,6 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 				getWindow().setFormat(intent.getIntExtra(TiC.PROPERTY_WINDOW_PIXEL_FORMAT, PixelFormat.UNKNOWN));
 			}
 		}
-
-		// Doing this on every create in case the activity is externally created.
-		TiPlatformHelper.getInstance().intializeDisplayMetrics(this);
 
 		// Create the root content layout, if not done already.
 		if (layout == null) {

@@ -21,6 +21,7 @@ import android.graphics.PorterDuff;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.os.Build;
+import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewOutlineProvider;
 import android.widget.FrameLayout;
@@ -45,10 +46,33 @@ public class TiBorderWrapperView extends FrameLayout
 	public TiBorderWrapperView(Context context)
 	{
 		super(context);
+		init();
+	}
+
+	public TiBorderWrapperView(Context context, AttributeSet set)
+	{
+		super(context, set);
+		init();
+	}
+
+	private void init()
+	{
 		setWillNotDraw(false);
 
 		paint = new Paint(Paint.ANTI_ALIAS_FLAG);
 		bounds = new Rect();
+	}
+
+	public void reset()
+	{
+		this.color = Color.TRANSPARENT;
+		this.backgroundColor = Color.TRANSPARENT;
+		this.borderWidth = 0;
+		this.alpha = -1;
+
+		for (int i = 0; i < this.radius.length; i++) {
+			this.radius[i] = 0;
+		}
 	}
 
 	@Override
