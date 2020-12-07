@@ -115,7 +115,7 @@ public class TiUITableView extends TiUIView
 				}
 
 				if (searchAsChild) {
-					final View searchView = search.getNativeView();
+					final View searchView = search.getOuterView();
 					final ViewGroup searchViewParent = (ViewGroup) searchView.getParent();
 					final ViewGroup tableViewParent = (ViewGroup) tableView.getParent();
 					searchView.setId(SEARCHVIEW_ID);
