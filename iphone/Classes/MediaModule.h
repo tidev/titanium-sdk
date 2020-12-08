@@ -44,6 +44,7 @@
 #endif
 #if IS_SDK_IOS_14 && defined(USE_TI_MEDIAOPENPHOTOGALLERY)
   PHPickerViewController *_phPicker;
+  BOOL excludeLivePhoto;
 #endif
   BOOL autoHidePicker;
   BOOL saveToRoll;

@@ -26,17 +26,14 @@
 
 package android.widget;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
-import org.appcelerator.titanium.util.TiPlatformHelper;
 
 import ti.modules.titanium.media.MediaModule;
 import ti.modules.titanium.media.TiPlaybackListener;
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.AssetFileDescriptor;
@@ -45,10 +42,7 @@ import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnCompletionListener;
 import android.media.MediaPlayer.OnErrorListener;
 import android.net.Uri;
-import android.os.Build;
 import android.util.AttributeSet;
-import android.util.DisplayMetrics;
-import android.view.Display;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
@@ -246,30 +240,6 @@ public class TiVideoView8 extends SurfaceView implements MediaPlayerControl
 			}
 			constantDeprecationWarning(mScalingMode);
 		}
-		String model = Build.MODEL;
-		if (model != null && model.equals("SPH-P100")) {
-			Activity activity = (Activity) getContext();
-			Display d = activity.getWindowManager().getDefaultDisplay();
-			if (d != null) {
-				DisplayMetrics dm = new DisplayMetrics();
-				d.getMetrics(dm);
-				if (TiPlatformHelper.applicationLogicalDensity != dm.densityDpi) {
-					int maxScaledWidth = (int) Math.floor((d.getWidth() - 1) * TiPlatformHelper.applicationScaleFactor);
-					int maxScaledHeight =
-						(int) Math.floor((d.getHeight() - 1) * TiPlatformHelper.applicationScaleFactor);
-					if (width * TiPlatformHelper.applicationScaleFactor > maxScaledWidth) {
-						int oldWidth = width;
-						width = d.getWidth() - 1;
-						Log.d(TAG, "TOO WIDE: " + oldWidth + " changed to " + width, Log.DEBUG_MODE);
-					}
-					if (height * TiPlatformHelper.applicationScaleFactor > maxScaledHeight) {
-						int oldHeight = height;
-						height = d.getHeight() - 1;
-						Log.d(TAG, "TOO HIGH: " + oldHeight + " changed to " + height, Log.DEBUG_MODE);
-					}
-				}
-			}
-		}
 		Log.i(TAG, "setting size: " + width + 'x' + height, Log.DEBUG_MODE);
 		setMeasuredDimension(width, height);
 	}
@@ -437,24 +407,11 @@ public class TiVideoView8 extends SurfaceView implements MediaPlayerControl
 			// target state that was there before.
 			mCurrentState = STATE_PREPARING;
 			attachMediaController();
-		} catch (IOException ex) {
+		} catch (Throwable ex) {
 			Log.e(TAG, "Unable to open content: " + mUri, ex);
 			mCurrentState = STATE_ERROR;
 			mTargetState = STATE_ERROR;
 			mErrorListener.onError(mMediaPlayer, MediaPlayer.MEDIA_ERROR_UNKNOWN, 0);
-			return;
-		} catch (IllegalArgumentException ex) {
-			Log.e(TAG, "Unable to open content: " + mUri, ex);
-			mCurrentState = STATE_ERROR;
-			mTargetState = STATE_ERROR;
-			mErrorListener.onError(mMediaPlayer, MediaPlayer.MEDIA_ERROR_UNKNOWN, 0);
-			return;
-		} catch (IllegalStateException ex) {
-			Log.e(TAG, "Unable to open content: " + mUri, ex);
-			mCurrentState = STATE_ERROR;
-			mTargetState = STATE_ERROR;
-			mErrorListener.onError(mMediaPlayer, MediaPlayer.MEDIA_ERROR_UNKNOWN, 0);
-			return;
 		}
 	}
 
