@@ -380,6 +380,12 @@ public abstract class TiApplication extends Application implements KrollApplicat
 
 				// Delete all Titanium temp files.
 				deleteTiTempFiles();
+
+				if (isAnalyticsEnabled()) {
+
+					// Force send `session.end` event.
+					APSAnalytics.getInstance().sendSessionEndEvent(true);
+				}
 			}
 		});
 	}
