@@ -1791,6 +1791,8 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
 
   [_phPicker setDelegate:self];
   [self displayModalPicker:_phPicker settings:args];
+
+  RELEASE_TO_NIL(configuration);
 }
 
 #pragma mark PHPickerViewControllerDelegate
