@@ -65,7 +65,7 @@ typedef NS_ENUM(NSInteger, ModuleType) {
 }
 @end
 
-OSSpinLock krollBridgeRegistryLock = OS_SPINLOCK_INIT;
+os_unfair_lock krollBridgeRegistryLock = OS_UNFAIR_LOCK_INIT;
 CFMutableSetRef krollBridgeRegistry = nil;
 
 @implementation KrollBridge
@@ -104,10 +104,10 @@ CFMutableSetRef krollBridgeRegistry = nil;
 #endif
     modules = [[NSMutableDictionary alloc] init];
     packageJSONMainCache = [[NSMutableDictionary alloc] init];
-    proxyLock = OS_SPINLOCK_INIT;
-    OSSpinLockLock(&krollBridgeRegistryLock);
+    proxyLock = OS_UNFAIR_LOCK_INIT;
+    os_unfair_lock_lock(&krollBridgeRegistryLock);
     CFSetAddValue(krollBridgeRegistry, self);
-    OSSpinLockUnlock(&krollBridgeRegistryLock);
+    os_unfair_lock_unlock(&krollBridgeRegistryLock);
     TiThreadPerformOnMainThread(
         ^{
           [self registerForMemoryWarning];
@@ -119,16 +119,16 @@ CFMutableSetRef krollBridgeRegistry = nil;
 
 - (void)didReceiveMemoryWarning:(NSNotification *)notification
 {
-  OSSpinLockLock(&proxyLock);
+  os_unfair_lock_lock(&proxyLock);
   if (registeredProxies == NULL) {
-    OSSpinLockUnlock(&proxyLock);
+    os_unfair_lock_unlock(&proxyLock);
     [self gc];
     return;
   }
 
   BOOL keepWarning = YES;
   signed long proxiesCount = CFDictionaryGetCount(registeredProxies);
-  OSSpinLockUnlock(&proxyLock);
+  os_unfair_lock_unlock(&proxyLock);
 
   // During a memory panic, we may not get the chance to copy proxies.
   while (keepWarning) {
@@ -137,14 +137,14 @@ CFMutableSetRef krollBridgeRegistry = nil;
     for (id proxy in [(NSDictionary *)registeredProxies allKeys]) {
       [proxy didReceiveMemoryWarning:notification];
 
-      OSSpinLockLock(&proxyLock);
+      os_unfair_lock_lock(&proxyLock);
       if (registeredProxies == NULL) {
-        OSSpinLockUnlock(&proxyLock);
+        os_unfair_lock_unlock(&proxyLock);
         break;
       }
 
       signed long newCount = CFDictionaryGetCount(registeredProxies);
-      OSSpinLockUnlock(&proxyLock);
+      os_unfair_lock_unlock(&proxyLock);
 
       if (newCount != proxiesCount) {
         proxiesCount = newCount;
@@ -172,10 +172,10 @@ CFMutableSetRef krollBridgeRegistry = nil;
 
 - (void)removeProxies
 {
-  OSSpinLockLock(&proxyLock);
+  os_unfair_lock_lock(&proxyLock);
   CFDictionaryRef oldProxies = registeredProxies;
   registeredProxies = NULL;
-  OSSpinLockUnlock(&proxyLock);
+  os_unfair_lock_unlock(&proxyLock);
 
   for (id thisProxy in (NSDictionary *)oldProxies) {
     KrollObject *thisKrollObject = (id)CFDictionaryGetValue(oldProxies, thisProxy);
@@ -205,9 +205,9 @@ CFMutableSetRef krollBridgeRegistry = nil;
   [self removeProxies];
   RELEASE_TO_NIL(preload);
   RELEASE_TO_NIL(context);
-  OSSpinLockLock(&krollBridgeRegistryLock);
+  os_unfair_lock_lock(&krollBridgeRegistryLock);
   CFSetRemoveValue(krollBridgeRegistry, self);
-  OSSpinLockUnlock(&krollBridgeRegistryLock);
+  os_unfair_lock_unlock(&krollBridgeRegistryLock);
   [super dealloc];
 }
 
@@ -604,7 +604,7 @@ CFMutableSetRef krollBridgeRegistry = nil;
 
 - (void)registerProxy:(id)proxy krollObject:(KrollObject *)ourKrollObject
 {
-  OSSpinLockLock(&proxyLock);
+  os_unfair_lock_lock(&proxyLock);
   if (registeredProxies == NULL) {
     registeredProxies = CFDictionaryCreateMutable(NULL, 10, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
   }
@@ -612,7 +612,7 @@ CFMutableSetRef krollBridgeRegistry = nil;
   //CFMutableDictionaryRefs only retain keys, which lets them work with proxies properly.
 
   CFDictionaryAddValue(registeredProxies, proxy, ourKrollObject);
-  OSSpinLockUnlock(&proxyLock);
+  os_unfair_lock_unlock(&proxyLock);
   [proxy boundBridge:self withKrollObject:ourKrollObject];
 }
 
@@ -638,12 +638,12 @@ CFMutableSetRef krollBridgeRegistry = nil;
 
 - (void)unregisterProxy:(id)proxy
 {
-  OSSpinLockLock(&proxyLock);
+  os_unfair_lock_lock(&proxyLock);
   if (registeredProxies != NULL) {
     CFDictionaryRemoveValue(registeredProxies, proxy);
     //Don't bother with removing the empty registry. It's small and leaves on dealloc anyways.
   }
-  OSSpinLockUnlock(&proxyLock);
+  os_unfair_lock_unlock(&proxyLock);
   [proxy unboundBridge:self];
 }
 
@@ -653,23 +653,23 @@ CFMutableSetRef krollBridgeRegistry = nil;
     return NO;
   }
   BOOL result = NO;
-  OSSpinLockLock(&proxyLock);
+  os_unfair_lock_lock(&proxyLock);
 
   if (registeredProxies != NULL) {
     result = (CFDictionaryGetCountOfKey(registeredProxies, proxy) != 0);
   }
-  OSSpinLockUnlock(&proxyLock);
+  os_unfair_lock_unlock(&proxyLock);
   return result;
 }
 
 - (id)krollObjectForProxy:(id)proxy
 {
   id result = nil;
-  OSSpinLockLock(&proxyLock);
+  os_unfair_lock_lock(&proxyLock);
   if (registeredProxies != NULL) {
     result = (id)CFDictionaryGetValue(registeredProxies, proxy);
   }
-  OSSpinLockUnlock(&proxyLock);
+  os_unfair_lock_unlock(&proxyLock);
   return result;
 }
 
@@ -1351,7 +1351,7 @@ CFMutableSetRef krollBridgeRegistry = nil;
 {
   NSMutableArray *results = nil;
 
-  OSSpinLockLock(&krollBridgeRegistryLock);
+  os_unfair_lock_lock(&krollBridgeRegistryLock);
   signed long bridgeCount = CFSetGetCount(krollBridgeRegistry);
   KrollBridge *registryObjects[bridgeCount];
   CFSetGetValues(krollBridgeRegistry, (const void **)registryObjects);
@@ -1370,13 +1370,13 @@ CFMutableSetRef krollBridgeRegistry = nil;
 
   //Why do we wait so long? In case someone tries to dealloc the krollBridge while we're looking at it.
   //registryObjects nor the registry does a retain here!
-  OSSpinLockUnlock(&krollBridgeRegistryLock);
+  os_unfair_lock_unlock(&krollBridgeRegistryLock);
   return results;
 }
 
 + (NSArray *)krollContexts
 {
-  OSSpinLockLock(&krollBridgeRegistryLock);
+  os_unfair_lock_lock(&krollBridgeRegistryLock);
   signed long bridgeCount = CFSetGetCount(krollBridgeRegistry);
   KrollBridge *registryObjects[bridgeCount];
   CFSetGetValues(krollBridgeRegistry, (const void **)registryObjects);
@@ -1387,7 +1387,7 @@ CFMutableSetRef krollBridgeRegistry = nil;
     [results addObject:bridge.krollContext];
   }
 
-  OSSpinLockUnlock(&krollBridgeRegistryLock);
+  os_unfair_lock_unlock(&krollBridgeRegistryLock);
   return [results autorelease];
 }
 
@@ -1398,7 +1398,7 @@ CFMutableSetRef krollBridgeRegistry = nil;
   }
 
   bool result = NO;
-  OSSpinLockLock(&krollBridgeRegistryLock);
+  os_unfair_lock_lock(&krollBridgeRegistryLock);
   signed long bridgeCount = CFSetGetCount(krollBridgeRegistry);
   KrollBridge *registryObjects[bridgeCount];
   CFSetGetValues(krollBridgeRegistry, (const void **)registryObjects);
@@ -1411,7 +1411,7 @@ CFMutableSetRef krollBridgeRegistry = nil;
   }
   //Why not CFSetContainsValue? Because bridge may not be a valid pointer, and SetContainsValue
   //will ask it for a hash!
-  OSSpinLockUnlock(&krollBridgeRegistryLock);
+  os_unfair_lock_unlock(&krollBridgeRegistryLock);
 
   return result;
 }
@@ -1423,13 +1423,13 @@ CFMutableSetRef krollBridgeRegistry = nil;
   }
 
   KrollBridge *result = nil;
-  OSSpinLockLock(&krollBridgeRegistryLock);
+  os_unfair_lock_lock(&krollBridgeRegistryLock);
   signed long bridgeCount = CFSetGetCount(krollBridgeRegistry);
   KrollBridge *registryObjects[bridgeCount];
   CFSetGetValues(krollBridgeRegistry, (const void **)registryObjects);
   for (int currentBridgeIndex = 0; currentBridgeIndex < bridgeCount; currentBridgeIndex++) {
   }
-  OSSpinLockUnlock(&krollBridgeRegistryLock);
+  os_unfair_lock_unlock(&krollBridgeRegistryLock);
 
   return result;
 }
