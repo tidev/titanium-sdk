@@ -492,6 +492,7 @@ GETTER_IMPL(BOOL, hasCompass, HasCompass);
     [params setValue:countryCode forKey:@"c"];
   }
   [callback start:params];
+  RELEASE_TO_NIL(params);
 }
 
 - (void)reverseGeocoder:(double)latitude longitude:(double)longitude withCallback:(JSValue *)callback
