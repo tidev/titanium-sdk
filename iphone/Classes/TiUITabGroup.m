@@ -619,7 +619,7 @@ DEFINE_EXCEPTIONS
     index = [tabArray indexOfObject:[(TiUITabProxy *)focusedTabProxy controller]];
   }
   return @{
-    @"tab" : focusedTabProxy,
+    @"tab" : NULL_IF_NIL(focusedTabProxy),
     @"index" : NUMINTEGER(index),
     @"previousIndex" : NUMINT(-1),
     @"previousTab" : [NSNull null]
