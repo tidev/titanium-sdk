@@ -1259,7 +1259,7 @@ public abstract class TiViewProxy extends KrollProxy
 			throw new IllegalArgumentException("convertPointToView: property \"x\" must be of type number or string");
 		}
 		if (dimensionY == null) {
-			throw new IllegalArgumentException("convertPointToView: property \"x\" must be of type number or string");
+			throw new IllegalArgumentException("convertPointToView: property \"y\" must be of type number or string");
 		}
 
 		// Fetch the views to convert between.
