@@ -200,6 +200,29 @@ describe('Intl.DateTimeFormat',  () => {
 			should(formatter.resolvedOptions()).be.an.Object();
 		});
 
+		it('assigned from constructor', () => {
+			const options = {
+				year: 'numeric',
+				month: 'long',
+				day: '2-digit',
+				weekday: 'long',
+				hour: 'numeric',
+				minute: '2-digit',
+				second: '2-digit',
+				hour12: true,
+				timeZoneName: 'short'
+			};
+			if (OS_ANDROID) {
+				options.dayPeriod = 'narrow';
+				options.fractionalSecondDigits = 3;
+			}
+			const formatter = new Intl.DateTimeFormat('en-US', options);
+			const result = formatter.resolvedOptions();
+			for (const key in options) {
+				should(result[key]).be.eql(options[key]);
+			}
+		});
+
 		it('timeZone', () => {
 			should(Intl.DateTimeFormat().resolvedOptions().timeZone).be.a.String();
 			let formatter = new Intl.DateTimeFormat('en-US', { timeZone: 'UTC' });
@@ -208,6 +231,22 @@ describe('Intl.DateTimeFormat',  () => {
 			should(formatter.resolvedOptions().timeZone).be.eql('Etc/GMT+8');
 			formatter = new Intl.DateTimeFormat('en-US', { timeZone: 'America/Los_Angeles' });
 			should(formatter.resolvedOptions().timeZone).be.eql('America/Los_Angeles');
+		});
+
+		it.android('dateStyle', () => {
+			const formatter = new Intl.DateTimeFormat('en-US', { dateStyle: 'long' });
+			const result = formatter.resolvedOptions();
+			should(result.day).be.equalOneOf([ 'numeric', '2-digit' ]);
+			should(result.month).be.equalOneOf([ 'numeric', '2-digit', 'long', 'short', 'narrow' ]);
+			should(result.year).be.equalOneOf([ 'numeric', '2-digit' ]);
+		});
+
+		it.android('timeStyle', () => {
+			const formatter = new Intl.DateTimeFormat('en-US', { timeStyle: 'long' });
+			const result = formatter.resolvedOptions();
+			should(result.hour).be.equalOneOf([ 'numeric', '2-digit' ]);
+			should(result.minute).be.equalOneOf([ 'numeric', '2-digit' ]);
+			should(result.second).be.equalOneOf([ 'numeric', '2-digit' ]);
 		});
 	});
 
