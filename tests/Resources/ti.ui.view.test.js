@@ -724,6 +724,17 @@ describe('Titanium.UI.View', function () {
 				should(result.y).be.a.Number();
 				should(result.x).eql(123);
 				should(result.y).eql(123);
+
+				result = b.convertPointToView({ x: '123', y: '23' }, a);
+				should(result.x).eql(123);
+				should(result.y).eql(123);
+
+				result = b.convertPointToView({
+					x: Ti.UI.convertUnits('123dp', 'px') + 'px',
+					y: Ti.UI.convertUnits('23dp', 'px') + 'px',
+				}, a);
+				should(result.x).eql(123);
+				should(result.y).eql(123);
 			} catch (err) {
 				return finish(err);
 			}

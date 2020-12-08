@@ -763,8 +763,8 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
     return (TiPoint *)[NSNull null];
   }
   TiPoint *tiPoint = [[TiPoint alloc] autorelease];
-  [tiPoint setX:NUMFLOAT(convertDipToDefaultUnit(pointOffsetDips.x) + givenPoint.x)];
-  [tiPoint setY:NUMFLOAT(convertDipToDefaultUnit(pointOffsetDips.y) + givenPoint.y)];
+  [tiPoint setX:NUMFLOAT(convertDipToDefaultUnit(pointOffsetDips.x + givenPoint.x))];
+  [tiPoint setY:NUMFLOAT(convertDipToDefaultUnit(pointOffsetDips.y + givenPoint.y))];
   return tiPoint;
 }
 
