@@ -404,7 +404,7 @@ void Proxy::proxyConstructor(const v8::FunctionCallbackInfo<v8::Value>& args)
 	EscapableHandleScope scope(isolate);
 
 	JNIEnv *env = JNIScope::getEnv();
-	Local<Object> jsProxy = args.This();
+	Local<Object> jsProxy = args.Holder();
 
 	TryCatch tryCatch(isolate);
 
