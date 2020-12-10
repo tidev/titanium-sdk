@@ -27,6 +27,8 @@
 		B106A6FE24535CB800B1305E /* JSValue+Addons.m in Sources */ = {isa = PBXBuildFile; fileRef = B106A6FC24535CB800B1305E /* JSValue+Addons.m */; };
 		B10E8D502408559300578E8F /* APSHTTPClient.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = B10E8D4F2408559300578E8F /* APSHTTPClient.xcframework */; };
 		B10E8D5824085E1E00578E8F /* APSAnalytics.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = B10E8D5724085E1E00578E8F /* APSAnalytics.xcframework */; };
+		B70ABB8424B79C9C0007D07A /* KrollPromise.h in Headers */ = {isa = PBXBuildFile; fileRef = B70ABB8324B79C9C0007D07A /* KrollPromise.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		B70ABB8624B79DCF0007D07A /* KrollPromise.m in Sources */ = {isa = PBXBuildFile; fileRef = B70ABB8524B79DCF0007D07A /* KrollPromise.m */; };
 		B7624B6C216663C7000C365A /* ObjcProxy.h in Headers */ = {isa = PBXBuildFile; fileRef = B7624B6A216663C7000C365A /* ObjcProxy.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		B7624B6D216663C7000C365A /* ObjcProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = B7624B6B216663C7000C365A /* ObjcProxy.m */; };
 		DB1596592075389000292B19 /* APIModule.m in Sources */ = {isa = PBXBuildFile; fileRef = DB1596572075389000292B19 /* APIModule.m */; };
@@ -185,6 +187,8 @@
 		B106A6FC24535CB800B1305E /* JSValue+Addons.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "JSValue+Addons.m"; sourceTree = "<group>"; };
 		B10E8D4F2408559300578E8F /* APSHTTPClient.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = APSHTTPClient.xcframework; path = TitaniumKit/Libraries/APSHTTPClient/APSHTTPClient.xcframework; sourceTree = "<group>"; };
 		B10E8D5724085E1E00578E8F /* APSAnalytics.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = APSAnalytics.xcframework; path = TitaniumKit/Libraries/APSAnalytics/APSAnalytics.xcframework; sourceTree = "<group>"; };
+		B70ABB8324B79C9C0007D07A /* KrollPromise.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = KrollPromise.h; sourceTree = "<group>"; };
+		B70ABB8524B79DCF0007D07A /* KrollPromise.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = KrollPromise.m; sourceTree = "<group>"; };
 		B7624B6A216663C7000C365A /* ObjcProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ObjcProxy.h; sourceTree = "<group>"; };
 		B7624B6B216663C7000C365A /* ObjcProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ObjcProxy.m; sourceTree = "<group>"; };
 		DB1596572075389000292B19 /* APIModule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = APIModule.m; sourceTree = "<group>"; };
@@ -417,6 +421,8 @@
 		DB258CDA1F0975F7000D0D8D /* Kroll */ = {
 			isa = PBXGroup;
 			children = (
+				B70ABB8324B79C9C0007D07A /* KrollPromise.h */,
+				B70ABB8524B79DCF0007D07A /* KrollPromise.m */,
 				DB258D1B1F097680000D0D8D /* KrollBridge.h */,
 				DB258D1C1F097680000D0D8D /* KrollBridge.m */,
 				DB15FC231F0A833100A82C45 /* KrollCallback.h */,
@@ -666,6 +672,7 @@
 				DB15FD0C1F0A894000A82C45 /* TiWindowProxy.h in Headers */,
 				DB258DB81F09770C000D0D8D /* TiUtils.h in Headers */,
 				DB15FC351F0A833100A82C45 /* KrollContext.h in Headers */,
+				B70ABB8424B79C9C0007D07A /* KrollPromise.h in Headers */,
 				DB258D9D1F097680000D0D8D /* TiUIView.h in Headers */,
 				DB15FD2C1F0A93EF00A82C45 /* TiStreamProxy.h in Headers */,
 				DB15FD241F0A8A7B00A82C45 /* TiBindingEvent.h in Headers */,
@@ -819,6 +826,7 @@
 				DB15FC9D1F0A862D00A82C45 /* ListenerEntry.m in Sources */,
 				DB15FC3C1F0A833100A82C45 /* KrollMethodDelegate.m in Sources */,
 				DB15FD291F0A93A900A82C45 /* TiFilesystemFileStreamProxy.m in Sources */,
+				B70ABB8624B79DCF0007D07A /* KrollPromise.m in Sources */,
 				DB15FC5C1F0A84C000A82C45 /* TiHost.m in Sources */,
 				DB258D621F097680000D0D8D /* Bridge.m in Sources */,
 				DB15FD071F0A892500A82C45 /* Ti2DMatrix.m in Sources */,

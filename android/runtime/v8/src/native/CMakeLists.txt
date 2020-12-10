@@ -72,6 +72,7 @@ add_library(
 	TypeConverter.cpp
 	V8Function.cpp
 	V8Object.cpp
+	V8Promise.cpp
 	V8Runtime.cpp
 	V8Util.cpp
 	modules/APIModule.cpp
