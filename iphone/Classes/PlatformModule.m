@@ -86,11 +86,11 @@ NSString *const DATA_IFACE = @"pdp_ip0";
     uname(&u);
 
     // detect simulator
-    if (strcmp(u.machine, "i386") == 0 || strcmp(u.machine, "x86_64") == 0) {
-      model = [[NSString stringWithFormat:@"%s (Simulator)", getenv("SIMULATOR_MODEL_IDENTIFIER")] retain];
-    } else {
-      model = [[NSString alloc] initWithUTF8String:u.machine];
-    }
+#if TARGET_IPHONE_SIMULATOR
+    model = [[NSString stringWithFormat:@"%s (Simulator)", getenv("SIMULATOR_MODEL_IDENTIFIER")] retain];
+#else
+    model = [[NSString alloc] initWithUTF8String:u.machine];
+#endif
     architecture = [[TiUtils currentArchitecture] retain];
 
     // needed for platform displayCaps orientation to be correct
