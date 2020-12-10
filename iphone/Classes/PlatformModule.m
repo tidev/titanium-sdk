@@ -86,7 +86,7 @@ NSString *const DATA_IFACE = @"pdp_ip0";
     uname(&u);
 
     // detect simulator
-#if TARGET_IPHONE_SIMULATOR
+#if TARGET_OS_SIMULATOR
     model = [[NSString stringWithFormat:@"%s (Simulator)", getenv("SIMULATOR_MODEL_IDENTIFIER")] retain];
 #else
     model = [[NSString alloc] initWithUTF8String:u.machine];
@@ -421,7 +421,7 @@ GETTER_IMPL(NSNumber *, batteryLevel, BatteryLevel);
 
 - (NSString *)address
 {
-#if TARGET_IPHONE_SIMULATOR
+#if TARGET_OS_SIMULATOR
   // Assume classical ethernet and wifi interfaces
   NSArray *interfaces = [NSArray arrayWithObjects:@"en0", @"en1", nil];
   for (NSString *interface in interfaces) {
@@ -439,7 +439,7 @@ GETTER_IMPL(NSString *, address, Address);
 
 - (NSString *)dataAddress
 {
-#if TARGET_IPHONE_SIMULATOR
+#if TARGET_OS_SIMULATOR
   return nil; // Handy shortcut
 #else
   return [self getIface:DATA_IFACE mask:NO];
@@ -450,7 +450,7 @@ GETTER_IMPL(NSString *, dataAddress, DataAddress);
 // Only available for the local wifi; why would you want it for the data network?
 - (NSString *)netmask
 {
-#if TARGET_IPHONE_SIMULATOR
+#if TARGET_OS_SIMULATOR
   // Assume classical ethernet and wifi interfaces
   NSArray *interfaces = [NSArray arrayWithObjects:@"en0", @"en1", nil];
   for (NSString *interface in interfaces) {

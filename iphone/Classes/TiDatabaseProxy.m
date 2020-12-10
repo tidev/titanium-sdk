@@ -119,7 +119,7 @@
   NSURL *url = [TiUtils toURL:path proxy:self];
   path = [url path];
 
-#if TARGET_IPHONE_SIMULATOR
+#if TARGET_OS_SIMULATOR
   //TIMOB-6081. Resources are right now symbolic links when running in simulator) so the copy method
   //of filemanager just creates a link to the original resource.
   //Resolve the symbolic link if running in simulator

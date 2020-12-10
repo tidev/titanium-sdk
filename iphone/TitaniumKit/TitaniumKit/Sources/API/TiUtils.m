@@ -1581,7 +1581,7 @@ If the new path starts with / and the base url is app://..., we have to massage 
 #endif
       appurlstr = [appurlstr substringFromIndex:1];
     }
-#if TARGET_IPHONE_SIMULATOR
+#if TARGET_OS_SIMULATOR
     NSString *resourcesDirectory = [[TiSharedConfig defaultConfig] applicationResourcesDirectory];
 
     if (app == YES && leadingSlashRemoved) {
