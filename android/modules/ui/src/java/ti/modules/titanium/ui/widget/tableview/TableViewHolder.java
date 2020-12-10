@@ -61,7 +61,7 @@ public class TableViewHolder extends RecyclerView.ViewHolder
 	private static ColorStateList defaultTextColors = null;
 
 	// Top
-	private final ViewGroup header;
+	private final TiCompositeLayout header;
 	private final TextView headerTitle;
 
 	// Middle
@@ -73,7 +73,7 @@ public class TableViewHolder extends RecyclerView.ViewHolder
 	private final ImageView rightImage;
 
 	// Bottom
-	private final ViewGroup footer;
+	private final TiCompositeLayout footer;
 	private final TextView footerTitle;
 
 	private WeakReference<TiViewProxy> proxy;
@@ -395,7 +395,7 @@ public class TableViewHolder extends RecyclerView.ViewHolder
 		}
 
 		// Handle `header` and `footer` for rows.
-		setHeaderFooter(properties, true, true);
+		setHeaderFooter(tableViewProxy, properties, true, true);
 
 		if (section != null) {
 
@@ -408,14 +408,14 @@ public class TableViewHolder extends RecyclerView.ViewHolder
 			if (indexInSection == 0 || filteredIndex == 0 || proxy.isPlaceholder()) {
 
 				// Only set header on first row in section.
-				setHeaderFooter(sectionProperties, true, false);
+				setHeaderFooter(tableViewProxy, sectionProperties, true, false);
 			}
 			if ((indexInSection >= section.getRowCount() - 1)
 				|| (filteredIndex >= section.getFilteredRowCount() - 1)
 				|| proxy.isPlaceholder()) {
 
 				// Only set footer on last row in section.
-				setHeaderFooter(sectionProperties, false, true);
+				setHeaderFooter(tableViewProxy, sectionProperties, false, true);
 			}
 		}
 
@@ -579,12 +579,25 @@ public class TableViewHolder extends RecyclerView.ViewHolder
 	/**
 	 * Set header and footer views/title for row.
 	 *
+	 * @param tableViewProxy TableView proxy.
 	 * @param properties Row proxy holding header/footer.
 	 * @param updateHeader Boolean determine if header should be updated.
 	 * @param updateFooter Boolean determine if footer should be updated.
 	 */
-	private void setHeaderFooter(KrollDict properties, boolean updateHeader, boolean updateFooter)
+	private void setHeaderFooter(TiViewProxy tableViewProxy,
+								 KrollDict properties,
+								 boolean updateHeader,
+								 boolean updateFooter)
 	{
+		if (tableViewProxy == null) {
+			return;
+		}
+
+		final View nativeTableView = tableViewProxy.getOrCreateView().getNativeView();
+		if (nativeTableView == null) {
+			return;
+		}
+
 		// Handle `header` and `footer`.
 		if (updateHeader) {
 
@@ -615,6 +628,9 @@ public class TableViewHolder extends RecyclerView.ViewHolder
 
 						// TODO: Do not override fill behaviour, allow child to control fill.
 						view.getLayoutParams().autoFillsWidth = true;
+
+						// Amend maximum size for header to parent TableView measured height.
+						this.header.setChildFillHeight(nativeTableView.getMeasuredHeight());
 
 						this.header.addView(headerView, view.getLayoutParams());
 						this.header.setVisibility(View.VISIBLE);
@@ -650,6 +666,9 @@ public class TableViewHolder extends RecyclerView.ViewHolder
 
 						// TODO: Do not override fill behaviour, allow child to control fill.
 						view.getLayoutParams().autoFillsWidth = true;
+
+						// Amend maximum size for footer to parent TableView measured height.
+						this.footer.setChildFillHeight(nativeTableView.getMeasuredHeight());
 
 						this.footer.addView(footerView, view.getLayoutParams());
 						this.footer.setVisibility(View.VISIBLE);
