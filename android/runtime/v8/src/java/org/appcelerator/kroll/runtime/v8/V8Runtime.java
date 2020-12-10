@@ -15,6 +15,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.appcelerator.kroll.KrollApplication;
 import org.appcelerator.kroll.KrollExternalModule;
+import org.appcelerator.kroll.KrollPromise;
 import org.appcelerator.kroll.KrollProxySupport;
 import org.appcelerator.kroll.KrollRuntime;
 import org.appcelerator.kroll.common.KrollSourceCodeProvider;
@@ -25,6 +26,8 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.MessageQueue.IdleHandler;
+
+import androidx.annotation.NonNull;
 
 public final class V8Runtime extends KrollRuntime implements Handler.Callback
 {
@@ -210,6 +213,16 @@ public final class V8Runtime extends KrollRuntime implements Handler.Callback
 	public void setGCFlag()
 	{
 		shouldGC.set(true);
+	}
+
+	@Override
+	@NonNull
+	public KrollPromise createPromise()
+	{
+		if (KrollRuntime.isDisposed()) {
+			return new KrollPromise.NullPromise();
+		}
+		return new V8Promise();
 	}
 
 	// JNI method prototypes

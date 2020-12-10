@@ -19,6 +19,8 @@ import java.util.HashMap;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.KrollModule;
+import org.appcelerator.kroll.KrollObject;
+import org.appcelerator.kroll.KrollPromise;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.ContextSpecific;
@@ -532,103 +534,121 @@ public class MediaModule extends KrollModule implements Handler.Callback
 	}
 
 	@Kroll.method
-	public void requestCameraPermissions(@Kroll.argument(optional = true) KrollFunction permissionCallback)
+	public KrollPromise<KrollDict> requestCameraPermissions(
+		@Kroll.argument(optional = true) KrollFunction permissionCallback)
 	{
-		// Do not continue if we already have permission.
-		if (hasCameraPermissions()) {
-			if (permissionCallback != null) {
+		final KrollObject callbackThisObject = getKrollObject();
+		return KrollPromise.create((promise) -> {
+			// Do not continue if we already have permission.
+			if (hasCameraPermissions()) {
 				KrollDict response = new KrollDict();
 				response.putCodeAndMessage(0, null);
-				permissionCallback.callAsync(getKrollObject(), response);
+				if (permissionCallback != null) {
+					permissionCallback.callAsync(callbackThisObject, response);
+				}
+				promise.resolve(response);
+				return;
 			}
-			return;
-		}
 
-		// Do not continue if there is no activity to host the request dialog.
-		Activity activity = TiApplication.getInstance().getCurrentActivity();
-		if (activity == null) {
-			if (permissionCallback != null) {
+			// Do not continue if there is no activity to host the request dialog.
+			Activity activity = TiApplication.getInstance().getCurrentActivity();
+			if (activity == null) {
 				KrollDict response = new KrollDict();
 				response.putCodeAndMessage(-1, "There are no activities to host the camera request dialog.");
-				permissionCallback.callAsync(getKrollObject(), response);
+				if (permissionCallback != null) {
+					permissionCallback.callAsync(callbackThisObject, response);
+				}
+				promise.reject(response);
+				return;
 			}
-			return;
-		}
 
-		// Create the permission list. On Android 10+, we don't need external storage permission anymore.
-		ArrayList<String> permissionList = new ArrayList<>();
-		permissionList.add(Manifest.permission.CAMERA);
-		if (Build.VERSION.SDK_INT < 29) {
-			permissionList.add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
-		}
+			// Create the permission list. On Android 10+, we don't need external storage permission anymore.
+			ArrayList<String> permissionList = new ArrayList<>();
+			permissionList.add(Manifest.permission.CAMERA);
+			if (Build.VERSION.SDK_INT < 29) {
+				permissionList.add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+			}
 
-		// Show dialog requesting permission.
-		TiBaseActivity.registerPermissionRequestCallback(
-			TiC.PERMISSION_CODE_CAMERA, permissionCallback, getKrollObject());
-		activity.requestPermissions(permissionList.toArray(new String[0]), TiC.PERMISSION_CODE_CAMERA);
+			// Show dialog requesting permission.
+			TiBaseActivity.registerPermissionRequestCallback(
+				TiC.PERMISSION_CODE_CAMERA, permissionCallback, callbackThisObject, promise);
+			activity.requestPermissions(permissionList.toArray(new String[0]), TiC.PERMISSION_CODE_CAMERA);
+		});
 	}
 
 	@Kroll.method
-	public void requestAudioRecorderPermissions(@Kroll.argument(optional = true) KrollFunction permissionCallback)
+	public KrollPromise<KrollDict> requestAudioRecorderPermissions(
+		@Kroll.argument(optional = true) final KrollFunction permissionCallback)
 	{
-		// Do not continue if we already have permission.
-		if (hasAudioRecorderPermissions()) {
-			if (permissionCallback != null) {
+		final KrollObject callbackThisObject = getKrollObject();
+		return KrollPromise.create((promise) -> {
+			// Do not continue if we already have permission.
+			if (hasAudioRecorderPermissions()) {
 				KrollDict response = new KrollDict();
 				response.putCodeAndMessage(0, null);
-				permissionCallback.callAsync(getKrollObject(), response);
+				if (permissionCallback != null) {
+					permissionCallback.callAsync(callbackThisObject, response);
+				}
+				promise.resolve(response);
+				return;
 			}
-			return;
-		}
 
-		// Do not continue if there is no activity to host the request dialog.
-		Activity activity = TiApplication.getInstance().getCurrentActivity();
-		if (activity == null) {
-			if (permissionCallback != null) {
+			// Do not continue if there is no activity to host the request dialog.
+			Activity activity = TiApplication.getInstance().getCurrentActivity();
+			if (activity == null) {
 				KrollDict response = new KrollDict();
 				response.putCodeAndMessage(-1, "There are no activities to host the camera request dialog.");
-				permissionCallback.callAsync(getKrollObject(), response);
+				if (permissionCallback != null) {
+					permissionCallback.callAsync(callbackThisObject, response);
+				}
+				promise.reject(response);
+				return;
 			}
-			return;
-		}
 
-		// Show dialog requesting permission.
-		TiBaseActivity.registerPermissionRequestCallback(
-			TiC.PERMISSION_CODE_MICROPHONE, permissionCallback, getKrollObject());
-		activity.requestPermissions(
-			new String[] { Manifest.permission.RECORD_AUDIO }, TiC.PERMISSION_CODE_MICROPHONE);
+			// Show dialog requesting permission.
+			TiBaseActivity.registerPermissionRequestCallback(
+				TiC.PERMISSION_CODE_MICROPHONE, permissionCallback, callbackThisObject, promise);
+			activity.requestPermissions(
+				new String[] { Manifest.permission.RECORD_AUDIO }, TiC.PERMISSION_CODE_MICROPHONE);
+		});
 	}
 
 	@Kroll.method
-	public void requestPhotoGalleryPermissions(@Kroll.argument(optional = true) KrollFunction permissionCallback)
+	public KrollPromise<KrollDict> requestPhotoGalleryPermissions(
+		@Kroll.argument(optional = true) KrollFunction permissionCallback)
 	{
-		// Do not continue if we already have permission.
-		if (hasPhotoGalleryPermissions()) {
-			if (permissionCallback != null) {
+		final KrollObject callbackThisObject = getKrollObject();
+		return KrollPromise.create((promise) -> {
+			// Do not continue if we already have permission.
+			if (hasPhotoGalleryPermissions()) {
 				KrollDict response = new KrollDict();
 				response.putCodeAndMessage(0, null);
-				permissionCallback.callAsync(getKrollObject(), response);
+				if (permissionCallback != null) {
+					permissionCallback.callAsync(callbackThisObject, response);
+				}
+				promise.resolve(response);
+				return;
 			}
-			return;
-		}
 
-		// Do not continue if there is no activity to host the request dialog.
-		Activity activity = TiApplication.getInstance().getCurrentActivity();
-		if (activity == null) {
-			if (permissionCallback != null) {
+			// Do not continue if there is no activity to host the request dialog.
+			Activity activity = TiApplication.getInstance().getCurrentActivity();
+			if (activity == null) {
 				KrollDict response = new KrollDict();
 				response.putCodeAndMessage(
 					-1, "There are no activities to host the external storage permission request dialog.");
-				permissionCallback.callAsync(getKrollObject(), response);
+				if (permissionCallback != null) {
+					permissionCallback.callAsync(callbackThisObject, response);
+				}
+				promise.reject(response);
+				return;
 			}
-			return;
-		}
 
-		// Show dialog requesting permission.
-		TiBaseActivity.registerPermissionRequestCallback(
-			TiC.PERMISSION_CODE_EXTERNAL_STORAGE, permissionCallback, getKrollObject());
-		activity.requestPermissions(
-			new String[] { Manifest.permission.WRITE_EXTERNAL_STORAGE }, TiC.PERMISSION_CODE_EXTERNAL_STORAGE);
+			// Show dialog requesting permission.
+			TiBaseActivity.registerPermissionRequestCallback(
+				TiC.PERMISSION_CODE_EXTERNAL_STORAGE, permissionCallback, callbackThisObject, promise);
+			activity.requestPermissions(
+				new String[] { Manifest.permission.WRITE_EXTERNAL_STORAGE }, TiC.PERMISSION_CODE_EXTERNAL_STORAGE);
+		});
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })

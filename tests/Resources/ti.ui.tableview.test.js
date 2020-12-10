@@ -1047,7 +1047,7 @@ describe('Titanium.UI.TableView', function () {
 			isFocused = true;
 
 			try {
-				searchBar.setValue('e');
+				searchBar.value = 'e';
 				searchBar.focus();
 				should(tableView.sections[0].rowCount).be.eql(3);
 				tableView.deleteRow(0);
@@ -1457,6 +1457,7 @@ describe('Titanium.UI.TableView', function () {
 
 		tableView.setData([ row ]);
 
+		// FIXME: Times out on ios?
 		row.addEventListener('postlayout', () => {
 			try {
 				should(row.rect.height).be.eql(150);

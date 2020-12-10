@@ -772,15 +772,22 @@ describe('Titanium.Filesystem.File', function () {
 		should(dir.exists()).be.false();
 	});
 
-	// TIMOB-14364
-	// FIXME: This pops a prompt dialog for permission to Documents folder on macOS
-	it.ios('#setRemoteBackup()', function () {
-		if (utilities.isMacOS()) {
-			return;
-		}
-		should(function () {
-			Ti.Filesystem.getFile(Ti.Filesystem.applicationDataDirectory).setRemoteBackup(false);
-		}).not.throw();
+	describe.ios('.remoteBackup', () => {
+		// TIMOB-14364
+		// FIXME: This pops a prompt dialog for permission to Documents folder on macOS
+		it('assigning Boolean value doesn\'t throw', () => {
+			if (utilities.isMacOS()) {
+				return;
+			}
+			should(function () {
+				Ti.Filesystem.getFile(Ti.Filesystem.applicationDataDirectory).remoteBackup = false;
+			}).not.throw();
+		});
+
+		it('has accessors', () => {
+			const file = Ti.Filesystem.getFile(Ti.Filesystem.applicationDataDirectory);
+			should(file).have.accessors('remoteBackup');
+		});
 	});
 
 	it.android('externalCacheDirectory read/write', () => {
