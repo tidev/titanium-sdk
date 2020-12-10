@@ -377,7 +377,14 @@ public class ListViewHolder extends RecyclerView.ViewHolder
 								 boolean updateHeader,
 								 boolean updateFooter)
 	{
+		if (listViewProxy == null) {
+			return;
+		}
+
 		final View nativeListView = listViewProxy.getOrCreateView().getNativeView();
+		if (nativeListView == null) {
+			return;
+		}
 
 		// Handle `header` and `footer`.
 		if (updateHeader) {
