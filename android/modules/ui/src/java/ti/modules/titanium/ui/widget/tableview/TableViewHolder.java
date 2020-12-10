@@ -589,7 +589,14 @@ public class TableViewHolder extends RecyclerView.ViewHolder
 								 boolean updateHeader,
 								 boolean updateFooter)
 	{
+		if (tableViewProxy == null) {
+			return;
+		}
+
 		final View nativeTableView = tableViewProxy.getOrCreateView().getNativeView();
+		if (nativeTableView == null) {
+			return;
+		}
 
 		// Handle `header` and `footer`.
 		if (updateHeader) {
