@@ -36,6 +36,19 @@ describe('Intl.DateTimeFormat',  () => {
 			should(formatter.format(new Date())).be.a.String();
 		});
 
+		it('default format', () => {
+			// 2020-March-1st 08:02:05 PM
+			const date = new Date(2020, 2, 1, 20, 2, 5);
+			let formatter = new Intl.DateTimeFormat('en-US');
+			should(formatter.format(date)).be.eql('3/1/2020');
+			formatter = new Intl.DateTimeFormat('en-US', {});
+			should(formatter.format(date)).be.eql('3/1/2020');
+			formatter = new Intl.DateTimeFormat('de-DE');
+			should(formatter.format(date)).be.eql('1.3.2020');
+			formatter = new Intl.DateTimeFormat('ja-JP');
+			should(formatter.format(date)).be.eql('2020/3/1');
+		});
+
 		it('numeric date', () => {
 			// 2020-March-1st
 			const date = new Date(Date.UTC(2020, 2, 1));
