@@ -430,20 +430,13 @@ static NSDictionary *sizeMap = nil;
     }
     return [value point];
   } else if ([value isKindOfClass:[NSDictionary class]]) {
-    id xVal = [value objectForKey:@"x"];
-    id yVal = [value objectForKey:@"y"];
-    if (xVal && yVal) {
-      if (![xVal respondsToSelector:@selector(floatValue)] || ![yVal respondsToSelector:@selector(floatValue)]) {
-        if (isValid) {
-          *isValid = NO;
-        }
-        return CGPointMake(0.0, 0.0);
-      }
-
+    TiDimension xDimension = [self dimensionValue:@"x" properties:value];
+    TiDimension yDimension = [self dimensionValue:@"y" properties:value];
+    if (!TiDimensionIsUndefined(xDimension) && !TiDimensionIsUndefined(yDimension)) {
       if (isValid) {
         *isValid = YES;
       }
-      return CGPointMake([xVal floatValue], [yVal floatValue]);
+      return CGPointMake(xDimension.value, yDimension.value);
     }
   }
   if (isValid) {
@@ -463,7 +456,7 @@ static NSDictionary *sizeMap = nil;
     yDimension = [value yDimension];
   } else if ([value isKindOfClass:[NSDictionary class]]) {
     xDimension = [self dimensionValue:@"x" properties:value];
-    yDimension = [self dimensionValue:@"x" properties:value];
+    yDimension = [self dimensionValue:@"y" properties:value];
   } else {
     xDimension = TiDimensionUndefined;
     yDimension = TiDimensionUndefined;
