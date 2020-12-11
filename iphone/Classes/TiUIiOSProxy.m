@@ -470,7 +470,7 @@
     return nil;
   }
   ENSURE_SINGLE_ARG_OR_NIL(arg, NSString);
-  TiBlob *blob = [[TiBlob alloc] initWithSystemImage:arg];
+  TiBlob *blob = [[[TiBlob alloc] initWithSystemImage:arg] autorelease];
   return blob;
 }
 #endif
@@ -912,9 +912,9 @@ MAKE_SYSTEM_PROP(INJECTION_TIME_DOCUMENT_END, WKUserScriptInjectionTimeAtDocumen
   DEPRECATED_REPLACED(@"UI.iOS.fetchSemanticColor", @"9.1.0", @"UI.fetchSemanticColor");
 
   if ([TiUtils isIOSVersionOrGreater:@"11.0"]) {
-    return [[TiColor alloc] initWithColor:[UIColor colorNamed:color] name:nil];
+    return [[[TiColor alloc] initWithColor:[UIColor colorNamed:color] name:nil] autorelease];
   }
-  return [[TiColor alloc] initWithColor:UIColor.blackColor name:@"black"];
+  return [[[TiColor alloc] initWithColor:UIColor.blackColor name:@"black"] autorelease];
 }
 
 @end

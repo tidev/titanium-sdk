@@ -259,6 +259,7 @@ methods:
         type: Boolean
     platforms: [iphone, ipad, android, macos]
     since: "5.1.0"
+
   - name: requestCameraPermissions
     summary: Requests for camera access.
     description: |
@@ -278,8 +279,14 @@ methods:
         change it in the device settings.
     parameters:
       - name: callback
-        summary: Function to call indicating if permission was granted or denied.
+        summary: |
+            Function to call indicating if permission was granted or denied.
+            Optional on SDK 10, as this method will return a `Promise`, which may be used to handle the result.
         type: Callback<RequestCameraAccessResult>
+        optional: true
+    returns:
+      summary: On SDK 10+, this method will return a `Promise` whose resolved value is equivalent to that passed to the optional callback argument.
+      type: Promise<RequestCameraAccessResult>
     platforms: [iphone, ipad, android, macos]
     since: "5.1.0"
     osver: {ios: {min: "7.0"}}
@@ -306,8 +313,14 @@ methods:
         iOS Apps that do not include this method, will present the system-dialog while the dialog is opened with <Titanium.Media.openPhotoGallery>.
     parameters:
       - name: callback
-        summary: Function to call indicating if permission was granted or denied.
+        summary: |
+            Function to call indicating if permission was granted or denied.
+            Optional on SDK 10, as this method will return a `Promise`, which may be used to handle the result.
         type: Callback<RequestPhotoGalleryAccessResult>
+        optional: true
+    returns:
+      summary: On SDK 10+, this method will return a `Promise` whose resolved value is equivalent to that passed to the optional callback argument.
+      type: Promise<RequestPhotoGalleryAccessResult>
     platforms: [android, iphone, ipad, macos]
     since:
         android: "9.3.0"
@@ -333,6 +346,7 @@ methods:
     platforms: [iphone, ipad]
     since: "4.0.0"
     osver: {ios: {min: "7.0"}}
+
   - name: takeScreenshot
     summary: Takes a screen shot of the visible UI on the device.
     description: |
@@ -344,6 +358,7 @@ methods:
         summary: Function to call upon capture.
         type: Callback<ScreenshotResult>
     platforms: [iphone, ipad, android, macos]
+
   - name: vibrate
     summary: Makes the device vibrate.
     description: |
@@ -473,8 +488,14 @@ methods:
         ipad: "6.1.0"
     parameters:
       - name: callback
-        summary: Callback function to execute when the users responds to the authorization alert.
+        summary: |
+            Callback function to execute when the users responds to the authorization alert.
+            Optional on SDK 10, as this method will return a `Promise`, which may be used to handle the result.
         type: Callback<MediaAuthorizationResponse>
+        optional: true
+    returns:
+      summary: On SDK 10+, this method will return a `Promise` whose resolved value is equivalent to that passed to the optional callback argument.
+      type: Promise<MediaAuthorizationResponse>
 
 events:
   - name: cameraready

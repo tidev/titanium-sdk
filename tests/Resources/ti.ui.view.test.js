@@ -21,13 +21,13 @@ describe('Titanium.UI.View', function () {
 	this.slow(2000);
 	this.timeout(10000);
 
-	before(function (finish) {
+	before(finish => {
 		rootWindow = Ti.UI.createWindow();
 		rootWindow.addEventListener('open', () => finish());
 		rootWindow.open();
 	});
 
-	after(function (finish) {
+	after(finish => {
 		rootWindow.addEventListener('close', () => finish());
 		rootWindow.close();
 	});
@@ -705,12 +705,7 @@ describe('Titanium.UI.View', function () {
 		win.open();
 	});
 
-	// FIXME: I think there's a parity issue here!
-	// Android returns x/y values as pixels *always*. while the input '100' uses the default unit (dip)
-	// which may vary based on screen density (Ti.Platform.DisplayCaps.ydpi) - so may be 100 or 200 pixels!
-	// But iOS *always* returns 123 for our value, so it must report the convertPointToView results in the default units too!
-	// So I think iOS always reports back dip values here and Android always reports back pixels
-	it.androidAndWindowsBroken('convertPointToView', function (finish) {
+	it.windowsBroken('convertPointToView', function (finish) {
 		win = Ti.UI.createWindow();
 		const a = Ti.UI.createView({ backgroundColor: 'red' });
 		const b = Ti.UI.createView({ top: '100', backgroundColor: 'blue' });
@@ -728,7 +723,18 @@ describe('Titanium.UI.View', function () {
 				should(result.x).be.a.Number(); // Windows: expected '123.000000' to be a number
 				should(result.y).be.a.Number();
 				should(result.x).eql(123);
-				should(result.y).eql(123); // Android sometimes gives 223? I assume this is a screen density thing?
+				should(result.y).eql(123);
+
+				result = b.convertPointToView({ x: '123', y: '23' }, a);
+				should(result.x).eql(123);
+				should(result.y).eql(123);
+
+				result = b.convertPointToView({
+					x: Ti.UI.convertUnits('123dp', 'px') + 'px',
+					y: Ti.UI.convertUnits('23dp', 'px') + 'px',
+				}, a);
+				should(result.x).eql(123);
+				should(result.y).eql(123);
 			} catch (err) {
 				return finish(err);
 			}
@@ -747,12 +753,9 @@ describe('Titanium.UI.View', function () {
 			try {
 				should(view.parent).be.an.Object();
 				should(view.parent).eql(win);
-				should(view.getParent).be.a.Function();
-				should(view.setParent).be.a.Function();
-				should(view.getParent()).eql(win);
 
 				// parent is not read-only
-				view.setParent(null);
+				view.parent = null;
 				should.not.exist(view.parent);
 			} catch (err) {
 				return finish(err);
@@ -988,7 +991,7 @@ describe('Titanium.UI.View', function () {
 				should(label.accessibilityHint).eql('Hint');
 				should(label.accessibilityHidden).be.true();
 
-				label.setAccessibilityLabel('New Text');
+				label.accessibilityLabel = 'New Text';
 				label.accessibilityValue = 'New Value';
 				label.accessibilityHint = 'New Hint';
 				label.accessibilityHidden = false;

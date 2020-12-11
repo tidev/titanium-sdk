@@ -9,37 +9,49 @@
 'use strict';
 const should = require('./utilities/assertions');
 
-describe.ios('Titanium.UI.iOS', function () {
-	it('#createTabbedBar()', function () {
+describe.ios('Titanium.UI.iOS', () => {
+	it('#createTabbedBar() is a Function', () => {
 		should(Ti.UI.iOS.createTabbedBar).not.be.undefined();
 		should(Ti.UI.iOS.createTabbedBar).be.a.Function();
 	});
 });
 
-describe.ios('Titanium.UI.iOS.TabbedBar', function () {
-
-	it('#labels', function () {
-		const tabbedBar = Ti.UI.iOS.createTabbedBar({
-			labels: [ 'One', 'Two', 'Three' ],
+describe.ios('Titanium.UI.iOS.TabbedBar', () => {
+	describe('.labels', () => {
+		let tabbedBar;
+		beforeEach(() => {
+			tabbedBar = Ti.UI.iOS.createTabbedBar({
+				labels: [ 'One', 'Two', 'Three' ],
+			});
 		});
-		should(tabbedBar.labels).be.an.Array();
-		should(tabbedBar.getLabels).be.a.Function();
-		should(tabbedBar.labels.length).be.eql(3);
-		should(tabbedBar.getLabels().length).eql(3);
-		tabbedBar.labels = [ 'Four', 'Five' ];
-		should(tabbedBar.labels.length).be.eql(2);
+
+		it('is an Array', () => {
+			should(tabbedBar.labels).be.an.Array();
+			should(tabbedBar.labels.length).be.eql(3);
+		});
+
+		it('can be assigned an Array', () => {
+			tabbedBar.labels = [ 'Four', 'Five' ];
+			should(tabbedBar.labels.length).be.eql(2);
+		});
 	});
 
-	it('#index', function () {
-		const tabbedBar = Ti.UI.iOS.createTabbedBar({
-			labels: [ 'One', 'Two', 'Three' ],
-			index: 1
+	it('.index', () => {
+		let tabbedBar;
+		beforeEach(() => {
+			tabbedBar = Ti.UI.iOS.createTabbedBar({
+				labels: [ 'One', 'Two', 'Three' ],
+				index: 1
+			});
 		});
-		should(tabbedBar.index).be.a.Number();
-		should(tabbedBar.getIndex).be.a.Function();
-		should(tabbedBar.getIndex()).be.eql(1);
-		should(tabbedBar.index).eql(1);
-		tabbedBar.index = 2;
-		should(tabbedBar.index).be.eql(2);
+
+		it('is a Number', () => {
+			should(tabbedBar.index).be.a.Number();
+		});
+
+		it('can be assigned a Number', () => {
+			tabbedBar.index = 2;
+			should(tabbedBar.index).be.eql(2);
+		});
 	});
 });
