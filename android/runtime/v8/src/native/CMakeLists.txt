@@ -76,7 +76,7 @@ add_library(
 	V8Util.cpp
 	modules/APIModule.cpp
 	modules/AssetsModule.cpp
-	modules/ScriptsModule.cpp
+	modules/EvaluateModule.cpp
 )
 
 # Add "kroll-apt" generated source files from the "generated" directory.
@@ -95,6 +95,7 @@ if(CMAKE_BUILD_TYPE STREQUAL "Debug")
 		PRIVATE
 
 		TI_DEBUG=1
+		V8_ENABLE_CHECKS
 	)
 endif()
 

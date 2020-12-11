@@ -385,6 +385,7 @@ Local<FunctionTemplate> Proxy::inheritProxyTemplate(Isolate* isolate,
 	Local<FunctionTemplate> superTemplate, jclass javaClass,
 	Local<String> className, Local<Function> callback)
 {
+	assert(!superTemplate.IsEmpty());
 	EscapableHandleScope scope(isolate);
 
 	// Wrap the java class in an External and we can access it via FunctionCallbackInfo.Data() in #proxyConstructor

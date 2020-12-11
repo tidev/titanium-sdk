@@ -18,7 +18,6 @@
 #include "JSException.h"
 #include "KrollBindings.h"
 #include "ProxyFactory.h"
-#include "ScriptsModule.h"
 #include "TypeConverter.h"
 #include "V8Util.h"
 
@@ -34,7 +33,6 @@ namespace titanium {
 
 Persistent<Context> V8Runtime::globalContext;
 Persistent<Object> V8Runtime::krollGlobalObject;
-Persistent<Array> V8Runtime::moduleContexts;
 Persistent<Object> V8Runtime::moduleObject;
 Persistent<Function> V8Runtime::runModuleFunction;
 
@@ -47,14 +45,6 @@ bool V8Runtime::initialized = false;
 
 typedef std::unique_ptr<v8::ArrayBuffer::Allocator> V8ArrayBufferAllocator;
 V8ArrayBufferAllocator v8Allocator;
-
-/* static */
-void V8Runtime::collectWeakRef(Persistent<Value> ref, void *parameter)
-{
-	jobject v8Object = (jobject) parameter;
-	ref.Reset();
-	JNIScope::getEnv()->DeleteGlobalRef(v8Object);
-}
 
 Local<Object> V8Runtime::Global()
 {
@@ -74,11 +64,6 @@ Local<Object> V8Runtime::ModuleObject()
 Local<Function> V8Runtime::RunModuleFunction()
 {
 	return runModuleFunction.Get(v8_isolate);
-}
-
-Local<Array> V8Runtime::ModuleContexts()
-{
-	return moduleContexts.Get(v8_isolate);
 }
 
 // Minimalistic logging function for internal JS
@@ -113,8 +98,6 @@ void V8Runtime::bootstrap(Local<Context> context)
 
 	Local<Object> kroll = Object::New(isolate);
 	krollGlobalObject.Reset(isolate, kroll);
-	Local<Array> mc = Array::New(isolate);
-	moduleContexts.Reset(isolate, mc);
 
 	KrollBindings::initFunctions(kroll, context);
 
@@ -134,7 +117,6 @@ void V8Runtime::bootstrap(Local<Context> context)
 
 	kroll->Set(context, NEW_SYMBOL(isolate, "runtime"), STRING_NEW(isolate, "v8"));
 	kroll->Set(context, NEW_SYMBOL(isolate, "DBG"), v8::Boolean::New(isolate, V8Runtime::DBG));
-	kroll->Set(context, NEW_SYMBOL(isolate, "moduleContexts"), mc);
 
 	LOG_TIMER(TAG, "Executing kroll.js");
 
@@ -466,31 +448,9 @@ JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeDi
 	{
 		HandleScope scope(V8Runtime::v8_isolate);
 
-		// Any module that has been require()'d or opened via Window URL
-		// will be cleaned up here. We setup the initial "moduleContexts"
-		// Array and expose it on kroll above in nativeInit, and
-		// module.js will insert module contexts into this array in
-		// Module.prototype._runScript
-		Local<Context> context = V8Runtime::v8_isolate->GetCurrentContext();
-		uint32_t length = V8Runtime::ModuleContexts()->Length();
-		for (uint32_t i = 0; i < length; ++i) {
-			MaybeLocal<Value> moduleContext = V8Runtime::ModuleContexts()->Get(context, i);
-			if (!moduleContext.IsEmpty()) {
-				// WrappedContext is simply a C++ wrapper for the V8 Context object,
-				// and is used to expose the Context to javascript. See ScriptsModule for
-				// implementation details
-				WrappedContext *wrappedContext = WrappedContext::Unwrap(V8Runtime::v8_isolate, moduleContext.ToLocalChecked().As<Object>());
-				ASSERT(wrappedContext != NULL);
-
-				wrappedContext->Dispose();
-			}
-		}
-
 		// KrollBindings
 		KrollBindings::dispose(V8Runtime::v8_isolate);
 		EventEmitter::dispose();
-
-		V8Runtime::moduleContexts.Reset();
 
 		V8Runtime::GlobalContext()->DetachGlobal();
 	}

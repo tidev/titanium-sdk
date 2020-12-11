@@ -6,8 +6,7 @@
  */
 'use strict';
 
-var Script = kroll.binding('evals').Script,
-	PersistentHandle = require('ui').PersistentHandle;
+var PersistentHandle = require('ui').PersistentHandle;
 
 var TAG = 'Window';
 
@@ -58,7 +57,6 @@ exports.bootstrap = function (Titanium) {
 
 			// Dispose the URL context if the window's activity is destroyed.
 			if (self._urlContext) {
-				Script.disposeContext(self._urlContext);
 				self._urlContext = null;
 			}
 			handle.dispose();

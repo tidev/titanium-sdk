@@ -60,38 +60,6 @@ Local<Value> V8Util::executeString(Isolate* isolate, Local<String> source, Local
 	return scope.Escape(result.ToLocalChecked());
 }
 
-Local<Value> V8Util::newInstanceFromConstructorTemplate(Persistent<FunctionTemplate>& t, const FunctionCallbackInfo<Value>& args)
-{
-	Isolate* isolate = args.GetIsolate();
-	EscapableHandleScope scope(isolate);
-
-	const int argc = args.Length();
-	Local<Value>* argv = new Local<Value>[argc];
-	for (int i = 0; i < argc; ++i) {
-		argv[i] = args[i];
-	}
-
-	Local<Context> context = isolate->GetCurrentContext();
-
-	TryCatch tryCatch(isolate);
-	Local<Value> nativeObject;
-	Local<Object> instance;
-	Local<Function> function;
-	MaybeLocal<Function> maybeFunction = t.Get(isolate)->GetFunction(context);
-	if (!maybeFunction.ToLocal(&function)) {
-		V8Util::fatalException(isolate, tryCatch);
-		return scope.Escape(Undefined(isolate));
-	}
-
-	MaybeLocal<Object> maybeInstance = function->NewInstance(context, argc, argv);
-	delete[] argv;
-	if (!maybeInstance.ToLocal(&instance)) {
-		V8Util::fatalException(isolate, tryCatch);
-		return scope.Escape(Undefined(isolate));
-	}
-	return scope.Escape(instance);
-}
-
 void V8Util::objectExtend(Local<Object> dest, Local<Object> src)
 {
 	V8Util::objectExtend(Isolate::GetCurrent(), dest, src);
@@ -126,7 +94,16 @@ void V8Util::reportException(Isolate* isolate, TryCatch &tryCatch, bool showLine
 	}
 
 	// Log the stack trace if we have one
-	MaybeLocal<Value> maybeStackTrace = tryCatch.StackTrace(context);
+	MaybeLocal<Value> maybeStackTrace;
+	if (!message.IsEmpty()) {
+		std::string stackString = V8Util::stackTraceString(isolate, message->GetStackTrace(), 10);
+		if (!stackString.empty()) {
+			maybeStackTrace = String::NewFromUtf8(isolate, stackString.c_str(), NewStringType::kNormal).ToLocalChecked();
+		}
+	}
+	if (maybeStackTrace.IsEmpty()) {
+		maybeStackTrace = tryCatch.StackTrace(context);
+	}
 	if (!maybeStackTrace.IsEmpty()) {
 		Local<Value> stack = maybeStackTrace.ToLocalChecked();
 		String::Utf8Value trace(isolate, stack);

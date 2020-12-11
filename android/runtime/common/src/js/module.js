@@ -6,10 +6,9 @@
  */
 'use strict';
 
-const NativeModule = require('native_module');
 const assets = kroll.binding('assets');
 const path = require('path');
-const Script = kroll.binding('evals').Script;
+const evaluate = kroll.binding('evals');
 const invoker = require('invoker');
 
 require('bootstrap');
@@ -41,7 +40,6 @@ kroll.Module = module.exports = Module;
 
 Module.cache = [];
 Module.main = null;
-Module.wrap = NativeModule.wrap;
 
 /**
  * [runModule description]
@@ -571,20 +569,25 @@ Module.prototype._runScript = function (source, filename) {
 				return inspectorWrapper(source, filename);
 			}
 		}
-		// run app.js "normally" (i.e. not under debugger/inspector)
-		return Script.runInThisContext(source, filename, true);
+		// continue to run app.js "normally" (i.e. not under debugger/inspector)
 	}
 
 	const ti = new Titanium.Wrapper(context);
 
-	// In V8, we treat external modules the same as native modules.  First, we wrap the
-	// module code and then run it in the current context.  This will allow external modules to
-	// access globals as mentioned in TIMOB-11752. This will also help resolve startup slowness that
-	// occurs as a result of creating a new context during startup in TIMOB-12286.
-	source = Module.wrap(source);
-
-	const f = Script.runInThisContext(source, filename, true);
-	return f(this.exports, require, this, filename, path.dirname(filename), ti, ti, global, kroll);
+	const result = evaluate.runAsModule(source, filename, {
+		exports: this.exports,
+		require,
+		module: this,
+		__filename: filename,
+		__dirname: path.dirname(filename),
+		Ti: ti,
+		Titanium: ti,
+		global,
+		kroll
+	});
+	if (result) {
+		kroll.extend(this.exports, result);
+	}
 };
 
 /**

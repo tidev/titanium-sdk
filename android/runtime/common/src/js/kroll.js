@@ -11,7 +11,8 @@
  * @param  {object} kroll [description]
  * @return {void}       [description]
  */
-(function (kroll) { // eslint-disable-line no-unused-expressions
+(kroll => { // eslint-disable-line no-unused-expressions
+	const evaluate = kroll.binding('evals');
 	var global = this;
 
 	// Works identical to Object.hasOwnProperty, except
@@ -69,8 +70,6 @@
 
 	startup.runMain = function () {};
 
-	var runInThisContext = kroll.binding('evals').Script.runInThisContext;
-
 	function NativeModule(id) {
 		this.filename = id + '.js';
 		this.id = id;
@@ -115,24 +114,26 @@
 		return NativeModule._source[id];
 	};
 
-	NativeModule.wrap = function (script) {
-		return NativeModule.wrapper[0] + script + NativeModule.wrapper[1];
-	};
-
-	NativeModule.wrapper = [
-		'(function (exports, require, module, __filename, __dirname, Titanium, Ti, global, kroll) {',
-		'\n});' ];
-
 	NativeModule.prototype.compile = function () {
-
 		var source = NativeModule.getSource(this.id);
-		source = NativeModule.wrap(source);
 
 		// All native modules have their filename prefixed with ti:/
 		var filename = 'ti:/' + this.filename;
 
-		var fn = runInThisContext(source, filename, true);
-		fn(this.exports, NativeModule.require, this, this.filename, null, global.Ti, global.Ti, global, kroll);
+		const result = evaluate.runAsModule(source, filename, {
+			exports: this.exports,
+			require: NativeModule.require,
+			module: this,
+			__filename: filename,
+			__dirname: null,
+			Ti: global.Ti,
+			Titanium: global.Ti,
+			global,
+			kroll
+		});
+		if (result) {
+			kroll.extend(this.exports, result);
+		}
 
 		this.loaded = true;
 	};
