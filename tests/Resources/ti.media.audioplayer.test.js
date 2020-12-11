@@ -13,7 +13,7 @@ describe('Titanium.Media', () => {
 	it('#createAudioPlayer()', () => should(Ti.Media.createAudioPlayer).be.a.Function());
 });
 
-describe('Titanium.Media.AudioPlayer', function () {
+describe.androidARM64Broken('Titanium.Media.AudioPlayer', function () {
 	let audioPlayer;
 
 	this.timeout(5000);
