@@ -1035,9 +1035,7 @@ describe('Titanium.UI.View', function () {
 			try {
 				should(view.borderRadius).be.a.String();
 				should(view.borderRadius).eql('12px 12 12dp 12');
-				if (!OS_ANDROID || Ti.Platform.Android.API_LEVEL > 20) {
-					should(outerView).matchImage('snapshots/borderRadius_12px_12_12dp_12.png');
-				}
+				should(outerView).matchImage('snapshots/borderRadius_12px_12_12dp_12.png');
 			} catch (e) {
 				return finish(e);
 			}
@@ -1063,11 +1061,9 @@ describe('Titanium.UI.View', function () {
 				should(view.borderRadius).be.an.Array();
 				should(view.borderRadius.length).eql(4);
 				should(view.borderRadius).eql([ '12px', 12, '12dp', '12' ]);
-				if (!OS_ANDROID || Ti.Platform.Android.API_LEVEL > 20) {
 
-					// Exact same image as test above.
-					should(outerView).matchImage('snapshots/borderRadius_12px_12_12dp_12.png');
-				}
+				// Exact same image as test above.
+				should(outerView).matchImage('snapshots/borderRadius_12px_12_12dp_12.png');
 			} catch (err) {
 				return finish(err);
 			}
@@ -1093,11 +1089,8 @@ describe('Titanium.UI.View', function () {
 				should(view.borderRadius).be.a.String();
 				should(view.borderRadius).eql('12px 12');
 
-				if (!OS_ANDROID || Ti.Platform.Android.API_LEVEL > 20) {
-
-					// Exact same image as test above.
-					should(outerView).matchImage('snapshots/borderRadius_12px_12.png');
-				}
+				// Exact same image as test above.
+				should(outerView).matchImage('snapshots/borderRadius_12px_12.png');
 			} catch (e) {
 				return finish(e);
 			}
@@ -1124,11 +1117,8 @@ describe('Titanium.UI.View', function () {
 				should(view.borderRadius.length).eql(2);
 				should(view.borderRadius).eql([ '12px', 12 ]);
 
-				if (!OS_ANDROID || Ti.Platform.Android.API_LEVEL > 20) {
-
-					// Exact same image as test above.
-					should(outerView).matchImage('snapshots/borderRadius_12px_12.png');
-				}
+				// Exact same image as test above.
+				should(outerView).matchImage('snapshots/borderRadius_12px_12.png');
 			} catch (err) {
 				return finish(err);
 			}
@@ -1186,10 +1176,7 @@ describe('Titanium.UI.View', function () {
 			try {
 				should(view.borderRadius).be.a.String();
 				should(view.borderRadius).eql('30px');
-
-				if (!OS_ANDROID || Ti.Platform.Android.API_LEVEL > 20) {
-					should(outerView).matchImage('snapshots/borderRadius_30px.png');
-				}
+				should(outerView).matchImage('snapshots/borderRadius_30px.png');
 			} catch (e) {
 				return finish(e);
 			}
