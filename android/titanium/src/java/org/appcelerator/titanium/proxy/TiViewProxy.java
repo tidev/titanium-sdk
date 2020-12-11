@@ -1238,73 +1238,68 @@ public abstract class TiViewProxy extends KrollProxy
 	@Kroll.method
 	public KrollDict convertPointToView(KrollDict point, TiViewProxy dest)
 	{
+		// Validate arguments.
 		if (point == null) {
 			throw new IllegalArgumentException("convertPointToView: point must not be null");
 		}
-
 		if (dest == null) {
 			throw new IllegalArgumentException("convertPointToView: destinationView must not be null");
 		}
-
 		if (!point.containsKey(TiC.PROPERTY_X)) {
 			throw new IllegalArgumentException("convertPointToView: required property \"x\" not found in point");
 		}
-
 		if (!point.containsKey(TiC.PROPERTY_Y)) {
 			throw new IllegalArgumentException("convertPointToView: required property \"y\" not found in point");
 		}
 
-		// The spec says to throw an exception if x or y cannot be converted to numbers.
-		// TiConvert does that automatically for us.
-		int x = TiConvert.toInt(point, TiC.PROPERTY_X);
-		int y = TiConvert.toInt(point, TiC.PROPERTY_Y);
+		// Fetch the given coordinate.
+		TiDimension dimensionX = TiConvert.toTiDimension(point, TiC.PROPERTY_X, TiDimension.TYPE_LEFT);
+		TiDimension dimensionY = TiConvert.toTiDimension(point, TiC.PROPERTY_Y, TiDimension.TYPE_TOP);
+		if (dimensionX == null) {
+			throw new IllegalArgumentException("convertPointToView: property \"x\" must be of type number or string");
+		}
+		if (dimensionY == null) {
+			throw new IllegalArgumentException("convertPointToView: property \"y\" must be of type number or string");
+		}
 
+		// Fetch the views to convert between.
 		TiUIView view = peekView();
 		TiUIView destView = dest.peekView();
 		if (view == null) {
 			Log.w(TAG, "convertPointToView: View has not been attached, cannot convert point");
 			return null;
 		}
-
 		if (destView == null) {
 			Log.w(TAG, "convertPointToView: DestinationView has not been attached, cannot convert point");
 			return null;
 		}
-
 		View nativeView = view.getNativeView();
 		View destNativeView = destView.getNativeView();
 		if (nativeView == null || nativeView.getParent() == null) {
 			Log.w(TAG, "convertPointToView: View has not been attached, cannot convert point");
 			return null;
 		}
-
 		if (destNativeView == null || destNativeView.getParent() == null) {
 			Log.w(TAG, "convertPointToView: DestinationView has not been attached, cannot convert point");
 			return null;
 		}
 
+		// Convert this view's point to the given view's coordinate space.
 		int[] viewLocation = new int[2];
 		int[] destLocation = new int[2];
 		nativeView.getLocationInWindow(viewLocation);
 		destNativeView.getLocationInWindow(destLocation);
-
-		if (Log.isDebugModeEnabled()) {
-			Log.d(TAG, "nativeView location in window, x: " + viewLocation[0] + ", y: " + viewLocation[1],
-				  Log.DEBUG_MODE);
-			Log.d(TAG, "destNativeView location in window, x: " + destLocation[0] + ", y: " + destLocation[1],
-				  Log.DEBUG_MODE);
-		}
-
-		int pointWindowX = viewLocation[0] + x;
-		int pointWindowY = viewLocation[1] + y;
-
-		// Apply reverse transformation to get the original location
-		float[] points = new float[] { pointWindowX - destLocation[0], pointWindowY - destLocation[1] };
+		float[] points = new float[] { viewLocation[0] - destLocation[0], viewLocation[1] - destLocation[1] };
 		points = destView.getPreTranslationValue(points);
+		points[0] += (float) dimensionX.getPixels(nativeView);
+		points[1] += (float) dimensionY.getPixels(nativeView);
+		dimensionX = new TiDimension((double) points[0], TiDimension.TYPE_LEFT);
+		dimensionY = new TiDimension((double) points[1], TiDimension.TYPE_TOP);
 
+		// Return converted point using the app's default units.
 		KrollDict destPoint = new KrollDict();
-		destPoint.put(TiC.PROPERTY_X, (int) points[0]);
-		destPoint.put(TiC.PROPERTY_Y, (int) points[1]);
+		destPoint.put(TiC.PROPERTY_X, dimensionX.getAsDefault(destNativeView));
+		destPoint.put(TiC.PROPERTY_Y, dimensionY.getAsDefault(destNativeView));
 		return destPoint;
 	}
 
