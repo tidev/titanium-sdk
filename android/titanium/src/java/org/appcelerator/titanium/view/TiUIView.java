@@ -1679,7 +1679,7 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 						data.put(TiC.EVENT_PROPERTY_VELOCITY, (sgd.getScaleFactor() - 1.0f) / timeDelta * 1000);
 						data.put(TiC.EVENT_PROPERTY_SOURCE, proxy);
 
-						return fireEvent(TiC.EVENT_PINCH, data);
+						return fireSyncEvent(TiC.EVENT_PINCH, data);
 					}
 					return false;
 				}
@@ -1808,7 +1808,7 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 				String motionEvent = motionEvents.get(event.getAction());
 				if (motionEvent != null) {
 					if (proxy != null && proxy.hierarchyHasListener(motionEvent)) {
-						fireEvent(motionEvent, dictFromEvent(event));
+						fireSyncEvent(motionEvent, dictFromEvent(event));
 					}
 				}
 
@@ -2058,6 +2058,24 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 			data.putAll(additionalEventData);
 		}
 		return proxy.fireEvent(eventName, data, bubbles);
+	}
+
+	public boolean fireSyncEvent(String eventName, KrollDict data)
+	{
+		return fireSyncEvent(eventName, data, true);
+	}
+
+	public boolean fireSyncEvent(String eventName, KrollDict data, boolean bubbles)
+	{
+		if (proxy == null) {
+			return false;
+		}
+		if (data == null && additionalEventData != null) {
+			data = new KrollDict(additionalEventData);
+		} else if (additionalEventData != null) {
+			data.putAll(additionalEventData);
+		}
+		return proxy.fireSyncEvent(eventName, data, bubbles);
 	}
 
 	protected void setOnLongClickListener(View view)
