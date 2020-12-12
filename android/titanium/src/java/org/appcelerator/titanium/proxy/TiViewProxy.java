@@ -961,13 +961,9 @@ public abstract class TiViewProxy extends KrollProxy
 		if (data == null) {
 			data = new KrollDict();
 		}
-
-		// Set the "bubbles" property to indicate if the event needs to be bubbled.
 		if (data instanceof HashMap) {
 			((HashMap) data).put(TiC.PROPERTY_BUBBLES, bubbles);
 		}
-
-		// Dispatch the event to JavaScript which takes care of the bubbling.
 		return super.fireEvent(eventName, data);
 	}
 
@@ -977,10 +973,25 @@ public abstract class TiViewProxy extends KrollProxy
 	@Override
 	public boolean fireEvent(String eventName, Object data)
 	{
-		// To remain compatible this override of fireEvent will always
-		// bubble the event to the parent view. It should eventually be deprecated
-		// in favor of using the fireEvent(String, Object, boolean) method.
 		return fireEvent(eventName, data, true);
+	}
+
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	public boolean fireSyncEvent(String eventName, Object data, boolean bubbles)
+	{
+		if (data == null) {
+			data = new KrollDict();
+		}
+		if (data instanceof HashMap) {
+			((HashMap) data).put(TiC.PROPERTY_BUBBLES, bubbles);
+		}
+		return super.fireSyncEvent(eventName, data);
+	}
+
+	@Override
+	public boolean fireSyncEvent(String eventName, Object data)
+	{
+		return fireSyncEvent(eventName, data, true);
 	}
 
 	/**
