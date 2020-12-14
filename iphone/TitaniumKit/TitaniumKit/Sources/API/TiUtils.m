@@ -165,7 +165,12 @@ static NSDictionary *sizeMap = nil;
 
 + (BOOL)isMacOS
 {
+#if TARGET_OS_MACCATALYST
+  return YES;
+#else
+  //  TODO: Just return NO? Use NSProcessInfo.processInfo.isMacCatalystApp or iOSAppOnMac?
   return [UIDevice.currentDevice.systemName isEqualToString:@"Mac OS X"];
+#endif
 }
 
 + (BOOL)isRetinaHDDisplay
