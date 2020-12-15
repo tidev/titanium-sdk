@@ -22,10 +22,11 @@ exports.init = (logger, config, cli) => {
 		ANDROID_SDK = cli.argv['android-sdk'];
 	}
 
-	// Set ADB path
-	ADB_PATH = path.join(ANDROID_SDK, 'platform-tools', 'adb');
-
 	cli.on('build.pre.compile', async (builder, done) => {
+		if (builder.platformName === 'android') {
+			// Set ADB path
+			ADB_PATH = path.join(ANDROID_SDK, 'platform-tools', 'adb');
+		}
 		builder.tiapp.properties['Ti.version'] = { type: 'string', value: builder.titaniumSdkVersion };
 		builder.tiapp.properties['js.encrypted'] = { type: 'bool', value: builder.encryptJS };
 		done();

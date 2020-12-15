@@ -11,7 +11,7 @@
 const should = require('./utilities/assertions');
 const utilities = require('./utilities/utilities');
 
-describe('Titanium.UI.WebView', function () {
+describe.androidARM64Broken('Titanium.UI.WebView', function () {
 	this.slow(3000);
 	this.timeout(30000);
 

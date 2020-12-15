@@ -59,10 +59,10 @@ public class ListViewHolder extends RecyclerView.ViewHolder
 	private final ViewGroup container;
 	private final TiCompositeLayout content;
 	// Bottom
-	private final ViewGroup footer;
+	private final TiCompositeLayout footer;
 	private final TextView footerTitle;
 	// Top
-	private final ViewGroup header;
+	private final TiCompositeLayout header;
 	private final TextView headerTitle;
 	private final ImageView rightImage;
 
@@ -250,7 +250,7 @@ public class ListViewHolder extends RecyclerView.ViewHolder
 		if (section == null) {
 
 			// Handle `header` and `footer` for rows without a parent section.
-			setHeaderFooter(properties, true, true);
+			setHeaderFooter(listViewProxy, properties, true, true);
 
 		} else {
 
@@ -263,14 +263,14 @@ public class ListViewHolder extends RecyclerView.ViewHolder
 			if (indexInSection == 0 || filteredIndex == 0 || proxy.isPlaceholder()) {
 
 				// Only set header on first row in section.
-				setHeaderFooter(sectionProperties, true, false);
+				setHeaderFooter(listViewProxy, sectionProperties, true, false);
 			}
 			if ((indexInSection >= section.getItems().length - 1)
 				|| (filteredIndex >= section.getFilteredItemCount() - 1)
 				|| proxy.isPlaceholder()) {
 
 				// Only set footer on last row in section.
-				setHeaderFooter(sectionProperties, false, true);
+				setHeaderFooter(listViewProxy, sectionProperties, false, true);
 			}
 		}
 
@@ -286,20 +286,18 @@ public class ListViewHolder extends RecyclerView.ViewHolder
 	 */
 	protected Drawable generateRippleDrawable(Drawable drawable)
 	{
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-			if (!(drawable instanceof RippleDrawable)) {
-				final int[][] rippleStates = new int[][] { new int[] { android.R.attr.state_pressed } };
-				final TypedValue typedValue = new TypedValue();
-				final Activity activity = TiApplication.getAppRootOrCurrentActivity();
-				final TypedArray colorControlHighlight = activity.obtainStyledAttributes(
-					typedValue.data, new int[] { android.R.attr.colorControlHighlight });
-				final int colorControlHighlightInt = colorControlHighlight.getColor(0, 0);
-				final int[] rippleColors = new int[] { colorControlHighlightInt };
-				final ColorStateList colorStateList = new ColorStateList(rippleStates, rippleColors);
+		if (!(drawable instanceof RippleDrawable)) {
+			final int[][] rippleStates = new int[][] { new int[] { android.R.attr.state_pressed } };
+			final TypedValue typedValue = new TypedValue();
+			final Activity activity = TiApplication.getAppRootOrCurrentActivity();
+			final TypedArray colorControlHighlight = activity.obtainStyledAttributes(
+				typedValue.data, new int[] { android.R.attr.colorControlHighlight });
+			final int colorControlHighlightInt = colorControlHighlight.getColor(0, 0);
+			final int[] rippleColors = new int[] { colorControlHighlightInt };
+			final ColorStateList colorStateList = new ColorStateList(rippleStates, rippleColors);
 
-				// Create the RippleDrawable.
-				drawable = new RippleDrawable(colorStateList, drawable, null);
-			}
+			// Create the RippleDrawable.
+			drawable = new RippleDrawable(colorStateList, drawable, null);
 		}
 		return drawable;
 	}
@@ -367,12 +365,25 @@ public class ListViewHolder extends RecyclerView.ViewHolder
 	/**
 	 * Set header and footer views of holder.
 	 *
+	 * @param listViewProxy ListView proxy.
 	 * @param properties   Properties containing header and footer entires.
 	 * @param updateHeader Boolean to determine if the header should be updated.
 	 * @param updateFooter Boolean to determine if the footer should be updated.
 	 */
-	private void setHeaderFooter(KrollDict properties, boolean updateHeader, boolean updateFooter)
+	private void setHeaderFooter(TiViewProxy listViewProxy,
+								 KrollDict properties,
+								 boolean updateHeader,
+								 boolean updateFooter)
 	{
+		if (listViewProxy == null) {
+			return;
+		}
+
+		final View nativeListView = listViewProxy.getOrCreateView().getNativeView();
+		if (nativeListView == null) {
+			return;
+		}
+
 		// Handle `header` and `footer`.
 		if (updateHeader) {
 			if (properties.containsKeyAndNotNull(TiC.PROPERTY_HEADER_TITLE)) {
@@ -393,6 +404,10 @@ public class ListViewHolder extends RecyclerView.ViewHolder
 						if (parent != null) {
 							parent.removeView(headerView);
 						}
+
+						// Amend maximum size for header to parent ListView measured height.
+						this.header.setChildFillHeight(nativeListView.getMeasuredHeight());
+
 						this.header.addView(headerView, view.getLayoutParams());
 						this.header.setVisibility(View.VISIBLE);
 					}
@@ -418,6 +433,10 @@ public class ListViewHolder extends RecyclerView.ViewHolder
 						if (parent != null) {
 							parent.removeView(footerView);
 						}
+
+						// Amend maximum size for footer to parent ListView measured height.
+						this.footer.setChildFillHeight(nativeListView.getMeasuredHeight());
+
 						this.footer.addView(footerView, view.getLayoutParams());
 						this.footer.setVisibility(View.VISIBLE);
 					}
@@ -500,11 +519,7 @@ public class ListViewHolder extends RecyclerView.ViewHolder
 		if (backgroundValue.resourceId != 0) {
 
 			// Set title background drawable.
-			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-				title.setBackground(resources.getDrawable(backgroundValue.resourceId, theme));
-			} else {
-				title.setBackground(resources.getDrawable(backgroundValue.resourceId));
-			}
+			title.setBackground(resources.getDrawable(backgroundValue.resourceId, theme));
 
 		} else if (backgroundColorValue.resourceId != 0) {
 

@@ -17,6 +17,8 @@ import android.service.quicksettings.Tile;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.KrollModule;
+import org.appcelerator.kroll.KrollObject;
+import org.appcelerator.kroll.KrollPromise;
 import org.appcelerator.kroll.KrollRuntime;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
@@ -684,40 +686,48 @@ public class AndroidModule extends KrollModule
 	}
 
 	@Kroll.method
-	public void requestPermissions(Object permissionObject,
-								   @Kroll.argument(optional = true) KrollFunction permissionCallback)
+	public KrollPromise<KrollDict> requestPermissions(final Object permissionObject,
+								   @Kroll.argument(optional = true) final KrollFunction permissionCallback)
 	{
-		if (Build.VERSION.SDK_INT >= 23) {
-			ArrayList<String> permissions = new ArrayList<String>();
-			if (permissionObject instanceof String) {
-				permissions.add((String) permissionObject);
-			} else if (permissionObject instanceof Object[]) {
-				for (Object permission : (Object[]) permissionObject) {
-					if (permission instanceof String) {
-						permissions.add((String) permission);
+		// TODO: Create a subclass of Promise that takes in KrollFunction callback and "this" KrollObject
+		// to fire the callback when we resolve/reject?
+		final KrollObject callbackThisObject = getKrollObject();
+		return KrollPromise.create((promise) -> {
+			if (Build.VERSION.SDK_INT >= 23) {
+				List<String> permissions = new ArrayList<String>();
+				if (permissionObject instanceof String) {
+					permissions.add((String) permissionObject);
+				} else if (permissionObject instanceof Object[]) {
+					for (Object permission : (Object[]) permissionObject) {
+						if (permission instanceof String) {
+							permissions.add((String) permission);
+						}
 					}
 				}
-			}
-			Activity currentActivity = TiApplication.getInstance().getCurrentActivity();
-			ArrayList<String> filteredPermissions = new ArrayList<String>();
-			for (String permission : permissions) {
-				if (currentActivity.checkSelfPermission(permission) == PackageManager.PERMISSION_GRANTED) {
-					continue;
+				Activity currentActivity = TiApplication.getInstance().getCurrentActivity();
+				List<String> filteredPermissions = new ArrayList<String>();
+				for (String permission : permissions) {
+					if (currentActivity.checkSelfPermission(permission) == PackageManager.PERMISSION_GRANTED) {
+						continue;
+					}
+					filteredPermissions.add(permission);
 				}
-				filteredPermissions.add(permission);
+				if (filteredPermissions.size() > 0) {
+					TiBaseActivity.registerPermissionRequestCallback(REQUEST_CODE, permissionCallback,
+						callbackThisObject, promise);
+					currentActivity.requestPermissions(filteredPermissions.toArray(
+						new String[filteredPermissions.size()]), REQUEST_CODE);
+					return;
+				}
 			}
-			if (filteredPermissions.size() > 0) {
-				TiBaseActivity.registerPermissionRequestCallback(REQUEST_CODE, permissionCallback, getKrollObject());
-				currentActivity.requestPermissions(filteredPermissions.toArray(new String[filteredPermissions.size()]),
-												   REQUEST_CODE);
-				return;
+			// FIXME: If we're not on API level 23+, shouldn't we reject/error?
+			KrollDict response = new KrollDict();
+			response.putCodeAndMessage(0, null);
+			if (permissionCallback != null) {
+				permissionCallback.callAsync(callbackThisObject, response);
 			}
-		}
-		KrollDict response = new KrollDict();
-		response.putCodeAndMessage(0, null);
-		if (permissionCallback != null) {
-			permissionCallback.callAsync(getKrollObject(), response);
-		}
+			promise.resolve(response);
+		});
 	}
 
 	@Kroll.method

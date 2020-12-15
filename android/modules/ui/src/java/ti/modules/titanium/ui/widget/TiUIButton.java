@@ -51,7 +51,7 @@ public class TiUIButton extends TiUIView
 			{
 				boolean isTouchAllowed = super.onFilterTouchEventForSecurity(event);
 				if (!isTouchAllowed) {
-					fireEvent(TiC.EVENT_TOUCH_FILTERED, dictFromEvent(event));
+					fireSyncEvent(TiC.EVENT_TOUCH_FILTERED, dictFromEvent(event));
 				}
 				return isTouchAllowed;
 			}
