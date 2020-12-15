@@ -1108,7 +1108,7 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
   [self commonPickerSetup:args];
 
 // iPod not available on simulator
-#if TARGET_IPHONE_SIMULATOR
+#if TARGET_OS_SIMULATOR
   [self sendPickerError:MediaModuleErrorNoMusicPlayer];
 #else
 
@@ -1791,6 +1791,8 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
 
   [_phPicker setDelegate:self];
   [self displayModalPicker:_phPicker settings:args];
+
+  RELEASE_TO_NIL(configuration);
 }
 
 #pragma mark PHPickerViewControllerDelegate

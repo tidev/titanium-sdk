@@ -62,7 +62,7 @@ Object.defineProperty(EventEmitter.prototype, 'callHandler', {
 
 		// Bubble the events to the parent view if needed.
 		if (data.bubbles && !cancelBubble) {
-			handled = this._fireEventToParent(type, data) || handled;
+			handled = this._fireSyncEventToParent(type, data) || handled;
 		}
 
 		return handled;
@@ -92,7 +92,7 @@ Object.defineProperty(EventEmitter.prototype, 'emit', {
 
 		if (!this._events || !this._events[type] || !this.callHandler) {
 			if (data.bubbles && !data.cancelBubble) {
-				handled = this._fireEventToParent(type, data);
+				handled = this._fireSyncEventToParent(type, data);
 			}
 			return handled;
 		}
@@ -108,7 +108,7 @@ Object.defineProperty(EventEmitter.prototype, 'emit', {
 			}
 
 		} else if (data.bubbles && !data.cancelBubble) {
-			handled = this._fireEventToParent(type, data);
+			handled = this._fireSyncEventToParent(type, data);
 		}
 
 		return handled;

@@ -13,10 +13,8 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.os.Build;
 import android.os.Looper;
 import android.os.SystemClock;
-import androidx.multidex.MultiDex;
 import android.util.DisplayMetrics;
 import android.view.accessibility.AccessibilityManager;
 import com.appcelerator.aps.APSAnalytics;
@@ -316,13 +314,6 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	}
 
 	@Override
-	protected void attachBaseContext(Context base)
-	{
-		super.attachBaseContext(base);
-		MultiDex.install(this);
-	}
-
-	@Override
 	public void onCreate()
 	{
 		super.onCreate();
@@ -380,6 +371,12 @@ public abstract class TiApplication extends Application implements KrollApplicat
 
 				// Delete all Titanium temp files.
 				deleteTiTempFiles();
+
+				if (isAnalyticsEnabled()) {
+
+					// Force send `session.end` event.
+					APSAnalytics.getInstance().sendSessionEndEvent(true);
+				}
 			}
 		});
 	}
@@ -412,7 +409,7 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	@Override
 	public void onTrimMemory(int level)
 	{
-		if (Build.VERSION.SDK_INT >= TiC.API_LEVEL_HONEYCOMB && level >= TRIM_MEMORY_RUNNING_LOW) {
+		if (level >= TRIM_MEMORY_RUNNING_LOW) {
 			// Release all the cached images
 			TiBlobLruCache.getInstance().evictAll();
 			TiImageLruCache.getInstance().evictAll();

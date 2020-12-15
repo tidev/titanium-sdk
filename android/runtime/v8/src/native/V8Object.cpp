@@ -216,7 +216,7 @@ Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeCallProperty
 
 JNIEXPORT jboolean JNICALL
 Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeRelease
-	(JNIEnv *env, jclass clazz, jlong refPointer)
+	(JNIEnv *env, jobject self, jlong refPointer)
 {
 	LOGD(TAG, "V8Object::nativeRelease");
 	HandleScope scope(V8Runtime::v8_isolate);

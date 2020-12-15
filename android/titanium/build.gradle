@@ -40,7 +40,7 @@ for (nextString in tiBuildVersionString.split('\\.')) {
 android {
 	compileSdkVersion 30
 	defaultConfig {
-		minSdkVersion 19
+		minSdkVersion 21
 		targetSdkVersion 30
 		versionName tiBuildVersionString
 		versionCode tiBuildVersionCode
@@ -258,9 +258,6 @@ dependencies {
 	implementation 'androidx.viewpager:viewpager:1.0.0'
 	compileOnly 'androidx.annotation:annotation:1.1.0'
 
-	//TODO: Remove multidex library when our min OS version supported is Android 5.0 or higher.
-	implementation 'androidx.multidex:multidex:2.0.1'
-
 	// Google's "Material Components" themed UI library.
 	implementation "com.google.android.material:material:${project.ext.tiMaterialLibVersion}"
 
@@ -269,13 +266,15 @@ dependencies {
 	implementation "com.google.android.gms:play-services-base:${project.ext.tiPlayServicesBaseLibVersion}"
 	implementation 'com.google.android.gms:play-services-location:17.1.0'
 
+	// XML library providing XPath support to our Ti.XML APIs.
+	implementation 'jaxen:jaxen:1.2.0'
+
 	// WebSocket library is needed to do JavaScript debugging.
 	implementation 'org.java-websocket:Java-WebSocket:1.5.1'
 
 	// Reference all local JAR file dependencies.
 	implementation fileTree(dir: 'lib', include: ['*.jar'])
 	implementation fileTree(dir: "${projectDir}/../modules/ui/lib", include: ['*.jar'])
-	implementation fileTree(dir: "${projectDir}/../modules/xml/lib", include: ['*.jar'])
 }
 
 // This block is used when we do a "gradlew :titanium:publish", which is invoked by our "node scons package" tool.

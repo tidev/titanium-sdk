@@ -109,6 +109,31 @@ should.Assertion.add('enumeration', function (type, names) {
 	}
 }, false);
 
+should.Assertion.add('getter', function (propName) {
+	const upper = propName.slice(0, 1).toUpperCase();
+	const getterName = `get${upper}${propName.slice(1)}`;
+	this.params = { operator: `to have a getter method named: ${getterName}` };
+	if (this.obj.apiName) {
+		this.params.obj = this.obj.apiName;
+	}
+	should(this.obj).have.a.property(getterName).which.is.a.Function();
+}, false);
+
+should.Assertion.add('setter', function (propName) {
+	const upper = propName.slice(0, 1).toUpperCase();
+	const setterName = `set${upper}${propName.slice(1)}`;
+	this.params = { operator: `to have a setter method named: ${setterName}` };
+	if (this.obj.apiName) {
+		this.params.obj = this.obj.apiName;
+	}
+	should(this.obj).have.a.property(setterName).which.is.a.Function();
+}, false);
+
+should.Assertion.add('accessors', function (propName) {
+	should(this.obj).have.a.getter(propName);
+	should(this.obj).have.a.setter(propName);
+}, false);
+
 /**
  * @param {Ti.Blob} blob binary data to write
  * @param {string} imageFilePath relative file path to save image under

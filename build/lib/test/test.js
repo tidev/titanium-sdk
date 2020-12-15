@@ -681,7 +681,9 @@ class DeviceTestDetails {
 			if (this.target === 'device') {
 				await exec(`adb -s ${await this.deviceId()} shell "run-as ${APP_ID} cat '${filepath}'" > ${dest}`);
 			} else {
-				await exec(`adb -e shell "run-as ${APP_ID} cat '${filepath}'" > ${dest}`);
+				// await exec(`adb -e shell "run-as ${APP_ID} cat '${filepath}'" > ${dest}`);
+				// Using cat as above on some emulators (especially older ones) mangles image files
+				await exec(`adb -e pull ${filepath} ${dest}`);
 			}
 			return dest;
 		}

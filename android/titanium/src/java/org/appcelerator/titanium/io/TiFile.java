@@ -258,10 +258,7 @@ public class TiFile extends TiBaseFile
 	public long spaceAvailable()
 	{
 		StatFs stat = new StatFs(file.getPath());
-		if (Build.VERSION.SDK_INT >= 18) {
-			return stat.getAvailableBytes();
-		}
-		return (long) stat.getAvailableBlocks() * (long) stat.getBlockSize();
+		return stat.getAvailableBytes();
 	}
 
 	/**

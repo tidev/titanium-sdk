@@ -20,7 +20,6 @@ import android.graphics.Path.Direction;
 import android.graphics.PorterDuff;
 import android.graphics.Rect;
 import android.graphics.RectF;
-import android.os.Build;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewOutlineProvider;
@@ -97,21 +96,11 @@ public class TiBorderWrapperView extends FrameLayout
 			for (int i = 0; i < this.radius.length; i++) {
 				innerRadius[i] = this.radius[i] - padding;
 			}
-			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-				// Set specified border corners.
-				outerPath.addRoundRect(innerRect, innerRadius, Direction.CCW);
-			} else {
-				outerPath.addRoundRect(innerRect, innerRadius[0], innerRadius[0], Direction.CCW);
-			}
+			outerPath.addRoundRect(innerRect, innerRadius, Direction.CCW);
 			Path innerPath = new Path(outerPath);
 
 			// Draw border.
-			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-				// Set specified border corners.
-				outerPath.addRoundRect(outerRect, this.radius, Direction.CW);
-			} else {
-				outerPath.addRoundRect(outerRect, this.radius[0], this.radius[0], Direction.CW);
-			}
+			outerPath.addRoundRect(outerRect, this.radius, Direction.CW);
 			canvas.drawPath(outerPath, paint);
 
 			// TIMOB-16909: hack to fix anti-aliasing
@@ -131,7 +120,7 @@ public class TiBorderWrapperView extends FrameLayout
 		}
 
 		// TIMOB-20076: set the outline for the view in order to use elevation
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && viewOutlineProvider == null) {
+		if (viewOutlineProvider == null) {
 			viewOutlineProvider = new ViewOutlineProvider() {
 				@Override
 				public void getOutline(View view, Outline outline)
@@ -147,9 +136,7 @@ public class TiBorderWrapperView extends FrameLayout
 	public void onDescendantInvalidated(View child, View target)
 	{
 		// Also invalidate outline to recalculate drop shadow.
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-			invalidateOutline();
-		}
+		invalidateOutline();
 		super.onDescendantInvalidated(child, target);
 	}
 
