@@ -165,7 +165,12 @@ static NSDictionary *sizeMap = nil;
 
 + (BOOL)isMacOS
 {
+#if TARGET_OS_MACCATALYST
+  return YES;
+#else
+  //  TODO: Just return NO? Use NSProcessInfo.processInfo.isMacCatalystApp or iOSAppOnMac?
   return [UIDevice.currentDevice.systemName isEqualToString:@"Mac OS X"];
+#endif
 }
 
 + (BOOL)isRetinaHDDisplay
@@ -1581,7 +1586,7 @@ If the new path starts with / and the base url is app://..., we have to massage 
 #endif
       appurlstr = [appurlstr substringFromIndex:1];
     }
-#if TARGET_IPHONE_SIMULATOR
+#if TARGET_OS_SIMULATOR
     NSString *resourcesDirectory = [[TiSharedConfig defaultConfig] applicationResourcesDirectory];
 
     if (app == YES && leadingSlashRemoved) {
