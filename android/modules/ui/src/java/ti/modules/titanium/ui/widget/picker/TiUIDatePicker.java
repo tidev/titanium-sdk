@@ -20,7 +20,6 @@ import org.appcelerator.titanium.util.TiRHelper.ResourceNotFoundException;
 import org.appcelerator.titanium.view.TiUIView;
 
 import android.app.Activity;
-import android.os.Build;
 import android.widget.DatePicker;
 import android.widget.DatePicker.OnDateChangedListener;
 
@@ -42,28 +41,20 @@ public class TiUIDatePicker extends TiUIView implements OnDateChangedListener
 		this(proxy);
 		Log.d(TAG, "Creating a date picker", Log.DEBUG_MODE);
 
-		CustomDatePicker picker;
-		// If it is not API Level 21 (Android 5.0), create picker normally.
-		// If not, it will inflate a spinner picker to address a bug.
-		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-			picker = new CustomDatePicker(activity);
-		} else {
-			// A bug where PickerCalendarDelegate does not send events to the
-			// listener on API Level 21 (Android 5.0) for TIMOB-19192
-			// https://code.google.com/p/android/issues/detail?id=147657
-			// Work around is to use spinner view instead of calendar view in
-			// in Android 5.0
-			int datePickerSpinner;
-			try {
-				datePickerSpinner = TiRHelper.getResource("layout.titanium_ui_date_picker_spinner");
-			} catch (ResourceNotFoundException e) {
-				if (Log.isDebugModeEnabled()) {
-					Log.e(TAG, "XML resources could not be found!!!");
-				}
-				return;
+		// A bug where PickerCalendarDelegate does not send events to the
+		// listener on API Level 21 (Android 5.0) for TIMOB-19192
+		// https://code.google.com/p/android/issues/detail?id=147657
+		// Work around is to use spinner view instead of calendar view
+		int datePickerSpinner;
+		try {
+			datePickerSpinner = TiRHelper.getResource("layout.titanium_ui_date_picker_spinner");
+		} catch (ResourceNotFoundException e) {
+			if (Log.isDebugModeEnabled()) {
+				Log.e(TAG, "XML resources could not be found!!!");
 			}
-			picker = (CustomDatePicker) activity.getLayoutInflater().inflate(datePickerSpinner, null);
+			return;
 		}
+		CustomDatePicker picker = (CustomDatePicker) activity.getLayoutInflater().inflate(datePickerSpinner, null);
 		picker.setProxy(getProxy());
 		setNativeView(picker);
 	}

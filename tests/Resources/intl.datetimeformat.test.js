@@ -149,13 +149,10 @@ describe('Intl.DateTimeFormat',  () => {
 			const date = new Date(Date.UTC(2020, 0, 1, 12, 0, 0, 456));
 			let formatter = new Intl.DateTimeFormat('en-US', { fractionalSecondDigits: 3, timeZone: 'UTC' });
 			should(formatter.format(date)).be.eql('456');
-			if (Ti.Platform.Android.API_LEVEL >= 21) {
-				// Only Android 5.0+ correctly formats with these settings.
-				formatter = new Intl.DateTimeFormat('en-US', { fractionalSecondDigits: 2, timeZone: 'UTC' });
-				should(formatter.format(date)).be.eql('45');
-				formatter = new Intl.DateTimeFormat('en-US', { fractionalSecondDigits: 1, timeZone: 'UTC' });
-				should(formatter.format(date)).be.eql('4');
-			}
+			formatter = new Intl.DateTimeFormat('en-US', { fractionalSecondDigits: 2, timeZone: 'UTC' });
+			should(formatter.format(date)).be.eql('45');
+			formatter = new Intl.DateTimeFormat('en-US', { fractionalSecondDigits: 1, timeZone: 'UTC' });
+			should(formatter.format(date)).be.eql('4');
 		});
 	});
 

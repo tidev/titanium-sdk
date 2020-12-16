@@ -2135,7 +2135,10 @@ properties:
     since: "5.5.0"
 
   - name: CLIPBOARD_OPTION_EXPIRATION_DATE
-    summary: Specifies the time and date that you want the system to remove the clipboard items from the clipboard.
+    summary: |
+        Specifies the time and date that you want the system to remove the clipboard items from the clipboard.
+
+        Note that on macOS, setting a date in the past does not appear to invalidate items immediately, while on iOS it does.
     type: String
     permission: read-only
     platforms: [iphone, ipad, macos]

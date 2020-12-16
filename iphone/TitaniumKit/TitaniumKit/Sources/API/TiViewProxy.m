@@ -700,6 +700,7 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
         }
         TiUIView *myview = [self view];
         CGSize size = myview.bounds.size;
+        CGRect bounds = myview.bounds;
         if (CGSizeEqualToSize(size, CGSizeZero) || size.width == 0 || size.height == 0) {
 #ifndef TI_USE_AUTOLAYOUT
           CGFloat width = [self autoWidthForSize:CGSizeMake(1000, 1000)];
@@ -718,12 +719,14 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
           }
           CGRect rect = CGRectMake(0, 0, size.width, size.height);
           [TiUtils setView:myview positionRect:rect];
+          bounds = rect;
         }
         if (!viewIsAttached) {
           [self layoutChildren:NO];
         }
+
         UIGraphicsBeginImageContextWithOptions(size, [myview.layer isOpaque], (honorScale ? 0.0 : 1.0));
-        [myview.layer renderInContext:UIGraphicsGetCurrentContext()];
+        [myview drawViewHierarchyInRect:bounds afterScreenUpdates:YES];
         UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
         blob = [[[TiBlob alloc] initWithImage:image] autorelease];
         [blob setMimeType:@"image/png" type:TiBlobTypeImage];
@@ -744,25 +747,28 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
   ENSURE_ARG_AT_INDEX(arg1, args, 0, NSObject);
   ENSURE_ARG_AT_INDEX(arg2, args, 1, TiViewProxy);
   BOOL validPoint;
-  CGPoint oldPoint = [TiUtils pointValue:arg1 valid:&validPoint];
+  CGPoint givenPoint = [TiUtils pointValue:arg1 valid:&validPoint];
   if (!validPoint) {
     [self throwException:TiExceptionInvalidType subreason:@"Parameter is not convertable to a TiPoint" location:CODELOCATION];
   }
 
   __block BOOL validView = NO;
-  __block CGPoint p;
+  __block CGPoint pointOffsetDips;
   TiThreadPerformOnMainThread(
       ^{
         if ([self viewAttached] && self.view.window && [arg2 viewAttached] && arg2.view.window) {
           validView = YES;
-          p = [self.view convertPoint:oldPoint toView:arg2.view];
+          pointOffsetDips = [self.view convertPoint:CGPointZero toView:arg2.view];
         }
       },
       YES);
   if (!validView) {
     return (TiPoint *)[NSNull null];
   }
-  return [[[TiPoint alloc] initWithPoint:p] autorelease];
+  TiPoint *tiPoint = [[TiPoint alloc] autorelease];
+  [tiPoint setX:NUMFLOAT(convertDipToDefaultUnit(pointOffsetDips.x + givenPoint.x))];
+  [tiPoint setY:NUMFLOAT(convertDipToDefaultUnit(pointOffsetDips.y + givenPoint.y))];
+  return tiPoint;
 }
 
 #pragma mark nonpublic accessors not related to Housecleaning
