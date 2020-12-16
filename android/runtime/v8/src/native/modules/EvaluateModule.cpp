@@ -19,6 +19,27 @@ namespace titanium {
 	Persistent<String> EvaluateModule::DEFAULT_STRING;
 	Persistent<String> EvaluateModule::REQUIRE_STRING;
 	Persistent<String> EvaluateModule::MODULE_REF_STRING;
+	Persistent<String> EvaluateModule::GLOBAL_STRING;
+
+	static void assign(Local<Object> source, Local<Data> destination)
+	{
+		Local<Array> keys = source->GetOwnPropertyNames();
+
+		for (int i = 0; i < keys->Length(); i++) {
+			Local<String> key = keys->Get(i).As<String>();
+			Local<Value> value = source->Get(key);
+
+			if (!key.IsEmpty() && !value.IsEmpty()) {
+				if (destination->IsValue()) {
+					destination.As<Value>().As<Object>()->Set(key, value);
+				} else if (destination->IsModule()) {
+					destination.As<Module>()->SetSyntheticModuleExport(V8Runtime::v8_isolate, key, value);
+				} else {
+					break;
+				}
+			}
+		}
+	}
 
 	void EvaluateModule::Initialize(Local<Object> target, Local<Context> context)
 	{
@@ -32,6 +53,9 @@ namespace titanium {
 		}
 		if (MODULE_REF_STRING.IsEmpty()) {
 			MODULE_REF_STRING.Reset(isolate, STRING_NEW(isolate, "__module_ref"));
+		}
+		if (GLOBAL_STRING.IsEmpty()) {
+			GLOBAL_STRING.Reset(isolate, STRING_NEW(isolate, "global"));
 		}
 
 		SetMethod(context, isolate, target, "runAsModule", EvaluateModule::RunAsModule);
@@ -99,16 +123,11 @@ namespace titanium {
 
 						if (moduleRefValue->IsObject()) {
 							Local<Object> moduleRefObject = moduleRefValue.As<Object>();
-							Local<Array> keys = moduleRefObject->GetOwnPropertyNames();
 
-							for (int i = 0; i < keys->Length(); i++) {
-								Local<String> key = keys->Get(i).As<String>();
-								Local<Value> value = moduleRefObject->Get(key);
+							// Add exports from required module to synthetic module.
+							assign(moduleRefObject, module);
 
-								// Add exports from required module to synthetic module.
-								module->SetSyntheticModuleExport(isolate, key, value);
-							}
-							if (!keys->Has(DEFAULT_STRING)) {
+							if (!moduleRefObject->GetOwnPropertyNames()->Has(DEFAULT_STRING)) {
 
 								// Always define default export.
 								module->SetSyntheticModuleExport(isolate, DEFAULT_STRING, moduleRefObject);
@@ -191,17 +210,16 @@ namespace titanium {
 		moduleContext->SetSecurityToken(context->GetSecurityToken());
 
 		if (!contextObj.IsEmpty()) {
-			Local<Array> keys = contextObj->GetOwnPropertyNames(context).ToLocalChecked();
+			Local<String> GLOBAL_STRING = EvaluateModule::GLOBAL_STRING.Get(isolate);
+			Local<Array> keys = contextObj->GetOwnPropertyNames();
+
+			if (keys->Has(GLOBAL_STRING)) {
+				Local<Object> global = contextObj->Get(GLOBAL_STRING).As<Object>();
+				assign(global, moduleGlobal);
+			}
 
 			// Context object has been provided, set context properties in module global context.
-			for (int i = 0; i < keys->Length(); i++) {
-				Local<String> key = keys->Get(i).As<String>();
-				Local<Value> value = contextObj->Get(key);
-
-				if (!key.IsEmpty() && !value.IsEmpty()) {
-					moduleGlobal->Set(moduleContext, key, value);
-				}
-			}
+			assign(contextObj, moduleGlobal);
 		}
 
 		// Instantiate module and process imports via `ModuleCallback`.
@@ -295,6 +313,7 @@ namespace titanium {
 
 		// Create new context for script to run in.
 		Local<Context> scriptContext = Context::New(isolate);
+		Context::Scope scope(scriptContext);
 
 		// Obtain script global context.
 		Local<Object> scriptGlobal = scriptContext->Global();
@@ -303,17 +322,16 @@ namespace titanium {
 		scriptContext->SetSecurityToken(context->GetSecurityToken());
 
 		if (!contextObj.IsEmpty()) {
-			Local<Array> keys = contextObj->GetOwnPropertyNames(context).ToLocalChecked();
+			Local<String> GLOBAL_STRING = EvaluateModule::GLOBAL_STRING.Get(isolate);
+			Local<Array> keys = contextObj->GetOwnPropertyNames();
+
+			if (keys->Has(GLOBAL_STRING)) {
+				Local<Object> global = contextObj->Get(GLOBAL_STRING).As<Object>();
+				assign(global, scriptGlobal);
+			}
 
 			// Context object has been provided, set context properties in script global context.
-			for (int i = 0; i < keys->Length(); i++) {
-				Local<String> key = keys->Get(i).As<String>();
-				Local<Value> value = contextObj->Get(key);
-
-				if (!key.IsEmpty() && !value.IsEmpty()) {
-					scriptGlobal->Set(scriptContext, key, value);
-				}
-			}
+			assign(contextObj, scriptGlobal);
 		}
 
 		ScriptOrigin origin(filename);
