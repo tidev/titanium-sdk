@@ -63,6 +63,12 @@
   [rejectFunc callWithArguments:arguments];
 }
 
+- (void)rejectWithErrorMessage:(NSString *)message
+{
+  JSValue *error = [JSValue valueWithNewErrorFromMessage:message inContext:rejectFunc.context];
+  [self reject:@[ error ]];
+}
+
 - (void)dealloc
 {
   [resolveFunc release];

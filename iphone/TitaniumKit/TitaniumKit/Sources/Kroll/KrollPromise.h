@@ -19,6 +19,7 @@
 
 - (void)resolve:(NSArray *)arguments;
 - (void)reject:(NSArray *)arguments;
+- (void)rejectWithErrorMessage:(NSString *)message;
 
 - (KrollPromise *)initInContext:(JSContext *)context;
 
