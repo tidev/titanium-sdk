@@ -1745,6 +1745,26 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_FIRST_VISIBLE_ITEM = "firstVisibleItem";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_FIRST_VISIBLE_ITEM_INDEX = "firstVisibleItemIndex";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_FIRST_VISIBLE_SECTION = "firstVisibleSection";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_FIRST_VISIBLE_SECTION_INDEX = "firstVisibleSectionIndex";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_FLAG_SECURE = "flagSecure";
 
 	/**
