@@ -12,6 +12,7 @@ import java.util.List;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
+import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.util.TiUIHelper;
 
 import android.app.Activity;
@@ -32,6 +33,7 @@ import androidx.recyclerview.selection.SelectionTracker;
 import androidx.recyclerview.selection.StorageStrategy;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import ti.modules.titanium.ui.TableViewProxy;
 import ti.modules.titanium.ui.TableViewRowProxy;
@@ -55,6 +57,8 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 	private final SelectionTracker tracker;
 
 	private boolean isFiltered = false;
+	private int scrollOffsetX = 0;
+	private int scrollOffsetY = 0;
 
 	public TiTableView(TableViewProxy proxy)
 	{
@@ -67,6 +71,45 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 		this.recyclerView.setFocusableInTouchMode(true);
 		this.recyclerView.setBackgroundColor(Color.TRANSPARENT);
 		this.recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+
+		// Add listener to fire scroll events.
+		this.recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener()
+		{
+			@Override
+			public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState)
+			{
+				super.onScrollStateChanged(recyclerView, newState);
+
+				if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+					final KrollDict payload = generateScrollPayload();
+					final TiNestedRecyclerView nestedRecyclerView = getRecyclerView();
+
+					// Obtain last touch position for `scrollend` event.
+					final TiDimension xDimension =
+						new TiDimension(nestedRecyclerView.getLastTouchX(), TiDimension.TYPE_WIDTH);
+					final TiDimension yDimension =
+						new TiDimension(nestedRecyclerView.getLastTouchY(), TiDimension.TYPE_HEIGHT);
+					payload.put(TiC.EVENT_PROPERTY_X, xDimension.getAsDefault(nestedRecyclerView));
+					payload.put(TiC.EVENT_PROPERTY_Y, yDimension.getAsDefault(nestedRecyclerView));
+
+					proxy.fireSyncEvent(TiC.EVENT_SCROLLEND, payload);
+				}
+			}
+
+			@Override
+			public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy)
+			{
+				super.onScrolled(recyclerView, dx, dy);
+
+				// Update scroll offsets.
+				scrollOffsetX += dx;
+				scrollOffsetY += dy;
+
+				final KrollDict payload = generateScrollPayload();
+
+				proxy.fireSyncEvent(TiC.EVENT_SCROLL, payload);
+			}
+		});
 
 		// Disable table animations.
 		this.recyclerView.setItemAnimator(null);
@@ -184,6 +227,59 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 
 		update(query);
 		this.isFiltered = true;
+	}
+
+	/**
+	 * Generate payload for `scroll` and `scrollend` events.
+	 *
+	 * @return KrollDict
+	 */
+	public KrollDict generateScrollPayload()
+	{
+		final KrollDict payload = new KrollDict();
+		final LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
+
+		// Obtain index for first visible row.
+		final View firstVisibleView =
+			layoutManager.findViewByPosition(layoutManager.findFirstVisibleItemPosition());
+		final TableViewHolder firstVisibleHolder =
+			(TableViewHolder) recyclerView.getChildViewHolder(firstVisibleView);
+		final TableViewRowProxy firstVisibleProxy = (TableViewRowProxy) firstVisibleHolder.getProxy();
+		final int firstVisibleIndex = firstVisibleProxy.getIndexInSection();
+		payload.put(TiC.PROPERTY_FIRST_VISIBLE_ITEM, firstVisibleIndex);
+
+		// Obtain scroll offset for content.
+		final KrollDict contentOffset = new KrollDict();
+		final TiDimension scrollOffsetXDimension = new TiDimension(scrollOffsetX, TiDimension.TYPE_WIDTH);
+		final TiDimension scrollOffsetYDimension = new TiDimension(scrollOffsetY, TiDimension.TYPE_HEIGHT);
+		contentOffset.put(TiC.EVENT_PROPERTY_X, scrollOffsetXDimension.getAsDefault(recyclerView));
+		contentOffset.put(TiC.EVENT_PROPERTY_Y, scrollOffsetYDimension.getAsDefault(recyclerView));
+		payload.put(TiC.PROPERTY_CONTENT_OFFSET, contentOffset);
+
+		// Approximate content size.
+		// NOTE: Due to recycling of views, we cannot calculate the true
+		// content size without loading all rows. The best we can do is an
+		// approximation based on first visible row.
+		final KrollDict contentSize = new KrollDict();
+		final TiDimension contentWidthDimension =
+			new TiDimension(firstVisibleView.getMeasuredWidth(), TiDimension.TYPE_WIDTH);
+		final TiDimension contentHeightDimension =
+			new TiDimension(firstVisibleView.getMeasuredHeight() * rows.size(), TiDimension.TYPE_HEIGHT);
+		contentSize.put(TiC.PROPERTY_WIDTH, contentWidthDimension.getAsDefault(recyclerView));
+		contentSize.put(TiC.PROPERTY_HEIGHT, contentHeightDimension.getAsDefault(recyclerView));
+		payload.put(TiC.PROPERTY_CONTENT_SIZE, contentSize);
+
+		// Obtain view size.
+		final KrollDict size = new KrollDict();
+		final TiDimension widthDimension =
+			new TiDimension(recyclerView.getMeasuredWidth(), TiDimension.TYPE_WIDTH);
+		final TiDimension heightDimension =
+			new TiDimension(recyclerView.getMeasuredHeight(), TiDimension.TYPE_HEIGHT);
+		size.put(TiC.PROPERTY_WIDTH, widthDimension.getAsDefault(recyclerView));
+		size.put(TiC.PROPERTY_HEIGHT, heightDimension.getAsDefault(recyclerView));
+		payload.put(TiC.PROPERTY_SIZE, size);
+
+		return payload;
 	}
 
 	/**
