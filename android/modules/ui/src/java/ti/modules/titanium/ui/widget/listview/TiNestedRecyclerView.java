@@ -31,6 +31,9 @@ public class TiNestedRecyclerView extends RecyclerView implements NestedScrollin
 
 	private boolean isScrollEnabled = true;
 
+	private float lastTouchX;
+	private float lastTouchY;
+
 	public TiNestedRecyclerView(@NonNull Context context)
 	{
 		super(new ContextThemeWrapper(context, R.style.RecyclerView));
@@ -46,6 +49,9 @@ public class TiNestedRecyclerView extends RecyclerView implements NestedScrollin
 				switch (action) {
 
 					case MotionEvent.ACTION_DOWN: {
+						lastTouchX = e.getX();
+						lastTouchY = e.getY();
+
 						if (scrollState == RecyclerView.SCROLL_STATE_SETTLING) {
 							rv.stopScroll();
 						}
@@ -84,6 +90,16 @@ public class TiNestedRecyclerView extends RecyclerView implements NestedScrollin
 	public void setScrollEnabled(boolean enabled)
 	{
 		this.isScrollEnabled = enabled;
+	}
+
+	public float getLastTouchX()
+	{
+		return this.lastTouchX;
+	}
+
+	public float getLastTouchY()
+	{
+		return this.lastTouchY;
 	}
 
 	@Override
