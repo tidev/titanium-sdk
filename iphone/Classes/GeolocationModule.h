@@ -83,8 +83,8 @@ JSExportAs(forwardGeocoder,
            -(JSValue *)forwardGeocoder
            : (NSString *)address withCallback
            : (JSValue *)callback);
-- (void)getCurrentHeading:(JSValue *)callback;
-- (void)getCurrentPosition:(JSValue *)callback;
+- (JSValue *)getCurrentHeading:(JSValue *)callback;
+- (JSValue *)getCurrentPosition:(JSValue *)callback;
 - (bool)hasLocationPermissions:(CLAuthorizationStatus)authorizationType;
 JSExportAs(requestLocationPermissions,
            -(JSValue *)requestLocationPermissions

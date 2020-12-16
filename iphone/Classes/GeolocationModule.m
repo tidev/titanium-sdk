@@ -79,11 +79,12 @@ extern NSString *const TI_APPLICATION_GUID;
 
 - (void)requestError:(NSError *)error
 {
-  NSDictionary *event = [TiUtils dictionaryWithCode:[error code] message:[TiUtils messageFromError:error]];
+  NSString *message = [TiUtils messageFromError:error];
+  NSDictionary *event = [TiUtils dictionaryWithCode:[error code] message:message];
   if (callback != nil) {
     [callback callWithArguments:@[ event ]];
   }
-  [promise reject:@[ event ]];
+  [promise rejectWithErrorMessage:message];
 }
 
 - (void)request:(APSHTTPRequest *)request onLoad:(APSHTTPResponse *)response
@@ -109,10 +110,44 @@ extern NSString *const TI_APPLICATION_GUID;
 
 @end
 
+@interface HeadingCallback : GeolocationCallback
+@end
+
+@interface PositionCallback : GeolocationCallback
+@end
+
 @interface ForwardGeoCallback : GeolocationCallback
 @end
 
 @interface ReverseGeoCallback : GeolocationCallback
+@end
+
+@implementation HeadingCallback
+- (void)fireEvent:(id)event withProxy:(ObjcProxy *)proxy
+{
+  if (callback != nil) {
+    [proxy _fireEventToListener:@"heading" withObject:event listener:callback];
+  }
+  if ([event[@"success"] boolValue]) {
+    [promise resolve:@[ event ]];
+  } else {
+    [promise rejectWithErrorMessage:event[@"error"]];
+  }
+}
+@end
+
+@implementation PositionCallback
+- (void)fireEvent:(id)event withProxy:(ObjcProxy *)proxy
+{
+  if (callback != nil) {
+    [proxy _fireEventToListener:@"location" withObject:event listener:callback];
+  }
+  if ([event[@"success"] boolValue]) {
+    [promise resolve:@[ event ]];
+  } else {
+    [promise rejectWithErrorMessage:event[@"error"]];
+  }
+}
 @end
 
 @implementation ForwardGeoCallback
@@ -224,9 +259,8 @@ extern NSString *const TI_APPLICATION_GUID;
 - (BOOL)releaseStoredCallbackArray:(NSMutableArray *)array
 {
   if (array != nil) {
-    for (JSManagedValue *callback in [NSArray arrayWithArray:array]) {
+    for (GeolocationCallback *callback in [NSArray arrayWithArray:array]) {
       [array removeObject:callback];
-      [[callback value].context.virtualMachine removeManagedReference:callback withOwner:self];
     }
     if ([array count] == 0) {
       RELEASE_TO_NIL(array);
@@ -310,7 +344,7 @@ extern NSString *const TI_APPLICATION_GUID;
              "or\n\n"
              "Ti.Geolocation.requestLocationPermissions(Ti.Geolocation.AUTHORIZATION_WHEN_IN_USE, function(e) {\n"
              "\t// Handle authorization via e.success\n"
-             "})\nPicking the hightest permission by default.");
+             "})\nPicking the highest permission by default.");
       if (![[NSBundle mainBundle] objectForInfoDictionaryKey:kTiGeolocationUsageDescriptionWhenInUse]) {
         NSLog(@"[WARN] Apps targeting iOS 11 and later always have to include the \"%@\" key in the tiapp.xml <plist> section in order to use any geolocation-services. This is a constraint Apple introduced to improve user-privacy by suggesting developers to incrementally upgrade the location permissions from \"When in Use\" to \"Always\" only if necessary. You can specify the new iOS 11+ plist-key \"%@\" which is used while upgrading from \"When in Use\" to \"Always\". Use the the Ti.Geolocation.requestLocationPermissions method, which should be called before using any Ti.Geolocation related API. Please verify location permissions and call this method again.", kTiGeolocationUsageDescriptionWhenInUse, kTiGeolocationUsageDescriptionAlwaysAndWhenInUse);
       }
@@ -524,23 +558,32 @@ GETTER_IMPL(BOOL, hasCompass, HasCompass);
 #endif
 }
 
-- (void)getCurrentHeading:(JSValue *)callback
+- (JSValue *)getCurrentHeading:(JSValue *)callback
 {
   ENSURE_UI_THREAD(getCurrentHeading, callback);
-  if (singleHeading == nil) {
-    singleHeading = [[NSMutableArray alloc] initWithCapacity:1];
+  JSContext *context = [self currentContext];
+  KrollPromise *promise = [[[KrollPromise alloc] initInContext:context] autorelease];
+  HeadingCallback *cb = [[HeadingCallback alloc] initWithCallback:callback andPromise:promise];
+  if (![self headingAvailable]) {
+    // if we can't track heading we'll never fire unless we do so manually here
+    NSMutableDictionary *event = [TiUtils dictionaryWithCode:1 message:@"The location manager is not able to generate heading-related events on this device"];
+    [cb fireEvent:event withProxy:self];
+  } else {
+    // We need to hold on to the promise and optional callback in some dictionary or pair object
+    if (singleHeading == nil) {
+      singleHeading = [[NSMutableArray alloc] initWithCapacity:1];
+    }
+    [singleHeading addObject:cb];
+    [self startStopLocationManagerIfNeeded];
   }
-
-  // Need to use JSManagedValue here!
-  JSManagedValue *managedValue = [JSManagedValue managedValueWithValue:callback andOwner:self];
-  [singleHeading addObject:managedValue];
-  [self startStopLocationManagerIfNeeded];
+  return promise.JSValue;
 }
 
-- (void)getCurrentPosition:(JSValue *)callback
+- (JSValue *)getCurrentPosition:(JSValue *)callback
 {
   ENSURE_UI_THREAD(getCurrentPosition, callback);
 
+  KrollPromise *promise = [[[KrollPromise alloc] initInContext:[self currentContext]] autorelease];
   // If the location updates are started, invoke the callback directly.
   if (locationManager != nil && locationManager.location != nil && trackingLocation) {
     CLLocation *currentLocation = locationManager.location;
@@ -549,19 +592,21 @@ GETTER_IMPL(BOOL, hasCompass, HasCompass);
     event[@"type"] = @"location";
     event[@"source"] = self;
     // FIXME queue this up to happen async
-    [callback callWithArguments:@[ event ]];
+    if (callback != nil && ![callback isUndefined]) {
+      [callback callWithArguments:@[ event ]];
+    }
+    [promise resolve:@[ event ]];
   }
   // Otherwise, start the location manager.
   else {
     if (singleLocation == nil) {
       singleLocation = [[NSMutableArray alloc] initWithCapacity:1];
     }
-    // Need to use JSManagedValue here!
-    JSManagedValue *managedValue = [JSManagedValue managedValueWithValue:callback andOwner:self];
-    [callback.context.virtualMachine addManagedReference:managedValue withOwner:self];
-    [singleLocation addObject:managedValue];
+    PositionCallback *cb = [[PositionCallback alloc] initWithCallback:callback andPromise:promise];
+    [singleLocation addObject:cb];
     [self startStopLocationManagerIfNeeded];
   }
+  return promise.JSValue;
 }
 
 - (NSString *)lastGeolocation
@@ -928,6 +973,7 @@ READWRITE_IMPL(bool, showCalibration, ShowCalibration);
     if (code == 0) {
       [authorizationPromise resolve:invocationArray];
     } else {
+      // FIXME: We should be rejecting with an Error
       [authorizationPromise reject:invocationArray];
     }
     [authorizationPromise release];
@@ -996,10 +1042,8 @@ READWRITE_IMPL(bool, showCalibration, ShowCalibration);
 {
   // check to see if we have any single shot location callbacks
   if (singleLocation != nil) {
-    for (JSManagedValue *managedCallback in singleLocation) {
-      JSValue *callback = [managedCallback value];
-      [self _fireEventToListener:@"location" withObject:event listener:callback];
-      [callback.context.virtualMachine removeManagedReference:managedCallback withOwner:self];
+    for (PositionCallback *cb in singleLocation) {
+      [cb fireEvent:event withProxy:self];
     }
 
     // after firing, we remove them
@@ -1018,10 +1062,8 @@ READWRITE_IMPL(bool, showCalibration, ShowCalibration);
 {
   // check to see if we have any single shot heading callbacks
   if (singleHeading != nil) {
-    for (JSManagedValue *managedCallback in singleHeading) {
-      JSValue *callback = [managedCallback value];
-      [self _fireEventToListener:@"heading" withObject:event listener:callback];
-      [callback.context.virtualMachine removeManagedReference:managedCallback withOwner:self];
+    for (HeadingCallback *cb in singleHeading) {
+      [cb fireEvent:event withProxy:self];
     }
 
     // after firing, we remove them
