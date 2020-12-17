@@ -27,7 +27,7 @@ READONLY_PROPERTY(NSUInteger, rowsAffected, RowsAffected);
 - (JSValue *)executeAsync:(NSString *)sql;
 - (NSArray<TiDatabaseResultSetProxy *> *)executeAll:(NSArray<NSString *> *)queries;
 JSExportAs(executeAllAsync,
-           -(void)executeAllAsync
+           -(JSValue *)executeAllAsync
            : (NSArray<NSString *> *)queries withCallback
            : (JSValue *)callback);
 - (void)remove;

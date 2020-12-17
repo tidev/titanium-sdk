@@ -379,10 +379,11 @@
   return results;
 }
 
-- (void)executeAllAsync:(NSArray<NSString *> *)queries withCallback:(JSValue *)callback
+- (JSValue *)executeAllAsync:(NSArray<NSString *> *)queries withCallback:(JSValue *)callback
 {
+  JSContext *context = [self currentContext];
+  KrollPromise *promise = [[[KrollPromise alloc] initInContext:context] autorelease];
   dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-    JSContext *context = [callback context];
     NSError *error = nil;
     NSMutableArray *results = [NSMutableArray arrayWithCapacity:[queries count]];
     NSUInteger index = 0;
@@ -390,10 +391,13 @@
       TiDatabaseResultSetProxy *result = [self executeSQL:sql withParams:nil withError:&error];
       if (error != nil) {
         JSValue *jsError = [self createError:@"failed to execute SQL statements" subreason:[error description] location:CODELOCATION inContext:context];
-        jsError[@"results"] = result;
+        jsError[@"results"] = results;
         jsError[@"index"] = [NSNumber numberWithUnsignedInteger:index];
         dispatch_async(dispatch_get_main_queue(), ^{
-          [callback callWithArguments:@[ jsError, results ]];
+          if (![callback isUndefined]) {
+            [callback callWithArguments:@[ jsError, results ]];
+          }
+          [promise reject:@[ jsError ]];
         });
         return;
       }
@@ -406,9 +410,13 @@
     }
 
     dispatch_async(dispatch_get_main_queue(), ^{
-      [callback callWithArguments:@[ [JSValue valueWithUndefinedInContext:context], results ]];
+      if (![callback isUndefined]) {
+        [callback callWithArguments:@[ [JSValue valueWithUndefinedInContext:context], results ]];
+      }
+      [promise resolve:@[ results ]];
     });
   });
+  return promise.JSValue;
 }
 
 - (void)close
