@@ -312,7 +312,7 @@ public class TiDatabaseProxy extends KrollProxy
 					}
 				});
 			} catch (InterruptedException e) {
-				// Ignore...
+				promise.reject(e);
 			}
 		});
 	}
@@ -347,36 +347,47 @@ public class TiDatabaseProxy extends KrollProxy
 	 * @param callback Result callback for query execution.
 	 */
 	@Kroll.method
-	public void executeAllAsync(final String[] queries, final KrollFunction callback)
+	public KrollPromise<Object[]> executeAllAsync(final String[] queries,
+		@Kroll.argument(optional = true) final KrollFunction callback)
 	{
-		// Validate `queries` and `callback` parameters.
-		if (queries == null || queries.length == 0 || callback == null) {
-			throw new InvalidParameterException("'query' and 'callback' parameters are required");
+		// Validate `queries` parameter
+		if (queries == null || queries.length == 0) {
+			throw new InvalidParameterException("'query' parameter is required");
 		}
 
-		executingQueue.set(true);
-		try {
-			queue.put(new Runnable() {
-				@Override
-				public void run()
-				{
-					Throwable error = null;
-					List<TiResultSetProxy> results = new ArrayList<>(queries.length);
-					for (int index = 0; index < queries.length; index++) {
-						try {
-							final TiResultSetProxy result = executeSQL(queries[index], null);
-							results.add(result);
-						} catch (Throwable t) {
-							error = new BatchQueryException(t, index, null);
-							break;
+		final KrollObject callbackThisObject = getKrollObject();
+		return KrollPromise.create((promise) -> {
+			executingQueue.set(true);
+			try {
+				queue.put(new Runnable() {
+					@Override
+					public void run()
+					{
+						Throwable error = null;
+						List<TiResultSetProxy> results = new ArrayList<>(queries.length);
+						for (int index = 0; index < queries.length; index++) {
+							try {
+								final TiResultSetProxy result = executeSQL(queries[index], null);
+								results.add(result);
+							} catch (Throwable t) {
+								error = new BatchQueryException(t, index, results);
+								break;
+							}
+						}
+						if (callback != null) {
+							callback.callAsync(callbackThisObject, new Object[] { error, results.toArray() });
+						}
+						if (error != null) {
+							promise.reject(error);
+						} else {
+							promise.resolve(results.toArray());
 						}
 					}
-					callback.callAsync(getKrollObject(), new Object[] { error, results.toArray() });
-				}
-			});
-		} catch (InterruptedException e) {
-			// Ignore...
-		}
+				});
+			} catch (InterruptedException e) {
+				promise.reject(e);
+			}
+		});
 	}
 
 	/**
