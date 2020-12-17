@@ -8,6 +8,8 @@ package ti.modules.titanium.database;
 
 import org.appcelerator.kroll.JSError;
 import org.appcelerator.kroll.KrollFunction;
+import org.appcelerator.kroll.KrollObject;
+import org.appcelerator.kroll.KrollPromise;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
@@ -261,43 +263,58 @@ public class TiDatabaseProxy extends KrollProxy
 	 * @param callback Result callback for query execution.
 	 */
 	@Kroll.method
-	public void executeAsync(final String query, final Object... parameterObjects)
+	public KrollPromise<TiResultSetProxy> executeAsync(final String query, final Object... parameterObjects)
 	{
-		// Validate `query` and `callback` parameters.
-		if (query == null || parameterObjects == null || parameterObjects.length == 0) {
-			throw new InvalidParameterException("'query' and 'callback' parameters are required");
+		// Validate `query` parameter.
+		if (query == null) {
+			throw new InvalidParameterException("'query' parameter is required");
 		}
 
-		// Last parameter MUST be the callback function.
-		final Object lastParameter = parameterObjects[parameterObjects.length - 1];
-		if (!(lastParameter instanceof KrollFunction)) {
-			throw new InvalidParameterException("'callback' is not a valid function");
+		KrollFunction possibleCallback = null;
+		Object[] possibleParameters = parameterObjects;
+		if (parameterObjects != null && parameterObjects.length > 0) {
+			// check for callback
+			// Last parameter MUST be the callback function.
+			final Object lastParameter = parameterObjects[parameterObjects.length - 1];
+			if (lastParameter instanceof KrollFunction) {
+				possibleCallback = (KrollFunction) lastParameter;
+				// Reconstruct parameters array without `callback` element.
+				possibleParameters = new Object[parameterObjects.length - 1];
+				System.arraycopy(parameterObjects, 0, possibleParameters, 0, parameterObjects.length - 1);
+			}
 		}
-		final KrollFunction callback = (KrollFunction) lastParameter;
 
-		// Reconstruct parameters array without `callback` element.
-		final Object[] parameters = new Object[parameterObjects.length - 1];
-		System.arraycopy(parameterObjects, 0, parameters, 0, parameterObjects.length - 1);
+		final KrollFunction callback = possibleCallback;
+		final Object[] parameters = possibleParameters;
+		final KrollObject callbackThisObject = getKrollObject();
+		return KrollPromise.create((promise) -> {
+			executingQueue.set(true);
+			try {
+				queue.put(new Runnable() {
+					@Override
+					public void run()
+					{
+						TiResultSetProxy result = null;
+						try {
+							result = executeSQL(query, parameters);
+						} catch (Throwable t) {
+							if (callback != null) {
+								callback.callAsync(callbackThisObject, new Object[] { t });
+							}
+							promise.reject(t);
+							return;
+						}
 
-		executingQueue.set(true);
-		try {
-			queue.put(new Runnable() {
-				@Override
-				public void run()
-				{
-					Object[] args = null;
-					try {
-						final TiResultSetProxy result = executeSQL(query, parameters);
-						args = new Object[] { null, result };
-					} catch (Throwable t) {
-						args = new Object[] { t };
+						if (callback != null) {
+							callback.callAsync(callbackThisObject, new Object[] { null, result });
+						}
+						promise.resolve(result);
 					}
-					callback.callAsync(getKrollObject(), args);
-				}
-			});
-		} catch (InterruptedException e) {
-			// Ignore...
-		}
+				});
+			} catch (InterruptedException e) {
+				// Ignore...
+			}
+		});
 	}
 
 	/**
