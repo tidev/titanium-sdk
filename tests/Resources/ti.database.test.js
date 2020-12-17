@@ -670,6 +670,44 @@ describe('Titanium.Database', function () {
 			}
 		});
 
+		it('returns Promise', function (finish) { // eslint-disable-line mocha/no-identical-title
+			this.timeout(5000);
+			const db = Ti.Database.open('execute_all.db');
+
+			const queries = [
+				// Execute a query to create a test table
+				'CREATE TABLE IF NOT EXISTS testTable (text TEXT, number INTEGER)',
+				// Delete any existing data if the table already existed
+				'DELETE FROM testTable',
+				// Insert test data into the table
+				'INSERT INTO testTable (text, number) VALUES (\'John Smith\', 123456789)',
+				// Execute a query to return the rows of the database
+				'SELECT rowid, text, number FROM testTable',
+			];
+
+			const result = db.executeAllAsync(queries);
+			result.should.be.a.Promise();
+			result.then(results => {
+				// the returned results array should be the same length as the input query array
+				should(results.length).eql(queries.length);
+
+				const rows = results[3];
+				try {
+					// Validate the returned 'rows' object
+					should(rows).be.a.Object();
+					should(rows.rowCount).be.eql(1);
+					should(rows.fieldCount).be.eql(3);
+					should(rows.validRow).be.true();
+				} finally {
+					// Close the 'rows' object
+					rows.close();
+				}
+				finish();
+			})
+				.catch(err => finish(err))
+				.finally(() => db.close());
+		});
+
 		it('calls callback with Error for invalid SQL statement', function (finish) { // eslint-disable-line mocha/no-identical-title
 			const db = Ti.Database.open('execute_all.db');
 
@@ -715,6 +753,48 @@ describe('Titanium.Database', function () {
 				db.close();
 				finish(e);
 			}
+		});
+
+		it('rejects Promise for invalid SQL statement', function (finish) { // eslint-disable-line mocha/no-identical-title
+			const db = Ti.Database.open('execute_all.db');
+
+			const queries = [
+				// Execute a query to create a test table
+				'CREATE TABLE IF NOT EXISTS testTable (text TEXT, number INTEGER)',
+				// Delete any existing data if the table already existed
+				'DELETE FROM testTable',
+				// Insert test data into the table
+				'INSERT INTO testTable (text, number) VALUES (\'John Smith\', 123456789)',
+				// Execute a query to return the rows of the database
+				'SELECT rowid, text, number FROM testTable',
+				// invalid, should fail here!
+				'THIS IS INVALID SQL',
+			];
+
+			const result = db.executeAllAsync(queries);
+			result.should.be.a.Promise();
+			result.then(() => finish(new Error('Expected Promise to get rejected')))
+				.catch(err => {
+					let rows;
+					try {
+						should.exist(err);
+						should(err.index).eql(4);
+						should(err).have.a.property('results').which.is.an.Array();
+
+						// validate our partial results
+						rows = err.results[3];
+						should(rows).be.a.Object();
+						should(rows.rowCount).be.eql(1);
+						should(rows.fieldCount).be.eql(3);
+						should(rows.validRow).be.true();
+					} finally {
+						if (rows) {
+							rows.close();
+						}
+					}
+					finish();
+				})
+				.finally(() => db.close());
 		});
 
 		it('handles being closed mid-query', function (finish) {
