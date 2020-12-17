@@ -105,7 +105,7 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 				payload.put(TiC.EVENT_PROPERTY_VELOCITY, velocityY);
 
 				proxy.fireSyncEvent(TiC.EVENT_SCROLLING, payload);
-				return true;
+				return false;
 			}
 		});
 
