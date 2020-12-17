@@ -127,11 +127,33 @@ public class ListItemProxy extends TiViewProxy
 	@Override
 	public boolean fireEvent(String eventName, Object data, boolean bubbles)
 	{
+		data = handleFireEvent(eventName, data);
+		return super.fireEvent(eventName, data, bubbles);
+	}
+	@Override
+	public boolean fireSyncEvent(String eventName, Object data, boolean bubbles)
+	{
+		data = handleFireEvent(eventName, data);
+		return super.fireSyncEvent(eventName, data, bubbles);
+	}
+
+	/**
+	 * Handle event payload manipulation.
+	 *
+	 * @param eventName Name of fired event.
+	 * @param data      Data payload of fired event.
+	 * @return Object of event payload.
+	 */
+	public Object handleFireEvent(String eventName, Object data)
+	{
 		// Inject row data into events.
 		final ListViewProxy listViewProxy = getListViewProxy();
 		if (listViewProxy != null) {
 			final KrollDict payload = data instanceof HashMap
 				? new KrollDict((HashMap<String, Object>) data) : new KrollDict();
+			final Object sourceObject = payload.containsKeyAndNotNull(TiC.EVENT_PROPERTY_SOURCE)
+				? payload.get(TiC.EVENT_PROPERTY_SOURCE) : this;
+			final TiViewProxy source = sourceObject instanceof TiViewProxy ? (TiViewProxy) sourceObject : this;
 
 			final Object parent = getParent();
 			if (parent instanceof ListSectionProxy) {
@@ -150,10 +172,14 @@ public class ListItemProxy extends TiViewProxy
 				payload.put(TiC.PROPERTY_ITEM_ID, itemId);
 			}
 
-			if (this.template.containsKey(TiC.PROPERTY_BIND_ID)) {
+			for (final String key : binds.keySet()) {
+				if (binds.get(key).equals(source)) {
 
-				// Include `bindId` of template if specified.
-				payload.put(TiC.PROPERTY_BIND_ID, this.template.getString(TiC.PROPERTY_BIND_ID));
+					// Reverse lookup `bindId`.
+					// Include `bindId` of template if specified.
+					payload.put(TiC.PROPERTY_BIND_ID, key);
+					break;
+				}
 			}
 
 			final int accessoryType = getProperties().optInt(TiC.PROPERTY_ACCESSORY_TYPE,
@@ -168,11 +194,11 @@ public class ListItemProxy extends TiViewProxy
 
 			// Fire `itemclick` event on ListView.
 			if (eventName.equals(TiC.EVENT_CLICK)) {
-				listViewProxy.fireEvent(TiC.EVENT_ITEM_CLICK, data);
+				listViewProxy.fireSyncEvent(TiC.EVENT_ITEM_CLICK, data);
 			}
 		}
 
-		return super.fireEvent(eventName, data, bubbles);
+		return data;
 	}
 
 	/**
