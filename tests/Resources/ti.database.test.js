@@ -474,6 +474,44 @@ describe('Titanium.Database', function () {
 			});
 		});
 
+		it('returns a Promise', function (finish) {
+			this.timeout(5000);
+			const db = Ti.Database.open('execute_async.db');
+			// Execute a query to create a test table
+			const result = db.executeAsync('CREATE TABLE IF NOT EXISTS testTable (text TEXT, number INTEGER)');
+			result.should.be.a.Promise();
+			// Delete any existing data if the table already existed
+			result.then(() => db.executeAsync('DELETE FROM testTable'))
+				.then(() => {
+					// Define test data
+					const testName = 'John Smith';
+					const testNumber = 123456789;
+
+					// Insert test data into the table
+					return db.executeAsync('INSERT INTO testTable (text, number) VALUES (?, ?)', testName, testNumber);
+				}).then(() => {
+					// Validate that only one row has been affected
+					should(db.rowsAffected).be.eql(1);
+
+					// Execute a query to return the rows of the database
+					return db.executeAsync('SELECT rowid, text, number FROM testTable');
+				}).then(rows => {
+					try {
+						// Validate the returned 'rows' object
+						should(rows).be.a.Object();
+						should(rows.rowCount).be.eql(1);
+						should(rows.fieldCount).be.eql(3);
+						should(rows.validRow).be.true();
+					} finally {
+						// Close the 'rows' object
+						rows.close();
+					}
+					finish();
+				})
+				.catch(err => finish(err))
+				.finally(() => db.close());
+		});
+
 		it('calls callback with Error for invalid SQL', function (finish) {
 			const db = Ti.Database.open('execute_async.db');
 			db.executeAsync('THIS IS SOME INVALID SQL', err => {
@@ -486,6 +524,17 @@ describe('Titanium.Database', function () {
 				}
 				finish();
 			});
+		});
+
+		it('rejects Promise with Error for invalid SQL', function (finish) {
+			const db = Ti.Database.open('execute_async.db');
+			const result = db.executeAsync('THIS IS SOME INVALID SQL');
+			result.should.be.a.Promise();
+			result.then(() => finish(new Error('expected Error for invalid SQL'))).catch(err => {
+				should.exist(err);
+
+				finish();
+			}).finally(() => db.close());
 		});
 	});
 
@@ -503,7 +552,7 @@ describe('Titanium.Database', function () {
 			this.timeout(5000);
 			const db = Ti.Database.open('execute_all.db');
 
-			// FIXME: There's no way to send in binding paramaters, you have to bake them into the query string with this API
+			// FIXME: There's no way to send in binding parameters, you have to bake them into the query string with this API
 			const queries = [
 				// Execute a query to create a test table
 				'CREATE TABLE IF NOT EXISTS testTable (text TEXT, number INTEGER)',
