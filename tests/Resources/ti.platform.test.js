@@ -11,6 +11,9 @@
 'use strict';
 
 const should = require('./utilities/assertions');
+const utilities = require('./utilities/utilities');
+const IOS_SIM = OS_IOS && Ti.Platform.model.includes('(Simulator)');
+const OS_MACOS = utilities.isMacOS();
 
 describe('Titanium.Platform', () => {
 
@@ -18,7 +21,7 @@ describe('Titanium.Platform', () => {
 		describe('.address', () => {
 			it('is a String', () => {
 				// may be undefined on ios sim!
-				if (OS_IOS && Ti.Platform.model.includes('(Simulator)')) {
+				if (IOS_SIM || OS_MACOS) {
 					return;
 				}
 				should(Ti.Platform).have.a.readOnlyProperty('address').which.is.a.String();
@@ -26,7 +29,7 @@ describe('Titanium.Platform', () => {
 
 			it('matches IP address format if defined', () => {
 				// may be undefined on ios sim!
-				if (OS_IOS && Ti.Platform.model.includes('(Simulator)')) {
+				if (IOS_SIM || OS_MACOS) {
 					return;
 				}
 				should(Ti.Platform.address).match(/\d+\.\d+\.\d+\.\d+/);
@@ -172,7 +175,7 @@ describe('Titanium.Platform', () => {
 		describe('.netmask', () => {
 			it('is a String', () => {
 				// may be undefined on ios sim!
-				if (OS_IOS && Ti.Platform.model.includes('(Simulator)')) {
+				if (IOS_SIM || OS_MACOS) {
 					return;
 				}
 				should(Ti.Platform).have.a.readOnlyProperty('netmask').which.is.a.String();
@@ -180,7 +183,7 @@ describe('Titanium.Platform', () => {
 
 			it('matches IP address format if defined', () => {
 				// may be undefined on ios sim!
-				if (OS_IOS && Ti.Platform.model.includes('(Simulator)')) {
+				if (IOS_SIM || OS_MACOS) {
 					return;
 				}
 				should(Ti.Platform.netmask).match(/\d+\.\d+\.\d+\.\d+/);
