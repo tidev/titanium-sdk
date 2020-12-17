@@ -24,7 +24,7 @@ READONLY_PROPERTY(NSUInteger, rowsAffected, RowsAffected);
 - (void)close;
 // This supports varargs, but we hack it in the impl to check currentArgs
 - (TiDatabaseResultSetProxy *)execute:(NSString *)sql;
-- (void)executeAsync:(NSString *)sql;
+- (JSValue *)executeAsync:(NSString *)sql;
 - (NSArray<TiDatabaseResultSetProxy *> *)executeAll:(NSArray<NSString *> *)queries;
 JSExportAs(executeAllAsync,
            -(void)executeAllAsync
