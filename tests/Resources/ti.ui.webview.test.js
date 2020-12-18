@@ -309,20 +309,19 @@ describe.androidARM64Broken('Titanium.UI.WebView', function () {
 			userAgent: 'TEST AGENT',
 			ignoreSslError: true // Older Android complains about the cert at this site!
 		});
-		const url = 'https://www.whatsmyua.info';
+		const url = 'https://www.whatismybrowser.com/detect/what-is-my-user-agent';
 		let retry = 5;
 
 		win = Ti.UI.createWindow({ backgroundColor: 'gray' });
 
 		webView.addEventListener('load', function (e) {
-			const exp = /<li id="rawUa">rawUa: (.*)<\/li>/m.exec(e.source.html);
+			const exp = /agent=yes">(.*)<\/a/m.exec(e.source.html);
 			const userAgent = exp && exp.length > 1 ? exp[1] : undefined;
 			if (userAgent && userAgent === webView.userAgent) {
 				return finish();
 			}
 			if (retry--) {
 				Ti.API.warn('could not obtain userAgent, retrying...');
-				Ti.API.warn(e.source.html);
 				setTimeout(function () {
 					webView.url = url;
 				}, 3000);
