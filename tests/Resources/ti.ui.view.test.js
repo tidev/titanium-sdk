@@ -27,12 +27,7 @@ describe('Titanium.UI.View', function () {
 		rootWindow.open();
 	});
 
-	after(finish => {
-		rootWindow.addEventListener('close', () => finish());
-		rootWindow.close();
-	});
-
-	afterEach(done => { // fires after every test in sub-suites too...
+	function closeWindow(win, done) {
 		if (win && !win.closed) {
 			win.addEventListener('close', function listener () {
 				win.removeEventListener('close', listener);
@@ -44,7 +39,11 @@ describe('Titanium.UI.View', function () {
 			win = null;
 			done();
 		}
-	});
+	}
+
+	after(finish => closeWindow(rootWindow, finish));
+
+	afterEach(done => closeWindow(win, done));
 
 	it('backgroundColor/Image', function () {
 		const view = Ti.UI.createView({ width: Ti.UI.FILL, height: Ti.UI.FILL });
@@ -1017,7 +1016,7 @@ describe('Titanium.UI.View', function () {
 			return;
 		}
 
-		it('4 values in String', finish => {
+		it('4 values in String', () => {
 			const outerView = Ti.UI.createView({
 				width: '90px',
 				height: '90px',
@@ -1032,17 +1031,12 @@ describe('Titanium.UI.View', function () {
 
 			outerView.add(view);
 
-			try {
-				should(view.borderRadius).be.a.String();
-				should(view.borderRadius).eql('12px 12 12dp 12');
-				should(outerView).matchImage('snapshots/borderRadius_12px_12_12dp_12.png');
-			} catch (e) {
-				return finish(e);
-			}
-			finish();
+			should(view.borderRadius).be.a.String();
+			should(view.borderRadius).eql('12px 12 12dp 12');
+			should(outerView).matchImage('snapshots/borderRadius_12px_12_12dp_12.png');
 		});
 
-		it('4 values in Array', finish => {
+		it('4 values in Array', () => {
 			const outerView = Ti.UI.createView({
 				width: '90px',
 				height: '90px',
@@ -1057,20 +1051,15 @@ describe('Titanium.UI.View', function () {
 
 			outerView.add(view);
 
-			try {
-				should(view.borderRadius).be.an.Array();
-				should(view.borderRadius.length).eql(4);
-				should(view.borderRadius).eql([ '12px', 12, '12dp', '12' ]);
+			should(view.borderRadius).be.an.Array();
+			should(view.borderRadius.length).eql(4);
+			should(view.borderRadius).eql([ '12px', 12, '12dp', '12' ]);
 
-				// Exact same image as test above.
-				should(outerView).matchImage('snapshots/borderRadius_12px_12_12dp_12.png');
-			} catch (err) {
-				return finish(err);
-			}
-			finish();
+			// Exact same image as test above.
+			should(outerView).matchImage('snapshots/borderRadius_12px_12_12dp_12.png');
 		});
 
-		it('2 values in String', finish => {
+		it('2 values in String', () => {
 			const outerView = Ti.UI.createView({
 				width: '90px',
 				height: '90px',
@@ -1085,19 +1074,14 @@ describe('Titanium.UI.View', function () {
 
 			outerView.add(view);
 
-			try {
-				should(view.borderRadius).be.a.String();
-				should(view.borderRadius).eql('12px 12');
+			should(view.borderRadius).be.a.String();
+			should(view.borderRadius).eql('12px 12');
 
-				// Exact same image as test above.
-				should(outerView).matchImage('snapshots/borderRadius_12px_12.png');
-			} catch (e) {
-				return finish(e);
-			}
-			finish();
+			// Exact same image as test above.
+			should(outerView).matchImage('snapshots/borderRadius_12px_12.png');
 		});
 
-		it('2 values in Array', finish => {
+		it('2 values in Array', () => {
 			const outerView = Ti.UI.createView({
 				width: '90px',
 				height: '90px',
@@ -1112,17 +1096,12 @@ describe('Titanium.UI.View', function () {
 
 			outerView.add(view);
 
-			try {
-				should(view.borderRadius).be.an.Array();
-				should(view.borderRadius.length).eql(2);
-				should(view.borderRadius).eql([ '12px', 12 ]);
+			should(view.borderRadius).be.an.Array();
+			should(view.borderRadius.length).eql(2);
+			should(view.borderRadius).eql([ '12px', 12 ]);
 
-				// Exact same image as test above.
-				should(outerView).matchImage('snapshots/borderRadius_12px_12.png');
-			} catch (err) {
-				return finish(err);
-			}
-			finish();
+			// Exact same image as test above.
+			should(outerView).matchImage('snapshots/borderRadius_12px_12.png');
 		});
 
 		it.ios('set property post layout', finish => {
@@ -1158,7 +1137,7 @@ describe('Titanium.UI.View', function () {
 			win.open();
 		});
 
-		it('1 value to create circle', finish => {
+		it('1 value to create circle', () => {
 			const outerView = Ti.UI.createView({
 				width: '90px',
 				height: '90px',
@@ -1173,17 +1152,12 @@ describe('Titanium.UI.View', function () {
 
 			outerView.add(view);
 
-			try {
-				should(view.borderRadius).be.a.String();
-				should(view.borderRadius).eql('30px');
-				should(outerView).matchImage('snapshots/borderRadius_30px.png');
-			} catch (e) {
-				return finish(e);
-			}
-			finish();
+			should(view.borderRadius).be.a.String();
+			should(view.borderRadius).eql('30px');
+			should(outerView).matchImage('snapshots/borderRadius_30px.png');
 		});
 
-		it.ios('1 value with shadow effect', finish => {
+		it.ios('1 value with shadow effect', () => {
 			const outerView = Ti.UI.createView({
 				width: '90px',
 				height: '90px',
@@ -1201,12 +1175,7 @@ describe('Titanium.UI.View', function () {
 
 			outerView.add(view);
 
-			try {
-				should(outerView).matchImage('snapshots/borderRadiusWithShadow_30px.png');
-			} catch (e) {
-				return finish(e);
-			}
-			finish();
+			should(outerView).matchImage('snapshots/borderRadiusWithShadow_30px.png');
 		});
 	});
 
