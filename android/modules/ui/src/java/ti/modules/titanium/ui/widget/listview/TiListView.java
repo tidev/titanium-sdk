@@ -52,6 +52,8 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 	private final SelectionTracker tracker;
 
 	private boolean isFiltered = false;
+	private boolean isScrolling = false;
+	private int lastScrollDeltaY;
 
 	public TiListView(ListViewProxy proxy)
 	{
@@ -75,6 +77,7 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 				super.onScrollStateChanged(recyclerView, newState);
 
 				if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+					isScrolling = false;
 					proxy.fireSyncEvent(TiC.EVENT_SCROLLEND, generateScrollPayload());
 				}
 			}
@@ -84,28 +87,26 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 			{
 				super.onScrolled(recyclerView, dx, dy);
 
-				proxy.fireSyncEvent(TiC.EVENT_SCROLLSTART, generateScrollPayload());
-			}
-		});
-		this.recyclerView.setOnFlingListener(new RecyclerView.OnFlingListener()
-		{
-			@Override
-			public boolean onFling(int velocityX, int velocityY)
-			{
-				final KrollDict payload = new KrollDict();
-
-				// Determine scroll direction.
-				if (velocityY > 0) {
-					payload.put(TiC.PROPERTY_DIRECTION, "down");
-				} else if (velocityY < 0) {
-					payload.put(TiC.PROPERTY_DIRECTION, "up");
+				if (!isScrolling) {
+					isScrolling = true;
+					proxy.fireSyncEvent(TiC.EVENT_SCROLLSTART, generateScrollPayload());
 				}
 
-				// Set scroll velocity.
-				payload.put(TiC.EVENT_PROPERTY_VELOCITY, velocityY);
+				// Only fire `scrolling` event upon direction change.
+				if (lastScrollDeltaY >= 0 && dy <= 0 || lastScrollDeltaY <= 0 && dy >= 0) {
+					final KrollDict payload = generateScrollPayload();
 
-				proxy.fireSyncEvent(TiC.EVENT_SCROLLING, payload);
-				return false;
+					// Determine scroll direction.
+					if (dy > 0) {
+						payload.put(TiC.PROPERTY_DIRECTION, "up");
+					} else if (dy < 0) {
+						payload.put(TiC.PROPERTY_DIRECTION, "down");
+					}
+					payload.put(TiC.EVENT_PROPERTY_VELOCITY, 0);
+					proxy.fireSyncEvent(TiC.EVENT_SCROLLING, payload);
+				}
+
+				lastScrollDeltaY = dy;
 			}
 		});
 
