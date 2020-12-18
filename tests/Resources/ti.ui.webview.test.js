@@ -322,6 +322,7 @@ describe.androidARM64Broken('Titanium.UI.WebView', function () {
 			}
 			if (retry--) {
 				Ti.API.warn('could not obtain userAgent, retrying...');
+				Ti.API.warn(e.source.html);
 				setTimeout(function () {
 					webView.url = url;
 				}, 3000);
