@@ -196,6 +196,19 @@ public class UIModule extends KrollModule
 	public static final int BLEND_MODE_PLUS_LIGHTER = 27;
 
 	@Kroll.constant
+	public static final int BUTTON_STYLE_FILLED = 1;
+	@Kroll.constant
+	public static final int BUTTON_STYLE_OUTLINED = 2;
+	@Kroll.constant
+	public static final int BUTTON_STYLE_TEXT = 3;
+	@Kroll.constant
+	public static final int BUTTON_STYLE_OPTION_POSITIVE = 4;
+	@Kroll.constant
+	public static final int BUTTON_STYLE_OPTION_NEGATIVE = 5;
+	@Kroll.constant
+	public static final int BUTTON_STYLE_OPTION_NEUTRAL = 6;
+
+	@Kroll.constant
 	public static final int INPUT_BORDERSTYLE_NONE = 0;
 	@Kroll.constant
 	public static final int INPUT_BORDERSTYLE_ROUNDED = 1;
@@ -203,6 +216,11 @@ public class UIModule extends KrollModule
 	public static final int INPUT_BORDERSTYLE_BEZEL = 2;
 	@Kroll.constant
 	public static final int INPUT_BORDERSTYLE_LINE = 3;
+	@Kroll.constant
+	public static final int INPUT_BORDERSTYLE_UNDERLINED = 4;
+	@Kroll.constant
+	public static final int INPUT_BORDERSTYLE_FILLED = 5;
+
 	@Kroll.constant
 	public static final int INPUT_BUTTONMODE_ONFOCUS = 0;
 	@Kroll.constant
@@ -227,6 +245,15 @@ public class UIModule extends KrollModule
 	public static final int MAP_VIEW_SATELLITE = 2;
 	@Kroll.constant
 	public static final int MAP_VIEW_HYBRID = 3;
+
+	@Kroll.constant
+	public static final int SWITCH_STYLE_CHECKBOX = 0;
+	@Kroll.constant
+	public static final int SWITCH_STYLE_TOGGLEBUTTON = 1;
+	@Kroll.constant
+	public static final int SWITCH_STYLE_SLIDER = 2;
+	@Kroll.constant
+	public static final int SWITCH_STYLE_CHIP = 3;
 
 	@Kroll.constant
 	public static final int TABLEVIEW_POSITION_ANY = 0;
