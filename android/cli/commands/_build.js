@@ -1648,14 +1648,6 @@ AndroidBuilder.prototype.initialize = async function initialize() {
 	const loadFromSDCardProp = this.tiapp.properties['ti.android.loadfromsdcard'];
 	this.loadFromSDCard = loadFromSDCardProp && loadFromSDCardProp.value === true;
 
-	// Set default theme to be used in "AndroidManifest.xml" and style resources.
-	this.defaultAppThemeName = 'Theme.MaterialComponents.Bridge';
-	if (this.tiapp.fullscreen || this.tiapp['statusbar-hidden']) {
-		this.defaultAppThemeName = 'Theme.MaterialComponents.Fullscreen.Bridge';
-	} else if (this.tiapp['navbar-hidden']) {
-		this.defaultAppThemeName = 'Theme.MaterialComponents.NoActionBar.Bridge';
-	}
-
 	// Array of gradle/maven compatible library reference names the app project depends on.
 	// Formatted as: "<group.id>:<artifact-id>:<version>"
 	// Example: "com.google.android.gms:play-services-base:11.0.4"
@@ -3257,9 +3249,17 @@ AndroidBuilder.prototype.generateTheme = async function generateTheme() {
 	const xmlFilePath = path.join(valuesDirPath, 'ti_styles.xml');
 	this.logger.info(__('Generating theme file: %s', xmlFilePath.cyan));
 
+	// Set default theme to be used in "AndroidManifest.xml" and style resources.
+	let defaultAppThemeName = 'Theme.MaterialComponents.DayNight.DarkActionBar';
+	if (this.tiapp.fullscreen || this.tiapp['statusbar-hidden']) {
+		defaultAppThemeName = 'Theme.MaterialComponents.DayNight.Fullscreen';
+	} else if (this.tiapp['navbar-hidden']) {
+		defaultAppThemeName = 'Theme.MaterialComponents.DayNight.NoActionBar';
+	}
+
 	// Set up "Base.Theme.Titanium.Customizable" inherited themes to use <application/> defined theme, if provided.
 	// Note: Do not assign it if set to a Titanium theme, which would cause a circular reference.
-	let customizableParentThemeName = this.defaultAppThemeName;
+	let customizableParentThemeName = 'Base.Theme.Titanium';
 	if (this.customAndroidManifest) {
 		const appTheme = this.customAndroidManifest.getAppAttribute('android:theme');
 		if (appTheme && !appTheme.startsWith('@style/Theme.Titanium') && !appTheme.startsWith('@style/Base.Theme.Titanium')) {
@@ -3272,7 +3272,7 @@ AndroidBuilder.prototype.generateTheme = async function generateTheme() {
 	let xmlLines = [
 		'<?xml version="1.0" encoding="utf-8"?>',
 		'<resources>',
-		`	<style name="Base.Theme.Titanium.Basic" parent="${this.defaultAppThemeName}"/>`,
+		`	<style name="Base.Theme.Titanium.RootStyle" parent="${defaultAppThemeName}"/>`,
 		`	<style name="Base.Theme.Titanium.Customizable" parent="${customizableParentThemeName}"/>`,
 		'',
 		'	<!-- Theme used by "TiRootActivity" derived class which displays the splash screen. -->',
@@ -3513,7 +3513,6 @@ AndroidBuilder.prototype.generateAndroidManifest = async function generateAndroi
 		appChildXmlLines: appChildXmlLines,
 		appIcon: '@drawable/' + this.tiapp.icon.replace(/((\.9)?\.(png|jpg))$/, ''),
 		appLabel: this.tiapp.name,
-		appTheme: `@style/${this.defaultAppThemeName}`,
 		classname: this.classname,
 		storagePermissionMaxSdkVersion: neededManifestSettings.storagePermissionMaxSdkVersion,
 		packageName: this.appid,
