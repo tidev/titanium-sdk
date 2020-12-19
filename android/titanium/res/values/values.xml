@@ -1,15 +1,41 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-	<!-- Base theme applied to Titanium's splash screen activity. -->
-	<!-- Our "_build.js" will replace it with ".NoActionBar" or ".Fullscreen" theme if set in "tiapp.xml" file. -->
-	<style name="Base.Theme.Titanium.Basic" parent="Theme.MaterialComponents.Bridge"/>
+	<!-- Theme colors used by Titanium's splash screen activity. -->
+	<color name="ti_splash_primary">#000000</color>
+	<color name="ti_splash_primary_dark">#000000</color>
+	<color name="ti_splash_navigation_bar">#000000</color>
 
-	<!-- Base theme applied to all Titanium opaque windows. -->
-	<!-- Our "_build.js" script will replace it if custom theme is applied to application in manifest. -->
-	<style name="Base.Theme.Titanium.Customizable" parent="Theme.AppCompat"/>
+	<!-- Titanium's light theme colors. -->
+	<color name="ti_primary">#3475E0</color>
+	<color name="ti_primary_dark">#303F9F</color>
+	<color name="ti_accent">#3273DB</color>
+	<color name="ti_surface">#FFFFFF</color>
+	<color name="ti_background">#FFFFFF</color>
+	<color name="ti_navigation_bar">#303F9F</color>
+
+	<!-- Root theme inherited by all other Titanium themes. -->
+	<!-- Our "_build.js" will replace parent with ".NoActionBar" or ".Fullscreen" if set in "tiapp.xml". -->
+	<style name="Base.Theme.Titanium.RootStyle" parent="Theme.MaterialComponents.DayNight.DarkActionBar"/>
+
+	<!-- Titanium's custom theme applied to all activities. This theme is used by default. -->
+	<style name="Base.Theme.Titanium" parent="Base.Theme.Titanium.RootStyle">
+		<item name="colorPrimary">@color/ti_primary</item>
+		<item name="colorPrimaryDark">@color/ti_primary_dark</item>
+		<item name="colorAccent">@color/ti_accent</item>
+		<item name="colorSurface">@color/ti_surface</item>
+		<item name="android:colorBackground">@color/ti_background</item>
+		<item name="android:navigationBarColor">@color/ti_navigation_bar</item>
+	</style>
+
+	<!-- Base theme applied to all Titanium activities except splash. -->
+	<!-- Our "_build.js" will replace parent if "AndroidManifest.xml" has custom application theme. -->
+	<style name="Base.Theme.Titanium.Customizable" parent="Base.Theme.Titanium"/>
 
 	<!-- Base theme to be used by the "TiRootActivity" class. -->
-	<style name="Base.Theme.Titanium.Splash" parent="Base.Theme.Titanium.Basic">
+	<style name="Base.Theme.Titanium.Splash" parent="Base.Theme.Titanium">
+		<item name="colorPrimary">@color/ti_splash_primary</item>
+		<item name="colorPrimaryDark">@color/ti_splash_primary_dark</item>
+		<item name="android:navigationBarColor">@color/ti_splash_navigation_bar</item>
 		<item name="android:windowActionBar">false</item>
 		<item name="android:windowNoTitle">true</item>
 		<item name="windowActionBar">false</item>
@@ -56,7 +82,18 @@
 		<item name="android:windowFullscreen">true</item>
 	</style>
 
+	<!-- Inherits Google's "Theme.MaterialComponents.DayNight.DarkActionBar" and removes top status and title bar. -->
+	<style name="Theme.MaterialComponents.DayNight.Fullscreen" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
+		<item name="android:windowActionBar">false</item>
+		<item name="android:windowContentOverlay">@null</item>
+		<item name="android:windowFullscreen">true</item>
+		<item name="android:windowNoTitle">true</item>
+		<item name="windowActionBar">false</item>
+		<item name="windowNoTitle">true</item>
+	</style>
+
 	<!-- Inherits Google's "Theme.MaterialComponents.Bridge" and removes top status and title bar. -->
+	<!-- DEPRECATED: Should use non-bridge version of MaterialComponents theme to avoid material widget issues. -->
 	<style name="Theme.MaterialComponents.Fullscreen.Bridge" parent="Theme.MaterialComponents.Bridge">
 		<item name="android:windowActionBar">false</item>
 		<item name="android:windowContentOverlay">@null</item>
@@ -64,6 +101,12 @@
 		<item name="android:windowNoTitle">true</item>
 		<item name="windowActionBar">false</item>
 		<item name="windowNoTitle">true</item>
+	</style>
+
+	<!-- Simple error dialog theme with a dark red background and white text. -->
+	<!-- Note: Cannot derive from material theme in case it's displaying a theming error. -->
+	<style name="Theme.Titanium.Dialog.Error" parent="Theme.AppCompat.Dialog.Alert">
+		<item name="android:background">#8A0000</item>
 	</style>
 
 	<!-- Google's dark AppCompat activity theme without a top title bar. -->

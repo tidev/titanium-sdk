@@ -8,6 +8,7 @@ package ti.modules.titanium.ui.widget.tabgroup;
 
 import android.content.res.ColorStateList;
 import android.content.res.TypedArray;
+import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
@@ -149,13 +150,13 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 	protected boolean smoothScrollOnTabClick = true;
 	protected boolean tabsDisabled = false;
 	protected int numTabsWhenDisabled;
-	protected int colorPrimaryInt;
 	protected PagerAdapter tabGroupPagerAdapter;
 	protected ViewPager tabGroupViewPager;
 	protected TiInsetsProvider insetsProvider = new TiInsetsProvider();
 	// endregion
 
 	// region private fields
+	private int colorSurfaceInt;
 	private int textColorInt;
 	private int unselectedTextColorInt;
 	private AtomicLong fragmentIdGenerator = new AtomicLong();
@@ -169,20 +170,19 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 
 		// Fetch primary background and text colors from ActionBar style assigned to activity theme.
 		// Note: We use ActionBar style for backward compatibility with Titanium versions older than 8.0.0.
-		this.colorPrimaryInt = 0xFF212121; // Default to dark gray.
-		this.textColorInt = 0xFFFFFFFF;    // Default to white.
+		this.textColorInt = 0xFF212121; // Default to dark gray.
 		this.unselectedTextColorInt = 0xFFBBBBBB; // Default to light gray.
+		this.colorSurfaceInt = Color.TRANSPARENT;
 		try {
-			final int styleAttributeId = TiRHelper.getResource("attr.actionBarStyle");
 			final int[] idArray = new int[] {
 				TiRHelper.getResource("attr.colorPrimary"),
-				TiRHelper.getResource("attr.textColorPrimary"),
-				TiRHelper.getResource("attr.colorControlNormal")
+				TiRHelper.getResource("attr.colorSurface"),
+				TiRHelper.getResource("attr.colorOnSurface")
 			};
-			final TypedArray typedArray = activity.obtainStyledAttributes(null, idArray, styleAttributeId, 0);
+			final TypedArray typedArray =  activity.getTheme().obtainStyledAttributes(idArray);
 
-			this.colorPrimaryInt = typedArray.getColor(0, this.colorPrimaryInt);
-			this.textColorInt = typedArray.getColor(1, this.textColorInt);
+			this.textColorInt = typedArray.getColor(0, this.textColorInt);
+			this.colorSurfaceInt = typedArray.getColor(1, this.colorSurfaceInt);
 			this.unselectedTextColorInt = typedArray.getColor(2, this.unselectedTextColorInt);
 			typedArray.recycle();
 		} catch (Exception ex) {
@@ -318,7 +318,7 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 		// If the TabGroup has backgroundColor property, use it. If not - use the primaryColor of the theme.
 		colorInt = proxy.hasPropertyAndNotNull(TiC.PROPERTY_TABS_BACKGROUND_COLOR)
 					   ? TiColorHelper.parseColor(proxy.getProperty(TiC.PROPERTY_TABS_BACKGROUND_COLOR).toString())
-					   : this.colorPrimaryInt;
+					   : this.colorSurfaceInt;
 		// If the Tab has its own backgroundColor property, use it instead.
 		colorInt = tabProxy.hasPropertyAndNotNull(TiC.PROPERTY_BACKGROUND_COLOR)
 					   ? TiColorHelper.parseColor(tabProxy.getProperty(TiC.PROPERTY_BACKGROUND_COLOR).toString())
@@ -430,7 +430,7 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 		if (d.containsKeyAndNotNull(TiC.PROPERTY_TABS_BACKGROUND_COLOR)) {
 			setBackgroundColor(TiColorHelper.parseColor(d.get(TiC.PROPERTY_TABS_BACKGROUND_COLOR).toString()));
 		} else {
-			setBackgroundColor(this.colorPrimaryInt);
+			setBackgroundColor(this.colorSurfaceInt);
 		}
 		super.processProperties(d);
 	}

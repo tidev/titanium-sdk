@@ -498,11 +498,8 @@ public abstract class TiWindowProxy extends TiViewProxy
 	protected void handlePostOpen()
 	{
 		if (postOpenListener != null) {
-			getMainHandler().post(new Runnable() {
-				public void run()
-				{
-					postOpenListener.onPostOpen(TiWindowProxy.this);
-				}
+			getMainHandler().post(() -> {
+				postOpenListener.onPostOpen(TiWindowProxy.this);
 			});
 		}
 
