@@ -680,23 +680,28 @@ properties:
     description: Use with the <Titanium.UI.Switch.style> property.
     type: Number
     permission: read-only
+    deprecated:
+        since: "10.0.0"
+        notes: Use <Titanium.UI.SWITCH_STYLE_CHECKBOX> instead.
     
   - name: SWITCH_STYLE_TOGGLEBUTTON
     summary: Display a toggle button.
     description: Use with the <Titanium.UI.Switch.style> property.
     type: Number
     permission: read-only
+    deprecated:
+        since: "10.0.0"
+        notes: Use <Titanium.UI.SWITCH_STYLE_TOGGLEBUTTON> instead.
     
   - name: SWITCH_STYLE_SWITCH
     summary: Display a switch.
-    description: |
-        Use with the <Titanium.UI.Switch.style> property.
-
-        Due to [Android issue #78262](https://code.google.com/p/android/issues/detail?id=78262),
-        the thumb (circle icon) may not appear on the switch.
+    description: Use with the <Titanium.UI.Switch.style> property.
     type: Number
     permission: read-only
     since: "4.0.0"
+    deprecated:
+        since: "10.0.0"
+        notes: Use <Titanium.UI.SWITCH_STYLE_SLIDER> instead.
     
   - name: WEBVIEW_PLUGINS_OFF
     summary: |
