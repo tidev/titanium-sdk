@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<!-- Titanium's dark theme colors. -->
+	<color name="ti_primary">#92B4F2</color>
+	<color name="ti_primary_dark">#000000</color>
+	<color name="ti_accent">#92B4F2</color>
+	<color name="ti_surface">#353639</color>
+	<color name="ti_background">#202124</color>
+	<color name="ti_navigation_bar">#000000</color>
+</resources>

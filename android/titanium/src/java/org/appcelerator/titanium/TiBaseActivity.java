@@ -96,6 +96,7 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 	private TiWeakList<OnPrepareOptionsMenuEvent> onPrepareOptionsMenuListeners =
 		new TiWeakList<OnPrepareOptionsMenuEvent>();
 	private boolean sustainMode = false;
+	private int lastUIModeFlags = 0;
 	private Intent launchIntent = null;
 	private TiActionBarStyleHandler actionBarStyleHandler;
 	private TiActivitySafeAreaMonitor safeAreaMonitor;
@@ -650,6 +651,25 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 		this.launchIntent = getIntent();
 		this.safeAreaMonitor = new TiActivitySafeAreaMonitor(this);
 
+		// Fetch the current UI mode flags. Used to determine light/dark theme being used.
+		Configuration config = getResources().getConfiguration();
+		if (config != null) {
+			this.lastUIModeFlags = config.uiMode;
+		}
+
+		// If activity is being recreated/restored, then copy last saved intent extras.
+		// This is needed to acquire the Ti.UI.Window proxy ID this activity should be assigned to.
+		if ((this.launchIntent != null) && (savedInstanceState != null)) {
+			Bundle oldExtras = savedInstanceState.getBundle("tiLaunchIntentExtras");
+			if (oldExtras != null) {
+				Bundle newExtras = this.launchIntent.getExtras();
+				if (newExtras != null) {
+					oldExtras.putAll(newExtras);
+				}
+				this.launchIntent.putExtras(oldExtras);
+			}
+		}
+
 		TiApplication tiApp = getTiApp();
 		TiApplication.addToActivityStack(this);
 
@@ -768,7 +788,11 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 		originalOrientationMode = getRequestedOrientation();
 
 		if (window != null) {
-			window.onWindowActivityCreated();
+			try {
+				window.onWindowActivityCreated();
+			} catch (Throwable t) {
+				Thread.getDefaultUncaughtExceptionHandler().uncaughtException(null, t);
+			}
 		}
 		if (activityProxy != null) {
 			dispatchCallback(TiC.PROPERTY_ON_CREATE, null);
@@ -1161,7 +1185,7 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 	}
 
 	@Override
-	public void onConfigurationChanged(Configuration newConfig)
+	public void onConfigurationChanged(@NonNull Configuration newConfig)
 	{
 		super.onConfigurationChanged(newConfig);
 
@@ -1181,6 +1205,13 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 				listener.get().onConfigurationChanged(this, newConfig);
 			}
 		}
+
+		// Recreate this activity if the OS has switched between light/dark theme.
+		final int NIGHT_MASK = Configuration.UI_MODE_NIGHT_MASK;
+		if ((newConfig.uiMode & NIGHT_MASK) != (this.lastUIModeFlags & NIGHT_MASK)) {
+			this.recreate();
+		}
+		this.lastUIModeFlags = newConfig.uiMode;
 	}
 
 	@Override
@@ -1580,10 +1611,14 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 	{
 		super.onSaveInstanceState(outState);
 
-		// If the activity is forced to destroy by Android, save the supportHelperId so
-		// we can get it back when the activity is recovered.
-		if (!isFinishing() && supportHelper != null) {
-			outState.putInt("supportHelperId", supportHelperId);
+		// If activity is being temporarily destroyed, then save settings to be restored when activity is recreated.
+		if (!isFinishing()) {
+			if (supportHelper != null) {
+				outState.putInt("supportHelperId", supportHelperId);
+			}
+			if (this.launchIntent != null) {
+				outState.putBundle("tiLaunchIntentExtras", this.launchIntent.getExtras());
+			}
 		}
 
 		synchronized (instanceStateListeners.synchronizedList())
