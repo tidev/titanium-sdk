@@ -28,7 +28,7 @@
 		android:label="<%- appLabel %>"
 		android:name="<%- classname %>Application"
 		android:usesCleartextTraffic="true"
-		android:theme="<%- appTheme %>">
+		android:theme="@style/Base.Theme.Titanium.Customizable">
 
 		<activity
 			android:name=".<%- classname %>Activity"
