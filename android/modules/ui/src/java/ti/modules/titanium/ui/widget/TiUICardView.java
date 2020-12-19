@@ -18,10 +18,10 @@ import org.appcelerator.titanium.view.TiUIView;
 import org.appcelerator.titanium.view.TiCompositeLayout.LayoutArrangement;
 
 import android.content.Context;
-import androidx.cardview.widget.CardView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
+import com.google.android.material.card.MaterialCardView;
 
 public class TiUICardView extends TiUIView
 {
@@ -38,7 +38,7 @@ public class TiUICardView extends TiUIView
 		}
 	}
 
-	public class TiCardView extends CardView
+	public class TiCardView extends MaterialCardView
 	{
 
 		private TiUICardViewLayout layout;
