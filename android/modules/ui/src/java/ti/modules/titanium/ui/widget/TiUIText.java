@@ -15,8 +15,10 @@ import java.util.Locale;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
+import org.appcelerator.titanium.R;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
+import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiRHelper;
@@ -56,6 +58,7 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
+import androidx.appcompat.view.ContextThemeWrapper;
 import com.google.android.material.textfield.TextInputLayout;
 
 public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionListener, OnFocusChangeListener
@@ -109,14 +112,47 @@ public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionLis
 		tv.setOnFocusChangeListener(this); // TODO refactor to TiUIView?
 		tv.setIncludeFontPadding(true);
 		if (field) {
-			tv.setGravity(Gravity.CENTER_VERTICAL | Gravity.LEFT);
+			tv.setGravity(Gravity.CENTER_VERTICAL | Gravity.START);
 		} else {
-			tv.setGravity(Gravity.TOP | Gravity.LEFT);
+			tv.setGravity(Gravity.TOP | Gravity.START);
 		}
 
-		textInputLayout = new TextInputLayout(proxy.getActivity());
-		textInputLayout.addView(tv, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
-																  LinearLayout.LayoutParams.MATCH_PARENT));
+		int borderStyle = UIModule.INPUT_BORDERSTYLE_FILLED;
+		borderStyle = TiConvert.toInt(proxy.getProperty(TiC.PROPERTY_BORDER_STYLE), borderStyle);
+		switch (borderStyle) {
+			case UIModule.INPUT_BORDERSTYLE_BEZEL:
+			case UIModule.INPUT_BORDERSTYLE_LINE:
+			case UIModule.INPUT_BORDERSTYLE_ROUNDED:
+				textInputLayout = new TextInputLayout(new ContextThemeWrapper(
+					proxy.getActivity(), R.style.Widget_MaterialComponents_TextInputLayout_OutlinedBox));
+				textInputLayout.setBoxBackgroundMode(TextInputLayout.BOX_BACKGROUND_OUTLINE);
+				if (borderStyle == UIModule.INPUT_BORDERSTYLE_ROUNDED) {
+					float radius = (new TiDimension("5dp", TiDimension.TYPE_LEFT)).getAsPixels(textInputLayout);
+					textInputLayout.setBoxCornerRadii(radius, radius, radius, radius);
+				} else {
+					textInputLayout.setBoxCornerRadii(0, 0, 0, 0);
+				}
+				break;
+			case UIModule.INPUT_BORDERSTYLE_NONE:
+				textInputLayout = new TextInputLayout(new ContextThemeWrapper(
+					proxy.getActivity(), R.style.Widget_MaterialComponents_TextInputLayout_FilledBox));
+				textInputLayout.setBoxBackgroundMode(TextInputLayout.BOX_BACKGROUND_NONE);
+				break;
+			case UIModule.INPUT_BORDERSTYLE_UNDERLINED:
+				textInputLayout = new TextInputLayout(proxy.getActivity());
+				textInputLayout.setBoxBackgroundMode(TextInputLayout.BOX_BACKGROUND_NONE);
+				break;
+			case UIModule.INPUT_BORDERSTYLE_FILLED:
+			default:
+				textInputLayout = new TextInputLayout(proxy.getActivity());
+				textInputLayout.setBoxBackgroundMode(TextInputLayout.BOX_BACKGROUND_FILLED);
+				break;
+		}
+		if (borderStyle != UIModule.INPUT_BORDERSTYLE_UNDERLINED) {
+			tv.setBackground(null);
+		}
+		textInputLayout.addView(tv, new LinearLayout.LayoutParams(
+			LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT));
 
 		setNativeView(textInputLayout);
 	}
@@ -481,7 +517,7 @@ public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionLis
 	public boolean onEditorAction(TextView v, int actionId, KeyEvent keyEvent)
 	{
 		// TIMOB-23757: https://code.google.com/p/android/issues/detail?id=182191
-		if (Build.VERSION.SDK_INT < 24 && (tv.getGravity() & Gravity.LEFT) != Gravity.LEFT) {
+		if (Build.VERSION.SDK_INT < 24 && (tv.getGravity() & Gravity.START) != Gravity.START) {
 			if (getNativeView() != null) {
 				ViewGroup view = (ViewGroup) getNativeView().getParent();
 				view.setFocusableInTouchMode(true);
