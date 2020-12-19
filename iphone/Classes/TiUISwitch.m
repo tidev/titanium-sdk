@@ -38,7 +38,9 @@
       switchView.preferredStyle = [TiUtils intValue:[[self proxy] valueForKey:@"style"] def:UISwitchStyleAutomatic];
     }
 #endif
-    [switchView addTarget:self action:@selector(switchChanged:) forControlEvents:UIControlEventValueChanged];
+    [switchView addTarget:self
+                   action:@selector(switchChanged:)
+         forControlEvents:UIControlEventValueChanged];
     [self addSubview:switchView];
   }
   return switchView;
