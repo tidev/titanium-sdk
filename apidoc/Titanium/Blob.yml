@@ -248,7 +248,7 @@ methods:
 
         If this blob doesn't represent an image, returns `null`.
     platforms: [android]
-    since: {andorid: "10.0.0"}
+    since: {android: "10.0.0"}
     parameters:
       - name: quality
         type: Number
