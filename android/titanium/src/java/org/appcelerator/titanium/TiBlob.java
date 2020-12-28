@@ -873,7 +873,7 @@ public class TiBlob extends KrollProxy
 	}
 
 	@Kroll.method
-	public TiBlob imageAsWebp(Number compressionQuality)
+	public TiBlob imageAsWebP(Number compressionQuality)
 	{
 		Bitmap img = getImage();
 		if (img == null) {

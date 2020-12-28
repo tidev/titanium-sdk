@@ -241,7 +241,7 @@ methods:
         optional: true
         default: 0
 
-  - name: imageAsWebp
+  - name: imageAsWebP
     summary: Creates a new blob by compressing the underlying image to the specified quality.
     description: |
         Returns the compressed or uncompressed WebP image as a blob.
