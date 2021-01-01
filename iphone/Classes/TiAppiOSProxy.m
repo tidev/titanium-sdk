@@ -223,6 +223,10 @@
 
 - (void)didReceiveApplicationShortcutNotification:(NSNotification *)info
 {
+  if (!info.userInfo) {
+    return;
+  }
+
   NSMutableDictionary *event = [[NSMutableDictionary alloc] initWithDictionary:@{
     @"title" : [[info userInfo] valueForKey:@"title"],
     @"itemtype" : [[info userInfo] valueForKey:@"type"]
@@ -253,7 +257,7 @@
 
 - (void)didHandleURL:(NSNotification *)info
 {
-  if (![self _hasListeners:@"handleurl"]) {
+  if (![self _hasListeners:@"handleurl"] || !info.userInfo) {
     return;
   }
 
