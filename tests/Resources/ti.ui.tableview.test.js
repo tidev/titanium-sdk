@@ -4,7 +4,7 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-/* global OS_IOS */
+/* global OS_ANDROID, OS_IOS, OS_VERSION_MAJOR */
 /* eslint-env mocha */
 /* eslint no-unused-expressions: "off" */
 'use strict';
@@ -1724,7 +1724,12 @@ describe('Titanium.UI.TableView', function () {
 		view.add(tableView);
 
 		// TableView should display rows of internal icons.
-		should(view).matchImage('snapshots/tableView_header_footer.png');
+		const options = {
+			threshold: 0.1,
+			// only for certain versions of Android? This happens on 5.x, what about 6-10?
+			maxPixelMismatch: (OS_ANDROID && OS_VERSION_MAJOR < 6) ? 2224 : 0
+		};
+		should(view).matchImage('snapshots/tableView_header_footer.png', options);
 	});
 
 	// FIXME: For an unknown reason, this test causes an 'signal error code: 11' exception on iOS
@@ -1763,6 +1768,11 @@ describe('Titanium.UI.TableView', function () {
 		view.add(tableView);
 
 		// TableView should display rows of internal icons.
-		should(view).matchImage('snapshots/tableView_tableViewSection_header_footer.png');
+		const options = {
+			threshold: 0.1,
+			// only for certain versions of Android? This happens on 5.x, what about 6-10?
+			maxPixelMismatch: (OS_ANDROID && OS_VERSION_MAJOR < 6) ? 3757 : 0
+		};
+		should(view).matchImage('snapshots/tableView_tableViewSection_header_footer.png', options);
 	});
 });

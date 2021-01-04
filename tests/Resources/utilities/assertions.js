@@ -234,7 +234,7 @@ should.Assertion.add('matchImage', function (image, options = { threshold: 0.1, 
 	const diff = pixelmatch(actualImg.data, expectedImg.data, diffImg.data, width, height, { threshold: options.threshold });
 
 	try {
-		should(diff).be.belowOrEqual(options.maxPixelMismatch, 'mismatched pixels');
+		should(diff).be.belowOrEqual(options.maxPixelMismatch, `mismatched pixels. allowed: ${options.maxPixelMismatch}, actual: ${diff}`);
 	} catch (err) {
 		// Snapshots did not match, save current view.
 		const actualOut = saveImage(actualBlob, image);
