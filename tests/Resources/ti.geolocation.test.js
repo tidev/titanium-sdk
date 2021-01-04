@@ -307,7 +307,7 @@ describe.windowsBroken('Titanium.Geolocation', function () {
 		this.timeout(6e4); // 60 sec
 
 		should(Ti.Geolocation.forwardGeocoder).be.a.Function();
-		Ti.Geolocation.forwardGeocoder('440 N Bernardo Ave, Mountain View', function (data) {
+		Ti.Geolocation.fforwardGeocoder('440 N Bernardo Ave, Mountain View, CA 94043', function (data) {
 			try {
 				should(data).have.property('success').which.is.a.Boolean();
 				should(data.success).be.be.true();
