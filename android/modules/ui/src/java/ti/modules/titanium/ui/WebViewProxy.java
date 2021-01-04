@@ -7,7 +7,6 @@
 package ti.modules.titanium.ui;
 
 import android.app.Activity;
-import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
 import android.webkit.ValueCallback;
@@ -109,15 +108,7 @@ public class WebViewProxy extends ViewProxy implements Handler.Callback, OnLifec
 		}
 		if (callback != null) {
 			EvalJSRunnable runnable = new EvalJSRunnable(view, getKrollObject(), code, callback);
-			if (Build.VERSION.SDK_INT >= 19) {
-				// When on Android 4.4 we can use the builtin evalAsync method!
-				runnable.runAsync();
-			} else {
-				// Just do our sync eval in a separate Thread. Doesn't need to be done in UI
-				Thread clientThread = new Thread(runnable, "TiWebViewProxy-" + System.currentTimeMillis());
-				clientThread.setPriority(Thread.MIN_PRIORITY);
-				clientThread.start();
-			}
+			runnable.runAsync();
 			return null;
 		}
 		// TODO deprecate the sync variant?

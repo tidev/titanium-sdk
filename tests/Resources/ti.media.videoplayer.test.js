@@ -17,7 +17,7 @@ describe('Titanium.Media', () => {
 	});
 });
 
-describe('Titanium.Media.VideoPlayer', () => {
+describe.androidARM64Broken('Titanium.Media.VideoPlayer', () => {
 	let player;
 	let win;
 

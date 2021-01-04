@@ -71,17 +71,20 @@ public class ClipboardModule extends KrollModule
 	@Kroll.getProperty
 	public String getText()
 	{
-		return board().getText().toString();
+		CharSequence text = board().getText();
+		if (text != null) {
+			return text.toString();
+		}
+		return null;
 	}
 
 	@Kroll.method
-	public boolean hasData(String type)
+	public boolean hasData(@Kroll.argument(optional = true) String type)
 	{
 		if (type == null || isTextType(type)) {
 			return hasText();
-		} else {
-			return false;
 		}
+		return false;
 	}
 
 	@Kroll.method

@@ -44,7 +44,6 @@ public class HTTPClientProxy extends KrollProxy
 	public static final int DONE = TiHTTPClient.READY_STATE_DONE;
 
 	private static final String TAG = "TiHTTPClientProxy";
-	private static final boolean JELLYBEAN_OR_GREATER = (Build.VERSION.SDK_INT >= 16);
 	public static final String PROPERTY_SECURITY_MANAGER = "securityManager";
 	private TiHTTPClient client;
 
@@ -354,21 +353,18 @@ public class HTTPClientProxy extends KrollProxy
 	@Kroll.getProperty
 	public int getTlsVersion()
 	{
-		int tlsVersion;
-
+		int tlsVersion = NetworkModule.TLS_DEFAULT;
 		if (this.hasProperty(TiC.PROPERTY_TLS_VERSION)) {
 			tlsVersion = TiConvert.toInt(this.getProperty(TiC.PROPERTY_TLS_VERSION));
-
-			if (tlsVersion == NetworkModule.TLS_DEFAULT) {
-				if (JELLYBEAN_OR_GREATER) {
-					return NetworkModule.TLS_VERSION_1_2;
-				}
-				return NetworkModule.TLS_VERSION_1_0;
-			}
-			return tlsVersion;
 		}
-
-		return NetworkModule.TLS_DEFAULT;
+		if (tlsVersion == NetworkModule.TLS_DEFAULT) {
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+				tlsVersion = NetworkModule.TLS_VERSION_1_3;
+			} else {
+				tlsVersion = NetworkModule.TLS_VERSION_1_2;
+			}
+		}
+		return tlsVersion;
 	}
 
 	@Override

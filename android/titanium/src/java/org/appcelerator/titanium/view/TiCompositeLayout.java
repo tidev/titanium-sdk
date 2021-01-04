@@ -21,7 +21,6 @@ import org.appcelerator.titanium.util.TiUIHelper;
 
 import android.app.Activity;
 import android.content.Context;
-import android.os.Build;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
@@ -512,11 +511,6 @@ public class TiCompositeLayout extends ViewGroup implements OnHierarchyChangeLis
 	@Override
 	public void requestApplyInsets()
 	{
-		// The super class' method is only supported on Android 5.0 and higher.
-		if (Build.VERSION.SDK_INT < 20) {
-			return;
-		}
-
 		// Clear last stored insets and then request parent to redispatch system insets to all child views.
 		this.previousInsets = null;
 		super.requestApplyInsets();
@@ -530,9 +524,7 @@ public class TiCompositeLayout extends ViewGroup implements OnHierarchyChangeLis
 	public void requestFitSystemWindows()
 	{
 		// Clear last stored insets and then request parent to redispatch system insets to all child views.
-		if (Build.VERSION.SDK_INT >= 20) {
-			this.previousInsets = null;
-		}
+		this.previousInsets = null;
 		super.requestFitSystemWindows();
 	}
 
@@ -543,9 +535,7 @@ public class TiCompositeLayout extends ViewGroup implements OnHierarchyChangeLis
 		super.onDetachedFromWindow();
 
 		// Clear last stored insets received by the onApplyWindowInsets() method.
-		if (Build.VERSION.SDK_INT >= 20) {
-			this.previousInsets = null;
-		}
+		this.previousInsets = null;
 	}
 
 	@Override
