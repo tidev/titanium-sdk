@@ -8,6 +8,8 @@ package ti.modules.titanium.ui.widget.listview;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Queue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.titanium.TiApplication;
@@ -21,7 +23,6 @@ import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.RectShape;
 import android.view.MotionEvent;
 import android.view.View;
-import android.os.Handler;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -42,15 +43,17 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 {
 	private static final String TAG = "TiListView";
 
-	private static final int CACHE_SIZE = 48;
-	private static final int PRELOAD_SIZE = CACHE_SIZE * 2;
+	private static final int CACHE_SIZE = 24;
+	private static final int PRELOAD_SIZE = CACHE_SIZE / 2;
 
 	private final ListViewAdapter adapter;
 	private final DividerItemDecoration decoration;
-	private final List<ListItemProxy> items = new ArrayList<>();
+	private final List<ListItemProxy> items = new ArrayList<>(CACHE_SIZE);
 	private final ListViewProxy proxy;
 	private final TiNestedRecyclerView recyclerView;
 	private final SelectionTracker tracker;
+
+	private final Queue<Thread> updateQueue = new LinkedBlockingQueue<>(2);
 
 	private boolean isFiltered = false;
 	private boolean isScrolling = false;
@@ -394,9 +397,65 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 		decoration.setDrawable(drawable);
 	}
 
+	/**
+	 * Update list items.
+	 *
+	 * This method will process the list items on a background thread.
+	 * While the background thread is running, additional calls to `update()`
+	 * will be ignored as only the latest changes need to be processed and displayed.
+	 * This optimization saves processing every `update()` call and only processes
+	 * list items when necessary without hanging the UI thread.
+	 */
 	public void update()
 	{
-		this.update(null);
+		if (updateQueue.size() > 1) {
+
+			// Update in progress, with another update for latest changes queued.
+			// Ignore further updates until complete.
+			return;
+		}
+
+		final Thread thread = new Thread(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				final Activity activity = TiApplication.getAppRootOrCurrentActivity();
+
+				// Update list items in background thread.
+				update(null);
+
+				activity.runOnUiThread(new Runnable()
+				{
+					@Override
+					public void run()
+					{
+
+						// Notify adapter of changes on UI thread.
+						adapter.notifyDataSetChanged();
+
+						// Remove current thread from queue.
+						updateQueue.poll();
+
+						// Grab next thread from queue.
+						final Thread next = updateQueue.poll();
+						if (next != null) {
+
+							// Execute next thread.
+							next.start();
+						}
+					}
+				});
+			}
+		});
+
+		updateQueue.add(thread);
+
+		if (updateQueue.size() == 1) {
+
+			// First item in queue, start thread.
+			thread.start();
+		}
 	}
 
 	/**
@@ -439,6 +498,7 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 			final KrollDict sectionProperties = section.getProperties();
 			final List<ListItemProxy> sectionItems = section.getListItems();
 
+			int index = 0;
 			int filteredIndex = 0;
 			for (final ListItemProxy item : sectionItems) {
 
@@ -459,6 +519,7 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 				item.setFilteredIndex(query != null ? filteredIndex++ : -1);
 
 				// Add item.
+				item.index = index++;
 				this.items.add(item);
 			}
 
@@ -496,53 +557,46 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 			this.items.add(item);
 		}
 
-		// Pre-load views for smooth initial scroll.
-		final int preloadSize = Math.min(this.items.size(), PRELOAD_SIZE);
-		for (int i = 0; i < preloadSize; i++) {
-			this.items.get(i).getOrCreateView();
-		}
-
-		// Update models.
-		updateModels();
-	}
-
-	/**
-	 * Update adapter models.
-	 */
-	public void updateModels()
-	{
-		// Amend final index of items.
-		int i = 0;
-		for (ListItemProxy item : this.items) {
-			if (item.isPlaceholder()) {
-				continue;
-			}
-
-			// Update item index, ignoring placeholder entries.
-			item.index = i++;
-		}
-
 		final Activity activity = TiApplication.getAppCurrentActivity();
-		final View previousFocus = activity != null ? activity.getCurrentFocus() : null;
+		if (activity == null) {
+			return;
+		}
 
-		// Notify the adapter of changes.
-		this.adapter.notifyDataSetChanged();
+		activity.runOnUiThread(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				final int preloadSize = Math.min(items.size(), PRELOAD_SIZE);
+
+				for (int i = 0; i < preloadSize; i++) {
+
+					// Pre-load views for smooth initial scroll.
+					items.get(i).getOrCreateView();
+				}
+			}
+		});
 
 		// FIXME: This is not an ideal workaround for an issue where recycled items that were in focus
 		//        lose their focus when the data set changes. There are improvements to be made here.
 		//        This can be reproduced when setting a Ti.UI.TextField in the Ti.UI.ListView.headerView for search.
-		new Handler().post(new Runnable()
-		{
-			public void run()
+		final View previousFocus = activity.getCurrentFocus();
+
+		if (previousFocus != null) {
+			activity.runOnUiThread(new Runnable()
 			{
-				final View currentFocus = activity != null ? activity.getCurrentFocus() : null;
+				@Override
+				public void run()
+				{
+					final View currentFocus = activity != null ? activity.getCurrentFocus() : null;
 
-				if (previousFocus != null && currentFocus != previousFocus) {
+					if (currentFocus != previousFocus) {
 
-					// Request focus on previous component before dataset changed.
-					previousFocus.requestFocus();
+						// Request focus on previous component before dataset changed.
+						previousFocus.requestFocus();
+					}
 				}
-			}
-		});
+			});
+		}
 	}
 }
