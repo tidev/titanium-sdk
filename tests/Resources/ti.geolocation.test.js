@@ -395,7 +395,7 @@ describe.windowsBroken('Titanium.Geolocation', () => {
 						should(data.places[0].postalCode).be.eql('94043');
 						should(data.places[0]).have.property('latitude').which.is.a.Number();
 						should(data.places[0]).have.property('longitude').which.is.a.Number();
-						should(data.places[0].country).be.oneOf('USA', 'United States of America');
+						should(data.places[0].country).be.oneOf('USA', 'United States of America', 'United States');
 						should(data.places[0].state).be.eql('California');
 						should(data.places[0].countryCode).be.eql('US');
 						should(data.places[0]).have.property('city').which.is.a.String();
@@ -422,7 +422,7 @@ describe.windowsBroken('Titanium.Geolocation', () => {
 					should(data.places[0].postalCode).be.eql('94043');
 					should(data.places[0]).have.property('latitude').which.is.a.Number();
 					should(data.places[0]).have.property('longitude').which.is.a.Number();
-					should(data.places[0].country).be.oneOf('USA', 'United States of America');
+					should(data.places[0].country).be.oneOf('USA', 'United States of America', 'United States');
 					should(data.places[0].state).be.eql('California');
 					should(data.places[0].countryCode).be.eql('US');
 					should(data.places[0]).have.property('city').which.is.a.String();
