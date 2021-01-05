@@ -119,15 +119,13 @@ public class ListItemProxy extends TiViewProxy
 	}
 
 	/**
-	 * Override fireEvent to inject ListItem data into payload.
+	 * Handle event data to generate payload with list data.
 	 *
 	 * @param eventName Name of fired event.
 	 * @param data      Data payload of fired event.
-	 * @param bubbles   Specify if event should bubble up to parent.
-	 * @return
+	 * @return Object of payload.
 	 */
-	@Override
-	public boolean fireEvent(String eventName, Object data, boolean bubbles)
+	private Object handleEvent(String eventName, Object data)
 	{
 		data = handleFireEvent(eventName, data);
 		return super.fireEvent(eventName, data, bubbles);
@@ -201,6 +199,27 @@ public class ListItemProxy extends TiViewProxy
 		}
 
 		return data;
+	}
+
+	/**
+	 * Override fireEvent to inject ListItem data into payload.
+	 *
+	 * @param eventName Name of fired event.
+	 * @param data      Data payload of fired event.
+	 * @param bubbles   Specify if event should bubble up to parent.
+	 * @return
+	 */
+	@Override
+	public boolean fireEvent(String eventName, Object data, boolean bubbles)
+	{
+		data = handleEvent(eventName, data);
+		return super.fireEvent(eventName, data, bubbles);
+	}
+	@Override
+	public boolean fireSyncEvent(String eventName, Object data, boolean bubbles)
+	{
+		data = handleEvent(eventName, data);
+		return super.fireSyncEvent(eventName, data, bubbles);
 	}
 
 	/**
