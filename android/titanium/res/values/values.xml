@@ -13,6 +13,14 @@
 	<color name="ti_background">#FFFFFF</color>
 	<color name="ti_navigation_bar">#303F9F</color>
 
+	<!-- Titanium's button text style is not all-caps just like Google's apps. -->
+	<style name="TextAppearance.Titanium.Button" parent="TextAppearance.MaterialComponents.Button">
+		<item name="android:textAllCaps">false</item>
+	</style>
+	<style name="Widget.Titanium.Button" parent="@style/Widget.AppCompat.Button">
+		<item name="android:textAllCaps">false</item>
+	</style>
+
 	<!-- Root theme inherited by all other Titanium themes. -->
 	<!-- Our "_build.js" will replace parent with ".NoActionBar" or ".Fullscreen" if set in "tiapp.xml". -->
 	<style name="Base.Theme.Titanium.RootStyle" parent="Theme.MaterialComponents.DayNight.DarkActionBar"/>
@@ -25,6 +33,9 @@
 		<item name="colorSurface">@color/ti_surface</item>
 		<item name="android:colorBackground">@color/ti_background</item>
 		<item name="android:navigationBarColor">@color/ti_navigation_bar</item>
+		<item name="android:buttonStyle">@style/Widget.Titanium.Button</item>
+		<item name="buttonStyle">@style/Widget.Titanium.Button</item>
+		<item name="textAppearanceButton">@style/TextAppearance.Titanium.Button</item>
 	</style>
 
 	<!-- Base theme applied to all Titanium activities except splash. -->
