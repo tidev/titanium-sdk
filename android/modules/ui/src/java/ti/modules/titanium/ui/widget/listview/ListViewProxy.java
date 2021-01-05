@@ -9,6 +9,7 @@ package ti.modules.titanium.ui.widget.listview;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -338,47 +339,56 @@ public class ListViewProxy extends TiViewProxy
 			if (parent instanceof ListSectionProxy) {
 				final ListSectionProxy section = (ListSectionProxy) parent;
 				final int sectionIndex = getIndexOfSection(section);
-				final int itemIndex = item.getIndexInSection();
 
 				if (markers.containsKey(sectionIndex)) {
 
 					// Found marker for current section.
 					final Set<Integer> itemIndexSet = markers.get(sectionIndex);
 
-					if (itemIndexSet.contains(itemIndex)) {
+					final TiListView listView = getListView();
+					if (listView == null) {
+						return;
+					}
+					final RecyclerView recyclerView = listView.getRecyclerView();
+					if (recyclerView == null) {
+						return;
+					}
+					final LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
+					if (layoutManager == null) {
+						return;
+					}
 
-						// Found marker for specified item index.
-						// Determine if item is visible.
+					// Loop through markers for current section and determine visibility.
+					// Some items may not have scrolled into view.
+					for (Iterator<Integer> i = itemIndexSet.iterator(); i.hasNext();) {
+						final Integer index = i.next();
 
-						final TiListView listView = getListView();
-						if (listView == null) {
-							return;
+						final ListItemProxy markedItem = section.getListItemAt(index);
+						if (markedItem == null) {
+							continue;
 						}
-						final RecyclerView recyclerView = listView.getRecyclerView();
-						if (recyclerView == null) {
-							return;
+						final ListViewHolder markedHolder = markedItem.getHolder();
+						if (markedHolder == null) {
+							continue;
 						}
-						final LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
-						if (layoutManager == null) {
-							return;
+						final View markedItemView = markedHolder.itemView;
+						if (markedItemView == null) {
+							continue;
 						}
-						final View itemView = item.getHolder().itemView;
 						final boolean isVisible =
-							layoutManager.isViewPartiallyVisible(itemView, true, true);
-						if (!isVisible) {
+							layoutManager.isViewPartiallyVisible(markedItemView, true, true);
 
-							// Item not visible, skip.
-							return;
+						if (isVisible) {
+							final KrollDict data = new KrollDict();
+
+							// Create and fire marker event.
+							data.put(TiC.PROPERTY_SECTION_INDEX, sectionIndex);
+							data.put(TiC.PROPERTY_ITEM_INDEX, index);
+							fireEvent(TiC.EVENT_MARKER, data, false);
+
+							// One time event, remove marker.
+							i.remove();
 						}
-
-						// Create and fire marker event.
-						final KrollDict data = new KrollDict();
-						data.put(TiC.PROPERTY_SECTION_INDEX, sectionIndex);
-						data.put(TiC.PROPERTY_ITEM_INDEX, itemIndex);
-						fireEvent(TiC.EVENT_MARKER, data, false);
-
-						// One time event, remove marker.
-						itemIndexSet.remove(itemIndex);
 					}
 				}
 			}
