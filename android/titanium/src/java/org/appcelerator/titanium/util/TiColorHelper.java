@@ -15,6 +15,7 @@ import java.util.regex.Pattern;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
 
+import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.Color;
 import androidx.annotation.ColorInt;
@@ -91,6 +92,25 @@ public class TiColorHelper
 				Math.round(Float.valueOf(m.group(2)) * 255f), Math.round(Float.valueOf(m.group(3)) * 255f));
 		}
 
+		// Check if this a "semantic.colors.json" generated string from our common "ti.ui.js" script.
+		// Example: "ti.semantic.color:dark=<ColorString>;light=<ColorString>"
+		final String TI_SEMANTIC_COLOR_PREFIX = "ti.semantic.color:";
+		if (value.startsWith(TI_SEMANTIC_COLOR_PREFIX)) {
+			String themePrefix = "light=";
+			Configuration config = TiApplication.getInstance().getResources().getConfiguration();
+			if ((config.uiMode & Configuration.UI_MODE_NIGHT_YES) != 0) {
+				themePrefix = "dark=";
+			}
+			String[] stringArray = value.substring(TI_SEMANTIC_COLOR_PREFIX.length()).split(";");
+			for (String nextString : stringArray) {
+				if (nextString.startsWith(themePrefix)) {
+					return TiColorHelper.parseColor(nextString.substring(themePrefix.length()));
+				}
+			}
+			Log.e(TAG, "Cannot find named color: " + value);
+			return Color.TRANSPARENT;
+		}
+
 		// Ti.Android.R.color or Ti.App.Android.R.color resource (by name)
 		if (TiColorHelper.hasColorResource(value)) {
 			try {
@@ -125,14 +145,19 @@ public class TiColorHelper
 
 	public static boolean hasColorResource(String colorName)
 	{
-		return TiRHelper.hasResource("color." + colorName);
+		return getColorResourceId(colorName) != 0;
+	}
+
+	public static int getColorResourceId(String colorName)
+	{
+		TiApplication app = TiApplication.getInstance();
+		return app.getResources().getIdentifier(colorName, "color", app.getPackageName());
 	}
 
 	public static @ColorInt int getColorResource(String colorName)
 		throws TiRHelper.ResourceNotFoundException, Resources.NotFoundException
 	{
-		int colorResId = TiRHelper.getResource("color." + colorName);
-		// Now we need to convert it!
+		int colorResId = getColorResourceId(colorName);
 		return ContextCompat.getColor(TiApplication.getInstance(), colorResId);
 	}
 
