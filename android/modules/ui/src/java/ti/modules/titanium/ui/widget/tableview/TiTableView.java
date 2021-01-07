@@ -7,7 +7,10 @@
 package ti.modules.titanium.ui.widget.tableview;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Queue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.titanium.TiApplication;
@@ -20,7 +23,6 @@ import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.RectShape;
-import android.os.Handler;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -48,22 +50,24 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 {
 	private static final String TAG = "TiTableView";
 
-	private static final int CACHE_SIZE = 48;
-	private static final int PRELOAD_SIZE = CACHE_SIZE * 2;
+	private static final int CACHE_SIZE = 24;
+	private static final int PRELOAD_SIZE = CACHE_SIZE / 2;
 
 	private final TableViewAdapter adapter;
 	private final DividerItemDecoration decoration;
 	private final TableViewProxy proxy;
 	private final TiNestedRecyclerView recyclerView;
-	private final List<TableViewRowProxy> rows = new ArrayList<>();
+	private final List<TableViewRowProxy> rows = Collections.synchronizedList(new ArrayList<>(CACHE_SIZE));
 	private final SelectionTracker tracker;
 
 	private boolean isFiltered = false;
 	private boolean isScrolling = false;
 	private int scrollOffsetX = 0;
 	private int scrollOffsetY = 0;
-
 	private int totalRowCount;
+	private String filterQuery;
+	
+	private final Queue<Thread> updateQueue = new LinkedBlockingQueue<>(2);
 
 	public TiTableView(TableViewProxy proxy)
 	{
@@ -237,16 +241,8 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 	@Override
 	public void filterBy(String query)
 	{
-		if (query == null || query.isEmpty()) {
-
-			// No query, update adapter with original items.
-			update();
-			this.isFiltered = false;
-			return;
-		}
-
-		update(query);
-		this.isFiltered = true;
+		this.filterQuery = query;
+		update();
 	}
 
 	/**
@@ -338,9 +334,12 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 	 */
 	public TableViewRowProxy getRowByIndex(int index)
 	{
-		for (TableViewRowProxy row : this.rows) {
-			if (row.index == index) {
-				return row;
+		synchronized (this.rows)
+		{
+			for (TableViewRowProxy row : this.rows) {
+				if (row.index == index) {
+					return row;
+				}
 			}
 		}
 		return null;
@@ -354,9 +353,12 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 	 */
 	public int getAdapterIndex(int index)
 	{
-		for (TableViewRowProxy row : this.rows) {
-			if (row.index == index) {
-				return this.rows.indexOf(row);
+		synchronized (this.rows)
+		{
+			for (TableViewRowProxy row : this.rows) {
+				if (row.index == index) {
+					return this.rows.indexOf(row);
+				}
 			}
 		}
 		return -1;
@@ -380,7 +382,7 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 	 */
 	public boolean isFiltered()
 	{
-		return this.isFiltered;
+		return this.filterQuery != null && !this.filterQuery.isEmpty();
 	}
 
 	/**
@@ -388,10 +390,13 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 	 */
 	public void release()
 	{
-		for (TableViewRowProxy row : this.rows) {
-			row.releaseViews();
+		synchronized (this.rows)
+		{
+			for (TableViewRowProxy row : this.rows) {
+				row.releaseViews();
+			}
+			this.rows.clear();
 		}
-		this.rows.clear();
 	}
 
 	/**
@@ -423,146 +428,206 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 
 	public void update()
 	{
-		this.update(null);
+		if (updateQueue.size() > 1) {
+
+			// Update in progress, with another update for latest changes queued.
+			// Ignore further updates until complete.
+			return;
+		}
+
+		final Thread thread = new Thread(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				final Activity activity = TiApplication.getAppRootOrCurrentActivity();
+
+				// Update table items in background thread.
+				updateItems();
+
+				activity.runOnUiThread(new Runnable()
+				{
+					@Override
+					public void run()
+					{
+
+						// Notify adapter of changes on UI thread.
+						adapter.notifyDataSetChanged();
+
+						// Remove current thread from queue.
+						updateQueue.poll();
+
+						// Grab next thread from queue.
+						final Thread next = updateQueue.poll();
+						if (next != null) {
+
+							// Execute next thread.
+							next.start();
+						}
+					}
+				});
+			}
+		});
+
+		updateQueue.add(thread);
+
+		if (updateQueue.size() == 1) {
+
+			// First item in queue, start thread.
+			thread.start();
+		}
 	}
 
 	/**
 	 * Update table rows, including headers and footers.
 	 */
-	public void update(String query)
+	public void updateItems()
 	{
-		final KrollDict properties = this.proxy.getProperties();
-		final boolean hasHeader = properties.containsKeyAndNotNull(TiC.PROPERTY_HEADER_TITLE)
-			|| properties.containsKeyAndNotNull(TiC.PROPERTY_HEADER_VIEW);
-		final boolean hasFooter = properties.containsKeyAndNotNull(TiC.PROPERTY_FOOTER_TITLE)
-			|| properties.containsKeyAndNotNull(TiC.PROPERTY_FOOTER_VIEW);
+		synchronized (this.rows)
+		{
+			final KrollDict properties = this.proxy.getProperties();
+			final boolean hasHeader = properties.containsKeyAndNotNull(TiC.PROPERTY_HEADER_TITLE)
+				|| properties.containsKeyAndNotNull(TiC.PROPERTY_HEADER_VIEW);
+			final boolean hasFooter = properties.containsKeyAndNotNull(TiC.PROPERTY_FOOTER_TITLE)
+				|| properties.containsKeyAndNotNull(TiC.PROPERTY_FOOTER_VIEW);
 
-		final boolean caseInsensitive = properties.optBoolean(TiC.PROPERTY_FILTER_CASE_INSENSITIVE, true);
-		final boolean filterAnchored = properties.optBoolean(TiC.PROPERTY_FILTER_ANCHORED, false);
-		final String filterAttribute = properties.optString(TiC.PROPERTY_FILTER_ATTRIBUTE, TiC.PROPERTY_TITLE);
+			final boolean caseInsensitive = properties.optBoolean(TiC.PROPERTY_FILTER_CASE_INSENSITIVE, true);
+			final boolean filterAnchored = properties.optBoolean(TiC.PROPERTY_FILTER_ANCHORED, false);
+			final String filterAttribute = properties.optString(TiC.PROPERTY_FILTER_ATTRIBUTE, TiC.PROPERTY_TITLE);
+			int filterResultsCount = 0;
 
-		if (query != null && caseInsensitive) {
-			query = query.toLowerCase();
-		}
+			String query = this.filterQuery;
+			if (query != null && caseInsensitive) {
+				query = query.toLowerCase();
+			}
 
-		// Clear current models.
-		this.rows.clear();
+			// Clear current models.
+			this.rows.clear();
 
-		// Add placeholder item for TableView header.
-		if (hasHeader) {
-			final TableViewRowProxy row = new TableViewRowProxy(true);
+			// Add placeholder item for TableView header.
+			if (hasHeader) {
+				final TableViewRowProxy row = new TableViewRowProxy(true);
 
-			row.getProperties().put(TiC.PROPERTY_HEADER_TITLE, properties.get(TiC.PROPERTY_HEADER_TITLE));
-			row.getProperties().put(TiC.PROPERTY_HEADER_VIEW, properties.get(TiC.PROPERTY_HEADER_VIEW));
-			row.setParent(this.proxy);
+				row.getProperties().put(TiC.PROPERTY_HEADER_TITLE, properties.get(TiC.PROPERTY_HEADER_TITLE));
+				row.getProperties().put(TiC.PROPERTY_HEADER_VIEW, properties.get(TiC.PROPERTY_HEADER_VIEW));
+				row.setParent(this.proxy);
 
-			this.rows.add(row);
-		}
+				this.rows.add(row);
+			}
 
-		// Iterate through data, processing each supported entry.
-		for (final Object entry : proxy.getData()) {
+			// Reset totoal row count.
+			this.totalRowCount = 0;
 
-			if (entry instanceof TableViewSectionProxy) {
-				final TableViewSectionProxy section = (TableViewSectionProxy) entry;
-				final TableViewRowProxy[] rows = section.getRows();
+			// Iterate through data, processing each supported entry.
+			for (final Object entry : proxy.getData()) {
 
-				// Add placeholder item for TableViewSection header/footer.
-				if (rows.length == 0 && (section.hasHeader() || section.hasFooter())) {
-					final TableViewRowProxy row = new TableViewRowProxy(true);
+				if (entry instanceof TableViewSectionProxy) {
+					final TableViewSectionProxy section = (TableViewSectionProxy) entry;
+					final TableViewRowProxy[] rows = section.getRows();
 
-					row.setParent(section);
-					this.rows.add(row);
-				}
+					// Add placeholder item for TableViewSection header/footer.
+					if (rows.length == 0 && (section.hasHeader() || section.hasFooter())) {
+						final TableViewRowProxy row = new TableViewRowProxy(true);
 
-				int filteredIndex = 0;
-				for (int i = 0; i < rows.length; i++) {
-					final TableViewRowProxy row = rows[i];
-
-					// Handle search query.
-					if (query != null) {
-						String attribute = row.getProperties().optString(filterAttribute, null);
-
-						if (attribute != null) {
-							if (caseInsensitive) {
-								attribute = attribute.toLowerCase();
-							}
-
-							if (!((filterAnchored && attribute.startsWith(query))
-								|| (!filterAnchored && attribute.contains(query)))) {
-								continue;
-							}
-						}
+						row.setParent(section);
+						this.rows.add(row);
 					}
 
-					// Update filtered index of row.
-					row.setFilteredIndex(query != null ? filteredIndex++ : -1);
+					int index = 0;
+					int filteredIndex = 0;
+					for (int i = 0; i < rows.length; i++) {
+						final TableViewRowProxy row = rows[i];
 
-					this.rows.add(row);
+						// Handle search query.
+						if (query != null) {
+							String attribute = row.getProperties().optString(filterAttribute, null);
+
+							if (attribute != null) {
+								if (caseInsensitive) {
+									attribute = attribute.toLowerCase();
+								}
+
+								if (!((filterAnchored && attribute.startsWith(query))
+									|| (!filterAnchored && attribute.contains(query)))) {
+									continue;
+								}
+							}
+						}
+
+						// Update filtered index of row.
+						row.setFilteredIndex(query != null ? filteredIndex++ : -1);
+
+						row.index = index++;
+						this.rows.add(row);
+					}
+					filterResultsCount += filteredIndex;
+					this.totalRowCount += i;
+
+					// Update section filtered row count.
+					section.setFilteredRowCount(query != null ? filteredIndex : -1);
 				}
-
-				// Update section filtered row count.
-				section.setFilteredRowCount(query != null ? filteredIndex : -1);
-			}
-		}
-
-		// Add placeholder item for TableView footer.
-		if (hasFooter) {
-			final TableViewRowProxy row = new TableViewRowProxy(true);
-
-			row.getProperties().put(TiC.PROPERTY_FOOTER_TITLE, properties.get(TiC.PROPERTY_FOOTER_TITLE));
-			row.getProperties().put(TiC.PROPERTY_FOOTER_VIEW, properties.get(TiC.PROPERTY_FOOTER_VIEW));
-			row.setParent(this.proxy);
-
-			this.rows.add(row);
-		}
-
-		// Pre-load views for smooth initial scroll.
-		final int preloadSize = Math.min(this.rows.size(), PRELOAD_SIZE);
-		for (int i = 0; i < preloadSize; i++) {
-			this.rows.get(i).getOrCreateView();
-		}
-
-		// Update models.
-		updateModels();
-	}
-
-	/**
-	 * Update table models (rows) index and notify adapter.
-	 */
-	public void updateModels()
-	{
-		int i = 0;
-		for (TableViewRowProxy row : this.rows) {
-			if (row.isPlaceholder()) {
-				continue;
 			}
 
-			// Update row index, ignoring placeholder entries.
-			row.index = i++;
-		}
-		totalRowCount = i;
+			// Add placeholder item for TableView footer.
+			if (hasFooter) {
+				final TableViewRowProxy row = new TableViewRowProxy(true);
 
-		final Activity activity = TiApplication.getAppCurrentActivity();
-		final View previousFocus = activity != null ? activity.getCurrentFocus() : null;
+				row.getProperties().put(TiC.PROPERTY_FOOTER_TITLE, properties.get(TiC.PROPERTY_FOOTER_TITLE));
+				row.getProperties().put(TiC.PROPERTY_FOOTER_VIEW, properties.get(TiC.PROPERTY_FOOTER_VIEW));
+				row.setParent(this.proxy);
 
-		// Notify the adapter of changes.
-		this.adapter.notifyDataSetChanged();
+				this.rows.add(row);
+			}
 
-		// FIXME: This is not an ideal workaround for an issue where recycled rows that were in focus
-		//        lose their focus when the data set changes. There are improvements to be made here.
-		//        This can be reproduced when setting a Ti.UI.TextField in the Ti.UI.TableView.headerView for search.
-		new Handler().post(new Runnable()
-		{
-			public void run()
+			final Activity activity = TiApplication.getAppCurrentActivity();
+			if (activity == null) {
+				return;
+			}
+
+			// If filtered and no results, fire `noresult` event.
+			if (isFiltered() && filterResultsCount == 0) {
+				proxy.fireEvent(TiC.EVENT_NO_RESULTS, null);
+			}
+
+			activity.runOnUiThread(new Runnable()
 			{
-				final View currentFocus = activity != null ? activity.getCurrentFocus() : null;
+				@Override
+				public void run()
+				{
+					synchronized (rows)
+					{
+						final int preloadSize = Math.min(rows.size(), PRELOAD_SIZE);
 
-				if (previousFocus != null && currentFocus != previousFocus) {
+						for (int i = 0; i < preloadSize; i++) {
 
-					// Request focus on previous component before dataset changed.
-					previousFocus.requestFocus();
+							// Pre-load views for smooth initial scroll.
+							rows.get(i).getOrCreateView();
+						}
+					}
 				}
+			});
+
+			// FIXME: This is not an ideal workaround for an issue where recycled items that were in focus
+			//        lose their focus when the data set changes. There are improvements to be made here.
+			//        This can be reproduced when setting a Ti.UI.TextField in the Ti.UI.ListView.headerView for search.
+			final View previousFocus = activity.getCurrentFocus();
+
+			if (previousFocus != null) {
+				activity.runOnUiThread(new Runnable()
+				{
+					@Override
+					public void run()
+					{
+						final View currentFocus = activity != null ? activity.getCurrentFocus() : null;
+
+						if (currentFocus != previousFocus) {
+
+							// Request focus on previous component before dataset changed.
+							previousFocus.requestFocus();
+						}
+					}
+				});
 			}
-		});
+		}
 	}
 }
