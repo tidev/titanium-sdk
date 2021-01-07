@@ -85,6 +85,7 @@
     if (identifiers.count > 0) {
       [center removePendingNotificationRequestsWithIdentifiers:identifiers];
     }
+    RELEASE_TO_NIL(identifiers);
   }];
 }
 
@@ -113,6 +114,7 @@
     if (identifiers.count > 0) {
       [center removeDeliveredNotificationsWithIdentifiers:identifiers];
     }
+    RELEASE_TO_NIL(identifiers);
   }];
 }
 

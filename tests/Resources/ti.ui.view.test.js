@@ -27,12 +27,7 @@ describe('Titanium.UI.View', function () {
 		rootWindow.open();
 	});
 
-	after(finish => {
-		rootWindow.addEventListener('close', () => finish());
-		rootWindow.close();
-	});
-
-	afterEach(done => { // fires after every test in sub-suites too...
+	function closeWindow(win, done) {
 		if (win && !win.closed) {
 			win.addEventListener('close', function listener () {
 				win.removeEventListener('close', listener);
@@ -44,7 +39,11 @@ describe('Titanium.UI.View', function () {
 			win = null;
 			done();
 		}
-	});
+	}
+
+	after(finish => closeWindow(rootWindow, finish));
+
+	afterEach(done => closeWindow(win, done));
 
 	it('backgroundColor/Image', function () {
 		const view = Ti.UI.createView({ width: Ti.UI.FILL, height: Ti.UI.FILL });
@@ -705,12 +704,7 @@ describe('Titanium.UI.View', function () {
 		win.open();
 	});
 
-	// FIXME: I think there's a parity issue here!
-	// Android returns x/y values as pixels *always*. while the input '100' uses the default unit (dip)
-	// which may vary based on screen density (Ti.Platform.DisplayCaps.ydpi) - so may be 100 or 200 pixels!
-	// But iOS *always* returns 123 for our value, so it must report the convertPointToView results in the default units too!
-	// So I think iOS always reports back dip values here and Android always reports back pixels
-	it.androidAndWindowsBroken('convertPointToView', function (finish) {
+	it.windowsBroken('convertPointToView', function (finish) {
 		win = Ti.UI.createWindow();
 		const a = Ti.UI.createView({ backgroundColor: 'red' });
 		const b = Ti.UI.createView({ top: '100', backgroundColor: 'blue' });
@@ -728,7 +722,18 @@ describe('Titanium.UI.View', function () {
 				should(result.x).be.a.Number(); // Windows: expected '123.000000' to be a number
 				should(result.y).be.a.Number();
 				should(result.x).eql(123);
-				should(result.y).eql(123); // Android sometimes gives 223? I assume this is a screen density thing?
+				should(result.y).eql(123);
+
+				result = b.convertPointToView({ x: '123', y: '23' }, a);
+				should(result.x).eql(123);
+				should(result.y).eql(123);
+
+				result = b.convertPointToView({
+					x: Ti.UI.convertUnits('123dp', 'px') + 'px',
+					y: Ti.UI.convertUnits('23dp', 'px') + 'px',
+				}, a);
+				should(result.x).eql(123);
+				should(result.y).eql(123);
 			} catch (err) {
 				return finish(err);
 			}
@@ -1011,7 +1016,7 @@ describe('Titanium.UI.View', function () {
 			return;
 		}
 
-		it('4 values in String', finish => {
+		it('4 values in String', () => {
 			const outerView = Ti.UI.createView({
 				width: '90px',
 				height: '90px',
@@ -1026,19 +1031,12 @@ describe('Titanium.UI.View', function () {
 
 			outerView.add(view);
 
-			try {
-				should(view.borderRadius).be.a.String();
-				should(view.borderRadius).eql('12px 12 12dp 12');
-				if (!OS_ANDROID || Ti.Platform.Android.API_LEVEL > 20) {
-					should(outerView).matchImage('snapshots/borderRadius_12px_12_12dp_12.png');
-				}
-			} catch (e) {
-				return finish(e);
-			}
-			finish();
+			should(view.borderRadius).be.a.String();
+			should(view.borderRadius).eql('12px 12 12dp 12');
+			should(outerView).matchImage('snapshots/borderRadius_12px_12_12dp_12.png');
 		});
 
-		it('4 values in Array', finish => {
+		it('4 values in Array', () => {
 			const outerView = Ti.UI.createView({
 				width: '90px',
 				height: '90px',
@@ -1053,22 +1051,15 @@ describe('Titanium.UI.View', function () {
 
 			outerView.add(view);
 
-			try {
-				should(view.borderRadius).be.an.Array();
-				should(view.borderRadius.length).eql(4);
-				should(view.borderRadius).eql([ '12px', 12, '12dp', '12' ]);
-				if (!OS_ANDROID || Ti.Platform.Android.API_LEVEL > 20) {
+			should(view.borderRadius).be.an.Array();
+			should(view.borderRadius.length).eql(4);
+			should(view.borderRadius).eql([ '12px', 12, '12dp', '12' ]);
 
-					// Exact same image as test above.
-					should(outerView).matchImage('snapshots/borderRadius_12px_12_12dp_12.png');
-				}
-			} catch (err) {
-				return finish(err);
-			}
-			finish();
+			// Exact same image as test above.
+			should(outerView).matchImage('snapshots/borderRadius_12px_12_12dp_12.png');
 		});
 
-		it('2 values in String', finish => {
+		it('2 values in String', () => {
 			const outerView = Ti.UI.createView({
 				width: '90px',
 				height: '90px',
@@ -1083,22 +1074,14 @@ describe('Titanium.UI.View', function () {
 
 			outerView.add(view);
 
-			try {
-				should(view.borderRadius).be.a.String();
-				should(view.borderRadius).eql('12px 12');
+			should(view.borderRadius).be.a.String();
+			should(view.borderRadius).eql('12px 12');
 
-				if (!OS_ANDROID || Ti.Platform.Android.API_LEVEL > 20) {
-
-					// Exact same image as test above.
-					should(outerView).matchImage('snapshots/borderRadius_12px_12.png');
-				}
-			} catch (e) {
-				return finish(e);
-			}
-			finish();
+			// Exact same image as test above.
+			should(outerView).matchImage('snapshots/borderRadius_12px_12.png');
 		});
 
-		it('2 values in Array', finish => {
+		it('2 values in Array', () => {
 			const outerView = Ti.UI.createView({
 				width: '90px',
 				height: '90px',
@@ -1113,20 +1096,12 @@ describe('Titanium.UI.View', function () {
 
 			outerView.add(view);
 
-			try {
-				should(view.borderRadius).be.an.Array();
-				should(view.borderRadius.length).eql(2);
-				should(view.borderRadius).eql([ '12px', 12 ]);
+			should(view.borderRadius).be.an.Array();
+			should(view.borderRadius.length).eql(2);
+			should(view.borderRadius).eql([ '12px', 12 ]);
 
-				if (!OS_ANDROID || Ti.Platform.Android.API_LEVEL > 20) {
-
-					// Exact same image as test above.
-					should(outerView).matchImage('snapshots/borderRadius_12px_12.png');
-				}
-			} catch (err) {
-				return finish(err);
-			}
-			finish();
+			// Exact same image as test above.
+			should(outerView).matchImage('snapshots/borderRadius_12px_12.png');
 		});
 
 		it.ios('set property post layout', finish => {
@@ -1162,7 +1137,7 @@ describe('Titanium.UI.View', function () {
 			win.open();
 		});
 
-		it('1 value to create circle', finish => {
+		it('1 value to create circle', () => {
 			const outerView = Ti.UI.createView({
 				width: '90px',
 				height: '90px',
@@ -1177,20 +1152,12 @@ describe('Titanium.UI.View', function () {
 
 			outerView.add(view);
 
-			try {
-				should(view.borderRadius).be.a.String();
-				should(view.borderRadius).eql('30px');
-
-				if (!OS_ANDROID || Ti.Platform.Android.API_LEVEL > 20) {
-					should(outerView).matchImage('snapshots/borderRadius_30px.png');
-				}
-			} catch (e) {
-				return finish(e);
-			}
-			finish();
+			should(view.borderRadius).be.a.String();
+			should(view.borderRadius).eql('30px');
+			should(outerView).matchImage('snapshots/borderRadius_30px.png');
 		});
 
-		it.ios('1 value with shadow effect', finish => {
+		it.ios('1 value with shadow effect', () => {
 			const outerView = Ti.UI.createView({
 				width: '90px',
 				height: '90px',
@@ -1208,12 +1175,7 @@ describe('Titanium.UI.View', function () {
 
 			outerView.add(view);
 
-			try {
-				should(outerView).matchImage('snapshots/borderRadiusWithShadow_30px.png');
-			} catch (e) {
-				return finish(e);
-			}
-			finish();
+			should(outerView).matchImage('snapshots/borderRadiusWithShadow_30px.png');
 		});
 	});
 

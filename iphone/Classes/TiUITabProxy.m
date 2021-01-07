@@ -557,24 +557,14 @@
   if (icon == nil) {
     image = nil;
   } else {
-    // we might be inside a different context than our tab group and if so, he takes precendence in
-    // url resolution
-    TiProxy *currentWindow = [self.executionContext preloadForKey:@"currentWindow" name:@"UI"];
-    if (currentWindow == nil) {
-      // check our current window's context that we are owned by
-      currentWindow = [self.pageContext preloadForKey:@"currentWindow" name:@"UI"];
-    }
-    if (currentWindow == nil) {
-      currentWindow = self;
-    }
     if ([icon isKindOfClass:[TiBlob class]]) {
       image = [(TiBlob *)icon image];
     } else {
-      image = [[ImageLoader sharedLoader] loadImmediateImage:[TiUtils toURL:icon proxy:currentWindow]];
+      image = [[ImageLoader sharedLoader] loadImmediateImage:[TiUtils toURL:icon proxy:self]];
     }
     id activeIcon = [self valueForKey:@"activeIcon"];
     if ([activeIcon isKindOfClass:[NSString class]]) {
-      activeImage = [[ImageLoader sharedLoader] loadImmediateImage:[TiUtils toURL:activeIcon proxy:currentWindow]];
+      activeImage = [[ImageLoader sharedLoader] loadImmediateImage:[TiUtils toURL:activeIcon proxy:self]];
     } else if ([activeIcon isKindOfClass:[TiBlob class]]) {
       activeImage = [(TiBlob *)activeIcon image];
     }
@@ -679,18 +669,7 @@
 - (void)setIcon:(id)icon
 {
   if ([icon isKindOfClass:[NSString class]]) {
-    // we might be inside a different context than our tab group and if so, he takes precendence in
-    // url resolution
-    TiProxy *currentWindow = [self.executionContext preloadForKey:@"currentWindow" name:@"UI"];
-    if (currentWindow == nil) {
-      // check our current window's context that we are owned by
-      currentWindow = [self.pageContext preloadForKey:@"currentWindow" name:@"UI"];
-    }
-    if (currentWindow == nil) {
-      currentWindow = self;
-    }
-
-    icon = [[TiUtils toURL:icon proxy:currentWindow] absoluteString];
+    icon = [[TiUtils toURL:icon proxy:self] absoluteString];
   }
 
   [self replaceValue:icon forKey:@"icon" notification:NO];
@@ -741,18 +720,7 @@
 - (void)setActiveIcon:(id)icon
 {
   if ([icon isKindOfClass:[NSString class]]) {
-    // we might be inside a different context than our tab group and if so, he takes precendence in
-    // url resolution
-    TiProxy *currentWindow = [self.executionContext preloadForKey:@"currentWindow" name:@"UI"];
-    if (currentWindow == nil) {
-      // check our current window's context that we are owned by
-      currentWindow = [self.pageContext preloadForKey:@"currentWindow" name:@"UI"];
-    }
-    if (currentWindow == nil) {
-      currentWindow = self;
-    }
-
-    icon = [[TiUtils toURL:icon proxy:currentWindow] absoluteString];
+    icon = [[TiUtils toURL:icon proxy:self] absoluteString];
   }
 
   [self replaceValue:icon forKey:@"activeIcon" notification:NO];

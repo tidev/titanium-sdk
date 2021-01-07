@@ -11,6 +11,7 @@
 #import "TiEvaluator.h"
 #import "TiModule.h"
 #import "TiProxy.h"
+#import <os/lock.h>
 
 @import Foundation;
 @import JavaScriptCore;
@@ -34,7 +35,7 @@ extern NSString *TitaniumModuleRequireFormat;
   //CFMutableDictionaryRefs only retain keys, which lets them work with proxies properly.
   CFMutableDictionaryRef registeredProxies;
   NSCondition *shutdownCondition;
-  OSSpinLock proxyLock;
+  os_unfair_lock proxyLock;
 }
 - (void)boot:(id)callback url:(NSURL *)url_ preload:(NSDictionary *)preload_;
 - (void)evalJSWithoutResult:(NSString *)code;

@@ -231,9 +231,14 @@ methods:
             Since Titanium 6.1.0, the method will also accept a String. Any requests where permissions are already granted will yield a successful callback.
         type: [String, Array<String>]
       - name: callback
-        summary: Function to call upon user decision to grant access.
-        optional: true
+        summary: |
+            Function to call upon user decision to grant access.
+            Optional on SDK 10, as this method will return a `Promise`, which may be used to handle the result.
         type: Callback<RequestPermissionAccessResult>
+        optional: true
+    returns:
+      summary: On SDK 10+, this method will return a `Promise` whose resolved value is equivalent to that passed to the optional callback argument.
+      type: Promise<RequestPermissionAccessResult>
     since: "5.4.0"
 
   - name: isServiceRunning
@@ -2232,14 +2237,13 @@ properties:
     permission: read-only
     since: "6.2.0"
 
-# Constants that should probably be removed
-
   - name: PENDING_INTENT_FOR_ACTIVITY
     summary: Not used.
     type: Number
     permission: read-only
     deprecated:
         since: "2.0.0"
+        removed: "10.0.0"
 
   - name: PENDING_INTENT_FOR_BROADCAST
     summary: Not used.
@@ -2247,6 +2251,7 @@ properties:
     permission: read-only
     deprecated:
         since: "2.0.0"
+        removed: "10.0.0"
 
   - name: PENDING_INTENT_FOR_SERVICE
     summary: Not used.
@@ -2254,6 +2259,7 @@ properties:
     permission: read-only
     deprecated:
         since: "2.0.0"
+        removed: "10.0.0"
 
   - name: PENDING_INTENT_MAX_VALUE
     summary: Not used.
@@ -2261,8 +2267,7 @@ properties:
     permission: read-only
     deprecated:
         since: "2.0.0"
-
-# end of deprecated constants
+        removed: "10.0.0"
 
   - name: R
     summary: Accessor for Android system resources.

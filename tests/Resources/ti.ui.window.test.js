@@ -1125,4 +1125,22 @@ describe('Titanium.UI.Window', function () {
 		// ios took 1ms repeatedly
 		// so 1 second should be enough time.
 	});
+
+	it('TIMOB-28267 On removing event listener multiple times and adding once afterward, event should be fired', finish => {
+		const win = Ti.UI.createWindow({
+			backgroundColor: '#0000ff'
+		});
+
+		win.addEventListener('open', openListener);
+		win.removeEventListener('open', openListener);
+		win.removeEventListener('open', openListener);
+		win.removeEventListener('open', openListener);
+		win.addEventListener('open', openListener);
+
+		function openListener () {
+			win.removeEventListener('open', openListener);
+			finish();
+		}
+		win.open();
+	});
 });

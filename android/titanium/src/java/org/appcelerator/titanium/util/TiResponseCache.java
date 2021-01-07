@@ -37,8 +37,6 @@ import java.util.zip.GZIPInputStream;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
 
-import android.os.Build;
-
 public class TiResponseCache extends ResponseCache
 {
 	private static final String TAG = "TiResponseCache";
@@ -420,7 +418,7 @@ public class TiResponseCache extends ResponseCache
 		// and HttpResponseCache is used instead of TiResponseCache.
 		// If it is a video, do not use cache. Cache is causing problems for Video Player on Lollipop
 		String fileFormat = TiMimeTypeHelper.getFileExtensionFromUrl(uri.toString()).toLowerCase();
-		if (videoFormats.contains(fileFormat) && (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)) {
+		if (videoFormats.contains(fileFormat)) {
 			return null;
 		}
 
@@ -527,7 +525,7 @@ public class TiResponseCache extends ResponseCache
 		// and HttpResponseCache is used instead of TiResponseCache.
 		// If it is a video, do not use cache. Cache is causing problems for Video Player on Lollipop
 		String fileFormat = TiMimeTypeHelper.getFileExtensionFromUrl(uri.toString()).toLowerCase();
-		if (videoFormats.contains(fileFormat) && (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)) {
+		if (videoFormats.contains(fileFormat)) {
 			return null;
 		}
 

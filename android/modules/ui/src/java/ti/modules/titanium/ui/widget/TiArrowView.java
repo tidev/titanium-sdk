@@ -27,8 +27,8 @@ public class TiArrowView extends View
 		leftArrow = true;
 		setFocusable(false);
 		setFocusableInTouchMode(false);
-		if (android.os.Build.VERSION.SDK_INT >= 11) {
-			//Paint.setStrokeCap not supported for lines in HW acceleration mode.
+		if (android.os.Build.VERSION.SDK_INT < 28) {
+			// The drawPath() method is only HW accelerated on Android 9.0 and higher.
 			this.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
 		}
 		p = new Paint();
