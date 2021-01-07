@@ -177,7 +177,11 @@ public class ListSectionProxy extends TiViewProxy
 	 */
 	public ListItemProxy getListItemAt(int index)
 	{
-		return this.items.get(index);
+		try {
+			return this.items.get(index);
+		} catch (Exception e) {
+		}
+		return null;
 	}
 
 	/**
