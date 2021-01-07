@@ -101,6 +101,10 @@ public class DateTimeFormatProxy extends KrollProxy
 			millisecondDigits = 3;
 		}
 
+		// Fetch date/time styles. These are only used if above options are not provided.
+		String dateStyleStringId = TiConvert.toString(options.get("dateStyle"));
+		String timeStyleStringId = TiConvert.toString(options.get("timeStyle"));
+
 		// Determine if at least 1 "date" componoent has been configured.
 		boolean hasCustomDateSettings
 			=  (weekdayFormatId != null)
@@ -117,6 +121,15 @@ public class DateTimeFormatProxy extends KrollProxy
 			|| (dayPeriodFormatId != null)
 			|| (timeZoneFormatId != null)
 			|| (millisecondDigits > 0);
+
+		// If no date/time components or styles were assigned, then default to "numeric" month/day/year.
+		if (!hasCustomDateSettings && !hasCustomTimeSettings
+			&& (dateStyleStringId == null) && (timeStyleStringId == null)) {
+			monthFormatId = NUMERIC_STRING_ID;
+			dayFormatId = NUMERIC_STRING_ID;
+			yearFormatId = NUMERIC_STRING_ID;
+			hasCustomDateSettings = true;
+		}
 
 		// Create a custom date/time formatter using a string pattern.
 		this.dateFormat = null;
@@ -149,7 +162,7 @@ public class DateTimeFormatProxy extends KrollProxy
 		}
 
 		// Create a basic date/time formatter if no custom components were configured
-		// or if we failed to create the customer formatter above.
+		// or if we failed to create the custom formatter above.
 		if (this.dateFormat == null) {
 			if (hasCustomDateSettings && hasCustomTimeSettings) {
 				this.dateFormat = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT, locale);
@@ -159,8 +172,6 @@ public class DateTimeFormatProxy extends KrollProxy
 				this.dateFormat = DateFormat.getDateInstance(DateFormat.SHORT, locale);
 			} else {
 				// We only use "dateStyle" and "timeStyle" if no other options are defined.
-				String dateStyleStringId = TiConvert.toString(options.get("dateStyle"));
-				String timeStyleStringId = TiConvert.toString(options.get("timeStyle"));
 				int dateStyleIntId = getIntIdForStyleId(dateStyleStringId);
 				int timeStyleIntId = getIntIdForStyleId(timeStyleStringId);
 				if ((dateStyleStringId != null) && (timeStyleStringId != null)) {
