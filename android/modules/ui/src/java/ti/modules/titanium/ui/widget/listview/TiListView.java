@@ -356,7 +356,7 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 	 */
 	public boolean isFiltered()
 	{
-		return !(this.filterQuery == null || this.filterQuery.isEmpty());
+		return this.filterQuery != null && !this.filterQuery.isEmpty();
 	}
 
 	/**
