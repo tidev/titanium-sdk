@@ -658,24 +658,6 @@ properties:
     permission: read-only
     since: "8.2.0"
     osver: {ios: {min: "13.0"}}
-                    
-  - name: AD_SIZE_PORTRAIT
-    summary: |
-        Use with [AdView.adSize](Titanium.UI.iOS.AdView.adSize) to specify a banner ad size
-        appropriate for portrait orientations.
-    description: Note that fullscreen ads always display in portrait orientation.
-    type: String
-    permission: read-only
-    since: "1.8.1"
-
-  - name: AD_SIZE_LANDSCAPE
-    summary: |
-        Use with [AdView.adSize](Titanium.UI.iOS.AdView.adSize) to specify a banner ad size
-        appropriate for landscape orientations.
-    description: Note that fullscreen ads always display in portrait orientation.
-    type: String
-    permission: read-only
-    since: "1.8.1"
 
   - name: CLIP_MODE_DEFAULT
     summary: |

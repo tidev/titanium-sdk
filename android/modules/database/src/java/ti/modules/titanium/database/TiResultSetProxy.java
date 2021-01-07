@@ -17,7 +17,6 @@ import org.appcelerator.titanium.util.TiConvert;
 import android.database.AbstractWindowedCursor;
 import android.database.Cursor;
 import android.database.SQLException;
-import android.os.Build;
 
 @Kroll.proxy(parentModule = DatabaseModule.class)
 public class TiResultSetProxy extends KrollProxy
@@ -122,11 +121,7 @@ public class TiResultSetProxy extends KrollProxy
 			if (fromString) {
 				result = rs.getString(index);
 			}
-			if (outOfBounds && Build.VERSION.SDK_INT >= 11) {
-				// TIMOB-4515: Column number doesn't exist, yet no exception
-				// occurred. This is known to happen in Honeycomb. So
-				// we'll throw instead. We throw the same exception type that
-				// Android would.
+			if (outOfBounds) {
 				throw new IllegalStateException("Requested column number " + index + " does not exist");
 			}
 		} catch (RuntimeException e) {

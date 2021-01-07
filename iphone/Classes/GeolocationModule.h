@@ -16,6 +16,8 @@ NSString *const kTiGeolocationUsageDescriptionAlways = @"NSLocationAlwaysUsageDe
 NSString *const kTiGeolocationUsageDescriptionAlwaysAndWhenInUse = @"NSLocationAlwaysAndWhenInUseUsageDescription";
 NSString *const kTiGeolocationTemporaryUsageDescriptionDictionary = @"NSLocationTemporaryUsageDescriptionDictionary";
 
+@class KrollPromise;
+
 @protocol GeolocationExports <JSExport>
 
 // accuracy constants
@@ -78,18 +80,18 @@ PROPERTY(bool, trackSignificantLocationChange, TrackSignificantLocationChange);
 
 // methods
 JSExportAs(forwardGeocoder,
-           -(void)forwardGeocoder
+           -(JSValue *)forwardGeocoder
            : (NSString *)address withCallback
            : (JSValue *)callback);
 - (void)getCurrentHeading:(JSValue *)callback;
 - (void)getCurrentPosition:(JSValue *)callback;
 - (bool)hasLocationPermissions:(CLAuthorizationStatus)authorizationType;
 JSExportAs(requestLocationPermissions,
-           -(void)requestLocationPermissions
+           -(JSValue *)requestLocationPermissions
            : (CLAuthorizationStatus)authorizationType withCallback
            : (JSValue *)callback);
 JSExportAs(reverseGeocoder,
-           -(void)reverseGeocoder
+           -(JSValue *)reverseGeocoder
            : (double)latitude longitude
            : (double)longitude withCallback
            : (JSValue *)callback);
@@ -119,6 +121,7 @@ JSExportAs(requestTemporaryFullAccuracyAuthorization,
   bool allowsBackgroundLocationUpdates;
   BOOL showBackgroundLocationIndicator;
   JSManagedValue *authorizationCallback;
+  KrollPromise *authorizationPromise;
   CLAuthorizationStatus requestedAuthorizationStatus;
 
   CLActivityType activityType;

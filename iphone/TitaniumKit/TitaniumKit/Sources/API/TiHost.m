@@ -22,7 +22,7 @@
 {
   NSString *resourcePath = [[NSBundle mainBundle] resourcePath];
 
-#if TARGET_IPHONE_SIMULATOR
+#if TARGET_OS_SIMULATOR
   NSString *resourcesDir = [[TiSharedConfig defaultConfig] applicationResourcesDirectory];
 
   if (resourcesDir != nil && ![resourcesDir isEqualToString:@""]) {

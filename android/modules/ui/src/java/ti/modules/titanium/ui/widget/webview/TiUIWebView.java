@@ -12,7 +12,6 @@ import android.content.pm.FeatureInfo;
 import android.graphics.Color;
 import android.graphics.Rect;
 import android.net.Uri;
-import android.os.Build;
 import android.view.ActionMode;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -499,7 +498,7 @@ public class TiUIWebView extends TiUIView
 
 	private void zoomBy(WebView webView, float scale)
 	{
-		if (Build.VERSION.SDK_INT >= 21 && webView != null) {
+		if (webView != null) {
 			if (scale <= 0.0f) {
 				scale = 0.01f;
 			} else if (scale >= 100.0f) {

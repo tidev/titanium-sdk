@@ -4,9 +4,9 @@ const os = require('os');
 const path = require('path');
 const fs = require('fs-extra');
 const rollup = require('rollup').rollup;
-const babel = require('rollup-plugin-babel');
-const resolve = require('rollup-plugin-node-resolve');
-const commonjs = require('rollup-plugin-commonjs');
+const { babel } = require('@rollup/plugin-babel');
+const { nodeResolve } = require('@rollup/plugin-node-resolve');
+const commonjs = require('@rollup/plugin-commonjs');
 
 const git = require('./git');
 const utils = require('./utils');
@@ -37,7 +37,7 @@ function determineBabelOptions(babelOptions) {
 	const options = {
 		...babelOptions,
 		useBuiltIns: 'entry',
-		corejs: 3
+		corejs: getCorejsVersion()
 	};
 	// extract out options.transform used by babel-plugin-transform-titanium
 	const transform = options.transform || {};
@@ -46,8 +46,24 @@ function determineBabelOptions(babelOptions) {
 	return {
 		presets: [ [ '@babel/env', options ] ],
 		plugins: [ [ require.resolve('babel-plugin-transform-titanium'), transform ] ],
-		exclude: 'node_modules/**'
+		exclude: 'node_modules/**',
+		babelHelpers: 'bundled'
 	};
+}
+
+/**
+ * Returns the exact core-js version from package-lock file, this is required to ensure that the
+ * correct polyfills are loaded for the environment
+ *
+ * @returns {String}
+ */
+function getCorejsVersion() {
+	const packageLock = require('../../package-lock');
+	if (packageLock.dependencies && packageLock.dependencies['core-js']) {
+		const { version } = packageLock.dependencies['core-js'];
+		return version;
+	}
+	throw new Error('Could not lookup core-js version in package-lock file.');
 }
 
 class Builder {
@@ -111,7 +127,7 @@ class Builder {
 		const bundle = await rollup({
 			input: `${TMP_COMMON_PLAFORM_DIR}/Resources/ti.main.js`,
 			plugins: [
-				resolve(),
+				nodeResolve(),
 				commonjs(),
 				babel(determineBabelOptions(babelOptions))
 			],

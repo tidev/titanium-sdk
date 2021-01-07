@@ -53,9 +53,12 @@ describe('Titanium.Filesystem', () => {
 		should(Ti.Filesystem).have.a.readOnlyProperty('applicationSupportDirectory').which.is.a.String();
 	});
 
-	// On Windows Runtime, externalStorageDirectory may return null if app doesn't have permission
-	// although it should not throw exception
-	it.iosMissing('.externalStorageDirectory', () => {
+	it.android('.externalCacheDirectory', () => {
+		should(Ti.Filesystem.externalCacheDirectory).not.be.undefined();
+		should(Ti.Filesystem).have.a.readOnlyProperty('externalCacheDirectory').which.is.a.String();
+	});
+
+	it.android('.externalStorageDirectory', () => {
 		should(Ti.Filesystem.externalStorageDirectory).not.be.undefined();
 		should(Ti.Filesystem).have.a.readOnlyProperty('externalStorageDirectory').which.is.a.String();
 	});
@@ -89,6 +92,11 @@ describe('Titanium.Filesystem', () => {
 		} else {
 			should(Ti.Filesystem.lineEnding).be.eql('\n');
 		}
+	});
+
+	it.android('#isExternalStoragePresent()', () => {
+		should(Ti.Filesystem.isExternalStoragePresent).be.a.Function();
+		should(Ti.Filesystem.isExternalStoragePresent()).be.a.Boolean();
 	});
 
 	describe('#getFile()', () => {

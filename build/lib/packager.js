@@ -136,12 +136,19 @@ class Packager {
 		// Now include all the pre-built node-ios-device bindings/binaries
 		if (this.targetOS === 'osx') {
 			let dir = path.join(this.zipSDKDir, 'node_modules/node-ios-device');
-			if (!await fs.exists(dir)) {
+			if (!await fs.pathExists(dir)) {
 				dir = path.join(this.zipSDKDir, 'node_modules/ioslib/node_modules/node-ios-device');
 			}
 
-			if (!await fs.exists(dir)) {
+			if (!await fs.pathExists(dir)) {
 				throw new Error('Unable to find node-ios-device module');
+			}
+			// Hack to remove the super old node 0.10 entry for apple arm64
+			if (process.arch === 'arm64') {
+				const nodeIOSDevicePackageJSON = path.join(dir, 'package.json');
+				const original = await fs.readJSON(nodeIOSDevicePackageJSON);
+				delete original.binary.targets['0.10.48'];
+				await fs.writeJSON(nodeIOSDevicePackageJSON, original);
 			}
 
 			await exec('node bin/download-all.js', { cwd: dir, stdio: 'inherit' });

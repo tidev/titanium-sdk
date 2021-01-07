@@ -580,15 +580,7 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
 /**
  Microphone And Recording Support. These make no sense here and should be moved to Audiorecorder
  **/
-#ifdef USE_TI_MEDIAHASAUDIOPERMISSIONS
-- (id)hasAudioPermissions:(id)unused
-{
-  DEPRECATED_REPLACED(@"Media.hasAudioPermissions", @"6.1.0", @"Media.hasAudioRecorderPermissions");
-  return [self hasAudioRecorderPermissions:unused];
-}
-#endif
-
-#if defined(USE_TI_MEDIAHASAUDIORECORDERPERMISSIONS) || defined(USE_TI_MEDIAHASAUDIOPERMISSIONS) || defined(USE_TI_MEDIASTARTMICROPHONEMONITOR) || defined(USE_TI_MEDIASTOPMICROPHONEMONITOR) || defined(USE_TI_MEDIAPEAKMICROPHONEPOWER) || defined(USE_TI_MEDIAGETPEAKMICROPHONEPOWER) || defined(USE_TI_MEDIAAVERAGEMICROPHONEPOWER) || defined(USE_TI_MEDIAGETAVERAGEMICROPHONEPOWER)
+#if defined(USE_TI_MEDIAHASAUDIORECORDERPERMISSIONS) || defined(USE_TI_MEDIASTARTMICROPHONEMONITOR) || defined(USE_TI_MEDIASTOPMICROPHONEMONITOR) || defined(USE_TI_MEDIAPEAKMICROPHONEPOWER) || defined(USE_TI_MEDIAGETPEAKMICROPHONEPOWER) || defined(USE_TI_MEDIAAVERAGEMICROPHONEPOWER) || defined(USE_TI_MEDIAGETAVERAGEMICROPHONEPOWER)
 - (id)hasAudioRecorderPermissions:(id)unused
 {
   NSString *microphonePermission = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSMicrophoneUsageDescription"];
@@ -1108,7 +1100,7 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
   [self commonPickerSetup:args];
 
 // iPod not available on simulator
-#if TARGET_IPHONE_SIMULATOR
+#if TARGET_OS_SIMULATOR
   [self sendPickerError:MediaModuleErrorNoMusicPlayer];
 #else
 
@@ -1754,6 +1746,7 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
   }
 
   animatedPicker = YES;
+  excludeLivePhoto = YES;
 
   PHPickerConfiguration *configuration = [[PHPickerConfiguration alloc] init];
   NSMutableArray *filterList = [NSMutableArray array];
@@ -1770,6 +1763,7 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
         if ([mediaType isEqualToString:(NSString *)kUTTypeImage]) {
           [filterList addObject:PHPickerFilter.imagesFilter];
         } else if ([mediaType isEqualToString:(NSString *)kUTTypeLivePhoto]) {
+          excludeLivePhoto = NO;
           [filterList addObject:PHPickerFilter.livePhotosFilter];
         } else if ([mediaType isEqualToString:(NSString *)kUTTypeMovie]) {
           [filterList addObject:PHPickerFilter.videosFilter];
@@ -1789,6 +1783,8 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
 
   [_phPicker setDelegate:self];
   [self displayModalPicker:_phPicker settings:args];
+
+  RELEASE_TO_NIL(configuration);
 }
 
 #pragma mark PHPickerViewControllerDelegate
@@ -1810,7 +1806,8 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
   for (PHPickerResult *result in results) {
     dispatch_group_enter(group);
 
-    if ([result.itemProvider canLoadObjectOfClass:PHLivePhoto.class]) {
+    // Live photo has image data as well. Untill live photo is not required, do not load it. Instead load image data.
+    if (!excludeLivePhoto && [result.itemProvider canLoadObjectOfClass:PHLivePhoto.class]) {
       if (!livePhotoArray) {
         livePhotoArray = [[NSMutableArray alloc] init];
       }

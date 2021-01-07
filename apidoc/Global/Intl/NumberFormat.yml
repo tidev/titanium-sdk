@@ -145,7 +145,7 @@ methods:
         summary: The number to be formatted into parts.
         type: Number
     returns:
-        type: Array<Object>
+        type: Array<NumberFormattedPart>
         summary: Array of objects providing the "type" and "value" of each component in formatted string.
     osver: {ios: {min: "13.0"}}
 
@@ -157,7 +157,7 @@ methods:
       For more detail, see the MDN website about
       [resolvedOptions](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Intl/NumberFormat/resolvedOptions).
     returns:
-        type: Object
+        type: NumberFormatOptions
         summary: Returns the formatting options used.
 
   - name: supportedLocalesOf
@@ -367,3 +367,20 @@ properties:
 
       This option is only supported on Android.
     platforms: [android]
+
+---
+name: NumberFormattedPart
+summary: Generic type for elements of returned `Array` from <Intl.Number.formatToParts>
+properties:
+  - name: type
+    type: String
+    summary: |
+      The type of the locale-specific token.
+
+      See [MDN formatToParts documentation](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/NumberFormat/formatToParts)
+      for details on the possible types and typical values.
+  # TODO: Declare the enumerated set of possible types
+
+  - name: value
+    type: String
+    summary: The locale-specific token value
