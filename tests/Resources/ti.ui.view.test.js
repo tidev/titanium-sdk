@@ -1032,7 +1032,8 @@ describe('Titanium.UI.View', function () {
 				backgroundColor: 'yellow'
 			});
 
-			win.addEventListener('focus', () => {
+			win.addEventListener('postlayout', function postlayout() { // FIXME: Support once!
+				win.removeEventListener('postlayout', postlayout); // only run once
 				try {
 					should(view.borderRadius).be.a.String();
 					should(view.borderRadius).eql('12px 12 12dp 12');
@@ -1061,7 +1062,8 @@ describe('Titanium.UI.View', function () {
 				backgroundColor: 'yellow'
 			});
 
-			win.addEventListener('focus', () => {
+			win.addEventListener('postlayout', function postlayout() { // FIXME: Support once!
+				win.removeEventListener('postlayout', postlayout); // only run once
 				try {
 					should(view.borderRadius).be.an.Array();
 					should(view.borderRadius.length).eql(4);
@@ -1093,7 +1095,8 @@ describe('Titanium.UI.View', function () {
 				backgroundColor: 'yellow'
 			});
 
-			win.addEventListener('focus', () => {
+			win.addEventListener('postlayout', function postlayout() { // FIXME: Support once!
+				win.removeEventListener('postlayout', postlayout); // only run once
 				try {
 					should(view.borderRadius).be.a.String();
 					should(view.borderRadius).eql('12px 12');
@@ -1124,7 +1127,8 @@ describe('Titanium.UI.View', function () {
 				backgroundColor: 'yellow'
 			});
 
-			win.addEventListener('focus', () => {
+			win.addEventListener('postlayout', function postlayout() { // FIXME: Support once!
+				win.removeEventListener('postlayout', postlayout); // only run once
 				try {
 					should(view.borderRadius).be.an.Array();
 					should(view.borderRadius.length).eql(2);
@@ -1155,7 +1159,8 @@ describe('Titanium.UI.View', function () {
 				backgroundColor: 'yellow'
 			});
 
-			win.addEventListener('focus', () => {
+			win.addEventListener('postlayout', function postlayout() { // FIXME: Support once!
+				win.removeEventListener('postlayout', postlayout); // only run once
 				try {
 					view.borderRadius = [ '12px', 12 ];
 					should(view.borderRadius).be.an.Array();
@@ -1188,7 +1193,8 @@ describe('Titanium.UI.View', function () {
 				backgroundColor: 'yellow'
 			});
 
-			win.addEventListener('focus', () => {
+			win.addEventListener('postlayout', function postlayout() { // FIXME: Support once!
+				win.removeEventListener('postlayout', postlayout); // only run once
 				try {
 					should(view.borderRadius).be.a.String();
 					should(view.borderRadius).eql('30px');
@@ -1220,7 +1226,8 @@ describe('Titanium.UI.View', function () {
 				viewShadowOffset: { x: 5, y: 10 },
 			});
 
-			win.addEventListener('focus', () => {
+			win.addEventListener('postlayout', function postlayout() { // FIXME: Support once!
+				win.removeEventListener('postlayout', postlayout); // only run once
 				try {
 					should(outerView).matchImage('snapshots/borderRadiusWithShadow_30px.png');
 				} catch (err) {
