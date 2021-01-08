@@ -328,6 +328,27 @@ public class ListViewProxy extends RecyclerViewProxy
 	}
 
 	/**
+	 * Sets the activity this proxy's view should be attached to.
+	 * @param activity The activity this proxy's view should be attached to.
+	 */
+	@Override
+	public void setActivity(Activity activity)
+	{
+		super.setActivity(activity);
+
+		if (hasPropertyAndNotNull(TiC.PROPERTY_SEARCH_VIEW)) {
+			final TiViewProxy search = (TiViewProxy) getProperty(TiC.PROPERTY_SEARCH_VIEW);
+			search.setActivity(activity);
+		}
+
+		if (this.sections != null) {
+			for (ListSectionProxy section : this.sections) {
+				section.setActivity(activity);
+			}
+		}
+	}
+
+	/**
 	 * Handle setting of property.
 	 *
 	 * @param name Property name.
@@ -557,8 +578,8 @@ public class ListViewProxy extends RecyclerViewProxy
 	{
 		super.releaseViews();
 
-		if (hasPropertyAndNotNull(TiC.PROPERTY_SEARCH)) {
-			final TiViewProxy search = (TiViewProxy) getProperty(TiC.PROPERTY_SEARCH);
+		if (hasPropertyAndNotNull(TiC.PROPERTY_SEARCH_VIEW)) {
+			final TiViewProxy search = (TiViewProxy) getProperty(TiC.PROPERTY_SEARCH_VIEW);
 			search.releaseViews();
 		}
 
