@@ -25,7 +25,6 @@ public class ListViewAdapter extends TiRecyclerViewAdapter<ListViewHolder>
 	private static final String TAG = "ListViewAdapter";
 
 	private static int id_holder;
-
 	private LayoutInflater inflater;
 	private List<ListItemProxy> models;
 	private SelectionTracker tracker;

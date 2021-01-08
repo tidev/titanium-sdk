@@ -28,7 +28,6 @@ public class TableViewAdapter extends TiRecyclerViewAdapter<TableViewHolder>
 	private static final String TAG = "TableViewAdapter";
 
 	private static int id_holder;
-
 	private LayoutInflater inflater;
 	private List<TableViewRowProxy> models;
 	private SelectionTracker tracker;
