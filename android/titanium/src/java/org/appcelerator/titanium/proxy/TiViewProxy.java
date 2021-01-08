@@ -444,7 +444,8 @@ public abstract class TiViewProxy extends KrollProxy
 				Log.d(TAG, "getView: " + getClass().getSimpleName(), Log.DEBUG_MODE);
 			}
 
-			Activity activity = getActivity();
+			Activity lastActivity = getActivity();
+			Activity activity = lastActivity;
 			TiBaseActivity baseActivity = null;
 
 			if (activity instanceof TiBaseActivity) {
@@ -460,6 +461,10 @@ public abstract class TiViewProxy extends KrollProxy
 
 			} else if (activity == null) {
 				activity = TiApplication.getAppRootOrCurrentActivity();
+			}
+
+			if (activity != lastActivity) {
+				setActivity(activity);
 			}
 
 			view = createView(activity);
