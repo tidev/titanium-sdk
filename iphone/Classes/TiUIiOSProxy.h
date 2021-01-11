@@ -174,9 +174,6 @@
 #ifdef USE_TI_UIIOSCOVERFLOWVIEW
 - (id)createCoverFlowView:(id)args;
 #endif
-#ifdef USE_TI_UIIOSTABBEDBAR
-- (id)createTabbedBar:(id)args;
-#endif
 #ifdef USE_TI_UIIOSDOCUMENTVIEWER
 - (id)createDocumentViewer:(id)args;
 #endif
