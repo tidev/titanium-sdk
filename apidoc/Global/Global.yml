@@ -196,7 +196,7 @@ methods:
         ```
     returns:
         summary: Exported `exports` object of the required module.
-        type: Object
+        type: any
     parameters:
       - name: moduleId
         summary: Native module ID or local path to a JavaScript file *minus* the `.js` extension.
@@ -429,4 +429,14 @@ properties:
   - name: global
     summary: Reference to the global object itself.
     type: Global
+    accessors: false
+
+  - name: Buffer
+    summary: a global reference to the [Buffer](buffer.Buffer) class.
+    type: buffer.Buffer
+    accessors: false
+
+  - name: process
+    summary: Reference to the global `process` object.
+    type: process
     accessors: false

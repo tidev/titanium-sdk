@@ -14,6 +14,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.KrollObject;
+import org.appcelerator.kroll.KrollPromise;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.KrollRuntime;
 import org.appcelerator.kroll.common.Log;
@@ -36,7 +37,6 @@ import org.appcelerator.titanium.util.TiActivitySupportHelper;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiLocaleManager;
 import org.appcelerator.titanium.util.TiMenuSupport;
-import org.appcelerator.titanium.util.TiPlatformHelper;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.util.TiWeakList;
 import org.appcelerator.titanium.view.TiActionBarStyleHandler;
@@ -432,6 +432,24 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 	public static void registerPermissionRequestCallback(
 		Integer requestCode, final KrollFunction callback, final KrollObject context)
 	{
+		TiBaseActivity.registerPermissionRequestCallback(requestCode, callback, context, null);
+	}
+
+	/**
+	 * Registers a global KrollCallback to be invoked when onRequestPermissionsResult() is called for the given
+	 * request code. Indicates if permissions were granted from a requestPermissions() method call.
+	 * <p>
+	 * The registered callback can be removed via the TiBaseActivity.unregisterPermissionRequestCallback() method.
+	 * @param requestCode Unique 8-bit integer ID to be used by the requestPermissions() method.
+	 * @param callback
+	 * Callback to be invoked with KrollDict properties "success", "code", and an optional "message". Can be null.
+	 * @param context KrollObject providing the JavaScript context needed to invoke a JS callback.
+	 * @param promise Promise to be invoked. Can be null.
+	 */
+	public static void registerPermissionRequestCallback(
+		Integer requestCode, final KrollFunction callback, final KrollObject context,
+		final KrollPromise<KrollDict> promise)
+	{
 		if (requestCode == null) {
 			return;
 		}
@@ -442,7 +460,7 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 				@NonNull TiBaseActivity activity, int requestCode,
 				@NonNull String[] permissions, @NonNull int[] grantResults)
 			{
-				if (callback == null) {
+				if (callback == null && promise == null) {
 					return;
 				}
 
@@ -466,7 +484,16 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 				if (context == null) {
 					Log.w(TAG, "Permission callback context object is null");
 				}
-				callback.callAsync(context, response);
+				if (callback != null) {
+					callback.callAsync(context, response);
+				}
+				if (promise != null) {
+					if (deniedPermissions.isEmpty()) {
+						promise.resolve(response);
+					} else {
+						promise.reject(response);
+					}
+				}
 			}
 		});
 	}
@@ -562,13 +589,6 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 			}
 		}
 
-		if (modal) {
-			if (Build.VERSION.SDK_INT < TiC.API_LEVEL_ICE_CREAM_SANDWICH) {
-				// This flag is deprecated in API 14. On ICS, the background is not blurred but straight black.
-				getWindow().addFlags(WindowManager.LayoutParams.FLAG_BLUR_BEHIND);
-			}
-		}
-
 		if (hasSoftInputMode) {
 			Log.d(TAG, "windowSoftInputMode: " + softInputMode, Log.DEBUG_MODE);
 			getWindow().setSoftInputMode(softInputMode);
@@ -654,9 +674,6 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 			}
 		}
 
-		// Doing this on every create in case the activity is externally created.
-		TiPlatformHelper.getInstance().intializeDisplayMetrics(this);
-
 		// Create the root content layout, if not done already.
 		if (layout == null) {
 			layout = createLayout();
@@ -697,9 +714,7 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 		// we need to set window features before calling onCreate
 		this.requestWindowFeature(Window.FEATURE_PROGRESS);
 		this.requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-			this.requestWindowFeature(Window.FEATURE_ACTIVITY_TRANSITIONS);
-		}
+		this.requestWindowFeature(Window.FEATURE_ACTIVITY_TRANSITIONS);
 		super.onCreate(savedInstanceState);
 
 		// If activity is using Google's default ActionBar, then the below will return an ActionBar style handler
@@ -1653,12 +1668,6 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 	@Override
 	public void finishAfterTransition()
 	{
-		// This is only supported on Android 5.0 and above. Do a normal finish on older OS versions.
-		if (Build.VERSION.SDK_INT < 21) {
-			finish();
-			return;
-		}
-
 		// Remove this activity from the app-wide Titanium UI stack.
 		TiApplication.removeFromActivityStack(this);
 

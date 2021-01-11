@@ -695,11 +695,7 @@ public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionLis
 			}
 		}
 		this.tv.setCursorVisible(isEditable);
-		if (Build.VERSION.SDK_INT > 19) {
-			// Enable/disable read-only text selection. Allows copying text to clipboard.
-			// Note: Switching from true to false prevents keyboard from appearing on OS versions older than 5.0.
-			this.tv.setTextIsSelectable(!isEditable);
-		}
+		this.tv.setTextIsSelectable(!isEditable);
 
 		// Apply the above configured key listener and input type flags.
 		// Note: The setInputType() method internally calls setKeyListener(). Can only use one or the other.
@@ -928,6 +924,15 @@ public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionLis
 				inputMethodManager.restartInput(this.tv);
 			}
 		}
+	}
+
+	@Override
+	public void release()
+	{
+		super.release();
+
+		tv = null;
+		textInputLayout = null;
 	}
 
 	/** Adds/Removes input filters such as all-caps and max-length to an EditText. */

@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2013-Present by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2020-Present by Axway, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -8,31 +8,57 @@
 'use strict';
 
 exports.bootstrap = function (Titanium) {
-	var ListView = Titanium.UI.ListView;
-
-	function createListView(scopeVars, options) {
-		if (options !== undefined) {
-			var templates = options.templates;
-			if (templates !== undefined) {
-				for (var binding in templates) {
-					var currentTemplate = templates[binding];
-					// process template
-					processTemplate(currentTemplate);
-					// process child templates
-					processChildTemplates(currentTemplate);
+	const ListView = Titanium.UI.ListView;
+	const defaultTemplate = {
+		properties: {
+			height: '45dp'
+		},
+		childTemplates: [
+			{
+				type: 'Ti.UI.Label',
+				bindId: 'title',
+				properties: {
+					left: '6dp',
+					width: '75%'
+				}
+			},
+			{
+				type: 'Ti.UI.ImageView',
+				bindId: 'image',
+				properties: {
+					right: '25dp',
+					width: '15%'
 				}
 			}
-		}
-		var listView = new ListView(options);
+		]
+	};
 
-		return listView;
+	function createListView(scopeVars, options) {
+		if (!options) {
+			options = {};
+		}
+		options.templates = {
+			[Titanium.UI.LIST_ITEM_TEMPLATE_DEFAULT]: defaultTemplate,
+			...options.templates
+		};
+
+		const templates = options.templates;
+		for (const binding in templates) {
+			const currentTemplate = templates[binding];
+
+			processTemplate(currentTemplate);
+			processChildTemplates(currentTemplate);
+		}
+
+		return new ListView(options);
 	}
 
 	// Create ListItemProxy, add events, then store it in 'tiProxy' property
 	function processTemplate(properties) {
-		var cellProxy = Titanium.UI.createListItem();
+		const cellProxy = Titanium.UI.createListItem();
+		const events = properties.events;
+
 		properties.tiProxy = cellProxy;
-		var events = properties.events;
 		addEventListeners(events, cellProxy);
 	}
 
@@ -43,41 +69,43 @@ exports.bootstrap = function (Titanium) {
 			return;
 		}
 
-		var childProperties = properties.childTemplates;
-		if (childProperties === undefined || childProperties === null) {
+		const childProperties = properties.childTemplates;
+		if (!childProperties) {
 			return;
 		}
 
-		for (var i = 0; i < childProperties.length; i++) {
-			var child = childProperties[i];
-			var proxyType = child.type;
-			if (proxyType !== undefined) {
-				var creationProperties = child.properties;
-				var creationFunction = lookup(proxyType);
-				var childProxy;
-				// create the proxy
-				if (creationProperties !== undefined) {
+		for (let i = 0; i < childProperties.length; i++) {
+			const child = childProperties[i];
+			const proxyType = child.type;
+
+			if (proxyType) {
+				const creationProperties = child.properties;
+				const creationFunction = lookup(proxyType);
+
+				// Create proxy.
+				let childProxy;
+				if (creationProperties) {
 					childProxy = creationFunction(creationProperties);
 				} else {
 					childProxy = creationFunction();
 				}
-				// add event listeners
-				var events = child.events;
+				// Add event listeners.
+				const events = child.events;
 				addEventListeners(events, childProxy);
-				// append proxy to tiProxy property
+
+				// Append proxy to tiProxy property.
 				child.tiProxy = childProxy;
 			}
 
 			processChildTemplates(child);
-
 		}
 
 	}
 
-	// add event listeners
+	// Add event listeners.
 	function addEventListeners(events, proxy) {
 		if (events !== undefined) {
-			for (var eventName in events) {
+			for (const eventName in events) {
 				proxy.addEventListener(eventName, events[eventName]);
 			}
 		}
@@ -88,10 +116,12 @@ exports.bootstrap = function (Titanium) {
 		const proxyName = namespace.slice(namespaceIndex + 1);
 		const parentNamespace = namespace.substring(0, namespaceIndex);
 		const segments = parentNamespace.split('.');
+
 		let parentProxy = global;
 		for (let i = 0; i < segments.length; i++) {
 			parentProxy = parentProxy[segments[i]];
 		}
+
 		let method = null;
 		if (parentProxy) {
 			method = parentProxy['create' + proxyName];
@@ -103,26 +133,26 @@ exports.bootstrap = function (Titanium) {
 		}
 	}
 
-	// convert name of UI elements into a constructor function.
-	// I.e: lookup("Titanium.UI.Label") returns Titanium.UI.createLabel function
+	// Convert name of UI elements into a constructor function.
+	// i.e: lookup("Titanium.UI.Label") returns Titanium.UI.createLabel function.
 	function lookup(namespace) {
 
-		// handle Titanium widgets
+		// Handle Titanium widgets.
 		if (/^(Ti|Titanium)/.test(namespace)) {
 			return lookupProxyConstructor(namespace);
 
-		// handle Alloy widgets
+		// Handle Alloy widgets.
 		} else {
 			let widget;
 			try {
-				// attempt to load alloy widget
+				// Attempt to load alloy widget.
 				widget = Module.main.require('/alloy/widgets/' + namespace + '/controllers/widget');
 			} catch (e) {
 				try {
-					// widget does not exist, attempt to load namespace
+					// Widget does not exist, attempt to load namespace.
 					widget = Module.main.require(namespace);
 				} catch (err) {
-					// namespace does not exist, fall back to legacy behaviour
+					// Namespace does not exist, fall back to legacy behaviour.
 					return lookupProxyConstructor(namespace);
 				}
 			}
@@ -135,7 +165,6 @@ exports.bootstrap = function (Titanium) {
 		}
 	}
 
-	// overwrite list view constructor function with our own.
+	// Overwrite list view constructor function with our own.
 	Titanium.UI.createListView = createListView;
-
 };

@@ -68,7 +68,7 @@ READWRITE_IMPL(NSString *, userAgent, UserAgent);
   ENSURE_INT_OR_NIL_FOR_KEY(byteOrder, arg, @"byteOrder", hasByteOrder);
 
   // Hack to get our KrollBridge
-  JSContext *objcJsContext = [JSContext currentContext];
+  JSContext *objcJsContext = JSContext.currentContext;
   JSGlobalContextRef contextRef = [objcJsContext JSGlobalContextRef];
   KrollContext *context = GetKrollContext(contextRef);
   KrollBridge *ourBridge = (KrollBridge *)[context delegate];

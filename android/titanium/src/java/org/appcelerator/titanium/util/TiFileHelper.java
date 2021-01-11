@@ -18,13 +18,8 @@ import java.lang.ref.SoftReference;
 import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Random;
-import java.util.SortedSet;
-import java.util.TreeSet;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -39,7 +34,6 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
-import android.os.Environment;
 import android.webkit.URLUtil;
 
 @SuppressWarnings("deprecation")
@@ -60,8 +54,6 @@ public class TiFileHelper
 
 	private SoftReference<Context> softContext;
 	private TiNinePatchHelper nph;
-
-	private ArrayList<File> tempFiles = new ArrayList<File>();
 
 	private static HashSet<String> resourcePathCache;
 	private static HashSet<String> foundResourcePathCache;
@@ -414,8 +406,8 @@ public class TiFileHelper
 			AssetManager am = ctx.getAssets();
 			walkAssets(am, "", paths);
 
-			// TODO clean old dir
-			wipeDirectoryTree(dest);
+			// Delete all files and subdirectories under given directory.
+			emptyDirectory(dest);
 
 			// copy from assets to dest dir
 			BufferedInputStream bis = null;
@@ -470,7 +462,7 @@ public class TiFileHelper
 
 	public void deployFromZip(File fname, File dest) throws IOException
 	{
-		wipeDirectoryTree(dest);
+		emptyDirectory(dest);
 
 		ZipInputStream zis = null;
 		ZipEntry ze = null;
@@ -536,89 +528,110 @@ public class TiFileHelper
 		}
 	}
 
-	public void wipeDirectoryTree(File path)
+	/**
+	 * Recursively deletes the given directory tree.
+	 * Will never throw an exception and will return the result as a boolean instead.
+	 * @param file Reference to a file or directory. Can be null.
+	 * @return
+	 * Returns true if successfully deleted all files and folders under given directory tree.
+	 * Returns false if at least 1 deletion failed or if given a null argument.
+	 */
+	public boolean tryDeleteTree(File file)
 	{
-		TreeSet<String> dirs = new TreeSet<String>(new Comparator<String>() {
-			public int compare(String o1, String o2)
-			{
-				return o1.compareTo(o2) * -1;
-			}
-		});
-
-		wipeDirectoryTree(path, dirs);
-
-		Iterator<String> d = dirs.iterator();
-		while (d.hasNext()) {
-			String fn = d.next();
-			File f = new File(fn);
-			Log.d(TAG, "Deleting Dir: " + f.getAbsolutePath(), Log.DEBUG_MODE);
-			f.delete();
+		try {
+			return deleteTree(file);
+		} catch (Throwable ex) {
+			Log.e(TAG, "Failed to delete directory tree: " + file, ex);
 		}
+		return false;
+	}
+
+	/**
+	 * Recursively deletes the given directory tree.
+	 * @param file Reference to a directory or a single file. Can be null, in which case this method no-ops.
+	 * @return
+	 * Returns true if successfully deleted all files and folders under given directory tree.
+	 * Returns false if at least 1 deletion failed or if given a null argument.
+	 * @exception SecurityException Thrown if don't have permission to delete at least 1 file in the tree.
+	 */
+	public boolean deleteTree(File file) throws SecurityException
+	{
+		// Validate argument.
+		if (file == null) {
+			return false;
+		}
+
+		// If given a directory, then recursively delete the entire tree.
+		boolean wasDeleted = true;
+		if (file.isDirectory()) {
+			for (File nextFile : file.listFiles()) {
+				wasDeleted = deleteTree(nextFile) && wasDeleted;
+			}
+		}
+
+		// Delete the given directory/file.
+		return (wasDeleted && file.delete());
+	}
+
+	/**
+	 * Deletes all files and subdirectories under the given directory while leaving the given directory intact.
+	 * If given directory does not exist, then it is created.
+	 * @param directory The directory to be emptied. Can be null.
+	 * @return
+	 * Returns true if successfully deleted all files and folders under given directory.
+	 * Returns false if at least 1 deletion failed or if given a null argument.
+	 * @exception SecurityException Thrown if don't have permission to delete at least 1 file in the tree.
+	 */
+	public boolean emptyDirectory(File directory) throws SecurityException
+	{
+		// Validate argument.
+		if (directory == null) {
+			return false;
+		}
+
+		// If directory does not exist, then create it and stop here.
+		if (!directory.exists()) {
+			return directory.mkdirs();
+		}
+
+		// Do not continue if referencing a file instead of a directory.
+		if (!directory.isDirectory()) {
+			return false;
+		}
+
+		// Delete all file and subdirectories under given directory.
+		boolean wasSuccessful = true;
+		for (File nextFile : directory.listFiles()) {
+			wasSuccessful = deleteTree(nextFile) && wasSuccessful;
+		}
+		return wasSuccessful;
 	}
 
 	public File getTempFile(String suffix, boolean destroyOnExit) throws IOException
 	{
-		File result = null;
-		Context context = softContext.get();
-
-		if (context != null) {
-			result = getTempFile(context.getCacheDir(), suffix, destroyOnExit);
-		}
-		return result;
-	}
-
-	public File getTempFile(File dir, String suffix, boolean destroyOnExit) throws IOException
-	{
-		if (!dir.exists()) {
-			dir.mkdirs();
-		}
-		final File result = new File(dir.getPath() + "/tia" + Math.abs(new Random().nextLong()) + suffix);
-
-		if (destroyOnExit) {
-			tempFiles.add(result);
-		}
-		return result;
+		TiApplication tiApp = TiApplication.getInstance();
+		File parentDir = destroyOnExit ? tiApp.getTiTempDir() : tiApp.getCacheDir();
+		return File.createTempFile("tia", suffix, parentDir);
 	}
 
 	public File getTempFileFromInputStream(InputStream is, String suffix, boolean destroyOnExit)
 	{
 		try {
 			File tempFile = getTempFile(suffix, destroyOnExit);
-
-			if (tempFile.exists()) {
+			try (FileOutputStream os = new FileOutputStream(tempFile)) {
 				byte[] bytes = new byte[1024];
 				int length;
-				FileOutputStream os = new FileOutputStream(tempFile);
-
 				while ((length = is.read(bytes)) != -1) {
 					os.write(bytes, 0, length);
 				}
-				os.close();
 			}
 			return tempFile;
-
 		} catch (FileNotFoundException e) {
 			Log.w(TAG, "Could not find temp file: " + suffix);
-		} catch (IOException e) {
+		} catch (Exception e) {
 			Log.w(TAG, "Error occurred while creating output stream from temp file: " + suffix);
 		}
 		return null;
-	}
-
-	public void destroyOnExit(File file)
-	{
-		tempFiles.add(file);
-	}
-
-	// Destroys all temporary files that have been created.
-	// This is called when the application is exited/destroyed.
-	public void destroyTempFiles()
-	{
-		for (File tempFile : tempFiles) {
-			tempFile.delete();
-		}
-
-		tempFiles.clear();
 	}
 
 	/**
@@ -632,35 +645,13 @@ public class TiFileHelper
 		File f = null;
 		Context context = softContext.get();
 		if (context != null) {
-
 			if (privateStorage) {
 				f = context.getDir("appdata", 0);
 			} else {
-				File storageDir = Environment.getExternalStorageDirectory();
-				f = new File(storageDir, context.getPackageName());
-				if (!f.exists()) {
-					f.mkdirs();
-				}
+				f = context.getExternalFilesDir(null);
 			}
 		}
 		return f;
-	}
-	private void wipeDirectoryTree(File path, SortedSet<String> dirs)
-	{
-		File[] files = path.listFiles();
-		if (files != null) {
-			int len = files.length;
-			for (int i = 0; i < len; i++) {
-				File f = files[i];
-				if (f.isDirectory()) {
-					dirs.add(f.getAbsolutePath());
-					wipeDirectoryTree(f, dirs);
-				} else {
-					Log.d(TAG, "Deleting File: " + f.getAbsolutePath(), Log.DEBUG_MODE);
-					f.delete();
-				}
-			}
-		}
 	}
 
 	private void walkAssets(AssetManager am, String path, ArrayList<String> paths) throws IOException

@@ -12,10 +12,6 @@ import java.util.Map;
 
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
-import org.appcelerator.titanium.util.TiPlatformHelper;
-
-import android.os.Build;
-import android.util.DisplayMetrics;
 
 /**
  * This class allows us to retrieve Android resource IDs
@@ -176,50 +172,6 @@ public class TiRHelper
 	public static int getAndroidResource(String path) throws ResourceNotFoundException
 	{
 		return getResource(clsPrefixAndroid, path);
-	}
-
-	/**
-	 * Find the resource id for an image located at android/modules/ui/res/ in the correct density
-	 * @param imageName the name of the imagefile without the size.
-	 * @return the resource, if found.
-	 * @throws ResourceNotFoundException the exception thrown when the resource is not found in either location listed above.
-	 * @module.api
-	 */
-	public static int getImageRessource(String imageName) throws ResourceNotFoundException
-	{
-		//
-		String resName = imageName + "_48"; // default medium
-		int density = TiPlatformHelper.applicationLogicalDensity;
-
-		switch (density) {
-			case DisplayMetrics.DENSITY_HIGH:
-				resName = imageName + "_72";
-				break;
-			case DisplayMetrics.DENSITY_MEDIUM:
-				resName = imageName + "_48";
-				break;
-			case DisplayMetrics.DENSITY_LOW:
-				resName = imageName + "_36";
-				break;
-		}
-
-		if (Build.VERSION.SDK_INT >= 9 && density == DisplayMetrics.DENSITY_XHIGH) {
-			resName = imageName + "_96";
-		}
-
-		if (Build.VERSION.SDK_INT >= 16 && density >= DisplayMetrics.DENSITY_XXHIGH) {
-			resName = imageName + "_144";
-		}
-
-		if (Build.VERSION.SDK_INT >= 16 && density >= DisplayMetrics.DENSITY_XXXHIGH) {
-			resName = imageName + "_192";
-		}
-		try {
-			return getResource(resName);
-		} catch (ResourceNotFoundException e) {
-			Log.e(TAG, "XML resources could not be found!!!", Log.DEBUG_MODE);
-			throw e;
-		}
 	}
 
 	/**

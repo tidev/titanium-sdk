@@ -33,7 +33,6 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.graphics.Rect;
-import android.os.Build;
 import android.os.Bundle;
 
 import androidx.core.app.ActivityOptionsCompat;
@@ -56,7 +55,6 @@ import android.view.ViewParent;
 public abstract class TiWindowProxy extends TiViewProxy
 {
 	private static final String TAG = "TiWindowProxy";
-	protected static final boolean LOLLIPOP_OR_GREATER = (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP);
 
 	private static final int MSG_FIRST_ID = TiViewProxy.MSG_LAST_ID + 1;
 	protected static final int MSG_LAST_ID = MSG_FIRST_ID + 999;
@@ -89,9 +87,7 @@ public abstract class TiWindowProxy extends TiViewProxy
 	public TiWindowProxy()
 	{
 		inTab = false;
-		if (LOLLIPOP_OR_GREATER) {
-			sharedElementPairs = new ArrayList<Pair<View, String>>();
-		}
+		sharedElementPairs = new ArrayList<Pair<View, String>>();
 	}
 
 	@Override
@@ -591,21 +587,17 @@ public abstract class TiWindowProxy extends TiViewProxy
 	@Kroll.method
 	public void addSharedElement(TiViewProxy view, String transitionName)
 	{
-		if (LOLLIPOP_OR_GREATER) {
-			TiUIView v = view.peekView();
-			if (v != null) {
-				Pair<View, String> p = new Pair<View, String>(v.getNativeView(), transitionName);
-				sharedElementPairs.add(p);
-			}
+		TiUIView v = view.peekView();
+		if (v != null) {
+			Pair<View, String> p = new Pair<View, String>(v.getNativeView(), transitionName);
+			sharedElementPairs.add(p);
 		}
 	}
 
 	@Kroll.method
 	public void removeAllSharedElements()
 	{
-		if (LOLLIPOP_OR_GREATER) {
-			sharedElementPairs.clear();
-		}
+		sharedElementPairs.clear();
 	}
 
 	@Kroll.method
@@ -650,11 +642,6 @@ public abstract class TiWindowProxy extends TiViewProxy
 	 */
 	protected boolean hasActivityTransitions()
 	{
-		// This feature is only supported on Android 5.0 and higher.
-		if (!LOLLIPOP_OR_GREATER) {
-			return false;
-		}
-
 		// Don't do transition if "animated" property was set false.
 		boolean isAnimated = TiConvert.toBoolean(getProperty(TiC.PROPERTY_ANIMATED), true);
 		if (!isAnimated) {

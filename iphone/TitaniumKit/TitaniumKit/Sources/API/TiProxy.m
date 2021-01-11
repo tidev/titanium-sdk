@@ -448,20 +448,9 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void *payload)
   return nil;
 }
 
-- (TiProxy *)currentWindow
-{
-  return [[self pageContext] preloadForKey:@"currentWindow" name:@"UI"];
-}
-
 - (NSURL *)_baseURL
 {
   if (baseURL == nil) {
-    TiProxy *currentWindow = [self currentWindow];
-    if (currentWindow != nil) {
-      // cache it
-      [self _setBaseURL:[currentWindow _baseURL]];
-      return baseURL;
-    }
     return [[self _host] baseURL];
   }
   return baseURL;
@@ -800,10 +789,10 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void *payload)
 
   //TODO: You know, we can probably nip this in the bud and do this at a lower level,
   //Or make this less onerous.
-  int ourCallbackCount = 0;
 
   pthread_rwlock_wrlock(&listenerLock);
-  ourCallbackCount = [[listeners objectForKey:type] intValue] - 1;
+  int ourCallbackCount = [[listeners objectForKey:type] intValue];
+  ourCallbackCount = MAX(0, ourCallbackCount - 1);
   [listeners setObject:NUMINT(ourCallbackCount) forKey:type];
   pthread_rwlock_unlock(&listenerLock);
 
@@ -900,10 +889,17 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void *payload)
     return;
   }
 
+  __weak TiProxy *weakSelf = self;
+
   TiThreadPerformOnMainThread(
       ^{
+        TiProxy *strongSelf = weakSelf;
+        if (strongSelf == nil) {
+          return;
+        }
+
         TiBindingEvent ourEvent;
-        ourEvent = TiBindingEventCreateWithNSObjects(self, self, type, obj);
+        ourEvent = TiBindingEventCreateWithNSObjects(strongSelf, strongSelf, type, obj);
         if (report || (code != 0)) {
           TiBindingEventSetErrorCode(ourEvent, code);
         }

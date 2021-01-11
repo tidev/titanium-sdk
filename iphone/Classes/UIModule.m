@@ -58,7 +58,6 @@
   RELEASE_TO_NIL(ios);
 #endif
 #ifdef USE_TI_UICLIPBOARD
-  [self forgetProxy:clipboard];
   RELEASE_TO_NIL(clipboard);
 #endif
 #if defined(USE_TI_UISHORTCUT) || defined(USE_TI_UISHORTCUTITEM)
@@ -418,23 +417,6 @@ MAKE_SYSTEM_PROP(EXTEND_EDGE_ALL, 15); //UIEdgeRectAll
   return tiColor;
 }
 
-- (NSNumber *)isLandscape:(id)args
-{
-  return NUMBOOL([UIApplication sharedApplication].statusBarOrientation != UIInterfaceOrientationPortrait);
-}
-
-- (NSNumber *)isPortrait:(id)args
-{
-  return NUMBOOL([UIApplication sharedApplication].statusBarOrientation == UIInterfaceOrientationPortrait);
-}
-
-//Deprecated since 1.7.2
-- (NSNumber *)orientation
-{
-  DebugLog(@"Ti.UI.orientation is deprecated since 1.7.2 .");
-  return NUMINT([UIApplication sharedApplication].statusBarOrientation);
-}
-
 #pragma mark iPhone namespace
 
 #ifdef USE_TI_UIIPAD
@@ -496,9 +478,18 @@ MAKE_SYSTEM_PROP(EXTEND_EDGE_ALL, 15); //UIEdgeRectAll
 {
   if (clipboard == nil) {
     clipboard = [[TiUIClipboardProxy alloc] _initWithPageContext:[self executionContext]];
-    [self rememberProxy:clipboard];
   }
   return clipboard;
+}
+
+- (id)createClipboard:(id)args
+{
+  if (args == nil || [args count] == 0) {
+    return [[[TiUIClipboardProxy alloc] init] autorelease];
+  }
+  ENSURE_SINGLE_ARG(args, NSDictionary);
+  TiUIClipboardProxy *clipboard = [[TiUIClipboardProxy alloc] initWithProperties:args];
+  return [clipboard autorelease];
 }
 #endif
 

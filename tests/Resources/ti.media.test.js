@@ -12,7 +12,7 @@
 
 const should = require('./utilities/assertions');
 
-describe.only('Titanium.Media', () => {
+describe('Titanium.Media', () => {
 
 	describe('properties', () => {
 		describe('.apiName', () => {
@@ -224,12 +224,6 @@ describe.only('Titanium.Media', () => {
 		describe.ios('#beep', () => {
 			it('is a Function', () => {
 				should(Ti.Media.beep).be.a.Function();
-			});
-		});
-
-		describe.ios('#hasAudioPermissions', () => {
-			it('is a Function', () => {
-				should(Ti.Media.hasAudioPermissions).be.a.Function();
 			});
 		});
 

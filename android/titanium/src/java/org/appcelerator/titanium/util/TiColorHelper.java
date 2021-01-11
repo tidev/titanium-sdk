@@ -17,7 +17,6 @@ import org.appcelerator.titanium.TiApplication;
 
 import android.content.res.Resources;
 import android.graphics.Color;
-import android.os.Build;
 
 import androidx.annotation.ColorInt;
 import androidx.core.content.ContextCompat;
@@ -102,7 +101,7 @@ public class TiColorHelper
 			// add the alpha bits to them! This is a temporary workaround
 			// until they fix it. I've created a Google ticket for this:
 			// https://code.google.com/p/android/issues/detail?id=58352&thanks=58352
-			if (Build.VERSION.SDK_INT > 17 && alphaMissingColors.contains(lowval)) {
+			if (alphaMissingColors.contains(lowval)) {
 				return Color.parseColor(lowval) | 0xFF000000;
 			}
 			return Color.parseColor(lowval);

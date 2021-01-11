@@ -1,7 +1,7 @@
 /*
  *  Android Wheel Control.
  *  http://android-devblog.blogspot.com/2010/05/wheel-ui-contol.html
- *  
+ *
  *  Copyright 2010 Yuri Kanivets
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
@@ -36,7 +36,6 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.GradientDrawable.Orientation;
 import android.graphics.drawable.LayerDrawable;
-import android.os.Build;
 import android.text.Layout;
 import android.text.StaticLayout;
 import android.text.TextPaint;
@@ -48,7 +47,7 @@ import android.view.View;
 
 /**
  * Numeric wheel view.
- * 
+ *
  * @author Yuri Kanivets
  */
 @SuppressWarnings("deprecation")
@@ -172,7 +171,7 @@ public class WheelView extends View
 
 	/**
 	 * Gets count of visible items
-	 * 
+	 *
 	 * @return the count of visible items
 	 */
 	public int getVisibleItems()
@@ -182,7 +181,7 @@ public class WheelView extends View
 
 	/**
 	 * Sets count of visible items
-	 * 
+	 *
 	 * @param count
 	 *            the new count
 	 */
@@ -193,7 +192,7 @@ public class WheelView extends View
 
 	/**
 	 * Gets label
-	 * 
+	 *
 	 * @return the label
 	 */
 	public String getLabel()
@@ -203,7 +202,7 @@ public class WheelView extends View
 
 	/**
 	 * Sets label
-	 * 
+	 *
 	 * @param newLabel
 	 *            the label to set
 	 */
@@ -216,7 +215,7 @@ public class WheelView extends View
 
 	/**
 	 * Gets current value
-	 * 
+	 *
 	 * @return the current value
 	 */
 	public int getCurrentItem()
@@ -226,7 +225,7 @@ public class WheelView extends View
 
 	/**
 	 * Sets the current item
-	 * 
+	 *
 	 * @param index the item index
 	 */
 	public void setCurrentItem(int index)
@@ -354,7 +353,7 @@ public class WheelView extends View
 
 	/**
 	 * Calculates desired height for layout
-	 * 
+	 *
 	 * @param layout
 	 *            the source layout
 	 * @return the desired layout height
@@ -372,10 +371,6 @@ public class WheelView extends View
 		//       on purpose so that end-user knows that there are more items to scroll to.
 		int desired = layout.getHeight();
 		desired -= getItemOffset() * 2;
-		if (Build.VERSION.SDK_INT < 21) {
-			// Android 4.4 always adds "spacingadd" below last line when we don't want it. Exclude it.
-			desired -= getAdditionalItemHeight();
-		}
 
 		// Do not allow desired height to be larger than assigned minimum.
 		desired = Math.max(desired, getSuggestedMinimumHeight());
@@ -384,7 +379,7 @@ public class WheelView extends View
 
 	/**
 	 * Builds text depending on current value
-	 * 
+	 *
 	 * @return the text
 	 */
 	// APPCELERATOR TITANIUM CUSTOMIZATION:

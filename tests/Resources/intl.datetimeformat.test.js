@@ -36,6 +36,19 @@ describe('Intl.DateTimeFormat',  () => {
 			should(formatter.format(new Date())).be.a.String();
 		});
 
+		it('default format', () => {
+			// 2020-March-1st 08:02:05 PM
+			const date = new Date(2020, 2, 1, 20, 2, 5);
+			let formatter = new Intl.DateTimeFormat('en-US');
+			should(formatter.format(date)).be.eql('3/1/2020');
+			formatter = new Intl.DateTimeFormat('en-US', {});
+			should(formatter.format(date)).be.eql('3/1/2020');
+			formatter = new Intl.DateTimeFormat('de-DE');
+			should(formatter.format(date)).be.eql('1.3.2020');
+			formatter = new Intl.DateTimeFormat('ja-JP');
+			should(formatter.format(date)).be.eql('2020/3/1');
+		});
+
 		it('numeric date', () => {
 			// 2020-March-1st
 			const date = new Date(Date.UTC(2020, 2, 1));
@@ -136,13 +149,10 @@ describe('Intl.DateTimeFormat',  () => {
 			const date = new Date(Date.UTC(2020, 0, 1, 12, 0, 0, 456));
 			let formatter = new Intl.DateTimeFormat('en-US', { fractionalSecondDigits: 3, timeZone: 'UTC' });
 			should(formatter.format(date)).be.eql('456');
-			if (Ti.Platform.Android.API_LEVEL >= 21) {
-				// Only Android 5.0+ correctly formats with these settings.
-				formatter = new Intl.DateTimeFormat('en-US', { fractionalSecondDigits: 2, timeZone: 'UTC' });
-				should(formatter.format(date)).be.eql('45');
-				formatter = new Intl.DateTimeFormat('en-US', { fractionalSecondDigits: 1, timeZone: 'UTC' });
-				should(formatter.format(date)).be.eql('4');
-			}
+			formatter = new Intl.DateTimeFormat('en-US', { fractionalSecondDigits: 2, timeZone: 'UTC' });
+			should(formatter.format(date)).be.eql('45');
+			formatter = new Intl.DateTimeFormat('en-US', { fractionalSecondDigits: 1, timeZone: 'UTC' });
+			should(formatter.format(date)).be.eql('4');
 		});
 	});
 
@@ -192,11 +202,62 @@ describe('Intl.DateTimeFormat',  () => {
 		});
 	});
 
-	it('#resolvedOptions()', () => {
-		const formatter = new Intl.DateTimeFormat();
-		should(formatter.resolvedOptions).not.be.undefined();
-		should(formatter.resolvedOptions).be.a.Function();
-		should(formatter.resolvedOptions()).be.an.Object();
+	describe('#resolvedOptions()', () => {
+		it('validate function', () => {
+			const formatter = new Intl.DateTimeFormat();
+			should(formatter.resolvedOptions).not.be.undefined();
+			should(formatter.resolvedOptions).be.a.Function();
+			should(formatter.resolvedOptions()).be.an.Object();
+		});
+
+		it('assigned from constructor', () => {
+			const options = {
+				year: 'numeric',
+				month: 'long',
+				day: '2-digit',
+				weekday: 'long',
+				hour: 'numeric',
+				minute: '2-digit',
+				second: '2-digit',
+				hour12: true,
+				timeZoneName: 'short'
+			};
+			if (OS_ANDROID) {
+				options.dayPeriod = 'narrow';
+				options.fractionalSecondDigits = 3;
+			}
+			const formatter = new Intl.DateTimeFormat('en-US', options);
+			const result = formatter.resolvedOptions();
+			for (const key in options) {
+				should(result[key]).be.eql(options[key]);
+			}
+		});
+
+		it('timeZone', () => {
+			should(Intl.DateTimeFormat().resolvedOptions().timeZone).be.a.String();
+			let formatter = new Intl.DateTimeFormat('en-US', { timeZone: 'UTC' });
+			should(formatter.resolvedOptions().timeZone).be.eql('UTC');
+			formatter = new Intl.DateTimeFormat('en-US', { timeZone: 'Etc/GMT+8' });
+			should(formatter.resolvedOptions().timeZone).be.eql('Etc/GMT+8');
+			formatter = new Intl.DateTimeFormat('en-US', { timeZone: 'America/Los_Angeles' });
+			should(formatter.resolvedOptions().timeZone).be.eql('America/Los_Angeles');
+		});
+
+		it.android('dateStyle', () => {
+			const formatter = new Intl.DateTimeFormat('en-US', { dateStyle: 'long' });
+			const result = formatter.resolvedOptions();
+			should(result.day).be.equalOneOf([ 'numeric', '2-digit' ]);
+			should(result.month).be.equalOneOf([ 'numeric', '2-digit', 'long', 'short', 'narrow' ]);
+			should(result.year).be.equalOneOf([ 'numeric', '2-digit' ]);
+		});
+
+		it.android('timeStyle', () => {
+			const formatter = new Intl.DateTimeFormat('en-US', { timeStyle: 'long' });
+			const result = formatter.resolvedOptions();
+			should(result.hour).be.equalOneOf([ 'numeric', '2-digit' ]);
+			should(result.minute).be.equalOneOf([ 'numeric', '2-digit' ]);
+			should(result.second).be.equalOneOf([ 'numeric', '2-digit' ]);
+		});
 	});
 
 	describe('#supportedLocalesOf()', () => {
