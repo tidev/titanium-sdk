@@ -30,22 +30,4 @@ describe('Titanium.UI.Toolbar', function () {
 		should(toolbar.items).be.an.Array();
 		should(toolbar.items.length).eql(2);
 	});
-
-	it.ios('SimpleiOSToolbarDeprecated', function () {
-		const send = Ti.UI.createButton({
-				title: 'Send',
-			}),
-			camera = Ti.UI.createButton({
-				title: 'Camera'
-			}),
-			toolbar = Ti.UI.iOS.createToolbar({
-				items: [ send, camera ],
-				bottom: 0
-			});
-
-		should(toolbar).have.readOnlyProperty('apiName').which.is.a.String();
-		should(toolbar.apiName).be.eql('Ti.UI.iOS.Toolbar');
-		should(toolbar.items).be.an.Array();
-		should(toolbar.items.length).eql(2);
-	});
 });
