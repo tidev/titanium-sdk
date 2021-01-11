@@ -558,13 +558,6 @@ MAKE_SYSTEM_PROP(KEYBOARD_DISMISS_MODE_INTERACTIVE, UIScrollViewKeyboardDismissM
 }
 #endif
 
-#ifdef USE_TI_UIIOSADVIEW
-- (id)createAdView:(id)args
-{
-  DebugLog(@"[ERROR] iAd has been deprecated in iOS 10 and SDK 5.5.0. It was removed as part of the SDK 7.0.0.");
-}
-#endif
-
 #ifdef USE_TI_UIIOSDOCUMENTVIEWER
 - (id)createDocumentViewer:(id)args
 {
