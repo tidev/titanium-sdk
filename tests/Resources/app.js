@@ -159,7 +159,6 @@ function loadTests() {
 		require('./ti.ui.ios.test');
 		require('./ti.ui.ios.collisionbehavior.test');
 		require('./ti.ui.ios.feedbackgenerator.test');
-		require('./ti.ui.ios.navigationwindow.test');
 		require('./ti.ui.ios.previewcontext.test');
 		require('./ti.ui.ios.splitwindow.test');
 		require('./ti.ui.ios.statusbar.test');
