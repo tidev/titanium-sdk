@@ -39,10 +39,6 @@
 #import "TiUIiOSDocumentViewerProxy.h"
 #endif
 
-#ifdef USE_TI_UIIOSNAVIGATIONWINDOW
-#import "TiUIiOSNavigationWindowProxy.h"
-#endif
-
 #ifdef USE_TI_UIIOSSPLITWINDOW
 #import "TiUIiOSSplitWindowProxy.h"
 #endif
@@ -573,13 +569,6 @@ MAKE_SYSTEM_PROP(KEYBOARD_DISMISS_MODE_INTERACTIVE, UIScrollViewKeyboardDismissM
 - (id)createDocumentViewer:(id)args
 {
   return [[[TiUIiOSDocumentViewerProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
-}
-#endif
-
-#ifdef USE_TI_UIIOSNAVIGATIONWINDOW
-- (id)createNavigationWindow:(id)args
-{
-  return [[[TiUIiOSNavigationWindowProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
 }
 #endif
 

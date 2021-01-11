@@ -177,9 +177,6 @@
 #ifdef USE_TI_UIIOSDOCUMENTVIEWER
 - (id)createDocumentViewer:(id)args;
 #endif
-#ifdef USE_TI_UIIOSNAVIGATIONWINDOW
-- (id)createNavigationWindow:(id)args;
-#endif
 #ifdef USE_TI_UIIOSSPLITWINDOW
 - (id)createSplitWindow:(id)args;
 #endif

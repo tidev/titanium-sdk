@@ -7,16 +7,13 @@
 
 #import <TitaniumKit/TiWindowProxy.h>
 
-#ifdef USE_TI_UIIOSNAVIGATIONWINDOW
-#import "TiUIiOSNavigationWindowProxy.h"
-#endif
 #ifdef USE_TI_UINAVIGATIONWINDOW
 #import "TiUINavigationWindowProxy.h"
 #endif
 
 @interface TiWindowProxy (Addons)
 
-#if defined(USE_TI_UINAVIGATIONWINDOW) || defined(USE_TI_UIIOSNAVIGATIONWINDOW)
+#if defined(USE_TI_UINAVIGATIONWINDOW)
 - (TiUINavigationWindowProxy *)navigationWindow;
 #endif
 
