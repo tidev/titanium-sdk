@@ -7,7 +7,11 @@
 package ti.modules.titanium.ui.widget.listview;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.annotations.Kroll;
@@ -16,6 +20,10 @@ import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.view.TiUIView;
 
 import android.app.Activity;
+import android.view.View;
+
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import ti.modules.titanium.ui.UIModule;
 import ti.modules.titanium.ui.widget.TiUIListView;
@@ -46,7 +54,7 @@ public class ListViewProxy extends TiViewProxy
 	private static final String TAG = "ListViewProxy";
 
 	private List<ListSectionProxy> sections = new ArrayList<>();
-	private List<ListItemProxy> markers = new ArrayList<>();
+	private HashMap<Integer, Set<Integer>> markers = new HashMap<>();
 
 	public ListViewProxy()
 	{
@@ -67,15 +75,19 @@ public class ListViewProxy extends TiViewProxy
 	@Kroll.method
 	public void addMarker(KrollDict markerProperties)
 	{
-		final int itemIndex = markerProperties.getInt(TiC.PROPERTY_ITEM_INDEX);
-		final int sectionIndex = markerProperties.getInt(TiC.PROPERTY_SECTION_INDEX);
-		final ListSectionProxy section = getSectionByIndex(sectionIndex);
+		final int sectionIndex = markerProperties.optInt(TiC.PROPERTY_SECTION_INDEX, -1);
+		final int itemIndex = markerProperties.optInt(TiC.PROPERTY_ITEM_INDEX, -1);
 
-		if (section != null) {
-			final ListItemProxy item = section.getListItemAt(itemIndex);
+		if (sectionIndex > -1 && itemIndex > -1) {
+			if (markers.containsKey(sectionIndex)) {
+				final Set<Integer> itemIndexSet = markers.get(sectionIndex);
 
-			if (item != null) {
-				markers.add(item);
+				itemIndexSet.add(itemIndex);
+			} else {
+				final Set<Integer> itemIndexSet = new HashSet<>();
+
+				itemIndexSet.add(itemIndex);
+				markers.put(sectionIndex, itemIndexSet);
 			}
 		}
 	}
@@ -321,18 +333,65 @@ public class ListViewProxy extends TiViewProxy
 	 */
 	public void handleMarker(ListItemProxy item)
 	{
-		if (markers.contains(item)) {
-			final int itemIndex = item.getIndexInSection();
-			final int sectionIndex = this.sections.indexOf(item.getParent());
-			final KrollDict data = new KrollDict();
+		if (item != null) {
+			final Object parent = item.getParent();
 
-			// Create and fire marker event.
-			data.put(TiC.PROPERTY_SECTION_INDEX, sectionIndex);
-			data.put(TiC.PROPERTY_ITEM_INDEX, itemIndex);
-			fireEvent(TiC.EVENT_MARKER, data, false);
+			if (parent instanceof ListSectionProxy) {
+				final ListSectionProxy section = (ListSectionProxy) parent;
+				final int sectionIndex = getIndexOfSection(section);
 
-			// One time event, remove marker.
-			markers.remove(item);
+				if (markers.containsKey(sectionIndex)) {
+
+					// Found marker for current section.
+					final Set<Integer> itemIndexSet = markers.get(sectionIndex);
+
+					final TiListView listView = getListView();
+					if (listView == null) {
+						return;
+					}
+					final RecyclerView recyclerView = listView.getRecyclerView();
+					if (recyclerView == null) {
+						return;
+					}
+					final LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
+					if (layoutManager == null) {
+						return;
+					}
+
+					// Loop through markers for current section and determine visibility.
+					// Some items may not have scrolled into view.
+					for (Iterator<Integer> i = itemIndexSet.iterator(); i.hasNext();) {
+						final Integer index = i.next();
+
+						final ListItemProxy markedItem = section.getListItemAt(index);
+						if (markedItem == null) {
+							continue;
+						}
+						final ListViewHolder markedHolder = markedItem.getHolder();
+						if (markedHolder == null) {
+							continue;
+						}
+						final View markedItemView = markedHolder.itemView;
+						if (markedItemView == null) {
+							continue;
+						}
+						final boolean isVisible =
+							layoutManager.isViewPartiallyVisible(markedItemView, true, true);
+
+						if (isVisible) {
+							final KrollDict data = new KrollDict();
+
+							// Create and fire marker event.
+							data.put(TiC.PROPERTY_SECTION_INDEX, sectionIndex);
+							data.put(TiC.PROPERTY_ITEM_INDEX, index);
+							fireEvent(TiC.EVENT_MARKER, data, false);
+
+							// One time event, remove marker.
+							i.remove();
+						}
+					}
+				}
+			}
 		}
 	}
 

@@ -4,7 +4,6 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-/* globals OS_ANDROID */
 /* eslint-env mocha */
 /* eslint no-unused-expressions: "off" */
 'use strict';
@@ -22,7 +21,7 @@ describe('Titanium.UI.View', function () {
 	this.timeout(10000);
 
 	before(finish => {
-		rootWindow = Ti.UI.createWindow();
+		rootWindow = Ti.UI.createWindow({ exitOnClose: false });
 		rootWindow.addEventListener('open', () => finish());
 		rootWindow.open();
 	});
@@ -1011,12 +1010,16 @@ describe('Titanium.UI.View', function () {
 		// FIXME: Don't use dp/pts in the actual radii so we can avoid needing separate images per density?
 		// Do separate tests for verifying use of pts/dp versus density?
 
+		beforeEach(() => {
+			win = Ti.UI.createWindow({ backgroundColor: 'blue' });
+		});
+
 		// FIXME: Does not honour scale correctly on macOS.
 		if (isCI && utilities.isMacOS()) {
 			return;
 		}
 
-		it('4 values in String', () => {
+		it('4 values in String', finish => {
 			const outerView = Ti.UI.createView({
 				width: '90px',
 				height: '90px',
@@ -1029,14 +1032,24 @@ describe('Titanium.UI.View', function () {
 				backgroundColor: 'yellow'
 			});
 
-			outerView.add(view);
+			win.addEventListener('postlayout', function postlayout() { // FIXME: Support once!
+				win.removeEventListener('postlayout', postlayout); // only run once
+				try {
+					should(view.borderRadius).be.a.String();
+					should(view.borderRadius).eql('12px 12 12dp 12');
+					should(outerView).matchImage('snapshots/borderRadius_12px_12_12dp_12.png');
+				} catch (err) {
+					return finish(err);
+				}
+				finish();
+			});
 
-			should(view.borderRadius).be.a.String();
-			should(view.borderRadius).eql('12px 12 12dp 12');
-			should(outerView).matchImage('snapshots/borderRadius_12px_12_12dp_12.png');
+			outerView.add(view);
+			win.add(outerView);
+			win.open();
 		});
 
-		it('4 values in Array', () => {
+		it('4 values in Array', finish => {
 			const outerView = Ti.UI.createView({
 				width: '90px',
 				height: '90px',
@@ -1049,17 +1062,27 @@ describe('Titanium.UI.View', function () {
 				backgroundColor: 'yellow'
 			});
 
+			win.addEventListener('postlayout', function postlayout() { // FIXME: Support once!
+				win.removeEventListener('postlayout', postlayout); // only run once
+				try {
+					should(view.borderRadius).be.an.Array();
+					should(view.borderRadius.length).eql(4);
+					should(view.borderRadius).eql([ '12px', 12, '12dp', '12' ]);
+
+					// Exact same image as test above.
+					should(outerView).matchImage('snapshots/borderRadius_12px_12_12dp_12.png');
+				} catch (err) {
+					return finish(err);
+				}
+				finish();
+			});
+
 			outerView.add(view);
-
-			should(view.borderRadius).be.an.Array();
-			should(view.borderRadius.length).eql(4);
-			should(view.borderRadius).eql([ '12px', 12, '12dp', '12' ]);
-
-			// Exact same image as test above.
-			should(outerView).matchImage('snapshots/borderRadius_12px_12_12dp_12.png');
+			win.add(outerView);
+			win.open();
 		});
 
-		it('2 values in String', () => {
+		it('2 values in String', finish => {
 			const outerView = Ti.UI.createView({
 				width: '90px',
 				height: '90px',
@@ -1072,16 +1095,26 @@ describe('Titanium.UI.View', function () {
 				backgroundColor: 'yellow'
 			});
 
+			win.addEventListener('postlayout', function postlayout() { // FIXME: Support once!
+				win.removeEventListener('postlayout', postlayout); // only run once
+				try {
+					should(view.borderRadius).be.a.String();
+					should(view.borderRadius).eql('12px 12');
+
+					// Exact same image as test above.
+					should(outerView).matchImage('snapshots/borderRadius_12px_12.png');
+				} catch (err) {
+					return finish(err);
+				}
+				finish();
+			});
+
 			outerView.add(view);
-
-			should(view.borderRadius).be.a.String();
-			should(view.borderRadius).eql('12px 12');
-
-			// Exact same image as test above.
-			should(outerView).matchImage('snapshots/borderRadius_12px_12.png');
+			win.add(outerView);
+			win.open();
 		});
 
-		it('2 values in Array', () => {
+		it('2 values in Array', finish => {
 			const outerView = Ti.UI.createView({
 				width: '90px',
 				height: '90px',
@@ -1094,18 +1127,27 @@ describe('Titanium.UI.View', function () {
 				backgroundColor: 'yellow'
 			});
 
+			win.addEventListener('postlayout', function postlayout() { // FIXME: Support once!
+				win.removeEventListener('postlayout', postlayout); // only run once
+				try {
+					should(view.borderRadius).be.an.Array();
+					should(view.borderRadius.length).eql(2);
+					should(view.borderRadius).eql([ '12px', 12 ]);
+
+					// Exact same image as test above.
+					should(outerView).matchImage('snapshots/borderRadius_12px_12.png');
+				} catch (err) {
+					return finish(err);
+				}
+				finish();
+			});
+
 			outerView.add(view);
-
-			should(view.borderRadius).be.an.Array();
-			should(view.borderRadius.length).eql(2);
-			should(view.borderRadius).eql([ '12px', 12 ]);
-
-			// Exact same image as test above.
-			should(outerView).matchImage('snapshots/borderRadius_12px_12.png');
+			win.add(outerView);
+			win.open();
 		});
 
 		it.ios('set property post layout', finish => {
-			win = Ti.UI.createWindow({ backgroundColor: 'blue' });
 			const outerView = Ti.UI.createView({
 				width: '90px',
 				height: '90px',
@@ -1117,7 +1159,8 @@ describe('Titanium.UI.View', function () {
 				backgroundColor: 'yellow'
 			});
 
-			win.addEventListener('focus', () => {
+			win.addEventListener('postlayout', function postlayout() { // FIXME: Support once!
+				win.removeEventListener('postlayout', postlayout); // only run once
 				try {
 					view.borderRadius = [ '12px', 12 ];
 					should(view.borderRadius).be.an.Array();
@@ -1137,7 +1180,7 @@ describe('Titanium.UI.View', function () {
 			win.open();
 		});
 
-		it('1 value to create circle', () => {
+		it('1 value to create circle', finish => {
 			const outerView = Ti.UI.createView({
 				width: '90px',
 				height: '90px',
@@ -1150,14 +1193,24 @@ describe('Titanium.UI.View', function () {
 				backgroundColor: 'yellow'
 			});
 
-			outerView.add(view);
+			win.addEventListener('postlayout', function postlayout() { // FIXME: Support once!
+				win.removeEventListener('postlayout', postlayout); // only run once
+				try {
+					should(view.borderRadius).be.a.String();
+					should(view.borderRadius).eql('30px');
+					should(outerView).matchImage('snapshots/borderRadius_30px.png');
+				} catch (err) {
+					return finish(err);
+				}
+				finish();
+			});
 
-			should(view.borderRadius).be.a.String();
-			should(view.borderRadius).eql('30px');
-			should(outerView).matchImage('snapshots/borderRadius_30px.png');
+			outerView.add(view);
+			win.add(outerView);
+			win.open();
 		});
 
-		it.ios('1 value with shadow effect', () => {
+		it.ios('1 value with shadow effect', finish => {
 			const outerView = Ti.UI.createView({
 				width: '90px',
 				height: '90px',
@@ -1173,13 +1226,23 @@ describe('Titanium.UI.View', function () {
 				viewShadowOffset: { x: 5, y: 10 },
 			});
 
-			outerView.add(view);
+			win.addEventListener('postlayout', function postlayout() { // FIXME: Support once!
+				win.removeEventListener('postlayout', postlayout); // only run once
+				try {
+					should(outerView).matchImage('snapshots/borderRadiusWithShadow_30px.png');
+				} catch (err) {
+					return finish(err);
+				}
+				finish();
+			});
 
-			should(outerView).matchImage('snapshots/borderRadiusWithShadow_30px.png');
+			outerView.add(view);
+			win.add(outerView);
+			win.open();
 		});
 	});
 
-	it.android('touchFeedback', finish => {
+	it.android('.touchFeedback', finish => {
 		win = Ti.UI.createWindow({ layout: 'horizontal' });
 		win.add(Ti.UI.createLabel({
 			text: 'View 1',
@@ -1253,7 +1316,7 @@ describe('Titanium.UI.View', function () {
 		win.open();
 	});
 
-	it.android('filterTouchesWhenObscured', () => {
+	it.android('.filterTouchesWhenObscured', () => {
 		const view1 = Ti.UI.createView();
 		should(view1.filterTouchesWhenObscured).be.false();
 		const view2 = Ti.UI.createView({ filterTouchesWhenObscured: true });
