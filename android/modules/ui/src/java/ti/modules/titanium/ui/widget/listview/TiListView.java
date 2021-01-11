@@ -77,7 +77,7 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 			{
 				super.onScrollStateChanged(recyclerView, newState);
 
-				if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+				if (isScrolling && newState == RecyclerView.SCROLL_STATE_IDLE) {
 					isScrolling = false;
 					proxy.fireSyncEvent(TiC.EVENT_SCROLLEND, generateScrollPayload());
 				}
