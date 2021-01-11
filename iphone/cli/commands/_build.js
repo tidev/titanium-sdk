@@ -6619,13 +6619,13 @@ iOSBuilder.prototype.processTiSymbols = function processTiSymbols() {
 			'#define USE_TI_UIACTIVITYINDICATOR',
 			'#define USE_TI_UISWITCH',
 			'#define USE_TI_UISLIDER',
+			'#define USE_TI_UITABBEDBAR',
 			'#define USE_TI_UITEXTFIELD',
 			'#define USE_TI_UITEXTAREA',
 			'#define USE_TI_UISCROLLABLEVIEW',
 			'#define USE_TI_UIIOSSTEPPER',
 			'#define USE_TI_UIIOSBLURVIEW',
 			'#define USE_TI_UIIOSLIVEPHOTOVIEW',
-			'#define USE_TI_UIIOSTABBEDBAR',
 			'#define USE_TI_UIPICKER',
 			'#endif'
 		);
