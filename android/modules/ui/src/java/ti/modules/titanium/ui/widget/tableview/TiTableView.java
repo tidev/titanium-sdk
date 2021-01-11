@@ -59,6 +59,7 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 	private final SelectionTracker tracker;
 
 	private boolean isFiltered = false;
+	private boolean isScrolling = false;
 	private int scrollOffsetX = 0;
 	private int scrollOffsetY = 0;
 
@@ -82,9 +83,11 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 			{
 				super.onScrollStateChanged(recyclerView, newState);
 
-				if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+				if (isScrolling && newState == RecyclerView.SCROLL_STATE_IDLE) {
 					final KrollDict payload = generateScrollPayload();
 					final TiNestedRecyclerView nestedRecyclerView = getRecyclerView();
+
+					isScrolling = false;
 
 					// Obtain last touch position for `scrollend` event.
 					final TiDimension xDimension =
@@ -102,6 +105,8 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 			public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy)
 			{
 				super.onScrolled(recyclerView, dx, dy);
+
+				isScrolling = true;
 
 				// Update scroll offsets.
 				scrollOffsetX += dx;
