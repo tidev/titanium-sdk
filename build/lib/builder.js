@@ -96,6 +96,7 @@ class Builder {
 			await platform.clean();
 		}
 		// TODO: Construct a Packager and have it clean zipdir/file too?
+		return fs.remove(TMP_DIR);
 	}
 
 	async test() {
@@ -230,7 +231,7 @@ class Builder {
 		return docs.generate();
 	}
 
-	async install (zipfile) {
+	async install(zipfile) {
 		if (zipfile) {
 			// Assume we have explicitly said to install this zipfile (from CLI command)
 			zipfile = path.resolve(process.cwd(), zipfile);
