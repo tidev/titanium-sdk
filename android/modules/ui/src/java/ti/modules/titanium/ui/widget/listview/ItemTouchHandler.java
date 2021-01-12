@@ -40,6 +40,48 @@ public class ItemTouchHandler extends ItemTouchHelper.SimpleCallback
 	}
 
 	/**
+	 * Determine if proxy supports movement.
+	 *
+	 * @param holderProxy
+	 * @return Boolean
+	 */
+	private boolean canMove(TiViewProxy holderProxy)
+	{
+		String moveProperty = TiC.PROPERTY_MOVABLE;
+		if (holderProxy instanceof ListItemProxy) {
+
+			// Set to `canMove` property for ListItem.
+			moveProperty = TiC.PROPERTY_CAN_MOVE;
+		}
+
+		// Obtain default move value from RecyclerView proxy.
+		final boolean defaultValue = this.recyclerViewProxy.getProperties().optBoolean(moveProperty, false);
+
+		// Obtain move value from current holder proxy.
+		return holderProxy.getProperties().optBoolean(moveProperty, defaultValue);
+	}
+
+	/**
+	 * Determine if proxy supports swipe.
+	 *
+	 * @param holderProxy
+	 * @return Boolean
+	 */
+	private boolean canSwipe(TiViewProxy holderProxy)
+	{
+		String editProperty = TiC.PROPERTY_EDITABLE;
+		if (holderProxy instanceof ListItemProxy) {
+			editProperty = TiC.PROPERTY_CAN_EDIT;
+		}
+
+		// Obtain default edit value from RecyclerView proxy.
+		final boolean defaultValue = this.recyclerViewProxy.getProperties().optBoolean(editProperty, false);
+
+		// Obtain edit value from current holder proxy.
+		return holderProxy.getProperties().optBoolean(editProperty, defaultValue);
+	}
+
+	/**
 	 * Override drag direction flags.
 	 *
 	 * @param recyclerView Current RecyclerView.
@@ -52,22 +94,10 @@ public class ItemTouchHandler extends ItemTouchHelper.SimpleCallback
 		final TiRecyclerViewHolder holder = (TiRecyclerViewHolder) viewHolder;
 		final TiViewProxy holderProxy = holder.getProxy();
 
-		String moveProperty = TiC.PROPERTY_MOVABLE;
-		if (holderProxy instanceof ListItemProxy) {
-
-			// Set to `canMove` property for ListItem.
-			moveProperty = TiC.PROPERTY_CAN_MOVE;
-		}
-
-		// Obtain default move value from RecyclerView proxy.
-		final boolean defaultValue = this.recyclerViewProxy.getProperties().optBoolean(moveProperty, false);
-
-		// Obtain move value from current holder proxy.
-		final boolean canMove = holderProxy.getProperties().optBoolean(moveProperty, defaultValue);
-
-		if ((isEditing() || isMoving()) && canMove) {
+		if ((isEditing() || isMoving()) && canMove(holderProxy)) {
 			return ItemTouchHelper.UP | ItemTouchHelper.DOWN;
 		}
+
 		return 0;
 	}
 
@@ -84,18 +114,7 @@ public class ItemTouchHandler extends ItemTouchHelper.SimpleCallback
 		final TiRecyclerViewHolder holder = (TiRecyclerViewHolder) viewHolder;
 		final TiViewProxy holderProxy = holder.getProxy();
 
-		String editProperty = TiC.PROPERTY_EDITABLE;
-		if (holderProxy instanceof ListItemProxy) {
-			editProperty = TiC.PROPERTY_CAN_EDIT;
-		}
-
-		// Obtain default edit value from RecyclerView proxy.
-		final boolean defaultValue = this.recyclerViewProxy.getProperties().optBoolean(editProperty, false);
-
-		// Obtain edit value from current holder proxy.
-		final boolean canSwipe = holderProxy.getProperties().optBoolean(editProperty, defaultValue);
-
-		if ((isEditing() || isMoving()) && canSwipe) {
+		if ((isEditing() || isMoving()) && canSwipe(holderProxy)) {
 			return ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT;
 		}
 		return 0;
@@ -189,18 +208,30 @@ public class ItemTouchHandler extends ItemTouchHelper.SimpleCallback
 	{
 		super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
 
-		if ((!isEditing() && !isMoving()) || dX == 0) {
+		final TiRecyclerViewHolder holder = (TiRecyclerViewHolder) viewHolder;
+		final TiViewProxy holderProxy = holder.getProxy();
+		final View view = holder.itemView;
+
+		if (!isEditing() && !isMoving()) {
 
 			// No swipe, do not render.
 			return;
 		}
 
-		final View view = viewHolder.itemView;
+		if (isCurrentlyActive) {
 
-		final int iconMargin = view.getHeight() - icon.getIntrinsicHeight();
+			// Set elevation for row being moved.
+			view.setElevation(canMove(holderProxy) ? 30 : 0);
+		}
+
+		final int iconMargin = (view.getHeight() - icon.getIntrinsicHeight()) / 2;
 		final int iconTop = view.getTop() + (view.getHeight() - icon.getIntrinsicHeight()) / 2;
 		final int iconBottom = iconTop + icon.getIntrinsicHeight();
-		final int backgroundWidth = view.getMeasuredWidth() / 2;
+
+		// Add additional background width when `borderRadius` is set.
+		// This is to apply the red background behind the curved borders.
+		final int backgroundWidth = holderProxy.getProperty(TiC.PROPERTY_BORDER_RADIUS) != null
+			? view.getMeasuredWidth() / 2 : 0;
 
 		if (dX > 0) {
 			final int iconLeft = view.getLeft() + iconMargin;
@@ -219,6 +250,11 @@ public class ItemTouchHandler extends ItemTouchHelper.SimpleCallback
 			// Set bounds for left swipe.
 			icon.setBounds(iconLeft, iconTop, iconRight, iconBottom);
 			background.setBounds(backgroundLeft, view.getTop(), view.getRight(), view.getBottom());
+		} else {
+
+			// Reset bounds.
+			icon.setBounds(0, 0, 0, 0);
+			background.setBounds(0, 0, 0, 0);
 		}
 
 		background.draw(c);
