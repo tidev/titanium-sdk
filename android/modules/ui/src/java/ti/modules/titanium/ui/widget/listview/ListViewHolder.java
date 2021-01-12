@@ -44,7 +44,7 @@ public class ListViewHolder extends TiRecyclerViewHolder
 	private static final String TAG = "ListViewHolder";
 
 	// Top
-	private final ViewGroup header;
+	private final TiCompositeLayout header;
 	private final TextView headerTitle;
 
 	// Middle
