@@ -190,7 +190,7 @@ function iOSBuilder() {
 	this.simOnlyActiveArch = null;
 
 	// macros used as preprocessor in project.xcconfig file
-	this.gccDefs = null;
+	this.gccDefs = new Map();
 	this.tiSymbolMacros = null;
 }
 
@@ -3137,28 +3137,27 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 		},
 		legacySwift = version.lt(this.xcodeEnv.version, '8.0.0');
 
-	this.gccDefs = 'DEPLOYTYPE=' + this.deployType;
+	this.gccDefs.set('DEPLOYTYPE', this.deployType);
 	// set additional build settings
 	if (this.target === 'simulator' || this.target === 'macos') {
-		this.gccDefs += ' __LOG__ID__=' + this.tiapp.guid;
-		this.gccDefs += ' DEBUG=1';
-		this.gccDefs += ' TI_VERSION=' + this.titaniumSdkVersion;
+		this.gccDefs.set('__LOG__ID__', this.tiapp.guid);
+		this.gccDefs.set('DEBUG', 1);
 	}
 
 	if (this.enableLaunchScreenStoryboard) {
-		this.gccDefs += ' LAUNCHSCREEN_STORYBOARD=1';
+		this.gccDefs.set('LAUNCHSCREEN_STORYBOARD', 1);
 	}
 
 	if (this.defaultBackgroundColor) {
-		this.gccDefs += ' DEFAULT_BGCOLOR_RED=' + this.defaultBackgroundColor.red;
-		this.gccDefs += ' DEFAULT_BGCOLOR_GREEN=' + this.defaultBackgroundColor.green;
-		this.gccDefs += ' DEFAULT_BGCOLOR_BLUE=' + this.defaultBackgroundColor.blue;
+		this.gccDefs.set('DEFAULT_BGCOLOR_RED', this.defaultBackgroundColor.red);
+		this.gccDefs.set('DEFAULT_BGCOLOR_GREEN', this.defaultBackgroundColor.green);
+		this.gccDefs.set('DEFAULT_BGCOLOR_BLUE', this.defaultBackgroundColor.blue);
 	}
 
 	if (this.tiLogServerPort === 0) {
-		this.gccDefs += ' DISABLE_TI_LOG_SERVER=1';
+		this.gccDefs.set('DISABLE_TI_LOG_SERVER', 1);
 	} else {
-		this.gccDefs += ' TI_LOG_SERVER_PORT=' + this.tiLogServerPort;
+		this.gccDefs.set('TI_LOG_SERVER_PORT', this.tiLogServerPort);
 	}
 
 	if (/device|dist-appstore|dist-adhoc/.test(this.target)) {
@@ -4502,7 +4501,7 @@ iOSBuilder.prototype.writeXcodeConfigFiles = function writeXcodeConfigFiles() {
 			'OTHER_LDFLAGS[sdk=iphonesimulator*]=$(inherited) $(JSCORE_LD_FLAGS)',
 			'OTHER_LDFLAGS[sdk=iphoneos9.*]=$(inherited) -weak_framework Contacts -weak_framework ContactsUI -weak_framework WatchConnectivity -weak_framework CoreSpotlight',
 			'OTHER_LDFLAGS[sdk=iphonesimulator9.*]=$(inherited) -weak_framework Contacts -weak_framework ContactsUI -weak_framework WatchConnectivity -weak_framework CoreSpotlight',
-			'GCC_DEFINITIONS=' + this.gccDefs,
+			'GCC_DEFINITIONS=' + Array.from(this.gccDefs.entries()).map(function ([ key, value ]) { return key + '=' + value; }).join(' '),
 			'TI_SYMBOL_MACROS=' + this.tiSymbolMacros,
 			'#include "module"'
 		].join('\n') + '\n';
