@@ -35,20 +35,8 @@
 #import "TiUIiOSCoverFlowViewProxy.h"
 #endif
 
-#ifdef USE_TI_UIIOSTOOLBAR
-#import "TiUIToolbarProxy.h"
-#endif
-
-#ifdef USE_TI_UIIOSTABBEDBAR
-#import "TiUIiOSTabbedBarProxy.h"
-#endif
-
 #ifdef USE_TI_UIIOSDOCUMENTVIEWER
 #import "TiUIiOSDocumentViewerProxy.h"
-#endif
-
-#ifdef USE_TI_UIIOSNAVIGATIONWINDOW
-#import "TiUIiOSNavigationWindowProxy.h"
 #endif
 
 #ifdef USE_TI_UIIOSSPLITWINDOW
@@ -570,40 +558,10 @@ MAKE_SYSTEM_PROP(KEYBOARD_DISMISS_MODE_INTERACTIVE, UIScrollViewKeyboardDismissM
 }
 #endif
 
-#ifdef USE_TI_UIIOSADVIEW
-- (id)createAdView:(id)args
-{
-  DebugLog(@"[ERROR] iAd has been deprecated in iOS 10 and SDK 5.5.0. It was removed as part of the SDK 7.0.0.");
-}
-#endif
-
-#ifdef USE_TI_UIIOSTOOLBAR
-- (id)createToolbar:(id)args
-{
-  DEPRECATED_REPLACED(@"UI.iOS.Toolbar", @"6.2.0", @"UI.Toolbar (parity with Android)")
-  return [[[TiUIToolbarProxy alloc] _initWithPageContext:[self executionContext] args:args apiName:@"Ti.UI.iOS.Toolbar"] autorelease];
-}
-#endif
-
-#ifdef USE_TI_UIIOSTABBEDBAR
-- (id)createTabbedBar:(id)args
-{
-  DEPRECATED_REPLACED(@"UI.iOS.TabbedBar", @"8.0.0", @"UI.TabbedBar (parity with Android)")
-  return [[[TiUIiOSTabbedBarProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
-}
-#endif
-
 #ifdef USE_TI_UIIOSDOCUMENTVIEWER
 - (id)createDocumentViewer:(id)args
 {
   return [[[TiUIiOSDocumentViewerProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
-}
-#endif
-
-#ifdef USE_TI_UIIOSNAVIGATIONWINDOW
-- (id)createNavigationWindow:(id)args
-{
-  return [[[TiUIiOSNavigationWindowProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
 }
 #endif
 
