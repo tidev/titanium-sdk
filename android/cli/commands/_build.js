@@ -2843,7 +2843,8 @@ AndroidBuilder.prototype.generateRequireIndex = async function generateRequireIn
 				await walkDir(filePath);
 			} else if (stat.isFile()) {
 				const lowerCaseFileName = fileName.toLowerCase();
-				if (lowerCaseFileName.endsWith('.js') || lowerCaseFileName.endsWith('.json')) {
+				// TODO: Support mjs files!
+				if (lowerCaseFileName.endsWith('.js') || lowerCaseFileName.endsWith('.json') || lowerCaseFileName.endsWith('.cjs')) {
 					let normalizedFilePath = filePath.replace(/\\/g, '/');
 					normalizedFilePath = normalizedFilePath.replace(normalizedAssetsDir + '/', '');
 					filePathDictionary[normalizedFilePath] = 1;

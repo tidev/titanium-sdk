@@ -6546,7 +6546,7 @@ iOSBuilder.prototype.generateRequireIndex = async function generateRequireIndex(
 			if (fs.existsSync(file)) {
 				if (fs.statSync(file).isDirectory()) {
 					walk(file);
-				} else if (/\.js(on)?$/.test(filename)) {
+				} else if (/\.(c?js|json)$/.test(filename)) { // TODO: Support mjs files!
 					const modifiedFilename = file.replace(/\\/g, '/').replace(binAssetsDir + '/', 'Resources/');
 					index[modifiedFilename] = 1; // 1 for exists on disk
 				}

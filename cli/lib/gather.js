@@ -234,6 +234,8 @@ class Categorizer {
 	_handleFile(results, relPath, info) {
 		switch (info.ext) {
 			case 'js':
+			case 'cjs':
+			// case 'mjs': // FIXME: Support mjs!
 				results.jsFiles.set(relPath, info);
 				break;
 
