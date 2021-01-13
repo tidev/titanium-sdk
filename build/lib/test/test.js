@@ -142,6 +142,8 @@ async function copyMochaAssets() {
 			// then run npm install in root of project
 			return npmInstall(PROJECT_DIR);
 		})(),
+		// babel.config.json
+		fs.copy(path.join(SOURCE_DIR, 'babel.config.json'), path.join(PROJECT_DIR, 'babel.config.json')),
 		// Resources
 		fs.copy(path.join(SOURCE_DIR, 'Resources'), path.join(PROJECT_DIR, 'Resources')),
 		// modules
@@ -161,12 +163,7 @@ async function copyMochaAssets() {
  */
 async function npmInstall(dir) {
 	// If package-lock.json exists, try to run npm ci --production!
-	let args;
-	if (await fs.exists(path.join(dir, 'package-lock.json'))) {
-		args = [ 'ci', '--production' ];
-	} else {
-		args = [ 'install', '--production' ];
-	}
+	const args = [ 'ci', '--production' ];
 	return new Promise((resolve, reject) => {
 		let child;
 		if (process.platform === 'win32') {
@@ -402,7 +399,7 @@ async function runBuild(platform, target, deviceId, deployType, deviceFamily, sn
 
 	args.push('--no-prompt');
 	args.push('--color');
-	const prc = spawn('node', args);
+	const prc = spawn('node', args, { cwd: PROJECT_DIR });
 	return handleBuild(prc, target, snapshotDir, snapshotPromises);
 }
 
