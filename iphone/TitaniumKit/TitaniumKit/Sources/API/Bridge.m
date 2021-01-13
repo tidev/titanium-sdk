@@ -41,7 +41,7 @@
       basename = [@"app" retain];
     } else {
       NSString *last = [[url path] lastPathComponent];
-      basename = [[last stringByReplacingOccurrencesOfString:@".js" withString:@""] retain];
+      basename = [[last stringByReplacingOccurrencesOfString:@".js" withString:@""] retain]; // FIXME: Handle cjs/mjs?
     }
   }
   return basename;
