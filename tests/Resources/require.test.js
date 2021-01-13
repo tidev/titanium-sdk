@@ -288,8 +288,8 @@ describe('require()', function () {
 
 	it('should not be able to load a development dependency from root package.json', () => {
 		(function () {
-			const ms = require('ms');
-			should.not.exist(ms);
+			const detectNode = require('detect-node');
+			should.not.exist(detectNode);
 		}).should.throw();
 		// TODO: Validate that it wasn't copied into node_modules either?!
 	});

@@ -17,8 +17,6 @@ templates/**
 # 3rd party test files
 tests/fake_node_modules/
 tests/node_modules/
-tests/Resources/ti-mocha.js
-tests/Resources/should.js
 tests/Resources/node_modules/
 
 # Build dirs
