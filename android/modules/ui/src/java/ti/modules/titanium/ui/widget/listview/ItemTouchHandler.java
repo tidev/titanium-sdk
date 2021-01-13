@@ -19,6 +19,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import org.appcelerator.titanium.R;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
+import org.appcelerator.titanium.view.TiUIView;
 
 public class ItemTouchHandler extends ItemTouchHelper.SimpleCallback
 {
@@ -79,6 +80,37 @@ public class ItemTouchHandler extends ItemTouchHelper.SimpleCallback
 
 		// Obtain edit value from current holder proxy.
 		return holderProxy.getProperties().optBoolean(editProperty, defaultValue);
+	}
+
+	/**
+	 * Iterate through parent stack to obtain background drawable.
+	 *
+	 * @param parentView View to iterate up.
+	 * @return Drawable
+	 */
+	private Drawable getBackground(TiUIView parentView)
+	{
+		Drawable parentBackground = null;
+
+		while (parentView != null && parentBackground == null) {
+			parentBackground = parentView.getBackground();
+
+			if (parentBackground == null) {
+				final View nativeView = parentView.getNativeView();
+
+				if (nativeView != null) {
+					parentBackground = nativeView.getBackground();
+				}
+			}
+
+			final TiViewProxy parentProxy = parentView.getParent();
+			if (parentProxy == null) {
+				break;
+			}
+			parentView = parentProxy.getOrCreateView();
+		}
+
+		return parentBackground;
 	}
 
 	/**
@@ -218,6 +250,26 @@ public class ItemTouchHandler extends ItemTouchHelper.SimpleCallback
 			return;
 		}
 
+		final Drawable currentBackground = getBackground(holderProxy.getOrCreateView());
+
+		// Determine if current background is transparent.
+		final boolean hasTransparentBackground = currentBackground == null
+				|| (currentBackground instanceof ColorDrawable)
+				&& ((ColorDrawable) currentBackground).getColor() == Color.TRANSPARENT;
+
+		if (hasTransparentBackground) {
+			final TiUIView parentView = recyclerViewProxy.getOrCreateView();
+			final Drawable parentBackground = getBackground(parentView);
+
+			if (parentBackground != null) {
+				final Drawable background = parentBackground.getConstantState().newDrawable().mutate();
+
+				// Set background to match parent background to prevent transparency issues.
+				// By matching the parent background, the row will still appear to be transparent.
+				holderProxy.getOrCreateView().getNativeView().setBackground(background);
+			}
+		}
+
 		if (isCurrentlyActive) {
 
 			// Set elevation for row being moved.
@@ -227,11 +279,7 @@ public class ItemTouchHandler extends ItemTouchHelper.SimpleCallback
 		final int iconMargin = (view.getHeight() - icon.getIntrinsicHeight()) / 2;
 		final int iconTop = view.getTop() + (view.getHeight() - icon.getIntrinsicHeight()) / 2;
 		final int iconBottom = iconTop + icon.getIntrinsicHeight();
-
-		// Add additional background width when `borderRadius` is set.
-		// This is to apply the red background behind the curved borders.
-		final int backgroundWidth = holderProxy.getProperty(TiC.PROPERTY_BORDER_RADIUS) != null
-			? view.getMeasuredWidth() / 2 : 0;
+		final int backgroundWidth = view.getMeasuredWidth() / 2;
 
 		if (dX > 0) {
 			final int iconLeft = view.getLeft() + iconMargin;
