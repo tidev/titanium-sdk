@@ -8,7 +8,7 @@
 
 @import EventKit;
 @import JavaScriptCore;
-@import TitaniumKit.ObjcProxy;
+@import TitaniumKit.ObjcModule;
 
 @class TiCalendarCalendar; // forward declare
 
@@ -80,7 +80,7 @@ READONLY_PROPERTY(TiCalendarCalendar *, defaultCalendar, DefaultCalendar);
 
 @end
 
-@interface CalendarModule : ObjcProxy <CalendarExports> {
+@interface CalendarModule : ObjcModule <CalendarExports> {
   @private
   EKEventStore *store;
 }

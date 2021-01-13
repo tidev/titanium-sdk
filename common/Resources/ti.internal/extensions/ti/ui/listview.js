@@ -4,10 +4,9 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-/* global Module */
-'use strict';
+/* global OS_ANDROID */
 
-exports.bootstrap = function (Titanium) {
+if (OS_ANDROID) {
 	const ListView = Titanium.UI.ListView;
 	const defaultTemplate = {
 		properties: {
@@ -33,7 +32,7 @@ exports.bootstrap = function (Titanium) {
 		]
 	};
 
-	function createListView(scopeVars, options) {
+	function createListView(options) {
 		if (!options) {
 			options = {};
 		}
@@ -49,7 +48,6 @@ exports.bootstrap = function (Titanium) {
 			processTemplate(currentTemplate);
 			processChildTemplates(currentTemplate);
 		}
-
 		return new ListView(options);
 	}
 
@@ -99,7 +97,6 @@ exports.bootstrap = function (Titanium) {
 
 			processChildTemplates(child);
 		}
-
 	}
 
 	// Add event listeners.
@@ -122,15 +119,14 @@ exports.bootstrap = function (Titanium) {
 			parentProxy = parentProxy[segments[i]];
 		}
 
-		let method = null;
 		if (parentProxy) {
-			method = parentProxy['create' + proxyName];
+			const method = parentProxy[`create${proxyName}`];
+			if (method) {
+				return method;
+			}
 		}
-		if (method) {
-			return method;
-		} else {
-			throw new Error('Could not lookup constructor for namespace: "' + namespace + '"');
-		}
+
+		throw new Error(`Could not lookup constructor for namespace: "${namespace}"`);
 	}
 
 	// Convert name of UI elements into a constructor function.
@@ -146,11 +142,11 @@ exports.bootstrap = function (Titanium) {
 			let widget;
 			try {
 				// Attempt to load alloy widget.
-				widget = Module.main.require('/alloy/widgets/' + namespace + '/controllers/widget');
+				widget = global.Module.main.require(`/alloy/widgets/${namespace}/controllers/widget`);
 			} catch (e) {
 				try {
 					// Widget does not exist, attempt to load namespace.
-					widget = Module.main.require(namespace);
+					widget = global.Module.main.require(namespace);
 				} catch (err) {
 					// Namespace does not exist, fall back to legacy behaviour.
 					return lookupProxyConstructor(namespace);
@@ -167,4 +163,4 @@ exports.bootstrap = function (Titanium) {
 
 	// Overwrite list view constructor function with our own.
 	Titanium.UI.createListView = createListView;
-};
+}

@@ -4,17 +4,15 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-'use strict';
+/* globals OS_ANDROID */
 
-exports.bootstrap = function (Titanium) {
+if (OS_ANDROID) {
+	const View = Titanium.UI.View;
 
-	var View = Titanium.UI.View;
-	var TiWindow = Titanium.TiWindow;
-
-	var _add = View.prototype.add;
+	const _add = View.prototype.add;
 	View.prototype.add = function (child) {
 
-		if ((child instanceof TiWindow)) {
+		if (child instanceof Titanium.TiWindow) {
 			throw new Error('Cannot add window/tabGroup to a view.');
 		}
 		this._children = this._children || [];
@@ -27,15 +25,36 @@ exports.bootstrap = function (Titanium) {
 		this._children.push(child);
 	};
 
-	var _remove = View.prototype.remove;
+	const _remove = View.prototype.remove;
 	View.prototype.remove = function (child) {
 		_remove.call(this, child);
 
 		// Remove the child in the Javascript side so it can be detached and garbage collected.
-		var children = this._children || [];
-		var childIndex = children.indexOf(child);
+		const children = this._children || [];
+		const childIndex = children.indexOf(child);
 		if (childIndex !== -1) {
 			children.splice(childIndex, 1);
 		}
 	};
-};
+
+	// Do not serialize the parent view. Doing so will result
+	// in a circular reference loop.
+	Object.defineProperty(Titanium.TiView.prototype, 'toJSON', {
+		value: function () {
+			const keys = Object.keys(this);
+			const keyCount = keys.length;
+			const serialized = {};
+
+			for (let i = 0; i < keyCount; i++) {
+				const k = keys[i];
+				if (k === 'parent' || k.charAt(0) === '_') {
+					continue;
+				}
+				serialized[k] = this[k];
+			}
+
+			return serialized;
+		},
+		enumerable: false
+	});
+}

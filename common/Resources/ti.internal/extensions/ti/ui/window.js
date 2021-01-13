@@ -4,25 +4,19 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-'use strict';
+/* globals OS_ANDROID */
 
-var Script = kroll.binding('evals').Script,
-	PersistentHandle = require('ui').PersistentHandle;
+import PersistentHandle from '../persistentHandle';
 
-var TAG = 'Window';
-
-exports.bootstrap = function (Titanium) {
-
-	var TiWindow = Titanium.TiWindow;
-	var Window = Titanium.UI.Window;
+if (OS_ANDROID) {
+	const TAG = 'Window';
+	const Script = kroll.binding('evals').Script; // Android-specific way to grab binding, hangs off 'script' on iOS
+	const Window = Titanium.UI.Window;
 	Window.prototype._cachedActivityProxy = null;
 
-	function createWindow(scopeVars, options) {
-		var window = new Window(options);
-		window._sourceUrl = scopeVars.sourceUrl;
-		window._module = scopeVars.module;
+	function createWindow(options) {
+		const window = new Window(options);
 		window._children = [];
-
 		return window;
 	}
 
@@ -30,10 +24,11 @@ exports.bootstrap = function (Titanium) {
 
 	// Activity getter (account for scenario when heavy weight window's activity is not created yet)
 	function activityProxyGetter() {
-		var activityProxy = this._getWindowActivityProxy();
+		const activityProxy = this._getWindowActivityProxy();
 		if (activityProxy) {
 			return activityProxy;
-		} else if (this._cachedActivityProxy == null) { // eslint-disable-line
+		}
+		if (this._cachedActivityProxy == null) { // eslint-disable-line
 			this._cachedActivityProxy = {};
 		}
 
@@ -42,12 +37,12 @@ exports.bootstrap = function (Titanium) {
 	Window.prototype.getActivity = activityProxyGetter;
 	Object.defineProperty(Window.prototype, 'activity', { get: activityProxyGetter });
 
-	var _open = Window.prototype.open;
+	const _open = Window.prototype.open;
 	Window.prototype.open = function (options) {
 		// Retain the window until it has closed.
-		var handle = new PersistentHandle(this);
+		const handle = new PersistentHandle(this);
 
-		var self = this;
+		const self = this;
 		this.once('close', function (e) {
 			if (e._closeFromActivityForcedToDestroy) {
 				if (kroll.DBG) {
@@ -71,9 +66,9 @@ exports.bootstrap = function (Titanium) {
 		_open.call(this, options);
 	};
 
-	var _add = Window.prototype.add;
+	const _add = Window.prototype.add;
 	Window.prototype.add = function (child) {
-		if (child instanceof TiWindow) {
+		if (child instanceof Titanium.TiWindow) {
 			throw new Error('Cannot add window/tabGroup to another window/tabGroup.');
 		}
 
@@ -87,14 +82,14 @@ exports.bootstrap = function (Titanium) {
 		this._children.push(child);
 	};
 
-	var _remove = Window.prototype.remove;
+	const _remove = Window.prototype.remove;
 	Window.prototype.remove = function (child) {
 		_remove.call(this, child);
 
 		// Remove the child in the Javascript side so it can be detached and garbage collected.
-		var children = this._children;
+		const children = this._children;
 		if (children) {
-			var childIndex = children.indexOf(child);
+			const childIndex = children.indexOf(child);
 			if (childIndex !== -1) {
 				children.splice(childIndex, 1);
 			}
@@ -109,4 +104,4 @@ exports.bootstrap = function (Titanium) {
 			this._internalActivity.extend(this._cachedActivityProxy);
 		}
 	};
-};
+}

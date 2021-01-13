@@ -4,8 +4,8 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#import "ObjcProxy.h"
 @import JavaScriptCore;
+#import "ObjcModule.h"
 
 @protocol APIExports <JSExport>
 
@@ -74,7 +74,7 @@ JSExportAs(log,
 
 @end
 
-@interface APIModule : ObjcProxy <APIExports>
+@interface APIModule : ObjcModule <APIExports>
 /**
  Logs a new message with a given severity. Used internally by TiConsole.
 
