@@ -1196,15 +1196,6 @@ public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionLis
 			// Was heavily modified to fix locale issues and to back-port it for older OS versions.
 			// ------------------------------------------------------------------------------------------
 
-			// First let base class attempt filter the entered text.
-			// We normally use this string for English locales where period is used for decimal separator.
-			CharSequence defaultFilteredString = super.filter(source, start, end, dest, dstart, dend);
-			if (defaultFilteredString != null) {
-				source = defaultFilteredString;
-				start = 0;
-				end = defaultFilteredString.length();
-			}
-
 			// Find the decimal separator and sign characters if they exist.
 			int signIndex = -1;
 			int decimalIndex = -1;
@@ -1224,6 +1215,29 @@ public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionLis
 				} else if (isDecimalSeparatorChar(nextChar)) {
 					decimalIndex = index;
 				}
+			}
+
+			// Some Android devices like Samsung/Huawei do not have localized keyboards and only have a '.' character.
+			// Replace it with a localized decimal separator. Unfortunately, there is no other solution.
+			// Note: Only do this if 1 character was received which assumes it comes from the virtual keyboard.
+			//       If multiple characters were received, then it was probably pasted or assigned programmatically.
+			if ((this.localizedDecimalSeparatorChar != '.') && ((end - start) == 1) && (source.charAt(start) == '.')) {
+				SpannableStringBuilder stringBuilder = new SpannableStringBuilder(source, start, end);
+				if (decimalIndex < 0) {
+					stringBuilder.replace(0, 1, Character.toString(this.localizedDecimalSeparatorChar));
+				} else {
+					stringBuilder.clear();
+				}
+				return stringBuilder;
+			}
+
+			// Let base class attempt to filter the entered text first.
+			// We normally use this string for English locales where period is used for decimal separator.
+			CharSequence defaultFilteredString = super.filter(source, start, end, dest, dstart, dend);
+			if (defaultFilteredString != null) {
+				source = defaultFilteredString;
+				start = 0;
+				end = defaultFilteredString.length();
 			}
 
 			// Create a new stripped string if any invalid characters were found.
