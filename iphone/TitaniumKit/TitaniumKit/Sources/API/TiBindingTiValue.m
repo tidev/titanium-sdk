@@ -358,5 +358,9 @@ JSValueRef TiBindingTiValueFromNSObject(JSContextRef jsContext, NSObject *obj)
     args[0] = JSValueMakeNumber(jsContext, number);
     return JSObjectMakeDate(jsContext, 1, args, NULL);
   }
+  if ([obj isKindOfClass:[JSValue class]]) {
+    JSValue *jsValue = (JSValue *)obj;
+    return jsValue.JSValueRef;
+  }
   return TiBindingTiValueFromProxy(jsContext, (TiProxy *)obj);
 }
