@@ -250,6 +250,20 @@ public class TableViewProxy extends RecyclerViewProxy
 			toSection.add(toIndex, fromItem);
 
 			update();
+		}
+	}
+
+	/**
+	 * Fire `move` event upon finalized movement of an item.
+	 *
+	 * @param fromAdapterIndex Index of item in adapter.
+	 */
+	public void fireMoveEvent(int fromAdapterIndex)
+	{
+		final TiTableView tableView = getTableView();
+
+		if (tableView != null) {
+			final TableViewRowProxy fromItem = tableView.getAdapterItem(fromAdapterIndex);
 
 			fromItem.fireEvent(TiC.EVENT_MOVE, null);
 		}

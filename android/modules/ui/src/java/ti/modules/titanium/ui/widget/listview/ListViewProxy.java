@@ -178,6 +178,20 @@ public class ListViewProxy extends RecyclerViewProxy
 
 			fromSection.deleteItemsAt(fromIndex, 1, null);
 			toSection.insertItemsAt(toIndex, fromItem, null);
+		}
+	}
+
+	/**
+	 * Fire `move` event upon finalized movement of an item.
+	 *
+	 * @param fromAdapterIndex Index of item in adapter.
+	 */
+	public void fireMoveEvent(int fromAdapterIndex)
+	{
+		final TiListView listView = getListView();
+
+		if (listView != null) {
+			final ListItemProxy fromItem = listView.getAdapterItem(fromAdapterIndex);
 
 			fromItem.fireEvent(TiC.EVENT_MOVE, null);
 		}

@@ -15,4 +15,6 @@ public abstract class RecyclerViewProxy extends TiViewProxy
 	public abstract void swipeItem(int index);
 
 	public abstract void moveItem(int from, int to);
+
+	public abstract void fireMoveEvent(int from);
 }
