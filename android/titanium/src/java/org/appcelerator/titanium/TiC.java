@@ -3364,6 +3364,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_TOTAL_ITEM_COUNT = "totalItemCount";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_TOUCH_ENABLED = "touchEnabled";
 
 	/**
@@ -3500,6 +3505,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_VISIBILITY = "visibility";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_VISIBLE_ITEM_COUNT = "visibleItemCount";
 
 	/**
 	 * @module.api

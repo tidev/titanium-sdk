@@ -88,6 +88,12 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 			{
 				super.onScrolled(recyclerView, dx, dy);
 
+				if (dx == 0 && dy == 0) {
+
+					// Not scrolled, skip.
+					return;
+				}
+
 				if (!isScrolling) {
 					isScrolling = true;
 					proxy.fireSyncEvent(TiC.EVENT_SCROLLSTART, generateScrollPayload());
@@ -268,6 +274,11 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 		// Obtain first visible section index.
 		final int firstVisibleSectionIndex = proxy.getIndexOfSection(firstVisibleSection);
 		payload.put(TiC.PROPERTY_FIRST_VISIBLE_SECTION_INDEX, firstVisibleSectionIndex);
+
+		// Define visible item count.
+		final int visibleItemCount =
+			layoutManager.findLastVisibleItemPosition() - layoutManager.findFirstVisibleItemPosition();
+		payload.put(TiC.PROPERTY_VISIBLE_ITEM_COUNT, visibleItemCount);
 
 		return payload;
 	}
