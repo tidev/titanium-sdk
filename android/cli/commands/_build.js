@@ -2385,7 +2385,6 @@ AndroidBuilder.prototype.generateAppProject = async function generateAppProject(
  * @returns {Promise<Result>}
  */
 AndroidBuilder.prototype.gatherResources = async function gatherResources() {
-	console.time('gathering resources');
 	const gather = require('../../../cli/lib/gather');
 	const walker = new gather.Walker({
 		ignoreDirs: this.ignoreDirs,
@@ -2492,10 +2491,7 @@ AndroidBuilder.prototype.gatherResources = async function gatherResources() {
 	const categorizer = new gather.Categorizer({
 		tiappIcon: this.tiapp.icon,
 	});
-	const categorized = await categorizer.run(combined);
-
-	console.timeEnd('gathering resources');
-	return categorized;
+	return await categorizer.run(combined);
 };
 
 /**
