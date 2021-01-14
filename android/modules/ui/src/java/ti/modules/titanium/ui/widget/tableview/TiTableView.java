@@ -61,6 +61,8 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 	private int scrollOffsetX = 0;
 	private int scrollOffsetY = 0;
 
+	private int totalRowCount;
+
 	public TiTableView(TableViewProxy proxy)
 	{
 		super(proxy.getActivity());
@@ -103,6 +105,12 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 			public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy)
 			{
 				super.onScrolled(recyclerView, dx, dy);
+
+				if (dx == 0 && dy == 0) {
+
+					// Not scrolled, skip.
+					return;
+				}
 
 				isScrolling = true;
 
@@ -252,6 +260,14 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 		final TableViewRowProxy firstVisibleProxy = (TableViewRowProxy) firstVisibleHolder.getProxy();
 		final int firstVisibleIndex = firstVisibleProxy.getIndexInSection();
 		payload.put(TiC.PROPERTY_FIRST_VISIBLE_ITEM, firstVisibleIndex);
+
+		// Define visible item count.
+		final int visibleItemCount =
+			layoutManager.findLastVisibleItemPosition() - layoutManager.findFirstVisibleItemPosition();
+		payload.put(TiC.PROPERTY_VISIBLE_ITEM_COUNT, visibleItemCount);
+
+		// Define total item count.
+		payload.put(TiC.PROPERTY_TOTAL_ITEM_COUNT, totalRowCount);
 
 		// Obtain scroll offset for content.
 		final KrollDict contentOffset = new KrollDict();
@@ -506,6 +522,7 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 			// Update row index, ignoring placeholder entries.
 			row.index = i++;
 		}
+		totalRowCount = i;
 
 		final Activity activity = TiApplication.getAppCurrentActivity();
 		final View previousFocus = activity != null ? activity.getCurrentFocus() : null;
