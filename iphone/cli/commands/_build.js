@@ -6433,6 +6433,7 @@ iOSBuilder.prototype.generateRequireIndex = function generateRequireIndex(callba
 	});
 
 	delete index['Resources/_app_props_.json'];
+	index['Resources/_index_.json'] = 1;
 
 	fs.existsSync(destFile) && fs.unlinkSync(destFile);
 	fs.writeFile(destFile, JSON.stringify(index), callback);

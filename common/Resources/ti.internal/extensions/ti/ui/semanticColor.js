@@ -5,7 +5,7 @@
  * Please see the LICENSE included with this distribution for details.
  */
 /* globals OS_ANDROID,OS_IOS, OS_VERSION_MAJOR, OS_VERSION_MINOR */
-import Color from '../../../../lib/color';
+import Color from '../../../../../lib/color';
 const isIOS13Plus = OS_IOS && (OS_VERSION_MAJOR >= 13);
 const isMacOS = Ti.Platform.name === 'Mac OS X';
 const isMACOSXCatalinaPlus = isMacOS && (OS_VERSION_MAJOR > 10 || (OS_VERSION_MAJOR === 10 && OS_VERSION_MINOR >= 15));
