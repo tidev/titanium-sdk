@@ -88,7 +88,7 @@
     "always-tail": "^0.2.0",
     "ansi-escapes": "^4.3.1",
     "appc-tasks": "^1.0.2",
-    "archiver": "^5.1.0",
+    "archiver": "^5.2.0",
     "async": "^3.2.0",
     "boxen": "^5.0.0",
     "buffer-equal": "1.0.0",
@@ -144,7 +144,7 @@
     "eslint-plugin-mocha": "^8.0.0",
     "folder-hash": "^4.0.0",
     "glob": "^7.1.6",
-    "husky": "^4.3.6",
+    "husky": "^4.3.7",
     "lint-staged": "^10.5.3",
     "lockfile-lint": "^4.3.7",
     "mocha": "^8.2.1",
@@ -152,12 +152,12 @@
     "npm-run-all": "^4.1.5",
     "nyc": "^15.1.0",
     "request-promise-native": "^1.0.9",
-    "rollup": "^2.35.1",
+    "rollup": "^2.36.1",
     "ssri": "^8.0.0",
     "stream-splitter": "^0.3.2",
     "strip-ansi": "^6.0.0",
     "titanium": "^5.3.0",
-    "titanium-docgen": "^4.10.0"
+    "titanium-docgen": "^4.10.1"
   },
   "repository": {
     "type": "git",

@@ -136,24 +136,6 @@ JSValueRef ThrowException(JSContextRef ctx, NSString *message, JSValueRef *excep
   return JSValueMakeUndefined(ctx);
 }
 
-static JSValueRef CommonJSRequireCallback(JSContextRef jsContext, JSObjectRef jsFunction, JSObjectRef jsThis, size_t argCount,
-    const JSValueRef args[], JSValueRef *exception)
-{
-  if (argCount != 1) {
-    return ThrowException(jsContext, @"invalid number of arguments", exception);
-  }
-
-  KrollContext *ctx = GetKrollContext(jsContext);
-  id path = [KrollObject toID:ctx value:args[0]];
-  @try {
-    id result = [ctx.delegate require:ctx path:path];
-    return [KrollObject toValue:ctx value:result];
-  }
-  @catch (NSException *e) {
-    return ThrowException(jsContext, [e reason], exception);
-  }
-}
-
 static JSValueRef LCallback(JSContextRef jsContext, JSObjectRef jsFunction, JSObjectRef jsThis, size_t argCount,
     const JSValueRef args[], JSValueRef *exception)
 {
@@ -834,8 +816,6 @@ static JSValueRef StringFormatDecimalCallback(JSContextRef jsContext, JSObjectRe
   JSContext *jsContext = [JSContext contextWithJSGlobalContextRef:context];
   timerManager = [[KrollTimerManager alloc] initInContext:jsContext];
 
-  [self bindCallback:@"require"
-            callback:&CommonJSRequireCallback];
   [self bindCallback:@"L" callback:&LCallback];
   [self bindCallback:@"alert" callback:&AlertCallback];
 
