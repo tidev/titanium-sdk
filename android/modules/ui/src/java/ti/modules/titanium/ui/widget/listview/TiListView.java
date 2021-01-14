@@ -81,7 +81,7 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 		this.recyclerView.setAdapter(this.adapter);
 
 		// Create ItemTouchHelper for swipe-to-delete and move gestures.
-		final ItemTouchHandler itemTouchHandler = new ItemTouchHandler(this.adapter, this.proxy);
+		final ItemTouchHandler itemTouchHandler = new ItemTouchHandler(this.adapter, this.proxy, this.recyclerView);
 		final ItemTouchHelper itemTouchHelper = new ItemTouchHelper(itemTouchHandler);
 		itemTouchHelper.attachToRecyclerView(this.recyclerView);
 

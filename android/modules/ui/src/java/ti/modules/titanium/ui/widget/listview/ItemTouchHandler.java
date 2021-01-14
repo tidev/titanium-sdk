@@ -6,13 +6,17 @@
  */
 package ti.modules.titanium.ui.widget.listview;
 
+import android.annotation.SuppressLint;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.View.OnTouchListener;
 
 import androidx.annotation.NonNull;
+import androidx.core.util.Pair;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -25,16 +29,41 @@ public class ItemTouchHandler extends ItemTouchHelper.SimpleCallback
 {
 	private TiRecyclerViewAdapter adapter;
 	private RecyclerViewProxy recyclerViewProxy;
+	private Pair<Integer,  Integer> movePair = null;
 
 	private Drawable icon;
 	private final ColorDrawable background;
 
-	public ItemTouchHandler(TiRecyclerViewAdapter adapter, RecyclerViewProxy recyclerViewProxy)
+	@SuppressLint("ClickableViewAccessibility")
+	public ItemTouchHandler(@NonNull TiRecyclerViewAdapter adapter,
+							@NonNull RecyclerViewProxy recyclerViewProxy,
+							@NonNull TiNestedRecyclerView recyclerView)
 	{
 		super(0, 0);
 
 		this.adapter = adapter;
 		this.recyclerViewProxy = recyclerViewProxy;
+
+		// Listen for touch events to fire `move` event.
+		recyclerView.setOnTouchListener(new OnTouchListener()
+		{
+			@Override
+			public boolean onTouch(View v, MotionEvent event)
+			{
+				if (event.getAction() == MotionEvent.ACTION_UP) {
+
+					// Only fire `move` event upon final movement location.
+
+					if (movePair != null) {
+						final int fromIndex = movePair.first;
+
+						recyclerViewProxy.fireMoveEvent(fromIndex);
+						movePair = null;
+					}
+				}
+				return false;
+			}
+		});
 
 		this.icon = this.adapter.getContext().getResources().getDrawable(R.drawable.titanium_icon_delete);
 		this.background = new ColorDrawable(Color.RED);
@@ -202,7 +231,11 @@ public class ItemTouchHandler extends ItemTouchHelper.SimpleCallback
 						  @NonNull RecyclerView.ViewHolder fromHolder,
 						  @NonNull RecyclerView.ViewHolder toHolder)
 	{
-		this.recyclerViewProxy.moveItem(fromHolder.getAdapterPosition(), toHolder.getAdapterPosition());
+		final int fromIndex = fromHolder.getAdapterPosition();
+		final int toIndex = toHolder.getAdapterPosition();
+
+		movePair = new Pair<>(fromIndex, toIndex);
+		this.recyclerViewProxy.moveItem(fromIndex, toIndex);
 		return true;
 	}
 
