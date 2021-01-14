@@ -5155,7 +5155,6 @@ iOSBuilder.prototype.copyResources = async function copyResources() {
 };
 
 iOSBuilder.prototype.gatherResources = async function gatherResources() {
-	console.time('gathering resources');
 	const gather = require('../../../cli/lib/gather');
 	const walker = new gather.Walker({
 		ignoreDirs: this.ignoreDirs,
@@ -5248,7 +5247,6 @@ iOSBuilder.prototype.gatherResources = async function gatherResources() {
 		});
 	});
 
-	console.timeEnd('gathering resources');
 	return categorized;
 };
 
