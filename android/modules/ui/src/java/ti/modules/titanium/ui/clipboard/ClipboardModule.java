@@ -16,6 +16,7 @@ import android.content.Context;
 import android.content.ClipboardManager;
 import android.content.ClipData;
 import android.content.ClipDescription;
+import android.os.Build;
 
 @Kroll.module(parentModule = UIModule.class)
 public class ClipboardModule extends KrollModule
@@ -55,7 +56,12 @@ public class ClipboardModule extends KrollModule
 	@Kroll.method
 	public void clearText()
 	{
-		board().clearPrimaryClip();
+		ClipboardManager board = board();
+		if (Build.VERSION.SDK_INT >= 28) {
+			board.clearPrimaryClip();
+		} else {
+			board.setText(null);
+		}
 	}
 
 	@Kroll.method
@@ -63,28 +69,32 @@ public class ClipboardModule extends KrollModule
 	{
 		if (isTextType(type)) {
 			return getText();
-		} else {
-			// FIXME: Support non-text data!
-			return null;
 		}
+
+		// FIXME: Support non-text data!
+		return null;
 	}
 
 	@Kroll.method
 	@Kroll.getProperty
 	public String getText()
 	{
-		if (!hasText()) {
+		ClipboardManager board = board();
+		if (!board.hasPrimaryClip()) {
 			return null;
 		}
-		ClipData data = board().getPrimaryClip();
-		if (data != null) {
-			ClipData.Item item = data.getItemAt(0);
-			CharSequence seq = item.getText();
-			if (seq != null) {
-				return seq.toString();
-			}
+
+		ClipData data = board.getPrimaryClip();
+		if (data == null) {
+			return null;
 		}
-		return null;
+
+		ClipData.Item item = data.getItemAt(0);
+		CharSequence seq = item.getText();
+		if (seq == null) {
+			return null;
+		}
+		return seq.toString();
 	}
 
 	@Kroll.method
@@ -99,7 +109,7 @@ public class ClipboardModule extends KrollModule
 	@Kroll.method
 	public boolean hasText()
 	{
-		return board().hasPrimaryClip();
+		return getText() != null;
 	}
 
 	@Kroll.method
