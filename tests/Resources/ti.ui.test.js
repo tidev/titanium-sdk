@@ -263,8 +263,9 @@ describe('Titanium.UI', function () {
 			}
 		});
 
-		it.ios('#fetchSemanticColor() with system colors', () => {
+		it.ios('#fetchSemanticColor() with system colors', function () {
 			if (!isIOS13Plus) {
+				this.skip();
 				return;
 			}
 			const colors = new Map([
