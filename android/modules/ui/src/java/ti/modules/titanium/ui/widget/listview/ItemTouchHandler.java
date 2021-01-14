@@ -14,6 +14,7 @@ import android.graphics.drawable.Drawable;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
+import android.view.ViewParent;
 
 import androidx.annotation.NonNull;
 import androidx.core.util.Pair;
@@ -115,28 +116,29 @@ public class ItemTouchHandler extends ItemTouchHelper.SimpleCallback
 	 * Iterate through parent stack to obtain background drawable.
 	 *
 	 * @param parentView View to iterate up.
+	 * @param ignoreTransparent Specify if transparent backgrounds should be ignored.
 	 * @return Drawable
 	 */
-	private Drawable getBackground(TiUIView parentView)
+	private Drawable getBackground(TiUIView parentView, boolean ignoreTransparent)
 	{
 		Drawable parentBackground = null;
+		View parentNativeView = parentView.getNativeView();
 
-		while (parentView != null && parentBackground == null) {
-			parentBackground = parentView.getBackground();
+		while (parentNativeView != null && parentBackground == null) {
+			parentBackground = parentNativeView.getBackground();
 
-			if (parentBackground == null) {
-				final View nativeView = parentView.getNativeView();
+			if (parentBackground instanceof ColorDrawable) {
+				final ColorDrawable colorDrawable = (ColorDrawable) parentBackground;
 
-				if (nativeView != null) {
-					parentBackground = nativeView.getBackground();
+				if (ignoreTransparent && colorDrawable.getColor() == Color.TRANSPARENT) {
+
+					// Ignore transparent backgrounds.
+					parentBackground = null;
 				}
 			}
 
-			final TiViewProxy parentProxy = parentView.getParent();
-			if (parentProxy == null) {
-				break;
-			}
-			parentView = parentProxy.getOrCreateView();
+			final ViewParent parent = parentNativeView.getParent();
+			parentNativeView = parent instanceof View ? (View) parent : null;
 		}
 
 		return parentBackground;
@@ -283,16 +285,16 @@ public class ItemTouchHandler extends ItemTouchHelper.SimpleCallback
 			return;
 		}
 
-		final Drawable currentBackground = getBackground(holderProxy.getOrCreateView());
+		final Drawable currentBackground = getBackground(holderProxy.getOrCreateView(), false);
 
 		// Determine if current background is transparent.
 		final boolean hasTransparentBackground = currentBackground == null
-				|| (currentBackground instanceof ColorDrawable)
-				&& ((ColorDrawable) currentBackground).getColor() == Color.TRANSPARENT;
+			|| (currentBackground instanceof ColorDrawable
+			&& ((ColorDrawable) currentBackground).getColor() == Color.TRANSPARENT);
 
 		if (hasTransparentBackground) {
 			final TiUIView parentView = recyclerViewProxy.getOrCreateView();
-			final Drawable parentBackground = getBackground(parentView);
+			final Drawable parentBackground = getBackground(parentView, true);
 
 			if (parentBackground != null) {
 				final Drawable background = parentBackground.getConstantState().newDrawable().mutate();
