@@ -1526,9 +1526,10 @@ describe('Titanium.UI.TableView', function () {
 		win.open();
 	});
 
-	it('TableViewRow scaling (percent)', () => {
+	it('TableViewRow scaling (percent)', function () {
 		// FIXME: Does not honour scale correctly on macOS: https://jira.appcelerator.org/browse/TIMOB-28261
 		if (isCI && utilities.isMacOS() && OS_VERSION_MAJOR < 11) {
+			this.skip();
 			return;
 		}
 
@@ -1553,9 +1554,10 @@ describe('Titanium.UI.TableView', function () {
 		should(view).matchImage('snapshots/tableViewRowScaling_percent.png', { maxPixelMismatch: OS_IOS ? 2 : 0 }); // 2 pixels differ on actual iPhone
 	});
 
-	it('TableViewRow scaling (FILL)', () => {
+	it('TableViewRow scaling (FILL)', function () {
 		// FIXME: Does not honour scale correctly on macOS: https://jira.appcelerator.org/browse/TIMOB-28261
 		if (isCI && utilities.isMacOS() && OS_VERSION_MAJOR < 11) {
+			this.skip();
 			return;
 		}
 
@@ -1580,9 +1582,10 @@ describe('Titanium.UI.TableView', function () {
 		should(view).matchImage('snapshots/tableViewRowScaling_fill.png', { maxPixelMismatch: OS_IOS ? 8 : 0 }); // 8 pixels differ on actual iPhone
 	});
 
-	it('TableViewRow internal icons', () => {
+	it('TableViewRow internal icons', function () {
 		// FIXME: Does not honour scale correctly on macOS: https://jira.appcelerator.org/browse/TIMOB-28261
 		if (isCI && utilities.isMacOS() && OS_VERSION_MAJOR < 11) {
+			this.skip();
 			return;
 		}
 
@@ -1609,10 +1612,10 @@ describe('Titanium.UI.TableView', function () {
 	});
 
 	// FIXME: Unsupported on iOS.
-	it.iosBroken('TableViewRow borderRadius', () => {
-
+	it.iosBroken('TableViewRow borderRadius', function () {
 		// FIXME: Does not honour scale correctly on macOS: https://jira.appcelerator.org/browse/TIMOB-28261
 		if (isCI && utilities.isMacOS() && OS_VERSION_MAJOR < 11) {
+			this.skip();
 			return;
 		}
 
@@ -1638,9 +1641,10 @@ describe('Titanium.UI.TableView', function () {
 		should(view).matchImage('snapshots/tableViewRow_borderRadius.png');
 	});
 
-	it('TableViewRow default title & image', () => {
+	it('TableViewRow default title & image', function () {
 		// FIXME: Does not honour scale correctly on macOS: https://jira.appcelerator.org/browse/TIMOB-28261
 		if (isCI && utilities.isMacOS() && OS_VERSION_MAJOR < 11) {
+			this.skip();
 			return;
 		}
 
@@ -1667,9 +1671,10 @@ describe('Titanium.UI.TableView', function () {
 		});
 	});
 
-	it('TableView headerTitle & footerTitle', () => {
+	it('TableView headerTitle & footerTitle', function () {
 		// FIXME: Does not honour scale correctly on macOS: https://jira.appcelerator.org/browse/TIMOB-28261
 		if (isCI && utilities.isMacOS() && OS_VERSION_MAJOR < 11) {
+			this.skip();
 			return;
 		}
 
@@ -1695,9 +1700,10 @@ describe('Titanium.UI.TableView', function () {
 
 	// FIXME: For an unknown reason, this test causes an 'signal error code: 11' exception on iOS
 	// shortly after running successfully.
-	it.iosBroken('TableView headerView & footerView', () => {
+	it.iosBroken('TableView headerView & footerView', function () {
 		// FIXME: Does not honour scale correctly on macOS: https://jira.appcelerator.org/browse/TIMOB-28261
 		if (isCI && utilities.isMacOS() && OS_VERSION_MAJOR < 11) {
+			this.skip();
 			return;
 		}
 
@@ -1734,9 +1740,10 @@ describe('Titanium.UI.TableView', function () {
 
 	// FIXME: For an unknown reason, this test causes an 'signal error code: 11' exception on iOS
 	// shortly after running successfully.
-	it.iosBroken('TableView + TableViewSection headerView & footerView', () => {
+	it.iosBroken('TableView + TableViewSection headerView & footerView', function () {
 		// FIXME: Does not honour scale correctly on macOS: https://jira.appcelerator.org/browse/TIMOB-28261
 		if (isCI && utilities.isMacOS() && OS_VERSION_MAJOR < 11) {
+			this.skip();
 			return;
 		}
 
