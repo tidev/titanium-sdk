@@ -416,7 +416,7 @@ public class TableViewRowProxy extends TiViewProxy
 			}
 		}
 
-		final RowView rowView = (RowView) handleGetView();
+		final RowView rowView = (RowView) peekView();
 		if (rowView != null) {
 
 			// Set `nativeView` back to original content to release correctly.
