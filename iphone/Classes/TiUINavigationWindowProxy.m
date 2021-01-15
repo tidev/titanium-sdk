@@ -351,7 +351,10 @@
             [win setParentOrientationController:nil];
             [win close:nil];
           }
+          // Remove navigation controller from parent controller
+          [navController willMoveToParentViewController:nil];
           [navController.view removeFromSuperview];
+          [navController removeFromParentViewController];
           RELEASE_TO_NIL(navController);
           RELEASE_TO_NIL(rootWindow);
           RELEASE_TO_NIL(current);
@@ -496,7 +499,19 @@
   UIView *nview = [[self controller] view];
   [nview setFrame:[[self view] bounds]];
   [[self view] addSubview:nview];
-  return [super windowWillOpen];
+  [super windowWillOpen];
+}
+
+- (void)windowDidOpen
+{
+  // Set parent for navigation controller
+  if (navController) {
+    UIViewController *parentController = [self windowHoldingController];
+    [parentController addChildViewController:navController];
+    [navController didMoveToParentViewController:parentController];
+  }
+
+  [super windowDidOpen];
 }
 
 - (void)windowDidClose
