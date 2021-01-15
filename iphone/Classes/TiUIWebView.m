@@ -773,21 +773,10 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
       NSString *method = [[message body] objectForKey:@"method"];
       NSString *moduleName = [method isEqualToString:@"log"] ? @"API" : @"App";
 
-      // FIXME: This doesn't play nice with the new obj-c based modules!
-      // Unify the special handling for init with the code in KrollBridge?
-      // Maybe just fork the behavior altogether here, since I don't think the event stuff will work properly?
-      id module;
-      if ([moduleName isEqualToString:@"API"]) {
-        // Really we need to grab the same instance we stuck into the Ti namespace, not a brand new one. But how?
-        // Maybe grab Ti from global and just ask for property with module name?
-        Class moduleClass = NSClassFromString([NSString stringWithFormat:@"%@Module", moduleName]);
-        module = [[moduleClass alloc] init];
-      } else {
-        id<TiEvaluator> context = [[(TiUIWebViewProxy *)self.proxy host] contextForToken:_pageToken];
-        TiModule *tiModule = (TiModule *)[[(TiUIWebViewProxy *)self.proxy host] moduleNamed:moduleName context:context];
-        [tiModule setExecutionContext:context];
-        module = tiModule;
-      }
+      TiHost *host = [(TiUIWebViewProxy *)self.proxy host];
+      id<TiEvaluator> context = [host contextForToken:_pageToken];
+      id<Module> module = [host moduleNamed:[NSString stringWithFormat:@"%@Module", moduleName] context:context];
+      [module setExecutionContext:context];
 
       if ([method isEqualToString:@"fireEvent"]) {
         [module fireEvent:name withObject:payload];

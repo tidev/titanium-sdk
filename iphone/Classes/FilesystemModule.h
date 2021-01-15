@@ -7,7 +7,7 @@
 #ifdef USE_TI_FILESYSTEM
 
 @import JavaScriptCore;
-@import TitaniumKit.ObjcProxy;
+@import TitaniumKit.ObjcModule;
 @import TitaniumKit.TiBase;
 
 @class TiBlob; // forward declare
@@ -50,7 +50,7 @@ READONLY_PROPERTY(NSString *, tempDirectory, TempDirectory);
 
 @end
 
-@interface FilesystemModule : ObjcProxy <FilesystemExports>
+@interface FilesystemModule : ObjcModule <FilesystemExports>
 
 @end
 
