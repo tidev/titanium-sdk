@@ -2145,6 +2145,27 @@ properties:
     osver: {ios: {min: "10.0"}}
     since: "5.5.0"
 
+  - name: OPTION_STYLE_BUTTON
+    summary: Shows toggle-able buttons in an option bar.
+    description: Can be assigned to the <Titanium.UI.OptionBar.style> property.
+    type: Number
+    permission: read-only
+    since: "10.0.0"
+
+  - name: OPTION_STYLE_RADIO
+    summary: Shows a radio button group.
+    description: Can be assigned to the <Titanium.UI.OptionBar.style> property.
+    type: Number
+    permission: read-only
+    since: "10.0.0"
+
+  - name: OPTION_STYLE_CHIP
+    summary: Shows a material design "Choice Chip" group.
+    description: Can be assigned to the <Titanium.UI.OptionBar.style> property.
+    type: Number
+    permission: read-only
+    since: "10.0.0"
+
   - name: PICKER_TYPE_COUNT_DOWN_TIMER
     summary: Use a picker with a countdown timer appearance, showing hours and minutes.
     description: |

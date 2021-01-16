@@ -1,0 +1,148 @@
+---
+name: Titanium.UI.OptionBar
+
+summary: A button bar or radio button group for selecting 1 option.
+description: |
+    This is a view which shows a list of options where only 1 option is selectable by the user.
+
+    On iOS, this displays a
+    [segmented control](https://developer.apple.com/design/human-interface-guidelines/ios/controls/segmented-controls/).
+
+    On Android, this view supports a [style](Titanium.UI.OptionBar.style) property used to display it as a
+    [toggle button group](https://material.io/components/buttons/android#toggle-button),
+    [radio button group](https://material.io/develop/android/components/radiobuttons),
+    or as a [choice chip group](https://material.io/components/chips#choice-chips).
+
+    Use the <Titanium.UI.createOptionBar> method to create a Option Bar.
+extends: Titanium.UI.View
+platforms: [iphone, ipad, android, macos]
+since: "10.0.0"
+excludes:
+    events: [ 'touchstart', 'touchmove', 'touchend', 'touchcancel', 'dblclick',
+        'doubletap', 'longclick', 'singletap', 'swipe', 'twofingertap' ]
+    properties: [children]
+    methods: [add, remove, removeAllChildren, replaceAt]
+
+events: 
+  - name: click
+    summary: Fired when an option has been selected.
+    properties: 
+      - name: index
+        summary: Index of the option clicked on.
+        type: Number
+properties:
+  - name: index
+    summary: Index of the currently selected option.
+    type: Number
+
+  - name: labels
+    summary: Array of labels for the option bar.
+    description: |
+        Setting this to an array of strings specifies the title of each option in the bar.
+
+        Alternatively, this can be set to an array of dictionary objects of type <BarItemType>
+        which allows you to specify a title and/or image for each option in the bar.
+
+        When using [OPTON_STYLE_RADIO](Titanium.UI.OPTION_STYLE_RADIO), the <BarItemType> object's
+        "image" property is not supported. You must provide a "title" string.
+    type: [Array<String>, Array<BarItemType>]
+    availability: creation
+
+  - name: style
+    summary: Style of the option bar.
+    description: |
+        On Android, this can be used to show a bar of buttons, chips, or a radio button group.
+        When using a radio button group, you may want to set the [layout](Titanium.ui.OptionBar.layout)
+        property to "vertical".
+
+        This property is ignored on iOS.
+    type: Number
+    constants: Titanium.UI.OPTION_STYLE_*
+    default: Titanium.UI.OPTION_STYLE_BUTTON
+    availability: creation
+
+  - name: layout
+    summary: Specifies the layout direction such as 'horizontal' or 'vertical'.
+    description: |
+        This property is only supported on Android when the [style](Titanium.UI.OptionBar.style) property
+        is set to [OPTION_STYLE_RADIO](Titanium.UI.OPTION_STYLE_RADIO). Can be used to display a radio button
+        group to either 'vertical' or 'horizontal'.
+    type: String
+    default: horizontal
+    availability: creation
+
+examples:
+  - title: Text-Only Buttons
+    example: |
+        Creates an option bar of text buttons.
+
+        ``` js
+        const win = Ti.UI.createWindow();
+        const optionBar = Ti.UI.createOptionBar({
+          labels: [ 'Option 1', 'Option 2', Option 3 ]
+        });
+        optionBar.addEventListener('click', (e) => {
+          Ti.API.info(`Option ${e.index} was selected.`);
+        });
+        win.add(optionBar);
+        win.open();
+        ```
+
+  - title: Image-Only Buttons
+    example: |
+        Creates an option bar of image-only buttons.
+
+        ``` js
+        const win = Ti.UI.createWindow();
+        const optionBar = Ti.UI.createOptionBar({
+          labels: [
+            { image: '/Option1.png' },
+            { image: '/Option2.png' },
+            { image: '/Option3.png' },
+          ]
+        });
+        optionBar.addEventListener('click', (e) => {
+          Ti.API.info(`Option ${e.index} was selected.`);
+        });
+        win.add(optionBar);
+        win.open();
+        ```
+
+  - title: Buttons with Text and Images
+    example: |
+        Creates an option bar where each button shows an image to the left of its text.
+
+        ``` js
+        const win = Ti.UI.createWindow();
+        const optionBar = Ti.UI.createOptionBar({
+          labels: [
+            { image: '/Option1.png', title: 'Option 1' },
+            { image: '/Option2.png', title: 'Option 2' },
+            { image: '/Option3.png', title: 'Option 3' },
+          ]
+        });
+        optionBar.addEventListener('click', (e) => {
+          Ti.API.info(`Option ${e.index} was selected.`);
+        });
+        win.add(optionBar);
+        win.open();
+        ```
+
+  - title: Radio Buttons
+    example: |
+        This is an Android only feature used to show a group of radio button options.
+        On iOS, this will show a horizontal segmented control instead.
+
+        ``` js
+        const win = Ti.UI.createWindow();
+        const optionBar = Ti.UI.createOptionBar({
+          labels: [ 'Option 1', 'Option 2', Option 3 ],
+          layout: 'vertical',
+          style: Ti.UI.OPTION_STYLE_RADIO,
+        });
+        optionBar.addEventListener('click', (e) => {
+          Ti.API.info(`Option ${e.index} was selected.`);
+        });
+        win.add(optionBar);
+        win.open();
+        ```

@@ -30,6 +30,9 @@
 #ifdef USE_TI_UIATTRIBUTEDSTRING
 #import "TiUIAttributedStringProxy.h"
 #endif
+#ifdef USE_TI_UIOPTIONBAR
+#import "TiUIOptionBarProxy.h"
+#endif
 #ifdef USE_TI_UITOOLBAR
 #import "TiUIToolbarProxy.h"
 #endif
@@ -180,6 +183,10 @@ MAKE_SYSTEM_PROP(INPUT_BORDERSTYLE_LINE, UITextBorderStyleLine);
 MAKE_SYSTEM_PROP(INPUT_BORDERSTYLE_BEZEL, UITextBorderStyleBezel);
 MAKE_SYSTEM_PROP(INPUT_BORDERSTYLE_ROUNDED, UITextBorderStyleRoundedRect);
 
+MAKE_SYSTEM_PROP(OPTION_STYLE_BUTTON, 0);
+MAKE_SYSTEM_PROP(OPTION_STYLE_RADIO, 1);
+MAKE_SYSTEM_PROP(OPTION_STYLE_CHIP, 2);
+
 MAKE_SYSTEM_PROP(PICKER_TYPE_PLAIN, -1);
 MAKE_SYSTEM_PROP(PICKER_TYPE_DATE_AND_TIME, UIDatePickerModeDateAndTime);
 MAKE_SYSTEM_PROP(PICKER_TYPE_DATE, UIDatePickerModeDate);
@@ -286,6 +293,13 @@ MAKE_SYSTEM_PROP(LIST_ACCESSORY_TYPE_DISCLOSURE, UITableViewCellAccessoryDisclos
     }
   }
   return [[[TiAnimation alloc] _initWithPageContext:[self executionContext]] autorelease];
+}
+#endif
+
+#ifdef USE_TI_UIOPTIONBAR
+- (id)createOptionBar:(id)args
+{
+  return [[[TiUIOptionBarProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
 }
 #endif
 

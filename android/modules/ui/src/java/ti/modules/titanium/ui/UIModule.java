@@ -266,6 +266,13 @@ public class UIModule extends KrollModule
 	public static final int UNKNOWN = TiDeviceOrientation.UNKNOWN.toTiIntId();
 
 	@Kroll.constant
+	public static final int OPTION_STYLE_BUTTON = 0;
+	@Kroll.constant
+	public static final int OPTION_STYLE_RADIO = 1;
+	@Kroll.constant
+	public static final int OPTION_STYLE_CHIP = 2;
+
+	@Kroll.constant
 	public static final int PICKER_TYPE_PLAIN = -1;
 	@Kroll.constant
 	public static final int PICKER_TYPE_TIME = 0;

@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0371C56925B23FFD000C4CCC /* TiUIOptionBarProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 0371C56825B23FFD000C4CCC /* TiUIOptionBarProxy.m */; };
 		0BF9338A1CA0948D0091C7EC /* TiUIiOSStepper.m in Sources */ = {isa = PBXBuildFile; fileRef = 0BF933891CA0948D0091C7EC /* TiUIiOSStepper.m */; };
 		0BFAD90F1CA1B86B00A04BF7 /* TiUIiOSStepperProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 0BFAD90E1CA1B86B00A04BF7 /* TiUIiOSStepperProxy.m */; };
 		1592CC2E1C47148D00C3DB83 /* TiUIiOSTableViewScrollPositionProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 1592CC2D1C47148D00C3DB83 /* TiUIiOSTableViewScrollPositionProxy.m */; };
@@ -296,6 +297,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		0371C56725B23FFD000C4CCC /* TiUIOptionBarProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIOptionBarProxy.h; sourceTree = "<group>"; };
+		0371C56825B23FFD000C4CCC /* TiUIOptionBarProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIOptionBarProxy.m; sourceTree = "<group>"; };
 		0BF933881CA0948D0091C7EC /* TiUIiOSStepper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIiOSStepper.h; sourceTree = "<group>"; };
 		0BF933891CA0948D0091C7EC /* TiUIiOSStepper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIiOSStepper.m; sourceTree = "<group>"; };
 		0BFAD90D1CA1B86B00A04BF7 /* TiUIiOSStepperProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIiOSStepperProxy.h; sourceTree = "<group>"; };
@@ -817,6 +820,15 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		0371C56525B23FE0000C4CCC /* OptionBar */ = {
+			isa = PBXGroup;
+			children = (
+				0371C56725B23FFD000C4CCC /* TiUIOptionBarProxy.h */,
+				0371C56825B23FFD000C4CCC /* TiUIOptionBarProxy.m */,
+			);
+			name = OptionBar;
+			sourceTree = "<group>";
+		};
 		0BF933871CA0929A0091C7EC /* Stepper */ = {
 			isa = PBXGroup;
 			children = (
@@ -1188,6 +1200,7 @@
 		24CA8C591111653B0084E2DE /* Widgets */ = {
 			isa = PBXGroup;
 			children = (
+				0371C56525B23FE0000C4CCC /* OptionBar */,
 				6CF8E95521CDA54200519245 /* TabbedBar */,
 				24CA8C72111167590084E2DE /* Label */,
 				24CA8C701111672E0084E2DE /* Button */,
@@ -2198,6 +2211,7 @@
 				84A00FFF17FB833000D4BF94 /* TiPushBehavior.m in Sources */,
 				1592CC2E1C47148D00C3DB83 /* TiUIiOSTableViewScrollPositionProxy.m in Sources */,
 				24CA8BDC111161FE0084E2DE /* NetworkModule.m in Sources */,
+				0371C56925B23FFD000C4CCC /* TiUIOptionBarProxy.m in Sources */,
 				24CA8BDE111161FE0084E2DE /* MediaModule.m in Sources */,
 				24CA8BE3111161FE0084E2DE /* GestureModule.m in Sources */,
 				24CA8BE5111161FE0084E2DE /* FilesystemModule.m in Sources */,

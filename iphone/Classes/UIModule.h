@@ -105,6 +105,10 @@
 @property (nonatomic, readonly) NSNumber *INPUT_BORDERSTYLE_BEZEL;
 @property (nonatomic, readonly) NSNumber *INPUT_BORDERSTYLE_ROUNDED;
 
+@property (nonatomic, readonly) NSNumber *OPTION_STYLE_BUTTON;
+@property (nonatomic, readonly) NSNumber *OPTION_STYLE_RADIO;
+@property (nonatomic, readonly) NSNumber *OPTION_STYLE_CHIP;
+
 @property (nonatomic, readonly) NSNumber *PORTRAIT;
 @property (nonatomic, readonly) NSNumber *LANDSCAPE_LEFT;
 @property (nonatomic, readonly) NSNumber *LANDSCAPE_RIGHT;
