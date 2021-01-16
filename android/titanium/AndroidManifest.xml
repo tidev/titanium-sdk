@@ -13,6 +13,10 @@
 			android:configChanges="${tiActivityConfigChanges}"
 			android:theme="@style/Theme.Titanium.Translucent.Fullscreen"/>
 		<activity
+			android:name="ti.modules.titanium.media.TiCameraXActivity"
+			android:configChanges="${tiActivityConfigChanges}"
+			android:theme="@style/Theme.Titanium.Translucent.Fullscreen"/>
+		<activity
 			android:name="ti.modules.titanium.media.TiVideoActivity"
 			android:configChanges="${tiActivityConfigChanges}"
 			android:theme="@style/Theme.Titanium.Fullscreen"/>

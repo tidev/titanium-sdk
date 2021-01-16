@@ -437,24 +437,28 @@ public class MediaModule extends KrollModule implements Handler.Callback
 			MediaModule.mediaType = MEDIA_TYPE_PHOTO;
 		}
 
-		TiCameraActivity.callbackContext = getKrollObject();
-		TiCameraActivity.mediaContext = this;
-		TiCameraActivity.successCallback = successCallback;
-		TiCameraActivity.cancelCallback = cancelCallback;
-		TiCameraActivity.errorCallback = errorCallback;
-		TiCameraActivity.androidbackCallback = androidbackCallback;
-		TiCameraActivity.saveToPhotoGallery = saveToPhotoGallery;
-		TiCameraActivity.autohide = autohide;
-		TiCameraActivity.overlayProxy = overLayProxy;
-		TiCameraActivity.whichCamera = whichCamera;
-		TiCameraActivity.videoQuality = videoQuality;
-		TiCameraActivity.videoMaximumDuration = videoMaximumDuration;
-		TiCameraActivity.mediaType = MediaModule.mediaType;
-		TiCameraActivity.setFlashMode(flashMode);
+		// TiCameraActivity.callbackContext = getKrollObject();
+		// TiCameraActivity.mediaContext = this;
+		// TiCameraActivity.successCallback = successCallback;
+		// TiCameraActivity.cancelCallback = cancelCallback;
+		// TiCameraActivity.errorCallback = errorCallback;
+		// TiCameraActivity.androidbackCallback = androidbackCallback;
+		// TiCameraActivity.saveToPhotoGallery = saveToPhotoGallery;
+		// TiCameraActivity.autohide = autohide;
+		// TiCameraActivity.overlayProxy = overLayProxy;
+		// TiCameraActivity.whichCamera = whichCamera;
+		// TiCameraActivity.videoQuality = videoQuality;
+		// TiCameraActivity.videoMaximumDuration = videoMaximumDuration;
+		// TiCameraActivity.mediaType = MediaModule.mediaType;
+		// TiCameraActivity.setFlashMode(flashMode);
+
+		TiCameraXActivity.overlayProxy = overLayProxy;
+		TiCameraXActivity.successCallback = successCallback;
 
 		//Create Intent and Launch
 		Activity activity = TiApplication.getInstance().getCurrentActivity();
-		Intent intent = new Intent(activity, TiCameraActivity.class);
+		// Intent intent = new Intent(activity, TiCameraActivity.class);
+		Intent intent = new Intent(activity, TiCameraXActivity.class);
 		activity.startActivity(intent);
 	}
 
@@ -1369,8 +1373,8 @@ public class MediaModule extends KrollModule implements Handler.Callback
 	public void takePicture()
 	{
 		// make sure the preview / camera are open before trying to take photo
-		if (TiCameraActivity.cameraActivity != null) {
-			TiCameraActivity.takePicture();
+		if (TiCameraXActivity.cameraActivity != null) {
+			TiCameraXActivity.takePicture();
 		} else {
 			Log.e(TAG, "Camera preview is not open, unable to take photo");
 		}
