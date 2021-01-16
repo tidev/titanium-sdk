@@ -11,21 +11,22 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
-import org.appcelerator.kroll.KrollDict;
+// import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.KrollObject;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
-import org.appcelerator.titanium.TiBlob;
-import org.appcelerator.titanium.io.TiContentFile;
+// import org.appcelerator.titanium.TiBlob;
+// import org.appcelerator.titanium.io.TiContentFile;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiRHelper;
+import org.appcelerator.titanium.util.TiFileHelper;
 
 import android.app.Activity;
-import android.content.ContentResolver;
+// import android.content.ContentResolver;
 // import android.content.ContentValues;
-import android.net.Uri;
+// import android.net.Uri;
 import android.os.Bundle;
 // import android.provider.MediaStore;
 import android.view.View;
@@ -55,6 +56,7 @@ public class TiCameraXActivity extends TiBaseActivity
 	private static ImageCapture imageCapture;
 	private static Executor executor = Executors.newSingleThreadExecutor();
 	private TiViewProxy localOverlayProxy = null;
+	private ProcessCameraProvider cameraProvider;
 	public static TiViewProxy overlayProxy = null;
 	public static TiCameraXActivity cameraActivity = null;
 	public static KrollObject callbackContext;
@@ -95,7 +97,7 @@ public class TiCameraXActivity extends TiBaseActivity
 		cameraProviderFuture.addListener(() -> {
 			try {
 				preview = new Preview.Builder().build();
-				ProcessCameraProvider cameraProvider = (ProcessCameraProvider) cameraProviderFuture.get();
+				cameraProvider = (ProcessCameraProvider) cameraProviderFuture.get();
 				CameraSelector cameraSelector = new CameraSelector.Builder().requireLensFacing(lensFacing).build();
 				imageCapture = new ImageCapture.Builder().setTargetRotation(rotation).build();
 
@@ -115,27 +117,35 @@ public class TiCameraXActivity extends TiBaseActivity
 		// ContentResolver contentResolver = TiApplication.getAppCurrentActivity().getContentResolver();
 		// Uri contentUri = MediaModule.createExternalPictureContentUri(false);
 		//
-		// OutputFileOptions outputFileOptions =
-		// 	new OutputFileOptions.Builder(new File(contentUri.getPath())).build();
-		//
-		// imageCapture.takePicture(outputFileOptions, executor, new OnImageSavedCallback() {
-		// 	@Override
-		// 	public void onImageSaved(ImageCapture.OutputFileResults outputFileResults)
-		// 	{
-		// 		Log.i("camx", "image saved " + outputFileResults.toString());
-		//
-		// 		TiBlob blob = TiBlob.blobFromFile(new TiContentFile(contentUri));
-		// 		KrollDict response = MediaModule.createDictForImage(blob, blob.getMimeType());
-		//
-		// 		successCallback.callAsync(callbackContext, response);
-		// 	}
-		// 	@Override
-		// 	public void onError(ImageCaptureException error)
-		// 	{
-		// 		// insert your code here.
-		// 		Log.i("camx", "error: " + error.toString());
-		// 	}
-		// });
+		try {
+			File file = TiFileHelper.getInstance().getTempFile(".jpg", true);
+			OutputFileOptions outputFileOptions = new OutputFileOptions.Builder(file).build();
+
+			imageCapture.takePicture(outputFileOptions, executor, new OnImageSavedCallback() {
+				@Override
+				public void onImageSaved(ImageCapture.OutputFileResults outputFileResults)
+				{
+					Log.i("camx", "image saved " + file.getPath());
+
+					// TiBlob blob = TiBlob.blobFromFile(file);
+					// KrollDict response = MediaModule.createDictForImage(blob, blob.getMimeType());
+
+					// successCallback.callAsync(callbackContext, response);
+
+					if (cameraActivity != null) {
+						cameraActivity.finish();
+					}
+				}
+				@Override
+				public void onError(ImageCaptureException error)
+				{
+					// insert your code here.
+					Log.i("camx", "error: " + error.toString());
+				}
+			});
+		} catch (Exception ex) {
+			//
+		}
 	}
 
 	@Override
@@ -157,12 +167,22 @@ public class TiCameraXActivity extends TiBaseActivity
 	@Override
 	protected void onDestroy()
 	{
+		Log.i("camx", "destroy");
+		cameraProvider.unbindAll();
 		// Release our camera activity reference.
 		if (cameraActivity == this) {
 			cameraActivity = null;
 		}
-
 		// Destroy this activity.
 		super.onDestroy();
+	}
+
+	@Override
+	public void finish()
+	{
+		Log.i("camx", "finish");
+		// cameraProvider.unbindAll();
+		overlayProxy = null;
+		super.finish();
 	}
 }
