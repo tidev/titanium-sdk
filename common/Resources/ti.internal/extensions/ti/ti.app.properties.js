@@ -1,7 +1,6 @@
-'use strict';
-
-exports.bootstrap = function (Titanium) {
-	var Properties = Titanium.App.Properties;
+/* globals OS_ANDROID */
+if (OS_ANDROID) {
+	const Properties = Titanium.App.Properties;
 
 	function nullOrDefaultValue(defaultValue) {
 		if (typeof defaultValue === 'undefined') {
@@ -34,4 +33,4 @@ exports.bootstrap = function (Titanium) {
 	Properties.setList = Properties.setObject = function (key, val) {
 		Properties.setString(key, JSON.stringify(val));
 	};
-};
+}

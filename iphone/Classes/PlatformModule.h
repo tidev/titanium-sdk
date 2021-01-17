@@ -7,7 +7,7 @@
 #ifdef USE_TI_PLATFORM
 
 @import JavaScriptCore;
-@import TitaniumKit.ObjcProxy;
+@import TitaniumKit.ObjcModule;
 
 @class TiPlatformDisplayCaps; // forward declare
 
@@ -63,7 +63,7 @@ JSExportAs(openURL,
 
 @end
 
-@interface PlatformModule : ObjcProxy <TiPlatformExports> {
+@interface PlatformModule : ObjcModule <TiPlatformExports> {
   BOOL batteryEnabled;
 }
 @end

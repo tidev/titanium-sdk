@@ -4,22 +4,20 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-'use strict';
+/* globals OS_ANDROID */
 
-var PersistentHandle = require('ui').PersistentHandle;
+import PersistentHandle from '../persistentHandle';
 
-var TAG = 'TabGroup';
-
-exports.bootstrap = function (Titanium) {
-
-	var TabGroup = Titanium.UI.TabGroup;
+if (OS_ANDROID) {
+	const TAG = 'TabGroup';
+	const TabGroup = Titanium.UI.TabGroup;
 
 	// Set constants for representing states for the tab group
 	TabGroup.prototype.state = { closed: 0, opening: 1, opened: 2 };
 	TabGroup.prototype._cachedActivityProxy = null;
 
-	function createTabGroup(scopeVars, options) {
-		var tabGroup = new TabGroup(options);
+	function createTabGroup(options) {
+		const tabGroup = new TabGroup(options);
 
 		if (options) {
 			tabGroup._tabs = options.tabs || [];
@@ -39,10 +37,11 @@ exports.bootstrap = function (Titanium) {
 
 	// Activity getter (account for scenario when tab group's activity is not created yet)
 	function activityProxyGetter() {
-		var activityProxy = this._getWindowActivityProxy();
+		const activityProxy = this._getWindowActivityProxy();
 		if (activityProxy) {
 			return activityProxy;
-		} else if (this._cachedActivityProxy == null) { // eslint-disable-line
+		}
+		if (this._cachedActivityProxy == null) { // eslint-disable-line
 			this._cachedActivityProxy = {};
 		}
 
@@ -60,10 +59,10 @@ exports.bootstrap = function (Titanium) {
 		}
 	};
 
-	var _removeTab = TabGroup.prototype.removeTab;
+	const _removeTab = TabGroup.prototype.removeTab;
 	TabGroup.prototype.removeTab = function (options) {
 		if (this.currentState !== this.state.opened) {
-			var index = this._tabs.indexOf(options);
+			const index = this._tabs.indexOf(options);
 			if (index > -1) {
 				this._tabs.splice(index, 1);
 			}
@@ -72,7 +71,7 @@ exports.bootstrap = function (Titanium) {
 		}
 	};
 
-	var _open = TabGroup.prototype.open;
+	const _open = TabGroup.prototype.open;
 	TabGroup.prototype.open = function (options) {
 
 		if (this.currentState === this.state.opened) {
@@ -82,9 +81,9 @@ exports.bootstrap = function (Titanium) {
 		this.currentState = this.state.opening;
 
 		// Retain the tab group until is has closed.
-		var handle = new PersistentHandle(this);
+		const handle = new PersistentHandle(this);
 
-		var self = this;
+		const self = this;
 		this.on('close', function (e) {
 			if (e._closeFromActivityForcedToDestroy) {
 				if (kroll.DBG) {
@@ -110,7 +109,7 @@ exports.bootstrap = function (Titanium) {
 		this.currentState = this.state.opened;
 	};
 
-	var _addTab = TabGroup.prototype.addTab;
+	const _addTab = TabGroup.prototype.addTab;
 	TabGroup.prototype.addTab = function (tab) {
 		this._tabs.push(tab);
 		if (this.currentState === this.state.opened) {
@@ -118,7 +117,7 @@ exports.bootstrap = function (Titanium) {
 		}
 	};
 
-	var _getActiveTab = TabGroup.prototype.getActiveTab;
+	const _getActiveTab = TabGroup.prototype.getActiveTab;
 	TabGroup.prototype.getActiveTab = function () {
 		if (this.currentState === this.state.opened) {
 			return _getActiveTab.call(this);
@@ -130,8 +129,7 @@ exports.bootstrap = function (Titanium) {
 		return null;
 	};
 
-	var _setActiveTab = TabGroup.prototype.setActiveTab;
-
+	const _setActiveTab = TabGroup.prototype.setActiveTab;
 	TabGroup.prototype.setActiveTab = function (taborindex) {
 		this._activeTab = taborindex;
 		if ((this.currentState === this.state.opened)
@@ -144,7 +142,7 @@ exports.bootstrap = function (Titanium) {
 		return this._tabs;
 	};
 
-	var _setTabs = TabGroup.prototype.setTabs;
+	const _setTabs = TabGroup.prototype.setTabs;
 	TabGroup.prototype.setTabs = function (tabs) {
 
 		if (!Array.isArray(tabs)) {
@@ -202,4 +200,4 @@ exports.bootstrap = function (Titanium) {
 		},
 		enumerable: false
 	});
-};
+}
