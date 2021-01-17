@@ -11,7 +11,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
-// import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.KrollObject;
 import org.appcelerator.kroll.common.Log;
@@ -167,7 +167,6 @@ public class TiCameraXActivity extends TiBaseActivity
 	@Override
 	protected void onDestroy()
 	{
-		Log.i("camx", "destroy");
 		cameraProvider.unbindAll();
 		// Release our camera activity reference.
 		if (cameraActivity == this) {
@@ -180,9 +179,38 @@ public class TiCameraXActivity extends TiBaseActivity
 	@Override
 	public void finish()
 	{
-		Log.i("camx", "finish");
-		// cameraProvider.unbindAll();
+		cameraProvider.unbindAll();
 		overlayProxy = null;
 		super.finish();
+	}
+
+	@Override
+	public void onBackPressed()
+	{
+		if (androidbackCallback != null) {
+			KrollDict response = new KrollDict();
+			response.putCodeAndMessage(-1, "User pressed androidback");
+			androidbackCallback.callAsync(callbackContext, response);
+		} else {
+			if (cancelCallback != null) {
+				KrollDict response = new KrollDict();
+				response.putCodeAndMessage(-1, "User cancelled the request");
+				cancelCallback.callAsync(callbackContext, response);
+			}
+			finish();
+		}
+	}
+
+	protected void switchCamera(int whichCamera)
+	{
+		boolean front = whichCamera == MediaModule.CAMERA_FRONT;
+
+		if (front) {
+			lensFacing = CameraSelector.LENS_FACING_FRONT;
+		} else {
+			lensFacing = CameraSelector.LENS_FACING_BACK;
+		}
+		cameraProvider.unbindAll();
+		startCamera();
 	}
 }

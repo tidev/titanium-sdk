@@ -1405,9 +1405,9 @@ public class MediaModule extends KrollModule implements Handler.Callback
 	@Kroll.method
 	public void switchCamera(int whichCamera)
 	{
-		TiCameraActivity activity = TiCameraActivity.cameraActivity;
+		TiCameraXActivity activity = TiCameraXActivity.cameraActivity;
 
-		if (activity == null || !activity.isPreviewRunning()) {
+		if (activity == null) {
 			Log.e(TAG, "Camera preview is not open, unable to switch camera.");
 			return;
 		}
