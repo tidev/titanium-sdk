@@ -31,7 +31,9 @@ import androidx.recyclerview.selection.SelectionPredicates;
 import androidx.recyclerview.selection.SelectionTracker;
 import androidx.recyclerview.selection.StorageStrategy;
 import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import ti.modules.titanium.ui.widget.TiSwipeRefreshLayout;
 import ti.modules.titanium.ui.widget.searchbar.TiUISearchBar.OnSearchChangeListener;
@@ -51,6 +53,8 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 	private final SelectionTracker tracker;
 
 	private boolean isFiltered = false;
+	private boolean isScrolling = false;
+	private int lastScrollDeltaY;
 
 	public TiListView(ListViewProxy proxy)
 	{
@@ -65,6 +69,54 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 		this.recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 		this.recyclerView.setFocusableInTouchMode(false);
 
+		// Add listener to fire scroll events.
+		this.recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener()
+		{
+			@Override
+			public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState)
+			{
+				super.onScrollStateChanged(recyclerView, newState);
+
+				if (isScrolling && newState == RecyclerView.SCROLL_STATE_IDLE) {
+					isScrolling = false;
+					proxy.fireSyncEvent(TiC.EVENT_SCROLLEND, generateScrollPayload());
+				}
+			}
+
+			@Override
+			public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy)
+			{
+				super.onScrolled(recyclerView, dx, dy);
+
+				if (dx == 0 && dy == 0) {
+
+					// Not scrolled, skip.
+					return;
+				}
+
+				if (!isScrolling) {
+					isScrolling = true;
+					proxy.fireSyncEvent(TiC.EVENT_SCROLLSTART, generateScrollPayload());
+				}
+
+				// Only fire `scrolling` event upon direction change.
+				if (lastScrollDeltaY >= 0 && dy <= 0 || lastScrollDeltaY <= 0 && dy >= 0) {
+					final KrollDict payload = generateScrollPayload();
+
+					// Determine scroll direction.
+					if (dy > 0) {
+						payload.put(TiC.PROPERTY_DIRECTION, "up");
+					} else if (dy < 0) {
+						payload.put(TiC.PROPERTY_DIRECTION, "down");
+					}
+					payload.put(TiC.EVENT_PROPERTY_VELOCITY, 0);
+					proxy.fireSyncEvent(TiC.EVENT_SCROLLING, payload);
+				}
+
+				lastScrollDeltaY = dy;
+			}
+		});
+
 		// Disable list animations.
 		this.recyclerView.setItemAnimator(null);
 
@@ -75,8 +127,14 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 		decoration = new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL);
 		this.recyclerView.addItemDecoration(decoration);
 
+		// Create list adapter.
 		this.adapter = new ListViewAdapter(getContext(), this.items);
 		this.recyclerView.setAdapter(this.adapter);
+
+		// Create ItemTouchHelper for swipe-to-delete and move gestures.
+		final ItemTouchHandler itemTouchHandler = new ItemTouchHandler(this.adapter, this.proxy, this.recyclerView);
+		final ItemTouchHelper itemTouchHelper = new ItemTouchHelper(itemTouchHandler);
+		itemTouchHelper.attachToRecyclerView(this.recyclerView);
 
 		// Fire `postlayout` on layout changes.
 		this.addOnLayoutChangeListener(new OnLayoutChangeListener()
@@ -186,6 +244,46 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 	}
 
 	/**
+	 * Generate payload for `scrollstart` and `scrollend` events.
+	 *
+	 * @return KrollDict
+	 */
+	public KrollDict generateScrollPayload()
+	{
+		final KrollDict payload = new KrollDict();
+		final LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
+
+		// Obtain first visible list item view.
+		final View firstVisibleView =
+			layoutManager.findViewByPosition(layoutManager.findFirstVisibleItemPosition());
+		final ListViewHolder firstVisibleHolder =
+			(ListViewHolder) recyclerView.getChildViewHolder(firstVisibleView);
+
+		// Obtain first visible list item proxy.
+		final ListItemProxy firstVisibleProxy = (ListItemProxy) firstVisibleHolder.getProxy();
+		payload.put(TiC.PROPERTY_FIRST_VISIBLE_ITEM, firstVisibleProxy);
+
+		// Obtain first visible list item index in section.
+		final int firstVisibleItemIndex = firstVisibleProxy.getIndexInSection();
+		payload.put(TiC.PROPERTY_FIRST_VISIBLE_ITEM_INDEX, firstVisibleItemIndex);
+
+		// Obtain first visible section proxy.
+		final ListSectionProxy firstVisibleSection = (ListSectionProxy) firstVisibleProxy.getParent();
+		payload.put(TiC.PROPERTY_FIRST_VISIBLE_SECTION, firstVisibleSection);
+
+		// Obtain first visible section index.
+		final int firstVisibleSectionIndex = proxy.getIndexOfSection(firstVisibleSection);
+		payload.put(TiC.PROPERTY_FIRST_VISIBLE_SECTION_INDEX, firstVisibleSectionIndex);
+
+		// Define visible item count.
+		final int visibleItemCount =
+			layoutManager.findLastVisibleItemPosition() - layoutManager.findFirstVisibleItemPosition();
+		payload.put(TiC.PROPERTY_VISIBLE_ITEM_COUNT, visibleItemCount);
+
+		return payload;
+	}
+
+	/**
 	 * Get list adapter.
 	 *
 	 * @return ListViewAdapter
@@ -235,6 +333,17 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 			}
 		}
 		return -1;
+	}
+
+	/**
+	 * Obtain item from adapter index.
+	 *
+	 * @param index List item adapter index.
+	 * @return Item at specified adapter index.
+	 */
+	public ListItemProxy getAdapterItem(int index)
+	{
+		return this.items.get(index);
 	}
 
 	/**

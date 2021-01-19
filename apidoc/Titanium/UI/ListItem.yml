@@ -182,8 +182,8 @@ properties:
         For more information see the "Editing Support" section of <Titanium.UI.ListView>.
     type: Boolean
     default: false
-    since: 3.2.0
-    platforms: [iphone, ipad, macos]
+    since: {android: "9.3.0", iphone: "3.2.0", ipad: "3.2.0", macos: "9.2.0"}
+    platforms: [android, iphone, ipad, macos]
     accessors: false
 
   - name: canInsert
@@ -202,8 +202,8 @@ properties:
         For more information see the "Editing Support" section of <Titanium.UI.ListView>.
     type: Boolean
     default: false
-    since: 3.2.0
-    platforms: [iphone, ipad, macos]
+    since: {android: "9.3.0", iphone: "3.2.0", ipad: "3.2.0", macos: "9.2.0"}
+    platforms: [android, iphone, ipad, macos]
     accessors: false
 
   - name: editActions
