@@ -17,11 +17,12 @@ import org.appcelerator.kroll.KrollObject;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
+import org.appcelerator.titanium.TiC;
 // import org.appcelerator.titanium.TiBlob;
 // import org.appcelerator.titanium.io.TiContentFile;
 import org.appcelerator.titanium.proxy.TiViewProxy;
-import org.appcelerator.titanium.util.TiRHelper;
 import org.appcelerator.titanium.util.TiFileHelper;
+import org.appcelerator.titanium.util.TiRHelper;
 
 import android.app.Activity;
 // import android.content.ContentResolver;
@@ -57,6 +58,9 @@ public class TiCameraXActivity extends TiBaseActivity
 	private static Executor executor = Executors.newSingleThreadExecutor();
 	private TiViewProxy localOverlayProxy = null;
 	private ProcessCameraProvider cameraProvider;
+	public static boolean autohide = true;
+	public static int cameraFlashMode = MediaModule.CAMERA_FLASH_OFF;
+	public static int whichCamera = MediaModule.CAMERA_REAR;
 	public static TiViewProxy overlayProxy = null;
 	public static TiCameraXActivity cameraActivity = null;
 	public static KrollObject callbackContext;
@@ -79,8 +83,15 @@ public class TiCameraXActivity extends TiBaseActivity
 			layout =
 				(FrameLayout) TiApplication.getAppCurrentActivity().getLayoutInflater().inflate(idLayout, null, false);
 			viewFinder = (PreviewView) layout.findViewById(idPreview);
-
 			setContentView(layout);
+
+			boolean front = whichCamera == MediaModule.CAMERA_FRONT;
+			if (front) {
+				lensFacing = CameraSelector.LENS_FACING_FRONT;
+			} else {
+				lensFacing = CameraSelector.LENS_FACING_BACK;
+			}
+
 			startCamera();
 		} catch (TiRHelper.ResourceNotFoundException e) {
 			//
@@ -96,10 +107,13 @@ public class TiCameraXActivity extends TiBaseActivity
 		ListenableFuture cameraProviderFuture = ProcessCameraProvider.getInstance(activity);
 		cameraProviderFuture.addListener(() -> {
 			try {
+
+				Log.i(TAG, cameraFlashMode + "");
 				preview = new Preview.Builder().build();
 				cameraProvider = (ProcessCameraProvider) cameraProviderFuture.get();
 				CameraSelector cameraSelector = new CameraSelector.Builder().requireLensFacing(lensFacing).build();
-				imageCapture = new ImageCapture.Builder().setTargetRotation(rotation).build();
+				imageCapture =
+					new ImageCapture.Builder().setFlashMode(cameraFlashMode).setTargetRotation(rotation).build();
 
 				Camera camera = cameraProvider.bindToLifecycle(this, cameraSelector, imageCapture, preview);
 				preview.setSurfaceProvider(((PreviewView) viewFinder).createSurfaceProvider());
@@ -113,7 +127,6 @@ public class TiCameraXActivity extends TiBaseActivity
 
 	public static void takePicture()
 	{
-		Log.i("camx", "take picture");
 		// ContentResolver contentResolver = TiApplication.getAppCurrentActivity().getContentResolver();
 		// Uri contentUri = MediaModule.createExternalPictureContentUri(false);
 		//
@@ -125,14 +138,14 @@ public class TiCameraXActivity extends TiBaseActivity
 				@Override
 				public void onImageSaved(ImageCapture.OutputFileResults outputFileResults)
 				{
-					Log.i("camx", "image saved " + file.getPath());
+					Log.i(TAG, "image saved " + file.getPath());
 
 					// TiBlob blob = TiBlob.blobFromFile(file);
 					// KrollDict response = MediaModule.createDictForImage(blob, blob.getMimeType());
 
 					// successCallback.callAsync(callbackContext, response);
 
-					if (cameraActivity != null) {
+					if (cameraActivity != null && autohide) {
 						cameraActivity.finish();
 					}
 				}
@@ -140,7 +153,17 @@ public class TiCameraXActivity extends TiBaseActivity
 				public void onError(ImageCaptureException error)
 				{
 					// insert your code here.
-					Log.i("camx", "error: " + error.toString());
+					Log.i(TAG, "error: " + error.toString());
+
+					if (errorCallback == null) {
+						Log.e(TAG, error.toString());
+						return;
+					}
+
+					KrollDict dict = new KrollDict();
+					dict.putCodeAndMessage(error.getImageCaptureError(), error.toString());
+					dict.put(TiC.PROPERTY_MESSAGE, error.toString());
+					errorCallback.callAsync(callbackContext, dict);
 				}
 			});
 		} catch (Exception ex) {
@@ -167,7 +190,7 @@ public class TiCameraXActivity extends TiBaseActivity
 	@Override
 	protected void onDestroy()
 	{
-		cameraProvider.unbindAll();
+		// cameraProvider.unbindAll();
 		// Release our camera activity reference.
 		if (cameraActivity == this) {
 			cameraActivity = null;
@@ -179,7 +202,7 @@ public class TiCameraXActivity extends TiBaseActivity
 	@Override
 	public void finish()
 	{
-		cameraProvider.unbindAll();
+		// cameraProvider.unbindAll();
 		overlayProxy = null;
 		super.finish();
 	}

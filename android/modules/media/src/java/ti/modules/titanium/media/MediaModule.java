@@ -178,11 +178,11 @@ public class MediaModule extends KrollModule implements Handler.Callback
 	@Kroll.constant
 	public static final int CAMERA_REAR = 1;
 	@Kroll.constant
-	public static final int CAMERA_FLASH_OFF = 0;
+	public static final int CAMERA_FLASH_AUTO = 0;
 	@Kroll.constant
 	public static final int CAMERA_FLASH_ON = 1;
 	@Kroll.constant
-	public static final int CAMERA_FLASH_AUTO = 2;
+	public static final int CAMERA_FLASH_OFF = 2;
 
 	@Kroll.constant
 	public static final int AUDIO_STATE_BUFFERING = 0; // current playback is in the buffering from the network state
@@ -439,21 +439,19 @@ public class MediaModule extends KrollModule implements Handler.Callback
 
 		// TiCameraActivity.callbackContext = getKrollObject();
 		// TiCameraActivity.mediaContext = this;
-		// TiCameraActivity.successCallback = successCallback;
-		// TiCameraActivity.cancelCallback = cancelCallback;
-		// TiCameraActivity.errorCallback = errorCallback;
-		// TiCameraActivity.androidbackCallback = androidbackCallback;
 		// TiCameraActivity.saveToPhotoGallery = saveToPhotoGallery;
-		// TiCameraActivity.autohide = autohide;
-		// TiCameraActivity.overlayProxy = overLayProxy;
-		// TiCameraActivity.whichCamera = whichCamera;
 		// TiCameraActivity.videoQuality = videoQuality;
 		// TiCameraActivity.videoMaximumDuration = videoMaximumDuration;
 		// TiCameraActivity.mediaType = MediaModule.mediaType;
-		// TiCameraActivity.setFlashMode(flashMode);
 
+		TiCameraXActivity.cameraFlashMode = flashMode;
+		TiCameraXActivity.androidbackCallback = androidbackCallback;
+		TiCameraXActivity.autohide = autohide;
+		TiCameraXActivity.whichCamera = whichCamera;
 		TiCameraXActivity.overlayProxy = overLayProxy;
 		TiCameraXActivity.successCallback = successCallback;
+		TiCameraXActivity.cancelCallback = cancelCallback;
+		TiCameraXActivity.errorCallback = errorCallback;
 
 		//Create Intent and Launch
 		Activity activity = TiApplication.getInstance().getCurrentActivity();
