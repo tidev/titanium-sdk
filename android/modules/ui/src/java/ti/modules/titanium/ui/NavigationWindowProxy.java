@@ -1,11 +1,12 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2018 by Axway, Inc. All Rights Reserved.
+ * Copyright (c) 2018-2021 by Axway, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 package ti.modules.titanium.ui;
 
+import org.appcelerator.kroll.KrollPromise;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiWindowProxy;
@@ -27,7 +28,7 @@ public class NavigationWindowProxy extends WindowProxy
 
 	@Override
 	@Kroll.method
-	public void open(@Kroll.argument(optional = true) Object arg)
+	public KrollPromise<Void> open(@Kroll.argument(optional = true) Object arg)
 	{
 		// FIXME: Shouldn't this complain/blow up if window isn't specified?
 		if (!opened && getProperties().containsKeyAndNotNull(TiC.PROPERTY_WINDOW)) {
@@ -37,9 +38,11 @@ public class NavigationWindowProxy extends WindowProxy
 				openWindow(rootView, arg);
 				fireEvent(TiC.EVENT_OPEN, null);
 			}
-			return;
+			return KrollPromise.create((promise) -> {
+				promise.resolve(null);
+			});
 		}
-		super.open(arg);
+		return super.open(arg);
 	}
 
 	@Kroll.method

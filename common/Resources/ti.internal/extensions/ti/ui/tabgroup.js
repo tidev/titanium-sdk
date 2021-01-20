@@ -75,7 +75,7 @@ if (OS_ANDROID) {
 	TabGroup.prototype.open = function (options) {
 
 		if (this.currentState === this.state.opened) {
-			return;
+			return Promise.reject(new Error('Window is already opened or opening.'));
 		}
 
 		this.currentState = this.state.opening;
@@ -104,9 +104,10 @@ if (OS_ANDROID) {
 		if (this._activeTab !== -1) {
 			this.setActiveTab(this._activeTab);
 		}
-		_open.call(this, options);
+		const result = _open.call(this, options);
 
 		this.currentState = this.state.opened;
+		return result;
 	};
 
 	const _addTab = TabGroup.prototype.addTab;

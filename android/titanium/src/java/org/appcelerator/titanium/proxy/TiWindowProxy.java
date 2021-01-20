@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2021 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollPromise;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
@@ -72,6 +73,7 @@ public abstract class TiWindowProxy extends TiViewProxy
 	protected boolean windowActivityCreated = false;
 	protected List<Pair<View, String>> sharedElementPairs;
 	public TiWindowProxy navigationWindow;
+	private KrollPromise openPromise;
 
 	public interface PostOpenListener {
 		void onPostOpen(TiWindowProxy window);
@@ -98,34 +100,39 @@ public abstract class TiWindowProxy extends TiViewProxy
 
 	@Kroll.method
 	@SuppressWarnings("unchecked")
-	public void open(@Kroll.argument(optional = true) Object arg)
+	public KrollPromise<Void> open(@Kroll.argument(optional = true) Object arg)
 	{
 		if (opened || opening) {
-			return;
+			return KrollPromise.create((promise) -> {
+				promise.reject(new Throwable("Window is already opened or opening."));
+			});
 		}
 
-		waitingForOpen = new WeakReference<TiWindowProxy>(this);
-		opening = true;
-		KrollDict options = null;
-		TiAnimation animation = null;
+		openPromise = KrollPromise.create((promise) -> {
+			waitingForOpen = new WeakReference<TiWindowProxy>(this);
+			opening = true;
+			KrollDict options = null;
+			TiAnimation animation = null;
 
-		if (arg != null) {
-			if (arg instanceof KrollDict) {
-				options = (KrollDict) arg;
+			if (arg != null) {
+				if (arg instanceof KrollDict) {
+					options = (KrollDict) arg;
 
-			} else if (arg instanceof HashMap<?, ?>) {
-				options = new KrollDict((HashMap<String, Object>) arg);
+				} else if (arg instanceof HashMap<?, ?>) {
+					options = new KrollDict((HashMap<String, Object>) arg);
 
-			} else if (arg instanceof TiAnimation) {
+				} else if (arg instanceof TiAnimation) {
+					options = new KrollDict();
+					options.put("_anim", animation);
+				}
+
+			} else {
 				options = new KrollDict();
-				options.put("_anim", animation);
 			}
 
-		} else {
-			options = new KrollDict();
-		}
-
-		handleOpen(options);
+			handleOpen(options);
+		});
+		return openPromise;
 	}
 
 	@Kroll.getProperty(name = "closed")
@@ -504,6 +511,11 @@ public abstract class TiWindowProxy extends TiViewProxy
 		// to force the view to be drawn due to TIMOB-7685
 		if (nativeView != null) {
 			nativeView.postInvalidate();
+		}
+
+		if (openPromise != null) {
+			openPromise.resolve(null);
+			openPromise = null;
 		}
 	}
 
