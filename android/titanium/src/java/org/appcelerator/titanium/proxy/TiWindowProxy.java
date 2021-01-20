@@ -73,7 +73,8 @@ public abstract class TiWindowProxy extends TiViewProxy
 	protected boolean windowActivityCreated = false;
 	protected List<Pair<View, String>> sharedElementPairs;
 	public TiWindowProxy navigationWindow;
-	private KrollPromise openPromise;
+	protected KrollPromise openPromise;
+	protected KrollPromise closePromise;
 
 	public interface PostOpenListener {
 		void onPostOpen(TiWindowProxy window);
@@ -107,10 +108,10 @@ public abstract class TiWindowProxy extends TiViewProxy
 				promise.reject(new Throwable("Window is already opened or opening."));
 			});
 		}
+		opening = true;
+		waitingForOpen = new WeakReference<TiWindowProxy>(this);
 
 		openPromise = KrollPromise.create((promise) -> {
-			waitingForOpen = new WeakReference<TiWindowProxy>(this);
-			opening = true;
 			KrollDict options = null;
 			TiAnimation animation = null;
 
@@ -149,27 +150,36 @@ public abstract class TiWindowProxy extends TiViewProxy
 
 	@SuppressWarnings("unchecked")
 	@Kroll.method
-	public void close(@Kroll.argument(optional = true) Object arg)
+	public KrollPromise<Void> close(@Kroll.argument(optional = true) Object arg)
 	{
-		// TODO: if not opened, ignore? We do this in WindowProxy subclass, but not the other two...
-		KrollDict options = null;
-		TiAnimation animation = null;
-
-		if (arg != null) {
-			if (arg instanceof HashMap<?, ?>) {
-				options = new KrollDict((HashMap<String, Object>) arg);
-
-			} else if (arg instanceof TiAnimation) {
-				options = new KrollDict();
-				options.put("_anim", animation);
-			}
-
-		} else {
-			options = new KrollDict();
+		if (!(opened || opening)) {
+			return KrollPromise.create((promise) -> {
+				promise.reject(new Throwable("Window is not open or opening, so cannot be closed."));
+			});
 		}
 
-		handleClose(options);
-		// FIXME: Maybe fire the close event here and set opened to false as well, rather than leaving to subclasses?
+		// FIXME: Can we "cancel" the open() promise if it's not finished?
+		closePromise = KrollPromise.create((promise) -> {
+			KrollDict options = null;
+			TiAnimation animation = null;
+
+			if (arg != null) {
+				if (arg instanceof HashMap<?, ?>) {
+					options = new KrollDict((HashMap<String, Object>) arg);
+
+				} else if (arg instanceof TiAnimation) {
+					options = new KrollDict();
+					options.put("_anim", animation);
+				}
+
+			} else {
+				options = new KrollDict();
+			}
+
+			handleClose(options);
+			// FIXME: Maybe fire the close event here and set opened to false as well, rather than leaving to subclasses?
+		});
+		return closePromise;
 	}
 
 	public void closeFromActivity(boolean activityIsFinishing)
@@ -196,6 +206,10 @@ public abstract class TiWindowProxy extends TiViewProxy
 		// And it will dispose the handler of the window in the JS if the activity
 		// is not forced to destroy.
 		fireSyncEvent(TiC.EVENT_CLOSE, data);
+		if (closePromise != null) {
+			closePromise.resolve(null);
+			closePromise = null; // FIXME: call release() first?
+		}
 	}
 
 	public void addProxyWaitingForActivity(KrollProxy waitingProxy)
