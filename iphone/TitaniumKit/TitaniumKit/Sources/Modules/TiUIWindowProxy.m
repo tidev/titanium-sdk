@@ -310,6 +310,9 @@
 - (void)viewDidAppear:(BOOL)animated; // Called when the view has been fully transitioned onto the screen. Default does nothing
 {
   [self updateTitleView];
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
+  [self updateStatusBarView];
+#endif
   [super viewDidAppear:animated];
 }
 
@@ -1079,6 +1082,11 @@
     CGRect frame = keyWindow.windowScene.statusBarManager.statusBarFrame;
     UIView *view = [keyWindow viewWithTag:TI_STATUSBAR_TAG];
     if (view) {
+      id top = [[self safeAreaViewProxy] valueForKey:@"top"];
+      if (top && [top floatValue] != frame.size.height) {
+        //TIMOB-28323: Once fixed by apple, remove it.
+        frame = CGRectMake(frame.origin.x, frame.origin.y, frame.size.width, [top floatValue]);
+      }
       view.frame = frame;
     }
   }
