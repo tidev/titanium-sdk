@@ -51,7 +51,6 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 	private final TiNestedRecyclerView recyclerView;
 	private final SelectionTracker tracker;
 
-	private boolean isFiltered = false;
 	private boolean isScrolling = false;
 	private int lastScrollDeltaY;
 	private String filterQuery;
@@ -504,7 +503,7 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 		// Notify adapter of changes on UI thread.
 		this.adapter.notifyDataSetChanged();
 
-		// FIXME: This is not an ideal workaround for an issue where recycled items that were in focus
+		// FIXME: This is not an ideal workaround for an issue where recycled rows that were in focus
 		//        lose their focus when the data set changes. There are improvements to be made here.
 		//        This can be reproduced when setting a Ti.UI.TextField in the Ti.UI.ListView.headerView for search.
 		final Activity activity = TiApplication.getAppCurrentActivity();

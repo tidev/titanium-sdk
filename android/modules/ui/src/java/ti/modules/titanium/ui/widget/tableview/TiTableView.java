@@ -57,7 +57,6 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 	private final List<TableViewRowProxy> rows = new ArrayList<>(CACHE_SIZE);
 	private final SelectionTracker tracker;
 
-	private boolean isFiltered = false;
 	private boolean isScrolling = false;
 	private int scrollOffsetX = 0;
 	private int scrollOffsetY = 0;
