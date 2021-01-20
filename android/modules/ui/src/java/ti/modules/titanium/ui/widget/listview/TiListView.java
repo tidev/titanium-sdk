@@ -7,10 +7,7 @@
 package ti.modules.titanium.ui.widget.listview;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.Queue;
-import java.util.concurrent.LinkedBlockingQueue;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.titanium.TiApplication;
@@ -49,7 +46,7 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 
 	private final ListViewAdapter adapter;
 	private final DividerItemDecoration decoration;
-	private final List<ListItemProxy> items = Collections.synchronizedList(new ArrayList<>(CACHE_SIZE));
+	private final List<ListItemProxy> items = new ArrayList<>(CACHE_SIZE);
 	private final ListViewProxy proxy;
 	private final TiNestedRecyclerView recyclerView;
 	private final SelectionTracker tracker;
@@ -58,8 +55,6 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 	private boolean isScrolling = false;
 	private int lastScrollDeltaY;
 	private String filterQuery;
-
-	private final Queue<Thread> updateQueue = new LinkedBlockingQueue<>(2);
 
 	public TiListView(ListViewProxy proxy)
 	{
@@ -308,12 +303,9 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 	 */
 	public ListItemProxy getRowByIndex(int index)
 	{
-		synchronized (this.items)
-		{
-			for (ListItemProxy item : this.items) {
-				if (item.index == index) {
-					return item;
-				}
+		for (ListItemProxy item : this.items) {
+			if (item.index == index) {
+				return item;
 			}
 		}
 		return null;
@@ -327,12 +319,9 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 	 */
 	public int getAdapterIndex(int index)
 	{
-		synchronized (this.items)
-		{
-			for (ListItemProxy item : this.items) {
-				if (item.index == index) {
-					return this.items.indexOf(item);
-				}
+		for (ListItemProxy item : this.items) {
+			if (item.index == index) {
+				return this.items.indexOf(item);
 			}
 		}
 		return -1;
@@ -364,13 +353,10 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 	 */
 	public void release()
 	{
-		synchronized (this.items)
-		{
-			for (ListItemProxy item : this.items) {
-				item.releaseViews();
-			}
-			this.items.clear();
+		for (ListItemProxy item : this.items) {
+			item.releaseViews();
 		}
+		this.items.clear();
 	}
 
 	/**
@@ -401,213 +387,142 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 	}
 
 	/**
-	 * Update list items.
-	 *
-	 * This method will process the list items on a background thread.
-	 * While the background thread is running, additional calls to `update()`
-	 * will be ignored as only the latest changes need to be processed and displayed.
-	 * This optimization saves processing every `update()` call and only processes
-	 * list items when necessary without hanging the UI thread.
+	 * Update list items for adapter.
 	 */
 	public void update()
 	{
-		if (updateQueue.size() > 1) {
 
-			// Update in progress, with another update for latest changes queued.
-			// Ignore further updates until complete.
-			return;
+		final KrollDict properties = this.proxy.getProperties();
+		final boolean shouldPreload = this.items.size() == 0;
+
+		final boolean hasHeader = properties.containsKeyAndNotNull(TiC.PROPERTY_HEADER_TITLE)
+			|| properties.containsKeyAndNotNull(TiC.PROPERTY_HEADER_VIEW);
+		final boolean hasFooter = properties.containsKeyAndNotNull(TiC.PROPERTY_FOOTER_TITLE)
+			|| properties.containsKeyAndNotNull(TiC.PROPERTY_FOOTER_VIEW);
+
+		String query = properties.optString(TiC.PROPERTY_SEARCH_TEXT, filterQuery);
+		final boolean caseInsensitive = properties.optBoolean(TiC.PROPERTY_CASE_INSENSITIVE_SEARCH, true);
+		if (query != null && caseInsensitive) {
+			query = query.toLowerCase();
 		}
 
-		final Thread thread = new Thread(new Runnable()
-		{
-			@Override
-			public void run()
-			{
-				final Activity activity = TiApplication.getAppRootOrCurrentActivity();
+		// Clear current items.
+		this.items.clear();
 
-				// Update list items in background thread.
-				updateItems();
+		// Add placeholder item for ListView header.
+		if (hasHeader) {
+			final ListItemProxy item = new ListItemProxy(true);
 
-				activity.runOnUiThread(new Runnable()
-				{
-					@Override
-					public void run()
-					{
+			item.getProperties().put(TiC.PROPERTY_HEADER_TITLE, properties.get(TiC.PROPERTY_HEADER_TITLE));
+			item.getProperties().put(TiC.PROPERTY_HEADER_VIEW, properties.get(TiC.PROPERTY_HEADER_VIEW));
 
-						// Notify adapter of changes on UI thread.
-						adapter.notifyDataSetChanged();
+			item.setParent(this.proxy);
+			this.items.add(item);
+		}
 
-						// Remove current thread from queue.
-						updateQueue.poll();
+		// Iterate through sections.
+		for (final ListSectionProxy section : this.proxy.getSections()) {
+			final KrollDict sectionProperties = section.getProperties();
+			final List<ListItemProxy> sectionItems = section.getListItems();
 
-						// Grab next thread from queue.
-						final Thread next = updateQueue.poll();
-						if (next != null) {
+			int index = 0;
+			int filteredIndex = 0;
+			for (final ListItemProxy item : sectionItems) {
 
-							// Execute next thread.
-							next.start();
+				// Handle search query.
+				if (query != null) {
+					String searchableText = item.getProperties().optString(TiC.PROPERTY_SEARCHABLE_TEXT, null);
+					if (searchableText != null) {
+						if (caseInsensitive) {
+							searchableText = searchableText.toLowerCase();
+						}
+						if (!searchableText.contains(query)) {
+							continue;
 						}
 					}
-				});
-			}
-		});
+				}
 
-		updateQueue.add(thread);
+				// Update filtered index of item.
+				item.setFilteredIndex(query != null ? filteredIndex++ : -1);
 
-		if (updateQueue.size() == 1) {
-
-			// First item in queue, start thread.
-			thread.start();
-		}
-	}
-
-	/**
-	 * Update list items for adapter.
-	 */
-	private void updateItems()
-	{
-		synchronized (this.items)
-		{
-
-			final KrollDict properties = proxy.getProperties();
-
-			final boolean hasHeader = properties.containsKeyAndNotNull(TiC.PROPERTY_HEADER_TITLE)
-				|| properties.containsKeyAndNotNull(TiC.PROPERTY_HEADER_VIEW);
-			final boolean hasFooter = properties.containsKeyAndNotNull(TiC.PROPERTY_FOOTER_TITLE)
-				|| properties.containsKeyAndNotNull(TiC.PROPERTY_FOOTER_VIEW);
-
-			String query = properties.optString(TiC.PROPERTY_SEARCH_TEXT, filterQuery);
-			final boolean caseInsensitive = properties.optBoolean(TiC.PROPERTY_CASE_INSENSITIVE_SEARCH, true);
-			if (query != null && caseInsensitive) {
-				query = query.toLowerCase();
-			}
-
-			// Clear current items.
-			this.items.clear();
-
-			// Add placeholder item for ListView header.
-			if (hasHeader) {
-				final ListItemProxy item = new ListItemProxy(true);
-
-				item.getProperties().put(TiC.PROPERTY_HEADER_TITLE, properties.get(TiC.PROPERTY_HEADER_TITLE));
-				item.getProperties().put(TiC.PROPERTY_HEADER_VIEW, properties.get(TiC.PROPERTY_HEADER_VIEW));
-
-				item.setParent(proxy);
+				// Add item.
+				item.index = index++;
 				this.items.add(item);
 			}
 
-			// Iterate through sections.
-			for (final ListSectionProxy section : proxy.getSections()) {
-				final KrollDict sectionProperties = section.getProperties();
-				final List<ListItemProxy> sectionItems = section.getListItems();
+			// Update section filtered row count.
+			section.setFilteredItemCount(query != null ? filteredIndex : -1);
 
-				int index = 0;
-				int filteredIndex = 0;
-				for (final ListItemProxy item : sectionItems) {
+			final boolean sectionHasHeader = sectionProperties.containsKeyAndNotNull(TiC.PROPERTY_HEADER_TITLE)
+				|| sectionProperties.containsKeyAndNotNull(TiC.PROPERTY_HEADER_VIEW);
+			final boolean sectionHasFooter = sectionProperties.containsKeyAndNotNull(TiC.PROPERTY_FOOTER_TITLE)
+				|| sectionProperties.containsKeyAndNotNull(TiC.PROPERTY_FOOTER_VIEW);
 
-					// Handle search query.
-					if (query != null) {
-						String searchableText = item.getProperties().optString(TiC.PROPERTY_SEARCHABLE_TEXT, null);
-						if (searchableText != null) {
-							if (caseInsensitive) {
-								searchableText = searchableText.toLowerCase();
-							}
-							if (!searchableText.contains(query)) {
-								continue;
-							}
-						}
-					}
-
-					// Update filtered index of item.
-					item.setFilteredIndex(query != null ? filteredIndex++ : -1);
-
-					// Add item.
-					item.index = index++;
-					this.items.add(item);
-				}
-
-				// Update section filtered row count.
-				section.setFilteredItemCount(query != null ? filteredIndex : -1);
-
-				final boolean sectionHasHeader = sectionProperties.containsKeyAndNotNull(TiC.PROPERTY_HEADER_TITLE)
-					|| sectionProperties.containsKeyAndNotNull(TiC.PROPERTY_HEADER_VIEW);
-				final boolean sectionHasFooter = sectionProperties.containsKeyAndNotNull(TiC.PROPERTY_FOOTER_TITLE)
-					|| sectionProperties.containsKeyAndNotNull(TiC.PROPERTY_FOOTER_VIEW);
-
-				// Allow header and footer to show when no items are present.
-				if ((sectionHasHeader || sectionHasFooter) && sectionItems.size() == 0) {
-					final ListItemProxy item = new ListItemProxy(true);
-
-					// Add a placeholder item that will display the section header/footer.
-					item.getProperties().put(TiC.PROPERTY_HEADER_TITLE,
-						sectionProperties.get(TiC.PROPERTY_HEADER_TITLE));
-					item.getProperties().put(TiC.PROPERTY_HEADER_VIEW,
-						sectionProperties.get(TiC.PROPERTY_HEADER_VIEW));
-					item.getProperties().put(TiC.PROPERTY_FOOTER_TITLE,
-						sectionProperties.get(TiC.PROPERTY_FOOTER_TITLE));
-					item.getProperties().put(TiC.PROPERTY_FOOTER_VIEW,
-						sectionProperties.get(TiC.PROPERTY_FOOTER_VIEW));
-
-					item.setParent(proxy);
-					this.items.add(item);
-				}
-			}
-
-			// Add placeholder item for ListView footer.
-			if (hasFooter) {
+			// Allow header and footer to show when no items are present.
+			if ((sectionHasHeader || sectionHasFooter) && sectionItems.size() == 0) {
 				final ListItemProxy item = new ListItemProxy(true);
 
-				item.getProperties().put(TiC.PROPERTY_FOOTER_TITLE, properties.get(TiC.PROPERTY_FOOTER_TITLE));
-				item.getProperties().put(TiC.PROPERTY_FOOTER_VIEW, properties.get(TiC.PROPERTY_FOOTER_VIEW));
+				// Add a placeholder item that will display the section header/footer.
+				item.getProperties().put(TiC.PROPERTY_HEADER_TITLE,
+					sectionProperties.get(TiC.PROPERTY_HEADER_TITLE));
+				item.getProperties().put(TiC.PROPERTY_HEADER_VIEW,
+					sectionProperties.get(TiC.PROPERTY_HEADER_VIEW));
+				item.getProperties().put(TiC.PROPERTY_FOOTER_TITLE,
+					sectionProperties.get(TiC.PROPERTY_FOOTER_TITLE));
+				item.getProperties().put(TiC.PROPERTY_FOOTER_VIEW,
+					sectionProperties.get(TiC.PROPERTY_FOOTER_VIEW));
 
-				item.setParent(proxy);
+				item.setParent(this.proxy);
 				this.items.add(item);
 			}
+		}
 
-			final Activity activity = TiApplication.getAppCurrentActivity();
-			if (activity == null) {
-				return;
+		// Add placeholder item for ListView footer.
+		if (hasFooter) {
+			final ListItemProxy item = new ListItemProxy(true);
+
+			item.getProperties().put(TiC.PROPERTY_FOOTER_TITLE, properties.get(TiC.PROPERTY_FOOTER_TITLE));
+			item.getProperties().put(TiC.PROPERTY_FOOTER_VIEW, properties.get(TiC.PROPERTY_FOOTER_VIEW));
+
+			item.setParent(this.proxy);
+			this.items.add(item);
+		}
+
+		// Pre-load items of empty list.
+		if (shouldPreload) {
+			final int preloadSize = Math.min(this.items.size(), PRELOAD_SIZE);
+
+			for (int i = 0; i < preloadSize; i++) {
+
+				// Pre-load views for smooth initial scroll.
+				this.items.get(i).getOrCreateView();
 			}
+		}
 
+		// Notify adapter of changes on UI thread.
+		this.adapter.notifyDataSetChanged();
+
+		// FIXME: This is not an ideal workaround for an issue where recycled items that were in focus
+		//        lose their focus when the data set changes. There are improvements to be made here.
+		//        This can be reproduced when setting a Ti.UI.TextField in the Ti.UI.ListView.headerView for search.
+		final Activity activity = TiApplication.getAppCurrentActivity();
+		final View previousFocus = activity.getCurrentFocus();
+
+		if (activity != null && previousFocus != null) {
 			activity.runOnUiThread(new Runnable()
 			{
 				@Override
 				public void run()
 				{
-					synchronized (items)
-					{
-						final int preloadSize = Math.min(items.size(), PRELOAD_SIZE);
+					final View currentFocus = activity != null ? activity.getCurrentFocus() : null;
 
-						for (int i = 0; i < preloadSize; i++) {
+					if (currentFocus != previousFocus) {
 
-							// Pre-load views for smooth initial scroll.
-							items.get(i).getOrCreateView();
-						}
+						// Request focus on previous component before dataset changed.
+						previousFocus.requestFocus();
 					}
 				}
 			});
-
-			// FIXME: This is not an ideal workaround for an issue where recycled items that were in focus
-			//        lose their focus when the data set changes. There are improvements to be made here.
-			//        This can be reproduced when setting a Ti.UI.TextField in the Ti.UI.ListView.headerView for search.
-			final View previousFocus = activity.getCurrentFocus();
-
-			if (previousFocus != null) {
-				activity.runOnUiThread(new Runnable()
-				{
-					@Override
-					public void run()
-					{
-						final View currentFocus = activity != null ? activity.getCurrentFocus() : null;
-
-						if (currentFocus != previousFocus) {
-
-							// Request focus on previous component before dataset changed.
-							previousFocus.requestFocus();
-						}
-					}
-				});
-			}
 		}
 	}
 }
