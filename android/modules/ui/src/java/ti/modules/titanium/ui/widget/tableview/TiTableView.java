@@ -253,11 +253,13 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 		// Obtain index for first visible row.
 		final View firstVisibleView =
 			layoutManager.findViewByPosition(layoutManager.findFirstVisibleItemPosition());
-		final TableViewHolder firstVisibleHolder =
-			(TableViewHolder) recyclerView.getChildViewHolder(firstVisibleView);
-		final TableViewRowProxy firstVisibleProxy = (TableViewRowProxy) firstVisibleHolder.getProxy();
-		final int firstVisibleIndex = firstVisibleProxy.getIndexInSection();
-		payload.put(TiC.PROPERTY_FIRST_VISIBLE_ITEM, firstVisibleIndex);
+		if (firstVisibleView != null) {
+			final TableViewHolder firstVisibleHolder =
+				(TableViewHolder) recyclerView.getChildViewHolder(firstVisibleView);
+			final TableViewRowProxy firstVisibleProxy = (TableViewRowProxy) firstVisibleHolder.getProxy();
+			final int firstVisibleIndex = firstVisibleProxy.getIndexInSection();
+			payload.put(TiC.PROPERTY_FIRST_VISIBLE_ITEM, firstVisibleIndex);
+		}
 
 		// Define visible item count.
 		final int visibleItemCount =
