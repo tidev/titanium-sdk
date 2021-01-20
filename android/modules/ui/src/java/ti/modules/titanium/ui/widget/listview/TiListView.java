@@ -41,7 +41,7 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 {
 	private static final String TAG = "TiListView";
 
-	private static final int CACHE_SIZE = 24;
+	private static final int CACHE_SIZE = 8;
 	private static final int PRELOAD_SIZE = CACHE_SIZE / 2;
 
 	private final ListViewAdapter adapter;

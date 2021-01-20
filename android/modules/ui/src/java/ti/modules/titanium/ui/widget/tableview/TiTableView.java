@@ -47,7 +47,7 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 {
 	private static final String TAG = "TiTableView";
 
-	private static final int CACHE_SIZE = 24;
+	private static final int CACHE_SIZE = 8;
 	private static final int PRELOAD_SIZE = CACHE_SIZE / 2;
 
 	private final TableViewAdapter adapter;
