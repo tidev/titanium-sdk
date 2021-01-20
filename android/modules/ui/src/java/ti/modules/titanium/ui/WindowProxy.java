@@ -132,15 +132,6 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 	}
 
 	@Override
-	public void close(@Kroll.argument(optional = true) Object arg)
-	{
-		if (!(opened || opening)) {
-			return;
-		}
-		super.close(arg);
-	}
-
-	@Override
 	protected void handleOpen(KrollDict options)
 	{
 		Activity topActivity = TiApplication.getAppCurrentActivity();

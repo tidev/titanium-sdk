@@ -6,6 +6,7 @@
  */
 package ti.modules.titanium.ui;
 
+import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollPromise;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiC;
@@ -13,6 +14,8 @@ import org.appcelerator.titanium.proxy.TiWindowProxy;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import androidx.annotation.NonNull;
 
 @Kroll.proxy(creatableInModule = UIModule.class)
 public class NavigationWindowProxy extends WindowProxy
@@ -55,17 +58,19 @@ public class NavigationWindowProxy extends WindowProxy
 		}
 	}
 
-	@Override
-	@Kroll.method
-	public void close(@Kroll.argument(optional = true) Object arg)
+	protected void handleClose(@NonNull KrollDict options)
 	{
 		if (opened) {
 			opened = false;
-			popToRootWindow(arg);
-			closeWindow(windows.get(0), arg); // close the root window
+			popToRootWindow(options);
+			closeWindow(windows.get(0), options); // close the root window
 			fireEvent(TiC.EVENT_CLOSE, null);
+			if (closePromise != null) {
+				closePromise.resolve(null);
+				closePromise = null;
+			}
 		}
-		super.close(arg);
+		super.handleClose(options);
 	}
 
 	@Kroll.method
