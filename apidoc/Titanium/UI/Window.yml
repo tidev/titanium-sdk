@@ -478,6 +478,12 @@ methods:
         summary: Animation or display properties to use when closing the window.
         type: [Titanium.UI.Animation, Dictionary<Titanium.UI.Animation>, closeWindowParams]
         optional: true
+    returns:
+      type: Promise<any>
+      summary: |
+          Starting in SDK 10.0.0, this method returns a `Promise` that will be resolved once the window is closed,
+          akin to adding a one-time listener for the `close` event. If the window fails to close (for example, because
+          it was not yet open) the `Promise` will be rejected.
 
   - name: hideNavBar
     summary: Hides the navigation bar.
@@ -509,6 +515,12 @@ methods:
         summary: Animation or display properties to use when opening the window.
         type: openWindowParams
         optional: true
+    returns:
+      type: Promise<any>
+      summary: |
+          Starting in SDK 10.0.0, this method returns a `Promise` that will be resolved once the window is opened,
+          akin to adding a one-time listener for the `open` event. If the window fails to open (for example, because
+          it is already opened or opening) the `Promise` will be rejected.
 
   - name: removeAllSharedElements
     summary: Clears all added shared elements.
