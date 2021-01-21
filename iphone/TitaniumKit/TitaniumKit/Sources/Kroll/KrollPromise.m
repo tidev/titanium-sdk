@@ -39,18 +39,26 @@
   return self;
 }
 
-+ (JSValue *)resolved:(NSArray *)arguments inContext:(JSContext *)context
++ (KrollPromise *)resolved:(NSArray *)arguments inContext:(JSContext *)context
 {
   KrollPromise *promise = [[[KrollPromise alloc] initInContext:context] autorelease];
   [promise resolve:arguments];
-  return promise.JSValue;
+  return promise;
 }
 
-+ (JSValue *)rejected:(NSArray *)arguments inContext:(JSContext *)context
++ (KrollPromise *)rejected:(NSArray *)arguments inContext:(JSContext *)context
 {
   KrollPromise *promise = [[[KrollPromise alloc] initInContext:context] autorelease];
   [promise reject:arguments];
-  return promise.JSValue;
+  return promise;
+}
+
++ (KrollPromise *)rejectedWithErrorMessage:(NSString *)message inContext:(JSContext *)context
+{
+  KrollPromise *promise = [[[KrollPromise alloc] initInContext:context] autorelease];
+  JSValue *error = [JSValue valueWithNewErrorFromMessage:message inContext:context];
+  [promise reject:@[ error ]];
+  return promise;
 }
 
 - (void)resolve:(NSArray *)arguments

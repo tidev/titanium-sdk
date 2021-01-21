@@ -23,8 +23,9 @@
 
 - (KrollPromise *)initInContext:(JSContext *)context;
 
-+ (JSValue *)resolved:(NSArray *)arguments inContext:(JSContext *)context;
-+ (JSValue *)rejected:(NSArray *)arguments inContext:(JSContext *)context;
++ (KrollPromise *)resolved:(NSArray *)arguments inContext:(JSContext *)context;
++ (KrollPromise *)rejected:(NSArray *)arguments inContext:(JSContext *)context;
++ (KrollPromise *)rejectedWithErrorMessage:(NSString *)message inContext:(JSContext *)context;
 
 @end
 
