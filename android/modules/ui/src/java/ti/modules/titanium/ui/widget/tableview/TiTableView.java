@@ -536,7 +536,7 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 		//        lose their focus when the data set changes. There are improvements to be made here.
 		//        This can be reproduced when setting a Ti.UI.TextField in the Ti.UI.ListView.headerView for search.
 		final Activity activity = TiApplication.getAppCurrentActivity();
-		final View previousFocus = activity.getCurrentFocus();
+		final View previousFocus = activity != null ? activity.getCurrentFocus() : null;
 
 		if (previousFocus != null) {
 			activity.runOnUiThread(new Runnable()
