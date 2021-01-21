@@ -458,7 +458,7 @@ public class ListViewProxy extends RecyclerViewProxy
 							continue;
 						}
 						final boolean isVisible =
-							layoutManager.isViewPartiallyVisible(markedItemView, true, true);
+							layoutManager.isViewPartiallyVisible(markedItemView, false, true);
 
 						if (isVisible) {
 							final KrollDict data = new KrollDict();
