@@ -113,15 +113,13 @@ public class TableViewRowProxy extends TiViewProxy
 	}
 
 	/**
-	 * Override fireEvent to inject row data into payload.
+	 * Handle event data to generate payload with table data.
 	 *
 	 * @param eventName Name of fired event.
 	 * @param data      Data payload of fired event.
-	 * @param bubbles   Specify if event should bubble up to parent.
-	 * @return
+	 * @return Object of payload.
 	 */
-	@Override
-	public boolean fireEvent(String eventName, Object data, boolean bubbles)
+	private Object handleEvent(String eventName, Object data)
 	{
 		// Inject row data into events.
 		final TableViewProxy tableViewProxy = getTableViewProxy();
@@ -145,7 +143,28 @@ public class TableViewRowProxy extends TiViewProxy
 			data = payload;
 		}
 
+		return data;
+	}
+
+	/**
+	 * Override fireEvent to inject row data into payload.
+	 *
+	 * @param eventName Name of fired event.
+	 * @param data      Data payload of fired event.
+	 * @param bubbles   Specify if event should bubble up to parent.
+	 * @return
+	 */
+	@Override
+	public boolean fireEvent(String eventName, Object data, boolean bubbles)
+	{
+		data = handleEvent(eventName, data);
 		return super.fireEvent(eventName, data, bubbles);
+	}
+	@Override
+	public boolean fireSyncEvent(String eventName, Object data, boolean bubbles)
+	{
+		data = handleEvent(eventName, data);
+		return super.fireSyncEvent(eventName, data, bubbles);
 	}
 
 	@Override

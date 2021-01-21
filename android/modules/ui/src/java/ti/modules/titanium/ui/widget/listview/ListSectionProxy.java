@@ -269,6 +269,7 @@ public class ListSectionProxy extends TiViewProxy
 
 			item.setParent(this);
 			item.handleCreationDataItem(new KrollDict((HashMap) object));
+
 			return item;
 
 		} else if (object instanceof ListItemProxy) {
@@ -386,10 +387,11 @@ public class ListSectionProxy extends TiViewProxy
 	@Kroll.method
 	public void setItems(Object dataItems, @Kroll.argument(optional = true) KrollDict animation)
 	{
+		final List<ListItemProxy> newItems = processItems(dataItems);
+
 		removeAllItems();
 
-		final List<ListItemProxy> items = processItems(dataItems);
-		this.items.addAll(items);
+		this.items.addAll(newItems);
 
 		// Notify ListView of new items.
 		update();
