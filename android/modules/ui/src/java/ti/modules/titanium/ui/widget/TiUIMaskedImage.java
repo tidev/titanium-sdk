@@ -1030,13 +1030,6 @@ public class TiUIMaskedImage extends TiUIView
 				} else if (blendMode == PorterDuff.Mode.DST_IN) {
 					bitmap = getBitmapFrom(getMaskedDrawable().getImageDrawable());
 				}
-				if ((Build.VERSION.SDK_INT == 19) || (Build.VERSION.SDK_INT == 20)) {
-					// Android 4.4 has a bug where if bitmap byte width does not fit a 4 byte packing alignment,
-					// then mask will appear skewed. Resizing bitmap doesn't work. So, give up if this happens.
-					if ((bitmap != null) && ((bitmap.getWidth() % 4) != 0)) {
-						bitmap = null;
-					}
-				}
 				if (bitmap != null) {
 					try {
 						if (bitmap.getConfig() != Bitmap.Config.ALPHA_8) {
@@ -1176,9 +1169,6 @@ public class TiUIMaskedImage extends TiUIView
 		{
 			if (maskedDrawable == null) {
 				return false;
-			}
-			if (Build.VERSION.SDK_INT < 18) {
-				return false; // Versions older than Android 4.3 have a HW acceleration bug with this handler.
 			}
 			if (maskedDrawable.isTintingEnabled()) {
 				return false;
@@ -1410,11 +1400,7 @@ public class TiUIMaskedImage extends TiUIView
 					Display display = windowManager.getDefaultDisplay();
 					if (display != null) {
 						DisplayMetrics metrics = new DisplayMetrics();
-						if (Build.VERSION.SDK_INT >= 17) {
-							display.getRealMetrics(metrics);
-						} else {
-							display.getMetrics(metrics);
-						}
+						display.getRealMetrics(metrics);
 						return Math.max(metrics.widthPixels, metrics.heightPixels);
 					}
 				}

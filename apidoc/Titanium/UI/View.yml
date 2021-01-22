@@ -908,12 +908,12 @@ methods:
 
         There are certain top-level containers that are not intended to be added
         as the children of other views. These top-level containers include
-        <Titanium.UI.Window>, <Titanium.UI.iPad.SplitWindow>, <Titanium.UI.NavigationWindow>,
+        <Titanium.UI.Window>, <Titanium.UI.iOS.SplitWindow>, <Titanium.UI.NavigationWindow>,
         and <Titanium.UI.TabGroup>.  Other types of views must be added
         to a top-level container in order to be displayed on screen.
 
         The special containers <Titanium.UI.NavigationWindow>,
-        <Titanium.UI.iPad.SplitWindow>, <Titanium.UI.Tab>, and
+        <Titanium.UI.iOS.SplitWindow>, <Titanium.UI.Tab>, and
         <Titanium.UI.TabGroup> manage windows.
         These managed windows may be referred to as *children* of the
         container, but they are not added using the `add` method.

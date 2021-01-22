@@ -8,6 +8,7 @@
 
 #import "GeolocationModule.h"
 #import <TitaniumKit/APSHTTPClient.h>
+#import <TitaniumKit/KrollPromise.h>
 #import <TitaniumKit/NSData+Additions.h>
 #import <TitaniumKit/TiApp.h>
 
@@ -17,18 +18,22 @@ extern NSString *const TI_APPLICATION_GUID;
 
 @interface GeolocationCallback : NSObject <APSHTTPRequestDelegate> {
   JSValue *callback;
+  KrollPromise *promise;
 }
-- (id)initWithCallback:(JSValue *)callback;
+- (id)initWithCallback:(JSValue *)callback andPromise:(KrollPromise *)promise;
 @end
 
 @implementation GeolocationCallback
 
-- (id)initWithCallback:(JSValue *)callback_
+- (id)initWithCallback:(JSValue *)callback_ andPromise:(KrollPromise *)promise_
 {
   //Ignore analyzer warning here. Delegate will call autorelease onLoad or onError.
   if (self = [super init]) {
     // FIXME Use JSManagedValue here?
-    callback = [callback_ retain];
+    if (![callback_ isUndefined]) { // guard against user not supplying a callback function!
+      callback = [callback_ retain];
+    }
+    promise = [promise_ retain];
   }
   return self;
 }
@@ -36,6 +41,7 @@ extern NSString *const TI_APPLICATION_GUID;
 - (void)dealloc
 {
   RELEASE_TO_NIL(callback);
+  RELEASE_TO_NIL(promise);
   [super dealloc];
 }
 
@@ -74,7 +80,10 @@ extern NSString *const TI_APPLICATION_GUID;
 - (void)requestError:(NSError *)error
 {
   NSDictionary *event = [TiUtils dictionaryWithCode:[error code] message:[TiUtils messageFromError:error]];
-  [callback callWithArguments:@[ event ]];
+  if (callback != nil) {
+    [callback callWithArguments:@[ event ]];
+  }
+  [promise reject:@[ event ]];
 }
 
 - (void)request:(APSHTTPRequest *)request onLoad:(APSHTTPResponse *)response
@@ -126,7 +135,10 @@ extern NSString *const TI_APPLICATION_GUID;
     event = [TiUtils dictionaryWithCode:-1 message:@"error obtaining geolocation"];
   }
 
-  [callback callWithArguments:@[ event ]];
+  if (callback != nil) {
+    [callback callWithArguments:@[ event ]];
+  }
+  [promise resolve:@[ event ]];
 }
 
 @end
@@ -150,7 +162,10 @@ extern NSString *const TI_APPLICATION_GUID;
       dict[@"countryCode"] = dict[@"country_code"];
       [dict removeObjectForKey:@"country_code"];
     }
-    [callback callWithArguments:@[ revisedEvent ]];
+    if (callback != nil) {
+      [callback callWithArguments:@[ revisedEvent ]];
+    }
+    [promise resolve:@[ revisedEvent ]];
   }
 }
 
@@ -492,21 +507,26 @@ GETTER_IMPL(BOOL, hasCompass, HasCompass);
     [params setValue:countryCode forKey:@"c"];
   }
   [callback start:params];
+  RELEASE_TO_NIL(params);
 }
 
-- (void)reverseGeocoder:(double)latitude longitude:(double)longitude withCallback:(JSValue *)callback
+- (JSValue *)reverseGeocoder:(double)latitude longitude:(double)longitude withCallback:(JSValue *)callback
 {
 #ifndef __clang_analyzer__ // Ignore static analyzer error here, memory will be released. See TIMOB-19444
-  ReverseGeoCallback *rcb = [[ReverseGeoCallback alloc] initWithCallback:callback];
+  KrollPromise *promise = [[[KrollPromise alloc] initInContext:[self currentContext]] autorelease];
+  ReverseGeoCallback *rcb = [[ReverseGeoCallback alloc] initWithCallback:callback andPromise:promise];
   [self performGeo:@"r" address:[NSString stringWithFormat:@"%f,%f", latitude, longitude] callback:rcb];
+  return promise.JSValue;
 #endif
 }
 
-- (void)forwardGeocoder:(NSString *)address withCallback:(JSValue *)callback
+- (JSValue *)forwardGeocoder:(NSString *)address withCallback:(JSValue *)callback
 {
 #ifndef __clang_analyzer__ // Ignore static analyzer error here, memory will be released. See TIMOB-19444
-  ForwardGeoCallback *fcb = [[ForwardGeoCallback alloc] initWithCallback:callback];
+  KrollPromise *promise = [[[KrollPromise alloc] initInContext:[self currentContext]] autorelease];
+  ForwardGeoCallback *fcb = [[ForwardGeoCallback alloc] initWithCallback:callback andPromise:promise];
   [self performGeo:@"f" address:address callback:fcb];
+  return promise.JSValue;
 #endif
 }
 
@@ -780,7 +800,7 @@ MAKE_SYSTEM_PROP(ACTIVITYTYPE_OTHER_NAVIGATION, CLActivityTypeOtherNavigation);
   return locationServicesEnabled && currentPermissionLevel == requestedPermissionLevel;
 }
 
-- (void)requestLocationPermissions:(CLAuthorizationStatus)authorizationType withCallback:(JSValue *)callback
+- (JSValue *)requestLocationPermissions:(CLAuthorizationStatus)authorizationType withCallback:(JSValue *)callback
 {
   // Store the authorization callback for later usage
   if (callback != nil) {
@@ -794,6 +814,14 @@ MAKE_SYSTEM_PROP(ACTIVITYTYPE_OTHER_NAVIGATION, CLActivityTypeOtherNavigation);
     [callback.context.virtualMachine addManagedReference:authorizationCallback withOwner:self];
   }
 
+  // Promise to return
+  KrollPromise *promise = [[[KrollPromise alloc] initInContext:[self currentContext]] autorelease];
+  if (authorizationPromise != nil) {
+    [authorizationPromise release];
+    authorizationPromise = nil;
+  }
+  authorizationPromise = [promise retain];
+
   requestedAuthorizationStatus = authorizationType;
   CLAuthorizationStatus currentPermissionLevel = [CLLocationManager authorizationStatus];
   BOOL permissionsGranted = currentPermissionLevel == requestedAuthorizationStatus;
@@ -801,11 +829,11 @@ MAKE_SYSTEM_PROP(ACTIVITYTYPE_OTHER_NAVIGATION, CLActivityTypeOtherNavigation);
   // For iOS < 11, already granted permissions will return with success immediately
   if (permissionsGranted) {
     [self executeAndReleaseCallbackWithCode:0 andMessage:nil];
-    return;
+    return promise.JSValue;
   } else if (currentPermissionLevel == kCLAuthorizationStatusDenied) {
     NSString *message = @"The user denied access to use location services.";
     [self executeAndReleaseCallbackWithCode:1 andMessage:message];
-    return;
+    return promise.JSValue;
   }
 
   NSString *errorMessage = nil;
@@ -851,6 +879,7 @@ MAKE_SYSTEM_PROP(ACTIVITYTYPE_OTHER_NAVIGATION, CLActivityTypeOtherNavigation);
     [self executeAndReleaseCallbackWithCode:(errorMessage == nil) ? 0 : 1 andMessage:errorMessage];
     RELEASE_TO_NIL(errorMessage);
   }
+  return promise.JSValue;
 }
 
 #if IS_SDK_IOS_14
@@ -909,23 +938,37 @@ READWRITE_IMPL(bool, showCalibration, ShowCalibration);
   return [[NSBundle mainBundle] objectForInfoDictionaryKey:kTiGeolocationUsageDescriptionWhenInUse] != nil;
 }
 
-- (void)executeAndReleaseCallbackWithCode:(NSInteger)code andMessage:(NSString *)message
+- (void)executeAndReleaseCallbackWithCode:(NSInteger)code andMessage:(NSString *)message withDict:(NSDictionary *)dict
 {
-  if (authorizationCallback == nil) {
-    return;
+  NSMutableDictionary *fullDict = [TiUtils dictionaryWithCode:code message:message];
+  if (dict != nil) {
+    [fullDict setDictionary:dict];
+  }
+  NSArray *invocationArray = @[ fullDict ];
+
+  if (authorizationPromise != nil) {
+    if (code == 0) {
+      [authorizationPromise resolve:invocationArray];
+    } else {
+      [authorizationPromise reject:invocationArray];
+    }
+    [authorizationPromise release];
+    authorizationPromise = nil;
   }
 
-  NSMutableDictionary *propertiesDict = [TiUtils dictionaryWithCode:code message:message];
-  NSArray *invocationArray = [[NSArray alloc] initWithObjects:&propertiesDict count:1];
+  if (authorizationCallback != nil) {
+    JSValue *actualCallback = [authorizationCallback value];
+    [actualCallback callWithArguments:invocationArray];
+    // release the stored callback
+    [actualCallback.context.virtualMachine removeManagedReference:authorizationCallback withOwner:self];
+    [authorizationCallback release];
+    authorizationCallback = nil;
+  }
+}
 
-  JSValue *actualCallback = [authorizationCallback value];
-  [actualCallback callWithArguments:invocationArray];
-  [invocationArray release];
-
-  // release the stored callback
-  [actualCallback.context.virtualMachine removeManagedReference:authorizationCallback withOwner:self];
-  [authorizationCallback release];
-  authorizationCallback = nil;
+- (void)executeAndReleaseCallbackWithCode:(NSInteger)code andMessage:(NSString *)message
+{
+  [self executeAndReleaseCallbackWithCode:code andMessage:message withDict:nil];
 }
 
 - (NSDictionary *)locationDictionary:(CLLocation *)newLocation;
@@ -1092,13 +1135,13 @@ READWRITE_IMPL(bool, showCalibration, ShowCalibration);
 
     TiThreadPerformOnMainThread(
         ^{
-          NSMutableDictionary *propertiesDict = [TiUtils dictionaryWithCode:code message:errorStr];
-          [propertiesDict setObject:NUMINT([CLLocationManager authorizationStatus]) forKey:@"authorizationStatus"];
-          [[authorizationCallback value] callWithArguments:@[ propertiesDict ]];
+          [self executeAndReleaseCallbackWithCode:code
+                                       andMessage:errorStr
+                                         withDict:@{
+                                           @"authorizationStatus" : NUMINT([CLLocationManager authorizationStatus])
+                                         }];
         },
         YES);
-    [[authorizationCallback value].context.virtualMachine removeManagedReference:authorizationCallback withOwner:self];
-    RELEASE_TO_NIL(authorizationCallback);
     RELEASE_TO_NIL(errorStr);
   }
 }

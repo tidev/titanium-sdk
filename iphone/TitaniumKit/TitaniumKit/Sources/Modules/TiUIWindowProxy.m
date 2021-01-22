@@ -195,14 +195,6 @@
   // to open a window within a tab, you'll need to call tab.open(window)
   //
 
-  NSURL *url = [TiUtils toURL:[self valueForKey:@"url"] proxy:self];
-
-  if (url != nil) {
-    DEPRECATED_REMOVED(@"UI.Window.url", @"2.0.0", @"6.0.0");
-    DebugLog(@"[ERROR] Please use require() to manage your application components.");
-    DebugLog(@"[ERROR] More infos: http://docs.appcelerator.com/platform/latest/#!/guide/CommonJS_Modules_in_Titanium");
-  }
-
   return [super _handleOpen:args];
 }
 
@@ -310,6 +302,9 @@
 - (void)viewDidAppear:(BOOL)animated; // Called when the view has been fully transitioned onto the screen. Default does nothing
 {
   [self updateTitleView];
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
+  [self updateStatusBarView];
+#endif
   [super viewDidAppear:animated];
 }
 
@@ -1079,6 +1074,11 @@
     CGRect frame = keyWindow.windowScene.statusBarManager.statusBarFrame;
     UIView *view = [keyWindow viewWithTag:TI_STATUSBAR_TAG];
     if (view) {
+      id top = [[self safeAreaViewProxy] valueForKey:@"top"];
+      if (top && [top floatValue] != frame.size.height) {
+        //TIMOB-28323: Once fixed by apple, remove it.
+        frame = CGRectMake(frame.origin.x, frame.origin.y, frame.size.width, [top floatValue]);
+      }
       view.frame = frame;
     }
   }

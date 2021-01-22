@@ -13,17 +13,14 @@ import org.appcelerator.kroll.KrollRuntime;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
-import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.TiRootActivity;
-import org.appcelerator.titanium.proxy.TiWindowProxy;
 import org.appcelerator.titanium.util.TiAnimationCurve;
 import org.appcelerator.titanium.util.TiColorHelper;
 import org.appcelerator.titanium.util.TiDeviceOrientation;
 import org.appcelerator.titanium.util.TiUIHelper;
 
-import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -485,34 +482,6 @@ public class UIModule extends KrollModule
 		}
 
 		return result;
-	}
-
-	protected void doSetOrientation(int tiOrientationMode)
-	{
-		Activity activity = TiApplication.getInstance().getCurrentActivity();
-		if (activity instanceof TiBaseActivity) {
-			int[] orientationModes;
-
-			if (tiOrientationMode == -1) {
-				orientationModes = new int[] {};
-			} else {
-				orientationModes = new int[] { tiOrientationMode };
-			}
-
-			// this should only be entered if a LW window is created on top of the root activity
-			TiBaseActivity tiBaseActivity = (TiBaseActivity) activity;
-			TiWindowProxy windowProxy = tiBaseActivity.getWindowProxy();
-
-			if (windowProxy == null) {
-				if (tiBaseActivity.lwWindow != null) {
-					tiBaseActivity.lwWindow.setOrientationModes(orientationModes);
-				} else {
-					Log.e(TAG, "No window has been associated with activity, unable to set orientation");
-				}
-			} else {
-				windowProxy.setOrientationModes(orientationModes);
-			}
-		}
 	}
 
 	@Kroll.getProperty

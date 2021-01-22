@@ -29,7 +29,6 @@ import org.appcelerator.titanium.view.TiUIView;
 import android.graphics.Matrix;
 import android.graphics.Rect;
 import android.graphics.RectF;
-import android.os.Build;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
@@ -101,7 +100,6 @@ public class TiAnimationBuilder
 
 	// Views on which animations are currently running.
 	private static ArrayList<WeakReference<View>> sRunningViews = new ArrayList<WeakReference<View>>();
-	private static final boolean PRE_LOLLIPOP = (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP);
 	private static final TiAnimationCurve DEFAULT_CURVE = TiAnimationCurve.EASE_IN_OUT;
 
 	protected float anchorX;
@@ -1051,15 +1049,6 @@ public class TiAnimationBuilder
 
 		if (thisAnchorY != Ti2DMatrix.DEFAULT_ANCHOR_VALUE) {
 			pivotY = height * thisAnchorY;
-		}
-
-		// Passing 0 as both X and Y parameters for a view's pivot point
-		// results in setting the point in the view's center for APIs 16
-		// to 19. This is why we add EPSILON for both parameters if this is the
-		// case.
-		if (PRE_LOLLIPOP && thisAnchorX == 0 && thisAnchorY == 0) {
-			pivotX += EPSILON;
-			pivotY += EPSILON;
 		}
 
 		setViewPivotHC(pivotX, pivotY);

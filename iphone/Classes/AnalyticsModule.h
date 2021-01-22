@@ -6,7 +6,7 @@
  */
 
 @import JavaScriptCore;
-@import TitaniumKit.ObjcProxy;
+@import TitaniumKit.ObjcModule;
 
 @protocol AnalyticsExports <JSExport>
 
@@ -29,7 +29,7 @@ JSExportAs(navEvent,
 
 @end
 
-@interface AnalyticsModule : ObjcProxy <AnalyticsExports>
+@interface AnalyticsModule : ObjcModule <AnalyticsExports>
 
 #pragma mark Internal API's
 

@@ -76,7 +76,6 @@ import android.widget.AdapterView;
 @SuppressWarnings("deprecation")
 public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListener
 {
-	private static final boolean LOLLIPOP_OR_GREATER = (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP);
 	private static final boolean LOWER_THAN_MARSHMALLOW = (Build.VERSION.SDK_INT < Build.VERSION_CODES.M);
 
 	private static final String TAG = "TiUIView";
@@ -317,6 +316,11 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 	 */
 	protected void setNativeView(View view)
 	{
+		if (view instanceof TiBorderWrapperView) {
+			this.borderView = (TiBorderWrapperView) view;
+			view = this.borderView.getChildAt(0);
+		}
+
 		this.nativeView = view;
 		boolean clickable = true;
 
@@ -919,7 +923,7 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 				ViewCompat.setTranslationZ(getOuterView(), TiConvert.toFloat(newValue));
 			}
 		} else if (key.equals(TiC.PROPERTY_TRANSITION_NAME)) {
-			if (LOLLIPOP_OR_GREATER && (nativeView != null)) {
+			if (nativeView != null) {
 				ViewCompat.setTransitionName(nativeView, TiConvert.toString(newValue));
 			}
 		} else if (key.equals(TiC.PROPERTY_SCALE_X)) {
@@ -1094,7 +1098,7 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 			ViewCompat.setTranslationZ(nativeView, TiConvert.toFloat(d, TiC.PROPERTY_TRANSLATION_Z));
 		}
 
-		if (LOLLIPOP_OR_GREATER && !nativeViewNull && d.containsKeyAndNotNull(TiC.PROPERTY_TRANSITION_NAME)) {
+		if (!nativeViewNull && d.containsKeyAndNotNull(TiC.PROPERTY_TRANSITION_NAME)) {
 			ViewCompat.setTransitionName(nativeView, d.getString(TiC.PROPERTY_TRANSITION_NAME));
 		}
 	}
@@ -1156,8 +1160,7 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 	 */
 	protected boolean canApplyTouchFeedback(@NonNull KrollDict props)
 	{
-		return ((Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
-				&& props.optBoolean(TiC.PROPERTY_TOUCH_FEEDBACK, false));
+		return props.optBoolean(TiC.PROPERTY_TOUCH_FEEDBACK, false);
 	}
 
 	/**
@@ -1412,7 +1415,6 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 			if (background == null) {
 				applyCustomBackground(false);
 			}
-
 			if (background != null) {
 				Drawable bgDrawable = TiUIHelper.buildBackgroundDrawable(
 					bg, TiConvert.toBoolean(d, TiC.PROPERTY_BACKGROUND_REPEAT, false), bgColor, bgSelected,
@@ -1534,18 +1536,8 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 
 	private void setFilterTouchesWhenObscured(boolean isEnabled)
 	{
-		// Validate.
-		if (this.nativeView == null) {
-			return;
-		}
-
-		// Enable/disable tapjacking filter.
-		this.nativeView.setFilterTouchesWhenObscured(isEnabled);
-
-		// Android 4.4.2 and older has a bug where the above method sets it to the opposite.
-		// Google fixed it in Android 4.4.3, but we can't detect that patch version via API Level.
-		if ((Build.VERSION.SDK_INT < 21) && (isEnabled != this.nativeView.getFilterTouchesWhenObscured())) {
-			this.nativeView.setFilterTouchesWhenObscured(!isEnabled);
+		if (this.nativeView != null) {
+			this.nativeView.setFilterTouchesWhenObscured(isEnabled);
 		}
 	}
 
@@ -1684,7 +1676,7 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 						data.put(TiC.EVENT_PROPERTY_VELOCITY, (sgd.getScaleFactor() - 1.0f) / timeDelta * 1000);
 						data.put(TiC.EVENT_PROPERTY_SOURCE, proxy);
 
-						return fireEvent(TiC.EVENT_PINCH, data);
+						return fireSyncEvent(TiC.EVENT_PINCH, data);
 					}
 					return false;
 				}
@@ -1813,7 +1805,7 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 				String motionEvent = motionEvents.get(event.getAction());
 				if (motionEvent != null) {
 					if (proxy != null && proxy.hierarchyHasListener(motionEvent)) {
-						fireEvent(motionEvent, dictFromEvent(event));
+						fireSyncEvent(motionEvent, dictFromEvent(event));
 					}
 				}
 
@@ -2063,6 +2055,24 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 			data.putAll(additionalEventData);
 		}
 		return proxy.fireEvent(eventName, data, bubbles);
+	}
+
+	public boolean fireSyncEvent(String eventName, KrollDict data)
+	{
+		return fireSyncEvent(eventName, data, true);
+	}
+
+	public boolean fireSyncEvent(String eventName, KrollDict data, boolean bubbles)
+	{
+		if (proxy == null) {
+			return false;
+		}
+		if (data == null && additionalEventData != null) {
+			data = new KrollDict(additionalEventData);
+		} else if (additionalEventData != null) {
+			data.putAll(additionalEventData);
+		}
+		return proxy.fireSyncEvent(eventName, data, bubbles);
 	}
 
 	protected void setOnLongClickListener(View view)

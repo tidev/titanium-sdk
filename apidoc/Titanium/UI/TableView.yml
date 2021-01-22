@@ -66,9 +66,9 @@ description: |
         ([TIMOB-12625](https://jira.appcelerator.org/browse/TIMOB-12625)). This issue has been
         addressed in Release 3.3.0 of the Titanium SDK
 
-    #### Row Editing and Moving Modes (iOS only)
+    #### Row Editing and Moving Modes
 
-    On iOS, table views have an `editing` and a `moving` mode that may be activated to using their
+    Table views have an `editing` and a `moving` mode that may be activated to using their
     respective [editing](Titanium.UI.TableView.editing) and [moving](Titanium.UI.TableView.moving)
     properties. These allow rows to be deleted or re-ordered by the user, depending on each row's
     [editable](Titanium.UI.TableViewRow.editable) and [moveable](Titanium.UI.TableViewRow.moveable)
@@ -321,7 +321,8 @@ events:
 
   - name: move
     summary: Fired when a table row is moved by the user.
-    platforms: [iphone, ipad, macos]
+    platforms: [android, iphone, ipad, macos]
+    since: {android: "9.3.0", iphone: "3.2.0", ipad: "3.2.0", macos: "9.2.0"}
     properties:
       - name: detail
         summary: Boolean to indicate if the right area was clicked. Always `false` for this event.
@@ -1089,7 +1090,8 @@ properties:
         `editing` and `moving` modes.
     type: Boolean
     default: Depends on `editing` and `moving` mode
-    platforms: [iphone, ipad, macos]
+    platforms: [android, iphone, ipad, macos]
+    since: {android: "9.3.0", iphone: "3.2.0", ipad: "3.2.0", macos: "9.2.0"}
 
   - name: editing
     summary: |
@@ -1103,7 +1105,8 @@ properties:
         `editing` and `moving` modes.
     type: Boolean
     default: false
-    platforms: [iphone, ipad, macos]
+    platforms: [android, iphone, ipad, macos]
+    since: {android: "9.3.0", iphone: "3.2.0", ipad: "3.2.0", macos: "9.2.0"}
 
   - name: filterAttribute
     summary: Filter attribute to be used when searching.
@@ -1317,7 +1320,8 @@ properties:
         `editing` and `moving` modes.
     type: Boolean
     default: Depends on `editing` and `moving` mode
-    platforms: [iphone, ipad, macos]
+    platforms: [android, iphone, ipad, macos]
+    since: {android: "9.3.0", iphone: "3.2.0", ipad: "3.2.0", macos: "9.2.0"}
 
   - name: moving
     summary: |
@@ -1331,7 +1335,8 @@ properties:
         `editing` and `moving` modes.
     type: Boolean
     default: false
-    platforms: [iphone, ipad, macos]
+    platforms: [android, iphone, ipad, macos]
+    since: {android: "9.3.0", iphone: "3.2.0", ipad: "3.2.0", macos: "9.2.0"}
 
   - name: overScrollMode
     summary: Determines the behavior when the user overscrolls the view.

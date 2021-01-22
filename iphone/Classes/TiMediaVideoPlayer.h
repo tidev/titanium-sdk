@@ -14,6 +14,7 @@
   @private
   AVPlayerViewController *controller;
   UIActivityIndicatorView *spinner;
+  UIViewController *parentController;
 
   BOOL loaded;
 }
