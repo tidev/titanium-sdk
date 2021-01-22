@@ -92,8 +92,8 @@ public class KrollDict extends HashMap<String, Object>
 
 	public void putCodeAndMessage(int code, String message)
 	{
-		this.put(TiC.PROPERTY_SUCCESS, new Boolean(code == 0));
-		this.put(TiC.PROPERTY_CODE, new Integer(code));
+		this.put(TiC.PROPERTY_SUCCESS, Boolean.valueOf(code == 0));
+		this.put(TiC.PROPERTY_CODE, Integer.valueOf(code));
 		if (message != null) {
 			this.put(TiC.EVENT_PROPERTY_ERROR, message);
 		}

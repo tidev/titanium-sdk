@@ -7,14 +7,12 @@
 package ti.modules.titanium.ui.widget.listview;
 
 import org.appcelerator.kroll.KrollDict;
-import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.R;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
-import org.appcelerator.titanium.util.TiFileHelper;
 import org.appcelerator.titanium.util.TiRHelper;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiCompositeLayout;
@@ -36,97 +34,31 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import androidx.recyclerview.widget.RecyclerView;
-
 import java.lang.ref.WeakReference;
 
 import ti.modules.titanium.ui.UIModule;
 import ti.modules.titanium.ui.widget.TiUIListView;
 
-public class ListViewHolder extends RecyclerView.ViewHolder
+public class ListViewHolder extends TiRecyclerViewHolder
 {
 	private static final String TAG = "ListViewHolder";
-	private static final int COLOR_GRAY = Color.rgb(169, 169, 169);
 
-	private static Drawable checkDrawable;
-	private static Drawable disclosureDrawable;
-	private static TiFileHelper fileHelper;
-	private static Drawable moreDrawable;
-	private static Resources resources;
-	private static int selectableItemBackgroundId = 0;
+	// Top
+	private final TiCompositeLayout header;
+	private final TextView headerTitle;
 
 	// Middle
 	private final ViewGroup container;
 	private final TiCompositeLayout content;
-	// Bottom
-	private final ViewGroup footer;
-	private final TextView footerTitle;
-	// Top
-	private final ViewGroup header;
-	private final TextView headerTitle;
 	private final ImageView rightImage;
 
-	private WeakReference<TiViewProxy> proxy;
+	// Bottom
+	private final TiCompositeLayout footer;
+	private final TextView footerTitle;
 
 	public ListViewHolder(final Context context, final ViewGroup viewGroup)
 	{
-		super(viewGroup);
-
-		if (resources == null) {
-
-			// Obtain resources instance.
-			resources = context.getResources();
-		}
-		if (resources != null) {
-
-			// Attempt to load `icon_more` drawable.
-			if (moreDrawable == null) {
-				try {
-					final int icon_more_id = R.drawable.titanium_icon_more;
-					moreDrawable = resources.getDrawable(icon_more_id);
-				} catch (Exception e) {
-					Log.w(TAG, "Drawable 'drawable.icon_more' not found.");
-				}
-			}
-
-			// Attempt to load `icon_checkmark` drawable.
-			if (checkDrawable == null) {
-				try {
-					final int icon_checkmark_id = R.drawable.titanium_icon_checkmark;
-					checkDrawable = resources.getDrawable(icon_checkmark_id);
-				} catch (Exception e) {
-					Log.w(TAG, "Drawable 'drawable.icon_checkmark' not found.");
-				}
-			}
-
-			// Attempt to load `icon_disclosure` drawable.
-			if (disclosureDrawable == null) {
-				try {
-					final int icon_disclosure_id = R.drawable.titanium_icon_disclosure;
-					disclosureDrawable = resources.getDrawable(icon_disclosure_id);
-				} catch (Exception e) {
-					Log.w(TAG, "Drawable 'drawable.icon_disclosure' not found.");
-				}
-			}
-
-			if (selectableItemBackgroundId == 0) {
-				try {
-					final TypedValue selectableItemBackgroundValue = new TypedValue();
-					context.getTheme().resolveAttribute(android.R.attr.selectableItemBackground,
-						selectableItemBackgroundValue, true);
-					selectableItemBackgroundId = selectableItemBackgroundValue.resourceId;
-				} catch (Exception e) {
-					Log.w(TAG, "Drawable for default background not found.");
-				}
-			}
-		} else {
-			Log.w(TAG, "Could not obtain context resources instance.");
-		}
-		if (fileHelper == null) {
-
-			// Obtain file helper instance.
-			fileHelper = new TiFileHelper(context);
-		}
+		super(context, viewGroup);
 
 		// Obtain views from identifiers.
 		this.header = viewGroup.findViewById(R.id.titanium_ui_listview_holder_header);
@@ -168,6 +100,7 @@ public class ListViewHolder extends RecyclerView.ViewHolder
 		if (listViewProxy == null) {
 			return;
 		}
+		final KrollDict listViewProperties = listViewProxy.getProperties();
 
 		// Attempt to obtain parent section proxy is available.
 		final ListSectionProxy section =
@@ -198,6 +131,15 @@ public class ListViewHolder extends RecyclerView.ViewHolder
 			if (accessorType != UIModule.LIST_ACCESSORY_TYPE_NONE) {
 				this.rightImage.setVisibility(View.VISIBLE);
 			}
+		}
+
+		// Display drag drawable when item can move.
+		final boolean isEditing = listViewProperties.optBoolean(TiC.PROPERTY_EDITING, false);
+		final boolean canMove = properties.optBoolean(TiC.PROPERTY_CAN_MOVE,
+			listViewProperties.optBoolean(TiC.PROPERTY_CAN_MOVE, false));
+		if (isEditing && canMove) {
+			this.rightImage.setImageDrawable(dragDrawable);
+			this.rightImage.setVisibility(View.VISIBLE);
 		}
 
 		if (proxy != null) {
@@ -250,7 +192,7 @@ public class ListViewHolder extends RecyclerView.ViewHolder
 		if (section == null) {
 
 			// Handle `header` and `footer` for rows without a parent section.
-			setHeaderFooter(properties, true, true);
+			setHeaderFooter(listViewProxy, properties, true, true);
 
 		} else {
 
@@ -263,14 +205,14 @@ public class ListViewHolder extends RecyclerView.ViewHolder
 			if (indexInSection == 0 || filteredIndex == 0 || proxy.isPlaceholder()) {
 
 				// Only set header on first row in section.
-				setHeaderFooter(sectionProperties, true, false);
+				setHeaderFooter(listViewProxy, sectionProperties, true, false);
 			}
 			if ((indexInSection >= section.getItems().length - 1)
 				|| (filteredIndex >= section.getFilteredItemCount() - 1)
 				|| proxy.isPlaceholder()) {
 
 				// Only set footer on last row in section.
-				setHeaderFooter(sectionProperties, false, true);
+				setHeaderFooter(listViewProxy, sectionProperties, false, true);
 			}
 		}
 
@@ -286,20 +228,18 @@ public class ListViewHolder extends RecyclerView.ViewHolder
 	 */
 	protected Drawable generateRippleDrawable(Drawable drawable)
 	{
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-			if (!(drawable instanceof RippleDrawable)) {
-				final int[][] rippleStates = new int[][] { new int[] { android.R.attr.state_pressed } };
-				final TypedValue typedValue = new TypedValue();
-				final Activity activity = TiApplication.getAppRootOrCurrentActivity();
-				final TypedArray colorControlHighlight = activity.obtainStyledAttributes(
-					typedValue.data, new int[] { android.R.attr.colorControlHighlight });
-				final int colorControlHighlightInt = colorControlHighlight.getColor(0, 0);
-				final int[] rippleColors = new int[] { colorControlHighlightInt };
-				final ColorStateList colorStateList = new ColorStateList(rippleStates, rippleColors);
+		if (!(drawable instanceof RippleDrawable)) {
+			final int[][] rippleStates = new int[][] { new int[] { android.R.attr.state_pressed } };
+			final TypedValue typedValue = new TypedValue();
+			final Activity activity = TiApplication.getAppRootOrCurrentActivity();
+			final TypedArray colorControlHighlight = activity.obtainStyledAttributes(
+				typedValue.data, new int[] { android.R.attr.colorControlHighlight });
+			final int colorControlHighlightInt = colorControlHighlight.getColor(0, 0);
+			final int[] rippleColors = new int[] { colorControlHighlightInt };
+			final ColorStateList colorStateList = new ColorStateList(rippleStates, rippleColors);
 
-				// Create the RippleDrawable.
-				drawable = new RippleDrawable(colorStateList, drawable, null);
-			}
+			// Create the RippleDrawable.
+			drawable = new RippleDrawable(colorStateList, drawable, null);
 		}
 		return drawable;
 	}
@@ -335,19 +275,6 @@ public class ListViewHolder extends RecyclerView.ViewHolder
 	}
 
 	/**
-	 * Get current proxy assigned to holder.
-	 *
-	 * @return TiViewProxy
-	 */
-	public TiViewProxy getProxy()
-	{
-		if (this.proxy != null) {
-			return this.proxy.get();
-		}
-		return null;
-	}
-
-	/**
 	 * Reset row into nominal state.
 	 */
 	private void reset()
@@ -367,12 +294,25 @@ public class ListViewHolder extends RecyclerView.ViewHolder
 	/**
 	 * Set header and footer views of holder.
 	 *
+	 * @param listViewProxy ListView proxy.
 	 * @param properties   Properties containing header and footer entires.
 	 * @param updateHeader Boolean to determine if the header should be updated.
 	 * @param updateFooter Boolean to determine if the footer should be updated.
 	 */
-	private void setHeaderFooter(KrollDict properties, boolean updateHeader, boolean updateFooter)
+	private void setHeaderFooter(TiViewProxy listViewProxy,
+								 KrollDict properties,
+								 boolean updateHeader,
+								 boolean updateFooter)
 	{
+		if (listViewProxy == null) {
+			return;
+		}
+
+		final View nativeListView = listViewProxy.getOrCreateView().getNativeView();
+		if (nativeListView == null) {
+			return;
+		}
+
 		// Handle `header` and `footer`.
 		if (updateHeader) {
 			if (properties.containsKeyAndNotNull(TiC.PROPERTY_HEADER_TITLE)) {
@@ -393,6 +333,10 @@ public class ListViewHolder extends RecyclerView.ViewHolder
 						if (parent != null) {
 							parent.removeView(headerView);
 						}
+
+						// Amend maximum size for header to parent ListView measured height.
+						this.header.setChildFillHeight(nativeListView.getMeasuredHeight());
+
 						this.header.addView(headerView, view.getLayoutParams());
 						this.header.setVisibility(View.VISIBLE);
 					}
@@ -418,6 +362,10 @@ public class ListViewHolder extends RecyclerView.ViewHolder
 						if (parent != null) {
 							parent.removeView(footerView);
 						}
+
+						// Amend maximum size for footer to parent ListView measured height.
+						this.footer.setChildFillHeight(nativeListView.getMeasuredHeight());
+
 						this.footer.addView(footerView, view.getLayoutParams());
 						this.footer.setVisibility(View.VISIBLE);
 					}
@@ -500,11 +448,7 @@ public class ListViewHolder extends RecyclerView.ViewHolder
 		if (backgroundValue.resourceId != 0) {
 
 			// Set title background drawable.
-			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-				title.setBackground(resources.getDrawable(backgroundValue.resourceId, theme));
-			} else {
-				title.setBackground(resources.getDrawable(backgroundValue.resourceId));
-			}
+			title.setBackground(resources.getDrawable(backgroundValue.resourceId, theme));
 
 		} else if (backgroundColorValue.resourceId != 0) {
 

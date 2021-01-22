@@ -6,15 +6,15 @@
  * to trigger a log that is displayed in the Xcode console.
  */
 
-var win = Ti.UI.createWindow({
+const win = Ti.UI.createWindow({
     backgroundColor: '#fff'
 });
 
-var btn = Ti.UI.createButton({
+const btn = Ti.UI.createButton({
     title: 'Trigger'
 });
 
-btn.addEventListener('click', function() {
+btn.addEventListener('click', () => {
     Ti.API.info(L('hello_world'));
 });
 

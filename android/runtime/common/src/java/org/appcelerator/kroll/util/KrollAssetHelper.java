@@ -32,6 +32,7 @@ public class KrollAssetHelper
 	private static String packageName;
 	private static String cacheDir;
 	private static AssetCrypt assetCrypt;
+	private static Collection<String> encryptedAssetFilePaths;
 	private static HashSet<String> apkAssetFilePathSet = new HashSet<>(256);
 	private static DirectoryListingMap apkDirectoryListingMap = new DirectoryListingMap(32);
 	private static DirectoryListingMap encrpytedDirectoryListingMap = new DirectoryListingMap(256);
@@ -53,15 +54,9 @@ public class KrollAssetHelper
 		KrollAssetHelper.assetCrypt = assetCrypt;
 
 		// Fetch all directories and their file listings from encrypted assets. (For fast access.)
+		KrollAssetHelper.encryptedAssetFilePaths = null;
 		KrollAssetHelper.encrpytedDirectoryListingMap.clear();
-		if (assetCrypt != null) {
-			Collection<String> collection = assetCrypt.getAssetPaths();
-			if (collection != null) {
-				for (String path : collection) {
-					KrollAssetHelper.encrpytedDirectoryListingMap.addPath(path);
-				}
-			}
-		}
+		getEncrpytedDirectoryListingMap();
 	}
 
 	public static void init(Context context)
@@ -198,10 +193,30 @@ public class KrollAssetHelper
 
 	public static Collection<String> getEncryptedAssetPaths()
 	{
-		if (assetCrypt != null) {
-			return assetCrypt.getAssetPaths();
+		// Do not continue if there are no encrypted assets.
+		if (KrollAssetHelper.assetCrypt == null) {
+			return null;
 		}
-		return null;
+
+		// Fetch encrypted asset file path collection if not done already.
+		// Note: Make sure all paths are prefixed with "Resources/" root directory if missing.
+		//       This happens when property "appc-sourcecode-encryption-policy" is set to "remote".
+		if (KrollAssetHelper.encryptedAssetFilePaths == null) {
+			Collection<String> pathCollection = KrollAssetHelper.assetCrypt.getAssetPaths();
+			if ((pathCollection != null) && !pathCollection.isEmpty()) {
+				if (pathCollection.contains("app.js")) {
+					HashSet<String> pathSet = new HashSet<>(pathCollection.size());
+					for (String nextPath : pathCollection) {
+						pathSet.add("Resources/" + nextPath);
+					}
+					pathCollection = pathSet;
+				}
+				KrollAssetHelper.encryptedAssetFilePaths = pathCollection;
+			}
+		}
+
+		// Return the requested collection.
+		return KrollAssetHelper.encryptedAssetFilePaths;
 	}
 
 	public static String readFile(String path)
@@ -242,7 +257,7 @@ public class KrollAssetHelper
 	public static boolean directoryExists(String path)
 	{
 		path = normalizeDirectoryPath(path);
-		if (encrpytedDirectoryListingMap.containsKey(path)) {
+		if (getEncrpytedDirectoryListingMap().containsKey(path)) {
 			return true;
 		}
 		if (apkDirectoryListingMap.containsKey(path)) {
@@ -264,7 +279,7 @@ public class KrollAssetHelper
 		}
 		{
 			// Merge the encrypted assets listing (if any) into the result list.
-			Collection<String> collection = encrpytedDirectoryListingMap.get(path);
+			Collection<String> collection = getEncrpytedDirectoryListingMap().get(path);
 			if (collection != null) {
 				for (String entry : collection) {
 					if (!resultList.contains(entry)) {
@@ -284,6 +299,22 @@ public class KrollAssetHelper
 	public static String getCacheDir()
 	{
 		return cacheDir;
+	}
+
+	private static DirectoryListingMap getEncrpytedDirectoryListingMap()
+	{
+		// Fetch all encrypted directory file listings if not done already.
+		// Note: When property "appc-sourcecode-encryption-policy" is set to "remote",
+		//       the returned path collection will be empty until remote info has been downloaded.
+		if (KrollAssetHelper.encrpytedDirectoryListingMap.isEmpty() && (KrollAssetHelper.assetCrypt != null)) {
+			Collection<String> collection = getEncryptedAssetPaths();
+			if (collection != null) {
+				for (String path : collection) {
+					KrollAssetHelper.encrpytedDirectoryListingMap.addPath(path);
+				}
+			}
+		}
+		return KrollAssetHelper.encrpytedDirectoryListingMap;
 	}
 
 	private static String normalizeDirectoryPath(String path)

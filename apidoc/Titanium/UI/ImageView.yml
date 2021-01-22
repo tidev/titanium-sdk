@@ -250,15 +250,6 @@ properties:
     platforms: [android, iphone, ipad, macos]
     since: { android: "5.4.0", iphone: "5.4.0", ipad: "5.4.0"}
 
-  - name: url
-    summary: URL to the image to display.
-    exclude-platforms: [macos]
-    deprecated:
-        since: "1.5.0"
-        removed: "3.0.0"
-        notes: Use [Titanium.UI.ImageView.image](Titanium.UI.ImageView.image) instead.
-    type: String
-
 examples:
   - title: Basic Image View
     example: |

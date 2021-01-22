@@ -14,6 +14,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.KrollModule;
+import org.appcelerator.kroll.KrollObject;
+import org.appcelerator.kroll.KrollPromise;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
@@ -76,21 +78,26 @@ public class ContactsModule extends KrollModule implements TiActivityResultHandl
 	}
 
 	@Kroll.method
-	public void requestContactsPermissions(@Kroll.argument(optional = true) KrollFunction permissionCallback)
+	public KrollPromise<KrollDict> requestContactsPermissions(
+		@Kroll.argument(optional = true) final KrollFunction permissionCallback)
 	{
-		if (hasContactsPermissions()) {
-			KrollDict response = new KrollDict();
-			response.putCodeAndMessage(0, null);
-			permissionCallback.callAsync(getKrollObject(), response);
-			return;
-		}
+		final KrollObject callbackThisObject = getKrollObject();
+		return KrollPromise.create((promise) -> {
+			if (hasContactsPermissions()) {
+				KrollDict response = new KrollDict();
+				response.putCodeAndMessage(0, null);
+				permissionCallback.callAsync(callbackThisObject, response);
+				promise.resolve(response);
+				return;
+			}
 
-		TiBaseActivity.registerPermissionRequestCallback(TiC.PERMISSION_CODE_CONTACTS, permissionCallback,
-														 getKrollObject());
-		Activity currentActivity = TiApplication.getInstance().getCurrentActivity();
-		currentActivity.requestPermissions(
-			new String[] { Manifest.permission.READ_CONTACTS, Manifest.permission.WRITE_CONTACTS },
-			TiC.PERMISSION_CODE_CONTACTS);
+			TiBaseActivity.registerPermissionRequestCallback(TiC.PERMISSION_CODE_CONTACTS, permissionCallback,
+				callbackThisObject, promise);
+			Activity currentActivity = TiApplication.getInstance().getCurrentActivity();
+			currentActivity.requestPermissions(
+				new String[] { Manifest.permission.READ_CONTACTS, Manifest.permission.WRITE_CONTACTS },
+				TiC.PERMISSION_CODE_CONTACTS);
+		});
 	}
 
 	@Kroll.method

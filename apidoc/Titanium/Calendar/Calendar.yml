@@ -61,8 +61,14 @@ methods:
         will crash if your app does not include the key. Check the [Apple docs](https://developer.apple.com/library/content/documentation/General/Reference/InfoPlistKeyReference/Articles/CocoaKeys.html) for more information.
     parameters:
       - name: callback
-        summary: Function to call upon user decision to grant calendar access.
+        summary: |
+            Function to call upon user decision to grant calendar access.
+            Optional on SDK 10, as this method will return a `Promise`, which may be used to handle the result.
         type: Callback<EventsAuthorizationResponse>
+        optional: true
+    returns:
+      summary: On SDK 10+, this method will return a `Promise` whose resolved value is equivalent to that passed to the optional callback argument.
+      type: Promise<EventsAuthorizationResponse>
     platforms: [iphone, ipad, android, macos]
     since: "5.1.0"
 

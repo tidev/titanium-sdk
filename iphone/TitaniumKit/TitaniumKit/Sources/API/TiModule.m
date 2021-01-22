@@ -235,7 +235,7 @@
   NSURL *path = [NSURL fileURLWithPath:[NSString stringWithFormat:@"%@/modules/%@/%@", resourceurl, [self moduleId], name]];
   return path;
 }
-
+// TODO: Remove now that we do this in JS code in module.js
 - (id)bindCommonJSModule:(NSString *)code
 {
   NSString *js = [[NSString alloc] initWithFormat:TitaniumModuleRequireFormat, code];
@@ -249,7 +249,7 @@
   }
   return result;
 }
-
+// TODO: Remove now that we do this in JS code in module.js
 - (id)bindCommonJSModuleForPath:(NSURL *)path
 {
   NSString *code = [NSString stringWithContentsOfURL:path encoding:NSUTF8StringEncoding error:nil];

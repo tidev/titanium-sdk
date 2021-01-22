@@ -178,7 +178,6 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> *target,
 
 - (void)_dispatchWithObjectOnUIThread:(NSArray *)args;
 - (void)didReceiveMemoryWarning:(NSNotification *)notification;
-- (TiProxy *)currentWindow;
 - (void)contextShutdown:(id)sender;
 - (id)toString:(id)args;
 
