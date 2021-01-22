@@ -858,6 +858,25 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 		}
 	}
 
+	/**
+	 * Fires an event synchronously to the view who is next to receive the event.
+	 *
+	 * @param eventName event to send to the next view
+	 * @param data the data to include in the event
+	 * @return true if the event was handled
+	 */
+	@Kroll.method(name = "_fireSyncEventToParent")
+	public boolean fireSyncEventToParent(String eventName, Object data)
+	{
+		if (bubbleParent) {
+			KrollProxy parentProxy = getParentForBubbling();
+			if (parentProxy != null) {
+				return parentProxy.fireSyncEvent(eventName, data);
+			}
+		}
+		return false;
+	}
+
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public boolean doFireEvent(String event, Object data)
 	{
@@ -1393,7 +1412,6 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 	{
 		KrollDict error = new KrollDict();
 		error.putCodeAndMessage(code, message);
-		error.put(TiC.ERROR_PROPERTY_MESSAGE, message);
 		return error;
 	}
 
@@ -1403,8 +1421,6 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 	 */
 	public void release()
 	{
-		releaseKroll();
-
 		if (eventListeners != null) {
 			eventListeners.clear();
 			eventListeners = null;

@@ -500,6 +500,7 @@
                                                                               // Assign the granted categories
                                                                               [event setValue:((categories != nil) ? categories : @{}) forKey:@"categories"];
                                                                               [self fireEvent:@"usernotificationsettings" withObject:event];
+                                                                              RELEASE_TO_NIL(event);
                                                                             }];
                                                                           }
                                                                         }
@@ -845,6 +846,10 @@
     ((UNMutableNotificationContent *)content).userInfo = userInfoWithId;
   } else if ([content isKindOfClass:UILocalNotification.class]) {
     ((UILocalNotification *)content).userInfo = userInfoWithId;
+  }
+
+  if (userInfo != nil) {
+    RELEASE_TO_NIL(userInfoWithId);
   }
 }
 

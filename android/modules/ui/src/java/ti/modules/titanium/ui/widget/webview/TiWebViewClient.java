@@ -24,7 +24,6 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.net.http.SslError;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.security.KeyChain;
 import android.security.KeyChainAliasCallback;
 import android.webkit.ClientCertRequest;
@@ -71,7 +70,7 @@ public class TiWebViewClient extends WebViewClientClassicExt
 			enableJavascriptInjection =
 				TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_ENABLE_JAVASCRIPT_INTERFACE), true);
 		}
-		if (Build.VERSION.SDK_INT > 16 || enableJavascriptInjection) {
+		if (enableJavascriptInjection) {
 			WebView nativeWebView = webView.getWebView();
 
 			if (nativeWebView != null) {
@@ -244,11 +243,8 @@ public class TiWebViewClient extends WebViewClientClassicExt
 
 		ClientCertRequestCompat(Object request)
 		{
-			// API 21+
-			if (Build.VERSION.SDK_INT >= 21 && request instanceof ClientCertRequest) {
+			if (request instanceof ClientCertRequest) {
 				clientCertRequest = (ClientCertRequest) request;
-
-				// API 16+
 			} else if (request instanceof ClientCertRequestHandler) {
 				clientCertRequestHandler = (ClientCertRequestHandler) request;
 			}

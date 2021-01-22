@@ -9,7 +9,7 @@
 
 @implementation TiWindowProxy (Addons)
 
-#if defined(USE_TI_UIIOSNAVIGATIONWINDOW) || defined(USE_TI_UINAVIGATIONWINDOW)
+#if defined(USE_TI_UINAVIGATIONWINDOW)
 - (TiUINavigationWindowProxy *)navigationWindow
 {
   if (parentController != nil && [parentController isKindOfClass:[TiUINavigationWindowProxy class]]) {

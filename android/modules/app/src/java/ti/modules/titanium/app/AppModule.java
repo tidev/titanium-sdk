@@ -21,8 +21,6 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-import android.os.Build;
-import android.provider.Settings;
 import androidx.core.view.accessibility.AccessibilityEventCompat;
 import androidx.core.view.accessibility.AccessibilityManagerCompat;
 import androidx.core.view.accessibility.AccessibilityManagerCompat.AccessibilityStateChangeListenerCompat;
@@ -166,22 +164,7 @@ public class AppModule extends KrollModule implements SensorEventListener
 	@Kroll.getProperty
 	public boolean getAccessibilityEnabled()
 	{
-		AccessibilityManager manager = TiApplication.getInstance().getAccessibilityManager();
-		boolean enabled = manager.isEnabled();
-
-		if (!enabled && Build.VERSION.SDK_INT < TiC.API_LEVEL_HONEYCOMB) {
-			// Prior to Honeycomb, AccessibilityManager.isEnabled() would sometimes
-			// return false erroneously the because manager service would asynchronously set the
-			// enabled property in the manager client. So when checking the value, it
-			// might not have been set yet. In studying the changes they made for
-			// Honeycomb, we can see that they do the following in order to determine
-			// if accessibility really is enabled or not:
-			enabled = Settings.Secure.getInt(TiApplication.getInstance().getContentResolver(),
-											 Settings.Secure.ACCESSIBILITY_ENABLED, 0)
-					  == 1;
-		}
-
-		return enabled;
+		return TiApplication.getInstance().getAccessibilityManager().isEnabled();
 	}
 
 	@Kroll.method(name = "_restart")

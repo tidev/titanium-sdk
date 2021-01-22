@@ -33,5 +33,4 @@ methods:
         summary: |
           Returns an array of canonical names matching given BCP 47 locale names. Duplicate locales will be removed.
           Returns an empty array if argument is empty or undefined.
-    platforms: [iphone, ipad, android, macos]
     osver: {ios: {min: "11.2"}}

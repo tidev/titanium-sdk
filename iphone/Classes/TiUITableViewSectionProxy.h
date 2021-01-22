@@ -13,13 +13,13 @@
 
 @interface TiUITableViewSectionProxy : TiViewProxy <TiProxyDelegate, NSFastEnumeration> {
   @private
-  NSMutableArray *rows;
+  NSMutableArray<TiUITableViewRowProxy *> *rows;
   TiUITableView *table;
   NSInteger section;
 }
 
-@property (nonatomic, readonly) NSMutableArray *rows;
-@property (nonatomic, readonly) NSInteger rowCount;
+@property (nonatomic, readonly) NSMutableArray<TiUITableViewRowProxy *> *rows;
+@property (nonatomic, readonly) NSNumber *rowCount;
 @property (nonatomic, readonly, assign) NSString *headerTitle;
 @property (nonatomic, readonly, assign) NSString *footerTitle;
 
@@ -27,7 +27,7 @@
 - (void)remove:(id)proxy;
 
 #pragma mark Framework
-- (TiUITableViewRowProxy *)rowAtIndex:(NSInteger)index;
+- (TiUITableViewRowProxy *)rowAtIndex:(NSUInteger)index;
 @property (nonatomic, readwrite, assign) TiUITableView *table;
 @property (nonatomic, readwrite, assign) NSInteger section;
 

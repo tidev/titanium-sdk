@@ -46,7 +46,7 @@ static NSUncaughtExceptionHandler *prevUncaughtExceptionHandler = NULL;
 - (void)reportException:(NSException *)exception
 {
   // attempt to generate a script error, which includes JS stack information
-  JSContext *context = [JSContext currentContext];
+  JSContext *context = JSContext.currentContext;
   JSValue *jsError = [JSValue valueWithNewErrorFromMessage:[exception reason] inContext:context];
   @try {
     TiScriptError *error = [TiUtils scriptErrorValue:@{

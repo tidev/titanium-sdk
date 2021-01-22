@@ -226,7 +226,10 @@ methods:
 
       - name: value
         summary: Property value to set.
-        type: Object
+        type: any
+        # TODO: Declare instead as:
+        # type: [ String, Array<String>, Titanium.Blob, Number, Boolean, Titanium.Android.Intent ]
+        # The code handles these explicitly, but also tries to convert anything else to string
 
   - name: putExtraUri
     summary:
@@ -238,7 +241,7 @@ methods:
 
       - name: value
         summary: The URI, as a string or a string array.
-        type: Object
+        type: [ String, Array<String> ]
 
 properties:
   - name: action

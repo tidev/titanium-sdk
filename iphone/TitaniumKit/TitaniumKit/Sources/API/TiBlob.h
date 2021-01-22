@@ -82,8 +82,9 @@ JSExportAs(imageWithRoundedCorner,
            : (NSUInteger)cornerSize withBorder
            : (NSNumber *)optionalBorderSize);
 - (TiBlob *)imageWithTransparentBorder:(NSUInteger)size;
-- (NSString *)toString; // FIXME This doesn't seem to override the JS impl. I think we need to find a way to modify the property post-init to override it!
+- (NSString *)toString;
 - (JSValue *)toArrayBuffer;
+- (JSValue *)arrayBuffer;
 
 @end
 

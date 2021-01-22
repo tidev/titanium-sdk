@@ -13,7 +13,7 @@ description: |
     other views. There are a few specialized views that manage windows:
 
     * [NavigationWindow](Titanium.UI.NavigationWindow)
-    * [SplitWindow](Titanium.UI.iPad.SplitWindow)
+    * [SplitWindow](Titanium.UI.iOS.SplitWindow)
     * [TabGroup](Titanium.UI.TabGroup)
     * [Tab](Titanium.UI.Tab)
 
@@ -583,7 +583,7 @@ events:
     deprecated:
         since: "3.0.0"
         removed: "9.0.0"
-        notes: Use [Titanium.UI.Window.androidback](Titanium.UI.Window.androidback) instead.
+        notes: Use the [Titanium.UI.Window.androidback](Titanium.UI.Window.androidback) event instead.
     platforms: [android]
     summary: Fired when the Back button is released.
     description: |
@@ -595,7 +595,7 @@ events:
     deprecated:
         since: "3.0.0"
         removed: "9.0.0"
-        notes: Use [Titanium.UI.Window.androidcamera](Titanium.UI.Window.androidcamera) instead.
+        notes: Use the [Titanium.UI.Window.androidcamera](Titanium.UI.Window.androidcamera) event instead.
     summary: Fired when the Camera button is released.
     description: |
         Setting a listener disables the default key handling for this button. To restore
@@ -607,7 +607,7 @@ events:
     deprecated:
         since: "3.0.0"
         removed: "9.0.0"
-        notes: Use [Titanium.UI.Window.androidfocus](Titanium.UI.Window.androidfocus) instead.
+        notes: Use the [Titanium.UI.Window.androidfocus](Titanium.UI.Window.androidfocus) event instead.
     summary: Fired when the Camera button is half-pressed then released.
     description: |
         Setting a listener disables the default key handling for this button. To restore
@@ -619,7 +619,7 @@ events:
     deprecated:
         since: "3.0.0"
         removed: "9.0.0"
-        notes: Use [Titanium.UI.Window.androidsearch](Titanium.UI.Window.androidsearch) instead.
+        notes: Use the [Titanium.UI.Window.androidsearch](Titanium.UI.Window.androidsearch) event instead.
     summary: Fired when the Search button is released.
     description: |
         Setting a listener disables the default key handling for this button. To restore
@@ -631,7 +631,7 @@ events:
     deprecated:
         since: "3.0.0"
         removed: "9.0.0"
-        notes: Use [Titanium.UI.Window.androidvoldown](Titanium.UI.Window.androidvoldown) instead.
+        notes: Use the [Titanium.UI.Window.androidvoldown](Titanium.UI.Window.androidvoldown) event instead.
     summary: Fired when the volume down button is released.
     description: |
         Setting a listener disables the default key handling for this button. To restore
@@ -643,7 +643,7 @@ events:
     deprecated:
         since: "3.0.0"
         removed: "9.0.0"
-        notes: Use [Titanium.UI.Window.androidvolup](Titanium.UI.Window.androidvolup) instead.
+        notes: Use the [Titanium.UI.Window.androidvolup](Titanium.UI.Window.androidvolup) event instead.
     summary: Fired when the volume up button is released.
     description: |
         Setting a listener disables the default key handling for this button. To restore
@@ -1562,34 +1562,6 @@ properties:
     platforms: [iphone, ipad, macos]
     default: true on iOS7 and above, false otherwise.
     type: Boolean
-
-  - name: url
-    summary: Loads a JavaScript file from a local URL.
-    deprecated:
-        since: "3.5.0"
-        removed: "6.0.0"
-    exclude-platforms: [macos]
-    description: |
-        **Note:** The recommended way of creating windows with their own context is to either use the
-        [Alloy Framework](https://docs.appcelerator.com/platform/latest/#!/guide/Alloy_Framework) or a
-        [CommonJS module](https://docs.appcelerator.com/platform/latest/#!/guide/CommonJS_Modules_in_Titanium)
-        than using this property. One benefit of using a CommonJS module is that it consumes less
-        resources.
-
-        Use this property to have Windows load a JavaScript file in its own subcontext and thread,
-        separate from the `app.js` global context.
-        Reference a file relative to your project's `Resources` folder for classic Titanium
-        projects or `app/lib` folder for Alloy projects.
-
-        Note that Titanium will refuse to load JavaScript files from a remote URL. Loading
-        remote JavaScript from a URL and providing it with the full capabilities of the Titanium
-        API would be very dangerous.
-
-        When loading JavaScript files using this property, the special property
-        <Titanium.UI.currentWindow> is available inside a multi-context
-        application that points to the JavaScript instance by reference in the global context.
-    type: String
-    availability: creation
 
   - name: windowFlags
     summary: Additional flags to set on the Activity Window.

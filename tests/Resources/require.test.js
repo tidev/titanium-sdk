@@ -286,4 +286,9 @@ describe('require()', function () {
 		should(result).have.property('success');
 		should(result.success).be.true();
 	});
+
+	it('can handle circular references', () => {
+		const value = require('./circular.entry');
+		should.exist(value);
+	});
 });

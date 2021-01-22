@@ -13,6 +13,8 @@ import java.util.Iterator;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.KrollModule;
+import org.appcelerator.kroll.KrollObject;
+import org.appcelerator.kroll.KrollPromise;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.KrollRuntime;
 import org.appcelerator.kroll.annotations.Kroll;
@@ -508,28 +510,35 @@ public class GeolocationModule extends KrollModule implements Handler.Callback, 
 
 	@SuppressLint("NewApi")
 	@Kroll.method
-	public void requestLocationPermissions(@Kroll.argument(optional = true) Object type,
-										   @Kroll.argument(optional = true) KrollFunction permissionCallback)
+	public KrollPromise<KrollDict> requestLocationPermissions(@Kroll.argument(optional = true) final Object type,
+										   @Kroll.argument(optional = true) final KrollFunction permissionCallback)
 	{
-		KrollFunction permissionCB;
-		if (type instanceof KrollFunction && permissionCallback == null) {
-			permissionCB = (KrollFunction) type;
-		} else {
-			permissionCB = permissionCallback;
-		}
+		final KrollObject callbackThisObject = getKrollObject();
+		return KrollPromise.create((promise) -> {
+			KrollFunction permissionCB;
+			if (type instanceof KrollFunction && permissionCallback == null) {
+				permissionCB = (KrollFunction) type;
+			} else {
+				permissionCB = permissionCallback;
+			}
 
-		// already have permissions, fall through
-		if (hasLocationPermissions()) {
-			KrollDict response = new KrollDict();
-			response.putCodeAndMessage(0, null);
-			permissionCB.callAsync(getKrollObject(), response);
-			return;
-		}
+			// already have permissions, fall through
+			if (hasLocationPermissions()) {
+				KrollDict response = new KrollDict();
+				response.putCodeAndMessage(0, null);
+				if (permissionCB != null) {
+					permissionCB.callAsync(callbackThisObject, response);
+				}
+				promise.resolve(response);
+				return;
+			}
 
-		TiBaseActivity.registerPermissionRequestCallback(TiC.PERMISSION_CODE_LOCATION, permissionCB, getKrollObject());
-		Activity currentActivity = TiApplication.getInstance().getCurrentActivity();
-		currentActivity.requestPermissions(new String[] { Manifest.permission.ACCESS_FINE_LOCATION },
-										   TiC.PERMISSION_CODE_LOCATION);
+			TiBaseActivity.registerPermissionRequestCallback(TiC.PERMISSION_CODE_LOCATION, permissionCB,
+				callbackThisObject, promise);
+			Activity currentActivity = TiApplication.getInstance().getCurrentActivity();
+			currentActivity.requestPermissions(new String[] { Manifest.permission.ACCESS_FINE_LOCATION },
+											TiC.PERMISSION_CODE_LOCATION);
+		});
 	}
 
 	/**
@@ -710,9 +719,12 @@ public class GeolocationModule extends KrollModule implements Handler.Callback, 
 	 * 							for the specified address if available
 	 */
 	@Kroll.method
-	public void forwardGeocoder(String address, KrollFunction callback)
+	public KrollPromise<KrollDict> forwardGeocoder(final String address,
+												   @Kroll.argument(optional = true) final KrollFunction callback)
 	{
-		tiLocation.forwardGeocode(address, createGeocodeResponseHandler(callback));
+		return KrollPromise.create((promise) -> {
+			tiLocation.forwardGeocode(address, createGeocodeResponseHandler(callback, promise));
+		});
 	}
 
 	/**
@@ -725,9 +737,12 @@ public class GeolocationModule extends KrollModule implements Handler.Callback, 
 	 * 							for the specified latitude and longitude if available
 	 */
 	@Kroll.method
-	public void reverseGeocoder(double latitude, double longitude, KrollFunction callback)
+	public KrollPromise<KrollDict> reverseGeocoder(double latitude, double longitude,
+								@Kroll.argument(optional = true) final KrollFunction callback)
 	{
-		tiLocation.reverseGeocode(latitude, longitude, createGeocodeResponseHandler(callback));
+		return KrollPromise.create((promise) -> {
+			tiLocation.reverseGeocode(latitude, longitude, createGeocodeResponseHandler(callback, promise));
+		});
 	}
 
 	/**
@@ -738,7 +753,8 @@ public class GeolocationModule extends KrollModule implements Handler.Callback, 
 	 * 							once the geocode response is ready
 	 * @return					the geocode response handler
 	 */
-	private GeocodeResponseHandler createGeocodeResponseHandler(final KrollFunction callback)
+	private GeocodeResponseHandler createGeocodeResponseHandler(final KrollFunction callback,
+																final KrollPromise<KrollDict> promise)
 	{
 		final GeolocationModule geolocationModule = this;
 
@@ -747,6 +763,10 @@ public class GeolocationModule extends KrollModule implements Handler.Callback, 
 			public void handleGeocodeResponse(KrollDict geocodeResponse)
 			{
 				geocodeResponse.put(TiC.EVENT_PROPERTY_SOURCE, geolocationModule);
+				promise.resolve(geocodeResponse);
+				if (callback == null) {
+					return;
+				}
 				callback.call(getKrollObject(), new Object[] { geocodeResponse });
 			}
 		};
