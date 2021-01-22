@@ -481,7 +481,7 @@ static void jsArrayBufferFreeDeallocator(void *data, void *ctx)
 - (JSValue *)arrayBuffer
 {
   JSContext *context = [self currentContext];
-  KrollPromise *promise = [[KrollPromise alloc] initInContext:context];
+  KrollPromise *promise = [[[KrollPromise alloc] initInContext:context] autorelease];
   TiThreadPerformOnMainThread(
       ^{
         NSData *theData = [self data];
