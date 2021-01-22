@@ -11,11 +11,21 @@
       JSObjectRef resolve;
       JSObjectRef reject;
       JSValueRef exception = NULL;
-      _JSValue = [JSValue valueWithJSValueRef:JSObjectMakeDeferredPromise(context.JSGlobalContextRef, &resolve, &reject, &exception) inContext:context];
+
+      JSObjectRef promiseRef = JSObjectMakeDeferredPromise(context.JSGlobalContextRef, &resolve, &reject, &exception);
       if (exception) {
+        // FIXME: Randomly getting "null is not an object" and I don't know what is null here. The context? The Promise prototype?
         // report exception
-        [TiExceptionHandler.defaultExceptionHandler reportScriptError:[JSValue valueWithJSValueRef:exception inContext:context] inJSContext:context];
+        JSValue *error = [JSValue valueWithJSValueRef:exception inContext:context];
+        NSLog(@"%@", error[@"message"]);
+        [context setException:error];
+        _JSValue = [[JSValue valueWithUndefinedInContext:context] retain];
+        resolveFunc = [[JSValue valueWithUndefinedInContext:context] retain];
+        rejectFunc = [[JSValue valueWithUndefinedInContext:context] retain];
+        return self; // all bets are off!
       }
+
+      _JSValue = [[JSValue valueWithJSValueRef:promiseRef inContext:context] retain];
       resolveFunc = [[JSValue valueWithJSValueRef:resolve inContext:context] retain];
       rejectFunc = [[JSValue valueWithJSValueRef:reject inContext:context] retain];
     } else {
@@ -31,7 +41,8 @@
       if (exception != nil) {
         [TiExceptionHandler.defaultExceptionHandler reportScriptError:exception inJSContext:context];
       }
-      _JSValue = [createPromise callWithArguments:@[ executor ]];
+      // FIXME: Do we need to use a ManagedJSValue here rather than retain it? We do expose it to the JS Engine!
+      _JSValue = [[createPromise callWithArguments:@[ executor ]] retain];
       resolveFunc = [executor[@"resolve"] retain];
       rejectFunc = [executor[@"reject"] retain];
     }
@@ -79,8 +90,12 @@
 
 - (void)dealloc
 {
+  [_JSValue release];
+  _JSValue = nil;
   [resolveFunc release];
+  resolveFunc = nil;
   [rejectFunc release];
+  rejectFunc = nil;
   [super dealloc];
 }
 

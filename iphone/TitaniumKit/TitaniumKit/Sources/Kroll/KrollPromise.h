@@ -15,7 +15,7 @@
   JSValue *rejectFunc;
 }
 
-@property (readonly) JSValue *JSValue;
+@property (readonly, nonatomic) JSValue *JSValue;
 
 - (void)resolve:(NSArray *)arguments;
 - (void)reject:(NSArray *)arguments;
