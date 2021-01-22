@@ -4,9 +4,9 @@ const os = require('os');
 const path = require('path');
 const fs = require('fs-extra');
 const rollup = require('rollup').rollup;
-const babel = require('rollup-plugin-babel');
-const resolve = require('rollup-plugin-node-resolve');
-const commonjs = require('rollup-plugin-commonjs');
+const { babel } = require('@rollup/plugin-babel');
+const { nodeResolve } = require('@rollup/plugin-node-resolve');
+const commonjs = require('@rollup/plugin-commonjs');
 
 const git = require('./git');
 const utils = require('./utils');
@@ -37,7 +37,7 @@ function determineBabelOptions(babelOptions) {
 	const options = {
 		...babelOptions,
 		useBuiltIns: 'entry',
-		corejs: 3
+		corejs: getCorejsVersion()
 	};
 	// extract out options.transform used by babel-plugin-transform-titanium
 	const transform = options.transform || {};
@@ -46,8 +46,24 @@ function determineBabelOptions(babelOptions) {
 	return {
 		presets: [ [ '@babel/env', options ] ],
 		plugins: [ [ require.resolve('babel-plugin-transform-titanium'), transform ] ],
-		exclude: 'node_modules/**'
+		exclude: 'node_modules/**',
+		babelHelpers: 'bundled'
 	};
+}
+
+/**
+ * Returns the exact core-js version from package-lock file, this is required to ensure that the
+ * correct polyfills are loaded for the environment
+ *
+ * @returns {String}
+ */
+function getCorejsVersion() {
+	const packageLock = require('../../package-lock');
+	if (packageLock.dependencies && packageLock.dependencies['core-js']) {
+		const { version } = packageLock.dependencies['core-js'];
+		return version;
+	}
+	throw new Error('Could not lookup core-js version in package-lock file.');
 }
 
 class Builder {
@@ -80,6 +96,7 @@ class Builder {
 			await platform.clean();
 		}
 		// TODO: Construct a Packager and have it clean zipdir/file too?
+		return fs.remove(TMP_DIR);
 	}
 
 	async test() {
@@ -96,7 +113,32 @@ class Builder {
 		this.program.gitHash = hash || 'n/a';
 	}
 
-	async transpile(platform, babelOptions, outFile) {
+	async generateKernelBundle(platform, babelOptions, outDir) {
+		const TMP_COMMON_DIR = path.join(TMP_DIR, '_kernel');
+		const TMP_COMMON_PLAFORM_DIR = path.join(TMP_DIR, '_kernel', platform);
+
+		console.log(`Creating temporary 'kernel' directory...`); // eslint-disable-line quotes
+		await fs.copy(path.join(ROOT_DIR, 'common'), TMP_COMMON_PLAFORM_DIR);
+
+		// Write the bootstrap file
+		const bootstrapBundle = await rollup({
+			input: `${TMP_COMMON_PLAFORM_DIR}/Resources/ti.kernel.js`,
+			plugins: [
+				commonjs(),
+				babel(determineBabelOptions(babelOptions))
+			],
+			external: [ ]
+		});
+
+		const tiBootstrapJs = path.join(outDir, 'ti.kernel.js');
+		console.log(`Writing 'kernel' bundle to ${tiBootstrapJs} ...`); // eslint-disable-line quotes
+		await bootstrapBundle.write({ format: 'iife', file: tiBootstrapJs });
+
+		console.log(`Removing temporary 'common' directory...`); // eslint-disable-line quotes
+		await fs.remove(TMP_COMMON_DIR);
+	}
+
+	async generateTiMain(platform, babelOptions, outDir) {
 		// Copy over common dir, into some temp dir
 		// Then run rollup/babel on it, then just copy the resulting bundle to our real destination!
 		// The temporary location we'll assembled the transpiled bundle
@@ -111,25 +153,33 @@ class Builder {
 		const bundle = await rollup({
 			input: `${TMP_COMMON_PLAFORM_DIR}/Resources/ti.main.js`,
 			plugins: [
-				resolve(),
+				nodeResolve(),
 				commonjs(),
 				babel(determineBabelOptions(babelOptions))
 			],
 			external: [ './app', 'com.appcelerator.aca' ]
 		});
 
-		if (!outFile) {
-			outFile = path.join(TMP_DIR, 'common/Resources', platform, 'ti.main.js');
-		}
-
-		console.log(`Writing 'common' bundle to ${outFile} ...`); // eslint-disable-line quotes
-		await bundle.write({ format: 'cjs', file: outFile });
+		const tiMainJs = path.join(outDir,  'ti.main.js');
+		console.log(`Writing 'common' bundle to ${tiMainJs} ...`); // eslint-disable-line quotes
+		await bundle.write({ format: 'cjs', file: tiMainJs });
 
 		// We used to have to copy over ti.internal, but it is now bundled into ti.main.js
 		// if we ever have files there that cannot be bundled or are not hooked up properly, we'll need to copy them here manually.
 
 		console.log(`Removing temporary 'common' directory...`); // eslint-disable-line quotes
 		await fs.remove(TMP_COMMON_DIR);
+	}
+
+	async transpile(platform, babelOptions, outDir) {
+		if (!outDir) {
+			outDir = path.join(TMP_DIR, 'common', platform);
+		}
+		await fs.emptyDir(outDir);
+		return Promise.all([
+			this.generateTiMain(platform, babelOptions, outDir),
+			this.generateKernelBundle(platform, babelOptions, outDir),
+		]);
 	}
 
 	async build() {
@@ -181,7 +231,7 @@ class Builder {
 		return docs.generate();
 	}
 
-	async install (zipfile) {
+	async install(zipfile) {
 		if (zipfile) {
 			// Assume we have explicitly said to install this zipfile (from CLI command)
 			zipfile = path.resolve(process.cwd(), zipfile);

@@ -156,7 +156,7 @@ description: |
     To mitigate this, a `ScrollView` may be used instead of a list view, as demonstrated in the
     [ScrollView](Titanium.UI.ScrollView), "Scroll View as a Table View", example.
 
-    #### Editing Support (iOS)
+    #### Editing Support
 
     Editing a ListView through user initiated actions is supported through the following properties.
 
@@ -390,8 +390,8 @@ events:
 
         Note that the `sectionIndex`,`itemIndex`,`targetSectionIndex` and `targetItemIndex` properties of this event correspond to the List View state
         before the user action.
-    platforms: [iphone, ipad, macos]
-    since: 3.2.0
+    platforms: [android, iphone, ipad, macos]
+    since: {android: "9.3.0", iphone: "3.2.0", ipad: "3.2.0", macos: "9.2.0"}
     properties:
       - name: section
         summary: List section from which the item is moved.
@@ -516,47 +516,6 @@ events:
         summary: |
             The [identifier](RowActionType. identifier) of the row action. Only included in the event
             if previously defined. Available in Titanium 6.0.0 and later.
-        type: String
-
-      - name: section
-        summary: List section from which the event was generated.
-        type: Titanium.UI.ListSection
-
-      - name: sectionIndex
-        summary: Section index.
-        type: Number
-
-      - name: itemIndex
-        summary: Item index.
-        type: Number
-
-      - name: itemId
-        summary: The item ID bound to the list item that generated the event.
-        type: String
-
-      - name: bubbles
-        summary: false. This event does not bubble.
-        type: Boolean
-
-  - name: rowAction
-    deprecated:
-        since: "5.0.0"
-        removed: "5.0.0"
-        notes: Use [Titanium.UI.ListView.editaction](Titanium.UI.ListView.editaction) instead.
-    summary: Fired when the user interacts with one of the custom edit actions defined by <Titanium.UI.ListItem.editActions>.
-    description: |
-        Do not rely on the `source` property to determine which item fired the event.  Use the
-        `sectionIndex` and `itemIndex`, or the `itemId` to determine the list item that generated
-        the event.
-
-        Note that the `sectionIndex` and `itemIndex` properties of this event correspond to the list view state
-        before the user action.
-    platforms: [iphone, ipad]
-    since: 4.1.0
-    osver: {ios: {min: "8.0"}}
-    properties:
-      - name: action
-        summary: The [title](RowActionType.title) as defined in the row action object.
         type: String
 
       - name: section
@@ -713,8 +672,8 @@ properties:
         For more information see the "Editing Support" section of <Titanium.UI.ListView>.
     type: Boolean
     default: false
-    since: 3.2.0
-    platforms: [iphone, ipad, macos]
+    since: {android: "9.3.0", iphone: "3.2.0", ipad: "3.2.0", macos: "9.2.0"}
+    platforms: [android, iphone, ipad, macos]
 
   - name: fastScroll
     summary: Sets the fastScroll mode on Android ListViews.

@@ -19,11 +19,11 @@
 	],
 	"architectures": ["arm64-v8a", "armeabi-v7a", "x86", "x86_64"],
 	"v8": {
-		"version": "8.6.395.10",
+		"version": "8.7.220.31",
 		"mode": "release",
-		"integrity": "sha512-0b+/oiaae52wbTY6svDWAGJn7wyfBfBzGHNREY5uu1VTAbG8g962SwphhB0798pM1YMLR76RO7JvKQBv6sGP9A=="
+		"integrity": "sha512-kYmJlrBRtAOtbqvBHTFhdFmZ9B+e4IxrXYsBaMKOcTxQcGvtDgqigKrDf/H98kSD8ErjNIWK76Of5Pn6vmzIyQ=="
 	},
-	"minSDKVersion": "19",
+	"minSDKVersion": "21",
 	"compileSDKVersion": "30",
 	"vendorDependencies": {
 		"android sdk": ">=23.x <=30.x",

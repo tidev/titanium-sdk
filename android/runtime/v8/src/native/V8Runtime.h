@@ -18,7 +18,6 @@ class V8Runtime
 public:
 	static Persistent<Context> globalContext;
 	static Persistent<Object> krollGlobalObject;
-	static Persistent<Array> moduleContexts;
 	
 	static Isolate* v8_isolate;
 	static std::unique_ptr<v8::Platform> platform;
@@ -39,7 +38,6 @@ public:
 	static Local<Object> ModuleObject();
 	static Local<Context> GlobalContext();
 	static Local<Function> RunModuleFunction();
-	static Local<Array> ModuleContexts();
 };
 }
 ;

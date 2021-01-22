@@ -54,7 +54,6 @@
 
 - (void)connectToDelegate
 {
-#ifndef __clang_analyzer__
   UIView *nativeSourceView = nil;
 
 #ifdef USE_TI_UILISTVIEW
@@ -79,9 +78,12 @@
     nativeSourceView = [_sourceView view];
   }
   UIViewController *controller = [[[TiApp app] controller] topPresentedController];
-  [controller registerForPreviewingWithDelegate:[[TiPreviewingDelegate alloc] initWithPreviewContext:self]
+  TiPreviewingDelegate *previewingDelegate = [[TiPreviewingDelegate alloc] initWithPreviewContext:self];
+
+  [controller registerForPreviewingWithDelegate:previewingDelegate
                                      sourceView:nativeSourceView];
-#endif
+
+  RELEASE_TO_NIL(previewingDelegate);
 }
 
 @end

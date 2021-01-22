@@ -11,8 +11,12 @@
 /* eslint node/no-unsupported-features/node-builtins: "off" */
 'use strict';
 const should = require('./utilities/assertions');
+const utilities = require('./utilities/utilities');
+
 const path = require('path');
 
+const isMacOS = utilities.isMacOS();
+const isIOSSim = OS_IOS && Ti.Platform.model.includes('(Simulator)');
 const IS_ENCRYPTED = Ti.App.deployType === 'test';
 
 /**
@@ -89,7 +93,7 @@ describe('fs', function () {
 
 		it('checks that this file is NOT writable properly', function (finished) {
 			// ios sim does report this as writable!
-			if (OS_IOS && Ti.Platform.model.includes('(Simulator)')) {
+			if (isIOSSim || isMacOS) {
 				// this.skip(); // FIXME: Call this.skip() once we upgrade to npm mocha
 				return finished();
 			}

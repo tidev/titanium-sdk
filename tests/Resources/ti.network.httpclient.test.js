@@ -48,20 +48,22 @@ describe('Titanium.Network.HTTPClient', function () {
 	});
 
 	// Test for TIMOB-4513
-	it('secureValidateProperty', function () {
-		const xhr = Ti.Network.createHTTPClient();
-		should(xhr).be.an.Object();
+	describe('.validatesSecureCertificate', () => {
+		it('can be assigned Boolean', () => {
+			const xhr = Ti.Network.createHTTPClient();
+			should(xhr).be.an.Object();
 
-		should(xhr.validatesSecureCertificate).not.be.ok(); // FIXME: undefined on iOS, false on Android!
-		xhr.validatesSecureCertificate = true;
-		should(xhr.validatesSecureCertificate).be.true();
-		xhr.validatesSecureCertificate = false;
-		should(xhr.validatesSecureCertificate).be.false();
+			should(xhr.validatesSecureCertificate).not.be.ok(); // FIXME: undefined on iOS, false on Android!
+			xhr.validatesSecureCertificate = true;
+			should(xhr.validatesSecureCertificate).be.true();
+			xhr.validatesSecureCertificate = false;
+			should(xhr.validatesSecureCertificate).be.false();
+		});
 
-		xhr.setValidatesSecureCertificate(true);
-		should(xhr.getValidatesSecureCertificate()).be.true();
-		xhr.setValidatesSecureCertificate(false);
-		should(xhr.getValidatesSecureCertificate()).be.false();
+		it('has accessors', () => {
+			const xhr = Ti.Network.createHTTPClient();
+			should(xhr).have.accessors('validatesSecureCertificate');
+		});
 	});
 
 	it('downloadLargeFile', function (finish) {
@@ -206,6 +208,11 @@ describe('Titanium.Network.HTTPClient', function () {
 		};
 		xhr.open('GET', 'https://google.com');
 		xhr.send();
+	});
+
+	it('#getAllResponseHeaders() exists (to match XMLHTTPRequest)', () => {
+		const xhr = Ti.Network.createHTTPClient();
+		should(xhr.getAllResponseHeaders).be.a.Function();
 	});
 
 	// https://appcelerator.lighthouseapp.com/projects/32238/tickets/2339

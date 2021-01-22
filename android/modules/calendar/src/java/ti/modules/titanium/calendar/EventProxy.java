@@ -23,7 +23,6 @@ import android.content.ContentUris;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.Build;
 import android.provider.CalendarContract.Events;
 import android.provider.CalendarContract.Instances;
 
@@ -91,18 +90,16 @@ public class EventProxy extends KrollProxy
 		ContentUris.appendId(builder, date1);
 		ContentUris.appendId(builder, date2);
 
-		String visibility = "";
-		if (Build.VERSION.SDK_INT >= 14) {
-			visibility = Instances.ACCESS_LEVEL;
-		} else {
-			visibility = "visibility";
-		}
-
-		Cursor eventCursor = contentResolver.query(builder.build(),
-												   new String[] { "event_id", "title", "description", "eventLocation",
-																  "begin", "end", "allDay", "hasAlarm", "eventStatus",
-																  visibility, Events.RRULE, Events.CALENDAR_ID },
-												   query, queryArgs, "startDay ASC, startMinute ASC");
+		Cursor eventCursor = contentResolver.query(
+			builder.build(),
+			new String[] {
+				"event_id", "title", "description", "eventLocation",
+				"begin", "end", "allDay", "hasAlarm", "eventStatus",
+				Instances.ACCESS_LEVEL, Events.RRULE, Events.CALENDAR_ID
+			},
+			query,
+			queryArgs,
+			"startDay ASC, startMinute ASC");
 
 		if (eventCursor == null) {
 			Log.w(TAG, "Unable to get any results when pulling events by date range");
@@ -164,18 +161,11 @@ public class EventProxy extends KrollProxy
 		}
 		ContentResolver contentResolver = TiApplication.getInstance().getContentResolver();
 
-		String visibility = "";
-		if (Build.VERSION.SDK_INT >= 14) {
-			visibility = Instances.ACCESS_LEVEL;
-		} else {
-			visibility = "visibility";
-		}
-
 		Cursor eventCursor = contentResolver.query(
 			uri,
 			new String[] {
 				"_id", "title", "description", "eventLocation", "dtstart", "dtend", "allDay", "hasAlarm",
-				"eventStatus", visibility, Events.RRULE, Events.CALENDAR_ID, "hasExtendedProperties"
+				"eventStatus", Instances.ACCESS_LEVEL, Events.RRULE, Events.CALENDAR_ID, "hasExtendedProperties"
 			},
 			query, queryArgs, orderBy);
 
@@ -228,11 +218,7 @@ public class EventProxy extends KrollProxy
 		event.title = TiConvert.toString(data, "title");
 		eventValues.put("title", event.title);
 		eventValues.put("calendar_id", calendar.getId());
-
-		// ICS requires eventTimeZone field when inserting new event
-		if (Build.VERSION.SDK_INT >= 14) {
-			eventValues.put(Events.EVENT_TIMEZONE, new Date().toString());
-		}
+		eventValues.put(Events.EVENT_TIMEZONE, new Date().toString());
 
 		if (data.containsKey(TiC.PROPERTY_LOCATION)) {
 			event.location = TiConvert.toString(data, TiC.PROPERTY_LOCATION);
@@ -280,11 +266,7 @@ public class EventProxy extends KrollProxy
 
 	public static ArrayList<EventProxy> queryEventsBetweenDates(long date1, long date2, CalendarProxy calendar)
 	{
-		if (Build.VERSION.SDK_INT >= 11) {
-			return queryEventsBetweenDates(date1, date2, "calendar_id=" + calendar.getId(), null);
-		} else {
-			return queryEventsBetweenDates(date1, date2, "Calendars._id=" + calendar.getId(), null);
-		}
+		return queryEventsBetweenDates(date1, date2, "calendar_id=" + calendar.getId(), null);
 	}
 
 	private Object setValueFromCursorForColumn(Cursor cursor, String columnName, Object defaultValue)

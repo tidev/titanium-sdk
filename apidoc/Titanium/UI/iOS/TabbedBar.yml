@@ -17,6 +17,7 @@ excludes:
 deprecated:
     since: "8.0.0"
     notes: Use [Titanium.UI.TabbedBar](Titanium.UI.TabbedBar) instead.
+    removed: "10.0.0"
 
 events: 
   - name: click

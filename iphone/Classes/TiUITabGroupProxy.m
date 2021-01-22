@@ -147,16 +147,34 @@ static NSArray *tabGroupKeySequence;
 {
   TiUITabGroup *tg = (TiUITabGroup *)self.view;
   [tg open:nil];
-  return [super windowWillOpen];
+  [super windowWillOpen];
+}
+
+- (void)windowDidOpen
+{
+  // Set parent view controller for UITabBarController
+  TiUITabGroup *tabGroup = (TiUITabGroup *)self.view;
+  if (tabGroup) {
+    UITabBarController *tabController = [tabGroup tabController];
+    UIViewController *parentController = [self windowHoldingController];
+    [parentController addChildViewController:tabController];
+    [tabController didMoveToParentViewController:parentController];
+  }
+  [super windowDidOpen];
 }
 
 - (void)windowWillClose
 {
   TiUITabGroup *tabGroup = (TiUITabGroup *)self.view;
   if (tabGroup != nil) {
+    // Remove UITabBarController from parent view  controller
+    UITabBarController *tabController = [(TiUITabGroup *)[self view] tabController];
+    [tabController willMoveToParentViewController:nil];
+    [tabController.view removeFromSuperview];
+    [tabController removeFromParentViewController];
     [tabGroup close:nil];
   }
-  return [super windowWillClose];
+  [super windowWillClose];
 }
 
 - (void)didReceiveMemoryWarning:(NSNotification *)notification

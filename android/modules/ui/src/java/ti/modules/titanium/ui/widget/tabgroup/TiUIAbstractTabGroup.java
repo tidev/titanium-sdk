@@ -13,7 +13,6 @@ import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.RippleDrawable;
 import android.graphics.drawable.StateListDrawable;
-import android.os.Build;
 import android.os.Bundle;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
@@ -314,7 +313,6 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 	 */
 	protected Drawable createBackgroundDrawableForState(TiViewProxy tabProxy, int stateToUse)
 	{
-		Drawable resultDrawable;
 		StateListDrawable stateListDrawable = new StateListDrawable();
 		int colorInt;
 		// If the TabGroup has backgroundColor property, use it. If not - use the primaryColor of the theme.
@@ -340,25 +338,14 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 
 		// ActionBar Tabs had ripple effect by default, but support library TabLayout does not have ripple effect
 		// out of the box, so we create a ripple drawable for that.
-
-		// RippleDrawable was introduced for Android Lollipop, so we create it only for API level of 21 and above.
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-			// Set the ripple state.
-			int[][] rippleStates = new int[][] { new int[] { android.R.attr.state_pressed } };
-			// Set the ripple color.
-			TypedValue typedValue = new TypedValue();
-			TypedArray colorControlHighlight = proxy.getActivity().obtainStyledAttributes(
-				typedValue.data, new int[] { android.R.attr.colorControlHighlight });
-			int colorControlHighlightInt = colorControlHighlight.getColor(0, 0);
-			int[] rippleColors = new int[] { colorControlHighlightInt };
-			// Create the ColorStateList.
-			ColorStateList colorStateList = new ColorStateList(rippleStates, rippleColors);
-			// Create the RippleDrawable.
-			resultDrawable = new RippleDrawable(colorStateList, stateListDrawable, null);
-		} else {
-			resultDrawable = stateListDrawable;
-		}
-		return resultDrawable;
+		int[][] rippleStates = new int[][] { new int[] { android.R.attr.state_pressed } };
+		TypedValue typedValue = new TypedValue();
+		TypedArray colorControlHighlight = proxy.getActivity().obtainStyledAttributes(
+			typedValue.data, new int[] { android.R.attr.colorControlHighlight });
+		int colorControlHighlightInt = colorControlHighlight.getColor(0, 0);
+		int[] rippleColors = new int[] { colorControlHighlightInt };
+		ColorStateList colorStateList = new ColorStateList(rippleStates, rippleColors);
+		return new RippleDrawable(colorStateList, stateListDrawable, null);
 	}
 
 	/**

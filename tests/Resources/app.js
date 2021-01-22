@@ -159,11 +159,10 @@ function loadTests() {
 		require('./ti.ui.ios.test');
 		require('./ti.ui.ios.collisionbehavior.test');
 		require('./ti.ui.ios.feedbackgenerator.test');
-		require('./ti.ui.ios.navigationwindow.test');
 		require('./ti.ui.ios.previewcontext.test');
 		require('./ti.ui.ios.splitwindow.test');
 		require('./ti.ui.ios.statusbar.test');
-		require('./ti.ui.ios.tabbedbar.test');
+		require('./ti.ui.ios.stepper.test');
 		require('./ti.ui.ios.tableviewstyle.test');
 		require('./ti.ui.ios.webviewconfiguration.test');
 		require('./ti.ui.ipad.test');

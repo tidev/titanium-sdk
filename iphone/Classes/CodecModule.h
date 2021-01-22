@@ -6,7 +6,7 @@
  */
 #ifdef USE_TI_CODEC
 @import Foundation;
-@import TitaniumKit.ObjcProxy;
+@import TitaniumKit.ObjcModule;
 
 @import JavaScriptCore;
 
@@ -46,7 +46,7 @@ CONSTANT(NSString *, TYPE_DOUBLE);
 
 @end
 
-@interface CodecModule : ObjcProxy <CodecExports> {
+@interface CodecModule : ObjcModule <CodecExports> {
 }
 
 @end
