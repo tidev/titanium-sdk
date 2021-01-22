@@ -22,7 +22,9 @@ FOUNDATION_EXPORT const unsigned char TitaniumKitVersionString[];
 #import <TitaniumKit/ImageLoader.h>
 #import <TitaniumKit/JSValue+Addons.h>
 #import <TitaniumKit/Mimetypes.h>
+#import <TitaniumKit/Module.h>
 #import <TitaniumKit/NSData+Additions.h>
+#import <TitaniumKit/ObjcModule.h>
 #import <TitaniumKit/ObjcProxy.h>
 #import <TitaniumKit/OperationQueue.h>
 #import <TitaniumKit/SBJSON.h>

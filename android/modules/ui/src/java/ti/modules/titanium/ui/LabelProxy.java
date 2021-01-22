@@ -8,7 +8,6 @@ package ti.modules.titanium.ui;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.annotations.Kroll;
-import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.view.TiUIView;
@@ -28,7 +27,6 @@ import android.app.Activity;
 		TiC.PROPERTY_TEXT,
 		TiC.PROPERTY_TEXT_ALIGN,
 		TiC.PROPERTY_TEXTID,
-		TiC.PROPERTY_WORD_WRAP,
 		TiC.PROPERTY_VERTICAL_ALIGN,
 		TiC.PROPERTY_SHADOW_OFFSET,
 		TiC.PROPERTY_SHADOW_COLOR,
@@ -76,14 +74,6 @@ public class LabelProxy extends TiViewProxy
 
 		// Let the base class handle it first. Will localize given properties if needed.
 		super.handleCreationDict(properties);
-
-		// Handle deprecated "wordWrap" property.
-		// Note: Not suported on iOS either. Is supported on Windows.
-		if (properties.containsKey(TiC.PROPERTY_WORD_WRAP)) {
-			logWordWrapWarning();
-		} else {
-			setProperty(TiC.PROPERTY_WORD_WRAP, true);
-		}
 	}
 
 	@Override
@@ -91,18 +81,6 @@ public class LabelProxy extends TiViewProxy
 	{
 		// Let the base class handle it first. Will localize property value if needed.
 		super.onPropertyChanged(name, value);
-
-		// Handle property change.
-		if (TiC.PROPERTY_WORD_WRAP.equals(name)) {
-			logWordWrapWarning();
-		}
-	}
-
-	private void logWordWrapWarning()
-	{
-		String message = "Ti.UI.Label property '" + TiC.PROPERTY_WORD_WRAP + "' is deprecated. "
-						 + "If setting false, then set '" + TiC.PROPERTY_MAX_LINES + "' to 1 instead.";
-		Log.w(TAG, message);
 	}
 
 	@Override

@@ -1,0 +1,1755 @@
+---
+name: fs
+summary: A Node.js-compatible implementation of the core `fs` module
+description: |
+    Titanium provides a number of shims and ports of core Node.js module functionality.
+
+    This module is intended to provide a Node-compatible port of the `fs` core module.
+    
+    More details on the Node.js API can be found in their [fs module documentation](https://nodejs.org/api/fs.html)
+
+    The `fs` module enables interacting with the file system in a way modeled on standard POSIX functions.
+
+    To use this module:
+    
+    ``` javascript
+    const fs = require('fs');
+    ```
+    
+    All file system operations have synchronous and asynchronouse callback forms.
+
+    **NOTE:** The Titanium shim for this module does not support the new Promises API yet, nor does it support some of the newer (and a subset of older) APIs.
+
+    Some of the APIs are implemented as no-ops:
+
+    - `chmod`
+    - `chmodSync`
+    - `chown`
+    - `chownSync`
+    - `fchmod`
+    - `fchmodSync`
+    - `fchown`
+    - `fchownSync`
+    - `fdatasync`
+    - `fdatasyncSync`
+    - `symlink`
+    - `symlinkSync`
+    - `unwatchFile`
+    - `utimes`
+    - `utimesSync`
+    - `watch`
+    - `watchFile`
+
+    Explicitly unsupported for now are:
+
+    - `fs.createReadStream`
+    - `fs.createWriteStream`
+    - `fs.fsync(fd, callback)`
+    - `fs.fsyncSync(fd)`
+    - `fs.ftruncate(fd[, len], callback)`
+    - `fs.ftruncateSync(fd[, len])`
+    - `fs.futimes(fd, atime, mtime, callback)`
+    - `fs.futimesSync(fd, atime, mtime)`
+    - `fs.lchmod(path, mode, callback)`
+    - `fs.lchmodSync(path, mode)`
+    - `fs.lchown(path, uid, gid, callback)`
+    - `fs.lchownSync(path, uid, gid)`
+    - `fs.link(existingPath, newPath, callback)`
+    - `fs.linkSync(existingPath, newPath)`
+    - `fs.opendir`
+    - `fs.opendirSync`
+    - `fs.readlink(path[, options], callback)`
+    - `fs.readlinkSync(path[, options])`
+    - `fs.rm`
+    - `fs.rmSync`
+
+platforms: [android, iphone, ipad, macos]
+since: '8.3.0'
+properties:
+  - name: constants
+    type: fs.constants
+    summary: Returns an object containing commonly used constants for file system operations. The specific constants currently defined are described in [FS constants](fs.constants).
+
+  - name: Stats
+    type: fs.Stats
+    summary: The class `fs.Stats`
+
+  - name: ReadStream
+    type: fs.ReadStream
+    summary: The class `fs.ReadStream`
+
+  - name: WriteStream
+    type: fs.WriteStream
+    summary: The class `fs.WriteStream`
+
+methods:
+  - name: access
+    summary: |
+        Tests a user's permissions for the file or directory specified by `path`.
+        The `mode` argument is an optional integer that specifies the accessibility checks to be performed.
+        Check File access constants for possible values of `mode`.
+        It is possible to create a mask consisting of the bitwise OR of two or more values (e.g. `fs.constants.W_OK | fs.constants.R_OK`).
+    parameters:
+      - name: path
+        type: [ String, buffer.Buffer ]
+        summary: filepath
+      - name: mode
+        type: Number
+        summary: mode/permissions to check
+        default: fs.constants.F_OK
+        optional: true
+      - name: callback
+        type: Function<Error>
+        summary: typical async callback function
+
+  - name: accessSync
+    summary: |
+        Synchronously tests a user's permissions for the file or directory specified by `path`.
+        The `mode` argument is an optional integer that specifies the accessibility checks to be performed.
+        Check File access constants for possible values of `mode`.
+        It is possible to create a mask consisting of the bitwise OR of two or more values (e.g. `fs.constants.W_OK | fs.constants.R_OK`).
+    parameters:
+      - name: path
+        type: [ String, buffer.Buffer ]
+        summary: filepath
+      - name: mode
+        type: Number
+        summary: mode/permissions to check
+        default: fs.constants.F_OK
+        optional: true
+
+  - name: appendFile
+    summary: |
+        Asynchronously append `data` to a file, creating the file if it does not yet exist. `data` can be a `string` or a <buffer.Buffer>.
+    parameters:
+      - name: path
+        type: [ String, buffer.Buffer, Number ]
+        summary: filepath or file descriptor
+      - name: data
+        type: [ String, buffer.Buffer ]
+        summary: data to append
+      - name: options
+        type: [ fs.appendFile.options, String ]
+        summary: options
+        optional: true
+      - name: callback
+        type: Function<Error>
+        summary: typical async callback function
+
+  - name: appendFileSync
+    summary: |
+        Synchronously append `data` to a file, creating the file if it does not yet exist. `data` can be a `string` or a <buffer.Buffer>.
+    parameters:
+      - name: path
+        type: [ String, buffer.Buffer, Number ]
+        summary: filepath or file descriptor
+      - name: data
+        type: [ String, buffer.Buffer ]
+        summary: data to append
+      - name: options
+        type: [ fs.appendFile.options, String ]
+        summary: options
+        optional: true
+
+  - name: chmod
+    summary: |
+        Asynchronously changes the permissions of a file. No arguments other than a possible exception are given to the completion callback.
+
+        **This is a no-op on Titanium.**
+    parameters:
+      - name: path
+        type: [ String, buffer.Buffer ]
+        summary: filepath
+      - name: mode
+        type: [ String, Number ]
+        summary: new mode/permissions
+      - name: callback
+        type: Function<Error>
+        summary: typical async callback function
+
+  - name: chmodSync
+    summary: |
+        Synchronously changes the permissions of a file.
+
+        **This is a no-op on Titanium.**
+    parameters:
+      - name: path
+        type: [ String, buffer.Buffer ]
+        summary: filepath
+      - name: mode
+        type: [ String, Number ]
+        summary: new mode/permissions
+
+  - name: chown
+    summary: |
+        Asynchronously changes owner and group of a file. No arguments other than a possible exception are given to the completion callback.
+
+        **This is a no-op on Titanium.**
+    parameters:
+      - name: path
+        type: [ String, buffer.Buffer ]
+        summary: filepath
+      - name: uid
+        type: Number
+        summary: new owner
+      - name: gid
+        type: Number
+        summary: new group
+      - name: callback
+        type: Function<Error>
+        summary: typical async callback function
+
+  - name: chownSync
+    summary: |
+        Synchronously changes owner and group of a file.
+
+        **This is a no-op on Titanium.**
+    parameters:
+      - name: path
+        type: [ String, buffer.Buffer ]
+        summary: filepath
+      - name: uid
+        type: Number
+        summary: new owner
+      - name: gid
+        type: Number
+        summary: new group
+
+  - name: close
+    summary: |
+        Asynchronous `close`. No arguments other than a possible exception are given to the completion `callback`.
+
+        Calling `fs.close()` on any file descriptor (`fd`) that is currently in use through any other fs operation may lead to undefined behavior.
+    parameters:
+      - name: fd
+        type: Number
+        summary: file descriptor
+      - name: callback
+        type: Function<Error>
+        summary: typical async callback function
+
+  - name: closeSync
+    summary: |
+        Synchronous `close`.
+
+        Calling `fs.close()` on any file descriptor (`fd`) that is currently in use through any other fs operation may lead to undefined behavior.
+    parameters:
+      - name: fd
+        type: Number
+        summary: file descriptor
+
+  - name: copyFile
+    summary: |
+        Asynchronously copies `src` to `dest`. By default, `dest` is overwritten if it already exists. No arguments other than a possible exception are given to the callback function. Node.js makes no guarantees about the atomicity of the copy operation. If an error occurs after the destination file has been opened for writing, Node.js will attempt to remove the destination.
+
+        `mode` is an optional integer that specifies the behavior of the copy operation. It is possible to create a mask consisting of the bitwise OR of two or more values (e.g. `fs.constants.COPYFILE_EXCL | fs.constants.COPYFILE_FICLONE`).
+
+        - `fs.constants.COPYFILE_EXCL`: The copy operation will fail if dest already exists.
+        - `fs.constants.COPYFILE_FICLONE`: The copy operation will attempt to create a copy-on-write reflink. If the platform does not support copy-on-write, then a fallback copy mechanism is used.
+        - `fs.constants.COPYFILE_FICLONE_FORCE`: The copy operation will attempt to create a copy-on-write reflink. If the platform does not support copy-on-write, then the operation will fail.
+    parameters:
+      - name: src
+        type: String
+        summary: source filename to copy
+      - name: dest
+        type: String
+        summary: destination filename of the copy operation
+      - name: mode
+        type: Number
+        summary: modifiers for copy operation.
+        optional: true
+        default: 0
+      - name: callback
+        type: Function<Error>
+        summary: typical async callback function
+
+  - name: copyFileSync
+    summary: |
+        Synchronously copies `src` to `dest`. By default, `dest` is overwritten if it already exists. Node.js makes no guarantees about the atomicity of the copy operation. If an error occurs after the destination file has been opened for writing, Node.js will attempt to remove the destination.
+
+        `mode` is an optional integer that specifies the behavior of the copy operation. It is possible to create a mask consisting of the bitwise OR of two or more values (e.g. `fs.constants.COPYFILE_EXCL | fs.constants.COPYFILE_FICLONE`).
+
+        - `fs.constants.COPYFILE_EXCL`: The copy operation will fail if dest already exists.
+        - `fs.constants.COPYFILE_FICLONE`: The copy operation will attempt to create a copy-on-write reflink. If the platform does not support copy-on-write, then a fallback copy mechanism is used.
+        - `fs.constants.COPYFILE_FICLONE_FORCE`: The copy operation will attempt to create a copy-on-write reflink. If the platform does not support copy-on-write, then the operation will fail.
+    parameters:
+      - name: src
+        type: String
+        summary: source filename to copy
+      - name: dest
+        type: String
+        summary: destination filename of the copy operation
+      - name: mode
+        type: Number
+        summary: modifiers for copy operation.
+        optional: true
+        default: 0
+
+  # Not Implemented:
+  # - name: createReadStream(path[, options])
+  # - name: createWriteStream(path[, options])
+  
+  - name: exists
+    summary: Test whether or not the given path exists by checking with the file system.
+    parameters:
+      - name: path
+        type: [ String, buffer.Buffer ]
+        summary: file path
+
+      - name: callback
+        type: Function<Boolean>
+        summary: atypical async callback function that received the result as a single boolean arguments
+
+  - name: existsSync(path)
+    summary: Test whether or not the given path exists by checking with the file system.
+    returns:
+      type: Boolean
+    parameters:
+      - name: path
+        type: [ String, buffer.Buffer ]
+        summary: file path
+
+  - name: fchmod
+    summary: |
+        Asynchronous `fchmod`.
+
+        **This is a no-op on Titanium.**
+    parameters:
+      - name: fd
+        type: Number
+        summary: file descriptor
+      - name: mode
+        type: [ String, Number ]
+        summary: new mode/permissions
+      - name: callback
+        type: Function<Error>
+        summary: typical async callback function
+
+  - name: fchmodSync
+    summary: |
+        Synchronous `fchmod`.
+
+        **This is a no-op on Titanium.**
+    parameters:
+      - name: fd
+        type: Number
+        summary: file descriptor
+      - name: mode
+        type: [ String, Number ]
+        summary: new mode/permissions
+
+  - name: fchown
+    summary: |
+        Asynchronous `fchown`.
+
+        **This is a no-op on Titanium.**
+    parameters:
+      - name: fd
+        type: Number
+        summary: file descriptor
+      - name: uid
+        type: Number
+        summary: new owner
+      - name: gid
+        type: Number
+        summary: new group
+      - name: callback
+        type: Function<Error>
+        summary: typical async callback function
+
+  - name: fchownSync
+    summary: |
+        Synchronous `fchown`.
+
+        **This is a no-op on Titanium.**
+    parameters:
+      - name: fd
+        type: Number
+        summary: file descriptor
+      - name: uid
+        type: Number
+        summary: new owner
+      - name: gid
+        type: Number
+        summary: new group
+
+  - name: fdatasync
+    summary: |
+        Asynchronous `fdatasync`.
+
+        **This is a no-op on Titanium.**
+    parameters:
+      - name: fd
+        type: Number
+        summary: file descriptor
+      - name: callback
+        type: Function<Error>
+        summary: typical async callback function
+
+  - name: fdatasyncSync
+    summary: |
+        Synchronous `fdatasync`.
+
+        **This is a no-op on Titanium.**
+    parameters:
+      - name: fd
+        type: Number
+        summary: file descriptor
+
+  - name: fstat
+    summary: |
+        Asynchronous `fstat`.
+        The `callback` gets two arguments `(err, stats)` where `stats` is an <fs.Stats> object.
+        `fstat()` is identical to `stat()`, except that the file to be stat-ed is specified by the file descriptor `fd`.
+    parameters:
+      - name: fd
+        type: Number
+        summary: file descriptor
+      - name: options
+        type: fs.stat.options
+        optional: true
+        summary: options
+      - name: callback
+        type: Function<Error, fs.Stats>
+        summary: typical async callback function
+
+  - name: fstatSync
+    summary: Synchronous `fstat`.
+    parameters:
+      - name: fd
+        type: Number
+        summary: file descriptor
+      - name: options
+        type: fs.stat.options
+        optional: true
+        summary: options
+    returns:
+        type: fs.Stats
+
+  - name: lstat
+    summary: Asynchronous `lstat`.
+    parameters:
+      - name: path
+        type: [ String, buffer.Buffer ]
+        summary: file path
+      - name: options
+        type: fs.stat.options
+        optional: true
+        summary: options
+      - name: callback
+        type: Function<Error, fs.Stats>
+        summary: typical async callback function
+
+  - name: lstatSync
+    summary: Synchronous `lstat`.
+    parameters:
+      - name: path
+        type: [ String, buffer.Buffer ]
+        summary: file path
+      - name: options
+        type: fs.stat.options
+        optional: true
+        summary: options
+    returns:
+        type: fs.Stats
+
+  - name: mkdir
+    summary: |
+        Asynchronously creates a directory.
+
+        The `callback` is given a possible exception and, if `recursive` is `true`, the first directory path created, `(err, [path])`.
+
+        The optional `options` argument can be an integer specifying `mode` (permission and sticky bits), or an object with a `mode` property and a `recursive` property indicating whether parent directories should be created.
+        Calling `fs.mkdir()` when `path` is a directory that exists results in an error only when `recursive` is `false`.
+    parameters:
+      - name: path
+        type: [ String, buffer.Buffer ]
+        summary: file path
+      - name: options
+        type: fs.mkdir.options
+        optional: true
+        summary: options
+      - name: callback
+        type: Function<Error, String>
+        summary: typical async callback function. The second argument is an optional path `string`.
+
+  - name: mkdirSync
+    summary: |
+        Synchronously creates a directory.
+        Returns `undefined`, or if `recursive is `true`, the first directory path created. This is the synchronous version of `fs.mkdir()`.
+    parameters:
+      - name: path
+        type: [ String, buffer.Buffer ]
+        summary: file path
+      - name: options
+        type: fs.mkdir.options
+        optional: true
+        summary: options
+    returns:
+        # FIXME: Support void/undefined types in doc lint/generation!
+        # type: [ String, undefined ]
+        type: String
+        summary: will return `undefined` if `recursive` option is not `true`
+
+  - name: mkdtemp
+    summary: |
+        Creates a unique temporary directory.
+
+        Generates six random characters to be appended behind a required `prefix` to create a unique temporary directory. Due to platform inconsistencies, avoid trailing `X` characters in `prefix`. Some platforms, notably the BSDs, can return more than six random characters, and replace trailing `X` characters in `prefix` with random characters.
+
+        The created directory path is passed as a string to the `callback`'s second parameter.
+
+        The optional `options` argument can be a string specifying an encoding, or an object with an `encoding` property specifying the character encoding to use.
+    parameters:
+      - name: prefix
+        type: String
+        summary: file prefix
+      - name: options
+        type: [ String, fs.mkdtemp.options ]
+        optional: true
+        summary: encoding if `string`
+      - name: callback
+        type: Function<Error, String>
+        summary: typical async callback function. The second argument is the generated path `string`.
+
+  - name: mkdtempSync
+    summary: |
+        For detailed information, see the documentation of the asynchronous version of this API: <fs.mkdtemp>.
+
+        The optional `options` argument can be a string specifying an encoding, or an object with an `encoding` property specifying the character encoding to use.
+    parameters:
+      - name: prefix
+        type: String
+        summary: file prefix
+      - name: options
+        type: [ String, fs.mkdtemp.options ]
+        optional: true
+        summary: encoding if `string`
+    returns:
+      type: String
+      summary: Returns the created directory path.
+
+  - name: open
+    summary: |
+        Asynchronous file open. See open(2).
+
+        `mode` sets the file mode (permission and sticky bits), but only if the file was created. On Windows, only the write permission can be manipulated; see fs.chmod().
+
+        The `callback` gets two arguments `(err, fd)`.
+    parameters:
+      - name: path
+        type: [ String, buffer.Buffer ]
+        summary: file path
+      - name: flags
+        type: [ String, Number ]
+        summary: file system flags
+        optional: true
+        default: 'r'
+      - name: mode
+        type: [ Number, String ]
+        summary: file permissions
+        optional: true
+        default: 0o666
+      - name: callback
+        type: Function<Error, Number>
+        summary: typical async callback function, the second argument is an integer representing a file descriptor
+
+  # Not implemented:
+  # - name: opendir(path[, options], callback)
+  # - name: opendirSync(path[, options])
+
+  - name: openSync
+    summary: |
+        For detailed information, see the documentation of the asynchronous version of this API: `fs.open()`.
+    parameters:
+      - name: path
+        type: [ String, buffer.Buffer ]
+        summary: file path
+      - name: flags
+        type: [ String, Number ]
+        summary: file system flags
+        optional: true
+        default: 'r'
+      - name: mode
+        type: [ Number, String ]
+        summary: file permissions
+        optional: true
+        default: 0o666
+    returns:
+      type: Number
+      summary: Returns an integer representing the file descriptor.
+
+  - name: read
+    summary: |
+        Read data from the file specified by fd.
+
+        `buffer` is the buffer that the data (read from the fd) will be written to.
+
+        `offset` is the offset in the buffer to start writing at.
+
+        `length` is an integer specifying the number of bytes to read.
+
+        `position` is an argument specifying where to begin reading from in the file. If position is `null`, data will be read from the current file position, and the file position will be updated. If position is an integer, the file position will remain unchanged.
+
+        The `callback` is given the three arguments, `(err, bytesRead, buffer)`.
+
+        If the file is not modified concurrently, the end-of-file is reached when the number of bytes read is zero.
+    parameters:
+      - name: fd
+        type: Number
+        summary: file descriptor
+      - name: buffer
+        type: [ buffer.Buffer, Titanium.Buffer ]
+        summary: buffer to read
+      - name: offset
+        type: Number
+        summary: the offset in the buffer to start writing at.
+      - name: length
+        type: Number
+        summary: integer specifying the number of bytes to read.
+      - name: position
+        type: Number
+        summary: where to begin reading from in the file. *Unused/unsupported in Titanium.*
+      - name: callback
+        type: Function<Error, Number, buffer.Buffer>
+        summary: async callback function
+
+  - name: readdir
+    summary: |
+        Asynchronous `readdir`. Reads the contents of a directory. The `callback` gets two arguments `(err, files)` where `files` is an array of the names of the files in the directory excluding `'.'` and `'..'`.
+
+        The optional `options` argument can be a string specifying an encoding, or an object with an encoding property specifying the character encoding to use for the filenames passed to the callback. If the encoding is set to 'buffer', the filenames returned will be passed as Buffer objects.
+
+        If `options.withFileTypes` is set to `true`, the `files` array will contain `fs.Dirent` objects. **NOTE:** Titanium does not yet support this.
+    parameters:
+      - name: path
+        type: [ String, buffer.Buffer ]
+        summary: file path
+      - name: options
+        type: fs.readdir.options
+        summary: options
+        optional: true
+      - name: callback
+        type: Function<Error, Array<String>>
+        summary: |
+            Typical async callback function. The second argument is an array of results which may be `String`s, <buffer.Buffer>s, or <fs.Dirent>s
+
+  - name: readdirSync
+    summary: |
+        Synchronous `readdir`.
+
+        The optional `options` argument can be a string specifying an encoding, or an object with an encoding property specifying the character encoding to use for the filenames returned. If the encoding is set to 'buffer', the filenames returned will be passed as Buffer objects.
+
+        If `options.withFileTypes` is set to `true`, the result will contain `fs.Dirent` objects. **Note:** Titanium does not yet support this.
+    parameters:
+      - name: path
+        type: [ String, buffer.Buffer ]
+        summary: file path
+      - name: options
+        type: fs.readdir.options
+        summary: options
+        optional: true
+    returns:
+      type: [ Array<String>, Array<buffer.Buffer>, Array<fs.Dirent> ]
+      summary: an array of results which may be `String`s, <buffer.Buffer>s, or <fs.Dirent>s
+
+  - name: readFile
+    summary: |
+        Asynchronously reads the entire contents of a file.
+    parameters:
+      - name: path
+        type: [ String, buffer.Buffer ]
+        summary: file path
+      - name: options
+        type: [ fs.readFile.options, String ]
+        summary: encoding `string`, or an options object
+        optional: true
+      - name: callback
+        type: Function<Error, String>
+        summary: typical async callback function, the second argument is either a `string` or a <buffer.Buffer>
+
+  - name: readFileSync
+    summary: |
+        Synchronously reads the entire contents of a file.
+    parameters:
+      - name: path
+        type: [ String, buffer.Buffer ]
+        summary: file path
+      - name: options
+        type: [ fs.readFile.options, String ]
+        summary: encoding `string`, or an options object
+        optional: true
+    returns:
+        type: [ String, buffer.Buffer ]
+        summary: either a `string` or a <buffer.Buffer>, based upon `options.encoding`
+
+  # Not implemented:
+  # - name: readlink(path[, options], callback)
+  # - name: readlinkSync(path[, options])
+
+  - name: readSync
+    summary: |
+        For detailed information, see the documentation of the asynchronous version of this API: `fs.read()`.
+    parameters:
+      - name: fd
+        type: Number
+        summary: file descriptor
+      - name: buffer
+        type: [ buffer.Buffer, Titanium.Buffer ]
+        summary: buffer to read
+      - name: offset
+        type: Number
+        summary: the offset in the buffer to start writing at.
+      - name: length
+        type: Number
+        summary: integer specifying the number of bytes to read.
+      - name: position
+        type: Number
+        summary: where to begin reading from in the file. *Unused/unsupported in Titanium.*
+        optional: true
+    returns:
+      type: Number
+      summary: Returns the number of bytesRead.
+
+  - name: realpath
+    summary: |
+        Asynchronously computes the canonical pathname by resolving `.`, `..` and symbolic links.
+
+        A canonical pathname is not necessarily unique. Hard links and bind mounts can expose a file system entity through many pathnames.
+    parameters:
+      - name: path
+        type: [ String, buffer.Buffer ]
+        summary: file path
+      - name: options
+        type: Object
+        summary: options
+        # TODO: define a type for fs.realpath.options
+        optional: true
+      - name: callback
+        type: Function<Error, String>
+        summary: typical async callback function
+
+  - name: realpath.native
+    summary: |
+        Asynchronous `realpath`.
+
+        The `callback` gets two arguments `(err, resolvedPath)`.
+
+        Only paths that can be converted to UTF8 strings are supported.
+
+        The optional `options` argument can be a string specifying an encoding, or an object with an encoding property specifying the character encoding to use for the path passed to the callback. If the encoding is set to 'buffer', the path returned will be passed as a Buffer object.
+    parameters:
+      - name: path
+        type: [ String, buffer.Buffer ]
+        summary: file path
+      - name: options
+        type: Object
+        summary: options
+        # TODO: define a type for fs.realpath.options
+        optional: true
+      - name: callback
+        type: Function<Error, String>
+        summary: typical async callback function
+
+  - name: realpathSync
+    summary: |
+        Returns the resolved pathname.
+
+        For detailed information, see the documentation of the asynchronous version of this API: `fs.realpath()`.
+    parameters:
+      - name: path
+        type: [ String, buffer.Buffer ]
+        summary: file path
+      - name: options
+        type: Object
+        summary: options
+        # TODO: define a type for fs.realpathSync.options
+        optional: true
+    returns:
+      type: String
+
+  - name: realpathSync.native
+    summary: |
+        Synchronous `realpath`.
+
+        Only paths that can be converted to UTF8 strings are supported.
+    parameters:
+      - name: path
+        type: [ String, buffer.Buffer ]
+        summary: file path
+      - name: options
+        type: Object
+        summary: options
+        optional: true
+    returns:
+      type: String
+  
+  - name: rename
+    summary: |
+        Asynchronously rename file at `oldPath` to the pathname provided as `newPath`.
+        In the case that `newPath` already exists, it will be overwritten.
+        If there is a directory at `newPath`, an error will be raised instead.
+        No arguments other than a possible exception are given to the completion `callback`.
+    parameters:
+      - name: oldPath
+        type: [ String, buffer.Buffer ]
+        summary: source file path
+      - name: newPath
+        type: [ String, buffer.Buffer ]
+        summary: destination file path
+      - name: callback
+        type: Function<Error>
+        summary: typical async callback function
+
+  - name: renameSync
+    summary: Synchronous `rename`. Returns `undefined`.
+    parameters:
+      - name: oldPath
+        type: [ String, buffer.Buffer ]
+        summary: source file path
+      - name: newPath
+        type: [ String, buffer.Buffer ]
+        summary: destination file path
+
+  - name: rmdir
+    summary: Asynchronous `rmdir`
+    parameters:
+      - name: path
+        type: [ String, buffer.Buffer ]
+        summary: file path
+      - name: options
+        type: fs.rmDir.options
+        summary: options
+        optional: true
+      - name: callback
+        type: Function<Error>
+        summary: typical async callback function
+  
+  # Not implemented:
+  # - name: rmdirSync
+  #   summary: Synchronous `rmdir`
+  #   parameters:
+  #     - name: path
+  #       type: [ String, buffer.Buffer ]
+  #       summary: file path
+  #     - name: options
+  #       type: fs.rmDir.options
+  #       summary: options
+  #       optional: true
+  # 
+  # - name: rm
+  #   summary: Asynchronously removes files and directories (modeled on the standard POSIX `rm` utility). No arguments other than a possible exception are given to the completion `callback`.
+  #   parameters:
+  #     - name: path
+  #       type: [ String, buffer.Buffer ]
+  #       summary: file path
+  #     - name: options
+  #       type: fs.rm.options
+  #       summary: options
+  #       optional: true
+  #     - name: callback
+  #       type: Function<Error>
+  #       summary: typical async callback function
+
+  - name: rmSync
+    summary: Synchronously removes files and directories (modeled on the standard POSIX `rm` utility). Returns `undefined`.
+    parameters:
+      - name: path
+        type: [ String, buffer.Buffer ]
+        summary: file path
+      - name: options
+        type: fs.rm.options
+        summary: options
+        optional: true
+
+  - name: stat
+    summary: |
+        Asynchronous `stat`. The `callback` gets two arguments `(err, stats)` where `stats` is an <fs.Stats> object.
+
+        In case of an error, the `err.code` will be one of Common System Errors.
+
+        Using `fs.stat()` to check for the existence of a file before calling `fs.open()`, `fs.readFile()` or `fs.writeFile()` is not recommended. Instead, user code should open/read/write the file directly and handle the error raised if the file is not available.
+
+        To check if a file exists without manipulating it afterwards, `fs.access()` is recommended.
+    parameters:
+      - name: path
+        type: [ String, buffer.Buffer ]
+        summary: file path
+      - name: options
+        type: Object
+        optional: true
+        summary: fs.stat.options
+      - name: callback
+        type: Function<Error, fs.Stats>
+        summary: typical async callback function
+  
+  - name: statSync
+    summary: Synchronous `stat`.
+    parameters:
+      - name: path
+        type: [ String, buffer.Buffer ]
+        summary: file path
+      - name: options
+        type: fs.stat.options
+        optional: true
+        summary: options
+    returns:
+      type: fs.Stats
+
+  - name: symlink
+    summary: |
+        Asynchronous `symlink` which creates the link called `path` pointing to `target`. No arguments other than a possible exception are given to the completion callback.
+
+        **This is a no-op on Titanium.**
+    parameters:
+      - name: target
+        type: [ String, buffer.Buffer ]
+        summary: target of the new symlink
+      - name: path
+        type: [ String, buffer.Buffer ]
+        summary: the symlink path
+      - name: callback
+        type: Function<Error>
+        summary: typical async callback function
+
+  - name: symlinkSync
+    summary: |
+        Synchronous `symlink` which creates the link called `path` pointing to `target`. No arguments other than a possible exception are given to the completion callback.
+
+        **This is a no-op on Titanium.**
+    parameters:
+      - name: target
+        type: [ String, buffer.Buffer ]
+        summary: target of the new symlink
+      - name: path
+        type: [ String, buffer.Buffer ]
+        summary: the symlink path
+
+  - name: truncate
+    summary: |
+        Asynchronous `truncate`. Returns `undefined`.
+        A file descriptor can also be passed as the first argument. In this case, `fs.ftruncateSync()` is called.
+    parameters:
+      - name: path
+        type: [ String, buffer.Buffer ]
+        summary: file path
+      - name: len
+        optional: true
+        type: Number
+        default: 0
+        summary: target length to truncate to
+      - name: callback
+        type: Function<Error>
+        summary: typical async callback function
+
+  - name: truncateSync
+    summary: |
+        Synchronous `truncate`. Returns `undefined`.
+        A file descriptor can also be passed as the first argument. In this case, `fs.ftruncateSync()` is called.
+    parameters:
+      - name: path
+        type: [ String, buffer.Buffer ]
+        summary: file path
+      - name: len
+        optional: true
+        type: Number
+        default: 0
+        summary: target length to truncate to
+
+  - name: unlink
+    summary: |
+        Asynchronous `unlink`. Returns `undefined`.
+    parameters:
+      - name: path
+        type: [ String, buffer.Buffer ]
+        summary: file path
+      - name: callback
+        type: Function<Error>
+        summary: typical async callback function
+
+  - name: unlinkSync
+    summary: |
+        Synchronous `unlink`. Returns `undefined`.
+    parameters:
+      - name: path
+        type: [ String, buffer.Buffer ]
+        summary: file path
+
+  - name: unwatchFile
+    summary: |
+        Stop watching for changes on `filename`. If `listener` is specified, only that particular `listener` is removed. Otherwise, all listeners are removed, effectively stopping watching of `filename`.
+
+        **This is a no-op on Titanium.**
+    parameters:
+      - name: filename
+        type: [ String, buffer.Buffer ]
+        summary: file path
+      - name: listener
+        type: Function
+        optional: true
+        default: undefined
+        summary: callback function when file changes
+
+  - name: utimes
+    summary: |
+        Change the file system timestamps of the object referenced by `path`.
+
+        **This is a no-op on Titanium.**
+    parameters:
+      - name: path
+        type: [ String, buffer.Buffer ]
+        summary: file path
+      - name: atime
+        type: [ Number, String, Date ]
+        summary: access time
+      - name: mtime
+        type: [ Number, String, Date ]
+        summary: modification time
+      - name: callback
+        type: Function<Error>
+        summary: typical async callback function
+
+  - name: utimesSync
+    summary: |
+        Change the file system timestamps of the object referenced by `path`.
+
+        **This is a no-op on Titanium.**
+    parameters:
+      - name: path
+        type: [ String, buffer.Buffer ]
+        summary: file path
+      - name: atime
+        type: [ Number, String, Date ]
+        summary: access time
+      - name: mtime
+        type: [ Number, String, Date ]
+        summary: modification time
+
+  - name: watch
+    summary: |
+        Watch for changes on `filename`, where `filename` is either a file or a directory.
+
+        **This is a no-op on Titanium.**
+    parameters:
+      - name: filename
+        type: [ String, buffer.Buffer ]
+        summary: file path
+      - name: options
+        type: Object
+        summary: options
+        optional: true
+      - name: listener
+        type: Function
+        optional: true
+        default: undefined
+        summary: callback function when file changes
+
+  - name: watchFile
+    summary: |
+        Watch for changes on `filename`. The callback `listener` will be called each time the file is accessed.
+
+        **This is a no-op on Titanium.**
+    parameters:
+      - name: filename
+        type: [ String, buffer.Buffer ]
+        summary: file path
+      - name: options
+        type: Object
+        summary: options
+        optional: true
+      - name: listener
+        type: Function
+        summary: callback function when file changes
+
+  - name: write
+    summary: For detailed information, see the documentation of the asynchronous version of this API.
+    parameters:
+      - name: fd
+        type: Number
+        summary: file descriptor
+      - name: buffer
+        type: [ String, buffer.Buffer ]
+        summary: buffer contents to write
+      - name: offset
+        type: Number
+        summary: from the beginning of the file where this data should be written
+        optional: true
+      - name: length
+        type: [ String, Number ]
+        optional: true
+        summary: length in bytes of `Buffer`; or string character `encoding`
+      - name: position
+        type: Number
+        summary: offset from the beginning of the file where this data should be written (if data to be written is a `Buffer`)
+        optional: true
+      - name: callback
+        type: Function<Error>
+        summary: typical async callback function
+
+  - name: writeFile
+    summary: |
+        When `file` is a filename, asynchronously writes data to the file, replacing the file if it already exists. `data` can be a string or a buffer.
+
+        When `file` is a file descriptor, the behavior is similar to calling `fs.write()` directly (which is recommended). See the notes below on using a file descriptor.
+
+        The `encoding` option is ignored if `data` is a buffer. If `data` is a normal object, it must have an own `toString` function property.
+    parameters:
+      - name: file
+        type: [ String, buffer.Buffer, Number ]
+        summary:  filename or file descriptor
+      - name: data
+        type: [ String, buffer.Buffer, Object ]
+        summary: data to write
+      - name: options
+        type: fs.writeFile.options
+        summary: from the beginning of the file where this data should be written
+        optional: true
+      - name: callback
+        type: Function<Error>
+        summary: typical async callback function
+  
+  - name: writeFileSync
+    summary: |
+        For detailed information, see the documentation of the asynchronous version of this API: `fs.writeFile()`.
+    parameters:
+      - name: file
+        type: [ String, buffer.Buffer, Number ]
+        summary:  filename or file descriptor
+      - name: data
+        type: [ String, buffer.Buffer, Object ]
+        summary: data to write
+      - name: options
+        type: fs.writeFile.options
+        summary: from the beginning of the file where this data should be written
+        optional: true
+
+  - name: writeSync
+    summary: For detailed information, see the documentation of the asynchronous version of this API.
+    parameters:
+      - name: fd
+        type: Number
+        summary: file descriptor
+      - name: buffer
+        type: [ String, buffer.Buffer ]
+        summary: buffer contents to write
+      - name: offset
+        type: Number
+        summary: from the beginning of the file where this data should be written
+        optional: true
+      - name: length
+        type: [ String, Number ]
+        optional: true
+        summary: length in bytes of `Buffer`; or string character `encoding`
+      - name: position
+        type: Number
+        summary: offset from the beginning of the file where this data should be written (if data to be written is a `Buffer`)
+        optional: true
+    returns:
+      type: Number
+      summary: bytes written
+
+---
+name: fs.constants
+summary: commonly used constants for file system operations
+platforms: [android, iphone, ipad, macos]
+since: '8.3.0'
+properties:
+  - name: O_RDONLY
+    type: Number
+    value: 0
+    summary: Flag indicating to open a file for read-only access.
+
+  - name: O_WRONLY
+    type: Number
+    value: 1
+    summary: Flag indicating to open a file for write-only access.
+
+  - name: O_RDWR
+    type: Number
+    value: 2
+    summary: Flag indicating to open a file for read-write access.
+
+  - name: S_IFMT
+    type: Number
+    value: 61440
+    summary: Bit mask used to extract the file type code.
+
+  - name: S_IFREG
+    type: Number
+    value: 32768
+    summary: File type constant for a regular file.
+
+  - name: S_IFDIR
+    type: Number
+    value: 16384
+    summary: File type constant for a directory.
+
+  - name: S_IFCHR
+    type: Number
+    value: 8192
+    summary: File type constant for a character-oriented device file.
+
+  - name: S_IFBLK
+    type: Number
+    value: 24576
+    summary: File type constant for a block-oriented device file.
+
+  - name: S_IFIFO
+    type: Number
+    value: 4096
+    summary: File type constant for a FIFO/pipe.
+
+  - name: S_IFLNK
+    type: Number
+    value: 40960
+    summary: File type constant for a symbolic link.
+
+  - name: S_IFSOCK
+    type: Number
+    value: 49152
+    summary: File type constant for a socket.
+
+  - name: O_CREAT
+    type: Number
+    value: 512
+    summary: Flag indicating to create the file if it does not already exist.
+
+  - name: O_EXCL
+    type: Number
+    value: 2048
+    summary: Flag indicating that opening a file should fail if the `O_CREAT` flag is set and the file already exists.
+
+  - name: O_NOCTTY
+    type: Number
+    value: 131072
+    summary: Flag indicating that if path identifies a terminal device, opening the path shall not cause that terminal to become the controlling terminal for the process (if the process does not already have one).
+
+  - name: O_TRUNC
+    type: Number
+    value: 1024
+    summary: Flag indicating that if the file exists and is a regular file, and the file is opened successfully for write access, its length shall be truncated to zero.
+
+  - name: O_APPEND
+    type: Number
+    value: 8
+    summary: Flag indicating that data will be appended to the end of the file.
+
+  - name: O_DIRECTORY
+    type: Number
+    value: 1048576
+    summary: Flag indicating that the open should fail if the path is not a directory.
+
+  - name: O_NOFOLLOW
+    type: Number
+    value: 256
+    summary: Flag indicating that the open should fail if the path is a symbolic link.
+
+  - name: O_SYNC
+    type: Number
+    value: 128
+    summary: Flag indicating that the file is opened for synchronized I/O with write operations waiting for file integrity.
+
+  - name: O_DSYNC
+    type: Number
+    value: 4194304
+    summary: Flag indicating that the file is opened for synchronized I/O with write operations waiting for data integrity.
+
+  - name: O_SYMLINK
+    type: Number
+    value: 2097152
+    summary: Flag indicating to open the symbolic link itself rather than the resource it is pointing to.
+
+  - name: O_NONBLOCK
+    type: Number
+    value: 4
+    summary: Flag indicating to open the file in nonblocking mode when possible.
+
+  - name: S_IRWXU
+    type: Number
+    value: 448
+    summary: File mode indicating readable, writable, and executable by owner.
+
+  - name: S_IRUSR
+    type: Number
+    value: 256
+    summary: File mode indicating readable by owner.
+
+  - name: S_IWUSR
+    type: Number
+    value: 128
+    summary: File mode indicating writable by owner.
+
+  - name: S_IXUSR
+    type: Number
+    value: 64
+    summary: File mode indicating executable by owner.
+
+  - name: S_IRWXG
+    type: Number
+    value: 56
+    summary: File mode indicating readable, writable, and executable by group.
+
+  - name: S_IRGRP
+    type: Number
+    value: 32
+    summary: File mode indicating readable by group.
+
+  - name: S_IWGRP
+    type: Number
+    value: 16
+    summary: File mode indicating writable by group.
+
+  - name: S_IXGRP
+    type: Number
+    value: 8
+    summary: File mode indicating executable by group.
+
+  - name: S_IRWXO
+    type: Number
+    value: 7
+    summary: File mode indicating readable, writable, and executable by others.
+
+  - name: S_IROTH
+    type: Number
+    value: 4
+    summary: File mode indicating readable by others.
+
+  - name: S_IWOTH
+    type: Number
+    value: 2
+    summary: File mode indicating writable by others.
+
+  - name: S_IXOTH
+    type: Number
+    value: 1
+    summary: File mode indicating executable by others.
+
+  - name: F_OK
+    type: Number
+    value: 0
+    summary: Flag indicating that the file is visible to the calling process. This is useful for determining if a file exists, but says nothing about `rwx` permissions. Default if no mode is specified.
+
+  - name: R_OK
+    type: Number
+    value: 4
+    summary: Flag indicating that the file can be read by the calling process.
+
+  - name: W_OK
+    type: Number
+    value: 2
+    summary: Flag indicating that the file can be written by the calling process.
+
+  - name: X_OK
+    type: Number
+    value: 1
+    summary: Flag indicating that the file can be executed by the calling process. This has no effect on Windows (will behave like `fs.constants.F_OK`).
+
+  - name: UV_FS_COPYFILE_EXCL
+    type: Number
+    value: 1
+    summary: alias for `COPYFILE_EXCL`?
+
+  - name: COPYFILE_EXCL
+    type: Number
+    value: 1
+    summary: The copy operation will fail if dest already exists.
+
+---
+name: fs.Stats
+summary: A `fs.Stats` object provides information about a file.
+platforms: [android, iphone, ipad, macos]
+since: '8.3.0'
+properties:
+  - name: dev
+    type: Number
+    value: 0
+    summary: |
+        The numeric identifier of the device containing the file.
+
+        Always returns `0` on Titanium.
+
+  - name: ino
+    type: Number
+    value: 0
+    summary: |
+        The file system specific "Inode" number for the file.
+
+        Always returns `0` on Titanium.
+
+  - name: mode
+    type: Number
+    value: 0
+    summary: |
+        A bit-field describing the file type and mode.
+
+        Always returns `0` on Titanium.
+
+  - name: nlink
+    type: Number
+    value: 0
+    summary: |
+        The number of hard-links that exist for the file.
+
+        Always returns `0` on Titanium.
+
+  - name: uid
+    type: Number
+    value: 0
+    summary: |
+        The numeric user identifier of the user that owns the file (POSIX).
+
+        Always returns `0` on Titanium.
+
+  - name: gid
+    type: Number
+    value: 0
+    summary: |
+        The numeric group identifier of the group that owns the file (POSIX).
+
+        Always returns `0` on Titanium.
+
+  - name: rdev
+    type: Number
+    value: 0
+    summary: |
+        A numeric device identifier if the file represents a device.
+
+        Always returns `0` on Titanium.
+
+  - name: size
+    type: Number
+    summary: The size of the file in bytes.
+
+  - name: blksize
+    type: Number
+    value: 4096
+    summary: |
+        The file system block size for i/o operations.
+
+        Hard-coded to `4096` on Titanium right now.
+
+  - name: blocks
+    type: Number
+    summary: The number of blocks allocated for this file.
+
+  - name: atimeMs
+    type: Number
+    summary: The timestamp indicating the last time this file was accessed expressed in milliseconds since the POSIX Epoch.
+
+  - name: mtimeMs
+    type: Number
+    summary: The timestamp indicating the last time this file was modified expressed in milliseconds since the POSIX Epoch.
+
+  - name: ctimeMs
+    type: Number
+    summary: The timestamp indicating the last time the file status was changed expressed in milliseconds since the POSIX Epoch.
+
+  - name: birthtimeMs
+    type: Number
+    summary: The timestamp indicating the creation time of this file expressed in milliseconds since the POSIX Epoch.
+
+  - name: atime
+    type: Date
+    summary: The timestamp indicating the last time this file was accessed.
+
+  - name: mtime
+    type: Date
+    summary: The timestamp indicating the last time this file was modified.
+
+  - name: ctime
+    type: Date
+    summary: The timestamp indicating the last time the file status was changed.
+
+  - name: birthtime
+    type: Date
+    summary: The timestamp indicating the creation time of this file.
+    
+methods:
+  - name: isBlockDevice
+    summary: Returns `true` if the `fs.Stats` object describes a block device.
+    returns:
+      type: Boolean
+
+  - name: isCharacterDevice
+    summary: Returns `true` if the `fs.Stats` object describes a character device.
+    returns:
+      type: Boolean
+
+  - name: isDirectory
+    summary: |
+        Returns `true` if the `fs.Stats` object describes a file system directory.
+
+        If the `fs.Stats` object was obtained from `fs.lstat()`, this method will always return `false`.
+        This is because `fs.lstat()` returns information about a symbolic link itself and not the path it resolves to.
+    returns:
+      type: Boolean
+
+  - name: isFIFO
+    summary: Returns `true` if the `fs.Stats` object describes a first-in-first-out (FIFO) pipe.
+    returns:
+      type: Boolean
+
+  - name: isFile
+    summary: Returns `true` if the `fs.Stats` object describes a regular file.
+    returns:
+      type: Boolean
+
+  - name: isSocket
+    summary: Returns `true` if the `fs.Stats` object describes a socket.
+    returns:
+      type: Boolean
+
+  - name: isSymbolicLink
+    summary: |
+        Returns `true` if the `fs.Stats` object describes a symbolic link.
+
+        This method is only valid when using `fs.lstat()`.
+    returns:
+      type: Boolean
+
+---
+name: fs.Dirent
+summary: |
+    A representation of a directory entry, which can be a file or a subdirectory within the directory, as returned by reading from an <fs.Dir>.
+    The directory entry is a combination of the file name and file type pairs.
+
+    **NOTE:** Titanium does not currently implement this type.
+exclude-platforms: [ android, iphone, ipad, macos ]
+properties:
+  - name: name
+    type: [ String, buffer.Buffer ]
+    summary: |
+        The file name that this `fs.Dirent` object refers to.
+        The type of this value is determined by the `options.encoding` passed to `fs.readdir()` or `fs.readdirSync()`.
+    
+methods:
+  - name: isBlockDevice
+    summary: Returns `true` if the `fs.Dirent` object describes a block device.
+    returns:
+      type: Boolean
+
+  - name: isCharacterDevice
+    summary: Returns `true` if the `fs.Dirent` object describes a character device.
+    returns:
+      type: Boolean
+
+  - name: isDirectory
+    summary: Returns `true` if the `fs.Dirent` object describes a file system directory.
+    returns:
+      type: Boolean
+
+  - name: isFIFO
+    summary: Returns `true` if the `fs.Dirent` object describes a first-in-first-out (FIFO) pipe.
+    returns:
+      type: Boolean
+
+  - name: isFile
+    summary: Returns `true` if the `fs.Dirent` object describes a regular file.
+    returns:
+      type: Boolean
+
+  - name: isSocket
+    summary: Returns `true` if the `fs.Dirent` object describes a socket.
+    returns:
+      type: Boolean
+
+  - name: isSymbolicLink
+    summary: Returns `true` if the `fs.Dirent` object describes a symbolic link.
+    returns:
+      type: Boolean
+
+---
+name: fs.appendFile.options
+summary: options for <fs.appendFile> and <fs.appendFileSync> methods
+since: '8.3.0'
+properties:
+  - name: encoding
+    type: String
+    default: 'utf8'
+    optional: true
+    summary: character encoding
+
+  - name: mode
+    type: Number
+    default: 0o666
+    summary: file permissions/mode
+
+  - name: flag
+    type: String
+    summary: See support of file system flags.
+    default: 'a'
+    optional: true
+
+---
+name: fs.mkdir.options
+summary: options for <fs.mkdir> and <fs.mkdirSync> methods
+since: '8.3.0'
+properties:
+  - name: recursive
+    type: Boolean
+    summary: Whether to recursively create the directories.
+    default: false
+    optional: true
+
+  - name: mode
+    type: [ String, Number ]
+    summary: Not supported on Windows.
+    default: 0o777
+    optional: true
+
+---
+name: fs.mkdtemp.options
+summary: options for <fs.mkdtemp> and <fs.mkdtempSync> methods
+since: '8.3.0'
+properties:
+  - name: encoding
+    type: String
+    summary: The character encoding to use.
+    default: 'utf8'
+    optional: true
+
+---
+name: fs.readdir.options
+summary: options for <fs.readdir> and <fs.readdirSync> methods
+since: '8.3.0'
+properties:
+  - name: encoding
+    type: String
+    summary: |
+        If the encoding is set to `'buffer'`, the filenames returned will be passed as <buffer.Buffer> objects.
+    default: 'utf8'
+    optional: true
+
+  - name: withFileTypes
+    type: Boolean
+    summary: If `true`, the results will be returned as <fs.Dirent>s
+    default: false
+    optional: true
+
+---
+name: fs.readFile.options
+summary: options for <fs.readFile> and <fs.readFileSync> methods
+since: '8.3.0'
+properties:
+  - name: encoding
+    type: String
+    summary: If no encoding is specified, then the raw buffer is returned.
+    default: null
+    optional: true
+
+  - name: flag
+    type: String
+    summary: See support of file system flags.
+    default: 'r'
+    optional: true
+
+    # TODO: Support signal property
+
+---
+name: fs.rm.options
+# TODO: extends: fs.rmDir.options and add force property (but then I think new doc site won't show inherited properties nicely)
+summary: options for <fs.rm> and <fs.rmSync> methods
+since: '8.3.0'
+properties:
+  - name: force
+    type: Boolean
+    summary: When `true`, exceptions will be ignored if path does not exist.
+    optional: true
+    default: false
+
+  - name: maxRetries
+    type: Number
+    summary: |
+        If an `EBUSY`, `EMFILE`, `ENFILE`, `ENOTEMPTY`, or `EPERM` error is encountered, Node.js will retry the operation with a linear backoff wait of `retryDelay` milliseconds longer on each try.
+        This option represents the number of retries.
+        This option is ignored if the `recursive` option is not `true`.
+    default: 0
+    optional: true
+
+  - name: recursive
+    type: Boolean
+    summary: If `true`, perform a recursive removal. In recursive mode operations are retried on failure.
+    default: false
+    optional: true
+
+  - name: retryDelay
+    type: Number
+    summary: The amount of time in milliseconds to wait between retries. This option is ignored if the `recursive` option is not `true`.
+    default: 100
+    optional: true
+
+---
+name: fs.rmDir.options
+summary: options for <fs.rmDir> and <fs.rmDirSync> methods
+since: '8.3.0'
+properties:
+  - name: maxRetries
+    type: Number
+    summary: |
+        If an `EBUSY`, `EMFILE`, `ENFILE`, `ENOTEMPTY`, or `EPERM` error is encountered, Node.js will retry the operation with a linear backoff wait of `retryDelay` milliseconds longer on each try.
+        This option represents the number of retries.
+        This option is ignored if the `recursive` option is not `true`.
+    default: 0
+    optional: true
+
+  - name: recursive
+    type: Boolean
+    summary: If `true`, perform a recursive removal. In recursive mode operations are retried on failure.
+    default: false
+    optional: true
+
+  - name: retryDelay
+    type: Number
+    summary: The amount of time in milliseconds to wait between retries. This option is ignored if the `recursive` option is not `true`.
+    default: 100
+    optional: true
+
+---
+name: fs.stat.options
+summary: options for <fs.fstat>, <fs.fstatSync>, <fs.lstat>, <fs.lstatSync>, <fs.stat>, and <fs.statSync> methods
+since: '8.3.0'
+properties:
+  - name: bigint
+    type: Boolean
+    summary: |
+        Whether the numeric values in the returned <fs.Stats> object should be `bigint`.
+    default: false
+    optional: true
+
+---
+name: fs.writeFile.options
+summary: options for <fs.writeFile> and <fs.writeFileSync> methods
+since: '8.3.0'
+properties:
+  - name: encoding
+    type: String
+    default: 'utf8'
+    optional: true
+    summary: character encoding
+
+  - name: mode
+    type: Number
+    default: 0o666
+    summary: file permissions/mode
+
+  - name: flag
+    type: String
+    summary: See support of file system flags.
+    default: 'w'
+    optional: true
+
+---
+name: fs.WriteStream
+since: '8.3.0'
+summary: |
+    Instances of `fs.WriteStream` are created and returned using the `fs.createWriteStream()` function.
+
+    **NOTE:** Titanium defines an empty class for this type. No methods/properties are implemented!
+
+---
+name: fs.ReadStream
+since: '8.3.0'
+summary: |
+    Instances of `fs.ReadStream` are created and returned using the `fs.createReadStream()` function.
+
+    **NOTE:** Titanium defines an empty class for this type. No methods/properties are implemented!

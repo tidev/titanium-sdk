@@ -21,7 +21,6 @@ import org.appcelerator.titanium.util.TiUIHelper;
 
 import android.app.Activity;
 import android.content.Context;
-import android.os.Build;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
@@ -114,7 +113,7 @@ public class TiCompositeLayout extends ViewGroup implements OnHierarchyChangeLis
 	 */
 	public TiCompositeLayout(Context context)
 	{
-		this(context, LayoutArrangement.DEFAULT, null);
+		this(context, LayoutArrangement.DEFAULT, null, null);
 	}
 
 	/**
@@ -126,12 +125,12 @@ public class TiCompositeLayout extends ViewGroup implements OnHierarchyChangeLis
 	 */
 	public TiCompositeLayout(Context context, LayoutArrangement arrangement)
 	{
-		this(context, LayoutArrangement.DEFAULT, null);
+		this(context, LayoutArrangement.DEFAULT, null, null);
 	}
 
 	public TiCompositeLayout(Context context, AttributeSet set)
 	{
-		this(context, LayoutArrangement.DEFAULT, null);
+		this(context, LayoutArrangement.DEFAULT, null, set);
 	}
 
 	/**
@@ -142,7 +141,7 @@ public class TiCompositeLayout extends ViewGroup implements OnHierarchyChangeLis
 	 */
 	public TiCompositeLayout(Context context, TiViewProxy proxy)
 	{
-		this(context, LayoutArrangement.DEFAULT, proxy);
+		this(context, LayoutArrangement.DEFAULT, proxy, null);
 	}
 
 	/**
@@ -154,7 +153,21 @@ public class TiCompositeLayout extends ViewGroup implements OnHierarchyChangeLis
 	 */
 	public TiCompositeLayout(Context context, LayoutArrangement arrangement, TiViewProxy proxy)
 	{
-		super(context);
+		this(context, arrangement, proxy, null);
+	}
+
+	/**
+	 * Constructs a new TiCompositeLayout object.
+	 *
+	 * @param context the associated context.
+	 * @param arrangement the associated LayoutArrangement
+	 * @param proxy the associated proxy.
+	 * @param set the component attribute set.
+	 */
+	public TiCompositeLayout(Context context, LayoutArrangement arrangement, TiViewProxy proxy, AttributeSet set)
+	{
+		super(context, set);
+
 		this.arrangement = arrangement;
 		this.viewSorter = new TreeSet<View>(new Comparator<View>() {
 			public int compare(View o1, View o2)
@@ -498,11 +511,6 @@ public class TiCompositeLayout extends ViewGroup implements OnHierarchyChangeLis
 	@Override
 	public void requestApplyInsets()
 	{
-		// The super class' method is only supported on Android 5.0 and higher.
-		if (Build.VERSION.SDK_INT < 20) {
-			return;
-		}
-
 		// Clear last stored insets and then request parent to redispatch system insets to all child views.
 		this.previousInsets = null;
 		super.requestApplyInsets();
@@ -516,9 +524,7 @@ public class TiCompositeLayout extends ViewGroup implements OnHierarchyChangeLis
 	public void requestFitSystemWindows()
 	{
 		// Clear last stored insets and then request parent to redispatch system insets to all child views.
-		if (Build.VERSION.SDK_INT >= 20) {
-			this.previousInsets = null;
-		}
+		this.previousInsets = null;
 		super.requestFitSystemWindows();
 	}
 
@@ -529,9 +535,7 @@ public class TiCompositeLayout extends ViewGroup implements OnHierarchyChangeLis
 		super.onDetachedFromWindow();
 
 		// Clear last stored insets received by the onApplyWindowInsets() method.
-		if (Build.VERSION.SDK_INT >= 20) {
-			this.previousInsets = null;
-		}
+		this.previousInsets = null;
 	}
 
 	@Override

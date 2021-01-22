@@ -14,7 +14,7 @@ methods:
     deprecated:
         since: "6.1.0"
         removed: "7.0.0"
-        notes: Use [Titanium.Gesture.landscape](Titanium.Gesture.landscape) for parity instead. Removed in 7.0.0 on Android, 8.1.0 on iOS.
+        notes: Use the [Titanium.Gesture.landscape](Titanium.Gesture.landscape) property for parity instead. Removed in 7.0.0 on Android, 8.1.0 on iOS.
     returns:
         type: Boolean
 
@@ -25,7 +25,7 @@ methods:
     deprecated:
         since: "6.1.0"
         removed: "7.0.0"
-        notes: Use [Titanium.Gesture.portrait](Titanium.Gesture.portrait) for parity instead. Removed in 7.0.0 on Android, 8.1.0 on iOS.
+        notes: Use the [Titanium.Gesture.portrait](Titanium.Gesture.portrait) property for parity instead. Removed in 7.0.0 on Android, 8.1.0 on iOS.
     returns:
         type: Boolean
 

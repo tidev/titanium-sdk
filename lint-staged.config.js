@@ -13,7 +13,7 @@ const asyncFilter = async (arr, predicate) => {
 
 module.exports = {
 	'android/**/*.java': filenames => {
-		return `./build/node scons gradlew checkJavaStyle --args --console plain -PchangedFiles='${filenames.join(',')}'`;
+		return `node ./build/scons gradlew checkJavaStyle --args --console plain -PchangedFiles='${filenames.join(',')}'`;
 	},
 	'iphone/**/*.{m,h}': [
 		'npx clang-format -style=file -i'

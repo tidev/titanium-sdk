@@ -35,6 +35,7 @@ junit_report.xml
 /iphone/TitaniumKit/Carthage
 /iphone/TitaniumKit/docs
 /iphone/TitaniumKit/build
+/iphone/TitaniumKit/TitaniumKit/Sources/API/TopTiModule.bak
 /iphone/lib/libTiCore.a
 
 .vscode/*
@@ -47,6 +48,7 @@ junit_report.xml
 coverage/
 
 tests/diffs/
-# in-memory blobs written to disk as the expected image for image compariosn tests
-tests/Resources/ios/snapshots/1[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9].png
-tests/Resources/android/snapshots/1[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9].png
+tests/generated/
+# in-memory blobs written to disk as the expected image for image comparison tests
+tests/Resources/ios/snapshots/1[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]_*.png
+tests/Resources/android/snapshots/1[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]_*.png

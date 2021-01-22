@@ -14,12 +14,12 @@
 }
 
 @property (nonatomic, readonly) NSMutableArray *rows;
-@property (nonatomic, readonly) NSInteger rowCount;
+@property (nonatomic, readonly) NSNumber *rowCount;
 @property (nonatomic, readwrite, assign) NSInteger column;
 
 - (NSNumber *)addRow:(id)row;
 - (void)removeRow:(id)row;
-- (id)rowAt:(NSInteger)row;
+- (id)rowAt:(NSUInteger)row;
 
 @end
 #endif

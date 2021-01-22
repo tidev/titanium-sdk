@@ -1,13 +1,28 @@
 #!groovy
 library 'pipeline-library'
 
-// Keep logs/reports/etc of last 30 builds, only keep build artifacts of last 3 builds
-properties([buildDiscarder(logRotator(numToKeepStr: '30', artifactNumToKeepStr: '3'))])
-
 // Some branch flags to alter behavior
 def isPR = env.CHANGE_ID || false // CHANGE_ID is set if this is a PR. (We used to look whether branch name started with PR-, which would not be true for a branch from origin filed as PR)
 def MAINLINE_BRANCH_REGEXP = /master|next|\d_\d_(X|\d)/ // a branch is considered mainline if 'master' or like: 6_2_X, 7_0_X, 6_2_1
 def isMainlineBranch = (env.BRANCH_NAME ==~ MAINLINE_BRANCH_REGEXP)
+
+// Keep logs/reports/etc of last 30 builds, only keep build artifacts of last 3 builds
+def buildProperties = [buildDiscarder(logRotator(numToKeepStr: '30', artifactNumToKeepStr: '3'))]
+// For mainline branches, notify Teams channel of failures/success/not built/etc
+if (isMainlineBranch) {
+	withCredentials([string(credentialsId: 'titanium_mobile_ms_teams_webhook', variable: 'WEBHOOK_URL')]) {
+	    buildProperties << office365ConnectorWebhooks([[
+			notifyBackToNormal: true,
+			notifyFailure: true,
+			notifyNotBuilt: true,
+			notifyUnstable: true,
+			notifySuccess: true,
+			notifyRepeatedFailure: true,
+			url: "${WEBHOOK_URL}"
+		]])
+	}
+}
+properties(buildProperties)
 
 // These values could be changed manually on PRs/branches, but be careful we don't merge the changes in. We want this to be the default behavior for now!
 // target branch of test suite to test with
@@ -70,11 +85,14 @@ def gatherAndroidCrashReports() {
 	}
 }
 
-def androidUnitTests(nodeVersion, npmVersion, testOnDevices) {
+def androidUnitTests(testName, nodeVersion, npmVersion, testOnDevices, deviceId) {
 	return {
 		def labels = 'git && osx && android-emulator && android-sdk' // FIXME get working on windows/linux!
 		if (testOnDevices) {
 			labels += ' && macos-rocket' // run main branch tests on devices, use node with devices connected
+		}
+		if (!deviceId) {
+			deviceId = testOnDevices ? 'all' : 'android-30-playstore-x86';
 		}
 
 		node(labels) {
@@ -87,17 +105,19 @@ def androidUnitTests(nodeVersion, npmVersion, testOnDevices) {
 					def zipName = getBuiltSDK()
 					sh label: 'Install SDK', script: "npm run deploy -- ${zipName} --select" // installs the sdk
 					try {
-						timeout(30) {
-							// Forcibly remove value for specific build tools version to use (set by module builds)
-							sh returnStatus: true, script: 'ti config android.buildTools.selectedVersion --remove'
-							// run main branch tests on devices
-							if (testOnDevices) {
-								sh label: 'Run Test Suite on device(s)', script: "npm run test:integration -- android -T device -C all"
-							// run PR tests on emulator
-							} else {
-								sh label: 'Run Test Suite on emulator', script: "npm run test:integration -- android -T emulator -D test -C android-30-playstore-x86"
-							}
-						} // timeout
+						withEnv(['CI=1']) {
+							timeout(30) {
+								// Forcibly remove value for specific build tools version to use (set by module builds)
+								sh returnStatus: true, script: 'ti config android.buildTools.selectedVersion --remove'
+								// run main branch tests on devices
+								if (testOnDevices) {
+									sh label: 'Run Test Suite on device(s)', script: "npm run test:integration -- android -T device -C ${deviceId}"
+								// run PR tests on emulator
+								} else {
+									sh label: 'Run Test Suite on emulator', script: "npm run test:integration -- android -T emulator -D test -C ${deviceId}"
+								}
+							} // timeout
+						}
 					} catch (e) {
 						archiveArtifacts 'tmp/mocha/build/build_*.log' // save build log if build failed
 						gatherAndroidCrashReports()
@@ -116,7 +136,7 @@ def androidUnitTests(nodeVersion, npmVersion, testOnDevices) {
 						}
 					} // try/catch/finally
 					// save the junit reports as artifacts explicitly so danger.js can use them later
-					stash includes: 'junit.*.xml', name: 'test-report-android'
+					stash includes: 'junit.*.xml', name: "test-report-android-${testName}"
 					junit 'junit.*.xml'
 					archiveArtifacts allowEmptyArchive: true, artifacts: 'tests/diffs/,tests/generated/'
 				} // nodejs
@@ -139,8 +159,10 @@ def macosUnitTests(nodeVersion, npmVersion) {
 					def zipName = getBuiltSDK()
 					sh label: 'Install SDK', script: "npm run deploy -- ${zipName} --select" // installs the sdk
 					try {
-						timeout(20) {
-							sh label: 'Run Test Suite on macOS', script: 'npm run test:integration -- ios -T macos'
+						withEnv(['CI=1']) {
+							timeout(20) {
+								sh label: 'Run Test Suite on macOS', script: 'npm run test:integration -- ios -T macos'
+							}
 						}
 					} catch (e) {
 						gatherIOSCrashReports('mocha') // app name is mocha
@@ -153,7 +175,7 @@ def macosUnitTests(nodeVersion, npmVersion) {
 					stash includes: 'junit.ios.macos.xml', name: "test-report-ios-macos"
 					junit 'junit.ios.macos.xml'
 					// Save any diffed images
-					archiveArtifacts allowEmptyArchive: true, artifacts: 'tests/diffs/'
+					archiveArtifacts allowEmptyArchive: true, artifacts: 'tests/diffs/,tests/generated/'
 				} // nodejs
 			} finally {
 				deleteDir()
@@ -180,11 +202,13 @@ def iosUnitTests(deviceFamily, nodeVersion, npmVersion, testOnDevices) {
 					def zipName = getBuiltSDK()
 					sh label: 'Install SDK', script: "npm run deploy -- ${zipName} --select" // installs the sdk
 					try {
-						timeout(40) {
-							if (testOnDevices && deviceFamily == 'iphone') {
-								sh label: 'Run Test Suite on device(s)', script: "npm run test:integration -- ios -F ${deviceFamily} -T device -C all"
-							} else { // run PR tests on simulator
-								sh label: 'Run Test Suite on simulator', script: "npm run test:integration -- ios -F ${deviceFamily}"
+						withEnv(['CI=1']) {
+							timeout(40) {
+								if (testOnDevices && deviceFamily == 'iphone') {
+									sh label: 'Run Test Suite on device(s)', script: "npm run test:integration -- ios -F ${deviceFamily} -T device -C all"
+								} else { // run PR tests on simulator
+									sh label: 'Run Test Suite on simulator', script: "npm run test:integration -- ios -F ${deviceFamily}"
+								}
 							}
 						}
 					} catch (e) {
@@ -199,7 +223,7 @@ def iosUnitTests(deviceFamily, nodeVersion, npmVersion, testOnDevices) {
 					stash includes: 'junit.ios.*.xml', name: "test-report-ios-${deviceFamily}"
 					junit 'junit.ios.*.xml'
 					// Save any diffed images
-					archiveArtifacts allowEmptyArchive: true, artifacts: 'tests/diffs/'
+					archiveArtifacts allowEmptyArchive: true, artifacts: 'tests/diffs/,tests/generated/'
 				} // nodejs
 			} finally {
 				deleteDir()
@@ -352,7 +376,8 @@ timestamps {
 		// Run unit tests in parallel for android/iOS
 		stage('Test') {
 			parallel(
-				'android unit tests': androidUnitTests(nodeVersion, npmVersion, testOnDevices),
+				'android main unit tests': androidUnitTests('main', nodeVersion, npmVersion, testOnDevices, null),
+				'android 5.0 unit tests': androidUnitTests('5.0', nodeVersion, npmVersion, false, 'android-21-x86'),
 				'iPhone unit tests': iosUnitTests('iphone', nodeVersion, npmVersion, testOnDevices),
 				'iPad unit tests': iosUnitTests('ipad', nodeVersion, npmVersion, testOnDevices),
 				'macOS unit tests': macosUnitTests(nodeVersion, npmVersion),
@@ -517,7 +542,7 @@ timestamps {
 						} catch (e) {}
 
 						// it's ok to not grab all test results, still run Danger.JS (even if some platforms crashed or we failed before tests)
-						def reports = [ 'ios-ipad', 'ios-iphone', 'ios-macos', 'android', 'cli' ]
+						def reports = [ 'ios-ipad', 'ios-iphone', 'ios-macos', 'android-main', 'android-5.0', 'cli' ]
 						for (int i = 0; i < reports.size(); i++) {
 							try {
 								unstash "test-report-${reports[i]}"

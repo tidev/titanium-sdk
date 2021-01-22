@@ -1,0 +1,207 @@
+---
+name: path
+summary: A Node.js-compatible implementation of the core `path` module
+description: |
+    Titanium provides a number of shims and ports of core Node.js module functionality.
+
+    This module is intended to provide a Node-compatible port of the `path` core module.
+    
+    More details on the Node.js API can be found in their [path module documentation](https://nodejs.org/api/path.html)
+platforms: [android, iphone, ipad, macos]
+since: '8.1.0'
+properties:
+  - name: delimiter
+    type: String
+    summary: |
+        Provides the platform-specific path delimiter:
+        
+        `;` for Windows
+        `:` for POSIX
+
+  - name: posix
+    type: path
+    summary: The `path.posix` property provides access to POSIX specific implementations of the `path` methods.
+
+  - name: sep
+    type: String
+    summary: |
+        Provides the platform-specific path segment separator:
+
+        - `\` on Windows
+        - `/` on POSIX
+
+  - name: win32
+    type: path
+    summary: The `path.win32` property provides access to Windows-specific implementations of the `path` methods.
+
+methods:
+  - name: basename
+    summary: The `path.basename()` method returns the last portion of a `path`, similar to the Unix `basename` command. Trailing directory separators are ignored, see <path.sep>.
+    parameters:
+      - name: path
+        summary: The file path.
+        type: String
+
+      - name: ext
+        summary: An optional file extension
+        type: String
+        optional: true
+    returns:
+        type: String
+
+  - name: dirname
+    summary: The `path.dirname()` method returns the directory name of a `path`, similar to the Unix `dirname` command. Trailing directory separators are ignored, see <path.sep>.
+    parameters:
+      - name: path
+        summary: The file path.
+        type: String
+    returns:
+        type: String
+
+  - name: extname
+    summary: |
+        The `path.extname()` method returns the extension of the `path`, from the last occurrence of the `.` (period) character to end of string in the last portion of the path. If there is no `.` in the last portion of the path, or if there are no `.` characters other than the first character of the `basename` of `path` (see <path.basename>`()`) , an empty string is returned.
+    parameters:
+      - name: path
+        summary: The file path.
+        type: String
+    returns:
+        type: String
+
+  - name: format
+    summary: |
+        The `path.format()` method returns a `path` string from an object. This is the opposite of <path.parse>`()`.
+
+        When providing properties to the `pathObject` remember that there are combinations where one property has priority over another:
+
+        `pathObject.root` is ignored if `pathObject.dir` is provided
+        `pathObject.ext` and `pathObject.name` are ignored if `pathObject.base` exists
+    parameters:
+      - name: pathObject
+        summary: The file path.
+        type: PathObject
+    returns:
+        type: String
+
+  - name: isAbsolute
+    summary: |
+        The `path.isAbsolute()` method determines if `path` is an absolute path.
+
+        If the given `path` is a zero-length string, `false` will be returned.
+    parameters:
+      - name: path
+        summary: The file path.
+        type: String
+    returns:
+        type: Boolean
+
+  - name: join
+    summary: |
+        The `path.join()` method joins all given `path` segments together using the platform-specific separator as a delimiter, then normalizes the resulting path.
+
+        Zero-length `path` segments are ignored. If the joined path string is a zero-length string then `'.'` will be returned, representing the current working directory.
+    parameters:
+      - name: paths
+        summary: A sequence of path segments
+        type: String
+        repeatable: true
+        optional: true
+    returns:
+        type: String
+
+  - name: normalize
+    summary: |
+        The `path.normalize()` method normalizes the given `path`, resolving `'..'` and `'.'` segments.
+    description: |
+        When multiple, sequential path segment separation characters are found (e.g. `/` on POSIX and either `\` or `/` on Windows), they are replaced by a single instance of the platform-specific path segment separator (`/` on POSIX and `\` on Windows). Trailing separators are preserved.
+
+        If the `path` is a zero-length string, `'.'` is returned, representing the current working directory.
+    parameters:
+      - name: path
+        summary: The file path.
+        type: String
+    returns:
+        type: String
+
+  - name: parse
+    summary: |
+        The `path.parse()` method returns an object whose properties represent significant elements of the `path`. Trailing directory separators are ignored, see <path.sep>.
+    parameters:
+      - name: path
+        summary: The file path.
+        type: String
+    returns:
+        type: PathObject
+
+  - name: relative
+    summary: |
+        The `path.relative()` method returns the relative path from from to to based on the current working directory. If `from` and `to` each resolve to the same path (after calling `path.resolve()` on each), a zero-length string is returned.
+
+        If a zero-length string is passed as `from` or `to`, the current working directory will be used instead of the zero-length strings.
+    parameters:
+      - name: from
+        summary: The source file path.
+        type: String
+      - name: to
+        summary: The destination file path.
+        type: String
+    returns:
+        type: String
+
+  - name: resolve
+    summary: |
+        The `path.resolve()` method resolves a sequence of paths or path segments into an absolute path.
+    description: |
+        The given sequence of paths is processed from right to left, with each subsequent `path` prepended until an absolute path is constructed. For instance, given the sequence of path segments: `/foo`, `/bar`, `baz`, calling `path.resolve('/foo', '/bar', 'baz')` would return `/bar/baz` because `'baz'` is not an absolute path but `'/bar' + '/' + 'baz'` is.
+
+        If, after processing all given `path` segments, an absolute path has not yet been generated, the current working directory is used.
+
+        The resulting path is normalized and trailing slashes are removed unless the path is resolved to the root directory.
+
+        Zero-length `path` segments are ignored.
+
+        If no `path` segments are passed, `path.resolve()` will return the absolute path of the current working directory.
+    parameters:
+      - name: paths
+        summary: A sequence of paths or path segments
+        type: String
+        repeatable: true
+        optional: true
+    returns:
+        type: String
+
+  - name: toNamespacedPath
+    summary: |
+        On Windows systems only, returns an equivalent namespace-prefixed path for the given `path`. If `path` is not a string, `path` will be returned without modifications.
+
+        This method is meaningful only on Windows systems. On POSIX systems, the method is non-operational and always returns `path` without modifications.
+    parameters:
+      - name: path
+        summary: The file path.
+        type: String
+    returns:
+        type: String
+
+---
+name: PathObject
+summary: Abstract type defined for <path.format> and <path.parse>
+properties:
+  - name: dir
+    summary: directory path
+    type: String
+
+  - name: root
+    summary: Root filesystem path, i.e. `'/'` or `'C:\\'`. Ignored if `pathObject.dir` is provided
+    type: String
+
+  - name: base
+    summary: file basename, i.e. `'file.txt'`
+    type: String
+
+  - name: name
+    summary: file basename without the extension, i.e. `'file'`. Ignored if `pathObject.base` exists
+    type: String
+
+  - name: ext
+    summary: file extension, i.e. `'.txt'`. Ignored if `pathObject.base` exists
+    type: String
