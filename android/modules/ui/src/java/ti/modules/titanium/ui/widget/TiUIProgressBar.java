@@ -15,7 +15,6 @@ import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiUIView;
 
 import android.content.res.ColorStateList;
-import android.os.Build;
 import android.view.Gravity;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -154,17 +153,13 @@ public class TiUIProgressBar extends TiUIView
 
 	protected void handleSetTintColor(int color)
 	{
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-			ColorStateList singleColorStateList = ColorStateList.valueOf(color);
-			progress.setProgressTintList(singleColorStateList);
-		}
+		ColorStateList singleColorStateList = ColorStateList.valueOf(color);
+		progress.setProgressTintList(singleColorStateList);
 	}
 
 	protected void handleSetTrackTintColor(int color)
 	{
 		ColorStateList singleColorStateList = ColorStateList.valueOf(color);
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-			progress.setProgressBackgroundTintList(singleColorStateList);
-		}
+		progress.setProgressBackgroundTintList(singleColorStateList);
 	}
 }

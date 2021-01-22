@@ -207,8 +207,14 @@ methods:
         summary: address to resolve.
         type: String
       - name: callback
-        summary: Function to invoke on success or failure.
+        summary: |
+            Function to invoke on success or failure.
+            Optional on SDK 10, as this method will return a `Promise`, which may be used to handle the result.
         type: Callback<ForwardGeocodeResponse>
+        optional: true
+    returns:
+      summary: On SDK 10+, this method will return a `Promise` whose resolved value is equivalent to that passed to the optional callback argument.
+      type: Promise<ForwardGeocodeResponse>
     platforms: [android, iphone, ipad, macos]
 
   - name: getCurrentHeading
@@ -277,8 +283,14 @@ methods:
         constants: [Titanium.Geolocation.AUTHORIZATION_ALWAYS,Titanium.Geolocation.AUTHORIZATION_WHEN_IN_USE]
         type: Number
       - name: callback
-        summary: Function to call upon user decision to grant location access.
+        summary: |
+            Function to call upon user decision to grant location access.
+            Optional on SDK 10, as this method will return a `Promise`, which may be used to handle the result.
         type: Callback<LocationAuthorizationResponse>
+        optional: true
+    returns:
+      summary: On SDK 10+, this method will return a `Promise` whose resolved value is equivalent to that passed to the optional callback argument.
+      type: Promise<LocationAuthorizationResponse>
     platforms: [iphone, ipad, android, macos]
     since: "5.1.0"
 
@@ -355,12 +367,17 @@ methods:
         type: Number
 
       - name: callback
-        summary: Function to invoke on success or failure.
+        summary: |
+            Function to invoke on success or failure.
+            Optional on SDK 10, as this method will return a `Promise`, which may be used to handle the result.
         type: Callback<ReverseGeocodeResponse>
+        optional: true
+    returns:
+      summary: On SDK 10+, this method will return a `Promise` whose resolved value is equivalent to that passed to the optional callback argument.
+      type: Promise<ReverseGeocodeResponse>
     platforms: [android, iphone, ipad, macos]
 
 events:
-
   - name: calibration
     summary: Fired when the device detects interface and requires calibration.
     description: |

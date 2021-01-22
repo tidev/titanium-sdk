@@ -1177,6 +1177,9 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
         [startingItem setDictionary:eventObject];
       }
       [selectedItems addObject:eventObject];
+
+      RELEASE_TO_NIL(eventObject);
+      RELEASE_TO_NIL(theSection);
     }
     [self.proxy fireEvent:@"itemsselected" withObject:@{ @"selectedItems" : selectedItems, @"startingItem" : startingItem }];
   }
@@ -2414,6 +2417,7 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
     dimmingView.alpha = .2;
     UITapGestureRecognizer *tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(dismissSearchController)];
     [dimmingView addGestureRecognizer:tapGesture];
+    [tapGesture release];
   }
 }
 

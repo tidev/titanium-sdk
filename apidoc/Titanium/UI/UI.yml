@@ -30,7 +30,8 @@ description:  |
     fullscreen or modal and can be customized, such as changing their opacity or background color.
     Windows themselves are views and also inherit a views properties, functions and events. There
     are a few specialization of Windows such as a [Tab Group](Titanium.UI.TabGroup) which offer
-    additional behavior beyond the basic Window.
+    additional behavior beyond the basic Window. It is considered a best practice to use a 
+    [NavigationWindow](Titanium.UI.NavigationWindow) as the root of your application.
 
     Titanium uses the [Factory Pattern](http://en.wikipedia.org/wiki/Factory_method_pattern) for
     constructing objects and a general naming pattern for APIs.  For example, to construct a
@@ -50,33 +51,23 @@ description:  |
     example, you should call `close` on a [Window](Titanium.UI.Window) instance when you are no
     longer using it.  You can safely call `open` on the window again to re-open it.
 
-    #### Global Context and Threading
+    #### Global Context
 
-    Be careful with the objects that are created in `app.js` but only used once. Since the `app.js`
-    context is global and generally is not garbage collected until the application exits, you
-    should think about the design of your application as it relates to this fact.
+    Prior to the release of Titanium SDK `9.0.0.GA` any variable declared in `app.js` or `alloy.js` 
+    was added to a global scope. This however is no longer the case since `9.0.0.GA`. However
+    it is still possible to add variables to a global scope by adding `global.` in front of any
+    variabled declared in `app.js` or `alloy.js`. However you should be careful with adding variables
+    to global context because anything added to the global context will not be garbage-collected.
 
-    [Window](Titanium.UI.Window) objects that are opened up with the `url` property to another
-    JavaScript file provide a nice way to decompose your application into smaller units.
-
-    Additionally, Window objects created with a `url` value run in a separate JavaScript context
-    and thread. While all UI processing is done on the main UI thread, other processing inside
-    a Window or the `app.js` that does not have UI interaction will run in its own thread.
-
-    The other benefit of using the `url` property is that when the window is closed, resources
-    allocated in the window's context can be immediately cleaned up, saving resources such as
-    memory and CPU.
-
-    For more information, see the sections "Sub-contexts" and "Passing Data Between Contexts" on the
-    [Window](Titanium.UI.Window) reference page.
+    In Alloy the recommended way to add global context is `Alloy.Globals`.
 
     #### Portability
 
     Titanium components are designed to be portable across as many platforms as it supports.
     However, there are cases where a device either does not support a specific feature or capability
-    or where it support additional functionality.  For cases where the device OS supports
+    or where it support additional functionality. For cases where the device OS supports
     capabilities that other platforms do not, we attempt to place those capabilities in a separate
-    namespace, such as <Titanium.UI.iPhone>. However, in cases where the control is in a common
+    namespace, such as <Titanium.UI.iOS>. However, in cases where the control is in a common
     namespace and support additional features, we continue to place that functionality directly on
     the object.
 
@@ -89,6 +80,8 @@ description:  |
     Evaluating events as late as possible while bearing the above consideration in mind, however,
     can significantly improve application responsiveness. For example, an event listener for a
     click event may be defined after the parent window has been opened.
+
+    Adding `eventListeners` in Alloy makes sure they are bound before they are fired.
 
     #### Colors
 
@@ -2142,7 +2135,10 @@ properties:
     since: "5.5.0"
 
   - name: CLIPBOARD_OPTION_EXPIRATION_DATE
-    summary: Specifies the time and date that you want the system to remove the clipboard items from the clipboard.
+    summary: |
+        Specifies the time and date that you want the system to remove the clipboard items from the clipboard.
+
+        Note that on macOS, setting a date in the past does not appear to invalidate items immediately, while on iOS it does.
     type: String
     permission: read-only
     platforms: [iphone, ipad, macos]
@@ -2734,38 +2730,6 @@ properties:
         The default background image may also show through if you use semi-transparent
         windows.
     type: String
-
-  - name: currentTab
-    summary: The currently active tab, if a tab group is open.
-    description: |
-        If no tab group is open, this value is undefined.
-    type: Titanium.UI.Tab
-    platforms: [android]
-    since: "1.8.0"
-    deprecated:
-      since: "3.5.0"
-      removed: "6.0.0"
-
-  - name: currentWindow
-    summary: The active window associated with the executing JavaScript context.
-    description: |
-        This property is only available when using the <Titanium.UI.Window.url> property to load
-        JavaScript files in their own contexts.
-    type: Titanium.UI.Window
-    permission: read-only
-    exclude-platforms: [macos]
-    deprecated:
-        since: "3.5.0"
-        removed: "6.0.0"
-
-  - name: orientation
-    summary: Updates the orientation of the current window to the specified orientation value.
-    deprecated:
-        since: "1.7.2"
-        removed: "3.0.0"
-        notes: Use [Titanium.UI.Window.orientationModes](Titanium.UI.Window.orientationModes) instead.
-    type: Number
-    platforms: [android, iphone, ipad]
 
   - name: tintColor
     summary: |

@@ -1818,11 +1818,6 @@ describe.android('Titanium.Android.R', () => {
 		});
 
 		describe('.transition', () => {
-			// Only supported on Android API 21+
-			if (Ti.Platform.Android.API_LEVEL < 21) {
-				return;
-			}
-
 			it('is a Object', () => {
 				should(Ti.Android.R).have.a.readOnlyProperty('transition').which.is.a.Object();
 			});

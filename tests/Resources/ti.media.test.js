@@ -227,12 +227,6 @@ describe('Titanium.Media', () => {
 			});
 		});
 
-		describe.ios('#hasAudioPermissions', () => {
-			it('is a Function', () => {
-				should(Ti.Media.hasAudioPermissions).be.a.Function();
-			});
-		});
-
 		describe('#hasAudioRecorderPermissions', () => {
 			it('is a Function', () => {
 				should(Ti.Media.hasAudioRecorderPermissions).be.a.Function();

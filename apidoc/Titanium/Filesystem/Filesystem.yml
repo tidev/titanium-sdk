@@ -145,8 +145,14 @@ methods:
         If you require other permissions, you can also use <Titanium.Android.requestPermissions>.
     parameters:
       - name: callback
-        summary: Function to call upon user decision to grant storage access
+        summary: |
+            Function to call upon user decision to grant storage access.
+            Optional on SDK 10, as this method will return a `Promise`, which may be used to handle the result.
         type: Callback<RequestStorageAccessResult>
+        optional: true
+    returns:
+      summary: On SDK 10+, this method will return a `Promise` whose resolved value is equivalent to that passed to the optional callback argument.
+      type: Promise<RequestStorageAccessResult>
     platforms: [android]
     since: "5.4.0"
 

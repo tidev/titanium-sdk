@@ -7,7 +7,7 @@
 
 #ifdef USE_TI_GEOLOCATION
 #import <JavaScriptCore/JavaScriptCore.h>
-#import <TitaniumKit/ObjcProxy.h>
+#import <TitaniumKit/ObjcModule.h>
 
 #import <CoreLocation/CoreLocation.h>
 
@@ -15,6 +15,8 @@ NSString *const kTiGeolocationUsageDescriptionWhenInUse = @"NSLocationWhenInUseU
 NSString *const kTiGeolocationUsageDescriptionAlways = @"NSLocationAlwaysUsageDescription";
 NSString *const kTiGeolocationUsageDescriptionAlwaysAndWhenInUse = @"NSLocationAlwaysAndWhenInUseUsageDescription";
 NSString *const kTiGeolocationTemporaryUsageDescriptionDictionary = @"NSLocationTemporaryUsageDescriptionDictionary";
+
+@class KrollPromise;
 
 @protocol GeolocationExports <JSExport>
 
@@ -78,18 +80,18 @@ PROPERTY(bool, trackSignificantLocationChange, TrackSignificantLocationChange);
 
 // methods
 JSExportAs(forwardGeocoder,
-           -(void)forwardGeocoder
+           -(JSValue *)forwardGeocoder
            : (NSString *)address withCallback
            : (JSValue *)callback);
 - (void)getCurrentHeading:(JSValue *)callback;
 - (void)getCurrentPosition:(JSValue *)callback;
 - (bool)hasLocationPermissions:(CLAuthorizationStatus)authorizationType;
 JSExportAs(requestLocationPermissions,
-           -(void)requestLocationPermissions
+           -(JSValue *)requestLocationPermissions
            : (CLAuthorizationStatus)authorizationType withCallback
            : (JSValue *)callback);
 JSExportAs(reverseGeocoder,
-           -(void)reverseGeocoder
+           -(JSValue *)reverseGeocoder
            : (double)latitude longitude
            : (double)longitude withCallback
            : (JSValue *)callback);
@@ -102,7 +104,7 @@ JSExportAs(requestTemporaryFullAccuracyAuthorization,
 #endif
 @end
 
-@interface GeolocationModule : ObjcProxy <GeolocationExports, CLLocationManagerDelegate> {
+@interface GeolocationModule : ObjcModule <GeolocationExports, CLLocationManagerDelegate> {
   CLLocationManager *locationManager;
   CLLocationManager *tempManager; // Our 'fakey' manager for handling certain <=3.2 requests
   CLLocationManager *locationPermissionManager; // used for just permissions requests
@@ -119,6 +121,7 @@ JSExportAs(requestTemporaryFullAccuracyAuthorization,
   bool allowsBackgroundLocationUpdates;
   BOOL showBackgroundLocationIndicator;
   JSManagedValue *authorizationCallback;
+  KrollPromise *authorizationPromise;
   CLAuthorizationStatus requestedAuthorizationStatus;
 
   CLActivityType activityType;

@@ -114,10 +114,17 @@ class Packager {
 	 * @returns {Promise<void>}
 	 */
 	async copyCommon() {
-		await fs.emptyDir(this.commonDir);
+		await Promise.all([
+			fs.emptyDir(this.commonDir),
+			// ti.kernel.js gets baked directly into C code for Android, so wipe it
+			fs.remove(path.join(TMP_DIR, 'common/Resources/android/ti.kernel.js')),
+		]);
 		return Promise.all([
+			// copy common/lib from src to SDK (needed by CLI)
 			fs.copy(path.join(ROOT_DIR, 'common/lib'), path.join(this.commonDir, 'lib')),
-			fs.copy(path.join(TMP_DIR, 'common/Resources'), path.join(this.commonDir, 'Resources')),
+			// copy dist/tmp/common to SDK as common/Resources
+			// (under platform-specific sub-folders there are the ti.kernel.js and ti.main.js bundled files)
+			fs.copy(path.join(TMP_DIR, 'common'), path.join(this.commonDir, 'Resources')),
 		]);
 	}
 
@@ -136,12 +143,19 @@ class Packager {
 		// Now include all the pre-built node-ios-device bindings/binaries
 		if (this.targetOS === 'osx') {
 			let dir = path.join(this.zipSDKDir, 'node_modules/node-ios-device');
-			if (!await fs.exists(dir)) {
+			if (!await fs.pathExists(dir)) {
 				dir = path.join(this.zipSDKDir, 'node_modules/ioslib/node_modules/node-ios-device');
 			}
 
-			if (!await fs.exists(dir)) {
+			if (!await fs.pathExists(dir)) {
 				throw new Error('Unable to find node-ios-device module');
+			}
+			// Hack to remove the super old node 0.10 entry for apple arm64
+			if (process.arch === 'arm64') {
+				const nodeIOSDevicePackageJSON = path.join(dir, 'package.json');
+				const original = await fs.readJSON(nodeIOSDevicePackageJSON);
+				delete original.binary.targets['0.10.48'];
+				await fs.writeJSON(nodeIOSDevicePackageJSON, original);
 			}
 
 			await exec('node bin/download-all.js', { cwd: dir, stdio: 'inherit' });

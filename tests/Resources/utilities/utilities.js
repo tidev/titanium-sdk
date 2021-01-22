@@ -1,8 +1,6 @@
 'use strict';
-var filter = require('./mocha-filter'),
-	filters = {},
-	Utility = {};
 
+const Utility = {};
 Utility.isIPhone = function () {
 	return Ti.Platform.osname === 'iphone';
 };
@@ -21,6 +19,10 @@ Utility.isMacOS = function () {
 
 Utility.isAndroid = function () {
 	return (Ti.Platform.osname === 'android');
+};
+
+Utility.isAndroidARM64Emulator = function () {
+	return this.isAndroid() && Ti.Platform.model === 'Android SDK built for arm64';
 };
 
 Utility.isWindowsPhone = function () {
@@ -49,46 +51,19 @@ Utility.isWindows8_1 = function () {
 };
 
 // Use custom mocha filters for platform-specific tests
-filters = {
-	android: function () {
-		return Utility.isAndroid();
-	},
-	ios: function () {
-		return Utility.isIOS();
-	},
-	ipad: function () {
-		return Utility.isIPad();
-	},
+const filters = {
+	android: () => Utility.isAndroid(),
+	ios: () => Utility.isIOS(),
+	ipad: () => Utility.isIPad(),
 	iphone: () => Utility.isIPhone(),
 	mac: () => Utility.isMacOS(),
-	windows: function () {
-		return Utility.isWindows();
-	},
+	windows: () => Utility.isWindows(),
 	// To mark APIs meant to be cross-platform but missing from a given platform
-	androidMissing: function () {
-		if (Utility.isAndroid()) {
-			return 'skip';
-		}
-		return true;
-	},
-	iosMissing: function () {
-		if (Utility.isIOS()) {
-			return 'skip';
-		}
-		return true;
-	},
-	macMissing: function () {
-		if (Utility.isMacOS()) {
-			return 'skip';
-		}
-		return true;
-	},
-	windowsMissing: function () {
-		if (Utility.isWindows()) {
-			return 'skip';
-		}
-		return true;
-	},
+	androidMissing: () => (Utility.isAndroid() ? 'skip' : true),
+	iosMissing: () => (Utility.isIOS() ? 'skip' : true),
+	macMissing: () => (Utility.isMacOS() ? 'skip' : true),
+	windowsMissing: () => (Utility.isWindows() ? 'skip' : true),
+	androidARM64Broken: () => (Utility.isAndroidARM64Emulator() ? 'skip' : true),
 	androidIosAndWindowsPhoneBroken: function () {
 		if (Utility.isAndroid() || Utility.isIOS() || Utility.isWindowsPhone()) {
 			return 'skip';
@@ -208,9 +183,7 @@ filters = {
 		}
 		return true;
 	},
-	allBroken: function () {
-		return 'skip';
-	}
+	allBroken: () => 'skip'
 };
 
 // Alias broken tests on a given platform to "missing" filter for that platform.
@@ -229,6 +202,7 @@ filters.macBrokenAndWindowsMissing = filters.macAndWindowsBroken;
 filters.macMissingAndWindowsBroken = filters.macAndWindowsBroken;
 filters.macAndWindowsMissing = filters.macAndWindowsBroken;
 // Add our custom filters
+const filter = require('./mocha-filter');
 filter.addFilters(filters);
 
 module.exports = Utility;

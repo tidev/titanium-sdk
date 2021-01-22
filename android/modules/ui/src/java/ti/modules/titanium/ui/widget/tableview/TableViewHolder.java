@@ -7,14 +7,12 @@
 package ti.modules.titanium.ui.widget.tableview;
 
 import org.appcelerator.kroll.KrollDict;
-import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.R;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
-import org.appcelerator.titanium.util.TiFileHelper;
 import org.appcelerator.titanium.util.TiRHelper;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiBorderWrapperView;
@@ -36,7 +34,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-import androidx.recyclerview.widget.RecyclerView;
 
 import java.lang.ref.WeakReference;
 
@@ -44,24 +41,16 @@ import ti.modules.titanium.ui.TableViewProxy;
 import ti.modules.titanium.ui.TableViewRowProxy;
 import ti.modules.titanium.ui.TableViewSectionProxy;
 import ti.modules.titanium.ui.widget.TiUITableView;
+import ti.modules.titanium.ui.widget.listview.TiRecyclerViewHolder;
 
-public class TableViewHolder extends RecyclerView.ViewHolder
+public class TableViewHolder extends TiRecyclerViewHolder
 {
-	private static String TAG = "TableViewHolder";
+	private static final String TAG = "TableViewHolder";
 
-	private static final int COLOR_GRAY = Color.rgb(169, 169, 169);
-
-	private static Resources resources;
-	private static TiFileHelper fileHelper;
-
-	private static Drawable moreDrawable;
-	private static Drawable checkDrawable;
-	private static Drawable disclosureDrawable;
-	private static int selectableItemBackgroundId = 0;
 	private static ColorStateList defaultTextColors = null;
 
 	// Top
-	private final ViewGroup header;
+	private final TiCompositeLayout header;
 	private final TextView headerTitle;
 
 	// Middle
@@ -73,70 +62,12 @@ public class TableViewHolder extends RecyclerView.ViewHolder
 	private final ImageView rightImage;
 
 	// Bottom
-	private final ViewGroup footer;
+	private final TiCompositeLayout footer;
 	private final TextView footerTitle;
-
-	private WeakReference<TiViewProxy> proxy;
 
 	public TableViewHolder(final Context context, final ViewGroup viewGroup)
 	{
-		super(viewGroup);
-
-		if (resources == null) {
-
-			// Obtain resources instance.
-			resources = context.getResources();
-		}
-		if (resources != null) {
-
-			// Attempt to load `icon_more` drawable.
-			if (moreDrawable == null) {
-				try {
-					final int icon_more_id = R.drawable.titanium_icon_more;
-					moreDrawable = resources.getDrawable(icon_more_id);
-				} catch (Exception e) {
-					Log.w(TAG, "Drawable 'drawable.icon_more' not found.");
-				}
-			}
-
-			// Attempt to load `icon_checkmark` drawable.
-			if (checkDrawable == null) {
-				try {
-					final int icon_checkmark_id = R.drawable.titanium_icon_checkmark;
-					checkDrawable = resources.getDrawable(icon_checkmark_id);
-				} catch (Exception e) {
-					Log.w(TAG, "Drawable 'drawable.icon_checkmark' not found.");
-				}
-			}
-
-			// Attempt to load `icon_disclosure` drawable.
-			if (disclosureDrawable == null) {
-				try {
-					final int icon_disclosure_id = R.drawable.titanium_icon_disclosure;
-					disclosureDrawable = resources.getDrawable(icon_disclosure_id);
-				} catch (Exception e) {
-					Log.w(TAG, "Drawable 'drawable.icon_disclosure' not found.");
-				}
-			}
-
-			if (selectableItemBackgroundId == 0) {
-				try {
-					final TypedValue selectableItemBackgroundValue = new TypedValue();
-					context.getTheme().resolveAttribute(android.R.attr.selectableItemBackgroundBorderless,
-						selectableItemBackgroundValue, true);
-					selectableItemBackgroundId = selectableItemBackgroundValue.resourceId;
-				} catch (Exception e) {
-					Log.w(TAG, "Drawable for default background not found.");
-				}
-			}
-		} else {
-			Log.w(TAG, "Could not obtain context resources instance.");
-		}
-		if (fileHelper == null) {
-
-			// Obtain file helper instance.
-			fileHelper = new TiFileHelper(context);
-		}
+		super(context, viewGroup);
 
 		// Obtain views from identifiers.
 		this.header = viewGroup.findViewById(R.id.titanium_ui_tableview_holder_header);
@@ -198,18 +129,6 @@ public class TableViewHolder extends RecyclerView.ViewHolder
 	}
 
 	/**
-	 * Get current proxy assigned to holder.
-	 * @return TiViewProxy
-	 */
-	public TiViewProxy getProxy()
-	{
-		if (this.proxy != null) {
-			return this.proxy.get();
-		}
-		return null;
-	}
-
-	/**
 	 * Bind proxy to holder.
 	 * @param proxy TableViewRowProxy to bind.
 	 * @param selected Is row selected.
@@ -225,6 +144,7 @@ public class TableViewHolder extends RecyclerView.ViewHolder
 		if (tableViewProxy == null) {
 			return;
 		}
+		final KrollDict tableViewProperties = tableViewProxy.getProperties();
 
 		// Attempt to obtain parent section proxy is available.
 		final TableViewSectionProxy section =
@@ -319,6 +239,16 @@ public class TableViewHolder extends RecyclerView.ViewHolder
 				}
 			}
 
+			// Display drag drawable when row is movable.
+			final boolean isEditing = tableViewProperties.optBoolean(TiC.PROPERTY_EDITING, false);
+			final boolean isMoving = tableViewProperties.optBoolean(TiC.PROPERTY_MOVING, false);
+			final boolean isMovable = properties.optBoolean(TiC.PROPERTY_MOVABLE,
+				tableViewProperties.optBoolean(TiC.PROPERTY_MOVABLE, false));
+			if ((isEditing || isMoving) && isMovable) {
+				this.rightImage.setImageDrawable(dragDrawable);
+				this.rightImage.setVisibility(View.VISIBLE);
+			}
+
 			// Include row content.
 			if (proxy != null) {
 				final TiUITableView tableView = (TiUITableView) tableViewProxy.getOrCreateView();
@@ -395,7 +325,7 @@ public class TableViewHolder extends RecyclerView.ViewHolder
 		}
 
 		// Handle `header` and `footer` for rows.
-		setHeaderFooter(properties, true, true);
+		setHeaderFooter(tableViewProxy, properties, true, true);
 
 		if (section != null) {
 
@@ -408,14 +338,14 @@ public class TableViewHolder extends RecyclerView.ViewHolder
 			if (indexInSection == 0 || filteredIndex == 0 || proxy.isPlaceholder()) {
 
 				// Only set header on first row in section.
-				setHeaderFooter(sectionProperties, true, false);
+				setHeaderFooter(tableViewProxy, sectionProperties, true, false);
 			}
 			if ((indexInSection >= section.getRowCount() - 1)
 				|| (filteredIndex >= section.getFilteredRowCount() - 1)
 				|| proxy.isPlaceholder()) {
 
 				// Only set footer on last row in section.
-				setHeaderFooter(sectionProperties, false, true);
+				setHeaderFooter(tableViewProxy, sectionProperties, false, true);
 			}
 		}
 
@@ -432,20 +362,18 @@ public class TableViewHolder extends RecyclerView.ViewHolder
 	 */
 	protected Drawable generateRippleDrawable(Drawable drawable)
 	{
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-			if (!(drawable instanceof RippleDrawable)) {
-				final int[][] rippleStates = new int[][] { new int[] { android.R.attr.state_pressed } };
-				final TypedValue typedValue = new TypedValue();
-				final Activity activity = TiApplication.getAppRootOrCurrentActivity();
-				final TypedArray colorControlHighlight = activity.obtainStyledAttributes(
-					typedValue.data, new int[] { android.R.attr.colorControlHighlight });
-				final int colorControlHighlightInt = colorControlHighlight.getColor(0, 0);
-				final int[] rippleColors = new int[] { colorControlHighlightInt };
-				final ColorStateList colorStateList = new ColorStateList(rippleStates, rippleColors);
+		if (!(drawable instanceof RippleDrawable)) {
+			final int[][] rippleStates = new int[][] { new int[] { android.R.attr.state_pressed } };
+			final TypedValue typedValue = new TypedValue();
+			final Activity activity = TiApplication.getAppRootOrCurrentActivity();
+			final TypedArray colorControlHighlight = activity.obtainStyledAttributes(
+				typedValue.data, new int[] { android.R.attr.colorControlHighlight });
+			final int colorControlHighlightInt = colorControlHighlight.getColor(0, 0);
+			final int[] rippleColors = new int[] { colorControlHighlightInt };
+			final ColorStateList colorStateList = new ColorStateList(rippleStates, rippleColors);
 
-				// Create the RippleDrawable.
-				drawable = new RippleDrawable(colorStateList, drawable, null);
-			}
+			// Create the RippleDrawable.
+			drawable = new RippleDrawable(colorStateList, drawable, null);
 		}
 		return drawable;
 	}
@@ -554,11 +482,7 @@ public class TableViewHolder extends RecyclerView.ViewHolder
 		if (backgroundValue.resourceId != 0) {
 
 			// Set title background drawable.
-			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-				title.setBackground(resources.getDrawable(backgroundValue.resourceId, theme));
-			} else {
-				title.setBackground(resources.getDrawable(backgroundValue.resourceId));
-			}
+			title.setBackground(resources.getDrawable(backgroundValue.resourceId, theme));
 
 		} else if (backgroundColorValue.resourceId != 0) {
 
@@ -579,12 +503,25 @@ public class TableViewHolder extends RecyclerView.ViewHolder
 	/**
 	 * Set header and footer views/title for row.
 	 *
+	 * @param tableViewProxy TableView proxy.
 	 * @param properties Row proxy holding header/footer.
 	 * @param updateHeader Boolean determine if header should be updated.
 	 * @param updateFooter Boolean determine if footer should be updated.
 	 */
-	private void setHeaderFooter(KrollDict properties, boolean updateHeader, boolean updateFooter)
+	private void setHeaderFooter(TiViewProxy tableViewProxy,
+								 KrollDict properties,
+								 boolean updateHeader,
+								 boolean updateFooter)
 	{
+		if (tableViewProxy == null) {
+			return;
+		}
+
+		final View nativeTableView = tableViewProxy.getOrCreateView().getNativeView();
+		if (nativeTableView == null) {
+			return;
+		}
+
 		// Handle `header` and `footer`.
 		if (updateHeader) {
 
@@ -615,6 +552,9 @@ public class TableViewHolder extends RecyclerView.ViewHolder
 
 						// TODO: Do not override fill behaviour, allow child to control fill.
 						view.getLayoutParams().autoFillsWidth = true;
+
+						// Amend maximum size for header to parent TableView measured height.
+						this.header.setChildFillHeight(nativeTableView.getMeasuredHeight());
 
 						this.header.addView(headerView, view.getLayoutParams());
 						this.header.setVisibility(View.VISIBLE);
@@ -650,6 +590,9 @@ public class TableViewHolder extends RecyclerView.ViewHolder
 
 						// TODO: Do not override fill behaviour, allow child to control fill.
 						view.getLayoutParams().autoFillsWidth = true;
+
+						// Amend maximum size for footer to parent TableView measured height.
+						this.footer.setChildFillHeight(nativeTableView.getMeasuredHeight());
 
 						this.footer.addView(footerView, view.getLayoutParams());
 						this.footer.setVisibility(View.VISIBLE);
