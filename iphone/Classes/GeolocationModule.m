@@ -920,6 +920,10 @@ MAKE_SYSTEM_PROP(ACTIVITYTYPE_OTHER_NAVIGATION, CLActivityTypeOtherNavigation);
   NSDictionary *descriptionDict = [[NSBundle mainBundle] objectForInfoDictionaryKey:kTiGeolocationTemporaryUsageDescriptionDictionary];
   if (!descriptionDict || ![descriptionDict valueForKey:purposeKey]) {
     DebugLog(@"[WARN] Add %@ key with purpose key %@ in info.plist", kTiGeolocationTemporaryUsageDescriptionDictionary, purposeKey);
+    NSString *msg = [NSString stringWithFormat:@"Add %@ key with purpose key %@ in info.plist", kTiGeolocationTemporaryUsageDescriptionDictionary, purposeKey];
+    NSMutableDictionary *propertiesDict = [TiUtils dictionaryWithCode:1 message:msg];
+    [callback callWithArguments:@[ propertiesDict ]];
+    return;
   }
   [[self locationPermissionManager] requestTemporaryFullAccuracyAuthorizationWithPurposeKey:purposeKey
                                                                                  completion:^(NSError *_Nullable error) {
