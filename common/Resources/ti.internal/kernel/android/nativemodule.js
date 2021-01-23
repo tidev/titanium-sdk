@@ -4,11 +4,11 @@
  * loading that code in via kroll.NativeModule.require(<id>)
  * For more information, see the bootstrap.js.ejs template.
  */
+/* globals OS_IOS, OS_ANDROID */
 import invoker from './invoker';
 
 export default function NativeModuleBootstrap(global, kroll) {
-	const Script = kroll.binding('evals').Script;
-	const runInThisContext = Script.runInThisContext;
+	const evaluate = kroll.binding(OS_ANDROID ? 'evals' : 'Script');
 
 	function NativeModule(id) {
 		this.filename = id + '.js';
@@ -70,14 +70,32 @@ export default function NativeModuleBootstrap(global, kroll) {
 
 	NativeModule.prototype.compile = function () {
 
-		let source = NativeModule.getSource(this.id);
-		source = NativeModule.wrap(source);
-
 		// All native modules have their filename prefixed with ti:/
 		const filename = `ti:/${this.filename}`;
 
-		const fn = runInThisContext(source, filename, true);
-		fn(this.exports, NativeModule.require, this, this.filename, null, global.Ti, global.Ti, global, kroll);
+		let source = NativeModule.getSource(this.id);
+
+		if (OS_IOS) {
+			source = NativeModule.wrap(source);
+
+			const f = evaluate.runInThisContext(source, filename, true);
+			f(this.exports, NativeModule.require, this, this.filename, null, global.Ti, global.Ti, global, kroll);
+
+		} else if (OS_ANDROID) {
+			const result = evaluate.runAsModule(source, filename, {
+				exports: this.exports,
+				require: NativeModule.require,
+				module: this,
+				__filename: filename,
+				__dirname: null,
+				Ti: global.Ti,
+				Titanium: global.Ti,
+				kroll
+			});
+			if (result) {
+				kroll.extend(this.exports, result);
+			}
+		}
 
 		this.loaded = true;
 	};
