@@ -25,7 +25,6 @@ namespace titanium {
 			static Persistent<String> DEFAULT_STRING;
 			static Persistent<String> REQUIRE_STRING;
 			static Persistent<String> MODULE_REF_STRING;
-			static Persistent<String> GLOBAL_STRING;
 	};
 }
 #endif
