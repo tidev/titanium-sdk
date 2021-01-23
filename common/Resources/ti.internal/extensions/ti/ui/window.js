@@ -10,7 +10,6 @@ import PersistentHandle from '../persistentHandle';
 
 if (OS_ANDROID) {
 	const TAG = 'Window';
-	const Script = kroll.binding('evals').Script; // Android-specific way to grab binding, hangs off 'script' on iOS
 	const Window = Titanium.UI.Window;
 	Window.prototype._cachedActivityProxy = null;
 
