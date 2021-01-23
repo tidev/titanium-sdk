@@ -124,6 +124,7 @@ Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeFireEvent
 
 	jsData->Set(context, NEW_SYMBOL(V8Runtime::v8_isolate, "bubbles"), TypeConverter::javaBooleanToJsBoolean(V8Runtime::v8_isolate, bubble));
 	jsData->Set(context, NEW_SYMBOL(V8Runtime::v8_isolate, "source"), source);
+	jsData->Set(context, NEW_SYMBOL(V8Runtime::v8_isolate, "type"), jsEvent);
 
 	if (reportSuccess || code != 0) {
 		jsData->Set(context, NEW_SYMBOL(V8Runtime::v8_isolate, "success"), TypeConverter::javaBooleanToJsBoolean(V8Runtime::v8_isolate, code == 0));
@@ -216,7 +217,7 @@ Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeCallProperty
 
 JNIEXPORT jboolean JNICALL
 Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeRelease
-	(JNIEnv *env, jclass clazz, jlong refPointer)
+	(JNIEnv *env, jobject self, jlong refPointer)
 {
 	LOGD(TAG, "V8Object::nativeRelease");
 	HandleScope scope(V8Runtime::v8_isolate);

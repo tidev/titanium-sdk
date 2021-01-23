@@ -10,15 +10,17 @@ def isMainlineBranch = (env.BRANCH_NAME ==~ MAINLINE_BRANCH_REGEXP)
 def buildProperties = [buildDiscarder(logRotator(numToKeepStr: '30', artifactNumToKeepStr: '3'))]
 // For mainline branches, notify Teams channel of failures/success/not built/etc
 if (isMainlineBranch) {
-	buildProperties << office365ConnectorWebhooks([[
-		notifyBackToNormal: true,
-		notifyFailure: true,
-		notifyNotBuilt: true,
-		notifyUnstable: true,
-		notifySuccess: true,
-        notifyRepeatedFailure: true,
-		url: 'https://outlook.office.com/webhook/ba1960f7-fcca-4b2c-a5f3-095ff9c87b22@300f59df-78e6-436f-9b27-b64973e34f7d/JenkinsCI/95439e5a0bef45539af8023b563dd345/72931ee3-e99d-4daf-84d2-1427168af2d9'
-	]])
+	withCredentials([string(credentialsId: 'titanium_mobile_ms_teams_webhook', variable: 'WEBHOOK_URL')]) {
+	    buildProperties << office365ConnectorWebhooks([[
+			notifyBackToNormal: true,
+			notifyFailure: true,
+			notifyNotBuilt: true,
+			notifyUnstable: true,
+			notifySuccess: true,
+			notifyRepeatedFailure: true,
+			url: "${WEBHOOK_URL}"
+		]])
+	}
 }
 properties(buildProperties)
 
@@ -83,11 +85,14 @@ def gatherAndroidCrashReports() {
 	}
 }
 
-def androidUnitTests(nodeVersion, npmVersion, testOnDevices) {
+def androidUnitTests(testName, nodeVersion, npmVersion, testOnDevices, deviceId) {
 	return {
 		def labels = 'git && osx && android-emulator && android-sdk' // FIXME get working on windows/linux!
 		if (testOnDevices) {
 			labels += ' && macos-rocket' // run main branch tests on devices, use node with devices connected
+		}
+		if (!deviceId) {
+			deviceId = testOnDevices ? 'all' : 'android-30-playstore-x86';
 		}
 
 		node(labels) {
@@ -106,10 +111,10 @@ def androidUnitTests(nodeVersion, npmVersion, testOnDevices) {
 								sh returnStatus: true, script: 'ti config android.buildTools.selectedVersion --remove'
 								// run main branch tests on devices
 								if (testOnDevices) {
-									sh label: 'Run Test Suite on device(s)', script: "npm run test:integration -- android -T device -C all"
+									sh label: 'Run Test Suite on device(s)', script: "npm run test:integration -- android -T device -C ${deviceId}"
 								// run PR tests on emulator
 								} else {
-									sh label: 'Run Test Suite on emulator', script: "npm run test:integration -- android -T emulator -D test -C android-30-playstore-x86"
+									sh label: 'Run Test Suite on emulator', script: "npm run test:integration -- android -T emulator -D test -C ${deviceId}"
 								}
 							} // timeout
 						}
@@ -131,7 +136,7 @@ def androidUnitTests(nodeVersion, npmVersion, testOnDevices) {
 						}
 					} // try/catch/finally
 					// save the junit reports as artifacts explicitly so danger.js can use them later
-					stash includes: 'junit.*.xml', name: 'test-report-android'
+					stash includes: 'junit.*.xml', name: "test-report-android-${testName}"
 					junit 'junit.*.xml'
 					archiveArtifacts allowEmptyArchive: true, artifacts: 'tests/diffs/,tests/generated/'
 				} // nodejs
@@ -371,7 +376,8 @@ timestamps {
 		// Run unit tests in parallel for android/iOS
 		stage('Test') {
 			parallel(
-				'android unit tests': androidUnitTests(nodeVersion, npmVersion, testOnDevices),
+				'android main unit tests': androidUnitTests('main', nodeVersion, npmVersion, testOnDevices, null),
+				'android 5.0 unit tests': androidUnitTests('5.0', nodeVersion, npmVersion, false, 'android-21-x86'),
 				'iPhone unit tests': iosUnitTests('iphone', nodeVersion, npmVersion, testOnDevices),
 				'iPad unit tests': iosUnitTests('ipad', nodeVersion, npmVersion, testOnDevices),
 				'macOS unit tests': macosUnitTests(nodeVersion, npmVersion),
@@ -536,7 +542,7 @@ timestamps {
 						} catch (e) {}
 
 						// it's ok to not grab all test results, still run Danger.JS (even if some platforms crashed or we failed before tests)
-						def reports = [ 'ios-ipad', 'ios-iphone', 'ios-macos', 'android', 'cli' ]
+						def reports = [ 'ios-ipad', 'ios-iphone', 'ios-macos', 'android-main', 'android-5.0', 'cli' ]
 						for (int i = 0; i < reports.size(); i++) {
 							try {
 								unstash "test-report-${reports[i]}"

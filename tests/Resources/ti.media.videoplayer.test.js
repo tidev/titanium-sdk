@@ -17,7 +17,7 @@ describe('Titanium.Media', () => {
 	});
 });
 
-describe('Titanium.Media.VideoPlayer', () => {
+describe.androidARM64Broken('Titanium.Media.VideoPlayer', () => {
 	let player;
 	let win;
 
@@ -374,12 +374,6 @@ describe('Titanium.Media.VideoPlayer', () => {
 		describe('#stop', () => {
 			it('is a Function', () => {
 				should(player.stop).be.a.Function();
-			});
-		});
-
-		describe.ios('#thumbnailImageAtTime', () => {
-			it('is a Function', () => {
-				should(player.thumbnailImageAtTime).be.a.Function();
 			});
 		});
 	});

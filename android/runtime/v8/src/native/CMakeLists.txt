@@ -72,6 +72,7 @@ add_library(
 	TypeConverter.cpp
 	V8Function.cpp
 	V8Object.cpp
+	V8Promise.cpp
 	V8Runtime.cpp
 	V8Util.cpp
 	modules/APIModule.cpp
@@ -95,7 +96,6 @@ if(CMAKE_BUILD_TYPE STREQUAL "Debug")
 		PRIVATE
 
 		TI_DEBUG=1
-		V8_ENABLE_CHECKS
 	)
 endif()
 

@@ -12,6 +12,7 @@ import java.util.List;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
+import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.util.TiUIHelper;
 
 import android.app.Activity;
@@ -19,7 +20,6 @@ import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.RectShape;
-import android.os.Handler;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -31,12 +31,15 @@ import androidx.recyclerview.selection.SelectionPredicates;
 import androidx.recyclerview.selection.SelectionTracker;
 import androidx.recyclerview.selection.StorageStrategy;
 import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import ti.modules.titanium.ui.TableViewProxy;
 import ti.modules.titanium.ui.TableViewRowProxy;
 import ti.modules.titanium.ui.TableViewSectionProxy;
 import ti.modules.titanium.ui.widget.TiSwipeRefreshLayout;
+import ti.modules.titanium.ui.widget.listview.ItemTouchHandler;
 import ti.modules.titanium.ui.widget.listview.TiNestedRecyclerView;
 import ti.modules.titanium.ui.widget.searchbar.TiUISearchBar.OnSearchChangeListener;
 
@@ -44,17 +47,21 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 {
 	private static final String TAG = "TiTableView";
 
-	private static final int CACHE_SIZE = 48;
-	private static final int PRELOAD_SIZE = CACHE_SIZE * 2;
+	private static final int CACHE_SIZE = 8;
+	private static final int PRELOAD_SIZE = CACHE_SIZE / 2;
 
 	private final TableViewAdapter adapter;
 	private final DividerItemDecoration decoration;
 	private final TableViewProxy proxy;
 	private final TiNestedRecyclerView recyclerView;
-	private final List<TableViewRowProxy> rows = new ArrayList<>();
+	private final List<TableViewRowProxy> rows = new ArrayList<>(CACHE_SIZE);
 	private final SelectionTracker tracker;
 
-	private boolean isFiltered = false;
+	private boolean isScrolling = false;
+	private int scrollOffsetX = 0;
+	private int scrollOffsetY = 0;
+	private int totalRowCount;
+	private String filterQuery;
 
 	public TiTableView(TableViewProxy proxy)
 	{
@@ -68,6 +75,55 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 		this.recyclerView.setBackgroundColor(Color.TRANSPARENT);
 		this.recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
+		// Add listener to fire scroll events.
+		this.recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener()
+		{
+			@Override
+			public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState)
+			{
+				super.onScrollStateChanged(recyclerView, newState);
+
+				if (isScrolling && newState == RecyclerView.SCROLL_STATE_IDLE) {
+					final KrollDict payload = generateScrollPayload();
+					final TiNestedRecyclerView nestedRecyclerView = getRecyclerView();
+
+					isScrolling = false;
+
+					// Obtain last touch position for `scrollend` event.
+					final TiDimension xDimension =
+						new TiDimension(nestedRecyclerView.getLastTouchX(), TiDimension.TYPE_WIDTH);
+					final TiDimension yDimension =
+						new TiDimension(nestedRecyclerView.getLastTouchY(), TiDimension.TYPE_HEIGHT);
+					payload.put(TiC.EVENT_PROPERTY_X, xDimension.getAsDefault(nestedRecyclerView));
+					payload.put(TiC.EVENT_PROPERTY_Y, yDimension.getAsDefault(nestedRecyclerView));
+
+					proxy.fireSyncEvent(TiC.EVENT_SCROLLEND, payload);
+				}
+			}
+
+			@Override
+			public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy)
+			{
+				super.onScrolled(recyclerView, dx, dy);
+
+				if (dx == 0 && dy == 0) {
+
+					// Not scrolled, skip.
+					return;
+				}
+
+				isScrolling = true;
+
+				// Update scroll offsets.
+				scrollOffsetX += dx;
+				scrollOffsetY += dy;
+
+				final KrollDict payload = generateScrollPayload();
+
+				proxy.fireSyncEvent(TiC.EVENT_SCROLL, payload);
+			}
+		});
+
 		// Disable table animations.
 		this.recyclerView.setItemAnimator(null);
 
@@ -80,6 +136,11 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 
 		this.adapter = new TableViewAdapter(getContext(), this.rows);
 		this.recyclerView.setAdapter(this.adapter);
+
+		// Create ItemTouchHelper for swipe-to-delete and move gestures.
+		final ItemTouchHandler itemTouchHandler = new ItemTouchHandler(this.adapter, this.proxy, this.recyclerView);
+		final ItemTouchHelper itemTouchHelper = new ItemTouchHelper(itemTouchHandler);
+		itemTouchHelper.attachToRecyclerView(this.recyclerView);
 
 		// Fire `postlayout` on layout changes.
 		this.addOnLayoutChangeListener(new OnLayoutChangeListener()
@@ -174,16 +235,71 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 	@Override
 	public void filterBy(String query)
 	{
-		if (query == null || query.isEmpty()) {
+		this.filterQuery = query;
+		update();
+	}
 
-			// No query, update adapter with original items.
-			update();
-			this.isFiltered = false;
-			return;
+	/**
+	 * Generate payload for `scroll` and `scrollend` events.
+	 *
+	 * @return KrollDict
+	 */
+	public KrollDict generateScrollPayload()
+	{
+		final KrollDict payload = new KrollDict();
+		final LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
+
+		// Obtain index for first visible row.
+		final View firstVisibleView =
+			layoutManager.findViewByPosition(layoutManager.findFirstVisibleItemPosition());
+		if (firstVisibleView != null) {
+			final TableViewHolder firstVisibleHolder =
+				(TableViewHolder) recyclerView.getChildViewHolder(firstVisibleView);
+			final TableViewRowProxy firstVisibleProxy = (TableViewRowProxy) firstVisibleHolder.getProxy();
+			final int firstVisibleIndex = firstVisibleProxy.getIndexInSection();
+			payload.put(TiC.PROPERTY_FIRST_VISIBLE_ITEM, firstVisibleIndex);
 		}
 
-		update(query);
-		this.isFiltered = true;
+		// Define visible item count.
+		final int visibleItemCount =
+			layoutManager.findLastVisibleItemPosition() - layoutManager.findFirstVisibleItemPosition();
+		payload.put(TiC.PROPERTY_VISIBLE_ITEM_COUNT, visibleItemCount);
+
+		// Define total item count.
+		payload.put(TiC.PROPERTY_TOTAL_ITEM_COUNT, totalRowCount);
+
+		// Obtain scroll offset for content.
+		final KrollDict contentOffset = new KrollDict();
+		final TiDimension scrollOffsetXDimension = new TiDimension(scrollOffsetX, TiDimension.TYPE_WIDTH);
+		final TiDimension scrollOffsetYDimension = new TiDimension(scrollOffsetY, TiDimension.TYPE_HEIGHT);
+		contentOffset.put(TiC.EVENT_PROPERTY_X, scrollOffsetXDimension.getAsDefault(recyclerView));
+		contentOffset.put(TiC.EVENT_PROPERTY_Y, scrollOffsetYDimension.getAsDefault(recyclerView));
+		payload.put(TiC.PROPERTY_CONTENT_OFFSET, contentOffset);
+
+		// Approximate content size.
+		// NOTE: Due to recycling of views, we cannot calculate the true
+		// content size without loading all rows. The best we can do is an
+		// approximation based on first visible row.
+		final KrollDict contentSize = new KrollDict();
+		final TiDimension contentWidthDimension =
+			new TiDimension(firstVisibleView.getMeasuredWidth(), TiDimension.TYPE_WIDTH);
+		final TiDimension contentHeightDimension =
+			new TiDimension(firstVisibleView.getMeasuredHeight() * rows.size(), TiDimension.TYPE_HEIGHT);
+		contentSize.put(TiC.PROPERTY_WIDTH, contentWidthDimension.getAsDefault(recyclerView));
+		contentSize.put(TiC.PROPERTY_HEIGHT, contentHeightDimension.getAsDefault(recyclerView));
+		payload.put(TiC.PROPERTY_CONTENT_SIZE, contentSize);
+
+		// Obtain view size.
+		final KrollDict size = new KrollDict();
+		final TiDimension widthDimension =
+			new TiDimension(recyclerView.getMeasuredWidth(), TiDimension.TYPE_WIDTH);
+		final TiDimension heightDimension =
+			new TiDimension(recyclerView.getMeasuredHeight(), TiDimension.TYPE_HEIGHT);
+		size.put(TiC.PROPERTY_WIDTH, widthDimension.getAsDefault(recyclerView));
+		size.put(TiC.PROPERTY_HEIGHT, heightDimension.getAsDefault(recyclerView));
+		payload.put(TiC.PROPERTY_SIZE, size);
+
+		return payload;
 	}
 
 	/**
@@ -239,13 +355,24 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 	}
 
 	/**
+	 * Obtain row from adapter index.
+	 *
+	 * @param index List item adapter index.
+	 * @return Row at specified adapter index.
+	 */
+	public TableViewRowProxy getAdapterItem(int index)
+	{
+		return this.rows.get(index);
+	}
+
+	/**
 	 * Determine if table results are filtered by query.
 	 *
 	 * @return Boolean
 	 */
 	public boolean isFiltered()
 	{
-		return this.isFiltered;
+		return this.filterQuery != null && !this.filterQuery.isEmpty();
 	}
 
 	/**
@@ -286,17 +413,14 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 		decoration.setDrawable(drawable);
 	}
 
-	public void update()
-	{
-		this.update(null);
-	}
-
 	/**
 	 * Update table rows, including headers and footers.
 	 */
-	public void update(String query)
+	public void update()
 	{
 		final KrollDict properties = this.proxy.getProperties();
+		final boolean shouldPreload = this.rows.size() == 0;
+
 		final boolean hasHeader = properties.containsKeyAndNotNull(TiC.PROPERTY_HEADER_TITLE)
 			|| properties.containsKeyAndNotNull(TiC.PROPERTY_HEADER_VIEW);
 		final boolean hasFooter = properties.containsKeyAndNotNull(TiC.PROPERTY_FOOTER_TITLE)
@@ -305,7 +429,9 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 		final boolean caseInsensitive = properties.optBoolean(TiC.PROPERTY_FILTER_CASE_INSENSITIVE, true);
 		final boolean filterAnchored = properties.optBoolean(TiC.PROPERTY_FILTER_ANCHORED, false);
 		final String filterAttribute = properties.optString(TiC.PROPERTY_FILTER_ATTRIBUTE, TiC.PROPERTY_TITLE);
+		int filterResultsCount = 0;
 
+		String query = this.filterQuery;
 		if (query != null && caseInsensitive) {
 			query = query.toLowerCase();
 		}
@@ -324,8 +450,11 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 			this.rows.add(row);
 		}
 
+		// Reset total row count.
+		this.totalRowCount = 0;
+
 		// Iterate through data, processing each supported entry.
-		for (final Object entry : proxy.getData()) {
+		for (final Object entry : this.proxy.getData()) {
 
 			if (entry instanceof TableViewSectionProxy) {
 				final TableViewSectionProxy section = (TableViewSectionProxy) entry;
@@ -339,6 +468,7 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 					this.rows.add(row);
 				}
 
+				int index = 0;
 				int filteredIndex = 0;
 				for (int i = 0; i < rows.length; i++) {
 					final TableViewRowProxy row = rows[i];
@@ -362,8 +492,11 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 					// Update filtered index of row.
 					row.setFilteredIndex(query != null ? filteredIndex++ : -1);
 
+					row.index = index++;
 					this.rows.add(row);
 				}
+				filterResultsCount += filteredIndex;
+				this.totalRowCount += rows.length;
 
 				// Update section filtered row count.
 				section.setFilteredRowCount(query != null ? filteredIndex : -1);
@@ -381,52 +514,45 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 			this.rows.add(row);
 		}
 
-		// Pre-load views for smooth initial scroll.
-		final int preloadSize = Math.min(this.rows.size(), PRELOAD_SIZE);
-		for (int i = 0; i < preloadSize; i++) {
-			this.rows.get(i).getOrCreateView();
+		// If filtered and no results, fire `noresult` event.
+		if (isFiltered() && filterResultsCount == 0) {
+			this.proxy.fireEvent(TiC.EVENT_NO_RESULTS, null);
 		}
 
-		// Update models.
-		updateModels();
-	}
+		if (shouldPreload) {
+			final int preloadSize = Math.min(this.rows.size(), PRELOAD_SIZE);
 
-	/**
-	 * Update table models (rows) index and notify adapter.
-	 */
-	public void updateModels()
-	{
-		int i = 0;
-		for (TableViewRowProxy row : this.rows) {
-			if (row.isPlaceholder()) {
-				continue;
+			for (int i = 0; i < preloadSize; i++) {
+
+				// Pre-load views for smooth initial scroll.
+				this.rows.get(i).getOrCreateView();
 			}
-
-			// Update row index, ignoring placeholder entries.
-			row.index = i++;
 		}
 
+		// Notify adapter of changes on UI thread.
+		this.adapter.notifyDataSetChanged();
+
+		// FIXME: This is not an ideal workaround for an issue where recycled items that were in focus
+		//        lose their focus when the data set changes. There are improvements to be made here.
+		//        This can be reproduced when setting a Ti.UI.TextField in the Ti.UI.ListView.headerView for search.
 		final Activity activity = TiApplication.getAppCurrentActivity();
 		final View previousFocus = activity != null ? activity.getCurrentFocus() : null;
 
-		// Notify the adapter of changes.
-		this.adapter.notifyDataSetChanged();
-
-		// FIXME: This is not an ideal workaround for an issue where recycled rows that were in focus
-		//        lose their focus when the data set changes. There are improvements to be made here.
-		//        This can be reproduced when setting a Ti.UI.TextField in the Ti.UI.TableView.headerView for search.
-		new Handler().post(new Runnable()
-		{
-			public void run()
+		if (previousFocus != null) {
+			activity.runOnUiThread(new Runnable()
 			{
-				final View currentFocus = activity != null ? activity.getCurrentFocus() : null;
+				@Override
+				public void run()
+				{
+					final View currentFocus = activity != null ? activity.getCurrentFocus() : null;
 
-				if (previousFocus != null && currentFocus != previousFocus) {
+					if (currentFocus != previousFocus) {
 
-					// Request focus on previous component before dataset changed.
-					previousFocus.requestFocus();
+						// Request focus on previous component before dataset changed.
+						previousFocus.requestFocus();
+					}
 				}
-			}
-		});
+			});
+		}
 	}
 }

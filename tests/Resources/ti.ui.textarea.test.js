@@ -106,6 +106,7 @@ describe('Titanium.UI.TextArea', () => {
 				textarea.should.have.a.property('focused').which.is.a.Boolean();
 				textarea.focused.should.be.false(); // haven't opened it yet, so shouldn't be focused
 				textarea.addEventListener('focus', () => {
+					console.log('textarea focus event, closing window...');
 					try {
 						textarea.focused.should.be.true();
 					} catch (e) {
@@ -114,9 +115,11 @@ describe('Titanium.UI.TextArea', () => {
 					win.close();
 				});
 				win.addEventListener('open', () => {
+					console.log('open event, forcing focus...');
 					textarea.focus(); // force focus!
 				});
 				win.addEventListener('close', () => {
+					console.log('window close event');
 					try {
 						// we've been closed (or are closing?) so hopefully shouldn't say that we're focused
 						textarea.focused.should.be.false();

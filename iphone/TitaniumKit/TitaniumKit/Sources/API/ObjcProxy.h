@@ -155,10 +155,20 @@ JSExportAs(fireEvent,
 // FIXME: Should id be TiProxy* here?
 - (id)JSValueToNative:(JSValue *)jsValue;
 - (JSValue *)NativeToJSValue:(id)proxy;
+- (JSValue *)JSValue;
+- (JSValue *)JSValueInContext:(JSContext *)context;
 
 /**
  * Convenience method to interface with "old-style" proxies, which typically need this passed in as
  * the "page context" in their initializers.
  **/
 - (id<TiEvaluator>)executionContext;
++ (id<TiEvaluator>)executionContext:(JSContext *)jsContext;
+
+/**
+ * Due to mix and match of new and old C API, JSContext.currentContext (and currentThis) may be null
+ * If we get called back through the old C API function callback, it will be, so we need to hack.
+ */
+- (JSContext *)currentContext;
+
 @end

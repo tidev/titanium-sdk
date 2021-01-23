@@ -1,9 +1,10 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2020 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+#import "Module.h"
 #import "TiEvaluator.h"
 #import "TiProxy.h"
 #import "TiUtils.h"
@@ -13,7 +14,7 @@
 /**
  The base class for all Titanium modules
  */
-@interface TiModule : TiProxy {
+@interface TiModule : TiProxy <Module> {
   @protected
   TiHost *host;
   @private

@@ -2403,6 +2403,7 @@
     if (!controller.navigationItem.searchController) {
       controller.navigationItem.searchController = searchController;
     }
+    RELEASE_TO_NIL(controller);
   }
   if (!hideOnSearch && isSearched && self.searchedString && ![searchController isActive]) {
     isSearched = NO;
@@ -2422,6 +2423,7 @@
     dimmingView.alpha = .2;
     UITapGestureRecognizer *tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(dismissSearchController)];
     [dimmingView addGestureRecognizer:tapGesture];
+    [tapGesture release];
   }
 }
 
