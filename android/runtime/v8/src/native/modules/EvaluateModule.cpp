@@ -19,7 +19,6 @@ namespace titanium {
 	Persistent<String> EvaluateModule::DEFAULT_STRING;
 	Persistent<String> EvaluateModule::REQUIRE_STRING;
 	Persistent<String> EvaluateModule::MODULE_REF_STRING;
-	Persistent<String> EvaluateModule::GLOBAL_STRING;
 
 	static void assign(Local<Object> source, Local<Data> destination)
 	{
@@ -53,9 +52,6 @@ namespace titanium {
 		}
 		if (MODULE_REF_STRING.IsEmpty()) {
 			MODULE_REF_STRING.Reset(isolate, STRING_NEW(isolate, "__module_ref"));
-		}
-		if (GLOBAL_STRING.IsEmpty()) {
-			GLOBAL_STRING.Reset(isolate, STRING_NEW(isolate, "global"));
 		}
 
 		SetMethod(context, isolate, target, "runAsModule", EvaluateModule::RunAsModule);
@@ -199,6 +195,10 @@ namespace titanium {
 		}
 		Local<Module> module = maybeModule.ToLocalChecked();
 
+		// Obtain runtime global context.
+		Local<Context> runtimeContext = V8Runtime::GlobalContext();
+		Local<Object> runtimeGlobal = runtimeContext->Global();
+
 		// Create new context for module to run in.
 		Local<Context> moduleContext = Context::New(isolate);
 		Context::Scope contextScope(moduleContext);
@@ -209,14 +209,10 @@ namespace titanium {
 		// Set security token from previous context to access properties.
 		moduleContext->SetSecurityToken(context->GetSecurityToken());
 
-		if (!contextObj.IsEmpty()) {
-			Local<String> GLOBAL_STRING = EvaluateModule::GLOBAL_STRING.Get(isolate);
-			Local<Array> keys = contextObj->GetOwnPropertyNames();
+		// Set runtime global properties in module global context.
+		assign(runtimeGlobal, moduleGlobal);
 
-			if (keys->Has(GLOBAL_STRING)) {
-				Local<Object> global = contextObj->Get(GLOBAL_STRING).As<Object>();
-				assign(global, moduleGlobal);
-			}
+		if (!contextObj.IsEmpty()) {
 
 			// Context object has been provided, set context properties in module global context.
 			assign(contextObj, moduleGlobal);
@@ -311,6 +307,10 @@ namespace titanium {
 
 		TryCatch tryCatch(isolate);
 
+		// Obtain runtime global context.
+		Local<Context> runtimeContext = V8Runtime::GlobalContext();
+		Local<Object> runtimeGlobal = runtimeContext->Global();
+
 		// Create new context for script to run in.
 		Local<Context> scriptContext = Context::New(isolate);
 		Context::Scope scope(scriptContext);
@@ -321,14 +321,10 @@ namespace titanium {
 		// Set security token from previous context to access properties.
 		scriptContext->SetSecurityToken(context->GetSecurityToken());
 
-		if (!contextObj.IsEmpty()) {
-			Local<String> GLOBAL_STRING = EvaluateModule::GLOBAL_STRING.Get(isolate);
-			Local<Array> keys = contextObj->GetOwnPropertyNames();
+		// Set runtime global properties in script global context.
+		assign(runtimeGlobal, scriptGlobal);
 
-			if (keys->Has(GLOBAL_STRING)) {
-				Local<Object> global = contextObj->Get(GLOBAL_STRING).As<Object>();
-				assign(global, scriptGlobal);
-			}
+		if (!contextObj.IsEmpty()) {
 
 			// Context object has been provided, set context properties in script global context.
 			assign(contextObj, scriptGlobal);
