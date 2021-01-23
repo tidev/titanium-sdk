@@ -69,6 +69,14 @@
       DebugLog(@"[ERROR] Cannot add backgroundfetch eventListener. Please add `fetch` to UIBackgroundModes inside info.plist ");
     }
   }
+  if ((count == 1) && [type isEqual:@"backgroundprocess"]) {
+    NSArray *backgroundModes = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"UIBackgroundModes"];
+    if ([backgroundModes containsObject:@"processing"]) {
+      [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveBackgroundProcessNotification:) name:kTiBackgroundProcessNotification object:nil];
+    } else {
+      DebugLog(@"[ERROR] Cannot add backgroundprocess eventListener. Please add `processing` to UIBackgroundModes inside info.plist ");
+    }
+  }
   if ((count == 1) && [type isEqual:@"silentpush"]) {
     NSArray *backgroundModes = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"UIBackgroundModes"];
     if ([backgroundModes containsObject:@"remote-notification"]) {
@@ -159,6 +167,9 @@
 
   if ((count == 1) && [type isEqual:@"backgroundfetch"]) {
     [[NSNotificationCenter defaultCenter] removeObserver:self name:kTiBackgroundFetchNotification object:nil];
+  }
+  if ((count == 1) && [type isEqual:@"backgroundprocess"]) {
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:kTiBackgroundProcessNotification object:nil];
   }
   if ((count == 1) && [type isEqual:@"sessioneventscompleted"]) {
     [[NSNotificationCenter defaultCenter] removeObserver:self name:kTiURLSessionEventsCompleted object:nil];
@@ -406,6 +417,20 @@
 
   [[TiApp app] registerBackgroundService:proxy];
   return proxy;
+}
+
+- (void)registerBackgroundgTask:(id)args
+{
+  ENSURE_SINGLE_ARG(args, NSDictionary);
+  ENSURE_TYPE(args[@"identifier"], NSString);
+  ENSURE_TYPE(args[@"type"], NSString);
+
+  if ([TiUtils isIOSVersionLower:@"13.0"]) {
+    DebugLog(@"This API is not supported fo iOS < 13.0");
+    return;
+  }
+
+  [[TiApp app] addBackgroundTask:args];
 }
 
 - (void)registerUserNotificationSettings:(id)args
@@ -902,6 +927,11 @@
   [self fireEvent:@"backgroundfetch" withObject:[note userInfo]];
 }
 
+- (void)didReceiveBackgroundProcessNotification:(NSNotification *)note
+{
+  [self fireEvent:@"backgroundprocess" withObject:[note userInfo]];
+}
+
 - (void)didReceiveSilentPushNotification:(NSNotification *)note
 {
   [self fireEvent:@"silentpush" withObject:[note userInfo]];
@@ -988,6 +1018,9 @@
 
   if ([handlerIdentifier rangeOfString:@"Session"].location != NSNotFound) {
     [[TiApp app] performCompletionHandlerForBackgroundTransferWithKey:handlerIdentifier];
+  } else if ([handlerIdentifier hasPrefix:@"BgTask-"]) {
+    // handlerId = @"BgTask-" +  BgTask.identifier. So remove @"BgTask-" to get actual BgTask identifier.
+    [[TiApp app] backgroundTaskCompletedForIdentifier:[handlerIdentifier substringFromIndex:7]];
   } else {
     [[TiApp app] performCompletionHandlerWithKey:handlerIdentifier andResult:UIBackgroundFetchResultNoData removeAfterExecution:NO];
   }
