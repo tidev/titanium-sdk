@@ -18,18 +18,14 @@ import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
-// import org.appcelerator.titanium.TiBlob;
-// import org.appcelerator.titanium.io.TiContentFile;
+import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiFileHelper;
 import org.appcelerator.titanium.util.TiRHelper;
+import org.appcelerator.titanium.io.TiFileFactory;
 
 import android.app.Activity;
-// import android.content.ContentResolver;
-// import android.content.ContentValues;
-// import android.net.Uri;
 import android.os.Bundle;
-// import android.provider.MediaStore;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
@@ -76,7 +72,6 @@ public class TiCameraXActivity extends TiBaseActivity
 		localOverlayProxy = overlayProxy;
 
 		try {
-
 			int idLayout = TiRHelper.getResource("layout.titanium_ui_camera");
 			int idPreview = TiRHelper.getResource("id.view_finder");
 
@@ -95,7 +90,7 @@ public class TiCameraXActivity extends TiBaseActivity
 			startCamera();
 		} catch (TiRHelper.ResourceNotFoundException e) {
 			//
-			Log.i("camera", "error create");
+			Log.e(TAG, "Can't create camera.");
 		}
 	}
 
@@ -107,8 +102,6 @@ public class TiCameraXActivity extends TiBaseActivity
 		ListenableFuture cameraProviderFuture = ProcessCameraProvider.getInstance(activity);
 		cameraProviderFuture.addListener(() -> {
 			try {
-
-				Log.i(TAG, cameraFlashMode + "");
 				preview = new Preview.Builder().build();
 				cameraProvider = (ProcessCameraProvider) cameraProviderFuture.get();
 				CameraSelector cameraSelector = new CameraSelector.Builder().requireLensFacing(lensFacing).build();
@@ -127,9 +120,6 @@ public class TiCameraXActivity extends TiBaseActivity
 
 	public static void takePicture()
 	{
-		// ContentResolver contentResolver = TiApplication.getAppCurrentActivity().getContentResolver();
-		// Uri contentUri = MediaModule.createExternalPictureContentUri(false);
-		//
 		try {
 			File file = TiFileHelper.getInstance().getTempFile(".jpg", true);
 			OutputFileOptions outputFileOptions = new OutputFileOptions.Builder(file).build();
@@ -138,23 +128,20 @@ public class TiCameraXActivity extends TiBaseActivity
 				@Override
 				public void onImageSaved(ImageCapture.OutputFileResults outputFileResults)
 				{
-					Log.i(TAG, "image saved " + file.getPath());
+					if (successCallback != null) {
+						TiBlob blob = TiBlob.blobFromFile(TiFileFactory.createTitaniumFile(file.getPath(), false));
+						KrollDict response = MediaModule.createDictForImage(blob, blob.getMimeType());
+						successCallback.callAsync(callbackContext, response);
 
-					// TiBlob blob = TiBlob.blobFromFile(file);
-					// KrollDict response = MediaModule.createDictForImage(blob, blob.getMimeType());
-
-					// successCallback.callAsync(callbackContext, response);
-
-					if (cameraActivity != null && autohide) {
-						cameraActivity.finish();
+						if (cameraActivity != null && autohide) {
+							cameraActivity.finish();
+						}
 					}
 				}
 				@Override
 				public void onError(ImageCaptureException error)
 				{
 					// insert your code here.
-					Log.i(TAG, "error: " + error.toString());
-
 					if (errorCallback == null) {
 						Log.e(TAG, error.toString());
 						return;

@@ -437,13 +437,13 @@ public class MediaModule extends KrollModule implements Handler.Callback
 			MediaModule.mediaType = MEDIA_TYPE_PHOTO;
 		}
 
-		// TiCameraActivity.callbackContext = getKrollObject();
 		// TiCameraActivity.mediaContext = this;
 		// TiCameraActivity.saveToPhotoGallery = saveToPhotoGallery;
 		// TiCameraActivity.videoQuality = videoQuality;
 		// TiCameraActivity.videoMaximumDuration = videoMaximumDuration;
 		// TiCameraActivity.mediaType = MediaModule.mediaType;
 
+		TiCameraXActivity.callbackContext = getKrollObject();
 		TiCameraXActivity.cameraFlashMode = flashMode;
 		TiCameraXActivity.androidbackCallback = androidbackCallback;
 		TiCameraXActivity.autohide = autohide;
@@ -455,7 +455,6 @@ public class MediaModule extends KrollModule implements Handler.Callback
 
 		//Create Intent and Launch
 		Activity activity = TiApplication.getInstance().getCurrentActivity();
-		// Intent intent = new Intent(activity, TiCameraActivity.class);
 		Intent intent = new Intent(activity, TiCameraXActivity.class);
 		activity.startActivity(intent);
 	}
