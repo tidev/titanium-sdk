@@ -578,7 +578,7 @@
       } else {
         args = [NSArray arrayWithObject:self];
       }
-      [tab openWindow:args];
+      [[tab openWindow:args] flush]; // TODO: release?
     } else if (isModal) {
       UIViewController *theController = [self hostingController];
       [self windowWillOpen];

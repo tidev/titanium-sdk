@@ -374,7 +374,7 @@
             TiWindowProxy *win = (TiWindowProxy *)[(TiViewController *)viewController proxy];
             [win setTab:nil];
             [win setParentOrientationController:nil];
-            [win close:nil];
+            [[win close:nil] flush];
           }
           // Remove navigation controller from parent controller
           [navController willMoveToParentViewController:nil];
