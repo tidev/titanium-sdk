@@ -561,6 +561,7 @@ function bootstrap (global, kroll) {
 					__dirname: path.dirname(filename),
 					Ti,
 					Titanium,
+					global,
 					kroll
 				});
 				if (result) {
