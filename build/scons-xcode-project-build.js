@@ -53,7 +53,8 @@ async function generateBundle(outputDir) {
 		gitHash: program.gitHash,
 		timestamp: program.timestamp
 	});
-	await builder.transpile('ios', ios.babelOptions(), path.join(outputDir, 'ti.main.js'));
+
+	await builder.transpile('ios', ios.babelOptions(), outputDir);
 }
 
 async function main(tmpBundleDir) {
