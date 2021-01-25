@@ -679,7 +679,14 @@ class DeviceTestDetails {
 		if (platform === 'android') {
 			// Pull the file via adb shell
 			if (this.target === 'device') {
-				await exec(`adb -s ${await this.deviceId()} shell "run-as ${APP_ID} cat '${filepath}'" > ${dest}`);
+				const id = await this.deviceId();
+				let adbTargetArgs = `-s ${id}`;
+				if (id === 'device') {
+					// we don't know the real device id! Hope there's just one
+					adbTargetArgs = '-d';
+					// FIXME: Grab device listing and pick first one?!
+				}
+				await exec(`adb ${adbTargetArgs} shell "run-as ${APP_ID} cat '${filepath}'" > ${dest}`);
 			} else {
 				// await exec(`adb -e shell "run-as ${APP_ID} cat '${filepath}'" > ${dest}`);
 				// Using cat as above on some emulators (especially older ones) mangles image files

@@ -1237,30 +1237,6 @@ describe.android('Titanium.Android', () => {
 			});
 		});
 
-		describe('.PENDING_INTENT_FOR_ACTIVITY', () => {
-			it('is a Number', () => {
-				should(Ti.Android).have.a.constant('PENDING_INTENT_FOR_ACTIVITY').which.is.a.Number();
-			});
-		});
-
-		describe('.PENDING_INTENT_FOR_BROADCAST', () => {
-			it('is a Number', () => {
-				should(Ti.Android).have.a.constant('PENDING_INTENT_FOR_BROADCAST').which.is.a.Number();
-			});
-		});
-
-		describe('.PENDING_INTENT_FOR_SERVICE', () => {
-			it('is a Number', () => {
-				should(Ti.Android).have.a.constant('PENDING_INTENT_FOR_SERVICE').which.is.a.Number();
-			});
-		});
-
-		describe('.PENDING_INTENT_MAX_VALUE', () => {
-			it('is a Number', () => {
-				should(Ti.Android).have.a.constant('PENDING_INTENT_MAX_VALUE').which.is.a.Number();
-			});
-		});
-
 		describe('.PRIORITY_DEFAULT', () => {
 			it('is a Number', () => {
 				should(Ti.Android).have.a.constant('PRIORITY_DEFAULT').which.is.a.Number();

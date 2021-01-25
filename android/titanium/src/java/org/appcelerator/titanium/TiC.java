@@ -547,6 +547,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String EVENT_MOVE = "move";
+
+	/**
+	 * @module.api
+	 */
 	public static final String EVENT_REFRESH_END = "refreshend";
 
 	/**
@@ -1290,6 +1295,16 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_CAN_EDIT = "canEdit";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_CAN_MOVE = "canMove";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_CAN_SCROLL = "canScroll";
 
 	/**
@@ -1600,6 +1615,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_EDITING = "editing";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_ELEVATION = "elevation";
 
 	/**
@@ -1721,6 +1741,26 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_FIRSTNAME = "firstName";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_FIRST_VISIBLE_ITEM = "firstVisibleItem";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_FIRST_VISIBLE_ITEM_INDEX = "firstVisibleItemIndex";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_FIRST_VISIBLE_SECTION = "firstVisibleSection";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_FIRST_VISIBLE_SECTION_INDEX = "firstVisibleSectionIndex";
 
 	/**
 	 * @module.api
@@ -2392,6 +2432,16 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_MOTHER = "mother";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_MOVABLE = "movable";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_MOVING = "moving";
 
 	/**
 	 * @module.api
@@ -3314,6 +3364,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_TOTAL_ITEM_COUNT = "totalItemCount";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_TOUCH_ENABLED = "touchEnabled";
 
 	/**
@@ -3450,6 +3505,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_VISIBILITY = "visibility";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_VISIBLE_ITEM_COUNT = "visibleItemCount";
 
 	/**
 	 * @module.api

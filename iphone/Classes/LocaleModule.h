@@ -5,7 +5,7 @@
  * Please see the LICENSE included with this distribution for details.
  */
 #import <JavaScriptCore/JavaScriptCore.h>
-#import <TitaniumKit/ObjcProxy.h>
+#import <TitaniumKit/ObjcModule.h>
 
 @protocol LocaleExports <JSExport>
 
@@ -30,6 +30,6 @@ JSExportAs(parseDecimal,
 
 @end
 
-@interface LocaleModule : ObjcProxy <LocaleExports>
+@interface LocaleModule : ObjcModule <LocaleExports>
 
 @end

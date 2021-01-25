@@ -6433,6 +6433,7 @@ iOSBuilder.prototype.generateRequireIndex = function generateRequireIndex(callba
 	});
 
 	delete index['Resources/_app_props_.json'];
+	index['Resources/_index_.json'] = 1;
 
 	fs.existsSync(destFile) && fs.unlinkSync(destFile);
 	fs.writeFile(destFile, JSON.stringify(index), callback);
@@ -6619,13 +6620,13 @@ iOSBuilder.prototype.processTiSymbols = function processTiSymbols() {
 			'#define USE_TI_UIACTIVITYINDICATOR',
 			'#define USE_TI_UISWITCH',
 			'#define USE_TI_UISLIDER',
+			'#define USE_TI_UITABBEDBAR',
 			'#define USE_TI_UITEXTFIELD',
 			'#define USE_TI_UITEXTAREA',
 			'#define USE_TI_UISCROLLABLEVIEW',
 			'#define USE_TI_UIIOSSTEPPER',
 			'#define USE_TI_UIIOSBLURVIEW',
 			'#define USE_TI_UIIOSLIVEPHOTOVIEW',
-			'#define USE_TI_UIIOSTABBEDBAR',
 			'#define USE_TI_UIPICKER',
 			'#endif'
 		);
