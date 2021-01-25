@@ -1,4 +1,5 @@
 #import "KrollPromise.h"
+#import "KrollObject.h"
 #import "TiExceptionHandler.h"
 
 @implementation KrollPromise
@@ -6,18 +7,20 @@
 - (KrollPromise *)initInContext:(JSContext *)context
 {
   if (self = [super init]) {
+    if ([KrollObject isFinalizing]) {
+      // We cannot create a Promise in this context! If an object is being finalized the function
+      // we call to generate a Promise will crash complaining about the Promise constructor not being an object!
+      return self;
+    }
     if (@available(iOS 13, *)) {
       // Use iOS 13 APIs.
       JSObjectRef resolve;
       JSObjectRef reject;
       JSValueRef exception = NULL;
-
       JSObjectRef promiseRef = JSObjectMakeDeferredPromise(context.JSGlobalContextRef, &resolve, &reject, &exception);
       if (exception) {
-        // FIXME: Randomly getting "null is not an object" and I don't know what is null here. The context? The Promise prototype?
         // report exception
         JSValue *error = [JSValue valueWithJSValueRef:exception inContext:context];
-        NSLog(@"%@", error[@"message"]);
         [context setException:error];
         _JSValue = [[JSValue valueWithUndefinedInContext:context] retain];
         resolveFunc = [[JSValue valueWithUndefinedInContext:context] retain];
@@ -41,7 +44,6 @@
       if (exception != nil) {
         [TiExceptionHandler.defaultExceptionHandler reportScriptError:exception inJSContext:context];
       }
-      // FIXME: Do we need to use a ManagedJSValue here rather than retain it? We do expose it to the JS Engine!
       _JSValue = [[createPromise callWithArguments:@[ executor ]] retain];
       resolveFunc = [executor[@"resolve"] retain];
       rejectFunc = [executor[@"reject"] retain];
@@ -67,35 +69,75 @@
 + (KrollPromise *)rejectedWithErrorMessage:(NSString *)message inContext:(JSContext *)context
 {
   KrollPromise *promise = [[[KrollPromise alloc] initInContext:context] autorelease];
-  JSValue *error = [JSValue valueWithNewErrorFromMessage:message inContext:context];
-  [promise reject:@[ error ]];
+  [promise rejectWithErrorMessage:message];
   return promise;
 }
 
 - (void)resolve:(NSArray *)arguments
 {
-  [resolveFunc callWithArguments:arguments];
+  if (resolveFunc) {
+    [resolveFunc callWithArguments:arguments];
+  }
+  _fulfilled = YES;
+  if (_flushMe) {
+    [self flush];
+    _flushMe = NO;
+  }
 }
 
 - (void)reject:(NSArray *)arguments
 {
-  [rejectFunc callWithArguments:arguments];
+  if (rejectFunc) {
+    [rejectFunc callWithArguments:arguments];
+  }
+  _fulfilled = YES;
+  if (_flushMe) {
+    [self flush];
+    _flushMe = NO;
+  }
+}
+
+//  We need to handle "settling" fulfillments/rejections so we don't leave unhandled rejections around
+- (void)flush
+{
+  if (_JSValue == nil) {
+    // assume no-op Promise generated during finalization
+    return;
+  }
+  if (_fulfilled) {
+    JSValue *noop = [JSValue
+        valueWithObject:^() {
+        }
+              inContext:rejectFunc.context];
+    [_JSValue invokeMethod:@"then" withArguments:@[ noop, noop ]];
+  } else {
+    // not yet fulfilled/rejected, so mark it to get flushed after it is
+    _flushMe = YES;
+  }
 }
 
 - (void)rejectWithErrorMessage:(NSString *)message
 {
-  JSValue *error = [JSValue valueWithNewErrorFromMessage:message inContext:rejectFunc.context];
-  [self reject:@[ error ]];
+  if (rejectFunc) {
+    JSValue *error = [JSValue valueWithNewErrorFromMessage:message inContext:rejectFunc.context];
+    [self reject:@[ error ]];
+  }
 }
 
 - (void)dealloc
 {
-  [_JSValue release];
-  _JSValue = nil;
-  [resolveFunc release];
-  resolveFunc = nil;
-  [rejectFunc release];
-  rejectFunc = nil;
+  if (_JSValue) {
+    [_JSValue release];
+    _JSValue = nil;
+  }
+  if (resolveFunc) {
+    [resolveFunc release];
+    resolveFunc = nil;
+  }
+  if (rejectFunc) {
+    [rejectFunc release];
+    rejectFunc = nil;
+  }
   [super dealloc];
 }
 
