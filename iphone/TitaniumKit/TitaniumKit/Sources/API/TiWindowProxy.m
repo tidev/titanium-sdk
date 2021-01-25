@@ -159,23 +159,6 @@
   TiUIView *theView = [self view];
   [rootView addSubview:theView];
   [rootView bringSubviewToFront:theView];
-
-  // TODO: Revisit
-  /*
-    UIViewController<TiControllerContainment>* topContainerController = [[[TiApp app] controller] topContainerController];
-    UIView *rootView = [topContainerController hostingView];
-
-    UIViewController* thisViewController = [self hostingController];
-    UIView* theView = [thisViewController view];
-    [theView setFrame:[rootView bounds]];
-
-    [thisViewController willMoveToParentViewController:topContainerController];
-    [topContainerController addChildViewController:thisViewController];
-
-    [rootView addSubview:theView];
-    [rootView bringSubviewToFront:theView];
-    [thisViewController didMoveToParentViewController:topContainerController];
-     */
 }
 
 - (BOOL)argOrWindowPropertyExists:(NSString *)key args:(id)args

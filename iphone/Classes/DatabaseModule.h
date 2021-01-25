@@ -6,7 +6,7 @@
  */
 #ifdef USE_TI_DATABASE
 @import JavaScriptCore;
-@import TitaniumKit.ObjcProxy;
+@import TitaniumKit.ObjcModule;
 
 typedef enum {
   FieldTypeUnknown = -1,
@@ -35,7 +35,7 @@ JSExportAs(install,
 
 @end
 
-@interface DatabaseModule : ObjcProxy <DatabaseModuleExports>
+@interface DatabaseModule : ObjcModule <DatabaseModuleExports>
 @end
 
 #endif

@@ -321,13 +321,15 @@ describe.windowsBroken('Titanium.Geolocation', () => {
 			it('works via callback argument', function (finish) {
 				this.timeout(6e4); // 60 sec
 
-				Ti.Geolocation.forwardGeocoder('440 N Bernardo Ave, Mountain View', function (data) {
+				// If we do not add state and zipcode, we end up with Morrow Bay, CA address on Android now!
+				// the coords are: 35.3601686, -120.8433491
+				Ti.Geolocation.forwardGeocoder('440 N Bernardo Ave, Mountain View, CA 94043', function (data) {
 					try {
 						should(data).have.property('success').which.is.a.Boolean();
 						should(data.success).be.be.true();
 						should(data).have.property('code').which.is.a.Number();
 						should(data.code).be.eql(0);
-						should(data.latitude).be.approximately(37.387, 0.005); // iOS: 37.38605, Windows: 37.3883645, Android: 37.3910366
+						should(data.latitude).be.approximately(37.395, 0.02); // iOS: 37.38605, Windows: 37.3883645, Android: 37.3910366, new iOS: 37.4056
 						should(data.longitude).be.approximately(-122.065, 0.02); // Windows: -122.0512682, iOS: -122.08385, Android: -122.0472468
 					} catch (err) {
 						return finish(err);
@@ -339,14 +341,14 @@ describe.windowsBroken('Titanium.Geolocation', () => {
 			it('works via Promise return value', function (finish) {
 				this.timeout(6e4); // 60 sec
 
-				const result = Ti.Geolocation.forwardGeocoder('440 N Bernardo Ave, Mountain View');
+				const result = Ti.Geolocation.forwardGeocoder('440 N Bernardo Ave, Mountain View, CA 94043');
 				result.should.be.a.Promise();
 				result.then(data => {
 					should(data).have.property('success').which.is.a.Boolean();
 					should(data.success).be.eql(true);
 					should(data).have.property('code').which.is.a.Number();
 					should(data.code).be.eql(0);
-					should(data.latitude).be.approximately(37.387, 0.005); // iOS: 37.38605, Windows: 37.3883645, Android: 37.3910366
+					should(data.latitude).be.approximately(37.395, 0.02); // iOS: 37.38605, Windows: 37.3883645, Android: 37.3910366, new iOS: 37.4056
 					should(data.longitude).be.approximately(-122.065, 0.02); // Windows: -122.0512682, iOS: -122.08385, Android: -122.
 					return finish();
 				}).catch(e => finish(e));
@@ -395,7 +397,7 @@ describe.windowsBroken('Titanium.Geolocation', () => {
 						should(data.places[0].postalCode).be.eql('94043');
 						should(data.places[0]).have.property('latitude').which.is.a.Number();
 						should(data.places[0]).have.property('longitude').which.is.a.Number();
-						should(data.places[0].country).be.oneOf('USA', 'United States of America');
+						should(data.places[0].country).be.oneOf('USA', 'United States of America', 'United States');
 						should(data.places[0].state).be.eql('California');
 						should(data.places[0].countryCode).be.eql('US');
 						should(data.places[0]).have.property('city').which.is.a.String();
@@ -422,7 +424,7 @@ describe.windowsBroken('Titanium.Geolocation', () => {
 					should(data.places[0].postalCode).be.eql('94043');
 					should(data.places[0]).have.property('latitude').which.is.a.Number();
 					should(data.places[0]).have.property('longitude').which.is.a.Number();
-					should(data.places[0].country).be.oneOf('USA', 'United States of America');
+					should(data.places[0].country).be.oneOf('USA', 'United States of America', 'United States');
 					should(data.places[0].state).be.eql('California');
 					should(data.places[0].countryCode).be.eql('US');
 					should(data.places[0]).have.property('city').which.is.a.String();

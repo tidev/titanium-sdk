@@ -373,7 +373,6 @@ describe('Titanium.UI', function () {
 	// TODO Write tests for Ti.UI.global properties below!
 	// it('backgroundColor');
 	// it('backgroundImage');
-	// it('currentTab');
 
 	// it.ios('tintColor');
 });

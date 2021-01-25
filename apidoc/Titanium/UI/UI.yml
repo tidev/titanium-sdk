@@ -2731,38 +2731,6 @@ properties:
         windows.
     type: String
 
-  - name: currentTab
-    summary: The currently active tab, if a tab group is open.
-    description: |
-        If no tab group is open, this value is undefined.
-    type: Titanium.UI.Tab
-    platforms: [android]
-    since: "1.8.0"
-    deprecated:
-      since: "3.5.0"
-      removed: "6.0.0"
-
-  - name: currentWindow
-    summary: The active window associated with the executing JavaScript context.
-    description: |
-        This property is only available when using the <Titanium.UI.Window.url> property to load
-        JavaScript files in their own contexts.
-    type: Titanium.UI.Window
-    permission: read-only
-    exclude-platforms: [macos]
-    deprecated:
-        since: "3.5.0"
-        removed: "6.0.0"
-
-  - name: orientation
-    summary: Updates the orientation of the current window to the specified orientation value.
-    deprecated:
-        since: "1.7.2"
-        removed: "3.0.0"
-        notes: Use [Titanium.UI.Window.orientationModes](Titanium.UI.Window.orientationModes) instead.
-    type: Number
-    platforms: [android, iphone, ipad]
-
   - name: tintColor
     summary: |
         Sets the global tint color of the application. It is inherited by the child views and can be

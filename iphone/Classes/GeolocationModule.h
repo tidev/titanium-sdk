@@ -7,7 +7,7 @@
 
 #ifdef USE_TI_GEOLOCATION
 #import <JavaScriptCore/JavaScriptCore.h>
-#import <TitaniumKit/ObjcProxy.h>
+#import <TitaniumKit/ObjcModule.h>
 
 #import <CoreLocation/CoreLocation.h>
 
@@ -104,7 +104,7 @@ JSExportAs(requestTemporaryFullAccuracyAuthorization,
 #endif
 @end
 
-@interface GeolocationModule : ObjcProxy <GeolocationExports, CLLocationManagerDelegate> {
+@interface GeolocationModule : ObjcModule <GeolocationExports, CLLocationManagerDelegate> {
   CLLocationManager *locationManager;
   CLLocationManager *tempManager; // Our 'fakey' manager for handling certain <=3.2 requests
   CLLocationManager *locationPermissionManager; // used for just permissions requests
