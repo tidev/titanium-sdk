@@ -221,7 +221,7 @@
   // for this to work right, we need to sure that we always have the tab close the window
   // and not let the window simply close by itself. this will ensure that we tell the
   // tab that we're doing that
-  [window close:nil]; // FIXME: How can we take the returned Promise and basically forward it's reject/resolve along?
+  [[window close:nil] flush]; // FIXME: How can we take the returned Promise and basically forward it's reject/resolve along?
   RELEASE_TO_NIL_AUTORELEASE(window);
   RELEASE_TO_NIL(windowController);
 }
