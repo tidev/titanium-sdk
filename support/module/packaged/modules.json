@@ -5,8 +5,8 @@
 			"integrity": "sha512-66Isv52+jqxSS7GGFmlxdU5Ir1e0ELZOQ5buZSdm84mof94o/r1brJi39T9womyiRoekkxkmO6kG4llW0tgbHA=="
 		},
 		"facebook": {
-			"url": "https://github.com/appcelerator-modules/ti.facebook/releases/download/v9.0.0-iphone/facebook-iphone-9.0.0.zip",
-			"integrity": "sha512-ydzmAwj3jqpnBf2suUIGJhqz3POo8HlIlshA+kbmLyP6edyIqIsvn+5iCvbZOUTPji3RGGkCVr9GLdwvO3Atww=="
+			"url": "https://github.com/appcelerator-modules/ti.facebook/releases/download/v10.0.0-iphone/facebook-iphone-10.0.0.zip",
+			"integrity": "sha512-J3ckfM6Og+0gbGFCneKHIqNxbNYz2JraTe/QD4u40H1QLi+P6ipHHxucMiUtHjMxK2gxWTfpgQwwZvC9dbIvrA=="
 		},
 		"ti.coremotion": {
 			"url": "https://github.com/appcelerator-modules/ti.coremotion/releases/download/v3.0.0/ti.coremotion-iphone-3.0.0.zip",
@@ -31,8 +31,8 @@
 	},
 	"android": {
 		"facebook": {
-			"url": "https://github.com/appcelerator-modules/ti.facebook/releases/download/v10.0.0-android/facebook-android-10.0.0.zip",
-			"integrity": "sha512-xoAmbzglL4TLLbaqHhDaarIYqhu2q/dlhZT49SRl7342TxdPRGKCnuxmNAbAy0R4X6z8Ueh9/5s4b8NsHoTdVQ=="
+			"url": "https://github.com/appcelerator-modules/ti.facebook/releases/download/v11.0.2-android/facebook-android-11.0.2.zip",
+			"integrity": "sha512-INcD9X+KvAapc8ZRHZVWU5fHAulhzjRysXQv3uCstAj6Xa7Ka7dFlO9pWn9DC58v1q1FlfjG/5kKxhJ/q+sdLg=="
 		},
 		"ti.cloudpush": {
 			"url": "https://appcelerator-modules.s3.amazonaws.com/ti.cloudpush-android-7.1.0.zip",
