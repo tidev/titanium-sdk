@@ -150,7 +150,7 @@ methods:
         summary: |
             Parameters used to create the background task.
         type: BackgroundTaskObject
-    since: 10.0.0
+    since: "10.0.0"
     osver: {ios: {min: "13.0"}}
     platforms: [iphone, ipad, macos]
 
@@ -565,9 +565,10 @@ properties:
         Used to set the `type` attribute when registering background task using method <Titanium.App.iOS.registerBackgroundTask>. 
         This is used to refresh content that’s run while the app is in the background. Use this for updating your app with small bits of information, 
         such as the latest stock values.
-    type: Number
+    type: String
     permission: read-only
     osver: {ios: {min: "13.0"}}
+    value: "refresh"
     since: "10.0.0"
 
   - name: BACKGROUND_TASK_TYPE_PROCESS
@@ -576,9 +577,10 @@ properties:
         Used to set the `type` attribute when registering background task using method <Titanium.App.iOS.registerBackgroundTask>. 
         This is used for time-consuming processing task that runs while the app is in the background. Use processing tasks for long data updates, 
         processing data, and app maintenance.
-    type: Number
+    type: String
     permission: read-only
     osver: {ios: {min: "13.0"}}
+    value: "process"
     since: "10.0.0"
 
   - name: UTTYPE_TEXT
@@ -1109,7 +1111,7 @@ events:
         type: String
     platforms: [iphone, ipad, macos]
     osver: {ios: {min: "13.0"}}
-    since: 10.0.0
+    since: "10.0.0"
 
   - name: silentpush
     summary: Fired when the application is woken up by a silent remote notification. Available only on iOS 7 and later.
@@ -1720,24 +1722,20 @@ since: "10.0.0"
 platforms: [iphone, ipad, macos]
 
 properties:
-
   - name: type
     summary: Background task type.
-    type: Number
+    type: String
     constants: [Titanium.App.iOS.BACKGROUND_TASK_TYPE_REFRESH, Titanium.App.iOS.BACKGROUND_TASK_TYPE_PROCESS]
-
   - name: identifier
     summary: |
         Unique value to identify the task. It should be one of the same value which is added in tiapp.xml for key `BGTaskSchedulerPermittedIdentifiers`.
     type: String
-
   - name: networkConnect
     summary: |
         Whether the background task requires network connectivity. This is valid with background task type Titanium.App.iOS.BACKGROUND_TASK_TYPE_PROCESS.
         If this property is set to `true`, the system will only launch your app to fulfill this request when the device has a network connection.
     type: Boolean
     default: false
-
   - name: powerConnect
     summary: |
         Whether the background task rrequires external power. This is valid with background task type Titanium.App.iOS.BACKGROUND_TASK_TYPE_PROCESS. 
@@ -1745,7 +1743,6 @@ properties:
         Specify `true` if this task is resource intensive to minimize impact to battery life.
     type: Boolean
     default: false
-
   - name: beginDate
     summary: |
         The earliest date at which the task may run. Setting this property does not guarantee that the task will begin at the specified date, 
@@ -1758,41 +1755,41 @@ examples:
   - title: Background task example
     example: |
 
-        ``` javascript
-            const win = Ti.UI.createWindow({
-                backgroundColor: '#fff'
-            });
+        ``` js
+        const win = Ti.UI.createWindow({
+            backgroundColor: '#fff'
+        });
 
-            const label = Ti.UI.createButton({
-                text: 'Background task'
-            });
+        const label = Ti.UI.createButton({
+            text: 'Background task'
+        });
 
-            win.add(label);
-            win.open();
+        win.add(label);
+        win.open();
 
-            Ti.App.iOS.registerBackgroundTask({
-                'identifier': 'com.test.bgrefresh',
-                'type': Ti.App.iOS.BACKGROUND_TASK_TYPE_REFRESH
-            });
+        Ti.App.iOS.registerBackgroundTask({
+            'identifier': 'com.test.bgrefresh',
+            'type': Ti.App.iOS.BACKGROUND_TASK_TYPE_REFRESH
+        });
 
-            Ti.App.iOS.registerBackgroundTask({
-                'identifier': 'com.test.bgprocessing',
-                'type': Ti.App.iOS.BACKGROUND_TASK_TYPE_PROCESS
-            });
+        Ti.App.iOS.registerBackgroundTask({
+            'identifier': 'com.test.bgprocessing',
+            'type': Ti.App.iOS.BACKGROUND_TASK_TYPE_PROCESS
+        });
 
-            Ti.App.iOS.addEventListener('backgroundfetch', function(e) {
-                Ti.API.info('backgroundfetch: ' + JSON.stringify(e));
+        Ti.App.iOS.addEventListener('backgroundfetch', function(e) {
+            Ti.API.info('backgroundfetch: ' + JSON.stringify(e));
 
-                label.text = 'backgroundfetch';
+            label.text = 'backgroundfetch';
 
-                Ti.App.iOS.endBackgroundHandler(e.handlerId);
-            });
+            Ti.App.iOS.endBackgroundHandler(e.handlerId);
+        });
 
-            Ti.App.iOS.addEventListener('backgroundprocess', function(e) {
-                Ti.API.info('backgroundprocess: ' + JSON.stringify(e));
+        Ti.App.iOS.addEventListener('backgroundprocess', function(e) {
+            Ti.API.info('backgroundprocess: ' + JSON.stringify(e));
 
-                label.text = 'backgroundprocess';
-             
-                Ti.App.iOS.endBackgroundHandler(e.handlerId);
-            });
+            label.text = 'backgroundprocess';
+         
+            Ti.App.iOS.endBackgroundHandler(e.handlerId);
+        });
         ```
