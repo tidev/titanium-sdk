@@ -12,6 +12,7 @@
 
 #include "AndroidUtil.h"
 #include "EventEmitter.h"
+#include "EvaluateModule.h"
 #include "Proxy.h"
 #include "JNIUtil.h"
 #include "JSDebugger.h"
@@ -221,7 +222,9 @@ JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeIn
 	}
 
 	HandleScope scope(isolate);
-	Local<Context> context = Context::New(isolate);
+	Local<ObjectTemplate> globalTemplate = ObjectTemplate::New(isolate);
+	globalTemplate->SetNamedPropertyHandler(0, EvaluateModule::GlobalSetterCallback);
+	Local<Context> context = Context::New(isolate, nullptr, globalTemplate);
 	context->Enter();
 
 	V8Runtime::globalContext.Reset(isolate, context);

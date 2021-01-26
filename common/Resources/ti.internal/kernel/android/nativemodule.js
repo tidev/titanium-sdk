@@ -90,7 +90,6 @@ export default function NativeModuleBootstrap(global, kroll) {
 				__dirname: null,
 				Ti: global.Ti,
 				Titanium: global.Ti,
-				global,
 				kroll
 			});
 			if (result) {

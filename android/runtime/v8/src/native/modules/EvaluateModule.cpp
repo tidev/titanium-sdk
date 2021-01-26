@@ -20,6 +20,8 @@ namespace titanium {
 	Persistent<String> EvaluateModule::REQUIRE_STRING;
 	Persistent<String> EvaluateModule::MODULE_REF_STRING;
 
+	std::vector<Persistent<Context, CopyablePersistentTraits<Context>>> EvaluateModule::moduleContexts;
+
 	static void assign(Local<Object> source, Local<Data> destination)
 	{
 		// Obtain source properties.
@@ -48,18 +50,6 @@ namespace titanium {
 		}
 	}
 
-	static void resetGlobal(Local<Object> moduleGlobal, Local<Object> runtimeGlobal, Local<Object> contextObj)
-	{
-		// Set runtime global properties in module global context.
-		assign(runtimeGlobal, moduleGlobal);
-
-		if (!contextObj.IsEmpty()) {
-
-			// Context object has been provided, set context properties in module global context.
-			assign(contextObj, moduleGlobal);
-		}
-	}
-
 	void EvaluateModule::Initialize(Local<Object> target, Local<Context> context)
 	{
 		Isolate* isolate = context->GetIsolate();
@@ -76,6 +66,33 @@ namespace titanium {
 
 		SetMethod(context, isolate, target, "runAsModule", EvaluateModule::RunAsModule);
 		SetMethod(context, isolate, target, "runAsScript", EvaluateModule::RunAsScript);
+	}
+
+	void EvaluateModule::GlobalSetterCallback(Local<String> key, Local<Value> value, const PropertyCallbackInfo<Value>& info)
+	{
+		Isolate* isolate = info.GetIsolate();
+
+		// Iterate through current module contexts.
+		for (const auto persistentModuleContext : moduleContexts) {
+
+			if (!persistentModuleContext.IsEmpty()) {
+
+				// Reference has not been collected, obtain module context.
+				Local<Context> moduleContext = persistentModuleContext.Get(isolate);
+
+				if (!moduleContext.IsEmpty()) {
+
+					// Get module context global object.
+					Local<Object> moduleGlobal = moduleContext->Global();
+
+					if (!moduleGlobal.IsEmpty()) {
+
+						// Set property on module global object.
+						moduleGlobal->Set(moduleContext, key, value);
+					}
+				}
+			}
+		}
 	}
 
 	MaybeLocal<Module> EvaluateModule::ModuleCallback(Local<Context> context, Local<String> specifier, Local<Module> referrer)
@@ -223,6 +240,14 @@ namespace titanium {
 		Local<Context> moduleContext = Context::New(isolate);
 		Context::Scope contextScope(moduleContext);
 
+		// Create a reference to module context.
+		// This is so any changes to the runtime global are also set in our module context.
+		// The reference is marked as weak to allow for collection.
+		Persistent<Context> persistentModuleContext;
+		persistentModuleContext.Reset(isolate, moduleContext);
+		persistentModuleContext.SetWeak();
+		moduleContexts.emplace_back(persistentModuleContext);
+
 		// Obtain module global context.
 		Local<Object> moduleGlobal = moduleContext->Global();
 
@@ -230,16 +255,17 @@ namespace titanium {
 		// This also means all module contexts can share properties.
 		moduleContext->SetSecurityToken(runtimeContext->GetSecurityToken());
 
-		// Reset module context globals.
-		// Inherit runtime global properties and override properties with passed in context object.
-		resetGlobal(moduleGlobal, runtimeGlobal, contextObj);
+		// Set runtime global properties in module global context.
+		assign(runtimeGlobal, moduleGlobal);
+
+		if (!contextObj.IsEmpty()) {
+
+			// Context object has been provided, set context properties in module global context.
+			assign(contextObj, moduleGlobal);
+		}
 
 		// Instantiate module and process imports via `ModuleCallback`.
-		module->InstantiateModule(moduleContext, ModuleCallback);
-
-		// Reset module context globals again.
-		// Since instantiating the module processes imports, we need to load the latest runtime global properties.
-		resetGlobal(moduleGlobal, runtimeGlobal, contextObj);
+		module->InstantiateModule(moduleContext, ModuleCallback).FromJust();
 
 		if (module->GetStatus() == Module::kErrored) {
 
