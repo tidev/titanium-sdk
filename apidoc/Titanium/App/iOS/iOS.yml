@@ -116,11 +116,18 @@ methods:
 
   - name: registerBackgroundTask
     summary: Registers a background task to run when the application is placed in the background.
-    Description: 
-        `UIBackgroundModes` key should be added in tiapp.xml with values `fetch` or `processing` or both depends on what is going to use.
-        `BGTaskSchedulerPermittedIdentifiers` key should also be registered with unique values. See the following example -
+    description: |
+        Two type of tasks can be performed in background- refresh(fetch) and processing.
 
-      ``` xml
+        Refresh task can be used for updating your app with small bits of information. `UIBackgroundModes` key should be added in tiapp.xml with value `fetch`. 
+        In this case [backgroundfetch](Titanium.App.iOS.backgroundfetch) event will be fired by system.
+
+        Processing task can be used for long data updates, processing data, and app maintenance. `UIBackgroundModes` key should be added in tiapp.xml with value `processing`.
+        In this case [backgroundrefresh](Titanium.App.iOS.backgroundrefresh) event will be fired by system.
+
+        `BGTaskSchedulerPermittedIdentifiers` key should also be registered with unique value for each task. See the following example.
+
+        ``` xml
         <ios>
           <plist>
           <dict>
@@ -198,7 +205,7 @@ methods:
     parameters:
       - name: handlerID
         summary: |
-            Unique string identifier for the event (`backgroundfetch`, `silentpush` or `backgroundtransfer`)
+            Unique string identifier for the event (`backgroundfetch`, `backgroundrefresh`, `silentpush` or `backgroundtransfer`)
             that initiated the background opertation mode.
         type: String
     osver: {ios: {min: "7.0"}}
@@ -1717,7 +1724,7 @@ properties:
   - name: type
     summary: Background task type.
     type: Number
-    constants: Titanium.App.iOS.BACKGROUND_TASK_TYPE_*
+    constants: [Titanium.App.iOS.BACKGROUND_TASK_TYPE_REFRESH, Titanium.App.iOS.BACKGROUND_TASK_TYPE_PROCESS]
 
   - name: identifier
     summary: |
@@ -1743,6 +1750,7 @@ properties:
     summary: |
         The earliest date at which the task may run. Setting this property does not guarantee that the task will begin at the specified date, 
         but only that it will not begin sooner. If not specified, no start delay is used.
+    type: Date
     optional: true
 
 ---
