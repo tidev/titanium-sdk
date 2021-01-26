@@ -22,6 +22,7 @@ namespace titanium {
 
 	static void assign(Local<Object> source, Local<Data> destination)
 	{
+		// Obtain source properties.
 		Local<Array> keys = source->GetOwnPropertyNames();
 
 		for (int i = 0; i < keys->Length(); i++) {
@@ -30,13 +31,32 @@ namespace titanium {
 
 			if (!key.IsEmpty() && !value.IsEmpty()) {
 				if (destination->IsValue()) {
+
+					// Destination is an object, set property from source.
 					destination.As<Value>().As<Object>()->Set(key, value);
+
 				} else if (destination->IsModule()) {
+
+					// Destination is a synthetic module, set property from source.
 					destination.As<Module>()->SetSyntheticModuleExport(V8Runtime::v8_isolate, key, value);
 				} else {
+
+					// Unknown destination, do not continue.
 					break;
 				}
 			}
+		}
+	}
+
+	static void resetGlobal(Local<Object> moduleGlobal, Local<Object> runtimeGlobal, Local<Object> contextObj)
+	{
+		// Set runtime global properties in module global context.
+		assign(runtimeGlobal, moduleGlobal);
+
+		if (!contextObj.IsEmpty()) {
+
+			// Context object has been provided, set context properties in module global context.
+			assign(contextObj, moduleGlobal);
 		}
 	}
 
@@ -206,20 +226,20 @@ namespace titanium {
 		// Obtain module global context.
 		Local<Object> moduleGlobal = moduleContext->Global();
 
-		// Set security token from previous context to access properties.
-		moduleContext->SetSecurityToken(context->GetSecurityToken());
+		// Set security token from global context to access properties.
+		// This also means all module contexts can share properties.
+		moduleContext->SetSecurityToken(runtimeContext->GetSecurityToken());
 
-		// Set runtime global properties in module global context.
-		assign(runtimeGlobal, moduleGlobal);
-
-		if (!contextObj.IsEmpty()) {
-
-			// Context object has been provided, set context properties in module global context.
-			assign(contextObj, moduleGlobal);
-		}
+		// Reset module context globals.
+		// Inherit runtime global properties and override properties with passed in context object.
+		resetGlobal(moduleGlobal, runtimeGlobal, contextObj);
 
 		// Instantiate module and process imports via `ModuleCallback`.
 		module->InstantiateModule(moduleContext, ModuleCallback);
+
+		// Reset module context globals again.
+		// Since instantiating the module processes imports, we need to load the latest runtime global properties.
+		resetGlobal(moduleGlobal, runtimeGlobal, contextObj);
 
 		if (module->GetStatus() == Module::kErrored) {
 
