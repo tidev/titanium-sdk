@@ -157,7 +157,10 @@ void V8Util::openJSErrorDialog(Isolate* isolate, TryCatch &tryCatch)
 		javaStack = error->Get(context, STRING_NEW(isolate, "nativeStack")).FromMaybe(Undefined(isolate).As<Value>());
 	}
 
-	// javascript stack trace not provided? obtain current javascript stack trace
+	// Javascript stack trace not provided? Attempt to obtain current stack trace.
+	if (jsStack.IsEmpty() || jsStack->IsNullOrUndefined()) {
+		jsStack = tryCatch.StackTrace();
+	}
 	if (jsStack.IsEmpty() || jsStack->IsNullOrUndefined()) {
 		Local<StackTrace> frames = message->GetStackTrace();
 		if (frames.IsEmpty() || !frames->GetFrameCount()) {
