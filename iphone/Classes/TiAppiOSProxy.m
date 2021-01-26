@@ -419,11 +419,11 @@
   return proxy;
 }
 
-- (void)registerBackgroundgTask:(id)args
+- (void)registerBackgroundTask:(id)args
 {
   ENSURE_SINGLE_ARG(args, NSDictionary);
-  ENSURE_TYPE(args[@"identifier"], NSString);
-  ENSURE_TYPE(args[@"type"], NSString);
+  ENSURE_STRING(args[@"identifier"]);
+  ENSURE_STRING(args[@"type"]);
 
   if ([TiUtils isIOSVersionLower:@"13.0"]) {
     DebugLog(@"This API is not supported fo iOS < 13.0");
@@ -1408,6 +1408,9 @@ MAKE_SYSTEM_PROP(USER_NOTIFICATION_SETTING_NOT_SUPPORTED, UNNotificationSettingN
 MAKE_SYSTEM_PROP(USER_NOTIFICATION_ALERT_STYLE_NONE, UNAlertStyleNone);
 MAKE_SYSTEM_PROP(USER_NOTIFICATION_ALERT_STYLE_ALERT, UNAlertStyleAlert);
 MAKE_SYSTEM_PROP(USER_NOTIFICATION_ALERT_STYLE_BANNER, UNAlertStyleBanner);
+
+MAKE_SYSTEM_STR(BACKGROUND_TASK_TYPE_REFRESH, @"refresh");
+MAKE_SYSTEM_STR(BACKGROUND_TASK_TYPE_PROCESS, @"process");
 
 @end
 

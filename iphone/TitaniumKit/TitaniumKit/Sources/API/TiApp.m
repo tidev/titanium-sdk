@@ -414,7 +414,7 @@ TI_INLINE void waitForMemoryPanicCleared(void); //WARNING: This must never be ru
   [self createDefaultDirectories];
 
   if ([TiUtils isIOSVersionOrGreater:@"13.0"]) {
-    [self registerBackgroundTask];
+    [self registerBackgroundTasks];
   }
 
   return YES;
@@ -1071,7 +1071,7 @@ TI_INLINE void waitForMemoryPanicCleared(void); //WARNING: This must never be ru
 
   if ([TiUtils isIOSVersionOrGreater:@"13.0"]) {
     for (NSDictionary *backgroundTask in backgroundTasks) {
-      [self submitBgTask:backgroundTask];
+      [self submitBackgroundTask:backgroundTask];
     }
   }
 
@@ -1174,6 +1174,8 @@ TI_INLINE void waitForMemoryPanicCleared(void); //WARNING: This must never be ru
   RELEASE_TO_NIL(queuedBootEvents);
   RELEASE_TO_NIL(_queuedApplicationSelectors);
   RELEASE_TO_NIL(_applicationDelegates);
+  RELEASE_TO_NIL(backgroundTasks);
+  RELEASE_TO_NIL(registeredBackgroundTasks);
 
   [super dealloc];
 }
@@ -1209,18 +1211,18 @@ TI_INLINE void waitForMemoryPanicCleared(void); //WARNING: This must never be ru
 
 #pragma mark Background Tasks
 
-- (void)registerBackgroundTask
+- (void)registerBackgroundTasks
 {
   NSArray *identifiers = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"BGTaskSchedulerPermittedIdentifiers"];
 
   for (NSString *identifier in identifiers) {
-    if (registeredBgTasks == nil) {
-      registeredBgTasks = [[NSMutableArray alloc] init];
+    if (registeredBackgroundTasks == nil) {
+      registeredBackgroundTasks = [[NSMutableArray alloc] init];
     }
     [[BGTaskScheduler sharedScheduler] registerForTaskWithIdentifier:identifier
                                                           usingQueue:nil
                                                        launchHandler:^(__kindof BGTask *_Nonnull task) {
-                                                         [registeredBgTasks addObject:task];
+                                                         [registeredBackgroundTasks addObject:task];
                                                          [self handleBGTask:task];
                                                        }];
   }
@@ -1231,7 +1233,7 @@ TI_INLINE void waitForMemoryPanicCleared(void); //WARNING: This must never be ru
   NSString *notificationName = kTiBackgroundProcessNotification;
   if ([task isKindOfClass:[BGAppRefreshTask class]]) {
     // Fo refresh task submit it again
-    [self submitTaskForIdnetifier:task.identifier];
+    [self submitTaskForIdentifier:task.identifier];
     notificationName = kTiBackgroundFetchNotification;
   }
   NSString *key = [NSString stringWithFormat:@"BgTask-%@", task.identifier];
@@ -1242,22 +1244,22 @@ TI_INLINE void waitForMemoryPanicCleared(void); //WARNING: This must never be ru
   task.expirationHandler = ^{
     if ([task isKindOfClass:[BGProcessingTask class]]) {
       // Fo processing task, if it is not completed in time then only submit it again.
-      [self submitTaskForIdnetifier:task.identifier];
+      [self submitTaskForIdentifier:task.identifier];
     }
     [task setTaskCompletedWithSuccess:false];
-    [registeredBgTasks removeObject:task];
+    [registeredBackgroundTasks removeObject:task];
   };
 }
 
-- (void)submitTaskForIdnetifier:(NSString *)identifier
+- (void)submitTaskForIdentifier:(NSString *)identifier
 {
-  NSDictionary *backgroundTask = [self bgTaskForIdentifier:identifier];
+  NSDictionary *backgroundTask = [self backgroundTaskForIdentifier:identifier];
   if (backgroundTask) {
-    [self submitBgTask:backgroundTask];
+    [self submitBackgroundTask:backgroundTask];
   }
 }
 
-- (void)submitBgTask:(NSDictionary *)bgTask
+- (void)submitBackgroundTask:(NSDictionary *)bgTask
 {
   BGTaskRequest *taskRequest;
   if ([bgTask[@"type"] isEqualToString:@"process"]) {
@@ -1267,23 +1269,23 @@ TI_INLINE void waitForMemoryPanicCleared(void); //WARNING: This must never be ru
   } else {
     taskRequest = [[[BGAppRefreshTaskRequest alloc] initWithIdentifier:bgTask[@"identifier"]] autorelease];
   }
-  taskRequest.earliestBeginDate = [bgTask objectForKey:@"date"];
+  taskRequest.earliestBeginDate = bgTask[@"beginDate"];
 
   [BGTaskScheduler.sharedScheduler submitTaskRequest:taskRequest error:nil];
 }
 
 - (void)backgroundTaskCompletedForIdentifier:(NSString *)identifier
 {
-  for (BGTask *task in registeredBgTasks) {
+  for (BGTask *task in registeredBackgroundTasks) {
     if ([task.identifier isEqualToString:identifier]) {
       [task setTaskCompletedWithSuccess:YES];
-      [registeredBgTasks removeObject:task];
+      [registeredBackgroundTasks removeObject:task];
       break;
     }
   }
 }
 
-- (NSDictionary *_Nullable)bgTaskForIdentifier:(NSString *)identifier
+- (NSDictionary *_Nullable)backgroundTaskForIdentifier:(NSString *)identifier
 {
   NSDictionary *bgTask = nil;
   for (NSDictionary *backgroundTask in backgroundTasks) {
@@ -1295,20 +1297,20 @@ TI_INLINE void waitForMemoryPanicCleared(void); //WARNING: This must never be ru
   return bgTask;
 }
 
-- (void)addBackgroundTask:(NSDictionary *)bgTask
+- (void)addBackgroundTask:(NSDictionary *)backgroundTask
 {
   if (backgroundTasks == nil) {
     backgroundTasks = [[NSMutableArray alloc] init];
   }
   NSArray *identifiers = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"BGTaskSchedulerPermittedIdentifiers"];
-  NSDictionary *oldTask = [self bgTaskForIdentifier:bgTask[@"identifier"]];
-  if ([identifiers containsObject:bgTask[@"identifier"]]) {
+  NSDictionary *oldTask = [self backgroundTaskForIdentifier:backgroundTask[@"identifier"]];
+  if ([identifiers containsObject:backgroundTask[@"identifier"]]) {
     if (oldTask) {
       [backgroundTasks removeObject:oldTask];
     }
-    [backgroundTasks addObject:bgTask];
+    [backgroundTasks addObject:backgroundTask];
   } else {
-    DebugLog(@"The identifier, %@, is not added in tiapp.xml. Add it against key BGTaskSchedulerPermittedIdentifiers", bgTask[@"identifier"]);
+    DebugLog(@"The identifier, %@, is not added in tiapp.xml. Add it against key BGTaskSchedulerPermittedIdentifiers", backgroundTask[@"identifier"]);
   }
 }
 

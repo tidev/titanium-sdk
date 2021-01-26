@@ -61,7 +61,7 @@ TI_INLINE void waitForMemoryPanicCleared() //WARNING: This must never be run on 
   NSMutableArray *backgroundServices;
 
   NSMutableArray *backgroundTasks;
-  NSMutableArray *registeredBgTasks;
+  NSMutableArray *registeredBackgroundTasks;
 
   NSMutableArray *runningServices;
   NSDictionary *localNotification;
