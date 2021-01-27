@@ -144,8 +144,11 @@ void V8Util::openJSErrorDialog(Isolate* isolate, TryCatch &tryCatch)
 	HandleScope scope(isolate);
 
 	Local<Context> context = isolate->GetCurrentContext();
-	Local<Message> message = tryCatch.Message();
 	Local<Value> exception = tryCatch.Exception();
+
+	// Re-create message from exception to obtain a clean stack.
+	// tryCatch.Message() can include internal methods where an exception was re-thrown.
+	Local<Message> message = Exception::CreateMessage(isolate, exception);
 
 	Local<Value> jsStack;
 	Local<Value> javaStack;
@@ -159,9 +162,6 @@ void V8Util::openJSErrorDialog(Isolate* isolate, TryCatch &tryCatch)
 
 	// Javascript stack trace not provided? Attempt to obtain current stack trace.
 	if (jsStack.IsEmpty() || jsStack->IsNullOrUndefined()) {
-		jsStack = tryCatch.StackTrace();
-	}
-	if (jsStack.IsEmpty() || jsStack->IsNullOrUndefined()) {
 		Local<StackTrace> frames = message->GetStackTrace();
 		if (frames.IsEmpty() || !frames->GetFrameCount()) {
 			frames = StackTrace::CurrentStackTrace(isolate, MAX_STACK);
@@ -172,6 +172,9 @@ void V8Util::openJSErrorDialog(Isolate* isolate, TryCatch &tryCatch)
 				jsStack = String::NewFromUtf8(isolate, stackString.c_str(), v8::NewStringType::kNormal).ToLocalChecked().As<Value>();
 			}
 		}
+	}
+	if (jsStack.IsEmpty() || jsStack->IsNullOrUndefined()) {
+		jsStack = tryCatch.StackTrace();
 	}
 
 	jstring title = env->NewStringUTF("Runtime Error");
