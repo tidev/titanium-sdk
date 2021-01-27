@@ -1750,7 +1750,6 @@ properties:
     type: Date
     optional: true
 
----
 examples:
   - title: Background task example
     example: |
