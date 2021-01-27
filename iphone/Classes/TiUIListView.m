@@ -1851,6 +1851,9 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
               maxWidth -= accessoryAdjustment;
             }
           }
+          if (_tableView.style == UITableViewStyleInsetGrouped) {
+            maxWidth -= _tableView.layoutMargins.left + _tableView.layoutMargins.right;
+          }
           if (maxWidth > 0) {
             TiUIListItemProxy *theProxy = [theCell proxy];
 #ifndef TI_USE_AUTOLAYOUT
