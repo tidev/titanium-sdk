@@ -12,7 +12,7 @@ namespace titanium {
 struct BindEntry;
 %%
 natives, KrollBindings::initNatives, NULL
-evals, EvaluateModule::Initialize, NULL
+evals, EvaluateModule::Initialize, EvaluateModule::Dispose
 assets, AssetsModule::Initialize, NULL
 API, APIModule::Initialize, APIModule::Dispose
 Titanium, KrollBindings::initTitanium, KrollBindings::disposeTitanium

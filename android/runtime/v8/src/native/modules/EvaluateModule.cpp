@@ -67,12 +67,20 @@ namespace titanium {
 		SetMethod(context, isolate, target, "runAsModule", EvaluateModule::RunAsModule);
 	}
 
+	void EvaluateModule::Dispose(Isolate *isolate)
+	{
+		for (auto persistentModuleContext : EvaluateModule::module_contexts) {
+			persistentModuleContext.Reset();
+		}
+		EvaluateModule::module_contexts.clear();
+	}
+
 	void EvaluateModule::GlobalSetterCallback(Local<String> key, Local<Value> value, const PropertyCallbackInfo<Value>& info)
 	{
 		Isolate* isolate = info.GetIsolate();
 
 		// Iterate through current module contexts.
-		for (const auto persistentModuleContext : EvaluateModule::module_contexts) {
+		for (auto persistentModuleContext : EvaluateModule::module_contexts) {
 
 			if (!persistentModuleContext.IsEmpty()) {
 

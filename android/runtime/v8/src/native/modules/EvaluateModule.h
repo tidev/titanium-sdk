@@ -15,8 +15,9 @@ namespace titanium {
 	class EvaluateModule {
 		public:
 			static void Initialize(Local<Object> target, Local<Context> context);
-			static void GlobalSetterCallback(Local<String> key, Local<Value> value, const PropertyCallbackInfo<Value>& info);
+			static void Dispose(Isolate* isolate);
 
+			static void GlobalSetterCallback(Local<String> key, Local<Value> value, const PropertyCallbackInfo<Value>& info);
 			static MaybeLocal<Module> ModuleCallback(Local<Context> context, Local<String> specifier, Local<Module> referrer);
 
 			static void RunAsModule(const FunctionCallbackInfo<Value> &args);
