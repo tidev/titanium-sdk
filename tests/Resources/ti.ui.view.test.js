@@ -23,18 +23,12 @@ describe('Titanium.UI.View', function () {
 
 	before(finish => {
 		rootWindow = Ti.UI.createWindow({ exitOnClose: false });
-		rootWindow.addEventListener('open', () => finish());
-		rootWindow.open();
+		rootWindow.open().then(() => finish()).catch(e => finish(e));
 	});
 
 	function closeWindow(win, done) {
 		if (win && !win.closed) {
-			win.addEventListener('close', function listener () {
-				win.removeEventListener('close', listener);
-				win = null;
-				done();
-			});
-			win.close();
+			win.close().then(() => done()).catch(_e => done());
 		} else {
 			win = null;
 			done();
