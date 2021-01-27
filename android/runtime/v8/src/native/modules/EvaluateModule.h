@@ -20,14 +20,13 @@ namespace titanium {
 			static MaybeLocal<Module> ModuleCallback(Local<Context> context, Local<String> specifier, Local<Module> referrer);
 
 			static void RunAsModule(const FunctionCallbackInfo<Value> &args);
-			static void RunAsScript(const FunctionCallbackInfo<Value> &args);
 
 		private:
 			static Persistent<String> DEFAULT_STRING;
 			static Persistent<String> REQUIRE_STRING;
 			static Persistent<String> MODULE_REF_STRING;
 
-			static std::vector<Persistent<Context, CopyablePersistentTraits<Context>>> moduleContexts;
+			static std::vector<Persistent<Context, CopyablePersistentTraits<Context>>> module_contexts;
 	};
 }
 #endif

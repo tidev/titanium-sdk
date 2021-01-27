@@ -20,7 +20,7 @@ namespace titanium {
 	Persistent<String> EvaluateModule::REQUIRE_STRING;
 	Persistent<String> EvaluateModule::MODULE_REF_STRING;
 
-	std::vector<Persistent<Context, CopyablePersistentTraits<Context>>> EvaluateModule::moduleContexts;
+	std::vector<Persistent<Context, CopyablePersistentTraits<Context>>> EvaluateModule::module_contexts;
 
 	static void assign(Local<Object> source, Local<Data> destination)
 	{
@@ -65,7 +65,6 @@ namespace titanium {
 		}
 
 		SetMethod(context, isolate, target, "runAsModule", EvaluateModule::RunAsModule);
-		SetMethod(context, isolate, target, "runAsScript", EvaluateModule::RunAsScript);
 	}
 
 	void EvaluateModule::GlobalSetterCallback(Local<String> key, Local<Value> value, const PropertyCallbackInfo<Value>& info)
@@ -73,7 +72,7 @@ namespace titanium {
 		Isolate* isolate = info.GetIsolate();
 
 		// Iterate through current module contexts.
-		for (const auto persistentModuleContext : moduleContexts) {
+		for (const auto persistentModuleContext : EvaluateModule::module_contexts) {
 
 			if (!persistentModuleContext.IsEmpty()) {
 
@@ -172,8 +171,7 @@ namespace titanium {
 						}
 
 						if (tryCatch.HasCaught()) {
-							V8Util::openJSErrorDialog(isolate, tryCatch);
-							V8Util::reportException(isolate, tryCatch, true);
+							tryCatch.ReThrow();
 						}
 
 						return Undefined(isolate);
@@ -190,24 +188,20 @@ namespace titanium {
 	void EvaluateModule::RunAsModule(const FunctionCallbackInfo<Value>& args)
 	{
 		Isolate* isolate = args.GetIsolate();
-		Local<Context> context = isolate->GetCurrentContext();
 
 		if (args.Length() == 0) {
 			isolate->ThrowException(
-				Exception::TypeError(
+				Exception::SyntaxError(
 					STRING_NEW(isolate, "Missing arguments, requires at least 'code' argument.")));
 			return;
 		}
 
 		Local<String> code = args[0].As<String>();
-		Local<String> filename = args.Length() > 1
-			&& args[1]->IsString()
+		Local<String> filename = args.Length() > 1 && args[1]->IsString()
 				? args[1].As<String>() : STRING_NEW(isolate, "<anonymous>");
-		Local<Object> contextObj = args.Length() > 2
-			&& args[2]->IsObject()
+		Local<Object> contextObj = args.Length() > 2 && args[2]->IsObject()
 				? args[2].As<Object>() : Local<Object>();
 
-		TryCatch tryCatch(isolate);
 		ScriptOrigin origin(filename,
 			Local<Integer>(),
 			Local<Integer>(),
@@ -219,12 +213,16 @@ namespace titanium {
 			Boolean::New(isolate, true));
 		ScriptCompiler::Source source(code, origin);
 
-		// Attempt to compile module source code.
-		MaybeLocal<Module> maybeModule = ScriptCompiler::CompileModule(isolate, &source);
-		if (tryCatch.HasCaught()) {
-			V8Util::openJSErrorDialog(isolate, tryCatch);
-			V8Util::reportException(isolate, tryCatch, true);
-			return;
+		MaybeLocal<Module> maybeModule;
+		{
+			TryCatch tryCatch(isolate);
+
+			// Attempt to compile module source code.
+			maybeModule = ScriptCompiler::CompileModule(isolate, &source);
+			if (tryCatch.HasCaught()) {
+				tryCatch.ReThrow();
+				return;
+			}
 		}
 		if (maybeModule.IsEmpty()) {
 			args.GetReturnValue().Set(v8::Undefined(isolate));
@@ -246,7 +244,7 @@ namespace titanium {
 		Persistent<Context> persistentModuleContext;
 		persistentModuleContext.Reset(isolate, moduleContext);
 		persistentModuleContext.SetWeak();
-		moduleContexts.emplace_back(persistentModuleContext);
+		EvaluateModule::module_contexts.emplace_back(persistentModuleContext);
 
 		// Obtain module global context.
 		Local<Object> moduleGlobal = moduleContext->Global();
@@ -265,30 +263,20 @@ namespace titanium {
 		}
 
 		// Instantiate module and process imports via `ModuleCallback`.
-		module->InstantiateModule(moduleContext, ModuleCallback).FromJust();
-
+		module->InstantiateModule(moduleContext, ModuleCallback);
 		if (module->GetStatus() == Module::kErrored) {
 
 			// Throw any exceptions from module instantiation.
 			isolate->ThrowException(module->GetException());
-		}
-		if (tryCatch.HasCaught()) {
-			V8Util::openJSErrorDialog(isolate, tryCatch);
-			V8Util::reportException(isolate, tryCatch, true);
 			return;
 		}
 
 		// Execute module, obtaining a result.
 		MaybeLocal<Value> maybeResult = module->Evaluate(moduleContext);
-
 		if (module->GetStatus() == Module::kErrored) {
 
 			// Throw any exceptions from module evaluation.
 			isolate->ThrowException(module->GetException());
-		}
-		if (tryCatch.HasCaught()) {
-			V8Util::openJSErrorDialog(isolate, tryCatch);
-			V8Util::reportException(isolate, tryCatch, true);
 			return;
 		}
 		if (maybeResult.IsEmpty()) {
@@ -307,20 +295,10 @@ namespace titanium {
 
 			// When top-level-await is enabled, modules return a `Promise`.
 			// Wait for the promise to fulfill before obtaining module exports.
-			if (promise->State() == Promise::kPending) {
+			while (promise->State() == Promise::kPending) {
 
 				// Allow promise to fulfill.
-				isolate->PerformMicrotaskCheckpoint();
-			}
-			if (module->GetStatus() == Module::kErrored) {
-
-				// Throw any exceptions from promise.
-				isolate->ThrowException(module->GetException());
-			}
-			if (tryCatch.HasCaught()) {
-				V8Util::openJSErrorDialog(isolate, tryCatch);
-				V8Util::reportException(isolate, tryCatch, true);
-				return;
+				isolate->RunMicrotasks();
 			}
 
 			// Obtain module exports as result.
@@ -329,83 +307,5 @@ namespace titanium {
 
 		// Return result.
 		args.GetReturnValue().Set(result);
-	}
-
-	void EvaluateModule::RunAsScript(const FunctionCallbackInfo<Value>& args)
-	{
-		Isolate* isolate = args.GetIsolate();
-		Local<Context> context = isolate->GetCurrentContext();
-
-		if (args.Length() < 1) {
-			isolate->ThrowException(
-				Exception::TypeError(
-					STRING_NEW(isolate, "Missing arguments, requires at least 'code' argument.")));
-			return;
-		}
-
-		Local<String> code = args[0].As<String>();
-		Local<String> filename = args.Length() > 1
-			&& args[1]->IsString()
-				? args[1].As<String>() : STRING_NEW(isolate, "<anonymous>");
-		Local<Object> contextObj = args.Length() > 2
-			&& args[2]->IsObject()
-				? args[2].As<Object>() : Local<Object>();
-
-		TryCatch tryCatch(isolate);
-
-		// Obtain runtime global context.
-		Local<Context> runtimeContext = V8Runtime::GlobalContext();
-		Local<Object> runtimeGlobal = runtimeContext->Global();
-
-		// Create new context for script to run in.
-		Local<Context> scriptContext = Context::New(isolate);
-		Context::Scope scope(scriptContext);
-
-		// Obtain script global context.
-		Local<Object> scriptGlobal = scriptContext->Global();
-
-		// Set security token from previous context to access properties.
-		scriptContext->SetSecurityToken(context->GetSecurityToken());
-
-		// Set runtime global properties in script global context.
-		assign(runtimeGlobal, scriptGlobal);
-
-		if (!contextObj.IsEmpty()) {
-
-			// Context object has been provided, set context properties in script global context.
-			assign(contextObj, scriptGlobal);
-		}
-
-		ScriptOrigin origin(filename);
-
-		// Compile script.
-		MaybeLocal<Script> maybeScript = Script::Compile(scriptContext, code, &origin);
-		if (tryCatch.HasCaught()) {
-			V8Util::openJSErrorDialog(isolate, tryCatch);
-			V8Util::reportException(isolate, tryCatch, true);
-			return;
-		}
-		if (maybeScript.IsEmpty()) {
-			isolate->ThrowException(Exception::TypeError(STRING_NEW(isolate, "Failed to compile script.")));
-			args.GetReturnValue().Set(v8::Undefined(isolate));
-			return;
-		}
-		Local<Script> script = maybeScript.ToLocalChecked();
-
-		// Execute script.
-		MaybeLocal<Value> maybeResult = script->Run(scriptContext);
-		if (tryCatch.HasCaught()) {
-			V8Util::openJSErrorDialog(isolate, tryCatch);
-			V8Util::reportException(isolate, tryCatch, true);
-			return;
-		}
-		if (maybeResult.IsEmpty()) {
-
-			// No result found, return undefined.
-			args.GetReturnValue().Set(v8::Undefined(isolate));
-			return;
-		}
-
-		args.GetReturnValue().Set(maybeResult.ToLocalChecked());
 	}
 }
