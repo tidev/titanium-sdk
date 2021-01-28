@@ -563,9 +563,7 @@ function bootstrap (global, kroll) {
 					Titanium,
 					kroll
 				});
-				if (result) {
-					kroll.extend(this.exports, result);
-				}
+				return result;
 			}
 		}
 

@@ -17,8 +17,9 @@ namespace titanium {
 	using namespace v8;
 
 	Persistent<String> EvaluateModule::DEFAULT_STRING;
-	Persistent<String> EvaluateModule::REQUIRE_STRING;
+	Persistent<String> EvaluateModule::EXPORTS_STRING;
 	Persistent<String> EvaluateModule::MODULE_REF_STRING;
+	Persistent<String> EvaluateModule::REQUIRE_STRING;
 
 	std::vector<Persistent<Context, CopyablePersistentTraits<Context>>> EvaluateModule::module_contexts;
 
@@ -32,6 +33,7 @@ namespace titanium {
 			Local<Value> value = source->Get(key);
 
 			if (!key.IsEmpty() && !value.IsEmpty()) {
+
 				if (destination->IsValue()) {
 
 					// Destination is an object, set property from source.
@@ -57,11 +59,14 @@ namespace titanium {
 		if (DEFAULT_STRING.IsEmpty()) {
 			DEFAULT_STRING.Reset(isolate, STRING_NEW(isolate, "default"));
 		}
-		if (REQUIRE_STRING.IsEmpty()) {
-			REQUIRE_STRING.Reset(isolate, STRING_NEW(isolate, "require"));
+		if (EXPORTS_STRING.IsEmpty()) {
+			EXPORTS_STRING.Reset(isolate, STRING_NEW(isolate, "exports"));
 		}
 		if (MODULE_REF_STRING.IsEmpty()) {
 			MODULE_REF_STRING.Reset(isolate, STRING_NEW(isolate, "__module_ref"));
+		}
+		if (REQUIRE_STRING.IsEmpty()) {
+			REQUIRE_STRING.Reset(isolate, STRING_NEW(isolate, "require"));
 		}
 
 		SetMethod(context, isolate, target, "runAsModule", EvaluateModule::RunAsModule);
@@ -121,7 +126,8 @@ namespace titanium {
 				Local<Function> requireFunction = requireValue.As<Function>();
 
 				// Call `require` on specified module to obtain module object.
-				Local<Value> result = requireFunction->Call(context, global, 1, new Local<Value>[]{ specifier }).ToLocalChecked();
+				Local<Value> result = requireFunction->Call(context, global, 1, new Local<Value>[]{ specifier })
+					.FromMaybe(Object::New(isolate).As<Value>());
 
 				// Define module export keys.
 				std::vector<Local<String>> exports { DEFAULT_STRING };
@@ -155,8 +161,6 @@ namespace titanium {
 						Local<String> DEFAULT_STRING = EvaluateModule::DEFAULT_STRING.Get(isolate);
 						Local<String> MODULE_REF_STRING = EvaluateModule::MODULE_REF_STRING.Get(isolate);
 
-						TryCatch tryCatch(isolate);
-
 						// Obtain module reference from context.
 						Local<Value> moduleRefValue = global->Get(context, MODULE_REF_STRING).ToLocalChecked();
 						global->Delete(context, MODULE_REF_STRING).FromJust();
@@ -178,13 +182,15 @@ namespace titanium {
 							module->SetSyntheticModuleExport(isolate, DEFAULT_STRING, moduleRefValue);
 						}
 
-						if (tryCatch.HasCaught()) {
-							tryCatch.ReThrow();
-						}
-
 						return Undefined(isolate);
 					}
 				);
+
+				// Instantiate and evaluate to define synthetic module exports.
+				module->InstantiateModule(context, nullptr);
+				module->Evaluate(context);
+
+				assert(module->GetModuleNamespace().As<Object>()->GetOwnPropertyNames()->Length() == exports.size());
 
 				return module;
 			}
@@ -195,7 +201,12 @@ namespace titanium {
 
 	void EvaluateModule::RunAsModule(const FunctionCallbackInfo<Value>& args)
 	{
-		Isolate* isolate = args.GetIsolate();
+		Isolate *isolate = args.GetIsolate();
+		Local<Context> context = isolate->GetCurrentContext();
+		HandleScope scope(isolate);
+
+		// Set result as undefined by default.
+		args.GetReturnValue().Set(Undefined(isolate));
 
 		if (args.Length() == 0) {
 			isolate->ThrowException(
@@ -206,9 +217,9 @@ namespace titanium {
 
 		Local<String> code = args[0].As<String>();
 		Local<String> filename = args.Length() > 1 && args[1]->IsString()
-				? args[1].As<String>() : STRING_NEW(isolate, "<anonymous>");
+		 	? args[1].As<String>() : STRING_NEW(isolate, "<anonymous>");
 		Local<Object> contextObj = args.Length() > 2 && args[2]->IsObject()
-				? args[2].As<Object>() : Local<Object>();
+		   ? args[2].As<Object>() : Local<Object>();
 
 		ScriptOrigin origin(filename,
 			Local<Integer>(),
@@ -233,7 +244,6 @@ namespace titanium {
 			}
 		}
 		if (maybeModule.IsEmpty()) {
-			args.GetReturnValue().Set(v8::Undefined(isolate));
 			return;
 		}
 		Local<Module> module = maybeModule.ToLocalChecked();
@@ -278,6 +288,11 @@ namespace titanium {
 			isolate->ThrowException(module->GetException());
 			return;
 		}
+		if (module->GetStatus() != Module::kInstantiated) {
+			LOGE(TAG, "Could not instantiate module '%s' (Status: %d)", *String::Utf8Value(isolate, filename), module->GetStatus());
+			isolate->TerminateExecution();
+			return;
+		}
 
 		// Execute module, obtaining a result.
 		MaybeLocal<Value> maybeResult = module->Evaluate(moduleContext);
@@ -291,9 +306,6 @@ namespace titanium {
 
 			// NOTE: This should never happen.
 			LOGW(TAG, "Evaluating module '%s' returned no result.", *String::Utf8Value(isolate, filename));
-
-			// No result found, return undefined.
-			args.GetReturnValue().Set(Undefined(isolate));
 			return;
 		}
 		Local<Value> result = maybeResult.ToLocalChecked();
@@ -306,11 +318,25 @@ namespace titanium {
 			while (promise->State() == Promise::kPending) {
 
 				// Allow promise to fulfill.
-				isolate->RunMicrotasks();
+				isolate->PerformMicrotaskCheckpoint();
 			}
 
 			// Obtain module exports as result.
-			result = module->GetModuleNamespace().As<Object>();
+			Local<Object> moduleNamespace = module->GetModuleNamespace().As<Object>();
+
+			// Include namespace entries into 'Module.exports'.
+			Local<String> EXPORTS_STRING = EvaluateModule::EXPORTS_STRING.Get(isolate);
+			if (moduleGlobal->Has(EXPORTS_STRING)) {
+				Local<Value> exportsValue = moduleGlobal->Get(EXPORTS_STRING);
+
+				if (!exportsValue.IsEmpty() && exportsValue->IsObject()) {
+					Local<Object> exports = exportsValue.As<Object>();
+
+					assign(moduleNamespace, exports);
+				}
+			}
+
+			result = moduleNamespace;
 		}
 
 		// Return result.

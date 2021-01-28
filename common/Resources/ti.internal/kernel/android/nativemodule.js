@@ -92,9 +92,6 @@ export default function NativeModuleBootstrap(global, kroll) {
 				Titanium: global.Ti,
 				kroll
 			});
-			if (result) {
-				kroll.extend(this.exports, result);
-			}
 		}
 
 		this.loaded = true;

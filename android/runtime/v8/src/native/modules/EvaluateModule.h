@@ -24,8 +24,9 @@ namespace titanium {
 
 		private:
 			static Persistent<String> DEFAULT_STRING;
-			static Persistent<String> REQUIRE_STRING;
+			static Persistent<String> EXPORTS_STRING;
 			static Persistent<String> MODULE_REF_STRING;
+			static Persistent<String> REQUIRE_STRING;
 
 			static std::vector<Persistent<Context, CopyablePersistentTraits<Context>>> module_contexts;
 	};
