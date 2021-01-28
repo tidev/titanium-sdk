@@ -42,7 +42,10 @@ import org.json.JSONObject;
  * <a href="http://developer.appcelerator.com/apidoc/mobile/latest/Titanium.UI.createView-method.html">Titanium.UI.createView </a>,
  * the view object is a proxy itself.
  */
-@Kroll.proxy(name = "KrollProxy", propertyAccessors = { KrollProxy.PROPERTY_HAS_JAVA_LISTENER })
+@Kroll.proxy(name = "KrollProxy", propertyAccessors = {
+	KrollProxy.PROPERTY_HAS_JAVA_LISTENER,
+	KrollProxy.PROPERTY_API_NAME
+})
 public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecycleEvent
 {
 	private static final String TAG = "KrollProxy";
@@ -66,6 +69,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 	protected static final int MSG_LAST_ID = MSG_CALL_PROPERTY_SYNC;
 	protected static final String PROPERTY_NAME = "name";
 	protected static final String PROPERTY_HAS_JAVA_LISTENER = "_hasJavaListener";
+	protected static final String PROPERTY_API_NAME = "apiName";
 
 	protected static AtomicInteger proxyCounter = new AtomicInteger();
 	protected AtomicInteger listenerIdGenerator;
