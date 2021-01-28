@@ -827,10 +827,14 @@ MAKE_SYSTEM_PROP(ACTIVITYTYPE_OTHER_NAVIGATION, CLActivityTypeOtherNavigation);
 
 - (bool)hasLocationPermissions:(CLAuthorizationStatus)authorizationType
 {
-  BOOL locationServicesEnabled = [CLLocationManager locationServicesEnabled];
-  CLAuthorizationStatus currentPermissionLevel = [CLLocationManager authorizationStatus];
-  CLAuthorizationStatus requestedPermissionLevel = authorizationType;
-  return locationServicesEnabled && currentPermissionLevel == requestedPermissionLevel;
+  if (!CLLocationManager.locationServicesEnabled) {
+    return false;
+  }
+  CLAuthorizationStatus currentPermissionLevel = CLLocationManager.authorizationStatus;
+  // FIXME: If user does not supply the value, what should we do?
+  // Basically if they give a value other than AUTHORIZATION_ALWAYS, assume WHEN_IN_USE
+  CLAuthorizationStatus requestedPermissionLevel = (authorizationType == kCLAuthorizationStatusAuthorizedAlways) ? kCLAuthorizationStatusAuthorizedAlways : kCLAuthorizationStatusAuthorizedWhenInUse;
+  return currentPermissionLevel == requestedPermissionLevel;
 }
 
 - (JSValue *)requestLocationPermissions:(CLAuthorizationStatus)authorizationType withCallback:(JSValue *)callback
