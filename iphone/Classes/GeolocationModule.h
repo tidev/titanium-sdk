@@ -120,7 +120,7 @@ JSExportAs(requestTemporaryFullAccuracyAuthorization,
   BOOL trackSignificantLocationChange;
   bool allowsBackgroundLocationUpdates;
   BOOL showBackgroundLocationIndicator;
-  JSManagedValue *authorizationCallback;
+  JSValue *authorizationCallback;
   KrollPromise *authorizationPromise;
   CLAuthorizationStatus requestedAuthorizationStatus;
 

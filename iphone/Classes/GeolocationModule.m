@@ -245,6 +245,8 @@ extern NSString *const TI_APPLICATION_GUID;
   RELEASE_TO_NIL(purpose);
   RELEASE_TO_NIL(lock);
   RELEASE_TO_NIL(lastLocationDict);
+  RELEASE_TO_NIL(authorizationCallback);
+  RELEASE_TO_NIL(authorizationPromise);
   [super dealloc];
 }
 
@@ -834,15 +836,13 @@ MAKE_SYSTEM_PROP(ACTIVITYTYPE_OTHER_NAVIGATION, CLActivityTypeOtherNavigation);
 - (JSValue *)requestLocationPermissions:(CLAuthorizationStatus)authorizationType withCallback:(JSValue *)callback
 {
   // Store the authorization callback for later usage
-  if (callback != nil) {
+  // FIXME: What about multiple calls before resolution. We should store in an array like we do for getCurrentPosition
+  if (callback != nil && ![callback isUndefined]) {
     if (authorizationCallback != nil) {
-      JSValue *actualCallback = [authorizationCallback value];
-      [actualCallback.context.virtualMachine removeManagedReference:authorizationCallback withOwner:self];
       [authorizationCallback release];
       authorizationCallback = nil;
     }
-    authorizationCallback = [[JSManagedValue managedValueWithValue:callback andOwner:self] retain];
-    [callback.context.virtualMachine addManagedReference:authorizationCallback withOwner:self];
+    authorizationCallback = [callback retain];
   }
 
   // Promise to return
@@ -862,8 +862,7 @@ MAKE_SYSTEM_PROP(ACTIVITYTYPE_OTHER_NAVIGATION, CLActivityTypeOtherNavigation);
     [self executeAndReleaseCallbackWithCode:0 andMessage:nil];
     return promise.JSValue;
   } else if (currentPermissionLevel == kCLAuthorizationStatusDenied) {
-    NSString *message = @"The user denied access to use location services.";
-    [self executeAndReleaseCallbackWithCode:1 andMessage:message];
+    [self executeAndReleaseCallbackWithCode:1 andMessage:@"The user denied access to use location services."];
     return promise.JSValue;
   }
 
@@ -977,18 +976,17 @@ READWRITE_IMPL(bool, showCalibration, ShowCalibration);
     if (code == 0) {
       [authorizationPromise resolve:invocationArray];
     } else {
-      // FIXME: We should be rejecting with an Error
-      [authorizationPromise reject:invocationArray];
+      [authorizationPromise rejectWithErrorMessage:message];
     }
     [authorizationPromise release];
     authorizationPromise = nil;
   }
 
   if (authorizationCallback != nil) {
-    JSValue *actualCallback = [authorizationCallback value];
-    [actualCallback callWithArguments:invocationArray];
+    if (![authorizationCallback isUndefined]) {
+      [authorizationCallback callWithArguments:invocationArray];
+    }
     // release the stored callback
-    [actualCallback.context.virtualMachine removeManagedReference:authorizationCallback withOwner:self];
     [authorizationCallback release];
     authorizationCallback = nil;
   }
