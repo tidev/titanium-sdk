@@ -106,7 +106,6 @@ JSExportAs(requestTemporaryFullAccuracyAuthorization,
 
 @interface GeolocationModule : ObjcModule <GeolocationExports, CLLocationManagerDelegate> {
   CLLocationManager *locationManager;
-  CLLocationManager *tempManager; // Our 'fakey' manager for handling certain <=3.2 requests
   CLLocationManager *locationPermissionManager; // used for just permissions requests
 
   CLLocationAccuracy accuracy;

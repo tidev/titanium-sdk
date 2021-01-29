@@ -240,7 +240,6 @@ extern NSString *const TI_APPLICATION_GUID;
 {
   [self shutdownLocationManager];
   [self releaseSingleshotListeners];
-  RELEASE_TO_NIL(tempManager);
   RELEASE_TO_NIL(locationPermissionManager);
   RELEASE_TO_NIL(purpose);
   RELEASE_TO_NIL(lock);
@@ -324,7 +323,6 @@ extern NSString *const TI_APPLICATION_GUID;
 {
   [lock lock];
   if (locationManager == nil) {
-    RELEASE_TO_NIL(tempManager);
     locationManager = [[CLLocationManager alloc] init];
     locationManager.delegate = self;
     if (!trackSignificantLocationChange) {
@@ -385,72 +383,59 @@ extern NSString *const TI_APPLICATION_GUID;
   return locationManager;
 }
 
-// this is useful for a few methods below that need to use an instance but we
-// don't necessarily want to hold on to this guy
-- (CLLocationManager *)tempLocationManager
-{
-  if (locationManager != nil) {
-    // if we have an instance, just use it
-    return locationManager;
-  }
-
-  if (tempManager == nil) {
-    tempManager = [[CLLocationManager alloc] init];
-  }
-  return tempManager;
-}
-
 - (void)startStopLocationManagerIfNeeded
 {
   BOOL startHeading = NO;
   BOOL startLocation = NO;
 
-  if (singleHeading != nil && [singleHeading count] > 0) {
+  // if we have queued getCurrentHeading() calls or a 'heading' event listener, startHeading
+  if ((singleHeading != nil && [singleHeading count] > 0) || [self _hasListeners:@"heading"]) {
     startHeading = YES;
   }
-  if (singleLocation != nil && [singleLocation count] > 0) {
-    startLocation = YES;
-  }
-  if (!startHeading && [self _hasListeners:@"heading"]) {
-    startHeading = YES;
-  }
-  if (!startLocation && [self _hasListeners:@"location"]) {
+  // if we have queued getCurrentPosition() calls or a 'location' event listener, startLocation
+  if ((singleLocation != nil && [singleLocation count] > 0) || [self _hasListeners:@"location"]) {
     startLocation = YES;
   }
 
-  if (startHeading || startLocation) {
-    CLLocationManager *lm = [self locationManager];
-    if (startHeading && !trackingHeading) {
-      [lm startUpdatingHeading];
-      trackingHeading = YES;
+  // Basically we need to guard against "starting" location manager unnecessarily
+  // So if both are NO *and* it's already nil, return early
+  if (!startHeading && !startLocation && locationManager == nil) {
+    return;
+  }
+
+  // Otherwise toggle based on if we're already tracking heading/location
+  CLLocationManager *lm = [self locationManager];
+
+  // heading
+  if (startHeading && !trackingHeading) { // track heading if we aren't already...
+    [lm startUpdatingHeading];
+    trackingHeading = YES;
+  } else if (!startHeading && trackingHeading) { // turn off heading if we were and don't want to anymore...
+    trackingHeading = NO;
+    [lm stopUpdatingHeading];
+  }
+
+  // location
+  if (startLocation && !trackingLocation) { // track location if we aren't already...
+    if (trackSignificantLocationChange) {
+      [lm startMonitoringSignificantLocationChanges];
+    } else {
+      [lm startUpdatingLocation];
     }
-    if (startLocation && !trackingLocation) {
-      if (trackSignificantLocationChange) {
-        [lm startMonitoringSignificantLocationChanges];
-      } else {
-        [lm startUpdatingLocation];
-      }
-      trackingLocation = YES;
+    trackingLocation = YES;
+  } else if (!startLocation && trackingLocation) { // turn off location if we were and don't want to anymore...
+    trackingLocation = NO;
+    if (trackSignificantLocationChange) {
+      [lm stopMonitoringSignificantLocationChanges];
+    } else {
+      [lm stopUpdatingLocation];
     }
-  } else if ((!startHeading || !startLocation) && locationManager != nil) {
-    CLLocationManager *lm = [self locationManager];
-    if (!startHeading && trackingHeading) {
-      trackingHeading = NO;
-      [lm stopUpdatingHeading];
-    }
-    if (!startLocation && trackingLocation) {
-      trackingLocation = NO;
-      if (trackSignificantLocationChange) {
-        [lm stopMonitoringSignificantLocationChanges];
-      } else {
-        [lm stopUpdatingLocation];
-      }
-    }
-    if ((!startHeading && !startLocation) || (!trackingHeading && !trackingLocation)) {
-      [self shutdownLocationManager];
-      trackingLocation = NO;
-      trackingHeading = NO;
-    }
+  }
+
+  // If we turned both heading and location off...
+  // TODO: Move this to top? it turns off heading/location under the covers if necessary
+  if (!trackingHeading && !trackingLocation) {
+    [self shutdownLocationManager]; // shut down the location manager
   }
 }
 
@@ -906,7 +891,7 @@ MAKE_SYSTEM_PROP(ACTIVITYTYPE_OTHER_NAVIGATION, CLActivityTypeOtherNavigation);
 
   if (errorMessage != nil) {
     NSLog(@"[ERROR] %@", errorMessage);
-    [self executeAndReleaseCallbackWithCode:(errorMessage == nil) ? 0 : 1 andMessage:errorMessage];
+    [self executeAndReleaseCallbackWithCode:1 andMessage:errorMessage];
     RELEASE_TO_NIL(errorMessage);
   }
   return promise.JSValue;
@@ -972,7 +957,7 @@ READWRITE_IMPL(bool, showCalibration, ShowCalibration);
 {
   NSMutableDictionary *fullDict = [TiUtils dictionaryWithCode:code message:message];
   if (dict != nil) {
-    [fullDict setDictionary:dict];
+    [fullDict addEntriesFromDictionary:dict];
   }
   NSArray *invocationArray = @[ fullDict ];
 
@@ -1198,7 +1183,12 @@ READWRITE_IMPL(bool, showCalibration, ShowCalibration);
 
 - (void)locationManager:(CLLocationManager *)manager didFailWithError:(NSError *)error
 {
-  NSMutableDictionary *event = [TiUtils dictionaryWithCode:[error code] message:[TiUtils messageFromError:error]];
+  // Error code may be 0 here, but then we report success!
+  NSInteger code = error.code;
+  if (code == 0) {
+    code = -1; // explicitly use non-zero code to force success to be false!
+  }
+  NSMutableDictionary *event = [TiUtils dictionaryWithCode:code message:[TiUtils messageFromError:error]];
 
   if ([self _hasListeners:@"location"]) {
     [self fireEvent:@"location" withDict:event];
