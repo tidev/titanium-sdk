@@ -18,16 +18,16 @@ describe.windowsBroken('Core', () => {
 			describe('Top-Module', () => {
 				describe('Submodules', () => {
 					it('should check for sub-module', () => {
-						Ti.should.have.property('UI');
-						Ti.should.not.have.property('Foo');
+						should(Ti).have.property('UI');
+						should(Ti).not.have.property('Foo');
 					});
 				});
 
 				describe('Custom properties', () => {
 					it('should check for custom properties', () => {
-						Ti.should.not.have.property('custom');
+						should(Ti).not.have.property('custom');
 						Ti.custom = {};
-						Ti.should.have.property('custom');
+						should(Ti).have.property('custom');
 					});
 				});
 			});
@@ -36,22 +36,22 @@ describe.windowsBroken('Core', () => {
 				describe('Getter/Setter', () => {
 					it('should check for existing getter method', () => {
 						const tabGroup = Ti.UI.createTabGroup();
-						tabGroup.should.have.property('getTabs');
+						should(tabGroup).have.property('getTabs');
 					});
 
 					it.ios('should check for dynamic getter method', () => {
 						const view = Ti.UI.createView();
-						view.should.have.property('getFoo');
+						should(view).have.property('getFoo');
 					});
 
 					it('should check for existing setter method', () => {
 						const webView = Ti.UI.createWebView();
-						webView.should.have.property('setHtml');
+						should(webView).have.property('setHtml');
 					});
 
 					it.ios('should check for dynamic setter method', () => {
 						const view = Ti.UI.createView();
-						view.should.have.property('setFoo');
+						should(view).have.property('setFoo');
 					});
 				});
 
@@ -60,17 +60,17 @@ describe.windowsBroken('Core', () => {
 						const view = Ti.UI.createView({
 							backgroundColor: 'black'
 						});
-						view.should.not.have.property('bollocks');
-						view.should.have.property('backgroundColor');
+						should(view).not.have.property('bollocks');
+						should(view).have.property('backgroundColor');
 					});
 
 					it('should check for custom properties', () => {
 						const view = Ti.UI.createView();
-						view.should.not.have.property('bollocks');
-						view.should.not.have.property('foo');
+						should(view).not.have.property('bollocks');
+						should(view).not.have.property('foo');
 						view.foo = 'bar';
-						view.should.have.property('foo');
-						view.foo.should.be.equal('bar');
+						should(view).have.property('foo');
+						should(view.foo).be.equal('bar');
 					});
 
 					it('should properly handle properties with value of nil (TIMOB-26452)', () => {
@@ -86,32 +86,32 @@ describe.windowsBroken('Core', () => {
 				describe('toString/valueOf', () => {
 					it('should be available on any proxy', () => {
 						const view = Ti.UI.createView();
-						view.should.have.property('toString');
-						view.should.have.property('valueOf');
+						should(view).have.property('toString');
+						should(view).have.property('valueOf');
 					});
 				});
 
 				describe('className', () => {
 					it.ios('should be availably on any proxy', () => {
 						const view = Ti.UI.createView();
-						view.should.have.property('className');
+						should(view).have.property('className');
 					});
 				});
 
 				describe('Methods', () => {
 					it('should check for methods on the object\'s target', () => {
 						const view = Ti.UI.createView();
-						view.should.not.have.property('addSomething');
-						view.should.have.property('add');
+						should(view).not.have.property('addSomething');
+						should(view).have.property('add');
 						should(view.add).be.a.Function();
 					});
 				});
 
 				describe('Factory Methods', () => {
 					it('should check for dynamic create factory method', () => {
-						Ti.UI.should.have.property('createView');
+						should(Ti.UI).have.property('createView');
 						const view = Ti.UI.createView();
-						view.should.not.have.property('createSomething');
+						should(view).not.have.property('createSomething');
 					});
 				});
 			});

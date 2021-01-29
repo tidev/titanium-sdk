@@ -13,20 +13,20 @@ describe('ES6 Arrows', function () {
 	it('expression bodies', function () {
 		const evens = [ 0, 2, 4, 6, 8 ];
 		const odds = evens.map(v => v + 1);
-		odds.should.have.length(5);
-		odds.should.containEql(1);
-		odds.should.containEql(3);
-		odds.should.containEql(5);
-		odds.should.containEql(7);
-		odds.should.containEql(9);
+		should(odds).have.length(5);
+		should(odds).containEql(1);
+		should(odds).containEql(3);
+		should(odds).containEql(5);
+		should(odds).containEql(7);
+		should(odds).containEql(9);
 
 		const nums = evens.map((v, i) => v + i);
-		nums.should.have.length(5);
-		nums.should.containEql(0);
-		nums.should.containEql(3);
-		nums.should.containEql(6);
-		nums.should.containEql(9);
-		nums.should.containEql(12);
+		should(nums).have.length(5);
+		should(nums).containEql(0);
+		should(nums).containEql(3);
+		should(nums).containEql(6);
+		should(nums).containEql(9);
+		should(nums).containEql(12);
 
 		evens.map(v => ({ even: v, odd: v + 1 }));
 

@@ -20,10 +20,10 @@ describe('require()', function () {
 	});
 
 	it('throws when requiring invalid file', function () {
-		(function () {
+		should(function () {
 			var object = require('requireJS_test_notfound');
 			should(object).not.be.an.Object();
-		}).should.throw();
+		}).throw();
 	});
 
 	// require should cache object
@@ -268,7 +268,7 @@ describe('require()', function () {
 				}
 			);
 			if (obj.filename === 'nan') {
-				isNaN(result).should.be.true();
+				should(isNaN(result)).be.true();
 			}  else {
 				should(result).be.exactly(obj.expected);
 			}

@@ -36,10 +36,10 @@ describe('Timers', function () {
 		it.windowsBroken('accepts callback, interval, and additional arguments', function (finish) {
 			setTimeout(function (argOne, argTwo, argThree) {
 				try {
-					argOne.should.eql(2);
-					argTwo.should.eql('3');
-					argThree.should.be.an.Object();
-					argThree.should.have.a.property('name').which.eql('four');
+					should(argOne).eql(2);
+					should(argTwo).eql('3');
+					should(argThree).be.an.Object();
+					should(argThree).have.a.property('name').which.eql('four');
 					finish();
 				} catch (err) {
 					finish(err);
@@ -108,10 +108,10 @@ describe('Timers', function () {
 				finished = true;
 				clearInterval(timerId);
 				try {
-					argOne.should.eql(2);
-					argTwo.should.eql('3');
-					argThree.should.be.an.Object();
-					argThree.should.have.a.property('name').which.eql('four');
+					should(argOne).eql(2);
+					should(argTwo).eql('3');
+					should(argThree).be.an.Object();
+					should(argThree).have.a.property('name').which.eql('four');
 					finish();
 				} catch (err) {
 					finish(err);
@@ -201,9 +201,9 @@ describe('Timers', function () {
 		it('accepts callback and arguments', finish => {
 			setImmediate((one, two, three) => {
 				try {
-					one.should.eql(1);
-					two.should.eql('2');
-					three.should.eql([ 3 ]);
+					should(one).eql(1);
+					should(two).eql('2');
+					should(three).eql([ 3 ]);
 					finish();
 				} catch (e) {
 					finish(e);

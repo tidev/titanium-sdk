@@ -102,12 +102,12 @@ describe('Titanium.Blob', function () {
 			const thisFileLength = thisFile.length;
 			appJsBlob.append(thisFile);
 			// Now the blob's text should be the concatentaion of the two blobs
-			appJsBlob.text.should.be.eql(originalText + thisFileText);
+			should(appJsBlob.text).be.eql(originalText + thisFileText);
 			// and the size should be their sum
-			appJsBlob.length.should.be.eql(originalLength + thisFileLength);
+			should(appJsBlob.length).be.eql(originalLength + thisFileLength);
 			// The passed in blob shouldn't be changed
-			thisFile.length.should.eql(thisFileLength);
-			thisFile.text.should.eql(thisFileText);
+			should(thisFile.length).eql(thisFileLength);
+			should(thisFile.text).eql(thisFileText);
 		});
 	});
 
@@ -125,7 +125,7 @@ describe('Titanium.Blob', function () {
 			should(blob.mimeType.length).be.above(0); // Windows desktop returns 0 here
 			// Android is reporting 'application/javascript' now on Android 29+
 			// iOS/older Android report 'text/javascript'
-			[ 'text/javascript', 'application/javascript' ].should.containEql(blob.mimeType);
+			should([ 'text/javascript', 'application/javascript' ]).containEql(blob.mimeType);
 		});
 
 		it('image/png', () => {

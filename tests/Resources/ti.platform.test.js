@@ -107,7 +107,7 @@ describe('Titanium.Platform', () => {
 				should(platformId).be.a.String();
 				should(platformId.length).eql(36);
 				// Verify format using regexp!
-				platformId.should.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i);
+				should(platformId).match(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i);
 			});
 		});
 
@@ -145,7 +145,7 @@ describe('Titanium.Platform', () => {
 				should(macaddress).be.a.String();
 				should(macaddress.length).eql(36);
 				// Verify format using regexp!
-				macaddress.should.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i);
+				should(macaddress).match(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i);
 			});
 		});
 

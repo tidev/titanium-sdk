@@ -669,9 +669,9 @@ describe('Titanium.Filesystem.File', function () {
 			const dir = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory);
 			const files = dir.getDirectoryListing();
 			should(dir.exists()).be.true();
-			files.should.be.an.Array();
-			files.length.should.be.above(0);
-			files[0].should.be.a.String();
+			should(files).be.an.Array();
+			should(files.length).be.above(0);
+			should(files[0]).be.a.String();
 		});
 
 		it('returns empty Array for empty directory', function () {
@@ -688,8 +688,8 @@ describe('Titanium.Filesystem.File', function () {
 			should(emptyDir.isDirectory()).be.true();
 
 			const result = emptyDir.getDirectoryListing();
-			result.should.be.an.Array();
-			result.length.should.eql(0);
+			should(result).be.an.Array();
+			should(result.length).eql(0);
 		});
 
 		it('returns null for non-existent directory', function () {

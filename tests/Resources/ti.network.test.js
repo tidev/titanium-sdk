@@ -58,15 +58,15 @@ describe('Titanium.Network', function () {
 	it('networkTypeName', function () {
 		should(Ti.Network).have.a.readOnlyProperty('networkTypeName').which.is.a.String();
 		if (Ti.Network.networkType == Ti.Network.NETWORK_LAN) { // eslint-disable-line eqeqeq
-			Ti.Network.networkTypeName.should.eql('LAN');
+			should(Ti.Network.networkTypeName).eql('LAN');
 		} else if (Ti.Network.networkType == Ti.Network.NETWORK_MOBILE) { // eslint-disable-line eqeqeq
-			Ti.Network.networkTypeName.should.eql('MOBILE');
+			should(Ti.Network.networkTypeName).eql('MOBILE');
 		} else if (Ti.Network.networkType == Ti.Network.NETWORK_NONE) { // eslint-disable-line eqeqeq
-			Ti.Network.networkTypeName.should.eql('NONE');
+			should(Ti.Network.networkTypeName).eql('NONE');
 		} else if (Ti.Network.networkType == Ti.Network.NETWORK_UNKNOWN) { // eslint-disable-line eqeqeq
-			Ti.Network.networkTypeName.should.eql('UNKNOWN');
+			should(Ti.Network.networkTypeName).eql('UNKNOWN');
 		} else if (Ti.Network.networkType == Ti.Network.NETWORK_WIFI) { // eslint-disable-line eqeqeq
-			Ti.Network.networkTypeName.should.eql('WIFI');
+			should(Ti.Network.networkTypeName).eql('WIFI');
 		}
 	});
 
@@ -79,13 +79,13 @@ describe('Titanium.Network', function () {
 	it.windowsBroken('encodeURIComponent()', function () {
 		should(Ti.Network.encodeURIComponent).be.a.Function();
 		const text = Ti.Network.encodeURIComponent('Look what I found! I like this:');
-		text.should.eql('Look%20what%20I%20found!%20I%20like%20this%3A');
+		should(text).eql('Look%20what%20I%20found!%20I%20like%20this%3A');
 	});
 
 	it.windowsBroken('decodeURIComponent()', function () {
 		should(Ti.Network.decodeURIComponent).be.a.Function();
 		const text = Ti.Network.decodeURIComponent('Look%20what%20I%20found!%20I%20like%20this%3A');
-		text.should.eql('Look what I found! I like this:');
+		should(text).eql('Look what I found! I like this:');
 	});
 
 	it('createHTTPClient()', function () {

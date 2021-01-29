@@ -16,7 +16,7 @@ const should = require('./utilities/assertions');
 
 describe('WebAssembly', () => {
 	it.android('WebAssembly definition', () => {
-		WebAssembly.should.be.an.Object();
+		should(WebAssembly).be.an.Object();
 	});
 
 	it.android('WebAssembly load and execute module', () => {
@@ -24,6 +24,6 @@ describe('WebAssembly', () => {
 		const WASM_MODULE = new WebAssembly.Module(WASM_BUFFER);
 
 		const instance = new WebAssembly.Instance(WASM_MODULE).exports;
-		instance.main().should.eql(42);
+		should(instance.main()).eql(42);
 	});
 });

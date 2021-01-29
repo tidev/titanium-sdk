@@ -14,367 +14,367 @@ var path;
 describe('path', function () {
 	it('should be required as core module', function () {
 		path = require('path');
-		path.should.be.an.Object();
+		should(path).be.an.Object();
 	});
 
 	it('.posix provides access to posix specific variant', function () {
-		path.posix.should.be.an.Object();
+		should(path.posix).be.an.Object();
 	});
 
 	it('.win32 provides access to windows specific variant', function () {
-		path.win32.should.be.an.Object();
+		should(path.win32).be.an.Object();
 	});
 
 	describe('#basename()', function () {
 		it('is a function', function () {
-			path.basename.should.be.a.Function();
+			should(path.basename).be.a.Function();
 		});
 
 		it('ignores win32 separators on posix', function () {
-			path.posix.basename('C:\\temp\\myfile.html').should.eql('C:\\temp\\myfile.html');
+			should(path.posix.basename('C:\\temp\\myfile.html')).eql('C:\\temp\\myfile.html');
 		});
 
 		it('handles win32 separators on win32', function () {
-			path.win32.basename('C:\\temp\\myfile.html').should.eql('myfile.html');
+			should(path.win32.basename('C:\\temp\\myfile.html')).eql('myfile.html');
 		});
 
 		it('handles forward slash root win32 absolute filepath', function () {
-			path.win32.basename('//server').should.eql('server');
+			should(path.win32.basename('//server')).eql('server');
 		});
 
 		it('handles backward slash root win32 absolute filepath', function () {
-			path.win32.basename('\\\\server').should.eql('server');
+			should(path.win32.basename('\\\\server')).eql('server');
 		});
 
 		it('handles full UNC style path on win32', function () {
-			path.win32.basename('\\\\host-name\\share-name\\file_path').should.eql('file_path');
+			should(path.win32.basename('\\\\host-name\\share-name\\file_path')).eql('file_path');
 		});
 
 		it('handles win32 with mixed separators and trailing forward slash', function () {
-			path.win32.basename('C:\\my/dir/with\\wacky\\paths/').should.eql('paths');
+			should(path.win32.basename('C:\\my/dir/with\\wacky\\paths/')).eql('paths');
 		});
 
 		it('handles forward slash win32 root filepath', function () {
-			path.win32.basename('//').should.eql('');
+			should(path.win32.basename('//')).eql('');
 		});
 
 		it('handles typical win32 root filepath', function () {
-			path.win32.basename('C:\\').should.eql('');
+			should(path.win32.basename('C:\\')).eql('');
 		});
 
 		it('handles typical win32 root filepath with no trailing separator', function () {
-			path.win32.basename('C:').should.eql('');
+			should(path.win32.basename('C:')).eql('');
 		});
 
 		it('handles backward slash win32 root filepath', function () {
-			path.win32.basename('\\\\').should.eql('');
+			should(path.win32.basename('\\\\')).eql('');
 		});
 
 		it('handles posix separators on posix', function () {
-			path.posix.basename('/tmp/myfile.html').should.eql('myfile.html');
+			should(path.posix.basename('/tmp/myfile.html')).eql('myfile.html');
 		});
 
 		it('drops extension when matches', function () {
-			path.posix.basename('/foo/bar/baz/asdf/quux.html', '.html').should.eql('quux');
+			should(path.posix.basename('/foo/bar/baz/asdf/quux.html', '.html')).eql('quux');
 		});
 
 		it('drops extension when matches even without leading period in specified ext', function () {
-			path.posix.basename('index.html.html', 'html').should.eql('index.html.');
+			should(path.posix.basename('index.html.html', 'html')).eql('index.html.');
 		});
 
 		it('does not drop extension when it does not match', function () {
-			path.posix.basename('index.htm', 'html').should.eql('index.htm');
+			should(path.posix.basename('index.htm', 'html')).eql('index.htm');
 		});
 
 		it('ignores trailing separator when checking extension', function () {
-			path.posix.basename('index.html/', 'html').should.eql('index.');
-			path.posix.basename('index/.html/', 'html').should.eql('.');
+			should(path.posix.basename('index.html/', 'html')).eql('index.');
+			should(path.posix.basename('index/.html/', 'html')).eql('.');
 		});
 
 		it('throws TypeError when ext argument is not a string', function () {
-			(function () {
+			should(function () {
 				path.basename('foo.html', 123);
-			}).should.throw(TypeError, { message: 'The "ext" argument must be of type string. Received type number' });
+			}).throw(TypeError, { message: 'The "ext" argument must be of type string. Received type number' });
 		});
 		// TODO: What about / separators on windows?!
 	});
 
 	describe('.delimiter', function () {
 		it('is a String', function () {
-			path.delimiter.should.be.a.String();
+			should(path.delimiter).be.a.String();
 		});
 
 		it('is ; on windows', function () {
-			path.win32.delimiter.should.eql(';');
+			should(path.win32.delimiter).eql(';');
 		});
 
 		it('is : on posix', function () {
-			path.posix.delimiter.should.eql(':');
+			should(path.posix.delimiter).eql(':');
 		});
 	});
 
 	describe('#join()', function () {
 		it('is a function', function () {
-			path.join.should.be.a.Function();
+			should(path.join).be.a.Function();
 		});
 
 		it('returns "." if path ends up empty string', function () {
-			path.posix.join('').should.eql('.');
+			should(path.posix.join('')).eql('.');
 		});
 
 		it('joins paths with posix file separator', function () {
-			path.posix.join('/foo', 'bar', 'baz/asdf', 'quux').should.eql('/foo/bar/baz/asdf/quux');
+			should(path.posix.join('/foo', 'bar', 'baz/asdf', 'quux')).eql('/foo/bar/baz/asdf/quux');
 		});
 
 		it('normalizes path after joining', function () {
-			path.posix.join('/foo', 'bar', 'baz/asdf', 'quux', '..').should.eql('/foo/bar/baz/asdf');
+			should(path.posix.join('/foo', 'bar', 'baz/asdf', 'quux', '..')).eql('/foo/bar/baz/asdf');
 		});
 
 		it('throws TypeError when segment is not a string', function () {
-			(function () {
+			should(function () {
 				path.join('foo', {}, 'bar');
-			}).should.throw(TypeError);
+			}).throw(TypeError);
 			// FIXME: Message doesn't match because we don't have util.inspect to spit out the value properly yet!
-			// }).should.throw(TypeError, { message: 'Path must be a string. Received {}' });
+			// should(})).throw(TypeError, { message: 'Path must be a string. Received {}' });
 		});
 	});
 
 	describe('#extname()', function () {
 		it('is a function', function () {
-			path.extname.should.be.a.Function();
+			should(path.extname).be.a.Function();
 		});
 
 		it('return extension when one period', function () {
-			path.extname('index.html').should.eql('.html');
+			should(path.extname('index.html')).eql('.html');
 		});
 
 		it('returns last extension when two periods', function () {
-			path.extname('index.coffee.md').should.eql('.md');
+			should(path.extname('index.coffee.md')).eql('.md');
 		});
 
 		it('returns . file ends in period', function () {
-			path.extname('index.').should.eql('.');
+			should(path.extname('index.')).eql('.');
 		});
 
 		it('returns empty string when file has no period', function () {
-			path.extname('index').should.eql('');
+			should(path.extname('index')).eql('');
 		});
 
 		it('returns empty string when filename starts with period', function () {
-			path.extname('.index').should.eql('');
+			should(path.extname('.index')).eql('');
 		});
 
 		it('ignores trailing separator when checking extension', function () {
-			path.posix.extname('index.html/').should.eql('.html');
+			should(path.posix.extname('index.html/')).eql('.html');
 		});
 
 		it('handles full UNC style path on win32', function () {
-			path.win32.extname('\\\\host-name\\share-name\\file_path.txt').should.eql('.txt');
+			should(path.win32.extname('\\\\host-name\\share-name\\file_path.txt')).eql('.txt');
 		});
 	});
 
 	describe('#normalize()', function () {
 		it('is a function', function () {
-			path.normalize.should.be.a.Function();
+			should(path.normalize).be.a.Function();
 		});
 
 		it('handles posix separators', function () {
-			path.posix.normalize('/foo/bar//baz/asdf/quux/..').should.eql('/foo/bar/baz/asdf');
+			should(path.posix.normalize('/foo/bar//baz/asdf/quux/..')).eql('/foo/bar/baz/asdf');
 		});
 
 		it('retains trailing separator', function () {
-			path.posix.normalize('/foo/bar//baz/asdf/').should.eql('/foo/bar/baz/asdf/');
+			should(path.posix.normalize('/foo/bar//baz/asdf/')).eql('/foo/bar/baz/asdf/');
 		});
 
 		it('handles win32 separators', function () {
-			path.win32.normalize('C:\\temp\\\\foo\\bar\\..\\').should.eql('C:\\temp\\foo\\');
+			should(path.win32.normalize('C:\\temp\\\\foo\\bar\\..\\')).eql('C:\\temp\\foo\\');
 		});
 
 		it('handles full UNC style path on win32', function () {
-			path.win32.normalize('\\\\host-name\\share-name\\file_path').should.eql('\\\\host-name\\share-name\\file_path');
+			should(path.win32.normalize('\\\\host-name\\share-name\\file_path')).eql('\\\\host-name\\share-name\\file_path');
 		});
 
 		it('handles multiple win32 separators and replaces with preferred', function () {
-			path.win32.normalize('C:////temp\\\\/\\/\\/foo/bar').should.eql('C:\\temp\\foo\\bar');
+			should(path.win32.normalize('C:////temp\\\\/\\/\\/foo/bar')).eql('C:\\temp\\foo\\bar');
 		});
 
 		it('throws TypeError when segment is not a string', function () {
-			(function () {
+			should(function () {
 				path.normalize(1);
-			}).should.throw(TypeError, { message: 'The "path" argument must be of type string. Received type number' });
+			}).throw(TypeError, { message: 'The "path" argument must be of type string. Received type number' });
 		});
 	});
 
 	describe('#dirname()', function () {
 		it('is a function', function () {
-			path.dirname.should.be.a.Function();
+			should(path.dirname).be.a.Function();
 		});
 
 		it('handles typical posix path', function () {
-			path.posix.dirname('/foo/bar/baz/asdf/quux').should.eql('/foo/bar/baz/asdf');
+			should(path.posix.dirname('/foo/bar/baz/asdf/quux')).eql('/foo/bar/baz/asdf');
 		});
 
 		it('handles root posix path', function () {
-			path.posix.dirname('/').should.eql('/');
+			should(path.posix.dirname('/')).eql('/');
 		});
 
 		it('handles root unc posix path', function () {
-			path.posix.dirname('//a').should.eql('//');
+			should(path.posix.dirname('//a')).eql('//');
 		});
 
 		it('handles unc-looking path with no other characters', function () {
-			path.posix.dirname('//').should.eql('/');
+			should(path.posix.dirname('//')).eql('/');
 		});
 
 		it('handles posix path with no separators', function () {
-			path.posix.dirname('abcd').should.eql('.');
+			should(path.posix.dirname('abcd')).eql('.');
 		});
 
 		it('ignores trailing separator', function () {
-			path.posix.dirname('/foo/bar/baz/asdf/quux/').should.eql('/foo/bar/baz/asdf');
+			should(path.posix.dirname('/foo/bar/baz/asdf/quux/')).eql('/foo/bar/baz/asdf');
 		});
 
 		it('handles typical win32 path', function () {
-			path.win32.dirname('C:\\temp\\foo').should.eql('C:\\temp');
+			should(path.win32.dirname('C:\\temp\\foo')).eql('C:\\temp');
 		});
 
 		it('handles typical win32 path ignoring trailing separator', function () {
-			path.win32.dirname('C:\\temp\\foo\\').should.eql('C:\\temp');
+			should(path.win32.dirname('C:\\temp\\foo\\')).eql('C:\\temp');
 		});
 
 		it('handles typical root win32 path', function () {
-			path.win32.dirname('C:\\').should.eql('C:\\');
+			should(path.win32.dirname('C:\\')).eql('C:\\');
 		});
 
 		it('handles full UNC style path on win32', function () {
-			path.win32.dirname('\\\\host-name\\share-name\\file_path').should.eql('\\\\host-name\\share-name'); // FIXME: node leaves trailing separator!
+			should(path.win32.dirname('\\\\host-name\\share-name\\file_path')).eql('\\\\host-name\\share-name'); // FIXME: node leaves trailing separator!
 		});
 
 		it('handles empty string', function () {
-			path.posix.dirname('').should.eql('.');
-			path.win32.dirname('').should.eql('.');
+			should(path.posix.dirname('')).eql('.');
+			should(path.win32.dirname('')).eql('.');
 		});
 
 		it('throws TypeError when path is not a string', function () {
-			(function () {
+			should(function () {
 				path.dirname(1);
-			}).should.throw(TypeError, { message: 'The "path" argument must be of type string. Received type number' });
+			}).throw(TypeError, { message: 'The "path" argument must be of type string. Received type number' });
 		});
 	});
 
 	describe('#isAbsolute()', function () {
 		it('is a function', function () {
-			path.isAbsolute.should.be.a.Function();
+			should(path.isAbsolute).be.a.Function();
 		});
 
 		it('returns false for empty string', function () {
-			path.isAbsolute('').should.be.false();
+			should(path.isAbsolute('')).be.false();
 		});
 
 		// POSIX
 		it('returns true for typical posix absolute path', function () {
-			path.posix.isAbsolute('/foo/bar').should.be.true();
+			should(path.posix.isAbsolute('/foo/bar')).be.true();
 		});
 
 		it('returns true for posix absolute path with .. segment', function () {
-			path.posix.isAbsolute('/baz/..').should.be.true();
+			should(path.posix.isAbsolute('/baz/..')).be.true();
 		});
 
 		it('returns false for typical posix relative path', function () {
-			path.posix.isAbsolute('qux/').should.be.false();
+			should(path.posix.isAbsolute('qux/')).be.false();
 		});
 
 		it('returns false for posix path "."', function () {
-			path.posix.isAbsolute('.').should.be.false();
+			should(path.posix.isAbsolute('.')).be.false();
 		});
 
 		// Windows
 		it('returns true for win32 UNC absolute path', function () {
-			path.win32.isAbsolute('//server').should.be.true();
+			should(path.win32.isAbsolute('//server')).be.true();
 		});
 
 		it('returns true for win32 server absolute path', function () {
-			path.win32.isAbsolute('\\\\server').should.be.true();
+			should(path.win32.isAbsolute('\\\\server')).be.true();
 		});
 
 		it('handles full UNC style path on win32', function () {
-			path.win32.isAbsolute('\\\\host-name\\share-name\\file_path').should.be.true();
+			should(path.win32.isAbsolute('\\\\host-name\\share-name\\file_path')).be.true();
 		});
 
 		it('returns true for win32 absolute path with POSIX separators', function () {
-			path.win32.isAbsolute('C:/foo/..').should.be.true();
+			should(path.win32.isAbsolute('C:/foo/..')).be.true();
 		});
 
 		it('returns true for typical win32 absolute path', function () {
-			path.win32.isAbsolute('C:\\foo\\..').should.be.true();
+			should(path.win32.isAbsolute('C:\\foo\\..')).be.true();
 		});
 
 		it('returns false for typical win32 relative path', function () {
-			path.win32.isAbsolute('bar\\baz').should.be.false();
+			should(path.win32.isAbsolute('bar\\baz')).be.false();
 		});
 
 		it('returns false for win32 relative path with POSIX separators', function () {
-			path.win32.isAbsolute('bar/baz').should.be.false();
+			should(path.win32.isAbsolute('bar/baz')).be.false();
 		});
 
 		it('returns false for win32 path "."', function () {
-			path.win32.isAbsolute('.').should.be.false();
+			should(path.win32.isAbsolute('.')).be.false();
 		});
 
 		it('throws TypeError when path is not a string', function () {
-			(function () {
+			should(function () {
 				path.isAbsolute(1);
-			}).should.throw(TypeError, { message: 'The "path" argument must be of type string. Received type number' });
+			}).throw(TypeError, { message: 'The "path" argument must be of type string. Received type number' });
 		});
 	});
 
 	describe('#relative()', function () {
 		it('is a function', function () {
-			path.relative.should.be.a.Function();
+			should(path.relative).be.a.Function();
 		});
 
 		// POSIX
 		it('handles two root posix paths', function () {
-			path.posix.relative('/data/orandea/test/aaa', '/data/orandea/impl/bbb').should.eql('../../impl/bbb');
+			should(path.posix.relative('/data/orandea/test/aaa', '/data/orandea/impl/bbb')).eql('../../impl/bbb');
 		});
 
 		it('returns empty string for two equivalent posix paths', function () {
-			path.posix.relative('/data/orandea/test/aaa/../..', '/data/orandea/impl/..').should.eql('');
+			should(path.posix.relative('/data/orandea/test/aaa/../..', '/data/orandea/impl/..')).eql('');
 		});
 
 		// Windows
 		it('handles two typical root win32 paths', function () {
-			path.win32.relative('C:\\orandea\\test\\aaa', 'C:\\orandea\\impl\\bbb').should.eql('..\\..\\impl\\bbb');
+			should(path.win32.relative('C:\\orandea\\test\\aaa', 'C:\\orandea\\impl\\bbb')).eql('..\\..\\impl\\bbb');
 		});
 
 		it('throws TypeError when "from" argument is not a string', function () {
-			(function () {
+			should(function () {
 				path.relative(1, 'to');
-			}).should.throw(TypeError, { message: 'The "from" argument must be of type string. Received type number' });
+			}).throw(TypeError, { message: 'The "from" argument must be of type string. Received type number' });
 		});
 
 		it('throws TypeError when "to" argument is not a string', function () {
-			(function () {
+			should(function () {
 				path.relative('from', 1);
-			}).should.throw(TypeError, { message: 'The "to" argument must be of type string. Received type number' });
+			}).throw(TypeError, { message: 'The "to" argument must be of type string. Received type number' });
 		});
 	});
 
 	describe('#resolve()', function () {
 		it('is a function', function () {
-			path.resolve.should.be.a.Function();
+			should(path.resolve).be.a.Function();
 		});
 
 		it('resolves relative path on top of absolute with posix file separator', function () {
-			path.posix.resolve('/foo/bar', './baz').should.eql('/foo/bar/baz');
+			should(path.posix.resolve('/foo/bar', './baz')).eql('/foo/bar/baz');
 		});
 
 		it('resolves to posix root path and does not remove trailing separator', function () {
-			path.posix.resolve('/foo/bar', '../..').should.eql('/');
+			should(path.posix.resolve('/foo/bar', '../..')).eql('/');
 		});
 
 		it('resolves up to first absolute path', function () {
-			path.posix.resolve('/foo/bar', '/tmp/file/').should.eql('/tmp/file');
+			should(path.posix.resolve('/foo/bar', '/tmp/file/')).eql('/tmp/file');
 		});
 
 		it('resolves relative to cwd if doesn\'t produce absolute path', function () {
@@ -383,159 +383,159 @@ describe('path', function () {
 				process.cwd = function () {
 					return __dirname;
 				};
-				path.posix.resolve('wwwroot', 'static_files/png/', '../gif/image.gif').should.eql(path.posix.join(__dirname, 'wwwroot/static_files/gif/image.gif'));
+				should(path.posix.resolve('wwwroot', 'static_files/png/', '../gif/image.gif')).eql(path.posix.join(__dirname, 'wwwroot/static_files/gif/image.gif'));
 			} finally {
 				process.cwd = originalCwd;
 			}
 		});
 
 		it('resolves relative path to typical absolute win32 path', function () {
-			path.win32.resolve('C:\\orandea\\test\\aaa', 'bbb').should.eql('C:\\orandea\\test\\aaa\\bbb');
+			should(path.win32.resolve('C:\\orandea\\test\\aaa', 'bbb')).eql('C:\\orandea\\test\\aaa\\bbb');
 		});
 
 		it('resolves up to first absolute path on win32', function () {
-			path.win32.resolve('C:\\orandea\\test\\aaa', 'C:\\orandea\\impl\\bbb').should.eql('C:\\orandea\\impl\\bbb');
+			should(path.win32.resolve('C:\\orandea\\test\\aaa', 'C:\\orandea\\impl\\bbb')).eql('C:\\orandea\\impl\\bbb');
 		});
 
 		it('resolves to root win32 path and does not remove trailing separator', function () {
-			path.win32.resolve('C:\\orandea\\', '..').should.eql('C:\\');
+			should(path.win32.resolve('C:\\orandea\\', '..')).eql('C:\\');
 		});
 
 		it('throws TypeError when segment is not a string', function () {
-			(function () {
+			should(function () {
 				path.resolve('/foo', {}, 'bar');
-			}).should.throw(TypeError);
+			}).throw(TypeError);
 			// FIXME: Message doesn't match because we don't have util.inspect to spit out the value properly yet!
-			// }).should.throw(TypeError, { message: 'Path must be a string. Received {}' });
+			// }).throw(TypeError, { message: 'Path must be a string. Received {}' });
 		});
 	});
 
 	describe('#parse()', function () {
 		it('is a function', function () {
-			path.parse.should.be.a.Function();
+			should(path.parse).be.a.Function();
 		});
 
 		it('parses typical posix filepath', function () {
 			const result = path.posix.parse('/home/user/dir/file.txt');
-			result.should.have.property('root').which.eql('/');
-			result.should.have.property('dir').which.eql('/home/user/dir');
-			result.should.have.property('base').which.eql('file.txt');
-			result.should.have.property('ext').which.eql('.txt');
-			result.should.have.property('name').which.eql('file');
+			should(result).have.property('root').which.eql('/');
+			should(result).have.property('dir').which.eql('/home/user/dir');
+			should(result).have.property('base').which.eql('file.txt');
+			should(result).have.property('ext').which.eql('.txt');
+			should(result).have.property('name').which.eql('file');
 		});
 
 		it('parses typical posix root filepath', function () {
 			const result = path.posix.parse('/');
-			result.should.have.property('root').which.eql('/');
-			result.should.have.property('dir').which.eql('/');
-			result.should.have.property('base').which.eql('');
-			result.should.have.property('ext').which.eql('');
-			result.should.have.property('name').which.eql('');
+			should(result).have.property('root').which.eql('/');
+			should(result).have.property('dir').which.eql('/');
+			should(result).have.property('base').which.eql('');
+			should(result).have.property('ext').which.eql('');
+			should(result).have.property('name').which.eql('');
 		});
 
 		it('parses "./" posix filepath', function () {
 			const result = path.posix.parse('./');
-			result.should.have.property('root').which.eql('');
-			result.should.have.property('dir').which.eql('');
-			result.should.have.property('base').which.eql('.');
-			result.should.have.property('ext').which.eql('');
-			result.should.have.property('name').which.eql('.');
+			should(result).have.property('root').which.eql('');
+			should(result).have.property('dir').which.eql('');
+			should(result).have.property('base').which.eql('.');
+			should(result).have.property('ext').which.eql('');
+			should(result).have.property('name').which.eql('.');
 		});
 
 		it('parses relative posix filepath with extension', function () {
 			const result = path.posix.parse('abc/d.txt');
-			result.should.have.property('root').which.eql('');
-			result.should.have.property('dir').which.eql('abc');
-			result.should.have.property('base').which.eql('d.txt');
-			result.should.have.property('ext').which.eql('.txt');
-			result.should.have.property('name').which.eql('d');
+			should(result).have.property('root').which.eql('');
+			should(result).have.property('dir').which.eql('abc');
+			should(result).have.property('base').which.eql('d.txt');
+			should(result).have.property('ext').which.eql('.txt');
+			should(result).have.property('name').which.eql('d');
 		});
 
 		it('parses relative posix filepath with .. and . in middle', function () {
 			const result = path.posix.parse('abc/123/.././d.txt');
-			result.should.have.property('root').which.eql('');
-			result.should.have.property('dir').which.eql('abc/123/../.');
-			result.should.have.property('base').which.eql('d.txt');
-			result.should.have.property('ext').which.eql('.txt');
-			result.should.have.property('name').which.eql('d');
+			should(result).have.property('root').which.eql('');
+			should(result).have.property('dir').which.eql('abc/123/../.');
+			should(result).have.property('base').which.eql('d.txt');
+			should(result).have.property('ext').which.eql('.txt');
+			should(result).have.property('name').which.eql('d');
 		});
 
 		// TODO: Test relative paths on win32
 
 		it('parses typical win32 filepath', function () {
 			const result = path.win32.parse('C:\\path\\dir\\file.txt');
-			result.should.have.property('root').which.eql('C:\\');
-			result.should.have.property('dir').which.eql('C:\\path\\dir');
-			result.should.have.property('base').which.eql('file.txt');
-			result.should.have.property('ext').which.eql('.txt');
-			result.should.have.property('name').which.eql('file');
+			should(result).have.property('root').which.eql('C:\\');
+			should(result).have.property('dir').which.eql('C:\\path\\dir');
+			should(result).have.property('base').which.eql('file.txt');
+			should(result).have.property('ext').which.eql('.txt');
+			should(result).have.property('name').which.eql('file');
 		});
 
 		it('parses typical win32 root filepath', function () {
 			const result = path.win32.parse('C:\\');
-			result.should.have.property('root').which.eql('C:\\');
-			result.should.have.property('dir').which.eql('C:\\');
-			result.should.have.property('base').which.eql('');
-			result.should.have.property('ext').which.eql('');
-			result.should.have.property('name').which.eql('');
+			should(result).have.property('root').which.eql('C:\\');
+			should(result).have.property('dir').which.eql('C:\\');
+			should(result).have.property('base').which.eql('');
+			should(result).have.property('ext').which.eql('');
+			should(result).have.property('name').which.eql('');
 		});
 
 		it('parses win32 root filepath with no trailing separator', function () {
 			const result = path.win32.parse('C:');
-			result.should.have.property('root').which.eql('C:');
-			result.should.have.property('dir').which.eql('C:');
-			result.should.have.property('base').which.eql('');
-			result.should.have.property('ext').which.eql('');
-			result.should.have.property('name').which.eql('');
+			should(result).have.property('root').which.eql('C:');
+			should(result).have.property('dir').which.eql('C:');
+			should(result).have.property('base').which.eql('');
+			should(result).have.property('ext').which.eql('');
+			should(result).have.property('name').which.eql('');
 		});
 
 		it('parses win32 server root', function () {
 			const result = path.win32.parse('\\\\server');
-			result.should.have.property('root').which.eql('\\');
-			result.should.have.property('dir').which.eql('\\');
-			result.should.have.property('base').which.eql('server');
-			result.should.have.property('ext').which.eql('');
-			result.should.have.property('name').which.eql('server');
+			should(result).have.property('root').which.eql('\\');
+			should(result).have.property('dir').which.eql('\\');
+			should(result).have.property('base').which.eql('server');
+			should(result).have.property('ext').which.eql('');
+			should(result).have.property('name').which.eql('server');
 		});
 
 		it('parses win32 root filepath with forward slash', function () {
 			const result = path.win32.parse('//server');
-			result.should.have.property('root').which.eql('/');
-			result.should.have.property('dir').which.eql('/');
-			result.should.have.property('base').which.eql('server');
-			result.should.have.property('ext').which.eql('');
-			result.should.have.property('name').which.eql('server');
+			should(result).have.property('root').which.eql('/');
+			should(result).have.property('dir').which.eql('/');
+			should(result).have.property('base').which.eql('server');
+			should(result).have.property('ext').which.eql('');
+			should(result).have.property('name').which.eql('server');
 		});
 
 		it('returns object with empty string values for empty filepath', function () {
 			const result = path.parse('');
-			result.should.have.property('root').which.eql('');
-			result.should.have.property('dir').which.eql('');
-			result.should.have.property('base').which.eql('');
-			result.should.have.property('ext').which.eql('');
-			result.should.have.property('name').which.eql('');
+			should(result).have.property('root').which.eql('');
+			should(result).have.property('dir').which.eql('');
+			should(result).have.property('base').which.eql('');
+			should(result).have.property('ext').which.eql('');
+			should(result).have.property('name').which.eql('');
 		});
 
 		// FIXME: Our implementation drops trailing separators on UNC roots
 		it.allBroken('handles full UNC style path on win32', function () {
 			const result = path.win32.parse('\\\\host-name\\share-name\\file_path');
-			result.should.have.property('root').which.eql('\\\\host-name\\share-name\\');
-			result.should.have.property('dir').which.eql('\\\\host-name\\share-name\\');
-			result.should.have.property('base').which.eql('file_path');
-			result.should.have.property('ext').which.eql('');
-			result.should.have.property('name').which.eql('file_path');
+			should(result).have.property('root').which.eql('\\\\host-name\\share-name\\');
+			should(result).have.property('dir').which.eql('\\\\host-name\\share-name\\');
+			should(result).have.property('base').which.eql('file_path');
+			should(result).have.property('ext').which.eql('');
+			should(result).have.property('name').which.eql('file_path');
 		});
 
 		it('throws TypeError when path is not a string', function () {
-			(function () {
+			should(function () {
 				path.parse(123);
-			}).should.throw(TypeError, { message: 'The "path" argument must be of type string. Received type number' });
+			}).throw(TypeError, { message: 'The "path" argument must be of type string. Received type number' });
 		});
 	});
 
 	describe('#format()', function () {
 		it('is a function', function () {
-			path.format.should.be.a.Function();
+			should(path.format).be.a.Function();
 		});
 
 		it('parses typical posix filepath', function () {
@@ -546,7 +546,7 @@ describe('path', function () {
 				ext: '.txt',
 				name: 'file'
 			};
-			path.posix.format(obj).should.eql('/home/user/dir/file.txt');
+			should(path.posix.format(obj)).eql('/home/user/dir/file.txt');
 		});
 
 		it('parses typical posix root filepath', function () {
@@ -557,7 +557,7 @@ describe('path', function () {
 				ext: '',
 				name: ''
 			};
-			path.posix.format(obj).should.eql('/');
+			should(path.posix.format(obj)).eql('/');
 		});
 
 		it('parses "./" posix filepath', function () {
@@ -568,7 +568,7 @@ describe('path', function () {
 				ext: '',
 				name: '.'
 			};
-			path.posix.format(obj).should.eql('.');
+			should(path.posix.format(obj)).eql('.');
 		});
 
 		it('parses relative posix filepath with extension', function () {
@@ -579,7 +579,7 @@ describe('path', function () {
 				ext: '.txt',
 				name: 'd'
 			};
-			path.posix.format(obj).should.eql('abc/d.txt');
+			should(path.posix.format(obj)).eql('abc/d.txt');
 		});
 
 		it('parses relative posix filepath with .. and . in middle', function () {
@@ -590,7 +590,7 @@ describe('path', function () {
 				ext: '.txt',
 				name: 'd'
 			};
-			path.posix.format(obj).should.eql('abc/123/.././d.txt');
+			should(path.posix.format(obj)).eql('abc/123/.././d.txt');
 		});
 
 		it('parses typical win32 filepath', function () {
@@ -601,7 +601,7 @@ describe('path', function () {
 				ext: '.txt',
 				name: 'file'
 			};
-			path.win32.format(obj).should.eql('C:\\path\\dir\\file.txt');
+			should(path.win32.format(obj)).eql('C:\\path\\dir\\file.txt');
 		});
 
 		it('parses typical win32 root filepath', function () {
@@ -612,7 +612,7 @@ describe('path', function () {
 				ext: '',
 				name: ''
 			};
-			path.win32.format(obj).should.eql('C:\\');
+			should(path.win32.format(obj)).eql('C:\\');
 		});
 
 		it('parses win32 root filepath with no trailing separator', function () {
@@ -623,7 +623,7 @@ describe('path', function () {
 				ext: '',
 				name: ''
 			};
-			path.win32.format(obj).should.eql('C:');
+			should(path.win32.format(obj)).eql('C:');
 		});
 
 		it('parses win32 server root', function () {
@@ -634,7 +634,7 @@ describe('path', function () {
 				ext: '',
 				name: 'server'
 			};
-			path.win32.format(obj).should.eql('\\server');
+			should(path.win32.format(obj)).eql('\\server');
 		});
 
 		it('parses win32 root filepath with forward slash', function () {
@@ -645,49 +645,49 @@ describe('path', function () {
 				ext: '',
 				name: 'server'
 			};
-			path.win32.format(obj).should.eql('/server');
+			should(path.win32.format(obj)).eql('/server');
 		});
 
 		it('returns empty string for empty object', function () {
-			path.win32.format({}).should.eql('');
+			should(path.win32.format({})).eql('');
 		});
 
 		// TODO: Add tests for priority of properties defined in docs!
 
 		it('throws TypeError when pathObject is not an object', function () {
-			(function () {
+			should(function () {
 				path.format(123);
-			}).should.throw(TypeError, { message: 'The "pathObject" argument must be of type object. Received type number' });
+			}).throw(TypeError, { message: 'The "pathObject" argument must be of type object. Received type number' });
 		});
 	});
 
 	describe('#toNamespacedPath()', function () {
 		it('is a function', function () {
-			path.toNamespacedPath.should.be.a.Function();
+			should(path.toNamespacedPath).be.a.Function();
 		});
 
 		it('returns path unmodified on posix', function () {
-			path.posix.toNamespacedPath('/some/path').should.eql('/some/path');
+			should(path.posix.toNamespacedPath('/some/path')).eql('/some/path');
 		});
 
 		it('returns path unmodified on win32 when path is not a string', function () {
-			path.win32.toNamespacedPath(123).should.eql(123);
+			should(path.win32.toNamespacedPath(123)).eql(123);
 		});
 
 		it('returns equivalent namespace-prefixed path for UNC path', function () {
-			path.win32.toNamespacedPath('\\\\host-name\\share-name\\file_path').should.eql('\\\\?\\UNC\\host-name\\share-name\\file_path');
+			should(path.win32.toNamespacedPath('\\\\host-name\\share-name\\file_path')).eql('\\\\?\\UNC\\host-name\\share-name\\file_path');
 		});
 
 		it('returns equivalent namespace-prefixed path for typical win32 device root absolute path', function () {
-			path.win32.toNamespacedPath('C:\\').should.eql('\\\\?\\C:\\');
+			should(path.win32.toNamespacedPath('C:\\')).eql('\\\\?\\C:\\');
 		});
 
 		it('returns path as-is if already a namespace-prefixed path', function () {
-			path.win32.toNamespacedPath('\\\\?\\UNC\\host-name\\share-name\\file_path').should.eql('\\\\?\\UNC\\host-name\\share-name\\file_path');
+			should(path.win32.toNamespacedPath('\\\\?\\UNC\\host-name\\share-name\\file_path')).eql('\\\\?\\UNC\\host-name\\share-name\\file_path');
 		});
 
 		it('returns empty string for empty string', function () {
-			path.win32.toNamespacedPath('').should.eql('');
+			should(path.win32.toNamespacedPath('')).eql('');
 		});
 	});
 });

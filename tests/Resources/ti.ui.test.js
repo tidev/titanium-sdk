@@ -228,7 +228,7 @@ describe('Titanium.UI', function () {
 				// We get a Ti.UI.Color proxy on iOS
 				should(result).be.an.Object();
 				should(result.apiName).eql('Ti.UI.Color');
-				result.toHex().toLowerCase().should.eql(semanticColors.textColor[Ti.UI.semanticColorType].toLowerCase());
+				should(result.toHex().toLowerCase()).eql(semanticColors.textColor[Ti.UI.semanticColorType].toLowerCase());
 			} else {
 				// check alpha values
 				const green100 = Ti.UI.fetchSemanticColor('green_100.0');
@@ -239,23 +239,23 @@ describe('Titanium.UI', function () {
 				const yellowNoAlpha = Ti.UI.fetchSemanticColor('yellow_noalpha');
 				const greenHex8 = Ti.UI.fetchSemanticColor('green_hex8');
 				if (Ti.UI.userInterfaceStyle === Ti.UI.USER_INTERFACE_STYLE_LIGHT) {
-					result.should.eql('rgba(255, 31, 31, 1.000)');
-					green100.should.eql('rgba(0, 255, 0, 1.000)');
-					blue75.should.eql('rgba(0, 0, 255, 0.750)');
-					cyan50.should.eql('rgba(0, 255, 255, 0.500)');
-					red25.should.eql('rgba(255, 0, 0, 0.250)');
-					magenta0.should.eql('rgba(255, 0, 255, 0.000)');
-					yellowNoAlpha.should.eql('rgba(255, 255, 0, 1.000)');
-					greenHex8.should.eql('rgba(0, 255, 0, 0.502)'); // NOTE: hex => % gives more precise value, but this will effectively become 50% under the covers
+					should(result).eql('rgba(255, 31, 31, 1.000)');
+					should(green100).eql('rgba(0, 255, 0, 1.000)');
+					should(blue75).eql('rgba(0, 0, 255, 0.750)');
+					should(cyan50).eql('rgba(0, 255, 255, 0.500)');
+					should(red25).eql('rgba(255, 0, 0, 0.250)');
+					should(magenta0).eql('rgba(255, 0, 255, 0.000)');
+					should(yellowNoAlpha).eql('rgba(255, 255, 0, 1.000)');
+					should(greenHex8).eql('rgba(0, 255, 0, 0.502)'); // NOTE: hex => % gives more precise value, but this will effectively become 50% under the covers
 				} else {
-					result.should.eql('rgba(255, 133, 226, 1.000)');
-					green100.should.eql('rgba(0, 128, 0, 1.000)');
-					blue75.should.eql('rgba(0, 0, 128, 0.750)');
-					cyan50.should.eql('rgba(0, 128, 128, 0.500)');
-					red25.should.eql('rgba(128, 0, 0, 0.250)');
-					magenta0.should.eql('rgba(128, 0, 128, 0.000)');
-					yellowNoAlpha.should.eql('rgba(128, 128, 0, 1.000)');
-					greenHex8.should.eql('rgba(0, 128, 0, 0.502)'); // NOTE: hex => % gives more precise value, but this will effectively become 50% under the covers
+					should(result).eql('rgba(255, 133, 226, 1.000)');
+					should(green100).eql('rgba(0, 128, 0, 1.000)');
+					should(blue75).eql('rgba(0, 0, 128, 0.750)');
+					should(cyan50).eql('rgba(0, 128, 128, 0.500)');
+					should(red25).eql('rgba(128, 0, 0, 0.250)');
+					should(magenta0).eql('rgba(128, 0, 128, 0.000)');
+					should(yellowNoAlpha).eql('rgba(128, 128, 0, 1.000)');
+					should(greenHex8).eql('rgba(0, 128, 0, 0.502)'); // NOTE: hex => % gives more precise value, but this will effectively become 50% under the covers
 				}
 			}
 		});
@@ -303,7 +303,7 @@ describe('Titanium.UI', function () {
 			]);
 			const theme = Ti.UI.semanticColorType; // should be light or dark
 			for (const [ colorName, subcolors ] of colors) {
-				Ti.UI.fetchSemanticColor(colorName).toHex().toLowerCase().should.equal(subcolors[theme], colorName);
+				should(Ti.UI.fetchSemanticColor(colorName).toHex().toLowerCase()).equal(subcolors[theme], colorName);
 			}
 		});
 
@@ -341,7 +341,7 @@ describe('Titanium.UI', function () {
 			]);
 			for (const [ colorName, hex ] of colors) {
 				const c = Ti.UI.fetchSemanticColor(colorName);
-				c.toLowerCase().should.equal(hex, colorName);
+				should(c.toLowerCase()).equal(hex, colorName);
 			}
 		});
 

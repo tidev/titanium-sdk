@@ -59,7 +59,7 @@ describe.ios('Titanium.Network.BonjourBrowser', () => {
 		});
 
 		it('throws if not given serviceType', () => {
-			(() => browser.search()).should.throw('Service type not set');
+			should((() => browser.search())).throw('Service type not set');
 		});
 		// TODO: test isSearching property after launching search, then stop, check again
 	});

@@ -218,9 +218,9 @@ describe.androidARM64Broken('Titanium.Media.VideoPlayer', () => {
 				function durationavailable(e) {
 					player.removeEventListener('durationavailable', durationavailable);
 					try {
-						e.duration.should.be.above(1000);
-						player.duration.should.be.above(1000);
-						player.playableDuration.should.be.above(1000);
+						should(e.duration).be.above(1000);
+						should(player.duration).be.above(1000);
+						should(player.playableDuration).be.above(1000);
 					} catch (err) {
 						return finish(err);
 					}

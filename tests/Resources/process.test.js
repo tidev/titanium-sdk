@@ -21,8 +21,8 @@ describe('process', () => {
 		const errorMessage = 'KABOOM';
 		process.on('uncaughtException', err => {
 			try {
-				err.should.be.ok();
-				err.message.should.eql(errorMessage); // note that we can't test it is the exact same error object!
+				should(err).be.ok();
+				should(err.message).eql(errorMessage); // note that we can't test it is the exact same error object!
 				// that's because we "re-construct" errors from properties
 			} catch (err2) {
 				return finish(err2);
@@ -224,7 +224,7 @@ describe('process', () => {
 				process.nextTick(() => {
 					try {
 						calls.push('baz');
-						calls.should.eql([ 'bar', 'foo', 'yeah', 'man', 'baz' ]);
+						should(calls).eql([ 'bar', 'foo', 'yeah', 'man', 'baz' ]);
 						finish();
 					} catch (e) {
 						finish(e);
@@ -259,7 +259,7 @@ describe('process', () => {
 				process.nextTick(() => {
 					try {
 						calls.push('baz');
-						calls.should.eql([ 'bar', 'foo', 'yeah', 'man', 'baz' ]);
+						should(calls).eql([ 'bar', 'foo', 'yeah', 'man', 'baz' ]);
 						finish();
 					} catch (e) {
 						finish(e);
@@ -290,7 +290,7 @@ describe('process', () => {
 					process.nextTick(() => {
 						try {
 							calls.push('baz');
-							calls.should.eql([ 'immediate1', 'bar', 'foo', 'yeah', 'man', 'baz' ]);
+							should(calls).eql([ 'immediate1', 'bar', 'foo', 'yeah', 'man', 'baz' ]);
 							finish();
 						} catch (e) {
 							finish(e);

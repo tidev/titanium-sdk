@@ -50,7 +50,7 @@ describe('Ti.Proxy', function () {
 				}),
 				desc = Object.getOwnPropertyDescriptor(label, 'text');
 			// iOS gives: {"value":"Hello World!","writable":false,"enumerable":false,"configurable":true}
-			desc.value.should.eql('Hello World!');
+			should(desc.value).eql('Hello World!');
 		});
 
 		it('should report descriptor for custom property set after construction', function () {
@@ -60,7 +60,7 @@ describe('Ti.Proxy', function () {
 				desc;
 			label.madeup = 123;
 			desc = Object.getOwnPropertyDescriptor(label, 'madeup');
-			desc.value.should.eql(123);
+			should(desc.value).eql(123);
 			// iOS gives: {"value":123,"writable":false,"enumerable":false,"configurable":true}
 			// What do we expect in terms of those properties?
 		});

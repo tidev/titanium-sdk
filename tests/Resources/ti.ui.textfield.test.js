@@ -50,11 +50,11 @@ describe('Titanium.UI.TextField', () => {
 			});
 			win.add(textField);
 			try {
-				textField.should.have.a.property('focused').which.is.a.Boolean();
-				textField.focused.should.be.false(); // haven't opened it yet, so shouldn't be focused
+				should(textField).have.a.property('focused').which.is.a.Boolean();
+				should(textField.focused).be.false(); // haven't opened it yet, so shouldn't be focused
 				textField.addEventListener('focus', () => {
 					try {
-						textField.focused.should.be.true();
+						should(textField.focused).be.true();
 					} catch (e) {
 						return done(e);
 					}
@@ -66,7 +66,7 @@ describe('Titanium.UI.TextField', () => {
 				win.addEventListener('close', () => {
 					try {
 						// we've been closed (or are closing?) so hopefully shouldn't say that we're focused
-						textField.focused.should.be.false();
+						should(textField.focused).be.false();
 					} catch (e) {
 						return done(e);
 					}

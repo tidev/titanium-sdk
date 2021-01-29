@@ -14,6 +14,6 @@ describe('ES6 String Interpolation', function () {
 		const name = 'Bob';
 		const time = 'today';
 		const result = `Hello ${name}, how are you ${time}?`;
-		result.should.eql('Hello Bob, how are you today?');
+		should(result).eql('Hello Bob, how are you today?');
 	});
 });

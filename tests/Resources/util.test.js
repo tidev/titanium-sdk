@@ -17,103 +17,103 @@ let util;
 describe('util', () => {
 	it('should be required as core module', () => {
 		util = require('util');
-		util.should.be.an.Object();
+		should(util).be.an.Object();
 	});
 
 	// For copious tests, see https://github.com/nodejs/node/blob/master/test/parallel/test-util-format.js
 	describe('#format()', () => {
 		it('is a function', () => {
-			util.format.should.be.a.Function();
+			should(util.format).be.a.Function();
 		});
 
 		it('if placeholder has no corresponding argument, don\'t replace placeholder', () => {
-			util.format('%s:%s', 'foo').should.eql('foo:%s');
+			should(util.format('%s:%s', 'foo')).eql('foo:%s');
 		});
 
 		it('extra arguments are coerced into strings and concatenated delimited by space', () => {
-			util.format('%s:%s', 'foo', 'bar', 'baz').should.eql('foo:bar baz');
+			should(util.format('%s:%s', 'foo', 'bar', 'baz')).eql('foo:bar baz');
 		});
 
 		it('if first arg is not string, concat all args separated by spaces', () => {
-			util.format(1, 2, 3).should.eql('1 2 3');
+			should(util.format(1, 2, 3)).eql('1 2 3');
 		});
 
 		it('if only one arg, returned as-is', () => {
-			util.format('%% %s').should.eql('%% %s');
+			should(util.format('%% %s')).eql('%% %s');
 		});
 
 		describe('String placeholder', () => {
 			it('with int', () => {
-				util.format('%s', 1).should.eql('1');
-				util.format('%s', 42).should.eql('42');
-				util.format('%s %s', 42, 43).should.eql('42 43');
-				util.format('%s %s', 42).should.eql('42 %s');
+				should(util.format('%s', 1)).eql('1');
+				should(util.format('%s', 42)).eql('42');
+				should(util.format('%s %s', 42, 43)).eql('42 43');
+				should(util.format('%s %s', 42)).eql('42 %s');
 			});
 
 			it('with undefined', () => {
-				util.format('%s', undefined).should.eql('undefined');
+				should(util.format('%s', undefined)).eql('undefined');
 			});
 
 			it('with null', () => {
-				util.format('%s', null).should.eql('null');
+				should(util.format('%s', null)).eql('null');
 			});
 
 			it('with string', () => {
-				util.format('%s', 'foo').should.eql('foo');
+				should(util.format('%s', 'foo')).eql('foo');
 			});
 
 			it('with string holding int value', () => {
-				util.format('%s', '42').should.eql('42');
+				should(util.format('%s', '42')).eql('42');
 			});
 
 			it('with floats', () => {
-				util.format('%s', 42.0).should.eql('42');
-				util.format('%s', 1.5).should.eql('1.5');
-				util.format('%s', -0.5).should.eql('-0.5');
+				should(util.format('%s', 42.0)).eql('42');
+				should(util.format('%s', 1.5)).eql('1.5');
+				should(util.format('%s', -0.5)).eql('-0.5');
 			});
 
 			it('with Symbol', () => {
-				util.format('%s', Symbol()).should.eql('Symbol()');
-				util.format('%s', Symbol('foo')).should.eql('Symbol(foo)');
+				should(util.format('%s', Symbol())).eql('Symbol()');
+				should(util.format('%s', Symbol('foo'))).eql('Symbol(foo)');
 			});
 			// TODO: BigInt
 		});
 
 		describe('Number placeholder', () => {
 			it('with floats', () => {
-				util.format('%d', 42.0).should.eql('42');
-				util.format('%d', 1.5).should.eql('1.5');
-				util.format('%d', -0.5).should.eql('-0.5');
+				should(util.format('%d', 42.0)).eql('42');
+				should(util.format('%d', 1.5)).eql('1.5');
+				should(util.format('%d', -0.5)).eql('-0.5');
 			});
 
 			it('with ints', () => {
-				util.format('%d', 42).should.eql('42');
-				util.format('%d %d', 42, 43).should.eql('42 43');
-				util.format('%d %d', 42).should.eql('42 %d');
+				should(util.format('%d', 42)).eql('42');
+				should(util.format('%d %d', 42, 43)).eql('42 43');
+				should(util.format('%d %d', 42)).eql('42 %d');
 			});
 
 			it('with string holding int value', () => {
-				util.format('%d', '42').should.eql('42');
+				should(util.format('%d', '42')).eql('42');
 			});
 
 			it('with string holding float value', () => {
-				util.format('%d', '42.0').should.eql('42');
+				should(util.format('%d', '42.0')).eql('42');
 			});
 
 			it('with empty string', () => {
-				util.format('%d', '').should.eql('0');
+				should(util.format('%d', '')).eql('0');
 			});
 
 			it('with Symbol', () => {
-				util.format('%d', Symbol()).should.eql('NaN');
+				should(util.format('%d', Symbol())).eql('NaN');
 			});
 
 			it('with null', () => {
-				util.format('%d', null).should.eql('0');
+				should(util.format('%d', null)).eql('0');
 			});
 
 			it('with undefined', () => {
-				util.format('%d', undefined).should.eql('NaN');
+				should(util.format('%d', undefined)).eql('NaN');
 			});
 
 			// TODO: BigInt
@@ -121,39 +121,39 @@ describe('util', () => {
 
 		describe('Float placeholder', () => {
 			it('with floats', () => {
-				util.format('%f', 42.0).should.eql('42');
-				util.format('%f', 1.5).should.eql('1.5');
-				util.format('%f', -0.5).should.eql('-0.5');
+				should(util.format('%f', 42.0)).eql('42');
+				should(util.format('%f', 1.5)).eql('1.5');
+				should(util.format('%f', -0.5)).eql('-0.5');
 			});
 
 			it('with ints', () => {
-				util.format('%f', 42).should.eql('42');
-				util.format('%f %f', 42, 43).should.eql('42 43');
-				util.format('%f %f', 42).should.eql('42 %f');
+				should(util.format('%f', 42)).eql('42');
+				should(util.format('%f %f', 42, 43)).eql('42 43');
+				should(util.format('%f %f', 42)).eql('42 %f');
 			});
 
 			it('with string holding int value', () => {
-				util.format('%f', '42').should.eql('42');
+				should(util.format('%f', '42')).eql('42');
 			});
 
 			it('with string holding float value', () => {
-				util.format('%f', '42.0').should.eql('42');
+				should(util.format('%f', '42.0')).eql('42');
 			});
 
 			it('with empty string', () => {
-				util.format('%f', '').should.eql('NaN');
+				should(util.format('%f', '')).eql('NaN');
 			});
 
 			it('with Symbol', () => {
-				util.format('%f', Symbol()).should.eql('NaN');
+				should(util.format('%f', Symbol())).eql('NaN');
 			});
 
 			it('with null', () => {
-				util.format('%f', null).should.eql('NaN');
+				should(util.format('%f', null)).eql('NaN');
 			});
 
 			it('with undefined', () => {
-				util.format('%f', undefined).should.eql('NaN');
+				should(util.format('%f', undefined)).eql('NaN');
 			});
 
 			// TODO: BigInt
@@ -161,39 +161,39 @@ describe('util', () => {
 
 		describe('Integer placeholder', () => {
 			it('with ints', () => {
-				util.format('%i', 42).should.eql('42');
-				util.format('%i %i', 42, 43).should.eql('42 43');
-				util.format('%i %i', 42).should.eql('42 %i');
+				should(util.format('%i', 42)).eql('42');
+				should(util.format('%i %i', 42, 43)).eql('42 43');
+				should(util.format('%i %i', 42)).eql('42 %i');
 			});
 
 			it('with floats', () => {
-				util.format('%i', 42.0).should.eql('42');
-				util.format('%i', 1.5).should.eql('1');
-				util.format('%i', -0.5).should.eql('-0');
+				should(util.format('%i', 42.0)).eql('42');
+				should(util.format('%i', 1.5)).eql('1');
+				should(util.format('%i', -0.5)).eql('-0');
 			});
 
 			it('with string holding int value', () => {
-				util.format('%i', '42').should.eql('42');
+				should(util.format('%i', '42')).eql('42');
 			});
 
 			it('with string holding float value', () => {
-				util.format('%i', '42.0').should.eql('42');
+				should(util.format('%i', '42.0')).eql('42');
 			});
 
 			it('with empty string', () => {
-				util.format('%i', '').should.eql('NaN');
+				should(util.format('%i', '')).eql('NaN');
 			});
 
 			it('with Symbol', () => {
-				util.format('%i', Symbol()).should.eql('NaN');
+				should(util.format('%i', Symbol())).eql('NaN');
 			});
 
 			it('with null', () => {
-				util.format('%i', null).should.eql('NaN');
+				should(util.format('%i', null)).eql('NaN');
 			});
 
 			it('with undefined', () => {
-				util.format('%i', undefined).should.eql('NaN');
+				should(util.format('%i', undefined)).eql('NaN');
 			});
 
 			// TODO: BigInt
@@ -201,45 +201,45 @@ describe('util', () => {
 
 		describe('JSON placeholder', () => {
 			it('with floats', () => {
-				util.format('%j', 42.0).should.eql('42');
-				util.format('%j', 1.5).should.eql('1.5');
-				util.format('%j', -0.5).should.eql('-0.5');
+				should(util.format('%j', 42.0)).eql('42');
+				should(util.format('%j', 1.5)).eql('1.5');
+				should(util.format('%j', -0.5)).eql('-0.5');
 			});
 
 			it('with ints', () => {
-				util.format('%j', 42).should.eql('42');
-				util.format('%j %j', 42, 43).should.eql('42 43');
-				util.format('%j %j', 42).should.eql('42 %j');
+				should(util.format('%j', 42)).eql('42');
+				should(util.format('%j %j', 42, 43)).eql('42 43');
+				should(util.format('%j %j', 42)).eql('42 %j');
 			});
 
 			it('with string holding int value', () => {
-				util.format('%j', '42').should.eql('"42"');
+				should(util.format('%j', '42')).eql('"42"');
 			});
 
 			it('with string holding float value', () => {
-				util.format('%j', '42.0').should.eql('"42.0"');
+				should(util.format('%j', '42.0')).eql('"42.0"');
 			});
 
 			it('with empty string', () => {
-				util.format('%j', '').should.eql('""');
+				should(util.format('%j', '')).eql('""');
 			});
 
 			it('with Symbol', () => {
-				util.format('%j', Symbol()).should.eql('undefined');
+				should(util.format('%j', Symbol())).eql('undefined');
 			});
 
 			it('with null', () => {
-				util.format('%j', null).should.eql('null');
+				should(util.format('%j', null)).eql('null');
 			});
 
 			it('with undefined', () => {
-				util.format('%j', undefined).should.eql('undefined');
+				should(util.format('%j', undefined)).eql('undefined');
 			});
 
 			it('with object having circular reference', () => {
 				const o = {};
 				o.o = o;
-				util.format('%j', o).should.eql('[Circular]');
+				should(util.format('%j', o)).eql('[Circular]');
 			});
 
 			it('with object throwing Error in toJSON() re-throws Error', () => {
@@ -248,7 +248,7 @@ describe('util', () => {
 						throw new Error('Failed!');
 					}
 				};
-				(() => util.format('%j', o)).should.throw('Failed!');
+				should((() => util.format('%j', o))).throw('Failed!');
 			});
 
 			// TODO: BigInt
@@ -256,41 +256,41 @@ describe('util', () => {
 
 		describe('%O - object placeholder', () => {
 			it('with int', () => {
-				util.format('%O', 42).should.eql('42');
+				should(util.format('%O', 42)).eql('42');
 			});
 
 			it('with undefined', () => {
-				util.format('%O', undefined).should.eql('undefined');
+				should(util.format('%O', undefined)).eql('undefined');
 			});
 
 			it('with null', () => {
-				util.format('%O', null).should.eql('null');
+				should(util.format('%O', null)).eql('null');
 			});
 
 			it('with string', () => {
-				util.format('%O', 'foo').should.eql('\'foo\'');
+				should(util.format('%O', 'foo')).eql('\'foo\'');
 			});
 
 			it('with string holding int value', () => {
-				util.format('%O', '42').should.eql('\'42\'');
+				should(util.format('%O', '42')).eql('\'42\'');
 			});
 
 			it('with floats', () => {
-				util.format('%O', 42.0).should.eql('42');
-				util.format('%O', 1.5).should.eql('1.5');
-				util.format('%O', -0.5).should.eql('-0.5');
+				should(util.format('%O', 42.0)).eql('42');
+				should(util.format('%O', 1.5)).eql('1.5');
+				should(util.format('%O', -0.5)).eql('-0.5');
 			});
 
 			it('with Symbol', () => {
-				util.format('%O', Symbol()).should.eql('Symbol()');
-				util.format('%O', Symbol('foo')).should.eql('Symbol(foo)');
+				should(util.format('%O', Symbol())).eql('Symbol()');
+				should(util.format('%O', Symbol('foo'))).eql('Symbol(foo)');
 			});
 
 			it('with simple object', () => {
 				const obj = {
 					foo: 'bar'
 				};
-				util.format('%O', obj).should.eql('{ foo: \'bar\' }');
+				should(util.format('%O', obj)).eql('{ foo: \'bar\' }');
 			});
 
 			it('with object', () => {
@@ -299,7 +299,7 @@ describe('util', () => {
 					foobar: 1,
 					func: function () {}
 				};
-				util.format('%O', obj).should.eql('{ foo: \'bar\', foobar: 1, func: [Function: func] }');
+				should(util.format('%O', obj)).eql('{ foo: \'bar\', foobar: 1, func: [Function: func] }');
 			});
 
 			it('with nested object', () => {
@@ -310,7 +310,7 @@ describe('util', () => {
 				};
 				// FIXME: There's a weird edge case we fail here: when function is at cutoff depth and showHidden is true, we report '[Function: a]', while node reports '[Function]'
 				// I don't know why.
-				util.format('%O', nestedObj2).should.eql(
+				should(util.format('%O', nestedObj2)).eql(
 					'{ foo: \'bar\', foobar: 1, func: [ { a: [Function: a] } ] }');
 			});
 
@@ -320,7 +320,7 @@ describe('util', () => {
 					foobar: 1,
 					func: function () {}
 				};
-				util.format('%O %O', obj, obj).should.eql(
+				should(util.format('%O %O', obj, obj)).eql(
 					'{ foo: \'bar\', foobar: 1, func: [Function: func] } '
 					+ '{ foo: \'bar\', foobar: 1, func: [Function: func] }');
 			});
@@ -328,41 +328,41 @@ describe('util', () => {
 
 		describe('%o - object placeholder', () => {
 			it('with int', () => {
-				util.format('%o', 42).should.eql('42');
+				should(util.format('%o', 42)).eql('42');
 			});
 
 			it('with undefined', () => {
-				util.format('%o', undefined).should.eql('undefined');
+				should(util.format('%o', undefined)).eql('undefined');
 			});
 
 			it('with null', () => {
-				util.format('%o', null).should.eql('null');
+				should(util.format('%o', null)).eql('null');
 			});
 
 			it('with string', () => {
-				util.format('%o', 'foo').should.eql('\'foo\'');
+				should(util.format('%o', 'foo')).eql('\'foo\'');
 			});
 
 			it('with string holding int value', () => {
-				util.format('%o', '42').should.eql('\'42\'');
+				should(util.format('%o', '42')).eql('\'42\'');
 			});
 
 			it('with floats', () => {
-				util.format('%o', 42.0).should.eql('42');
-				util.format('%o', 1.5).should.eql('1.5');
-				util.format('%o', -0.5).should.eql('-0.5');
+				should(util.format('%o', 42.0)).eql('42');
+				should(util.format('%o', 1.5)).eql('1.5');
+				should(util.format('%o', -0.5)).eql('-0.5');
 			});
 
 			it('with Symbol', () => {
-				util.format('%o', Symbol()).should.eql('Symbol()');
-				util.format('%o', Symbol('foo')).should.eql('Symbol(foo)');
+				should(util.format('%o', Symbol())).eql('Symbol()');
+				should(util.format('%o', Symbol('foo'))).eql('Symbol(foo)');
 			});
 
 			it('with simple object', () => {
 				const obj = {
 					foo: 'bar'
 				};
-				util.format('%o', obj).should.eql('{ foo: \'bar\' }');
+				should(util.format('%o', obj)).eql('{ foo: \'bar\' }');
 			});
 
 			// FIXME: JSC/iOS seems to have inconsistent ordering of properties
@@ -380,7 +380,7 @@ describe('util', () => {
 				};
 				const result = util.format('%o', obj);
 				if (utilities.isAndroid()) { // Android/V8
-					result.should.eql(
+					should(result).eql(
 						'{\n'
 						+ '  foo: \'bar\',\n'
 						+ '  foobar: 1,\n'
@@ -394,7 +394,7 @@ describe('util', () => {
 						+ '}'
 					);
 				} else { // iOS/JSC
-					result.should.eql(
+					should(result).eql(
 						'{\n'
 						+ '  foo: \'bar\',\n'
 						+ '  foobar: 1,\n'
@@ -418,7 +418,7 @@ describe('util', () => {
 				};
 				const result = util.format('%o', nestedObj2);
 				if (utilities.isAndroid()) { // Android/V8
-					result.should.eql(
+					should(result).eql(
 						'{\n'
 						+ '  foo: \'bar\',\n'
 						+ '  foobar: 1,\n'
@@ -437,7 +437,7 @@ describe('util', () => {
 						+ '}'
 					);
 				} else { // iOS/JSC
-					result.should.eql(
+					should(result).eql(
 						'{\n'
 						+ '  foo: \'bar\',\n'
 						+ '  foobar: 1,\n'
@@ -466,7 +466,7 @@ describe('util', () => {
 				};
 				const result = util.format('%o %o', obj, obj);
 				if (utilities.isAndroid()) { // Android/V8
-					result.should.eql(
+					should(result).eql(
 						'{\n'
 						+ '  foo: \'bar\',\n'
 						+ '  foobar: 1,\n'
@@ -490,7 +490,7 @@ describe('util', () => {
 						+ '}'
 					);
 				} else { // iOS/JSC
-					result.should.eql(
+					should(result).eql(
 						'{\n'
 						+ '  foo: \'bar\',\n'
 						+ '  foobar: 1,\n'
@@ -520,114 +520,114 @@ describe('util', () => {
 
 	describe('#inspect()', () => {
 		it('is a function', () => {
-			util.inspect.should.be.a.Function();
+			should(util.inspect).be.a.Function();
 		});
 
 		it('handles string literal', () => {
-			util.inspect('a').should.eql('\'a\'');
+			should(util.inspect('a')).eql('\'a\'');
 		});
 
 		it('handles number literal', () => {
-			util.inspect(1).should.eql('1');
+			should(util.inspect(1)).eql('1');
 		});
 
 		it('handles empty array', () => {
-			util.inspect([]).should.eql('[]');
+			should(util.inspect([])).eql('[]');
 		});
 
 		it('handles array with number values', () => {
-			util.inspect([ 1, 2, 3 ]).should.eql('[ 1, 2, 3 ]');
+			should(util.inspect([ 1, 2, 3 ])).eql('[ 1, 2, 3 ]');
 		});
 
 		it('handles array with mixed values', () => {
-			util.inspect([ 'a', 2 ]).should.eql('[ \'a\', 2 ]');
+			should(util.inspect([ 'a', 2 ])).eql('[ \'a\', 2 ]');
 		});
 
 		it('handles sparse array', () => {
 			// eslint-disable-next-line no-sparse-arrays
-			util.inspect([ 1, , 3 ]).should.eql('[ 1, <1 empty item>, 3 ]');
+			should(util.inspect([ 1, , 3 ])).eql('[ 1, <1 empty item>, 3 ]');
 		});
 
 		it('handles sparse array with multiple items missing in a row', () => {
 			// eslint-disable-next-line no-sparse-arrays
-			util.inspect([ 1,,,, 3 ]).should.eql('[ 1, <3 empty items>, 3 ]');
+			should(util.inspect([ 1,,,, 3 ])).eql('[ 1, <3 empty items>, 3 ]');
 		});
 
 		it('handles sparse array with multiple separate gaps', () => {
 			// eslint-disable-next-line no-sparse-arrays
-			util.inspect([ 1,,,, 3, ,, 4 ]).should.eql('[ 1, <3 empty items>, 3, <2 empty items>, 4 ]');
+			should(util.inspect([ 1,,,, 3, ,, 4 ])).eql('[ 1, <3 empty items>, 3, <2 empty items>, 4 ]');
 		});
 
 		it('handles array with length > options.maxArrayLength', () => {
-			util.inspect([ 1, 2, 3 ], { maxArrayLength: 1 }).should.eql('[ 1, ... 2 more items ]');
+			should(util.inspect([ 1, 2, 3 ], { maxArrayLength: 1 })).eql('[ 1, ... 2 more items ]');
 		});
 
 		it('handles array with length > options.maxArrayLength and is sparse', () => {
 			// eslint-disable-next-line no-sparse-arrays
-			util.inspect([ 1,,,, 3, ,, 4 ], { maxArrayLength: 1 }).should.eql('[ 1, ... 7 more items ]');
+			should(util.inspect([ 1,,,, 3, ,, 4 ], { maxArrayLength: 1 })).eql('[ 1, ... 7 more items ]');
 		});
 
 		it('handles sparse array with length > options.maxArrayLength counting gaps as one item for length', () => {
 			// eslint-disable-next-line no-sparse-arrays
-			util.inspect([ 1,,,, ], { maxArrayLength: 2 }).should.eql('[ 1, <3 empty items> ]');
+			should(util.inspect([ 1,,,, ], { maxArrayLength: 2 })).eql('[ 1, <3 empty items> ]');
 			// eslint-disable-next-line no-sparse-arrays
-			util.inspect([ 1,,,, 3, ,, 4 ], { maxArrayLength: 2 }).should.eql('[ 1, <3 empty items>, ... 4 more items ]');
+			should(util.inspect([ 1,,,, 3, ,, 4 ], { maxArrayLength: 2 })).eql('[ 1, <3 empty items>, ... 4 more items ]');
 			// eslint-disable-next-line no-sparse-arrays
-			util.inspect([ 1,,,, 3, ,, 4 ], { maxArrayLength: 3 }).should.eql('[ 1, <3 empty items>, 3, ... 3 more items ]');
+			should(util.inspect([ 1,,,, 3, ,, 4 ], { maxArrayLength: 3 })).eql('[ 1, <3 empty items>, 3, ... 3 more items ]');
 			// eslint-disable-next-line no-sparse-arrays
-			util.inspect([ 1,,,, 3, ,, 4 ], { maxArrayLength: 4 }).should.eql('[ 1, <3 empty items>, 3, <2 empty items>, ... 1 more item ]');
+			should(util.inspect([ 1,,,, 3, ,, 4 ], { maxArrayLength: 4 })).eql('[ 1, <3 empty items>, 3, <2 empty items>, ... 1 more item ]');
 		});
 
 		it('handles Regexp literal', () => {
-			util.inspect(/123/).should.eql('/123/');
+			should(util.inspect(/123/)).eql('/123/');
 		});
 
 		it('handles Regexp literal with flags', () => {
-			util.inspect(/123/ig).should.eql('/123/gi');
+			should(util.inspect(/123/ig)).eql('/123/gi');
 		});
 
 		it('handles new Regexp instance', () => {
-			util.inspect(new RegExp()).should.eql('/(?:)/');
+			should(util.inspect(new RegExp())).eql('/(?:)/');
 		});
 
 		it('handles object primitive literal', () => {
-			util.inspect({}).should.eql('{}');
+			should(util.inspect({})).eql('{}');
 		});
 
 		it('handles new Object', () => {
 			// eslint-disable-next-line no-new-object
-			util.inspect(new Object()).should.eql('{}');
+			should(util.inspect(new Object())).eql('{}');
 		});
 
 		it('handles Map instance', () => {
-			util.inspect(new Map()).should.eql('Map {}');
+			should(util.inspect(new Map())).eql('Map {}');
 		});
 
 		it('handles Map instance with key/value pair', () => {
-			util.inspect(new Map([ [ 'a', 1 ] ])).should.eql('Map { \'a\' => 1 }');
+			should(util.inspect(new Map([ [ 'a', 1 ] ]))).eql('Map { \'a\' => 1 }');
 		});
 
 		it('handles empty Set instance', () => {
-			util.inspect(new Set()).should.eql('Set {}');
+			should(util.inspect(new Set())).eql('Set {}');
 		});
 
 		it('handles Set instance with number values', () => {
-			util.inspect(new Set([ 1, 2, 3 ])).should.eql('Set { 1, 2, 3 }');
+			should(util.inspect(new Set([ 1, 2, 3 ]))).eql('Set { 1, 2, 3 }');
 		});
 
 		it('handles object with custom type tag', () => {
 			const baz = Object.create({}, { [Symbol.toStringTag]: { value: 'foo' } });
-			util.inspect(baz).should.eql('Object [foo] {}');
+			should(util.inspect(baz)).eql('Object [foo] {}');
 		});
 
 		it('handles object with null prototype', () => {
 			const baz = Object.create(null, {});
-			util.inspect(baz).should.eql('[Object: null prototype] {}');
+			should(util.inspect(baz)).eql('[Object: null prototype] {}');
 		});
 
 		it('handles class instance', () => {
 			class Bar {}
-			util.inspect(new Bar()).should.eql('Bar {}');
+			should(util.inspect(new Bar())).eql('Bar {}');
 		});
 
 		it('handles class instance with custom type tag', () => {
@@ -636,63 +636,63 @@ describe('util', () => {
 					return 'bar';
 				}
 			}
-			util.inspect(new Foo()).should.eql('Foo [bar] {}');
+			should(util.inspect(new Foo())).eql('Foo [bar] {}');
 		});
 
 		it('handles empty function', () => {
-			util.inspect(function () {}).should.eql('[Function (anonymous)]');
+			should(util.inspect(function () {})).eql('[Function (anonymous)]');
 		});
 
 		it('handles named function', () => {
-			util.inspect(function bar() {}).should.eql('[Function: bar]');
+			should(util.inspect(function bar() {})).eql('[Function: bar]');
 		});
 
 		it('handles arrow function', () => {
-			util.inspect(() => {}).should.eql('[Function (anonymous)]');
+			should(util.inspect(() => {})).eql('[Function (anonymous)]');
 		});
 
 		it('handles function with custom property', () => {
 			const myFunc = () => {};
 			myFunc.a = 1;
-			util.inspect(myFunc).should.eql('[Function: myFunc] { a: 1 }');
+			should(util.inspect(myFunc)).eql('[Function: myFunc] { a: 1 }');
 		});
 
 		it('handles object with getter property', () => {
 			const obj = {};
 			// eslint-disable-next-line accessor-pairs
 			Object.defineProperty(obj, 'whatever', { get: () => 1, enumerable: true });
-			util.inspect(obj).should.eql('{ whatever: [Getter] }');
+			should(util.inspect(obj)).eql('{ whatever: [Getter] }');
 		});
 
 		it('handles object with setter property', () => {
 			const obj = {};
 			// eslint-disable-next-line accessor-pairs
 			Object.defineProperty(obj, 'whatever2', { set: () => {}, enumerable: true });
-			util.inspect(obj).should.eql('{ whatever2: [Setter] }');
+			should(util.inspect(obj)).eql('{ whatever2: [Setter] }');
 		});
 
 		it('handles object with getter/setter property', () => {
 			const obj = {};
 			Object.defineProperty(obj, 'whatever3', { get: () => 1, set: () => {}, enumerable: true });
-			util.inspect(obj).should.eql('{ whatever3: [Getter/Setter] }');
+			should(util.inspect(obj)).eql('{ whatever3: [Getter/Setter] }');
 		});
 
 		it('handles object with property holding explicit undefined value', () => {
 			const obj = {};
 			Object.defineProperty(obj, 'whatever4', { value: undefined, enumerable: true });
-			util.inspect(obj).should.eql('{ whatever4: undefined }');
+			should(util.inspect(obj)).eql('{ whatever4: undefined }');
 		});
 
 		it('with simple object', () => {
 			const obj = {
 				foo: 'bar'
 			};
-			util.inspect(obj).should.eql('{ foo: \'bar\' }');
+			should(util.inspect(obj)).eql('{ foo: \'bar\' }');
 		});
 
 		it('with same object repeated in an array', () => {
 			const a = { id: 1 };
-			util.inspect([ a, a ]).should.eql('[ { id: 1 }, { id: 1 } ]');
+			should(util.inspect([ a, a ])).eql('[ { id: 1 }, { id: 1 } ]');
 		});
 
 		it('with object', () => {
@@ -702,11 +702,11 @@ describe('util', () => {
 				func: function () {}
 			};
 			// In Node 10+, we can sort the properties to ensure order to match, otherwise JSC/V8 return arguments/caller in different order on Functions
-			util.inspect(obj, {
+			should(util.inspect(obj, {
 				showHidden: true,
 				breakLength: Infinity,
 				sorted: true
-			}).should.eql(
+			})).eql(
 				'{ foo: \'bar\', foobar: 1, func: <ref *1> [Function: func] { [arguments]: null, [caller]: null, [length]: 0, [name]: \'func\', [prototype]: func { [constructor]: [Circular *1] } } }'
 			);
 		});
@@ -719,12 +719,12 @@ describe('util', () => {
 			};
 
 			// In Node 10+, we can sort the properties to ensure order to match, otheerwise JSC/V8 return arguments/caller in different order on Functions
-			util.inspect(nestedObj2, {
+			should(util.inspect(nestedObj2, {
 				showHidden: true,
 				breakLength: Infinity,
 				depth: Infinity,
 				sorted: true
-			}).should.eql(
+			})).eql(
 				'{\n'
 				+ '  foo: \'bar\',\n'
 				+ '  foobar: 1,\n'
@@ -742,7 +742,7 @@ describe('util', () => {
 				foobar: 1,
 				func: [ { a: function () {} } ]
 			};
-			util.inspect(nestedObj2, { showHidden: true, breakLength: Infinity }).should.eql(
+			should(util.inspect(nestedObj2, { showHidden: true, breakLength: Infinity })).eql(
 				'{ foo: \'bar\', foobar: 1, func: [ { a: [Function] }, [length]: 1 ] }');
 		});
 
@@ -756,7 +756,7 @@ describe('util', () => {
 				},
 				something: 'else'
 			};
-			util.inspect(nestedObj2).should.eql(
+			should(util.inspect(nestedObj2)).eql(
 				'{\n'
 				+ '  foo: \'bar\',\n'
 				+ '  foobar: 1,\n'
@@ -776,7 +776,7 @@ describe('util', () => {
 					whatever2: '123456789'
 				}
 			};
-			util.inspect(nestedObj2).should.eql(
+			should(util.inspect(nestedObj2)).eql(
 				'{\n'
 				+ '  foo: \'bar\',\n'
 				+ '  foobar: 1,\n'
@@ -796,7 +796,7 @@ describe('util', () => {
 				foobar: 1,
 				func: [ { a: function () {} } ]
 			};
-			util.inspect(nestedObj2, {}).should.eql(
+			should(util.inspect(nestedObj2, {})).eql(
 				'{ foo: \'bar\', foobar: 1, func: [ { a: [Function: a] } ] }');
 		});
 
@@ -809,7 +809,7 @@ describe('util', () => {
 				whatever2: '',
 				whatever3: ''
 			};
-			util.inspect(obj).should.eql('{\n  foo: \'\',\n  foobar: 1,\n  something: \'1\',\n  whatever: \'\',\n  whatever2: \'\',\n  whatever3: \'\'\n}');
+			should(util.inspect(obj)).eql('{\n  foo: \'\',\n  foobar: 1,\n  something: \'1\',\n  whatever: \'\',\n  whatever2: \'\',\n  whatever3: \'\'\n}');
 		});
 
 		it('with default breakLength just below break point', () => {
@@ -820,13 +820,13 @@ describe('util', () => {
 				whatever: '',
 				whatever2: ''
 			};
-			util.inspect(obj).should.eql('{ foo: \'\', foobar: 1, something: \'1\', whatever: \'\', whatever2: \'\' }');
+			should(util.inspect(obj)).eql('{ foo: \'\', foobar: 1, something: \'1\', whatever: \'\', whatever2: \'\' }');
 		});
 	});
 
 	describe('#inherits()', () => {
 		it('is a function', () => {
-			util.inherits.should.be.a.Function();
+			should(util.inherits).be.a.Function();
 		});
 
 		it('hooks subclass to super constructor', (finished) => {
@@ -863,7 +863,7 @@ describe('util', () => {
 			should(MyStream.super_).eql(BaseClass);
 
 			stream.on('data', data => {
-				data.should.eql('It works!');
+				should(data).eql('It works!');
 				finished();
 			});
 			stream.write('It works!'); // Received data: "It works!"
@@ -996,7 +996,7 @@ describe('util', () => {
 
 	describe('#promisify()', () => {
 		it('is a function', () => {
-			util.promisify.should.be.a.Function();
+			should(util.promisify).be.a.Function();
 		});
 
 		it('wraps callback function to return promise with resolve', (finished) => {
@@ -1023,7 +1023,7 @@ describe('util', () => {
 				should(value).eql(123);
 				finished(new Error('Expected promise to get rejected!'));
 			}).catch(err => {
-				err.message.should.eql('example');
+				should(err.message).eql('example');
 				finished();
 			});
 		});
@@ -1037,7 +1037,7 @@ describe('util', () => {
 
 	describe('#callbackify()', () => {
 		it('is a function', () => {
-			util.callbackify.should.be.a.Function();
+			should(util.callbackify).be.a.Function();
 		});
 
 		it('wraps function returning Promise to return function accepting callback (with success)', (finished) => {
@@ -1098,7 +1098,7 @@ describe('util', () => {
 
 	describe('#deprecate()', () => {
 		it('is a function', () => {
-			util.deprecate.should.be.a.Function();
+			should(util.deprecate).be.a.Function();
 		});
 
 		it('wraps function to emit warning', () => {
@@ -1108,8 +1108,8 @@ describe('util', () => {
 			const deprecated = util.deprecate(original, 'dont call me Al');
 			// this should get called synchronously, so I don't think we need to do any setTimeout/async finished stuff
 			process.once('warning', warning => {
-				warning.name.should.eql('DeprecationWarning');
-				warning.message.should.eql('dont call me Al');
+				should(warning.name).eql('DeprecationWarning');
+				should(warning.message).eql('dont call me Al');
 			});
 			const result = deprecated(null, 123);
 			should(result).eql([ null, 123 ]);
@@ -1120,7 +1120,7 @@ describe('util', () => {
 
 	describe('#log()', () => {
 		it('is a function', () => {
-			util.log.should.be.a.Function();
+			should(util.log).be.a.Function();
 		});
 
 		it('prepends timestamp to message', () => {
@@ -1128,7 +1128,7 @@ describe('util', () => {
 			const original = console.log;
 			try {
 				console.log = string => {
-					string.should.match(/^\d{1,2} \w{3} \d{2}:\d{2}:\d{2} - message$/);
+					should(string).match(/^\d{1,2} \w{3} \d{2}:\d{2}:\d{2} - message$/);
 				};
 				util.log('message');
 			} finally {
@@ -1139,7 +1139,7 @@ describe('util', () => {
 
 	describe('#print()', () => {
 		it('is a function', () => {
-			util.print.should.be.a.Function();
+			should(util.print).be.a.Function();
 		});
 
 		it('concatenates with no join', () => {
@@ -1147,7 +1147,7 @@ describe('util', () => {
 			const original = console.log;
 			try {
 				console.log = string => {
-					string.should.eql('123');
+					should(string).eql('123');
 				};
 				util.print(1, 2, 3);
 			} finally {
@@ -1158,7 +1158,7 @@ describe('util', () => {
 
 	describe('#puts()', () => {
 		it('is a function', () => {
-			util.puts.should.be.a.Function();
+			should(util.puts).be.a.Function();
 		});
 
 		it('concatenates with newline join', () => {
@@ -1166,7 +1166,7 @@ describe('util', () => {
 			const original = console.log;
 			try {
 				console.log = string => {
-					string.should.eql('1\n2\n3');
+					should(string).eql('1\n2\n3');
 				};
 				util.puts(1, 2, 3);
 			} finally {
@@ -1177,7 +1177,7 @@ describe('util', () => {
 
 	describe('#debug()', () => {
 		it('is a function', () => {
-			util.debug.should.be.a.Function();
+			should(util.debug).be.a.Function();
 		});
 
 		it('concatenates with newline join', () => {
@@ -1185,7 +1185,7 @@ describe('util', () => {
 			const original = console.error;
 			try {
 				console.error = string => {
-					string.should.eql('DEBUG: message');
+					should(string).eql('DEBUG: message');
 				};
 				util.debug('message');
 			} finally {
@@ -1196,7 +1196,7 @@ describe('util', () => {
 
 	describe('#error()', () => {
 		it('is a function', () => {
-			util.error.should.be.a.Function();
+			should(util.error).be.a.Function();
 		});
 
 		it('concatenates with newline join', () => {
@@ -1204,7 +1204,7 @@ describe('util', () => {
 			const original = console.error;
 			try {
 				console.error = string => {
-					string.should.eql('1\n2\n3');
+					should(string).eql('1\n2\n3');
 				};
 				util.error(1, 2, 3);
 			} finally {
@@ -1217,7 +1217,7 @@ describe('util', () => {
 		describe('#isAnyArrayBuffer()', () => {
 			it('should return true for built-in ArrayBuffer', () => {
 				const ab = new ArrayBuffer();
-				util.types.isAnyArrayBuffer(ab).should.be.true();
+				should(util.types.isAnyArrayBuffer(ab)).be.true();
 			});
 
 			it('should return true for built-in SharedArrayBuffer', () => {
@@ -1225,245 +1225,245 @@ describe('util', () => {
 			});
 
 			it('should return false for other values', () => {
-				util.types.isAnyArrayBuffer({}).should.be.false();
-				util.types.isAnyArrayBuffer(new Float32Array()).should.be.false();
+				should(util.types.isAnyArrayBuffer({})).be.false();
+				should(util.types.isAnyArrayBuffer(new Float32Array())).be.false();
 			});
 		});
 
 		describe('#isArgumentsObject()', () => {
 			it('should return true for function arguments object', () => {
 				(function () {
-					util.types.isArgumentsObject(arguments).should.be.true();
+					should(util.types.isArgumentsObject(arguments)).be.true();
 				}());
 			});
 
 			it('should return false for Array', () => {
-				util.types.isArgumentsObject([]).should.be.false();
+				should(util.types.isArgumentsObject([])).be.false();
 			});
 
 			it.allBroken('should return false for object with Symbol.toStringTag of "Arguments"', () => {
-				util.types.isArgumentsObject({ [Symbol.toStringTag]: 'Arguments' }).should.be.false();
+				should(util.types.isArgumentsObject({ [Symbol.toStringTag]: 'Arguments' })).be.false();
 			});
 		});
 
 		describe('#isArrayBuffer()', () => {
 			it('should return true for built-in ArrayBuffer instance', () => {
 				const ab = new ArrayBuffer();
-				util.types.isArrayBuffer(ab).should.be.true();
+				should(util.types.isArrayBuffer(ab)).be.true();
 			});
 
 			it('should return false for other values', () => {
-				util.types.isArrayBuffer([]).should.be.false();
-				util.types.isArrayBuffer(new Float32Array()).should.be.false();
+				should(util.types.isArrayBuffer([])).be.false();
+				should(util.types.isArrayBuffer(new Float32Array())).be.false();
 			});
 		});
 
 		describe('#isAsyncFunction()', () => {
 			it('should return true for async functions', () => {
 				console.log(Object.prototype.toString.call(async () => {}));
-				util.types.isAsyncFunction(async () => {}).should.be.true();
+				should(util.types.isAsyncFunction(async () => {})).be.true();
 			});
 
 			it('should return false for normal functions', () => {
-				util.types.isAsyncFunction(() => {}).should.be.false();
+				should(util.types.isAsyncFunction(() => {})).be.false();
 			});
 		});
 
 		describe('#isNativeError()', () => {
 			it('is a function', () => {
-				util.types.isNativeError.should.be.a.Function();
+				should(util.types.isNativeError).be.a.Function();
 			});
 
 			it('returns true for Error instance', () => {
-				util.types.isNativeError(new Error()).should.be.true();
+				should(util.types.isNativeError(new Error())).be.true();
 			});
 
 			it('returns true for EvalError instance', () => {
-				util.types.isNativeError(new EvalError()).should.be.true();
+				should(util.types.isNativeError(new EvalError())).be.true();
 			});
 
 			it('returns true for RangeError instance', () => {
-				util.types.isNativeError(new RangeError()).should.be.true();
+				should(util.types.isNativeError(new RangeError())).be.true();
 			});
 
 			it('returns true for ReferenceError instance', () => {
-				util.types.isNativeError(new ReferenceError()).should.be.true();
+				should(util.types.isNativeError(new ReferenceError())).be.true();
 			});
 
 			it('returns true for SyntaxError instance', () => {
-				util.types.isNativeError(new SyntaxError()).should.be.true();
+				should(util.types.isNativeError(new SyntaxError())).be.true();
 			});
 
 			it('returns true for TypeError instance', () => {
-				util.types.isNativeError(new TypeError()).should.be.true();
+				should(util.types.isNativeError(new TypeError())).be.true();
 			});
 
 			it('returns true for URIError instance', () => {
-				util.types.isNativeError(new URIError()).should.be.true();
+				should(util.types.isNativeError(new URIError())).be.true();
 			});
 
 			it('returns false for custom Error subclass', () => {
 				class SubError extends Error {}
-				util.types.isNativeError(new SubError()).should.be.false();
+				should(util.types.isNativeError(new SubError())).be.false();
 			});
 		});
 
 		describe('#isNumberObject()', () => {
 			it('is a function', () => {
-				util.types.isNumberObject.should.be.a.Function();
+				should(util.types.isNumberObject).be.a.Function();
 			});
 
 			it('returns true for boxed Number', () => {
 				// eslint-disable-next-line no-new-wrappers
-				util.types.isNumberObject(new Number()).should.be.true();
+				should(util.types.isNumberObject(new Number())).be.true();
 			});
 
 			it('returns false for primitive Number', () => {
-				util.types.isNumberObject(0).should.be.false();
+				should(util.types.isNumberObject(0)).be.false();
 			});
 		});
 
 		describe('#isStringObject()', () => {
 			it('is a function', () => {
-				util.types.isStringObject.should.be.a.Function();
+				should(util.types.isStringObject).be.a.Function();
 			});
 
 			it('returns true for boxed String', () => {
 				// eslint-disable-next-line no-new-wrappers
-				util.types.isStringObject(new String('foo')).should.be.true();
+				should(util.types.isStringObject(new String('foo'))).be.true();
 			});
 
 			it('returns false for primitive String', () => {
-				util.types.isStringObject('foo').should.be.false();
+				should(util.types.isStringObject('foo')).be.false();
 			});
 		});
 
 		describe('#isBooleanObject()', () => {
 			it('is a function', () => {
-				util.types.isBooleanObject.should.be.a.Function();
+				should(util.types.isBooleanObject).be.a.Function();
 			});
 
 			it('returns true for boxed Boolean', () => {
 				// eslint-disable-next-line no-new-wrappers
-				util.types.isBooleanObject(new Boolean(false)).should.be.true();
+				should(util.types.isBooleanObject(new Boolean(false))).be.true();
 			});
 
 			it('returns false for primitive Boolean', () => {
-				util.types.isBooleanObject(true).should.be.false();
+				should(util.types.isBooleanObject(true)).be.false();
 			});
 		});
 
 		// TODO: Re-enable when we have BigInt support
 		// describe('#isBigIntObject()', () => {
 		// 	it('is a function', () => {
-		// 		util.types.isBigIntObject.should.be.a.Function();
+		// 		should(util.types.isBigIntObject).be.a.Function();
 		// 	});
 
 		// 	it('returns true for boxed BigInt', () => {
 		// 		// eslint-disable-next-line no-new-wrappers,no-undef
-		// 		util.types.isSymbolObject(Object(BigInt(9007199254740991))).should.be.true();
+		// 		should(util.types.isSymbolObject(Object(BigInt(9007199254740991)))).be.true();
 		// 	});
 
 		// 	it('returns false for BigInt instance', () => {
 		// 		// eslint-disable-next-line no-undef
-		// 		util.types.isSymbolObject(BigInt(9007199254740991)).should.be.false();
+		// 		should(util.types.isSymbolObject(BigInt(9007199254740991))).be.false();
 		// 	});
 
 		// it('returns false for primitive BigInt', () => {
-		// 	util.types.isSymbolObject(9007199254740991n).should.be.false();
+		// 	should(util.types.isSymbolObject(9007199254740991n)).be.false();
 		// });
 		// });
 
 		describe('#isSymbolObject()', () => {
 			it('is a function', () => {
-				util.types.isSymbolObject.should.be.a.Function();
+				should(util.types.isSymbolObject).be.a.Function();
 			});
 
 			it('returns true for boxed Symbol', () => {
 				// eslint-disable-next-line no-new-wrappers
-				util.types.isSymbolObject(Object(Symbol('foo'))).should.be.true();
+				should(util.types.isSymbolObject(Object(Symbol('foo')))).be.true();
 			});
 
 			it('returns false for primitive Symbol', () => {
-				util.types.isSymbolObject(Symbol('foo')).should.be.false();
+				should(util.types.isSymbolObject(Symbol('foo'))).be.false();
 			});
 		});
 
 		describe('#isBoxedPrimitive()', () => {
 			it('is a function', () => {
-				util.types.isBoxedPrimitive.should.be.a.Function();
+				should(util.types.isBoxedPrimitive).be.a.Function();
 			});
 
 			it('returns false for primitive Boolean', () => {
-				util.types.isBoxedPrimitive(false).should.be.false();
+				should(util.types.isBoxedPrimitive(false)).be.false();
 			});
 
 			it('returns true for boxed Boolean', () => {
 				// eslint-disable-next-line no-new-wrappers
-				util.types.isBoxedPrimitive(new Boolean(false)).should.be.true();
+				should(util.types.isBoxedPrimitive(new Boolean(false))).be.true();
 			});
 
 			it('returns false for primitive Symbol', () => {
-				util.types.isBoxedPrimitive(Symbol('foo')).should.be.false();
+				should(util.types.isBoxedPrimitive(Symbol('foo'))).be.false();
 			});
 
 			it('returns true for boxed Symbol', () => {
-				util.types.isBoxedPrimitive(Object(Symbol('foo'))).should.be.true();
+				should(util.types.isBoxedPrimitive(Object(Symbol('foo')))).be.true();
 			});
 
 			// it('returns true for boxed BigInt', () => {
 			// 	// eslint-disable-next-line no-undef
-			// 	util.types.isBoxedPrimitive(Object(BigInt(5))).should.be.true();
+			// 	should(util.types.isBoxedPrimitive(Object(BigInt(5)))).be.true();
 			// });
 		});
 
 		describe('#isSet()', () => {
 			it('is a function', () => {
-				util.types.isSet.should.be.a.Function();
+				should(util.types.isSet).be.a.Function();
 			});
 
 			it('returns true for Set instance', () => {
-				util.types.isSet(new Set()).should.be.true();
+				should(util.types.isSet(new Set())).be.true();
 			});
 		});
 
 		describe('#isSetIterator()', () => {
 			it('should return true if the value is an iterator returned for a built-in Set instance', () => {
 				const set = new Set();
-				util.types.isSetIterator(set.keys()).should.be.true();
-				util.types.isSetIterator(set.values()).should.be.true();
-				util.types.isSetIterator(set.entries()).should.be.true();
-				util.types.isSetIterator(set[Symbol.iterator]()).should.be.true();
+				should(util.types.isSetIterator(set.keys())).be.true();
+				should(util.types.isSetIterator(set.values())).be.true();
+				should(util.types.isSetIterator(set.entries())).be.true();
+				should(util.types.isSetIterator(set[Symbol.iterator]())).be.true();
 			});
 
 			it('should return false for other iterators', () => {
 				const map = new Map();
-				util.types.isSetIterator(map.values()).should.be.false();
+				should(util.types.isSetIterator(map.values())).be.false();
 			});
 		});
 
 		describe('#isMap()', () => {
 			it('is a function', () => {
-				util.types.isMap.should.be.a.Function();
+				should(util.types.isMap).be.a.Function();
 			});
 
 			it('returns true for Map instance', () => {
-				util.types.isMap(new Map()).should.be.true();
+				should(util.types.isMap(new Map())).be.true();
 			});
 		});
 
 		describe('#isMapIterator()', () => {
 			it('should return true if the value is an iterator retunred for a built-in Map instance', () => {
 				const map = new Map();
-				util.types.isMapIterator(map.keys()).should.be.true();
-				util.types.isMapIterator(map.values()).should.be.true();
-				util.types.isMapIterator(map.entries()).should.be.true();
-				util.types.isMapIterator(map[Symbol.iterator]()).should.be.true();
+				should(util.types.isMapIterator(map.keys())).be.true();
+				should(util.types.isMapIterator(map.values())).be.true();
+				should(util.types.isMapIterator(map.entries())).be.true();
+				should(util.types.isMapIterator(map[Symbol.iterator]())).be.true();
 			});
 
 			it('should return false for other iterators', () => {
 				const set = new Set();
-				util.types.isMapIterator(set.values()).should.be.false();
+				should(util.types.isMapIterator(set.values())).be.false();
 			});
 		});
 
@@ -1471,56 +1471,56 @@ describe('util', () => {
 			const ab = new ArrayBuffer(20);
 
 			it('should return true for built-in DataView instance', () => {
-				util.types.isDataView(new DataView(ab)).should.be.true();
+				should(util.types.isDataView(new DataView(ab))).be.true();
 			});
 
 			it('should return false for typed array instance', () => {
-				util.types.isDataView(new Float64Array()).should.be.false();
+				should(util.types.isDataView(new Float64Array())).be.false();
 			});
 		});
 
 		describe('#isDate()', () => {
 			it('is a function', () => {
-				util.types.isDate.should.be.a.Function();
+				should(util.types.isDate).be.a.Function();
 			});
 
 			it('returns true for built-in Date instance', () => {
-				util.types.isDate(new Date()).should.be.true();
+				should(util.types.isDate(new Date())).be.true();
 			});
 		});
 
 		describe('#isPromise()', () => {
 			it('should return true for built-in Promise', () => {
-				util.types.isPromise(Promise.resolve(42)).should.be.true();
+				should(util.types.isPromise(Promise.resolve(42))).be.true();
 			});
 
 			it('should return false for Promise like objects', () => {
-				util.types.isPromise({ then: () => {}, catch: () => {} }).should.be.false();
+				should(util.types.isPromise({ then: () => {}, catch: () => {} })).be.false();
 			});
 		});
 
 		describe('#isRegExp()', () => {
 			it('is a function', () => {
-				util.types.isRegExp.should.be.a.Function();
+				should(util.types.isRegExp).be.a.Function();
 			});
 
 			it('returns true for RegExp instance', () => {
-				util.types.isRegExp(/abc/).should.be.true();
+				should(util.types.isRegExp(/abc/)).be.true();
 			});
 
 			it('returns true for RegExp primitive', () => {
-				util.types.isRegExp(new RegExp('abc')).should.be.true();
+				should(util.types.isRegExp(new RegExp('abc'))).be.true();
 			});
 		});
 
 		describe('#isGeneratorFunction()', () => {
 			it('should return true for generator function', () => {
 				console.log(Object.prototype.toString.call(function *foo() {}));
-				util.types.isGeneratorFunction(function *foo() {}).should.be.true();
+				should(util.types.isGeneratorFunction(function *foo() {})).be.true();
 			});
 
 			it('should return false for normal function', () => {
-				util.types.isGeneratorFunction(function foo() {}).should.be.false();
+				should(util.types.isGeneratorFunction(function foo() {})).be.false();
 			});
 		});
 
@@ -1529,35 +1529,35 @@ describe('util', () => {
 				function *foo() {}
 				const generator = foo();
 				console.log(Object.prototype.toString.call(generator));
-				util.types.isGeneratorObject(generator).should.be.true();
+				should(util.types.isGeneratorObject(generator)).be.true();
 			});
 
 			it('should return false for any other object', () => {
-				util.types.isGeneratorObject({}).should.be.false();
+				should(util.types.isGeneratorObject({})).be.false();
 			});
 		});
 
 		describe('#isWeakMap()', () => {
 			it('should return true for built-in WeakMap', () => {
 				const map = new WeakMap();
-				util.types.isWeakMap(map).should.be.true();
+				should(util.types.isWeakMap(map)).be.true();
 			});
 
 			it('should return false for other values', () => {
-				util.types.isWeakMap({}).should.be.false();
-				util.types.isWeakMap(new Map()).should.be.false();
+				should(util.types.isWeakMap({})).be.false();
+				should(util.types.isWeakMap(new Map())).be.false();
 			});
 		});
 
 		describe('#isWeakSet()', () => {
 			it('should return true for built-in WeakSet', () => {
 				const map = new WeakSet();
-				util.types.isWeakSet(map).should.be.true();
+				should(util.types.isWeakSet(map)).be.true();
 			});
 
 			it('should return false for other values', () => {
-				util.types.isWeakSet({}).should.be.false();
-				util.types.isWeakSet(new Set()).should.be.false();
+				should(util.types.isWeakSet({})).be.false();
+				should(util.types.isWeakSet(new Set())).be.false();
 			});
 		});
 
@@ -1579,8 +1579,8 @@ describe('util', () => {
 			});
 
 			it('should return false for other values', () => {
-				util.types.isTypedArray({}).should.be.false();
-				util.types.isTypedArray([]).should.be.false();
+				should(util.types.isTypedArray({})).be.false();
+				should(util.types.isTypedArray([])).be.false();
 			});
 		});
 
