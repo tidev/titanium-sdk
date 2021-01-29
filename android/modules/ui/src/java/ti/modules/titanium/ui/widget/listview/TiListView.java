@@ -12,6 +12,7 @@ import java.util.List;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
+import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiUIHelper;
 
 import android.app.Activity;
@@ -260,12 +261,15 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 			payload.put(TiC.PROPERTY_FIRST_VISIBLE_ITEM_INDEX, firstVisibleItemIndex);
 
 			// Obtain first visible section proxy.
-			final ListSectionProxy firstVisibleSection = (ListSectionProxy) firstVisibleProxy.getParent();
-			payload.put(TiC.PROPERTY_FIRST_VISIBLE_SECTION, firstVisibleSection);
+			final TiViewProxy firstVisibleParentProxy = firstVisibleProxy.getParent();
+			if (firstVisibleParentProxy instanceof ListSectionProxy) {
+				final ListSectionProxy firstVisibleSection = (ListSectionProxy) firstVisibleParentProxy;
+				payload.put(TiC.PROPERTY_FIRST_VISIBLE_SECTION, firstVisibleSection);
 
-			// Obtain first visible section index.
-			final int firstVisibleSectionIndex = proxy.getIndexOfSection(firstVisibleSection);
-			payload.put(TiC.PROPERTY_FIRST_VISIBLE_SECTION_INDEX, firstVisibleSectionIndex);
+				// Obtain first visible section index.
+				final int firstVisibleSectionIndex = proxy.getIndexOfSection(firstVisibleSection);
+				payload.put(TiC.PROPERTY_FIRST_VISIBLE_SECTION_INDEX, firstVisibleSectionIndex);
+			}
 		}
 
 		// Define visible item count.
