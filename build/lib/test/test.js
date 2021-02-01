@@ -526,7 +526,7 @@ class DeviceTestDetails {
 			state: 'failed',
 			duration: 0,
 			suite: 'Unknown',
-			title: `Unknown imcomplete test ${Date.now()}`,
+			title: `Unknown incomplete test ${Date.now()}`,
 			message: 'build/lib/test.js failed to parse reported test result',
 			stack: this.partialTestEnd, // where should we stick this?
 			stdout: this.output,
@@ -816,6 +816,11 @@ async function handleBuild(prc, target, snapshotDir, snapshotPromises) {
 			if (stripped.includes('Application failed to install')) {
 				prc.kill(); // quit this build...
 				return reject(new Error('Failed to install test app to device/sim'));
+			}
+			// Handle iOS "soft" crash
+			if (stripped.includes('Application received error: signal error code: 11')) {
+				prc.kill(); // quit this build...
+				return reject(new Error('Application received error: signal error code: 11'));
 			}
 			const device = getDeviceName(stripped);
 			if (!deviceMap.has(device)) {
