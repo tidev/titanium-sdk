@@ -19,26 +19,26 @@ import android.widget.RelativeLayout;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.selection.SelectionTracker;
-import androidx.recyclerview.widget.RecyclerView;
 
 import ti.modules.titanium.ui.TableViewRowProxy;
+import ti.modules.titanium.ui.widget.listview.TiRecyclerViewAdapter;
 
-public class TableViewAdapter extends RecyclerView.Adapter<TableViewHolder>
+public class TableViewAdapter extends TiRecyclerViewAdapter<TableViewHolder>
 {
 	private static final String TAG = "TableViewAdapter";
 
 	private static int id_holder;
-	private static LayoutInflater inflater;
 
+	private LayoutInflater inflater;
 	private List<TableViewRowProxy> models;
 	private SelectionTracker tracker;
 
 	public TableViewAdapter(@NonNull Context context, @NonNull List<TableViewRowProxy> models)
 	{
+		this.context = context;
+
 		// Obtain layout inflater instance.
-		if (inflater == null) {
-			inflater = LayoutInflater.from(context);
-		}
+		inflater = LayoutInflater.from(context);
 
 		// Obtain TableViewHolder layout identifier.
 		try {
@@ -127,7 +127,7 @@ public class TableViewAdapter extends RecyclerView.Adapter<TableViewHolder>
 	public TableViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType)
 	{
 		// Create new TableViewHolder instance.
-		final RelativeLayout layout = (RelativeLayout) inflater.inflate(id_holder, parent, false);
+		final RelativeLayout layout = (RelativeLayout) inflater.inflate(id_holder, null);
 		return new TableViewHolder(parent.getContext(), layout);
 	}
 

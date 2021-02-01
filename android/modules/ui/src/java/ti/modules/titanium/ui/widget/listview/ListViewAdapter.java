@@ -19,24 +19,23 @@ import android.widget.RelativeLayout;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.selection.SelectionTracker;
-import androidx.recyclerview.widget.RecyclerView;
 
-public class ListViewAdapter extends RecyclerView.Adapter<ListViewHolder>
+public class ListViewAdapter extends TiRecyclerViewAdapter<ListViewHolder>
 {
 	private static final String TAG = "ListViewAdapter";
 
 	private static int id_holder;
-	private static LayoutInflater inflater;
 
+	private LayoutInflater inflater;
 	private List<ListItemProxy> models;
 	private SelectionTracker tracker;
 
 	public ListViewAdapter(@NonNull Context context, @NonNull List<ListItemProxy> models)
 	{
+		this.context = context;
+
 		// Obtain layout inflater instance.
-		if (inflater == null) {
-			inflater = LayoutInflater.from(context);
-		}
+		inflater = LayoutInflater.from(context);
 
 		// Obtain TableViewHolder layout identifier.
 		try {
@@ -86,26 +85,6 @@ public class ListViewAdapter extends RecyclerView.Adapter<ListViewHolder>
 	}
 
 	/**
-	 * Get selection tracker object.
-	 *
-	 * @return Selection tracker.
-	 */
-	public SelectionTracker getTracker()
-	{
-		return tracker;
-	}
-
-	/**
-	 * Set selection tracker for adapter.
-	 *
-	 * @param tracker Selection tracker.
-	 */
-	public void setTracker(SelectionTracker tracker)
-	{
-		this.tracker = tracker;
-	}
-
-	/**
 	 * Bind item to holder.
 	 * This is the listener that updates our list holders to the correct items.
 	 *
@@ -141,7 +120,7 @@ public class ListViewAdapter extends RecyclerView.Adapter<ListViewHolder>
 	public ListViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType)
 	{
 		// Create new TableViewHolder instance.
-		final RelativeLayout layout = (RelativeLayout) inflater.inflate(id_holder, parent, false);
+		final RelativeLayout layout = (RelativeLayout) inflater.inflate(id_holder, null);
 		return new ListViewHolder(parent.getContext(), layout);
 	}
 
