@@ -92,7 +92,7 @@
     "async": "^3.2.0",
     "boxen": "^5.0.0",
     "buffer-equal": "1.0.0",
-    "clean-css": "4.2.3",
+    "clean-css": "5.0.1",
     "colors": "^1.4.0",
     "ejs": "^3.1.5",
     "fields": "0.1.24",
