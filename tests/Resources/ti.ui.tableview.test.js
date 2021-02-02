@@ -1802,7 +1802,8 @@ describe('Titanium.UI.TableView', function () {
 		view.add(tableView);
 
 		should(view).matchImage('snapshots/tableview_style_inset_grouped.png', {
-			threshold: 0.1
+			threshold: 0.1,
+			maxPixelMismatch: 14840
 		});
 	});
 });
