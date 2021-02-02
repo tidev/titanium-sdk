@@ -572,9 +572,13 @@ iOSModuleBuilder.prototype.buildModule = function buildModule(next) {
 			'-archivePath', path.join(this.projectDir, 'build', target + '.xcarchive'),
 			'-UseNewBuildSystem=YES',
 			'ONLY_ACTIVE_ARCH=NO',
-			'BUILD_LIBRARY_FOR_DISTRIBUTION=YES',
 			'SKIP_INSTALL=NO',
 		];
+
+		if (this.isFramework) {
+			args.push('BUILD_LIBRARY_FOR_DISTRIBUTION=YES');
+		}
+
 		const scheme = this.isFramework ? this.moduleIdAsIdentifier : this.moduleName;
 		args.push('-scheme');
 		args.push(scheme);
