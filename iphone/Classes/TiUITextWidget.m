@@ -164,7 +164,6 @@
   [[self textWidgetView] setSecureTextEntry:[TiUtils boolValue:value]];
 }
 
-#if IS_SDK_IOS_12
 - (void)setPasswordRules_:(NSString *)passwordRules
 {
   ENSURE_TYPE_OR_NIL(passwordRules, NSString);
@@ -176,7 +175,6 @@
 
   [[self textWidgetView] setPasswordRules:[UITextInputPasswordRules passwordRulesWithDescriptor:passwordRules]];
 }
-#endif
 
 #pragma mark Responder methods
 
