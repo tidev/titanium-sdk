@@ -1439,7 +1439,8 @@ describe('Titanium.UI.ListView', function () {
 		view.add(listView);
 
 		should(view).matchImage('snapshots/listview_style_inset_grouped.png', {
-			threshold: 0.1
+			threshold: 0.1,
+			maxPixelMismatch: 18380
 		});
 	});
 });
