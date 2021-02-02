@@ -287,7 +287,7 @@ function resolve(separator, paths) {
 	}
 	// if we didn't hit root, prepend cwd
 	if (!hitRoot) {
-		resolved = process.cwd() + separator + resolved;
+		resolved = (global.process ? process.cwd() : '/') + separator + resolved;
 	}
 	const normalized = normalize(separator, resolved);
 	if (normalized.charAt(normalized.length - 1) === separator) {

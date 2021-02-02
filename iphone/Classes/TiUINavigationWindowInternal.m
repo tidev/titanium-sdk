@@ -5,7 +5,7 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-#if defined(USE_TI_UINAVIGATIONWINDOW) || defined(USE_TI_UIIOSNAVIGATIONWINDOW)
+#if defined(USE_TI_UINAVIGATIONWINDOW)
 
 #import "TiUINavigationWindowInternal.h"
 #import "TiUINavigationWindowProxy.h"

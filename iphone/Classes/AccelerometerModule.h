@@ -4,12 +4,12 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#import <TitaniumKit/ObjcProxy.h>
+#import <TitaniumKit/ObjcModule.h>
 
 #ifdef USE_TI_ACCELEROMETER
 #import <CoreMotion/CoreMotion.h>
 
-@interface AccelerometerModule : ObjcProxy {
+@interface AccelerometerModule : ObjcModule {
   @private
   CMMotionManager *_motionManager;
   NSOperationQueue *_motionQueue;

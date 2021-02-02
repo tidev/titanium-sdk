@@ -417,23 +417,6 @@ MAKE_SYSTEM_PROP(EXTEND_EDGE_ALL, 15); //UIEdgeRectAll
   return tiColor;
 }
 
-- (NSNumber *)isLandscape:(id)args
-{
-  return NUMBOOL([UIApplication sharedApplication].statusBarOrientation != UIInterfaceOrientationPortrait);
-}
-
-- (NSNumber *)isPortrait:(id)args
-{
-  return NUMBOOL([UIApplication sharedApplication].statusBarOrientation == UIInterfaceOrientationPortrait);
-}
-
-//Deprecated since 1.7.2
-- (NSNumber *)orientation
-{
-  DebugLog(@"Ti.UI.orientation is deprecated since 1.7.2 .");
-  return NUMINT([UIApplication sharedApplication].statusBarOrientation);
-}
-
 #pragma mark iPhone namespace
 
 #ifdef USE_TI_UIIPAD

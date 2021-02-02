@@ -542,7 +542,6 @@ public class TiSound implements MediaPlayer.OnCompletionListener, MediaPlayer.On
 
 		KrollDict data = new KrollDict();
 		data.putCodeAndMessage(code, msg);
-		data.put(TiC.PROPERTY_MESSAGE, msg);
 		proxy.fireEvent(EVENT_ERROR, data);
 
 		return true;

@@ -87,6 +87,7 @@ JSValueRef ConvertIdTiValue(KrollContext *context, id obj)
 //
 // callback for handling finalization (in JS land)
 //
+static BOOL finalizing = NO;
 void KrollFinalizer(JSObjectRef ref)
 {
   id o = (id)JSObjectGetPrivate(ref);
@@ -112,9 +113,10 @@ void KrollFinalizer(JSObjectRef ref)
       }
     }
   }
-
+  finalizing = YES;
   [o release];
   o = nil;
+  finalizing = NO;
 }
 
 bool KrollDeleteProperty(JSContextRef ctx, JSObjectRef object, JSStringRef propertyName, JSValueRef *exception)
@@ -397,6 +399,11 @@ bool KrollHasInstance(JSContextRef ctx, JSObjectRef constructor, JSValueRef poss
 + (JSClassRef)jsClassRef
 {
   return KrollObjectClassRef;
+}
+
++ (BOOL)isFinalizing
+{
+  return finalizing;
 }
 
 - (id)initWithTarget:(id)target_ context:(KrollContext *)context_

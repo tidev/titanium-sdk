@@ -448,20 +448,9 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void *payload)
   return nil;
 }
 
-- (TiProxy *)currentWindow
-{
-  return [[self pageContext] preloadForKey:@"currentWindow" name:@"UI"];
-}
-
 - (NSURL *)_baseURL
 {
   if (baseURL == nil) {
-    TiProxy *currentWindow = [self currentWindow];
-    if (currentWindow != nil) {
-      // cache it
-      [self _setBaseURL:[currentWindow _baseURL]];
-      return baseURL;
-    }
     return [[self _host] baseURL];
   }
   return baseURL;
@@ -1223,6 +1212,22 @@ DEFINE_EXCEPTIONS
 {
   DebugLog(@"[ERROR] Subclasses must override the apiName API endpoint.");
   return @"Ti.Proxy";
+}
+
+- (JSContext *)currentContext
+{
+  id<TiEvaluator> evaluator = self.pageContext;
+  if (evaluator == nil) {
+    evaluator = self.executionContext;
+    if (evaluator == nil) {
+      return nil; // TODO: Try [JSContext currentContext]? I think it will always fail for old-school proxies in this hierarchy
+    }
+  }
+  JSGlobalContextRef globalRef = [[evaluator krollContext] context];
+  if (globalRef) {
+    return [JSContext contextWithJSGlobalContextRef:globalRef];
+  }
+  return nil;
 }
 
 + (id)createProxy:(NSString *)qualifiedName withProperties:(NSDictionary *)properties inContext:(id<TiEvaluator>)context
