@@ -403,7 +403,7 @@
 
   if (shouldUpdateNavBar && ([controller navigationController] != nil)) {
     UINavigationBar *navigationBar = controller.navigationController.navigationBar;
-    if ([TiUtils isIOSVersionOrGreater:@"11.0"] && [TiUtils boolValue:[self valueForKey:@"largeTitleEnabled"] def:NO]) {
+    if ([[TiUtils boolValue:[self valueForKey:@"largeTitleEnabled"] def:NO]) {
       if ([self shouldUseNavBarApperance]) {
         navigationBar.standardAppearance.largeTitleTextAttributes = theAttributes;
         navigationBar.scrollEdgeAppearance.largeTitleTextAttributes = theAttributes;
@@ -877,7 +877,7 @@
 
   [self replaceValue:value forKey:@"largeTitleEnabled" notification:NO];
 
-  if ([TiUtils isIOSVersionOrGreater:@"11.0"] && shouldUpdateNavBar && controller != nil && [controller navigationController] != nil) {
+  if (shouldUpdateNavBar && controller != nil && [controller navigationController] != nil) {
     [[[controller navigationController] navigationBar] setPrefersLargeTitles:[TiUtils boolValue:value def:NO]];
   }
 }
@@ -889,7 +889,7 @@
 
   [self replaceValue:value forKey:@"largeTitleDisplayMode" notification:NO];
 
-  if ([TiUtils isIOSVersionOrGreater:@"11.0"] && shouldUpdateNavBar && controller != nil && [controller navigationController] != nil) {
+  if (shouldUpdateNavBar && controller != nil && [controller navigationController] != nil) {
     [[controller navigationItem] setLargeTitleDisplayMode:[TiUtils intValue:value def:UINavigationItemLargeTitleDisplayModeAutomatic]];
   }
 }
@@ -901,7 +901,7 @@
 
   [self replaceValue:value forKey:@"hidesSearchBarWhenScrolling" notification:NO];
 
-  if ([TiUtils isIOSVersionOrGreater:@"11.0"] && shouldUpdateNavBar && controller != nil && [controller navigationController] != nil) {
+  if (shouldUpdateNavBar && controller != nil && [controller navigationController] != nil) {
     [controller navigationItem].hidesSearchBarWhenScrolling = [TiUtils intValue:value def:YES];
   }
 }
@@ -1081,12 +1081,8 @@
   UIEdgeInsets edgeInsets = UIEdgeInsetsZero;
   UIEdgeInsets safeAreaInset = UIEdgeInsetsZero;
 
-  if ([TiUtils isIOSVersionOrGreater:@"11.0"]) {
-    UIViewController<TiControllerContainment> *topContainerController = [[[TiApp app] controller] topContainerController];
-    safeAreaInset = [[topContainerController hostingView] safeAreaInsets];
-  } else if (!hidesStatusBar) {
-    safeAreaInset.top = 20.0;
-  }
+  UIViewController<TiControllerContainment> *topContainerController = [[[TiApp app] controller] topContainerController];
+  safeAreaInset = [[topContainerController hostingView] safeAreaInsets];
 
   if (self.tabGroup) {
     edgeInsets = [self tabGroupEdgeInsetsForSafeAreaInset:safeAreaInset];

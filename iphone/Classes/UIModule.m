@@ -362,11 +362,7 @@ MAKE_SYSTEM_PROP(EXTEND_EDGE_ALL, 15); //UIEdgeRectAll
 }
 - (NSString *)TEXT_STYLE_LARGE_TITLE
 {
-  if ([TiUtils isIOSVersionOrGreater:@"11.0"]) {
-    return UIFontTextStyleLargeTitle;
-  }
-
-  return @"";
+  return UIFontTextStyleLargeTitle;
 }
 
 - (NSNumber *)userInterfaceStyle
