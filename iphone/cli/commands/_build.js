@@ -188,6 +188,10 @@ function iOSBuilder() {
 	// if the selected sim is 32-bit (iPhone 5 and older, iPad 4th gen or older), then the app
 	// won't run, so we need to track the ONLY_ACTIVE_ARCH flag and disable it for 32-bit sims
 	this.simOnlyActiveArch = null;
+
+	// macros used as preprocessor in project.xcconfig file
+	this.gccDefs = new Map();
+	this.tiSymbolMacros = null;
 }
 
 util.inherits(iOSBuilder, Builder);
@@ -2332,7 +2336,6 @@ iOSBuilder.prototype.run = function (logger, config, cli, finished) {
 		'writeEntitlementsPlist',
 		'writeInfoPlist',
 		'writeMain',
-		'writeXcodeConfigFiles',
 		'copyTitaniumiOSFiles',
 		'copyExtensionFiles',
 		'cleanXcodeDerivedData',
@@ -2343,6 +2346,9 @@ iOSBuilder.prototype.run = function (logger, config, cli, finished) {
 		'encryptJSFiles',
 		'writeI18NFiles',
 		'processTiSymbols',
+
+		// preprocessor macros writting
+		'writeXcodeConfigFiles',
 
 		// cleanup and optimization
 		'removeFiles',
@@ -3120,7 +3126,6 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 		],
 		resourcesBuildPhase = xobjs.PBXResourcesBuildPhase[xobjs.PBXNativeTarget[mainTargetUuid].buildPhases.filter(function (phase) { return xobjs.PBXResourcesBuildPhase[phase.value]; })[0].value],
 		caps = this.tiapp.ios.capabilities,
-		gccDefs = [ 'DEPLOYTYPE=' + this.deployType ],
 		buildSettings = {
 			IPHONEOS_DEPLOYMENT_TARGET: appc.version.format(this.minIosVer, 2),
 			TARGETED_DEVICE_FAMILY: '"' + this.deviceFamilies[this.deviceFamily] + '"',
@@ -3132,32 +3137,28 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 		},
 		legacySwift = version.lt(this.xcodeEnv.version, '8.0.0');
 
+	this.gccDefs.set('DEPLOYTYPE', this.deployType);
 	// set additional build settings
 	if (this.target === 'simulator' || this.target === 'macos') {
-		gccDefs.push('__LOG__ID__=' + this.tiapp.guid);
-		gccDefs.push('DEBUG=1');
-		gccDefs.push('TI_VERSION=' + this.titaniumSdkVersion);
+		this.gccDefs.set('__LOG__ID__', this.tiapp.guid);
+		this.gccDefs.set('DEBUG', 1);
 	}
 
 	if (this.enableLaunchScreenStoryboard) {
-		gccDefs.push('LAUNCHSCREEN_STORYBOARD=1');
+		this.gccDefs.set('LAUNCHSCREEN_STORYBOARD', 1);
 	}
 
 	if (this.defaultBackgroundColor) {
-		gccDefs.push(
-			'DEFAULT_BGCOLOR_RED=' + this.defaultBackgroundColor.red,
-			'DEFAULT_BGCOLOR_GREEN=' + this.defaultBackgroundColor.green,
-			'DEFAULT_BGCOLOR_BLUE=' + this.defaultBackgroundColor.blue
-		);
+		this.gccDefs.set('DEFAULT_BGCOLOR_RED', this.defaultBackgroundColor.red);
+		this.gccDefs.set('DEFAULT_BGCOLOR_GREEN', this.defaultBackgroundColor.green);
+		this.gccDefs.set('DEFAULT_BGCOLOR_BLUE', this.defaultBackgroundColor.blue);
 	}
 
 	if (this.tiLogServerPort === 0) {
-		gccDefs.push('DISABLE_TI_LOG_SERVER=1');
+		this.gccDefs.set('DISABLE_TI_LOG_SERVER', 1);
 	} else {
-		gccDefs.push('TI_LOG_SERVER_PORT=' + this.tiLogServerPort);
+		this.gccDefs.set('TI_LOG_SERVER_PORT', this.tiLogServerPort);
 	}
-
-	buildSettings.GCC_PREPROCESSOR_DEFINITIONS = '"' + gccDefs.join(' ') + '"';
 
 	if (/device|dist-appstore|dist-adhoc/.test(this.target)) {
 		buildSettings.DEPLOYMENT_POSTPROCESSING = 'YES';
@@ -4500,6 +4501,8 @@ iOSBuilder.prototype.writeXcodeConfigFiles = function writeXcodeConfigFiles() {
 			'OTHER_LDFLAGS[sdk=iphonesimulator*]=$(inherited) $(JSCORE_LD_FLAGS)',
 			'OTHER_LDFLAGS[sdk=iphoneos9.*]=$(inherited) -weak_framework Contacts -weak_framework ContactsUI -weak_framework WatchConnectivity -weak_framework CoreSpotlight',
 			'OTHER_LDFLAGS[sdk=iphonesimulator9.*]=$(inherited) -weak_framework Contacts -weak_framework ContactsUI -weak_framework WatchConnectivity -weak_framework CoreSpotlight',
+			'GCC_DEFINITIONS=' + Array.from(this.gccDefs.entries()).map(function ([ key, value ]) { return key + '=' + value; }).join(' '),
+			'TI_SYMBOL_MACROS=' + this.tiSymbolMacros,
 			'#include "module"'
 		].join('\n') + '\n';
 
@@ -4612,7 +4615,7 @@ iOSBuilder.prototype.copyTitaniumiOSFiles = function copyTitaniumiOSFiles() {
 				var filename = path.basename(srcFile);
 
 				// we skip the ApplicationRouting.m file here because we'll copy it in the encryptJSFiles task below
-				if (dir === 'Classes' && (filename === 'ApplicationRouting.m' || filename === 'defines.h')) {
+				if (dir === 'Classes' && (filename === 'ApplicationRouting.m')) {
 					this.logger.trace(__('Skipping %s, it\'ll be processed later', (dir + '/' + filename).cyan));
 					return null;
 				}
@@ -6568,14 +6571,10 @@ iOSBuilder.prototype.processTiSymbols = function processTiSymbols() {
 		}, this);
 	}, this);
 
-	const dest = path.join(this.buildDir, 'Classes', 'defines.h'),
-		destExists = fs.existsSync(dest),
-		infoPlist = this.infoPlist;
+	const infoPlist = this.infoPlist;
 	let hasRemoteNotification = false,
 		hasFetch = false,
 		contents;
-
-	this.unmarkBuildDirFile(dest);
 
 	if (Array.isArray(infoPlist.UIBackgroundModes) && infoPlist.UIBackgroundModes.indexOf('remote-notification') !== -1) {
 		hasRemoteNotification = true;
@@ -6583,77 +6582,63 @@ iOSBuilder.prototype.processTiSymbols = function processTiSymbols() {
 	if (Array.isArray(infoPlist.UIBackgroundModes) && infoPlist.UIBackgroundModes.indexOf('fetch') !== -1) {
 		hasFetch = true;
 	}
-	// if we're doing a simulator build or we're including all titanium modules,
-	// return now since we don't care about writing the defines.h
+	// if we're doing a simulator build or we're including all titanium modules, get it from source xcconfig file
 	if (this.target === 'simulator' || this.target === 'macos' || this.includeAllTiModules) {
-		const definesFile = path.join(this.platformPath, 'Classes', 'defines.h');
+		const sourceConfigPath = path.join(this.platformPath, 'iphone', 'project.xcconfig');
+		const conf = fs.readFileSync(sourceConfigPath).toString();
+		contents = conf.match(/TI_SYMBOL_MACROS=([^\n]*)/)[1];
 
-		contents = fs.readFileSync(definesFile).toString();
-		if (!this.useJSCore && !this.useAutoLayout && !hasRemoteNotification && !hasFetch) {
-			if ((destExists && contents === fs.readFileSync(dest).toString()) || !this.copyFileSync(definesFile, dest, { contents: contents })) {
-				this.logger.trace(__('No change, skipping %s', dest.cyan));
-			}
-			return;
-		}
 		if (this.useAutoLayout) {
-			contents += '\n#define TI_USE_AUTOLAYOUT';
+			contents += ' TI_USE_AUTOLAYOUT';
 		}
 	} else {
-		// build the defines.h file
+		let isListView = false;
 		contents = [
-			'// Warning: this is generated file. Do not modify!',
-			'',
-			'#define TI_VERSION ' + this.titaniumSdkVersion
 		].concat(Object.keys(symbols).sort().map(function (s) {
-			return '#define USE_TI_' + s;
+			if (s === 'UILISTVIEW') {
+				isListView = true;
+			}
+
+			return 'USE_TI_' + s;
 		}));
 
-		contents.push(
-			'#ifdef USE_TI_UILISTVIEW',
-			'#define USE_TI_UILABEL',
-			'#define USE_TI_UIBUTTON',
-			'#define USE_TI_UIBUTTONBAR',
-			'#define USE_TI_UIIMAGEVIEW',
-			'#define USE_TI_UIMASKEDIMAGE',
-			'#define USE_TI_UIPROGRESSBAR',
-			'#define USE_TI_UIACTIVITYINDICATOR',
-			'#define USE_TI_UISWITCH',
-			'#define USE_TI_UISLIDER',
-			'#define USE_TI_UITEXTFIELD',
-			'#define USE_TI_UITEXTAREA',
-			'#define USE_TI_UISCROLLABLEVIEW',
-			'#define USE_TI_UIIOSSTEPPER',
-			'#define USE_TI_UIIOSBLURVIEW',
-			'#define USE_TI_UIIOSLIVEPHOTOVIEW',
-			'#define USE_TI_UIIOSTABBEDBAR',
-			'#define USE_TI_UIPICKER',
-			'#endif'
-		);
-
-		if (this.useAutoLayout) {
-			contents.push('#define TI_USE_AUTOLAYOUT');
+		if (isListView) {
+			contents.push(
+				'USE_TI_UILABEL',
+				'USE_TI_UIBUTTON',
+				'USE_TI_UIBUTTONBAR',
+				'USE_TI_UIIMAGEVIEW',
+				'USE_TI_UIMASKEDIMAGE',
+				'USE_TI_UIPROGRESSBAR',
+				'USE_TI_UIACTIVITYINDICATOR',
+				'USE_TI_UISWITCH',
+				'USE_TI_UISLIDER',
+				'USE_TI_UITEXTFIELD',
+				'USE_TI_UITEXTAREA',
+				'USE_TI_UISCROLLABLEVIEW',
+				'USE_TI_UIIOSSTEPPER',
+				'USE_TI_UIIOSBLURVIEW',
+				'USE_TI_UIIOSLIVEPHOTOVIEW',
+				'USE_TI_UIIOSTABBEDBAR',
+				'USE_TI_UIPICKER',
+			);
 		}
 
-		contents = contents.join('\n');
+		if (this.useAutoLayout) {
+			contents.push('TI_USE_AUTOLAYOUT');
+		}
+
+		contents = contents.join(' ');
 	}
 
 	if (hasRemoteNotification) {
-		contents += '\n#define USE_TI_SILENTPUSH';
+		contents += ' USE_TI_SILENTPUSH';
 	}
 	if (hasFetch) {
-		contents += '\n#define USE_TI_FETCH';
+		contents += ' USE_TI_FETCH';
 	}
 
-	if (!destExists || contents !== fs.readFileSync(dest).toString()) {
-		if (!this.forceRebuild) {
-			this.logger.info(__('Forcing rebuild: %s has changed since last build', 'Classes/defines.h'));
-			this.forceRebuild = true;
-		}
-		this.logger.debug(__('Writing %s', dest.cyan));
-		fs.writeFileSync(dest, contents);
-	} else {
-		this.logger.trace(__('No change, skipping %s', dest.cyan));
-	}
+	this.tiSymbolMacros = contents;
 };
 
 iOSBuilder.prototype.removeFiles = function removeFiles(next) {
