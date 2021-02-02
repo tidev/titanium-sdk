@@ -417,24 +417,15 @@
 
 - (NSNumber *)homeIndicatorAutoHidden
 {
-  if (![TiUtils isIOSVersionOrGreater:@"11.0"] && ![TiUtils isMacOS]) {
-    NSLog(@"[ERROR] This property is available on iOS 11 and above, or macOS.");
-    return @(NO);
-  }
   return @([self homeIndicatorAutoHide]);
 }
 
 - (void)setHomeIndicatorAutoHidden:(id)arg
 {
-  if (![TiUtils isIOSVersionOrGreater:@"11.0"] && ![TiUtils isMacOS]) {
-    NSLog(@"[ERROR] This property is available on iOS 11 and above, or macOS.");
-    return;
-  }
-
   ENSURE_TYPE(arg, NSNumber);
   id current = [self valueForUndefinedKey:@"homeIndicatorAutoHidden"];
   [self replaceValue:arg forKey:@"homeIndicatorAutoHidden" notification:NO];
-  if (current != arg && ([TiUtils isIOSVersionOrGreater:@"11.0"] || [TiUtils isMacOS])) {
+  if (current != arg) {
     [[[TiApp app] controller] setNeedsUpdateOfHomeIndicatorAutoHidden];
   }
 }

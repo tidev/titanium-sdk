@@ -1203,7 +1203,7 @@
 #ifdef FORCE_WITH_MODAL
     [self forceRotateToOrientation:target];
 #else
-    if ([TiUtils isIOSVersionOrGreater:@"11.0"] && [TiUtils isIOSVersionLower:@"12.0"]) {
+    if ([TiUtils isIOSVersionLower:@"12.0"]) {
       forcingStatusBarOrientation = YES;
       [[UIApplication sharedApplication] setStatusBarOrientation:target animated:NO];
       [UIViewController attemptRotationToDeviceOrientation];
@@ -1376,7 +1376,7 @@
     [self updateStatusBar];
   }
 
-  if (([TiUtils isIOSVersionOrGreater:@"11.0"] || [TiUtils isMacOS]) && [self respondsToSelector:@selector(setNeedsUpdateOfHomeIndicatorAutoHidden)]) {
+  if ([self respondsToSelector:@selector(setNeedsUpdateOfHomeIndicatorAutoHidden)]) {
     [self setNeedsUpdateOfHomeIndicatorAutoHidden];
   }
 }

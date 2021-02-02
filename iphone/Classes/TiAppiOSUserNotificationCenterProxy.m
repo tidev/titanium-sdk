@@ -134,9 +134,7 @@
       @"alertStyle" : @([settings alertStyle])
     } mutableCopy];
 
-    if ([TiUtils isIOSVersionOrGreater:@"11.0"]) {
-      propertiesDict[@"showPreviewsSetting"] = @([settings showPreviewsSetting]);
-    }
+    propertiesDict[@"showPreviewsSetting"] = @([settings showPreviewsSetting]);
 
     if ([TiUtils isIOSVersionOrGreater:@"12.0"]) {
       propertiesDict[@"criticalAlertSetting"] = @([settings criticalAlertSetting]);

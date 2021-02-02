@@ -1539,7 +1539,7 @@
   UIView *searchView = [searchField view];
 
   if (tableHeaderView == nil) {
-    CGFloat wrapperHeight = [TiUtils isIOSVersionOrGreater:@"11.0"] ? TI_SEARCHBAR_HEIGHT : TI_NAVBAR_HEIGHT;
+    CGFloat wrapperHeight = TI_SEARCHBAR_HEIGHT;
     CGRect wrapperFrame = CGRectMake(0, 0, [tableview bounds].size.width, wrapperHeight);
     tableHeaderView = [[UIView alloc] initWithFrame:wrapperFrame];
     [tableHeaderView setAutoresizingMask:UIViewAutoresizingFlexibleWidth];
@@ -1782,7 +1782,7 @@
   RELEASE_TO_NIL(searchField);
   RELEASE_TO_NIL(searchController);
 
-  isSearchBarInNavigation = [TiUtils boolValue:[self.proxy valueForKey:@"showSearchBarInNavBar"] def:NO] && [TiUtils isIOSVersionOrGreater:@"11.0"];
+  isSearchBarInNavigation = [TiUtils boolValue:[self.proxy valueForKey:@"showSearchBarInNavBar"] def:NO];
 
   if (search != nil) {
     //TODO: now that we're using the search controller, we can move away from
