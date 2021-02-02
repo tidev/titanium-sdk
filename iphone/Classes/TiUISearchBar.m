@@ -145,9 +145,7 @@
 
   NSAttributedString *placeholder = [[NSAttributedString alloc] initWithString:[TiUtils stringValue:hintText] attributes:@{ NSForegroundColorAttributeName : [[TiUtils colorValue:value] _color] }];
   if ([TiUtils isIOSVersionOrGreater:@"13.0"]) {
-#if IS_SDK_IOS_13
     self.searchBar.searchTextField.attributedPlaceholder = placeholder;
-#endif
   } else {
     [UITextField appearanceWhenContainedInInstancesOfClasses:@[ [UISearchBar class] ]].attributedPlaceholder = placeholder;
   }
@@ -157,9 +155,7 @@
 - (void)setColor_:(id)value
 {
   if ([TiUtils isIOSVersionOrGreater:@"13.0"]) {
-#if IS_SDK_IOS_13
     self.searchBar.searchTextField.textColor = [[TiUtils colorValue:value] _color];
-#endif
   } else {
     // TIMOB-10368
     // Remove this hack again once iOS exposes this as a public API
