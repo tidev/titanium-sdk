@@ -16,13 +16,19 @@ const should = require('./utilities/assertions');
 describe('Titanium.Media.AudioPlayer', () => {
 	let audioPlayer;
 
+	const errorLog = e => console.error(e.error);
+
 	beforeEach(() => {
 		audioPlayer = Ti.Media.createAudioPlayer({ url: '/sample.mp3' });
+		audioPlayer.addEventListener('error', errorLog);
 	});
 
 	afterEach(() => {
-		if (audioPlayer && OS_ANDROID) {
-			audioPlayer.release();
+		if (audioPlayer) {
+			audioPlayer.removeEventListener('error', errorLog);
+			if (OS_ANDROID) {
+				audioPlayer.release();
+			}
 		}
 		audioPlayer = null;
 	});
