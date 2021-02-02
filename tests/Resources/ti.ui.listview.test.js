@@ -1461,7 +1461,7 @@ describe('Titanium.UI.ListView', function () {
 			templates: { mytemplate: template },
 			defaultItemTemplate: 'mytemplate',
 			sections: [ section ],
-			style: Titanium.UI.iOS.TableViewStyle.INSET_GROUPED
+			style: Titanium.UI.iOS.ListViewStyle.INSET_GROUPED
 		});
 
 		view.add(listView);
