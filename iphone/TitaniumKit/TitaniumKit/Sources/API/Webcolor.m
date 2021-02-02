@@ -125,7 +125,6 @@ int toASCIIHexValue(unichar c) { return (c & 0xF) + (c < 'A' ? 0 : 9); }
       @"ff000000" : UIColor.blackColor,
     }];
 
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
     // NOTE: We explicitly use lowercase names because we cache using lowercase
     // This basically means color names are case insensitive
     [colorLookup addEntriesFromDictionary:@{
@@ -170,7 +169,6 @@ int toASCIIHexValue(unichar c) { return (c & 0xF) + (c < 'A' ? 0 : 9); }
         @"quaternarysystemfillcolor" : UIColor.quaternarySystemFillColor
       }];
     }
-#endif
   }
   if ([colorName hasPrefix:@"#"]) {
     colorName = [colorName substringFromIndex:1];

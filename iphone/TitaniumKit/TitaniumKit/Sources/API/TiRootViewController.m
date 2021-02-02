@@ -150,10 +150,8 @@
       return UIStatusBarStyleDefault;
     } else if ([theString isEqualToString:@"UIStatusBarStyleBlackTranslucent"] || [theString isEqualToString:@"UIStatusBarStyleLightContent"] || [theString isEqualToString:@"UIStatusBarStyleBlackOpaque"]) {
       return UIStatusBarStyleLightContent;
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
     } else if ([theString isEqualToString:@"UIStatusBarStyleDarkContent"]) {
       return UIStatusBarStyleDarkContent;
-#endif
     }
   }
   return UIStatusBarStyleDefault;
