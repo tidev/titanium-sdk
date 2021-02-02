@@ -203,13 +203,11 @@
 
 #pragma mark Public
 
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
 - (NSNumber *)userInterfaceStyle
 {
   DEPRECATED_REPLACED(@"App.iOS.userInterfaceStyle", @"9.1.0", @"UI.userInterfaceStyle");
   return @(TiApp.controller.traitCollection.userInterfaceStyle);
 }
-#endif
 
 - (void)didChangeTraitCollection:(NSNotification *)info
 {
@@ -1091,7 +1089,6 @@
   return NUMINT(UNNotificationCategoryOptionHiddenPreviewsShowSubtitle);
 }
 
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
 - (NSNumber *)USER_INTERFACE_STYLE_UNSPECIFIED
 {
   DEPRECATED_REPLACED(@"App.iOS.USER_INTERFACE_STYLE_UNSPECIFIED", @"9.1.0", @"UI.USER_INTERFACE_STYLE_UNSPECIFIED");
@@ -1121,7 +1118,6 @@
 
   return NUMINT(0);
 }
-#endif
 
 #pragma mark UTI Text Type Constants
 
