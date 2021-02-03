@@ -2132,15 +2132,9 @@ iOSBuilder.prototype.validate = function validate(logger, config, cli) {
 
 				this.minIosVer = this.tiapp.ios['min-ios-ver'] || defaultMinIosVersion;
 
-				if (version.gte(this.iosSdkVersion, '10.0') && version.lt(this.minIosVer, '10.0')) {
-					logger.warn(__('The %s of the iOS section in the tiapp.xml is lower than the recommended minimum iOS version %s', 'min-ios-ver', '10.0'));
-					logger.warn(__('Consider bumping the %s to at least %s', 'min-ios-ver', '10.0'));
-					this.minIosVer = defaultMinIosVersion;
-				} else if (version.gte(this.iosSdkVersion, '6.0') && version.lt(this.minIosVer, defaultMinIosVersion)) {
-					logger.info(__('Building for iOS %s; using %s as minimum iOS version', version.format(this.iosSdkVersion, 2).cyan, defaultMinIosVersion.cyan));
-					this.minIosVer = defaultMinIosVersion;
-				} else if (version.lt(this.minIosVer, defaultMinIosVersion)) {
-					logger.info(__('The %s of the iOS section in the tiapp.xml is lower than minimum supported version: Using %s as minimum', 'min-ios-ver'.cyan, version.format(defaultMinIosVersion, 2).cyan));
+				if (version.lt(this.minIosVer, defaultMinIosVersion)) {
+					logger.warn(__('The %s of the iOS section in the tiapp.xml is lower than the recommended minimum iOS version %s', 'min-ios-ver', defaultMinIosVersion));
+					logger.warn(__('Consider bumping the %s to at least %s', 'min-ios-ver', defaultMinIosVersion));
 					this.minIosVer = defaultMinIosVersion;
 				} else if (version.gt(this.minIosVer, this.iosSdkVersion)) {
 					logger.error(__('The <min-ios-ver> of the iOS section in the tiapp.xml is set to %s and is greater than the specified iOS version %s', version.format(this.minIosVer, 2), version.format(this.iosSdkVersion, 2)));
