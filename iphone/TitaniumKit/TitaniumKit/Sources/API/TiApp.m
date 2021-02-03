@@ -1264,8 +1264,8 @@ TI_INLINE void waitForMemoryPanicCleared(void); //WARNING: This must never be ru
   BGTaskRequest *taskRequest;
   if ([bgTask[@"type"] isEqualToString:@"process"]) {
     taskRequest = [[[BGProcessingTaskRequest alloc] initWithIdentifier:bgTask[@"identifier"]] autorelease];
-    ((BGProcessingTaskRequest *)taskRequest).requiresNetworkConnectivity = [TiUtils boolValue:bgTask[@"powerConnect"] def:NO];
-    ((BGProcessingTaskRequest *)taskRequest).requiresExternalPower = [TiUtils boolValue:bgTask[@"networkConnect"] def:NO];
+    ((BGProcessingTaskRequest *)taskRequest).requiresNetworkConnectivity = [TiUtils boolValue:bgTask[@"networkConnect"] def:NO];
+    ((BGProcessingTaskRequest *)taskRequest).requiresExternalPower = [TiUtils boolValue:bgTask[@"powerConnect"] def:NO];
   } else {
     taskRequest = [[[BGAppRefreshTaskRequest alloc] initWithIdentifier:bgTask[@"identifier"]] autorelease];
   }
