@@ -555,14 +555,11 @@ function bootstrap (global, kroll) {
 			} else if (OS_ANDROID) {
 				const result = evaluate.runAsModule(source, filename, {
 					exports: this.exports,
-					require,
 					module: this,
 					__filename: filename,
-					__dirname: path.dirname(filename),
-					Ti,
-					Titanium,
-					kroll
+					__dirname: path.dirname(filename)
 				});
+				// this.exports = result;
 				return result;
 			}
 		}

@@ -78,6 +78,7 @@ add_library(
 	modules/APIModule.cpp
 	modules/AssetsModule.cpp
 	modules/EvaluateModule.cpp
+	modules/ModuleContext.cpp
 )
 
 # Add "kroll-apt" generated source files from the "generated" directory.

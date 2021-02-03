@@ -136,11 +136,6 @@ void V8Runtime::bootstrap(Local<Context> context)
 	// Add a reference to the global object
 	Local<Object> global = context->Global();
 
-	// Set the __dirname and __filename for the app.js.
-	// For other files, it will be injected via the `NativeModule` JavaScript class
-	global->Set(context, NEW_SYMBOL(isolate, "__filename"), STRING_NEW(isolate, "/app.js"));
-	global->Set(context, NEW_SYMBOL(isolate, "__dirname"), STRING_NEW(isolate, "/"));
-
 	Local<Function> mainFunction = result.As<Function>();
 	Local<Value> args[] = { global, kroll };
 	mainFunction->Call(context, global, 2, args);
@@ -222,9 +217,7 @@ JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeIn
 	}
 
 	HandleScope scope(isolate);
-	Local<ObjectTemplate> globalTemplate = ObjectTemplate::New(isolate);
-	globalTemplate->SetNamedPropertyHandler(0, EvaluateModule::GlobalSetterCallback);
-	Local<Context> context = Context::New(isolate, nullptr, globalTemplate);
+	Local<Context> context = Context::New(isolate);
 	context->Enter();
 
 	V8Runtime::globalContext.Reset(isolate, context);

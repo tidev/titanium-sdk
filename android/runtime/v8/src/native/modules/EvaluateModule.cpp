@@ -8,6 +8,7 @@
 
 #include "AndroidUtil.h"
 #include "EvaluateModule.h"
+#include "ModuleContext.h"
 #include "V8Util.h"
 #include "V8Runtime.h"
 
@@ -18,31 +19,32 @@ namespace titanium {
 
 	Persistent<String> EvaluateModule::DEFAULT_STRING;
 	Persistent<String> EvaluateModule::EXPORTS_STRING;
+	Persistent<String> EvaluateModule::MODULE_STRING;
 	Persistent<String> EvaluateModule::MODULE_REF_STRING;
 	Persistent<String> EvaluateModule::REQUIRE_STRING;
 
-	std::vector<Persistent<Context, CopyablePersistentTraits<Context>>> EvaluateModule::module_contexts;
-
 	static void assign(Local<Object> source, Local<Data> destination)
 	{
+		Local<Context> context = source->CreationContext();
+
 		// Obtain source properties.
-		Local<Array> keys = source->GetOwnPropertyNames();
+		Local<Array> keys = source->GetOwnPropertyNames(context).ToLocalChecked();
 
 		for (int i = 0; i < keys->Length(); i++) {
-			Local<String> key = keys->Get(i).As<String>();
-			Local<Value> value = source->Get(key);
+			Local<String> key = keys->Get(context, i).ToLocalChecked().As<String>();
+			Local<Value> value = source->Get(context, key).ToLocalChecked();
 
 			if (!key.IsEmpty() && !value.IsEmpty()) {
 
 				if (destination->IsValue()) {
 
 					// Destination is an object, set property from source.
-					destination.As<Value>().As<Object>()->Set(key, value);
+					destination.As<Value>().As<Object>()->Set(context, key, value);
 
 				} else if (destination->IsModule()) {
 
 					// Destination is a synthetic module, set property from source.
-					destination.As<Module>()->SetSyntheticModuleExport(V8Runtime::v8_isolate, key, value);
+					destination.As<Module>()->SetSyntheticModuleExport(context->GetIsolate(), key, value);
 				} else {
 
 					// Unknown destination, do not continue.
@@ -62,6 +64,9 @@ namespace titanium {
 		if (EXPORTS_STRING.IsEmpty()) {
 			EXPORTS_STRING.Reset(isolate, STRING_NEW(isolate, "exports"));
 		}
+		if (MODULE_STRING.IsEmpty()) {
+			MODULE_STRING.Reset(isolate, STRING_NEW(isolate, "module"));
+		}
 		if (MODULE_REF_STRING.IsEmpty()) {
 			MODULE_REF_STRING.Reset(isolate, STRING_NEW(isolate, "__module_ref"));
 		}
@@ -70,41 +75,6 @@ namespace titanium {
 		}
 
 		SetMethod(context, isolate, target, "runAsModule", EvaluateModule::RunAsModule);
-	}
-
-	void EvaluateModule::Dispose(Isolate *isolate)
-	{
-		for (auto persistentModuleContext : EvaluateModule::module_contexts) {
-			persistentModuleContext.Reset();
-		}
-		EvaluateModule::module_contexts.clear();
-	}
-
-	void EvaluateModule::GlobalSetterCallback(Local<String> key, Local<Value> value, const PropertyCallbackInfo<Value>& info)
-	{
-		Isolate* isolate = info.GetIsolate();
-
-		// Iterate through current module contexts.
-		for (auto persistentModuleContext : EvaluateModule::module_contexts) {
-
-			if (!persistentModuleContext.IsEmpty()) {
-
-				// Reference has not been collected, obtain module context.
-				Local<Context> moduleContext = persistentModuleContext.Get(isolate);
-
-				if (!moduleContext.IsEmpty()) {
-
-					// Get module context global object.
-					Local<Object> moduleGlobal = moduleContext->Global();
-
-					if (!moduleGlobal.IsEmpty()) {
-
-						// Set property on module global object.
-						moduleGlobal->Set(moduleContext, key, value);
-					}
-				}
-			}
-		}
 	}
 
 	MaybeLocal<Module> EvaluateModule::ModuleCallback(Local<Context> context, Local<String> specifier, Local<Module> referrer)
@@ -117,10 +87,10 @@ namespace titanium {
 		Local<String> DEFAULT_STRING = EvaluateModule::DEFAULT_STRING.Get(isolate);
 		Local<String> MODULE_REF_STRING = EvaluateModule::MODULE_REF_STRING.Get(isolate);
 
-		if (global->Has(REQUIRE_STRING)) {
+		if (global->Has(context, REQUIRE_STRING).FromMaybe(false)) {
 
 			// Obtain reference to `require` function defined in context.
-			Local<Value> requireValue = global->Get(REQUIRE_STRING);
+			Local<Value> requireValue = global->Get(context, REQUIRE_STRING).ToLocalChecked();
 
 			if (requireValue->IsFunction()) {
 				Local<Function> requireFunction = requireValue.As<Function>();
@@ -133,11 +103,13 @@ namespace titanium {
 				std::vector<Local<String>> exports { DEFAULT_STRING };
 
 				if (result->IsObject()) {
-					Local<Array> keys = result.As<Object>()->GetOwnPropertyNames();
+					Local<Array> keys = result.As<Object>()->GetOwnPropertyNames(context).ToLocalChecked();
 
 					// Iterate through required module to grab exported keys.
 					for (int i = 0; i < keys->Length(); i++) {
-						Local<String> key = keys->Get(i).As<String>();
+						Local<String> key = keys->Get(context, i).ToLocalChecked().As<String>();
+
+						LOGE(TAG, "export.%s", *String::Utf8Value(isolate, key));
 
 						if (!key->StringEquals(DEFAULT_STRING)) {
 							exports.push_back(key);
@@ -162,16 +134,16 @@ namespace titanium {
 						Local<String> MODULE_REF_STRING = EvaluateModule::MODULE_REF_STRING.Get(isolate);
 
 						// Obtain module reference from context.
-						Local<Value> moduleRefValue = global->Get(context, MODULE_REF_STRING).ToLocalChecked();
-						global->Delete(context, MODULE_REF_STRING).FromJust();
+						Local<Value> moduleRefValue = global->Get(context, MODULE_REF_STRING).FromMaybe(Undefined(isolate).As<Value>());
+						global->Delete(context, MODULE_REF_STRING);
 
-						if (moduleRefValue->IsObject()) {
+						if (!moduleRefValue.IsEmpty() && moduleRefValue->IsObject()) {
 							Local<Object> moduleRefObject = moduleRefValue.As<Object>();
 
 							// Add exports from required module to synthetic module.
 							assign(moduleRefObject, module);
 
-							if (!moduleRefObject->GetOwnPropertyNames()->Has(DEFAULT_STRING)) {
+							if (!moduleRefObject->GetOwnPropertyNames(context).ToLocalChecked()->Has(context, DEFAULT_STRING).FromMaybe(false)) {
 
 								// Always define default export.
 								module->SetSyntheticModuleExport(isolate, DEFAULT_STRING, moduleRefObject);
@@ -190,7 +162,7 @@ namespace titanium {
 				module->InstantiateModule(context, nullptr);
 				module->Evaluate(context);
 
-				assert(module->GetModuleNamespace().As<Object>()->GetOwnPropertyNames()->Length() == exports.size());
+				assert(module->GetModuleNamespace().As<Object>()->GetOwnPropertyNames(context).ToLocalChecked()->Length() == exports.size());
 
 				return module;
 			}
@@ -203,7 +175,7 @@ namespace titanium {
 	{
 		Isolate *isolate = args.GetIsolate();
 		Local<Context> context = isolate->GetCurrentContext();
-		HandleScope scope(isolate);
+		// EscapableHandleScope scope(isolate);
 
 		// Set result as undefined by default.
 		args.GetReturnValue().Set(Undefined(isolate));
@@ -250,35 +222,13 @@ namespace titanium {
 
 		// Obtain runtime global context.
 		Local<Context> runtimeContext = V8Runtime::GlobalContext();
-		Local<Object> runtimeGlobal = runtimeContext->Global();
 
 		// Create new context for module to run in.
-		Local<Context> moduleContext = Context::New(isolate);
+		Local<Context> moduleContext = ModuleContext::New(runtimeContext, contextObj);
 		Context::Scope contextScope(moduleContext);
-
-		// Create a reference to module context.
-		// This is so any changes to the runtime global are also set in our module context.
-		// The reference is marked as weak to allow for collection.
-		Persistent<Context> persistentModuleContext;
-		persistentModuleContext.Reset(isolate, moduleContext);
-		persistentModuleContext.SetWeak();
-		EvaluateModule::module_contexts.emplace_back(persistentModuleContext);
 
 		// Obtain module global context.
 		Local<Object> moduleGlobal = moduleContext->Global();
-
-		// Set security token from global context to access properties.
-		// This also means all module contexts can share properties.
-		moduleContext->SetSecurityToken(runtimeContext->GetSecurityToken());
-
-		// Set runtime global properties in module global context.
-		assign(runtimeGlobal, moduleGlobal);
-
-		if (!contextObj.IsEmpty()) {
-
-			// Context object has been provided, set context properties in module global context.
-			assign(contextObj, moduleGlobal);
-		}
 
 		// Instantiate module and process imports via `ModuleCallback`.
 		module->InstantiateModule(moduleContext, ModuleCallback);
@@ -293,6 +243,8 @@ namespace titanium {
 			isolate->TerminateExecution();
 			return;
 		}
+
+		LOGE(TAG, "Evaluating '%s'...", *String::Utf8Value(isolate, filename));
 
 		// Execute module, obtaining a result.
 		MaybeLocal<Value> maybeResult = module->Evaluate(moduleContext);
@@ -321,22 +273,38 @@ namespace titanium {
 				isolate->PerformMicrotaskCheckpoint();
 			}
 
+			Local<String> DEFAULT_STRING = EvaluateModule::DEFAULT_STRING.Get(isolate);
+			Local<String> EXPORTS_STRING = EvaluateModule::EXPORTS_STRING.Get(isolate);
+			Local<String> MODULE_STRING = EvaluateModule::MODULE_STRING.Get(isolate);
+
 			// Obtain module exports as result.
 			Local<Object> moduleNamespace = module->GetModuleNamespace().As<Object>();
-
-			// Include namespace entries into 'Module.exports'.
-			Local<String> EXPORTS_STRING = EvaluateModule::EXPORTS_STRING.Get(isolate);
-			if (moduleGlobal->Has(EXPORTS_STRING)) {
-				Local<Value> exportsValue = moduleGlobal->Get(EXPORTS_STRING);
-
-				if (!exportsValue.IsEmpty() && exportsValue->IsObject()) {
-					Local<Object> exports = exportsValue.As<Object>();
-
-					assign(moduleNamespace, exports);
-				}
+			if (moduleNamespace->Has(context, DEFAULT_STRING).FromMaybe(false)) {
+				result = moduleNamespace->Get(context, DEFAULT_STRING).FromMaybe(moduleNamespace.As<Value>());
+			} else {
+				result = moduleNamespace;
 			}
 
-			result = moduleNamespace;
+			// Include exports into 'module.exports'.
+			if (moduleGlobal->HasRealNamedProperty(context, MODULE_STRING).FromMaybe(false)) {
+				Local<Value> moduleValue = moduleGlobal->GetRealNamedProperty(context, MODULE_STRING).ToLocalChecked();
+
+				if (!moduleValue.IsEmpty() && moduleValue->IsObject()) {
+					Local<Object> moduleObj = moduleValue.As<Object>();
+
+					if (moduleObj->HasRealNamedProperty(context, EXPORTS_STRING).FromMaybe(false)) {
+						Local<Value> exportsValue = moduleObj->GetRealNamedProperty(context, EXPORTS_STRING).ToLocalChecked();
+
+						if (!exportsValue.IsEmpty() && exportsValue->IsObject()) {
+							Local<Object> exportsObj = exportsValue.As<Object>();
+
+							if (exportsObj->GetPropertyNames()->Length() == 0) {
+								moduleObj->Set(context, EXPORTS_STRING, result);
+							}
+						}
+					}
+				}
+			}
 		}
 
 		// Return result.

@@ -71,9 +71,10 @@ void V8Util::objectExtend(Isolate* isolate, Local<Object> dest, Local<Object> sr
 	Local<Array> names = src->GetOwnPropertyNames(context).ToLocalChecked();
 	int length = names->Length();
 
-	for (int i = 0; i < length; ++i) {
+	for (int i = 0; i < length; i++) {
 		Local<Value> name = names->Get(context, i).ToLocalChecked();
 		Local<Value> value = src->Get(context, name).ToLocalChecked();
+
 		dest->Set(context, name, value);
 	}
 }

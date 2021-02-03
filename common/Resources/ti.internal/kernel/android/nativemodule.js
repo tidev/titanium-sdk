@@ -82,15 +82,12 @@ export default function NativeModuleBootstrap(global, kroll) {
 			f(this.exports, NativeModule.require, this, this.filename, null, global.Ti, global.Ti, global, kroll);
 
 		} else if (OS_ANDROID) {
-			const result = evaluate.runAsModule(source, filename, {
+			evaluate.runAsModule(source, filename, {
 				exports: this.exports,
 				require: NativeModule.require,
 				module: this,
 				__filename: filename,
-				__dirname: null,
-				Ti: global.Ti,
-				Titanium: global.Ti,
-				kroll
+				__dirname: null
 			});
 		}
 
