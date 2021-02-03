@@ -36,6 +36,8 @@ public class TiColorHelper
 		"rgba\\(\\s*([0-9]{1,3})\\s*,\\s*([0-9]{1,3})\\s*,\\s*([0-9]{1,3})\\s*,\\s*(\\d\\.\\d+)\\s*\\)");
 	static Pattern floatsPattern = Pattern.compile(
 		"rgba\\(\\s*(\\d\\.\\d+)\\s*,\\s*(\\d\\.\\d+)\\s*,\\s*(\\d\\.\\d+)\\s*,\\s*(\\d\\.\\d+)\\s*\\)");
+	static Pattern rgbaPatternFallback =
+		Pattern.compile("rgba\\(\\s*([0-9]{1,3})\\s*,\\s*([0-9]{1,3})\\s*,\\s*([0-9]{1,3})\\s*\\)");
 
 	private static final String TAG = "TiColorHelper";
 	private static HashMap<String, Integer> colorTable;
@@ -72,13 +74,17 @@ public class TiColorHelper
 		}
 		// rgba(int, int, int, int)
 		if ((m = argbPattern.matcher(lowval)).matches()) {
-			return Color.argb(Integer.valueOf(m.group(4)), Integer.valueOf(m.group(1)),
-							Integer.valueOf(m.group(2)), Integer.valueOf(m.group(3)));
+			return Color.argb(Integer.valueOf(m.group(4)), Integer.valueOf(m.group(1)), Integer.valueOf(m.group(2)),
+							  Integer.valueOf(m.group(3)));
 		}
 		// rgba(int, int, int, float)
 		if ((m = rgbaPattern.matcher(lowval)).matches()) {
 			return Color.argb(Math.round(Float.valueOf(m.group(4)) * 255f), Integer.valueOf(m.group(1)),
-							Integer.valueOf(m.group(2)), Integer.valueOf(m.group(3)));
+							  Integer.valueOf(m.group(2)), Integer.valueOf(m.group(3)));
+		}
+		// rgba(int, int, int) with missing alpha value
+		if ((m = rgbaPatternFallback.matcher(lowval)).matches()) {
+			return Color.rgb(Integer.valueOf(m.group(1)), Integer.valueOf(m.group(2)), Integer.valueOf(m.group(3)));
 		}
 		// rgba(float, float, float, float)
 		if ((m = floatsPattern.matcher(lowval)).matches()) {

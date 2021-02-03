@@ -1300,4 +1300,37 @@ describe('Titanium.UI.View', function () {
 		const view2 = Ti.UI.createView({ filterTouchesWhenObscured: true });
 		should(view2.filterTouchesWhenObscured).be.true();
 	});
+
+	it('rgba fallback', finish => {
+		if (isCI && utilities.isMacOS()) { // some of the CI mac nodes lie about their scale, which makes the image comparison fail
+			return finish(); // FIXME: skip when we move to official mocha package
+		}
+		win = Ti.UI.createWindow({ backgroundColor: '#fff' });
+		const rgbaView = Ti.UI.createView({
+			width: 100,
+			height: 100,
+			backgroundColor: 'rgba(255,0,0)',
+			left: 0
+		});
+		const rgbView = Ti.UI.createView({
+			width: 100,
+			height: 100,
+			backgroundColor: 'rgb(0,255,0)',
+			left: 100
+		});
+
+		win.addEventListener('postlayout', function postlayout() { // FIXME: Support once!
+			win.removeEventListener('postlayout', postlayout); // only run once
+			try {
+				should(rgbaView).matchImage('snapshots/rgbaView_red.png');
+				should(rgbView).matchImage('snapshots/rgbView_green.png');
+			} catch (err) {
+				return finish(err);
+			}
+			finish();
+		});
+		win.add(rgbaView);
+		win.add(rgbView);
+		win.open();
+	});
 });
