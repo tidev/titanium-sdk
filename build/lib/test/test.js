@@ -77,7 +77,19 @@ async function test(platforms, target, deviceId, deployType, deviceFamily, snaps
 
 		// If we're gathering images, make sure we get them all before we move on
 		if (snapshotPromises.length !== 0) {
-			await Promise.all(snapshotPromises);
+			try {
+				await Promise.all(snapshotPromises);
+			} catch (err) {
+				// If grabbing an image fails, can we report more details about why?
+				// The rejected error should have stdout/stderr properties
+				if (err.stderr) {
+					console.error(err.stderr);
+				}
+				if (err.stdout) {
+					console.log(err.stdout);
+				}
+				throw err;
+			}
 		}
 
 		return results;
