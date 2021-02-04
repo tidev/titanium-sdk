@@ -54,9 +54,6 @@ class StoryboardManager {
 				this._logger.trace('Starting storyboard detection');
 				this._builder = builder;
 				this.detectStoryboards().then(callback, e => {
-					if (this._cli.argv.platform === 'ios') {
-						this._logger.error(e.stack);
-					}
 					callback(e);
 				});
 			}
