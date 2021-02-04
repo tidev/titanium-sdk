@@ -278,9 +278,9 @@ describe('Titanium.Locale', () => {
 			});
 		});
 
-		describe('#setLanguage(String)', () => {
-			it('is a getter', () => {
-				should(Ti.Locale).have.a.getter('language');
+		describe('#set language(String)', () => {
+			it('has a setter', () => {
+				should(Ti.Locale).have.a.setter('language');
 			});
 
 			it('changes .currentLanguage', () => {
