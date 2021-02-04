@@ -36,15 +36,15 @@
         android:id="@+id/titanium_ui_tableview_holder_content_border"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/titanium_ui_tableview_holder_header_container">
+        android:layout_below="@id/titanium_ui_tableview_holder_header_container"
+        android:background="@android:color/transparent">
 
         <RelativeLayout
             android:id="@+id/titanium_ui_tableview_holder_outer_content_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:focusable="true"
-            android:addStatesFromChildren="true"
-            android:foreground="?attr/selectableItemBackgroundBorderless">
+            android:addStatesFromChildren="true">
 
                 <ImageView
                     android:id="@+id/titanium_ui_tableview_holder_left_image"

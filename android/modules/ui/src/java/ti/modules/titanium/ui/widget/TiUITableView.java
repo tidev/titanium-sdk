@@ -228,6 +228,15 @@ public class TiUITableView extends TiUIView
 	@Override
 	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy)
 	{
+		if (key.equals(TiC.PROPERTY_TOUCH_FEEDBACK)
+			|| key.equals(TiC.PROPERTY_TOUCH_FEEDBACK_COLOR)) {
+
+			// Update table items.
+			this.tableView.update();
+
+			// Return to prevent property being handled by TiUIView.
+			return;
+		}
 		super.propertyChanged(key, oldValue, newValue, proxy);
 
 		processProperty(key, newValue);

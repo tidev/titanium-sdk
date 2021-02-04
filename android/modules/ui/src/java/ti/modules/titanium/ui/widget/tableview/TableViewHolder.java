@@ -8,26 +8,23 @@ package ti.modules.titanium.ui.widget.tableview;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.titanium.R;
-import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiRHelper;
 import org.appcelerator.titanium.util.TiUIHelper;
+import org.appcelerator.titanium.view.TiBackgroundDrawable;
 import org.appcelerator.titanium.view.TiBorderWrapperView;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiUIView;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.content.res.Resources;
-import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
-import android.graphics.drawable.RippleDrawable;
-import android.graphics.drawable.StateListDrawable;
+import android.graphics.drawable.PaintDrawable;
 import android.os.Build;
 import android.util.TypedValue;
 import android.view.View;
@@ -263,13 +260,32 @@ public class TableViewHolder extends TiRecyclerViewHolder
 					parentView.removeView(nativeRowView);
 				}
 
+				// Obtain background drawable.
 				Drawable backgroundDrawable = rowView.getBackground();
+				if (backgroundDrawable instanceof TiBackgroundDrawable) {
+					final TiBackgroundDrawable drawable = (TiBackgroundDrawable) backgroundDrawable;
 
-				if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+					backgroundDrawable = drawable.getBackground();
+				}
+				if (backgroundDrawable instanceof PaintDrawable) {
+					final PaintDrawable drawable = (PaintDrawable) backgroundDrawable;
 
-					// To enable the ripple effect, we set the foreground to `selectableItemBackgroundBorderless`.
-					// However, this is not supported below Android 7.0 so we set the background instead.
-					backgroundDrawable = generateRippleDrawable(backgroundDrawable);
+					if (drawable.getPaint().getColor() == Color.TRANSPARENT) {
+
+						// Do not use drawable for transparent backgrounds.
+						backgroundDrawable = null;
+					}
+				}
+
+				final boolean touchFeedback = tableViewProperties.optBoolean(TiC.PROPERTY_TOUCH_FEEDBACK,
+					properties.optBoolean(TiC.PROPERTY_TOUCH_FEEDBACK, true));
+				final String touchFeedbackColor =
+					tableViewProperties.optString(TiC.PROPERTY_TOUCH_FEEDBACK_COLOR,
+						properties.optString(TiC.PROPERTY_TOUCH_FEEDBACK_COLOR, null));
+
+				// Set ripple background.
+				if (touchFeedback) {
+					backgroundDrawable = generateRippleDrawable(backgroundDrawable, touchFeedbackColor);
 				}
 
 				// Set container background.
@@ -349,61 +365,6 @@ public class TableViewHolder extends TiRecyclerViewHolder
 
 		// Update model proxy holder.
 		proxy.setHolder(this);
-	}
-
-	/**
-	 * Generate ripple effect drawable from specified drawable.
-	 * TODO: Move into a utility class?
-	 *
-	 * @param drawable Drawable to apply ripple effect.
-	 * @return Drawable
-	 */
-	protected Drawable generateRippleDrawable(Drawable drawable)
-	{
-		if (!(drawable instanceof RippleDrawable)) {
-			final int[][] rippleStates = new int[][] { new int[] { android.R.attr.state_pressed } };
-			final TypedValue typedValue = new TypedValue();
-			final Activity activity = TiApplication.getAppRootOrCurrentActivity();
-			final TypedArray colorControlHighlight = activity.obtainStyledAttributes(
-				typedValue.data, new int[] { android.R.attr.colorControlHighlight });
-			final int colorControlHighlightInt = colorControlHighlight.getColor(0, 0);
-			final int[] rippleColors = new int[] { colorControlHighlightInt };
-			final ColorStateList colorStateList = new ColorStateList(rippleStates, rippleColors);
-
-			// Create the RippleDrawable.
-			drawable = new RippleDrawable(colorStateList, drawable, null);
-		}
-		return drawable;
-	}
-
-	/**
-	 * Generate selected background from proxy properties.
-	 * TODO: Move into a utility class?
-	 *
-	 * @param properties Dictionary containing selected background properties.
-	 * @return Drawable
-	 */
-	protected Drawable generateSelectedDrawable(KrollDict properties, Drawable drawable)
-	{
-		if (properties.containsKeyAndNotNull(TiC.PROPERTY_SELECTED_BACKGROUND_COLOR)
-			|| properties.containsKeyAndNotNull(TiC.PROPERTY_SELECTED_BACKGROUND_IMAGE)) {
-
-			final StateListDrawable stateDrawable = new StateListDrawable();
-			final Drawable selectedBackgroundDrawable = TiUIHelper.buildBackgroundDrawable(
-				properties.getString(TiC.PROPERTY_SELECTED_BACKGROUND_COLOR),
-				properties.getString(TiC.PROPERTY_SELECTED_BACKGROUND_IMAGE),
-				TiConvert.toBoolean(properties.get(TiC.PROPERTY_BACKGROUND_REPEAT), false),
-				null
-			);
-
-			stateDrawable.addState(
-				new int[] { android.R.attr.state_activated }, selectedBackgroundDrawable);
-			stateDrawable.addState(new int[] {}, drawable);
-
-			return stateDrawable;
-		}
-
-		return drawable;
 	}
 
 	/**
