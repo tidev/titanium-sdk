@@ -1764,4 +1764,35 @@ describe('Titanium.UI.TableView', function () {
 		// TableView should display rows of internal icons.
 		should(view).matchImage('snapshots/tableView_tableViewSection_header_footer.png');
 	});
+
+	it.ios('All text should show if TableView.style is .INSET_GROUPED ', () => {
+		// FIXME: Does not honour scale correctly on macOS.
+		if (isCI && utilities.isMacOS()) {
+			return;
+		}
+
+		const view = Ti.UI.createView({
+			width: '540px',
+			height: '960px'
+		});
+		const tableView = Ti.UI.createTableView({
+			backgroundColor: 'white',
+			style: Titanium.UI.iOS.TableViewStyle.INSET_GROUPED
+		});
+		const row = Ti.UI.createTableViewRow({
+			backgroundColor: 'blue'
+		});
+
+		const label = Ti.UI.createLabel({ text: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean interdum laoreet augue scelerisque convallis.' });
+		row.add(label);
+
+		tableView.setData([ row ]);
+
+		view.add(tableView);
+
+		should(view).matchImage('snapshots/tableview_style_inset_grouped.png', {
+			threshold: 0.1,
+			maxPixelMismatch: 14840
+		});
+	});
 });

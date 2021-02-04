@@ -1385,4 +1385,62 @@ describe('Titanium.UI.ListView', function () {
 			maxPixelMismatch: OS_IOS ? 478 : 0 // iPad differs by ~4 pixels, iphone by 478
 		});
 	});
+
+	it.ios('All text should show if ListView.style is .INSET_GROUPED ', () => {
+		// FIXME: Does not honour scale correctly on macOS.
+		if (isCI && utilities.isMacOS()) {
+			return;
+		}
+
+		const view = Ti.UI.createView({
+			width: '540px',
+			height: '960px'
+		});
+		const template = {
+			childTemplates: [
+				{
+					type: 'Ti.UI.View',
+					properties: { layout: 'horizontal', height: Ti.UI.SIZE, backgroundColor: 'blue' },
+					childTemplates: [
+						{
+							type: 'Ti.UI.View',
+							properties: { layout: 'horizontal', height: Ti.UI.SIZE, backgroundColor: 'green', width: Ti.UI.FILL },
+							childTemplates: [
+								{
+									type: 'Ti.UI.Label',
+									bindId: 'title',
+								},
+								{
+									type: 'Ti.UI.Label',
+									bindId: 'detail',
+									properties: { font: { fontWeight: 'bold' } }
+								}
+							]
+						},
+					]
+				}
+			]
+		};
+		const section = Ti.UI.createListSection({
+			headerTitle: 'Example',
+			items: [ {
+				title: { text: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean interdum laoreet augue.' },
+				detail: { text: 'This text should show at the bottom' }
+			} ]
+		});
+
+		const listView = Ti.UI.createListView({
+			templates: { mytemplate: template },
+			defaultItemTemplate: 'mytemplate',
+			sections: [ section ],
+			style: Titanium.UI.iOS.ListViewStyle.INSET_GROUPED
+		});
+
+		view.add(listView);
+
+		should(view).matchImage('snapshots/listview_style_inset_grouped.png', {
+			threshold: 0.1,
+			maxPixelMismatch: 18380
+		});
+	});
 });

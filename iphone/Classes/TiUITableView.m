@@ -2581,6 +2581,9 @@
     }
   }
 
+  if (tableview.style == UITableViewStyleInsetGrouped) {
+    rowWidth -= tableview.layoutMargins.left + tableview.layoutMargins.right;
+  }
   return rowWidth;
 }
 
