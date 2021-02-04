@@ -4,6 +4,7 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+/* global OS_ANDROID */
 /* eslint-env mocha */
 /* eslint no-unused-expressions: "off" */
 'use strict';
@@ -1198,7 +1199,10 @@ describe('Titanium.UI.View', function () {
 				try {
 					should(view.borderRadius).be.a.String();
 					should(view.borderRadius).eql('30px');
-					should(outerView).matchImage('snapshots/borderRadius_30px.png');
+					should(outerView).matchImage('snapshots/borderRadius_30px.png', {
+						threshold: 0.1,
+						maxPixelMismatch: OS_ANDROID ? 2 : 0
+					});
 				} catch (err) {
 					return finish(err);
 				}
@@ -1321,5 +1325,38 @@ describe('Titanium.UI.View', function () {
 		should(view1.filterTouchesWhenObscured).be.false();
 		const view2 = Ti.UI.createView({ filterTouchesWhenObscured: true });
 		should(view2.filterTouchesWhenObscured).be.true();
+	});
+
+	it('rgba fallback', finish => {
+		if (isCI && utilities.isMacOS()) { // some of the CI mac nodes lie about their scale, which makes the image comparison fail
+			return finish(); // FIXME: skip when we move to official mocha package
+		}
+		win = Ti.UI.createWindow({ backgroundColor: '#fff' });
+		const rgbaView = Ti.UI.createView({
+			width: 100,
+			height: 100,
+			backgroundColor: 'rgba(255,0,0)',
+			left: 0
+		});
+		const rgbView = Ti.UI.createView({
+			width: 100,
+			height: 100,
+			backgroundColor: 'rgb(0,255,0)',
+			left: 100
+		});
+
+		win.addEventListener('postlayout', function postlayout() { // FIXME: Support once!
+			win.removeEventListener('postlayout', postlayout); // only run once
+			try {
+				should(rgbaView).matchImage('snapshots/rgbaView_red.png');
+				should(rgbView).matchImage('snapshots/rgbView_green.png');
+			} catch (err) {
+				return finish(err);
+			}
+			finish();
+		});
+		win.add(rgbaView);
+		win.add(rgbView);
+		win.open();
 	});
 });

@@ -77,7 +77,19 @@ async function test(platforms, target, deviceId, deployType, deviceFamily, snaps
 
 		// If we're gathering images, make sure we get them all before we move on
 		if (snapshotPromises.length !== 0) {
-			await Promise.all(snapshotPromises);
+			try {
+				await Promise.all(snapshotPromises);
+			} catch (err) {
+				// If grabbing an image fails, can we report more details about why?
+				// The rejected error should have stdout/stderr properties
+				if (err.stderr) {
+					console.error(err.stderr);
+				}
+				if (err.stdout) {
+					console.log(err.stdout);
+				}
+				throw err;
+			}
 		}
 
 		return results;
@@ -637,18 +649,30 @@ class DeviceTestDetails {
 	}
 
 	/**
-	 * Lazily try and match the reported namee in the logs back to the underlying id/serial
+	 * Lazily try and match the reported name in the logs back to the underlying id/serial
 	 * Then we can direct adb commands to this device specifically.
 	 */
 	async deviceId() {
 		if (!this._deviceId) {
-			if (!this.name) {
-				this._deviceId = 'device';
-			} else {
+			try {
 				const devices = await fs.readJSON(path.join(PROJECT_DIR, 'android-devices.json'));
-				// android's cli uses model || manufacturer || id as log prefix, see android/cli/hooks/run.js
-				const device = devices.find(d => (d.model || d.manufacturer || d.id) === this.name);
-				this._deviceId = device.id;
+				if (!devices) { // no devices listed, just use generic 'device'
+					this._deviceId = 'device';
+				} else if (devices.length === 1) {
+					// only one "device", use it's id
+					this._deviceId = devices[0].id;
+				} else if (this.name) { // find device with matching name
+					// android's cli uses model || manufacturer || id as log prefix, see android/cli/hooks/run.js
+					const device = devices.find(d => (d.model || d.manufacturer || d.id) === this.name);
+					if (device) {
+						this._deviceId = device.id;
+					}
+				}
+			} catch (err) {
+				// squash
+			}
+			if (!this._deviceId) { // we assigned no value, fall back to default 'device'
+				this._deviceId = 'device';
 			}
 		}
 		return this._deviceId;
