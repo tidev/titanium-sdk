@@ -510,7 +510,7 @@ class AndroidManifest {
 			if (sourceElement.hasAttributes()) {
 				for (let index = 0; index < sourceElement.attributes.length; index++) {
 					const sourceAttribute = sourceElement.attributes.item(index);
-					destinationElement.setAttribute(sourceAttribute.name, sourceAttribute.value);
+					destinationElement.setAttributeNode(sourceAttribute.cloneNode());
 				}
 			}
 
