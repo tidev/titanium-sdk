@@ -222,6 +222,15 @@ public class TiUIListView extends TiUIView
 	@Override
 	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy)
 	{
+		if (key.equals(TiC.PROPERTY_TOUCH_FEEDBACK)
+			|| key.equals(TiC.PROPERTY_TOUCH_FEEDBACK_COLOR)) {
+
+			// Update list items.
+			this.listView.update();
+
+			// Return to prevent property being handled by TiUIView.
+			return;
+		}
 		super.propertyChanged(key, oldValue, newValue, proxy);
 
 		processProperty(key, newValue);

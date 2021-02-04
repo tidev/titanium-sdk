@@ -1996,6 +1996,12 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 			setOnClickListener(view);
 			setOnLongClickListener(view);
 		}
+		if (view instanceof ViewGroup) {
+
+			// Allow parent views to receive states from child views.
+			// This allows the touch feedback effect when clicking on child views.
+			((ViewGroup) view).setAddStatesFromChildren(clickable);
+		}
 	}
 
 	private void doSetClickable(boolean clickable)
