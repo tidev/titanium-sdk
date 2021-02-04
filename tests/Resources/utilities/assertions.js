@@ -123,6 +123,56 @@ function saveImage(blob, imageFilePath) {
 	return file;
 }
 
+class ImageMatchDetails {
+	constructor(inputFilename) {
+		this.inputFilename = inputFilename;
+	}
+
+	/**
+	 * Generates the list of input image files we may try to compare against, in order
+	 * of most specific match to more generic match
+	 * @returns {string[]}
+	 */
+	possibleInputs() {
+		const density = Ti.Platform.displayCaps.logicalDensityFactor;
+		const withoutSuffix = this.inputFilename.substr(0, this.inputFilename.length - 4);
+		const result = [];
+		if (density !== 1) {
+			// First try device *and* density specific image
+			if (OS_IOS) {
+				result.push(`${withoutSuffix}@${density}x~${Ti.Platform.osname}.png`);
+			}
+			// Then try density specific image
+			result.push(`${withoutSuffix}@${density}x.png`);
+		}
+		// Then try base image
+		result.push(`${withoutSuffix}.png`);
+
+		// FIXME: Android should basically prefix with res- folder name based on density (if we can)
+		// see https://developer.android.com/training/multiscreen/screendensities
+		// 1x, 1.5x, 2x, 3x, 4x all map, but 2.625x/2.75x/3.5x don't!
+		// https://blog.prototypr.io/designing-for-multiple-screen-densities-on-android-5fba8afe7ead
+		return result;
+	}
+
+	/**
+	 * Generates the output filename/path for the generated image.
+	 * @returns {string}
+	 */
+	outputFile() {
+		const density = Ti.Platform.displayCaps.logicalDensityFactor;
+		// FIXME: On android, don't do this suffix crap, use res- folder naming!
+		// Append density
+		let suffix = density === 1 ? '' : `@${density}x`;
+		// Append ~iphone or ~ipad!
+		if (OS_IOS) {
+			suffix = `${suffix}~${Ti.Platform.osname}`;
+		}
+		const withoutSuffix = this.inputFilename.substr(0, this.inputFilename.length - 4);
+		return `${withoutSuffix}${suffix}.png`;
+	}
+}
+
 /**
  * @param {string|Ti.Blob} image path to image file on disk (relative), or an in-memory Ti.Blob instance (holding an image).
  * @param {object} [options] options for comparing images
@@ -141,7 +191,7 @@ should.Assertion.add('matchImage', function (image, options = { threshold: 0.1, 
 	const now = Date.now();
 	const density = Ti.Platform.displayCaps.logicalDensityFactor;
 	const suffix = density === 1 ? '' : `@${density}x`;
-
+	let outputFilePath = image;
 	let expectedBlob = null;
 
 	if (isExpectedBlob) {
@@ -150,32 +200,41 @@ should.Assertion.add('matchImage', function (image, options = { threshold: 0.1, 
 			operator: 'to match Ti.Blob'
 		};
 		expectedBlob = image;
-		image = `snapshots/${now}_${expectedBlob.width}x${expectedBlob.height}${suffix}.png`;
+		outputFilePath = `snapshots/${now}_${expectedBlob.width}x${expectedBlob.height}${suffix}.png`;
 	} else {
-
-		// Amend image path for correct snapshot size.
-		// TODO: Append @#x suffix if density is > 1
-		image = `${image.substr(0, image.length - 4)}_${actualBlob.width}x${actualBlob.height}${suffix}.png`;
-
+		const details = new ImageMatchDetails(image);
+		outputFilePath = details.outputFile();
 		this.params = {
 			obj: this.obj.apiName,
-			operator: `to match image ('${image}')`
+			operator: `to match image ('${outputFilePath}')`
 		};
 
-		// Attempt to load snapshot.
-		const snapshot = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, image);
-		try {
-			should(snapshot.exists()).be.true(`No snapshot image to compare for platform '${platform}' ('${image}')`);
-		} catch (err) {
-			// No snapshot, save current view as snapshot for platform.
-			const file = saveImage(actualBlob, image);
-			console.log(`!IMAGE: {"path":"${file.nativePath}","platform":"${platform}","relativePath":"${image}"}`);
-
-			throw err;
+		// Determine if any of the possible input images to match against exist
+		const possibleInputs = details.possibleInputs();
+		let snapshot;
+		let inputFilename;
+		for (const filepath of possibleInputs) {
+			// Does it exist?
+			const possibleFile = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, filepath);
+			if (possibleFile.exists()) {
+				snapshot = possibleFile;
+				inputFilename = filepath;
+				break; // found it!
+			}
+		}
+		if (!snapshot) { // none of the input images exist!
+			// Save current view as snapshot for platform/density combo
+			const file = saveImage(actualBlob, outputFilePath);
+			console.log(`!IMAGE: {"path":"${file.nativePath}","platform":"${platform}","relativePath":"${outputFilePath}"}`);
+			should.fail(`No snapshot image to compare for platform '${platform}' ('${possibleInputs}')`);
 		}
 
 		// Load expected snapshot blob.
 		expectedBlob = snapshot.read();
+		this.params = {
+			obj: this.obj.apiName,
+			operator: `to match image ('${inputFilename}')`
+		};
 	}
 
 	// Validate size of blobs.
@@ -184,13 +243,12 @@ should.Assertion.add('matchImage', function (image, options = { threshold: 0.1, 
 		should(actualBlob).have.property('height').equal(expectedBlob.height);
 		should(actualBlob).have.property('size').equal(expectedBlob.size);
 	} catch (e) {
-
 		// Invalid size, save current view for investigation.
-		const actualOut = saveImage(actualBlob, image);
-		console.log(`!IMAGE: {"path":"${actualOut.nativePath}","platform":"${platform}","relativePath":"${image}"}`);
+		const actualOut = saveImage(actualBlob, outputFilePath);
+		console.log(`!IMAGE: {"path":"${actualOut.nativePath}","platform":"${platform}","relativePath":"${outputFilePath}"}`);
 
 		// Save expected blob for investigation.
-		const expectedPath = image.slice(0, -4) + '_expected.png';
+		const expectedPath = outputFilePath.slice(0, -4) + '_expected.png';
 		const expectedOut = saveImage(expectedBlob, expectedPath);
 		console.log(`!IMG_DIFF: {"path":"${expectedOut.nativePath}","platform":"${platform}","relativePath":"${expectedPath}"}`);
 
@@ -212,8 +270,8 @@ should.Assertion.add('matchImage', function (image, options = { threshold: 0.1, 
 		should(diff).be.belowOrEqual(options.maxPixelMismatch, 'mismatched pixels');
 	} catch (err) {
 		// Snapshots did not match, save current view.
-		const actualOut = saveImage(actualBlob, image);
-		console.log(`!IMAGE: {"path":"${actualOut.nativePath}","platform":"${platform}","relativePath":"${image}"}`);
+		const actualOut = saveImage(actualBlob, outputFilePath);
+		console.log(`!IMAGE: {"path":"${actualOut.nativePath}","platform":"${platform}","relativePath":"${outputFilePath}"}`);
 
 		// Save expected blob for investigation.
 		if (isExpectedBlob) {
@@ -221,13 +279,13 @@ should.Assertion.add('matchImage', function (image, options = { threshold: 0.1, 
 			const expectedOut = saveImage(expectedBlob, expectedPath);
 			console.log(`!IMG_DIFF: {"path":"${expectedOut.nativePath}","platform":"${platform}","relativePath":"${expectedPath}"}`);
 		} else {
-			const expectedPath = image.slice(0, -4) + '_expected.png';
+			const expectedPath = outputFilePath.slice(0, -4) + '_expected.png';
 			const expectedOut = saveImage(expectedBlob, expectedPath);
 			console.log(`!IMG_DIFF: {"path":"${expectedOut.nativePath}","platform":"${platform}","relativePath":"${expectedPath}"}`);
 		}
 
 		const diffBuffer = PNG.sync.write(diffImg);
-		const diffPath = image.slice(0, -4) + '_diff.png';
+		const diffPath = outputFilePath.slice(0, -4) + '_diff.png';
 
 		// Save difference image for investigation.
 		const diffOut = saveImage(diffBuffer.toTiBuffer().toBlob(), diffPath);
