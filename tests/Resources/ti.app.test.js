@@ -415,7 +415,7 @@ describe('Titanium.App', () => {
 			action: Ti.Android.ACTION_MAIN,
 		});
 		homeIntent.addCategory(Ti.Android.CATEGORY_HOME);
-		homeIntent.setFlags(Ti.Android.FLAG_ACTIVITY_NEW_TASK);
+		homeIntent.flags = Ti.Android.FLAG_ACTIVITY_NEW_TASK;
 		Ti.Android.currentActivity.startActivity(homeIntent);
 	});
 });
