@@ -14,7 +14,7 @@ const path = require('path');
 exports.cliVersion = '>=3.2.1';
 
 exports.init = function (logger, config, cli) {
-	let storyboardManager = new StoryboardManager(cli, config, logger);
+	const storyboardManager = new StoryboardManager(logger, config, cli);
 	storyboardManager.initialize();
 };
 
@@ -29,12 +29,12 @@ class StoryboardManager {
 	/**
 	 * Constructs a new storyboard manager.
 	 *
-	 * @param {Object} cli - CLI instance
-	 * @param {Object} config - Project configuration
 	 * @param {Object} logger - Logger instance
+	 * @param {Object} config - Project configuration
+	 * @param {Object} cli - CLI instance
 	 * @access public
 	 */
-	constructor(cli, config, logger) {
+	constructor(logger, config, cli) {
 		this._cli = cli;
 		this._config = config;
 		this._logger = logger;
@@ -142,8 +142,8 @@ class StoryboardManager {
 		this._logger.trace(`Scanning ${storyboardsPath.cyan} for storyboards`);
 		const foundStoryboardPaths = [];
 		for (const filename of files) {
-			const possibleStoryPath = path.join(storyboardsPath, filename);
-			if (possibleStoryPath.endsWith('.storyboard')) {
+			if (filename.endsWith('.storyboard')) {
+				const possibleStoryPath = path.join(storyboardsPath, filename);
 				this._logger.trace(`  found ${path.relative(storyboardsPath, possibleStoryPath)}`);
 				foundStoryboardPaths.push(possibleStoryPath);
 			}
@@ -361,7 +361,7 @@ class InspectStoryboardsTask extends IncrementalFileTask {
 	 * @return {Promise}
 	 * @access private
 	 */
-	inspectStoryboards(storyboardPaths) {
+	async inspectStoryboards(storyboardPaths) {
 		const metadataPromises = [];
 		const storyboardInspector = new StoryboardInspector(this._logger);
 		for (const storyboardPath of storyboardPaths) {
@@ -521,11 +521,9 @@ class StoryboardInspector {
 	async inspect(storyboardPath) {
 		const packageExtension = path.extname(storyboardPath);
 		const storyboardName = path.basename(storyboardPath, packageExtension);
-		let storyboardInfo;
 		const meta = { name: storyboardName, path: storyboardPath };
 
-		storyboardInfo = new StoryboardInfo(meta);
-		return storyboardInfo;
+		return new StoryboardInfo(meta);
 	}
 }
 
