@@ -4,6 +4,7 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+/* global OS_ANDROID */
 /* eslint-env mocha */
 /* eslint no-unused-expressions: "off" */
 'use strict';
@@ -1198,7 +1199,10 @@ describe('Titanium.UI.View', function () {
 				try {
 					should(view.borderRadius).be.a.String();
 					should(view.borderRadius).eql('30px');
-					should(outerView).matchImage('snapshots/borderRadius_30px.png');
+					should(outerView).matchImage('snapshots/borderRadius_30px.png', {
+						threshold: 0.1,
+						maxPixelMismatch: OS_ANDROID ? 2 : 0
+					});
 				} catch (err) {
 					return finish(err);
 				}
