@@ -11,6 +11,9 @@ const PNG = require('pngjs').PNG;
 const cgbiToPng = isIOSDevice ? require('cgbi-to-png') : { revert: buf => buf };
 const pixelmatch = require('pixelmatch');
 
+// Store the device scale and see if we ever report a different value.
+// I suspect sometimes macOS will because of some OS modal popping up or something
+let deviceScale = null;
 // Copied from newer should.js
 // Verifies the descriptor for an own property on a target
 should.Assertion.add('ownPropertyWithDescriptor', function (name, desc) {
@@ -160,6 +163,11 @@ class ImageMatchDetails {
 	 */
 	possibleInputs() {
 		const density = Ti.Platform.displayCaps.logicalDensityFactor;
+		if (deviceScale === null) {
+			deviceScale = density;
+		} else if (deviceScale !== density) {
+			console.error(`The device scale changed (to ${density}) from what we first recorded (${deviceScale})!`);
+		}
 		const withoutSuffix = this.inputFilename.substr(0, this.inputFilename.length - 4);
 		const result = [];
 		if (density !== 1) {
@@ -229,13 +237,13 @@ should.Assertion.add('matchImage', function (image, options = { threshold: 0.1, 
 	} else {
 		const details = new ImageMatchDetails(image);
 		outputFilePath = details.outputFile();
+		const possibleInputs = details.possibleInputs();
 		this.params = {
 			obj: this.obj.apiName,
-			operator: `to match image ('${outputFilePath}')`
+			operator: `to match one of the images ('${possibleInputs}')`
 		};
 
 		// Determine if any of the possible input images to match against exist
-		const possibleInputs = details.possibleInputs();
 		let snapshot;
 		let inputFilename;
 		for (const filepath of possibleInputs) {
