@@ -143,6 +143,7 @@ GETTER_IMPL(NSUInteger, size, Size);
 {
   if (self = [super init]) {
     image = [image_ retain];
+    NSLog(@"[WARN] Blob, wrapping image w/ scale %f", image.scale);
     type = TiBlobTypeImage;
     mimetype = [([UIImageAlpha hasAlpha:image_] ? MIMETYPE_PNG : MIMETYPE_JPEG) copy];
   }

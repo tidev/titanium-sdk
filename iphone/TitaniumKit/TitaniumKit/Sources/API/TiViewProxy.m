@@ -724,13 +724,28 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
         if (!viewIsAttached) {
           [self layoutChildren:NO];
         }
+        NSLog(@"[WARN] Rendering Ti.UI.View.toImage(), width: %f, height: %f", size.width, size.height);
+        CGFloat scale = (honorScale ? 0.0 : 1.0);
+        NSLog(@"[WARN] Rendering Ti.UI.View.toImage(), w/ scale %f", scale);
+        if (scale == 0.0) {
+          NSLog(@"[WARN] Set to honor device main screen scale, which is %f", UIScreen.mainScreen.scale);
+        }
+        // New API
+        //        UIGraphicsImageRenderer *renderer = [[UIGraphicsImageRenderer alloc] initWithSize:size];
+        //        UIImage *image = [renderer imageWithActions:^(UIGraphicsImageRendererContext * _Nonnull rendererContext) {
+        //            [myview drawViewHierarchyInRect:bounds afterScreenUpdates:true];
+        //        }];
+        // End New API
 
-        UIGraphicsBeginImageContextWithOptions(size, [myview.layer isOpaque], (honorScale ? 0.0 : 1.0));
+        // Old API
+        UIGraphicsBeginImageContextWithOptions(size, [myview.layer isOpaque], scale);
         [myview drawViewHierarchyInRect:bounds afterScreenUpdates:YES];
         UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
-        blob = [[[TiBlob alloc] initWithImage:image] autorelease];
-        [blob setMimeType:@"image/png" type:TiBlobTypeImage];
         UIGraphicsEndImageContext();
+        // End Old API
+
+        blob = [[[TiBlob alloc] initWithImage:image] autorelease];
+        [blob setMimeType:@"image/png" type:TiBlobTypeImage]; // explicitly force to PNG regardless of alpha
         if (callback != nil) {
           [callback call:@[ blob ] thisObject:self];
         }
