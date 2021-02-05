@@ -483,6 +483,8 @@ describe('Titanium.Blob', function () {
 				should(blob.width).equal(11); // FIXME: SOmetimes macOS will report 6 here!
 				should(blob.height).equal(13);
 			} catch (e) {
+				// when we fail, should we spit out details on scale?
+				console.log(Ti.Platform.displayCaps.logicalDensityFactor);
 				return finish(e);
 			}
 			finish();
