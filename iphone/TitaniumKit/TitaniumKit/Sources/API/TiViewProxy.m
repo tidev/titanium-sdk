@@ -696,6 +696,7 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
       ^{
         BOOL viewIsAttached = [self viewAttached];
         if (!viewIsAttached) {
+          NSLog(@"[WARN] Rendering Ti.UI.View.toImage(), the view was NOT attached!");
           [self windowWillOpen];
         }
         TiUIView *myview = [self view];
