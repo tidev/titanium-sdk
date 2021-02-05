@@ -706,6 +706,18 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
         NSLog(@"[WARN] Rendering Ti.UI.View.toImage(), the view's content scale factor is: %f", myview.contentScaleFactor);
         NSLog(@"[WARN] Rendering Ti.UI.View.toImage(),frame width: %f, frame height: %f", frame.size.width, frame.size.height);
         NSLog(@"[WARN] Rendering Ti.UI.View.toImage(), initial width: %f, initial height: %f", size.width, size.height);
+#if TARGET_OS_MACCATALYST
+        // FIXME: macOS Catalina has a "known issue" around nativeScale, see https://developer.apple.com/documentation/macos-release-notes/macos-catalina-10_15-release-notes
+        // Try and detect when we have non-integer sizes *and* a scale of 1
+        // It's a tell-tale sign that macOS Catalyst did us dirty and gave us bad bounds
+        if ((ceilf(f) != f || ceilf(f) != f) && UITraitCollection.currentTraitCollection.displayScale == 1.0) {
+          // FIXME: Only issue is: this doesn't work for cases where it gave us bad bounds that happened to be even numbers originally (i.e. 6pts for 12px)
+          // TODO: OK, so how do we fix this?!
+          CGSize s = [[self view] sizeThatFits:CGSizeMake(1000, 1000)];
+          NSLog(@"[WARN] Rendering Ti.UI.View.toImage(), using sizeThatFits to gather width: %f, height: %f", s.width, s.height);
+          bounds = CGRectMake(0, 0, s.width, s.height);
+        }
+#endif
         if (CGSizeEqualToSize(size, CGSizeZero) || size.width == 0 || size.height == 0) {
 #ifndef TI_USE_AUTOLAYOUT
           CGFloat width = [self autoWidthForSize:CGSizeMake(1000, 1000)];
@@ -731,13 +743,7 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
         if (!viewIsAttached) {
           [self layoutChildren:NO];
         }
-        // FIXME: macOS Catalina has a "known issue" around nativeScale, see https://developer.apple.com/documentation/macos-release-notes/macos-catalina-10_15-release-notes
-        // which I *think* is showing up here with bounds/size being reported in pts assuming 2x density sometimes
-        // so we'll get a width of 5.5 (pts at scale of 2, so equivalent to 11px)
-        // when it should be 11 (pixels/pts w/ scale of 1)
-        // But main screen scale and trait scale both report scale of 1.
-        // How the hell can we detect this and fix it?! We cn check for non-integer values and that means it's a non-1 scale, obviously but would only detect odd numbers having bad pts/px scale mismatch (i.e. the 5.5->11 case)
-        // it would not pick up the 6 vs 12 bug I see
+
         NSLog(@"[WARN] Rendering Ti.UI.View.toImage(), width: %f, height: %f", size.width, size.height);
         CGFloat scale = (honorScale ? 0.0 : 1.0);
         NSLog(@"[WARN] Rendering Ti.UI.View.toImage(), w/ scale %f", scale);
