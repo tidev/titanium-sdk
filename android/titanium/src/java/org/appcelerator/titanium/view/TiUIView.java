@@ -38,10 +38,9 @@ import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Point;
 import android.graphics.Rect;
-import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.PaintDrawable;
 import android.graphics.drawable.RippleDrawable;
-import android.graphics.drawable.ShapeDrawable;
 import android.os.Build;
 import androidx.annotation.NonNull;
 import androidx.core.view.ViewCompat;
@@ -1180,27 +1179,24 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 
 		// Fetch the background drawable that we'll be applying the ripple effect to.
 		Drawable backgroundDrawable = this.background;
-		if (backgroundDrawable == null) {
-			backgroundDrawable = this.nativeView.getBackground();
-		}
+		if (backgroundDrawable instanceof TiBackgroundDrawable) {
+			final TiBackgroundDrawable drawable = (TiBackgroundDrawable) backgroundDrawable;
 
-		// Create a mask if a background doesn't exist or if it's completely transparent.
-		// Note: Ripple effect won't work unless it has something opaque to draw to. Use mask as a fallback.
-		ShapeDrawable maskDrawable = null;
-		boolean isVisible = (backgroundDrawable != null);
-		if (backgroundDrawable instanceof ColorDrawable) {
-			int colorValue = ((ColorDrawable) backgroundDrawable).getColor();
-			if (Color.alpha(colorValue) <= 0) {
-				isVisible = false;
+			backgroundDrawable = drawable.getBackground();
+		}
+		if (backgroundDrawable instanceof PaintDrawable) {
+			final PaintDrawable drawable = (PaintDrawable) backgroundDrawable;
+
+			if (drawable.getPaint().getColor() == Color.TRANSPARENT) {
+
+				// Do not use drawable for transparent backgrounds.
+				backgroundDrawable = null;
 			}
 		}
-		if (!isVisible) {
-			maskDrawable = new ShapeDrawable();
-		}
 
-		// Replace view's existing background with ripple effect wrapping the old drawable.
+		// Replace existing background with ripple effect wrapping the old drawable.
 		nativeView.setBackground(
-			new RippleDrawable(ColorStateList.valueOf(rippleColor), backgroundDrawable, maskDrawable));
+			new RippleDrawable(ColorStateList.valueOf(rippleColor), backgroundDrawable, null));
 	}
 
 	@Override
