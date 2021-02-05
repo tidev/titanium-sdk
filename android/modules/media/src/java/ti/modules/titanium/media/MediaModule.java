@@ -564,7 +564,7 @@ public class MediaModule extends KrollModule implements Handler.Callback
 				if (permissionCallback != null) {
 					permissionCallback.callAsync(callbackThisObject, response);
 				}
-				promise.reject(response);
+				promise.reject(new Throwable(response.getString(TiC.EVENT_PROPERTY_ERROR)));
 				return;
 			}
 
@@ -607,7 +607,7 @@ public class MediaModule extends KrollModule implements Handler.Callback
 				if (permissionCallback != null) {
 					permissionCallback.callAsync(callbackThisObject, response);
 				}
-				promise.reject(response);
+				promise.reject(new Throwable(response.getString(TiC.EVENT_PROPERTY_ERROR)));
 				return;
 			}
 
@@ -645,7 +645,7 @@ public class MediaModule extends KrollModule implements Handler.Callback
 				if (permissionCallback != null) {
 					permissionCallback.callAsync(callbackThisObject, response);
 				}
-				promise.reject(response);
+				promise.reject(new Throwable(response.getString(TiC.EVENT_PROPERTY_ERROR)));
 				return;
 			}
 

@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2018 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2021 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -10,6 +10,7 @@
 #import "KrollContext.h"
 #import "KrollMethod.h"
 #import "KrollObject.h"
+#import "KrollPromise.h"
 #import <objc/runtime.h>
 
 /*
@@ -357,6 +358,13 @@ JSValueRef TiBindingTiValueFromNSObject(JSContextRef jsContext, NSObject *obj)
     JSValueRef args[1];
     args[0] = JSValueMakeNumber(jsContext, number);
     return JSObjectMakeDate(jsContext, 1, args, NULL);
+  }
+  if ([obj isKindOfClass:[JSValue class]]) {
+    JSValue *jsValue = (JSValue *)obj;
+    return jsValue.JSValueRef;
+  }
+  if ([obj isKindOfClass:[KrollPromise class]]) {
+    return ((KrollPromise *)obj).JSValue.JSValueRef;
   }
   return TiBindingTiValueFromProxy(jsContext, (TiProxy *)obj);
 }

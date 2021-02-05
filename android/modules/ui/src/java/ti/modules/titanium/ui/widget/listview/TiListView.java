@@ -12,6 +12,7 @@ import java.util.List;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
+import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiUIHelper;
 
 import android.app.Activity;
@@ -21,7 +22,6 @@ import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.RectShape;
 import android.view.MotionEvent;
 import android.view.View;
-import android.os.Handler;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -42,19 +42,19 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 {
 	private static final String TAG = "TiListView";
 
-	private static final int CACHE_SIZE = 48;
-	private static final int PRELOAD_SIZE = CACHE_SIZE * 2;
+	private static final int CACHE_SIZE = 8;
+	private static final int PRELOAD_SIZE = CACHE_SIZE / 2;
 
 	private final ListViewAdapter adapter;
 	private final DividerItemDecoration decoration;
-	private final List<ListItemProxy> items = new ArrayList<>();
+	private final List<ListItemProxy> items = new ArrayList<>(CACHE_SIZE);
 	private final ListViewProxy proxy;
 	private final TiNestedRecyclerView recyclerView;
 	private final SelectionTracker tracker;
 
-	private boolean isFiltered = false;
 	private boolean isScrolling = false;
 	private int lastScrollDeltaY;
+	private String filterQuery;
 
 	public TiListView(ListViewProxy proxy)
 	{
@@ -231,16 +231,8 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 	@Override
 	public void filterBy(String query)
 	{
-		if (query == null || query.isEmpty()) {
-
-			// No query, update adapter with original items.
-			update();
-			this.isFiltered = false;
-			return;
-		}
-
-		update(query);
-		this.isFiltered = true;
+		this.filterQuery = query;
+		update();
 	}
 
 	/**
@@ -256,24 +248,34 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 		// Obtain first visible list item view.
 		final View firstVisibleView =
 			layoutManager.findViewByPosition(layoutManager.findFirstVisibleItemPosition());
-		final ListViewHolder firstVisibleHolder =
-			(ListViewHolder) recyclerView.getChildViewHolder(firstVisibleView);
+		if (firstVisibleView != null) {
+			final ListViewHolder firstVisibleHolder =
+				(ListViewHolder) recyclerView.getChildViewHolder(firstVisibleView);
 
-		// Obtain first visible list item proxy.
-		final ListItemProxy firstVisibleProxy = (ListItemProxy) firstVisibleHolder.getProxy();
-		payload.put(TiC.PROPERTY_FIRST_VISIBLE_ITEM, firstVisibleProxy);
+			// Obtain first visible list item proxy.
+			final ListItemProxy firstVisibleProxy = (ListItemProxy) firstVisibleHolder.getProxy();
+			payload.put(TiC.PROPERTY_FIRST_VISIBLE_ITEM, firstVisibleProxy);
 
-		// Obtain first visible list item index in section.
-		final int firstVisibleItemIndex = firstVisibleProxy.getIndexInSection();
-		payload.put(TiC.PROPERTY_FIRST_VISIBLE_ITEM_INDEX, firstVisibleItemIndex);
+			// Obtain first visible list item index in section.
+			final int firstVisibleItemIndex = firstVisibleProxy.getIndexInSection();
+			payload.put(TiC.PROPERTY_FIRST_VISIBLE_ITEM_INDEX, firstVisibleItemIndex);
 
-		// Obtain first visible section proxy.
-		final ListSectionProxy firstVisibleSection = (ListSectionProxy) firstVisibleProxy.getParent();
-		payload.put(TiC.PROPERTY_FIRST_VISIBLE_SECTION, firstVisibleSection);
+			// Obtain first visible section proxy.
+			final TiViewProxy firstVisibleParentProxy = firstVisibleProxy.getParent();
+			if (firstVisibleParentProxy instanceof ListSectionProxy) {
+				final ListSectionProxy firstVisibleSection = (ListSectionProxy) firstVisibleParentProxy;
+				payload.put(TiC.PROPERTY_FIRST_VISIBLE_SECTION, firstVisibleSection);
 
-		// Obtain first visible section index.
-		final int firstVisibleSectionIndex = proxy.getIndexOfSection(firstVisibleSection);
-		payload.put(TiC.PROPERTY_FIRST_VISIBLE_SECTION_INDEX, firstVisibleSectionIndex);
+				// Obtain first visible section index.
+				final int firstVisibleSectionIndex = proxy.getIndexOfSection(firstVisibleSection);
+				payload.put(TiC.PROPERTY_FIRST_VISIBLE_SECTION_INDEX, firstVisibleSectionIndex);
+			} else {
+			
+				// Could not obtain section, mark as undefined.
+				payload.put(TiC.PROPERTY_FIRST_VISIBLE_SECTION, null);
+				payload.put(TiC.PROPERTY_FIRST_VISIBLE_SECTION_INDEX, -1);
+			}
+		}
 
 		// Define visible item count.
 		final int visibleItemCount =
@@ -353,7 +355,7 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 	 */
 	public boolean isFiltered()
 	{
-		return this.isFiltered;
+		return this.filterQuery != null && !this.filterQuery.isEmpty();
 	}
 
 	/**
@@ -394,28 +396,23 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 		decoration.setDrawable(drawable);
 	}
 
-	public void update()
-	{
-		this.update(null);
-	}
-
 	/**
 	 * Update list items for adapter.
 	 */
-	private void update(String query)
+	public void update()
 	{
-		final KrollDict properties = proxy.getProperties();
+
+		final KrollDict properties = this.proxy.getProperties();
+		final boolean shouldPreload = this.items.size() == 0;
+		int filterResultsCount = 0;
 
 		final boolean hasHeader = properties.containsKeyAndNotNull(TiC.PROPERTY_HEADER_TITLE)
 			|| properties.containsKeyAndNotNull(TiC.PROPERTY_HEADER_VIEW);
 		final boolean hasFooter = properties.containsKeyAndNotNull(TiC.PROPERTY_FOOTER_TITLE)
 			|| properties.containsKeyAndNotNull(TiC.PROPERTY_FOOTER_VIEW);
 
+		String query = properties.optString(TiC.PROPERTY_SEARCH_TEXT, filterQuery);
 		final boolean caseInsensitive = properties.optBoolean(TiC.PROPERTY_CASE_INSENSITIVE_SEARCH, true);
-
-		if (query == null) {
-			query = properties.getString(TiC.PROPERTY_SEARCH_TEXT);
-		}
 		if (query != null && caseInsensitive) {
 			query = query.toLowerCase();
 		}
@@ -430,15 +427,16 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 			item.getProperties().put(TiC.PROPERTY_HEADER_TITLE, properties.get(TiC.PROPERTY_HEADER_TITLE));
 			item.getProperties().put(TiC.PROPERTY_HEADER_VIEW, properties.get(TiC.PROPERTY_HEADER_VIEW));
 
-			item.setParent(proxy);
+			item.setParent(this.proxy);
 			this.items.add(item);
 		}
 
 		// Iterate through sections.
-		for (final ListSectionProxy section : proxy.getSections()) {
+		for (final ListSectionProxy section : this.proxy.getSections()) {
 			final KrollDict sectionProperties = section.getProperties();
 			final List<ListItemProxy> sectionItems = section.getListItems();
 
+			int index = 0;
 			int filteredIndex = 0;
 			for (final ListItemProxy item : sectionItems) {
 
@@ -459,8 +457,10 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 				item.setFilteredIndex(query != null ? filteredIndex++ : -1);
 
 				// Add item.
+				item.index = index++;
 				this.items.add(item);
 			}
+			filterResultsCount += filteredIndex;
 
 			// Update section filtered row count.
 			section.setFilteredItemCount(query != null ? filteredIndex : -1);
@@ -475,12 +475,16 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 				final ListItemProxy item = new ListItemProxy(true);
 
 				// Add a placeholder item that will display the section header/footer.
-				item.getProperties().put(TiC.PROPERTY_HEADER_TITLE, sectionProperties.get(TiC.PROPERTY_HEADER_TITLE));
-				item.getProperties().put(TiC.PROPERTY_HEADER_VIEW, sectionProperties.get(TiC.PROPERTY_HEADER_VIEW));
-				item.getProperties().put(TiC.PROPERTY_FOOTER_TITLE, sectionProperties.get(TiC.PROPERTY_FOOTER_TITLE));
-				item.getProperties().put(TiC.PROPERTY_FOOTER_VIEW, sectionProperties.get(TiC.PROPERTY_FOOTER_VIEW));
+				item.getProperties().put(TiC.PROPERTY_HEADER_TITLE,
+					sectionProperties.get(TiC.PROPERTY_HEADER_TITLE));
+				item.getProperties().put(TiC.PROPERTY_HEADER_VIEW,
+					sectionProperties.get(TiC.PROPERTY_HEADER_VIEW));
+				item.getProperties().put(TiC.PROPERTY_FOOTER_TITLE,
+					sectionProperties.get(TiC.PROPERTY_FOOTER_TITLE));
+				item.getProperties().put(TiC.PROPERTY_FOOTER_VIEW,
+					sectionProperties.get(TiC.PROPERTY_FOOTER_VIEW));
 
-				item.setParent(proxy);
+				item.setParent(this.proxy);
 				this.items.add(item);
 			}
 		}
@@ -492,57 +496,50 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 			item.getProperties().put(TiC.PROPERTY_FOOTER_TITLE, properties.get(TiC.PROPERTY_FOOTER_TITLE));
 			item.getProperties().put(TiC.PROPERTY_FOOTER_VIEW, properties.get(TiC.PROPERTY_FOOTER_VIEW));
 
-			item.setParent(proxy);
+			item.setParent(this.proxy);
 			this.items.add(item);
 		}
 
-		// Pre-load views for smooth initial scroll.
-		final int preloadSize = Math.min(this.items.size(), PRELOAD_SIZE);
-		for (int i = 0; i < preloadSize; i++) {
-			this.items.get(i).getOrCreateView();
+		// If filtered and no results, fire `noresult` event.
+		if (isFiltered() && filterResultsCount == 0) {
+			this.proxy.fireEvent(TiC.EVENT_NO_RESULTS, null);
 		}
 
-		// Update models.
-		updateModels();
-	}
+		// Pre-load items of empty list.
+		if (shouldPreload) {
+			final int preloadSize = Math.min(this.items.size(), PRELOAD_SIZE);
 
-	/**
-	 * Update adapter models.
-	 */
-	public void updateModels()
-	{
-		// Amend final index of items.
-		int i = 0;
-		for (ListItemProxy item : this.items) {
-			if (item.isPlaceholder()) {
-				continue;
+			for (int i = 0; i < preloadSize; i++) {
+
+				// Pre-load views for smooth initial scroll.
+				this.items.get(i).getOrCreateView();
 			}
-
-			// Update item index, ignoring placeholder entries.
-			item.index = i++;
 		}
 
+		// Notify adapter of changes on UI thread.
+		this.adapter.notifyDataSetChanged();
+
+		// FIXME: This is not an ideal workaround for an issue where recycled rows that were in focus
+		//        lose their focus when the data set changes. There are improvements to be made here.
+		//        This can be reproduced when setting a Ti.UI.TextField in the Ti.UI.ListView.headerView for search.
 		final Activity activity = TiApplication.getAppCurrentActivity();
 		final View previousFocus = activity != null ? activity.getCurrentFocus() : null;
 
-		// Notify the adapter of changes.
-		this.adapter.notifyDataSetChanged();
-
-		// FIXME: This is not an ideal workaround for an issue where recycled items that were in focus
-		//        lose their focus when the data set changes. There are improvements to be made here.
-		//        This can be reproduced when setting a Ti.UI.TextField in the Ti.UI.ListView.headerView for search.
-		new Handler().post(new Runnable()
-		{
-			public void run()
+		if (previousFocus != null) {
+			activity.runOnUiThread(new Runnable()
 			{
-				final View currentFocus = activity != null ? activity.getCurrentFocus() : null;
+				@Override
+				public void run()
+				{
+					final View currentFocus = activity != null ? activity.getCurrentFocus() : null;
 
-				if (previousFocus != null && currentFocus != previousFocus) {
+					if (currentFocus != previousFocus) {
 
-					// Request focus on previous component before dataset changed.
-					previousFocus.requestFocus();
+						// Request focus on previous component before dataset changed.
+						previousFocus.requestFocus();
+					}
 				}
-			}
-		});
+			});
+		}
 	}
 }
