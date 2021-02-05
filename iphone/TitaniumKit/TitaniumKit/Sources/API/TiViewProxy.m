@@ -704,6 +704,7 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
         CGSize size = bounds.size;
         NSLog(@"[WARN] Rendering Ti.UI.View.toImage(), the view's content scale factor is: %f", myview.contentScaleFactor);
         NSLog(@"[WARN] Rendering Ti.UI.View.toImage(),frame width: %f, frame height: %f", frame.size.width, frame.size.height);
+        NSLog(@"[WARN] Rendering Ti.UI.View.toImage(), initial width: %f, initial height: %f", size.width, size.height);
         if (CGSizeEqualToSize(size, CGSizeZero) || size.width == 0 || size.height == 0) {
 #ifndef TI_USE_AUTOLAYOUT
           CGFloat width = [self autoWidthForSize:CGSizeMake(1000, 1000)];
