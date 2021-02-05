@@ -710,7 +710,7 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
         // FIXME: macOS Catalina has a "known issue" around nativeScale, see https://developer.apple.com/documentation/macos-release-notes/macos-catalina-10_15-release-notes
         // Try and detect when we have non-integer sizes *and* a scale of 1
         // It's a tell-tale sign that macOS Catalyst did us dirty and gave us bad bounds
-        if ((ceilf(f) != f || ceilf(f) != f) && UITraitCollection.currentTraitCollection.displayScale == 1.0) {
+        if ((ceilf(size.width) != size.width || ceilf(size.height) != size.height) && UITraitCollection.currentTraitCollection.displayScale == 1.0) {
           // FIXME: Only issue is: this doesn't work for cases where it gave us bad bounds that happened to be even numbers originally (i.e. 6pts for 12px)
           // TODO: OK, so how do we fix this?!
           CGSize s = [[self view] sizeThatFits:CGSizeMake(1000, 1000)];
