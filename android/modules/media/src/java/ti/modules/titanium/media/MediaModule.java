@@ -76,6 +76,7 @@ public class MediaModule extends KrollModule implements Handler.Callback
 	protected static final String PROP_AUTOHIDE = "autohide";
 	protected static final String PROP_AUTOSAVE = "saveToPhotoGallery";
 	protected static final String PROP_OVERLAY = "overlay";
+	protected static final String PROP_BITRATE = "bitRate";
 
 	@Kroll.constant
 	public static final int UNKNOWN_ERROR = -1;
@@ -392,6 +393,7 @@ public class MediaModule extends KrollModule implements Handler.Callback
 		String[] mediaTypes = null;
 		int flashMode = CAMERA_FLASH_OFF;
 		int whichCamera = CAMERA_REAR;
+		int bitRate = 2000000;
 
 		if (cameraOptions.containsKeyAndNotNull(TiC.PROPERTY_SUCCESS)) {
 			successCallback = (KrollFunction) cameraOptions.get(TiC.PROPERTY_SUCCESS);
@@ -410,6 +412,9 @@ public class MediaModule extends KrollModule implements Handler.Callback
 		}
 		if (cameraOptions.containsKeyAndNotNull(PROP_AUTOHIDE)) {
 			autohide = cameraOptions.getBoolean(PROP_AUTOHIDE);
+		}
+		if (cameraOptions.containsKeyAndNotNull(PROP_BITRATE)) {
+			bitRate = cameraOptions.getInt(PROP_BITRATE);
 		}
 		if (cameraOptions.containsKeyAndNotNull(TiC.PROPERTY_CAMERA_FLASH_MODE)) {
 			flashMode = cameraOptions.getInt(TiC.PROPERTY_CAMERA_FLASH_MODE);
@@ -439,10 +444,10 @@ public class MediaModule extends KrollModule implements Handler.Callback
 
 		// TiCameraActivity.mediaContext = this;
 		// TiCameraActivity.saveToPhotoGallery = saveToPhotoGallery;
-		// TiCameraActivity.videoQuality = videoQuality;
-		// TiCameraActivity.videoMaximumDuration = videoMaximumDuration;
-		// TiCameraActivity.mediaType = MediaModule.mediaType;
 
+		// TiCameraXActivity.videoMaximumDuration = videoMaximumDuration;
+		TiCameraXActivity.mediaType = MediaModule.mediaType;
+		TiCameraXActivity.bitRate = bitRate;
 		TiCameraXActivity.callbackContext = getKrollObject();
 		TiCameraXActivity.cameraFlashMode = flashMode;
 		TiCameraXActivity.androidbackCallback = androidbackCallback;
@@ -1381,8 +1386,8 @@ public class MediaModule extends KrollModule implements Handler.Callback
 	public void startVideoCapture()
 	{
 		// make sure the preview / camera are open before trying to take photo
-		if (TiCameraActivity.cameraActivity != null) {
-			TiCameraActivity.startVideoCapture();
+		if (TiCameraXActivity.cameraActivity != null) {
+			TiCameraXActivity.startVideoCapture();
 		} else {
 			Log.e(TAG, "Camera preview is not open, unable to take photo");
 		}
@@ -1392,8 +1397,8 @@ public class MediaModule extends KrollModule implements Handler.Callback
 	public void stopVideoCapture()
 	{
 		// make sure the preview / camera are open before trying to take photo
-		if (TiCameraActivity.cameraActivity != null) {
-			TiCameraActivity.stopVideoCapture();
+		if (TiCameraXActivity.cameraActivity != null) {
+			TiCameraXActivity.stopVideoCapture();
 		} else {
 			Log.e(TAG, "Camera preview is not open, unable to take photo");
 		}

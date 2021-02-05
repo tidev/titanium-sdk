@@ -6,30 +6,15 @@
  */
 package ti.modules.titanium.media;
 
-import java.io.File;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
-
-import org.appcelerator.kroll.KrollDict;
-import org.appcelerator.kroll.KrollFunction;
-import org.appcelerator.kroll.KrollObject;
-import org.appcelerator.kroll.common.Log;
-import org.appcelerator.titanium.TiApplication;
-import org.appcelerator.titanium.TiBaseActivity;
-import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.TiBlob;
-import org.appcelerator.titanium.proxy.TiViewProxy;
-import org.appcelerator.titanium.util.TiFileHelper;
-import org.appcelerator.titanium.util.TiRHelper;
-import org.appcelerator.titanium.io.TiFileFactory;
-
 import android.app.Activity;
 import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.camera.core.Camera;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.ImageCapture;
@@ -37,11 +22,31 @@ import androidx.camera.core.ImageCapture.OnImageSavedCallback;
 import androidx.camera.core.ImageCapture.OutputFileOptions;
 import androidx.camera.core.ImageCaptureException;
 import androidx.camera.core.Preview;
+import androidx.camera.core.VideoCapture;
 import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.camera.view.PreviewView;
 import androidx.core.content.ContextCompat;
 
 import com.google.common.util.concurrent.ListenableFuture;
+
+import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollFunction;
+import org.appcelerator.kroll.KrollObject;
+import org.appcelerator.kroll.common.Log;
+import org.appcelerator.titanium.TiApplication;
+import org.appcelerator.titanium.TiBaseActivity;
+import org.appcelerator.titanium.TiBlob;
+import org.appcelerator.titanium.TiC;
+import org.appcelerator.titanium.io.TiFileFactory;
+import org.appcelerator.titanium.proxy.TiViewProxy;
+import org.appcelerator.titanium.util.TiFileHelper;
+import org.appcelerator.titanium.util.TiRHelper;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 @SuppressWarnings("deprecation")
 public class TiCameraXActivity extends TiBaseActivity
@@ -51,6 +56,7 @@ public class TiCameraXActivity extends TiBaseActivity
 	Preview preview;
 	int lensFacing = CameraSelector.LENS_FACING_BACK;
 	private static ImageCapture imageCapture;
+	private static VideoCapture videoCapture;
 	private static Executor executor = Executors.newSingleThreadExecutor();
 	private TiViewProxy localOverlayProxy = null;
 	private ProcessCameraProvider cameraProvider;
@@ -61,6 +67,10 @@ public class TiCameraXActivity extends TiBaseActivity
 	public static TiCameraXActivity cameraActivity = null;
 	public static KrollObject callbackContext;
 	public static KrollFunction successCallback, errorCallback, cancelCallback, androidbackCallback;
+	public static String mediaType = MediaModule.MEDIA_TYPE_PHOTO;
+	public static boolean saveToPhotoGallery = false;
+
+	public static int bitRate = 2000000;	// in bits/s - default 2 Mbit/s
 	FrameLayout layout;
 
 	@Override
@@ -105,10 +115,19 @@ public class TiCameraXActivity extends TiBaseActivity
 				preview = new Preview.Builder().build();
 				cameraProvider = (ProcessCameraProvider) cameraProviderFuture.get();
 				CameraSelector cameraSelector = new CameraSelector.Builder().requireLensFacing(lensFacing).build();
-				imageCapture =
-					new ImageCapture.Builder().setFlashMode(cameraFlashMode).setTargetRotation(rotation).build();
 
-				Camera camera = cameraProvider.bindToLifecycle(this, cameraSelector, imageCapture, preview);
+				if (MediaModule.MEDIA_TYPE_VIDEO.equals(mediaType)) {
+					videoCapture = new VideoCapture.Builder()
+						.setTargetRotation(rotation)
+						.setBitRate(bitRate)
+						.build();
+					Camera camera = cameraProvider.bindToLifecycle(this, cameraSelector, videoCapture, preview);
+				} else {
+					imageCapture =
+						new ImageCapture.Builder().setFlashMode(cameraFlashMode).setTargetRotation(rotation).build();
+
+					Camera camera = cameraProvider.bindToLifecycle(this, cameraSelector, imageCapture, preview);
+				}
 				preview.setSurfaceProvider(((PreviewView) viewFinder).createSurfaceProvider());
 			} catch (InterruptedException | ExecutionException e) {
 				// Currently no exceptions thrown. cameraProviderFuture.get()
@@ -222,5 +241,41 @@ public class TiCameraXActivity extends TiBaseActivity
 		}
 		cameraProvider.unbindAll();
 		startCamera();
+	}
+
+	public static void startVideoCapture()
+	{
+		try {
+			File file = TiFileHelper.getInstance().getTempFile(".mp4", true);
+			VideoCapture.OutputFileOptions fileOptions = new VideoCapture.OutputFileOptions.Builder(file).build();
+
+			videoCapture.startRecording(fileOptions, executor, new VideoCapture.OnVideoSavedCallback()
+			{
+				@Override
+				public void onVideoSaved(@NonNull VideoCapture.OutputFileResults outputFileResults)
+				{
+					TiBlob blob = TiBlob.blobFromFile(TiFileFactory.createTitaniumFile(file.getPath(), false));
+					KrollDict response = MediaModule.createDictForImage(blob, blob.getMimeType());
+					successCallback.callAsync(callbackContext, response);
+
+					if (cameraActivity != null && autohide) {
+						cameraActivity.finish();
+					}
+				}
+
+				@Override
+				public void onError(int videoCaptureError, @NonNull String message, @Nullable Throwable cause)
+				{
+
+				}
+			});
+		} catch (IOException e) {
+			Log.e(TAG, "Can't create video file");
+		}
+	}
+
+	public static void stopVideoCapture()
+	{
+		videoCapture.stopRecording();
 	}
 }
