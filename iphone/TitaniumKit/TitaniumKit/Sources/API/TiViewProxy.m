@@ -699,8 +699,8 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
           [self windowWillOpen];
         }
         TiUIView *myview = [self view];
-        CGSize size = myview.bounds.size;
         CGRect bounds = myview.bounds;
+        CGSize size = bounds.size;
         if (CGSizeEqualToSize(size, CGSizeZero) || size.width == 0 || size.height == 0) {
 #ifndef TI_USE_AUTOLAYOUT
           CGFloat width = [self autoWidthForSize:CGSizeMake(1000, 1000)];
@@ -713,9 +713,11 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
 
           if (width > 0 && height > 0) {
             size = CGSizeMake(width, height);
+            NSLog(@"[WARN] Rendering Ti.UI.View.toImage(), using sizeThatFits to gather width: %f, height: %f", size.width, size.height);
           }
           if (CGSizeEqualToSize(size, CGSizeZero) || width == 0 || height == 0) {
             size = [UIScreen mainScreen].bounds.size;
+            NSLog(@"[WARN] Rendering Ti.UI.View.toImage(), using UIScreen.mainScreen.bounds.size to gather width: %f, height: %f", size.width, size.height);
           }
           CGRect rect = CGRectMake(0, 0, size.width, size.height);
           [TiUtils setView:myview positionRect:rect];
@@ -724,11 +726,13 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
         if (!viewIsAttached) {
           [self layoutChildren:NO];
         }
+        // FIXME: Sometimes we'll get size which appears to be a 2x scale pt value when device scale is reported to be 1x
         NSLog(@"[WARN] Rendering Ti.UI.View.toImage(), width: %f, height: %f", size.width, size.height);
         CGFloat scale = (honorScale ? 0.0 : 1.0);
         NSLog(@"[WARN] Rendering Ti.UI.View.toImage(), w/ scale %f", scale);
         if (scale == 0.0) {
           NSLog(@"[WARN] Set to honor device main screen scale, which is %f", UIScreen.mainScreen.scale);
+          NSLog(@"[WARN] Current Trait collection says scale is %f", UITraitCollection.currentTraitCollection.displayScale);
         }
         // New API
         //        UIGraphicsImageRenderer *renderer = [[UIGraphicsImageRenderer alloc] initWithSize:size];
