@@ -701,6 +701,7 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
         TiUIView *myview = [self view];
         CGRect bounds = myview.bounds;
         CGSize size = bounds.size;
+        NSLog(@"[WARN] Rendering Ti.UI.View.toImage(), the view's content scale factor is: %f", myview.contentScaleFactor);
         if (CGSizeEqualToSize(size, CGSizeZero) || size.width == 0 || size.height == 0) {
 #ifndef TI_USE_AUTOLAYOUT
           CGFloat width = [self autoWidthForSize:CGSizeMake(1000, 1000)];
