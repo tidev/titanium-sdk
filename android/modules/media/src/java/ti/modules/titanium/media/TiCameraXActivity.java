@@ -119,6 +119,7 @@ public class TiCameraXActivity extends TiBaseActivity
 				if (MediaModule.MEDIA_TYPE_VIDEO.equals(mediaType)) {
 					videoCapture = new VideoCapture.Builder()
 						.setTargetRotation(rotation)
+						.setCameraSelector(cameraSelector)
 						.setBitRate(bitRate)
 						.build();
 					Camera camera = cameraProvider.bindToLifecycle(this, cameraSelector, videoCapture, preview);
