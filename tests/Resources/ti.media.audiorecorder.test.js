@@ -4,7 +4,7 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-/* global OS_IOS */
+/* global OS_ANDROID, OS_IOS, OS_VERSION_MAJOR */
 /* eslint-env mocha */
 /* eslint no-unused-expressions: "off" */
 /* eslint-disable mocha/no-identical-title */
@@ -37,7 +37,7 @@ describe('Titanium.Media.AudioRecorder', () => {
 			});
 		});
 
-		// TOOD: document/expose this on Android. Should likley always be LINEAR_PCM and read-only there.
+		// TOOD: document/expose this on Android. Should likely always be LINEAR_PCM and read-only there.
 		describe.ios('.compression', () => {
 			it('is a Number', () => {
 				should(recorder).have.a.property('compression').which.is.a.Number();
@@ -154,6 +154,11 @@ describe('Titanium.Media.AudioRecorder', () => {
 	});
 
 	it('#start, #pause, #resume, #stop', function (finish) {
+		// skip on older android since it intermittently hangs forever on android 5 emulator
+		if (OS_ANDROID && OS_VERSION_MAJOR < 6) {
+			return finish();
+		}
+
 		this.slow(5000);
 		this.timeout(15000);
 
@@ -167,17 +172,24 @@ describe('Titanium.Media.AudioRecorder', () => {
 			return finish();
 		}
 
-		Ti.API.info('AudioRecorder.start()');
 		recorder.start();
 		if (recorder.recording) {
-			// Recording has started. Continue running the rest of the tests.
-			should(recorder.paused).be.false();
-			should(recorder.stopped).be.false();
+			try {
+				// Recording has started. Continue running the rest of the tests.
+				should(recorder.paused).be.false();
+				should(recorder.stopped).be.false();
+			} catch (err) {
+				return finish(err);
+			}
 		} else {
-			// Failed to start recording. Give up now without failing the test.
-			// Note: This happens if microphone exists, but is disconnected or in use.
-			should(recorder.paused).be.false();
-			should(recorder.stopped).be.true();
+			try {
+				// Failed to start recording. Give up now without failing the test.
+				// Note: This happens if microphone exists, but is disconnected or in use.
+				should(recorder.paused).be.false();
+				should(recorder.stopped).be.true();
+			} catch (err) {
+				return finish(err);
+			}
 			return finish();
 		}
 
@@ -186,7 +198,6 @@ describe('Titanium.Media.AudioRecorder', () => {
 				return new Promise((resolve) => setTimeout(resolve, 100));
 			})
 			.then(() => {
-				Ti.API.info('AudioRecorder.pause()');
 				recorder.pause();
 				should(recorder.recording).be.false();
 				should(recorder.paused).be.true();
@@ -194,7 +205,6 @@ describe('Titanium.Media.AudioRecorder', () => {
 				return new Promise((resolve) => setTimeout(resolve, 100));
 			})
 			.then(() => {
-				Ti.API.info('AudioRecorder.resume()');
 				recorder.resume();
 				should(recorder.recording).be.true();
 				should(recorder.paused).be.false();
@@ -202,7 +212,6 @@ describe('Titanium.Media.AudioRecorder', () => {
 				return new Promise((resolve) => setTimeout(resolve, 100));
 			})
 			.then(() => {
-				Ti.API.info('AudioRecorder.stop()');
 				const file = recorder.stop();
 				should(file).be.an.Object();
 				should(file.exists()).be.true();
