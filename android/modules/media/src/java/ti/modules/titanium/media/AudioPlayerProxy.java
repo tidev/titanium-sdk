@@ -222,6 +222,7 @@ public class AudioPlayerProxy extends KrollProxy implements OnLifecycleEvent, On
 	}
 
 	@Kroll.method
+	@Kroll.getProperty
 	public int getAudioSessionId()
 	{
 		TiSound s = getSound();
