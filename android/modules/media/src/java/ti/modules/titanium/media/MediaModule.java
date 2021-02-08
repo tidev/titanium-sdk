@@ -60,6 +60,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.os.Vibrator;
 import android.provider.MediaStore;
+import android.util.Size;
 import android.view.Window;
 
 @SuppressWarnings("deprecation")
@@ -77,6 +78,8 @@ public class MediaModule extends KrollModule implements Handler.Callback
 	protected static final String PROP_AUTOSAVE = "saveToPhotoGallery";
 	protected static final String PROP_OVERLAY = "overlay";
 	protected static final String PROP_BITRATE = "bitRate";
+	protected static final String PROP_FRAMERATE = "frameRate";
+	protected static final String PROP_MAX_RES = "maxResolution";
 
 	@Kroll.constant
 	public static final int UNKNOWN_ERROR = -1;
@@ -393,7 +396,9 @@ public class MediaModule extends KrollModule implements Handler.Callback
 		String[] mediaTypes = null;
 		int flashMode = CAMERA_FLASH_OFF;
 		int whichCamera = CAMERA_REAR;
-		int bitRate = 2000000;
+		int bitRate = -1;
+		int frameRate = -1;
+		Size maxResolution = null;
 
 		if (cameraOptions.containsKeyAndNotNull(TiC.PROPERTY_SUCCESS)) {
 			successCallback = (KrollFunction) cameraOptions.get(TiC.PROPERTY_SUCCESS);
@@ -412,9 +417,6 @@ public class MediaModule extends KrollModule implements Handler.Callback
 		}
 		if (cameraOptions.containsKeyAndNotNull(PROP_AUTOHIDE)) {
 			autohide = cameraOptions.getBoolean(PROP_AUTOHIDE);
-		}
-		if (cameraOptions.containsKeyAndNotNull(PROP_BITRATE)) {
-			bitRate = cameraOptions.getInt(PROP_BITRATE);
 		}
 		if (cameraOptions.containsKeyAndNotNull(TiC.PROPERTY_CAMERA_FLASH_MODE)) {
 			flashMode = cameraOptions.getInt(TiC.PROPERTY_CAMERA_FLASH_MODE);
@@ -436,6 +438,26 @@ public class MediaModule extends KrollModule implements Handler.Callback
 		if (cameraOptions.containsKeyAndNotNull(TiC.PROPERTY_MEDIA_TYPES)) {
 			mediaTypes = cameraOptions.getStringArray(TiC.PROPERTY_MEDIA_TYPES);
 		}
+		if (cameraOptions.containsKeyAndNotNull(PROP_BITRATE)) {
+			bitRate = cameraOptions.getInt(PROP_BITRATE);
+		}
+		if (cameraOptions.containsKeyAndNotNull(PROP_FRAMERATE)) {
+			frameRate = cameraOptions.getInt(PROP_FRAMERATE);
+		}
+		if (cameraOptions.containsKeyAndNotNull(PROP_FRAMERATE)) {
+			frameRate = cameraOptions.getInt(PROP_FRAMERATE);
+		}
+		if (cameraOptions.containsKeyAndNotNull(PROP_MAX_RES)) {
+			Object maxRes = cameraOptions.get(PROP_MAX_RES);
+			if (maxRes instanceof HashMap) {
+				HashMap center = (HashMap) maxRes;
+				int w = TiConvert.toInt(center, TiC.PROPERTY_WIDTH);
+				int h = TiConvert.toInt(center, TiC.PROPERTY_HEIGHT);
+				maxResolution = new Size(w, h);
+			} else {
+				Log.e(TAG, "Invalid argument type for maxResolution property. Ignoring");
+			}
+		}
 		if ((mediaTypes != null) && Arrays.asList(mediaTypes).contains(MEDIA_TYPE_VIDEO)) {
 			MediaModule.mediaType = MEDIA_TYPE_VIDEO;
 		} else {
@@ -447,7 +469,9 @@ public class MediaModule extends KrollModule implements Handler.Callback
 
 		// TiCameraXActivity.videoMaximumDuration = videoMaximumDuration;
 		TiCameraXActivity.mediaType = MediaModule.mediaType;
-		TiCameraXActivity.bitRate = bitRate;
+		if (bitRate != -1) TiCameraXActivity.bitRate = bitRate;
+		if (frameRate != -1) TiCameraXActivity.frameRate = frameRate;
+		if (maxResolution != null) TiCameraXActivity.maxResolution = maxResolution;
 		TiCameraXActivity.callbackContext = getKrollObject();
 		TiCameraXActivity.cameraFlashMode = flashMode;
 		TiCameraXActivity.androidbackCallback = androidbackCallback;
