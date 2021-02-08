@@ -312,4 +312,13 @@ public class TiCameraXActivity extends TiBaseActivity
 		videoCapture.stopRecording();
 		isRecording = false;
 	}
+
+	public static void setFlashMode(int cameraFlashMode) {}
+
+	public static void hide()
+	{
+		if (cameraActivity != null) {
+			cameraActivity.finish();
+		}
+	}
 }

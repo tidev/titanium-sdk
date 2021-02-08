@@ -791,8 +791,8 @@ public class MediaModule extends KrollModule implements Handler.Callback
 	public void hideCamera()
 	{
 		// make sure the preview / camera are open before trying to hide
-		if (TiCameraActivity.cameraActivity != null) {
-			TiCameraActivity.hide();
+		if (TiCameraXActivity.cameraActivity != null) {
+			TiCameraXActivity.hide();
 		} else {
 			Log.e(TAG, "Camera preview is not open, unable to hide");
 		}
@@ -894,14 +894,14 @@ public class MediaModule extends KrollModule implements Handler.Callback
 	@Kroll.setProperty
 	public void setCameraFlashMode(int flashMode)
 	{
-		TiCameraActivity.setFlashMode(flashMode);
+		TiCameraXActivity.setFlashMode(flashMode);
 	}
 
 	@Kroll.method
 	@Kroll.getProperty
 	public int getCameraFlashMode()
 	{
-		return TiCameraActivity.cameraFlashMode;
+		return TiCameraXActivity.cameraFlashMode;
 	}
 
 	@Kroll.method
