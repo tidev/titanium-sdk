@@ -142,8 +142,7 @@ describe.windowsMissing('Titanium.UI.NavigationWindow', function () {
 		nav.open();
 	});
 
-	// Crashes frequently on macOS on CI boxes
-	it.macBroken('#popToRootWindow()', function (finish) {
+	it('#popToRootWindow()', function (finish) {
 		var rootWindow = Ti.UI.createWindow();
 		var subWindow = Ti.UI.createWindow();
 
