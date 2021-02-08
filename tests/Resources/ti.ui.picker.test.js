@@ -30,6 +30,7 @@ describe('Titanium.UI.Picker', function () {
 		}
 	});
 
+	// FIXME: Intermittent crashes on macOS: https://jira.appcelerator.org/browse/TIMOB-28296
 	describe('.type is PICKER_TYPE_DATE', () => {
 		it('lifecycle', function (finish) {
 			const date = new Date();
@@ -132,7 +133,7 @@ describe('Titanium.UI.Picker', function () {
 			win.open();
 		});
 
-		it('.minDate/maxDate - change after open', (finish) => {
+		it.macBroken('.minDate/maxDate - change after open', (finish) => {
 			let minDate = new Date(2020, 4, 1);
 			let maxDate = new Date(2020, 6, 31);
 			const picker = Ti.UI.createPicker({
