@@ -138,7 +138,7 @@ public class TiCameraXActivity extends TiBaseActivity
 
 					Camera camera = cameraProvider.bindToLifecycle(this, cameraSelector, imageCapture, preview);
 				}
-				preview.setSurfaceProvider(((PreviewView) viewFinder).createSurfaceProvider());
+				preview.setSurfaceProvider(((PreviewView) viewFinder).getSurfaceProvider());
 			} catch (InterruptedException | ExecutionException e) {
 				// Currently no exceptions thrown. cameraProviderFuture.get()
 				// shouldn't block since the listener is being called, so no need to
