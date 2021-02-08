@@ -84,18 +84,18 @@ describe.ios('Ti.Network.BonjourService', () => {
 		});
 
 		it('throws if not given TCP Socket argument', () => {
-			(() => service.publish()).should.throw('Attempt to publish service with no associated socket');
+			should((() => service.publish())).throw('Attempt to publish service with no associated socket');
 		});
 
 		// TODO: Test throws if not local
 		// it('throws if isLocal === false', () => {
 		// 	const nonLocalService = null; //  TODO: Need to discover a non local service via Ti.Network.BonjourBrowser!
-		// 	(() => nonLocalService.publish()).should.throw('Attempt to republish discovered Bonjour service');
+		// 	should((() => nonLocalService.publish())).throw('Attempt to republish discovered Bonjour service');
 		// });
 
 		// TODO: test throws if already published
 		// it('throws if already published', () => {
-		// 	(() => service.publish()).should.throw('Attempt to republish service');
+		// 	should((() => service.publish())).throw('Attempt to republish service');
 		// });
 	});
 
@@ -107,12 +107,12 @@ describe.ios('Ti.Network.BonjourService', () => {
 
 		// TODO: Test when already published
 		// it('throws if already published', () => {
-		// 	(() => service.resolve()).should.throw('Attempt to resolve published Bonjour service');
+		// 	should((() => service.resolve())).throw('Attempt to resolve published Bonjour service');
 		// });
 
 		// TODO: test when already resolved
 		// it('throws if already resolved', () => {
-		// 	(() => service.resolve()).should.throw('Attempt to re-resolve service');
+		// 	should((() => service.resolve())).throw('Attempt to re-resolve service');
 		// });
 
 		// TODO: Test with callback function only

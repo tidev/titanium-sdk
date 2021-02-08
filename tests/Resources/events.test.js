@@ -40,7 +40,7 @@ describe('EventEmitter', () => {
 				fires.push(4);
 			});
 			e.emit('ping');
-			fires.should.eql([ 1, 2, 3, 4 ]);
+			should(fires).eql([ 1, 2, 3, 4 ]);
 		});
 
 		it('fires to listeners in order added with one removed', () => {
@@ -61,7 +61,7 @@ describe('EventEmitter', () => {
 			});
 			e.removeListener('ping', three);
 			e.emit('ping');
-			fires.should.eql([ 1, 2, 4 ]);
+			should(fires).eql([ 1, 2, 4 ]);
 		});
 
 		it('fires to listeners in order added, with prependListener jumping the line', () => {
@@ -80,7 +80,7 @@ describe('EventEmitter', () => {
 				fires.push(4);
 			});
 			e.emit('ping');
-			fires.should.eql([ 4, 3, 1, 2 ]);
+			should(fires).eql([ 4, 3, 1, 2 ]);
 		});
 
 		it('passes along arguments to listener', () => {
@@ -90,7 +90,7 @@ describe('EventEmitter', () => {
 				fires.push(one, two, three, four);
 			});
 			e.emit('ping', 1, '2', /three/, { four: 4 });
-			fires.should.eql([ 1, '2', /three/, { four: 4 } ]);
+			should(fires).eql([ 1, '2', /three/, { four: 4 } ]);
 		});
 
 		it('sets `this` to emitter inside listener', () => {
@@ -100,7 +100,7 @@ describe('EventEmitter', () => {
 				listenerThis = this;
 			});
 			e.emit('ping');
-			listenerThis.should.eql(e);
+			should(listenerThis).eql(e);
 		});
 	});
 
@@ -114,7 +114,7 @@ describe('EventEmitter', () => {
 			const e = new EventEmitter();
 			const eventNames = e.eventNames();
 			should(eventNames).be.an.Array();
-			eventNames.should.have.length(0);
+			should(eventNames).have.length(0);
 		});
 
 		it('returns array of unique event names', () => { // this is hanging!
@@ -124,23 +124,23 @@ describe('EventEmitter', () => {
 			e.once('pong', noop);
 			e.addListener('foo', noop);
 			const eventNames = e.eventNames();
-			eventNames.should.have.length(3);
-			eventNames[0].should.eql('ping');
-			eventNames[1].should.eql('pong');
-			eventNames[2].should.eql('foo');
+			should(eventNames).have.length(3);
+			should(eventNames[0]).eql('ping');
+			should(eventNames[1]).eql('pong');
+			should(eventNames[2]).eql('foo');
 
 			// remove listeners and see if it removes event name (if that was only listener)
 			e.removeListener('ping', noop);
 			const eventNames2 = e.eventNames();
-			eventNames2.should.have.length(2);
-			eventNames2[0].should.eql('pong');
-			eventNames2[1].should.eql('foo');
+			should(eventNames2).have.length(2);
+			should(eventNames2[0]).eql('pong');
+			should(eventNames2[1]).eql('foo');
 
 			// emit for event with one once listener, verify that event name disappears
 			e.emit('pong');
 			const eventNames3 = e.eventNames();
-			eventNames3.should.have.length(1);
-			eventNames3[0].should.eql('foo');
+			should(eventNames3).have.length(1);
+			should(eventNames3[0]).eql('foo');
 		});
 	});
 
@@ -162,7 +162,7 @@ describe('EventEmitter', () => {
 			e.emit('ping');
 			setTimeout(() => {
 				try {
-					callCount.should.eql(4);
+					should(callCount).eql(4);
 					finished();
 				} catch (err) {
 					finished(err);
@@ -187,7 +187,7 @@ describe('EventEmitter', () => {
 			e.emit('ping');
 			e.emit('ping');
 			e.emit('ping');
-			callCount.should.eql(4);
+			should(callCount).eql(4);
 		});
 	});
 
@@ -209,7 +209,7 @@ describe('EventEmitter', () => {
 			e.emit('ping');
 			setTimeout(() => {
 				try {
-					callCount.should.eql(1); // fails here, gives us 4
+					should(callCount).eql(1); // fails here, gives us 4
 					finished();
 				} catch (err) {
 					finished(err);
@@ -221,9 +221,9 @@ describe('EventEmitter', () => {
 			const e = new EventEmitter();
 			const noop = () => {};
 			e.once('ping', noop);
-			e.listenerCount('ping').should.eql(1);
+			should(e.listenerCount('ping')).eql(1);
 			e.removeListener('ping', noop);
-			e.listenerCount('ping').should.eql(0);
+			should(e.listenerCount('ping')).eql(0);
 		});
 
 		it('does not interfere with other listeners when removing itself', () => {
@@ -238,10 +238,10 @@ describe('EventEmitter', () => {
 			e.on('ping', () => {
 				callCount++;
 			});
-			e.listenerCount('ping').should.eql(2);
+			should(e.listenerCount('ping')).eql(2);
 			e.emit('ping'); // emit shoudl fire to *both* listeners and remove the first once listener
-			e.listenerCount('ping').should.eql(1);
-			callCount.should.eql(2);
+			should(e.listenerCount('ping')).eql(1);
+			should(callCount).eql(2);
 		});
 	});
 
@@ -310,7 +310,7 @@ describe('EventEmitter', () => {
 			e.emit('ping');
 			e.emit('ping');
 			e.emit('ping');
-			callCount.should.eql(1);
+			should(callCount).eql(1);
 		});
 
 		it('does not throw when removing listener that was never added', () => {
@@ -331,13 +331,13 @@ describe('EventEmitter', () => {
 			e.once('pong', () => {});
 			e.on('foo', () => {});
 			const eventNames = e.eventNames();
-			eventNames.should.be.an.Array();
-			eventNames.should.have.length(3);
-			eventNames.should.eql([ 'ping', 'pong', 'foo' ]);
+			should(eventNames).be.an.Array();
+			should(eventNames).have.length(3);
+			should(eventNames).eql([ 'ping', 'pong', 'foo' ]);
 			e.removeAllListeners();
 			const eventNames2 = e.eventNames();
-			eventNames2.should.be.an.Array();
-			eventNames2.should.have.length(0);
+			should(eventNames2).be.an.Array();
+			should(eventNames2).have.length(0);
 		});
 
 		it('with argument removes for specific event type', () => {
@@ -346,17 +346,17 @@ describe('EventEmitter', () => {
 			e.once('ping', () => {});
 			e.once('pong', () => {});
 			e.on('foo', () => {});
-			e.listenerCount('ping').should.eql(2);
+			should(e.listenerCount('ping')).eql(2);
 			const eventNames = e.eventNames();
-			eventNames.should.be.an.Array();
-			eventNames.should.have.length(3);
-			eventNames.should.eql([ 'ping', 'pong', 'foo' ]);
+			should(eventNames).be.an.Array();
+			should(eventNames).have.length(3);
+			should(eventNames).eql([ 'ping', 'pong', 'foo' ]);
 			e.removeAllListeners('ping');
 			const eventNames2 = e.eventNames();
-			eventNames2.should.be.an.Array();
-			eventNames2.should.have.length(2);
-			eventNames2.should.eql([ 'pong', 'foo' ]);
-			e.listenerCount('ping').should.eql(0);
+			should(eventNames2).be.an.Array();
+			should(eventNames2).have.length(2);
+			should(eventNames2).eql([ 'pong', 'foo' ]);
+			should(e.listenerCount('ping')).eql(0);
 		});
 	});
 
@@ -401,7 +401,7 @@ describe('EventEmitter', () => {
 			e.addListener('ping', listener1);
 			e.once('ping', listener2);
 			const listeners = e.rawListeners('ping');
-			listeners.should.not.eql([ listener1, listener2 ]);
+			should(listeners).not.eql([ listener1, listener2 ]);
 		});
 	});
 
@@ -418,7 +418,7 @@ describe('EventEmitter', () => {
 			e.addListener('ping', listener1);
 			e.once('ping', listener2);
 			const listeners = e.listeners('ping');
-			listeners.should.eql([ listener1, listener2 ]);
+			should(listeners).eql([ listener1, listener2 ]);
 		});
 	});
 
@@ -429,7 +429,7 @@ describe('EventEmitter', () => {
 			e.addListener('newListener', eventName => listenerFirings.push(eventName));
 			e.addListener('ping', () => {});
 			e.once('pong', () => {});
-			listenerFirings.should.eql([ 'ping', 'pong' ]);
+			should(listenerFirings).eql([ 'ping', 'pong' ]);
 		});
 	});
 
@@ -442,9 +442,9 @@ describe('EventEmitter', () => {
 			e.addListener('ping', noop);
 			e.once('pong', () => {});
 			e.emit('pong');
-			listenerFirings.should.eql([ 'pong' ]);
+			should(listenerFirings).eql([ 'pong' ]);
 			e.off('ping', noop);
-			listenerFirings.should.eql([ 'pong', 'ping' ]);
+			should(listenerFirings).eql([ 'pong', 'ping' ]);
 		});
 
 		it('handles removing a removeListener properly', () => {
@@ -457,7 +457,7 @@ describe('EventEmitter', () => {
 			};
 			e.addListener('removeListener', shouldNeverGetInvoked);
 			e.off('removeListener', shouldNeverGetInvoked);
-			listenerFirings.should.eql([ 'removeListener' ]);
+			should(listenerFirings).eql([ 'removeListener' ]);
 		});
 	});
 
@@ -471,7 +471,7 @@ describe('EventEmitter', () => {
 		e.addListener('newListener', eventName => listenerFirings.push(eventName));
 		e.addListener('ping', () => {});
 		e.once('pong', () => {});
-		listenerFirings.should.eql([ 'ping', 'pong' ]);
+		should(listenerFirings).eql([ 'ping', 'pong' ]);
 	});
 
 	// TODO: test registering for and receiving newListener removeListener events baked in

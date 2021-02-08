@@ -19,12 +19,12 @@ let assert;
 describe('assert', function () {
 	it('should be required as core module', function () {
 		assert = require('assert');
-		assert.should.be.a.Function(); // it's an alias for assert.ok
+		should(assert).be.a.Function(); // it's an alias for assert.ok
 	});
 
 	describe('#ok()', () => {
 		it('is a function', () => {
-			assert.ok.should.be.a.Function();
+			should(assert.ok).be.a.Function();
 		});
 
 		it('does not throw for true', () => {
@@ -106,7 +106,7 @@ describe('assert', function () {
 
 	describe('#equal()', () => {
 		it('is a function', () => {
-			assert.equal.should.be.a.Function();
+			should(assert.equal).be.a.Function();
 		});
 
 		it('does not throw for comparing 1 with 1', () => {
@@ -139,7 +139,7 @@ describe('assert', function () {
 
 	describe('#strictEqual()', () => {
 		it('is a function', () => {
-			assert.strictEqual.should.be.a.Function();
+			should(assert.strictEqual).be.a.Function();
 		});
 
 		it('does not throw for comparing 1 with 1', () => {
@@ -189,7 +189,7 @@ describe('assert', function () {
 
 	describe('#notEqual()', () => {
 		it('is a function', () => {
-			assert.notEqual.should.be.a.Function();
+			should(assert.notEqual).be.a.Function();
 		});
 
 		it('does throw for comparing 1 with 1', () => {
@@ -223,7 +223,7 @@ describe('assert', function () {
 
 	describe('#notStrictEqual()', () => {
 		it('is a function', () => {
-			assert.notStrictEqual.should.be.a.Function();
+			should(assert.notStrictEqual).be.a.Function();
 		});
 
 		it('throws for comparing 1 with 1', () => {
@@ -257,7 +257,7 @@ describe('assert', function () {
 
 	describe('#fail()', () => {
 		it('is a function', () => {
-			assert.fail.should.be.a.Function();
+			should(assert.fail).be.a.Function();
 		});
 
 		it('throws with default error message with no arguments', () => {
@@ -293,7 +293,7 @@ describe('assert', function () {
 
 	describe('#throws()', () => {
 		it('is a function', () => {
-			assert.throws.should.be.a.Function();
+			should(assert.throws).be.a.Function();
 		});
 
 		// TODO: Test for:
@@ -573,7 +573,7 @@ describe('assert', function () {
 
 	describe('#doesNotThrow()', () => {
 		it('is a function', () => {
-			assert.throws.should.be.a.Function();
+			should(assert.throws).be.a.Function();
 		});
 
 		it('throws underlying Error when expected type does not match', () => {
@@ -671,7 +671,7 @@ describe('assert', function () {
 
 	describe('#rejects()', () => {
 		it('is a function', () => {
-			assert.rejects.should.be.a.Function();
+			should(assert.rejects).be.a.Function();
 		});
 
 		it('resolves when given a Promise that rejects', finished => {
@@ -701,7 +701,7 @@ describe('assert', function () {
 			).then(() => {
 				return finished(new Error('Expected assert.rejects to bubble up underlying Error to catch handler'));
 			}).catch(err => {
-				err.should.eql(actualError);
+				should(err).eql(actualError);
 				finished();
 			});
 		});
@@ -712,8 +712,8 @@ describe('assert', function () {
 			).then(() => {
 				return finished(new Error('Expected assert.rejects to reject with Error to catch handler if supplied Promise resolves'));
 			}).catch(err => {
-				err.should.be.ok();
-				(err instanceof assert.AssertionError).should.be.true();
+				should(err).be.ok();
+				should((err instanceof assert.AssertionError)).be.true();
 				finished();
 			});
 		});
@@ -721,7 +721,7 @@ describe('assert', function () {
 
 	describe('#doesNotReject()', () => {
 		it('is a function', () => {
-			assert.doesNotReject.should.be.a.Function();
+			should(assert.doesNotReject).be.a.Function();
 		});
 
 		// TODO: Add some basic tests!
@@ -732,7 +732,7 @@ describe('assert', function () {
 			).then(() => {
 				return finished(new Error('Expected assert.doesNotReject to bubble up underlying Error to catch handler'));
 			}).catch(err => {
-				err.should.eql(actualError);
+				should(err).eql(actualError);
 				finished();
 			});
 		});
@@ -745,8 +745,8 @@ describe('assert', function () {
 			).then(() => {
 				return finished(new Error('Expected assert.doesNotReject to reject with AssertionError to catch handler'));
 			}).catch(err => {
-				err.should.not.eql(actualError);
-				(err instanceof assert.AssertionError).should.be.true();
+				should(err).not.eql(actualError);
+				should((err instanceof assert.AssertionError)).be.true();
 				finished();
 			});
 		});
@@ -759,7 +759,7 @@ describe('assert', function () {
 			).then(() => {
 				return finished(new Error('Expected assert.doesNotReject to bubble up underlying Error to catch handler'));
 			}).catch(err => {
-				err.should.eql(actualError);
+				should(err).eql(actualError);
 				finished();
 			});
 		});
@@ -775,7 +775,7 @@ describe('assert', function () {
 
 	describe('#deepStrictEqual()', () => {
 		it('is a function', function () {
-			assert.deepStrictEqual.should.be.a.Function();
+			should(assert.deepStrictEqual).be.a.Function();
 		});
 
 		it('throws for comparing 1 with \'1\' as values of same key on objects', () => {
@@ -1089,7 +1089,7 @@ describe('assert', function () {
 
 	describe('#deepEqual()', () => {
 		it('is a function', function () {
-			assert.deepEqual.should.be.a.Function();
+			should(assert.deepEqual).be.a.Function();
 		});
 
 		it('does not throw for comparing 1 with \'1\' as values of same key on objects', () => {
@@ -1149,7 +1149,7 @@ describe('assert', function () {
 
 	describe('#ifError()', () => {
 		it('is a function', () => {
-			assert.ifError.should.be.a.Function();
+			should(assert.ifError).be.a.Function();
 		});
 
 		it('does not throw null', () => {
@@ -1215,59 +1215,59 @@ describe('assert', function () {
 
 	describe('.strict', () => {
 		it('is a function', function () {
-			assert.strict.should.be.a.Function(); // it's an alias for assert.ok
+			should(assert.strict).be.a.Function(); // it's an alias for assert.ok
 		});
 
 		it('is available off of itself', function () {
-			assert.strict.strict.should.be.ok();
+			should(assert.strict.strict).be.ok();
 		});
 
 		describe('#ok', () => {
-			it('is a function', () => assert.strict.ok.should.be.a.Function());
+			it('is a function', () => should(assert.strict.ok).be.a.Function());
 		});
 
 		describe('#ifError', () => {
-			it('is a function', () => assert.strict.ifError.should.be.a.Function());
+			it('is a function', () => should(assert.strict.ifError).be.a.Function());
 		});
 
 		describe('#fail', () => {
-			it('is a function', () => assert.strict.fail.should.be.a.Function());
+			it('is a function', () => should(assert.strict.fail).be.a.Function());
 		});
 
 		describe('#deepEqual', () => {
-			it('is a function', () => assert.strict.deepEqual.should.be.a.Function());
+			it('is a function', () => should(assert.strict.deepEqual).be.a.Function());
 		});
 
 		describe('#throws', () => {
-			it('is a function', () => assert.strict.throws.should.be.a.Function());
+			it('is a function', () => should(assert.strict.throws).be.a.Function());
 		});
 
 		describe('#doesNotThrow', () => {
-			it('is a function', () => assert.strict.doesNotThrow.should.be.a.Function());
+			it('is a function', () => should(assert.strict.doesNotThrow).be.a.Function());
 		});
 
 		describe('#rejects', () => {
-			it('is a function', () => assert.strict.rejects.should.be.a.Function());
+			it('is a function', () => should(assert.strict.rejects).be.a.Function());
 		});
 
 		describe('#doesNotReject', () => {
-			it('is a function', () => assert.strict.doesNotReject.should.be.a.Function());
+			it('is a function', () => should(assert.strict.doesNotReject).be.a.Function());
 		});
 
 		describe('#strictEqual', () => {
-			it('is a function', () => assert.strict.strictEqual.should.be.a.Function());
+			it('is a function', () => should(assert.strict.strictEqual).be.a.Function());
 		});
 
 		describe('#notStrictEqual', () => {
-			it('is a function', () => assert.strict.notStrictEqual.should.be.a.Function());
+			it('is a function', () => should(assert.strict.notStrictEqual).be.a.Function());
 		});
 
 		describe('#deepStrictEqual', () => {
-			it('is a function', () => assert.strict.deepStrictEqual.should.be.a.Function());
+			it('is a function', () => should(assert.strict.deepStrictEqual).be.a.Function());
 		});
 
 		describe('#notDeepStrictEqual', () => {
-			it('is a function', () => assert.strict.notDeepStrictEqual.should.be.a.Function());
+			it('is a function', () => should(assert.strict.notDeepStrictEqual).be.a.Function());
 		});
 
 		describe('#equal()', () => {

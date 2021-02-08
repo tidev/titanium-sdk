@@ -556,7 +556,7 @@ describe('Buffer', () => {
 			}
 
 			// Copy `buf1` bytes 16 through 19 into `buf2` starting at byte 8 of `buf2`.
-			buf1.copy(buf2, 8, 16, 20).should.eql(4);
+			should(buf1.copy(buf2, 8, 16, 20)).eql(4);
 
 			should(buf2.toString('ascii', 0, 25)).eql('!!!!!!!!qrst!!!!!!!!!!!!!');
 		});
@@ -566,7 +566,7 @@ describe('Buffer', () => {
 			const buf2 = Buffer.allocUnsafe(10).fill('!');
 
 			// Copy `buf1` bytes into `buf2` starting at byte 8 of `buf2`.
-			buf1.copy(buf2, 8).should.eql(2);
+			should(buf1.copy(buf2, 8)).eql(2);
 
 			should(buf2.toString('ascii')).eql('!!!!!!!!\u0000\u0001');
 		});
@@ -1878,7 +1878,7 @@ describe('Buffer', () => {
 
 		it('with bad offset throws Error', () => {
 			const buf = Buffer.from([ 0xFF, 0xAB, 0x80 ]);
-			(() => buf.set([ 1, 2 ], 3)).should.throw();
+			should(() => buf.set([ 1, 2 ], 3)).throw();
 		});
 
 		// TODO: set with Typed Array

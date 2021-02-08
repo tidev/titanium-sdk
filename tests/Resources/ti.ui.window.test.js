@@ -46,18 +46,18 @@ describe('Titanium.UI.Window', function () {
 			win = Ti.UI.createWindow({
 				backgroundColor: '#0000ff'
 			});
-			win.closed.should.be.true(); // it's not yet opened, so treat as closed
+			should(win.closed).be.true(); // it's not yet opened, so treat as closed
 			win.addEventListener('open', function openListener () {
 				win.removeEventListener('open', openListener);
 				try {
-					win.closed.should.be.false(); // we're being notified the window is open, so should report closed as false!
+					should(win.closed).be.false(); // we're being notified the window is open, so should report closed as false!
 				} catch (e) {
 					return done(e);
 				}
 				done();
 			});
 			win.open();
-			win.closed.should.be.false(); // should be open now
+			should(win.closed).be.false(); // should be open now
 		});
 
 		it.ios('.extendSafeArea', function (finish) {
@@ -84,11 +84,11 @@ describe('Titanium.UI.Window', function () {
 			win = Ti.UI.createWindow({
 				backgroundColor: '#0000ff'
 			});
-			win.focused.should.be.false(); // haven't opened it yet, so shouldn't be focused
+			should(win.focused).be.false(); // haven't opened it yet, so shouldn't be focused
 			win.addEventListener('focus', function focusListener() {
 				win.removeEventListener('focus', focusListener);
 				try {
-					win.focused.should.be.true();
+					should(win.focused).be.true();
 					win.close();
 				} catch (e) {
 					return done(e);
@@ -98,7 +98,7 @@ describe('Titanium.UI.Window', function () {
 				win.removeEventListener('close', closeListener);
 				try {
 					// we've been closed (or are closing?) so hopefully shouldn't say that we're focused
-					win.focused.should.be.false();
+					should(win.focused).be.false();
 				} catch (e) {
 					return done(e);
 				}
@@ -351,8 +351,8 @@ describe('Titanium.UI.Window', function () {
 				win.removeEventListener('postlayout', listener);
 
 				try {
-					win.rect.x.should.eql(100); // FiXME: get 0 on Android
-					win.rect.y.should.eql(0);
+					should(win.rect.x).eql(100); // FiXME: get 0 on Android
+					should(win.rect.y).eql(0);
 					const width = win.rect.width;
 					const height = win.rect.height;
 
@@ -363,10 +363,10 @@ describe('Titanium.UI.Window', function () {
 					win.rect.height = 5;
 
 					// shouldn't actually change
-					win.rect.x.should.eql(100);
-					win.rect.y.should.eql(0);
-					win.rect.width.should.eql(width);
-					win.rect.height.should.eql(height);
+					should(win.rect.x).eql(100);
+					should(win.rect.y).eql(0);
+					should(win.rect.width).eql(width);
+					should(win.rect.height).eql(height);
 				} catch (err) {
 					return finish(err);
 				}
@@ -484,21 +484,21 @@ describe('Titanium.UI.Window', function () {
 				win.removeEventListener('postlayout', listener);
 
 				try {
-					win.size.width.should.eql(100);
-					win.size.height.should.eql(100);
+					should(win.size.width).eql(100);
+					should(win.size.height).eql(100);
 					// size just returns 0 for x/y
-					win.size.x.should.eql(0);
-					win.size.y.should.eql(0);
+					should(win.size.x).eql(0);
+					should(win.size.y).eql(0);
 
 					// try to change the size
 					win.size.width = 120;
 					win.size.height = 120;
 
 					// shouldn't actually change
-					win.size.width.should.eql(100);
-					win.size.height.should.eql(100);
-					win.size.x.should.eql(0);
-					win.size.y.should.eql(0);
+					should(win.size.width).eql(100);
+					should(win.size.height).eql(100);
+					should(win.size.x).eql(0);
+					should(win.size.y).eql(0);
 				} catch (err) {
 					return finish(err);
 				}
@@ -595,9 +595,9 @@ describe('Titanium.UI.Window', function () {
 				win.addEventListener('open', () => {
 					setTimeout(() => {
 						try {
-							win.orientationModes.should.have.length(1);
-							win.orientationModes[0].should.eql(orientation);
-							win.orientation.should.eql(orientation);
+							should(win.orientationModes).have.length(1);
+							should(win.orientationModes[0]).eql(orientation);
+							should(win.orientation).eql(orientation);
 						} catch (e) {
 							return finish(e);
 						}
@@ -791,7 +791,7 @@ describe('Titanium.UI.Window', function () {
 			win.addEventListener('close', function closeListener () {
 				win.removeEventListener('close', closeListener);
 				try {
-					win.closed.should.be.true(); // we're being notified the window is closed, so should report closed as true!
+					should(win.closed).be.true(); // we're being notified the window is closed, so should report closed as true!
 				} catch (e) {
 					return done(e);
 				}

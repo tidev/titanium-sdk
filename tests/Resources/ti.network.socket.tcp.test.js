@@ -121,8 +121,8 @@ describe('Titanium.Network.Socket.TCP', function () {
 				should(socket.write).be.a.Function();
 				socket.write(Ti.createBuffer({ value: 'GET / HTTP/1.1\r\nHost: www.appcelerator.com\r\nConnection: close\r\n\r\n' }), function (evt) {
 					try {
-						evt.success.should.be.true();
-						evt.bytesProcessed.should.eql(65);
+						should(evt.success).be.true();
+						should(evt.bytesProcessed).eql(65);
 						finish();
 					} catch (err) {
 						finish(err);
@@ -153,7 +153,7 @@ describe('Titanium.Network.Socket.TCP', function () {
 				should(socket.write).not.be.null();
 				should(socket.write).be.a.Function();
 				socket.write(Ti.createBuffer({ value: 'GET /anything?q=SUCCESS HTTP/1.1\r\nHost: www.httpbin.org\r\nConnection: close\r\n\r\n' }), function (evt) {
-					evt.success.should.be.true();
+					should(evt.success).be.true();
 
 					Ti.Stream.pump(e.socket, function (e) {
 						if (e.buffer) {

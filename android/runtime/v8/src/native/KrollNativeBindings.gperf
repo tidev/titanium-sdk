@@ -2,7 +2,7 @@
 %define hash-function-name getBindingHash
 %define class-name native
 %{
-#include "modules/ScriptsModule.h"
+#include "modules/EvaluateModule.h"
 #include "modules/AssetsModule.h"
 #include "modules/APIModule.h"
 
@@ -12,7 +12,7 @@ namespace titanium {
 struct BindEntry;
 %%
 natives, KrollBindings::initNatives, NULL
-evals, ScriptsModule::Initialize, ScriptsModule::Dispose
+evals, EvaluateModule::Initialize, NULL
 assets, AssetsModule::Initialize, NULL
 API, APIModule::Initialize, APIModule::Dispose
 Titanium, KrollBindings::initTitanium, KrollBindings::disposeTitanium

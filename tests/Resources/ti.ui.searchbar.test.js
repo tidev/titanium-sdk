@@ -135,11 +135,11 @@ describe('Titanium.UI.SearchBar', () => {
 			});
 			win.add(searchbar);
 			try {
-				searchbar.should.have.a.property('focused').which.is.a.Boolean();
-				searchbar.focused.should.be.false(); // haven't opened it yet, so shouldn't be focused
+				should(searchbar).have.a.property('focused').which.is.a.Boolean();
+				should(searchbar.focused).be.false(); // haven't opened it yet, so shouldn't be focused
 				searchbar.addEventListener('focus', () => {
 					try {
-						searchbar.focused.should.be.true();
+						should(searchbar.focused).be.true();
 					} catch (e) {
 						return done(e);
 					}
@@ -151,7 +151,7 @@ describe('Titanium.UI.SearchBar', () => {
 				win.addEventListener('close', () => {
 					try {
 						// we've been closed (or are closing?) so hopefully shouldn't say that we're focused
-						searchbar.focused.should.be.false();
+						should(searchbar.focused).be.false();
 					} catch (e) {
 						return done(e);
 					}

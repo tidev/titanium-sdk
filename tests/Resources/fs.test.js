@@ -205,7 +205,7 @@ describe('fs', function () {
 			fs.copyFile(thisFilePath, dest, err => {
 				try {
 					should(err).not.be.ok();
-					fs.existsSync(dest).should.be.true();
+					should(fs.existsSync(dest)).be.true();
 					// TODO: Read in the file and compare contents? Check filesize matches?
 					finished();
 				} catch (e) {
@@ -230,7 +230,7 @@ describe('fs', function () {
 			should(destFile.exists()).be.false();
 
 			fs.copyFileSync(thisFilePath, dest);
-			fs.existsSync(dest).should.be.true();
+			should(fs.existsSync(dest)).be.true();
 			// TODO: Read in the file and compare contents? Check filesize matches?
 		});
 
@@ -246,7 +246,7 @@ describe('fs', function () {
 		it('checks that this file exists properly', finished => {
 			fs.exists(thisFilePath, exists => {
 				try {
-					exists.should.be.true();
+					should(exists).be.true();
 					finished();
 				} catch (e) {
 					finished(e);
@@ -257,7 +257,7 @@ describe('fs', function () {
 		it('checks that non-existent file returns false', finished => {
 			fs.exists('/some/made/up/path', exists => {
 				try {
-					exists.should.be.false();
+					should(exists).be.false();
 					finished();
 				} catch (e) {
 					finished(e);
@@ -272,11 +272,11 @@ describe('fs', function () {
 		});
 
 		it('checks that this file exists properly', () => {
-			fs.existsSync(thisFilePath).should.be.true();
+			should(fs.existsSync(thisFilePath)).be.true();
 		});
 
 		it('checks that non-existent file returns false', () => {
-			fs.existsSync('/some/made/up/path').should.be.false();
+			should(fs.existsSync('/some/made/up/path')).be.false();
 		});
 	});
 
@@ -324,12 +324,12 @@ describe('fs', function () {
 			fs.mkdir(subdirPath, err => {
 				try {
 					should.exist(err);
-					err.name.should.eql('Error'); // windows desktop fails here (because error is null)
-					err.message.should.eql(`ENOENT: no such file or directory, mkdir '${subdirPath}'`);
-					err.code.should.eql('ENOENT');
-					err.errno.should.eql(-2);
-					err.syscall.should.eql('mkdir');
-					err.path.should.eql(subdirPath);
+					should(err.name).eql('Error'); // windows desktop fails here (because error is null)
+					should(err.message).eql(`ENOENT: no such file or directory, mkdir '${subdirPath}'`);
+					should(err.code).eql('ENOENT');
+					should(err.errno).eql(-2);
+					should(err.syscall).eql('mkdir');
+					should(err.path).eql(subdirPath);
 					should(fs.existsSync(subdirPath)).be.false();
 				} catch (e) {
 					finished(e);
@@ -370,12 +370,12 @@ describe('fs', function () {
 				fs.mkdirSync(subdirPath);
 				should.fail(true, false, 'expected fs.mkdirSync to throw Error when parent does not exist and not recursive');
 			} catch (err) {
-				err.name.should.eql('Error'); // Windows desktop fails here (because block threw AssertionError)
-				err.message.should.eql(`ENOENT: no such file or directory, mkdir '${subdirPath}'`);
-				err.code.should.eql('ENOENT');
-				err.errno.should.eql(-2);
-				err.syscall.should.eql('mkdir');
-				err.path.should.eql(subdirPath);
+				should(err.name).eql('Error'); // Windows desktop fails here (because block threw AssertionError)
+				should(err.message).eql(`ENOENT: no such file or directory, mkdir '${subdirPath}'`);
+				should(err.code).eql('ENOENT');
+				should(err.errno).eql(-2);
+				should(err.syscall).eql('mkdir');
+				should(err.path).eql(subdirPath);
 			}
 			should(fs.existsSync(subdirPath)).be.false();
 		});
@@ -388,12 +388,12 @@ describe('fs', function () {
 				fs.mkdirSync(targetPath);
 				should.fail(true, false, 'expected fs.mkdirSync to throw Error when trying to create directory that exists');
 			} catch (err) {
-				err.name.should.eql('Error');
-				err.message.should.eql(`EEXIST: file already exists, mkdir '${targetPath}'`);
-				err.code.should.eql('EEXIST');
-				err.errno.should.eql(-17);
-				err.syscall.should.eql('mkdir');
-				err.path.should.eql(targetPath);
+				should(err.name).eql('Error');
+				should(err.message).eql(`EEXIST: file already exists, mkdir '${targetPath}'`);
+				should(err.code).eql('EEXIST');
+				should(err.errno).eql(-17);
+				should(err.syscall).eql('mkdir');
+				should(err.path).eql(targetPath);
 			}
 		});
 
@@ -669,7 +669,7 @@ describe('fs', function () {
 			fs.realpath('node_modules/.', (err, result) => {
 				try {
 					should.not.exist(err);
-					result.should.eql('node_modules');
+					should(result).eql('node_modules');
 				} catch (e) {
 					return finished(e);
 				}
@@ -681,7 +681,7 @@ describe('fs', function () {
 			fs.realpath('node_modules/abbrev/..', (err, result) => {
 				try {
 					should.not.exist(err);
-					result.should.eql('node_modules');
+					should(result).eql('node_modules');
 				} catch (e) {
 					return finished(e);
 				}
@@ -716,12 +716,12 @@ describe('fs', function () {
 
 		it('normalizes .', () => {
 			const result = fs.realpathSync('node_modules/.');
-			result.should.eql('node_modules');
+			should(result).eql('node_modules');
 		});
 
 		it('normalizes ..', () => {
 			const result = fs.realpathSync('node_modules/abbrev/..');
-			result.should.eql('node_modules');
+			should(result).eql('node_modules');
 		});
 
 		it('throws an Error if path doesn\'t exist', () => {
@@ -809,13 +809,13 @@ describe('fs', function () {
 				should.fail(true, false, 'expected fs.renameSync to throw Error when renaming to existing directory');
 			} catch (error) {
 				should.exist(error);
-				error.name.should.eql('Error');
-				error.message.should.eql(`EISDIR: illegal operation on a directory, rename '${file}' -> '${existingDir}'`);
-				error.code.should.eql('EISDIR');
-				error.errno.should.eql(-21);
-				error.syscall.should.eql('rename');
-				error.path.should.eql(file);
-				error.dest.should.eql(existingDir);
+				should(error.name).eql('Error');
+				should(error.message).eql(`EISDIR: illegal operation on a directory, rename '${file}' -> '${existingDir}'`);
+				should(error.code).eql('EISDIR');
+				should(error.errno).eql(-21);
+				should(error.syscall).eql('rename');
+				should(error.path).eql(file);
+				should(error.dest).eql(existingDir);
 			}
 			// Both files should still exist
 			should(fs.existsSync(file)).be.true();
@@ -833,13 +833,13 @@ describe('fs', function () {
 				should.fail(true, false, 'expected fs.renameSync to throw Error when renaming to existing file');
 			} catch (error) {
 				should.exist(error);
-				error.name.should.eql('Error');
-				error.message.should.eql(`ENOENT: no such file or directory, rename '${file}' -> '${destFile}'`);
-				error.code.should.eql('ENOENT');
-				error.errno.should.eql(-2);
-				error.syscall.should.eql('rename');
-				error.path.should.eql(file);
-				error.dest.should.eql(destFile);
+				should(error.name).eql('Error');
+				should(error.message).eql(`ENOENT: no such file or directory, rename '${file}' -> '${destFile}'`);
+				should(error.code).eql('ENOENT');
+				should(error.errno).eql(-2);
+				should(error.syscall).eql('rename');
+				should(error.path).eql(file);
+				should(error.dest).eql(destFile);
 			}
 		});
 	});
@@ -875,12 +875,12 @@ describe('fs', function () {
 			fs.rmdir(dirName, error => {
 				try {
 					should.exist(error);
-					error.name.should.eql('Error'); // windows desktop fails here
-					error.message.should.eql(`ENOTEMPTY: directory not empty, rmdir '${dirName}'`);
-					error.errno.should.eql(-66);
-					error.syscall.should.eql('rmdir');
-					error.code.should.eql('ENOTEMPTY');
-					error.path.should.eql(dirName);
+					should(error.name).eql('Error'); // windows desktop fails here
+					should(error.message).eql(`ENOTEMPTY: directory not empty, rmdir '${dirName}'`);
+					should(error.errno).eql(-66);
+					should(error.syscall).eql('rmdir');
+					should(error.code).eql('ENOTEMPTY');
+					should(error.path).eql(dirName);
 					should(fs.existsSync(dirName)).be.true();
 				} catch (e) {
 					return finished(e);
@@ -893,12 +893,12 @@ describe('fs', function () {
 			fs.rmdir(thisFilePath, error => {
 				try {
 					should.exist(error);
-					error.name.should.eql('Error');
-					error.message.should.eql(`ENOTDIR: not a directory, rmdir '${thisFilePath}'`);
-					error.errno.should.eql(-20);
-					error.syscall.should.eql('rmdir');
-					error.code.should.eql('ENOTDIR');
-					error.path.should.eql(thisFilePath);
+					should(error.name).eql('Error');
+					should(error.message).eql(`ENOTDIR: not a directory, rmdir '${thisFilePath}'`);
+					should(error.errno).eql(-20);
+					should(error.syscall).eql('rmdir');
+					should(error.code).eql('ENOTDIR');
+					should(error.path).eql(thisFilePath);
 				} catch (e) {
 					return finished(e);
 				}
@@ -913,12 +913,12 @@ describe('fs', function () {
 			fs.rmdir(dirName, error => {
 				try {
 					should.exist(error);
-					error.name.should.eql('Error');
-					error.message.should.eql(`ENOENT: no such file or directory, rmdir '${dirName}'`);
-					error.errno.should.eql(-2);
-					error.syscall.should.eql('rmdir');
-					error.code.should.eql('ENOENT');
-					error.path.should.eql(dirName);
+					should(error.name).eql('Error');
+					should(error.message).eql(`ENOENT: no such file or directory, rmdir '${dirName}'`);
+					should(error.errno).eql(-2);
+					should(error.syscall).eql('rmdir');
+					should(error.code).eql('ENOENT');
+					should(error.path).eql(dirName);
 				} catch (e) {
 					return finished(e);
 				}
@@ -952,12 +952,12 @@ describe('fs', function () {
 				fs.rmdirSync(dirName);
 				should.fail(true, false, 'expected fs.rmdirSync to throw Error when deleting non-empty directory');
 			} catch (error) {
-				error.name.should.eql('Error'); // Windows desktop fails here
-				error.message.should.eql(`ENOTEMPTY: directory not empty, rmdir '${dirName}'`);
-				error.errno.should.eql(-66);
-				error.syscall.should.eql('rmdir');
-				error.code.should.eql('ENOTEMPTY');
-				error.path.should.eql(dirName);
+				should(error.name).eql('Error'); // Windows desktop fails here
+				should(error.message).eql(`ENOTEMPTY: directory not empty, rmdir '${dirName}'`);
+				should(error.errno).eql(-66);
+				should(error.syscall).eql('rmdir');
+				should(error.code).eql('ENOTEMPTY');
+				should(error.path).eql(dirName);
 			}
 			should(fs.existsSync(dirName)).be.true();
 		});
@@ -967,12 +967,12 @@ describe('fs', function () {
 				fs.rmdirSync(thisFilePath);
 				should.fail(true, false, 'expected fs.rmdirSync to throw Error when deleting file');
 			} catch (error) {
-				error.name.should.eql('Error');
-				error.message.should.eql(`ENOTDIR: not a directory, rmdir '${thisFilePath}'`);
-				error.errno.should.eql(-20);
-				error.syscall.should.eql('rmdir');
-				error.code.should.eql('ENOTDIR');
-				error.path.should.eql(thisFilePath);
+				should(error.name).eql('Error');
+				should(error.message).eql(`ENOTDIR: not a directory, rmdir '${thisFilePath}'`);
+				should(error.errno).eql(-20);
+				should(error.syscall).eql('rmdir');
+				should(error.code).eql('ENOTDIR');
+				should(error.path).eql(thisFilePath);
 			}
 		});
 
@@ -984,12 +984,12 @@ describe('fs', function () {
 				fs.rmdirSync(dirName);
 				should.fail(true, false, 'expected fs.rmdirSync to throw Error when deleting dir that does not exist');
 			} catch (error) {
-				error.name.should.eql('Error');
-				error.message.should.eql(`ENOENT: no such file or directory, rmdir '${dirName}'`);
-				error.errno.should.eql(-2);
-				error.syscall.should.eql('rmdir');
-				error.code.should.eql('ENOENT');
-				error.path.should.eql(dirName);
+				should(error.name).eql('Error');
+				should(error.message).eql(`ENOENT: no such file or directory, rmdir '${dirName}'`);
+				should(error.errno).eql(-2);
+				should(error.syscall).eql('rmdir');
+				should(error.code).eql('ENOENT');
+				should(error.path).eql(dirName);
 			}
 		});
 	});
@@ -1024,15 +1024,15 @@ describe('fs', function () {
 			should(stats).be.ok();
 			should(stats).be.an.Object();
 
-			stats.size.should.be.above(0);
-			stats.blocks.should.be.above(0);
+			should(stats.size).be.above(0);
+			should(stats.blocks).be.above(0);
 
 			// check ctime and mtime versus Ti.Filesystem.File modifiedAt/createdAt?
-			stats.ctime.should.eql(thisFile.createdAt());
-			stats.mtime.should.eql(thisFile.modifiedAt());
+			should(stats.ctime).eql(thisFile.createdAt());
+			should(stats.mtime).eql(thisFile.modifiedAt());
 
-			stats.isFile().should.be.true();
-			stats.isDirectory().should.be.false();
+			should(stats.isFile()).be.true();
+			should(stats.isDirectory()).be.false();
 			// TODO Verify isSocket()/isCharacterDevice()/isBlockDevice()/isFIFO()/isSymbolicLink()?
 		});
 	});
@@ -1048,7 +1048,7 @@ describe('fs', function () {
 			fs.truncate(dest, err => {
 				try {
 					should.not.exist(err);
-					fs.readFileSync(dest, 'utf8').should.eql(''); // windows desktop fails here
+					should(fs.readFileSync(dest, 'utf8')).eql(''); // windows desktop fails here
 				} catch (e) {
 					return finished(e);
 				}
@@ -1063,7 +1063,7 @@ describe('fs', function () {
 				try {
 					should.not.exist(err);
 					const buffer = fs.readFileSync(dest);
-					buffer.length.should.eql(16384); // windows desktop gives 213231
+					should(buffer.length).eql(16384); // windows desktop gives 213231
 					// TODO: Compare contents somehow?
 				} catch (e) {
 					return finished(e);
@@ -1082,7 +1082,7 @@ describe('fs', function () {
 			const dest = Ti.Filesystem.tempDirectory + `truncateSync_${Date.now()}.js`;
 			fs.copyFileSync(thisFilePath, dest);
 			fs.truncateSync(dest);
-			fs.readFileSync(dest, 'utf8').should.eql(''); // windows desktop fails here
+			should(fs.readFileSync(dest, 'utf8')).eql(''); // windows desktop fails here
 		});
 
 		it.windowsDesktopBroken('truncates to specified number of bytes', () => {
@@ -1090,7 +1090,7 @@ describe('fs', function () {
 			fs.copyFileSync(thisFilePath, dest);
 			fs.truncateSync(dest, 16384);
 			const buffer = fs.readFileSync(dest);
-			buffer.length.should.eql(16384); // windows desktop gives 213231
+			should(buffer.length).eql(16384); // windows desktop gives 213231
 			// TODO: Compare contents somehow?
 		});
 	});
@@ -1126,12 +1126,12 @@ describe('fs', function () {
 			fs.unlink(dir, error => {
 				try {
 					should.exist(error);
-					error.name.should.eql('Error'); // windows fails here
-					error.message.should.eql(`EISDIR: illegal operation on a directory, unlink '${dir}'`);
-					error.code.should.eql('EISDIR');
-					error.errno.should.eql(-21);
-					error.syscall.should.eql('unlink');
-					error.path.should.eql(dir);
+					should(error.name).eql('Error'); // windows fails here
+					should(error.message).eql(`EISDIR: illegal operation on a directory, unlink '${dir}'`);
+					should(error.code).eql('EISDIR');
+					should(error.errno).eql(-21);
+					should(error.syscall).eql('unlink');
+					should(error.path).eql(dir);
 					// should still exist
 					should(fs.existsSync(Ti.Filesystem.tempDirectory)).be.true();
 				} catch (e) {
@@ -1149,12 +1149,12 @@ describe('fs', function () {
 			fs.unlink(dir, error => {
 				try {
 					should.exist(error);
-					error.name.should.eql('Error');
-					error.message.should.eql(`ENOENT: no such file or directory, unlink '${dir}'`);
-					error.code.should.eql('ENOENT');
-					error.errno.should.eql(-2);
-					error.syscall.should.eql('unlink');
-					error.path.should.eql(dir);
+					should(error.name).eql('Error');
+					should(error.message).eql(`ENOENT: no such file or directory, unlink '${dir}'`);
+					should(error.code).eql('ENOENT');
+					should(error.errno).eql(-2);
+					should(error.syscall).eql('unlink');
+					should(error.path).eql(dir);
 				} catch (e) {
 					return finished(e);
 				}
@@ -1191,12 +1191,12 @@ describe('fs', function () {
 				should.fail(true, false, 'expected fs.unlinkSync to throw Error when deleting an existing directory\'s path');
 			} catch (error) {
 				should.exist(error);
-				error.name.should.eql('Error');
-				error.message.should.eql(`EISDIR: illegal operation on a directory, unlink '${dir}'`);
-				error.code.should.eql('EISDIR');
-				error.errno.should.eql(-21);
-				error.syscall.should.eql('unlink');
-				error.path.should.eql(dir);
+				should(error.name).eql('Error');
+				should(error.message).eql(`EISDIR: illegal operation on a directory, unlink '${dir}'`);
+				should(error.code).eql('EISDIR');
+				should(error.errno).eql(-21);
+				should(error.syscall).eql('unlink');
+				should(error.path).eql(dir);
 			}
 			// should still exist
 			should(fs.existsSync(Ti.Filesystem.tempDirectory)).be.true();
@@ -1212,12 +1212,12 @@ describe('fs', function () {
 				should.fail(true, false, 'expected fs.unlinkSync to throw Error when deleting a non-existent path');
 			} catch (error) {
 				should.exist(error);
-				error.name.should.eql('Error');
-				error.message.should.eql(`ENOENT: no such file or directory, unlink '${dir}'`);
-				error.code.should.eql('ENOENT');
-				error.errno.should.eql(-2);
-				error.syscall.should.eql('unlink');
-				error.path.should.eql(dir);
+				should(error.name).eql('Error');
+				should(error.message).eql(`ENOENT: no such file or directory, unlink '${dir}'`);
+				should(error.code).eql('ENOENT');
+				should(error.errno).eql(-2);
+				should(error.syscall).eql('unlink');
+				should(error.path).eql(dir);
 			}
 		});
 
@@ -1242,7 +1242,7 @@ describe('fs', function () {
 					should(fs.existsSync(filename)).be.true();
 					// contents should match what we wrote
 					should(fs.readFileSync(filename, 'utf-8')).eql(contents);
-					string.should.eql(contents); // callback should get the contents we wrote
+					should(string).eql(contents); // callback should get the contents we wrote
 				} catch (e) {
 					return finish(e);
 				} finally {
@@ -1263,7 +1263,7 @@ describe('fs', function () {
 					should.not.exist(err);
 					// file should now exist
 					should(fs.existsSync(filename)).be.true();
-					bufferFromCallback.should.eql(buffer); // callback should get the contents we wrote
+					should(bufferFromCallback).eql(buffer); // callback should get the contents we wrote
 				} catch (e) {
 					return finish(e);
 				} finally {
@@ -1289,7 +1289,7 @@ describe('fs', function () {
 			const contents = 'Hello write with a string!';
 			try {
 				const bytesWritten = fs.writeSync(fd, contents);
-				bytesWritten.should.be.above(0);
+				should(bytesWritten).be.above(0);
 				// file should now exist
 				should(fs.existsSync(filename)).be.true();
 				// contents should match what we wrote
@@ -1307,7 +1307,7 @@ describe('fs', function () {
 			const buffer = Buffer.from('Hello write with a Buffer!');
 			try {
 				const bytesWritten = fs.writeSync(fd, buffer);
-				bytesWritten.should.be.above(0);
+				should(bytesWritten).be.above(0);
 				// file should now exist
 				should(fs.existsSync(filename)).be.true();
 				// contents should match what we wrote
@@ -1391,7 +1391,7 @@ describe('fs', function () {
 				try {
 					should.exist(error);
 					// verify error
-					error.should.have.properties({
+					should(error).have.properties({
 						name: 'Error',
 						message: `EISDIR: illegal operation on a directory, open '${dirname}'`,
 						errno: -21,
@@ -1474,7 +1474,7 @@ describe('fs', function () {
 				should.fail(true, false, 'expected fs.writeFileSync to throw Error when writing to existing directory\'s path');
 			} catch (error) {
 				// verify error
-				error.should.have.properties({
+				should(error).have.properties({
 					name: 'Error',
 					message: `EISDIR: illegal operation on a directory, open '${dirname}'`,
 					errno: -21,

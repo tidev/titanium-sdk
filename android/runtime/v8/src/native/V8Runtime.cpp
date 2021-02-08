@@ -12,13 +12,13 @@
 
 #include "AndroidUtil.h"
 #include "EventEmitter.h"
+#include "EvaluateModule.h"
 #include "Proxy.h"
 #include "JNIUtil.h"
 #include "JSDebugger.h"
 #include "JSException.h"
 #include "KrollBindings.h"
 #include "ProxyFactory.h"
-#include "ScriptsModule.h"
 #include "TypeConverter.h"
 #include "V8Util.h"
 
@@ -46,14 +46,6 @@ bool V8Runtime::initialized = false;
 
 typedef std::unique_ptr<v8::ArrayBuffer::Allocator> V8ArrayBufferAllocator;
 V8ArrayBufferAllocator v8Allocator;
-
-/* static */
-void V8Runtime::collectWeakRef(Persistent<Value> ref, void *parameter)
-{
-	jobject v8Object = (jobject) parameter;
-	ref.Reset();
-	JNIScope::getEnv()->DeleteGlobalRef(v8Object);
-}
 
 Local<Object> V8Runtime::Global()
 {
@@ -143,11 +135,6 @@ void V8Runtime::bootstrap(Local<Context> context)
 
 	// Add a reference to the global object
 	Local<Object> global = context->Global();
-
-	// Set the __dirname and __filename for the app.js.
-	// For other files, it will be injected via the `NativeModule` JavaScript class
-	global->Set(context, NEW_SYMBOL(isolate, "__filename"), STRING_NEW(isolate, "/app.js"));
-	global->Set(context, NEW_SYMBOL(isolate, "__dirname"), STRING_NEW(isolate, "/"));
 
 	Local<Function> mainFunction = result.As<Function>();
 	Local<Value> args[] = { global, kroll };

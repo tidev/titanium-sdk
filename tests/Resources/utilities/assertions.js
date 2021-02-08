@@ -208,7 +208,7 @@ should.Assertion.add('matchImage', function (image, options = { threshold: 0.1, 
 	options.maxPixelMismatch = options.maxPixelMismatch || 0;
 
 	// Validate object is valid view.
-	this.obj.should.have.property('toImage').which.is.a.Function();
+	should(this.obj).have.property('toImage').which.is.a.Function();
 
 	const actualBlob = this.obj.toImage();
 	const isExpectedBlob = image.apiName === 'Ti.Blob';

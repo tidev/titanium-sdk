@@ -10,7 +10,7 @@ import invoker from './android/invoker';
 
 function bootstrap (global, kroll) {
 	const assets = kroll.binding('assets');
-	const Script = OS_ANDROID ? kroll.binding('evals').Script : kroll.binding('Script');
+	const evaluate =  kroll.binding(OS_ANDROID ? 'evals' : 'Script');
 
 	/**
 	 * The loaded index.json file from the app. Used to store the encrypted JS assets'
@@ -539,18 +539,29 @@ function bootstrap (global, kroll) {
 						return inspectorWrapper(source, filename);
 					}
 				}
-				// run app.js "normally" (i.e. not under debugger/inspector)
-				return Script.runInThisContext(source, filename, true);
+				// Continue to run app.js "normally" (i.e. not under debugger/inspector).
 			}
 
 			// In V8, we treat external modules the same as native modules.  First, we wrap the
 			// module code and then run it in the current context.  This will allow external modules to
 			// access globals as mentioned in TIMOB-11752. This will also help resolve startup slowness that
 			// occurs as a result of creating a new context during startup in TIMOB-12286.
-			source = Module.wrap(source);
+			if (OS_IOS) {
+				source = Module.wrap(source);
 
-			const f = Script.runInThisContext(source, filename, true);
-			return f(this.exports, require, this, filename, path.dirname(filename), Titanium, Ti, global, kroll);
+				const f = evaluate.runInThisContext(source, filename, true);
+				return f(this.exports, require, this, filename, path.dirname(filename), Titanium, Ti, global, kroll);
+
+			} else if (OS_ANDROID) {
+				const result = evaluate.runAsModule(source, filename, {
+					exports: this.exports,
+					module: this,
+					__filename: filename,
+					__dirname: path.dirname(filename)
+				});
+				// this.exports = result;
+				return result;
+			}
 		}
 
 		/**

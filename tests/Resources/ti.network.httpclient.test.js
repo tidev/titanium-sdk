@@ -256,8 +256,8 @@ describe('Titanium.Network.HTTPClient', function () {
 				should(e.success).be.true();
 
 				const response = JSON.parse(xhr.responseText);
-				response['adhocHeader'].should.eql('notcleared');
-				response.should.not.have.property('clearedHeader');
+				should(response['adhocHeader']).eql('notcleared');
+				should(response).not.have.property('clearedHeader');
 			} else if (xhr.status !== 503) { // service unavailable (over quota)
 				return finish(new Error(`Received unexpected response: ${xhr.status}`));
 			}
@@ -334,7 +334,7 @@ describe('Titanium.Network.HTTPClient', function () {
 		};
 		xhr.onerror = function (e) {
 			try {
-				should(e).should.be.type('undefined');
+				should(should(e)).be.type('undefined');
 			} catch (err) {
 				finish(err);
 			}
@@ -377,7 +377,7 @@ describe('Titanium.Network.HTTPClient', function () {
 		};
 		xhr.onerror = function (e) {
 			try {
-				should(e).should.be.type('undefined');
+				should(should(e)).be.type('undefined');
 			} catch (err) {
 				finish(err);
 			}

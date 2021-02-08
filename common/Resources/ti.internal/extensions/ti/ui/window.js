@@ -10,7 +10,6 @@ import PersistentHandle from '../persistentHandle';
 
 if (OS_ANDROID) {
 	const TAG = 'Window';
-	const Script = kroll.binding('evals').Script; // Android-specific way to grab binding, hangs off 'script' on iOS
 	const Window = Titanium.UI.Window;
 	Window.prototype._cachedActivityProxy = null;
 
@@ -53,7 +52,6 @@ if (OS_ANDROID) {
 
 			// Dispose the URL context if the window's activity is destroyed.
 			if (self._urlContext) {
-				Script.disposeContext(self._urlContext);
 				self._urlContext = null;
 			}
 			handle.dispose();

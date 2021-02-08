@@ -24,7 +24,6 @@ public:
 
 	static jobject javaInstance;
 
-	static void collectWeakRef(Persistent<Value> ref, void *parameter);
 	static void bootstrap(Local<Context> globalContext);
 
 	static bool debuggerEnabled;

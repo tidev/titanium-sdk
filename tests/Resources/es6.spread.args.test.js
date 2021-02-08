@@ -16,6 +16,6 @@ describe('ES6 Spread Arguments', function () {
 		}
 		// Pass each elem of array as argument
 		const result = f(...[ 1, 2, 3 ]);
-		result.should.eql(6);
+		should(result).eql(6);
 	});
 });

@@ -78,10 +78,10 @@ describe('console', function () {
 				console.timeLog('mytimer', 'with', 'some', 'extra', 'info'); // Log time taken with extra logging
 				console.timeLog('mytimer', [ 'a', 'b', 'c' ], { objects: true }); // Should handle Arrays and Objects
 				console.timeEnd('mytimer');
-				logs.length.should.eql(4);
+				should(logs.length).eql(4);
 				// We don't worry about the actual optional data sent along, just the format of the string
 				logs.forEach(function (log) {
-					log.should.match(/mytimer: \d+ms/);
+					should(log).match(/mytimer: \d+ms/);
 				});
 			} finally {
 				console.log = orig;
@@ -101,9 +101,9 @@ describe('console', function () {
 					logs.push(string);
 				};
 				console.timeLog('mytimer'); // should spit out a warning that label doesn't exist, but not log the timer
-				warnings.length.should.eql(1);
-				warnings[0].message.should.eql('Label "mytimer" does not exist');
-				logs.length.should.eql(0);
+				should(warnings.length).eql(1);
+				should(warnings[0].message).eql('Label "mytimer" does not exist');
+				should(logs.length).eql(0);
 			} finally {
 				console.log = origLogFunction;
 				process.off('warning', warningTest);
@@ -137,13 +137,13 @@ describe('console', function () {
 				console.count();
 				console.countReset('mylabel');
 				console.count('mylabel');
-				logs.length.should.eql(6);
-				logs[0].should.eql('mylabel: 1');
-				logs[1].should.eql('default: 1');
-				logs[2].should.eql('default: 2');
-				logs[3].should.eql('mylabel: 2');
-				logs[4].should.eql('default: 1');
-				logs[5].should.eql('mylabel: 1');
+				should(logs.length).eql(6);
+				should(logs[0]).eql('mylabel: 1');
+				should(logs[1]).eql('default: 1');
+				should(logs[2]).eql('default: 2');
+				should(logs[3]).eql('mylabel: 2');
+				should(logs[4]).eql('default: 1');
+				should(logs[5]).eql('mylabel: 1');
 			} finally {
 				console.log = orig;
 			}
@@ -194,13 +194,13 @@ describe('console', function () {
 			console.log('this should be indented');
 			console.groupEnd();
 			console.log('this should NOT be indented');
-			logs.length.should.eql(6);
-			logs[0].should.eql('[INFO]mylabel');
-			logs[1].should.eql('[INFO]  this should be indented');
-			logs[2].should.eql('[INFO]  something');
-			logs[3].should.eql('[WARN]    this should be indented twice');
-			logs[4].should.eql('[INFO]  this should be indented');
-			logs[5].should.eql('[INFO]this should NOT be indented');
+			should(logs.length).eql(6);
+			should(logs[0]).eql('[INFO]mylabel');
+			should(logs[1]).eql('[INFO]  this should be indented');
+			should(logs[2]).eql('[INFO]  something');
+			should(logs[3]).eql('[WARN]    this should be indented twice');
+			should(logs[4]).eql('[INFO]  this should be indented');
+			should(logs[5]).eql('[INFO]this should NOT be indented');
 		});
 	});
 
@@ -247,32 +247,32 @@ describe('console', function () {
 
 		it('outputs number as-is', () => {
 			console.dir(1);
-			logs.length.should.eql(1);
-			logs[0].should.eql('1');
+			should(logs.length).eql(1);
+			should(logs[0]).eql('1');
 		});
 
 		it('outputs string as-is', () => {
 			console.dir('1');
-			logs.length.should.eql(1);
-			logs[0].should.eql('\'1\'');
+			should(logs.length).eql(1);
+			should(logs[0]).eql('\'1\'');
 		});
 
 		it('outputs null as-is', () => {
 			console.dir(null);
-			logs.length.should.eql(1);
-			logs[0].should.eql('null');
+			should(logs.length).eql(1);
+			should(logs[0]).eql('null');
 		});
 
 		it('outputs undefined as-is', () => {
 			console.dir(undefined);
-			logs.length.should.eql(1);
-			logs[0].should.eql('undefined');
+			should(logs.length).eql(1);
+			should(logs[0]).eql('undefined');
 		});
 
 		it('outputs object', () => {
 			console.dir({ 1: [ 2 ] });
-			logs.length.should.eql(1);
-			logs[0].should.eql('{ \'1\': [ 2 ] }');
+			should(logs.length).eql(1);
+			should(logs[0]).eql('{ \'1\': [ 2 ] }');
 		});
 	});
 
@@ -309,14 +309,14 @@ describe('console', function () {
 			console.warn('warn'); // stderr
 			console.error('error'); // stderr
 			console.trace('trace'); // stderr
-			stdout.logs.length.should.eql(3);
-			stdout.logs[0].should.eql('log');
-			stdout.logs[1].should.eql('info');
-			stdout.logs[2].should.eql('dirxml');
-			stderr.logs.length.should.eql(3);
-			stderr.logs[0].should.eql('warn');
-			stderr.logs[1].should.eql('error');
-			stderr.logs[2].should.eql('trace');
+			should(stdout.logs.length).eql(3);
+			should(stdout.logs[0]).eql('log');
+			should(stdout.logs[1]).eql('info');
+			should(stdout.logs[2]).eql('dirxml');
+			should(stderr.logs.length).eql(3);
+			should(stderr.logs[0]).eql('warn');
+			should(stderr.logs[1]).eql('error');
+			should(stderr.logs[2]).eql('trace');
 		});
 
 		it('squashes sync errors on stdout write by default (ignoreErrors = true)', () => {
@@ -368,12 +368,12 @@ describe('console', function () {
 			console.dirxml('dirxml'); // stdout
 			console.warn('warn'); // stderr
 			console.error('error'); // stderr
-			stdout.logs.length.should.eql(5);
-			stdout.logs[0].should.eql('log');
-			stdout.logs[1].should.eql('info');
-			stdout.logs[2].should.eql('dirxml');
-			stdout.logs[3].should.eql('warn');
-			stdout.logs[4].should.eql('error');
+			should(stdout.logs.length).eql(5);
+			should(stdout.logs[0]).eql('log');
+			should(stdout.logs[1]).eql('info');
+			should(stdout.logs[2]).eql('dirxml');
+			should(stdout.logs[3]).eql('warn');
+			should(stdout.logs[4]).eql('error');
 		});
 	});
 });

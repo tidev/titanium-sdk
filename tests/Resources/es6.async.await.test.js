@@ -20,7 +20,7 @@ describe('ES6 async/await', () => {
 
 		// eslint-disable-next-line promise/always-return
 		second().then(result => {
-			result.should.eql(4);
+			should(result).eql(4);
 			finished();
 		}).catch(err => finished(err));
 	});

@@ -16,6 +16,6 @@ describe('ES6 Rest Arguments', function () {
 			return x * y.length;
 		}
 		const result = f(3, 'hello', true);
-		result.should.eql(6);
+		should(result).eql(6);
 	});
 });

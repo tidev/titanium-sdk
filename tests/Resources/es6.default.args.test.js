@@ -16,6 +16,6 @@ describe('ES6 Default Arguments', function () {
 			return x + y;
 		}
 		const result = f(3);
-		result.should.eql(15);
+		should(result).eql(15);
 	});
 });

@@ -342,7 +342,7 @@ describe.windowsBroken('Titanium.Geolocation', () => {
 				this.timeout(6e4); // 60 sec
 
 				const result = Ti.Geolocation.forwardGeocoder('440 N Bernardo Ave, Mountain View, CA 94043');
-				result.should.be.a.Promise();
+				should(result).be.a.Promise();
 				result.then(data => {
 					should(data).have.property('success').which.is.a.Boolean();
 					should(data.success).be.eql(true);
@@ -411,7 +411,7 @@ describe.windowsBroken('Titanium.Geolocation', () => {
 
 			it('works via Promise return value', function (finish) {
 				const result = Ti.Geolocation.reverseGeocoder(37.3883645, -122.0512682);
-				result.should.be.a.Promise();
+				should(result).be.a.Promise();
 				result.then(data => {
 					should(data).have.property('success').which.is.a.Boolean();
 					should(data.success).be.eql(true);
