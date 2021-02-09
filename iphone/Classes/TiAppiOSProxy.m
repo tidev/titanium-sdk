@@ -451,25 +451,23 @@
         break;
       }
       }
-      // Handle additional iOS 12+ enums
-      if ([TiUtils isIOSVersionOrGreater:@"12.0"]) {
-        switch ([TiUtils intValue:thisTypeRequested]) {
-        case UNAuthorizationOptionCriticalAlert: // USER_NOTIFICATION_TYPE_CRITICAL_ALERT
-        {
-          types |= UNAuthorizationOptionCriticalAlert;
-          break;
-        }
-        case UNAuthorizationOptionProvisional: // USER_NOTIFICATION_TYPE_PROVISIONAL
-        {
-          types |= UNAuthorizationOptionProvisional;
-          break;
-        }
-        case UNAuthorizationOptionProvidesAppNotificationSettings: // USER_NOTIFICATION_TYPE_PROVIDES_APP_NOTIFICATION_SETTINGS
-        {
-          types |= UNAuthorizationOptionProvidesAppNotificationSettings;
-          break;
-        }
-        }
+
+      switch ([TiUtils intValue:thisTypeRequested]) {
+      case UNAuthorizationOptionCriticalAlert: // USER_NOTIFICATION_TYPE_CRITICAL_ALERT
+      {
+        types |= UNAuthorizationOptionCriticalAlert;
+        break;
+      }
+      case UNAuthorizationOptionProvisional: // USER_NOTIFICATION_TYPE_PROVISIONAL
+      {
+        types |= UNAuthorizationOptionProvisional;
+        break;
+      }
+      case UNAuthorizationOptionProvidesAppNotificationSettings: // USER_NOTIFICATION_TYPE_PROVIDES_APP_NOTIFICATION_SETTINGS
+      {
+        types |= UNAuthorizationOptionProvidesAppNotificationSettings;
+        break;
+      }
       }
     }
   }
@@ -586,16 +584,14 @@
   UNNotificationSetting soundSetting = [(UNNotificationSettings *)notificationSettings soundSetting];
   UNNotificationSetting carPlaySetting = [(UNNotificationSettings *)notificationSettings carPlaySetting];
 
-  if ([TiUtils isIOSVersionOrGreater:@"12.0"]) {
-    UNNotificationSetting criticalAlertSetting = [(UNNotificationSettings *)notificationSettings criticalAlertSetting];
-    BOOL providesAppNotificationSettings = [(UNNotificationSettings *)notificationSettings providesAppNotificationSettings];
+  UNNotificationSetting criticalAlertSetting = [(UNNotificationSettings *)notificationSettings criticalAlertSetting];
+  BOOL providesAppNotificationSettings = [(UNNotificationSettings *)notificationSettings providesAppNotificationSettings];
 
-    if (criticalAlertSetting == UNNotificationSettingEnabled) {
-      [typesArray addObject:@(UNAuthorizationOptionCriticalAlert)];
-    }
-    if (providesAppNotificationSettings) {
-      [typesArray addObject:@(UNAuthorizationOptionProvidesAppNotificationSettings)];
-    }
+  if (criticalAlertSetting == UNNotificationSettingEnabled) {
+    [typesArray addObject:@(UNAuthorizationOptionCriticalAlert)];
+  }
+  if (providesAppNotificationSettings) {
+    [typesArray addObject:@(UNAuthorizationOptionProvidesAppNotificationSettings)];
   }
 
   // Types
@@ -781,16 +777,13 @@
     [content setCategoryIdentifier:[TiUtils stringValue:category]];
   }
 
-  // Add iOS 12+ API's to enable threading and notification groups
-  if ([TiUtils isIOSVersionOrGreater:@"12.0"]) {
-    // Set the string the notification adds to the category’s summary format string.
-    if (summaryArgument != nil) {
-      [content setSummaryArgument:summaryArgument];
-    }
-    // Set a number that indicates how many items are represented in the summary.
-    if (summaryArgumentCount != nil) {
-      [content setSummaryArgumentCount:[TiUtils intValue:summaryArgumentCount]];
-    }
+  // Set the string the notification adds to the category’s summary format string.
+  if (summaryArgument != nil) {
+    [content setSummaryArgument:summaryArgument];
+  }
+  // Set a number that indicates how many items are represented in the summary.
+  if (summaryArgumentCount != nil) {
+    [content setSummaryArgumentCount:[TiUtils intValue:summaryArgumentCount]];
   }
 
   // Set the thread identifier to enable grouped notifications
@@ -1022,26 +1015,17 @@
 
 - (NSNumber *)USER_NOTIFICATION_TYPE_CRITICAL_ALERT
 {
-  if ([TiUtils isIOSVersionOrGreater:@"12.0"]) {
-    return NUMINT(UNAuthorizationOptionCriticalAlert);
-  }
-  return NUMINT(0);
+  return NUMINT(UNAuthorizationOptionCriticalAlert);
 }
 
 - (NSNumber *)USER_NOTIFICATION_TYPE_PROVISIONAL
 {
-  if ([TiUtils isIOSVersionOrGreater:@"12.0"]) {
-    return NUMINT(UNAuthorizationOptionProvisional);
-  }
-  return NUMINT(0);
+  return NUMINT(UNAuthorizationOptionProvisional);
 }
 
 - (NSNumber *)USER_NOTIFICATION_TYPE_PROVIDES_APP_NOTIFICATION_SETTINGS
 {
-  if ([TiUtils isIOSVersionOrGreater:@"12.0"]) {
-    return NUMINT(UNAuthorizationOptionProvidesAppNotificationSettings);
-  }
-  return NUMINT(0);
+  return NUMINT(UNAuthorizationOptionProvidesAppNotificationSettings);
 }
 
 - (NSNumber *)USER_NOTIFICATION_ACTIVATION_MODE_BACKGROUND

@@ -57,22 +57,12 @@
       }
     }
 
-    // For iOS 12+, use the "hiddenPreviewsBodyPlaceholder" and "categorySummaryFormat" constructor
-    if ([TiUtils isIOSVersionOrGreater:@"12.0"]) {
-      _notificationCategory = [[UNNotificationCategory categoryWithIdentifier:identifier
-                                                                      actions:defaultActions
-                                                            intentIdentifiers:intentIdentifiers
-                                                hiddenPreviewsBodyPlaceholder:hiddenPreviewsBodyPlaceholder
-                                                        categorySummaryFormat:categorySummaryFormat
-                                                                      options:options] retain];
-    } else {
-      // For iOS 11, use the "hiddenPreviewsBodyPlaceholder" constructor
-      _notificationCategory = [[UNNotificationCategory categoryWithIdentifier:identifier
-                                                                      actions:defaultActions
-                                                            intentIdentifiers:intentIdentifiers
-                                                hiddenPreviewsBodyPlaceholder:hiddenPreviewsBodyPlaceholder
-                                                                      options:options] retain];
-    }
+    _notificationCategory = [[UNNotificationCategory categoryWithIdentifier:identifier
+                                                                    actions:defaultActions
+                                                          intentIdentifiers:intentIdentifiers
+                                              hiddenPreviewsBodyPlaceholder:hiddenPreviewsBodyPlaceholder
+                                                      categorySummaryFormat:categorySummaryFormat
+                                                                    options:options] retain];
 
     RELEASE_TO_NIL(minimalActions);
     RELEASE_TO_NIL(defaultActions);
