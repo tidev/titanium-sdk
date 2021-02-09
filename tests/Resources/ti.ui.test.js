@@ -11,6 +11,8 @@
 const should = require('./utilities/assertions');
 const utilities = require('./utilities/utilities');
 
+const isCI = Ti.App.Properties.getBool('isCI', false);
+
 describe('Titanium.UI', function () {
 	this.slow(2000);
 	this.timeout(5000);
