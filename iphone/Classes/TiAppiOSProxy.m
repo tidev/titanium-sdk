@@ -203,13 +203,11 @@
 
 #pragma mark Public
 
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
 - (NSNumber *)userInterfaceStyle
 {
   DEPRECATED_REPLACED(@"App.iOS.userInterfaceStyle", @"9.1.0", @"UI.userInterfaceStyle");
   return @(TiApp.controller.traitCollection.userInterfaceStyle);
 }
-#endif
 
 - (void)didChangeTraitCollection:(NSNotification *)info
 {
@@ -453,7 +451,6 @@
         break;
       }
       }
-#if IS_SDK_IOS_12
       // Handle additional iOS 12+ enums
       if ([TiUtils isIOSVersionOrGreater:@"12.0"]) {
         switch ([TiUtils intValue:thisTypeRequested]) {
@@ -474,7 +471,6 @@
         }
         }
       }
-#endif
     }
   }
 
@@ -591,7 +587,6 @@
   UNNotificationSetting carPlaySetting = [(UNNotificationSettings *)notificationSettings carPlaySetting];
 
   if ([TiUtils isIOSVersionOrGreater:@"12.0"]) {
-#if IS_SDK_IOS_12
     UNNotificationSetting criticalAlertSetting = [(UNNotificationSettings *)notificationSettings criticalAlertSetting];
     BOOL providesAppNotificationSettings = [(UNNotificationSettings *)notificationSettings providesAppNotificationSettings];
 
@@ -601,7 +596,6 @@
     if (providesAppNotificationSettings) {
       [typesArray addObject:@(UNAuthorizationOptionProvidesAppNotificationSettings)];
     }
-#endif
   }
 
   // Types
@@ -787,7 +781,6 @@
     [content setCategoryIdentifier:[TiUtils stringValue:category]];
   }
 
-#if IS_SDK_IOS_12
   // Add iOS 12+ API's to enable threading and notification groups
   if ([TiUtils isIOSVersionOrGreater:@"12.0"]) {
     // Set the string the notification adds to the category’s summary format string.
@@ -799,7 +792,6 @@
       [content setSummaryArgumentCount:[TiUtils intValue:summaryArgumentCount]];
     }
   }
-#endif
 
   // Set the thread identifier to enable grouped notifications
   if (threadIdentifier != nil) {
@@ -1028,7 +1020,6 @@
   return NUMINT(UNAuthorizationOptionCarPlay);
 }
 
-#if IS_SDK_IOS_12
 - (NSNumber *)USER_NOTIFICATION_TYPE_CRITICAL_ALERT
 {
   if ([TiUtils isIOSVersionOrGreater:@"12.0"]) {
@@ -1052,7 +1043,6 @@
   }
   return NUMINT(0);
 }
-#endif
 
 - (NSNumber *)USER_NOTIFICATION_ACTIVATION_MODE_BACKGROUND
 {
@@ -1099,7 +1089,6 @@
   return NUMINT(UNNotificationCategoryOptionHiddenPreviewsShowSubtitle);
 }
 
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
 - (NSNumber *)USER_INTERFACE_STYLE_UNSPECIFIED
 {
   DEPRECATED_REPLACED(@"App.iOS.USER_INTERFACE_STYLE_UNSPECIFIED", @"9.1.0", @"UI.USER_INTERFACE_STYLE_UNSPECIFIED");
@@ -1129,7 +1118,6 @@
 
   return NUMINT(0);
 }
-#endif
 
 #pragma mark UTI Text Type Constants
 
@@ -1364,9 +1352,7 @@ MAKE_SYSTEM_PROP(FETCH_FAILED, UIBackgroundFetchResultFailed);
 MAKE_SYSTEM_PROP(USER_NOTIFICATION_AUTHORIZATION_STATUS_DENIED, UNAuthorizationStatusDenied);
 MAKE_SYSTEM_PROP(USER_NOTIFICATION_AUTHORIZATION_STATUS_AUTHORIZED, UNAuthorizationStatusAuthorized);
 MAKE_SYSTEM_PROP(USER_NOTIFICATION_AUTHORIZATION_STATUS_NOT_DETERMINED, UNAuthorizationStatusNotDetermined);
-#if IS_SDK_IOS_12
 MAKE_SYSTEM_PROP(USER_NOTIFICATION_AUTHORIZATION_STATUS_PROVISIONAL, UNAuthorizationStatusProvisional);
-#endif
 
 MAKE_SYSTEM_PROP(USER_NOTIFICATION_SETTING_ENABLED, UNNotificationSettingEnabled);
 MAKE_SYSTEM_PROP(USER_NOTIFICATION_SETTING_DISABLED, UNNotificationSettingDisabled);

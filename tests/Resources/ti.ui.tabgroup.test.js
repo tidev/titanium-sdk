@@ -19,12 +19,7 @@ describe('Titanium.UI.TabGroup', function () {
 	let tabGroup;
 	afterEach(done => { // fires after every test in sub-suites too...
 		if (tabGroup && !tabGroup.closed) {
-			tabGroup.addEventListener('close', function listener () {
-				tabGroup.removeEventListener('close', listener);
-				tabGroup = null;
-				done();
-			});
-			tabGroup.close();
+			tabGroup.close().then(() => done()).catch(_e => done());
 		} else {
 			tabGroup = null;
 			done();
@@ -378,6 +373,101 @@ describe('Titanium.UI.TabGroup', function () {
 			tabGroup.addTab(tabA);
 			tabGroup.addTab(tabB);
 			tabGroup.open();
+		});
+
+		describe('#close()', () => {
+			it('is a Function', () => {
+				tabGroup = Ti.UI.createTabGroup();
+
+				should(tabGroup).have.a.property('close').which.is.a.Function();
+			});
+
+			it('returns a Promise', finish => {
+				const tabA = Ti.UI.createTab({
+					title: 'Tab A',
+					window: Ti.UI.createWindow()
+				});
+				const tabB = Ti.UI.createTab({
+					title: 'Tab B',
+					window: Ti.UI.createWindow()
+				});
+				tabGroup = Ti.UI.createTabGroup();
+				tabGroup.addTab(tabA);
+				tabGroup.addTab(tabB);
+
+				const openPromise = tabGroup.open();
+				openPromise.then(() => {
+					const result = tabGroup.close();
+					result.should.be.a.Promise();
+					result.then(() => finish()).catch(e => finish(e));
+				}).catch(e => finish(e));
+			});
+
+			it('called on unopened Window rejects Promise', finish => {
+				tabGroup = Ti.UI.createTabGroup();
+				const tabA = Ti.UI.createTab({
+					title: 'Tab A',
+					window: Ti.UI.createWindow()
+				});
+				tabGroup.addTab(tabA);
+
+				const result = tabGroup.close();
+				result.should.be.a.Promise();
+				result.then(() => finish(new Error('Expected #close() to be rejected on unopened TabGroup'))).catch(_e => finish());
+			});
+
+			it('called twice on Window rejects second Promise', finish => {
+				tabGroup = Ti.UI.createTabGroup();
+				const tabA = Ti.UI.createTab({
+					title: 'Tab A',
+					window: Ti.UI.createWindow()
+				});
+				tabGroup.addTab(tabA);
+
+				tabGroup.open().then(() => {
+					tabGroup.close().then(() => {
+						tabGroup.close().then(() => finish(new Error('Expected second #close() call on TabGroup to be rejected'))).catch(_e => finish());
+					}).catch(e => finish(e));
+				}).catch(e => finish(e));
+			});
+		});
+
+		describe('#open()', () => {
+			it('is a Function', () => {
+				tabGroup = Ti.UI.createTabGroup();
+
+				should(tabGroup).have.a.property('open').which.is.a.Function();
+			});
+
+			it('returns a Promise', finish => {
+				tabGroup = Ti.UI.createTabGroup();
+				const tabA = Ti.UI.createTab({
+					title: 'Tab A',
+					window: Ti.UI.createWindow()
+				});
+				tabGroup.addTab(tabA);
+
+				const result = tabGroup.open();
+				result.should.be.a.Promise();
+				result.then(() => finish()).catch(e => finish(e));
+			});
+
+			it('called twice on same Window rejects second Promise', finish => {
+				tabGroup = Ti.UI.createTabGroup();
+				const tabA = Ti.UI.createTab({
+					title: 'Tab A',
+					window: Ti.UI.createWindow()
+				});
+				tabGroup.addTab(tabA);
+
+				const first = tabGroup.open();
+				first.should.be.a.Promise();
+				first.then(() => {
+					const second = tabGroup.open();
+					second.should.be.a.Promise();
+					second.then(() => finish(new Error('Expected second #open() to be rejected'))).catch(_e => finish());
+				}).catch(e => finish(e));
+			});
 		});
 	});
 
