@@ -651,14 +651,6 @@ static NSArray *webViewKeySequence;
 
 #pragma mark Cookies
 
-// This whole cookie code is not getting used. Reason is -
-// 1. If we use this, parity can not be managed for cookies
-// 2. WKHTTPCookieStore, which manages cookie in WKWebView, is supported in iOS 11+
-// 3. We are using following to implement cookies-
-//  https://stackoverflow.com/questions/26573137
-//  https://github.com/haifengkao/YWebView
-// TO DO: If we can make parity using WKHTTPCookieStore, we should start using WKHTTPCookieStore APIs
-
 - (id<TiEvaluator>)evaluationContext
 {
   id<TiEvaluator> context = [self executionContext];
@@ -671,7 +663,6 @@ static NSArray *webViewKeySequence;
 - (NSArray *)getHTTPCookiesForDomain:(id)args
 {
   ENSURE_SINGLE_ARG(args, NSString);
-
   __block NSMutableArray *returnArray = [NSMutableArray array];
   __block BOOL finishedEvaluation = NO;
   WKHTTPCookieStore *storage = [[[[(TiUIWebView *)[self view] webView] configuration] websiteDataStore] httpCookieStore];
@@ -696,7 +687,6 @@ static NSArray *webViewKeySequence;
 - (void)addHTTPCookie:(id)args
 {
   ENSURE_SINGLE_ARG(args, TiNetworkCookieProxy);
-
   WKHTTPCookieStore *storage = [[[[(TiUIWebView *)[self view] webView] configuration] websiteDataStore] httpCookieStore];
 
   NSHTTPCookie *cookie = [args newCookie];
@@ -739,12 +729,17 @@ static NSArray *webViewKeySequence;
 
 - (void)removeAllHTTPCookies:(id)args
 {
+  __block BOOL finishedEvaluation = NO;
   WKHTTPCookieStore *storage = [[[[(TiUIWebView *)[self view] webView] configuration] websiteDataStore] httpCookieStore];
   [storage getAllCookies:^(NSArray<NSHTTPCookie *> *cookies) {
     for (NSHTTPCookie *cookie in cookies) {
       [storage deleteCookie:cookie completionHandler:nil];
     }
+    finishedEvaluation = YES;
   }];
+  while (!finishedEvaluation) {
+    [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:[NSDate distantFuture]];
+  }
 }
 
 - (void)removeHTTPCookie:(id)args
