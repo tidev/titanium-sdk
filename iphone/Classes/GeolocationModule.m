@@ -1118,7 +1118,7 @@ READWRITE_IMPL(bool, showCalibration, ShowCalibration);
   BOOL requestedStatusMatchesActualStatus = status == requestedAuthorizationStatus;
 
   // The new callback for android parity used inside Ti.Geolocation.requestLocationPermissions()
-  if (authorizationCallback != nil && status != kCLAuthorizationStatusNotDetermined) {
+  if (authorizationPromise != nil && status != kCLAuthorizationStatusNotDetermined) {
     int code = 0;
     NSString *errorStr = nil;
 
