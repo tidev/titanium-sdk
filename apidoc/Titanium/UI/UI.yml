@@ -2357,10 +2357,11 @@ properties:
         Use with the <Titanium.UI.TextField.textAlign>, <Titanium.UI.Button.textAlign> and
         <Titanium.UI.TextArea.textAlign> properties.
 
-        This constant is a number and only available on iOS.
+        This constant is a number on iOS and a string on Android.
     type: [Number, String]
     permission: read-only
     platforms: [android, iphone, ipad, macos]
+    osver: {android: {min: "8.0"}}
     since: { android: "10.0.0", iphone: "6.1.0", ipad: "6.1.0" }
 
   - name: TEXT_ALIGNMENT_LEFT
