@@ -552,7 +552,8 @@ public class TiUIWebView extends TiUIView
 		final Uri uri = Uri.parse(url);
 
 		// Extract URL query parameters.
-		final String query = uri.getEncodedQuery() != null ? "?" + uri.getEncodedQuery() : "";
+		final String encodedQuery = uri.getEncodedQuery();
+		final String query = encodedQuery != null ? "?" + encodedQuery : "";
 		final String fragment = uri.getFragment();
 
 		// Resolve URL path.
