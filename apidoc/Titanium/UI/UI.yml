@@ -30,7 +30,7 @@ description:  |
     fullscreen or modal and can be customized, such as changing their opacity or background color.
     Windows themselves are views and also inherit a views properties, functions and events. There
     are a few specialization of Windows such as a [Tab Group](Titanium.UI.TabGroup) which offer
-    additional behavior beyond the basic Window. It is considered a best practice to use a 
+    additional behavior beyond the basic Window. It is considered a best practice to use a
     [NavigationWindow](Titanium.UI.NavigationWindow) as the root of your application.
 
     Titanium uses the [Factory Pattern](http://en.wikipedia.org/wiki/Factory_method_pattern) for
@@ -53,7 +53,7 @@ description:  |
 
     #### Global Context
 
-    Prior to the release of Titanium SDK `9.0.0.GA` any variable declared in `app.js` or `alloy.js` 
+    Prior to the release of Titanium SDK `9.0.0.GA` any variable declared in `app.js` or `alloy.js`
     was added to a global scope. This however is no longer the case since `9.0.0.GA`. However
     it is still possible to add variables to a global scope by adding `global.` in front of any
     variabled declared in `app.js` or `alloy.js`. However you should be careful with adding variables
@@ -578,7 +578,7 @@ properties:
   - name: ATTRIBUTE_LINE_BREAK
     deprecated:
         since: "7.5.0"
-        notes: Use [ParagraphAttribute.lineBreakMode](ParagraphAttribute.lineBreakMode) instead.  
+        notes: Use [ParagraphAttribute.lineBreakMode](ParagraphAttribute.lineBreakMode) instead.
     summary: |
         Use with <Attribute.type> to wrap and truncate the text.
     description: |
@@ -2360,8 +2360,8 @@ properties:
         This constant is a number and only available on iOS.
     type: [Number, String]
     permission: read-only
-    platforms: [iphone, ipad, macos]
-    since: "6.1.0"
+    platforms: [android, iphone, ipad, macos]
+    since: { android: "10.0.0", iphone: "6.1.0", ipad: "6.1.0" }
 
   - name: TEXT_ALIGNMENT_LEFT
     summary: Left align text.
