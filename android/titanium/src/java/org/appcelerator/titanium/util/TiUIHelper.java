@@ -482,8 +482,6 @@ public class TiUIHelper
 	{
 		int gravity = Gravity.NO_GRAVITY;
 
-		Log.i("----", textAlign);
-
 		if (textAlign != null) {
 			if ("left".equals(textAlign)) {
 				gravity |= Gravity.LEFT;
