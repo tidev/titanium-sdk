@@ -852,13 +852,13 @@ describe('Titanium.UI.WebView', function () {
 			backgroundColor: 'blue'
 		});
 		const webview = Ti.UI.createWebView({
-			url: 'https://test/sub/api?key=TiTeSTKEy%3D%3D&var=1234'
+			url: 'https://www.google.com/sub/api?key=TiTeSTKEy%3D%3D&var=1234'
 		});
 
 		webview.addEventListener('load', e => {
 			try {
 				should(e.source.url).be.a.String();
-				should(e.source.url).eql('https://test/sub/api?key=TiTeSTKEy%3D%3D&var=1234');
+				should(e.source.url).eql('https://www.google.com/sub/api?key=TiTeSTKEy%3D%3D&var=1234');
 			} catch (err) {
 				return finish(err);
 			}
@@ -873,13 +873,13 @@ describe('Titanium.UI.WebView', function () {
 			backgroundColor: 'blue'
 		});
 		const webview = Ti.UI.createWebView({
-			url: 'https://test/pin%20wheel+.jpg'
+			url: 'https://www.google.com/pin%20wheel+.jpg'
 		});
 
 		webview.addEventListener('load', e => {
 			try {
 				should(e.source.url).be.a.String();
-				should(e.source.url).eql('https://test/pin%20wheel+.jpg');
+				should(e.source.url).eql('https://www.google.com/pin%20wheel+.jpg');
 			} catch (err) {
 				return finish(err);
 			}
