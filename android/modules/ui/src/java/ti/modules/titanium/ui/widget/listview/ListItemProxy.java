@@ -274,8 +274,8 @@ public class ListItemProxy extends TiViewProxy
 					@Override
 					public void call(Object data)
 					{
-						if (data instanceof KrollDict) {
-							final KrollDict payload = new KrollDict((KrollDict) data);
+						if (data instanceof HashMap) {
+							final KrollDict payload = new KrollDict((HashMap) data);
 
 							// Inject row data into events.
 							final ListViewProxy listViewProxy = getListViewProxy();
