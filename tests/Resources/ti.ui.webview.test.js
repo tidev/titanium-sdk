@@ -848,6 +848,48 @@ describe.androidARM64Broken('Titanium.UI.WebView', function () {
 		win.open();
 	});
 
+	it('decode url', (finish) => {
+		win = Ti.UI.createWindow({
+			backgroundColor: 'blue'
+		});
+		const webview = Ti.UI.createWebView({
+			url: 'https://test.com/sub/api?key=TiTeSTKEy%3D%3D&var=1234'
+		});
+
+		webview.addEventListener('load', e => {
+			try {
+				should(e.source.url).be.a.string;
+				should(e.source.url).eql('https://www.test.com/sub/api?key=TiTeSTKEy%3D%3D&var=1234');
+			} catch (err) {
+				return finish(err);
+			}
+			finish();
+		});
+		win.add(webview);
+		win.open();
+	});
+
+	it('decode \'+\' in url', (finish) => {
+		win = Ti.UI.createWindow({
+			backgroundColor: 'blue'
+		});
+		const webview = Ti.UI.createWebView({
+			url: 'https://test.com/pin%20wheel+.jpg'
+		});
+
+		webview.addEventListener('load', e => {
+			try {
+				should(e.source.url).be.a.string;
+				should(e.source.url).eql('https://test.com/pin%20wheel+.jpg');
+			} catch (err) {
+				return finish(err);
+			}
+			finish();
+		});
+		win.add(webview);
+		win.open();
+	});
+
 	describe.ios('#findString()', function () {
 		it('is a Function', () => {
 			if (OS_VERSION_MAJOR < 14) {
