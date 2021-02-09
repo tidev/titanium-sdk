@@ -168,11 +168,6 @@
 {
   ENSURE_TYPE_OR_NIL(passwordRules, NSString);
 
-  if (![TiUtils isIOSVersionOrGreater:@"12.0"]) {
-    NSLog(@"[ERROR] The 'passwordRules' property is only available on iOS 12 and later.");
-    return;
-  }
-
   [[self textWidgetView] setPasswordRules:[UITextInputPasswordRules passwordRulesWithDescriptor:passwordRules]];
 }
 
