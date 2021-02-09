@@ -483,6 +483,12 @@ public class TiUIHelper
 		int gravity = Gravity.NO_GRAVITY;
 
 		if (textAlign != null) {
+
+			if (!"justify".equals(textAlign) && Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+				// reset justification
+				tv.setJustificationMode(Layout.JUSTIFICATION_MODE_NONE);
+			}
+
 			if ("left".equals(textAlign)) {
 				gravity |= Gravity.LEFT;
 			} else if ("center".equals(textAlign)) {
