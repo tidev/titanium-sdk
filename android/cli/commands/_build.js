@@ -77,8 +77,6 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 
 	const _t = this;
 
-	this.buildOnly = cli.argv['build-only'] !== undefined;
-
 	function assertIssue(logger, issues, name) {
 		for (let i = 0; i < issues.length; i++) {
 			if ((typeof name === 'string' && issues[i].id === name) || (typeof name === 'object' && name.test(issues[i].id))) {
@@ -104,6 +102,8 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 		if (cli.argv.platform && cli.argv.platform !== 'android') {
 			return callback();
 		}
+
+		_t.buildOnly = cli.argv['build-only'];
 
 		async.series([
 			function (next) {
