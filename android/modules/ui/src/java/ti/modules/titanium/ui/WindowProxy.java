@@ -429,7 +429,6 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 
 	@Override
 	@Kroll.setProperty(retain = false)
-	@Kroll.method
 	public void setWidth(Object width)
 	{
 		if (opening || opened) {
@@ -444,7 +443,6 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 
 	@Override
 	@Kroll.setProperty(retain = false)
-	@Kroll.method
 	public void setHeight(Object height)
 	{
 		if (opening || opened) {

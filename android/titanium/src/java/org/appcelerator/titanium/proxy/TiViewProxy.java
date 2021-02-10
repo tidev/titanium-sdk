@@ -340,7 +340,6 @@ public abstract class TiViewProxy extends KrollProxy
 	}
 
 	@Kroll.setProperty(retain = false)
-	@Kroll.method
 	public void setWidth(Object width)
 	{
 		setPropertyAndFire(TiC.PROPERTY_WIDTH, width);
@@ -357,7 +356,6 @@ public abstract class TiViewProxy extends KrollProxy
 	}
 
 	@Kroll.setProperty(retain = false)
-	@Kroll.method
 	public void setHeight(Object height)
 	{
 		setPropertyAndFire(TiC.PROPERTY_HEIGHT, height);
@@ -375,7 +373,6 @@ public abstract class TiViewProxy extends KrollProxy
 	}
 
 	@Kroll.setProperty(retain = false)
-	@Kroll.method
 	public void setCenter(Object center)
 	{
 		setPropertyAndFire(TiC.PROPERTY_CENTER, center);
