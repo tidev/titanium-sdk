@@ -18,12 +18,7 @@ describe('Titanium.UI.Window', function () {
 	let win;
 	afterEach(done => { // fires after every test in sub-suites too...
 		if (win && !win.closed) {
-			win.addEventListener('close', function listener () {
-				win.removeEventListener('close', listener);
-				win = null;
-				done();
-			});
-			win.close();
+			win.close().then(() => done()).catch(_e => done());
 		} else {
 			win = null;
 			done();
@@ -57,7 +52,7 @@ describe('Titanium.UI.Window', function () {
 				done();
 			});
 			win.open();
-			win.closed.should.be.false(); // should be open now
+			// win.closed.should.be.false(); // no guarantees about state here since window is async opening
 		});
 
 		it.ios('.extendSafeArea', function (finish) {
@@ -683,6 +678,85 @@ describe('Titanium.UI.Window', function () {
 			should(win.custom).eql(1234);
 		});
 
+		describe('#close()', () => {
+			it('is a Function', () => {
+				win = Ti.UI.createWindow({
+					backgroundColor: '#0000ff'
+				});
+
+				should(win).have.a.property('close').which.is.a.Function();
+			});
+
+			it('returns a Promise', finish => {
+				win = Ti.UI.createWindow({
+					backgroundColor: '#0000ff'
+				});
+
+				const openPromise = win.open();
+				openPromise.then(() => {
+					const result = win.close();
+					result.should.be.a.Promise();
+					result.then(() => finish()).catch(e => finish(e));
+				}).catch(e => finish(e));
+			});
+
+			it('called on unopened Window rejects Promise', finish => {
+				win = Ti.UI.createWindow({
+					backgroundColor: '#0000ff'
+				});
+
+				const result = win.close();
+				result.should.be.a.Promise();
+				result.then(() => finish(new Error('Expected #close() to be rejected on unopened Window'))).catch(_e => finish());
+			});
+
+			it('called twice on Window rejects second Promise', finish => {
+				win = Ti.UI.createWindow({
+					backgroundColor: '#0000ff'
+				});
+
+				win.open().then(() => {
+					win.close().then(() => {
+						win.close().then(() => finish(new Error('Expected second #close() call on Window to be rejected'))).catch(e => finish());
+					}).catch(e => finish(e));
+				}).catch(e => finish(e));
+			});
+		});
+
+		describe('#open()', () => {
+			it('is a Function', () => {
+				win = Ti.UI.createWindow({
+					backgroundColor: '#0000ff'
+				});
+
+				should(win).have.a.property('open').which.is.a.Function();
+			});
+
+			it('returns a Promise', finish => {
+				win = Ti.UI.createWindow({
+					backgroundColor: '#0000ff'
+				});
+
+				const result = win.open();
+				result.should.be.a.Promise();
+				result.then(() => finish()).catch(e => finish(e));
+			});
+
+			it('called twice on same Window rejects second Promise', finish => {
+				win = Ti.UI.createWindow({
+					backgroundColor: '#0000ff'
+				});
+
+				const first = win.open();
+				first.should.be.a.Promise();
+				first.then(() => {
+					const second = win.open();
+					second.should.be.a.Promise();
+					second.then(() => finish(new Error('Expected second #open() to be rejected'))).catch(_e => finish());
+				}).catch(e => finish(e));
+			});
+		});
+
 		it('#remove(View)', function (finish) {
 			this.slow(1000);
 			this.timeout(20000);
@@ -1114,7 +1188,7 @@ describe('Titanium.UI.Window', function () {
 		});
 		win.addEventListener('open', function openListener () {
 			win.removeEventListener('open', openListener);
-			setTimeout(() => win.close(), 1); // close it after we fail
+			setTimeout(() => win.close(), 1);
 			finish(new Error('Expected window to never open if we call open and then close immediately!'));
 		});
 		win.open();
@@ -1127,7 +1201,7 @@ describe('Titanium.UI.Window', function () {
 	});
 
 	it('TIMOB-28267 On removing event listener multiple times and adding once afterward, event should be fired', finish => {
-		const win = Ti.UI.createWindow({
+		win = Ti.UI.createWindow({
 			backgroundColor: '#0000ff'
 		});
 

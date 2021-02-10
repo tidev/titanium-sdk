@@ -134,16 +134,12 @@
       @"alertStyle" : @([settings alertStyle])
     } mutableCopy];
 
-    if ([TiUtils isIOSVersionOrGreater:@"11.0"]) {
-      propertiesDict[@"showPreviewsSetting"] = @([settings showPreviewsSetting]);
-    }
+    propertiesDict[@"showPreviewsSetting"] = @([settings showPreviewsSetting]);
 
-#if IS_SDK_IOS_12
     if ([TiUtils isIOSVersionOrGreater:@"12.0"]) {
       propertiesDict[@"criticalAlertSetting"] = @([settings criticalAlertSetting]);
       propertiesDict[@"providesAppNotificationSettings"] = @([settings providesAppNotificationSettings]);
     }
-#endif
     NSArray *invocationArray = [[NSArray alloc] initWithObjects:&propertiesDict count:1];
 
     [callback call:invocationArray thisObject:self];
