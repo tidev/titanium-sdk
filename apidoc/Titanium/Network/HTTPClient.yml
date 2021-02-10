@@ -243,7 +243,7 @@ methods:
         Intended to match the `XMLHTTPRequest` [getAllResponseHeaders API](https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/getAllResponseHeaders).
     returns:
         type: String
-    since: {iphone: "10.0.0", ipad: "10.0.0", macos: "10.0.0"}
+    since: {iphone: "10.0.0", ipad: "10.0.0", macos: "10.0.0", android: "0.8"}
 
   - name: getResponseHeader
     summary: Returns the value of the specified response header.
