@@ -174,6 +174,7 @@ public class SoundProxy extends KrollProxy implements org.appcelerator.titanium.
 		return false;
 	}
 
+	@Kroll.method
 	@Kroll.setProperty
 	public void setLooping(boolean looping)
 	{
