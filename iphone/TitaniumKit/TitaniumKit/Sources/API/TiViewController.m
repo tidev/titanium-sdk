@@ -104,8 +104,11 @@
      If we are in a navigation controller, let us match so it doesn't get freaked 
      out in when pushing/popping. We are going to force orientation anyways.
      */
-  if ([self navigationController] != nil) {
-    return [[self navigationController] supportedInterfaceOrientations];
+  /*
+   TIMOB-28282. Shouldn't UINavigationController.topViewController decide the supported orientation?
+   */
+  if ([self navigationController] != nil && [[self navigationController] topViewController] != self) {
+    return [[[self navigationController] topViewController] supportedInterfaceOrientations];
   }
   //This would be for modal.
   return (UIInterfaceOrientationMask)_supportedOrientations;
