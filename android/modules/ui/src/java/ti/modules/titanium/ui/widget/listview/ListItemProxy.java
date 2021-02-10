@@ -44,7 +44,7 @@ public class ListItemProxy extends TiViewProxy
 
 	private final HashMap<String, TiViewProxy> binds = new HashMap<>();
 	private final HashMap<String, Object> childProperties = new HashMap<>();
-	private  final List<String> ignoredTemplateKeys = new ArrayList<>();
+	private final List<String> ignoredTemplateKeys = new ArrayList<>();
 
 	public int index;
 
@@ -125,7 +125,7 @@ public class ListItemProxy extends TiViewProxy
 	 * @param data      Data payload of fired event.
 	 * @return Object of event payload.
 	 */
-	public Object handleEvent(String eventName, Object data)
+	public Object handleEvent(String eventName, Object data, boolean fireItemClick)
 	{
 		// Inject row data into events.
 		final ListViewProxy listViewProxy = getListViewProxy();
@@ -174,7 +174,7 @@ public class ListItemProxy extends TiViewProxy
 			data = payload;
 
 			// Fire `itemclick` event on ListView.
-			if (eventName.equals(TiC.EVENT_CLICK)) {
+			if (fireItemClick && eventName.equals(TiC.EVENT_CLICK)) {
 				listViewProxy.fireSyncEvent(TiC.EVENT_ITEM_CLICK, data);
 			}
 		}
@@ -193,13 +193,13 @@ public class ListItemProxy extends TiViewProxy
 	@Override
 	public boolean fireEvent(String eventName, Object data, boolean bubbles)
 	{
-		data = handleEvent(eventName, data);
+		data = handleEvent(eventName, data, true);
 		return super.fireEvent(eventName, data, bubbles);
 	}
 	@Override
 	public boolean fireSyncEvent(String eventName, Object data, boolean bubbles)
 	{
-		data = handleEvent(eventName, data);
+		data = handleEvent(eventName, data, true);
 		return super.fireSyncEvent(eventName, data, bubbles);
 	}
 
@@ -274,42 +274,8 @@ public class ListItemProxy extends TiViewProxy
 					@Override
 					public void call(Object data)
 					{
-						if (data instanceof KrollDict) {
-							final KrollDict payload = new KrollDict((KrollDict) data);
-
-							// Inject row data into events.
-							final ListViewProxy listViewProxy = getListViewProxy();
-							if (listViewProxy != null) {
-
-								final Object parent = getParent();
-								if (parent instanceof ListSectionProxy) {
-									final ListSectionProxy section = (ListSectionProxy) parent;
-
-									// Include section specific properties.
-									payload.put(TiC.PROPERTY_SECTION, section);
-									payload.put(TiC.PROPERTY_SECTION_INDEX, listViewProxy.getIndexOfSection(section));
-									payload.put(TiC.PROPERTY_ITEM_INDEX, getIndexInSection());
-								}
-
-								final String itemId = getProperties().optString(TiC.PROPERTY_ITEM_ID, null);
-								if (itemId != null) {
-
-									// Include `itemId` if specified.
-									payload.put(TiC.PROPERTY_ITEM_ID, itemId);
-								}
-
-								if (template.containsKey(TiC.PROPERTY_BIND_ID)) {
-
-									// Include `bindId` of template if specified.
-									payload.put(TiC.PROPERTY_BIND_ID, template.getString(TiC.PROPERTY_BIND_ID));
-								}
-							}
-
-							data = payload;
-						}
-
 						// Call callback defined in template.
-						callback.call(krollObject, new Object[] { data });
+						callback.call(krollObject, new Object[] { handleEvent(eventName, data, false) });
 					}
 				});
 				krollObject.setHasListenersForEventType(eventName, true);
