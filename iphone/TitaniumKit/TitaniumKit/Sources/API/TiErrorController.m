@@ -54,11 +54,7 @@
   self.navigationItem.title = NSLocalizedString(@"Application Error", nil);
   self.navigationController.navigationBar.titleTextAttributes = @{ NSForegroundColorAttributeName : errorColor };
 
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
   [self.view setBackgroundColor:[TiUtils isIOSVersionOrGreater:@"13.0"] ? UIColor.systemBackgroundColor : UIColor.whiteColor];
-#else
-  [self.view setBackgroundColor:UIColor.whiteColor];
-#endif
 
   // release previous allocations
   RELEASE_TO_NIL(scrollView);

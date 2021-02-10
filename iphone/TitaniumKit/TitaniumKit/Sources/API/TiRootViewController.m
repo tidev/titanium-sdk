@@ -150,10 +150,8 @@
       return UIStatusBarStyleDefault;
     } else if ([theString isEqualToString:@"UIStatusBarStyleBlackTranslucent"] || [theString isEqualToString:@"UIStatusBarStyleLightContent"] || [theString isEqualToString:@"UIStatusBarStyleBlackOpaque"]) {
       return UIStatusBarStyleLightContent;
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
     } else if ([theString isEqualToString:@"UIStatusBarStyleDarkContent"]) {
       return UIStatusBarStyleDarkContent;
-#endif
     }
   }
   return UIStatusBarStyleDefault;
@@ -1205,7 +1203,7 @@
 #ifdef FORCE_WITH_MODAL
     [self forceRotateToOrientation:target];
 #else
-    if ([TiUtils isIOSVersionOrGreater:@"11.0"] && [TiUtils isIOSVersionLower:@"12.0"]) {
+    if ([TiUtils isIOSVersionLower:@"12.0"]) {
       forcingStatusBarOrientation = YES;
       [[UIApplication sharedApplication] setStatusBarOrientation:target animated:NO];
       [UIViewController attemptRotationToDeviceOrientation];
@@ -1378,7 +1376,7 @@
     [self updateStatusBar];
   }
 
-  if (([TiUtils isIOSVersionOrGreater:@"11.0"] || [TiUtils isMacOS]) && [self respondsToSelector:@selector(setNeedsUpdateOfHomeIndicatorAutoHidden)]) {
+  if ([self respondsToSelector:@selector(setNeedsUpdateOfHomeIndicatorAutoHidden)]) {
     [self setNeedsUpdateOfHomeIndicatorAutoHidden];
   }
 }

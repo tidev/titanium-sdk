@@ -9,9 +9,9 @@
 #import <UIKit/UIKit.h>
 
 @interface TiVerifyErrorController : UIViewController {
-  NSString *message;
+    NSString* message;
 }
 
-- (id)initWithMessage:(NSString *)message;
+-(id)initWithMessage:(NSString*)message;
 
 @end

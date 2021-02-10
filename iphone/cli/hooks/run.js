@@ -17,15 +17,16 @@ exports.init = function (logger, config, cli) {
 				return finished();
 			}
 
+			const i18n = require('node-appc').i18n(__dirname);
+			const __ = i18n.__;
+			const __n = i18n.__n;
+
 			if (cli.argv['build-only']) {
 				logger.info(__('Performed build only, skipping running of the application'));
 				return finished();
 			}
 
 			const ioslib = require('ioslib');
-			const i18n = require('node-appc').i18n(__dirname);
-			const __ = i18n.__;
-			const __n = i18n.__n;
 			const path = require('path');
 			const fs = require('fs-extra');
 			// eslint-disable-next-line security/detect-child-process

@@ -8,13 +8,14 @@
 #import "UIKit/UIKit.h"
 
 @interface ApplicationMods : NSObject
-+ (NSArray *)compiledMods;
++ (NSArray*) compiledMods;
 @end
 
 @interface TiApp : NSObject
-+ (TiApp *)app;
-- (void)showModalController:(UIViewController *)modalController animated:(BOOL)animated;
++(TiApp*)app;
+-(void)showModalController:(UIViewController*)modalController animated:(BOOL)animated;
 @end
+
 
 @interface TiVerify : NSObject {
 }

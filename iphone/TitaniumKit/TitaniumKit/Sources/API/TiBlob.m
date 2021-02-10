@@ -149,7 +149,6 @@ GETTER_IMPL(NSUInteger, size, Size);
   return self;
 }
 
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
 - (id)initWithSystemImage:(NSString *)imageName
 {
   if (![TiUtils isIOSVersionOrGreater:@"13.0"]) {
@@ -169,7 +168,6 @@ GETTER_IMPL(NSUInteger, size, Size);
 {
   return systemImageName;
 }
-#endif
 
 - (id)initWithData:(NSData *)data_ mimetype:(NSString *)mimetype_
 {
