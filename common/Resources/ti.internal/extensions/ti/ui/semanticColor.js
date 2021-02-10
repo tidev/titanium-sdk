@@ -85,12 +85,12 @@ if (!isIOS13Plus && !isMACOSXCatalinaPlus) {
 				if (colorset[colorName]) {
 					// Add all theme colors to a single string.
 					// Example: "ti.semantic.color:dark=<ColorString>;light=<ColorString>"
-					let stringResult = 'ti.semantic.color:';
+					const colorArray = [];
 					for (const colorType in colorset[colorName]) {
 						const colorObj = Color.fromSemanticColorsEntry(colorset[colorName][colorType]);
-						stringResult += `${colorType}=${colorObj.toRGBAString()};`;
+						colorArray.push(`${colorType}=${colorObj.toRGBAString()}`);
 					}
-					return stringResult;
+					return 'ti.semantic.color:' + colorArray.join(';');
 				} else if (Ti.Android.R.color[colorName]) {
 					// We're referencing a native "res" color entry.
 					return `@color/${colorName}`;

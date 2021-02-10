@@ -150,8 +150,15 @@ public class TiColorHelper
 
 	public static int getColorResourceId(String colorName)
 	{
+		// First check if color resource is defined in app or its libraries.
+		// If not found, then check if it's an Android OS system resource.
 		TiApplication app = TiApplication.getInstance();
-		return app.getResources().getIdentifier(colorName, "color", app.getPackageName());
+		Resources resources = app.getResources();
+		int colorId = resources.getIdentifier(colorName, "color", app.getPackageName());
+		if (colorId == 0) {
+			colorId = resources.getIdentifier(colorName, "color", "android");
+		}
+		return colorId;
 	}
 
 	public static @ColorInt int getColorResource(String colorName)
