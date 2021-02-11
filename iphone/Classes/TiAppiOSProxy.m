@@ -428,7 +428,6 @@
 
   if (typesRequested != nil) {
     for (id thisTypeRequested in typesRequested) {
-      // Handle basic iOS 12+ enums
       switch ([TiUtils intValue:thisTypeRequested]) {
       case UNAuthorizationOptionBadge: // USER_NOTIFICATION_TYPE_BADGE
       {
@@ -450,9 +449,6 @@
         types |= UNAuthorizationOptionCarPlay;
         break;
       }
-      }
-
-      switch ([TiUtils intValue:thisTypeRequested]) {
       case UNAuthorizationOptionCriticalAlert: // USER_NOTIFICATION_TYPE_CRITICAL_ALERT
       {
         types |= UNAuthorizationOptionCriticalAlert;
