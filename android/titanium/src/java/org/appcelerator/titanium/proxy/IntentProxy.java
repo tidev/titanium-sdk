@@ -57,7 +57,6 @@ public class IntentProxy extends KrollProxy
 		this.intent = intent;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getPackageName()
 	{
@@ -71,7 +70,6 @@ public class IntentProxy extends KrollProxy
 		return null;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getClassName()
 	{
@@ -252,14 +250,12 @@ public class IntentProxy extends KrollProxy
 		intent.addFlags(flags);
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setFlags(int flags)
 	{
 		intent.setFlags(flags);
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public int getFlags()
 	{
@@ -425,7 +421,6 @@ public class IntentProxy extends KrollProxy
 		return null;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getData()
 	{
@@ -440,28 +435,24 @@ public class IntentProxy extends KrollProxy
 		return intent;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getType()
 	{
 		return intent.getType();
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setType(String type)
 	{
 		intent.setType(type);
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getAction()
 	{
 		return intent.getAction();
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setAction(String action)
 	{

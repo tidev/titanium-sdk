@@ -123,8 +123,8 @@ describe('Titanium.UI.ListView', function () {
 				should(list.allowsMultipleSelectionDuringEditing).be.false();
 			});
 
-			it('has accessors', () => {
-				should(list).have.accessors('allowsMultipleSelectionDuringEditing');
+			it('has no accessors', () => {
+				should(list).not.have.accessors('allowsMultipleSelectionDuringEditing');
 			});
 
 			it('lifecycle', function (finish) {

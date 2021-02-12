@@ -103,8 +103,8 @@ describe('Titanium.Geolocation', () => {
 				should(Ti.Geolocation.accuracy).eql(Ti.Geolocation.ACCURACY_HIGH);
 			});
 
-			it('has accessors', () => {
-				should(Ti.Geolocation).have.accessors('accuracy');
+			it('has no accessors', () => {
+				should(Ti.Geolocation).not.have.accessors('accuracy');
 			});
 		});
 
@@ -118,8 +118,8 @@ describe('Titanium.Geolocation', () => {
 				should(Ti.Geolocation.activityType).eql(Ti.Geolocation.ACTIVITYTYPE_FITNESS);
 			});
 
-			it('has accessors', () => {
-				should(Ti.Geolocation).have.accessors('activityType');
+			it('has no accessors', () => {
+				should(Ti.Geolocation).not.have.accessors('activityType');
 			});
 		});
 
@@ -139,8 +139,8 @@ describe('Titanium.Geolocation', () => {
 				should(Ti.Geolocation.allowsBackgroundLocationUpdates).be.true();
 			});
 
-			it('has accessors', () => {
-				should(Ti.Geolocation).have.accessors('allowsBackgroundLocationUpdates');
+			it('has no accessors', () => {
+				should(Ti.Geolocation).not.have.accessors('allowsBackgroundLocationUpdates');
 			});
 		});
 
@@ -155,8 +155,8 @@ describe('Titanium.Geolocation', () => {
 				should(Ti.Geolocation.distanceFilter).eql(1000);
 			});
 
-			it('has accessors', () => {
-				should(Ti.Geolocation).have.accessors('distanceFilter');
+			it('has no accessors', () => {
+				should(Ti.Geolocation).not.have.accessors('distanceFilter');
 			});
 		});
 
@@ -166,7 +166,7 @@ describe('Titanium.Geolocation', () => {
 			});
 
 			it('has no getter', () => {
-				should(Ti.Geolocation).have.a.getter('hasCompass');
+				should(Ti.Geolocation).not.have.a.getter('hasCompass');
 			});
 		});
 
@@ -181,8 +181,8 @@ describe('Titanium.Geolocation', () => {
 				should(Ti.Geolocation.headingFilter).eql(90);
 			});
 
-			it('has accessors', () => {
-				should(Ti.Geolocation).have.accessors('headingFilter');
+			it('has no accessors', () => {
+				should(Ti.Geolocation).not.have.accessors('headingFilter');
 			});
 		});
 
@@ -193,7 +193,7 @@ describe('Titanium.Geolocation', () => {
 			});
 
 			it('has no getter', () => {
-				should(Ti.Geolocation).have.a.getter('lastGeolocation');
+				should(Ti.Geolocation).not.have.a.getter('lastGeolocation');
 			});
 		});
 
@@ -209,7 +209,7 @@ describe('Titanium.Geolocation', () => {
 			});
 
 			it('has no getter', () => {
-				should(Ti.Geolocation).have.a.getter('locationServicesAuthorization');
+				should(Ti.Geolocation).not.have.a.getter('locationServicesAuthorization');
 			});
 		});
 
@@ -219,7 +219,7 @@ describe('Titanium.Geolocation', () => {
 			});
 
 			it('has no getter', () => {
-				should(Ti.Geolocation).have.a.getter('locationServicesEnabled');
+				should(Ti.Geolocation).not.have.a.getter('locationServicesEnabled');
 			});
 		});
 
@@ -237,8 +237,8 @@ describe('Titanium.Geolocation', () => {
 				should(Ti.Geolocation.pauseLocationUpdateAutomatically).be.true();
 			});
 
-			it('has accessors', () => {
-				should(Ti.Geolocation).have.accessors('pauseLocationUpdateAutomatically');
+			it('has no accessors', () => {
+				should(Ti.Geolocation).not.have.accessors('pauseLocationUpdateAutomatically');
 			});
 		});
 
@@ -260,8 +260,8 @@ describe('Titanium.Geolocation', () => {
 				should(Ti.Geolocation.showBackgroundLocationIndicator).be.true();
 			});
 
-			it('has accessors', () => {
-				should(Ti.Geolocation).have.accessors('showBackgroundLocationIndicator');
+			it('has no accessors', () => {
+				should(Ti.Geolocation).not.have.accessors('showBackgroundLocationIndicator');
 			});
 		});
 
@@ -279,8 +279,8 @@ describe('Titanium.Geolocation', () => {
 				should(Ti.Geolocation.showCalibration).be.false();
 			});
 
-			it('has accessors', () => {
-				should(Ti.Geolocation).have.accessors('showCalibration');
+			it('has no accessors', () => {
+				should(Ti.Geolocation).not.have.accessors('showCalibration');
 			});
 		});
 
@@ -301,8 +301,8 @@ describe('Titanium.Geolocation', () => {
 				should(Ti.Geolocation.trackSignificantLocationChange).be.true();
 			});
 
-			it('has accessors', () => {
-				should(Ti.Geolocation).have.accessors('trackSignificantLocationChange');
+			it('has no accessors', () => {
+				should(Ti.Geolocation).not.have.accessors('trackSignificantLocationChange');
 			});
 		});
 	});

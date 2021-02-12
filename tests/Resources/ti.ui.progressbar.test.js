@@ -51,8 +51,8 @@ describe('Titanium.UI.ProgressBar', () => {
 				should(bar.color).eql('blue');
 			});
 
-			it('has accessors', () => {
-				should(bar).have.accessors('color');
+			it('has no accessors', () => {
+				should(bar).not.have.accessors('color');
 			});
 		});
 
@@ -71,8 +71,8 @@ describe('Titanium.UI.ProgressBar', () => {
 				should(bar).have.a.property('font').which.is.an.Object();
 			});
 
-			it('has accessors', () => {
-				should(bar).have.accessors('font');
+			it('has no accessors', () => {
+				should(bar).not.have.accessors('font');
 			});
 		});
 
@@ -96,8 +96,8 @@ describe('Titanium.UI.ProgressBar', () => {
 				should(bar.max).eql(100);
 			});
 
-			it('has accessors', () => {
-				should(bar).have.accessors('max');
+			it('has no accessors', () => {
+				should(bar).not.have.accessors('max');
 			});
 		});
 
@@ -121,8 +121,8 @@ describe('Titanium.UI.ProgressBar', () => {
 				should(bar.message).eql('other text');
 			});
 
-			it('has accessors', () => {
-				should(bar).have.accessors('message');
+			it('has no accessors', () => {
+				should(bar).not.have.accessors('message');
 			});
 		});
 
@@ -146,8 +146,8 @@ describe('Titanium.UI.ProgressBar', () => {
 				should(bar.min).eql(100);
 			});
 
-			it('has accessors', () => {
-				should(bar).have.accessors('min');
+			it('has no accessors', () => {
+				should(bar).not.have.accessors('min');
 			});
 		});
 
@@ -169,8 +169,8 @@ describe('Titanium.UI.ProgressBar', () => {
 				should(bar.style).eql(Ti.UI.iOS.ProgressBarStyle.PLAIN);
 			});
 
-			it('has accessors', () => {
-				should(bar).have.accessors('style');
+			it('has no accessors', () => {
+				should(bar).not.have.accessors('style');
 			});
 		});
 
@@ -192,8 +192,8 @@ describe('Titanium.UI.ProgressBar', () => {
 				should(bar.tintColor).eql('blue');
 			});
 
-			it('has accessors', () => {
-				should(bar).have.accessors('tintColor');
+			it('has no accessors', () => {
+				should(bar).not.have.accessors('tintColor');
 			});
 		});
 
@@ -215,8 +215,8 @@ describe('Titanium.UI.ProgressBar', () => {
 				should(bar.trackTintColor).eql('blue');
 			});
 
-			it('has accessors', () => {
-				should(bar).have.accessors('trackTintColor');
+			it('has no accessors', () => {
+				should(bar).not.have.accessors('trackTintColor');
 			});
 		});
 
@@ -238,8 +238,8 @@ describe('Titanium.UI.ProgressBar', () => {
 				should(bar.value).eql(100);
 			});
 
-			it('has accessors', () => {
-				should(bar).have.accessors('value');
+			it('has no accessors', () => {
+				should(bar).not.have.accessors('value');
 			});
 		});
 	});

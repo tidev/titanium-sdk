@@ -43,6 +43,7 @@ public class QuickSettingsServiceProxy extends ServiceProxy
 
 	//Setting Tile's icon
 	@Kroll.method
+	@Kroll.setProperty
 	public void setIcon(Object path)
 	{
 		tileService.getQsTile().setIcon(Icon.createWithBitmap(
@@ -52,6 +53,7 @@ public class QuickSettingsServiceProxy extends ServiceProxy
 
 	//Setting Tile's state
 	@Kroll.method
+	@Kroll.setProperty
 	public void setState(int state)
 	{
 		tileService.getQsTile().setState(state);
@@ -59,6 +61,7 @@ public class QuickSettingsServiceProxy extends ServiceProxy
 
 	//Setting Tile's label
 	@Kroll.method
+	@Kroll.setProperty
 	public void setLabel(String label)
 	{
 		tileService.getQsTile().setLabel(label);
@@ -66,6 +69,7 @@ public class QuickSettingsServiceProxy extends ServiceProxy
 
 	//Getting Tile'c icon
 	@Kroll.method
+	@Kroll.getProperty
 	public Object getIcon()
 	{
 		return pathObject;
@@ -73,6 +77,7 @@ public class QuickSettingsServiceProxy extends ServiceProxy
 
 	//Getting Tile's state
 	@Kroll.method
+	@Kroll.getProperty
 	public int getState()
 	{
 		return tileService.getQsTile().getState();
@@ -80,6 +85,7 @@ public class QuickSettingsServiceProxy extends ServiceProxy
 
 	//Getting Tile's label
 	@Kroll.method
+	@Kroll.getProperty
 	public String getLabel()
 	{
 		return tileService.getQsTile().getLabel().toString();

@@ -46,7 +46,6 @@ public class BigTextStyleProxy extends StyleProxy
 		}
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setBigText(String text)
 	{
@@ -54,7 +53,6 @@ public class BigTextStyleProxy extends StyleProxy
 		setProperty(TiC.PROPERTY_BIG_TEXT, text);
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setBigContentTitle(String title)
 	{
@@ -62,7 +60,6 @@ public class BigTextStyleProxy extends StyleProxy
 		setProperty(TiC.PROPERTY_BIG_CONTENT_TITLE, title);
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setSummaryText(String text)
 	{

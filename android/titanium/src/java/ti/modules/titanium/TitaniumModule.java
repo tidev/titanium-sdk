@@ -58,7 +58,6 @@ public class TitaniumModule extends KrollModule
 		basePath.push(getCreationUrl().baseUrl);
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getUserAgent()
 	{
@@ -71,28 +70,24 @@ public class TitaniumModule extends KrollModule
 		return builder.toString();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getVersion()
 	{
 		return TiApplication.getInstance().getTiBuildVersion();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getBuildTimestamp()
 	{
 		return TiApplication.getInstance().getTiBuildTimestamp();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getBuildDate()
 	{
 		return TiApplication.getInstance().getTiBuildTimestamp();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getBuildHash()
 	{

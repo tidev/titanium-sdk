@@ -28,11 +28,11 @@ describe('Titanium.UI.ActivityIndicator', () => {
 			should(activityIndicator.color).eql('#000');
 		});
 
-		it('has accessors', () => {
+		it('has no accessors', () => {
 			const activityIndicator = Ti.UI.createActivityIndicator({
 				color: '#fff'
 			});
-			should(activityIndicator).have.accessors('color');
+			should(activityIndicator).not.have.accessors('color');
 		});
 	});
 
@@ -55,14 +55,14 @@ describe('Titanium.UI.ActivityIndicator', () => {
 			should(activityIndicator.font.fontFamily).eql('Segoe UI Semilight');
 		});
 
-		it('has accessors', () => {
+		it('has no accessors', () => {
 			const activityIndicator = Ti.UI.createActivityIndicator({
 				font: {
 					fontSize: 24,
 					fontFamily: 'Segoe UI'
 				}
 			});
-			should(activityIndicator).have.accessors('font');
+			should(activityIndicator).not.have.accessors('font');
 		});
 	});
 
@@ -77,11 +77,11 @@ describe('Titanium.UI.ActivityIndicator', () => {
 			should(activityIndicator.message).eql('other text');
 		});
 
-		it('has accessors', () => {
+		it('has no accessors', () => {
 			const activityIndicator = Ti.UI.createActivityIndicator({
 				message: 'this is some text'
 			});
-			should(activityIndicator).have.accessors('message');
+			should(activityIndicator).not.have.accessors('message');
 		});
 	});
 
@@ -96,11 +96,11 @@ describe('Titanium.UI.ActivityIndicator', () => {
 			should(activityIndicator.style).eql(Ti.UI.ActivityIndicatorStyle.DARK);
 		});
 
-		it('has accessors', () => {
+		it('has no accessors', () => {
 			const activityIndicator = Ti.UI.createActivityIndicator({
 				style: Ti.UI.ActivityIndicatorStyle.BIG
 			});
-			should(activityIndicator).have.accessors('style');
+			should(activityIndicator).not.have.accessors('style');
 		});
 	});
 
@@ -115,11 +115,11 @@ describe('Titanium.UI.ActivityIndicator', () => {
 			should(activityIndicator.indicatorColor).eql('#000');
 		});
 
-		it('has accessors', () => {
+		it('has no accessors', () => {
 			const activityIndicator = Ti.UI.createActivityIndicator({
 				indicatorColor: '#fff'
 			});
-			should(activityIndicator).have.accessors('indicatorColor');
+			should(activityIndicator).not.have.accessors('indicatorColor');
 		});
 	});
 });
