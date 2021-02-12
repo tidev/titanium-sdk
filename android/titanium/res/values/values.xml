@@ -1,10 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-	<!-- Theme colors used by Titanium's splash screen activity. -->
-	<color name="ti_splash_primary">#000000</color>
-	<color name="ti_splash_primary_dark">#000000</color>
-	<color name="ti_splash_navigation_bar">#000000</color>
-
 	<!-- Titanium's light theme colors. -->
 	<color name="ti_primary">#3475E0</color>
 	<color name="ti_primary_dark">#303F9F</color>
@@ -43,14 +38,13 @@
 	<style name="Base.Theme.Titanium.Customizable" parent="Base.Theme.Titanium"/>
 
 	<!-- Base theme to be used by the "TiRootActivity" class. -->
-	<style name="Base.Theme.Titanium.Splash" parent="Base.Theme.Titanium">
-		<item name="colorPrimary">@color/ti_splash_primary</item>
-		<item name="colorPrimaryDark">@color/ti_splash_primary_dark</item>
-		<item name="android:navigationBarColor">@color/ti_splash_navigation_bar</item>
+	<style name="Base.Theme.Titanium.Splash" parent="Base.Theme.Titanium.Customizable">
 		<item name="android:windowActionBar">false</item>
 		<item name="android:windowNoTitle">true</item>
 		<item name="windowActionBar">false</item>
 		<item name="windowNoTitle">true</item>
+		<item name="android:windowTranslucentStatus">true</item>
+		<item name="android:windowTranslucentNavigation">true</item>
 	</style>
 
 	<!-- Theme to be replaced by app project and have a "windowBackground" image applied to it. -->
