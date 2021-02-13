@@ -1240,6 +1240,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_CALLBACK = "callback";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_CALENDAR_DAYS_OF_THE_MONTH = "daysOfTheMonth";
 
 	/**
@@ -1842,6 +1847,14 @@ public class TiC
 	 */
 	public static final String PROPERTY_FOOTER_VIEW = "footerView";
 
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_FORMAT_24 = "format24";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_FORWARD = "forward";
 
 	/**
