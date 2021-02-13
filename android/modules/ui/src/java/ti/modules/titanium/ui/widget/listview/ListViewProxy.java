@@ -454,7 +454,7 @@ public class ListViewProxy extends RecyclerViewProxy
 							continue;
 						}
 						final View markedItemView = markedHolder.itemView;
-						if (markedItemView == null) {
+						if (markedItemView == null || markedItemView.getLayoutParams() == null) {
 							continue;
 						}
 						final boolean isVisible =
