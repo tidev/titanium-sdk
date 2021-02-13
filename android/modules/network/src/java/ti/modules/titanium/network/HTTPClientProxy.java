@@ -112,21 +112,18 @@ public class HTTPClientProxy extends KrollProxy
 		return client.getResponseHeaders();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public int getReadyState()
 	{
 		return client.getReadyState();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public TiBlob getResponseData()
 	{
 		return client.getResponseData();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public KrollDict getResponseDictionary()
 	{
@@ -139,28 +136,24 @@ public class HTTPClientProxy extends KrollProxy
 		return client.getResponseHeader(header);
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getResponseText()
 	{
 		return client.getResponseText();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public DocumentProxy getResponseXML()
 	{
 		return client.getResponseXML();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public int getStatus()
 	{
 		return client.getStatus();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getStatusText()
 	{
@@ -191,84 +184,72 @@ public class HTTPClientProxy extends KrollProxy
 		client.setRequestHeader(header, value);
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setTimeout(int millis)
 	{
 		client.setTimeout(millis);
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getLocation()
 	{
 		return client.getLocation();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getConnectionType()
 	{
 		return client.getConnectionType();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public boolean getConnected()
 	{
 		return client.isConnected();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public boolean getAutoEncodeUrl()
 	{
 		return client.getAutoEncodeUrl();
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setAutoEncodeUrl(boolean value)
 	{
 		client.setAutoEncodeUrl(value);
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public boolean getAutoRedirect()
 	{
 		return client.getAutoRedirect();
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setAutoRedirect(boolean value)
 	{
 		client.setAutoRedirect(value);
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public boolean getValidatesSecureCertificate()
 	{
 		return client.validatesSecureCertificate();
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setValidatesSecureCertificate(boolean value)
 	{
 		this.setProperty("validatesSecureCertificate", value);
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setUsername(String value)
 	{
 		this.setProperty(TiC.PROPERTY_USERNAME, value);
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getUsername()
 	{
@@ -278,14 +259,12 @@ public class HTTPClientProxy extends KrollProxy
 		return null;
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setPassword(String value)
 	{
 		this.setProperty(TiC.PROPERTY_PASSWORD, value);
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getPassword()
 	{
@@ -295,14 +274,12 @@ public class HTTPClientProxy extends KrollProxy
 		return null;
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setDomain(String value)
 	{
 		this.setProperty(TiC.PROPERTY_DOMAIN, value);
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getDomain()
 	{
@@ -342,14 +319,12 @@ public class HTTPClientProxy extends KrollProxy
 		}
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setTlsVersion(int tlsVersion)
 	{
 		client.setTlsVersion(tlsVersion);
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public int getTlsVersion()
 	{

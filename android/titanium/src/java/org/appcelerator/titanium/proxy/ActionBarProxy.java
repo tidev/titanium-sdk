@@ -41,7 +41,6 @@ public class ActionBarProxy extends KrollProxy
 		}
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setDisplayHomeAsUp(boolean showHomeAsUp)
 	{
@@ -52,7 +51,6 @@ public class ActionBarProxy extends KrollProxy
 		}
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setHomeButtonEnabled(boolean homeButtonEnabled)
 	{
@@ -63,14 +61,12 @@ public class ActionBarProxy extends KrollProxy
 		}
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setNavigationMode(int navigationMode)
 	{
 		actionBar.setNavigationMode(navigationMode);
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setBackgroundImage(String url)
 	{
@@ -88,7 +84,6 @@ public class ActionBarProxy extends KrollProxy
 		}
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setTitle(String title)
 	{
@@ -99,7 +94,6 @@ public class ActionBarProxy extends KrollProxy
 		}
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setSubtitle(String subTitle)
 	{
@@ -128,7 +122,6 @@ public class ActionBarProxy extends KrollProxy
 		}
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getSubtitle()
 	{
@@ -138,7 +131,6 @@ public class ActionBarProxy extends KrollProxy
 		return (String) actionBar.getSubtitle();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getTitle()
 	{
@@ -148,7 +140,6 @@ public class ActionBarProxy extends KrollProxy
 		return (String) actionBar.getTitle();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public int getNavigationMode()
 	{
@@ -178,7 +169,6 @@ public class ActionBarProxy extends KrollProxy
 		}
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setLogo(String url)
 	{
@@ -193,7 +183,6 @@ public class ActionBarProxy extends KrollProxy
 		}
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setIcon(String url)
 	{

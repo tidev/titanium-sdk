@@ -297,7 +297,6 @@ public class ListViewProxy extends RecyclerViewProxy
 	 *
 	 * @return Array of ListSections.
 	 */
-	@Kroll.method
 	@Kroll.getProperty
 	public ListSectionProxy[] getSections()
 	{
@@ -368,7 +367,6 @@ public class ListViewProxy extends RecyclerViewProxy
 	 *
 	 * @param sections Array of sections to set.
 	 */
-	@Kroll.method
 	@Kroll.setProperty
 	public void setSections(Object sections)
 	{

@@ -154,7 +154,6 @@ public class ListSectionProxy extends TiViewProxy
 	 *
 	 * @return ListDataItem dictionary array.
 	 */
-	@Kroll.method
 	@Kroll.getProperty
 	public KrollDict[] getItems()
 	{

@@ -414,7 +414,6 @@ public class UIModule extends KrollModule
 	}
 
 	@Kroll.setProperty(runOnUiThread = true)
-	@Kroll.method(runOnUiThread = true)
 	public void setBackgroundColor(String color)
 	{
 		doSetBackgroundColor(color);
@@ -429,7 +428,6 @@ public class UIModule extends KrollModule
 	}
 
 	@Kroll.setProperty(runOnUiThread = true)
-	@Kroll.method(runOnUiThread = true)
 	public void setBackgroundImage(Object image)
 	{
 		doSetBackgroundImage(image);

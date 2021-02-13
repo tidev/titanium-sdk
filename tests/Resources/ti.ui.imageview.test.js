@@ -35,9 +35,9 @@ describe('Titanium.UI.ImageView', function () {
 	});
 
 	describe('.image', () => {
-		it('has accessors', () => {
+		it('has no accessors', () => {
 			const imageView = Ti.UI.createImageView({});
-			should(imageView).have.accessors('image');
+			should(imageView).not.have.accessors('image');
 		});
 
 		it('with an URL', () => {

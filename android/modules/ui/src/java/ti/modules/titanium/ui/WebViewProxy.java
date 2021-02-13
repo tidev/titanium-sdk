@@ -149,7 +149,6 @@ public class WebViewProxy extends ViewProxy implements Handler.Callback, OnLifec
 		}
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getHtml()
 	{
@@ -228,7 +227,6 @@ public class WebViewProxy extends ViewProxy implements Handler.Callback, OnLifec
 		getWebView().setBasicAuthentication(username, password);
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setUserAgent(String userAgent)
 	{
@@ -238,7 +236,6 @@ public class WebViewProxy extends ViewProxy implements Handler.Callback, OnLifec
 		}
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getUserAgent()
 	{
@@ -249,7 +246,6 @@ public class WebViewProxy extends ViewProxy implements Handler.Callback, OnLifec
 		return "";
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setRequestHeaders(HashMap params)
 	{
@@ -261,7 +257,6 @@ public class WebViewProxy extends ViewProxy implements Handler.Callback, OnLifec
 		}
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public HashMap getRequestHeaders()
 	{
@@ -314,7 +309,6 @@ public class WebViewProxy extends ViewProxy implements Handler.Callback, OnLifec
 		getMainHandler().sendEmptyMessage(MSG_STOP_LOADING);
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public int getPluginState()
 	{
@@ -327,14 +321,12 @@ public class WebViewProxy extends ViewProxy implements Handler.Callback, OnLifec
 		return pluginState;
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setDisableContextMenu(boolean disableContextMenu)
 	{
 		setPropertyAndFire(TiC.PROPERTY_DISABLE_CONTEXT_MENU, disableContextMenu);
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public boolean getDisableContextMenu()
 	{
@@ -344,7 +336,6 @@ public class WebViewProxy extends ViewProxy implements Handler.Callback, OnLifec
 		return false;
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setPluginState(int pluginState)
 	{
@@ -375,14 +366,12 @@ public class WebViewProxy extends ViewProxy implements Handler.Callback, OnLifec
 		}
 	}
 
-	@Kroll.method(runOnUiThread = true)
 	@Kroll.setProperty(runOnUiThread = true)
 	public void setEnableZoomControls(boolean enabled)
 	{
 		setPropertyAndFire(TiC.PROPERTY_ENABLE_ZOOM_CONTROLS, enabled);
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public boolean getEnableZoomControls()
 	{
@@ -394,7 +383,6 @@ public class WebViewProxy extends ViewProxy implements Handler.Callback, OnLifec
 		return enabled;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public float getZoomLevel()
 	{
@@ -406,7 +394,6 @@ public class WebViewProxy extends ViewProxy implements Handler.Callback, OnLifec
 		}
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setZoomLevel(float value)
 	{
