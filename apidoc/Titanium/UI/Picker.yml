@@ -121,7 +121,8 @@ methods:
         summary: |
             Dictionary object with a subset of `Titanium.UI.Picker` properties
             and a callback defined. Acceptable object properties are
-            `callback`, `okButtonTitle`, `title` and `value`.
+            `callback`, `title` and `value`. Property `okButtonTitle` is only
+            supported on Titanium versions older than 10.0.0.
         type: Object
     platforms: [android]
 
@@ -136,7 +137,8 @@ methods:
         summary: |
             Dictionary object with a subset of `Titanium.UI.Picker` properties
             and a callback defined. Acceptable object properties are
-            `callback`, `format24`, `okButtonTitle`, `title` and `value`.
+            `callback`, `format24`, `title` and `value`.
+            Property `okButtonTitle` is only supported on Titanium versions older than 10.0.0.
         type: Object
     platforms: [android]
 
