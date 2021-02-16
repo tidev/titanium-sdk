@@ -146,7 +146,7 @@ public class ListItemProxy extends TiViewProxy
 				payload.put(TiC.PROPERTY_ITEM_INDEX, getIndexInSection());
 			}
 
-			final String itemId = getProperties().optString(TiC.PROPERTY_ITEM_ID, null);
+			final Object itemId = getProperties().get(TiC.PROPERTY_ITEM_ID);
 			if (itemId != null) {
 
 				// Include `itemId` if specified.
