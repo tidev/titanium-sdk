@@ -144,10 +144,8 @@ describe('Titanium.UI.Label', function () {
 			should(label.textAlign).eql(Ti.UI.TEXT_ALIGNMENT_RIGHT);
 
 			// TIMOB-3408
-			if (utilities.isIOS()) {
-				label.textAlign = Ti.UI.TEXT_ALIGNMENT_JUSTIFY;
-				should(label.textAlign).eql(Ti.UI.TEXT_ALIGNMENT_JUSTIFY);
-			}
+			label.textAlign = Ti.UI.TEXT_ALIGNMENT_JUSTIFY;
+			should(label.textAlign).eql(Ti.UI.TEXT_ALIGNMENT_JUSTIFY);
 		});
 
 		it('has no accessors', () => {
