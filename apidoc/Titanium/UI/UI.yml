@@ -2451,7 +2451,7 @@ properties:
     permission: read-only
     since: "10.0.0"
 
-  - name: SWITCH_STYLE_TOGGLEBUTTON
+  - name: SWITCH_STYLE_TOGGLE_BUTTON
     summary: Use with [Switch.style](Titanium.UI.Switch.style) to show a toggleable button.
     description: |
         This style is only supported on Android.
