@@ -249,7 +249,7 @@ public class UIModule extends KrollModule
 	@Kroll.constant
 	public static final int SWITCH_STYLE_CHECKBOX = 0;
 	@Kroll.constant
-	public static final int SWITCH_STYLE_TOGGLEBUTTON = 1;
+	public static final int SWITCH_STYLE_TOGGLE_BUTTON = 1;
 	@Kroll.constant
 	public static final int SWITCH_STYLE_SLIDER = 2;
 	@Kroll.constant
