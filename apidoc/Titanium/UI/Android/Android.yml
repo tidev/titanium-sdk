@@ -691,7 +691,7 @@ properties:
     permission: read-only
     deprecated:
         since: "10.0.0"
-        notes: Use <Titanium.UI.SWITCH_STYLE_TOGGLEBUTTON> instead.
+        notes: Use <Titanium.UI.SWITCH_STYLE_TOGGLE_BUTTON> instead.
     
   - name: SWITCH_STYLE_SWITCH
     summary: Display a switch.

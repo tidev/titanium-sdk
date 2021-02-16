@@ -159,7 +159,7 @@
 
 @property (nonatomic, readonly) NSNumber *SWITCH_STYLE_SLIDER;
 @property (nonatomic, readonly) NSNumber *SWITCH_STYLE_CHECKBOX;
-@property (nonatomic, readonly) NSNumber *SWITCH_STYLE_TOGGLEBUTTON;
+@property (nonatomic, readonly) NSNumber *SWITCH_STYLE_TOGGLE_BUTTON;
 @property (nonatomic, readonly) NSNumber *SWITCH_STYLE_CHIP;
 
 @property (nonatomic, readonly) NSNumber *AUTOLINK_NONE;
