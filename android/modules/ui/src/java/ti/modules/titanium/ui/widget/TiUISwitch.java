@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2015 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2021 by Axway, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -186,7 +186,7 @@ public class TiUISwitch extends TiUIView implements OnCheckedChangeListener
 				}
 				break;
 
-			case UIModule.SWITCH_STYLE_TOGGLEBUTTON:
+			case UIModule.SWITCH_STYLE_TOGGLE_BUTTON:
 				if (!(currentButton instanceof AppCompatToggleButton)) {
 					button = new AppCompatToggleButton(activity);
 				}
