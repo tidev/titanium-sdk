@@ -124,15 +124,13 @@
     [_userActivity setRequiredUserInfoKeys:[NSSet setWithArray:[props objectForKey:@"requiredUserInfoKeys"]]];
   }
 
-  if ([TiUtils isIOSVersionOrGreater:@"12.0"]) {
-    if ([props objectForKey:@"eligibleForPrediction"]) {
-      [_userActivity setEligibleForPrediction:[TiUtils boolValue:@"eligibleForPrediction" properties:props]];
-    }
+  if ([props objectForKey:@"eligibleForPrediction"]) {
+    [_userActivity setEligibleForPrediction:[TiUtils boolValue:@"eligibleForPrediction" properties:props]];
+  }
 
-    if ([props objectForKey:@"persistentIdentifier"]) {
-      [_userActivity setPersistentIdentifier:[TiUtils stringValue:@"persistentIdentifier"
-                                                       properties:props]];
-    }
+  if ([props objectForKey:@"persistentIdentifier"]) {
+    [_userActivity setPersistentIdentifier:[TiUtils stringValue:@"persistentIdentifier"
+                                                     properties:props]];
   }
 
   _userActivity.delegate = self;
@@ -404,10 +402,6 @@
 
 - (NSNumber *)eligibleForPrediction
 {
-  if ([TiUtils isIOSVersionLower:@"12.0"]) {
-    return NUMBOOL(NO);
-  }
-
   return @(_userActivity.isEligibleForPrediction);
 }
 
@@ -415,27 +409,17 @@
 {
   ENSURE_UI_THREAD(setEligibleForSearch, value);
   ENSURE_TYPE(value, NSNumber);
-  if ([TiUtils isIOSVersionLower:@"12.0"]) {
-    return;
-  }
+
   [_userActivity setEligibleForPrediction:[TiUtils boolValue:value]];
 }
 
 - (NSString *)persistentIdentifier
 {
-  if ([TiUtils isIOSVersionLower:@"12.0"]) {
-    return nil;
-  }
-
   return _userActivity.persistentIdentifier;
 }
 
 - (void)setPersistentIdentifier:(NSString *)value
 {
-  ENSURE_TYPE(value, NSString);
-  if ([TiUtils isIOSVersionLower:@"12.0"]) {
-    return;
-  }
   [_userActivity setPersistentIdentifier:[TiUtils stringValue:value]];
 }
 
@@ -447,9 +431,6 @@
     ENSURE_TYPE(object, NSString);
   }
 
-  if ([TiUtils isIOSVersionLower:@"12.0"]) {
-    return;
-  }
   [NSUserActivity deleteSavedUserActivitiesWithPersistentIdentifiers:persistentIdentifiers
                                                    completionHandler:^{
                                                      if ([self _hasListeners:@"useractivitydeleted"]) {
@@ -460,9 +441,6 @@
 
 - (void)deleteAllSavedUserActivities:(id)unused
 {
-  if ([TiUtils isIOSVersionLower:@"12.0"]) {
-    return;
-  }
   [NSUserActivity deleteAllSavedUserActivitiesWithCompletionHandler:^{
     if ([self _hasListeners:@"useractivitydeleted"]) {
       [self fireEvent:@"useractivitydeleted" withObject:nil];

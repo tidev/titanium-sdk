@@ -1203,15 +1203,8 @@
 #ifdef FORCE_WITH_MODAL
     [self forceRotateToOrientation:target];
 #else
-    if ([TiUtils isIOSVersionLower:@"12.0"]) {
-      forcingStatusBarOrientation = YES;
-      [[UIApplication sharedApplication] setStatusBarOrientation:target animated:NO];
-      [UIViewController attemptRotationToDeviceOrientation];
-      forcingStatusBarOrientation = NO;
-    } else {
-      [self rotateHostingViewToOrientation:target
-                           fromOrientation:[[UIApplication sharedApplication] statusBarOrientation]];
-    }
+    [self rotateHostingViewToOrientation:target
+                         fromOrientation:[[UIApplication sharedApplication] statusBarOrientation]];
     forcingRotation = NO;
 #endif
   } else {
