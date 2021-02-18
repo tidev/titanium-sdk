@@ -76,6 +76,12 @@ describe('Titanium.Media.AudioPlayer', () => {
 		// 	});
 		// });
 
+		describe.android('audioSessionId', () => {
+			it('is a Number', () => {
+				should(audioPlayer).have.a.property('audioSessionId').which.is.a.Number();
+			});
+		});
+
 		describe.android('.audioType', () => {
 			it('is a Number', () => {
 				should(audioPlayer).have.a.property('audioType').which.is.a.Number();
@@ -156,11 +162,19 @@ describe('Titanium.Media.AudioPlayer', () => {
 			it('is a Boolean', () => {
 				should(audioPlayer).have.a.property('paused').which.is.a.Boolean();
 			});
+
+			it('does not have accessors', () => {
+				should(audioPlayer).not.have.accessors('paused');
+			});
 		});
 
 		describe('.playing', () => {
 			it('is a Boolean', () => {
 				should(audioPlayer).have.a.readOnlyProperty('playing').which.is.a.Boolean();
+			});
+
+			it('does not have accessors', () => {
+				should(audioPlayer).not.have.accessors('playing');
 			});
 		});
 
@@ -211,8 +225,8 @@ describe('Titanium.Media.AudioPlayer', () => {
 				should(audioPlayer).have.a.property('url').which.is.a.String();
 			});
 
-			it('has accessors', () => {
-				should(audioPlayer).have.accessors('url');
+			it('does not have accessors', () => {
+				should(audioPlayer).not.have.accessors('url');
 			});
 
 			it('re-setting does not crash (TIMOB-26334)', () => {
@@ -236,33 +250,10 @@ describe('Titanium.Media.AudioPlayer', () => {
 	});
 
 	describe('methods', () => {
+		// FIXME: This should probably be a read-only property!
 		describe.android('#getAudioSessionId', () => {
 			it('is a Function', () => {
 				should(audioPlayer.getAudioSessionId).be.a.Function();
-			});
-		});
-
-		describe.ios('#getPaused', () => {
-			it('is a Function', () => {
-				should(audioPlayer.getPaused).be.a.Function();
-			});
-		});
-
-		describe.ios('#getPlaying', () => {
-			it('is a Function', () => {
-				should(audioPlayer.getPlaying).be.a.Function();
-			});
-		});
-
-		describe.android('#isPaused', () => {
-			it('is a Function', () => {
-				should(audioPlayer.isPaused).be.a.Function();
-			});
-		});
-
-		describe.android('#isPlaying', () => {
-			it('is a Function', () => {
-				should(audioPlayer.isPlaying).be.a.Function();
 			});
 		});
 

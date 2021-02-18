@@ -222,29 +222,24 @@ public abstract class TiWindowProxy extends TiViewProxy
 		releaseViews();
 	}
 
-	@Kroll.method(name = "setTab")
 	@Kroll.setProperty(name = "tab")
 	public void setTabProxy(TiViewProxy tabProxy)
 	{
 		setParent(tabProxy);
 		this.tab = tabProxy;
 	}
-
-	@Kroll.method(name = "getTab")
 	@Kroll.getProperty(name = "tab")
 	public TiViewProxy getTabProxy()
 	{
 		return this.tab;
 	}
 
-	@Kroll.method(name = "setTabGroup")
 	@Kroll.setProperty(name = "tabGroup")
 	public void setTabGroupProxy(TiViewProxy tabGroupProxy)
 	{
 		this.tabGroup = tabGroupProxy;
 	}
 
-	@Kroll.method(name = "getTabGroup")
 	@Kroll.getProperty(name = "tabGroup")
 	public TiViewProxy getTabGroupProxy()
 	{
@@ -306,14 +301,12 @@ public abstract class TiWindowProxy extends TiViewProxy
 		TiUIHelper.firePostLayoutEvent(this);
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setLeftNavButton(Object button)
 	{
 		Log.w(TAG, "setLeftNavButton not supported in Android");
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setOrientationModes(int[] modes)
 	{
@@ -392,7 +385,6 @@ public abstract class TiWindowProxy extends TiViewProxy
 		}
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public int[] getOrientationModes()
 	{
@@ -417,7 +409,6 @@ public abstract class TiWindowProxy extends TiViewProxy
 		}
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public KrollDict getSafeAreaPadding()
 	{
@@ -593,7 +584,6 @@ public abstract class TiWindowProxy extends TiViewProxy
 		}
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public int getOrientation()
 	{
@@ -626,7 +616,6 @@ public abstract class TiWindowProxy extends TiViewProxy
 		sharedElementPairs.clear();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public TiWindowProxy getNavigationWindow()
 	{

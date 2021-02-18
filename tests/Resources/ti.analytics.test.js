@@ -21,8 +21,8 @@ describe('Titanium.Analytics', () => {
 				should(Ti.Analytics.apiName).be.eql('Ti.Analytics');
 			});
 
-			it('has a getter', () => {
-				should(Ti.Analytics).have.a.getter('apiName');
+			it('has no getter', () => {
+				should(Ti.Analytics).not.have.a.getter('apiName');
 			});
 		});
 
@@ -32,8 +32,8 @@ describe('Titanium.Analytics', () => {
 				should(Ti.Analytics).have.a.readOnlyProperty('lastEvent').which.is.a.String();
 			});
 
-			it('has a getter', () => {
-				should(Ti.Analytics).have.a.getter('lastEvent');
+			it('has no getter', () => {
+				should(Ti.Analytics).not.have.a.getter('lastEvent');
 			});
 		});
 
@@ -51,8 +51,8 @@ describe('Titanium.Analytics', () => {
 				should(Ti.Analytics.optedOut).be.true();
 			});
 
-			it('has accessors', () => {
-				should(Ti.Analytics).have.accessors('optedOut');
+			it('has no accessors', () => {
+				should(Ti.Analytics).not.have.accessors('optedOut');
 			});
 		});
 	});

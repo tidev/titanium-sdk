@@ -93,7 +93,6 @@ public class TextFieldProxy extends TiViewProxy
 		}
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public KrollDict getSelection()
 	{

@@ -190,28 +190,24 @@ public class CalendarProxy extends KrollProxy
 		return EventProxy.createEvent(this, data);
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getName()
 	{
 		return name;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getId()
 	{
 		return id;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public boolean getSelected()
 	{
 		return selected;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public boolean getHidden()
 	{

@@ -136,10 +136,8 @@
 
     propertiesDict[@"showPreviewsSetting"] = @([settings showPreviewsSetting]);
 
-    if ([TiUtils isIOSVersionOrGreater:@"12.0"]) {
-      propertiesDict[@"criticalAlertSetting"] = @([settings criticalAlertSetting]);
-      propertiesDict[@"providesAppNotificationSettings"] = @([settings providesAppNotificationSettings]);
-    }
+    propertiesDict[@"criticalAlertSetting"] = @([settings criticalAlertSetting]);
+    propertiesDict[@"providesAppNotificationSettings"] = @([settings providesAppNotificationSettings]);
     NSArray *invocationArray = [[NSArray alloc] initWithObjects:&propertiesDict count:1];
 
     [callback call:invocationArray thisObject:self];
