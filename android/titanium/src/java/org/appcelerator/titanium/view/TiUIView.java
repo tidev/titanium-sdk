@@ -1289,7 +1289,6 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 			}
 			Drawable d = nv.getBackground();
 			if (d != null) {
-				nv.setBackgroundDrawable(null);
 				d.setCallback(null);
 				if (d instanceof TiBackgroundDrawable) {
 					((TiBackgroundDrawable) d).releaseDelegate();
