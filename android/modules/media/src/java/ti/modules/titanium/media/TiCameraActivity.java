@@ -168,7 +168,10 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 		previewHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
 
 		// set preview overlay
-		localOverlayProxy = overlayProxy;
+		this.localOverlayProxy = overlayProxy;
+		if (this.localOverlayProxy != null) {
+			this.localOverlayProxy.setActivity(this);
+		}
 
 		// set overall layout - will populate in onResume
 		previewLayout = new PreviewLayout(this);
