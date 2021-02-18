@@ -150,7 +150,6 @@ public class NotificationProxy extends KrollProxy
 		checkLatestEventInfoProperties(d);
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setCategory(String category)
 	{
@@ -158,7 +157,6 @@ public class NotificationProxy extends KrollProxy
 		setProperty(TiC.PROPERTY_CATEGORY, category);
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setIcon(Object icon)
 	{
@@ -176,7 +174,6 @@ public class NotificationProxy extends KrollProxy
 		setProperty(TiC.PROPERTY_ICON, icon);
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setLargeIcon(Object icon)
 	{
@@ -198,7 +195,6 @@ public class NotificationProxy extends KrollProxy
 		setProperty(TiC.PROPERTY_LARGE_ICON, icon);
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setColor(String color)
 	{
@@ -206,7 +202,6 @@ public class NotificationProxy extends KrollProxy
 		setProperty(TiC.PROPERTY_COLOR, color);
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setVisibility(int visibility)
 	{
@@ -214,7 +209,6 @@ public class NotificationProxy extends KrollProxy
 		setProperty(TiC.PROPERTY_VISIBILITY, visibility);
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setPriority(int priority)
 	{
@@ -222,7 +216,6 @@ public class NotificationProxy extends KrollProxy
 		setProperty(TiC.PROPERTY_PRIORITY, priority);
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setWakeLock(HashMap d)
 	{
@@ -232,7 +225,6 @@ public class NotificationProxy extends KrollProxy
 		wakeParams = d;
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setTickerText(String tickerText)
 	{
@@ -241,7 +233,6 @@ public class NotificationProxy extends KrollProxy
 		setProperty(TiC.PROPERTY_TICKER_TEXT, tickerText);
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setWhen(Object when)
 	{
@@ -253,7 +244,6 @@ public class NotificationProxy extends KrollProxy
 		setProperty(TiC.PROPERTY_WHEN, when);
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setAudioStreamType(int type)
 	{
@@ -264,7 +254,6 @@ public class NotificationProxy extends KrollProxy
 		setProperty(TiC.PROPERTY_AUDIO_STREAM_TYPE, type);
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setContentView(RemoteViewsProxy contentView)
 	{
@@ -272,7 +261,6 @@ public class NotificationProxy extends KrollProxy
 		setProperty(TiC.PROPERTY_CONTENT_VIEW, contentView);
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setContentIntent(PendingIntentProxy contentIntent)
 	{
@@ -280,7 +268,6 @@ public class NotificationProxy extends KrollProxy
 		setProperty(TiC.PROPERTY_CONTENT_INTENT, contentIntent);
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setDefaults(int defaults)
 	{
@@ -288,7 +275,6 @@ public class NotificationProxy extends KrollProxy
 		setProperty(TiC.PROPERTY_DEFAULTS, defaults);
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setDeleteIntent(PendingIntentProxy deleteIntent)
 	{
@@ -296,7 +282,6 @@ public class NotificationProxy extends KrollProxy
 		setProperty(TiC.PROPERTY_DELETE_INTENT, deleteIntent);
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setFlags(int flags)
 	{
@@ -304,7 +289,6 @@ public class NotificationProxy extends KrollProxy
 		setProperty(TiC.PROPERTY_FLAGS, flags);
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setLedARGB(int ledARGB)
 	{
@@ -313,7 +297,6 @@ public class NotificationProxy extends KrollProxy
 		setProperty(TiC.PROPERTY_LED_ARGB, ledARGB);
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setLedOffMS(int ledOffMS)
 	{
@@ -322,7 +305,6 @@ public class NotificationProxy extends KrollProxy
 		setProperty(TiC.PROPERTY_LED_OFF_MS, ledOffMS);
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setLedOnMS(int ledOnMS)
 	{
@@ -331,7 +313,6 @@ public class NotificationProxy extends KrollProxy
 		setProperty(TiC.PROPERTY_LED_ON_MS, ledOnMS);
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setNumber(int number)
 	{
@@ -339,7 +320,6 @@ public class NotificationProxy extends KrollProxy
 		setProperty(TiC.PROPERTY_NUMBER, number);
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setSound(String url)
 	{
@@ -358,7 +338,6 @@ public class NotificationProxy extends KrollProxy
 		setProperty(TiC.PROPERTY_SOUND, url);
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setStyle(StyleProxy style)
 	{
@@ -366,7 +345,6 @@ public class NotificationProxy extends KrollProxy
 		setProperty(TiC.PROPERTY_STYLE, style);
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setVibratePattern(Object[] pattern)
 	{
@@ -380,7 +358,6 @@ public class NotificationProxy extends KrollProxy
 		setProperty(TiC.PROPERTY_VIBRATE_PATTERN, pattern);
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setGroupKey(String groupKey)
 	{
@@ -388,7 +365,6 @@ public class NotificationProxy extends KrollProxy
 		setProperty(TiC.PROPERTY_GROUP_KEY, groupKey);
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setGroupAlertBehavior(int groupAlertBehavior)
 	{
@@ -396,7 +372,6 @@ public class NotificationProxy extends KrollProxy
 		setProperty(TiC.PROPERTY_GROUP_ALERT_BEHAVIOR, groupAlertBehavior);
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setGroupSummary(boolean isGroupSummary)
 	{
@@ -428,7 +403,6 @@ public class NotificationProxy extends KrollProxy
 			.setContentTitle(contentTitle);
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setChannelId(String channelId)
 	{

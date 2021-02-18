@@ -29,14 +29,12 @@ public class PickerRowProxy extends TiViewProxy
 		super();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getColor()
 	{
 		return (String) getProperty(TiC.PROPERTY_COLOR);
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setColor(String color)
 	{
@@ -46,14 +44,12 @@ public class PickerRowProxy extends TiViewProxy
 		}
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getTitle()
 	{
 		return toString();
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setTitle(String value)
 	{

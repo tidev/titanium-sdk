@@ -69,11 +69,9 @@
 - (void)_listenerAdded:(NSString *)type count:(int)count
 {
   if ((count == 1) && [type isEqual:@"userinterfacestyle"]) {
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
     if ([TiUtils isIOSVersionOrGreater:@"13.0"]) {
       lastEmittedMode = self.userInterfaceStyle;
     }
-#endif
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(didChangeTraitCollection:)
                                                  name:kTiTraitCollectionChanged
@@ -90,7 +88,6 @@
 
 - (void)didChangeTraitCollection:(NSNotification *)info
 {
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
   if ([TiUtils isIOSVersionOrGreater:@"13.0"]) {
     NSNumber *currentMode = self.userInterfaceStyle;
     if (currentMode == lastEmittedMode) {
@@ -99,7 +96,6 @@
     lastEmittedMode = currentMode;
     [self fireEvent:@"userinterfacestyle" withObject:@{ @"value" : currentMode }];
   }
-#endif
 }
 
 - (NSString *)apiName
@@ -366,14 +362,9 @@ MAKE_SYSTEM_PROP(EXTEND_EDGE_ALL, 15); //UIEdgeRectAll
 }
 - (NSString *)TEXT_STYLE_LARGE_TITLE
 {
-  if ([TiUtils isIOSVersionOrGreater:@"11.0"]) {
-    return UIFontTextStyleLargeTitle;
-  }
-
-  return @"";
+  return UIFontTextStyleLargeTitle;
 }
 
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
 - (NSNumber *)userInterfaceStyle
 {
   return @(TiApp.controller.traitCollection.userInterfaceStyle);
@@ -405,7 +396,6 @@ MAKE_SYSTEM_PROP(EXTEND_EDGE_ALL, 15); //UIEdgeRectAll
 
   return NUMINT(0);
 }
-#endif
 
 - (TiColor *)fetchSemanticColor:(id)color
 {
@@ -709,14 +699,10 @@ MAKE_SYSTEM_STR(AUTOFILL_TYPE_PHONE, UITextContentTypeTelephoneNumber);
 MAKE_SYSTEM_STR(AUTOFILL_TYPE_EMAIL, UITextContentTypeEmailAddress);
 MAKE_SYSTEM_STR(AUTOFILL_TYPE_URL, UITextContentTypeURL);
 MAKE_SYSTEM_STR(AUTOFILL_TYPE_CARD_NUMBER, UITextContentTypeCreditCardNumber);
-
 MAKE_SYSTEM_STR(AUTOFILL_TYPE_USERNAME, UITextContentTypeUsername);
 MAKE_SYSTEM_STR(AUTOFILL_TYPE_PASSWORD, UITextContentTypePassword);
-
-#if IS_SDK_IOS_12
 MAKE_SYSTEM_STR(AUTOFILL_TYPE_NEW_PASSWORD, UITextContentTypeNewPassword);
 MAKE_SYSTEM_STR(AUTOFILL_TYPE_ONE_TIME_CODE, UITextContentTypeOneTimeCode);
-#endif
 #endif
 
 #ifdef USE_TI_UICLIPBOARD

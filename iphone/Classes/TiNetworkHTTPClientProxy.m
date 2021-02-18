@@ -471,6 +471,11 @@ extern NSString *const TI_APPLICATION_GUID;
 
 #pragma mark - Public getter properties
 
+- (NSString *)getAllResponseHeaders:(id)unused
+{
+  return [self allResponseHeaders];
+}
+
 - (NSString *)allResponseHeaders
 {
   NSDictionary *headers = [[self response] headers];

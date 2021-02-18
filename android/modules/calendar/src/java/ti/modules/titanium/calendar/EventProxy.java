@@ -335,7 +335,6 @@ public class EventProxy extends KrollProxy
 		return result;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public ReminderProxy[] getReminders()
 	{
@@ -361,7 +360,6 @@ public class EventProxy extends KrollProxy
 		return new RecurrenceRuleProxy(data);
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public AlertProxy[] getAlerts()
 	{
@@ -376,84 +374,72 @@ public class EventProxy extends KrollProxy
 		return AlertProxy.createAlert(this, minutes);
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getId()
 	{
 		return id;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getTitle()
 	{
 		return title;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getDescription()
 	{
 		return description;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getLocation()
 	{
 		return location;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public Date getBegin()
 	{
 		return begin;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public Date getEnd()
 	{
 		return end;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public boolean getAllDay()
 	{
 		return allDay;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public AttendeeProxy[] getAttendees()
 	{
 		return getAttendeeProxies();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public boolean getHasAlarm()
 	{
 		return hasAlarm;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public boolean getHasExtendedProperties()
 	{
 		return hasExtendedProperties;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public int getStatus()
 	{
 		return status;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public int getVisibility()
 	{
@@ -469,35 +455,30 @@ public class EventProxy extends KrollProxy
 		setProperty(TiC.PROPERTY_RECURRENCE_RULES, result);
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getRecurrenceDate()
 	{
 		return recurrenceDate;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getRecurrenceExceptionRule()
 	{
 		return recurrenceExceptionRule;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getRecurrenceExceptionDate()
 	{
 		return recurrenceExceptionDate;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public Date getLastDate()
 	{
 		return lastDate;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public KrollDict getExtendedProperties()
 	{

@@ -70,14 +70,12 @@ public class ServiceProxy extends KrollProxy
 		this.serviceInstanceId = serviceInstanceId;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public int getServiceInstanceId()
 	{
 		return serviceInstanceId;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public IntentProxy getIntent()
 	{

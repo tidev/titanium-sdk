@@ -431,7 +431,6 @@ public class GeolocationModule extends KrollModule implements Handler.Callback, 
 	 *
 	 * @return			<code>true</code> if the device has a compass, <code>false</code> if not
 	 */
-	@Kroll.method
 	@Kroll.getProperty
 	public boolean getHasCompass()
 	{
@@ -454,7 +453,6 @@ public class GeolocationModule extends KrollModule implements Handler.Callback, 
 	 *
 	 * @return			String representing the last geolocation event
 	 */
-	@Kroll.method
 	@Kroll.getProperty
 	public String getLastGeolocation()
 	{
@@ -659,7 +657,6 @@ public class GeolocationModule extends KrollModule implements Handler.Callback, 
 	 * @return			<code>true</code> if a valid location service is available on the device,
 	 * 					<code>false</code> if not
 	 */
-	@Kroll.method
 	@Kroll.getProperty
 	public boolean getLocationServicesEnabled()
 	{

@@ -131,8 +131,8 @@ describe('Titanium.UI.TextField', () => {
 				should(textField.hintText).eql('Enter Name ...');
 			});
 
-			it('has accessors', () => {
-				should(textField).have.accessors('hintText');
+			it('has no accessors', () => {
+				should(textField).not.have.accessors('hintText');
 			});
 		});
 
@@ -158,8 +158,8 @@ describe('Titanium.UI.TextField', () => {
 				should(textField.hintTextColor).eql('blue');
 			});
 
-			it('has accessors', () => {
-				should(textField).have.accessors('hintTextColor');
+			it('has no accessors', () => {
+				should(textField).not.have.accessors('hintTextColor');
 			});
 		});
 
@@ -185,8 +185,8 @@ describe('Titanium.UI.TextField', () => {
 				should(textField.hintType).eql(Ti.UI.HINT_TYPE_STATIC);
 			});
 
-			it('has accessors', () => {
-				should(textField).have.accessors('hintType');
+			it('has no accessors', () => {
+				should(textField).not.have.accessors('hintType');
 			});
 		});
 
@@ -222,8 +222,8 @@ describe('Titanium.UI.TextField', () => {
 				should(textField.padding.right).eql(10);
 			});
 
-			it('has accessors', () => {
-				should(textField).have.accessors('padding');
+			it('has no accessors', () => {
+				should(textField).not.have.accessors('padding');
 			});
 		});
 
@@ -276,8 +276,8 @@ describe('Titanium.UI.TextField', () => {
 				should(textField.textAlign).eql(Titanium.UI.TEXT_ALIGNMENT_RIGHT);
 			});
 
-			it('has accessors', () => {
-				should(textField).have.accessors('textAlign');
+			it('has no accessors', () => {
+				should(textField).not.have.accessors('textAlign');
 			});
 		});
 
@@ -302,8 +302,8 @@ describe('Titanium.UI.TextField', () => {
 				should(textField.value).eql('other text');
 			});
 
-			it('has accessors', () => {
-				should(textField).have.accessors('value');
+			it('has no accessors', () => {
+				should(textField).not.have.accessors('value');
 			});
 		});
 
@@ -334,8 +334,8 @@ describe('Titanium.UI.TextField', () => {
 				should(textField.verticalAlign).eql(Titanium.UI.TEXT_VERTICAL_ALIGNMENT_TOP);
 			});
 
-			it('has accessors', () => {
-				should(textField).have.accessors('verticalAlign');
+			it('has no accessors', () => {
+				should(textField).not.have.accessors('verticalAlign');
 			});
 		});
 

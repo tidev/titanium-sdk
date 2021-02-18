@@ -149,7 +149,6 @@ GETTER_IMPL(NSUInteger, size, Size);
   return self;
 }
 
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
 - (id)initWithSystemImage:(NSString *)imageName
 {
   if (![TiUtils isIOSVersionOrGreater:@"13.0"]) {
@@ -169,7 +168,6 @@ GETTER_IMPL(NSUInteger, size, Size);
 {
   return systemImageName;
 }
-#endif
 
 - (id)initWithData:(NSData *)data_ mimetype:(NSString *)mimetype_
 {
@@ -481,7 +479,7 @@ static void jsArrayBufferFreeDeallocator(void *data, void *ctx)
 - (JSValue *)arrayBuffer
 {
   JSContext *context = [self currentContext];
-  KrollPromise *promise = [[KrollPromise alloc] initInContext:context];
+  KrollPromise *promise = [[[KrollPromise alloc] initInContext:context] autorelease];
   TiThreadPerformOnMainThread(
       ^{
         NSData *theData = [self data];

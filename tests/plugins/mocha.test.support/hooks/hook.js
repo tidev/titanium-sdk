@@ -154,9 +154,9 @@ async function wakeDevices(logger, builder) {
 		await adb([ ...deviceId, 'shell', 'settings', 'put', 'system', 'screen_off_timeout', '1800000' ]);
 	}
 
+	//  Write out the listing of devices to disk so test suite can grab mapping/details
+	await fs.writeJSON(path.join(builder.projectDir, 'android-devices.json'), builder.devices);
 	if (builder.deviceId === 'all') {
-		//  Write out the listing of devices to disk so test suite can grab mapping/details
-		await fs.writeJSON(path.join(builder.projectDir, 'android-devices.json'), builder.devices);
 		for (const device of builder.devices) {
 			if (device.id !== 'all') {
 				await wake(device.id);

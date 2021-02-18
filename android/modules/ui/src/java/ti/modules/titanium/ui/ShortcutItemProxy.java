@@ -201,7 +201,6 @@ public class ShortcutItemProxy extends KrollProxy
 	}
 
 	@Deprecated
-	@Kroll.method
 	@Kroll.getProperty
 	public boolean getVisible()
 	{
