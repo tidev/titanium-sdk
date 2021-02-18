@@ -66,12 +66,6 @@
     "test:mac": "npm run cleanbuild:ios -- --skip-zip --no-docs --symlink && ti sdk select $npm_package_version && npm run test:integration -- ios -T macos",
     "test:integration": "./build/scons test"
   },
-  "husky": {
-    "hooks": {
-      "pre-commit": "npx --no-install lint-staged",
-      "commit-msg": "npx --no-install commitlint --edit $1"
-    }
-  },
   "commitlint": {
     "extends": [
       "@commitlint/config-conventional"
