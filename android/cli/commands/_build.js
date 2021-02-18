@@ -3250,20 +3250,19 @@ AndroidBuilder.prototype.generateTheme = async function generateTheme() {
 	this.logger.info(__('Generating theme file: %s', xmlFilePath.cyan));
 
 	// Set default theme to be used in "AndroidManifest.xml" and style resources.
-	let defaultAppThemeName = 'Theme.MaterialComponents.DayNight.DarkActionBar';
+	let defaultAppThemeName = 'Theme.Titanium.DayNight';
 	if (this.tiapp.fullscreen || this.tiapp['statusbar-hidden']) {
-		defaultAppThemeName = 'Theme.MaterialComponents.DayNight.Fullscreen';
+		defaultAppThemeName = 'Theme.Titanium.DayNight.Fullscreen';
 	} else if (this.tiapp['navbar-hidden']) {
-		defaultAppThemeName = 'Theme.MaterialComponents.DayNight.NoActionBar';
+		defaultAppThemeName = 'Theme.Titanium.DayNight.NoTitleBar';
 	}
 
-	// Set up "Base.Theme.Titanium.Customizable" inherited themes to use <application/> defined theme, if provided.
-	// Note: Do not assign it if set to a Titanium theme, which would cause a circular reference.
-	let customizableParentThemeName = 'Base.Theme.Titanium';
+	// Set up "Theme.AppDerived" to use the <application/> defined theme, if assigned.
+	let actualAppTheme = 'Theme.Titanium.App';
 	if (this.customAndroidManifest) {
 		const appTheme = this.customAndroidManifest.getAppAttribute('android:theme');
-		if (appTheme && !appTheme.startsWith('@style/Theme.Titanium') && !appTheme.startsWith('@style/Base.Theme.Titanium')) {
-			customizableParentThemeName = appTheme;
+		if (appTheme && !appTheme.startsWith('@style/Theme.AppDerived') && (appTheme !== '@style/Theme.Titanium')) {
+			actualAppTheme = appTheme;
 		}
 	}
 
@@ -3272,11 +3271,11 @@ AndroidBuilder.prototype.generateTheme = async function generateTheme() {
 	let xmlLines = [
 		'<?xml version="1.0" encoding="utf-8"?>',
 		'<resources>',
-		`	<style name="Base.Theme.Titanium.RootStyle" parent="${defaultAppThemeName}"/>`,
-		`	<style name="Base.Theme.Titanium.Customizable" parent="${customizableParentThemeName}"/>`,
+		`	<style name="Theme.Titanium.App" parent="${defaultAppThemeName}"/>`,
+		`	<style name="Theme.AppDerived" parent="${actualAppTheme}"/>`,
 		'',
 		'	<!-- Theme used by "TiRootActivity" derived class which displays the splash screen. -->',
-		'	<style name="Theme.Titanium" parent="@style/Base.Theme.Titanium.Splash">',
+		'	<style name="Theme.Titanium" parent="Base.Theme.Titanium.Splash">',
 		'		<item name="android:windowBackground">@drawable/background</item>',
 		'	</style>',
 		'</resources>'
