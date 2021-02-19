@@ -207,7 +207,7 @@ async function addTiAppProperties() {
 	const tiapp_xml_string = await fs.readFile(tiapp_xml, 'utf8');
 	const content = [];
 	const insertManifest = () => {
-		content.push('\t\t\t<application>');
+		content.push('\t\t\t<application android:theme="@style/Theme.Titanium.Dark">');
 		content.push('\t\t\t\t<meta-data android:name="com.google.android.geo.API_KEY" android:value="AIzaSyCN_aC6RMaynan8YzsO1HNHbhsr9ZADDlY"/>');
 		content.push('\t\t\t\t<uses-library android:name="org.apache.http.legacy" android:required="false" />');
 		content.push(`\t\t\t\t<activity android:name=".${PROJECT_NAME.charAt(0).toUpperCase() + PROJECT_NAME.slice(1).toLowerCase()}Activity">`);
@@ -707,7 +707,10 @@ class DeviceTestDetails {
 			let adbPath = 'adb';
 			const androidSdkPath = process.env.ANDROID_SDK;
 			if (androidSdkPath) {
-				adbPath = path.join(androidSdkPath, 'platform-tools', 'adb');
+				const filePath = path.join(androidSdkPath, 'platform-tools', 'adb');
+				if (await fs.pathExists(filePath)) {
+					adbPath = filePath;
+				}
 			}
 			if (this.target === 'device') {
 				const id = await this.deviceId();
@@ -719,7 +722,7 @@ class DeviceTestDetails {
 				}
 				await exec(`${adbPath} ${adbTargetArgs} shell "run-as ${APP_ID} cat '${filepath}'" > ${dest}`);
 			} else {
-				// await exec(`adb -e shell "run-as ${APP_ID} cat '${filepath}'" > ${dest}`);
+				// await exec(`${adbPath} -e shell "run-as ${APP_ID} cat '${filepath}'" > ${dest}`);
 				// Using cat as above on some emulators (especially older ones) mangles image files
 				await exec(`${adbPath} -e pull ${filepath} ${dest}`);
 			}
