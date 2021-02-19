@@ -41,14 +41,14 @@ describe.ios('Titanium.UI.iOS.Stepper', () => {
 			should(stepper.value).be.eql(30);
 		});
 
-		it('has accessors', () => {
+		it('has no accessors', () => {
 			const stepper = Ti.UI.iOS.createStepper({
 				steps: 3,
 				maximum: 30,
 				minimum: 0,
 				value: 20
 			});
-			should(stepper).have.accessors('value');
+			should(stepper).not.have.accessors('value');
 		});
 	});
 });

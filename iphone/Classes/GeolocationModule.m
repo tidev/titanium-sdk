@@ -311,7 +311,7 @@ extern NSString *const TI_APPLICATION_GUID;
              "Ti.Geolocation.requestLocationPermissions(Ti.Geolocation.AUTHORIZATION_WHEN_IN_USE, function(e) {\n"
              "\t// Handle authorization via e.success\n"
              "})\nPicking the hightest permission by default.");
-      if ([TiUtils isIOSVersionOrGreater:@"11.0"] && ![[NSBundle mainBundle] objectForInfoDictionaryKey:kTiGeolocationUsageDescriptionWhenInUse]) {
+      if (![[NSBundle mainBundle] objectForInfoDictionaryKey:kTiGeolocationUsageDescriptionWhenInUse]) {
         NSLog(@"[WARN] Apps targeting iOS 11 and later always have to include the \"%@\" key in the tiapp.xml <plist> section in order to use any geolocation-services. This is a constraint Apple introduced to improve user-privacy by suggesting developers to incrementally upgrade the location permissions from \"When in Use\" to \"Always\" only if necessary. You can specify the new iOS 11+ plist-key \"%@\" which is used while upgrading from \"When in Use\" to \"Always\". Use the the Ti.Geolocation.requestLocationPermissions method, which should be called before using any Ti.Geolocation related API. Please verify location permissions and call this method again.", kTiGeolocationUsageDescriptionWhenInUse, kTiGeolocationUsageDescriptionAlwaysAndWhenInUse);
       }
 
@@ -320,20 +320,14 @@ extern NSString *const TI_APPLICATION_GUID;
       } else if ([GeolocationModule hasWhenInUsePermissionKeys]) {
         [locationManager requestWhenInUseAuthorization];
       } else {
-        if ([TiUtils isIOSVersionOrGreater:@"11.0"]) {
-          NSLog(@"[ERROR] If you are only using geolocation-services *when in use*, you only need to specify the %@ key in your tiapp.xml", kTiGeolocationUsageDescriptionWhenInUse);
-          NSLog(@"[ERROR] If you are *always*  using geolocation-servcies, you need to specify the following three keys in your tiapp.xml:\n  * %@\n  * %@\n  * %@", kTiGeolocationUsageDescriptionWhenInUse, kTiGeolocationUsageDescriptionAlways, kTiGeolocationUsageDescriptionAlwaysAndWhenInUse);
-        } else {
-          NSLog(@"[ERROR] The keys %@ or %@ are not defined in your tiapp.xml. Starting with iOS 8 this is required.", kTiGeolocationUsageDescriptionAlways, kTiGeolocationUsageDescriptionWhenInUse);
-        }
+        NSLog(@"[ERROR] If you are only using geolocation-services *when in use*, you only need to specify the %@ key in your tiapp.xml", kTiGeolocationUsageDescriptionWhenInUse);
+        NSLog(@"[ERROR] If you are *always*  using geolocation-servcies, you need to specify the following three keys in your tiapp.xml:\n  * %@\n  * %@\n  * %@", kTiGeolocationUsageDescriptionWhenInUse, kTiGeolocationUsageDescriptionAlways, kTiGeolocationUsageDescriptionAlwaysAndWhenInUse);
       }
     }
 
     locationManager.allowsBackgroundLocationUpdates = allowsBackgroundLocationUpdates;
 
-    if ([TiUtils isIOSVersionOrGreater:@"11.0"]) {
-      locationManager.showsBackgroundLocationIndicator = showBackgroundLocationIndicator;
-    }
+    locationManager.showsBackgroundLocationIndicator = showBackgroundLocationIndicator;
 
     locationManager.activityType = activityType;
     locationManager.pausesLocationUpdatesAutomatically = pauseLocationUpdateAutomatically;
@@ -629,20 +623,12 @@ READWRITE_IMPL(CLLocationDegrees, headingFilter, HeadingFilter);
 
 - (BOOL)showBackgroundLocationIndicator
 {
-  if ([TiUtils isIOSVersionOrGreater:@"11.0"]) {
-    return showBackgroundLocationIndicator;
-  }
-  DebugLog(@"[ERROR] The showBackgroundLocationIndicator property is only available on iOS 11.0+. Returning \"false\" ...");
-  return NO;
+  return showBackgroundLocationIndicator;
 }
 
 - (void)setShowBackgroundLocationIndicator:(BOOL)value
 {
-  if ([TiUtils isIOSVersionOrGreater:@"11.0"]) {
-    showBackgroundLocationIndicator = value;
-    return;
-  }
-  DebugLog(@"[ERROR] The showBackgroundLocationIndicator property is only available on iOS 11.0+. Ignoring call ...");
+  showBackgroundLocationIndicator = value;
 }
 
 READWRITE_IMPL(bool, showBackgroundLocationIndicator, ShowBackgroundLocationIndicator);
@@ -861,16 +847,12 @@ MAKE_SYSTEM_PROP(ACTIVITYTYPE_OTHER_NAVIGATION, CLActivityTypeOtherNavigation);
             [[self locationPermissionManager] requestAlwaysAuthorization];
           },
           NO);
-    } else if ([TiUtils isIOSVersionOrGreater:@"11.0"]) {
+    } else {
       errorMessage = [[NSString alloc] initWithFormat:
                                            @"The %@, %@ and %@ (iOS 11+) key must be defined in your tiapp.xml in order to request this permission.",
                                        kTiGeolocationUsageDescriptionWhenInUse,
                                        kTiGeolocationUsageDescriptionAlways,
                                        kTiGeolocationUsageDescriptionAlwaysAndWhenInUse];
-    } else {
-      errorMessage = [[NSString alloc] initWithFormat:
-                                           @"The %@ key must be defined in your tiapp.xml in order to request this permission.",
-                                       kTiGeolocationUsageDescriptionAlways];
     }
   }
 
@@ -924,10 +906,6 @@ READWRITE_IMPL(bool, showCalibration, ShowCalibration);
 
 + (BOOL)hasAlwaysPermissionKeys
 {
-  if (![TiUtils isIOSVersionOrGreater:@"11.0"]) {
-    return [[NSBundle mainBundle] objectForInfoDictionaryKey:kTiGeolocationUsageDescriptionAlways] != nil;
-  }
-
   return [[NSBundle mainBundle] objectForInfoDictionaryKey:kTiGeolocationUsageDescriptionWhenInUse] &&
       [[NSBundle mainBundle] objectForInfoDictionaryKey:kTiGeolocationUsageDescriptionAlways] &&
       [[NSBundle mainBundle] objectForInfoDictionaryKey:kTiGeolocationUsageDescriptionAlwaysAndWhenInUse];
@@ -1069,11 +1047,7 @@ READWRITE_IMPL(bool, showCalibration, ShowCalibration);
   RELEASE_TO_NIL(purpose);
   purpose = [reason retain];
 
-  if ([TiUtils isIOSVersionOrGreater:@"11.0"]) {
-    DebugLog(@"[WARN] The Ti.Geolocation.purpose property is deprecated. Include the %@ or %@ and (!) %@ (iOS 11+) key in your Info.plist instead", kTiGeolocationUsageDescriptionWhenInUse, kTiGeolocationUsageDescriptionAlways, kTiGeolocationUsageDescriptionAlwaysAndWhenInUse);
-  } else {
-    DebugLog(@"[WARN] The Ti.Geolocation.purpose property is deprecated. Include the %@ or %@ key in your Info.plist instead", kTiGeolocationUsageDescriptionWhenInUse, kTiGeolocationUsageDescriptionAlways);
-  }
+  DebugLog(@"[WARN] The Ti.Geolocation.purpose property is deprecated. Include the %@ or %@ and (!) %@ (iOS 11+) key in your Info.plist instead", kTiGeolocationUsageDescriptionWhenInUse, kTiGeolocationUsageDescriptionAlways, kTiGeolocationUsageDescriptionAlwaysAndWhenInUse);
 
   if (locationManager != nil) {
     if ([locationManager respondsToSelector:@selector(setPurpose:)]) {

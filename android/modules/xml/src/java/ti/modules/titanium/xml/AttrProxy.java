@@ -27,21 +27,18 @@ public class AttrProxy extends NodeProxy
 		return attr;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getName()
 	{
 		return attr.getName();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public ElementProxy getOwnerElement()
 	{
 		return getProxy(attr.getOwnerElement());
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public boolean getSpecified()
 	{
@@ -55,14 +52,12 @@ public class AttrProxy extends NodeProxy
 		return attr.getSpecified();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getValue()
 	{
 		return attr.getValue();
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setValue(String value) throws DOMException
 	{

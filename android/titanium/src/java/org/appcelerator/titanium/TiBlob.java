@@ -347,7 +347,6 @@ public class TiBlob extends KrollProxy
 		return bytes;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public int getLength()
 	{
@@ -413,7 +412,6 @@ public class TiBlob extends KrollProxy
 		}
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getText()
 	{
@@ -436,7 +434,6 @@ public class TiBlob extends KrollProxy
 		return result;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getMimeType()
 	{
@@ -461,14 +458,12 @@ public class TiBlob extends KrollProxy
 	 * @see TiBlob#TYPE_STREAM
 	 * @module.api
 	 */
-	@Kroll.method
 	@Kroll.getProperty
 	public int getType()
 	{
 		return type;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public int getWidth()
 	{
@@ -481,7 +476,6 @@ public class TiBlob extends KrollProxy
 		return this.uprightWidth;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public int getSize()
 	{
@@ -493,7 +487,6 @@ public class TiBlob extends KrollProxy
 		return getLength();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public int getHeight()
 	{
@@ -532,7 +525,6 @@ public class TiBlob extends KrollProxy
 		return text;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getNativePath()
 	{
@@ -560,7 +552,6 @@ public class TiBlob extends KrollProxy
 		}
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public TiFileProxy getFile()
 	{

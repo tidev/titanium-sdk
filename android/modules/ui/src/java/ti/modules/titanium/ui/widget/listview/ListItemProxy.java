@@ -32,6 +32,8 @@ import ti.modules.titanium.ui.widget.TiView;
 	creatableInModule = ti.modules.titanium.ui.UIModule.class,
 	propertyAccessors = {
 		TiC.PROPERTY_ACCESSORY_TYPE,
+		TiC.PROPERTY_CAN_EDIT,
+		TiC.PROPERTY_CAN_MOVE,
 		TiC.PROPERTY_ITEM_ID,
 		TiC.PROPERTY_SEARCHABLE_TEXT
 	}
@@ -42,7 +44,7 @@ public class ListItemProxy extends TiViewProxy
 
 	private final HashMap<String, TiViewProxy> binds = new HashMap<>();
 	private final HashMap<String, Object> childProperties = new HashMap<>();
-	private  final List<String> ignoredTemplateKeys = new ArrayList<>();
+	private final List<String> ignoredTemplateKeys = new ArrayList<>();
 
 	public int index;
 
@@ -117,21 +119,22 @@ public class ListItemProxy extends TiViewProxy
 	}
 
 	/**
-	 * Override fireEvent to inject ListItem data into payload.
+	 * Handle event payload manipulation.
 	 *
 	 * @param eventName Name of fired event.
 	 * @param data      Data payload of fired event.
-	 * @param bubbles   Specify if event should bubble up to parent.
-	 * @return
+	 * @return Object of event payload.
 	 */
-	@Override
-	public boolean fireEvent(String eventName, Object data, boolean bubbles)
+	public Object handleEvent(String eventName, Object data, boolean fireItemClick)
 	{
 		// Inject row data into events.
 		final ListViewProxy listViewProxy = getListViewProxy();
 		if (listViewProxy != null) {
 			final KrollDict payload = data instanceof HashMap
 				? new KrollDict((HashMap<String, Object>) data) : new KrollDict();
+			final Object sourceObject = payload.containsKeyAndNotNull(TiC.EVENT_PROPERTY_SOURCE)
+				? payload.get(TiC.EVENT_PROPERTY_SOURCE) : this;
+			final TiViewProxy source = sourceObject instanceof TiViewProxy ? (TiViewProxy) sourceObject : this;
 
 			final Object parent = getParent();
 			if (parent instanceof ListSectionProxy) {
@@ -143,17 +146,21 @@ public class ListItemProxy extends TiViewProxy
 				payload.put(TiC.PROPERTY_ITEM_INDEX, getIndexInSection());
 			}
 
-			final String itemId = getProperties().optString(TiC.PROPERTY_ITEM_ID, null);
+			final Object itemId = getProperties().get(TiC.PROPERTY_ITEM_ID);
 			if (itemId != null) {
 
 				// Include `itemId` if specified.
 				payload.put(TiC.PROPERTY_ITEM_ID, itemId);
 			}
 
-			if (this.template.containsKey(TiC.PROPERTY_BIND_ID)) {
+			for (final String key : binds.keySet()) {
+				if (binds.get(key).equals(source)) {
 
-				// Include `bindId` of template if specified.
-				payload.put(TiC.PROPERTY_BIND_ID, this.template.getString(TiC.PROPERTY_BIND_ID));
+					// Reverse lookup `bindId`.
+					// Include `bindId` of template if specified.
+					payload.put(TiC.PROPERTY_BIND_ID, key);
+					break;
+				}
 			}
 
 			final int accessoryType = getProperties().optInt(TiC.PROPERTY_ACCESSORY_TYPE,
@@ -167,12 +174,33 @@ public class ListItemProxy extends TiViewProxy
 			data = payload;
 
 			// Fire `itemclick` event on ListView.
-			if (eventName.equals(TiC.EVENT_CLICK)) {
-				listViewProxy.fireEvent(TiC.EVENT_ITEM_CLICK, data);
+			if (fireItemClick && eventName.equals(TiC.EVENT_CLICK)) {
+				listViewProxy.fireSyncEvent(TiC.EVENT_ITEM_CLICK, data);
 			}
 		}
 
+		return data;
+	}
+
+	/**
+	 * Override fireEvent to inject ListItem data into payload.
+	 *
+	 * @param eventName Name of fired event.
+	 * @param data      Data payload of fired event.
+	 * @param bubbles   Specify if event should bubble up to parent.
+	 * @return
+	 */
+	@Override
+	public boolean fireEvent(String eventName, Object data, boolean bubbles)
+	{
+		data = handleEvent(eventName, data, true);
 		return super.fireEvent(eventName, data, bubbles);
+	}
+	@Override
+	public boolean fireSyncEvent(String eventName, Object data, boolean bubbles)
+	{
+		data = handleEvent(eventName, data, true);
+		return super.fireSyncEvent(eventName, data, bubbles);
 	}
 
 	/**
@@ -246,42 +274,8 @@ public class ListItemProxy extends TiViewProxy
 					@Override
 					public void call(Object data)
 					{
-						if (data instanceof KrollDict) {
-							final KrollDict payload = new KrollDict((KrollDict) data);
-
-							// Inject row data into events.
-							final ListViewProxy listViewProxy = getListViewProxy();
-							if (listViewProxy != null) {
-
-								final Object parent = getParent();
-								if (parent instanceof ListSectionProxy) {
-									final ListSectionProxy section = (ListSectionProxy) parent;
-
-									// Include section specific properties.
-									payload.put(TiC.PROPERTY_SECTION, section);
-									payload.put(TiC.PROPERTY_SECTION_INDEX, listViewProxy.getIndexOfSection(section));
-									payload.put(TiC.PROPERTY_ITEM_INDEX, getIndexInSection());
-								}
-
-								final String itemId = getProperties().optString(TiC.PROPERTY_ITEM_ID, null);
-								if (itemId != null) {
-
-									// Include `itemId` if specified.
-									payload.put(TiC.PROPERTY_ITEM_ID, itemId);
-								}
-
-								if (template.containsKey(TiC.PROPERTY_BIND_ID)) {
-
-									// Include `bindId` of template if specified.
-									payload.put(TiC.PROPERTY_BIND_ID, template.getString(TiC.PROPERTY_BIND_ID));
-								}
-							}
-
-							data = payload;
-						}
-
 						// Call callback defined in template.
-						callback.call(krollObject, new Object[] { data });
+						callback.call(krollObject, new Object[] { handleEvent(eventName, data, false) });
 					}
 				});
 				krollObject.setHasListenersForEventType(eventName, true);
@@ -533,6 +527,12 @@ public class ListItemProxy extends TiViewProxy
 		processProperty(name, value);
 	}
 
+	/**
+	 * Process property set on proxy.
+	 *
+	 * @param name Property name.
+	 * @param value Property value.
+	 */
 	private void processProperty(String name, Object value)
 	{
 		// Handle convenience properties for default template.
@@ -620,6 +620,10 @@ public class ListItemProxy extends TiViewProxy
 		if (name.equals(TiC.PROPERTY_SELECTED_BACKGROUND_IMAGE)) {
 			Log.w(TAG, "selectedBackgroundImage is deprecated, use backgroundSelectedImage instead.");
 			setProperty(TiC.PROPERTY_BACKGROUND_SELECTED_IMAGE, value);
+		}
+
+		if (name.equals(TiC.PROPERTY_CAN_MOVE)) {
+			invalidate();
 		}
 	}
 

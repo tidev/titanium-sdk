@@ -158,7 +158,6 @@ public class PickerProxy extends TiViewProxy implements PickerColumnListener
 		return new TiUIDateSpinner(this, activity);
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public boolean getUseSpinner()
 	{
@@ -166,7 +165,6 @@ public class PickerProxy extends TiViewProxy implements PickerColumnListener
 		return useSpinner;
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setUseSpinner(boolean value)
 	{
@@ -185,14 +183,12 @@ public class PickerProxy extends TiViewProxy implements PickerColumnListener
 		}
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public int getType()
 	{
 		return type;
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setType(int type)
 	{
@@ -322,7 +318,6 @@ public class PickerProxy extends TiViewProxy implements PickerColumnListener
 		return row;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public PickerColumnProxy[] getColumns()
 	{
@@ -337,7 +332,6 @@ public class PickerProxy extends TiViewProxy implements PickerColumnListener
 		}
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setColumns(Object passedColumns)
 	{

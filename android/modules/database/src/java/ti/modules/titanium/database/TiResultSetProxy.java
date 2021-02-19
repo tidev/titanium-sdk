@@ -211,7 +211,6 @@ public class TiResultSetProxy extends KrollProxy
 		return result;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public int getFieldCount()
 	{
@@ -247,7 +246,6 @@ public class TiResultSetProxy extends KrollProxy
 		return null;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public int getRowCount()
 	{

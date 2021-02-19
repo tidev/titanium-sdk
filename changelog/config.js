@@ -210,8 +210,10 @@ module.exports = {
 			// Limit to features, bug fixes and performance improvements
 			if (commit.type === 'feat') {
 				commit.type = 'Features';
+				discard = false;
 			} else if (commit.type === 'fix') {
 				commit.type = 'Bug Fixes';
+				discard = false;
 			} else if (commit.type === 'perf') {
 				commit.type = 'Performance Improvements';
 			} else if (discard && !community && !breaking) {

@@ -61,8 +61,8 @@ describe('Titanium.UI.TextArea', () => {
 				should(textArea.backgroundColor).eql('blue');
 			});
 
-			it('has accessors', () => {
-				should(textArea).have.accessors('backgroundColor');
+			it('has no accessors', () => {
+				should(textArea).not.have.accessors('backgroundColor');
 			});
 		});
 
@@ -85,8 +85,8 @@ describe('Titanium.UI.TextArea', () => {
 				should(textArea.editable).be.false();
 			});
 
-			it('has accessors', () => {
-				should(textArea).have.accessors('editable');
+			it('has no accessors', () => {
+				should(textArea).not.have.accessors('editable');
 			});
 		});
 
@@ -156,8 +156,8 @@ describe('Titanium.UI.TextArea', () => {
 				should(textArea.lines).eql(2);
 			});
 
-			it('has accessors', () => {
-				should(textArea).have.accessors('lines');
+			it('has no accessors', () => {
+				should(textArea).not.have.accessors('lines');
 			});
 		});
 
@@ -183,8 +183,8 @@ describe('Titanium.UI.TextArea', () => {
 				should(textArea.maxLines).eql(6);
 			});
 
-			it('has accessors', () => {
-				should(textArea).have.accessors('maxLines');
+			it('has no accessors', () => {
+				should(textArea).not.have.accessors('maxLines');
 			});
 		});
 
@@ -219,8 +219,8 @@ describe('Titanium.UI.TextArea', () => {
 				should(textArea.padding.right).eql(10);
 			});
 
-			it('has accessors', () => {
-				should(textArea).have.accessors('padding');
+			it('has no accessors', () => {
+				should(textArea).not.have.accessors('padding');
 			});
 		});
 
@@ -243,8 +243,8 @@ describe('Titanium.UI.TextArea', () => {
 				should(textArea.scrollsToTop).be.false();
 			});
 
-			it('has accessors', () => {
-				should(textArea).have.accessors('scrollsToTop');
+			it('has no accessors', () => {
+				should(textArea).not.have.accessors('scrollsToTop');
 			});
 		});
 
@@ -277,8 +277,8 @@ describe('Titanium.UI.TextArea', () => {
 				should(textArea.textAlign).eql(Titanium.UI.TEXT_ALIGNMENT_RIGHT);
 			});
 
-			it('has accessors', () => {
-				should(textArea).have.accessors('textAlign');
+			it('has no accessors', () => {
+				should(textArea).not.have.accessors('textAlign');
 			});
 		});
 
@@ -303,8 +303,8 @@ describe('Titanium.UI.TextArea', () => {
 				should(textArea.value).eql('other text');
 			});
 
-			it('has accessors', () => {
-				should(textArea).have.accessors('value');
+			it('has no accessors', () => {
+				should(textArea).not.have.accessors('value');
 			});
 		});
 
@@ -331,8 +331,8 @@ describe('Titanium.UI.TextArea', () => {
 				should(textArea.verticalAlign).eql(Titanium.UI.TEXT_VERTICAL_ALIGNMENT_TOP);
 			});
 
-			it('has accessors', () => {
-				should(textArea).have.accessors('verticalAlign');
+			it('has no accessors', () => {
+				should(textArea).not.have.accessors('verticalAlign');
 			});
 		});
 	});

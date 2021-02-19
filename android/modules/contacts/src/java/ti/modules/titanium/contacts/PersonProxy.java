@@ -72,7 +72,6 @@ public class PersonProxy extends KrollProxy
 		modified.clear();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getFullName()
 	{
@@ -84,7 +83,6 @@ public class PersonProxy extends KrollProxy
 		fullName = fname;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public long getId()
 	{
@@ -96,7 +94,6 @@ public class PersonProxy extends KrollProxy
 		return (modified.containsKey(field) && modified.get(field));
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public TiBlob getImage()
 	{
@@ -113,7 +110,6 @@ public class PersonProxy extends KrollProxy
 		return this.image;
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setImage(TiBlob blob)
 	{

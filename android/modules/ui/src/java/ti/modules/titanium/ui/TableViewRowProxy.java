@@ -32,6 +32,8 @@ import ti.modules.titanium.ui.widget.tableview.TiTableView;
 		TiC.PROPERTY_HAS_CHECK,
 		TiC.PROPERTY_HAS_CHILD,
 		TiC.PROPERTY_HAS_DETAIL,
+		TiC.PROPERTY_EDITABLE,
+		TiC.PROPERTY_MOVABLE,
 		TiC.PROPERTY_CLASS_NAME,
 		TiC.PROPERTY_LAYOUT,
 		TiC.PROPERTY_LEFT_IMAGE,
@@ -111,15 +113,13 @@ public class TableViewRowProxy extends TiViewProxy
 	}
 
 	/**
-	 * Override fireEvent to inject row data into payload.
+	 * Handle event data to generate payload with table data.
 	 *
 	 * @param eventName Name of fired event.
 	 * @param data      Data payload of fired event.
-	 * @param bubbles   Specify if event should bubble up to parent.
-	 * @return
+	 * @return Object of payload.
 	 */
-	@Override
-	public boolean fireEvent(String eventName, Object data, boolean bubbles)
+	private Object handleEvent(String eventName, Object data)
 	{
 		// Inject row data into events.
 		final TableViewProxy tableViewProxy = getTableViewProxy();
@@ -143,7 +143,28 @@ public class TableViewRowProxy extends TiViewProxy
 			data = payload;
 		}
 
+		return data;
+	}
+
+	/**
+	 * Override fireEvent to inject row data into payload.
+	 *
+	 * @param eventName Name of fired event.
+	 * @param data      Data payload of fired event.
+	 * @param bubbles   Specify if event should bubble up to parent.
+	 * @return
+	 */
+	@Override
+	public boolean fireEvent(String eventName, Object data, boolean bubbles)
+	{
+		data = handleEvent(eventName, data);
 		return super.fireEvent(eventName, data, bubbles);
+	}
+	@Override
+	public boolean fireSyncEvent(String eventName, Object data, boolean bubbles)
+	{
+		data = handleEvent(eventName, data);
+		return super.fireSyncEvent(eventName, data, bubbles);
 	}
 
 	@Override
@@ -350,8 +371,16 @@ public class TableViewRowProxy extends TiViewProxy
 		}
 	}
 
+	/**
+	 * Process property set on proxy.
+	 *
+	 * @param name Property name.
+	 * @param value Property value.
+	 */
 	private void processProperty(String name, Object value)
 	{
+		final TableViewProxy tableViewProxy = getTableViewProxy();
+
 		if (name.equals(TiC.PROPERTY_SELECTED_BACKGROUND_COLOR)) {
 			Log.w(TAG, "selectedBackgroundColor is deprecated, use backgroundSelectedColor instead.");
 			setProperty(TiC.PROPERTY_BACKGROUND_SELECTED_COLOR, value);
@@ -384,7 +413,8 @@ public class TableViewRowProxy extends TiViewProxy
 			|| name.equals(TiC.PROPERTY_LEFT)
 			|| name.equals(TiC.PROPERTY_RIGHT)
 			|| name.equals(TiC.PROPERTY_TOP)
-			|| name.equals(TiC.PROPERTY_BOTTOM)) {
+			|| name.equals(TiC.PROPERTY_BOTTOM)
+			|| name.equals(TiC.PROPERTY_MOVABLE)) {
 
 			// Force re-bind of row.
 			invalidate();

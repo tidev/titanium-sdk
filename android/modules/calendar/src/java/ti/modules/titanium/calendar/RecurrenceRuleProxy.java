@@ -276,63 +276,54 @@ public class RecurrenceRuleProxy extends KrollProxy
 
 	//region kroll proxy methods
 	@Kroll.getProperty
-	@Kroll.method
 	public String getCalendarID()
 	{
 		return this.calendarID;
 	}
 
 	@Kroll.getProperty
-	@Kroll.method
 	public int[] getDaysOfTheMonth()
 	{
 		return this.daysOfTheMonth;
 	}
 
 	@Kroll.getProperty
-	@Kroll.method
 	public KrollDict[] getDaysOfTheWeek()
 	{
 		return this.daysOfTheWeek;
 	}
 
 	@Kroll.getProperty
-	@Kroll.method
 	public int[] getDaysOfTheYear()
 	{
 		return this.daysOfTheYear;
 	}
 
 	@Kroll.getProperty
-	@Kroll.method
 	public KrollDict getEnd()
 	{
 		return this.endDictionary;
 	}
 
 	@Kroll.getProperty
-	@Kroll.method
 	public int getFrequency()
 	{
 		return this.frequency.toTiIntId();
 	}
 
 	@Kroll.getProperty
-	@Kroll.method
 	public int getInterval()
 	{
 		return this.interval;
 	}
 
 	@Kroll.getProperty
-	@Kroll.method
 	public int[] monthsOfTheYear()
 	{
 		return this.monthsOfTheYear;
 	}
 
 	@Kroll.getProperty
-	@Kroll.method
 	public int[] getWeeksOfTheYear()
 	{
 		return this.weeksOfTheYear;

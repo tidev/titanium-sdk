@@ -7,14 +7,12 @@
 package ti.modules.titanium.ui.widget.tableview;
 
 import org.appcelerator.kroll.KrollDict;
-import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.R;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
-import org.appcelerator.titanium.util.TiFileHelper;
 import org.appcelerator.titanium.util.TiRHelper;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiBorderWrapperView;
@@ -36,7 +34,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-import androidx.recyclerview.widget.RecyclerView;
 
 import java.lang.ref.WeakReference;
 
@@ -44,20 +41,12 @@ import ti.modules.titanium.ui.TableViewProxy;
 import ti.modules.titanium.ui.TableViewRowProxy;
 import ti.modules.titanium.ui.TableViewSectionProxy;
 import ti.modules.titanium.ui.widget.TiUITableView;
+import ti.modules.titanium.ui.widget.listview.TiRecyclerViewHolder;
 
-public class TableViewHolder extends RecyclerView.ViewHolder
+public class TableViewHolder extends TiRecyclerViewHolder
 {
-	private static String TAG = "TableViewHolder";
+	private static final String TAG = "TableViewHolder";
 
-	private static final int COLOR_GRAY = Color.rgb(169, 169, 169);
-
-	private static Resources resources;
-	private static TiFileHelper fileHelper;
-
-	private static Drawable moreDrawable;
-	private static Drawable checkDrawable;
-	private static Drawable disclosureDrawable;
-	private static int selectableItemBackgroundId = 0;
 	private static ColorStateList defaultTextColors = null;
 
 	// Top
@@ -76,67 +65,9 @@ public class TableViewHolder extends RecyclerView.ViewHolder
 	private final TiCompositeLayout footer;
 	private final TextView footerTitle;
 
-	private WeakReference<TiViewProxy> proxy;
-
 	public TableViewHolder(final Context context, final ViewGroup viewGroup)
 	{
-		super(viewGroup);
-
-		if (resources == null) {
-
-			// Obtain resources instance.
-			resources = context.getResources();
-		}
-		if (resources != null) {
-
-			// Attempt to load `icon_more` drawable.
-			if (moreDrawable == null) {
-				try {
-					final int icon_more_id = R.drawable.titanium_icon_more;
-					moreDrawable = resources.getDrawable(icon_more_id);
-				} catch (Exception e) {
-					Log.w(TAG, "Drawable 'drawable.icon_more' not found.");
-				}
-			}
-
-			// Attempt to load `icon_checkmark` drawable.
-			if (checkDrawable == null) {
-				try {
-					final int icon_checkmark_id = R.drawable.titanium_icon_checkmark;
-					checkDrawable = resources.getDrawable(icon_checkmark_id);
-				} catch (Exception e) {
-					Log.w(TAG, "Drawable 'drawable.icon_checkmark' not found.");
-				}
-			}
-
-			// Attempt to load `icon_disclosure` drawable.
-			if (disclosureDrawable == null) {
-				try {
-					final int icon_disclosure_id = R.drawable.titanium_icon_disclosure;
-					disclosureDrawable = resources.getDrawable(icon_disclosure_id);
-				} catch (Exception e) {
-					Log.w(TAG, "Drawable 'drawable.icon_disclosure' not found.");
-				}
-			}
-
-			if (selectableItemBackgroundId == 0) {
-				try {
-					final TypedValue selectableItemBackgroundValue = new TypedValue();
-					context.getTheme().resolveAttribute(android.R.attr.selectableItemBackgroundBorderless,
-						selectableItemBackgroundValue, true);
-					selectableItemBackgroundId = selectableItemBackgroundValue.resourceId;
-				} catch (Exception e) {
-					Log.w(TAG, "Drawable for default background not found.");
-				}
-			}
-		} else {
-			Log.w(TAG, "Could not obtain context resources instance.");
-		}
-		if (fileHelper == null) {
-
-			// Obtain file helper instance.
-			fileHelper = new TiFileHelper(context);
-		}
+		super(context, viewGroup);
 
 		// Obtain views from identifiers.
 		this.header = viewGroup.findViewById(R.id.titanium_ui_tableview_holder_header);
@@ -198,18 +129,6 @@ public class TableViewHolder extends RecyclerView.ViewHolder
 	}
 
 	/**
-	 * Get current proxy assigned to holder.
-	 * @return TiViewProxy
-	 */
-	public TiViewProxy getProxy()
-	{
-		if (this.proxy != null) {
-			return this.proxy.get();
-		}
-		return null;
-	}
-
-	/**
 	 * Bind proxy to holder.
 	 * @param proxy TableViewRowProxy to bind.
 	 * @param selected Is row selected.
@@ -225,6 +144,7 @@ public class TableViewHolder extends RecyclerView.ViewHolder
 		if (tableViewProxy == null) {
 			return;
 		}
+		final KrollDict tableViewProperties = tableViewProxy.getProperties();
 
 		// Attempt to obtain parent section proxy is available.
 		final TableViewSectionProxy section =
@@ -317,6 +237,16 @@ public class TableViewHolder extends RecyclerView.ViewHolder
 					this.rightImage.setImageDrawable(disclosureDrawable);
 					this.rightImage.setVisibility(View.VISIBLE);
 				}
+			}
+
+			// Display drag drawable when row is movable.
+			final boolean isEditing = tableViewProperties.optBoolean(TiC.PROPERTY_EDITING, false);
+			final boolean isMoving = tableViewProperties.optBoolean(TiC.PROPERTY_MOVING, false);
+			final boolean isMovable = properties.optBoolean(TiC.PROPERTY_MOVABLE,
+				tableViewProperties.optBoolean(TiC.PROPERTY_MOVABLE, false));
+			if ((isEditing || isMoving) && isMovable) {
+				this.rightImage.setImageDrawable(dragDrawable);
+				this.rightImage.setVisibility(View.VISIBLE);
 			}
 
 			// Include row content.

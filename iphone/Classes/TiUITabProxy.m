@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2014 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2021 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -10,6 +10,7 @@
 #import "TiUITabGroup.h"
 #import "TiUITabGroupProxy.h"
 #import <TitaniumKit/ImageLoader.h>
+#import <TitaniumKit/KrollPromise.h>
 #import <TitaniumKit/TiApp.h>
 #import <TitaniumKit/TiBlob.h>
 #import <TitaniumKit/TiProxy.h>
@@ -128,21 +129,27 @@
     return;
   }
 
+  KrollPromise *promise = [args objectAtIndex:2];
   @try {
     TiWindowProxy *window = [args objectAtIndex:0];
 
     // Prevent UIKit  crashes when trying to push a window while it's already in the nav stack (e.g. on really slow devices)
     if ([[[self rootController].navigationController viewControllers] containsObject:window.hostingController]) {
       NSLog(@"[WARN] Trying to push a view controller that is already in the navigation window controller stack. Skipping open …");
+      [promise rejectWithErrorMessage:@"Trying to push a view controller that is already in the navigation window controller stack. Skipping open …"];
       return;
     }
 
-    BOOL animated = ([args count] > 1) ? [TiUtils boolValue:@"animated" properties:[args objectAtIndex:1] def:YES] : YES;
+    BOOL animated = [[args objectAtIndex:1] boolValue];
     [controllerStack addObject:[window hostingController]];
 
     [[[self rootController] navigationController] pushViewController:[window hostingController] animated:animated];
+    [promise resolve:@[]];
   } @catch (NSException *ex) {
     NSLog(@"[ERROR] %@", ex.description);
+    if (promise != nil) {
+      [promise rejectWithErrorMessage:ex.description];
+    }
   }
 }
 
@@ -153,13 +160,16 @@
     return;
   }
   TiWindowProxy *window = [args objectAtIndex:0];
+  KrollPromise *promise = [args objectAtIndex:2];
+  BOOL animated = [[args objectAtIndex:1] boolValue];
 
   if (window == current) {
-    BOOL animated = ([args count] > 1) ? [TiUtils boolValue:@"animated" properties:[args objectAtIndex:1] def:YES] : YES;
     [[[self rootController] navigationController] popViewControllerAnimated:animated];
   } else {
+    // FIXME: how can we forward the underlying promise returned under closeWindowProxy ([window close:])?
     [self closeWindowProxy:window animated:NO];
   }
+  [promise resolve:@[]]; // This isn't exactly right, we're always assuming success here. See above...
 }
 
 #pragma mark - Internal API
@@ -211,7 +221,7 @@
   // for this to work right, we need to sure that we always have the tab close the window
   // and not let the window simply close by itself. this will ensure that we tell the
   // tab that we're doing that
-  [window close:nil];
+  [[window close:nil] flush]; // FIXME: How can we take the returned Promise and basically forward it's reject/resolve along?
   RELEASE_TO_NIL_AUTORELEASE(window);
   RELEASE_TO_NIL(windowController);
 }
@@ -267,10 +277,10 @@
   return tabGroup;
 }
 
-- (void)openWindow:(NSArray *)args
+- (KrollPromise *)openWindow:(NSArray *)args
 {
   TiWindowProxy *window = [args objectAtIndex:0];
-  ENSURE_TYPE(window, TiWindowProxy);
+  ENSURE_TYPE(window, TiWindowProxy); // FIXME: Should we catch and return a rejected Promise? Or throw sync like this?
 
   [window processForSafeArea];
 
@@ -288,46 +298,58 @@
     if (args != nil) {
       args = [NSArray arrayWithObject:args];
     }
-    [window open:args];
+    KrollPromise *promise = [window open:args];
 
     TiUIView *view = [window view];
     TiViewController *controller = (TiViewController *)[window hostingController];
     [view setFrame:controller.view.bounds];
-    return;
+    return promise;
   }
 
   [[[TiApp app] controller] dismissKeyboard];
+
+  // We need to generate a promise for the given window and store it so openOnUIThread can grab it
+  JSContext *context = [self currentContext];
+  KrollPromise *promise = [[[KrollPromise alloc] initInContext:context] autorelease];
+  BOOL animated = ([args count] > 1) ? [TiUtils boolValue:@"animated" properties:[args objectAtIndex:1] def:YES] : YES;
   TiThreadPerformOnMainThread(
       ^{
-        [self openOnUIThread:args];
+        [self openOnUIThread:@[ window, [NSNumber numberWithBool:animated], promise ]];
       },
       YES);
+  return promise;
 }
 
-- (void)closeWindow:(NSArray *)args
+- (KrollPromise *)closeWindow:(NSArray *)args
 {
   TiWindowProxy *window = [args objectAtIndex:0];
-  ENSURE_TYPE(window, TiWindowProxy);
+  ENSURE_TYPE(window, TiWindowProxy); // FIXME: Should we catch and return a rejected Promise? Or throw sync like this?
+
+  JSContext *context = [self currentContext];
 
   if (window == rootWindow && ![[TiApp app] willTerminate]) {
     DebugLog(@"[ERROR] Can not close root window of the tab. Use removeTab instead");
-    return;
+    return [KrollPromise rejectedWithErrorMessage:@"Can not close root window of the tab. Use removeTab instead" inContext:context];
   }
+
+  KrollPromise *promise = [[[KrollPromise alloc] initInContext:context] autorelease];
+  BOOL animated = ([args count] > 1) ? [TiUtils boolValue:@"animated" properties:[args objectAtIndex:1] def:YES] : YES;
   TiThreadPerformOnMainThread(
       ^{
-        [self closeOnUIThread:args];
+        [self closeOnUIThread:@[ window, [NSNumber numberWithBool:animated], promise ]];
       },
       YES);
+  return promise;
 }
 
-- (void)open:(NSArray *)args
+- (KrollPromise *)open:(NSArray *)args
 {
-  [self openWindow:args];
+  return [self openWindow:args];
 }
 
-- (void)close:(NSArray *)args
+- (KrollPromise *)close:(NSArray *)args
 {
-  [self closeWindow:args];
+  return [self closeWindow:args];
 }
 
 - (void)windowClosing:(TiWindowProxy *)window animated:(BOOL)animated

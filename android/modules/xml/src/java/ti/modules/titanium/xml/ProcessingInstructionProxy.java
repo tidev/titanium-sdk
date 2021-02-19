@@ -22,21 +22,18 @@ public class ProcessingInstructionProxy extends NodeProxy
 		this.pi = pi;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getData()
 	{
 		return pi.getData();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getTarget()
 	{
 		return pi.getTarget();
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setData(String data) throws DOMException
 	{
