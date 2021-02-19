@@ -97,10 +97,6 @@ public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionLis
 				}
 				break;
 			case UIModule.INPUT_BORDERSTYLE_NONE:
-				textInputLayout = new TextInputLayout(new ContextThemeWrapper(
-					proxy.getActivity(), R.style.Widget_MaterialComponents_TextInputLayout_OutlinedBox));
-				textInputLayout.setBoxBackgroundMode(TextInputLayout.BOX_BACKGROUND_NONE);
-				break;
 			case UIModule.INPUT_BORDERSTYLE_UNDERLINED:
 				textInputLayout = new TextInputLayout(proxy.getActivity());
 				textInputLayout.setBoxBackgroundMode(TextInputLayout.BOX_BACKGROUND_NONE);
@@ -112,10 +108,13 @@ public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionLis
 				break;
 		}
 
-		if (borderStyle != UIModule.INPUT_BORDERSTYLE_UNDERLINED) {
+		if (textInputLayout.getBoxBackgroundMode() != TextInputLayout.BOX_BACKGROUND_NONE) {
 			this.tv = new TiUIEditText(textInputLayout.getContext());
 		} else {
 			this.tv = new TiUIEditText(proxy.getActivity());
+			if (borderStyle == UIModule.INPUT_BORDERSTYLE_NONE) {
+				this.tv.setBackground(null);
+			}
 		}
 		this.hintTextPadding = this.tv.getPaddingTop();
 		this.inputFilterHandler = new InputFilterHandler(this.tv);
