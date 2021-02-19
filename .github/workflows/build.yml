@@ -23,9 +23,9 @@ jobs:
       uses: actions/cache@v2
       with:
         path: node_modules
-        key: ${{ runner.OS }}-node-${{ hashFiles('package-lock.json') }}
+        key: ${{ runner.OS }}-node-modules-${{ hashFiles('package-lock.json') }}
         restore-keys: |
-          ${{ runner.OS }}-node-
+          ${{ runner.OS }}-node-modules-
           ${{ runner.OS }}-
 
     - run: npm ci
@@ -68,9 +68,9 @@ jobs:
       uses: actions/cache@v2
       with:
         path: node_modules
-        key: ${{ runner.OS }}-node-${{ hashFiles('package-lock.json') }}
+        key: ${{ runner.OS }}-node-modules-${{ hashFiles('package-lock.json') }}
         restore-keys: |
-          ${{ runner.OS }}-node-
+          ${{ runner.OS }}-node-modules-
           ${{ runner.OS }}-
 
     - run: npm ci
@@ -140,9 +140,9 @@ jobs:
       uses: actions/cache@v2
       with:
         path: node_modules
-        key: ${{ runner.OS }}-node-${{ hashFiles('package-lock.json') }}
+        key: ${{ runner.OS }}-node-modules-${{ hashFiles('package-lock.json') }}
         restore-keys: |
-          ${{ runner.OS }}-node-
+          ${{ runner.OS }}-node-modules-
           ${{ runner.OS }}-
 
     - run: npm ci
