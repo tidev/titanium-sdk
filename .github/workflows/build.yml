@@ -38,12 +38,24 @@ jobs:
       name: Build
     - run: npm run package -- --all
       name: Package
-    - name: Archive production artifacts
+    - name: Archive OSX artifact
       uses: actions/upload-artifact@v2
       with:
-        name: sdk-zipfiles
+        name: mobilesdk-osx.zip
         path: |
-          dist/mobilesdk-*-*.zip
+          dist/mobilesdk-*-osx.zip
+    - name: Archive win32 artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: mobilesdk-win32.zip
+        path: |
+          dist/mobilesdk-*-win32.zip
+    # - name: Archive Linux artifact
+    #   uses: actions/upload-artifact@v2
+    #   with:
+    #     name: mobilesdk-linux.zip
+    #     path: |
+    #       dist/mobilesdk-*-linux.zip
 
   js:
     runs-on: ubuntu-latest
