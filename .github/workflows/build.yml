@@ -12,10 +12,12 @@ jobs:
     name: Android
     steps:
     - uses: actions/checkout@v2
+
     - name: Use Node.js 12.x
       uses: actions/setup-node@v1
       with:
         node-version: '12.x'
+
     - name: Cache Node.js modules
       uses: actions/cache@v2
       with:
@@ -25,20 +27,41 @@ jobs:
         restore-keys: |
           ${{ runner.OS }}-node-
           ${{ runner.OS }}-
+
     - run: npm ci
       name: Install dependencies
+
+    - name: Cache Gradle packages
+      uses: actions/cache@v2
+      with:
+        path: |
+          ~/.gradle/caches
+          ~/.gradle/wrapper
+        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+        restore-keys: |
+          ${{ runner.os }}-gradle-
+
     - run: npm run lint:android
       name: Lint
+
+    - name: Cleanup Gradle Cache
+      # Remove some files from the Gradle cache, so they aren't cached by GitHub Actions.
+      # Restoring these files from a GitHub Actions cache might cause problems for future builds.
+      run: |
+        rm -f ~/.gradle/caches/modules-2/modules-2.lock
+        rm -f ~/.gradle/caches/modules-2/gc.properties
 
   ios:
     runs-on: macos-latest
     name: iOS
     steps:
     - uses: actions/checkout@v2
+
     - name: Use Node.js 12.x
       uses: actions/setup-node@v1
       with:
         node-version: '12.x'
+
     - name: Cache Node.js modules
       uses: actions/cache@v2
       with:
@@ -48,26 +71,43 @@ jobs:
         restore-keys: |
           ${{ runner.OS }}-node-
           ${{ runner.OS }}-
+
     - run: npm ci
       name: Install dependencies
+
+    - name: Cache Gradle packages
+      uses: actions/cache@v2
+      with:
+        path: |
+          ~/.gradle/caches
+          ~/.gradle/wrapper
+        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+        restore-keys: |
+          ${{ runner.os }}-gradle-
+
     - run: npm run lint:ios
       name: Lint
+
     - run: npm run build -- --all
       name: Build
+
     - run: npm run package -- --all
       name: Package
+
     - name: Archive OSX artifact
       uses: actions/upload-artifact@v2
       with:
         name: mobilesdk-osx.zip
         path: |
           dist/mobilesdk-*-osx.zip
+
     - name: Archive win32 artifact
       uses: actions/upload-artifact@v2
       with:
         name: mobilesdk-win32.zip
         path: |
           dist/mobilesdk-*-win32.zip
+
     # - name: Archive Linux artifact
     #   uses: actions/upload-artifact@v2
     #   with:
@@ -75,15 +115,24 @@ jobs:
     #     path: |
     #       dist/mobilesdk-*-linux.zip
 
+    - name: Cleanup Gradle Cache
+      # Remove some files from the Gradle cache, so they aren't cached by GitHub Actions.
+      # Restoring these files from a GitHub Actions cache might cause problems for future builds.
+      run: |
+        rm -f ~/.gradle/caches/modules-2/modules-2.lock
+        rm -f ~/.gradle/caches/modules-2/gc.properties
+
   js:
     runs-on: ubuntu-latest
     name: JavaScript
     steps:
     - uses: actions/checkout@v2
+
     - name: Use Node.js 12.x
       uses: actions/setup-node@v1
       with:
         node-version: '12.x'
+
     - name: Cache Node.js modules
       uses: actions/cache@v2
       with:
@@ -93,7 +142,9 @@ jobs:
         restore-keys: |
           ${{ runner.OS }}-node-
           ${{ runner.OS }}-
+
     - run: npm ci
       name: Install dependencies
+
     - run: npm run lint:js
       name: Lint
