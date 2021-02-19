@@ -1,9 +1,15 @@
 name: Build
 on: [push, pull_request]
+# TODO: Can we split things up in a more intutive way?
+# i.e. an "Android" job which does the android/java linting and build
+# an iOS job which does the swift/ios linting and build
+# a JS/CLI job which does the js linting (and cli tests?)
+# a packaging job which generates the combined SDK from ios/Android?
+
 jobs:
-  build:
-    runs-on: macos-latest
-    name: Build
+  android:
+    runs-on: ubuntu-latest
+    name: Android
     steps:
     - uses: actions/checkout@v2
     - name: Use Node.js 12.x
@@ -11,4 +17,38 @@ jobs:
       with:
         node-version: '12.x'
     - run: npm ci
-    - run: npm test
+      name: Install dependencies
+    - run: npm run lint:android
+      name: Lint
+
+  ios:
+    runs-on: macos-latest
+    name: iOS
+    steps:
+    - uses: actions/checkout@v2
+    - name: Use Node.js 12.x
+      uses: actions/setup-node@v1
+      with:
+        node-version: '12.x'
+    - run: npm ci
+      name: Install dependencies
+    - run: npm run lint:ios
+      name: Lint
+    - run: npm run build --all
+      name: Build
+    - run: npm run package --all
+      name: Package
+
+  js:
+    runs-on: ubuntu-latest
+    name: JavaScript
+    steps:
+    - uses: actions/checkout@v2
+    - name: Use Node.js 12.x
+      uses: actions/setup-node@v1
+      with:
+        node-version: '12.x'
+    - run: npm ci
+      name: Install dependencies
+    - run: npm run lint:js
+      name: Lint
