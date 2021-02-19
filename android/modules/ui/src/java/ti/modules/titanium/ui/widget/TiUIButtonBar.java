@@ -6,8 +6,10 @@
  */
 package ti.modules.titanium.ui.widget;
 
+import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.view.View;
+import androidx.appcompat.view.ContextThemeWrapper;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.button.MaterialButtonToggleGroup;
 import java.util.HashMap;
@@ -106,7 +108,7 @@ public class TiUIButtonBar extends TiUIView
 		if (objectArray[0] instanceof String) {
 			// We were given an array of button titles.
 			for (Object title : objectArray) {
-				addButton(TiConvert.toString(title, ""), null);
+				addButton(TiConvert.toString(title, ""), null, null, true);
 			}
 		} else if (objectArray[0] instanceof HashMap) {
 			// We were given an array of Titanium "BarItemType" dictionaries.
@@ -120,6 +122,9 @@ public class TiUIButtonBar extends TiUIView
 				// Fetch the optional "title" property.
 				String title = TiConvert.toString(hashMap.get(TiC.PROPERTY_TITLE), "");
 
+				// Fetch the optional "accessibilityLabel" property.
+				String accessibilityLabel = TiConvert.toString(hashMap.get(TiC.PROPERTY_ACCESSIBILITY_LABEL), null);
+
 				// Fetch the optional "image" property and load it as a drawable.
 				Drawable imageDrawable = null;
 				Object imageObject = hashMap.get(TiC.PROPERTY_IMAGE);
@@ -127,13 +132,16 @@ public class TiUIButtonBar extends TiUIView
 					imageDrawable = TiUIHelper.getResourceDrawable(imageObject);
 				}
 
+				// Fetch the optional "enabled" flag.
+				boolean isEnabled = TiConvert.toBoolean(hashMap.get(TiC.PROPERTY_ENABLED), true);
+
 				// Add the button.
-				addButton(title, imageDrawable);
+				addButton(title, accessibilityLabel, imageDrawable, isEnabled);
 			}
 		}
 	}
 
-	private void addButton(String title, Drawable imageDrawable)
+	private void addButton(String title, String accessibilityLabel, Drawable imageDrawable, boolean isEnabled)
 	{
 		// Fetch the button group view.
 		MaterialButtonToggleGroup buttonGroup = getButtonGroup();
@@ -147,18 +155,23 @@ public class TiUIButtonBar extends TiUIView
 		}
 
 		// Create a button with given settings and add it to view group.
-		MaterialButton button = new MaterialButton(buttonGroup.getContext(), null, R.attr.materialButtonOutlinedStyle);
+		Context context = buttonGroup.getContext();
+		int attributeId = R.attr.materialButtonOutlinedStyle;
+		if (title.isEmpty() && (imageDrawable != null)) {
+			context = new ContextThemeWrapper(context, R.style.Widget_Titanium_OutlinedButton_IconOnly);
+			attributeId = R.attr.materialButtonToggleGroupStyle;
+		}
+		MaterialButton button = new MaterialButton(context, null, attributeId);
 		button.setText(title);
+		if ((accessibilityLabel != null) && !accessibilityLabel.isEmpty()) {
+			button.setContentDescription(accessibilityLabel);
+		}
 		if (imageDrawable != null) {
 			button.setIcon(imageDrawable);
-			if (title.isEmpty()) {
-				button.setIconGravity(MaterialButton.ICON_GRAVITY_TEXT_START);
-				button.setIconPadding(0);
-				button.setPadding(0, 0, 0, 0);
-			}
 		}
 		buttonGroup.addView(button);
 		button.setCheckable(false);
+		button.setEnabled(isEnabled);
 		button.setOnClickListener((view) -> {
 			if (this.proxy == null) {
 				return;
