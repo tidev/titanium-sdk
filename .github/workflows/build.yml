@@ -1,0 +1,20 @@
+name: Build
+on:
+  push:
+    branches:    
+    - 'master'
+    - '[0-9]+_[0-9]_[0-9]'
+  pull_request:
+    branches: [ $default-branch ]
+jobs:
+  build:
+    runs-on: macos-latest
+    name: Build
+    steps:
+    - uses: actions/checkout@v2
+    - name: Use Node.js 12.x
+      uses: actions/setup-node@v1
+      with:
+        node-version: '12.x'
+    - run: npm ci
+    - run: npm test
