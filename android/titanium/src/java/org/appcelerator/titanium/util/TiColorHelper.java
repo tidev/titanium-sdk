@@ -22,6 +22,7 @@ import android.graphics.Color;
 import android.util.TypedValue;
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 
 /**
  * This class contain utility methods that converts a String color, like "red", into its corresponding RGB/RGBA representation.
@@ -147,12 +148,16 @@ public class TiColorHelper
 
 	public static boolean hasColorResource(String colorName)
 	{
-		TypedValue typedValue = TiColorHelper.getColorResourceTypedValue(colorName);
-		return TiColorHelper.isColor(typedValue);
+		try {
+			TypedValue typedValue = TiColorHelper.getColorResourceTypedValue(colorName);
+			return TiColorHelper.isColor(typedValue);
+		} catch (Exception ex) {
+		}
+		return false;
 	}
 
 	@NonNull
-	public static TypedValue getColorResourceTypedValue(String colorName)
+	public static TypedValue getColorResourceTypedValue(String colorName) throws Resources.NotFoundException
 	{
 		TypedValue typedValue = new TypedValue();
 
@@ -183,21 +188,24 @@ public class TiColorHelper
 
 		// Fetch the resource's type data.
 		if (resourceId != 0) {
-			try {
-				if (colorName.contains("attr/")) {
-					context.getTheme().resolveAttribute(resourceId, typedValue, true);
-				} else {
-					resources.getValue(resourceId, typedValue, true);
+			if (colorName.contains("attr/")) {
+				// Resource is an attribute such as "?attr/colorPrimary".
+				context.getTheme().resolveAttribute(resourceId, typedValue, true);
+			} else {
+				// Might be a color resource such as "@android:color/white".
+				resources.getValue(resourceId, typedValue, true);
+				if (!TiColorHelper.isColor(typedValue)) {
+					// Not a color resource. Might be a ColorStateList such as "@android:color/primary_text_light".
+					// Try to fetch complex resource's default color and set up the type value ourselves.
+					typedValue.data = ContextCompat.getColor(context, resourceId);
+					typedValue.type = TypedValue.TYPE_INT_COLOR_ARGB8;
 				}
-			} catch (Exception ex) {
-				Log.e(TAG, "Failed to fetch color resource's TypedValue.", ex);
 			}
 		}
 		return typedValue;
 	}
 
-	public static @ColorInt int getColorResource(String colorName)
-		throws TiRHelper.ResourceNotFoundException, Resources.NotFoundException
+	public static @ColorInt int getColorResource(String colorName) throws Resources.NotFoundException
 	{
 		TypedValue typedValue = TiColorHelper.getColorResourceTypedValue(colorName);
 		if (TiColorHelper.isColor(typedValue)) {
