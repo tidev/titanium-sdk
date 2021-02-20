@@ -15,11 +15,13 @@ import java.util.regex.Pattern;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
 
+import android.content.Context;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.Color;
+import android.util.TypedValue;
 import androidx.annotation.ColorInt;
-import androidx.core.content.ContextCompat;
+import androidx.annotation.NonNull;
 
 /**
  * This class contain utility methods that converts a String color, like "red", into its corresponding RGB/RGBA representation.
@@ -145,27 +147,74 @@ public class TiColorHelper
 
 	public static boolean hasColorResource(String colorName)
 	{
-		return getColorResourceId(colorName) != 0;
+		TypedValue typedValue = TiColorHelper.getColorResourceTypedValue(colorName);
+		return TiColorHelper.isColor(typedValue);
 	}
 
-	public static int getColorResourceId(String colorName)
+	@NonNull
+	public static TypedValue getColorResourceTypedValue(String colorName)
 	{
-		// First check if color resource is defined in app or its libraries.
-		// If not found, then check if it's an Android OS system resource.
-		TiApplication app = TiApplication.getInstance();
-		Resources resources = app.getResources();
-		int colorId = resources.getIdentifier(colorName, "color", app.getPackageName());
-		if (colorId == 0) {
-			colorId = resources.getIdentifier(colorName, "color", "android");
+		TypedValue typedValue = new TypedValue();
+
+		// Validate argument.
+		if ((colorName == null) || colorName.isEmpty()) {
+			return typedValue;
 		}
-		return colorId;
+
+		// Resource ID starting with '?' (instead of '@') should favor current activity theme.
+		// Note: Resources.getIdentifier() won't accept leading '?'. We must replace it.
+		TiApplication app = TiApplication.getInstance();
+		Context context = app;
+		if (colorName.startsWith("?")) {
+			colorName = "@" + colorName.substring(1);
+			Context activity = app.getCurrentActivity();
+			if (activity != null) {
+				context = activity;
+			}
+		}
+
+		// First check if resource name is defined in app or its libraries.
+		// If not found, then check if it's an Android OS system resource.
+		Resources resources = context.getResources();
+		int resourceId = resources.getIdentifier(colorName, "color", app.getPackageName());
+		if (resourceId == 0) {
+			resourceId = resources.getIdentifier(colorName, "color", "android");
+		}
+
+		// Fetch the resource's type data.
+		if (resourceId != 0) {
+			try {
+				if (colorName.contains("attr/")) {
+					context.getTheme().resolveAttribute(resourceId, typedValue, true);
+				} else {
+					resources.getValue(resourceId, typedValue, true);
+				}
+			} catch (Exception ex) {
+				Log.e(TAG, "Failed to fetch color resource's TypedValue.", ex);
+			}
+		}
+		return typedValue;
 	}
 
 	public static @ColorInt int getColorResource(String colorName)
 		throws TiRHelper.ResourceNotFoundException, Resources.NotFoundException
 	{
-		int colorResId = getColorResourceId(colorName);
-		return ContextCompat.getColor(TiApplication.getInstance(), colorResId);
+		TypedValue typedValue = TiColorHelper.getColorResourceTypedValue(colorName);
+		if (TiColorHelper.isColor(typedValue)) {
+			return typedValue.data;
+		}
+		return 0;
+	}
+
+	public static boolean isColor(TypedValue typedValue)
+	{
+		if (typedValue != null) {
+			int type = typedValue.type;
+			if ((type >= TypedValue.TYPE_FIRST_COLOR_INT) && (type <= TypedValue.TYPE_LAST_COLOR_INT)) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	private static void buildColorTable()
