@@ -157,6 +157,10 @@ public class TiUICardView extends TiUIView
 			cardview.setCardBackgroundColor(TiConvert.toColor(d, TiC.PROPERTY_BACKGROUND_COLOR));
 		}
 
+		if (d.containsKey(TiC.PROPERTY_BORDER_COLOR)) {
+			cardview.setStrokeColor(TiConvert.toColor(d, TiC.PROPERTY_BORDER_COLOR));
+		}
+
 		if (d.containsKey(TiC.PROPERTY_BORDER_RADIUS)) {
 			float radius = 0;
 			TiDimension radiusDim = TiConvert.toTiDimension(d.get(TiC.PROPERTY_BORDER_RADIUS), TiDimension.TYPE_WIDTH);
@@ -164,6 +168,12 @@ public class TiUICardView extends TiUIView
 				radius = (float) radiusDim.getPixels(cardview);
 			}
 			cardview.setRadius(radius);
+		}
+
+		if (d.containsKey(TiC.PROPERTY_BORDER_WIDTH)) {
+			TiDimension tiDimension =
+				TiConvert.toTiDimension(TiConvert.toString(d.get(TiC.PROPERTY_BORDER_WIDTH)), TiDimension.TYPE_WIDTH);
+			cardview.setStrokeWidth(tiDimension.getAsPixels(cardview));
 		}
 
 		if (d.containsKey(TiC.PROPERTY_USE_COMPAT_PADDING)) {
@@ -273,6 +283,8 @@ public class TiUICardView extends TiUIView
 		if (key.equals(TiC.PROPERTY_BACKGROUND_COLOR)) {
 			cardview.setCardBackgroundColor(TiConvert.toColor(TiConvert.toString(newValue)));
 			cardview.requestLayout();
+		} else if (key.equals(TiC.PROPERTY_BORDER_COLOR)) {
+			cardview.setStrokeColor(TiConvert.toColor(TiConvert.toString(newValue)));
 		} else if (key.equals(TiC.PROPERTY_BORDER_RADIUS)) {
 			float radius = 0;
 			TiDimension radiusDim = TiConvert.toTiDimension(newValue, TiDimension.TYPE_WIDTH);
@@ -281,6 +293,9 @@ public class TiUICardView extends TiUIView
 			}
 			cardview.setRadius(radius);
 			cardview.requestLayout();
+		} else if (key.equals(TiC.PROPERTY_BORDER_WIDTH)) {
+			TiDimension tiDimension = TiConvert.toTiDimension(TiConvert.toString(newValue), TiDimension.TYPE_WIDTH);
+			cardview.setStrokeWidth(tiDimension.getAsPixels(cardview));
 		} else if (key.equals(TiC.PROPERTY_ELEVATION)) {
 			cardview.setCardElevation(TiConvert.toFloat(newValue));
 			cardview.requestLayout();
@@ -367,6 +382,8 @@ public class TiUICardView extends TiUIView
 	@Override
 	protected boolean hasBorder(KrollDict d)
 	{
+		// This prevents "TiUIView" class from handling the border.
+		// We apply border properties to CardView ourselves via its stroke methods.
 		return false;
 	}
 }
