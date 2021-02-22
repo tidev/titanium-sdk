@@ -45,6 +45,14 @@ jobs:
     - run: npm run lint:android
       name: Lint
 
+# TODO: Build the android half here and stash/upload the built stuff:
+# - dist/android/titanium.bindings.json
+# - android/titanium/build/outputs
+# - android/runtime/v8/generated
+# - dist/android/libv8
+#  Or do we run build *and* publish and then copy over the resulting stuff from each platform and piece them together?
+# Because I assume there's some intermediate files from gradle/cmake/ndk that'd be missing to separet the build/publish halves
+
     - name: Cleanup Gradle Cache
       # Remove some files from the Gradle cache, so they aren't cached by GitHub Actions.
       # Restoring these files from a GitHub Actions cache might cause problems for future builds.
@@ -84,6 +92,8 @@ jobs:
       name: Install dependencies
       if: steps.node-cache.outputs.cache-hit != 'true'
 
+# TODO: Cache the v8 library for android builds? dist/android/libv8/**
+
     - name: Cache Gradle packages
       uses: actions/cache@v2
       with:
@@ -97,8 +107,15 @@ jobs:
     - run: npm run lint:ios
       name: Lint
 
+    - name: Install packages for macOS
+      if: matrix.os == 'macos-latest'
+      run: brew install ccache
+
     - run: npm run build -- --all
       name: Build
+
+    - name: Show summary of ccache configuration and statistics counters
+      run: ccache --show-stats
 
     - run: npm run package -- --version-tag ${{ env.vtag }} --all
       name: Package
