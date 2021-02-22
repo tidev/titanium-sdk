@@ -190,7 +190,6 @@ public class ScrollableViewProxy extends TiViewProxy
 		return handled;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public Object getViews()
 	{
@@ -202,7 +201,6 @@ public class ScrollableViewProxy extends TiViewProxy
 		return childViewArray;
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setViews(Object viewsObject)
 	{
@@ -317,14 +315,12 @@ public class ScrollableViewProxy extends TiViewProxy
 		}
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setScrollingEnabled(Object enabled)
 	{
 		getMainHandler().obtainMessage(MSG_SET_ENABLED, enabled).sendToTarget();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public boolean getScrollingEnabled()
 	{
@@ -332,7 +328,6 @@ public class ScrollableViewProxy extends TiViewProxy
 		return (view != null) ? view.getEnabled() : false;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public int getCurrentPage()
 	{
@@ -340,7 +335,6 @@ public class ScrollableViewProxy extends TiViewProxy
 		return (view != null) ? view.getCurrentPage() : 0;
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setCurrentPage(Object page)
 	{

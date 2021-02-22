@@ -139,35 +139,30 @@ public class FilesystemModule extends KrollModule
 		});
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public FileProxy getApplicationDirectory()
 	{
 		return null;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getApplicationDataDirectory()
 	{
 		return TiFileFactory.APPDATA_PRIVATE_URL_SCHEME + "://";
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getResRawDirectory()
 	{
 		return "android.resource://" + TiApplication.getInstance().getPackageName() + "/raw/";
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getApplicationCacheDirectory()
 	{
 		return "file://" + TiApplication.getInstance().getCacheDir().getAbsolutePath();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getResourcesDirectory()
 	{
@@ -180,28 +175,24 @@ public class FilesystemModule extends KrollModule
 		return TiFileFactory.APPCACHE_EXTERNAL_URL_SCHEME + "://";
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getExternalStorageDirectory()
 	{
 		return TiFileFactory.APPDATA_URL_SCHEME + "://";
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getTempDirectory()
 	{
 		return "file://" + TiApplication.getInstance().getTiTempDir().getAbsolutePath();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getSeparator()
 	{
 		return File.separator;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getLineEnding()
 	{

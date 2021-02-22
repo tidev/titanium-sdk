@@ -122,7 +122,6 @@ public class PickerColumnProxy extends TiViewProxy implements PickerRowListener
 		}
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public PickerRowProxy[] getRows()
 	{
@@ -132,7 +131,6 @@ public class PickerColumnProxy extends TiViewProxy implements PickerRowListener
 		return children.toArray(new PickerRowProxy[children.size()]);
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setRows(Object[] rows)
 	{
@@ -153,7 +151,6 @@ public class PickerColumnProxy extends TiViewProxy implements PickerRowListener
 		}
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public int getRowCount()
 	{

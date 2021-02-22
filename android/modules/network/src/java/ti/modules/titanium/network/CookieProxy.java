@@ -156,7 +156,6 @@ public class CookieProxy extends KrollProxy
 		return httpCookie;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getName()
 	{
