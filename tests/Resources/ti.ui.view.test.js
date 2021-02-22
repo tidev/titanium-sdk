@@ -4,7 +4,7 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-/* global OS_ANDROID */
+/* global OS_ANDROID, OS_VERSION_MAJOR */
 /* eslint-env mocha */
 /* eslint no-unused-expressions: "off" */
 'use strict';
@@ -1009,8 +1009,8 @@ describe('Titanium.UI.View', function () {
 			win = Ti.UI.createWindow({ backgroundColor: 'blue' });
 		});
 
-		// FIXME: Does not honour scale correctly on macOS.
-		if (isCI && utilities.isMacOS()) {
+		// FIXME: Does not honour scale correctly on macOS: https://jira.appcelerator.org/browse/TIMOB-28261
+		if (isCI && utilities.isMacOS() && OS_VERSION_MAJOR < 11) {
 			return;
 		}
 
@@ -1322,9 +1322,11 @@ describe('Titanium.UI.View', function () {
 	});
 
 	it('rgba fallback', finish => {
-		if (isCI && utilities.isMacOS()) { // some of the CI mac nodes lie about their scale, which makes the image comparison fail
+		// FIXME: Does not honour scale correctly on macOS: https://jira.appcelerator.org/browse/TIMOB-28261
+		if (isCI && utilities.isMacOS() && OS_VERSION_MAJOR < 11) {
 			return finish(); // FIXME: skip when we move to official mocha package
 		}
+
 		win = Ti.UI.createWindow({ backgroundColor: '#fff' });
 		const rgbaView = Ti.UI.createView({
 			width: 100,

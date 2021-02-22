@@ -123,49 +123,42 @@ public class AlertProxy extends KrollProxy
 
 	protected static final String EVENT_REMINDER_ACTION = "android.intent.action.EVENT_REMINDER";
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getId()
 	{
 		return id;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getEventId()
 	{
 		return eventId;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public Date getBegin()
 	{
 		return begin;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public Date getEnd()
 	{
 		return end;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public Date getAlarmTime()
 	{
 		return alarmTime;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public int getState()
 	{
 		return state;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public int getMinutes()
 	{

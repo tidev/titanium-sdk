@@ -174,7 +174,6 @@ public class NetworkModule extends KrollModule
 		}
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public boolean getOnline()
 	{
@@ -213,7 +212,6 @@ public class NetworkModule extends KrollModule
 		return type;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public int getNetworkType()
 	{
@@ -237,7 +235,6 @@ public class NetworkModule extends KrollModule
 		return type;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getNetworkTypeName()
 	{

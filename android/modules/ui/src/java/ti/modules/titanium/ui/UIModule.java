@@ -244,6 +244,8 @@ public class UIModule extends KrollModule
 	@Kroll.constant
 	public static final String TEXT_ALIGNMENT_RIGHT = "right";
 	@Kroll.constant
+	public static final String TEXT_ALIGNMENT_JUSTIFY = "justify";
+	@Kroll.constant
 	public static final String TEXT_VERTICAL_ALIGNMENT_BOTTOM = "bottom";
 	@Kroll.constant
 	public static final String TEXT_VERTICAL_ALIGNMENT_CENTER = "middle";
@@ -414,7 +416,6 @@ public class UIModule extends KrollModule
 	}
 
 	@Kroll.setProperty(runOnUiThread = true)
-	@Kroll.method(runOnUiThread = true)
 	public void setBackgroundColor(String color)
 	{
 		doSetBackgroundColor(color);
@@ -429,7 +430,6 @@ public class UIModule extends KrollModule
 	}
 
 	@Kroll.setProperty(runOnUiThread = true)
-	@Kroll.method(runOnUiThread = true)
 	public void setBackgroundImage(Object image)
 	{
 		doSetBackgroundImage(image);

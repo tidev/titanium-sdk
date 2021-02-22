@@ -46,12 +46,12 @@ describe('Titanium.UI.Label', function () {
 			should(label.maxLines).eql(1);
 		});
 
-		it('has accessors', () => {
+		it('has no accessors', () => {
 			const label = Ti.UI.createLabel({
 				text: 'This is a label with propably more than three lines of text. The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog.',
 				maxLines: 2
 			});
-			should(label).have.accessors('maxLines');
+			should(label).not.have.accessors('maxLines');
 		});
 
 		// Tests if "maxLines" correctly truncates strings with '\n' characters.
@@ -99,11 +99,11 @@ describe('Titanium.UI.Label', function () {
 			should(label.text).eql('other text');
 		});
 
-		it('has accessors', () => {
+		it('has no accessors', () => {
 			const label = Ti.UI.createLabel({
 				text: 'this is some text'
 			});
-			should(label).have.accessors('text');
+			should(label).not.have.accessors('text');
 		});
 	});
 
@@ -120,11 +120,11 @@ describe('Titanium.UI.Label', function () {
 			should(label.text).eql('this is my value'); // Windows issue
 		});
 
-		it('has accessors', () => {
+		it('has no accessors', () => {
 			const label = Ti.UI.createLabel({
 				textid: 'this_is_my_key'
 			});
-			should(label).have.accessors('textid');
+			should(label).not.have.accessors('textid');
 		});
 	});
 
@@ -144,18 +144,16 @@ describe('Titanium.UI.Label', function () {
 			should(label.textAlign).eql(Ti.UI.TEXT_ALIGNMENT_RIGHT);
 
 			// TIMOB-3408
-			if (utilities.isIOS()) {
-				label.textAlign = Ti.UI.TEXT_ALIGNMENT_JUSTIFY;
-				should(label.textAlign).eql(Ti.UI.TEXT_ALIGNMENT_JUSTIFY);
-			}
+			label.textAlign = Ti.UI.TEXT_ALIGNMENT_JUSTIFY;
+			should(label.textAlign).eql(Ti.UI.TEXT_ALIGNMENT_JUSTIFY);
 		});
 
-		it('has accessors', () => {
+		it('has no accessors', () => {
 			const label = Ti.UI.createLabel({
 				text: 'this is some text',
 				textAlign: Ti.UI.TEXT_ALIGNMENT_CENTER
 			});
-			should(label).have.accessors('textAlign');
+			should(label).not.have.accessors('textAlign');
 		});
 	});
 
@@ -175,12 +173,12 @@ describe('Titanium.UI.Label', function () {
 			should(label.verticalAlign).eql(Ti.UI.TEXT_VERTICAL_ALIGNMENT_TOP);
 		});
 
-		it('has accessors', () => {
+		it('has no accessors', () => {
 			const label = Ti.UI.createLabel({
 				text: 'this is some text',
 				verticalAlign: Ti.UI.TEXT_VERTICAL_ALIGNMENT_BOTTOM
 			});
-			should(label).have.accessors('verticalAlign');
+			should(label).not.have.accessors('verticalAlign');
 		});
 	});
 
@@ -197,11 +195,11 @@ describe('Titanium.UI.Label', function () {
 			should(label.ellipsize).eql(Ti.UI.TEXT_ELLIPSIZE_TRUNCATE_MIDDLE);
 		});
 
-		it('has accessors', () => {
+		it('has no accessors', () => {
 			const label = Ti.UI.createLabel({
 				text: 'this is some text'
 			});
-			should(label).have.accessors('ellipsize');
+			should(label).not.have.accessors('ellipsize');
 		});
 	});
 
@@ -313,7 +311,7 @@ describe('Titanium.UI.Label', function () {
 			should(label.minimumFontSize).eql(22);
 		});
 
-		it('has accessors', () => {
+		it('has no accessors', () => {
 			const label = Ti.UI.createLabel({
 				text: 'this is some text',
 				textAlign: 'left',
@@ -326,7 +324,7 @@ describe('Titanium.UI.Label', function () {
 				minimumFontSize: 28,
 				height: 50
 			});
-			should(label).have.accessors('minimumFontSize');
+			should(label).not.have.accessors('minimumFontSize');
 		});
 	});
 

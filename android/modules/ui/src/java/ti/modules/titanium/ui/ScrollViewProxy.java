@@ -65,14 +65,12 @@ public class ScrollViewProxy extends TiViewProxy
 		handleScrollTo(x, y, animated);
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setScrollingEnabled(Object enabled)
 	{
 		getScrollView().setScrollingEnabled(enabled);
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public boolean getScrollingEnabled()
 	{

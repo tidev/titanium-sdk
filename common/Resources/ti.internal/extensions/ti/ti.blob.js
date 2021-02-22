@@ -35,9 +35,4 @@ if (OS_IOS) {
 			return (value === undefined) ? '[object TiBlob]' :  value;
 		};
 	}
-
-	if (OS_VERSION_MAJOR < 11) {
-		// This is hack to fix TIMOB-27707. Remove it after minimum target set iOS 11+
-		setTimeout(function () {}, Infinity);
-	}
 }

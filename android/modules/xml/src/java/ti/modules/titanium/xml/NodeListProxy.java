@@ -30,7 +30,6 @@ public class NodeListProxy extends KrollProxy
 		this.offset = offset;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public int getLength()
 	{

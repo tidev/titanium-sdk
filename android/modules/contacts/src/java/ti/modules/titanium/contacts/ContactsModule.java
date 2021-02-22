@@ -64,7 +64,6 @@ public class ContactsModule extends KrollModule implements TiActivityResultHandl
 		contactsApi = CommonContactsApi.getInstance();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public int getContactsAuthorization()
 	{

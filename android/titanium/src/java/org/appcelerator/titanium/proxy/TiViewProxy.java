@@ -261,7 +261,6 @@ public abstract class TiViewProxy extends KrollProxy
 		return super.handleMessage(msg);
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public KrollDict getRect()
 	{
@@ -303,7 +302,6 @@ public abstract class TiViewProxy extends KrollProxy
 		return d;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public KrollDict getSize()
 	{
@@ -331,7 +329,6 @@ public abstract class TiViewProxy extends KrollProxy
 		return d;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public Object getWidth()
 	{
@@ -343,13 +340,11 @@ public abstract class TiViewProxy extends KrollProxy
 	}
 
 	@Kroll.setProperty(retain = false)
-	@Kroll.method
 	public void setWidth(Object width)
 	{
 		setPropertyAndFire(TiC.PROPERTY_WIDTH, width);
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public Object getHeight()
 	{
@@ -361,13 +356,11 @@ public abstract class TiViewProxy extends KrollProxy
 	}
 
 	@Kroll.setProperty(retain = false)
-	@Kroll.method
 	public void setHeight(Object height)
 	{
 		setPropertyAndFire(TiC.PROPERTY_HEIGHT, height);
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public Object getCenter()
 	{
@@ -380,7 +373,6 @@ public abstract class TiViewProxy extends KrollProxy
 	}
 
 	@Kroll.setProperty(retain = false)
-	@Kroll.method
 	public void setCenter(Object center)
 	{
 		setPropertyAndFire(TiC.PROPERTY_CENTER, center);
@@ -990,7 +982,6 @@ public abstract class TiViewProxy extends KrollProxy
 	 * @return The parent view proxy of this view proxy.
 	 * @module.api
 	 */
-	@Kroll.method
 	@Kroll.getProperty
 	public TiViewProxy getParent()
 	{
@@ -1000,7 +991,6 @@ public abstract class TiViewProxy extends KrollProxy
 		return this.parent.get();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getBackgroundColor()
 	{
@@ -1033,7 +1023,6 @@ public abstract class TiViewProxy extends KrollProxy
 		return TiUIHelper.getBackgroundColorForState(tiBackgroundDrawable, TiUIHelper.BACKGROUND_DEFAULT_STATE_1);
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getBackgroundSelectedColor()
 	{
@@ -1056,7 +1045,6 @@ public abstract class TiViewProxy extends KrollProxy
 		return TiUIHelper.getBackgroundColorForState(backgroundDrawable, TiUIHelper.BACKGROUND_SELECTED_STATE);
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getBackgroundFocusedColor()
 	{
@@ -1079,7 +1067,6 @@ public abstract class TiViewProxy extends KrollProxy
 		return TiUIHelper.getBackgroundColorForState(backgroundDrawable, TiUIHelper.BACKGROUND_FOCUSED_STATE);
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getBackgroundDisabledColor()
 	{
@@ -1133,7 +1120,6 @@ public abstract class TiViewProxy extends KrollProxy
 	 * @return An array of the children view proxies of this view.
 	 * @module.api
 	 */
-	@Kroll.method
 	@Kroll.getProperty
 	public TiViewProxy[] getChildren()
 	{
@@ -1194,7 +1180,6 @@ public abstract class TiViewProxy extends KrollProxy
 		extend(options);
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public boolean getKeepScreenOn()
 	{
@@ -1231,7 +1216,6 @@ public abstract class TiViewProxy extends KrollProxy
 		return keepScreenOn;
 	}
 
-	@Kroll.method
 	@Kroll.setProperty(retain = false)
 	public void setKeepScreenOn(boolean keepScreenOn)
 	{
