@@ -58,6 +58,13 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
+    - name: Create version tag
+      run: |
+        PACKAGE_VERSION=$(sed -n 's/^ *"version": *"//p' package.json | tr -d '"' | tr -d ',' | tr -d '[[:space:]]')
+        TIMESTAMP=`date +'%Y%m%d%H%M%S'`
+        VTAG="${PACKAGE_VERSION}.v${TIMESTAMP}"
+        echo "vtag=${VTAG}" >> $GITHUB_ENV
+
     - name: Use Node.js 12.x
       uses: actions/setup-node@v1
       with:
@@ -93,7 +100,7 @@ jobs:
     - run: npm run build -- --all
       name: Build
 
-    - run: npm run package -- --all
+    - run: npm run package -- --version-tag ${{ env.vtag }} --all
       name: Package
 
     - name: Archive OSX artifact
