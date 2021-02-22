@@ -121,6 +121,14 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-ccache-
 
+    - name: Cache V8
+      uses: actions/cache@v2
+      with:
+        path: dist/android/libv8
+        key: libv8-${{ hashFiles('dist/android/libv8/**') }}
+        restore-keys: |
+          libv8-
+
     - run: npm run build -- --all
       name: Build
 
