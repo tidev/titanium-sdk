@@ -66,6 +66,7 @@ jobs:
     env:
       CCACHE_DIR: ${{ github.workspace }}/.ccache
       USE_CCACHE: 1
+      SDK_BUILD_CACHE_DIR: ${{ github.workspace }}/.native-modules
     steps:
     - uses: actions/checkout@v2
 
@@ -94,8 +95,6 @@ jobs:
     - run: npm ci
       name: Install dependencies
       if: steps.node-cache.outputs.cache-hit != 'true'
-
-# TODO: Cache the v8 library for android builds? dist/android/libv8/**
 
     - name: Cache Gradle packages
       uses: actions/cache@v2
@@ -134,6 +133,14 @@ jobs:
 
     - name: Show summary of ccache configuration and statistics counters
       run: ccache --show-stats
+
+    - name: Cache Native Modules
+      uses: actions/cache@v2
+      with:
+        path: ${{ env.SDK_BUILD_CACHE_DIR }}
+        key: native-modules-${{ github.sha }}
+        restore-keys: |
+          native-modules-
 
     - run: npm run package -- --version-tag ${{ env.vtag }} --all
       name: Package
