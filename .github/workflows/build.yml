@@ -107,8 +107,7 @@ jobs:
     - run: npm run lint:ios
       name: Lint
 
-    - name: Install packages for macOS
-      if: matrix.os == 'macos-latest'
+    - name: Install ccache
       run: brew install ccache
 
     - run: npm run build -- --all
