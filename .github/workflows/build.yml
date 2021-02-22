@@ -64,9 +64,7 @@ jobs:
     runs-on: macos-latest
     name: iOS
     env:
-      CC: ccache gcc
       CCACHE_DIR: ${{ github.workspace }}/.ccache
-      CXX: ccache g++
       USE_CCACHE: 1
     steps:
     - uses: actions/checkout@v2
