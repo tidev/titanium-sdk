@@ -115,8 +115,8 @@
     "yauzl": "^2.10.0"
   },
   "devDependencies": {
-    "@commitlint/cli": "^11.0.0",
-    "@commitlint/config-conventional": "^11.0.0",
+    "@commitlint/cli": "^12.0.0",
+    "@commitlint/config-conventional": "^12.0.0",
     "@rollup/plugin-babel": "^5.3.0",
     "@rollup/plugin-commonjs": "^17.1.0",
     "@rollup/plugin-node-resolve": "^11.2.0",
@@ -132,7 +132,7 @@
     "conventional-changelog-cli": "^2.1.1",
     "core-js": "^3.9.0",
     "cz-conventional-changelog": "^3.3.0",
-    "danger": "^10.6.2",
+    "danger": "^10.6.3",
     "dateformat": "^4.5.1",
     "eslint": "^7.20.0",
     "eslint-config-axway": "^5.0.0",
@@ -147,7 +147,7 @@
     "npm-run-all": "^4.1.5",
     "nyc": "^15.1.0",
     "request-promise-native": "^1.0.9",
-    "rollup": "^2.39.0",
+    "rollup": "^2.39.1",
     "ssri": "^8.0.1",
     "stream-splitter": "^0.3.2",
     "strip-ansi": "^6.0.0",
