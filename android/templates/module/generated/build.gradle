@@ -39,7 +39,7 @@ if (ndkVersionString == null) {
 android {
 	compileSdkVersion <%- compileSdkVersion %>
 	defaultConfig {
-		minSdkVersion <%- minSdkVersion %>
+		minSdkVersion 19
 		targetSdkVersion <%- compileSdkVersion %>
 		versionName '<%- moduleVersion %>'
 
