@@ -8,6 +8,8 @@ package ti.modules.titanium.ui.widget;
 
 import android.content.res.TypedArray;
 import android.graphics.Color;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffColorFilter;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.LinearLayout;
@@ -163,10 +165,11 @@ public class TiUIActivityIndicator extends TiUIView
 		// Update indicator's color.
 		if (this.proxy.hasPropertyAndNotNull(TiC.PROPERTY_INDICATOR_COLOR)) {
 			int color = TiConvert.toColor(TiConvert.toString(this.proxy.getProperty(TiC.PROPERTY_INDICATOR_COLOR)));
-			this.progress.getIndeterminateDrawable().setColorFilter(color, android.graphics.PorterDuff.Mode.SRC_IN);
+			this.progress.getIndeterminateDrawable().setColorFilter(
+				new PorterDuffColorFilter(color, PorterDuff.Mode.SRC_IN));
 		} else if ((styleId == DARK) || (styleId == BIG_DARK)) {
-			int color = Color.DKGRAY;
-			this.progress.getIndeterminateDrawable().setColorFilter(color, android.graphics.PorterDuff.Mode.SRC_IN);
+			this.progress.getIndeterminateDrawable().setColorFilter(
+				new PorterDuffColorFilter(Color.DKGRAY, PorterDuff.Mode.SRC_IN));
 		} else {
 			this.progress.getIndeterminateDrawable().clearColorFilter();
 		}
