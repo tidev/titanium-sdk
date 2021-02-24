@@ -20,6 +20,12 @@ USE_VIEW_FOR_CONTENT_HEIGHT
   return @"Ti.UI.ProgressBar";
 }
 
+- (void)_initWithProperties:(NSDictionary *)properties
+{
+  [self initializeProperty:@"animated" defaultValue:NUMBOOL(YES)];
+  [super _initWithProperties:properties];
+}
+
 - (TiUIView *)newView
 {
   UIProgressViewStyle style = [TiUtils intValue:[self valueForUndefinedKey:@"style"] def:UIProgressViewStyleDefault];
