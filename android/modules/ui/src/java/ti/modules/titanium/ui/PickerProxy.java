@@ -507,6 +507,9 @@ public class PickerProxy extends TiViewProxy implements PickerColumnListener
 		} else if (hasProperty(TiC.PROPERTY_MAX_DATE)) {
 			maxDate = TiConvert.toDate(getProperty(TiC.PROPERTY_MAX_DATE));
 		}
+		if ((minDate != null) && (maxDate != null) && !minDate.before(maxDate)) {
+			throw new IllegalArgumentException("showDatePickerDialog() property 'minDate' must be less than 'maxDate'");
+		}
 		if ((minDate != null) || (maxDate != null)) {
 			CalendarConstraints.Builder constraintsBuilder = new CalendarConstraints.Builder();
 			ArrayList<CalendarConstraints.DateValidator> validatorList = new ArrayList<>();
