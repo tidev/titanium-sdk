@@ -98,10 +98,13 @@ public class AndroidModule extends KrollModule
 	@Kroll.constant
 	public static final int SOFT_KEYBOARD_SHOW_ON_FOCUS = TiUIView.SOFT_KEYBOARD_SHOW_ON_FOCUS;
 
+	@Deprecated
 	@Kroll.constant
 	public static final int SWITCH_STYLE_CHECKBOX = UIModule.SWITCH_STYLE_CHECKBOX;
+	@Deprecated
 	@Kroll.constant
 	public static final int SWITCH_STYLE_TOGGLEBUTTON = UIModule.SWITCH_STYLE_TOGGLE_BUTTON;
+	@Deprecated
 	@Kroll.constant
 	public static final int SWITCH_STYLE_SWITCH = UIModule.SWITCH_STYLE_SLIDER;
 
