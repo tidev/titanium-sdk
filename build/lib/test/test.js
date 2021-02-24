@@ -252,6 +252,17 @@ async function addTiAppProperties() {
 		content.push('\t\t\t\t<string>Requesting location permission</string>');
 		content.push('\t\t\t\t<key>NSMicrophoneUsageDescription</key>');
 		content.push('\t\t\t\t<string>Requesting microphone permission</string>');
+		content.push('\t\t\t\t<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>');
+		content.push('\t\t\t\t<string>Can we access your location?</string>');
+		content.push('\t\t\t\t<key>NSLocationAlwaysUsageDescription</key>');
+		content.push('\t\t\t\t<string>Can we always access your location?</string>');
+		content.push('\t\t\t\t<key>NSLocationWhenInUseUsageDescription</key>');
+		content.push('\t\t\t\t<string>Can we access your location when using the app?</string>');
+		content.push('\t\t\t\t<key>NSLocationTemporaryUsageDescriptionDictionary</key>');
+		content.push('\t\t\t\t<dict>');
+		content.push('\t\t\t\t\t<key>Purpose1</key>');
+		content.push('\t\t\t\t\t<string>Can we temporarily access your location?</string>');
+		content.push('\t\t\t\t</dict>');
 
 		// Add a static shortcut.
 		content.push('\t\t\t\t<key>UIApplicationShortcutItems</key>');
