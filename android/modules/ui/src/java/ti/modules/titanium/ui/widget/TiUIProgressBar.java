@@ -40,7 +40,7 @@ public class TiUIProgressBar extends TiUIView
 		view.setOrientation(LinearLayout.VERTICAL);
 		label = new MaterialTextView(proxy.getActivity());
 		label.setGravity(Gravity.TOP | Gravity.START);
-		label.setPadding(0, 0, 0, 0);
+		label.setPadding(0, 0, 0, 4);
 		label.setSingleLine(false);
 
 		progress = new LinearProgressIndicator(proxy.getActivity());
@@ -135,7 +135,8 @@ public class TiUIProgressBar extends TiUIView
 
 	public void updateProgress()
 	{
-		progress.setProgress(convertRange(getMin(), getMax(), getValue(), 1000));
+		boolean isAnimated = TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_ANIMATED), true);
+		progress.setProgressCompat(convertRange(getMin(), getMax(), getValue(), 1000), isAnimated);
 	}
 
 	public void handleSetMessage(String message)
