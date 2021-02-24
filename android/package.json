@@ -21,7 +21,7 @@
 	"v8": {
 		"version": "8.8.278.17",
 		"mode": "release",
-		"integrity": "sha512-5kJslG+bMPzOmqOkGh4UxG0PYiri1LR57wtBcdA/ZfXfKiNaXLhbUmkZFEzoEGK/9m/7BgN+k/QglsjJIOjVNw=="
+		"integrity": "sha512-A0tV+fYtkpKfIF5roRTCFPtdULMFygmfWlEuuHOBjC3q4rz/mKnAsJTYBlqayC/4oYEWehj867Oh1o6vy26XHQ=="
 	},
 	"minSDKVersion": "21",
 	"compileSDKVersion": "30",
