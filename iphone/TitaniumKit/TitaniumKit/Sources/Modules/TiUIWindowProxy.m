@@ -905,6 +905,7 @@
 
   if ([TiUtils isIOSVersionOrGreater:@"11.0"] && shouldUpdateNavBar && controller != nil && [controller navigationController] != nil) {
     [[[controller navigationController] navigationBar] setPrefersLargeTitles:[TiUtils boolValue:value def:NO]];
+    [[[controller navigationController] navigationBar] sizeToFit];
   }
 }
 
