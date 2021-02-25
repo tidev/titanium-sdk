@@ -2878,6 +2878,24 @@ properties:
         windows.
     type: String
 
+  - name: overrideUserInterfaceStyle
+    summary: Forces the app to used assigned theme instead of the system theme.
+    description: |
+        When set to [USER_INTERFACE_STYLE_DARK](Titanium.UI.USER_INTERFACE_STYLE_DARK) or
+        [USER_INTERFACE_STYLE_LIGHT](Titanium.UI.USER_INTERFACE_STYLE_LIGHT), the app will ignore
+        the system's current theme and use the theme assigned to this property instead.
+
+        When set to [USER_INTERFACE_STYLE_UNSPECIFIED](Titanium.UI.USER_INTERFACE_STYLE_UNSPECIFIED),
+        the app will use the system's current theme. To determine what the system's current theme is,
+        you must read the [userInterfaceStyle](Titanium.UI.userInterfaceStyle) property.
+
+        See [UI_MODE_NIGHT_MASK](https://developer.android.com/reference/android/content/res/Configuration.html#UI_MODE_NIGHT_MASK).
+    type: Number
+    default: Titanium.UI.USER_INTERFACE_STYLE_UNSPECIFIED
+    constants: Titanium.UI.USER_INTERFACE_STYLE_*
+    osver: {ios: {min: "13.0"}}
+    since: "10.0.0"
+
   - name: tintColor
     summary: |
         Sets the global tint color of the application. It is inherited by the child views and can be
