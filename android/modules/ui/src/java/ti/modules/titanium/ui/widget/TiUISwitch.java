@@ -71,7 +71,7 @@ public class TiUISwitch extends TiUIView implements OnCheckedChangeListener
 	protected void updateButton(CompoundButton cb, KrollDict d)
 	{
 		if (d.containsKey(TiC.PROPERTY_TITLE)) {
-			if ((cb instanceof MaterialCheckBox) || (cb instanceof Chip)) {
+			if ((cb instanceof MaterialCheckBox) || (cb instanceof Chip) || (cb instanceof SwitchMaterial)) {
 				cb.setText(TiConvert.toString(d, TiC.PROPERTY_TITLE));
 			}
 		}
@@ -120,7 +120,7 @@ public class TiUISwitch extends TiUIView implements OnCheckedChangeListener
 		if (key.equals(TiC.PROPERTY_STYLE) && newValue != null) {
 			setStyle(TiConvert.toInt(newValue));
 		} else if (key.equals(TiC.PROPERTY_TITLE)) {
-			if ((cb instanceof MaterialCheckBox) || (cb instanceof Chip)) {
+			if ((cb instanceof MaterialCheckBox) || (cb instanceof Chip) || (cb instanceof SwitchMaterial)) {
 				cb.setText(TiConvert.toString(newValue));
 			}
 		} else if (key.equals(TiC.PROPERTY_TITLE_OFF)) {
