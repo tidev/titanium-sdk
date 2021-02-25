@@ -440,6 +440,29 @@ MAKE_SYSTEM_PROP(EXTEND_EDGE_ALL, 15); //UIEdgeRectAll
   return UIFontTextStyleLargeTitle;
 }
 
+- (void)setOverrideUserInterfaceStyle:(id)args
+{
+  ENSURE_SINGLE_ARG(args, NSNumber)
+      [self replaceValue:args
+                  forKey:@"overrideUserInterfaceStyle"
+            notification:NO];
+  if ([TiUtils isIOSVersionOrGreater:@"13.0"] || [TiUtils isMacOS]) {
+    int style = [TiUtils intValue:args def:UIUserInterfaceStyleUnspecified];
+    TiApp.controller.overrideUserInterfaceStyle = style;
+  }
+}
+
+- (NSNumber *)overrideUserInterfaceStyle
+{
+  NSNumber *style = nil;
+  if ([TiUtils isIOSVersionOrGreater:@"13.0"] || [TiUtils isMacOS]) {
+    style = @(TiApp.controller.overrideUserInterfaceStyle);
+  } else {
+    style = [self valueForKey:@"overrideUserInterfaceStyle"];
+  }
+  return (style != nil) ? style : self.USER_INTERFACE_STYLE_UNSPECIFIED;
+}
+
 - (NSNumber *)userInterfaceStyle
 {
   return @(TiApp.controller.traitCollection.userInterfaceStyle);
