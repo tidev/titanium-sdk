@@ -408,7 +408,6 @@ properties:
 
       Will return zero if the OS does not have a minor version.
     type: Number
-    default: 0
     permission: read-only
     since: "9.2.0"
 
@@ -419,7 +418,6 @@ properties:
 
       Will return zero if the OS does not have a patch version.
     type: Number
-    default: 0
     permission: read-only
     since: "9.2.0"
 

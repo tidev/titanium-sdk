@@ -59,7 +59,6 @@ public class AppModule extends KrollModule implements SensorEventListener
 		TiApplication.getInstance().removeAppEventProxy(this);
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getId()
 	{
@@ -72,28 +71,24 @@ public class AppModule extends KrollModule implements SensorEventListener
 		return getId();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getName()
 	{
 		return appInfo.getName();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getVersion()
 	{
 		return appInfo.getVersion();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getPublisher()
 	{
 		return appInfo.getPublisher();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getUrl()
 	{
@@ -106,21 +101,18 @@ public class AppModule extends KrollModule implements SensorEventListener
 		return getUrl();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getDescription()
 	{
 		return appInfo.getDescription();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getCopyright()
 	{
 		return appInfo.getCopyright();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getGuid()
 	{
@@ -133,21 +125,18 @@ public class AppModule extends KrollModule implements SensorEventListener
 		return getGuid();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getDeployType()
 	{
 		return TiApplication.getInstance().getDeployType();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getSessionId()
 	{
 		return APSAnalytics.getInstance().getCurrentSessionId();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public boolean getAnalytics()
 	{
@@ -160,7 +149,6 @@ public class AppModule extends KrollModule implements SensorEventListener
 		return resolveUrl(null, url);
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public boolean getAccessibilityEnabled()
 	{
@@ -236,14 +224,12 @@ public class AppModule extends KrollModule implements SensorEventListener
 		}
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public boolean getProximityDetection()
 	{
 		return proximityDetection;
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setProximityDetection(Object value)
 	{
@@ -257,7 +243,6 @@ public class AppModule extends KrollModule implements SensorEventListener
 		}
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public boolean getProximityState()
 	{

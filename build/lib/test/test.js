@@ -252,6 +252,17 @@ async function addTiAppProperties() {
 		content.push('\t\t\t\t<string>Requesting location permission</string>');
 		content.push('\t\t\t\t<key>NSMicrophoneUsageDescription</key>');
 		content.push('\t\t\t\t<string>Requesting microphone permission</string>');
+		content.push('\t\t\t\t<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>');
+		content.push('\t\t\t\t<string>Can we access your location?</string>');
+		content.push('\t\t\t\t<key>NSLocationAlwaysUsageDescription</key>');
+		content.push('\t\t\t\t<string>Can we always access your location?</string>');
+		content.push('\t\t\t\t<key>NSLocationWhenInUseUsageDescription</key>');
+		content.push('\t\t\t\t<string>Can we access your location when using the app?</string>');
+		content.push('\t\t\t\t<key>NSLocationTemporaryUsageDescriptionDictionary</key>');
+		content.push('\t\t\t\t<dict>');
+		content.push('\t\t\t\t\t<key>Purpose1</key>');
+		content.push('\t\t\t\t\t<string>Can we temporarily access your location?</string>');
+		content.push('\t\t\t\t</dict>');
 
 		// Add a static shortcut.
 		content.push('\t\t\t\t<key>UIApplicationShortcutItems</key>');
@@ -649,18 +660,30 @@ class DeviceTestDetails {
 	}
 
 	/**
-	 * Lazily try and match the reported namee in the logs back to the underlying id/serial
+	 * Lazily try and match the reported name in the logs back to the underlying id/serial
 	 * Then we can direct adb commands to this device specifically.
 	 */
 	async deviceId() {
 		if (!this._deviceId) {
-			if (!this.name) {
-				this._deviceId = 'device';
-			} else {
+			try {
 				const devices = await fs.readJSON(path.join(PROJECT_DIR, 'android-devices.json'));
-				// android's cli uses model || manufacturer || id as log prefix, see android/cli/hooks/run.js
-				const device = devices.find(d => (d.model || d.manufacturer || d.id) === this.name);
-				this._deviceId = device.id;
+				if (!devices) { // no devices listed, just use generic 'device'
+					this._deviceId = 'device';
+				} else if (devices.length === 1) {
+					// only one "device", use it's id
+					this._deviceId = devices[0].id;
+				} else if (this.name) { // find device with matching name
+					// android's cli uses model || manufacturer || id as log prefix, see android/cli/hooks/run.js
+					const device = devices.find(d => (d.model || d.manufacturer || d.id) === this.name);
+					if (device) {
+						this._deviceId = device.id;
+					}
+				}
+			} catch (err) {
+				// squash
+			}
+			if (!this._deviceId) { // we assigned no value, fall back to default 'device'
+				this._deviceId = 'device';
 			}
 		}
 		return this._deviceId;

@@ -60,9 +60,9 @@ describe('Titanium.Network.HTTPClient', function () {
 			should(xhr.validatesSecureCertificate).be.false();
 		});
 
-		it('has accessors', () => {
+		it('has no accessors', () => {
 			const xhr = Ti.Network.createHTTPClient();
-			should(xhr).have.accessors('validatesSecureCertificate');
+			should(xhr).not.have.accessors('validatesSecureCertificate');
 		});
 	});
 

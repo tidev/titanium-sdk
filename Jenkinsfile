@@ -29,9 +29,11 @@ properties(buildProperties)
 def runDanger = isPR // run Danger.JS if it's a PR by default. (should we also run on origin branches that aren't mainline?)
 def publishToS3 = isMainlineBranch // publish zips to S3 if on mainline branch, by default
 def testOnDevices = isMainlineBranch // run tests on devices
+def testOnAndroidDevices = false // testOnDevices // FIXME: Our android device in CI is gone for now!
+def testOnIOSDevices = testOnDevices
 
 // Variables we can change
-def nodeVersion = '10.17.0' // NOTE that changing this requires we set up the desired version on jenkins master first!
+def nodeVersion = '12.18.0' // NOTE that changing this requires we set up the desired version on jenkins master first!
 def npmVersion = 'latest' // We can change this without any changes to Jenkins. 5.7.1 is minimum to use 'npm ci'
 
 // Variables which we assign and share between nodes
@@ -376,10 +378,10 @@ timestamps {
 		// Run unit tests in parallel for android/iOS
 		stage('Test') {
 			parallel(
-				'android main unit tests': androidUnitTests('main', nodeVersion, npmVersion, testOnDevices, null),
+				'android main unit tests': androidUnitTests('main', nodeVersion, npmVersion, testOnAndroidDevices, null),
 				'android 5.0 unit tests': androidUnitTests('5.0', nodeVersion, npmVersion, false, 'android-21-x86'),
-				'iPhone unit tests': iosUnitTests('iphone', nodeVersion, npmVersion, testOnDevices),
-				'iPad unit tests': iosUnitTests('ipad', nodeVersion, npmVersion, testOnDevices),
+				'iPhone unit tests': iosUnitTests('iphone', nodeVersion, npmVersion, testOnIOSDevices),
+				'iPad unit tests': iosUnitTests('ipad', nodeVersion, npmVersion, testOnIOSDevices),
 				'macOS unit tests': macosUnitTests(nodeVersion, npmVersion),
 				'cli unit tests': cliUnitTests(nodeVersion, npmVersion),
 				failFast: false

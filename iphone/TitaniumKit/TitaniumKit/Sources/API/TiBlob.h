@@ -137,7 +137,6 @@ typedef enum {
  */
 - (id)initWithImage:(UIImage *)image;
 
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
 /**
 Initialize the blob with a system image.
 @param imageName The  system image name
@@ -149,8 +148,6 @@ Initialize the blob with a system image.
  @return The string or nil.
  */
 - (NSString *)systemImageName;
-
-#endif
 
 /**
  Initialize the blob with data.

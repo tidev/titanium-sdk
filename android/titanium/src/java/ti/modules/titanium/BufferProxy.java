@@ -366,7 +366,6 @@ public class BufferProxy extends KrollProxy
 	 * @return The length of this buffer in bytes
 	 * @module.api
 	 */
-	@Kroll.method
 	@Kroll.getProperty
 	public int getLength()
 	{
@@ -379,7 +378,6 @@ public class BufferProxy extends KrollProxy
 	 * @param length The new length of this buffer proxy in bytes
 	 * @module.api
 	 */
-	@Kroll.method
 	@Kroll.setProperty
 	public void setLength(int length)
 	{

@@ -394,7 +394,6 @@ public class TiDatabaseProxy extends KrollProxy
 	 * Get database name.
 	 * @return Database name.
 	 */
-	@Kroll.method
 	@Kroll.getProperty
 	public String getName()
 	{
@@ -405,7 +404,6 @@ public class TiDatabaseProxy extends KrollProxy
 	 * Get last inserted row identifier.
 	 * @return Row identifier.
 	 */
-	@Kroll.method
 	@Kroll.getProperty
 	public int getLastInsertRowId()
 	{
@@ -425,7 +423,6 @@ public class TiDatabaseProxy extends KrollProxy
 	 * Get number of rows affected by last query.
 	 * @return Number of rows.
 	 */
-	@Kroll.method
 	@Kroll.getProperty
 	public int getRowsAffected()
 	{
@@ -463,7 +460,6 @@ public class TiDatabaseProxy extends KrollProxy
 	 * Get database file.
 	 * @return `Ti.File` reference of SQLiteDatabase.
 	 */
-	@Kroll.method
 	@Kroll.getProperty
 	public TiFileProxy getFile()
 	{

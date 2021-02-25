@@ -39,7 +39,7 @@ if (ndkVersionString == null) {
 android {
 	compileSdkVersion <%- compileSdkVersion %>
 	defaultConfig {
-		minSdkVersion <%- minSdkVersion %>
+		minSdkVersion 19
 		targetSdkVersion <%- compileSdkVersion %>
 		versionName '<%- moduleVersion %>'
 
@@ -77,7 +77,7 @@ android {
 		}
 		externalNativeBuild {
 			ndkBuild {
-				cppFlags '-std=c++11'
+				cppFlags '-std=c++14'
 				arguments.addAll([
 					'APP_STL:=c++_shared',
 					"-j${Runtime.runtime.availableProcessors()}".toString()
