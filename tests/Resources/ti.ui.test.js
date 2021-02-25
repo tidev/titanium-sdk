@@ -199,8 +199,15 @@ describe('Titanium.UI', function () {
 		should(Ti.UI).have.a.constant('SEMANTIC_COLOR_TYPE_LIGHT').which.is.a.String();
 	});
 
-	it('.semanticColorType defaults to SEMANTIC_COLOR_TYPE_LIGHT', () => {
-		should(Ti.UI.semanticColorType).eql(Ti.UI.SEMANTIC_COLOR_TYPE_LIGHT);
+	it('.semanticColorType', () => {
+		if (OS_IOS && (OS_VERSION_MAJOR < 13)) {
+			should(Ti.UI.semanticColorType).eql(Ti.UI.SEMANTIC_COLOR_TYPE_LIGHT);
+		} else {
+			should(Ti.UI.semanticColorType).equalOneOf([
+				Ti.UI.SEMANTIC_COLOR_TYPE_DARK,
+				Ti.UI.SEMANTIC_COLOR_TYPE_LIGHT
+			]);
+		}
 	});
 
 	it('.USER_INTERFACE_STYLE_LIGHT', () => {
@@ -215,9 +222,35 @@ describe('Titanium.UI', function () {
 		should(Ti.UI).have.a.constant('USER_INTERFACE_STYLE_UNSPECIFIED').which.is.a.Number();
 	});
 
-	it('.userInterfaceStyle defaults to USER_INTERFACE_STYLE_LIGHT', () => {
-		// FIXME: we can't gurantee the emulator theme didn't get changed. Just specify it has to be one of the constants?
-		should(Ti.UI.userInterfaceStyle).eql(Ti.UI.USER_INTERFACE_STYLE_LIGHT);
+	it('.userInterfaceStyle', () => {
+		if (OS_IOS && (OS_VERSION_MAJOR < 13)) {
+			should(Ti.UI.userInterfaceStyle).eql(Ti.UI.USER_INTERFACE_STYLE_LIGHT);
+		} else {
+			should(Ti.UI.userInterfaceStyle).equalOneOf([
+				Ti.UI.USER_INTERFACE_STYLE_DARK,
+				Ti.UI.USER_INTERFACE_STYLE_LIGHT,
+				Ti.UI.USER_INTERFACE_STYLE_UNSPECIFIED
+			]);
+		}
+	});
+
+	it('.overrideUserInterfaceStyle', () => {
+		should(Ti.UI.overrideUserInterfaceStyle).eql(Ti.UI.USER_INTERFACE_STYLE_UNSPECIFIED);
+		if (OS_IOS) {
+			const originalStyle = Ti.UI.userInterfaceStyle;
+
+			Ti.UI.overrideUserInterfaceStyle = Ti.UI.USER_INTERFACE_STYLE_DARK;
+			should(Ti.UI.overrideUserInterfaceStyle).eql(Ti.UI.USER_INTERFACE_STYLE_DARK);
+			should(Ti.UI.userInterfaceStyle).eql(Ti.UI.USER_INTERFACE_STYLE_DARK);
+
+			Ti.UI.overrideUserInterfaceStyle = Ti.UI.USER_INTERFACE_STYLE_LIGHT;
+			should(Ti.UI.overrideUserInterfaceStyle).eql(Ti.UI.USER_INTERFACE_STYLE_LIGHT);
+			should(Ti.UI.userInterfaceStyle).eql(Ti.UI.USER_INTERFACE_STYLE_LIGHT);
+
+			Ti.UI.overrideUserInterfaceStyle = Ti.UI.USER_INTERFACE_STYLE_UNSPECIFIED;
+			should(Ti.UI.overrideUserInterfaceStyle).eql(Ti.UI.USER_INTERFACE_STYLE_UNSPECIFIED);
+			should(Ti.UI.userInterfaceStyle).eql(originalStyle);
+		}
 	});
 
 	describe('Semantic Colors', () => {
