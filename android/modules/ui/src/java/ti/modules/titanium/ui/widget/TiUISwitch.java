@@ -195,6 +195,8 @@ public class TiUISwitch extends TiUIView implements OnCheckedChangeListener
 			case UIModule.SWITCH_STYLE_SLIDER:
 				if (!(currentButton instanceof SwitchMaterial)) {
 					button = new SwitchMaterial(activity);
+					button.setMinimumHeight(0);
+					button.setMinHeight(0);
 				}
 				break;
 
