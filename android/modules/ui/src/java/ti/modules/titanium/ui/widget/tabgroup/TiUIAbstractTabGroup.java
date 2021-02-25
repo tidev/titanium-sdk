@@ -380,7 +380,9 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 			public void onPageScrolled(int i, float v, int i1)
 			{
 				if (autoTabTitle) {
-					updateTitle(getTabTitle(i));
+					if (tabs.get(i).getWindowProxy() != null) {
+						updateTitle(tabs.get(i).getWindowProxy().getProperty(TiC.PROPERTY_TITLE).toString());
+					}
 				}
 			}
 
