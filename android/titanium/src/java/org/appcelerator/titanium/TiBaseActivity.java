@@ -63,7 +63,9 @@ import android.os.Messenger;
 import android.os.PowerManager;
 import android.os.RemoteException;
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
 
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -93,6 +95,7 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 	private final TiWeakList<OnPrepareOptionsMenuEvent> onPrepareOptionsMenuListeners = new TiWeakList<>();
 	private boolean sustainMode = false;
 	private int lastUIModeFlags = 0;
+	private int lastNightMode = AppCompatDelegate.MODE_NIGHT_UNSPECIFIED;
 	private Intent launchIntent = null;
 	private TiActionBarStyleHandler actionBarStyleHandler;
 	private TiActivitySafeAreaMonitor safeAreaMonitor;
@@ -731,6 +734,10 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 		this.requestWindowFeature(Window.FEATURE_ACTIVITY_TRANSITIONS);
 		super.onCreate(savedInstanceState);
 
+		// Fetch app's current night mode setting used to override dark/light theme handling.
+		// In JavaScript, this can be changed via "Ti.UI.overrideUserInterfaceStyle" property.
+		this.lastNightMode = AppCompatDelegate.getDefaultNightMode();
+
 		// If activity is using Google's default ActionBar, then the below will return an ActionBar style handler
 		// intended to be called by onConfigurationChanged() which will resize its title bar and font.
 		// Note: We need to do this since we override "configChanges" in the "AndroidManifest.xml".
@@ -1203,9 +1210,26 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 		// Recreate this activity if the OS has switched between light/dark theme.
 		final int NIGHT_MASK = Configuration.UI_MODE_NIGHT_MASK;
 		if ((newConfig.uiMode & NIGHT_MASK) != (this.lastUIModeFlags & NIGHT_MASK)) {
-			this.recreate();
+			this.lastNightMode = AppCompatDelegate.getDefaultNightMode();
+			ActivityCompat.recreate(this);
 		}
 		this.lastUIModeFlags = newConfig.uiMode;
+	}
+
+	@Override
+	protected void onNightModeChanged(int mode)
+	{
+		super.onNightModeChanged(mode);
+		applyNightMode();
+	}
+
+	public void applyNightMode()
+	{
+		int mode = AppCompatDelegate.getDefaultNightMode();
+		if (this.inForeground && (mode != this.lastNightMode)) {
+			this.lastNightMode = mode;
+			ActivityCompat.recreate(this);
+		}
 	}
 
 	@Override
@@ -1438,6 +1462,8 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 				}
 			}
 		}
+
+		applyNightMode();
 	}
 
 	@Override
@@ -1478,6 +1504,8 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 		super.onRestart();
 
 		Log.d(TAG, "Activity " + this + " onRestart", Log.DEBUG_MODE);
+
+		applyNightMode();
 	}
 
 	@Override
