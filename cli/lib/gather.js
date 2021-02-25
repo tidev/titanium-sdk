@@ -194,7 +194,7 @@ class Walker {
 			return;
 		}
 		const info = new FileInfo(name, from, to);
-		const relPath = from.replace((origSrc || src) + '/', prefix ? prefix + '/' : '');
+		const relPath = from.replace((origSrc || src) + path.sep, prefix ? prefix + path.sep : '').replace(/\\/g, '/');
 		results.set(relPath, info);
 	}
 }
