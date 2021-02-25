@@ -194,14 +194,12 @@ public class ActivityProxy extends KrollProxy implements TiActivityResultHandler
 		return application.getString(resId, formatArgs);
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public IntentProxy getIntent()
 	{
 		return intentProxy;
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setRequestedOrientation(int orientation)
 	{
@@ -247,7 +245,6 @@ public class ActivityProxy extends KrollProxy implements TiActivityResultHandler
 		return null;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public TiWindowProxy getWindow()
 	{
@@ -260,7 +257,6 @@ public class ActivityProxy extends KrollProxy implements TiActivityResultHandler
 		return tiActivity.getWindowProxy();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public ActionBarProxy getActionBar()
 	{

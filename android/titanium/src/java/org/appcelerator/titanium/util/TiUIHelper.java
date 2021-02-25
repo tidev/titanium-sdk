@@ -67,10 +67,12 @@ import android.graphics.drawable.LayerDrawable;
 import android.graphics.drawable.StateListDrawable;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Process;
 import android.text.Spanned;
+import android.text.Layout;
 import android.text.method.LinkMovementMethod;
 import android.text.util.Linkify;
 import android.util.DisplayMetrics;
@@ -481,12 +483,20 @@ public class TiUIHelper
 		int gravity = Gravity.NO_GRAVITY;
 
 		if (textAlign != null) {
+
+			if (!"justify".equals(textAlign) && Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+				// reset justification
+				tv.setJustificationMode(Layout.JUSTIFICATION_MODE_NONE);
+			}
+
 			if ("left".equals(textAlign)) {
 				gravity |= Gravity.LEFT;
 			} else if ("center".equals(textAlign)) {
 				gravity |= Gravity.CENTER_HORIZONTAL;
 			} else if ("right".equals(textAlign)) {
 				gravity |= Gravity.RIGHT;
+			} else if ("justify".equals(textAlign) && Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+				tv.setJustificationMode(Layout.JUSTIFICATION_MODE_INTER_WORD);
 			} else {
 				Log.w(TAG, "Unsupported horizontal alignment: " + textAlign);
 			}

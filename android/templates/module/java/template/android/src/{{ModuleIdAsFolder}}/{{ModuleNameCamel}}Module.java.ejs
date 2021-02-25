@@ -48,7 +48,6 @@ public class <%- moduleNameCamel %>Module extends KrollModule
 	}
 
 	// Properties
-	@Kroll.method
 	@Kroll.getProperty
 	public String getExampleProp()
 	{
@@ -57,7 +56,6 @@ public class <%- moduleNameCamel %>Module extends KrollModule
 	}
 
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setExampleProp(String value) {
 		Log.d(LCAT, "set example property: " + value);

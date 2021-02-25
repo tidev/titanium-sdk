@@ -297,7 +297,6 @@ public class ListViewProxy extends RecyclerViewProxy
 	 *
 	 * @return Array of ListSections.
 	 */
-	@Kroll.method
 	@Kroll.getProperty
 	public ListSectionProxy[] getSections()
 	{
@@ -368,7 +367,6 @@ public class ListViewProxy extends RecyclerViewProxy
 	 *
 	 * @param sections Array of sections to set.
 	 */
-	@Kroll.method
 	@Kroll.setProperty
 	public void setSections(Object sections)
 	{
@@ -454,7 +452,7 @@ public class ListViewProxy extends RecyclerViewProxy
 							continue;
 						}
 						final View markedItemView = markedHolder.itemView;
-						if (markedItemView == null) {
+						if (markedItemView == null || markedItemView.getLayoutParams() == null) {
 							continue;
 						}
 						final boolean isVisible =

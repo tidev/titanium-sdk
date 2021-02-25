@@ -21,8 +21,8 @@ describe('Titanium', () => {
 				should(Ti.apiName).be.eql('Ti');
 			});
 
-			it('has a getter', () => {
-				should(Ti).have.a.getter('apiName');
+			it('has no getter', () => {
+				should(Ti).not.have.a.getter('apiName');
 			});
 		});
 
@@ -38,8 +38,8 @@ describe('Titanium', () => {
 				should(Ti.version).eql(Ti.App.Properties.getString('Ti.version'));
 			});
 
-			it('has a getter', () => {
-				should(Ti).have.a.getter('version');
+			it('has no getter', () => {
+				should(Ti).not.have.a.getter('version');
 			});
 		});
 
@@ -53,8 +53,8 @@ describe('Titanium', () => {
 				should(Ti.buildDate).match(/[01]?\d\/[0123]?\d\/20\d{2} \d{2}:\d{2}/); // i.e. '4/14/2020 18:48'
 			});
 
-			it('has a getter', () => {
-				should(Ti).have.a.getter('buildDate');
+			it('has no getter', () => {
+				should(Ti).not.have.a.getter('buildDate');
 			});
 		});
 
@@ -68,8 +68,8 @@ describe('Titanium', () => {
 				should(Ti.buildHash).match(/[a-f0-9]{10}/); // 10-character git sha
 			});
 
-			it('has a getter', () => {
-				should(Ti).have.a.getter('buildHash');
+			it('has no getter', () => {
+				should(Ti).not.have.a.getter('buildHash');
 			});
 		});
 
@@ -87,8 +87,8 @@ describe('Titanium', () => {
 				should(Ti.userAgent).be.eql(save);
 			});
 
-			it.androidBroken('has accessors', () => { // Cannot read property '_hasJavaListener' of undefined
-				should(Ti).have.accessors('userAgent');
+			it.androidBroken('has no accessors', () => { // Cannot read property '_hasJavaListener' of undefined
+				should(Ti).not.have.accessors('userAgent');
 			});
 		});
 	});

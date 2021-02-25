@@ -21,15 +21,3 @@
 #else
 #define IS_SDK_IOS_13_4 false
 #endif
-
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
-#define IS_SDK_IOS_13 true
-#else
-#define IS_SDK_IOS_13 false
-#endif
-
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 120000
-#define IS_SDK_IOS_12 true
-#else
-#define IS_SDK_IOS_12 false
-#endif
