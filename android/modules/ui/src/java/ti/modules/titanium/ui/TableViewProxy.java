@@ -331,7 +331,6 @@ public class TableViewProxy extends RecyclerViewProxy
 	 * @return Array of TableViewRow or TableViewSection proxies.
 	 */
 	// clang-format off
-	@Kroll.method
 	@Kroll.getProperty
 	public Object[] getData()
 	// clang-format on
@@ -414,7 +413,6 @@ public class TableViewProxy extends RecyclerViewProxy
 	 *
 	 * @return Integer of section count.
 	 */
-	@Kroll.method
 	@Kroll.getProperty
 	public int getSectionCount()
 	{
@@ -426,7 +424,6 @@ public class TableViewProxy extends RecyclerViewProxy
 	 *
 	 * @return Array of TableViewSectionProxy
 	 */
-	@Kroll.method
 	@Kroll.getProperty
 	public TableViewSectionProxy[] getSections()
 	{

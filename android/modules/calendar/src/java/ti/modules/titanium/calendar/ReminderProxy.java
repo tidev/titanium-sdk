@@ -93,21 +93,18 @@ public class ReminderProxy extends KrollProxy
 		return reminder;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getId()
 	{
 		return id;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public int getMinutes()
 	{
 		return minutes;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public int getMethod()
 	{

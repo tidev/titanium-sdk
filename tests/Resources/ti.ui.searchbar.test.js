@@ -48,8 +48,8 @@ describe('Titanium.UI.SearchBar', () => {
 				should(searchBar.autocapitalization).eql(Ti.UI.TEXT_AUTOCAPITALIZATION_SENTENCES);
 			});
 
-			it('has accessors', () => {
-				should(searchBar).have.accessors('autocapitalization');
+			it('has no accessors', () => {
+				should(searchBar).not.have.accessors('autocapitalization');
 			});
 		});
 
@@ -74,8 +74,8 @@ describe('Titanium.UI.SearchBar', () => {
 				should(searchBar.autocorrect).be.false();
 			});
 
-			it('has accessors', () => {
-				should(searchBar).have.accessors('autocorrect');
+			it('has no accessors', () => {
+				should(searchBar).not.have.accessors('autocorrect');
 			});
 		});
 
@@ -100,8 +100,8 @@ describe('Titanium.UI.SearchBar', () => {
 				should(searchBar.color).eql('blue');
 			});
 
-			it('has accessors', () => {
-				should(searchBar).have.accessors('color');
+			it('has no accessors', () => {
+				should(searchBar).not.have.accessors('color');
 			});
 		});
 
@@ -184,8 +184,8 @@ describe('Titanium.UI.SearchBar', () => {
 				should(searchBar.hintText).eql('Updated search');
 			});
 
-			it('has accessors', () => {
-				should(searchBar).have.accessors('hintText');
+			it('has no accessors', () => {
+				should(searchBar).not.have.accessors('hintText');
 			});
 
 			it('change dynamically', function (finish) {
@@ -243,8 +243,8 @@ describe('Titanium.UI.SearchBar', () => {
 				should(searchBar.hintTextColor).eql('blue');
 			});
 
-			it('has accessors', () => {
-				should(searchBar).have.accessors('hintTextColor');
+			it('has no accessors', () => {
+				should(searchBar).not.have.accessors('hintTextColor');
 			});
 		});
 
@@ -269,8 +269,8 @@ describe('Titanium.UI.SearchBar', () => {
 				should(searchBar.keyboardAppearance).eql(Ti.UI.KEYBOARD_APPEARANCE_DARK);
 			});
 
-			it('has accessors', () => {
-				should(searchBar).have.accessors('keyboardAppearance');
+			it('has no accessors', () => {
+				should(searchBar).not.have.accessors('keyboardAppearance');
 			});
 		});
 
@@ -295,8 +295,8 @@ describe('Titanium.UI.SearchBar', () => {
 				should(searchBar.keyboardType).eql(Ti.UI.KEYBOARD_TYPE_EMAIL);
 			});
 
-			it('has accessors', () => {
-				should(searchBar).have.accessors('keyboardType');
+			it('has no accessors', () => {
+				should(searchBar).not.have.accessors('keyboardType');
 			});
 		});
 
@@ -321,8 +321,8 @@ describe('Titanium.UI.SearchBar', () => {
 				should(searchBar.prompt).eql('another value');
 			});
 
-			it('has accessors', () => {
-				should(searchBar).have.accessors('prompt');
+			it('has no accessors', () => {
+				should(searchBar).not.have.accessors('prompt');
 			});
 		});
 
@@ -347,8 +347,8 @@ describe('Titanium.UI.SearchBar', () => {
 				should(searchBar.showBookmark).be.false();
 			});
 
-			it('has accessors', () => {
-				should(searchBar).have.accessors('showBookmark');
+			it('has no accessors', () => {
+				should(searchBar).not.have.accessors('showBookmark');
 			});
 		});
 
@@ -373,8 +373,8 @@ describe('Titanium.UI.SearchBar', () => {
 				should(searchBar.style).eql(Ti.UI.iOS.SEARCH_BAR_STYLE_MINIMAL);
 			});
 
-			it('has accessors', () => {
-				should(searchBar).have.accessors('style');
+			it('has no accessors', () => {
+				should(searchBar).not.have.accessors('style');
 			});
 		});
 	});

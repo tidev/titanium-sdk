@@ -48,14 +48,12 @@ public class AnalyticsModule extends KrollModule
 		super();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public boolean getOptedOut()
 	{
 		return APSAnalytics.getInstance().isOptedOut();
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setOptedOut(boolean optedOut)
 	{
@@ -194,7 +192,6 @@ public class AnalyticsModule extends KrollModule
 		return SUCCESS;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getLastEvent()
 	{

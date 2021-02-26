@@ -171,21 +171,18 @@ public class GestureModule extends KrollModule implements SensorEventListener
 		}
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public boolean getPortrait()
 	{
 		return this.deviceOrientationMonitor.getLastReadOrientation().isPortrait();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public boolean getLandscape()
 	{
 		return this.deviceOrientationMonitor.getLastReadOrientation().isLandscape();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public int getOrientation()
 	{

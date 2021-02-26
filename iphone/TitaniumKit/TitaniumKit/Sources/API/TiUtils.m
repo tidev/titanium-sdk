@@ -776,11 +776,9 @@ static NSDictionary *sizeMap = nil;
 
 + (UIImage *)imageWithTint:(UIImage *)image tintColor:(UIColor *)tintColor
 {
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
   if ([TiUtils isIOSVersionOrGreater:@"13.0"]) {
     return [image imageWithTintColor:tintColor renderingMode:UIImageRenderingModeAlwaysOriginal];
   }
-#endif
   UIImage *imageNew = [image imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
   UIImageView *imageView = [[UIImageView alloc] initWithImage:imageNew];
   imageView.tintColor = tintColor;

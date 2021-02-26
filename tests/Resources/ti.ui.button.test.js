@@ -46,11 +46,11 @@ describe('Titanium.UI.Button', function () {
 			should(button.title).eql('other text');
 		});
 
-		it('has accessors', () => {
+		it('has no accessors', () => {
 			const button = Ti.UI.createButton({
 				title: 'this is some text'
 			});
-			should(button).have.accessors('title');
+			should(button).not.have.accessors('title');
 		});
 	});
 
@@ -68,11 +68,11 @@ describe('Titanium.UI.Button', function () {
 			should(bar.title).eql('this is my value'); // should retain old value if can't find key! https://jira.appcelerator.org/browse/TIMOB-23498
 		});
 
-		it('has accessors', () => {
+		it('has no accessors', () => {
 			const button = Ti.UI.createButton({
 				titleid: 'this_is_my_key'
 			});
-			should(button).have.accessors('titleid');
+			should(button).not.have.accessors('titleid');
 		});
 	});
 

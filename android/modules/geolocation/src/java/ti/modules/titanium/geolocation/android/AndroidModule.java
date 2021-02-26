@@ -100,7 +100,6 @@ public class AndroidModule extends KrollModule implements Handler.Callback
 	 * @return			<code>true</code> if the manual location providers are being
 	 * 					used, <code>false</code> if not
 	 */
-	@Kroll.method
 	@Kroll.getProperty
 	public boolean getManualMode()
 	{
@@ -115,7 +114,6 @@ public class AndroidModule extends KrollModule implements Handler.Callback
 	 * 								the manual providers should be used
 	 */
 	@SuppressWarnings("deprecation")
-	@Kroll.method
 	@Kroll.setProperty
 	public void setManualMode(boolean manualMode)
 	{

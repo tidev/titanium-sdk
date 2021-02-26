@@ -49,6 +49,9 @@ exports.init = (logger, config, cli) => {
 				await grantAndroidPermissions(logger, builder);
 
 			} else if ((builder.platformName === 'iphone') && (cli.argv.target === 'simulator')) {
+				// Forcibly set location for the simulator
+				await setSimulatorLocation('-c', '37.7765', '-122.3918');
+
 				// Grant all needed permissions on the iOS simulator.
 				await xcrun([ 'simctl', 'privacy', builder.simHandle.udid, 'grant', 'all', builder.tiapp.id ]);
 
@@ -105,6 +108,33 @@ async function adb(args) {
 	});
 }
 
+async function setSimulatorLocation(...args) {
+	return new Promise((resolve, reject) => {
+		const child = spawn(path.join(__dirname, 'set-simulator-location'), args, { shell: true });
+		if (child) {
+			let stdout = '';
+			let stderr = '';
+			child.stdout.on('data', data => {
+				stdout += data.toString();
+			});
+			child.stderr.on('data', data => {
+				stderr += data.toString();
+			});
+			child.on('close', code => {
+				if (code === 0) {
+					console.log(stdout);
+					resolve(stdout);
+				} else {
+					console.error(stderr);
+					reject(`${stdout}\n${stderr}`);
+				}
+			});
+		} else {
+			reject();
+		}
+	});
+}
+
 async function xcrun(args) {
 	return new Promise((resolve, reject) => {
 		const child = spawn('xcrun', args, { shell: true });
@@ -154,9 +184,9 @@ async function wakeDevices(logger, builder) {
 		await adb([ ...deviceId, 'shell', 'settings', 'put', 'system', 'screen_off_timeout', '1800000' ]);
 	}
 
+	//  Write out the listing of devices to disk so test suite can grab mapping/details
+	await fs.writeJSON(path.join(builder.projectDir, 'android-devices.json'), builder.devices);
 	if (builder.deviceId === 'all') {
-		//  Write out the listing of devices to disk so test suite can grab mapping/details
-		await fs.writeJSON(path.join(builder.projectDir, 'android-devices.json'), builder.devices);
 		for (const device of builder.devices) {
 			if (device.id !== 'all') {
 				await wake(device.id);

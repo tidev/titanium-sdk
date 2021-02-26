@@ -38,7 +38,7 @@
 {
   // TO DO: Refactor this function
   if (font == nil) {
-    if (textStyle != nil && [textStyle isKindOfClass:[NSString class]] && family != nil && [TiUtils isIOSVersionOrGreater:@"11.0"]) {
+    if (textStyle != nil && [textStyle isKindOfClass:[NSString class]] && family != nil) {
       UIFont *tempFont = [UIFont fontWithName:family size:self.size];
       if (tempFont) {
         UIFontMetrics *fontMetrics = [UIFontMetrics metricsForTextStyle:textStyle];
