@@ -6,14 +6,20 @@
  */
 package ti.modules.titanium.ui.widget;
 
+import android.content.Context;
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
-import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.google.android.material.tabs.TabLayout;
 import android.view.MenuItem;
-
+import androidx.annotation.ColorInt;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.color.MaterialColors;
+import com.google.android.material.tabs.TabLayout;
+import java.util.ArrayList;
+import java.util.HashMap;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
+import org.appcelerator.titanium.R;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiColorHelper;
@@ -21,11 +27,8 @@ import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiDrawableReference;
 import org.appcelerator.titanium.view.TiUIView;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-
 import ti.modules.titanium.ui.android.AndroidModule;
+import ti.modules.titanium.ui.widget.tabgroup.TiUIAbstractTabGroup;
 import ti.modules.titanium.ui.widget.tabgroup.TiUITabLayoutTabGroup;
 
 public class TiUITabbedBar extends TiUIView implements MenuItem.OnMenuItemClickListener, TabLayout.OnTabSelectedListener
@@ -92,6 +95,12 @@ public class TiUITabbedBar extends TiUIView implements MenuItem.OnMenuItemClickL
 			this.tabLayout.setSelectedTabIndicatorColor(
 				TiColorHelper.parseColor(getProxy().getProperty(TiC.PROPERTY_SELECTED_BACKGROUND_COLOR).toString()));
 		}
+
+		// Set up the touch ripple effect to show primary color for both selected and unselected tabs.
+		// Note: By default it uses a gray ripple for unselected tabs which doesn't match Google's own apps.
+		int colorPrimary = getTabRippleColorFrom(this.tabLayout.getContext());
+		this.tabLayout.setTabRippleColor(TiUIAbstractTabGroup.createRippleColorStateListFrom(colorPrimary));
+
 		setNativeView(this.tabLayout);
 	}
 
@@ -107,10 +116,18 @@ public class TiUITabbedBar extends TiUIView implements MenuItem.OnMenuItemClickL
 			}
 		};
 		this.bottomNavigationView.setItemIconTintList(null);
+
+		// Set up the touch ripple effect to show primary color for both selected and unselected tabs.
+		// Note: By default it uses a gray ripple for unselected tabs which doesn't match Google's own apps.
+		int colorPrimary = getTabRippleColorFrom(this.bottomNavigationView.getContext());
+		this.bottomNavigationView.setItemRippleColor(TiUIAbstractTabGroup.createRippleColorStateListFrom(colorPrimary));
+
 		parseDataSet();
 		this.bottomNavigationView.getSelectedItemId();
+
 		// For now by default select the first index.
 		bottomNavigationIndex = 0;
+
 		setNativeView(this.bottomNavigationView);
 	}
 
@@ -372,5 +389,11 @@ public class TiUITabbedBar extends TiUIView implements MenuItem.OnMenuItemClickL
 				return this.bottomNavigationView.getMenu().size();
 		}
 		return 0;
+	}
+
+	@ColorInt
+	private static int getTabRippleColorFrom(Context context)
+	{
+		return MaterialColors.getColor(context, R.attr.colorPrimary, Color.DKGRAY);
 	}
 }

@@ -213,8 +213,10 @@ public class TiUITabLayoutTabGroup extends TiUIAbstractTabGroup implements TabLa
 			return;
 		}
 
-		final Drawable backgroundDrawable = createBackgroundDrawableForState(tabProxy, android.R.attr.state_selected);
+		Drawable backgroundDrawable = createBackgroundDrawableForState(tabProxy, android.R.attr.state_selected);
 		this.mTabLayout.setBackground(backgroundDrawable);
+		this.mTabLayout.setTabRippleColor(createRippleColorStateListFrom(getColorPrimary()));
+		this.mTabLayout.setUnboundedRipple(true);
 	}
 
 	@Override
@@ -308,7 +310,6 @@ public class TiUITabLayoutTabGroup extends TiUIAbstractTabGroup implements TabLa
 
 		if (tabProxy.getProperty(TiC.PROPERTY_BADGE_COLOR) != null) {
 			BadgeDrawable badgeDrawable = this.mTabLayout.getTabAt(index).getOrCreateBadge();
-			badgeDrawable.setVisible(true);
 			badgeDrawable.setBackgroundColor(
 				TiConvert.toColor((String) tabProxy.getProperty(TiC.PROPERTY_BADGE_COLOR)));
 		}
