@@ -10,7 +10,6 @@ import org.appcelerator.kroll.KrollRuntime;
 import org.appcelerator.kroll.runtime.v8.V8Runtime;
 import org.appcelerator.kroll.util.KrollAssetCache;
 import org.appcelerator.titanium.TiApplication;
-import org.appcelerator.titanium.TiRootActivity;
 
 public final class TitaniumTestApplication extends TiApplication
 {
@@ -29,10 +28,5 @@ public final class TitaniumTestApplication extends TiApplication
 		V8Runtime runtime = new V8Runtime();
 		KrollRuntime.init(this, runtime);
 		postOnCreate();
-	}
-
-	@Override
-	public void verifyCustomModules(TiRootActivity rootActivity)
-	{
 	}
 }
