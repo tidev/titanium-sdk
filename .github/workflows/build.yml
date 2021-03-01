@@ -1,5 +1,11 @@
 name: Build
-on: [push, pull_request]
+on:
+  push:
+    branches:
+    - master
+    - "[0-9]+_[0-9]+_X"
+  pull_request:
+
 # TODO: Can we split things up in a more intutive way?
 # i.e. an "Android" job which does the android/java linting and build
 # an iOS job which does the swift/ios linting and build
