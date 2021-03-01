@@ -437,6 +437,7 @@ describe('Titanium.Blob', function () {
 	// Canvas: trying to draw too large(211527936bytes) bitmap.
 	// it breaks on older android devices with an OutOfMemory Error on calling imageAsResized
 	it.androidBroken('resize very large image', function (finish) {
+		this.timeout(10000);
 		win = Ti.UI.createWindow({ backgroundColor: 'gray' });
 		const img = Ti.UI.createImageView();
 
@@ -444,17 +445,21 @@ describe('Titanium.Blob', function () {
 		let blob = Ti.Filesystem.getFile('large.jpg').read();
 		should(blob).be.an.Object();
 
-		win.addEventListener('open', () => {
-			// Keep re-sizing the image down by 10%
-			for (let i = 0; i < 10; i++) {
+		win.addEventListener('postlayout', function postlayout() {
+			win.removeEventListener('postlayout', postlayout); // only run once
+			try {
+				// Keep re-sizing the image down by 10%
+				for (let i = 0; i < 10; i++) {
+					// De-reference original blob so it can be freed.
+					blob = blob.imageAsResized(blob.width / 1.1, blob.height / 1.1);
+					should(blob).be.an.Object();
+				}
 
-				// De-reference original blob so it can be freed.
-				blob = blob.imageAsResized(blob.width / 1.1, blob.height / 1.1);
-				should(blob).be.an.Object();
+				// Display re-sized image.
+				img.image = blob;
+			} catch (err) {
+				return finish(err);
 			}
-
-			// Display re-sized image.
-			img.image = blob;
 
 			finish();
 		});

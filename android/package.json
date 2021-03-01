@@ -19,9 +19,9 @@
 	],
 	"architectures": ["arm64-v8a", "armeabi-v7a", "x86", "x86_64"],
 	"v8": {
-		"version": "8.8.278.15",
+		"version": "8.8.278.17",
 		"mode": "release",
-		"integrity": "sha512-DXomXksM9sUQsSq/Xj0RgMayIXHfrNod99s4ddZYetD90NN2jspirV2UIX4MZHPUYhvYpO27lEZxzowHfB/v4A=="
+		"integrity": "sha512-A0tV+fYtkpKfIF5roRTCFPtdULMFygmfWlEuuHOBjC3q4rz/mKnAsJTYBlqayC/4oYEWehj867Oh1o6vy26XHQ=="
 	},
 	"minSDKVersion": "21",
 	"compileSDKVersion": "30",
