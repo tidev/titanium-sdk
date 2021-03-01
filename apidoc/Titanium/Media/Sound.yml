@@ -56,6 +56,9 @@ methods:
       - name: looping
         summary: New value for the `looping` property.
         type: Boolean
+    deprecated:
+      since: "10.0.0"
+      notes: Set the value of the [looping](Titanium.Media.Sound.looping) property directly.
 
   - name: setPaused
     summary: Sets the value of the [paused](Titanium.Media.Sound.paused) property.
@@ -68,6 +71,11 @@ methods:
         summary: Pass `true` to pause the current playback temporarily, `false` to unpause it.
         type: Boolean
     platforms: [iphone, ipad, macos]
+    deprecated:
+      since: "10.0.0"
+      notes: |
+          It is preferable to use the [pause](Titanium.Media.Sound.pause) and
+          [play](Titanium.Media.Sound.play) methods instead.
 
   - name: stop
     summary: Stops playing the audio and resets the playback position to the beginning of the clip.

@@ -1214,6 +1214,22 @@ DEFINE_EXCEPTIONS
   return @"Ti.Proxy";
 }
 
+- (JSContext *)currentContext
+{
+  id<TiEvaluator> evaluator = self.pageContext;
+  if (evaluator == nil) {
+    evaluator = self.executionContext;
+    if (evaluator == nil) {
+      return nil; // TODO: Try [JSContext currentContext]? I think it will always fail for old-school proxies in this hierarchy
+    }
+  }
+  JSGlobalContextRef globalRef = [[evaluator krollContext] context];
+  if (globalRef) {
+    return [JSContext contextWithJSGlobalContextRef:globalRef];
+  }
+  return nil;
+}
+
 + (id)createProxy:(NSString *)qualifiedName withProperties:(NSDictionary *)properties inContext:(id<TiEvaluator>)context
 {
   static dispatch_once_t onceToken;

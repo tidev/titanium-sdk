@@ -76,10 +76,8 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
 
     [config setUserContentController:controller];
 
-    if ([TiUtils isIOSVersionOrGreater:@"11.0"]) {
-      if (![WKWebView handlesURLScheme:[WebAppProtocolHandler specialProtocolScheme]]) {
-        [config setURLSchemeHandler:[[WebAppProtocolHandler alloc] init] forURLScheme:[WebAppProtocolHandler specialProtocolScheme]];
-      }
+    if (![WKWebView handlesURLScheme:[WebAppProtocolHandler specialProtocolScheme]]) {
+      [config setURLSchemeHandler:[[WebAppProtocolHandler alloc] init] forURLScheme:[WebAppProtocolHandler specialProtocolScheme]];
     }
 
     _willHandleTouches = [TiUtils boolValue:[[self proxy] valueForKey:@"willHandleTouches"] def:YES];
@@ -895,18 +893,16 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
   [self _cleanupLoadingIndicator];
   [(TiUIWebViewProxy *)[self proxy] refreshHTMLContent];
 
-  if ([TiUtils isIOSVersionOrGreater:@"11.0"]) {
-    // TO DO: Once TIMOB-26915 done, remove this
-    __block BOOL finishedEvaluation = NO;
-    [_webView.configuration.websiteDataStore.httpCookieStore getAllCookies:^(NSArray<NSHTTPCookie *> *cookies) {
-      for (NSHTTPCookie *cookie in cookies) {
-        [NSHTTPCookieStorage.sharedHTTPCookieStorage setCookie:cookie];
-      }
-      finishedEvaluation = YES;
-    }];
-    while (!finishedEvaluation) {
-      [NSRunLoop.currentRunLoop runMode:NSDefaultRunLoopMode beforeDate:NSDate.distantFuture];
+  // TO DO: Once TIMOB-26915 done, remove this
+  __block BOOL finishedEvaluation = NO;
+  [_webView.configuration.websiteDataStore.httpCookieStore getAllCookies:^(NSArray<NSHTTPCookie *> *cookies) {
+    for (NSHTTPCookie *cookie in cookies) {
+      [NSHTTPCookieStorage.sharedHTTPCookieStorage setCookie:cookie];
     }
+    finishedEvaluation = YES;
+  }];
+  while (!finishedEvaluation) {
+    [NSRunLoop.currentRunLoop runMode:NSDefaultRunLoopMode beforeDate:NSDate.distantFuture];
   }
 
   if ([[self proxy] _hasListeners:@"load"]) {

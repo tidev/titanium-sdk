@@ -38,7 +38,6 @@ public class DisplayCapsProxy extends KrollProxy
 		return softDisplay.get();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public int getPlatformWidth()
 	{
@@ -49,7 +48,6 @@ public class DisplayCapsProxy extends KrollProxy
 		}
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public int getPlatformHeight()
 	{
@@ -60,7 +58,6 @@ public class DisplayCapsProxy extends KrollProxy
 		}
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getDensity()
 	{
@@ -85,7 +82,6 @@ public class DisplayCapsProxy extends KrollProxy
 		}
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public float getDpi()
 	{
@@ -96,7 +92,6 @@ public class DisplayCapsProxy extends KrollProxy
 		}
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public float getXdpi()
 	{
@@ -107,7 +102,6 @@ public class DisplayCapsProxy extends KrollProxy
 		}
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public float getYdpi()
 	{
@@ -118,7 +112,6 @@ public class DisplayCapsProxy extends KrollProxy
 		}
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public float getLogicalDensityFactor()
 	{

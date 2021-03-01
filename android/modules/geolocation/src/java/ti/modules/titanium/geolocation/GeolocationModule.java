@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2021 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -9,6 +9,7 @@ package ti.modules.titanium.geolocation;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollFunction;
@@ -110,7 +111,7 @@ public class GeolocationModule extends KrollModule implements Handler.Callback, 
 
 	public TiLocation tiLocation;
 	public AndroidModule androidModule;
-	public int numLocationListeners = 0;
+	public int numLocationListeners = 0; // FIXME: We need a better way to track if location providers are enabled, since single shot getCurrentPosition messes with this!
 	public HashMap<String, LocationProviderProxy> simpleLocationProviders =
 		new HashMap<String, LocationProviderProxy>();
 
@@ -138,7 +139,7 @@ public class GeolocationModule extends KrollModule implements Handler.Callback, 
 	//currentLocation is conditionally updated. lastLocation is unconditionally updated
 	//since currentLocation determines when to send out updates, and lastLocation is passive
 	private Location lastLocation;
-	private ArrayList<KrollFunction> currentPositionCallback = new ArrayList<>();
+	private HashMap<KrollPromise<KrollDict>, KrollFunction> currentPositionCallback = new HashMap<>();
 
 	private FusedLocationProvider fusedLocationProvider;
 
@@ -204,22 +205,33 @@ public class GeolocationModule extends KrollModule implements Handler.Callback, 
 	{
 		lastLocation = location;
 
-		// Execute current position callbacks.
+		// Execute getCurrentPosition() callbacks/Promises
 		if (currentPositionCallback.size() > 0) {
-			ArrayList<KrollFunction> currentPositionCallbackClone =
-				(ArrayList<KrollFunction>) currentPositionCallback.clone();
+			HashMap<KrollPromise<KrollDict>, KrollFunction> currentPositionCallbackClone =
+				(HashMap<KrollPromise<KrollDict>, KrollFunction>) currentPositionCallback.clone();
 			currentPositionCallback.clear();
-			for (KrollFunction callback : currentPositionCallbackClone) {
-				callback.call(this.getKrollObject(),
-							  new Object[] { buildLocationEvent(
-								  lastLocation, tiLocation.locationManager.getProvider(lastLocation.getProvider())) });
+			final KrollObject callbackThisObject = this.getKrollObject();
+			final KrollDict event = buildLocationEvent(
+								  lastLocation, tiLocation.locationManager.getProvider(lastLocation.getProvider()));
+			for (Map.Entry<KrollPromise<KrollDict>, KrollFunction> entry : currentPositionCallbackClone.entrySet()) {
+				if (entry.getValue() != null) {
+					entry.getValue().call(callbackThisObject, new Object[] { event });
+				}
+				entry.getKey().resolve(event);
+			}
+			// if only the getCurrentPosition() callbacks were the ones triggering location providers, disable them now
+			// (i.e. there are no 'location' event listeners)
+			if (numLocationListeners == 0) {
+				disableLocationProviders();
 			}
 		}
 
 		// Fire 'location' event listeners.
 		if (shouldUseUpdate(location)) {
-			fireEvent(TiC.EVENT_LOCATION,
-					  buildLocationEvent(location, tiLocation.locationManager.getProvider(location.getProvider())));
+			if (numLocationListeners > 0) {
+				fireEvent(TiC.EVENT_LOCATION,
+					buildLocationEvent(location, tiLocation.locationManager.getProvider(location.getProvider())));
+			}
 			currentLocation = location;
 		}
 	}
@@ -267,15 +279,29 @@ public class GeolocationModule extends KrollModule implements Handler.Callback, 
 		Log.d(TAG, message, Log.DEBUG_MODE);
 
 		if (state != LocationProviderProxy.STATE_ENABLED && state != LocationProviderProxy.STATE_AVAILABLE) {
-			fireEvent(TiC.EVENT_LOCATION, buildLocationErrorEvent(state, message));
+			final KrollDict event = buildLocationErrorEvent(state, message);
+			if (numLocationListeners > 0) {
+				fireEvent(TiC.EVENT_LOCATION, event);
+			}
 
 			// Execute current position callbacks.
 			if (currentPositionCallback.size() > 0) {
-				ArrayList<KrollFunction> currentPositionCallbackClone =
-					(ArrayList<KrollFunction>) currentPositionCallback.clone();
+				HashMap<KrollPromise<KrollDict>, KrollFunction> currentPositionCallbackClone =
+					(HashMap<KrollPromise<KrollDict>, KrollFunction>) currentPositionCallback.clone();
 				currentPositionCallback.clear();
-				for (KrollFunction callback : currentPositionCallbackClone) {
-					callback.call(this.getKrollObject(), new Object[] { buildLocationErrorEvent(state, message) });
+				final KrollObject callbackThisObject = this.getKrollObject();
+				for (Map.Entry<KrollPromise<KrollDict>, KrollFunction> entry
+					: currentPositionCallbackClone.entrySet()) {
+					if (entry.getValue() != null) {
+						entry.getValue().call(callbackThisObject, new Object[] { event });
+					}
+					entry.getKey().reject(new Throwable(message));
+				}
+
+				// If there are no 'location' event listeners and only the getCurrentPosition()
+				// single-shot calls were what enabled location providers, we should disable them now
+				if (numLocationListeners == 0) {
+					disableLocationProviders();
 				}
 			}
 		}
@@ -291,7 +317,7 @@ public class GeolocationModule extends KrollModule implements Handler.Callback, 
 	@SuppressLint("MissingPermission")
 	public void onProviderUpdated(LocationProviderProxy locationProvider)
 	{
-		if (getManualMode() && (numLocationListeners > 0)) {
+		if (getManualMode() && (numLocationListeners > 0)) { // TODO: Do we need to take currentPositionCallback into account?
 			unregisterLocationProvider(locationProvider);
 			registerLocationProvider(locationProvider);
 		}
@@ -380,24 +406,27 @@ public class GeolocationModule extends KrollModule implements Handler.Callback, 
 
 		} else if (TiC.EVENT_LOCATION.equals(event)) {
 			numLocationListeners++;
-			if (numLocationListeners == 1) {
+			// if we now have a 'location' event listener and haven't enabled location providers due to getCurrentPosition()
+			// then enable them now
+			// FIXME: Why can't we just track some boolean flag for this?
+			if (currentPositionCallback.size() == 0) {
 				HashMap<String, LocationProviderProxy> locationProviders = simpleLocationProviders;
-
+				// FIXME: why does this differ from how we enable in getCurrentPostion()?
 				if (getManualMode()) {
 					locationProviders = androidModule.manualLocationProviders;
 				}
 				enableLocationProviders(locationProviders);
+			}
 
-				// fire off an initial location fix if one is available
-				if (!hasLocationPermissions()) {
-					Log.e(TAG, "Location permissions missing");
-					return;
-				}
-				if (lastLocation != null) {
-					fireEvent(TiC.EVENT_LOCATION,
-							  buildLocationEvent(lastLocation,
-												 tiLocation.locationManager.getProvider(lastLocation.getProvider())));
-				}
+			// fire off an initial location fix if one is available
+			if (!hasLocationPermissions()) {
+				Log.e(TAG, "Location permissions missing"); // TODO: Fire 'location' event with error?
+				return;
+			}
+			if (lastLocation != null) {
+				fireEvent(TiC.EVENT_LOCATION,
+							buildLocationEvent(lastLocation,
+												tiLocation.locationManager.getProvider(lastLocation.getProvider())));
 			}
 		}
 
@@ -415,10 +444,10 @@ public class GeolocationModule extends KrollModule implements Handler.Callback, 
 				tiCompass.unregisterListener();
 				compassListenersRegistered = false;
 			}
-
 		} else if (TiC.EVENT_LOCATION.equals(event)) {
 			numLocationListeners--;
-			if (numLocationListeners == 0) {
+			// disable location providers if no getCurrentPosition() calls are pending
+			if (currentPositionCallback.size() == 0) {
 				disableLocationProviders();
 			}
 		}
@@ -431,7 +460,6 @@ public class GeolocationModule extends KrollModule implements Handler.Callback, 
 	 *
 	 * @return			<code>true</code> if the device has a compass, <code>false</code> if not
 	 */
-	@Kroll.method
 	@Kroll.getProperty
 	public boolean getHasCompass()
 	{
@@ -444,9 +472,9 @@ public class GeolocationModule extends KrollModule implements Handler.Callback, 
 	 * @param listener			Javascript function that will be invoked with the compass heading
 	 */
 	@Kroll.method
-	public void getCurrentHeading(final KrollFunction listener)
+	public KrollPromise<KrollDict> getCurrentHeading(@Kroll.argument(optional = true) final KrollFunction listener)
 	{
-		tiCompass.getCurrentHeading(listener);
+		return tiCompass.getCurrentHeading(listener);
 	}
 
 	/**
@@ -454,7 +482,6 @@ public class GeolocationModule extends KrollModule implements Handler.Callback, 
 	 *
 	 * @return			String representing the last geolocation event
 	 */
-	@Kroll.method
 	@Kroll.getProperty
 	public String getLastGeolocation()
 	{
@@ -488,10 +515,8 @@ public class GeolocationModule extends KrollModule implements Handler.Callback, 
 	{
 		if (androidModule == null) {
 			return false;
-
-		} else {
-			return androidModule.manualMode;
 		}
+		return androidModule.manualMode;
 	}
 
 	@Kroll.method
@@ -622,7 +647,8 @@ public class GeolocationModule extends KrollModule implements Handler.Callback, 
 	 */
 	private void doEnableLocationProviders(HashMap<String, LocationProviderProxy> locationProviders)
 	{
-		if (numLocationListeners > 0) {
+		// Enable if we have 1+ location event listeners OR an async getCurrentPosition() callback queued
+		if (numLocationListeners > 0 || currentPositionCallback.size() > 0) {
 			disableLocationProviders();
 
 			Iterator<String> iterator = locationProviders.keySet().iterator();
@@ -659,7 +685,6 @@ public class GeolocationModule extends KrollModule implements Handler.Callback, 
 	 * @return			<code>true</code> if a valid location service is available on the device,
 	 * 					<code>false</code> if not
 	 */
-	@Kroll.method
 	@Kroll.getProperty
 	public boolean getLocationServicesEnabled()
 	{
@@ -672,13 +697,21 @@ public class GeolocationModule extends KrollModule implements Handler.Callback, 
 	 * @param callback			Javascript function that will be invoked with the last known location
 	 */
 	@Kroll.method
-	public void getCurrentPosition(KrollFunction callback)
+	public KrollPromise<KrollDict> getCurrentPosition(@Kroll.argument(optional = true) final KrollFunction callback)
 	{
-		if (!hasLocationPermissions()) {
-			Log.e(TAG, "Location permissions missing");
-			return;
-		}
-		if (callback != null) {
+		final KrollObject callbackThisObject = getKrollObject();
+		return KrollPromise.create((promise) -> {
+			if (!hasLocationPermissions()) {
+				Log.e(TAG, "Location permissions missing");
+				if (callback != null) {
+					KrollDict event = buildLocationErrorEvent(TiLocation.ERR_POSITION_UNAVAILABLE,
+																	"Location permissions missing");
+					callback.call(callbackThisObject, new Object[] { event });
+				}
+				promise.reject(new Throwable("Location permissions missing"));
+				return;
+			}
+
 			Location latestKnownLocation = tiLocation.getLastKnownLocation();
 			if (latestKnownLocation == null) {
 				latestKnownLocation = lastLocation;
@@ -687,27 +720,33 @@ public class GeolocationModule extends KrollModule implements Handler.Callback, 
 			// TIMOB-27572: Samsung devices require a location provider to be registered
 			// in order to obtain last known location.
 			if (latestKnownLocation == null) {
-				if (numLocationListeners == 0) {
-					numLocationListeners++;
+				currentPositionCallback.put(promise, callback); // stick in map
+				 // assume if no 'location' events listeners and this is first getCurrentPosition() caller in queue
+				 // that we need to enable location providers
+				 // FIXME: this really just needs to get if we've already enabled location providers and do so if we haven't!
+				if (numLocationListeners == 0 && currentPositionCallback.size() == 1) {
 					enableLocationProviders(simpleLocationProviders);
 				}
-				currentPositionCallback.add(callback);
 				return;
 			}
 
 			if (latestKnownLocation != null) {
-				callback.call(
-					this.getKrollObject(),
-					new Object[] { buildLocationEvent(latestKnownLocation, tiLocation.locationManager.getProvider(
-																			   latestKnownLocation.getProvider())) });
-
+				KrollDict event = buildLocationEvent(latestKnownLocation, tiLocation.locationManager.getProvider(
+																			latestKnownLocation.getProvider()));
+				if (callback != null) {
+					callback.call(callbackThisObject, new Object[] { event });
+				}
+				promise.resolve(event);
 			} else {
 				Log.e(TAG, "Unable to get current position, location is null");
-				callback.call(this.getKrollObject(),
-							  new Object[] { buildLocationErrorEvent(TiLocation.ERR_POSITION_UNAVAILABLE,
-																	 "location is currently unavailable.") });
+				if (callback != null) {
+					KrollDict event = buildLocationErrorEvent(TiLocation.ERR_POSITION_UNAVAILABLE,
+																	"location is currently unavailable.");
+					callback.call(callbackThisObject, new Object[] { event });
+				}
+				promise.reject(new Throwable("Unable to get current position, location is null"));
 			}
-		}
+		});
 	}
 
 	/**

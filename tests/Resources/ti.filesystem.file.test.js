@@ -774,24 +774,21 @@ describe('Titanium.Filesystem.File', function () {
 
 	describe.ios('.remoteBackup', () => {
 		// TIMOB-14364
-		// FIXME: This pops a prompt dialog for permission to Documents folder on macOS
 		it('assigning Boolean value doesn\'t throw', () => {
-			if (utilities.isMacOS()) {
-				return;
-			}
 			should(function () {
 				Ti.Filesystem.getFile(Ti.Filesystem.applicationDataDirectory).remoteBackup = false;
 			}).not.throw();
 		});
 
-		it('has accessors', () => {
+		it('has no accessors', () => {
 			const file = Ti.Filesystem.getFile(Ti.Filesystem.applicationDataDirectory);
-			should(file).have.accessors('remoteBackup');
+			should(file).not.have.accessors('remoteBackup');
 		});
 	});
 
-	it.android('externalCacheDirectory read/write', () => {
+	it.android('externalCacheDirectory read/write', function () {
 		if (!Ti.Filesystem.isExternalStoragePresent()) {
+			this.skip();
 			return;
 		}
 		const stringContent = 'My external file content.';
@@ -800,8 +797,9 @@ describe('Titanium.Filesystem.File', function () {
 		should(file.read().text).be.eql(stringContent);
 	});
 
-	it.android('externalStorageDirectory read/write', () => {
+	it.android('externalStorageDirectory read/write', function () {
 		if (!Ti.Filesystem.isExternalStoragePresent()) {
+			this.skip();
 			return;
 		}
 		const stringContent = 'My external file content.';

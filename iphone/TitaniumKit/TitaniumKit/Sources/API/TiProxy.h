@@ -341,4 +341,6 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> *target,
 
 - (NSString *)apiName;
 
+- (JSContext *)currentContext;
+
 @end
