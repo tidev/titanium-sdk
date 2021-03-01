@@ -131,16 +131,21 @@ async function generateProject(platforms) {
  */
 async function copyMochaAssets() {
 	console.log('Copying resources to project...');
-	// TODO: Support root-level package.json!
-	const resourcesDir = path.join(PROJECT_DIR, 'Resources');
 	return Promise.all([
-		// Resources
+		// root-level package.json stuff
 		(async () => {
-			await fs.copy(path.join(SOURCE_DIR, 'Resources'), resourcesDir);
-			if (await fs.pathExists(path.join(resourcesDir, 'package.json'))) {
-				return npmInstall(resourcesDir);
-			}
+			await Promise.all([
+				fs.copy(path.join(SOURCE_DIR, 'fake_node_modules'), path.join(PROJECT_DIR, 'fake_node_modules')),
+				fs.copy(path.join(SOURCE_DIR, 'package.json'), path.join(PROJECT_DIR, 'package.json')),
+				fs.copy(path.join(SOURCE_DIR, 'package-lock.json'), path.join(PROJECT_DIR, 'package-lock.json')),
+			]);
+			// then run npm install in root of project
+			return npmInstall(PROJECT_DIR);
 		})(),
+		// babel.config.json
+		fs.copy(path.join(SOURCE_DIR, 'babel.config.json'), path.join(PROJECT_DIR, 'babel.config.json')),
+		// Resources
+		fs.copy(path.join(SOURCE_DIR, 'Resources'), path.join(PROJECT_DIR, 'Resources')),
 		// modules
 		fs.copy(path.join(SOURCE_DIR, 'modules'), path.join(PROJECT_DIR, 'modules')),
 		// platform
@@ -158,12 +163,7 @@ async function copyMochaAssets() {
  */
 async function npmInstall(dir) {
 	// If package-lock.json exists, try to run npm ci --production!
-	let args;
-	if (await fs.exists(path.join(dir, 'package-lock.json'))) {
-		args = [ 'ci', '--production' ];
-	} else {
-		args = [ 'install', '--production' ];
-	}
+	const args = [ 'ci', '--production' ];
 	return new Promise((resolve, reject) => {
 		let child;
 		if (process.platform === 'win32') {
@@ -410,7 +410,7 @@ async function runBuild(platform, target, deviceId, deployType, deviceFamily, sn
 
 	args.push('--no-prompt');
 	args.push('--color');
-	const prc = spawn('node', args);
+	const prc = spawn('node', args, { cwd: PROJECT_DIR });
 	return handleBuild(prc, target, snapshotDir, snapshotPromises);
 }
 

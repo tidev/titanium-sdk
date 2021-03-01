@@ -27,7 +27,7 @@ class ProcessJsTask extends IncrementalFileTask {
 	 * @param {String[]} options.incrementalDirectory Path to a folder where incremental task data will be stored.
 	 * @param {Object} options.logger The logger instance used by this task.
 	 * @param {Object} options.builder iOS builder instance.
-	 * @param {String[]} options.jsFiles Array with info about JS files to resolve paths.
+	 * @param {object} options.jsFiles Object with keys of filenames and values are info about JS files to resolve paths.
 	 * @param {String[]} options.jsBootstrapFiles Array of bootstrap scripts to consider. The task will directly modify this array.
 	 * @param {String} options.sdkCommonFolder Path to common JS files from the SDK.
 	 * @param {Object} options.defaultAnalyzeOptions Default configuration options for jsanalyze.
