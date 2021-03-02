@@ -476,6 +476,15 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		// Finish open handling by loading proxy settings.
 		handlePostOpen();
 
+		TiUIAbstractTabGroup tg = (TiUIAbstractTabGroup) view;
+		if (autoTabTitle) {
+			// expand title to fix truncated title
+			tg.updateTitle(tabs.get(0).getProperty(TiC.PROPERTY_TITLE).toString() + " "
+				+ tabs.get(0).getProperty(TiC.PROPERTY_TITLE).toString());
+
+			// clear it again
+			tg.updateTitle("");
+		}
 		super.onWindowActivityCreated();
 	}
 
