@@ -313,7 +313,7 @@ properties:
     platforms: [iphone, ipad, macos]
 
   - name: autoTabTitle
-    summary: If set to `true` it will automatically set the actionbar title to the current tab title.
+    summary: If set to `true` it will automatically set the actionbar title to the current tabs window title.
     type: Boolean
     default: false
     since: 10.1.0
