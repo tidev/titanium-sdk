@@ -9,7 +9,6 @@ const packageJSON = require('../../package.json');
 const utils = require('./utils');
 const copyFile = utils.copyFile;
 const copyFiles = utils.copyFiles;
-const moduleCopier = require('./module-copier');
 
 const ROOT_DIR = path.join(__dirname, '../..');
 const TMP_DIR = path.join(ROOT_DIR, 'dist', 'tmp');
@@ -134,6 +133,7 @@ class Packager {
 	 */
 	async packageNodeModules() {
 		console.log('Copying production npm dependencies');
+		const moduleCopier = require('../../cli/lib/module-copier');
 		// Copy node_modules/
 		await moduleCopier.execute(this.srcDir, this.zipSDKDir);
 

@@ -243,9 +243,11 @@ describe('Titanium.Geolocation', () => {
 		});
 
 		describe.ios('.showBackgroundLocationIndicator', () => {
-			if (isMacOS) {
-				return; // FIXME: How can we limit to ios only, and skip on macos?
-			}
+			before(function () {
+				if (isMacOS) {
+					this.skip();
+				}
+			});
 
 			it('is a Boolean', () => {
 				should(Ti.Geolocation).have.a.property('showBackgroundLocationIndicator').which.is.a.Boolean();
