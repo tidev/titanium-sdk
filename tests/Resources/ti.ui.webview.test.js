@@ -891,8 +891,9 @@ describe.androidARM64Broken('Titanium.UI.WebView', function () {
 	});
 
 	describe.ios('#findString()', function () {
-		it('is a Function', () => {
+		it('is a Function', function () {
 			if (OS_VERSION_MAJOR < 14) {
+				this.skip();
 				return;
 			}
 			const webView = Ti.UI.createWebView({
@@ -903,6 +904,7 @@ describe.androidARM64Broken('Titanium.UI.WebView', function () {
 
 		it('#findString without configuration', function (finish) {
 			if (OS_VERSION_MAJOR < 14) {
+				this.skip();
 				return finish();
 			}
 			win = Ti.UI.createWindow();
