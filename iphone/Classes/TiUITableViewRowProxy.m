@@ -391,6 +391,7 @@ TiProxy *DeepScanForProxyOfViewContainingPoint(UIView *targetView, CGPoint point
 
   [(TiUITableViewCell *)cell setBackgroundGradient_:[self valueForKey:@"backgroundGradient"]];
   [(TiUITableViewCell *)cell setSelectedBackgroundGradient_:[self valueForKey:@"selectedBackgroundGradient"]];
+  [(TiUITableViewCell *)cell setBackgroundSelectedGradient_:[self valueForKey:@"backgroundSelectedGradient"]];
 
   id bgImage = [self valueForKey:@"backgroundImage"];
   id selBgColor = [self valueForKey:@"backgroundSelectedColor"];
@@ -945,8 +946,19 @@ TiProxy *DeepScanForProxyOfViewContainingPoint(UIView *targetView, CGPoint point
       NO);
 }
 
+- (void)setBackgroundSelectedGradient:(id)arg
+{
+  TiGradient *newGradient = [TiGradient gradientFromObject:arg proxy:self];
+  [self replaceValue:newGradient forKey:@"backgroundSelectedGradient" notification:NO];
+  TiThreadPerformOnMainThread(
+      ^{
+        [callbackCell setBackgroundSelectedGradient_:newGradient];
+      },
+      NO);
+}
 - (void)setSelectedBackgroundGradient:(id)arg
 {
+  DEPRECATED_REPLACED(@"selectedBackgroundGradient", @"10.0.0", @"backgroundSelectedGradient");
   TiGradient *newGradient = [TiGradient gradientFromObject:arg proxy:self];
   [self replaceValue:newGradient forKey:@"selectedBackgroundGradient" notification:NO];
   TiThreadPerformOnMainThread(
