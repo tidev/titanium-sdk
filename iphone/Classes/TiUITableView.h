@@ -33,6 +33,7 @@
 - (void)handleEvent:(NSString *)type;
 
 - (void)setBackgroundGradient_:(TiGradient *)newGradient;
+- (void)setBackgroundSelectedGradient_:(TiGradient *)newGradient;
 - (void)setSelectedBackgroundGradient_:(TiGradient *)newGradient;
 
 - (void)updateGradientLayer:(BOOL)useSelected withAnimation:(BOOL)animated;

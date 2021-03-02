@@ -230,7 +230,7 @@
   }
 }
 
-- (void)setSelectedBackgroundGradient_:(id)value
+- (void)setBackgroundSelectedGradient_:(id)value
 {
   TiGradient *newGradient = [TiGradient gradientFromObject:value proxy:_proxy];
   if (newGradient == selectedBackgroundGradient) {
@@ -242,6 +242,11 @@
   if ([self selectedOrHighlighted]) {
     [self updateGradientLayer:YES withAnimation:NO];
   }
+}
+- (void)setSelectedBackgroundGradient_:(id)value
+{
+  DEPRECATED_REPLACED(@"selectedBackgroundGradient", @"10.0.0", @"backgroundSelectedGradient");
+  [self setBackgroundSelectedGradient_:value];
 }
 
 - (void)setPosition:(int)position isGrouped:(BOOL)grouped
@@ -535,11 +540,21 @@
   }
   [self setBackgroundGradient_:backgroundGradientValue];
 
-  id selectedBackgroundGradientValue = [properties objectForKey:@"selectedBackgroundGradient"];
+  id selectedBackgroundGradientValue = [properties objectForKey:@"backgroundSelectedGradient"];
   if (IS_NULL_OR_NIL(selectedBackgroundGradientValue)) {
-    selectedBackgroundGradientValue = [_proxy valueForKey:@"selectedBackgroundGradient"];
+    selectedBackgroundGradientValue = [_proxy valueForKey:@"backgroundSelectedGradient"];
   }
-  [self setSelectedBackgroundGradient_:selectedBackgroundGradientValue];
+  if (IS_NULL_OR_NIL(selectedBackgroundGradientValue)) {
+    selectedBackgroundGradientValue = [properties valueForKey:@"selectedBackgroundGradient"];
+
+    if (IS_NULL_OR_NIL(selectedBackgroundGradientValue)) {
+      selectedBackgroundGradientValue = [_proxy valueForKey:@"selectedBackgroundGradient"];
+    }
+    if (!IS_NULL_OR_NIL(selectedBackgroundGradientValue)) {
+      DEPRECATED_REPLACED(@"selectedBackgroundGradient", @"10.0.0", @"backgroundSelectedGradient");
+    }
+  }
+  [self setBackgroundSelectedGradient_:selectedBackgroundGradientValue];
 
   id selectedbackgroundColorValue = [properties objectForKey:@"backgroundSelectedColor"];
   if (IS_NULL_OR_NIL(selectedbackgroundColorValue)) {
