@@ -4,8 +4,7 @@ summary: |
     A set of constants for the system button styles that can be used for the button `style` property.
 description: |
     These constants represent standard iOS system button styles that affect the 
-    [Button](Titanium.UI.Button), [ButtonBar](Titanium.UI.ButtonBar), and 
-    [TabbedBar](Titanium.UI.iOS.TabbedBar) UI elements.
+    [Button](Titanium.UI.Button) and [ButtonBar](Titanium.UI.ButtonBar) UI elements.
     
     The different styles are used in different places. For normal buttons which are **not** 
     contained in a nav bar, toolbar, button bar or tabbed bar, the following styles apply:
@@ -28,9 +27,9 @@ description: |
     * `BORDERED`. Simple button style with a rounded border and a light blue background. 
     * `DONE`. Like the bordered button, but with a dark blue background. 
     
-    For `TabbedBar` and `ButtonBar` controls, styles have the following meaning:
+    For `ButtonBar`, styles have the following meaning:
     
-    * `PLAIN`. Default style for `ButtonBar` and `TabbedBar`.
+    * `PLAIN`. Default style.
     * `BORDERED`. Creates a bar like the `PLAIN` bar, but with a heavier border.
     translucent buttons that allow the bar's background color to show through.
 extends: Titanium.Proxy
@@ -43,7 +42,7 @@ properties:
     description: |
         Default style for normal buttons. May also be used for toolbar buttons. 
         
-        When used with [ButtonBar](Titanium.UI.ButtonBar) or [TabbedBar](Titanium.UI.iOS.TabbedBar), 
+        When used with [ButtonBar](Titanium.UI.ButtonBar), 
         specifies a standard bar with a heavier border.
     type: Number
     permission: read-only

@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		03C262D525EA176700EBE0F2 /* TiUITabbedBar.m in Sources */ = {isa = PBXBuildFile; fileRef = 03C262D425EA176700EBE0F2 /* TiUITabbedBar.m */; };
 		0BF9338A1CA0948D0091C7EC /* TiUIiOSStepper.m in Sources */ = {isa = PBXBuildFile; fileRef = 0BF933891CA0948D0091C7EC /* TiUIiOSStepper.m */; };
 		0BFAD90F1CA1B86B00A04BF7 /* TiUIiOSStepperProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 0BFAD90E1CA1B86B00A04BF7 /* TiUIiOSStepperProxy.m */; };
 		1592CC2E1C47148D00C3DB83 /* TiUIiOSTableViewScrollPositionProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 1592CC2D1C47148D00C3DB83 /* TiUIiOSTableViewScrollPositionProxy.m */; };
@@ -296,6 +297,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		03C262D225EA176700EBE0F2 /* TiUITabbedBar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUITabbedBar.h; sourceTree = "<group>"; };
+		03C262D425EA176700EBE0F2 /* TiUITabbedBar.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUITabbedBar.m; sourceTree = "<group>"; };
 		0BF933881CA0948D0091C7EC /* TiUIiOSStepper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIiOSStepper.h; sourceTree = "<group>"; };
 		0BF933891CA0948D0091C7EC /* TiUIiOSStepper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIiOSStepper.m; sourceTree = "<group>"; };
 		0BFAD90D1CA1B86B00A04BF7 /* TiUIiOSStepperProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIiOSStepperProxy.h; sourceTree = "<group>"; };
@@ -1731,6 +1734,8 @@
 			children = (
 				6CF8E95721CDA58700519245 /* TiUITabbedBarProxy.h */,
 				6CF8E95821CDA58800519245 /* TiUITabbedBarProxy.m */,
+				03C262D225EA176700EBE0F2 /* TiUITabbedBar.h */,
+				03C262D425EA176700EBE0F2 /* TiUITabbedBar.m */,
 			);
 			name = TabbedBar;
 			sourceTree = "<group>";
@@ -2302,6 +2307,7 @@
 				848C259A145F3FE200E1B0F1 /* TiDOMCommentProxy.m in Sources */,
 				CA0D39EB1B7F74F8009D534C /* TiAppiOSSearchableIndexProxy.m in Sources */,
 				848C259F145F46C300E1B0F1 /* TiDOMPIProxy.m in Sources */,
+				03C262D525EA176700EBE0F2 /* TiUITabbedBar.m in Sources */,
 				848C25A4145F501700E1B0F1 /* TiDOMDocFragProxy.m in Sources */,
 				84D541A31460B2E0005338D1 /* TiDOMNotationProxy.m in Sources */,
 				84D541A81460B3C9005338D1 /* TiDOMEntityProxy.m in Sources */,

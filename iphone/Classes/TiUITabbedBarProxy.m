@@ -6,7 +6,7 @@
  */
 #if defined(USE_TI_UITABBEDBAR)
 #import "TiUITabbedBarProxy.h"
-#import "TiUIButtonBar.h"
+#import "TiUITabbedBar.h"
 
 @implementation TiUITabbedBarProxy
 
@@ -26,9 +26,7 @@
 
 - (TiUIView *)newView
 {
-  TiUIButtonBar *result = [[TiUIButtonBar alloc] init];
-  [result setTabbedBar:YES];
-  return result;
+  return [[TiUITabbedBar alloc] init];
 }
 
 USE_VIEW_FOR_CONTENT_WIDTH

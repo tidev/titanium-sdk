@@ -1,14 +1,17 @@
 ---
 name: Titanium.UI.TabbedBar
 
-summary: A button bar that maintains a selected state.
+summary: A stand-alone bar of tabs.
 description: |
-    A tabbed bar is a button bar that
-    maintains a state (visually distinguished as a pressed or selected look).
-    It is closely related to the `ButtonBar` control. See the description of 
-    [ButtonBar](Titanium.UI.ButtonBar) for information on styling tabbed bars and buttons
-    bars.
-    
+    This view shows the same tab bar seen in a <Titanium.UI.TabGroup>,
+    but without the window management. This is intended for apps that want to set up their
+    own custom tab group like user interface.
+
+    Before Titanium 10.0.0, this view would show a
+    [segmented control](https://developer.apple.com/design/human-interface-guidelines/ios/controls/segmented-controls/)
+    on iOS. If you want to use a segmented control in Titanium 10.0.0 and higher, then use
+    <Titanium.UI.OptionBar> instead.
+
     Use the <Titanium.UI.createTabbedBar> method to create a Tabbed Bar.
 extends: Titanium.UI.View
 platforms: [iphone, ipad, android, macos]
@@ -21,49 +24,44 @@ excludes:
 
 events: 
   - name: click
-    summary: Fired when a button is clicked.
+    summary: Fired when a tab is clicked.
     properties: 
       - name: index
-        summary: Index of the clicked button. 
+        summary: Index of the clicked tab. 
         type: Number
 properties:
   - name: index
-    summary: Index of the currently selected button.
+    summary: Index of the currently selected tab.
     type: Number
   - name: labels
     summary: Array of labels for the tabbed bar. 
     description: |
         The labels can be specified either using an array of strings, in which case
-        each string defines the title for a button, or using an array of simple
+        each string defines the title for a tab, or using an array of simple
         dictionary objects, <BarItemType>, which can specify title, image, width and 
-        enabled state for each button.
+        enabled state for each tab.
     type: [Array<String>, Array<BarItemType>]
   - name: style
     summary: Style of the tabbed bar.
     description: |
-        Specify one of the constants:
-        For iOS: 
-        [Titanium.UI.iOS.SystemButtonStyle](Titanium.UI.iOS.SystemButtonStyle),
-        either `PLAIN`, `BORDERED`, or `BAR`.
-        
-        The `BAR` style specifies a more compact style and allows the bar's background
-        color or gradient to show through.
-        For Android:
-        [Titanium.UI.TABS_STYLE_*]
-        In Android [style](Titanium.UI.TabbedBar.style) is only supported in the creation dictionary 
-        of the proxy.
+        [TABS_STYLE_BOTTOM_DEFAULT](Titanium.UI.Android.TABS_STYLE_DEFAULT) is a style intended for
+        tabs that are displayed at the top of the window.
+
+        [TABS_STYLE_BOTTOM_NAVIGATION](Titanium.UI.Android.TABS_STYLE_BOTTOM_NAVIGATION) is a style intended
+        for tabs shown at the bottom of the window. This style only supports up to 5 tabs.
+    availability: creation
     type: Number
-    default: Titanium.UI.iOS.SystemButtonStyle.PLAIN for iOS, Ti.UI.TABS_STYLE_DEFAULT for Android
+    constants: Titanium.UI.Android.TABS_STYLE_*
+    default: Ti.UI.TABS_STYLE_DEFAULT
+    since: "8.0.0"
+    platforms: [android]
 examples:
   - title: Simple Tabbed Bar with 3 items
     example: |
         ``` js
         var bb1 = Ti.UI.createTabbedBar({
           labels: ['One', 'Two', 'Three'],
-          backgroundColor: '#336699',
-          style: Ti.UI.iOS.SystemButtonStyle.BAR,
-          width: 200,
-          height: 25,
+          width: Ti.UI.FILL,
           top: 50
         });
         win.add(bb1);
@@ -75,8 +73,6 @@ examples:
         var win = Ti.UI.createWindow({ layout: 'vertical' });
         var tabbedBar = Ti.UI.createTabbedBar({
             labels: ['One', 'Two', 'Three'],
-            backgroundColor: '#336699',
-            height: '10%',
             width: Ti.UI.FILL
         });
         var scrollView = Ti.UI.createScrollView({
