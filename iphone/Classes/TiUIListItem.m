@@ -541,15 +541,36 @@
   }
   [self setSelectedBackgroundGradient_:selectedBackgroundGradientValue];
 
-  id selectedbackgroundColorValue = [properties objectForKey:@"selectedBackgroundColor"];
+  id selectedbackgroundColorValue = [properties objectForKey:@"backgroundSelectedColor"];
   if (IS_NULL_OR_NIL(selectedbackgroundColorValue)) {
-    selectedbackgroundColorValue = [_proxy valueForKey:@"selectedBackgroundColor"];
+    selectedbackgroundColorValue = [_proxy valueForKey:@"backgroundSelectedColor"];
+  }
+  if (IS_NULL_OR_NIL(selectedbackgroundColorValue)) {
+    selectedbackgroundColorValue = [properties valueForKey:@"selectedBackgroundColor"];
+
+    if (IS_NULL_OR_NIL(selectedbackgroundColorValue)) {
+      selectedbackgroundColorValue = [_proxy valueForKey:@"selectedBackgroundColor"];
+    }
+    if (!IS_NULL_OR_NIL(selectedbackgroundColorValue)) {
+      DEPRECATED_REPLACED(@"selectedBackgroundColor", @"10.0.0", @"backgroundSelectedColor");
+    }
   }
 
-  id selectedBackgroundImageValue = [properties objectForKey:@"selectedBackgroundImage"];
+  id selectedBackgroundImageValue = [properties objectForKey:@"backgroundSelectedImage"];
   if (IS_NULL_OR_NIL(selectedBackgroundImageValue)) {
-    selectedBackgroundImageValue = [_proxy valueForKey:@"selectedBackgroundImage"];
+    selectedBackgroundImageValue = [_proxy valueForKey:@"backgroundSelectedImage"];
   }
+  if (IS_NULL_OR_NIL(selectedBackgroundImageValue)) {
+    selectedBackgroundImageValue = [properties valueForKey:@"selectedBackgroundImage"];
+
+    if (IS_NULL_OR_NIL(selectedbackgroundColorValue)) {
+      selectedbackgroundColorValue = [_proxy valueForKey:@"selectedBackgroundImage"];
+    }
+    if (!IS_NULL_OR_NIL(selectedBackgroundImageValue)) {
+      DEPRECATED_REPLACED(@"selectedBackgroundImage", @"10.0.0", @"backgroundSelectedImage");
+    }
+  }
+
   [self applyBackgroundWithSelectedColor:selectedbackgroundColorValue selectedImage:selectedBackgroundImageValue];
   [_resetKeys enumerateObjectsUsingBlock:^(NSString *keyPath, BOOL *stop) {
     id value = [_initialValues objectForKey:keyPath];
