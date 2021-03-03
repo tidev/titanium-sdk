@@ -106,6 +106,20 @@ class ProcessJsTask extends IncrementalFileTask {
 	}
 
 	/**
+	 * List of files that this task generates
+	 *
+	 * Each path will passed to {@link #ChangeManager#monitorOutputPath|ChangeManager.monitorOutputPath}
+	 * to determine if the output files of a task have changed.
+	 *
+	 * @return {Array.<String>}
+	 */
+	get incrementalOutputs() {
+		const outputFiles = [];
+		Object.values(this.jsFiles).forEach(info => outputFiles.push(info.dest));
+		return outputFiles;
+	}
+
+	/**
 	 * Does a full task run, processing every input file.
 	 *
 	 * @return {Promise}
