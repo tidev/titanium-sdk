@@ -7,11 +7,11 @@
 #ifdef USE_TI_UILISTVIEW
 
 #import "TiUIListItem.h"
-#import "ImageLoader.h"
-#import "TiApp.h"
-#import "TiUtils.h"
-#import "TiViewProxy.h"
-#import "Webcolor.h"
+#import <TitaniumKit/ImageLoader.h>
+#import <TitaniumKit/TiApp.h>
+#import <TitaniumKit/TiUtils.h>
+#import <TitaniumKit/TiViewProxy.h>
+#import <TitaniumKit/Webcolor.h>
 #ifdef USE_TI_UIACTIVITYINDICATOR
 #import "TiUIActivityIndicator.h"
 #endif
@@ -252,6 +252,10 @@
 
 - (void)applyBackgroundWithSelectedColor:(id)selectedBackgroundColor selectedImage:(id)selectedBackgroundImage
 {
+  if (!selectedBackgroundColor && !selectedBackgroundImage) {
+    return; // Ignore custom selection styles for native selections
+  }
+
   UIColor *sbgColor = (selectedBackgroundColor != nil) ? ([[TiUtils colorValue:selectedBackgroundColor] _color]) : nil;
   UIImage *sbgImage = [[ImageLoader sharedLoader] loadImmediateStretchableImage:[TiUtils toURL:selectedBackgroundImage proxy:_proxy] withLeftCap:TiDimensionAuto topCap:TiDimensionAuto];
   if (sbgImage != nil) {
@@ -273,7 +277,7 @@
     if (sbgColor == nil) {
       switch (self.selectionStyle) {
       case UITableViewCellSelectionStyleGray:
-        sbgColor = [Webcolor webColorNamed:@"#bbb"];
+        sbgColor = [Webcolor webColorNamed:@"#d9d9d9"];
         break;
       case UITableViewCellSelectionStyleNone:
         sbgColor = [UIColor clearColor];

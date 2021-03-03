@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2021 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -12,34 +12,39 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollPromise;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
-import org.appcelerator.kroll.common.AsyncResult;
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiC;
+import org.appcelerator.titanium.TiDimension;
+import org.appcelerator.titanium.TiLaunchActivity;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiDeviceOrientation;
+import org.appcelerator.titanium.util.TiRHelper;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.util.TiWeakList;
 import org.appcelerator.titanium.view.TiAnimation;
 import org.appcelerator.titanium.view.TiUIView;
 
 import android.app.Activity;
-import android.app.ActivityOptions;
+import android.content.Intent;
 import android.content.pm.ActivityInfo;
-import android.os.Build;
+import android.graphics.Rect;
 import android.os.Bundle;
-import android.os.Message;
-import android.support.annotation.Nullable;
-import android.util.DisplayMetrics;
-import android.util.Pair;
-import android.view.Display;
+
+import androidx.core.app.ActivityOptionsCompat;
+import androidx.core.util.Pair;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import android.view.View;
-// clang-format off
+import android.view.WindowManager;
+import android.view.ViewParent;
+
 @Kroll.proxy(propertyAccessors = {
 	TiC.PROPERTY_EXIT_ON_CLOSE,
 	TiC.PROPERTY_FULLSCREEN,
@@ -48,22 +53,18 @@ import android.view.View;
 	TiC.PROPERTY_TITLEID,
 	TiC.PROPERTY_WINDOW_SOFT_INPUT_MODE
 })
-// clang-format on
 public abstract class TiWindowProxy extends TiViewProxy
 {
 	private static final String TAG = "TiWindowProxy";
-	protected static final boolean LOLLIPOP_OR_GREATER = (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP);
 
 	private static final int MSG_FIRST_ID = TiViewProxy.MSG_LAST_ID + 1;
-	private static final int MSG_OPEN = MSG_FIRST_ID + 100;
-	private static final int MSG_CLOSE = MSG_FIRST_ID + 101;
 	protected static final int MSG_LAST_ID = MSG_FIRST_ID + 999;
 
 	private static WeakReference<TiWindowProxy> waitingForOpen;
 	private TiWeakList<KrollProxy> proxiesWaitingForActivity = new TiWeakList<KrollProxy>();
 
 	protected boolean opened, opening;
-	protected boolean focused;
+	protected boolean isFocused;
 	protected int[] orientationModes = null;
 	protected TiViewProxy tabGroup;
 	protected TiViewProxy tab;
@@ -71,9 +72,12 @@ public abstract class TiWindowProxy extends TiViewProxy
 	protected PostOpenListener postOpenListener;
 	protected boolean windowActivityCreated = false;
 	protected List<Pair<View, String>> sharedElementPairs;
+	public TiWindowProxy navigationWindow;
+	protected KrollPromise openPromise;
+	protected KrollPromise closePromise;
 
-	public static interface PostOpenListener {
-		public void onPostOpen(TiWindowProxy window);
+	public interface PostOpenListener {
+		void onPostOpen(TiWindowProxy window);
 	}
 
 	public static TiWindowProxy getWaitingForOpen()
@@ -86,9 +90,7 @@ public abstract class TiWindowProxy extends TiViewProxy
 	public TiWindowProxy()
 	{
 		inTab = false;
-		if (LOLLIPOP_OR_GREATER) {
-			sharedElementPairs = new ArrayList<Pair<View, String>>();
-		}
+		sharedElementPairs = new ArrayList<Pair<View, String>>();
 	}
 
 	@Override
@@ -97,92 +99,87 @@ public abstract class TiWindowProxy extends TiViewProxy
 		throw new IllegalStateException("Windows are created during open");
 	}
 
-	@Override
-	public boolean handleMessage(Message msg)
-	{
-		switch (msg.what) {
-			case MSG_OPEN: {
-				AsyncResult result = (AsyncResult) msg.obj;
-				handleOpen((KrollDict) result.getArg());
-				result.setResult(null); // signal opened
-				return true;
-			}
-			case MSG_CLOSE: {
-				AsyncResult result = (AsyncResult) msg.obj;
-				handleClose((KrollDict) result.getArg());
-				result.setResult(null); // signal closed
-				return true;
-			}
-			default: {
-				return super.handleMessage(msg);
-			}
-		}
-	}
-
 	@Kroll.method
 	@SuppressWarnings("unchecked")
-	public void open(@Kroll.argument(optional = true) Object arg)
+	public KrollPromise<Void> open(@Kroll.argument(optional = true) Object arg)
 	{
 		if (opened || opening) {
-			return;
+			return KrollPromise.create((promise) -> {
+				promise.reject(new Throwable("Window is already opened or opening."));
+			});
 		}
-
-		waitingForOpen = new WeakReference<TiWindowProxy>(this);
 		opening = true;
-		KrollDict options = null;
-		TiAnimation animation = null;
+		waitingForOpen = new WeakReference<TiWindowProxy>(this);
 
-		if (arg != null) {
-			if (arg instanceof KrollDict) {
-				options = (KrollDict) arg;
+		openPromise = KrollPromise.create((promise) -> {
+			KrollDict options = null;
+			TiAnimation animation = null;
 
-			} else if (arg instanceof HashMap<?, ?>) {
-				options = new KrollDict((HashMap<String, Object>) arg);
+			if (arg != null) {
+				if (arg instanceof KrollDict) {
+					options = (KrollDict) arg;
 
-			} else if (arg instanceof TiAnimation) {
+				} else if (arg instanceof HashMap<?, ?>) {
+					options = new KrollDict((HashMap<String, Object>) arg);
+
+				} else if (arg instanceof TiAnimation) {
+					options = new KrollDict();
+					options.put("_anim", animation);
+				}
+
+			} else {
 				options = new KrollDict();
-				options.put("_anim", animation);
 			}
 
-		} else {
-			options = new KrollDict();
-		}
-
-		if (TiApplication.isUIThread()) {
 			handleOpen(options);
-			return;
-		}
+		});
+		return openPromise;
+	}
 
-		TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_OPEN), options);
+	@Kroll.getProperty(name = "closed")
+	public boolean isClosed()
+	{
+		return !opened && !opening;
+	}
+
+	@Kroll.getProperty(name = "focused")
+	public boolean isFocused()
+	{
+		return isFocused;
 	}
 
 	@SuppressWarnings("unchecked")
 	@Kroll.method
-	public void close(@Kroll.argument(optional = true) Object arg)
+	public KrollPromise<Void> close(@Kroll.argument(optional = true) Object arg)
 	{
+		if (!(opened || opening)) {
+			return KrollPromise.create((promise) -> {
+				promise.reject(new Throwable("Window is not open or opening, so cannot be closed."));
+			});
+		}
 
-		KrollDict options = null;
-		TiAnimation animation = null;
+		// FIXME: Can we "cancel" the open() promise if it's not finished?
+		closePromise = KrollPromise.create((promise) -> {
+			KrollDict options = null;
+			TiAnimation animation = null;
 
-		if (arg != null) {
-			if (arg instanceof HashMap<?, ?>) {
-				options = new KrollDict((HashMap<String, Object>) arg);
+			if (arg != null) {
+				if (arg instanceof HashMap<?, ?>) {
+					options = new KrollDict((HashMap<String, Object>) arg);
 
-			} else if (arg instanceof TiAnimation) {
+				} else if (arg instanceof TiAnimation) {
+					options = new KrollDict();
+					options.put("_anim", animation);
+				}
+
+			} else {
 				options = new KrollDict();
-				options.put("_anim", animation);
 			}
 
-		} else {
-			options = new KrollDict();
-		}
-
-		if (TiApplication.isUIThread()) {
 			handleClose(options);
-			return;
-		}
-
-		TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_CLOSE), options);
+			// FIXME: Maybe fire the close event here and set opened to false as well, rather than leaving to subclasses?
+		});
+		return closePromise;
 	}
 
 	public void closeFromActivity(boolean activityIsFinishing)
@@ -209,6 +206,10 @@ public abstract class TiWindowProxy extends TiViewProxy
 		// And it will dispose the handler of the window in the JS if the activity
 		// is not forced to destroy.
 		fireSyncEvent(TiC.EVENT_CLOSE, data);
+		if (closePromise != null) {
+			closePromise.resolve(null);
+			closePromise = null; // FIXME: call release() first?
+		}
 	}
 
 	public void addProxyWaitingForActivity(KrollProxy waitingProxy)
@@ -221,39 +222,26 @@ public abstract class TiWindowProxy extends TiViewProxy
 		releaseViews();
 	}
 
-	// clang-format off
-	@Kroll.method(name = "setTab")
 	@Kroll.setProperty(name = "tab")
 	public void setTabProxy(TiViewProxy tabProxy)
-	// clang-format on
 	{
 		setParent(tabProxy);
 		this.tab = tabProxy;
 	}
-
-	// clang-format off
-	@Kroll.method(name = "getTab")
 	@Kroll.getProperty(name = "tab")
 	public TiViewProxy getTabProxy()
-	// clang-format on
 	{
 		return this.tab;
 	}
 
-	// clang-format off
-	@Kroll.method(name = "setTabGroup")
 	@Kroll.setProperty(name = "tabGroup")
 	public void setTabGroupProxy(TiViewProxy tabGroupProxy)
-	// clang-format on
 	{
 		this.tabGroup = tabGroupProxy;
 	}
 
-	// clang-format off
-	@Kroll.method(name = "getTabGroup")
 	@Kroll.getProperty(name = "tabGroup")
 	public TiViewProxy getTabGroupProxy()
-	// clang-format on
 	{
 		return this.tabGroup;
 	}
@@ -304,33 +292,40 @@ public abstract class TiWindowProxy extends TiViewProxy
 	 */
 	public void onWindowFocusChange(boolean focused)
 	{
+		this.isFocused = focused;
 		fireEvent((focused) ? TiC.EVENT_FOCUS : TiC.EVENT_BLUR, null, false);
 	}
 
-	// clang-format off
-	@Kroll.method
+	public void fireSafeAreaChangedEvent()
+	{
+		TiUIHelper.firePostLayoutEvent(this);
+	}
+
 	@Kroll.setProperty
 	public void setLeftNavButton(Object button)
-	// clang-format on
 	{
 		Log.w(TAG, "setLeftNavButton not supported in Android");
 	}
 
-	// clang-format off
-	@Kroll.method
 	@Kroll.setProperty
 	public void setOrientationModes(int[] modes)
-	// clang-format on
 	{
-		int activityOrientationMode = -1;
+		int activityOrientationMode = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED;
 		boolean hasPortrait = false;
 		boolean hasPortraitReverse = false;
 		boolean hasLandscape = false;
 		boolean hasLandscapeReverse = false;
 
-		// update orientation modes that get exposed
+		// Store the given orientation modes.
 		orientationModes = modes;
 
+		// Fetch the activity to apply orientation modes to.
+		Activity activity = getActivity();
+		if (activity == null) {
+			return;
+		}
+
+		// Convert given Titanium orientation modes to an Android orientation identifier.
 		if (modes != null) {
 			// look through orientation modes and determine what has been set
 			for (int i = 0; i < orientationModes.length; i++) {
@@ -365,70 +360,41 @@ public abstract class TiWindowProxy extends TiViewProxy
 			} else if ((hasPortrait || hasPortraitReverse) && (hasLandscape || hasLandscapeReverse)) {
 				activityOrientationMode = ActivityInfo.SCREEN_ORIENTATION_SENSOR;
 			} else if (hasPortrait && hasPortraitReverse) {
-				//activityOrientationMode = ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT;
-
-				// unable to use constant until sdk lvl 9, use constant value instead
-				// if sdk level is less than 9, set as regular portrait
-				if (Build.VERSION.SDK_INT >= 9) {
-					activityOrientationMode = 7;
-				} else {
-					activityOrientationMode = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
-				}
+				activityOrientationMode = ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT;
 			} else if (hasLandscape && hasLandscapeReverse) {
-				//activityOrientationMode = ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE;
-
-				// unable to use constant until sdk lvl 9, use constant value instead
-				// if sdk level is less than 9, set as regular landscape
-				if (Build.VERSION.SDK_INT >= 9) {
-					activityOrientationMode = 6;
-				} else {
-					activityOrientationMode = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
-				}
+				activityOrientationMode = ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE;
 			} else if (hasPortrait) {
 				activityOrientationMode = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
-			} else if (hasPortraitReverse && Build.VERSION.SDK_INT >= 9) {
-				activityOrientationMode = 9;
+			} else if (hasPortraitReverse) {
+				activityOrientationMode = ActivityInfo.SCREEN_ORIENTATION_REVERSE_PORTRAIT;
 			} else if (hasLandscape) {
 				activityOrientationMode = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
-			} else if (hasLandscapeReverse && Build.VERSION.SDK_INT >= 9) {
-				activityOrientationMode = 8;
+			} else if (hasLandscapeReverse) {
+				activityOrientationMode = ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE;
 			}
+		} else if (activity instanceof TiBaseActivity) {
+			activityOrientationMode = ((TiBaseActivity) activity).getOriginalOrientationMode();
+		}
 
-			Activity activity = getWindowActivity();
-
-			// Wait until the window activity is created before setting orientation modes.
-			if (activity != null && windowActivityCreated) {
-				if (activityOrientationMode != -1) {
-					activity.setRequestedOrientation(activityOrientationMode);
-				} else {
-					activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
-				}
-			}
-		} else {
-			Activity activity = getActivity();
-			if (activity != null) {
-				if (activity instanceof TiBaseActivity) {
-					activity.setRequestedOrientation(((TiBaseActivity) activity).getOriginalOrientationMode());
-				}
-			}
+		// Attempt to change the activity's orientation setting.
+		// Note: A semi-transparent activity cannot be assigned a fixed orientation. Will throw an exception.
+		try {
+			activity.setRequestedOrientation(activityOrientationMode);
+		} catch (Exception ex) {
+			Log.e(TAG, ex.getMessage());
 		}
 	}
 
-	// clang-format off
-	@Kroll.method
 	@Kroll.getProperty
 	public int[] getOrientationModes()
-	// clang-format on
 	{
 		return orientationModes;
 	}
 
 	// Expose the method and property here, instead of in KrollProxy
-	// clang-format off
 	@Kroll.method(name = "getActivity")
 	@Kroll.getProperty(name = "_internalActivity")
 	public ActivityProxy getActivityProxy()
-	// clang-format on
 	{
 		return super.getActivityProxy();
 	}
@@ -443,8 +409,86 @@ public abstract class TiWindowProxy extends TiViewProxy
 		}
 	}
 
+	@Kroll.getProperty
+	public KrollDict getSafeAreaPadding()
+	{
+		// Initialize safe-area padding to zero. (ie: no padding)
+		double paddingLeft = 0;
+		double paddingTop = 0;
+		double paddingRight = 0;
+		double paddingBottom = 0;
+
+		// Fetch safe-area from activity. (Returned safe-area is relative to root decor view.)
+		Rect safeAreaRect = null;
+		Activity activity = getActivity();
+		if (activity instanceof TiBaseActivity) {
+			safeAreaRect = ((TiBaseActivity) activity).getSafeAreaRect();
+		}
+
+		// Fetch content view that the safe-area should be made relative to.
+		View contentView = null;
+		if (this.tabGroup != null) {
+			// This window is displayed within a TabGroup. Use the TabGroup's container view.
+			// Note: Don't use this window's content view because if its tab is not currently selected,
+			//       then this window's view coordinates will be offscreen and won't intersect safe-area.
+			TiUIView uiView = this.tabGroup.peekView();
+			if (uiView != null) {
+				contentView = uiView.getNativeView();
+			}
+		}
+		if ((contentView == null) && (this.view != null)) {
+			// Use this window's content view.
+			contentView = this.view.getNativeView();
+		}
+
+		// Calculate safe-area padding relative to content view.
+		if ((contentView != null) && (safeAreaRect != null)) {
+			// Get the content view's x/y position relative to window's root decor view.
+			// Note: Do not use the getLocationInWindow() method, because it'll fetch the view's current position
+			//       during transition animations. Such as when the ActionBar is being shown/hidden.
+			int contentX = contentView.getLeft();
+			int contentY = contentView.getTop();
+			{
+				ViewParent viewParent = contentView.getParent();
+				for (; viewParent instanceof View; viewParent = viewParent.getParent()) {
+					View view = (View) viewParent;
+					contentX += view.getLeft() - view.getScrollX();
+					contentY += view.getTop() - view.getScrollY();
+				}
+			}
+
+			// Convert safe-area coordinates to be relative to content view.
+			safeAreaRect.offset(-contentX, -contentY);
+
+			// Calculate the safe-area padding relative to the content view.
+			// Do not allow the padding to be less than zero on any side.
+			paddingLeft = (double) Math.max(safeAreaRect.left, 0);
+			paddingTop = (double) Math.max(safeAreaRect.top, 0);
+			paddingRight = (double) Math.max(contentView.getWidth() - safeAreaRect.right, 0);
+			paddingBottom = (double) Math.max(contentView.getHeight() - safeAreaRect.bottom, 0);
+
+			// Convert padding values from pixels to Titanium's default units.
+			TiDimension leftDimension = new TiDimension(paddingLeft, TiDimension.TYPE_LEFT);
+			TiDimension topDimension = new TiDimension(paddingTop, TiDimension.TYPE_TOP);
+			TiDimension rightDimension = new TiDimension(paddingRight, TiDimension.TYPE_RIGHT);
+			TiDimension bottomDimension = new TiDimension(paddingBottom, TiDimension.TYPE_BOTTOM);
+			paddingLeft = leftDimension.getAsDefault(contentView);
+			paddingTop = topDimension.getAsDefault(contentView);
+			paddingRight = rightDimension.getAsDefault(contentView);
+			paddingBottom = bottomDimension.getAsDefault(contentView);
+		}
+
+		// Return the result via a titanium "ViewPadding" dictionary.
+		KrollDict dictionary = new KrollDict();
+		dictionary.put(TiC.PROPERTY_LEFT, paddingLeft);
+		dictionary.put(TiC.PROPERTY_TOP, paddingTop);
+		dictionary.put(TiC.PROPERTY_RIGHT, paddingRight);
+		dictionary.put(TiC.PROPERTY_BOTTOM, paddingBottom);
+		return dictionary;
+	}
+
 	protected abstract void handleOpen(KrollDict options);
-	protected abstract void handleClose(KrollDict options);
+	protected abstract void handleClose(@NonNull KrollDict options);
 	protected abstract Activity getWindowActivity();
 
 	/**
@@ -473,13 +517,75 @@ public abstract class TiWindowProxy extends TiViewProxy
 		if (nativeView != null) {
 			nativeView.postInvalidate();
 		}
+
+		if (openPromise != null) {
+			openPromise.resolve(null);
+			openPromise = null;
+		}
 	}
 
-	// clang-format off
-	@Kroll.method
+	protected void fillIntent(Activity activity, Intent intent)
+	{
+		int windowFlags = 0;
+		if (hasProperty(TiC.PROPERTY_WINDOW_FLAGS)) {
+			windowFlags = TiConvert.toInt(getProperty(TiC.PROPERTY_WINDOW_FLAGS), 0);
+		}
+
+		//Set the fullscreen flag
+		if (hasProperty(TiC.PROPERTY_FULLSCREEN)) {
+			boolean flagVal = TiConvert.toBoolean(getProperty(TiC.PROPERTY_FULLSCREEN), false);
+			if (flagVal) {
+				windowFlags = windowFlags | WindowManager.LayoutParams.FLAG_FULLSCREEN;
+			}
+		}
+
+		//Set the secure flag
+		if (hasProperty(TiC.PROPERTY_FLAG_SECURE)) {
+			boolean flagVal = TiConvert.toBoolean(getProperty(TiC.PROPERTY_FLAG_SECURE), false);
+			if (flagVal) {
+				windowFlags = windowFlags | WindowManager.LayoutParams.FLAG_SECURE;
+			}
+		}
+
+		//Stuff flags in intent
+		intent.putExtra(TiC.PROPERTY_WINDOW_FLAGS, windowFlags);
+
+		if (hasProperty(TiC.PROPERTY_WINDOW_SOFT_INPUT_MODE)) {
+			intent.putExtra(TiC.PROPERTY_WINDOW_SOFT_INPUT_MODE,
+							TiConvert.toInt(getProperty(TiC.PROPERTY_WINDOW_SOFT_INPUT_MODE), -1));
+		}
+
+		if (hasProperty(TiC.PROPERTY_EXTEND_SAFE_AREA)) {
+			boolean value = TiConvert.toBoolean(getProperty(TiC.PROPERTY_EXTEND_SAFE_AREA), false);
+			intent.putExtra(TiC.PROPERTY_EXTEND_SAFE_AREA, value);
+		}
+
+		if (hasProperty(TiC.PROPERTY_EXIT_ON_CLOSE)) {
+			// Use proxy's assigned "exitOnClose" property setting.
+			boolean exitOnClose = TiConvert.toBoolean(getProperty(TiC.PROPERTY_EXIT_ON_CLOSE), false);
+			intent.putExtra(TiC.INTENT_PROPERTY_FINISH_ROOT, exitOnClose);
+		} else if (activity.isTaskRoot() || (activity == TiApplication.getInstance().getRootActivity())) {
+			// We're opening child activity from Titanium root activity. Have it exit out of app by default.
+			// Note: If launched via startActivityForResult(), then root activity won't be the task's root.
+			intent.putExtra(TiC.INTENT_PROPERTY_FINISH_ROOT, true);
+		}
+
+		// Set the theme property
+		if (hasProperty(TiC.PROPERTY_THEME)) {
+			String theme = TiConvert.toString(getProperty(TiC.PROPERTY_THEME));
+			if (theme != null) {
+				try {
+					intent.putExtra(TiC.PROPERTY_THEME,
+									TiRHelper.getResource("style." + theme.replaceAll("[^A-Za-z0-9_]", "_")));
+				} catch (Exception e) {
+					Log.w(TAG, "Cannot find the theme: " + theme);
+				}
+			}
+		}
+	}
+
 	@Kroll.getProperty
 	public int getOrientation()
-	// clang-format on
 	{
 		return TiDeviceOrientation.fromDefaultDisplay().toTiIntId();
 	}
@@ -497,21 +603,28 @@ public abstract class TiWindowProxy extends TiViewProxy
 	@Kroll.method
 	public void addSharedElement(TiViewProxy view, String transitionName)
 	{
-		if (LOLLIPOP_OR_GREATER) {
-			TiUIView v = view.peekView();
-			if (v != null) {
-				Pair<View, String> p = new Pair<View, String>(v.getNativeView(), transitionName);
-				sharedElementPairs.add(p);
-			}
+		TiUIView v = view.peekView();
+		if (v != null) {
+			Pair<View, String> p = new Pair<View, String>(v.getNativeView(), transitionName);
+			sharedElementPairs.add(p);
 		}
 	}
 
 	@Kroll.method
 	public void removeAllSharedElements()
 	{
-		if (LOLLIPOP_OR_GREATER) {
-			sharedElementPairs.clear();
-		}
+		sharedElementPairs.clear();
+	}
+
+	@Kroll.getProperty
+	public TiWindowProxy getNavigationWindow()
+	{
+		return navigationWindow;
+	}
+
+	public void setNavigationWindow(TiWindowProxy navigationWindow)
+	{
+		this.navigationWindow = navigationWindow;
 	}
 
 	/**
@@ -523,15 +636,20 @@ public abstract class TiWindowProxy extends TiViewProxy
 	@Nullable
 	protected Bundle createActivityOptionsBundle(Activity activity)
 	{
-		if (hasActivityTransitions()) {
-			Bundle b = ActivityOptions
-						   .makeSceneTransitionAnimation(
-							   activity, sharedElementPairs.toArray(new Pair[sharedElementPairs.size()]))
-						   .toBundle();
-			return b;
+		ActivityOptionsCompat options = null;
+
+		// Do NOT apply transitions to launch activity.
+		if (hasActivityTransitions() && !(activity instanceof TiLaunchActivity)) {
+			if (!sharedElementPairs.isEmpty()) {
+				options = ActivityOptionsCompat.makeSceneTransitionAnimation(
+					activity, sharedElementPairs.toArray(new Pair[sharedElementPairs.size()]));
+			} else {
+				options = ActivityOptionsCompat.makeSceneTransitionAnimation(activity);
+			}
 		} else {
-			return null;
+			options = ActivityOptionsCompat.makeBasic();
 		}
+		return (options != null) ? options.toBundle() : null;
 	}
 
 	/**
@@ -539,7 +657,31 @@ public abstract class TiWindowProxy extends TiViewProxy
 	 */
 	protected boolean hasActivityTransitions()
 	{
-		final boolean animated = TiConvert.toBoolean(getProperties(), TiC.PROPERTY_ANIMATED, true);
-		return (LOLLIPOP_OR_GREATER && animated && sharedElementPairs != null && !sharedElementPairs.isEmpty());
+		// Don't do transition if "animated" property was set false.
+		boolean isAnimated = TiConvert.toBoolean(getProperty(TiC.PROPERTY_ANIMATED), true);
+		if (!isAnimated) {
+			return false;
+		}
+
+		// Do activity transition if at least 1 shared element has been configured.
+		// Note: It doesn't matter if transition animation properties were assigned.
+		//       System will do default transition animation if not assign to window proxy.
+		if ((this.sharedElementPairs != null) && (this.sharedElementPairs.size() > 0)) {
+			return true;
+		}
+
+		// Do activity transition if at least 1 transition property was assigned to proxy.
+		if (hasPropertyAndNotNull(TiC.PROPERTY_ENTER_TRANSITION) || hasPropertyAndNotNull(TiC.PROPERTY_EXIT_TRANSITION)
+			|| hasPropertyAndNotNull(TiC.PROPERTY_RETURN_TRANSITION)
+			|| hasPropertyAndNotNull(TiC.PROPERTY_REENTER_TRANSITION)
+			|| hasPropertyAndNotNull(TiC.PROPERTY_SHARED_ELEMENT_ENTER_TRANSITION)
+			|| hasPropertyAndNotNull(TiC.PROPERTY_SHARED_ELEMENT_EXIT_TRANSITION)
+			|| hasPropertyAndNotNull(TiC.PROPERTY_SHARED_ELEMENT_REENTER_TRANSITION)
+			|| hasPropertyAndNotNull(TiC.PROPERTY_SHARED_ELEMENT_RETURN_TRANSITION)) {
+			return true;
+		}
+
+		// Don't do activity transition.
+		return false;
 	}
 }

@@ -1,20 +1,24 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-Present by Axway, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 package ti.modules.titanium.android;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 import android.content.pm.PackageManager;
+import android.content.pm.ServiceInfo;
 import android.os.Build;
 import android.service.quicksettings.Tile;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.KrollModule;
+import org.appcelerator.kroll.KrollObject;
+import org.appcelerator.kroll.KrollPromise;
 import org.appcelerator.kroll.KrollRuntime;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
@@ -33,9 +37,9 @@ import android.app.ActivityManager.RunningServiceInfo;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.Service;
-import android.support.v4.app.NotificationCompat;
-import android.support.v4.app.NotificationManagerCompat;
-import android.support.v7.app.ActionBar;
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
+import androidx.appcompat.app.ActionBar;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -347,14 +351,6 @@ public class AndroidModule extends KrollModule
 	public static final int URI_INTENT_SCHEME = Intent.URI_INTENT_SCHEME;
 
 	@Kroll.constant
-	public static final int PENDING_INTENT_FOR_ACTIVITY = IntentProxy.TYPE_ACTIVITY;
-	@Kroll.constant
-	public static final int PENDING_INTENT_FOR_SERVICE = IntentProxy.TYPE_SERVICE;
-	@Kroll.constant
-	public static final int PENDING_INTENT_FOR_BROADCAST = IntentProxy.TYPE_BROADCAST;
-	@Kroll.constant
-	public static final int PENDING_INTENT_MAX_VALUE = PENDING_INTENT_FOR_BROADCAST;
-	@Kroll.constant
 	public static final int FLAG_CANCEL_CURRENT = PendingIntent.FLAG_CANCEL_CURRENT;
 	@Kroll.constant
 	public static final int FLAG_NO_CREATE = PendingIntent.FLAG_NO_CREATE;
@@ -521,12 +517,53 @@ public class AndroidModule extends KrollModule
 	@Kroll.constant
 	public static final int IMPORTANCE_UNSPECIFIED = NotificationManagerCompat.IMPORTANCE_UNSPECIFIED;
 
+	@Kroll.constant
+	public static final int FOREGROUND_SERVICE_TYPE_MANIFEST = ServiceInfo.FOREGROUND_SERVICE_TYPE_MANIFEST;
+	@Kroll.constant
+	public static final int FOREGROUND_SERVICE_TYPE_NONE = ServiceInfo.FOREGROUND_SERVICE_TYPE_NONE;
+	@Kroll.constant
+	public static final int FOREGROUND_SERVICE_TYPE_DATA_SYNC = ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC;
+	@Kroll.constant
+	public static final int FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK = ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK;
+	@Kroll.constant
+	public static final int FOREGROUND_SERVICE_TYPE_PHONE_CALL = ServiceInfo.FOREGROUND_SERVICE_TYPE_PHONE_CALL;
+	@Kroll.constant
+	public static final int FOREGROUND_SERVICE_TYPE_LOCATION = ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION;
+	@Kroll.constant
+	public static final int FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE =
+		ServiceInfo.FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE;
+	@Kroll.constant
+	public static final int FOREGROUND_SERVICE_TYPE_MEDIA_PROJECTION =
+		ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PROJECTION;
+	@Kroll.constant
+	public static final int FOREGROUND_SERVICE_TYPE_MICROPHONE = ServiceInfo.FOREGROUND_SERVICE_TYPE_MICROPHONE;
+	@Kroll.constant
+	public static final int FOREGROUND_SERVICE_TYPE_CAMERA = ServiceInfo.FOREGROUND_SERVICE_TYPE_CAMERA;
+
 	protected RProxy r;
+	private LinkedList<BroadcastReceiverProxy> registeredBroadcastReceiverProxyList = new LinkedList<>();
+
 	private static final int REQUEST_CODE = 99;
 
 	public AndroidModule()
 	{
 		super();
+
+		// Set up a listener to be invoked when the JavaScript runtime is about to be terminated/disposed.
+		KrollRuntime.addOnDisposingListener(new KrollRuntime.OnDisposingListener() {
+			@Override
+			public void onDisposing(KrollRuntime runtime)
+			{
+				// Remove this listener from the runtime's static collection.
+				KrollRuntime.removeOnDisposingListener(this);
+
+				// Unregister all currently registerd broadcast receviers.
+				// They can no longer be handled by the terminating JavaScript runtime.
+				while (registeredBroadcastReceiverProxyList.isEmpty() == false) {
+					unregisterBroadcastReceiver(registeredBroadcastReceiverProxyList.pollFirst());
+				}
+			}
+		});
 	}
 
 	@Kroll.method
@@ -574,41 +611,44 @@ public class AndroidModule extends KrollModule
 		return r;
 	}
 
-	// clang-format off
-	@Kroll.method
 	@Kroll.getProperty
 	public ActivityProxy getCurrentActivity()
-	// clang-format on
 	{
-		TiBaseActivity resultBaseActivity = (TiBaseActivity) TiApplication.getAppCurrentActivity();
-		if (resultBaseActivity != null) {
-			return resultBaseActivity.getActivityProxy();
-		} else {
-			Log.w(TAG, "Application instance no longer available. Unable to get current activity.");
-			return null;
+		Activity activity = TiApplication.getAppCurrentActivity();
+		if (activity instanceof TiBaseActivity) {
+			return ((TiBaseActivity) activity).getActivityProxy();
 		}
+		return null;
+	}
+
+	@Kroll.getProperty
+	public ActivityProxy getRootActivity()
+	{
+		TiBaseActivity activity = TiApplication.getInstance().getRootActivity();
+		if (activity != null) {
+			return activity.getActivityProxy();
+		}
+		return null;
 	}
 
 	@Kroll.method
 	public void startService(IntentProxy intentProxy)
 	{
-		TiApplication app = TiApplication.getInstance();
-		if (app != null) {
-			app.startService(intentProxy.getIntent());
-		} else {
-			Log.w(TAG, "Application instance no longer available. Unable to startService.");
+		try {
+			TiApplication.getInstance().startService(intentProxy.getIntent());
+		} catch (Exception ex) {
+			String message = ex.getMessage();
+			if (message == null) {
+				message = "startService() failed. Reason unknown.";
+			}
+			Log.w(TAG, message);
 		}
 	}
 
 	@Kroll.method
 	public void stopService(IntentProxy intentProxy)
 	{
-		TiApplication app = TiApplication.getInstance();
-		if (app != null) {
-			app.stopService(intentProxy.getIntent());
-		} else {
-			Log.w(TAG, "Application instance no longer available. Unable to stopService.");
-		}
+		TiApplication.getInstance().stopService(intentProxy.getIntent());
 	}
 
 	@Kroll.method
@@ -636,40 +676,48 @@ public class AndroidModule extends KrollModule
 	}
 
 	@Kroll.method
-	public void requestPermissions(Object permissionObject,
-								   @Kroll.argument(optional = true) KrollFunction permissionCallback)
+	public KrollPromise<KrollDict> requestPermissions(final Object permissionObject,
+								   @Kroll.argument(optional = true) final KrollFunction permissionCallback)
 	{
-		if (Build.VERSION.SDK_INT >= 23) {
-			ArrayList<String> permissions = new ArrayList<String>();
-			if (permissionObject instanceof String) {
-				permissions.add((String) permissionObject);
-			} else if (permissionObject instanceof Object[]) {
-				for (Object permission : (Object[]) permissionObject) {
-					if (permission instanceof String) {
-						permissions.add((String) permission);
+		// TODO: Create a subclass of Promise that takes in KrollFunction callback and "this" KrollObject
+		// to fire the callback when we resolve/reject?
+		final KrollObject callbackThisObject = getKrollObject();
+		return KrollPromise.create((promise) -> {
+			if (Build.VERSION.SDK_INT >= 23) {
+				List<String> permissions = new ArrayList<String>();
+				if (permissionObject instanceof String) {
+					permissions.add((String) permissionObject);
+				} else if (permissionObject instanceof Object[]) {
+					for (Object permission : (Object[]) permissionObject) {
+						if (permission instanceof String) {
+							permissions.add((String) permission);
+						}
 					}
 				}
-			}
-			Activity currentActivity = TiApplication.getInstance().getCurrentActivity();
-			ArrayList<String> filteredPermissions = new ArrayList<String>();
-			for (String permission : permissions) {
-				if (currentActivity.checkSelfPermission(permission) == PackageManager.PERMISSION_GRANTED) {
-					continue;
+				Activity currentActivity = TiApplication.getInstance().getCurrentActivity();
+				List<String> filteredPermissions = new ArrayList<String>();
+				for (String permission : permissions) {
+					if (currentActivity.checkSelfPermission(permission) == PackageManager.PERMISSION_GRANTED) {
+						continue;
+					}
+					filteredPermissions.add(permission);
 				}
-				filteredPermissions.add(permission);
+				if (filteredPermissions.size() > 0) {
+					TiBaseActivity.registerPermissionRequestCallback(REQUEST_CODE, permissionCallback,
+						callbackThisObject, promise);
+					currentActivity.requestPermissions(filteredPermissions.toArray(
+						new String[filteredPermissions.size()]), REQUEST_CODE);
+					return;
+				}
 			}
-			if (filteredPermissions.size() > 0) {
-				TiBaseActivity.registerPermissionRequestCallback(REQUEST_CODE, permissionCallback, getKrollObject());
-				currentActivity.requestPermissions(filteredPermissions.toArray(new String[filteredPermissions.size()]),
-												   REQUEST_CODE);
-				return;
+			// FIXME: If we're not on API level 23+, shouldn't we reject/error?
+			KrollDict response = new KrollDict();
+			response.putCodeAndMessage(0, null);
+			if (permissionCallback != null) {
+				permissionCallback.callAsync(callbackThisObject, response);
 			}
-		}
-		KrollDict response = new KrollDict();
-		response.putCodeAndMessage(0, null);
-		if (permissionCallback != null) {
-			permissionCallback.callAsync(getKrollObject(), response);
-		}
+			promise.resolve(response);
+		});
 	}
 
 	@Kroll.method
@@ -682,13 +730,6 @@ public class AndroidModule extends KrollModule
 		}
 
 		TiApplication app = TiApplication.getInstance();
-		if (app == null) {
-			Log.w(
-				TAG,
-				"Application instance is no longer available. Unable to check isServiceRunning. Returning false though value is meaningless.");
-			return false;
-		}
-
 		ActivityManager am = (ActivityManager) app.getApplicationContext().getSystemService(Context.ACTIVITY_SERVICE);
 		if (am != null) {
 			List<RunningServiceInfo> services = am.getRunningServices(Integer.MAX_VALUE);
@@ -712,8 +753,10 @@ public class AndroidModule extends KrollModule
 				filter.addAction(TiConvert.toString(action));
 			}
 
-			TiApplication.getInstance().getApplicationContext().registerReceiver(receiverProxy.getBroadcastReceiver(),
-																				 filter);
+			TiApplication.getInstance().registerReceiver(receiverProxy.getBroadcastReceiver(), filter);
+			if (this.registeredBroadcastReceiverProxyList.contains(receiverProxy) == false) {
+				this.registeredBroadcastReceiverProxyList.add(receiverProxy);
+			}
 			KrollRuntime.incrementServiceReceiverRefCount();
 		}
 	}
@@ -723,8 +766,8 @@ public class AndroidModule extends KrollModule
 	{
 		if (receiverProxy != null) {
 			try {
-				TiApplication.getInstance().getApplicationContext().unregisterReceiver(
-					receiverProxy.getBroadcastReceiver());
+				TiApplication.getInstance().unregisterReceiver(receiverProxy.getBroadcastReceiver());
+				this.registeredBroadcastReceiverProxyList.remove(receiverProxy);
 				KrollRuntime.decrementServiceReceiverRefCount();
 			} catch (Exception e) {
 				Log.e(TAG, "Unable to unregister broadcast receiver: " + e.getMessage());

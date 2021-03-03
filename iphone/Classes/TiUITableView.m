@@ -7,16 +7,16 @@
 #ifdef USE_TI_UITABLEVIEW
 
 #import "TiUITableView.h"
-#import "ImageLoader.h"
-#import "TiApp.h"
-#import "TiLayoutQueue.h"
-#import "TiProxy.h"
 #import "TiUITableViewProxy.h"
-#import "TiUtils.h"
-#import "TiViewProxy.h"
-#import "TiWindowProxy.h"
-#import "WebFont.h"
-#import "Webcolor.h"
+#import <TitaniumKit/ImageLoader.h>
+#import <TitaniumKit/TiApp.h>
+#import <TitaniumKit/TiLayoutQueue.h>
+#import <TitaniumKit/TiProxy.h>
+#import <TitaniumKit/TiUtils.h>
+#import <TitaniumKit/TiViewProxy.h>
+#import <TitaniumKit/TiWindowProxy.h>
+#import <TitaniumKit/WebFont.h>
+#import <TitaniumKit/Webcolor.h>
 
 #define DEFAULT_SECTION_HEADERFOOTER_HEIGHT 29.0
 #define GROUPED_MARGIN_WIDTH 18.0
@@ -287,7 +287,7 @@
 
 @implementation TiUITableView
 #pragma mark Internal
-@synthesize searchString, viewWillDetach;
+@synthesize searchString, viewWillDetach, searchResultIndexes;
 
 #ifdef TI_USE_AUTOLAYOUT
 - (void)initializeTiLayoutView
@@ -308,6 +308,7 @@
     defaultSeparatorInsets = UIEdgeInsetsZero;
     rowSeparatorInsets = UIEdgeInsetsZero;
     _dimsBackgroundDuringPresentation = YES;
+    self.shouldDelayScrolling = YES;
   }
   return self;
 }
@@ -327,14 +328,12 @@
 
   if (headerViewProxy != nil) {
     [headerViewProxy setProxyObserver:nil];
-    [[self proxy] forgetProxy:headerViewProxy];
-    headerViewProxy = nil;
+    [headerViewProxy windowWillClose];
   }
 
   if (footerViewProxy != nil) {
     [footerViewProxy setProxyObserver:nil];
-    [[self proxy] forgetProxy:footerViewProxy];
-    footerViewProxy = nil;
+    [footerViewProxy windowWillClose];
   }
 
   searchController.searchResultsUpdater = nil;
@@ -455,12 +454,12 @@
 
     defaultSeparatorInsets = [tableview separatorInset];
 
-    [tableview setLayoutMargins:UIEdgeInsetsZero];
-
-    if ([TiUtils isIOS9OrGreater]) {
-      tableview.cellLayoutMarginsFollowReadableWidth = NO;
+    if (style == UITableViewStylePlain || style == UITableViewStyleGrouped) {
+      tableview.layoutMargins = UIEdgeInsetsZero;
     }
+    tableview.cellLayoutMarginsFollowReadableWidth = NO;
   }
+
   if ([tableview superview] != self) {
     [self addSubview:tableview];
   }
@@ -493,6 +492,23 @@
   return [(TiUITableViewProxy *)[self proxy] indexPathFromInt:index];
 }
 
+- (NSInteger)rowIndexForIndexPath:(NSIndexPath *)index andSections:(NSArray *)sections
+{
+  NSInteger dataIndex = 0;
+  NSInteger c = 0;
+  NSInteger rowIndex = [index row];
+  NSInteger sectionIdx = [index section];
+  for (TiUITableViewSectionProxy *section in sections) {
+    if (c == sectionIdx) {
+      dataIndex += rowIndex;
+      break;
+    }
+    dataIndex += section.rowCount.integerValue;
+    c++;
+  }
+  return dataIndex;
+}
+
 - (void)reloadDataFromCount:(NSUInteger)oldCount toCount:(NSUInteger)newCount animation:(UITableViewRowAnimation)animation
 {
   UITableView *table = [self tableView];
@@ -501,9 +517,10 @@
   // way, meaning that we have to explicitly reload the whole visible table to get
   // the "right" behavior.
   if (animation == UITableViewRowAnimationNone) {
-    TiThreadPerformOnMainThread(^{
-      [table reloadData];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          [table reloadData];
+        },
         YES);
     return;
   }
@@ -538,7 +555,7 @@
   //won't have any problems in the case that it is actually nil.
   TiUITableViewProxy *ourProxy = (TiUITableViewProxy *)[self proxy];
 
-  NSUInteger oldCount = [ourProxy sectionCount];
+  NSUInteger oldCount = ourProxy.sectionCount.unsignedIntegerValue;
 
   for (TiUITableViewSectionProxy *section in [(TiUITableViewProxy *)[self proxy] internalSections]) {
     if ([section parent] == ourProxy) {
@@ -924,11 +941,11 @@
 
 - (TiUITableViewRowProxy *)rowForIndexPath:(NSIndexPath *)indexPath
 {
-  TiUITableViewSectionProxy *section = [self sectionForIndex:[indexPath section]];
-  if (!indexPath || [section rowCount] <= [indexPath row]) {
+  TiUITableViewSectionProxy *section = [self sectionForIndex:indexPath.section];
+  if (!indexPath || section.rowCount.unsignedIntegerValue <= indexPath.row) {
     return nil;
   }
-  return [section rowAtIndex:[indexPath row]];
+  return [section rowAtIndex:indexPath.row];
 }
 
 - (void)changeEditing:(BOOL)yn
@@ -963,24 +980,12 @@
   NSArray *sections = [(TiUITableViewProxy *)[self proxy] internalSections];
   TiUITableViewSectionProxy *section = [self sectionForIndex:sectionIdx];
 
-  NSInteger rowIndex = [index row];
-  int dataIndex = 0;
-  int c = 0;
-  TiUITableViewRowProxy *row = [section rowAtIndex:rowIndex];
-
-  // unfortunately, we have to scan to determine our row index
-  for (TiUITableViewSectionProxy *section in sections) {
-    if (c == sectionIdx) {
-      dataIndex += rowIndex;
-      break;
-    }
-    dataIndex += [section rowCount];
-    c++;
-  }
+  NSInteger dataIndex = [self rowIndexForIndexPath:index andSections:sections];
+  TiUITableViewRowProxy *row = [section rowAtIndex:[index row]];
 
   NSMutableDictionary *eventObject = [NSMutableDictionary dictionaryWithObjectsAndKeys:
                                                               section, @"section",
-                                                          NUMINT(dataIndex), @"index",
+                                                          NUMINTEGER(dataIndex), @"index",
                                                           row, @"row",
                                                           NUMBOOL(accessoryTapped), @"detail",
                                                           NUMBOOL(viaSearch), @"searchMode",
@@ -1009,6 +1014,9 @@
   // see the behavior of, say, Contacts. If users want to hide search, they can do so
   // in an event callback.
 
+  if (viaSearch) {
+    self.shouldDelayScrolling = NO;
+  }
   if ([target _hasListeners:name]) {
     [target fireEvent:name withObject:eventObject];
   }
@@ -1124,24 +1132,13 @@
       NSArray *sections = [(TiUITableViewProxy *)[self proxy] internalSections];
       TiUITableViewSectionProxy *section = [self sectionForIndex:sectionIdx];
 
-      NSInteger rowIndex = [indexPath row];
-      int dataIndex = 0;
-      int c = 0;
-      TiUITableViewRowProxy *row = [section rowAtIndex:rowIndex];
+      NSInteger dataIndex = [self rowIndexForIndexPath:indexPath andSections:sections];
+      TiUITableViewRowProxy *row = [section rowAtIndex:[indexPath row]];
 
-      // unfortunately, we have to scan to determine our row index
-      for (TiUITableViewSectionProxy *section in sections) {
-        if (c == sectionIdx) {
-          dataIndex += rowIndex;
-          break;
-        }
-        dataIndex += [section rowCount];
-        c++;
-      }
       [event setObject:section forKey:@"section"];
       [event setObject:row forKey:@"row"];
       [event setObject:row forKey:@"rowData"];
-      [event setObject:NUMINT(dataIndex) forKey:@"index"];
+      [event setObject:NUMINTEGER(dataIndex) forKey:@"index"];
     }
     [[self proxy] fireEvent:@"swipe" withObject:event];
     RELEASE_TO_NIL(event);
@@ -1175,24 +1172,13 @@
     NSArray *sections = [(TiUITableViewProxy *)[self proxy] internalSections];
     TiUITableViewSectionProxy *section = [self sectionForIndex:sectionIdx];
 
-    NSInteger rowIndex = [indexPath row];
-    int dataIndex = 0;
-    int c = 0;
-    TiUITableViewRowProxy *row = [section rowAtIndex:rowIndex];
+    NSInteger dataIndex = [self rowIndexForIndexPath:indexPath andSections:sections];
+    TiUITableViewRowProxy *row = [section rowAtIndex:[indexPath row]];
 
-    // unfortunately, we have to scan to determine our row index
-    for (TiUITableViewSectionProxy *section in sections) {
-      if (c == sectionIdx) {
-        dataIndex += rowIndex;
-        break;
-      }
-      dataIndex += [section rowCount];
-      c++;
-    }
     [event setObject:section forKey:@"section"];
     [event setObject:row forKey:@"row"];
     [event setObject:row forKey:@"rowData"];
-    [event setObject:NUMINT(dataIndex) forKey:@"index"];
+    [event setObject:NUMINTEGER(dataIndex) forKey:@"index"];
   }
 
   if ([recognizer numberOfTouchesRequired] == 2) {
@@ -1271,7 +1257,7 @@
         return;
       }
     }
-    if (allowsSelectionSet == NO || [ourTableView allowsSelection] == NO) {
+    if (!allowsSelectionSet || ![ourTableView allowsSelection]) {
       [ourTableView deselectRowAtIndexPath:indexPath animated:YES];
     }
     [self triggerActionForIndexPath:indexPath fromPath:nil tableView:ourTableView wasAccessory:NO search:search name:@"longpress"];
@@ -1327,7 +1313,8 @@
   }
   NSEnumerator *searchResultIndexEnumerator;
   if (searchResultIndexes == nil) {
-    searchResultIndexes = [[NSMutableArray alloc] initWithCapacity:[(TiUITableViewProxy *)[self proxy] sectionCount]];
+    NSUInteger sectionCount = [(TiUITableViewProxy *)[self proxy] sectionCount].unsignedIntegerValue;
+    searchResultIndexes = [[NSMutableArray alloc] initWithCapacity:sectionCount];
     searchResultIndexEnumerator = nil;
   } else {
     searchResultIndexEnumerator = [searchResultIndexes objectEnumerator];
@@ -1438,17 +1425,21 @@
   if (![searchController isActive]) {
     return;
   }
-  [dimmingView setFrame:CGRectMake(0, searchController.searchBar.frame.size.height, self.frame.size.width, self.frame.size.height - searchController.searchBar.frame.size.height)];
-  CGPoint convertedOrigin = [self.superview convertPoint:self.frame.origin toView:searchControllerPresenter.view];
+  if (isSearchBarInNavigation) {
+    dimmingView.frame = CGRectMake(0, 0, self.frame.size.width, self.frame.size.height);
+  } else {
+    [dimmingView setFrame:CGRectMake(0, searchController.searchBar.frame.size.height, self.frame.size.width, self.frame.size.height - searchController.searchBar.frame.size.height)];
+    CGPoint convertedOrigin = [self.superview convertPoint:self.frame.origin toView:searchControllerPresenter.view];
 
-  UIView *searchSuperView = [searchController.view superview];
-  searchSuperView.frame = CGRectMake(convertedOrigin.x, convertedOrigin.y, self.frame.size.width, self.frame.size.height);
+    UIView *searchSuperView = [searchController.view superview];
+    searchSuperView.frame = CGRectMake(convertedOrigin.x, convertedOrigin.y, self.frame.size.width, self.frame.size.height);
 
-  CGFloat width = [searchField view].frame.size.width;
-  UIView *view = searchController.searchBar.superview;
-  view.frame = CGRectMake(0, 0, width, view.frame.size.height);
-  searchController.searchBar.frame = CGRectMake(0, 0, width, searchController.searchBar.frame.size.height);
-  [searchField ensureSearchBarHierarchy];
+    CGFloat width = [searchField view].frame.size.width;
+    UIView *view = searchController.searchBar.superview;
+    view.frame = CGRectMake(0, 0, width, view.frame.size.height);
+    searchController.searchBar.frame = CGRectMake(0, 0, width, searchController.searchBar.frame.size.height);
+    [searchField ensureSearchBarHierarchy];
+  }
 }
 
 #pragma mark Searchbar-related IBActions
@@ -1548,7 +1539,7 @@
   UIView *searchView = [searchField view];
 
   if (tableHeaderView == nil) {
-    CGFloat wrapperHeight = [TiUtils isIOS11OrGreater] ? TI_SEARCHBAR_HEIGHT : TI_NAVBAR_HEIGHT;
+    CGFloat wrapperHeight = TI_SEARCHBAR_HEIGHT;
     CGRect wrapperFrame = CGRectMake(0, 0, [tableview bounds].size.width, wrapperHeight);
     tableHeaderView = [[UIView alloc] initWithFrame:wrapperFrame];
     [tableHeaderView setAutoresizingMask:UIViewAutoresizingFlexibleWidth];
@@ -1556,7 +1547,9 @@
     [[searchField searchBar] setAutoresizingMask:UIViewAutoresizingFlexibleWidth];
     [TiUtils setView:searchView positionRect:wrapperFrame];
     [tableHeaderView addSubview:searchView];
-    [tableview setTableHeaderView:tableHeaderView];
+    if (!isSearchBarInNavigation) {
+      [tableview setTableHeaderView:tableHeaderView];
+    }
     [searchView sizeToFit];
   }
 }
@@ -1697,17 +1690,18 @@
 
 - (void)proxyDidRelayout:(id)sender
 {
-  TiThreadPerformOnMainThread(^{
-    if ((sender == headerViewProxy) && (headerViewProxy != nil)) {
-      UIView *headerView = [[self tableView] tableHeaderView];
-      [headerView setFrame:[headerView bounds]];
-      [[self tableView] setTableHeaderView:headerView];
-    } else if ((sender == footerViewProxy) && (footerViewProxy != nil)) {
-      UIView *footerView = [[self tableView] tableFooterView];
-      [footerView setFrame:[footerView bounds]];
-      [[self tableView] setTableFooterView:footerView];
-    }
-  },
+  TiThreadPerformOnMainThread(
+      ^{
+        if ((sender == headerViewProxy) && (headerViewProxy != nil)) {
+          UIView *headerView = [[self tableView] tableHeaderView];
+          [headerView setFrame:[headerView bounds]];
+          [[self tableView] setTableHeaderView:headerView];
+        } else if ((sender == footerViewProxy) && (footerViewProxy != nil)) {
+          UIView *footerView = [[self tableView] tableFooterView];
+          [footerView setFrame:[footerView bounds]];
+          [[self tableView] setTableFooterView:footerView];
+        }
+      },
       NO);
 }
 
@@ -1788,12 +1782,16 @@
   RELEASE_TO_NIL(searchField);
   RELEASE_TO_NIL(searchController);
 
+  isSearchBarInNavigation = [TiUtils boolValue:[self.proxy valueForKey:@"showSearchBarInNavBar"] def:NO];
+
   if (search != nil) {
     //TODO: now that we're using the search controller, we can move away from
     //doing our own custom search screen since the controller gives this to us
     //for free
     searchField = [search retain];
-    [searchField windowWillOpen];
+    if (!isSearchBarInNavigation) {
+      [searchField windowWillOpen];
+    }
     [searchField setDelegate:self];
     [self tableView];
     [self updateSearchView];
@@ -1908,9 +1906,10 @@
 
   // Instead of calling back through our mechanism to reload specific sections, because the entire index of the table
   // has been regenerated, we can assume it's okay to just reload the whole dataset.
-  TiThreadPerformOnMainThread(^{
-    [[self tableView] reloadData];
-  },
+  TiThreadPerformOnMainThread(
+      ^{
+        [[self tableView] reloadData];
+      },
       NO);
 }
 
@@ -1987,7 +1986,7 @@
   [[self proxy] replaceValue:args forKey:@"refreshControl" notification:NO];
   if (args != nil) {
     _refreshControlProxy = [args retain];
-    [[self tableView] addSubview:[_refreshControlProxy control]];
+    [[self tableView] setRefreshControl:_refreshControlProxy.control];
   }
 #endif
 }
@@ -2038,6 +2037,14 @@
   }
 }
 
+- (void)setAllowsMultipleSelectionDuringEditing_:(id)value
+{
+  ENSURE_TYPE(value, NSNumber);
+  [[self proxy] replaceValue:value forKey:@"allowsMultipleSelectionDuringEditing" notification:NO];
+
+  [[self tableView] setAllowsMultipleSelectionDuringEditing:[TiUtils boolValue:value]];
+}
+
 #pragma mark Datasource
 
 #define RETURN_IF_SEARCH_TABLE_VIEW(result) \
@@ -2061,7 +2068,7 @@
   }
 
   TiUITableViewSectionProxy *sectionProxy = [self sectionForIndex:section];
-  return sectionProxy.rowCount;
+  return sectionProxy.rowCount.integerValue;
 }
 
 // Row display. Implementers should *always* try to reuse cells by setting each cell's reuseIdentifier and querying for available reusable cells with dequeueReusableCellWithIdentifier:
@@ -2118,7 +2125,7 @@
     return 1;
   }
   // One quirk of UITableView is that it really hates having 0 sections. Instead, supply 1 section, no rows.
-  NSUInteger result = [(TiUITableViewProxy *)[self proxy] sectionCount];
+  NSUInteger result = [(TiUITableViewProxy *)[self proxy] sectionCount].unsignedIntegerValue;
   return MAX(1, result);
 }
 
@@ -2160,7 +2167,7 @@
     [table beginUpdates];
     if (emptySection) {
       NSIndexSet *thisSectionSet = [NSIndexSet indexSetWithIndex:[indexPath section]];
-      if ([(TiUITableViewProxy *)[self proxy] sectionCount] > 0) {
+      if ([(TiUITableViewProxy *)[self proxy] sectionCount].unsignedIntegerValue > 0) {
         [table deleteSections:thisSectionSet withRowAnimation:UITableViewRowAnimationFade];
       } else //There always must be at least one section. So instead, we have it reload to clear out the header and footer, etc.
       {
@@ -2268,12 +2275,52 @@
   [self triggerActionForIndexPath:destinationIndexPath fromPath:sourceIndexPath tableView:ourTableView wasAccessory:NO search:NO name:@"move"];
 }
 
+- (BOOL)tableView:(UITableView *)tableView shouldBeginMultipleSelectionInteractionAtIndexPath:(NSIndexPath *)indexPath
+{
+  RETURN_IF_SEARCH_TABLE_VIEW(NO);
+
+  return [TiUtils boolValue:[[self proxy] valueForUndefinedKey:@"allowsMultipleSelectionDuringEditing"] def:NO] && [TiUtils boolValue:[[self proxy] valueForUndefinedKey:@"allowsMultipleSelectionInteraction"] def:NO];
+}
+
+- (void)tableView:(UITableView *)tableView didBeginMultipleSelectionInteractionAtIndexPath:(NSIndexPath *)indexPath
+{
+  editing = YES;
+}
+
+- (void)tableViewDidEndMultipleSelectionInteraction:(UITableView *)tableView
+{
+  if ([self.proxy _hasListeners:@"rowsselected"]) {
+    NSMutableArray *selectedItems = [NSMutableArray arrayWithCapacity:tableView.indexPathsForSelectedRows.count];
+    NSMutableDictionary *startingRowObject = [NSMutableDictionary dictionaryWithCapacity:1];
+
+    for (int i = 0; i < tableView.indexPathsForSelectedRows.count; i++) {
+      NSIndexPath *index = tableView.indexPathsForSelectedRows[i];
+      NSInteger sectionIdx = [index section];
+      NSArray *sections = [(TiUITableViewProxy *)[self proxy] internalSections];
+      TiUITableViewSectionProxy *section = [self sectionForIndex:sectionIdx];
+
+      NSInteger dataIndex = [self rowIndexForIndexPath:index andSections:sections];
+
+      TiUITableViewRowProxy *row = [section rowAtIndex:[index row]];
+
+      NSMutableDictionary *eventObject = [NSMutableDictionary dictionaryWithObjectsAndKeys:
+                                                                  section, @"section",
+                                                              NUMINTEGER(dataIndex), @"index",
+                                                              row, @"row",
+                                                              row, @"rowData",
+                                                              nil];
+      [selectedItems addObject:eventObject];
+    }
+    [self.proxy fireEvent:@"rowsselected" withObject:@{ @"selectedRows" : selectedItems, @"startingRow" : startingRowObject }];
+  }
+}
+
 #pragma mark Collation
 
 - (NSArray *)sectionIndexTitlesForTableView:(UITableView *)ourTableView
 {
   RETURN_IF_SEARCH_TABLE_VIEW(nil);
-  if (sectionIndex != nil && editing == NO) {
+  if (sectionIndex != nil && !editing) {
     return sectionIndex;
   }
   return nil;
@@ -2340,6 +2387,22 @@
 
 - (void)viewGetFocus
 {
+  if (isSearchBarInNavigation) {
+    id proxy = [(TiViewProxy *)self.proxy parent];
+    while ([proxy isKindOfClass:[TiViewProxy class]] && ![proxy isKindOfClass:[TiWindowProxy class]]) {
+      proxy = [proxy parent];
+    }
+    UIViewController *controller;
+    if ([proxy isKindOfClass:[TiWindowProxy class]]) {
+      controller = [[proxy windowHoldingController] retain];
+    } else {
+      controller = [[[TiApp app] controller] retain];
+    }
+    if (!controller.navigationItem.searchController) {
+      controller.navigationItem.searchController = searchController;
+    }
+    RELEASE_TO_NIL(controller);
+  }
   if (!hideOnSearch && isSearched && self.searchedString && ![searchController isActive]) {
     isSearched = NO;
     searchController.searchBar.text = self.searchedString;
@@ -2358,6 +2421,7 @@
     dimmingView.alpha = .2;
     UITapGestureRecognizer *tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(dismissSearchController)];
     [dimmingView addGestureRecognizer:tapGesture];
+    [tapGesture release];
   }
 }
 
@@ -2408,7 +2472,7 @@
 - (void)tableView:(UITableView *)ourTableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
   BOOL search = NO;
-  if (allowsSelectionSet == NO || [ourTableView allowsSelection] == NO) {
+  if ((!allowsSelectionSet || ![ourTableView allowsSelection]) && !editing) {
     [ourTableView deselectRowAtIndexPath:indexPath animated:YES];
   }
   if ([searchController isActive]) {
@@ -2433,7 +2497,7 @@
       color = [self.proxy valueForKey:@"backgroundColor"];
     }
   }
-  UIColor *cellColor = [Webcolor webColorNamed:color];
+  UIColor *cellColor = [TiUtils colorValue:color].color;
   if (cellColor == nil) {
     cellColor = [UIColor whiteColor];
   }
@@ -2469,7 +2533,7 @@
 - (void)tableView:(UITableView *)ourTableView accessoryButtonTappedForRowWithIndexPath:(NSIndexPath *)indexPath
 {
   BOOL search = NO;
-  if (allowsSelectionSet == NO || [ourTableView allowsSelection] == NO) {
+  if (!allowsSelectionSet || ![ourTableView allowsSelection]) {
     [ourTableView deselectRowAtIndexPath:indexPath animated:YES];
   }
   if ([searchController isActive]) {
@@ -2516,6 +2580,9 @@
     }
   }
 
+  if (tableview.style == UITableViewStyleInsetGrouped) {
+    rowWidth -= tableview.layoutMargins.left + tableview.layoutMargins.right;
+  }
   return rowWidth;
 }
 
@@ -2708,7 +2775,7 @@
 
 - (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate
 {
-  if (decelerate == NO) {
+  if (!decelerate) {
     // resume image loader when we're done scrolling
     [[ImageLoader sharedLoader] resume];
   }
@@ -2751,6 +2818,7 @@
     return;
   }
 
+  [self hideDimmingView];
   animateHide = YES;
   [self performSelector:@selector(hideSearchScreen:) withObject:nil afterDelay:0.2];
   // Since we clear the searchbar, the search string and indexes can be cleared as well.
@@ -2762,6 +2830,31 @@
 
 - (void)presentSearchController:(UISearchController *)controller
 {
+  TiColor *resultsBackgroundColor = [TiUtils colorValue:[[self proxy] valueForKey:@"resultsBackgroundColor"]];
+  TiColor *resultsSeparatorColor = [TiUtils colorValue:[[self proxy] valueForKey:@"resultsSeparatorColor"]];
+  id resultsSeparatorInsets = [[self proxy] valueForKey:@"resultsSeparatorInsets"];
+  id resultsSeparatorStyle = [[self proxy] valueForKey:@"resultsSeparatorStyle"];
+
+  ENSURE_TYPE_OR_NIL(resultsSeparatorInsets, NSDictionary);
+  ENSURE_TYPE_OR_NIL(resultsSeparatorStyle, NSNumber);
+
+  if (resultsBackgroundColor) {
+    // TIMOB-23281: Hack to support transparent backgrounds (not officially supported)
+    UIColor *color = [resultsBackgroundColor _color] == [UIColor clearColor] ? [UIColor colorWithWhite:1.0 alpha:0.0001] : [resultsBackgroundColor _color];
+    [tableview setBackgroundColor:color];
+  }
+
+  if (resultsSeparatorColor) {
+    [tableview setSeparatorColor:[resultsSeparatorColor _color]];
+  }
+
+  if (resultsSeparatorInsets) {
+    [tableview setSeparatorInset:[TiUtils contentInsets:resultsSeparatorInsets]];
+  }
+
+  if (resultsSeparatorStyle) {
+    [tableview setSeparatorStyle:[TiUtils intValue:resultsSeparatorStyle def:UITableViewCellSeparatorStyleSingleLine]];
+  }
   tableContentOffset = [tableview contentOffset];
 
   if (!searchControllerPresenter) {
@@ -2777,10 +2870,8 @@
   }
   searchControllerPresenter.definesPresentationContext = YES;
 
-  BOOL shouldAnimate = ![TiUtils isIOS9OrGreater];
-
   [searchControllerPresenter presentViewController:controller
-                                          animated:shouldAnimate
+                                          animated:NO
                                         completion:^{
                                           isSearched = YES;
                                           [self showDimmingView];

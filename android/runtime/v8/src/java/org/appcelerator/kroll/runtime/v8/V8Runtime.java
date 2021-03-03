@@ -6,7 +6,6 @@
  */
 package org.appcelerator.kroll.runtime.v8;
 
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -16,6 +15,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.appcelerator.kroll.KrollApplication;
 import org.appcelerator.kroll.KrollExternalModule;
+import org.appcelerator.kroll.KrollPromise;
 import org.appcelerator.kroll.KrollProxySupport;
 import org.appcelerator.kroll.KrollRuntime;
 import org.appcelerator.kroll.common.KrollSourceCodeProvider;
@@ -25,14 +25,15 @@ import org.appcelerator.kroll.common.TiDeployData;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
-import android.os.Message;
 import android.os.MessageQueue.IdleHandler;
+
+import androidx.annotation.NonNull;
 
 public final class V8Runtime extends KrollRuntime implements Handler.Callback
 {
 	private static final String TAG = "KrollV8Runtime";
 	private static final String NAME = "v8";
-	private static final int MAX_V8_IDLE_INTERVAL = 30 * 1000; // ms
+	private static final int MAX_V8_IDLE_INTERVAL = 5 * 1000; // ms
 
 	private boolean libLoaded = false;
 
@@ -45,6 +46,11 @@ public final class V8Runtime extends KrollRuntime implements Handler.Callback
 	private AtomicBoolean shouldGC = new AtomicBoolean(false);
 	private long lastV8Idle;
 
+	/**
+	 * Setup JVM garbage collection watcher to initiate V8 garbage collections
+	 */
+	private static GCWatcher watcher = new GCWatcher();
+
 	public static boolean isEmulator()
 	{
 		return "goldfish".equals(Build.HARDWARE) || Build.FINGERPRINT.startsWith("generic")
@@ -56,9 +62,14 @@ public final class V8Runtime extends KrollRuntime implements Handler.Callback
 	}
 
 	@Override
+	public void forceGC()
+	{
+		nativeIdle();
+	}
+
+	@Override
 	public void initRuntime()
 	{
-		boolean useGlobalRefs = false;
 		KrollApplication application = getKrollApplication();
 		TiDeployData deployData = application.getDeployData();
 
@@ -92,18 +103,10 @@ public final class V8Runtime extends KrollRuntime implements Handler.Callback
 			jsDebugger = new JSDebugger(deployData.getDebuggerPort(), application.getSDKVersion());
 		}
 
-		nativeInit(useGlobalRefs, jsDebugger, DBG, deployData.isProfilerEnabled());
+		nativeInit(jsDebugger, DBG, false);
 
 		if (jsDebugger != null) {
 			jsDebugger.start();
-		} else if (deployData.isProfilerEnabled()) {
-			try {
-				Class<?> clazz = Class.forName("org.appcelerator.titanium.profiler.TiProfiler");
-				Method method = clazz.getMethod("startProfiler", new Class[0]);
-				method.invoke(clazz, new Object[0]);
-			} catch (Exception e) {
-				Log.e(TAG, "Unable to load profiler.", e);
-			}
 		}
 
 		loadExternalModules();
@@ -113,20 +116,12 @@ public final class V8Runtime extends KrollRuntime implements Handler.Callback
 			@Override
 			public boolean queueIdle()
 			{
-				boolean willGC = shouldGC.getAndSet(false);
-				if (!willGC) {
-					// This means we haven't specifically been told to do
-					// a V8 GC (which is just a call to nativeIdle()), but nevertheless
-					// if more than the recommended time has passed since the last
-					// call to nativeIdle(), we'll want to do it anyways.
-					willGC = ((System.currentTimeMillis() - lastV8Idle) > MAX_V8_IDLE_INTERVAL);
-				}
-				if (willGC) {
-					boolean gcWantsMore = !nativeIdle();
+				// determine if we should suggest a V8 garbage collection
+				if (shouldGC.getAndSet(false) && (System.currentTimeMillis() - lastV8Idle) > MAX_V8_IDLE_INTERVAL) {
+
+					// attempt garbage collection
+					nativeIdle();
 					lastV8Idle = System.currentTimeMillis();
-					if (gcWantsMore) {
-						shouldGC.set(true);
-					}
 				}
 				return true;
 			}
@@ -138,21 +133,18 @@ public final class V8Runtime extends KrollRuntime implements Handler.Callback
 		for (String libName : externalModules.keySet()) {
 			Log.d(TAG, "Bootstrapping module: " + libName, Log.DEBUG_MODE);
 
-			if (!loadedLibs.contains(libName)) {
-				System.loadLibrary(libName);
-				loadedLibs.add(libName);
-			}
-
-			Class<? extends KrollExternalModule> moduleClass = externalModules.get(libName);
-
 			try {
+				if (!loadedLibs.contains(libName)) {
+					System.loadLibrary(libName);
+					loadedLibs.add(libName);
+				}
+
+				Class<? extends KrollExternalModule> moduleClass = externalModules.get(libName);
+
 				KrollExternalModule module = moduleClass.newInstance();
 				module.bootstrap();
 
-			} catch (IllegalAccessException e) {
-				Log.e(TAG, "Error bootstrapping external module: " + e.getMessage(), e);
-
-			} catch (InstantiationException e) {
+			} catch (Exception e) {
 				Log.e(TAG, "Error bootstrapping external module: " + e.getMessage(), e);
 			}
 		}
@@ -168,17 +160,13 @@ public final class V8Runtime extends KrollRuntime implements Handler.Callback
 	@Override
 	public void doDispose()
 	{
-		TiDeployData deployData = getKrollApplication().getDeployData();
-		if (deployData.isProfilerEnabled()) {
-			try {
-				Class<?> clazz = Class.forName("org.appcelerator.titanium.profiler.TiProfiler");
-				Method method = clazz.getMethod("stopProfiler", new Class[0]);
-				method.invoke(clazz, new Object[0]);
-			} catch (Exception e) {
-				Log.e(TAG, "Unable to stop profiler.", e);
-			}
-		}
 		nativeDispose();
+	}
+
+	@Override
+	public void doRunModuleBytes(byte[] source, String filename, KrollProxySupport activityProxy)
+	{
+		nativeRunModuleBytes(source, filename, activityProxy);
 	}
 
 	@Override
@@ -227,8 +215,20 @@ public final class V8Runtime extends KrollRuntime implements Handler.Callback
 		shouldGC.set(true);
 	}
 
+	@Override
+	@NonNull
+	public KrollPromise createPromise()
+	{
+		if (KrollRuntime.isDisposed()) {
+			return new KrollPromise.NullPromise();
+		}
+		return new V8Promise();
+	}
+
 	// JNI method prototypes
-	private native void nativeInit(boolean useGlobalRefs, JSDebugger jsDebugger, boolean DBG, boolean profilerEnabled);
+	private native void nativeInit(JSDebugger jsDebugger, boolean DBG, boolean profilerEnabled);
+
+	private native void nativeRunModuleBytes(byte[] source, String filename, KrollProxySupport activityProxy);
 
 	private native void nativeRunModule(String source, String filename, KrollProxySupport activityProxy);
 

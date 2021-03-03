@@ -6,7 +6,7 @@
  */
 #ifdef USE_TI_UISLIDER
 
-#import "TiUIView.h"
+#import <TitaniumKit/TiUIView.h>
 
 @interface TiUISlider : TiUIView <LayoutAutosizing> {
   @private

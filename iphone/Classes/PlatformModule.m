@@ -1,13 +1,15 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2014 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-Present by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 #ifdef USE_TI_PLATFORM
 
 #import "PlatformModule.h"
-#import "TiApp.h"
+#import "TiPlatformDisplayCaps.h"
+#import <TitaniumKit/JSValue+Addons.h>
+#import <TitaniumKit/TiApp.h>
 
 #import <mach/mach.h>
 #import <sys/sysctl.h>
@@ -19,7 +21,7 @@
 #import <sys/types.h>
 
 #if defined(USE_TI_PLATFORMIDENTIFIERFORADVERTISING) || defined(USE_TI_PLATFORMGETIDENTIFIERFORADVERTISING)
-#import <AdSupport/AdSupport.h>
+@import AdSupport;
 #endif
 
 NSString *const WIFI_IFACE = @"en0";
@@ -27,18 +29,29 @@ NSString *const DATA_IFACE = @"pdp_ip0";
 
 @implementation PlatformModule
 
-@synthesize name, model, version, architecture, processorCount, username, ostype, availableMemory;
+@synthesize architecture, availableMemory, model, name, osname, ostype, processorCount, totalMemory, uptime, username, version, versionMajor, versionMinor, versionPatch;
 
 #pragma mark Internal
 
 - (id)init
 {
   if (self = [super init]) {
-    UIDevice *theDevice = [UIDevice currentDevice];
-    name = [[theDevice systemName] retain];
-    version = [[theDevice systemVersion] retain];
-    processorCount = [[NSNumber numberWithInt:1] retain];
-    username = [[theDevice name] retain];
+    UIDevice *theDevice = UIDevice.currentDevice;
+#if !TARGET_OS_MACCATALYST
+    name = [theDevice.systemName retain];
+#else
+    name = @"Mac OS X";
+#endif
+
+    NSOperatingSystemVersion versionStruct = NSProcessInfo.processInfo.operatingSystemVersion;
+    version = [[NSString stringWithFormat:@"%ld.%ld.%ld", versionStruct.majorVersion, versionStruct.minorVersion, versionStruct.patchVersion] retain];
+    versionMajor = [NSNumber numberWithInteger:versionStruct.majorVersion];
+    versionMinor = [NSNumber numberWithInteger:versionStruct.minorVersion];
+    versionPatch = [NSNumber numberWithInteger:versionStruct.patchVersion];
+    processorCount = [NSNumber numberWithUnsignedInteger:NSProcessInfo.processInfo.processorCount];
+
+    username = [theDevice.name retain];
+
 #ifdef __LP64__
     ostype = [@"64bit" retain];
 #else
@@ -47,52 +60,39 @@ NSString *const DATA_IFACE = @"pdp_ip0";
 
     if ([TiUtils isIPad]) {
       // ipad is a constant for Ti.Platform.osname
-      [self replaceValue:@"ipad" forKey:@"osname" notification:NO];
+      osname = [@"ipad" retain];
     } else {
       // iphone is a constant for Ti.Platform.osname
-      [self replaceValue:@"iphone" forKey:@"osname" notification:NO];
+      osname = [@"iphone" retain];
     }
 
-    NSString *themodel = [theDevice model];
+    // detect simulator
+#if TARGET_OS_SIMULATOR
+    model = [[NSString stringWithFormat:@"%s (Simulator)", getenv("SIMULATOR_MODEL_IDENTIFIER")] retain];
+#elif TARGET_OS_MACCATALYST
+    // Need to go a bit deeper to get the hardware model for actual macOS boxes
+    const char *keyCString = "hw.model";
+    NSString *answer = @"";
 
+    size_t length;
+    sysctlbyname(keyCString, NULL, &length, NULL, 0);
+    if (length) {
+      char *answerCString = malloc(length * sizeof(char));
+      sysctlbyname(keyCString, answerCString, &length, NULL, 0);
+      answer = [NSString stringWithCString:answerCString encoding:NSUTF8StringEncoding];
+      free(answerCString);
+    }
+    model = [answer retain];
+#else
     // attempt to determine extended phone info
     struct utsname u;
     uname(&u);
-
-    // detect iPhone 3G model
-    if (!strcmp(u.machine, "iPhone1,2")) {
-      model = [[NSString stringWithFormat:@"%@ 3G", themodel] retain];
-    }
-    // detect iPhone 3Gs model
-    else if (!strcmp(u.machine, "iPhone2,1")) {
-      model = [[NSString stringWithFormat:@"%@ 3GS", themodel] retain];
-    }
-    // detect iPhone 4 model
-    else if (!strcmp(u.machine, "iPhone3,1")) {
-      model = [[NSString stringWithFormat:@"%@ 4", themodel] retain];
-    }
-    // detect iPod Touch 2G model
-    else if (!strcmp(u.machine, "iPod2,1")) {
-      model = [[NSString stringWithFormat:@"%@ 2G", themodel] retain];
-    }
-    // detect iPad 2 model
-    else if (!strcmp(u.machine, "iPad2,1")) {
-      model = [[NSString stringWithFormat:@"%@ 2", themodel] retain];
-    }
-    // detect simulator for i386
-    else if (!strcmp(u.machine, "i386")) {
-      model = [@"Simulator" retain];
-    }
-    // detect simulator for x86_64
-    else if (!strcmp(u.machine, "x86_64")) {
-      model = [@"Simulator" retain];
-    } else {
-      model = [[NSString alloc] initWithUTF8String:u.machine];
-    }
+    model = [[NSString alloc] initWithUTF8String:u.machine];
+#endif
     architecture = [[TiUtils currentArchitecture] retain];
 
     // needed for platform displayCaps orientation to be correct
-    [[UIDevice currentDevice] beginGeneratingDeviceOrientationNotifications];
+    [theDevice beginGeneratingDeviceOrientationNotifications];
   }
   return self;
 }
@@ -102,13 +102,16 @@ NSString *const DATA_IFACE = @"pdp_ip0";
   RELEASE_TO_NIL(name);
   RELEASE_TO_NIL(model);
   RELEASE_TO_NIL(version);
+  RELEASE_TO_NIL(versionMajor);
+  RELEASE_TO_NIL(versionMinor);
+  RELEASE_TO_NIL(versionPatch);
   RELEASE_TO_NIL(architecture);
   RELEASE_TO_NIL(processorCount);
   RELEASE_TO_NIL(username);
-  RELEASE_TO_NIL(address);
   RELEASE_TO_NIL(ostype);
   RELEASE_TO_NIL(availableMemory);
-  RELEASE_TO_NIL(capabilities);
+  RELEASE_TO_NIL(totalMemory);
+  RELEASE_TO_NIL(uptime);
   [super dealloc];
 }
 
@@ -121,7 +124,7 @@ NSString *const DATA_IFACE = @"pdp_ip0";
 {
   UIDevice *device = [UIDevice currentDevice];
   // set a flag to temporarily turn on battery enablement
-  if (batteryEnabled == NO && device.batteryMonitoringEnabled == NO) {
+  if (!batteryEnabled && !device.batteryMonitoringEnabled) {
     batteryEnabled = YES;
     [device setBatteryMonitoringEnabled:YES];
   }
@@ -144,9 +147,10 @@ NSString *const DATA_IFACE = @"pdp_ip0";
 - (void)_listenerAdded:(NSString *)type count:(int)count
 {
   if (count == 1 && [type isEqualToString:@"battery"]) {
-    TiThreadPerformOnMainThread(^{
-      [self registerListeners:nil];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          [self registerListeners:nil];
+        },
         YES);
   }
 }
@@ -154,9 +158,10 @@ NSString *const DATA_IFACE = @"pdp_ip0";
 - (void)_listenerRemoved:(NSString *)type count:(int)count
 {
   if (count == 0 && [type isEqualToString:@"battery"]) {
-    TiThreadPerformOnMainThread(^{
-      [self unregisterListeners:nil];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          [self unregisterListeners:nil];
+        },
         YES);
   }
 }
@@ -194,11 +199,13 @@ NSString *const DATA_IFACE = @"pdp_ip0";
 {
   return @"javascriptcore";
 }
+GETTER_IMPL(NSString *, runtime, Runtime);
 
 - (NSString *)manufacturer
 {
   return @"apple";
 }
+GETTER_IMPL(NSString *, manufacturer, Manufacturer);
 
 - (NSString *)locale
 {
@@ -208,40 +215,62 @@ NSString *const DATA_IFACE = @"pdp_ip0";
   NSArray *languages = [defs objectForKey:@"AppleLanguages"];
   return [languages count] > 0 ? [languages objectAtIndex:0] : @"en";
 }
+GETTER_IMPL(NSString *, locale, Locale);
 
 - (NSString *)macaddress
 {
   return [TiUtils appIdentifier];
+}
+GETTER_IMPL(NSString *, macaddress, Macaddress);
+
+- (NSNumber *)uptime
+{
+  return [NSNumber numberWithDouble:[[NSProcessInfo processInfo] systemUptime]];
 }
 
 - (NSString *)identifierForVendor
 {
   return [[[UIDevice currentDevice] identifierForVendor] UUIDString];
 }
+GETTER_IMPL(NSString *, identifierForVendor, IdentifierForVendor);
 
 #if defined(USE_TI_PLATFORMIDENTIFIERFORADVERTISING) || defined(USE_TI_PLATFORMGETIDENTIFIERFORADVERTISING)
-- (NSNumber *)isAdvertisingTrackingEnabled
+- (bool)isAdvertisingTrackingEnabled
 {
-  return NUMBOOL([[ASIdentifierManager sharedManager] isAdvertisingTrackingEnabled]);
+  return [[ASIdentifierManager sharedManager] isAdvertisingTrackingEnabled];
 }
 
 - (NSString *)identifierForAdvertising
 {
   return [[[ASIdentifierManager sharedManager] advertisingIdentifier] UUIDString];
 }
+#else
+- (bool)isAdvertisingTrackingEnabled
+{
+  return NO;
+}
+
+- (NSString *)identifierForAdvertising
+{
+  return @"";
+}
 #endif
 
-- (id)id
+GETTER_IMPL(bool, isAdvertisingTrackingEnabled, IsAdvertisingTrackingEnabled);
+GETTER_IMPL(NSString *, identifierForAdvertising, IdentifierForAdvertising);
+
+- (NSString *)id
 {
   return [TiUtils appIdentifier];
 }
+GETTER_IMPL(NSString *, id, Id);
 
-- (NSString *)createUUID:(id)args
+- (NSString *)createUUID
 {
   return [TiUtils createUUID];
 }
 
-- (NSNumber *)is24HourTimeFormat:(id)unused
+- (BOOL)is24HourTimeFormat
 {
   NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
   [dateFormatter setLocale:[NSLocale currentLocale]];
@@ -250,7 +279,7 @@ NSString *const DATA_IFACE = @"pdp_ip0";
   NSRange amRange = [dateInStringForm rangeOfString:[dateFormatter AMSymbol]];
   NSRange pmRange = [dateInStringForm rangeOfString:[dateFormatter PMSymbol]];
   [dateFormatter release];
-  return NUMBOOL(amRange.location == NSNotFound && pmRange.location == NSNotFound);
+  return amRange.location == NSNotFound && pmRange.location == NSNotFound;
 }
 
 - (NSNumber *)availableMemory
@@ -263,89 +292,134 @@ NSString *const DATA_IFACE = @"pdp_ip0";
     return [NSNumber numberWithDouble:-1];
   }
 
-  return [NSNumber numberWithDouble:((vm_page_size * vmStats.free_count) / 1024.0) / 1024.0];
+  return [NSNumber numberWithUnsignedLong:(vm_page_size * vmStats.free_count)];
 }
 
-- (NSNumber *)openURL:(NSArray *)args
+- (NSNumber *)totalMemory
 {
-  NSString *newUrlString = [args objectAtIndex:0];
-  NSURL *newUrl = [TiUtils toURL:newUrlString proxy:self];
-  BOOL result = NO;
-  if (newUrl != nil) {
-    [[UIApplication sharedApplication] openURL:newUrl];
+  vm_statistics_data_t vmStats;
+  mach_msg_type_number_t infoCount = HOST_VM_INFO_COUNT;
+  kern_return_t kernReturn = host_statistics(mach_host_self(), HOST_VM_INFO, (host_info_t)&vmStats, &infoCount);
+
+  if (kernReturn != KERN_SUCCESS) {
+    return [NSNumber numberWithDouble:-1];
   }
 
-  return [NSNumber numberWithBool:result];
+  unsigned long mem_used = (vmStats.active_count + vmStats.inactive_count + vmStats.wire_count) * vm_page_size;
+  unsigned long mem_free = vmStats.free_count * vm_page_size;
+  unsigned long mem_total = mem_used + mem_free;
+
+  return [NSNumber numberWithUnsignedLong:mem_total];
+}
+GETTER_IMPL(NSNumber *, availableMemory, AvailableMemory);
+
+- (bool)openURL:(NSString *)url withOptions:(JSValue *)options andCallback:(JSValue *)callback
+{
+  NSURL *newUrl = [TiUtils toURL:url proxy:self];
+  BOOL result = NO;
+
+  NSDictionary *optionsDict = @{};
+  if ([options isFunction]) {
+    callback = options;
+  } else if ([options isObject]) {
+    optionsDict = [options toDictionary];
+  }
+  // Ensure callback is actually a function. If not, make it nil so we don't fire it
+  // Since callback is optional, this may be a JSValue representing 'undefined' here wich is not nil
+  // So we need this special guard
+  if (![callback isFunction]) {
+    callback = nil;
+  }
+
+  if (newUrl != nil) {
+    [[UIApplication sharedApplication] openURL:newUrl
+                                       options:optionsDict
+                             completionHandler:^(BOOL success) {
+                               if (callback != nil) {
+                                 [callback callWithArguments:@[ @{@"success" : @(success)} ]];
+                               }
+                             }];
+  }
+
+  return result;
 }
 
-- (NSNumber *)canOpenURL:(id)arg
+- (bool)canOpenURL:(NSString *)arg
 {
-  ENSURE_SINGLE_ARG(arg, NSString);
   NSURL *url = [TiUtils toURL:arg proxy:self];
-  return NUMBOOL([[UIApplication sharedApplication] canOpenURL:url]);
+  return [[UIApplication sharedApplication] canOpenURL:url];
 }
 
 - (TiPlatformDisplayCaps *)displayCaps
 {
-  if (capabilities == nil) {
-    return [[[TiPlatformDisplayCaps alloc] _initWithPageContext:[self executionContext]] autorelease];
-  }
-  return capabilities;
+  return [[[TiPlatformDisplayCaps alloc] init] autorelease];
+}
+GETTER_IMPL(TiPlatformDisplayCaps *, displayCaps, DisplayCaps);
+- (TiPlatformDisplayCaps *)DisplayCaps
+{
+  return [self displayCaps];
 }
 
-- (void)setBatteryMonitoring:(NSNumber *)yn
+- (void)setBatteryMonitoring:(bool)yn
 {
   if (![NSThread isMainThread]) {
-    TiThreadPerformOnMainThread(^{
-      [self setBatteryMonitoring:yn];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          [self setBatteryMonitoring:yn];
+        },
         YES);
   }
-  [[UIDevice currentDevice] setBatteryMonitoringEnabled:[TiUtils boolValue:yn]];
+  [[UIDevice currentDevice] setBatteryMonitoringEnabled:yn];
 }
 
-- (NSNumber *)batteryMonitoring
+- (bool)batteryMonitoring
 {
   if (![NSThread isMainThread]) {
-    __block NSNumber *result = nil;
-    TiThreadPerformOnMainThread(^{
-      result = [[self batteryMonitoring] retain];
-    },
+    __block BOOL result = NO;
+    TiThreadPerformOnMainThread(
+        ^{
+          result = [self batteryMonitoring];
+        },
         YES);
-    return [result autorelease];
+    return result;
   }
-  return NUMBOOL([UIDevice currentDevice].batteryMonitoringEnabled);
+  return [UIDevice currentDevice].batteryMonitoringEnabled;
 }
+READWRITE_IMPL(bool, batteryMonitoring, BatteryMonitoring);
 
 - (NSNumber *)batteryState
 {
   if (![NSThread isMainThread]) {
     __block NSNumber *result = nil;
-    TiThreadPerformOnMainThread(^{
-      result = [[self batteryState] retain];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          result = [[self batteryState] retain];
+        },
         YES);
     return [result autorelease];
   }
   return NUMINT([[UIDevice currentDevice] batteryState]);
 }
+GETTER_IMPL(NSNumber *, batteryState, BatteryState);
 
 - (NSNumber *)batteryLevel
 {
   if (![NSThread isMainThread]) {
     __block NSNumber *result = nil;
-    TiThreadPerformOnMainThread(^{
-      result = [[self batteryLevel] retain];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          result = [[self batteryLevel] retain];
+        },
         YES);
     return [result autorelease];
   }
   return NUMFLOAT([[UIDevice currentDevice] batteryLevel]);
 }
+GETTER_IMPL(NSNumber *, batteryLevel, BatteryLevel);
 
 - (NSString *)address
 {
-#if TARGET_IPHONE_SIMULATOR
+#if TARGET_OS_SIMULATOR
   // Assume classical ethernet and wifi interfaces
   NSArray *interfaces = [NSArray arrayWithObjects:@"en0", @"en1", nil];
   for (NSString *interface in interfaces) {
@@ -359,20 +433,22 @@ NSString *const DATA_IFACE = @"pdp_ip0";
   return [self getIface:WIFI_IFACE mask:NO];
 #endif
 }
+GETTER_IMPL(NSString *, address, Address);
 
 - (NSString *)dataAddress
 {
-#if TARGET_IPHONE_SIMULATOR
+#if TARGET_OS_SIMULATOR
   return nil; // Handy shortcut
 #else
   return [self getIface:DATA_IFACE mask:NO];
 #endif
 }
+GETTER_IMPL(NSString *, dataAddress, DataAddress);
 
 // Only available for the local wifi; why would you want it for the data network?
 - (NSString *)netmask
 {
-#if TARGET_IPHONE_SIMULATOR
+#if TARGET_OS_SIMULATOR
   // Assume classical ethernet and wifi interfaces
   NSArray *interfaces = [NSArray arrayWithObjects:@"en0", @"en1", nil];
   for (NSString *interface in interfaces) {
@@ -386,6 +462,21 @@ NSString *const DATA_IFACE = @"pdp_ip0";
   return [self getIface:WIFI_IFACE mask:YES];
 #endif
 }
+GETTER_IMPL(NSString *, netmask, Netmask);
+
+// accessors for synthesized properties
+GETTER_IMPL(NSString *, architecture, Architecture);
+GETTER_IMPL(NSString *, model, Model);
+GETTER_IMPL(NSString *, name, Name);
+GETTER_IMPL(NSString *, osname, Osname);
+GETTER_IMPL(NSString *, ostype, Ostype);
+GETTER_IMPL(NSNumber *, processorCount, ProcessorCount);
+GETTER_IMPL(NSNumber *, totalMemory, TotalMemory);
+GETTER_IMPL(NSNumber *, uptime, Uptime);
+GETTER_IMPL(NSString *, username, Username);
+GETTER_IMPL(NSString *, version, Version);
+GETTER_IMPL(NSNumber *, versionMajor, VersionMajor);
+GETTER_IMPL(NSNumber *, versionMinor, VersionMinor);
 
 MAKE_SYSTEM_PROP(BATTERY_STATE_UNKNOWN, UIDeviceBatteryStateUnknown);
 MAKE_SYSTEM_PROP(BATTERY_STATE_UNPLUGGED, UIDeviceBatteryStateUnplugged);
@@ -397,13 +488,7 @@ MAKE_SYSTEM_PROP(BATTERY_STATE_FULL, UIDeviceBatteryStateFull);
 - (void)batteryStateChanged:(NSNotification *)note
 {
   NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:[self batteryState], @"state", [self batteryLevel], @"level", nil];
-  [self fireEvent:@"battery" withObject:event];
-}
-
-- (void)didReceiveMemoryWarning:(NSNotification *)notification
-{
-  RELEASE_TO_NIL(capabilities);
-  [super didReceiveMemoryWarning:notification];
+  [self fireEvent:@"battery" withDict:event];
 }
 
 @end

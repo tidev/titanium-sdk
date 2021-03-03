@@ -4,11 +4,11 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#import "TiProxy.h"
 
 #ifdef USE_TI_APPIOS
 
-#import "KrollBridge.h"
+#import <TitaniumKit/KrollBridge.h>
+#import <TitaniumKit/TiProxy.h>
 
 @interface TiAppiOSBackgroundServiceProxy : TiProxy {
 

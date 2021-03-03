@@ -1,14 +1,15 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2015 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2015-present by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 
 #ifdef USE_TI_UIIOSAPPLICATIONSHORTCUTS
 #import "TiUIiOSApplicationShortcutsProxy.h"
-#import "TiUtils.h"
-#ifdef USE_TI_CONTACTS
+#import <TitaniumKit/TiBlob.h>
+#import <TitaniumKit/TiUtils.h>
+#if defined(USE_TI_CONTACTS) && !TARGET_OS_MACCATALYST
 #import "TiContactsPerson.h"
 #endif
 #import <CommonCrypto/CommonDigest.h>
@@ -105,7 +106,7 @@
   ENSURE_SINGLE_ARG(itemtype, NSString);
 
   if ([TiUtils stringValue:itemtype] == nil) {
-    NSLog(@"[ERROR] Ti.UI.iOS.ApplicationShortcuts: The itemtype property is required.");
+    NSLog(@"[ERROR] Ti.UI.iOS.ApplicationShortcuts: The \"itemtype\" property is required.");
     return;
   }
 
@@ -133,22 +134,24 @@
   NSString *key = [TiUtils stringValue:itemtype];
 
   if (key == nil) {
-    NSLog(@"[ERROR] The itemtype property is required.");
+    NSLog(@"[ERROR] The \"itemtype\" property is required.");
     return;
   }
 
-  if ([self typeExists:key] == NO) {
+  if (![self typeExists:key]) {
     return;
   }
 
   NSMutableArray *shortcuts = (NSMutableArray *)[UIApplication sharedApplication].shortcutItems;
+  NSMutableIndexSet *shortcutsIndicesToDelete = [[NSMutableIndexSet alloc] init];
 
-  for (UIApplicationShortcutItem *item in shortcuts) {
-    if ([item.type isEqualToString:key]) {
-      [shortcuts removeObject:item];
+  [shortcuts enumerateObjectsUsingBlock:^(UIApplicationShortcutItem *_Nonnull obj, NSUInteger idx, BOOL *_Nonnull stop) {
+    if ([obj.type isEqualToString:key]) {
+      [shortcutsIndicesToDelete addIndex:idx];
     }
-  }
+  }];
 
+  [shortcuts removeObjectsAtIndexes:shortcutsIndicesToDelete];
   [UIApplication sharedApplication].shortcutItems = shortcuts;
 }
 
@@ -157,12 +160,12 @@
   ENSURE_SINGLE_ARG(args, NSDictionary);
 
   if ([args objectForKey:@"itemtype"] == nil) {
-    NSLog(@"[ERROR] Ti.UI.iOS.ApplicationShortcuts: The itemtype property is required.");
+    NSLog(@"[ERROR] Ti.UI.iOS.ApplicationShortcuts: The \"itemtype\" property is required.");
     return;
   }
 
   if ([args objectForKey:@"title"] == nil) {
-    NSLog(@"[ERROR] Ti.UI.iOS.ApplicationShortcuts: The title property is required.");
+    NSLog(@"[ERROR] Ti.UI.iOS.ApplicationShortcuts: The \"title\" property is required.");
     return;
   }
 
@@ -189,7 +192,7 @@
     return nil;
   }
 
-#ifdef USE_TI_CONTACTS
+#if defined(USE_TI_CONTACTS) && !TARGET_OS_MACCATALYST
   if ([value isKindOfClass:[TiContactsPerson class]]) {
     ENSURE_TYPE(value, TiContactsPerson);
     return [UIApplicationShortcutIcon iconWithContact:[(TiContactsPerson *)value nativePerson]];
@@ -206,36 +209,19 @@
   }
 
   if ([value isKindOfClass:[NSString class]]) {
-    return [UIApplicationShortcutIcon iconWithTemplateImageName:[self urlInAssetCatalog:value]];
+    value = ([value hasPrefix:@"/"]) ? [value substringFromIndex:1] : value;
+    return [UIApplicationShortcutIcon iconWithTemplateImageName:value];
+  }
+
+  if ([value isKindOfClass:[TiBlob class]] && [TiUtils isIOSVersionOrGreater:@"13.0"]) {
+    TiBlob *blob = (TiBlob *)value;
+    if (blob.type == TiBlobTypeSystemImage) {
+      return [UIApplicationShortcutIcon iconWithSystemImageName:blob.systemImageName];
+    }
   }
 
   NSLog(@"[ERROR] Ti.UI.iOS.ApplicationShortcuts: Invalid icon provided, defaulting to use no icon.");
   return nil;
-}
-
-- (NSString *)urlInAssetCatalog:(NSString *)url
-{
-  NSString *resultUrl = nil;
-
-  if ([url hasPrefix:@"/"] == YES) {
-    url = [url substringFromIndex:1];
-  }
-
-  unsigned char digest[CC_SHA1_DIGEST_LENGTH];
-  NSData *stringBytes = [url dataUsingEncoding:NSUTF8StringEncoding];
-  if (CC_SHA1([stringBytes bytes], (CC_LONG)[stringBytes length], digest)) {
-    // SHA-1 hash has been calculated and stored in 'digest'.
-    NSMutableString *sha = [[NSMutableString alloc] init];
-    for (int i = 0; i < CC_SHA1_DIGEST_LENGTH; i++) {
-      [sha appendFormat:@"%02x", digest[i]];
-    }
-    [sha appendString:@"."];
-    [sha appendString:[url pathExtension]];
-    resultUrl = [NSMutableString stringWithString:sha];
-    RELEASE_TO_NIL(sha)
-  }
-
-  return resultUrl;
 }
 
 @end

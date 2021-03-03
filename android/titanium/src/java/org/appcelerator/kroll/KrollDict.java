@@ -92,8 +92,8 @@ public class KrollDict extends HashMap<String, Object>
 
 	public void putCodeAndMessage(int code, String message)
 	{
-		this.put(TiC.PROPERTY_SUCCESS, new Boolean(code == 0));
-		this.put(TiC.PROPERTY_CODE, new Integer(code));
+		this.put(TiC.PROPERTY_SUCCESS, Boolean.valueOf(code == 0));
+		this.put(TiC.PROPERTY_CODE, Integer.valueOf(code));
 		if (message != null) {
 			this.put(TiC.EVENT_PROPERTY_ERROR, message);
 		}
@@ -126,7 +126,10 @@ public class KrollDict extends HashMap<String, Object>
 		boolean result = defaultValue;
 
 		if (containsKey(key)) {
-			result = getBoolean(key);
+			try {
+				result = getBoolean(key);
+			} catch (Exception e) {
+			}
 		}
 		return result;
 	}
@@ -136,12 +139,16 @@ public class KrollDict extends HashMap<String, Object>
 		return TiConvert.toString(get(key));
 	}
 
-	public String optString(String key, String defalt)
+	public String optString(String key, String defaultString)
 	{
+		String result = defaultString;
 		if (containsKey(key)) {
-			return getString(key);
+			try {
+				result = getString(key);
+			} catch (Exception e) {
+			}
 		}
-		return defalt;
+		return result;
 	}
 
 	public Integer getInt(String key)
@@ -154,7 +161,10 @@ public class KrollDict extends HashMap<String, Object>
 		Integer result = defaultValue;
 
 		if (containsKey(key)) {
-			result = getInt(key);
+			try {
+				result = getInt(key);
+			} catch (Exception e) {
+			}
 		}
 		return result;
 	}
@@ -169,6 +179,11 @@ public class KrollDict extends HashMap<String, Object>
 		return TiConvert.toStringArray((Object[]) get(key));
 	}
 
+	public int[] getIntArray(String key)
+	{
+		return TiConvert.toIntArray((Object[]) get(key));
+	}
+
 	@SuppressWarnings("unchecked")
 	public KrollDict getKrollDict(String key)
 	{
@@ -180,6 +195,24 @@ public class KrollDict extends HashMap<String, Object>
 		} else {
 			return null;
 		}
+	}
+
+	public KrollDict[] getKrollDictArray(String key)
+	{
+		String[] value = getStringArray(key);
+		KrollDict[] result = new KrollDict[value.length];
+		int index = 0;
+		for (String record : value) {
+			KrollDict dictionary = null;
+			try {
+				dictionary = new KrollDict(new JSONObject(record));
+			} catch (JSONException e) {
+				e.printStackTrace();
+				Log.w(TAG, "Unable to parse dictionary.");
+			}
+			result[index++] = dictionary;
+		}
+		return result;
 	}
 
 	public boolean isNull(String key)

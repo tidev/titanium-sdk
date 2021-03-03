@@ -9,13 +9,12 @@
 
 const appc = require('node-appc'),
 	fields = require('fields'),
-	fs = require('fs'),
+	fs = require('fs-extra'),
 	jsanalyze = require('node-titanium-sdk/lib/jsanalyze'),
 	path = require('path'),
 	sprintf = require('sprintf'),
 	ti = require('node-titanium-sdk'),
 	tiappxml = require('node-titanium-sdk/lib/tiappxml'),
-	wrench = require('wrench'),
 	__ = appc.i18n(__dirname).__;
 
 fields.setup({
@@ -65,7 +64,10 @@ exports.config = function config(logger, config, cli) {
 						'skip-js-minify': {
 							default: false,
 							desc: __('bypasses JavaScript minification; %s builds are never minified; only supported for %s and %s', 'simulator'.cyan, 'Android'.cyan, 'iOS'.cyan)
-						}
+						},
+						'source-maps': {
+							desc: __('generate inline source maps for transpiled JS files')
+						},
 					},
 					options: appc.util.mix({
 						platform: {
@@ -242,6 +244,7 @@ exports.config = function config(logger, config, cli) {
 };
 
 exports.validate = function validate(logger, config, cli) {
+
 	// Determine if the project is an app or a module, run appropriate build command
 	if (cli.argv.type === 'module') {
 
@@ -415,10 +418,10 @@ function patchLogger(logger, cli) {
 
 		logger.fileWriteEnabled = true;
 
-		fs.existsSync(buildDir) || wrench.mkdirSyncRecursive(buildDir, 0o766);
+		fs.ensureDirSync(buildDir, 0o766);
 
 		// create our write stream
-		logger.log.filestream = fs.createWriteStream(path.join(buildDir, 'build_' + platform + '.log'), { 'flags': 'w', 'encoding': 'utf8', 'mode': 0o666 });
+		logger.log.filestream = fs.createWriteStream(path.join(buildDir, 'build_' + platform + '.log'), { flags: 'w', encoding: 'utf8', mode: 0o666 });
 
 		function styleHeading(s) {
 			return ('' + s).bold;

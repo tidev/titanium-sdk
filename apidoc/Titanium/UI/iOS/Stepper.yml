@@ -3,12 +3,9 @@ name: Titanium.UI.iOS.Stepper
 summary: |
     A widget used to increment and decrement a value.
 description: |
-    <table id="iOS Stepper">
-      <tr>
-        <td><img src="images/stepper/stepper.png" height="25" /></td>
-        <td><img src="images/stepper/stepper_custom.png" height="25" /></td>
-      </tr>
-    </table>
+    | Default | Custom |
+    | ------- | ------ |
+    | ![Stepper](./stepper.png) | ![Custom](./stepper_custom.png) |
 
     A Stepper displays its selected state while it is being pressed.
     You can specify background images for each state on iOS.
@@ -21,15 +18,15 @@ description: |
     set to 'transparent'.
 
     * Note that the stepper cannot be re-sized.
-
 extends: Titanium.UI.View
-since: "5.4.0"
-platforms: [iphone, ipad]
+platforms: [iphone, ipad, macos]
+since: {iphone: "5.4.0", ipad: "5.4.0", macos: "9.2.0"}
 excludes:
     events: [doubletap, focus, keypressed, longclick, longpress, pinch, postlayout,
              singletap, swipe, twofingertap]
+    properties: [children]
+    methods: [add, remove, removeAllChildren, replaceAt]
 properties:
-
   - name: enabled
     summary: Determines if the stepper is enabled or disabled.
     type: Boolean
@@ -53,23 +50,23 @@ properties:
 
   - name: wraps
     summary: |
-        If YES, incrementing beyond <Ti.UI.iOS.Stepper.maximum> sets value to <Ti.UI.iOS.Stepper.minimum>. likewise, decrementing below
-        <Ti.UI.iOS.Stepper.minimum> sets value to <Ti.UI.iOS.Stepper.maximum>. If NO, the stepper does not increment beyond <Ti.UI.iOS.Stepper.maximum> nor
-        does it decrement below <Ti.UI.iOS.Stepper.minimum> but rather holds at those values.
+        If YES, incrementing beyond <Titanium.UI.iOS.Stepper.maximum> sets value to <Titanium.UI.iOS.Stepper.minimum>. likewise, decrementing below
+        <Titanium.UI.iOS.Stepper.minimum> sets value to <Titanium.UI.iOS.Stepper.maximum>. If NO, the stepper does not increment beyond <Titanium.UI.iOS.Stepper.maximum> nor
+        does it decrement below <Titanium.UI.iOS.Stepper.minimum> but rather holds at those values.
         The default value is NO.
     type: Boolean
 
   - name: minimum
     summary: |
         The minimum value the stepper will be set to, the value must be smaller than the maximum value.
-        If you attempt to set a value equal to or greater than maximum, the system will default the 
+        If you attempt to set a value equal to or greater than maximum, the system will default the
         value to 0.
     type: Number
 
   - name: maximum
     summary: |
         The maximum value the stepper will be set to, the value must be greater than the minimum value.
-        If you attempt to set a value equal to or lower than minimum, the system will default the 
+        If you attempt to set a value equal to or lower than minimum, the system will default the
         value to 100.
     type: Number
 
@@ -83,7 +80,7 @@ properties:
     summary: Sets the color for the widget, any backgroundImages added will be set to the same color.
     description: |
         For information about color values, see the "Colors" section of <Titanium.UI>.
-    type: String
+    type: [String, Titanium.UI.Color]
 
   - name: backgroundImage
     summary: |
@@ -145,40 +142,44 @@ events:
 examples:
   - title: Simple Stepper Example
     example: |
-            var win = Ti.UI.createWindow({
-                backgroundColor: '#fff'
-            });
+        ``` js
+        var win = Ti.UI.createWindow({
+            backgroundColor: '#fff'
+        });
 
-            var stepper = Ti.UI.iOS.createStepper({
-                tintColor: "green",
-                steps: 3,
-                maximum: 30,
-                minimum: 0
-            });
+        var stepper = Ti.UI.iOS.createStepper({
+            tintColor: "green",
+            steps: 3,
+            maximum: 30,
+            minimum: 0
+        });
 
-            stepper.addEventListener("change", function(e) {
-                Ti.API.info(e.value);
-            });
+        stepper.addEventListener("change", function(e) {
+            Ti.API.info(e.value);
+        });
 
-            win.add(stepper);
-            win.open();
+        win.add(stepper);
+        win.open();
+        ```
 
   - title: Alloy XML Markup
     example: |
         Previous example as an Alloy view.
 
         stepper.xml:
-
-            <Alloy>
-                <Window id="window">
-                    <Stepper id="stepper" onClick="doClick" tintColor="green" steps="3" />
-                </Window>
-            </Alloy>
+        ``` xml
+        <Alloy>
+            <Window id="window">
+                <Stepper id="stepper" onClick="doClick" tintColor="green" steps="3" />
+            </Window>
+        </Alloy>
+        ```
 
         stepper.js:
+        ``` js
+        function doClick(e) {
+            alert(e.value);
+        }
 
-            function doClick(e) {
-                alert(e.value);
-            }
-
-            $.window.open();
+        $.window.open();
+        ```

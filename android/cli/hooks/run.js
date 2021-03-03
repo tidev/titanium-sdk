@@ -227,6 +227,10 @@ exports.init = function (logger, config, cli) {
 				},
 
 				function (next) {
+					cli.emit('build.post.install', builder, next);
+				},
+
+				function (next) {
 					if (!cli.argv.launch) {
 						logger.info(__('Skipping launch of: %s', (builder.appid + '/.' + builder.classname + 'Activity').cyan));
 						return next(true);
@@ -360,7 +364,7 @@ exports.init = function (logger, config, cli) {
 
 								let done = false;
 								async.whilst(
-									function () { return !done; },
+									function (wcb) { return wcb(null, !done); },
 									function (cb2) {
 										adb.getPid(device.id, builder.appid, function (err, pid) {
 											if (err || !pid) {

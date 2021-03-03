@@ -7,7 +7,7 @@
 #if defined(USE_TI_XML) || defined(USE_TI_NETWORK)
 
 #import "TiDOMValidator.h"
-#import "TiUtils.h"
+#import <TitaniumKit/TiUtils.h>
 #import <libxml/tree.h>
 
 @implementation TiDOMValidator
@@ -51,7 +51,7 @@
     return YES;
   }
 
-  NSURL *url = [NSURL URLWithString:[pName stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
+  NSURL *url = [NSURL URLWithString:[pName stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLHostAllowedCharacterSet]]];
   return (url != nil);
 }
 

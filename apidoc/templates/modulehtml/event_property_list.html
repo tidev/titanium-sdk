@@ -1,9 +1,0 @@
-<%page args="item"/>
-<h4 id="properties">Properties</h4>
-<div class="summary">Properties of the object passed to the event callback:</div>
-
-% if item.properties is not None and len(item.properties) > 0:
-	<%include file="member_list.html" args="platform_count=0, is_property_list=True, item_list=item.properties, is_method_param_list=True, div_class='events'"/>
-% else:
-    This event's callback has no properties.
-% endif

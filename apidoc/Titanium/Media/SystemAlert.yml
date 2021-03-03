@@ -14,7 +14,10 @@ description: |
     Know more about [System Sound Services](https://developer.apple.com/reference/audiotoolbox/1657326-system_sound_services).
 extends: Titanium.Proxy
 since: "6.1.0"
-platforms: [iphone, ipad]
+deprecated:
+    since: "8.0.0"
+    notes: This iOS-only API has been deprecated and moved to the [Ti.SystemAlert](https://github.com/appcelerator-modules/ti.systemalert) module in 8.0.0.
+platforms: [iphone, ipad, macos]
 methods:
   - name: play
     summary: Start playing the system alert.
@@ -29,6 +32,7 @@ examples:
     example: |
         Simple example of playing a WAVE file from the Resources directory.
         
-            var player = Ti.Media.createSystemAlert({url:"alert.wav"});
-            player.play();
-        
+        ``` js
+        var player = Ti.Media.createSystemAlert({url:"alert.wav"});
+        player.play();
+        ```

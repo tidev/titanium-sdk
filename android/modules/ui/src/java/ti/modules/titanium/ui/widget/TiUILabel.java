@@ -22,12 +22,8 @@ import org.appcelerator.titanium.view.TiUIView;
 import ti.modules.titanium.ui.UIModule;
 import ti.modules.titanium.ui.AttributedStringProxy;
 import android.graphics.Color;
-import android.os.Build;
 import android.text.Html;
-import android.text.InputType;
 import android.text.Layout;
-import android.text.method.LinkMovementMethod;
-import android.text.method.MovementMethod;
 import android.text.Selection;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
@@ -50,7 +46,6 @@ public class TiUILabel extends TiUIView
 	private static final float FONT_SIZE_EPSILON = 0.1f;
 
 	private int defaultColor;
-	private boolean wordWrap = true;
 	private TruncateAt ellipsize = TruncateAt.END;
 	private float shadowRadius = DEFAULT_SHADOW_RADIUS;
 	private float shadowX = 0f;
@@ -73,7 +68,7 @@ public class TiUILabel extends TiUIView
 			protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec)
 			{
 				// Only allow label to exceed width of parent if single-line and ellipsize is disabled.
-				if (isSingleLine() && (ellipsize == null) && (minimumFontSizeInPixels < FONT_SIZE_EPSILON)
+				if (isSingleLineMode() && (ellipsize == null) && (minimumFontSizeInPixels < FONT_SIZE_EPSILON)
 					&& (layoutParams != null) && (layoutParams.optionWidth == null) && !layoutParams.autoFillsWidth) {
 					widthMeasureSpec =
 						MeasureSpec.makeMeasureSpec(MeasureSpec.getSize(widthMeasureSpec), MeasureSpec.UNSPECIFIED);
@@ -94,7 +89,7 @@ public class TiUILabel extends TiUIView
 				adjustTextFontSize(this);
 
 				// Apply ellipsis if enabled and if view has fixed height (ie: not sized to fit text).
-				if (!isSingleLine() && (viewHeightInLines <= 0) && (ellipsize != null) && (layoutParams != null)
+				if (!isSingleLineMode() && (viewHeightInLines <= 0) && (ellipsize != null) && (layoutParams != null)
 					&& ((layoutParams.optionHeight != null) || layoutParams.autoFillsHeight)) {
 					// First, we must reset/re-measure the text based on the original max lines setting.
 					// Note: Calling onMeasure() updates the view's StaticLayout and its getLineCount().
@@ -215,7 +210,7 @@ public class TiUILabel extends TiUIView
 		tv.setPadding(0, 0, 0, 0);
 		tv.setFocusable(false);
 		tv.setEllipsize(this.ellipsize);
-		tv.setSingleLine(!this.wordWrap);
+		tv.setSingleLine(false);
 		TiUIHelper.styleText(tv, null);
 		this.unscaledFontSizeInPixels = tv.getTextSize();
 		this.defaultColor = tv.getCurrentTextColor();
@@ -395,9 +390,6 @@ public class TiUILabel extends TiUIView
 		if (d.containsKey(TiC.PROPERTY_LINES)) {
 			this.viewHeightInLines = TiConvert.toInt(d.get(TiC.PROPERTY_LINES), 0);
 		}
-		if (d.containsKey(TiC.PROPERTY_WORD_WRAP)) {
-			this.wordWrap = TiConvert.toBoolean(d, TiC.PROPERTY_WORD_WRAP, true);
-		}
 		if (d.containsKey(TiC.PROPERTY_MAX_LINES)) {
 			int value = TiConvert.toInt(d.get(TiC.PROPERTY_MAX_LINES), Integer.MAX_VALUE);
 			if (value < 1) {
@@ -555,9 +547,6 @@ public class TiUILabel extends TiUIView
 				}
 			}
 			updateLabelText();
-		} else if (key.equals(TiC.PROPERTY_WORD_WRAP)) {
-			this.wordWrap = TiConvert.toBoolean(newValue, true);
-			updateLabelText();
 		} else if (key.equals(TiC.PROPERTY_AUTO_LINK)) {
 			this.autoLinkFlags = TiConvert.toInt(newValue, 0) & Linkify.ALL;
 			updateLabelText();
@@ -656,13 +645,8 @@ public class TiUILabel extends TiUIView
 	 * Determines if the Android "TextView" is to be displayed single-line or multiline.
 	 * @return Returns true if in single-line mode. Returns false if in multiline mode.
 	 */
-	private boolean isSingleLine()
+	private boolean isSingleLineMode()
 	{
-		// We're single-line if word wrapping (aka: line wrapping) is disabled.
-		if (this.wordWrap == false) {
-			return true;
-		}
-
 		// We're single-line if font auto-scaling is enabled.
 		if (this.minimumFontSizeInPixels >= FONT_SIZE_EPSILON) {
 			return true;
@@ -683,6 +667,12 @@ public class TiUILabel extends TiUIView
 		return false;
 	}
 
+	public int getColor()
+	{
+		TextView tv = (TextView) getNativeView();
+		return tv.getCurrentTextColor();
+	}
+
 	/**
 	 * Updates this object's Android "TextView" with the current member variable settings that affect
 	 * how text is displayed, which includes the single-line/multiline and ellipsize related settings.
@@ -699,7 +689,7 @@ public class TiUILabel extends TiUIView
 		// Note: API call order is important! setSingleLine() method must be called before setLines().
 		//       The setMinLines() and setMaxLines() methods must be called last. This is because
 		//       the setSingleLine() and setLines() change the TextView's internal min/max line settings.
-		boolean isSingleLine = isSingleLine();
+		boolean isSingleLine = isSingleLineMode();
 		boolean isAutoScalingFont = (this.minimumFontSizeInPixels >= FONT_SIZE_EPSILON);
 		boolean isTrimmingNewlines = isAutoScalingFont;
 		textView.setSingleLine(isSingleLine);
@@ -755,34 +745,15 @@ public class TiUILabel extends TiUIView
 
 		// If auto-link is enabled, then scan the text for links and apply URLSpans to it.
 		// Note: This must be done after the text has been turned into a Spannable up above.
-		boolean hasLinks = false;
 		if (this.autoLinkFlags != 0) {
-			hasLinks = Linkify.addLinks((Spannable) text, this.autoLinkFlags);
-		}
-		MovementMethod movementMethod = hasLinks ? LinkMovementMethod.getInstance() : null;
-		if (movementMethod != textView.getMovementMethod()) {
-			// Fetch the view's current focus/enable states.
-			boolean isFocusable = textView.isFocusable();
-			boolean isClickable = textView.isClickable();
-			boolean isLongClickable = textView.isLongClickable();
-
-			// Update the view's movement method. (Will either add link support or remove it.)
-			textView.setMovementMethod(movementMethod);
-
-			// Restore the view's focus/enable states.
-			// We need to do this because setMovementMethod() resets these settings.
-			textView.setFocusable(isFocusable);
-			textView.setClickable(isClickable);
-			textView.setLongClickable(isLongClickable);
+			Linkify.addLinks((Spannable) text, this.autoLinkFlags);
 		}
 
 		// Update the text view's ellipsize feature.
 		TruncateAt updatedEllipsizeType = this.ellipsize;
-		if (movementMethod != null) {
+		if (textView.getMovementMethod() != null) {
 			// Android doesn't support start/middle ellipsis when a MovementMethod is configured.
 			// If this is what's configured, then use "end" ellipsis mode instead.
-			// TODO: In the future, we can work-around this by not using LinkMovementMethod for links above
-			//       and handle the URLs in onTouchEvent() ourselves as seen in Google's "TextView.java" code.
 			if ((updatedEllipsizeType == TruncateAt.START) || (updatedEllipsizeType == TruncateAt.MIDDLE)) {
 				updatedEllipsizeType = TruncateAt.END;
 			}

@@ -15,12 +15,8 @@ import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiApplication;
 
-import android.app.AlarmManager;
-import android.app.PendingIntent;
 import android.content.ContentResolver;
 import android.content.ContentValues;
-import android.content.Context;
-import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 
@@ -52,7 +48,7 @@ public class AlertProxy extends KrollProxy
 		return CalendarProxy.getBaseCalendarUri() + "/calendar_alerts/by_instance";
 	}
 
-	public static ArrayList<AlertProxy> queryAlerts(String query, String queryArgs[], String orderBy)
+	public static ArrayList<AlertProxy> queryAlerts(String query, String[] queryArgs, String orderBy)
 	{
 		ArrayList<AlertProxy> alerts = new ArrayList<AlertProxy>();
 		if (!CalendarProxy.hasCalendarPermissions()) {
@@ -127,62 +123,44 @@ public class AlertProxy extends KrollProxy
 
 	protected static final String EVENT_REMINDER_ACTION = "android.intent.action.EVENT_REMINDER";
 
-	// clang-format off
-	@Kroll.method
 	@Kroll.getProperty
 	public String getId()
 	{
 		return id;
 	}
 
-	// clang-format off
-	@Kroll.method
 	@Kroll.getProperty
 	public String getEventId()
 	{
 		return eventId;
 	}
 
-	// clang-format off
-	@Kroll.method
 	@Kroll.getProperty
 	public Date getBegin()
 	{
 		return begin;
 	}
 
-	// clang-format off
-	@Kroll.method
 	@Kroll.getProperty
 	public Date getEnd()
-	// clang-format on
 	{
 		return end;
 	}
 
-	// clang-format off
-	@Kroll.method
 	@Kroll.getProperty
 	public Date getAlarmTime()
-	// clang-format on
 	{
 		return alarmTime;
 	}
 
-	// clang-format off
-	@Kroll.method
 	@Kroll.getProperty
 	public int getState()
-	// clang-format on
 	{
 		return state;
 	}
 
-	// clang-format off
-	@Kroll.method
 	@Kroll.getProperty
 	public int getMinutes()
-	// clang-format on
 	{
 		return minutes;
 	}

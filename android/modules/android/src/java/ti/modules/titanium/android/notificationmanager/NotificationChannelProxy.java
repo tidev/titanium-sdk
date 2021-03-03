@@ -12,28 +12,14 @@ import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiC;
 
-import ti.modules.titanium.android.AndroidModule;
-
 import android.annotation.TargetApi;
 import android.app.NotificationChannel;
+import android.media.AudioAttributes;
+import android.net.Uri;
 import android.os.Build;
 
 @TargetApi(26)
-// clang-format off
-@Kroll.proxy(propertyAccessors = {
-	TiC.PROPERTY_BYPASS_DND,
-	TiC.PROPERTY_DESCRIPTION,
-	TiC.PROPERTY_ENABLE_LIGHTS,
-	TiC.PROPERTY_ENABLE_VIBRATION,
-	TiC.PROPERTY_GROUP_ID,
-	TiC.PROPERTY_IMPORTANCE,
-	TiC.PROPERTY_LIGHT_COLOR,
-	TiC.PROPERTY_LOCKSCREEN_VISIBILITY,
-	TiC.PROPERTY_NAME,
-	TiC.PROPERTY_SHOW_BADGE,
-	TiC.PROPERTY_VIBRATE_PATTERN
-})
-// clang-format on
+@Kroll.proxy
 public class NotificationChannelProxy extends KrollProxy
 {
 	private static final String TAG = "TiNotificationChannel";
@@ -79,6 +65,9 @@ public class NotificationChannelProxy extends KrollProxy
 			if (d.containsKey(TiC.PROPERTY_SHOW_BADGE)) {
 				setShowBadge(d.getBoolean(TiC.PROPERTY_SHOW_BADGE));
 			}
+			if (d.containsKey(TiC.PROPERTY_SOUND)) {
+				setSound(d.getString(TiC.PROPERTY_SOUND));
+			}
 			if (d.containsKey(TiC.PROPERTY_VIBRATE_PATTERN)) {
 				setVibrationPattern(d.get(TiC.PROPERTY_VIBRATE_PATTERN));
 			}
@@ -87,120 +76,161 @@ public class NotificationChannelProxy extends KrollProxy
 		}
 	}
 
-	// clang-format off
-	@Kroll.method
 	@Kroll.getProperty
 	public String getId()
-	// clang-format on
 	{
 		return channel.getId();
 	}
 
-	// clang-format off
-	@Kroll.method
+	@Kroll.getProperty
+	public boolean getEnableLights()
+	{
+		return channel.shouldShowLights();
+	}
+
 	@Kroll.setProperty
 	public void setEnableLights(boolean lights)
-	// clang-format on
 	{
 		channel.enableLights(lights);
-		setProperty(TiC.PROPERTY_ENABLE_LIGHTS, lights);
 	}
 
-	// clang-format off
-	@Kroll.method
+	@Kroll.getProperty
+	public boolean getEnableVibration()
+	{
+		return channel.shouldVibrate();
+	}
+
 	@Kroll.setProperty
 	public void setEnableVibration(boolean vibration)
-	// clang-format on
 	{
 		channel.enableVibration(vibration);
-		setProperty(TiC.PROPERTY_ENABLE_VIBRATION, vibration);
 	}
 
-	// clang-format off
-	@Kroll.method
+	@Kroll.getProperty
+	public boolean getBypassDnd()
+	{
+		return channel.canBypassDnd();
+	}
+
 	@Kroll.setProperty
 	public void setBypassDnd(boolean bypassDnd)
-	// clang-format on
 	{
 		channel.setBypassDnd(bypassDnd);
-		setProperty(TiC.PROPERTY_BYPASS_DND, bypassDnd);
 	}
 
-	// clang-format off
-	@Kroll.method
+	@Kroll.getProperty
+	public String getDescription()
+	{
+		return channel.getDescription();
+	}
+
 	@Kroll.setProperty
 	public void setDescription(String description)
-	// clang-format on
 	{
 		channel.setDescription(description);
-		setProperty(TiC.PROPERTY_DESCRIPTION, description);
 	}
 
-	// clang-format off
-	@Kroll.method
+	@Kroll.getProperty
+	public String getGroupId()
+	{
+		return channel.getGroup();
+	}
+
 	@Kroll.setProperty
 	public void setGroupId(String groupId)
-	// clang-format on
 	{
 		channel.setGroup(groupId);
-		setProperty(TiC.PROPERTY_GROUP_ID, groupId);
 	}
 
-	// clang-format off
-	@Kroll.method
+	@Kroll.getProperty
+	public int getImportance()
+	{
+		return channel.getImportance();
+	}
+
 	@Kroll.setProperty
 	public void setImportance(int importance)
-	// clang-format on
 	{
 		channel.setImportance(importance);
-		setProperty(TiC.PROPERTY_IMPORTANCE, importance);
 	}
 
-	// clang-format off
-	@Kroll.method
+	@Kroll.getProperty
+	public int getLightColor()
+	{
+		return channel.getLightColor();
+	}
+
 	@Kroll.setProperty
 	public void setLightColor(int argb)
-	// clang-format on
 	{
 		channel.setLightColor(argb);
-		setProperty(TiC.PROPERTY_LIGHT_COLOR, argb);
 	}
 
-	// clang-format off
-	@Kroll.method
+	@Kroll.getProperty
+	public int getLockscreenVisibility()
+	{
+		return channel.getLockscreenVisibility();
+	}
+
 	@Kroll.setProperty
 	public void setLockscreenVisibility(int lockscreenVisibility)
-	// clang-format on
 	{
 		channel.setLockscreenVisibility(lockscreenVisibility);
-		setProperty(TiC.PROPERTY_LOCKSCREEN_VISIBILITY, lockscreenVisibility);
 	}
 
-	// clang-format off
-	@Kroll.method
+	@Kroll.getProperty
+	public String getName()
+	{
+		return channel.getName().toString();
+	}
+
 	@Kroll.setProperty
 	public void setName(String name)
-	// clang-format on
 	{
 		channel.setName(name);
-		setProperty(TiC.PROPERTY_NAME, name);
 	}
 
-	// clang-format off
-	@Kroll.method
+	@Kroll.getProperty
+	public boolean getShowBadge()
+	{
+		return channel.canShowBadge();
+	}
+
 	@Kroll.setProperty
 	public void setShowBadge(boolean showBadge)
-	// clang-format on
 	{
 		channel.setShowBadge(showBadge);
-		setProperty(TiC.PROPERTY_SHOW_BADGE, showBadge);
 	}
 
-	// clang-format off
-	@Kroll.method
+	@Kroll.getProperty
+	public String getSound()
+	{
+		Uri uri = channel.getSound();
+		return (uri != null) ? uri.toString() : null;
+	}
+
+	@Kroll.setProperty
+	public void setSound(String path)
+	{
+		AudioAttributes.Builder attributesBuilder = new AudioAttributes.Builder();
+		attributesBuilder.setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION);
+		attributesBuilder.setUsage(AudioAttributes.USAGE_NOTIFICATION);
+		channel.setSound(Uri.parse(resolveUrl(null, path)), attributesBuilder.build());
+	}
+
+	@Kroll.getProperty
+	public Object getVibrationPattern()
+	{
+		long[] pattern = channel.getVibrationPattern();
+		Object[] patternArray = new Object[pattern.length];
+		for (int i = 0; i < pattern.length; i++) {
+			patternArray[i] = Long.valueOf(pattern[i]);
+		}
+		return patternArray;
+	}
+
 	@Kroll.setProperty
 	public void setVibrationPattern(Object patternObj)
-	// clang-format on
 	{
 		if (patternObj instanceof Object[]) {
 			Object[] patternArray = (Object[]) patternObj;
@@ -214,7 +244,6 @@ public class NotificationChannelProxy extends KrollProxy
 				pattern[i] = ((Integer) patternArray[i]).intValue();
 			}
 			channel.setVibrationPattern(pattern);
-			setProperty(TiC.PROPERTY_VIBRATE_PATTERN, patternArray);
 		}
 	}
 

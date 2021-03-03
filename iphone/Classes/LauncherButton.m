@@ -30,10 +30,10 @@
 
 #import "LauncherButton.h"
 #import "LauncherItem.h"
-#import "TiUIView.h"
-#import "TiUtils.h"
-#import "TiViewProxy.h"
 #import <QuartzCore/QuartzCore.h>
+#import <TitaniumKit/TiUIView.h>
+#import <TitaniumKit/TiUtils.h>
+#import <TitaniumKit/TiViewProxy.h>
 
 @implementation LauncherButton
 
@@ -204,7 +204,7 @@
       }
       [self addSubview:[self closeButton]];
     } else {
-      if (badge != nil && dragging == NO) {
+      if (badge != nil && !dragging) {
         [badge setHidden:item.badgeValue == 0];
       }
       [closeButton removeFromSuperview];
@@ -258,7 +258,7 @@
       badge.frame = CGRectMake(0, 0, 36, 29);
     }
     [badge setTitle:NSLocalizedString(title, title) forState:UIControlStateNormal];
-    if (dragging == NO && editing == NO) {
+    if (!dragging && !editing) {
       [badge setHidden:NO];
     }
   } else if (badge != nil) {

@@ -5,7 +5,7 @@
  * Please see the LICENSE included with this distribution for details.
  */
 #import "TiButtonUtil.h"
-#import "TiBase.h"
+#import <TitaniumKit/TiBase.h>
 
 @implementation TiButtonUtil
 

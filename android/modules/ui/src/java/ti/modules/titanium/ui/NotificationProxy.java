@@ -10,7 +10,6 @@ import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
-import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.widget.TiUINotification;
@@ -37,24 +36,6 @@ public class NotificationProxy extends TiViewProxy
 
 		TiUINotification n = (TiUINotification) getOrCreateView();
 		n.show(options);
-	}
-
-	// clang-format off
-	@Kroll.method
-	@Kroll.setProperty
-	public void setMessage(String message)
-	// clang-format on
-	{
-		setPropertyAndFire(TiC.PROPERTY_MESSAGE, message);
-	}
-
-	// clang-format off
-	@Kroll.method
-	@Kroll.getProperty
-	public String getMessage()
-	// clang-format on
-	{
-		return TiConvert.toString(getProperty(TiC.PROPERTY_MESSAGE));
 	}
 
 	@Override

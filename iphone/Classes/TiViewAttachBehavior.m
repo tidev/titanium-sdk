@@ -85,13 +85,14 @@
     [self rememberProxy:_item];
     _needsRefresh = (_attachBehavior != nil);
     if (_needsRefresh) {
-      TiThreadPerformOnMainThread(^{
-        UIDynamicAnimator *theAnimator = _attachBehavior.dynamicAnimator;
-        if (theAnimator != nil) {
-          [theAnimator removeBehavior:_attachBehavior];
-          [theAnimator addBehavior:[self behaviorObject]];
-        }
-      },
+      TiThreadPerformOnMainThread(
+          ^{
+            UIDynamicAnimator *theAnimator = _attachBehavior.dynamicAnimator;
+            if (theAnimator != nil) {
+              [theAnimator removeBehavior:_attachBehavior];
+              [theAnimator addBehavior:[self behaviorObject]];
+            }
+          },
           YES);
     }
   }
@@ -112,13 +113,14 @@
     [self rememberProxy:_anchorItem];
     _needsRefresh = (_attachBehavior != nil);
     if (_needsRefresh) {
-      TiThreadPerformOnMainThread(^{
-        UIDynamicAnimator *theAnimator = _attachBehavior.dynamicAnimator;
-        if (theAnimator != nil) {
-          [theAnimator removeBehavior:_attachBehavior];
-          [theAnimator addBehavior:[self behaviorObject]];
-        }
-      },
+      TiThreadPerformOnMainThread(
+          ^{
+            UIDynamicAnimator *theAnimator = _attachBehavior.dynamicAnimator;
+            if (theAnimator != nil) {
+              [theAnimator removeBehavior:_attachBehavior];
+              [theAnimator addBehavior:[self behaviorObject]];
+            }
+          },
           YES);
     }
   }
@@ -136,9 +138,10 @@
   if (newVal != _damping && newVal > 0) {
     _damping = newVal;
     if (_attachBehavior != nil) {
-      TiThreadPerformOnMainThread(^{
-        [_attachBehavior setDamping:_damping];
-      },
+      TiThreadPerformOnMainThread(
+          ^{
+            [_attachBehavior setDamping:_damping];
+          },
           YES);
     }
   }
@@ -156,9 +159,10 @@
   if (newVal != _frequency && newVal > 0) {
     _frequency = newVal;
     if (_attachBehavior != nil) {
-      TiThreadPerformOnMainThread(^{
-        [_attachBehavior setFrequency:_frequency];
-      },
+      TiThreadPerformOnMainThread(
+          ^{
+            [_attachBehavior setFrequency:_frequency];
+          },
           YES);
     }
   }
@@ -176,9 +180,10 @@
   if (newVal != _length && newVal > 0) {
     _length = newVal;
     if (_attachBehavior != nil) {
-      TiThreadPerformOnMainThread(^{
-        [_attachBehavior setLength:_length];
-      },
+      TiThreadPerformOnMainThread(
+          ^{
+            [_attachBehavior setLength:_length];
+          },
           YES);
     }
   }
@@ -187,9 +192,10 @@
 - (NSNumber *)distance
 {
   if (_attachBehavior != nil) {
-    TiThreadPerformOnMainThread(^{
-      _length = [_attachBehavior length];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          _length = [_attachBehavior length];
+        },
         YES);
   }
   return NUMFLOAT(_length);
@@ -203,13 +209,14 @@
     _itemOffset = newPoint;
     _needsRefresh = (_attachBehavior != nil);
     if (_needsRefresh) {
-      TiThreadPerformOnMainThread(^{
-        UIDynamicAnimator *theAnimator = _attachBehavior.dynamicAnimator;
-        if (theAnimator != nil) {
-          [theAnimator removeBehavior:_attachBehavior];
-          [theAnimator addBehavior:[self behaviorObject]];
-        }
-      },
+      TiThreadPerformOnMainThread(
+          ^{
+            UIDynamicAnimator *theAnimator = _attachBehavior.dynamicAnimator;
+            if (theAnimator != nil) {
+              [theAnimator removeBehavior:_attachBehavior];
+              [theAnimator addBehavior:[self behaviorObject]];
+            }
+          },
           YES);
     }
   }
@@ -228,13 +235,14 @@
     _anchorOffset = newPoint;
     _needsRefresh = (_attachBehavior != nil);
     if (_needsRefresh) {
-      TiThreadPerformOnMainThread(^{
-        UIDynamicAnimator *theAnimator = _attachBehavior.dynamicAnimator;
-        if (theAnimator != nil) {
-          [theAnimator removeBehavior:_attachBehavior];
-          [theAnimator addBehavior:[self behaviorObject]];
-        }
-      },
+      TiThreadPerformOnMainThread(
+          ^{
+            UIDynamicAnimator *theAnimator = _attachBehavior.dynamicAnimator;
+            if (theAnimator != nil) {
+              [theAnimator removeBehavior:_attachBehavior];
+              [theAnimator addBehavior:[self behaviorObject]];
+            }
+          },
           YES);
     }
   }

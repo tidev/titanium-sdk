@@ -10,7 +10,7 @@
 #import "TiUIAttributedStringProxy.h"
 #endif
 #import "TiUIRefreshControlProxy.h"
-#import "TiUtils.h"
+#import <TitaniumKit/TiUtils.h>
 
 @implementation TiUIRefreshControlProxy
 
@@ -59,40 +59,42 @@
   ENSURE_SINGLE_ARG_OR_NIL(value, TiUIAttributedStringProxy);
   [self replaceValue:value forKey:@"title" notification:NO];
 
-  TiThreadPerformOnMainThread(^{
-    [[self control] setAttributedTitle:[(TiUIAttributedStringProxy *)value attributedString]];
-  },
+  TiThreadPerformOnMainThread(
+      ^{
+        [[self control] setAttributedTitle:[(TiUIAttributedStringProxy *)value attributedString]];
+      },
       NO);
 #endif
 }
 
 - (void)setTintColor:(id)value
 {
-  ENSURE_SINGLE_ARG_OR_NIL(value, NSString);
   [self replaceValue:value forKey:@"tintColor" notification:NO];
 
-  TiThreadPerformOnMainThread(^{
-    [[self control] setTintColor:[[TiUtils colorValue:value] color]];
-  },
+  TiThreadPerformOnMainThread(
+      ^{
+        [[self control] setTintColor:[[TiUtils colorValue:value] color]];
+      },
       NO);
 }
 
 - (void)beginRefreshing:(id)unused
 {
-  TiThreadPerformOnMainThread(^{
-    [(UIScrollView *)[[self control] superview] setContentOffset:CGPointMake(0, -([[self control] frame].size.height)) animated:YES];
-    [[self control] beginRefreshing];
-    [[self control] sendActionsForControlEvents:UIControlEventValueChanged];
-  },
+  TiThreadPerformOnMainThread(
+      ^{
+        [[self control] beginRefreshing];
+        [[self control] sendActionsForControlEvents:UIControlEventValueChanged];
+      },
       NO);
 }
 
 - (void)endRefreshing:(id)unused
 {
-  TiThreadPerformOnMainThread(^{
-    [[self control] endRefreshing];
-    [self refreshingDidEnd];
-  },
+  TiThreadPerformOnMainThread(
+      ^{
+        [[self control] endRefreshing];
+        [self refreshingDidEnd];
+      },
       NO);
 }
 

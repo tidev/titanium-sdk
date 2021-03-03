@@ -7,15 +7,15 @@
 #ifdef USE_TI_UITABLEVIEW
 
 #import "TiUITableViewRowProxy.h"
-#import "ImageLoader.h"
-#import "TiLayoutQueue.h"
 #import "TiSelectedCellbackgroundView.h"
 #import "TiUITableView.h"
 #import "TiUITableViewAction.h"
 #import "TiUITableViewSectionProxy.h"
-#import "TiUtils.h"
-#import "TiViewProxy.h"
-#import "Webcolor.h"
+#import <TitaniumKit/ImageLoader.h>
+#import <TitaniumKit/TiLayoutQueue.h>
+#import <TitaniumKit/TiUtils.h>
+#import <TitaniumKit/TiViewProxy.h>
+#import <TitaniumKit/Webcolor.h>
 #import <libkern/OSAtomic.h>
 
 NSString *const defaultRowTableClass = @"_default_";
@@ -29,7 +29,7 @@ NSString *const defaultRowTableClass = @"_default_";
 #ifdef TI_USE_AUTOLAYOUT
 @interface TiUITableViewRowContainer : TiLayoutView
 #else
-@interface TiUITableViewRowContainer : UIView
+@interface TiUITableViewRowContainer : TiUIView
 #endif
 {
   TiProxy *hitTarget;
@@ -150,16 +150,12 @@ TiProxy *DeepScanForProxyOfViewContainingPoint(UIView *targetView, CGPoint point
 - (void)_destroy
 {
   RELEASE_TO_NIL(tableClass);
-#ifdef TI_USE_KROLL_THREAD
-  TiThreadRemoveFromSuperviewOnMainThread(rowContainerView, NO);
-  TiThreadReleaseOnMainThread(rowContainerView, NO);
-#else
-  TiThreadPerformOnMainThread(^{
-    [rowContainerView removeFromSuperview];
-    RELEASE_TO_NIL(rowContainerView);
-  },
+  TiThreadPerformOnMainThread(
+      ^{
+        [rowContainerView removeFromSuperview];
+        RELEASE_TO_NIL(rowContainerView);
+      },
       YES);
-#endif
   rowContainerView = nil;
   [callbackCell setProxy:nil];
   callbackCell = nil;
@@ -389,6 +385,10 @@ TiProxy *DeepScanForProxyOfViewContainingPoint(UIView *targetView, CGPoint point
 
 - (void)configureBackground:(UITableViewCell *)cell
 {
+  if (![self shouldUseBackgroundView]) {
+    return; // Ignore custom selection styles for native selections
+  }
+
   [(TiUITableViewCell *)cell setBackgroundGradient_:[self valueForKey:@"backgroundGradient"]];
   [(TiUITableViewCell *)cell setSelectedBackgroundGradient_:[self valueForKey:@"selectedBackgroundGradient"]];
 
@@ -398,7 +398,7 @@ TiProxy *DeepScanForProxyOfViewContainingPoint(UIView *targetView, CGPoint point
   if (bgImage != nil) {
     NSURL *url = [TiUtils toURL:bgImage proxy:(TiProxy *)table.proxy];
     UIImage *image = [[ImageLoader sharedLoader] loadImmediateStretchableImage:url withLeftCap:leftCap topCap:topCap];
-    if ([cell.backgroundView isKindOfClass:[UIImageView class]] == NO) {
+    if (![cell.backgroundView isKindOfClass:[UIImageView class]]) {
       UIImageView *view_ = [[[UIImageView alloc] initWithFrame:CGRectZero] autorelease];
       cell.backgroundView = view_;
     }
@@ -413,7 +413,7 @@ TiProxy *DeepScanForProxyOfViewContainingPoint(UIView *targetView, CGPoint point
   if (selBgImage != nil) {
     NSURL *url = [TiUtils toURL:selBgImage proxy:(TiProxy *)table.proxy];
     UIImage *image = [[ImageLoader sharedLoader] loadImmediateStretchableImage:url withLeftCap:leftCap topCap:topCap];
-    if ([cell.selectedBackgroundView isKindOfClass:[UIImageView class]] == NO) {
+    if (![cell.selectedBackgroundView isKindOfClass:[UIImageView class]]) {
       UIImageView *view_ = [[[UIImageView alloc] initWithFrame:CGRectZero] autorelease];
       cell.selectedBackgroundView = view_;
     }
@@ -421,7 +421,7 @@ TiProxy *DeepScanForProxyOfViewContainingPoint(UIView *targetView, CGPoint point
       ((UIImageView *)cell.selectedBackgroundView).image = image;
     }
 
-    UIColor *theColor = [Webcolor webColorNamed:selBgColor];
+    UIColor *theColor = [TiUtils colorValue:selBgColor].color;
     cell.selectedBackgroundView.backgroundColor = ((theColor == nil) ? [UIColor clearColor] : theColor);
   } else {
     if (![cell.selectedBackgroundView isKindOfClass:[TiSelectedCellBackgroundView class]]) {
@@ -429,11 +429,11 @@ TiProxy *DeepScanForProxyOfViewContainingPoint(UIView *targetView, CGPoint point
     }
     TiSelectedCellBackgroundView *selectedBGView = (TiSelectedCellBackgroundView *)cell.selectedBackgroundView;
     selectedBGView.grouped = [[table tableView] style] == UITableViewStyleGrouped;
-    UIColor *theColor = [Webcolor webColorNamed:selBgColor];
+    UIColor *theColor = [TiUtils colorValue:selBgColor].color;
     if (theColor == nil) {
       switch (cell.selectionStyle) {
       case UITableViewCellSelectionStyleGray:
-        theColor = [Webcolor webColorNamed:@"#bbb"];
+        theColor = [Webcolor webColorNamed:@"#d9d9d9"];
         break;
       case UITableViewCellSelectionStyleNone:
         theColor = [UIColor clearColor];
@@ -447,7 +447,7 @@ TiProxy *DeepScanForProxyOfViewContainingPoint(UIView *targetView, CGPoint point
       }
     }
     selectedBGView.fillColor = theColor;
-    NSInteger count = [section rowCount];
+    NSUInteger count = section.rowCount.unsignedIntegerValue;
     if (count == 1) {
       selectedBGView.position = TiCellBackgroundViewPositionSingleLine;
     } else {
@@ -528,7 +528,7 @@ TiProxy *DeepScanForProxyOfViewContainingPoint(UIView *targetView, CGPoint point
 
 - (UIView *)view
 {
-  return nil;
+  return rowContainerView;
 }
 
 //Private method : For internal use only
@@ -735,9 +735,10 @@ TiProxy *DeepScanForProxyOfViewContainingPoint(UIView *targetView, CGPoint point
     TiUITableViewAction *action = [[[TiUITableViewAction alloc] initWithObject:self
                                                                      animation:nil
                                                                           type:TiUITableViewActionRowReload] autorelease];
-    TiThreadPerformOnMainThread(^{
-      [self updateRow:action];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          [self updateRow:action];
+        },
         NO);
   }
 }
@@ -752,39 +753,40 @@ TiProxy *DeepScanForProxyOfViewContainingPoint(UIView *targetView, CGPoint point
 
 - (void)triggerUpdateIfHeightChanged
 {
-  TiThreadPerformOnMainThread(^{
-    if ([self viewAttached] && rowContainerView != nil) {
-      CGFloat curHeight = rowContainerView.bounds.size.height;
-      CGSize newSize = [callbackCell computeCellSize];
+  TiThreadPerformOnMainThread(
+      ^{
+        if ([self viewAttached] && rowContainerView != nil) {
+          CGFloat curHeight = rowContainerView.bounds.size.height;
+          CGSize newSize = [callbackCell computeCellSize];
 
-      // TIMOB-19241: Fix the keyboard from losing focus after 1 character
-      UITableViewCellSeparatorStyle separatorStyle = [[table tableView] separatorStyle];
-      CGFloat heightDifference = fabs(newSize.height - curHeight);
+          // TIMOB-19241: Fix the keyboard from losing focus after 1 character
+          UITableViewCellSeparatorStyle separatorStyle = [[table tableView] separatorStyle];
+          CGFloat heightDifference = fabs(newSize.height - curHeight);
 
-      if (((separatorStyle != UITableViewCellSeparatorStyleNone) && (heightDifference >= 1.0)) || ((separatorStyle == UITableViewCellSeparatorStyleNone) && (heightDifference > 0.0))) {
-        DeveloperLog(@"Height changing from %.1f to %.1f. Triggering update.", curHeight, newSize.height);
-        [self triggerRowUpdate];
-      } else {
-        DeveloperLog(@"Height does not change. Just laying out children. Height %.1f", curHeight);
-        // TIMOB-13121: Ensure touchdelegate is set if we are not going to reconstruct the row.
-        if ([rowContainerView superview] != nil) {
-          UIView *contentView = [rowContainerView superview];
-          [[self children] enumerateObjectsUsingBlock:^(TiViewProxy *proxy, NSUInteger idx, BOOL *stop) {
-            [self redelegateViews:proxy toView:contentView];
-          }];
+          if (((separatorStyle != UITableViewCellSeparatorStyleNone) && (heightDifference >= 1.0)) || ((separatorStyle == UITableViewCellSeparatorStyleNone) && (heightDifference > 0.0))) {
+            DeveloperLog(@"Height changing from %.1f to %.1f. Triggering update.", curHeight, newSize.height);
+            [self triggerRowUpdate];
+          } else {
+            DeveloperLog(@"Height does not change. Just laying out children. Height %.1f", curHeight);
+            // TIMOB-13121: Ensure touchdelegate is set if we are not going to reconstruct the row.
+            if ([rowContainerView superview] != nil) {
+              UIView *contentView = [rowContainerView superview];
+              [[self children] enumerateObjectsUsingBlock:^(TiViewProxy *proxy, NSUInteger idx, BOOL *stop) {
+                [self redelegateViews:proxy toView:contentView];
+              }];
+            }
+            [callbackCell setNeedsDisplay];
+          }
+        } else {
+          [callbackCell setNeedsDisplay];
         }
-        [callbackCell setNeedsDisplay];
-      }
-    } else {
-      [callbackCell setNeedsDisplay];
-    }
-  },
+      },
       NO);
 }
 
 - (void)contentsWillChange
 {
-  if (attaching == NO) {
+  if (!attaching) {
     [self triggerUpdateIfHeightChanged];
   }
 }
@@ -847,36 +849,48 @@ TiProxy *DeepScanForProxyOfViewContainingPoint(UIView *targetView, CGPoint point
   [super fireEvent:type withObject:obj propagate:propagate reportSuccess:report errorCode:code message:message];
 }
 
+- (BOOL)shouldUseBackgroundView
+{
+  return [self valueForKey:@"selectedBackgroundColor"]
+      || [self valueForKey:@"backgroundImage"]
+      || [self valueForKey:@"selectedBackgroundImage"]
+      || [self valueForKey:@"backgroundLeftCap"]
+      || [self valueForKey:@"backgroundTopCap"];
+}
+
 - (void)setSelectedBackgroundColor:(id)arg
 {
   [self replaceValue:arg forKey:@"selectedBackgroundColor" notification:NO];
-  TiThreadPerformOnMainThread(^{
-    if ([self viewAttached]) {
-      [self configureBackground:callbackCell];
-    }
-  },
+  TiThreadPerformOnMainThread(
+      ^{
+        if ([self viewAttached]) {
+          [self configureBackground:callbackCell];
+        }
+      },
       NO);
 }
 
 - (void)setBackgroundImage:(id)arg
 {
   [self replaceValue:arg forKey:@"backgroundImage" notification:NO];
-  TiThreadPerformOnMainThread(^{
-    if ([self viewAttached]) {
-      [self configureBackground:callbackCell];
-    }
-  },
+  TiThreadPerformOnMainThread(
+      ^{
+        if ([self viewAttached]) {
+          [self configureBackground:callbackCell];
+        }
+      },
       NO);
 }
 
 - (void)setSelectedBackgroundImage:(id)arg
 {
   [self replaceValue:arg forKey:@"selectedBackgroundImage" notification:NO];
-  TiThreadPerformOnMainThread(^{
-    if ([self viewAttached]) {
-      [self configureBackground:callbackCell];
-    }
-  },
+  TiThreadPerformOnMainThread(
+      ^{
+        if ([self viewAttached]) {
+          [self configureBackground:callbackCell];
+        }
+      },
       NO);
 }
 
@@ -884,9 +898,10 @@ TiProxy *DeepScanForProxyOfViewContainingPoint(UIView *targetView, CGPoint point
 {
   TiGradient *newGradient = [TiGradient gradientFromObject:arg proxy:self];
   [self replaceValue:newGradient forKey:@"backgroundGradient" notification:NO];
-  TiThreadPerformOnMainThread(^{
-    [callbackCell setBackgroundGradient_:newGradient];
-  },
+  TiThreadPerformOnMainThread(
+      ^{
+        [callbackCell setBackgroundGradient_:newGradient];
+      },
       NO);
 }
 
@@ -894,9 +909,10 @@ TiProxy *DeepScanForProxyOfViewContainingPoint(UIView *targetView, CGPoint point
 {
   TiGradient *newGradient = [TiGradient gradientFromObject:arg proxy:self];
   [self replaceValue:newGradient forKey:@"selectedBackgroundGradient" notification:NO];
-  TiThreadPerformOnMainThread(^{
-    [callbackCell setSelectedBackgroundGradient_:newGradient];
-  },
+  TiThreadPerformOnMainThread(
+      ^{
+        [callbackCell setSelectedBackgroundGradient_:newGradient];
+      },
       NO);
 }
 
@@ -914,33 +930,34 @@ TiProxy *DeepScanForProxyOfViewContainingPoint(UIView *targetView, CGPoint point
   }
 
   if ([TableViewRowProperties member:key] != nil) {
-    TiThreadPerformOnMainThread(^{
-      if (![self viewAttached]) {
-        return;
-      }
-      if ([key isEqualToString:@"height"] || [key isEqualToString:@"width"] || [key isEqualToString:@"indentionLevel"]) {
-        [self triggerRowUpdate];
-      } else if ([key isEqualToString:@"title"] || [key isEqualToString:@"color"] || [key isEqualToString:@"font"] || [key isEqualToString:@"selectedColor"]) {
-        [self configureTitle:callbackCell];
-        [callbackCell setNeedsDisplay];
-      } else if ([key isEqualToString:@"hasCheck"] || [key isEqualToString:@"hasChild"] || [key isEqualToString:@"hasDetail"] || [key isEqualToString:@"rightImage"]) {
-        [self configureRightSide:callbackCell];
-        [self triggerUpdateIfHeightChanged];
-      } else if ([key isEqualToString:@"leftImage"]) {
-        [self configureLeftSide:callbackCell];
-        [self triggerUpdateIfHeightChanged];
-      } else if ([key isEqualToString:@"backgroundImage"]) {
-        [self configureBackground:callbackCell];
-        [callbackCell setNeedsDisplay];
-      } else if ([key isEqualToString:@"backgroundColor"]) {
-        [callbackCell setBackgroundColor:[[TiUtils colorValue:newValue] color]];
-        [self triggerRowUpdate];
-      } else if ([key isEqualToString:@"accessibilityLabel"]) {
-        callbackCell.accessibilityLabel = [TiUtils stringValue:newValue];
-      } else if ([key isEqualToString:@"tintColor"]) {
-        [self configureTintColor:callbackCell];
-      }
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          if (![self viewAttached]) {
+            return;
+          }
+          if ([key isEqualToString:@"height"] || [key isEqualToString:@"width"] || [key isEqualToString:@"indentionLevel"]) {
+            [self triggerRowUpdate];
+          } else if ([key isEqualToString:@"title"] || [key isEqualToString:@"color"] || [key isEqualToString:@"font"] || [key isEqualToString:@"selectedColor"]) {
+            [self configureTitle:callbackCell];
+            [callbackCell setNeedsDisplay];
+          } else if ([key isEqualToString:@"hasCheck"] || [key isEqualToString:@"hasChild"] || [key isEqualToString:@"hasDetail"] || [key isEqualToString:@"rightImage"]) {
+            [self configureRightSide:callbackCell];
+            [self triggerUpdateIfHeightChanged];
+          } else if ([key isEqualToString:@"leftImage"]) {
+            [self configureLeftSide:callbackCell];
+            [self triggerUpdateIfHeightChanged];
+          } else if ([key isEqualToString:@"backgroundImage"]) {
+            [self configureBackground:callbackCell];
+            [callbackCell setNeedsDisplay];
+          } else if ([key isEqualToString:@"backgroundColor"]) {
+            [callbackCell setBackgroundColor:[[TiUtils colorValue:newValue] color]];
+            [self triggerRowUpdate];
+          } else if ([key isEqualToString:@"accessibilityLabel"]) {
+            callbackCell.accessibilityLabel = [TiUtils stringValue:newValue];
+          } else if ([key isEqualToString:@"tintColor"]) {
+            [self configureTintColor:callbackCell];
+          }
+        },
         NO);
   }
 }

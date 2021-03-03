@@ -33,9 +33,9 @@ class NativeObject
 
 
   virtual ~NativeObject() {
-    if (persistent().IsEmpty())
+    if (persistent().IsEmpty()) {
       return;
-    assert(persistent().IsNearDeath());
+    }
     persistent().ClearWeak();
     persistent().Reset();
   }
@@ -80,7 +80,6 @@ class NativeObject
 
   inline void MakeWeak(void) {
     persistent().SetWeak(this, WeakCallback, v8::WeakCallbackType::kParameter);
-    persistent().MarkIndependent();
   }
 
   /* Ref() marks the object as being attached to an event loop.
@@ -104,10 +103,12 @@ class NativeObject
    */
   virtual void Unref() {
     assert(!persistent().IsEmpty());
-    assert(!persistent().IsWeak());
-    assert(refs_ > 0);
-    if (--refs_ == 0)
-      MakeWeak();
+    if (refs_ > 0) {
+      refs_--;
+      if (0 == refs_) {
+        MakeWeak();
+      }
+    }
   }
 
   int refs_;  // ro
@@ -116,14 +117,13 @@ class NativeObject
   static void WeakCallback(const v8::WeakCallbackInfo<NativeObject>& data) {
     NativeObject* wrap = data.GetParameter();
     assert(wrap->refs_ == 0);
-    assert(wrap->handle_.IsNearDeath());
     wrap->handle_.Reset();
     delete wrap;
   }
 
   v8::Persistent<v8::Object> handle_;
 
-	friend class ProxyFactory;
+  friend class ProxyFactory;
 };
 
 }

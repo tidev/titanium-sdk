@@ -38,11 +38,8 @@ public class DisplayCapsProxy extends KrollProxy
 		return softDisplay.get();
 	}
 
-	// clang-format off
-	@Kroll.method
 	@Kroll.getProperty
 	public int getPlatformWidth()
-	// clang-format on
 	{
 		synchronized (dm)
 		{
@@ -51,11 +48,8 @@ public class DisplayCapsProxy extends KrollProxy
 		}
 	}
 
-	// clang-format off
-	@Kroll.method
 	@Kroll.getProperty
 	public int getPlatformHeight()
-	// clang-format on
 	{
 		synchronized (dm)
 		{
@@ -64,11 +58,8 @@ public class DisplayCapsProxy extends KrollProxy
 		}
 	}
 
-	// clang-format off
-	@Kroll.method
 	@Kroll.getProperty
 	public String getDensity()
-	// clang-format on
 	{
 		synchronized (dm)
 		{
@@ -91,11 +82,8 @@ public class DisplayCapsProxy extends KrollProxy
 		}
 	}
 
-	// clang-format off
-	@Kroll.method
 	@Kroll.getProperty
 	public float getDpi()
-	// clang-format on
 	{
 		synchronized (dm)
 		{
@@ -104,11 +92,8 @@ public class DisplayCapsProxy extends KrollProxy
 		}
 	}
 
-	// clang-format off
-	@Kroll.method
 	@Kroll.getProperty
 	public float getXdpi()
-	// clang-format on
 	{
 		synchronized (dm)
 		{
@@ -117,11 +102,8 @@ public class DisplayCapsProxy extends KrollProxy
 		}
 	}
 
-	// clang-format off
-	@Kroll.method
 	@Kroll.getProperty
 	public float getYdpi()
-	// clang-format on
 	{
 		synchronized (dm)
 		{
@@ -130,11 +112,8 @@ public class DisplayCapsProxy extends KrollProxy
 		}
 	}
 
-	// clang-format off
-	@Kroll.method
 	@Kroll.getProperty
 	public float getLogicalDensityFactor()
-	// clang-format on
 	{
 		synchronized (dm)
 		{

@@ -9,9 +9,6 @@ package ti.modules.titanium.ui;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
-import org.appcelerator.kroll.common.AsyncResult;
-import org.appcelerator.kroll.common.TiMessenger;
-import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
@@ -19,8 +16,7 @@ import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.widget.TiUIText;
 import android.app.Activity;
-import android.os.Message;
-// clang-format off
+
 @Kroll.proxy(creatableInModule = UIModule.class,
 	propertyAccessors = {
 		TiC.PROPERTY_ATTRIBUTED_STRING,
@@ -50,13 +46,8 @@ import android.os.Message;
 		TiC.PROPERTY_RETURN_KEY_TYPE,
 		TiC.PROPERTY_PADDING
 })
-// clang-format on
 public class TextFieldProxy extends TiViewProxy
 {
-	private static final int MSG_FIRST_ID = TiViewProxy.MSG_LAST_ID + 1;
-	private static final int MSG_SET_SELECTION = MSG_FIRST_ID + 201;
-	private static final int MSG_GET_SELECTION = MSG_FIRST_ID + 202;
-
 	public TextFieldProxy()
 	{
 		super();
@@ -97,71 +88,34 @@ public class TextFieldProxy extends TiViewProxy
 	public void setSelection(int start, int stop)
 	{
 		TiUIView v = getOrCreateView();
-		if (v != null) {
-			if (TiApplication.isUIThread()) {
-				((TiUIText) v).setSelection(start, stop);
-				return;
-			}
-			KrollDict args = new KrollDict();
-			args.put(TiC.PROPERTY_START, start);
-			args.put(TiC.PROPERTY_STOP, stop);
-			getMainHandler().obtainMessage(MSG_SET_SELECTION, args).sendToTarget();
+		if (v instanceof TiUIText) {
+			((TiUIText) v).setSelection(start, stop);
 		}
 	}
 
-	// clang-format off
-	@Kroll.method
 	@Kroll.getProperty
 	public KrollDict getSelection()
-	// clang-format on
 	{
 		TiUIView v = peekView();
-		if (v != null) {
-			if (TiApplication.isUIThread()) {
-				return ((TiUIText) v).getSelection();
-			} else {
-				return (KrollDict) TiMessenger.sendBlockingMainMessage(
-					getMainHandler().obtainMessage(MSG_GET_SELECTION));
-			}
-		} else {
-			return null;
+		if (v instanceof TiUIText) {
+			return ((TiUIText) v).getSelection();
 		}
-	}
-
-	public boolean handleMessage(Message msg)
-	{
-		switch (msg.what) {
-			case MSG_SET_SELECTION: {
-				TiUIView v = getOrCreateView();
-				if (v != null) {
-					Object argsObj = msg.obj;
-					if (argsObj instanceof KrollDict) {
-						KrollDict args = (KrollDict) argsObj;
-						((TiUIText) v).setSelection(args.getInt(TiC.PROPERTY_START), args.getInt(TiC.PROPERTY_STOP));
-					}
-				}
-				return true;
-			}
-			case MSG_GET_SELECTION: {
-				AsyncResult result = null;
-				result = (AsyncResult) msg.obj;
-				TiUIView v = peekView();
-				if (v != null) {
-					result.setResult(((TiUIText) v).getSelection());
-				} else {
-					result.setResult(null);
-				}
-				return true;
-			}
-			default: {
-				return super.handleMessage(msg);
-			}
-		}
+		return null;
 	}
 
 	@Override
 	public String getApiName()
 	{
 		return "Ti.UI.TextField";
+	}
+
+	@Kroll.getProperty(name = "focused")
+	public boolean isFocused()
+	{
+		TiUIView v = peekView();
+		if (v != null) {
+			return v.isFocused();
+		}
+		return false;
 	}
 }

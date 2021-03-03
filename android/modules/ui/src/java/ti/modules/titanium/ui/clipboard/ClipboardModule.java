@@ -67,23 +67,24 @@ public class ClipboardModule extends KrollModule
 		}
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public String getText()
-	// clang-format on
 	{
-		return board().getText().toString();
+		CharSequence text = board().getText();
+		if (text != null) {
+			return text.toString();
+		}
+		return null;
 	}
 
 	@Kroll.method
-	public boolean hasData(String type)
+	public boolean hasData(@Kroll.argument(optional = true) String type)
 	{
 		if (type == null || isTextType(type)) {
 			return hasText();
-		} else {
-			return false;
 		}
+		return false;
 	}
 
 	@Kroll.method
@@ -102,11 +103,9 @@ public class ClipboardModule extends KrollModule
 		}
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.setProperty
 	public void setText(String text)
-	// clang-format on
 	{
 		board().setText(text);
 	}

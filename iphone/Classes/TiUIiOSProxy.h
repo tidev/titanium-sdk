@@ -4,7 +4,7 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#import "TiProxy.h"
+#import <TitaniumKit/TiProxy.h>
 
 #ifdef USE_TI_UIIOS
 
@@ -147,6 +147,8 @@
 @property (nonatomic, readonly) NSNumber *MODAL_PRESENTATION_PAGESHEET;
 @property (nonatomic, readonly) NSNumber *MODAL_PRESENTATION_FORMSHEET;
 @property (nonatomic, readonly) NSNumber *MODAL_PRESENTATION_CURRENT_CONTEXT;
+@property (nonatomic, readonly) NSNumber *MODAL_PRESENTATION_OVER_CURRENT_CONTEXT;
+@property (nonatomic, readonly) NSNumber *MODAL_PRESENTATION_OVER_CURRENT_FULL_SCREEN;
 
 @property (nonatomic, readonly) NSNumber *MODAL_TRANSITION_STYLE_COVER_VERTICAL;
 @property (nonatomic, readonly) NSNumber *MODAL_TRANSITION_STYLE_FLIP_HORIZONTAL;
@@ -160,11 +162,9 @@
 @property (nonatomic, readonly) NSNumber *BLUR_EFFECT_STYLE_DARK;
 #endif
 
-#if IS_XCODE_9
 @property (nonatomic, readonly) NSNumber *LARGE_TITLE_DISPLAY_MODE_AUTOMATIC;
 @property (nonatomic, readonly) NSNumber *LARGE_TITLE_DISPLAY_MODE_ALWAYS;
 @property (nonatomic, readonly) NSNumber *LARGE_TITLE_DISPLAY_MODE_NEVER;
-#endif
 
 /**
     Checks the force touch capibility of the current device.
@@ -174,17 +174,8 @@
 #ifdef USE_TI_UIIOSCOVERFLOWVIEW
 - (id)createCoverFlowView:(id)args;
 #endif
-#ifdef USE_TI_UIIOSTOOLBAR
-- (id)createToolbar:(id)args;
-#endif
-#ifdef USE_TI_UIIOSTABBEDBAR
-- (id)createTabbedBar:(id)args;
-#endif
 #ifdef USE_TI_UIIOSDOCUMENTVIEWER
 - (id)createDocumentViewer:(id)args;
-#endif
-#ifdef USE_TI_UIIOSNAVIGATIONWINDOW
-- (id)createNavigationWindow:(id)args;
 #endif
 #ifdef USE_TI_UIIOSSPLITWINDOW
 - (id)createSplitWindow:(id)args;
@@ -230,10 +221,11 @@
 #ifdef USE_TI_UIIOSAPPLICATIONSHORTCUTS
 - (id)createApplicationShortcuts:(id)args;
 #endif
-#if IS_XCODE_8
 #ifdef USE_TI_UIIOSFEEDBACKGENERATOR
 - (id)createFeedbackGenerator:(id)args;
 #endif
+#ifdef USE_TI_UIWEBVIEW
+- (id)createWebViewConfiguration:(id)args;
+- (id)createWebViewProcessPool:(id)args;
 #endif
-
 @end

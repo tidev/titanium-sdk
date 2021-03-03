@@ -48,7 +48,7 @@ public class V8Function extends V8Object implements KrollFunction, Handler.Callb
 
 	public Object callSync(KrollObject krollObject, Object[] args)
 	{
-		if (!KrollRuntime.isInitialized()) {
+		if (KrollRuntime.isDisposed()) {
 			Log.w(TAG, "Runtime disposed, cannot call function.");
 			return null;
 		}
@@ -86,26 +86,8 @@ public class V8Function extends V8Object implements KrollFunction, Handler.Callb
 		return super.handleMessage(message);
 	}
 
-	@Override
-	public void doRelease()
-	{
-		long functionPointer = getPointer();
-		if (functionPointer == 0) {
-			return;
-		}
-
-		nativeRelease(functionPointer);
-		KrollRuntime.suggestGC();
-	}
-
-	@Override
-	protected void finalize() throws Throwable
-	{
-		super.finalize();
-	}
-
 	// JNI method prototypes
 	private native Object nativeInvoke(long thisPointer, long functionPointer, Object[] functionArgs);
 
-	private static native void nativeRelease(long functionPointer);
+	protected native boolean nativeRelease(long functionPointer);
 }

@@ -1,27 +1,22 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2015 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2020 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#import "TiBase.h"
+#import <TitaniumKit/TiBase.h>
 
 #ifdef USE_TI_UI
 
-#import "TiDimension.h"
-#import "TiProxy.h"
 #import "UIModule.h"
 
-#ifdef USE_TI_UI2DMATRIX
-#import "Ti2DMatrix.h"
-#endif
-
-#ifdef USE_TI_UI3DMATRIX
-#import "Ti3DMatrix.h"
-#endif
+#import <TitaniumKit/Ti2DMatrix.h>
+#import <TitaniumKit/Ti3DMatrix.h>
+#import <TitaniumKit/TiDimension.h>
+#import <TitaniumKit/TiProxy.h>
 
 #ifdef USE_TI_UIANIMATION
-#import "TiAnimation.h"
+#import <TitaniumKit/TiAnimation.h>
 #endif
 #ifdef USE_TI_UIIPAD
 #import "TiUIiPadProxy.h"
@@ -38,20 +33,22 @@
 #ifdef USE_TI_UITOOLBAR
 #import "TiUIToolbarProxy.h"
 #endif
+#ifdef USE_TI_UITABBEDBAR
+#import "TiUITabbedBarProxy.h"
+#endif
+#ifdef USE_TI_UIWEBVIEW
+#import <WebKit/WebKit.h>
+#endif
 
-#import "ImageLoader.h"
-#import "TiApp.h"
-#import "TiUtils.h"
-#import "Webcolor.h"
+#import <TitaniumKit/ImageLoader.h>
+#import <TitaniumKit/TiApp.h>
+#import <TitaniumKit/TiColor.h>
+#import <TitaniumKit/TiUtils.h>
 
 @implementation UIModule
 
 - (void)dealloc
 {
-#ifdef USE_TI_UIIPHONE
-  [self forgetProxy:iphone];
-  RELEASE_TO_NIL(iphone);
-#endif
 #ifdef USE_TI_UIIPAD
   [self forgetProxy:ipad];
   RELEASE_TO_NIL(ipad);
@@ -61,10 +58,44 @@
   RELEASE_TO_NIL(ios);
 #endif
 #ifdef USE_TI_UICLIPBOARD
-  [self forgetProxy:clipboard];
   RELEASE_TO_NIL(clipboard);
 #endif
+#if defined(USE_TI_UISHORTCUT) || defined(USE_TI_UISHORTCUTITEM)
+  RELEASE_TO_NIL(shortcut);
+#endif
   [super dealloc];
+}
+
+- (void)_listenerAdded:(NSString *)type count:(int)count
+{
+  if ((count == 1) && [type isEqual:@"userinterfacestyle"]) {
+    if ([TiUtils isIOSVersionOrGreater:@"13.0"]) {
+      lastEmittedMode = self.userInterfaceStyle;
+    }
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(didChangeTraitCollection:)
+                                                 name:kTiTraitCollectionChanged
+                                               object:nil];
+  }
+}
+
+- (void)_listenerRemoved:(NSString *)type count:(int)count
+{
+  if ((count == 1) && [type isEqual:@"userinterfacestyle"]) {
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:kTiTraitCollectionChanged object:nil];
+  }
+}
+
+- (void)didChangeTraitCollection:(NSNotification *)info
+{
+  if ([TiUtils isIOSVersionOrGreater:@"13.0"]) {
+    NSNumber *currentMode = self.userInterfaceStyle;
+    if (currentMode == lastEmittedMode) {
+      return;
+    }
+    lastEmittedMode = currentMode;
+    [self fireEvent:@"userinterfacestyle" withObject:@{ @"value" : currentMode }];
+  }
 }
 
 - (NSString *)apiName
@@ -126,20 +157,7 @@ MAKE_SYSTEM_PROP(KEYBOARD_TYPE_EMAIL, UIKeyboardTypeEmailAddress);
 MAKE_SYSTEM_PROP(KEYBOARD_TYPE_WEBSEARCH, UIKeyboardTypeWebSearch);
 MAKE_SYSTEM_PROP(KEYBOARD_TYPE_TWITTER, UIKeyboardTypeTwitter);
 
-MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(KEYBOARD_DEFAULT, UIKeyboardTypeDefault, @"UI.KEYBOARD_DEFAULT", @"5.2.0", @"UI.KEYBOARD_TYPE_DEFAULT");
-MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(KEYBOARD_URL, UIKeyboardTypeURL, @"UI.KEYBOARD_URL", @"5.2.0", @"UI.KEYBOARD_TYPE_URL");
-MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(KEYBOARD_ASCII, UIKeyboardTypeASCIICapable, @"UI.KEYBOARD_ASCII", @"5.2.0", @"UI.KEYBOARD_TYPE_ASCII");
-MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(KEYBOARD_NUMBERS_PUNCTUATION, UIKeyboardTypeNumbersAndPunctuation, @"UI.KEYBOARD_NUMBERS_PUNCTUATION", @"5.2.0", @"UI.KEYBOARD_TYPE_NUMBERS_PUNCTUATION");
-MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(KEYBOARD_NUMBER_PAD, UIKeyboardTypeNumberPad, @"UI.KEYBOARD_NUMBER_PAD", @"5.2.0", @"UI.KEYBOARD_TYPE_NUMBER_PAD");
-MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(KEYBOARD_DECIMAL_PAD, UIKeyboardTypeDecimalPad, @"UI.KEYBOARD_DECIMAL_PAD", @"5.2.0", @"UI.KEYBOARD_TYPE_DECIMAL_PAD");
-MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(KEYBOARD_PHONE_PAD, UIKeyboardTypePhonePad, @"UI.KEYBOARD_PHONE_PAD", @"5.2.0", @"UI.KEYBOARD_TYPE_PHONE_PAD");
-MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(KEYBOARD_NAMEPHONE_PAD, UIKeyboardTypeNamePhonePad, @"UI.KEYBOARD_NAMEPHONE_PAD", @"5.2.0", @"UI.KEYBOARD_TYPE_NAMEPHONE_PAD");
-MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(KEYBOARD_EMAIL, UIKeyboardTypeEmailAddress, @"UI.KEYBOARD_EMAIL", @"5.2.0", @"UI.KEYBOARD_TYPE_EMAIL");
-MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(KEYBOARD_WEBSEARCH, UIKeyboardTypeWebSearch, @"UI.KEYBOARD_WEBSEARCH", @"5.2.0", @"UI.KEYBOARD_TYPE_WEBSEARCH");
-MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(KEYBOARD_TWITTER, UIKeyboardTypeTwitter, @"UI.KEYBOARD_TWITTER", @"5.2.0", @"UI.KEYBOARD_TYPE_TWITTER");
-
 MAKE_SYSTEM_PROP(KEYBOARD_APPEARANCE_DEFAULT, UIKeyboardAppearanceDefault);
-MAKE_SYSTEM_PROP_DEPRECATED_REMOVED(KEYBOARD_APPEARANCE_ALERT, UIKeyboardAppearanceAlert, @"UI.KEYBOARD_APPEARANCE_ALERT", @"5.4.0", @"7.0.0");
 MAKE_SYSTEM_PROP(KEYBOARD_APPEARANCE_DARK, UIKeyboardAppearanceDark);
 MAKE_SYSTEM_PROP(KEYBOARD_APPEARANCE_LIGHT, UIKeyboardAppearanceLight);
 
@@ -163,6 +181,35 @@ MAKE_SYSTEM_PROP(PICKER_TYPE_DATE_AND_TIME, UIDatePickerModeDateAndTime);
 MAKE_SYSTEM_PROP(PICKER_TYPE_DATE, UIDatePickerModeDate);
 MAKE_SYSTEM_PROP(PICKER_TYPE_TIME, UIDatePickerModeTime);
 MAKE_SYSTEM_PROP(PICKER_TYPE_COUNT_DOWN_TIMER, UIDatePickerModeCountDownTimer);
+
+MAKE_SYSTEM_PROP(BLEND_MODE_NORMAL, kCGBlendModeNormal);
+MAKE_SYSTEM_PROP(BLEND_MODE_MULTIPLY, kCGBlendModeMultiply);
+MAKE_SYSTEM_PROP(BLEND_MODE_SCREEN, kCGBlendModeScreen);
+MAKE_SYSTEM_PROP(BLEND_MODE_OVERLAY, kCGBlendModeOverlay);
+MAKE_SYSTEM_PROP(BLEND_MODE_DARKEN, kCGBlendModeDarken);
+MAKE_SYSTEM_PROP(BLEND_MODE_LIGHTEN, kCGBlendModeLighten);
+MAKE_SYSTEM_PROP(BLEND_MODE_COLOR_DODGE, kCGBlendModeColorDodge);
+MAKE_SYSTEM_PROP(BLEND_MODE_COLOR_BURN, kCGBlendModeColorBurn);
+MAKE_SYSTEM_PROP(BLEND_MODE_SOFT_LIGHT, kCGBlendModeSoftLight);
+MAKE_SYSTEM_PROP(BLEND_MODE_HARD_LIGHT, kCGBlendModeHardLight);
+MAKE_SYSTEM_PROP(BLEND_MODE_DIFFERENCE, kCGBlendModeDifference);
+MAKE_SYSTEM_PROP(BLEND_MODE_EXCLUSION, kCGBlendModeExclusion);
+MAKE_SYSTEM_PROP(BLEND_MODE_HUE, kCGBlendModeHue);
+MAKE_SYSTEM_PROP(BLEND_MODE_SATURATION, kCGBlendModeSaturation);
+MAKE_SYSTEM_PROP(BLEND_MODE_COLOR, kCGBlendModeColor);
+MAKE_SYSTEM_PROP(BLEND_MODE_LUMINOSITY, kCGBlendModeLuminosity);
+MAKE_SYSTEM_PROP(BLEND_MODE_CLEAR, kCGBlendModeClear);
+MAKE_SYSTEM_PROP(BLEND_MODE_COPY, kCGBlendModeCopy);
+MAKE_SYSTEM_PROP(BLEND_MODE_SOURCE_IN, kCGBlendModeSourceIn);
+MAKE_SYSTEM_PROP(BLEND_MODE_SOURCE_OUT, kCGBlendModeSourceOut);
+MAKE_SYSTEM_PROP(BLEND_MODE_SOURCE_ATOP, kCGBlendModeSourceAtop);
+MAKE_SYSTEM_PROP(BLEND_MODE_DESTINATION_OVER, kCGBlendModeDestinationOver);
+MAKE_SYSTEM_PROP(BLEND_MODE_DESTINATION_IN, kCGBlendModeDestinationIn);
+MAKE_SYSTEM_PROP(BLEND_MODE_DESTINATION_OUT, kCGBlendModeDestinationOut);
+MAKE_SYSTEM_PROP(BLEND_MODE_DESTINATION_ATOP, kCGBlendModeDestinationAtop);
+MAKE_SYSTEM_PROP(BLEND_MODE_XOR, kCGBlendModeXOR);
+MAKE_SYSTEM_PROP(BLEND_MODE_PLUS_DARKER, kCGBlendModePlusDarker);
+MAKE_SYSTEM_PROP(BLEND_MODE_PLUS_LIGHTER, kCGBlendModePlusLighter);
 
 MAKE_SYSTEM_PROP(URL_ERROR_AUTHENTICATION, NSURLErrorUserAuthenticationRequired);
 MAKE_SYSTEM_PROP(URL_ERROR_BAD_URL, NSURLErrorBadURL);
@@ -200,13 +247,13 @@ MAKE_SYSTEM_PROP(LIST_ACCESSORY_TYPE_DISCLOSURE, UITableViewCellAccessoryDisclos
 - (void)setBackgroundColor:(id)color
 {
   TiRootViewController *controller = [[TiApp app] controller];
-  [controller setBackgroundColor:[Webcolor webColorNamed:color]];
+  [controller setBackgroundColor:[TiUtils colorValue:color].color];
 }
 
 - (void)setTintColor:(id)color
 {
   UIWindow *controller = [[[[TiApp app] controller] topWindowProxyView] window];
-  [controller setTintColor:[Webcolor webColorNamed:color]];
+  [controller setTintColor:[TiUtils colorValue:color].color];
 }
 
 - (void)setBackgroundImage:(id)image
@@ -221,18 +268,6 @@ MAKE_SYSTEM_PROP(LIST_ACCESSORY_TYPE_DISCLOSURE, UITableViewCellAccessoryDisclos
 }
 
 #pragma mark Factory methods
-
-#ifdef USE_TI_UI2DMATRIX
-- (id)create2DMatrix:(id)args
-{
-  if (args == nil || [args count] == 0) {
-    return [[[Ti2DMatrix alloc] init] autorelease];
-  }
-  ENSURE_SINGLE_ARG(args, NSDictionary);
-  Ti2DMatrix *matrix = [[Ti2DMatrix alloc] initWithProperties:args];
-  return [matrix autorelease];
-}
-#endif
 
 #ifdef USE_TI_UIANIMATION
 - (id)createAnimation:(id)args
@@ -254,6 +289,13 @@ MAKE_SYSTEM_PROP(LIST_ACCESSORY_TYPE_DISCLOSURE, UITableViewCellAccessoryDisclos
 - (id)createToolbar:(id)args
 {
   return [[[TiUIToolbarProxy alloc] _initWithPageContext:[self executionContext] args:args apiName:@"Ti.UI.Toolbar"] autorelease];
+}
+#endif
+
+#ifdef USE_TI_UITABBEDBAR
+- (id)createTabbedBar:(id)args
+{
+  return [[[TiUITabbedBarProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
 }
 #endif
 
@@ -304,51 +346,65 @@ MAKE_SYSTEM_PROP(EXTEND_EDGE_ALL, 15); //UIEdgeRectAll
 }
 - (NSString *)TEXT_STYLE_TITLE1
 {
-  if ([TiUtils isIOS9OrGreater]) {
-    return UIFontTextStyleTitle1;
-  } else {
-    return UIFontTextStyleBody;
-  }
+  return UIFontTextStyleTitle1;
 }
 - (NSString *)TEXT_STYLE_TITLE2
 {
-  if ([TiUtils isIOS9OrGreater]) {
-    return UIFontTextStyleTitle2;
-  } else {
-    return UIFontTextStyleBody;
-  }
+  return UIFontTextStyleTitle2;
 }
 - (NSString *)TEXT_STYLE_TITLE3
 {
-  if ([TiUtils isIOS9OrGreater]) {
-    return UIFontTextStyleTitle3;
-  } else {
-    return UIFontTextStyleBody;
-  }
+  return UIFontTextStyleTitle3;
 }
 - (NSString *)TEXT_STYLE_CALLOUT
 {
-  if ([TiUtils isIOS9OrGreater]) {
-    return UIFontTextStyleCallout;
-  } else {
-    return UIFontTextStyleBody;
+  return UIFontTextStyleCallout;
+}
+- (NSString *)TEXT_STYLE_LARGE_TITLE
+{
+  return UIFontTextStyleLargeTitle;
+}
+
+- (NSNumber *)userInterfaceStyle
+{
+  return @(TiApp.controller.traitCollection.userInterfaceStyle);
+}
+
+- (NSNumber *)USER_INTERFACE_STYLE_UNSPECIFIED
+{
+  if ([TiUtils isIOSVersionOrGreater:@"13.0"] || [TiUtils isMacOS]) {
+    return NUMINT(UIUserInterfaceStyleUnspecified);
   }
-}
-- (NSNumber *)isLandscape:(id)args
-{
-  return NUMBOOL([UIApplication sharedApplication].statusBarOrientation != UIInterfaceOrientationPortrait);
+
+  return NUMINT(0);
 }
 
-- (NSNumber *)isPortrait:(id)args
+- (NSNumber *)USER_INTERFACE_STYLE_LIGHT
 {
-  return NUMBOOL([UIApplication sharedApplication].statusBarOrientation == UIInterfaceOrientationPortrait);
+  if ([TiUtils isIOSVersionOrGreater:@"13.0"] || [TiUtils isMacOS]) {
+    return NUMINT(UIUserInterfaceStyleLight);
+  }
+
+  return NUMINT(0);
 }
 
-//Deprecated since 1.7.2
-- (NSNumber *)orientation
+- (NSNumber *)USER_INTERFACE_STYLE_DARK
 {
-  DebugLog(@"Ti.UI.orientation is deprecated since 1.7.2 .");
-  return NUMINT([UIApplication sharedApplication].statusBarOrientation);
+  if ([TiUtils isIOSVersionOrGreater:@"13.0"] || [TiUtils isMacOS]) {
+    return NUMINT(UIUserInterfaceStyleDark);
+  }
+
+  return NUMINT(0);
+}
+
+- (TiColor *)fetchSemanticColor:(id)color
+{
+  ENSURE_SINGLE_ARG(color, NSString);
+  TiColor *tiColor = [TiColor colorNamed:color];
+  if (tiColor == nil) {
+    return [TiColor colorNamed:@"black"];
+  }
+  return tiColor;
 }
 
 #pragma mark iPhone namespace
@@ -375,8 +431,23 @@ MAKE_SYSTEM_PROP(EXTEND_EDGE_ALL, 15); //UIEdgeRectAll
 }
 #endif
 
-#ifdef USE_TI_UI3DMATRIX
-- (id)create3DMatrix:(id)args
+- (id)createMatrix2D:(id)args
+{
+  if (args == nil || [args count] == 0) {
+    return [[[Ti2DMatrix alloc] init] autorelease];
+  }
+  ENSURE_SINGLE_ARG(args, NSDictionary);
+  Ti2DMatrix *matrix = [[Ti2DMatrix alloc] initWithProperties:args];
+  return [matrix autorelease];
+}
+
+- (id)create2DMatrix:(id)args
+{
+  DEPRECATED_REPLACED(@"UI.2DMatrix", @"8.0.0", @"UI.Matrix2D");
+  return [self createMatrix2D:args];
+}
+
+- (id)createMatrix3D:(id)args
 {
   if (args == nil || [args count] == 0) {
     return [[[Ti3DMatrix alloc] init] autorelease];
@@ -385,16 +456,30 @@ MAKE_SYSTEM_PROP(EXTEND_EDGE_ALL, 15); //UIEdgeRectAll
   Ti3DMatrix *matrix = [[Ti3DMatrix alloc] initWithProperties:args];
   return [matrix autorelease];
 }
-#endif
+
+- (id)create3DMatrix:(id)args
+{
+  DEPRECATED_REPLACED(@"UI.3DMatrix", @"8.0.0", @"UI.Matrix3D");
+  return [self createMatrix3D:args];
+}
 
 #ifdef USE_TI_UICLIPBOARD
 - (id)Clipboard
 {
   if (clipboard == nil) {
     clipboard = [[TiUIClipboardProxy alloc] _initWithPageContext:[self executionContext]];
-    [self rememberProxy:clipboard];
   }
   return clipboard;
+}
+
+- (id)createClipboard:(id)args
+{
+  if (args == nil || [args count] == 0) {
+    return [[[TiUIClipboardProxy alloc] init] autorelease];
+  }
+  ENSURE_SINGLE_ARG(args, NSDictionary);
+  TiUIClipboardProxy *clipboard = [[TiUIClipboardProxy alloc] initWithProperties:args];
+  return [clipboard autorelease];
 }
 #endif
 
@@ -402,9 +487,6 @@ MAKE_SYSTEM_PROP(EXTEND_EDGE_ALL, 15); //UIEdgeRectAll
 
 - (void)didReceiveMemoryWarning:(NSNotification *)notification
 {
-#ifdef USE_TI_UIIPHONE
-  RELEASE_TO_NIL(iphone);
-#endif
 #ifdef USE_TI_UIIPAD
   RELEASE_TO_NIL(ipad);
 #endif
@@ -450,10 +532,11 @@ MAKE_SYSTEM_PROP(EXTEND_EDGE_ALL, 15); //UIEdgeRectAll
 {
   ENSURE_ARG_COUNT(args, 2);
 
-  NSString *convertFromValue = nil;
+  id convertFromValue = [args objectAtIndex:0];
+  if (![convertFromValue isKindOfClass:[NSNumber class]] && ![convertFromValue isKindOfClass:[NSString class]]) {
+    [self throwException:TiExceptionInvalidType subreason:[NSString stringWithFormat:@"expected fromValue to be String or Number, was: %@", OBJTYPE2JS(convertFromValue)] location:CODELOCATION];
+  }
   NSString *convertToUnits = nil;
-
-  ENSURE_ARG_AT_INDEX(convertFromValue, args, 0, NSString);
   ENSURE_ARG_AT_INDEX(convertToUnits, args, 1, NSString);
 
   float result = 0.0;
@@ -465,11 +548,7 @@ MAKE_SYSTEM_PROP(EXTEND_EDGE_ALL, 15); //UIEdgeRectAll
       if ([convertToUnits caseInsensitiveCompare:kTiUnitDip] == NSOrderedSame) {
         result = fromVal.value;
       } else if ([convertToUnits caseInsensitiveCompare:kTiUnitPixel] == NSOrderedSame) {
-        if ([TiUtils isRetinaDisplay]) {
-          result = fromVal.value * 2;
-        } else {
-          result = fromVal.value;
-        }
+        result = convertDipToPixels(fromVal.value);
       } else if ([convertToUnits caseInsensitiveCompare:kTiUnitInch] == NSOrderedSame) {
         result = convertDipToInch(fromVal.value);
       } else if ([convertToUnits caseInsensitiveCompare:kTiUnitCm] == NSOrderedSame) {
@@ -504,7 +583,7 @@ MAKE_SYSTEM_PROP(ATTRIBUTE_UNDERLINE_COLOR, AttributeNameUnderlineColor);
 MAKE_SYSTEM_PROP(ATTRIBUTE_STRIKETHROUGH_COLOR, AttributeNameStrikethroughColor);
 MAKE_SYSTEM_PROP(ATTRIBUTE_OBLIQUENESS, AttributeNameObliqueness);
 MAKE_SYSTEM_PROP(ATTRIBUTE_EXPANSION, AttributeNameExpansion);
-MAKE_SYSTEM_PROP(ATTRIBUTE_LINE_BREAK, AttributeNameLineBreak);
+MAKE_SYSTEM_PROP(ATTRIBUTE_LINE_BREAK, AttributeNameLineBreak); // deprecated
 
 - (NSNumber *)ATTRIBUTE_UNDERLINE_STYLE_NONE
 {
@@ -560,11 +639,11 @@ MAKE_SYSTEM_PROP(ATTRIBUTE_LINE_BREAK, AttributeNameLineBreak);
 }
 - (NSNumber *)ATTRIBUTE_WRITING_DIRECTION_EMBEDDING
 {
-  return NUMINTEGER(NSTextWritingDirectionEmbedding);
+  return NUMINTEGER(NSWritingDirectionEmbedding);
 }
 - (NSNumber *)ATTRIBUTE_WRITING_DIRECTION_OVERRIDE
 {
-  return NUMINTEGER(NSTextWritingDirectionOverride);
+  return NUMINTEGER(NSWritingDirectionOverride);
 }
 - (NSString *)ATTRIBUTE_LETTERPRESS_STYLE
 {
@@ -620,38 +699,35 @@ MAKE_SYSTEM_STR(AUTOFILL_TYPE_PHONE, UITextContentTypeTelephoneNumber);
 MAKE_SYSTEM_STR(AUTOFILL_TYPE_EMAIL, UITextContentTypeEmailAddress);
 MAKE_SYSTEM_STR(AUTOFILL_TYPE_URL, UITextContentTypeURL);
 MAKE_SYSTEM_STR(AUTOFILL_TYPE_CARD_NUMBER, UITextContentTypeCreditCardNumber);
-
-#if IS_XCODE_9
 MAKE_SYSTEM_STR(AUTOFILL_TYPE_USERNAME, UITextContentTypeUsername);
 MAKE_SYSTEM_STR(AUTOFILL_TYPE_PASSWORD, UITextContentTypePassword);
-#endif
+MAKE_SYSTEM_STR(AUTOFILL_TYPE_NEW_PASSWORD, UITextContentTypeNewPassword);
+MAKE_SYSTEM_STR(AUTOFILL_TYPE_ONE_TIME_CODE, UITextContentTypeOneTimeCode);
 #endif
 
 #ifdef USE_TI_UICLIPBOARD
 - (NSString *)CLIPBOARD_OPTION_LOCAL_ONLY
 {
-  if ([TiUtils isIOS10OrGreater]) {
-#if IS_XCODE_8
-    return UIPasteboardOptionLocalOnly;
-#endif
-  } else {
-    return @"";
-  }
+  return UIPasteboardOptionLocalOnly;
 }
 - (NSString *)CLIPBOARD_OPTION_EXPIRATION_DATE
 {
-  if ([TiUtils isIOS10OrGreater]) {
-#if IS_XCODE_8
-    return UIPasteboardOptionExpirationDate;
-#endif
-  } else {
-    return @"";
-  }
+  return UIPasteboardOptionExpirationDate;
 }
 #endif
 
 MAKE_SYSTEM_PROP(TABLE_VIEW_SEPARATOR_STYLE_NONE, UITableViewCellSeparatorStyleNone);
 MAKE_SYSTEM_PROP(TABLE_VIEW_SEPARATOR_STYLE_SINGLE_LINE, UITableViewCellSeparatorStyleSingleLine);
+
+#if defined(USE_TI_UISHORTCUT) || defined(USE_TI_UISHORTCUTITEM)
+- (TiUIShortcutProxy *)Shortcut
+{
+  if (shortcut == nil) {
+    shortcut = [[TiUIShortcutProxy alloc] init];
+  }
+  return shortcut;
+}
+#endif
 
 @end
 

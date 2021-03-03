@@ -10,10 +10,10 @@
 #import "LauncherButton.h"
 #import "LauncherItem.h"
 #import "LauncherView.h"
-#import "TiRect.h"
 #import "TiUIDashboardItemProxy.h"
 #import "TiUIDashboardViewProxy.h"
-#import "TiUtils.h"
+#import <TitaniumKit/TiRect.h>
+#import <TitaniumKit/TiUtils.h>
 
 static const NSInteger kDashboardViewDefaultRowCount = 3;
 static const NSInteger kDashboardViewDefaultColumnCount = 3;

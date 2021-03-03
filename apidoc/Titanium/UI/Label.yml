@@ -1,27 +1,12 @@
 ---
 name: Titanium.UI.Label
-summary: A text label, with optional background image.
+summary: A text label, with an optional background image.
 description: Use the <Titanium.UI.createLabel> method or **`<Label>`** Alloy element to create a label.
 extends: Titanium.UI.View
 since: "0.8"
-
-methods:
-    # main doc inherited from Ti.UI.View.add
-  - name: add
-    description: |
-        Adding children to a `Label` is not supported on all platforms.
-
-        If you need to add views on top of this object, consider using
-        another view as a container for both this object and the views you want
-        to appear on top of it.
-
-        See also: <Titanium.UI.View.add>.
-    platforms: [iphone, ipad]
-
-  - name: remove
-    description: |
-        See also: [add](Titanium.UI.Label.add), <Titanium.UI.View.add>.
-    platforms: [iphone, ipad]
+excludes:
+    properties: [children]
+    methods: [add, remove, removeAllChildren, replaceAt]
 
 properties:
   - name: attributedString
@@ -36,34 +21,38 @@ properties:
         Since Appcelerator CLI 4.1.0 (Alloy 1.7.0), for Alloy, you can use an `<AttributedString>`
         element inside a `<Label>` element and set the text property as node text:
 
-            <Alloy>
-              <Window>
-                  <Label>
-                    <AttributedString>
-                        Alloy is great!
-                    </AttributedString>
-                  </Label>
-              </Window>
-            </Alloy>
+        ``` xml
+        <Alloy>
+          <Window>
+              <Label>
+                <AttributedString>
+                    Alloy is great!
+                </AttributedString>
+              </Label>
+          </Window>
+        </Alloy>
+        ```
 
         Then set attributes in the TSS file:
 
-            "AttributedString" : {
-              attributes: [
-                {
-                  type: Ti.UI.ATTRIBUTE_FOREGROUND_COLOR,
-                  value: 'red',
-                  range: [0, 5]
-                },
-                {
-                  type: Ti.UI.ATTRIBUTE_UNDERLINES_STYLE,
-                  value: Ti.UI.ATTRIBUTE_UNDERLINE_STYLE_SINGLE,
-                  range: [9, 5]
-                }
-              ]
+        ``` js
+        "AttributedString" : {
+          attributes: [
+            {
+              type: Ti.UI.ATTRIBUTE_FOREGROUND_COLOR,
+              value: 'red',
+              range: [0, 5]
+            },
+            {
+              type: Ti.UI.ATTRIBUTE_UNDERLINES_STYLE,
+              value: Ti.UI.ATTRIBUTE_UNDERLINE_STYLE_SINGLE,
+              range: [9, 5]
             }
+          ]
+        }
+        ```
     type: Titanium.UI.AttributedString
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     since:
         android: 3.6.0
         iphone: 3.2.0
@@ -74,7 +63,9 @@ properties:
     description: |
         Multiple autolink values can be combined with a bitwise OR. For example:
 
-            label.autoLink = Ti.UI.AUTOLINK_MAP_ADDRESSES|Ti.UI.AUTOLINK_PHONE_NUMBERS;
+        ``` js
+        label.autoLink = Ti.UI.AUTOLINK_MAP_ADDRESSES|Ti.UI.AUTOLINK_PHONE_NUMBERS;
+        ```
 
         Prior to Release 3.0, this field used platform-specific constants. These are now
         deprecated in favor of the `AUTOLINK` constants.
@@ -87,28 +78,28 @@ properties:
   - name: backgroundPaddingBottom
     summary: Number of pixels to extend the background image past the label on the bottom.
     type: Number
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: backgroundPaddingLeft
     summary: Number of pixels to extend the background image past the label on the left.
     type: Number
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: backgroundPaddingRight
     summary: Number of pixels to extend the background image past the label on the right.
     type: Number
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: backgroundPaddingTop
     summary: Number of pixels to extend the background image past the label on the top.
     type: Number
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: color
     summary: Color of the label text, as a color name or hex triplet.
     description: |
         For information about color values, see the "Colors" section of <Titanium.UI>.
-    type: String
+    type: [String, Titanium.UI.Color]
 
   - name: ellipsize
     summary: |
@@ -116,7 +107,7 @@ properties:
     constants: Titanium.UI.TEXT_ELLIPSIZE_TRUNCATE_*
     type: Number
     default: Titanium.UI.TEXT_ELLIPSIZE_TRUNCATE_END
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: font
     summary: Font to use for the label text.
@@ -129,8 +120,8 @@ properties:
 
         Used when the label is part of a view that can be highlighted, such as a
         <Titanium.UI.TableViewRow>.
-    type: String
-    platforms: [android, iphone, ipad]
+    type: [String, Titanium.UI.Color]
+    platforms: [android, iphone, ipad, macos]
 
   - name: html
     summary: Simple HTML formatting.
@@ -153,12 +144,12 @@ properties:
   - name: lineSpacing
     summary: Line spacing of the [text](Titanium.UI.Label.text), as a dictionary with the properties `add` and `multiply`.
     platforms: [android]
-    type: Dictionary
+    type: LabelLineSpacing
     since: "5.4.0"
 
   - name: maxLines
     summary: Makes the label at most this many lines tall.
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     type: Number
     since: {android: "4.1.0", iphone: "6.1.0", ipad: "6.1.0"}
 
@@ -172,23 +163,23 @@ properties:
         When set to less than or equal to zero, the font auto-downscaling feature will be disabled.
     type: Number
     since: {iphone: "0.8.0", ipad: "0.8.0", android: "6.1.0"}
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: shadowColor
     summary: Shadow color of the [text](Titanium.UI.Label.text), as a color name or hex triplet.
     description: |
         Use in conjunction with [shadowOffset](Titanium.UI.Label.shadowOffset) and [shadowRadius](Titanium.UI.Label.shadowRadius).
         For information about color values, see the "Colors" section of <Titanium.UI>.
-    type: String
-    platforms: [android, iphone, ipad]
+    type: [String, Titanium.UI.Color]
+    platforms: [android, iphone, ipad, macos]
     since: {android: "3.2.0"}
 
   - name: shadowOffset
     summary: Shadow offset of the [text](Titanium.UI.Label.text), as a dictionary with the properties `x` and `y`.
     description: |
         Use in conjunction with [shadowColor](Titanium.UI.Label.shadowColor) and [shadowRadius](Titanium.UI.Label.shadowRadius).
-    type: Dictionary
-    platforms: [android, iphone, ipad]
+    type: Point
+    platforms: [android, iphone, ipad, macos]
     since: {android: "3.2.0"}
 
   - name: shadowRadius
@@ -205,7 +196,7 @@ properties:
         Use the backslash and letter `n` line feed character combination, ie `\n`, to force a new
         line.
 
-        Use unicode characters, such as those included in (but not limited to) the
+        Use Unicode characters, such as those included in (but not limited to) the
         [Unicode List of Useful Symbols](http://en.wikibooks.org/w/index.php?title=Unicode/List_of_useful_symbols)
         section of wikipedia, to insert special characters and symbols.
 
@@ -228,6 +219,9 @@ properties:
     type: Boolean
     default: true
     platforms: [android]
+    deprecated:
+        since: "8.0.0"
+        notes: If you want to disable wrapping, then set [Titanium.UI.Label.maxLines](Titanium.UI.Label.maxLines) to 1 instead.
 
   - name: verticalAlign
     summary: |
@@ -266,48 +260,49 @@ events:
       - name: bubbles
         summary: This is false. This event does not bubble
         type: Boolean
-    platforms: [iphone,ipad,android]
+    platforms: [iphone,ipad, android, macos]
     osver: {ios: {min: "7.0"}}
     since: {iphone: "3.2.0", ipad: "3.2.0", android: "4.0.0"}
-
 
 examples:
   - title: Basic Label
     example: |
         Create a center-aligned label with a text shadow and specified-size font, and another
-        containing forced line breaks and unicode symbols.
+        containing forced line breaks and Unicode symbols.
 
-            var win = Ti.UI.createWindow({
-              backgroundColor: 'white',
-              exitOnClose: true,
-              fullscreen: false,
-              layout: 'vertical',
-              title: 'Label Demo'
-            });
+        ``` js
+        var win = Ti.UI.createWindow({
+          backgroundColor: 'white',
+          exitOnClose: true,
+          fullscreen: false,
+          layout: 'vertical',
+          title: 'Label Demo'
+        });
 
-            var label1 = Ti.UI.createLabel({
-              color: '#900',
-              font: { fontSize:48 },
-              shadowColor: '#aaa',
-              shadowOffset: {x:5, y:5},
-              shadowRadius: 3,
-              text: 'A simple label',
-              textAlign: Ti.UI.TEXT_ALIGNMENT_CENTER,
-              top: 30,
-              width: Ti.UI.SIZE, height: Ti.UI.SIZE
-            });
+        var label1 = Ti.UI.createLabel({
+          color: '#900',
+          font: { fontSize:48 },
+          shadowColor: '#aaa',
+          shadowOffset: {x:5, y:5},
+          shadowRadius: 3,
+          text: 'A simple label',
+          textAlign: Ti.UI.TEXT_ALIGNMENT_CENTER,
+          top: 30,
+          width: Ti.UI.SIZE, height: Ti.UI.SIZE
+        });
 
-            var label2 = Ti.UI.createLabel({
-              color:'blue',
-              text: 'A long label with\na few line breaks\nand unicode (UTF8)\nsymbols such as\na white chess piece \u2655\nand the euro symbol \u20ac\nlooks like this!\n',
-              textAlign: Ti.UI.TEXT_ALIGNMENT_LEFT,
-              top: 30,
-              width: 300, height: 200
-            });
+        var label2 = Ti.UI.createLabel({
+          color:'blue',
+          text: 'A long label with\na few line breaks\nand Unicode (UTF8)\nsymbols such as\na white chess piece \u2655\nand the euro symbol \u20ac\nlooks like this!\n',
+          textAlign: Ti.UI.TEXT_ALIGNMENT_LEFT,
+          top: 30,
+          width: 300, height: 200
+        });
 
-            win.add(label1);
-            win.add(label2);
-            win.open();
+        win.add(label1);
+        win.add(label2);
+        win.open();
+        ```
 
   - title: Alloy XML Markup
     example: |
@@ -315,16 +310,30 @@ examples:
 
         The font and shadowOffset properties need to be defined in the TSS or controller file.
         These property values are dictionaries, rather than single values,
-        so they cannot be included in markup.
+        so they cannot be included in the markup.
 
-            <Alloy>
-                <Window id="win" backgroundColor="white" exitOnClose="true" fullscreen="false" layout="vertical" title="Label Demo">
+        ``` xml
+        <Alloy>
+            <Window id="win" backgroundColor="white" exitOnClose="true" fullscreen="false" layout="vertical" title="Label Demo">
 
-                    <!-- The text property can either be defined as an attribute or as node text. -->
-                    <Label id="label1" color="#900" shadowColor="#aaa" text="A simple label" textAlign="Ti.UI.TEXT_ALIGNMENT_CENTER"
-                        top="30" width="Ti.UI.SIZE" height="Ti.UI.SIZE" />
-                    <Label id="label2" color="blue" textAlign="Ti.UI.TEXT_ALIGNMENT_LEFT" top="30" width="300" height="200">
-                        A long label with\na few line breaks\nand unicode (UTF8)\nsymbols such as\na white chess piece \u2655\nand the euro symbol \u20ac\nlooks like this!\n
-                    </Label>
-                </Window>
-            </Alloy>
+                <!-- The text property can either be defined as an attribute or as node text. -->
+                <Label id="label1" color="#900" shadowColor="#aaa" text="A simple label" textAlign="Ti.UI.TEXT_ALIGNMENT_CENTER"
+                    top="30" width="Ti.UI.SIZE" height="Ti.UI.SIZE" />
+                <Label id="label2" color="blue" textAlign="Ti.UI.TEXT_ALIGNMENT_LEFT" top="30" width="300" height="200">
+                    A long label with\na few line breaks\nand Unicode (UTF8)\nsymbols such as\na white chess piece \u2655\nand the euro symbol \u20ac\nlooks like this!\n
+                </Label>
+            </Window>
+        </Alloy>
+        ```
+
+---
+name: LabelLineSpacing
+summary: See [TextView.setLineSpacing](https://developer.android.com/reference/android/widget/TextView#setLineSpacing(float,%20float))
+platforms: [android]
+properties:
+  - name: add
+    summary: The value in pixels that should be added to each line other than the last line. This will be applied after the multiplier
+    type: Number
+  - name: multiply
+    summary: The value by which each line height other than the last line will be multiplied by
+    type: Number

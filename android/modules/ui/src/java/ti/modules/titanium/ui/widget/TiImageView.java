@@ -182,6 +182,14 @@ public class TiImageView extends ViewGroup implements Handler.Callback, OnClickL
 	 */
 	public void setImageBitmap(Bitmap bitmap)
 	{
+		if (bitmap == null) {
+
+			// Reset drawable to null.
+			// setImageBitmap() will create a drawable that will affect width/height.
+			imageView.setImageDrawable(null);
+			return;
+		}
+
 		imageView.setImageBitmap(bitmap);
 	}
 
@@ -489,12 +497,13 @@ public class TiImageView extends ViewGroup implements Handler.Callback, OnClickL
 
 	public void setTintColor(String color)
 	{
-		this.tintColor = TiColorHelper.parseColor(color);
-		if (this.tintColor == 0) {
+		if (color == null || color.isEmpty()) {
 			imageView.clearColorFilter();
-		} else {
-			imageView.setColorFilter(this.tintColor, Mode.MULTIPLY);
+			return;
 		}
+
+		this.tintColor = TiColorHelper.parseColor(color);
+		imageView.setColorFilter(this.tintColor, Mode.SRC_IN);
 	}
 
 	public int getTintColor()

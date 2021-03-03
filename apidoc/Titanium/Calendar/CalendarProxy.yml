@@ -2,7 +2,7 @@
 name: Titanium.Calendar.Calendar
 summary: An object that represents a single calendar.
 extends: Titanium.Proxy
-platforms: [android, iphone, ipad]
+platforms: [android, iphone, ipad, macos]
 since: {android: "3.2.0", iphone: "3.1.0", ipad: "3.1.0"}
 createable: false
 
@@ -15,8 +15,8 @@ methods:
       - name: properties
         summary: Properties of the event
         type: Dictionary<Titanium.Calendar.Event>
-    platforms: [android, iphone, ipad]
-        
+    platforms: [android, iphone, ipad, macos]
+
   - name: getEventById
     summary: Gets the event with the specified identifier.
     returns:
@@ -24,9 +24,9 @@ methods:
     parameters:
       - name: id
         summary: Identifier of the event.
-        type: Number
-    platforms: [android, iphone, ipad]
-        
+        type: String
+    platforms: [android, iphone, ipad, macos]
+
   - name: getEventsBetweenDates
     summary: Gets events that occur between two dates.
     returns:
@@ -35,12 +35,12 @@ methods:
       - name: date1
         summary: Start date.
         type: [Date,String]
-        
+
       - name: date2
         summary: End date.
         type: [Date,String]
-    platforms: [android, iphone, ipad]
-        
+    platforms: [android, iphone, ipad, macos]
+
   - name: getEventsInDate
     summary: Gets events that occur on a specified date.
     returns:
@@ -49,16 +49,19 @@ methods:
       - name: year
         summary: Year of the events.
         type: Number
-        
+
       - name: month
         summary: Month of the events, as a zero-based integer with January at 0 and December at 11.
         type: Number
-        
+
       - name: day
         summary: Day of the month of the events.
         type: Number
-    platforms: [android, iphone, ipad]
-        
+    platforms: [android, iphone, ipad, macos]
+    deprecated:
+      since: "7.0.0"
+      notes: Use [Titanium.Calendar.Calendar.getEventsBetweenDates](Titanium.Calendar.Calendar.getEventsBetweenDates) instead.
+
   - name: getEventsInMonth
     summary: Gets events that occur during a specified month.
     returns:
@@ -67,15 +70,15 @@ methods:
       - name: year
         summary: Year of the events.
         type: Number
-        
+
       - name: month
         summary: Month of the events, as a zero-based integer with January at 0 and December at 11.
         type: Number
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     deprecated:
       since: "7.0.0"
-      notes: Use <Titanium.Calendar.Calendar.getEventsBetweenDates> instead.
-        
+      notes: Use [Titanium.Calendar.Calendar.getEventsBetweenDates](Titanium.Calendar.Calendar.getEventsBetweenDates) instead.
+
   - name: getEventsInYear
     summary: Gets all events that occur during a specified year.
     returns:
@@ -84,31 +87,31 @@ methods:
       - name: year
         summary: Year of the events.
         type: Number
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     deprecated:
       since: "7.0.0"
-      notes: Use <Titanium.Calendar.Calendar.getEventsBetweenDates> instead.
-        
+      notes: Use [Titanium.Calendar.Calendar.getEventsBetweenDates](Titanium.Calendar.Calendar.getEventsBetweenDates) instead.
+
 properties:
   - name: hidden
     summary: Indicates whether this calendar can be edited or deleted.
     description: This property is `true` when this calendar is editable.
     type: Boolean
     permission: read-only
-    platforms: [android, iphone, ipad]
-    
+    platforms: [android, iphone, ipad, macos]
+
   - name: id
-    summary: Identifier of this calendar. Available only in iOS 5.0 and above.
+    summary: Identifier of this calendar.
     type: String
     permission: read-only
     osver: {ios: {min: "5.0"}}
-    platforms: [android, iphone, ipad]
-    
+    platforms: [android, iphone, ipad, macos]
+
   - name: name
     summary: Display name of this calendar.
     type: String
     permission: read-only
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: selected
     summary: Indicates whether the calendar is selected.
@@ -125,7 +128,7 @@ properties:
     type: String
     permission: read-only
     since: "6.1.0"
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: sourceType
     summary: Displays the source type.
@@ -133,11 +136,11 @@ properties:
     permission: read-only
     since: "6.1.0"
     constants: Titanium.Calendar.SOURCE_TYPE_*
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: sourceIdentifier
     summary: Displays the source identifier.
     type: String
     permission: read-only
     since: "6.1.0"
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]

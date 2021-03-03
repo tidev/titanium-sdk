@@ -2,7 +2,7 @@
 name: Titanium.UI.RefreshControl
 summary: |
     The RefreshControl is a representation of the native iOS 
-    [UIRefreshControl](https://developer.apple.com/library/ios/documentation/uikit/reference/UIRefreshControl_class/Reference/Reference.html) 
+    [UIRefreshControl](https://developer.apple.com/documentation/uikit/uirefreshcontrol) 
     and Android [SwipeRefreshLayout](https://developer.android.com/reference/android/support/v4/widget/SwipeRefreshLayout.html).
 description: |
 
@@ -11,11 +11,15 @@ description: |
     <Titanium.UI.TableView.headerPullView> and <Titanium.UI.ListView.pullView> properties.
     
     Use the <Titanium.UI.createRefreshControl> method to create a RefreshControl.
-
+    
+    **Important iOS 10+ Note**: If you use the RefreshControl inside a <Titanium.UI.Window> that has the `largeTitleEnabled` property
+    set to `true`, you also need to set the `extendEdges` property to either `[Ti.UI.EXTEND_EDGE_TOP]` or `[Ti.UI.EXTEND_EDGE_ALL]`
+    in order to prevent a flickering of the refresh spinner. In Titanium SDK 8+, the `extendEdges` property will be set to `[Ti.UI.EXTEND_EDGE_ALL]`
+    by default to match the native behavior.
 
 extends: Titanium.Proxy
 since: { android: "6.2.0", iphone: "3.2.0", ipad: "3.2.0" }
-platforms: [android, iphone, ipad]
+platforms: [android, iphone, ipad, macos]
 methods:
   - name: beginRefreshing
     summary: Tells the control that a refresh operation was started programmatically.
@@ -37,15 +41,15 @@ properties:
     description: |
         Title text is only supported on iOS. Android will ignore this property. 
     type: Titanium.UI.AttributedString
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: { iphone: "3.2.0", ipad: "3.2.0" }
 
   - name: tintColor
     summary: The tint color for the refresh control, as a color name or hex triplet.
     description: |
         For information about color values, see the "Colors" section of <Titanium.UI>. 
-    type: String
-    platforms: [android, iphone, ipad]
+    type: [String, Titanium.UI.Color]
+    platforms: [android, iphone, ipad, macos]
     since: { android: "6.2.0", iphone: "3.2.0", ipad: "3.2.0" }
 
 events:
@@ -53,7 +57,7 @@ events:
     summary: | 
         Fired in response to a user initiated an action to refresh the contents of the 
         table view, list view or scroll view.
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     since: { android: "6.2.0", iphone: "3.2.0", ipad: "3.2.0" }
     properties:
       - name: bubbles
@@ -63,7 +67,7 @@ events:
     summary: | 
         Fired in response to a user finished action to refresh the contents of the 
         table view, list view or scroll view.
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     since: { android: "6.2.0", iphone: "6.0.0", ipad: "6.0.0" }
     properties:
       - name: bubbles
@@ -73,37 +77,39 @@ examples:
   - title: Basic Pull To Refresh
     example: |
         A basic sample showing the usage of refreshstart event with endRefreshing functionality.
-                    
-            var win = Ti.UI.createWindow({
-                fullscreen:true
-            });
-            var counter = 0;
-            function genData()
-            {
-                var data = [];
-                var i=1;
-                for (i=1;i<=3;i++) {
-                    data.push({properties:{title:'ROW '+(counter+i)}})
-                }
-                counter += 3;
-                return data;
+
+        ``` js
+        var win = Ti.UI.createWindow({
+            fullscreen:true
+        });
+        var counter = 0;
+        function genData()
+        {
+            var data = [];
+            var i=1;
+            for (i=1;i<=3;i++) {
+                data.push({properties:{title:'ROW '+(counter+i)}})
             }
-            var section = Ti.UI.createListSection();
-            section.setItems(genData());
-            var control = Ti.UI.createRefreshControl({
-                tintColor:'red'
-            })
-            var listView = Ti.UI.createListView({
-                sections:[section],
-                refreshControl:control
-            });
-            control.addEventListener('refreshstart',function(e){
-                Ti.API.info('refreshstart');
-                setTimeout(function(){
-                    Ti.API.debug('Timeout');
-                    section.appendItems(genData());
-                    control.endRefreshing();
-                }, 2000);
-            })
-            win.add(listView);
-            win.open();
+            counter += 3;
+            return data;
+        }
+        var section = Ti.UI.createListSection();
+        section.setItems(genData());
+        var control = Ti.UI.createRefreshControl({
+            tintColor:'red'
+        })
+        var listView = Ti.UI.createListView({
+            sections:[section],
+            refreshControl:control
+        });
+        control.addEventListener('refreshstart',function(e){
+            Ti.API.info('refreshstart');
+            setTimeout(function(){
+                Ti.API.debug('Timeout');
+                section.appendItems(genData());
+                control.endRefreshing();
+            }, 2000);
+        })
+        win.add(listView);
+        win.open();
+        ```

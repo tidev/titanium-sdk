@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2011-2015 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2011-2018 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  *
@@ -52,38 +52,45 @@ bool EventEmitter::emit(Local<String> event, int argc, Local<Value> *argv)
 	Isolate* isolate = Isolate::GetCurrent();
 	HandleScope scope(isolate);
 
+	Local<Context> context = isolate->GetCurrentContext();
+
 	Local<Object> self = handle();
 
-	Local<Value> events_v = self->Get(eventsSymbol.Get(isolate));
-	if (!events_v->IsObject()) return false;
+	MaybeLocal<Value> maybeEvents = self->Get(context, eventsSymbol.Get(isolate));
+	if (maybeEvents.IsEmpty() || !maybeEvents.ToLocalChecked()->IsObject()) {
+		return false;
+	}
 
-	Local<Object> events = events_v.As<Object>();
+	Local<Object> events = maybeEvents.ToLocalChecked().As<Object>();
+	MaybeLocal<Value> maybeListeners = events->Get(context, event);
+	if (maybeListeners.IsEmpty()) {
+		return false;
+	}
 
-	Local<Value> listeners_v = events->Get(event);
-	TryCatch try_catch;
-
-	if (listeners_v->IsFunction()) {
+	Local<Value> listeners = maybeListeners.ToLocalChecked();
+	TryCatch try_catch(isolate);
+	if (listeners->IsFunction()) {
 		// Optimized one-listener case
-		Local<Function> listener = listeners_v.As<Function>();
-		listener->Call(isolate->GetCurrentContext(), self, argc, argv);
+		Local<Function> listener = listeners.As<Function>();
+		listener->Call(context, self, argc, argv);
 		if (try_catch.HasCaught()) {
 			V8Util::fatalException(isolate, try_catch);
 			return false;
 		}
-	} else if (listeners_v->IsArray()) {
-		Local<Array> listeners = listeners_v.As<Array>()->Clone().As<Array>();
-		for (uint32_t i = 0; i < listeners->Length(); ++i) {
-			Local<Value> listener_v = listeners->Get(i);
-			if (!listener_v->IsFunction()) continue;
-			Local<Function> listener = listener_v.As<Function>();
-			listener->Call(isolate->GetCurrentContext(), self, argc, argv);
+	} else if (listeners->IsArray()) {
+		Local<Array> listenersArray = listeners.As<Array>()->Clone().As<Array>();
+		for (uint32_t i = 0; i < listenersArray->Length(); ++i) {
+			MaybeLocal<Value> maybeListener = listenersArray->Get(context, i);
+			if (maybeListener.IsEmpty() || !maybeListener.ToLocalChecked()->IsFunction()) {
+				continue;
+			}
+			Local<Function> listenerFunction = maybeListener.ToLocalChecked().As<Function>();
+			listenerFunction->Call(context, self, argc, argv);
 			if (try_catch.HasCaught()) {
 				V8Util::fatalException(isolate, try_catch);
 				return false;
 			}
 		}
-	} else {
-		return false;
 	}
 
 	return true;

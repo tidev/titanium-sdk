@@ -7,9 +7,9 @@
 #ifdef USE_TI_UISLIDER
 
 #import "TiUISlider.h"
-#import "ImageLoader.h"
 #import "TiUISliderProxy.h"
-#import "TiUtils.h"
+#import <TitaniumKit/ImageLoader.h>
+#import <TitaniumKit/TiUtils.h>
 
 @implementation TiUISlider
 
@@ -245,12 +245,18 @@
     [[self sliderView] setValue:newValue animated:[TiUtils boolValue:@"animated" properties:properties def:NO]];
   }
 
-  [self sliderChanged:[self sliderView]];
+  [self sliderChanged:[self sliderView] isTrusted:NO];
 }
 
 - (void)setEnabled_:(id)value
 {
   [[self sliderView] setEnabled:[TiUtils boolValue:value]];
+}
+
+- (void)setTrackTintColor_:(id)value
+{
+  UIColor *newColor = [[TiUtils colorValue:value] _color];
+  [[self sliderView] setMaximumTrackTintColor:newColor];
 }
 
 - (CGFloat)verifyHeight:(CGFloat)suggestedHeight
@@ -270,11 +276,16 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
 
 - (void)sliderChanged:(id)sender
 {
+  [self sliderChanged:sender isTrusted:YES];
+}
+
+- (void)sliderChanged:(id)sender isTrusted:(BOOL)isTrusted
+{
   NSNumber *newValue = [NSNumber numberWithFloat:[(UISlider *)sender value]];
   [self.proxy replaceValue:newValue forKey:@"value" notification:NO];
 
   if ([self.proxy _hasListeners:@"change"]) {
-    [self.proxy fireEvent:@"change" withObject:[NSDictionary dictionaryWithObject:newValue forKey:@"value"]];
+    [self.proxy fireEvent:@"change" withObject:[NSDictionary dictionaryWithObjectsAndKeys:newValue, @"value", NUMBOOL(isTrusted), @"isTrusted", nil]];
   }
 }
 

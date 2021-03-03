@@ -25,6 +25,7 @@ import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewGroup.OnHierarchyChangeListener;
+import android.view.WindowInsets;
 
 /**
  * Base layout class for all Titanium views.
@@ -93,6 +94,13 @@ public class TiCompositeLayout extends ViewGroup implements OnHierarchyChangeLis
 	 */
 	private int childFillHeight = -1;
 
+	/**
+	 * The last window insets object received by the onApplyWindowInsets() method.
+	 * This object is immutable. Will be null if not received yet or has been cleared.
+	 * Note: This references an Android 5.0 class. Do NOT access it in older Android OS versions.
+	 */
+	private WindowInsets previousInsets;
+
 	private WeakReference<TiViewProxy> proxy;
 
 	// We need these two constructors for backwards compatibility with modules
@@ -105,7 +113,7 @@ public class TiCompositeLayout extends ViewGroup implements OnHierarchyChangeLis
 	 */
 	public TiCompositeLayout(Context context)
 	{
-		this(context, LayoutArrangement.DEFAULT, null);
+		this(context, LayoutArrangement.DEFAULT, null, null);
 	}
 
 	/**
@@ -117,12 +125,12 @@ public class TiCompositeLayout extends ViewGroup implements OnHierarchyChangeLis
 	 */
 	public TiCompositeLayout(Context context, LayoutArrangement arrangement)
 	{
-		this(context, LayoutArrangement.DEFAULT, null);
+		this(context, LayoutArrangement.DEFAULT, null, null);
 	}
 
 	public TiCompositeLayout(Context context, AttributeSet set)
 	{
-		this(context, LayoutArrangement.DEFAULT, null);
+		this(context, LayoutArrangement.DEFAULT, null, set);
 	}
 
 	/**
@@ -133,7 +141,7 @@ public class TiCompositeLayout extends ViewGroup implements OnHierarchyChangeLis
 	 */
 	public TiCompositeLayout(Context context, TiViewProxy proxy)
 	{
-		this(context, LayoutArrangement.DEFAULT, proxy);
+		this(context, LayoutArrangement.DEFAULT, proxy, null);
 	}
 
 	/**
@@ -145,7 +153,21 @@ public class TiCompositeLayout extends ViewGroup implements OnHierarchyChangeLis
 	 */
 	public TiCompositeLayout(Context context, LayoutArrangement arrangement, TiViewProxy proxy)
 	{
-		super(context);
+		this(context, arrangement, proxy, null);
+	}
+
+	/**
+	 * Constructs a new TiCompositeLayout object.
+	 *
+	 * @param context the associated context.
+	 * @param arrangement the associated LayoutArrangement
+	 * @param proxy the associated proxy.
+	 * @param set the component attribute set.
+	 */
+	public TiCompositeLayout(Context context, LayoutArrangement arrangement, TiViewProxy proxy, AttributeSet set)
+	{
+		super(context, set);
+
 		this.arrangement = arrangement;
 		this.viewSorter = new TreeSet<View>(new Comparator<View>() {
 			public int compare(View o1, View o2)
@@ -446,6 +468,76 @@ public class TiCompositeLayout extends ViewGroup implements OnHierarchyChangeLis
 		return padding;
 	}
 
+	/**
+	 * Called when the window insets (translucent status bar, navigation bar, or screen notches) have changed
+	 * size or position. Can be used to layout views around the insets if setFitsSystemWindows() is true.
+	 * <p>
+	 * Layouts such as "FrameLayout", "LinearLayout", and "RelativeLayout" do not pass insets to child views.
+	 * So, Titanium's "TiCompositeLayout" needs to do this manually.
+	 * @param insets The new insets to be applied to this layout and its child views. Can be null.
+	 * @return Returns the given insets minus the insets consumed by this view layout.
+	 */
+	@Override
+	public WindowInsets onApplyWindowInsets(WindowInsets insets)
+	{
+		// Validate.
+		if (insets == null) {
+			return null;
+		}
+
+		// Do not propagate given insets to child views unless the insets have changed.
+		// This greatly improves performance if we have deeply nested views since each view will trigger a relayout.
+		if (insets.equals(this.previousInsets)) {
+			return insets;
+		}
+		this.previousInsets = insets;
+
+		// Apply insets to all child views and don't let them consume given insets.
+		// We must do this since a "composite" layout supports overlapping views.
+		final int childCount = getChildCount();
+		for (int index = 0; index < childCount; index++) {
+			View childView = getChildAt(index);
+			if (childView != null) {
+				childView.dispatchApplyWindowInsets(insets);
+			}
+		}
+		return insets;
+	}
+
+	/**
+	 * Requests parent view (and the parent's parent) to redispatch system insets to all child views.
+	 * This method should be called when dynamically adding views that have setFitsSystemWindows() set to true.
+	 */
+	@Override
+	public void requestApplyInsets()
+	{
+		// Clear last stored insets and then request parent to redispatch system insets to all child views.
+		this.previousInsets = null;
+		super.requestApplyInsets();
+	}
+
+	/**
+	 * Requests parent view (and the parent's parent) to redispatch system insets to all child views.
+	 * This method should be called when dynamically adding views that have setFitsSystemWindows() set to true.
+	 */
+	@Override
+	public void requestFitSystemWindows()
+	{
+		// Clear last stored insets and then request parent to redispatch system insets to all child views.
+		this.previousInsets = null;
+		super.requestFitSystemWindows();
+	}
+
+	/** Called when this view has been detached/removed from the activity window. */
+	@Override
+	protected void onDetachedFromWindow()
+	{
+		super.onDetachedFromWindow();
+
+		// Clear last stored insets received by the onApplyWindowInsets() method.
+		this.previousInsets = null;
+	}
+
 	@Override
 	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec)
 	{
@@ -484,11 +576,11 @@ public class TiCompositeLayout extends ViewGroup implements OnHierarchyChangeLis
 			}
 
 			// Fetch the child view's new measurements, minus the padding.
-			int childWidth = child.getMeasuredWidth();
-			int childHeight = child.getMeasuredHeight();
+			int childWidth = 0;
+			int childHeight = 0;
 			if (child.getVisibility() != View.GONE) {
-				childWidth += getViewWidthPadding(child, w);
-				childHeight += getViewHeightPadding(child, h);
+				childWidth = child.getMeasuredWidth() + getViewWidthPadding(child, w);
+				childHeight = child.getMeasuredHeight() + getViewHeightPadding(child, h);
 			}
 
 			if (isHorizontalArrangement()) {
@@ -1062,6 +1154,70 @@ public class TiCompositeLayout extends ViewGroup implements OnHierarchyChangeLis
 			super(WRAP_CONTENT, WRAP_CONTENT);
 
 			index = Integer.MIN_VALUE;
+		}
+
+		/**
+		 * Determines if layout parameters are set up to Ti.UI.SIZE (aka: WRAP_CONTENT) the view's width.
+		 * @return Returns true if view's width should wrap content. Returns false if not.
+		 */
+		public boolean hasAutoSizedWidth()
+		{
+			// Not auto-sized if "width" is set to a value or Ti.UI.FILL.
+			if ((this.optionWidth != null) || this.autoFillsWidth) {
+				return false;
+			}
+
+			// We are auto-sized if "width" was explicitly set to Ti.UI.SIZE.
+			if (this.sizeOrFillWidthEnabled) {
+				return true;
+			}
+
+			// The "width" property was not set. Check the left/center/right pins.
+			// If no more than 1 pin is set, then we're auto-sized and that pin is used to position the view.
+			// Note: If 2 pins are set, then that is used to set the view's width between the pins.
+			int pinCount = 0;
+			if (this.optionLeft != null) {
+				pinCount++;
+			}
+			if (this.optionCenterX != null) {
+				pinCount++;
+			}
+			if (this.optionRight != null) {
+				pinCount++;
+			}
+			return (pinCount < 2);
+		}
+
+		/**
+		 * Determines if layout parameters are set up to Ti.UI.SIZE (aka: WRAP_CONTENT) the view's height.
+		 * @return Returns true if view's height should wrap content. Returns false if not.
+		 */
+		public boolean hasAutoSizedHeight()
+		{
+			// Not auto-sized if "height" is set to a value or Ti.UI.FILL.
+			if ((this.optionHeight != null) || this.autoFillsHeight) {
+				return false;
+			}
+
+			// We are auto-sized if "height" was explicitly set to Ti.UI.SIZE.
+			if (this.sizeOrFillHeightEnabled) {
+				return true;
+			}
+
+			// The "height" property was not set. Check the top/center/bottom pins.
+			// If no more than 1 pin is set, then we're auto-sized and that pin is used to position the view.
+			// Note: If 2 pins are set, then that is used to set the view's height between the pins.
+			int pinCount = 0;
+			if (this.optionTop != null) {
+				pinCount++;
+			}
+			if (this.optionCenterY != null) {
+				pinCount++;
+			}
+			if (this.optionBottom != null) {
+				pinCount++;
+			}
+			return (pinCount < 2);
 		}
 	}
 

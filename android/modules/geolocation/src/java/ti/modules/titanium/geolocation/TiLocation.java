@@ -23,8 +23,6 @@ import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.analytics.TiAnalyticsEventFactory;
-import org.appcelerator.titanium.util.TiPlatformHelper;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -54,21 +52,20 @@ public class TiLocation implements Handler.Callback
 	private String appGuid;
 	private String sessionId;
 	private String countryCode;
-	private long lastAnalyticsTimestamp = 0;
 	private List<String> knownProviders;
 	private Handler runtimeHandler;
 
 	public interface GeocodeResponseHandler {
-		public abstract void handleGeocodeResponse(KrollDict geocodeResponse);
+		void handleGeocodeResponse(KrollDict geocodeResponse);
 	}
 
 	public TiLocation()
 	{
 		locationManager = (LocationManager) TiApplication.getInstance().getSystemService(Context.LOCATION_SERVICE);
 		knownProviders = locationManager.getAllProviders();
-		mobileId = TiPlatformHelper.getInstance().getMobileId();
+		mobileId = APSAnalytics.getInstance().getMachineId();
 		appGuid = TiApplication.getInstance().getAppInfo().getGUID();
-		sessionId = TiPlatformHelper.getInstance().getSessionId();
+		sessionId = APSAnalytics.getInstance().getCurrentSessionId();
 		countryCode = Locale.getDefault().getCountry();
 		runtimeHandler = new Handler(TiMessenger.getRuntimeMessenger().getLooper(), this);
 	}
@@ -142,16 +139,6 @@ public class TiLocation implements Handler.Callback
 		}
 
 		return latestKnownLocation;
-	}
-
-	public void doAnalytics(Location location)
-	{
-		long locationTime = location.getTime();
-		TiApplication application = TiApplication.getInstance();
-		if ((locationTime - lastAnalyticsTimestamp > TiAnalyticsEventFactory.MAX_GEO_ANALYTICS_FREQUENCY)
-			&& application.isAnalyticsEnabled() && !application.isAnalyticsFiltered("ti.geo")) {
-			APSAnalytics.getInstance().sendAppGeoEvent(location);
-		}
 	}
 
 	public void forwardGeocode(String address, GeocodeResponseHandler responseHandler)
@@ -342,12 +329,9 @@ public class TiLocation implements Handler.Callback
 		address.put(TiC.PROPERTY_POSTAL_CODE, place.optString("zipcode", ""));
 		address.put(TiC.PROPERTY_COUNTRY, place.optString(TiC.PROPERTY_COUNTRY, ""));
 		address.put(TiC.PROPERTY_STATE, place.optString(TiC.PROPERTY_STATE, ""));
-		address.put("countryCode", place.optString(TiC.PROPERTY_COUNTRY_CODE,
-												   "")); // TIMOB-4478, remove this later, was old android name
-		address.put(TiC.PROPERTY_COUNTRY_CODE, place.optString(TiC.PROPERTY_COUNTRY_CODE, ""));
-		address.put(TiC.PROPERTY_LONGITUDE, place.optString(TiC.PROPERTY_LONGITUDE, ""));
-		address.put(TiC.PROPERTY_LATITUDE, place.optString(TiC.PROPERTY_LATITUDE, ""));
-		address.put(TiC.PROPERTY_DISPLAY_ADDRESS, place.optString(TiC.PROPERTY_ADDRESS));
+		address.put(TiC.PROPERTY_COUNTRY_CODE, place.optString("country_code", ""));
+		address.put(TiC.PROPERTY_LONGITUDE, place.optDouble(TiC.PROPERTY_LONGITUDE, 0.0d));
+		address.put(TiC.PROPERTY_LATITUDE, place.optDouble(TiC.PROPERTY_LATITUDE, 0.0d));
 		address.put(TiC.PROPERTY_ADDRESS, place.optString(TiC.PROPERTY_ADDRESS));
 
 		return address;

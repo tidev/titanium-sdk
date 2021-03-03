@@ -27,7 +27,7 @@ public class TiLifecycle
 	public static final int ON_RESTORE_INSTANCE_STATE = 7;
 
 	/**
-	 * An interface for receiving Android lifecycle events. 
+	 * An interface for receiving Android lifecycle events.
 	 */
 	public interface OnLifecycleEvent {
 
@@ -35,37 +35,37 @@ public class TiLifecycle
 		 * Implementing classes should use this to receive native Android onStart lifecycle events.
 		 * @param activity the attached activity.
 		 */
-		public void onCreate(Activity activity, Bundle savedInstanceState);
+		void onCreate(Activity activity, Bundle savedInstanceState);
 
 		/**
 		 * Implementing classes should use this to receive native Android onStart lifecycle events.
 		 * @param activity the attached activity.
 		 */
-		public void onStart(Activity activity);
+		void onStart(Activity activity);
 
 		/**
 		 * Implementing classes should use this to receive native Android onResume lifecycle events.
 		 * @param activity the attached activity.
 		 */
-		public void onResume(Activity activity);
+		void onResume(Activity activity);
 
 		/**
 		 * Implementing classes should use this to receive native Android onPause lifecycle events.
 		 * @param activity the attached activity.
 		 */
-		public void onPause(Activity activity);
+		void onPause(Activity activity);
 
 		/**
 		 * Implementing classes should use this to receive native Android onStop lifecycle events.
 		 * @param activity the attached activity.
 		 */
-		public void onStop(Activity activity);
+		void onStop(Activity activity);
 
 		/**
 		 * Implementing classes should use this to receive native Android onDestroy lifecycle events.
 		 * @param activity the attached activity.
 		 */
-		public void onDestroy(Activity activity);
+		void onDestroy(Activity activity);
 	}
 
 	public interface OnInstanceStateEvent {
@@ -74,13 +74,13 @@ public class TiLifecycle
 		 * Implementing classes should use this to receive native Android onSaveInstanceState events.
 		 * @param activity the attached activity.
 		 */
-		public void onSaveInstanceState(Bundle bundle);
+		void onSaveInstanceState(Bundle bundle);
 
 		/**
 		 * Implementing classes should use this to receive native Android onRestoreInstanceState events.
 		 * @param activity the attached activity.
 		 */
-		public void onRestoreInstanceState(Bundle bundle);
+		void onRestoreInstanceState(Bundle bundle);
 	}
 
 	/**
@@ -90,7 +90,7 @@ public class TiLifecycle
 		/**
 		 * Implementing classes should use this to receive native Android onWindowFocusChanged events.
 		 */
-		public void onWindowFocusChanged(boolean hasFocus);
+		void onWindowFocusChanged(boolean hasFocus);
 	}
 
 	/**
@@ -100,7 +100,7 @@ public class TiLifecycle
 		/**
 		 * Implementing classes should use this to receive native Android onActivityResult events.
 		 */
-		public void onActivityResult(Activity activity, int requestCode, int resultCode, Intent data);
+		void onActivityResult(Activity activity, int requestCode, int resultCode, Intent data);
 	}
 
 	/**
@@ -110,7 +110,7 @@ public class TiLifecycle
 		/**
 		 * Implementing classes should use this to receive native Android onCreateOptionsMenu events.
 		 */
-		public void onCreateOptionsMenu(Activity activity, Menu menu);
+		void onCreateOptionsMenu(Activity activity, Menu menu);
 	}
 
 	/**
@@ -120,7 +120,7 @@ public class TiLifecycle
 		/**
 		 * Implementing classes should use this to receive native Android onPrepareOptionsMenu events.
 		 */
-		public void onPrepareOptionsMenu(Activity activity, Menu menu);
+		void onPrepareOptionsMenu(Activity activity, Menu menu);
 	}
 
 	/**
@@ -130,7 +130,7 @@ public class TiLifecycle
 		/**
 		 * Implementing classes should use this to intercept native Android onBackPressed events.
 		 */
-		public boolean interceptOnBackPressed();
+		boolean interceptOnBackPressed();
 	}
 
 	public static void fireOnCreateOptionsMenuEvent(Activity activity, OnCreateOptionsMenuEvent listener, Menu menu)

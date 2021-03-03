@@ -16,16 +16,16 @@ description: |
     `reload` event, you should assume that any existing `Person` or `Group` objects are invalid and
     reload them from the `Contacts` module before modifying them.
 
-    See the examples for sample use of the `reload` event.
+    See the examples for a sample use of the `reload` event.
 
     If 'ABAddressBookErrorDomain error 0' occurs, it implies that you are not allowed to add or edit 
     certain fields. Check your default account in the iOS settings under contacts. If it's not 'iCloud',
-    mostly likely it will not support fields such as alternateBirthday or socialProfile.
+    most likely it will not support fields such as alternateBirthday or socialProfile.
 
+    These APIs are unavailable on macOS if the app is built on a version of Xcode < 12.
 extends: Titanium.Module
-since: "0.8"
-platforms: [android, iphone, ipad]
-
+since: {iphone: "0.8", ipad: "0.8", android: "0.8", macos: "9.2.0"}
+platforms: [android, iphone, ipad, macos]
 events:
   - name: reload
     summary: Fired when the database backing the contacts module is modified externally.
@@ -33,9 +33,8 @@ events:
         If you have an existing reference to a `Person` or `Group` object, you should obtain
         a new reference from the `Contacts` module. Using the existing object may result
         in unpredictable behavior, such as updating the wrong contact.
-    platforms: [iphone, ipad]
-    since: "3.1.0"
-
+    exclude-platforms: [android]
+    since: {iphone: "3.1.0", ipad: "3.1.0", macos: "9.2.0"}
 
 methods:
   - name: createGroup
@@ -44,7 +43,8 @@ methods:
         This method must be followed by <Titanium.Contacts.save> to commit its changes.
     returns:
         type: Titanium.Contacts.Group
-    platforms: [iphone, ipad]
+    exclude-platforms: [android]
+    since: {macos: "9.2.0"}
     parameters:
       - name: parameters
         summary: |
@@ -72,11 +72,10 @@ methods:
     summary: Gets all groups.
     returns:
         type: Array<Titanium.Contacts.Group>
-    platforms: [ipad, iphone]
+    exclude-platforms: [android]
     
   - name: getAllPeople
     summary: Gets all people, unless a limit is specified.
-    platforms: [android, iphone, ipad]
     returns:
         type: Array<Titanium.Contacts.Person>    
     parameters:
@@ -85,33 +84,34 @@ methods:
         type: Number
     
   - name: getGroupByID
-    summary: Gets the group with the specified identifier. Deprecated for >= iOS9. Use <Titanium.Contacts.getGroupByIdentifier> instead.
+    summary: Gets the group with the specified identifier.
     returns:
         type: Titanium.Contacts.Group
-    platforms: [iphone, ipad]
+    exclude-platforms: [android, macos]
     parameters:
       - name: id
         summary: Group identifier.
         type: Number
-    osver: {ios: {max: "8.0"}}
+    deprecated:
+        since: "5.0.0"
+        removed: "9.0.0"
+        notes: Use the [Titanium.Contacts.getGroupByIdentifier](Titanium.Contacts.getGroupByIdentifier) method instead.
 
   - name: getGroupByIdentifier
     summary: Gets the group with the specified identifier. 
     returns:
         type: Titanium.Contacts.Group
-    platforms: [iphone, ipad]
+    exclude-platforms: [android]
     parameters:
       - name: id
         summary: Group identifier.
         type: String
-    since: "5.0.0"
-    osver: {ios: {min: "9.0"}}
+    since: {iphone: "5.0.0", ipad: "5.0.0", macos: "9.2.0"}
     
   - name: getPeopleWithName
     summary: |
         Gets people with a `firstName`, `middleName` or `lastName` field, or a combination 
         of these fields, that match the specified name.
-    platforms: [android, iphone, ipad]
     returns:
         type: Array<Titanium.Contacts.Person>
     parameters:
@@ -120,14 +120,18 @@ methods:
         type: String
         
   - name: getPersonByID
-    summary: Gets the person with the specified identifier. Deprecated for >= iOS9. Use <Titanium.Contacts.getPersonByIdentifier> instead.
+    summary: Gets the person with the specified identifier.
+    exclude-platforms: [macos]
     returns:
         type: Titanium.Contacts.Person
     parameters:
       - name: id
         summary: Contact identifier.
         type: Number
-    osver: {ios: {max: "8.0"}}
+    deprecated:
+        since: "5.0.0"
+        removed: "9.0.0"
+        notes: Use the [Titanium.Contacts.getPersonByIdentifier](Titanium.Contacts.getPersonByIdentifier) method instead.
         
   - name: getPersonByIdentifier
     summary: Gets the person with the specified identifier.
@@ -144,7 +148,7 @@ methods:
     summary: Removes a group from the address book.
     description: |
         This method must be followed by <Titanium.Contacts.save> to commit its changes.
-    platforms: [iphone, ipad]
+    exclude-platforms: [android]
     parameters:
       - name: group
         summary: Contact group.
@@ -153,7 +157,6 @@ methods:
   - name: removePerson
     summary: Removes a contact from the address book.
     description: |
-    
         On iOS:
           
         This method must be followed by a save action to commit the data to the underlying database, 
@@ -173,20 +176,17 @@ methods:
         
   - name: revert
     summary: Reverts all changes made by the previous save to the address book. Deprecated for >= iOS9.
-    platforms: [iphone, ipad]
+    exclude-platforms: [android]
     osver: {ios: {max: "8.0"}}
-
     
   - name: save
     summary: Commits all pending changes to the underlying contacts database.
-    platforms: [android, iphone, ipad]
     parameters:
       - name: contacts
         summary: List of contacts to save. Used on Android only. 
         type: Array<Titanium.Contacts.Person>
     since: {android: "3.0.0"}
     description: |
-      
         On Android:
         
         Takes an array of <Titanium.Contacts.Person> objects and saves changes for
@@ -202,9 +202,8 @@ methods:
   - name: hasContactsPermissions
     summary: Returns `true` if the app has contacts access.
     returns:
-        type: Boolean 
-    platforms: [iphone, ipad, android]
-    since: "5.1.0"  
+        type: Boolean
+    since: {android: "5.1.0", iphone: "5.1.0", ipad: "5.1.0", macos: "9.2.0"}
 
   - name: requestContactsPermissions
     summary: Requests for contacts access.
@@ -213,37 +212,59 @@ methods:
         not check the box "Never ask again" when denying the request. If the user checks the box "Never ask again,"
         the user has to manually enable the permission in device settings.
 
-        This method requests `Manifest.permission.READ_CONTACTS` on Android. If you require other permissions, you can also
-        use <Titanium.Android.requestPermissions>.
+        This method requests `Manifest.permission.READ_CONTACTS` and `Manifest.permission.WRITE_CONTACTS` on Android.
+        If you require other permissions, you can also use <Titanium.Android.requestPermissions>.
 
         In iOS 6, Apple introduced the Info.plist key `NSContactsUsageDescription` that is used to display an
         own description while authorizing contacts permissions. In iOS 10, this key is mandatory and the application
-        will crash if your app does not include the key. Check the [Apple docs](https://developer.apple.com/library/prerelease/content/documentation/General/Reference/InfoPlistKeyReference/Articles/CocoaKeys.html) for more information.
-
+        will crash if your app does not include the key. Check the [Apple docs](https://developer.apple.com/library/content/documentation/General/Reference/InfoPlistKeyReference/Articles/CocoaKeys.html) for more information.
     parameters:
       - name: callback
-        summary: Function to call upon user decision to grant contacts access.
+        summary: |
+            Function to call upon user decision to grant contacts access.
+            Optional on SDK 10, as this method will return a `Promise`, which may be used to handle the result.
         type: Callback<ContactsAuthorizationResponse>
-    platforms: [iphone, ipad, android]
-    since: "5.1.0"
+        optional: true
+    returns:
+      summary: On SDK 10+, this method will return a `Promise` whose resolved value is equivalent to that passed to the optional callback argument.
+      type: Promise<ContactsAuthorizationResponse>
+    since: {android: "5.1.0", iphone: "5.1.0", ipad: "5.1.0", macos: "9.2.0"}
 
   - name: requestAuthorization
     deprecated:
         since: "5.1.0"
-        notes: Use <Titanium.Contacts.requestContactsPermissions> instead.
+        removed: "9.0.0"
+        notes: Use the [Titanium.Contacts.requestContactsPermissions](Titanium.Contacts.requestContactsPermissions) method instead.
     summary: If authorization is unknown, will bring up a dialog requesting permission.
-    platforms: [android, iphone, ipad]
     description: |
         Note that the callback may be synchronous or asynchronous. That is, it may be called
         during requestAuthorization or much later. See the "Request access to the address book"
         example on how to best use this method. 
-    since: 2.1.3
+    since: "2.1.3"
+    exclude-platforms: [macos]
     parameters:
       - name: callback
         summary: Callback function to execute when when authorization is no longer unknown.
         type: Callback<ContactsAuthorizationResponse>
 
 properties:
+  - name: includeNote
+    summary: A boolean value that indicates whether to fetch the notes stored in contacts or not.
+    description:  |
+        This  property need to be set before calling contacts APIs.
+        From iOS 13 or later if your app fetch note field from contact, the app must have to set key 'com.apple.developer.contacts.notes' to 'true' in entitelements section of tiapp.xml.
+        
+        ``` xml
+        <key>com.apple.developer.contacts.notes</key>
+        <true/>
+        ```
+        
+        See more details at https://developer.apple.com/documentation/bundleresources/entitlements/com_apple_developer_contacts_notes and https://developer.apple.com/contact/request/contact-note-field.
+    type: Boolean
+    default: true
+    exclude-platforms: [android]
+    since: {iphone: "8.2.1", ipad: "8.2.1", macos: "9.2.0"}
+
   - name: CONTACTS_KIND_ORGANIZATION
     summary: Specifies that a contact is an organization.
     description:  |
@@ -254,7 +275,6 @@ properties:
         and [CONTACTS_KIND_PERSON](Titanium.Contacts.CONTACTS_KIND_PERSON).
     type: Number
     permission: read-only
-
     
   - name: CONTACTS_KIND_PERSON
     summary: Specifies that a contact is a person.
@@ -266,7 +286,6 @@ properties:
         and [CONTACTS_KIND_PERSON](Titanium.Contacts.CONTACTS_KIND_PERSON).
     type: Number
     permission: read-only
-
     
   - name: CONTACTS_SORT_FIRST_NAME
     summary: Specifies that group members will be sorted by first name.
@@ -279,7 +298,6 @@ properties:
     type: Number
     permission: read-only
 
-    
   - name: CONTACTS_SORT_LAST_NAME
     summary: Specifies that group members will be sorted by last name.
     description: 
@@ -291,7 +309,6 @@ properties:
     type: Number
     permission: read-only
 
-
   - name: AUTHORIZATION_AUTHORIZED
     summary: |
         A [contactsAuthorization](Titanium.Contacts.contactsAuthorization) value 
@@ -300,8 +317,7 @@ properties:
         This value is always returned on Android devices, as well as on iOS versions earlier than 6.0.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, android]
-    since: 2.1.3
+    since: {android: "2.1.3", iphone: "2.1.3", ipad: "2.1.3", macos: "9.2.0"}
 
   - name: AUTHORIZATION_DENIED
     summary: |
@@ -309,8 +325,7 @@ properties:
         indicating that the application is not authorized to use the address book.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, android]
-    since: 2.1.3
+    since: {android: "2.1.3", iphone: "2.1.3", ipad: "2.1.3", macos: "9.2.0"}
 
   - name: AUTHORIZATION_RESTRICTED
     summary: |
@@ -319,8 +334,12 @@ properties:
         the user cannot change this application's status.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, android]
-    since: 2.1.3
+    exclude-platforms: [macos]
+    deprecated:
+        since: "8.0.0"
+        removed: "8.0.0"
+        notes: "iOS 9 and later does not use this constant anymore. Use the other available `AUTHORIZATION_*` constants instead."
+    since: "2.1.3"
 
   - name: AUTHORIZATION_UNKNOWN
     summary: |
@@ -328,8 +347,7 @@ properties:
         indicating that the authorization state is unknown.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, android]
-    since: 2.1.3
+    since: {android: "2.1.3", iphone: "2.1.3", ipad: "2.1.3", macos: "9.2.0"}
 
   - name: contactsAuthorization
     summary: Returns an authorization constant indicating if the application has access to the address book.
@@ -341,14 +359,12 @@ properties:
     type: Number
     constants: Titanium.Contacts.AUTHORIZATION_*
     permission: read-only
-    platforms: [iphone, ipad, android]
-    since: 2.1.3
-
+    since: {android: "2.1.3", iphone: "2.1.3", ipad: "2.1.3", macos: "9.2.0"}
 
 examples:
   - title: Request access to the address book
     example: |
-
+        ``` js
         var performAddressBookFunction = function(){...};
         var addressBookDisallowed = function(){...};
         if (Ti.Contacts.hasContactsPermissions()) {
@@ -362,162 +378,169 @@ examples:
                 }
             });
         }
+        ```
 
   - title: Query Existing System Address Book Records
     example: |
         Output to the console all properties of all people.
         
-            var singleValue = [
-              'recordId', 'firstName', 'middleName', 'lastName', 'fullName', 'prefix', 'suffix', 
-              'nickname', 'firstPhonetic', 'middlePhonetic', 'lastPhonetic', 'organization', 
-              'jobTitle', 'department', 'note', 'birthday', 'created', 'modified', 'kind'
-            ];
-            var multiValue = [
-              'email', 'address', 'phone', 'instantMessage', 'relatedNames', 'date', 'url'
-            ];
-            var people = Ti.Contacts.getAllPeople();
-            Ti.API.info('Total contacts: ' + people.length);
-            for (var i=0, ilen=people.length; i<ilen; i++){
-              Ti.API.info('---------------------');
-              var person = people[i];
-              for (var j=0, jlen=singleValue.length; j<jlen; j++){
-                Ti.API.info(singleValue[j] + ': ' + person[singleValue[j]]);
-              }
-              for (var j=0, jlen=multiValue.length; j<jlen; j++){
-                Ti.API.info(multiValue[j] + ': ' + JSON.stringify(person[multiValue[j]]));
-              }
-            }
+        ``` js
+        var singleValue = [
+          'recordId', 'firstName', 'middleName', 'lastName', 'fullName', 'prefix', 'suffix', 
+          'nickname', 'firstPhonetic', 'middlePhonetic', 'lastPhonetic', 'organization', 
+          'jobTitle', 'department', 'note', 'birthday', 'created', 'modified', 'kind'
+        ];
+        var multiValue = [
+          'email', 'address', 'phone', 'instantMessage', 'relatedNames', 'date', 'url'
+        ];
+        var people = Ti.Contacts.getAllPeople();
+        Ti.API.info('Total contacts: ' + people.length);
+        for (var i=0, ilen=people.length; i<ilen; i++){
+          Ti.API.info('---------------------');
+          var person = people[i];
+          for (var j=0, jlen=singleValue.length; j<jlen; j++){
+            Ti.API.info(singleValue[j] + ': ' + person[singleValue[j]]);
+          }
+          for (var j=0, jlen=multiValue.length; j<jlen; j++){
+            Ti.API.info(multiValue[j] + ': ' + JSON.stringify(person[multiValue[j]]));
+          }
+        }
+        ```
+
   - title: Add New System Address Book Records
     example: |
         Create two new records in the system address book. Note that the <Titanium.Contacts.Person> 
-        object is queried in the same way that it is created (as shown in previous example.)
+        object is queried in the same way that it is created (as shown in the previous example.)
         
-            Ti.API.info('Saving contact...');
-            Ti.Contacts.createPerson({
-              firstName: 'Paul',
-              lastName: 'Dowsett',
-              address:{
-                work:[
-                  {
-                    CountryCode: 'gb', // determines how the address is displayed
-                    Street: '200 Brook Drive\nGreen Park',
-                    City: 'Reading',
-                    County: 'Berkshire',
-                    Country: 'England',
-                    ZIP: 'RG2 6UB'
-                  },
-                  {
-                    CountryCode: 'gb', // determines how the address is displayed
-                    Street: '1 St Pauls Road\nClerkenwell',
-                    City: 'City of London',
-                    State: 'London',
-                    Country: 'England',
-                    ZIP: 'EC1 1AA'
-                  }
-                ],
-                home:[
-                  {
-                    CountryCode: 'gb', // determines how the address is displayed
-                    Street: '2 Boleyn Court',
-                    City: 'London',
-                    State: 'Greenwich',
-                    Country: 'England',
-                    ZIP: 'SE10'
-                  }
-                ]
+        ``` js
+        Ti.API.info('Saving contact...');
+        Ti.Contacts.createPerson({
+          firstName: 'Paul',
+          lastName: 'Dowsett',
+          address:{
+            work:[
+              {
+                CountryCode: 'gb', // determines how the address is displayed
+                Street: '200 Brook Drive\nGreen Park',
+                City: 'Reading',
+                County: 'Berkshire',
+                Country: 'England',
+                ZIP: 'RG2 6UB'
               },
-              birthday: '2012-01-01T12:00:00.000+0000',
-              instantMessage:{
-                home:[
-                  {
-                    service: 'AIM',
-                    username: 'leisureAIM'
-                  },
-                  {
-                    service: 'MSN',
-                    username: 'no_paul_here@msn.com'
-                  }
-                ],
-                work:[
-                  {
-                    service: 'AIM',
-                    username: 'seriousAIM'
-                  }
-                ]
-              },
-              organization: 'Appcelerator',
-              phone:{
-                mobile: ['07900 000001', '07900 000002'],
-                work: ['+44 (0)118 925 6128', '+44 (0)118 000 0000']
-              },
-              url:{
-                homepage: ['www.google.com'],
-                work: ['www.appcelerator.com', 'www.example.com']
+              {
+                CountryCode: 'gb', // determines how the address is displayed
+                Street: '1 St Pauls Road\nClerkenwell',
+                City: 'City of London',
+                State: 'London',
+                Country: 'England',
+                ZIP: 'EC1 1AA'
               }
-            });
-            Ti.API.info('Contact saved');
-            
-            Ti.API.info('Saving contact...');
-            var workAddress1 = {
-              'CountryCode': 'us',
-              'Street':  '440 N. Bernardo Avenue',
-              'City': 'Mountain View',
-              'State': 'California',
-              'Country': 'United States',
-              'ZIP': '94043'
-            };
-            
-            Ti.Contacts.createPerson({
-              firstName:'Arthur',
-              lastName:'Evans',
-              address:{
-                'work':[workAddress1]
+            ],
+            home:[
+              {
+                CountryCode: 'gb', // determines how the address is displayed
+                Street: '2 Boleyn Court',
+                City: 'London',
+                State: 'Greenwich',
+                Country: 'England',
+                ZIP: 'SE10'
               }
-            });
-            Ti.API.info('Contact saved');
+            ]
+          },
+          birthday: '2012-01-01T12:00:00.000+0000',
+          instantMessage:{
+            home:[
+              {
+                service: 'AIM',
+                username: 'leisureAIM'
+              },
+              {
+                service: 'MSN',
+                username: 'no_paul_here@msn.com'
+              }
+            ],
+            work:[
+              {
+                service: 'AIM',
+                username: 'seriousAIM'
+              }
+            ]
+          },
+          organization: 'Appcelerator',
+          phone:{
+            mobile: ['07900 000001', '07900 000002'],
+            work: ['+44 (0)118 925 6128', '+44 (0)118 000 0000']
+          },
+          url:{
+            homepage: ['www.google.com'],
+            work: ['www.appcelerator.com', 'www.example.com']
+          }
+        });
+        Ti.API.info('Contact saved');
+        
+        Ti.API.info('Saving contact...');
+        var workAddress1 = {
+          'CountryCode': 'us',
+          'Street':  '440 N. Bernardo Avenue',
+          'City': 'Mountain View',
+          'State': 'California',
+          'Country': 'United States',
+          'ZIP': '94043'
+        };
+        
+        Ti.Contacts.createPerson({
+          firstName:'Arthur',
+          lastName:'Evans',
+          address:{
+            'work':[workAddress1]
+          }
+        });
+        Ti.API.info('Contact saved');
+        ```
 
   - title: Repopulate contact data if it was modified externally
     example: |
         Listen for the `reload` event to repopulate the contact data
         if it was modified externally, for example, in the iOS Contacts app.
 
-            var win = Ti.UI.createWindow();
-            var table = Ti.UI.createTableView();
+        ``` js
+        var win = Ti.UI.createWindow();
+        var table = Ti.UI.createTableView();
 
-            // Repopulate contact data
-            function reloadContacts() {
-                var contacts = Ti.Contacts.getAllPeople();
-                var data = [];
-                for (var i = 0; i < contacts.length; i++) {
-                    var title = contacts[i].fullName;
-                    if (!title || title.length === 0) {
-                        title = "(no name)";
-                    }
-                    var row = Ti.UI.createTableViewRow({
-                        title: title
-                    });
-                    data.push(row);
+        // Repopulate contact data
+        function reloadContacts() {
+            var contacts = Ti.Contacts.getAllPeople();
+            var data = [];
+            for (var i = 0; i < contacts.length; i++) {
+                var title = contacts[i].fullName;
+                if (!title || title.length === 0) {
+                    title = "(no name)";
                 }
-                table.data = data;
+                var row = Ti.UI.createTableViewRow({
+                    title: title
+                });
+                data.push(row);
             }
+            table.data = data;
+        }
 
-            Ti.Contacts.addEventListener('reload', function(e){
-                alert('Reloading contacts. Your contacts were changed externally!');
-                reloadContacts();
-            });
-
-            // initial call to populate contact data
+        Ti.Contacts.addEventListener('reload', function(e){
+            alert('Reloading contacts. Your contacts were changed externally!');
             reloadContacts();
+        });
 
-            win.add(table);
-            win.open();
+        // initial call to populate contact data
+        reloadContacts();
 
+        win.add(table);
+        win.open();
+        ```
 
 ---
 name: showContactsParams
 summary: Dictionary of options for the <Titanium.Contacts.showContacts> method.
-platforms: [android, iphone, ipad]
-
+platforms: [android, iphone, ipad, macos]
+since: {iphone: "0.8", ipad: "0.8", android: "0.8", macos: "9.2.0"}
 properties:
 - name: animated
   summary: Determines whether to animate the show/hide of the contacts picker (iPhone, iPad only.)
@@ -551,7 +574,7 @@ properties:
       The callback contains the selected property and a 'person' object of type <Titanium.Contacts.Person>.
       Since iOS 9.0, apple only returns the person object with partial information. Currently it is known to 
       at least contain the selected property and fullName. 
-  platforms: [iphone, ipad]
+  exclude-platforms: [android]
   type: Callback<Object>
   optional: true
 

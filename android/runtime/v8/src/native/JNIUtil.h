@@ -78,6 +78,7 @@ public:
 	static jclass booleanClass;
 	static jclass stringArrayClass;
 	static jclass objectArrayClass;
+	static jclass byteArrayClass;
 	static jclass shortArrayClass;
 	static jclass intArrayClass;
 	static jclass longArrayClass;
@@ -91,9 +92,11 @@ public:
 	static jclass setClass;
 	static jclass outOfMemoryError;
 	static jclass throwableClass;
+	static jclass stackTraceElementClass;
 	static jclass nullPointerException;
 
 	// Titanium classes
+	static jclass v8PromiseClass;
 	static jclass v8ObjectClass;
 	static jclass v8FunctionClass;
 	static jclass krollRuntimeClass;
@@ -106,6 +109,7 @@ public:
 	static jclass krollDictClass;
 	static jclass tiJsErrorDialogClass;
 	static jclass referenceTableClass;
+	static jclass jsErrorClass;
 
 	// Java methods
 	static jmethodID classGetNameMethod;
@@ -128,28 +132,41 @@ public:
 	static jmethodID longInitMethod;
 	static jmethodID numberDoubleValueMethod;
 	static jmethodID throwableGetMessageMethod;
+	static jmethodID throwableGetStackTraceMethod;
+	static jmethodID stackTraceElementToStringMethod;
 
 	// Titanium methods and fields
 	static jfieldID v8ObjectPtrField;
+	static jmethodID v8PromiseInitMethod;
 	static jmethodID v8ObjectInitMethod;
 	static jmethodID v8FunctionInitMethod;
 
+	// KrollDict
 	static jmethodID krollDictInitMethod;
 	static jmethodID krollDictPutMethod;
 
+	// ReferenceTable
 	static jmethodID referenceTableCreateReferenceMethod;
 	static jmethodID referenceTableDestroyReferenceMethod;
 	static jmethodID referenceTableMakeWeakReferenceMethod;
 	static jmethodID referenceTableMakeSoftReferenceMethod;
 	static jmethodID referenceTableClearReferenceMethod;
 	static jmethodID referenceTableGetReferenceMethod;
+	static jmethodID referenceTableIsStrongReferenceMethod;
 
+	// KrollRuntime
 	static jint krollRuntimeDontIntercept;
+	static jmethodID krollRuntimeDispatchExceptionMethod;
+
 	static jmethodID krollInvocationInitMethod;
 	static jmethodID krollExceptionInitMethod;
+
+	// KrollObject
 	static jfieldID krollObjectProxySupportField;
 	static jmethodID krollObjectSetHasListenersForEventTypeMethod;
 	static jmethodID krollObjectOnEventFiredMethod;
+
+	// KrollProxy
 	static jmethodID krollProxyCreateProxyMethod;
 	static jfieldID krollProxyKrollObjectField;
 	static jfieldID krollProxyModelListenerField;
@@ -157,10 +174,15 @@ public:
 	static jmethodID krollProxyGetIndexedPropertyMethod;
 	static jmethodID krollProxyOnPropertyChangedMethod;
 	static jmethodID krollProxyOnPropertiesChangedMethod;
-	static jmethodID krollLoggingLogWithDefaultLoggerMethod;
-	static jmethodID krollRuntimeDispatchExceptionMethod;
 
+	// KrollLogging
+	static jmethodID krollLoggingLogWithDefaultLoggerMethod;
+
+	// KrollAssetHelper
 	static jmethodID krollAssetHelperReadAssetMethod;
+
+	// CustomError
+	static jmethodID getJSPropertiesMethod;
 
 };
 

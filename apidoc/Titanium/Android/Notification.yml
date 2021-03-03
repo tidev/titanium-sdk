@@ -19,7 +19,7 @@ description: |
 
     Further Reading:
 
-      * [Android Developers: Notifications](http://developer.android.com/design/patterns/notifications.html)
+      * [Android Developers: Notifications](https://developer.android.com/design/patterns/notifications.html)
 
     #### Android 5.0 Changes
 
@@ -54,7 +54,9 @@ examples:
         For example, if the application ID is `com.appcelerator.notificationsample` and the
         application name is `NotificationSample`, the class name will be:
 
-            com.appcelerator.notificationsample.NotificationsampleActivity
+        ```
+        com.appcelerator.notificationsample.NotificationsampleActivity
+        ```
 
         The notification icon must be specified as an Android resource ID. In this case,
         the icon, `my_icon.png` would be placed in `platforms/android/res/drawable/my_icon.png`.
@@ -63,61 +65,65 @@ examples:
         This example does not include a custom alert sound. For information on adding a
         custom alert sound, see [Notification.sound](Titanium.Android.Notification.sound).
 
-            // Intent object to launch the application
-            var intent = Ti.Android.createIntent({
-                action: Ti.Android.ACTION_MAIN,
-                // Substitute the correct class name for your application
-                className: 'com.appcelerator.notificationsample.NotificationsampleActivity',
-                // Substitue the correct package name for your application
-                packageName: 'com.appcelerator.notificationsample'
-            });
-            intent.flags |= Ti.Android.FLAG_ACTIVITY_CLEAR_TOP | Ti.Android.FLAG_ACTIVITY_NEW_TASK;
-            intent.addCategory(Ti.Android.CATEGORY_LAUNCHER);
+        ``` js
+        // Intent object to launch the application
+        var intent = Ti.Android.createIntent({
+            action: Ti.Android.ACTION_MAIN,
+            // Substitute the correct class name for your application
+            className: 'com.appcelerator.notificationsample.NotificationsampleActivity',
+            // Substitue the correct package name for your application
+            packageName: 'com.appcelerator.notificationsample'
+        });
+        intent.flags |= Ti.Android.FLAG_ACTIVITY_NEW_TASK;
+        intent.addCategory(Ti.Android.CATEGORY_LAUNCHER);
 
-            // Create a PendingIntent to tie together the Activity and Intent
-            var pending = Titanium.Android.createPendingIntent({
-                intent: intent,
-                flags: Titanium.Android.FLAG_UPDATE_CURRENT
-            });
+        // Create a PendingIntent to tie together the Activity and Intent
+        var pending = Titanium.Android.createPendingIntent({
+            intent: intent,
+            flags: Titanium.Android.FLAG_UPDATE_CURRENT
+        });
 
-            // Create the notification
-            var notification = Titanium.Android.createNotification({
-            	// icon is passed as an Android resource ID -- see Ti.App.Android.R.
-                icon: Ti.App.Android.R.drawable.my_icon,
-            	contentTitle: 'Something Happened',
-            	contentText : 'Click to return to the application.',
-            	contentIntent: pending
-            });
+        // Create the notification
+        var notification = Titanium.Android.createNotification({
+          // icon is passed as an Android resource ID -- see Ti.App.Android.R.
+            icon: Ti.App.Android.R.drawable.my_icon,
+          contentTitle: 'Something Happened',
+          contentText : 'Click to return to the application.',
+          contentIntent: pending
+        });
 
-            // Send the notification.
-            Titanium.Android.NotificationManager.notify(1, notification);
+        // Send the notification.
+        Titanium.Android.NotificationManager.notify(1, notification);
+        ```
 
   - title: Bundled Notifications Example
     example: |
         The following example shows how to create bundled notifications.
 
-            var id = 100,
-                groupKey = 'group_key';
+        ``` js
+        var id = 100,
+            groupKey = 'group_key';
 
-            for (var i = 3; i > 0; i--) {
-                Ti.Android.NotificationManager.notify(id++,
-                    Ti.Android.createNotification({
-                        icon: Ti.Android.R.drawable.ic_dialog_info,
-                        contentTitle: 'NOTIFICATION #' + i,
-                        contentText : 'Lorem ipsum dolor sit amet, facer eruditi omittantur cu pri, nibh nonumy putant eam eu.'
-                        groupKey: groupKey
-                    })
-                );
-            }
+        for (var i = 3; i > 0; i--) {
             Ti.Android.NotificationManager.notify(id++,
                 Ti.Android.createNotification({
                     icon: Ti.Android.R.drawable.ic_dialog_info,
-                    contentTitle: 'NOTIFICATIONS',
-                    contentText : 'You have 3 notifications.',
-                    groupKey: groupKey,
-                    groupSummary: true
+                    contentTitle: 'NOTIFICATION #' + i,
+                    contentText : 'Lorem ipsum dolor sit amet, facer eruditi omittantur cu pri, nibh nonumy putant eam eu.'
+                    groupKey: groupKey
                 })
             );
+        }
+        Ti.Android.NotificationManager.notify(id++,
+            Ti.Android.createNotification({
+                icon: Ti.Android.R.drawable.ic_dialog_info,
+                contentTitle: 'NOTIFICATIONS',
+                contentText : 'You have 3 notifications.',
+                groupKey: groupKey,
+                groupSummary: true
+            })
+        );
+        ```
 
 extends: Titanium.Proxy
 since: "1.5"
@@ -193,6 +199,13 @@ properties:
     since: "3.6.0"
     osver: {android: {min: "5.0"}}
 
+  - name: channelId
+    summary: The channel id specified for the notification.
+    type: String
+    since: "7.0.0"
+    osver: {android: {min: "8.0"}}
+    platforms: [android]
+
   - name: contentIntent
     summary: The `PendingIntent` to execute when the expanded status entry is clicked.
     type: Titanium.Android.PendingIntent
@@ -264,19 +277,25 @@ properties:
         `my_icon.png`, you would create high- and medium-density versions of the icons
         with the following paths:
 
-            Resources/android/images/res-hdpi/my_icon.png
-            Resources/android/images/res-mdpi/my_icon.png
+        ```
+        Resources/android/images/res-hdpi/my_icon.png
+        Resources/android/images/res-mdpi/my_icon.png
+        ```
 
         To access this icon, you'd use the URL '/images/my_icon.png'.
 
         To access the same icon using an Android resource ID, place the icon in:
 
-            platform/android/res/drawable/my_icon.png
+        ```
+        platform/android/res/drawable/my_icon.png
+        ```
 
         This icon's resource ID can be referenced through the <Titanium.App.Android.R>
         object:
 
-            icon: Ti.App.Android.R.drawable.my_icon,
+        ``` js
+        icon: Ti.App.Android.R.drawable.my_icon,
+        ```
 
         See <Titanium.App.Android.R> for more information on accessing
         Android resources by ID.
@@ -292,19 +311,25 @@ properties:
         `my_large_icon.png`, you would create high- and medium-density versions of the icons
         with the following paths:
 
-            Resources/android/images/res-hdpi/my_large_icon.png
-            Resources/android/images/res-mdpi/my_large_icon.png
+        ```
+        Resources/android/images/res-hdpi/my_large_icon.png
+        Resources/android/images/res-mdpi/my_large_icon.png
+        ```
 
         To access this large icon, you'd use the URL '/images/my_large_icon.png'.
 
         To access the same large icon using an Android resource ID, place the icon in:
 
-            platform/android/res/drawable/my_large_icon.png
+        ```
+        platform/android/res/drawable/my_large_icon.png
+        ```
 
         This large icon's resource ID can be referenced through the <Titanium.App.Android.R>
         object:
 
-            icon: Ti.App.Android.R.drawable.my_large_icon,
+        ``` js
+        icon: Ti.App.Android.R.drawable.my_large_icon,
+        ```
 
         See <Titanium.App.Android.R> for more information on accessing
         Android resources by ID.
@@ -357,54 +382,66 @@ properties:
         external storage directory
         ([Filesystem.externalStorageDirectory](Titanium.Filesystem.externalStorageDirectory)).
 
-        To create a raw resource, place the audio file in the `platform/android/res/raw`
+        Note that this sound property is ignored on Android 8.0 and above. On these OS versions,
+        you must use the [NotificationChannel.sound](Titanium.Android.NotificationChannel.sound)
+        property and that sound will play for any notification posted under that channel. Also, you will
+        still need to set this notification's sound property for OS versions older than Android 8.0 too,
+        meaning that the sound URL needs to be set in both places.
+
+        To play a raw resource file, place the audio file in the `platform/android/res/raw`
         folder and reference it as:
 
-            notification.sound = Ti.Filesystem.getResRawDirectory() + audioFileName;
+        ``` js
+        notification.sound = Ti.Filesystem.resRawDirectory + audioFileName;
+        ```
 
         To play a file from the Resources directory, first copy it to external storage. For example, you
         could define the following function:
 
-            // Copy resource file to SD card, and return a native path.
-            // Return undefined if we can't copy the file.
-            function getOrCopyAudioFile(resourceFilename) {
-                var outFile = Ti.Filesystem.getFile(Ti.Filesystem.externalStorageDirectory, 'sound', 'cricket.wav');
-                var outPath = outFile.nativePath;
+        ``` js
+        // Copy resource file to SD card, and return a native path.
+        // Return undefined if we can't copy the file.
+        function getOrCopyAudioFile(resourceFilename) {
+            var outFile = Ti.Filesystem.getFile(Ti.Filesystem.externalStorageDirectory, 'sound', 'cricket.wav');
+            var outPath = outFile.nativePath;
 
-                if (! outFile.exists()) {
-                    var outDir = Ti.Filesystem.getFile(Ti.Filesystem.externalStorageDirectory, 'sound');
-                    if (! outDir.isDirectory()) {
-                        if (! outDir.createDirectory()) {
-                            Ti.API.debug("Failed to create directory.");
-                            outDir = null;
-                            return undefined;
-                        }
-                    }
-                    outDir = null;
-
-                    var inFile = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, 'cricket.wav');
-                    try {
-                        inFile.copy(outPath);
-                    } catch (ex) {
-                        Ti.API.debug("Failed to copy file.");
-                        inFile = null;
+            if (! outFile.exists()) {
+                var outDir = Ti.Filesystem.getFile(Ti.Filesystem.externalStorageDirectory, 'sound');
+                if (! outDir.isDirectory()) {
+                    if (! outDir.createDirectory()) {
+                        Ti.API.debug("Failed to create directory.");
+                        outDir = null;
                         return undefined;
                     }
-                    inFile = null;
                 }
-                outFile = null;
-                return outPath;
-            }
+                outDir = null;
 
+                var inFile = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, 'cricket.wav');
+                try {
+                    inFile.copy(outPath);
+                } catch (ex) {
+                    Ti.API.debug("Failed to copy file.");
+                    inFile = null;
+                    return undefined;
+                }
+                inFile = null;
+            }
+            outFile = null;
+            return outPath;
+        }
+        ```
 
         Then when creating a notification, specify the sound like this:
 
-            var sound = getOrCopyAudioFile();
-            if (sound) {
-                notification.sound = sound;
-            }
+        ``` js
+        var sound = getOrCopyAudioFile();
+        if (sound) {
+            notification.sound = sound;
+        }
+        ```
 
     type: String
+    osver: {android: {max: "7.1"}}
 
   - name: style
     summary: Style object that can apply a rich notification style.
@@ -440,6 +477,7 @@ properties:
         The application needs to also set the `android.permission.WAKE_LOCK` permission
         in the Android manifest section of the `tiapp.xml` file.
         
+        ``` xml
         <ti:app>
             <android>
                 <manifest>
@@ -447,6 +485,7 @@ properties:
                 </manifest>
             </android>
         </ti:app>
+        ```
     type: wakeLockOptions
     default: 0
     since: "6.2.0"

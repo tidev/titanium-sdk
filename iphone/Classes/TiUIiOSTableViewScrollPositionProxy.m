@@ -7,7 +7,7 @@
 #if defined(USE_TI_UIIOSTABLEVIEWSCROLLPOSITION) || defined(USE_TI_UIIOSLISTVIEWSCROLLPOSITION)
 
 #import "TiUIiOSTableViewScrollPositionProxy.h"
-#import "TiBase.h"
+#import <TitaniumKit/TiBase.h>
 
 @implementation TiUIiOSTableViewScrollPositionProxy
 

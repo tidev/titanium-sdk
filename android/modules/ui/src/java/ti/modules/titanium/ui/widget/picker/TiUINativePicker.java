@@ -25,7 +25,6 @@ import ti.modules.titanium.ui.PickerColumnProxy;
 import ti.modules.titanium.ui.PickerProxy;
 import android.app.Activity;
 import android.content.Context;
-import android.os.Build;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -185,7 +184,7 @@ public class TiUINativePicker extends TiUIPicker
 	{
 		Spinner view = (Spinner) nativeView;
 		view.performClick();
-	};
+	}
 
 	@Override
 	public int getSelectedRowIndex(int columnIndex)
@@ -212,7 +211,7 @@ public class TiUINativePicker extends TiUIPicker
 				// unnecessary event triggers.
 				spinner.setOnItemSelectedListener(null);
 			}
-			int rememberSelectedRow = getSelectedRowIndex(0);
+			int rememberSelectedRow = getPickerProxy().getLastSelectedIndex();
 			// Just one column - the first column - for now.
 			// Maybe someday we'll support multiple columns.
 			PickerColumnProxy column = getPickerProxy().getFirstColumn(false);
@@ -253,6 +252,10 @@ public class TiUINativePicker extends TiUIPicker
 		@Override
 		public void onItemSelected(AdapterView<?> parent, View view, int position, long itemId)
 		{
+			// if the user selects a new item form the picker
+			// it should overwrite the values stored in preselected rows
+			getPickerProxy().getPreselectedRows().clear();
+			getPickerProxy().setLastSelectedIndex(position);
 			fireSelectionChange(0, position);
 
 			// Invalidate the parent view after the item is selected (TIMOB-13540).

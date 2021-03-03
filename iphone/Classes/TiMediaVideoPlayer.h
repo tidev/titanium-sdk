@@ -6,15 +6,15 @@
  */
 #ifdef USE_TI_MEDIAVIDEOPLAYER
 
-#import "TiUIView.h"
 #import <AVFoundation/AVFoundation.h>
 #import <AVKit/AVKit.h>
-#import <MediaPlayer/MediaPlayer.h>
+#import <TitaniumKit/TiUIView.h>
 
 @interface TiMediaVideoPlayer : TiUIView {
   @private
   AVPlayerViewController *controller;
   UIActivityIndicatorView *spinner;
+  UIViewController *parentController;
 
   BOOL loaded;
 }

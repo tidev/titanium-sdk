@@ -42,6 +42,8 @@
 		</plist>
 	</ios>
 	<android xmlns:android="http://schemas.android.com/apk/res/android">
+		<manifest android:versionCode="1">
+		</manifest>
 	</android>
 	<modules>
 	</modules>

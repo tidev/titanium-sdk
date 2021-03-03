@@ -39,7 +39,7 @@
 #import "LauncherView.h"
 #import "LauncherButton.h"
 #import "LauncherItem.h"
-#import "TiBase.h"
+#import <TitaniumKit/TiBase.h>
 
 static const CGFloat kLauncherViewMargin = 0;
 static const CGFloat kLauncherViewPadding = 0;
@@ -228,9 +228,10 @@ static const NSTimeInterval kLauncherViewFastTransitionDuration = 0.2;
 - (void)recreateButtons
 {
   if (![NSThread isMainThread]) {
-    TiThreadPerformOnMainThread(^{
-      [self recreateButtons];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          [self recreateButtons];
+        },
         NO);
     return;
   }

@@ -22,9 +22,9 @@
 #import "TiDOMPIProxy.h"
 #import "TiDOMTextNodeProxy.h"
 #import "TiDOMValidator.h"
-#import "TiUtils.h"
+#import <TitaniumKit/TiUtils.h>
 #include <libkern/OSAtomic.h>
-
+#import <os/lock.h>
 /*
  * The nodeRegistry is used to map xmlNodePtr objects to TiDOMNodeProxies
  * Ensures that there is only one active proxy for a give xmlNodePtr.
@@ -32,7 +32,7 @@
  * Values are removed when the proxies are freed
  */
 static CFMutableDictionaryRef nodeRegistry = NULL;
-OSSpinLock nodeRegistryLock = OS_SPINLOCK_INIT;
+os_unfair_lock nodeRegistryLock = OS_UNFAIR_LOCK_INIT;
 
 @implementation TiDOMNodeProxy
 @synthesize document, node;
@@ -62,11 +62,11 @@ OSSpinLock nodeRegistryLock = OS_SPINLOCK_INIT;
 + (id)nodeForXMLNode:(xmlNodePtr)nodePtr
 {
   id result = nil;
-  OSSpinLockLock(&nodeRegistryLock);
+  os_unfair_lock_lock(&nodeRegistryLock);
   if (nodeRegistry != NULL) {
     result = CFDictionaryGetValue(nodeRegistry, nodePtr);
   }
-  OSSpinLockUnlock(&nodeRegistryLock);
+  os_unfair_lock_unlock(&nodeRegistryLock);
   return result;
 }
 
@@ -85,7 +85,7 @@ CFHashCode simpleHash(const void *value)
   if ((node == nil) || (nodePtr == NULL)) {
     return;
   }
-  OSSpinLockLock(&nodeRegistryLock);
+  os_unfair_lock_lock(&nodeRegistryLock);
   if (nodeRegistry == NULL) {
     CFDictionaryKeyCallBacks keyCallbacks = kCFTypeDictionaryKeyCallBacks;
     CFDictionaryValueCallBacks callbacks = kCFTypeDictionaryValueCallBacks;
@@ -98,16 +98,16 @@ CFHashCode simpleHash(const void *value)
     nodeRegistry = CFDictionaryCreateMutable(nil, 0, &keyCallbacks, &callbacks);
   }
   CFDictionarySetValue(nodeRegistry, (void *)nodePtr, node);
-  OSSpinLockUnlock(&nodeRegistryLock);
+  os_unfair_lock_unlock(&nodeRegistryLock);
 }
 
 + (void)removeNodeForXMLNode:(xmlNodePtr)nodePtr
 {
-  OSSpinLockLock(&nodeRegistryLock);
+  os_unfair_lock_lock(&nodeRegistryLock);
   if (nodeRegistry == NULL)
     return;
   CFDictionaryRemoveValue(nodeRegistry, nodePtr);
-  OSSpinLockUnlock(&nodeRegistryLock);
+  os_unfair_lock_unlock(&nodeRegistryLock);
 }
 
 - (id)makeNodeListProxyFromArray:(NSArray *)nodes context:(id<TiEvaluator>)context
@@ -359,7 +359,7 @@ CFHashCode simpleHash(const void *value)
 
 - (id)parentNode
 {
-  xmlNodePtr p = [node XMLNode] -> parent;
+  xmlNodePtr p = [node XMLNode]->parent;
   if (p == NULL)
     return [NSNull null];
 
@@ -399,7 +399,7 @@ CFHashCode simpleHash(const void *value)
 
 - (id)previousSibling
 {
-  xmlNodePtr p = [node XMLNode] -> prev;
+  xmlNodePtr p = [node XMLNode]->prev;
   if (p == NULL) {
     return [NSNull null];
   }
@@ -410,7 +410,7 @@ CFHashCode simpleHash(const void *value)
 
 - (id)nextSibling
 {
-  xmlNodePtr p = [node XMLNode] -> next;
+  xmlNodePtr p = [node XMLNode]->next;
   if (p == NULL) {
     return [NSNull null];
   }
@@ -426,7 +426,7 @@ CFHashCode simpleHash(const void *value)
 
 - (id)ownerDocument
 {
-  xmlDocPtr p = [node XMLNode] -> doc;
+  xmlDocPtr p = [node XMLNode]->doc;
   if (p == NULL) {
     if ([self document] != nil) {
       p = [[self document] docNode];

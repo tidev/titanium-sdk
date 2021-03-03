@@ -7,7 +7,7 @@
 #ifdef USE_TI_UIIOSPREVIEWCONTEXT
 
 #import "TiUIiOSPreviewActionProxy.h"
-#import "TiViewProxy.h"
+#import <TitaniumKit/TiViewProxy.h>
 
 @interface TiUIiOSPreviewActionGroupProxy : TiViewProxy {
   UIPreviewActionGroup *actionGroup;

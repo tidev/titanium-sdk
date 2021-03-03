@@ -1,5 +1,4 @@
 *.pyc
-/dist
 .sconsign.dblite
 .DS_Store
 *~
@@ -10,31 +9,46 @@
 *.BASE.*
 *.LOCAL.*
 *.REMOTE.*
-anvil/driver/config.js
 ._*
+.vscode/
+
+# Node/NPM
 npm-debug.log
+/node_modules
 
-node_modules/
+# Android editor stuff (eclipse/VSCode)
+/android/.project
+/android/app/.classpath
+/android/app/.project
+/android/kroll-apt/.classpath
+/android/kroll-apt/.project
+/android/runtime/v8/src/native/V8Snapshots.h
+/android/titanium/.classpath
+/android/titanium/.project
 
-retirejs.output.json
+# Build dirs
+/dist
+/tmp
 
-anvil/driver/titanium_mobile
-anvil/hub/config.js
-support/ti_mocha_script/testApp
+# iOS stuff
+/iphone/TitaniumKit/Carthage
+/iphone/TitaniumKit/docs
+/iphone/TitaniumKit/build
+/iphone/TitaniumKit/TitaniumKit/Sources/API/TopTiModule.bak
+/iphone/lib/libTiCore.a
 
-/titanium-mobile-mocha-suite
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+
+# Testing
+.nyc_output/
+coverage/
 junit.*.xml
-
-# intelliJ Android User-specific configurations
-android/.idea/libraries/
-android/.idea/workspace.xml
-android/.idea/tasks.xml
-android/.idea/.name
-android/.idea/compiler.xml
-android/.idea/copyright/profiles_settings.xml
-android/.idea/encodings.xml
-android/.idea/misc.xml
-android/.idea/modules.xml
-android/.idea/scopes/scope_settings.xml
-android/.idea/vcs.xml
-*.iml
+junit_report.xml
+/tests/diffs/
+/tests/generated/
+/tests/node_modules/
+# in-memory blobs written to disk as the expected image for image comparison tests
+/tests/Resources/ios/snapshots/1[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]_*.png
+/tests/Resources/android/snapshots/1[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]_*.png

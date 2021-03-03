@@ -31,8 +31,8 @@
 
 #import "LauncherItem.h"
 #import "LauncherButton.h"
-#import "TiUIView.h"
-#import "TiUIViewProxy.h"
+#import <TitaniumKit/TiUIView.h>
+#import <TitaniumKit/TiUIViewProxy.h>
 
 @implementation LauncherItem
 
@@ -59,9 +59,10 @@
 - (void)repaint
 {
   if (button != nil) {
-    TiThreadPerformOnMainThread(^{
-      [button setNeedsLayout];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          [button setNeedsLayout];
+        },
         NO);
   }
 }

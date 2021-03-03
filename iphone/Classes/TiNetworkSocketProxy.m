@@ -5,10 +5,10 @@
  * Please see the LICENSE included with this distribution for details.
  */
 #import "TiNetworkSocketProxy.h"
-#import "TiBase.h"
 #import "TiNetworkSocketTCPProxy.h"
+#import <TitaniumKit/TiBase.h>
 
-#ifdef USE_TI_NETWORKSOCKET
+#if defined(USE_TI_NETWORKSOCKET) || (defined(USE_TI_NETWORK))
 @implementation TiNetworkSocketProxy
 
 - (id)createTCP:(id)args

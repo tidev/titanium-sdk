@@ -2,49 +2,38 @@
 name: Titanium.UI.ButtonBar
 summary: An iOS button bar component.
 description: |
-    The button bar is a set of buttons joined into a single control. Each button in a
-    button bar can have a text label or an icon, but not both. 
+    The button bar is a set of buttons joined into a single control.
+    On iOS, you can set up the buttons with either a title or image, but not both.
+    On Android, you can set up the buttons with a title, image, or both.
 
     Use the <Titanium.UI.createButtonBar> method or **`<ButtonBar>`** Alloy element to create a button bar.
 
     The [TabbedBar](Titanium.UI.iOS.TabbedBar) control is a button bar where the 
     last selected button mantains a pressed or selected state. The following discussion
     applies to both button bar and tabbed bar.
-    
-    The buttons share a common style, defined by the `style` property. This can be 
-    set to one of the constants defined in 
-    [Titanium.UI.iOS.SystemButtonStyle](Titanium.UI.iOS.SystemButtonStyle):
-
-    * `PLAIN`. Default style for `ButtonBar` and `TabbedBar`.
-    * `BORDERED`. Creates a bar like the `PLAIN` bar, but with a heavier border.
-    * `BAR`. Creates a more compact bar with
-            translucent buttons that allow the bar's background color to show through.
-
-    If you want the background color or background gradient of the button bar itself 
-    to show through, the style must be set to <Titanium.UI.iOS.SystemButtonStyle.BAR>.
-
-    Note that you cannot style individual buttons in a button bar. If you want to give a
-    distinct visual style to individual buttons, to use an icon and text on the same button,
-    or to use a button-bar type component on a platform other than iOS, you can use a set 
-    of individual [Button](Titanium.UI.Button) controls wrapped in a
-    [View](Titanium.UI.View) to create the appearance of a button bar.
-
 extends: Titanium.UI.View
-since: "0.8"
-platforms: [iphone, ipad]
+since: {android: "10.0.0", iphone: "0.8", ipad: "0.8", macos: "9.2.0"}
+platforms: [android, iphone, ipad, macos]
 excludes:
     events: [ 'touchstart', 'touchmove', 'touchend', 'touchcancel', 'dblclick',
         'doubletap', 'longclick', 'singletap', 'swipe', 'twofingertap' ]
+    properties: [children]
+    methods: [add, remove, removeAllChildren, replaceAt]
 
 events: 
   - name: click
     summary: Fired when a button is clicked.
     properties: 
       - name: index
-        summary: Index of the clicked button. 
+        summary: Index of the clicked button.
         type: Number
 properties:
   - name: index
+    deprecated:
+        since: "8.0.0"
+        notes: |
+            This property has been deprecated in Titanium SDK 8.0.0 as this property has no effect 
+            and will be removed in SDK 9.0.0.
     summary: Index of the currently selected button.
     type: Number
   - name: labels
@@ -57,68 +46,82 @@ properties:
 
         In Alloy you specify the labels with a nested `<Labels>` element that contains one or more `<Label>` elements.
 
-            <Alloy>
-                <ButtonBar platform="ios">
-                    <Labels>
-                        <!-- Specify text with node text or "title" attribute. -->
-                        <Label>button 1</Label>
-                        <Label title="button 2"/>
-                        <!-- uses images and/or widths -->
-                        <Label width="40" image="/KS_nav_ui.png"/>
-                        <!-- set as disabled -->
-                        <Label enabled="false">disabled</Label>
-                        <!-- empty labels will print a warning (no properties) -->
-                        <!-- <Label/> -->
-                    </Labels>
-                </ButtonBar>
-            </Alloy>
+        ``` xml
+        <Alloy>
+            <ButtonBar>
+                <Labels>
+                    <!-- Specify text with node text or "title" attribute. -->
+                    <Label>button 1</Label>
+                    <Label title="button 2"/>
+                    <!-- uses images and/or widths -->
+                    <Label width="40" image="/KS_nav_ui.png"/>
+                    <!-- set as disabled -->
+                    <Label enabled="false">disabled</Label>
+                    <!-- empty labels will print a warning (no properties) -->
+                    <!-- <Label/> -->
+                </Labels>
+            </ButtonBar>
+        </Alloy>
+        ```
     type: [Array<String>, Array<BarItemType>]
-  - name: style
-    summary: Style of the button bar.
-    description: |
-        Specify one of the constants defined in
-        [Titanium.UI.iOS.SystemButtonStyle](Titanium.UI.iOS.SystemButtonStyle),
-        either `PLAIN`, `BORDERED`, or `BAR`.
 
-        The `BAR` style specifies a more compact style and allows the bar's background
-        color or gradient to show through.
-    type: Number
-    constants: Titanium.UI.iOS.SystemButtonStyle.*
-    default: Titanium.UI.iOS.SystemButtonStyle.PLAIN
-    deprecated:
-        since: "3.4.1"
-        notes: The style property no longer has any effect on iOS 7 and greater.
-    osver: {ios: {max: "6.1"}}
+  - name: textColor
+    summary: Color of title of button, as a color name or hex triplet.
+    description: |
+        For information about color values, see the "Colors" section of <Titanium.UI>.
+    type: [String, Titanium.UI.Color]
+    platforms: [iphone, ipad, macos]
+    since: "9.0.0"
+
+  - name: selectedTextColor
+    summary: Color of title of button when it is selected, as a color name or hex triplet.
+    description: |
+        For information about color values, see the "Colors" section of <Titanium.UI>.
+    type: [String, Titanium.UI.Color]
+    platforms: [iphone, ipad, macos]
+    since: "9.0.0"
+
+  - name: selectedButtonColor
+    summary: Color of selected button, as a color name or hex triplet.
+    description: |
+        For information about color values, see the "Colors" section of <Titanium.UI>.
+    type: [String, Titanium.UI.Color]
+    platforms: [iphone, ipad, macos]
+    since: "9.0.0"
+    osver: {ios: {min: "13.0"}}
+
 examples:
   - title: Simple 3 button button bar
     example: |
-        
-            var bb1 = Titanium.UI.createButtonBar({
-            	labels:['One', 'Two', 'Three'],
-            	backgroundColor:'#336699',
-            	top:50,
-            	style:Titanium.UI.iOS.SystemButtonStyle.BAR,
-            	height:25,
-            	width:200
-            });
-            win.add(bb1);
+        ``` js
+        const win = Ti.UI.createWindow();
+        const buttonBar = Titanium.UI.createButtonBar({
+          labels:['One', 'Two', 'Three']
+        });
+        buttonBar.addEventListener('click', (e) => {
+          console.log(`Clicked on button index: ${e.index}`);
+        });
+        win.add(buttonBar);
+        win.open();
+        ```
 
   - title: Alloy XML Markup
     example: |
         Previous example as an Alloy view.
 
-            <Alloy>
-                <Window id="win">
-                    <ButtonBar id="bb1" platform="ios" backgroundColor="#369" top="50" height="25" width="200">
-                        <!-- The Labels tag sets the ButtonBar.labels property -->
-                        <Labels>
-                            <!-- Specify text with node text or the title attribute. -->
-                            <!-- Can also specify the enabled, image and width attributes. -->
-                            <Label>One</Label>
-                            <Label>Two</Label>
-                            <Label>Three</Label>
-                        </Labels>
-                        <!-- Place additional views for the ButtonBar here. -->
-                    </ButtonBar>
-                </Window>
-            </Alloy>
+        ``` xml
+        <Alloy>
+            <Window id="win">
+                <ButtonBar id="buttonBar">
+                    <!-- The Labels tag sets the ButtonBar.labels property -->
+                    <Labels>
+                        <!-- Specify text with node text or the title attribute. -->
+                        <!-- Can also specify the enabled, image and width attributes. -->
+                        <Label>One</Label>
+                        <Label>Two</Label>
+                        <Label>Three</Label>
+                    </Labels>
+                </ButtonBar>
+            </Window>
+        </Alloy>
+        ```

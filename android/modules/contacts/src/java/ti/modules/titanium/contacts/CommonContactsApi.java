@@ -16,7 +16,6 @@ import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 
 import android.Manifest;
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -28,24 +27,18 @@ import android.provider.ContactsContract;
 
 public abstract class CommonContactsApi
 {
-	private static final boolean TRY_NEWER_API =
-		(android.os.Build.VERSION.SDK_INT > android.os.Build.VERSION_CODES.DONUT);
 	private static final String TAG = "TiCommonContactsApi";
 
 	protected static CommonContactsApi getInstance()
 	{
 		boolean useNew = false;
-		if (TRY_NEWER_API) {
-			try {
-				Class.forName("android.provider.ContactsContract"); // just a test for success
-				useNew = true;
+		try {
+			Class.forName("android.provider.ContactsContract"); // just a test for success
+			useNew = true;
 
-			} catch (ClassNotFoundException e) {
-				Log.e(TAG, "Unable to load contacts api: " + e.getMessage(), e);
-				useNew = false;
-			}
-		} else {
-			Log.e(TAG, "Contacts API 4 is not supported");
+		} catch (ClassNotFoundException e) {
+			Log.e(TAG, "Unable to load contacts api: " + e.getMessage(), e);
+			useNew = false;
 		}
 
 		if (useNew) {

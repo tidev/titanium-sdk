@@ -7,9 +7,8 @@ description: |
 
     Further Reading:
 
-      * [Android Notifications guide](http://docs.appcelerator.com/platform/latest/#!/guide/Android_Notifications)
-      * [Android Developer: Notifications](http://developer.android.com/guide/topics/ui/notifiers/notifications.html)
-
+      * [Android Notifications guide](https://docs.appcelerator.com/platform/latest/#!/guide/Android_Notifications)
+      * [Android Developer: Notifications](https://developer.android.com/guide/topics/ui/notifiers/notifications.html)
 extends: Titanium.Module
 platforms: [android]
 since: "1.5"
@@ -48,8 +47,13 @@ methods:
     returns:
         type: Titanium.Android.NotificationChannel
 
-properties:
+  - name: areNotificationsEnabled
+    summary: Returns whether showing notifications is enabled for the application.
+    returns:
+        type: Boolean
+    since: "7.1.0"
 
+properties:
   - name: DEFAULT_ALL
     summary: Use <Titanium.Android.DEFAULT_ALL> instead.
     type: Number

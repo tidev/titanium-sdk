@@ -6,6 +6,7 @@
  */
 package org.appcelerator.kroll;
 
+import java.lang.ref.WeakReference;
 import java.util.HashMap;
 
 import org.appcelerator.kroll.common.AsyncResult;
@@ -27,7 +28,7 @@ public abstract class KrollObject implements Handler.Callback
 	protected HashMap<String, Boolean> hasListenersForEventType = new HashMap<String, Boolean>();
 	protected Handler handler;
 
-	private KrollProxySupport proxySupport;
+	private WeakReference<KrollProxySupport> proxySupport;
 
 	public KrollObject()
 	{
@@ -40,7 +41,7 @@ public abstract class KrollObject implements Handler.Callback
 	 */
 	public void setProxySupport(KrollProxySupport proxySupport)
 	{
-		this.proxySupport = proxySupport;
+		this.proxySupport = new WeakReference<KrollProxySupport>(proxySupport);
 	}
 
 	/**
@@ -66,8 +67,10 @@ public abstract class KrollObject implements Handler.Callback
 	public void setHasListenersForEventType(String event, boolean hasListeners)
 	{
 		hasListenersForEventType.put(event, hasListeners);
-		if (proxySupport != null) {
-			proxySupport.onHasListenersChanged(event, hasListeners);
+
+		KrollProxySupport proxy = (proxySupport != null) ? proxySupport.get() : null;
+		if (proxy != null) {
+			proxy.onHasListenersChanged(event, hasListeners);
 		}
 	}
 
@@ -78,8 +81,9 @@ public abstract class KrollObject implements Handler.Callback
 	 */
 	public void onEventFired(String event, Object data)
 	{
-		if (proxySupport != null) {
-			proxySupport.onEventFired(event, data);
+		KrollProxySupport proxy = (proxySupport != null) ? proxySupport.get() : null;
+		if (proxy != null) {
+			proxy.onEventFired(event, data);
 		}
 	}
 

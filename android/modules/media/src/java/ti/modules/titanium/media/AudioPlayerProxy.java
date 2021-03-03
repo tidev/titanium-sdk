@@ -106,31 +106,22 @@ public class AudioPlayerProxy extends KrollProxy implements OnLifecycleEvent, On
 			  Log.DEBUG_MODE);
 	}
 
-	// clang-format off
-	@Kroll.method
 	@Kroll.getProperty
 	public String getUrl()
-	// clang-format on
 	{
 		return TiConvert.toString(getProperty(TiC.PROPERTY_URL));
 	}
 
-	// clang-format off
-	@Kroll.method
 	@Kroll.setProperty
 	public void setUrl(String url)
-	// clang-format on
 	{
 		if (url != null) {
 			setProperty(TiC.PROPERTY_URL, resolveUrl(null, TiConvert.toString(url)));
 		}
 	}
 
-	// clang-format off
-	@Kroll.method
 	@Kroll.getProperty
 	public int getDuration()
-	// clang-format on
 	{
 		TiSound s = getSound();
 		if (s != null) {
@@ -139,29 +130,20 @@ public class AudioPlayerProxy extends KrollProxy implements OnLifecycleEvent, On
 		return 0;
 	}
 
-	// clang-format off
-	@Kroll.method
 	@Kroll.getProperty
 	public int getAudioType()
-	// clang-format on
 	{
 		return TiConvert.toInt(getProperty(TiC.PROPERTY_AUDIO_TYPE));
 	}
 
-	// clang-format off
-	@Kroll.method
 	@Kroll.setProperty
 	public void setAudioType(int val)
-	// clang-format on
 	{
 		setProperty(TiC.PROPERTY_AUDIO_TYPE, val);
 	}
 
-	// clang-format off
-	@Kroll.method
 	@Kroll.getProperty
 	public boolean isPlaying()
-	// clang-format on
 	{
 		TiSound s = getSound();
 		if (s != null) {
@@ -170,11 +152,8 @@ public class AudioPlayerProxy extends KrollProxy implements OnLifecycleEvent, On
 		return false;
 	}
 
-	// clang-format off
-	@Kroll.method
 	@Kroll.getProperty
 	public boolean isPaused()
-	// clang-format on
 	{
 		TiSound s = getSound();
 		if (s != null) {
@@ -183,20 +162,28 @@ public class AudioPlayerProxy extends KrollProxy implements OnLifecycleEvent, On
 		return false;
 	}
 
-	// An alias for play so that
 	@Kroll.method
 	public void start()
-	{
-		play();
-	}
-
-	@Kroll.method
-	public void play()
 	{
 		TiSound s = getSound();
 		if (s != null) {
 			s.play();
 		}
+	}
+
+	@Kroll.method
+	public void restart()
+	{
+		stop();
+		start();
+	}
+
+	@Kroll.method
+	public void play()
+	{
+		Log.w(TAG,
+			"The play() method has been deprecated in favor of the cross-platform start() method in Titanium 7.4.0.");
+		start();
 	}
 
 	@Kroll.method
@@ -213,6 +200,7 @@ public class AudioPlayerProxy extends KrollProxy implements OnLifecycleEvent, On
 	{
 		TiSound s = getSound();
 		if (s != null) {
+			s.reset();
 			s.release();
 			snd = null;
 		}
@@ -234,6 +222,7 @@ public class AudioPlayerProxy extends KrollProxy implements OnLifecycleEvent, On
 	}
 
 	@Kroll.method
+	@Kroll.getProperty
 	public int getAudioSessionId()
 	{
 		TiSound s = getSound();
@@ -243,11 +232,27 @@ public class AudioPlayerProxy extends KrollProxy implements OnLifecycleEvent, On
 		return 0;
 	}
 
-	// clang-format off
-	@Kroll.method
+	@Kroll.getProperty
+	public boolean getMuted()
+	{
+		TiSound s = getSound();
+		if (s != null) {
+			return s.isMuted();
+		}
+		return false;
+	}
+
+	@Kroll.setProperty
+	public void setMuted(boolean muted)
+	{
+		TiSound s = getSound();
+		if (s != null) {
+			s.setMuted(muted);
+		}
+	}
+
 	@Kroll.getProperty
 	public double getTime()
-	// clang-format on
 	{
 		TiSound s = getSound();
 		if (s != null) {
@@ -257,11 +262,8 @@ public class AudioPlayerProxy extends KrollProxy implements OnLifecycleEvent, On
 		return TiConvert.toDouble(getProperty(TiC.PROPERTY_TIME));
 	}
 
-	// clang-format off
-	@Kroll.method
 	@Kroll.setProperty
 	public void setTime(Object pos)
-	// clang-format on
 	{
 		if (pos != null) {
 			TiSound s = getSound();

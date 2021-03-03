@@ -4,7 +4,7 @@
  * copying template files.
  *
  * @copyright
- * Copyright (c) 2012-2017 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2012-2020 by Appcelerator, Inc. All Rights Reserved.
  *
  * @license
  * Licensed under the terms of the Apache Public License
@@ -64,7 +64,8 @@ CreateCommand.prototype.config = function config(logger, config, cli) {
 				return next();
 			}
 
-			const creator = new (require(path.join(creatorDir, filename)))(logger, config, cli); // eslint-disable-line security/detect-non-literal-require
+			const CreatorConstructor = require(path.join(creatorDir, filename)); // eslint-disable-line security/detect-non-literal-require
+			const creator = new CreatorConstructor(logger, config, cli);
 			this.creators[creator.type] = creator;
 
 			try {
@@ -88,13 +89,13 @@ CreateCommand.prototype.config = function config(logger, config, cli) {
 			cli.createHook('create.config', this, function (callback) {
 				var conf = {
 					flags: {
-						'force': {
+						force: {
 							abbr: 'f',
 							desc: __('force project creation even if path already exists')
 						}
 					},
 					options: appc.util.mix({
-						'type': {
+						type: {
 							abbr: 't',
 							default: cli.argv.prompt ? undefined : 'app',
 							desc: __('the type of project to create'),

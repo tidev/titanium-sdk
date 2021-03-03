@@ -7,13 +7,13 @@
 #ifdef USE_TI_UIEMAILDIALOG
 
 #import "TiUIEmailDialogProxy.h"
-#import "Mimetypes.h"
-#import "TiApp.h"
-#import "TiBase.h"
-#import "TiBlob.h"
-#import "TiColor.h"
-#import "TiFile.h"
-#import "TiUtils.h"
+#import <TitaniumKit/Mimetypes.h>
+#import <TitaniumKit/TiApp.h>
+#import <TitaniumKit/TiBase.h>
+#import <TitaniumKit/TiBlob.h>
+#import <TitaniumKit/TiColor.h>
+#import <TitaniumKit/TiFile.h>
+#import <TitaniumKit/TiUtils.h>
 
 @implementation TiUIEmailDialogProxy
 
@@ -52,7 +52,7 @@
 
 - (id)isSupported:(id)args
 {
-#if TARGET_IPHONE_SIMULATOR
+#if TARGET_OS_SIMULATOR
   DebugLog(@"[INFO] iOS Simulator does not support sending emails. Use a device instead.");
   return NUMBOOL(NO);
 #endif
@@ -61,7 +61,7 @@
 
 - (void)open:(id)args
 {
-#if TARGET_IPHONE_SIMULATOR
+#if TARGET_OS_SIMULATOR
   DebugLog(@"[INFO] iOS Simulator does not support sending emails. Use a device instead.");
   NSDictionary *event = [NSDictionary dictionaryWithObject:NUMINT(MFMailComposeResultFailed) forKey:@"result"];
   [self fireEvent:@"complete" withObject:event errorCode:MFMailComposeResultFailed message:@"iOS Simulator does not support sending emails. Use a device instead."];

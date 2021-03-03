@@ -3,7 +3,7 @@
  * Logic for creating new Titanium apps.
  *
  * @copyright
- * Copyright (c) 2014-2015 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2014-2018 by Appcelerator, Inc. All Rights Reserved.
  *
  * @license
  * Licensed under the terms of the Apache Public License
@@ -14,12 +14,11 @@
 
 const appc = require('node-appc'),
 	Creator = require('../creator'),
-	fs = require('fs'),
+	fs = require('fs-extra'),
 	path = require('path'),
 	ti = require('node-titanium-sdk'),
 	util = require('util'),
 	uuid = require('node-uuid'),
-	wrench = require('wrench'),
 	__ = appc.i18n(__dirname).__;
 
 /**
@@ -76,11 +75,11 @@ util.inherits(AppCreator, Creator);
 AppCreator.prototype.init = function init() {
 	return {
 		options: {
-			'id':            this.configOptionId(150),
-			'name':          this.configOptionName(140),
-			'platforms':     this.configOptionPlatforms(120),
-			'template':      this.configOptionTemplate(110),
-			'url':           this.configOptionUrl(160),
+			id:            this.configOptionId(150),
+			name:          this.configOptionName(140),
+			platforms:     this.configOptionPlatforms(120),
+			template:      this.configOptionTemplate(110),
+			url:           this.configOptionUrl(160),
 			'workspace-dir': this.configOptionWorkspaceDir(170)
 		}
 	};
@@ -97,7 +96,7 @@ AppCreator.prototype.run = function run(callback) {
 		platforms = ti.scrubPlatforms(argv.platforms),
 		projectDir = appc.fs.resolvePath(argv['workspace-dir'], argv.name);
 
-	fs.existsSync(projectDir) || wrench.mkdirSyncRecursive(projectDir);
+	fs.ensureDirSync(projectDir);
 
 	// download/install the project template
 	this.processTemplate(function (err, templateDir) {
@@ -154,7 +153,7 @@ AppCreator.prototype.run = function run(callback) {
 			function (next) {
 				// make sure the Resources dir exists
 				const dir = path.join(projectDir, 'Resources');
-				fs.existsSync(dir) || wrench.mkdirSyncRecursive(dir);
+				fs.ensureDirSync(dir);
 				next();
 			}
 		];
@@ -209,7 +208,6 @@ AppCreator.prototype.run = function run(callback) {
 		tasks.push(function (next) {
 			// send the analytics
 			this.cli.addAnalyticsEvent('project.create.mobile', {
-				dir:         projectDir,
 				name:        argv.name,
 				publisher:   projectConfig.publisher,
 				url:         projectConfig.url,

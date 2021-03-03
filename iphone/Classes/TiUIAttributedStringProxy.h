@@ -6,7 +6,7 @@
  */
 
 #ifdef USE_TI_UIATTRIBUTEDSTRING
-#import "TiProxy.h"
+#import <TitaniumKit/TiProxy.h>
 
 @interface TiUIAttributedStringProxy : TiProxy {
   NSMutableAttributedString *_attributedString;
@@ -37,7 +37,7 @@ typedef enum {
   AttributeNameStrikethroughColor,
   AttributeNameObliqueness,
   AttributeNameExpansion,
-  AttributeNameLineBreak
+  AttributeNameLineBreak, // deprecated
 } AttributeName;
 
 #pragma mark - Not exposed to JS. Internal Use Only.

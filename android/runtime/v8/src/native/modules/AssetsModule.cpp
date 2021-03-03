@@ -26,8 +26,8 @@ using namespace v8;
 void AssetsModule::Initialize(Local<Object> target, Local<Context> context)
 {
 	Isolate* isolate = context->GetIsolate();
-	SetMethod(isolate, target, "readAsset", readAsset);
-	SetMethod(isolate, target, "readFile", readFile);
+	SetMethod(context, isolate, target, "readAsset", readAsset);
+	SetMethod(context, isolate, target, "readFile", readFile);
 }
 
 void AssetsModule::readAsset(const FunctionCallbackInfo<Value>& args)
@@ -44,9 +44,16 @@ void AssetsModule::readAsset(const FunctionCallbackInfo<Value>& args)
 		return;
 	}
 
-	jstring resourceName = TypeConverter::jsStringToJavaString(env, args[0]->ToString(isolate));
+	Local<Context> context = isolate->GetCurrentContext();
+	MaybeLocal<String> jsResourceName = args[0]->ToString(context);
+	if (jsResourceName.IsEmpty()) {
+		JSException::Error(isolate, "Required argument 'resourceName' failed to convert to string value.");
+		return;
+	}
 
-	jstring assetData = (jstring) env->CallStaticObjectMethod(
+	jstring resourceName = TypeConverter::jsStringToJavaString(isolate, env, jsResourceName.ToLocalChecked());
+
+	jbyteArray assetData = (jbyteArray) env->CallStaticObjectMethod(
 		JNIUtil::krollAssetHelperClass,
 		JNIUtil::krollAssetHelperReadAssetMethod,
 		resourceName);
@@ -65,18 +72,7 @@ void AssetsModule::readAsset(const FunctionCallbackInfo<Value>& args)
 		args.GetReturnValue().Set(v8::Null(isolate));
 		return;
 	}
-
-	jint len = env->GetStringLength(assetData);
-	const jchar *assetChars = env->GetStringChars(assetData, NULL);
-	if (!assetChars) {
-		args.GetReturnValue().Set(v8::Null(isolate));
-		return;
-	}
-
-	Local<String> resourceData = String::NewFromTwoByte(isolate, assetChars, v8::String::kNormalString, len);
-	env->ReleaseStringChars(assetData, assetChars);
-	env->DeleteLocalRef(assetData);
-
+	Local<String> resourceData = TypeConverter::javaBytesToJsString(isolate, env, assetData).As<String>();
 	args.GetReturnValue().Set(resourceData);
 }
 
@@ -90,7 +86,7 @@ void AssetsModule::readFile(const FunctionCallbackInfo<Value>& args)
 		return;
 	}
 
-	v8::String::Utf8Value filename(args[0]);
+	v8::String::Utf8Value filename(isolate, args[0]);
 
 	FILE *file = fopen(*filename, "r");
 
@@ -126,7 +122,8 @@ void AssetsModule::readFile(const FunctionCallbackInfo<Value>& args)
 
 	LOGD(TAG, "got file data: %d bytes", fileLength);
 
-	Local<String> data = String::NewFromUtf8(isolate, const_cast<const char *>(buffer), v8::String::kNormalString, fileLength);
+	// FIXME Handle when this string constructor goes wrong...
+	Local<String> data = String::NewFromUtf8(isolate, const_cast<const char *>(buffer), v8::NewStringType::kNormal, fileLength).ToLocalChecked();
 	delete[] buffer;
 
 	args.GetReturnValue().Set(data);

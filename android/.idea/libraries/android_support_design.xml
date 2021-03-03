@@ -1,9 +1,0 @@
-<component name="libraryTable">
-  <library name="android-support-design">
-    <CLASSES>
-      <root url="jar://$PROJECT_DIR$/modules/design/lib/android-support-design.jar!/" />
-    </CLASSES>
-    <JAVADOC />
-    <SOURCES />
-  </library>
-</component>

@@ -6,7 +6,6 @@
  */
 package org.appcelerator.titanium.util;
 
-import java.lang.reflect.Method;
 import java.util.Currency;
 import java.util.HashMap;
 import java.util.Locale;
@@ -14,24 +13,18 @@ import java.util.Map;
 import java.util.StringTokenizer;
 
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.titanium.ITiAppInfo;
 import org.appcelerator.titanium.TiApplication;
 
 import android.Manifest;
-import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageManager;
-import android.content.res.Resources;
 import android.net.DhcpInfo;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.text.format.Formatter;
-import android.util.DisplayMetrics;
-
-import com.appcelerator.aps.APSAnalyticsHelper;
 
 @SuppressWarnings("deprecation")
-public class TiPlatformHelper extends APSAnalyticsHelper
+public class TiPlatformHelper
 {
 	public static final String TAG = "TiPlatformHelper";
 	private static final Map<String, Locale> locales =
@@ -42,9 +35,6 @@ public class TiPlatformHelper extends APSAnalyticsHelper
 		java.util.Collections.synchronizedMap(new HashMap<Locale, String>());
 	private static final Map<String, String> currencySymbolsByCode =
 		java.util.Collections.synchronizedMap(new HashMap<String, String>());
-
-	public static float applicationScaleFactor = 1.0F;
-	public static int applicationLogicalDensity = DisplayMetrics.DENSITY_MEDIUM;
 
 	private static class InstanceHolder
 	{
@@ -58,39 +48,6 @@ public class TiPlatformHelper extends APSAnalyticsHelper
 
 	private TiPlatformHelper()
 	{
-	}
-
-	public void initialize()
-	{
-		APSAnalyticsHelper.getInstance().init(TiApplication.getInstance().getAppGUID(), TiApplication.getInstance());
-	}
-
-	public synchronized void intializeDisplayMetrics(Activity activity)
-	{
-		DisplayMetrics dm = new DisplayMetrics();
-		activity.getWindowManager().getDefaultDisplay().getMetrics(dm);
-
-		// Note: this isn't public API, so there should be lots of error checking here
-		try {
-			Method gciMethod = Resources.class.getMethod("getCompatibilityInfo");
-			Object compatInfo = gciMethod.invoke(activity.getResources());
-			applicationScaleFactor = (Float) compatInfo.getClass().getField("applicationScale").get(compatInfo);
-		} catch (Exception e) {
-			Log.w(TAG, "Unable to get application scale factor, using reported density and its factor", Log.DEBUG_MODE);
-		}
-
-		if (applicationScaleFactor == 1.0f) {
-			applicationLogicalDensity = dm.densityDpi;
-		} else if (applicationScaleFactor > 1.0f) {
-			applicationLogicalDensity = DisplayMetrics.DENSITY_MEDIUM;
-		} else {
-			applicationLogicalDensity = DisplayMetrics.DENSITY_LOW;
-		}
-	}
-
-	public ITiAppInfo getAppInfo()
-	{
-		return TiApplication.getInstance().getAppInfo();
 	}
 
 	public String getLocale()

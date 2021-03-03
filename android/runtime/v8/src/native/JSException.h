@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2011-2016 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2011-Present by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -8,11 +8,12 @@
 #ifndef JSEXCEPTION_H
 #define JSEXCEPTION_H
 
-#include <jni.h>
 #include <v8.h>
 
+#include "JNIUtil.h"
+
 #define THROW(isolate, msg) \
-	isolate->ThrowException(v8::String::NewFromUtf8(isolate, msg))
+	isolate->ThrowException(v8::String::NewFromUtf8(isolate, msg, v8::NewStringType::kNormal).ToLocalChecked())
 
 namespace titanium {
 

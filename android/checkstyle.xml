@@ -1,0 +1,117 @@
+<?xml version="1.0"?>
+<!DOCTYPE module PUBLIC
+	"-//Checkstyle//DTD Checkstyle Configuration 1.3//EN"
+	"https://checkstyle.org/dtds/configuration_1_3.dtd">
+
+<!-- Used by gradle "Checkstyle" task to enforce Java coding guidelines and check for common mistakes. -->
+<module name="Checker">
+	<!-- Define number of spaces a single tab character should be. -->
+	<property name="tabWidth" value="4"/>
+
+	<!-- Do not allow lines of code to exceed 120 characters, except for comments. -->
+	<module name="LineLength">
+		<property name="max" value="120"/>
+		<property name="ignorePattern" value="\/\*|^\s*\*|\/\/"/>
+	</module>
+
+	<!-- Do not allow multiple empty lines in a row. -->
+	<module name="RegexpMultiline">
+		<property name="format" value="^\s*\n\s*\n"/>
+		<property name="message" value="You cannot have multiple empty lines."/>
+	</module>
+
+	<module name="TreeWalker">
+		<!-- Check import statements. -->
+		<!-- See: https://checkstyle.sourceforge.io/config_imports.html -->
+		<module name="AvoidStarImport"/>
+		<module name="IllegalImport"/>
+		<module name="UnusedImports"/>
+
+		<!-- Custom regex checks. -->
+		<!-- See: https://checkstyle.sourceforge.io/config_regexp.html -->
+		<module name="RegexpSinglelineJava">
+			<property name="format" value="^\t* {4}"/>
+			<property name="message" value="Must use tabs for indentation."/>
+			<property name="ignoreComments" value="true"/>
+		</module>
+		<module name="RegexpSinglelineJava">
+			<property name="format" value="\S+?[ \t]+?$"/>
+			<property name="message" value="Line cannot have whitespace at the end."/>
+			<property name="ignoreComments" value="true"/>
+		</module>
+
+		<!-- Checks for whitespace. -->
+		<!-- See: https://checkstyle.sourceforge.io/config_whitespace.html -->
+		<module name="EmptyLineSeparator">
+			<property name="allowMultipleEmptyLines" value="false"/>
+			<property name="allowMultipleEmptyLinesInsideClassMembers" value="false"/>
+			<property name="allowNoEmptyLineBetweenFields" value="true"/>
+			<property name="tokens" value="CLASS_DEF"/>
+		</module>
+		<module name="GenericWhitespace"/>
+		<module name="MethodParamPad"/>
+		<module name="NoWhitespaceAfter">
+			<property name="tokens" value="AT,INC,DEC,UNARY_MINUS,UNARY_PLUS,BNOT,LNOT,DOT,INDEX_OP"/>
+			<property name="allowLineBreaks" value="true"/>
+		</module>
+		<module name="NoWhitespaceBefore"/>
+		<module name="OperatorWrap"/>
+		<module name="ParenPad"/>
+		<module name="TypecastParenPad"/>
+		<module name="WhitespaceAfter"/>
+		<module name="WhitespaceAround">
+			<property name="allowEmptyCatches" value="true"/>
+			<property name="allowEmptyConstructors" value="true"/>
+			<property name="allowEmptyLambdas" value="true"/>
+			<property name="allowEmptyLoops" value="true"/>
+			<property name="allowEmptyMethods" value="true"/>
+			<property name="allowEmptyTypes" value="true"/>
+		</module>
+
+		<!-- Checks private/protected/public access modifiers. -->
+		<!-- See: https://checkstyle.sourceforge.io/config_modifier.html -->
+		<module name="RedundantModifier">
+			<property name="tokens" value="INTERFACE_DEF,METHOD_DEF"/>
+		</module>
+
+		<!-- Checks placement of curly braces. -->
+		<!-- See: https://checkstyle.sourceforge.io/config_blocks.html -->
+		<module name="LeftCurly">
+			<property name="option" value="nl"/>
+			<property name="tokens" value="CLASS_DEF,CTOR_DEF,LITERAL_SYNCHRONIZED,METHOD_DEF,STATIC_INIT"/>
+		</module>
+		<module name="LeftCurly">
+			<property name="option" value="eol"/>
+			<property name="tokens" value="
+				ANNOTATION_DEF,ENUM_CONSTANT_DEF,ENUM_DEF,INTERFACE_DEF,LAMBDA,LITERAL_CASE,LITERAL_CATCH,
+				LITERAL_DEFAULT,LITERAL_DO,LITERAL_ELSE,LITERAL_FINALLY,LITERAL_FOR,LITERAL_IF,LITERAL_SWITCH,
+				LITERAL_TRY,LITERAL_WHILE"/>
+		</module>
+		<module name="NeedBraces">
+			<property name="tokens" value="LITERAL_DO"/>
+		</module>
+
+		<!-- Check for miscellaneous issues. -->
+		<!-- See: https://checkstyle.sourceforge.io/config_misc.html -->
+		<module name="ArrayTypeStyle"/>
+		<module name="Indentation">
+			<property name="basicOffset" value="4"/>
+			<property name="braceAdjustment" value="0"/>
+			<property name="caseIndent" value="4"/>
+			<property name="throwsIndent" value="4"/>
+			<property name="lineWrappingIndentation" value="4"/>
+			<property name="arrayInitIndent" value="4"/>
+		</module>
+		<module name="OuterTypeFilename"/>
+		<module name="UpperEll"/>
+
+		<!-- Check for common coding mistakes. -->
+		<!-- See: https://checkstyle.sourceforge.io/config_coding.html -->
+		<module name="CovariantEquals"/>
+		<module name="EqualsHashCode"/>
+		<module name="IllegalInstantiation"/>
+		<module name="PackageDeclaration"/>
+		<module name="StringLiteralEquality"/>
+		<module name="UnnecessarySemicolonAfterTypeMemberDeclaration"/>
+	</module>
+</module>

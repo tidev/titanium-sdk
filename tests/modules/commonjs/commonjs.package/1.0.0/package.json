@@ -1,0 +1,2 @@
+{ "name" : "commonjs.package",
+  "main" : "./main.js" }

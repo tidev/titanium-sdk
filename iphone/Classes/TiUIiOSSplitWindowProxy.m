@@ -14,6 +14,8 @@
 {
   [self initializeProperty:@"showMasterInPortrait" defaultValue:NUMBOOL(NO)];
   [self initializeProperty:@"masterIsOverlayed" defaultValue:NUMBOOL(NO)];
+  [self initializeProperty:@"masterViewVisible" defaultValue:NUMBOOL(YES)];
+
   [super _initWithProperties:properties];
 }
 
@@ -28,9 +30,10 @@
 {
   [self replaceValue:value forKey:@"showMasterInPortrait" notification:NO];
   if ([self viewInitialized]) {
-    TiThreadPerformOnMainThread(^{
-      [(TiUIiOSSplitWindow *)[self view] setShowMasterInPortrait_:value withObject:animated];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          [(TiUIiOSSplitWindow *)[self view] setShowMasterInPortrait_:value withObject:animated];
+        },
         YES);
   }
 }
@@ -39,9 +42,23 @@
 {
   [self replaceValue:value forKey:@"masterIsOverlayed" notification:NO];
   if ([self viewInitialized]) {
-    TiThreadPerformOnMainThread(^{
-      [(TiUIiOSSplitWindow *)[self view] setMasterIsOverlayed_:value withObject:animated];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          [(TiUIiOSSplitWindow *)[self view] setMasterIsOverlayed_:value withObject:animated];
+        },
+        YES);
+  }
+}
+
+- (void)setMasterViewVisible:(NSNumber *)value
+{
+  [self replaceValue:value forKey:@"masterViewVisible" notification:NO];
+
+  if ([self viewInitialized]) {
+    TiThreadPerformOnMainThread(
+        ^{
+          [(TiUIiOSSplitWindow *)[self view] setMasterViewVisible_:value];
+        },
         YES);
   }
 }
@@ -50,9 +67,10 @@
 - (void)windowWillOpen
 {
   if ([self viewInitialized]) {
-    TiThreadPerformOnMainThread(^{
-      [(TiUIiOSSplitWindow *)self.view initWrappers];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          [(TiUIiOSSplitWindow *)self.view initWrappers];
+        },
         YES);
   }
   [super windowWillOpen];
@@ -61,9 +79,10 @@
 - (void)windowWillClose
 {
   if ([self viewInitialized]) {
-    TiThreadPerformOnMainThread(^{
-      [(TiUIiOSSplitWindow *)self.view cleanup];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          [(TiUIiOSSplitWindow *)self.view cleanup];
+        },
         YES);
   }
   [super windowWillOpen];

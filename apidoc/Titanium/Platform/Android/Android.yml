@@ -11,7 +11,7 @@ properties:
     summary: Android API level identifier of the Operating System.
     description: |
         See the official Android Developers documentation for more information about 
-        [API levels](http://developer.android.com/guide/appendix/api-levels.html).
+        [API levels](https://developer.android.com/guide/appendix/api-levels.html).
     type: Number
     permission: read-only
 
@@ -19,7 +19,7 @@ properties:
     summary: Constant to indicate that the physical size category of the current device/emulator is large
     description: |
         See the official Android Developers documentation for more information about
-        [large screen sizes](http://developer.android.com/reference/android/content/res/Configuration.html#SCREENLAYOUT_SIZE_LARGE)
+        [large screen sizes](https://developer.android.com/reference/android/content/res/Configuration.html#SCREENLAYOUT_SIZE_LARGE)
     type: Number
     permission: read-only
 
@@ -27,7 +27,7 @@ properties:
     summary: Constant to indicate that the physical size category of the current device/emulator is normal
     description: |
         See the official Android Developers documentation for more information about
-        [normal screen sizes](http://developer.android.com/reference/android/content/res/Configuration.html#SCREENLAYOUT_SIZE_NORMAL)
+        [normal screen sizes](https://developer.android.com/reference/android/content/res/Configuration.html#SCREENLAYOUT_SIZE_NORMAL)
     type: Number
     permission: read-only
 
@@ -35,7 +35,7 @@ properties:
     summary: Constant to indicate that the physical size category of the current device/emulator is small
     description: |
         See the official Android Developers documentation for more information about
-        [small screen sizes](http://developer.android.com/reference/android/content/res/Configuration.html#SCREENLAYOUT_SIZE_SMALL)
+        [small screen sizes](https://developer.android.com/reference/android/content/res/Configuration.html#SCREENLAYOUT_SIZE_SMALL)
     type: Number
     permission: read-only
 
@@ -43,7 +43,7 @@ properties:
     summary: Constant to indicate that the physical size category of the current device/emulator is undefined
     description: |
         See the official Android Developers documentation for more information about
-        [undefined screen sizes](http://developer.android.com/reference/android/content/res/Configuration.html#SCREENLAYOUT_SIZE_UNDEFINED)
+        [undefined screen sizes](https://developer.android.com/reference/android/content/res/Configuration.html#SCREENLAYOUT_SIZE_UNDEFINED)
     type: Number
     permission: read-only
 
@@ -51,7 +51,7 @@ properties:
     summary: Constant to indicate that the physical size category of the current device/emulator is extra large
     description: |
         See the official Android Developers documentation for more information about
-        [extra large screen sizes](http://developer.android.com/reference/android/content/res/Configuration.html#SCREENLAYOUT_SIZE_XLARGE)
+        [extra large screen sizes](https://developer.android.com/reference/android/content/res/Configuration.html#SCREENLAYOUT_SIZE_XLARGE)
     type: Number
     permission: read-only
 

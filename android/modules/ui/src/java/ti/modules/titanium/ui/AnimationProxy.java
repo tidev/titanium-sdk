@@ -9,7 +9,7 @@ package ti.modules.titanium.ui;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.view.TiAnimation;
-// clang-format off
+
 @Kroll.proxy(creatableInModule = UIModule.class,
 	propertyAccessors = {
 		TiC.PROPERTY_ANCHOR_POINT,
@@ -28,7 +28,6 @@ import org.appcelerator.titanium.view.TiAnimation;
 		TiC.PROPERTY_HEIGHT,
 		TiC.PROPERTY_BACKGROUND_COLOR
 })
-// clang-format on
 public class AnimationProxy extends TiAnimation
 {
 	@Override

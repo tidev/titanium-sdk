@@ -3,9 +3,8 @@ name: Titanium.UI.ActivityIndicatorStyle
 summary: A set of constants for the styles available for <Titanium.UI.ActivityIndicator> objects.
 extends: Titanium.Module
 since: {iphone: "5.1.0", ipad: "5.1.0", android: "3.0.0"}
-platforms: [iphone, ipad, android]
+platforms: [iphone, ipad, android, macos]
 createable: false
-
 properties:
   - name: BIG
     summary: Large white spinning indicator.
@@ -15,11 +14,11 @@ properties:
         One of the group of activity indicator style constants
         [DARK](Titanium.UI.ActivityIndicatorStyle.DARK),
         [BIG](Titanium.UI.ActivityIndicatorStyle.BIG),
-        [BIG](Titanium.UI.ActivityIndicatorStyle.BIG_DARK),
+        [BIG_DARK](Titanium.UI.ActivityIndicatorStyle.BIG_DARK),
         and [PLAIN](Titanium.UI.ActivityIndicatorStyle.PLAIN).
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, android]
+    platforms: [iphone, ipad, android, macos]
 
   - name: DARK
     summary: Small gray spinning indicator.
@@ -29,11 +28,11 @@ properties:
         One of the group of activity indicator style constants
         [DARK](Titanium.UI.ActivityIndicatorStyle.DARK),
         [BIG](Titanium.UI.ActivityIndicatorStyle.BIG),
-        [BIG](Titanium.UI.ActivityIndicatorStyle.BIG_DARK),
+        [BIG_DARK](Titanium.UI.ActivityIndicatorStyle.BIG_DARK),
         and [PLAIN](Titanium.UI.ActivityIndicatorStyle.PLAIN).
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, android]
+    platforms: [iphone, ipad, android, macos]
 
   - name: BIG_DARK
     summary: Large gray spinning indicator.
@@ -48,7 +47,7 @@ properties:
         One of the group of activity indicator style constants
         [DARK](Titanium.UI.ActivityIndicatorStyle.DARK),
         [BIG](Titanium.UI.ActivityIndicatorStyle.BIG),
-        [BIG](Titanium.UI.ActivityIndicatorStyle.BIG_DARK),
+        [BIG_DARK](Titanium.UI.ActivityIndicatorStyle.BIG_DARK),
         and [PLAIN](Titanium.UI.ActivityIndicatorStyle.PLAIN).
     type: Number
     permission: read-only
@@ -62,8 +61,8 @@ properties:
         One of the group of activity indicator style constants
         [DARK](Titanium.UI.ActivityIndicatorStyle.DARK),
         [BIG](Titanium.UI.ActivityIndicatorStyle.BIG),
-        [BIG](Titanium.UI.ActivityIndicatorStyle.BIG_DARK),
+        [BIG_DARK](Titanium.UI.ActivityIndicatorStyle.BIG_DARK),
         and [PLAIN](Titanium.UI.ActivityIndicatorStyle.PLAIN).
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, android]
+    platforms: [iphone, ipad, android, macos]

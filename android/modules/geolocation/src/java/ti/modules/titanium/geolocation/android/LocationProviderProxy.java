@@ -20,25 +20,25 @@ import android.os.Bundle;
 
 /**
  * LocationProviderProxy represents a location provider that can be registered with the OS
- * and get location updates.  The interaction with the OS is driven by the name, distance and 
+ * and get location updates. The interaction with the OS is driven by the name, distance and
  * time properties.
  * <p>
  * Property descriptions:
  * <ul>
  * 	<li>name - the name of the OS location service that this provider is associated with</li>
  * 	<li>minUpdateDistance - the distance value to give to the OS when the provider is registered.
- * 		this value represents how far the device needs to move before the OS will send location 
+ * 		this value represents how far the device needs to move before the OS will send location
  * 		updates for this provider.  this is just a suggestion to the OS and not a hard rule.</li>
  * 	<li>minUpdateTime - the time value to give to the OS when the provider is registered.
- * 		this value represents how often the OS will send location updates for this provider.  
+ * 		this value represents how often the OS will send location updates for this provider.
  * 		this is just a suggestion to the OS and not a hard rule.</li>
  * </ul>
  */
 @Kroll.proxy
 public class LocationProviderProxy extends KrollProxy implements LocationListener
 {
-	public static final int STATE_DISABLED = 0;
-	public static final int STATE_ENABLED = 1;
+	public static final int STATE_ENABLED = 0;
+	public static final int STATE_DISABLED = 1;
 	public static final int STATE_OUT_OF_SERVICE = 2;
 	public static final int STATE_UNAVAILABLE = 3;
 	public static final int STATE_AVAILABLE = 4;
@@ -53,15 +53,15 @@ public class LocationProviderProxy extends KrollProxy implements LocationListene
 	private Object locationCallback;
 
 	public interface LocationProviderListener {
-		public abstract void onLocationChanged(Location location);
-		public abstract void onProviderStateChanged(String providerName, int state);
-		public abstract void onProviderUpdated(LocationProviderProxy locationProvider);
+		void onLocationChanged(Location location);
+		void onProviderStateChanged(String providerName, int state);
+		void onProviderUpdated(LocationProviderProxy locationProvider);
 	}
 
 	/**
-	 * Constructor.  Used primarily when creating a location provider via 
+	 * Constructor. Used primarily when creating a location provider via
 	 * Ti.Geolocation.Android.createLocationProvider
-	 * 
+	 *
 	 * @param creationArgs			creation arguments for the location provider
 	 * @param providerListener		listener that will be notified when a location update is
 	 * 								received or the provider state changes
@@ -78,13 +78,13 @@ public class LocationProviderProxy extends KrollProxy implements LocationListene
 	}
 
 	/**
-	 * Constructor.  Used primarily when creating a location provider via 
+	 * Constructor. Used primarily when creating a location provider via
 	 * internal platform code.
-	 * 
+	 *
 	 * @param name					location service that the provider should be associated with
-	 * @param minUpdateDistance		the distance in meters that the device should have to move before 
+	 * @param minUpdateDistance		the distance in meters that the device should have to move before
 	 * 								the OS sends a location update for this provider
-	 * @param minUpdateTime			the interval in milliseconds that the OS should wait before sending 
+	 * @param minUpdateTime			the interval in milliseconds that the OS should wait before sending
 	 * 								a location update for this provider
 	 * @param providerListener		listener that will be notified when a location update is
 	 * 								received or the provider state changes
@@ -171,7 +171,7 @@ public class LocationProviderProxy extends KrollProxy implements LocationListene
 
 	/**
 	 * Returns the name associated with this provider
-	 * 
+	 *
 	 * @return name associated with this provider
 	 */
 	@Kroll.getProperty
@@ -189,7 +189,7 @@ public class LocationProviderProxy extends KrollProxy implements LocationListene
 
 	/**
 	 * Sets the name associated with this provider
-	 * 
+	 *
 	 * @param value name to associate with this provider
 	 */
 	@Kroll.setProperty
@@ -200,7 +200,7 @@ public class LocationProviderProxy extends KrollProxy implements LocationListene
 
 	/**
 	 * Returns the minimum update distance associated with this provider
-	 * 
+	 *
 	 * @return value minimum update distance for this provider
 	 */
 	@Kroll.getProperty
@@ -218,7 +218,7 @@ public class LocationProviderProxy extends KrollProxy implements LocationListene
 
 	/**
 	 * Sets the minimum update distance associated with this provider
-	 * 
+	 *
 	 * @param value minimum update distance to associate with this provider
 	 */
 	@Kroll.setProperty
@@ -230,7 +230,7 @@ public class LocationProviderProxy extends KrollProxy implements LocationListene
 
 	/**
 	 * Returns the minimum update time associated with this provider
-	 * 
+	 *
 	 * @return value minimum update time for this provider
 	 */
 	@Kroll.getProperty
@@ -248,7 +248,7 @@ public class LocationProviderProxy extends KrollProxy implements LocationListene
 
 	/**
 	 * Sets the minimum update time associated with this provider
-	 * 
+	 *
 	 * @param value minimum update time to associate with this provider
 	 */
 	@Kroll.setProperty

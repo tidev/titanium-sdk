@@ -2,7 +2,7 @@ package ti.modules.titanium.android.quicksettings;
 
 import android.os.Build;
 import android.service.quicksettings.TileService;
-import android.support.annotation.RequiresApi;
+import androidx.annotation.RequiresApi;
 import org.appcelerator.kroll.KrollRuntime;
 import org.appcelerator.kroll.util.KrollAssetHelper;
 import org.appcelerator.titanium.TiC;
@@ -19,9 +19,9 @@ public class TiJSQuickSettingsService extends TileService
 		//create a proxy for this service
 		proxy = new QuickSettingsServiceProxy(this);
 		//get the source to be run
-		String source = KrollAssetHelper.readAsset(url);
+		byte[] source = KrollAssetHelper.readAssetBytes(url);
 		//run the module
-		KrollRuntime.getInstance().runModule(source, url, proxy);
+		KrollRuntime.getInstance().runModuleBytes(source, url, proxy);
 	}
 
 	//Called when the user clicks on this tile.

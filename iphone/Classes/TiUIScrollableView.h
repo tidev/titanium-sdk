@@ -6,7 +6,7 @@
  */
 #ifdef USE_TI_UISCROLLABLEVIEW
 
-#import "TiUIView.h"
+#import <TitaniumKit/TiUIView.h>
 
 @interface TiUIScrollableView : TiUIView <UIScrollViewDelegate> {
   @private
@@ -49,7 +49,7 @@
 - (void)addView:(id)viewproxy;
 - (void)removeView:(id)args;
 - (void)refreshScrollView:(CGRect)visibleBounds readd:(BOOL)readd;
-
+- (void)setIndicatorImage:(UIImage *)image forPage:(NSInteger)page;
 @end
 
 #endif

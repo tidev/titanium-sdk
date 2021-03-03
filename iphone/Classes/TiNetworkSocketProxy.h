@@ -5,9 +5,9 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-#import "TiProxy.h"
 #import <Foundation/Foundation.h>
-#ifdef USE_TI_NETWORKSOCKET
+#import <TitaniumKit/TiProxy.h>
+#if defined(USE_TI_NETWORKSOCKET) || (defined(USE_TI_NETWORK))
 typedef enum {
   SOCKET_INITIALIZED = 1 << 0,
   SOCKET_CONNECTED = 1 << 1,

@@ -8,7 +8,6 @@ package ti.modules.titanium.xml;
 
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
-import org.appcelerator.kroll.common.Log;
 import org.w3c.dom.Attr;
 import org.w3c.dom.CDATASection;
 import org.w3c.dom.Comment;
@@ -23,8 +22,6 @@ import org.w3c.dom.Node;
 import org.w3c.dom.Notation;
 import org.w3c.dom.ProcessingInstruction;
 import org.w3c.dom.Text;
-
-import android.os.Build;
 
 @Kroll.proxy(parentModule = XMLModule.class)
 public class NodeProxy extends KrollProxy
@@ -143,135 +140,89 @@ public class NodeProxy extends KrollProxy
 	@Kroll.method
 	public NodeProxy cloneNode(boolean deep)
 	{
-		if (Build.VERSION.SDK_INT < 11) {
-			// TIMOB-4771, android harmony implementation bug fixed in Honeycomb.
-			Log.w(TAG, "cloneNode will often throw exception in versions prior to Honeycomb.");
-		}
 		return getProxy(node.cloneNode(deep));
 	}
 
-	// clang-format off
-	@Kroll.method
 	@Kroll.getProperty
 	public NamedNodeMapProxy getAttributes()
-	// clang-format on
 	{
 		return new NamedNodeMapProxy(node.getAttributes());
 	}
 
-	// clang-format off
-	@Kroll.method
 	@Kroll.getProperty
 	public NodeListProxy getChildNodes()
-	// clang-format on
 	{
 		return new NodeListProxy(node.getChildNodes());
 	}
 
-	// clang-format off
-	@Kroll.method
 	@Kroll.getProperty
 	public NodeProxy getFirstChild()
-	// clang-format on
 	{
 		return getProxy(node.getFirstChild());
 	}
 
-	// clang-format off
-	@Kroll.method
 	@Kroll.getProperty
 	public NodeProxy getLastChild()
-	// clang-format on
 	{
 		return getProxy(node.getLastChild());
 	}
 
-	// clang-format off
-	@Kroll.method
 	@Kroll.getProperty
 	public String getLocalName()
-	// clang-format on
 	{
 		return node.getLocalName();
 	}
 
-	// clang-format off
-	@Kroll.method
 	@Kroll.getProperty
 	public String getNamespaceURI()
-	// clang-format on
 	{
 		return node.getNamespaceURI();
 	}
 
-	// clang-format off
-	@Kroll.method
 	@Kroll.getProperty
 	public NodeProxy getNextSibling()
-	// clang-format on
 	{
 		return getProxy(node.getNextSibling());
 	}
 
-	// clang-format off
-	@Kroll.method
 	@Kroll.getProperty
 	public String getNodeName()
-	// clang-format on
 	{
 		return node.getNodeName();
 	}
 
-	// clang-format off
-	@Kroll.method
 	@Kroll.getProperty
 	public short getNodeType()
-	// clang-format on
 	{
 		return node.getNodeType();
 	}
 
-	// clang-format off
-	@Kroll.method
 	@Kroll.getProperty
 	public String getNodeValue() throws DOMException
-	// clang-format on
 	{
 		return node.getNodeValue();
 	}
 
-	// clang-format off
-	@Kroll.method
 	@Kroll.getProperty
 	public DocumentProxy getOwnerDocument()
-	// clang-format on
 	{
 		return new DocumentProxy(node.getOwnerDocument());
 	}
 
-	// clang-format off
-	@Kroll.method
 	@Kroll.getProperty
 	public NodeProxy getParentNode()
-	// clang-format on
 	{
 		return getProxy(node.getParentNode());
 	}
 
-	// clang-format off
-	@Kroll.method
 	@Kroll.getProperty
 	public String getPrefix()
-	// clang-format on
 	{
 		return node.getPrefix();
 	}
 
-	// clang-format off
-	@Kroll.method
 	@Kroll.getProperty
 	public NodeProxy getPreviousSibling()
-	// clang-format on
 	{
 		return getProxy(node.getPreviousSibling());
 	}
@@ -320,20 +271,14 @@ public class NodeProxy extends KrollProxy
 		return removeProxyForNode(oldNode);
 	}
 
-	// clang-format off
-	@Kroll.method
 	@Kroll.setProperty
 	public void setNodeValue(String nodeValue) throws DOMException
-	// clang-format on
 	{
 		node.setNodeValue(nodeValue);
 	}
 
-	// clang-format off
-	@Kroll.method
 	@Kroll.setProperty
 	public void setPrefix(String prefix) throws DOMException
-	// clang-format on
 	{
 		node.setPrefix(prefix);
 	}

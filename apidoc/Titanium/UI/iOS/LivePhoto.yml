@@ -8,7 +8,6 @@ description: |
     supported by the iOS public API, yet.
 
     Note: This object only represents the proxy to hold a live photo and can not be created manually.
-
 since: "5.2.0"
 createable: false
 extends: Titanium.Proxy

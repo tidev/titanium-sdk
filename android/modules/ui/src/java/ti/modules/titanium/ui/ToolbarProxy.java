@@ -1,15 +1,15 @@
 package ti.modules.titanium.ui;
 
 import android.app.Activity;
-import android.support.v7.widget.Toolbar;
+import androidx.appcompat.widget.Toolbar;
 import android.view.View;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiToolbarProxy;
 import org.appcelerator.titanium.view.TiUIView;
-import ti.modules.titanium.ui.android.AndroidModule;
+
 import ti.modules.titanium.ui.widget.TiToolbar;
-// clang-format off
+
 @Kroll.proxy(creatableInModule = UIModule.class,
 	propertyAccessors = {
 		TiC.PROPERTY_BAR_COLOR,
@@ -26,7 +26,6 @@ import ti.modules.titanium.ui.widget.TiToolbar;
 		TiC.PROPERTY_CONTENT_INSET_END_WITH_ACTIONS,
 		TiC.PROPERTY_CONTENT_INSET_START_WITH_NAVIGATION
 })
-// clang-format on
 public class ToolbarProxy extends TiToolbarProxy
 {
 
@@ -45,6 +44,10 @@ public class ToolbarProxy extends TiToolbarProxy
 	@Override
 	public TiUIView createView(Activity activity)
 	{
+		//fill the container width by default
+		if (!hasProperty(TiC.PROPERTY_WIDTH)) {
+			setProperty(TiC.PROPERTY_WIDTH, UIModule.FILL);
+		}
 		return new TiToolbar(this);
 	}
 

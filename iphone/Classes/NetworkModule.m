@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2014 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-Present by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -8,11 +8,10 @@
 
 #import "NetworkModule.h"
 #import "Reachability.h"
-#import "TiApp.h"
-#import "TiBlob.h"
 #import "TiNetworkCookieProxy.h"
 #import "TiNetworkSocketProxy.h"
-#import "TiUtils.h"
+#import <TitaniumKit/TiApp.h>
+#import <TitaniumKit/TiUtils.h>
 
 NSString *const INADDR_ANY_token = @"INADDR_ANY";
 static NSOperationQueue *_operationQueue = nil;
@@ -21,21 +20,6 @@ static NSOperationQueue *_operationQueue = nil;
 - (NSString *)apiName
 {
   return @"Ti.Network";
-}
-
-- (NSNumber *)READ_MODE
-{
-  return [NSNumber numberWithInt:READ_MODE];
-}
-
-- (NSNumber *)WRITE_MODE
-{
-  return [NSNumber numberWithInt:WRITE_MODE];
-}
-
-- (NSNumber *)READ_WRITE_MODE
-{
-  return [NSNumber numberWithInt:READ_WRITE_MODE];
 }
 
 - (void)shutdown:(id)sender
@@ -68,17 +52,19 @@ static NSOperationQueue *_operationQueue = nil;
   WARN_IF_BACKGROUND_THREAD_OBJ; //NSNotificationCenter is not threadsafe!
   [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(reachabilityChanged:) name:kReachabilityChangedNotification object:nil];
   // wait until done is important to get the right state
-  TiThreadPerformOnMainThread(^{
-    [self startReachability];
-  },
+  TiThreadPerformOnMainThread(
+      ^{
+        [self startReachability];
+      },
       YES);
 }
 
 - (void)_destroy
 {
-  TiThreadPerformOnMainThread(^{
-    [self stopReachability];
-  },
+  TiThreadPerformOnMainThread(
+      ^{
+        [self stopReachability];
+      },
       YES);
   WARN_IF_BACKGROUND_THREAD_OBJ; //NSNotificationCenter is not threadsafe!
   [[NSNotificationCenter defaultCenter] removeObserver:self name:kReachabilityChangedNotification object:nil];
@@ -130,18 +116,14 @@ static NSOperationQueue *_operationQueue = nil;
 {
   id arg = [args objectAtIndex:0];
   NSString *unencodedString = [TiUtils stringValue:arg];
-  return [(NSString *)CFURLCreateStringByAddingPercentEscapes(NULL,
-      (CFStringRef)unencodedString,
-      NULL,
-      (CFStringRef) @"!*'();:@+$,/?%#[]=&",
-      kCFStringEncodingUTF8) autorelease];
+  return [unencodedString stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLHostAllowedCharacterSet]];
 }
 
 - (id)decodeURIComponent:(id)args
 {
   id arg = [args objectAtIndex:0];
   NSString *encodedString = [TiUtils stringValue:arg];
-  return [(NSString *)CFURLCreateStringByReplacingPercentEscapesUsingEncoding(NULL, (CFStringRef)encodedString, CFSTR(""), kCFStringEncodingUTF8) autorelease];
+  return [encodedString stringByRemovingPercentEncoding];
 }
 
 // Socket submodule
@@ -201,6 +183,7 @@ MAKE_SYSTEM_PROP(NOTIFICATION_TYPE_NEWSSTAND, 4);
 MAKE_SYSTEM_PROP(TLS_VERSION_1_0, TLS_VERSION_1_0);
 MAKE_SYSTEM_PROP(TLS_VERSION_1_1, TLS_VERSION_1_1);
 MAKE_SYSTEM_PROP(TLS_VERSION_1_2, TLS_VERSION_1_2);
+MAKE_SYSTEM_PROP(TLS_VERSION_1_3, TLS_VERSION_1_3);
 
 MAKE_SYSTEM_NUMBER(PROGRESS_UNKNOWN, NUMINT(-1));
 
@@ -214,9 +197,10 @@ MAKE_SYSTEM_NUMBER(PROGRESS_UNKNOWN, NUMINT(-1));
 - (NSNumber *)remoteNotificationsEnabled
 {
   __block BOOL enabled;
-  TiThreadPerformOnMainThread(^{
-    enabled = [[UIApplication sharedApplication] isRegisteredForRemoteNotifications];
-  },
+  TiThreadPerformOnMainThread(
+      ^{
+        enabled = [[UIApplication sharedApplication] isRegisteredForRemoteNotifications];
+      },
       YES);
   return NUMBOOL(enabled);
 }
@@ -225,9 +209,10 @@ MAKE_SYSTEM_NUMBER(PROGRESS_UNKNOWN, NUMINT(-1));
 {
   __block NSUInteger types;
   NSMutableArray *result = [NSMutableArray array];
-  TiThreadPerformOnMainThread(^{
-    types = [[[UIApplication sharedApplication] currentUserNotificationSettings] types];
-  },
+  TiThreadPerformOnMainThread(
+      ^{
+        types = [[[UIApplication sharedApplication] currentUserNotificationSettings] types];
+      },
       YES);
   if ((types & UIUserNotificationTypeBadge) != 0) {
     [result addObject:NUMINT(1)];
@@ -254,7 +239,7 @@ MAKE_SYSTEM_NUMBER(PROGRESS_UNKNOWN, NUMINT(-1));
   pushNotificationError = [[args objectForKey:@"error"] retain];
   pushNotificationCallback = [[args objectForKey:@"callback"] retain];
 
-  [[TiApp app] setRemoteNotificationDelegate:self];
+  [[TiApp app] registerApplicationDelegate:self];
 
   UIApplication *app = [UIApplication sharedApplication];
 
@@ -280,6 +265,7 @@ MAKE_SYSTEM_NUMBER(PROGRESS_UNKNOWN, NUMINT(-1));
 {
   UIApplication *app = [UIApplication sharedApplication];
   [app unregisterForRemoteNotifications];
+  [[TiApp app] unregisterApplicationDelegate:self];
 }
 
 #pragma mark Push Notification Delegates
@@ -290,11 +276,8 @@ MAKE_SYSTEM_NUMBER(PROGRESS_UNKNOWN, NUMINT(-1));
 {
   // called by TiApp
   if (pushNotificationSuccess != nil) {
-    NSString *token = [[[[deviceToken description] stringByReplacingOccurrencesOfString:@"<" withString:@""]
-        stringByReplacingOccurrencesOfString:@">"
-                                  withString:@""]
-        stringByReplacingOccurrencesOfString:@" "
-                                  withString:@""];
+    NSString *token = [TiUtils convertToHexFromData:deviceToken];
+
     NSMutableDictionary *event = [TiUtils dictionaryWithCode:0 message:nil];
     [event setObject:token forKey:@"deviceToken"];
     [self _fireEventToListener:@"remote" withObject:event listener:pushNotificationSuccess thisObject:nil];

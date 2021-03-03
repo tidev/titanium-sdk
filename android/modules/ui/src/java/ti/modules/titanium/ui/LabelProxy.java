@@ -14,7 +14,7 @@ import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.widget.TiUILabel;
 import android.app.Activity;
-// clang-format off
+
 @Kroll.proxy(creatableInModule = UIModule.class,
 	propertyAccessors = {
 		TiC.PROPERTY_AUTO_LINK,
@@ -27,7 +27,6 @@ import android.app.Activity;
 		TiC.PROPERTY_TEXT,
 		TiC.PROPERTY_TEXT_ALIGN,
 		TiC.PROPERTY_TEXTID,
-		TiC.PROPERTY_WORD_WRAP,
 		TiC.PROPERTY_VERTICAL_ALIGN,
 		TiC.PROPERTY_SHADOW_OFFSET,
 		TiC.PROPERTY_SHADOW_COLOR,
@@ -38,9 +37,9 @@ import android.app.Activity;
 		TiC.PROPERTY_INCLUDE_FONT_PADDING,
 		TiC.PROPERTY_MINIMUM_FONT_SIZE
 })
-// clang-format on
 public class LabelProxy extends TiViewProxy
 {
+	private static final String TAG = "LabelProxy";
 	private static final int MSG_FIRST_ID = TiViewProxy.MSG_LAST_ID + 1;
 	protected static final int MSG_LAST_ID = MSG_FIRST_ID + 999;
 
@@ -48,7 +47,6 @@ public class LabelProxy extends TiViewProxy
 	{
 		defaultValues.put(TiC.PROPERTY_TEXT, "");
 		defaultValues.put(TiC.PROPERTY_ELLIPSIZE, UIModule.TEXT_ELLIPSIZE_TRUNCATE_END);
-		defaultValues.put(TiC.PROPERTY_WORD_WRAP, true);
 		defaultValues.put(TiC.PROPERTY_SHADOW_RADIUS, 1f);
 	}
 
@@ -64,6 +62,25 @@ public class LabelProxy extends TiViewProxy
 	public TiUIView createView(Activity activity)
 	{
 		return new TiUILabel(this);
+	}
+
+	@Override
+	public void handleCreationDict(KrollDict properties)
+	{
+		// Validate argument.
+		if (properties == null) {
+			return;
+		}
+
+		// Let the base class handle it first. Will localize given properties if needed.
+		super.handleCreationDict(properties);
+	}
+
+	@Override
+	public void onPropertyChanged(String name, Object value)
+	{
+		// Let the base class handle it first. Will localize property value if needed.
+		super.onPropertyChanged(name, value);
 	}
 
 	@Override

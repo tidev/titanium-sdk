@@ -4,11 +4,10 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#ifdef USE_TI_NETWORKSOCKET
+#if defined(USE_TI_NETWORKSOCKET) || (defined(USE_TI_NETWORK))
 #import "TiNetworkSocketTCPProxy.h"
 #import "NetworkModule.h"
-#import "TiBlob.h"
-#import "TiBuffer.h"
+#import <TitaniumKit/TiBuffer.h>
 
 static NSString *SOCK_KEY = @"socket";
 static NSString *ARG_KEY = @"arg";
@@ -170,7 +169,6 @@ static NSString *ARG_KEY = @"arg";
       NSString *message = [TiUtils messageFromError:err];
       NSMutableDictionary *event = [TiUtils dictionaryWithCode:[err code] message:message];
       [event setObject:self forKey:@"socket"];
-      [event setObject:NUMINTEGER([err code]) forKey:@"errorCode"];
       [self _fireEventToListener:@"error" withObject:event listener:error thisObject:self];
     }
 
@@ -476,7 +474,7 @@ TYPESAFE_SETTER(setError, error, KrollCallback)
     int tag = -1;
     if (callback != nil) {
       tag = asynchTagCount;
-      NSDictionary *asynchInfo = [NSDictionary dictionaryWithObjectsAndKeys:buffer, @"buffer", callback, @"callback", NUMINT(TO_BUFFER), @"type", NUMINT(0), @"errorState", @"", @"errorDescription", nil];
+      NSDictionary *asynchInfo = [NSDictionary dictionaryWithObjectsAndKeys:buffer, @"buffer", callback, @"callback", NUMINT(TO_BUFFER), @"type", nil];
       [operationInfo setObject:asynchInfo forKey:NUMINT(tag)];
       asynchTagCount = (asynchTagCount + 1) % INT_MAX;
     }
@@ -499,8 +497,6 @@ TYPESAFE_SETTER(setError, error, KrollCallback)
       NSMutableDictionary *event = [TiUtils dictionaryWithCode:0 message:nil];
       [event setObject:self forKey:@"source"];
       [event setObject:NUMINT(0) forKey:@"bytesProcessed"];
-      [event setObject:NUMINT(0) forKey:@"errorState"];
-      [event setObject:@"" forKey:@"errorDescription"];
       [self _fireEventToListener:@"write" withObject:event listener:callback thisObject:nil];
     }
     return 0;
@@ -716,15 +712,12 @@ TYPESAFE_SETTER(setError, error, KrollCallback)
       KrollCallback *callback = [info valueForKey:@"callback"];
       NSString *message = [TiUtils messageFromError:err];
       NSMutableDictionary *event = [TiUtils dictionaryWithCode:[err code] message:message];
-      [event setObject:NUMINTEGER([err code]) forKey:@"errorState"];
-      [event setObject:message forKey:@"errorDescription"];
       [self _fireEventToListener:@"error" withObject:event listener:callback thisObject:nil];
     }
 
     if (error != nil) {
       NSString *message = [TiUtils messageFromError:err];
       NSMutableDictionary *event = [TiUtils dictionaryWithCode:[err code] message:message];
-      [event setObject:NUMINTEGER([err code]) forKey:@"errorCode"];
       [event setObject:self forKey:@"socket"];
       [self _fireEventToListener:@"error" withObject:event listener:error thisObject:self];
     }
@@ -737,8 +730,6 @@ TYPESAFE_SETTER(setError, error, KrollCallback)
       KrollCallback *callback = [info valueForKey:@"callback"];
       ReadDestination type = [[info objectForKey:@"type"] intValue];
       NSMutableDictionary *event = [TiUtils dictionaryWithCode:0 message:nil];
-      [event setObject:NUMINT(0) forKey:@"errorState"];
-      [event setObject:@"" forKey:@"errorDescription"];
       [event setObject:NUMINT(-1) forKey:@"bytesProcessed"];
       NSString *name = nil;
 
@@ -791,8 +782,6 @@ TYPESAFE_SETTER(setError, error, KrollCallback)
     KrollCallback *callback = [info valueForKey:@"callback"];
     NSMutableDictionary *event = [TiUtils dictionaryWithCode:0 message:nil];
     [event setObject:[info valueForKey:@"bytesProcessed"] forKey:@"bytesProcessed"];
-    [event setObject:NUMINT(0) forKey:@"errorState"];
-    [event setObject:@"" forKey:@"errorDescription"];
     [self _fireEventToListener:@"write" withObject:event listener:callback thisObject:self];
     [operationInfo removeObjectForKey:NUMLONG(tag)];
   } else {
@@ -821,8 +810,6 @@ TYPESAFE_SETTER(setError, error, KrollCallback)
       NSMutableDictionary *event = [TiUtils dictionaryWithCode:0 message:nil];
       [event setObject:buffer forKey:@"buffer"];
       [event setObject:NUMUINTEGER([data length]) forKey:@"bytesProcessed"];
-      [event setObject:NUMINT(0) forKey:@"errorState"];
-      [event setObject:@"" forKey:@"errorDescription"];
       [self _fireEventToListener:@"read" withObject:event listener:callback thisObject:self];
       break;
     }
@@ -857,8 +844,6 @@ TYPESAFE_SETTER(setError, error, KrollCallback)
       [event setObject:tempBuffer forKey:@"buffer"];
       [event setObject:NUMUINTEGER([data length]) forKey:@"bytesProcessed"];
       [event setObject:NUMUINTEGER(readDataLength) forKey:@"totalBytesProcessed"];
-      [event setObject:NUMINT(0) forKey:@"errorState"];
-      [event setObject:@"" forKey:@"errorDescription"];
       [self _fireEventToListener:@"pump" withObject:event listener:callback thisObject:nil];
 
       // ... And queue up the next pump.

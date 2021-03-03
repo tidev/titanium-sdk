@@ -6,7 +6,7 @@
  */
 #ifdef USE_TI_UILISTVIEW
 
-#import "TiProxy.h"
+#import <TitaniumKit/TiProxy.h>
 @protocol TiUIListViewDelegateView <NSObject>
 @required
 - (void)updateSearchResults:(id)unused;

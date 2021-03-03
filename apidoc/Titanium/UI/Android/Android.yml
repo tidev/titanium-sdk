@@ -3,10 +3,17 @@ name: Titanium.UI.Android
 summary: |
     The Android-specific UI capabilities. All properties, methods and events in this namespace will 
     only work on Android systems.
+
+    #### Drawer Layout
+
+    The drawer-layout components acts as a top-level container for window content that allows
+    for interactive "drawer" views to be pulled out from one or both vertical edges of the window.
+    It is represented by a `centerView` and optional `leftView` and `rightView` components that
+    can be swiped in and out with additional configuration and transitions. Learn more about
+    drawer-layouts in it's dedicated <Titanium.UI.Android.DrawerLayout> docs.
 extends: Titanium.Module
 since: "1.0"
 platforms: [android]
-
 methods:
   - name: hideSoftKeyboard
     summary: |
@@ -26,140 +33,212 @@ methods:
         The preferences values can be accessed via <Titanium.App.Properties>.
         
         See the example for a demonstration, and the official Android Developer documentation for 
-        the [preferences.xml](http://developer.android.com/guide/topics/ui/settings.html#DefiningPrefs) 
+        the [preferences.xml](https://developer.android.com/guide/topics/ui/settings.html#DefiningPrefs) 
         format.
+
+  - name: getColorResource
+    summary: |
+        Returns a <Ti.Color> instance for a color defined by the system or user resources (colors.xml)
+    description: |
+        This method allows converting a known color resource id or short name to an actual color instance.
+
+        The resource id values can be accessed via <Titanium.Android.R.color> and <Titanium.App.Android.R.color> properties.
+
+        See the official Android Developer documentation for
+        the [R.color](https://developer.android.com/reference/android/R.color) constants.
+    parameters:
+      - name: resourceIdOrColorName
+        summary: integer resource id for a color, or the name of the color defined in the application resources (colors.xml).
+        type: [Number, String]
+    returns:
+      - type: Titanium.UI.Color
+    since: "9.1.0"
         
 properties:
+  - name: FLAG_TRANSLUCENT_NAVIGATION
+    summary: Window flag which makes the Android system's navigation bar semi-transparent.
+    description: |
+        When assigned to <Titanium.UI.Window.windowFlags>, this flag will make the Android
+        system's bottom navigation bar semi-transparent. This flag will only work if you also set the
+        [Window.extendSafeArea](Titanium.UI.Window.extendSafeArea) property to `true`.
+
+        This flag is only supported by Android 4.4 and newer OS versions. This flag is ignored on older versions.
+        On Android 4.4, navigation bar can only be translucent in portrait mode while newer OS versions support
+        this flag for all orientations.
+    type: Number
+    permission: read-only
+    since: "7.5.0"
+    osver: {android: {min: "4.4"}}
+
+  - name: FLAG_TRANSLUCENT_STATUS
+    summary: Window flag which makes the Android system's top status bar semi-transparent.
+    description: |
+        When assigned to <Titanium.UI.Window.windowFlags>, this flag will make the Android
+        system's top status bar semi-transparent. This flag will only work if you also set the
+        <Titanium.UI.Window.extendSafeArea> property to `true`.
+
+        This flag is only supported by Android 4.4 and newer OS versions. This flag is ignored on older versions.
+    type: Number
+    permission: read-only
+    since: "7.5.0"
+    osver: {android: {min: "4.4"}}
+
   - name: GRAVITY_AXIS_CLIP
     summary: Raw bit controlling whether the right/bottom edge is clipped to its container, based on the gravity direction being applied.
     type: Number
     permission: read-only
     since: "5.4.0"
+
   - name: GRAVITY_AXIS_PULL_AFTER
     summary: Raw bit controlling how the right/bottom edge is placed.
     type: Number
     permission: read-only
     since: "5.4.0"
+
   - name: GRAVITY_AXIS_PULL_BEFORE
     summary: Raw bit controlling how the left/top edge is placed.
     type: Number
     permission: read-only
     since: "5.4.0"
+
   - name: GRAVITY_AXIS_SPECIFIED
     summary: Raw bit indicating the gravity for an axis has been specified.
     type: Number
     permission: read-only
     since: "5.4.0"
+
   - name: GRAVITY_AXIS_X_SHIFT
     summary: Bits defining the horizontal axis.
     type: Number
     permission: read-only
     since: "5.4.0"
+
   - name: GRAVITY_AXIS_Y_SHIFT
     summary: Bits defining the vertical axis.
     type: Number
     permission: read-only
     since: "5.4.0"
+
   - name: GRAVITY_BOTTOM
     summary: Push object to the bottom of its container, not changing its size.
     type: Number
     permission: read-only
     since: "5.4.0"
+
   - name: GRAVITY_CENTER
     summary: Place the object in the center of its container in both the vertical and horizontal axis, not changing its size.
     type: Number
     permission: read-only
     since: "5.4.0"
+
   - name: GRAVITY_CENTER_HORIZONTAL
     summary: Place object in the horizontal center of its container, not changing its size.
     type: Number
     permission: read-only
     since: "5.4.0"
+
   - name: GRAVITY_CENTER_VERTICAL
     summary: Place object in the vertical center of its container, not changing its size.
     type: Number
     permission: read-only
     since: "5.4.0"
+
   - name: GRAVITY_CLIP_HORIZONTAL
     summary: Flag to clip the edges of the object to its container along the horizontal axis.
     type: Number
     permission: read-only
     since: "5.4.0"
+
   - name: GRAVITY_CLIP_VERTICAL
     summary: Flag to clip the edges of the object to its container along the vertical axis.
     type: Number
     permission: read-only
     since: "5.4.0"
+
   - name: GRAVITY_DISPLAY_CLIP_HORIZONTAL
     summary: Special constant to enable clipping to an overall display along the horizontal dimension.
     type: Number
     permission: read-only
     since: "5.4.0"
+
   - name: GRAVITY_DISPLAY_CLIP_VERTICAL
     summary: Special constant to enable clipping to an overall display along the vertical dimension.
     type: Number
     permission: read-only
     since: "5.4.0"
+
   - name: GRAVITY_END
     summary: Push object to x-axis position at the end of its container, not changing its size.
     type: Number
     permission: read-only
     since: "5.4.0"
+
   - name: GRAVITY_FILL
     summary: Grow the horizontal and vertical size of the object if needed so it completely fills its container.
     type: Number
     permission: read-only
     since: "5.4.0"
+
   - name: GRAVITY_FILL_HORIZONTAL
     summary: Grow the horizontal size of the object if needed so it completely fills its container.
     type: Number
     permission: read-only
     since: "5.4.0"
+
   - name: GRAVITY_FILL_VERTICAL
     summary: Grow the vertical size of the object if needed so it completely fills its container.
     type: Number
     permission: read-only
     since: "5.4.0"
+
   - name: GRAVITY_HORIZONTAL_GRAVITY_MASK
     summary: Binary mask to get the absolute horizontal gravity of a gravity.
     type: Number
     permission: read-only
     since: "5.4.0"
+
   - name: GRAVITY_LEFT
     summary: Push object to the left of its container, not changing its size.
     type: Number
     permission: read-only
     since: "5.4.0"
+
   - name: GRAVITY_NO_GRAVITY
     summary: Constant indicating that no gravity has been set
     type: Number
     permission: read-only
     since: "5.4.0"
+
   - name: GRAVITY_RELATIVE_HORIZONTAL_GRAVITY_MASK
     summary: Binary mask for the horizontal gravity and script specific direction bit.
     type: Number
     permission: read-only
     since: "5.4.0"
+
   - name: GRAVITY_RELATIVE_LAYOUT_DIRECTION
     summary: Raw bit controlling whether the layout direction is relative or not (GRAVITY_START/GRAVITY_END instead of absolute GRAVITY_LEFT/GRAVITY_RIGHT).
     type: Number
     permission: read-only
     since: "5.4.0"
+
   - name: GRAVITY_RIGHT
     summary: Push object to the right of its container, not changing its size.
     type: Number
     permission: read-only
     since: "5.4.0"
+
   - name: GRAVITY_START
     summary: Push object to x-axis position at the start of its container, not changing its size.
     type: Number
     permission: read-only
     since: "5.4.0"
+
   - name: GRAVITY_TOP
     summary: Push object to the top of its container, not changing its size.
     type: Number
     permission: read-only
     since: "5.4.0"
+
   - name: GRAVITY_VERTICAL_GRAVITY_MASK
     summary: Binary mask to get the vertical gravity of a gravity.
     type: Number
@@ -169,7 +248,8 @@ properties:
   - name: LINKIFY_ALL
     deprecated:
         since: "3.0.0"
-        notes: Use <Titanium.UI.AUTOLINK_ALL> instead.
+        notes: Use [Titanium.UI.AUTOLINK_ALL](Titanium.UI.AUTOLINK_ALL) instead.
+        removed: "9.0.0"
     summary: Converts all detectable types of data into clickable links.
     type: Number
     permission: read-only
@@ -177,7 +257,8 @@ properties:
   - name: LINKIFY_EMAIL_ADDRESSES
     deprecated:
         since: "3.0.0"
-        notes: Use <Titanium.UI.AUTOLINK_EMAIL_ADDRESSES> instead.
+        notes: Use [Titanium.UI.AUTOLINK_EMAIL_ADDRESSES](Titanium.UI.AUTOLINK_EMAIL_ADDRESSES) instead.
+        removed: "9.0.0"
     summary: Converts strings formatted as email addresses into clickable links.
     type: Number
     permission: read-only
@@ -185,7 +266,8 @@ properties:
   - name: LINKIFY_MAP_ADDRESSES
     deprecated:
         since: "3.0.0"
-        notes: Use <Titanium.UI.AUTOLINK_MAP_ADDRESSES> instead.
+        notes: Use [Titanium.UI.AUTOLINK_MAP_ADDRESSES](Titanium.UI.AUTOLINK_MAP_ADDRESSES) instead.
+        removed: "9.0.0"
     summary: Converts strings formatted as addresses into clickable links.
     type: Number
     permission: read-only
@@ -193,7 +275,8 @@ properties:
   - name: LINKIFY_PHONE_NUMBERS
     deprecated:
         since: "3.0.0"
-        notes: Use <Titanium.UI.AUTOLINK_PHONE_NUMBERS> instead.
+        notes: Use [Titanium.UI.AUTOLINK_PHONE_NUMBERS](Titanium.UI.AUTOLINK_PHONE_NUMBERS) instead.
+        removed: "9.0.0"
     summary: Converts strings formatted as phone numbers into clickable links.
     type: Number
     permission: read-only
@@ -201,7 +284,8 @@ properties:
   - name: LINKIFY_WEB_URLS
     deprecated:
         since: "3.0.0"
-        notes: Use <Titanium.UI.AUTOLINK_URLS> instead.
+        notes: Use [Titanium.UI.AUTOLINK_URLS](Titanium.UI.AUTOLINK_URLS) instead.
+        removed: "9.0.0"
     summary: Converts strings formatted as URLs into clickable links.
     type: Number
     permission: read-only
@@ -245,7 +329,7 @@ properties:
         can improve image clarity and performance.
     description: |
         See the Android Developer website for official documentation about the 
-        [PixelFormat](http://developer.android.com/reference/android/graphics/PixelFormat.html)
+        [PixelFormat](https://developer.android.com/reference/android/graphics/PixelFormat.html)
         constants.
     type: Number
     permission: read-only
@@ -257,7 +341,7 @@ properties:
         can improve image clarity and performance.
     description: |
         See the Android Developer website for official documentation about the 
-        [PixelFormat](http://developer.android.com/reference/android/graphics/PixelFormat.html)
+        [PixelFormat](https://developer.android.com/reference/android/graphics/PixelFormat.html)
         constants.
     type: Number
     permission: read-only
@@ -269,7 +353,7 @@ properties:
         can improve image clarity and performance.
     description: |
         See the Android Developer website for official documentation about the 
-        [PixelFormat](http://developer.android.com/reference/android/graphics/PixelFormat.html)
+        [PixelFormat](https://developer.android.com/reference/android/graphics/PixelFormat.html)
         constants.
     type: Number
     permission: read-only
@@ -281,7 +365,7 @@ properties:
         can improve image clarity and performance.
     description: |
         See the Android Developer website for official documentation about the 
-        [PixelFormat](http://developer.android.com/reference/android/graphics/PixelFormat.html)
+        [PixelFormat](https://developer.android.com/reference/android/graphics/PixelFormat.html)
         constants.
     type: Number
     permission: read-only
@@ -293,7 +377,7 @@ properties:
         can improve image clarity and performance.
     description: |
         See the Android Developer website for official documentation about the 
-        [PixelFormat](http://developer.android.com/reference/android/graphics/PixelFormat.html)
+        [PixelFormat](https://developer.android.com/reference/android/graphics/PixelFormat.html)
         constants.
     type: Number
     permission: read-only
@@ -305,7 +389,7 @@ properties:
         can improve image clarity and performance.
     description: |
         See the Android Developer website for official documentation about the 
-        [PixelFormat](http://developer.android.com/reference/android/graphics/PixelFormat.html)
+        [PixelFormat](https://developer.android.com/reference/android/graphics/PixelFormat.html)
         constants.
     type: Number
     permission: read-only
@@ -317,7 +401,7 @@ properties:
         can improve image clarity and performance.
     description: |
         See the Android Developer website for official documentation about the 
-        [PixelFormat](http://developer.android.com/reference/android/graphics/PixelFormat.html)
+        [PixelFormat](https://developer.android.com/reference/android/graphics/PixelFormat.html)
         constants.
     type: Number
     permission: read-only
@@ -329,7 +413,7 @@ properties:
         can improve image clarity and performance.
     description: |
         See the Android Developer website for official documentation about the 
-        [PixelFormat](http://developer.android.com/reference/android/graphics/PixelFormat.html)
+        [PixelFormat](https://developer.android.com/reference/android/graphics/PixelFormat.html)
         constants.
     type: Number
     permission: read-only
@@ -341,7 +425,7 @@ properties:
         can improve image clarity and performance.
     description: |
         See the Android Developer website for official documentation about the 
-        [PixelFormat](http://developer.android.com/reference/android/graphics/PixelFormat.html)
+        [PixelFormat](https://developer.android.com/reference/android/graphics/PixelFormat.html)
         constants.
     type: Number
     permission: read-only
@@ -353,7 +437,7 @@ properties:
         can improve image clarity and performance.
     description: |
         See the Android Developer website for official documentation about the 
-        [PixelFormat](http://developer.android.com/reference/android/graphics/PixelFormat.html)
+        [PixelFormat](https://developer.android.com/reference/android/graphics/PixelFormat.html)
         constants.
     type: Number
     permission: read-only
@@ -365,7 +449,7 @@ properties:
         can improve image clarity and performance.
     description: |
         See the Android Developer website for official documentation about the 
-        [PixelFormat](http://developer.android.com/reference/android/graphics/PixelFormat.html)
+        [PixelFormat](https://developer.android.com/reference/android/graphics/PixelFormat.html)
         constants.
     type: Number
     permission: read-only
@@ -377,7 +461,7 @@ properties:
         can improve image clarity and performance.
     description: |
         See the Android Developer website for official documentation about the 
-        [PixelFormat](http://developer.android.com/reference/android/graphics/PixelFormat.html)
+        [PixelFormat](https://developer.android.com/reference/android/graphics/PixelFormat.html)
         constants.
     type: Number
     permission: read-only
@@ -389,7 +473,7 @@ properties:
         improve image clarity and performance.
     description: |
         See the Android Developer website for official documentation about the 
-        [PixelFormat](http://developer.android.com/reference/android/graphics/PixelFormat.html)
+        [PixelFormat](https://developer.android.com/reference/android/graphics/PixelFormat.html)
         constants.
     type: Number
     permission: read-only
@@ -401,7 +485,7 @@ properties:
         can improve image clarity and performance.
     description: |
         See the Android Developer website for official documentation about the 
-        [PixelFormat](http://developer.android.com/reference/android/graphics/PixelFormat.html)
+        [PixelFormat](https://developer.android.com/reference/android/graphics/PixelFormat.html)
         constants.
     type: Number
     permission: read-only
@@ -618,7 +702,7 @@ properties:
     summary: |
         Use with [WebView.pluginState](Titanium.UI.WebView.pluginState) to disable plugins in a web view.
     description: |
-        Content that requires a plugin, such as Flash Player, is not loaded, and any
+        Content that requires a plugin, is not loaded, and any
         alternative content is displayed instead.
     type: Number
     permission: read-only
@@ -627,7 +711,7 @@ properties:
     summary: |
         Use with [WebView.pluginState](Titanium.UI.WebView.pluginState) to enable plugins in a web view.
     description: |
-        Content that requires a plugin, such as Flash Player, is always loaded, whether or not a plugin is
+        Content that requires a plugin,, is always loaded, whether or not a plugin is
         available for the content.
     type: Number
     permission: read-only
@@ -635,7 +719,7 @@ properties:
   - name: WEBVIEW_PLUGINS_ON_DEMAND
     summary: Display a placeholder and only load plugins when user selects it.
     description: |
-        Content that requires a plugin, such as Flash Player, is replaced by a placeholder. When 
+        Content that requires a plugin, is replaced by a placeholder. When 
         the user clicks on the placeholder, the plugin is loaded and the content is displayed.
         
         Use with [WebView.pluginState](Titanium.UI.WebView.pluginState) to load plugins on demand.
@@ -683,7 +767,7 @@ properties:
         Moves views in or out from the edges of the scene. 
     description: |
         Use this only for activity transition.
-        Refers to [Explode](http://developer.android.com/reference/android/transition/Explode.html) transition.
+        Refers to [Explode](https://developer.android.com/reference/android/transition/Explode.html) transition.
     type: Number
     permission: read-only
     since: "5.2.0"
@@ -693,7 +777,7 @@ properties:
         Fades in the views.
     description: |
         Use this only for activity transition.
-        Refers to [Fade](http://developer.android.com/reference/android/transition/Fade.html) transition.
+        Refers to [Fade](https://developer.android.com/reference/android/transition/Fade.html) transition.
     type: Number
     permission: read-only
     since: "5.2.0"
@@ -703,7 +787,7 @@ properties:
         Fades out the views.
     description: |
         Use this only for activity transition.
-        Refers to [Fade](http://developer.android.com/reference/android/transition/Fade.html) transition.
+        Refers to [Fade](https://developer.android.com/reference/android/transition/Fade.html) transition.
     type: Number
     permission: read-only
     since: "5.2.0"
@@ -713,7 +797,7 @@ properties:
         Moves views to top.
     description: |
         Use this only for activity transition.
-        Refers to [Slide](http://developer.android.com/reference/android/transition/Slide.html) transition.
+        Refers to [Slide](https://developer.android.com/reference/android/transition/Slide.html) transition.
     type: Number
     permission: read-only
     since: "5.2.0"
@@ -723,7 +807,7 @@ properties:
         Moves views to right.
     description: |
         Use this only for activity transition.
-        Refers to [Slide](http://developer.android.com/reference/android/transition/Slide.html) transition.
+        Refers to [Slide](https://developer.android.com/reference/android/transition/Slide.html) transition.
     type: Number
     permission: read-only
     since: "5.2.0"
@@ -733,7 +817,7 @@ properties:
         Moves views to bottom.
     description: |
         Use this only for activity transition.
-        Refers to [Slide](http://developer.android.com/reference/android/transition/Slide.html) transition.
+        Refers to [Slide](https://developer.android.com/reference/android/transition/Slide.html) transition.
     type: Number
     permission: read-only
     since: "5.2.0"
@@ -743,7 +827,7 @@ properties:
         Moves views to left.
     description: |
         Use this only for activity transition.
-        Refers to [Slide](http://developer.android.com/reference/android/transition/Slide.html) transition.
+        Refers to [Slide](https://developer.android.com/reference/android/transition/Slide.html) transition.
     type: Number
     permission: read-only
     since: "5.2.0"
@@ -753,7 +837,7 @@ properties:
         Captures layout bounds of target views before and after the scene change and animates those changes during the transition.
     description: |
         Use this only for shared element transition.
-        Refers to [ChangeBounds](http://developer.android.com/reference/android/transition/ChangeBounds.html) transition.
+        Refers to [ChangeBounds](https://developer.android.com/reference/android/transition/ChangeBounds.html) transition.
     type: Number
     permission: read-only
     since: "5.2.0"
@@ -763,7 +847,7 @@ properties:
         Captures the clip bounds before and after the scene change and animates those changes during the transition.
     description: |
         Use this only for shared element transition.
-        Refers to [ChangeClipBounds](http://developer.android.com/reference/android/transition/ChangeClipBounds.html) transition.
+        Refers to [ChangeClipBounds](https://developer.android.com/reference/android/transition/ChangeClipBounds.html) transition.
     type: Number
     permission: read-only
     since: "5.2.0"
@@ -773,7 +857,7 @@ properties:
         Captures scale and rotation for Views before and after the scene change and animates those changes during the transition.
     description: |
         Use this only for shared element transition.
-        Refers to [ChangeTransform](http://developer.android.com/reference/android/transition/ChangeTransform.html) transition.
+        Refers to [ChangeTransform](https://developer.android.com/reference/android/transition/ChangeTransform.html) transition.
     type: Number
     permission: read-only
     since: "5.2.0"
@@ -783,7 +867,7 @@ properties:
         Captures an ImageView's matrix before and after the scene change and animates it during the transition.
     description: |
         Use this only for shared element transition.
-        Refers to [ChangeImageTransform](http://developer.android.com/reference/android/transition/ChangeImageTransform.html) transition.
+        Refers to [ChangeImageTransform](https://developer.android.com/reference/android/transition/ChangeImageTransform.html) transition.
     type: Number
     permission: read-only
     since: "5.2.0"
@@ -797,75 +881,92 @@ properties:
     permission: read-only
     since: "5.2.0"
 
+  - name: TABS_STYLE_DEFAULT
+    summary: The default TabGroup style that places the Tabs bellow the ActionBar and above the Window content.
+    type: Number
+    permission: read-only
+    platforms: [android]
+    since: "8.0.0"
+
+  - name: TABS_STYLE_BOTTOM_NAVIGATION
+    summary: TabGroup style taking advantage of a bottom navigation controller for switching between tabs.
+    type: Number
+    permission: read-only
+    platforms: [android]
+    since: "8.0.0"
+
 examples:
   - title: Android Preferences Example
     example: |
         Create preferences interface for the application.
         
         #### `app.js`
-        
-            var button = Ti.UI.createButton({
-              title:	'Click to Open Preferences'
-            });
-            button.addEventListener('click', function() {
-              Ti.API.info('Current value for editText: ' + Ti.App.Properties.getString('editText'));
-              Ti.UI.Android.openPreferences();
-            });
-            Ti.UI.currentWindow.add(button);
-        
+        ``` js
+        var button = Ti.UI.createButton({
+          title:	'Click to Open Preferences'
+        });
+        button.addEventListener('click', function() {
+          Ti.API.info('Current value for editText: ' + Ti.App.Properties.getString('editText'));
+          Ti.UI.Android.openPreferences();
+        });
+        currentWindow.add(button);
+        ```
+
         #### `platform/android/res/xml/preferences.xml`
-        
-            <?xml version="1.0" encoding="utf-8"?>
-            <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
-                android:title="Preferences">
-              <PreferenceScreen
-                  android:title="Misc. Preferences"
-                  android:summary="Click to see more options">
-                <EditTextPreference
-                  android:title="Edit Text Preference"
-                  android:summary="You may enter a string"
-                  android:defaultValue=""
-                  android:key="editText" />
-              </PreferenceScreen>
-              <PreferenceCategory android:title="Category One">
-                <CheckBoxPreference
-                  android:title="CheckBox Preference"
-                  android:defaultValue="false"
-                  android:summary="You may enter a boolean"
-                  android:key="checkbox" />
-                <RingtonePreference
-                  android:title="Ringtone Preference"
-                  android:summary="You may pick a ringtone"
-                  android:defaultValue=""
-                  android:key="ringtone" />
-              </PreferenceCategory>
-              <PreferenceCategory android:title="Category Two">
-                <ListPreference
-                  android:title="List Preference"
-                  android:summary="You may chose from multiple choices"
-                  android:key="list" 
-                android:entries="@array/listNames"
-                android:entryValues="@array/listValues" 
-                />
-              </PreferenceCategory>
-            </PreferenceScreen>
+        ``` xml
+        <?xml version="1.0" encoding="utf-8"?>
+        <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+            android:title="Preferences">
+          <PreferenceScreen
+              android:title="Misc. Preferences"
+              android:summary="Click to see more options">
+            <EditTextPreference
+              android:title="Edit Text Preference"
+              android:summary="You may enter a string"
+              android:defaultValue=""
+              android:key="editText" />
+          </PreferenceScreen>
+          <PreferenceCategory android:title="Category One">
+            <CheckBoxPreference
+              android:title="CheckBox Preference"
+              android:defaultValue="false"
+              android:summary="You may enter a boolean"
+              android:key="checkbox" />
+            <RingtonePreference
+              android:title="Ringtone Preference"
+              android:summary="You may pick a ringtone"
+              android:defaultValue=""
+              android:key="ringtone" />
+          </PreferenceCategory>
+          <PreferenceCategory android:title="Category Two">
+            <ListPreference
+              android:title="List Preference"
+              android:summary="You may chose from multiple choices"
+              android:key="list" 
+            android:entries="@array/listNames"
+            android:entryValues="@array/listValues" 
+            />
+          </PreferenceCategory>
+        </PreferenceScreen>
+        ```
             
         #### `platform/android/res/values/array/array.xml`
-        
-            <?xml version="1.0" encoding="utf-8"?>
-            <resources>
-              <string-array name="listNames">
-                <item>5 Minutes</item>
-                <item>10 Minutes</item>
-                <item>15 Minutes</item>
-                <item>30 Minutes</item>
-                <item>60 Minutes</item>
-              </string-array>
-              <string-array name="listValues">
-                <item>5</item>
-                <item>10</item>
-                <item>15</item>
-                <item>30</item>
-                <item>60</item>
-              </string-array>
-            </resources>
+        ``` xml
+        <?xml version="1.0" encoding="utf-8"?>
+        <resources>
+          <string-array name="listNames">
+            <item>5 Minutes</item>
+            <item>10 Minutes</item>
+            <item>15 Minutes</item>
+            <item>30 Minutes</item>
+            <item>60 Minutes</item>
+          </string-array>
+          <string-array name="listValues">
+            <item>5</item>
+            <item>10</item>
+            <item>15</item>
+            <item>30</item>
+            <item>60</item>
+          </string-array>
+        </resources>
+        ```

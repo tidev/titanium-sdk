@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2014 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-Present by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -8,8 +8,10 @@
 
 #import "TiDatabaseProxy.h"
 #import "TiDatabaseResultSetProxy.h"
-#import "TiFilesystemFileProxy.h"
-#import "TiUtils.h"
+@import TitaniumKit.KrollPromise;
+@import TitaniumKit.TiFilesystemFileProxy;
+@import TitaniumKit.TiUtils;
+@import TitaniumKit.JSValue_Addons;
 
 @implementation TiDatabaseProxy
 
@@ -25,7 +27,7 @@
 - (void)shutdown:(id)sender
 {
   if (database != nil) {
-    [self performSelector:@selector(close:) withObject:nil];
+    [self performSelector:@selector(close) withObject:nil];
   }
 }
 
@@ -119,7 +121,7 @@
   NSURL *url = [TiUtils toURL:path proxy:self];
   path = [url path];
 
-#if TARGET_IPHONE_SIMULATOR
+#if TARGET_OS_SIMULATOR
   //TIMOB-6081. Resources are right now symbolic links when running in simulator) so the copy method
   //of filemanager just creates a link to the original resource.
   //Resolve the symbolic link if running in simulator
@@ -164,104 +166,317 @@
 
 - (void)removeStatement:(PLSqliteResultSet *)statement
 {
-  [statement close];
-  if (statements != nil) {
-    [statements removeObject:statement];
+  @synchronized(self) {
+    [statement close];
+    if (statements != nil) {
+      [statements removeObject:statement];
+    }
   }
 }
 
-- (id)execute:(id)args
+- (void)addStatement:(PLSqliteResultSet *)statement
 {
-  ENSURE_TYPE(args, NSArray);
+  @synchronized(self) {
+    if (statements == nil) {
+      statements = [[NSMutableArray alloc] initWithCapacity:5];
+    }
+    [statements addObject:statement];
+  }
+}
 
-  NSString *sql = [[args objectAtIndex:0] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
-
-  NSError *error = nil;
-  PLSqlitePreparedStatement *statement = (PLSqlitePreparedStatement *)[database prepareStatement:sql error:&error];
-  if (error != nil) {
-    [self throwException:@"invalid SQL statement" subreason:[error description] location:CODELOCATION];
+- (NSArray *)sqlParams:(NSArray *)array
+{
+  NSMutableArray *result = [NSMutableArray arrayWithCapacity:[array count]];
+  for (JSValue *jsValue in array) {
+    // This uses the Titanium conversion method. We could probably write a nicer one
+    // that simply used the Obj-C JSC API checking isString/isDate/isArray/isObject/isBoolean/isNumber
+    id value = [self JSValueToNative:jsValue];
+    if (value == nil) {
+      [result addObject:[NSNull null]];
+    } else {
+      [result addObject:value];
+    }
   }
 
-  if ([args count] > 1) {
-    NSArray *params = [args objectAtIndex:1];
+  return result;
+}
 
-    if (![params isKindOfClass:[NSArray class]]) {
-      params = [args subarrayWithRange:NSMakeRange(1, [args count] - 1)];
-    }
+- (PLSqlitePreparedStatement *)prepareStatement:(NSString *)sql withParams:(NSArray *)params withError:(NSError *__nullable *__nullable)error
+{
+  // FIXME: Can we use NSError reference and avoid try/catch/throw? Obj-C doesn't like using exceptions
+  if (database == nil) {
+    *error = [NSError errorWithDomain:NSCocoaErrorDomain
+                                 code:123
+                             userInfo:@{
+                               NSLocalizedDescriptionKey : @"database has been closed"
+                             }];
+    return nil;
+  }
+  NSString *sqlCleaned = [sql stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
 
+  PLSqlitePreparedStatement *statement;
+  // Just use a lock here?
+  @synchronized(self) {
+    statement = (PLSqlitePreparedStatement *)[database prepareStatement:sqlCleaned error:error];
+  }
+  if (*error != nil) {
+    return nil;
+  }
+  if (params && [params count] > 0) {
     [statement bindParameters:params];
   }
 
-  PLSqliteResultSet *result = (PLSqliteResultSet *)[statement executeQuery];
-
-  if ([[result fieldNames] count] == 0) {
-    [result next]; // we need to do this to make sure lastInsertRowId and rowsAffected work
-    [result close];
-    return [NSNull null];
-  }
-
-  if (statements == nil) {
-    statements = [[NSMutableArray alloc] initWithCapacity:5];
-  }
-
-  [statements addObject:result];
-
-  TiDatabaseResultSetProxy *proxy = [[[TiDatabaseResultSetProxy alloc] initWithResults:result database:self pageContext:[self pageContext]] autorelease];
-
-  return proxy;
+  return statement;
 }
 
-- (void)close:(id)args
+- (TiDatabaseResultSetProxy *)executeSQL:(NSString *)sql withParams:(NSArray *)params withError:(NSError *__nullable *__nullable)error
 {
-  if (statements != nil) {
-    for (PLSqliteResultSet *result in statements) {
+  @synchronized(self) {
+    PLSqlitePreparedStatement *statement = [self prepareStatement:sql withParams:params withError:error];
+    if (*error != nil) {
+      return nil;
+    }
+    PLSqliteResultSet *result = (PLSqliteResultSet *)[statement executeQuery];
+
+    // Do we need to lock for the next/close calls?
+    if ([[result fieldNames] count] == 0) {
+      [result next]; // we need to do this to make sure lastInsertRowId and rowsAffected work
       [result close];
+      return nil;
     }
-    RELEASE_TO_NIL(statements);
-  }
-  if (database != nil) {
-    if ([database goodConnection]) {
-      @try {
-        [database close];
-      }
-      @catch (NSException *e) {
-        NSLog(@"[WARN] attempting to close database, returned error: %@", e);
-      }
-    }
-    RELEASE_TO_NIL(database);
+
+    [self addStatement:result];
+
+    return [[[TiDatabaseResultSetProxy alloc] initWithResults:result database:self] autorelease];
   }
 }
 
-- (void)remove:(id)args
+- (TiDatabaseResultSetProxy *)execute:(NSString *)sql
+{
+  NSArray *params = @[];
+  // Check for varargs for perepared statement params
+  NSArray *currentArgs = [JSContext currentArguments];
+  if ([currentArgs count] > 1) {
+    JSValue *possibleParams = [currentArgs objectAtIndex:1];
+    if ([possibleParams isArray]) {
+      params = [possibleParams toArray];
+    } else {
+      params = [self sqlParams:[currentArgs subarrayWithRange:NSMakeRange(1, [currentArgs count] - 1)]];
+    }
+  }
+
+  NSError *error = nil;
+  TiDatabaseResultSetProxy *result = [self executeSQL:sql withParams:params withError:&error];
+  if (error != nil) {
+    [self throwException:@"failed to execute SQL statement" subreason:[error description] location:CODELOCATION];
+    return nil;
+  }
+  return result;
+}
+
+- (JSValue *)executeAsync:(NSString *)sql
+{
+  NSArray *currentArgs = JSContext.currentArguments;
+  NSArray *params = @[];
+  JSContext *context = [self currentContext];
+  KrollPromise *promise = [[[KrollPromise alloc] initInContext:context] autorelease];
+
+  // Callback is optional, so are the parameter args, so this gets a bit ugly!
+  JSValue *callback = nil;
+  if (currentArgs.count > 1) {
+    JSValue *possibleCallback = currentArgs[currentArgs.count - 1];
+    if ([possibleCallback isFunction]) {
+      callback = possibleCallback;
+      if (currentArgs.count > 2) {
+        JSValue *possibleParams = currentArgs[1];
+        if ([possibleParams isArray]) {
+          params = [possibleParams toArray];
+        } else {
+          params = [self sqlParams:[currentArgs subarrayWithRange:NSMakeRange(1, (currentArgs.count - 2))]];
+        }
+      }
+    } else { // last arg is not a callback, treat as param
+      JSValue *possibleParams = currentArgs[1];
+      if ([possibleParams isArray]) {
+        params = [possibleParams toArray];
+      } else {
+        params = [self sqlParams:[currentArgs subarrayWithRange:NSMakeRange(1, (currentArgs.count - 1))]];
+      }
+    }
+  }
+
+  // FIXME: Use a queue per-database! Also, use queue in the sync variants!
+  dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+    NSError *error = nil;
+    TiDatabaseResultSetProxy *proxy = [self executeSQL:sql withParams:params withError:&error];
+    if (error != nil) {
+      dispatch_async(dispatch_get_main_queue(), ^{
+        NSString *message = [NSString stringWithFormat:@"failed to execute SQL statement: %@", error.description];
+        JSValue *jsError = [JSValue valueWithNewErrorFromMessage:message inContext:context];
+        if (callback != nil) {
+          [callback callWithArguments:@[ jsError ]];
+        }
+        [promise rejectWithErrorMessage:message];
+      });
+      return;
+    }
+
+    dispatch_async(dispatch_get_main_queue(), ^{
+      id jsProxy = (proxy == nil) ? [JSValue valueWithNullInContext:context] : proxy;
+      if (callback != nil) {
+        [callback callWithArguments:@[ [JSValue valueWithUndefinedInContext:context], jsProxy ]];
+      }
+      [promise resolve:@[ jsProxy ]];
+    });
+  });
+  return promise.JSValue;
+}
+
+- (NSArray<TiDatabaseResultSetProxy *> *)executeAll:(NSArray<NSString *> *)queries withContext:(JSContext *)context withError:(NSError *__nullable *__nullable)error
+{
+  // Do we need to copy the array or something to retain the args?
+  NSMutableArray *results = [NSMutableArray arrayWithCapacity:[queries count]];
+  NSUInteger index = 0;
+  for (NSString *sql in queries) {
+    TiDatabaseResultSetProxy *result = [self executeSQL:sql withParams:nil withError:error];
+    if (*error != nil) {
+      return results; // return immediately when we fail, we can report the partial results
+    }
+    if (result == nil) {
+      [results addObject:[JSValue valueWithNullInContext:context]];
+    } else {
+      [results addObject:result];
+    }
+    index++;
+  }
+  return results;
+}
+
+- (NSArray<TiDatabaseResultSetProxy *> *)executeAll:(NSArray<NSString *> *)queries
+{
+  NSError *error = nil;
+  JSContext *context = JSContext.currentContext;
+  NSMutableArray *results = [NSMutableArray arrayWithCapacity:[queries count]];
+  NSUInteger index = 0;
+  for (NSString *sql in queries) {
+    TiDatabaseResultSetProxy *result = [self executeSQL:sql withParams:nil withError:&error];
+    if (result == nil) {
+      [results addObject:[JSValue valueWithNullInContext:context]];
+    } else {
+      [results addObject:result];
+    }
+
+    if (error != nil) {
+      JSValue *jsError = [self createError:@"failed to execute SQL statements" subreason:[error description] location:CODELOCATION inContext:context];
+      jsError[@"results"] = results;
+      jsError[@"index"] = [NSNumber numberWithUnsignedInteger:index];
+      [context setException:jsError];
+      return nil;
+    }
+
+    index++;
+  }
+  return results;
+}
+
+- (JSValue *)executeAllAsync:(NSArray<NSString *> *)queries withCallback:(JSValue *)callback
+{
+  JSContext *context = [self currentContext];
+  KrollPromise *promise = [[[KrollPromise alloc] initInContext:context] autorelease];
+  dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+    NSError *error = nil;
+    NSMutableArray *results = [NSMutableArray arrayWithCapacity:[queries count]];
+    NSUInteger index = 0;
+    for (NSString *sql in queries) {
+      TiDatabaseResultSetProxy *result = [self executeSQL:sql withParams:nil withError:&error];
+      if (error != nil) {
+        JSValue *jsError = [self createError:@"failed to execute SQL statements" subreason:[error description] location:CODELOCATION inContext:context];
+        jsError[@"results"] = results;
+        jsError[@"index"] = [NSNumber numberWithUnsignedInteger:index];
+        dispatch_async(dispatch_get_main_queue(), ^{
+          if (![callback isUndefined]) {
+            [callback callWithArguments:@[ jsError, results ]];
+          }
+          [promise reject:@[ jsError ]];
+        });
+        return;
+      }
+      if (result == nil) {
+        [results addObject:[JSValue valueWithNullInContext:context]];
+      } else {
+        [results addObject:result];
+      }
+      index++;
+    }
+
+    dispatch_async(dispatch_get_main_queue(), ^{
+      if (![callback isUndefined]) {
+        [callback callWithArguments:@[ [JSValue valueWithUndefinedInContext:context], results ]];
+      }
+      [promise resolve:@[ results ]];
+    });
+  });
+  return promise.JSValue;
+}
+
+- (void)close
+{
+  @synchronized(self) {
+    if (statements != nil) {
+      for (PLSqliteResultSet *result in statements) {
+        [result close];
+      }
+      RELEASE_TO_NIL(statements);
+    }
+    if (database != nil) {
+      if ([database goodConnection]) {
+        @try {
+          [database close];
+        }
+        @catch (NSException *e) {
+          NSLog(@"[WARN] attempting to close database, returned error: %@", e);
+        }
+      }
+      RELEASE_TO_NIL(database);
+    }
+  }
+}
+
+- (void)remove
 {
   NSString *dbPath = [self dbPath:name];
   [[NSFileManager defaultManager] removeItemAtPath:dbPath error:nil];
 }
 
-- (NSNumber *)lastInsertRowId
+- (NSUInteger)lastInsertRowId
 {
   if (database != nil) {
-    return NUMLONGLONG([database lastInsertRowId]);
+    return [database lastInsertRowId];
   }
-  return NUMINT(0);
+  return 0;
 }
+GETTER_IMPL(NSUInteger, lastInsertRowId, LastInsertRowId);
 
-- (NSNumber *)rowsAffected
+- (NSUInteger)rowsAffected
 {
   if (database != nil) {
-    return NUMINT(sqlite3_changes([database sqliteDB]));
+    return sqlite3_changes([database sqliteDB]);
   }
-  return NUMINT(0);
+  return 0;
 }
+GETTER_IMPL(NSUInteger, rowsAffected, RowsAffected);
 
 - (NSString *)name
 {
   return name;
 }
-- (TiFilesystemFileProxy *)file
+GETTER_IMPL(NSString *, name, Name);
+
+- (JSValue *)file
 {
-  return [[[TiFilesystemFileProxy alloc] initWithFile:[self dbPath:name]] autorelease];
+  return [self NativeToJSValue:[[[TiFilesystemFileProxy alloc] initWithFile:[self dbPath:name]] autorelease]];
 }
+GETTER_IMPL(JSValue *, file, File);
 
 #pragma mark Internal
 - (PLSqliteDatabase *)database

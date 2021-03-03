@@ -3,14 +3,9 @@ name: Titanium.UI.Picker
 summary: |
     A control used to select one or more fixed values.
 description: |
-    <table id="platformComparison">
-      <tr>
-        <td><img src="images/picker/picker_android.png" height="150" /></td>
-        <td><img src="images/picker/picker_ios.png" height="75" style="border: 1px solid black;"/></td>
-        <td><img src="images/picker/picker_wp.gif" height="150" style="border: 1px solid black;"/></td>
-      </tr>
-      <tr><th>Android</th><th>iOS</th><th>Windows Phone</th></tr>
-    </table>
+    | Android | iOS | Windows |
+    | ------- | --- | ------- |
+    | ![Android](./picker_android.png) | ![iOS](./picker_ios.png) | ![Windows](./picker_wp.gif) |
 
     Use the <Titanium.UI.createPicker> method or Alloy **`<Picker>`** element to create a picker control.
 
@@ -24,7 +19,7 @@ description: |
     On iOS, the `height` property is only available in iOS 9 and later.
     By default, the size of the picker, including its background, is fixed at the
     same height as the iPhone keyboard to respect the
-    [iOS Human Interface Guidelines](https://developer.apple.com/library/ios/documentation/UserExperience/Conceptual/MobileHIG/Controls.html#//apple_ref/doc/uid/TP40006556-CH15-SW3).
+    [iOS Human Interface Guidelines](https://developer.apple.com/ios/human-interface-guidelines/overview/themes/#//apple_ref/doc/uid/TP40006556-CH15-SW3).
     The default `width` on iOS is 320px and the `height` is 228px.
     The contents of the picker are sized to fit the picker, which may cut off text
     in the picker rows. Adding views to picker rows is also supported on iOS.
@@ -39,13 +34,12 @@ description: |
 extends: Titanium.UI.View
 excludes:
     properties: [
-        anchorPoint,backgroundDisabledColor,backgroundDisabledImage,backgroundFocusedColor,
+        anchorPoint,backgroundDisabledColor,backgroundDisabledImage,backgroundFocusedColor,children,
         backgroundFocusedImage,backgroundGradient,backgroundImage,backgroundLeftCap,backgroundRepeat,
-        backgroundSelectedColor,backgroundSelectedImage,backgroundTopCap,center,enabled,layout,tintColor,zIndex]
-    methods: [ remove, removeAllChildren ]
-
+        backgroundSelectedColor,backgroundSelectedImage,backgroundTopCap,center,layout,tintColor,zIndex]
+    methods: [remove, removeAllChildren, replaceAt]
 since: "0.8"
-platforms: [android, iphone, ipad]
+platforms: [android, iphone, ipad, macos]
 methods:
   - name: add
     summary: Adds rows or columns to the picker.
@@ -74,7 +68,7 @@ methods:
       - name: column
         summary: Column to repopulate.
         type: Titanium.UI.PickerColumn
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: setSelectedRow
     summary: Selects a column's row.
@@ -102,11 +96,11 @@ methods:
     description: |
         Applicable to the <Titanium.UI.PICKER_TYPE_DATE> and <Titanium.UI.PICKER_TYPE_DATE_AND_TIME>
         picker types.
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     parameters:
       - name: date
         summary: A Javascript `Date` object.
-        type: Object
+        type: Date
 
       - name: suppressEvent
         summary: Determines whether a `change` event is fired.
@@ -210,8 +204,8 @@ properties:
     summary: Background color of the picker, as a color name or hex triplet.
     description: |
         For information about color values, see the "Colors" section of <Titanium.UI>.
-    type: String
-    platforms: [iphone, ipad, android]
+    type: [String, Titanium.UI.Color]
+    platforms: [iphone, ipad, android, macos]
     since: { iphone: "5.2.0", ipad: "5.2.0", android: "0.9.0"}
     default: White (iOS), Transparent (Android)
 
@@ -224,23 +218,25 @@ properties:
         In an Alloy application you can specify this property with a `<PickerColumn>` (or `<Column>`)
         element that contains one or more `<PickerRow>` (or `<Row>`) elements, as shown below:
 
-            <Alloy>
-                <Window>
-                    <Picker useSpinner="true">
-                        <PickerColumn id="column1">
-                            <PickerRow title="Bananas"/>
-                            <PickerRow title="Strawberries"/>
-                            <PickerRow title="Mangos"/>
-                        </PickerColumn>
-                        <!-- Picker shorthand notation -->
-                        <Column id="column2">
-                            <Row title="red"/>
-                            <Row title="green"/>
-                            <Row title="blue"/>
-                        </Column>
-                    </Picker>
-                </Window>
-            </Alloy>
+        ``` xml
+        <Alloy>
+            <Window>
+                <Picker useSpinner="true">
+                    <PickerColumn id="column1">
+                        <PickerRow title="Bananas"/>
+                        <PickerRow title="Strawberries"/>
+                        <PickerRow title="Mangos"/>
+                    </PickerColumn>
+                    <!-- Picker shorthand notation -->
+                    <Column id="column2">
+                        <Row title="red"/>
+                        <Row title="green"/>
+                        <Row title="blue"/>
+                    </Column>
+                </Picker>
+            </Window>
+        </Alloy>
+        ```
     type: Array<Titanium.UI.PickerColumn>
 
   - name: countDownDuration
@@ -248,18 +244,21 @@ properties:
     description: |
         Applicable to <Titanium.UI.PICKER_TYPE_COUNT_DOWN_TIMER> picker types.
     type: Number
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: dateTimeColor
     summary: Sets the text color of date- and time-pickers.
     description: |
         Applicable to <Titanium.UI.PICKER_TYPE_TIME> and <Titanium.UI.PICKER_TYPE_DATE_AND_TIME> picker types.
         The picker type <Titanium.UI.PICKER_TYPE_DATE> does not support text customizing as stated in the
-        [UIKit User Interface Catalog](https://developer.apple.com/library/ios/documentation/UserExperience/Conceptual/UIKitUICatalog/UIDatePicker.html).
-    type: String
+        [UIKit User Interface Catalog](https://developer.apple.com/documentation/uikit/uidatepicker).
+
+        Important: On iOS 14+, you also have to set the <Titanium.UI.Picker.datePickerStyle> to <Titanium.UI.iOS.DATE_PICKER_STYLE_WHEELS>
+        in order to use this property.
+    type: [String, Titanium.UI.Color]
     platforms: [iphone, ipad]
     since: "5.2.0"
-    default: Black
+    default: "black"
 
   - name: format24
     summary: |
@@ -342,7 +341,7 @@ properties:
         into 60, the default value is used.
     type: Number
     default: 1
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: selectionIndicator
     summary: |
@@ -350,12 +349,11 @@ properties:
     description: |
         If `true`, selection indicator is enabled.
 
-        On iOS 7 and later, the picker indicator is always shown and you cannot control it.
-
-        On iOS 6 and prior, if enabled, a blue bar is displayed to indicate the current selection.
+        Since iOS 7 and later you cannot customize the picker view's selection indicator.
+        The selection indicator is always shown, so setting this property to `false` has no effect.
     type: Boolean
     default: true (Android), false (iPhone, iPad)
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: selectionOpens
     summary: |
@@ -368,6 +366,18 @@ properties:
     default: false (Android)
     platforms: [android]
     since: "5.0.0"
+
+  - name: datePickerStyle
+    summary: Request a style if the picker is a date picker (`PICKER_TYPE_DATE`).
+    description: |
+        If the style changed, then the date picker may need to be resized and will
+        generate a layout pass to display correctly.
+    type: Number
+    platforms: [iphone, ipad]
+    since: "9.2.0"
+    constants: Titanium.UI.iOS.DATE_PICKER_STYLE_*
+    default: <Titanium.UI.iOS.DATE_PICKER_STYLE_AUTOMATIC>
+    osver: { ios: { min: "13.4" } }
 
   - name: type
     summary: Determines the type of picker displayed
@@ -396,7 +406,7 @@ properties:
     default: false
     platforms: [android]
     deprecated:
-      since: 5.2.1
+      since: "5.2.1"
       notes: This property is deprecated. Please use the default native "dropdown" style.
 
   - name: nativeSpinner
@@ -410,19 +420,22 @@ properties:
         `Titanium.UI.createPicker({ nativeSpinner:true });`, or before the picker is added to its parent.
 
         Example as follows:
-            var picker = Ti.UI.createPicker({
-                type:Ti.UI.PICKER_TYPE_TIME,
-                nativeSpinner: true,
-                format24: false,
-                minuteInterval: 4,
-                minDate:new Date(2009,0,1),
-                maxDate:new Date(2014,11,31),
-                value:new Date(2014,3,12)
-            });
+
+        ``` js
+        var picker = Ti.UI.createPicker({
+            type: Ti.UI.PICKER_TYPE_TIME,
+            nativeSpinner: true,
+            format24: false,
+            minuteInterval: 4,
+            minDate: new Date(2018, 5, 24),
+            maxDate: new Date(2020, 5, 24),
+            value: new Date(2019, 5, 24)
+        });
+        ```
     type: Boolean
     default: false
     platforms: [android]
-    since: 5.4.0
+    since: "5.4.0"
 
   - name: value
     summary: Date and time value for Date and Time pickers.
@@ -473,26 +486,32 @@ examples:
         notation for `PickerColumn` and `PickerRow`, respectively.
 
         `app/views/index.xml`:
+        ``` xml
+        <Alloy>
+            <Window id="win" backgroundColor="white" layout="vertical" exitOnClose="true">
+                <Picker id="picker" top="50" selectionIndicator="true" useSpinner="true">
+                    <PickerColumn id="column1">
+                        <PickerRow title="Bananas"/>
+                        <PickerRow title="Strawberries"/>
+                        <PickerRow title="Mangos"/>
+                        <PickerRow title="Grapes"/>
+                    </PickerColumn>
+                    <!-- Picker shorthand notation -->
+                    <Column id="column2">
+                        <Row title="red"/>
+                        <Row title="green"/>
+                        <Row title="blue"/>
+                        <Row title="orange"/>
+                    </Column>
+                </Picker>
+            </Window>
+        </Alloy>
+        ```
 
-            <Alloy>
-                <Window id="win" backgroundColor="white" layout="vertical" exitOnClose="true">
-                    <Picker id="picker" top="50" selectionIndicator="true" useSpinner="true">
-                        <PickerColumn id="column1">
-                            <PickerRow title="Bananas"/>
-                            <PickerRow title="Strawberries"/>
-                            <PickerRow title="Mangos"/>
-                            <PickerRow title="Grapes"/>
-                        </PickerColumn>
-                        <!-- Picker shorthand notation -->
-                        <Column id="column2">
-                            <Row title="red"/>
-                            <Row title="green"/>
-                            <Row title="blue"/>
-                            <Row title="orange"/>
-                        </Column>
-                    </Picker>
-                </Window>
-            </Alloy>
+        `app/controllers/index.js`:
+        ``` js
+        $.win.open();
+        ```
 
   - title: Date Picker using Alloy XML Markup
     example: |
@@ -502,148 +521,158 @@ examples:
         If you are defining dates in the controller code, use a JavaScript Date object.
 
         `app/views/index.xml`:
-
-            <Alloy>
-                <Window backgroundColor="blue">
-                    <Picker id="picker"
-                      onChange="report"
-                      type="Ti.UI.PICKER_TYPE_DATE"
-                      minDate="2014,4,1"
-                      maxDate="May 1, 2014 12:00:00"
-                      value="2014-04-15T12:00:00">
-                    </Picker>
-                </Window>
-            </Alloy>
+        ``` xml
+        <Alloy>
+            <Window backgroundColor="blue">
+                <Picker id="picker"
+                  onChange="report"
+                  type="Ti.UI.PICKER_TYPE_DATE"
+                  minDate="2014,4,1"
+                  maxDate="May 1, 2014 12:00:00"
+                  value="2014-04-15T12:00:00">
+                </Picker>
+            </Window>
+        </Alloy>
+        ```
 
         `app/controllers/index.js`:
+        ``` js
+        function report(e) {
+            Ti.API.info('User selected: ' + e.value);
+        }
 
-            function report(e) {
-                Ti.API.info('User selected: ' + e.value);
-            }
-
-            $.index.open();
+        $.index.open();
+        ```
 
   - title: Basic Single Column Picker
     example: |
         Create a one-column, platform-specific style, picker and automatically select a row.
 
-            Ti.UI.backgroundColor = 'white';
-            var win = Ti.UI.createWindow({
-              exitOnClose: true,
-              layout: 'vertical'
-            });
+        ``` js
+        Ti.UI.backgroundColor = 'white';
+        var win = Ti.UI.createWindow({
+          exitOnClose: true,
+          layout: 'vertical'
+        });
 
-            var picker = Ti.UI.createPicker({
-              top:50
-            });
+        var picker = Ti.UI.createPicker({
+          top:50
+        });
 
-            var data = [];
-            data[0]=Ti.UI.createPickerRow({title:'Bananas'});
-            data[1]=Ti.UI.createPickerRow({title:'Strawberries'});
-            data[2]=Ti.UI.createPickerRow({title:'Mangos'});
-            data[3]=Ti.UI.createPickerRow({title:'Grapes'});
+        var data = [];
+        data[0]=Ti.UI.createPickerRow({title:'Bananas'});
+        data[1]=Ti.UI.createPickerRow({title:'Strawberries'});
+        data[2]=Ti.UI.createPickerRow({title:'Mangos'});
+        data[3]=Ti.UI.createPickerRow({title:'Grapes'});
 
-            picker.add(data);
-            picker.selectionIndicator = true;
+        picker.add(data);
+        picker.selectionIndicator = true;
 
-            win.add(picker);
-            win.open();
+        win.add(picker);
+        win.open();
 
-            // must be after picker has been displayed
-            picker.setSelectedRow(0, 2, false); // select Mangos
+        // must be after picker has been displayed
+        picker.setSelectedRow(0, 2, false); // select Mangos
+        ```
 
   - title: Multi-Column Picker
     example: |
         Create a two-column, platform-specific style, picker and automatically select a row in
         each column.
 
-            Ti.UI.backgroundColor = 'white';
-            var win = Ti.UI.createWindow({
-              exitOnClose: true,
-              layout: 'vertical'
-            });
+        ``` js
+        Ti.UI.backgroundColor = 'white';
+        var win = Ti.UI.createWindow({
+          exitOnClose: true,
+          layout: 'vertical'
+        });
 
-            var picker = Ti.UI.createPicker({
-              top:50,
-              useSpinner: true
-            });
-            picker.selectionIndicator = true;
+        var picker = Ti.UI.createPicker({
+          top:50,
+          useSpinner: true
+        });
+        picker.selectionIndicator = true;
 
-            var fruit = [ 'Bananas', 'Strawberries', 'Mangos', 'Grapes' ];
-            var color = [ 'red', 'green', 'blue', 'orange' ];
+        var fruit = [ 'Bananas', 'Strawberries', 'Mangos', 'Grapes' ];
+        var color = [ 'red', 'green', 'blue', 'orange' ];
 
-            var column1 = Ti.UI.createPickerColumn();
+        var column1 = Ti.UI.createPickerColumn();
 
-            for(var i=0, ilen=fruit.length; i<ilen; i++){
-              var row = Ti.UI.createPickerRow({
-                title: fruit[i]
-              });
-              column1.addRow(row);
-            }
+        for(var i=0, ilen=fruit.length; i<ilen; i++){
+          var row = Ti.UI.createPickerRow({
+            title: fruit[i]
+          });
+          column1.addRow(row);
+        }
 
-            var column2 = Ti.UI.createPickerColumn();
+        var column2 = Ti.UI.createPickerColumn();
 
-            for(var i=0, ilen=color.length; i<ilen; i++){
-              var row = Ti.UI.createPickerRow({ title: color[i] });
-              column2.addRow(row);
-            }
+        for(var i=0, ilen=color.length; i<ilen; i++){
+          var row = Ti.UI.createPickerRow({ title: color[i] });
+          column2.addRow(row);
+        }
 
-            picker.add([column1,column2]);
+        picker.add([column1,column2]);
 
-            win.add(picker);
+        win.add(picker);
 
-            win.open();
+        win.open();
 
-            // must be after picker has been displayed
-            picker.setSelectedRow(0, 2, false); // select Mangos
-            picker.setSelectedRow(1, 3, false); // select Orange
+        // must be after picker has been displayed
+        picker.setSelectedRow(0, 2, false); // select Mangos
+        picker.setSelectedRow(1, 3, false); // select Orange
+        ```
 
   - title: Date Picker
     example: |
         Create a date picker and handle the subsequent user action.
 
-            Ti.UI.backgroundColor = 'white';
-            var win = Ti.UI.createWindow({
-              exitOnClose: true,
-              layout: 'vertical'
-            });
+        ``` js
+        Ti.UI.backgroundColor = 'white';
+        var win = Ti.UI.createWindow({
+          exitOnClose: true,
+          layout: 'vertical'
+        });
 
-            var picker = Ti.UI.createPicker({
-              type:Ti.UI.PICKER_TYPE_DATE,
-              minDate:new Date(2009,0,1),
-              maxDate:new Date(2014,11,31),
-              value:new Date(2014,3,12),
-              top:50
-            });
+        var picker = Ti.UI.createPicker({
+          type:Ti.UI.PICKER_TYPE_DATE,
+          minDate:new Date(2009,0,1),
+          maxDate:new Date(2014,11,31),
+          value:new Date(2014,3,12),
+          top:50
+        });
 
-            win.add(picker);
-            win.open();
+        win.add(picker);
+        win.open();
 
-            picker.addEventListener('change',function(e){
-              Ti.API.info("User selected date: " + e.value.toLocaleString());
-            });
+        picker.addEventListener('change',function(e){
+          Ti.API.info("User selected date: " + e.value.toLocaleString());
+        });
+        ```
 
   - title: Date Picker using showDatePickerDialog() (Android only)
     example: |
         Create a date picker that is automatically displayed as a modal dialog and handle the
         subsequent user action.
 
-            Ti.UI.backgroundColor = 'white';
+        ``` js
+        Ti.UI.backgroundColor = 'white';
 
-            var picker = Ti.UI.createPicker({
-              type:Ti.UI.PICKER_TYPE_DATE,
-              minDate:new Date(2009,0,1),
-              maxDate:new Date(2014,11,31),
-              value:new Date(2014,3,12)
-            });
+        var picker = Ti.UI.createPicker({
+          type:Ti.UI.PICKER_TYPE_DATE,
+          minDate:new Date(2009,0,1),
+          maxDate:new Date(2014,11,31),
+          value:new Date(2014,3,12)
+        });
 
-            picker.showDatePickerDialog({
-              value: new Date(2010,8,1),
-              callback: function(e) {
-                if (e.cancel) {
-                  Ti.API.info('User canceled dialog');
-                } else {
-                  Ti.API.info('User selected date: ' + e.value);
-                }
-              }
-            });
+        picker.showDatePickerDialog({
+          value: new Date(2010,8,1),
+          callback: function(e) {
+            if (e.cancel) {
+              Ti.API.info('User canceled dialog');
+            } else {
+              Ti.API.info('User selected date: ' + e.value);
+            }
+          }
+        });
+        ```

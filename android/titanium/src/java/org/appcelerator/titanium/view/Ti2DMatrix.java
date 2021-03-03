@@ -13,6 +13,7 @@ import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiC;
+import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.util.TiConvert;
 
 import android.graphics.Matrix;
@@ -138,14 +139,17 @@ public class Ti2DMatrix extends KrollProxy
 	@Kroll.method
 	public Ti2DMatrix translate(double x, double y)
 	{
+		TiDimension xDimension = new TiDimension(TiConvert.toString(x), TiDimension.TYPE_LEFT);
+		TiDimension yDimension = new TiDimension(TiConvert.toString(y), TiDimension.TYPE_TOP);
+
 		Ti2DMatrix newMatrix = new Ti2DMatrix(this, Operation.TYPE_TRANSLATE);
-		newMatrix.op.translateX = (float) x;
-		newMatrix.op.translateY = (float) y;
+		newMatrix.op.translateX = (float) xDimension.getPixels(null);
+		newMatrix.op.translateY = (float) yDimension.getPixels(null);
 		return newMatrix;
 	}
 
 	@Kroll.method
-	public Ti2DMatrix scale(Object args[])
+	public Ti2DMatrix scale(Object[] args)
 	{
 		Ti2DMatrix newMatrix = new Ti2DMatrix(this, Operation.TYPE_SCALE);
 		newMatrix.op.scaleFromX = newMatrix.op.scaleFromY = VALUE_UNSPECIFIED;
@@ -383,16 +387,15 @@ public class Ti2DMatrix extends KrollProxy
 	}
 
 	/**
-	 * Determines whether we can use Honeycomb+ style
-	 * animations, namely property Animator instances.
+	 * Determines whether we can use property Animator instances.
 	 * We can do that if the matrix is not "complicated".
 	 * See the class documentation for
 	 * {@link org.appcelerator.titanium.util.TiAnimationBuilder TiAnimationBuilder}
 	 * for a detailed description of what makes a matrix too
 	 * complicated for property Animators.
-	 * @return true if property animators (i.e., Honeycomb+
-	 * animation) can be used, false if we need to stick
-	 * with the old-style view animations.
+	 * @return
+	 * Returns true if property animators can be used
+	 * Returns false if we need to stick with the old-style view animations.
 	 */
 	public boolean canUsePropertyAnimators()
 	{

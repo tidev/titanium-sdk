@@ -8,7 +8,7 @@
 
 #import "TiUIPickerColumnProxy.h"
 #import "TiUIPickerRowProxy.h"
-#import "TiUtils.h"
+#import <TitaniumKit/TiUtils.h>
 
 @implementation TiUIPickerColumnProxy
 
@@ -31,12 +31,12 @@
   return [[rows copy] autorelease];
 }
 
-- (NSInteger)rowCount
+- (NSNumber *)rowCount
 {
-  return [rows count];
+  return NUMUINTEGER((rows != nil) ? rows.count : 0);
 }
 
-- (id)rowAt:(NSInteger)index
+- (id)rowAt:(NSUInteger)index
 {
   return (index < [rows count]) ? [rows objectAtIndex:index] : nil;
 }

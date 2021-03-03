@@ -1,51 +1,24 @@
 #!/usr/bin/env node
 'use strict';
 
-const os = require('os'),
-	path = require('path'),
-	program = require('commander'),
-	version = require('../package.json').version,
-	appc = require('node-appc');
-
+const program = require('commander');
+const version = require('../package.json').version;
 program
 	.option('-v, --sdk-version [version]', 'Override the SDK version we report', process.env.PRODUCT_VERSION || version)
 	.option('-t, --version-tag [tag]', 'Override the SDK version tag we report')
+	.option('-s, --symlink', 'If possible, symlink the SDK folder to destination rather than copying')
+	.option('--select', 'Select the installed SDK')
 	.parse(process.argv);
 
-const versionTag = program.versionTag || program.sdkVersion;
-
-/**
- * @param  {String}   versionTag [description]
- * @param  {Function} next        [description]
- */
-function install(versionTag, next) {
-	let dest,
-		osName = os.platform();
-
-	if (osName === 'win32') {
-		dest = path.join(process.env.ProgramData, 'Titanium');
-	}
-
-	if (osName === 'darwin') {
-		osName = 'osx';
-		dest = path.join(process.env.HOME, 'Library', 'Application Support', 'Titanium');
-	}
-
-	if (osName === 'linux') {
-		osName = 'linux';
-		dest = path.join(process.env.HOME, '.titanium');
-	}
-
-	const zipfile = path.join(__dirname, '..', 'dist', 'mobilesdk-' + versionTag + '-' + osName + '.zip');
-	console.log('Installing %s...', zipfile);
-
-	appc.zip.unzip(zipfile, dest, {}, next);
+async function main(program) {
+	const Builder = require('./lib/builder');
+	const builder = new Builder(program);
+	return builder.install(program.args[0]);
 }
 
-install(versionTag, function (err) {
-	if (err) {
+main(program)
+	.then(() => process.exit(0))
+	.catch(err => {
 		console.error(err);
 		process.exit(1);
-	}
-	process.exit(0);
-});
+	});

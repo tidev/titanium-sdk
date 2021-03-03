@@ -7,6 +7,7 @@
 
 package org.appcelerator.titanium.util;
 
+import java.io.InputStream;
 import java.util.Arrays;
 
 import org.appcelerator.kroll.common.Log;
@@ -18,7 +19,7 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.Path.Direction;
 import android.graphics.RectF;
-import android.media.ExifInterface;
+import androidx.exifinterface.media.ExifInterface;
 
 /**
  * Utility class for image manipulations.
@@ -29,7 +30,7 @@ public class TiImageHelper
 
 	/**
 	 * Add an alpha channel to the given image if it does not already have one.
-	 * 
+	 *
 	 * @param image
 	 *            the image to add an alpha channel to.
 	 * @return a copy of the given image with an alpha channel. If the image already have the alpha channel, return the
@@ -48,7 +49,7 @@ public class TiImageHelper
 
 	/**
 	 * Create a copy of the given image with rounded corners and a transparent border around its edges.
-	 * 
+	 *
 	 * @param image
 	 *            the image to add rounded corners to.
 	 * @param cornerRadius
@@ -77,7 +78,7 @@ public class TiImageHelper
 		Path clipPath = new Path();
 		RectF imgRect = new RectF(borderSize, borderSize, width + borderSize, height + borderSize);
 
-		float radii[] = new float[8];
+		float[] radii = new float[8];
 		Arrays.fill(radii, cornerRadius);
 		clipPath.addRoundRect(imgRect, radii, Direction.CW);
 
@@ -99,7 +100,7 @@ public class TiImageHelper
 
 	/**
 	 * Add a transparent border to the given image around its edges.
-	 * 
+	 *
 	 * @param image
 	 *            the image to add a transparent border to.
 	 * @param borderSize
@@ -130,46 +131,86 @@ public class TiImageHelper
 		return imageBorder;
 	}
 
-	private static final String FILE_PREFIX = "file://";
-
 	/**
-	 * Find the orientation of the image.
-	 * @param file image file
-	 * @return return the orientation in degrees, -1 for error
+	 * Fetches the orientation of the given image in case it is not displayed upright.
+	 * <p>
+	 * This typically needs to be done with JPEG files whose EXIF information provides
+	 * the photo's "orientation" (aka: rotation) relative to the camera's mounting orientation.
+	 * @param path Path to an image file or URL.
+	 * @return
+	 * Returns the orientation of the image in degrees, clockwise.
+	 * <p>
+	 * Will only return values 0, 90, 180, and 270.
+	 * <p>
+	 * A value of 0 indicates that the image is upright or if this method was unable to fetch
+	 * orientation information from the image.
 	 */
 	public static int getOrientation(String path)
 	{
+		// Validate argument.
+		if ((path == null) || path.isEmpty()) {
+			String message = "Path of image file could not determined. "
+							 + "Could not create an exifInterface from an invalid path.";
+			Log.e(TAG, message);
+			return 0;
+		}
+
+		// Attempt to fetch the EXIF orientation from the given file/url path.
+		int orientation = 0;
+		try (InputStream stream = TiFileHelper.getInstance().openInputStream(path, false)) {
+			if (stream != null) {
+				orientation = getOrientation(stream);
+			}
+		} catch (Exception ex) {
+		}
+		return orientation;
+	}
+
+	/**
+	 * Fetches the orientation of the given image in case it is not displayed upright.
+	 * <p>
+	 * This typically needs to be done with JPEG files whose EXIF information provides
+	 * the photo's "orientation" (aka: rotation) relative to the camera's upright orientation.
+	 * @param stream
+	 * An open input stream to an encoded image file, such as a JPEG.
+	 * <p>
+	 * This stream should not reference the raw decoded pixels of a bitmap since it would not
+	 * contain any EXIF orientation metadata.
+	 * <p>
+	 * This method will not close the given stream. That is the caller's responsibility.
+	 * @return
+	 * Returns the orientation of the image in degrees, clockwise.
+	 * <p>
+	 * Will only return values 0, 90, 180, and 270.
+	 * <p>
+	 * A value of 0 indicates that the image is upright or if this method was unable to fetch
+	 * orientation information from the image.
+	 */
+	public static int getOrientation(InputStream stream)
+	{
 		int orientation = 0;
 		try {
-			if (path == null) {
-				Log.e(
-					TAG,
-					"Path of image file could not determined. Could not create an exifInterface from an invalid path.");
-				return 0;
+			if (stream != null) {
+				ExifInterface exifInterface = new ExifInterface(stream);
+				int exifOrientation =
+					exifInterface.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
+				switch (exifOrientation) {
+					case ExifInterface.ORIENTATION_ROTATE_270:
+					case ExifInterface.ORIENTATION_TRANSVERSE: // Rotated and mirrored.
+						orientation = 270;
+						break;
+					case ExifInterface.ORIENTATION_ROTATE_180:
+					case ExifInterface.ORIENTATION_FLIP_VERTICAL:
+						orientation = 180;
+						break;
+					case ExifInterface.ORIENTATION_ROTATE_90:
+					case ExifInterface.ORIENTATION_TRANSPOSE: // Rotated and mirrored.
+						orientation = 90;
+						break;
+				}
 			}
-			// Remove path prefix
-			if (path.startsWith(FILE_PREFIX)) {
-				path = path.replaceFirst(FILE_PREFIX, "");
-			}
-
-			ExifInterface ei = new ExifInterface(path);
-			int orientationConst = ei.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
-			switch (orientationConst) {
-				case ExifInterface.ORIENTATION_ROTATE_270:
-				case ExifInterface.ORIENTATION_TRANSVERSE:
-					orientation = 270;
-					break;
-				case ExifInterface.ORIENTATION_ROTATE_180:
-				case ExifInterface.ORIENTATION_FLIP_VERTICAL:
-					orientation = 180;
-					break;
-				case ExifInterface.ORIENTATION_ROTATE_90:
-				case ExifInterface.ORIENTATION_TRANSPOSE:
-					orientation = 90;
-					break;
-			}
-		} catch (Exception e) {
-			Log.e(TAG, "Unable to find orientation " + e.getMessage());
+		} catch (Exception ex) {
+			Log.e(TAG, "Unable to find orientation", ex);
 		}
 		return orientation;
 	}

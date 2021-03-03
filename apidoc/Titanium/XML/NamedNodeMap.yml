@@ -5,11 +5,11 @@ summary: >
     A key-value paired map that maps String objects to
     <Titanium.XML.Node> objects.
 
-    Implements the [DOM Level 2 API](http://www.w3.org/TR/DOM-Level-2-Core/core.html#ID-1780488922)
+    Implements the [DOM Level 2 API](https://www.w3.org/TR/DOM-Level-2-Core/core.html#ID-1780488922)
     on Android and iOS.
-since: "0.9"
 createable: false
-platforms: [android, iphone, ipad]
+since: {android: "0.9", iphone: "0.9", ipad: "0.9", macos: "9.2.0"}
+platforms: [android, iphone, ipad, macos]
 methods:
   - name: getNamedItem
     summary: Retrieves a node specified by name.

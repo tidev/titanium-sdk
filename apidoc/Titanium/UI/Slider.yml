@@ -2,14 +2,9 @@
 name: Titanium.UI.Slider
 summary: A slider component with a draggable thumb.
 description: |
-    <table id="platformComparison">
-      <tr>
-        <td><img src="images/slider/slider_android.png" height="25" /></td>
-        <td><img src="images/slider/slider_ios.png" height="25" /></td>
-        <td><img src="images/slider/slider_wp.png" height="25" /></td>
-      </tr>
-      <tr><th>Android</th><th>iOS</th><th>Windows Phone</th></tr>
-    </table>
+    | Android | iOS | Windows |
+    | ------- | --- | ------- |
+    | ![Android](./slider_android.png) | ![iOS](./slider_ios.png) | ![Windows](./slider_wp.png) |
 
     A slider lets the user select from a range of values by dragging the slider thumb.
 
@@ -29,8 +24,10 @@ description: |
 
 extends: Titanium.UI.View
 excludes:
-    events: [ 'pinch' ]
-    properties: ['height']
+    events: [pinch]
+    properties: [height, children]
+    methods: [add, remove, removeAllChildren, replaceAt]
+
 since: "0.8"
 examples:
   - title: Simple Slider
@@ -38,25 +35,27 @@ examples:
         The following sample demonstrates creating a slider and adding a listener to
         handle the change events.
 
-            var slider = Titanium.UI.createSlider({
-                top: 50,
-                min: 0,
-                max: 100,
-                width: Ti.UI.FILL,
-                value: 50
-                });
-
-            var label = Ti.UI.createLabel({
-                text: slider.value,
-                width: Ti.UI.FILL,
-                top: 30,
-                left: 0,
-                textAlign: Ti.UI.TEXT_ALIGNMENT_CENTER
+        ``` js
+        var slider = Titanium.UI.createSlider({
+            top: 50,
+            min: 0,
+            max: 100,
+            width: Ti.UI.FILL,
+            value: 50
             });
 
-            slider.addEventListener('change', function(e) {
-                label.text = String.format('%3.1f', e.value);
-            });
+        var label = Ti.UI.createLabel({
+            text: slider.value,
+            width: Ti.UI.FILL,
+            top: 30,
+            left: 0,
+            textAlign: Ti.UI.TEXT_ALIGNMENT_CENTER
+        });
+
+        slider.addEventListener('change', function(e) {
+            label.text = String.format('%3.1f', e.value);
+        });
+        ```
 
   - title: Alloy XML Markup
     example: |
@@ -67,39 +66,26 @@ examples:
 
         index.xml:
 
-            <Alloy>
-                <Window id="window" backgroundColor="white">
-                    <Slider id="slider" top="50" min="0" max="100" width="Ti.UI.FILL" value="50" onChange="updateLabel"/>
-                    <Label id="label" width="Ti.UI.FILL" top="30" left="0" />
-                </Window>
-            </Alloy>
+        ``` xml
+        <Alloy>
+            <Window id="window" backgroundColor="white">
+                <Slider id="slider" top="50" min="0" max="100" width="Ti.UI.FILL" value="50" onChange="updateLabel"/>
+                <Label id="label" width="Ti.UI.FILL" top="30" left="0" />
+            </Window>
+        </Alloy>
+        ```
 
         index.js:
 
-            $.slider.text = $.slider.value;
-            function updateLabel(e) {
-                $.label.text = String.format('%3.1f', e.value);
-            }
-            $.window.open();
+        ``` js
+        $.slider.text = $.slider.value;
+        function updateLabel(e) {
+            $.label.text = String.format('%3.1f', e.value);
+        }
+        $.window.open();
+        ```
 
 methods:
-    # main doc inherited from Ti.UI.View.add
-  - name: add
-    description: |
-        Adding children to a `Slider` is not supported on all platforms.
-
-        If you need to display views on top of this object, consider using
-        another view as a container for both this object and the views you want
-        to appear on top of it.
-
-        See also: <Titanium.UI.View.add>.
-    platforms: [iphone, ipad]
-
-  - name: remove
-    description: |
-        See also: [add](Titanium.UI.Label.add), <Titanium.UI.View.add>.
-    platforms: [iphone, ipad]
-
   - name: setValue
     summary: Sets the [value](Titanium.UI.Slider.value) property.
     description: |
@@ -117,11 +103,11 @@ methods:
             for this dictionary is the `animated` flag, which specifies whether
             the value change should be animated. `animated` is false by default. Only used
             on iOS.
-        type: Dictionary
+        type: AnimatedOptions
         optional: true
+        default: "{ animated: false }"
 
 events:
-
   - name: change
     summary: Fired when the value of the slider changes.
     properties:
@@ -134,14 +120,20 @@ events:
         summary: |
             Dictionary with properties `width` and `height` of the size of the thumb.
             Available with custom thumb image.
+        type: Size
         platforms: [android]
 
       - name: thumbOffset
         summary: |
             Dictionary with properties `x` and `y` of the thumb's left-top corner in
             the control. Available with custom thumb image.
-        type: Dictionary
+        type: Point
         platforms: [android]
+
+      - name: isTrusted
+        summary: True if change was made by the user. False if change was made programmatically.
+        type: Boolean
+        since: 9.1.0
 
   - name: click
     summary: Fired when the device detects a click against the view.
@@ -170,7 +162,7 @@ events:
   - name: start
     summary: Fired when the user starts tracking the slider.
 
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     since: 3.1.0
     properties:
 
@@ -185,7 +177,7 @@ events:
   - name: stop
     summary: Fired when the user stops tracking the slider.
 
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     since: 3.1.0
     properties:
 
@@ -198,21 +190,20 @@ events:
         type: Boolean
 
 properties:
-
   - name: disabledLeftTrackImage
     summary: Image URL of the slider left track when in the disabled state.
     type: String
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: disabledRightTrackImage
     summary: Image URL of the slider right track when in the disabled state.
     type: String
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: disabledThumbImage
     summary: Image URL of the slider thumb when in the disabled state.
     type: String
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: enabled
     summary: Boolean to indicate the enabled state of the slider.
@@ -222,24 +213,24 @@ properties:
   - name: highlightedLeftTrackImage
     summary: Image URL of the slider left track when in the highlighted state.
     type: String
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: highlightedRightTrackImage
     summary: Image URL of the slider right track when in the highlighted state.
     type: String
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: highlightedThumbImage
     summary: Image URL of the slider thumb when in the highlighted state.
     type: String
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: leftTrackImage
     summary: Image URL of the slider left track.
     description: |
         See introduction of the <Titanium.UI.Slider> component for implementation specific information on Android Platform.
     type: String
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: leftTrackLeftCap
     summary: Size of the left end cap for the leftTrackImage, disabledLeftTrackImage, highlightedLeftTrackImage and selectedLeftTrackImage properties.
@@ -252,16 +243,10 @@ properties:
         interface elements. When an image with end caps is resized, the resizing occurs only in
         the middle of the image, in the region between the end caps. The end caps themselves keep
         their original size and appearance. This property specifies the size of the left end cap.
-
-        On iOS 6 and above the endCaps are used to compute a rectangle which is streched in
-        the strechable portion. On iOS 5.X, the computed rectangle is tiled in the strechable portion.
-        On earlier versions of iOS the strechable portion is assumed to be
-        1 pixel wide. The right end cap is therefore computed by adding the size of the left end cap
-        and the middle portion together and then subtracting that value from the width of the image
     type: Number
     default: 1.0
     since: 3.0.0
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: leftTrackTopCap
     summary: Size of the top end cap for the leftTrackImage, disabledLeftTrackImage, highlightedLeftTrackImage and selectedLeftTrackImage properties.
@@ -274,16 +259,10 @@ properties:
         interface elements. When an image with end caps is resized, the resizing occurs only in
         the middle of the image, in the region between the end caps. The end caps themselves keep
         their original size and appearance. This property specifies the size of the top end cap.
-
-        On iOS 6 and above the endCaps are used to compute a rectangle which is streched in
-        the strechable portion. On iOS 5.X, the computed rectangle is tiled in the strechable portion.
-        On earlier versions of iOS the strechable portion is assumed to be
-        1 pixel wide. The bottom end cap is therefore computed by adding the size of the top end cap
-        and the middle portion together and then subtracting that value from the height of the image
     type: Number
     default : 1.0
     since: 3.0.0
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: max
     summary: Maximum value of the slider.
@@ -346,7 +325,7 @@ properties:
     description: |
         See introduction of the <Titanium.UI.Slider> component for implementation specific information on Android Platform.
     type: String
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: rightTrackLeftCap
     summary: Size of the left end cap for the rightTrackImage, disabledRightTrackImage, highlightedRightTrackImage and selectedRightTrackImage properties.
@@ -359,16 +338,10 @@ properties:
         interface elements. When an image with end caps is resized, the resizing occurs only in
         the middle of the image, in the region between the end caps. The end caps themselves keep
         their original size and appearance. This property specifies the size of the left end cap.
-
-        On iOS 6 and above the endCaps are used to compute a rectangle which is streched in
-        the strechable portion. On iOS 5.X, the computed rectangle is tiled in the strechable portion.
-        On earlier versions of iOS the strechable portion is assumed to be
-        1 pixel wide. The right end cap is therefore computed by adding the size of the left end cap
-        and the middle portion together and then subtracting that value from the width of the image
     type: Number
     default: 1.0
     since: 3.0.0
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: rightTrackTopCap
     summary: Size of the top end cap for the rightTrackImage, disabledRightTrackImage, highlightedRightTrackImage and selectedRightTrackImage properties.
@@ -381,31 +354,25 @@ properties:
         interface elements. When an image with end caps is resized, the resizing occurs only in
         the middle of the image, in the region between the end caps. The end caps themselves keep
         their original size and appearance. This property specifies the size of the top end cap.
-
-        On iOS 6 and above the endCaps are used to compute a rectangle which is streched in
-        the strechable portion. On iOS 5.X, the computed rectangle is tiled in the strechable portion.
-        On earlier versions of iOS the strechable portion is assumed to be
-        1 pixel wide. The bottom end cap is therefore computed by adding the size of the top end cap
-        and the middle portion together and then subtracting that value from the height of the image
     type: Number
     default : 1.0
     since: 3.0.0
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: selectedLeftTrackImage
     summary: Image URL of the slider left track when in the selected state.
     type: String
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: selectedRightTrackImage
     summary: Image URL of the slider right track when in the selected state.
     type: String
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: selectedThumbImage
     summary: Image URL of the slider thumb when in the selected state.
     type: String
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: splitTrack
     summary: Separates the thumbImage from the slider track.
@@ -421,8 +388,21 @@ properties:
 
         Support for using <Titanium.Blob> for this property is only available on iOS.
     type: [String, Titanium.Blob]
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
+
+  - name: tintColor
+    summary: The color shown for the portion of the progress bar that is filled.
+    type: [String, Titanium.UI.Color]
+    since: {iphone: "3.1.3", ipad: "3.1.3", android: "8.3.0"}
+    osver: {android: {min: "5.0"}}
+
+  - name: trackTintColor
+    summary: The color shown for the portion of the progress bar that is not filled.
+    type: [String, Titanium.UI.Color]
+    platforms: [iphone, ipad, android, macos]
+    since: {iphone: "8.3.0", ipad: "8.3.0", android: "8.3.0"}
+    osver: {android: {min: "5.0"}}
 
   - name: value
     summary: Current value of the slider.
-    type: String
+    type: Number

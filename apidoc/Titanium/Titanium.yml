@@ -13,22 +13,24 @@ description: |
 
     For example, the following pairs of Titanium calls behave exactly the same.
 
-        Titanium.API.info('Hello Titanium!');
-        Ti.API.info('Hello Titanium!');
+    ``` js
+    Titanium.API.info('Hello Titanium!');
+    Ti.API.info('Hello Titanium!');
 
-        Titanium.Utils.sha256('Hello Titanium!');
-        Ti.Utils.sha256('Hello Titanium!');
+    Titanium.Utils.sha256('Hello Titanium!');
+    Ti.Utils.sha256('Hello Titanium!');
 
-        Titanium.App.Properties.setString('hello_msg','Hello Titanium!');
-        Ti.App.Properties.setString('hello_msg','Hello Titanium!');
+    Titanium.App.Properties.setString('hello_msg','Hello Titanium!');
+    Ti.App.Properties.setString('hello_msg','Hello Titanium!');
 
-        Titanium.Database.open('mydb');
-        Ti.Database.open('mydb');
+    Titanium.Database.open('mydb');
+    Ti.Database.open('mydb');
+    ```
 
     #### Global APIs
 
     Titanium includes a number of built-in JavaScript objects that are not part of the Titanium
-    namespace, including JSON parsing, String formatting, timers, and the CommonJS `require` function.
+    namespace, including String formatting, timers, and the CommonJS `require` function.
     See [Global APIs](Global) for details.
 
 since: "0.1"
@@ -63,30 +65,32 @@ methods:
     returns:
         type: Titanium.Buffer
         summary: The new buffer.
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     examples:
       - title: Create a buffer with 1K bytes
         example: |
-
-                var buffer = Ti.createBuffer({ length: 1024 });
+            ``` js
+            var buffer = Ti.createBuffer({ length: 1024 });
+            ```
       - title: Create a buffer with string
         example: |
             Create a buffer with the string "hello world" encoded in UTF-8
-
-                var buffer = Ti.createBuffer({ value: "hello world" });
+            ``` js
+            var buffer = Ti.createBuffer({ value: "hello world" });
+            ```
       - title: Create a buffer with encoded float
         example: |
             Create a buffer with the encoded value of the double-precision floating point
             number 1.234567 in Big Endian (network) byte order
-
-                var buffer = Ti.createBuffer({ value: 1.234567, type: Ti.Codec.TYPE_DOUBLE, byteOrder: Ti.Codec.BIG_ENDIAN });
-
+            ``` js
+            var buffer = Ti.createBuffer({ value: 1.234567, type: Ti.Codec.TYPE_DOUBLE, byteOrder: Ti.Codec.BIG_ENDIAN });
+            ```
 
 ---
 name: CreateBufferArgs
 summary: Arguments to be passed to createBuffer
-since: "1.7"
-platforms: [android, iphone, ipad]
+since: {android: "1.7", iphone: "1.7", ipad: "1.7", macos: "9.2.0"}
+platforms: [android, iphone, ipad, macos]
 
 properties:
   - name: value

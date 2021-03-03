@@ -4,10 +4,10 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#if defined(USE_TI_UIIOSTOOLBAR) || defined(USE_TI_UITOOLBAR)
+#if defined(USE_TI_UITOOLBAR)
 
-#import "TiToolbar.h"
-#import "TiViewProxy.h"
+#import <TitaniumKit/TiToolbar.h>
+#import <TitaniumKit/TiViewProxy.h>
 
 @interface TiUIToolbarProxy : TiViewProxy <TiToolbar> {
   @private

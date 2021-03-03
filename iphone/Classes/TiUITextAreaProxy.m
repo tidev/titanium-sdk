@@ -26,10 +26,11 @@ DEFINE_DEF_INT_PROP(maxLength, -1);
 {
   if ([props valueForKey:@"showUndoRedoActions"]) {
 
-    TiThreadPerformOnMainThread(^{
-      TiUITextArea *textArea = (TiUITextArea *)[self view];
-      [textArea setShowUndoRedoActions:[props valueForKey:@"showUndoRedoActions"]];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          TiUITextArea *textArea = (TiUITextArea *)[self view];
+          [textArea setShowUndoRedoActions:[props valueForKey:@"showUndoRedoActions"]];
+        },
         NO);
   }
 

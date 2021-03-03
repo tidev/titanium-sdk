@@ -7,9 +7,9 @@
 #ifdef USE_TI_UITAB
 
 #import "TiUITabGroupProxy.h"
-#import "TiApp.h"
 #import "TiUITabGroup.h"
 #import "TiUITabProxy.h"
+#import <TitaniumKit/TiApp.h>
 
 @implementation TiUITabGroupProxy
 
@@ -147,16 +147,34 @@ static NSArray *tabGroupKeySequence;
 {
   TiUITabGroup *tg = (TiUITabGroup *)self.view;
   [tg open:nil];
-  return [super windowWillOpen];
+  [super windowWillOpen];
+}
+
+- (void)windowDidOpen
+{
+  // Set parent view controller for UITabBarController
+  TiUITabGroup *tabGroup = (TiUITabGroup *)self.view;
+  if (tabGroup) {
+    UITabBarController *tabController = [tabGroup tabController];
+    UIViewController *parentController = [self windowHoldingController];
+    [parentController addChildViewController:tabController];
+    [tabController didMoveToParentViewController:parentController];
+  }
+  [super windowDidOpen];
 }
 
 - (void)windowWillClose
 {
   TiUITabGroup *tabGroup = (TiUITabGroup *)self.view;
   if (tabGroup != nil) {
+    // Remove UITabBarController from parent view  controller
+    UITabBarController *tabController = [(TiUITabGroup *)[self view] tabController];
+    [tabController willMoveToParentViewController:nil];
+    [tabController.view removeFromSuperview];
+    [tabController removeFromParentViewController];
     [tabGroup close:nil];
   }
-  return [super windowWillClose];
+  [super windowWillClose];
 }
 
 - (void)didReceiveMemoryWarning:(NSNotification *)notification
@@ -167,6 +185,15 @@ static NSArray *tabGroupKeySequence;
 - (BOOL)handleFocusEvents
 {
   return NO;
+}
+
+- (void)fireFocusEvent
+{
+  if ([self _hasListeners:@"focus"]) {
+    // on an open, make sure we send the focus event to focused tab
+    NSDictionary *event = [((TiUITabGroup *)self.view) focusEvent];
+    [self fireEvent:@"focus" withObject:event];
+  }
 }
 
 - (void)gainFocus
@@ -183,6 +210,12 @@ static NSArray *tabGroupKeySequence;
 
 - (void)resignFocus
 {
+  if ([self _hasListeners:@"blur"]) {
+    // focus event and blur event has same parameters
+    NSDictionary *event = [((TiUITabGroup *)self.view) focusEvent];
+    [self fireEvent:@"blur" withObject:event];
+  }
+
   if (focussed) {
     UITabBarController *tabController = [(TiUITabGroup *)[self view] tabController];
     NSUInteger blessedController = [tabController selectedIndex];
@@ -265,6 +298,16 @@ static NSArray *tabGroupKeySequence;
     return [[tabs objectAtIndex:blessedController] preferredStatusBarStyle];
   }
   return [super preferredStatusBarStyle];
+}
+
+- (BOOL)homeIndicatorAutoHide
+{
+  UITabBarController *tabController = [(TiUITabGroup *)[self view] tabController];
+  NSUInteger blessedController = [tabController selectedIndex];
+  if (blessedController != NSNotFound) {
+    return [[tabs objectAtIndex:blessedController] homeIndicatorAutoHide];
+  }
+  return [super homeIndicatorAutoHide];
 }
 
 - (BOOL)hidesStatusBar

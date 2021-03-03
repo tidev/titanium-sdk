@@ -9,9 +9,7 @@ package ti.modules.titanium.android.notificationmanager;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiApplication;
-import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.util.TiConvert;
-import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.common.Log;
 
 import ti.modules.titanium.android.AndroidModule;
@@ -19,10 +17,14 @@ import ti.modules.titanium.android.AndroidModule;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.Notification;
+import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.content.pm.PackageManager;
+import android.Manifest;
 import android.os.Build;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
+import androidx.core.app.NotificationManagerCompat;
 
 import java.util.HashMap;
 
@@ -30,10 +32,11 @@ import java.util.HashMap;
 public class NotificationManagerModule extends KrollModule
 {
 	private static final String TAG = "TiNotification";
-	protected static final int PENDING_INTENT_FOR_ACTIVITY = 0;
-	protected static final int PENDING_INTENT_FOR_SERVICE = 1;
-	protected static final int PENDING_INTENT_FOR_BROADCAST = 2;
-	protected static final int PENDING_INTENT_MAX_VALUE = PENDING_INTENT_FOR_SERVICE;
+
+	private static NotificationManager notificationManager = null;
+	private static NotificationChannel defaultChannel = null;
+
+	public static final String DEFAULT_CHANNEL_ID = "ti_default_channel";
 
 	@Kroll.constant
 	public static final int DEFAULT_ALL = Notification.DEFAULT_ALL;
@@ -72,9 +75,35 @@ public class NotificationManagerModule extends KrollModule
 		return notification;
 	}
 
-	private NotificationManager getManager()
+	public static NotificationManager getManager()
 	{
-		return (NotificationManager) TiApplication.getInstance().getSystemService(Activity.NOTIFICATION_SERVICE);
+		if (notificationManager == null) {
+			notificationManager =
+				(NotificationManager) TiApplication.getInstance().getSystemService(Activity.NOTIFICATION_SERVICE);
+		}
+		return notificationManager;
+	}
+
+	public static boolean useDefaultChannel()
+	{
+		// use default channel if we are targeting API 26+
+		boolean useDefaultChannel =
+			Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
+			&& TiApplication.getInstance().getApplicationInfo().targetSdkVersion >= Build.VERSION_CODES.O;
+
+		// setup default channel it it does not exist
+		if (useDefaultChannel && defaultChannel == null) {
+			defaultChannel =
+				new NotificationChannel(DEFAULT_CHANNEL_ID, "miscellaneous", NotificationManager.IMPORTANCE_DEFAULT);
+			getManager().createNotificationChannel(defaultChannel);
+			String warningMessage
+				= "Falling back to default notification channel.\n"
+				+ "It is highly advised to create your own notification channel using"
+				+ " Ti.Android.NotificationManager.createNotificationChannel()";
+			Log.w(TAG, warningMessage);
+		}
+
+		return useDefaultChannel;
 	}
 
 	@TargetApi(26)
@@ -105,7 +134,14 @@ public class NotificationManagerModule extends KrollModule
 	@Kroll.method
 	public void notify(int id, NotificationProxy notificationProxy)
 	{
-		getManager().notify(id, notificationProxy.buildNotification());
+		Notification notification = notificationProxy.buildNotification();
+
+		// targeting Android O or above? create default channel
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && notification.getChannelId() == DEFAULT_CHANNEL_ID) {
+			useDefaultChannel();
+		}
+
+		getManager().notify(id, notification);
 
 		HashMap wakeParams = notificationProxy.getWakeParams();
 		if (wakeParams != null) {
@@ -113,17 +149,25 @@ public class NotificationManagerModule extends KrollModule
 			int wakeFlags = TiConvert.toInt(
 				wakeParams.get("flags"),
 				(PowerManager.FULL_WAKE_LOCK | PowerManager.ACQUIRE_CAUSES_WAKEUP | PowerManager.ON_AFTER_RELEASE));
-			PowerManager pm = (PowerManager) TiApplication.getInstance().getSystemService(
-				TiApplication.getInstance().getApplicationContext().POWER_SERVICE);
-			if (pm != null && !pm.isScreenOn()) {
-				try {
-					WakeLock wl = pm.newWakeLock(wakeFlags, "TiWakeLock");
-					wl.acquire(wakeTime);
-				} catch (IllegalArgumentException e) {
-					Log.e(TAG, e.getMessage());
+			TiApplication app = TiApplication.getInstance();
+			if (app.checkCallingOrSelfPermission(Manifest.permission.WAKE_LOCK) == PackageManager.PERMISSION_GRANTED) {
+				PowerManager pm = (PowerManager) app.getSystemService(TiApplication.POWER_SERVICE);
+				if (pm != null && !pm.isScreenOn()) {
+					try {
+						WakeLock wl = pm.newWakeLock(wakeFlags, "TiWakeLock");
+						wl.acquire(wakeTime);
+					} catch (Exception e) {
+						Log.e(TAG, e.getMessage());
+					}
 				}
 			}
 		}
+	}
+
+	@Kroll.method
+	public boolean areNotificationsEnabled()
+	{
+		return NotificationManagerCompat.from(TiApplication.getInstance()).areNotificationsEnabled();
 	}
 
 	@Override

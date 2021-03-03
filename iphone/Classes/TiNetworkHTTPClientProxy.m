@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2015 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-Present by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -8,11 +8,13 @@
 #ifdef USE_TI_NETWORK
 
 #import "TiNetworkHTTPClientProxy.h"
-#import "Mimetypes.h"
 #import "NetworkModule.h"
-#import "TiApp.h"
-#import "TiBase.h"
-#import "TiUtils.h"
+#import <TitaniumKit/Mimetypes.h>
+#import <TitaniumKit/TiApp.h>
+#import <TitaniumKit/TiBase.h>
+#import <TitaniumKit/TiBlob.h>
+#import <TitaniumKit/TiFile.h>
+#import <TitaniumKit/TiUtils.h>
 
 #define TI_HTTP_REQUEST_PROGRESS_INTERVAL 0.03f
 
@@ -110,7 +112,7 @@ extern NSString *const TI_APPLICATION_GUID;
   }
   if ([httpRequest response] != nil) {
     APSHTTPResponseState curState = [[httpRequest response] readyState];
-    if (curState != APSHTTPResponseStateUnsent) {
+    if (curState != APSHTTPResponseStateUnsent && curState != APSHTTPResponseStateDone) {
       NSLog(@"[ERROR] send can only be called if client is disconnected(0). Current state is %d ", curState);
       return;
     }
@@ -121,6 +123,16 @@ extern NSString *const TI_APPLICATION_GUID;
   if ([self valueForUndefinedKey:@"timeout"]) {
     [httpRequest setTimeout:[TiUtils doubleValue:[self valueForUndefinedKey:@"timeout"] def:15000] / 1000];
   }
+
+  if ([self valueForUndefinedKey:@"timeoutForResource"]) {
+    httpRequest.timeoutForResource = [TiUtils doubleValue:[self valueForUndefinedKey:@"timeoutForResource"] def:7 * 24 * 60 * 60 * 1000] / 1000;
+  }
+
+  if ([self valueForUndefinedKey:@"waitsForConnectivity"]) {
+    httpRequest.waitsForConnectivity = [TiUtils boolValue:[self valueForUndefinedKey:@"waitsForConnectivity"]
+                                                      def:NO];
+  }
+
   if ([self valueForUndefinedKey:@"autoRedirect"]) {
     [httpRequest setRedirects:
                      [TiUtils boolValue:[self valueForUndefinedKey:@"autoRedirect"]
@@ -459,6 +471,11 @@ extern NSString *const TI_APPLICATION_GUID;
 
 #pragma mark - Public getter properties
 
+- (NSString *)getAllResponseHeaders:(id)unused
+{
+  return [self allResponseHeaders];
+}
+
 - (NSString *)allResponseHeaders
 {
   NSDictionary *headers = [[self response] headers];
@@ -520,10 +537,10 @@ extern NSString *const TI_APPLICATION_GUID;
 {
   TiBlob *blob;
   if ([[self response] saveToFile]) {
-    blob = [[TiBlob alloc] _initWithPageContext:[self executionContext] andFile:[[self response] filePath]];
+    blob = [[TiBlob alloc] initWithFile:[[self response] filePath]];
   } else {
     NSString *contentType = [TiUtils stringValue:[[self responseHeaders] valueForKey:@"Content-Type"]];
-    blob = [[TiBlob alloc] _initWithPageContext:[self executionContext] andData:[[self response] responseData] mimetype:contentType];
+    blob = [[TiBlob alloc] initWithData:[[self response] responseData] mimetype:contentType];
   }
   return [blob autorelease];
 }

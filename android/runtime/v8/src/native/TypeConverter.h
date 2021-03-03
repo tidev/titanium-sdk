@@ -1,6 +1,6 @@
 /*
  * Appcelerator Titanium Mobile
- * Copyright (c) 2011-2017 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2011-2018 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -12,6 +12,8 @@
 #include <jni.h>
 #include <v8.h>
 
+#define MAX_STACK 10
+
 namespace titanium {
 class TypeConverter
 {
@@ -20,6 +22,11 @@ public:
 	static std::map<int64_t, v8::Persistent<v8::Function, v8::CopyablePersistentTraits<v8::Function>>> functions;
 	// The incrementing key to store the persistent functions
 	static int64_t functionIndex;
+
+	// Our global map of "pointers" to persistent functions
+	static std::map<int64_t, v8::Persistent<v8::Promise::Resolver, v8::CopyablePersistentTraits<v8::Promise::Resolver>>> resolvers;
+	// The incrementing key to store the persistent functions
+	static int64_t resolverIndex;
 
 	// short convert methods
 	static jshort jsNumberToJavaShort(v8::Local<v8::Number> jsNumber);
@@ -89,12 +96,16 @@ public:
 
 	// string convert methods
 	static jstring jsStringToJavaString(v8::Local<v8::String> jsString);
+	static jstring jsStringToJavaString(v8::Isolate* isolate, v8::Local<v8::String> jsString);
 	static jstring jsValueToJavaString(v8::Isolate* isolate, v8::Local<v8::Value> jsValue);
 	static v8::Local<v8::Value> javaStringToJsString(v8::Isolate* isolate, jstring javaString);
+	static v8::Local<v8::Value> javaBytesToJsString(v8::Isolate* isolate, jbyteArray javaBytes);
 
 	static jstring jsStringToJavaString(JNIEnv *env, v8::Local<v8::String> jsString);
+	static jstring jsStringToJavaString(v8::Isolate* isolate, JNIEnv *env, v8::Local<v8::String> jsString);
 	static jstring jsValueToJavaString(v8::Isolate* isolate, JNIEnv *env, v8::Local<v8::Value> jsValue);
 	static v8::Local<v8::Value> javaStringToJsString(v8::Isolate* isolate, JNIEnv *env, jstring javaString);
+	static v8::Local<v8::Value> javaBytesToJsString(v8::Isolate* isolate, JNIEnv *env, jbyteArray javaBytes);
 
 	// date convert methods
 	static jobject jsDateToJavaDate(v8::Local<v8::Date> jsDate);
@@ -118,6 +129,13 @@ public:
 	static jobject jsObjectToJavaFunction(v8::Isolate* isolate, JNIEnv *env, v8::Local<v8::Object> jsObject);
 	static v8::Local<v8::Function> javaObjectToJsFunction(v8::Isolate* isolate, JNIEnv *env, jobject javaObject);
 
+	// promise resolvers convert methods
+	static jobject jsObjectToJavaPromise(v8::Isolate* isolate, v8::Local<v8::Object> jsObject);
+	static jobject jsObjectToJavaPromise(v8::Isolate* isolate, JNIEnv *env, v8::Local<v8::Object> jsObject);
+
+	static v8::Local<v8::Promise> javaObjectToJsPromise(v8::Isolate* isolate, jobject javaObject);
+	static v8::Local<v8::Promise> javaObjectToJsPromise(v8::Isolate* isolate, JNIEnv *env, jobject javaObject);
+
 	// arguments conversion
 	static jobjectArray jsArgumentsToJavaArray(const v8::FunctionCallbackInfo<v8::Value>& args);
 
@@ -135,6 +153,7 @@ public:
 	static v8::Local<v8::Array> javaArrayToJsArray(v8::Isolate* isolate, jbooleanArray javaBooleanArray);
 	static jshortArray jsArrayToJavaShortArray(v8::Isolate* isolate, v8::Local<v8::Array> jsArray);
 	static v8::Local<v8::Array> javaArrayToJsArray(v8::Isolate* isolate, jshortArray javaShortArray);
+	static v8::Local<v8::ArrayBuffer> javaByteArrayToJsArrayBuffer(v8::Isolate* isolate, jbyteArray javaByteArray);
 	static jintArray jsArrayToJavaIntArray(v8::Isolate* isolate, v8::Local<v8::Array> jsArray);
 	static v8::Local<v8::Array> javaArrayToJsArray(v8::Isolate* isolate, jintArray javaIntArray);
 	static jlongArray jsArrayToJavaLongArray(v8::Isolate* isolate, v8::Local<v8::Array> jsArray);
@@ -148,6 +167,7 @@ public:
 	static jarray jsArrayToJavaArray(v8::Isolate* isolate, JNIEnv *env, v8::Local<v8::Array> jsArray);
 	static jobjectArray jsArrayToJavaStringArray(v8::Isolate* isolate, JNIEnv *env, v8::Local<v8::Array> jsArray);
 	static v8::Local<v8::Array> javaArrayToJsArray(v8::Isolate* isolate, JNIEnv *env, jbooleanArray javaBooleanArray);
+	static v8::Local<v8::ArrayBuffer> javaByteArrayToJsArrayBuffer(v8::Isolate* isolate, JNIEnv *env, jbyteArray javaByteArray);
 	static jshortArray jsArrayToJavaShortArray(v8::Isolate* isolate, JNIEnv *env, v8::Local<v8::Array> jsArray);
 	static v8::Local<v8::Array> javaArrayToJsArray(v8::Isolate* isolate, JNIEnv *env, jshortArray javaShortArray);
 	static jintArray jsArrayToJavaIntArray(v8::Isolate* isolate, JNIEnv *env, v8::Local<v8::Array> jsArray);
@@ -159,6 +179,9 @@ public:
 	static jdoubleArray jsArrayToJavaDoubleArray(v8::Isolate* isolate, JNIEnv *env, v8::Local<v8::Array> jsArray);
 	static v8::Local<v8::Array> javaArrayToJsArray(v8::Isolate* isolate, JNIEnv *env, jdoubleArray javaDoubleArray);
 	static v8::Local<v8::Array> javaArrayToJsArray(v8::Isolate* isolate, JNIEnv *env, jobjectArray javaObjectArray);
+
+	static v8::Local<v8::Object> javaThrowableToJSError(v8::Isolate* isolate, jthrowable javaException);
+	static v8::Local<v8::Object> javaThrowableToJSError(v8::Isolate* isolate, JNIEnv *env, jthrowable javaException);
 
 	// object convert methods
 	static inline jobject jsValueToJavaObject(v8::Isolate* isolate, v8::Local<v8::Value> jsValue) {

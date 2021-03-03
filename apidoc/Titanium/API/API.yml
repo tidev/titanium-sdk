@@ -43,7 +43,7 @@ methods:
     summary: |
         Logs messages with a `timestamp` severity-level, prefixed with a timestamp float number 
         representing the number of seconds since January 1st, 2001.
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     parameters:
       - name: message
         summary: Message to log. Accepts an array on iOS only.

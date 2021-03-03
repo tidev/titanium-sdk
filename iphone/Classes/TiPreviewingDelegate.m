@@ -74,7 +74,7 @@
   }
 
   for (id item in [[self previewContext] actions]) {
-    if ([item isKindOfClass:[TiUIiOSPreviewActionProxy class]] == YES) {
+    if ([item isKindOfClass:[TiUIiOSPreviewActionProxy class]]) {
       [item setActionIndex:actionIndex];
 
       if ([self listViewEvent] != nil) {
@@ -84,7 +84,7 @@
       [result addObject:[item action]];
 
       actionIndex++;
-    } else if ([item isKindOfClass:[TiUIiOSPreviewActionGroupProxy class]] == YES) {
+    } else if ([item isKindOfClass:[TiUIiOSPreviewActionGroupProxy class]]) {
       [result addObject:[item actionGroup]];
     }
   }
@@ -111,7 +111,7 @@
 - (UITableView *)ensureTableView
 {
 #ifdef USE_TI_UILISTVIEW
-  if ([[[self previewContext] sourceView] isKindOfClass:[TiUIListViewProxy class]] == YES) {
+  if ([[[self previewContext] sourceView] isKindOfClass:[TiUIListViewProxy class]]) {
     TiUIListViewProxy *listProxy = (TiUIListViewProxy *)[[self previewContext] sourceView];
     TiUIListView *view = (TiUIListView *)[listProxy view];
 
@@ -119,7 +119,7 @@
   }
 #endif
 #ifdef USE_TI_UITABLEVIEW
-  if ([[[self previewContext] sourceView] isKindOfClass:[TiUITableViewProxy class]] == YES) {
+  if ([[[self previewContext] sourceView] isKindOfClass:[TiUITableViewProxy class]]) {
     TiUITableViewProxy *tableProxy = (TiUITableViewProxy *)[[self previewContext] sourceView];
     TiUITableView *table = (TiUITableView *)[tableProxy view];
 
@@ -139,7 +139,7 @@
   };
 
 #ifdef USE_TI_UILISTVIEW
-  if ([[[self previewContext] sourceView] isKindOfClass:[TiUIListViewProxy class]] == YES) {
+  if ([[[self previewContext] sourceView] isKindOfClass:[TiUIListViewProxy class]]) {
     TiUIListViewProxy *listProxy = (TiUIListViewProxy *)[[self previewContext] sourceView];
     TiUIListSectionProxy *theSection = [listProxy sectionForIndex:indexPath.section];
 

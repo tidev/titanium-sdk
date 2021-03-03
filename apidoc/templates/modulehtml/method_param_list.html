@@ -1,7 +1,0 @@
-<%page args="item"/>
-% if item.parameters is not None and len(item.parameters) > 0:
-	<li>
-		<h4 id="arguments">Parameters</h4>
-		<%include file="member_list.html" args="platform_count=0, is_property_list=True, item_list=item.parameters, div_class='arguments', is_method_param_list=True"/>
-	</li>
-% endif

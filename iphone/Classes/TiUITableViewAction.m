@@ -7,8 +7,8 @@
 #ifdef USE_TI_UITABLEVIEW
 
 #import "TiUITableViewAction.h"
-#import "TiBase.h"
-#import "TiUtils.h"
+#import <TitaniumKit/TiBase.h>
+#import <TitaniumKit/TiUtils.h>
 
 @implementation TiUITableViewAction
 

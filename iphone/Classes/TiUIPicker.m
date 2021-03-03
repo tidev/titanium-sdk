@@ -9,7 +9,7 @@
 #import "TiUIPicker.h"
 #import "TiUIPickerColumnProxy.h"
 #import "TiUIPickerRowProxy.h"
-#import "TiUtils.h"
+#import <TitaniumKit/TiUtils.h>
 
 #define DEFAULT_ROW_HEIGHT 40
 #define DEFAULT_COLUMN_PADDING 30
@@ -54,13 +54,8 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
 - (UIControl *)picker
 {
   if (picker == nil) {
-    float width = 320;
-    float height = 216;
-
-    if ([TiUtils isIOS9OrGreater]) {
-      width = [TiUtils floatValue:[self.proxy valueForKey:@"width"] def:320];
-      height = [TiUtils floatValue:[self.proxy valueForKey:@"height"] def:216];
-    }
+    CGFloat width = [TiUtils floatValue:[self.proxy valueForKey:@"width"] def:320];
+    CGFloat height = [TiUtils floatValue:[self.proxy valueForKey:@"height"] def:216];
 
     NSString *widthString = [TiUtils stringValue:[self.proxy valueForKey:@"width"]];
     NSString *heightString = [TiUtils stringValue:[self.proxy valueForKey:@"height"]];
@@ -84,7 +79,8 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
       [(UIDatePicker *)picker setDatePickerMode:type];
       [picker addTarget:self action:@selector(valueChanged:) forControlEvents:UIControlEventValueChanged];
     }
-    [picker setBackgroundColor:[UIColor whiteColor]];
+    [picker setBackgroundColor:[TiUtils isIOSVersionOrGreater:@"13.0"] ? UIColor.systemBackgroundColor : UIColor.whiteColor];
+
     [self addSubview:picker];
   }
   return picker;
@@ -178,13 +174,27 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
   }
 }
 
+#if IS_SDK_IOS_13_4
+- (void)setDatePickerStyle_:(id)style
+{
+  if (![TiUtils isIOSVersionOrGreater:@"13.4"]) {
+    DebugLog(@"setDatePickerStyle is only supported on iOS 13.4 and above");
+    return;
+  }
+  UIControl *picker = [self picker];
+  if ([self isDatePicker]) {
+    [(UIDatePicker *)picker setPreferredDatePickerStyle:[TiUtils intValue:style]];
+  }
+}
+#endif
+
 // We're order-dependent on type being set first, so we need to make sure that anything that relies
 // on whether or not this is a date picker needs to be set AFTER the initial configuration.
 - (void)setSelectionIndicator_:(id)value
 {
   if (picker == nil) {
     [[self proxy] replaceValue:value forKey:@"selectionIndicator" notification:NO];
-  } else if ([self isDatePicker] == NO) {
+  } else if (![self isDatePicker]) {
     [(UIPickerView *)[self picker] setShowsSelectionIndicator:[TiUtils boolValue:value]];
   }
 }
@@ -219,7 +229,19 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
 
 - (void)setDateTimeColor_:(id)value
 {
-  [[self proxy] replaceValue:value forKey:@"dateTimeColor" notification:NO];
+  // Guard date picker and iOS 14+ date picker style
+  if (![self isDatePicker] || [TiUtils isMacOS]) {
+    return;
+  }
+#if IS_SDK_IOS_13_4
+  if (((UIDatePicker *)[self picker]).preferredDatePickerStyle != UIDatePickerStyleWheels) {
+    return;
+  }
+#endif
+
+  [[self proxy] replaceValue:value
+                      forKey:@"dateTimeColor"
+                notification:NO];
 
   if (picker != nil) {
     [(UIDatePicker *)[self picker] setValue:[[TiUtils colorValue:value] _color] forKeyPath:@"textColor"];
@@ -305,7 +327,7 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
 - (NSInteger)pickerView:(UIPickerView *)pickerView numberOfRowsInComponent:(NSInteger)component
 {
   TiUIPickerColumnProxy *proxy = [[self columns] objectAtIndex:component];
-  return [proxy rowCount];
+  return proxy.rowCount.integerValue;
 }
 
 #pragma mark Delegates (only for UIPickerView)

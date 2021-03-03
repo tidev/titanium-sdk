@@ -18,7 +18,7 @@ import org.appcelerator.titanium.view.TiUIView;
 import org.appcelerator.titanium.view.TiCompositeLayout.LayoutArrangement;
 
 import android.content.Context;
-import android.support.v7.widget.CardView;
+import androidx.cardview.widget.CardView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
@@ -77,14 +77,21 @@ public class TiUICardView extends TiUIView
 
 	public TiUICardView(final TiViewProxy proxy)
 	{
-		// we create the view after the properties are processed
 		super(proxy);
+
+		// generate native view
+		if (this.nativeView == null) {
+			processProperties(getProxy().getProperties());
+		}
 	}
 
 	public TiUICardViewLayout getLayout()
 	{
 		View nativeView = getNativeView();
-		return ((TiCardView) nativeView).layout;
+		if (nativeView != null) {
+			return ((TiCardView) nativeView).layout;
+		}
+		return null;
 	}
 
 	@Override
@@ -355,5 +362,11 @@ public class TiUICardView extends TiUIView
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
+	}
+
+	@Override
+	protected boolean hasBorder(KrollDict d)
+	{
+		return false;
 	}
 }

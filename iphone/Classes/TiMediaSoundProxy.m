@@ -6,19 +6,14 @@
  */
 #ifdef USE_TI_MEDIASOUND
 
-#import <AudioToolbox/AudioToolbox.h>
-#if IS_XCODE_8
 #import <AVFoundation/AVFAudio.h>
-#else
-#import <AVFoundation/AVAudioPlayer.h>
-#import <AVFoundation/AVAudioSession.h>
-#endif
+#import <AudioToolbox/AudioToolbox.h>
 
-#import "TiBlob.h"
-#import "TiFile.h"
 #import "TiMediaAudioSession.h"
 #import "TiMediaSoundProxy.h"
-#import "TiUtils.h"
+#import <TitaniumKit/TiBlob.h>
+#import <TitaniumKit/TiFile.h>
+#import <TitaniumKit/TiUtils.h>
 
 @implementation TiMediaSoundProxy
 
@@ -47,9 +42,10 @@
   volume = 1.0;
   resumeTime = 0;
 
-  TiThreadPerformOnMainThread(^{
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(remoteControlEvent:) name:kTiRemoteControlNotification object:nil];
-  },
+  TiThreadPerformOnMainThread(
+      ^{
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(remoteControlEvent:) name:kTiRemoteControlNotification object:nil];
+      },
       NO);
 }
 
@@ -67,9 +63,10 @@
     }
     [player setDelegate:nil];
   }
-  TiThreadPerformOnMainThread(^{
-    [[NSNotificationCenter defaultCenter] removeObserver:self];
-  },
+  TiThreadPerformOnMainThread(
+      ^{
+        [[NSNotificationCenter defaultCenter] removeObserver:self];
+      },
       YES);
 
   RELEASE_TO_NIL(player);
@@ -84,67 +81,71 @@
 - (void)play:(id)args
 {
   [self rememberSelf];
-  TiThreadPerformOnMainThread(^{
-    // indicate we're going to start playback
-    if (![[TiMediaAudioSession sharedSession] canPlayback]) {
-      [self throwException:@"Improper audio session mode for playback"
-                 subreason:[[TiMediaAudioSession sharedSession] sessionMode]
-                  location:CODELOCATION];
-    }
+  TiThreadPerformOnMainThread(
+      ^{
+        // indicate we're going to start playback
+        if (![[TiMediaAudioSession sharedSession] canPlayback]) {
+          [self throwException:@"Improper audio session mode for playback"
+                     subreason:[[TiMediaAudioSession sharedSession] sessionMode]
+                      location:CODELOCATION];
+        }
 
-    if (player == nil || !([player isPlaying] || paused)) {
-      [[TiMediaAudioSession sharedSession] startAudioSession];
-    }
-    [[self player] play];
-    paused = NO;
-  },
+        if (player == nil || !([player isPlaying] || paused)) {
+          [[TiMediaAudioSession sharedSession] startAudioSession];
+        }
+        [[self player] play];
+        paused = NO;
+      },
       NO);
 }
 
 - (void)stop:(id)args
 {
-  TiThreadPerformOnMainThread(^{
-    if (player != nil) {
-      if ([player isPlaying] || paused) {
-        [player stop];
-        [player setCurrentTime:0];
-        [[TiMediaAudioSession sharedSession] stopAudioSession];
-      }
-    }
-    resumeTime = 0;
-    paused = NO;
-  },
+  TiThreadPerformOnMainThread(
+      ^{
+        if (player != nil) {
+          if ([player isPlaying] || paused) {
+            [player stop];
+            [player setCurrentTime:0];
+            [[TiMediaAudioSession sharedSession] stopAudioSession];
+          }
+        }
+        resumeTime = 0;
+        paused = NO;
+      },
       NO);
 }
 
 - (void)pause:(id)args
 {
-  TiThreadPerformOnMainThread(^{
-    if (player != nil) {
-      if ([player isPlaying]) {
-        [player pause];
-        paused = YES;
-      }
-    }
-  },
+  TiThreadPerformOnMainThread(
+      ^{
+        if (player != nil) {
+          if ([player isPlaying]) {
+            [player pause];
+            paused = YES;
+          }
+        }
+      },
       NO);
 }
 
 - (void)reset:(id)args
 {
-  TiThreadPerformOnMainThread(^{
-    if (player != nil) {
-      if (!([player isPlaying] || paused)) {
-        [[TiMediaAudioSession sharedSession] startAudioSession];
-      }
+  TiThreadPerformOnMainThread(
+      ^{
+        if (player != nil) {
+          if (!([player isPlaying] || paused)) {
+            [[TiMediaAudioSession sharedSession] startAudioSession];
+          }
 
-      [player stop];
-      [player setCurrentTime:0];
-      [player play];
-    }
-    resumeTime = 0;
-    paused = NO;
-  },
+          [player stop];
+          [player setCurrentTime:0];
+          [player play];
+        }
+        resumeTime = 0;
+        paused = NO;
+      },
       NO);
 }
 
@@ -153,10 +154,11 @@
   if (player != nil) {
     resumeTime = 0;
     paused = NO;
-    TiThreadPerformOnMainThread(^{
-      [player stop];
-      RELEASE_TO_NIL(player);
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          [player stop];
+          RELEASE_TO_NIL(player);
+        },
         YES);
   }
   [self forgetSelf];
@@ -268,7 +270,7 @@
 {
   if ([url_ isKindOfClass:[NSString class]]) {
     url = [[TiUtils toURL:url_ proxy:self] retain];
-    if ([url isFileURL] == NO) {
+    if (![url isFileURL]) {
       // we need to download it and save it off into temp file
       NSData *data = [NSData dataWithContentsOfURL:url];
       NSString *ext = [[[url path] lastPathComponent] pathExtension];
@@ -286,9 +288,10 @@
   } else if ([url_ isKindOfClass:[TiFile class]]) {
     url = [[NSURL fileURLWithPath:[(TiFile *)url_ path]] retain];
   }
-  TiThreadPerformOnMainThread(^{
-    [self player]; // instantiate the player
-  },
+  TiThreadPerformOnMainThread(
+      ^{
+        [self player]; // instantiate the player
+      },
       YES);
 }
 
@@ -329,9 +332,8 @@
 - (void)audioPlayerDecodeErrorDidOccur:(AVAudioPlayer *)player error:(NSError *)error
 {
   if ([self _hasListeners:@"error"]) {
-    NSString *message = [TiUtils messageFromError:error];
-    NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:message, @"message", nil];
-    [self fireEvent:@"error" withObject:event errorCode:[error code] message:message];
+    NSMutableDictionary *event = [TiUtils dictionaryWithCode:[error code] message:[TiUtils messageFromError:error]];
+    [self fireEvent:@"error" withObject:event];
   }
   [self forgetSelf];
 }

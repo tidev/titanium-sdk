@@ -6,13 +6,22 @@
  */
 #if defined(USE_TI_UIIOSTABLEVIEWSTYLE) || defined(USE_TI_UIIOSLISTVIEWSTYLE)
 #import "TiUIiOSTableViewStyleProxy.h"
-#import "TiBase.h"
+#import <TitaniumKit/TiBase.h>
+#import <TitaniumKit/TiUtils.h>
 
 @implementation TiUIiOSTableViewStyleProxy
 
 - (NSString *)apiName
 {
   return @"Ti.UI.iOS.TableViewStyle";
+}
+
+- (NSNumber *)INSET_GROUPED
+{
+  if ([TiUtils isIOSVersionOrGreater:@"13.0"]) {
+    return NUMINT(UITableViewStyleInsetGrouped);
+  }
+  return NUMINT(0);
 }
 
 MAKE_SYSTEM_PROP(PLAIN, UITableViewStylePlain);

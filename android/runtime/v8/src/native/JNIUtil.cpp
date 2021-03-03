@@ -30,6 +30,7 @@ jclass JNIUtil::doubleClass = NULL;
 jclass JNIUtil::booleanClass = NULL;
 jclass JNIUtil::stringArrayClass = NULL;
 jclass JNIUtil::objectArrayClass = NULL;
+jclass JNIUtil::byteArrayClass = NULL;
 jclass JNIUtil::shortArrayClass = NULL;
 jclass JNIUtil::intArrayClass = NULL;
 jclass JNIUtil::longArrayClass = NULL;
@@ -43,7 +44,9 @@ jclass JNIUtil::setClass = NULL;
 jclass JNIUtil::outOfMemoryError = NULL;
 jclass JNIUtil::nullPointerException = NULL;
 jclass JNIUtil::throwableClass = NULL;
+jclass JNIUtil::stackTraceElementClass = NULL;
 
+jclass JNIUtil::v8PromiseClass = NULL;
 jclass JNIUtil::v8ObjectClass = NULL;
 jclass JNIUtil::v8FunctionClass = NULL;
 jclass JNIUtil::krollRuntimeClass = NULL;
@@ -55,6 +58,7 @@ jclass JNIUtil::krollAssetHelperClass = NULL;
 jclass JNIUtil::krollLoggingClass = NULL;
 jclass JNIUtil::krollDictClass = NULL;
 jclass JNIUtil::referenceTableClass = NULL;
+jclass JNIUtil::jsErrorClass = NULL;
 
 jmethodID JNIUtil::classGetNameMethod = NULL;
 jmethodID JNIUtil::arrayListInitMethod = NULL;
@@ -79,9 +83,14 @@ jmethodID JNIUtil::booleanInitMethod = NULL;
 jmethodID JNIUtil::booleanBooleanValueMethod = NULL;
 jmethodID JNIUtil::longInitMethod = NULL;
 jmethodID JNIUtil::numberDoubleValueMethod = NULL;
+
 jmethodID JNIUtil::throwableGetMessageMethod = NULL;
+jmethodID JNIUtil::throwableGetStackTraceMethod = NULL;
+
+jmethodID JNIUtil::stackTraceElementToStringMethod = NULL;
 
 jfieldID JNIUtil::v8ObjectPtrField = NULL;
+jmethodID JNIUtil::v8PromiseInitMethod = NULL;
 jmethodID JNIUtil::v8ObjectInitMethod = NULL;
 jmethodID JNIUtil::v8FunctionInitMethod = NULL;
 
@@ -91,6 +100,7 @@ jmethodID JNIUtil::referenceTableMakeWeakReferenceMethod = NULL;
 jmethodID JNIUtil::referenceTableMakeSoftReferenceMethod = NULL;
 jmethodID JNIUtil::referenceTableClearReferenceMethod = NULL;
 jmethodID JNIUtil::referenceTableGetReferenceMethod = NULL;
+jmethodID JNIUtil::referenceTableIsStrongReferenceMethod = NULL;
 
 jint JNIUtil::krollRuntimeDontIntercept = -1;
 jmethodID JNIUtil::krollInvocationInitMethod = NULL;
@@ -109,6 +119,8 @@ jmethodID JNIUtil::krollAssetHelperReadAssetMethod = NULL;
 jmethodID JNIUtil::krollLoggingLogWithDefaultLoggerMethod = NULL;
 
 jmethodID JNIUtil::krollRuntimeDispatchExceptionMethod = NULL;
+
+jmethodID JNIUtil::getJSPropertiesMethod = NULL;
 
 JNIEnv* JNIScope::current = NULL;
 
@@ -303,6 +315,7 @@ void JNIUtil::initCache()
 	floatClass = findClass("java/lang/Float");
 	doubleClass = findClass("java/lang/Double");
 	booleanClass = findClass("java/lang/Boolean");
+	byteArrayClass = findClass("[B");
 	shortArrayClass = findClass("[S");
 	intArrayClass = findClass("[I");
 	longArrayClass = findClass("[J");
@@ -318,7 +331,9 @@ void JNIUtil::initCache()
 	outOfMemoryError = findClass("java/lang/OutOfMemoryError");
 	nullPointerException = findClass("java/lang/NullPointerException");
 	throwableClass = findClass("java/lang/Throwable");
+	stackTraceElementClass = findClass("java/lang/StackTraceElement");
 
+	v8PromiseClass = findClass("org/appcelerator/kroll/runtime/v8/V8Promise");
 	v8ObjectClass = findClass("org/appcelerator/kroll/runtime/v8/V8Object");
 	v8FunctionClass = findClass("org/appcelerator/kroll/runtime/v8/V8Function");
 	krollRuntimeClass = findClass("org/appcelerator/kroll/KrollRuntime");
@@ -330,7 +345,9 @@ void JNIUtil::initCache()
 	krollExceptionClass = findClass("org/appcelerator/kroll/KrollException");
 	krollDictClass = findClass("org/appcelerator/kroll/KrollDict");
 	referenceTableClass = findClass("org/appcelerator/kroll/runtime/v8/ReferenceTable");
+	jsErrorClass = findClass("org/appcelerator/kroll/JSError");
 
+	getJSPropertiesMethod = getMethodID(jsErrorClass, "getJSProperties", "()Ljava/util/HashMap;", false);
 	classGetNameMethod = getMethodID(classClass, "getName", "()Ljava/lang/String;", false);
 	arrayListInitMethod = getMethodID(arrayListClass, "<init>", "()V", false);
 	arrayListAddMethod = getMethodID(arrayListClass, "add", "(Ljava/lang/Object;)Z", false);
@@ -355,8 +372,11 @@ void JNIUtil::initCache()
 	longInitMethod = getMethodID(longClass, "<init>", "(J)V", false);
 	numberDoubleValueMethod = getMethodID(numberClass, "doubleValue", "()D", false);
 	throwableGetMessageMethod = getMethodID(throwableClass, "getMessage", "()Ljava/lang/String;", false);
+	throwableGetStackTraceMethod = getMethodID(throwableClass, "getStackTrace", "()[Ljava/lang/StackTraceElement;", false);
+	stackTraceElementToStringMethod = getMethodID(stackTraceElementClass, "toString", "()Ljava/lang/String;", false);
 
 	v8ObjectPtrField = getFieldID(v8ObjectClass, "ptr", "J");
+	v8PromiseInitMethod = getMethodID(v8PromiseClass, "<init>", "(J)V", false);
 	v8ObjectInitMethod = getMethodID(v8ObjectClass, "<init>", "(J)V", false);
 	v8FunctionInitMethod = getMethodID(v8FunctionClass, "<init>", "(J)V", false);
 
@@ -370,13 +390,14 @@ void JNIUtil::initCache()
 	referenceTableMakeSoftReferenceMethod = getMethodID(referenceTableClass, "makeSoftReference", "(J)V", true);
 	referenceTableClearReferenceMethod = getMethodID(referenceTableClass, "clearReference", "(J)Ljava/lang/Object;", true);
 	referenceTableGetReferenceMethod = getMethodID(referenceTableClass, "getReference", "(J)Ljava/lang/Object;", true);
+	referenceTableIsStrongReferenceMethod = getMethodID(referenceTableClass, "isStrongReference", "(J)Z", true);
 
 	jfieldID dontInterceptField = env->GetStaticFieldID(krollRuntimeClass, "DONT_INTERCEPT", "I");
 	krollRuntimeDontIntercept = env->GetStaticIntField(krollRuntimeClass, dontInterceptField);
 
 	krollInvocationInitMethod = getMethodID(krollInvocationClass, "<init>", "(Ljava/lang/String;)V", false);
 	krollExceptionInitMethod = getMethodID(krollExceptionClass, "<init>", "(Ljava/lang/String;Ljava/lang/String;)V", false);
-	krollObjectProxySupportField = getFieldID(krollObjectClass, "proxySupport", "Lorg/appcelerator/kroll/KrollProxySupport;");
+	krollObjectProxySupportField = getFieldID(krollObjectClass, "proxySupport", "Ljava/lang/ref/WeakReference;");
 	krollObjectSetHasListenersForEventTypeMethod = getMethodID(krollObjectClass, "setHasListenersForEventType",
 		"(Ljava/lang/String;Z)V");
 	krollObjectOnEventFiredMethod = getMethodID(krollObjectClass, "onEventFired", "(Ljava/lang/String;Ljava/lang/Object;)V");
@@ -393,8 +414,8 @@ void JNIUtil::initCache()
 	krollProxyOnPropertiesChangedMethod = getMethodID(krollProxyClass, "onPropertiesChanged",
 		"([[Ljava/lang/Object;)V", false);
 
-	krollRuntimeDispatchExceptionMethod = getMethodID(krollRuntimeClass, "dispatchException", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ILjava/lang/String;I)V",true);
-	krollAssetHelperReadAssetMethod = getMethodID(krollAssetHelperClass, "readAsset", "(Ljava/lang/String;)Ljava/lang/String;", true);
+	krollRuntimeDispatchExceptionMethod = getMethodID(krollRuntimeClass, "dispatchException", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ILjava/lang/String;ILjava/lang/String;Ljava/lang/String;)V",true);
+	krollAssetHelperReadAssetMethod = getMethodID(krollAssetHelperClass, "readAssetBytes", "(Ljava/lang/String;)[B", true);
 
 	krollLoggingLogWithDefaultLoggerMethod = getMethodID(krollLoggingClass, "logWithDefaultLogger", "(ILjava/lang/String;)V", true);
 

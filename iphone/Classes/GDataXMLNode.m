@@ -402,8 +402,8 @@ static xmlChar *SplitQNameReverse(const xmlChar *qname, xmlChar **prefix)
 
   if (xmlNode_ != NULL
       && (xmlNode_->type == XML_ELEMENT_NODE
-             || xmlNode_->type == XML_ATTRIBUTE_NODE
-             || xmlNode_->type == XML_TEXT_NODE)) {
+          || xmlNode_->type == XML_ATTRIBUTE_NODE
+          || xmlNode_->type == XML_TEXT_NODE)) {
     // there is no xmlDocPtr in XML_NAMESPACE_DECL nodes,
     // so we can't cache the text of those
 
@@ -522,8 +522,8 @@ static xmlChar *SplitQNameReverse(const xmlChar *qname, xmlChar **prefix)
 
       if (result > -1) {
         str = [[[NSString alloc] initWithBytes:(xmlBufferContent(buff))
-                                 length:(xmlBufferLength(buff))
-                                 encoding:NSUTF8StringEncoding] autorelease];
+                                        length:(xmlBufferLength(buff))
+                                        encoding:NSUTF8StringEncoding] autorelease];
       }
       xmlBufferFree(buff);
     }
@@ -839,7 +839,7 @@ static xmlChar *SplitQNameReverse(const xmlChar *qname, xmlChar **prefix)
           int result = xmlXPathRegisterNs(xpathCtx, prefixChars, uriChars);
           if (result != 0) {
 #if DEBUG
-            NSCAssert1(result == 0, @"GDataXMLNode XPath namespace %@ issue",
+            NSCAssert1(result == noErr, @"GDataXMLNode XPath namespace %@ issue",
                 prefix);
 #endif
           }
@@ -870,7 +870,7 @@ static xmlChar *SplitQNameReverse(const xmlChar *qname, xmlChar **prefix)
             int result = xmlXPathRegisterNs(xpathCtx, prefix, nsPtr->href);
             if (result != 0) {
 #if DEBUG
-              NSCAssert1(result == 0, @"GDataXMLNode XPath namespace %s issue",
+              NSCAssert1(result == noErr, @"GDataXMLNode XPath namespace %s issue",
                   prefix);
 #endif
             }
@@ -962,8 +962,8 @@ static xmlChar *SplitQNameReverse(const xmlChar *qname, xmlChar **prefix)
 
   return [self XMLNode] == [other XMLNode]
       || ([self kind] == [other kind]
-             && AreEqualOrBothNilPrivate([self name], [other name])
-             && [[self children] count] == [[other children] count]);
+          && AreEqualOrBothNilPrivate([self name], [other name])
+          && [[self children] count] == [[other children] count]);
 }
 
 - (NSUInteger)hash
@@ -2009,7 +2009,7 @@ static Boolean StringCacheKeyEqualCallBack(const void *str1, const void *str2)
     return true;
 
   int result = xmlStrcmp(str1, str2);
-  return (result == 0);
+  return result == noErr;
 }
 
 static CFHashCode StringCacheKeyHashCallBack(const void *str)

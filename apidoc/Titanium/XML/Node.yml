@@ -3,19 +3,17 @@ name: Titanium.XML.Node
 extends: Titanium.Proxy
 summary: A single node in the [Document](Titanium.XML.Document) tree.
 description: |
-    Implements the [DOM Level 2 API](http://www.w3.org/TR/DOM-Level-2-Core/core.html#ID-1950641247)
+    Implements the [DOM Level 2 API](https://www.w3.org/TR/DOM-Level-2-Core/core.html#ID-1950641247)
     on Android and iOS.
 
     Note that on iOS, only [Element](Titanium.XML.Element) nodes are mutable. This means
     that the methods `appendChild`, `insertBefore`, `removeChild`, and
     `replaceChild` only work on `Element` objects. If one of these methods is called on
     another type of node, it throws an exception.
-
 createable: false
-platforms: [android, iphone, ipad]
-
+since: {android: "0.9", iphone: "0.9", ipad: "0.9", macos: "9.2.0"}
+platforms: [android, iphone, ipad, macos]
 properties:
-
   - name: ELEMENT_NODE
     summary: |
         Used with [nodeType](Titanium.XML.Node.nodeType) to identify an
@@ -143,18 +141,18 @@ properties:
         [Text](Titanium.XML.Text) nodes only.
     type: String
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     accessors: false
 
   - name: text
     deprecated:
         since: "2.0.0"
-        notes: Use <Titanium.XML.Node.textContent> instead.
+        notes: Use [Titanium.XML.Node.textContent](Titanium.XML.Node.textContent) instead.
     summary: |
         Content (value) of all text nodes within this node.
     type: String
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     accessors: false
 
   - name: nodeType
@@ -216,7 +214,7 @@ properties:
         Note that a node always has an owning document, even if it is not part of the
         document tree.
 
-        For more on node ownership, see [ownerDocument issues](http://www.w3.org/DOM/faq.html#ownerdoc)
+        For more on node ownership, see [ownerDocument issues](https://www.w3.org/DOM/faq.html#ownerdoc)
         in the W3C DOM FAQ.
     type: Titanium.XML.Document
     permission: read-only
@@ -244,7 +242,6 @@ properties:
     accessors: false
 
 methods:
-
   - name: appendChild
     summary: Appends the node `newChild` as a child of this node.
     description: |

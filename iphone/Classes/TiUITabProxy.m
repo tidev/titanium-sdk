@@ -1,17 +1,20 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2014 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2021 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 #ifdef USE_TI_UITAB
 
 #import "TiUITabProxy.h"
-#import "ImageLoader.h"
-#import "TiApp.h"
-#import "TiProxy.h"
+#import "TiUITabGroup.h"
 #import "TiUITabGroupProxy.h"
-#import "TiUtils.h"
+#import <TitaniumKit/ImageLoader.h>
+#import <TitaniumKit/KrollPromise.h>
+#import <TitaniumKit/TiApp.h>
+#import <TitaniumKit/TiBlob.h>
+#import <TitaniumKit/TiProxy.h>
+#import <TitaniumKit/TiUtils.h>
 
 //NOTE: this proxy is a little different than normal Proxy/View pattern
 //since it's not really backed by a view in the normal way.  It's given
@@ -27,6 +30,8 @@
 
 - (void)_destroy
 {
+  [[NSNotificationCenter defaultCenter] removeObserver:self name:kTiTraitCollectionChanged object:nil];
+
   if (rootWindow != nil) {
     [self cleanNavStack:YES];
   }
@@ -52,7 +57,18 @@
   [self replaceValue:NUMBOOL(YES) forKey:@"activeIconIsMask" notification:NO];
   [self replaceValue:nil forKey:@"titleColor" notification:NO];
   [self replaceValue:nil forKey:@"activeTitleColor" notification:NO];
+  [self replaceValue:nil forKey:@"tintColor" notification:NO];
+  [self replaceValue:nil forKey:@"activeTintColor" notification:NO];
+  [[NSNotificationCenter defaultCenter] addObserver:self
+                                           selector:@selector(didChangeTraitCollection:)
+                                               name:kTiTraitCollectionChanged
+                                             object:nil];
   [super _configure];
+}
+
+- (void)didChangeTraitCollection:(NSNotification *)info
+{
+  [self updateTabBarItem];
 }
 
 - (NSString *)apiName
@@ -64,30 +80,31 @@
 
 - (void)cleanNavStack:(BOOL)removeTab
 {
-  TiThreadPerformOnMainThread(^{
-    UIViewController *rootController = [self rootController];
-    [controller setDelegate:nil];
-    if ([[controller viewControllers] count] > 1) {
-      NSMutableArray *doomedVcs = [[controller viewControllers] mutableCopy];
-      [doomedVcs removeObject:rootController];
-      [controller setViewControllers:[NSArray arrayWithObject:rootController]];
-      if (current != nil) {
-        RELEASE_TO_NIL(current);
-        current = [(TiWindowProxy *)[(TiViewController *)rootController proxy] retain];
-      }
-      for (TiViewController *doomedVc in doomedVcs) {
-        [self closeWindowProxy:(TiWindowProxy *)[doomedVc proxy] animated:NO];
-      }
-      RELEASE_TO_NIL(doomedVcs);
-    }
-    if (removeTab) {
-      [self closeWindowProxy:rootWindow animated:NO];
-      RELEASE_TO_NIL(controller);
-      RELEASE_TO_NIL(current);
-    } else {
-      [controller setDelegate:self];
-    }
-  },
+  TiThreadPerformOnMainThread(
+      ^{
+        UIViewController *rootController = [self rootController];
+        [controller setDelegate:nil];
+        if ([[controller viewControllers] count] > 1) {
+          NSMutableArray *doomedVcs = [[controller viewControllers] mutableCopy];
+          [doomedVcs removeObject:rootController];
+          [controller setViewControllers:[NSArray arrayWithObject:rootController]];
+          if (current != nil) {
+            RELEASE_TO_NIL(current);
+            current = [(TiWindowProxy *)[(TiViewController *)rootController proxy] retain];
+          }
+          for (TiViewController *doomedVc in doomedVcs) {
+            [self closeWindowProxy:(TiWindowProxy *)[doomedVc proxy] animated:NO];
+          }
+          RELEASE_TO_NIL(doomedVcs);
+        }
+        if (removeTab) {
+          [self closeWindowProxy:rootWindow animated:NO];
+          RELEASE_TO_NIL(controller);
+          RELEASE_TO_NIL(current);
+        } else {
+          [controller setDelegate:self];
+        }
+      },
       YES);
 }
 
@@ -111,11 +128,29 @@
     [self performSelector:_cmd withObject:args afterDelay:0.1];
     return;
   }
-  TiWindowProxy *window = [args objectAtIndex:0];
 
-  BOOL animated = ([args count] > 1) ? [TiUtils boolValue:@"animated" properties:[args objectAtIndex:1] def:YES] : YES;
-  [controllerStack addObject:[window hostingController]];
-  [[[self rootController] navigationController] pushViewController:[window hostingController] animated:animated];
+  KrollPromise *promise = [args objectAtIndex:2];
+  @try {
+    TiWindowProxy *window = [args objectAtIndex:0];
+
+    // Prevent UIKit  crashes when trying to push a window while it's already in the nav stack (e.g. on really slow devices)
+    if ([[[self rootController].navigationController viewControllers] containsObject:window.hostingController]) {
+      NSLog(@"[WARN] Trying to push a view controller that is already in the navigation window controller stack. Skipping open …");
+      [promise rejectWithErrorMessage:@"Trying to push a view controller that is already in the navigation window controller stack. Skipping open …"];
+      return;
+    }
+
+    BOOL animated = [[args objectAtIndex:1] boolValue];
+    [controllerStack addObject:[window hostingController]];
+
+    [[[self rootController] navigationController] pushViewController:[window hostingController] animated:animated];
+    [promise resolve:@[]];
+  } @catch (NSException *ex) {
+    NSLog(@"[ERROR] %@", ex.description);
+    if (promise != nil) {
+      [promise rejectWithErrorMessage:ex.description];
+    }
+  }
 }
 
 - (void)closeOnUIThread:(NSArray *)args
@@ -125,13 +160,16 @@
     return;
   }
   TiWindowProxy *window = [args objectAtIndex:0];
+  KrollPromise *promise = [args objectAtIndex:2];
+  BOOL animated = [[args objectAtIndex:1] boolValue];
 
   if (window == current) {
-    BOOL animated = ([args count] > 1) ? [TiUtils boolValue:@"animated" properties:[args objectAtIndex:1] def:YES] : YES;
     [[[self rootController] navigationController] popViewControllerAnimated:animated];
   } else {
+    // FIXME: how can we forward the underlying promise returned under closeWindowProxy ([window close:])?
     [self closeWindowProxy:window animated:NO];
   }
+  [promise resolve:@[]]; // This isn't exactly right, we're always assuming success here. See above...
 }
 
 #pragma mark - Internal API
@@ -183,7 +221,7 @@
   // for this to work right, we need to sure that we always have the tab close the window
   // and not let the window simply close by itself. this will ensure that we tell the
   // tab that we're doing that
-  [window close:nil];
+  [[window close:nil] flush]; // FIXME: How can we take the returned Promise and basically forward it's reject/resolve along?
   RELEASE_TO_NIL_AUTORELEASE(window);
   RELEASE_TO_NIL(windowController);
 }
@@ -239,14 +277,12 @@
   return tabGroup;
 }
 
-- (void)openWindow:(NSArray *)args
+- (KrollPromise *)openWindow:(NSArray *)args
 {
   TiWindowProxy *window = [args objectAtIndex:0];
-  ENSURE_TYPE(window, TiWindowProxy);
+  ENSURE_TYPE(window, TiWindowProxy); // FIXME: Should we catch and return a rejected Promise? Or throw sync like this?
 
-#if IS_XCODE_9
   [window processForSafeArea];
-#endif
 
   if (window == rootWindow) {
     [rootWindow windowWillOpen];
@@ -255,46 +291,65 @@
   [window setIsManaged:YES];
   [window setTab:self];
   [window setParentOrientationController:self];
+
   //Send to open. Will come back after _handleOpen returns true.
   if (![window opening]) {
     args = ([args count] > 1) ? [args objectAtIndex:1] : nil;
     if (args != nil) {
       args = [NSArray arrayWithObject:args];
     }
-    [window open:args];
-    return;
+    KrollPromise *promise = [window open:args];
+
+    TiUIView *view = [window view];
+    TiViewController *controller = (TiViewController *)[window hostingController];
+    [view setFrame:controller.view.bounds];
+    return promise;
   }
 
   [[[TiApp app] controller] dismissKeyboard];
-  TiThreadPerformOnMainThread(^{
-    [self openOnUIThread:args];
-  },
+
+  // We need to generate a promise for the given window and store it so openOnUIThread can grab it
+  JSContext *context = [self currentContext];
+  KrollPromise *promise = [[[KrollPromise alloc] initInContext:context] autorelease];
+  BOOL animated = ([args count] > 1) ? [TiUtils boolValue:@"animated" properties:[args objectAtIndex:1] def:YES] : YES;
+  TiThreadPerformOnMainThread(
+      ^{
+        [self openOnUIThread:@[ window, [NSNumber numberWithBool:animated], promise ]];
+      },
       YES);
+  return promise;
 }
 
-- (void)closeWindow:(NSArray *)args
+- (KrollPromise *)closeWindow:(NSArray *)args
 {
   TiWindowProxy *window = [args objectAtIndex:0];
-  ENSURE_TYPE(window, TiWindowProxy);
+  ENSURE_TYPE(window, TiWindowProxy); // FIXME: Should we catch and return a rejected Promise? Or throw sync like this?
+
+  JSContext *context = [self currentContext];
 
   if (window == rootWindow && ![[TiApp app] willTerminate]) {
     DebugLog(@"[ERROR] Can not close root window of the tab. Use removeTab instead");
-    return;
+    return [KrollPromise rejectedWithErrorMessage:@"Can not close root window of the tab. Use removeTab instead" inContext:context];
   }
-  TiThreadPerformOnMainThread(^{
-    [self closeOnUIThread:args];
-  },
+
+  KrollPromise *promise = [[[KrollPromise alloc] initInContext:context] autorelease];
+  BOOL animated = ([args count] > 1) ? [TiUtils boolValue:@"animated" properties:[args objectAtIndex:1] def:YES] : YES;
+  TiThreadPerformOnMainThread(
+      ^{
+        [self closeOnUIThread:@[ window, [NSNumber numberWithBool:animated], promise ]];
+      },
       YES);
+  return promise;
 }
 
-- (void)open:(NSArray *)args
+- (KrollPromise *)open:(NSArray *)args
 {
-  [self openWindow:args];
+  return [self openWindow:args];
 }
 
-- (void)close:(NSArray *)args
+- (KrollPromise *)close:(NSArray *)args
 {
-  [self closeWindow:args];
+  return [self closeWindow:args];
 }
 
 - (void)windowClosing:(TiWindowProxy *)window animated:(BOOL)animated
@@ -325,6 +380,13 @@
 {
   if (!transitionWithGesture) {
     transitionIsAnimating = YES;
+  }
+  if ([TiUtils isIOSVersionOrGreater:@"13.0"] && [viewController isKindOfClass:[TiViewController class]]) {
+    TiViewController *toViewController = (TiViewController *)viewController;
+    if ([[toViewController proxy] isKindOfClass:[TiWindowProxy class]]) {
+      TiWindowProxy *windowProxy = (TiWindowProxy *)[toViewController proxy];
+      [((TiUITabGroup *)(tabGroup.view)) tabController].view.backgroundColor = windowProxy.view.backgroundColor;
+    }
   }
   [self handleWillShowViewController:viewController animated:animated];
 }
@@ -368,9 +430,8 @@
     }
   }
   TiWindowProxy *theWindow = (TiWindowProxy *)[(TiViewController *)viewController proxy];
-#if IS_XCODE_9
   [theWindow processForSafeArea];
-#endif
+
   if (theWindow == rootWindow) {
     //This is probably too late for the root view controller.
     //Figure out how to call open before this callback
@@ -434,10 +495,6 @@
       }
     }
   }
-  if ([self _hasListeners:@"blur"]) {
-    DEPRECATED_REPLACED(@"UI.Tab.Event.blur", @"5.2.0", @"UI.Tab.Event.unselected");
-    [self fireEvent:@"blur" withObject:event withSource:self propagate:NO reportSuccess:NO errorCode:0 message:nil];
-  }
 
   if ([self _hasListeners:@"unselected"]) {
     [self fireEvent:@"unselected" withObject:event withSource:self propagate:NO reportSuccess:NO errorCode:0 message:nil];
@@ -462,10 +519,6 @@
         [(id<TiWindowProtocol>)theProxy gainFocus];
       }
     }
-  }
-  if ([self _hasListeners:@"focus"]) {
-    DEPRECATED_REPLACED(@"UI.Tab.Event.focus", @"5.2.0", @"UI.Tab.Event.selected");
-    [self fireEvent:@"focus" withObject:event withSource:self propagate:NO reportSuccess:NO errorCode:0 message:nil];
   }
 
   if ([self _hasListeners:@"selected"]) {
@@ -499,9 +552,7 @@
 
   UIViewController *rootController = [rootWindow hostingController];
   id badgeValue = [TiUtils stringValue:[self valueForKey:@"badge"]];
-#if IS_XCODE_8
   id badgeColor = [self valueForKey:@"badgeColor"];
-#endif
   id iconInsets = [self valueForKey:@"iconInsets"];
   id icon = [self valueForKey:@"icon"];
 
@@ -511,11 +562,9 @@
     UITabBarItem *newItem = [[UITabBarItem alloc] initWithTabBarSystemItem:value tag:value];
     [newItem setBadgeValue:badgeValue];
 
-#if IS_XCODE_8
-    if (badgeColor != nil && [TiUtils isIOS10OrGreater]) {
+    if (badgeColor != nil) {
       [newItem setBadgeColor:[[TiUtils colorValue:badgeColor] color]];
     }
-#endif
 
     [rootController setTabBarItem:newItem];
     [newItem release];
@@ -530,62 +579,93 @@
   if (icon == nil) {
     image = nil;
   } else {
-    // we might be inside a different context than our tab group and if so, he takes precendence in
-    // url resolution
-    TiProxy *currentWindow = [self.executionContext preloadForKey:@"currentWindow" name:@"UI"];
-    if (currentWindow == nil) {
-      // check our current window's context that we are owned by
-      currentWindow = [self.pageContext preloadForKey:@"currentWindow" name:@"UI"];
+    if ([icon isKindOfClass:[TiBlob class]]) {
+      image = [(TiBlob *)icon image];
+    } else {
+      image = [[ImageLoader sharedLoader] loadImmediateImage:[TiUtils toURL:icon proxy:self]];
     }
-    if (currentWindow == nil) {
-      currentWindow = self;
-    }
-    image = [[ImageLoader sharedLoader] loadImmediateImage:[TiUtils toURL:icon proxy:currentWindow]];
-
     id activeIcon = [self valueForKey:@"activeIcon"];
     if ([activeIcon isKindOfClass:[NSString class]]) {
-      activeImage = [[ImageLoader sharedLoader] loadImmediateImage:[TiUtils toURL:activeIcon proxy:currentWindow]];
+      activeImage = [[ImageLoader sharedLoader] loadImmediateImage:[TiUtils toURL:activeIcon proxy:self]];
+    } else if ([activeIcon isKindOfClass:[TiBlob class]]) {
+      activeImage = [(TiBlob *)activeIcon image];
+    }
+
+    if (image != nil) {
+      if ([image respondsToSelector:@selector(imageWithRenderingMode:)]) {
+        NSInteger theMode = iconOriginal ? UIImageRenderingModeAlwaysOriginal : UIImageRenderingModeAlwaysTemplate;
+        image = [image imageWithRenderingMode:theMode];
+      }
+    }
+    if (activeImage != nil) {
+      if ([activeImage respondsToSelector:@selector(imageWithRenderingMode:)]) {
+        NSInteger theMode = activeIconOriginal ? UIImageRenderingModeAlwaysOriginal : UIImageRenderingModeAlwaysTemplate;
+        activeImage = [activeImage imageWithRenderingMode:theMode];
+      }
+    }
+
+    TiColor *tintColor = [TiUtils colorValue:[self valueForKey:@"tintColor"]];
+    if (tintColor == nil) {
+      tintColor = [TiUtils colorValue:[tabGroup valueForKey:@"tintColor"]];
+    }
+    if (tintColor == nil) {
+      tintColor = [TiUtils colorValue:[self valueForKey:@"titleColor"]];
+    }
+    if (tintColor == nil) {
+      tintColor = [TiUtils colorValue:[tabGroup valueForKey:@"titleColor"]];
+    }
+    if (tintColor != nil && image != nil) {
+      image = [TiUtils imageWithTint:image tintColor:[tintColor color]];
+    }
+
+    TiColor *activeTintColor = [TiUtils colorValue:[self valueForKey:@"activeTintColor"]];
+    if (activeTintColor == nil) {
+      activeTintColor = [TiUtils colorValue:[tabGroup valueForKey:@"activeTintColor"]];
+    }
+    if (activeTintColor == nil) {
+      activeTintColor = [TiUtils colorValue:[self valueForKey:@"activeTitleColor"]];
+    }
+    if (activeTintColor == nil) {
+      activeTintColor = [TiUtils colorValue:[tabGroup valueForKey:@"activeTitleColor"]];
+    }
+    if (activeTintColor != nil) {
+      if (activeImage != nil) {
+        activeImage = [TiUtils imageWithTint:activeImage tintColor:[activeTintColor color]];
+      } else if (image != nil) {
+        activeImage = [TiUtils imageWithTint:image tintColor:[activeTintColor color]];
+      }
     }
   }
   [rootController setTitle:title];
   UITabBarItem *ourItem = nil;
 
-  if (image != nil) {
-    if ([image respondsToSelector:@selector(imageWithRenderingMode:)]) {
-      NSInteger theMode = iconOriginal ? UIImageRenderingModeAlwaysOriginal : UIImageRenderingModeAlwaysTemplate;
-      image = [image imageWithRenderingMode:theMode];
-    }
-  }
-  if (activeImage != nil) {
-    if ([activeImage respondsToSelector:@selector(imageWithRenderingMode:)]) {
-      NSInteger theMode = activeIconOriginal ? UIImageRenderingModeAlwaysOriginal : UIImageRenderingModeAlwaysTemplate;
-      activeImage = [activeImage imageWithRenderingMode:theMode];
-    }
-  }
-
   systemTab = NO;
   ourItem = [[[UITabBarItem alloc] initWithTitle:title image:image selectedImage:activeImage] autorelease];
 
   TiColor *titleColor = [TiUtils colorValue:[self valueForKey:@"titleColor"]];
+  if (titleColor == nil) {
+    titleColor = [TiUtils colorValue:[tabGroup valueForKey:@"titleColor"]];
+  }
   if (titleColor != nil) {
     [ourItem setTitleTextAttributes:[NSDictionary dictionaryWithObjectsAndKeys:[titleColor color], NSForegroundColorAttributeName, nil] forState:UIControlStateNormal];
   }
   TiColor *activeTitleColor = [TiUtils colorValue:[self valueForKey:@"activeTitleColor"]];
+  if (activeTitleColor == nil) {
+    activeTitleColor = [TiUtils colorValue:[tabGroup valueForKey:@"activeTitleColor"]];
+  }
   if (activeTitleColor != nil) {
     [ourItem setTitleTextAttributes:[NSDictionary dictionaryWithObjectsAndKeys:[activeTitleColor color], NSForegroundColorAttributeName, nil] forState:UIControlStateSelected];
   }
 
   if (iconInsets != nil) {
-    if (UIEdgeInsetsEqualToEdgeInsets([TiUtils contentInsets:iconInsets], [ourItem imageInsets]) == NO) {
+    if (!UIEdgeInsetsEqualToEdgeInsets([TiUtils contentInsets:iconInsets], [ourItem imageInsets])) {
       [ourItem setImageInsets:[self calculateIconInsets:iconInsets]];
     }
   }
 
-#if IS_XCODE_8
-  if (badgeColor != nil && [TiUtils isIOS10OrGreater]) {
+  if (badgeColor != nil) {
     [ourItem setBadgeColor:[[TiUtils colorValue:badgeColor] color]];
   }
-#endif
 
   [ourItem setBadgeValue:badgeValue];
   [rootController setTabBarItem:ourItem];
@@ -611,18 +691,7 @@
 - (void)setIcon:(id)icon
 {
   if ([icon isKindOfClass:[NSString class]]) {
-    // we might be inside a different context than our tab group and if so, he takes precendence in
-    // url resolution
-    TiProxy *currentWindow = [self.executionContext preloadForKey:@"currentWindow" name:@"UI"];
-    if (currentWindow == nil) {
-      // check our current window's context that we are owned by
-      currentWindow = [self.pageContext preloadForKey:@"currentWindow" name:@"UI"];
-    }
-    if (currentWindow == nil) {
-      currentWindow = self;
-    }
-
-    icon = [[TiUtils toURL:icon proxy:currentWindow] absoluteString];
+    icon = [[TiUtils toURL:icon proxy:self] absoluteString];
   }
 
   [self replaceValue:icon forKey:@"icon" notification:NO];
@@ -673,18 +742,7 @@
 - (void)setActiveIcon:(id)icon
 {
   if ([icon isKindOfClass:[NSString class]]) {
-    // we might be inside a different context than our tab group and if so, he takes precendence in
-    // url resolution
-    TiProxy *currentWindow = [self.executionContext preloadForKey:@"currentWindow" name:@"UI"];
-    if (currentWindow == nil) {
-      // check our current window's context that we are owned by
-      currentWindow = [self.pageContext preloadForKey:@"currentWindow" name:@"UI"];
-    }
-    if (currentWindow == nil) {
-      currentWindow = self;
-    }
-
-    icon = [[TiUtils toURL:icon proxy:currentWindow] absoluteString];
+    icon = [[TiUtils toURL:icon proxy:self] absoluteString];
   }
 
   [self replaceValue:icon forKey:@"activeIcon" notification:NO];
@@ -721,15 +779,33 @@
 {
   ENSURE_SINGLE_ARG_OR_NIL(args, NSDictionary);
 
-  TiThreadPerformOnMainThread(^{
-    [controller popToRootViewControllerAnimated:[TiUtils boolValue:@"animated" properties:args def:NO]];
-  },
+  TiThreadPerformOnMainThread(
+      ^{
+        [controller popToRootViewControllerAnimated:[TiUtils boolValue:@"animated" properties:args def:NO]];
+      },
       YES);
 }
 
 #pragma mark - TiOrientationController
 
 @synthesize parentOrientationController;
+
+- (BOOL)homeIndicatorAutoHide
+{
+  if (rootWindow == nil) {
+    return NO;
+  }
+
+  UINavigationController *nc = [[rootWindow hostingController] navigationController];
+  UIViewController *topVc = [nc topViewController];
+  if ([topVc isKindOfClass:[TiViewController class]]) {
+    TiViewProxy *theProxy = [(TiViewController *)topVc proxy];
+    if ([theProxy conformsToProtocol:@protocol(TiWindowProtocol)]) {
+      return [(id<TiWindowProtocol>)theProxy homeIndicatorAutoHide];
+    }
+  }
+  return NO;
+}
 
 - (BOOL)hidesStatusBar
 {

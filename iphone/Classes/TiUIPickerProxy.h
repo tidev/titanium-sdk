@@ -6,7 +6,7 @@
  */
 #ifdef USE_TI_UIPICKER
 
-#import "TiViewProxy.h"
+#import <TitaniumKit/TiViewProxy.h>
 
 @interface TiUIPickerProxy : TiViewProxy {
 

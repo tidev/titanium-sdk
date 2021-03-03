@@ -12,9 +12,7 @@ import java.io.InputStream;
 import java.lang.ref.WeakReference;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -22,7 +20,6 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.codec.digest.DigestUtils;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.CurrentActivityListener;
@@ -43,12 +40,14 @@ import org.appcelerator.titanium.view.TiDrawableReference;
 import org.appcelerator.titanium.view.TiUIView;
 
 import android.app.Activity;
-import android.support.v7.app.AlertDialog;
+import android.graphics.drawable.PaintDrawable;
+import androidx.appcompat.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.res.AssetManager;
 import android.content.res.Resources;
+import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
 import android.graphics.Bitmap.Config;
@@ -58,7 +57,6 @@ import android.graphics.ColorFilter;
 import android.graphics.ColorMatrix;
 import android.graphics.ColorMatrixColorFilter;
 import android.graphics.Paint;
-import android.graphics.PixelFormat;
 import android.graphics.Rect;
 import android.graphics.Shader;
 import android.graphics.Typeface;
@@ -74,6 +72,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Process;
 import android.text.Spanned;
+import android.text.Layout;
 import android.text.method.LinkMovementMethod;
 import android.text.util.Linkify;
 import android.util.DisplayMetrics;
@@ -92,6 +91,7 @@ public class TiUIHelper
 {
 	private static final String TAG = "TiUIHelper";
 	private static final String customFontPath = "Resources/fonts";
+	private static final String DEFAULT_FONT_SIZE_STRING = "15dp";
 
 	public static final Pattern SIZED_VALUE = Pattern.compile("([0-9]*\\.?[0-9]+)\\W*(px|dp|dip|sp|sip|mm|pt|in)?");
 	public static final String MIME_TYPE_PNG = "image/png";
@@ -230,7 +230,7 @@ public class TiUIHelper
 											 .create();
 					if (activity instanceof TiBaseActivity) {
 						TiBaseActivity baseActivity = (TiBaseActivity) activity;
-						baseActivity.addDialog(baseActivity.new DialogWrapper(
+						baseActivity.addDialog(new TiBaseActivity.DialogWrapper(
 							dialog, true, new WeakReference<TiBaseActivity>(baseActivity)));
 						dialog.setOwnerActivity(activity);
 					}
@@ -337,9 +337,8 @@ public class TiUIHelper
 
 	public static void styleText(TextView tv, HashMap<String, Object> d)
 	{
-
-		if (d == null) {
-			TiUIHelper.styleText(tv, null, null, null);
+		if ((d == null) || d.isEmpty()) {
+			TiUIHelper.styleText(tv, null, DEFAULT_FONT_SIZE_STRING, null);
 			return;
 		}
 
@@ -455,7 +454,7 @@ public class TiUIHelper
 
 	public static String getDefaultFontSize(Context context)
 	{
-		String size = "15.0px";
+		String size = DEFAULT_FONT_SIZE_STRING;
 		TextView tv = new TextView(context);
 		if (tv != null) {
 			size = String.valueOf(tv.getTextSize()) + "px";
@@ -484,12 +483,20 @@ public class TiUIHelper
 		int gravity = Gravity.NO_GRAVITY;
 
 		if (textAlign != null) {
+
+			if (!"justify".equals(textAlign) && Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+				// reset justification
+				tv.setJustificationMode(Layout.JUSTIFICATION_MODE_NONE);
+			}
+
 			if ("left".equals(textAlign)) {
 				gravity |= Gravity.LEFT;
 			} else if ("center".equals(textAlign)) {
 				gravity |= Gravity.CENTER_HORIZONTAL;
 			} else if ("right".equals(textAlign)) {
 				gravity |= Gravity.RIGHT;
+			} else if ("justify".equals(textAlign) && Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+				tv.setJustificationMode(Layout.JUSTIFICATION_MODE_INTER_WORD);
 			} else {
 				Log.w(TAG, "Unsupported horizontal alignment: " + textAlign);
 			}
@@ -641,16 +648,22 @@ public class TiUIHelper
 		return new LayerDrawable(layers.toArray(new Drawable[layers.size()]));
 	}
 
-	private static final int[] BACKGROUND_DEFAULT_STATE_1 = { android.R.attr.state_window_focused,
-															  android.R.attr.state_enabled };
-	private static final int[] BACKGROUND_DEFAULT_STATE_2 = { android.R.attr.state_enabled };
-	private static final int[] BACKGROUND_SELECTED_STATE = { android.R.attr.state_window_focused,
-															 android.R.attr.state_enabled,
-															 android.R.attr.state_pressed };
-	private static final int[] BACKGROUND_FOCUSED_STATE = { android.R.attr.state_focused,
-															android.R.attr.state_window_focused,
-															android.R.attr.state_enabled };
-	private static final int[] BACKGROUND_DISABLED_STATE = { -android.R.attr.state_enabled };
+	public static final int[] BACKGROUND_DEFAULT_STATE_1 = {
+		android.R.attr.state_window_focused,
+		android.R.attr.state_enabled
+	};
+	public static final int[] BACKGROUND_DEFAULT_STATE_2 = { android.R.attr.state_enabled };
+	public static final int[] BACKGROUND_SELECTED_STATE = {
+		android.R.attr.state_window_focused,
+		android.R.attr.state_enabled,
+		android.R.attr.state_pressed
+	};
+	public static final int[] BACKGROUND_FOCUSED_STATE = {
+		android.R.attr.state_focused,
+		android.R.attr.state_window_focused,
+		android.R.attr.state_enabled
+	};
+	public static final int[] BACKGROUND_DISABLED_STATE = { -android.R.attr.state_enabled };
 
 	public static StateListDrawable buildBackgroundDrawable(String image, boolean tileImage, String color,
 															String selectedImage, String selectedColor,
@@ -883,44 +896,61 @@ public class TiUIHelper
 
 	private static String getResourceKeyForImage(String url)
 	{
-		if (resourceImageKeys.containsKey(url)) {
-			return resourceImageKeys.get(url);
+		// Validate argument.
+		if ((url == null) || url.isEmpty()) {
+			return null;
 		}
 
+		// Check if URL's "res" name has been fetched before.
+		if (TiUIHelper.resourceImageKeys.containsKey(url)) {
+			return TiUIHelper.resourceImageKeys.get(url);
+		}
+
+		// If given URL contains "/Resources/images/", then it references an APK "res" file.
+		// Fetch its subpath if this the case.
 		Pattern pattern = Pattern.compile("^.*/Resources/images/(.*$)");
 		Matcher matcher = pattern.matcher(url);
 		if (!matcher.matches()) {
 			return null;
 		}
-
-		String chopped = matcher.group(1);
-		if (chopped == null) {
+		String path = matcher.group(1);
+		if (path == null) {
 			return null;
 		}
 
-		chopped = chopped.toLowerCase();
-		String forHash = chopped;
-		if (forHash.endsWith(".9.png")) {
-			forHash = forHash.replace(".9.png", ".png");
-		}
-		String withoutExtension = chopped;
-
-		if (chopped.matches("^.*\\..*$")) {
-			if (chopped.endsWith(".9.png")) {
-				withoutExtension = chopped.substring(0, chopped.lastIndexOf(".9.png"));
-			} else {
-				withoutExtension = chopped.substring(0, chopped.lastIndexOf('.'));
+		// This is a "res" drawable references. Remove file extension since Android strips them off in built app.
+		final String NINE_PATCH_EXTENSION = ".9.png";
+		String pathWithoutExtension = path;
+		int index = -1;
+		if (path.toLowerCase().endsWith(NINE_PATCH_EXTENSION)) {
+			index = path.length() - NINE_PATCH_EXTENSION.length();
+		} else {
+			index = path.lastIndexOf('.');
+			if ((index >= 0) && (path.indexOf('/', index) >= 0)) {
+				index = -1;
 			}
 		}
+		if (index > 0) {
+			pathWithoutExtension = path.substring(0, index);
+		} else if (index == 0) {
+			pathWithoutExtension = null;
+		}
 
-		String cleanedWithoutExtension = withoutExtension.replaceAll("[^a-z0-9_]", "_");
-		StringBuilder result = new StringBuilder(100);
-		result.append(cleanedWithoutExtension.substring(0, Math.min(cleanedWithoutExtension.length(), 80)));
-		result.append("_");
-		result.append(DigestUtils.md5Hex(forHash).substring(0, 10));
-		String sResult = result.toString();
-		resourceImageKeys.put(url, sResult);
-		return sResult;
+		// Handle extracted "res" file path.
+		if ((pathWithoutExtension != null) && !pathWithoutExtension.isEmpty()) {
+			// If "res" file path is invalid, then make it valid.
+			// Must be all lower-case, can only contain letters/number, and cannot start with a number.
+			pathWithoutExtension = pathWithoutExtension.toLowerCase().replaceAll("[^a-z0-9_]", "_");
+			if (Character.isDigit(pathWithoutExtension.charAt(0))) {
+				pathWithoutExtension = "_" + pathWithoutExtension;
+			}
+
+			// Add "res" path to dictionary for fast access later.
+			TiUIHelper.resourceImageKeys.put(url, pathWithoutExtension);
+		}
+
+		// Return the "res" file path for given URL.
+		return pathWithoutExtension;
 	}
 
 	public static int getResourceId(String url)
@@ -1030,10 +1060,6 @@ public class TiUIHelper
 
 	public static void overridePendingTransition(Activity activity)
 	{
-		if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.DONUT) {
-			return;
-		}
-
 		if (overridePendingTransition == null) {
 			try {
 				overridePendingTransition =
@@ -1057,14 +1083,12 @@ public class TiUIHelper
 	public static ColorFilter createColorFilterForOpacity(float opacity)
 	{
 		// 5x4 identity color matrix + fade the alpha to achieve opacity
-		// clang-format off
 		float[] matrix = {
 			1, 0, 0, 0, 0,
 			0, 1, 0, 0, 0,
 			0, 0, 1, 0, 0,
 			0, 0, 0, opacity, 0
 		};
-		// clang-format on
 
 		return new ColorMatrixColorFilter(new ColorMatrix(matrix));
 	}
@@ -1113,20 +1137,16 @@ public class TiUIHelper
 	 */
 	public static void showSoftKeyboard(View view, boolean show)
 	{
-		InputMethodManager imm = (InputMethodManager) view.getContext().getSystemService(Activity.INPUT_METHOD_SERVICE);
-
+		final InputMethodManager imm =
+			(InputMethodManager) view.getContext().getSystemService(Activity.INPUT_METHOD_SERVICE);
 		if (imm != null) {
-			boolean useForce =
-				(Build.VERSION.SDK_INT <= Build.VERSION_CODES.DONUT || Build.VERSION.SDK_INT >= 8) ? true : false;
-			String model = TiPlatformHelper.getInstance().getModel();
-			if (model != null && model.toLowerCase().startsWith("droid")) {
-				useForce = true;
+			if (!view.hasFocus()) {
+				view.requestFocus();
 			}
 			if (show) {
-				imm.showSoftInput(view, useForce ? InputMethodManager.SHOW_FORCED : InputMethodManager.SHOW_IMPLICIT);
+				imm.showSoftInput(view, InputMethodManager.SHOW_FORCED);
 			} else {
-				imm.hideSoftInputFromWindow(view.getWindowToken(),
-											useForce ? 0 : InputMethodManager.HIDE_IMPLICIT_ONLY);
+				imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
 			}
 		}
 	}
@@ -1186,37 +1206,82 @@ public class TiUIHelper
 	 */
 	public static Uri getRedirectUri(Uri mUri) throws MalformedURLException, IOException
 	{
-		if (Build.VERSION.SDK_INT < TiC.API_LEVEL_HONEYCOMB
-			&& ("http".equals(mUri.getScheme()) || "https".equals(mUri.getScheme()))) {
-			// Media player doesn't handle redirects, try to follow them
-			// here. (Redirects work fine without this in ICS.)
-			while (true) {
-				// java.net.URL doesn't handle rtsp
-				if (mUri.getScheme() != null && mUri.getScheme().equals("rtsp"))
-					break;
+		return mUri;
+	}
 
-				URL url = new URL(mUri.toString());
-				HttpURLConnection cn = (HttpURLConnection) url.openConnection();
-				cn.setInstanceFollowRedirects(false);
-				String location = cn.getHeaderField("Location");
-				if (location != null) {
-					String host = mUri.getHost();
-					int port = mUri.getPort();
-					String scheme = mUri.getScheme();
-					mUri = Uri.parse(location);
-					if (mUri.getScheme() == null) {
-						// Absolute URL on existing host/port/scheme
-						if (scheme == null) {
-							scheme = "http";
-						}
-						String authority = port == -1 ? host : host + ":" + port;
-						mUri = mUri.buildUpon().scheme(scheme).encodedAuthority(authority).build();
+	/**
+	 * Helper method for getting the actual color values for Views with defined custom backgrounds
+	 * that take advantage of color state lists.
+	 */
+	public static String getBackgroundColorForState(TiBackgroundDrawable backgroundDrawable, int[] state)
+	{
+		try {
+			// TiBackgroundDrawable's background can be either PaintDrawable or StateListDrawable.
+			// Handle the cases separately.
+			Drawable simpleDrawable = backgroundDrawable.getBackground();
+			if (simpleDrawable instanceof PaintDrawable) {
+				// For backwards compatibility return null if the required state is not the default one.
+				if (state != TiUIHelper.BACKGROUND_DEFAULT_STATE_1) {
+					return null;
+				}
+				return hexStringFrom(((PaintDrawable) simpleDrawable).getPaint().getColor());
+			} else if (simpleDrawable instanceof StateListDrawable) {
+				// Get the backgroundDrawable background as a StateListDrawable.
+				StateListDrawable stateListDrawable = (StateListDrawable) simpleDrawable;
+				// Get the reflection methods.
+				Method getStateDrawableIndexMethod =
+					StateListDrawable.class.getMethod("getStateDrawableIndex", int[].class);
+				Method getStateDrawableMethod = StateListDrawable.class.getMethod("getStateDrawable", int.class);
+				// Get the disabled state's (as defined in TiUIHelper) index.
+				int index = (int) getStateDrawableIndexMethod.invoke(stateListDrawable, state);
+				// Get the drawable at the index.
+				Drawable drawable = (Drawable) getStateDrawableMethod.invoke(stateListDrawable, index);
+				// Try to get the 0 index of the result.
+				if (drawable instanceof LayerDrawable) {
+					Drawable drawableFromLayer = ((LayerDrawable) drawable).getDrawable(0);
+					// Cast it as a ColorDrawable.
+					if (drawableFromLayer instanceof ColorDrawable) {
+						// Transcript the color int to HexString.
+						String strColor = hexStringFrom(((ColorDrawable) drawableFromLayer).getColor());
+						return strColor;
+					} else {
+						Log.w(TAG, "Background drawable of unexpected type. Expected - ColorDrawable. Found - "
+									   + drawableFromLayer.getClass().toString());
+						return null;
 					}
 				} else {
-					break;
+					Log.w(TAG, "Background drawable of unexpected type. Expected - LayerDrawable. Found - "
+								   + drawable.getClass().toString());
+					return null;
 				}
 			}
+		} catch (Exception e) {
+			Log.w(TAG, e.toString());
 		}
-		return mUri;
+		return null;
+	}
+
+	/**
+	 * Determines if the given context has been assigned a "Theme.MaterialComponents" derived theme.
+	 * @param context Reference to the context such as an Activity or Application object to inspect. Can be null.
+	 * @return Returns true if assigned a material theme. Returns false if not or argument is null.
+	 */
+	public static boolean isUsingMaterialTheme(Context context)
+	{
+		if (context == null) {
+			return false;
+		}
+
+		TypedArray typedArray = context.obtainStyledAttributes(new int[] {
+			com.google.android.material.R.attr.colorPrimaryVariant
+		});
+		boolean isMaterial = typedArray.hasValue(0);
+		typedArray.recycle();
+		return isMaterial;
+	}
+
+	public static String hexStringFrom(int colorInt)
+	{
+		return String.format("#%08X", 0xFFFFFFFF & colorInt);
 	}
 }

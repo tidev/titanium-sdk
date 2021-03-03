@@ -7,8 +7,8 @@
 #ifdef USE_TI_UICANVAS
 
 #import "TiUICanvasView.h"
-#import "TiUtils.h"
-#import "Webcolor.h"
+#import <TitaniumKit/TiUtils.h>
+#import <TitaniumKit/Webcolor.h>
 
 enum {
   TiCanvasFillStyle = 0,
@@ -71,9 +71,10 @@ enum {
 - (void)commit
 {
   if (operations != nil) {
-    TiThreadPerformOnMainThread(^{
-      [self setNeedsDisplay];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          [self setNeedsDisplay];
+        },
         NO);
   }
 }
@@ -136,7 +137,7 @@ enum {
   BLEND_MODE(source - in, kCGBlendModeSourceIn);
   BLEND_MODE(source - out, kCGBlendModeSourceOut);
   BLEND_MODE(source - over, kCGBlendModeNormal);
-  BLEND_MODE (xor, kCGBlendModeXOR);
+  BLEND_MODE(xor, kCGBlendModeXOR);
   return kCGBlendModeNormal; //default by HTML canvas spec
 }
 

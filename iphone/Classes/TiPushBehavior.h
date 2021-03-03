@@ -7,8 +7,8 @@
 #ifdef USE_TI_UIIOSANIMATOR
 #ifdef USE_TI_UIIOSPUSHBEHAVIOR
 #import "TiAnimatorProxy.h"
-#import "TiProxy.h"
-#import "TiViewProxy.h"
+#import <TitaniumKit/TiProxy.h>
+#import <TitaniumKit/TiViewProxy.h>
 @interface TiPushBehavior : TiProxy <TiBehaviorProtocol> {
   BOOL _active;
   CGFloat _angle;

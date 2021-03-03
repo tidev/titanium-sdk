@@ -9,7 +9,7 @@
 #import "TiDOMNamedNodeMapProxy.h"
 #import "TiDOMAttrProxy.h"
 #import "TiDOMNodeListProxy.h"
-#import "TiUtils.h"
+#import <TitaniumKit/TiUtils.h>
 
 @implementation TiDOMNamedNodeMapProxy
 

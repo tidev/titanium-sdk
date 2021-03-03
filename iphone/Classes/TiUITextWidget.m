@@ -1,21 +1,23 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2015 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2018 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 #if defined(USE_TI_UITEXTWIDGET) || defined(USE_TI_UITEXTAREA) || defined(USE_TI_UITEXTFIELD)
 
 #import "TiUITextWidget.h"
-#import "TiApp.h"
 #import "TiUITextWidgetProxy.h"
-#import "TiUtils.h"
-#import "TiViewProxy.h"
+#import <TitaniumKit/TiApp.h>
+#import <TitaniumKit/TiUtils.h>
+#import <TitaniumKit/TiViewProxy.h>
 #ifdef USE_TI_UIATTRIBUTEDSTRING
 #import "TiUIAttributedStringProxy.h"
 #endif
 
 @implementation TiUITextWidget
+
+@synthesize focused;
 
 #ifdef TI_USE_AUTOLAYOUT
 - (void)initializeTiLayoutView
@@ -73,18 +75,13 @@
 
 - (void)dealloc
 {
-//Because text fields MUST be played with on main thread, we cannot release if there's the chance we're on a BG thread
-#ifdef TI_USE_KROLL_THREAD
-  TiThreadRemoveFromSuperviewOnMainThread(textWidgetView, YES);
-  TiThreadReleaseOnMainThread(textWidgetView, NO);
-  textWidgetView = nil; //Wasted action, yes.
-#else
-  TiThreadPerformOnMainThread(^{
-    [textWidgetView removeFromSuperview];
-    RELEASE_TO_NIL(textWidgetView);
-  },
+  //Because text fields MUST be played with on main thread, we cannot release if there's the chance we're on a BG thread
+  TiThreadPerformOnMainThread(
+      ^{
+        [textWidgetView removeFromSuperview];
+        RELEASE_TO_NIL(textWidgetView);
+      },
       YES);
-#endif
   [super dealloc];
 }
 
@@ -159,33 +156,22 @@
 - (void)setAutofillType_:(id)value
 {
   ENSURE_TYPE_OR_NIL(value, NSString);
-
-  if (![TiUtils isIOS10OrGreater]) {
-    NSLog(@"[ERROR] The 'autofillHint' property is only available on iOS 10 and later.");
-    return;
-  }
-
   [[self textWidgetView] setTextContentType:[TiUtils stringValue:value]];
 }
-
-#pragma mark Responder methods
-//These used to be blur/focus, but that's moved to the proxy only.
-//The reason for that is so checking the toolbar can use UIResponder methods.
 
 - (void)setPasswordMask_:(id)value
 {
   [[self textWidgetView] setSecureTextEntry:[TiUtils boolValue:value]];
 }
 
-- (void)setAppearance_:(id)value
+- (void)setPasswordRules_:(NSString *)passwordRules
 {
-  NSString *className = [NSStringFromClass([self class]) substringFromIndex:4];
-  NSString *deprecatedApi = [NSString stringWithFormat:@"UI.%@%@", className, @".appearance"];
-  NSString *newApi = [NSString stringWithFormat:@"UI.%@%@", className, @".keyboardAppearance"];
+  ENSURE_TYPE_OR_NIL(passwordRules, NSString);
 
-  DEPRECATED_REPLACED(deprecatedApi, @"5.2.0", newApi);
-  [self setKeyboardAppearance_:value];
+  [[self textWidgetView] setPasswordRules:[UITextInputPasswordRules passwordRulesWithDescriptor:passwordRules]];
 }
+
+#pragma mark Responder methods
 
 - (void)setKeyboardAppearance_:(id)value
 {
@@ -202,6 +188,7 @@
 - (void)textWidget:(UIView<UITextInputTraits> *)tw didFocusWithText:(NSString *)value
 {
   TiUITextWidgetProxy *ourProxy = (TiUITextWidgetProxy *)[self proxy];
+  focused = YES;
   [[ourProxy keyboardAccessoryView] setBounds:CGRectMake(0, 0, 0, [ourProxy keyboardAccessoryHeight])];
 
   [[TiApp controller] didKeyboardFocusOnProxy:(TiViewProxy<TiKeyboardFocusableView> *)ourProxy];
@@ -218,6 +205,7 @@
 - (void)textWidget:(UIView<UITextInputTraits> *)tw didBlurWithText:(NSString *)value
 {
   TiUITextWidgetProxy *ourProxy = (TiUITextWidgetProxy *)[self proxy];
+  focused = NO;
 
   [[TiApp controller] didKeyboardBlurOnProxy:(TiViewProxy<TiKeyboardFocusableView> *)ourProxy];
 

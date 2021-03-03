@@ -1,0 +1,11 @@
+{
+	MainTemplateFile = "___FILEBASENAME___.swift";
+	Description = "A Titanium view proxy class file, with an optional header which includes the \"TiViewProxy.h\" header.";
+	Platforms = (
+		"com.apple.platform.iphoneos",
+	);
+	AllowedTypes = (
+		"public.swift-source",
+	);
+  Kind = "Xcode.IDEKit.TextSubstitutionFileTemplateKind";
+}

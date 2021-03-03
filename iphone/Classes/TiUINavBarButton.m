@@ -7,13 +7,13 @@
 #ifdef USE_TI_UIBUTTON
 
 #import "TiUINavBarButton.h"
-#import "ImageLoader.h"
-#import "TiBlob.h"
 #import "TiButtonUtil.h"
 #import "TiUIButton.h"
 #import "TiUIButtonProxy.h"
-#import "TiUIView.h"
-#import "TiUtils.h"
+#import <TitaniumKit/ImageLoader.h>
+#import <TitaniumKit/TiBlob.h>
+#import <TitaniumKit/TiUIView.h>
+#import <TitaniumKit/TiUtils.h>
 
 #define NAVBAR_MEMORY_DEBUG 0
 
@@ -119,11 +119,15 @@ DEFINE_EXCEPTIONS
       self = [super initWithImage:theimage style:[self style:proxy_] target:self action:@selector(clicked:)];
     } else {
       self = [super initWithTitle:[self title:proxy_] style:[self style:proxy_] target:self action:@selector(clicked:)];
+      self.tintColor = [proxy_ valueForKey:@"color"] ? [TiUtils colorValue:[proxy_ valueForKey:@"color"]].color : [TiUtils colorValue:[proxy_ valueForKey:@"tintColor"]].color;
     }
   }
   proxy = proxy_; // Don't retain
 
   self.accessibilityLabel = [proxy_ valueForUndefinedKey:@"accessibilityLabel"];
+  self.accessibilityValue = [proxy_ valueForUndefinedKey:@"accessibilityValue"];
+  self.accessibilityHint = [proxy_ valueForUndefinedKey:@"accessibilityHint"];
+  self.accessibilityIdentifier = [TiUtils composeAccessibilityIdentifier:self];
 
   self.width = [TiUtils floatValue:[proxy_ valueForKey:@"width"] def:0.0];
   //A width of 0 is treated as Auto by the iPhone OS, so this is safe.
@@ -198,30 +202,34 @@ DEFINE_EXCEPTIONS
   id changeView = (self.customView != nil) ? (id)self.customView : (id)self;
 
   if ([key isEqualToString:@"title"]) {
-    TiThreadPerformOnMainThread(^{
-      [changeView setTitle_:newValue];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          [changeView setTitle_:newValue];
+        },
         NO);
     return;
   }
   if ([key isEqualToString:@"image"]) {
-    TiThreadPerformOnMainThread(^{
-      [changeView setImage_:newValue];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          [changeView setImage_:newValue];
+        },
         NO);
     return;
   }
   if ([key isEqualToString:@"width"]) {
-    TiThreadPerformOnMainThread(^{
-      [changeView setWidth_:newValue];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          [changeView setWidth_:newValue];
+        },
         NO);
     return;
   }
   if ([key isEqualToString:@"enabled"]) {
-    TiThreadPerformOnMainThread(^{
-      [self setEnabled_:newValue];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          [self setEnabled_:newValue];
+        },
         NO);
     return;
   }

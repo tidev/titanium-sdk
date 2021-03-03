@@ -26,8 +26,8 @@ import android.app.Notification;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
-import android.support.v4.app.NotificationCompat;
-import android.support.v4.app.NotificationCompat.Builder;
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationCompat.Builder;
 import android.os.Build;
 
 import java.util.HashMap;
@@ -85,6 +85,10 @@ public class NotificationProxy extends KrollProxy
 		}
 		if (d.containsKey(TiC.PROPERTY_CHANNEL_ID)) {
 			setChannelId(d.getString(TiC.PROPERTY_CHANNEL_ID));
+		} else {
+			setChannelId(NotificationManagerModule.useDefaultChannel()
+							 ? NotificationManagerModule.DEFAULT_CHANNEL_ID
+							 : "miscellaneous"); // NotificationChannel.DEFAULT_CHANNEL_ID
 		}
 		if (d.containsKey(TiC.PROPERTY_CONTENT_VIEW)) {
 			setContentView((RemoteViewsProxy) d.get(TiC.PROPERTY_CONTENT_VIEW));
@@ -146,21 +150,15 @@ public class NotificationProxy extends KrollProxy
 		checkLatestEventInfoProperties(d);
 	}
 
-	// clang-format off
-	@Kroll.method
 	@Kroll.setProperty
 	public void setCategory(String category)
-	// clang-format on
 	{
 		notificationBuilder.setCategory(category);
 		setProperty(TiC.PROPERTY_CATEGORY, category);
 	}
 
-	// clang-format off
-	@Kroll.method
 	@Kroll.setProperty
 	public void setIcon(Object icon)
-	// clang-format on
 	{
 		if (icon instanceof Number) {
 			notificationBuilder.setSmallIcon(((Number) icon).intValue());
@@ -176,11 +174,8 @@ public class NotificationProxy extends KrollProxy
 		setProperty(TiC.PROPERTY_ICON, icon);
 	}
 
-	// clang-format off
-	@Kroll.method
 	@Kroll.setProperty
 	public void setLargeIcon(Object icon)
-	// clang-format on
 	{
 		if (icon instanceof Number) {
 			Bitmap largeIcon =
@@ -200,43 +195,29 @@ public class NotificationProxy extends KrollProxy
 		setProperty(TiC.PROPERTY_LARGE_ICON, icon);
 	}
 
-	// clang-format off
-	@Kroll.method
 	@Kroll.setProperty
 	public void setColor(String color)
-	// clang-format on
 	{
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-			notificationBuilder.setColor(TiColorHelper.parseColor(color));
-		}
+		notificationBuilder.setColor(TiColorHelper.parseColor(color));
 		setProperty(TiC.PROPERTY_COLOR, color);
 	}
 
-	// clang-format off
-	@Kroll.method
 	@Kroll.setProperty
 	public void setVisibility(int visibility)
-	// clang-format on
 	{
 		notificationBuilder.setVisibility(visibility);
 		setProperty(TiC.PROPERTY_VISIBILITY, visibility);
 	}
 
-	// clang-format off
-	@Kroll.method
 	@Kroll.setProperty
 	public void setPriority(int priority)
-	// clang-format on
 	{
 		notificationBuilder.setPriority(priority);
 		setProperty(TiC.PROPERTY_PRIORITY, priority);
 	}
 
-	// clang-format off
-	@Kroll.method
 	@Kroll.setProperty
 	public void setWakeLock(HashMap d)
-	// clang-format on
 	{
 		if (d == null) {
 			return;
@@ -244,22 +225,16 @@ public class NotificationProxy extends KrollProxy
 		wakeParams = d;
 	}
 
-	// clang-format off
-	@Kroll.method
 	@Kroll.setProperty
 	public void setTickerText(String tickerText)
-	// clang-format on
 	{
 		notificationBuilder.setTicker(tickerText);
 		//set the javascript object
 		setProperty(TiC.PROPERTY_TICKER_TEXT, tickerText);
 	}
 
-	// clang-format off
-	@Kroll.method
 	@Kroll.setProperty
 	public void setWhen(Object when)
-	// clang-format on
 	{
 		if (when instanceof Date) {
 			notificationBuilder.setWhen(((Date) when).getTime());
@@ -269,11 +244,8 @@ public class NotificationProxy extends KrollProxy
 		setProperty(TiC.PROPERTY_WHEN, when);
 	}
 
-	// clang-format off
-	@Kroll.method
 	@Kroll.setProperty
 	public void setAudioStreamType(int type)
-	// clang-format on
 	{
 		audioStreamType = type;
 		if (sound != null) {
@@ -282,129 +254,99 @@ public class NotificationProxy extends KrollProxy
 		setProperty(TiC.PROPERTY_AUDIO_STREAM_TYPE, type);
 	}
 
-	// clang-format off
-	@Kroll.method
 	@Kroll.setProperty
 	public void setContentView(RemoteViewsProxy contentView)
-	// clang-format on
 	{
 		notificationBuilder.setContent(contentView.getRemoteViews());
 		setProperty(TiC.PROPERTY_CONTENT_VIEW, contentView);
 	}
 
-	// clang-format off
-	@Kroll.method
 	@Kroll.setProperty
 	public void setContentIntent(PendingIntentProxy contentIntent)
-	// clang-format on
 	{
 		notificationBuilder.setContentIntent(contentIntent.getPendingIntent());
 		setProperty(TiC.PROPERTY_CONTENT_INTENT, contentIntent);
 	}
 
-	// clang-format off
-	@Kroll.method
 	@Kroll.setProperty
 	public void setDefaults(int defaults)
-	// clang-format on
 	{
 		notificationBuilder.setDefaults(defaults);
 		setProperty(TiC.PROPERTY_DEFAULTS, defaults);
 	}
 
-	// clang-format off
-	@Kroll.method
 	@Kroll.setProperty
 	public void setDeleteIntent(PendingIntentProxy deleteIntent)
-	// clang-format on
 	{
 		notificationBuilder.setDeleteIntent(deleteIntent.getPendingIntent());
 		setProperty(TiC.PROPERTY_DELETE_INTENT, deleteIntent);
 	}
 
-	// clang-format off
-	@Kroll.method
 	@Kroll.setProperty
 	public void setFlags(int flags)
-	// clang-format on
 	{
 		this.flags = flags;
 		setProperty(TiC.PROPERTY_FLAGS, flags);
 	}
 
-	// clang-format off
-	@Kroll.method
 	@Kroll.setProperty
 	public void setLedARGB(int ledARGB)
-	// clang-format on
 	{
 		this.ledARGB = ledARGB;
 		notificationBuilder.setLights(this.ledARGB, ledOnMS, ledOffMS);
 		setProperty(TiC.PROPERTY_LED_ARGB, ledARGB);
 	}
 
-	// clang-format off
-	@Kroll.method
 	@Kroll.setProperty
 	public void setLedOffMS(int ledOffMS)
-	// clang-format on
 	{
 		this.ledOffMS = ledOffMS;
 		notificationBuilder.setLights(ledARGB, ledOnMS, this.ledOffMS);
 		setProperty(TiC.PROPERTY_LED_OFF_MS, ledOffMS);
 	}
 
-	// clang-format off
-	@Kroll.method
 	@Kroll.setProperty
 	public void setLedOnMS(int ledOnMS)
-	// clang-format on
 	{
 		this.ledOnMS = ledOnMS;
 		notificationBuilder.setLights(ledARGB, this.ledOnMS, ledOffMS);
 		setProperty(TiC.PROPERTY_LED_ON_MS, ledOnMS);
 	}
 
-	// clang-format off
-	@Kroll.method
 	@Kroll.setProperty
 	public void setNumber(int number)
-	// clang-format on
 	{
 		notificationBuilder.setNumber(number);
 		setProperty(TiC.PROPERTY_NUMBER, number);
 	}
 
-	// clang-format off
-	@Kroll.method
 	@Kroll.setProperty
 	public void setSound(String url)
-	// clang-format on
 	{
+		if (Build.VERSION.SDK_INT >= 26) {
+			Log.w(TAG, "Notification 'sound' property is not supported on Android 8.0 and higher. "
+						   + "You must assign sound to its NotificationChannel instead.");
+		}
+
 		if (url == null) {
 			Log.e(TAG, "Url is null");
 			return;
 		}
+
 		sound = Uri.parse(resolveUrl(null, url));
 		notificationBuilder.setSound(sound, audioStreamType);
 		setProperty(TiC.PROPERTY_SOUND, url);
 	}
 
-	// clang-format off
-	@Kroll.method
 	@Kroll.setProperty
 	public void setStyle(StyleProxy style)
-	// clang-format on
 	{
 		notificationBuilder.setStyle(style.getStyle());
 		setProperty(TiC.PROPERTY_STYLE, style);
 	}
 
-	// clang-format off
-	@Kroll.method
 	@Kroll.setProperty
 	public void setVibratePattern(Object[] pattern)
-	// clang-format on
 	{
 		if (pattern != null) {
 			long[] vibrate = new long[pattern.length];
@@ -416,31 +358,22 @@ public class NotificationProxy extends KrollProxy
 		setProperty(TiC.PROPERTY_VIBRATE_PATTERN, pattern);
 	}
 
-	// clang-format off
-	@Kroll.method
 	@Kroll.setProperty
 	public void setGroupKey(String groupKey)
-	// clang-format on
 	{
 		notificationBuilder.setGroup(groupKey);
 		setProperty(TiC.PROPERTY_GROUP_KEY, groupKey);
 	}
 
-	// clang-format off
-	@Kroll.method
 	@Kroll.setProperty
 	public void setGroupAlertBehavior(int groupAlertBehavior)
-	// clang-format on
 	{
 		notificationBuilder.setGroupAlertBehavior(groupAlertBehavior);
 		setProperty(TiC.PROPERTY_GROUP_ALERT_BEHAVIOR, groupAlertBehavior);
 	}
 
-	// clang-format off
-	@Kroll.method
 	@Kroll.setProperty
 	public void setGroupSummary(boolean isGroupSummary)
-	// clang-format on
 	{
 		notificationBuilder.setGroupSummary(isGroupSummary);
 		setProperty(TiC.PROPERTY_GROUP_SUMMARY, isGroupSummary);
@@ -470,11 +403,8 @@ public class NotificationProxy extends KrollProxy
 			.setContentTitle(contentTitle);
 	}
 
-	// clang-format off
-	@Kroll.method
 	@Kroll.setProperty
 	public void setChannelId(String channelId)
-	// clang-format on
 	{
 		notificationBuilder.setChannelId(channelId);
 		setProperty(TiC.PROPERTY_CHANNEL_ID, channelId);

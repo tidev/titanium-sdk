@@ -9,7 +9,7 @@ description: |
     On Android, by default, a toast notification appears centered on the bottom half of the screen.
     On Windows Phone, by default, a toast notification appears over the status bar on the top part
     of the screen.
-extends: Titanium.UI.View
+extends: Titanium.Proxy
 since: "0.8"
 platforms: [android]
 examples: 
@@ -17,28 +17,32 @@ examples:
     example: |
         The simplest use case is also the most common.
 
-            var toast = Ti.UI.createNotification({
-                message:"Please Stand By",
-                duration: Ti.UI.NOTIFICATION_DURATION_LONG
-            });
-            toast.show();
+        ``` js
+        var toast = Ti.UI.createNotification({
+            message:"Please Stand By",
+            duration: Ti.UI.NOTIFICATION_DURATION_LONG
+        });
+        toast.show();
+        ```
 
   - title: Alloy XML Markup
     example: |
         Previous example as an Alloy view.
 
         index.xml
-
-            <Alloy>
-                <Window>
-                    <Notification id="toast" platform="android" message="Please Stand By" duration="Ti.UI.NOTIFICATION_DURATION_LONG" />
-                </Window>
-            </Alloy>
+        ``` xml
+        <Alloy>
+            <Window>
+                <Notification id="toast" platform="android" message="Please Stand By" duration="Ti.UI.NOTIFICATION_DURATION_LONG" />
+            </Window>
+        </Alloy>
+        ```
 
         index.js
-
-            $.index.open();
-            $.toast.show();
+        ``` js
+        $.index.open();
+        $.toast.show();
+        ```
 
 methods:
 - name: show 

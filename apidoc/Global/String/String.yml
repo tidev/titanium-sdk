@@ -4,23 +4,25 @@ summary: The JavaScript built-in String type.
 description: |
     This module contains Titanium-only extensions for formatting data into locale-specific strings. 
     The target locale is configured by the user in the device's system Settings.
-platforms: [android, iphone, ipad]
+platforms: [android, iphone, ipad, macos]
 
 methods:
   - name: format
     summary: Formats a string using `printf`-style substitution.
     description: | 
         The format string follows the 
-        [IEEE printf specification](http://www.opengroup.org/onlinepubs/009695399/functions/printf.html).
+        [IEEE printf specification](http://pubs.opengroup.org/onlinepubs/009695399/functions/printf.html).
         
         For each "conversion specification" (ie. `%s` for a string or `%d` for a number) used inside
         the string, `formatString` argument, the respective value is substituted from the
         argument list. For example:
-        
-            var forename = 'Paul';
-            var number = 21;
-            var message = String.format('Welcome, %s! You are visitor number %d', forename, number);
-            Ti.API.info(message);
+
+        ``` js
+        var forename = 'Paul';
+        var number = 21;
+        var message = String.format('Welcome, %s! You are visitor number %d', forename, number);
+        Ti.API.info(message);
+        ```
     returns:
         type: String
         summary: Formatted string.
@@ -33,7 +35,7 @@ methods:
         repeatable: true
         summary: |
             Values to substitute into the `formatString`.  The method expects a variable number
-            of `value` arugments, one for each `%` conversion specification in the format
+            of `value` arguments, one for each `%` conversion specification in the format
             string. Optional on Android.
         type: [ String, Number ]
         
@@ -69,6 +71,9 @@ methods:
     summary: |
         Formats a number into the decimal format, including decimal symbol, of the locale 
         configured for the system.
+    description: |
+        The localized string created by this method can be parsed be parsed back to a number
+        via the <Titanium.Locale.parseDecimal> method.
     returns:
         type: String
         summary: |

@@ -80,13 +80,14 @@
     [self rememberProxy:_snapItem];
     _needsRefresh = (_snapBehavior != nil);
     if (_needsRefresh) {
-      TiThreadPerformOnMainThread(^{
-        UIDynamicAnimator *theAnimator = _snapBehavior.dynamicAnimator;
-        if (theAnimator != nil) {
-          [theAnimator removeBehavior:_snapBehavior];
-          [theAnimator addBehavior:[self behaviorObject]];
-        }
-      },
+      TiThreadPerformOnMainThread(
+          ^{
+            UIDynamicAnimator *theAnimator = _snapBehavior.dynamicAnimator;
+            if (theAnimator != nil) {
+              [theAnimator removeBehavior:_snapBehavior];
+              [theAnimator addBehavior:[self behaviorObject]];
+            }
+          },
           YES);
     }
   }
@@ -109,9 +110,10 @@
     } else {
       _damping = newVal;
     }
-    TiThreadPerformOnMainThread(^{
-      [_snapBehavior setDamping:_damping];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          [_snapBehavior setDamping:_damping];
+        },
         YES);
   }
 }
@@ -129,13 +131,14 @@
     _snapPoint = newPoint;
     _needsRefresh = (_snapBehavior != nil);
     if (_needsRefresh) {
-      TiThreadPerformOnMainThread(^{
-        UIDynamicAnimator *theAnimator = _snapBehavior.dynamicAnimator;
-        if (theAnimator != nil) {
-          [theAnimator removeBehavior:_snapBehavior];
-          [theAnimator addBehavior:[self behaviorObject]];
-        }
-      },
+      TiThreadPerformOnMainThread(
+          ^{
+            UIDynamicAnimator *theAnimator = _snapBehavior.dynamicAnimator;
+            if (theAnimator != nil) {
+              [theAnimator removeBehavior:_snapBehavior];
+              [theAnimator addBehavior:[self behaviorObject]];
+            }
+          },
           YES);
     }
   }

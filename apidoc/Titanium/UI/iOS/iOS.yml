@@ -1,34 +1,15 @@
 ---
 name: Titanium.UI.iOS
 summary: |
-    Apple iOS specific UI capabilities.  All properties, methods and events in this namespace will 
+    Apple iOS specific UI capabilities.  All properties, methods and events in this namespace will
     only work on Apple iOS devices.
 extends: Titanium.Module
-since: "1.4"
-platforms: [iphone, ipad]
-
+platforms: [iphone, ipad, macos]
+since: {iphone: "1.4.0", ipad: "1.4.0", macos: "9.2.0"}
 methods:
-  - name: createTransitionAnimation
-    summary: |
-        Creates a transition animation when opening or closing windows in a
-        <Titanium.UI.iOS.NavigationWindow> or <Titanium.UI.Tab>.
-    description: |
-        Use the object returned by this method with the Window's
-        [transitionAnimation](Titanium.UI.Window.transitionAnimation) property.
-
-        Supported on iOS 7 and later.
-    parameters:
-      - name: transition
-        summary: Dictionary specifying the transition animation.
-        type: transitionAnimationParam
-    returns:
-      - type: Titanium.Proxy
-    since: "3.2.0"
-    osver: {ios: {min: "7.0"}}
-
   - name: createLivePhotoBadge
     summary: |
-        Creates a live photo badge to be used together with the 
+        Creates a live photo badge to be used together with the
         <Titanium.UI.iOS.LivePhotoView> API.
     description: |
         Supported on iOS 9.1 and later.
@@ -38,37 +19,52 @@ methods:
         type: Number
         constants: [Titanium.UI.iOS.LIVEPHOTO_BADGE_OPTIONS_*]
     returns:
-      - type: Titanium.Blob
+      type: Titanium.Blob
     since: "5.2.0"
     osver: {ios: {min: "9.1"}}
-    
+
+  - name: systemImage
+    summary: |
+        Get image from SF Symbols provided by Apple.
+    description: |
+        More details on SF Symbols can be found on https://developer.apple.com/design/human-interface-guidelines/sf-symbols/overview.
+        One can download SF Symbols app from https://developer.apple.com/design/downloads/SF-Symbols.dmg and 
+        use it to lookup the inbuilt SF Symbol name.
+    parameters:
+      - name: name
+        summary: Name of SF Symbol.
+        type: String
+    returns:
+      type: Titanium.Blob
+    since: "8.2.0"
+    osver: {ios: {min: "13.0"}}
 properties:
   - name: LARGE_TITLE_DISPLAY_MODE_AUTOMATIC
     summary: |
         Automatically use the large out-of-line title based on the state of the p
         revious item in the navigation bar.
     description: |
-        Use with <Titanium.UI.Window.largeTitleDisplayMode>. An item with this 
-        constant will show or hide the large title based on the request of the 
-        previous navigation item. If the first item pushed is set to Automatic, 
+        Use with <Titanium.UI.Window.largeTitleDisplayMode>. An item with this
+        constant will show or hide the large title based on the request of the
+        previous navigation item. If the first item pushed is set to Automatic,
         then it will show the large title if the navigation bar has the property
         <Titanium.UI.Window.largeTitleEnabled> set to `true`.
     type: Number
     since: "6.3.0"
     osver: {ios: {min: "11.0"}}
-    permission: read-only 
+    permission: read-only
 
   - name: LARGE_TITLE_DISPLAY_MODE_ALWAYS
     summary: Always use a larger title when this item is top most.
-    description: Use with <Titanium.UI.Window.largeTitleDisplayMode>. 
+    description: Use with <Titanium.UI.Window.largeTitleDisplayMode>.
     type: Number
     since: "6.3.0"
     osver: {ios: {min: "11.0"}}
     permission: read-only
-    
+
   - name: LARGE_TITLE_DISPLAY_MODE_NEVER
     summary:  Never use a larger title when this item is top most.
-    description: Use with <Titanium.UI.Window.largeTitleDisplayMode>. 
+    description: Use with <Titanium.UI.Window.largeTitleDisplayMode>.
     type: Number
     since: "6.3.0"
     osver: {ios: {min: "11.0"}}
@@ -76,7 +72,7 @@ properties:
 
   - name: LIVEPHOTO_BADGE_OPTIONS_OVER_CONTENT
     summary: |
-        Include treatments so this image can be shown directly over the content 
+        Include treatments so this image can be shown directly over the content
         of the Live Photo.
     description: |
         Use with <Titanium.UI.iOS.createLivePhotoBadge> to specify
@@ -85,10 +81,10 @@ properties:
     since: "5.2.0"
     osver: {ios: {min: "9.1"}}
     permission: read-only
-    
+
   - name: LIVEPHOTO_BADGE_OPTIONS_LIVE_OFF
-    summary: | 
-        To indicate that the Live Photo aspect is turned off and it will 
+    summary: |
+        To indicate that the Live Photo aspect is turned off and it will
         be treated as a still (e.g. for sharing).
     description: |
         Use with <Titanium.UI.iOS.createLivePhotoBadge> to specify
@@ -98,881 +94,369 @@ properties:
     osver: {ios: {min: "9.1"}}
     permission: read-only
 
-  - name: ANIMATION_CURVE_EASE_IN
-    deprecated:
-        since: "2.1.0"
-        notes: Use <Titanium.UI.ANIMATION_CURVE_EASE_IN> instead.
-        removed: "6.0.0"
-    summary: |
-        Use with [Animation.curve](Titanium.UI.Animation.curve) to specify an animation that starts 
-        slowly and speeds up.
-    type: Number
-    permission: read-only
-
-  - name: ANIMATION_CURVE_EASE_IN_OUT
-    deprecated:
-        since: "2.1.0"
-        notes: Use <Titanium.UI.ANIMATION_CURVE_EASE_IN_OUT> instead.
-        removed: "6.0.0"
-    summary: |
-        Use with [Animation.curve](Titanium.UI.Animation.curve) to specify an animation that starts 
-        slowly, and speeds up, then slows down at the end of the animation.
-    type: Number
-    permission: read-only
-
-  - name: ANIMATION_CURVE_EASE_OUT
-    deprecated:
-        since: "2.1.0"
-        notes: Use <Titanium.UI.ANIMATION_CURVE_EASE_OUT> instead.
-        removed: "6.0.0"
-    summary: |
-        Use with [Animation.curve](Titanium.UI.Animation.curve) to specify an animation that starts 
-        quickly, then slows down at the end of the animation.
-    type: Number
-    permission: read-only
-
-  - name: ANIMATION_CURVE_LINEAR
-    deprecated:
-        since: "2.1.0"
-        notes: Use <Titanium.UI.ANIMATION_CURVE_LINEAR> instead.
-        removed: "6.0.0"
-    summary: |
-        Use with [Animation.curve](Titanium.UI.Animation.curve) to specify an animation that proceeds 
-        at a constant rate.
-    type: Number
-    permission: read-only
-
-  - name: ATTRIBUTE_FONT
-    summary: |
-        Use with <Attribute.type> to specify a font.
-    deprecated:
-        since: "3.6.0"
-        notes: Use the <Titanium.UI.ATTRIBUTE_FONT> constant instead (without the iOS namespace).
-        removed: "6.0.0"
-    description: |
-        Use a <Font> dictionary for <Attribute.value>.
-
-        See <Attribute> for more information.
-    type: Number
-    osver: {ios: {min: "6.0"}}
-    permission: read-only
-
-  - name: ATTRIBUTE_FOREGROUND_COLOR
-    summary: |
-        Use with <Attribute.type> to specify a font color.
-    deprecated:
-        since: "3.6.0"
-        notes: Use the <Titanium.UI.ATTRIBUTE_FOREGROUND_COLOR> constant instead (without the iOS namespace).
-        removed: "6.0.0"
-    description: |
-        Use a color name or hex value for <Attribute.value>.
-
-        See <Attribute> for more information.
-    type: Number
-    osver: {ios: {min: "6.0"}}
-    permission: read-only
-
-  - name: ATTRIBUTE_BACKGROUND_COLOR
-    summary: |
-        Use with <Attribute.type> to specify a background color.
-    deprecated:
-        since: "3.6.0"
-        notes: Use the <Titanium.UI.ATTRIBUTE_BACKGROUND_COLOR> constant instead (without the iOS namespace).
-        removed: "6.0.0"
-    description: |
-        Use a color name or hex value for <Attribute.value>.
-
-        See <Attribute> for more information.
-    type: Number
-    osver: {ios: {min: "6.0"}}
-    permission: read-only
-
-  - name: ATTRIBUTE_LIGATURE
-    summary: |
-        Use with <Attribute.type> to enable or disable ligatures.
-    deprecated:
-        since: "3.6.0"
-        notes: Use the <Titanium.UI.ATTRIBUTE_LIGATURE> constant instead (without the iOS namespace).
-        removed: "6.0.0"
-    description: |
-        Set <Attribute.value> to `1` to enable ligatures, else `0` to disable.
-        Ligatures are only supported on certain fonts.
-
-        See <Attribute> for more information.
-    type: Number
-    osver: {ios: {min: "6.0"}}
-    permission: read-only
-
-  - name: ATTRIBUTE_LETTERPRESS_STYLE
-    summary: |
-        Use with <Attribute.value> to use a letterpress text effect.
-    deprecated:
-        since: "3.6.0"
-        notes: Use the <Titanium.UI.ATTRIBUTE_LETTERPRESS_STYLE> constant instead (without the iOS namespace).
-        removed: "6.0.0"
-    description: |
-        Use this constant when <Attribute.type> is
-        <Titanium.UI.iOS.ATTRIBUTE_TEXT_EFFECT>.
-
-        See <Attribute> for more information.
-    type: Number
-    osver: {ios: {min: "7.0"}}
-    permission: read-only
-
-  - name: ATTRIBUTE_KERN
-    summary: |
-        Use with <Attribute.type> to specify kerning (space between characters).
-    deprecated:
-        since: "3.6.0"
-        notes: Use the <Titanium.UI.ATTRIBUTE_KERN> constant instead (without the iOS namespace).
-        removed: "6.0.0"
-    description: |
-        Set <Attribute.value> to a float value specifying how many pixels to increase the character
-        spacing.
-
-        See <Attribute> for more information.
-    type: Number
-    osver: {ios: {min: "6.0"}}
-    permission: read-only
-
-  - name: ATTRIBUTE_STRIKETHROUGH_STYLE
-    summary: |
-        Use with <Attribute.type> to place a horizontal line through the text.
-    deprecated:
-        since: "3.6.0"
-        notes: Use the <Titanium.UI.ATTRIBUTE_STRIKETHROUGH_STYLE> constant instead (without the iOS namespace).
-        removed: "6.0.0"
-    description: |
-        Set the `value` property to a `Titanium.UI.iOS.ATTRIBUTE_UNDERLINE_*` constant.
- 
-        See <Attribute> for more information.
-    type: Number
-    osver: {ios: {min: "6.0"}}
-    permission: read-only
-
-  - name: ATTRIBUTE_UNDERLINES_STYLE
-    summary: |
-        Use with <Attribute.type> to place a horizontal line under the text.
-    deprecated:
-        since: "3.6.0"
-        notes: Use the <Titanium.UI.ATTRIBUTE_UNDERLINES_STYLE> constant instead (without the iOS namespace).
-        removed: "6.0.0"
-    description: |
-        Set the `value` property to a `Titanium.UI.iOS.ATTRIBUTE_UNDERLINE_*` constant.
-
-        See <Attribute> for more information.
-    type: Number
-    osver: {ios: {min: "6.0"}}
-    permission: read-only
-
-  - name: ATTRIBUTE_STROKE_COLOR
-    summary: |
-        Use with <Attribute.type> to specify a color for the stroke text.
-    deprecated:
-        since: "3.6.0"
-        notes: Use the <Titanium.UI.ATTRIBUTE_STROKE_COLOR> constant instead (without the iOS namespace).
-        removed: "6.0.0"
-    description: |
-        Use a color name or hex value for the `value` property in the attributes dictionary.
-
-        See <Attribute> for more information on type modes.
-    type: Number
-    osver: {ios: {min: "6.0"}}
-    permission: read-only
-
-  - name: ATTRIBUTE_STROKE_WIDTH
-    summary: |
-        Use with <Attribute.type> to specify the width of the stroke text.
-    deprecated:
-        since: "3.6.0"
-        notes: Use the <Titanium.UI.ATTRIBUTE_STROKE_WIDTH> constant instead (without the iOS namespace).
-        removed: "6.0.0"
-    description: |
-        Set <Attribute.value> to a float value specifying the size of stroke width as a percentage of the
-        font size. A positive value displays an outline of the charater, while a negative value
-        fills the character.
-
-        See <Attribute> for more information.
-    type: Number
-    osver: {ios: {min: "6.0"}}
-    permission: read-only
-
-  - name: ATTRIBUTE_SHADOW
-    summary: |
-        Use with <Attribute.type> to display a shadow behind the text.
-    deprecated:
-        since: "3.6.0"
-        notes: Use the <Titanium.UI.ATTRIBUTE_SHADOW> constant instead (without the iOS namespace).
-        removed: "6.0.0"
-    description: |
-        Set <Attribute.value> to a [Shadow](shadowDict) dictionary.
-
-        See <Attribute> for more information.
-    type: Number
-    osver: {ios: {min: "6.0"}}
-    permission: read-only
-
-  - name: ATTRIBUTE_WRITING_DIRECTION
-    summary: |
-        Use with <Attribute.type> to control the direction of the text.
-    deprecated:
-        since: "3.6.0"
-        notes: Use the <Titanium.UI.ATTRIBUTE_WRITING_DIRECTION> constant instead (without the iOS namespace).
-        removed: "6.0.0"
-    description: |
-        Set <Attribute.value> to a `Titanium.UI.iOS.ATTRIBUTE_WRITING_DIRECTION_*` constant.
-
-        See <Attribute> for more information on type modes.
-    type: Number
-    osver: {ios: {min: "7.0"}}
-    permission: read-only
-
-  - name: ATTRIBUTE_TEXT_EFFECT
-    summary: |
-        Use with <Attribute.type> to apply a text effect.
-    deprecated:
-        since: "3.6.0"
-        notes: Use the <Titanium.UI.ATTRIBUTE_TEXT_EFFECT> constant instead (without the iOS namespace).
-        removed: "6.0.0"
-    description: |
-        Set <Attribute.value> to `Titainium.UI.iOS.ATTRIBUTE_LETTERPRESS_STYLE` to apply a
-        letterpress effect to the text.
-
-        See <Attribute> for more information.
-    type: Number
-    osver: {ios: {min: "7.0"}}
-    permission: read-only
-
-  - name: ATTRIBUTE_LINK
-    summary: |
-        Use with <Attribute.type> to create a link.
-    deprecated:
-        since: "3.6.0"
-        notes: Use the <Titanium.UI.ATTRIBUTE_LINK> constant instead (without the iOS namespace).
-        removed: "6.0.0"
-    description: |
-        Set <Attribute.value> to a URL.
-
-        Use the Label's [link](Titanium.UI.Label.link) event to determine when the user triggers a
-        long press (not a click) event on the linked text.
-
-        See <Attribute> for more information.
-    type: Number
-    osver: {ios: {min: "7.0"}}
-    permission: read-only
-
-  - name: ATTRIBUTE_BASELINE_OFFSET
-    summary: |
-        Use with <Attribute.type> to apply a different baseline to the text.
-    deprecated:
-        since: "3.6.0"
-        notes: Use the <Titanium.UI.ATTRIBUTE_BASELINE_OFFSET> constant instead (without the iOS namespace).
-        removed: "6.0.0"
-    description: |
-        Set <Attribute.value> to a number to specify how many pixels to raise or lower the text.
-
-        See <Attribute> for more information.
-    type: Number
-    osver: {ios: {min: "7.0"}}
-    permission: read-only
-
-  - name: ATTRIBUTE_UNDERLINE_COLOR
-    summary: |
-        Use with <Attribute.type> to change the color of the horizontal line.
-    deprecated:
-        since: "3.6.0"
-        notes: Use the <Titanium.UI.ATTRIBUTE_UNDERLINE_COLOR> constant instead (without the iOS namespace).
-        removed: "6.0.0"
-    description: |
-        Use a color name or hex value for <Attribute.value>.
-
-        See <Attribute> for more information.
-    type: Number
-    osver: {ios: {min: "7.0"}}
-    permission: read-only
-
-  - name: ATTRIBUTE_STRIKETHROUGH_COLOR
-    summary: |
-        Use with <Attribute.type> to change the color of the horizontal line.
-    deprecated:
-        since: "3.6.0"
-        notes: Use the <Titanium.UI.ATTRIBUTE_STRIKETHROUGH_COLOR> constant instead (without the iOS namespace).
-        removed: "6.0.0"
-    description: |
-        Use a color name or hex value for <Attribute.value>.
-
-        See <Attribute> for more information.
-    type: Number
-    osver: {ios: {min: "7.0"}}
-    permission: read-only
-
-  - name: ATTRIBUTE_OBLIQUENESS
-    summary: |
-        Use with <Attribute.type> to skew the text.
-    deprecated:
-        since: "3.6.0"
-        notes: Use the <Titanium.UI.ATTRIBUTE_OBLIQUENESS> constant instead (without the iOS namespace).
-        removed: "6.0.0"
-    description: |
-        Set <Attribute.value> to a float value to specify how much to skew the text.
-
-        See <Attribute> for more information.
-    type: Number
-    osver: {ios: {min: "7.0"}}
-    permission: read-only
-
-  - name: ATTRIBUTE_EXPANSION
-    summary: |
-        Use with <Attribute.type> to stretch the text horizontally.
-    deprecated:
-        since: "3.6.0"
-        notes: Use the <Titanium.UI.ATTRIBUTE_EXPANSION> constant instead (without the iOS namespace).
-        removed: "6.0.0"
-    description: |
-        Set <Attribute.value> to a float value to specify how much to stretch the text.
-
-        See <Attribute> for more information.
-    type: Number
-    osver: {ios: {min: "7.0"}}
-    permission: read-only
-
-  - name: ATTRIBUTE_UNDERLINE_STYLE_NONE
-    summary: |
-        Use with <Attribute.value> to not draw a line.
-    deprecated:
-        since: "3.6.0"
-        notes: Use the <Titanium.UI.ATTRIBUTE_UNDERLINE_STYLE_NONE> constant instead (without the iOS namespace).
-        removed: "6.0.0"
-    description: |
-        Use this constant when <Attribute.type> is either
-        <Titanium.UI.iOS.ATTRIBUTE_UNDERLINES_STYLE> or
-        <Titanium.UI.iOS.ATTRIBUTE_STRIKETHROUGH_STYLE>.
-
-        See <Attribute> for more information.
-    type: Number
-    osver: {ios: {min: "6.0"}}
-    permission: read-only
-
-  - name: ATTRIBUTE_UNDERLINE_STYLE_SINGLE
-    summary: |
-        Use with <Attribute.value> to draw a single line.
-    deprecated:
-        since: "3.6.0"
-        notes: Use the <Titanium.UI.ATTRIBUTE_UNDERLINE_STYLE_SINGLE> constant instead (without the iOS namespace).
-        removed: "6.0.0"
-    description: |
-        Use this constant when <Attribute.type> is either
-        <Titanium.UI.iOS.ATTRIBUTE_UNDERLINES_STYLE> or
-        <Titanium.UI.iOS.ATTRIBUTE_STRIKETHROUGH_STYLE>.
-
-        See <Attribute> for more information.
-    type: Number
-    osver: {ios: {min: "6.0"}}
-    permission: read-only
-
-  - name: ATTRIBUTE_UNDERLINE_STYLE_THICK
-    summary: |
-        Use with <Attribute.value> to draw a thick line.
-    deprecated:
-        since: "3.6.0"
-        notes: Use the <Titanium.UI.ATTRIBUTE_UNDERLINE_STYLE_THICK> constant instead (without the iOS namespace).
-        removed: "6.0.0"
-    description: |
-        Use this constant when <Attribute.type> is either
-        <Titanium.UI.iOS.ATTRIBUTE_UNDERLINES_STYLE> or
-        <Titanium.UI.iOS.ATTRIBUTE_STRIKETHROUGH_STYLE>.
-
-        See <Attribute> for more information.
-    type: Number
-    osver: {ios: {min: "7.0"}}
-    permission: read-only
-
-  - name: ATTRIBUTE_UNDERLINE_STYLE_DOUBLE
-    summary: |
-        Use with <Attribute.value> to draw a double line.
-    deprecated:
-        since: "3.6.0"
-        notes: Use the <Titanium.UI.ATTRIBUTE_UNDERLINE_STYLE_DOUBLE> constant instead (without the iOS namespace).
-        removed: "6.0.0"
-    description: |
-        Use this constant when <Attribute.type> is either
-        <Titanium.UI.iOS.ATTRIBUTE_UNDERLINES_STYLE> or
-        <Titanium.UI.iOS.ATTRIBUTE_STRIKETHROUGH_STYLE>.
-
-        See <Attribute> for more information.
-    type: Number
-    osver: {ios: {min: "7.0"}}
-    permission: read-only
-
-  - name: ATTRIBUTE_UNDERLINE_PATTERN_SOLID
-    summary: |
-        Use with <Attribute.value> to draw a solid line.
-    deprecated:
-        since: "3.6.0"
-        notes: Use the <Titanium.UI.ATTRIBUTE_UNDERLINE_PATTERN_SOLID> constant instead (without the iOS namespace).
-        removed: "6.0.0"
-    description: |
-        Use this constant when <Attribute.type> is either
-        <Titanium.UI.iOS.ATTRIBUTE_UNDERLINES_STYLE> or
-        <Titanium.UI.iOS.ATTRIBUTE_STRIKETHROUGH_STYLE>.
-
-        See <Attribute> for more information.
-    type: Number
-    osver: {ios: {min: "7.0"}}
-    permission: read-only
-
-  - name: ATTRIBUTE_UNDERLINE_PATTERN_DOT
-    summary: |
-        Use with <Attribute.value> to draw a dotted line.
-    deprecated:
-        since: "3.6.0"
-        notes: Use the <Titanium.UI.ATTRIBUTE_UNDERLINE_PATTERN_DOT> constant instead (without the iOS namespace).
-        removed: "6.0.0"
-    description: |
-        Use this constant when <Attribute.type> is either
-        <Titanium.UI.iOS.ATTRIBUTE_UNDERLINES_STYLE> or
-        <Titanium.UI.iOS.ATTRIBUTE_STRIKETHROUGH_STYLE>.
-
-        See <Attribute> for more information.
-    type: Number
-    osver: {ios: {min: "7.0"}}
-    permission: read-only
-
-  - name: ATTRIBUTE_UNDERLINE_PATTERN_DASH
-    summary: |
-        Use with <Attribute.value> to draw a dashed line.
-    deprecated:
-        since: "3.6.0"
-        notes: Use the <Titanium.UI.ATTRIBUTE_UNDERLINE_PATTERN_DASH> constant instead (without the iOS namespace).
-        removed: "6.0.0"
-    description: |
-        Use this constant when <Attribute.type> is either
-        <Titanium.UI.iOS.ATTRIBUTE_UNDERLINES_STYLE> or
-        <Titanium.UI.iOS.ATTRIBUTE_STRIKETHROUGH_STYLE>.
-
-        See <Attribute> for more information.
-    type: Number
-    osver: {ios: {min: "7.0"}}
-    permission: read-only
-
-  - name: ATTRIBUTE_UNDERLINE_PATTERN_DASH_DOT
-    summary: |
-        Use with <Attribute.value> to draw an alternating line of dashes and dots.
-    deprecated:
-        since: "3.6.0"
-        notes: Use the <Titanium.UI.ATTRIBUTE_UNDERLINE_PATTERN_DASH_DOT> constant instead (without the iOS namespace).
-        removed: "6.0.0"
-    description: |
-        Use this constant when <Attribute.type> is either
-        <Titanium.UI.iOS.ATTRIBUTE_UNDERLINES_STYLE> or
-        <Titanium.UI.iOS.ATTRIBUTE_STRIKETHROUGH_STYLE>.
-
-        See <Attribute> for more information.
-    type: Number
-    osver: {ios: {min: "7.0"}}
-    permission: read-only
-
-  - name: ATTRIBUTE_UNDERLINE_PATTERN_DASH_DOT_DOT
-    summary: |
-        Use with <Attribute.value> to draw an alternating line of dashes and two dots.
-    deprecated:
-        since: "3.6.0"
-        notes: Use the <Titanium.UI.ATTRIBUTE_UNDERLINE_PATTERN_DASH_DOT_DOT> constant instead (without the iOS namespace).
-        removed: "6.0.0"
-    description: |
-        Use this constant when <Attribute.type> is either
-        <Titanium.UI.iOS.ATTRIBUTE_UNDERLINES_STYLE> or
-        <Titanium.UI.iOS.ATTRIBUTE_STRIKETHROUGH_STYLE>.
-
-        See <Attribute> for more information.
-    type: Number
-    osver: {ios: {min: "7.0"}}
-    permission: read-only
-
-  - name: ATTRIBUTE_UNDERLINE_BY_WORD
-    summary: |
-        Use with <Attribute.value> to draw a line only underneath or through words.
-    deprecated:
-        since: "3.6.0"
-        notes: Use the <Titanium.UI.ATTRIBUTE_UNDERLINE_BY_WORD> constant instead (without the iOS namespace).
-        removed: "6.0.0"
-    description: |
-        Use this constant when <Attribute.type> is either
-        <Titanium.UI.iOS.ATTRIBUTE_UNDERLINES_STYLE> or
-        <Titanium.UI.iOS.ATTRIBUTE_STRIKETHROUGH_STYLE>.
-
-        See <Attribute> for more information.
-    type: Number
-    osver: {ios: {min: "7.0"}}
-    permission: read-only
-
-  - name: ATTRIBUTE_WRITING_DIRECTION_EMBEDDING
-    summary: |
-        Use with <Attribute.value> to use the embedded text direction.
-    deprecated:
-        since: "3.6.0"
-        notes: Use the <Titanium.UI.ATTRIBUTE_WRITING_DIRECTION_EMBEDDING> constant instead (without the iOS namespace).
-        removed: "6.0.0"
-    description: |
-        Use this constant when <Attribute.type> is
-        <Titanium.UI.iOS.ATTRIBUTE_WRITING_DIRECTION>.
-
-        See <Attribute> for more information.
-    type: Number
-    osver: {ios: {min: "7.0"}}
-    permission: read-only
-
-  - name: ATTRIBUTE_WRITING_DIRECTION_OVERRIDE
-    summary: |
-        Use with <Attribute.value> to override the text direction.
-    deprecated:
-        since: "3.6.0"
-        notes: Use the <Titanium.UI.ATTRIBUTE_WRITING_DIRECTION_OVERRIDE> constant instead (without the iOS namespace).
-        removed: "6.0.0"
-    description: |
-        Use this constant when <Attribute.type> is
-        <Titanium.UI.iOS.ATTRIBUTE_WRITING_DIRECTION>.
-
-        See <Attribute> for more information.
-    type: Number
-    osver: {ios: {min: "7.0"}}
-    permission: read-only
-
-  - name: ATTRIBUTE_WRITING_DIRECTION_NATURAL
-    summary: |
-        Use with <Attribute.value> to use the 
-        [Unicode Bidirection Algorithm rules P2 and P3](http://www.unicode.org/reports/tr9/#The_Paragraph_Level)
-        to determine which direction to use.
-    deprecated:
-        since: "3.6.0"
-        notes: Use the <Titanium.UI.ATTRIBUTE_WRITING_DIRECTION_NATURAL> constant instead (without the iOS namespace).
-        removed: "6.0.0"
-    description: |
-        Use this constant when <Attribute.type> is
-        <Titanium.UI.iOS.ATTRIBUTE_WRITING_DIRECTION>.
-
-        See <Attribute> for more information.
-    type: Number
-    osver: {ios: {min: "7.0"}}
-    permission: read-only
-
-  - name: ATTRIBUTE_WRITING_DIRECTION_LEFT_TO_RIGHT
-    summary: |
-        Use with <Attribute.value> to write text left to right.
-    deprecated:
-        since: "3.6.0"
-        notes: Use the <Titanium.UI.ATTRIBUTE_WRITING_DIRECTION_LEFT_TO_RIGHT> constant instead (without the iOS namespace).
-        removed: "6.0.0"
-    description: |
-        Use this constant when <Attribute.type> is
-        <Titanium.UI.iOS.ATTRIBUTE_WRITING_DIRECTION>.
-
-        See <Attribute> for more information.
-    type: Number
-    osver: {ios: {min: "7.0"}}
-    permission: read-only
-
-  - name: ATTRIBUTE_WRITING_DIRECTION_RIGHT_TO_LEFT
-    summary: |
-        Use with <Attribute.value> to write text right to left.
-    deprecated:
-        since: "3.6.0"
-        notes: Use the <Titanium.UI.ATTRIBUTE_WRITING_DIRECTION_RIGHT_TO_LEFT> constant instead (without the iOS namespace).
-        removed: "6.0.0"
-    description: |
-        Use this constant when <Attribute.type> is
-        <Titanium.UI.iOS.ATTRIBUTE_WRITING_DIRECTION>.
-
-        See <Attribute> for more information.
-    type: Number
-    osver: {ios: {min: "7.0"}}
-    permission: read-only
-
-  - name: AUTODETECT_ADDRESS
-    deprecated:
-        since: "3.0.0"
-        notes: Use <Titanium.UI.AUTOLINK_MAP_ADDRESSES> instead.
-        removed: "6.0.0"
-    summary: Converts strings formatted as addresses into clickable links.
-    type: Number
-    osver: {ios: {min: "4.0"}}
-    permission: read-only
-    platforms: [iphone, ipad]
-
-  - name: AUTODETECT_ALL
-    deprecated:
-        since: "3.0.0"
-        notes: Use <Titanium.UI.AUTOLINK_ALL> instead.
-        removed: "6.0.0"
-    summary: Converts all detectable types of data into clickable links.
-    type: Number
-    permission: read-only
-    platforms: [iphone, ipad]
-
-  - name: AUTODETECT_CALENDAR
-    deprecated:
-        since: "3.0.0"
-        notes: Use <Titanium.UI.AUTOLINK_CALENDAR> instead.
-        removed: "6.0.0"
-    summary: Converts strings formatted as calendar events into clickable links.
-    type: Number
-    osver: {ios: {min: "4.0"}}
-    permission: read-only
-    platforms: [iphone, ipad]
-
-  - name: AUTODETECT_LINK
-    deprecated:
-        since: "3.0.0"
-        notes: Use <Titanium.UI.AUTOLINK_URLS> instead.
-        removed: "6.0.0"
-    summary: Converts strings formatted as URLs into clickable links.
-    type: Number
-    permission: read-only
-    platforms: [iphone, ipad]
-
-  - name: AUTODETECT_NONE
-    deprecated:
-        since: "3.0.0"
-        notes: Use <Titanium.UI.AUTOLINK_NONE> instead.
-        removed: "6.0.0"
-    summary: Disables converting strings into clickable links.
-    type: Number
-    permission: read-only
-    platforms: [iphone, ipad]
-
-  - name: AUTODETECT_PHONE
-    deprecated:
-        since: "3.0.0"
-        notes: Use <Titanium.UI.AUTOLINK_PHONE_NUMBERS> instead.
-        removed: "6.0.0"
-    summary: Converts strings formatted as phone numbers into clickable links.
-    type: Number
-    permission: read-only
-    platforms: [iphone, ipad]
-
   - name: BLEND_MODE_CLEAR
+    deprecated:
+        since: "7.3.0"
+        removed: "9.0.0"
+        notes: Use [Titanium.UI.BLEND_MODE_CLEAR](Titanium.UI.BLEND_MODE_CLEAR) instead.
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     description: |
         See <Titanium.UI.MaskedImage> for more information on blend modes.
     type: Number
     permission: read-only
+    exclude-platforms: [macos]
 
   - name: BLEND_MODE_COLOR
+    deprecated:
+        since: "7.3.0"
+        removed: "9.0.0"
+        notes: Use [Titanium.UI.BLEND_MODE_COLOR](Titanium.UI.BLEND_MODE_COLOR) instead.
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     description: |
         See <Titanium.UI.MaskedImage> for more information on blend modes.
     type: Number
     permission: read-only
+    exclude-platforms: [macos]
 
   - name: BLEND_MODE_COLOR_BURN
+    deprecated:
+        since: "7.3.0"
+        removed: "9.0.0"
+        notes: Use [Titanium.UI.BLEND_MODE_COLOR_BURN](Titanium.UI.BLEND_MODE_COLOR_BURN) instead.
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     description: |
         See <Titanium.UI.MaskedImage> for more information on blend modes.
     type: Number
     permission: read-only
+    exclude-platforms: [macos]
 
   - name: BLEND_MODE_COLOR_DODGE
+    deprecated:
+        since: "7.3.0"
+        removed: "9.0.0"
+        notes: Use [Titanium.UI.BLEND_MODE_COLOR_DODGE](Titanium.UI.BLEND_MODE_COLOR_DODGE) instead.
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     description: |
         See <Titanium.UI.MaskedImage> for more information on blend modes.
     type: Number
     permission: read-only
+    exclude-platforms: [macos]
 
   - name: BLEND_MODE_COPY
+    deprecated:
+        since: "7.3.0"
+        removed: "9.0.0"
+        notes: Use [Titanium.UI.BLEND_MODE_COPY](Titanium.UI.BLEND_MODE_COPY) instead.
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     description: |
         See <Titanium.UI.MaskedImage> for more information on blend modes.
     type: Number
     permission: read-only
+    exclude-platforms: [macos]
 
   - name: BLEND_MODE_DARKEN
+    deprecated:
+        since: "7.3.0"
+        removed: "9.0.0"
+        notes: Use [Titanium.UI.BLEND_MODE_DARKEN](Titanium.UI.BLEND_MODE_DARKEN) instead.
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     description: |
         See <Titanium.UI.MaskedImage> for more information on blend modes.
     type: Number
     permission: read-only
+    exclude-platforms: [macos]
 
   - name: BLEND_MODE_DESTINATION_ATOP
+    deprecated:
+        since: "7.3.0"
+        removed: "9.0.0"
+        notes: Use [Titanium.UI.BLEND_MODE_DESTINATION_ATOP](Titanium.UI.BLEND_MODE_DESTINATION_ATOP) instead.
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     description: |
         See <Titanium.UI.MaskedImage> for more information on blend modes.
     type: Number
     permission: read-only
+    exclude-platforms: [macos]
 
   - name: BLEND_MODE_DESTINATION_IN
+    deprecated:
+        since: "7.3.0"
+        removed: "9.0.0"
+        notes: Use [Titanium.UI.BLEND_MODE_DESTINATION_IN](Titanium.UI.BLEND_MODE_DESTINATION_IN) instead.
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     description: |
         See <Titanium.UI.MaskedImage> for more information on blend modes.
     type: Number
     permission: read-only
+    exclude-platforms: [macos]
 
   - name: BLEND_MODE_DESTINATION_OUT
+    deprecated:
+        since: "7.3.0"
+        removed: "9.0.0"
+        notes: Use [Titanium.UI.BLEND_MODE_DESTINATION_OUT](Titanium.UI.BLEND_MODE_DESTINATION_OUT) instead.
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     description: |
         See <Titanium.UI.MaskedImage> for more information on blend modes.
     type: Number
     permission: read-only
+    exclude-platforms: [macos]
 
   - name: BLEND_MODE_DESTINATION_OVER
+    deprecated:
+        since: "7.3.0"
+        removed: "9.0.0"
+        notes: Use [Titanium.UI.BLEND_MODE_DESTINATION_OVER](Titanium.UI.BLEND_MODE_DESTINATION_OVER) instead.
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     description: |
         See <Titanium.UI.MaskedImage> for more information on blend modes.
     type: Number
     permission: read-only
+    exclude-platforms: [macos]
 
   - name: BLEND_MODE_DIFFERENCE
+    deprecated:
+        since: "7.3.0"
+        removed: "9.0.0"
+        notes: Use [Titanium.UI.BLEND_MODE_DIFFERENCE](Titanium.UI.BLEND_MODE_DIFFERENCE) instead.
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     description: |
         See <Titanium.UI.MaskedImage> for more information on blend modes.
     type: Number
     permission: read-only
+    exclude-platforms: [macos]
 
   - name: BLEND_MODE_EXCLUSION
+    deprecated:
+        since: "7.3.0"
+        removed: "9.0.0"
+        notes: Use [Titanium.UI.BLEND_MODE_EXCLUSION](Titanium.UI.BLEND_MODE_EXCLUSION) instead.
     summary: |
         Image mode constant. Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     description: |
         See <Titanium.UI.MaskedImage> for more information on blend modes.
     type: Number
     permission: read-only
+    exclude-platforms: [macos]
 
   - name: BLEND_MODE_HARD_LIGHT
+    deprecated:
+        since: "7.3.0"
+        removed: "9.0.0"
+        notes: Use [Titanium.UI.BLEND_MODE_HARD_LIGHT](Titanium.UI.BLEND_MODE_HARD_LIGHT) instead.
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     description: |
         See <Titanium.UI.MaskedImage> for more information on blend modes.
     type: Number
     permission: read-only
-    
+    exclude-platforms: [macos]
+
   - name: BLEND_MODE_HUE
+    deprecated:
+        since: "7.3.0"
+        removed: "9.0.0"
+        notes: Use [Titanium.UI.BLEND_MODE_HUE](Titanium.UI.BLEND_MODE_HUE) instead.
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     description: |
         See <Titanium.UI.MaskedImage> for more information on blend modes.
     type: Number
     permission: read-only
+    exclude-platforms: [macos]
 
   - name: BLEND_MODE_LIGHTEN
+    deprecated:
+        since: "7.3.0"
+        removed: "9.0.0"
+        notes: Use [Titanium.UI.BLEND_MODE_LIGHTEN](Titanium.UI.BLEND_MODE_LIGHTEN) instead.
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     description: |
         See <Titanium.UI.MaskedImage> for more information on blend modes.
     type: Number
     permission: read-only
+    exclude-platforms: [macos]
 
   - name: BLEND_MODE_LUMINOSITY
+    deprecated:
+        since: "7.3.0"
+        removed: "9.0.0"
+        notes: Use [Titanium.UI.BLEND_MODE_LUMINOSITY](Titanium.UI.BLEND_MODE_LUMINOSITY) instead.
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     description: |
         See <Titanium.UI.MaskedImage> for more information on blend modes.
     type: Number
     permission: read-only
+    exclude-platforms: [macos]
 
   - name: BLEND_MODE_MULTIPLY
+    deprecated:
+        since: "7.3.0"
+        removed: "9.0.0"
+        notes: Use [Titanium.UI.BLEND_MODE_MULTIPLY](Titanium.UI.BLEND_MODE_MULTIPLY) instead.
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     description: |
         See <Titanium.UI.MaskedImage> for more information on blend modes.
     type: Number
     permission: read-only
+    exclude-platforms: [macos]
 
   - name: BLEND_MODE_NORMAL
+    deprecated:
+        since: "7.3.0"
+        removed: "9.0.0"
+        notes: Use [Titanium.UI.BLEND_MODE_NORMAL](Titanium.UI.BLEND_MODE_NORMAL) instead.
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     description: |
         See <Titanium.UI.MaskedImage> for more information on blend modes.
     type: Number
     permission: read-only
+    exclude-platforms: [macos]
 
   - name: BLEND_MODE_OVERLAY
+    deprecated:
+        since: "7.3.0"
+        removed: "9.0.0"
+        notes: Use [Titanium.UI.BLEND_MODE_OVERLAY](Titanium.UI.BLEND_MODE_OVERLAY) instead.
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     description: |
         See <Titanium.UI.MaskedImage> for more information on blend modes.
     type: Number
     permission: read-only
+    exclude-platforms: [macos]
 
   - name: BLEND_MODE_PLUS_DARKER
+    deprecated:
+        since: "7.3.0"
+        removed: "9.0.0"
+        notes: Use [Titanium.UI.BLEND_MODE_PLUS_DARKER](Titanium.UI.BLEND_MODE_PLUS_DARKER) instead.
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     description: |
         See <Titanium.UI.MaskedImage> for more information on blend modes.
     type: Number
     permission: read-only
-    
+    exclude-platforms: [macos]
+
   - name: BLEND_MODE_PLUS_LIGHTER
+    deprecated:
+        since: "7.3.0"
+        removed: "9.0.0"
+        notes: Use [Titanium.UI.BLEND_MODE_PLUS_LIGHTER](Titanium.UI.BLEND_MODE_PLUS_LIGHTER) instead.
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     description: |
         See <Titanium.UI.MaskedImage> for more information on blend modes.
     type: Number
     permission: read-only
+    exclude-platforms: [macos]
 
   - name: BLEND_MODE_SATURATION
+    deprecated:
+        since: "7.3.0"
+        removed: "9.0.0"
+        notes: Use [Titanium.UI.BLEND_MODE_SATURATION](Titanium.UI.BLEND_MODE_SATURATION) instead.
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     description: |
         See <Titanium.UI.MaskedImage> for more information on blend modes.
     type: Number
     permission: read-only
+    exclude-platforms: [macos]
 
   - name: BLEND_MODE_SCREEN
+    deprecated:
+        since: "7.3.0"
+        removed: "9.0.0"
+        notes: Use [Titanium.UI.BLEND_MODE_SCREEN](Titanium.UI.BLEND_MODE_SCREEN) instead.
     summary: |
         Image mode constant. Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     description: |
         See <Titanium.UI.MaskedImage> for more information on blend modes.
     type: Number
     permission: read-only
+    exclude-platforms: [macos]
 
   - name: BLEND_MODE_SOFT_LIGHT
+    deprecated:
+        since: "7.3.0"
+        removed: "9.0.0"
+        notes: Use [Titanium.UI.BLEND_MODE_SOFT_LIGHT](Titanium.UI.BLEND_MODE_SOFT_LIGHT) instead.
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     description: |
         See <Titanium.UI.MaskedImage> for more information on blend modes.
     type: Number
     permission: read-only
+    exclude-platforms: [macos]
 
   - name: BLEND_MODE_SOURCE_ATOP
+    deprecated:
+        since: "7.3.0"
+        removed: "9.0.0"
+        notes: Use [Titanium.UI.BLEND_MODE_SOURCE_ATOP](Titanium.UI.BLEND_MODE_SOURCE_ATOP) instead.
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     description: |
         See <Titanium.UI.MaskedImage> for more information on blend modes.
     type: Number
     permission: read-only
+    exclude-platforms: [macos]
 
   - name: BLEND_MODE_SOURCE_IN
+    deprecated:
+        since: "7.3.0"
+        removed: "9.0.0"
+        notes: Use [Titanium.UI.BLEND_MODE_SOURCE_IN](Titanium.UI.BLEND_MODE_SOURCE_IN) instead.
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     description: |
         See <Titanium.UI.MaskedImage> for more information on blend modes.
     type: Number
     permission: read-only
+    exclude-platforms: [macos]
 
   - name: BLEND_MODE_SOURCE_OUT
+    deprecated:
+        since: "7.3.0"
+        removed: "9.0.0"
+        notes: Use [Titanium.UI.BLEND_MODE_SOURCE_OUT](Titanium.UI.BLEND_MODE_SOURCE_OUT) instead.
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     description: |
         See <Titanium.UI.MaskedImage> for more information on blend modes.
     type: Number
     permission: read-only
+    exclude-platforms: [macos]
 
   - name: BLEND_MODE_XOR
+    deprecated:
+        since: "7.3.0"
+        removed: "9.0.0"
+        notes: Use [Titanium.UI.BLEND_MODE_XOR](Titanium.UI.BLEND_MODE_XOR) instead.
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     description: |
         See <Titanium.UI.MaskedImage> for more information on blend modes.
     type: Number
     permission: read-only
+    exclude-platforms: [macos]
 
   - name: BLUR_EFFECT_STYLE_EXTRA_LIGHT
     summary: |
@@ -988,7 +472,7 @@ properties:
     summary: |
         Use with [BlurView.effect](Titanium.UI.iOS.BlurView.effect) to specify a blur effect.
     description: |
-        Creates a blurring effect in the view. The area of the view is the same approximate hue 
+        Creates a blurring effect in the view. The area of the view is the same approximate hue
         of the underlying view.
     type: Number
     permission: read-only
@@ -1025,23 +509,155 @@ properties:
     since: "6.0.0"
     osver: {ios: {min: "10.0"}}
 
-  - name: AD_SIZE_PORTRAIT
+  - name: BLUR_EFFECT_STYLE_SYSTEM_ULTRA_THIN_MATERIAL
     summary: |
-        Use with [AdView.adSize](Titanium.UI.iOS.AdView.adSize) to specify a banner ad size
-        appropriate for portrait orientations.
-    description: Note that fullscreen ads always display in portrait orientation.
-    type: String
+        Use with [BlurView.effect](Titanium.UI.iOS.BlurView.effect) to specify a blur effect.
+    description: |
+        Creates a blurring effect in the view. This is an adaptable blur effect that creates the appearance of a material with normal thickness.
+    type: Number
     permission: read-only
-    since: "1.8.1"
+    since: "8.2.0"
+    osver: {ios: {min: "13.0"}}
 
-  - name: AD_SIZE_LANDSCAPE
+  - name: BLUR_EFFECT_STYLE_SYSTEM_THIN_MATERIAL
     summary: |
-        Use with [AdView.adSize](Titanium.UI.iOS.AdView.adSize) to specify a banner ad size
-        appropriate for landscape orientations.
-    description: Note that fullscreen ads always display in portrait orientation.
-    type: String
+        Use with [BlurView.effect](Titanium.UI.iOS.BlurView.effect) to specify a blur effect.
+    description: |
+        Creates a blurring effect in the view. This is an adaptable blur effect that creates the appearance of a thin material.
+    type: Number
     permission: read-only
-    since: "1.8.1"
+    since: "8.2.0"
+    osver: {ios: {min: "13.0"}}
+
+  - name: BLUR_EFFECT_STYLE_SYSTEM_MATERIAL
+    summary: |
+        Use with [BlurView.effect](Titanium.UI.iOS.BlurView.effect) to specify a blur effect.
+    description: |
+        Creates a blurring effect in the view. This is an adaptable blur effect that creates the appearance of a material with normal thickness.
+    type: Number
+    permission: read-only
+    since: "8.2.0"
+    osver: {ios: {min: "13.0"}}
+
+  - name: BLUR_EFFECT_STYLE_SYSTEM_THICK_MATERIAL
+    summary: |
+        Use with [BlurView.effect](Titanium.UI.iOS.BlurView.effect) to specify a blur effect.
+    description: |
+        Creates a blurring effect in the view. This is an adaptable blur effect that creates the appearance of a material that is thicker than normal.
+    type: Number
+    permission: read-only
+    since: "8.2.0"
+    osver: {ios: {min: "13.0"}}
+
+  - name: BLUR_EFFECT_STYLE_SYSTEM_CHROME_MATERIAL
+    summary: |
+        Use with [BlurView.effect](Titanium.UI.iOS.BlurView.effect) to specify a blur effect.
+    description: |
+        Creates a blurring effect in the view. This is an adaptable blur effect that creates the appearance of the system chrome.
+    type: Number
+    permission: read-only
+    since: "8.2.0"
+    osver: {ios: {min: "13.0"}}
+
+  - name: BLUR_EFFECT_STYLE_SYSTEM_ULTRA_THIN_MATERIAL_LIGHT
+    summary: |
+        Use with [BlurView.effect](Titanium.UI.iOS.BlurView.effect) to specify a blur effect.
+    description: |
+        Creates a blurring effect in the view. This blur effect creates the appearance of an ultra-thin material and is always light.
+    type: Number
+    permission: read-only
+    since: "8.2.0"
+    osver: {ios: {min: "13.0"}}
+
+  - name: BLUR_EFFECT_STYLE_SYSTEM_THIN_MATERIAL_LIGHT
+    summary: |
+        Use with [BlurView.effect](Titanium.UI.iOS.BlurView.effect) to specify a blur effect.
+    description: |
+        Creates a blurring effect in the view. This blur effect creates the appearance of a thin material and is always light.
+    type: Number
+    permission: read-only
+    since: "8.2.0"
+    osver: {ios: {min: "13.0"}}
+
+  - name: BLUR_EFFECT_STYLE_SYSTEM_MATERIAL_LIGHT
+    summary: |
+        Use with [BlurView.effect](Titanium.UI.iOS.BlurView.effect) to specify a blur effect.
+    description: |
+        Creates a blurring effect in the view. This blur effect creates the appearance of a material with normal thickness and is always light.
+    type: Number
+    permission: read-only
+    since: "8.2.0"
+    osver: {ios: {min: "13.0"}}
+
+  - name: BLUR_EFFECT_STYLE_SYSTEM_THICK_MATERIAL_LIGHT
+    summary: |
+        Use with [BlurView.effect](Titanium.UI.iOS.BlurView.effect) to specify a blur effect.
+    description: |
+        Creates a blurring effect in the view. This blur effect creates the appearance of a material that is thicker than normal and is always light.
+    type: Number
+    permission: read-only
+    since: "8.2.0"
+    osver: {ios: {min: "13.0"}}
+
+  - name: BLUR_EFFECT_STYLE_SYSTEM_CHROME_MATERIAL_LIGHT
+    summary: |
+        Use with [BlurView.effect](Titanium.UI.iOS.BlurView.effect) to specify a blur effect.
+    description: |
+        Creates a blurring effect in the view. This blur effect creates the appearance of the system chrome and is always light.
+    type: Number
+    permission: read-only
+    since: "8.2.0"
+    osver: {ios: {min: "13.0"}}
+
+  - name: BLUR_EFFECT_STYLE_SYSTEM_ULTRA_THIN_MATERIAL_DARK
+    summary: |
+        Use with [BlurView.effect](Titanium.UI.iOS.BlurView.effect) to specify a blur effect.
+    description: |
+        Creates a blurring effect in the view. This blur effect creates the appearance of the system chrome and is always dark.
+    type: Number
+    permission: read-only
+    since: "8.2.0"
+    osver: {ios: {min: "13.0"}}
+
+  - name: BLUR_EFFECT_STYLE_SYSTEM_THIN_MATERIAL_DARK
+    summary: |
+        Use with [BlurView.effect](Titanium.UI.iOS.BlurView.effect) to specify a blur effect.
+    description: |
+        Creates a blurring effect in the view. This blur effect creates the appearance of a material that is thicker than normal and is always dark.
+    type: Number
+    permission: read-only
+    since: "8.2.0"
+    osver: {ios: {min: "13.0"}}
+
+  - name: BLUR_EFFECT_STYLE_SYSTEM_MATERIAL_DARK
+    summary: |
+        Use with [BlurView.effect](Titanium.UI.iOS.BlurView.effect) to specify a blur effect.
+    description: |
+        Creates a blurring effect in the view. This blur effect creates the appearance of a thin material and is always dark.
+    type: Number
+    permission: read-only
+    since: "8.2.0"
+    osver: {ios: {min: "13.0"}}
+
+  - name: BLUR_EFFECT_STYLE_SYSTEM_THICK_MATERIAL_DARK
+    summary: |
+        Use with [BlurView.effect](Titanium.UI.iOS.BlurView.effect) to specify a blur effect.
+    description: |
+        Creates a blurring effect in the view. This blur effect creates the appearance of a material with normal thickness and is always dark.
+    type: Number
+    permission: read-only
+    since: "8.2.0"
+    osver: {ios: {min: "13.0"}}
+
+  - name: BLUR_EFFECT_STYLE_SYSTEM_CHROME_MATERIAL_DARK
+    summary: |
+        Use with [BlurView.effect](Titanium.UI.iOS.BlurView.effect) to specify a blur effect.
+    description: |
+        Creates a blurring effect in the view. This blur effect creates the appearance of an ultra-thin material and is always dark.
+    type: Number
+    permission: read-only
+    since: "8.2.0"
+    osver: {ios: {min: "13.0"}}
 
   - name: CLIP_MODE_DEFAULT
     summary: |
@@ -1089,60 +705,41 @@ properties:
     permission: read-only
     since: "3.2.0"
     osver: {ios: {min: "7.0"}}
-    
-  - name: COLOR_GROUP_TABLEVIEW_BACKGROUND
-    summary: Returns the iOS system texture used to render the background on a group table view. 
-    description: |
-        Corresponds to iOS `UIColor` groupTableViewBackgroundColor`.
-        
-        This constant has been deprecated in iOS 6. Group style table views still default to using the standard iOS group table 
-        view background texture if no background color is specified. However, specifying this constant explicitly on iOS 6 and 
-        above results in a black background color.
-        
-        Can be used anywhere a color value is required. See also "Colors" in <Titanium.UI>.
-    type: String
-    permission: read-only
-    since: "2.1.0"
-    
-  - name: COLOR_SCROLLVIEW_BACKGROUND
-    summary: Returns the iOS system texture used to render the area behind scrollable content.
-    deprecated:
-        since: "3.4.2"
-        removed: "3.6.0"
-    description: |
-        Corresponds to iOS `UIColor` `scrollViewTexturedBackgroundColor`.
 
-        Can be used anywhere a color value is required. See also "Colors" in <Titanium.UI>.
-    type: String
+  - name: DATE_PICKER_STYLE_AUTOMATIC
+    summary: |
+        Use with <Titanium.UI.Picker.datePickerStyle> to automatically pick the best style
+        available for the current platform & mode.
+    description: "Note: Prior to iOS 14, this property is only used on iOS Catalyst apps."
+    type: Number
     permission: read-only
-    since: "2.1.0"
-    
-  - name: COLOR_VIEW_FLIPSIDE_BACKGROUND
-    summary: Returns the iOS system texture used for the back side of a view while it is being flipped.
-    deprecated:
-        since: "3.4.2"
-        removed: "3.6.0"
-    description: |
-        Corresponds to iOS `UIColor` `viewFlipsideBackgroundColor`.
+    since: "9.2.0"
+    osver: { ios: { min: "13.4" } }
 
-        Can be used anywhere a color value is required. See also "Colors" in <Titanium.UI>.
-    type: String
+  - name: DATE_PICKER_STYLE_WHEELS
+    summary: |
+        Use with <Titanium.UI.Picker.datePickerStyle> to show the picker the wheels. Editing occurs inline.
+    type: Number
     permission: read-only
-    since: "2.1.0"
+    since: "9.2.0"
+    osver: { ios: { min: "13.4" } }
 
-  - name: COLOR_UNDER_PAGE_BACKGROUND
-    summary: Returns the iOS system texture used to render the background of a page.
-    deprecated:
-        since: "3.4.2"
-        removed: "3.6.0"
-    description: |
-        Corresponds to iOS `UIColor` `underPageBackgroundColor`.
-
-        Can be used anywhere a color value is required. See also "Colors" in <Titanium.UI>.
-    type: String
+  - name: DATE_PICKER_STYLE_COMPACT
+    summary: |
+        Use with <Titanium.UI.Picker.datePickerStyle> to show the picker with a compact style. Editing occurs in an overlay.
+    description: "Note: Prior to iOS 14, this property is only used on iOS Catalyst apps."
+    type: Number
     permission: read-only
-    since: "2.1.0"
-    osver: {ios: {min: "5.0"}}
+    since: "9.2.0"
+    osver: { ios: { min: "13.4" } }
+
+  - name: DATE_PICKER_STYLE_INLINE
+    summary: |
+        Use with <Titanium.UI.Picker.datePickerStyle> to allow editing in place (as a calendar).
+    type: Number
+    permission: read-only
+    since: "9.2.0"
+    osver: { ios: { min: "14.0" } }
 
   - name: forceTouchSupported
     summary: Determines if the 3D-Touch capability "Force Touch" is supported (`true`) or not (`false`) by the device.
@@ -1224,7 +821,7 @@ properties:
 
   - name: LIVEPHOTO_PLAYBACK_STYLE_FULL
     summary: |
-        Plays back the entire motion and sound content of the Live Photo, including transition 
+        Plays back the entire motion and sound content of the Live Photo, including transition
         effects at the start and end.
     description: This style matches the effect seen when pressing on a photo in the Photos app.
     type: Number
@@ -1235,7 +832,7 @@ properties:
   - name: LIVEPHOTO_PLAYBACK_STYLE_HINT
     summary: Plays back only a brief section of the motion content of the Live Photo, without sound.
     description: |
-        This style matches the effect seen in various iOS interface elements for hinting to the user 
+        This style matches the effect seen in various iOS interface elements for hinting to the user
         when an asset contains Live Photo content.
     type: Number
     since: "5.2.0"
@@ -1246,22 +843,22 @@ properties:
     summary: An arrow that points upward.
     type: Number
     permission: read-only
-    
+
   - name: MENU_POPUP_ARROW_DIRECTION_DOWN
     summary: An arrow that points downward.
     type: Number
     permission: read-only
-    
+
   - name: MENU_POPUP_ARROW_DIRECTION_LEFT
     summary: An arrow that points toward the left.
     type: Number
     permission: read-only
-    
+
   - name: MENU_POPUP_ARROW_DIRECTION_RIGHT
     summary: An arrow that points toward the right.
     type: Number
     permission: read-only
-    
+
   - name: MENU_POPUP_ARROW_DIRECTION_DEFAULT
     summary: An arrow that is automatically aligned.
     type: Number
@@ -1271,64 +868,104 @@ properties:
     summary: View presented with the same style as its parent window.
     description: |
         Used with the <Titanium.UI.Window.open> and <Titanium.UI.Window.close> methods.
-        
-        One of the group of modal window presentation style constants 
-        [MODAL_PRESENTATION_CURRENT_CONTEXT](Titanium.UI.iOS.MODAL_PRESENTATION_CURRENT_CONTEXT), 
-        [MODAL_PRESENTATION_FORMSHEET](Titanium.UI.iOS.MODAL_PRESENTATION_FORMSHEET), 
-        [MODAL_PRESENTATION_FULLSCREEN](Titanium.UI.iOS.MODAL_PRESENTATION_FULLSCREEN), 
+
+        One of the group of modal window presentation style constants
+        [MODAL_PRESENTATION_OVER_CURRENT_FULL_SCREEN](Titanium.UI.iOS.MODAL_PRESENTATION_OVER_CURRENT_FULL_SCREEN),
+        [MODAL_PRESENTATION_OVER_CURRENT_CONTEXT](Titanium.UI.iOS.MODAL_PRESENTATION_OVER_CURRENT_CONTEXT),
+        [MODAL_PRESENTATION_CURRENT_CONTEXT](Titanium.UI.iOS.MODAL_PRESENTATION_CURRENT_CONTEXT),
+        [MODAL_PRESENTATION_FORMSHEET](Titanium.UI.iOS.MODAL_PRESENTATION_FORMSHEET),
+        [MODAL_PRESENTATION_FULLSCREEN](Titanium.UI.iOS.MODAL_PRESENTATION_FULLSCREEN),
         and [MODAL_PRESENTATION_PAGESHEET](Titanium.UI.iOS.MODAL_PRESENTATION_PAGESHEET).
     type: Number
     since: "5.4.0"
-    
+
+  - name: MODAL_PRESENTATION_OVER_CURRENT_CONTEXT
+    summary: View presented over its parent window.
+    description: |
+        Used with the <Titanium.UI.Window.open> and <Titanium.UI.Window.close> methods.
+
+        One of the group of modal window presentation style constants
+        [MODAL_PRESENTATION_OVER_CURRENT_FULL_SCREEN](Titanium.UI.iOS.MODAL_PRESENTATION_OVER_CURRENT_FULL_SCREEN),
+        [MODAL_PRESENTATION_OVER_CURRENT_CONTEXT](Titanium.UI.iOS.MODAL_PRESENTATION_OVER_CURRENT_CONTEXT),
+        [MODAL_PRESENTATION_CURRENT_CONTEXT](Titanium.UI.iOS.MODAL_PRESENTATION_CURRENT_CONTEXT),
+        [MODAL_PRESENTATION_FORMSHEET](Titanium.UI.iOS.MODAL_PRESENTATION_FORMSHEET),
+        [MODAL_PRESENTATION_FULLSCREEN](Titanium.UI.iOS.MODAL_PRESENTATION_FULLSCREEN),
+        and [MODAL_PRESENTATION_PAGESHEET](Titanium.UI.iOS.MODAL_PRESENTATION_PAGESHEET).
+    type: Number
+    since: "7.3.0"
+
+  - name: MODAL_PRESENTATION_OVER_CURRENT_FULL_SCREEN
+    summary: Presented view covers the screen.
+    description: |
+        The views beneath the presented content are not removed from the view hierarchy when the presentation finishes. So if the presented view controller does not fill the screen with opaque content, the underlying content shows through.
+
+        Used with the <Titanium.UI.Window.open> and <Titanium.UI.Window.close> methods.
+
+        One of the group of modal window presentation style constants
+        [MODAL_PRESENTATION_OVER_CURRENT_FULL_SCREEN](Titanium.UI.iOS.MODAL_PRESENTATION_OVER_CURRENT_FULL_SCREEN),
+        [MODAL_PRESENTATION_OVER_CURRENT_CONTEXT](Titanium.UI.iOS.MODAL_PRESENTATION_OVER_CURRENT_CONTEXT),
+        [MODAL_PRESENTATION_CURRENT_CONTEXT](Titanium.UI.iOS.MODAL_PRESENTATION_CURRENT_CONTEXT),
+        [MODAL_PRESENTATION_FORMSHEET](Titanium.UI.iOS.MODAL_PRESENTATION_FORMSHEET),
+        [MODAL_PRESENTATION_FULLSCREEN](Titanium.UI.iOS.MODAL_PRESENTATION_FULLSCREEN),
+        and [MODAL_PRESENTATION_PAGESHEET](Titanium.UI.iOS.MODAL_PRESENTATION_PAGESHEET).
+    type: Number
+    since: "7.3.0"
+
   - name: MODAL_PRESENTATION_FORMSHEET
     summary: |
-        Window width and height are smaller than those of the screen and the view is centered on 
+        Window width and height are smaller than those of the screen and the view is centered on
         the screen.
     description: |
-        If the system is in a landscape orientation and the keyboard is visible, the position of the 
-        view is adjusted upward so that the view remains visible. All uncovered areas are dimmed 
+        If the system is in a landscape orientation and the keyboard is visible, the position of the
+        view is adjusted upward so that the view remains visible. All uncovered areas are dimmed
         and do not respond to touch to prevent the user from interacting with them.
-        
+
         Used with the <Titanium.UI.Window.open> and <Titanium.UI.Window.close> methods.
-        
-        One of the group of modal window presentation style constants 
-        [MODAL_PRESENTATION_CURRENT_CONTEXT](Titanium.UI.iOS.MODAL_PRESENTATION_CURRENT_CONTEXT), 
-        [MODAL_PRESENTATION_FORMSHEET](Titanium.UI.iOS.MODAL_PRESENTATION_FORMSHEET), 
-        [MODAL_PRESENTATION_FULLSCREEN](Titanium.UI.iOS.MODAL_PRESENTATION_FULLSCREEN), 
+
+        One of the group of modal window presentation style constants
+        [MODAL_PRESENTATION_OVER_CURRENT_FULL_SCREEN](Titanium.UI.iOS.MODAL_PRESENTATION_OVER_CURRENT_FULL_SCREEN),
+        [MODAL_PRESENTATION_OVER_CURRENT_CONTEXT](Titanium.UI.iOS.MODAL_PRESENTATION_OVER_CURRENT_CONTEXT),
+        [MODAL_PRESENTATION_CURRENT_CONTEXT](Titanium.UI.iOS.MODAL_PRESENTATION_CURRENT_CONTEXT),
+        [MODAL_PRESENTATION_FORMSHEET](Titanium.UI.iOS.MODAL_PRESENTATION_FORMSHEET),
+        [MODAL_PRESENTATION_FULLSCREEN](Titanium.UI.iOS.MODAL_PRESENTATION_FULLSCREEN),
         and [MODAL_PRESENTATION_PAGESHEET](Titanium.UI.iOS.MODAL_PRESENTATION_PAGESHEET).
     type: Number
     permission: read-only
     since: "5.4.0"
-    
+
   - name: MODAL_PRESENTATION_FULLSCREEN
     summary: Window covers the screen.
     description: |
         Used with the <Titanium.UI.Window.open> and <Titanium.UI.Window.close> methods.
-        
-        One of the group of modal window presentation style constants 
-        [MODAL_PRESENTATION_CURRENT_CONTEXT](Titanium.UI.iOS.MODAL_PRESENTATION_CURRENT_CONTEXT), 
-        [MODAL_PRESENTATION_FORMSHEET](Titanium.UI.iOS.MODAL_PRESENTATION_FORMSHEET), 
-        [MODAL_PRESENTATION_FULLSCREEN](Titanium.UI.iOS.MODAL_PRESENTATION_FULLSCREEN), 
+
+        One of the group of modal window presentation style constants
+        [MODAL_PRESENTATION_OVER_CURRENT_FULL_SCREEN](Titanium.UI.iOS.MODAL_PRESENTATION_OVER_CURRENT_FULL_SCREEN),
+        [MODAL_PRESENTATION_OVER_CURRENT_CONTEXT](Titanium.UI.iOS.MODAL_PRESENTATION_OVER_CURRENT_CONTEXT),
+        [MODAL_PRESENTATION_CURRENT_CONTEXT](Titanium.UI.iOS.MODAL_PRESENTATION_CURRENT_CONTEXT),
+        [MODAL_PRESENTATION_FORMSHEET](Titanium.UI.iOS.MODAL_PRESENTATION_FORMSHEET),
+        [MODAL_PRESENTATION_FULLSCREEN](Titanium.UI.iOS.MODAL_PRESENTATION_FULLSCREEN),
         and [MODAL_PRESENTATION_PAGESHEET](Titanium.UI.iOS.MODAL_PRESENTATION_PAGESHEET).
     type: Number
     permission: read-only
     since: "5.4.0"
-    
+
   - name: MODAL_PRESENTATION_PAGESHEET
     summary: |
-        Window height is the height of the screen and width is equal to screen width in a portrait 
+        Window height is the height of the screen and width is equal to screen width in a portrait
         orientation.
     description: |
-        Any uncovered areas are dimmed and do not respond to touch, to prevent the user from 
-        interacting with them. In portrait orientations, this option is essentially the same as 
+        Any uncovered areas are dimmed and do not respond to touch, to prevent the user from
+        interacting with them. In portrait orientations, this option is essentially the same as
         <Titanium.UI.iOS.MODAL_PRESENTATION_FULLSCREEN>.
-        
+
         Used with the <Titanium.UI.Window.open> and <Titanium.UI.Window.close> methods.
-        
-        One of the group of modal window presentation style constants 
-        [MODAL_PRESENTATION_CURRENT_CONTEXT](Titanium.UI.iOS.MODAL_PRESENTATION_CURRENT_CONTEXT), 
-        [MODAL_PRESENTATION_FORMSHEET](Titanium.UI.iOS.MODAL_PRESENTATION_FORMSHEET), 
-        [MODAL_PRESENTATION_FULLSCREEN](Titanium.UI.iOS.MODAL_PRESENTATION_FULLSCREEN), 
+
+        One of the group of modal window presentation style constants
+        [MODAL_PRESENTATION_OVER_CURRENT_FULL_SCREEN](Titanium.UI.iOS.MODAL_PRESENTATION_OVER_CURRENT_FULL_SCREEN),
+        [MODAL_PRESENTATION_OVER_CURRENT_CONTEXT](Titanium.UI.iOS.MODAL_PRESENTATION_OVER_CURRENT_CONTEXT),
+        [MODAL_PRESENTATION_CURRENT_CONTEXT](Titanium.UI.iOS.MODAL_PRESENTATION_CURRENT_CONTEXT),
+        [MODAL_PRESENTATION_FORMSHEET](Titanium.UI.iOS.MODAL_PRESENTATION_FORMSHEET),
+        [MODAL_PRESENTATION_FULLSCREEN](Titanium.UI.iOS.MODAL_PRESENTATION_FULLSCREEN),
         and [MODAL_PRESENTATION_PAGESHEET](Titanium.UI.iOS.MODAL_PRESENTATION_PAGESHEET).
     type: Number
     permission: read-only
@@ -1336,70 +973,70 @@ properties:
 
   - name: MODAL_TRANSITION_STYLE_COVER_VERTICAL
     summary: |
-        When the window is presented, its view slides up from the bottom of the screen. On dismissal, 
+        When the window is presented, its view slides up from the bottom of the screen. On dismissal,
         the view slides back down (default.)
     description: |
         Used with the <Titanium.UI.Window.open> and <Titanium.UI.Window.close> methods.
-        
-        One of the group of modal window transition style constants 
-        [MODAL_TRANSITION_STYLE_COVER_VERTICAL](Titanium.UI.iOS.MODAL_TRANSITION_STYLE_COVER_VERTICAL), 
-        [MODAL_TRANSITION_STYLE_CROSS_DISSOLVE](Titanium.UI.iOS.MODAL_TRANSITION_STYLE_CROSS_DISSOLVE), 
-        [MODAL_TRANSITION_STYLE_FLIP_HORIZONTAL](Titanium.UI.iOS.MODAL_TRANSITION_STYLE_FLIP_HORIZONTAL), 
+
+        One of the group of modal window transition style constants
+        [MODAL_TRANSITION_STYLE_COVER_VERTICAL](Titanium.UI.iOS.MODAL_TRANSITION_STYLE_COVER_VERTICAL),
+        [MODAL_TRANSITION_STYLE_CROSS_DISSOLVE](Titanium.UI.iOS.MODAL_TRANSITION_STYLE_CROSS_DISSOLVE),
+        [MODAL_TRANSITION_STYLE_FLIP_HORIZONTAL](Titanium.UI.iOS.MODAL_TRANSITION_STYLE_FLIP_HORIZONTAL),
         and [MODAL_TRANSITION_STYLE_PARTIAL_CURL](Titanium.UI.iOS.MODAL_TRANSITION_STYLE_PARTIAL_CURL).
     type: Number
     permission: read-only
     since: "5.4.0"
-   
+
   - name: MODAL_TRANSITION_STYLE_CROSS_DISSOLVE
     summary: |
-        When the window is presented, the current view fades out while the new view fades in at the 
+        When the window is presented, the current view fades out while the new view fades in at the
         same time. On dismissal, a similar type of cross-fade is used to return to the original view.
     description: |
         Used with the <Titanium.UI.Window.open> and <Titanium.UI.Window.close> methods.
-        
-        One of the group of modal window transition style constants 
-        [MODAL_TRANSITION_STYLE_COVER_VERTICAL](Titanium.UI.iOS.MODAL_TRANSITION_STYLE_COVER_VERTICAL), 
-        [MODAL_TRANSITION_STYLE_CROSS_DISSOLVE](Titanium.UI.iOS.MODAL_TRANSITION_STYLE_CROSS_DISSOLVE), 
-        [MODAL_TRANSITION_STYLE_FLIP_HORIZONTAL](Titanium.UI.iOS.MODAL_TRANSITION_STYLE_FLIP_HORIZONTAL), 
+
+        One of the group of modal window transition style constants
+        [MODAL_TRANSITION_STYLE_COVER_VERTICAL](Titanium.UI.iOS.MODAL_TRANSITION_STYLE_COVER_VERTICAL),
+        [MODAL_TRANSITION_STYLE_CROSS_DISSOLVE](Titanium.UI.iOS.MODAL_TRANSITION_STYLE_CROSS_DISSOLVE),
+        [MODAL_TRANSITION_STYLE_FLIP_HORIZONTAL](Titanium.UI.iOS.MODAL_TRANSITION_STYLE_FLIP_HORIZONTAL),
         and [MODAL_TRANSITION_STYLE_PARTIAL_CURL](Titanium.UI.iOS.MODAL_TRANSITION_STYLE_PARTIAL_CURL).
     type: Number
     permission: read-only
     since: "5.4.0"
-    
+
   - name: MODAL_TRANSITION_STYLE_FLIP_HORIZONTAL
     summary: |
-        When the window is presented, the current view initiates a horizontal 3D flip from 
-        right-to-left, resulting in the revealing of the new view as if it were on the back of the 
-        previous view. On dismissal, the flip occurs from left-to-right, returning to the original 
+        When the window is presented, the current view initiates a horizontal 3D flip from
+        right-to-left, resulting in the revealing of the new view as if it were on the back of the
+        previous view. On dismissal, the flip occurs from left-to-right, returning to the original
         view.
     description: |
         Used with the <Titanium.UI.Window.open> and <Titanium.UI.Window.close> methods.
-        
-        One of the group of modal window transition style constants 
-        [MODAL_TRANSITION_STYLE_COVER_VERTICAL](Titanium.UI.iOS.MODAL_TRANSITION_STYLE_COVER_VERTICAL), 
-        [MODAL_TRANSITION_STYLE_CROSS_DISSOLVE](Titanium.UI.iOS.MODAL_TRANSITION_STYLE_CROSS_DISSOLVE), 
-        [MODAL_TRANSITION_STYLE_FLIP_HORIZONTAL](Titanium.UI.iOS.MODAL_TRANSITION_STYLE_FLIP_HORIZONTAL), 
+
+        One of the group of modal window transition style constants
+        [MODAL_TRANSITION_STYLE_COVER_VERTICAL](Titanium.UI.iOS.MODAL_TRANSITION_STYLE_COVER_VERTICAL),
+        [MODAL_TRANSITION_STYLE_CROSS_DISSOLVE](Titanium.UI.iOS.MODAL_TRANSITION_STYLE_CROSS_DISSOLVE),
+        [MODAL_TRANSITION_STYLE_FLIP_HORIZONTAL](Titanium.UI.iOS.MODAL_TRANSITION_STYLE_FLIP_HORIZONTAL),
         and [MODAL_TRANSITION_STYLE_PARTIAL_CURL](Titanium.UI.iOS.MODAL_TRANSITION_STYLE_PARTIAL_CURL).
     type: Number
     permission: read-only
     since: "5.4.0"
-    
+
   - name: MODAL_TRANSITION_STYLE_PARTIAL_CURL
     summary: |
-        When the window is presented, one corner of the current view curls up to reveal the modal 
-        view underneath. On dismissal, the curled up page unfurls itself back on top of the modal 
+        When the window is presented, one corner of the current view curls up to reveal the modal
+        view underneath. On dismissal, the curled up page unfurls itself back on top of the modal
         view.
     description: |
-        A modal view presented using this transition is itself prevented from presenting any 
-        additional modal views. This transition style is supported only if the window is presenting 
+        A modal view presented using this transition is itself prevented from presenting any
+        additional modal views. This transition style is supported only if the window is presenting
         a <Titanium.UI.iOS.MODAL_PRESENTATION_FULLSCREEN> modal presentation style.
-        
+
         Used with the <Titanium.UI.Window.open> and <Titanium.UI.Window.close> methods.
-        
-        One of the group of modal window transition style constants 
-        [MODAL_TRANSITION_STYLE_COVER_VERTICAL](Titanium.UI.iOS.MODAL_TRANSITION_STYLE_COVER_VERTICAL), 
-        [MODAL_TRANSITION_STYLE_CROSS_DISSOLVE](Titanium.UI.iOS.MODAL_TRANSITION_STYLE_CROSS_DISSOLVE), 
-        [MODAL_TRANSITION_STYLE_FLIP_HORIZONTAL](Titanium.UI.iOS.MODAL_TRANSITION_STYLE_FLIP_HORIZONTAL), 
+
+        One of the group of modal window transition style constants
+        [MODAL_TRANSITION_STYLE_COVER_VERTICAL](Titanium.UI.iOS.MODAL_TRANSITION_STYLE_COVER_VERTICAL),
+        [MODAL_TRANSITION_STYLE_CROSS_DISSOLVE](Titanium.UI.iOS.MODAL_TRANSITION_STYLE_CROSS_DISSOLVE),
+        [MODAL_TRANSITION_STYLE_FLIP_HORIZONTAL](Titanium.UI.iOS.MODAL_TRANSITION_STYLE_FLIP_HORIZONTAL),
         and [MODAL_TRANSITION_STYLE_PARTIAL_CURL](Titanium.UI.iOS.MODAL_TRANSITION_STYLE_PARTIAL_CURL).
     type: Number
     permission: read-only
@@ -1485,7 +1122,7 @@ properties:
     type: Number
     permission: read-only
     since: "3.2.3"
-    
+
   - name: SCROLL_DECELERATION_RATE_NORMAL
     summary: |
         Use with <Titanium.UI.ScrollView.decelerationRate> to control deceleration rate.
@@ -1513,7 +1150,7 @@ properties:
     summary: |
         Use with <Titanium.UI.ScrollView.keyboardDismissMode> to control keyboard dismiss mode.
     description: |
-        The keyboard follows the dragging touch offscreen, and can be pulled 
+        The keyboard follows the dragging touch offscreen, and can be pulled
         upward again to cancel the dismiss.
     type: Number
     permission: read-only
@@ -1521,16 +1158,16 @@ properties:
 
   - name: SEARCH_BAR_STYLE_PROMINENT
     summary: |
-        Use with <Titanium.UI.Searchbar.style> to change the search bar style.
+        Use with <Titanium.UI.SearchBar.style> to change the search bar style.
     description: |
         The search bar has a translucent background, and the search field is opaque.
     type: Number
     permission: read-only
     since: "5.4.0"
-  
+
   - name: SEARCH_BAR_STYLE_MINIMAL
     summary: |
-        Use with <Titanium.UI.Searchbar.style> to change the search bar style.
+        Use with <Titanium.UI.SearchBar.style> to change the search bar style.
     description: |
         The search bar has no background, and the search field is translucent.
     type: Number
@@ -1546,6 +1183,11 @@ properties:
     type: Number
     permission: read-only
     since: "2.1.0"
+    exclude-platforms: [macos]
+    deprecated:
+        since: "8.2.0"
+        removed: "8.2.0"
+        notes: "Not used with Titanium SDK 8.0.0 and later by replacing UIWebView with WKWebView."
 
   - name: WEBVIEW_NAVIGATIONTYPE_FORM_SUBMITTED
     summary: User submitted a form.
@@ -1556,6 +1198,11 @@ properties:
     type: Number
     permission: read-only
     since: "2.1.0"
+    exclude-platforms: [macos]
+    deprecated:
+        since: "8.2.0"
+        removed: "8.2.0"
+        notes: "Not used with Titanium SDK 8.0.0 and later by replacing UIWebView with WKWebView."
 
   - name: WEBVIEW_NAVIGATIONTYPE_BACK_FORWARD
     summary: User tapped the back or forward button.
@@ -1566,6 +1213,11 @@ properties:
     type: Number
     permission: read-only
     since: "2.1.0"
+    exclude-platforms: [macos]
+    deprecated:
+        since: "8.2.0"
+        removed: "8.2.0"
+        notes: "Not used with Titanium SDK 8.0.0 and later by replacing UIWebView with WKWebView."
 
   - name: WEBVIEW_NAVIGATIONTYPE_RELOAD
     summary: User tapped the reload button.
@@ -1576,6 +1228,11 @@ properties:
     type: Number
     permission: read-only
     since: "2.1.0"
+    exclude-platforms: [macos]
+    deprecated:
+        since: "8.2.0"
+        removed: "8.2.0"
+        notes: "Not used with Titanium SDK 8.0.0 and later by replacing UIWebView with WKWebView."
 
   - name: WEBVIEW_NAVIGATIONTYPE_FORM_RESUBMITTED
     summary: User resubmitted a form.
@@ -1586,6 +1243,11 @@ properties:
     type: Number
     permission: read-only
     since: "2.1.0"
+    exclude-platforms: [macos]
+    deprecated:
+        since: "8.2.0"
+        removed: "8.2.0"
+        notes: "Not used with Titanium SDK 8.0.0 and later by replacing UIWebView with WKWebView."
 
   - name: WEBVIEW_NAVIGATIONTYPE_OTHER
     summary: Some other action occurred.
@@ -1596,6 +1258,11 @@ properties:
     type: Number
     permission: read-only
     since: "2.1.0"
+    exclude-platforms: [macos]
+    deprecated:
+        since: "8.2.0"
+        removed: "8.2.0"
+        notes: "Not used with Titanium SDK 8.0.0 and later by replacing UIWebView with WKWebView."
 
   - name: TABLEVIEW_INDEX_SEARCH
     summary: String that represents the magnifying glass on the table view index bar
@@ -1858,7 +1525,7 @@ properties:
     permission: read-only
     osver: {ios: {min: "9.1"}}
     since: "5.1.0"
- 
+
   - name: SHORTCUT_ICON_TYPE_UPDATE
     summary: Number that represents the icon used for the application shortcut
     description: |
@@ -1879,88 +1546,167 @@ properties:
     since: "5.4.0"
 
   - name: statusBarBackgroundColor
-    summary: Sets the global status bar background color for the application.
-    type: String
+    summary: Sets the global status bar background color for the application. Android does not support setting instances of <Titanium.UI.Color>
+    type: [String, Titanium.UI.Color]
     since: "6.0.0"
     default: Undefined (Uses the native defaults)
 
----
-name: transitionAnimationParam
-summary: |
-    Dictionary specifying the transition animation used with the <Titanium.UI.iOS.createTransitionAnimation> method.
-    Only supported on iOS 7 and later.
-platforms: [iphone, ipad]
-since: "3.2.0"
-osver: {ios: {min: "7.0"}}
-
-examples:
-  - title: Simple Example
-    example: |
-        In this example, the red window opens with a transition animation, while closing it uses the
-        default behavior where it slides off screen.  To add a transition animation when the red
-        window closes, define a transition animation for the blue window.
-
-            var transition = Ti.UI.iOS.createTransitionAnimation({
-                duration: 300,
-                // The show transition makes the window opaque and rotates it correctly
-                transitionTo: {
-                    opacity: 1,
-                    duration: 300,
-                    transform: Ti.UI.create2DMatrix()
-                },
-                // The hide transition makes the window transparent and rotates it upside down
-                transitionFrom: {
-                    opacity: 0,
-                    duration: 300 / 2,
-                    transform: Ti.UI.create2DMatrix().rotate(180),
-                }
-            });
-
-            var win2 = Ti.UI.createWindow({
-                backgroundColor: 'red',
-                title: 'Red Window',
-                transitionAnimation: transition,
-                opacity: 0,
-                transform: Ti.UI.create2DMatrix().rotate(180)
-            });
-            var button2 = Ti.UI.createButton({
-                title: 'Close Red Window'
-            });
-            button2.addEventListener('click', function(){
-                nav.closeWindow(win2);
-                // In order to see the blue window again,
-                // need to reverse the transition animation
-                win1.opacity = 1;
-                win1.transform = Ti.UI.create2DMatrix().rotate(0);
-            });
-            win2.add(button2);
-
-            var win1 = Ti.UI.createWindow({
-                backgroundColor: 'blue',
-                title: 'Blue Window',
-                // Uncomment to use a transition animation when the blue window is closed
-                // transitionAnimation: transition
-            });
-            var button1 = Ti.UI.createButton({title: 'Open Red Window'});
-            button1.addEventListener('click', function(){
-                nav.openWindow(win2);
-            });
-            win1.add(button1);
-
-            var nav = Ti.UI.iOS.createNavigationWindow({
-                window: win1
-            });
-            nav.open();
-
-properties:
-  - name: duration
-    summary: Length of the transition in milliseconds.
+  - name: CREDENTIAL_PERSISTENCE_NONE
+    summary: Credential should not be stored.
+    description: |
+        Used with the `persistence` argument of <Titanium.UI.WebView.setBasicAuthentication> to set the persistence level.
     type: Number
+    since: "8.0.0"
+    permission: read-only
 
-  - name: transitionFrom
-    summary: Animation to hide the current window.
-    type: Titanium.UI.Animation
+  - name: CREDENTIAL_PERSISTENCE_FOR_SESSION
+    summary: Credential should be stored only for this session.
+    description: |
+        Used with the `persistence` argument of <Titanium.UI.WebView.setBasicAuthentication> to set the persistence level.
+    type: Number
+    since: "8.0.0"
+    permission: read-only
 
-  - name: transitionTo
-    summary: Animation to show the new window.
-    type: Titanium.UI.Animation
+  - name: CREDENTIAL_PERSISTENCE_PERMANENT
+    summary: Credential should be stored in the keychain.
+    description: |
+       Used with the `persistence` argument of <Titanium.UI.WebView.setBasicAuthentication> to set the persistence level.
+    type: Number
+    since: "8.0.0"
+    permission: read-only
+
+  - name: CREDENTIAL_PERSISTENCE_SYNCHRONIZABLE
+    summary: |
+        Credential should be stored permanently in the keychain, and in addition should be 
+        distributed to other devices based on the owning AppleID.
+    description: |
+        Used with the `persistence` argument of <Titanium.UI.WebView.setBasicAuthentication> to set the persistence level.
+    type: Number
+    since: "8.0.0"
+    permission: read-only
+
+  - name: AUDIOVISUAL_MEDIA_TYPE_NONE
+    summary: No media types require a user gesture to begin playing.
+    description: |
+        Use with <Titanium.UI.iOS.WebViewConfiguration.mediaTypesRequiringUserActionForPlayback>
+    type: Number
+    since: "8.0.0"
+    permission: read-only
+
+  - name: AUDIOVISUAL_MEDIA_TYPE_AUDIO
+    summary: Media types containing audio require a user gesture to begin playing.
+    description: |
+        Use with <Titanium.UI.iOS.WebViewConfiguration.mediaTypesRequiringUserActionForPlayback>
+    type: Number
+    since: "8.0.0"
+    permission: read-only
+
+  - name: AUDIOVISUAL_MEDIA_TYPE_VIDEO
+    summary: Media types containing video require a user gesture to begin playing.
+    description: |
+        Use with <Titanium.UI.iOS.WebViewConfiguration.mediaTypesRequiringUserActionForPlayback>
+    type: Number
+    since: "8.0.0"
+    permission: read-only
+
+  - name: AUDIOVISUAL_MEDIA_TYPE_ALL
+    summary: All media types require a user gesture to begin playing.
+    description: |
+        Use with <Titanium.UI.iOS.WebViewConfiguration.mediaTypesRequiringUserActionForPlayback>
+    type: Number
+    since: "8.0.0"
+    permission: read-only
+
+  - name: CACHE_POLICY_USE_PROTOCOL_CACHE_POLICY
+    summary: |
+        Specifies that the caching logic defined in the protocol implementation, if any, 
+        is used for a particular URL load request.
+    description: |
+        Use with <Titanium.UI.WebView.cachePolicy>. This is the default policy for URL load requests.
+        If you are making HTTP or HTTPS byte-range requests, always use the 
+        <Titanium.UI.iOS.CACHE_POLICY_RELOAD_IGNORING_LOCAL_CACHE_DATA> policy.
+    type: Number
+    since: "8.0.0"
+    permission: read-only
+
+  - name: CACHE_POLICY_RELOAD_IGNORING_LOCAL_CACHE_DATA
+    summary: |
+        Specifies that the data for the URL load should be loaded from the originating source. 
+        No existing cache data should be used to satisfy a URL load request.
+    description: Use with <Titanium.UI.WebView.cachePolicy>.
+    type: Number
+    since: "8.0.0"
+    permission: read-only
+
+  - name: CACHE_POLICY_RETURN_CACHE_DATA_ELSE_LOAD
+    summary: |
+        Specifies that the existing cached data should be used to satisfy the request, 
+        regardless of its age or expiration date.
+    description: |
+        Use with <Titanium.UI.WebView.cachePolicy>. If there is no existing data in the cache 
+        corresponding the request, the data is loaded from the originating source.
+    type: Number
+    since: "8.0.0"
+    permission: read-only
+
+  - name: CACHE_POLICY_RETURN_CACHE_DATA_DONT_LOAD
+    summary: |
+        Specifies that the existing cache data should be used to satisfy a request, 
+        regardless of its age or expiration date.
+    description: |
+        Use with <Titanium.UI.WebView.cachePolicy>. If there is no existing data in the cache corresponding 
+        to a URL load request, no attempt is made to load the data from the originating source, and the load 
+        is considered to have failed. This constant specifies a behavior that is similar to an offline mode.
+    type: Number
+    since: "8.0.0"
+    permission: read-only
+
+  - name: SELECTION_GRANULARITY_DYNAMIC
+    summary: Selection granularity varies automatically depending on the selection.
+    description: |
+        Use with <Titanium.UI.WebView.selectionGranularity>.
+    type: Number
+    since: "8.0.0"
+    permission: read-only
+
+  - name: SELECTION_GRANULARITY_CHARACTER
+    summary: Selection endpoints can be placed at any character boundary.
+    description: |
+        Use with <Titanium.UI.WebView.selectionGranularity>.
+    type: Number
+    since: "8.0.0"
+    permission: read-only
+
+  - name: ACTION_POLICY_CANCEL
+    summary: Cancel the navigation.
+    description: |
+        Use with <Titanium.UI.iOS.WebViewDecisionHandler.invoke>.
+    type: Number
+    since: "8.0.0"
+    permission: read-only
+
+  - name: ACTION_POLICY_ALLOW
+    summary: Allow the navigation to continue.
+    description: |
+        Use with <Titanium.UI.iOS.WebViewDecisionHandler.invoke>.
+    type: Number
+    since: "8.0.0"
+    permission: read-only
+
+  - name: INJECTION_TIME_DOCUMENT_START
+    summary: |
+        Inject the script after the document element is created, but before any other content is loaded.
+    description: |
+        Used to set the `injectionTime` argument of <Titanium.UI.WebView.addUserScript>.
+    type: Number
+    since: "8.0.0"
+    permission: read-only
+
+  - name: INJECTION_TIME_DOCUMENT_END
+    summary: |
+        Inject the script after the document finishes loading, but before other subresources finish loading.
+    description: |
+        Used to set the `injectionTime` argument of <Titanium.UI.WebView.addUserScript>.
+    type: Number
+    since: "8.0.0"
+    permission: read-only

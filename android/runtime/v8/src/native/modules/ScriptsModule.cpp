@@ -92,7 +92,7 @@ void WrappedScript::Initialize(Local<Object> target, Local<Context> context)
 		V8Util::fatalException(isolate, tryCatch);
 		return;
 	}
-	target->Set(symbol, localFunction);
+	target->Set(context, symbol, localFunction);
 }
 
 void WrappedScript::New(const FunctionCallbackInfo<Value>& args)
@@ -118,7 +118,8 @@ void WrappedScript::CreateContext(const FunctionCallbackInfo<Value>& args)
 	Isolate* isolate = args.GetIsolate();
 	EscapableHandleScope scope(isolate);
 
-	Local<Value> securityToken = isolate->GetCurrentContext()->GetSecurityToken();
+	Local<Context> originalContext = isolate->GetCurrentContext();
+	Local<Value> securityToken = originalContext->GetSecurityToken();
 
 	Local<Context> context = Context::New(isolate, NULL, WrappedContext::global_template.Get(isolate));
 	Local<Object> global = context->Global();
@@ -126,21 +127,21 @@ void WrappedScript::CreateContext(const FunctionCallbackInfo<Value>& args)
 	// Allow current context access to newly created context's objects.
 	context->SetSecurityToken(securityToken);
 
-	// TODO Do we need to esnure the same context object is wrapped and returned?
+	// TODO Do we need to ensure the same context object is wrapped and returned?
 	new WrappedContext(isolate, context); // wrap the context's global prototype...
 
 	// If a sandbox is provided initial the new context's global with it.
 	if (args.Length() > 0) {
 		Local<Object> sandbox = args[0].As<Object>();
-		Local<Array> keys = sandbox->GetPropertyNames();
+		Local<Array> keys = sandbox->GetPropertyNames(context).ToLocalChecked();
 
 		for (uint32_t i = 0; i < keys->Length(); i++) {
-			Local<String> key = keys->Get(Integer::New(isolate, i)).As<String>();
-			Local<Value> value = sandbox->Get(key);
+			Local<String> key = keys->Get(context, i).ToLocalChecked().As<String>();
+			Local<Value> value = sandbox->Get(context, key).ToLocalChecked();
 			if (value == sandbox) {
 				value = global;
 			}
-			global->Set(key, value);
+			global->Set(context, key, value);
 		}
 	}
 
@@ -195,7 +196,11 @@ template<WrappedScript::EvalInputFlags input_flag, WrappedScript::EvalContextFla
 	WrappedScript::EvalOutputFlags output_flag>
 void WrappedScript::EvalMachine(const FunctionCallbackInfo<Value>& args)
 {
+	// TODO: This needs a major overhaul/update. We're way behind node's impl here: https://github.com/nodejs/node/blob/master/src/node_contextify.cc
+	// Additionally, we don't actually use anything other than "this" context, as far as I know.
 	Isolate* isolate = args.GetIsolate();
+	Local<Context> currentContext = isolate->GetCurrentContext();
+
 	HandleScope scope(isolate);
 
 	if (input_flag == compileCode && args.Length() < 1) {
@@ -231,7 +236,7 @@ void WrappedScript::EvalMachine(const FunctionCallbackInfo<Value>& args)
 	const int display_error_index = args.Length() - 1;
 	bool display_error = false;
 	if (args.Length() > display_error_index && args[display_error_index]->IsBoolean()
-		&& args[display_error_index]->BooleanValue() == true) {
+		&& args[display_error_index]->BooleanValue(isolate) == true) {
 		display_error = true;
 	}
 
@@ -240,17 +245,25 @@ void WrappedScript::EvalMachine(const FunctionCallbackInfo<Value>& args)
 	Local<Array> keys;
 	unsigned int i;
 	WrappedContext *nContext = NULL;
-	Local<Object> contextArg;
 
 	if (context_flag == newContext) {
 		// Create the new context
 		context.Reset(isolate, Context::New(isolate));
 	} else if (context_flag == userContext) {
 		// Use the passed in context
-		contextArg = args[sandbox_index]->ToObject(isolate);
-		nContext = WrappedContext::Unwrap(isolate, contextArg);
-		context.Reset(isolate, nContext->context_);
+		MaybeLocal<Object> contextArg = args[sandbox_index]->ToObject(currentContext);
+		if (contextArg.IsEmpty()) {
+			// FIXME Will this ever happen? This is not likley and probably the wrong way to handle this. We should at least log it...
+			context.Reset(isolate, Context::New(isolate));
+		} else {
+			nContext = WrappedContext::Unwrap(isolate, contextArg.ToLocalChecked());
+			context.Reset(isolate, nContext->context_);
+		}
 	}
+
+	// Explicitly set up var to track context we shoudl use for compile/run of script.
+	// When "thisContext", use teh current context from the isolate. Otherwise use the context we set in the Persistent above
+	Local<Context> contextToUse = (context_flag == thisContext) ? currentContext : context.Get(isolate);
 
 	// New and user context share code. DRY it up.
 	if (context_flag == userContext || context_flag == newContext) {
@@ -264,12 +277,14 @@ void WrappedScript::EvalMachine(const FunctionCallbackInfo<Value>& args)
 	if (input_flag == compileCode) {
 		// well, here WrappedScript::New would suffice in all cases, but maybe
 		// Compile has a little better performance where possible
-		script = Script::Compile(code, filename);
-		if (script.IsEmpty()) {
+		ScriptOrigin origin(filename);
+		MaybeLocal<Script> maybeScript = Script::Compile(contextToUse, code, &origin);
+		if (maybeScript.IsEmpty()) {
 			// Hack because I can't get a proper stacktrace on SyntaxError
 			args.GetReturnValue().Set(v8::Undefined(isolate));
 			return;
 		}
+		script = maybeScript.ToLocalChecked();
 	} else {
 		WrappedScript *n_script = NativeObject::Unwrap<WrappedScript>(args.Holder());
 		if (!n_script) {
@@ -285,8 +300,8 @@ void WrappedScript::EvalMachine(const FunctionCallbackInfo<Value>& args)
 	}
 
 	if (output_flag == returnResult) {
-		result = script->Run();
-		if (result.IsEmpty()) {
+		MaybeLocal<Value> maybeResult = script->Run(contextToUse);
+		if (maybeResult.IsEmpty()) {
 			if (context_flag == newContext) {
 				context.Get(isolate)->DetachGlobal();
 				context.Get(isolate)->Exit();
@@ -295,6 +310,7 @@ void WrappedScript::EvalMachine(const FunctionCallbackInfo<Value>& args)
 			args.GetReturnValue().Set(v8::Undefined(isolate));
 			return;
 		}
+		result = maybeResult.ToLocalChecked();
 	} else {
 		WrappedScript *n_script = NativeObject::Unwrap<WrappedScript>(args.Holder());
 		if (!n_script) {

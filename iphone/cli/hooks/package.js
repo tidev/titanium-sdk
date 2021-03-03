@@ -10,9 +10,8 @@
 const appc = require('node-appc'),
 	__ = appc.i18n(__dirname).__,
 	afs = appc.fs,
-	fs = require('fs'),
+	fs = require('fs-extra'),
 	path = require('path'),
-	wrench = require('wrench'),
 	exec = require('child_process').exec; // eslint-disable-line security/detect-child-process
 
 exports.cliVersion = '>=3.2';
@@ -20,12 +19,12 @@ exports.cliVersion = '>=3.2';
 exports.init = function (logger, config, cli) {
 	cli.on('build.ios.xcodebuild', {
 		pre: function (data, finished) {
-			if (this.target !== 'dist-appstore' && this.target !== 'dist-adhoc') {
+			if (this.target !== 'dist-appstore' && this.target !== 'dist-adhoc' && this.target !== 'dist-macappstore') {
 				return finished();
 			}
 
 			const stagingArchiveDir = path.join(this.buildDir, this.tiapp.name + '.xcarchive');
-			fs.existsSync(stagingArchiveDir) && wrench.rmdirSyncRecursive(stagingArchiveDir);
+			fs.removeSync(stagingArchiveDir);
 
 			// inject the temporary archive path into the xcodebuild args
 			const args = data.args[1];
@@ -45,7 +44,7 @@ exports.init = function (logger, config, cli) {
 		post: function (builder, finished) {
 			const target = cli.argv.target;
 
-			if (target !== 'dist-appstore' && target !== 'dist-adhoc') {
+			if (target !== 'dist-appstore' && target !== 'dist-adhoc' && target !== 'dist-macappstore') {
 				return finished();
 			}
 
@@ -82,6 +81,7 @@ exports.init = function (logger, config, cli) {
 
 			switch (target) {
 				case 'dist-appstore':
+				case 'dist-macappstore':
 					logger.info(__('Preparing xcarchive'));
 
 					const productsDir = path.join(builder.buildDir, 'build', 'Products');
@@ -91,9 +91,9 @@ exports.init = function (logger, config, cli) {
 
 					// copy symbols
 					const archiveDsymDir = path.join(stagingArchiveDir, 'dSYMs');
-					fs.existsSync(archiveDsymDir) || wrench.mkdirSyncRecursive(archiveDsymDir);
+					fs.ensureDirSync(archiveDsymDir);
 					const bcSymbolMapsDir = path.join(stagingArchiveDir, 'BCSymbolMaps');
-					fs.existsSync(bcSymbolMapsDir) || wrench.mkdirSyncRecursive(bcSymbolMapsDir);
+					fs.ensureDirSync(bcSymbolMapsDir);
 					const dsymRegExp = /\.dSYM$/;
 					const bcSymbolMapsRegExp = /\.bcsymbolmap$/;
 					fs.readdirSync(productsDir).forEach(function (name) {
@@ -103,7 +103,7 @@ exports.init = function (logger, config, cli) {
 								var file = path.join(subdir, name);
 								if (dsymRegExp.test(name) && fs.existsSync(file) && fs.statSync(file).isDirectory()) {
 									logger.info(__('Archiving debug symbols: %s', file.cyan));
-									wrench.copyDirSyncRecursive(file, path.join(archiveDsymDir, name), { forceDelete: false });
+									fs.copySync(file, path.join(archiveDsymDir, name), { overwrite: false });
 								} else if (bcSymbolMapsRegExp.test(name) && fs.existsSync(file) && fs.statSync(file).isFile()) {
 									const dest = path.join(bcSymbolMapsDir, name);
 									logger.info(__('Archiving Bitcode Symbol Map: %s', file.cyan));
@@ -131,11 +131,12 @@ exports.init = function (logger, config, cli) {
 					const dest = path.join(archivesDir, name + ' ' + date + ' ' + time + '.xcarchive');
 
 					// move the finished archive directory into the correct location
-					fs.existsSync(archivesDir) || wrench.mkdirSyncRecursive(archivesDir);
-					appc.fs.copyDirSyncRecursive(stagingArchiveDir, dest, {
-						logger: logger.debug
-					});
-
+					fs.ensureDirSync(archivesDir);
+					try  {
+						fs.move(stagingArchiveDir, dest);
+					} catch (error) {
+						logger.error(__('Failed to to move archive to correct location'));
+					}
 					// if not build-only open xcode + organizer after packaging, otherwise finish
 					if (!cli.argv['build-only']) {
 						logger.info(__('Launching Xcode: %s', builder.xcodeEnv.xcodeapp.cyan));
@@ -181,9 +182,7 @@ exports.init = function (logger, config, cli) {
 		}
 
 		// make sure the output directory is good to go
-		if (!fs.existsSync(outputDir)) {
-			wrench.mkdirSyncRecursive(outputDir);
-		}
+		fs.ensureDirSync(outputDir);
 
 		const ipaFile = path.join(outputDir, builder.tiapp.name + '.ipa');
 		if (fs.existsSync(ipaFile)) {
@@ -196,7 +195,7 @@ exports.init = function (logger, config, cli) {
 		const pp = builder.provisioningProfile;
 
 		// Build the options plist file
-		if (target === 'dist-appstore') {
+		if (target === 'dist-appstore' || target === 'dist-macappstore') {
 			exportsOptions.method = 'app-store';
 		} else {
 			exportsOptions.method = 'ad-hoc';
@@ -217,7 +216,7 @@ exports.init = function (logger, config, cli) {
 		const keychains = builder.iosInfo.certs.keychains;
 		Object.keys(keychains).some(function (keychain) {
 			return (keychains[keychain].distribution || []).some(function (d) {
-				if (!d.invalid && d.name === builder.certDistributionName) {
+				if (!d.invalid && d.fullname === builder.certDistributionName) {
 					exportsOptions.signingCertificate = d.fullname;
 					return true;
 				}
@@ -254,18 +253,16 @@ exports.init = function (logger, config, cli) {
 
 		fs.writeFileSync(exportsOptionsPlistFile, exportsOptions.toString('xml'));
 
-		// construct the command
-		const cmd = [
-			builder.xcodeEnv.executables.xcodebuild,
+		const args = [
 			'-exportArchive',
-			'-archivePath', '"' + stagingArchiveDir + '"',
-			'-exportPath', '"' + outputDir + '"',
-			'-exportOptionsPlist', '"' + exportsOptionsPlistFile + '"'
-		].join(' ');
+			'-archivePath', stagingArchiveDir,
+			'-exportPath', outputDir,
+			'-exportOptionsPlist', exportsOptionsPlistFile
+		];
 
 		// execute!
-		logger.debug(__('Running: %s', cmd.cyan));
-		exec(cmd, function (err, stdout, stderr) {
+		logger.debug(__('Running: %s %s', builder.xcodeEnv.executables.xcodebuild.cyan, args.join(' ').cyan));
+		appc.subprocess.run(builder.xcodeEnv.executables.xcodebuild, args, function (err, stdout, stderr) {
 			if (err) {
 				const output = stderr.trim();
 				output.split('\n').forEach(logger.trace);

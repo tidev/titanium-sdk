@@ -6,7 +6,7 @@
  */
 #if defined(USE_TI_UITEXTWIDGET) || defined(USE_TI_UITEXTAREA) || defined(USE_TI_UITEXTFIELD)
 
-#import "TiUIView.h"
+#import <TitaniumKit/TiUIView.h>
 
 @protocol TiUITextWidget
 
@@ -30,6 +30,7 @@
   @private
 }
 
+@property (readonly, getter=isFocused) BOOL focused;
 - (void)textWidget:(UIView<UITextInputTraits> *)tw didFocusWithText:(NSString *)value;
 - (void)textWidget:(UIView<UITextInputTraits> *)tw didBlurWithText:(NSString *)value;
 - (void)setValue_:(id)text;

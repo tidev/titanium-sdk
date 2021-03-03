@@ -15,7 +15,6 @@ import org.appcelerator.titanium.view.TiUIView;
 import ti.modules.titanium.ui.widget.TiUIButton;
 import android.app.Activity;
 
-// clang-format off
 @Kroll.proxy(creatableInModule = UIModule.class,
 	propertyAccessors = {
 		TiC.PROPERTY_TITLE,
@@ -31,7 +30,6 @@ import android.app.Activity;
 		TiC.PROPERTY_SHADOW_RADIUS,
 		TiC.PROPERTY_TINT_COLOR
 })
-// clang-format on
 public class ButtonProxy extends TiViewProxy
 {
 	public ButtonProxy()

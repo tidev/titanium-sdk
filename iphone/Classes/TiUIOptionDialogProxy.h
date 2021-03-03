@@ -6,7 +6,7 @@
  */
 #ifdef USE_TI_UIOPTIONDIALOG
 
-#import "TiProxy.h"
+#import <TitaniumKit/TiProxy.h>
 @class TiViewProxy;
 
 @interface TiUIOptionDialogProxy : TiProxy <UIPopoverPresentationControllerDelegate> {

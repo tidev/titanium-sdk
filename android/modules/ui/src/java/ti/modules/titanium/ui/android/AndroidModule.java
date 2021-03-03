@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2020 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -9,29 +9,39 @@ package ti.modules.titanium.ui.android;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
+
 import org.appcelerator.titanium.TiApplication;
+import org.appcelerator.titanium.proxy.ColorProxy;
+import org.appcelerator.titanium.util.TiColorHelper;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.UIModule;
 import ti.modules.titanium.ui.widget.TiUIProgressIndicator;
 import ti.modules.titanium.ui.widget.webview.TiUIWebView;
+
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.PixelFormat;
-import android.text.util.Linkify;
 import android.view.Gravity;
-import android.support.v4.view.GravityCompat;
 import android.view.WindowManager;
 import android.webkit.WebSettings;
-// clang-format off
+
+import androidx.annotation.ColorInt;
+import androidx.core.content.ContextCompat;
+import androidx.core.view.GravityCompat;
+
 @SuppressWarnings("deprecation")
 @Kroll.module(parentModule = UIModule.class)
 @Kroll.dynamicApis(properties = { "currentActivity" })
 public class AndroidModule extends KrollModule
-// clang-format on
 {
 	private static final String TAG = "UIAndroidModule";
+
+	@Kroll.constant
+	public static final int FLAG_TRANSLUCENT_NAVIGATION = WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION;
+	@Kroll.constant
+	public static final int FLAG_TRANSLUCENT_STATUS = WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS;
 
 	@Kroll.constant
 	public static final int PIXEL_FORMAT_A_8 = PixelFormat.A_8;
@@ -87,17 +97,6 @@ public class AndroidModule extends KrollModule
 	public static final int SOFT_KEYBOARD_HIDE_ON_FOCUS = TiUIView.SOFT_KEYBOARD_HIDE_ON_FOCUS;
 	@Kroll.constant
 	public static final int SOFT_KEYBOARD_SHOW_ON_FOCUS = TiUIView.SOFT_KEYBOARD_SHOW_ON_FOCUS;
-
-	@Kroll.constant
-	public static final int LINKIFY_ALL = Linkify.ALL;
-	@Kroll.constant
-	public static final int LINKIFY_EMAIL_ADDRESSES = Linkify.EMAIL_ADDRESSES;
-	@Kroll.constant
-	public static final int LINKIFY_MAP_ADDRESSES = Linkify.MAP_ADDRESSES;
-	@Kroll.constant
-	public static final int LINKIFY_PHONE_NUMBERS = Linkify.PHONE_NUMBERS;
-	@Kroll.constant
-	public static final int LINKIFY_WEB_URLS = Linkify.WEB_URLS;
 
 	@Kroll.constant
 	public static final int SWITCH_STYLE_CHECKBOX = 0;
@@ -178,6 +177,11 @@ public class AndroidModule extends KrollModule
 	public static final int GRAVITY_VERTICAL_GRAVITY_MASK = Gravity.VERTICAL_GRAVITY_MASK;
 
 	@Kroll.constant
+	public static final int TABS_STYLE_DEFAULT = 0;
+	@Kroll.constant
+	public static final int TABS_STYLE_BOTTOM_NAVIGATION = 1;
+
+	@Kroll.constant
 	public static final int TRANSITION_NONE = TiUIView.TRANSITION_NONE;
 	@Kroll.constant
 	public static final int TRANSITION_EXPLODE = TiUIView.TRANSITION_EXPLODE;
@@ -251,13 +255,35 @@ public class AndroidModule extends KrollModule
 				Activity currentActivity = TiApplication.getAppCurrentActivity();
 				if (currentActivity != null) {
 					TiUIHelper.showSoftKeyboard(currentActivity.getWindow().getDecorView(), false);
-				} else if (activity != null) {
+				} else if (getActivity() != null) {
 					TiUIHelper.showSoftKeyboard(getActivity().getWindow().getDecorView(), false);
 				} else {
 					Log.w(TAG, "Unable to hide soft keyboard. Activity is null", Log.DEBUG_MODE);
 				}
 			}
 		});
+	}
+
+	@Kroll.method
+	public ColorProxy getColorResource(Object idOrName)
+	{
+		try {
+			// Color by resource id
+			if (idOrName instanceof Number) {
+				int colorResId = ((Number) idOrName).intValue();
+				@ColorInt int packedColorInt = ContextCompat.getColor(TiApplication.getInstance(), colorResId);
+				return new ColorProxy(packedColorInt);
+			}
+			// Color by name
+			String colorName = idOrName.toString();
+			if (TiColorHelper.hasColorResource(colorName)) {
+				@ColorInt int packedColorInt = TiColorHelper.getColorResource(colorName);
+				return new ColorProxy(packedColorInt);
+			}
+		} catch (Exception e) {
+			// ignore
+		}
+		return null;
 	}
 
 	@Override

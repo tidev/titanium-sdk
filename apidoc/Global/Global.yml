@@ -4,10 +4,6 @@ summary: The APIs that reside in the global scope, which may be called without a
 description: |
     Titanium provides a number of global built-in objects, detailed below.
 
-    #### JSON
-
-    Titanium provides a built-in [JSON](Global.JSON) object two functions, `parse` and `stringify`.
-
     #### String Utilities
 
     Titanium includes several extra utility functions for formatting text, attached to the
@@ -15,16 +11,15 @@ description: |
 
     #### console
 
-    Titanium provides [console](Global.console) support familiar to many javascript developers
-    for logging at the toplevel, in addition to the <Titanium.API> logging facilities.
+    Titanium provides [console](Global.Console) support familiar to many javascript developers
+    for logging at the toplevel, in addition to the [Titanium](Titanium.API) logging facilities.
 
     #### Timers
 
     Titanium has built-in support for one-off and repeating timers:
 
-    *    Use [setTimeout](Global.setTimeout) to start a one-off timer.
-
-    *    Use [setInterval](Global.setInterval) to start a repeating timer.
+    * Use [setTimeout](Global.setTimeout) to start a one-off timer.
+    * Use [setInterval](Global.setInterval) to start a repeating timer.
 
     #### Alert
 
@@ -34,9 +29,7 @@ description: |
     #### Locale
 
     The `L` macro can also be used as an alias for the <Titanium.Locale.getString> method.
-
-platforms: [android, iphone, ipad]
-
+platforms: [android, iphone, ipad, macos]
 methods:
   - name: alert
     summary: Displays a pop-up alert dialog with the passed in `message`.
@@ -45,9 +38,11 @@ methods:
         [alert dialog](Titanium.UI.AlertDialog). For example, the following two statements produce
         the same result.
 
-            alert('Danger, Will Robinson!');
+        ``` js
+        alert('Danger, Will Robinson!');
 
-            Ti.UI.createAlertDialog({ message: 'Danger, Will Robinson!' }).show();
+        Ti.UI.createAlertDialog({ message: 'Danger, Will Robinson!' }).show();
+        ```
 
         Note that unlike a web browser-based version of `alert`, the method is asynchronous. However,
         only one alert dialog will be visible and modal at a time.
@@ -58,13 +53,13 @@ methods:
         summary: Alert message.
         type: String
 
-
   - name: clearInterval
     summary: Cancels an interval timer.
     parameters:
       - name: timerId
         summary: Unique timer identifier returned by [setInterval](Global.setInterval).
         type: Number
+        optional: true
 
   - name: clearTimeout
     summary: Cancels a one-time timer.
@@ -72,6 +67,7 @@ methods:
       - name: timerId
         summary: Unique timer identifier returned by [setTimeout](Global.setTimeout).
         type: Number
+        optional: true
 
   - name: decodeURIComponent
     summary: |
@@ -106,7 +102,7 @@ methods:
         type: String
 
   - name: L
-    summary: An alias for <Titanium.Locale.getString>.
+    summary: An alias for [Titanium.Locale.getString](Titanium.Locale.getString).
     returns:
         summary: Localized string defined by `key`, or value of `hint` otherwise.
         type: String
@@ -126,6 +122,11 @@ methods:
         The `require` function takes a module identifier as its argument and returns an object with
         references to the module's exported symbols.
 
+        #### ES6+ Syntax
+
+        Using Titanium SDK 7.1.0 and later, you can also use the ES6+ [`import`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/import) and [`export`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/export) syntax
+        by enabling transpiling via the `<transpile>true</transpile>` property in your tiapp.xml
+
         #### Native Titanium Module
 
         To load a native Titanium module:
@@ -135,7 +136,7 @@ methods:
           3. Initialize the module with the `require` method by passing the module ID to the method.
 
         For detailed instructions, refer to
-        [Using a Module](http://docs.appcelerator.com/platform/latest/#!/guide/Using_a_Module).
+        [Using a Module](https://docs.appcelerator.com/platform/latest/#!/guide/Using_a_Module).
 
         #### CommonJS Module
 
@@ -155,14 +156,15 @@ methods:
         built application. To include both the MainWindow module and the platform-specific
         TaskWindow module from any JavaScript file in the project:
 
-             // load main window module from ui subdirectory
-             var mainWindow = require('ui/MainWindow');
+        ``` js
+        // load main window module from ui subdirectory
+        var mainWindow = require('ui/MainWindow');
 
-             // load platform-specific task window module
-             var taskWindow = require('ui/TaskWindow');
+        // load platform-specific task window module
+        var taskWindow = require('ui/TaskWindow');
+        ```
 
-        For more information, see the Official CommonJS website about
-        [CommonJS Modules/1.1 Specification](http://wiki.commonjs.org/wiki/Modules/1.1).
+        For more information, see the official [CommonJS](http://requirejs.org/docs/commonjs.html) website.
 
         #### Alloy
 
@@ -176,7 +178,9 @@ methods:
         For example, a module file `app/lib/android/myModule/module.js` may be loaded by
         `app/controllers/index.js` using:
 
-            require('myModule/module');
+        ``` js
+        require('myModule/module');
+        ```
 
         #### Android
 
@@ -186,13 +190,13 @@ methods:
         For example, a module file `Resources/myModule/module.js` may be required by
         `Resources/example/example.js` using either of the following:
 
-            require('../myModule/module')
-            require ('/myModule/module')
-
-
+        ``` js
+        require('../myModule/module')
+        require ('/myModule/module')
+        ```
     returns:
         summary: Exported `exports` object of the required module.
-        type: Object
+        type: any
     parameters:
       - name: moduleId
         summary: Native module ID or local path to a JavaScript file *minus* the `.js` extension.
@@ -202,17 +206,21 @@ methods:
         example: |
             To load a native module with the ID `com.mycompany.module`:
 
-                var module = require('com.mycompany.module');
+            ``` js
+            var module = require('com.mycompany.module');
+            ```
       - title: Require a JavaScript Module
         example: |
             `myModule.js`:
-
-                exports.message = "hello world";
+            ``` js
+            exports.message = "hello world";
+            ```
 
             `app.js`:
-
-                var myModule = require('myModule');
-                alert(myModule.message);
+            ``` js
+            var myModule = require('myModule');
+            alert(myModule.message);
+            ```
 
   - name: setInterval
     summary: Executes a function repeatedly with a fixed time delay between each call to that function.
@@ -236,18 +244,20 @@ methods:
       - name: delay
         summary: Time in milliseconds to wait between calls to function.
         type: Number
+        optional: true
     examples:
       - title: Update a label once every second, and stop at 10 seconds
         example: |
-
-                var count = 0;
-                var timer = setInterval(function(){
-                    count++;
-                    label.text = "count: " + count;
-                    if (count == 10) {
-                        clearInterval(timer);
-                    }
-                }, 1000);
+            ``` js
+            var count = 0;
+            var timer = setInterval(function() {
+                count++;
+                label.text = 'count - ' + count;
+                if (count == 10) {
+                    clearInterval(timer);
+                }
+            }, 1000);
+            ```
 
   - name: setTimeout
     summary: Executes code or a function after a delay.
@@ -271,10 +281,162 @@ methods:
       - name: delay
         summary: Time in milliseconds to wait before the function is called.
         type: Number
+        optional: true
     examples:
       - title: Execute a function in 500 milliseconds
         example: |
+            ``` js
+            setTimeout(function() {
+                Ti.API.debug('Called using setTimeout');
+            }, 500);
+            ```
 
-                setTimeout(function(){
-                    Ti.API.debug('Called using setTimeout');
-                }, 500);
+properties:
+  - name: OS_ANDROID
+    summary: A special constant that is replaced during the app build with a boolean `true`/`false` value.
+    description: |
+        This value is replaced by an injected boolean literal value indicating if the current platform is Android.
+
+        The replacement is done by a Babel plugin during JS transpilation phase of the app build.
+        This is an easy way to guard platform-specific codepaths (and make it easier for Babel to strip away dead code paths).
+
+        This pre-define originally lived in Alloy compilation but has been migrated to the SDK build process.
+    type: Boolean
+    permission: read-only
+    since: "9.0.0"
+
+  - name: OS_IOS
+    summary: A special constant that is replaced during the app build with a boolean `true`/`false` value.
+    description: |
+        This value is replaced by an injected boolean literal value indicating if the current platform is ipad/iphone.
+
+        The replacement is done by a Babel plugin during JS transpilation phase of the app build.
+        This is an easy way to guard platform-specific codepaths (and make it easier for Babel to strip away dead code paths).
+
+        This pre-define originally lived in Alloy compilation but has been migrated to the SDK build process.
+    type: Boolean
+    permission: read-only
+    since: "9.0.0"
+
+  - name: OS_VERSION_MAJOR
+    summary: The operation system's major version number.
+    description: |
+        This returns the same value as the <Titanium.Platform.versionMajor> property.
+
+        ``` js
+        if (OS_IOS && (OS_VERSION_MAJOR >= 13)) {
+            // Do something on iOS 13 or higher only.
+        }
+        ```
+    type: Number
+    permission: read-only
+    since: "9.2.0"
+
+  - name: OS_VERSION_MINOR
+    summary: The operating system's minor version number.
+    description: |
+        This returns the same value as the <Titanium.Platform.versionMinor> property.
+
+        Will return zero if the OS does not have a minor version.
+    type: Number
+    default: 0
+    permission: read-only
+    since: "9.2.0"
+
+  - name: OS_VERSION_PATCH
+    summary: The operating system's patch version number.
+    description: |
+        This returns the same value as the <Titanium.Platform.versionPatch> property.
+
+        Will return zero if the OS does not have a patch version.
+    type: Number
+    default: 0
+    permission: read-only
+    since: "9.2.0"
+
+  - name: ENV_DEV
+    summary: Alias for <Global.ENV_DEVELOPMENT>
+    type: Boolean
+    permission: read-only
+    since: "9.0.0"
+
+  - name: ENV_DEVELOPMENT
+    summary: A special constant that is replaced during the app build with a boolean `true`/`false` value, based on whether deploy type is `'development'`. Typically true for simulator/emulator builds.
+    description: |
+        The replacement is done by a Babel plugin during JS transpilation phase of the app build.
+        This is an easy way to guard deploy type-specific codepaths (and make it easier for Babel to strip away dead code paths).
+
+        This pre-define originally lived in Alloy compilation but has been migrated to the SDK build process.
+    type: Boolean
+    permission: read-only
+    since: "9.0.0"
+
+  - name: ENV_PROD
+    summary: Alias for <Global.ENV_PRODUCTION>
+    type: Boolean
+    permission: read-only
+    since: "9.0.0"
+
+  - name: ENV_PRODUCTION
+    summary: A special constant that is replaced during the app build with a boolean `true`/`false` value, based on whether deploy type is `'production'`. Typically true for app store/ad-hoc builds.
+    description: |
+        The replacement is done by a Babel plugin during JS transpilation phase of the app build.
+        This is an easy way to guard deploy type-specific codepaths (and make it easier for Babel to strip away dead code paths).
+
+        This pre-define originally lived in Alloy compilation but has been migrated to the SDK build process.
+    type: Boolean
+    permission: read-only
+    since: "9.0.0"
+
+  - name: ENV_TEST
+    summary: A special constant that is replaced during the app build with a boolean `true`/`false` value, based on whether deploy type is `'test'`. Typically true for device builds.
+    description: |
+        The replacement is done by a Babel plugin during JS transpilation phase of the app build.
+        This is an easy way to guard deploy type-specific codepaths (and make it easier for Babel to strip away dead code paths).
+
+        This pre-define originally lived in Alloy compilation but has been migrated to the SDK build process.
+    type: Boolean
+    permission: read-only
+    since: "9.0.0"
+
+  - name: DIST_ADHOC
+    summary: A special constant that is replaced during the app build with a boolean `true`/`false` value, based on whether build target is `'dist-adhoc'`.
+    description: |
+        The replacement is done by a Babel plugin during JS transpilation phase of the app build.
+        This is an easy way to guard deploy type-specific codepaths (and make it easier for Babel to strip away dead code paths).
+
+        This pre-define originally lived in Alloy compilation but has been migrated to the SDK build process.
+    type: Boolean
+    permission: read-only
+    since: "9.0.0"
+
+  - name: DIST_STORE
+    summary: A special constant that is replaced during the app build with a boolean `true`/`false` value, based on whether build target is `'dist-appstore'` or `'dist-playstore'`.
+    description: |
+        The replacement is done by a Babel plugin during JS transpilation phase of the app build.
+        This is an easy way to guard deploy type-specific codepaths (and make it easier for Babel to strip away dead code paths).
+
+        This pre-define originally lived in Alloy compilation but has been migrated to the SDK build process.
+    type: Boolean
+    permission: read-only
+    since: "9.0.0"
+
+  - name: console
+    summary: Console logging facilities.
+    type: Global.Console
+    accessors: false
+
+  - name: global
+    summary: Reference to the global object itself.
+    type: Global
+    accessors: false
+
+  - name: Buffer
+    summary: a global reference to the [Buffer](buffer.Buffer) class.
+    type: buffer.Buffer
+    accessors: false
+
+  - name: process
+    summary: Reference to the global `process` object.
+    type: process
+    accessors: false

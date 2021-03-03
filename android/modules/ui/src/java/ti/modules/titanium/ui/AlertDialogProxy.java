@@ -16,12 +16,12 @@ import org.appcelerator.titanium.view.TiUIView;
 import ti.modules.titanium.ui.widget.TiUIDialog;
 import android.app.Activity;
 
-// clang-format off
 @Kroll.proxy(creatableInModule = UIModule.class,
 	propertyAccessors = {
 		TiC.PROPERTY_BUTTON_NAMES,
 		TiC.PROPERTY_CANCEL,
 		TiC.PROPERTY_CANCELED_ON_TOUCH_OUTSIDE,
+		TiC.PROPERTY_BUTTON_CLICK_REQUIRED,
 		TiC.PROPERTY_MESSAGE,
 		TiC.PROPERTY_MESSAGEID,
 		TiC.PROPERTY_TITLE,
@@ -30,7 +30,6 @@ import android.app.Activity;
 		TiC.PROPERTY_OKID,
 		TiC.PROPERTY_PERSISTENT
 })
-// clang-format on
 public class AlertDialogProxy extends TiViewProxy
 {
 	public AlertDialogProxy()

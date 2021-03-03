@@ -14,6 +14,10 @@ methods:
       - name: callback
         summary: the function to execute when the query completes.
         type: Callback<YQLResponse>
+deprecated:
+    since: "8.0.0"
+    removed: "8.0.0"
+    notes: Use the standalone [Ti.Yahoo](https://github.com/appcelerator-modules/ti.yahoo) module instead.
 ---
 name: YQLResponse
 summary: Properties passed to a yql callback to report a success or failure.

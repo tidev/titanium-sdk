@@ -6,7 +6,6 @@
  */
 package ti.modules.titanium.media;
 
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.List;
 import java.util.Timer;
@@ -28,7 +27,6 @@ import android.media.AudioAttributes;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
-import android.os.Build;
 import android.webkit.URLUtil;
 
 public class TiSound implements MediaPlayer.OnCompletionListener, MediaPlayer.OnErrorListener, KrollProxyListener,
@@ -106,61 +104,32 @@ public class TiSound implements MediaPlayer.OnCompletionListener, MediaPlayer.On
 			mp = new MediaPlayer();
 
 			int audioType = TiConvert.toInt(proxy.getProperty(TiC.PROPERTY_AUDIO_TYPE));
-			if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-				int streamType = -1;
-				switch (audioType) {
-					case AUDIO_TYPE_ALARM:
-						streamType = AudioManager.STREAM_ALARM;
-						break;
-					case AUDIO_TYPE_SIGNALLING:
-						streamType = AudioManager.STREAM_DTMF;
-						break;
-					case AUDIO_TYPE_RING:
-						streamType = AudioManager.STREAM_RING;
-						break;
-					case AUDIO_TYPE_VOICE:
-						streamType = AudioManager.STREAM_VOICE_CALL;
-						break;
-					case AUDIO_TYPE_NOTIFICATION:
-						streamType = AudioManager.STREAM_NOTIFICATION;
-						break;
-					case AUDIO_TYPE_MEDIA:
-					default:
-						streamType = AudioManager.STREAM_MUSIC;
-				}
-				if (streamType != -1) {
-					mp.setAudioStreamType(streamType);
-				} else {
-					Log.w(TAG, "unable to set setAudioStreamType()");
-				}
+			int usage = -1;
+			switch (audioType) {
+				case AUDIO_TYPE_ALARM:
+					usage = AudioAttributes.USAGE_ALARM;
+					break;
+				case AUDIO_TYPE_SIGNALLING:
+					usage = AudioAttributes.USAGE_VOICE_COMMUNICATION_SIGNALLING;
+					break;
+				case AUDIO_TYPE_RING:
+					usage = AudioAttributes.USAGE_NOTIFICATION_RINGTONE;
+					break;
+				case AUDIO_TYPE_VOICE:
+					usage = AudioAttributes.USAGE_VOICE_COMMUNICATION;
+					break;
+				case AUDIO_TYPE_NOTIFICATION:
+					usage = AudioAttributes.USAGE_NOTIFICATION;
+					break;
+				case AUDIO_TYPE_MEDIA:
+				default:
+					usage = AudioAttributes.USAGE_MEDIA;
+			}
+			if (usage != -1) {
+				AudioAttributes attributes = new AudioAttributes.Builder().setUsage(usage).build();
+				mp.setAudioAttributes(attributes);
 			} else {
-				int usage = -1;
-				switch (audioType) {
-					case AUDIO_TYPE_ALARM:
-						usage = AudioAttributes.USAGE_ALARM;
-						break;
-					case AUDIO_TYPE_SIGNALLING:
-						usage = AudioAttributes.USAGE_VOICE_COMMUNICATION_SIGNALLING;
-						break;
-					case AUDIO_TYPE_RING:
-						usage = AudioAttributes.USAGE_NOTIFICATION_RINGTONE;
-						break;
-					case AUDIO_TYPE_VOICE:
-						usage = AudioAttributes.USAGE_VOICE_COMMUNICATION;
-						break;
-					case AUDIO_TYPE_NOTIFICATION:
-						usage = AudioAttributes.USAGE_NOTIFICATION;
-						break;
-					case AUDIO_TYPE_MEDIA:
-					default:
-						usage = AudioAttributes.USAGE_MEDIA;
-				}
-				if (usage != -1) {
-					AudioAttributes attributes = new AudioAttributes.Builder().setUsage(usage).build();
-					mp.setAudioAttributes(attributes);
-				} else {
-					Log.w(TAG, "unable to set setAudioAttributes()");
-				}
+				Log.w(TAG, "unable to set setAudioAttributes()");
 			}
 
 			String url = TiConvert.toString(proxy.getProperty(TiC.PROPERTY_URL));
@@ -178,17 +147,8 @@ public class TiSound implements MediaPlayer.OnCompletionListener, MediaPlayer.On
 							TiRHelper.getResource("raw." + uri.getLastPathSegment()));
 					}
 					mp.setDataSource(afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength());
-				} catch (IOException e) {
-					// timob-24082: setDataSource throws exception on a few but not all 4.4 devices
-					if (Build.VERSION.SDK_INT == 19) {
-						try {
-							mp.setDataSource(afd.getFileDescriptor(), afd.getStartOffset() + 1, afd.getLength());
-						} catch (IOException e2) {
-							Log.e(TAG, "Error setting file descriptor: ", e2);
-						}
-					} else {
-						Log.e(TAG, "Error setting file descriptor: ", e);
-					}
+				} catch (Exception e) {
+					Log.e(TAG, "Error setting file descriptor: ", e);
 				} finally {
 					if (afd != null) {
 						afd.close();
@@ -197,24 +157,7 @@ public class TiSound implements MediaPlayer.OnCompletionListener, MediaPlayer.On
 			} else {
 				Uri uri = Uri.parse(url);
 				if (uri.getScheme().equals(TiC.PROPERTY_FILE)) {
-					if (Build.VERSION.SDK_INT >= TiC.API_LEVEL_ICE_CREAM_SANDWICH) {
-						mp.setDataSource(uri.getPath());
-					} else {
-						// For 2.2 and below, MediaPlayer uses the native player which requires
-						// files to have worldreadable access, workaround is to open an input
-						// stream to the file and give that to the player.
-						FileInputStream fis = null;
-						try {
-							fis = new FileInputStream(uri.getPath());
-							mp.setDataSource(fis.getFD());
-						} catch (IOException e) {
-							Log.e(TAG, "Error setting file descriptor: ", e);
-						} finally {
-							if (fis != null) {
-								fis.close();
-							}
-						}
-					}
+					mp.setDataSource(uri.getPath());
 				} else {
 					remote = true;
 					mp.setDataSource(url);
@@ -371,6 +314,7 @@ public class TiSound implements MediaPlayer.OnCompletionListener, MediaPlayer.On
 				mp.setOnBufferingUpdateListener(null);
 				mp.setOnInfoListener(null);
 
+				mp.reset();
 				mp.release();
 				mp = null;
 				Log.d(TAG, "Native resources released.", Log.DEBUG_MODE);
@@ -424,6 +368,22 @@ public class TiSound implements MediaPlayer.OnCompletionListener, MediaPlayer.On
 			duration = mp.getDuration(); // Can only get duration after the media player is initialized.
 		}
 		return duration;
+	}
+
+	public boolean isMuted()
+	{
+		AudioManager audioManager =
+			(AudioManager) TiApplication.getInstance().getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
+
+		return audioManager.getRingerMode() == AudioManager.RINGER_MODE_SILENT;
+	}
+
+	public void setMuted(boolean muted)
+	{
+		if (mp != null) {
+			float scale = muted ? 0.0f : 1.0f;
+			mp.setVolume(scale, scale);
+		}
 	}
 
 	public int getTime()
@@ -582,7 +542,6 @@ public class TiSound implements MediaPlayer.OnCompletionListener, MediaPlayer.On
 
 		KrollDict data = new KrollDict();
 		data.putCodeAndMessage(code, msg);
-		data.put(TiC.PROPERTY_MESSAGE, msg);
 		proxy.fireEvent(EVENT_ERROR, data);
 
 		return true;

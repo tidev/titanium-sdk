@@ -9,7 +9,7 @@
 #import "TiUIMaskedImageProxy.h"
 #import "TiUIMaskedImage.h"
 
-#import "TiUtils.h"
+#import <TitaniumKit/TiUtils.h>
 
 @implementation TiUIMaskedImageProxy
 

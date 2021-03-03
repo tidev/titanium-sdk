@@ -41,3 +41,45 @@ JSObjectRef (the JS object wrapping our proxy)
 	|- __EV (object to hold event listeners: event names and the callbacks to fire for that event)
 	|- __PR (holds TiProxy/KrollCallback objects)
 		|- __EX (holds module exports when combining native and commonjs modules)
+
+
+
+==========================================================================
+// FIXME With the new iOS Obj-c API proxies, the hasOwnProperty/Object.getOwnPropertyNames() stuff is all fucked up
+// Ti.Platform is an instance of a type/class
+// It has no "prototype" property, but has a "__proto__".
+// Properties like 'address' or 'createUUID()' are *NOT* own properties of the Ti.Platform object (an instance of PlatformModule)
+// Those *are* own properties of Ti.Platform.__proto__!
+// This is akin to the idea that:
+// Object.getOwnPropertyNames(new Object()) -> []; (this is equivalent to Object.getOwnPropertyNames({}))
+// But to get Object "instance" functions, we do Object.getOwnPropertyNames(Object.prototype);
+//
+// So what can I do? modules are kind of this funky weird singleton instances of proxies.
+// Can we treat them as static/class-level properties/methods? and then export the "class" and not an instance?
+// (If so, how would we handle event listeners/firing?)
+//
+// I can try and fix it so that we point Ti.Platform.prototype -> Ti.Platform.__proto__, but does that fix anything?
+// Not really, and it looks like this is exactly what Android does too.
+//
+// So how do Android and iOS differ?
+// - On iOS Ti.Platform is an instance of "PlatformModule" (it's __proto__)
+//   - The methods/properties hang on the PlatformModule prototype;
+//   - The PlatformModule's constructor is a generated "PlatformModuleConstructor"
+//   - In other words, Ti.Platform is actually an instance of a "PlatformModule", which extends ObjcProxy < Object
+// - On Android, Ti.Platform is an instance of "KrollModule" (it's __proto__)
+//   - SOME of the properties hang off the singleton instance itself
+//   - constants like BATTERY_STATE_CHARGING hang off Ti.Platform.__proto__! As do functions!
+//
+// So what does all of this mean? Who is right? Neither?!
+//
+// I think for modules, we could err on methods/properties being hung off instance OR class-level.
+// This is because they're special singletons
+// Let's look at a proxy like Ti.Network.HTTPClient for more clarity:
+// - constants like DONE should probably be "class-level" (So basically we should access like Ti.Network.HTTPClient.DONE)
+// - methods and properties should be hung off the "instance" (So basically we do: client.send(); in mdn doc terms, this would be off the prototype!)
+//
+// So for Ti.Platform:
+// - Object.getOwnPropertyNames(Ti.Platform) = [BATTERY_STATE_FULL, BATTERY_STATE_UNKNOWN, etc]
+// - Object.getOwnPropertyNames(Ti.Platform.__proto__) = [canOpenURL(), address, name, etc]
+//
+// (Of course, we address *all* of these in a way that looks static! (i.e. not off __proto__))

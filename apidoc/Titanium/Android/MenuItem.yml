@@ -10,10 +10,12 @@ description: |
 
     In Alloy you can define **`<MenuItem>`** elements inside a `<Menu>` element.
 
-        <Menu id="menu" platform="android">
-            <MenuItem id="saveitem" title="Save" icon="item1.png" onClick="doSave" />
-            <MenuItem id="closeitem" title="Close" icon="item1.png" onClick="doClose" />
-        </Menu>
+    ``` xml
+    <Menu id="menu" platform="android">
+        <MenuItem id="saveitem" title="Save" icon="item1.png" onClick="doSave" />
+        <MenuItem id="closeitem" title="Close" icon="item1.png" onClick="doClose" />
+    </Menu>
+    ```
 
     Action items can appear in either the action bar or the action bar's
     overflow menu.  To determine how an action item is displayed, set
@@ -26,7 +28,7 @@ description: |
 
     Further Reading:
 
-      * [Android Developers: MenuItem](http://developer.android.com/reference/android/view/MenuItem.html)
+      * [Android Developers: MenuItem](https://developer.android.com/reference/android/view/MenuItem.html)
 
 extends: Titanium.Proxy
 platforms: [android]
@@ -127,6 +129,38 @@ events:
     since: "3.0.0"
 
 properties:
+  - name: accessibilityHint
+    summary: Briefly describes what performing an action (such as a click) on the view will do.
+    description: |
+        Value of this property is concatenated together with
+        <Titanium.Android.MenuItem.accessibilityLabel> and <Titanium.Android.MenuItem.accessibilityValue> in the order: `accessibilityLabel`,
+        `accessibilityValue`, `accessibilityHint`. The concatenated value is then passed as the
+        argument to the native [MenuItemCompat.setContentDescription](https://developer.android.com/reference/android/support/v4/view/MenuItemCompat#setContentDescription(android.view.MenuItem,%20java.lang.CharSequence)) method.
+    type: String
+    since: "8.3.0"
+    default: null
+
+  - name: accessibilityLabel
+    summary: A succint label identifying the view for the device's accessibility service.
+    description: |
+        Value of this property is concatenated together with
+        <Titanium.Android.MenuItem.accessibilityValue> and <Titanium.Android.MenuItem.accessibilityHint> in the order: `accessibilityLabel`,
+        `accessibilityValue`, `accessibilityHint`. The concatenated value is then passed as the
+        argument to the native [MenuItemCompat.setContentDescription](https://developer.android.com/reference/android/support/v4/view/MenuItemCompat#setContentDescription(android.view.MenuItem,%20java.lang.CharSequence)) method.
+    since: "8.3.0"
+    type: String
+    default: null
+
+  - name: accessibilityValue
+    summary: A string describing the value (if any) of the view for the device's accessibility service.
+    description: |
+        Value of this property is concatenated together with
+        <Titanium.Android.MenuItem.accessibilityLabel> and <Titanium.Android.MenuItem.accessibilityHint> in the order: `accessibilityLabel`,
+        `accessibilityValue`, `accessibilityHint`. The concatenated value is then passed as the
+        argument to the native [MenuItemCompat.setContentDescription](https://developer.android.com/reference/android/support/v4/view/MenuItemCompat#setContentDescription(android.view.MenuItem,%20java.lang.CharSequence)) method.
+    since: "8.3.0"
+    type: String
+    default: null
 
   - name: actionView
     summary: Custom view that replaces the default menu item button.
@@ -142,17 +176,19 @@ properties:
         Since Alloy 1.6.0, you can specify this property using the `<ActionView>` element as a child
         of the `<MenuItem>` element, for example:
 
-            <Alloy>
-                <Window>
-                    <Menu>
-                        <MenuItem showAsAction="Ti.Android.SHOW_AS_ACTION_ALWAYS" title="Search">
-                            <ActionView>
-                                <SearchView ns="Ti.UI.Android" hintText="Type Something"/>
-                            </ActionView>
-                        </MenuItem>
-                    </Menu>
-                </Window>
-            </Alloy>
+        ``` xml
+        <Alloy>
+            <Window>
+                <Menu>
+                    <MenuItem showAsAction="Ti.Android.SHOW_AS_ACTION_ALWAYS" title="Search">
+                        <ActionView>
+                            <SearchView ns="Ti.UI.Android" hintText="Type Something"/>
+                        </ActionView>
+                    </MenuItem>
+                </Menu>
+            </Window>
+        </Alloy>
+        ```
 
     type: Titanium.UI.View
     since: "3.0.0"
@@ -237,10 +273,10 @@ properties:
 
         See also:
 
-        *   [getOrder](http://developer.android.com/reference/android/view/MenuItem.html#getOrder())
+        *   [getOrder](https://developer.android.com/reference/android/view/MenuItem.html#getOrder())
             in the Android Developer Reference.
 
-        *   [Menu](http://developer.android.com/reference/android/view/Menu.html) in the
+        *   [Menu](https://developer.android.com/reference/android/view/Menu.html) in the
             Android Developer Reference for definitions of the `CATEGORY` values.
     type: Number
     permission: read-only

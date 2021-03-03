@@ -224,9 +224,10 @@
 {
   __block float volume = 1.0;
   if (player != nil) {
-    TiThreadPerformOnMainThread(^{
-      volume = [TiUtils volumeFromObject:player default:volume];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          volume = [TiUtils volumeFromObject:player default:volume];
+        },
         YES);
   }
 
@@ -238,9 +239,10 @@
   float volume = [TiUtils floatValue:vol def:-1];
   volume = MAX(0.0, MIN(volume, 1.0));
   if (player != nil) {
-    TiThreadPerformOnMainThread(^{
-      [TiUtils setVolume:volume onObject:player];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          [TiUtils setVolume:volume onObject:player];
+        },
         NO);
   }
 }

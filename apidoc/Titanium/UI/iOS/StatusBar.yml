@@ -2,10 +2,9 @@
 name: Titanium.UI.iOS.StatusBar
 summary: A set of constants for the status bar style.
 extends: Titanium.Proxy
-since: "5.4.0"
-platforms: [iphone, ipad]
+platforms: [iphone, ipad, macos]
+since: {iphone: "5.4.0", ipad: "5.4.0", macos: "9.2.0"}
 createable: false
-
 properties:
   - name: ANIMATION_STYLE_NONE
     summary: No animation style, when the status bar is hidden or shown.
@@ -62,6 +61,9 @@ properties:
         [LIGHT_CONTENT](Titanium.UI.iOS.StatusBar.LIGHT_CONTENT),
     type: Number
     permission: read-only
+    deprecated:
+        since: "9.1.0"
+        notes: Use [Titanium.UI.iOS.StatusBar.DEFAULT](Titanium.UI.iOS.StatusBar.DEFAULT) instead.
 
   - name: GREY
     summary: Gray-colored status bar style.
@@ -77,9 +79,12 @@ properties:
         [LIGHT_CONTENT](Titanium.UI.iOS.StatusBar.LIGHT_CONTENT),
     type: Number
     permission: read-only
+    deprecated:
+        since: "9.1.0"
+        notes: Use [Titanium.UI.iOS.StatusBar.DEFAULT](Titanium.UI.iOS.StatusBar.DEFAULT) instead.
 
   - name: LIGHT_CONTENT
-    summary: Status bar style to use with dark backgrounds. Valid on iOS 7 and above.
+    summary: Status bar style to use with dark backgrounds.
     description: |
         Use with the <Titanium.UI.Window.statusBarStyle> property.
         
@@ -91,3 +96,13 @@ properties:
     type: Number
     permission: read-only
     since: "5.4.0"
+
+  - name: DARK_CONTENT
+    summary: Status bar style to use with light backgrounds.
+    description: |
+        Use with the <Titanium.UI.Window.statusBarStyle> property.
+    type: Number
+    permission: read-only
+    since: "8.2.0"
+    osver: {ios: {min: "13.0"}}
+

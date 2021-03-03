@@ -7,17 +7,17 @@
 package org.appcelerator.titanium;
 
 public interface ITiAppInfo {
-	public String getId();
-	public String getName();
-	public String getVersion();
-	public String getPublisher();
-	public String getUrl();
-	public String getCopyright();
-	public String getDescription();
-	public String getIcon();
-	public boolean isAnalyticsEnabled();
-	public String getGUID();
-	public boolean isFullscreen();
-	public String getDeployType();
-	public String getBuildType();
+	String getId();
+	String getName();
+	String getVersion();
+	String getPublisher();
+	String getUrl();
+	String getCopyright();
+	String getDescription();
+	String getIcon();
+	boolean isAnalyticsEnabled();
+	String getGUID();
+	boolean isFullscreen();
+	String getDeployType();
+	String getBuildType();
 }

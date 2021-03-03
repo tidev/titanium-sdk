@@ -14,7 +14,6 @@ import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.util.TiConvert;
-import org.appcelerator.titanium.util.TiPlatformHelper;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -22,7 +21,6 @@ import org.json.JSONObject;
 import android.util.Log;
 
 import com.appcelerator.aps.APSAnalytics;
-import com.appcelerator.aps.APSAnalyticsEvent;
 
 @Kroll.module
 public class AnalyticsModule extends KrollModule
@@ -50,6 +48,18 @@ public class AnalyticsModule extends KrollModule
 		super();
 	}
 
+	@Kroll.getProperty
+	public boolean getOptedOut()
+	{
+		return APSAnalytics.getInstance().isOptedOut();
+	}
+
+	@Kroll.setProperty
+	public void setOptedOut(boolean optedOut)
+	{
+		APSAnalytics.getInstance().setOptedOut(optedOut);
+	}
+
 	@Kroll.method
 	public void navEvent(String from, String to, @Kroll.argument(optional = true) String event,
 						 @Kroll.argument(optional = true) KrollDict data)
@@ -60,18 +70,17 @@ public class AnalyticsModule extends KrollModule
 			if (event == null) {
 				event = "";
 			}
+			JSONObject payload = null;
 			if (data instanceof HashMap) {
-				analytics.sendAppNavEvent(from, to, event, TiConvert.toJSON(data));
-
+				payload = TiConvert.toJSON(data);
 			} else if (data != null) {
 				try {
-					analytics.sendAppNavEvent(from, to, event, new JSONObject(data.toString()));
+					payload = new JSONObject(data.toString());
 				} catch (JSONException e) {
 					Log.e(TAG, "Cannot convert data into JSON");
 				}
-			} else {
-				analytics.sendAppNavEvent(from, to, event, null);
 			}
+			analytics.sendAppNavEvent(from, to, event, payload);
 		} else {
 			Log.e(
 				TAG,
@@ -183,35 +192,12 @@ public class AnalyticsModule extends KrollModule
 		return SUCCESS;
 	}
 
-	// clang-format off
-	@Kroll.method
 	@Kroll.getProperty
 	public String getLastEvent()
-	// clang-format on
 	{
 		if (TiApplication.getInstance().isAnalyticsEnabled()) {
-			TiPlatformHelper platformHelper = TiPlatformHelper.getInstance();
-			APSAnalyticsEvent event = platformHelper.getLastEvent();
-			if (event != null) {
-				try {
-					JSONObject json = new JSONObject();
-					json.put("ver", platformHelper.getDBVersion());
-					json.put("id", platformHelper.getLastEventID());
-					json.put("event", event.getEventType());
-					json.put("ts", event.getEventTimestamp());
-					json.put("mid", event.getEventMid());
-					json.put("sid", event.getEventSid());
-					json.put("aguid", event.getEventAppGuid());
-					json.put("seq", event.getEventSeq());
-					if (event.mustExpandPayload()) {
-						json.put("data", new JSONObject(event.getEventPayload()));
-					} else {
-						json.put("data", event.getEventPayload());
-					}
-					return json.toString();
-				} catch (JSONException e) {
-					Log.e(TAG, "Error generating last event.", e);
-				}
+			if (analytics.getLastEvent() != null) {
+				return analytics.getLastEvent().toString();
 			}
 		} else {
 			Log.e(

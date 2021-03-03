@@ -16,9 +16,7 @@ import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
-import org.appcelerator.titanium.TiC;
 
-import android.Manifest;
 import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.pm.PackageManager;
@@ -48,11 +46,7 @@ public class CalendarProxy extends KrollProxy
 
 	public static String getBaseCalendarUri()
 	{
-		if (Build.VERSION.SDK_INT >= 8) { // FROYO, 2.2
-			return "content://com.android.calendar";
-		}
-
-		return "content://calendar";
+		return "content://com.android.calendar";
 	}
 
 	public static ArrayList<CalendarProxy> queryCalendars(String query, String[] queryArgs)
@@ -63,19 +57,12 @@ public class CalendarProxy extends KrollProxy
 		}
 		ContentResolver contentResolver = TiApplication.getInstance().getContentResolver();
 
-		Cursor cursor = null;
-		if (Build.VERSION.SDK_INT >= 14) { // ICE_CREAM_SANDWICH, 4.0
-			cursor = contentResolver.query(Uri.parse(getBaseCalendarUri() + "/calendars"),
-										   new String[] { "_id", "calendar_displayName", "visible" }, query, queryArgs,
-										   null);
-		} else if (Build.VERSION.SDK_INT >= 11) { // HONEYCOMB, 3.0
-			cursor = contentResolver.query(Uri.parse(getBaseCalendarUri() + "/calendars"),
-										   new String[] { "_id", "displayName", "selected" }, query, queryArgs, null);
-		} else {
-			cursor = contentResolver.query(Uri.parse(getBaseCalendarUri() + "/calendars"),
-										   new String[] { "_id", "displayName", "selected", "hidden" }, query,
-										   queryArgs, null);
-		}
+		Cursor cursor = contentResolver.query(
+			Uri.parse(getBaseCalendarUri() + "/calendars"),
+			new String[] { "_id", "calendar_displayName", "visible" },
+			query,
+			queryArgs,
+			null);
 
 		// calendars can be null
 		if (cursor != null) {
@@ -83,12 +70,7 @@ public class CalendarProxy extends KrollProxy
 				String id = cursor.getString(0);
 				String name = cursor.getString(1);
 				boolean selected = !cursor.getString(2).equals("0");
-				// For API level >= 11 (3.0), there is no column "hidden".
 				boolean hidden = false;
-				if (Build.VERSION.SDK_INT < 11) {
-					hidden = !cursor.getString(3).equals("0");
-				}
-
 				calendars.add(new CalendarProxy(id, name, selected, hidden));
 			}
 		}
@@ -116,9 +98,10 @@ public class CalendarProxy extends KrollProxy
 	@Kroll.method
 	public EventProxy[] getEventsInYear(int year)
 	{
-		Log.w(
-			TAG,
-			"getEventsInYear(year) has been deprecated in 7.0.0 in favor of getEventsBetweenDates(date1, date2) to avoid platform-differences of the month-index between iOS and Android");
+		String warningMessage
+			= "getEventsInYear(year) has been deprecated in 7.0.0 in favor of getEventsBetweenDates(date1, date2) "
+			+ "to avoid platform-differences of the month-index between iOS and Android";
+		Log.w(TAG, warningMessage);
 
 		Calendar jan1 = Calendar.getInstance();
 		jan1.clear();
@@ -133,9 +116,11 @@ public class CalendarProxy extends KrollProxy
 	@Kroll.method
 	public EventProxy[] getEventsInMonth(int year, int month)
 	{
-		Log.w(
-			TAG,
-			"getEventsInMonth(year, month) has been deprecated in 7.0.0 in favor of getEventsBetweenDates(date1, date2) to avoid platform-differences of the month-index between iOS and Android");
+		String warningMessage
+			= "getEventsInMonth(year, month) has been deprecated in 7.0.0 in favor of "
+			+ "getEventsBetweenDates(date1, date2) to avoid platform-differences of the month-index "
+			+ "between iOS and Android";
+		Log.w(TAG, warningMessage);
 
 		Calendar firstOfTheMonth = Calendar.getInstance();
 		firstOfTheMonth.clear();
@@ -205,38 +190,26 @@ public class CalendarProxy extends KrollProxy
 		return EventProxy.createEvent(this, data);
 	}
 
-	// clang-format off
-	@Kroll.method
 	@Kroll.getProperty
 	public String getName()
-	// clang-format on
 	{
 		return name;
 	}
 
-	// clang-format off
-	@Kroll.method
 	@Kroll.getProperty
 	public String getId()
-	// clang-format on
 	{
 		return id;
 	}
 
-	// clang-format off
-	@Kroll.method
 	@Kroll.getProperty
 	public boolean getSelected()
-	// clang-format on
 	{
 		return selected;
 	}
 
-	// clang-format off
-	@Kroll.method
 	@Kroll.getProperty
 	public boolean getHidden()
-	// clang-format on
 	{
 		return hidden;
 	}

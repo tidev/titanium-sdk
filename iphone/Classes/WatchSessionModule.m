@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2015 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2015-Present by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -8,8 +8,9 @@
 #ifdef USE_TI_WATCHSESSION
 
 #import "WatchSessionModule.h"
-#import "TiEvaluator.h"
-#import "TiUtils.h"
+#import <TitaniumKit/TiBlob.h>
+#import <TitaniumKit/TiEvaluator.h>
+#import <TitaniumKit/TiUtils.h>
 
 @interface WatchMessageCallback : NSObject {
   id<TiEvaluator> context;
@@ -93,7 +94,7 @@
 
 - (NSNumber *)isPaired
 {
-  if ([WCSession isSupported] == YES) {
+  if ([WCSession isSupported]) {
     return NUMBOOL([[self watchSession] isPaired]);
   }
 
@@ -102,7 +103,7 @@
 
 - (NSNumber *)isWatchAppInstalled
 {
-  if ([WCSession isSupported] == YES) {
+  if ([WCSession isSupported]) {
     return NUMBOOL([[self watchSession] isWatchAppInstalled]);
   }
 
@@ -111,7 +112,7 @@
 
 - (NSNumber *)isComplicationEnabled
 {
-  if ([WCSession isSupported] == YES) {
+  if ([WCSession isSupported]) {
     return NUMBOOL([[self watchSession] isComplicationEnabled]);
   }
 
@@ -120,7 +121,7 @@
 
 - (NSNumber *)isReachable
 {
-  if ([WCSession isSupported] == YES) {
+  if ([WCSession isSupported]) {
     return NUMBOOL([[self watchSession] isReachable]);
   }
 
@@ -129,7 +130,7 @@
 
 - (NSNumber *)isActivated
 {
-  if ([TiUtils isIOS9_3OrGreater] && [WCSession isSupported]) {
+  if ([TiUtils isIOSVersionOrGreater:@"9.3"] && [WCSession isSupported]) {
     return NUMBOOL([[self watchSession] activationState] == WCSessionActivationStateActivated);
   }
   return NUMBOOL(NO);
@@ -137,29 +138,25 @@
 
 - (NSNumber *)hasContentPending
 {
-#if IS_XCODE_8
-  if ([TiUtils isIOS10OrGreater] && [WCSession isSupported]) {
+  if ([WCSession isSupported]) {
     return NUMBOOL([[self watchSession] hasContentPending]);
   }
-#endif
 
   return NUMBOOL(NO);
 }
 
 - (NSNumber *)remainingComplicationUserInfoTransfers
 {
-#if IS_XCODE_8
-  if ([TiUtils isIOS10OrGreater] && [WCSession isSupported]) {
+  if ([WCSession isSupported]) {
     return NUMUINTEGER([[self watchSession] remainingComplicationUserInfoTransfers]);
   }
-#endif
 
-  return NUMBOOL(0);
+  return NUMUINTEGER(0);
 }
 
 - (NSNumber *)activationState
 {
-  if ([TiUtils isIOS9_3OrGreater] && [WCSession isSupported]) {
+  if ([TiUtils isIOSVersionOrGreater:@"9.3"] && [WCSession isSupported]) {
     return [NSNumber numberWithInteger:[[self watchSession] activationState]];
   }
 
@@ -170,7 +167,7 @@
 //copy of most recent app context sent to watch
 - (NSDictionary *)recentApplicationContext
 {
-  if ([WCSession isSupported] == YES) {
+  if ([WCSession isSupported]) {
     return [[self watchSession] applicationContext];
   }
   DebugLog(@"[ERROR] Target does not support watch connectivity");
@@ -185,11 +182,11 @@
 
 - (void)sendMessage:(id)args
 {
-  if ([WCSession isSupported] == NO) {
+  if (![WCSession isSupported]) {
     DebugLog(@"[ERROR] Target does not support watch connectivity");
     return;
   }
-  if ([[self watchSession] isPaired] == NO) {
+  if (![[self watchSession] isPaired]) {
     DebugLog(@"[ERROR] No watch paired");
     return;
   }
@@ -216,11 +213,11 @@
 //sent to watch so that it can update its state when it wakes
 - (void)updateApplicationContext:(id)value
 {
-  if ([WCSession isSupported] == NO) {
+  if (![WCSession isSupported]) {
     DebugLog(@"[ERROR] Target does not support watch connectivity");
     return;
   }
-  if ([[self watchSession] isPaired] == NO) {
+  if (![[self watchSession] isPaired]) {
     DebugLog(@"[ERROR] No watch paired");
     return;
   }
@@ -236,11 +233,11 @@
 //sent in background
 - (void)transferUserInfo:(id)value
 {
-  if ([WCSession isSupported] == NO) {
+  if (![WCSession isSupported]) {
     DebugLog(@"[ERROR] Target does not support watch connectivity");
     return;
   }
-  if ([[self watchSession] isPaired] == NO) {
+  if (![[self watchSession] isPaired]) {
     DebugLog(@"[ERROR] No watch paired");
     return;
   }
@@ -252,11 +249,11 @@
 //sent in background
 - (void)transferFile:(id)value
 {
-  if ([WCSession isSupported] == NO) {
+  if (![WCSession isSupported]) {
     DebugLog(@"[ERROR] Target does not support watch connectivity");
     return;
   }
-  if ([watchSession isPaired] == NO) {
+  if (![watchSession isPaired]) {
     DebugLog(@"[ERROR] No watch paired");
     return;
   }
@@ -269,15 +266,15 @@
 
 - (void)transferCurrentComplication:(id)value
 {
-  if ([WCSession isSupported] == NO) {
+  if (![WCSession isSupported]) {
     DebugLog(@"[ERROR] Target does not support watch connectivity");
     return;
   }
-  if ([[self watchSession] isPaired] == NO) {
+  if (![[self watchSession] isPaired]) {
     DebugLog(@"[ERROR] No watch paired");
     return;
   }
-  if ([[self watchSession] isComplicationEnabled] == NO) {
+  if (![[self watchSession] isComplicationEnabled]) {
     DebugLog(@"[ERROR] Complication not enabled");
     return;
   }
@@ -288,11 +285,11 @@
 
 - (void)cancelAllUserInfoTransfers:(id)value
 {
-  if ([WCSession isSupported] == NO) {
+  if (![WCSession isSupported]) {
     DebugLog(@"[ERROR] Target does not support watch connectivity");
     return;
   }
-  if ([[self watchSession] isPaired] == NO) {
+  if (![[self watchSession] isPaired]) {
     DebugLog(@"[ERROR] No watch paired");
     return;
   }
@@ -305,11 +302,11 @@
 
 - (void)cancelAllFileTransfers:(id)value
 {
-  if ([WCSession isSupported] == NO) {
+  if (![WCSession isSupported]) {
     DebugLog(@"[ERROR] Target does not support watch connectivity");
     return;
   }
-  if ([[self watchSession] isPaired] == NO) {
+  if (![[self watchSession] isPaired]) {
     DebugLog(@"[ERROR] No watch paired");
     return;
   }
@@ -388,7 +385,7 @@
     NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithObjectsAndKeys:
                                                          [file metadata], @"metaData",
                                                      nil];
-    if (success == NO) {
+    if (!success) {
       DebugLog(@"Unable to copy temp file. Error: %@", [error localizedDescription]);
       downloadedData = nil;
       NSDictionary *errorinfo = [NSDictionary dictionaryWithObjectsAndKeys:NUMBOOL(NO), @"success",
@@ -398,7 +395,7 @@
                                               nil];
       [dict addEntriesFromDictionary:errorinfo];
     } else {
-      downloadedData = [[[TiBlob alloc] _initWithPageContext:[self executionContext] andFile:[destinationURL path]] autorelease];
+      downloadedData = [[[TiBlob alloc] initWithFile:[destinationURL path]] autorelease];
       NSDictionary *success = [NSDictionary dictionaryWithObjectsAndKeys:NUMBOOL(YES), @"success",
                                             NUMINT(0), @"errorCode",
                                             @"", @"message",
@@ -451,7 +448,7 @@
 
 - (NSNumber *)ACTIVATION_STATE_NOT_ACTIVATED
 {
-  if (![TiUtils isIOS9_3OrGreater]) {
+  if (![TiUtils isIOSVersionOrGreater:@"9.3"]) {
     return nil;
   }
   return NUMINTEGER(WCSessionActivationStateNotActivated);
@@ -459,7 +456,7 @@
 
 - (NSNumber *)ACTIVATION_STATE_INACTIVE
 {
-  if (![TiUtils isIOS9_3OrGreater]) {
+  if (![TiUtils isIOSVersionOrGreater:@"9.3"]) {
     return nil;
   }
   return NUMINTEGER(WCSessionActivationStateInactive);
@@ -467,7 +464,7 @@
 
 - (NSNumber *)ACTIVATION_STATE_ACTIVATED
 {
-  if (![TiUtils isIOS9_3OrGreater]) {
+  if (![TiUtils isIOSVersionOrGreater:@"9.3"]) {
     return nil;
   }
   return NUMINTEGER(WCSessionActivationStateActivated);
@@ -484,17 +481,13 @@
     @"isComplicationEnabled" : [self isComplicationEnabled]
   }];
 
-  if ([TiUtils isIOS9_3OrGreater]) {
+  if ([TiUtils isIOSVersionOrGreater:@"9.3"]) {
     [dict setObject:[self isActivated] forKey:@"isActivated"];
     [dict setObject:[self activationState] forKey:@"activationState"];
   }
 
-#if IS_XCODE_8
-  if ([TiUtils isIOS10OrGreater]) {
-    [dict setObject:[self hasContentPending] forKey:@"hasContentPending"];
-    [dict setObject:[self remainingComplicationUserInfoTransfers] forKey:@"remainingComplicationUserInfoTransfers"];
-  }
-#endif
+  [dict setObject:[self hasContentPending] forKey:@"hasContentPending"];
+  [dict setObject:[self remainingComplicationUserInfoTransfers] forKey:@"remainingComplicationUserInfoTransfers"];
 
   return dict;
 }

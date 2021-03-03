@@ -12,7 +12,7 @@ description: |
 
     For all other socket needs, use <Titanium.Network.Socket.TCP>.
 
-    ### iOS 9 Application Note
+    ### App Transport Security
 
     Starting with iOS 9, Apple introduced new security and compatibility guidelines for networking
     and connectivity, which include:
@@ -24,33 +24,39 @@ description: |
 
     Because of the new requirements, Titanium disables the App Transport Security (ATS)
     requirements, which only includes the TLS and certificate cipher requirements,
-    to allow all connections.
+    to allow all connections by default.
 
     If you wish to re-enable ATS, add the `NSAppTransportSecurity` dict to the `ios plist` section
-    of the `tiapp.xml` file, then add the `NSAllowArbitraryLoads` key and set it to true.
+    of the `tiapp.xml` file, then add the `NSAllowArbitraryLoads` key and set it to `false`, indicating
+    that you want to manage your whitelisted URL's yourself.
 
-        <ti:app>
-          ...
-          <ios>
-            <plist>
-              <dict>
-                <key>NSAppTransportSecurity</key>
-                <dict>
-                  <key>NSAllowsArbitraryLoads</key><true/>
-                </dict>
-              </dict>
-            </plist>
-          </ios>
-          ...
-        </ti:app>
+    ``` xml
+    <ti:app>
+      <!-- ... -->
+      <ios>
+        <plist>
+          <dict>
+            <key>NSAppTransportSecurity</key>
+            <dict>
+              <key>NSAllowsArbitraryLoads</key>
+              <false/>
+            </dict>
+          </dict>
+        </plist>
+      </ios>
+      <!-- ... -->
+    </ti:app>
+    ```
 
     Note that Titanium will inject code into the plist file to whitelist `appcelerator.com` subdomains,
     which is needed to communicate with the Appcelerator Anayltics server. To disable the whitelist,
     set the `ios.whitelist.appcelerator.com` tiapp application property to false.
 
-        <ti:app>
-            <property name="ios.whitelist.appcelerator.com" type="bool">false</property>
-        </ti:app>
+    ``` xml
+    <ti:app>
+        <property name="ios.whitelist.appcelerator.com" type="bool">false</property>
+    </ti:app>
+    ```
 
     Listed below are other guidelines from Apple.
 
@@ -70,72 +76,64 @@ description: |
     specific domains.
 
     For more information, see
-    [iOS Developer Library: App Transport Security Technote](https://developer.apple.com/library/prerelease/ios/technotes/App-Transport-Security-Technote/index.html).
+    [iOS Developer Library: App Transport Security](https://developer.apple.com/library/content/documentation/General/Reference/InfoPlistKeyReference/Articles/CocoaKeys.html#//apple_ref/doc/uid/TP40009251-SW33).
 
     Example:
 
-        <ti:app>
-          ...
-          <ios>
-            <plist>
+    ``` xml
+    <ti:app>
+      <!-- ... -->
+      <ios>
+        <plist>
+          <dict>
+            <key>NSAppTransportSecurity</key>
+            <dict>
+              <!-- 1) Default: Disable ATS completely -->
+              <key>NSAllowsArbitraryLoads</key>
+              <true/>
+
+              <-- 2) Alternative: Define whitelisted domains -->
+              <key>NSExceptionDomains</key>
               <dict>
-                <key>NSAppTransportSecurity</key>
+                <!-- Loosen security measure for www.foo.com domain -->
+                <key>www.foo.com</key>
                 <dict>
-                  <key>NSAllowsArbitraryLoads</key><true/>
-                  <key>NSExceptionDomains</key>
-                  <dict>
-                    <!-- Loosen security measure for www.foo.com domain -->
-                    <key>www.foo.com</key>
-                    <dict>
-                      <!-- Set TLS v1.0 as the minimum TLS version -->
-                      <key>NSExceptionMinimumTLSVersion</key>
-                      <string>TLSv1.0</string>
-                      <!-- Can use other ciphers besides forward secrecy ciphers -->
-                      <key>NSExceptionRequiresForwardSecrecy</key>
-                      <false/>
-                      <!-- Allow HTTP connections -->
-                      <key>NSExceptionAllowsInsecureHTTPLoads</key>
-                      <true/>
-                    </dict>
-                  </dict>
+                  <!-- Set TLS v1.0 as the minimum TLS version -->
+                  <key>NSExceptionMinimumTLSVersion</key>
+                  <string>TLSv1.0</string>
+                  <!-- Can use other ciphers besides forward secrecy ciphers -->
+                  <key>NSExceptionRequiresForwardSecrecy</key>
+                  <false/>
+                  <!-- Allow HTTP connections -->
+                  <key>NSExceptionAllowsInsecureHTTPLoads</key>
+                  <true/>
                 </dict>
               </dict>
-            </plist>
-          </ios>
-          ...
-        </ti:app>
-
+            </dict>
+          </dict>
+        </plist>
+      </ios>
+      <!-- ... -->
+    </ti:app>
+    ```
 
     **Test IPV6 DNS64/NAT64**
 
     If you submit your application to the iTunes Store, you should setup an IPv6 DNS64/NAT64
     network to test your application to verify it is compatible with IPv6.
 
-    If you are running OS X 10.11 or greater, you can use your computer to setup a local IPv6 Wi-Fi
+    If you are running macOS 10.11 or greater, you can use your computer to setup a local IPv6 Wi-Fi
     network, which requires an Internet connection not through Wi-Fi.
 
     To create the network, from System Preferences, enable Internet sharing with NAT64 network
     enabled to share your Wi-Fi connection.
 
     For detailed instructions, see
-    [Mac Developer Library: Test for IPv6 DNS64/NAT64 Compatibility](https://developer.apple.com/library/prerelease/mac/documentation/NetworkingInternetWeb/Conceptual/NetworkingOverview/UnderstandingandPreparingfortheIPv6Transition/UnderstandingandPreparingfortheIPv6Transition.html#//apple_ref/doc/uid/TP40010220-CH213-SW16).
+    [Mac Developer Library: Test for IPv6 DNS64/NAT64 Compatibility](https://developer.apple.com/library/content/documentation/NetworkingInternetWeb/Conceptual/NetworkingOverview/UnderstandingandPreparingfortheIPv6Transition/UnderstandingandPreparingfortheIPv6Transition.html#//apple_ref/doc/uid/TP40010220-CH213-SW16).
 
 extends: Titanium.Module
 since: "0.1"
 methods:
-  - name: addConnectivityListener
-    deprecated:
-        since: "1.7.0"
-        removed: "3.0.0"
-        notes: Use the <Titanium.Network.change> event to monitor connectivity changes.
-    summary: |
-        Legacy method to add a connectivity listener to listen for network changes.
-    parameters:
-      - name: callback
-        summary: Callback function to invoke upon network connectivity changes.
-        type: Callback<Object>
-    platforms: [iphone, ipad]
-
   - name: addHTTPCookie
     summary: |
         Adds a cookie to the HTTP client cookie store.
@@ -144,14 +142,14 @@ methods:
         `expiryDate` property must be a date later than the creating date, otherwise the cookie will not persist in the
         cookie storage.
         On Android, any existing cookie with the same domain and name will be replaced with the new cookie. This is a bug
-        in [BasicCookieStore](http://developer.android.com/reference/org/apache/http/impl/cookie/BasicClientCookie.html)
+        in [BasicCookieStore](https://developer.android.com/reference/org/apache/http/impl/cookie/BasicClientCookie.html)
         because based on `RFC6265`, an existing cookie can be evicted and replaced only when it has the same cookie-name,
         domain-value and path-value with the new cookie.
     parameters:
       - name: cookie
         summary: The cookie to add
         type: Titanium.Network.Cookie
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     since: {android: "3.2.0", iphone: "3.3.0", ipad: "3.3.0"}
 
   - name: addSystemCookie
@@ -169,7 +167,7 @@ methods:
 
   - name: createBonjourBrowser
     summary: Creates and returns a `BonjourBrowser` object.
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     returns:
         type: Titanium.Network.BonjourBrowser
     parameters:
@@ -189,7 +187,7 @@ methods:
 
   - name: createBonjourService
     summary: Creates and returns a `BonjourService` object.
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     returns:
         type: Titanium.Network.BonjourService
     parameters:
@@ -213,7 +211,8 @@ methods:
   - name: createTCPSocket
     deprecated:
         since: "1.7.0"
-        notes: Use <Titanium.Network.Socket.createTCP> instead.
+        removed: "9.0.0"
+        notes: Use [Titanium.Network.Socket.createTCP](Titanium.Network.Socket.createTCP) instead.
     summary: |
         Legacy method to create and return an instance of <Titanium.Network.TCPSocket>.
     description: |
@@ -255,8 +254,9 @@ methods:
         On iOS, this also escapes the following characters, which are allowed in a
         URL but may not be allowed or desirable inside a path component:
 
-            !*'();:@+$,/?%#[]=&
-
+        ```
+        !*'();:@+$,/?%#[]=&
+        ```
     returns:
         type: String
     parameters:
@@ -282,7 +282,7 @@ methods:
         type: String
     returns:
         type: Array<Titanium.Network.Cookie>
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     since: {android: "3.2.0", iphone: "3.3.0", ipad: "3.3.0"}
 
   - name: getHTTPCookiesForDomain
@@ -296,7 +296,7 @@ methods:
         type: String
     returns:
         type: Array<Titanium.Network.Cookie>
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     since: {android: "3.2.0", iphone: "3.3.0", ipad: "3.3.0"}
 
   - name: getSystemCookies
@@ -324,7 +324,7 @@ methods:
   - name: removeAllHTTPCookies
     summary: |
         Removes all the cookies from the HTTP client cookie store.
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     since: {android: "3.2.0", iphone: "3.3.0", ipad: "3.3.0"}
 
   - name: removeAllSystemCookies
@@ -348,7 +348,7 @@ methods:
       - name: name
         summary: The name of the cookie to remove. It is case-sensitive.
         type: String
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     since: {android: "3.2.0", iphone: "3.3.0", ipad: "3.3.0"}
 
   - name: removeHTTPCookiesForDomain
@@ -360,7 +360,7 @@ methods:
       - name: domain
         summary: The domain of the cookie to remove. It is case-insensitive.
         type: String
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     since: {android: "3.2.0", iphone: "3.3.0", ipad: "3.3.0"}
 
   - name: removeSystemCookie
@@ -386,30 +386,14 @@ methods:
     description: |
         Call this method at application startup.
 
-        For iOS 8 and later, before calling this method, the application needs to call the
-        [Titanium.App.iOS.registerUserNotificationSettings](Titanium.App.iOS.registerUserNotificationSettings)
-        method and pass it the notification types to use.  Setting the notification types with this
-        method will have no effect on iOS 8 and later.
-
-        For iOS 7 and earlier, set the notification types to use with this method.
-    platforms: [iphone, ipad]
+        Before calling this method, the application needs to call the [Titanium.App.iOS.registerUserNotificationSettings](Titanium.App.iOS.registerUserNotificationSettings)
+        method and pass it the notification types to use. Setting the notification types with this
+        method will have no effect and throws a warning.
+    platforms: [iphone, ipad, macos]
     parameters:
       - name: config
         summary: Dictionary specifying push-notification related options.
         type: PushNotificationConfig
-
-  - name: removeConnectivityListener
-    deprecated:
-        since: "1.7.0"
-        removed: "3.0.0"
-        notes: Use the <Titanium.Network.change> event to monitor connectivity changes.
-    summary: |
-        Legacy method to remove a connectivity listener.
-    parameters:
-      - name: callback
-        summary: Callback function to remove.
-        type: Callback<Object>
-    platforms: [iphone, ipad]
 
   - name: unregisterForPushNotifications
     summary: Unregisters the application for push notifications.
@@ -417,7 +401,7 @@ methods:
     description: |
         Per Apple's documentation, it is rarely necessary to call this method. See:
         [unregisterForRemoteNotifications in the UIApplication Class
-        Reference](http://developer.apple.com/library/IOs/#documentation/UIKit/Reference/UIApplication_Class/Reference/Reference.html#//apple_ref/occ/instm/UIApplication/unregisterForRemoteNotifications)
+        Reference](https://developer.apple.com/documentation/uikit/uiapplication/1623093-unregisterforremotenotifications)
 
         For example, calling this method would be required if a new version of
         your application no longer supports push notifications.
@@ -429,7 +413,7 @@ events:
         summary: New network type as a string.
         type: String
       - name: online
-        summary: Boolean to indicate if the device is online.
+        summary: Boolean indicating if the device is connected to the network.
         type: Boolean
       - name: networkType
         summary: New network type
@@ -444,7 +428,6 @@ properties:
     summary: |
         Special hostname value for listening sockets, representing all
         locally available network interfaces.
-
     type: String
     permission: read-only
     platforms: [iphone, ipad]
@@ -456,7 +439,6 @@ properties:
     summary: |
         A [networkType](Titanium.Network.networkType) value indicating that the device is
         communicating over a local-area network.
-
     description: |
         This constant is also a possible value for the `networkType` property of the
         [change](Titanium.Network.change) event.
@@ -467,7 +449,6 @@ properties:
     summary: |
         A [networkType](Titanium.Network.networkType) value indicating that the device is
         communicating over a mobile network.
-
     description: |
         This constant is also a possible value for the `networkType` property of the
         [change](Titanium.Network.change) event.
@@ -478,7 +459,6 @@ properties:
     summary: |
         A [networkType](Titanium.Network.networkType) value indicating that no
         network is available.
-
     description: |
         This constant is also a possible value for the `networkType` property of the
         [change](Titanium.Network.change) event.
@@ -489,7 +469,6 @@ properties:
     summary: |
         A [networkType](Titanium.Network.networkType) value indicating that the
         current network type is unknown.
-
     description: |
         This constant is also a possible value for the `networkType` property of the
         [change](Titanium.Network.change) event.
@@ -500,7 +479,6 @@ properties:
     summary: |
         A [networkType](Titanium.Network.networkType) value indicating that the
         device is communicating over a WiFi network.
-
     description: |
         This constant is also a possible value for the `networkType` property of the
         [change](Titanium.Network.change) event.
@@ -509,7 +487,7 @@ properties:
 
   - name: NOTIFICATION_TYPE_ALERT
     summary: Constant value for an Alert style push notification.
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     permission: read-only
     type: Number
 
@@ -517,28 +495,29 @@ properties:
     summary: Constant value for a Badge style push notification.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: NOTIFICATION_TYPE_SOUND
     summary: Constant value for a Sound style push notification.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: NOTIFICATION_TYPE_NEWSSTAND
     summary: Constant value for a Newsstand style push notification. Only available on iOS5 and later
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: READ_MODE
     deprecated:
         since: "1.7.0"
+        removed: "9.0.0"
         notes: |
-            Used with the deprecated <Titanium.Network.TCPSocket> only.
+            Used with the deprecated [Titanium.Network.TCPSocket](Titanium.Network.TCPSocket) only.
 
-            See <Titanium.Network.Socket> for constants used with
-            <Titanium.Network.Socket.TCP> sockets.
+            See [Socket](Titanium.Network.Socket) for constants used with
+            [TCP](Titanium.Network.Socket.TCP) sockets.
     summary: Constant value specifying read-only mode for sockets.
     type: Number
     permission: read-only
@@ -547,64 +526,13 @@ properties:
   - name: READ_WRITE_MODE
     deprecated:
         since: "1.7.0"
+        removed: "9.0.0"
         notes: |
-            Used with the deprecated <Titanium.Network.TCPSocket> only.
+            Used with the deprecated [Titanium.Network.TCPSocket](Titanium.Network.TCPSocket) only.
 
-            See <Titanium.Network.Socket> for constants used with
-            <Titanium.Network.Socket.TCP> sockets.
+            See [Socket](Titanium.Network.Socket) for constants used with
+            [TCP](Titanium.Network.Socket.TCP) sockets.
     summary: Constant value specifying read-write mode for sockets.
-    type: Number
-    permission: read-only
-    platforms: [iphone, ipad]
-
-  - name: SOCKET_CLOSED
-    deprecated:
-        since: "1.7.0"
-        notes: |
-            Used with the deprecated <Titanium.Network.TCPSocket> only.
-
-            See <Titanium.Network.Socket> for constants used with
-            <Titanium.Network.Socket.TCP> sockets.
-    summary: Constant value representing a socket in the CLOSED state.
-    type: Number
-    permission: read-only
-    platforms: [iphone, ipad]
-
-  - name: SOCKET_CONNECTED
-    deprecated:
-        since: "1.7.0"
-        notes: |
-            Used with the deprecated <Titanium.Network.TCPSocket> only.
-
-            See <Titanium.Network.Socket> for constants used with
-            <Titanium.Network.Socket.TCP> sockets.
-    summary: Constant value representing a socket in the CONNECTED state.
-    type: Number
-    permission: read-only
-    platforms: [iphone, ipad]
-
-  - name: SOCKET_ERROR
-    deprecated:
-        since: "1.7.0"
-        notes: |
-            Used with the deprecated <Titanium.Network.TCPSocket> only.
-
-            See <Titanium.Network.Socket> for constants used with
-            <Titanium.Network.Socket.TCP> sockets.
-    summary: Constant value representing a socket in the ERROR state.
-    type: Number
-    permission: read-only
-    platforms: [iphone, ipad]
-
-  - name: SOCKET_INITIALIZED
-    deprecated:
-        since: "1.7.0"
-        notes: |
-            Used with the deprecated <Titanium.Network.TCPSocket> only.
-
-            See <Titanium.Network.Socket> for constants used with
-            <Titanium.Network.Socket.TCP> sockets.
-    summary: Constant value representing a socket in the INITIALIZED state.
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
@@ -612,11 +540,12 @@ properties:
   - name: SOCKET_LISTENING
     deprecated:
         since: "1.7.0"
+        removed: "9.0.0"
         notes: |
-            Used with the deprecated <Titanium.Network.TCPSocket> only.
+            Used with the deprecated [Titanium.Network.TCPSocket](Titanium.Network.TCPSocket) only.
 
-            See <Titanium.Network.Socket> for constants used with
-            <Titanium.Network.Socket.TCP> sockets.
+            See [Socket](Titanium.Network.Socket) for constants used with
+            [TCP](Titanium.Network.Socket.TCP) sockets.
     summary: Constant value representing a socket in the LISTENING state.
     type: Number
     permission: read-only
@@ -625,11 +554,12 @@ properties:
   - name: WRITE_MODE
     deprecated:
         since: "1.7.0"
+        removed: "9.0.0"
         notes: |
-            Used with the deprecated <Titanium.Network.TCPSocket> only.
+            Used with the deprecated [Titanium.Network.TCPSocket](Titanium.Network.TCPSocket) only.
 
-            See <Titanium.Network.Socket> for constants used with
-            <Titanium.Network.Socket.TCP> sockets.
+            See [Socket](Titanium.Network.Socket) for constants used with
+            [TCP](Titanium.Network.Socket.TCP) sockets.
     summary: Constant value specifying write-only mode for sockets.
     type: Number
     permission: read-only
@@ -640,14 +570,14 @@ properties:
     type: Number
     permission: read-only
     since: {android: "3.6.0", iphone: "1.8.0.1", ipad: "1.8.0.1"}
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: TLS_VERSION_1_1
     summary: Constant value specifying TLS version 1.1 for SSL.
     type: Number
     permission: read-only
     since: {android: "3.6.0", iphone: "1.8.0.1", ipad: "1.8.0.1"}
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     osver: {android: {min: "4.1"}, ios: {min: "5.0"}}
 
   - name: TLS_VERSION_1_2
@@ -655,21 +585,29 @@ properties:
     type: Number
     permission: read-only
     since: {android: "3.6.0", iphone: "1.8.0.1", ipad: "1.8.0.1"}
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     osver: {android: {min: "4.1"}, ios: {min: "5.0"}}
+
+  - name: TLS_VERSION_1_3
+    summary: Constant value specifying TLS version 1.3 for SSL.
+    type: Number
+    permission: read-only
+    since: {android: "8.3.0", iphone: "8.3.0", ipad: "8.3.0"}
+    platforms: [android, iphone, ipad, macos]
+    osver: {android: {min: "10.0"}, ios: {min: "12.2"}}
 
   - name: PROGRESS_UNKNOWN
     summary: Constant value specifying that the progress of a download can not be calculated.
     type: Number
     permission: read-only
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     since: "3.5.0"
 
   - name: allHTTPCookies
     summary: A list of all cookies in the cookie storage.
     type: Array<Titanium.Network.Cookie>
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "3.3.0"
 
   - name: networkType
@@ -686,10 +624,14 @@ properties:
     permission: read-only
 
   - name: online
-    summary: Boolean value indicating if the device can reach the Internet.
+    summary: Boolean value indicating if the device is connected to the network.
     description: |
-        The `online` property is `true` if the device can currently reach the Internet
-        using either WiFi, mobile network or LAN.
+        The `online` property is `true` if the device has network access via WiFi,
+        LAN, or mobile/cellular network.
+
+        Note that if the device is connected to a private network without Internet access,
+        then this property will be `true` as well. This means you cannot assume the device
+        has Internet access if it's connected to the network.
     type: Boolean
     permission: read-only
 
@@ -697,13 +639,13 @@ properties:
     summary: |
         Remote device UUID if the device is registered with the Apple Push Notification
         Service, or null if it is not registered.
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     type: String
     permission: read-only
 
   - name: remoteNotificationTypes
     summary: Array of push notification type constants enabled for the application.
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     type: Array<Number>
     permission: read-only
 
@@ -711,7 +653,7 @@ properties:
     summary: |
         Indicates whether push  notifications have been enabled using
         [registerForPushNotifications](Titanium.Network.registerForPushNotifications).
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     type: Boolean
     permission: read-only
 
@@ -724,12 +666,9 @@ properties:
   - name: types
     summary: Array of `NOTIFICATION_TYPE` constants that the application would like to receive.
     description: |
-        For iOS 8 and later, setting the `types` property with the
-        <Titanium.Network.registerForPushNotifications> method has no effect.
+        Setting the `types` property with the <Titanium.Network.registerForPushNotifications> method has no effect.
 
-        For devices running iOS 8 and later, use the
-        [Titanium.App.iOS.registerUserNotificationSettings](Titanium.App.iOS.registerUserNotificationSettings)
-        method to register the notification types to receive.
+        Use the <Titanium.App.iOS.registerUserNotificationSettings> method to register the notification types to receive.
     type: Array<Number>
     constants: Titanium.Network.NOTIFICATION_TYPE_*
   - name: success
@@ -809,11 +748,10 @@ properties:
     description: |
         For more information, see the following item in the iOS Developer Library:
 
-        [application:didReceiveRemoteNotification in the UIApplicationDelegate Protocol
-        Reference](http://developer.apple.com/library/ios/#DOCUMENTATION/UIKit/Reference/UIApplicationDelegate_Protocol/Reference/Reference.html#//apple_ref/occ/intfm/UIApplicationDelegate/application:didReceiveRemoteNotification:)
+        [`application:didReceiveRemoteNotification:fetchCompletionHandler` in the UIApplicationDelegate Protocol
+        Reference](https://developer.apple.com/documentation/uikit/uiapplicationdelegate/1623013-application)
     type: Dictionary
   - name: inBackground
-    summary: |
-        Boolean indicating if notification was received while app was in background.
-        This property became available in Titanium Mobile 3.1.0 for iOS.
+    summary: Boolean indicating if notification was received while app was in background.
     type: Boolean
+    since: "3.1.0"

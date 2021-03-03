@@ -14,11 +14,6 @@
 
 - (void)_initWithProperties:(NSDictionary *)properties
 {
-  if ([TiUtils forceTouchSupported] == NO) {
-    NSLog(@"[WARN] 3DTouch is not available on this device.");
-    return;
-  }
-
   [self setPreview:[properties valueForKey:@"preview"]];
   [self setContentHeight:[TiUtils intValue:@"contentHeight" def:0]];
 
@@ -59,7 +54,6 @@
 
 - (void)connectToDelegate
 {
-#ifndef __clang_analyzer__
   UIView *nativeSourceView = nil;
 
 #ifdef USE_TI_UILISTVIEW
@@ -84,9 +78,12 @@
     nativeSourceView = [_sourceView view];
   }
   UIViewController *controller = [[[TiApp app] controller] topPresentedController];
-  [controller registerForPreviewingWithDelegate:[[TiPreviewingDelegate alloc] initWithPreviewContext:self]
+  TiPreviewingDelegate *previewingDelegate = [[TiPreviewingDelegate alloc] initWithPreviewContext:self];
+
+  [controller registerForPreviewingWithDelegate:previewingDelegate
                                      sourceView:nativeSourceView];
-#endif
+
+  RELEASE_TO_NIL(previewingDelegate);
 }
 
 @end

@@ -1,6 +1,6 @@
 {
 	"forces files to be copied instead of symlinked for %s builds only": "forces files to be copied instead of symlinked for %s builds only",
-	"identical to the %s flag, except this will also copy the %s libTiCore.a file": "identical to the %s flag, except this will also copy the %s libTiCore.a file",
+	"removed in Titanium SDK 8.0.0 since TiCore was removed in favor of the built-in JavaScriptCore framework": "removed in Titanium SDK 8.0.0 since TiCore was removed in favor of the built-in JavaScriptCore framework",
 	"use the retina version of the iOS Simulator": "use the retina version of the iOS Simulator",
 	"use the 64-bit version of the iOS Simulator": "use the 64-bit version of the iOS Simulator",
 	"focus the iOS Simulator": "focus the iOS Simulator",
@@ -141,7 +141,6 @@
 	"Forcing rebuild: last build was under Titanium SDK version %s and we're compiling for version %s": "Forcing rebuild: last build was under Titanium SDK version %s and we're compiling for version %s",
 	"Forcing rebuild: app id changed from %s to %s": "Forcing rebuild: app id changed from %s to %s",
 	"Forcing rebuild: incomplete version file %s": "Forcing rebuild: incomplete version file %s",
-	"Forcing rebuild: libTiCore hash changed since last build": "Forcing rebuild: libTiCore hash changed since last build",
 	"Forcing rebuild: Titanium SDK path changed since last build": "Forcing rebuild: Titanium SDK path changed since last build",
 	"Forcing rebuild: iOS SDK version changed since last build": "Forcing rebuild: iOS SDK version changed since last build",
 	"Forcing rebuild: device family changed since last build": "Forcing rebuild: device family changed since last build",
