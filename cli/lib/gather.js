@@ -8,7 +8,7 @@ const jsanalyze = require('node-titanium-sdk/lib/jsanalyze');
 const FILENAME_REGEXP = /^(.*)\.(\w+)$/;
 // iOS specific stuff
 const LAUNCH_IMAGE_REGEXP = /^(Default(-(Landscape|Portrait))?(-[0-9]+h)?(@[2-9]x)?)\.png$/;
-const LAUNCH_LOGO_REGEXP = /^LaunchLogo(?:@([23])x)?(?:~(iphone|ipad))?\.(?:png|jpg)$/;
+const LAUNCH_LOGO_REGEXP = /^LaunchLogo(@[23]x)?(~(iphone|ipad))?\.(png|jpg)$/;
 const BUNDLE_FILE_REGEXP = /.+\.bundle\/.+/;
 // Android-specific stuff
 const DRAWABLE_REGEXP = /^images\/(high|medium|low|res-[^/]+)(\/(.*))$/;
@@ -252,23 +252,23 @@ class Categorizer {
 				break;
 
 			case 'png':
-				// check if we have an app icon
-				// FIXME: Only check for these in files in root of the src dir! How can we tell? check against relPath instead of name?
-				// if (!origSrc) { // I think this is to try and only check in the first root src dir?
-				if (this.appIconRegExp) {
-					const m = info.name.match(this.appIconRegExp); // FIXME: info.name doesn't include extension right now!
-					if (m) {
-						info.tag = m[1];
-						results.appIcons.set(relPath, info);
+				if (this.platform === 'ios') {
+					// check if we have an app icon
+					// Only check for these in files in root of the src dir by comparing relative path
+					if (this.appIconRegExp) {
+						const m = relPath.match(this.appIconRegExp);
+						if (m) {
+							info.tag = m[1];
+							results.appIcons.set(relPath, info);
+							return;
+						}
+					}
+
+					if (relPath.match(LAUNCH_IMAGE_REGEXP)) {
+						results.launchImages.set(relPath, info);
 						return;
 					}
 				}
-
-				if (this.platform === 'ios' && LAUNCH_IMAGE_REGEXP.test(info.name)) { // FIXME: info.name doesn't include extension right now!
-					results.launchImages.set(relPath, info);
-					return;
-				}
-				// }
 				// fall through to lump with JPG...
 
 			case 'jpg':
@@ -282,11 +282,11 @@ class Categorizer {
 					if (relPath.match(DRAWABLE_REGEXP)) {
 						results.imageAssets.set(relPath, info);
 						return;
-					} 
+					}
 				} else if (this.platform === 'ios') {
 					// if the image is the LaunchLogo.png, then let that pass so we can use it
 					// in the LaunchScreen.storyboard
-					const m = info.name.match(LAUNCH_LOGO_REGEXP); // FIXME: info.name doesn't include extension right now!
+					const m = info.name.match(LAUNCH_LOGO_REGEXP);
 					if (m) {
 						info.scale = m[1];
 						info.device = m[2];
