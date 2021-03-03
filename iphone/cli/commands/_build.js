@@ -5228,6 +5228,7 @@ iOSBuilder.prototype.gatherResources = async function gatherResources() {
 	const categorizer = new gather.Categorizer({
 		tiappIcon: this.tiapp.icon,
 		useAppThinning: this.useAppThinning,
+		platform: 'ios',
 	});
 	const categorized = await categorizer.run(combined);
 
