@@ -82,7 +82,7 @@
   "dependencies": {
     "always-tail": "^0.2.0",
     "ansi-escapes": "^4.3.1",
-    "appc-tasks": "^1.0.2",
+    "appc-tasks": "^1.0.3",
     "archiver": "^5.2.0",
     "async": "^3.2.0",
     "boxen": "^5.0.0",
