@@ -10,6 +10,9 @@ const FILENAME_REGEXP = /^(.*)\.(\w+)$/;
 const LAUNCH_IMAGE_REGEXP = /^(Default(-(Landscape|Portrait))?(-[0-9]+h)?(@[2-9]x)?)\.png$/;
 const LAUNCH_LOGO_REGEXP = /^LaunchLogo(?:@([23])x)?(?:~(iphone|ipad))?\.(?:png|jpg)$/;
 const BUNDLE_FILE_REGEXP = /.+\.bundle\/.+/;
+// Android-specific stuff
+const DRAWABLE_REGEXP = /^images\/(high|medium|low|res-[^/]+)(\/(.*))$/;
+const ANDROID_SPLASH_REGEXP = /^(images\/(high|medium|low|res-[^/]+)\/)?default\.(9\.png|png|jpg)$/;
 
 /**
  * Merges multiple maps
@@ -47,9 +50,9 @@ class Result {
 		this.appIcons = new Map(); // ios specific
 		this.cssFiles = new Map(); // css files to be processed (minified optionally)
 		this.jsFiles = new Map(); // js files to be processed (transpiled/sourcemapped/minified/etc)
-		this.launchImages = new Map(); // ios specific
+		this.launchImages = new Map(); // Used to create an asset catalog for launch images on iOS, used for splash screen(s) on Android
 		this.launchLogos = new Map(); // ios specific
-		this.imageAssets = new Map(); // ios specific
+		this.imageAssets = new Map(); // used for asset catalogs and app thinning on iOS, used for drawables on Android
 		this.resourcesToCopy = new Map(); // "plain" files to copy to the app
 		this.htmlJsFiles = new Set(); // used internally to track js files we shouldn't process (basically move from jsFiles to resourcesToCopy bucket)
 	}
@@ -205,9 +208,11 @@ class Categorizer {
 	 * @param {string} options.tiappIcon tiapp icon filename
 	 * @param {string[]} [options.jsFilesNotToProcess=[]] listing of JS files explicitly not to process
 	 * @param {boolean} [options.useAppThinning=false] use app thinning?
+	 * @param {string} [options.platform] 'ios', 'android'
 	 */
 	constructor(options) {
 		this.useAppThinning = options.useAppThinning;
+		this.platform = options.platform;
 		this.jsFilesNotToProcess = options.jsFilesNotToProcess || [];
 
 		const appIcon = options.tiappIcon.match(FILENAME_REGEXP);
@@ -251,7 +256,7 @@ class Categorizer {
 				// FIXME: Only check for these in files in root of the src dir! How can we tell? check against relPath instead of name?
 				// if (!origSrc) { // I think this is to try and only check in the first root src dir?
 				if (this.appIconRegExp) {
-					const m = info.name.match(this.appIconRegExp);
+					const m = info.name.match(this.appIconRegExp); // FIXME: info.name doesn't include extension right now!
 					if (m) {
 						info.tag = m[1];
 						results.appIcons.set(relPath, info);
@@ -259,7 +264,7 @@ class Categorizer {
 					}
 				}
 
-				if (LAUNCH_IMAGE_REGEXP.test(info.name)) {
+				if (this.platform === 'ios' && LAUNCH_IMAGE_REGEXP.test(info.name)) { // FIXME: info.name doesn't include extension right now!
 					results.launchImages.set(relPath, info);
 					return;
 				}
@@ -267,22 +272,39 @@ class Categorizer {
 				// fall through to lump with JPG...
 
 			case 'jpg':
-				// if the image is the LaunchLogo.png, then let that pass so we can use it
-				// in the LaunchScreen.storyboard
-				const m = info.name.match(LAUNCH_LOGO_REGEXP);
-				if (m) {
-					info.scale = m[1];
-					info.device = m[2];
-					results.launchLogos.set(relPath, info);
+				if (this.platform === 'android') {
+					// Toss Android splash screens into launchImages
+					if (relPath.match(ANDROID_SPLASH_REGEXP)) {
+						results.launchImages.set(relPath, info);
+						return;
+					}
+					// Toss Android drawables into imageAssets to be processed via ProcessDrawablesTask
+					if (relPath.match(DRAWABLE_REGEXP)) {
+						results.imageAssets.set(relPath, info);
+						return;
+					} 
+				} else if (this.platform === 'ios') {
+					// if the image is the LaunchLogo.png, then let that pass so we can use it
+					// in the LaunchScreen.storyboard
+					const m = info.name.match(LAUNCH_LOGO_REGEXP); // FIXME: info.name doesn't include extension right now!
+					if (m) {
+						info.scale = m[1];
+						info.device = m[2];
+						results.launchLogos.set(relPath, info);
+						return;
+					}
 
-				// if we are using app thinning, then don't copy the image, instead mark the
-				// image to be injected into the asset catalog. Also, exclude images that are
-				// managed by their bundles.
-				} else if (this.useAppThinning && !relPath.match(BUNDLE_FILE_REGEXP)) {
-					results.imageAssets.set(relPath, info);
-				} else {
-					results.resourcesToCopy.set(relPath, info);
+					// if we are using app thinning, then don't copy the image, instead mark the
+					// image to be injected into the asset catalog. Also, exclude images that are
+					// managed by their bundles.
+					if (this.useAppThinning && !relPath.match(BUNDLE_FILE_REGEXP)) {
+						results.imageAssets.set(relPath, info);
+						return;
+					}
 				}
+
+				// Normal PNG/JPG, so just copy it
+				results.resourcesToCopy.set(relPath, info);
 				break;
 
 			case 'html':
