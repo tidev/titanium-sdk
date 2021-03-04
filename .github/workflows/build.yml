@@ -83,7 +83,7 @@ jobs:
 
     - name: 'Package build output'
       run: >
-        tar -cvf android-build.tar
+        tar -czvf android-build.tar.gz
         android/kroll-apt/build/libs/kroll-apt.jar
         android/runtime/v8/generated/
         android/titanium/build/outputs/
@@ -95,7 +95,7 @@ jobs:
       with:
         name: android-build
         retention-days: 1
-        path: android-build.tar
+        path: android-build.tar.gz
 
     - name: Cleanup Gradle Cache
       # Remove some files from the Gradle cache, so they aren't cached by GitHub Actions.
@@ -149,7 +149,7 @@ jobs:
 
     - name: 'Package build output'
       run: >
-        tar -cvf ios-build.tar
+        tar -czvf ios-build.tar.gz
         dist/tmp/common
         iphone/TitaniumKit/build/TitaniumKit.xcframework
 
@@ -157,7 +157,7 @@ jobs:
       with:
         name: ios-build
         retention-days: 1
-        path: ios-build.tar
+        path: ios-build.tar.gz
 
   js:
     runs-on: ubuntu-latest
@@ -235,14 +235,14 @@ jobs:
         name: android-build
 
     - name: 'Extract Android build output'
-      run: tar -xvf android-build.tar
+      run: tar -xzvf android-build.tar.gz
 
     - uses: actions/download-artifact@v2
       with:
         name: ios-build
 
     - name: 'Extract iOS build output'
-      run: tar -xvf ios-build.tar
+      run: tar -xzvf ios-build.tar.gz
 
     - run: npm run package -- --version-tag ${{ env.vtag }} --all
       name: Package
