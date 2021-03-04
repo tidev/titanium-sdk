@@ -2380,23 +2380,93 @@ AndroidBuilder.prototype.generateAppProject = async function generateAppProject(
 };
 
 /**
+ * Function to be passed to the Walker object as an "entryCallback" option.
+ * Invoked for each entry found by the walk() method to override res drawable image handling.
+ * @param {object} params Provides to/from entry information.
+ */
+AndroidBuilder.prototype.onWalkCallback = async function onWalkCallback(params) {
+	// Do not apply below check if given entry is not a file.
+	if (params.isDirectory) {
+		return;
+	}
+
+	// Define regualar expression for the below.
+	const drawableRegExp = /^images\/(high|medium|low|res-[^/]+)(\/(.*))/;
+	const drawableDpiRegExp = /^(high|medium|low)$/;
+	const drawableExtRegExp = /((\.9)?\.(png|jpg))$/;
+	const splashScreenRegExp = /^default\.(9\.png|png|jpg)$/;
+
+	// If given an "image/res-*" file, then override destination path to APK's "res/drawable-*" folder.
+	const relativePath = params.fromPath.replace(params.rootSourceDir, '').replace(/\\/g, '/').replace(/^\//, '');
+	let matches = relativePath.match(drawableRegExp);
+	if (matches && (matches.length >= 4) && matches[3]) {
+		const destFilename = matches[3];
+		const destLowerCaseFilename = destFilename.toLowerCase();
+		const extMatch = destLowerCaseFilename.match(drawableExtRegExp);
+		const origExt = extMatch && extMatch[1] || '';
+		const destDirPath = path.join(
+			this.buildAppMainResDir,
+			drawableDpiRegExp.test(matches[1]) ? 'drawable-' + matches[1][0] + 'dpi' : 'drawable-' + matches[1].substring(4)
+		);
+		if (splashScreenRegExp.test(params.fromDirent.name)) {
+			// We have a splash screen image.
+			params.toPath = path.join(destDirPath, 'background' + origExt);
+		} else {
+			// We have a drawable image file. (Rename it if it contains invalid characters.)
+			let warningMessages = [];
+			if (destFilename.includes('/') || destFilename.includes('\\')) {
+				warningMessages.push(__('- Files cannot be put into subdirectories.'));
+			}
+			let destFilteredFilename = destLowerCaseFilename.replace(drawableExtRegExp, '');
+			destFilteredFilename = destFilteredFilename.replace(/[^a-z0-9_]/g, '_') + origExt;
+			if (destFilteredFilename !== destFilename) {
+				warningMessages.push(__('- Names must contain only lowercase a-z, 0-9, or underscore.'));
+			}
+			if (/^\d/.test(destFilteredFilename)) {
+				warningMessages.push(__('- Names cannot start with a number.'));
+				destFilteredFilename = '_' + destFilteredFilename;
+			}
+			if (warningMessages.length > 0) {
+				this.logger.warn(__(`Invalid "res" file: ${path.relative(this.projectDir, params.fromPath)}`));
+				for (const nextMessage of warningMessages) {
+					this.logger.warn(nextMessage);
+				}
+				this.logger.warn(__(`- Titanium will rename to: ${destFilteredFilename}`));
+			}
+			params.toPath = path.join(destDirPath, destFilteredFilename);
+		}
+	} else if (matches = relativePath.match(splashScreenRegExp)) {
+		// We have a splash screen image.
+		let destDirPath = this.buildAppMainResDrawableDir;
+		if (matches[1] === '9.png') {
+			destDirPath = path.join(this.buildAppMainResDir, 'drawable-nodpi');
+		}
+		params.toPath = path.join(destDirPath, params.fromDirent.name.replace('default.', 'background.'));
+	}
+};
+
+/**
  * Walks the project resources/assets, module resources/assets and gathers up a categorized listing
  * of files to process. (css, html, js, images, etc)
  * @returns {Promise<Result>}
  */
 AndroidBuilder.prototype.gatherResources = async function gatherResources() {
+	// Set up the directory tree walker.
 	const gather = require('../../../cli/lib/gather');
 	const walker = new gather.Walker({
 		ignoreDirs: this.ignoreDirs,
 		ignoreFiles: this.ignoreFiles,
+		entryCallback: async (params) => {
+			return this.onWalkCallback(params);
+		},
 	});
 
+	// Fetch "Resources" file tree from the Titanium SDK and app project.
+	// Note: Order matters. App's files should be listed last so that they can override SDK's files of the same name.
 	this.logger.info(__('Analyzing Resources directory'));
 	const firstWave = await Promise.all([
 		walker.walk(path.join(this.titaniumSdkPath, 'common', 'Resources', 'android'), this.buildAppMainAssetsResourcesDir),
-		// NOTE: we copy over platform/android as-is without any transform/walk. Should iOS do the same?
-		// walker.walk(path.join(this.projectDir, 'platform', 'android'), this.buildAppMainDir),
-		walker.walk(path.join(this.projectDir, 'Resources'),           this.buildAppMainAssetsResourcesDir, platformsRegExp),
+		walker.walk(path.join(this.projectDir, 'Resources'), this.buildAppMainAssetsResourcesDir, platformsRegExp),
 		walker.walk(path.join(this.projectDir, 'Resources', 'android'), this.buildAppMainAssetsResourcesDir),
 	]);
 	let combined = gather.mergeMaps(firstWave);
@@ -2511,7 +2581,7 @@ AndroidBuilder.prototype.copyCSSFiles = async function copyCSSFiles(files) {
 };
 
 /**
- * Used to de4termine the destination path for special assets (_app_props_.json, bootstrap.json) based on encyption or not.
+ * Used to determine the destination path for special assets (_app_props_.json, bootstrap.json) based on encyption or not.
  * @returns {string} destination directory to place file
  */
 AndroidBuilder.prototype.buildAssetsPath = function buildAssetsPath() {
@@ -2605,23 +2675,26 @@ AndroidBuilder.prototype.processJSFiles = async function processJSFiles(jsFilesM
 		this.tiSymbols = task.data.tiSymbols;  // record API usage for analytics
 	}
 
-	// Now we need to copy the processed JS files from build/assets to build/app/src/main/assets/Resources
-	const resourcesToCopy = new Map();
-	for (let [ key, value ] of jsFilesMap) {
-		resourcesToCopy.set(key, {
-			src: path.join(this.buildAssetsDir, key),
-			dest: value.dest
+	// Copy all unencrypted files processed by ProcessJsTask to "app" project's APK "assets" directory.
+	// Note: For encrypted builds, our encryptJSFiles() method will write encrypted JS files to the app project.
+	if (!this.encryptJS) {
+		const resourcesToCopy = new Map();
+		for (let [ key, value ] of jsFilesMap) {
+			resourcesToCopy.set(key, {
+				src: path.join(this.buildAssetsDir, key),
+				dest: value.dest
+			});
+			this.unmarkBuildDirFile(value.dest);
+		}
+		const copyTask = new CopyResourcesTask({
+			incrementalDirectory: path.join(this.buildTiIncrementalDir, 'copy-processed-js'),
+			name: 'copy-processed-js',
+			logger: this.logger,
+			builder: this,
+			files: resourcesToCopy
 		});
-		this.unmarkBuildDirFile(value.dest);
+		await copyTask.run();
 	}
-	const copyTask = new CopyResourcesTask({
-		incrementalDirectory: path.join(this.buildTiIncrementalDir, 'copy-processed-js'),
-		name: 'copy-processed-js',
-		logger: this.logger,
-		builder: this,
-		files: resourcesToCopy
-	});
-	await copyTask.run();
 
 	// then write the bootstrap json
 	return this.writeBootstrapJson(jsBootstrapFiles);
@@ -2657,13 +2730,6 @@ AndroidBuilder.prototype.copyPlatformDirs = async function copyPlatformDirs() {
 			platformDirPaths.push(path.join(module.modulePath, 'platform', 'android'));
 		}
 	}
-	const googleServicesFile = path.join(this.projectDir, 'platform', 'android', 'google-services.json');
-	if (await fs.exists(googleServicesFile)) {
-		afs.copyFileSync(googleServicesFile, path.join(this.buildAppDir, 'google-services.json'), {
-			logger: this.logger.debug,
-			preserve: true
-		});
-	}
 	platformDirPaths.push(path.join(this.projectDir, 'platform', 'android'));
 	for (const nextPath of platformDirPaths) {
 		if (await fs.exists(nextPath)) {
@@ -2672,6 +2738,14 @@ AndroidBuilder.prototype.copyPlatformDirs = async function copyPlatformDirs() {
 				preserve: true
 			});
 		}
+	}
+
+	const googleServicesFile = path.join(this.projectDir, 'platform', 'android', 'google-services.json');
+	if (await fs.exists(googleServicesFile)) {
+		afs.copyFileSync(googleServicesFile, path.join(this.buildAppDir, 'google-services.json'), {
+			logger: this.logger.debug,
+			preserve: true
+		});
 	}
 };
 

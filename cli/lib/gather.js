@@ -96,10 +96,14 @@ class Walker {
 	 * @param {object} [options] options
 	 * @param {RegExp} [options.ignoreDirs=undefined] RegExp used to filter directories
 	 * @param {RegExp} [options.ignoreFiles=undefined] RegExp used to filter files
+	 * @param {function(object):Promise<void>} [options.entryCallback=undefined]
+	 * Callback that is invoked for every file/directory entry found by the walk() method.
+	 * Can be used to "exclude" the entry from being gathered or change the "toPath" destination.
 	 */
 	constructor(options) {
 		this.ignoreDirs = options.ignoreDirs;
 		this.ignoreFiles = options.ignoreFiles;
+		this.entryCallback = options.entryCallback;
 	}
 
 	/**
@@ -157,44 +161,53 @@ class Walker {
 	 * @param {string} [prefix] prefix to be used in relative path in place of origSrc || src
 	 */
 	async _visitListing(results, dirent, src, dest, ignore, origSrc, prefix) {
+		// Apply file/directory name ignore filter.
 		const name = dirent.name;
-		if (ignore && ignore.test(name)) { // if we should ignore this file/dir, skip it
+		if (ignore && ignore.test(name)) {
 			return;
 		}
 
-		const from = path.join(src, name);
-		const to = path.join(dest, name);
-		//  If it's a symlink we need to resolve if it's truly a directory or file...
+		// Set up our to/from copy parameters.
+		const params = {
+			fromDirent: dirent,
+			fromPath: path.join(src, name),
+			toPath: path.join(dest, name),
+			rootSourceDir: origSrc || src,
+			exclude: false,
+		};
 		if (dirent.isSymbolicLink()) {
-			dirent = await fs.stat(from); // thankfully both fs.Stats and fs.Dirent have isDirectoyr() methods on them
+			params.isDirectory = (await fs.stat(params.fromPath)).isDirectory();
+		} else {
+			params.isDirectory = await dirent.isDirectory();
 		}
-		if (dirent.isDirectory()) {
-			if (this.ignoreDirs && this.ignoreDirs.test(name)) { // if we should ignore this dir, skip it
+
+		// Apply ignore file/directory filters.
+		if (params.isDirectory) {
+			if (this.ignoreDirs && this.ignoreDirs.test(name)) {
 				return;
 			}
-			// recurse
-			return this._walkDir(results, from, to, null, origSrc || src, prefix);
-		}
-
-		return this._visitFile(results, from, to, name, src, origSrc, prefix);
-	}
-
-	/**
-	 * @param {Map<string, FileInfo>} results collecting results
-	 * @param {string} from full source filepath
-	 * @param {string} to full destination filepath
-	 * @param {string} name base filename
-	 * @param {string} src source directory path
-	 * @param {string} [origSrc] original source dir/path
-	 * @param {string} [prefix] prefix to be used in relative path in place of origSrc || src
-	 */
-	_visitFile(results, from, to, name, src, origSrc, prefix) {
-		// if we should ignore this file, skip it
-		if (this.ignoreFiles && this.ignoreFiles.test(name)) {
+		} else if (this.ignoreFiles && this.ignoreFiles.test(name)) {
 			return;
 		}
-		const info = new FileInfo(name, from, to);
-		const relPath = from.replace((origSrc || src) + path.sep, prefix ? prefix + path.sep : '').replace(/\\/g, '/');
+
+		// Allow a callback to override entry handling such as changing the "toPath" or to "exclude" the entry.
+		// Note: Above ignore patterns must always be applied first.
+		if (this.entryCallback) {
+			await Promise.resolve(this.entryCallback(params));
+			if (params.exclude) {
+				return;
+			}
+		}
+
+		// If this is a directory, then walk its file tree.
+		if (params.isDirectory) {
+			return this._walkDir(results, params.fromPath, params.toPath, null, params.rootSourceDir, prefix);
+		}
+
+		// Add file to the collection.
+		const info = new FileInfo(name, params.fromPath, params.toPath);
+		const relPath = params.fromPath.replace(
+			params.rootSourceDir + path.sep, prefix ? prefix + path.sep : '').replace(/\\/g, '/');
 		results.set(relPath, info);
 	}
 }
