@@ -2488,6 +2488,7 @@ AndroidBuilder.prototype.gatherResources = async function gatherResources() {
 
 	// Fire an event requesting additional "Resources" paths from plugins. (used by hyperloop)
 	this.logger.info(__('Analyzing plugin-contributed files'));
+	this.htmlJsFiles = {}; // for hyperloop to mark files it doesn't want processed
 	const hook = this.cli.createHook('build.android.requestResourcesDirPaths', this, async (paths, done) => {
 		try {
 			const newTasks = [];
@@ -2560,6 +2561,7 @@ AndroidBuilder.prototype.gatherResources = async function gatherResources() {
 	// now categorize (i.e. lump into buckets of js/css/html/assets/generic resources)
 	const categorizer = new gather.Categorizer({
 		tiappIcon: this.tiapp.icon,
+		jsFilesNotToProcess: Object.keys(this.htmlJsFiles)
 	});
 	return await categorizer.run(combined);
 };
