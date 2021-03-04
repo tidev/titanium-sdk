@@ -2634,23 +2634,27 @@ AndroidBuilder.prototype.processJSFiles = async function processJSFiles(jsFilesM
 		this.tiSymbols = task.data.tiSymbols;  // record API usage for analytics
 	}
 
-	// Now we need to copy the processed JS files from build/assets to build/app/src/main/assets/Resources
-	const resourcesToCopy = new Map();
-	for (let [ key, value ] of jsFilesMap) {
-		resourcesToCopy.set(key, {
-			src: path.join(this.buildAssetsDir, key),
-			dest: value.dest
+	// Copy all unencrypted files processed by ProcessJsTask to "app" project's APK "assets" directory.
+	// Note: For encrypted builds, our encryptJSFiles() method will write encrypted JS files to the app project.
+	if (!this.encryptJS) {
+		// Now we need to copy the processed JS files from build/assets to build/app/src/main/assets/Resources
+		const resourcesToCopy = new Map();
+		for (let [ key, value ] of jsFilesMap) {
+			resourcesToCopy.set(key, {
+				src: path.join(this.buildAssetsDir, key),
+				dest: value.dest
+			});
+			this.unmarkBuildDirFile(value.dest);
+		}
+		const copyTask = new CopyResourcesTask({
+			incrementalDirectory: path.join(this.buildTiIncrementalDir, 'copy-processed-js'),
+			name: 'copy-processed-js',
+			logger: this.logger,
+			builder: this,
+			files: resourcesToCopy
 		});
-		this.unmarkBuildDirFile(value.dest);
+		await copyTask.run();
 	}
-	const copyTask = new CopyResourcesTask({
-		incrementalDirectory: path.join(this.buildTiIncrementalDir, 'copy-processed-js'),
-		name: 'copy-processed-js',
-		logger: this.logger,
-		builder: this,
-		files: resourcesToCopy
-	});
-	await copyTask.run();
 
 	// then write the bootstrap json
 	return this.writeBootstrapJson(jsBootstrapFiles);
