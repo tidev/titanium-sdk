@@ -203,10 +203,12 @@ class Categorizer {
 	/**
 	 * @param {object} options options
 	 * @param {string} options.tiappIcon tiapp icon filename
+	 * @param {string[]} [options.jsFilesNotToProcess=[]] listing of JS files explicitly not to process
 	 * @param {boolean} [options.useAppThinning=false] use app thinning?
 	 */
 	constructor(options) {
 		this.useAppThinning = options.useAppThinning;
+		this.jsFilesNotToProcess = options.jsFilesNotToProcess || [];
 
 		const appIcon = options.tiappIcon.match(FILENAME_REGEXP);
 		this.appIconRegExp = appIcon && new RegExp('^' + appIcon[1].replace(/\./g, '\\.') + '(.*)\\.png$'); // eslint-disable-line security/detect-non-literal-regexp
@@ -222,6 +224,7 @@ class Categorizer {
 		map.forEach((value, key) => {
 			this._handleFile(results, key, value);
 		});
+		this.jsFilesNotToProcess.forEach(file => results.htmlJsFiles.add(file));
 		results.dontProcessJsFilesReferencedFromHTML();
 		return results;
 	}
