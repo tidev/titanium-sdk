@@ -168,9 +168,6 @@ properties:
     since: 10.0.0
     platforms: [android, iphone, ipad, macos]
     accessors: false
-    deprecated:
-        since: "10.0.0"
-        notes: This property has been deprecated in favor of backgroundSelectedImage.
 
   - name: backgroundSelectedGradient
     summary: Background gradient to render when the item is selected.
