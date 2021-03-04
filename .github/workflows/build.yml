@@ -110,7 +110,6 @@ jobs:
     env:
       CCACHE_DIR: ${{ github.workspace }}/.ccache
       USE_CCACHE: 1
-      SDK_BUILD_CACHE_DIR: ${{ github.workspace }}/.native-modules
     steps:
     - uses: actions/checkout@v2
 
@@ -138,14 +137,6 @@ jobs:
 
     - run: npm run build:ios
       name: Build
-
-    - name: Cache Native Modules
-      uses: actions/cache@v2
-      with:
-        path: ${{ env.SDK_BUILD_CACHE_DIR }}
-        key: native-modules-${{ github.sha }}
-        restore-keys: |
-          native-modules-
 
     - name: 'Package build output'
       run: >
@@ -190,6 +181,8 @@ jobs:
   package:
     runs-on: macos-latest
     name: Package
+    env:
+      SDK_BUILD_CACHE_DIR: ${{ github.workspace }}/.native-modules
     needs: [android, ios, js]
     steps:
     - uses: actions/checkout@v2
@@ -244,6 +237,14 @@ jobs:
     - name: 'Extract iOS build output'
       run: tar -xzvf ios-build.tar.gz
 
+    - name: Cache Native Modules
+      uses: actions/cache@v2
+      with:
+        path: ${{ env.SDK_BUILD_CACHE_DIR }}
+        key: native-modules-${{ github.sha }}
+        restore-keys: |
+          native-modules-
+
     - run: npm run package -- --version-tag ${{ env.vtag }} --all
       name: Package
 
@@ -274,3 +275,9 @@ jobs:
       run: |
         rm -f ~/.gradle/caches/modules-2/modules-2.lock
         rm -f ~/.gradle/caches/modules-2/gc.properties
+
+    - uses: geekyeggo/delete-artifact@v1
+      with:
+        name: |
+          android-build
+          ios-build
