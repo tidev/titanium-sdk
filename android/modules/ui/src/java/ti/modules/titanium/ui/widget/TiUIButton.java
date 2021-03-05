@@ -11,6 +11,7 @@ import java.util.HashMap;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
+import org.appcelerator.titanium.R;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiC;
@@ -21,6 +22,7 @@ import org.appcelerator.titanium.view.TiDrawableReference;
 import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.AttributedStringProxy;
+import ti.modules.titanium.ui.UIModule;
 
 import android.graphics.Color;
 import android.graphics.PorterDuff.Mode;
@@ -28,7 +30,7 @@ import android.graphics.drawable.Drawable;
 import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.MotionEvent;
-import androidx.appcompat.widget.AppCompatButton;
+import com.google.android.material.button.MaterialButton;
 
 public class TiUIButton extends TiUIView
 {
@@ -44,8 +46,34 @@ public class TiUIButton extends TiUIView
 	public TiUIButton(final TiViewProxy proxy)
 	{
 		super(proxy);
+
 		Log.d(TAG, "Creating a button", Log.DEBUG_MODE);
-		AppCompatButton btn = new AppCompatButton(proxy.getActivity()) {
+
+		int styleId = UIModule.BUTTON_STYLE_FILLED;
+		styleId = TiConvert.toInt(proxy.getProperty(TiC.PROPERTY_STYLE), styleId);
+		switch (styleId) {
+			case UIModule.BUTTON_STYLE_OPTION_POSITIVE:
+				styleId = R.attr.buttonBarPositiveButtonStyle;
+				break;
+			case UIModule.BUTTON_STYLE_OPTION_NEGATIVE:
+				styleId = R.attr.buttonBarNegativeButtonStyle;
+				break;
+			case UIModule.BUTTON_STYLE_OPTION_NEUTRAL:
+				styleId = R.attr.buttonBarNeutralButtonStyle;
+				break;
+			case UIModule.BUTTON_STYLE_OUTLINED:
+				styleId = R.attr.materialButtonOutlinedStyle;
+				break;
+			case UIModule.BUTTON_STYLE_TEXT:
+				styleId = R.attr.borderlessButtonStyle;
+				break;
+			case UIModule.BUTTON_STYLE_FILLED:
+			default:
+				styleId = R.attr.materialButtonStyle;
+				break;
+		}
+
+		MaterialButton btn = new MaterialButton(proxy.getActivity(), null, styleId) {
 			@Override
 			public boolean onFilterTouchEventForSecurity(MotionEvent event)
 			{
@@ -77,7 +105,7 @@ public class TiUIButton extends TiUIView
 
 		boolean needShadow = false;
 
-		AppCompatButton btn = (AppCompatButton) getNativeView();
+		MaterialButton btn = (MaterialButton) getNativeView();
 		if (d.containsKey(TiC.PROPERTY_IMAGE)) {
 			Object value = d.get(TiC.PROPERTY_IMAGE);
 			TiDrawableReference drawableRef = null;
@@ -161,7 +189,7 @@ public class TiUIButton extends TiUIView
 		if (Log.isDebugModeEnabled()) {
 			Log.d(TAG, "Property: " + key + " old: " + oldValue + " new: " + newValue, Log.DEBUG_MODE);
 		}
-		AppCompatButton btn = (AppCompatButton) getNativeView();
+		MaterialButton btn = (MaterialButton) getNativeView();
 		if (key.equals(TiC.PROPERTY_TITLE)) {
 			btn.setText((String) newValue);
 		} else if (key.equals(TiC.PROPERTY_ATTRIBUTED_STRING) && newValue instanceof AttributedStringProxy) {
@@ -213,7 +241,7 @@ public class TiUIButton extends TiUIView
 
 	private void setAttributedStringText(AttributedStringProxy attrString)
 	{
-		AppCompatButton btn = (AppCompatButton) getNativeView();
+		MaterialButton btn = (MaterialButton) getNativeView();
 
 		if (btn == null) {
 			return;

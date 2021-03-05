@@ -47,7 +47,7 @@ public class TableViewHolder extends TiRecyclerViewHolder
 {
 	private static final String TAG = "TableViewHolder";
 
-	private static ColorStateList defaultTextColors = null;
+	private ColorStateList defaultTextColors = null;
 
 	// Top
 	private final TiCompositeLayout header;
@@ -85,9 +85,7 @@ public class TableViewHolder extends TiRecyclerViewHolder
 		this.content = viewGroup.findViewById(R.id.titanium_ui_tableview_holder_content);
 
 		this.title = viewGroup.findViewById(R.id.titanium_ui_tableview_holder_content_title);
-		if (defaultTextColors == null) {
-			defaultTextColors = this.title.getTextColors();
-		}
+		this.defaultTextColors = this.title.getTextColors();
 
 		this.rightImage = viewGroup.findViewById(R.id.titanium_ui_tableview_holder_right_image);
 
@@ -206,7 +204,7 @@ public class TableViewHolder extends TiRecyclerViewHolder
 			} else {
 
 				// Set default `title` color from current theme.
-				this.title.setTextColor(defaultTextColors);
+				this.title.setTextColor(this.defaultTextColors);
 			}
 
 			// Handle row left and right images.

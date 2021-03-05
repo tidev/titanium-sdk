@@ -198,6 +198,8 @@ describe('Titanium.App', () => {
 			it.iosBroken('can be assigned a Boolean value', () => { // iOS does it async? I don't know
 				Ti.App.proximityDetection = true;
 				should(Ti.App.proximityDetection).be.true();
+				Ti.App.proximityDetection = false;
+				should(Ti.App.proximityDetection).be.false();
 			});
 
 			it('has no accessors', () => {

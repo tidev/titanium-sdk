@@ -29,7 +29,7 @@
 		</intent>
 	</queries>
 
-	<application android:name=".TitaniumTestApplication" android:icon="@drawable/appicon" android:label="TitaniumTest" android:theme="@style/Theme.MaterialComponents.Bridge" android:usesCleartextTraffic="true">
+	<application android:name=".TitaniumTestApplication" android:icon="@drawable/appicon" android:label="TitaniumTest" android:theme="@style/Theme.Titanium.App" android:usesCleartextTraffic="true">
 		<!-- The root Titanium splash activity which hosts the JS runtime. -->
 		<activity android:name=".TitaniumTestActivity" android:theme="@style/Theme.Titanium" android:alwaysRetainTaskState="true" android:configChanges="${tiActivityConfigChanges}">
 			<intent-filter>
