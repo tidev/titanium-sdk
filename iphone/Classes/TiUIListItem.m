@@ -393,7 +393,7 @@
   switch (_templateStyle) {
   case UITableViewCellStyleSubtitle:
   case UITableViewCellStyleValue1:
-  case UITableViewCellStyleValue2:
+  case UITableViewCellStyleValue2: {
     self.detailTextLabel.text = [[properties objectForKey:@"subtitle"] description];
     self.detailTextLabel.backgroundColor = [UIColor clearColor];
 
@@ -420,9 +420,11 @@
                       }];
       }
     }
+    break;
+  }
 
   // pass through
-  case UITableViewCellStyleDefault:
+  case UITableViewCellStyleDefault: {
     self.textLabel.text = [[properties objectForKey:@"title"] description];
     self.textLabel.backgroundColor = [UIColor clearColor];
     if (_templateStyle != UITableViewCellStyleValue2) {
@@ -476,8 +478,9 @@
       }
     }
     break;
+  }
 
-  default:
+  default: {
     [dataItem enumerateKeysAndObjectsUsingBlock:^(NSString *bindId, id dict, BOOL *stop) {
       if (![dict isKindOfClass:[NSDictionary class]] || [bindId isEqualToString:@"properties"]) {
         return;
@@ -505,6 +508,7 @@
       }
     }];
     break;
+  }
   }
   id accessoryTypeValue = [properties objectForKey:@"accessoryType"];
   if ([self shouldUpdateValue:accessoryTypeValue forKeyPath:@"accessoryType"]) {
