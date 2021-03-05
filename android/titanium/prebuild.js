@@ -17,7 +17,7 @@ const generateBootstrap = require('./genBootstrap');
 const runtimeV8DirPath = path.join(__dirname, '..', 'runtime', 'v8');
 
 // Determine if we're running on a Windows machine.
-const isWindows = (process.platform === 'win32');
+const isWindows = process.platform === 'win32';
 
 /**
  * Double quotes given path and escapes double quote characters in file/directory names.

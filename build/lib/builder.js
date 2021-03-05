@@ -16,8 +16,10 @@ const ROOT_DIR = path.join(__dirname, '..', '..');
 const DIST_DIR = path.join(ROOT_DIR, 'dist');
 const TMP_DIR = path.join(DIST_DIR, 'tmp');
 
-// platforms/OS mappings
-const ALL_OSES = [ 'win32', 'linux', 'osx' ];
+// Platforms/OS mappings
+// NOTE: 'linux' could be added, but is not officially supported.
+// Specifying --all will only produce a linux output on a linux host.
+const ALL_OSES = Array.from(new Set([ 'win32', 'osx', thisOS() ]));
 const ALL_PLATFORMS = [ 'ios', 'android' ];
 const OS_TO_PLATFORMS = {
 	win32: [ 'android' ],
