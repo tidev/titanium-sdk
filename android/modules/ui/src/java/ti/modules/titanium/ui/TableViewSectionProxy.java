@@ -283,6 +283,20 @@ public class TableViewSectionProxy extends TiViewProxy
 	}
 
 	/**
+	 * Sets the activity this proxy's view should be attached to.
+	 * @param activity The activity this proxy's view should be attached to.
+	 */
+	@Override
+	public void setActivity(Activity activity)
+	{
+		super.setActivity(activity);
+
+		for (TableViewRowProxy row : this.rows) {
+			row.setActivity(activity);
+		}
+	}
+
+	/**
 	 * String definition of proxy instance.
 	 */
 	@Override

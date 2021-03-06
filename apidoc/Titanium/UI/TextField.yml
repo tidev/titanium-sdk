@@ -213,10 +213,14 @@ properties:
 
   - name: borderStyle
     summary: Border style for the field.
+    description: On Android, this is a creation-only property and cannot be changed dynamically.
     type: Number
     constants: Titanium.UI.INPUT_BORDERSTYLE_*
-    default: <Titanium.UI.INPUT_BORDERSTYLE_NONE>
-    platforms: [iphone, ipad, macos]
+    default: |
+        <Titanium.UI.INPUT_BORDERSTYLE_NONE> (on iOS),
+        <Titanium.UI.INPUT_BORDERSTYLE_FILLED> (on Android)
+    platforms: [android, iphone, ipad, macos]
+    since: {android: 10.0.0, iphone: 0.8.0, ipad: 0.8.0, macos: 9.2.0}
 
   - name: clearButtonMode
     summary: Determines when the clear button is displayed.
