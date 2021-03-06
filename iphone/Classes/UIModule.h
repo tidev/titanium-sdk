@@ -102,8 +102,10 @@
 
 @property (nonatomic, readonly) NSNumber *INPUT_BORDERSTYLE_NONE;
 @property (nonatomic, readonly) NSNumber *INPUT_BORDERSTYLE_LINE;
+@property (nonatomic, readonly) NSNumber *INPUT_BORDERSTYLE_UNDERLINED;
 @property (nonatomic, readonly) NSNumber *INPUT_BORDERSTYLE_BEZEL;
 @property (nonatomic, readonly) NSNumber *INPUT_BORDERSTYLE_ROUNDED;
+@property (nonatomic, readonly) NSNumber *INPUT_BORDERSTYLE_FILLED;
 
 @property (nonatomic, readonly) NSNumber *PORTRAIT;
 @property (nonatomic, readonly) NSNumber *LANDSCAPE_LEFT;
@@ -147,6 +149,18 @@
 @property (nonatomic, readonly) NSNumber *BLEND_MODE_XOR;
 @property (nonatomic, readonly) NSNumber *BLEND_MODE_PLUS_DARKER;
 @property (nonatomic, readonly) NSNumber *BLEND_MODE_PLUS_LIGHTER;
+
+@property (nonatomic, readonly) NSNumber *BUTTON_STYLE_FILLED;
+@property (nonatomic, readonly) NSNumber *BUTTON_STYLE_OUTLINED;
+@property (nonatomic, readonly) NSNumber *BUTTON_STYLE_TEXT;
+@property (nonatomic, readonly) NSNumber *BUTTON_STYLE_OPTION_POSITIVE;
+@property (nonatomic, readonly) NSNumber *BUTTON_STYLE_OPTION_NEGATIVE;
+@property (nonatomic, readonly) NSNumber *BUTTON_STYLE_OPTION_NEUTRAL;
+
+@property (nonatomic, readonly) NSNumber *SWITCH_STYLE_SLIDER;
+@property (nonatomic, readonly) NSNumber *SWITCH_STYLE_CHECKBOX;
+@property (nonatomic, readonly) NSNumber *SWITCH_STYLE_TOGGLE_BUTTON;
+@property (nonatomic, readonly) NSNumber *SWITCH_STYLE_CHIP;
 
 @property (nonatomic, readonly) NSNumber *AUTOLINK_NONE;
 @property (nonatomic, readonly) NSNumber *AUTOLINK_ALL;

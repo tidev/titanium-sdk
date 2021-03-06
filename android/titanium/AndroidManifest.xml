@@ -7,15 +7,15 @@
 		<activity
 			android:name="org.appcelerator.titanium.TiTranslucentActivity"
 			android:configChanges="${tiActivityConfigChanges}"
-			android:theme="@style/Theme.Titanium.Translucent"/>
+			android:theme="@style/Theme.AppDerived.Translucent"/>
 		<activity
 			android:name="ti.modules.titanium.media.TiCameraActivity"
 			android:configChanges="${tiActivityConfigChanges}"
-			android:theme="@style/Theme.Titanium.Translucent.Fullscreen"/>
+			android:theme="@style/Theme.Titanium.Dark.Fullscreen"/>
 		<activity
 			android:name="ti.modules.titanium.media.TiVideoActivity"
 			android:configChanges="${tiActivityConfigChanges}"
-			android:theme="@style/Theme.Titanium.Fullscreen"/>
+			android:theme="@style/Theme.AppDerived.Fullscreen"/>
 		<activity android:name="ti.modules.titanium.ui.android.TiPreferencesActivity"/>
 
 		<provider
