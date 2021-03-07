@@ -15,12 +15,12 @@ import java.util.Locale;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
+import org.appcelerator.titanium.R;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
+import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
-import org.appcelerator.titanium.util.TiRHelper;
-import org.appcelerator.titanium.util.TiRHelper.ResourceNotFoundException;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiUIView;
 
@@ -53,9 +53,9 @@ import android.view.View.OnFocusChangeListener;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.view.inputmethod.EditorInfo;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
+import androidx.appcompat.view.ContextThemeWrapper;
 import com.google.android.material.textfield.TextInputLayout;
 
 public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionListener, OnFocusChangeListener
@@ -66,6 +66,7 @@ public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionLis
 	private boolean disableChangeEvent = false;
 	private int viewHeightInLines;
 	private int maxLines = Integer.MAX_VALUE;
+	private int hintTextPadding;
 	private InputFilterHandler inputFilterHandler;
 
 	protected TiUIEditText tv;
@@ -78,45 +79,69 @@ public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionLis
 
 		this.field = field;
 
-		int tvId;
-		try {
-			tvId = TiRHelper.getResource("layout.titanium_ui_edittext");
-		} catch (ResourceNotFoundException e) {
-			if (Log.isDebugModeEnabled()) {
-				Log.e(TAG, "XML resources could not be found!!!");
-			}
-			return;
+		int borderStyle = UIModule.INPUT_BORDERSTYLE_FILLED;
+		borderStyle = TiConvert.toInt(proxy.getProperty(TiC.PROPERTY_BORDER_STYLE), borderStyle);
+		switch (borderStyle) {
+			case UIModule.INPUT_BORDERSTYLE_BEZEL:
+			case UIModule.INPUT_BORDERSTYLE_LINE:
+			case UIModule.INPUT_BORDERSTYLE_ROUNDED:
+				textInputLayout = new TextInputLayout(new ContextThemeWrapper(
+					proxy.getActivity(), R.style.Widget_MaterialComponents_TextInputLayout_OutlinedBox));
+				textInputLayout.setBoxBackgroundMode(TextInputLayout.BOX_BACKGROUND_OUTLINE);
+				textInputLayout.setBoxBackgroundColor(Color.TRANSPARENT);
+				if (borderStyle == UIModule.INPUT_BORDERSTYLE_ROUNDED) {
+					float radius = (new TiDimension("5dp", TiDimension.TYPE_LEFT)).getAsPixels(textInputLayout);
+					textInputLayout.setBoxCornerRadii(radius, radius, radius, radius);
+				} else {
+					textInputLayout.setBoxCornerRadii(0, 0, 0, 0);
+				}
+				break;
+			case UIModule.INPUT_BORDERSTYLE_NONE:
+			case UIModule.INPUT_BORDERSTYLE_UNDERLINED:
+				textInputLayout = new TextInputLayout(proxy.getActivity());
+				textInputLayout.setBoxBackgroundMode(TextInputLayout.BOX_BACKGROUND_NONE);
+				break;
+			case UIModule.INPUT_BORDERSTYLE_FILLED:
+			default:
+				textInputLayout = new TextInputLayout(proxy.getActivity());
+				textInputLayout.setBoxBackgroundMode(TextInputLayout.BOX_BACKGROUND_FILLED);
+				break;
 		}
-		tv = (TiUIEditText) TiApplication.getAppCurrentActivity().getLayoutInflater().inflate(tvId, null);
-		this.inputFilterHandler = new InputFilterHandler(this.tv);
 
-		tv.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
+		if (textInputLayout.getBoxBackgroundMode() != TextInputLayout.BOX_BACKGROUND_NONE) {
+			this.tv = new TiUIEditText(textInputLayout.getContext());
+		} else {
+			this.tv = new TiUIEditText(proxy.getActivity());
+			if (borderStyle == UIModule.INPUT_BORDERSTYLE_NONE) {
+				this.tv.setBackground(null);
+			}
+		}
+		this.hintTextPadding = this.tv.getPaddingTop();
+		this.inputFilterHandler = new InputFilterHandler(this.tv);
+		this.tv.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
 			@Override
-			public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft, int oldTop,
-									   int oldRight, int oldBottom)
+			public void onLayoutChange(
+				View v, int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom)
 			{
 				TiUIHelper.firePostLayoutEvent(proxy);
 			}
 		});
-
 		if (field) {
-			tv.setSingleLine();
-			tv.setMaxLines(1);
+			this.tv.setSingleLine();
+			this.tv.setMaxLines(1);
 		}
-		registerForTouch(tv);
-		tv.addTextChangedListener(this);
-		tv.setOnEditorActionListener(this);
-		tv.setOnFocusChangeListener(this); // TODO refactor to TiUIView?
-		tv.setIncludeFontPadding(true);
+		registerForTouch(this.tv);
+		this.tv.addTextChangedListener(this);
+		this.tv.setOnEditorActionListener(this);
+		this.tv.setOnFocusChangeListener(this);
+		this.tv.setIncludeFontPadding(true);
 		if (field) {
-			tv.setGravity(Gravity.CENTER_VERTICAL | Gravity.LEFT);
+			this.tv.setGravity(Gravity.CENTER_VERTICAL | Gravity.START);
 		} else {
-			tv.setGravity(Gravity.TOP | Gravity.LEFT);
+			this.tv.setGravity(Gravity.TOP | Gravity.START);
 		}
-
-		textInputLayout = new TextInputLayout(proxy.getActivity());
-		textInputLayout.addView(tv, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
-																  LinearLayout.LayoutParams.MATCH_PARENT));
+		textInputLayout.addView(this.tv, new TextInputLayout.LayoutParams(
+			TextInputLayout.LayoutParams.MATCH_PARENT, TextInputLayout.LayoutParams.MATCH_PARENT));
 
 		setNativeView(textInputLayout);
 	}
@@ -481,7 +506,7 @@ public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionLis
 	public boolean onEditorAction(TextView v, int actionId, KeyEvent keyEvent)
 	{
 		// TIMOB-23757: https://code.google.com/p/android/issues/detail?id=182191
-		if (Build.VERSION.SDK_INT < 24 && (tv.getGravity() & Gravity.LEFT) != Gravity.LEFT) {
+		if (Build.VERSION.SDK_INT < 24 && (tv.getGravity() & Gravity.START) != Gravity.START) {
 			if (getNativeView() != null) {
 				ViewGroup view = (ViewGroup) getNativeView().getParent();
 				view.setFocusableInTouchMode(true);
@@ -901,14 +926,20 @@ public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionLis
 	public void setHintText(int type, CharSequence hintText)
 	{
 		if (type == UIModule.HINT_TYPE_STATIC) {
-			textInputLayout.setHint("");
-			textInputLayout.setHintEnabled(false);
-			tv.setHint(hintText);
+			this.textInputLayout.setHint("");
+			this.textInputLayout.setHintEnabled(false);
+			this.tv.setHint(hintText);
 		} else if (type == UIModule.HINT_TYPE_ANIMATED) {
-			tv.setHint("");
-			textInputLayout.setHint(hintText);
-			textInputLayout.setHintEnabled(true);
+			this.tv.setHint("");
+			this.textInputLayout.setHint(hintText);
+			this.textInputLayout.setHintEnabled(true);
 		}
+
+		this.tv.setPadding(
+			this.tv.getPaddingLeft(),
+			(type == UIModule.HINT_TYPE_ANIMATED) ? this.hintTextPadding : this.tv.getPaddingBottom(),
+			this.tv.getPaddingRight(),
+			this.tv.getPaddingBottom());
 	}
 
 	/**

@@ -33,6 +33,29 @@ describe('Titanium.UI.ProgressBar', () => {
 			});
 		});
 
+		describe('.animated', () => {
+			it('is a Boolean', () => {
+				const bar = Ti.UI.createProgressBar();
+				should(bar).have.property('animated').which.is.a.Boolean();
+			});
+
+			it('defaults to true', () => {
+				const bar = Ti.UI.createProgressBar();
+				should(bar.animated).be.true();
+			});
+
+			it('can be initialized false', () => {
+				const bar = Ti.UI.createProgressBar({ animated: false });
+				should(bar.animated).be.false();
+			});
+
+			it('can be set false', () => {
+				const bar = Ti.UI.createProgressBar();
+				bar.animated = false;
+				should(bar.animated).be.false();
+			});
+		});
+
 		describe('.color', () => {
 			beforeEach(() => {
 				bar = Ti.UI.createProgressBar({ color: 'red' });

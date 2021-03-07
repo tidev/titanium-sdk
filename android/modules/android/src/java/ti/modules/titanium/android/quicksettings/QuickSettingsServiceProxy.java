@@ -1,12 +1,11 @@
 package ti.modules.titanium.android.quicksettings;
 
 import android.annotation.TargetApi;
-import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.graphics.drawable.Icon;
 import android.service.quicksettings.TileService;
-
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollRuntime;
 import org.appcelerator.kroll.annotations.Kroll;
@@ -27,7 +26,7 @@ public class QuickSettingsServiceProxy extends ServiceProxy
 	private TileService tileService;
 	//workaround for dealing with Icon class
 	private Object pathObject = null;
-	private AlertDialog.Builder builder;
+	private MaterialAlertDialogBuilder builder;
 
 	public QuickSettingsServiceProxy(TileService serviceInstance)
 	{
@@ -134,7 +133,7 @@ public class QuickSettingsServiceProxy extends ServiceProxy
 
 	private Dialog createDialogFromDictionary(KrollDict krollDict)
 	{
-		builder = new AlertDialog.Builder(tileService.getApplicationContext());
+		builder = new MaterialAlertDialogBuilder(tileService.getApplicationContext());
 		String[] buttonText = null;
 		if (krollDict.containsKey(TiC.PROPERTY_TITLE)) {
 			builder.setTitle(krollDict.getString(TiC.PROPERTY_TITLE));
