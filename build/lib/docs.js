@@ -35,24 +35,12 @@ class Documentation {
 		});
 	}
 
-	async generateParityReport() {
-		return this.generateReport('parity', 'parity.html');
-	}
-
-	async generateJSCA() {
-		return this.generateReport('jsca', 'api.jsca');
-	}
-
 	async generateTypeScriptTypeDefinitions() {
 		return this.generateReport('typescript', 'index.d.ts');
 	}
 
 	async generate() {
-		return Promise.all([
-			this.generateParityReport(),
-			this.generateJSCA(),
-			this.generateTypeScriptTypeDefinitions()
-		]);
+		return this.generateTypeScriptTypeDefinitions();
 	}
 }
 module.exports = Documentation;

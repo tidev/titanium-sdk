@@ -95,10 +95,6 @@ class Packager {
 			// copy over support/
 			this.copySupportDir()
 		];
-		if (this.options.docs) {
-			// copy api.jsca file
-			tasks.push(fs.copy(path.join(this.outputDir, 'api.jsca'), path.join(this.zipSDKDir, 'api.jsca')));
-		}
 		await Promise.all(tasks);
 
 		// Zip up all the platforms!
