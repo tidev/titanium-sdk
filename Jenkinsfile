@@ -445,7 +445,7 @@ timestamps {
 					sh 'rm -rf dist/'
 					unarchive mapping: ['dist/': '.']
 					// Have to use Java-style loop for now: https://issues.jenkins-ci.org/browse/JENKINS-26481
-					def oses = ['osx', 'linux', 'win32']
+					def oses = ['osx', 'win32']
 					for (int i = 0; i < oses.size(); i++) {
 						def os = oses[i]
 						def sha1 = sh(returnStdout: true, script: "shasum ${basename}-${os}.zip").trim().split()[0]
