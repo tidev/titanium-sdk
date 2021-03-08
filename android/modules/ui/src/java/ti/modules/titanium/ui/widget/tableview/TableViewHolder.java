@@ -581,7 +581,7 @@ public class TableViewHolder extends TiRecyclerViewHolder
 				final TiViewProxy footerProxy = (TiViewProxy) properties.get(TiC.PROPERTY_FOOTER_VIEW);
 				Context context = this.itemView.getContext();
 				if (context instanceof Activity) {
-					headerProxy.setActivity((Activity) context);
+					footerProxy.setActivity((Activity) context);
 				}
 
 				final TiUIView view = footerProxy.getOrCreateView();
