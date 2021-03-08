@@ -236,6 +236,7 @@
     }
     [segmentedControl setSelectedSegmentIndex:selectedIndex];
   }
+  [(TiViewProxy *)[self proxy] contentsWillChange];
 }
 
 - (IBAction)onSegmentChange:(id)sender
