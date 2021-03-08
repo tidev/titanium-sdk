@@ -63,40 +63,45 @@ if (!isIOS13Plus && !isMACOSXCatalinaPlus) {
 
 	let colorset;
 	UI.fetchSemanticColor = function fetchSemanticColor (colorName) {
+		// Load all semantic colors from JSON if not done already.
+		// Do so via require() in case this file was changed while running LiveView.
 		if (!colorset) {
+			const colorsetFileName = 'semantic.colors.json';
 			try {
-				const colorsetFile = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, 'semantic.colors.json');
+				const colorsetFile = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, colorsetFileName);
 				if (colorsetFile.exists()) {
-					colorset = JSON.parse(colorsetFile.read().text);
+					// eslint-disable-next-line security/detect-non-literal-require
+					colorset = require(`/${colorsetFileName}`);
 				}
 			} catch (error) {
-				// We should probably throw an Error here (or return a fallback color!)
-				console.error('Failed to load colors file \'semantic.colors.json\'');
+				console.error(`Failed to load colors file '${colorsetFileName}'`);
 				return Color.fallback().toHex();
 			}
 		}
 
 		try {
-			if (!colorset[colorName]) {
-				if (OS_ANDROID) {
-					// if it's not in the semantic colors and we're on Android, it may be a Ti.Android.R.color value
-					const systemColorId = Ti.Android.R.color[colorName];
-					if (systemColorId) {
-						const resourceColor = Ti.UI.Android.getColorResource(systemColorId);
-						if (resourceColor) {
-							return resourceColor.toHex();
-						}
+			if (OS_ANDROID) {
+				// On Android, use custom string references to be handled by "TiColorHelper.java".
+				if (colorset[colorName]) {
+					// Add all theme colors to a single string.
+					// Example: "ti.semantic.color:dark=<ColorString>;light=<ColorString>"
+					const colorArray = [];
+					for (const colorType in colorset[colorName]) {
+						const colorObj = Color.fromSemanticColorsEntry(colorset[colorName][colorType]);
+						colorArray.push(`${colorType}=${colorObj.toRGBAString()}`);
 					}
+					return 'ti.semantic.color:' + colorArray.join(';');
+				} else if (Ti.Android.R.color[colorName]) {
+					// We're referencing a native "res" color entry.
+					return `@color/${colorName}`;
 				}
-				return Color.fallback().toHex();
+			} else if (colorset[colorName]) {
+				// Return the raw color string value from the "semantic.colors.json".
+				// Use the more exact rgba function over 8-char ARGB hex. Hard to convert things like 75% alpha properly.
+				const entry = colorset[colorName][UI.semanticColorType];
+				const colorObj = Color.fromSemanticColorsEntry(entry);
+				return colorObj.toRGBAString();
 			}
-
-			const entry = colorset[colorName][UI.semanticColorType];
-			const colorObj = Color.fromSemanticColorsEntry(entry);
-			// For now, return a string on iOS < 13, Android so we can pass the result directly to the UI property we want to set
-			// Otherwise we need to modify the Android APIs to accept fake/real Ti.UI.Color instances and convert it to it's own internal
-			// Color representation
-			return colorObj.toRGBAString(); // If there's an entry, use the more exact rgba function over 8-char ARGB hex. Hard to convert things like 75% alpha properly.
 		} catch (error) {
 			console.error(`Failed to lookup color for ${colorName}`);
 		}

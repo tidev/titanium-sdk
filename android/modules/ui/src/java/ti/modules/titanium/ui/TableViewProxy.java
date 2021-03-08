@@ -699,6 +699,25 @@ public class TableViewProxy extends RecyclerViewProxy
 	}
 
 	/**
+	 * Sets the activity this proxy's view should be attached to.
+	 * @param activity The activity this proxy's view should be attached to.
+	 */
+	@Override
+	public void setActivity(Activity activity)
+	{
+		super.setActivity(activity);
+
+		if (hasPropertyAndNotNull(TiC.PROPERTY_SEARCH)) {
+			final TiViewProxy search = (TiViewProxy) getProperty(TiC.PROPERTY_SEARCH);
+			search.setActivity(activity);
+		}
+
+		for (TableViewSectionProxy section : this.sections) {
+			section.setActivity(activity);
+		}
+	}
+
+	/**
 	 * Handle setting of property.
 	 *
 	 * @param name Property name.
