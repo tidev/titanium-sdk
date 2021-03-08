@@ -520,6 +520,8 @@ public class TableViewHolder extends TiRecyclerViewHolder
 			return;
 		}
 
+		final Context context = this.itemView.getContext();
+
 		// Handle `header` and `footer`.
 		if (updateHeader) {
 
@@ -536,13 +538,11 @@ public class TableViewHolder extends TiRecyclerViewHolder
 
 				// Handle header view.
 				final TiViewProxy headerProxy = (TiViewProxy) properties.get(TiC.PROPERTY_HEADER_VIEW);
-				Context context = this.itemView.getContext();
 				if (context instanceof Activity) {
 					headerProxy.setActivity((Activity) context);
 				}
 
 				final TiUIView view = headerProxy.getOrCreateView();
-
 				if (view != null) {
 					final View headerView = view.getOuterView();
 
@@ -579,13 +579,11 @@ public class TableViewHolder extends TiRecyclerViewHolder
 
 				// Handle footer view.
 				final TiViewProxy footerProxy = (TiViewProxy) properties.get(TiC.PROPERTY_FOOTER_VIEW);
-				Context context = this.itemView.getContext();
 				if (context instanceof Activity) {
 					footerProxy.setActivity((Activity) context);
 				}
 
 				final TiUIView view = footerProxy.getOrCreateView();
-
 				if (view != null) {
 					final View footerView = view.getOuterView();
 
