@@ -23,6 +23,7 @@ import android.content.Context;
 import android.content.res.ColorStateList;
 import android.content.res.Resources;
 import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.PaintDrawable;
 import android.os.Build;
@@ -267,14 +268,22 @@ public class TableViewHolder extends TiRecyclerViewHolder
 
 					backgroundDrawable = drawable.getBackground();
 				}
+
+				// Parse background color to determine transparency.
+				int backgroundColor = -1;
 				if (backgroundDrawable instanceof PaintDrawable) {
 					final PaintDrawable drawable = (PaintDrawable) backgroundDrawable;
 
-					if (drawable.getPaint().getColor() == Color.TRANSPARENT) {
+					backgroundColor = drawable.getPaint().getColor();
+				} else if (backgroundDrawable instanceof ColorDrawable) {
+					final ColorDrawable drawable = (ColorDrawable) backgroundDrawable;
 
-						// Do not use drawable for transparent backgrounds.
-						backgroundDrawable = null;
-					}
+					backgroundColor = drawable.getColor();
+				}
+				if (Color.alpha(backgroundColor) <= 0) {
+
+					// Do not use drawable for transparent backgrounds.
+					backgroundDrawable = null;
 				}
 
 				final boolean touchFeedback = tableViewProperties.optBoolean(TiC.PROPERTY_TOUCH_FEEDBACK,

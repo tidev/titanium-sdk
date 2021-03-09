@@ -21,6 +21,7 @@ import org.appcelerator.titanium.view.TiUIView;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.PaintDrawable;
 import android.os.Build;
@@ -157,21 +158,22 @@ public class ListViewHolder extends TiRecyclerViewHolder
 
 						backgroundDrawable = drawable.getBackground();
 					}
-					if (backgroundDrawable == null) {
 
-						// Background not undefined.
-						// Set borderView to transparent to create a mask for the ripple effect.
-						// This can be observed when a borderRadius is applied.
-						borderView.setBackgroundColor(Color.TRANSPARENT);
-					}
+					// Parse background color to determine transparency.
+					int backgroundColor = -1;
 					if (backgroundDrawable instanceof PaintDrawable) {
 						final PaintDrawable drawable = (PaintDrawable) backgroundDrawable;
 
-						if (drawable.getPaint().getColor() == Color.TRANSPARENT) {
+						backgroundColor = drawable.getPaint().getColor();
+					} else if (backgroundDrawable instanceof ColorDrawable) {
+						final ColorDrawable drawable = (ColorDrawable) backgroundDrawable;
 
-							// Do not use drawable for transparent backgrounds.
-							backgroundDrawable = null;
-						}
+						backgroundColor = drawable.getColor();
+					}
+					if (Color.alpha(backgroundColor) <= 0) {
+
+						// Do not use drawable for transparent backgrounds.
+						backgroundDrawable = null;
 					}
 
 					if (parentView != null) {

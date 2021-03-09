@@ -14,6 +14,7 @@ import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.RippleDrawable;
+import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.StateListDrawable;
 import android.util.TypedValue;
 import android.view.ViewGroup;
@@ -126,9 +127,10 @@ public abstract class TiRecyclerViewHolder extends RecyclerView.ViewHolder
 				? TiConvert.toColor(color) : colorControlHighlight.getColor(0, 0);
 			final int[] rippleColors = new int[] { colorControlHighlightInt };
 			final ColorStateList colorStateList = new ColorStateList(rippleStates, rippleColors);
+			final ShapeDrawable maskDrawable = drawable == null ? new ShapeDrawable() : null;
 
 			// Create the RippleDrawable.
-			drawable = new RippleDrawable(colorStateList, drawable, null);
+			drawable = new RippleDrawable(colorStateList, drawable, maskDrawable);
 		}
 
 		return drawable;
