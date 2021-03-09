@@ -321,9 +321,6 @@ public class TiRootActivity extends TiLaunchActivity implements TiActivitySuppor
 		tiApp.setCurrentActivity(this, this);
 		tiApp.setRootActivity(this);
 		super.onCreate(savedInstanceState);
-		if (isNotRestoringActivity) {
-			tiApp.verifyCustomModules(this);
-		}
 
 		// Invoke activity's onNewIntent() behavior if above code bundled an extra intent into it.
 		// This happens if activity was initially created with a non-main launcher intent, such as a URL scheme.
