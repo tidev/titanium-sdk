@@ -156,7 +156,7 @@ properties:
     type: [String, Titanium.UI.Color]
     since: 10.0.0
     platforms: [android, iphone, ipad, macos]
-    default: Transparent
+    default: transparent
     accessors: false
 
   - name: backgroundSelectedImage
@@ -184,11 +184,11 @@ properties:
     type: [String, Titanium.UI.Color]
     since: 3.2.0
     platforms: [android, iphone, ipad, macos]
-    default: Transparent
+    default: transparent
     accessors: false
     deprecated:
         since: "10.0.0"
-        notes: This property has been deprecated in favor of backgroundSelectedColor.
+        notes: This property has been deprecated in favor of <Titanium.UI.ListItem.backgroundSelectedColor>.
 
   - name: selectedBackgroundImage
     summary: Background image to render when the item is selected.
@@ -201,7 +201,7 @@ properties:
     accessors: false
     deprecated:
         since: "10.0.0"
-        notes: This property has been deprecated in favor of backgroundSelectedImage.
+        notes: This property has been deprecated in favor of <Titanium.UI.ListItem.backgroundSelectedImage>.
 
   - name: selectedBackgroundGradient
     summary: Background gradient to render when the item is selected.
@@ -211,7 +211,7 @@ properties:
     accessors: false
     deprecated:
         since: "10.0.0"
-        notes: This property has been deprecated in favor of backgroundSelectedGradient.
+        notes: This property has been deprecated in favor of <Titanium.UI.ListItem.backgroundSelectedGradient>.
 
   - name: canEdit
     summary: Specifies if the item can be deleted by a user initiated action.
