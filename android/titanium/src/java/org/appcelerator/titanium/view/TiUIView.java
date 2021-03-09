@@ -38,9 +38,11 @@ import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Point;
 import android.graphics.Rect;
+import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.PaintDrawable;
 import android.graphics.drawable.RippleDrawable;
+import android.graphics.drawable.ShapeDrawable;
 import android.os.Build;
 import androidx.annotation.NonNull;
 import androidx.core.view.ViewCompat;
@@ -1179,24 +1181,39 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 
 		// Fetch the background drawable that we'll be applying the ripple effect to.
 		Drawable backgroundDrawable = this.background;
+		if (backgroundDrawable == null) {
+			backgroundDrawable = this.nativeView.getBackground();
+		}
 		if (backgroundDrawable instanceof TiBackgroundDrawable) {
 			final TiBackgroundDrawable drawable = (TiBackgroundDrawable) backgroundDrawable;
 
 			backgroundDrawable = drawable.getBackground();
 		}
+
+		// Parse background color to determine transparency.
+		int backgroundColor = -1;
 		if (backgroundDrawable instanceof PaintDrawable) {
 			final PaintDrawable drawable = (PaintDrawable) backgroundDrawable;
 
-			if (drawable.getPaint().getColor() == Color.TRANSPARENT) {
+			backgroundColor = drawable.getPaint().getColor();
+		} else if (backgroundDrawable instanceof ColorDrawable) {
+			final ColorDrawable drawable = (ColorDrawable) backgroundDrawable;
 
-				// Do not use drawable for transparent backgrounds.
-				backgroundDrawable = null;
-			}
+			backgroundColor = drawable.getColor();
 		}
+		if (Color.alpha(backgroundColor) <= 0) {
+
+			// Do not use drawable for transparent backgrounds.
+			backgroundDrawable = null;
+		}
+
+		// Create a mask if a background doesn't exist or if it's completely transparent.
+		// Note: Ripple effect won't work unless it has something opaque to draw to. Use mask as a fallback.
+		final ShapeDrawable maskDrawable = backgroundDrawable == null ? new ShapeDrawable() : null;
 
 		// Replace existing background with ripple effect wrapping the old drawable.
 		nativeView.setBackground(
-			new RippleDrawable(ColorStateList.valueOf(rippleColor), backgroundDrawable, null));
+			new RippleDrawable(ColorStateList.valueOf(rippleColor), backgroundDrawable, maskDrawable));
 	}
 
 	@Override
