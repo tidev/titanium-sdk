@@ -30,6 +30,9 @@
 #ifdef USE_TI_UIATTRIBUTEDSTRING
 #import "TiUIAttributedStringProxy.h"
 #endif
+#ifdef USE_TI_UIOPTIONBAR
+#import "TiUIOptionBarProxy.h"
+#endif
 #ifdef USE_TI_UITOOLBAR
 #import "TiUIToolbarProxy.h"
 #endif
@@ -303,6 +306,13 @@ MAKE_SYSTEM_PROP(LIST_ACCESSORY_TYPE_DISCLOSURE, UITableViewCellAccessoryDisclos
     }
   }
   return [[[TiAnimation alloc] _initWithPageContext:[self executionContext]] autorelease];
+}
+#endif
+
+#ifdef USE_TI_UIOPTIONBAR
+- (id)createOptionBar:(id)args
+{
+  return [[[TiUIOptionBarProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
 }
 #endif
 
