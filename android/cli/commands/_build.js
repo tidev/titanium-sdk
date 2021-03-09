@@ -4,7 +4,7 @@
  * @module cli/_build
  *
  * @copyright
- * Copyright (c) 2009-2020 by Axway, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2021 by Axway, Inc. All Rights Reserved.
  *
  * @license
  * Licensed under the terms of the Apache Public License
@@ -22,6 +22,8 @@ const ADB = require('node-titanium-sdk/lib/adb'),
 	Builder = require('node-titanium-sdk/lib/builder'),
 	GradleWrapper = require('../lib/gradle-wrapper'),
 	ProcessJsTask = require('../../../cli/lib/tasks/process-js-task'),
+	ProcessDrawablesTask = require('../lib/process-drawables-task'),
+	ProcessSplashesTask = require('../lib/process-splashes-task'),
 	Color = require('../../../common/lib/color'),
 	ProcessCSSTask = require('../../../cli/lib/tasks/process-css-task'),
 	CopyResourcesTask = require('../../../cli/lib/tasks/copy-resources-task'),
@@ -2483,7 +2485,8 @@ AndroidBuilder.prototype.gatherResources = async function gatherResources() {
 	// now categorize (i.e. lump into buckets of js/css/html/assets/generic resources)
 	const categorizer = new gather.Categorizer({
 		tiappIcon: this.tiapp.icon,
-		jsFilesNotToProcess: Object.keys(this.htmlJsFiles)
+		jsFilesNotToProcess: Object.keys(this.htmlJsFiles),
+		platform: 'android',
 	});
 	return await categorizer.run(combined);
 };
@@ -2498,6 +2501,38 @@ AndroidBuilder.prototype.copyCSSFiles = async function copyCSSFiles(files) {
 	const task = new ProcessCSSTask({
 		files,
 		incrementalDirectory: path.join(this.buildTiIncrementalDir, 'process-css'),
+		logger: this.logger,
+		builder: this,
+	});
+	return task.run();
+};
+
+/**
+ * Copies drawable resources into the app
+ * @param {Map<string,object>} files map from filename to file info
+ * @returns {Promise<void>}
+ */
+AndroidBuilder.prototype.processDrawableFiles = async function processDrawableFiles(files) {
+	this.logger.debug(__('Copying Drawables'));
+	const task = new ProcessDrawablesTask({
+		files,
+		incrementalDirectory: path.join(this.buildTiIncrementalDir, 'process-drawables'),
+		logger: this.logger,
+		builder: this,
+	});
+	return task.run();
+};
+
+/**
+ * Copies splash screen resources into the app
+ * @param {Map<string,object>} files map from filename to file info
+ * @returns {Promise<void>}
+ */
+AndroidBuilder.prototype.processSplashesFiles = async function processSplashesFiles(files) {
+	this.logger.debug(__('Copying Splash Screens'));
+	const task = new ProcessSplashesTask({
+		files,
+		incrementalDirectory: path.join(this.buildTiIncrementalDir, 'process-splashes'),
 		logger: this.logger,
 		builder: this,
 	});
@@ -2599,23 +2634,27 @@ AndroidBuilder.prototype.processJSFiles = async function processJSFiles(jsFilesM
 		this.tiSymbols = task.data.tiSymbols;  // record API usage for analytics
 	}
 
-	// Now we need to copy the processed JS files from build/assets to build/app/src/main/assets/Resources
-	const resourcesToCopy = new Map();
-	for (let [ key, value ] of jsFilesMap) {
-		resourcesToCopy.set(key, {
-			src: path.join(this.buildAssetsDir, key),
-			dest: value.dest
+	// Copy all unencrypted files processed by ProcessJsTask to "app" project's APK "assets" directory.
+	// Note: For encrypted builds, our encryptJSFiles() method will write encrypted JS files to the app project.
+	if (!this.encryptJS) {
+		// Now we need to copy the processed JS files from build/assets to build/app/src/main/assets/Resources
+		const resourcesToCopy = new Map();
+		for (let [ key, value ] of jsFilesMap) {
+			resourcesToCopy.set(key, {
+				src: path.join(this.buildAssetsDir, key),
+				dest: value.dest
+			});
+			this.unmarkBuildDirFile(value.dest);
+		}
+		const copyTask = new CopyResourcesTask({
+			incrementalDirectory: path.join(this.buildTiIncrementalDir, 'copy-processed-js'),
+			name: 'copy-processed-js',
+			logger: this.logger,
+			builder: this,
+			files: resourcesToCopy
 		});
-		this.unmarkBuildDirFile(value.dest);
+		await copyTask.run();
 	}
-	const copyTask = new CopyResourcesTask({
-		incrementalDirectory: path.join(this.buildTiIncrementalDir, 'copy-processed-js'),
-		name: 'copy-processed-js',
-		logger: this.logger,
-		builder: this,
-		files: resourcesToCopy
-	});
-	await copyTask.run();
 
 	// then write the bootstrap json
 	return this.writeBootstrapJson(jsBootstrapFiles);
@@ -2679,6 +2718,8 @@ AndroidBuilder.prototype.copyResources = async function copyResources() {
 	await Promise.all([
 		this.copyCSSFiles(gatheredResults.cssFiles),
 		this.processJSFiles(gatheredResults.jsFiles),
+		this.processDrawableFiles(gatheredResults.imageAssets),
+		this.processSplashesFiles(gatheredResults.launchImages),
 		this.writeAppProps(), // writes _app_props_.json for Ti.Properties
 		this.writeEnvironmentVariables(), // writes _env_.json for process.env
 		this.copyPlatformDirs(), // copies platform/android dirs from project/modules
