@@ -173,6 +173,7 @@ function loadTests() {
 	require('./ti.ui.maskedimage.test');
 	require('./ti.ui.matrix2d.test');
 	require('./ti.ui.navigationwindow.test');
+	require('./ti.ui.optionbar.test');
 	require('./ti.ui.optiondialog.test');
 	require('./ti.ui.picker.test');
 	require('./ti.ui.progressbar.test');
