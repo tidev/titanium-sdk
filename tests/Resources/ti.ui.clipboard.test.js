@@ -389,10 +389,7 @@ describe('Titanium.UI.Clipboard', () => {
 				]);
 			});
 
-			it('filters out past expiration date items', () => {
-				if (utilities.isMacOS()) {
-					return; // skip on macOS, as setting a date in the past does not immediately invalidate items
-				}
+			it.macBroken('filters out past expiration date items', () => {
 				const options = {};
 				// set date in the past
 				options[Ti.UI.CLIPBOARD_OPTION_EXPIRATION_DATE] = new Date(2020, 4, 20);

@@ -102,28 +102,24 @@ public class PlatformModule extends KrollModule
 		}
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getName()
 	{
 		return APSAnalyticsMeta.getPlatform();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getOsname()
 	{
 		return APSAnalyticsMeta.getPlatform();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getLocale()
 	{
 		return TiPlatformHelper.getInstance().getLocale();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public DisplayCapsProxy getDisplayCaps()
 	{
@@ -134,21 +130,18 @@ public class PlatformModule extends KrollModule
 		return displayCaps;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public int getProcessorCount()
 	{
 		return Runtime.getRuntime().availableProcessors();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getUsername()
 	{
 		return Build.USER;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getVersion()
 	{
@@ -173,56 +166,48 @@ public class PlatformModule extends KrollModule
 		return this.versionPatch;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public double getAvailableMemory()
 	{
 		return Runtime.getRuntime().freeMemory();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public double getTotalMemory()
 	{
 		return Runtime.getRuntime().totalMemory();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getModel()
 	{
 		return Build.MODEL;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getManufacturer()
 	{
 		return Build.MANUFACTURER;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getOstype()
 	{
 		return APSAnalyticsMeta.getOsType();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getArchitecture()
 	{
 		return APSAnalyticsMeta.getArchitecture();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getAddress()
 	{
 		return TiPlatformHelper.getInstance().getIpAddress();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getNetmask()
 	{
@@ -344,7 +329,6 @@ public class PlatformModule extends KrollModule
 		return wasSuccessful;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getMacaddress()
 	{
@@ -389,14 +373,12 @@ public class PlatformModule extends KrollModule
 		return macaddr;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getId()
 	{
 		return APSAnalytics.getInstance().getMachineId();
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setBatteryMonitoring(boolean monitor)
 	{
@@ -408,35 +390,30 @@ public class PlatformModule extends KrollModule
 		}
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public boolean getBatteryMonitoring()
 	{
 		return batteryStateReceiver != null;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public int getBatteryState()
 	{
 		return batteryState;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public double getBatteryLevel()
 	{
 		return batteryLevel;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getRuntime()
 	{
 		return KrollRuntime.getInstance().getRuntimeName();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public double getUptime()
 	{

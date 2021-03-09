@@ -40,7 +40,7 @@ describe('Titanium.Platform.DisplayCaps', () => {
 			});
 
 			it('has no getter', () => {
-				should(Ti.Platform.displayCaps).have.a.getter('density');
+				should(Ti.Platform.displayCaps).not.have.a.getter('density');
 			});
 		});
 
@@ -54,7 +54,7 @@ describe('Titanium.Platform.DisplayCaps', () => {
 			});
 
 			it('has no getter', () => {
-				should(Ti.Platform.displayCaps).have.a.getter('dpi');
+				should(Ti.Platform.displayCaps).not.have.a.getter('dpi');
 			});
 		});
 
@@ -68,7 +68,7 @@ describe('Titanium.Platform.DisplayCaps', () => {
 			});
 
 			it('has no getter', () => {
-				should(Ti.Platform.displayCaps).have.a.getter('logicalDensityFactor');
+				should(Ti.Platform.displayCaps).not.have.a.getter('logicalDensityFactor');
 			});
 		});
 
@@ -82,7 +82,7 @@ describe('Titanium.Platform.DisplayCaps', () => {
 			});
 
 			it('has no getter', () => {
-				should(Ti.Platform.displayCaps).have.a.getter('platformHeight');
+				should(Ti.Platform.displayCaps).not.have.a.getter('platformHeight');
 			});
 		});
 
@@ -96,7 +96,7 @@ describe('Titanium.Platform.DisplayCaps', () => {
 			});
 
 			it('has no getter', () => {
-				should(Ti.Platform.displayCaps).have.a.getter('platformWidth');
+				should(Ti.Platform.displayCaps).not.have.a.getter('platformWidth');
 			});
 		});
 
@@ -110,7 +110,7 @@ describe('Titanium.Platform.DisplayCaps', () => {
 			});
 
 			it('has no getter', () => {
-				should(Ti.Platform.displayCaps).have.a.getter('xdpi');
+				should(Ti.Platform.displayCaps).not.have.a.getter('xdpi');
 			});
 		});
 
@@ -124,7 +124,7 @@ describe('Titanium.Platform.DisplayCaps', () => {
 			});
 
 			it('has no getter', () => {
-				should(Ti.Platform.displayCaps).have.a.getter('ydpi');
+				should(Ti.Platform.displayCaps).not.have.a.getter('ydpi');
 			});
 		});
 	});

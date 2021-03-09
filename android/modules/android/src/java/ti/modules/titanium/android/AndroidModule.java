@@ -611,7 +611,6 @@ public class AndroidModule extends KrollModule
 		return r;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public ActivityProxy getCurrentActivity()
 	{
@@ -622,7 +621,6 @@ public class AndroidModule extends KrollModule
 		return null;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public ActivityProxy getRootActivity()
 	{

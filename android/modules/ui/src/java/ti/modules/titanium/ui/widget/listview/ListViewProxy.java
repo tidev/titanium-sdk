@@ -297,7 +297,6 @@ public class ListViewProxy extends RecyclerViewProxy
 	 *
 	 * @return Array of ListSections.
 	 */
-	@Kroll.method
 	@Kroll.getProperty
 	public ListSectionProxy[] getSections()
 	{
@@ -326,6 +325,27 @@ public class ListViewProxy extends RecyclerViewProxy
 		super.onPropertyChanged(name, value);
 
 		processProperty(name, value);
+	}
+
+	/**
+	 * Sets the activity this proxy's view should be attached to.
+	 * @param activity The activity this proxy's view should be attached to.
+	 */
+	@Override
+	public void setActivity(Activity activity)
+	{
+		super.setActivity(activity);
+
+		if (hasPropertyAndNotNull(TiC.PROPERTY_SEARCH_VIEW)) {
+			final TiViewProxy search = (TiViewProxy) getProperty(TiC.PROPERTY_SEARCH_VIEW);
+			search.setActivity(activity);
+		}
+
+		if (this.sections != null) {
+			for (ListSectionProxy section : this.sections) {
+				section.setActivity(activity);
+			}
+		}
 	}
 
 	/**
@@ -368,7 +388,6 @@ public class ListViewProxy extends RecyclerViewProxy
 	 *
 	 * @param sections Array of sections to set.
 	 */
-	@Kroll.method
 	@Kroll.setProperty
 	public void setSections(Object sections)
 	{
@@ -454,7 +473,7 @@ public class ListViewProxy extends RecyclerViewProxy
 							continue;
 						}
 						final View markedItemView = markedHolder.itemView;
-						if (markedItemView == null) {
+						if (markedItemView == null || markedItemView.getLayoutParams() == null) {
 							continue;
 						}
 						final boolean isVisible =
@@ -559,8 +578,8 @@ public class ListViewProxy extends RecyclerViewProxy
 	{
 		super.releaseViews();
 
-		if (hasPropertyAndNotNull(TiC.PROPERTY_SEARCH)) {
-			final TiViewProxy search = (TiViewProxy) getProperty(TiC.PROPERTY_SEARCH);
+		if (hasPropertyAndNotNull(TiC.PROPERTY_SEARCH_VIEW)) {
+			final TiViewProxy search = (TiViewProxy) getProperty(TiC.PROPERTY_SEARCH_VIEW);
 			search.releaseViews();
 		}
 

@@ -192,7 +192,7 @@ GETTER_IMPL(NSString *, lineEnding, LineEnding);
 
 - (TiFile *)getFileProxy:(NSString *)path
 {
-  if ([path hasSuffix:@".js"] || [path hasSuffix:@".json"]) {
+  if ([path hasSuffix:@".js"] || [path hasSuffix:@".json"] || [path hasSuffix:@".cjs"]) { // FIXME: Handle mjs?
     NSString *resourcesDir = [self resourcesDirectory];
     if ([path hasPrefix:resourcesDir] || [path hasPrefix:[resourcesDir stringByStandardizingPath]]) {
       NSURL *url = [NSURL fileURLWithPath:path];

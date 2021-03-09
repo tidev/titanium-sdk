@@ -49,6 +49,9 @@ exports.init = (logger, config, cli) => {
 				await grantAndroidPermissions(logger, builder);
 
 			} else if ((builder.platformName === 'iphone') && (cli.argv.target === 'simulator')) {
+				// Forcibly set location for the simulator
+				await setSimulatorLocation('-c', '37.7765', '-122.3918');
+
 				// Grant all needed permissions on the iOS simulator.
 				await xcrun([ 'simctl', 'privacy', builder.simHandle.udid, 'grant', 'all', builder.tiapp.id ]);
 
@@ -102,6 +105,33 @@ async function adb(args) {
 			return;
 		}
 		reject();
+	});
+}
+
+async function setSimulatorLocation(...args) {
+	return new Promise((resolve, reject) => {
+		const child = spawn(path.join(__dirname, 'set-simulator-location'), args, { shell: true });
+		if (child) {
+			let stdout = '';
+			let stderr = '';
+			child.stdout.on('data', data => {
+				stdout += data.toString();
+			});
+			child.stderr.on('data', data => {
+				stderr += data.toString();
+			});
+			child.on('close', code => {
+				if (code === 0) {
+					console.log(stdout);
+					resolve(stdout);
+				} else {
+					console.error(stderr);
+					reject(`${stdout}\n${stderr}`);
+				}
+			});
+		} else {
+			reject();
+		}
 	});
 }
 

@@ -149,7 +149,6 @@ public class CalendarModule extends KrollModule
 		});
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public CalendarProxy[] getAllCalendars()
 	{
@@ -157,7 +156,6 @@ public class CalendarModule extends KrollModule
 		return calendars.toArray(new CalendarProxy[calendars.size()]);
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public CalendarProxy[] getSelectableCalendars()
 	{
@@ -180,7 +178,6 @@ public class CalendarModule extends KrollModule
 		}
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public AlertProxy[] getAllAlerts()
 	{

@@ -33,16 +33,70 @@ describe('Titanium.UI.Switch', function () {
 
 		// Validate switch value
 		Ti.API.info('Switch value : ' + switch_ctrl.value);
-		should(switch_ctrl.value).be.be.true();
+		should(switch_ctrl.value).be.true();
 		switch_ctrl.value = false;
-		should(switch_ctrl.value).be.be.false();
+		should(switch_ctrl.value).be.false();
 	});
 
 	it('.value', function () {
 		const switch_ctrl = Ti.UI.createSwitch();
-		should(switch_ctrl.value).be.be.false();
+		should(switch_ctrl.value).be.false();
 		switch_ctrl.value = true;
-		should(switch_ctrl.value).be.be.true();
+		should(switch_ctrl.value).be.true();
 	});
 
+	describe.android('.style', () => {
+		it('checkbox', () => {
+			const switch_ctrl = Ti.UI.createSwitch({
+				style: Ti.UI.SWITCH_STYLE_CHECKBOX,
+				title: 'Foo',
+				value: true
+			});
+			should(switch_ctrl.title).eql('Foo');
+			switch_ctrl.title = 'Bar';
+			should(switch_ctrl.title).eql('Bar');
+			switch_ctrl.value = false;
+			should(switch_ctrl.value).be.false();
+		});
+
+		it('chip', () => {
+			const switch_ctrl = Ti.UI.createSwitch({
+				style: Ti.UI.SWITCH_STYLE_CHIP,
+				title: 'Foo',
+				value: true
+			});
+			should(switch_ctrl.title).eql('Foo');
+			switch_ctrl.title = 'Bar';
+			should(switch_ctrl.title).eql('Bar');
+			switch_ctrl.value = false;
+			should(switch_ctrl.value).be.false();
+		});
+
+		it('slider', () => {
+			const switch_ctrl = Ti.UI.createSwitch({
+				style: Ti.UI.SWITCH_STYLE_SLIDER,
+				title: 'Foo',
+				value: true
+			});
+			should(switch_ctrl.title).eql('Foo');
+			switch_ctrl.title = 'Bar';
+			should(switch_ctrl.title).eql('Bar');
+			switch_ctrl.value = false;
+			should(switch_ctrl.value).be.false();
+		});
+
+		it('toggle button', () => {
+			const switch_ctrl = Ti.UI.createSwitch({
+				style: Ti.UI.SWITCH_STYLE_TOGGLE_BUTTON,
+				titleOn: 'ON',
+				titleOff: 'OFF',
+				value: true
+			});
+			should(switch_ctrl.titleOn).eql('ON');
+			should(switch_ctrl.titleOff).eql('OFF');
+			should(switch_ctrl.value).be.true();
+			switch_ctrl.value = false;
+			should(switch_ctrl.value).be.false();
+		});
+	});
 });

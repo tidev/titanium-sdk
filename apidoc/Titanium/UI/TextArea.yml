@@ -224,6 +224,15 @@ properties:
     since: {android: "3.0.0"}
     platforms: [android, iphone, ipad, macos]
 
+  - name: borderStyle
+    summary: Border style for the text area.
+    type: Number
+    constants: Titanium.UI.INPUT_BORDERSTYLE_*
+    default: <Titanium.UI.INPUT_BORDERSTYLE_FILLED>
+    availability: creation
+    platforms: [android]
+    since: 10.0.0
+
   - name: clearOnEdit
     summary: Determines whether the value of this text area should be cleared when it is focused.
     type: Boolean

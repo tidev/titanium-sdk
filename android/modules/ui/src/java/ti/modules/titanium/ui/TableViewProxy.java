@@ -331,7 +331,6 @@ public class TableViewProxy extends RecyclerViewProxy
 	 * @return Array of TableViewRow or TableViewSection proxies.
 	 */
 	// clang-format off
-	@Kroll.method
 	@Kroll.getProperty
 	public Object[] getData()
 	// clang-format on
@@ -414,7 +413,6 @@ public class TableViewProxy extends RecyclerViewProxy
 	 *
 	 * @return Integer of section count.
 	 */
-	@Kroll.method
 	@Kroll.getProperty
 	public int getSectionCount()
 	{
@@ -426,7 +424,6 @@ public class TableViewProxy extends RecyclerViewProxy
 	 *
 	 * @return Array of TableViewSectionProxy
 	 */
-	@Kroll.method
 	@Kroll.getProperty
 	public TableViewSectionProxy[] getSections()
 	{
@@ -699,6 +696,25 @@ public class TableViewProxy extends RecyclerViewProxy
 		super.onPropertyChanged(name, value);
 
 		processProperty(name, value);
+	}
+
+	/**
+	 * Sets the activity this proxy's view should be attached to.
+	 * @param activity The activity this proxy's view should be attached to.
+	 */
+	@Override
+	public void setActivity(Activity activity)
+	{
+		super.setActivity(activity);
+
+		if (hasPropertyAndNotNull(TiC.PROPERTY_SEARCH)) {
+			final TiViewProxy search = (TiViewProxy) getProperty(TiC.PROPERTY_SEARCH);
+			search.setActivity(activity);
+		}
+
+		for (TableViewSectionProxy section : this.sections) {
+			section.setActivity(activity);
+		}
 	}
 
 	/**

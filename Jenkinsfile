@@ -3,7 +3,7 @@ library 'pipeline-library'
 
 // Some branch flags to alter behavior
 def isPR = env.CHANGE_ID || false // CHANGE_ID is set if this is a PR. (We used to look whether branch name started with PR-, which would not be true for a branch from origin filed as PR)
-def MAINLINE_BRANCH_REGEXP = /master|next|\d_\d_(X|\d)/ // a branch is considered mainline if 'master' or like: 6_2_X, 7_0_X, 6_2_1
+def MAINLINE_BRANCH_REGEXP = /master|next|\d+_\d_(X|\d)/ // a branch is considered mainline if 'master' or like: 6_2_X, 7_0_X, 6_2_1
 def isMainlineBranch = (env.BRANCH_NAME ==~ MAINLINE_BRANCH_REGEXP)
 
 // Keep logs/reports/etc of last 30 builds, only keep build artifacts of last 3 builds
@@ -33,7 +33,7 @@ def testOnAndroidDevices = false // testOnDevices // FIXME: Our android device i
 def testOnIOSDevices = testOnDevices
 
 // Variables we can change
-def nodeVersion = '10.17.0' // NOTE that changing this requires we set up the desired version on jenkins master first!
+def nodeVersion = '12.18.0' // NOTE that changing this requires we set up the desired version on jenkins master first!
 def npmVersion = 'latest' // We can change this without any changes to Jenkins. 5.7.1 is minimum to use 'npm ci'
 
 // Variables which we assign and share between nodes
@@ -445,7 +445,7 @@ timestamps {
 					sh 'rm -rf dist/'
 					unarchive mapping: ['dist/': '.']
 					// Have to use Java-style loop for now: https://issues.jenkins-ci.org/browse/JENKINS-26481
-					def oses = ['osx', 'linux', 'win32']
+					def oses = ['osx', 'win32']
 					for (int i = 0; i < oses.size(); i++) {
 						def os = oses[i]
 						def sha1 = sh(returnStdout: true, script: "shasum ${basename}-${os}.zip").trim().split()[0]

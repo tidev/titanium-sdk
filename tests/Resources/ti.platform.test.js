@@ -19,19 +19,18 @@ describe('Titanium.Platform', () => {
 
 	describe('properties', () => {
 		describe('.address', () => {
-			it('is a String', () => {
-				// may be undefined on ios sim!
+			// may be undefined on ios sim!
+			before(function () {
 				if (IOS_SIM || OS_MACOS) {
-					return;
+					this.skip();
 				}
+			});
+
+			it('is a String', () => {
 				should(Ti.Platform).have.a.readOnlyProperty('address').which.is.a.String();
 			});
 
 			it('matches IP address format if defined', () => {
-				// may be undefined on ios sim!
-				if (IOS_SIM || OS_MACOS) {
-					return;
-				}
 				should(Ti.Platform.address).match(/\d+\.\d+\.\d+\.\d+/);
 				// TODO Verify the format of the String. Should be an IP address, so like: /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/
 			});
@@ -173,19 +172,18 @@ describe('Titanium.Platform', () => {
 		});
 
 		describe('.netmask', () => {
-			it('is a String', () => {
-				// may be undefined on ios sim!
+			// may be undefined on ios sim!
+			before(function () {
 				if (IOS_SIM || OS_MACOS) {
-					return;
+					this.skip();
 				}
+			});
+
+			it('is a String', () => {
 				should(Ti.Platform).have.a.readOnlyProperty('netmask').which.is.a.String();
 			});
 
 			it('matches IP address format if defined', () => {
-				// may be undefined on ios sim!
-				if (IOS_SIM || OS_MACOS) {
-					return;
-				}
 				should(Ti.Platform.netmask).match(/\d+\.\d+\.\d+\.\d+/);
 			});
 		});

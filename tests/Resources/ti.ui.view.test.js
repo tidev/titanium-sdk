@@ -4,7 +4,7 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-/* global OS_ANDROID */
+/* global OS_ANDROID, OS_VERSION_MAJOR */
 /* eslint-env mocha */
 /* eslint no-unused-expressions: "off" */
 'use strict';
@@ -23,18 +23,12 @@ describe('Titanium.UI.View', function () {
 
 	before(finish => {
 		rootWindow = Ti.UI.createWindow({ exitOnClose: false });
-		rootWindow.addEventListener('open', () => finish());
-		rootWindow.open();
+		rootWindow.open().then(() => finish()).catch(e => finish(e));
 	});
 
 	function closeWindow(win, done) {
 		if (win && !win.closed) {
-			win.addEventListener('close', function listener () {
-				win.removeEventListener('close', listener);
-				win = null;
-				done();
-			});
-			win.close();
+			win.close().then(() => done()).catch(_e => done());
 		} else {
 			win = null;
 			done();
@@ -1007,18 +1001,20 @@ describe('Titanium.UI.View', function () {
 		win.open();
 	});
 
-	describe('borderRadius corners', () => {
+	describe('borderRadius corners', function () {
+		// FIXME: Does not honour scale correctly on macOS: https://jira.appcelerator.org/browse/TIMOB-28261
+		before(function () {
+			if (isCI && utilities.isMacOS() && OS_VERSION_MAJOR < 11) {
+				this.skip();
+			}
+		});
+
 		// FIXME: Don't use dp/pts in the actual radii so we can avoid needing separate images per density?
 		// Do separate tests for verifying use of pts/dp versus density?
 
 		beforeEach(() => {
 			win = Ti.UI.createWindow({ backgroundColor: 'blue' });
 		});
-
-		// FIXME: Does not honour scale correctly on macOS.
-		if (isCI && utilities.isMacOS()) {
-			return;
-		}
 
 		it('4 values in String', finish => {
 			const outerView = Ti.UI.createView({
@@ -1328,9 +1324,11 @@ describe('Titanium.UI.View', function () {
 	});
 
 	it('rgba fallback', finish => {
-		if (isCI && utilities.isMacOS()) { // some of the CI mac nodes lie about their scale, which makes the image comparison fail
+		// FIXME: Does not honour scale correctly on macOS: https://jira.appcelerator.org/browse/TIMOB-28261
+		if (isCI && utilities.isMacOS() && OS_VERSION_MAJOR < 11) {
 			return finish(); // FIXME: skip when we move to official mocha package
 		}
+
 		win = Ti.UI.createWindow({ backgroundColor: '#fff' });
 		const rgbaView = Ti.UI.createView({
 			width: 100,
