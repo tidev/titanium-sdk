@@ -111,7 +111,7 @@
     "temp": "0.9.4",
     "wrap-ansi": "^7.0.0",
     "xcode": "^3.0.1",
-    "xmldom": "^0.5.0",
+    "xmldom": "^0.4.0",
     "yauzl": "^2.10.0"
   },
   "devDependencies": {
@@ -125,9 +125,9 @@
     "@seadub/danger-plugin-eslint": "^2.0.0",
     "@seadub/danger-plugin-junit": "0.2.0",
     "babel-plugin-transform-titanium": "^0.1.1",
-    "chai": "^4.3.0",
+    "chai": "^4.3.1",
     "clang-format": "1.5.0",
-    "commander": "^6.2.1",
+    "commander": "^7.1.0",
     "commitizen": "^4.2.3",
     "conventional-changelog-cli": "^2.1.1",
     "core-js": "^3.9.1",
@@ -152,7 +152,7 @@
     "stream-splitter": "^0.3.2",
     "strip-ansi": "^6.0.0",
     "titanium": "^5.3.0",
-    "titanium-docgen": "^4.10.1"
+    "titanium-docgen": "^4.10.3"
   },
   "repository": {
     "type": "git",
