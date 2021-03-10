@@ -10,7 +10,6 @@
 const should = require('./utilities/assertions');
 
 describe.ios('Titanium.UI.iOS',  () => {
-	// TIMOB-23542 test previewContext
 	it('#createDocumentViewer()', () => {
 		should(Ti.UI.iOS.createDocumentViewer).be.a.Function();
 	});
