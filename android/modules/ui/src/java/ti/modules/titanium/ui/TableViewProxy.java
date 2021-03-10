@@ -66,7 +66,7 @@ public class TableViewProxy extends RecyclerViewProxy
 
 		defaultValues.put(TiC.PROPERTY_OVER_SCROLL_MODE, 0);
 		defaultValues.put(TiC.PROPERTY_SCROLLABLE, true);
-		defaultValues.put(TiC.PROPERTY_TOUCH_FEEDBACK, false);
+		defaultValues.put(TiC.PROPERTY_TOUCH_FEEDBACK, true);
 	}
 
 	/**

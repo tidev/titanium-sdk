@@ -67,7 +67,7 @@ public class ListViewProxy extends RecyclerViewProxy
 		defaultValues.put(TiC.PROPERTY_CASE_INSENSITIVE_SEARCH, true);
 		defaultValues.put(TiC.PROPERTY_DEFAULT_ITEM_TEMPLATE, UIModule.LIST_ITEM_TEMPLATE_DEFAULT);
 		defaultValues.put(TiC.PROPERTY_FAST_SCROLL, false);
-		defaultValues.put(TiC.PROPERTY_TOUCH_FEEDBACK, false);
+		defaultValues.put(TiC.PROPERTY_TOUCH_FEEDBACK, true);
 	}
 
 	/**
