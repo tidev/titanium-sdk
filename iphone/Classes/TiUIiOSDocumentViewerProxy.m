@@ -40,6 +40,11 @@
   [self controller].annotation = args;
 }
 
+- (id)annotation
+{
+  return [self controller].annotation;
+}
+
 - (void)show:(id)args
 {
   ENSURE_SINGLE_ARG_OR_NIL(args, NSDictionary);
