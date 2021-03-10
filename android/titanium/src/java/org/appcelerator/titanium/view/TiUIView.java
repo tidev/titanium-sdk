@@ -396,7 +396,7 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 	{
 	}
 
-	private boolean hasImage(KrollDict d)
+	protected boolean hasImage(KrollDict d)
 	{
 		return d.containsKeyAndNotNull(TiC.PROPERTY_BACKGROUND_IMAGE)
 			|| d.containsKeyAndNotNull(TiC.PROPERTY_BACKGROUND_SELECTED_IMAGE)
@@ -409,7 +409,7 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 		return d.containsKeyAndNotNull(TiC.PROPERTY_BACKGROUND_REPEAT);
 	}
 
-	private boolean hasGradient(KrollDict d)
+	protected boolean hasGradient(KrollDict d)
 	{
 		return d.containsKeyAndNotNull(TiC.PROPERTY_BACKGROUND_GRADIENT);
 	}
@@ -423,7 +423,7 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 			|| (d.containsKeyAndNotNull(TiC.PROPERTY_BORDER_RADIUS));
 	}
 
-	private boolean hasColorState(KrollDict d)
+	protected boolean hasColorState(KrollDict d)
 	{
 		return d.containsKeyAndNotNull(TiC.PROPERTY_BACKGROUND_SELECTED_COLOR)
 			|| d.containsKeyAndNotNull(TiC.PROPERTY_BACKGROUND_FOCUSED_COLOR)
