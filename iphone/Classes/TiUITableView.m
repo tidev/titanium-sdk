@@ -262,7 +262,7 @@
   }
 }
 
-- (void)setSelectedBackgroundGradient_:(TiGradient *)newGradient
+- (void)setBackgroundSelectedGradient_:(TiGradient *)newGradient
 {
   if (newGradient == selectedBackgroundGradient) {
     return;
@@ -273,6 +273,11 @@
   if ([self selectedOrHighlighted]) {
     [self updateGradientLayer:YES withAnimation:NO];
   }
+}
+- (void)setSelectedBackgroundGradient_:(TiGradient *)newGradient
+{
+  DEPRECATED_REPLACED(@"selectedBackgroundGradient", @"10.0.0", @"backgroundSelectedGradient");
+  [self setBackgroundSelectedGradient_:newGradient];
 }
 
 - (NSMutableDictionary *)payloadWithTouch:(UITouch *)touch

@@ -323,15 +323,33 @@ properties:
     summary: Image to render in the right image area of the row, specified as a local path or URL.
     type: String
 
+  - name: backgroundSelectedColor
+    summary: Background color to render when the row is selected, as a color name or hex triplet.
+    description: |
+        For information about color values, see the "Colors" section of <Titanium.UI>.
+    type: [String, Titanium.UI.Color]
+    since: "10.0.0"
+
+  - name: backgroundSelectedImage
+    summary: Background image to render when the row is selected.
+    type: String
+    since: "10.0.0"
+
   - name: selectedBackgroundColor
     summary: Background color to render when the row is selected, as a color name or hex triplet.
     description: |
         For information about color values, see the "Colors" section of <Titanium.UI>.
     type: [String, Titanium.UI.Color]
+    deprecated:
+        since: "10.0.0"
+        notes: This property has been deprecated in favor of <Titanium.UI.TableViewRow.backgroundSelectedColor>.
 
   - name: selectedBackgroundImage
     summary: Background image to render when the row is selected.
     type: String
+    deprecated:
+        since: "10.0.0"
+        notes: This property has been deprecated in favor of <Titanium.UI.TableViewRow.backgroundSelectedImage>.
 
   - name: selectedColor
     summary: Color of the row text when the row is selected, as a color name or hex triplet.
