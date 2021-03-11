@@ -117,21 +117,19 @@ public abstract class TiRecyclerViewHolder extends RecyclerView.ViewHolder
 	 */
 	protected Drawable generateRippleDrawable(Drawable drawable, String color)
 	{
-		if (!(drawable instanceof RippleDrawable)) {
-			final int[][] rippleStates = new int[][] { new int[] { } };
-			final TypedValue typedValue = new TypedValue();
-			final Activity activity = TiApplication.getAppRootOrCurrentActivity();
-			final TypedArray colorControlHighlight = activity.obtainStyledAttributes(
-				typedValue.data, new int[] { android.R.attr.colorControlHighlight });
-			final int colorControlHighlightInt = color != null && !color.isEmpty()
-				? TiConvert.toColor(color) : colorControlHighlight.getColor(0, 0);
-			final int[] rippleColors = new int[] { colorControlHighlightInt };
-			final ColorStateList colorStateList = new ColorStateList(rippleStates, rippleColors);
-			final ShapeDrawable maskDrawable = drawable == null ? new ShapeDrawable() : null;
+		final int[][] rippleStates = new int[][] { new int[] { } };
+		final TypedValue typedValue = new TypedValue();
+		final Activity activity = TiApplication.getAppCurrentActivity();
+		final TypedArray colorControlHighlight = activity.obtainStyledAttributes(
+			typedValue.data, new int[] { android.R.attr.colorControlHighlight });
+		final int colorControlHighlightInt = color != null && !color.isEmpty()
+			? TiConvert.toColor(color) : colorControlHighlight.getColor(0, 0);
+		final int[] rippleColors = new int[] { colorControlHighlightInt };
+		final ColorStateList colorStateList = new ColorStateList(rippleStates, rippleColors);
+		final ShapeDrawable maskDrawable = drawable == null ? new ShapeDrawable() : null;
 
-			// Create the RippleDrawable.
-			drawable = new RippleDrawable(colorStateList, drawable, maskDrawable);
-		}
+		// Create the RippleDrawable.
+		drawable = new RippleDrawable(colorStateList, drawable, maskDrawable);
 
 		return drawable;
 	}
