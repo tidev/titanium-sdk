@@ -5228,6 +5228,7 @@ iOSBuilder.prototype.gatherResources = async function gatherResources() {
 	const categorizer = new gather.Categorizer({
 		tiappIcon: this.tiapp.icon,
 		useAppThinning: this.useAppThinning,
+		platform: 'ios',
 	});
 	const categorized = await categorizer.run(combined);
 
@@ -6735,8 +6736,10 @@ iOSBuilder.prototype.processTiSymbols = function processTiSymbols() {
 				'USE_TI_UIMASKEDIMAGE',
 				'USE_TI_UIPROGRESSBAR',
 				'USE_TI_UIACTIVITYINDICATOR',
+				'USE_TI_UIOPTIONBAR',
 				'USE_TI_UISWITCH',
 				'USE_TI_UISLIDER',
+				'USE_TI_UITABBEDBAR',
 				'USE_TI_UITEXTFIELD',
 				'USE_TI_UITEXTAREA',
 				'USE_TI_UISCROLLABLEVIEW',

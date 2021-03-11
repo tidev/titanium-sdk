@@ -18,11 +18,15 @@ import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 
 import android.annotation.SuppressLint;
+import android.content.res.ColorStateList;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.RippleDrawable;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewParent;
+import androidx.annotation.ColorInt;
+import androidx.core.graphics.ColorUtils;
 
 import com.google.android.material.badge.BadgeDrawable;
 import com.google.android.material.bottomnavigation.BottomNavigationItemView;
@@ -256,8 +260,9 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 				((BottomNavigationMenuView) this.mBottomNavigationView.getChildAt(0));
 			// BottomNavigationMenuView rebuilds itself after adding a new item, so we need to reset the colors each time.
 			TiViewProxy tabProxy = tabs.get(index).getProxy();
-			Drawable backgroundDrawable = createBackgroundDrawableForState(tabProxy, android.R.attr.state_checked);
-			bottomMenuView.getChildAt(index).setBackground(backgroundDrawable);
+			Drawable drawable = createBackgroundDrawableForState(tabProxy, android.R.attr.state_checked);
+			drawable = new RippleDrawable(createRippleColorStateListFrom(getColorPrimary()), drawable, null);
+			bottomMenuView.getChildAt(index).setBackground(drawable);
 		} catch (Exception e) {
 			Log.w(TAG, WARNING_LAYOUT_MESSAGE);
 		}
@@ -423,5 +428,40 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 
 		updateIconTint();
 		updateTabBackgroundDrawable(tabIndex);
+	}
+
+	public static ColorStateList createRippleColorStateListFrom(@ColorInt int colorInt)
+	{
+		int[][] rippleStates = new int[][] {
+			// Selected tab states.
+			new int[] { android.R.attr.state_selected, android.R.attr.state_pressed },
+			new int[] { android.R.attr.state_selected, android.R.attr.state_focused, android.R.attr.state_hovered },
+			new int[] { android.R.attr.state_selected, android.R.attr.state_focused },
+			new int[] { android.R.attr.state_selected, android.R.attr.state_hovered },
+			new int[] { android.R.attr.state_selected },
+
+			// Unselected tab states.
+			new int[] { android.R.attr.state_pressed },
+			new int[] { android.R.attr.state_focused, android.R.attr.state_hovered },
+			new int[] { android.R.attr.state_focused },
+			new int[] { android.R.attr.state_hovered },
+			new int[] {}
+		};
+		int[] rippleColors = new int[] {
+			// The "selected" tab tap colors.
+			ColorUtils.setAlphaComponent(colorInt, 128),
+			ColorUtils.setAlphaComponent(colorInt, 128),
+			ColorUtils.setAlphaComponent(colorInt, 128),
+			ColorUtils.setAlphaComponent(colorInt, 48),
+			ColorUtils.setAlphaComponent(colorInt, 48),
+
+			// The "unselected" tab tap color.
+			ColorUtils.setAlphaComponent(colorInt, 128),
+			ColorUtils.setAlphaComponent(colorInt, 128),
+			ColorUtils.setAlphaComponent(colorInt, 128),
+			ColorUtils.setAlphaComponent(colorInt, 48),
+			ColorUtils.setAlphaComponent(colorInt, 48)
+		};
+		return new ColorStateList(rippleStates, rippleColors);
 	}
 }
