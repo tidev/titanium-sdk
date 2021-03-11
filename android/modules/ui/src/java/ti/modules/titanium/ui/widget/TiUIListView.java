@@ -13,6 +13,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RelativeLayout;
 
+import androidx.annotation.NonNull;
+
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.TiC;
@@ -47,6 +49,19 @@ public class TiUIListView extends TiUIView
 
 		this.listView = new TiListView((ListViewProxy) proxy);
 		setNativeView(listView);
+	}
+
+	/**
+	 * Determine if touchFeedback can be applied to view.
+	 *
+	 * @param props View's property dictionary
+	 * @return Boolean
+	 */
+	@Override
+	protected boolean canApplyTouchFeedback(@NonNull KrollDict props)
+	{
+		// Ignore, handled by item.
+		return false;
 	}
 
 	/**

@@ -21,6 +21,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RelativeLayout;
 
+import androidx.annotation.NonNull;
+
 import ti.modules.titanium.ui.RefreshControlProxy;
 import ti.modules.titanium.ui.SearchBarProxy;
 import ti.modules.titanium.ui.TableViewProxy;
@@ -47,6 +49,19 @@ public class TiUITableView extends TiUIView
 
 		this.tableView = new TiTableView((TableViewProxy) proxy);
 		setNativeView(tableView);
+	}
+
+	/**
+	 * Determine if touchFeedback can be applied to view.
+	 *
+	 * @param props View's property dictionary
+	 * @return Boolean
+	 */
+	@Override
+	protected boolean canApplyTouchFeedback(@NonNull KrollDict props)
+	{
+		// Ignore, handled by row.
+		return false;
 	}
 
 	/**

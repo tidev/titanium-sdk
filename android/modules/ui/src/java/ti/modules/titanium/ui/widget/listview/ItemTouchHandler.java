@@ -25,7 +25,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import org.appcelerator.titanium.R;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
-import org.appcelerator.titanium.view.TiBackgroundDrawable;
 import org.appcelerator.titanium.view.TiUIView;
 
 public class ItemTouchHandler extends ItemTouchHelper.SimpleCallback
@@ -127,13 +126,7 @@ public class ItemTouchHandler extends ItemTouchHelper.SimpleCallback
 		View parentNativeView = parentView.getNativeView();
 
 		while (parentNativeView != null && parentBackground == null) {
-			parentBackground = parentView.getBackground();
-			if (parentBackground instanceof TiBackgroundDrawable) {
-				parentBackground = ((TiBackgroundDrawable) parentBackground).getBackground();
-			}
-			if (parentBackground == null) {
-				parentBackground = parentNativeView.getBackground();
-			}
+			parentBackground = parentNativeView.getBackground();
 
 			if (parentBackground instanceof ColorDrawable) {
 				final ColorDrawable colorDrawable = (ColorDrawable) parentBackground;
