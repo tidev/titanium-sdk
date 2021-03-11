@@ -510,5 +510,12 @@ public class TableViewRowProxy extends TiViewProxy
 			// Prevent TiUIView from overriding `touchFeedback` effect.
 			return false;
 		}
+
+		@Override
+		protected boolean hasBorder(KrollDict d)
+		{
+			// Always create custom background drawable.
+			return true;
+		}
 	}
 }

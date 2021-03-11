@@ -36,8 +36,7 @@
         android:id="@+id/titanium_ui_listview_holder_outer_content_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/titanium_ui_listview_holder_header_container"
-        android:background="@android:color/transparent">
+        android:layout_below="@id/titanium_ui_listview_holder_header_container">
 
             <org.appcelerator.titanium.view.TiCompositeLayout
                 android:id="@+id/titanium_ui_listview_holder_content"

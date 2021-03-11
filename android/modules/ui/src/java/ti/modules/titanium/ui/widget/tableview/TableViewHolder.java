@@ -302,7 +302,7 @@ public class TableViewHolder extends TiRecyclerViewHolder
 				this.container.setActivated(selected);
 
 				// Remove original background as it has been set on `container`.
-				nativeRowView.setBackgroundColor(Color.TRANSPARENT);
+				nativeRowView.setBackground(null);
 
 				// Allow states to bubble up for ripple effect.
 				nativeRowView.setAddStatesFromChildren(true);

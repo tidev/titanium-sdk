@@ -153,6 +153,10 @@ public class ListViewHolder extends TiRecyclerViewHolder
 
 					// Obtain background drawable.
 					Drawable backgroundDrawable = view.getBackground();
+					if (backgroundDrawable == null
+							&& properties.containsKeyAndNotNull(TiC.PROPERTY_BACKGROUND_COLOR)) {
+						backgroundDrawable = nativeView.getBackground();
+					}
 					if (backgroundDrawable instanceof TiBackgroundDrawable) {
 						final TiBackgroundDrawable drawable = (TiBackgroundDrawable) backgroundDrawable;
 
