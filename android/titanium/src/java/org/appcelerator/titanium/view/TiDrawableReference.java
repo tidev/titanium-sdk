@@ -157,14 +157,21 @@ public class TiDrawableReference
 	 */
 	public static TiDrawableReference fromUrl(KrollProxy proxy, String url)
 	{
-		if (proxy == null) {
-			return new TiDrawableReference(TiApplication.getAppCurrentActivity(), DrawableReferenceType.NULL);
+		Activity activity = TiApplication.getAppCurrentActivity();
+		// Attempt to fetch an activity from the given proxy.
+		if (proxy != null) {
+			activity = proxy.getActivity();
 		}
 
 		if (url == null || url.length() == 0 || url.trim().length() == 0) {
-			return new TiDrawableReference(proxy.getActivity(), DrawableReferenceType.NULL);
+			return new TiDrawableReference(activity, DrawableReferenceType.NULL);
 		}
-		return fromUrl(proxy.getActivity(), proxy.resolveUrl(null, url));
+
+		if (proxy == null) {
+			return fromUrl(activity, TiUrl.resolve(null, url, null));
+		} else {
+			return fromUrl(activity, proxy.resolveUrl(null, url));
+		}
 	}
 
 	/**
