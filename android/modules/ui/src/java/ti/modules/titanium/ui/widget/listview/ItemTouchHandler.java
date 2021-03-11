@@ -11,6 +11,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.RippleDrawable;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
@@ -24,6 +25,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import org.appcelerator.titanium.R;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
+import org.appcelerator.titanium.view.TiBackgroundDrawable;
 import org.appcelerator.titanium.view.TiUIView;
 
 public class ItemTouchHandler extends ItemTouchHelper.SimpleCallback
@@ -125,16 +127,26 @@ public class ItemTouchHandler extends ItemTouchHelper.SimpleCallback
 		View parentNativeView = parentView.getNativeView();
 
 		while (parentNativeView != null && parentBackground == null) {
-			parentBackground = parentNativeView.getBackground();
+			parentBackground = parentView.getBackground();
+			if (parentBackground instanceof TiBackgroundDrawable) {
+				parentBackground = ((TiBackgroundDrawable) parentBackground).getBackground();
+			}
+			if (parentBackground == null) {
+				parentBackground = parentNativeView.getBackground();
+			}
 
 			if (parentBackground instanceof ColorDrawable) {
 				final ColorDrawable colorDrawable = (ColorDrawable) parentBackground;
 
-				if (ignoreTransparent && colorDrawable.getColor() == Color.TRANSPARENT) {
+				if (ignoreTransparent && Color.alpha(colorDrawable.getColor()) <= 0) {
 
 					// Ignore transparent backgrounds.
 					parentBackground = null;
 				}
+			} else if (parentBackground instanceof RippleDrawable) {
+
+				// Ignore ripple drawables.
+				parentBackground = null;
 			}
 
 			final ViewParent parent = parentNativeView.getParent();
