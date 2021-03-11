@@ -4,24 +4,26 @@ about: Create a report to help us improve Titanium
 
 ---
 
-**Describe the bug**
-A clear and concise description of what the bug is.
+### Describe the bug
+A clear and concise description of what the bug is. 
 
-**To Reproduce**
+Are you sure it is a bug and not an issue with your code? [Ask in the Q&A first](https://github.com/appcelerator/titanium_mobile/discussions).
+
+### To Reproduce
 Steps to reproduce the behavior, e.g.:
 1. Go to '...'
 2. Click on '....'
 3. Scroll down to '....'
 4. See error
 
-**Expected behavior**
+### Expected behavior
 A clear and concise description of what you expected to happen.
 
-**Environment**
+### Environment
 Titanium SDK version: 
 CLI version:
 
-**Logs**:
+### Logs
 Creating a trace-log:
   - CLI: `appc run - p [ios|android] -l trace`
   - Studio / Atom: `Log-Level (Bottom right): Trace`
