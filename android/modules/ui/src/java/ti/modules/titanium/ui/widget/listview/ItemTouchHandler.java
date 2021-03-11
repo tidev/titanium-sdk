@@ -11,6 +11,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.PaintDrawable;
 import android.graphics.drawable.RippleDrawable;
 import android.view.MotionEvent;
 import android.view.View;
@@ -136,7 +137,7 @@ public class ItemTouchHandler extends ItemTouchHelper.SimpleCallback
 					// Ignore transparent backgrounds.
 					parentBackground = null;
 				}
-			} else if (parentBackground instanceof RippleDrawable) {
+			} else if (parentBackground instanceof RippleDrawable && ignoreTransparent) {
 
 				// Ignore ripple drawables.
 				parentBackground = null;
@@ -295,7 +296,9 @@ public class ItemTouchHandler extends ItemTouchHelper.SimpleCallback
 		// Determine if current background is transparent.
 		final boolean hasTransparentBackground = currentBackground == null
 			|| (currentBackground instanceof ColorDrawable
-			&& ((ColorDrawable) currentBackground).getColor() == Color.TRANSPARENT);
+					&& Color.alpha(((ColorDrawable) currentBackground).getColor()) <= 0)
+			|| (currentBackground instanceof PaintDrawable
+					&& Color.alpha(((PaintDrawable) currentBackground).getPaint().getColor()) <= 0);
 
 		if (hasTransparentBackground) {
 			final TiUIView parentView = recyclerViewProxy.getOrCreateView();
