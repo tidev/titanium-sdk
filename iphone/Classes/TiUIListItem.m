@@ -425,7 +425,6 @@
                       }];
       }
     }
-    break;
   }
 
   // pass through
