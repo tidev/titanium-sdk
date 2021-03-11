@@ -420,7 +420,6 @@
                       }];
       }
     }
-    break;
   }
 
   // pass through
