@@ -357,10 +357,19 @@ public class ListSectionProxy extends TiViewProxy
 	@Override
 	public void releaseViews()
 	{
+		// Release all section item views.
 		for (final ListItemProxy item : this.items) {
-
-			// Release all section item views.
 			item.releaseViews();
+		}
+
+		// Release header/footer views.
+		if (hasPropertyAndNotNull(TiC.PROPERTY_HEADER_VIEW)) {
+			final TiViewProxy headerProxy = (TiViewProxy) getProperty(TiC.PROPERTY_HEADER_VIEW);
+			headerProxy.releaseViews();
+		}
+		if (hasPropertyAndNotNull(TiC.PROPERTY_FOOTER_VIEW)) {
+			final TiViewProxy footerProxy = (TiViewProxy) getProperty(TiC.PROPERTY_FOOTER_VIEW);
+			footerProxy.releaseViews();
 		}
 	}
 
