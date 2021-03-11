@@ -168,11 +168,7 @@ public class TiDrawableReference
 			return new TiDrawableReference(activity, DrawableReferenceType.NULL);
 		}
 
-		if (proxy == null) {
-			return fromUrl(activity, TiUrl.resolve(TiC.URL_APP_PREFIX, url, null));
-		} else {
-			return fromUrl(activity, proxy.resolveUrl(null, url));
-		}
+		return fromUrl(activity, TiUrl.resolve(TiC.URL_APP_PREFIX, url, null));
 	}
 
 	/**
