@@ -20,6 +20,7 @@ import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBlob;
+import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.TiFileProxy;
 import org.appcelerator.titanium.io.TiBaseFile;
@@ -168,7 +169,7 @@ public class TiDrawableReference
 		}
 
 		if (proxy == null) {
-			return fromUrl(activity, TiUrl.resolve(null, url, null));
+			return fromUrl(activity, TiUrl.resolve(TiC.URL_APP_PREFIX, url, null));
 		} else {
 			return fromUrl(activity, proxy.resolveUrl(null, url));
 		}
