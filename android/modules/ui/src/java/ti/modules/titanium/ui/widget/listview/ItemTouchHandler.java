@@ -138,8 +138,8 @@ public class ItemTouchHandler extends ItemTouchHelper.SimpleCallback
 				if (rippleDrawable.getNumberOfLayers() > 0) {
 					final Drawable drawable = rippleDrawable.getDrawable(0);
 
-					// Ignore masks.
-					parentBackground = drawable instanceof ShapeDrawable ? null : drawable;
+					// Ignore masks (ShapeDrawable).
+					parentBackground = drawable.getClass().equals(ShapeDrawable.class) ? null : drawable;
 
 				} else if (ignoreTransparent) {
 
