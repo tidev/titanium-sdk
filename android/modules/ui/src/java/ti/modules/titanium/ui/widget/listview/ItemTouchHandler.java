@@ -13,6 +13,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.PaintDrawable;
 import android.graphics.drawable.RippleDrawable;
+import android.graphics.drawable.ShapeDrawable;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
@@ -30,6 +31,8 @@ import org.appcelerator.titanium.view.TiUIView;
 
 public class ItemTouchHandler extends ItemTouchHelper.SimpleCallback
 {
+	private static final String TAG = "ItemTouchHandler";
+
 	private TiRecyclerViewAdapter adapter;
 	private RecyclerViewProxy recyclerViewProxy;
 	private Pair<Integer,  Integer> movePair = null;
@@ -129,6 +132,21 @@ public class ItemTouchHandler extends ItemTouchHelper.SimpleCallback
 		while (parentNativeView != null && parentBackground == null) {
 			parentBackground = parentNativeView.getBackground();
 
+			if (parentBackground instanceof RippleDrawable) {
+				final RippleDrawable rippleDrawable = (RippleDrawable) parentBackground;
+
+				if (rippleDrawable.getNumberOfLayers() > 0) {
+					final Drawable drawable = rippleDrawable.getDrawable(0);
+
+					// Ignore masks.
+					parentBackground = drawable instanceof ShapeDrawable ? null : drawable;
+
+				} else if (ignoreTransparent) {
+
+					// No layers, ignore transparent drawable.
+					parentBackground = null;
+				}
+			}
 			if (parentBackground instanceof ColorDrawable) {
 				final ColorDrawable colorDrawable = (ColorDrawable) parentBackground;
 
@@ -137,10 +155,14 @@ public class ItemTouchHandler extends ItemTouchHelper.SimpleCallback
 					// Ignore transparent backgrounds.
 					parentBackground = null;
 				}
-			} else if (parentBackground instanceof RippleDrawable && ignoreTransparent) {
+			} else if (parentBackground instanceof PaintDrawable) {
+				final PaintDrawable paintDrawable = (PaintDrawable) parentBackground;
 
-				// Ignore ripple drawables.
-				parentBackground = null;
+				if (ignoreTransparent && Color.alpha(paintDrawable.getPaint().getColor()) <= 0) {
+
+					// Ignore transparent backgrounds.
+					parentBackground = null;
+				}
 			}
 
 			final ViewParent parent = parentNativeView.getParent();
