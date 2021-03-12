@@ -25,6 +25,8 @@ import org.appcelerator.titanium.view.TiUIView;
 import android.app.Activity;
 import android.view.View;
 
+import androidx.annotation.NonNull;
+
 import ti.modules.titanium.ui.UIModule;
 import ti.modules.titanium.ui.widget.TiView;
 
@@ -676,6 +678,13 @@ public class ListItemProxy extends TiViewProxy
 			super(proxy);
 
 			getLayoutParams().autoFillsWidth = true;
+		}
+
+		@Override
+		protected boolean canApplyTouchFeedback(@NonNull KrollDict props)
+		{
+			// Prevent TiUIView from overriding `touchFeedback` effect.
+			return false;
 		}
 	}
 }

@@ -11,6 +11,9 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.PaintDrawable;
+import android.graphics.drawable.RippleDrawable;
+import android.graphics.drawable.ShapeDrawable;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
@@ -28,6 +31,8 @@ import org.appcelerator.titanium.view.TiUIView;
 
 public class ItemTouchHandler extends ItemTouchHelper.SimpleCallback
 {
+	private static final String TAG = "ItemTouchHandler";
+
 	private TiRecyclerViewAdapter adapter;
 	private RecyclerViewProxy recyclerViewProxy;
 	private Pair<Integer,  Integer> movePair = null;
@@ -127,10 +132,33 @@ public class ItemTouchHandler extends ItemTouchHelper.SimpleCallback
 		while (parentNativeView != null && parentBackground == null) {
 			parentBackground = parentNativeView.getBackground();
 
+			if (parentBackground instanceof RippleDrawable) {
+				final RippleDrawable rippleDrawable = (RippleDrawable) parentBackground;
+
+				if (rippleDrawable.getNumberOfLayers() > 0) {
+					final Drawable drawable = rippleDrawable.getDrawable(0);
+
+					// Ignore masks (ShapeDrawable).
+					parentBackground = drawable.getClass().equals(ShapeDrawable.class) ? null : drawable;
+
+				} else if (ignoreTransparent) {
+
+					// No layers, ignore transparent drawable.
+					parentBackground = null;
+				}
+			}
 			if (parentBackground instanceof ColorDrawable) {
 				final ColorDrawable colorDrawable = (ColorDrawable) parentBackground;
 
-				if (ignoreTransparent && colorDrawable.getColor() == Color.TRANSPARENT) {
+				if (ignoreTransparent && Color.alpha(colorDrawable.getColor()) <= 0) {
+
+					// Ignore transparent backgrounds.
+					parentBackground = null;
+				}
+			} else if (parentBackground instanceof PaintDrawable) {
+				final PaintDrawable paintDrawable = (PaintDrawable) parentBackground;
+
+				if (ignoreTransparent && Color.alpha(paintDrawable.getPaint().getColor()) <= 0) {
 
 					// Ignore transparent backgrounds.
 					parentBackground = null;
@@ -290,7 +318,9 @@ public class ItemTouchHandler extends ItemTouchHelper.SimpleCallback
 		// Determine if current background is transparent.
 		final boolean hasTransparentBackground = currentBackground == null
 			|| (currentBackground instanceof ColorDrawable
-			&& ((ColorDrawable) currentBackground).getColor() == Color.TRANSPARENT);
+					&& Color.alpha(((ColorDrawable) currentBackground).getColor()) <= 0)
+			|| (currentBackground instanceof PaintDrawable
+					&& Color.alpha(((PaintDrawable) currentBackground).getPaint().getColor()) <= 0);
 
 		if (hasTransparentBackground) {
 			final TiUIView parentView = recyclerViewProxy.getOrCreateView();
