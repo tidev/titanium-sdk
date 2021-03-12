@@ -17,6 +17,7 @@ import org.appcelerator.titanium.util.TiRHelper;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiBorderWrapperView;
 import org.appcelerator.titanium.view.TiCompositeLayout;
+import org.appcelerator.titanium.view.TiDrawableReference;
 import org.appcelerator.titanium.view.TiUIView;
 
 import android.app.Activity;
@@ -210,13 +211,15 @@ public class TableViewHolder extends TiRecyclerViewHolder
 			// Handle row left and right images.
 			if (properties.containsKeyAndNotNull(TiC.PROPERTY_LEFT_IMAGE)) {
 				final String url = properties.getString(TiC.PROPERTY_LEFT_IMAGE);
-				final Drawable drawable = fileHelper.loadDrawable(url, false);
+				final TiDrawableReference drawableReference = TiDrawableReference.fromUrl(proxy, url);
+				final Drawable drawable = drawableReference.getDrawable();
 				this.leftImage.setImageDrawable(drawable);
 				this.leftImage.setVisibility(View.VISIBLE);
 			}
 			if (properties.containsKeyAndNotNull(TiC.PROPERTY_RIGHT_IMAGE)) {
 				final String url = properties.getString(TiC.PROPERTY_RIGHT_IMAGE);
-				final Drawable drawable = fileHelper.loadDrawable(url, false);
+				final TiDrawableReference drawableReference = TiDrawableReference.fromUrl(proxy, url);
+				final Drawable drawable = drawableReference.getDrawable();
 				this.rightImage.setImageDrawable(drawable);
 				this.rightImage.setVisibility(View.VISIBLE);
 			} else {
@@ -288,7 +291,6 @@ public class TableViewHolder extends TiRecyclerViewHolder
 				// Add row to content.
 				this.content.addView(nativeRowView, rowView.getLayoutParams());
 				this.content.setVisibility(View.VISIBLE);
-
 			}
 			if (properties.containsKeyAndNotNull(TiC.PROPERTY_TITLE)
 				&& proxy.getChildren().length == 0) {

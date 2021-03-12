@@ -18,7 +18,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.R;
 import org.appcelerator.titanium.proxy.TiViewProxy;
-import org.appcelerator.titanium.util.TiFileHelper;
 
 import java.lang.ref.WeakReference;
 
@@ -34,7 +33,6 @@ public abstract class TiRecyclerViewHolder extends RecyclerView.ViewHolder
 	protected static Drawable moreDrawable;
 
 	protected static Resources resources;
-	protected static TiFileHelper fileHelper;
 
 	protected static int selectableItemBackgroundId = 0;
 
@@ -103,11 +101,6 @@ public abstract class TiRecyclerViewHolder extends RecyclerView.ViewHolder
 			}
 		} else {
 			Log.w(TAG, "Could not obtain context resources instance.");
-		}
-		if (fileHelper == null) {
-
-			// Obtain file helper instance.
-			fileHelper = new TiFileHelper(context);
 		}
 	}
 
