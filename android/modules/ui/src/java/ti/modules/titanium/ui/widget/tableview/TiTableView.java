@@ -430,6 +430,8 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 		final boolean filterAnchored = properties.optBoolean(TiC.PROPERTY_FILTER_ANCHORED, false);
 		final String filterAttribute = properties.optString(TiC.PROPERTY_FILTER_ATTRIBUTE, TiC.PROPERTY_TITLE);
 		int filterResultsCount = 0;
+		int index = 0;
+		int filteredIndex = 0;
 
 		String query = this.filterQuery;
 		if (query != null && caseInsensitive) {
@@ -468,8 +470,6 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 					this.rows.add(row);
 				}
 
-				int index = 0;
-				int filteredIndex = 0;
 				for (int i = 0; i < rows.length; i++) {
 					final TableViewRowProxy row = rows[i];
 
