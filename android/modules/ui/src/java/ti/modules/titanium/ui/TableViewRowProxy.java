@@ -22,6 +22,8 @@ import org.appcelerator.titanium.view.TiUIView;
 import android.app.Activity;
 import android.view.View;
 
+import androidx.annotation.NonNull;
+
 import ti.modules.titanium.ui.widget.TiView;
 import ti.modules.titanium.ui.widget.tableview.TableViewHolder;
 import ti.modules.titanium.ui.widget.tableview.TiTableView;
@@ -534,6 +536,19 @@ public class TableViewRowProxy extends TiViewProxy
 			} else {
 				super.remove(child);
 			}
+		}
+
+		protected boolean canApplyTouchFeedback(@NonNull KrollDict props)
+		{
+			// Prevent TiUIView from overriding `touchFeedback` effect.
+			return false;
+		}
+
+		@Override
+		protected boolean hasBorder(KrollDict d)
+		{
+			// Always create custom background drawable.
+			return true;
 		}
 	}
 }
