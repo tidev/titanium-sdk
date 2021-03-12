@@ -405,8 +405,6 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 		final KrollDict properties = this.proxy.getProperties();
 		final boolean shouldPreload = this.items.size() == 0;
 		int filterResultsCount = 0;
-		int index = 0;
-		int filteredIndex = 0;
 
 		final boolean hasHeader = properties.containsKeyAndNotNull(TiC.PROPERTY_HEADER_TITLE)
 			|| properties.containsKeyAndNotNull(TiC.PROPERTY_HEADER_VIEW);
@@ -438,6 +436,8 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 			final KrollDict sectionProperties = section.getProperties();
 			final List<ListItemProxy> sectionItems = section.getListItems();
 
+			int index = 0;
+			int filteredIndex = 0;
 			for (final ListItemProxy item : sectionItems) {
 
 				// Handle search query.
