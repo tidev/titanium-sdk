@@ -4,10 +4,14 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+/* global OS_VERSION_MAJOR */
 /* eslint-env mocha */
 /* eslint no-unused-expressions: "off" */
 'use strict';
 const should = require('./utilities/assertions');
+const utilities = require('./utilities/utilities');
+
+const isCI = Ti.App.Properties.getBool('isCI', false);
 
 describe.ios('Titanium.UI.iOS',  () => {
 	it('#createDocumentViewer()', () => {
@@ -31,11 +35,22 @@ describe.ios('Titanium.UI.iOS.DocumentViewer', () => {
 	});
 
 	it('.name', () => {
+		// On macOS < 11, it is failing. https://developer.apple.com/forums/thread/125819
+		if (isCI && utilities.isMacOS() && OS_VERSION_MAJOR < 11) {
+			this.skip();
+			return;
+		}
 		documentViewer.annotation = 'annotation';
 		should(documentViewer.name).eql('example.html');
 	});
 
 	it('.annotation', () => {
+		// On macOS < 11, it is failing. https://developer.apple.com/forums/thread/125819
+		if (isCI && utilities.isMacOS() && OS_VERSION_MAJOR < 11) {
+			this.skip();
+			return;
+		}
+
 		documentViewer.annotation = 'annotation';
 		should(documentViewer.annotation).eql('annotation');
 
