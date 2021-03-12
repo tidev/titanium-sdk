@@ -42,7 +42,6 @@
                 android:id="@+id/titanium_ui_listview_holder_content"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:foreground="?attr/selectableItemBackgroundBorderless"
                 android:addStatesFromChildren="true"/>
 
             <ImageView
