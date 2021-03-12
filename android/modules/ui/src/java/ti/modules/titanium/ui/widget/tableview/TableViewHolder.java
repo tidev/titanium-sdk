@@ -163,8 +163,23 @@ public class TableViewHolder extends TiRecyclerViewHolder
 				return;
 			}
 
+			// Set maximum row height.
+			final String rawMaxHeight = properties.optString(TiC.PROPERTY_MAX_ROW_HEIGHT,
+				tableViewProperties.getString(TiC.PROPERTY_MAX_ROW_HEIGHT));
+			final TiDimension maxHeightDimension = TiConvert.toTiDimension(rawMaxHeight, TiDimension.TYPE_HEIGHT);
+			final int maxHeight = rawMaxHeight != null ? maxHeightDimension.getAsPixels(itemView) : -1;
+			if (maxHeight > -1) {
+				nativeRowView.measure(0, 0);
+
+				// Enforce max row height.
+				if (nativeRowView.getMeasuredHeight() > maxHeight) {
+					rowView.getLayoutParams().optionHeight = maxHeightDimension;
+				}
+			}
+
 			// Set minimum row height.
-			final String rawMinHeight = properties.optString(TiC.PROPERTY_MIN_ROW_HEIGHT, "0");
+			final String rawMinHeight = properties.optString(TiC.PROPERTY_MIN_ROW_HEIGHT,
+				tableViewProperties.getString(TiC.PROPERTY_MIN_ROW_HEIGHT));
 			final int minHeight = TiConvert.toTiDimension(rawMinHeight, TiDimension.TYPE_HEIGHT).getAsPixels(itemView);
 			this.container.setMinimumHeight(minHeight);
 
