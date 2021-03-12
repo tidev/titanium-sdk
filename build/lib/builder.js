@@ -69,11 +69,23 @@ function getCorejsVersion() {
 }
 
 class Builder {
-	constructor(program) {
+
+	/**
+	 * @param {object} options command line options
+	 * @param {string} options.sdkVersion version of Titanium SDK
+	 * @param {string} [options.versionTag] full version tag to use for Titanium SDK
+	 * @param {string} [options.gitHash] SHA of Titanium SDK HEAD
+	 * @param {boolean} [options.all=false] build for all platforms?
+	 * @param {boolean} [options.symlink=false] symlink the SDK to install it?
+	 * @param {boolean} [options.select=false] select the built SDK in Ti CLI after install?
+	 * @param {boolean} [options.skipZip] Optionally skip zipping up the result
+	 * @param {boolean} [options.docs] Generate docs?
+	 * @param {string[]} [platforms] command line arguments (platform listing)
+	 */
+	constructor(options, platforms) {
 		this.hostOS = thisOS();
 
-		let platforms = program.args;
-		if (program.all) { // packaging for all platforms on all OSes
+		if (options.all) { // packaging for all platforms on all OSes
 			this.platforms = ALL_PLATFORMS;
 			this.oses = ALL_OSES;
 		} else if (!platforms.length || (platforms.length === 1 && platforms[0] === 'full')) { // building/testing/cleaning with no specific platform selected, use all
@@ -85,16 +97,16 @@ class Builder {
 			this.oses = [ this.hostOS ];
 		}
 
-		this.program = program;
-		this.program.timestamp = utils.timestamp();
-		this.program.versionTag = program.versionTag || program.sdkVersion;
+		this.options = options;
+		this.options.timestamp = utils.timestamp();
+		this.options.versionTag = options.versionTag || options.sdkVersion;
 	}
 
 	async clean() {
 		// TODO: Clean platforms in parallel
 		for (const p of this.platforms) {
 			const Platform = require(`./${p}`); // eslint-disable-line security/detect-non-literal-require
-			const platform = new Platform(this.program);
+			const platform = new Platform(this.options);
 			await platform.clean();
 		}
 		// TODO: Construct a Packager and have it clean zipdir/file too?
@@ -103,16 +115,16 @@ class Builder {
 
 	async test() {
 		const { runTests, outputMultipleResults } = require('./test');
-		const results = await runTests(this.platforms, this.program);
+		const results = await runTests(this.platforms, this.options);
 		return outputMultipleResults(results);
 	}
 
 	async ensureGitHash() {
-		if (this.program.gitHash) {
+		if (this.options.gitHash) {
 			return;
 		}
 		const hash = await git.getHash(ROOT_DIR);
-		this.program.gitHash = hash || 'n/a';
+		this.options.gitHash = hash || 'n/a';
 	}
 
 	async generateKernelBundle(platform, babelOptions, outDir) {
@@ -186,12 +198,12 @@ class Builder {
 
 	async build() {
 		await this.ensureGitHash();
-		console.log('Building MobileSDK version %s, githash %s', this.program.sdkVersion, this.program.gitHash);
+		console.log('Building MobileSDK version %s, githash %s', this.options.sdkVersion, this.options.gitHash);
 
 		// TODO: build platforms in parallel
 		for (const item of this.platforms) {
 			const Platform = require(`./${item}`); // eslint-disable-line security/detect-non-literal-require
-			const platform = new Platform(this.program);
+			const platform = new Platform(this.options);
 			await this.transpile(item, platform.babelOptions());
 			await platform.build();
 		}
@@ -200,7 +212,7 @@ class Builder {
 	async package() {
 		await this.ensureGitHash();
 
-		console.log('Packaging Mobile SDK (%s)...', this.program.versionTag);
+		console.log('Packaging Mobile SDK (%s)...', this.options.versionTag);
 		// FIXME: Work on allowing parallel OS packaging
 		// Only hurdle for packaging in parallel seems to be if a commonjs/hyperloop modules needs to
 		// be downloaded (each os would try to grab it simultaneously)
@@ -210,7 +222,7 @@ class Builder {
 		for (const os of this.oses) {
 			await this.packageForOS(os);
 		}
-		console.log(`Packaging version (${this.program.versionTag}) complete`);
+		console.log(`Packaging version (${this.options.versionTag}) complete`);
 	}
 
 	async packageForOS(currentOS) {
@@ -219,12 +231,12 @@ class Builder {
 		const platformsForThisOS = OS_TO_PLATFORMS[currentOS];
 		const filteredPlatforms = this.platforms.filter(p => platformsForThisOS.includes(p));
 
-		const packager = new Packager(DIST_DIR, currentOS, filteredPlatforms, this.program);
+		const packager = new Packager(DIST_DIR, currentOS, filteredPlatforms, this.options);
 		return packager.package();
 	}
 
 	async generateDocs() {
-		if (!this.program.docs) { // are we skipping doc generation?
+		if (!this.options.docs) { // are we skipping doc generation?
 			return;
 		}
 
@@ -237,10 +249,10 @@ class Builder {
 		if (zipfile) {
 			// Assume we have explicitly said to install this zipfile (from CLI command)
 			zipfile = path.resolve(process.cwd(), zipfile);
-			return utils.installSDKFromZipFile(zipfile, this.program.select);
+			return utils.installSDKFromZipFile(zipfile, this.options.select);
 		}
 		// Otherwise use fuzzier logic that tries to install local dev built version
-		return utils.installSDK(this.program.versionTag, this.program.symlink);
+		return utils.installSDK(this.options.versionTag, this.options.symlink);
 	}
 }
 

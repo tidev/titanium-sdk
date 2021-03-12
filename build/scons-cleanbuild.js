@@ -16,7 +16,7 @@ program
 
 async function main(program) {
 	const Builder = require('./lib/builder');
-	const builder = new Builder(program);
+	const builder = new Builder(program.opts(), program.args);
 	await builder.clean();
 	await builder.build();
 	await builder.generateDocs();

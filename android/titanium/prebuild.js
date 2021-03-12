@@ -62,13 +62,13 @@ async function gperf(workingDirPath, inputFilePath, outputFilePath) {
 async function generateTiKernel(outputDir) {
 	const Builder = require('../../build/lib/builder');
 	const Android = require('../../build/lib/android');
-	const program = { args: [ 'android' ] };
-	const builder = new Builder(program);
+	const options = { };
+	const builder = new Builder(options, [ 'android' ]);
 	await builder.ensureGitHash();
 	const android = new Android({
 		sdkVersion: require('../../package.json').version,
-		gitHash: program.gitHash,
-		timestamp: program.timestamp
+		gitHash: options.gitHash,
+		timestamp: options.timestamp
 	});
 
 	return builder.generateKernelBundle('android', android.babelOptions(), outputDir);
