@@ -650,23 +650,6 @@ public class ListItemProxy extends TiViewProxy
 	{
 		this.holder = null;
 
-		final KrollDict properties = getProperties();
-
-		if (properties.containsKeyAndNotNull(TiC.PROPERTY_HEADER_VIEW)) {
-			final TiViewProxy header = (TiViewProxy) properties.get(TiC.PROPERTY_HEADER_VIEW);
-
-			if (header.getParent() == this) {
-				header.releaseViews();
-			}
-		}
-		if (properties.containsKeyAndNotNull(TiC.PROPERTY_FOOTER_VIEW)) {
-			final TiViewProxy footer = (TiViewProxy) properties.get(TiC.PROPERTY_FOOTER_VIEW);
-
-			if (footer.getParent() == this) {
-				footer.releaseViews();
-			}
-		}
-
 		super.releaseViews();
 	}
 
