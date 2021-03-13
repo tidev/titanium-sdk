@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import ti.modules.titanium.ui.android.AndroidModule;
+import ti.modules.titanium.ui.widget.tabgroup.TiUITabLayoutTabGroup;
 
 public class TiUITabbedBar extends TiUIView implements MenuItem.OnMenuItemClickListener, TabLayout.OnTabSelectedListener
 {
@@ -207,6 +208,7 @@ public class TiUITabbedBar extends TiUIView implements MenuItem.OnMenuItemClickL
 				if (value != null) {
 					if (value instanceof Drawable) {
 						tab.setIcon(((Drawable) value));
+						TiUITabLayoutTabGroup.scaleIconToFit(tab);
 					} else {
 						tab.setText(value.toString());
 					}
