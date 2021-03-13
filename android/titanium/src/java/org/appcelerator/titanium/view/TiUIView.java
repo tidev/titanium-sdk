@@ -947,6 +947,10 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 
 	public void processProperties(KrollDict d)
 	{
+		if (d == null) {
+			return;
+		}
+
 		boolean nativeViewNull = false;
 		if (nativeView == null) {
 			nativeViewNull = true;
