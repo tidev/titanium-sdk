@@ -29,6 +29,7 @@ import org.appcelerator.titanium.view.TiDrawableReference;
 import org.appcelerator.titanium.view.TiUIView;
 import ti.modules.titanium.ui.android.AndroidModule;
 import ti.modules.titanium.ui.widget.tabgroup.TiUIAbstractTabGroup;
+import ti.modules.titanium.ui.widget.tabgroup.TiUITabLayoutTabGroup;
 
 public class TiUITabbedBar extends TiUIView implements MenuItem.OnMenuItemClickListener, TabLayout.OnTabSelectedListener
 {
@@ -224,6 +225,7 @@ public class TiUITabbedBar extends TiUIView implements MenuItem.OnMenuItemClickL
 				if (value != null) {
 					if (value instanceof Drawable) {
 						tab.setIcon(((Drawable) value));
+						TiUITabLayoutTabGroup.scaleIconToFit(tab);
 					} else {
 						tab.setText(value.toString());
 					}
