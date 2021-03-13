@@ -20,7 +20,8 @@
 @property (nonatomic, assign) NSString *domain;
 PROPERTY(bool, isLocal, IsLocal);
 @property (nonatomic, assign) NSString *name;
-@optional @property (nonatomic, strong) JSValue *socket;
+@optional
+@property (nonatomic, strong) JSValue *socket;
 @property (nonatomic, assign) NSString *type;
 
 // Methods

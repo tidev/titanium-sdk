@@ -567,7 +567,9 @@ NSArray *moviePlayerKeys = nil;
 - (void)setCurrentPlaybackTime:(id)time
 {
   if (movie != nil) {
-    [[[movie player] currentItem] seekToTime:CMTimeMake([TiUtils doubleValue:time], 1000) completionHandler:^(BOOL finished) {}];
+    [[[movie player] currentItem] seekToTime:CMTimeMake([TiUtils doubleValue:time], 1000)
+                           completionHandler:^(BOOL finished){
+                           }];
   } else {
     [loadProperties setValue:time forKey:@"currentPlaybackTime"];
   }

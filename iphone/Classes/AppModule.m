@@ -14,10 +14,10 @@
 #import "TiAppiOSProxy.h"
 #endif
 
+#import "Titanium-Swift.h"
 #import <TitaniumKit/TiLayoutQueue.h>
 #import <UIKit/UILocalNotification.h>
 #import <unistd.h>
-#import "Titanium-Swift.h"
 
 extern NSString *const TI_APPLICATION_DEPLOYTYPE;
 extern NSString *const TI_APPLICATION_ID;

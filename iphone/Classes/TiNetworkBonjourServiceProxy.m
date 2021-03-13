@@ -10,11 +10,11 @@
 
 #import "TiNetworkBonjourServiceProxy.h"
 #import "TiNetworkSocketTCPProxy.h"
+#import <TitaniumKit/JSValue+Addons.h>
 #import <arpa/inet.h>
 #import <netdb.h>
 #import <netinet/in.h>
 #import <sys/socket.h>
-#import <TitaniumKit/JSValue+Addons.h>
 
 @implementation TiNetworkBonjourServiceProxy
 

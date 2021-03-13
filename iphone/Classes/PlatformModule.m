@@ -8,9 +8,9 @@
 
 #import "PlatformModule.h"
 #import "TiPlatformDisplayCaps.h"
+#import "Titanium-Swift.h"
 #import <TitaniumKit/JSValue+Addons.h>
 #import <TitaniumKit/TiApp.h>
-#import "Titanium-Swift.h"
 
 #import <mach/mach.h>
 #import <sys/sysctl.h>

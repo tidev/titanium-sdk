@@ -21,14 +21,14 @@
 PROPERTY(bool, allDay, AllDay);
 READONLY_PROPERTY(NSArray<TiCalendarAttendee *> *, attendees, Attendees);
 PROPERTY(EKEventAvailability, availability, Availability);
-@property (nonatomic, strong) NSDate * begin;
+@property (nonatomic, strong) NSDate *begin;
 @property (nonatomic, strong) NSDate *end;
 READONLY_PROPERTY(bool, hasAlarm, HasAlarm);
 READONLY_PROPERTY(NSString *, id, Id);
 READONLY_PROPERTY(bool, isDetached, IsDetached);
 @property (nonatomic, assign) NSString *location;
 @property (nonatomic, assign) NSString *notes;
-@property (nonatomic, strong) NSArray<TiCalendarRecurrenceRule *> * recurrenceRules;
+@property (nonatomic, strong) NSArray<TiCalendarRecurrenceRule *> *recurrenceRules;
 READONLY_PROPERTY(EKEventStatus, status, Status);
 @property (nonatomic, assign) NSString *title;
 
