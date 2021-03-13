@@ -567,7 +567,7 @@ NSArray *moviePlayerKeys = nil;
 - (void)setCurrentPlaybackTime:(id)time
 {
   if (movie != nil) {
-    [[[movie player] currentItem] seekToTime:CMTimeMake([TiUtils doubleValue:time], 1000)];
+    [[[movie player] currentItem] seekToTime:CMTimeMake([TiUtils doubleValue:time], 1000) completionHandler:^(BOOL finished) {}];
   } else {
     [loadProperties setValue:time forKey:@"currentPlaybackTime"];
   }
@@ -629,9 +629,9 @@ NSArray *moviePlayerKeys = nil;
 - (NSNumber *)moviePlayerStatus
 {
   if ([movie player] != nil) {
-    return NUMINT([[movie player] status]);
+    return @([[movie player] status]);
   }
-  return NUMINT(AVPlayerStatusUnknown);
+  return @(AVPlayerStatusUnknown);
 }
 
 - (NSNumber *)loadState

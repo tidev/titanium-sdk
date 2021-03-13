@@ -10,6 +10,7 @@
 #import "TiPlatformDisplayCaps.h"
 #import <TitaniumKit/JSValue+Addons.h>
 #import <TitaniumKit/TiApp.h>
+#import "Titanium-Swift.h"
 
 #import <mach/mach.h>
 #import <sys/sysctl.h>
@@ -315,7 +316,7 @@ GETTER_IMPL(NSNumber *, availableMemory, AvailableMemory);
 
 - (bool)openURL:(NSString *)url withOptions:(JSValue *)options andCallback:(JSValue *)callback
 {
-  NSURL *newUrl = [TiUtils toURL:url proxy:self];
+  NSURL *newUrl = [TiUtils toURL:url proxy:(TiProxy *)self];
   BOOL result = NO;
 
   NSDictionary *optionsDict = @{};
@@ -346,7 +347,7 @@ GETTER_IMPL(NSNumber *, availableMemory, AvailableMemory);
 
 - (bool)canOpenURL:(NSString *)arg
 {
-  NSURL *url = [TiUtils toURL:arg proxy:self];
+  NSURL *url = [TiUtils toURL:arg proxy:(TiProxy *)self];
   return [[UIApplication sharedApplication] canOpenURL:url];
 }
 
@@ -398,7 +399,7 @@ READWRITE_IMPL(bool, batteryMonitoring, BatteryMonitoring);
         YES);
     return [result autorelease];
   }
-  return NUMINT([[UIDevice currentDevice] batteryState]);
+  return @([[UIDevice currentDevice] batteryState]);
 }
 GETTER_IMPL(NSNumber *, batteryState, BatteryState);
 

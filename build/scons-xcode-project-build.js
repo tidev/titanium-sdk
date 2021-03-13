@@ -58,16 +58,16 @@ async function generateBundle(outputDir) {
 }
 
 async function main(tmpBundleDir) {
-	await fs.emptyDir(tmpBundleDir);
-	await generateBundle(appDir); // run rollup/babel to generate single bundled ti.main.js in app
-	console.log(`Removing temp dir used for bundling: ${tmpBundleDir}`);
-	await fs.remove(tmpBundleDir); // remove tmp location
-	console.log(`Copying xcode resources: ${xcodeProjectResources} -> ${appDir}`);
-	await fs.copy(xcodeProjectResources, appDir, { dereference: true }); // copy our xcode app resources
-	console.log('Creating i18n files');
-	await generateI18n();
-	console.log('Generating index.json');
-	await generateIndexJSON(appDir); // generate _index_.json file for require file existence checks
+	// await fs.emptyDir(tmpBundleDir);
+	// await generateBundle(appDir); // run rollup/babel to generate single bundled ti.main.js in app
+	// console.log(`Removing temp dir used for bundling: ${tmpBundleDir}`);
+	// await fs.remove(tmpBundleDir); // remove tmp location
+	// console.log(`Copying xcode resources: ${xcodeProjectResources} -> ${appDir}`);
+	// await fs.copy(xcodeProjectResources, appDir, { dereference: true }); // copy our xcode app resources
+	// console.log('Creating i18n files');
+	// await generateI18n();
+	// console.log('Generating index.json');
+	// await generateIndexJSON(appDir); // generate _index_.json file for require file existence checks
 }
 
 async function generateI18n () {

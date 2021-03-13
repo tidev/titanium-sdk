@@ -17,6 +17,7 @@
 #import <TitaniumKit/TiLayoutQueue.h>
 #import <UIKit/UILocalNotification.h>
 #import <unistd.h>
+#import "Titanium-Swift.h"
 
 extern NSString *const TI_APPLICATION_DEPLOYTYPE;
 extern NSString *const TI_APPLICATION_ID;
@@ -102,7 +103,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
   [super _configure];
   [[NSNotificationCenter defaultCenter] addObserver:self
                                            selector:@selector(accessibilityVoiceOverStatusChanged:)
-                                               name:UIAccessibilityVoiceOverStatusChanged
+                                               name:UIAccessibilityVoiceOverStatusDidChangeNotification
                                              object:nil];
   [[NSNotificationCenter defaultCenter] addObserver:self
                                            selector:@selector(handleUserInteraction:)
