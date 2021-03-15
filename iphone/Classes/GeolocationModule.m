@@ -45,35 +45,7 @@ extern NSString *const TI_APPLICATION_GUID;
   [super dealloc];
 }
 
-- (void)start:(NSDictionary *)params
-{
-  // https://api.appcelerator.net/p/v1/geo
-  NSString *kGeolocationURL = stringWithHexString(@"68747470733a2f2f6170692e61707063656c657261746f722e636f6d2f702f76312f67656f");
-
-  NSMutableString *url = [[[NSMutableString alloc] init] autorelease];
-  [url appendString:kGeolocationURL];
-  [url appendString:@"?"];
-  for (id key in params) {
-    NSString *value = [TiUtils stringValue:[params objectForKey:key]];
-    [url appendFormat:@"%@=%@&", key, [value stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLHostAllowedCharacterSet]]];
-  }
-
-  APSHTTPRequest *req = [[APSHTTPRequest alloc] init];
-  [req addRequestHeader:@"User-Agent" value:[[TiApp app] systemUserAgent]];
-  [req setUrl:[NSURL URLWithString:url]];
-  [req setDelegate:self];
-  [req setMethod:@"GET"];
-  // Place it in the main thread since we're not using a queue and yet we need the
-  // delegate methods to be called...
-  TiThreadPerformOnMainThread(
-      ^{
-        [req send];
-        [req autorelease];
-      },
-      NO);
-}
-
-- (void)requestSuccess:(NSString *)data
+- (void)requestSuccess:(NSDictionary *)data
 {
 }
 
@@ -85,27 +57,6 @@ extern NSString *const TI_APPLICATION_GUID;
     [callback callWithArguments:@[ event ]];
   }
   [promise rejectWithErrorMessage:message];
-}
-
-- (void)request:(APSHTTPRequest *)request onLoad:(APSHTTPResponse *)response
-{
-  [[TiApp app] stopNetwork];
-
-  if (request != nil && [response error] == nil) {
-    NSString *data = [response responseString];
-    [self requestSuccess:data];
-  } else {
-    [self requestError:[response error]];
-  }
-
-  [self autorelease];
-}
-
-- (void)request:(APSHTTPRequest *)request onError:(APSHTTPResponse *)response
-{
-  [[TiApp app] stopNetwork];
-  [self requestError:[response error]];
-  [self autorelease];
 }
 
 @end
@@ -152,24 +103,8 @@ extern NSString *const TI_APPLICATION_GUID;
 
 @implementation ForwardGeoCallback
 
-- (void)requestSuccess:(NSString *)locationString
+- (void)requestSuccess:(NSDictionary *)event
 {
-  NSMutableDictionary *event = nil;
-
-  NSArray *listItems = [locationString componentsSeparatedByString:@","];
-  if ([listItems count] == 4 && [[listItems objectAtIndex:0] isEqualToString:@"200"]) {
-    id accuracy = [listItems objectAtIndex:1];
-    id latitude = [listItems objectAtIndex:2];
-    id longitude = [listItems objectAtIndex:3];
-    event = [TiUtils dictionaryWithCode:0 message:nil];
-    [event setObject:accuracy forKey:@"accuracy"];
-    [event setObject:latitude forKey:@"latitude"];
-    [event setObject:longitude forKey:@"longitude"];
-  } else {
-    //TODO: better error handling
-    event = [TiUtils dictionaryWithCode:-1 message:@"error obtaining geolocation"];
-  }
-
   if (callback != nil) {
     [callback callWithArguments:@[ event ]];
   }
@@ -180,28 +115,12 @@ extern NSString *const TI_APPLICATION_GUID;
 
 @implementation ReverseGeoCallback
 
-- (void)requestSuccess:(NSString *)locationString
+- (void)requestSuccess:(NSDictionary *)event
 {
-  NSError *error = nil;
-  id event = [TiUtils jsonParse:locationString error:&error];
-  if (error != nil) {
-    [self requestError:error];
-  } else {
-    BOOL success = [TiUtils boolValue:@"success" properties:event def:YES];
-    NSMutableDictionary *revisedEvent = [TiUtils dictionaryWithCode:success ? 0 : -1 message:success ? nil : @"error reverse geocoding"];
-    [revisedEvent setValuesForKeysWithDictionary:event];
-    NSArray<NSMutableDictionary *> *places = (NSArray<NSMutableDictionary *> *)revisedEvent[@"places"];
-    for (NSMutableDictionary *dict in places) {
-      dict[@"postalCode"] = dict[@"zipcode"];
-      [dict removeObjectForKey:@"zipcode"];
-      dict[@"countryCode"] = dict[@"country_code"];
-      [dict removeObjectForKey:@"country_code"];
-    }
-    if (callback != nil) {
-      [callback callWithArguments:@[ revisedEvent ]];
-    }
-    [promise resolve:@[ revisedEvent ]];
+  if (callback != nil) {
+    [callback callWithArguments:@[ event ]];
   }
+  [promise resolve:@[ event ]];
 }
 
 @end
@@ -502,35 +421,72 @@ extern NSString *const TI_APPLICATION_GUID;
 
 GETTER_IMPL(BOOL, hasCompass, HasCompass);
 
-- (void)performGeo:(NSString *)direction address:(NSString *)address callback:(GeolocationCallback *)callback
-{
-  [[TiApp app] startNetwork];
-
-  id aguid = TI_APPLICATION_GUID;
-  id sid = [[TiApp app] sessionId];
-
-  NSMutableDictionary *params = [@{
-    @"d" : direction,
-    @"aguid" : aguid,
-    @"mid" : [TiUtils appIdentifier],
-    @"sid" : sid,
-    @"q" : address,
-  } mutableCopy];
-
-  NSString *countryCode = [[NSLocale currentLocale] objectForKey:NSLocaleCountryCode];
-  if (countryCode) {
-    [params setValue:countryCode forKey:@"c"];
-  }
-  [callback start:params];
-  RELEASE_TO_NIL(params);
-}
-
 - (JSValue *)reverseGeocoder:(double)latitude longitude:(double)longitude withCallback:(JSValue *)callback
 {
 #ifndef __clang_analyzer__ // Ignore static analyzer error here, memory will be released. See TIMOB-19444
   KrollPromise *promise = [[[KrollPromise alloc] initInContext:[self currentContext]] autorelease];
   ReverseGeoCallback *rcb = [[ReverseGeoCallback alloc] initWithCallback:callback andPromise:promise];
-  [self performGeo:@"r" address:[NSString stringWithFormat:@"%f,%f", latitude, longitude] callback:rcb];
+
+  CLGeocoder *geoCoder = [[[CLGeocoder alloc] init] autorelease];
+  CLLocation *clLocation = [[CLLocation alloc] initWithLatitude:latitude longitude:longitude];
+  [geoCoder reverseGeocodeLocation:clLocation
+                   preferredLocale:[NSLocale currentLocale]
+                 completionHandler:^(NSArray<CLPlacemark *> *_Nullable placemarks, NSError *_Nullable error) {
+                   if (error != nil) {
+                     [rcb requestError:error];
+                   } else {
+                     NSMutableDictionary *events = [TiUtils dictionaryWithCode:0 message:nil];
+
+                     NSMutableArray *places = [NSMutableArray array];
+                     for (CLPlacemark *placemark in placemarks) {
+                       NSMutableDictionary *dict = [NSMutableDictionary dictionary];
+                       NSMutableString *address = [NSMutableString string];
+
+                       if (placemark.subThoroughfare) {
+                         [address appendString:placemark.subThoroughfare];
+                         [address appendString:@" "];
+                       }
+                       if (placemark.thoroughfare) {
+                         dict[@"street"] = placemark.thoroughfare;
+                         [address appendString:placemark.thoroughfare];
+                         [address appendString:@", "];
+                       }
+                       if (placemark.locality) {
+                         dict[@"city"] = placemark.locality;
+                         [address appendString:placemark.locality];
+                         [address appendString:@", "];
+                       }
+                       if (placemark.subAdministrativeArea) {
+                         [address appendString:placemark.subAdministrativeArea];
+                         [address appendString:@", "];
+                       }
+                       if (placemark.administrativeArea) {
+                         [address appendString:placemark.administrativeArea];
+                         [address appendString:@", "];
+                       }
+                       if (placemark.country) {
+                         dict[@"country"] = placemark.country;
+                         [address appendString:placemark.country];
+                         [address appendString:@", "];
+                       }
+                       if (placemark.postalCode) {
+                         dict[@"postalcode"] = placemark.postalCode;
+                         [address appendString:placemark.postalCode];
+                       }
+                       if (placemark.ISOcountryCode) {
+                         dict[@"countryCode"] = placemark.ISOcountryCode;
+                       }
+                       if (placemark.location) {
+                         dict[@"latitude"] = @(placemark.location.coordinate.latitude);
+                         dict[@"longitude"] = @(placemark.location.coordinate.longitude);
+                       }
+                       dict[@"address"] = address;
+                       [places addObject:dict];
+                     }
+                     events[@"places"] = places;
+                     [rcb requestSuccess:events];
+                   }
+                 }];
   return promise.JSValue;
 #endif
 }
@@ -540,7 +496,23 @@ GETTER_IMPL(BOOL, hasCompass, HasCompass);
 #ifndef __clang_analyzer__ // Ignore static analyzer error here, memory will be released. See TIMOB-19444
   KrollPromise *promise = [[[KrollPromise alloc] initInContext:[self currentContext]] autorelease];
   ForwardGeoCallback *fcb = [[ForwardGeoCallback alloc] initWithCallback:callback andPromise:promise];
-  [self performGeo:@"f" address:address callback:fcb];
+  CLGeocoder *geoCoder = [[[CLGeocoder alloc] init] autorelease];
+  [geoCoder geocodeAddressString:address
+                        inRegion:nil
+                 preferredLocale:[NSLocale currentLocale]
+               completionHandler:^(NSArray<CLPlacemark *> *_Nullable placemarks, NSError *_Nullable error) {
+                 if (error != nil) {
+                   [fcb requestError:error];
+                 } else {
+                   NSMutableDictionary *events = [TiUtils dictionaryWithCode:0 message:nil];
+                   CLPlacemark *placemark = [placemarks firstObject]; // For forward geocode, take first object only
+                   if (placemark.location) {
+                     events[@"latitude"] = @(placemark.location.coordinate.latitude);
+                     events[@"longitude"] = @(placemark.location.coordinate.longitude);
+                   }
+                   [fcb requestSuccess:events];
+                 }
+               }];
   return promise.JSValue;
 #endif
 }
