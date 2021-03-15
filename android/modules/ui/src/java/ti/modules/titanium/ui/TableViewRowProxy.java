@@ -501,5 +501,39 @@ public class TableViewRowProxy extends TiViewProxy
 			}
 			super.setNativeView(view);
 		}
+
+		@Override
+		public void add(TiUIView child)
+		{
+			// TODO: This could be improved to prevent the need for swapping native views.
+			// Our `nativeView` is currently set as our TableViewHolder view as a workaround
+			// for allowing events/properties to set on our holder instead of our row content.
+			// Temporarily swap our native view back to original content while new child is added.
+			final View nativeView = getNativeView();
+			if (nativeView != null) {
+				setNativeView(this.content);
+				super.add(child);
+				setNativeView(nativeView);
+			} else {
+				super.add(child);
+			}
+		}
+
+		@Override
+		public void remove(TiUIView child)
+		{
+			// TODO: This could be improved to prevent the need for swapping native views.
+			// Our `nativeView` is currently set as our TableViewHolder view as a workaround
+			// for allowing events/properties to set on our holder instead of our row content.
+			// Temporarily swap our native view back to original content while new child is removed.
+			final View nativeView = getNativeView();
+			if (nativeView != null) {
+				setNativeView(this.content);
+				super.remove(child);
+				setNativeView(nativeView);
+			} else {
+				super.remove(child);
+			}
+		}
 	}
 }
