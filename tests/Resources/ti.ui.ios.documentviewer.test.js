@@ -29,12 +29,7 @@ describe.ios('Titanium.UI.iOS.DocumentViewer', () => {
 		});
 	});
 
-	afterEach(done => {
-		documentViewer = null;
-		done();
-	});
-
-	it('.name', () => {
+	it('.name', function () {
 		// On macOS < 11, it is failing. https://developer.apple.com/forums/thread/125819
 		if (isCI && utilities.isMacOS() && OS_VERSION_MAJOR < 11) {
 			this.skip();
@@ -44,7 +39,7 @@ describe.ios('Titanium.UI.iOS.DocumentViewer', () => {
 		should(documentViewer.name).eql('example.html');
 	});
 
-	it('.annotation', () => {
+	it('.annotation', function () {
 		// On macOS < 11, it is failing. https://developer.apple.com/forums/thread/125819
 		if (isCI && utilities.isMacOS() && OS_VERSION_MAJOR < 11) {
 			this.skip();
