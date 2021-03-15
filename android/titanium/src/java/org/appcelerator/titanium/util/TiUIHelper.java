@@ -82,6 +82,7 @@ import android.view.View;
 import android.view.View.MeasureSpec;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.TextView;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 /**
  * A set of utility methods focused on UI and View operations.
@@ -141,7 +142,7 @@ public class TiUIHelper
 			negativeListener = createKillListener();
 		}
 
-		new AlertDialog.Builder(context)
+		new MaterialAlertDialogBuilder(context)
 			.setTitle(title)
 			.setMessage(message)
 			.setPositiveButton("Continue", positiveListener)
@@ -222,7 +223,7 @@ public class TiUIHelper
 			{
 				//add dialog to activity for cleaning up purposes
 				if (!activity.isFinishing()) {
-					AlertDialog dialog = new AlertDialog.Builder(activity)
+					AlertDialog dialog = new MaterialAlertDialogBuilder(activity)
 											 .setTitle(title)
 											 .setMessage(message)
 											 .setPositiveButton(android.R.string.ok, fListener)

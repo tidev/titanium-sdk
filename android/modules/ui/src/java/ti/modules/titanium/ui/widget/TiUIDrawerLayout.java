@@ -27,8 +27,8 @@ import androidx.customview.widget.ViewDragHelper;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.view.GravityCompat;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -166,7 +166,7 @@ public class TiUIDrawerLayout extends TiUIView
 
 	public void toggleLeft()
 	{
-		if (layout.isDrawerOpen(Gravity.START)) {
+		if (layout.isDrawerOpen(GravityCompat.START)) {
 			closeLeft();
 		} else {
 			openLeft();
@@ -175,17 +175,17 @@ public class TiUIDrawerLayout extends TiUIView
 
 	public void openLeft()
 	{
-		layout.openDrawer(Gravity.START);
+		layout.openDrawer(GravityCompat.START);
 	}
 
 	public void closeLeft()
 	{
-		layout.closeDrawer(Gravity.START);
+		layout.closeDrawer(GravityCompat.START);
 	}
 
 	public void toggleRight()
 	{
-		if (layout.isDrawerOpen(Gravity.END)) {
+		if (layout.isDrawerOpen(GravityCompat.END)) {
 			closeRight();
 		} else {
 			openRight();
@@ -194,32 +194,32 @@ public class TiUIDrawerLayout extends TiUIView
 
 	public void openRight()
 	{
-		layout.openDrawer(Gravity.END);
+		layout.openDrawer(GravityCompat.END);
 	}
 
 	public void closeRight()
 	{
-		layout.closeDrawer(Gravity.END);
+		layout.closeDrawer(GravityCompat.END);
 	}
 
 	public boolean isLeftOpen()
 	{
-		return layout.isDrawerOpen(Gravity.START);
+		return layout.isDrawerOpen(GravityCompat.START);
 	}
 
 	public boolean isRightOpen()
 	{
-		return layout.isDrawerOpen(Gravity.END);
+		return layout.isDrawerOpen(GravityCompat.END);
 	}
 
 	public boolean isLeftVisible()
 	{
-		return layout.isDrawerVisible(Gravity.START);
+		return layout.isDrawerVisible(GravityCompat.START);
 	}
 
 	public boolean isRightVisible()
 	{
-		return layout.isDrawerVisible(Gravity.END);
+		return layout.isDrawerVisible(GravityCompat.END);
 	}
 
 	private void initDrawerToggle()
@@ -280,7 +280,7 @@ public class TiUIDrawerLayout extends TiUIView
 		leftFrame = new FrameLayout(proxy.getActivity());
 
 		LayoutParams frameLayout = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.MATCH_PARENT);
-		frameLayout.gravity = Gravity.START;
+		frameLayout.gravity = GravityCompat.START;
 		leftFrame.setLayoutParams(frameLayout);
 
 		layout.addView(leftFrame);
@@ -298,7 +298,7 @@ public class TiUIDrawerLayout extends TiUIView
 		rightFrame = new FrameLayout(proxy.getActivity());
 
 		LayoutParams frameLayout = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.MATCH_PARENT);
-		frameLayout.gravity = Gravity.END;
+		frameLayout.gravity = GravityCompat.END;
 		rightFrame.setLayoutParams(frameLayout);
 
 		layout.addView(rightFrame);
@@ -419,10 +419,10 @@ public class TiUIDrawerLayout extends TiUIView
 			layout.setDrawerLockMode(TiConvert.toInt(d.get(TiC.PROPERTY_DRAWER_LOCK_MODE)));
 		}
 		if (d.containsKey(TiC.PROPERTY_LEFT_DRAWER_LOCK_MODE)) {
-			layout.setDrawerLockMode(TiConvert.toInt(d.get(TiC.PROPERTY_LEFT_DRAWER_LOCK_MODE)), Gravity.START);
+			layout.setDrawerLockMode(TiConvert.toInt(d.get(TiC.PROPERTY_LEFT_DRAWER_LOCK_MODE)), GravityCompat.START);
 		}
 		if (d.containsKey(TiC.PROPERTY_RIGHT_DRAWER_LOCK_MODE)) {
-			layout.setDrawerLockMode(TiConvert.toInt(d.get(TiC.PROPERTY_RIGHT_DRAWER_LOCK_MODE)), Gravity.END);
+			layout.setDrawerLockMode(TiConvert.toInt(d.get(TiC.PROPERTY_RIGHT_DRAWER_LOCK_MODE)), GravityCompat.END);
 		}
 		// If theme has default ActionBar ignore `toolbarEnabled` and `toolbar` properties
 		if (!this.themeHasActionBar) {
@@ -520,7 +520,7 @@ public class TiUIDrawerLayout extends TiUIView
 			}
 
 			LayoutParams leftFrameLayout = new LayoutParams(leftWidth, LayoutParams.MATCH_PARENT);
-			leftFrameLayout.gravity = Gravity.START;
+			leftFrameLayout.gravity = GravityCompat.START;
 			this.leftFrame.setLayoutParams(leftFrameLayout);
 
 		} else if (key.equals(TiC.PROPERTY_RIGHT_WIDTH)) {
@@ -538,15 +538,15 @@ public class TiUIDrawerLayout extends TiUIView
 			}
 
 			LayoutParams rightFrameLayout = new LayoutParams(rightWidth, LayoutParams.MATCH_PARENT);
-			rightFrameLayout.gravity = Gravity.END;
+			rightFrameLayout.gravity = GravityCompat.END;
 			this.rightFrame.setLayoutParams(rightFrameLayout);
 
 		} else if (key.equals(TiC.PROPERTY_DRAWER_LOCK_MODE)) {
 			layout.setDrawerLockMode(TiConvert.toInt(newValue));
 		} else if (key.equals(TiC.PROPERTY_LEFT_DRAWER_LOCK_MODE)) {
-			layout.setDrawerLockMode(TiConvert.toInt(newValue), Gravity.START);
+			layout.setDrawerLockMode(TiConvert.toInt(newValue), GravityCompat.START);
 		} else if (key.equals(TiC.PROPERTY_RIGHT_DRAWER_LOCK_MODE)) {
-			layout.setDrawerLockMode(TiConvert.toInt(newValue), Gravity.END);
+			layout.setDrawerLockMode(TiConvert.toInt(newValue), GravityCompat.END);
 		} else if (key.equals(TiC.PROPERTY_DRAWER_INDICATOR_ENABLED)) {
 			if (drawerToggle != null) {
 				drawerToggle.setDrawerIndicatorEnabled((Boolean) newValue);

@@ -1024,6 +1024,16 @@ properties:
     osver: {ios: {min: "7.0"}}
     platforms: [iphone, ipad, macos]
 
+  - name: touchFeedback
+    summary: A material design visual construct that provides an instantaneous visual confirmation of touch point.
+    description: |
+        Touch feedback is only applied to a view's background.
+    type: Boolean
+    default: true
+    platforms: [android]
+    osver: {android: {min: "5.0"}}
+    since: "10.0.0"
+
   - name: listSeparatorInsets
     summary: The insets for the list view header and footer.
     description: |

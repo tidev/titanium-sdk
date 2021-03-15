@@ -390,10 +390,20 @@ TiProxy *DeepScanForProxyOfViewContainingPoint(UIView *targetView, CGPoint point
   }
 
   [(TiUITableViewCell *)cell setBackgroundGradient_:[self valueForKey:@"backgroundGradient"]];
-  [(TiUITableViewCell *)cell setSelectedBackgroundGradient_:[self valueForKey:@"selectedBackgroundGradient"]];
+  if (IS_NULL_OR_NIL([self valueForKey:@"selectedBackgroundGradient"])) {
+    [(TiUITableViewCell *)cell setSelectedBackgroundGradient_:[self valueForKey:@"selectedBackgroundGradient"]];
+  }
+  [(TiUITableViewCell *)cell setBackgroundSelectedGradient_:[self valueForKey:@"backgroundSelectedGradient"]];
 
   id bgImage = [self valueForKey:@"backgroundImage"];
-  id selBgColor = [self valueForKey:@"selectedBackgroundColor"];
+  id selBgColor = [self valueForKey:@"backgroundSelectedColor"];
+  if (IS_NULL_OR_NIL(selBgColor)) {
+    selBgColor = [self valueForKey:@"selectedBackgroundColor"];
+
+    if (!IS_NULL_OR_NIL(selBgColor)) {
+      DEPRECATED_REPLACED(@"selectedBackgroundColor", @"10.0.0", @"backgroundSelectedColor");
+    }
+  }
 
   if (bgImage != nil) {
     NSURL *url = [TiUtils toURL:bgImage proxy:(TiProxy *)table.proxy];
@@ -409,7 +419,14 @@ TiProxy *DeepScanForProxyOfViewContainingPoint(UIView *targetView, CGPoint point
     cell.backgroundView = nil;
   }
 
-  id selBgImage = [self valueForKey:@"selectedBackgroundImage"];
+  id selBgImage = [self valueForKey:@"backgroundSelectedImage"];
+  if (IS_NULL_OR_NIL(selBgImage)) {
+    selBgImage = [self valueForKey:@"selectedBackgroundImage"];
+
+    if (!IS_NULL_OR_NIL(selBgImage)) {
+      DEPRECATED_REPLACED(@"selectedBackgroundImage", @"10.0.0", @"backgroundSelectedImage");
+    }
+  }
   if (selBgImage != nil) {
     NSURL *url = [TiUtils toURL:selBgImage proxy:(TiProxy *)table.proxy];
     UIImage *image = [[ImageLoader sharedLoader] loadImmediateStretchableImage:url withLeftCap:leftCap topCap:topCap];
@@ -851,15 +868,29 @@ TiProxy *DeepScanForProxyOfViewContainingPoint(UIView *targetView, CGPoint point
 
 - (BOOL)shouldUseBackgroundView
 {
-  return [self valueForKey:@"selectedBackgroundColor"]
+  return [self valueForKey:@"backgroundSelectedColor"]
+      || [self valueForKey:@"selectedBackgroundColor"]
       || [self valueForKey:@"backgroundImage"]
+      || [self valueForKey:@"backgroundSelectedImage"]
       || [self valueForKey:@"selectedBackgroundImage"]
       || [self valueForKey:@"backgroundLeftCap"]
       || [self valueForKey:@"backgroundTopCap"];
 }
 
+- (void)setBackgroundSelectedColor:(id)arg
+{
+  [self replaceValue:arg forKey:@"backgroundSelectedColor" notification:NO];
+  TiThreadPerformOnMainThread(
+      ^{
+        if ([self viewAttached]) {
+          [self configureBackground:callbackCell];
+        }
+      },
+      NO);
+}
 - (void)setSelectedBackgroundColor:(id)arg
 {
+  DEPRECATED_REPLACED(@"selectedBackgroundColor", @"10.0.0", @"backgroundSelectedColor");
   [self replaceValue:arg forKey:@"selectedBackgroundColor" notification:NO];
   TiThreadPerformOnMainThread(
       ^{
@@ -882,8 +913,20 @@ TiProxy *DeepScanForProxyOfViewContainingPoint(UIView *targetView, CGPoint point
       NO);
 }
 
+- (void)setBackgroundSelectedImage:(id)arg
+{
+  [self replaceValue:arg forKey:@"backgroundSelectedImage" notification:NO];
+  TiThreadPerformOnMainThread(
+      ^{
+        if ([self viewAttached]) {
+          [self configureBackground:callbackCell];
+        }
+      },
+      NO);
+}
 - (void)setSelectedBackgroundImage:(id)arg
 {
+  DEPRECATED_REPLACED(@"selectedBackgroundImage", @"10.0.0", @"backgroundSelectedImage");
   [self replaceValue:arg forKey:@"selectedBackgroundImage" notification:NO];
   TiThreadPerformOnMainThread(
       ^{
@@ -905,8 +948,19 @@ TiProxy *DeepScanForProxyOfViewContainingPoint(UIView *targetView, CGPoint point
       NO);
 }
 
+- (void)setBackgroundSelectedGradient:(id)arg
+{
+  TiGradient *newGradient = [TiGradient gradientFromObject:arg proxy:self];
+  [self replaceValue:newGradient forKey:@"backgroundSelectedGradient" notification:NO];
+  TiThreadPerformOnMainThread(
+      ^{
+        [callbackCell setBackgroundSelectedGradient_:newGradient];
+      },
+      NO);
+}
 - (void)setSelectedBackgroundGradient:(id)arg
 {
+  DEPRECATED_REPLACED(@"selectedBackgroundGradient", @"10.0.0", @"backgroundSelectedGradient");
   TiGradient *newGradient = [TiGradient gradientFromObject:arg proxy:self];
   [self replaceValue:newGradient forKey:@"selectedBackgroundGradient" notification:NO];
   TiThreadPerformOnMainThread(

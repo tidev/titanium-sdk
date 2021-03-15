@@ -90,4 +90,18 @@ public class TiActivity extends TiBaseActivity
 		// Destroy this activity.
 		super.onDestroy();
 	}
+
+	@Override
+	public void recreate()
+	{
+		// The above calls to onNewIntent() replace this activity's original launch intent.
+		// Restore it since we need its "extras" to bind proxy to re-created activity.
+		Intent launchIntent = getLaunchIntent();
+		if (launchIntent != null) {
+			setIntent(launchIntent);
+		}
+
+		// Destroy and re-create this activity.
+		super.recreate();
+	}
 }
