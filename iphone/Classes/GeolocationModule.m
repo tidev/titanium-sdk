@@ -428,7 +428,7 @@ GETTER_IMPL(BOOL, hasCompass, HasCompass);
   ReverseGeoCallback *rcb = [[ReverseGeoCallback alloc] initWithCallback:callback andPromise:promise];
 
   CLGeocoder *geoCoder = [[[CLGeocoder alloc] init] autorelease];
-  CLLocation *clLocation = [[CLLocation alloc] initWithLatitude:latitude longitude:longitude];
+  CLLocation *clLocation = [[[CLLocation alloc] initWithLatitude:latitude longitude:longitude] autorelease];
   [geoCoder reverseGeocodeLocation:clLocation
                    preferredLocale:[NSLocale currentLocale]
                  completionHandler:^(NSArray<CLPlacemark *> *_Nullable placemarks, NSError *_Nullable error) {
