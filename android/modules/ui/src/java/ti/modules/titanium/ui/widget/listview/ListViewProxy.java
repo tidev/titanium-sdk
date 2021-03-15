@@ -47,7 +47,9 @@ import ti.modules.titanium.ui.widget.TiUIListView;
 		TiC.PROPERTY_SEPARATOR_HEIGHT,
 		TiC.PROPERTY_SEPARATOR_STYLE,
 		TiC.PROPERTY_SHOW_VERTICAL_SCROLL_INDICATOR,
-		TiC.PROPERTY_TEMPLATES
+		TiC.PROPERTY_TEMPLATES,
+		TiC.PROPERTY_TOUCH_FEEDBACK,
+		TiC.PROPERTY_TOUCH_FEEDBACK_COLOR
 	}
 )
 public class ListViewProxy extends RecyclerViewProxy
@@ -65,6 +67,7 @@ public class ListViewProxy extends RecyclerViewProxy
 		defaultValues.put(TiC.PROPERTY_CASE_INSENSITIVE_SEARCH, true);
 		defaultValues.put(TiC.PROPERTY_DEFAULT_ITEM_TEMPLATE, UIModule.LIST_ITEM_TEMPLATE_DEFAULT);
 		defaultValues.put(TiC.PROPERTY_FAST_SCROLL, false);
+		defaultValues.put(TiC.PROPERTY_TOUCH_FEEDBACK, true);
 	}
 
 	/**
@@ -378,7 +381,7 @@ public class ListViewProxy extends RecyclerViewProxy
 
 		if (name.equals(TiC.PROPERTY_EDITING)) {
 
-			// Update list to display drag-handles.
+			// Update list.
 			update();
 		}
 	}

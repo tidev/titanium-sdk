@@ -40,6 +40,7 @@ import android.graphics.Point;
 import android.graphics.Rect;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.PaintDrawable;
 import android.graphics.drawable.RippleDrawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.os.Build;
@@ -1183,22 +1184,34 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 		if (backgroundDrawable == null) {
 			backgroundDrawable = this.nativeView.getBackground();
 		}
+		if (backgroundDrawable instanceof TiBackgroundDrawable) {
+			final TiBackgroundDrawable drawable = (TiBackgroundDrawable) backgroundDrawable;
+
+			backgroundDrawable = drawable.getBackground();
+		}
+
+		// Parse background color to determine transparency.
+		int backgroundColor = -1;
+		if (backgroundDrawable instanceof PaintDrawable) {
+			final PaintDrawable drawable = (PaintDrawable) backgroundDrawable;
+
+			backgroundColor = drawable.getPaint().getColor();
+		} else if (backgroundDrawable instanceof ColorDrawable) {
+			final ColorDrawable drawable = (ColorDrawable) backgroundDrawable;
+
+			backgroundColor = drawable.getColor();
+		}
+		if (Color.alpha(backgroundColor) <= 0) {
+
+			// Do not use drawable for transparent backgrounds.
+			backgroundDrawable = null;
+		}
 
 		// Create a mask if a background doesn't exist or if it's completely transparent.
 		// Note: Ripple effect won't work unless it has something opaque to draw to. Use mask as a fallback.
-		ShapeDrawable maskDrawable = null;
-		boolean isVisible = (backgroundDrawable != null);
-		if (backgroundDrawable instanceof ColorDrawable) {
-			int colorValue = ((ColorDrawable) backgroundDrawable).getColor();
-			if (Color.alpha(colorValue) <= 0) {
-				isVisible = false;
-			}
-		}
-		if (!isVisible) {
-			maskDrawable = new ShapeDrawable();
-		}
+		final ShapeDrawable maskDrawable = backgroundDrawable == null ? new ShapeDrawable() : null;
 
-		// Replace view's existing background with ripple effect wrapping the old drawable.
+		// Replace existing background with ripple effect wrapping the old drawable.
 		nativeView.setBackground(
 			new RippleDrawable(ColorStateList.valueOf(rippleColor), backgroundDrawable, maskDrawable));
 	}
@@ -1995,6 +2008,12 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 			// n.b.: setting onclicklistener automatically sets clickable to true.
 			setOnClickListener(view);
 			setOnLongClickListener(view);
+		}
+		if (view instanceof ViewGroup) {
+
+			// Allow parent views to receive states from child views.
+			// This allows the touch feedback effect when clicking on child views.
+			((ViewGroup) view).setAddStatesFromChildren(clickable);
 		}
 	}
 

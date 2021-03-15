@@ -251,14 +251,14 @@ jobs:
     - name: Archive OSX artifact
       uses: actions/upload-artifact@v2
       with:
-        name: mobilesdk-osx.zip
+        name: mobilesdk-${{ env.vtag }}-osx
         path: |
           dist/mobilesdk-*-osx.zip
 
     - name: Archive win32 artifact
       uses: actions/upload-artifact@v2
       with:
-        name: mobilesdk-win32.zip
+        name: mobilesdk-${{ env.vtag }}-win32
         path: |
           dist/mobilesdk-*-win32.zip
 
