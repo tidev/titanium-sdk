@@ -470,7 +470,7 @@ GETTER_IMPL(BOOL, hasCompass, HasCompass);
                          [address appendString:@", "];
                        }
                        if (placemark.postalCode) {
-                         dict[@"postalcode"] = placemark.postalCode;
+                         dict[@"postalCode"] = placemark.postalCode;
                          [address appendString:placemark.postalCode];
                        }
                        if (placemark.ISOcountryCode) {
