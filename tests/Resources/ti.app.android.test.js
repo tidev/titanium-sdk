@@ -11,13 +11,17 @@ var should = require('./utilities/assertions');
 
 describe.android('Titanium.App.Android', function () {
 	it('appVersionCode', function () {
+		// Defined in file: ./platform/android/build.gradle
 		should(Ti.App.Android.appVersionCode).not.be.undefined();
 		should(Ti.App.Android.appVersionCode).be.a.Number();
+		should(Ti.App.Android.appVersionCode).be.eql(101);
 	});
 
 	it('appVersionName', function () {
+		// Defined in file: ./platform/android/AndroidManifest.xml
 		should(Ti.App.Android.appVersionName).not.be.undefined();
 		should(Ti.App.Android.appVersionName).be.a.String();
+		should(Ti.App.Android.appVersionName).be.eql('v1.01');
 	});
 
 	it('launchIntent', function () {
