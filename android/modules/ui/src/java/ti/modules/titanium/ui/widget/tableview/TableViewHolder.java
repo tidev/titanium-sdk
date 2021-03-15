@@ -224,15 +224,19 @@ public class TableViewHolder extends TiRecyclerViewHolder
 			// Handle row left and right images.
 			if (properties.containsKeyAndNotNull(TiC.PROPERTY_LEFT_IMAGE)) {
 				final String url = properties.getString(TiC.PROPERTY_LEFT_IMAGE);
-				final Drawable drawable = TiUIHelper.getResourceDrawable(url);
-				this.leftImage.setImageDrawable(drawable);
-				this.leftImage.setVisibility(View.VISIBLE);
+				final Drawable drawable = TiUIHelper.getResourceDrawable((Object) url);
+				if (drawable != null) {
+					this.leftImage.setImageDrawable(drawable);
+					this.leftImage.setVisibility(View.VISIBLE);
+				}
 			}
 			if (properties.containsKeyAndNotNull(TiC.PROPERTY_RIGHT_IMAGE)) {
 				final String url = properties.getString(TiC.PROPERTY_RIGHT_IMAGE);
-				final Drawable drawable = TiUIHelper.getResourceDrawable(url);
-				this.rightImage.setImageDrawable(drawable);
-				this.rightImage.setVisibility(View.VISIBLE);
+				final Drawable drawable = TiUIHelper.getResourceDrawable((Object) url);
+				if (drawable != null) {
+					this.rightImage.setImageDrawable(drawable);
+					this.rightImage.setVisibility(View.VISIBLE);
+				}
 			} else {
 				final boolean hasCheck = properties.optBoolean(TiC.PROPERTY_HAS_CHECK, false);
 				final boolean hasChild = properties.optBoolean(TiC.PROPERTY_HAS_CHILD, false);
