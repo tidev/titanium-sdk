@@ -164,8 +164,23 @@ public class TableViewHolder extends TiRecyclerViewHolder
 				return;
 			}
 
+			// Set maximum row height.
+			final String rawMaxHeight = properties.optString(TiC.PROPERTY_MAX_ROW_HEIGHT,
+				tableViewProperties.getString(TiC.PROPERTY_MAX_ROW_HEIGHT));
+			final TiDimension maxHeightDimension = TiConvert.toTiDimension(rawMaxHeight, TiDimension.TYPE_HEIGHT);
+			final int maxHeight = rawMaxHeight != null ? maxHeightDimension.getAsPixels(itemView) : -1;
+			if (maxHeight > -1) {
+				nativeRowView.measure(0, 0);
+
+				// Enforce max row height.
+				if (nativeRowView.getMeasuredHeight() > maxHeight) {
+					rowView.getLayoutParams().optionHeight = maxHeightDimension;
+				}
+			}
+
 			// Set minimum row height.
-			final String rawMinHeight = properties.optString(TiC.PROPERTY_MIN_ROW_HEIGHT, "0");
+			final String rawMinHeight = properties.optString(TiC.PROPERTY_MIN_ROW_HEIGHT,
+				tableViewProperties.getString(TiC.PROPERTY_MIN_ROW_HEIGHT));
 			final int minHeight = TiConvert.toTiDimension(rawMinHeight, TiDimension.TYPE_HEIGHT).getAsPixels(itemView);
 			this.container.setMinimumHeight(minHeight);
 
@@ -212,15 +227,19 @@ public class TableViewHolder extends TiRecyclerViewHolder
 			// Handle row left and right images.
 			if (properties.containsKeyAndNotNull(TiC.PROPERTY_LEFT_IMAGE)) {
 				final String url = properties.getString(TiC.PROPERTY_LEFT_IMAGE);
-				final Drawable drawable = fileHelper.loadDrawable(url, false);
-				this.leftImage.setImageDrawable(drawable);
-				this.leftImage.setVisibility(View.VISIBLE);
+				final Drawable drawable = TiUIHelper.getResourceDrawable((Object) url);
+				if (drawable != null) {
+					this.leftImage.setImageDrawable(drawable);
+					this.leftImage.setVisibility(View.VISIBLE);
+				}
 			}
 			if (properties.containsKeyAndNotNull(TiC.PROPERTY_RIGHT_IMAGE)) {
 				final String url = properties.getString(TiC.PROPERTY_RIGHT_IMAGE);
-				final Drawable drawable = fileHelper.loadDrawable(url, false);
-				this.rightImage.setImageDrawable(drawable);
-				this.rightImage.setVisibility(View.VISIBLE);
+				final Drawable drawable = TiUIHelper.getResourceDrawable((Object) url);
+				if (drawable != null) {
+					this.rightImage.setImageDrawable(drawable);
+					this.rightImage.setVisibility(View.VISIBLE);
+				}
 			} else {
 				final boolean hasCheck = properties.optBoolean(TiC.PROPERTY_HAS_CHECK, false);
 				final boolean hasChild = properties.optBoolean(TiC.PROPERTY_HAS_CHILD, false);
@@ -290,7 +309,6 @@ public class TableViewHolder extends TiRecyclerViewHolder
 				// Add row to content.
 				this.content.addView(nativeRowView, rowView.getLayoutParams());
 				this.content.setVisibility(View.VISIBLE);
-
 			}
 			if (properties.containsKeyAndNotNull(TiC.PROPERTY_TITLE)
 				&& proxy.getChildren().length == 0) {

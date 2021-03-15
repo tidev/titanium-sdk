@@ -671,10 +671,10 @@ public abstract class TiViewProxy extends KrollProxy
 		} else {
 			if (children != null) {
 				children.remove(child);
-				if (child.parent != null && child.parent.get() == this) {
-					child.parent = null;
-				}
 			}
+		}
+		if (child.parent != null && child.parent.get() == this) {
+			child.parent = null;
 		}
 	}
 
