@@ -461,6 +461,7 @@ GETTER_IMPL(BOOL, hasCompass, HasCompass);
                          [address appendString:@", "];
                        }
                        if (placemark.administrativeArea) {
+                         dict[@"state"] = placemark.administrativeArea;
                          [address appendString:placemark.administrativeArea];
                          [address appendString:@", "];
                        }
