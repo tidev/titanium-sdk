@@ -20,6 +20,7 @@ import android.content.res.Configuration;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -326,8 +327,9 @@ public class TiUITabLayoutTabGroup extends TiUIAbstractTabGroup implements TabLa
 			return;
 		}
 
-		Drawable drawable = TiUIHelper.getResourceDrawable(tabProxy.getProperty(TiC.PROPERTY_ICON));
-		this.mTabLayout.getTabAt(index).setIcon(drawable);
+		TabLayout.Tab tab = this.mTabLayout.getTabAt(index);
+		tab.setIcon(TiUIHelper.getResourceDrawable(tabProxy.getProperty(TiC.PROPERTY_ICON)));
+		scaleIconToFit(tab);
 	}
 
 	@Override
@@ -408,5 +410,20 @@ public class TiUITabLayoutTabGroup extends TiUIAbstractTabGroup implements TabLa
 
 		updateIconTint();
 		updateTabBackgroundDrawable(tabIndex);
+	}
+
+	public static void scaleIconToFit(TabLayout.Tab tab)
+	{
+		if ((tab == null) || (tab.view == null)) {
+			return;
+		}
+
+		for (int childIndex = 0; childIndex < tab.view.getChildCount(); childIndex++) {
+			View childView = tab.view.getChildAt(childIndex);
+			if (childView instanceof ImageView) {
+				((ImageView) childView).setScaleType(ImageView.ScaleType.FIT_CENTER);
+				break;
+			}
+		}
 	}
 }

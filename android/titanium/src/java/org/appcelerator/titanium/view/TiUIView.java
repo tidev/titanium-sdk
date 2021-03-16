@@ -397,7 +397,7 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 	{
 	}
 
-	private boolean hasImage(KrollDict d)
+	protected boolean hasImage(KrollDict d)
 	{
 		return d.containsKeyAndNotNull(TiC.PROPERTY_BACKGROUND_IMAGE)
 			|| d.containsKeyAndNotNull(TiC.PROPERTY_BACKGROUND_SELECTED_IMAGE)
@@ -410,7 +410,7 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 		return d.containsKeyAndNotNull(TiC.PROPERTY_BACKGROUND_REPEAT);
 	}
 
-	private boolean hasGradient(KrollDict d)
+	protected boolean hasGradient(KrollDict d)
 	{
 		return d.containsKeyAndNotNull(TiC.PROPERTY_BACKGROUND_GRADIENT);
 	}
@@ -424,7 +424,7 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 			|| (d.containsKeyAndNotNull(TiC.PROPERTY_BORDER_RADIUS));
 	}
 
-	private boolean hasColorState(KrollDict d)
+	protected boolean hasColorState(KrollDict d)
 	{
 		return d.containsKeyAndNotNull(TiC.PROPERTY_BACKGROUND_SELECTED_COLOR)
 			|| d.containsKeyAndNotNull(TiC.PROPERTY_BACKGROUND_FOCUSED_COLOR)
@@ -947,6 +947,10 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 
 	public void processProperties(KrollDict d)
 	{
+		if (d == null) {
+			return;
+		}
+
 		boolean nativeViewNull = false;
 		if (nativeView == null) {
 			nativeViewNull = true;
@@ -2008,6 +2012,12 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 			// n.b.: setting onclicklistener automatically sets clickable to true.
 			setOnClickListener(view);
 			setOnLongClickListener(view);
+		}
+		if (view instanceof ViewGroup) {
+
+			// Allow parent views to receive states from child views.
+			// This allows the touch feedback effect when clicking on child views.
+			((ViewGroup) view).setAddStatesFromChildren(clickable);
 		}
 	}
 
