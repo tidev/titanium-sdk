@@ -28,7 +28,7 @@ import android.app.Activity;
 		TiC.PROPERTY_ICONIFIED,
 		TiC.PROPERTY_ICONIFIED_BY_DEFAULT,
 		TiC.PROPERTY_PROMPT,
-		"promptid",
+		TiC.PROPERTY_PROMPT_ID,
 		TiC.PROPERTY_VALUE
 })
 public class SearchBarProxy extends TiViewProxy
@@ -46,8 +46,8 @@ public class SearchBarProxy extends TiViewProxy
 	protected KrollDict getLangConversionTable()
 	{
 		KrollDict table = new KrollDict();
-		table.put("prompt", "promptid");
-		table.put("hintText", "hinttextid");
+		table.put(TiC.PROPERTY_PROMPT, TiC.PROPERTY_PROMPT_ID);
+		table.put(TiC.PROPERTY_HINT_TEXT, TiC.PROPERTY_HINT_TEXT_ID);
 		return table;
 	}
 

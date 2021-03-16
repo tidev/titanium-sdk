@@ -14,7 +14,6 @@ import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
-
 import androidx.appcompat.widget.SearchView;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
@@ -42,9 +41,16 @@ public class TiUISearchBar extends TiUIView
 	/** Reference to clear button's image drawable. */
 	private Drawable closeButtonDrawable;
 
+	/** Used to show/hide the virtual keyboard. */
+	private InputMethodManager inputManager;
+
 	public TiUISearchBar(TiViewProxy proxy)
 	{
 		super(proxy);
+
+		// Fetch input manager used to show/hide the virtual keyboard.
+		TiApplication tiApp = TiApplication.getInstance();
+		this.inputManager = (InputMethodManager) tiApp.getSystemService(Context.INPUT_METHOD_SERVICE);
 
 		// Create and set up the search view.
 		SearchView searchView = new SearchView(proxy.getActivity());
@@ -220,9 +226,7 @@ public class TiUISearchBar extends TiUIView
 		super.focus();
 
 		// Show the virtual keyboard.
-		InputMethodManager inputManager =
-			(InputMethodManager) TiApplication.getInstance().getSystemService(Context.INPUT_METHOD_SERVICE);
-		inputManager.toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.HIDE_IMPLICIT_ONLY);
+		this.inputManager.toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.HIDE_IMPLICIT_ONLY);
 	}
 
 	@Override
@@ -247,9 +251,7 @@ public class TiUISearchBar extends TiUIView
 
 		// Remove focus from search view and hide keyboard.
 		searchView.clearFocus();
-		InputMethodManager inputManager =
-			(InputMethodManager) TiApplication.getInstance().getSystemService(Context.INPUT_METHOD_SERVICE);
-		inputManager.hideSoftInputFromWindow(searchView.getWindowToken(), 0);
+		this.inputManager.hideSoftInputFromWindow(searchView.getWindowToken(), 0);
 	}
 
 	public OnSearchChangeListener getOnSearchChangeListener()
