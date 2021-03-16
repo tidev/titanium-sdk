@@ -7,11 +7,12 @@
 #ifdef USE_TI_GEOLOCATION
 
 #import "GeolocationModule.h"
+#import <Contacts/CNPostalAddress.h>
+#import <Contacts/CNPostalAddressFormatter.h>
 #import <TitaniumKit/APSHTTPClient.h>
 #import <TitaniumKit/KrollPromise.h>
 #import <TitaniumKit/NSData+Additions.h>
 #import <TitaniumKit/TiApp.h>
-
 #import <sys/utsname.h>
 
 extern NSString *const TI_APPLICATION_GUID;
@@ -437,52 +438,36 @@ GETTER_IMPL(BOOL, hasCompass, HasCompass);
                    } else {
                      NSMutableDictionary *events = [TiUtils dictionaryWithCode:0 message:nil];
 
-                     NSMutableArray *places = [NSMutableArray array];
+                     NSMutableArray<NSMutableDictionary *> *places = [NSMutableArray array];
                      for (CLPlacemark *placemark in placemarks) {
-                       NSMutableDictionary *dict = [NSMutableDictionary dictionary];
-                       NSMutableString *address = [NSMutableString string];
+                       NSMutableDictionary *place = [NSMutableDictionary dictionary];
 
-                       if (placemark.subThoroughfare) {
-                         [address appendString:placemark.subThoroughfare];
-                         [address appendString:@" "];
-                       }
                        if (placemark.thoroughfare) {
-                         dict[@"street"] = placemark.thoroughfare;
-                         [address appendString:placemark.thoroughfare];
-                         [address appendString:@", "];
+                         place[@"street"] = placemark.thoroughfare;
                        }
                        if (placemark.locality) {
-                         dict[@"city"] = placemark.locality;
-                         [address appendString:placemark.locality];
-                         [address appendString:@", "];
-                       }
-                       if (placemark.subAdministrativeArea) {
-                         [address appendString:placemark.subAdministrativeArea];
-                         [address appendString:@", "];
+                         place[@"city"] = placemark.locality;
                        }
                        if (placemark.administrativeArea) {
-                         dict[@"state"] = placemark.administrativeArea;
-                         [address appendString:placemark.administrativeArea];
-                         [address appendString:@", "];
+                         place[@"state"] = placemark.administrativeArea;
                        }
                        if (placemark.country) {
-                         dict[@"country"] = placemark.country;
-                         [address appendString:placemark.country];
-                         [address appendString:@", "];
+                         place[@"country"] = placemark.country;
                        }
                        if (placemark.postalCode) {
-                         dict[@"postalCode"] = placemark.postalCode;
-                         [address appendString:placemark.postalCode];
+                         place[@"postalCode"] = placemark.postalCode;
                        }
                        if (placemark.ISOcountryCode) {
-                         dict[@"countryCode"] = placemark.ISOcountryCode;
+                         place[@"countryCode"] = placemark.ISOcountryCode;
                        }
                        if (placemark.location) {
-                         dict[@"latitude"] = @(placemark.location.coordinate.latitude);
-                         dict[@"longitude"] = @(placemark.location.coordinate.longitude);
+                         place[@"latitude"] = @(placemark.location.coordinate.latitude);
+                         place[@"longitude"] = @(placemark.location.coordinate.longitude);
                        }
-                       dict[@"address"] = address;
-                       [places addObject:dict];
+                       if (placemark.postalAddress) {
+                         place[@"address"] = [CNPostalAddressFormatter stringFromPostalAddress:placemark.postalAddress style:CNPostalAddressFormatterStyleMailingAddress];
+                       }
+                       [places addObject:place];
                      }
                      events[@"places"] = places;
                      [rcb requestSuccess:events];
