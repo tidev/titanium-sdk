@@ -208,6 +208,10 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 	 */
 	protected void handleDefaultValues()
 	{
+		if (properties == null) {
+			return;
+		}
+
 		for (String key : defaultValues.keySet()) {
 			if (!properties.containsKey(key)) {
 				setProperty(key, defaultValues.get(key));
@@ -249,7 +253,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 	 */
 	private void handleLocaleProperties()
 	{
-		if (langConversionTable == null) {
+		if ((properties == null) || (langConversionTable == null)) {
 			return;
 		}
 
@@ -297,7 +301,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 	 */
 	public Pair<String, String> updateLocaleProperty(String localeProperty, String newLookupId)
 	{
-		if (langConversionTable == null) {
+		if ((properties == null) || (langConversionTable == null)) {
 			return null;
 		}
 
@@ -359,6 +363,10 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 	 */
 	public void handleCreationDict(KrollDict dict)
 	{
+		if (properties == null) {
+			properties = new KrollDict();
+		}
+
 		if (dict == null) {
 			return;
 		}
@@ -388,7 +396,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 		handleDefaultValues();
 		handleLocaleProperties();
 
-		if (modelListener != null) {
+		if ((modelListener != null) && (properties != null)) {
 			modelListener.processProperties(properties);
 		}
 	}
@@ -506,7 +514,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 	@Kroll.method
 	public void extend(KrollDict options)
 	{
-		if (options == null || options.isEmpty()) {
+		if ((properties == null) || (options == null) || options.isEmpty()) {
 			return;
 		}
 
@@ -1077,6 +1085,10 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 
 	public void onPropertyChanged(String name, Object value)
 	{
+		if (properties == null) {
+			return;
+		}
+
 		String propertyName = name;
 		Object newValue = value;
 
@@ -1096,6 +1108,10 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 
 	public void onPropertiesChanged(Object[][] changes)
 	{
+		if (properties == null) {
+			return;
+		}
+
 		int changesLength = changes.length;
 		boolean isUiThread = TiApplication.isUIThread();
 
@@ -1194,7 +1210,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 					return true;
 				}
 				case MSG_MODEL_PROCESS_PROPERTIES: {
-					if (modelListener != null) {
+					if ((modelListener != null) && (properties != null)) {
 						modelListener.processProperties(properties);
 					}
 					return true;
@@ -1307,7 +1323,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 		}
 
 		this.modelListener = modelListener;
-		if (modelListener != null) {
+		if ((modelListener != null) && (properties != null)) {
 			if (TiApplication.isUIThread()) {
 				modelListener.processProperties(properties);
 			} else {

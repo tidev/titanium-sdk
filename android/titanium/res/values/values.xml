@@ -6,8 +6,6 @@
 	<color name="ti_light_accent">#3273DB</color>
 	<color name="ti_light_surface">#FFFFFF</color>
 	<color name="ti_light_background">#FFFFFF</color>
-	<color name="ti_light_navigation_bar">@color/ti_light_primary_dark</color>
-	<color name="ti_light_status_bar">@color/ti_light_primary_dark</color>
 
 	<!-- Titanium's dark theme colors. -->
 	<color name="ti_dark_primary">#92B4F2</color>
@@ -15,8 +13,6 @@
 	<color name="ti_dark_accent">#92B4F2</color>
 	<color name="ti_dark_surface">#353639</color>
 	<color name="ti_dark_background">#202124</color>
-	<color name="ti_dark_navigation_bar">@color/ti_dark_primary_dark</color>
-	<color name="ti_dark_status_bar">@color/ti_dark_primary_dark</color>
 
 	<!-- Define action bar height to be same size as toolbar for portrait. -->
 	<!-- See "values-land/values.xml" which fixes action bar height for landscape. -->
@@ -39,9 +35,9 @@
 		<item name="colorAccent">@color/ti_dark_accent</item>
 		<item name="colorSurface">@color/ti_dark_surface</item>
 		<item name="android:colorBackground">@color/ti_dark_background</item>
-		<item name="android:navigationBarColor">@color/ti_dark_navigation_bar</item>
+		<item name="android:navigationBarColor">?attr/colorPrimaryDark</item>
 		<item name="android:buttonStyle">@style/Widget.Titanium.Button</item>
-		<item name="android:statusBarColor">@color/ti_dark_status_bar</item>
+		<item name="android:statusBarColor">?attr/colorPrimaryDark</item>
 		<item name="buttonStyle">@style/Widget.Titanium.Button</item>
 		<item name="textAppearanceButton">@style/TextAppearance.Titanium.Button</item>
 	</style>
@@ -69,9 +65,9 @@
 		<item name="colorAccent">@color/ti_light_accent</item>
 		<item name="colorSurface">@color/ti_light_surface</item>
 		<item name="android:colorBackground">@color/ti_light_background</item>
-		<item name="android:navigationBarColor">@color/ti_light_navigation_bar</item>
+		<item name="android:navigationBarColor">?attr/colorPrimaryDark</item>
 		<item name="android:buttonStyle">@style/Widget.Titanium.Button</item>
-		<item name="android:statusBarColor">@color/ti_light_status_bar</item>
+		<item name="android:statusBarColor">?attr/colorPrimaryDark</item>
 		<item name="buttonStyle">@style/Widget.Titanium.Button</item>
 		<item name="textAppearanceButton">@style/TextAppearance.Titanium.Button</item>
 	</style>
