@@ -6227,7 +6227,7 @@ iOSBuilder.prototype.processLaunchLogos = async function processLaunchLogos(laun
 	}
 
 	// Resize the launch logo to the other dimensions needed
-	await new Promise((resolve, reject) => {
+	await new Promise((resolve) => {
 		appc.image.resize(launchLogo.src, missingLaunchLogos, error => {
 			if (error) {
 				this.logger.error(error);
