@@ -50,12 +50,16 @@ class StoryboardManager {
 	initialize() {
 		this._cli.on('build.pre.compile', {
 			priority: 1200,
-			post: (builder, callback) => {
-				this._logger.trace('Starting storyboard detection');
-				this._builder = builder;
-				this.detectStoryboards().then(callback, e => {
-					callback(e);
-				});
+			post: async (builder, callback) => {
+				try {
+					this._logger.trace('Starting storyboard detection');
+					this._builder = builder;
+					await this.detectStoryboards();
+				} catch (err) {
+					callback(err);
+					return;
+				}
+				callback();
 			}
 		});
 

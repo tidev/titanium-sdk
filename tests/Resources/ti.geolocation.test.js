@@ -361,7 +361,7 @@ describe('Titanium.Geolocation', () => {
 				const result = Ti.Geolocation.requestLocationPermissions(permission);
 				result.should.be.a.Promise();
 				// just ensure it resolves/rejects?
-				result.then(() => finish(), _e => finish());
+				result.then(() => finish()).catch(() => finish());
 			});
 		});
 
@@ -541,7 +541,7 @@ describe('Titanium.Geolocation', () => {
 						} catch (err) {
 							return finish(err);
 						}
-						finish();
+						return finish();
 					}).catch(e => {
 						// Sometimes fails on Android device/emulator w/ 'passive/gps/network is unavailable'
 						if (OS_ANDROID) {
