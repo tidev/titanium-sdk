@@ -32,7 +32,7 @@ describe.ios('Titanium.UI.iOS.DocumentViewer', () => {
 	it('.name', function () {
 		// On macOS < 11, it is failing. https://developer.apple.com/forums/thread/125819
 		if (isCI && utilities.isMacOS() && OS_VERSION_MAJOR < 11) {
-			this.skip();
+			// this.skip(); // ti-mocha doesn't have runtime skip, so just return
 			return;
 		}
 		documentViewer.annotation = 'annotation';
@@ -42,7 +42,7 @@ describe.ios('Titanium.UI.iOS.DocumentViewer', () => {
 	it('.annotation', function () {
 		// On macOS < 11, it is failing. https://developer.apple.com/forums/thread/125819
 		if (isCI && utilities.isMacOS() && OS_VERSION_MAJOR < 11) {
-			this.skip();
+			// this.skip(); // ti-mocha doesn't have runtime skip, so just return
 			return;
 		}
 
