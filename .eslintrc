@@ -3,6 +3,9 @@
   "parserOptions": {
     "sourceType": "script"
   },
+  "rules": {
+    "promise/catch-or-return": [ "warn", { "terminationMethod": [ "catch", "finally" ]} ]
+  },
   "overrides": [
     {
       "files": [ "android/runtime/common/src/js/**/*.js", "android/modules/**/src/js/**/*.js" ],
