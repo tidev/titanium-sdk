@@ -98,7 +98,6 @@
     "markdown": "0.5.0",
     "moment": "^2.29.1",
     "node-appc": "^1.1.2",
-    "node-ios-device": "^1.9.0",
     "node-titanium-sdk": "^5.1.2",
     "node-uuid": "1.4.8",
     "nodeify": "^1.0.1",
@@ -111,7 +110,7 @@
     "temp": "0.9.4",
     "wrap-ansi": "^7.0.0",
     "xcode": "^3.0.1",
-    "xmldom": "^0.4.0",
+    "xmldom": "^0.5.0",
     "yauzl": "^2.10.0"
   },
   "devDependencies": {
