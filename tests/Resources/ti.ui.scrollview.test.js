@@ -44,12 +44,52 @@ describe('Titanium.UI.ScrollView', function () {
 		should(bar.contentHeight).be.a.String(); // defaults to undefined on Android and iOS
 	});
 
-	// Windows gives: expected '' to be a number
-	it.windowsBroken('contentOffset', function () {
-		const bar = Ti.UI.createScrollView({});
-		should(bar.contentOffset).be.an.Object();
-		should(bar.contentOffset.x).be.a.Number(); // expected '' to be a number on Windows
-		should(bar.contentOffset.y).be.a.Number();
+	it('contentOffset', function (finish) {
+		const win = Ti.UI.createWindow();
+		const scrollView = Ti.UI.createScrollView({
+			layout: 'vertical',
+			backgroundColor: 'white',
+			width: Ti.UI.FILL,
+			height: Ti.UI.FILL
+		});
+		const view_a = Ti.UI.createView({
+			backgroundColor: 'red',
+			width: '100%',
+			height: '100%'
+		});
+		const view_b = Ti.UI.createView({
+			backgroundColor: 'green',
+			width: '100%',
+			height: '100%'
+		});
+
+		win.addEventListener('open', () => {
+
+			should(scrollView.contentOffset).be.an.Object();
+			should(scrollView.contentOffset.x).be.a.Number();
+			should(scrollView.contentOffset.y).be.a.Number();
+
+			should(scrollView.contentOffset.x).eql(0);
+			should(scrollView.contentOffset.y).eql(0);
+
+			scrollView.contentOffset = { x: 0, y: '10dp' };
+
+			setTimeout(() => {
+				should(scrollView.contentOffset.x).eql(0);
+				should(scrollView.contentOffset.y).eql(10);
+
+				finish();
+			}, 100);
+
+		});
+
+		scrollView.add([
+			view_a,
+			view_b
+		]);
+
+		win.add(scrollView);
+		win.open();
 	});
 
 	it.ios('#setContentOffset', function (finish) {
