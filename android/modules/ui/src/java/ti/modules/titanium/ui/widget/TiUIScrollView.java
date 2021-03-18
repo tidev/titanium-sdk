@@ -919,6 +919,12 @@ public class TiUIScrollView extends TiUIView
 		return null;
 	}
 
+	@Override
+	public View getNativeContentView()
+	{
+		return getLayout();
+	}
+
 	public void setScrollingEnabled(Object value)
 	{
 		try {

@@ -1266,7 +1266,7 @@ public abstract class TiViewProxy extends KrollProxy
 			return null;
 		}
 		View nativeView = view.getNativeView();
-		View destNativeView = destView.getNativeView();
+		View destNativeView = destView.getNativeContentView();
 		if (nativeView == null || nativeView.getParent() == null) {
 			Log.w(TAG, "convertPointToView: View has not been attached, cannot convert point");
 			return null;

@@ -301,6 +301,20 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 	}
 
 	/**
+	 * Gets the native view's internal content view used to host child views.
+	 * Called by the convertPointToView() method to convert coordinates.
+	 * <p>
+	 * Overridden by ScrollView since its content view is typically larger than the parent view.
+	 * <p>
+	 * For most other views, this method returns same view as getNativeView() method.
+	 * @return Returns the native content view used to host child views.
+	 */
+	public View getNativeContentView()
+	{
+		return getNativeView();
+	}
+
+	/**
 	 * @return the Android native view.
 	 * @module.api
 	 */

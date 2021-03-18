@@ -740,6 +740,11 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
   return blob;
 }
 
+- (TiPoint *)contentOffset
+{
+  return [[[TiPoint alloc] initWithPoint:CGPointMake(0, 0)] autorelease];
+}
+
 - (TiPoint *)convertPointToView:(id)args
 {
   id arg1 = nil;
@@ -768,6 +773,7 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
   TiPoint *tiPoint = [[TiPoint alloc] autorelease];
   [tiPoint setX:NUMFLOAT(convertDipToDefaultUnit(pointOffsetDips.x + givenPoint.x))];
   [tiPoint setY:NUMFLOAT(convertDipToDefaultUnit(pointOffsetDips.y + givenPoint.y))];
+  [tiPoint add:[arg2 contentOffset]];
   return tiPoint;
 }
 
