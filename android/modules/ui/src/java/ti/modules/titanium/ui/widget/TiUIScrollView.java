@@ -43,7 +43,8 @@ public class TiUIScrollView extends TiUIView
 	private static final String TAG = "TiUIScrollView";
 
 	private View scrollView;
-	private TiDimension offsetX, offsetY;
+	private TiDimension offsetX = new TiDimension(0, TiDimension.TYPE_LEFT);
+	private TiDimension offsetY = new TiDimension(0, TiDimension.TYPE_TOP);
 	private boolean setInitialOffset = false;
 	private boolean mScrollingEnabled = true;
 	private boolean isScrolling = false;
