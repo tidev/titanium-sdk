@@ -1091,13 +1091,13 @@ iOSBuilder.prototype.configOptionPPuuid = function configOptionPPuuid(order) {
 							logger.error(__('Unable to find any non-expired development provisioning profiles that match the app id "%s".', appId) + '\n');
 						}
 						logger.log(__('You will need to log in to %s with your Apple Developer account, then create, download, and install a profile.',
-							'https://developer.apple.com/account/ios/certificate/certificateList.action?type=development'.cyan) + '\n');
+							'https://developer.apple.com/account/resources/certificates/list'.cyan) + '\n');
 						process.exit(1);
 					}
 				} else {
 					logger.error(__('Unable to find any development provisioning profiles') + '\n');
 					logger.log(__('You will need to log in to %s with your Apple Developer account, then create, download, and install a profile.',
-						'https://developer.apple.com/account/ios/certificate/certificateList.action?type=development'.cyan) + '\n');
+						'https://developer.apple.com/account/resources/certificates/list'.cyan) + '\n');
 					process.exit(1);
 				}
 
@@ -1109,13 +1109,13 @@ iOSBuilder.prototype.configOptionPPuuid = function configOptionPPuuid(order) {
 					} else {
 						logger.error(__('Unable to find any non-expired App Store distribution provisioning profiles that match the app id "%s".', appId) + '\n');
 						logger.log(__('You will need to log in to %s with your Apple Developer account, then create, download, and install a profile.',
-							'https://developer.apple.com/account/ios/certificate/certificateList.action?type=distribution'.cyan) + '\n');
+							'https://developer.apple.com/account/resources/certificates/list'.cyan) + '\n');
 						process.exit(1);
 					}
 				} else {
 					logger.error(__('Unable to find any App Store distribution provisioning profiles'));
 					logger.log(__('You will need to log in to %s with your Apple Developer account, then create, download, and install a profile.',
-						'https://developer.apple.com/account/ios/certificate/certificateList.action?type=distribution'.cyan) + '\n');
+						'https://developer.apple.com/account/resources/certificates/list'.cyan) + '\n');
 					process.exit(1);
 				}
 
@@ -1136,13 +1136,13 @@ iOSBuilder.prototype.configOptionPPuuid = function configOptionPPuuid(order) {
 					if (!valid) {
 						logger.error(__('Unable to find any non-expired Ad Hoc or Enterprise Ad Hoc provisioning profiles that match the app id "%s".', appId) + '\n');
 						logger.log(__('You will need to log in to %s with your Apple Developer account, then create, download, and install a profile.',
-							'https://developer.apple.com/account/ios/certificate/certificateList.action?type=distribution'.cyan) + '\n');
+							'https://developer.apple.com/account/resources/certificates/list'.cyan) + '\n');
 						process.exit(1);
 					}
 				} else {
 					logger.error(__('Unable to find any Ad Hoc or Enterprise Ad Hoc provisioning profiles'));
 					logger.log(__('You will need to log in to %s with your Apple Developer account, then create, download, and install a profile.',
-						'https://developer.apple.com/account/ios/certificate/certificateList.action?type=distribution'.cyan) + '\n');
+						'https://developer.apple.com/account/resources/certificates/list'.cyan) + '\n');
 					process.exit(1);
 				}
 			}
