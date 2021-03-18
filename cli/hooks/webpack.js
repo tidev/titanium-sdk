@@ -94,7 +94,7 @@ exports.init = (logger, config, cli) => {
 			});
 			Promise.resolve().then(async () => {
 				await webpackService.build();
-				return callback();
+				return callback(); // eslint-disable-line promise/no-callback-in-promise
 			}).catch(e => {
 				if (e.status === 404) {
 					badgedLogger.info('Daemon was unable to find the Webpack plugin. To continue you need to:');
@@ -120,7 +120,7 @@ exports.init = (logger, config, cli) => {
 					logger.error(e.stack);
 				}
 
-				callback(e);
+				callback(e); // eslint-disable-line promise/no-callback-in-promise
 			});
 		}
 	});

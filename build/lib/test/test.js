@@ -482,10 +482,9 @@ class DeviceTestDetails {
 	/**
 	 * Handle a new line of output for a given device/emulator
 	 * @param {string} token line of output (raw)
-	 * @param {string} stripped output stripped of ansi colors
 	 * @returns {boolean} true if successfully finished the test suite (completed, may have test failures/errors)
 	 */
-	handleLine(token, stripped) {
+	handleLine(token) {
 		if (this.testEndIncomplete) {
 			if (token.includes(TEST_START_PREFIX) || token.includes(TEST_SUITE_STOP)) {
 				// Make up a failed test result
@@ -769,6 +768,7 @@ async function handleBuild(prc, target, snapshotDir, snapshotPromises) {
 		splitter.encoding = 'utf8';
 
 		function getDeviceName(token) {
+			// eslint-disable-next-line security/detect-child-process
 			const matches = /^[\s\b]+\[([^\]]+)\]\s/g.exec(token.substring(token.indexOf(':') + 1));
 			if (matches && matches.length === 2) {
 				return matches[1];
@@ -826,7 +826,7 @@ async function handleBuild(prc, target, snapshotDir, snapshotPromises) {
 				deviceMap.set(device, new DeviceTestDetails(device, target, snapshotDir, snapshotPromises));
 			}
 			const curTest = deviceMap.get(device);
-			const done = curTest.handleLine(token, stripped);
+			const done = curTest.handleLine(token);
 			if (done) {
 				let results = [];
 				// check if all devices have completed tests
@@ -881,9 +881,9 @@ async function handleBuild(prc, target, snapshotDir, snapshotPromises) {
 }
 
 /**
- *
- * @param {string} testResults
- * @returns {string}
+ * Escapes given test output string so it can be used by JSON.parse() method.
+ * @param {string} testResults The test output to be escaped and parsed as JSON.
+ * @returns {string} Returns a string that can be passed to JSON.parse() method.
  */
 function massageJSONString(testResults) {
 	// preserve newlines, etc - use valid JSON
