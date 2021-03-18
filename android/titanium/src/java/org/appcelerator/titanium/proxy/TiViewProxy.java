@@ -548,6 +548,28 @@ public abstract class TiViewProxy extends KrollProxy
 	public abstract TiUIView createView(Activity activity);
 
 	/**
+	 * Create clone of existing proxy, including children.
+	 *
+	 * @return TiViewProxy
+	 */
+	public TiViewProxy clone()
+	{
+		final TiViewProxy proxy = (TiViewProxy) KrollProxy.createProxy(
+			this.getClass(),
+			getKrollObject(),
+			new Object[] { properties },
+			this.creationUrl.url
+		);
+
+		// Include children.
+		for (final TiViewProxy child : this.children) {
+			proxy.add(child.clone());
+		}
+
+		return proxy;
+	}
+
+	/**
 	 * Adds a child to this view proxy.
 	 * @param args The child view proxy/proxies to add.
 	 * @module.api
