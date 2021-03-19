@@ -1,6 +1,43 @@
 import { isBuffer } from './internal/util';
 import { stringToHexBytes } from './internal/buffer';
 
+// Use a Proxy to hack array style index accessors
+const arrayIndexHandler = {
+	get(target, propKey, receiver) {
+		if (typeof propKey === 'string') {
+			const num = Number(propKey);
+			if (Number.isSafeInteger(num)) {
+				return getAdjustedIndex(target, num);
+			}
+		} else if (propKey === isBuffer) {
+			return true;
+		}
+		return Reflect.get(target, propKey, receiver);
+	},
+
+	set(target, propKey, value, receiver) {
+		if (typeof propKey === 'string') {
+			const num = Number(propKey);
+			if (Number.isSafeInteger(num)) {
+				setAdjustedIndex(target, num, value);
+				return true;
+			}
+		}
+		return Reflect.set(target, propKey, value, receiver);
+	},
+
+	has(target, key) {
+		if (typeof key === 'string') {
+			const num = Number(key);
+			if (Number.isSafeInteger(num)) {
+				// ensure it's a positive "safe" integer within the range of the buffer
+				return num >= 0 && num < target._tiBuffer.length;
+			}
+		}
+		return key in target;
+	}
+};
+
 // This is a special Buffer that wraps Ti.Buffer
 // as a result it is *much* slower to read/write values
 // because we need to go across the JS/Native boundary per-byte!
@@ -139,43 +176,6 @@ export default class SlowBuffer {
 		return this._tiBuffer.clone(this.byteOffset, this.length);
 	}
 }
-
-// Use a Proxy to hack array style index accessors
-const arrayIndexHandler = {
-	get(target, propKey, receiver) {
-		if (typeof propKey === 'string') {
-			const num = Number(propKey);
-			if (Number.isSafeInteger(num)) {
-				return getAdjustedIndex(target, num);
-			}
-		} else if (propKey === isBuffer) {
-			return true;
-		}
-		return Reflect.get(target, propKey, receiver);
-	},
-
-	set(target, propKey, value, receiver) {
-		if (typeof propKey === 'string') {
-			const num = Number(propKey);
-			if (Number.isSafeInteger(num)) {
-				setAdjustedIndex(target, num, value);
-				return true;
-			}
-		}
-		return Reflect.set(target, propKey, value, receiver);
-	},
-
-	has(target, key) {
-		if (typeof key === 'string') {
-			const num = Number(key);
-			if (Number.isSafeInteger(num)) {
-				// ensure it's a positive "safe" integer within the range of the buffer
-				return num >= 0 && num < target._tiBuffer.length;
-			}
-		}
-		return key in target;
-	}
-};
 
 function getAdjustedIndex(buf, index) {
 	if (index < 0) {
