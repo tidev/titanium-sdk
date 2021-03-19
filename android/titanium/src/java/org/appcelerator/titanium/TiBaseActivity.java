@@ -117,14 +117,13 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 	protected TiWindowProxy window;
 	protected TiViewProxy view;
 	protected ActivityProxy activityProxy;
-	protected TiWeakList<ConfigurationChangedListener> configChangedListeners =
-		new TiWeakList<ConfigurationChangedListener>();
+	protected TiWeakList<ConfigurationChangedListener> configChangedListeners = new TiWeakList<>();
 	protected TiMenuSupport menuHelper;
 	protected Messenger messenger;
 	protected int msgActivityCreatedId = -1;
 	protected int msgId = -1;
 	//Storing the activity's dialogs and their persistence
-	private final CopyOnWriteArrayList<DialogWrapper> dialogs = new CopyOnWriteArrayList<DialogWrapper>();
+	private final CopyOnWriteArrayList<DialogWrapper> dialogs = new CopyOnWriteArrayList<>();
 
 	public TiWindowProxy lwWindow;
 	public boolean isResumed = false;
