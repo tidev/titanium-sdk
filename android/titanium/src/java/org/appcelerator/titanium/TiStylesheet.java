@@ -24,10 +24,10 @@ public abstract class TiStylesheet
 	// The concrete implementation fills these
 	public TiStylesheet()
 	{
-		classesMap = new HashMap<String, HashMap<String, KrollDict>>();
-		idsMap = new HashMap<String, HashMap<String, KrollDict>>();
-		classesDensityMap = new HashMap<String, HashMap<String, HashMap<String, KrollDict>>>();
-		idsDensityMap = new HashMap<String, HashMap<String, HashMap<String, KrollDict>>>();
+		classesMap = new HashMap<>();
+		idsMap = new HashMap<>();
+		classesDensityMap = new HashMap<>();
+		idsDensityMap = new HashMap<>();
 	}
 
 	protected void addAll(KrollDict result, HashMap<String, KrollDict> map, String key)

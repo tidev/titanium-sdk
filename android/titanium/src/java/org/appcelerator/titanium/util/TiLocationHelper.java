@@ -33,7 +33,7 @@ public class TiLocationHelper
 
 	private static final String TAG = "TiLocationHelper";
 
-	private static AtomicInteger listenerCount = new AtomicInteger();
+	private static final AtomicInteger listenerCount = new AtomicInteger();
 	private static LocationManager locationManager;
 
 	public static LocationManager getLocationManager()

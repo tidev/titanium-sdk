@@ -191,7 +191,7 @@ public class TiUIProgressIndicator
 				if (a instanceof TiBaseActivity) {
 					TiBaseActivity baseActivity = (TiBaseActivity) a;
 					baseActivity.addDialog(new TiBaseActivity.DialogWrapper(
-						progressDialog, true, new WeakReference<TiBaseActivity>(baseActivity)));
+						progressDialog, true, new WeakReference<>(baseActivity)));
 					progressDialog.setOwnerActivity(a);
 				}
 				progressDialog.setOnCancelListener(this);

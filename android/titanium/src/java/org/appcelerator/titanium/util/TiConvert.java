@@ -67,14 +67,14 @@ public class TiConvert
 					Log.w(TAG, "First member of array is null", Log.DEBUG_MODE);
 				}
 
-				if (v != null && v instanceof String) {
+				if (v instanceof String) {
 					String[] sa = new String[len];
 					for (int i = 0; i < len; i++) {
 						sa[i] = (String) a[i];
 					}
 					d.put(key, sa);
 
-				} else if (v != null && v instanceof Double) {
+				} else if (v instanceof Double) {
 					double[] da = new double[len];
 					for (int i = 0; i < len; i++) {
 						da[i] = (Double) a[i];
@@ -133,7 +133,6 @@ public class TiConvert
 	 * Refer to {@link TiColorHelper#parseColor(String)} for more details.
 	 * @param value  color value to convert.
 	 * @return an int representation of the color.
-	 * @module.api
 	 */
 	public static int toColor(String value)
 	{
@@ -146,7 +145,6 @@ public class TiConvert
 	 * @param hashMap the HashMap contains the String representation of the color.
 	 * @param key the color lookup key.
 	 * @return an int representation of the color.
-	 * @module.api
 	 */
 	public static int toColor(HashMap<String, Object> hashMap, String key)
 	{
@@ -326,7 +324,6 @@ public class TiConvert
 	 * @param value the value to convert.
 	 * @param def  the default value.
 	 * @return a boolean value.
-	 * @module.api
 	 */
 	public static boolean toBoolean(Object value, boolean def)
 	{
@@ -345,7 +342,6 @@ public class TiConvert
 	 * an exception is thrown.
 	 * @param value the value to convert.
 	 * @return a boolean value.
-	 * @module.api
 	 */
 	public static boolean toBoolean(Object value)
 	{
@@ -371,7 +367,6 @@ public class TiConvert
 	 * @param key the lookup key.
 	 * @param def the default value.
 	 * @return a boolean value.
-	 * @module.api
 	 */
 	public static boolean toBoolean(HashMap<String, Object> hashMap, String key, boolean def)
 	{
@@ -387,7 +382,6 @@ public class TiConvert
 	 * @param hashMap the hash map to search.
 	 * @param key the lookup key.
 	 * @return a boolean value.
-	 * @module.api
 	 */
 	public static boolean toBoolean(HashMap<String, Object> hashMap, String key)
 	{
@@ -399,7 +393,6 @@ public class TiConvert
 	 * an exception is thrown.
 	 * @param value the value to convert.
 	 * @return an int value.
-	 * @module.api
 	 */
 	public static int toInt(Object value)
 	{
@@ -429,7 +422,6 @@ public class TiConvert
 	 * @param value the value to convert.
 	 * @param def the default value to return
 	 * @return an int value.
-	 * @module.api
 	 */
 	public static int toInt(Object value, int def)
 	{
@@ -448,7 +440,6 @@ public class TiConvert
 	 * @param hashMap the hash map to search.
 	 * @param key the lookup key.
 	 * @return an int value.
-	 * @module.api
 	 */
 	public static int toInt(HashMap<String, Object> hashMap, String key)
 	{
@@ -460,7 +451,6 @@ public class TiConvert
 	 * an exception is thrown.
 	 * @param value the value to convert.
 	 * @return a float value.
-	 * @module.api
 	 */
 	public static float toFloat(Object value)
 	{
@@ -487,7 +477,6 @@ public class TiConvert
 	 * @param value the value to convert.
 	 * @param def the default value to return
 	 * @return an float value.
-	 * @module.api
 	 */
 	public static float toFloat(Object value, float def)
 	{
@@ -506,7 +495,6 @@ public class TiConvert
 	 * @param hashMap the hash map to search.
 	 * @param key the lookup key.
 	 * @return a float value.
-	 * @module.api
 	 */
 	public static float toFloat(HashMap<String, Object> hashMap, String key)
 	{
@@ -519,7 +507,6 @@ public class TiConvert
 	 * @param key the lookup key.
 	 * @param def the default value to return.
 	 * @return a float value.
-	 * @module.api
 	 */
 	public static float toFloat(HashMap<String, Object> hashMap, String key, float def)
 	{
@@ -531,7 +518,6 @@ public class TiConvert
 	 * an exception is thrown.
 	 * @param value the value to convert.
 	 * @return a double value.
-	 * @module.api
 	 */
 	public static double toDouble(Object value)
 	{
@@ -555,7 +541,6 @@ public class TiConvert
 	 * @param hashMap the hash map to search.
 	 * @param key the lookup key.
 	 * @return a double.
-	 * @module.api
 	 */
 	public static double toDouble(HashMap<String, Object> hashMap, String key)
 	{
@@ -567,7 +552,6 @@ public class TiConvert
 	 * @param value the value to convert.
 	 * @param defaultString the default value.
 	 * @return a String.
-	 * @module.api
 	 */
 	public static String toString(Object value, String defaultString)
 	{
@@ -583,7 +567,6 @@ public class TiConvert
 	 * Converts a value into a String. If value is null, returns null.
 	 * @param value the value to convert.
 	 * @return String or null.
-	 * @module.api
 	 */
 	public static String toString(Object value)
 	{
@@ -595,7 +578,6 @@ public class TiConvert
 	 * @param hashMap the hash map to search.
 	 * @param key the lookup key.
 	 * @return String or null.
-	 * @module.api
 	 */
 	public static String toString(HashMap<String, Object> hashMap, String key)
 	{
@@ -606,7 +588,6 @@ public class TiConvert
 	 * Converts an Object array into a String array.
 	 * @param parts the object array to convert
 	 * @return a String array.
-	 * @module.api
 	 */
 	public static String[] toStringArray(Object[] parts)
 	{
@@ -706,7 +687,6 @@ public class TiConvert
 	 * Casts and returns value as TiBlob.
 	 * @param value must be of type TiBlob.
 	 * @return a TiBlob instance.
-	 * @module.api
 	 */
 	public static TiBlob toBlob(Object value)
 	{
@@ -719,7 +699,6 @@ public class TiConvert
 	 * @param object the hashmap.
 	 * @param property the lookup key.
 	 * @return a TiBlob instance.
-	 * @module.api
 	 */
 	public static TiBlob toBlob(HashMap<String, Object> object, String property)
 	{
@@ -823,7 +802,6 @@ public class TiConvert
 	 * return a String representation of value.
 	 * @param value the value to convert.
 	 * @return a String.
-	 * @module.api
 	 */
 	public static String toJSONString(Object value)
 	{
@@ -842,7 +820,6 @@ public class TiConvert
 	 * Converts value into Date object and returns it.
 	 * @param value the value to convert.
 	 * @return a Date instance.
-	 * @module.api
 	 */
 	public static Date toDate(Object value)
 	{
@@ -864,7 +841,6 @@ public class TiConvert
 	 * @param hashMap the hash map to search.
 	 * @param key the lookup key
 	 * @return a Date instance.
-	 * @module.api
 	 */
 	public static Date toDate(HashMap<String, Object> hashMap, String key)
 	{

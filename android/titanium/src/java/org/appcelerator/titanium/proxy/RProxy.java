@@ -34,7 +34,7 @@ public class RProxy extends KrollProxy
 
 	protected String name;
 	protected int resourceType;
-	protected HashMap<String, Object> subResources = new HashMap<String, Object>();
+	protected HashMap<String, Object> subResources = new HashMap<>();
 
 	public RProxy(int resourceType)
 	{

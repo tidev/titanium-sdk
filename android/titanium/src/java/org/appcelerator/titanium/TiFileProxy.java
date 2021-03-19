@@ -48,7 +48,7 @@ public class TiFileProxy extends KrollProxy
 		Uri uri = Uri.parse(parts[0]);
 		if (uri.getScheme() != null) {
 			scheme = uri.getScheme() + ":";
-			ArrayList<String> pb = new ArrayList<String>();
+			ArrayList<String> pb = new ArrayList<>();
 
 			int schemeLength = scheme.length();
 			if (parts[0].charAt(schemeLength + 1) == '/') {
@@ -64,7 +64,7 @@ public class TiFileProxy extends KrollProxy
 			for (int i = 1; i < parts.length; i++) {
 				pb.add(parts[i]);
 			}
-			String[] newParts = pb.toArray(new String[pb.size()]);
+			String[] newParts = pb.toArray(new String[0]);
 			path = TiFileHelper2.joinSegments(newParts);
 			if (!path.startsWith("..") || !path.startsWith("/")) {
 				path = "/" + path;

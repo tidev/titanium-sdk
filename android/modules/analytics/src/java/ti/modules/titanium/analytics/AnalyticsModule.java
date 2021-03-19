@@ -32,7 +32,7 @@ public class AnalyticsModule extends KrollModule
 	protected static final String PROPERTY_APP_FEATURE = "app.feature";
 	protected static final String PROPERTY_APP_SETTINGS = "app.settings";
 	protected static final String PROPERTY_APP_USER = "app.user";
-	private APSAnalytics analytics = APSAnalytics.getInstance();
+	private final APSAnalytics analytics = APSAnalytics.getInstance();
 
 	public static final int MAX_LEVELS = 5;
 	public static final int MAX_SERLENGTH = 1000;
