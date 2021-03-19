@@ -2784,6 +2784,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_PROMPT_ID = "promptid";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_PROPERTIES = "properties";
 
 	/**
