@@ -34,7 +34,7 @@ public class ShortcutItemProxy extends KrollProxy
 
 	private Context context = null;
 	private static ShortcutManager shortcutManager = null;
-	private static List<ShortcutInfo> shortcuts = new ArrayList<ShortcutInfo>();
+	private static final List<ShortcutInfo> shortcuts = new ArrayList<>();
 
 	private ShortcutInfo shortcut;
 	private ShortcutInfo.Builder shortcutBuilder;
@@ -108,12 +108,12 @@ public class ShortcutItemProxy extends KrollProxy
 		shortcut = shortcutBuilder.build();
 
 		// obtain and update any pre-existing shortcuts
-		for (ShortcutInfo shortcut : new ArrayList<>(this.shortcuts)) {
+		for (ShortcutInfo shortcut : new ArrayList<>(ShortcutItemProxy.shortcuts)) {
 			if (shortcut.getId().equals(this.shortcut.getId())) {
-				this.shortcuts.remove(shortcut);
+				ShortcutItemProxy.shortcuts.remove(shortcut);
 			}
 		}
-		this.shortcuts.add(shortcut);
+		ShortcutItemProxy.shortcuts.add(shortcut);
 
 		super.handleCreationDict(dict);
 	}

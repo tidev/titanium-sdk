@@ -115,10 +115,10 @@ public class VideoPlayerProxy extends TiViewProxy implements TiLifecycle.OnLifec
 		}
 		if (activity instanceof TiBaseActivity) {
 			((TiBaseActivity) activity).addOnLifecycleEventListener(this);
-			activityListeningTo = new WeakReference<Activity>(activity);
+			activityListeningTo = new WeakReference<>(activity);
 		} else if (activity instanceof TiVideoActivity) {
 			((TiVideoActivity) activity).setOnLifecycleEventListener(this);
-			activityListeningTo = new WeakReference<Activity>(activity);
+			activityListeningTo = new WeakReference<>(activity);
 		}
 	}
 
@@ -190,7 +190,7 @@ public class VideoPlayerProxy extends TiViewProxy implements TiLifecycle.OnLifec
 
 	/**
 	 * Create handler used for communication from TiVideoActivity to this proxy.
-	 * @return
+	 * @return Returns the handler used to send commands to the video view.
 	 */
 	private Handler createControlHandler()
 	{

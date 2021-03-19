@@ -97,7 +97,7 @@ public class EmailDialogProxy extends TiViewProxy implements ActivityTransitionL
 	{
 		if (attachment instanceof FileProxy || attachment instanceof TiBlob) {
 			if (attachments == null) {
-				attachments = new ArrayList<Object>();
+				attachments = new ArrayList<>();
 			}
 			attachments.add(attachment);
 		} else {
@@ -325,7 +325,7 @@ public class EmailDialogProxy extends TiViewProxy implements ActivityTransitionL
 		if (attachments == null) {
 			return null;
 		}
-		ArrayList<Uri> uris = new ArrayList<Uri>();
+		ArrayList<Uri> uris = new ArrayList<>();
 		for (Object attachment : attachments) {
 			Uri uri = getAttachmentUri(attachment);
 			if (uri != null) {

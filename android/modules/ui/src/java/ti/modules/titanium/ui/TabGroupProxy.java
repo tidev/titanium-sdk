@@ -65,7 +65,7 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 
 	protected static final int MSG_LAST_ID = MSG_FIRST_ID + 999;
 
-	private ArrayList<TabProxy> tabs = new ArrayList<TabProxy>();
+	private ArrayList<TabProxy> tabs = new ArrayList<>();
 	private WeakReference<AppCompatActivity> tabGroupActivity;
 	private TabProxy selectedTab;
 	private String tabGroupTitle = null;
@@ -279,7 +279,7 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		if (tabs != null) {
 			tabs.clear();
 		} else {
-			tabs = new ArrayList<TabProxy>();
+			tabs = new ArrayList<>();
 		}
 		if (obj instanceof Object[]) {
 			Object[] objArray = (Object[]) obj;
@@ -298,7 +298,7 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 
 		// Support setting orientation modes at creation.
 		Object orientationModes = options.get(TiC.PROPERTY_ORIENTATION_MODES);
-		if (orientationModes != null && orientationModes instanceof Object[]) {
+		if (orientationModes instanceof Object[]) {
 			try {
 				int[] modes = TiConvert.toIntArray((Object[]) orientationModes);
 				setOrientationModes(modes);
@@ -402,7 +402,7 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 	@Override
 	public void windowCreated(TiBaseActivity activity, Bundle savedInstanceState)
 	{
-		tabGroupActivity = new WeakReference<AppCompatActivity>(activity);
+		tabGroupActivity = new WeakReference<>(activity);
 		activity.setWindowProxy(this);
 		activity.setLayoutProxy(this);
 		setActivity(activity);

@@ -86,17 +86,13 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 	private boolean onDestroyFired = false;
 	private int originalOrientationMode = -1;
 	private boolean inForeground = false; // Indicates whether this activity is in foreground or not.
-	private TiWeakList<OnLifecycleEvent> lifecycleListeners = new TiWeakList<OnLifecycleEvent>();
-	private TiWeakList<OnWindowFocusChangedEvent> windowFocusChangedListeners =
-		new TiWeakList<OnWindowFocusChangedEvent>();
-	private TiWeakList<interceptOnBackPressedEvent> interceptOnBackPressedListeners =
-		new TiWeakList<interceptOnBackPressedEvent>();
-	private TiWeakList<OnInstanceStateEvent> instanceStateListeners = new TiWeakList<OnInstanceStateEvent>();
-	private TiWeakList<OnActivityResultEvent> onActivityResultListeners = new TiWeakList<OnActivityResultEvent>();
-	private TiWeakList<OnCreateOptionsMenuEvent> onCreateOptionsMenuListeners =
-		new TiWeakList<OnCreateOptionsMenuEvent>();
-	private TiWeakList<OnPrepareOptionsMenuEvent> onPrepareOptionsMenuListeners =
-		new TiWeakList<OnPrepareOptionsMenuEvent>();
+	private final TiWeakList<OnLifecycleEvent> lifecycleListeners = new TiWeakList<>();
+	private final TiWeakList<OnWindowFocusChangedEvent> windowFocusChangedListeners = new TiWeakList<>();
+	private final TiWeakList<interceptOnBackPressedEvent> interceptOnBackPressedListeners = new TiWeakList<>();
+	private final TiWeakList<OnInstanceStateEvent> instanceStateListeners = new TiWeakList<>();
+	private final TiWeakList<OnActivityResultEvent> onActivityResultListeners = new TiWeakList<>();
+	private final TiWeakList<OnCreateOptionsMenuEvent> onCreateOptionsMenuListeners = new TiWeakList<>();
+	private final TiWeakList<OnPrepareOptionsMenuEvent> onPrepareOptionsMenuListeners = new TiWeakList<>();
 	private boolean sustainMode = false;
 	private int lastUIModeFlags = 0;
 	private int lastNightMode = AppCompatDelegate.MODE_NIGHT_UNSPECIFIED;
@@ -115,7 +111,7 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 			@NonNull String[] permissions, @NonNull int[] grantResults);
 	}
 
-	private static HashMap<Integer, TiBaseActivity.OnRequestPermissionsResultCallback>
+	private static final HashMap<Integer, TiBaseActivity.OnRequestPermissionsResultCallback>
 		permissionsResultCallbackMap = new HashMap<>();
 
 	protected View layout;
@@ -131,7 +127,7 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 	protected int msgActivityCreatedId = -1;
 	protected int msgId = -1;
 	//Storing the activity's dialogs and their persistence
-	private CopyOnWriteArrayList<DialogWrapper> dialogs = new CopyOnWriteArrayList<DialogWrapper>();
+	private final CopyOnWriteArrayList<DialogWrapper> dialogs = new CopyOnWriteArrayList<DialogWrapper>();
 
 	public TiWindowProxy lwWindow;
 	public boolean isResumed = false;
@@ -217,7 +213,7 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 
 	/**
 	 * Sets the window proxy.
-	 * @param proxy
+	 * @param proxy The proxy to be assigned to this activity.
 	 */
 	public void setWindowProxy(TiWindowProxy proxy)
 	{
@@ -227,7 +223,7 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 	/**
 	 * Sets the proxy for our layout (used for post layout event)
 	 *
-	 * @param proxy
+	 * @param proxy The proxy to be assigned to activity's root view.
 	 */
 	public void setLayoutProxy(TiViewProxy proxy)
 	{
@@ -238,7 +234,7 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 
 	/**
 	 * Sets the view proxy.
-	 * @param proxy
+	 * @param proxy Proxy to be used as root decor view.
 	 */
 	public void setViewProxy(TiViewProxy proxy)
 	{
@@ -291,7 +287,7 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 
 	public void addConfigurationChangedListener(ConfigurationChangedListener listener)
 	{
-		configChangedListeners.add(new WeakReference<ConfigurationChangedListener>(listener));
+		configChangedListeners.add(new WeakReference<>(listener));
 	}
 
 	public void removeConfigurationChangedListener(ConfigurationChangedListener listener)
@@ -517,7 +513,6 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 	}
 
 	// Subclasses can override to handle post-creation (but pre-message fire) logic
-	@SuppressWarnings("deprecation")
 	protected void windowCreated(Bundle savedInstanceState)
 	{
 		boolean fullscreen = getIntentBoolean(TiC.PROPERTY_FULLSCREEN, false);
@@ -1255,37 +1250,37 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 
 	public void addOnLifecycleEventListener(OnLifecycleEvent listener)
 	{
-		lifecycleListeners.add(new WeakReference<OnLifecycleEvent>(listener));
+		lifecycleListeners.add(new WeakReference<>(listener));
 	}
 
 	public void addOnInstanceStateEventListener(OnInstanceStateEvent listener)
 	{
-		instanceStateListeners.add(new WeakReference<OnInstanceStateEvent>(listener));
+		instanceStateListeners.add(new WeakReference<>(listener));
 	}
 
 	public void addOnWindowFocusChangedEventListener(OnWindowFocusChangedEvent listener)
 	{
-		windowFocusChangedListeners.add(new WeakReference<OnWindowFocusChangedEvent>(listener));
+		windowFocusChangedListeners.add(new WeakReference<>(listener));
 	}
 
 	public void addInterceptOnBackPressedEventListener(interceptOnBackPressedEvent listener)
 	{
-		interceptOnBackPressedListeners.add(new WeakReference<interceptOnBackPressedEvent>(listener));
+		interceptOnBackPressedListeners.add(new WeakReference<>(listener));
 	}
 
 	public void addOnActivityResultListener(OnActivityResultEvent listener)
 	{
-		onActivityResultListeners.add(new WeakReference<OnActivityResultEvent>(listener));
+		onActivityResultListeners.add(new WeakReference<>(listener));
 	}
 
 	public void addOnCreateOptionsMenuEventListener(OnCreateOptionsMenuEvent listener)
 	{
-		onCreateOptionsMenuListeners.add(new WeakReference<OnCreateOptionsMenuEvent>(listener));
+		onCreateOptionsMenuListeners.add(new WeakReference<>(listener));
 	}
 
 	public void addOnPrepareOptionsMenuEventListener(OnPrepareOptionsMenuEvent listener)
 	{
-		onPrepareOptionsMenuListeners.add(new WeakReference<OnPrepareOptionsMenuEvent>(listener));
+		onPrepareOptionsMenuListeners.add(new WeakReference<>(listener));
 	}
 
 	public void removeOnLifecycleEventListener(OnLifecycleEvent listener)

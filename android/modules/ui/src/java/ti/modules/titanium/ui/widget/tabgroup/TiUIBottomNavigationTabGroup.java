@@ -48,7 +48,7 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 	// We track the previously selected item index manually to mimic the behavior in order to keep parity across styles.
 	private int currentlySelectedIndex = -1;
 	private BottomNavigationView mBottomNavigationView;
-	private ArrayList<MenuItem> mMenuItemsArray = new ArrayList<>();
+	private final ArrayList<MenuItem> mMenuItemsArray = new ArrayList<>();
 	// endregion
 
 	public TiUIBottomNavigationTabGroup(TabGroupProxy proxy, TiBaseActivity activity)
@@ -377,8 +377,8 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 	/**
 	 * After a menu item is clicked this method sends the proper index to the ViewPager to a select
 	 * a page. Also takes care of sending SELECTED/UNSELECTED events from the proper tabs.
-	 * @param item
-	 * @return
+	 * @param item The menu item that was clicked on.
+	 * @return Returns true if overridden and to prevent tab selection. Returns false to allow tab selection.
 	 */
 	@Override
 	public boolean onMenuItemClick(MenuItem item)
