@@ -142,7 +142,7 @@ public class ListViewHolder extends TiRecyclerViewHolder
 
 		if (proxy != null) {
 			// Update list item proxy's activity in case it has changed, such as after a dark/light theme change.
-			Context context = this.itemView.getContext();
+			final Context context = this.itemView.getContext();
 			if ((context instanceof Activity) && (proxy.getActivity() != context)) {
 				proxy.releaseViews();
 				proxy.setActivity((Activity) context);
