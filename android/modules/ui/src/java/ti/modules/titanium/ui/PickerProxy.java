@@ -59,7 +59,7 @@ import com.google.android.material.timepicker.TimeFormat;
 public class PickerProxy extends TiViewProxy implements PickerColumnListener
 {
 	private int type = UIModule.PICKER_TYPE_PLAIN;
-	private ArrayList<Integer> preselectedRows = new ArrayList<Integer>();
+	private ArrayList<Integer> preselectedRows = new ArrayList<>();
 	private static final String TAG = "PickerProxy";
 	public static final int DEFAULT_VISIBLE_ITEMS_COUNT = 5;
 	private boolean useSpinner = false;
@@ -286,7 +286,7 @@ public class PickerProxy extends TiViewProxy implements PickerColumnListener
 		if (view == null) {
 			// assign it to be selected after view creation
 			if (preselectedRows == null) {
-				preselectedRows = new ArrayList<Integer>();
+				preselectedRows = new ArrayList<>();
 			}
 			while (preselectedRows.size() < (column + 1)) {
 				preselectedRows.add(null);
@@ -294,8 +294,7 @@ public class PickerProxy extends TiViewProxy implements PickerColumnListener
 			if (preselectedRows.size() >= (column + 1)) {
 				preselectedRows.remove(column);
 			}
-			preselectedRows.add(column, new Integer(row));
-			return;
+			preselectedRows.add(column, row);
 		} else {
 			((TiUIPicker) view).selectRow(column, row, animated);
 			if (TiConvert.toBoolean(getProperty(TiC.PROPERTY_SELECTION_OPENS), false)) {
@@ -334,7 +333,7 @@ public class PickerProxy extends TiViewProxy implements PickerColumnListener
 		if (children == null) {
 			return new PickerColumnProxy[] {};
 		} else {
-			return children.toArray(new PickerColumnProxy[children.size()]);
+			return children.toArray(new PickerColumnProxy[0]);
 		}
 	}
 
@@ -745,7 +744,7 @@ public class PickerProxy extends TiViewProxy implements PickerColumnListener
 		d.put("column", column);
 		d.put("row", row);
 		int columnCount = getColumnCount();
-		ArrayList<String> selectedValues = new ArrayList<String>(columnCount);
+		ArrayList<String> selectedValues = new ArrayList<>(columnCount);
 		for (int i = 0; i < columnCount; i++) {
 			PickerRowProxy rowInColumn = getSelectedRow(i);
 			if (rowInColumn != null) {

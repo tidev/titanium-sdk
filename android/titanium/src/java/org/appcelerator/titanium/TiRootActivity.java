@@ -54,9 +54,9 @@ public class TiRootActivity extends TiLaunchActivity implements TiActivitySuppor
 	 */
 	private static boolean isScriptRunning;
 
-	private ArrayList<OnNewIntentListener> newIntentListeners = new ArrayList<>(16);
-	private LinkedList<Runnable> pendingRuntimeRunnables = new LinkedList<>();
-	private Drawable[] backgroundLayers = { null, null };
+	private final ArrayList<OnNewIntentListener> newIntentListeners = new ArrayList<>(16);
+	private final LinkedList<Runnable> pendingRuntimeRunnables = new LinkedList<>();
+	private final Drawable[] backgroundLayers = { null, null };
 	private int runtimeStartedListenerId = KrollProxy.INVALID_EVENT_LISTENER_ID;
 	private boolean wasRuntimeStarted;
 	private boolean isDuplicateInstance;

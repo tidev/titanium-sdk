@@ -36,7 +36,7 @@ public class TiUITimeSpinner extends TiUIView implements WheelView.OnItemSelecte
 	private boolean ignoreItemSelection = false;
 	private static final String TAG = "TiUITimeSpinner";
 
-	private Calendar calendar = Calendar.getInstance();
+	private final Calendar calendar = Calendar.getInstance();
 
 	public TiUITimeSpinner(TiViewProxy proxy)
 	{
@@ -56,7 +56,7 @@ public class TiUITimeSpinner extends TiUIView implements WheelView.OnItemSelecte
 
 	private WheelView makeAmPmWheel(Context context, int textSize)
 	{
-		ArrayList<Object> amPmRows = new ArrayList<Object>();
+		ArrayList<Object> amPmRows = new ArrayList<>();
 		amPmRows.add(" am ");
 		amPmRows.add(" pm ");
 		WheelView view = new WheelView(context);

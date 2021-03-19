@@ -212,7 +212,7 @@ public class TiAudioRecorder
 		out.write(header, 0, header.length);
 	}
 
-	private AudioRecord.OnRecordPositionUpdateListener onRecordPositionUpdateListener =
+	private final AudioRecord.OnRecordPositionUpdateListener onRecordPositionUpdateListener =
 		new AudioRecord.OnRecordPositionUpdateListener() {
 			@Override
 			public void onMarkerReached(AudioRecord recorder)

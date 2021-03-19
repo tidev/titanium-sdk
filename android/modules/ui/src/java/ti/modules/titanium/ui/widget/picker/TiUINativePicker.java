@@ -226,14 +226,14 @@ public class TiUINativePicker extends TiUIPicker
 			if (rowArray == null || rowArray.length == 0) {
 				return;
 			}
-			ArrayList<TiViewProxy> rows = new ArrayList<TiViewProxy>(Arrays.asList(rowArray));
+			ArrayList<TiViewProxy> rows = new ArrayList<>(Arrays.asList(rowArray));
 			// At the moment we're using the simple spinner layouts provided
 			// in android because we're only supporting a piece of text, which
 			// is fetched via PickerRowProxy.toString(). If we allow
 			// anything beyond a string, we'll have to implement our own
 			// layouts (maybe our own Adapter too.)
 			TiSpinnerAdapter<TiViewProxy> adapter =
-				new TiSpinnerAdapter<TiViewProxy>(spinner.getContext(), android.R.layout.simple_spinner_item, rows);
+				new TiSpinnerAdapter<>(spinner.getContext(), android.R.layout.simple_spinner_item, rows);
 			adapter.setFontProperties(proxy.getProperties());
 			adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 			spinner.setAdapter(adapter);

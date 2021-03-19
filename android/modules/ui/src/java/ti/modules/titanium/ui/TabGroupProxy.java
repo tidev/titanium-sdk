@@ -236,7 +236,7 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 
 		// Support setting orientation modes at creation.
 		Object orientationModes = options.get(TiC.PROPERTY_ORIENTATION_MODES);
-		if (orientationModes != null && orientationModes instanceof Object[]) {
+		if (orientationModes instanceof Object[]) {
 			try {
 				int[] modes = TiConvert.toIntArray((Object[]) orientationModes);
 				setOrientationModes(modes);
@@ -322,7 +322,7 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 	@Override
 	public void windowCreated(TiBaseActivity activity, Bundle savedInstanceState)
 	{
-		tabGroupActivity = new WeakReference<AppCompatActivity>(activity);
+		tabGroupActivity = new WeakReference<>(activity);
 		activity.setWindowProxy(this);
 		activity.setLayoutProxy(this);
 		setActivity(activity);

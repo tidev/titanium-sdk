@@ -156,7 +156,7 @@ public class TiImageView extends ViewGroup implements Handler.Callback, OnClickL
 	public TiImageView(Context context, TiViewProxy proxy)
 	{
 		this(context);
-		this.proxy = new WeakReference<TiViewProxy>(proxy);
+		this.proxy = new WeakReference<>(proxy);
 	}
 
 	public void setEnableScale(boolean enableScale)
