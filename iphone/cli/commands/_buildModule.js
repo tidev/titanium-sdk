@@ -154,7 +154,8 @@ iOSModuleBuilder.prototype.run = function run(logger, config, cli, finished) {
 		'buildModule',
 		'createUniversalBinary',
 		function (next) {
-			this.verifyBuildArch().then(next, next);
+			// eslint-disable-next-line promise/no-callback-in-promise
+			this.verifyBuildArch().then(next).catch(next);
 		},
 		'packageModule',
 		function (next) {

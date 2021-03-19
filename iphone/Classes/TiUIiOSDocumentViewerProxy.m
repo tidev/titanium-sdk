@@ -37,7 +37,12 @@
 
 - (void)setAnnotation:(id)args
 {
-  [self controller].annotation = [args objectAtIndex:0];
+  [self controller].annotation = args;
+}
+
+- (id)annotation
+{
+  return [self controller].annotation;
 }
 
 - (void)show:(id)args

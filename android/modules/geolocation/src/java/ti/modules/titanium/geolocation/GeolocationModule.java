@@ -9,6 +9,7 @@ package ti.modules.titanium.geolocation;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import org.appcelerator.kroll.KrollDict;
@@ -27,7 +28,6 @@ import org.appcelerator.titanium.util.TiConvert;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import ti.modules.titanium.geolocation.TiLocation.GeocodeResponseHandler;
 import ti.modules.titanium.geolocation.android.AndroidModule;
 import ti.modules.titanium.geolocation.android.FusedLocationProvider;
 import ti.modules.titanium.geolocation.android.LocationProviderProxy;
@@ -39,6 +39,8 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.location.Address;
+import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationProvider;
 import android.os.Build;
@@ -142,6 +144,7 @@ public class GeolocationModule extends KrollModule implements Handler.Callback, 
 	private HashMap<KrollPromise<KrollDict>, KrollFunction> currentPositionCallback = new HashMap<>();
 
 	private FusedLocationProvider fusedLocationProvider;
+	private Geocoder geocoder;
 
 	/**
 	 * Constructor
@@ -153,6 +156,7 @@ public class GeolocationModule extends KrollModule implements Handler.Callback, 
 		context = TiApplication.getInstance().getRootOrCurrentActivity();
 
 		fusedLocationProvider = new FusedLocationProvider(context, this);
+		geocoder = new Geocoder(context);
 
 		tiLocation = new TiLocation();
 		tiCompass = new TiCompass(this, tiLocation);
@@ -751,7 +755,8 @@ public class GeolocationModule extends KrollModule implements Handler.Callback, 
 
 	/**
 	 * Converts the specified address to coordinates and returns the value to the specified
-	 * Javascript function
+	 * Javascript function.
+	 * NOTE: This will fail on devices without Google API availability.
 	 *
 	 * @param address			address to be converted
 	 * @param callback			Javascript function that will be invoked with the coordinates
@@ -762,13 +767,45 @@ public class GeolocationModule extends KrollModule implements Handler.Callback, 
 												   @Kroll.argument(optional = true) final KrollFunction callback)
 	{
 		return KrollPromise.create((promise) -> {
-			tiLocation.forwardGeocode(address, createGeocodeResponseHandler(callback, promise));
+			new Thread(() -> {
+				final KrollDict response = new KrollDict();
+
+				response.put(TiC.EVENT_PROPERTY_SOURCE, this);
+
+				try {
+					final List<Address> addresses = geocoder.getFromLocationName(address, 1);
+
+					if (addresses.size() > 0) {
+						response.putAll(TiLocation.placeFromAddress(addresses.get(0)));
+					} else {
+
+						// Could not resolve address.
+						throw new Exception("Could not resolve address to location.");
+					}
+
+					// Success, resolve.
+					response.putCodeAndMessage(0, null);
+					promise.resolve(response);
+
+				} catch (Exception e) {
+
+					// Failed, reject.
+					response.putCodeAndMessage(-1, null);
+					promise.reject(response);
+				}
+
+				if (callback == null) {
+					return;
+				}
+				callback.call(getKrollObject(), new Object[] { response });
+			}).start();
 		});
 	}
 
 	/**
 	 * Converts the specified latitude and longitude to a human readable address and returns
-	 * the value to the specified Javascript function
+	 * the value to the specified Javascript function.
+	 * NOTE: This will fail on devices without Google API availability.
 	 *
 	 * @param latitude			latitude to be used in looking up the associated address
 	 * @param longitude			longitude to be used in looking up the associated address
@@ -780,35 +817,48 @@ public class GeolocationModule extends KrollModule implements Handler.Callback, 
 								@Kroll.argument(optional = true) final KrollFunction callback)
 	{
 		return KrollPromise.create((promise) -> {
-			tiLocation.reverseGeocode(latitude, longitude, createGeocodeResponseHandler(callback, promise));
-		});
-	}
+			new Thread(() -> {
+				final KrollDict response = new KrollDict();
 
-	/**
-	 * Convenience method for creating a response handler that is used when doing a
-	 * geocode lookup.
-	 *
-	 * @param callback			Javascript function that the response handler will invoke
-	 * 							once the geocode response is ready
-	 * @return					the geocode response handler
-	 */
-	private GeocodeResponseHandler createGeocodeResponseHandler(final KrollFunction callback,
-																final KrollPromise<KrollDict> promise)
-	{
-		final GeolocationModule geolocationModule = this;
+				response.put(TiC.EVENT_PROPERTY_SOURCE, this);
 
-		return new GeocodeResponseHandler() {
-			@Override
-			public void handleGeocodeResponse(KrollDict geocodeResponse)
-			{
-				geocodeResponse.put(TiC.EVENT_PROPERTY_SOURCE, geolocationModule);
-				promise.resolve(geocodeResponse);
+				try {
+					final List<Address> addresses = geocoder.getFromLocation(latitude, longitude, 10);
+					final List<KrollDict> places = new ArrayList<>(addresses.size());
+
+					if (addresses.size() == 0) {
+
+						// Could not resolve location.
+						throw new Exception("Could not resolve location.");
+					}
+
+					for (final Address address : addresses) {
+						final KrollDict place = TiLocation.placeFromAddress(address);
+
+						// Include place to places array.
+						places.add(place);
+					}
+
+					// Add all places to response payload.
+					response.put(TiC.PROPERTY_PLACES, places.toArray());
+
+					// Success, resolve.
+					response.putCodeAndMessage(0, null);
+					promise.resolve(response);
+
+				} catch (Exception e) {
+
+					// Failed, reject.
+					response.putCodeAndMessage(-1, null);
+					promise.reject(response);
+				}
+
 				if (callback == null) {
 					return;
 				}
-				callback.call(getKrollObject(), new Object[] { geocodeResponse });
-			}
-		};
+				callback.call(getKrollObject(), new Object[] { response });
+			}).start();
+		});
 	}
 
 	/**

@@ -7,22 +7,7 @@ def MAINLINE_BRANCH_REGEXP = /master|next|\d+_\d_(X|\d)/ // a branch is consider
 def isMainlineBranch = (env.BRANCH_NAME ==~ MAINLINE_BRANCH_REGEXP)
 
 // Keep logs/reports/etc of last 30 builds, only keep build artifacts of last 3 builds
-def buildProperties = [buildDiscarder(logRotator(numToKeepStr: '30', artifactNumToKeepStr: '3'))]
-// For mainline branches, notify Teams channel of failures/success/not built/etc
-if (isMainlineBranch) {
-	withCredentials([string(credentialsId: 'titanium_mobile_ms_teams_webhook', variable: 'WEBHOOK_URL')]) {
-	    buildProperties << office365ConnectorWebhooks([[
-			notifyBackToNormal: true,
-			notifyFailure: true,
-			notifyNotBuilt: true,
-			notifyUnstable: true,
-			notifySuccess: true,
-			notifyRepeatedFailure: true,
-			url: "${WEBHOOK_URL}"
-		]])
-	}
-}
-properties(buildProperties)
+properties([buildDiscarder(logRotator(numToKeepStr: '30', artifactNumToKeepStr: '3'))])
 
 // These values could be changed manually on PRs/branches, but be careful we don't merge the changes in. We want this to be the default behavior for now!
 // target branch of test suite to test with
