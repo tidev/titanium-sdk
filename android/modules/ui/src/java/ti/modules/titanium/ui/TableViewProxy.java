@@ -225,10 +225,12 @@ public class TableViewProxy extends RecyclerViewProxy
 		final TiTableView tableView = getTableView();
 
 		if (tableView != null) {
-			final TableViewRowProxy item = tableView.getAdapterItem(adapterIndex);
-			final TableViewSectionProxy section = (TableViewSectionProxy) item.getParent();
+			final TableViewRowProxy row = tableView.getAdapterItem(adapterIndex);
+			final TableViewSectionProxy section = (TableViewSectionProxy) row.getParent();
 
-			section.remove(item);
+			row.fireSyncEvent(TiC.EVENT_DELETE, null);
+
+			section.remove(row);
 		}
 	}
 
@@ -409,6 +411,17 @@ public class TableViewProxy extends RecyclerViewProxy
 	private TableViewSectionProxy getSectionByIndex(int index)
 	{
 		return this.sections.get(index);
+	}
+
+	/**
+	 * Obtain section index from section.
+	 *
+	 * @param section Section in table.
+	 * @return Integer of index.
+	 */
+	private int getIndexOfSection(TableViewSectionProxy section)
+	{
+		return this.sections.indexOf(section);
 	}
 
 	/**
