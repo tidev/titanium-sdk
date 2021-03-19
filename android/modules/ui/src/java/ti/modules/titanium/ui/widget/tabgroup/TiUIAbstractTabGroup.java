@@ -138,7 +138,7 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 	 * Returns the value of the Tab's title.
 	 *
 	 * @param index the index of the Tab.
-	 * @return
+	 * @return Returns the tab's title.
 	 */
 	public abstract String getTabTitle(int index);
 
@@ -160,9 +160,9 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 	private int colorSurfaceInt;
 	private int colorPrimaryInt;
 	private int colorOnSurfaceInt;
-	private AtomicLong fragmentIdGenerator = new AtomicLong();
-	private ArrayList<Long> tabFragmentIDs = new ArrayList<Long>();
-	protected ArrayList<TiUITab> tabs = new ArrayList<TiUITab>();
+	private final AtomicLong fragmentIdGenerator = new AtomicLong();
+	private final ArrayList<Long> tabFragmentIDs = new ArrayList<>();
+	protected ArrayList<TiUITab> tabs = new ArrayList<>();
 	// endregion
 
 	public TiUIAbstractTabGroup(final TabGroupProxy proxy, TiBaseActivity activity)

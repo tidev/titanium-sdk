@@ -453,7 +453,7 @@ public class TableViewProxy extends RecyclerViewProxy
 	@Kroll.getProperty
 	public TableViewSectionProxy[] getSections()
 	{
-		return this.sections.toArray(new TableViewSectionProxy[this.sections.size()]);
+		return this.sections.toArray(new TableViewSectionProxy[0]);
 	}
 
 	/**

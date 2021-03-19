@@ -106,7 +106,7 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 
 	protected TiViewProxy proxy;
 	protected TiViewProxy parent;
-	protected ArrayList<TiUIView> children = new ArrayList<TiUIView>();
+	protected ArrayList<TiUIView> children = new ArrayList<>();
 
 	protected LayoutParams layoutParams;
 	protected TiAnimationBuilder animBuilder;
@@ -151,13 +151,12 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 
 	protected GestureDetector detector = null;
 
-	private AtomicBoolean bLayoutPending = new AtomicBoolean();
-	private AtomicBoolean bTransformPending = new AtomicBoolean();
+	private final AtomicBoolean bLayoutPending = new AtomicBoolean();
+	private final AtomicBoolean bTransformPending = new AtomicBoolean();
 
 	/**
 	 * Constructs a TiUIView object with the associated proxy.
 	 * @param proxy the associated proxy.
-	 * @module.api
 	 */
 	public TiUIView(TiViewProxy proxy)
 	{
@@ -266,7 +265,6 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 
 	/**
 	 * @return the view proxy.
-	 * @module.api
 	 */
 	public TiViewProxy getProxy()
 	{
@@ -276,7 +274,6 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 	/**
 	 * Sets the view proxy.
 	 * @param proxy the proxy to set.
-	 * @module.api
 	 */
 	public void setProxy(TiViewProxy proxy)
 	{
@@ -295,7 +292,6 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 
 	/**
 	 * @return the view's layout params.
-	 * @module.api
 	 */
 	public LayoutParams getLayoutParams()
 	{
@@ -304,7 +300,6 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 
 	/**
 	 * @return the Android native view.
-	 * @module.api
 	 */
 	public View getNativeView()
 	{
@@ -314,7 +309,6 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 	/**
 	 * Sets the nativeView to view.
 	 * @param view the view to set
-	 * @module.api
 	 */
 	protected void setNativeView(View view)
 	{
@@ -474,7 +468,7 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 				(new Ti2DMatrix()).rotate(new Object[] { 0d }).translate(0d, 0d).scale(new Object[] { 1d, 1d });
 		}
 
-		HashMap<String, Object> options = new HashMap<String, Object>(2);
+		HashMap<String, Object> options = new HashMap<>(2);
 		options.put(TiC.PROPERTY_TRANSFORM, matrixApply);
 		options.put(TiC.PROPERTY_DURATION, 1);
 
@@ -574,7 +568,7 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 	{
 		if (nativeView != null) {
 			Animation a = nativeView.getAnimation();
-			if (a != null && a instanceof TiMatrixAnimation) {
+			if (a instanceof TiMatrixAnimation) {
 				TiMatrixAnimation matrixAnimation = (TiMatrixAnimation) a;
 				matrixAnimation.invalidateWithMatrix(nativeView);
 			}
@@ -1543,7 +1537,7 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 		borderView.postInvalidate();
 	}
 
-	private static SparseArray<String> motionEvents = new SparseArray<String>();
+	private static final SparseArray<String> motionEvents = new SparseArray<>();
 	static
 	{
 		motionEvents.put(MotionEvent.ACTION_DOWN, TiC.EVENT_TOUCH_START);
@@ -1631,9 +1625,6 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 		return true;
 	}
 
-	/**
-	 * @module.api
-	 */
 	protected boolean allowRegisterForKeyPress()
 	{
 		return true;
@@ -1653,14 +1644,13 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 
 	protected void registerTouchEvents(final View touchable)
 	{
-
-		touchView = new WeakReference<View>(touchable);
+		touchView = new WeakReference<>(touchable);
 
 		final ScaleGestureDetector scaleDetector =
 			new ScaleGestureDetector(touchable.getContext(), new SimpleOnScaleGestureListener() {
 				// protect from divide by zero errors
-				long minTimeDelta = 1;
-				float minStartSpan = 1.0f;
+				final long minTimeDelta = 1;
+				final float minStartSpan = 1.0f;
 				float startSpan;
 
 				@Override
@@ -1762,6 +1752,7 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 			int pointersDown = 0;
 			int touchSlop;
 
+			@Override
 			public boolean onTouch(View view, MotionEvent event)
 			{
 				// Fetch max distance finger can travel until it can't be considered a click/tap.

@@ -37,12 +37,12 @@ public class TiCompass implements SensorEventListener
 
 	private GeolocationModule geolocationModule;
 	private TiLocation tiLocation;
-	private Calendar baseTime = Calendar.getInstance();
-	private long sensorTimerStart = SystemClock.uptimeMillis();
+	private final Calendar baseTime = Calendar.getInstance();
+	private final long sensorTimerStart = SystemClock.uptimeMillis();
 	private long lastEventInUpdate;
 	private float lastHeading = 0.0f;
 	private GeomagneticField geomagneticField;
-	private Criteria locationCriteria = new Criteria();
+	private final Criteria locationCriteria = new Criteria();
 	private Location geomagneticFieldLocation;
 	private long lastDeclinationCheck;
 
@@ -141,11 +141,11 @@ public class TiCompass implements SensorEventListener
 		return data;
 	}
 
-	/*
-     * Check whether a fresher location is available and update the GeomagneticField 
-     * that we use for correcting the magnetic heading. If the location is stale,
-     * use it anyway but log a warning.
-     */
+	/**
+	 * Check whether a fresher location is available and update the GeomagneticField
+	 * that we use for correcting the magnetic heading. If the location is stale,
+	 * use it anyway but log a warning.
+	 */
 	private void updateDeclination()
 	{
 		long currentTime = System.currentTimeMillis();

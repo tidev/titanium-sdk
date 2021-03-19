@@ -19,7 +19,7 @@ public class KrollLogging
 	public static final int CRITICAL = 7;
 	public static final int FATAL = 8;
 
-	private static KrollLogging instance = new KrollLogging("TiAPI");
+	private static final KrollLogging instance = new KrollLogging("TiAPI");
 
 	private String tag;
 	private LogListener listener;
@@ -119,15 +119,8 @@ public class KrollLogging
 
 	private String combineLogMessages(String... args)
 	{
-		String msg;
 		int length = (args == null ? 0 : args.length);
-
-		if (length > 0) {
-			msg = args[0];
-		} else {
-			msg = new String();
-		}
-
+		String msg = (length > 0) ? args[0] : "";
 		for (int i = 1; i < length; i++) {
 			msg = msg.concat(String.format(" %s", args[i]));
 		}

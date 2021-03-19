@@ -32,6 +32,7 @@ import java.nio.CharBuffer;
 import java.nio.charset.CharacterCodingException;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -126,15 +127,15 @@ public class TiHTTPClient
 	private String url;
 	private URL mURL;
 	private String redirectedLocation;
-	private ArrayList<File> tmpFiles = new ArrayList<File>();
-	private ArrayList<X509TrustManager> trustManagers = new ArrayList<X509TrustManager>();
-	private ArrayList<X509KeyManager> keyManagers = new ArrayList<X509KeyManager>();
+	private final ArrayList<File> tmpFiles = new ArrayList<>();
+	private final ArrayList<X509TrustManager> trustManagers = new ArrayList<>();
+	private final ArrayList<X509KeyManager> keyManagers = new ArrayList<>();
 	protected SecurityManagerProtocol securityManager;
 	private int tlsVersion = NetworkModule.TLS_DEFAULT;
 
-	private static CookieManager cookieManager = NetworkModule.getCookieManagerInstance();
+	private static final CookieManager cookieManager = NetworkModule.getCookieManagerInstance();
 
-	protected HashMap<String, String> requestHeaders = new HashMap<String, String>();
+	protected HashMap<String, String> requestHeaders = new HashMap<>();
 	private ArrayList<NameValuePair> nvPairs;
 	private HashMap<String, ContentBody> parts;
 
@@ -437,8 +438,8 @@ public class TiHTTPClient
 		}
 		readyState = 0;
 		connected = false;
-		this.nvPairs = new ArrayList<NameValuePair>();
-		this.parts = new HashMap<String, ContentBody>();
+		this.nvPairs = new ArrayList<>();
+		this.parts = new HashMap<>();
 		this.maxBufferSize =
 			TiApplication.getInstance().getAppProperties().getInt(PROPERTY_MAX_BUFFER_SIZE, DEFAULT_MAX_BUFFER_SIZE);
 	}
@@ -477,7 +478,7 @@ public class TiHTTPClient
 		Log.d(TAG, "Setting ready state to " + readyState, Log.DEBUG_MODE);
 		this.readyState = readyState;
 		KrollDict data = new KrollDict();
-		data.put("readyState", Integer.valueOf(readyState));
+		data.put("readyState", readyState);
 		dispatchCallback(TiC.PROPERTY_ONREADYSTATECHANGE, data);
 
 		if (readyState == READY_STATE_DONE) {
@@ -782,7 +783,7 @@ public class TiHTTPClient
 			return;
 		}
 
-		List<HttpCookie> cookies = new ArrayList<HttpCookie>(cookieManager.getCookieStore().getCookies());
+		List<HttpCookie> cookies = new ArrayList<>(cookieManager.getCookieStore().getCookies());
 		cookieManager.getCookieStore().removeAll();
 		String lower_url = url.toLowerCase();
 
@@ -810,9 +811,9 @@ public class TiHTTPClient
 				if (requestHeaders.containsKey(header)) {
 					// Appends a value to a header
 					// If it is a cookie, use ';'. If not, use ','.
-					String separator = ("Cookie".equalsIgnoreCase(header)) ? "; " : ", ";
 					StringBuffer val = new StringBuffer(requestHeaders.get(header));
-					val.append(separator + value);
+					val.append("Cookie".equalsIgnoreCase(header) ? "; " : ", ");
+					val.append(value);
 					requestHeaders.put(header, val.toString());
 				} else {
 					// Set header for the first time
@@ -971,7 +972,7 @@ public class TiHTTPClient
 			// harmless for all other cases
 			parts.put(name, new StringBody(value, "", null));
 		} else {
-			nvPairs.add(new NameValuePair(name, value.toString()));
+			nvPairs.add(new NameValuePair(name, value));
 		}
 	}
 
@@ -1291,11 +1292,9 @@ public class TiHTTPClient
 									ByteArrayOutputStream bos =
 										new ByteArrayOutputStream((int) form.getContentLength());
 									form.writeTo(bos);
-									contentLength +=
-										constructFilePart("form", new StringBody(bos.toString(),
-																				 "application/x-www-form-urlencoded",
-																				 Charset.forName("UTF-8")))
-											.length();
+									StringBody stringBody = new StringBody(
+										bos.toString(), "application/x-www-form-urlencoded", StandardCharsets.UTF_8);
+									contentLength += constructFilePart("form", stringBody).length();
 									contentLength += form.getContentLength() + 2;
 								} catch (UnsupportedEncodingException e) {
 									Log.e(TAG, "Unsupported encoding: ", e);
@@ -1349,9 +1348,8 @@ public class TiHTTPClient
 									ByteArrayOutputStream bos =
 										new ByteArrayOutputStream((int) form.getContentLength());
 									form.writeTo(bos);
-									addFilePart("form",
-												new StringBody(bos.toString(), "application/x-www-form-urlencoded",
-															   Charset.forName("UTF-8")));
+									addFilePart("form", new StringBody(
+										bos.toString(), "application/x-www-form-urlencoded", StandardCharsets.UTF_8));
 
 								} catch (UnsupportedEncodingException e) {
 									Log.e(TAG, "Unsupported encoding: ", e);
