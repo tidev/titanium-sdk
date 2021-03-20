@@ -27,6 +27,30 @@ description: |
     Android also supports setting the background color for each of the states. These are not
     supported on iOS.
 
+    The Material style introduced in Titanium SDK 10 will change the look of the default buttons.
+    You can change those with a custom theme by setting the following properties:
+    ``` xml
+    <style name="Theme.MyTheme" parent="Theme.Titanium.Light">
+        <item name="textAppearanceButton">@style/MyButtonTextTheme</item>
+        <item name="android:buttonStyle">@style/MyButtonTheme</item>
+        <item name="buttonStyle">@style/MyButtonTheme</item>
+    </style>
+
+    <style name="MyButtonTextTheme" parent="TextAppearance.MaterialComponents.Button">
+        <!-- disable uppercase letters -->
+        <item name="android:textAllCaps">false</item>
+        <!-- remove extra letter spacing -->
+        <item name="android:letterSpacing">0</item>
+    </style>
+
+    <style name="MyButtonTheme" parent="Widget.AppCompat.Button">
+        <!-- disable uppercase letters -->
+        <item name="android:textAllCaps">false</item>
+        <!-- remove extra letter spacing -->
+        <item name="android:letterSpacing">0</item>
+    </style>
+    ```
+
     #### iOS Platform Notes
 
     iOS buttons have two special properties, `style` and `systemButton`.
