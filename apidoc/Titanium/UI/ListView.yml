@@ -282,8 +282,8 @@ events:
 
         Note that the `sectionIndex` and `itemIndex` properties of this event correspond to the List View state
         before the user action.
-    platforms: [iphone, ipad, macos]
-    since: 3.2.0
+    platforms: [android, iphone, ipad, macos]
+    since: {android: "10.0.0", iphone: "3.2.0", ipad: "3.2.0", macos: "9.2.0"}
     properties:
       - name: section
         summary: List section from which the item is deleted.
