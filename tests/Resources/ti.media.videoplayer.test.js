@@ -495,10 +495,10 @@ describe.androidARM64Broken('Titanium.Media.VideoPlayer', () => {
 		});
 		player.url = '/movie.mp4';
 		win.add(player);
-		win.open();
-
 		win.addEventListener('open', () => {
 			finish();
 		});
+
+		win.open();
 	});
 });
