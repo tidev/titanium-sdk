@@ -3,26 +3,11 @@ library 'pipeline-library'
 
 // Some branch flags to alter behavior
 def isPR = env.CHANGE_ID || false // CHANGE_ID is set if this is a PR. (We used to look whether branch name started with PR-, which would not be true for a branch from origin filed as PR)
-def MAINLINE_BRANCH_REGEXP = /master|next|\d_\d_(X|\d)/ // a branch is considered mainline if 'master' or like: 6_2_X, 7_0_X, 6_2_1
+def MAINLINE_BRANCH_REGEXP = /master|next|\d+_\d_(X|\d)/ // a branch is considered mainline if 'master' or like: 6_2_X, 7_0_X, 6_2_1
 def isMainlineBranch = (env.BRANCH_NAME ==~ MAINLINE_BRANCH_REGEXP)
 
 // Keep logs/reports/etc of last 30 builds, only keep build artifacts of last 3 builds
-def buildProperties = [buildDiscarder(logRotator(numToKeepStr: '30', artifactNumToKeepStr: '3'))]
-// For mainline branches, notify Teams channel of failures/success/not built/etc
-if (isMainlineBranch) {
-	withCredentials([string(credentialsId: 'titanium_mobile_ms_teams_webhook', variable: 'WEBHOOK_URL')]) {
-	    buildProperties << office365ConnectorWebhooks([[
-			notifyBackToNormal: true,
-			notifyFailure: true,
-			notifyNotBuilt: true,
-			notifyUnstable: true,
-			notifySuccess: true,
-			notifyRepeatedFailure: true,
-			url: "${WEBHOOK_URL}"
-		]])
-	}
-}
-properties(buildProperties)
+properties([buildDiscarder(logRotator(numToKeepStr: '30', artifactNumToKeepStr: '3'))])
 
 // These values could be changed manually on PRs/branches, but be careful we don't merge the changes in. We want this to be the default behavior for now!
 // target branch of test suite to test with
@@ -445,7 +430,7 @@ timestamps {
 					sh 'rm -rf dist/'
 					unarchive mapping: ['dist/': '.']
 					// Have to use Java-style loop for now: https://issues.jenkins-ci.org/browse/JENKINS-26481
-					def oses = ['osx', 'linux', 'win32']
+					def oses = ['osx', 'win32']
 					for (int i = 0; i < oses.size(); i++) {
 						def os = oses[i]
 						def sha1 = sh(returnStdout: true, script: "shasum ${basename}-${os}.zip").trim().split()[0]

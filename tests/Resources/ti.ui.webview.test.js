@@ -321,7 +321,7 @@ describe.androidARM64Broken('Titanium.UI.WebView', function () {
 
 		webView.addEventListener('load', function (e) {
 			const html = e.source.html;
-			const exp = /id="rawUa">rawUa: ([^<]+)<\/li/m.exec(html);
+			const exp = /id="rawUa">rawUa: ([^<]+)<\/li/m.exec(html); // eslint-disable-line security/detect-child-process
 			const userAgent = exp && exp.length > 1 ? exp[1] : undefined;
 			if (userAgent && userAgent === webView.userAgent) {
 				return finish();
@@ -891,8 +891,9 @@ describe.androidARM64Broken('Titanium.UI.WebView', function () {
 	});
 
 	describe.ios('#findString()', function () {
-		it('is a Function', () => {
+		it('is a Function', function () {
 			if (OS_VERSION_MAJOR < 14) {
+				this.skip();
 				return;
 			}
 			const webView = Ti.UI.createWebView({
@@ -903,6 +904,7 @@ describe.androidARM64Broken('Titanium.UI.WebView', function () {
 
 		it('#findString without configuration', function (finish) {
 			if (OS_VERSION_MAJOR < 14) {
+				this.skip();
 				return finish();
 			}
 			win = Ti.UI.createWindow();

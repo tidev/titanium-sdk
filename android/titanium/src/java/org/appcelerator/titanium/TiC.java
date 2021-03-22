@@ -1175,6 +1175,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_BORDER_STYLE = "borderStyle";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_BORDER_WIDTH = "borderWidth";
 
 	/**
@@ -1231,6 +1236,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_CACHE_SIZE = "cacheSize";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_CALLBACK = "callback";
 
 	/**
 	 * @module.api
@@ -1837,6 +1847,14 @@ public class TiC
 	 */
 	public static final String PROPERTY_FOOTER_VIEW = "footerView";
 
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_FORMAT_24 = "format24";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_FORWARD = "forward";
 
 	/**
@@ -2327,6 +2345,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_MAX_ROW_HEIGHT = "maxRowHeight";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_MEDIA = "media";
 
 	/**
@@ -2757,6 +2780,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_PROMPT = "prompt";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_PROMPT_ID = "promptid";
 
 	/**
 	 * @module.api

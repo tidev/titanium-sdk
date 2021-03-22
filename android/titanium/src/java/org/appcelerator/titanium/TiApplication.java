@@ -1004,6 +1004,4 @@ public abstract class TiApplication extends Application implements KrollApplicat
 		}
 		return accessibilityManager;
 	}
-
-	public abstract void verifyCustomModules(TiRootActivity rootActivity);
 }

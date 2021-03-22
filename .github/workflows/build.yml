@@ -1,17 +1,28 @@
 name: Build
-on: [push, pull_request]
-# TODO: Can we split things up in a more intutive way?
-# i.e. an "Android" job which does the android/java linting and build
-# an iOS job which does the swift/ios linting and build
-# a JS/CLI job which does the js linting (and cli tests?)
-# a packaging job which generates the combined SDK from ios/Android?
+on:
+  push:
+    branches:
+    - master
+    - "[0-9]+_[0-9]+_X"
+  pull_request:
 
 jobs:
   android:
-    runs-on: ubuntu-latest
+    # Use Ubuntu 18.04 as later versions do not maintain i386 repositories.
+    # This is required to run 32-bit mksnapshot binaries for snapshot generation. 
+    runs-on: ubuntu-18.04
     name: Android
+    env:
+      CCACHE_DIR: ${{ github.workspace }}/.ccache
+      USE_CCACHE: 1
     steps:
     - uses: actions/checkout@v2
+
+    - name: Dependencies including 32-bit support
+      run: |
+        sudo dpkg --add-architecture i386
+        sudo apt-get update -y -qq
+        sudo apt-get install -y -qq gperf libc6:i386 libncurses5:i386 libstdc++6:i386
 
     - name: Use Node.js 12.x
       uses: actions/setup-node@v1
@@ -45,13 +56,46 @@ jobs:
     - run: npm run lint:android
       name: Lint
 
-# TODO: Build the android half here and stash/upload the built stuff:
-# - dist/android/titanium.bindings.json
-# - android/titanium/build/outputs
-# - android/runtime/v8/generated
-# - dist/android/libv8
-#  Or do we run build *and* publish and then copy over the resulting stuff from each platform and piece them together?
-# Because I assume there's some intermediate files from gradle/cmake/ndk that'd be missing to separet the build/publish halves
+    - name: Install ccache
+      run: brew install ccache
+
+    - name: Retrieve ccache
+      uses: actions/cache@v2
+      with:
+        path: ${{ env.CCACHE_DIR }}
+        key: ${{ runner.os }}-ccache-${{ github.sha }}
+        restore-keys: |
+          ${{ runner.os }}-ccache-
+
+    - name: Cache V8
+      uses: actions/cache@v2
+      with:
+        path: dist/android/libv8
+        key: libv8-${{ hashFiles('dist/android/libv8/**') }}
+        restore-keys: |
+          libv8-
+
+    - run: npm run build:android
+      name: Build
+
+    - name: Show summary of ccache configuration and statistics counters
+      run: ccache --show-stats
+
+    - name: 'Package build output'
+      run: >
+        tar -czvf android-build.tar.gz
+        android/kroll-apt/build/libs/kroll-apt.jar
+        android/runtime/v8/generated/
+        android/titanium/build/outputs/
+        dist/android/libv8/
+        dist/android/titanium.bindings.json
+        dist/tmp/common
+
+    - uses: actions/upload-artifact@v2
+      with:
+        name: android-build
+        retention-days: 1
+        path: android-build.tar.gz
 
     - name: Cleanup Gradle Cache
       # Remove some files from the Gradle cache, so they aren't cached by GitHub Actions.
@@ -66,7 +110,80 @@ jobs:
     env:
       CCACHE_DIR: ${{ github.workspace }}/.ccache
       USE_CCACHE: 1
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Use Node.js 12.x
+      uses: actions/setup-node@v1
+      with:
+        node-version: '12.x'
+
+    - name: Cache Node.js modules
+      id: node-cache
+      uses: actions/cache@v2
+      with:
+        path: node_modules
+        key: ${{ runner.OS }}-node-modules-${{ hashFiles('package-lock.json') }}
+        restore-keys: |
+          ${{ runner.OS }}-node-modules-
+          ${{ runner.OS }}-
+
+    - run: npm ci
+      name: Install dependencies
+      if: steps.node-cache.outputs.cache-hit != 'true'
+
+    - run: npm run lint:ios
+      name: Lint
+
+    - run: npm run build:ios
+      name: Build
+
+    - name: 'Package build output'
+      run: >
+        tar -czvf ios-build.tar.gz
+        dist/tmp/common
+        iphone/TitaniumKit/build/TitaniumKit.xcframework
+
+    - uses: actions/upload-artifact@v2
+      with:
+        name: ios-build
+        retention-days: 1
+        path: ios-build.tar.gz
+
+  js:
+    runs-on: ubuntu-latest
+    name: JavaScript
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Use Node.js 12.x
+      uses: actions/setup-node@v1
+      with:
+        node-version: '12.x'
+
+    - name: Cache Node.js modules
+      id: node-cache
+      uses: actions/cache@v2
+      with:
+        path: node_modules
+        key: ${{ runner.OS }}-node-modules-${{ hashFiles('package-lock.json') }}
+        restore-keys: |
+          ${{ runner.OS }}-node-modules-
+          ${{ runner.OS }}-
+
+    - run: npm ci
+      name: Install dependencies
+      if: steps.node-cache.outputs.cache-hit != 'true'
+
+    - run: npm run lint:js
+      name: Lint
+  
+  package:
+    runs-on: macos-latest
+    name: Package
+    env:
       SDK_BUILD_CACHE_DIR: ${{ github.workspace }}/.native-modules
+    needs: [android, ios, js]
     steps:
     - uses: actions/checkout@v2
 
@@ -106,33 +223,19 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-gradle-
 
-    - run: npm run lint:ios
-      name: Lint
-
-    - name: Install ccache
-      run: brew install ccache
-
-    - name: Retrieve ccache
-      uses: actions/cache@v2
+    - uses: actions/download-artifact@v2
       with:
-        path: ${{ env.CCACHE_DIR }}
-        key: ${{ runner.os }}-ccache-${{ github.sha }}
-        restore-keys: |
-          ${{ runner.os }}-ccache-
+        name: android-build
 
-    - name: Cache V8
-      uses: actions/cache@v2
+    - name: 'Extract Android build output'
+      run: tar -xzvf android-build.tar.gz
+
+    - uses: actions/download-artifact@v2
       with:
-        path: dist/android/libv8
-        key: libv8-${{ hashFiles('dist/android/libv8/**') }}
-        restore-keys: |
-          libv8-
+        name: ios-build
 
-    - run: npm run build -- --all
-      name: Build
-
-    - name: Show summary of ccache configuration and statistics counters
-      run: ccache --show-stats
+    - name: 'Extract iOS build output'
+      run: tar -xzvf ios-build.tar.gz
 
     - name: Cache Native Modules
       uses: actions/cache@v2
@@ -148,14 +251,14 @@ jobs:
     - name: Archive OSX artifact
       uses: actions/upload-artifact@v2
       with:
-        name: mobilesdk-osx.zip
+        name: mobilesdk-${{ env.vtag }}-osx
         path: |
           dist/mobilesdk-*-osx.zip
 
     - name: Archive win32 artifact
       uses: actions/upload-artifact@v2
       with:
-        name: mobilesdk-win32.zip
+        name: mobilesdk-${{ env.vtag }}-win32
         path: |
           dist/mobilesdk-*-win32.zip
 
@@ -173,30 +276,8 @@ jobs:
         rm -f ~/.gradle/caches/modules-2/modules-2.lock
         rm -f ~/.gradle/caches/modules-2/gc.properties
 
-  js:
-    runs-on: ubuntu-latest
-    name: JavaScript
-    steps:
-    - uses: actions/checkout@v2
-
-    - name: Use Node.js 12.x
-      uses: actions/setup-node@v1
+    - uses: geekyeggo/delete-artifact@v1
       with:
-        node-version: '12.x'
-
-    - name: Cache Node.js modules
-      id: node-cache
-      uses: actions/cache@v2
-      with:
-        path: node_modules
-        key: ${{ runner.OS }}-node-modules-${{ hashFiles('package-lock.json') }}
-        restore-keys: |
-          ${{ runner.OS }}-node-modules-
-          ${{ runner.OS }}-
-
-    - run: npm ci
-      name: Install dependencies
-      if: steps.node-cache.outputs.cache-hit != 'true'
-
-    - run: npm run lint:js
-      name: Lint
+        name: |
+          android-build
+          ios-build

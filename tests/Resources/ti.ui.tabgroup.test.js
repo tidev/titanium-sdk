@@ -7,6 +7,7 @@
 /* eslint-env mocha */
 /* eslint no-unused-expressions: "off" */
 /* eslint mocha/no-identical-title: "off" */
+/* eslint promise/no-callback-in-promise: "off" */
 'use strict';
 const should = require('./utilities/assertions'); // eslint-disable-line no-unused-vars
 const utilities = require('./utilities/utilities');
@@ -399,7 +400,7 @@ describe('Titanium.UI.TabGroup', function () {
 				openPromise.then(() => {
 					const result = tabGroup.close();
 					result.should.be.a.Promise();
-					result.then(() => finish()).catch(e => finish(e));
+					return result.then(() => finish()).catch(e => finish(e)); // eslint-disable-line promise/no-nesting
 				}).catch(e => finish(e));
 			});
 
@@ -425,8 +426,10 @@ describe('Titanium.UI.TabGroup', function () {
 				tabGroup.addTab(tabA);
 
 				tabGroup.open().then(() => {
-					tabGroup.close().then(() => {
-						tabGroup.close().then(() => finish(new Error('Expected second #close() call on TabGroup to be rejected'))).catch(_e => finish());
+					// eslint-disable-next-line promise/no-nesting
+					return tabGroup.close().then(() => {
+						// eslint-disable-next-line promise/no-nesting
+						return tabGroup.close().then(() => finish(new Error('Expected second #close() call on TabGroup to be rejected'))).catch(() => finish());
 					}).catch(e => finish(e));
 				}).catch(e => finish(e));
 			});
@@ -465,7 +468,8 @@ describe('Titanium.UI.TabGroup', function () {
 				first.then(() => {
 					const second = tabGroup.open();
 					second.should.be.a.Promise();
-					second.then(() => finish(new Error('Expected second #open() to be rejected'))).catch(_e => finish());
+					// eslint-disable-next-line promise/no-nesting
+					return second.then(() => finish(new Error('Expected second #open() to be rejected'))).catch(() => finish());
 				}).catch(e => finish(e));
 			});
 		});

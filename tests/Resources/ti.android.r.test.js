@@ -1637,9 +1637,11 @@ describe.android('Titanium.Android.R', () => {
 
 		describe('.interpolator', () => {
 			// Only supported on Android API 11+
-			if (Ti.Platform.Android.API_LEVEL < 11) {
-				return;
-			}
+			before(function () {
+				if (Ti.Platform.Android.API_LEVEL < 11) {
+					this.skip();
+				}
+			});
 
 			it('is a Object', () => {
 				should(Ti.Android.R).have.a.readOnlyProperty('interpolator').which.is.a.Object();

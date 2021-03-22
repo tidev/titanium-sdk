@@ -28,6 +28,7 @@ describe('Titanium.UI.View', function () {
 
 	function closeWindow(win, done) {
 		if (win && !win.closed) {
+			// eslint-disable-next-line promise/no-callback-in-promise
 			win.close().then(() => done()).catch(_e => done());
 		} else {
 			win = null;
@@ -1001,18 +1002,20 @@ describe('Titanium.UI.View', function () {
 		win.open();
 	});
 
-	describe('borderRadius corners', () => {
+	describe('borderRadius corners', function () {
+		// FIXME: Does not honour scale correctly on macOS: https://jira.appcelerator.org/browse/TIMOB-28261
+		before(function () {
+			if (isCI && utilities.isMacOS() && OS_VERSION_MAJOR < 11) {
+				this.skip();
+			}
+		});
+
 		// FIXME: Don't use dp/pts in the actual radii so we can avoid needing separate images per density?
 		// Do separate tests for verifying use of pts/dp versus density?
 
 		beforeEach(() => {
 			win = Ti.UI.createWindow({ backgroundColor: 'blue' });
 		});
-
-		// FIXME: Does not honour scale correctly on macOS: https://jira.appcelerator.org/browse/TIMOB-28261
-		if (isCI && utilities.isMacOS() && OS_VERSION_MAJOR < 11) {
-			return;
-		}
 
 		it('4 values in String', finish => {
 			const outerView = Ti.UI.createView({

@@ -502,11 +502,11 @@ describe('Titanium.Database', function () {
 						should(rows.rowCount).be.eql(1);
 						should(rows.fieldCount).be.eql(3);
 						should(rows.validRow).be.true();
-					} finally {
+					} finally { // eslint-disable-line promise/always-return
 						// Close the 'rows' object
 						rows.close();
 					}
-					finish();
+					return finish();
 				})
 				.catch(err => finish(err))
 				.finally(() => db.close());
@@ -698,7 +698,7 @@ describe('Titanium.Database', function () {
 					should(rows.rowCount).be.eql(1);
 					should(rows.fieldCount).be.eql(3);
 					should(rows.validRow).be.true();
-				} finally {
+				} finally { // eslint-disable-line promise/always-return
 					// Close the 'rows' object
 					rows.close();
 				}

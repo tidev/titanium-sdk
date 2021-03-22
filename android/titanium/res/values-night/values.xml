@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<!-- Titanium style supporting dark/light theme switching. -->
+	<style name="Theme.Titanium.DayNight" parent="Theme.Titanium.Dark"/>
+</resources>
