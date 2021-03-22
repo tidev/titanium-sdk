@@ -28,7 +28,6 @@ import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
-import org.appcelerator.titanium.util.TiFileHelper;
 import org.appcelerator.titanium.util.TiUIHelper;
 
 import java.lang.ref.WeakReference;
@@ -45,7 +44,6 @@ public abstract class TiRecyclerViewHolder extends RecyclerView.ViewHolder
 	protected static Drawable moreDrawable;
 
 	protected static Resources resources;
-	protected static TiFileHelper fileHelper;
 
 	protected WeakReference<TiViewProxy> proxy;
 
@@ -101,11 +99,6 @@ public abstract class TiRecyclerViewHolder extends RecyclerView.ViewHolder
 			}
 		} else {
 			Log.w(TAG, "Could not obtain context resources instance.");
-		}
-		if (fileHelper == null) {
-
-			// Obtain file helper instance.
-			fileHelper = new TiFileHelper(context);
 		}
 	}
 
