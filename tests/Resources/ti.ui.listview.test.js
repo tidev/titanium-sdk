@@ -1016,6 +1016,8 @@ describe('Titanium.UI.ListView', function () {
 			extendEdges: [ Ti.UI.EXTEND_EDGE_ALL ]
 		});
 
+		const control = Ti.UI.createRefreshControl();
+
 		window.addEventListener('open', function () {
 			control.beginRefreshing();
 		});
@@ -1023,8 +1025,6 @@ describe('Titanium.UI.ListView', function () {
 		const nav = Ti.UI.createNavigationWindow({
 			window: window
 		});
-
-		const control = Ti.UI.createRefreshControl();
 
 		const listView = Ti.UI.createListView({
 			refreshControl: control

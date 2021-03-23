@@ -157,6 +157,8 @@ public class ListViewProxy extends RecyclerViewProxy
 			final ListItemProxy item = listView.getAdapterItem(adapterIndex);
 			final ListSectionProxy section = (ListSectionProxy) item.getParent();
 
+			item.fireSyncEvent(TiC.EVENT_DELETE, null);
+
 			section.deleteItemsAt(item.getIndexInSection(), 1, null);
 		}
 	}

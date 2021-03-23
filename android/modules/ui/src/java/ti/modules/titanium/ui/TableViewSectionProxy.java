@@ -48,7 +48,8 @@ public class TableViewSectionProxy extends TiViewProxy
 
 		if (row != null) {
 
-			if (row.getParent() != null) {
+			final TiViewProxy parent = row.getParent();
+			if (parent != null && parent.getParent() != null) {
 
 				// Row already exists, clone.
 				row = row.clone();
@@ -79,7 +80,8 @@ public class TableViewSectionProxy extends TiViewProxy
 
 		if (row != null) {
 
-			if (row.getParent() != null) {
+			final TiViewProxy parent = row.getParent();
+			if (parent != null && parent.getParent() != null) {
 
 				// Row already exists, clone.
 				row = row.clone();

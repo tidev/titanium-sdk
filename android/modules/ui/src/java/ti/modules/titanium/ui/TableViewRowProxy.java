@@ -12,7 +12,6 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.appcelerator.kroll.KrollDict;
-import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiC;
@@ -81,14 +80,10 @@ public class TableViewRowProxy extends TiViewProxy
 	 *
 	 * @return TableViewRowProxy
 	 */
+	@Override
 	public TableViewRowProxy clone()
 	{
-		final TableViewRowProxy proxy = (TableViewRowProxy) KrollProxy.createProxy(
-			this.getClass(),
-			getKrollObject(),
-			new Object[] { properties },
-			this.creationUrl.url
-		);
+		final TableViewRowProxy proxy = (TableViewRowProxy) super.clone();
 
 		// Reference clone, to update properties.
 		clones.add(new WeakReference<>(proxy));
