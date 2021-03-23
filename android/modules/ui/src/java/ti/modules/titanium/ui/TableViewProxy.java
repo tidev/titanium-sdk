@@ -317,9 +317,14 @@ public class TableViewProxy extends RecyclerViewProxy
 	@Kroll.method
 	public void deleteSection(int index, @Kroll.argument(optional = true) KrollDict animation)
 	{
-		this.sections.remove(getSectionByIndex(index));
+		final TableViewSectionProxy section = getSectionByIndex(index);
 
-		update();
+		if (section != null) {
+			this.sections.remove(section);
+			section.setParent(null);
+
+			update();
+		}
 	}
 
 	@Override
@@ -351,6 +356,10 @@ public class TableViewProxy extends RecyclerViewProxy
 	public void setData(Object[] data)
 	// clang-format on
 	{
+		for (final TableViewSectionProxy section : this.sections) {
+			section.releaseViews();
+			section.setParent(null);
+		}
 		this.sections.clear();
 
 		for (Object d : data) {
