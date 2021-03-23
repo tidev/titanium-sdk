@@ -1308,6 +1308,13 @@ properties:
     summary: Postal code
     type: String
     platforms: [android, iphone, ipad, macos]
+    
+  - name: state
+    summary: State name.
+    description: |
+        This property may return the full name or abbreviated name.
+    type: String
+    platforms: [android, iphone, ipad, macos]
 
   - name: zipcode
     summary: Postal code. To be replaced by `postalCode`
