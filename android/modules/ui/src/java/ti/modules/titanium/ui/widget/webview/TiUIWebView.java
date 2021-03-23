@@ -292,6 +292,12 @@ public class TiUIWebView extends TiUIView
 		}
 		webView.setVerticalScrollbarOverlay(true);
 
+		boolean acceptThirdPartyCookies =
+			TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_ACCEPT_THIRD_PARTY_COOKIES), false);
+		if (acceptThirdPartyCookies) {
+			changeAcceptThirdPartyCookies(webView, acceptThirdPartyCookies);
+		}
+
 		WebSettings settings = webView.getSettings();
 		settings.setUseWideViewPort(true);
 		settings.setJavaScriptEnabled(true);
@@ -482,6 +488,8 @@ public class TiUIWebView extends TiUIView
 			zoomBy(webView, TiConvert.toFloat(newValue, 1.0f));
 		} else if (TiC.PROPERTY_USER_AGENT.equals(key)) {
 			((WebViewProxy) getProxy()).setUserAgent(TiConvert.toString(newValue));
+		} else if (TiC.PROPERTY_ACCEPT_THIRD_PARTY_COOKIES.equals(key)) {
+			changeAcceptThirdPartyCookies(getWebView(), TiConvert.toBoolean(newValue));
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
@@ -493,6 +501,15 @@ public class TiUIWebView extends TiUIView
 			(key.startsWith(TiC.PROPERTY_BACKGROUND_PREFIX) || key.startsWith(TiC.PROPERTY_BORDER_PREFIX));
 		if (isBgRelated && (webView != null) && (webView.getBackground() instanceof TiBackgroundDrawable)) {
 			webView.setBackgroundColor(Color.TRANSPARENT);
+		}
+	}
+
+	private void changeAcceptThirdPartyCookies(WebView webView, boolean acceptThirdPartyCookie)
+	{
+		if (android.os.Build.VERSION.SDK_INT >= 21) {
+			android.webkit.CookieManager.getInstance().setAcceptThirdPartyCookies(webView, acceptThirdPartyCookie);
+		} else {
+			android.webkit.CookieManager.getInstance().setAcceptCookie(acceptThirdPartyCookie);
 		}
 	}
 
