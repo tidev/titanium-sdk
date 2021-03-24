@@ -785,6 +785,7 @@ properties:
          A lower frequency value generally increases power consumption.
         A value of 0 means that updates should be generated as quickly as possible.
     type: Number
+    platforms: [android]
 
   - name: hasCompass
     summary: Indicates whether the current device supports a compass.
