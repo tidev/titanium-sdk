@@ -119,12 +119,25 @@ public class KrollLogging
 
 	private String combineLogMessages(String... args)
 	{
-		int length = (args == null ? 0 : args.length);
-		String msg = (length > 0) ? args[0] : "";
-		for (int i = 1; i < length; i++) {
-			msg = msg.concat(String.format(" %s", args[i]));
+		// Do not continue if given a null/empty array.
+		if ((args == null) || (args.length <= 0)) {
+			return "";
 		}
-		return msg;
+
+		// If array only contains 1 element, then we don't need to do below join operation.
+		if (args.length == 1) {
+			return (args[0] != null) ? args[0] : "";
+		}
+
+		// Join array of strings, separated by spaces.
+		StringBuilder stringBuilder = new StringBuilder();
+		for (String nextArg : args) {
+			if (stringBuilder.length() > 0) {
+				stringBuilder.append(' ');
+			}
+			stringBuilder.append(nextArg);
+		}
+		return stringBuilder.toString();
 	}
 
 	private void internalLog(int severity, String msg)
