@@ -771,6 +771,7 @@ properties:
   - name: frequency
     deprecated:
         since: "2.0.0"
+        removed: "8.0.0"
         notes: |
             Android legacy mode operation is deprecated. For new development, use
             either simple mode or manual mode. See "Configurating Location Updates on Android"
@@ -822,6 +823,7 @@ properties:
   - name: preferredProvider
     deprecated:
         since: "2.0.0"
+        removed: "8.0.0"
         notes: |
             Android legacy mode operation is deprecated. For new development, use
             either simple mode or manual mode. See "Configurating Location Updates on Android"
