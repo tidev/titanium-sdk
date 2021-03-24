@@ -102,8 +102,7 @@ import android.os.Message;
  * accuracy, frequency properties or even changing modes are respected and kept but don't actually get applied on the OS until
  * the listener count is greater than 0.
  */
-// TODO deprecate the frequency and preferredProvider property
-@Kroll.module(propertyAccessors = { TiC.PROPERTY_ACCURACY, TiC.PROPERTY_FREQUENCY, TiC.PROPERTY_PREFERRED_PROVIDER })
+@Kroll.module(propertyAccessors = { TiC.PROPERTY_ACCURACY })
 public class GeolocationModule extends KrollModule implements Handler.Callback, LocationProviderListener
 {
 	@Kroll.constant
@@ -335,8 +334,6 @@ public class GeolocationModule extends KrollModule implements Handler.Callback, 
 	{
 		if (key.equals(TiC.PROPERTY_ACCURACY)) {
 			propertyChangedAccuracy(newValue);
-		} else if (key.equals(TiC.PROPERTY_FREQUENCY)) {
-			propertyChangedFrequency(newValue);
 		}
 	}
 
@@ -365,16 +362,6 @@ public class GeolocationModule extends KrollModule implements Handler.Callback, 
 				registerLocationProvider(gpsProvider);
 			}
 		}
-	}
-
-	/**
-	 * Handles property change for Ti.Geolocation.frequency
-	 *
-	 * @param newValue					new frequency value
-	 */
-	private void propertyChangedFrequency(Object newValue)
-	{
-		double frequencyProperty = TiConvert.toDouble(newValue) * 1000;
 	}
 
 	/**
