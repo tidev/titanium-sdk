@@ -19,6 +19,7 @@ DEFINE_DEF_BOOL_PROP(suppressReturn, YES);
 {
   [self initializeProperty:@"enabled" defaultValue:NUMBOOL(YES)];
   [self initializeProperty:@"editable" defaultValue:NUMBOOL(YES)];
+  [self initializeProperty:@"enableCopy" defaultValue:NUMBOOL(YES)];
   [super _initWithProperties:properties];
 }
 
