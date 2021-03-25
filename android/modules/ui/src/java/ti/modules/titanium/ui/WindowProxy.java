@@ -217,7 +217,7 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 	@Override
 	public void windowCreated(TiBaseActivity activity, Bundle savedInstanceState)
 	{
-		windowActivity = new WeakReference<TiBaseActivity>(activity);
+		windowActivity = new WeakReference<>(activity);
 		activity.setWindowProxy(this);
 		setActivity(activity);
 

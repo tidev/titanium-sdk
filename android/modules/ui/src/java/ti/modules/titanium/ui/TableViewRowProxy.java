@@ -60,7 +60,7 @@ public class TableViewRowProxy extends TiViewProxy
 
 	// FIXME: On iOS the same row can be added to a table multiple times.
 	//        Due to constraints, we need to create a new proxy and track changes.
-	private List<WeakReference<TableViewRowProxy>> clones = new ArrayList<>(0);
+	private final List<WeakReference<TableViewRowProxy>> clones = new ArrayList<>(0);
 
 	public TableViewRowProxy()
 	{
@@ -149,7 +149,7 @@ public class TableViewRowProxy extends TiViewProxy
 	 * @param eventName Name of fired event.
 	 * @param data      Data payload of fired event.
 	 * @param bubbles   Specify if event should bubble up to parent.
-	 * @return
+	 * @return Returns true if the event was successfully fired to listener(s)
 	 */
 	@Override
 	public boolean fireEvent(String eventName, Object data, boolean bubbles)

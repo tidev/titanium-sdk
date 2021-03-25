@@ -159,7 +159,7 @@ public class TableViewSectionProxy extends TiViewProxy
 	@Kroll.getProperty
 	public TableViewRowProxy[] getRows()
 	{
-		return this.rows.toArray(new TableViewRowProxy[this.rows.size()]);
+		return this.rows.toArray(new TableViewRowProxy[0]);
 	}
 
 	/**

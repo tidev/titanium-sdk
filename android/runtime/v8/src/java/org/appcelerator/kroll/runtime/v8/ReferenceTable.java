@@ -17,13 +17,13 @@ import org.appcelerator.kroll.common.Log;
 
 public final class ReferenceTable
 {
-	private static String TAG = "ReferenceTable";
+	private static final String TAG = "ReferenceTable";
 
 	/**
 	 * A simple Map used to hold strong/weak reference to the Java objects we have paired/wrapped in native
 	 * titanium::Proxy/JavaObject instances.
 	 */
-	private static HashMap<Long, Object> references = new HashMap<Long, Object>();
+	private static final HashMap<Long, Object> references = new HashMap<>();
 
 	/**
 	 * Incrementing key, used to generate new keys when a new strong reference is created. FIXME Handle "wrapping" the
@@ -78,7 +78,7 @@ public final class ReferenceTable
 		Log.d(TAG, "Downgrading to weak reference for key: " + key, Log.DEBUG_MODE);
 		Object ref = getReference(key);
 		references.remove(key);
-		references.put(key, new WeakReference<Object>(ref));
+		references.put(key, new WeakReference<>(ref));
 	}
 
 	/**
@@ -91,7 +91,7 @@ public final class ReferenceTable
 		Log.d(TAG, "Downgrading to soft reference for key: " + key, Log.DEBUG_MODE);
 		Object ref = getReference(key);
 		references.remove(key);
-		references.put(key, new SoftReference<Object>(ref));
+		references.put(key, new SoftReference<>(ref));
 	}
 
 	/**

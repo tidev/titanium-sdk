@@ -143,7 +143,7 @@ public class IntentProxy extends KrollProxy
 
 		if (dict.containsKey(TiC.PROPERTY_FLAGS)) {
 			flags = TiConvert.toInt(dict, TiC.PROPERTY_FLAGS);
-			Log.d(TAG, "Setting flags: " + Integer.toString(flags), Log.DEBUG_MODE);
+			Log.d(TAG, "Setting flags: " + flags, Log.DEBUG_MODE);
 			intent.setFlags(flags);
 		} else {
 			setProperty(TiC.PROPERTY_FLAGS, intent.getFlags());
@@ -285,7 +285,7 @@ public class IntentProxy extends KrollProxy
 			try {
 				Object[] objVal = (Object[]) value;
 				String[] stringArray = Arrays.copyOf(objVal, objVal.length, String[].class);
-				ArrayList<Uri> imageUris = new ArrayList<Uri>();
+				ArrayList<Uri> imageUris = new ArrayList<>();
 				ClipData clipData = null;
 				for (String s : stringArray) {
 					if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && s.startsWith("file://")) {

@@ -236,7 +236,7 @@ public class TiWebViewClient extends WebViewClientClassicExt
 	/*
 	 * ClientCertRequest wrapper for compatibility with both ClientCertRequest and ClientCertRequestHandler
 	 */
-	private class ClientCertRequestCompat
+	private static class ClientCertRequestCompat
 	{
 		private ClientCertRequest clientCertRequest;
 		private ClientCertRequestHandler clientCertRequestHandler;
@@ -356,7 +356,7 @@ public class TiWebViewClient extends WebViewClientClassicExt
 			Log.e(TAG, TiC.PROPERTY_WEBVIEW_IGNORE_SSL_ERROR + " property does not contain a boolean value, ignoring");
 		}
 
-		if (ignoreSslError == true) {
+		if (ignoreSslError) {
 			Log.w(TAG, "ran into SSL error but ignoring...");
 			handler.proceed();
 
