@@ -242,9 +242,12 @@
   pthread_rwlock_rdlock(&_listenerLock);
   @try {
     if (_listeners == nil) {
+      pthread_rwlock_unlock(&_listenerLock);
       return;
     }
-    NSArray *listenersForType = [_listeners objectForKey:name];
+    NSArray *listenersForType = [[_listeners objectForKey:name] copy];
+    pthread_rwlock_unlock(&_listenerLock);
+
     if (listenersForType == nil) {
       return;
     }
@@ -252,9 +255,9 @@
     for (JSValue *storedCallback in listenersForType) {
       [self _fireEventToListener:name withObject:dict listener:storedCallback];
     }
+    [listenersForType autorelease];
   }
   @finally {
-    pthread_rwlock_unlock(&_listenerLock);
   }
 }
 
