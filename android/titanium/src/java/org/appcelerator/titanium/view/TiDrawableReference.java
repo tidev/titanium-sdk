@@ -89,7 +89,7 @@ public class TiDrawableReference
 	public TiDrawableReference(Activity activity, DrawableReferenceType type)
 	{
 		this.type = type;
-		softActivity = new SoftReference<Activity>(activity);
+		softActivity = new SoftReference<>(activity);
 		ApplicationInfo appInfo;
 
 		if (activity != null) {
@@ -140,7 +140,6 @@ public class TiDrawableReference
 	 * @param activity the referenced activity.
 	 * @param blob the referenced blob.
 	 * @return A ready instance of TiDrawableReference.
-	 * @module.api
 	 */
 	public static TiDrawableReference fromBlob(Activity activity, TiBlob blob)
 	{
@@ -154,7 +153,6 @@ public class TiDrawableReference
 	 * @param proxy the activity proxy.
 	 * @param url the url to resolve.
 	 * @return A ready instance of TiDrawableReference.
-	 * @module.api
 	 */
 	public static TiDrawableReference fromUrl(KrollProxy proxy, String url)
 	{
@@ -176,7 +174,6 @@ public class TiDrawableReference
 	 * @param activity the referenced activity.
 	 * @param url the resource's url.
 	 * @return A ready instance of TiDrawableReference.
-	 * @module.api
 	 */
 	public static TiDrawableReference fromUrl(Activity activity, String url)
 	{
@@ -228,7 +225,6 @@ public class TiDrawableReference
 	 * @param proxy Used to acquire an activty and resolve relative paths if given object is a string path.
 	 * @param object Reference to the image to be loaded such as a file, path, blob, etc.
 	 * @return Returns an instance of TiDrawableReference wrapping the given object.
-	 * @module.api
 	 */
 	public static TiDrawableReference fromObject(KrollProxy proxy, Object object)
 	{
@@ -254,7 +250,6 @@ public class TiDrawableReference
 	 * @param activity the referenced activity.
 	 * @param object the referenced object.
 	 * @return A ready instance of TiDrawableReference.
-	 * @module.api
 	 */
 	public static TiDrawableReference fromObject(Activity activity, Object object)
 	{
@@ -313,7 +308,6 @@ public class TiDrawableReference
 	/**
 	 * Gets the bitmap from the resource without respect to sampling/scaling.
 	 * @return Bitmap, or null if errors occurred while trying to load or fetch it.
-	 * @module.api
 	 */
 	public Bitmap getBitmap()
 	{
@@ -329,7 +323,6 @@ public class TiDrawableReference
 	 * the thread if it needs to retry several times.
 	 * @param needRetry If true, it will retry loading when decode fails.
 	 * @return Bitmap, or null if errors occurred while trying to load or fetch it.
-	 * @module.api
 	 */
 	public Bitmap getBitmap(boolean needRetry)
 	{

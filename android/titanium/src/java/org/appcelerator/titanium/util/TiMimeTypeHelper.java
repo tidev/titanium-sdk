@@ -27,7 +27,7 @@ public class TiMimeTypeHelper
 	public static final String MIME_TYPE_OCTET_STREAM = DEFAULT_MIME_TYPE;
 	public static final String MIME_TYPE_JAVASCRIPT = "text/javascript";
 	public static final String MIME_TYPE_HTML = "text/html";
-	public static final HashMap<String, String> EXTRA_MIMETYPES = new HashMap<String, String>();
+	public static final HashMap<String, String> EXTRA_MIMETYPES = new HashMap<>();
 	static
 	{
 		EXTRA_MIMETYPES.put("js", MIME_TYPE_JAVASCRIPT);

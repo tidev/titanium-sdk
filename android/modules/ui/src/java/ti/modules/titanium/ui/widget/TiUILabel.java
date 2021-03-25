@@ -220,7 +220,7 @@ public class TiUILabel extends TiUIView
 	/**
 	 * Method used to decrease the fontsize of the text to fit the width
 	 * fontsize should be >= than the property minimumFontSize
-	 * @param textView
+	 * @param textView The text view to be adjusted.
 	 */
 	private void adjustTextFontSize(@NonNull MaterialTextView textView)
 	{

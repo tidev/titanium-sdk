@@ -41,7 +41,7 @@ public class TiExceptionHandler implements Handler.Callback, KrollExceptionHandl
 {
 	private static final String TAG = "TiExceptionHandler";
 	private static final int MSG_OPEN_ERROR_DIALOG = 10011;
-	private static LinkedList<ExceptionMessage> errorMessages = new LinkedList<ExceptionMessage>();
+	private static final LinkedList<ExceptionMessage> errorMessages = new LinkedList<>();
 	private static boolean dialogShowing = false;
 	private static Handler mainHandler;
 
@@ -87,7 +87,7 @@ public class TiExceptionHandler implements Handler.Callback, KrollExceptionHandl
 
 	public static String getError(KrollDict error)
 	{
-		String output = new String();
+		String output = "";
 
 		final String sourceName = error.getString(ERROR_SOURCENAME);
 		final String message = error.getString(ERROR_MESSAGE);
@@ -290,7 +290,6 @@ public class TiExceptionHandler implements Handler.Callback, KrollExceptionHandl
 	/**
 	 * Handles the exception by opening an error dialog with an error message
 	 * @param error An error message containing line number, error title, message, etc
-	 * @module.api
 	 */
 	public void handleException(ExceptionMessage error)
 	{

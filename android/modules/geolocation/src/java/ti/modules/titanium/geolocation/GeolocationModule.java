@@ -102,8 +102,7 @@ import android.os.Message;
  * accuracy, frequency properties or even changing modes are respected and kept but don't actually get applied on the OS until
  * the listener count is greater than 0.
  */
-// TODO deprecate the frequency and preferredProvider property
-@Kroll.module(propertyAccessors = { TiC.PROPERTY_ACCURACY, TiC.PROPERTY_FREQUENCY, TiC.PROPERTY_PREFERRED_PROVIDER })
+@Kroll.module(propertyAccessors = { TiC.PROPERTY_ACCURACY })
 public class GeolocationModule extends KrollModule implements Handler.Callback, LocationProviderListener
 {
 	@Kroll.constant
@@ -134,14 +133,14 @@ public class GeolocationModule extends KrollModule implements Handler.Callback, 
 	private Context context;
 	private TiCompass tiCompass;
 	private boolean compassListenersRegistered = false;
-	private ArrayList<LocationRuleProxy> simpleLocationRules = new ArrayList<LocationRuleProxy>();
+	private final ArrayList<LocationRuleProxy> simpleLocationRules = new ArrayList<>();
 	private LocationRuleProxy simpleLocationGpsRule;
 	private LocationRuleProxy simpleLocationNetworkRule;
 	private Location currentLocation;
 	//currentLocation is conditionally updated. lastLocation is unconditionally updated
 	//since currentLocation determines when to send out updates, and lastLocation is passive
 	private Location lastLocation;
-	private HashMap<KrollPromise<KrollDict>, KrollFunction> currentPositionCallback = new HashMap<>();
+	private final HashMap<KrollPromise<KrollDict>, KrollFunction> currentPositionCallback = new HashMap<>();
 
 	private FusedLocationProvider fusedLocationProvider;
 	private Geocoder geocoder;
@@ -335,12 +334,6 @@ public class GeolocationModule extends KrollModule implements Handler.Callback, 
 	{
 		if (key.equals(TiC.PROPERTY_ACCURACY)) {
 			propertyChangedAccuracy(newValue);
-
-		} else if (key.equals(TiC.PROPERTY_FREQUENCY)) {
-			propertyChangedFrequency(newValue);
-
-		} else if (key.equals(TiC.PROPERTY_PREFERRED_PROVIDER)) {
-			propertyChangedPreferredProvider(newValue);
 		}
 	}
 
@@ -368,31 +361,6 @@ public class GeolocationModule extends KrollModule implements Handler.Callback, 
 			if (!getManualMode()) {
 				registerLocationProvider(gpsProvider);
 			}
-		}
-	}
-
-	/**
-	 * Handles property change for Ti.Geolocation.frequency
-	 *
-	 * @param newValue					new frequency value
-	 */
-	private void propertyChangedFrequency(Object newValue)
-	{
-		double frequencyProperty = TiConvert.toDouble(newValue) * 1000;
-	}
-
-	/**
-	 * Handles property change for Ti.Geolocation.preferredProvider
-	 *
-	 * @param newValue					new preferredProvider value
-	 */
-	@SuppressLint("MissingPermission")
-	private void propertyChangedPreferredProvider(Object newValue)
-	{
-		String preferredProviderProperty = TiConvert.toString(newValue);
-		if (!(preferredProviderProperty.equals(AndroidModule.PROVIDER_NETWORK))
-			&& (!(preferredProviderProperty.equals(AndroidModule.PROVIDER_GPS)))) {
-			return;
 		}
 	}
 
@@ -647,7 +615,7 @@ public class GeolocationModule extends KrollModule implements Handler.Callback, 
 	 * should occur on the runtime thread in order to make sure threading issues are
 	 * avoiding
 	 *
-	 * @param locationProviders
+	 * @param locationProviders Dictionary of providers to use.
 	 */
 	private void doEnableLocationProviders(HashMap<String, LocationProviderProxy> locationProviders)
 	{

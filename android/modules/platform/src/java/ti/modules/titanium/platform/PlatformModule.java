@@ -333,11 +333,11 @@ public class PlatformModule extends KrollModule
 	public String getMacaddress()
 	{
 		String macaddr = null;
-		TiApplication tiApp = TiApplication.getInstance();
+		Context context = TiApplication.getInstance().getApplicationContext();
 
-		if (tiApp.checkCallingOrSelfPermission(Manifest.permission.ACCESS_WIFI_STATE)
+		if (context.checkCallingOrSelfPermission(Manifest.permission.ACCESS_WIFI_STATE)
 			== PackageManager.PERMISSION_GRANTED) {
-			WifiManager wm = (WifiManager) tiApp.getSystemService(Context.WIFI_SERVICE);
+			WifiManager wm = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
 			if (wm != null) {
 				WifiInfo wi = wm.getConnectionInfo();
 				if (wi != null) {
@@ -439,12 +439,12 @@ public class PlatformModule extends KrollModule
 			return this.processors;
 		}
 		final int processorCount = getProcessorCount();
-		processors = new ArrayList<Processor>(processorCount);
+		processors = new ArrayList<>(processorCount);
 
 		// Now read in their details
 		BufferedReader in = null;
-		List<Map> groups = new ArrayList<Map>();
-		Map<String, String> current = new HashMap<String, String>();
+		List<Map> groups = new ArrayList<>();
+		Map<String, String> current = new HashMap<>();
 		try {
 			String[] args = { "/system/bin/cat", "/proc/cpuinfo" };
 			ProcessBuilder cmd = new ProcessBuilder(args);
@@ -456,7 +456,7 @@ public class PlatformModule extends KrollModule
 				if (line.length() == 0) {
 					// new group!
 					groups.add(current);
-					current = new HashMap<String, String>();
+					current = new HashMap<>();
 				} else {
 					// entry, split by ':'
 					int colonIndex = line.indexOf(':');
@@ -472,7 +472,7 @@ public class PlatformModule extends KrollModule
 
 		} catch (IOException ex) {
 			// somethign went wrong, create "default" set of processors?
-			this.processors = new ArrayList<Processor>(processorCount);
+			this.processors = new ArrayList<>(processorCount);
 			for (int i = 0; i < processorCount; i++) {
 				this.processors.add(Processor.unknown(i));
 			}

@@ -162,7 +162,6 @@ public class TiBackgroundColorWrapper
 		} catch (Exception e) {
 			Log.e(TAG, "Reflection failed while trying to determine background color of view.", e);
 			cdBackgroundStateColorField = null;
-			return;
 		}
 	}
 

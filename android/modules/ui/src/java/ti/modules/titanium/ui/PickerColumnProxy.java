@@ -128,7 +128,7 @@ public class PickerColumnProxy extends TiViewProxy implements PickerRowListener
 		if (children == null || children.size() == 0) {
 			return null;
 		}
-		return children.toArray(new PickerRowProxy[children.size()]);
+		return children.toArray(new PickerRowProxy[0]);
 	}
 
 	@Kroll.setProperty
