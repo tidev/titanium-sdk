@@ -275,11 +275,6 @@ methods:
         summary: Index or object of the tab to switch to.
         type: [Number, Titanium.UI.Tab]
 
-  - name: getTabs
-    summary: Gets all tabs that are managed by the tab group.
-    returns:
-        type: Array<Titanium.UI.Tab>
-
 properties:
   - name: activeTab
     summary: Active tab.
