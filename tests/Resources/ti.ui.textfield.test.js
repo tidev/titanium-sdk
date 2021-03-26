@@ -398,6 +398,32 @@ describe('Titanium.UI.TextField', () => {
 			should(textFieldA.hasText()).be.true();
 			should(textFieldB.hasText()).be.true();
 		});
+
+		it('#setSelection', function (finish) {
+			this.timeout(5000);
+			const textField = Ti.UI.createTextField({
+				value: 'Lorem ipsum dolor sit amet.',
+				width: Ti.UI.SIZE
+			});
+			win = Ti.UI.createWindow({
+				backgroundColor: '#ddd'
+			});
+			win.add(textField);
+			win.addEventListener('postlayout', function listener () {
+				win.removeEventListener('postlayout', listener);
+				textField.setSelection(0, 5);
+				setTimeout(function (e) {
+					try {
+						should(textField.selection.length).eql(5);
+						should(textField.selection.location).eql(0);
+					} catch (err) {
+						return finish(err);
+					}
+					finish();
+				}, 1000);
+			});
+			win.open();
+		});
 	});
 
 	describe('events', () => {
