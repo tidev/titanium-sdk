@@ -252,11 +252,6 @@ methods:
     platforms: [android]
     since: 3.6.0
 
-  - name: getActiveTab
-    summary: Gets the currently-active tab.
-    returns:
-        type: Titanium.UI.Tab
-
   - name: open
     summary: Opens the tab group and makes it visible.
 
@@ -267,13 +262,6 @@ methods:
       - name: tab
         summary: Tab to remove.
         type: Titanium.UI.Tab
-
-  - name: setActiveTab
-    summary: Selects the currently active tab in a tab group.
-    parameters:
-      - name: indexOrObject
-        summary: Index or object of the tab to switch to.
-        type: [Number, Titanium.UI.Tab]
 
 properties:
   - name: activeTab
