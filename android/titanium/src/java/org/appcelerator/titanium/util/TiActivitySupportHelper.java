@@ -32,7 +32,7 @@ public class TiActivitySupportHelper implements TiActivitySupport
 	public TiActivitySupportHelper(Activity activity)
 	{
 		this.activity = activity;
-		resultHandlers = new HashMap<Integer, TiActivityResultHandler>();
+		resultHandlers = new HashMap<>();
 		uniqueResultCodeAllocator = new AtomicInteger(1); // start with non-zero
 	}
 

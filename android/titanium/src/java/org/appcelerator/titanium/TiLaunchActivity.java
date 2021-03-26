@@ -30,7 +30,7 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 	 * The key is the Java package name and class name of the TiJSActivity derived class.
 	 * The value is the JavaScript file URL assigned to it.
 	 */
-	private static HashMap<String, String> jsActivityClassScriptMap = new HashMap<>();
+	private static final HashMap<String, String> jsActivityClassScriptMap = new HashMap<>();
 
 	/** JavaScript file URL to be loaded by loadScript() method. This URL is assigned in onCreate() method. */
 	private TiUrl url;

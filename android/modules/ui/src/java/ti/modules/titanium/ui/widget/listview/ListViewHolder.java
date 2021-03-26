@@ -141,8 +141,15 @@ public class ListViewHolder extends TiRecyclerViewHolder
 		}
 
 		if (proxy != null) {
-			final TiUIView view = proxy.getOrCreateView();
+			// Update list item proxy's activity in case it has changed, such as after a dark/light theme change.
+			final Context context = this.itemView.getContext();
+			if ((context instanceof Activity) && (proxy.getActivity() != context)) {
+				proxy.releaseViews();
+				proxy.setActivity((Activity) context);
+			}
 
+			// Get or create the view. (Must be called after updating activity above.)
+			final TiUIView view = proxy.getOrCreateView();
 			if (view != null) {
 				final ViewGroup borderView = (ViewGroup) view.getOuterView();
 				final ViewGroup nativeView = (ViewGroup) view.getNativeView();

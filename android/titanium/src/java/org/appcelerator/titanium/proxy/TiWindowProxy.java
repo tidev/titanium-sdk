@@ -61,7 +61,7 @@ public abstract class TiWindowProxy extends TiViewProxy
 	protected static final int MSG_LAST_ID = MSG_FIRST_ID + 999;
 
 	private static WeakReference<TiWindowProxy> waitingForOpen;
-	private TiWeakList<KrollProxy> proxiesWaitingForActivity = new TiWeakList<KrollProxy>();
+	private final TiWeakList<KrollProxy> proxiesWaitingForActivity = new TiWeakList<>();
 
 	protected boolean opened, opening;
 	protected boolean isFocused;
@@ -82,15 +82,16 @@ public abstract class TiWindowProxy extends TiViewProxy
 
 	public static TiWindowProxy getWaitingForOpen()
 	{
-		if (waitingForOpen == null)
+		if (waitingForOpen == null) {
 			return null;
+		}
 		return waitingForOpen.get();
 	}
 
 	public TiWindowProxy()
 	{
 		inTab = false;
-		sharedElementPairs = new ArrayList<Pair<View, String>>();
+		sharedElementPairs = new ArrayList<>();
 	}
 
 	@Override
@@ -109,7 +110,7 @@ public abstract class TiWindowProxy extends TiViewProxy
 			});
 		}
 		opening = true;
-		waitingForOpen = new WeakReference<TiWindowProxy>(this);
+		waitingForOpen = new WeakReference<>(this);
 
 		openPromise = KrollPromise.create((promise) -> {
 			KrollDict options = null;
@@ -214,7 +215,7 @@ public abstract class TiWindowProxy extends TiViewProxy
 
 	public void addProxyWaitingForActivity(KrollProxy waitingProxy)
 	{
-		proxiesWaitingForActivity.add(new WeakReference<KrollProxy>(waitingProxy));
+		proxiesWaitingForActivity.add(new WeakReference<>(waitingProxy));
 	}
 
 	protected void releaseViewsForActivityForcedToDestroy()
@@ -602,7 +603,7 @@ public abstract class TiWindowProxy extends TiViewProxy
 	{
 		TiUIView v = view.peekView();
 		if (v != null) {
-			Pair<View, String> p = new Pair<View, String>(v.getNativeView(), transitionName);
+			Pair<View, String> p = new Pair<>(v.getNativeView(), transitionName);
 			sharedElementPairs.add(p);
 		}
 	}
@@ -639,7 +640,7 @@ public abstract class TiWindowProxy extends TiViewProxy
 		if (hasActivityTransitions() && !(activity instanceof TiLaunchActivity)) {
 			if (!sharedElementPairs.isEmpty()) {
 				options = ActivityOptionsCompat.makeSceneTransitionAnimation(
-					activity, sharedElementPairs.toArray(new Pair[sharedElementPairs.size()]));
+					activity, sharedElementPairs.toArray(new Pair[0]));
 			} else {
 				options = ActivityOptionsCompat.makeSceneTransitionAnimation(activity);
 			}
