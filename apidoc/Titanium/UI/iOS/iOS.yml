@@ -35,6 +35,8 @@ methods:
         summary: Name of SF Symbol.
         type: String
       - name: parameters
+        optional: true
+        since: "10.1.0"
         summary: Additional parameters to pass to the SF Symbol
         type: SystemImageParameters
     returns:
@@ -1718,7 +1720,8 @@ properties:
 name: SystemImageParameters
 summary: |
     Dictionary object of parameters for the 2nd parameter of the <Titanium.UI.iOS.systemButton> method
-    to pass additional configuration options like `weight` and `size`.
+    to pass additional configuration options like `weight` and `size`. Available in Titanium SDK 10.1.0
+    and later.
 properties:
   - name: weight
     summary: |
