@@ -994,4 +994,12 @@ public abstract class TiApplication extends Application implements KrollApplicat
 		}
 		return accessibilityManager;
 	}
+
+	/**
+	 * To be overridden by app template "./android/templates/app/App.java" to verify Titanium modules.
+	 * @param rootActivity Splash screen activity needed to display a module verification error dialog.
+	 */
+	public void verifyCustomModules(TiRootActivity rootActivity)
+	{
+	}
 }
