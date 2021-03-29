@@ -36,8 +36,8 @@ methods:
         type: String
       - name: parameters
         optional: true
-        since: "10.1.0"
-        summary: Additional parameters to pass to the SF Symbol
+        summary: |
+            Additional parameters to pass to the SF Symbol. Available in Titanium SDK 10.1.0 and later
         type: SystemImageParameters
     returns:
       type: Titanium.Blob
