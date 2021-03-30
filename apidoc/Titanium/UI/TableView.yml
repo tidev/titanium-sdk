@@ -1014,6 +1014,11 @@ methods:
         type: Titanium.UI.View
     platforms: [iphone, ipad, macos]
     since: "2.1.0"
+    deprecated:
+      since: "10.0.0"
+      removed: "10.0.0"
+      notes: Use the <Titanium.UI.TableView.headerPullView> property instead.
+
 
   - name: updateRow
     summary: Updates an existing row, optionally with animation.
