@@ -23,6 +23,11 @@ extern NSString *_Nonnull const APSDeployTypeProduction;
 @interface APSAnalytics : NSObject
 
 /**
+ * Determine if EOL has passed. (March 1st 2022 GMT-8)
+ */
++ (BOOL)IS_EOL;
+
+/**
  * Return the singleton instance to the real-time analytics service.
  */
 + (instancetype _Nonnull)sharedInstance;
@@ -66,6 +71,20 @@ extern NSString *_Nonnull const APSDeployTypeProduction;
  * @param {BOOL} value with the decision to opt out.
  */
 - (void)setOptedOut:(BOOL)optedOut;
+
+/**
+ * Obtains number of events that will be cached.
+ *
+ * @return {NSInteger} number of events to cache
+ */
+- (NSInteger)getCacheSize;
+
+/**
+ * Writes the cache size property in the SharedPreferences instance.
+ *
+ * @param {NSInteger} number of events to cache
+ */
+- (void)setCacheSize:(NSInteger)cacheSize;
 
 /**
  * Sends an application enroll event to indicate first launch.
