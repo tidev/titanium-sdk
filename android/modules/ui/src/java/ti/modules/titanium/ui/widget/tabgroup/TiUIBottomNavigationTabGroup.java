@@ -104,6 +104,8 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 			}
 		};
 		this.mBottomNavigationView.setFitsSystemWindows(true);
+		this.mBottomNavigationView.setItemRippleColor(
+			TiUIAbstractTabGroup.createRippleColorStateListFrom(getColorPrimary()));
 
 		// Add tab bar and view pager to the root Titanium view.
 		// Note: If getFitsSystemWindows() returns false, then Titanium window's "extendSafeArea" is set true.
@@ -256,13 +258,15 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 	public void updateTabBackgroundDrawable(int index)
 	{
 		try {
-			BottomNavigationMenuView bottomMenuView =
-				((BottomNavigationMenuView) this.mBottomNavigationView.getChildAt(0));
 			// BottomNavigationMenuView rebuilds itself after adding a new item, so we need to reset the colors each time.
 			TiViewProxy tabProxy = tabs.get(index).getProxy();
-			Drawable drawable = createBackgroundDrawableForState(tabProxy, android.R.attr.state_checked);
-			drawable = new RippleDrawable(createRippleColorStateListFrom(getColorPrimary()), drawable, null);
-			bottomMenuView.getChildAt(index).setBackground(drawable);
+			if (hasCustomBackground(tabProxy) || hasCustomIconTint(tabProxy)) {
+				BottomNavigationMenuView bottomMenuView =
+					((BottomNavigationMenuView) this.mBottomNavigationView.getChildAt(0));
+				Drawable drawable = createBackgroundDrawableForState(tabProxy, android.R.attr.state_checked);
+				drawable = new RippleDrawable(createRippleColorStateListFrom(getActiveColor(tabProxy)), drawable, null);
+				bottomMenuView.getChildAt(index).setBackground(drawable);
+			}
 		} catch (Exception e) {
 			Log.w(TAG, WARNING_LAYOUT_MESSAGE);
 		}
@@ -336,13 +340,15 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 	public void updateTabTitleColor(int index)
 	{
 		try {
-			BottomNavigationMenuView bottomMenuView =
-				((BottomNavigationMenuView) this.mBottomNavigationView.getChildAt(0));
 			// BottomNavigationMenuView rebuilds itself after adding a new item, so we need to reset the colors each time.
 			TiViewProxy tabProxy = tabs.get(index).getProxy();
-			// Set the TextView textColor.
-			((BottomNavigationItemView) bottomMenuView.getChildAt(index))
-				.setTextColor(textColorStateList(tabProxy, android.R.attr.state_checked));
+			if (hasCustomTextColor(tabProxy)) {
+				// Set the TextView textColor.
+				BottomNavigationMenuView bottomMenuView =
+					((BottomNavigationMenuView) this.mBottomNavigationView.getChildAt(0));
+				((BottomNavigationItemView) bottomMenuView.getChildAt(index))
+					.setTextColor(textColorStateList(tabProxy, android.R.attr.state_checked));
+			}
 		} catch (Exception e) {
 			Log.w(TAG, WARNING_LAYOUT_MESSAGE);
 		}
@@ -410,9 +416,8 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 	private void updateIconTint()
 	{
 		for (int i = 0; i < this.tabs.size(); i++) {
-			final TiUITab tab = this.tabs.get(i);
-			if (tab.getProxy() != null) {
-				final TiViewProxy tabProxy = tab.getProxy();
+			final TiViewProxy tabProxy = this.tabs.get(i).getProxy();
+			if (hasCustomIconTint(tabProxy)) {
 				final boolean selected = i == currentlySelectedIndex;
 				Drawable drawable = this.mBottomNavigationView.getMenu().getItem(i).getIcon();
 				drawable = updateIconTint(tabProxy, drawable, selected);
