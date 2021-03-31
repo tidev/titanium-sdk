@@ -121,7 +121,7 @@ public class TiUITableView extends TiUIView
 				name.equals(TiC.PROPERTY_SEARCH_AS_CHILD)
 					? value : properties.optBoolean(TiC.PROPERTY_SEARCH_AS_CHILD, true));
 
-			if (parent != null) {
+			if (parent instanceof ViewGroup) {
 
 				// Remove current view from parent.
 				((ViewGroup) parent).removeView(getOuterView());
