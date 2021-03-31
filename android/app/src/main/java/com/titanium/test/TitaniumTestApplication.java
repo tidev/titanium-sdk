@@ -24,6 +24,7 @@ public final class TitaniumTestApplication extends TiApplication
 		KrollAssetCache.init(this);
 
 		appInfo = new TitaniumTestAppInfo(this);
+		postAppInfo();
 
 		V8Runtime runtime = new V8Runtime();
 		KrollRuntime.init(this, runtime);
