@@ -115,7 +115,7 @@ public class TiUIListView extends TiUIView
 			final ViewParent parent = getOuterView().getParent();
 			final TiViewProxy parentProxy = getProxy().getParent();
 
-			if (parent != null) {
+			if (parent instanceof ViewGroup) {
 
 				// Remove current view from parent.
 				((ViewGroup) parent).removeView(getOuterView());
