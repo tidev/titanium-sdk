@@ -188,7 +188,8 @@ events:
 
   - name: delete
     summary: Fired when a table row is deleted by the user.
-    platforms: [iphone, ipad, macos]
+    platforms: [android, iphone, ipad, macos]
+    since: {android: "10.0.0"}
     properties:
       - name: detail
         summary: Indicates whether the delete button was clicked. Always `false` for this event.

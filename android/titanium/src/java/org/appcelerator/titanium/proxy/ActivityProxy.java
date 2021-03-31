@@ -280,7 +280,7 @@ public class ActivityProxy extends KrollProxy implements TiActivityResultHandler
 	public void invalidateOptionsMenu()
 	{
 		Activity activity = getWrappedActivity();
-		if (activity != null && activity instanceof AppCompatActivity) {
+		if (activity instanceof AppCompatActivity) {
 			((AppCompatActivity) activity).supportInvalidateOptionsMenu();
 		}
 	}
@@ -361,7 +361,7 @@ public class ActivityProxy extends KrollProxy implements TiActivityResultHandler
 	 */
 	private static class ProxyModelListener implements KrollProxyListener
 	{
-		private static ProxyModelListener instance = new ProxyModelListener();
+		private static final ProxyModelListener instance = new ProxyModelListener();
 
 		public static ProxyModelListener getInstance()
 		{

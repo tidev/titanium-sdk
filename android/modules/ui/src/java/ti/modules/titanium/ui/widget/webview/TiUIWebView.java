@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.Method;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import javax.crypto.CipherInputStream;
@@ -52,16 +53,14 @@ import ti.modules.titanium.ui.android.AndroidModule;
 @SuppressWarnings("deprecation")
 public class TiUIWebView extends TiUIView
 {
-
 	private static final String TAG = "TiUIWebView";
 	private TiWebViewClient client;
 	private TiWebChromeClient chromeClient;
 	private boolean bindingCodeInjected = false;
 	private boolean isLocalHTML = false;
 	private boolean disableContextMenu = false;
-	private HashMap<String, String> extraHeaders = new HashMap<String, String>();
-	private float zoomLevel =
-		TiApplication.getInstance().getApplicationContext().getResources().getDisplayMetrics().density;
+	private final HashMap<String, String> extraHeaders = new HashMap<>();
+	private float zoomLevel = TiApplication.getInstance().getResources().getDisplayMetrics().density;
 	private float initScale = zoomLevel;
 
 	public static final int PLUGIN_STATE_OFF = 0;
@@ -570,7 +569,7 @@ public class TiUIWebView extends TiUIView
 				InputStream fis = null;
 				try {
 					fis = tiFile.getInputStream();
-					InputStreamReader reader = new InputStreamReader(fis, "utf-8");
+					InputStreamReader reader = new InputStreamReader(fis, StandardCharsets.UTF_8);
 					BufferedReader breader = new BufferedReader(reader);
 					String line = breader.readLine();
 					while (line != null) {

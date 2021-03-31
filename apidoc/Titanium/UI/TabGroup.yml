@@ -256,6 +256,10 @@ methods:
     summary: Gets the currently-active tab.
     returns:
         type: Titanium.UI.Tab
+    deprecated:
+        since: "10.0.0"
+        removed: "10.0.0"
+        notes: Use the <Titanium.UI.TabGroup.activeTab> property instead.
 
   - name: open
     summary: Opens the tab group and makes it visible.
@@ -274,11 +278,19 @@ methods:
       - name: indexOrObject
         summary: Index or object of the tab to switch to.
         type: [Number, Titanium.UI.Tab]
+    deprecated:
+        since: "10.0.0"
+        removed: "10.0.0"
+        notes: Use the <Titanium.UI.TabGroup.activeTab> property instead.
 
   - name: getTabs
     summary: Gets all tabs that are managed by the tab group.
     returns:
         type: Array<Titanium.UI.Tab>
+    deprecated:
+        since: "10.0.0"
+        removed: "10.0.0"
+        notes: Use the <Titanium.UI.TabGroup.tabs> property instead.
 
 properties:
   - name: activeTab

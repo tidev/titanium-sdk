@@ -16,7 +16,6 @@ import java.util.NoSuchElementException;
 @SuppressWarnings({ "serial" })
 public class TiWeakList<T> extends ArrayList<WeakReference<T>>
 {
-
 	protected List<WeakReference<T>> synchronizedList;
 
 	public TiWeakList()
@@ -134,7 +133,7 @@ public class TiWeakList<T> extends ArrayList<WeakReference<T>>
 			return -1;
 		}
 
-		// TODO @Override
+		@Override
 		public boolean hasNext()
 		{
 			if (synchronizedList != null) {
@@ -147,7 +146,7 @@ public class TiWeakList<T> extends ArrayList<WeakReference<T>>
 			}
 		}
 
-		// TODO @Override
+		@Override
 		public T next()
 		{
 			if (synchronizedList != null) {
@@ -168,7 +167,7 @@ public class TiWeakList<T> extends ArrayList<WeakReference<T>>
 			}
 		}
 
-		// TODO @Override
+		@Override
 		public void remove()
 		{
 			if (synchronizedList != null) {

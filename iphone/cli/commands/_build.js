@@ -5776,6 +5776,8 @@ iOSBuilder.prototype.createAppIconSetAndiTunesArtwork = async function createApp
 	let defaultIconChanged = false;
 	let defaultIconHasAlpha = false;
 	const defaultIcon = this.defaultIcons.find(icon => fs.existsSync(icon));
+	const flattenedDefaultIconDest = path.join(this.buildDir, 'DefaultIcon.png');
+
 	if (defaultIcon) {
 		const defaultIconPrev = this.previousBuildManifest.files && this.previousBuildManifest.files['DefaultIcon.png'],
 			defaultIconContents = fs.readFileSync(defaultIcon),
@@ -5942,7 +5944,6 @@ iOSBuilder.prototype.createAppIconSetAndiTunesArtwork = async function createApp
 	missingIcons = missingIcons.concat(await this.processLaunchLogos(launchLogos, resourcesToCopy, defaultIcon, defaultIconChanged));
 
 	// Do we need to flatten the default icon?
-	const flattenedDefaultIconDest = path.join(this.buildDir, 'DefaultIcon.png');
 	if (missingIcons.length !== 0 && defaultIcon && defaultIconChanged && defaultIconHasAlpha) {
 		this.defaultIcons = [ flattenedDefaultIconDest ];
 		flattenIcons.push({
