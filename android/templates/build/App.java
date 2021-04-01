@@ -130,4 +130,10 @@ public final class <%= classname %>Application extends TiApplication
 	<% }); %>
 <% } %>
 	}
+
+	@Override
+	public void verifyCustomModules(TiRootActivity rootActivity)
+	{
+		// This method is needed by the "appc" CLI.
+	}
 }
