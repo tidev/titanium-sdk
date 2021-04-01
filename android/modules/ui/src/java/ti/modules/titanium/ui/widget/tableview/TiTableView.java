@@ -162,7 +162,10 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 				@Override
 				public Object getKey(int position)
 				{
-					return rows.get(position);
+					if (position > -1 && position < rows.size()) {
+						return rows.get(position);
+					}
+					return null;
 				}
 
 				@Override
@@ -192,7 +195,12 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 							@Override
 							public Object getSelectionKey()
 							{
-								return rows.get(getPosition());
+								final int position = getPosition();
+
+								if (position > -1 && position < rows.size()) {
+									return rows.get(position);
+								}
+								return null;
 							}
 						};
 					}
