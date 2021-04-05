@@ -318,8 +318,7 @@ public class TableViewRowProxy extends TiViewProxy
 	 */
 	private void headerDeprecationLog()
 	{
-		// TODO: Display deprecation warning in SDK 10.0
-		// Log.w(TAG, "Usage of 'TableViewRow.header' has been deprecated, use 'TableViewRow.headerTitle' instead.");
+		Log.w(TAG, "Usage of 'TableViewRow.header' has been deprecated, use 'TableViewRow.headerTitle' instead.");
 	}
 
 	/**
@@ -327,8 +326,7 @@ public class TableViewRowProxy extends TiViewProxy
 	 */
 	private void footerDeprecationLog()
 	{
-		// TODO: Display deprecation warning in SDK 10.0
-		// Log.w(TAG, "Usage of 'TableViewRow.footer' has been deprecated, use 'TableViewRow.footerTitle' instead.");
+		Log.w(TAG, "Usage of 'TableViewRow.footer' has been deprecated, use 'TableViewRow.footerTitle' instead.");
 	}
 
 	/**
