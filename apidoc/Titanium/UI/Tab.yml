@@ -175,7 +175,8 @@ properties:
   - name: backgroundFocusedColor
     summary: Sets the color of the tab when it is focused.
     description: |
-        On the Android platform, this sets the color of the active tab.
+        On the Android platform, this sets the color of the active tab and is only supported by
+        [TABS_STYLE_BOTTOM_NAVIGATION](Titanium.UI.Android.TABS_STYLE_BOTTOM_NAVIGATION).
 
         For information about color values, see the "Colors" section of <Titanium.UI>.
     platforms: [android]
