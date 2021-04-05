@@ -42,6 +42,7 @@ public class TiUITabLayoutTabGroup extends TiUIAbstractTabGroup implements TabLa
 {
 	// region private fields
 	private TabLayout mTabLayout;
+	private boolean mHasChangedRippleColor;
 	// endregion
 
 	public TiUITabLayoutTabGroup(TabGroupProxy proxy, TiBaseActivity activity)
@@ -105,6 +106,7 @@ public class TiUITabLayoutTabGroup extends TiUIAbstractTabGroup implements TabLa
 			}
 		};
 		this.mTabLayout.setFitsSystemWindows(true);
+		this.mTabLayout.setTabRippleColor(createRippleColorStateListFrom(getColorPrimary()));
 
 		// Set the OnTabSelected listener.
 		this.mTabLayout.addOnTabSelectedListener(this);
@@ -213,10 +215,12 @@ public class TiUITabLayoutTabGroup extends TiUIAbstractTabGroup implements TabLa
 			return;
 		}
 
+		if (!hasCustomBackground(tabProxy)) {
+			return;
+		}
+
 		Drawable backgroundDrawable = createBackgroundDrawableForState(tabProxy, android.R.attr.state_selected);
 		this.mTabLayout.setBackground(backgroundDrawable);
-		this.mTabLayout.setTabRippleColor(createRippleColorStateListFrom(getColorPrimary()));
-		this.mTabLayout.setUnboundedRipple(true);
 	}
 
 	@Override
@@ -244,6 +248,10 @@ public class TiUITabLayoutTabGroup extends TiUIAbstractTabGroup implements TabLa
 		}
 		TiViewProxy tabProxy = tabs.get(index).getProxy();
 		if (tabProxy == null) {
+			return;
+		}
+
+		if (!hasCustomTextColor(tabProxy)) {
 			return;
 		}
 
@@ -392,9 +400,8 @@ public class TiUITabLayoutTabGroup extends TiUIAbstractTabGroup implements TabLa
 	private void updateIconTint()
 	{
 		for (int i = 0; i < this.tabs.size(); i++) {
-			final TiUITab tab = this.tabs.get(i);
-			if (tab.getProxy() != null) {
-				final TiViewProxy tabProxy = tab.getProxy();
+			final TiViewProxy tabProxy = this.tabs.get(i).getProxy();
+			if (hasCustomIconTint(tabProxy)) {
 				final boolean selected = i == this.mTabLayout.getSelectedTabPosition();
 				Drawable drawable = this.mTabLayout.getTabAt(i).getIcon();
 				drawable = updateIconTint(tabProxy, drawable, selected);
@@ -408,8 +415,22 @@ public class TiUITabLayoutTabGroup extends TiUIAbstractTabGroup implements TabLa
 	{
 		super.selectTab(tabIndex);
 
+		// Update the selected tab's colors. (TabLayour resets colors when a selection is made.)
 		updateIconTint();
 		updateTabBackgroundDrawable(tabIndex);
+
+		// Update ripple and tab underline color to match selected tab's tint color.
+		// Note: Only do this if custom colors properties are defined since this will prevent selection animation.
+		if ((tabIndex >= 0) && (tabIndex < this.tabs.size())) {
+			final TiViewProxy tabProxy = this.tabs.get(tabIndex).getProxy();
+			if (mHasChangedRippleColor || hasCustomIconTint(tabProxy)) {
+				int activeColor = getActiveColor(tabProxy);
+				this.mTabLayout.setTabRippleColor(createRippleColorStateListFrom(activeColor));
+				this.mTabLayout.setSelectedTabIndicatorColor(activeColor);
+				this.mTabLayout.setUnboundedRipple(true);
+				mHasChangedRippleColor = true;
+			}
+		}
 	}
 
 	public static void scaleIconToFit(TabLayout.Tab tab)
