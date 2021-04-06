@@ -584,7 +584,10 @@ properties:
     description: |
         For information about color values, see the "Colors" section of <Titanium.UI>.
 
-        A tab's [backgroundSelectedColor](Titanium.UI.Tab.backgroundSelectedColor) property takes
+        This property is only supported by
+        [TABS_STYLE_BOTTOM_NAVIGATION](Titanium.UI.Android.TABS_STYLE_BOTTOM_NAVIGATION).
+
+        A tab's [backgroundFocusedColor](Titanium.UI.Tab.backgroundFocusedColor) property takes
         precedence if set.
     type: String
     platforms: [android]
