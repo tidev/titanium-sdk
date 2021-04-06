@@ -66,7 +66,6 @@ public class TiVideoView8 extends SurfaceView implements MediaPlayerControl
 	private int mScalingMode = MediaModule.VIDEO_SCALING_RESIZE_ASPECT;
 	// settable by the client
 	private Uri mUri;
-	@SuppressWarnings("unused")
 	private Map<String, String> mHeaders;
 	private int mDuration;
 
@@ -515,7 +514,7 @@ public class TiVideoView8 extends SurfaceView implements MediaPlayerControl
 		}
 	};
 
-	private MediaPlayer.OnCompletionListener mCompletionListener = new MediaPlayer.OnCompletionListener() {
+	private final MediaPlayer.OnCompletionListener mCompletionListener = new MediaPlayer.OnCompletionListener() {
 		public void onCompletion(MediaPlayer mp)
 		{
 			mCurrentState = STATE_PLAYBACK_COMPLETED;
@@ -529,7 +528,7 @@ public class TiVideoView8 extends SurfaceView implements MediaPlayerControl
 		}
 	};
 
-	private MediaPlayer.OnErrorListener mErrorListener = new MediaPlayer.OnErrorListener() {
+	private final MediaPlayer.OnErrorListener mErrorListener = new MediaPlayer.OnErrorListener() {
 		public boolean onError(MediaPlayer mp, int framework_err, int impl_err)
 		{
 			Log.d(TAG, "Error: " + framework_err + "," + impl_err);
@@ -548,7 +547,7 @@ public class TiVideoView8 extends SurfaceView implements MediaPlayerControl
 		}
 	};
 
-	private MediaPlayer.OnBufferingUpdateListener mBufferingUpdateListener =
+	private final MediaPlayer.OnBufferingUpdateListener mBufferingUpdateListener =
 		new MediaPlayer.OnBufferingUpdateListener() {
 			public void onBufferingUpdate(MediaPlayer mp, int percent)
 			{

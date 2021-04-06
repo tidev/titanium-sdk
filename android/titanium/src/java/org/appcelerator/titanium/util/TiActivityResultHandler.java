@@ -22,7 +22,6 @@ public interface TiActivityResultHandler {
 	 * @param requestCode the returned request code.
 	 * @param resultCode the returned result code.
 	 * @param data the intent.
-	 * @module.api
 	 */
 	void onResult(Activity activity, int requestCode, int resultCode, Intent data);
 
@@ -32,7 +31,6 @@ public interface TiActivityResultHandler {
 	 * @param activity the launched activity.
 	 * @param requestCode the returned request code.
 	 * @param e the returned exception
-	 * @module.api
 	 */
 	void onError(Activity activity, int requestCode, Exception e);
 }

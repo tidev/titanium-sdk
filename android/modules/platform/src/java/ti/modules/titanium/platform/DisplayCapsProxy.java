@@ -65,11 +65,11 @@ public class DisplayCapsProxy extends KrollProxy
 		{
 			getDisplay().getMetrics(dm);
 			int dpi = dm.densityDpi;
-			if (dpi >= 560) { // DisplayMetrics.DENSITY_560
+			if (dpi >= DisplayMetrics.DENSITY_560) {
 				return "xxxhigh";
-			} else if (dpi >= 400) { // DisplayMetrics.DENSITY_400
+			} else if (dpi >= DisplayMetrics.DENSITY_400) {
 				return "xxhigh";
-			} else if (dpi >= 280) { // DisplayMetrics.DENSITY_280
+			} else if (dpi >= DisplayMetrics.DENSITY_280) {
 				return "xhigh";
 			} else if (dpi >= DisplayMetrics.DENSITY_HIGH) {
 				return "high";

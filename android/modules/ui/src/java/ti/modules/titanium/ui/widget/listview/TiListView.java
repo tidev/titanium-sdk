@@ -156,7 +156,10 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 				@Override
 				public Object getKey(int position)
 				{
-					return items.get(position);
+					if (position > -1 && position < items.size()) {
+						return items.get(position);
+					}
+					return null;
 				}
 
 				@Override
@@ -186,7 +189,12 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 							@Override
 							public Object getSelectionKey()
 							{
-								return items.get(getPosition());
+								final int position = getPosition();
+
+								if (position > -1 && position < items.size()) {
+									return items.get(position);
+								}
+								return null;
 							}
 						};
 					}

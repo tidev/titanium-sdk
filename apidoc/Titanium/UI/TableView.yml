@@ -188,7 +188,8 @@ events:
 
   - name: delete
     summary: Fired when a table row is deleted by the user.
-    platforms: [iphone, ipad, macos]
+    platforms: [android, iphone, ipad, macos]
+    since: {android: "10.0.0"}
     properties:
       - name: detail
         summary: Indicates whether the delete button was clicked. Always `false` for this event.
@@ -1013,6 +1014,11 @@ methods:
         type: Titanium.UI.View
     platforms: [iphone, ipad, macos]
     since: "2.1.0"
+    deprecated:
+      since: "10.0.0"
+      removed: "10.0.0"
+      notes: Use the <Titanium.UI.TableView.headerPullView> property instead.
+
 
   - name: updateRow
     summary: Updates an existing row, optionally with animation.

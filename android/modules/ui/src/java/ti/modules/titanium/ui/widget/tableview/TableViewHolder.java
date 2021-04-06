@@ -150,6 +150,13 @@ public class TableViewHolder extends TiRecyclerViewHolder
 		// Obtain proxy properties.
 		final KrollDict properties = proxy.getProperties();
 
+		// Update row proxy's activity in case it has changed, such as after a dark/light theme change.
+		final Context context = this.itemView.getContext();
+		if ((context instanceof Activity) && (proxy.getActivity() != context)) {
+			proxy.releaseViews();
+			proxy.setActivity((Activity) context);
+		}
+
 		// Obtain row view.
 		final TableViewRowProxy.RowView rowView = (TableViewRowProxy.RowView) proxy.getOrCreateView();
 		if (rowView != null) {

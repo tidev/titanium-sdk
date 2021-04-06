@@ -57,7 +57,7 @@ public class WebViewProxy extends ViewProxy implements Handler.Callback, OnLifec
 	private static String fusername;
 	private static String fpassword;
 	private static int frequestID = 0;
-	private static Map<Integer, EvalJSRunnable> fevalJSRequests = new HashMap<Integer, EvalJSRunnable>();
+	private static final Map<Integer, EvalJSRunnable> fevalJSRequests = new HashMap<>();
 
 	private Message postCreateMessage;
 
@@ -115,7 +115,7 @@ public class WebViewProxy extends ViewProxy implements Handler.Callback, OnLifec
 		return view.getJSValue(code);
 	}
 
-	private class EvalJSRunnable implements Runnable
+	private static class EvalJSRunnable implements Runnable
 	{
 		private final TiUIWebView view;
 		private final KrollObject krollObject;

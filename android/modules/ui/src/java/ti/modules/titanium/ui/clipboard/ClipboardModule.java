@@ -19,7 +19,7 @@ import android.text.ClipboardManager;
 @Kroll.module(parentModule = UIModule.class)
 public class ClipboardModule extends KrollModule
 {
-	private String TAG = "Clipboard";
+	private static final String TAG = "Clipboard";
 
 	public ClipboardModule()
 	{

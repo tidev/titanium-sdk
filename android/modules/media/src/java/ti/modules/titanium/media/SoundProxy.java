@@ -64,10 +64,6 @@ public class SoundProxy extends KrollProxy implements org.appcelerator.titanium.
 	{
 		super();
 
-		// TODO - we shouldnt need this as this proxy is created only from the runtime - double check
-		// TODO needs to happen post-activity assignment
-		//((TiBaseActivity)getActivity()).addOnLifecycleEventListener(this);
-
 		defaultValues.put(TiC.PROPERTY_VOLUME, 1.0f);
 		defaultValues.put(TiC.PROPERTY_TIME, 0d);
 		defaultValues.put(TiC.PROPERTY_AUDIO_TYPE, AUDIO_TYPE_MEDIA);

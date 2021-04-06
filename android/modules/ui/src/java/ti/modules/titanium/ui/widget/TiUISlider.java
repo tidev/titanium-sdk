@@ -159,7 +159,7 @@ public class TiUISlider extends TiUIView implements SeekBar.OnSeekBarChangeListe
 			String url = proxy.resolveUrl(null, thumbImage);
 			Drawable thumb = tfh.loadDrawable(url, false);
 			if (thumb != null) {
-				thumbDrawable = new SoftReference<Drawable>(thumb);
+				thumbDrawable = new SoftReference<>(thumb);
 				seekBar.setThumb(thumb);
 			} else {
 				Log.e(TAG, "Unable to locate thumb image for progress bar: " + url);
