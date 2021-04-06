@@ -145,6 +145,7 @@ public class SoundProxy extends KrollProxy implements org.appcelerator.titanium.
 	}
 
 	@Kroll.getProperty
+	@Kroll.method
 	public boolean isPlaying()
 	{
 		TiSound s = getSound();
@@ -155,6 +156,7 @@ public class SoundProxy extends KrollProxy implements org.appcelerator.titanium.
 	}
 
 	@Kroll.getProperty
+	@Kroll.method
 	public boolean isPaused()
 	{
 		TiSound s = getSound();
@@ -165,6 +167,7 @@ public class SoundProxy extends KrollProxy implements org.appcelerator.titanium.
 	}
 
 	@Kroll.getProperty
+	@Kroll.method
 	public boolean isLooping()
 	{
 		TiSound s = getSound();
