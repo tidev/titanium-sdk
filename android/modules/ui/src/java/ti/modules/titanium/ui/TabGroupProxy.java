@@ -65,7 +65,7 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 
 	private ArrayList<TabProxy> tabs = new ArrayList<>();
 	private WeakReference<AppCompatActivity> tabGroupActivity = new WeakReference<>(null);
-	private TabProxy selectedTab;
+	private Object selectedTab; // NOTE: Can be TabProxy or Number
 	private String tabGroupTitle = null;
 	private static int id_toolbar;
 
@@ -128,7 +128,7 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 	}
 
 	@Kroll.getProperty
-	public TabProxy getActiveTab()
+	public Object getActiveTab()
 	{
 		//selectedTab may not be set when user queries activeTab, so we return
 		//the first tab (default selected tab) if it exists.
@@ -144,8 +144,14 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 	@Kroll.setProperty
 	public void setActiveTab(Object tabOrIndex)
 	{
-		TabProxy tab = parseTab(tabOrIndex);
+		if (view == null) {
 
+			// Pre-select tab if TabGroup not open.
+			selectedTab = tabOrIndex;
+		}
+
+		// Attempt to parse tab.
+		TabProxy tab = parseTab(tabOrIndex);
 		if (tab == null) {
 			return;
 		}
@@ -156,8 +162,6 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 			// Once the change is completed onTabSelected() will be
 			// called to fire events and update the active tab.
 			tabGroup.selectTab(tab);
-		} else {
-			selectedTab = tab;
 		}
 	}
 
@@ -391,12 +395,15 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 			}
 		}
 
-		TabProxy activeTab = getActiveTab();
+		Object activeTab = getActiveTab();
 		if (activeTab != null) {
 			// If tabHost's selected tab is same as the active tab, we need
 			// to invoke onTabSelected so focus/blur event fire appropriately
-			tg.selectTab(activeTab);
-			selectedTab = activeTab;
+			TabProxy tab = parseTab(activeTab);
+			if (tab != null) {
+				tg.selectTab(tab);
+				selectedTab = tab;
+			}
 		}
 
 		// Selected tab should have been focused by now.
@@ -455,7 +462,8 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		}
 		isFocused = focused;
 
-		if (selectedTab == null) {
+		TabProxy tab = parseTab(selectedTab);
+		if (tab == null) {
 			// If no tab is selected fall back to the default behavior.
 			super.onWindowFocusChange(focused);
 			return;
@@ -465,7 +473,7 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		// the currently selected tab. No UI state change is required
 		// since no tab selection actually occurred. This should only
 		// happen if the activity is paused or the window stack changed.
-		selectedTab.onFocusChanged(focused, null);
+		tab.onFocusChanged(focused, null);
 	}
 
 	public void onTabSelected(int position)
@@ -480,17 +488,17 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 	 */
 	public void onTabSelected(TabProxy tabProxy)
 	{
-		TabProxy previousSelectedTab = selectedTab;
+		TabProxy previousSelectedTab = parseTab(selectedTab);
 		selectedTab = tabProxy;
 
 		// Focus event data which will be dispatched to the selected tab.
 		// The 'source' of these events will always be the tab being focused.
 		KrollDict focusEventData = new KrollDict();
-		focusEventData.put(TiC.EVENT_PROPERTY_SOURCE, selectedTab);
+		focusEventData.put(TiC.EVENT_PROPERTY_SOURCE, tabProxy);
 		focusEventData.put(TiC.EVENT_PROPERTY_PREVIOUS_TAB, previousSelectedTab);
 		focusEventData.put(TiC.EVENT_PROPERTY_PREVIOUS_INDEX, tabs.indexOf(previousSelectedTab));
-		focusEventData.put(TiC.EVENT_PROPERTY_TAB, selectedTab);
-		focusEventData.put(TiC.EVENT_PROPERTY_INDEX, tabs.indexOf(selectedTab));
+		focusEventData.put(TiC.EVENT_PROPERTY_TAB, tabProxy);
+		focusEventData.put(TiC.EVENT_PROPERTY_INDEX, tabs.indexOf(tabProxy));
 
 		// We cannot modify event data after firing an event with it.
 		// To change the 'source' to the previously selected tab we must clone it.
@@ -503,8 +511,8 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 			previousSelectedTab.onSelectionChanged(false);
 			previousSelectedTab.onFocusChanged(false, blurEventData);
 		}
-		selectedTab.onSelectionChanged(true);
-		selectedTab.onFocusChanged(true, focusEventData);
+		tabProxy.onSelectionChanged(true);
+		tabProxy.onFocusChanged(true, focusEventData);
 
 		tabProxy.fireEvent(TiC.EVENT_SELECTED, null, false);
 	}
