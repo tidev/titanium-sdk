@@ -156,8 +156,9 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 			// Once the change is completed onTabSelected() will be
 			// called to fire events and update the active tab.
 			tabGroup.selectTab(tab);
+		} else {
+			selectedTab = tab;
 		}
-		selectedTab = tab;
 	}
 
 	@Kroll.getProperty(name = "activity")
