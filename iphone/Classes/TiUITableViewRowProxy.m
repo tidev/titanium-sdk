@@ -318,31 +318,31 @@ TiProxy *DeepScanForProxyOfViewContainingPoint(UIView *targetView, CGPoint point
   if (headerTitle == nil) {
     headerTitle = [data objectForKey:@"header"];
 
-    if (headerTitle != nil)
+    if (headerTitle != nil) {
       DEPRECATED_REPLACED(@"header", @"10.0.0", @"headerTitle");
+    }
   }
-}
-if (headerTitle != nil) {
+  if (headerTitle != nil) {
 
-  // Update section header with new headerTitle.
-  [section setValue:headerTitle forUndefinedKey:@"headerTitle"];
-}
+    // Update section header with new headerTitle.
+    [section setValue:headerTitle forUndefinedKey:@"headerTitle"];
+  }
 
-id footerTitle = [data objectForKey:@"footerTitle"];
-if (footerTitle == nil) {
-  footerTitle = [data objectForKey:@"footer"];
+  id footerTitle = [data objectForKey:@"footerTitle"];
+  if (footerTitle == nil) {
+    footerTitle = [data objectForKey:@"footer"];
 
-  if (footerTitle != nil)
-    DEPRECATED_REPLACED(@"footer", @"10.0.0", @"footerTitle");
-}
-}
-if (footerTitle != nil) {
+    if (footerTitle != nil) {
+      DEPRECATED_REPLACED(@"footer", @"10.0.0", @"footerTitle");
+    }
+  }
+  if (footerTitle != nil) {
 
-  // Update section footer with new footerTitle.
-  [section setValue:footerTitle forUndefinedKey:@"footerTitle"];
-}
+    // Update section footer with new footerTitle.
+    [section setValue:footerTitle forUndefinedKey:@"footerTitle"];
+  }
 
-modifyingRow = NO;
+  modifyingRow = NO;
 }
 
 - (void)configureTitle:(UITableViewCell *)cell
