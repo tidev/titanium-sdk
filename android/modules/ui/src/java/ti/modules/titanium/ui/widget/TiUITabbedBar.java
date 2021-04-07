@@ -46,7 +46,6 @@ public class TiUITabbedBar extends TiUIView implements MenuItem.OnMenuItemClickL
 	 * Constructs a TiUIView object with the associated proxy.
 	 *
 	 * @param proxy the associated proxy.
-	 * @module.api
 	 */
 	public TiUITabbedBar(TiViewProxy proxy)
 	{

@@ -45,12 +45,12 @@ public class TiUIDateSpinner extends TiUIView implements WheelView.OnItemSelecte
 	private boolean suppressChangeEvent = false;
 	private boolean ignoreItemSelection = false;
 
-	private Calendar maxDate = Calendar.getInstance(), minDate = Calendar.getInstance();
+	private final Calendar maxDate = Calendar.getInstance();
+	private final Calendar minDate = Calendar.getInstance();
 	private Locale locale = Locale.getDefault();
 	private boolean dayBeforeMonth = false;
 	private boolean numericMonths = false;
-
-	private Calendar calendar = Calendar.getInstance();
+	private final Calendar calendar = Calendar.getInstance();
 
 	public TiUIDateSpinner(TiViewProxy proxy)
 	{

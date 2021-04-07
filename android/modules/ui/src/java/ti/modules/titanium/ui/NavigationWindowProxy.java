@@ -22,7 +22,7 @@ public class NavigationWindowProxy extends WindowProxy
 {
 	private static final String TAG = "NavigationWindowProxy";
 
-	private List<TiWindowProxy> windows = new ArrayList<>();
+	private final List<TiWindowProxy> windows = new ArrayList<>();
 
 	public NavigationWindowProxy()
 	{

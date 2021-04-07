@@ -12,7 +12,6 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.appcelerator.kroll.KrollDict;
-import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiC;
@@ -61,7 +60,7 @@ public class TableViewRowProxy extends TiViewProxy
 
 	// FIXME: On iOS the same row can be added to a table multiple times.
 	//        Due to constraints, we need to create a new proxy and track changes.
-	private List<WeakReference<TableViewRowProxy>> clones = new ArrayList<>(0);
+	private final List<WeakReference<TableViewRowProxy>> clones = new ArrayList<>(0);
 
 	public TableViewRowProxy()
 	{
@@ -81,14 +80,10 @@ public class TableViewRowProxy extends TiViewProxy
 	 *
 	 * @return TableViewRowProxy
 	 */
+	@Override
 	public TableViewRowProxy clone()
 	{
-		final TableViewRowProxy proxy = (TableViewRowProxy) KrollProxy.createProxy(
-			this.getClass(),
-			getKrollObject(),
-			new Object[] { properties },
-			this.creationUrl.url
-		);
+		final TableViewRowProxy proxy = (TableViewRowProxy) super.clone();
 
 		// Reference clone, to update properties.
 		clones.add(new WeakReference<>(proxy));
@@ -154,7 +149,7 @@ public class TableViewRowProxy extends TiViewProxy
 	 * @param eventName Name of fired event.
 	 * @param data      Data payload of fired event.
 	 * @param bubbles   Specify if event should bubble up to parent.
-	 * @return
+	 * @return Returns true if the event was successfully fired to listener(s)
 	 */
 	@Override
 	public boolean fireEvent(String eventName, Object data, boolean bubbles)
