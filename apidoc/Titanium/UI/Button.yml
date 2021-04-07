@@ -27,26 +27,29 @@ description: |
     Android also supports setting the background color for each of the states. These are not
     supported on iOS.
 
-    The Material style introduced in Titanium SDK 10 will change the default look of the buttons.
-    You can change those with a custom theme by setting the following properties:
+    The Material style introduced in Titanium SDK 10.0.0 will change the default look of the buttons.
+    You can change button styles with a custom theme as follows:
     ``` xml
+    <!-- Assign this custom theme to "tiapp.xml" file's android manifest application element. -->
     <style name="Theme.MyTheme" parent="Theme.Titanium.Light">
-        <item name="textAppearanceButton">@style/MyButtonTextTheme</item>
-        <item name="android:buttonStyle">@style/MyButtonTheme</item>
-        <item name="buttonStyle">@style/MyButtonTheme</item>
+        <item name="textAppearanceButton">@style/TextAppearance.MyButton</item>
+        <item name="android:buttonStyle">@style/Widget.MyButton</item>
+        <item name="buttonStyle">@style/Widget.MyButton</item>
     </style>
 
-    <style name="MyButtonTextTheme" parent="TextAppearance.MaterialComponents.Button">
-        <!-- disable uppercase letters -->
+    <!-- Affects the appearance of text in all material buttons. -->
+    <style name="TextAppearance.MyButton" parent="TextAppearance.MaterialComponents.Button">
+        <!-- Do not display button text in all-caps. -->
         <item name="android:textAllCaps">false</item>
-        <!-- remove extra letter spacing -->
+        <!-- Remove extra spacing between characters. -->
         <item name="android:letterSpacing">0</item>
     </style>
 
-    <style name="MyButtonTheme" parent="Widget.AppCompat.Button">
-        <!-- disable uppercase letters -->
+    <!-- Affects the appearance of all non-material system buttons. -->
+    <style name="Widget.MyButton" parent="Widget.AppCompat.Button">
+        <!-- Do not display button text in all-caps. -->
         <item name="android:textAllCaps">false</item>
-        <!-- remove extra letter spacing -->
+        <!-- Remove extra spacing between characters. -->
         <item name="android:letterSpacing">0</item>
     </style>
     ```
