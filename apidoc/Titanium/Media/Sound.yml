@@ -22,16 +22,25 @@ methods:
     summary: Returns the value of the [looping](Titanium.Media.Sound.looping) property.
     returns:
         type: Boolean
+    deprecated:
+      since: "10.0.0"
+      notes: Use the <Titanium.Media.Sound.looping> property instead.
 
   - name: isPaused
     summary: Returns the value of the [paused](Titanium.Media.Sound.paused) property.
     returns:
         type: Boolean
+    deprecated:
+      since: "10.0.0"
+      notes: Use the <Titanium.Media.Sound.paused> property instead.
 
   - name: isPlaying
     summary: Returns the value of the [playing](Titanium.Media.Sound.playing) property.
     returns:
         type: Boolean
+    deprecated:
+      since: "10.0.0"
+      notes: Use the <Titanium.Media.Sound.playing> property instead.
 
   - name: pause
     summary: Pauses the audio.
