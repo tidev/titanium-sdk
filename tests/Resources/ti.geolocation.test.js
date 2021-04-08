@@ -4,19 +4,20 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-/* globals OS_VERSION_MAJOR */
+/* globals OS_ANDROID, OS_IOS, OS_VERSION_MAJOR */
 /* eslint-env mocha */
 /* eslint no-unused-expressions: "off" */
 /* eslint mocha/no-identical-title: "off" */
 'use strict';
 const should = require('./utilities/assertions');
-const isMacOS = Ti.Platform.name === 'Mac OS X';
+const utilities = require('./utilities/utilities');
+const isMacOS = utilities.isMacOS();
+const isIOSDevice = OS_IOS && !isMacOS && !Ti.Platform.model.includes('(Simulator)');
 
-// FIXME This pops a prompt on Windows 10 and will hang tests. We can log on and allow manually...
-// Skip on Windows 10 Mobile device family due to prompt,
-// however we might be able to run some tests?
-describe.windowsBroken('Titanium.Geolocation', () => {
+// What permission should we check/ask for in tests?
+const permission = Ti.Geolocation.AUTHORIZATION_ALWAYS;
 
+describe('Titanium.Geolocation', () => {
 	describe('constants', () => {
 		it.ios('.ACCURACY_BEST', () => {
 			should(Ti.Geolocation).have.constant('ACCURACY_BEST').which.is.a.Number();
@@ -92,19 +93,18 @@ describe.windowsBroken('Titanium.Geolocation', () => {
 			});
 		});
 
-		// FIXME Get working on Android
-		describe.androidBroken('.accuracy', () => {
-			it('is a Number', () => {
+		describe('.accuracy', () => {
+			it.androidBroken('is a Number', () => { // FIXME: defaults to undefined!
 				should(Ti.Geolocation).have.a.property('accuracy').which.is.a.Number();
 			});
 
 			it('can be assigned value', () => {
-				Ti.Geolocation.accuracy = Ti.Geolocation.ACCURACY_BEST;
-				should(Ti.Geolocation.accuracy).eql(Ti.Geolocation.ACCURACY_BEST);
+				Ti.Geolocation.accuracy = Ti.Geolocation.ACCURACY_HIGH;
+				should(Ti.Geolocation.accuracy).eql(Ti.Geolocation.ACCURACY_HIGH);
 			});
 
-			it('has accessors', () => {
-				should(Ti.Geolocation).have.accessors('accuracy');
+			it('has no accessors', () => {
+				should(Ti.Geolocation).not.have.accessors('accuracy');
 			});
 		});
 
@@ -118,12 +118,14 @@ describe.windowsBroken('Titanium.Geolocation', () => {
 				should(Ti.Geolocation.activityType).eql(Ti.Geolocation.ACTIVITYTYPE_FITNESS);
 			});
 
-			it('has accessors', () => {
-				should(Ti.Geolocation).have.accessors('activityType');
+			it('has no accessors', () => {
+				should(Ti.Geolocation).not.have.accessors('activityType');
 			});
 		});
 
 		describe.ios('.allowsBackgroundLocationUpdates', () => {
+			after(() => Ti.Geolocation.allowsBackgroundLocationUpdates = false);
+
 			it('is a Boolean', () => {
 				should(Ti.Geolocation).have.a.property('allowsBackgroundLocationUpdates').which.is.a.Boolean();
 			});
@@ -137,8 +139,8 @@ describe.windowsBroken('Titanium.Geolocation', () => {
 				should(Ti.Geolocation.allowsBackgroundLocationUpdates).be.true();
 			});
 
-			it('has accessors', () => {
-				should(Ti.Geolocation).have.accessors('allowsBackgroundLocationUpdates');
+			it('has no accessors', () => {
+				should(Ti.Geolocation).not.have.accessors('allowsBackgroundLocationUpdates');
 			});
 		});
 
@@ -153,8 +155,8 @@ describe.windowsBroken('Titanium.Geolocation', () => {
 				should(Ti.Geolocation.distanceFilter).eql(1000);
 			});
 
-			it('has accessors', () => {
-				should(Ti.Geolocation).have.accessors('distanceFilter');
+			it('has no accessors', () => {
+				should(Ti.Geolocation).not.have.accessors('distanceFilter');
 			});
 		});
 
@@ -164,7 +166,7 @@ describe.windowsBroken('Titanium.Geolocation', () => {
 			});
 
 			it('has no getter', () => {
-				should(Ti.Geolocation).have.a.getter('hasCompass');
+				should(Ti.Geolocation).not.have.a.getter('hasCompass');
 			});
 		});
 
@@ -179,8 +181,8 @@ describe.windowsBroken('Titanium.Geolocation', () => {
 				should(Ti.Geolocation.headingFilter).eql(90);
 			});
 
-			it('has accessors', () => {
-				should(Ti.Geolocation).have.accessors('headingFilter');
+			it('has no accessors', () => {
+				should(Ti.Geolocation).not.have.accessors('headingFilter');
 			});
 		});
 
@@ -191,7 +193,7 @@ describe.windowsBroken('Titanium.Geolocation', () => {
 			});
 
 			it('has no getter', () => {
-				should(Ti.Geolocation).have.a.getter('lastGeolocation');
+				should(Ti.Geolocation).not.have.a.getter('lastGeolocation');
 			});
 		});
 
@@ -207,7 +209,7 @@ describe.windowsBroken('Titanium.Geolocation', () => {
 			});
 
 			it('has no getter', () => {
-				should(Ti.Geolocation).have.a.getter('locationServicesAuthorization');
+				should(Ti.Geolocation).not.have.a.getter('locationServicesAuthorization');
 			});
 		});
 
@@ -217,7 +219,7 @@ describe.windowsBroken('Titanium.Geolocation', () => {
 			});
 
 			it('has no getter', () => {
-				should(Ti.Geolocation).have.a.getter('locationServicesEnabled');
+				should(Ti.Geolocation).not.have.a.getter('locationServicesEnabled');
 			});
 		});
 
@@ -235,15 +237,17 @@ describe.windowsBroken('Titanium.Geolocation', () => {
 				should(Ti.Geolocation.pauseLocationUpdateAutomatically).be.true();
 			});
 
-			it('has accessors', () => {
-				should(Ti.Geolocation).have.accessors('pauseLocationUpdateAutomatically');
+			it('has no accessors', () => {
+				should(Ti.Geolocation).not.have.accessors('pauseLocationUpdateAutomatically');
 			});
 		});
 
 		describe.ios('.showBackgroundLocationIndicator', () => {
-			if (isMacOS) {
-				return; // FIXME: How can we limit to ios only, and skip on macos?
-			}
+			before(function () {
+				if (isMacOS) {
+					this.skip();
+				}
+			});
 
 			it('is a Boolean', () => {
 				should(Ti.Geolocation).have.a.property('showBackgroundLocationIndicator').which.is.a.Boolean();
@@ -258,8 +262,8 @@ describe.windowsBroken('Titanium.Geolocation', () => {
 				should(Ti.Geolocation.showBackgroundLocationIndicator).be.true();
 			});
 
-			it('has accessors', () => {
-				should(Ti.Geolocation).have.accessors('showBackgroundLocationIndicator');
+			it('has no accessors', () => {
+				should(Ti.Geolocation).not.have.accessors('showBackgroundLocationIndicator');
 			});
 		});
 
@@ -277,12 +281,15 @@ describe.windowsBroken('Titanium.Geolocation', () => {
 				should(Ti.Geolocation.showCalibration).be.false();
 			});
 
-			it('has accessors', () => {
-				should(Ti.Geolocation).have.accessors('showCalibration');
+			it('has no accessors', () => {
+				should(Ti.Geolocation).not.have.accessors('showCalibration');
 			});
 		});
 
 		describe.ios('.trackSignificantLocationChange', () => {
+			// reset to false at end
+			after(() => Ti.Geolocation.trackSignificantLocationChange = false);
+
 			it('is a Boolean', () => {
 				should(Ti.Geolocation).have.a.property('trackSignificantLocationChange').which.is.a.Boolean();
 			});
@@ -296,22 +303,271 @@ describe.windowsBroken('Titanium.Geolocation', () => {
 				should(Ti.Geolocation.trackSignificantLocationChange).be.true();
 			});
 
-			it('has accessors', () => {
-				should(Ti.Geolocation).have.accessors('trackSignificantLocationChange');
+			it('has no accessors', () => {
+				should(Ti.Geolocation).not.have.accessors('trackSignificantLocationChange');
 			});
 		});
 	});
 
 	describe('methods', () => {
+		describe('#hasLocationPermissions()', () => {
+			it('is a Function', () => {
+				should(Ti.Geolocation).have.a.property('hasLocationPermissions').which.is.a.Function();
+			});
+
+			it('returns a Boolean', () => {
+				should(Ti.Geolocation.hasLocationPermissions()).be.a.Boolean();
+			});
+		});
+
+		describe('#requestLocationPermissions()', () => {
+			it('is a Function', () => {
+				should(Ti.Geolocation).have.a.property('requestLocationPermissions').which.is.a.Function();
+			});
+
+			it('works via callback argument', function (finish) {
+				this.timeout(1e4); // 10 sec
+
+				// can't get permissions on macOS or actual iOS devices, since it prompts
+				if ((isMacOS || isIOSDevice) && !Ti.Geolocation.hasLocationPermissions(permission)) {
+					return finish(); // FIXME: How can we limit to ios only, and skip on macos?
+				}
+
+				Ti.Geolocation.requestLocationPermissions(permission, function (e) {
+					try {
+						should(e).have.a.property('success').which.is.a.Boolean();
+						should(e).have.a.property('code').which.is.a.Number();
+						if (!e.success) {
+							should(e).have.a.property('error').which.is.a.String();
+							should(e).have.a.property('code').which.is.not.eql(0);
+						} else {
+							should(e.code).eql(0);
+						}
+					} catch (err) {
+						return finish(err);
+					}
+					finish();
+				});
+			});
+
+			it('works via Promise return value', function (finish) {
+				this.timeout(1e4); // 10 sec
+
+				// can't get permissions on macOS or actual iOS devices, since it prompts
+				if ((isMacOS || isIOSDevice) && !Ti.Geolocation.hasLocationPermissions(permission)) {
+					return finish(); // FIXME: How can we limit to ios only, and skip on macos?
+				}
+
+				const result = Ti.Geolocation.requestLocationPermissions(permission);
+				result.should.be.a.Promise();
+				// just ensure it resolves/rejects?
+				result.then(() => finish()).catch(() => finish());
+			});
+		});
+
 		describe('#getCurrentHeading()', () => {
 			it('is a Function', () => {
 				should(Ti.Geolocation).have.a.property('getCurrentHeading').which.is.a.Function();
+			});
+
+			it('works via callback argument', function (finish) {
+				this.timeout(6e4); // 60 sec
+
+				// can't get permissions on macOS or actual iOS devices, since it prompts
+				if ((isMacOS || isIOSDevice) && !Ti.Geolocation.hasLocationPermissions(permission)) {
+					return finish(); // FIXME: How can we limit to ios only, and skip on macos?
+				}
+
+				function testCurrentHeading() {
+					Ti.Geolocation.getCurrentHeading(function (data) {
+						try {
+							if (Ti.Geolocation.hasCompass) {
+								should(data).have.property('success').which.is.true();
+								should(data).have.property('code').which.eql(0);
+								should(data.heading).be.an.Object();
+								should(data.heading).have.a.property('magneticHeading').which.is.a.Number();
+								should(data.heading).have.a.property('accuracy').which.is.a.Number();
+							} else {
+								should(data).have.property('success').which.is.false();
+								should(data).have.property('code').which.eql(1);
+								should(data.error).be.a.String(); // Do we want to verify what it says?
+							}
+						} catch (err) {
+							return finish(err);
+						}
+						finish();
+					});
+				}
+
+				// TODO: Do we need location permissions on Android for heading data?
+				if (!Ti.Geolocation.hasLocationPermissions(permission)) {
+					Ti.Geolocation.requestLocationPermissions(permission, function (e) {
+						if (!e.success) {
+							return finish(new Error('Failed to get Geolocation ALWAYS permission: ' + e.error));
+						}
+						testCurrentHeading();
+					});
+				} else {
+					testCurrentHeading();
+				}
+			});
+
+			it('works via Promise return value', function (finish) {
+				this.timeout(6e4); // 60 sec
+
+				// can't get permissions on macOS or actual iOS devices, since it prompts
+				if ((isMacOS || isIOSDevice) && !Ti.Geolocation.hasLocationPermissions(permission)) {
+					return finish(); // FIXME: How can we limit to ios only, and skip on macos?
+				}
+
+				function testCurrentHeading() {
+					const result = Ti.Geolocation.getCurrentHeading();
+					try {
+						result.should.be.a.Promise();
+					} catch (err) {
+						return finish(err);
+					}
+					if (Ti.Geolocation.hasCompass) {
+						result.then(data => {
+							should(data).have.property('success').which.is.true();
+							should(data).have.property('code').which.eql(0);
+							should(data.heading).be.an.Object();
+							should(data.heading).have.a.property('magneticHeading').which.is.a.Number();
+							should(data.heading).have.a.property('accuracy').which.is.a.Number();
+							return finish();
+						}).catch(e => finish(e));
+					} else {
+						// expect to fail if no compass!
+						result.then(() => finish(new Error('Expected to fail getCurrentHeading() with no compass support!'))).catch(_e => finish());
+					}
+				}
+
+				// TODO: Do we need location permissions on Android for heading data?
+				if (!Ti.Geolocation.hasLocationPermissions(permission)) {
+					Ti.Geolocation.requestLocationPermissions(permission, function (e) {
+						if (!e.success) {
+							return finish(new Error('Failed to get Geolocation ALWAYS permission: ' + e.error));
+						}
+						testCurrentHeading();
+					});
+				} else {
+					testCurrentHeading();
+				}
 			});
 		});
 
 		describe('#getCurrentPosition()', () => {
 			it('is a Function', () => {
 				should(Ti.Geolocation).have.a.property('getCurrentPosition').which.is.a.Function();
+			});
+
+			it('works via callback argument', function (finish) {
+				this.timeout(6e4); // 60 sec
+
+				// can't get permissions on macOS or actual iOS devices, since it prompts
+				if ((isMacOS || isIOSDevice) && !Ti.Geolocation.hasLocationPermissions(permission)) {
+					return finish(); // FIXME: How can we limit to ios only, and skip on macos?
+				}
+
+				Ti.Geolocation.accuracy = Ti.Geolocation.ACCURACY_HIGH;
+
+				function testCurrentPosition() {
+					Ti.Geolocation.getCurrentPosition(function (data) {
+						try {
+							should(data).have.property('success').which.is.a.Boolean();
+							if (OS_ANDROID && !data.success) {
+								// Sometimes fails on Android device/emulator with network/passive/gps is unavailable
+								should(data).have.property('code').which.is.not.eql(0);
+								should(data).have.property('error').which.match(/^\w+ is unavailable$/);
+							} else {
+								should(data).have.property('code').which.eql(0);
+								should(data.coords).be.an.Object();
+								should(data.coords).have.a.property('latitude').which.is.a.Number();
+								should(data.coords).have.a.property('longitude').which.is.a.Number();
+								should(data.coords).have.a.property('altitude').which.is.a.Number();
+								should(data.coords).have.a.property('accuracy').which.is.a.Number();
+								should(data.coords).have.a.property('heading').which.is.a.Number();
+								should(data.coords).have.a.property('speed').which.is.a.Number();
+								should(data.coords).have.a.property('timestamp').which.is.a.Number();
+							}
+						} catch (err) {
+							return finish(err);
+						}
+						finish();
+					});
+				}
+
+				if (!Ti.Geolocation.hasLocationPermissions(permission)) {
+					Ti.Geolocation.requestLocationPermissions(permission, function (e) {
+						if (!e.success) {
+							return finish(new Error('Failed to get Geolocation ALWAYS permission: ' + e.error));
+						}
+						testCurrentPosition();
+					});
+				} else {
+					testCurrentPosition();
+				}
+			});
+
+			it('works via Promise return value', function (finish) {
+				this.timeout(6e4); // 60 sec
+
+				// can't get permissions on macOS or actual iOS devices, since it prompts
+				if ((isMacOS || isIOSDevice) && !Ti.Geolocation.hasLocationPermissions(permission)) {
+					return finish(); // FIXME: How can we limit to ios only, and skip on macos?
+				}
+
+				Ti.Geolocation.accuracy = Ti.Geolocation.ACCURACY_HIGH;
+
+				function testCurrentPosition() {
+					const result = Ti.Geolocation.getCurrentPosition();
+					try {
+						result.should.be.a.Promise();
+					} catch (err) {
+						return finish(err);
+					}
+					result.then(data => {
+						try {
+							should(data).have.property('success').which.is.true();
+							should(data).have.property('code').which.eql(0);
+							should(data.coords).be.an.Object();
+							should(data.coords).have.a.property('latitude').which.is.a.Number();
+							should(data.coords).have.a.property('longitude').which.is.a.Number();
+							should(data.coords).have.a.property('altitude').which.is.a.Number();
+							should(data.coords).have.a.property('accuracy').which.is.a.Number();
+							should(data.coords).have.a.property('heading').which.is.a.Number();
+							should(data.coords).have.a.property('speed').which.is.a.Number();
+							should(data.coords).have.a.property('timestamp').which.is.a.Number();
+						} catch (err) {
+							return finish(err);
+						}
+						return finish();
+					}).catch(e => {
+						// Sometimes fails on Android device/emulator w/ 'passive/gps/network is unavailable'
+						if (OS_ANDROID) {
+							try {
+								e.should.have.property('message').which.is.a.String();
+								e.message.should.match(/^\w+ is unavailable$/);
+							} catch (err) {
+								return finish(err);
+							}
+							return finish();
+						}
+
+						finish(e);
+					});
+				}
+
+				if (!Ti.Geolocation.hasLocationPermissions(permission)) {
+					Ti.Geolocation.requestLocationPermissions(permission, function (e) {
+						if (!e.success) {
+							return finish(new Error('Failed to get Geolocation ALWAYS permission: ' + e.error));
+						}
+						testCurrentPosition();
+					});
+				} else {
+					testCurrentPosition();
+				}
 			});
 		});
 
@@ -377,7 +633,6 @@ describe.windowsBroken('Titanium.Geolocation', () => {
 			});
 		});
 
-		// FIXME The address object is different from platform to platform! https://jira.appcelerator.org/browse/TIMOB-23496
 		describe('#reverseGeocoder()', () => {
 			it('is a Function', () => should(Ti.Geolocation.reverseGeocoder).be.a.Function());
 
@@ -398,7 +653,7 @@ describe.windowsBroken('Titanium.Geolocation', () => {
 						should(data.places[0]).have.property('latitude').which.is.a.Number();
 						should(data.places[0]).have.property('longitude').which.is.a.Number();
 						should(data.places[0].country).be.oneOf('USA', 'United States of America', 'United States');
-						should(data.places[0].state).be.eql('California');
+						should(data.places[0].state).be.oneOf('California', 'CA');
 						should(data.places[0].countryCode).be.eql('US');
 						should(data.places[0]).have.property('city').which.is.a.String();
 						should(data.places[0]).have.property('address').which.is.a.String();
@@ -425,7 +680,7 @@ describe.windowsBroken('Titanium.Geolocation', () => {
 					should(data.places[0]).have.property('latitude').which.is.a.Number();
 					should(data.places[0]).have.property('longitude').which.is.a.Number();
 					should(data.places[0].country).be.oneOf('USA', 'United States of America', 'United States');
-					should(data.places[0].state).be.eql('California');
+					should(data.places[0].state).be.oneOf('California', 'CA');
 					should(data.places[0].countryCode).be.eql('US');
 					should(data.places[0]).have.property('city').which.is.a.String();
 					should(data.places[0]).have.property('address').which.is.a.String();

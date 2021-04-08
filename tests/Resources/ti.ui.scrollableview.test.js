@@ -64,8 +64,8 @@ describe('Titanium.UI.ScrollableView', () => {
 				should(scrollableView.clipViews).be.false();
 			});
 
-			it('has accessors', () => {
-				should(scrollableView).have.accessors('clipViews');
+			it('has no accessors', () => {
+				should(scrollableView).not.have.accessors('clipViews');
 			});
 
 			it('lifecycle', function (finish) {
@@ -112,8 +112,8 @@ describe('Titanium.UI.ScrollableView', () => {
 				should(scrollableView.currentPage).eql(1); // Android gives 0
 			});
 
-			it('has accessors', () => {
-				should(scrollableView).have.accessors('currentPage');
+			it('has no accessors', () => {
+				should(scrollableView).not.have.accessors('currentPage');
 			});
 		});
 
@@ -138,8 +138,8 @@ describe('Titanium.UI.ScrollableView', () => {
 				should(scrollableView.padding).eql({ left: 10, right: 10 });
 			});
 
-			it('has accessors', () => {
-				should(scrollableView).have.accessors('padding');
+			it('has no accessors', () => {
+				should(scrollableView).not.have.accessors('padding');
 			});
 
 			it('lifecycle', function (finish) {
@@ -224,8 +224,8 @@ describe('Titanium.UI.ScrollableView', () => {
 				should(scrollableView.views.length).eql(2);
 			});
 
-			it('has accessors', () => {
-				should(scrollableView).have.accessors('views');
+			it('has no accessors', () => {
+				should(scrollableView).not.have.accessors('views');
 			});
 		});
 	});

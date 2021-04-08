@@ -1,4 +1,4 @@
-node_modules
+/node_modules
 # We don't want to lint the locale files with eslint
 **/locales/**/*.js
 
@@ -8,18 +8,17 @@ android/modules/ui/assets/Resources/ti.internal/webview/*.js
 android/titanium/build
 android/**/generated/
 
+# Xcode launching app file
 iphone/Resources/app.js
 
 # TODO: We probably do want to lint these eventually!
 templates/**
 
-tests/Resources/fake_node_modules/
-tests/Resources/ti-mocha.js
-tests/Resources/should.js
+# 3rd party test files
+tests/fake_node_modules/
+tests/node_modules/
 tests/Resources/node_modules/
-tests/Resources/fake_node_modules/abbrev
-tests/scripts/mocha/
 
+# Build dirs
 dist/
-
 tmp/

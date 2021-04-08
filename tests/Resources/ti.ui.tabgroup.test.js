@@ -7,6 +7,7 @@
 /* eslint-env mocha */
 /* eslint no-unused-expressions: "off" */
 /* eslint mocha/no-identical-title: "off" */
+/* eslint promise/no-callback-in-promise: "off" */
 'use strict';
 const should = require('./utilities/assertions'); // eslint-disable-line no-unused-vars
 const utilities = require('./utilities/utilities');
@@ -19,12 +20,7 @@ describe('Titanium.UI.TabGroup', function () {
 	let tabGroup;
 	afterEach(done => { // fires after every test in sub-suites too...
 		if (tabGroup && !tabGroup.closed) {
-			tabGroup.addEventListener('close', function listener () {
-				tabGroup.removeEventListener('close', listener);
-				tabGroup = null;
-				done();
-			});
-			tabGroup.close();
+			tabGroup.close().then(() => done()).catch(_e => done());
 		} else {
 			tabGroup = null;
 			done();
@@ -156,8 +152,8 @@ describe('Titanium.UI.TabGroup', function () {
 				should(tabGroup.activeTintColor).eql('blue');
 			});
 
-			it.androidBroken('has accessors', () => { // Windows are created during open
-				should(tabGroup).have.accessors('activeTintColor');
+			it.androidBroken('has no accessors', () => { // Windows are created during open
+				should(tabGroup).not.have.accessors('activeTintColor');
 			});
 		});
 
@@ -179,8 +175,8 @@ describe('Titanium.UI.TabGroup', function () {
 				should(tabGroup.allowUserCustomization).be.false();
 			});
 
-			it('has accessors', () => {
-				should(tabGroup).have.accessors('allowUserCustomization');
+			it('has no accessors', () => {
+				should(tabGroup).not.have.accessors('allowUserCustomization');
 			});
 		});
 
@@ -205,8 +201,8 @@ describe('Titanium.UI.TabGroup', function () {
 				should(tabGroup.barColor).eql('blue');
 			});
 
-			it.androidBroken('has accessors', () => { // Windows are created during open
-				should(tabGroup).have.accessors('barColor');
+			it.androidBroken('has no accessors', () => { // Windows are created during open
+				should(tabGroup).not.have.accessors('barColor');
 			});
 		});
 
@@ -235,8 +231,8 @@ describe('Titanium.UI.TabGroup', function () {
 				should(tabGroup.tabs).eql([ tabA, tabB ]);
 			});
 
-			it.androidBroken('has accessors', () => { // Windows are created during open
-				should(tabGroup).have.accessors('barColor');
+			it.androidBroken('has no accessors', () => { // Windows are created during open
+				should(tabGroup).not.have.accessors('barColor');
 			});
 
 			it('#addTab() and #removeTab() affect value', () => {
@@ -271,8 +267,8 @@ describe('Titanium.UI.TabGroup', function () {
 				should(tabGroup.tabsTranslucent).be.false();
 			});
 
-			it('has accessors', () => {
-				should(tabGroup).have.accessors('tabsTranslucent');
+			it('has no accessors', () => {
+				should(tabGroup).not.have.accessors('tabsTranslucent');
 			});
 		});
 
@@ -297,8 +293,8 @@ describe('Titanium.UI.TabGroup', function () {
 				should(tabGroup.tintColor).eql('blue');
 			});
 
-			it.androidBroken('has accessors', () => { // Windows are created during open
-				should(tabGroup).have.accessors('tintColor');
+			it.androidBroken('has no accessors', () => { // Windows are created during open
+				should(tabGroup).not.have.accessors('tintColor');
 			});
 		});
 
@@ -317,9 +313,9 @@ describe('Titanium.UI.TabGroup', function () {
 				should(tabGroup.title).eql('My title'); // null on Android!
 			});
 
-			it('has accessors', () => {
+			it('has no accessors', () => {
 				tabGroup = Ti.UI.createTabGroup();
-				should(tabGroup).have.accessors('title');
+				should(tabGroup).not.have.accessors('title');
 			});
 
 			it('assign after drawing the TabGroup', () => {
@@ -378,6 +374,104 @@ describe('Titanium.UI.TabGroup', function () {
 			tabGroup.addTab(tabA);
 			tabGroup.addTab(tabB);
 			tabGroup.open();
+		});
+
+		describe('#close()', () => {
+			it('is a Function', () => {
+				tabGroup = Ti.UI.createTabGroup();
+
+				should(tabGroup).have.a.property('close').which.is.a.Function();
+			});
+
+			it('returns a Promise', finish => {
+				const tabA = Ti.UI.createTab({
+					title: 'Tab A',
+					window: Ti.UI.createWindow()
+				});
+				const tabB = Ti.UI.createTab({
+					title: 'Tab B',
+					window: Ti.UI.createWindow()
+				});
+				tabGroup = Ti.UI.createTabGroup();
+				tabGroup.addTab(tabA);
+				tabGroup.addTab(tabB);
+
+				const openPromise = tabGroup.open();
+				openPromise.then(() => {
+					const result = tabGroup.close();
+					result.should.be.a.Promise();
+					return result.then(() => finish()).catch(e => finish(e)); // eslint-disable-line promise/no-nesting
+				}).catch(e => finish(e));
+			});
+
+			it('called on unopened Window rejects Promise', finish => {
+				tabGroup = Ti.UI.createTabGroup();
+				const tabA = Ti.UI.createTab({
+					title: 'Tab A',
+					window: Ti.UI.createWindow()
+				});
+				tabGroup.addTab(tabA);
+
+				const result = tabGroup.close();
+				result.should.be.a.Promise();
+				result.then(() => finish(new Error('Expected #close() to be rejected on unopened TabGroup'))).catch(_e => finish());
+			});
+
+			it('called twice on Window rejects second Promise', finish => {
+				tabGroup = Ti.UI.createTabGroup();
+				const tabA = Ti.UI.createTab({
+					title: 'Tab A',
+					window: Ti.UI.createWindow()
+				});
+				tabGroup.addTab(tabA);
+
+				tabGroup.open().then(() => {
+					// eslint-disable-next-line promise/no-nesting
+					return tabGroup.close().then(() => {
+						// eslint-disable-next-line promise/no-nesting
+						return tabGroup.close().then(() => finish(new Error('Expected second #close() call on TabGroup to be rejected'))).catch(() => finish());
+					}).catch(e => finish(e));
+				}).catch(e => finish(e));
+			});
+		});
+
+		describe('#open()', () => {
+			it('is a Function', () => {
+				tabGroup = Ti.UI.createTabGroup();
+
+				should(tabGroup).have.a.property('open').which.is.a.Function();
+			});
+
+			it('returns a Promise', finish => {
+				tabGroup = Ti.UI.createTabGroup();
+				const tabA = Ti.UI.createTab({
+					title: 'Tab A',
+					window: Ti.UI.createWindow()
+				});
+				tabGroup.addTab(tabA);
+
+				const result = tabGroup.open();
+				result.should.be.a.Promise();
+				result.then(() => finish()).catch(e => finish(e));
+			});
+
+			it('called twice on same Window rejects second Promise', finish => {
+				tabGroup = Ti.UI.createTabGroup();
+				const tabA = Ti.UI.createTab({
+					title: 'Tab A',
+					window: Ti.UI.createWindow()
+				});
+				tabGroup.addTab(tabA);
+
+				const first = tabGroup.open();
+				first.should.be.a.Promise();
+				first.then(() => {
+					const second = tabGroup.open();
+					second.should.be.a.Promise();
+					// eslint-disable-next-line promise/no-nesting
+					return second.then(() => finish(new Error('Expected second #open() to be rejected'))).catch(() => finish());
+				}).catch(e => finish(e));
+			});
 		});
 	});
 

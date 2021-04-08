@@ -28,20 +28,20 @@ public class TiPlatformHelper
 {
 	public static final String TAG = "TiPlatformHelper";
 	private static final Map<String, Locale> locales =
-		java.util.Collections.synchronizedMap(new HashMap<String, Locale>());
+		java.util.Collections.synchronizedMap(new HashMap<>());
 	private static final Map<Locale, String> currencyCodes =
-		java.util.Collections.synchronizedMap(new HashMap<Locale, String>());
+		java.util.Collections.synchronizedMap(new HashMap<>());
 	private static final Map<Locale, String> currencySymbols =
-		java.util.Collections.synchronizedMap(new HashMap<Locale, String>());
+		java.util.Collections.synchronizedMap(new HashMap<>());
 	private static final Map<String, String> currencySymbolsByCode =
-		java.util.Collections.synchronizedMap(new HashMap<String, String>());
+		java.util.Collections.synchronizedMap(new HashMap<>());
 
 	private static class InstanceHolder
 	{
 		private static final TiPlatformHelper INSTANCE = new TiPlatformHelper();
 	}
 
-	public static final TiPlatformHelper getInstance()
+	public static TiPlatformHelper getInstance()
 	{
 		return InstanceHolder.INSTANCE;
 	}
@@ -147,11 +147,11 @@ public class TiPlatformHelper
 	public String getIpAddress()
 	{
 		String ipAddress = null;
-		TiApplication tiApp = TiApplication.getInstance();
+		Context context = TiApplication.getInstance().getApplicationContext();
 
-		if (tiApp.getRootActivity().checkCallingOrSelfPermission(Manifest.permission.ACCESS_WIFI_STATE)
+		if (context.checkCallingOrSelfPermission(Manifest.permission.ACCESS_WIFI_STATE)
 			== PackageManager.PERMISSION_GRANTED) {
-			WifiManager wifiManager = (WifiManager) tiApp.getRootActivity().getSystemService(Context.WIFI_SERVICE);
+			WifiManager wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
 			if (wifiManager != null) {
 				WifiInfo wifiInfo = wifiManager.getConnectionInfo();
 				if (wifiInfo != null) {
@@ -173,11 +173,11 @@ public class TiPlatformHelper
 	public String getNetmask()
 	{
 		String netmask = null;
-		TiApplication tiApp = TiApplication.getInstance();
+		Context context = TiApplication.getInstance().getApplicationContext();
 
-		if (tiApp.getRootActivity().checkCallingOrSelfPermission(Manifest.permission.ACCESS_WIFI_STATE)
+		if (context.checkCallingOrSelfPermission(Manifest.permission.ACCESS_WIFI_STATE)
 			== PackageManager.PERMISSION_GRANTED) {
-			WifiManager wifiManager = (WifiManager) tiApp.getRootActivity().getSystemService(Context.WIFI_SERVICE);
+			WifiManager wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
 			if (wifiManager != null) {
 				DhcpInfo dhcpInfo = wifiManager.getDhcpInfo();
 				if (dhcpInfo != null) {

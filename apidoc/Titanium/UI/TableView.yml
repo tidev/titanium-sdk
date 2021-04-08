@@ -66,9 +66,9 @@ description: |
         ([TIMOB-12625](https://jira.appcelerator.org/browse/TIMOB-12625)). This issue has been
         addressed in Release 3.3.0 of the Titanium SDK
 
-    #### Row Editing and Moving Modes (iOS only)
+    #### Row Editing and Moving Modes
 
-    On iOS, table views have an `editing` and a `moving` mode that may be activated to using their
+    Table views have an `editing` and a `moving` mode that may be activated to using their
     respective [editing](Titanium.UI.TableView.editing) and [moving](Titanium.UI.TableView.moving)
     properties. These allow rows to be deleted or re-ordered by the user, depending on each row's
     [editable](Titanium.UI.TableViewRow.editable) and [moveable](Titanium.UI.TableViewRow.moveable)
@@ -188,7 +188,8 @@ events:
 
   - name: delete
     summary: Fired when a table row is deleted by the user.
-    platforms: [iphone, ipad, macos]
+    platforms: [android, iphone, ipad, macos]
+    since: {android: "10.0.0"}
     properties:
       - name: detail
         summary: Indicates whether the delete button was clicked. Always `false` for this event.
@@ -321,7 +322,8 @@ events:
 
   - name: move
     summary: Fired when a table row is moved by the user.
-    platforms: [iphone, ipad, macos]
+    platforms: [android, iphone, ipad, macos]
+    since: {android: "9.3.0", iphone: "3.2.0", ipad: "3.2.0", macos: "9.2.0"}
     properties:
       - name: detail
         summary: Boolean to indicate if the right area was clicked. Always `false` for this event.
@@ -1012,6 +1014,11 @@ methods:
         type: Titanium.UI.View
     platforms: [iphone, ipad, macos]
     since: "2.1.0"
+    deprecated:
+      since: "10.0.0"
+      removed: "10.0.0"
+      notes: Use the <Titanium.UI.TableView.headerPullView> property instead.
+
 
   - name: updateRow
     summary: Updates an existing row, optionally with animation.
@@ -1089,7 +1096,8 @@ properties:
         `editing` and `moving` modes.
     type: Boolean
     default: Depends on `editing` and `moving` mode
-    platforms: [iphone, ipad, macos]
+    platforms: [android, iphone, ipad, macos]
+    since: {android: "9.3.0", iphone: "3.2.0", ipad: "3.2.0", macos: "9.2.0"}
 
   - name: editing
     summary: |
@@ -1103,7 +1111,8 @@ properties:
         `editing` and `moving` modes.
     type: Boolean
     default: false
-    platforms: [iphone, ipad, macos]
+    platforms: [android, iphone, ipad, macos]
+    since: {android: "9.3.0", iphone: "3.2.0", ipad: "3.2.0", macos: "9.2.0"}
 
   - name: filterAttribute
     summary: Filter attribute to be used when searching.
@@ -1317,7 +1326,8 @@ properties:
         `editing` and `moving` modes.
     type: Boolean
     default: Depends on `editing` and `moving` mode
-    platforms: [iphone, ipad, macos]
+    platforms: [android, iphone, ipad, macos]
+    since: {android: "9.3.0", iphone: "3.2.0", ipad: "3.2.0", macos: "9.2.0"}
 
   - name: moving
     summary: |
@@ -1331,7 +1341,8 @@ properties:
         `editing` and `moving` modes.
     type: Boolean
     default: false
-    platforms: [iphone, ipad, macos]
+    platforms: [android, iphone, ipad, macos]
+    since: {android: "9.3.0", iphone: "3.2.0", ipad: "3.2.0", macos: "9.2.0"}
 
   - name: overScrollMode
     summary: Determines the behavior when the user overscrolls the view.
@@ -1470,29 +1481,39 @@ properties:
 
         For example:
         ``` js
-        tableView1.setSeparatorInsets({
-            left:10,
-            right:10
-        });
+        tableView1.separatorInsets = {
+            left: 10,
+            right: 10
+        };
         ```
     type: HorizontalInsets
     since: 3.2.0
     osver: {ios: {min: "7.0"}}
     platforms: [iphone, ipad, macos]
 
+  - name: touchFeedback
+    summary: A material design visual construct that provides an instantaneous visual confirmation of touch point.
+    description: |
+        Touch feedback is only applied to a view's background.
+    type: Boolean
+    default: true
+    platforms: [android]
+    osver: {android: {min: "5.0"}}
+    since: "10.0.0"
+
   - name: tableSeparatorInsets
     summary: The insets for the table view header and footer.
     description: |
-        Cell separators do not extend all the way to the edge of the table view.Set this to a
+        Cell separators do not extend all the way to the edge of the table view. Set this to a
         dictionary with two keys, `left` specifying inset from left edge and `right` specifying the inset from the
         right edge. If the rowSeparatorInsets is not set, the tableSeparatorInsets will also set the cell insets.
 
         For example:
         ``` js
-        tableView1.setTableSeparatorInsets({
-            left:10,
-            right:10
-        });
+        tableView1.tableSeparatorInsets = {
+            left: 10,
+            right: 10
+        };
         ```
     type: HorizontalInsets
     since: "5.2.0"
@@ -1502,16 +1523,16 @@ properties:
   - name: rowSeparatorInsets
     summary: The insets for table view cells (applies to all cells).
     description: |
-        Cell separators do not extend all the way to the edge of the table view.Set this to a
+        Cell separators do not extend all the way to the edge of the table view. Set this to a
         dictionary with two keys, `left` specifying inset from left edge and `right` specifying the inset from the
         right edge. This property is only available upon creation of the cells.
 
         For example:
         ``` js
-        tableView1.setRowSeparatorInsets({
-            left:10,
-            right:10
-        });
+        tableView1.rowSeparatorInsets = {
+            left: 10,
+            right: 10
+        };
         ```
     type: HorizontalInsets
     since: "5.2.0"
@@ -1646,11 +1667,8 @@ examples:
         Create a table of rows that contain a custom child-view layout.
 
         ``` js
-        Ti.UI.setBackgroundColor('#000');
         var win = Ti.UI.createWindow({
           backgroundColor: 'black',
-          exitOnClose: true,
-          fullscreen: false,
           title: 'TableView Demo'
         });
 

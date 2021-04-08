@@ -35,7 +35,7 @@ public class TiBorderWrapperView extends FrameLayout
 
 	private int color = Color.TRANSPARENT;
 	private int backgroundColor = Color.TRANSPARENT;
-	private float[] radius = { 0, 0, 0, 0, 0, 0, 0, 0 };
+	private final float[] radius = { 0, 0, 0, 0, 0, 0, 0, 0 };
 	private float borderWidth = 0;
 	private int alpha = -1;
 	private Paint paint;

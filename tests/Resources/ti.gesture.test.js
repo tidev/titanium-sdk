@@ -33,7 +33,7 @@ describe('Titanium.Gesture', () => {
 			});
 
 			it('has no getter', () => {
-				should(Ti.Gesture).have.a.getter('landscape');
+				should(Ti.Gesture).not.have.a.getter('landscape');
 			});
 		});
 
@@ -43,7 +43,7 @@ describe('Titanium.Gesture', () => {
 			});
 
 			it('has no getter', () => {
-				should(Ti.Gesture).have.a.getter('orientation');
+				should(Ti.Gesture).not.have.a.getter('orientation');
 			});
 		});
 
@@ -53,7 +53,7 @@ describe('Titanium.Gesture', () => {
 			});
 
 			it('has no getter', () => {
-				should(Ti.Gesture).have.a.getter('portrait');
+				should(Ti.Gesture).not.have.a.getter('portrait');
 			});
 		});
 	});

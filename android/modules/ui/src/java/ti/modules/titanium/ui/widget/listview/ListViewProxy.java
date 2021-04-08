@@ -34,6 +34,7 @@ import ti.modules.titanium.ui.widget.TiUIListView;
 		TiC.PROPERTY_CAN_SCROLL,
 		TiC.PROPERTY_CASE_INSENSITIVE_SEARCH,
 		TiC.PROPERTY_DEFAULT_ITEM_TEMPLATE,
+		TiC.PROPERTY_EDITING,
 		TiC.PROPERTY_FAST_SCROLL,
 		TiC.PROPERTY_FOOTER_TITLE,
 		TiC.PROPERTY_FOOTER_VIEW,
@@ -46,10 +47,12 @@ import ti.modules.titanium.ui.widget.TiUIListView;
 		TiC.PROPERTY_SEPARATOR_HEIGHT,
 		TiC.PROPERTY_SEPARATOR_STYLE,
 		TiC.PROPERTY_SHOW_VERTICAL_SCROLL_INDICATOR,
-		TiC.PROPERTY_TEMPLATES
+		TiC.PROPERTY_TEMPLATES,
+		TiC.PROPERTY_TOUCH_FEEDBACK,
+		TiC.PROPERTY_TOUCH_FEEDBACK_COLOR
 	}
 )
-public class ListViewProxy extends TiViewProxy
+public class ListViewProxy extends RecyclerViewProxy
 {
 	private static final String TAG = "ListViewProxy";
 
@@ -64,6 +67,7 @@ public class ListViewProxy extends TiViewProxy
 		defaultValues.put(TiC.PROPERTY_CASE_INSENSITIVE_SEARCH, true);
 		defaultValues.put(TiC.PROPERTY_DEFAULT_ITEM_TEMPLATE, UIModule.LIST_ITEM_TEMPLATE_DEFAULT);
 		defaultValues.put(TiC.PROPERTY_FAST_SCROLL, false);
+		defaultValues.put(TiC.PROPERTY_TOUCH_FEEDBACK, true);
 	}
 
 	/**
@@ -138,6 +142,64 @@ public class ListViewProxy extends TiViewProxy
 	public TiUIView createView(Activity activity)
 	{
 		return new TiUIListView(this);
+	}
+
+	/**
+	 * Delete a list item from specified adapter position.
+	 *
+	 * @param adapterIndex Index of item in adapter.
+	 */
+	public void swipeItem(int adapterIndex)
+	{
+		final TiListView listView = getListView();
+
+		if (listView != null) {
+			final ListItemProxy item = listView.getAdapterItem(adapterIndex);
+			final ListSectionProxy section = (ListSectionProxy) item.getParent();
+
+			item.fireSyncEvent(TiC.EVENT_DELETE, null);
+
+			section.deleteItemsAt(item.getIndexInSection(), 1, null);
+		}
+	}
+
+	/**
+	 * Move a list item from one position to another.
+	 *
+	 * @param fromAdapterIndex Index of item in adapter.
+	 * @param toAdapterIndex Index of item in adapter.
+	 */
+	public void moveItem(int fromAdapterIndex, int toAdapterIndex)
+	{
+		final TiListView listView = getListView();
+
+		if (listView != null) {
+			final ListItemProxy fromItem = listView.getAdapterItem(fromAdapterIndex);
+			final ListSectionProxy fromSection = (ListSectionProxy) fromItem.getParent();
+			final int fromIndex = fromItem.getIndexInSection();
+			final ListItemProxy toItem = listView.getAdapterItem(toAdapterIndex);
+			final ListSectionProxy toSection = (ListSectionProxy) toItem.getParent();
+			final int toIndex = toItem.getIndexInSection();
+
+			fromSection.deleteItemsAt(fromIndex, 1, null);
+			toSection.insertItemsAt(toIndex, fromItem, null);
+		}
+	}
+
+	/**
+	 * Fire `move` event upon finalized movement of an item.
+	 *
+	 * @param fromAdapterIndex Index of item in adapter.
+	 */
+	public void fireMoveEvent(int fromAdapterIndex)
+	{
+		final TiListView listView = getListView();
+
+		if (listView != null) {
+			final ListItemProxy fromItem = listView.getAdapterItem(fromAdapterIndex);
+
+			fromItem.fireEvent(TiC.EVENT_MOVE, null);
+		}
 	}
 
 	/**
@@ -240,7 +302,6 @@ public class ListViewProxy extends TiViewProxy
 	 *
 	 * @return Array of ListSections.
 	 */
-	@Kroll.method
 	@Kroll.getProperty
 	public ListSectionProxy[] getSections()
 	{
@@ -263,6 +324,35 @@ public class ListViewProxy extends TiViewProxy
 		return false;
 	}
 
+	@Override
+	public void onPropertyChanged(String name, Object value)
+	{
+		super.onPropertyChanged(name, value);
+
+		processProperty(name, value);
+	}
+
+	/**
+	 * Sets the activity this proxy's view should be attached to.
+	 * @param activity The activity this proxy's view should be attached to.
+	 */
+	@Override
+	public void setActivity(Activity activity)
+	{
+		super.setActivity(activity);
+
+		if (hasPropertyAndNotNull(TiC.PROPERTY_SEARCH_VIEW)) {
+			final TiViewProxy search = (TiViewProxy) getProperty(TiC.PROPERTY_SEARCH_VIEW);
+			search.setActivity(activity);
+		}
+
+		if (this.sections != null) {
+			for (ListSectionProxy section : this.sections) {
+				section.setActivity(activity);
+			}
+		}
+	}
+
 	/**
 	 * Handle setting of property.
 	 *
@@ -274,10 +364,27 @@ public class ListViewProxy extends TiViewProxy
 	{
 		super.setProperty(name, value);
 
+		processProperty(name, value);
+	}
+
+	/**
+	 * Process property set on proxy.
+	 *
+	 * @param name Property name.
+	 * @param value Property value.
+	 */
+	private void processProperty(String name, Object value)
+	{
 		if (name.equals(TiC.PROPERTY_SECTIONS)) {
 
 			// Set list sections.
 			setSections((Object[]) value);
+		}
+
+		if (name.equals(TiC.PROPERTY_EDITING)) {
+
+			// Update list.
+			update();
 		}
 	}
 
@@ -286,7 +393,6 @@ public class ListViewProxy extends TiViewProxy
 	 *
 	 * @param sections Array of sections to set.
 	 */
-	@Kroll.method
 	@Kroll.setProperty
 	public void setSections(Object sections)
 	{
@@ -372,11 +478,11 @@ public class ListViewProxy extends TiViewProxy
 							continue;
 						}
 						final View markedItemView = markedHolder.itemView;
-						if (markedItemView == null) {
+						if (markedItemView == null || markedItemView.getLayoutParams() == null) {
 							continue;
 						}
 						final boolean isVisible =
-							layoutManager.isViewPartiallyVisible(markedItemView, true, true);
+							layoutManager.isViewPartiallyVisible(markedItemView, false, true);
 
 						if (isVisible) {
 							final KrollDict data = new KrollDict();
@@ -477,8 +583,8 @@ public class ListViewProxy extends TiViewProxy
 	{
 		super.releaseViews();
 
-		if (hasPropertyAndNotNull(TiC.PROPERTY_SEARCH)) {
-			final TiViewProxy search = (TiViewProxy) getProperty(TiC.PROPERTY_SEARCH);
+		if (hasPropertyAndNotNull(TiC.PROPERTY_SEARCH_VIEW)) {
+			final TiViewProxy search = (TiViewProxy) getProperty(TiC.PROPERTY_SEARCH_VIEW);
 			search.releaseViews();
 		}
 

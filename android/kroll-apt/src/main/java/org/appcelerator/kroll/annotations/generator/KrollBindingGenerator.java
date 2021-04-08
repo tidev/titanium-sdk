@@ -39,13 +39,13 @@ public class KrollBindingGenerator
 	private String outPath, moduleId;
 	private Configuration fmConfig;
 	private Template v8SourceTemplate, v8HeaderTemplate;
-	private HashMap<String, Object> apiTree = new HashMap<String, Object>();
-	private HashMap<String, Object> proxies = new HashMap<String, Object>();
-	private HashMap<String, Object> modules = new HashMap<String, Object>();
+	private final HashMap<String, Object> apiTree = new HashMap<>();
+	private final HashMap<String, Object> proxies = new HashMap<>();
+	private final HashMap<String, Object> modules = new HashMap<>();
 
 	// These maps are used so we can load up Titanium JSON metadata when generating source for 3rd party modules
-	private HashMap<String, Object> tiProxies = new HashMap<String, Object>();
-	private HashMap<String, Object> tiModules = new HashMap<String, Object>();
+	private final HashMap<String, Object> tiProxies = new HashMap<>();
+	private final HashMap<String, Object> tiModules = new HashMap<>();
 
 	private JSONUtils jsonUtils;
 	private boolean canOverwrite = true;
@@ -165,7 +165,7 @@ public class KrollBindingGenerator
 			}
 
 			if (!tree.containsKey(api)) {
-				HashMap<String, Object> subTree = new HashMap<String, Object>();
+				HashMap<String, Object> subTree = new HashMap<>();
 				tree.put(api, subTree);
 			}
 
@@ -308,7 +308,7 @@ public class KrollBindingGenerator
 		for (String proxyName : proxies.keySet()) {
 			Map<Object, Object> proxy = jsonUtils.getMap(proxies, proxyName);
 
-			HashMap<Object, Object> root = new HashMap<Object, Object>(proxy);
+			HashMap<Object, Object> root = new HashMap<>(proxy);
 			root.put("allModules", modules);
 			root.put("allProxies", proxies);
 			root.put("moduleId", moduleId);

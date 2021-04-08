@@ -30,7 +30,7 @@ description:  |
     fullscreen or modal and can be customized, such as changing their opacity or background color.
     Windows themselves are views and also inherit a views properties, functions and events. There
     are a few specialization of Windows such as a [Tab Group](Titanium.UI.TabGroup) which offer
-    additional behavior beyond the basic Window. It is considered a best practice to use a 
+    additional behavior beyond the basic Window. It is considered a best practice to use a
     [NavigationWindow](Titanium.UI.NavigationWindow) as the root of your application.
 
     Titanium uses the [Factory Pattern](http://en.wikipedia.org/wiki/Factory_method_pattern) for
@@ -53,7 +53,7 @@ description:  |
 
     #### Global Context
 
-    Prior to the release of Titanium SDK `9.0.0.GA` any variable declared in `app.js` or `alloy.js` 
+    Prior to the release of Titanium SDK `9.0.0.GA` any variable declared in `app.js` or `alloy.js`
     was added to a global scope. This however is no longer the case since `9.0.0.GA`. However
     it is still possible to add variables to a global scope by adding `global.` in front of any
     variabled declared in `app.js` or `alloy.js`. However you should be careful with adding variables
@@ -578,7 +578,7 @@ properties:
   - name: ATTRIBUTE_LINE_BREAK
     deprecated:
         since: "7.5.0"
-        notes: Use [ParagraphAttribute.lineBreakMode](ParagraphAttribute.lineBreakMode) instead.  
+        notes: Use [ParagraphAttribute.lineBreakMode](ParagraphAttribute.lineBreakMode) instead.
     summary: |
         Use with <Attribute.type> to wrap and truncate the text.
     description: |
@@ -1448,6 +1448,81 @@ properties:
     permission: read-only
     since: "7.3.0"
 
+  - name: BUTTON_STYLE_FILLED
+    summary: Use with [Button.style](Titanium.UI.Button.style) to show a solid filled button.
+    description: |
+        This is not supported on iOS and will show [BUTTON_STYLE_TEXT](Titanium.UI.BUTTON_STYLE_TEXT) instead.
+    type: Number
+    permission: read-only
+    since: "10.0.0"
+
+  - name: BUTTON_STYLE_OUTLINED
+    summary: Use with [Button.style](Titanium.UI.Button.style) to show an unfilled rounded border button.
+    description: |
+        This is not supported on iOS and will show [BUTTON_STYLE_TEXT](Titanium.UI.BUTTON_STYLE_TEXT) instead.
+    type: Number
+    permission: read-only
+    since: "10.0.0"
+
+  - name: BUTTON_STYLE_TEXT
+    summary: Use with [Button.style](Titanium.UI.Button.style) to show a text-only button without a background.
+    type: Number
+    permission: read-only
+    since: "10.0.0"
+
+  - name: BUTTON_STYLE_OPTION_POSITIVE
+    summary: Use with [Button.style](Titanium.UI.Button.style) to show a positive themed accept button.
+    description: |
+        This is a text-only button without a background. It is intended to be used in conjunction with
+        [BUTTON_STYLE_OPTION_NEGATIVE](Titanium.UI.BUTTON_STYLE_OPTION_NEGATIVE) and
+        [BUTTON_STYLE_OPTION_NEUTRAL](Titanium.UI.BUTTON_STYLE_OPTION_NEUTRAL) to show an an accept button
+        before closing a window or dialog such as "OK", "Yes", "Done", etc. It is typically colored
+        differently than a [BUTTON_STYLE_TEXT](Titanium.UI.BUTTON_STYLE_TEXT) themed button on iOS.
+
+        On Android, this can be customized by the `buttonBarPositiveButtonStyle` attribute.
+
+        By default, the Android material theme does not style this button differently than any other
+        text-only button. Only the holo theme will style it differently.
+    type: Number
+    permission: read-only
+    since: "10.0.0"
+
+  - name: BUTTON_STYLE_OPTION_NEGATIVE
+    summary: Use with [Button.style](Titanium.UI.Button.style) to show a negative themed escape button.
+    description: |
+        This is a text-only button without a background. It is intended to be used in conjunction with
+        [BUTTON_STYLE_OPTION_POSITIVE](Titanium.UI.BUTTON_STYLE_OPTION_POSITIVE) and
+        [BUTTON_STYLE_OPTION_NEUTRAL](Titanium.UI.BUTTON_STYLE_OPTION_NEUTRAL) to show an
+        escape button to exit a window or dialog such as "Cancel", "No", etc.
+
+        This is not supported on iOS and will use [BUTTON_STYLE_TEXT](Titanium.UI.BUTTON_STYLE_TEXT) instead.
+
+        On Android, this can be customized by the `buttonBarNegativeButtonStyle` attribute. By default,
+        Android's built-in themes will style this button the same as
+        [BUTTON_STYLE_OPTION_NEUTRAL](Titanium.UI.BUTTON_STYLE_OPTION_NEUTRAL) and
+        [BUTTON_STYLE_TEXT](Titanium.UI.BUTTON_STYLE_TEXT).
+    type: Number
+    permission: read-only
+    since: "10.0.0"
+
+  - name: BUTTON_STYLE_OPTION_NEUTRAL
+    summary: Use with [Button.style](Titanium.UI.Button.style) to show a normal themed option button.
+    description: |
+        This is a text-only button without a background. It is intended to be used in conjunction with
+        [BUTTON_STYLE_OPTION_POSITIVE](Titanium.UI.BUTTON_STYLE_OPTION_POSITIVE) and
+        [BUTTON_STYLE_OPTION_NEGATIVE](Titanium.UI.BUTTON_STYLE_OPTION_NEGATIVE) to show
+        a normal informational button.
+
+        This is not supported on iOS and will use [BUTTON_STYLE_TEXT](Titanium.UI.BUTTON_STYLE_TEXT) instead.
+
+        On Android, this can be customized by the `buttonBarNeutralButtonStyle` attribute. By default,
+        Android's built-in themes will style this button the same as
+        [BUTTON_STYLE_OPTION_NEGATIVE](Titanium.UI.BUTTON_STYLE_OPTION_NEGATIVE) and
+        [BUTTON_STYLE_TEXT](Titanium.UI.BUTTON_STYLE_TEXT).
+    type: Number
+    permission: read-only
+    since: "10.0.0"
+
   - name: HINT_TYPE_STATIC
     summary: |
         Use when creating a TextField to specify the hintType as static.
@@ -1636,27 +1711,66 @@ properties:
 
   - name: INPUT_BORDERSTYLE_BEZEL
     summary: Use a bezel-style border on the input field.
-    description: Use with the <Titanium.UI.TextField.borderStyle> property.
+    description: |
+        Use with the <Titanium.UI.TextField.borderStyle> property.
+
+        On Android, this can also be used by the <Titanium.UI.TextArea.borderStyle> property.
+
+        Android does not support this style and will use
+        [INPUT_BORDERSTYLE_LINE](Titanium.UI.INPUT_BORDERSTYLE_LINE) instead.
     type: Number
     permission: read-only
 
   - name: INPUT_BORDERSTYLE_LINE
     summary: Use a simple line border on the input field.
-    description: Use with the <Titanium.UI.TextField.borderStyle> property.
+    description: |
+        Use with the <Titanium.UI.TextField.borderStyle> property.
+
+        On Android, this can also be used by the <Titanium.UI.TextArea.borderStyle> property.
     type: Number
     permission: read-only
 
   - name: INPUT_BORDERSTYLE_NONE
     summary: Use no border on the input field.
-    description: Use with the <Titanium.UI.TextField.borderStyle> property.
+    description: |
+        Use with the <Titanium.UI.TextField.borderStyle> property.
+
+        On Android, this can also be used by the <Titanium.UI.TextArea.borderStyle> property.
     type: Number
     permission: read-only
 
   - name: INPUT_BORDERSTYLE_ROUNDED
     summary: Use a rounded-rectangle border on the input field.
-    description: Use with the <Titanium.UI.TextField.borderStyle> property.
+    description: |
+        Use with the <Titanium.UI.TextField.borderStyle> property.
+
+        On Android, this can also be used by the <Titanium.UI.TextArea.borderStyle> property.
     type: Number
     permission: read-only
+
+  - name: INPUT_BORDERSTYLE_UNDERLINED
+    summary: Show an underline instead of a border around the input field.
+    description: |
+        Use with the <Titanium.UI.TextField.borderStyle> and <Titanium.UI.TextArea.borderStyle> properties.
+
+        iOS does not support this style and will use
+        [INPUT_BORDERSTYLE_LINE](Titanium.UI.INPUT_BORDERSTYLE_LINE) instead.
+    type: Number
+    permission: read-only
+    since: "10.0.0"
+
+  - name: INPUT_BORDERSTYLE_FILLED
+    summary: Show an enclosed border with a filled background on the input field.
+    description: |
+        This is the default Android material theme on Android.
+
+        Use with the <Titanium.UI.TextField.borderStyle> and <Titanium.UI.TextArea.borderStyle> properties.
+
+        iOS does not support this style and will use
+        [INPUT_BORDERSTYLE_BEZEL](Titanium.UI.INPUT_BORDERSTYLE_BEZEL) instead.
+    type: Number
+    permission: read-only
+    since: "10.0.0"
 
   - name: INPUT_BUTTONMODE_ALWAYS
     summary: Always show buttons on the input field.
@@ -2244,7 +2358,6 @@ properties:
     type: Number
     permission: read-only
 
-
   - name: RETURNKEY_JOIN
     summary: Set the return key text to "Join".
     description: |
@@ -2329,6 +2442,39 @@ properties:
     permission: read-only
     since: "2.0.0"
 
+  - name: SWITCH_STYLE_CHECKBOX
+    summary: Use with [Switch.style](Titanium.UI.Switch.style) to show a checkbox.
+    description: |
+        This is supported by Android and macOS apps running on Big Sur (v11) or higher. iOS devices do not
+        support this style and will use [SWITCH_STYLE_SLIDER](Titanium.UI.SWITCH_STYLE_SLIDER) instead.
+    type: Number
+    permission: read-only
+    since: "10.0.0"
+
+  - name: SWITCH_STYLE_TOGGLE_BUTTON
+    summary: Use with [Switch.style](Titanium.UI.Switch.style) to show a toggleable button.
+    description: |
+        This style is only supported on Android.
+        On iOS, this will use [SWITCH_STYLE_SLIDER](Titanium.UI.SWITCH_STYLE_SLIDER) instead.
+    type: Number
+    permission: read-only
+    since: "10.0.0"
+
+  - name: SWITCH_STYLE_SLIDER
+    summary: Use with [Switch.style](Titanium.UI.Switch.style) to show a slidable button.
+    type: Number
+    permission: read-only
+    since: "10.0.0"
+
+  - name: SWITCH_STYLE_CHIP
+    summary: Use with [Switch.style](Titanium.UI.Switch.style) to show a material design checkable chip widget.
+    description: |
+        This style is only supported on Android.
+        On iOS, this will use [SWITCH_STYLE_SLIDER](Titanium.UI.SWITCH_STYLE_SLIDER) instead.
+    type: Number
+    permission: read-only
+    since: "10.0.0"
+
   - name: TABLE_VIEW_SEPARATOR_STYLE_NONE
     summary: The row divider is hidden.
     type: Number
@@ -2357,11 +2503,12 @@ properties:
         Use with the <Titanium.UI.TextField.textAlign>, <Titanium.UI.Button.textAlign> and
         <Titanium.UI.TextArea.textAlign> properties.
 
-        This constant is a number and only available on iOS.
+        This constant is a number on iOS and a string on Android.
     type: [Number, String]
     permission: read-only
-    platforms: [iphone, ipad, macos]
-    since: "6.1.0"
+    platforms: [android, iphone, ipad, macos]
+    osver: {android: {min: "8.0"}}
+    since: { android: "10.0.0", iphone: "6.1.0", ipad: "6.1.0" }
 
   - name: TEXT_ALIGNMENT_LEFT
     summary: Left align text.
@@ -2730,6 +2877,24 @@ properties:
         The default background image may also show through if you use semi-transparent
         windows.
     type: String
+
+  - name: overrideUserInterfaceStyle
+    summary: Forces the app to used assigned theme instead of the system theme.
+    description: |
+        When set to [USER_INTERFACE_STYLE_DARK](Titanium.UI.USER_INTERFACE_STYLE_DARK) or
+        [USER_INTERFACE_STYLE_LIGHT](Titanium.UI.USER_INTERFACE_STYLE_LIGHT), the app will ignore
+        the system's current theme and use the theme assigned to this property instead.
+
+        When set to [USER_INTERFACE_STYLE_UNSPECIFIED](Titanium.UI.USER_INTERFACE_STYLE_UNSPECIFIED),
+        the app will use the system's current theme. To determine what the system's current theme is,
+        you must read the [userInterfaceStyle](Titanium.UI.userInterfaceStyle) property.
+
+        See [UI_MODE_NIGHT_MASK](https://developer.android.com/reference/android/content/res/Configuration.html#UI_MODE_NIGHT_MASK).
+    type: Number
+    default: Titanium.UI.USER_INTERFACE_STYLE_UNSPECIFIED
+    constants: Titanium.UI.USER_INTERFACE_STYLE_*
+    osver: {ios: {min: "13.0"}}
+    since: "10.0.0"
 
   - name: tintColor
     summary: |

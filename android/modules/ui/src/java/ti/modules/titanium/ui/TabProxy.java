@@ -70,7 +70,6 @@ public class TabProxy extends TiViewProxy
 		}
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public boolean getActive()
 	{
@@ -81,7 +80,6 @@ public class TabProxy extends TiViewProxy
 		return false;
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setActive(boolean active)
 	{
@@ -122,7 +120,6 @@ public class TabProxy extends TiViewProxy
 		return this.window;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public TabGroupProxy getTabGroup()
 	{

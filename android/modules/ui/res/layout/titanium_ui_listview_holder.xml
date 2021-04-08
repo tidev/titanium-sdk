@@ -2,7 +2,9 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/titanium_ui_listview_holder"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:clipToPadding="false"
+    android:outlineProvider="bounds">
 
     <!-- Header Container -->
     <RelativeLayout
@@ -40,7 +42,6 @@
                 android:id="@+id/titanium_ui_listview_holder_content"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:foreground="?attr/selectableItemBackgroundBorderless"
                 android:addStatesFromChildren="true"/>
 
             <ImageView

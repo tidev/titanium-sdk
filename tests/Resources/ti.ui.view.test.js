@@ -4,6 +4,7 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+/* global OS_ANDROID, OS_VERSION_MAJOR */
 /* eslint-env mocha */
 /* eslint no-unused-expressions: "off" */
 'use strict';
@@ -22,18 +23,13 @@ describe('Titanium.UI.View', function () {
 
 	before(finish => {
 		rootWindow = Ti.UI.createWindow({ exitOnClose: false });
-		rootWindow.addEventListener('open', () => finish());
-		rootWindow.open();
+		rootWindow.open().then(() => finish()).catch(e => finish(e));
 	});
 
 	function closeWindow(win, done) {
 		if (win && !win.closed) {
-			win.addEventListener('close', function listener () {
-				win.removeEventListener('close', listener);
-				win = null;
-				done();
-			});
-			win.close();
+			// eslint-disable-next-line promise/no-callback-in-promise
+			win.close().then(() => done()).catch(_e => done());
 		} else {
 			win = null;
 			done();
@@ -1006,18 +1002,20 @@ describe('Titanium.UI.View', function () {
 		win.open();
 	});
 
-	describe('borderRadius corners', () => {
+	describe('borderRadius corners', function () {
+		// FIXME: Does not honour scale correctly on macOS: https://jira.appcelerator.org/browse/TIMOB-28261
+		before(function () {
+			if (isCI && utilities.isMacOS() && OS_VERSION_MAJOR < 11) {
+				this.skip();
+			}
+		});
+
 		// FIXME: Don't use dp/pts in the actual radii so we can avoid needing separate images per density?
 		// Do separate tests for verifying use of pts/dp versus density?
 
 		beforeEach(() => {
 			win = Ti.UI.createWindow({ backgroundColor: 'blue' });
 		});
-
-		// FIXME: Does not honour scale correctly on macOS.
-		if (isCI && utilities.isMacOS()) {
-			return;
-		}
 
 		it('4 values in String', finish => {
 			const outerView = Ti.UI.createView({
@@ -1198,7 +1196,10 @@ describe('Titanium.UI.View', function () {
 				try {
 					should(view.borderRadius).be.a.String();
 					should(view.borderRadius).eql('30px');
-					should(outerView).matchImage('snapshots/borderRadius_30px.png');
+					should(outerView).matchImage('snapshots/borderRadius_30px.png', {
+						threshold: 0.1,
+						maxPixelMismatch: OS_ANDROID ? 2 : 0
+					});
 				} catch (err) {
 					return finish(err);
 				}
@@ -1321,5 +1322,40 @@ describe('Titanium.UI.View', function () {
 		should(view1.filterTouchesWhenObscured).be.false();
 		const view2 = Ti.UI.createView({ filterTouchesWhenObscured: true });
 		should(view2.filterTouchesWhenObscured).be.true();
+	});
+
+	it('rgba fallback', finish => {
+		// FIXME: Does not honour scale correctly on macOS: https://jira.appcelerator.org/browse/TIMOB-28261
+		if (isCI && utilities.isMacOS() && OS_VERSION_MAJOR < 11) {
+			return finish(); // FIXME: skip when we move to official mocha package
+		}
+
+		win = Ti.UI.createWindow({ backgroundColor: '#fff' });
+		const rgbaView = Ti.UI.createView({
+			width: 100,
+			height: 100,
+			backgroundColor: 'rgba(255,0,0)',
+			left: 0
+		});
+		const rgbView = Ti.UI.createView({
+			width: 100,
+			height: 100,
+			backgroundColor: 'rgb(0,255,0)',
+			left: 100
+		});
+
+		win.addEventListener('postlayout', function postlayout() { // FIXME: Support once!
+			win.removeEventListener('postlayout', postlayout); // only run once
+			try {
+				should(rgbaView).matchImage('snapshots/rgbaView_red.png');
+				should(rgbView).matchImage('snapshots/rgbView_green.png');
+			} catch (err) {
+				return finish(err);
+			}
+			finish();
+		});
+		win.add(rgbaView);
+		win.add(rgbView);
+		win.open();
 	});
 });

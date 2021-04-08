@@ -44,8 +44,8 @@ describe('Titanium.UI.OptionDialog', () => {
 				should(dialog.buttonNames.length).eql(2);
 			});
 
-			it('has accessors', () => {
-				should(dialog).have.accessors('buttonNames');
+			it('has no accessors', () => {
+				should(dialog).not.have.accessors('buttonNames');
 			});
 		});
 
@@ -68,8 +68,8 @@ describe('Titanium.UI.OptionDialog', () => {
 				should(dialog.cancel).eql(1);
 			});
 
-			it('has accessors', () => {
-				should(dialog).have.accessors('cancel');
+			it('has no accessors', () => {
+				should(dialog).not.have.accessors('cancel');
 			});
 		});
 
@@ -96,8 +96,8 @@ describe('Titanium.UI.OptionDialog', () => {
 				should(dialog.options.length).eql(2);
 			});
 
-			it('has accessors', () => {
-				should(dialog).have.accessors('options');
+			it('has no accessors', () => {
+				should(dialog).not.have.accessors('options');
 			});
 		});
 
@@ -123,8 +123,8 @@ describe('Titanium.UI.OptionDialog', () => {
 				should(dialog.persistent).be.false();
 			});
 
-			it('has accessors', () => {
-				should(dialog).have.accessors('persistent');
+			it('has no accessors', () => {
+				should(dialog).not.have.accessors('persistent');
 			});
 		});
 
@@ -146,8 +146,8 @@ describe('Titanium.UI.OptionDialog', () => {
 				should(dialog.selectedIndex).eql(1);
 			});
 
-			it('has accessors', () => {
-				should(dialog).have.accessors('selectedIndex');
+			it('has no accessors', () => {
+				should(dialog).not.have.accessors('selectedIndex');
 			});
 		});
 
@@ -172,8 +172,8 @@ describe('Titanium.UI.OptionDialog', () => {
 				should(dialog.title).eql('other text');
 			});
 
-			it('has accessors', () => {
-				should(dialog).have.accessors('title');
+			it('has no accessors', () => {
+				should(dialog).not.have.accessors('title');
 			});
 		});
 
@@ -203,8 +203,8 @@ describe('Titanium.UI.OptionDialog', () => {
 				// should(dialog.title).eql('this is my value'); // broken on iOS
 			});
 
-			it('has accessors', () => {
-				should(dialog).have.accessors('titleid');
+			it('has no accessors', () => {
+				should(dialog).not.have.accessors('titleid');
 			});
 		});
 	});
