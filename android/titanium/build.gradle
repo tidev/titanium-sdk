@@ -274,7 +274,6 @@ dependencies {
 
 	// Reference all local JAR file dependencies.
 	implementation fileTree(dir: 'lib', include: ['*.jar'])
-	implementation fileTree(dir: "${projectDir}/../modules/ui/lib", include: ['*.jar'])
 }
 
 // This block is used when we do a "gradlew :titanium:publish", which is invoked by our "node scons package" tool.
