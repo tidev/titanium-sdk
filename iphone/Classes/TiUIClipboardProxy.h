@@ -29,7 +29,7 @@ READONLY_PROPERTY(bool, unique, Unique);
 JSExportAs(setData,
            -(void)setData
            : (NSString *)type withData
-           : (id)data);
+           : (JSValue *)data);
 - (void)setText:(NSString *)text;
 - (void)setItems:(NSDictionary<NSString *, id> *)items;
 - (void)remove;
