@@ -62,9 +62,7 @@ methods:
         type: Boolean
     deprecated:
       since: "10.0.0"
-      removed: "10.0.0"
       notes: Use the <Titanium.Android.MenuItem.actionViewExpanded> property instead.
-
 
   - name: isCheckable
     summary: |
@@ -73,7 +71,6 @@ methods:
         type: Boolean
     deprecated:
       since: "10.0.0"
-      removed: "10.0.0"
       notes: Use the <Titanium.Android.MenuItem.checkable> property instead.
 
   - name: isChecked
@@ -82,7 +79,6 @@ methods:
         type: Boolean
     deprecated:
       since: "10.0.0"
-      removed: "10.0.0"
       notes: Use the <Titanium.Android.MenuItem.checked> property instead.
 
   - name: isEnabled
@@ -91,7 +87,6 @@ methods:
         type: Boolean
     deprecated:
       since: "10.0.0"
-      removed: "10.0.0"
       notes: Use the <Titanium.Android.MenuItem.enabled> property instead.
 
   - name: isVisible
@@ -100,7 +95,6 @@ methods:
         type: Boolean
     deprecated:
       since: "10.0.0"
-      removed: "10.0.0"
       notes: Use the <Titanium.Android.MenuItem.visible> property instead.
 
   - name: setCheckable
