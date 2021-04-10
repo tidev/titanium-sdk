@@ -13,7 +13,6 @@ program
 	.option('-v, --sdk-version [version]', 'Override the SDK version we report', process.env.PRODUCT_VERSION || version)
 	.option('-t, --version-tag [tag]', 'Override the SDK version tag we report')
 	.option('-s, --android-sdk [path]', 'Explicitly set the path to the Android SDK used for building')
-	.option('-n, --android-ndk [path]', 'Explicitly set the path to the Android NDK used for building')
 	.option('--args [arguments...]', 'Arguments to be passed to gradlew tool (Must be set last)')
 	.action((task, options, _command) => {
 		const AndroidBuilder = require('./lib/android');
