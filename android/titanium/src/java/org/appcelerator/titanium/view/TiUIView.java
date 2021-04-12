@@ -139,7 +139,7 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 	private WeakReference<View> touchView = null;
 
 	private boolean zIndexChanged = false;
-	private TiBorderWrapperView borderView;
+	protected TiBorderWrapperView borderView;
 	// For twofingertap detection
 	private boolean didScale = false;
 
