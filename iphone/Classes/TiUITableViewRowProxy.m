@@ -314,17 +314,34 @@ TiProxy *DeepScanForProxyOfViewContainingPoint(UIView *targetView, CGPoint point
   modifyingRow = YES;
   [super _initWithProperties:data];
 
-  // check to see if we have a section header change, too...
-  if ([data objectForKey:@"header"]) {
-    [section setValue:[data objectForKey:@"header"] forUndefinedKey:@"headerTitle"];
-    // we can return since we're reloading the section, will cause the
-    // row to be repainted at the same time
+  id headerTitle = [data objectForKey:@"headerTitle"];
+  if (headerTitle == nil) {
+    headerTitle = [data objectForKey:@"header"];
+
+    if (headerTitle != nil) {
+      DEPRECATED_REPLACED(@"header", @"10.0.0", @"headerTitle");
+    }
   }
-  if ([data objectForKey:@"footer"]) {
-    [section setValue:[data objectForKey:@"footer"] forUndefinedKey:@"footerTitle"];
-    // we can return since we're reloading the section, will cause the
-    // row to be repainted at the same time
+  if (headerTitle != nil) {
+
+    // Update section header with new headerTitle.
+    [section setValue:headerTitle forUndefinedKey:@"headerTitle"];
   }
+
+  id footerTitle = [data objectForKey:@"footerTitle"];
+  if (footerTitle == nil) {
+    footerTitle = [data objectForKey:@"footer"];
+
+    if (footerTitle != nil) {
+      DEPRECATED_REPLACED(@"footer", @"10.0.0", @"footerTitle");
+    }
+  }
+  if (footerTitle != nil) {
+
+    // Update section footer with new footerTitle.
+    [section setValue:footerTitle forUndefinedKey:@"footerTitle"];
+  }
+
   modifyingRow = NO;
 }
 
