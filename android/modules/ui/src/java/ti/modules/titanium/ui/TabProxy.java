@@ -139,16 +139,6 @@ public class TabProxy extends TiViewProxy
 		}
 	}
 
-	/*@Kroll.getProperty
-	public String getTitle()
-	{
-		// Validate tabGroup proxy.
-		if (tabGroupProxy == null ) {
-			return null;
-		}
-		return ((TiUIAbstractTabGroup) tabGroupProxy.getOrCreateView()).getTabTitle(tabGroupProxy.getTabIndex(this));
-	}*/
-
 	public void setWindowId(int id)
 	{
 		windowId = id;
@@ -236,29 +226,27 @@ public class TabProxy extends TiViewProxy
 	public void onPropertyChanged(String name, Object value)
 	{
 		super.onPropertyChanged(name, value);
-		// Check if the Tab Group proxy has been released.
-		if (tabGroupProxy == null) {
+
+		// Fetch the TabGroup's view. If currently null, then we have to wait for TabGroup activity to be created.
+		TiUIView view = (this.tabGroupProxy != null) ? this.tabGroupProxy.peekView() : null;
+		if (!(view instanceof TiUIAbstractTabGroup)) {
 			return;
 		}
+		TiUIAbstractTabGroup tabGroupView = (TiUIAbstractTabGroup) view;
+
+		// Update tab.
 		if (name.equals(TiC.PROPERTY_BACKGROUND_COLOR) || name.equals(TiC.PROPERTY_BACKGROUND_FOCUSED_COLOR)) {
-			((TiUIAbstractTabGroup) tabGroupProxy.getOrCreateView())
-				.updateTabBackgroundDrawable(tabGroupProxy.getTabIndex(this));
-		}
-		if (name.equals(TiC.PROPERTY_TITLE)) {
-			((TiUIAbstractTabGroup) tabGroupProxy.getOrCreateView()).updateTabTitle(tabGroupProxy.getTabIndex(this));
-		}
-		if (name.equals(TiC.PROPERTY_TITLE_COLOR) || name.equals(TiC.PROPERTY_ACTIVE_TITLE_COLOR)) {
-			((TiUIAbstractTabGroup) tabGroupProxy.getOrCreateView())
-				.updateTabTitleColor(tabGroupProxy.getTabIndex(this));
-		}
-		if (name.equals(TiC.PROPERTY_ICON)) {
-			((TiUIAbstractTabGroup) tabGroupProxy.getOrCreateView()).updateTabIcon(tabGroupProxy.getTabIndex(this));
-		}
-		if (name.equals(TiC.PROPERTY_BADGE)) {
-			((TiUIAbstractTabGroup) tabGroupProxy.getOrCreateView()).updateBadge(tabGroupProxy.getTabIndex(this));
-		}
-		if (name.equals(TiC.PROPERTY_BADGE_COLOR)) {
-			((TiUIAbstractTabGroup) tabGroupProxy.getOrCreateView()).updateBadgeColor(tabGroupProxy.getTabIndex(this));
+			tabGroupView.updateTabBackgroundDrawable(this.tabGroupProxy.getTabIndex(this));
+		} else if (name.equals(TiC.PROPERTY_TITLE)) {
+			tabGroupView.updateTabTitle(this.tabGroupProxy.getTabIndex(this));
+		} else if (name.equals(TiC.PROPERTY_TITLE_COLOR) || name.equals(TiC.PROPERTY_ACTIVE_TITLE_COLOR)) {
+			tabGroupView.updateTabTitleColor(this.tabGroupProxy.getTabIndex(this));
+		} else if (name.equals(TiC.PROPERTY_ICON)) {
+			tabGroupView.updateTabIcon(this.tabGroupProxy.getTabIndex(this));
+		} else if (name.equals(TiC.PROPERTY_BADGE)) {
+			tabGroupView.updateBadge(this.tabGroupProxy.getTabIndex(this));
+		} else if (name.equals(TiC.PROPERTY_BADGE_COLOR)) {
+			tabGroupView.updateBadgeColor(this.tabGroupProxy.getTabIndex(this));
 		}
 	}
 
