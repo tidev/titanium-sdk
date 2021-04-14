@@ -446,6 +446,11 @@ public abstract class TiApplication extends Application implements KrollApplicat
 
 		if (isAnalyticsEnabled()) {
 			APSAnalytics.getInstance().initialize(getAppGUID(), this);
+
+			final int cacheSize = this.appProperties.getInt("ti.analytics.cacheSize", -1);
+			if (cacheSize > -1) {
+				APSAnalytics.getInstance().setCacheSize(cacheSize);
+			}
 		} else {
 			Log.i(TAG, "Analytics have been disabled");
 		}
