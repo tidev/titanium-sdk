@@ -26,7 +26,7 @@
     bridge.evaluationError = YES;
     [TiExceptionHandler.defaultExceptionHandler reportScriptError:exception inJSContext:context];
   }];
-  return [curContext evaluateScript:source withSourceURL:[NSURL URLWithString:filename relativeToURL:[self _baseURL]]];
+  return [curContext evaluateScript:source withSourceURL:[TiHost resourceBasedURL:filename baseURL:NULL]];
 }
 
 @end
