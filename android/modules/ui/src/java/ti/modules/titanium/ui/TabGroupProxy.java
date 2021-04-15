@@ -141,6 +141,12 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		}
 	}
 
+	private TabProxy getActiveTabProxy()
+	{
+		Object activeTab = getActiveTab();
+		return (activeTab != null) ? parseTab(activeTab) : null;
+	}
+
 	@Kroll.setProperty
 	public void setActiveTab(Object tabOrIndex)
 	{
@@ -395,15 +401,12 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 			}
 		}
 
-		Object activeTab = getActiveTab();
-		if (activeTab != null) {
-			// If tabHost's selected tab is same as the active tab, we need
-			// to invoke onTabSelected so focus/blur event fire appropriately
-			TabProxy tab = parseTab(activeTab);
-			if (tab != null) {
-				tg.selectTab(tab);
-				selectedTab = tab;
-			}
+		// If TabGroup's selected tab is same as the active tab,
+		// then we need to invoke onTabSelected so focus/blur event fire appropriately
+		TabProxy tab = getActiveTabProxy();
+		if (tab != null) {
+			tg.selectTab(tab);
+			selectedTab = tab;
 		}
 
 		// Selected tab should have been focused by now.
@@ -462,9 +465,11 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		}
 		isFocused = focused;
 
-		TabProxy tab = parseTab(selectedTab);
+		// Fetch a proxy to the active tab. (Skip this if no tabs exists in group yet to avoid warnings in the log.)
+		TabProxy tab = (tabs.size() > 0) ? getActiveTabProxy() : null;
+
+		// If no tab is selected fall back to the default behavior.
 		if (tab == null) {
-			// If no tab is selected fall back to the default behavior.
 			super.onWindowFocusChange(focused);
 			return;
 		}
@@ -488,7 +493,7 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 	 */
 	public void onTabSelected(TabProxy tabProxy)
 	{
-		TabProxy previousSelectedTab = parseTab(selectedTab);
+		TabProxy previousSelectedTab = getActiveTabProxy();
 		selectedTab = tabProxy;
 
 		// Focus event data which will be dispatched to the selected tab.

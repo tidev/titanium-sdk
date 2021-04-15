@@ -395,6 +395,15 @@ CFMutableSetRef krollBridgeRegistry = nil;
     NSString *deployType = TiSharedConfig.defaultConfig.applicationDeployType;
     NSString *guid = TiSharedConfig.defaultConfig.applicationGUID;
     [sharedAnalytics enableWithAppKey:guid andDeployType:deployType];
+
+    // Set analytics event cache size.
+    id cacheSizeObj = [[TiApp tiAppProperties] objectForKey:@"ti.analytics.cacheSize"];
+    if ([cacheSizeObj isKindOfClass:[NSNumber class]]) {
+      int cacheSize = [cacheSizeObj intValue];
+      if (cacheSize > -1) {
+        [sharedAnalytics setCacheSize:cacheSize];
+      }
+    }
   }
 
   NSURL *startURL = nil;
