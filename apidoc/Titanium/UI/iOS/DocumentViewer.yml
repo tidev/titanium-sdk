@@ -110,6 +110,12 @@ properties:
         the API summary.
     type: String
 
+  - name: annotation
+    summary: Custom property list information for the target file.
+    description: |
+        Use this property to pass information about the document type to the app responsible for opening it.
+    type: [Dictionary, Array, String, Number, Date]
+
 methods:
   - name: hide
     summary: Dismisses the document viewer.

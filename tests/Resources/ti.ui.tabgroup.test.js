@@ -7,6 +7,7 @@
 /* eslint-env mocha */
 /* eslint no-unused-expressions: "off" */
 /* eslint mocha/no-identical-title: "off" */
+/* eslint promise/no-callback-in-promise: "off" */
 'use strict';
 const should = require('./utilities/assertions'); // eslint-disable-line no-unused-vars
 const utilities = require('./utilities/utilities');
@@ -151,8 +152,8 @@ describe('Titanium.UI.TabGroup', function () {
 				should(tabGroup.activeTintColor).eql('blue');
 			});
 
-			it.androidBroken('has accessors', () => { // Windows are created during open
-				should(tabGroup).have.accessors('activeTintColor');
+			it.androidBroken('has no accessors', () => { // Windows are created during open
+				should(tabGroup).not.have.accessors('activeTintColor');
 			});
 		});
 
@@ -174,8 +175,8 @@ describe('Titanium.UI.TabGroup', function () {
 				should(tabGroup.allowUserCustomization).be.false();
 			});
 
-			it('has accessors', () => {
-				should(tabGroup).have.accessors('allowUserCustomization');
+			it('has no accessors', () => {
+				should(tabGroup).not.have.accessors('allowUserCustomization');
 			});
 		});
 
@@ -200,8 +201,8 @@ describe('Titanium.UI.TabGroup', function () {
 				should(tabGroup.barColor).eql('blue');
 			});
 
-			it.androidBroken('has accessors', () => { // Windows are created during open
-				should(tabGroup).have.accessors('barColor');
+			it.androidBroken('has no accessors', () => { // Windows are created during open
+				should(tabGroup).not.have.accessors('barColor');
 			});
 		});
 
@@ -230,8 +231,19 @@ describe('Titanium.UI.TabGroup', function () {
 				should(tabGroup.tabs).eql([ tabA, tabB ]);
 			});
 
-			it.androidBroken('has accessors', () => { // Windows are created during open
-				should(tabGroup).have.accessors('barColor');
+			it('set properties before open event', () => {
+				const tab = Ti.UI.createTab({ window: Ti.UI.createWindow() });
+				tabGroup.tabs = [ tab ];
+				tabGroup.tabs[0].title = 'Tab 1';
+				tabGroup.tabs[0].badge = '5';
+				tabGroup.tabs[0].icon = '/SmallLogo.png';
+				should(tab.title).eql('Tab 1');
+				should(tab.badge).eql('5');
+				should(tab.icon.endsWith('/SmallLogo.png')).be.true();
+			});
+
+			it('has no accessors', () => {
+				should(tabGroup).not.have.accessors('barColor');
 			});
 
 			it('#addTab() and #removeTab() affect value', () => {
@@ -266,8 +278,8 @@ describe('Titanium.UI.TabGroup', function () {
 				should(tabGroup.tabsTranslucent).be.false();
 			});
 
-			it('has accessors', () => {
-				should(tabGroup).have.accessors('tabsTranslucent');
+			it('has no accessors', () => {
+				should(tabGroup).not.have.accessors('tabsTranslucent');
 			});
 		});
 
@@ -292,8 +304,8 @@ describe('Titanium.UI.TabGroup', function () {
 				should(tabGroup.tintColor).eql('blue');
 			});
 
-			it.androidBroken('has accessors', () => { // Windows are created during open
-				should(tabGroup).have.accessors('tintColor');
+			it.androidBroken('has no accessors', () => { // Windows are created during open
+				should(tabGroup).not.have.accessors('tintColor');
 			});
 		});
 
@@ -312,9 +324,9 @@ describe('Titanium.UI.TabGroup', function () {
 				should(tabGroup.title).eql('My title'); // null on Android!
 			});
 
-			it('has accessors', () => {
+			it('has no accessors', () => {
 				tabGroup = Ti.UI.createTabGroup();
-				should(tabGroup).have.accessors('title');
+				should(tabGroup).not.have.accessors('title');
 			});
 
 			it('assign after drawing the TabGroup', () => {
@@ -399,7 +411,7 @@ describe('Titanium.UI.TabGroup', function () {
 				openPromise.then(() => {
 					const result = tabGroup.close();
 					result.should.be.a.Promise();
-					result.then(() => finish()).catch(e => finish(e));
+					return result.then(() => finish()).catch(e => finish(e)); // eslint-disable-line promise/no-nesting
 				}).catch(e => finish(e));
 			});
 
@@ -425,8 +437,10 @@ describe('Titanium.UI.TabGroup', function () {
 				tabGroup.addTab(tabA);
 
 				tabGroup.open().then(() => {
-					tabGroup.close().then(() => {
-						tabGroup.close().then(() => finish(new Error('Expected second #close() call on TabGroup to be rejected'))).catch(_e => finish());
+					// eslint-disable-next-line promise/no-nesting
+					return tabGroup.close().then(() => {
+						// eslint-disable-next-line promise/no-nesting
+						return tabGroup.close().then(() => finish(new Error('Expected second #close() call on TabGroup to be rejected'))).catch(() => finish());
 					}).catch(e => finish(e));
 				}).catch(e => finish(e));
 			});
@@ -465,7 +479,8 @@ describe('Titanium.UI.TabGroup', function () {
 				first.then(() => {
 					const second = tabGroup.open();
 					second.should.be.a.Promise();
-					second.then(() => finish(new Error('Expected second #open() to be rejected'))).catch(_e => finish());
+					// eslint-disable-next-line promise/no-nesting
+					return second.then(() => finish(new Error('Expected second #open() to be rejected'))).catch(() => finish());
 				}).catch(e => finish(e));
 			});
 		});

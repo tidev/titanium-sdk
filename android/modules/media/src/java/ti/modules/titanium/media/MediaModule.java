@@ -117,11 +117,7 @@ public class MediaModule extends KrollModule implements Handler.Callback
 	@Kroll.constant
 	public static final int VIDEO_LOAD_STATE_UNKNOWN = 0;
 	@Kroll.constant
-	public static final int VIDEO_LOAD_STATE_PLAYABLE = 1 << 0;
-	@Kroll.constant
-	public static final int VIDEO_LOAD_STATE_PLAYTHROUGH_OK = 1 << 1;
-	@Kroll.constant
-	public static final int VIDEO_LOAD_STATE_STALLED = 1 << 2;
+	public static final int VIDEO_LOAD_STATE_PLAYABLE = 1;
 
 	@Kroll.constant
 	public static final int VIDEO_PLAYBACK_STATE_STOPPED = 0;
@@ -860,14 +856,12 @@ public class MediaModule extends KrollModule implements Handler.Callback
 		}
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setCameraFlashMode(int flashMode)
 	{
 		TiCameraActivity.setFlashMode(flashMode);
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public int getCameraFlashMode()
 	{
@@ -1411,14 +1405,12 @@ public class MediaModule extends KrollModule implements Handler.Callback
 		activity.switchCamera(whichCamera);
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public boolean getIsCameraSupported()
 	{
 		return Camera.getNumberOfCameras() > 0;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public int[] getAvailableCameras()
 	{
@@ -1449,7 +1441,6 @@ public class MediaModule extends KrollModule implements Handler.Callback
 		return result;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public boolean getCanRecord()
 	{

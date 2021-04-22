@@ -29,7 +29,8 @@ async function runTests(platforms, program) {
 }
 
 /**
- * @param {object} results
+ * Outputs the given test results to the console.
+ * @param {object} results Dictionary of test results to be outputted.
  * @returns {Promise<void>}
  */
 async function outputMultipleResults(results) {

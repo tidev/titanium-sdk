@@ -21,14 +21,12 @@ public class NotationProxy extends NodeProxy
 		this.notation = notation;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getPublicId()
 	{
 		return notation.getPublicId();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getSystemId()
 	{

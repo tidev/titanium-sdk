@@ -11,7 +11,10 @@ import android.content.res.TypedArray;
 import android.graphics.drawable.GradientDrawable;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewParent;
 import android.widget.RelativeLayout;
+
+import androidx.annotation.NonNull;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
@@ -47,6 +50,19 @@ public class TiUIListView extends TiUIView
 
 		this.listView = new TiListView((ListViewProxy) proxy);
 		setNativeView(listView);
+	}
+
+	/**
+	 * Determine if touchFeedback can be applied to view.
+	 *
+	 * @param props View's property dictionary
+	 * @return Boolean
+	 */
+	@Override
+	protected boolean canApplyTouchFeedback(@NonNull KrollDict props)
+	{
+		// Ignore, handled by item.
+		return false;
 	}
 
 	/**
@@ -95,47 +111,86 @@ public class TiUIListView extends TiUIView
 			}
 		}
 
-		if (name.equals(TiC.PROPERTY_SEARCH_VIEW) && value instanceof TiViewProxy) {
-			this.searchProxy = (TiViewProxy) value;
-			final TiUIView search = this.searchProxy.getOrCreateView();
+		if (name.equals(TiC.PROPERTY_SEARCH_VIEW)) {
+			final ViewParent parent = getOuterView().getParent();
+			final TiViewProxy parentProxy = getProxy().getParent();
 
-			if (this.searchProxy instanceof SearchBarProxy) {
-				((TiUISearchBar) search).setOnSearchChangeListener(listView);
+			if (parent instanceof ViewGroup) {
+
+				// Remove current view from parent.
+				((ViewGroup) parent).removeView(getOuterView());
+			}
+
+			// Reset current border and background so this does not corrupt the new view.
+			this.borderView = null;
+			this.background = null;
+
+			final ViewParent listViewParent = this.listView.getParent();
+			if (listViewParent instanceof ViewGroup) {
+
+				// Remove list view from parent, could be TiBorderWrapperView or RelativeLayout.
+				((ViewGroup) listViewParent).removeView(this.listView);
+			}
+
+			if (value instanceof TiViewProxy) {
+
+				// Set search proxy.
+				this.searchProxy = (TiViewProxy) value;
+				final TiUIView search = this.searchProxy.getOrCreateView();
+
+				// Set search listeners.
+				if (this.searchProxy instanceof SearchBarProxy) {
+					((TiUISearchBar) search).setOnSearchChangeListener(this.listView);
+				} else {
+					((TiUISearchView) search).setOnSearchChangeListener(this.listView);
+				}
+
+				final RelativeLayout view = new RelativeLayout(proxy.getActivity());
+				final View searchView = search.getOuterView();
+				final ViewGroup searchViewParent = (ViewGroup) searchView.getParent();
+				final RelativeLayout.LayoutParams searchViewLayout = new RelativeLayout.LayoutParams(
+					RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+				searchViewLayout.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
+				searchViewLayout.addRule(RelativeLayout.ALIGN_PARENT_TOP);
+				searchViewLayout.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
+
+				searchView.setId(SEARCHVIEW_ID);
+
+				if (searchViewParent != null) {
+					searchViewParent.removeView(searchView);
+				}
+				view.addView(searchView, searchViewLayout);
+
+				final RelativeLayout.LayoutParams listViewLayout = new RelativeLayout.LayoutParams(
+					RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT);
+				listViewLayout.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
+				listViewLayout.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+				listViewLayout.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
+				listViewLayout.addRule(RelativeLayout.BELOW, SEARCHVIEW_ID);
+
+				view.addView(listView, listViewLayout);
+
+				// Set new view layout.
+				setNativeView(view);
 			} else {
-				((TiUISearchView) search).setOnSearchChangeListener(listView);
+
+				// Reset back to standard list view.
+				setNativeView(listView);
 			}
 
-			final View searchView = search.getOuterView();
-			final ViewGroup searchViewParent = (ViewGroup) searchView.getParent();
-			final ViewGroup listViewParent = (ViewGroup) listView.getParent();
-			searchView.setId(SEARCHVIEW_ID);
+			// Re-apply background and border to new view.
+			super.processProperties(getProxy().getProperties());
 
-			final RelativeLayout view = new RelativeLayout(proxy.getActivity());
+			if (parent != null && parentProxy != null) {
+				final TiUIView parentView = parentProxy.peekView();
 
-			final RelativeLayout.LayoutParams searchViewLayout = new RelativeLayout.LayoutParams(
-				RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
-			searchViewLayout.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
-			searchViewLayout.addRule(RelativeLayout.ALIGN_PARENT_TOP);
-			searchViewLayout.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
+				if (parentView != null) {
 
-			if (searchViewParent != null) {
-				searchViewParent.removeView(searchView);
+					// Release view and reconstruct parent.
+					proxy.releaseViews();
+					parentProxy.realizeViews(parentView);
+				}
 			}
-			view.addView(searchView, searchViewLayout);
-
-			final RelativeLayout.LayoutParams tableViewLayout = new RelativeLayout.LayoutParams(
-				RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT);
-			tableViewLayout.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
-			tableViewLayout.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
-			tableViewLayout.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
-			tableViewLayout.addRule(RelativeLayout.BELOW, SEARCHVIEW_ID);
-
-			if (listViewParent != null) {
-				listViewParent.removeView(listView);
-			}
-			view.addView(listView, tableViewLayout);
-
-			setNativeView(view);
 		}
 
 		if ((name.equals(TiC.PROPERTY_SEPARATOR_STYLE)
@@ -222,6 +277,15 @@ public class TiUIListView extends TiUIView
 	@Override
 	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy)
 	{
+		if (key.equals(TiC.PROPERTY_TOUCH_FEEDBACK)
+			|| key.equals(TiC.PROPERTY_TOUCH_FEEDBACK_COLOR)) {
+
+			// Update list items.
+			this.listView.update();
+
+			// Return to prevent property being handled by TiUIView.
+			return;
+		}
 		super.propertyChanged(key, oldValue, newValue, proxy);
 
 		processProperty(key, newValue);

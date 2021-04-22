@@ -30,26 +30,28 @@ import ti.modules.titanium.ui.widget.tableview.TiTableView;
 	propertyAccessors = {
 		TiC.PROPERTY_EDITABLE,
 		TiC.PROPERTY_EDITING,
-		TiC.PROPERTY_FILTER_ATTRIBUTE,
 		TiC.PROPERTY_FILTER_ANCHORED,
+		TiC.PROPERTY_FILTER_ATTRIBUTE,
 		TiC.PROPERTY_FILTER_CASE_INSENSITIVE,
-		TiC.PROPERTY_HEADER_TITLE,
-		TiC.PROPERTY_HEADER_VIEW,
+		TiC.PROPERTY_FOOTER_DIVIDERS_ENABLED,
 		TiC.PROPERTY_FOOTER_TITLE,
 		TiC.PROPERTY_FOOTER_VIEW,
-		TiC.PROPERTY_SEARCH,
-		TiC.PROPERTY_SEPARATOR_COLOR,
-		TiC.PROPERTY_SEPARATOR_STYLE,
-		TiC.PROPERTY_OVER_SCROLL_MODE,
+		TiC.PROPERTY_HEADER_DIVIDERS_ENABLED,
+		TiC.PROPERTY_HEADER_TITLE,
+		TiC.PROPERTY_HEADER_VIEW,
+		TiC.PROPERTY_MAX_CLASSNAME,
 		TiC.PROPERTY_MIN_ROW_HEIGHT,
 		TiC.PROPERTY_MOVABLE,
 		TiC.PROPERTY_MOVING,
-		TiC.PROPERTY_HEADER_DIVIDERS_ENABLED,
-		TiC.PROPERTY_FOOTER_DIVIDERS_ENABLED,
-		TiC.PROPERTY_MAX_CLASSNAME,
+		TiC.PROPERTY_OVER_SCROLL_MODE,
 		TiC.PROPERTY_REFRESH_CONTROL,
 		TiC.PROPERTY_SCROLLABLE,
-		TiC.PROPERTY_SHOW_VERTICAL_SCROLL_INDICATOR
+		TiC.PROPERTY_SEARCH,
+		TiC.PROPERTY_SEPARATOR_COLOR,
+		TiC.PROPERTY_SEPARATOR_STYLE,
+		TiC.PROPERTY_SHOW_VERTICAL_SCROLL_INDICATOR,
+		TiC.PROPERTY_TOUCH_FEEDBACK,
+		TiC.PROPERTY_TOUCH_FEEDBACK_COLOR
 	}
 )
 public class TableViewProxy extends RecyclerViewProxy
@@ -64,6 +66,7 @@ public class TableViewProxy extends RecyclerViewProxy
 
 		defaultValues.put(TiC.PROPERTY_OVER_SCROLL_MODE, 0);
 		defaultValues.put(TiC.PROPERTY_SCROLLABLE, true);
+		defaultValues.put(TiC.PROPERTY_TOUCH_FEEDBACK, true);
 	}
 
 	/**
@@ -222,10 +225,12 @@ public class TableViewProxy extends RecyclerViewProxy
 		final TiTableView tableView = getTableView();
 
 		if (tableView != null) {
-			final TableViewRowProxy item = tableView.getAdapterItem(adapterIndex);
-			final TableViewSectionProxy section = (TableViewSectionProxy) item.getParent();
+			final TableViewRowProxy row = tableView.getAdapterItem(adapterIndex);
+			final TableViewSectionProxy section = (TableViewSectionProxy) row.getParent();
 
-			section.remove(item);
+			row.fireSyncEvent(TiC.EVENT_DELETE, null);
+
+			section.remove(row);
 		}
 	}
 
@@ -314,9 +319,14 @@ public class TableViewProxy extends RecyclerViewProxy
 	@Kroll.method
 	public void deleteSection(int index, @Kroll.argument(optional = true) KrollDict animation)
 	{
-		this.sections.remove(getSectionByIndex(index));
+		final TableViewSectionProxy section = getSectionByIndex(index);
 
-		update();
+		if (section != null) {
+			this.sections.remove(section);
+			section.setParent(null);
+
+			update();
+		}
 	}
 
 	@Override
@@ -331,7 +341,6 @@ public class TableViewProxy extends RecyclerViewProxy
 	 * @return Array of TableViewRow or TableViewSection proxies.
 	 */
 	// clang-format off
-	@Kroll.method
 	@Kroll.getProperty
 	public Object[] getData()
 	// clang-format on
@@ -349,6 +358,10 @@ public class TableViewProxy extends RecyclerViewProxy
 	public void setData(Object[] data)
 	// clang-format on
 	{
+		for (final TableViewSectionProxy section : this.sections) {
+			section.releaseViews();
+			section.setParent(null);
+		}
 		this.sections.clear();
 
 		for (Object d : data) {
@@ -410,11 +423,21 @@ public class TableViewProxy extends RecyclerViewProxy
 	}
 
 	/**
+	 * Obtain section index from section.
+	 *
+	 * @param section Section in table.
+	 * @return Integer of index.
+	 */
+	private int getIndexOfSection(TableViewSectionProxy section)
+	{
+		return this.sections.indexOf(section);
+	}
+
+	/**
 	 * Get current section count.
 	 *
 	 * @return Integer of section count.
 	 */
-	@Kroll.method
 	@Kroll.getProperty
 	public int getSectionCount()
 	{
@@ -426,11 +449,10 @@ public class TableViewProxy extends RecyclerViewProxy
 	 *
 	 * @return Array of TableViewSectionProxy
 	 */
-	@Kroll.method
 	@Kroll.getProperty
 	public TableViewSectionProxy[] getSections()
 	{
-		return this.sections.toArray(new TableViewSectionProxy[this.sections.size()]);
+		return this.sections.toArray(new TableViewSectionProxy[0]);
 	}
 
 	/**
@@ -699,6 +721,25 @@ public class TableViewProxy extends RecyclerViewProxy
 		super.onPropertyChanged(name, value);
 
 		processProperty(name, value);
+	}
+
+	/**
+	 * Sets the activity this proxy's view should be attached to.
+	 * @param activity The activity this proxy's view should be attached to.
+	 */
+	@Override
+	public void setActivity(Activity activity)
+	{
+		super.setActivity(activity);
+
+		if (hasPropertyAndNotNull(TiC.PROPERTY_SEARCH)) {
+			final TiViewProxy search = (TiViewProxy) getProperty(TiC.PROPERTY_SEARCH);
+			search.setActivity(activity);
+		}
+
+		for (TableViewSectionProxy section : this.sections) {
+			section.setActivity(activity);
+		}
 	}
 
 	/**

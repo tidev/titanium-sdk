@@ -22,7 +22,6 @@ import ti.modules.titanium.BufferProxy;
 
 public class TiStreamHelper
 {
-
 	/**
 	 * Common code for handling JS calls for #read() on a Ti.IOStream.
 	 * @param  TAG         logging tag

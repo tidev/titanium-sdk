@@ -48,7 +48,8 @@ public class TableViewSectionProxy extends TiViewProxy
 
 		if (row != null) {
 
-			if (row.getParent() != null) {
+			final TiViewProxy parent = row.getParent();
+			if (parent != null && parent.getParent() != null) {
 
 				// Row already exists, clone.
 				row = row.clone();
@@ -79,7 +80,8 @@ public class TableViewSectionProxy extends TiViewProxy
 
 		if (row != null) {
 
-			if (row.getParent() != null) {
+			final TiViewProxy parent = row.getParent();
+			if (parent != null && parent.getParent() != null) {
 
 				// Row already exists, clone.
 				row = row.clone();
@@ -112,7 +114,6 @@ public class TableViewSectionProxy extends TiViewProxy
 	 *
 	 * @return Integer of row count.
 	 */
-	@Kroll.method
 	@Kroll.getProperty
 	public int getRowCount()
 	{
@@ -155,11 +156,10 @@ public class TableViewSectionProxy extends TiViewProxy
 	 *
 	 * @return TableViewRowProxy array.
 	 */
-	@Kroll.method
 	@Kroll.getProperty
 	public TableViewRowProxy[] getRows()
 	{
-		return this.rows.toArray(new TableViewRowProxy[this.rows.size()]);
+		return this.rows.toArray(new TableViewRowProxy[0]);
 	}
 
 	/**
@@ -281,6 +281,20 @@ public class TableViewSectionProxy extends TiViewProxy
 			existingRow.setParent(null);
 			row.setParent(this);
 			this.rows.set(index, row);
+		}
+	}
+
+	/**
+	 * Sets the activity this proxy's view should be attached to.
+	 * @param activity The activity this proxy's view should be attached to.
+	 */
+	@Override
+	public void setActivity(Activity activity)
+	{
+		super.setActivity(activity);
+
+		for (TableViewRowProxy row : this.rows) {
+			row.setActivity(activity);
 		}
 	}
 

@@ -162,7 +162,10 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 				@Override
 				public Object getKey(int position)
 				{
-					return rows.get(position);
+					if (position > -1 && position < rows.size()) {
+						return rows.get(position);
+					}
+					return null;
 				}
 
 				@Override
@@ -192,7 +195,12 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 							@Override
 							public Object getSelectionKey()
 							{
-								return rows.get(getPosition());
+								final int position = getPosition();
+
+								if (position > -1 && position < rows.size()) {
+									return rows.get(position);
+								}
+								return null;
 							}
 						};
 					}
@@ -430,6 +438,7 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 		final boolean filterAnchored = properties.optBoolean(TiC.PROPERTY_FILTER_ANCHORED, false);
 		final String filterAttribute = properties.optString(TiC.PROPERTY_FILTER_ATTRIBUTE, TiC.PROPERTY_TITLE);
 		int filterResultsCount = 0;
+		int index = 0;
 
 		String query = this.filterQuery;
 		if (query != null && caseInsensitive) {
@@ -456,6 +465,7 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 		// Iterate through data, processing each supported entry.
 		for (final Object entry : this.proxy.getData()) {
 
+			int filteredIndex = 0;
 			if (entry instanceof TableViewSectionProxy) {
 				final TableViewSectionProxy section = (TableViewSectionProxy) entry;
 				final TableViewRowProxy[] rows = section.getRows();
@@ -468,10 +478,11 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 					this.rows.add(row);
 				}
 
-				int index = 0;
-				int filteredIndex = 0;
 				for (int i = 0; i < rows.length; i++) {
 					final TableViewRowProxy row = rows[i];
+
+					// Maintain true row index.
+					row.index = index++;
 
 					// Handle search query.
 					if (query != null) {
@@ -492,7 +503,6 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 					// Update filtered index of row.
 					row.setFilteredIndex(query != null ? filteredIndex++ : -1);
 
-					row.index = index++;
 					this.rows.add(row);
 				}
 				filterResultsCount += filteredIndex;

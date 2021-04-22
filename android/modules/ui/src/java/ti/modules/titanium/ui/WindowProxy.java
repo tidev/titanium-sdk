@@ -217,7 +217,7 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 	@Override
 	public void windowCreated(TiBaseActivity activity, Bundle savedInstanceState)
 	{
-		windowActivity = new WeakReference<TiBaseActivity>(activity);
+		windowActivity = new WeakReference<>(activity);
 		activity.setWindowProxy(this);
 		setActivity(activity);
 
@@ -411,7 +411,6 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 		super.onPropertyChanged(name, value);
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setSustainedPerformanceMode(boolean mode)
 	{
@@ -422,7 +421,6 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 		}
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public boolean getSustainedPerformanceMode()
 	{
@@ -431,7 +429,6 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 
 	@Override
 	@Kroll.setProperty(retain = false)
-	@Kroll.method
 	public void setWidth(Object width)
 	{
 		if (opening || opened) {
@@ -446,7 +443,6 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 
 	@Override
 	@Kroll.setProperty(retain = false)
-	@Kroll.method
 	public void setHeight(Object height)
 	{
 		if (opening || opened) {

@@ -35,47 +35,40 @@ public class AudioRecorderProxy extends KrollProxy
 		};
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setCompression(int value)
 	{
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setFormat(int value)
 	{
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public int getFormat()
 	{
 		return 0;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public int getCompression()
 	{
 		return 0;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public boolean getPaused()
 	{
 		return tiAudioRecorder.isPaused();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public boolean getRecording()
 	{
 		return tiAudioRecorder.isRecording();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public boolean getStopped()
 	{

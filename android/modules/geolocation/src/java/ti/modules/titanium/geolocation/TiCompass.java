@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2021 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -10,6 +10,8 @@ import java.util.Calendar;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollFunction;
+import org.appcelerator.kroll.KrollObject;
+import org.appcelerator.kroll.KrollPromise;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.util.TiConvert;
@@ -24,6 +26,8 @@ import android.location.Criteria;
 import android.location.Location;
 import android.os.SystemClock;
 
+import androidx.annotation.Nullable;
+
 @SuppressWarnings("deprecation")
 public class TiCompass implements SensorEventListener
 {
@@ -33,12 +37,12 @@ public class TiCompass implements SensorEventListener
 
 	private GeolocationModule geolocationModule;
 	private TiLocation tiLocation;
-	private Calendar baseTime = Calendar.getInstance();
-	private long sensorTimerStart = SystemClock.uptimeMillis();
+	private final Calendar baseTime = Calendar.getInstance();
+	private final long sensorTimerStart = SystemClock.uptimeMillis();
 	private long lastEventInUpdate;
 	private float lastHeading = 0.0f;
 	private GeomagneticField geomagneticField;
-	private Criteria locationCriteria = new Criteria();
+	private final Criteria locationCriteria = new Criteria();
 	private Location geomagneticFieldLocation;
 	private long lastDeclinationCheck;
 
@@ -89,7 +93,7 @@ public class TiCompass implements SensorEventListener
 		}
 	}
 
-	private Object eventToHashMap(SensorEvent event, long timestamp)
+	private KrollDict eventToHashMap(SensorEvent event, long timestamp)
 	{
 		float x = event.values[0];
 		float y = event.values[1];
@@ -137,11 +141,11 @@ public class TiCompass implements SensorEventListener
 		return data;
 	}
 
-	/*
-     * Check whether a fresher location is available and update the GeomagneticField 
-     * that we use for correcting the magnetic heading. If the location is stale,
-     * use it anyway but log a warning.
-     */
+	/**
+	 * Check whether a fresher location is available and update the GeomagneticField
+	 * that we use for correcting the magnetic heading. If the location is stale,
+	 * use it anyway but log a warning.
+	 */
 	private void updateDeclination()
 	{
 		long currentTime = System.currentTimeMillis();
@@ -182,9 +186,10 @@ public class TiCompass implements SensorEventListener
 		return compass;
 	}
 
-	public void getCurrentHeading(final KrollFunction listener)
+	public KrollPromise<KrollDict> getCurrentHeading(@Nullable final KrollFunction listener)
 	{
-		if (listener != null) {
+		final KrollObject callbackThisObject = geolocationModule.getKrollObject();
+		return KrollPromise.create((promise) -> {
 			final SensorEventListener oneShotHeadingListener = new SensorEventListener() {
 				public void onAccuracyChanged(Sensor sensor, int accuracy)
 				{
@@ -196,8 +201,11 @@ public class TiCompass implements SensorEventListener
 						long eventTimestamp = event.timestamp / 1000000;
 						long actualTimestamp = baseTime.getTimeInMillis() + (eventTimestamp - sensorTimerStart);
 
-						listener.callAsync(geolocationModule.getKrollObject(),
-										   new Object[] { eventToHashMap(event, actualTimestamp) });
+						KrollDict result = eventToHashMap(event, actualTimestamp);
+						if (listener != null) {
+							listener.callAsync(callbackThisObject, new Object[] { result });
+						}
+						promise.resolve(result);
 						TiSensorHelper.unregisterListener(Sensor.TYPE_ORIENTATION, this);
 					}
 				}
@@ -206,6 +214,6 @@ public class TiCompass implements SensorEventListener
 			updateDeclination();
 			TiSensorHelper.registerListener(Sensor.TYPE_ORIENTATION, oneShotHeadingListener,
 											SensorManager.SENSOR_DELAY_UI);
-		}
+		});
 	}
 }

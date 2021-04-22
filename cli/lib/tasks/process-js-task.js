@@ -27,7 +27,7 @@ class ProcessJsTask extends IncrementalFileTask {
 	 * @param {String[]} options.incrementalDirectory Path to a folder where incremental task data will be stored.
 	 * @param {Object} options.logger The logger instance used by this task.
 	 * @param {Object} options.builder iOS builder instance.
-	 * @param {String[]} options.jsFiles Array with info about JS files to resolve paths.
+	 * @param {object} options.jsFiles Object with keys of filenames and values are info about JS files to resolve paths.
 	 * @param {String[]} options.jsBootstrapFiles Array of bootstrap scripts to consider. The task will directly modify this array.
 	 * @param {String} options.sdkCommonFolder Path to common JS files from the SDK.
 	 * @param {Object} options.defaultAnalyzeOptions Default configuration options for jsanalyze.
@@ -103,6 +103,20 @@ class ProcessJsTask extends IncrementalFileTask {
 		this.resetTaskData();
 
 		this.createHooks();
+	}
+
+	/**
+	 * List of files that this task generates
+	 *
+	 * Each path will passed to {@link #ChangeManager#monitorOutputPath|ChangeManager.monitorOutputPath}
+	 * to determine if the output files of a task have changed.
+	 *
+	 * @return {Array.<String>}
+	 */
+	get incrementalOutputs() {
+		const outputFiles = [];
+		Object.values(this.jsFiles).forEach(info => outputFiles.push(info.dest));
+		return outputFiles;
 	}
 
 	/**
@@ -251,7 +265,7 @@ class ProcessJsTask extends IncrementalFileTask {
 		const info = this.jsFiles[file];
 		if (this.builder.encryptJS) {
 			if (this.platform === 'ios') {
-				if (file.indexOf('/') === 0) {
+				if (file.indexOf(path.sep) === 0) {
 					file = path.basename(file);
 				}
 				this.builder.jsFilesEncrypted.push(file); // original name

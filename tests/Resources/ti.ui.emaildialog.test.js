@@ -51,11 +51,11 @@ describe('Titanium.UI.EmailDialog', () => {
 			should(email.subject).eql('other text');
 		});
 
-		it('has accessors', () => {
+		it('has no accessors', () => {
 			const email = Ti.UI.createEmailDialog({
 				subject: 'this is some text'
 			});
-			should(email).have.accessors('subject');
+			should(email).not.have.accessors('subject');
 		});
 	});
 
@@ -70,11 +70,11 @@ describe('Titanium.UI.EmailDialog', () => {
 			should(email.messageBody).eql('other text');
 		});
 
-		it('has accessors', () => {
+		it('has no accessors', () => {
 			const email = Ti.UI.createEmailDialog({
 				messageBody: 'this is some text'
 			});
-			should(email).have.accessors('messageBody');
+			should(email).not.have.accessors('messageBody');
 		});
 	});
 
@@ -89,11 +89,11 @@ describe('Titanium.UI.EmailDialog', () => {
 			should(email.toRecipients).eql([ 'other@example.com' ]);
 		});
 
-		it('has accessors', () => {
+		it('has no accessors', () => {
 			const email = Ti.UI.createEmailDialog({
 				toRecipients: [ 'me@example.com' ]
 			});
-			should(email).have.accessors('toRecipients');
+			should(email).not.have.accessors('toRecipients');
 		});
 	});
 
@@ -108,11 +108,11 @@ describe('Titanium.UI.EmailDialog', () => {
 			should(email.ccRecipients).eql([ 'other@example.com' ]);
 		});
 
-		it('has accessors', () => {
+		it('has no accessors', () => {
 			const email = Ti.UI.createEmailDialog({
 				ccRecipients: [ 'me@example.com' ]
 			});
-			should(email).have.accessors('ccRecipients');
+			should(email).not.have.accessors('ccRecipients');
 		});
 	});
 
@@ -127,11 +127,11 @@ describe('Titanium.UI.EmailDialog', () => {
 			should(email.bccRecipients).eql([ 'other@example.com' ]);
 		});
 
-		it('has accessors', () => {
+		it('has no accessors', () => {
 			const email = Ti.UI.createEmailDialog({
 				bccRecipients: [ 'me@example.com' ]
 			});
-			should(email).have.accessors('bccRecipients');
+			should(email).not.have.accessors('bccRecipients');
 		});
 	});
 

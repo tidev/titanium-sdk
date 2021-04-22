@@ -61,7 +61,7 @@ public abstract class TiWindowProxy extends TiViewProxy
 	protected static final int MSG_LAST_ID = MSG_FIRST_ID + 999;
 
 	private static WeakReference<TiWindowProxy> waitingForOpen;
-	private TiWeakList<KrollProxy> proxiesWaitingForActivity = new TiWeakList<KrollProxy>();
+	private final TiWeakList<KrollProxy> proxiesWaitingForActivity = new TiWeakList<>();
 
 	protected boolean opened, opening;
 	protected boolean isFocused;
@@ -82,15 +82,16 @@ public abstract class TiWindowProxy extends TiViewProxy
 
 	public static TiWindowProxy getWaitingForOpen()
 	{
-		if (waitingForOpen == null)
+		if (waitingForOpen == null) {
 			return null;
+		}
 		return waitingForOpen.get();
 	}
 
 	public TiWindowProxy()
 	{
 		inTab = false;
-		sharedElementPairs = new ArrayList<Pair<View, String>>();
+		sharedElementPairs = new ArrayList<>();
 	}
 
 	@Override
@@ -109,7 +110,7 @@ public abstract class TiWindowProxy extends TiViewProxy
 			});
 		}
 		opening = true;
-		waitingForOpen = new WeakReference<TiWindowProxy>(this);
+		waitingForOpen = new WeakReference<>(this);
 
 		openPromise = KrollPromise.create((promise) -> {
 			KrollDict options = null;
@@ -214,7 +215,7 @@ public abstract class TiWindowProxy extends TiViewProxy
 
 	public void addProxyWaitingForActivity(KrollProxy waitingProxy)
 	{
-		proxiesWaitingForActivity.add(new WeakReference<KrollProxy>(waitingProxy));
+		proxiesWaitingForActivity.add(new WeakReference<>(waitingProxy));
 	}
 
 	protected void releaseViewsForActivityForcedToDestroy()
@@ -222,29 +223,24 @@ public abstract class TiWindowProxy extends TiViewProxy
 		releaseViews();
 	}
 
-	@Kroll.method(name = "setTab")
 	@Kroll.setProperty(name = "tab")
 	public void setTabProxy(TiViewProxy tabProxy)
 	{
 		setParent(tabProxy);
 		this.tab = tabProxy;
 	}
-
-	@Kroll.method(name = "getTab")
 	@Kroll.getProperty(name = "tab")
 	public TiViewProxy getTabProxy()
 	{
 		return this.tab;
 	}
 
-	@Kroll.method(name = "setTabGroup")
 	@Kroll.setProperty(name = "tabGroup")
 	public void setTabGroupProxy(TiViewProxy tabGroupProxy)
 	{
 		this.tabGroup = tabGroupProxy;
 	}
 
-	@Kroll.method(name = "getTabGroup")
 	@Kroll.getProperty(name = "tabGroup")
 	public TiViewProxy getTabGroupProxy()
 	{
@@ -306,14 +302,12 @@ public abstract class TiWindowProxy extends TiViewProxy
 		TiUIHelper.firePostLayoutEvent(this);
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setLeftNavButton(Object button)
 	{
 		Log.w(TAG, "setLeftNavButton not supported in Android");
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setOrientationModes(int[] modes)
 	{
@@ -392,7 +386,6 @@ public abstract class TiWindowProxy extends TiViewProxy
 		}
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public int[] getOrientationModes()
 	{
@@ -417,7 +410,6 @@ public abstract class TiWindowProxy extends TiViewProxy
 		}
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public KrollDict getSafeAreaPadding()
 	{
@@ -507,11 +499,8 @@ public abstract class TiWindowProxy extends TiViewProxy
 	protected void handlePostOpen()
 	{
 		if (postOpenListener != null) {
-			getMainHandler().post(new Runnable() {
-				public void run()
-				{
-					postOpenListener.onPostOpen(TiWindowProxy.this);
-				}
+			getMainHandler().post(() -> {
+				postOpenListener.onPostOpen(TiWindowProxy.this);
 			});
 		}
 
@@ -593,7 +582,6 @@ public abstract class TiWindowProxy extends TiViewProxy
 		}
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public int getOrientation()
 	{
@@ -615,7 +603,7 @@ public abstract class TiWindowProxy extends TiViewProxy
 	{
 		TiUIView v = view.peekView();
 		if (v != null) {
-			Pair<View, String> p = new Pair<View, String>(v.getNativeView(), transitionName);
+			Pair<View, String> p = new Pair<>(v.getNativeView(), transitionName);
 			sharedElementPairs.add(p);
 		}
 	}
@@ -626,7 +614,6 @@ public abstract class TiWindowProxy extends TiViewProxy
 		sharedElementPairs.clear();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public TiWindowProxy getNavigationWindow()
 	{
@@ -653,7 +640,7 @@ public abstract class TiWindowProxy extends TiViewProxy
 		if (hasActivityTransitions() && !(activity instanceof TiLaunchActivity)) {
 			if (!sharedElementPairs.isEmpty()) {
 				options = ActivityOptionsCompat.makeSceneTransitionAnimation(
-					activity, sharedElementPairs.toArray(new Pair[sharedElementPairs.size()]));
+					activity, sharedElementPairs.toArray(new Pair[0]));
 			} else {
 				options = ActivityOptionsCompat.makeSceneTransitionAnimation(activity);
 			}

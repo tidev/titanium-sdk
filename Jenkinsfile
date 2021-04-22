@@ -3,26 +3,11 @@ library 'pipeline-library'
 
 // Some branch flags to alter behavior
 def isPR = env.CHANGE_ID || false // CHANGE_ID is set if this is a PR. (We used to look whether branch name started with PR-, which would not be true for a branch from origin filed as PR)
-def MAINLINE_BRANCH_REGEXP = /master|next|\d_\d_(X|\d)/ // a branch is considered mainline if 'master' or like: 6_2_X, 7_0_X, 6_2_1
+def MAINLINE_BRANCH_REGEXP = /master|next|\d+_\d_(X|\d)/ // a branch is considered mainline if 'master' or like: 6_2_X, 7_0_X, 6_2_1
 def isMainlineBranch = (env.BRANCH_NAME ==~ MAINLINE_BRANCH_REGEXP)
 
 // Keep logs/reports/etc of last 30 builds, only keep build artifacts of last 3 builds
-def buildProperties = [buildDiscarder(logRotator(numToKeepStr: '30', artifactNumToKeepStr: '3'))]
-// For mainline branches, notify Teams channel of failures/success/not built/etc
-if (isMainlineBranch) {
-	withCredentials([string(credentialsId: 'titanium_mobile_ms_teams_webhook', variable: 'WEBHOOK_URL')]) {
-	    buildProperties << office365ConnectorWebhooks([[
-			notifyBackToNormal: true,
-			notifyFailure: true,
-			notifyNotBuilt: true,
-			notifyUnstable: true,
-			notifySuccess: true,
-			notifyRepeatedFailure: true,
-			url: "${WEBHOOK_URL}"
-		]])
-	}
-}
-properties(buildProperties)
+properties([buildDiscarder(logRotator(numToKeepStr: '30', artifactNumToKeepStr: '3'))])
 
 // These values could be changed manually on PRs/branches, but be careful we don't merge the changes in. We want this to be the default behavior for now!
 // target branch of test suite to test with
@@ -33,7 +18,7 @@ def testOnAndroidDevices = false // testOnDevices // FIXME: Our android device i
 def testOnIOSDevices = testOnDevices
 
 // Variables we can change
-def nodeVersion = '10.17.0' // NOTE that changing this requires we set up the desired version on jenkins master first!
+def nodeVersion = '12.18.0' // NOTE that changing this requires we set up the desired version on jenkins master first!
 def npmVersion = 'latest' // We can change this without any changes to Jenkins. 5.7.1 is minimum to use 'npm ci'
 
 // Variables which we assign and share between nodes

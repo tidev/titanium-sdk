@@ -8,6 +8,7 @@
 /* eslint-env mocha */
 /* eslint no-unused-expressions: "off" */
 /* eslint mocha/no-identical-title: "off" */
+/* eslint promise/no-callback-in-promise: "off" */
 'use strict';
 const should = require('./utilities/assertions');
 const utilities = require('./utilities/utilities');
@@ -115,8 +116,8 @@ describe('Titanium.UI.Window', function () {
 				should(win.hidesBackButton).be.false();
 			});
 
-			it('has accessors', () => {
-				should(win).have.accessors('hidesBackButton');
+			it('has no accessors', () => {
+				should(win).not.have.accessors('hidesBackButton');
 			});
 
 			// TODO: Add snapshot test
@@ -142,8 +143,8 @@ describe('Titanium.UI.Window', function () {
 				should(win.homeIndicatorAutoHidden).be.true();
 			});
 
-			it('has accessors', () => {
-				should(win).have.accessors('homeIndicatorAutoHidden');
+			it('has no accessors', () => {
+				should(win).not.have.accessors('homeIndicatorAutoHidden');
 			});
 		});
 
@@ -168,8 +169,8 @@ describe('Titanium.UI.Window', function () {
 				should(win.largeTitleEnabled).be.false();
 			});
 
-			it('has accessors', () => {
-				should(win).have.accessors('largeTitleEnabled');
+			it('has no accessors', () => {
+				should(win).not.have.accessors('largeTitleEnabled');
 			});
 		});
 
@@ -194,8 +195,8 @@ describe('Titanium.UI.Window', function () {
 				should(win.largeTitleDisplayMode).eql(Ti.UI.iOS.LARGE_TITLE_DISPLAY_MODE_AUTOMATIC);
 			});
 
-			it('has accessors', () => {
-				should(win).have.accessors('largeTitleDisplayMode');
+			it('has no accessors', () => {
+				should(win).not.have.accessors('largeTitleDisplayMode');
 			});
 		});
 
@@ -542,8 +543,8 @@ describe('Titanium.UI.Window', function () {
 				should(win.title).eql('other text');
 			});
 
-			it('has accessors', () => {
-				should(win).have.accessors('title');
+			it('has no accessors', () => {
+				should(win).not.have.accessors('title');
 			});
 		});
 
@@ -572,8 +573,8 @@ describe('Titanium.UI.Window', function () {
 				should(win.title).eql('this is my value'); // FIXME Windows: https://jira.appcelerator.org/browse/TIMOB-23498
 			});
 
-			it('has accessors', () => {
-				should(win).have.accessors('titleid');
+			it('has no accessors', () => {
+				should(win).not.have.accessors('titleid');
 			});
 		});
 
@@ -696,7 +697,8 @@ describe('Titanium.UI.Window', function () {
 				openPromise.then(() => {
 					const result = win.close();
 					result.should.be.a.Promise();
-					result.then(() => finish()).catch(e => finish(e));
+					// eslint-disable-next-line promise/no-nesting
+					return result.then(() => finish()).catch(e => finish(e));
 				}).catch(e => finish(e));
 			});
 
@@ -716,8 +718,10 @@ describe('Titanium.UI.Window', function () {
 				});
 
 				win.open().then(() => {
-					win.close().then(() => {
-						win.close().then(() => finish(new Error('Expected second #close() call on Window to be rejected'))).catch(e => finish());
+					// eslint-disable-next-line promise/no-nesting
+					return win.close().then(() => {
+						// eslint-disable-next-line promise/no-nesting
+						return win.close().then(() => finish(new Error('Expected second #close() call on Window to be rejected'))).catch(() => finish());
 					}).catch(e => finish(e));
 				}).catch(e => finish(e));
 			});
@@ -752,7 +756,8 @@ describe('Titanium.UI.Window', function () {
 				first.then(() => {
 					const second = win.open();
 					second.should.be.a.Promise();
-					second.then(() => finish(new Error('Expected second #open() to be rejected'))).catch(_e => finish());
+					// eslint-disable-next-line promise/no-nesting
+					return second.then(() => finish(new Error('Expected second #open() to be rejected'))).catch(() => finish());
 				}).catch(e => finish(e));
 			});
 		});

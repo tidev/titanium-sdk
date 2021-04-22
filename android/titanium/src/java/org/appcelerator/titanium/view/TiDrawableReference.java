@@ -20,6 +20,7 @@ import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBlob;
+import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.TiFileProxy;
 import org.appcelerator.titanium.io.TiBaseFile;
@@ -88,7 +89,7 @@ public class TiDrawableReference
 	public TiDrawableReference(Activity activity, DrawableReferenceType type)
 	{
 		this.type = type;
-		softActivity = new SoftReference<Activity>(activity);
+		softActivity = new SoftReference<>(activity);
 		ApplicationInfo appInfo;
 
 		if (activity != null) {
@@ -139,7 +140,6 @@ public class TiDrawableReference
 	 * @param activity the referenced activity.
 	 * @param blob the referenced blob.
 	 * @return A ready instance of TiDrawableReference.
-	 * @module.api
 	 */
 	public static TiDrawableReference fromBlob(Activity activity, TiBlob blob)
 	{
@@ -153,14 +153,20 @@ public class TiDrawableReference
 	 * @param proxy the activity proxy.
 	 * @param url the url to resolve.
 	 * @return A ready instance of TiDrawableReference.
-	 * @module.api
 	 */
 	public static TiDrawableReference fromUrl(KrollProxy proxy, String url)
 	{
-		if (url == null || url.length() == 0 || url.trim().length() == 0) {
-			return new TiDrawableReference(proxy.getActivity(), DrawableReferenceType.NULL);
+		Activity activity = TiApplication.getAppCurrentActivity();
+		// Attempt to fetch an activity from the given proxy.
+		if (proxy != null) {
+			activity = proxy.getActivity();
 		}
-		return fromUrl(proxy.getActivity(), proxy.resolveUrl(null, url));
+
+		if (url == null || url.length() == 0 || url.trim().length() == 0) {
+			return new TiDrawableReference(activity, DrawableReferenceType.NULL);
+		}
+
+		return fromUrl(activity, TiUrl.resolve(TiC.URL_APP_PREFIX, url, null));
 	}
 
 	/**
@@ -168,7 +174,6 @@ public class TiDrawableReference
 	 * @param activity the referenced activity.
 	 * @param url the resource's url.
 	 * @return A ready instance of TiDrawableReference.
-	 * @module.api
 	 */
 	public static TiDrawableReference fromUrl(Activity activity, String url)
 	{
@@ -220,7 +225,6 @@ public class TiDrawableReference
 	 * @param proxy Used to acquire an activty and resolve relative paths if given object is a string path.
 	 * @param object Reference to the image to be loaded such as a file, path, blob, etc.
 	 * @return Returns an instance of TiDrawableReference wrapping the given object.
-	 * @module.api
 	 */
 	public static TiDrawableReference fromObject(KrollProxy proxy, Object object)
 	{
@@ -246,7 +250,6 @@ public class TiDrawableReference
 	 * @param activity the referenced activity.
 	 * @param object the referenced object.
 	 * @return A ready instance of TiDrawableReference.
-	 * @module.api
 	 */
 	public static TiDrawableReference fromObject(Activity activity, Object object)
 	{
@@ -305,7 +308,6 @@ public class TiDrawableReference
 	/**
 	 * Gets the bitmap from the resource without respect to sampling/scaling.
 	 * @return Bitmap, or null if errors occurred while trying to load or fetch it.
-	 * @module.api
 	 */
 	public Bitmap getBitmap()
 	{
@@ -321,7 +323,6 @@ public class TiDrawableReference
 	 * the thread if it needs to retry several times.
 	 * @param needRetry If true, it will retry loading when decode fails.
 	 * @return Bitmap, or null if errors occurred while trying to load or fetch it.
-	 * @module.api
 	 */
 	public Bitmap getBitmap(boolean needRetry)
 	{

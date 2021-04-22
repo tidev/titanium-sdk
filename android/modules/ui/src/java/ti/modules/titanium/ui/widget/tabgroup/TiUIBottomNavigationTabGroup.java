@@ -18,11 +18,15 @@ import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 
 import android.annotation.SuppressLint;
+import android.content.res.ColorStateList;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.RippleDrawable;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewParent;
+import androidx.annotation.ColorInt;
+import androidx.core.graphics.ColorUtils;
 
 import com.google.android.material.badge.BadgeDrawable;
 import com.google.android.material.bottomnavigation.BottomNavigationItemView;
@@ -44,7 +48,7 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 	// We track the previously selected item index manually to mimic the behavior in order to keep parity across styles.
 	private int currentlySelectedIndex = -1;
 	private BottomNavigationView mBottomNavigationView;
-	private ArrayList<MenuItem> mMenuItemsArray = new ArrayList<>();
+	private final ArrayList<MenuItem> mMenuItemsArray = new ArrayList<>();
 	// endregion
 
 	public TiUIBottomNavigationTabGroup(TabGroupProxy proxy, TiBaseActivity activity)
@@ -100,6 +104,8 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 			}
 		};
 		this.mBottomNavigationView.setFitsSystemWindows(true);
+		this.mBottomNavigationView.setItemRippleColor(
+			TiUIAbstractTabGroup.createRippleColorStateListFrom(getColorPrimary()));
 
 		// Add tab bar and view pager to the root Titanium view.
 		// Note: If getFitsSystemWindows() returns false, then Titanium window's "extendSafeArea" is set true.
@@ -252,12 +258,15 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 	public void updateTabBackgroundDrawable(int index)
 	{
 		try {
-			BottomNavigationMenuView bottomMenuView =
-				((BottomNavigationMenuView) this.mBottomNavigationView.getChildAt(0));
 			// BottomNavigationMenuView rebuilds itself after adding a new item, so we need to reset the colors each time.
 			TiViewProxy tabProxy = tabs.get(index).getProxy();
-			Drawable backgroundDrawable = createBackgroundDrawableForState(tabProxy, android.R.attr.state_checked);
-			bottomMenuView.getChildAt(index).setBackground(backgroundDrawable);
+			if (hasCustomBackground(tabProxy) || hasCustomIconTint(tabProxy)) {
+				BottomNavigationMenuView bottomMenuView =
+					((BottomNavigationMenuView) this.mBottomNavigationView.getChildAt(0));
+				Drawable drawable = createBackgroundDrawableForState(tabProxy, android.R.attr.state_checked);
+				drawable = new RippleDrawable(createRippleColorStateListFrom(getActiveColor(tabProxy)), drawable, null);
+				bottomMenuView.getChildAt(index).setBackground(drawable);
+			}
 		} catch (Exception e) {
 			Log.w(TAG, WARNING_LAYOUT_MESSAGE);
 		}
@@ -331,13 +340,15 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 	public void updateTabTitleColor(int index)
 	{
 		try {
-			BottomNavigationMenuView bottomMenuView =
-				((BottomNavigationMenuView) this.mBottomNavigationView.getChildAt(0));
 			// BottomNavigationMenuView rebuilds itself after adding a new item, so we need to reset the colors each time.
 			TiViewProxy tabProxy = tabs.get(index).getProxy();
-			// Set the TextView textColor.
-			((BottomNavigationItemView) bottomMenuView.getChildAt(index))
-				.setTextColor(textColorStateList(tabProxy, android.R.attr.state_checked));
+			if (hasCustomTextColor(tabProxy)) {
+				// Set the TextView textColor.
+				BottomNavigationMenuView bottomMenuView =
+					((BottomNavigationMenuView) this.mBottomNavigationView.getChildAt(0));
+				((BottomNavigationItemView) bottomMenuView.getChildAt(index))
+					.setTextColor(textColorStateList(tabProxy, android.R.attr.state_checked));
+			}
 		} catch (Exception e) {
 			Log.w(TAG, WARNING_LAYOUT_MESSAGE);
 		}
@@ -372,8 +383,8 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 	/**
 	 * After a menu item is clicked this method sends the proper index to the ViewPager to a select
 	 * a page. Also takes care of sending SELECTED/UNSELECTED events from the proper tabs.
-	 * @param item
-	 * @return
+	 * @param item The menu item that was clicked on.
+	 * @return Returns true if overridden and to prevent tab selection. Returns false to allow tab selection.
 	 */
 	@Override
 	public boolean onMenuItemClick(MenuItem item)
@@ -405,9 +416,8 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 	private void updateIconTint()
 	{
 		for (int i = 0; i < this.tabs.size(); i++) {
-			final TiUITab tab = this.tabs.get(i);
-			if (tab.getProxy() != null) {
-				final TiViewProxy tabProxy = tab.getProxy();
+			final TiViewProxy tabProxy = this.tabs.get(i).getProxy();
+			if (hasCustomIconTint(tabProxy)) {
 				final boolean selected = i == currentlySelectedIndex;
 				Drawable drawable = this.mBottomNavigationView.getMenu().getItem(i).getIcon();
 				drawable = updateIconTint(tabProxy, drawable, selected);
@@ -423,5 +433,40 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 
 		updateIconTint();
 		updateTabBackgroundDrawable(tabIndex);
+	}
+
+	public static ColorStateList createRippleColorStateListFrom(@ColorInt int colorInt)
+	{
+		int[][] rippleStates = new int[][] {
+			// Selected tab states.
+			new int[] { android.R.attr.state_selected, android.R.attr.state_pressed },
+			new int[] { android.R.attr.state_selected, android.R.attr.state_focused, android.R.attr.state_hovered },
+			new int[] { android.R.attr.state_selected, android.R.attr.state_focused },
+			new int[] { android.R.attr.state_selected, android.R.attr.state_hovered },
+			new int[] { android.R.attr.state_selected },
+
+			// Unselected tab states.
+			new int[] { android.R.attr.state_pressed },
+			new int[] { android.R.attr.state_focused, android.R.attr.state_hovered },
+			new int[] { android.R.attr.state_focused },
+			new int[] { android.R.attr.state_hovered },
+			new int[] {}
+		};
+		int[] rippleColors = new int[] {
+			// The "selected" tab tap colors.
+			ColorUtils.setAlphaComponent(colorInt, 128),
+			ColorUtils.setAlphaComponent(colorInt, 128),
+			ColorUtils.setAlphaComponent(colorInt, 128),
+			ColorUtils.setAlphaComponent(colorInt, 48),
+			ColorUtils.setAlphaComponent(colorInt, 48),
+
+			// The "unselected" tab tap color.
+			ColorUtils.setAlphaComponent(colorInt, 128),
+			ColorUtils.setAlphaComponent(colorInt, 128),
+			ColorUtils.setAlphaComponent(colorInt, 128),
+			ColorUtils.setAlphaComponent(colorInt, 48),
+			ColorUtils.setAlphaComponent(colorInt, 48)
+		};
+		return new ColorStateList(rippleStates, rippleColors);
 	}
 }

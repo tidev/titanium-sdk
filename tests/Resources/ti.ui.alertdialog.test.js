@@ -27,11 +27,11 @@ describe('Titanium.UI.AlertDialog', () => {
 			should(bar.title).eql('other text');
 		});
 
-		it('has accessors', () => {
+		it('has no accessors', () => {
 			const bar = Ti.UI.createAlertDialog({
 				title: 'this is some text'
 			});
-			should(bar).have.accessors('title');
+			should(bar).not.have.accessors('title');
 		});
 	});
 
@@ -49,11 +49,11 @@ describe('Titanium.UI.AlertDialog', () => {
 			should(bar.title).eql('this is my value'); // retains old value if key not found: https://jira.appcelerator.org/browse/TIMOB-23498
 		});
 
-		it('has accessors', () => {
+		it('has no accessors', () => {
 			const bar = Ti.UI.createAlertDialog({
 				title: 'this is some text'
 			});
-			should(bar).have.accessors('titleid');
+			should(bar).not.have.accessors('titleid');
 		});
 	});
 
@@ -68,11 +68,11 @@ describe('Titanium.UI.AlertDialog', () => {
 			should(bar.message).eql('other text');
 		});
 
-		it('has accessors', () => {
+		it('has no accessors', () => {
 			const bar = Ti.UI.createAlertDialog({
 				message: 'this is some text'
 			});
-			should(bar).have.accessors('message');
+			should(bar).not.have.accessors('message');
 		});
 	});
 
@@ -87,9 +87,9 @@ describe('Titanium.UI.AlertDialog', () => {
 			should(bar.buttonNames.length).eql(2);
 		});
 
-		it('has accessors', () => {
+		it('has no accessors', () => {
 			const bar = Ti.UI.createAlertDialog({});
-			should(bar).have.accessors('buttonNames');
+			should(bar).not.have.accessors('buttonNames');
 		});
 	});
 
@@ -103,9 +103,9 @@ describe('Titanium.UI.AlertDialog', () => {
 			should(bar.cancel).eql(1);
 		});
 
-		it('has accessors', () => {
+		it('has no accessors', () => {
 			const bar = Ti.UI.createAlertDialog({});
-			should(bar).have.accessors('cancel');
+			should(bar).not.have.accessors('cancel');
 		});
 	});
 
@@ -123,11 +123,11 @@ describe('Titanium.UI.AlertDialog', () => {
 			should(bar.tintColor).eql('#f00');
 		});
 
-		it('has accessors', () => {
+		it('has no accessors', () => {
 			const bar = Ti.UI.createAlertDialog({
 				tintColor: 'red'
 			});
-			should(bar).have.accessors('tintColor');
+			should(bar).not.have.accessors('tintColor');
 		});
 	});
 });

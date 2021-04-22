@@ -417,24 +417,15 @@
 
 - (NSNumber *)homeIndicatorAutoHidden
 {
-  if (![TiUtils isIOSVersionOrGreater:@"11.0"] && ![TiUtils isMacOS]) {
-    NSLog(@"[ERROR] This property is available on iOS 11 and above, or macOS.");
-    return @(NO);
-  }
   return @([self homeIndicatorAutoHide]);
 }
 
 - (void)setHomeIndicatorAutoHidden:(id)arg
 {
-  if (![TiUtils isIOSVersionOrGreater:@"11.0"] && ![TiUtils isMacOS]) {
-    NSLog(@"[ERROR] This property is available on iOS 11 and above, or macOS.");
-    return;
-  }
-
   ENSURE_TYPE(arg, NSNumber);
   id current = [self valueForUndefinedKey:@"homeIndicatorAutoHidden"];
   [self replaceValue:arg forKey:@"homeIndicatorAutoHidden" notification:NO];
-  if (current != arg && ([TiUtils isIOSVersionOrGreater:@"11.0"] || [TiUtils isMacOS])) {
+  if (current != arg) {
     [[[TiApp app] controller] setNeedsUpdateOfHomeIndicatorAutoHidden];
   }
 }
@@ -532,9 +523,7 @@
   switch (style) {
   case UIStatusBarStyleDefault:
   case UIStatusBarStyleLightContent:
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
   case UIStatusBarStyleDarkContent:
-#endif
     barStyle = style;
     break;
   default:
@@ -596,12 +585,10 @@
         }
       }
 
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
       if ([TiUtils isIOSVersionOrGreater:@"13.0"]) {
         forceModal = [TiUtils boolValue:@"forceModal" properties:dict def:NO];
         theController.modalInPresentation = forceModal;
       }
-#endif
       BOOL animated = [TiUtils boolValue:@"animated" properties:dict def:YES];
       [[TiApp app] showModalController:theController animated:animated];
     } else {

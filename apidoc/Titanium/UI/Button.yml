@@ -256,9 +256,19 @@ properties:
     since: "3.2.0"
 
   - name: style
-    summary: Style constant for the button, as defined in <Titanium.UI.iOS.SystemButtonStyle>.
+    summary: The border and fill style the button will use.
+    description: |
+        On Android, this is a creation-only property and cannot be changed dynamically.
+
+        For Titanium versions older than 10.0.0, this is an iOS only property and must be assigned
+        a constant from <Titanium.UI.iOS.SystemButtonStyle> which is now deprecated.
     type: Number
-    platforms: [iphone,ipad, macos]
+    constants: Titanium.UI.BUTTON_STYLE_*
+    platforms: [android, iphone, ipad, macos]
+    since: {android: 10.0.0, iphone: 0.8.0, ipad: 0.8.0, macos: 9.2.0}
+    default: |
+        <Titanium.UI.BUTTON_STYLE_TEXT> (on iOS),
+        <Titanium.UI.BUTTON_STYLE_FILLED> (on Android)
 
   - name: systemButton
     summary: Specifies an iOS system button appearance, as defined in <Titanium.UI.iOS.SystemButton>.

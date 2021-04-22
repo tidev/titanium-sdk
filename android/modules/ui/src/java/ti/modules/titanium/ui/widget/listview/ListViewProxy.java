@@ -47,7 +47,9 @@ import ti.modules.titanium.ui.widget.TiUIListView;
 		TiC.PROPERTY_SEPARATOR_HEIGHT,
 		TiC.PROPERTY_SEPARATOR_STYLE,
 		TiC.PROPERTY_SHOW_VERTICAL_SCROLL_INDICATOR,
-		TiC.PROPERTY_TEMPLATES
+		TiC.PROPERTY_TEMPLATES,
+		TiC.PROPERTY_TOUCH_FEEDBACK,
+		TiC.PROPERTY_TOUCH_FEEDBACK_COLOR
 	}
 )
 public class ListViewProxy extends RecyclerViewProxy
@@ -65,6 +67,7 @@ public class ListViewProxy extends RecyclerViewProxy
 		defaultValues.put(TiC.PROPERTY_CASE_INSENSITIVE_SEARCH, true);
 		defaultValues.put(TiC.PROPERTY_DEFAULT_ITEM_TEMPLATE, UIModule.LIST_ITEM_TEMPLATE_DEFAULT);
 		defaultValues.put(TiC.PROPERTY_FAST_SCROLL, false);
+		defaultValues.put(TiC.PROPERTY_TOUCH_FEEDBACK, true);
 	}
 
 	/**
@@ -153,6 +156,8 @@ public class ListViewProxy extends RecyclerViewProxy
 		if (listView != null) {
 			final ListItemProxy item = listView.getAdapterItem(adapterIndex);
 			final ListSectionProxy section = (ListSectionProxy) item.getParent();
+
+			item.fireSyncEvent(TiC.EVENT_DELETE, null);
 
 			section.deleteItemsAt(item.getIndexInSection(), 1, null);
 		}
@@ -297,7 +302,6 @@ public class ListViewProxy extends RecyclerViewProxy
 	 *
 	 * @return Array of ListSections.
 	 */
-	@Kroll.method
 	@Kroll.getProperty
 	public ListSectionProxy[] getSections()
 	{
@@ -326,6 +330,27 @@ public class ListViewProxy extends RecyclerViewProxy
 		super.onPropertyChanged(name, value);
 
 		processProperty(name, value);
+	}
+
+	/**
+	 * Sets the activity this proxy's view should be attached to.
+	 * @param activity The activity this proxy's view should be attached to.
+	 */
+	@Override
+	public void setActivity(Activity activity)
+	{
+		super.setActivity(activity);
+
+		if (hasPropertyAndNotNull(TiC.PROPERTY_SEARCH_VIEW)) {
+			final TiViewProxy search = (TiViewProxy) getProperty(TiC.PROPERTY_SEARCH_VIEW);
+			search.setActivity(activity);
+		}
+
+		if (this.sections != null) {
+			for (ListSectionProxy section : this.sections) {
+				section.setActivity(activity);
+			}
+		}
 	}
 
 	/**
@@ -358,7 +383,7 @@ public class ListViewProxy extends RecyclerViewProxy
 
 		if (name.equals(TiC.PROPERTY_EDITING)) {
 
-			// Update list to display drag-handles.
+			// Update list.
 			update();
 		}
 	}
@@ -368,7 +393,6 @@ public class ListViewProxy extends RecyclerViewProxy
 	 *
 	 * @param sections Array of sections to set.
 	 */
-	@Kroll.method
 	@Kroll.setProperty
 	public void setSections(Object sections)
 	{
@@ -454,7 +478,7 @@ public class ListViewProxy extends RecyclerViewProxy
 							continue;
 						}
 						final View markedItemView = markedHolder.itemView;
-						if (markedItemView == null) {
+						if (markedItemView == null || markedItemView.getLayoutParams() == null) {
 							continue;
 						}
 						final boolean isVisible =
@@ -559,8 +583,8 @@ public class ListViewProxy extends RecyclerViewProxy
 	{
 		super.releaseViews();
 
-		if (hasPropertyAndNotNull(TiC.PROPERTY_SEARCH)) {
-			final TiViewProxy search = (TiViewProxy) getProperty(TiC.PROPERTY_SEARCH);
+		if (hasPropertyAndNotNull(TiC.PROPERTY_SEARCH_VIEW)) {
+			final TiViewProxy search = (TiViewProxy) getProperty(TiC.PROPERTY_SEARCH_VIEW);
 			search.releaseViews();
 		}
 

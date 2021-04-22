@@ -156,7 +156,10 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 				@Override
 				public Object getKey(int position)
 				{
-					return items.get(position);
+					if (position > -1 && position < items.size()) {
+						return items.get(position);
+					}
+					return null;
 				}
 
 				@Override
@@ -186,7 +189,12 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 							@Override
 							public Object getSelectionKey()
 							{
-								return items.get(getPosition());
+								final int position = getPosition();
+
+								if (position > -1 && position < items.size()) {
+									return items.get(position);
+								}
+								return null;
 							}
 						};
 					}
@@ -270,7 +278,7 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 				final int firstVisibleSectionIndex = proxy.getIndexOfSection(firstVisibleSection);
 				payload.put(TiC.PROPERTY_FIRST_VISIBLE_SECTION_INDEX, firstVisibleSectionIndex);
 			} else {
-			
+
 				// Could not obtain section, mark as undefined.
 				payload.put(TiC.PROPERTY_FIRST_VISIBLE_SECTION, null);
 				payload.put(TiC.PROPERTY_FIRST_VISIBLE_SECTION_INDEX, -1);

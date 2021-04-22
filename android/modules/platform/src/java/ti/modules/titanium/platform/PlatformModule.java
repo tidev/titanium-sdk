@@ -102,28 +102,24 @@ public class PlatformModule extends KrollModule
 		}
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getName()
 	{
 		return APSAnalyticsMeta.getPlatform();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getOsname()
 	{
 		return APSAnalyticsMeta.getPlatform();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getLocale()
 	{
 		return TiPlatformHelper.getInstance().getLocale();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public DisplayCapsProxy getDisplayCaps()
 	{
@@ -134,21 +130,18 @@ public class PlatformModule extends KrollModule
 		return displayCaps;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public int getProcessorCount()
 	{
 		return Runtime.getRuntime().availableProcessors();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getUsername()
 	{
 		return Build.USER;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getVersion()
 	{
@@ -173,56 +166,48 @@ public class PlatformModule extends KrollModule
 		return this.versionPatch;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public double getAvailableMemory()
 	{
 		return Runtime.getRuntime().freeMemory();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public double getTotalMemory()
 	{
 		return Runtime.getRuntime().totalMemory();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getModel()
 	{
 		return Build.MODEL;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getManufacturer()
 	{
 		return Build.MANUFACTURER;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getOstype()
 	{
 		return APSAnalyticsMeta.getOsType();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getArchitecture()
 	{
 		return APSAnalyticsMeta.getArchitecture();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getAddress()
 	{
 		return TiPlatformHelper.getInstance().getIpAddress();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getNetmask()
 	{
@@ -344,16 +329,15 @@ public class PlatformModule extends KrollModule
 		return wasSuccessful;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getMacaddress()
 	{
 		String macaddr = null;
-		TiApplication tiApp = TiApplication.getInstance();
+		Context context = TiApplication.getInstance().getApplicationContext();
 
-		if (tiApp.checkCallingOrSelfPermission(Manifest.permission.ACCESS_WIFI_STATE)
+		if (context.checkCallingOrSelfPermission(Manifest.permission.ACCESS_WIFI_STATE)
 			== PackageManager.PERMISSION_GRANTED) {
-			WifiManager wm = (WifiManager) tiApp.getSystemService(Context.WIFI_SERVICE);
+			WifiManager wm = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
 			if (wm != null) {
 				WifiInfo wi = wm.getConnectionInfo();
 				if (wi != null) {
@@ -389,14 +373,12 @@ public class PlatformModule extends KrollModule
 		return macaddr;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getId()
 	{
 		return APSAnalytics.getInstance().getMachineId();
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setBatteryMonitoring(boolean monitor)
 	{
@@ -408,35 +390,30 @@ public class PlatformModule extends KrollModule
 		}
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public boolean getBatteryMonitoring()
 	{
 		return batteryStateReceiver != null;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public int getBatteryState()
 	{
 		return batteryState;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public double getBatteryLevel()
 	{
 		return batteryLevel;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getRuntime()
 	{
 		return KrollRuntime.getInstance().getRuntimeName();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public double getUptime()
 	{
@@ -462,12 +439,12 @@ public class PlatformModule extends KrollModule
 			return this.processors;
 		}
 		final int processorCount = getProcessorCount();
-		processors = new ArrayList<Processor>(processorCount);
+		processors = new ArrayList<>(processorCount);
 
 		// Now read in their details
 		BufferedReader in = null;
-		List<Map> groups = new ArrayList<Map>();
-		Map<String, String> current = new HashMap<String, String>();
+		List<Map> groups = new ArrayList<>();
+		Map<String, String> current = new HashMap<>();
 		try {
 			String[] args = { "/system/bin/cat", "/proc/cpuinfo" };
 			ProcessBuilder cmd = new ProcessBuilder(args);
@@ -479,7 +456,7 @@ public class PlatformModule extends KrollModule
 				if (line.length() == 0) {
 					// new group!
 					groups.add(current);
-					current = new HashMap<String, String>();
+					current = new HashMap<>();
 				} else {
 					// entry, split by ':'
 					int colonIndex = line.indexOf(':');
@@ -495,7 +472,7 @@ public class PlatformModule extends KrollModule
 
 		} catch (IOException ex) {
 			// somethign went wrong, create "default" set of processors?
-			this.processors = new ArrayList<Processor>(processorCount);
+			this.processors = new ArrayList<>(processorCount);
 			for (int i = 0; i < processorCount; i++) {
 				this.processors.add(Processor.unknown(i));
 			}

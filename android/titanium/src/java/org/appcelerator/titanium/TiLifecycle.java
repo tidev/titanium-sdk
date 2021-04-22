@@ -72,13 +72,13 @@ public class TiLifecycle
 
 		/**
 		 * Implementing classes should use this to receive native Android onSaveInstanceState events.
-		 * @param activity the attached activity.
+		 * @param bundle The bundle to save activity/view states to.
 		 */
 		void onSaveInstanceState(Bundle bundle);
 
 		/**
 		 * Implementing classes should use this to receive native Android onRestoreInstanceState events.
-		 * @param activity the attached activity.
+		 * @param bundle The bundle to restore activity/view states from.
 		 */
 		void onRestoreInstanceState(Bundle bundle);
 	}
