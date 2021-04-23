@@ -2,7 +2,7 @@ import os from 'os';
 import path from 'path';
 import fs from 'fs-extra';
 import { rollup } from 'rollup';
-import { babel } from '@rollup/plugin-babel';
+import babel from '@rollup/plugin-babel';
 import { nodeResolve } from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
 import { runTests, outputMultipleResults } from './test/index.mjs';
