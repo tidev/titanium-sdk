@@ -29,7 +29,7 @@ import ti.modules.titanium.ui.PickerRowProxy;
 
 public class TiUIPlainDropDownPicker extends TiUIPlainPicker
 {
-	private static final String TAG = "TiUINativePicker";
+	private static final String TAG = "TiUIPlainDropDownPicker";
 
 	public TiUIPlainDropDownPicker(@NonNull PickerProxy proxy)
 	{

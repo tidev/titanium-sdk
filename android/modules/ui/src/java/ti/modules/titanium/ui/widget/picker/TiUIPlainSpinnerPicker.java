@@ -20,7 +20,7 @@ import ti.modules.titanium.ui.PickerRowProxy;
 
 public class TiUIPlainSpinnerPicker extends TiUIPlainPicker implements NumberPicker.OnValueChangeListener
 {
-	private static final String TAG = "TiUISpinner";
+	private static final String TAG = "TiUIPlainSpinnerPicker";
 
 	public TiUIPlainSpinnerPicker(@NonNull PickerProxy proxy)
 	{
