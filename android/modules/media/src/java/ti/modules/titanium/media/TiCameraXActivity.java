@@ -170,7 +170,6 @@ public class TiCameraXActivity extends TiBaseActivity
 				@Override
 				public void onError(ImageCaptureException error)
 				{
-					// insert your code here.
 					if (errorCallback == null) {
 						Log.e(TAG, error.toString());
 						return;
@@ -303,7 +302,7 @@ public class TiCameraXActivity extends TiBaseActivity
 				}
 			});
 		} catch (Exception e) {
-			Log.e(TAG, "Can't create video file");
+			Log.e(TAG, "Can't create video file: " + e.getMessage());
 		}
 	}
 

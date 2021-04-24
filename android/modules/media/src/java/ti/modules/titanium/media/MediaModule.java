@@ -478,6 +478,11 @@ public class MediaModule extends KrollModule implements Handler.Callback
 		TiCameraXActivity.cancelCallback = cancelCallback;
 		TiCameraXActivity.errorCallback = errorCallback;
 
+		if (MediaModule.mediaType == MEDIA_TYPE_VIDEO && !hasAudioRecorderPermissions()) {
+			Log.e(TAG, "Audio permission is required to record video");
+			return;
+		}
+
 		//Create Intent and Launch
 		Activity activity = TiApplication.getInstance().getCurrentActivity();
 		Intent intent = new Intent(activity, TiCameraXActivity.class);
