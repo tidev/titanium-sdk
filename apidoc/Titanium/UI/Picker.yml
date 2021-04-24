@@ -402,7 +402,7 @@ properties:
         <Titanium.UI.PICKER_TYPE_PLAIN>.
     type: Number
     availability: creation
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     since: {android: 10.0.1, iphone: 9.2.0, ipad: 9.2.0, macos: 9.2.0}
     constants: Titanium.UI.DATE_PICKER_STYLE_*
     default: <Titanium.UI.DATE_PICKER_STYLE_AUTOMATIC>
@@ -441,9 +441,6 @@ properties:
 
   - name: nativeSpinner
     summary: Determines if a multicolumn spinner or single column drop-down picker should be used.
-    summary: |
-        Creates a native Android control for creating a Time Spinner with Type `Ti.UI.PICKER_TYPE_TIME`.
-        This is invoked rather than the default native "dropdown" style.
     description: |
         This property is intended to be used by time picker types.
 
