@@ -274,7 +274,7 @@ public class TiUIDatePicker extends TiUIView implements OnDateChangedListener
 			editText = (EditText) view;
 		}
 		if (editText != null) {
-			DateFormat dateFormat = DateFormat.getDateInstance(DateFormat.SHORT);
+			DateFormat dateFormat = DateFormat.getDateInstance(DateFormat.MEDIUM);
 			editText.setText(dateFormat.format(value));
 			editText.requestLayout();
 		}
