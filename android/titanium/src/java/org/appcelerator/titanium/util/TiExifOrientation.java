@@ -31,7 +31,7 @@ public enum TiExifOrientation {
 	/** Image is rotated 90 degrees counter-clockwise and mirrored. */
 	TRANSPOSE(ExifInterface.ORIENTATION_TRANSPOSE, 90, true),
 
-	/** Image is rotated 2700 degrees counter-clockwise and mirrored. */
+	/** Image is rotated 270 degrees counter-clockwise and mirrored. */
 	TRANSVERSE(ExifInterface.ORIENTATION_TRANSVERSE, 270, true);
 
 	private final int exifInterfaceId;

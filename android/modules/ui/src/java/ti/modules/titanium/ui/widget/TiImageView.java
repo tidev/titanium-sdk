@@ -319,10 +319,10 @@ public class TiImageView extends ViewGroup implements Handler.Callback, OnClickL
 		float scaleX = 0.0f;
 		float scaleY = 0.0f;
 		if (imageWidth > 0) {
-			scaleX = viewWidth / (float) imageWidth;
+			scaleX = viewWidth / imageWidth;
 		}
 		if (imageHeight > 0) {
-			scaleY = viewHeight / (float) imageHeight;
+			scaleY = viewHeight / imageHeight;
 		}
 
 		// Apply "scalingMode" to image.
