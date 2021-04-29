@@ -31,6 +31,7 @@ public class ImageViewProxy extends ViewProxy
 	public ImageViewProxy()
 	{
 		super();
+		defaultValues.put(TiC.PROPERTY_AUTOROTATE, true);
 		defaultValues.put(TiC.PROPERTY_SCALING_MODE, MediaModule.IMAGE_SCALING_AUTO);
 	}
 

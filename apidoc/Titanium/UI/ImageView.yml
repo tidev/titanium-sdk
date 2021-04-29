@@ -134,10 +134,11 @@ properties:
 
   - name: autorotate
     summary: |
-        Indicates whether the image should be rotated based on exif orientation data.
-        By default, this is false on android and true on iOS.
+        Indicates whether the image should be rotated based on EXIF orientation data.
+
+        Before Titanium 10.1.0, this defaulted to `false` on Android.
     type: Boolean
-    default: false on android, true on iOS.
+    default: true
     availability: creation
     since: 3.0.0
     platforms: [android, iphone, ipad, macos]
