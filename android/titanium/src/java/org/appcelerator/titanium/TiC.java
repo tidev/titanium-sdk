@@ -552,6 +552,7 @@ public class TiC
 	public static final String PROPERTY_MODE = "mode";
 	public static final String PROPERTY_MOTHER = "mother";
 	public static final String PROPERTY_MOVABLE = "movable";
+	public static final String PROPERTY_MOVEABLE = "moveable";
 	public static final String PROPERTY_MOVING = "moving";
 	public static final String PROPERTY_MULTIPLY = "multiply";
 	public static final String PROPERTY_NAME = "name";
