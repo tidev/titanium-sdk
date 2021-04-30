@@ -85,7 +85,7 @@ describe('Titanium.Network.HTTPClient', function () {
 			}
 		};
 
-		xhr.open('GET', 'https://userscontent2.emaze.com/images/de1f3140-6f4e-4a67-9626-14c39a8f93a2/18aaaec3-31fb-463b-bac9-19d848f7a583.png');
+		xhr.open('GET', 'https://raw.githubusercontent.com/appcelerator/titanium_mobile/master/tests/Resources/large.jpg');
 		xhr.send();
 	});
 
@@ -153,7 +153,7 @@ describe('Titanium.Network.HTTPClient', function () {
 			}
 		};
 
-		xhr.open('GET', 'http://mockbin.org/redirect/301?to=http%3A%2F%2Ftimobile.appcelerator.com.s3.amazonaws.com%2F18aaaec3-31fb-463b-bac9-19d848f7a583.png');
+		xhr.open('GET', 'http://mockbin.org/redirect/301?to=https%3A%2F%2Fraw.githubusercontent.com%2Fappcelerator%2Ftitanium_mobile%2Fmaster%2Ftests%2FResources%2Flarge.jpg');
 		xhr.send();
 	});
 
@@ -255,9 +255,9 @@ describe('Titanium.Network.HTTPClient', function () {
 			if (xhr.status === 200) {
 				should(e.success).be.true();
 
-				const response = JSON.parse(xhr.responseText);
-				response['adhocHeader'].should.eql('notcleared');
-				response.should.not.have.property('clearedHeader');
+				const response = JSON.parse(xhr.responseText).headers;
+				response['Adhoc-Header'].should.eql('notcleared');
+				response.should.not.have.property('Cleared-Header');
 			} else if (xhr.status !== 503) { // service unavailable (over quota)
 				return finish(new Error(`Received unexpected response: ${xhr.status}`));
 			}
@@ -269,11 +269,11 @@ describe('Titanium.Network.HTTPClient', function () {
 			}
 			finish();
 		};
-		xhr.open('GET', 'http://headers.jsontest.com/');
-		xhr.setRequestHeader('adhocHeader', 'notcleared');
-		xhr.setRequestHeader('clearedHeader', 'notcleared');
+		xhr.open('GET', 'https://httpbin.org/headers');
+		xhr.setRequestHeader('Adhoc-Header', 'notcleared');
+		xhr.setRequestHeader('Cleared-Header', 'notcleared');
 		should(function () {
-			xhr.setRequestHeader('clearedHeader', null);
+			xhr.setRequestHeader('Cleared-Header', null);
 		}).not.throw();
 		xhr.send();
 	});
@@ -484,7 +484,7 @@ describe('Titanium.Network.HTTPClient', function () {
 			}
 		};
 
-		xhr.open('GET', 'http://www.pdf995.com/samples/pdf.pdf');
+		xhr.open('GET', 'https://raw.githubusercontent.com/appcelerator/titanium_mobile/master/tests/remote/test-pdf.pdf');
 		xhr.send();
 	});
 
@@ -657,7 +657,7 @@ describe('Titanium.Network.HTTPClient', function () {
 			}
 		};
 
-		xhr.open('GET', 'https://upload.wikimedia.org/wikipedia/commons/d/db/Titan-crystal_bar.JPG');
+		xhr.open('GET', 'https://raw.githubusercontent.com/appcelerator/titanium_mobile/master/tests/Resources/large.jpg');
 		xhr.send();
 	});
 
