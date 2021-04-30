@@ -665,7 +665,7 @@ public class TableViewProxy extends RecyclerViewProxy
 	public void scrollToIndex(int index, @Kroll.argument(optional = true) KrollDict animation)
 	{
 		final TiTableView tableView = getTableView();
-		final boolean animated = animation != null && animation.optBoolean(TiC.PROPERTY_ANIMATED, true);
+		final boolean animated = animation == null || animation.optBoolean(TiC.PROPERTY_ANIMATED, true);
 
 		if (tableView != null) {
 			final RecyclerView recyclerView = tableView.getRecyclerView();

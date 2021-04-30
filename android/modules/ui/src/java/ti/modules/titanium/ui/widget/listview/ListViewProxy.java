@@ -621,7 +621,7 @@ public class ListViewProxy extends RecyclerViewProxy
 	public void scrollToItem(int sectionIndex, int itemIndex, @Kroll.argument(optional = true) KrollDict animation)
 	{
 		final TiListView listView = getListView();
-		final boolean animated = animation != null && animation.optBoolean(TiC.PROPERTY_ANIMATED, true);
+		final boolean animated = animation == null || animation.optBoolean(TiC.PROPERTY_ANIMATED, true);
 
 		if (listView != null) {
 			final ListSectionProxy section = getSectionByIndex(sectionIndex);
