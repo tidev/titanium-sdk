@@ -2469,6 +2469,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_MOVEABLE = "moveable";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_MOVING = "moving";
 
 	/**
