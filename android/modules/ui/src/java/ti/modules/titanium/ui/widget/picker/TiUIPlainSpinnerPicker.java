@@ -162,10 +162,19 @@ public class TiUIPlainSpinnerPicker extends TiUIPlainPicker implements NumberPic
 		int lastSelectedRowIndex = pickerView.getValue();
 
 		// Set all row titles in the picker.
+		// Note: Picker renders empty strings incorrectly. Use a single space character to represent them instead.
 		PickerRowProxy[] rowProxyArray = columnProxy.getRows();
 		if (rowProxyArray.length > 0) {
-			pickerView.setDisplayedValues(TiConvert.toStringArray(rowProxyArray));
-			pickerView.setMaxValue(rowProxyArray.length - 1);
+			String[] titleArray = new String[rowProxyArray.length];
+			for (int index = 0; index < rowProxyArray.length; index++) {
+				String title = rowProxyArray[index].getTitle();
+				if ((title == null) || title.isEmpty()) {
+					title = " ";
+				}
+				titleArray[index] = title;
+			}
+			pickerView.setDisplayedValues(titleArray);
+			pickerView.setMaxValue(titleArray.length - 1);
 		} else {
 			pickerView.setDisplayedValues(new String[] { " " });
 			pickerView.setMaxValue(0);
