@@ -88,11 +88,11 @@ public class PickerProxy extends TiViewProxy implements PickerColumnProxy.OnChan
 		if (dict.containsKey(TiC.PROPERTY_NATIVE_SPINNER)) {
 			this.useSpinner = TiConvert.toBoolean(dict, TiC.PROPERTY_NATIVE_SPINNER, this.useSpinner);
 		}
-		if (hasProperty("type")) {
-			type = TiConvert.toInt(getProperty("type"));
+		if (hasProperty(TiC.PROPERTY_TYPE)) {
+			type = TiConvert.toInt(getProperty(TiC.PROPERTY_TYPE));
 		}
-		if (dict.containsKey("columns")) {
-			setColumns(dict.get("columns"));
+		if (dict.containsKey(TiC.PROPERTY_COLUMNS)) {
+			setColumns(dict.get(TiC.PROPERTY_COLUMNS));
 		}
 	}
 

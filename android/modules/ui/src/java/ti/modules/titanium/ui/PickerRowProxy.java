@@ -41,8 +41,8 @@ public class PickerRowProxy extends KrollProxy
 	{
 		super.handleCreationDict(options);
 
-		if (options.containsKey("title")) {
-			this.title = TiConvert.toString(options, "title");
+		if (options.containsKey(TiC.PROPERTY_TITLE)) {
+			this.title = TiConvert.toString(options, TiC.PROPERTY_TITLE);
 		}
 	}
 
@@ -62,7 +62,7 @@ public class PickerRowProxy extends KrollProxy
 	@Kroll.getProperty
 	public String getTitle()
 	{
-		return toString();
+		return this.title;
 	}
 
 	@Kroll.setProperty
@@ -71,12 +71,6 @@ public class PickerRowProxy extends KrollProxy
 		this.title = value;
 		setPropertyAndFire(TiC.PROPERTY_TITLE, this.title);
 		onRowChanged();
-	}
-
-	@Override
-	public String toString()
-	{
-		return this.title;
 	}
 
 	private void onRowChanged()

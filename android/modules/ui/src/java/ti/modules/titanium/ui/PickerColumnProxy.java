@@ -56,8 +56,8 @@ public class PickerColumnProxy extends KrollProxy implements PickerRowProxy.OnCh
 	{
 		super.handleCreationDict(options);
 
-		if (options.containsKey("rows")) {
-			Object value = options.get("rows");
+		if (options.containsKey(TiC.PROPERTY_ROWS)) {
+			Object value = options.get(TiC.PROPERTY_ROWS);
 			if ((value != null) && value.getClass().isArray()) {
 				setRows((Object[]) value);
 			} else {
