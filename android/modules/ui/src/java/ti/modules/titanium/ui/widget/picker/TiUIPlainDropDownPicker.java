@@ -16,7 +16,6 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import com.google.android.material.textfield.TextInputLayout;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
@@ -117,7 +116,7 @@ public class TiUIPlainDropDownPicker extends TiUIPlainPicker
 	{
 		AutoCompleteTextView textView = getAutoCompleteTextView();
 		if (textView != null) {
-			textView.showDropDown();;
+			textView.showDropDown();
 		}
 	}
 
@@ -136,29 +135,19 @@ public class TiUIPlainDropDownPicker extends TiUIPlainPicker
 		}
 
 		// Fetch all rows from the 1st column. (We do not support more than 1 column.)
-		List<PickerRowProxy> rowList = null;
-		PickerColumnProxy columnProxy = pickerProxy.getFirstColumn();
-		if (columnProxy != null) {
-			PickerRowProxy[] rowProxyArray = columnProxy.getRows();
-			if ((rowProxyArray != null) && (rowProxyArray.length > 0)) {
-				rowList = new ArrayList<>(Arrays.asList(rowProxyArray));
-			}
-		}
-		if (rowList == null) {
-			rowList = new ArrayList<>();
-		}
+		List<TiPickerAdapterItem> itemList = TiPickerAdapterItem.createListFrom(pickerProxy.getFirstColumn());
 
 		// Update view's drop-down list.
 		TiPickerAdapter adapter = (TiPickerAdapter) textView.getAdapter();
 		int lastSelectedIndex = (adapter != null) ? adapter.getSelectedIndex() : -1;
-		adapter = new TiPickerAdapter(textView.getContext(), android.R.layout.simple_spinner_dropdown_item, rowList);
+		adapter = new TiPickerAdapter(textView.getContext(), android.R.layout.simple_spinner_dropdown_item, itemList);
 		adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 		adapter.setFontProperties(getFontProperties());
 		adapter.setSelectedIndex(lastSelectedIndex);
 		textView.setAdapter(adapter);
 
 		// Select a row.
-		if (rowList.isEmpty()) {
+		if (itemList.isEmpty()) {
 			textView.clearListSelection();
 		} else {
 			selectRow(0, pickerProxy.getSelectedRowIndex(0), false);
@@ -216,14 +205,60 @@ public class TiUIPlainDropDownPicker extends TiUIPlainPicker
 		return fontProperties;
 	}
 
-	private static class TiPickerAdapter extends ArrayAdapter<PickerRowProxy>
+	private static class TiPickerAdapterItem
+	{
+		private final PickerRowProxy rowProxy;
+
+		public TiPickerAdapterItem(PickerRowProxy rowProxy)
+		{
+			this.rowProxy = rowProxy;
+		}
+
+		public PickerRowProxy getRowProxy()
+		{
+			return this.rowProxy;
+		}
+
+		@Override
+		public String toString()
+		{
+			if (this.rowProxy != null) {
+				String title = this.rowProxy.getTitle();
+				if (title != null) {
+					return title;
+				}
+			}
+			return "";
+		}
+
+		@NonNull
+		public static List<TiPickerAdapterItem> createListFrom(PickerColumnProxy columnProxy)
+		{
+			return createListFrom((columnProxy != null) ? columnProxy.getRows() : null);
+		}
+
+		@NonNull
+		public static List<TiPickerAdapterItem> createListFrom(PickerRowProxy[] proxyArray)
+		{
+			int itemCount = (proxyArray != null) ? proxyArray.length : 0;
+			ArrayList<TiPickerAdapterItem> itemList = new ArrayList<>(itemCount);
+			if (itemCount > 0) {
+				for (PickerRowProxy nextProxy : proxyArray) {
+					itemList.add(new TiPickerAdapterItem(nextProxy));
+				}
+			}
+			return itemList;
+		}
+	}
+
+	private static class TiPickerAdapter extends ArrayAdapter<TiPickerAdapterItem>
 	{
 		private String[] fontProperties;
 		private int selectedIndex = -1;
 		private int defaultTextColor;
 		private boolean hasLoadedDefaultTextColor;
 
-		public TiPickerAdapter(Context context, int textViewResourceId, List<PickerRowProxy> objects)
+		public TiPickerAdapter(Context context, int textViewResourceId, List<TiPickerAdapterItem> objects)
 		{
 			super(context, textViewResourceId, objects);
 		}
@@ -285,8 +320,8 @@ public class TiUIPlainDropDownPicker extends TiUIPlainPicker
 			}
 
 			// Update text color if configured.
-			PickerRowProxy rowProxy = this.getItem(position);
-			if (rowProxy.hasProperty(TiC.PROPERTY_COLOR)) {
+			PickerRowProxy rowProxy = this.getItem(position).getRowProxy();
+			if ((rowProxy != null) && rowProxy.hasProperty(TiC.PROPERTY_COLOR)) {
 				String colorString = TiConvert.toString(rowProxy.getProperty(TiC.PROPERTY_COLOR));
 				int color = (colorString != null) ? TiConvert.toColor(colorString) : this.defaultTextColor;
 				textView.setTextColor(color);
