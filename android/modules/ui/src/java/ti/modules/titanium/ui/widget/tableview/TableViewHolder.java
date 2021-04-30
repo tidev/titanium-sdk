@@ -265,9 +265,11 @@ public class TableViewHolder extends TiRecyclerViewHolder
 			// Display drag drawable when row is movable.
 			final boolean isEditing = tableViewProperties.optBoolean(TiC.PROPERTY_EDITING, false);
 			final boolean isMoving = tableViewProperties.optBoolean(TiC.PROPERTY_MOVING, false);
+			final boolean isMoveable = properties.optBoolean(TiC.PROPERTY_MOVEABLE,
+				tableViewProperties.optBoolean(TiC.PROPERTY_MOVEABLE, false));
 			final boolean isMovable = properties.optBoolean(TiC.PROPERTY_MOVABLE,
 				tableViewProperties.optBoolean(TiC.PROPERTY_MOVABLE, false));
-			if ((isEditing || isMoving) && isMovable) {
+			if ((isEditing || isMoving) && (isMoveable || isMovable)) {
 				this.rightImage.setImageDrawable(dragDrawable);
 				this.rightImage.setVisibility(View.VISIBLE);
 			}
