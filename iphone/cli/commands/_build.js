@@ -5598,7 +5598,7 @@ iOSBuilder.prototype.createAssetImageSets = async function createAssetImageSets(
 			}
 
 			const imageSet = {
-				idiom: !match[4] ? 'universal' : match[3].replace('~', ''),
+				idiom: !match[4] ? 'universal' : match[4].replace('~', ''),
 				filename: imageName + '.' + imageExt,
 				scale: !match[3] ? '1x' : match[3].replace('@', '')
 			};
