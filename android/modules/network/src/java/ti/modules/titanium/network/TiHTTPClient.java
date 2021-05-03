@@ -47,8 +47,6 @@ import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509KeyManager;
-import javax.net.ssl.X509TrustManager;
 
 import android.util.Base64;
 import org.appcelerator.kroll.KrollDict;
@@ -128,8 +126,6 @@ public class TiHTTPClient
 	private URL mURL;
 	private String redirectedLocation;
 	private final ArrayList<File> tmpFiles = new ArrayList<>();
-	private final ArrayList<X509TrustManager> trustManagers = new ArrayList<>();
-	private final ArrayList<X509KeyManager> keyManagers = new ArrayList<>();
 	protected SecurityManagerProtocol securityManager;
 	private int tlsVersion = NetworkModule.TLS_DEFAULT;
 
@@ -1059,27 +1055,7 @@ public class TiHTTPClient
 			}
 		}
 		if (sslSocketFactory == null) {
-			if (trustManagers.size() > 0 || keyManagers.size() > 0) {
-				TrustManager[] trustManagerArray = null;
-				KeyManager[] keyManagerArray = null;
-
-				if (trustManagers.size() > 0) {
-					trustManagerArray = new X509TrustManager[trustManagers.size()];
-					trustManagerArray = trustManagers.toArray(trustManagerArray);
-				}
-
-				if (keyManagers.size() > 0) {
-					keyManagerArray = new X509KeyManager[keyManagers.size()];
-					keyManagerArray = keyManagers.toArray(keyManagerArray);
-				}
-
-				try {
-					sslSocketFactory = new TiSocketFactory(keyManagerArray, trustManagerArray, tlsVersion);
-				} catch (Exception e) {
-					Log.e(TAG, "Error creating SSLSocketFactory: " + e.getMessage());
-					sslSocketFactory = null;
-				}
-			} else if (!validating) {
+			if (!validating) {
 				TrustManager[] trustManagerArray = new TrustManager[] { new NonValidatingTrustManager() };
 				try {
 					sslSocketFactory = new TiSocketFactory(null, trustManagerArray, tlsVersion);
@@ -1625,28 +1601,6 @@ public class TiHTTPClient
 	protected boolean getAutoRedirect()
 	{
 		return autoRedirect;
-	}
-
-	protected void addKeyManager(X509KeyManager manager)
-	{
-		if (Log.isDebugModeEnabled()) {
-			String message
-				= "addKeyManager() method is deprecated. "
-				+ "Use the securityManager property on the HttpClient to define custom SSL Contexts.";
-			Log.d(TAG, message, Log.DEBUG_MODE);
-		}
-		keyManagers.add(manager);
-	}
-
-	protected void addTrustManager(X509TrustManager manager)
-	{
-		if (Log.isDebugModeEnabled()) {
-			String message
-				= "addTrustManager() method is deprecated. "
-				+ "Use the securityManager property on the HttpClient to define custom SSL Contexts.";
-			Log.d(TAG, message, Log.DEBUG_MODE);
-		}
-		trustManagers.add(manager);
 	}
 
 	protected void setTlsVersion(int value)

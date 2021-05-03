@@ -1783,8 +1783,7 @@ describe('Titanium.UI.TableView', function () {
 		should(view).matchImage('snapshots/tableView_tableViewSection_header_footer.png', options);
 	});
 
-	// FIXME: This is supposed to be iOS-only, but causes crashes: https://jira.appcelerator.org/browse/TIMOB-28413
-	it.allBroken('All text should show if TableView.style is .INSET_GROUPED ', () => {
+	it.ios('All text should show if TableView.style is .INSET_GROUPED ', () => {
 		// FIXME: Does not honour scale correctly on macOS: https://jira.appcelerator.org/browse/TIMOB-28261
 		if (isCI && utilities.isMacOS() && OS_VERSION_MAJOR < 11) {
 			return;
