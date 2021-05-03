@@ -265,7 +265,7 @@ class ProcessJsTask extends IncrementalFileTask {
 		const info = this.jsFiles[file];
 		if (this.builder.encryptJS) {
 			if (this.platform === 'ios') {
-				if (file.indexOf('/') === 0) {
+				if (file.indexOf(path.sep) === 0) {
 					file = path.basename(file);
 				}
 				this.builder.jsFilesEncrypted.push(file); // original name

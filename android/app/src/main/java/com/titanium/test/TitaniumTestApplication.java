@@ -18,15 +18,18 @@ public final class TitaniumTestApplication extends TiApplication
 	@Override
 	public void onCreate()
 	{
-		super.onCreate();
+		appInfo = new TitaniumTestAppInfo(this);
+
+		// KrollAssetHelper.setAssetCrypt(new AssetCryptImpl());
 
 		// Load cache as soon as possible.
 		KrollAssetCache.init(this);
 
-		appInfo = new TitaniumTestAppInfo(this);
+		super.onCreate();
 
 		V8Runtime runtime = new V8Runtime();
 		KrollRuntime.init(this, runtime);
+		postAppInfo();
 		postOnCreate();
 	}
 }

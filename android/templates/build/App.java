@@ -41,7 +41,6 @@ public final class <%= classname %>Application extends TiApplication
 		KrollAssetCache.init(this);
 
 		super.onCreate();
-		postAppInfo();
 
 		V8Runtime runtime = new V8Runtime();
 
@@ -83,7 +82,7 @@ public final class <%= classname %>Application extends TiApplication
 <% }); %>
 
 		KrollRuntime.init(this, runtime);
-
+		postAppInfo();
 		postOnCreate();
 
 <% if (customModules.length) { %>
