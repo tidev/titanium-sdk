@@ -20,6 +20,7 @@ import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.RectShape;
+import android.os.Handler;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -42,8 +43,7 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 {
 	private static final String TAG = "TiListView";
 
-	private static final int CACHE_SIZE = 8;
-	private static final int PRELOAD_SIZE = CACHE_SIZE / 2;
+	private static final int CACHE_SIZE = 32;
 
 	private final ListViewAdapter adapter;
 	private final DividerItemDecoration decoration;
@@ -573,12 +573,26 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 
 		// Pre-load items of empty list.
 		if (shouldPreload) {
-			final int preloadSize = Math.min(this.items.size(), PRELOAD_SIZE);
+			final Handler handler = new Handler();
 
-			for (int i = 0; i < preloadSize; i++) {
+			for (int i = 0; i < this.items.size(); i++) {
+				final ListItemProxy item = this.items.get(i);
 
-				// Pre-load views for smooth initial scroll.
-				this.items.get(i).getOrCreateView();
+				// Fill event queue with pre-load attempts.
+				handler.postDelayed(new Runnable()
+				{
+					@Override
+					public void run()
+					{
+						if (recyclerView.getLastTouchX() == 0
+							&& recyclerView.getLastTouchY() == 0) {
+
+							// While there is no user interaction;
+							// pre-load views for smooth initial scroll.
+							item.getOrCreateView();
+						}
+					}
+				}, 8); // Pre-load at 120Hz to prevent noticeable UI blocking.
 			}
 		}
 

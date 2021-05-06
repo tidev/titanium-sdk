@@ -20,6 +20,7 @@ import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.RectShape;
+import android.os.Handler;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -47,8 +48,7 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 {
 	private static final String TAG = "TiTableView";
 
-	private static final int CACHE_SIZE = 8;
-	private static final int PRELOAD_SIZE = CACHE_SIZE / 2;
+	private static final int CACHE_SIZE = 32;
 
 	private final TableViewAdapter adapter;
 	private final DividerItemDecoration decoration;
@@ -529,13 +529,28 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 			this.proxy.fireEvent(TiC.EVENT_NO_RESULTS, null);
 		}
 
+		// Pre-load items of empty list.
 		if (shouldPreload) {
-			final int preloadSize = Math.min(this.rows.size(), PRELOAD_SIZE);
+			final Handler handler = new Handler();
 
-			for (int i = 0; i < preloadSize; i++) {
+			for (int i = 0; i < this.rows.size(); i++) {
+				final TableViewRowProxy row = this.rows.get(i);
 
-				// Pre-load views for smooth initial scroll.
-				this.rows.get(i).getOrCreateView();
+				// Fill event queue with pre-load attempts.
+				handler.postDelayed(new Runnable()
+				{
+					@Override
+					public void run()
+					{
+						if (recyclerView.getLastTouchX() == 0
+							&& recyclerView.getLastTouchY() == 0) {
+
+							// While there is no user interaction;
+							// pre-load views for smooth initial scroll.
+							row.getOrCreateView();
+						}
+					}
+				}, 8); // Pre-load at 120Hz to prevent noticeable UI blocking.
 			}
 		}
 
