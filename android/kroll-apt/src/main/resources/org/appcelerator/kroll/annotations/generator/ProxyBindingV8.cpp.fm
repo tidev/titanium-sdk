@@ -70,7 +70,7 @@ void ${className}::bindProxy(Local<Object> exports, Local<Context> context)
 	moduleInstance.Reset(isolate, instance);
 	<#else>
 	exports->Set(context, nameSymbol, constructor);
-	exports->GetPrototype().As<Object>()->Set(context, constructorSymbol.Get(isolate), constructor);
+	exports->Set(context, constructorSymbol.Get(isolate), constructor);
 	</#if>
 }
 
