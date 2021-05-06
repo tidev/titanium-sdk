@@ -316,16 +316,17 @@ public class TiDownloadManager implements Handler.Callback
 				}
 
 				// If there is additional background task, run it here.
-				ArrayList<SoftReference<TiDownloadListener>> listenerList;
 				synchronized (listeners)
 				{
+					ArrayList<SoftReference<TiDownloadListener>> listenerList;
 					listenerList = listeners.get(uri.toString());
-				}
-				if (listenerList != null) {
-					for (Iterator<SoftReference<TiDownloadListener>> i = listenerList.iterator(); i.hasNext();) {
-						TiDownloadListener downloadListener = i.next().get();
-						if (downloadListener != null) {
-							downloadListener.postDownload(uri);
+
+					if (listenerList != null) {
+						for (Iterator<SoftReference<TiDownloadListener>> i = listenerList.iterator(); i.hasNext();) {
+							TiDownloadListener downloadListener = i.next().get();
+							if (downloadListener != null) {
+								downloadListener.postDownload(uri);
+							}
 						}
 					}
 				}
