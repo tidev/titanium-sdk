@@ -488,7 +488,6 @@ public class PickerProxy extends TiViewProxy implements PickerColumnListener
 
 		// Configure main picker settings.
 		MaterialDatePicker.Builder<Long> pickerBuilder = MaterialDatePicker.Builder.datePicker();
-		pickerBuilder.setSelection(calendar.getTimeInMillis());
 		pickerBuilder.setInputMode(MaterialDatePicker.INPUT_MODE_CALENDAR);
 		if (settings.containsKey(TiC.PROPERTY_TITLE)) {
 			pickerBuilder.setTitleText(TiConvert.toString(settings, TiC.PROPERTY_TITLE));
@@ -514,15 +513,26 @@ public class PickerProxy extends TiViewProxy implements PickerColumnListener
 				long unixTime = createDateWithoutTime(minDate).getTime();
 				constraintsBuilder.setStart(unixTime);
 				validatorList.add(DateValidatorPointForward.from(unixTime));
+				if (calendar.getTimeInMillis() < unixTime) {
+					calendar.setTimeInMillis(unixTime);
+				}
 			}
 			if (maxDate != null) {
 				long unixTime = createDateWithoutTime(maxDate).getTime();
 				constraintsBuilder.setEnd(unixTime);
 				validatorList.add(DateValidatorPointBackward.before(unixTime));
+				if (calendar.getTimeInMillis() > unixTime) {
+					calendar.setTimeInMillis(unixTime);
+				}
 			}
 			constraintsBuilder.setValidator(CompositeDateValidator.allOf(validatorList));
+			constraintsBuilder.setOpenAt(calendar.getTimeInMillis());
 			pickerBuilder.setCalendarConstraints(constraintsBuilder.build());
 		}
+
+		// Select date from "value" property or current time.
+		// We must do this after applying min/max above (if applicable) to ensure selection is within range.
+		pickerBuilder.setSelection(calendar.getTimeInMillis());
 
 		// Create the dialog with above settings and assign it listeners.
 		MaterialDatePicker<Long> picker = pickerBuilder.build();
