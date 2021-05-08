@@ -52,6 +52,22 @@ describe('Titanium.UI.ScrollView', function () {
 		should(bar.contentOffset.y).be.a.Number();
 	});
 
+	it.ios('#setContentOffset', function (finish) {
+		win = Ti.UI.createWindow();
+		const bar = Ti.UI.createScrollView({});
+		win.add(bar);
+		win.addEventListener('postlayout', function listener(e) {
+			win.removeEventListener(e.type, listener);
+			try {
+				bar.setContentOffset({ x: 0, y: 0 }, { animated: true });
+			} catch (err) {
+				return finish(err);
+			}
+			finish();
+		});
+		win.open();
+	});
+
 	it.androidAndIosBroken('contentWidth', function () {
 		const bar = Ti.UI.createScrollView({});
 		should(bar.contentWidth).be.a.String(); // defaults to undefined on Android and iOS
@@ -151,6 +167,22 @@ describe('Titanium.UI.ScrollView', function () {
 	it.androidMissing('zoomScale', function () {
 		const bar = Ti.UI.createScrollView({});
 		should(bar.zoomScale).be.a.Number();
+	});
+
+	it.androidMissing('#setZoomScale', function (finish) {
+		win = Ti.UI.createWindow();
+		const bar = Ti.UI.createScrollView({});
+		win.add(bar);
+		win.addEventListener('postlayout', function listener(e) {
+			win.removeEventListener(e.type, listener);
+			try {
+				bar.setZoomScale(2, { animated: true });
+			} catch (err) {
+				return finish(err);
+			}
+			finish();
+		});
+		win.open();
 	});
 
 	it('#scrollTo()', function () {
