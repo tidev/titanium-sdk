@@ -309,14 +309,14 @@ events:
         type: String
         platforms: [android]
       - name: lineOffset
-        summary: The offset on the line where the error occurred.
+        summary: The offset on the line where the error occurred. (Deprecated since 9.0.0. Use `column` instead.)
         type: Number
         deprecated: 
           since: "9.0.0"
           notes: Use `column` property for cross-platform parity.
         platforms: [android]
-      - name: jsStack
-        summary: The javascript stack trace of the exception.
+      - name: javascriptStack
+        summary: The javascript stack trace of the exception. (Deprecated since 9.0.0. Use `stack` instead.)
         type: String
         since: "8.0.0"
         deprecated: 
@@ -324,7 +324,7 @@ events:
           notes: Use `stack` property for cross-platform parity.
         platforms: [android]
       - name: javaStack
-        summary: The java stack trace of the exception.
+        summary: The java stack trace of the exception. (Deprecated since 9.0.0. Use `nativeStack` instead.)
         type: String
         since: "8.0.0"
         deprecated: 
