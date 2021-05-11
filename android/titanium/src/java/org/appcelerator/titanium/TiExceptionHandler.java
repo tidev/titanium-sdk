@@ -54,7 +54,7 @@ public class TiExceptionHandler implements Handler.Callback, KrollExceptionHandl
 	public static final String ERROR_STACK = "stack";
 	public static final String ERROR_NATIVESTACK = "nativeStack";
 
-	// DEPRECATED in 9.0.0, REMOVE 10.0.0
+	// DEPRECATED in 9.0.0, REMOVE 11.0.0
 	public static final String ERROR_LINEOFFSET = "lineOffset";
 	public static final String ERROR_JS_STACK = "javascriptStack";
 	public static final String ERROR_JAVA_STACK = "javaStack";
@@ -78,7 +78,7 @@ public class TiExceptionHandler implements Handler.Callback, KrollExceptionHandl
 		dict.put(ERROR_STACK, error.jsStack);
 		dict.put(ERROR_NATIVESTACK, error.javaStack);
 
-		// DEPRECATED in 9.0.0, REMOVE 10.0.0
+		// DEPRECATED in 9.0.0, REMOVE 11.0.0
 		dict.put(ERROR_LINEOFFSET, error.lineOffset);
 		dict.put(ERROR_JS_STACK, error.jsStack);
 		dict.put(ERROR_JAVA_STACK, error.javaStack);
