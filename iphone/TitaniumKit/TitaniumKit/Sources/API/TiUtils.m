@@ -394,10 +394,31 @@ static NSDictionary *sizeMap = nil;
 {
   if ([value isKindOfClass:[NSDictionary class]]) {
     NSDictionary *dict = (NSDictionary *)value;
-    CGFloat t = [TiUtils floatValue:@"top" properties:dict def:0];
-    CGFloat l = [TiUtils floatValue:@"left" properties:dict def:0];
-    CGFloat b = [TiUtils floatValue:@"bottom" properties:dict def:0];
-    CGFloat r = [TiUtils floatValue:@"right" properties:dict def:0];
+
+    CGFloat t = 0;
+    TiDimension tDimension = [self dimensionValue:@"top" properties:dict];
+    if (!TiDimensionIsUndefined(tDimension)) {
+      t = tDimension.value;
+    }
+
+    CGFloat l = 0;
+    TiDimension lDimension = [self dimensionValue:@"left" properties:dict];
+    if (!TiDimensionIsUndefined(lDimension)) {
+      l = lDimension.value;
+    }
+
+    CGFloat b = 0;
+    TiDimension bDimension = [self dimensionValue:@"bottom" properties:dict];
+    if (!TiDimensionIsUndefined(bDimension)) {
+      b = bDimension.value;
+    }
+
+    CGFloat r = 0;
+    TiDimension rDimension = [self dimensionValue:@"right" properties:dict];
+    if (!TiDimensionIsUndefined(rDimension)) {
+      r = rDimension.value;
+    }
+
     return UIEdgeInsetsMake(t, l, b, r);
   }
   return UIEdgeInsetsMake(0, 0, 0, 0);
@@ -407,10 +428,31 @@ static NSDictionary *sizeMap = nil;
 {
   if ([value isKindOfClass:[NSDictionary class]]) {
     NSDictionary *dict = (NSDictionary *)value;
-    CGFloat x = [TiUtils floatValue:@"x" properties:dict def:0];
-    CGFloat y = [TiUtils floatValue:@"y" properties:dict def:0];
-    CGFloat w = [TiUtils floatValue:@"width" properties:dict def:0];
-    CGFloat h = [TiUtils floatValue:@"height" properties:dict def:0];
+
+    CGFloat x = 0;
+    TiDimension xDimension = [self dimensionValue:@"x" properties:dict];
+    if (!TiDimensionIsUndefined(xDimension)) {
+      x = xDimension.value;
+    }
+
+    CGFloat y = 0;
+    TiDimension yDimension = [self dimensionValue:@"y" properties:dict];
+    if (!TiDimensionIsUndefined(yDimension)) {
+      y = yDimension.value;
+    }
+
+    CGFloat w = 0;
+    TiDimension wDimension = [self dimensionValue:@"width" properties:dict];
+    if (!TiDimensionIsUndefined(wDimension)) {
+      w = wDimension.value;
+    }
+
+    CGFloat h = 0;
+    TiDimension hDimension = [self dimensionValue:@"height" properties:dict];
+    if (!TiDimensionIsUndefined(hDimension)) {
+      h = hDimension.value;
+    }
+
     return CGRectMake(x, y, w, h);
   }
   return CGRectMake(0, 0, 0, 0);
@@ -418,13 +460,7 @@ static NSDictionary *sizeMap = nil;
 
 + (CGPoint)pointValue:(id)value
 {
-  if ([value isKindOfClass:[TiPoint class]]) {
-    return [value point];
-  }
-  if ([value isKindOfClass:[NSDictionary class]]) {
-    return CGPointMake([[value objectForKey:@"x"] floatValue], [[value objectForKey:@"y"] floatValue]);
-  }
-  return CGPointMake(0, 0);
+  return [self pointValue:value valid:NULL];
 }
 
 + (CGPoint)pointValue:(id)value valid:(BOOL *)isValid
@@ -534,14 +570,29 @@ static NSDictionary *sizeMap = nil;
 
   id offset = [value objectForKey:@"offset"];
   if (offset != nil && [offset isKindOfClass:[NSDictionary class]]) {
-    id w = [offset objectForKey:@"width"];
-    id h = [offset objectForKey:@"height"];
-    [shadow setShadowOffset:CGSizeMake([TiUtils floatValue:w def:0], [TiUtils floatValue:h def:0])];
+    NSDictionary *dict = (NSDictionary *)offset;
+
+    CGFloat w = 0;
+    TiDimension wDimension = [self dimensionValue:@"width" properties:dict];
+    if (!TiDimensionIsUndefined(wDimension)) {
+      w = wDimension.value;
+    }
+
+    CGFloat h = 0;
+    TiDimension hDimension = [self dimensionValue:@"height" properties:dict];
+    if (!TiDimensionIsUndefined(hDimension)) {
+      h = hDimension.value;
+    }
+
+    [shadow setShadowOffset:CGSizeMake(w, h)];
   }
+
   id blurRadius = [value objectForKey:@"blurRadius"];
-  if (blurRadius != nil) {
-    [shadow setShadowBlurRadius:[TiUtils floatValue:blurRadius def:0]];
+  TiDimension blurRadiusDimension = [self dimensionValue:blurRadius];
+  if (!TiDimensionIsUndefined(blurRadiusDimension)) {
+    [shadow setShadowBlurRadius:blurRadiusDimension.value];
   }
+
   id color = [value objectForKey:@"color"];
   if (color != nil) {
     [shadow setShadowColor:[[TiUtils colorValue:color] _color]];
