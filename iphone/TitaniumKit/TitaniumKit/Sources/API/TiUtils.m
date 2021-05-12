@@ -395,29 +395,17 @@ static NSDictionary *sizeMap = nil;
   if ([value isKindOfClass:[NSDictionary class]]) {
     NSDictionary *dict = (NSDictionary *)value;
 
-    CGFloat t = 0;
     TiDimension tDimension = [self dimensionValue:@"top" properties:dict];
-    if (!TiDimensionIsUndefined(tDimension)) {
-      t = tDimension.value;
-    }
+    CGFloat t = t.value;
 
-    CGFloat l = 0;
     TiDimension lDimension = [self dimensionValue:@"left" properties:dict];
-    if (!TiDimensionIsUndefined(lDimension)) {
-      l = lDimension.value;
-    }
+    CGFloat l = lDimension.value;
 
-    CGFloat b = 0;
     TiDimension bDimension = [self dimensionValue:@"bottom" properties:dict];
-    if (!TiDimensionIsUndefined(bDimension)) {
-      b = bDimension.value;
-    }
+    CGFloat b = bDimension.value;
 
-    CGFloat r = 0;
     TiDimension rDimension = [self dimensionValue:@"right" properties:dict];
-    if (!TiDimensionIsUndefined(rDimension)) {
-      r = rDimension.value;
-    }
+    CGFloat r = rDimension.value;
 
     return UIEdgeInsetsMake(t, l, b, r);
   }
@@ -429,29 +417,17 @@ static NSDictionary *sizeMap = nil;
   if ([value isKindOfClass:[NSDictionary class]]) {
     NSDictionary *dict = (NSDictionary *)value;
 
-    CGFloat x = 0;
     TiDimension xDimension = [self dimensionValue:@"x" properties:dict];
-    if (!TiDimensionIsUndefined(xDimension)) {
-      x = xDimension.value;
-    }
+    CGFloat x = xDimension.value;
 
-    CGFloat y = 0;
     TiDimension yDimension = [self dimensionValue:@"y" properties:dict];
-    if (!TiDimensionIsUndefined(yDimension)) {
-      y = yDimension.value;
-    }
+    CGFloat y = yDimension.value;
 
-    CGFloat w = 0;
     TiDimension wDimension = [self dimensionValue:@"width" properties:dict];
-    if (!TiDimensionIsUndefined(wDimension)) {
-      w = wDimension.value;
-    }
+    CGFloat w = wDimension.value;
 
-    CGFloat h = 0;
     TiDimension hDimension = [self dimensionValue:@"height" properties:dict];
-    if (!TiDimensionIsUndefined(hDimension)) {
-      h = hDimension.value;
-    }
+    CGFloat h = hDimension.value;
 
     return CGRectMake(x, y, w, h);
   }
@@ -572,17 +548,11 @@ static NSDictionary *sizeMap = nil;
   if (offset != nil && [offset isKindOfClass:[NSDictionary class]]) {
     NSDictionary *dict = (NSDictionary *)offset;
 
-    CGFloat w = 0;
     TiDimension wDimension = [self dimensionValue:@"width" properties:dict];
-    if (!TiDimensionIsUndefined(wDimension)) {
-      w = wDimension.value;
-    }
+    CGFloat w = wDimension.value;
 
-    CGFloat h = 0;
     TiDimension hDimension = [self dimensionValue:@"height" properties:dict];
-    if (!TiDimensionIsUndefined(hDimension)) {
-      h = hDimension.value;
-    }
+    CGFloat h = hDimension.value;
 
     [shadow setShadowOffset:CGSizeMake(w, h)];
   }
