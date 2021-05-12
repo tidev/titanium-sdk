@@ -442,17 +442,6 @@ events:
     platforms: [android, iphone, ipad, macos]
     since: {android: "7.5.0", iphone: "7.5.0", ipad: "7.5.0", macos: "9.2.0"}
 
-  - name: arguments
-    summary: The arguments passed to the application on startup.
-    description : |
-        On Android, fetch the [Ti.Android.rootActivity](Titanium.Android.rootActivity) object and
-        read its [intent](Titanium.Android.Activity.intent) property to retrieve the parameters used
-        to launch the application activity. Note that this [intent](Titanium.Android.Activity.intent)
-        will change when a "[newintent](Titanium.Android.Activity.newintent)" event has been fired.
-    platforms: [iphone, ipad, macos]
-    returns:
-        type: launchOptions
-
 methods:
   - name: fireSystemEvent
     summary: Fire a system-level event such as <Titanium.App.EVENT_ACCESSIBILITY_ANNOUNCEMENT>.
@@ -651,6 +640,17 @@ properties:
     accessors: false
     platforms: [iphone, ipad, macos]
     since: {iphone: "7.5.0", ipad: "7.5.0", macos: "9.2.0"}
+
+  - name: arguments
+    summary: The arguments passed to the application on startup.
+    description : |
+        On Android, fetch the [Ti.Android.rootActivity](Titanium.Android.rootActivity) object and
+        read its [intent](Titanium.Android.Activity.intent) property to retrieve the parameters used
+        to launch the application activity. Note that this [intent](Titanium.Android.Activity.intent)
+        will change when a "[newintent](Titanium.Android.Activity.newintent)" event has been fired.
+    platforms: [iphone, ipad, macos]
+    type: launchOptions
+
 
 ---
 name: launchOptions
