@@ -100,15 +100,19 @@ methods:
     parameters:
       - name: date
         summary: A Javascript `Date` object.
-        type: Date
+        type: date
+    deprecated:
+      since: "10.0.0"
+      removed: "10.0.0"
+      notes: Use the <Titanium.Picker.value> property instead
 
-      - name: suppressEvent
-        summary: Determines whether a `change` event is fired.
-        type: Boolean
-        default: true
 
     returns:
       - type: Titanium.UI.PickerRow
+    deprecated:
+      since: "10.0.0"
+      removed: "10.0.0"
+      notes: Use the <Titanium.Picker.value> property instead
 
   - name: showDatePickerDialog
     summary: Shows Date picker as a modal dialog.
