@@ -1,0 +1,911 @@
+
+> titanium-mobile@10.1.0 lint:docs /Users/awam/git/titanium_mobile
+> tdoc-validate ./apidoc
+
+Whitelist constant mode enabled. Errors will not be logged for failure to resolve these constants: Titanium.UI.Windows.ListViewScrollPosition.*
+apidoc/Global/Global.yml
+[33m	methods[setInterval].parameters[function].type - Callback should have any number of generic type(s) specified, but had 0: Callback
+[39m[33m	methods[setTimeout].parameters[function].type - Callback should have any number of generic type(s) specified, but had 0: Callback
+[39m
+apidoc/NodeJS/assert.yml
+[33m	methods[doesNotReject].parameters[asyncFn].type - Function should have any number of generic type(s) specified, but had 0: Function
+[39m[33m	methods[doesNotReject].parameters[asyncFn].type - Please define a new type rather than using the generic Object type reference: Promise<Object>
+[39m[33m	methods[doesNotReject].parameters[error].type - Function should have any number of generic type(s) specified, but had 0: Function
+[39m[33m	methods[doesNotThrow].parameters[fn].type - Function should have any number of generic type(s) specified, but had 0: Function
+[39m[33m	methods[doesNotThrow].parameters[error].type - Function should have any number of generic type(s) specified, but had 0: Function
+[39m[33m	methods[rejects].parameters[asyncFn].type - Function should have any number of generic type(s) specified, but had 0: Function
+[39m[33m	methods[rejects].parameters[error].type - Function should have any number of generic type(s) specified, but had 0: Function
+[39m[33m	methods[rejects].parameters[error].type - Please define a new type rather than using the generic Object type reference: Object
+[39m[33m	methods[throws].parameters[fn].type - Function should have any number of generic type(s) specified, but had 0: Function
+[39m[33m	methods[throws].parameters[error].type - Function should have any number of generic type(s) specified, but had 0: Function
+[39m
+apidoc/NodeJS/assert.yml
+[33m	properties[stackStartFn].type - Function should have any number of generic type(s) specified, but had 0: Function
+[39m
+apidoc/NodeJS/buffer.yml
+[33m	methods[isBuffer].parameters[obj].type - Please define a new type rather than using the generic Object type reference: Object
+[39m
+apidoc/NodeJS/buffer.yml
+[33m	methods[entries].returns - Please define a new type rather than using the generic Object type reference: Object
+[39m[33m	methods[keys].returns - Please define a new type rather than using the generic Object type reference: Object
+[39m[33m	methods[toJSON].returns - Please define a new type rather than using the generic Object type reference: Object
+[39m[33m	methods[values].returns - Please define a new type rather than using the generic Object type reference: Object
+[39m
+apidoc/NodeJS/events.yml
+[33m	events[newListener].name - Name should be all lowercase.
+[39m[33m	events[newListener].properties[listener].type - Function should have any number of generic type(s) specified, but had 0: Function
+[39m[33m	events[removeListener].name - Name should be all lowercase.
+[39m[33m	events[removeListener].properties[listener].type - Function should have any number of generic type(s) specified, but had 0: Function
+[39m[33m	methods[addListener].parameters[listener].type - Function should have any number of generic type(s) specified, but had 0: Function
+[39m[33m	methods[listeners].returns - Function should have any number of generic type(s) specified, but had 0: Array<Function>
+[39m[33m	methods[off].parameters[listener].type - Function should have any number of generic type(s) specified, but had 0: Function
+[39m[33m	methods[on].parameters[listener].type - Function should have any number of generic type(s) specified, but had 0: Function
+[39m[33m	methods[once].parameters[listener].type - Function should have any number of generic type(s) specified, but had 0: Function
+[39m[33m	methods[prependListener].parameters[listener].type - Function should have any number of generic type(s) specified, but had 0: Function
+[39m[33m	methods[prependOnceListener].parameters[listener].type - Function should have any number of generic type(s) specified, but had 0: Function
+[39m[33m	methods[rawListeners].returns - Function should have any number of generic type(s) specified, but had 0: Array<Function>
+[39m[33m	methods[removeListener].parameters[listener].type - Function should have any number of generic type(s) specified, but had 0: Function
+[39m
+apidoc/NodeJS/fs.yml
+[33m	methods[realpath].parameters[options].type - Please define a new type rather than using the generic Object type reference: Object
+[39m[33m	methods[realpath.native].parameters[options].type - Please define a new type rather than using the generic Object type reference: Object
+[39m[33m	methods[realpathSync].parameters[options].type - Please define a new type rather than using the generic Object type reference: Object
+[39m[33m	methods[realpathSync.native].parameters[options].type - Please define a new type rather than using the generic Object type reference: Object
+[39m[33m	methods[stat].parameters[options].type - Please define a new type rather than using the generic Object type reference: Object
+[39m[33m	methods[unwatchFile].parameters[listener].type - Function should have any number of generic type(s) specified, but had 0: Function
+[39m[33m	methods[watch].parameters[options].type - Please define a new type rather than using the generic Object type reference: Object
+[39m[33m	methods[watch].parameters[listener].type - Function should have any number of generic type(s) specified, but had 0: Function
+[39m[33m	methods[watchFile].parameters[options].type - Please define a new type rather than using the generic Object type reference: Object
+[39m[33m	methods[watchFile].parameters[listener].type - Function should have any number of generic type(s) specified, but had 0: Function
+[39m[33m	methods[writeFile].parameters[data].type - Please define a new type rather than using the generic Object type reference: Object
+[39m[33m	methods[writeFileSync].parameters[data].type - Please define a new type rather than using the generic Object type reference: Object
+[39m
+apidoc/NodeJS/os.yml
+[33m	methods[networkInterfaces].returns - Please define a new type rather than using the generic Object type reference: Object
+[39m
+apidoc/NodeJS/os.yml
+[33m	properties[signals].type - Please define a new type rather than using the generic Object type reference: Object
+[39m[33m	properties[errno].type - Please define a new type rather than using the generic Object type reference: Object
+[39m
+apidoc/NodeJS/process.yml
+[33m	events[uncaughtException].name - Name should be all lowercase.
+[39m[33m	methods[cpuUsage].returns - Please define a new type rather than using the generic Object type reference: Object
+[39m[33m	methods[emitWarning].parameters[ctor].type - Function should have any number of generic type(s) specified, but had 0: Function
+[39m[33m	properties[channel].type - Please define a new type rather than using the generic Object type reference: Object
+[39m[33m	properties[config].type - Please define a new type rather than using the generic Object type reference: Object
+[39m[33m	properties[env].type - Please define a new type rather than using the generic Object type reference: Object
+[39m[33m	properties[stderr].type - Please define a new type rather than using the generic Object type reference: Object
+[39m[33m	properties[stdout].type - Please define a new type rather than using the generic Object type reference: Object
+[39m[33m	properties[versions].type - Please define a new type rather than using the generic Object type reference: Object
+[39m
+apidoc/NodeJS/process.yml
+[33m	properties[ctor].type - Function should have any number of generic type(s) specified, but had 0: Function
+[39m
+apidoc/NodeJS/util.yml
+[33m	methods[callbackify].returns - Function should have any number of generic type(s) specified, but had 0: Function
+[39m[33m	methods[callbackify].parameters[original].type - Function should have any number of generic type(s) specified, but had 0: Function
+[39m[33m	methods[debug].returns - Function should have any number of generic type(s) specified, but had 0: Function
+[39m[33m	methods[debug].parameters[callback].type - Function should have any number of generic type(s) specified, but had 0: Function
+[39m[33m	methods[debuglog].returns - Function should have any number of generic type(s) specified, but had 0: Function
+[39m[33m	methods[debuglog].parameters[callback].type - Function should have any number of generic type(s) specified, but had 0: Function
+[39m[33m	methods[deprecate].returns - Function should have any number of generic type(s) specified, but had 0: Function
+[39m[33m	methods[deprecate].parameters[fn].type - Function should have any number of generic type(s) specified, but had 0: Function
+[39m[33m	methods[inherits].parameters[constructor].type - Function should have any number of generic type(s) specified, but had 0: Function
+[39m[33m	methods[inherits].parameters[superConstructor].type - Function should have any number of generic type(s) specified, but had 0: Function
+[39m[33m	methods[promisify].returns - Function should have any number of generic type(s) specified, but had 0: Function
+[39m[33m	methods[promisify].parameters[original].type - Function should have any number of generic type(s) specified, but had 0: Function
+[39m
+apidoc/NodeJS/util.yml
+[33m	properties[sorted].type - Function should have any number of generic type(s) specified, but had 0: Function
+[39m
+apidoc/Titanium/Analytics/Analytics.yml
+[33m	methods[featureEvent].parameters[data].type - Please define a new type rather than using the generic Object type reference: Object
+[39m[33m	methods[filterEvents].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	methods[navEvent].parameters[data].type - Please define a new type rather than using the generic Object type reference: Object
+[39m[33m	properties[lastEvent].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[optedOut].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m
+apidoc/Titanium/Android/ActionBar.yml
+[33m	properties[onHomeIconItemSelected].type - Callback should have any number of generic type(s) specified, but had 0: Callback
+[39m
+apidoc/Titanium/Android/Activity.yml
+[33m	events[onIntent].name - Name should be all lowercase.
+[39m
+apidoc/Titanium/Android/BroadcastReceiver.yml
+[33m	properties[onReceived].type - Please define a new type rather than using the generic Object type reference: Callback<Object>
+[39m
+apidoc/Titanium/Android/Menu.yml
+[33m	methods[add].parameters[options].type - Please define a new type rather than using the generic Object type reference: Object
+[39m
+apidoc/Titanium/Android/Notification.yml
+[33m	properties[channelId].platforms - Unnecessary platforms listing which is the same as the inherited set: android
+[39m
+apidoc/Titanium/Android/R.yml
+[33m	properties[anim].type - Please define a new type rather than using the generic Object type reference: Object
+[39m[33m	properties[animator].type - Please define a new type rather than using the generic Object type reference: Object
+[39m[33m	properties[array].type - Please define a new type rather than using the generic Object type reference: Object
+[39m[33m	properties[attr].type - Please define a new type rather than using the generic Object type reference: Object
+[39m[33m	properties[bool].type - Please define a new type rather than using the generic Object type reference: Object
+[39m[33m	properties[color].type - Please define a new type rather than using the generic Object type reference: Object
+[39m[33m	properties[dimen].type - Please define a new type rather than using the generic Object type reference: Object
+[39m[33m	properties[drawable].type - Please define a new type rather than using the generic Object type reference: Object
+[39m[33m	properties[fraction].type - Please define a new type rather than using the generic Object type reference: Object
+[39m[33m	properties[id].type - Please define a new type rather than using the generic Object type reference: Object
+[39m[33m	properties[integer].type - Please define a new type rather than using the generic Object type reference: Object
+[39m[33m	properties[interpolator].type - Please define a new type rather than using the generic Object type reference: Object
+[39m[33m	properties[layout].type - Please define a new type rather than using the generic Object type reference: Object
+[39m[33m	properties[menu].type - Please define a new type rather than using the generic Object type reference: Object
+[39m[33m	properties[mipmap].type - Please define a new type rather than using the generic Object type reference: Object
+[39m[33m	properties[plurals].type - Please define a new type rather than using the generic Object type reference: Object
+[39m[33m	properties[raw].type - Please define a new type rather than using the generic Object type reference: Object
+[39m[33m	properties[string].type - Please define a new type rather than using the generic Object type reference: Object
+[39m[33m	properties[style].type - Please define a new type rather than using the generic Object type reference: Object
+[39m[33m	properties[styleable].type - Please define a new type rather than using the generic Object type reference: Object
+[39m[33m	properties[transition].type - Please define a new type rather than using the generic Object type reference: Object
+[39m[33m	properties[xml].type - Please define a new type rather than using the generic Object type reference: Object
+[39m
+apidoc/Titanium/App/App.yml
+[33m	events[accessibilitychanged].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	events[close].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	events[pause].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	events[paused].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	events[uncaughtException].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	events[uncaughtException].name - Name should be all lowercase.
+[39m[33m	events[resume].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	events[resumed].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	events[shortcutitemclick].platforms - Unnecessary platforms listing which is the same as the inherited set: iphone,ipad,android,macos
+[39m[33m	events[userinteraction].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	methods[fireSystemEvent].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[EVENT_ACCESSIBILITY_ANNOUNCEMENT].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[EVENT_ACCESSIBILITY_CHANGED].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[proximityDetection].platforms - Unnecessary platforms listing which is the same as the inherited set: iphone,ipad,android,macos
+[39m
+apidoc/Titanium/App/Properties/Properties.yml
+[33m	methods[getList].returns - Please define a new type rather than using the generic Object type reference: Array<Object>
+[39m[33m	methods[getList].parameters[default].type - Please define a new type rather than using the generic Object type reference: Array<Object>
+[39m[33m	methods[getObject].returns - Please define a new type rather than using the generic Object type reference: Object
+[39m[33m	methods[getObject].parameters[default].type - Please define a new type rather than using the generic Object type reference: Object
+[39m[33m	methods[listProperties].returns - Please define a new type rather than using the generic Object type reference: Array<Object>
+[39m[33m	methods[setList].parameters[value].type - Please define a new type rather than using the generic Object type reference: Array<Object>
+[39m[33m	methods[setObject].parameters[value].type - Please define a new type rather than using the generic Object type reference: Object
+[39m
+apidoc/Titanium/App/iOS/SearchableIndex.yml
+[33m	methods[isSupported].platforms - Unnecessary platforms listing which is the same as the inherited set: iphone,ipad,macos
+[39m[33m	methods[addToDefaultSearchableIndex].platforms - Unnecessary platforms listing which is the same as the inherited set: iphone,ipad,macos
+[39m[33m	methods[addToDefaultSearchableIndex].parameters[callback].type - Dictionary should have 1 generic type(s) specified, but had 0: Callback<Dictionary>
+[39m[33m	methods[deleteAllSearchableItems].platforms - Unnecessary platforms listing which is the same as the inherited set: iphone,ipad,macos
+[39m[33m	methods[deleteAllSearchableItems].parameters[callback].type - Dictionary should have 1 generic type(s) specified, but had 0: Callback<Dictionary>
+[39m[33m	methods[deleteAllSearchableItemByDomainIdenifiers].platforms - Unnecessary platforms listing which is the same as the inherited set: iphone,ipad,macos
+[39m[33m	methods[deleteAllSearchableItemByDomainIdenifiers].parameters[callback].type - Dictionary should have 1 generic type(s) specified, but had 0: Callback<Dictionary>
+[39m[33m	methods[deleteSearchableItemsByIdentifiers].platforms - Unnecessary platforms listing which is the same as the inherited set: iphone,ipad,macos
+[39m[33m	methods[deleteSearchableItemsByIdentifiers].parameters[callback].type - Dictionary should have 1 generic type(s) specified, but had 0: Callback<Dictionary>
+[39m
+apidoc/Titanium/App/iOS/UserActivity.yml
+[33m	events[useractivitywillsave].properties[userInfo].type - Dictionary should have 1 generic type(s) specified, but had 0: Dictionary
+[39m[33m	events[useractivitywascontinued].properties[userInfo].type - Dictionary should have 1 generic type(s) specified, but had 0: Dictionary
+[39m[33m	properties[userInfo].type - Dictionary should have 1 generic type(s) specified, but had 0: Dictionary
+[39m
+apidoc/Titanium/App/iOS/UserNotificationCenter.yml
+[33m	properties[userInfo].type - Dictionary should have 1 generic type(s) specified, but had 0: Dictionary
+[39m[33m	properties[region].type - Dictionary should have 1 generic type(s) specified, but had 0: Dictionary
+[39m
+apidoc/Titanium/App/iOS/iOS.yml
+[33m	events[notification].properties[userInfo].type - Dictionary should have 1 generic type(s) specified, but had 0: Dictionary
+[39m[33m	events[localnotificationaction].properties[userInfo].type - Dictionary should have 1 generic type(s) specified, but had 0: Dictionary
+[39m[33m	events[remotenotificationaction].properties[data].type - Dictionary should have 1 generic type(s) specified, but had 0: Dictionary
+[39m[33m	events[backgroundfetch].platforms - Unnecessary platforms listing which is the same as the inherited set: iphone,ipad,macos
+[39m[33m	events[silentpush].platforms - Unnecessary platforms listing which is the same as the inherited set: iphone,ipad,macos
+[39m[33m	events[backgroundtransfer].platforms - Unnecessary platforms listing which is the same as the inherited set: iphone,ipad,macos
+[39m[33m	events[watchkitextensionrequest].platforms - Unnecessary platforms listing which is the same as the inherited set: iphone,ipad,macos
+[39m[33m	events[watchkitextensionrequest].properties[userInfo].type - Dictionary should have 1 generic type(s) specified, but had 0: Dictionary
+[39m[33m	events[continueactivity].platforms - Unnecessary platforms listing which is the same as the inherited set: iphone,ipad,macos
+[39m[33m	events[continueactivity].properties[userInfo].type - Dictionary should have 1 generic type(s) specified, but had 0: Dictionary
+[39m[33m	events[shortcutitemclick].properties[userInfo].type - Dictionary should have 1 generic type(s) specified, but had 0: Dictionary
+[39m[33m	events[traitcollectionchange].platforms - Unnecessary platforms listing which is the same as the inherited set: iphone,ipad,macos
+[39m[33m	events[screenshotcaptured].platforms - Unnecessary platforms listing which is the same as the inherited set: iphone,ipad,macos
+[39m[33m	methods[registerBackgroundService].parameters[params].type - Dictionary should have 1 generic type(s) specified, but had 0: Dictionary
+[39m[33m	methods[sendWatchExtensionReply].parameters[userInfo].type - Dictionary should have 1 generic type(s) specified, but had 0: Dictionary
+[39m
+apidoc/Titanium/App/iOS/iOS.yml
+[33m	properties[userInfo].type - Dictionary should have 1 generic type(s) specified, but had 0: Dictionary
+[39m[33m	properties[region].type - Dictionary should have 1 generic type(s) specified, but had 0: Dictionary
+[39m
+apidoc/Titanium/App/iOS/iOS.yml
+[33m	properties[options].type - Dictionary should have 1 generic type(s) specified, but had 0: Dictionary
+[39m
+apidoc/Titanium/Blob.yml
+[33m	methods[imageAsCropped].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	methods[imageAsResized].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	methods[imageAsCompressed].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	methods[imageAsThumbnail].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	methods[imageWithAlpha].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	methods[imageWithRoundedCorner].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	methods[imageWithTransparentBorder].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[size].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m
+apidoc/Titanium/Calendar/Attendee.yml
+[33m	properties[isOrganizer].platforms - Unnecessary platforms listing which is the same as the inherited set: iphone,ipad,macos
+[39m[33m	properties[role].platforms - Unnecessary platforms listing which is the same as the inherited set: iphone,ipad,macos
+[39m
+apidoc/Titanium/Calendar/Calendar.yml
+[33m	methods[getCalendarById].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	methods[hasCalendarPermissions].platforms - Unnecessary platforms listing which is the same as the inherited set: iphone,ipad,android,macos
+[39m[33m	methods[requestCalendarPermissions].platforms - Unnecessary platforms listing which is the same as the inherited set: iphone,ipad,android,macos
+[39m[33m	properties[STATUS_CANCELED].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[STATUS_CONFIRMED].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[STATUS_TENTATIVE].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[RECURRENCEFREQUENCY_DAILY].platforms - Unnecessary platforms listing which is the same as the inherited set: iphone,ipad,android,macos
+[39m[33m	properties[RECURRENCEFREQUENCY_WEEKLY].platforms - Unnecessary platforms listing which is the same as the inherited set: iphone,ipad,android,macos
+[39m[33m	properties[RECURRENCEFREQUENCY_MONTHLY].platforms - Unnecessary platforms listing which is the same as the inherited set: iphone,ipad,android,macos
+[39m[33m	properties[RECURRENCEFREQUENCY_YEARLY].platforms - Unnecessary platforms listing which is the same as the inherited set: iphone,ipad,android,macos
+[39m[33m	properties[ATTENDEE_STATUS_UNKNOWN].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[ATTENDEE_STATUS_ACCEPTED].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[ATTENDEE_STATUS_DECLINED].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[ATTENDEE_STATUS_TENTATIVE].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[ATTENDEE_TYPE_UNKNOWN].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[ATTENDEE_TYPE_RESOURCE].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[allCalendars].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m
+apidoc/Titanium/Calendar/CalendarProxy.yml
+[33m	methods[createEvent].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	methods[getEventById].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	methods[getEventsBetweenDates].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	methods[getEventsInDate].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	methods[getEventsInMonth].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	methods[getEventsInYear].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[hidden].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[id].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[name].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m
+apidoc/Titanium/Calendar/Event.yml
+[33m	methods[createAlert].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	methods[createRecurrenceRule].platforms - Unnecessary platforms listing which is the same as the inherited set: iphone,ipad,android,macos
+[39m[33m	methods[save].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[alerts].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[allDay].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[begin].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[end].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[extendedProperties].type - Dictionary should have 1 generic type(s) specified, but had 0: Dictionary
+[39m[33m	properties[hasAlarm].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[id].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[location].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[status].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[title].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[recurrenceRules].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m
+apidoc/Titanium/Codec/Codec.yml
+[33m	properties[position].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m
+apidoc/Titanium/Codec/Codec.yml
+[33m	properties[position].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[byteOrder].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m
+apidoc/Titanium/Contacts/Contacts.yml
+[33m	properties[cancel].type - Please define a new type rather than using the generic Object type reference: Callback<Object>
+[39m[33m	properties[selectedPerson].type - Please define a new type rather than using the generic Object type reference: Callback<Object>
+[39m[33m	properties[selectedProperty].type - Please define a new type rather than using the generic Object type reference: Callback<Object>
+[39m
+apidoc/Titanium/Contacts/Person.yml
+[33m	properties[address].type - Dictionary should have 1 generic type(s) specified, but had 0: Dictionary
+[39m[33m	properties[alternateBirthday].type - Dictionary should have 1 generic type(s) specified, but had 0: Dictionary
+[39m[33m	properties[date].type - Dictionary should have 1 generic type(s) specified, but had 0: Dictionary
+[39m[33m	properties[email].type - Dictionary should have 1 generic type(s) specified, but had 0: Dictionary
+[39m[33m	properties[instantMessage].type - Dictionary should have 1 generic type(s) specified, but had 0: Dictionary
+[39m[33m	properties[socialProfile].type - Dictionary should have 1 generic type(s) specified, but had 0: Dictionary
+[39m[33m	properties[phone].type - Dictionary should have 1 generic type(s) specified, but had 0: Dictionary
+[39m[33m	properties[relatedNames].type - Dictionary should have 1 generic type(s) specified, but had 0: Dictionary
+[39m[33m	properties[url].type - Dictionary should have 1 generic type(s) specified, but had 0: Dictionary
+[39m
+apidoc/Titanium/Database/DB.yml
+[33m	methods[execute].parameters[vararg].type - Please define a new type rather than using the generic Object type reference: Object
+[39m[33m	methods[execute].parameters[vararg].type - Please define a new type rather than using the generic Object type reference: Array<Object>
+[39m[33m	methods[executeAsync].parameters[vararg].type - Please define a new type rather than using the generic Object type reference: Object
+[39m[33m	methods[executeAsync].parameters[vararg].type - Please define a new type rather than using the generic Object type reference: Array<Object>
+[39m[33m	methods[executeAsync].parameters[callback].type - Please define a new type rather than using the generic Object type reference: Callback<Object, Titanium.Database.ResultSet>
+[39m[33m	methods[executeAll].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	methods[executeAllAsync].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[file].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m
+apidoc/Titanium/Database/Database.yml
+[33m	methods[install].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m
+apidoc/Titanium/Database/ResultSet.yml
+[33m	properties[fieldCount].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[validRow].platforms - Unnecessary platforms listing which is the same as the inherited set: iphone,ipad,android,macos
+[39m
+apidoc/Titanium/Event.yml
+[33m	properties[source].type - Please define a new type rather than using the generic Object type reference: Object
+[39m[33m	properties[bubbles].platforms - Unnecessary platforms listing which is the same as the inherited set: iphone,ipad,android,macos
+[39m[33m	properties[cancelBubble].platforms - Unnecessary platforms listing which is the same as the inherited set: iphone,ipad,android,macos
+[39m
+apidoc/Titanium/Filesystem/File.yml
+[33m	methods[append].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	methods[copy].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	methods[createFile].platforms - Unnecessary platforms listing which is the same as the inherited set: iphone,ipad,android,macos
+[39m[33m	methods[createdAt].platforms - Unnecessary platforms listing which is the same as the inherited set: iphone,ipad,android,macos
+[39m[33m	methods[modifiedAt].platforms - Unnecessary platforms listing which is the same as the inherited set: iphone,ipad,android,macos
+[39m[33m	properties[executable].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[hidden].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m
+apidoc/Titanium/Filesystem/Filesystem.yml
+[33m	properties[applicationCacheDirectory].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m
+apidoc/Titanium/Geolocation/Android/Android.yml
+[33m	properties[PROVIDER_GPS].platforms - Unnecessary platforms listing which is the same as the inherited set: android
+[39m[33m	properties[PROVIDER_NETWORK].platforms - Unnecessary platforms listing which is the same as the inherited set: android
+[39m[33m	properties[PROVIDER_PASSIVE].platforms - Unnecessary platforms listing which is the same as the inherited set: android
+[39m
+apidoc/Titanium/Gesture/Gesture.yml
+[33m	properties[portrait].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[landscape].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m
+apidoc/Titanium/Locale/Locale.yml
+[33m	methods[getCurrencyCode].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	methods[getCurrencySymbol].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	methods[setLanguage].platforms - Unnecessary platforms listing which is the same as the inherited set: iphone,ipad,android,macos
+[39m[33m	methods[getLocaleCurrencySymbol].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	methods[parseDecimal].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[currentCountry].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m
+apidoc/Titanium/Media/AudioPlayer.yml
+[33m	events[complete].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	methods[release].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[duration].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[muted].platforms - Unnecessary platforms listing which is the same as the inherited set: iphone,ipad,android,macos
+[39m
+apidoc/Titanium/Media/AudioPlayer.yml
+[33m	properties[extraAttributes].type - Dictionary should have 1 generic type(s) specified, but had 0: Dictionary
+[39m
+apidoc/Titanium/Media/Media.yml
+[33m	methods[hideCamera].platforms - Unnecessary platforms listing which is the same as the inherited set: iphone,ipad,android,macos
+[39m[33m	methods[openPhotoGallery].platforms - Unnecessary platforms listing which is the same as the inherited set: iphone,ipad,android,macos
+[39m[33m	methods[saveToPhotoGallery].platforms - Unnecessary platforms listing which is the same as the inherited set: iphone,ipad,android,macos
+[39m[33m	methods[saveToPhotoGallery].parameters[callbacks].type - Please define a new type rather than using the generic Object type reference: Object
+[39m[33m	methods[showCamera].platforms - Unnecessary platforms listing which is the same as the inherited set: iphone,ipad,android,macos
+[39m[33m	methods[takePicture].platforms - Unnecessary platforms listing which is the same as the inherited set: iphone,ipad,android,macos
+[39m[33m	methods[startVideoCapture].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	methods[stopVideoCapture].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	methods[switchCamera].platforms - Unnecessary platforms listing which is the same as the inherited set: iphone,ipad,android,macos
+[39m[33m	methods[hasCameraPermissions].platforms - Unnecessary platforms listing which is the same as the inherited set: iphone,ipad,android,macos
+[39m[33m	methods[requestCameraPermissions].platforms - Unnecessary platforms listing which is the same as the inherited set: iphone,ipad,android,macos
+[39m[33m	methods[hasPhotoGalleryPermissions].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	methods[requestPhotoGalleryPermissions].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	methods[takeScreenshot].platforms - Unnecessary platforms listing which is the same as the inherited set: iphone,ipad,android,macos
+[39m[33m	methods[vibrate].platforms - Unnecessary platforms listing which is the same as the inherited set: iphone,ipad,android,macos
+[39m[33m	methods[hasAudioRecorderPermissions].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	methods[requestAudioRecorderPermissions].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[CAMERA_FLASH_AUTO].platforms - Unnecessary platforms listing which is the same as the inherited set: iphone,ipad,android,macos
+[39m[33m	properties[CAMERA_FLASH_OFF].platforms - Unnecessary platforms listing which is the same as the inherited set: iphone,ipad,android,macos
+[39m[33m	properties[CAMERA_FLASH_ON].platforms - Unnecessary platforms listing which is the same as the inherited set: iphone,ipad,android,macos
+[39m[33m	properties[CAMERA_FRONT].platforms - Unnecessary platforms listing which is the same as the inherited set: iphone,ipad,android,macos
+[39m[33m	properties[CAMERA_REAR].platforms - Unnecessary platforms listing which is the same as the inherited set: iphone,ipad,android,macos
+[39m[33m	properties[QUALITY_HIGH].platforms - Unnecessary platforms listing which is the same as the inherited set: iphone,ipad,android,macos
+[39m[33m	properties[QUALITY_LOW].platforms - Unnecessary platforms listing which is the same as the inherited set: iphone,ipad,android,macos
+[39m[33m	properties[QUALITY_640x480].platforms - Unnecessary platforms listing which is the same as the inherited set: iphone,ipad,android,macos
+[39m[33m	properties[QUALITY_IFRAME_1280x720].platforms - Unnecessary platforms listing which is the same as the inherited set: iphone,ipad,android,macos
+[39m[33m	properties[VIDEO_LOAD_STATE_PLAYABLE].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[VIDEO_LOAD_STATE_UNKNOWN].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[VIDEO_PLAYBACK_STATE_INTERRUPTED].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[VIDEO_PLAYBACK_STATE_PAUSED].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[VIDEO_PLAYBACK_STATE_PLAYING].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[VIDEO_PLAYBACK_STATE_STOPPED].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[VIDEO_REPEAT_MODE_NONE].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[VIDEO_REPEAT_MODE_ONE].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[VIDEO_SCALING_RESIZE].platforms - Unnecessary platforms listing which is the same as the inherited set: iphone,ipad,android,macos
+[39m[33m	properties[VIDEO_SCALING_RESIZE_ASPECT].platforms - Unnecessary platforms listing which is the same as the inherited set: iphone,ipad,android,macos
+[39m[33m	properties[VIDEO_SCALING_RESIZE_ASPECT_FILL].platforms - Unnecessary platforms listing which is the same as the inherited set: iphone,ipad,android,macos
+[39m[33m	properties[VIDEO_TIME_OPTION_NEAREST_KEYFRAME].platforms - Unnecessary platforms listing which is the same as the inherited set: iphone,ipad,android,macos
+[39m[33m	properties[availableCameras].platforms - Unnecessary platforms listing which is the same as the inherited set: iphone,ipad,android,macos
+[39m[33m	properties[cameraFlashMode].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[canRecord].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[isCameraSupported].platforms - Unnecessary platforms listing which is the same as the inherited set: iphone,ipad,android,macos
+[39m
+apidoc/Titanium/Media/Media.yml
+[33m	properties[autohide].platforms - Unnecessary platforms listing which is the same as the inherited set: iphone,ipad,android,macos
+[39m[33m	properties[mediaTypes].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[videoMaximumDuration].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[videoQuality].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m
+apidoc/Titanium/Media/Media.yml
+[33m	properties[mediaTypes].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m
+apidoc/Titanium/Media/Sound.yml
+[33m	events[complete].properties[success].platforms - Unnecessary platforms listing which is the same as the inherited set: iphone,ipad,android,macos
+[39m[33m	events[complete].properties[error].platforms - Unnecessary platforms listing which is the same as the inherited set: iphone,ipad,android,macos
+[39m[33m	events[complete].properties[code].platforms - Unnecessary platforms listing which is the same as the inherited set: iphone,ipad,android,macos
+[39m[33m	events[error].properties[success].platforms - Unnecessary platforms listing which is the same as the inherited set: iphone,ipad,android,macos
+[39m[33m	events[error].properties[error].platforms - Unnecessary platforms listing which is the same as the inherited set: iphone,ipad,android,macos
+[39m[33m	events[error].properties[code].platforms - Unnecessary platforms listing which is the same as the inherited set: iphone,ipad,android,macos
+[39m
+apidoc/Titanium/Media/VideoPlayer.yml
+[33m	events[complete].properties[success].platforms - Unnecessary platforms listing which is the same as the inherited set: iphone,ipad,android,macos
+[39m[33m	events[complete].properties[error].platforms - Unnecessary platforms listing which is the same as the inherited set: iphone,ipad,android,macos
+[39m[33m	events[complete].properties[code].platforms - Unnecessary platforms listing which is the same as the inherited set: iphone,ipad,android,macos
+[39m[33m	events[playing].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	methods[cancelAllThumbnailImageRequests].platforms - Unnecessary platforms listing which is the same as the inherited set: iphone,ipad,android,macos
+[39m[33m	methods[requestThumbnailImagesAtTimes].platforms - Unnecessary platforms listing which is the same as the inherited set: iphone,ipad,android,macos
+[39m[33m	properties[repeatMode].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[showsControls].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m
+apidoc/Titanium/Network/Cookie.yml
+[33m	methods[isValid].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m
+apidoc/Titanium/Network/HTTPClient.yml
+[33m	methods[clearCookies].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	methods[send].parameters[data].type - Please define a new type rather than using the generic Object type reference: Object
+[39m[33m	properties[responseHeaders].type - Dictionary should have 1 generic type(s) specified, but had 0: Dictionary
+[39m[33m	properties[autoRedirect].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[domain].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[file].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[ondatastream].type - Please define a new type rather than using the generic Object type reference: Callback<Object>
+[39m[33m	properties[onreadystatechange].type - Please define a new type rather than using the generic Object type reference: Callback<Object>
+[39m[33m	properties[onsendstream].type - Please define a new type rather than using the generic Object type reference: Callback<Object>
+[39m[33m	properties[password].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[securityManager].platforms - Unnecessary platforms listing which is the same as the inherited set: ipad,iphone,android,macos
+[39m[33m	properties[username].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[validatesSecureCertificate].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m
+apidoc/Titanium/Network/HTTPClient.yml
+[33m	methods[willHandleURL].parameters[url].type - Please define a new type rather than using the generic Object type reference: Object
+[39m[33m	methods[connectionDelegateForUrl].parameters[url].type - Please define a new type rather than using the generic Object type reference: Object
+[39m[33m	methods[getTrustManagers].returns - Please define a new type rather than using the generic Object type reference: Array<Object>
+[39m[33m	methods[getTrustManagers].parameters[proxy].type - Please define a new type rather than using the generic Object type reference: Object
+[39m[33m	methods[getKeyManagers].returns - Please define a new type rather than using the generic Object type reference: Array<Object>
+[39m[33m	methods[getKeyManagers].parameters[proxy].type - Please define a new type rather than using the generic Object type reference: Object
+[39m
+apidoc/Titanium/Network/Network.yml
+[33m	methods[addHTTPCookie].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	methods[getHTTPCookies].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	methods[getHTTPCookiesForDomain].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	methods[removeAllHTTPCookies].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	methods[removeHTTPCookie].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	methods[removeHTTPCookiesForDomain].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[TLS_VERSION_1_0].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[TLS_VERSION_1_1].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[TLS_VERSION_1_2].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[TLS_VERSION_1_3].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[PROGRESS_UNKNOWN].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m
+apidoc/Titanium/Network/Network.yml
+[33m	properties[data].type - Dictionary should have 1 generic type(s) specified, but had 0: Dictionary
+[39m
+apidoc/Titanium/Network/TCPSocket.yml
+[33m	events[readError].name - Name should be all lowercase.
+[39m[33m	events[writeError].name - Name should be all lowercase.
+[39m[33m	methods[write].parameters[data].type - Please define a new type rather than using the generic Object type reference: Object
+[39m
+apidoc/Titanium/Platform/DisplayCaps.yml
+[33m	properties[logicalDensityFactor].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m
+apidoc/Titanium/Platform/Platform.yml
+[33m	events[battery].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	methods[canOpenURL].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	methods[createUUID].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	methods[openURL].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	methods[openURL].parameters[callback].type - Callback should have any number of generic type(s) specified, but had 0: Callback
+[39m[33m	methods[is24HourTimeFormat].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[address].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[architecture].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[availableMemory].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[batteryMonitoring].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[id].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[locale].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[macaddress].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[manufacturer].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[model].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[netmask].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[ostype].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[processorCount].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[totalMemory].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[uptime].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[username].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m
+apidoc/Titanium/Platform/Platform.yml
+[33m	properties[UIApplicationOpenURLOptionsAnnotationKey].type - Array should have 1 generic type(s) specified, but had 0: Array
+[39m
+apidoc/Titanium/Proxy.yml
+[33m	methods[fireEvent].parameters[event].type - Dictionary should have 1 generic type(s) specified, but had 0: Dictionary
+[39m[33m	methods[applyProperties].parameters[props].type - Dictionary should have 1 generic type(s) specified, but had 0: Dictionary
+[39m[33m	properties[bubbleParent].platforms - Unnecessary platforms listing which is the same as the inherited set: iphone,ipad,android,macos
+[39m[33m	properties[apiName].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m
+apidoc/Titanium/Stream/Stream.yml
+[33m	methods[readAll].returns - Replace array of returns with single returns value with type having array of type names
+[39m
+apidoc/Titanium/Titanium.yml
+[33m	methods[createBuffer].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m
+apidoc/Titanium/UI/ActivityIndicator.yml
+[33m	properties[indicatorColor].platforms - Unnecessary platforms listing which is the same as the inherited set: iphone,ipad,android,macos
+[39m
+apidoc/Titanium/UI/ActivityIndicatorStyle.yml
+[33m	properties[BIG].platforms - Unnecessary platforms listing which is the same as the inherited set: iphone,ipad,android,macos
+[39m[33m	properties[DARK].platforms - Unnecessary platforms listing which is the same as the inherited set: iphone,ipad,android,macos
+[39m[33m	properties[PLAIN].platforms - Unnecessary platforms listing which is the same as the inherited set: iphone,ipad,android,macos
+[39m
+apidoc/Titanium/UI/AlertDialog.yml
+[33m	properties[messageid].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[persistent].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[titleid].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m
+apidoc/Titanium/UI/Android/Android.yml
+[33m	methods[getColorResource].returns - Replace array of returns with single returns value with type having array of type names
+[39m[33m	properties[TABS_STYLE_DEFAULT].platforms - Unnecessary platforms listing which is the same as the inherited set: android
+[39m[33m	properties[TABS_STYLE_BOTTOM_NAVIGATION].platforms - Unnecessary platforms listing which is the same as the inherited set: android
+[39m
+apidoc/Titanium/UI/Animation.yml
+[33m	properties[backgroundColor].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[color].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[curve].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m
+apidoc/Titanium/UI/Attribute.yml
+[33m	properties[value].type - Please define a new type rather than using the generic Object type reference: Object
+[39m
+apidoc/Titanium/UI/Button.yml
+[33m	properties[attributedString].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[backgroundDisabledImage].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[backgroundFocusedImage].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[backgroundSelectedColor].platforms - Unnecessary platforms listing which is the same as the inherited set: iphone,ipad,android,macos
+[39m[33m	properties[backgroundSelectedImage].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[shadowColor].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[shadowOffset].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[style].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[tintColor].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m
+apidoc/Titanium/UI/Clipboard/Clipboard.yml
+[33m	methods[setData].parameters[data].type - Please define a new type rather than using the generic Object type reference: Object
+[39m[33m	methods[getItems].returns - Replace array of returns with single returns value with type having array of type names
+[39m[33m	methods[getItems].returns - Dictionary should have 1 generic type(s) specified, but had 0: Array<Dictionary>
+[39m
+apidoc/Titanium/UI/Clipboard/Clipboard.yml
+[33m	properties[items].type - Dictionary should have 1 generic type(s) specified, but had 0: Array<Dictionary>
+[39m[33m	properties[options].type - Dictionary should have 1 generic type(s) specified, but had 0: Dictionary
+[39m
+apidoc/Titanium/UI/Color.yml
+[33m	methods[toHex].returns - Replace array of returns with single returns value with type having array of type names
+[39m
+apidoc/Titanium/UI/DashboardView.yml
+[33m	events[click].properties[item].type - Please define a new type rather than using the generic Object type reference: Object
+[39m
+apidoc/Titanium/UI/EmailDialog.yml
+[33m	methods[addAttachment].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[SAVED].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[html].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m
+apidoc/Titanium/UI/ImageView.yml
+[33m	events[pause].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	methods[pause].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	methods[resume].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	methods[toBlob].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[autorotate].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[defaultImage].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[tintColor].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m
+apidoc/Titanium/UI/Label.yml
+[33m	events[link].platforms - Unnecessary platforms listing which is the same as the inherited set: iphone,ipad,android,macos
+[39m[33m	events[link].properties[range].type - Array should have 1 generic type(s) specified, but had 0: Array
+[39m[33m	properties[attributedString].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[ellipsize].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[highlightedColor].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[maxLines].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[minimumFontSize].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[shadowColor].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[shadowOffset].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m
+apidoc/Titanium/UI/ListItem.yml
+[33m	properties[backgroundImage].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[backgroundGradient].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[backgroundSelectedColor].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[backgroundSelectedImage].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[selectedBackgroundColor].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[selectedBackgroundImage].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[canEdit].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[canMove].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[searchableText].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m
+apidoc/Titanium/UI/ListItem.yml
+[33m	properties[events].type - Dictionary should have 1 generic type(s) specified, but had 0: Dictionary
+[39m
+apidoc/Titanium/UI/ListItem.yml
+[33m	properties[properties].type - Dictionary should have 1 generic type(s) specified, but had 0: Dictionary
+[39m[33m	properties[events].type - Dictionary should have 1 generic type(s) specified, but had 0: Dictionary
+[39m
+apidoc/Titanium/UI/ListSection.yml
+[33m	properties[footerView].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[headerView].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m
+apidoc/Titanium/UI/ListView.yml
+[33m	events[delete].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	events[marker].platforms - Unnecessary platforms listing which is the same as the inherited set: iphone,ipad,android,macos
+[39m[33m	events[move].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	events[noresults].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	events[scrollstart].platforms - Unnecessary platforms listing which is the same as the inherited set: iphone,ipad,android,macos
+[39m[33m	events[scrollstart].properties[firstVisibleItem].type - Please define a new type rather than using the generic Object type reference: Object
+[39m[33m	events[scrollend].platforms - Unnecessary platforms listing which is the same as the inherited set: iphone,ipad,android,macos
+[39m[33m	events[scrollend].properties[firstVisibleItem].type - Please define a new type rather than using the generic Object type reference: Object
+[39m[33m	events[scrolling].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	methods[setMarker].platforms - Unnecessary platforms listing which is the same as the inherited set: iphone,ipad,android,macos
+[39m[33m	methods[addMarker].platforms - Unnecessary platforms listing which is the same as the inherited set: iphone,ipad,android,macos
+[39m[33m	properties[canScroll].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[editing].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[templates].type - Dictionary should have 1 generic type(s) specified, but had 0: Dictionary
+[39m[33m	properties[footerView].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[headerView].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[refreshControl].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[searchView].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[searchText].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[caseInsensitiveSearch].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[separatorColor].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[separatorStyle].platforms - Unnecessary platforms listing which is the same as the inherited set: iphone,ipad,android,macos
+[39m
+apidoc/Titanium/UI/NavigationWindow.yml
+[33m	methods[closeWindow].parameters[options].type - Dictionary should have 1 generic type(s) specified, but had 0: Dictionary
+[39m
+apidoc/Titanium/UI/Notification.yml
+[33m	properties[gravity].platforms - Unnecessary platforms listing which is the same as the inherited set: android
+[39m
+apidoc/Titanium/UI/OptionDialog.yml
+[33m	properties[persistent].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m
+apidoc/Titanium/UI/Picker.yml
+[33m	methods[getSelectedRow].returns - Replace array of returns with single returns value with type having array of type names
+[39m[33m	methods[setValue].returns - Replace array of returns with single returns value with type having array of type names
+[39m[33m	methods[showDatePickerDialog].parameters[dictObj].type - Please define a new type rather than using the generic Object type reference: Object
+[39m[33m	methods[showTimePickerDialog].parameters[dictObj].type - Please define a new type rather than using the generic Object type reference: Object
+[39m[33m	properties[backgroundColor].platforms - Unnecessary platforms listing which is the same as the inherited set: iphone,ipad,android,macos
+[39m[33m	properties[selectionIndicator].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m
+apidoc/Titanium/UI/PickerRow.yml
+[33m	properties[color].platforms - Unnecessary platforms listing which is the same as the inherited set: iphone,ipad,android,macos
+[39m
+apidoc/Titanium/UI/ProgressBar.yml
+[33m	properties[trackTintColor].platforms - Unnecessary platforms listing which is the same as the inherited set: iphone,ipad,android,macos
+[39m
+apidoc/Titanium/UI/RefreshControl.yml
+[33m	events[refreshstart].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	events[refreshend].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[tintColor].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m
+apidoc/Titanium/UI/ScrollView.yml
+[33m	events[scroll].properties[contentSize].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	events[dragStart].name - Name should be all lowercase.
+[39m[33m	events[dragEnd].name - Name should be all lowercase.
+[39m[33m	events[dragstart].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	events[dragend].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	methods[scrollToBottom].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	methods[scrollToTop].platforms - Unnecessary platforms listing which is the same as the inherited set: iphone,ipad,android,macos
+[39m[33m	properties[canCancelEvents].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[refreshControl].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[scrollingEnabled].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m
+apidoc/Titanium/UI/ScrollableView.yml
+[33m	methods[insertViewsAt].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	methods[moveNext].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	methods[movePrevious].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[cacheSize].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[scrollingEnabled].platforms - Unnecessary platforms listing which is the same as the inherited set: iphone,ipad,android,macos
+[39m[33m	properties[clipViews].platforms - Unnecessary platforms listing which is the same as the inherited set: iphone,ipad,android,macos
+[39m
+apidoc/Titanium/UI/SearchBar.yml
+[33m	properties[autocapitalization].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[autocorrect].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[barColor].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[color].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[hintTextColor].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m
+apidoc/Titanium/UI/ShortcutItem.yml
+[33m	properties[id].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[title].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[description].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[icon].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[data].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[data].type - Please define a new type rather than using the generic Object type reference: Object
+[39m
+apidoc/Titanium/UI/Slider.yml
+[33m	events[start].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	events[stop].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[leftTrackImage].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[rightTrackImage].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[thumbImage].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[trackTintColor].platforms - Unnecessary platforms listing which is the same as the inherited set: iphone,ipad,android,macos
+[39m
+apidoc/Titanium/UI/Switch.yml
+[33m	properties[style].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m
+apidoc/Titanium/UI/Tab.yml
+[33m	events[unselected].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	events[selected].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	methods[close].parameters[options].type - Please define a new type rather than using the generic Object type reference: Object
+[39m[33m	properties[badge].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[badgeColor].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[tintColor].platforms - Unnecessary platforms listing which is the same as the inherited set: iphone,ipad,android,macos
+[39m[33m	properties[activeTintColor].platforms - Unnecessary platforms listing which is the same as the inherited set: iphone,ipad,android,macos
+[39m[33m	properties[titleColor].platforms - Unnecessary platforms listing which is the same as the inherited set: iphone,ipad,android,macos
+[39m[33m	properties[activeTitleColor].platforms - Unnecessary platforms listing which is the same as the inherited set: iphone,ipad,android,macos
+[39m
+apidoc/Titanium/UI/TabGroup.yml
+[33m	events[blur].platforms - Unnecessary platforms listing which is the same as the inherited set: iphone,ipad,android,macos
+[39m[33m	events[close].platforms - Unnecessary platforms listing which is the same as the inherited set: iphone,ipad,android,macos
+[39m[33m	events[focus].platforms - Unnecessary platforms listing which is the same as the inherited set: iphone,ipad,android,macos
+[39m[33m	properties[barColor].platforms - Unnecessary platforms listing which is the same as the inherited set: iphone,ipad,android,macos
+[39m[33m	properties[titleColor].platforms - Unnecessary platforms listing which is the same as the inherited set: iphone,ipad,android,macos
+[39m[33m	properties[activeTitleColor].platforms - Unnecessary platforms listing which is the same as the inherited set: iphone,ipad,android,macos
+[39m[33m	properties[tabsBackgroundColor].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[activeTintColor].platforms - Unnecessary platforms listing which is the same as the inherited set: iphone,ipad,android,macos
+[39m[33m	properties[tintColor].platforms - Unnecessary platforms listing which is the same as the inherited set: iphone,ipad,android,macos
+[39m
+apidoc/Titanium/UI/TableView.yml
+[33m	events[delete].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	events[move].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	events[touchstart].platforms - Unnecessary platforms listing which is the same as the inherited set: iphone,ipad,android,macos
+[39m[33m	methods[appendSection].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	methods[deleteSection].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	methods[insertSectionAfter].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	methods[insertSectionBefore].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	methods[selectRow].platforms - Unnecessary platforms listing which is the same as the inherited set: iphone,ipad,android,macos
+[39m[33m	methods[updateSection].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[editable].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[editing].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[filterAttribute].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[filterAnchored].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[filterCaseInsensitive].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[refreshControl].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[moveable].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[moving].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[scrollable].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[search].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[sectionCount].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[sections].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[separatorStyle].platforms - Unnecessary platforms listing which is the same as the inherited set: iphone,ipad,android,macos
+[39m
+apidoc/Titanium/UI/TableViewRow.yml
+[33m	properties[editable].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[footer].platforms - Unnecessary platforms listing which is the same as the inherited set: iphone,ipad,android,macos
+[39m[33m	properties[footerTitle].platforms - Unnecessary platforms listing which is the same as the inherited set: iphone,ipad,android,macos
+[39m[33m	properties[hasDetail].platforms - Unnecessary platforms listing which is the same as the inherited set: iphone,ipad,android,macos
+[39m[33m	properties[header].platforms - Unnecessary platforms listing which is the same as the inherited set: iphone,ipad,android,macos
+[39m[33m	properties[headerTitle].platforms - Unnecessary platforms listing which is the same as the inherited set: iphone,ipad,android,macos
+[39m[33m	properties[moveable].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m
+apidoc/Titanium/UI/TextArea.yml
+[33m	events[link].properties[range].type - Array should have 1 generic type(s) specified, but had 0: Array
+[39m[33m	methods[setSelection].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[attributedHintText].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[attributedString].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[autocapitalization].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[autocorrect].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[autofillType].platforms - Unnecessary platforms listing which is the same as the inherited set: iphone,ipad,android,macos
+[39m[33m	properties[autoLink].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[keyboardType].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[maxLength].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[padding].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[selection].platforms - Unnecessary platforms listing which is the same as the inherited set: iphone,ipad,android,macos
+[39m
+apidoc/Titanium/UI/TextField.yml
+[33m	methods[setSelection].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[attributedString].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[attributedHintText].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[autofillType].platforms - Unnecessary platforms listing which is the same as the inherited set: iphone,ipad,android,macos
+[39m[33m	properties[borderStyle].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[hintTextColor].platforms - Unnecessary platforms listing which is the same as the inherited set: iphone,ipad,android,macos
+[39m[33m	properties[padding].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[selection].platforms - Unnecessary platforms listing which is the same as the inherited set: iphone,ipad,android,macos
+[39m[33m	properties[verticalAlign].platforms - Unnecessary platforms listing which is the same as the inherited set: iphone,ipad,android,macos
+[39m
+apidoc/Titanium/UI/Toolbar.yml
+[33m	properties[barColor].platforms - Unnecessary platforms listing which is the same as the inherited set: iphone,ipad,android,macos
+[39m[33m	properties[items].platforms - Unnecessary platforms listing which is the same as the inherited set: iphone,ipad,android,macos
+[39m[33m	properties[extendBackground].platforms - Unnecessary platforms listing which is the same as the inherited set: iphone,ipad,android,macos
+[39m
+apidoc/Titanium/UI/UI.yml
+[33m	methods[fetchSemanticColor].returns - Replace array of returns with single returns value with type having array of type names
+[39m[33m	properties[TEXT_ALIGNMENT_JUSTIFY].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m
+apidoc/Titanium/UI/View.yml
+[33m	events[doubletap].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	events[keypressed].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	events[longpress].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	events[pinch].platforms - Unnecessary platforms listing which is the same as the inherited set: iphone,ipad,android,macos
+[39m[33m	events[swipe].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	methods[animate].parameters[callback].type - Please define a new type rather than using the generic Object type reference: Callback<Object>
+[39m[33m	methods[insertAt].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	methods[replaceAt].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	methods[toImage].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	methods[updateLayout].parameters[params].type - Dictionary should have 1 generic type(s) specified, but had 0: Dictionary
+[39m[33m	methods[convertPointToView].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	methods[getViewById].platforms - Unnecessary platforms listing which is the same as the inherited set: iphone,ipad,android,macos
+[39m[33m	properties[accessibilityHidden].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[accessibilityHint].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[accessibilityLabel].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[accessibilityValue].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[anchorPoint].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[backgroundGradient].platforms - Unnecessary platforms listing which is the same as the inherited set: iphone,ipad,android,macos
+[39m[33m	properties[backgroundRepeat].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m
+apidoc/Titanium/UI/View.yml
+[33m	properties[startRadius].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[endRadius].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[backfillStart].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos,macos
+[39m[33m	properties[backfillEnd].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m
+apidoc/Titanium/UI/WebView.yml
+[33m	events[error].properties[url].platforms - Unnecessary platforms listing which is the same as the inherited set: iphone,ipad,android,macos
+[39m[33m	events[onLoadResource].name - Name should be all lowercase.
+[39m[33m	events[sslerror].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	events[onStopBlacklistedUrl].name - Name should be all lowercase.
+[39m[33m	events[blacklisturl].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	events[blockedurl].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	events[progress].platforms - Unnecessary platforms listing which is the same as the inherited set: android,ipad,iphone,macos
+[39m[33m	methods[setHtml].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	methods[setBasicAuthentication].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[blacklistedURLs].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[blockedURLs].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[disableContextMenu].platforms - Unnecessary platforms listing which is the same as the inherited set: iphone,ipad,android,macos
+[39m[33m	properties[ignoreSslError].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[onCreateWindow].type - Please define a new type rather than using the generic Object type reference: Callback<Object>
+[39m[33m	properties[onlink].platforms - Unnecessary platforms listing which is the same as the inherited set: iphone,ipad,android,macos
+[39m[33m	properties[scalesPageToFit].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[userAgent].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[requestHeaders].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[requestHeaders].type - Dictionary should have 1 generic type(s) specified, but had 0: Dictionary
+[39m[33m	properties[zoomLevel].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[progress].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m
+apidoc/Titanium/UI/Window.yml
+[33m	events[focus].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	methods[setToolbar].parameters[items].type - Please define a new type rather than using the generic Object type reference: Array<Object>
+[39m[33m	properties[barColor].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[extendSafeArea].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[fullscreen].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[hidesBackButton].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[navBarHidden].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[orientationModes].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[orientation].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[safeAreaPadding].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m
+apidoc/Titanium/UI/iOS/ApplicationShortcuts.yml
+[33m	properties[userInfo].type - Please define a new type rather than using the generic Object type reference: Object
+[39m
+apidoc/Titanium/UI/iOS/DocumentViewer.yml
+[33m	properties[annotation].type - Dictionary should have 1 generic type(s) specified, but had 0: Dictionary
+[39m[33m	properties[annotation].type - Array should have 1 generic type(s) specified, but had 0: Array
+[39m
+apidoc/Titanium/UI/iOS/NavigationWindow.yml
+[33m	methods[closeWindow].parameters[options].type - Dictionary should have 1 generic type(s) specified, but had 0: Dictionary
+[39m[33m	methods[openWindow].parameters[options].type - Dictionary should have 1 generic type(s) specified, but had 0: Dictionary
+[39m[33m	methods[popToRootWindow].parameters[options].type - Dictionary should have 1 generic type(s) specified, but had 0: Dictionary
+[39m
+apidoc/Titanium/UI/iOS/Toolbar.yml
+[33m	properties[extendBackground].platforms - Unnecessary platforms listing which is the same as the inherited set: iphone,ipad,macos
+[39m
+apidoc/Titanium/UI/iOS/WebViewConfiguration.yml
+[33m	properties[processPool].platforms - Unnecessary platforms listing which is the same as the inherited set: iphone,ipad,macos
+[39m
+apidoc/Titanium/WatchSession/WatchSession.yml
+[33m	events[receivemessage].properties[message].type - Dictionary should have 1 generic type(s) specified, but had 0: Dictionary
+[39m[33m	events[receiveapplicationcontext].properties[applicationContext].type - Dictionary should have 1 generic type(s) specified, but had 0: Dictionary
+[39m[33m	events[receiveuserinfo].properties[userInfo].type - Dictionary should have 1 generic type(s) specified, but had 0: Dictionary
+[39m[33m	events[receivefile].properties[metaData].type - Dictionary should have 1 generic type(s) specified, but had 0: Dictionary
+[39m[33m	events[finishuserinfotransfer].properties[userInfo].type - Dictionary should have 1 generic type(s) specified, but had 0: Dictionary
+[39m[33m	events[finishfiletransfer].properties[metaData].type - Dictionary should have 1 generic type(s) specified, but had 0: Dictionary
+[39m[33m	events[activationCompleted].name - Name should be all lowercase.
+[39m[33m	methods[sendMessage].parameters[message].type - Dictionary should have 1 generic type(s) specified, but had 0: Dictionary
+[39m[33m	methods[updateApplicationContext].parameters[params].type - Dictionary should have 1 generic type(s) specified, but had 0: Dictionary
+[39m[33m	methods[transferUserInfo].parameters[params].type - Dictionary should have 1 generic type(s) specified, but had 0: Dictionary
+[39m[33m	methods[transferFile].parameters[params].type - Dictionary should have 1 generic type(s) specified, but had 0: Dictionary
+[39m[33m	methods[transferCurrentComplication].parameters[params].type - Dictionary should have 1 generic type(s) specified, but had 0: Dictionary
+[39m[33m	properties[recentApplicationContext].type - Dictionary should have 1 generic type(s) specified, but had 0: Dictionary
+[39m
+apidoc/Titanium/WatchSession/WatchSession.yml
+[33m	properties[message].type - Dictionary should have 1 generic type(s) specified, but had 0: Dictionary
+[39m
+apidoc/Titanium/XML/Element.yml
+[33m	properties[text].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m[33m	properties[textContent].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m
+apidoc/Titanium/XML/Text.yml
+[33m	properties[textContent].platforms - Unnecessary platforms listing which is the same as the inherited set: android,iphone,ipad,macos
+[39m
+apidoc/Titanium/Yahoo/Yahoo.yml
+[33m	properties[data].type - Please define a new type rather than using the generic Object type reference: Object
+[39m
