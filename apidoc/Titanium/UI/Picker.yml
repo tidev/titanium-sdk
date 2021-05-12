@@ -100,12 +100,7 @@ methods:
     parameters:
       - name: date
         summary: A Javascript `Date` object.
-        type: date
-    deprecated:
-      since: "10.0.0"
-      removed: "10.0.0"
-      notes: Use the <Titanium.Picker.value> property instead
-
+        type: Date
 
     returns:
       - type: Titanium.UI.PickerRow
