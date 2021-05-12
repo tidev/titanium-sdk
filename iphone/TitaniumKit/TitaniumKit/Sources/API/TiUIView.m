@@ -985,12 +985,8 @@ DEFINE_EXCEPTIONS
 {
   [[self proxy] replaceValue:arg forKey:@"viewShadowRadius" notification:NO];
 
-  CGFloat radius = 0;
   TiDimension radiusDimension = [TiUtils dimensionValue:arg];
-  if (!TiDimensionIsUndefined(radiusDimension)) {
-    radius = radiusDimension.value;
-  }
-  [[self shadowLayer] setShadowRadius:radius];
+  [[self shadowLayer] setShadowRadius:radiusDimension.value];
 }
 
 - (void)setViewShadowColor_:(id)arg
