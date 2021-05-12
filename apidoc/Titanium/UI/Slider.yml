@@ -106,6 +106,10 @@ methods:
         type: AnimatedOptions
         optional: true
         default: "{ animated: false }"
+    deprecated:
+      since: "10.0.0"
+      removed: "10.0.0"
+      notes: Use the <Titanium.Slider.value> property instead
 
 events:
   - name: change
