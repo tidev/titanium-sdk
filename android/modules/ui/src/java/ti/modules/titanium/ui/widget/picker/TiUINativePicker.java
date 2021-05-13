@@ -39,12 +39,12 @@ public class TiUINativePicker extends TiUIPicker
 {
 	private static final String TAG = "TiUINativePicker";
 	private boolean nativeViewDrawn = false;
-	private static int defaultTextColor;
-	private static boolean setDefaultTextColor = false;
 
 	public static class TiSpinnerAdapter<T> extends ArrayAdapter<T>
 	{
 		String[] fontProperties;
+		private int defaultTextColor;
+		private boolean hasLoadedDefaultTextColor;
 
 		public TiSpinnerAdapter(Context context, int textViewResourceId, List<T> objects)
 		{
@@ -74,21 +74,25 @@ public class TiUINativePicker extends TiUIPicker
 
 		private void styleTextView(int position, TextView tv)
 		{
-			TiViewProxy rowProxy = (TiViewProxy) this.getItem(position);
+			// Fetch text view's default text color if not done already.
+			if (!this.hasLoadedDefaultTextColor) {
+				this.defaultTextColor = tv.getCurrentTextColor();
+				this.hasLoadedDefaultTextColor = true;
+			}
+
+			// Update text view's font if configured.
 			if (fontProperties != null) {
 				TiUIHelper.styleText(
 					tv, fontProperties[TiUIHelper.FONT_FAMILY_POSITION], fontProperties[TiUIHelper.FONT_SIZE_POSITION],
 					fontProperties[TiUIHelper.FONT_WEIGHT_POSITION], fontProperties[TiUIHelper.FONT_STYLE_POSITION]);
 			}
-			if (!setDefaultTextColor) {
-				defaultTextColor = tv.getCurrentTextColor();
-				setDefaultTextColor = true;
-			}
+
+			// Update text color if configured.
+			TiViewProxy rowProxy = (TiViewProxy) this.getItem(position);
 			if (rowProxy.hasProperty(TiC.PROPERTY_COLOR)) {
-				final int color = TiConvert.toColor((String) rowProxy.getProperty(TiC.PROPERTY_COLOR));
+				String colorString = TiConvert.toString(rowProxy.getProperty(TiC.PROPERTY_COLOR));
+				int color = (colorString != null) ? TiConvert.toColor(colorString) : this.defaultTextColor;
 				tv.setTextColor(color);
-			} else {
-				tv.setTextColor(defaultTextColor);
 			}
 		}
 	}
@@ -222,14 +226,14 @@ public class TiUINativePicker extends TiUIPicker
 			if (rowArray == null || rowArray.length == 0) {
 				return;
 			}
-			ArrayList<TiViewProxy> rows = new ArrayList<TiViewProxy>(Arrays.asList(rowArray));
+			ArrayList<TiViewProxy> rows = new ArrayList<>(Arrays.asList(rowArray));
 			// At the moment we're using the simple spinner layouts provided
 			// in android because we're only supporting a piece of text, which
 			// is fetched via PickerRowProxy.toString(). If we allow
 			// anything beyond a string, we'll have to implement our own
 			// layouts (maybe our own Adapter too.)
 			TiSpinnerAdapter<TiViewProxy> adapter =
-				new TiSpinnerAdapter<TiViewProxy>(spinner.getContext(), android.R.layout.simple_spinner_item, rows);
+				new TiSpinnerAdapter<>(spinner.getContext(), android.R.layout.simple_spinner_item, rows);
 			adapter.setFontProperties(proxy.getProperties());
 			adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 			spinner.setAdapter(adapter);

@@ -8,25 +8,23 @@ package ti.modules.titanium.ui.widget.listview;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.titanium.R;
-import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiRHelper;
 import org.appcelerator.titanium.util.TiUIHelper;
+import org.appcelerator.titanium.view.TiBackgroundDrawable;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiUIView;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.res.ColorStateList;
 import android.content.res.Resources;
-import android.content.res.TypedArray;
 import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
-import android.graphics.drawable.RippleDrawable;
-import android.graphics.drawable.StateListDrawable;
+import android.graphics.drawable.PaintDrawable;
 import android.os.Build;
 import android.util.TypedValue;
 import android.view.View;
@@ -143,8 +141,15 @@ public class ListViewHolder extends TiRecyclerViewHolder
 		}
 
 		if (proxy != null) {
-			final TiUIView view = proxy.getOrCreateView();
+			// Update list item proxy's activity in case it has changed, such as after a dark/light theme change.
+			final Context context = this.itemView.getContext();
+			if ((context instanceof Activity) && (proxy.getActivity() != context)) {
+				proxy.releaseViews();
+				proxy.setActivity((Activity) context);
+			}
 
+			// Get or create the view. (Must be called after updating activity above.)
+			final TiUIView view = proxy.getOrCreateView();
 			if (view != null) {
 				final ViewGroup borderView = (ViewGroup) view.getOuterView();
 				final ViewGroup nativeView = (ViewGroup) view.getNativeView();
@@ -156,20 +161,44 @@ public class ListViewHolder extends TiRecyclerViewHolder
 
 					// Obtain background drawable.
 					Drawable backgroundDrawable = view.getBackground();
-					if (backgroundDrawable == null) {
+					if (backgroundDrawable == null
+							&& properties.containsKeyAndNotNull(TiC.PROPERTY_BACKGROUND_COLOR)) {
 						backgroundDrawable = nativeView.getBackground();
+					}
+					if (backgroundDrawable instanceof TiBackgroundDrawable) {
+						final TiBackgroundDrawable drawable = (TiBackgroundDrawable) backgroundDrawable;
+
+						backgroundDrawable = drawable.getBackground();
+					}
+
+					// Parse background color to determine transparency.
+					int backgroundColor = -1;
+					if (backgroundDrawable instanceof PaintDrawable) {
+						final PaintDrawable drawable = (PaintDrawable) backgroundDrawable;
+
+						backgroundColor = drawable.getPaint().getColor();
+					} else if (backgroundDrawable instanceof ColorDrawable) {
+						final ColorDrawable drawable = (ColorDrawable) backgroundDrawable;
+
+						backgroundColor = drawable.getColor();
+					}
+					if (Color.alpha(backgroundColor) <= 0) {
+
+						// Do not use drawable for transparent backgrounds.
+						backgroundDrawable = null;
 					}
 
 					if (parentView != null) {
 						parentView.removeView(borderView);
 					}
 
-					// Set ripple background.
-					if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+					final boolean touchFeedback = listViewProperties.optBoolean(TiC.PROPERTY_TOUCH_FEEDBACK, false);
+					final String touchFeedbackColor =
+						listViewProperties.optString(TiC.PROPERTY_TOUCH_FEEDBACK_COLOR, null);
 
-						// To enable the ripple effect, we set the foreground to `selectableItemBackgroundBorderless`.
-						// However, this is not supported below Android 7.0 so we set the background instead.
-						nativeView.setBackground(generateRippleDrawable(backgroundDrawable));
+					// Set ripple background.
+					if (touchFeedback) {
+						backgroundDrawable = generateRippleDrawable(backgroundDrawable, touchFeedbackColor);
 					}
 
 					// Support selected backgrounds.
@@ -220,61 +249,6 @@ public class ListViewHolder extends TiRecyclerViewHolder
 	}
 
 	/**
-	 * Generate ripple effect drawable from specified drawable.
-	 * TODO: Move into a utility class?
-	 *
-	 * @param drawable Drawable to apply ripple effect.
-	 * @return Drawable
-	 */
-	protected Drawable generateRippleDrawable(Drawable drawable)
-	{
-		if (!(drawable instanceof RippleDrawable)) {
-			final int[][] rippleStates = new int[][] { new int[] { android.R.attr.state_pressed } };
-			final TypedValue typedValue = new TypedValue();
-			final Activity activity = TiApplication.getAppRootOrCurrentActivity();
-			final TypedArray colorControlHighlight = activity.obtainStyledAttributes(
-				typedValue.data, new int[] { android.R.attr.colorControlHighlight });
-			final int colorControlHighlightInt = colorControlHighlight.getColor(0, 0);
-			final int[] rippleColors = new int[] { colorControlHighlightInt };
-			final ColorStateList colorStateList = new ColorStateList(rippleStates, rippleColors);
-
-			// Create the RippleDrawable.
-			drawable = new RippleDrawable(colorStateList, drawable, null);
-		}
-		return drawable;
-	}
-
-	/**
-	 * Generate selected background from proxy properties.
-	 * TODO: Move into a utility class?
-	 *
-	 * @param properties Dictionary containing selected background properties.
-	 * @return Drawable
-	 */
-	protected Drawable generateSelectedDrawable(KrollDict properties, Drawable drawable)
-	{
-		if (properties.containsKeyAndNotNull(TiC.PROPERTY_SELECTED_BACKGROUND_COLOR)
-			|| properties.containsKeyAndNotNull(TiC.PROPERTY_SELECTED_BACKGROUND_IMAGE)) {
-
-			final StateListDrawable stateDrawable = new StateListDrawable();
-			final Drawable selectedBackgroundDrawable = TiUIHelper.buildBackgroundDrawable(
-				properties.getString(TiC.PROPERTY_SELECTED_BACKGROUND_COLOR),
-				properties.getString(TiC.PROPERTY_SELECTED_BACKGROUND_IMAGE),
-				TiConvert.toBoolean(properties.get(TiC.PROPERTY_BACKGROUND_REPEAT), false),
-				null
-			);
-
-			stateDrawable.addState(
-				new int[] { android.R.attr.state_activated }, selectedBackgroundDrawable);
-			stateDrawable.addState(new int[] {}, drawable);
-
-			return stateDrawable;
-		}
-
-		return drawable;
-	}
-
-	/**
 	 * Reset row into nominal state.
 	 */
 	private void reset()
@@ -313,6 +287,8 @@ public class ListViewHolder extends TiRecyclerViewHolder
 			return;
 		}
 
+		final Context context = this.itemView.getContext();
+
 		// Handle `header` and `footer`.
 		if (updateHeader) {
 			if (properties.containsKeyAndNotNull(TiC.PROPERTY_HEADER_TITLE)) {
@@ -325,6 +301,11 @@ public class ListViewHolder extends TiRecyclerViewHolder
 
 				// Handle header view.
 				final TiViewProxy headerProxy = (TiViewProxy) properties.get(TiC.PROPERTY_HEADER_VIEW);
+				if ((context instanceof Activity) && (headerProxy.getActivity() != context)) {
+					headerProxy.releaseViews();
+					headerProxy.setActivity((Activity) context);
+				}
+
 				final TiUIView view = headerProxy.getOrCreateView();
 				if (view != null) {
 					final View headerView = view.getOuterView();
@@ -354,6 +335,11 @@ public class ListViewHolder extends TiRecyclerViewHolder
 
 				// Handle footer view.
 				final TiViewProxy footerProxy = (TiViewProxy) properties.get(TiC.PROPERTY_FOOTER_VIEW);
+				if ((context instanceof Activity) && (footerProxy.getActivity() != context)) {
+					footerProxy.releaseViews();
+					footerProxy.setActivity((Activity) context);
+				}
+
 				final TiUIView view = footerProxy.getOrCreateView();
 				if (view != null) {
 					final View footerView = view.getOuterView();

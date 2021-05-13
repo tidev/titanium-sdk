@@ -6,6 +6,7 @@
  */
 /* eslint-env mocha */
 /* eslint no-unused-expressions: "off" */
+/* eslint promise/no-callback-in-promise: "off" */
 'use strict';
 const should = require('./utilities/assertions');
 
@@ -49,7 +50,7 @@ describe('Titanium.UI.NavigationWindow', function () {
 				openPromise.then(() => {
 					const result = nav.close();
 					result.should.be.a.Promise();
-					result.then(() => finish()).catch(e => finish(e));
+					return result.then(() => finish()).catch(e => finish(e)); // eslint-disable-line promise/no-nesting
 				}).catch(e => finish(e));
 			});
 
@@ -65,8 +66,10 @@ describe('Titanium.UI.NavigationWindow', function () {
 				nav = Ti.UI.createNavigationWindow({ window: Ti.UI.createWindow() });
 
 				nav.open().then(() => {
-					nav.close().then(() => {
-						nav.close().then(() => finish(new Error('Expected second #close() call on Window to be rejected'))).catch(e => finish());
+					// eslint-disable-next-line promise/no-nesting
+					return nav.close().then(() => {
+						// eslint-disable-next-line promise/no-nesting
+						return nav.close().then(() => finish(new Error('Expected second #close() call on Window to be rejected'))).catch(() => finish());
 					}).catch(e => finish(e));
 				}).catch(e => finish(e));
 			});
@@ -89,7 +92,7 @@ describe('Titanium.UI.NavigationWindow', function () {
 
 				const result = nav.open();
 				result.should.be.a.Promise();
-				result.then(() => finish(), e => finish(e));
+				result.then(() => finish()).catch(e => finish(e));
 			});
 
 			it('called twice on same Window rejects second Promise', finish => {
@@ -97,6 +100,7 @@ describe('Titanium.UI.NavigationWindow', function () {
 
 				const first = nav.open();
 				first.should.be.a.Promise();
+				// eslint-disable-next-line promise/catch-or-return
 				first.then(() => nav.open(), e => finish(e)).then(() => finish(new Error('Expected second #open() to be rejected')), _e => finish());
 			});
 		});
@@ -290,7 +294,7 @@ describe('Titanium.UI.Window', function () {
 
 	afterEach(done => {
 		if (nav) {
-			nav.close().then(() => done()).catch(e => done());
+			nav.close().then(() => done()).catch(() => done());
 		}
 		nav = null;
 	});

@@ -63,7 +63,9 @@ import android.os.Messenger;
 import android.os.PowerManager;
 import android.os.RemoteException;
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
 
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -84,18 +86,16 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 	private boolean onDestroyFired = false;
 	private int originalOrientationMode = -1;
 	private boolean inForeground = false; // Indicates whether this activity is in foreground or not.
-	private TiWeakList<OnLifecycleEvent> lifecycleListeners = new TiWeakList<OnLifecycleEvent>();
-	private TiWeakList<OnWindowFocusChangedEvent> windowFocusChangedListeners =
-		new TiWeakList<OnWindowFocusChangedEvent>();
-	private TiWeakList<interceptOnBackPressedEvent> interceptOnBackPressedListeners =
-		new TiWeakList<interceptOnBackPressedEvent>();
-	private TiWeakList<OnInstanceStateEvent> instanceStateListeners = new TiWeakList<OnInstanceStateEvent>();
-	private TiWeakList<OnActivityResultEvent> onActivityResultListeners = new TiWeakList<OnActivityResultEvent>();
-	private TiWeakList<OnCreateOptionsMenuEvent> onCreateOptionsMenuListeners =
-		new TiWeakList<OnCreateOptionsMenuEvent>();
-	private TiWeakList<OnPrepareOptionsMenuEvent> onPrepareOptionsMenuListeners =
-		new TiWeakList<OnPrepareOptionsMenuEvent>();
+	private final TiWeakList<OnLifecycleEvent> lifecycleListeners = new TiWeakList<>();
+	private final TiWeakList<OnWindowFocusChangedEvent> windowFocusChangedListeners = new TiWeakList<>();
+	private final TiWeakList<interceptOnBackPressedEvent> interceptOnBackPressedListeners = new TiWeakList<>();
+	private final TiWeakList<OnInstanceStateEvent> instanceStateListeners = new TiWeakList<>();
+	private final TiWeakList<OnActivityResultEvent> onActivityResultListeners = new TiWeakList<>();
+	private final TiWeakList<OnCreateOptionsMenuEvent> onCreateOptionsMenuListeners = new TiWeakList<>();
+	private final TiWeakList<OnPrepareOptionsMenuEvent> onPrepareOptionsMenuListeners = new TiWeakList<>();
 	private boolean sustainMode = false;
+	private int lastUIModeFlags = 0;
+	private int lastNightMode = AppCompatDelegate.MODE_NIGHT_UNSPECIFIED;
 	private Intent launchIntent = null;
 	private TiActionBarStyleHandler actionBarStyleHandler;
 	private TiActivitySafeAreaMonitor safeAreaMonitor;
@@ -111,7 +111,7 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 			@NonNull String[] permissions, @NonNull int[] grantResults);
 	}
 
-	private static HashMap<Integer, TiBaseActivity.OnRequestPermissionsResultCallback>
+	private static final HashMap<Integer, TiBaseActivity.OnRequestPermissionsResultCallback>
 		permissionsResultCallbackMap = new HashMap<>();
 
 	protected View layout;
@@ -120,14 +120,13 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 	protected TiWindowProxy window;
 	protected TiViewProxy view;
 	protected ActivityProxy activityProxy;
-	protected TiWeakList<ConfigurationChangedListener> configChangedListeners =
-		new TiWeakList<ConfigurationChangedListener>();
+	protected TiWeakList<ConfigurationChangedListener> configChangedListeners = new TiWeakList<>();
 	protected TiMenuSupport menuHelper;
 	protected Messenger messenger;
 	protected int msgActivityCreatedId = -1;
 	protected int msgId = -1;
 	//Storing the activity's dialogs and their persistence
-	private CopyOnWriteArrayList<DialogWrapper> dialogs = new CopyOnWriteArrayList<DialogWrapper>();
+	private final CopyOnWriteArrayList<DialogWrapper> dialogs = new CopyOnWriteArrayList<>();
 
 	public TiWindowProxy lwWindow;
 	public boolean isResumed = false;
@@ -213,7 +212,7 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 
 	/**
 	 * Sets the window proxy.
-	 * @param proxy
+	 * @param proxy The proxy to be assigned to this activity.
 	 */
 	public void setWindowProxy(TiWindowProxy proxy)
 	{
@@ -223,7 +222,7 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 	/**
 	 * Sets the proxy for our layout (used for post layout event)
 	 *
-	 * @param proxy
+	 * @param proxy The proxy to be assigned to activity's root view.
 	 */
 	public void setLayoutProxy(TiViewProxy proxy)
 	{
@@ -234,7 +233,7 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 
 	/**
 	 * Sets the view proxy.
-	 * @param proxy
+	 * @param proxy Proxy to be used as root decor view.
 	 */
 	public void setViewProxy(TiViewProxy proxy)
 	{
@@ -287,7 +286,7 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 
 	public void addConfigurationChangedListener(ConfigurationChangedListener listener)
 	{
-		configChangedListeners.add(new WeakReference<ConfigurationChangedListener>(listener));
+		configChangedListeners.add(new WeakReference<>(listener));
 	}
 
 	public void removeConfigurationChangedListener(ConfigurationChangedListener listener)
@@ -513,7 +512,6 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 	}
 
 	// Subclasses can override to handle post-creation (but pre-message fire) logic
-	@SuppressWarnings("deprecation")
 	protected void windowCreated(Bundle savedInstanceState)
 	{
 		boolean fullscreen = getIntentBoolean(TiC.PROPERTY_FULLSCREEN, false);
@@ -650,6 +648,25 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 		this.launchIntent = getIntent();
 		this.safeAreaMonitor = new TiActivitySafeAreaMonitor(this);
 
+		// Fetch the current UI mode flags. Used to determine light/dark theme being used.
+		Configuration config = getResources().getConfiguration();
+		if (config != null) {
+			this.lastUIModeFlags = config.uiMode;
+		}
+
+		// If activity is being recreated/restored, then copy last saved intent extras.
+		// This is needed to acquire the Ti.UI.Window proxy ID this activity should be assigned to.
+		if ((this.launchIntent != null) && (savedInstanceState != null)) {
+			Bundle oldExtras = savedInstanceState.getBundle("tiLaunchIntentExtras");
+			if (oldExtras != null) {
+				Bundle newExtras = this.launchIntent.getExtras();
+				if (newExtras != null) {
+					oldExtras.putAll(newExtras);
+				}
+				this.launchIntent.putExtras(oldExtras);
+			}
+		}
+
 		TiApplication tiApp = getTiApp();
 		TiApplication.addToActivityStack(this);
 
@@ -717,6 +734,10 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 		this.requestWindowFeature(Window.FEATURE_ACTIVITY_TRANSITIONS);
 		super.onCreate(savedInstanceState);
 
+		// Fetch app's current night mode setting used to override dark/light theme handling.
+		// In JavaScript, this can be changed via "Ti.UI.overrideUserInterfaceStyle" property.
+		this.lastNightMode = AppCompatDelegate.getDefaultNightMode();
+
 		// If activity is using Google's default ActionBar, then the below will return an ActionBar style handler
 		// intended to be called by onConfigurationChanged() which will resize its title bar and font.
 		// Note: We need to do this since we override "configChanges" in the "AndroidManifest.xml".
@@ -768,7 +789,11 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 		originalOrientationMode = getRequestedOrientation();
 
 		if (window != null) {
-			window.onWindowActivityCreated();
+			try {
+				window.onWindowActivityCreated();
+			} catch (Throwable t) {
+				Thread.getDefaultUncaughtExceptionHandler().uncaughtException(null, t);
+			}
 		}
 		if (activityProxy != null) {
 			dispatchCallback(TiC.PROPERTY_ON_CREATE, null);
@@ -1161,7 +1186,7 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 	}
 
 	@Override
-	public void onConfigurationChanged(Configuration newConfig)
+	public void onConfigurationChanged(@NonNull Configuration newConfig)
 	{
 		super.onConfigurationChanged(newConfig);
 
@@ -1180,6 +1205,30 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 			if (listener.get() != null) {
 				listener.get().onConfigurationChanged(this, newConfig);
 			}
+		}
+
+		// Recreate this activity if the OS has switched between light/dark theme.
+		final int NIGHT_MASK = Configuration.UI_MODE_NIGHT_MASK;
+		if ((newConfig.uiMode & NIGHT_MASK) != (this.lastUIModeFlags & NIGHT_MASK)) {
+			this.lastNightMode = AppCompatDelegate.getDefaultNightMode();
+			ActivityCompat.recreate(this);
+		}
+		this.lastUIModeFlags = newConfig.uiMode;
+	}
+
+	@Override
+	protected void onNightModeChanged(int mode)
+	{
+		super.onNightModeChanged(mode);
+		applyNightMode();
+	}
+
+	public void applyNightMode()
+	{
+		int mode = AppCompatDelegate.getDefaultNightMode();
+		if (this.inForeground && (mode != this.lastNightMode)) {
+			this.lastNightMode = mode;
+			ActivityCompat.recreate(this);
 		}
 	}
 
@@ -1200,37 +1249,37 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 
 	public void addOnLifecycleEventListener(OnLifecycleEvent listener)
 	{
-		lifecycleListeners.add(new WeakReference<OnLifecycleEvent>(listener));
+		lifecycleListeners.add(new WeakReference<>(listener));
 	}
 
 	public void addOnInstanceStateEventListener(OnInstanceStateEvent listener)
 	{
-		instanceStateListeners.add(new WeakReference<OnInstanceStateEvent>(listener));
+		instanceStateListeners.add(new WeakReference<>(listener));
 	}
 
 	public void addOnWindowFocusChangedEventListener(OnWindowFocusChangedEvent listener)
 	{
-		windowFocusChangedListeners.add(new WeakReference<OnWindowFocusChangedEvent>(listener));
+		windowFocusChangedListeners.add(new WeakReference<>(listener));
 	}
 
 	public void addInterceptOnBackPressedEventListener(interceptOnBackPressedEvent listener)
 	{
-		interceptOnBackPressedListeners.add(new WeakReference<interceptOnBackPressedEvent>(listener));
+		interceptOnBackPressedListeners.add(new WeakReference<>(listener));
 	}
 
 	public void addOnActivityResultListener(OnActivityResultEvent listener)
 	{
-		onActivityResultListeners.add(new WeakReference<OnActivityResultEvent>(listener));
+		onActivityResultListeners.add(new WeakReference<>(listener));
 	}
 
 	public void addOnCreateOptionsMenuEventListener(OnCreateOptionsMenuEvent listener)
 	{
-		onCreateOptionsMenuListeners.add(new WeakReference<OnCreateOptionsMenuEvent>(listener));
+		onCreateOptionsMenuListeners.add(new WeakReference<>(listener));
 	}
 
 	public void addOnPrepareOptionsMenuEventListener(OnPrepareOptionsMenuEvent listener)
 	{
-		onPrepareOptionsMenuListeners.add(new WeakReference<OnPrepareOptionsMenuEvent>(listener));
+		onPrepareOptionsMenuListeners.add(new WeakReference<>(listener));
 	}
 
 	public void removeOnLifecycleEventListener(OnLifecycleEvent listener)
@@ -1413,6 +1462,8 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 				}
 			}
 		}
+
+		applyNightMode();
 	}
 
 	@Override
@@ -1453,6 +1504,8 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 		super.onRestart();
 
 		Log.d(TAG, "Activity " + this + " onRestart", Log.DEBUG_MODE);
+
+		applyNightMode();
 	}
 
 	@Override
@@ -1580,10 +1633,14 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 	{
 		super.onSaveInstanceState(outState);
 
-		// If the activity is forced to destroy by Android, save the supportHelperId so
-		// we can get it back when the activity is recovered.
-		if (!isFinishing() && supportHelper != null) {
-			outState.putInt("supportHelperId", supportHelperId);
+		// If activity is being temporarily destroyed, then save settings to be restored when activity is recreated.
+		if (!isFinishing()) {
+			if (supportHelper != null) {
+				outState.putInt("supportHelperId", supportHelperId);
+			}
+			if (this.launchIntent != null) {
+				outState.putBundle("tiLaunchIntentExtras", this.launchIntent.getExtras());
+			}
 		}
 
 		synchronized (instanceStateListeners.synchronizedList())

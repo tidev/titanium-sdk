@@ -30,7 +30,6 @@ NSString *TITANIUM_VERSION;
 extern void UIColorFlushCache(void);
 
 #define SHUTDOWN_TIMEOUT_IN_SEC 3
-#define TIV @"TiVerify"
 
 BOOL applicationInMemoryPanic = NO; // TODO: Remove in SDK 9.0+
 
@@ -222,10 +221,6 @@ TI_INLINE void waitForMemoryPanicCleared(void); //WARNING: This must never be ru
   [[UIApplication sharedApplication] beginReceivingRemoteControlEvents];
 }
 
-- (void)validator
-{
-  [[[NSClassFromString(TIV) alloc] init] autorelease];
-}
 - (void)booted:(id)bridge
 {
   if ([bridge isKindOfClass:[KrollBridge class]]) {
@@ -251,12 +246,6 @@ TI_INLINE void waitForMemoryPanicCleared(void); //WARNING: This must never be ru
       }
       [_queuedApplicationSelectors removeAllObjects];
     }
-
-    TiThreadPerformOnMainThread(
-        ^{
-          [self validator];
-        },
-        YES);
   }
 }
 

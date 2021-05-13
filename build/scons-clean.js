@@ -12,7 +12,7 @@ program.option('-v, --sdk-version [version]', 'Override the SDK version we repor
 	.parse(process.argv);
 
 const Builder = require('./lib/builder');
-new Builder(program).clean()
+new Builder(program.opts(), program.args).clean()
 	.then(() => process.exit(0))
 	.catch(err => {
 		console.error(err);

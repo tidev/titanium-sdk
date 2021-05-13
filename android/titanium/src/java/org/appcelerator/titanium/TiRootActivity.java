@@ -54,9 +54,9 @@ public class TiRootActivity extends TiLaunchActivity implements TiActivitySuppor
 	 */
 	private static boolean isScriptRunning;
 
-	private ArrayList<OnNewIntentListener> newIntentListeners = new ArrayList<>(16);
-	private LinkedList<Runnable> pendingRuntimeRunnables = new LinkedList<>();
-	private Drawable[] backgroundLayers = { null, null };
+	private final ArrayList<OnNewIntentListener> newIntentListeners = new ArrayList<>(16);
+	private final LinkedList<Runnable> pendingRuntimeRunnables = new LinkedList<>();
+	private final Drawable[] backgroundLayers = { null, null };
 	private int runtimeStartedListenerId = KrollProxy.INVALID_EVENT_LISTENER_ID;
 	private boolean wasRuntimeStarted;
 	private boolean isDuplicateInstance;
@@ -321,9 +321,6 @@ public class TiRootActivity extends TiLaunchActivity implements TiActivitySuppor
 		tiApp.setCurrentActivity(this, this);
 		tiApp.setRootActivity(this);
 		super.onCreate(savedInstanceState);
-		if (isNotRestoringActivity) {
-			tiApp.verifyCustomModules(this);
-		}
 
 		// Invoke activity's onNewIntent() behavior if above code bundled an extra intent into it.
 		// This happens if activity was initially created with a non-main launcher intent, such as a URL scheme.

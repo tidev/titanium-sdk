@@ -12,7 +12,7 @@ program
 	.parse(process.argv);
 
 const Builder = require('./lib/builder');
-new Builder(program).build()
+new Builder(program.opts(), program.args).build()
 	.then(() => process.exit(0))
 	.catch(err => {
 		console.error(err);

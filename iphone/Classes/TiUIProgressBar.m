@@ -27,6 +27,7 @@
     style = _style;
     min = _min;
     max = _max;
+    animated = [TiUtils boolValue:[self.proxy valueForKey:@"animated"] def:YES];
     [self setHidden:YES];
 
 #ifdef TI_USE_AUTOLAYOUT
@@ -148,6 +149,11 @@
 
 #pragma mark Properties
 
+- (void)setAnimated_:(id)value
+{
+  animated = [TiUtils boolValue:value];
+}
+
 - (void)setMin_:(id)value
 {
   min = [TiUtils floatValue:value];
@@ -161,7 +167,7 @@
 - (void)setValue_:(id)value
 {
   CGFloat newValue = ([TiUtils floatValue:value] - min) / (max - min);
-  [[self progress] setProgress:newValue];
+  [[self progress] setProgress:newValue animated:animated];
 }
 
 - (void)setFont_:(id)value

@@ -25,6 +25,8 @@ import org.appcelerator.titanium.view.TiUIView;
 import android.app.Activity;
 import android.view.View;
 
+import androidx.annotation.NonNull;
+
 import ti.modules.titanium.ui.UIModule;
 import ti.modules.titanium.ui.widget.TiView;
 
@@ -289,8 +291,10 @@ public class ListItemProxy extends TiViewProxy
 				if (o instanceof HashMap) {
 					final KrollDict childTemplate = new KrollDict((HashMap) o);
 					final TiViewProxy childView = generateViewFromTemplate(null, childTemplate);
-
-					parent.add(childView);
+					if (childView != null) {
+						childView.setActivity(parent.getActivity());
+						parent.add(childView);
+					}
 				}
 			}
 		}
@@ -646,23 +650,6 @@ public class ListItemProxy extends TiViewProxy
 	{
 		this.holder = null;
 
-		final KrollDict properties = getProperties();
-
-		if (properties.containsKeyAndNotNull(TiC.PROPERTY_HEADER_VIEW)) {
-			final TiViewProxy header = (TiViewProxy) properties.get(TiC.PROPERTY_HEADER_VIEW);
-
-			if (header.getParent() == this) {
-				header.releaseViews();
-			}
-		}
-		if (properties.containsKeyAndNotNull(TiC.PROPERTY_FOOTER_VIEW)) {
-			final TiViewProxy footer = (TiViewProxy) properties.get(TiC.PROPERTY_FOOTER_VIEW);
-
-			if (footer.getParent() == this) {
-				footer.releaseViews();
-			}
-		}
-
 		super.releaseViews();
 	}
 
@@ -691,6 +678,13 @@ public class ListItemProxy extends TiViewProxy
 			super(proxy);
 
 			getLayoutParams().autoFillsWidth = true;
+		}
+
+		@Override
+		protected boolean canApplyTouchFeedback(@NonNull KrollDict props)
+		{
+			// Prevent TiUIView from overriding `touchFeedback` effect.
+			return false;
 		}
 	}
 }

@@ -4,7 +4,7 @@
  * @module cli/_build
  *
  * @copyright
- * Copyright (c) 2009-2020 by Axway, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2021 by Axway, Inc. All Rights Reserved.
  *
  * @license
  * Licensed under the terms of the Apache Public License
@@ -22,6 +22,8 @@ const ADB = require('node-titanium-sdk/lib/adb'),
 	Builder = require('node-titanium-sdk/lib/builder'),
 	GradleWrapper = require('../lib/gradle-wrapper'),
 	ProcessJsTask = require('../../../cli/lib/tasks/process-js-task'),
+	ProcessDrawablesTask = require('../lib/process-drawables-task'),
+	ProcessSplashesTask = require('../lib/process-splashes-task'),
 	Color = require('../../../common/lib/color'),
 	ProcessCSSTask = require('../../../cli/lib/tasks/process-css-task'),
 	CopyResourcesTask = require('../../../cli/lib/tasks/copy-resources-task'),
@@ -554,7 +556,7 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 										}
 									}
 
-								} else if (cli.argv['device-id'] === undefined && results.length && config.get('android.autoSelectDevice', true)) {
+								} else if (cli.argv['device-id'] === undefined && results && results.length && config.get('android.autoSelectDevice', true)) {
 									// we set the device-id to an array of devices so that later in validate()
 									// after the tiapp.xml has been parsed, we can auto select the best device
 									_t.devicesToAutoSelectFrom = results.sort(function (a, b) {
@@ -947,11 +949,11 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 		if (config.get('android.allowAppNameAmpersands', false)) {
 			logger.warn(__('The app name "%s" contains an ampersand (&) which will most likely cause problems.', cli.tiapp.name));
 			logger.warn(__('It is recommended that you define the app name using i18n strings.'));
-			logger.warn(__('Refer to %s for more information.', 'http://appcelerator.com/i18n-app-name'.cyan));
+			logger.warn(__('Refer to %s for more information.', 'https://titaniumsdk.com/guide/Titanium_SDK/Titanium_SDK_How-tos/Cross-Platform_Mobile_Development_In_Titanium/Internationalization.html'.cyan));
 		} else {
 			logger.error(__('The app name "%s" contains an ampersand (&) which will most likely cause problems.', cli.tiapp.name));
 			logger.error(__('It is recommended that you define the app name using i18n strings.'));
-			logger.error(__('Refer to %s for more information.', 'http://appcelerator.com/i18n-app-name'));
+			logger.error(__('Refer to %s for more information.', 'https://titaniumsdk.com/guide/Titanium_SDK/Titanium_SDK_How-tos/Cross-Platform_Mobile_Development_In_Titanium/Internationalization.html'));
 			logger.error(__('To allow ampersands in the app name, run:'));
 			logger.error('    %sti config android.allowAppNameAmpersands true\n', process.env.APPC_ENV ? 'appc ' : '');
 			process.exit(1);
@@ -1647,14 +1649,6 @@ AndroidBuilder.prototype.initialize = async function initialize() {
 
 	const loadFromSDCardProp = this.tiapp.properties['ti.android.loadfromsdcard'];
 	this.loadFromSDCard = loadFromSDCardProp && loadFromSDCardProp.value === true;
-
-	// Set default theme to be used in "AndroidManifest.xml" and style resources.
-	this.defaultAppThemeName = 'Theme.MaterialComponents.Bridge';
-	if (this.tiapp.fullscreen || this.tiapp['statusbar-hidden']) {
-		this.defaultAppThemeName = 'Theme.MaterialComponents.Fullscreen.Bridge';
-	} else if (this.tiapp['navbar-hidden']) {
-		this.defaultAppThemeName = 'Theme.MaterialComponents.NoActionBar.Bridge';
-	}
 
 	// Array of gradle/maven compatible library reference names the app project depends on.
 	// Formatted as: "<group.id>:<artifact-id>:<version>"
@@ -2491,7 +2485,8 @@ AndroidBuilder.prototype.gatherResources = async function gatherResources() {
 	// now categorize (i.e. lump into buckets of js/css/html/assets/generic resources)
 	const categorizer = new gather.Categorizer({
 		tiappIcon: this.tiapp.icon,
-		jsFilesNotToProcess: Object.keys(this.htmlJsFiles)
+		jsFilesNotToProcess: Object.keys(this.htmlJsFiles),
+		platform: 'android',
 	});
 	return await categorizer.run(combined);
 };
@@ -2506,6 +2501,38 @@ AndroidBuilder.prototype.copyCSSFiles = async function copyCSSFiles(files) {
 	const task = new ProcessCSSTask({
 		files,
 		incrementalDirectory: path.join(this.buildTiIncrementalDir, 'process-css'),
+		logger: this.logger,
+		builder: this,
+	});
+	return task.run();
+};
+
+/**
+ * Copies drawable resources into the app
+ * @param {Map<string,object>} files map from filename to file info
+ * @returns {Promise<void>}
+ */
+AndroidBuilder.prototype.processDrawableFiles = async function processDrawableFiles(files) {
+	this.logger.debug(__('Copying Drawables'));
+	const task = new ProcessDrawablesTask({
+		files,
+		incrementalDirectory: path.join(this.buildTiIncrementalDir, 'process-drawables'),
+		logger: this.logger,
+		builder: this,
+	});
+	return task.run();
+};
+
+/**
+ * Copies splash screen resources into the app
+ * @param {Map<string,object>} files map from filename to file info
+ * @returns {Promise<void>}
+ */
+AndroidBuilder.prototype.processSplashesFiles = async function processSplashesFiles(files) {
+	this.logger.debug(__('Copying Splash Screens'));
+	const task = new ProcessSplashesTask({
+		files,
+		incrementalDirectory: path.join(this.buildTiIncrementalDir, 'process-splashes'),
 		logger: this.logger,
 		builder: this,
 	});
@@ -2546,7 +2573,7 @@ AndroidBuilder.prototype.writeEnvironmentVariables = async function writeEnviron
 	await fs.writeFile(
 		envVarsFile,
 		// for non-development builds, DO NOT WRITE OUT ENV VARIABLES TO APP
-		this.writeEnvVars ? JSON.stringify(process.env) : {}
+		this.writeEnvVars ? JSON.stringify(process.env) : '{}'
 	);
 	this.encryptJS && this.jsFilesToEncrypt.push('_env_.json');
 	this.unmarkBuildDirFile(envVarsFile);
@@ -2607,23 +2634,27 @@ AndroidBuilder.prototype.processJSFiles = async function processJSFiles(jsFilesM
 		this.tiSymbols = task.data.tiSymbols;  // record API usage for analytics
 	}
 
-	// Now we need to copy the processed JS files from build/assets to build/app/src/main/assets/Resources
-	const resourcesToCopy = new Map();
-	for (let [ key, value ] of jsFilesMap) {
-		resourcesToCopy.set(key, {
-			src: path.join(this.buildAssetsDir, key),
-			dest: value.dest
+	// Copy all unencrypted files processed by ProcessJsTask to "app" project's APK "assets" directory.
+	// Note: For encrypted builds, our encryptJSFiles() method will write encrypted JS files to the app project.
+	if (!this.encryptJS) {
+		// Now we need to copy the processed JS files from build/assets to build/app/src/main/assets/Resources
+		const resourcesToCopy = new Map();
+		for (let [ key, value ] of jsFilesMap) {
+			resourcesToCopy.set(key, {
+				src: path.join(this.buildAssetsDir, key),
+				dest: value.dest
+			});
+			this.unmarkBuildDirFile(value.dest);
+		}
+		const copyTask = new CopyResourcesTask({
+			incrementalDirectory: path.join(this.buildTiIncrementalDir, 'copy-processed-js'),
+			name: 'copy-processed-js',
+			logger: this.logger,
+			builder: this,
+			files: resourcesToCopy
 		});
-		this.unmarkBuildDirFile(value.dest);
+		await copyTask.run();
 	}
-	const copyTask = new CopyResourcesTask({
-		incrementalDirectory: path.join(this.buildTiIncrementalDir, 'copy-processed-js'),
-		name: 'copy-processed-js',
-		logger: this.logger,
-		builder: this,
-		files: resourcesToCopy
-	});
-	await copyTask.run();
 
 	// then write the bootstrap json
 	return this.writeBootstrapJson(jsBootstrapFiles);
@@ -2687,6 +2718,8 @@ AndroidBuilder.prototype.copyResources = async function copyResources() {
 	await Promise.all([
 		this.copyCSSFiles(gatheredResults.cssFiles),
 		this.processJSFiles(gatheredResults.jsFiles),
+		this.processDrawableFiles(gatheredResults.imageAssets),
+		this.processSplashesFiles(gatheredResults.launchImages),
 		this.writeAppProps(), // writes _app_props_.json for Ti.Properties
 		this.writeEnvironmentVariables(), // writes _env_.json for process.env
 		this.copyPlatformDirs(), // copies platform/android dirs from project/modules
@@ -2816,7 +2849,7 @@ AndroidBuilder.prototype.encryptJSFiles = async function encryptJSFiles() {
 					await fs.readFile(path.join(this.templatesDir, 'AssetCryptImpl.java'), 'utf8'),
 					{
 						appid: this.appid,
-						assets: this.jsFilesToEncrypt,
+						assets: this.jsFilesToEncrypt.map(f => f.replace(/\\/g, '/')),
 						salt: cloak.salt
 					}
 				)
@@ -3257,13 +3290,20 @@ AndroidBuilder.prototype.generateTheme = async function generateTheme() {
 	const xmlFilePath = path.join(valuesDirPath, 'ti_styles.xml');
 	this.logger.info(__('Generating theme file: %s', xmlFilePath.cyan));
 
-	// Set up "Base.Theme.Titanium.Customizable" inherited themes to use <application/> defined theme, if provided.
-	// Note: Do not assign it if set to a Titanium theme, which would cause a circular reference.
-	let customizableParentThemeName = this.defaultAppThemeName;
+	// Set default theme to be used in "AndroidManifest.xml" and style resources.
+	let defaultAppThemeName = 'Theme.Titanium.DayNight';
+	if (this.tiapp.fullscreen || this.tiapp['statusbar-hidden']) {
+		defaultAppThemeName = 'Theme.Titanium.DayNight.Fullscreen';
+	} else if (this.tiapp['navbar-hidden']) {
+		defaultAppThemeName = 'Theme.Titanium.DayNight.NoTitleBar';
+	}
+
+	// Set up "Theme.AppDerived" to use the <application/> defined theme, if assigned.
+	let actualAppTheme = 'Theme.Titanium.App';
 	if (this.customAndroidManifest) {
 		const appTheme = this.customAndroidManifest.getAppAttribute('android:theme');
-		if (appTheme && !appTheme.startsWith('@style/Theme.Titanium') && !appTheme.startsWith('@style/Base.Theme.Titanium')) {
-			customizableParentThemeName = appTheme;
+		if (appTheme && !appTheme.startsWith('@style/Theme.AppDerived') && (appTheme !== '@style/Theme.Titanium')) {
+			actualAppTheme = appTheme;
 		}
 	}
 
@@ -3272,11 +3312,11 @@ AndroidBuilder.prototype.generateTheme = async function generateTheme() {
 	let xmlLines = [
 		'<?xml version="1.0" encoding="utf-8"?>',
 		'<resources>',
-		`	<style name="Base.Theme.Titanium.Basic" parent="${this.defaultAppThemeName}"/>`,
-		`	<style name="Base.Theme.Titanium.Customizable" parent="${customizableParentThemeName}"/>`,
+		`	<style name="Theme.Titanium.App" parent="${defaultAppThemeName}"/>`,
+		`	<style name="Theme.AppDerived" parent="${actualAppTheme}"/>`,
 		'',
 		'	<!-- Theme used by "TiRootActivity" derived class which displays the splash screen. -->',
-		'	<style name="Theme.Titanium" parent="@style/Base.Theme.Titanium.Splash">',
+		'	<style name="Theme.Titanium" parent="Base.Theme.Titanium.Splash">',
 		'		<item name="android:windowBackground">@drawable/background</item>',
 		'	</style>',
 		'</resources>'
@@ -3513,7 +3553,6 @@ AndroidBuilder.prototype.generateAndroidManifest = async function generateAndroi
 		appChildXmlLines: appChildXmlLines,
 		appIcon: '@drawable/' + this.tiapp.icon.replace(/((\.9)?\.(png|jpg))$/, ''),
 		appLabel: this.tiapp.name,
-		appTheme: `@style/${this.defaultAppThemeName}`,
 		classname: this.classname,
 		storagePermissionMaxSdkVersion: neededManifestSettings.storagePermissionMaxSdkVersion,
 		packageName: this.appid,

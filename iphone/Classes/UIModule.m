@@ -30,6 +30,9 @@
 #ifdef USE_TI_UIATTRIBUTEDSTRING
 #import "TiUIAttributedStringProxy.h"
 #endif
+#ifdef USE_TI_UIOPTIONBAR
+#import "TiUIOptionBarProxy.h"
+#endif
 #ifdef USE_TI_UITOOLBAR
 #import "TiUIToolbarProxy.h"
 #endif
@@ -173,8 +176,10 @@ MAKE_SYSTEM_PROP(INPUT_BUTTONMODE_ONBLUR, UITextFieldViewModeUnlessEditing);
 
 MAKE_SYSTEM_PROP(INPUT_BORDERSTYLE_NONE, UITextBorderStyleNone);
 MAKE_SYSTEM_PROP(INPUT_BORDERSTYLE_LINE, UITextBorderStyleLine);
+MAKE_SYSTEM_PROP(INPUT_BORDERSTYLE_UNDERLINED, UITextBorderStyleLine);
 MAKE_SYSTEM_PROP(INPUT_BORDERSTYLE_BEZEL, UITextBorderStyleBezel);
 MAKE_SYSTEM_PROP(INPUT_BORDERSTYLE_ROUNDED, UITextBorderStyleRoundedRect);
+MAKE_SYSTEM_PROP(INPUT_BORDERSTYLE_FILLED, UITextBorderStyleBezel);
 
 MAKE_SYSTEM_PROP(PICKER_TYPE_PLAIN, -1);
 MAKE_SYSTEM_PROP(PICKER_TYPE_DATE_AND_TIME, UIDatePickerModeDateAndTime);
@@ -210,6 +215,25 @@ MAKE_SYSTEM_PROP(BLEND_MODE_DESTINATION_ATOP, kCGBlendModeDestinationAtop);
 MAKE_SYSTEM_PROP(BLEND_MODE_XOR, kCGBlendModeXOR);
 MAKE_SYSTEM_PROP(BLEND_MODE_PLUS_DARKER, kCGBlendModePlusDarker);
 MAKE_SYSTEM_PROP(BLEND_MODE_PLUS_LIGHTER, kCGBlendModePlusLighter);
+
+MAKE_SYSTEM_PROP(BUTTON_STYLE_FILLED, UIButtonTypeSystem);
+MAKE_SYSTEM_PROP(BUTTON_STYLE_OUTLINED, UIButtonTypeSystem);
+MAKE_SYSTEM_PROP(BUTTON_STYLE_TEXT, UIButtonTypeSystem);
+MAKE_SYSTEM_PROP(BUTTON_STYLE_OPTION_POSITIVE, UIBarButtonItemStyleDone);
+MAKE_SYSTEM_PROP(BUTTON_STYLE_OPTION_NEGATIVE, UIBarButtonItemStylePlain);
+MAKE_SYSTEM_PROP(BUTTON_STYLE_OPTION_NEUTRAL, UIBarButtonItemStylePlain);
+
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 140000
+MAKE_SYSTEM_PROP(SWITCH_STYLE_SLIDER, UISwitchStyleSliding);
+MAKE_SYSTEM_PROP(SWITCH_STYLE_CHECKBOX, UISwitchStyleCheckbox);
+MAKE_SYSTEM_PROP(SWITCH_STYLE_TOGGLE_BUTTON, UISwitchStyleCheckbox);
+MAKE_SYSTEM_PROP(SWITCH_STYLE_CHIP, UISwitchStyleCheckbox);
+#else
+MAKE_SYSTEM_PROP(SWITCH_STYLE_SLIDER, 1);
+MAKE_SYSTEM_PROP(SWITCH_STYLE_CHECKBOX, 2);
+MAKE_SYSTEM_PROP(SWITCH_STYLE_TOGGLE_BUTTON, 3);
+MAKE_SYSTEM_PROP(SWITCH_STYLE_CHIP, 4);
+#endif
 
 MAKE_SYSTEM_PROP(URL_ERROR_AUTHENTICATION, NSURLErrorUserAuthenticationRequired);
 MAKE_SYSTEM_PROP(URL_ERROR_BAD_URL, NSURLErrorBadURL);
@@ -282,6 +306,13 @@ MAKE_SYSTEM_PROP(LIST_ACCESSORY_TYPE_DISCLOSURE, UITableViewCellAccessoryDisclos
     }
   }
   return [[[TiAnimation alloc] _initWithPageContext:[self executionContext]] autorelease];
+}
+#endif
+
+#ifdef USE_TI_UIOPTIONBAR
+- (id)createOptionBar:(id)args
+{
+  return [[[TiUIOptionBarProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
 }
 #endif
 
@@ -363,6 +394,29 @@ MAKE_SYSTEM_PROP(EXTEND_EDGE_ALL, 15); //UIEdgeRectAll
 - (NSString *)TEXT_STYLE_LARGE_TITLE
 {
   return UIFontTextStyleLargeTitle;
+}
+
+- (void)setOverrideUserInterfaceStyle:(id)args
+{
+  ENSURE_SINGLE_ARG(args, NSNumber)
+      [self replaceValue:args
+                  forKey:@"overrideUserInterfaceStyle"
+            notification:NO];
+  if ([TiUtils isIOSVersionOrGreater:@"13.0"] || [TiUtils isMacOS]) {
+    int style = [TiUtils intValue:args def:UIUserInterfaceStyleUnspecified];
+    TiApp.controller.overrideUserInterfaceStyle = style;
+  }
+}
+
+- (NSNumber *)overrideUserInterfaceStyle
+{
+  NSNumber *style = nil;
+  if ([TiUtils isIOSVersionOrGreater:@"13.0"] || [TiUtils isMacOS]) {
+    style = @(TiApp.controller.overrideUserInterfaceStyle);
+  } else {
+    style = [self valueForKey:@"overrideUserInterfaceStyle"];
+  }
+  return (style != nil) ? style : self.USER_INTERFACE_STYLE_UNSPECIFIED;
 }
 
 - (NSNumber *)userInterfaceStyle

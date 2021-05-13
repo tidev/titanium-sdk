@@ -37,7 +37,7 @@ public class TiUITimeSpinnerNumberPicker extends TiUIView implements NumberPicke
 	private boolean suppressChangeEvent = false;
 	private boolean ignoreItemSelection = false;
 	private static final String TAG = "TiUITimeSpinnerNumberPicker";
-	private Calendar calendar = Calendar.getInstance();
+	private final Calendar calendar = Calendar.getInstance();
 
 	public TiUITimeSpinnerNumberPicker(TiViewProxy proxy)
 	{
@@ -116,7 +116,7 @@ public class TiUITimeSpinnerNumberPicker extends TiUIView implements NumberPicke
 									 int stepValue)
 	{
 		int itemCount = ((maxValue - minValue) / stepValue) + 1;
-		List<String> list = new ArrayList<String>();
+		List<String> list = new ArrayList<>();
 		for (int index = 0; index < itemCount; index++) {
 			int actualValue = minValue + index * stepValue;
 			if (formatter != null) {

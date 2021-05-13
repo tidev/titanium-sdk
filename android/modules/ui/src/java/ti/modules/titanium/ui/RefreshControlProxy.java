@@ -37,7 +37,7 @@ public class RefreshControlProxy extends KrollProxy
 	 * "TiSwipeRefreshLayout" view. Instances must be removed when this class' static
 	 * unassignFrom() method has been called.
 	 */
-	private static HashSet<RefreshControlProxy> assignedControls = new HashSet<RefreshControlProxy>();
+	private static final HashSet<RefreshControlProxy> assignedControls = new HashSet<>();
 
 	/** Color integer value to be applied to the refresh layout's progress indicator. */
 	private int tintColor = DEFAULT_TINT_COLOR;

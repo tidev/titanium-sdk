@@ -40,6 +40,7 @@ import android.graphics.Point;
 import android.graphics.Rect;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.PaintDrawable;
 import android.graphics.drawable.RippleDrawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.os.Build;
@@ -105,7 +106,7 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 
 	protected TiViewProxy proxy;
 	protected TiViewProxy parent;
-	protected ArrayList<TiUIView> children = new ArrayList<TiUIView>();
+	protected ArrayList<TiUIView> children = new ArrayList<>();
 
 	protected LayoutParams layoutParams;
 	protected TiAnimationBuilder animBuilder;
@@ -138,7 +139,7 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 	private WeakReference<View> touchView = null;
 
 	private boolean zIndexChanged = false;
-	private TiBorderWrapperView borderView;
+	protected TiBorderWrapperView borderView;
 	// For twofingertap detection
 	private boolean didScale = false;
 
@@ -148,13 +149,12 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 
 	protected GestureDetector detector = null;
 
-	private AtomicBoolean bLayoutPending = new AtomicBoolean();
-	private AtomicBoolean bTransformPending = new AtomicBoolean();
+	private final AtomicBoolean bLayoutPending = new AtomicBoolean();
+	private final AtomicBoolean bTransformPending = new AtomicBoolean();
 
 	/**
 	 * Constructs a TiUIView object with the associated proxy.
 	 * @param proxy the associated proxy.
-	 * @module.api
 	 */
 	public TiUIView(TiViewProxy proxy)
 	{
@@ -263,7 +263,6 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 
 	/**
 	 * @return the view proxy.
-	 * @module.api
 	 */
 	public TiViewProxy getProxy()
 	{
@@ -273,7 +272,6 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 	/**
 	 * Sets the view proxy.
 	 * @param proxy the proxy to set.
-	 * @module.api
 	 */
 	public void setProxy(TiViewProxy proxy)
 	{
@@ -292,7 +290,6 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 
 	/**
 	 * @return the view's layout params.
-	 * @module.api
 	 */
 	public LayoutParams getLayoutParams()
 	{
@@ -301,7 +298,6 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 
 	/**
 	 * @return the Android native view.
-	 * @module.api
 	 */
 	public View getNativeView()
 	{
@@ -311,7 +307,6 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 	/**
 	 * Sets the nativeView to view.
 	 * @param view the view to set
-	 * @module.api
 	 */
 	protected void setNativeView(View view)
 	{
@@ -396,7 +391,7 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 	{
 	}
 
-	private boolean hasImage(KrollDict d)
+	protected boolean hasImage(KrollDict d)
 	{
 		return d.containsKeyAndNotNull(TiC.PROPERTY_BACKGROUND_IMAGE)
 			|| d.containsKeyAndNotNull(TiC.PROPERTY_BACKGROUND_SELECTED_IMAGE)
@@ -409,7 +404,7 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 		return d.containsKeyAndNotNull(TiC.PROPERTY_BACKGROUND_REPEAT);
 	}
 
-	private boolean hasGradient(KrollDict d)
+	protected boolean hasGradient(KrollDict d)
 	{
 		return d.containsKeyAndNotNull(TiC.PROPERTY_BACKGROUND_GRADIENT);
 	}
@@ -423,7 +418,7 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 			|| (d.containsKeyAndNotNull(TiC.PROPERTY_BORDER_RADIUS));
 	}
 
-	private boolean hasColorState(KrollDict d)
+	protected boolean hasColorState(KrollDict d)
 	{
 		return d.containsKeyAndNotNull(TiC.PROPERTY_BACKGROUND_SELECTED_COLOR)
 			|| d.containsKeyAndNotNull(TiC.PROPERTY_BACKGROUND_FOCUSED_COLOR)
@@ -471,7 +466,7 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 				(new Ti2DMatrix()).rotate(new Object[] { 0d }).translate(0d, 0d).scale(new Object[] { 1d, 1d });
 		}
 
-		HashMap<String, Object> options = new HashMap<String, Object>(2);
+		HashMap<String, Object> options = new HashMap<>(2);
 		options.put(TiC.PROPERTY_TRANSFORM, matrixApply);
 		options.put(TiC.PROPERTY_DURATION, 1);
 
@@ -571,7 +566,7 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 	{
 		if (nativeView != null) {
 			Animation a = nativeView.getAnimation();
-			if (a != null && a instanceof TiMatrixAnimation) {
+			if (a instanceof TiMatrixAnimation) {
 				TiMatrixAnimation matrixAnimation = (TiMatrixAnimation) a;
 				matrixAnimation.invalidateWithMatrix(nativeView);
 			}
@@ -946,6 +941,10 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 
 	public void processProperties(KrollDict d)
 	{
+		if (d == null) {
+			return;
+		}
+
 		boolean nativeViewNull = false;
 		if (nativeView == null) {
 			nativeViewNull = true;
@@ -1183,22 +1182,34 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 		if (backgroundDrawable == null) {
 			backgroundDrawable = this.nativeView.getBackground();
 		}
+		if (backgroundDrawable instanceof TiBackgroundDrawable) {
+			final TiBackgroundDrawable drawable = (TiBackgroundDrawable) backgroundDrawable;
+
+			backgroundDrawable = drawable.getBackground();
+		}
+
+		// Parse background color to determine transparency.
+		int backgroundColor = -1;
+		if (backgroundDrawable instanceof PaintDrawable) {
+			final PaintDrawable drawable = (PaintDrawable) backgroundDrawable;
+
+			backgroundColor = drawable.getPaint().getColor();
+		} else if (backgroundDrawable instanceof ColorDrawable) {
+			final ColorDrawable drawable = (ColorDrawable) backgroundDrawable;
+
+			backgroundColor = drawable.getColor();
+		}
+		if (Color.alpha(backgroundColor) <= 0) {
+
+			// Do not use drawable for transparent backgrounds.
+			backgroundDrawable = null;
+		}
 
 		// Create a mask if a background doesn't exist or if it's completely transparent.
 		// Note: Ripple effect won't work unless it has something opaque to draw to. Use mask as a fallback.
-		ShapeDrawable maskDrawable = null;
-		boolean isVisible = (backgroundDrawable != null);
-		if (backgroundDrawable instanceof ColorDrawable) {
-			int colorValue = ((ColorDrawable) backgroundDrawable).getColor();
-			if (Color.alpha(colorValue) <= 0) {
-				isVisible = false;
-			}
-		}
-		if (!isVisible) {
-			maskDrawable = new ShapeDrawable();
-		}
+		final ShapeDrawable maskDrawable = backgroundDrawable == null ? new ShapeDrawable() : null;
 
-		// Replace view's existing background with ripple effect wrapping the old drawable.
+		// Replace existing background with ripple effect wrapping the old drawable.
 		nativeView.setBackground(
 			new RippleDrawable(ColorStateList.valueOf(rippleColor), backgroundDrawable, maskDrawable));
 	}
@@ -1289,7 +1300,6 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 			}
 			Drawable d = nv.getBackground();
 			if (d != null) {
-				nv.setBackgroundDrawable(null);
 				d.setCallback(null);
 				if (d instanceof TiBackgroundDrawable) {
 					((TiBackgroundDrawable) d).releaseDelegate();
@@ -1516,7 +1526,7 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 		borderView.postInvalidate();
 	}
 
-	private static SparseArray<String> motionEvents = new SparseArray<String>();
+	private static final SparseArray<String> motionEvents = new SparseArray<>();
 	static
 	{
 		motionEvents.put(MotionEvent.ACTION_DOWN, TiC.EVENT_TOUCH_START);
@@ -1604,9 +1614,6 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 		return true;
 	}
 
-	/**
-	 * @module.api
-	 */
 	protected boolean allowRegisterForKeyPress()
 	{
 		return true;
@@ -1626,14 +1633,13 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 
 	protected void registerTouchEvents(final View touchable)
 	{
-
-		touchView = new WeakReference<View>(touchable);
+		touchView = new WeakReference<>(touchable);
 
 		final ScaleGestureDetector scaleDetector =
 			new ScaleGestureDetector(touchable.getContext(), new SimpleOnScaleGestureListener() {
 				// protect from divide by zero errors
-				long minTimeDelta = 1;
-				float minStartSpan = 1.0f;
+				final long minTimeDelta = 1;
+				final float minStartSpan = 1.0f;
 				float startSpan;
 
 				@Override
@@ -1743,6 +1749,7 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 		touchable.setOnTouchListener(new OnTouchListener() {
 			int pointersDown = 0;
 
+			@Override
 			public boolean onTouch(View view, MotionEvent event)
 			{
 				if (event.getAction() == MotionEvent.ACTION_UP) {
@@ -1996,6 +2003,12 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 			// n.b.: setting onclicklistener automatically sets clickable to true.
 			setOnClickListener(view);
 			setOnLongClickListener(view);
+		}
+		if (view instanceof ViewGroup) {
+
+			// Allow parent views to receive states from child views.
+			// This allows the touch feedback effect when clicking on child views.
+			((ViewGroup) view).setAddStatesFromChildren(clickable);
 		}
 	}
 

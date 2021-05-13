@@ -51,7 +51,7 @@ public abstract class KrollRuntime implements Handler.Callback
 	}
 
 	private static KrollRuntime instance;
-	private static ArrayList<OnDisposingListener> disposingListeners = new ArrayList<>();
+	private static final ArrayList<OnDisposingListener> disposingListeners = new ArrayList<>();
 	private static int activityRefCount = 0;
 	private static int serviceReceiverRefCount = 0;
 
@@ -99,8 +99,8 @@ public abstract class KrollRuntime implements Handler.Callback
 
 		// Set up runtime member variables.
 		Looper looper = Looper.getMainLooper();
-		runtime.krollApplication = new WeakReference<KrollApplication>((KrollApplication) context);
-		runtime.exceptionHandlers = new HashMap<String, KrollExceptionHandler>();
+		runtime.krollApplication = new WeakReference<>((KrollApplication) context);
+		runtime.exceptionHandlers = new HashMap<>();
 		runtime.threadId = looper.getThread().getId();
 		runtime.handler = new Handler(looper, runtime);
 
@@ -486,7 +486,6 @@ public abstract class KrollRuntime implements Handler.Callback
 	 * time.
 	 *
 	 * @param handler The exception handler to set
-	 * @module.api
 	 */
 	public static void setPrimaryExceptionHandler(KrollExceptionHandler handler)
 	{
@@ -501,7 +500,6 @@ public abstract class KrollRuntime implements Handler.Callback
 	 *
 	 * @param handler The exception handler to set
 	 * @param key The key for the exception handler
-	 * @module.api
 	 */
 	public static void addAdditionalExceptionHandler(KrollExceptionHandler handler, String key)
 	{
@@ -513,7 +511,6 @@ public abstract class KrollRuntime implements Handler.Callback
 	/**
 	 * Removes the exception handler from the list of additional handlers. This will not affect the default handler.
 	 * @param key The key for the exception handler
-	 * @module.api
 	 */
 	public static void removeExceptionHandler(String key)
 	{

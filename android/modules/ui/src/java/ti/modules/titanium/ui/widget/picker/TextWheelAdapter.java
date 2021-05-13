@@ -24,7 +24,7 @@ public class TextWheelAdapter implements WheelAdapter
 
 	public TextWheelAdapter(Object[] values)
 	{
-		this(new ArrayList<Object>(Arrays.asList(values)));
+		this(new ArrayList<>(Arrays.asList(values)));
 	}
 
 	@Override
@@ -58,7 +58,7 @@ public class TextWheelAdapter implements WheelAdapter
 
 	public void setValues(Object[] newValues)
 	{
-		setValues(new ArrayList<Object>(Arrays.asList(newValues)));
+		setValues(new ArrayList<>(Arrays.asList(newValues)));
 	}
 
 	public void setValues(ArrayList<Object> newValues)

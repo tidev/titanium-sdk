@@ -33,9 +33,9 @@ public class KrollAssetHelper
 	private static String cacheDir;
 	private static AssetCrypt assetCrypt;
 	private static Collection<String> encryptedAssetFilePaths;
-	private static HashSet<String> apkAssetFilePathSet = new HashSet<>(256);
-	private static DirectoryListingMap apkDirectoryListingMap = new DirectoryListingMap(32);
-	private static DirectoryListingMap encrpytedDirectoryListingMap = new DirectoryListingMap(256);
+	private static final HashSet<String> apkAssetFilePathSet = new HashSet<>(256);
+	private static final DirectoryListingMap apkDirectoryListingMap = new DirectoryListingMap(32);
+	private static final DirectoryListingMap encrpytedDirectoryListingMap = new DirectoryListingMap(256);
 
 	public interface AssetCrypt {
 		InputStream openAsset(String path);
@@ -373,7 +373,7 @@ public class KrollAssetHelper
 			if (path.isEmpty()) {
 				TreeSet<String> fileListing = this.get(path);
 				if (fileListing == null) {
-					this.put(path, new TreeSet<String>());
+					this.put(path, new TreeSet<>());
 				}
 				return;
 			}
@@ -410,7 +410,7 @@ public class KrollAssetHelper
 				// Fetch the parent directory's file listing. Create one if it doesn't exist.
 				TreeSet<String> fileListing = this.get(parentDirectoryPath);
 				if (fileListing == null) {
-					fileListing = new TreeSet<String>();
+					fileListing = new TreeSet<>();
 					this.put(parentDirectoryPath, fileListing);
 				}
 

@@ -7,6 +7,7 @@
 /* eslint-env mocha */
 /* eslint no-unused-expressions: "off" */
 /* eslint mocha/no-identical-title: "off" */
+/* eslint promise/no-callback-in-promise: "off" */
 'use strict';
 const should = require('./utilities/assertions'); // eslint-disable-line no-unused-vars
 const utilities = require('./utilities/utilities');
@@ -230,7 +231,18 @@ describe('Titanium.UI.TabGroup', function () {
 				should(tabGroup.tabs).eql([ tabA, tabB ]);
 			});
 
-			it.androidBroken('has no accessors', () => { // Windows are created during open
+			it('set properties before open event', () => {
+				const tab = Ti.UI.createTab({ window: Ti.UI.createWindow() });
+				tabGroup.tabs = [ tab ];
+				tabGroup.tabs[0].title = 'Tab 1';
+				tabGroup.tabs[0].badge = '5';
+				tabGroup.tabs[0].icon = '/SmallLogo.png';
+				should(tab.title).eql('Tab 1');
+				should(tab.badge).eql('5');
+				should(tab.icon.endsWith('/SmallLogo.png')).be.true();
+			});
+
+			it('has no accessors', () => {
 				should(tabGroup).not.have.accessors('barColor');
 			});
 
@@ -399,7 +411,7 @@ describe('Titanium.UI.TabGroup', function () {
 				openPromise.then(() => {
 					const result = tabGroup.close();
 					result.should.be.a.Promise();
-					result.then(() => finish()).catch(e => finish(e));
+					return result.then(() => finish()).catch(e => finish(e)); // eslint-disable-line promise/no-nesting
 				}).catch(e => finish(e));
 			});
 
@@ -425,8 +437,10 @@ describe('Titanium.UI.TabGroup', function () {
 				tabGroup.addTab(tabA);
 
 				tabGroup.open().then(() => {
-					tabGroup.close().then(() => {
-						tabGroup.close().then(() => finish(new Error('Expected second #close() call on TabGroup to be rejected'))).catch(_e => finish());
+					// eslint-disable-next-line promise/no-nesting
+					return tabGroup.close().then(() => {
+						// eslint-disable-next-line promise/no-nesting
+						return tabGroup.close().then(() => finish(new Error('Expected second #close() call on TabGroup to be rejected'))).catch(() => finish());
 					}).catch(e => finish(e));
 				}).catch(e => finish(e));
 			});
@@ -465,7 +479,8 @@ describe('Titanium.UI.TabGroup', function () {
 				first.then(() => {
 					const second = tabGroup.open();
 					second.should.be.a.Promise();
-					second.then(() => finish(new Error('Expected second #open() to be rejected'))).catch(_e => finish());
+					// eslint-disable-next-line promise/no-nesting
+					return second.then(() => finish(new Error('Expected second #open() to be rejected'))).catch(() => finish());
 				}).catch(e => finish(e));
 			});
 		});

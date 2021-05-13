@@ -42,9 +42,8 @@ public class TiDownloadManager implements Handler.Callback
 	protected static TiDownloadManager _instance;
 	public static final int THREAD_POOL_SIZE = 2;
 
-	protected HashMap<String, ArrayList<SoftReference<TiDownloadListener>>> listeners =
-		new HashMap<String, ArrayList<SoftReference<TiDownloadListener>>>();
-	protected ArrayList<String> downloadingURIs = new ArrayList<String>();
+	protected HashMap<String, ArrayList<SoftReference<TiDownloadListener>>> listeners = new HashMap<>();
+	protected ArrayList<String> downloadingURIs = new ArrayList<>();
 	protected ExecutorService threadPool;
 	protected Handler handler;
 

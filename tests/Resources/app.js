@@ -159,6 +159,7 @@ function loadTests() {
 		require('./ti.ui.ios.collisionbehavior.test');
 		require('./ti.ui.ios.feedbackgenerator.test');
 		require('./ti.ui.ios.previewcontext.test');
+		require('./ti.ui.ios.documentviewer.test');
 		require('./ti.ui.ios.splitwindow.test');
 		require('./ti.ui.ios.statusbar.test');
 		require('./ti.ui.ios.stepper.test');
@@ -173,6 +174,7 @@ function loadTests() {
 	require('./ti.ui.maskedimage.test');
 	require('./ti.ui.matrix2d.test');
 	require('./ti.ui.navigationwindow.test');
+	require('./ti.ui.optionbar.test');
 	require('./ti.ui.optiondialog.test');
 	require('./ti.ui.picker.test');
 	require('./ti.ui.progressbar.test');

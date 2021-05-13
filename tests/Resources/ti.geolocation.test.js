@@ -361,7 +361,7 @@ describe('Titanium.Geolocation', () => {
 				const result = Ti.Geolocation.requestLocationPermissions(permission);
 				result.should.be.a.Promise();
 				// just ensure it resolves/rejects?
-				result.then(() => finish(), _e => finish());
+				result.then(() => finish()).catch(() => finish());
 			});
 		});
 
@@ -541,7 +541,7 @@ describe('Titanium.Geolocation', () => {
 						} catch (err) {
 							return finish(err);
 						}
-						finish();
+						return finish();
 					}).catch(e => {
 						// Sometimes fails on Android device/emulator w/ 'passive/gps/network is unavailable'
 						if (OS_ANDROID) {
@@ -653,7 +653,7 @@ describe('Titanium.Geolocation', () => {
 						should(data.places[0]).have.property('latitude').which.is.a.Number();
 						should(data.places[0]).have.property('longitude').which.is.a.Number();
 						should(data.places[0].country).be.oneOf('USA', 'United States of America', 'United States');
-						should(data.places[0].state).be.eql('California');
+						should(data.places[0].state).be.oneOf('California', 'CA');
 						should(data.places[0].countryCode).be.eql('US');
 						should(data.places[0]).have.property('city').which.is.a.String();
 						should(data.places[0]).have.property('address').which.is.a.String();
@@ -680,7 +680,7 @@ describe('Titanium.Geolocation', () => {
 					should(data.places[0]).have.property('latitude').which.is.a.Number();
 					should(data.places[0]).have.property('longitude').which.is.a.Number();
 					should(data.places[0].country).be.oneOf('USA', 'United States of America', 'United States');
-					should(data.places[0].state).be.eql('California');
+					should(data.places[0].state).be.oneOf('California', 'CA');
 					should(data.places[0].countryCode).be.eql('US');
 					should(data.places[0]).have.property('city').which.is.a.String();
 					should(data.places[0]).have.property('address').which.is.a.String();

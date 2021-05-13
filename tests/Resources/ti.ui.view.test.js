@@ -28,6 +28,7 @@ describe('Titanium.UI.View', function () {
 
 	function closeWindow(win, done) {
 		if (win && !win.closed) {
+			// eslint-disable-next-line promise/no-callback-in-promise
 			win.close().then(() => done()).catch(_e => done());
 		} else {
 			win = null;

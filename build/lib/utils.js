@@ -99,7 +99,7 @@ function download(url, destination, options = { progress: true }) {
 		req.on('error', function (err) {
 			fs.existsSync(destination) && fs.unlinkSync(destination);
 			console.log();
-			console.error('Failed to download: %s', err.toString());
+			console.error('Failed to download: %s %s', url, err.toString());
 			reject(err);
 		});
 

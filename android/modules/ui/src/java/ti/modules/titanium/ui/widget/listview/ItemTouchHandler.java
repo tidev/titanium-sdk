@@ -11,6 +11,9 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.PaintDrawable;
+import android.graphics.drawable.RippleDrawable;
+import android.graphics.drawable.ShapeDrawable;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
@@ -21,6 +24,7 @@ import androidx.core.util.Pair;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
+import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.titanium.R;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
@@ -28,6 +32,8 @@ import org.appcelerator.titanium.view.TiUIView;
 
 public class ItemTouchHandler extends ItemTouchHelper.SimpleCallback
 {
+	private static final String TAG = "ItemTouchHandler";
+
 	private TiRecyclerViewAdapter adapter;
 	private RecyclerViewProxy recyclerViewProxy;
 	private Pair<Integer,  Integer> movePair = null;
@@ -78,18 +84,24 @@ public class ItemTouchHandler extends ItemTouchHelper.SimpleCallback
 	 */
 	private boolean canMove(TiViewProxy holderProxy)
 	{
-		String moveProperty = TiC.PROPERTY_MOVABLE;
+		final KrollDict recyclerProperties = this.recyclerViewProxy.getProperties();
+		final KrollDict holderProperties = holderProxy.getProperties();
+
 		if (holderProxy instanceof ListItemProxy) {
 
-			// Set to `canMove` property for ListItem.
-			moveProperty = TiC.PROPERTY_CAN_MOVE;
+			// Use `canMove` property for ListItem.
+			final boolean canMove = holderProperties.optBoolean(TiC.PROPERTY_CAN_MOVE,
+				recyclerProperties.optBoolean(TiC.PROPERTY_CAN_MOVE, false));
+
+			return canMove;
 		}
 
-		// Obtain default move value from RecyclerView proxy.
-		final boolean defaultValue = this.recyclerViewProxy.getProperties().optBoolean(moveProperty, false);
+		final boolean isMoveable = holderProperties.optBoolean(TiC.PROPERTY_MOVEABLE,
+			recyclerProperties.optBoolean(TiC.PROPERTY_MOVEABLE, false));
+		final boolean isMovable = holderProperties.optBoolean(TiC.PROPERTY_MOVABLE,
+			recyclerProperties.optBoolean(TiC.PROPERTY_MOVABLE, false));
 
-		// Obtain move value from current holder proxy.
-		return holderProxy.getProperties().optBoolean(moveProperty, defaultValue);
+		return isMoveable || isMovable;
 	}
 
 	/**
@@ -127,10 +139,33 @@ public class ItemTouchHandler extends ItemTouchHelper.SimpleCallback
 		while (parentNativeView != null && parentBackground == null) {
 			parentBackground = parentNativeView.getBackground();
 
+			if (parentBackground instanceof RippleDrawable) {
+				final RippleDrawable rippleDrawable = (RippleDrawable) parentBackground;
+
+				if (rippleDrawable.getNumberOfLayers() > 0) {
+					final Drawable drawable = rippleDrawable.getDrawable(0);
+
+					// Ignore masks (ShapeDrawable).
+					parentBackground = drawable.getClass().equals(ShapeDrawable.class) ? null : drawable;
+
+				} else if (ignoreTransparent) {
+
+					// No layers, ignore transparent drawable.
+					parentBackground = null;
+				}
+			}
 			if (parentBackground instanceof ColorDrawable) {
 				final ColorDrawable colorDrawable = (ColorDrawable) parentBackground;
 
-				if (ignoreTransparent && colorDrawable.getColor() == Color.TRANSPARENT) {
+				if (ignoreTransparent && Color.alpha(colorDrawable.getColor()) <= 0) {
+
+					// Ignore transparent backgrounds.
+					parentBackground = null;
+				}
+			} else if (parentBackground instanceof PaintDrawable) {
+				final PaintDrawable paintDrawable = (PaintDrawable) parentBackground;
+
+				if (ignoreTransparent && Color.alpha(paintDrawable.getPaint().getColor()) <= 0) {
 
 					// Ignore transparent backgrounds.
 					parentBackground = null;
@@ -290,7 +325,9 @@ public class ItemTouchHandler extends ItemTouchHelper.SimpleCallback
 		// Determine if current background is transparent.
 		final boolean hasTransparentBackground = currentBackground == null
 			|| (currentBackground instanceof ColorDrawable
-			&& ((ColorDrawable) currentBackground).getColor() == Color.TRANSPARENT);
+					&& Color.alpha(((ColorDrawable) currentBackground).getColor()) <= 0)
+			|| (currentBackground instanceof PaintDrawable
+					&& Color.alpha(((PaintDrawable) currentBackground).getPaint().getColor()) <= 0);
 
 		if (hasTransparentBackground) {
 			final TiUIView parentView = recyclerViewProxy.getOrCreateView();

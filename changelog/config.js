@@ -96,7 +96,7 @@ function guessPreviousBranch(version) {
 }
 
 function urlToVersion(url) {
-	return /-(\d+\.\d+\.\d+)\.zip$/.exec(url)[1];
+	return /-(\d+\.\d+\.\d+)\.zip$/.exec(url)[1]; // eslint-disable-line security/detect-child-process
 }
 
 function gatherModules() {

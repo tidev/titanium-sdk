@@ -102,7 +102,7 @@ public class LocationProviderProxy extends KrollProxy implements LocationListene
 	}
 
 	/**
-	 * @see FusedLocationProvider.createLocationCallback
+	 * @see FusedLocationProvider#createLocationCallback
 	 */
 	public Object getLocationCallback()
 	{
