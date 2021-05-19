@@ -6,9 +6,9 @@
  */
 
 project.ext {
-	tiAndroidXAppCompatLibVersion = '1.2.0'
-	tiAndroidXCoreLibVersion = '1.3.2'
-	tiAndroidXFragmentLibVersion = '1.3.0'
+	tiAndroidXAppCompatLibVersion = '1.3.0'
+	tiAndroidXCoreLibVersion = '1.5.0'
+	tiAndroidXFragmentLibVersion = '1.3.4'
 	tiMaterialLibVersion = '1.3.0'
 	tiPlayServicesBaseLibVersion = '17.6.0'
 	tiManifestPlaceholders = [
