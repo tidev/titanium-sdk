@@ -1774,23 +1774,23 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 				//       which would prevent view's onClick() and onLongClick() listeners from being called.
 				switch (event.getAction()) {
 					case MotionEvent.ACTION_DOWN:
+						// Start tracking.
 						releaseLongPressMotionEvent();
 						longPressMotionEvent = MotionEvent.obtain(event);
 						break;
-					default:
+					case MotionEvent.ACTION_MOVE:
+						// Stop tracking if dragged too far from initial touch point.
 						if (longPressMotionEvent != null) {
-							if (event.getAction() == MotionEvent.ACTION_MOVE) {
-								// Stop tracking if dragged too far.
-								float deltaX = Math.abs(longPressMotionEvent.getRawX() - event.getRawX());
-								float deltaY = Math.abs(longPressMotionEvent.getRawY() - event.getRawY());
-								if ((deltaX > this.touchSlop) || (deltaY > this.touchSlop)) {
-									releaseLongPressMotionEvent();
-								}
-							} else {
-								// Stop tracking for all other actions such as ACTION_UP, ACTION_CANCEL, etc.
+							float deltaX = Math.abs(longPressMotionEvent.getRawX() - event.getRawX());
+							float deltaY = Math.abs(longPressMotionEvent.getRawY() - event.getRawY());
+							if ((deltaX > this.touchSlop) || (deltaY > this.touchSlop)) {
 								releaseLongPressMotionEvent();
 							}
 						}
+						break;
+					default:
+						// Stop tracking on ACTION_UP, ACTION_CANCEL, etc.
+						releaseLongPressMotionEvent();
 						break;
 				}
 
