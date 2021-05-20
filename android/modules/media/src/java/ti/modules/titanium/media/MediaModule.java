@@ -239,12 +239,16 @@ public class MediaModule extends KrollModule implements Handler.Callback
 		String[] mediaTypes = null;
 		String intentType = MediaStore.ACTION_IMAGE_CAPTURE;
 		int videoMaximumDuration = 0;
+		long videoMaximumSize = 0;
 		int videoQuality = QUALITY_HIGH;
 		int cameraType = 0;
 		boolean isVideo = false;
 		MediaModule.mediaType = MEDIA_TYPE_PHOTO;
 		if (cameraOptions.containsKeyAndNotNull(TiC.PROPERTY_VIDEO_MAX_DURATION)) {
 			videoMaximumDuration = cameraOptions.getInt(TiC.PROPERTY_VIDEO_MAX_DURATION) / 1000;
+		}
+		if (cameraOptions.containsKeyAndNotNull(TiC.PROPERTY_VIDEO_MAX_SIZE)) {
+			videoMaximumSize = Long.parseLong(cameraOptions.getString(TiC.PROPERTY_VIDEO_MAX_SIZE));
 		}
 		if (cameraOptions.containsKeyAndNotNull(TiC.PROPERTY_WHICH_CAMERA)) {
 			cameraType = cameraOptions.getInt(TiC.PROPERTY_WHICH_CAMERA);
@@ -311,7 +315,9 @@ public class MediaModule extends KrollModule implements Handler.Callback
 		if (videoMaximumDuration > 0) {
 			intent.putExtra(MediaStore.EXTRA_DURATION_LIMIT, videoMaximumDuration);
 		}
-
+		if (videoMaximumSize > 0) {
+			intent.putExtra(MediaStore.EXTRA_SIZE_LIMIT, videoMaximumSize);
+		}
 		// Show the default camera app's activity for capturing a photo/video.
 		int requestCode = activitySupport.getUniqueResultCode();
 		activitySupport.launchActivityForResult(intent, requestCode, new TiActivityResultHandler() {
@@ -387,6 +393,7 @@ public class MediaModule extends KrollModule implements Handler.Callback
 		boolean saveToPhotoGallery = false;
 		boolean autohide = true;
 		int videoMaximumDuration = 0;
+		long videoMaximumSize = 0;
 		int videoQuality = QUALITY_HIGH;
 		int cameraType = 0;
 		String[] mediaTypes = null;
@@ -424,6 +431,10 @@ public class MediaModule extends KrollModule implements Handler.Callback
 		// VIDEO
 		if (cameraOptions.containsKeyAndNotNull(TiC.PROPERTY_VIDEO_MAX_DURATION)) {
 			videoMaximumDuration = cameraOptions.getInt(TiC.PROPERTY_VIDEO_MAX_DURATION);
+		}
+		if (cameraOptions.containsKeyAndNotNull(TiC.PROPERTY_VIDEO_MAX_SIZE)) {
+			videoMaximumSize = Long.parseLong(cameraOptions.getString(TiC.PROPERTY_VIDEO_MAX_SIZE));
+			Log.e(TAG, "VIDEO_MAX_SIZE is currently not supported by CameraX.");
 		}
 		if (cameraOptions.containsKeyAndNotNull(TiC.PROPERTY_WHICH_CAMERA)) {
 			cameraType = cameraOptions.getInt(TiC.PROPERTY_WHICH_CAMERA);
@@ -463,7 +474,6 @@ public class MediaModule extends KrollModule implements Handler.Callback
 		// TiCameraActivity.mediaContext = this;
 		// TiCameraActivity.saveToPhotoGallery = saveToPhotoGallery;
 
-		// TiCameraXActivity.videoMaximumDuration = videoMaximumDuration;
 		TiCameraXActivity.mediaType = MediaModule.mediaType;
 		if (bitRate != -1) TiCameraXActivity.bitRate = bitRate;
 		if (frameRate != -1) TiCameraXActivity.frameRate = frameRate;
@@ -477,6 +487,8 @@ public class MediaModule extends KrollModule implements Handler.Callback
 		TiCameraXActivity.successCallback = successCallback;
 		TiCameraXActivity.cancelCallback = cancelCallback;
 		TiCameraXActivity.errorCallback = errorCallback;
+		TiCameraXActivity.videoMaximumDuration = videoMaximumDuration;
+		TiCameraXActivity.videoMaximumSize = videoMaximumSize;
 
 		if (MediaModule.mediaType == MEDIA_TYPE_VIDEO && !hasAudioRecorderPermissions()) {
 			Log.e(TAG, "Audio permission is required to record video");

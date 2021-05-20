@@ -28,6 +28,8 @@ import org.appcelerator.titanium.util.TiRHelper;
 import android.app.Activity;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Size;
 import android.view.View;
 import android.view.ViewGroup;
@@ -76,7 +78,10 @@ public class TiCameraXActivity extends TiBaseActivity
 
 	public static int bitRate = 8 * 1024 * 1024; // in bits/s - default 8 Mbit/s
 	public static int frameRate = 30;
+	public static int videoMaximumDuration = 0;
+	public static long videoMaximumSize = 0;
 	public static Size maxResolution = new Size(1920, 1080);
+
 	FrameLayout layout;
 
 	@Override
@@ -301,6 +306,18 @@ public class TiCameraXActivity extends TiBaseActivity
 					Log.e(TAG, "Can't caputre video file. " + message);
 				}
 			});
+
+			// TODO once CameraX supports a maxDuration this can be removed:
+			if (videoMaximumDuration > 0) {
+				final Handler handler = new Handler(Looper.getMainLooper());
+				handler.postDelayed(new Runnable() {
+					@Override
+					public void run()
+					{
+						videoCapture.stopRecording();
+					}
+				}, videoMaximumDuration);
+			}
 		} catch (Exception e) {
 			Log.e(TAG, "Can't create video file: " + e.getMessage());
 		}
