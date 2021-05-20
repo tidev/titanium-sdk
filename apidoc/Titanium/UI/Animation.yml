@@ -35,6 +35,7 @@ description: |
     by creating an animation object and setting the `view` property to the view you want to
     transition to. The `transition` property specifies the transition effect to apply. Use one of
     the transition style constants defined in <Titanium.UI.iOS.AnimationStyle>.
+    When you animate a property like `height` you have to set an initial value greater than 0 (e.g. 0.1).
 
     #### Android Platform Notes
 
