@@ -2573,7 +2573,7 @@ AndroidBuilder.prototype.writeEnvironmentVariables = async function writeEnviron
 	await fs.writeFile(
 		envVarsFile,
 		// for non-development builds, DO NOT WRITE OUT ENV VARIABLES TO APP
-		this.writeEnvVars ? JSON.stringify(process.env) : {}
+		this.writeEnvVars ? JSON.stringify(process.env) : '{}'
 	);
 	this.encryptJS && this.jsFilesToEncrypt.push('_env_.json');
 	this.unmarkBuildDirFile(envVarsFile);
