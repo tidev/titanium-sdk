@@ -1318,8 +1318,7 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
 
 - (BOOL)viewReady
 {
-  return view != nil && !CGRectIsEmpty(view.bounds) && !CGRectIsNull(view.bounds) &&
-      [view superview] != nil;
+  return (view != nil) && ([view superview] != nil);
 }
 
 - (BOOL)windowHasOpened
