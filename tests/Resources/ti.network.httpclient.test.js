@@ -739,7 +739,8 @@ describe('Titanium.Network.HTTPClient', function () {
 		xhr.send();
 	});
 
-	it.android('TLSv3 support', function (finish) {
+	// TODO: Below URL no longer works. Need a replacement to verify TLSv3 support.
+	it.allBroken('TLSv3 support', function (finish) {
 		// Only supported on Android 10+
 		if (Ti.Platform.Android.API_LEVEL < 29) {
 			return finish();
