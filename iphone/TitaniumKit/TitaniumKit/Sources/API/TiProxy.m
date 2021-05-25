@@ -448,20 +448,9 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void *payload)
   return nil;
 }
 
-- (TiProxy *)currentWindow
-{
-  return [[self pageContext] preloadForKey:@"currentWindow" name:@"UI"];
-}
-
 - (NSURL *)_baseURL
 {
   if (baseURL == nil) {
-    TiProxy *currentWindow = [self currentWindow];
-    if (currentWindow != nil) {
-      // cache it
-      [self _setBaseURL:[currentWindow _baseURL]];
-      return baseURL;
-    }
     return [[self _host] baseURL];
   }
   return baseURL;
@@ -800,10 +789,10 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void *payload)
 
   //TODO: You know, we can probably nip this in the bud and do this at a lower level,
   //Or make this less onerous.
-  int ourCallbackCount = 0;
 
   pthread_rwlock_wrlock(&listenerLock);
-  ourCallbackCount = [[listeners objectForKey:type] intValue] - 1;
+  int ourCallbackCount = [[listeners objectForKey:type] intValue];
+  ourCallbackCount = MAX(0, ourCallbackCount - 1);
   [listeners setObject:NUMINT(ourCallbackCount) forKey:type];
   pthread_rwlock_unlock(&listenerLock);
 
@@ -900,10 +889,17 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void *payload)
     return;
   }
 
+  __weak TiProxy *weakSelf = self;
+
   TiThreadPerformOnMainThread(
       ^{
+        TiProxy *strongSelf = weakSelf;
+        if (strongSelf == nil) {
+          return;
+        }
+
         TiBindingEvent ourEvent;
-        ourEvent = TiBindingEventCreateWithNSObjects(self, self, type, obj);
+        ourEvent = TiBindingEventCreateWithNSObjects(strongSelf, strongSelf, type, obj);
         if (report || (code != 0)) {
           TiBindingEventSetErrorCode(ourEvent, code);
         }
@@ -940,10 +936,11 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void *payload)
       NSThread.isMainThread);
 }
 
-- (void)setValuesForKeysWithDictionary:(NSDictionary *)keyedValues
+- (void)setValuesForKeysWithDictionary:(NSDictionary *)dictionary
 {
   //It's possible that the 'setvalueforkey' has its own plans of what should be in the JS object,
   //so we should do this first as to not overwrite the subclass's setter.
+  NSDictionary *keyedValues = [dictionary copy];
   if ((bridgeCount == 1) && (pageKrollObject != nil)) {
     for (NSString *currentKey in keyedValues) {
       id currentValue = [keyedValues objectForKey:currentKey];
@@ -995,6 +992,7 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void *payload)
     }
     [self setValue:thisValue forKey:thisKey];
   }
+  RELEASE_TO_NIL(keyedValues);
 }
 
 DEFINE_EXCEPTIONS
@@ -1216,6 +1214,22 @@ DEFINE_EXCEPTIONS
 {
   DebugLog(@"[ERROR] Subclasses must override the apiName API endpoint.");
   return @"Ti.Proxy";
+}
+
+- (JSContext *)currentContext
+{
+  id<TiEvaluator> evaluator = self.pageContext;
+  if (evaluator == nil) {
+    evaluator = self.executionContext;
+    if (evaluator == nil) {
+      return nil; // TODO: Try [JSContext currentContext]? I think it will always fail for old-school proxies in this hierarchy
+    }
+  }
+  JSGlobalContextRef globalRef = [[evaluator krollContext] context];
+  if (globalRef) {
+    return [JSContext contextWithJSGlobalContextRef:globalRef];
+  }
+  return nil;
 }
 
 + (id)createProxy:(NSString *)qualifiedName withProperties:(NSDictionary *)properties inContext:(id<TiEvaluator>)context

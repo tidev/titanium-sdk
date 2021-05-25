@@ -580,15 +580,7 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
 /**
  Microphone And Recording Support. These make no sense here and should be moved to Audiorecorder
  **/
-#ifdef USE_TI_MEDIAHASAUDIOPERMISSIONS
-- (id)hasAudioPermissions:(id)unused
-{
-  DEPRECATED_REPLACED(@"Media.hasAudioPermissions", @"6.1.0", @"Media.hasAudioRecorderPermissions");
-  return [self hasAudioRecorderPermissions:unused];
-}
-#endif
-
-#if defined(USE_TI_MEDIAHASAUDIORECORDERPERMISSIONS) || defined(USE_TI_MEDIAHASAUDIOPERMISSIONS) || defined(USE_TI_MEDIASTARTMICROPHONEMONITOR) || defined(USE_TI_MEDIASTOPMICROPHONEMONITOR) || defined(USE_TI_MEDIAPEAKMICROPHONEPOWER) || defined(USE_TI_MEDIAGETPEAKMICROPHONEPOWER) || defined(USE_TI_MEDIAAVERAGEMICROPHONEPOWER) || defined(USE_TI_MEDIAGETAVERAGEMICROPHONEPOWER)
+#if defined(USE_TI_MEDIAHASAUDIORECORDERPERMISSIONS) || defined(USE_TI_MEDIASTARTMICROPHONEMONITOR) || defined(USE_TI_MEDIASTOPMICROPHONEMONITOR) || defined(USE_TI_MEDIAPEAKMICROPHONEPOWER) || defined(USE_TI_MEDIAGETPEAKMICROPHONEPOWER) || defined(USE_TI_MEDIAAVERAGEMICROPHONEPOWER) || defined(USE_TI_MEDIAGETAVERAGEMICROPHONEPOWER)
 - (id)hasAudioRecorderPermissions:(id)unused
 {
   NSString *microphonePermission = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSMicrophoneUsageDescription"];
@@ -1055,7 +1047,7 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
   }
 
   // Writing (!) to gallery permissions are required on iOS 11 and later.
-  if ([TiUtils isIOSVersionOrGreater:@"11.0"] && !addToGalleryPermission) {
+  if (!addToGalleryPermission) {
     NSLog(@"[ERROR] iOS 11 and later requires the key \"NSPhotoLibraryAddUsageDescription\" inside the plist in your tiapp.xml when writing to the photo library to store media. It will be ignored on devices < iOS 11. Please add the key and re-run the application.");
   }
 
@@ -1108,7 +1100,7 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
   [self commonPickerSetup:args];
 
 // iPod not available on simulator
-#if TARGET_IPHONE_SIMULATOR
+#if TARGET_OS_SIMULATOR
   [self sendPickerError:MediaModuleErrorNoMusicPlayer];
 #else
 
@@ -1595,7 +1587,7 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
     }
 
     // Writing (!) to gallery permissions are also required on iOS 11 and later.
-    if ([TiUtils isIOSVersionOrGreater:@"11.0"] && saveToRoll && !addToGalleryPermission) {
+    if (saveToRoll && !addToGalleryPermission) {
       NSLog(@"[ERROR] iOS 11 and later requires the key \"NSPhotoLibraryAddUsageDescription\" inside the plist in your tiapp.xml when writing to the photo library to store media. It will be ignored on devices < iOS 11. Please add the key and re-run the application.");
     }
 
@@ -1670,11 +1662,9 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
       [self displayCamera:picker];
     }
   } else {
-    if ([TiUtils isIOSVersionOrGreater:@"11.0"]) {
-      BOOL allowTranscoding = [TiUtils boolValue:@"allowTranscoding" properties:args def:YES];
-      if (!allowTranscoding) {
-        picker.videoExportPreset = AVAssetExportPresetPassthrough;
-      }
+    BOOL allowTranscoding = [TiUtils boolValue:@"allowTranscoding" properties:args def:YES];
+    if (!allowTranscoding) {
+      picker.videoExportPreset = AVAssetExportPresetPassthrough;
     }
     [self displayModalPicker:picker settings:args];
   }
@@ -1791,6 +1781,8 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
 
   [_phPicker setDelegate:self];
   [self displayModalPicker:_phPicker settings:args];
+
+  RELEASE_TO_NIL(configuration);
 }
 
 #pragma mark PHPickerViewControllerDelegate

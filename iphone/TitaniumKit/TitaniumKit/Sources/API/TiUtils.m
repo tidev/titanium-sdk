@@ -165,7 +165,12 @@ static NSDictionary *sizeMap = nil;
 
 + (BOOL)isMacOS
 {
+#if TARGET_OS_MACCATALYST
+  return YES;
+#else
+  //  TODO: Just return NO? Use NSProcessInfo.processInfo.isMacCatalystApp or iOSAppOnMac?
   return [UIDevice.currentDevice.systemName isEqualToString:@"Mac OS X"];
+#endif
 }
 
 + (BOOL)isRetinaHDDisplay
@@ -430,20 +435,13 @@ static NSDictionary *sizeMap = nil;
     }
     return [value point];
   } else if ([value isKindOfClass:[NSDictionary class]]) {
-    id xVal = [value objectForKey:@"x"];
-    id yVal = [value objectForKey:@"y"];
-    if (xVal && yVal) {
-      if (![xVal respondsToSelector:@selector(floatValue)] || ![yVal respondsToSelector:@selector(floatValue)]) {
-        if (isValid) {
-          *isValid = NO;
-        }
-        return CGPointMake(0.0, 0.0);
-      }
-
+    TiDimension xDimension = [self dimensionValue:@"x" properties:value];
+    TiDimension yDimension = [self dimensionValue:@"y" properties:value];
+    if (!TiDimensionIsUndefined(xDimension) && !TiDimensionIsUndefined(yDimension)) {
       if (isValid) {
         *isValid = YES;
       }
-      return CGPointMake([xVal floatValue], [yVal floatValue]);
+      return CGPointMake(xDimension.value, yDimension.value);
     }
   }
   if (isValid) {
@@ -463,7 +461,7 @@ static NSDictionary *sizeMap = nil;
     yDimension = [value yDimension];
   } else if ([value isKindOfClass:[NSDictionary class]]) {
     xDimension = [self dimensionValue:@"x" properties:value];
-    yDimension = [self dimensionValue:@"x" properties:value];
+    yDimension = [self dimensionValue:@"y" properties:value];
   } else {
     xDimension = TiDimensionUndefined;
     yDimension = TiDimensionUndefined;
@@ -778,11 +776,9 @@ static NSDictionary *sizeMap = nil;
 
 + (UIImage *)imageWithTint:(UIImage *)image tintColor:(UIColor *)tintColor
 {
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
   if ([TiUtils isIOSVersionOrGreater:@"13.0"]) {
     return [image imageWithTintColor:tintColor renderingMode:UIImageRenderingModeAlwaysOriginal];
   }
-#endif
   UIImage *imageNew = [image imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
   UIImageView *imageView = [[UIImageView alloc] initWithImage:imageNew];
   imageView.tintColor = tintColor;
@@ -1590,7 +1586,7 @@ If the new path starts with / and the base url is app://..., we have to massage 
 #endif
       appurlstr = [appurlstr substringFromIndex:1];
     }
-#if TARGET_IPHONE_SIMULATOR
+#if TARGET_OS_SIMULATOR
     NSString *resourcesDirectory = [[TiSharedConfig defaultConfig] applicationResourcesDirectory];
 
     if (app == YES && leadingSlashRemoved) {

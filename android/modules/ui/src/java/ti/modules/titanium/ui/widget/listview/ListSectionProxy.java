@@ -112,6 +112,20 @@ public class ListSectionProxy extends TiViewProxy
 	}
 
 	/**
+	 * Sets the activity this proxy's view should be attached to.
+	 * @param activity The activity this proxy's view should be attached to.
+	 */
+	@Override
+	public void setActivity(Activity activity)
+	{
+		super.setActivity(activity);
+
+		for (ListItemProxy item : this.items) {
+			item.setActivity(activity);
+		}
+	}
+
+	/**
 	 * Set number of items that are filtered in section.
 	 *
 	 * @param filteredItemCount Number of filtered items.
@@ -154,7 +168,6 @@ public class ListSectionProxy extends TiViewProxy
 	 *
 	 * @return ListDataItem dictionary array.
 	 */
-	@Kroll.method
 	@Kroll.getProperty
 	public KrollDict[] getItems()
 	{
@@ -177,7 +190,11 @@ public class ListSectionProxy extends TiViewProxy
 	 */
 	public ListItemProxy getListItemAt(int index)
 	{
-		return this.items.get(index);
+		try {
+			return this.items.get(index);
+		} catch (Exception e) {
+		}
+		return null;
 	}
 
 	/**
@@ -265,6 +282,7 @@ public class ListSectionProxy extends TiViewProxy
 
 			item.setParent(this);
 			item.handleCreationDataItem(new KrollDict((HashMap) object));
+
 			return item;
 
 		} else if (object instanceof ListItemProxy) {
@@ -339,10 +357,19 @@ public class ListSectionProxy extends TiViewProxy
 	@Override
 	public void releaseViews()
 	{
+		// Release all section item views.
 		for (final ListItemProxy item : this.items) {
-
-			// Release all section item views.
 			item.releaseViews();
+		}
+
+		// Release header/footer views.
+		if (hasPropertyAndNotNull(TiC.PROPERTY_HEADER_VIEW)) {
+			final TiViewProxy headerProxy = (TiViewProxy) getProperty(TiC.PROPERTY_HEADER_VIEW);
+			headerProxy.releaseViews();
+		}
+		if (hasPropertyAndNotNull(TiC.PROPERTY_FOOTER_VIEW)) {
+			final TiViewProxy footerProxy = (TiViewProxy) getProperty(TiC.PROPERTY_FOOTER_VIEW);
+			footerProxy.releaseViews();
 		}
 	}
 
@@ -382,10 +409,11 @@ public class ListSectionProxy extends TiViewProxy
 	@Kroll.method
 	public void setItems(Object dataItems, @Kroll.argument(optional = true) KrollDict animation)
 	{
+		final List<ListItemProxy> newItems = processItems(dataItems);
+
 		removeAllItems();
 
-		final List<ListItemProxy> items = processItems(dataItems);
-		this.items.addAll(items);
+		this.items.addAll(newItems);
 
 		// Notify ListView of new items.
 		update();

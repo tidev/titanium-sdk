@@ -13,9 +13,9 @@ const utilities = require('./utilities/utilities');
 
 const isCI = Ti.App.Properties.getBool('isCI', false);
 // handy tool: https://www.fileformat.info/tool/hash.htm
-const isIOSDevice = OS_IOS && !Ti.Platform.model.includes('(Simulator)');
+const isIOSDevice = OS_IOS && !utilities.isMacOS() && !Ti.Platform.model.includes('(Simulator)');
 
-describe('Titanium.Utils', function () {
+describe('Titanium.Utils', () => {
 	let win;
 	afterEach(done => { // fires after every test in sub-suites too...
 		if (win && !win.closed) {

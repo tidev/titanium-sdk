@@ -1,11 +1,16 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2021 by Axway, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 package ti.modules.titanium.ui.widget;
 
+import android.content.res.ColorStateList;
+import android.view.Gravity;
+import android.widget.LinearLayout;
+import com.google.android.material.progressindicator.LinearProgressIndicator;
+import com.google.android.material.textview.MaterialTextView;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.TiC;
@@ -14,18 +19,10 @@ import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiUIView;
 
-import android.content.res.ColorStateList;
-import android.os.Build;
-import android.view.Gravity;
-import android.widget.LinearLayout;
-import android.widget.ProgressBar;
-import android.widget.TextView;
-
 public class TiUIProgressBar extends TiUIView
 {
-
-	private TextView label;
-	private ProgressBar progress;
+	private MaterialTextView label;
+	private LinearProgressIndicator progress;
 	private LinearLayout view;
 
 	public TiUIProgressBar(final TiViewProxy proxy)
@@ -41,12 +38,12 @@ public class TiUIProgressBar extends TiUIView
 			}
 		};
 		view.setOrientation(LinearLayout.VERTICAL);
-		label = new TextView(proxy.getActivity());
-		label.setGravity(Gravity.TOP | Gravity.LEFT);
-		label.setPadding(0, 0, 0, 0);
+		label = new MaterialTextView(proxy.getActivity());
+		label.setGravity(Gravity.TOP | Gravity.START);
+		label.setPadding(0, 0, 0, 4);
 		label.setSingleLine(false);
 
-		progress = new ProgressBar(proxy.getActivity(), null, android.R.attr.progressBarStyleHorizontal);
+		progress = new LinearProgressIndicator(proxy.getActivity());
 		progress.setIndeterminate(false);
 		progress.setMax(1000);
 
@@ -138,7 +135,8 @@ public class TiUIProgressBar extends TiUIView
 
 	public void updateProgress()
 	{
-		progress.setProgress(convertRange(getMin(), getMax(), getValue(), 1000));
+		boolean isAnimated = TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_ANIMATED), true);
+		progress.setProgressCompat(convertRange(getMin(), getMax(), getValue(), 1000), isAnimated);
 	}
 
 	public void handleSetMessage(String message)
@@ -154,17 +152,13 @@ public class TiUIProgressBar extends TiUIView
 
 	protected void handleSetTintColor(int color)
 	{
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-			ColorStateList singleColorStateList = ColorStateList.valueOf(color);
-			progress.setProgressTintList(singleColorStateList);
-		}
+		ColorStateList singleColorStateList = ColorStateList.valueOf(color);
+		progress.setProgressTintList(singleColorStateList);
 	}
 
 	protected void handleSetTrackTintColor(int color)
 	{
 		ColorStateList singleColorStateList = ColorStateList.valueOf(color);
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-			progress.setProgressBackgroundTintList(singleColorStateList);
-		}
+		progress.setProgressBackgroundTintList(singleColorStateList);
 	}
 }

@@ -11,6 +11,7 @@ import java.util.HashMap;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
+import org.appcelerator.titanium.R;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiC;
@@ -21,14 +22,20 @@ import org.appcelerator.titanium.view.TiDrawableReference;
 import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.AttributedStringProxy;
+import ti.modules.titanium.ui.UIModule;
 
+import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.PorterDuff.Mode;
 import android.graphics.drawable.Drawable;
 import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.MotionEvent;
+import android.view.View;
+import androidx.annotation.NonNull;
 import androidx.appcompat.widget.AppCompatButton;
+
+import com.google.android.material.button.MaterialButton;
 
 public class TiUIButton extends TiUIView
 {
@@ -36,6 +43,7 @@ public class TiUIButton extends TiUIView
 	private static final float DEFAULT_SHADOW_RADIUS = 1f;
 
 	private int defaultColor;
+	private ColorStateList defaultRippleColor;
 	private float shadowRadius = DEFAULT_SHADOW_RADIUS;
 	private float shadowX = 0f;
 	private float shadowY = 0f;
@@ -44,25 +52,79 @@ public class TiUIButton extends TiUIView
 	public TiUIButton(final TiViewProxy proxy)
 	{
 		super(proxy);
-		Log.d(TAG, "Creating a button", Log.DEBUG_MODE);
-		AppCompatButton btn = new AppCompatButton(proxy.getActivity()) {
-			@Override
-			public boolean onFilterTouchEventForSecurity(MotionEvent event)
-			{
-				boolean isTouchAllowed = super.onFilterTouchEventForSecurity(event);
-				if (!isTouchAllowed) {
-					fireEvent(TiC.EVENT_TOUCH_FILTERED, dictFromEvent(event));
-				}
-				return isTouchAllowed;
-			}
 
+		Log.d(TAG, "Creating a button", Log.DEBUG_MODE);
+
+		// Fetch the material button style to use.
+		int styleId = UIModule.BUTTON_STYLE_FILLED;
+		styleId = TiConvert.toInt(proxy.getProperty(TiC.PROPERTY_STYLE), styleId);
+		switch (styleId) {
+			case UIModule.BUTTON_STYLE_OPTION_POSITIVE:
+				styleId = R.attr.buttonBarPositiveButtonStyle;
+				break;
+			case UIModule.BUTTON_STYLE_OPTION_NEGATIVE:
+				styleId = R.attr.buttonBarNegativeButtonStyle;
+				break;
+			case UIModule.BUTTON_STYLE_OPTION_NEUTRAL:
+				styleId = R.attr.buttonBarNeutralButtonStyle;
+				break;
+			case UIModule.BUTTON_STYLE_OUTLINED:
+				styleId = R.attr.materialButtonOutlinedStyle;
+				break;
+			case UIModule.BUTTON_STYLE_TEXT:
+				styleId = R.attr.borderlessButtonStyle;
+				break;
+			case UIModule.BUTTON_STYLE_FILLED:
+			default:
+				styleId = R.attr.materialButtonStyle;
+				break;
+		}
+
+		// Determine if a background drawable will be applied to the button.
+		boolean hasCustomBackground
+			=  hasImage(proxy.getProperties())
+			|| hasColorState(proxy.getProperties())
+			|| hasBorder(proxy.getProperties())
+			|| hasGradient(proxy.getProperties());
+
+		// Create and set up the button.
+		// Note: MaterialButton does not support replacing its background drawable. Will log a nasty warning.
+		AppCompatButton btn;
+		if (hasCustomBackground) {
+			btn = new AppCompatButton(proxy.getActivity()) {
+				@Override
+				public boolean onFilterTouchEventForSecurity(MotionEvent event)
+				{
+					boolean isTouchAllowed = super.onFilterTouchEventForSecurity(event);
+					if (!isTouchAllowed) {
+						fireSyncEvent(TiC.EVENT_TOUCH_FILTERED, dictFromEvent(event));
+					}
+					return isTouchAllowed;
+				}
+			};
+		} else {
+			btn = new MaterialButton(proxy.getActivity(), null, styleId) {
+				@Override
+				public boolean onFilterTouchEventForSecurity(MotionEvent event)
+				{
+					boolean isTouchAllowed = super.onFilterTouchEventForSecurity(event);
+					if (!isTouchAllowed) {
+						fireSyncEvent(TiC.EVENT_TOUCH_FILTERED, dictFromEvent(event));
+					}
+					return isTouchAllowed;
+				}
+			};
+			this.defaultRippleColor = ((MaterialButton) btn).getRippleColor();
+		}
+		btn.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
 			@Override
-			protected void onLayout(boolean changed, int left, int top, int right, int bottom)
+			public void onLayoutChange(
+				View v, int left, int top, int right, int bottom,
+				int oldLeft, int oldTop, int oldRight, int oldBottom)
 			{
-				super.onLayout(changed, left, top, right, bottom);
-				TiUIHelper.firePostLayoutEvent(proxy);
+				TiUIHelper.firePostLayoutEvent(getProxy());
 			}
-		};
+		});
 		btn.setGravity(Gravity.CENTER);
 		defaultColor = btn.getCurrentTextColor();
 		btn.setEllipsize(TextUtils.TruncateAt.MIDDLE);
@@ -95,6 +157,18 @@ public class TiUIButton extends TiUIView
 			// Reset the padding here if the background color is set. By default the padding will be calculated
 			// for the button, but if we set a background color, it will not look centered unless we reset the padding.
 			btn.setPadding(8, 0, 8, 0);
+		}
+		if ((btn instanceof MaterialButton) && d.containsKey(TiC.PROPERTY_TOUCH_FEEDBACK)) {
+			// We only override MaterialButton's native ripple effect if "touchFeedback" property is defined.
+			ColorStateList colorStateList = null;
+			if (TiConvert.toBoolean(d, TiC.PROPERTY_TOUCH_FEEDBACK, false)) {
+				if (d.containsKeyAndNotNull(TiC.PROPERTY_TOUCH_FEEDBACK_COLOR)) {
+					colorStateList = ColorStateList.valueOf(TiConvert.toColor(d, TiC.PROPERTY_TOUCH_FEEDBACK_COLOR));
+				} else {
+					colorStateList = this.defaultRippleColor;
+				}
+			}
+			((MaterialButton) btn).setRippleColor(colorStateList);
 		}
 		if (d.containsKey(TiC.PROPERTY_TITLE)) {
 			btn.setText(d.getString(TiC.PROPERTY_TITLE));
@@ -161,6 +235,7 @@ public class TiUIButton extends TiUIView
 		if (Log.isDebugModeEnabled()) {
 			Log.d(TAG, "Property: " + key + " old: " + oldValue + " new: " + newValue, Log.DEBUG_MODE);
 		}
+
 		AppCompatButton btn = (AppCompatButton) getNativeView();
 		if (key.equals(TiC.PROPERTY_TITLE)) {
 			btn.setText((String) newValue);
@@ -187,6 +262,21 @@ public class TiUIButton extends TiUIView
 				Drawable image = drawableRef.getDrawable();
 				btn.setCompoundDrawablesWithIntrinsicBounds(image, null, null, null);
 			}
+		} else if ((btn instanceof MaterialButton)
+			&& (key.equals(TiC.PROPERTY_TOUCH_FEEDBACK) || key.equals(TiC.PROPERTY_TOUCH_FEEDBACK_COLOR))) {
+			// Only override MaterialButton's native ripple effect if "touchFeedback" property is defined.
+			if (proxy.hasProperty(TiC.PROPERTY_TOUCH_FEEDBACK)) {
+				ColorStateList colorStateList = null;
+				if (TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_TOUCH_FEEDBACK), false)) {
+					if (proxy.hasPropertyAndNotNull(TiC.PROPERTY_TOUCH_FEEDBACK_COLOR)) {
+						String colorString = TiConvert.toString(proxy.getProperty(TiC.PROPERTY_TOUCH_FEEDBACK_COLOR));
+						colorStateList = ColorStateList.valueOf(TiConvert.toColor(colorString));
+					} else {
+						colorStateList = this.defaultRippleColor;
+					}
+				}
+				((MaterialButton) btn).setRippleColor(colorStateList);
+			}
 		} else if (key.equals(TiC.PROPERTY_SHADOW_OFFSET)) {
 			if (newValue instanceof HashMap) {
 				HashMap dict = (HashMap) newValue;
@@ -211,9 +301,19 @@ public class TiUIButton extends TiUIView
 		}
 	}
 
+	@Override
+	protected boolean canApplyTouchFeedback(@NonNull KrollDict props)
+	{
+		// If we're using MaterialButton, then we must use its setRippleColor() method instead.
+		if (getNativeView() instanceof MaterialButton) {
+			return false;
+		}
+		return super.canApplyTouchFeedback(props);
+	}
+
 	private void setAttributedStringText(AttributedStringProxy attrString)
 	{
-		AppCompatButton btn = (AppCompatButton) getNativeView();
+		MaterialButton btn = (MaterialButton) getNativeView();
 
 		if (btn == null) {
 			return;

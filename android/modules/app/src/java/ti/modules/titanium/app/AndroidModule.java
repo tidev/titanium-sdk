@@ -61,7 +61,6 @@ public class AndroidModule extends KrollModule
 		}
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public int getAppVersionCode()
 	{
@@ -71,7 +70,6 @@ public class AndroidModule extends KrollModule
 		return appVersionCode;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public IntentProxy getLaunchIntent()
 	{
@@ -85,7 +83,6 @@ public class AndroidModule extends KrollModule
 		return null;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getAppVersionName()
 	{

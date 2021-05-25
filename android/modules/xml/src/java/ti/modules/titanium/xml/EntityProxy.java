@@ -21,21 +21,18 @@ public class EntityProxy extends NodeProxy
 		this.entity = entity;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getNotationName()
 	{
 		return entity.getNotationName();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getPublicId()
 	{
 		return entity.getPublicId();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getSystemId()
 	{

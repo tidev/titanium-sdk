@@ -192,7 +192,7 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
   _searchWrapper = [self initWrapperProxy];
   _headerWrapper = [self initWrapperProxy];
 
-  isSearchBarInNavigation = [TiUtils boolValue:[(TiViewProxy *)self.proxy valueForUndefinedKey:@"showSearchBarInNavBar"] def:NO] && [TiUtils isIOSVersionOrGreater:@"11.0"];
+  isSearchBarInNavigation = [TiUtils boolValue:[(TiViewProxy *)self.proxy valueForUndefinedKey:@"showSearchBarInNavBar"] def:NO];
   if (!isSearchBarInNavigation) {
     [_headerViewProxy add:_searchWrapper];
   }
@@ -1146,7 +1146,6 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
   return NO;
 }
 
-#if IS_SDK_IOS_13
 - (BOOL)tableView:(UITableView *)tableView shouldBeginMultipleSelectionInteractionAtIndexPath:(NSIndexPath *)indexPath
 {
   return [TiUtils boolValue:[[self proxy] valueForUndefinedKey:@"allowsMultipleSelectionDuringEditing"] def:NO] && [TiUtils boolValue:[[self proxy] valueForUndefinedKey:@"allowsMultipleSelectionInteraction"] def:NO];
@@ -1177,11 +1176,13 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
         [startingItem setDictionary:eventObject];
       }
       [selectedItems addObject:eventObject];
+
+      RELEASE_TO_NIL(eventObject);
+      RELEASE_TO_NIL(theSection);
     }
     [self.proxy fireEvent:@"itemsselected" withObject:@{ @"selectedItems" : selectedItems, @"startingItem" : startingItem }];
   }
 }
-#endif
 
 - (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath
 {
@@ -1848,6 +1849,9 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
               maxWidth -= accessoryAdjustment;
             }
           }
+          if (_tableView.style == UITableViewStyleInsetGrouped) {
+            maxWidth -= _tableView.layoutMargins.left + _tableView.layoutMargins.right;
+          }
           if (maxWidth > 0) {
             TiUIListItemProxy *theProxy = [theCell proxy];
 #ifndef TI_USE_AUTOLAYOUT
@@ -2414,6 +2418,7 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
     dimmingView.alpha = .2;
     UITapGestureRecognizer *tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(dismissSearchController)];
     [dimmingView addGestureRecognizer:tapGesture];
+    [tapGesture release];
   }
 }
 

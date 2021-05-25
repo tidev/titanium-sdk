@@ -60,27 +60,42 @@ methods:
         on devices running Android 4.0 (API level 14) and greater.
     returns:
         type: Boolean
+    deprecated:
+      since: "10.0.0"
+      notes: Use the <Titanium.Android.MenuItem.actionViewExpanded> property instead.
 
   - name: isCheckable
     summary: |
         Returns the [checkable](Titanium.Android.MenuItem.checkable) state of the menu item.
     returns:
         type: Boolean
+    deprecated:
+      since: "10.0.0"
+      notes: Use the <Titanium.Android.MenuItem.checkable> property instead.
 
   - name: isChecked
     summary: Returns the [checked](Titanium.Android.MenuItem.checked) state of the menu item.
     returns:
         type: Boolean
+    deprecated:
+      since: "10.0.0"
+      notes: Use the <Titanium.Android.MenuItem.checked> property instead.
 
   - name: isEnabled
     summary: Returns the [enabled](Titanium.Android.MenuItem.enabled) state of the menu item.
     returns:
         type: Boolean
+    deprecated:
+      since: "10.0.0"
+      notes: Use the <Titanium.Android.MenuItem.enabled> property instead.
 
   - name: isVisible
     summary: Returns the [visible](Titanium.Android.MenuItem.visible) state of the menu item.
     returns:
         type: Boolean
+    deprecated:
+      since: "10.0.0"
+      notes: Use the <Titanium.Android.MenuItem.visible> property instead.
 
   - name: setCheckable
     summary: Sets the [checkable](Titanium.Android.MenuItem.checkable) state of the menu item.
@@ -88,6 +103,10 @@ methods:
       - name: checkable
         summary: True enable checking and unchecking this item, false to disable it.
         type: Boolean
+    deprecated:
+      since: "10.0.0"
+      removed: "10.0.0"
+      notes: Use the <Titanium.Android.MenuItem.checkable> property instead.
 
   - name: setChecked
     summary: Sets the [checked](Titanium.Android.MenuItem.checked) state of the menu item.
@@ -95,6 +114,10 @@ methods:
       - name: enabled
         summary: True to check the item, false to uncheck it.
         type: Boolean
+    deprecated:
+      since: "10.0.0"
+      removed: "10.0.0"
+      notes: Use the <Titanium.Android.MenuItem.checked> property instead.
 
   - name: setEnabled
     summary: Sets the [enabled](Titanium.Android.MenuItem.enabled) state of the menu item.
@@ -102,6 +125,10 @@ methods:
       - name: enabled
         summary: True to enable item, false to disable it.
         type: Boolean
+    deprecated:
+      since: "10.0.0"
+      removed: "10.0.0"
+      notes: Use the <Titanium.Android.MenuItem.enabled> property instead.
 
   - name: setVisible
     summary: Sets the [visible](Titanium.Android.MenuItem.visible) state of the menu item.
@@ -109,6 +136,10 @@ methods:
       - name: visible
         summary: True to show the item, false to hide it.
         type: Boolean
+    deprecated:
+      since: "10.0.0"
+      removed: "10.0.0"
+      notes: Use the <Titanium.Android.MenuItem.visible> property instead.
 
 events:
   - name: click

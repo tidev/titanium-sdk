@@ -61,7 +61,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
   /* Disconnect the old modules. */
   NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
   NSMutableArray *delegateModules = (NSMutableArray *)[appDelegate valueForKey:@"modules"];
-  for (TiModule *thisModule in delegateModules) {
+  for (id<Module> thisModule in delegateModules) {
     [nc removeObserver:thisModule];
   }
 /* Because of other issues, we must leak the modules as well as the runtime */

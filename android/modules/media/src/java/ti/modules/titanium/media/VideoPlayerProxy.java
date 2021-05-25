@@ -115,10 +115,10 @@ public class VideoPlayerProxy extends TiViewProxy implements TiLifecycle.OnLifec
 		}
 		if (activity instanceof TiBaseActivity) {
 			((TiBaseActivity) activity).addOnLifecycleEventListener(this);
-			activityListeningTo = new WeakReference<Activity>(activity);
+			activityListeningTo = new WeakReference<>(activity);
 		} else if (activity instanceof TiVideoActivity) {
 			((TiVideoActivity) activity).setOnLifecycleEventListener(this);
-			activityListeningTo = new WeakReference<Activity>(activity);
+			activityListeningTo = new WeakReference<>(activity);
 		}
 	}
 
@@ -190,7 +190,7 @@ public class VideoPlayerProxy extends TiViewProxy implements TiLifecycle.OnLifec
 
 	/**
 	 * Create handler used for communication from TiVideoActivity to this proxy.
-	 * @return
+	 * @return Returns the handler used to send commands to the video view.
 	 */
 	private Handler createControlHandler()
 	{
@@ -315,7 +315,6 @@ public class VideoPlayerProxy extends TiViewProxy implements TiLifecycle.OnLifec
 		}
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public boolean getPlaying()
 	{
@@ -326,28 +325,24 @@ public class VideoPlayerProxy extends TiViewProxy implements TiLifecycle.OnLifec
 		}
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public int getLoadState()
 	{
 		return loadState;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public int getPlaybackState()
 	{
 		return playbackState;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public int getRepeatMode()
 	{
 		return repeatMode;
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setRepeatMode(int mode)
 	{
@@ -447,14 +442,12 @@ public class VideoPlayerProxy extends TiViewProxy implements TiLifecycle.OnLifec
 		return handled;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public int getMediaControlStyle()
 	{
 		return mediaControlStyle;
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setMediaControlStyle(int style)
 	{
@@ -469,7 +462,6 @@ public class VideoPlayerProxy extends TiViewProxy implements TiLifecycle.OnLifec
 		}
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public int getMovieControlMode()
 	{
@@ -477,7 +469,6 @@ public class VideoPlayerProxy extends TiViewProxy implements TiLifecycle.OnLifec
 		return getMediaControlStyle();
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setMovieControlMode(int style)
 	{
@@ -491,7 +482,6 @@ public class VideoPlayerProxy extends TiViewProxy implements TiLifecycle.OnLifec
 	 * deprecated and cleaned up after TIMOB-2802 is resolved.
 	 * TODO
 	 */
-	@Kroll.method
 	@Kroll.getProperty
 	public int getMovieControlStyle()
 	{
@@ -499,7 +489,6 @@ public class VideoPlayerProxy extends TiViewProxy implements TiLifecycle.OnLifec
 		return getMediaControlStyle();
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setMovieControlStyle(int style)
 	{
@@ -507,14 +496,12 @@ public class VideoPlayerProxy extends TiViewProxy implements TiLifecycle.OnLifec
 		setMediaControlStyle(style);
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public int getScalingMode()
 	{
 		return scalingMode;
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setScalingMode(int mode)
 	{
@@ -539,7 +526,6 @@ public class VideoPlayerProxy extends TiViewProxy implements TiLifecycle.OnLifec
 		}
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public int getCurrentPlaybackTime()
 	{
@@ -560,7 +546,6 @@ public class VideoPlayerProxy extends TiViewProxy implements TiLifecycle.OnLifec
 		}
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setCurrentPlaybackTime(int milliseconds)
 	{
@@ -683,7 +668,6 @@ public class VideoPlayerProxy extends TiViewProxy implements TiLifecycle.OnLifec
 		}
 		firePlaybackState(MediaModule.VIDEO_PLAYBACK_STATE_INTERRUPTED);
 		KrollDict data = new KrollDict();
-		data.put(TiC.EVENT_PROPERTY_MESSAGE, message);
 		data.putCodeAndMessage(what, message);
 		fireEvent(TiC.EVENT_ERROR, data);
 		fireLoadState(MediaModule.VIDEO_LOAD_STATE_UNKNOWN);

@@ -27,7 +27,7 @@ describe('Titanium.UI.Button', function () {
 		}
 	});
 
-	it('apiName', () => {
+	it('.apiName', () => {
 		const button = Ti.UI.createButton({
 			title: 'this is some text'
 		});
@@ -35,36 +35,48 @@ describe('Titanium.UI.Button', function () {
 		should(button.apiName).be.eql('Ti.UI.Button');
 	});
 
-	it('title', function () {
-		const bar = Ti.UI.createButton({
-			title: 'this is some text'
+	describe('.title', () => {
+		it('is a String', () => {
+			const button = Ti.UI.createButton({
+				title: 'this is some text'
+			});
+			should(button.title).be.a.String();
+			should(button.title).eql('this is some text');
+			button.title = 'other text';
+			should(button.title).eql('other text');
 		});
-		should(bar.title).be.a.String();
-		should(bar.getTitle).be.a.Function();
-		should(bar.title).eql('this is some text');
-		should(bar.getTitle()).eql('this is some text');
-		bar.title = 'other text';
-		should(bar.title).eql('other text');
-		should(bar.getTitle()).eql('other text');
+
+		it('has no accessors', () => {
+			const button = Ti.UI.createButton({
+				title: 'this is some text'
+			});
+			should(button).not.have.accessors('title');
+		});
 	});
 
 	// FIXME Parity issue - iOS and Android retains old title if titleid can't be found, Windows uses key
-	it('titleid', function () {
-		const bar = Ti.UI.createButton({
-			titleid: 'this_is_my_key'
+	describe('.titleid', () => {
+		it('is a String', () => {
+			const bar = Ti.UI.createButton({
+				titleid: 'this_is_my_key'
+			});
+			should(bar.titleid).be.a.String();
+			should(bar.titleid).eql('this_is_my_key');
+			should(bar.title).eql('this is my value');
+			bar.titleid = 'other text'; // key won't get found!
+			should(bar.titleid).eql('other text');
+			should(bar.title).eql('this is my value'); // should retain old value if can't find key! https://jira.appcelerator.org/browse/TIMOB-23498
 		});
-		should(bar.titleid).be.a.String();
-		should(bar.getTitleid).be.a.Function();
-		should(bar.titleid).eql('this_is_my_key');
-		should(bar.getTitleid()).eql('this_is_my_key');
-		should(bar.title).eql('this is my value');
-		bar.titleid = 'other text'; // key won't get found!
-		should(bar.titleid).eql('other text');
-		should(bar.getTitleid()).eql('other text');
-		should(bar.title).eql('this is my value'); // should retain old value if can't find key! https://jira.appcelerator.org/browse/TIMOB-23498
+
+		it('has no accessors', () => {
+			const button = Ti.UI.createButton({
+				titleid: 'this_is_my_key'
+			});
+			should(button).not.have.accessors('titleid');
+		});
 	});
 
-	it('image(String)', function (finish) {
+	it('image(String)', finish => {
 		win = Ti.UI.createWindow({
 			backgroundColor: 'blue'
 		});

@@ -17,7 +17,7 @@ describe('Titanium.Media', () => {
 	});
 });
 
-describe('Titanium.Media.VideoPlayer', () => {
+describe.androidARM64Broken('Titanium.Media.VideoPlayer', () => {
 	let player;
 	let win;
 
@@ -376,12 +376,6 @@ describe('Titanium.Media.VideoPlayer', () => {
 				should(player.stop).be.a.Function();
 			});
 		});
-
-		describe.ios('#thumbnailImageAtTime', () => {
-			it('is a Function', () => {
-				should(player.thumbnailImageAtTime).be.a.Function();
-			});
-		});
 	});
 
 	it('Close window containing a video player (TIMOB-25574)', function (finish) {
@@ -482,6 +476,29 @@ describe('Titanium.Media.VideoPlayer', () => {
 		});
 
 		player.addEventListener('playing', () => finish());
+		win.open();
+	});
+
+	it.ios('App should not crash when setting url after video player creation (TIMOB-28217)', function (finish) {
+		this.timeout(10000);
+
+		win = Ti.UI.createWindow();
+		player = Ti.Media.createVideoPlayer({
+			top: 120,
+			autoplay: false,
+			backgroundColor: 'blue',
+			height: 300,
+			width: 300,
+			mediaControlStyle: Titanium.Media.VIDEO_CONTROL_DEFAULT,
+			scalingMode: Titanium.Media.VIDEO_SCALING_ASPECT_FIT,
+			showsControls: true,
+		});
+		player.url = '/movie.mp4';
+		win.add(player);
+		win.addEventListener('open', () => {
+			finish();
+		});
+
 		win.open();
 	});
 });

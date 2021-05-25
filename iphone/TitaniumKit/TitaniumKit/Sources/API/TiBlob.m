@@ -12,6 +12,7 @@
 #import "UIImage+Resize.h"
 #import "UIImage+RoundedCorner.h"
 //NOTE:FilesystemFile is conditionally compiled based on the filesystem module.
+#import "KrollPromise.h"
 #import "TiFilesystemFileProxy.h"
 
 static NSString *const MIMETYPE_PNG = @"image/png";
@@ -148,7 +149,6 @@ GETTER_IMPL(NSUInteger, size, Size);
   return self;
 }
 
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
 - (id)initWithSystemImage:(NSString *)imageName
 {
   if (![TiUtils isIOSVersionOrGreater:@"13.0"]) {
@@ -168,7 +168,6 @@ GETTER_IMPL(NSUInteger, size, Size);
 {
   return systemImageName;
 }
-#endif
 
 - (id)initWithData:(NSData *)data_ mimetype:(NSString *)mimetype_
 {
@@ -454,7 +453,7 @@ GETTER_IMPL(NSUInteger, length, Length);
   if (t != nil) {
     return t;
   }
-  return [super toString];
+  return @"[object TiBlob]";
 }
 
 static void jsArrayBufferFreeDeallocator(void *data, void *ctx)
@@ -475,5 +474,31 @@ static void jsArrayBufferFreeDeallocator(void *data, void *ctx)
   JSValueRef *exception;
   JSObjectRef arrayBuffer = JSObjectMakeArrayBufferWithBytesNoCopy(context.JSGlobalContextRef, arrayBytes, len, jsArrayBufferFreeDeallocator, nil, exception);
   return [JSValue valueWithJSValueRef:arrayBuffer inContext:context];
+}
+
+- (JSValue *)arrayBuffer
+{
+  JSContext *context = [self currentContext];
+  KrollPromise *promise = [[[KrollPromise alloc] initInContext:context] autorelease];
+  TiThreadPerformOnMainThread(
+      ^{
+        NSData *theData = [self data];
+        // Copy the raw bytes of the NSData we're wrapping
+        NSUInteger len = [theData length];
+        void *arrayBytes = malloc(len);
+        [theData getBytes:arrayBytes length:len];
+
+        // Now make an ArrayBuffer with the copied bytes
+        JSValueRef *exception;
+        JSObjectRef arrayBuffer = JSObjectMakeArrayBufferWithBytesNoCopy(context.JSGlobalContextRef, arrayBytes, len, jsArrayBufferFreeDeallocator, nil, exception);
+        if (exception) {
+          [promise reject:@[ [JSValue valueWithJSValueRef:exception inContext:context] ]];
+        } else {
+          JSValue *buffer = [JSValue valueWithJSValueRef:arrayBuffer inContext:context];
+          [promise resolve:@[ buffer ]];
+        }
+      },
+      NO);
+  return promise.JSValue;
 }
 @end

@@ -8,8 +8,7 @@ description: |
     Use the <Titanium.UI.createTab> method or **`<Tab>`** Alloy element to create a tab.
 
     Use [TabGroup.setActiveTab](Titanium.UI.TabGroup.setActiveTab) to switch between tabs
-    in a tab group. The <Titanium.UI.currentTab> property provides a global reference to
-    the currently active tab.
+    in a tab group.
 
     The behavior of tabs and tab groups follows the platform's native navigation style,
     which varies significantly between platforms.
@@ -126,6 +125,9 @@ methods:
       - name: window
         summary: Root window of the tab.
         type: Titanium.UI.Window
+    deprecated:
+      since: "10.0.0"
+      notes: Set the value of the [window](Titanium.UI.Tab.window) property directly.
 
   - name: popToRootWindow
     # FIXME: I don't think this exists on Android!
@@ -176,7 +178,8 @@ properties:
   - name: backgroundFocusedColor
     summary: Sets the color of the tab when it is focused.
     description: |
-        On the Android platform, this sets the color of the active tab.
+        On the Android platform, this sets the color of the active tab and is only supported by
+        [TABS_STYLE_BOTTOM_NAVIGATION](Titanium.UI.Android.TABS_STYLE_BOTTOM_NAVIGATION).
 
         For information about color values, see the "Colors" section of <Titanium.UI>.
     platforms: [android]

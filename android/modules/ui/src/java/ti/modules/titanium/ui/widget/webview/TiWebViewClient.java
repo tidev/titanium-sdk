@@ -24,7 +24,6 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.net.http.SslError;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.security.KeyChain;
 import android.security.KeyChainAliasCallback;
 import android.webkit.ClientCertRequest;
@@ -71,7 +70,7 @@ public class TiWebViewClient extends WebViewClientClassicExt
 			enableJavascriptInjection =
 				TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_ENABLE_JAVASCRIPT_INTERFACE), true);
 		}
-		if (Build.VERSION.SDK_INT > 16 || enableJavascriptInjection) {
+		if (enableJavascriptInjection) {
 			WebView nativeWebView = webView.getWebView();
 
 			if (nativeWebView != null) {
@@ -237,18 +236,15 @@ public class TiWebViewClient extends WebViewClientClassicExt
 	/*
 	 * ClientCertRequest wrapper for compatibility with both ClientCertRequest and ClientCertRequestHandler
 	 */
-	private class ClientCertRequestCompat
+	private static class ClientCertRequestCompat
 	{
 		private ClientCertRequest clientCertRequest;
 		private ClientCertRequestHandler clientCertRequestHandler;
 
 		ClientCertRequestCompat(Object request)
 		{
-			// API 21+
-			if (Build.VERSION.SDK_INT >= 21 && request instanceof ClientCertRequest) {
+			if (request instanceof ClientCertRequest) {
 				clientCertRequest = (ClientCertRequest) request;
-
-				// API 16+
 			} else if (request instanceof ClientCertRequestHandler) {
 				clientCertRequestHandler = (ClientCertRequestHandler) request;
 			}
@@ -360,7 +356,7 @@ public class TiWebViewClient extends WebViewClientClassicExt
 			Log.e(TAG, TiC.PROPERTY_WEBVIEW_IGNORE_SSL_ERROR + " property does not contain a boolean value, ignoring");
 		}
 
-		if (ignoreSslError == true) {
+		if (ignoreSslError) {
 			Log.w(TAG, "ran into SSL error but ignoring...");
 			handler.proceed();
 

@@ -510,19 +510,19 @@ describe.windowsBroken('Titanium.XML', function () {
 		var doc = Ti.XML.parseString(testSource['nodes.xml']),
 			textValue = 'this is some test',
 			textNode,
-			getTextResults = null,
+			// getTextResults = null,
 			getTextResults2;
 		should(doc.createTextNode).be.a.Function();
 		textNode = doc.createTextNode(textValue);
 		should(textNode.nodeValue).eql(textValue);
-		should(function () {
-			getTextResults = textNode.getText();
-		}).not.throw();
-		should(getTextResults).eql(textValue);
-		should(function () {
-			getTextResults = textNode.getTextContent();
-		}).not.throw();
-		should(getTextResults).eql(textValue);
+		// should(function () {
+		// 	getTextResults = textNode.getText();
+		// }).not.throw();
+		// should(getTextResults).eql(textValue);
+		// should(function () {
+		// 	getTextResults = textNode.getTextContent();
+		// }).not.throw();
+		// should(getTextResults).eql(textValue);
 		should(function () {
 			getTextResults2 = textNode.text;
 		}).not.throw();

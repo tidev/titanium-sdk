@@ -72,6 +72,7 @@ add_library(
 	TypeConverter.cpp
 	V8Function.cpp
 	V8Object.cpp
+	V8Promise.cpp
 	V8Runtime.cpp
 	V8Util.cpp
 	modules/APIModule.cpp
@@ -95,7 +96,6 @@ if(CMAKE_BUILD_TYPE STREQUAL "Debug")
 		PRIVATE
 
 		TI_DEBUG=1
-		V8_ENABLE_CHECKS
 	)
 endif()
 
@@ -133,8 +133,8 @@ set_target_properties(
 	${PROJECT_NAME}
 	PROPERTIES
 
-	# Setting these 3 properties is equivalent to: -std=c++11
-	CXX_STANDARD 11
+	# Setting these 3 properties is equivalent to: -std=c++14
+	CXX_STANDARD 14
 	CXX_STANDARD_REQUIRED ON
 	CXX_EXTENSIONS OFF
 

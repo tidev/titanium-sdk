@@ -109,6 +109,31 @@ should.Assertion.add('enumeration', function (type, names) {
 	}
 }, false);
 
+should.Assertion.add('getter', function (propName) {
+	const upper = propName.slice(0, 1).toUpperCase();
+	const getterName = `get${upper}${propName.slice(1)}`;
+	this.params = { operator: `to have a getter method named: ${getterName}` };
+	if (this.obj.apiName) {
+		this.params.obj = this.obj.apiName;
+	}
+	should(this.obj).have.a.property(getterName).which.is.a.Function();
+}, false);
+
+should.Assertion.add('setter', function (propName) {
+	const upper = propName.slice(0, 1).toUpperCase();
+	const setterName = `set${upper}${propName.slice(1)}`;
+	this.params = { operator: `to have a setter method named: ${setterName}` };
+	if (this.obj.apiName) {
+		this.params.obj = this.obj.apiName;
+	}
+	should(this.obj).have.a.property(setterName).which.is.a.Function();
+}, false);
+
+should.Assertion.add('accessors', function (propName) {
+	should(this.obj).have.a.getter(propName);
+	should(this.obj).have.a.setter(propName);
+}, false);
+
 /**
  * @param {Ti.Blob} blob binary data to write
  * @param {string} imageFilePath relative file path to save image under
@@ -121,6 +146,56 @@ function saveImage(blob, imageFilePath) {
 	}
 	file.write(blob);
 	return file;
+}
+
+class ImageMatchDetails {
+	constructor(inputFilename) {
+		this.inputFilename = inputFilename;
+	}
+
+	/**
+	 * Generates the list of input image files we may try to compare against, in order
+	 * of most specific match to more generic match
+	 * @returns {string[]}
+	 */
+	possibleInputs() {
+		const density = Ti.Platform.displayCaps.logicalDensityFactor;
+		const withoutSuffix = this.inputFilename.substr(0, this.inputFilename.length - 4);
+		const result = [];
+		if (density !== 1) {
+			// First try device *and* density specific image
+			if (OS_IOS) {
+				result.push(`${withoutSuffix}@${density}x~${Ti.Platform.osname}.png`);
+			}
+			// Then try density specific image
+			result.push(`${withoutSuffix}@${density}x.png`);
+		}
+		// Then try base image
+		result.push(`${withoutSuffix}.png`);
+
+		// FIXME: Android should basically prefix with res- folder name based on density (if we can)
+		// see https://developer.android.com/training/multiscreen/screendensities
+		// 1x, 1.5x, 2x, 3x, 4x all map, but 2.625x/2.75x/3.5x don't!
+		// https://blog.prototypr.io/designing-for-multiple-screen-densities-on-android-5fba8afe7ead
+		return result;
+	}
+
+	/**
+	 * Generates the output filename/path for the generated image.
+	 * @returns {string}
+	 */
+	outputFile() {
+		const density = Ti.Platform.displayCaps.logicalDensityFactor;
+		// FIXME: On android, don't do this suffix crap, use res- folder naming!
+		// Append density
+		let suffix = density === 1 ? '' : `@${density}x`;
+		// Append ~iphone or ~ipad!
+		if (OS_IOS) {
+			suffix = `${suffix}~${Ti.Platform.osname}`;
+		}
+		const withoutSuffix = this.inputFilename.substr(0, this.inputFilename.length - 4);
+		return `${withoutSuffix}${suffix}.png`;
+	}
 }
 
 /**
@@ -141,7 +216,7 @@ should.Assertion.add('matchImage', function (image, options = { threshold: 0.1, 
 	const now = Date.now();
 	const density = Ti.Platform.displayCaps.logicalDensityFactor;
 	const suffix = density === 1 ? '' : `@${density}x`;
-
+	let outputFilePath = image;
 	let expectedBlob = null;
 
 	if (isExpectedBlob) {
@@ -150,32 +225,41 @@ should.Assertion.add('matchImage', function (image, options = { threshold: 0.1, 
 			operator: 'to match Ti.Blob'
 		};
 		expectedBlob = image;
-		image = `snapshots/${now}_${expectedBlob.width}x${expectedBlob.height}${suffix}.png`;
+		outputFilePath = `snapshots/${now}_${expectedBlob.width}x${expectedBlob.height}${suffix}.png`;
 	} else {
-
-		// Amend image path for correct snapshot size.
-		// TODO: Append @#x suffix if density is > 1
-		image = `${image.substr(0, image.length - 4)}_${actualBlob.width}x${actualBlob.height}${suffix}.png`;
-
+		const details = new ImageMatchDetails(image);
+		outputFilePath = details.outputFile();
 		this.params = {
 			obj: this.obj.apiName,
-			operator: `to match image ('${image}')`
+			operator: `to match image ('${outputFilePath}')`
 		};
 
-		// Attempt to load snapshot.
-		const snapshot = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, image);
-		try {
-			should(snapshot.exists()).be.true(`No snapshot image to compare for platform '${platform}' ('${image}')`);
-		} catch (err) {
-			// No snapshot, save current view as snapshot for platform.
-			const file = saveImage(actualBlob, image);
-			console.log(`!IMAGE: {"path":"${file.nativePath}","platform":"${platform}","relativePath":"${image}"}`);
-
-			throw err;
+		// Determine if any of the possible input images to match against exist
+		const possibleInputs = details.possibleInputs();
+		let snapshot;
+		let inputFilename;
+		for (const filepath of possibleInputs) {
+			// Does it exist?
+			const possibleFile = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, filepath);
+			if (possibleFile.exists()) {
+				snapshot = possibleFile;
+				inputFilename = filepath;
+				break; // found it!
+			}
+		}
+		if (!snapshot) { // none of the input images exist!
+			// Save current view as snapshot for platform/density combo
+			const file = saveImage(actualBlob, outputFilePath);
+			console.log(`!IMAGE: {"path":"${file.nativePath}","platform":"${platform}","relativePath":"${outputFilePath}"}`);
+			should.fail(`No snapshot image to compare for platform '${platform}' ('${possibleInputs}')`);
 		}
 
 		// Load expected snapshot blob.
 		expectedBlob = snapshot.read();
+		this.params = {
+			obj: this.obj.apiName,
+			operator: `to match image ('${inputFilename}')`
+		};
 	}
 
 	// Validate size of blobs.
@@ -184,13 +268,12 @@ should.Assertion.add('matchImage', function (image, options = { threshold: 0.1, 
 		should(actualBlob).have.property('height').equal(expectedBlob.height);
 		should(actualBlob).have.property('size').equal(expectedBlob.size);
 	} catch (e) {
-
 		// Invalid size, save current view for investigation.
-		const actualOut = saveImage(actualBlob, image);
-		console.log(`!IMAGE: {"path":"${actualOut.nativePath}","platform":"${platform}","relativePath":"${image}"}`);
+		const actualOut = saveImage(actualBlob, outputFilePath);
+		console.log(`!IMAGE: {"path":"${actualOut.nativePath}","platform":"${platform}","relativePath":"${outputFilePath}"}`);
 
 		// Save expected blob for investigation.
-		const expectedPath = image.slice(0, -4) + '_expected.png';
+		const expectedPath = outputFilePath.slice(0, -4) + '_expected.png';
 		const expectedOut = saveImage(expectedBlob, expectedPath);
 		console.log(`!IMG_DIFF: {"path":"${expectedOut.nativePath}","platform":"${platform}","relativePath":"${expectedPath}"}`);
 
@@ -209,11 +292,11 @@ should.Assertion.add('matchImage', function (image, options = { threshold: 0.1, 
 	const diff = pixelmatch(actualImg.data, expectedImg.data, diffImg.data, width, height, { threshold: options.threshold });
 
 	try {
-		should(diff).be.belowOrEqual(options.maxPixelMismatch, 'mismatched pixels');
+		should(diff).be.belowOrEqual(options.maxPixelMismatch, `mismatched pixels. allowed: ${options.maxPixelMismatch}, actual: ${diff}`);
 	} catch (err) {
 		// Snapshots did not match, save current view.
-		const actualOut = saveImage(actualBlob, image);
-		console.log(`!IMAGE: {"path":"${actualOut.nativePath}","platform":"${platform}","relativePath":"${image}"}`);
+		const actualOut = saveImage(actualBlob, outputFilePath);
+		console.log(`!IMAGE: {"path":"${actualOut.nativePath}","platform":"${platform}","relativePath":"${outputFilePath}"}`);
 
 		// Save expected blob for investigation.
 		if (isExpectedBlob) {
@@ -221,13 +304,13 @@ should.Assertion.add('matchImage', function (image, options = { threshold: 0.1, 
 			const expectedOut = saveImage(expectedBlob, expectedPath);
 			console.log(`!IMG_DIFF: {"path":"${expectedOut.nativePath}","platform":"${platform}","relativePath":"${expectedPath}"}`);
 		} else {
-			const expectedPath = image.slice(0, -4) + '_expected.png';
+			const expectedPath = outputFilePath.slice(0, -4) + '_expected.png';
 			const expectedOut = saveImage(expectedBlob, expectedPath);
 			console.log(`!IMG_DIFF: {"path":"${expectedOut.nativePath}","platform":"${platform}","relativePath":"${expectedPath}"}`);
 		}
 
 		const diffBuffer = PNG.sync.write(diffImg);
-		const diffPath = image.slice(0, -4) + '_diff.png';
+		const diffPath = outputFilePath.slice(0, -4) + '_diff.png';
 
 		// Save difference image for investigation.
 		const diffOut = saveImage(diffBuffer.toTiBuffer().toBlob(), diffPath);
@@ -240,3 +323,158 @@ should.Assertion.add('matchImage', function (image, options = { threshold: 0.1, 
 // TODO Add an assertion for "exclusive" group of constants: A set of constants whose values must be unique (basically an enum), i.e. Ti.UI.FILL vs SIZE vs UNKNOWN
 // TODO Use more custom assertions for things like color properties?
 module.exports = should;
+
+const filter = require('./mocha-filter');
+// Use custom mocha filters for platform-specific tests
+const filters = {
+	android: () => utilities.isAndroid(),
+	ios: () => utilities.isIOS(),
+	ipad: () => utilities.isIPad(),
+	iphone: () => utilities.isIPhone(),
+	mac: () => utilities.isMacOS(),
+	windows: () => utilities.isWindows(),
+	// To mark APIs meant to be cross-platform but missing from a given platform
+	androidMissing: () => (utilities.isAndroid() ? 'skip' : true),
+	iosMissing: () => (utilities.isIOS() ? 'skip' : true),
+	macMissing: () => (utilities.isMacOS() ? 'skip' : true),
+	windowsMissing: () => (utilities.isWindows() ? 'skip' : true),
+	androidARM64Broken: () => (utilities.isAndroidARM64Emulator() ? 'skip' : true),
+	androidIosAndWindowsPhoneBroken: function () {
+		if (utilities.isAndroid() || utilities.isIOS() || utilities.isWindowsPhone()) {
+			return 'skip';
+		}
+		return true;
+	},
+	androidIosAndWindowsDesktopBroken: function () {
+		if (utilities.isAndroid() || utilities.isIOS() || utilities.isWindowsDesktop()) {
+			return 'skip';
+		}
+		return true;
+	},
+	// to mark when there's a bug in both iOS and Android impl
+	androidAndIosBroken: function () {
+		if (utilities.isAndroid() || utilities.isIOS()) {
+			return 'skip';
+		}
+		return true;
+	},
+	androidAndMacBroken: function () {
+		if (utilities.isAndroid() || utilities.isMacOS()) {
+			return 'skip';
+		}
+		return true;
+	},
+	// to mark when there's a bug in both Android and Windows Desktop impl
+	androidAndWindowsDesktopBroken: function () {
+		if (utilities.isAndroid() || utilities.isWindowsDesktop()) {
+			return 'skip';
+		}
+		return true;
+	},
+	// to mark when there's a bug in both Android and Windows Phone impl
+	androidAndWindowsPhoneBroken: function () {
+		if (utilities.isAndroid() || utilities.isWindowsPhone()) {
+			return 'skip';
+		}
+		return true;
+	},
+	// to mark when there's a bug in both Android and Windows impl
+	androidAndWindowsBroken: function () {
+		if (utilities.isAndroid() || utilities.isWindows()) {
+			return 'skip';
+		}
+		return true;
+	},
+	// to mark when there's a bug in both iOS and Windows impl
+	iosAndWindowsBroken: function () {
+		if (utilities.isWindows() || utilities.isIOS()) {
+			return 'skip';
+		}
+		return true;
+	},
+	iosAndWindowsPhoneBroken: function () {
+		if (utilities.isIOS() || utilities.isWindowsPhone()) {
+			return 'skip';
+		}
+		return true;
+	},
+	iosAndWindowsDesktopBroken: function () {
+		if (utilities.isWindowsDesktop() || utilities.isIOS()) {
+			return 'skip';
+		}
+		return true;
+	},
+	macAndWindowsBroken: function () {
+		if (utilities.isWindows() || utilities.isMacOS()) {
+			return 'skip';
+		}
+		return true;
+	},
+	macAndWindowsDesktopBroken: function () {
+		if (utilities.isWindowsDesktop() || utilities.isMacOS()) {
+			return 'skip';
+		}
+		return true;
+	},
+	// mark bugs specific to Windows 8.1 Desktop/Store
+	windowsDesktop81Broken: function () {
+		if (utilities.isWindows8_1() || utilities.isWindowsDesktop()) {
+			return 'skip';
+		}
+		return true;
+	},
+	// mark bugs specific to Windows 8.1 Phone
+	windowsPhone81Broken: function () {
+		if (utilities.isWindows8_1() || utilities.isWindowsPhone()) {
+			return 'skip';
+		}
+		return true;
+	},
+	// mark bugs specific to Windows Emulator
+	windowsEmulatorBroken: function () {
+		if (utilities.isWindowsEmulator()) {
+			return 'skip';
+		}
+		return true;
+	},
+	// mark bugs specific to Windows Store
+	windowsDesktopBroken: function () {
+		if (utilities.isWindowsDesktop()) {
+			return 'skip';
+		}
+		return true;
+	},
+	// mark bugs specific to Windows Phone
+	windowsPhoneBroken: function () {
+		if (utilities.isWindowsPhone()) {
+			return 'skip';
+		}
+		return true;
+	},
+	// mark bugs specific to Windows 8.1
+	windows81Broken: function () {
+		if (utilities.isWindows8_1()) {
+			return 'skip';
+		}
+		return true;
+	},
+	allBroken: () => 'skip'
+};
+
+// Alias broken tests on a given platform to "missing" filter for that platform.
+// This is just handy to try and label where we have gaps in our APIs versus where we have bugs in our impl for a given platform
+filters.androidBroken = filters.androidMissing;
+filters.iosBroken = filters.iosMissing;
+filters.macBroken = filters.macMissing;
+filters.windowsBroken = filters.windowsMissing;
+filters.androidAndWindowsMissing = filters.androidAndWindowsBroken;
+filters.androidBrokenAndIosMissing = filters.androidAndIosBroken;
+filters.androidMissingAndIosBroken = filters.androidAndIosBroken;
+filters.androidMissingAndWindowsBroken = filters.androidAndWindowsMissing;
+filters.androidMissingAndWindowsDesktopBroken = filters.androidAndWindowsDesktopBroken;
+filters.iosMissingAndWindowsDesktopBroken = filters.iosAndWindowsDesktopBroken;
+filters.macBrokenAndWindowsMissing = filters.macAndWindowsBroken;
+filters.macMissingAndWindowsBroken = filters.macAndWindowsBroken;
+filters.macAndWindowsMissing = filters.macAndWindowsBroken;
+// Add our custom filters
+filter.addFilters(filters);

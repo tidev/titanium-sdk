@@ -11,37 +11,35 @@
 
 let failed = false;
 
-require('./ti-mocha');
-// I *think* we need to load mocha first before utilities...
-const should = require('./utilities/assertions');
-
-// Must test global is available in first app.js explicitly!
-// (since app.js is treated slightly differently than required files on at least Android)
-describe('global', () => {
-	it('should be available as \'global\'', () => {
-		should(global).be.ok();
-	});
-});
-
-// Must have __dirname in the global scope, even in our app.js
-describe('__dirname', () => {
-	it.windowsMissing('should be available as \'__dirname\'', () => {
-		should(__dirname).be.ok();
-		should(__dirname).be.a.String();
-		should(__dirname).be.eql('/');
-	});
-});
-
-// Must have __filename in the global scope, even in our app.js
-describe('__filename', () => {
-	it.windowsMissing('should be available as \'__filename\'', () => {
-		should(__filename).be.ok();
-		should(__filename).be.a.String();
-		should(__filename).be.eql('/app.js');
-	});
-});
-
 function loadTests() {
+	const should = require('./utilities/assertions');
+
+	// Must test global is available in first app.js explicitly!
+	// (since app.js is treated slightly differently than required files on at least Android)
+	describe('global', () => {
+		it('should be available as \'global\'', () => {
+			should(global).be.ok();
+		});
+	});
+
+	// Must have __dirname in the global scope, even in our app.js
+	describe('__dirname', () => {
+		it.windowsMissing('should be available as \'__dirname\'', () => {
+			should(__dirname).be.ok();
+			should(__dirname).be.a.String();
+			should(__dirname).be.eql('/');
+		});
+	});
+
+	// Must have __filename in the global scope, even in our app.js
+	describe('__filename', () => {
+		it.windowsMissing('should be available as \'__filename\'', () => {
+			should(__filename).be.ok();
+			should(__filename).be.a.String();
+			should(__filename).be.eql('/app.js');
+		});
+	});
+
 	// ============================================================================
 	// Add the tests here using "require"
 	// Global behavior (top-level timers, functions, types)
@@ -151,6 +149,7 @@ function loadTests() {
 	}
 	require('./ti.ui.attributedstring.test');
 	require('./ti.ui.button.test');
+	require('./ti.ui.buttonbar.test');
 	require('./ti.ui.clipboard.test');
 	require('./ti.ui.constants.test');
 	require('./ti.ui.emaildialog.test');
@@ -159,11 +158,11 @@ function loadTests() {
 		require('./ti.ui.ios.test');
 		require('./ti.ui.ios.collisionbehavior.test');
 		require('./ti.ui.ios.feedbackgenerator.test');
-		require('./ti.ui.ios.navigationwindow.test');
 		require('./ti.ui.ios.previewcontext.test');
+		require('./ti.ui.ios.documentviewer.test');
 		require('./ti.ui.ios.splitwindow.test');
 		require('./ti.ui.ios.statusbar.test');
-		require('./ti.ui.ios.tabbedbar.test');
+		require('./ti.ui.ios.stepper.test');
 		require('./ti.ui.ios.tableviewstyle.test');
 		require('./ti.ui.ios.webviewconfiguration.test');
 		require('./ti.ui.ipad.test');
@@ -175,6 +174,7 @@ function loadTests() {
 	require('./ti.ui.maskedimage.test');
 	require('./ti.ui.matrix2d.test');
 	require('./ti.ui.navigationwindow.test');
+	require('./ti.ui.optionbar.test');
 	require('./ti.ui.optiondialog.test');
 	require('./ti.ui.picker.test');
 	require('./ti.ui.progressbar.test');
@@ -212,7 +212,7 @@ function loadTests() {
 
 /**
  * To make Jenkins junit reporting happy, let's use anything up until '#'/'.' in
- * suite names as the full "class name". Then concanetate the remainder with the test name.
+ * suite names as the full "class name". Then concatenate the remainder with the test name.
  * This should consolidate tests together under our API names like 'Ti.Buffer', with subsuites' tests
  * just represented as separate tests (the sub-suite name gets prefixed to the test name)
  * @param  {string[]} suites  stack of suite names
@@ -383,13 +383,15 @@ const win = Ti.UI.createWindow({
 });
 win.addEventListener('open', function () {
 	setTimeout(function () {
-		mocha.setup({
-			reporter: $Reporter,
-			quiet: true
+		const Mocha = require('mocha');
+		const mocha = new Mocha({
+			ui: 'bdd',
+			reporter: $Reporter
 		});
+		mocha.suite.emit('pre-require', global, 'app.js', mocha);
 		loadTests();
 		// Start executing the test suite.
-		mocha.run(function () {
+		mocha.run(function (_failureCount) {
 			// We've finished executing all tests.
 			win.backgroundColor = failed ? 'red' : 'green';
 			Ti.API.info('!TEST_RESULTS_STOP!');

@@ -13,10 +13,8 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.os.Build;
 import android.os.Looper;
 import android.os.SystemClock;
-import androidx.multidex.MultiDex;
 import android.util.DisplayMetrics;
 import android.view.accessibility.AccessibilityManager;
 import com.appcelerator.aps.APSAnalytics;
@@ -84,7 +82,7 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	private String baseUrl;
 	private String startUrl;
 	private HashMap<String, SoftReference<KrollProxy>> proxyMap;
-	private TiWeakList<KrollProxy> appEventProxies = new TiWeakList<KrollProxy>();
+	private final TiWeakList<KrollProxy> appEventProxies = new TiWeakList<>();
 	private WeakReference<TiRootActivity> rootActivity;
 	private TiProperties appProperties;
 	private WeakReference<Activity> currentActivity;
@@ -100,9 +98,8 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	protected String[] filteredAnalyticsEvents;
 
 	public static AtomicBoolean isActivityTransition = new AtomicBoolean(false);
-	protected static ArrayList<ActivityTransitionListener> activityTransitionListeners =
-		new ArrayList<ActivityTransitionListener>();
-	protected static TiWeakList<Activity> activityStack = new TiWeakList<Activity>();
+	protected static ArrayList<ActivityTransitionListener> activityTransitionListeners = new ArrayList<>();
+	protected static TiWeakList<Activity> activityStack = new TiWeakList<>();
 
 	public interface ActivityTransitionListener {
 		void onActivityTransition(boolean state);
@@ -139,14 +136,13 @@ public abstract class TiApplication extends Application implements KrollApplicat
 
 		mainThreadId = Looper.getMainLooper().getThread().getId();
 
-		modules = new HashMap<String, WeakReference<KrollModule>>();
+		modules = new HashMap<>();
 		TiMessenger.getMessenger(); // initialize message queue for main thread
 	}
 
 	/**
 	 * Retrieves the instance of TiApplication. There is one instance per Android application.
 	 * @return the instance of TiApplication.
-	 * @module.api
 	 */
 	public static TiApplication getInstance()
 	{
@@ -168,7 +164,7 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	public static void addToActivityStack(Activity activity)
 	{
 		if (activity != null) {
-			activityStack.add(new WeakReference<Activity>(activity));
+			activityStack.add(new WeakReference<>(activity));
 		}
 	}
 
@@ -220,7 +216,6 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	/**
 	 * Check whether the current activity is in foreground or not.
 	 * @return true if the current activity is in foreground; false otherwise.
-	 * @module.api
 	 */
 	public static boolean isCurrentActivityInForeground()
 	{
@@ -235,7 +230,6 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	 * This is a convenience method to avoid having to check TiApplication.getInstance() is not null every
 	 * time we need to grab the current activity.
 	 * @return the current activity
-	 * @module.api
 	 */
 	public static Activity getAppCurrentActivity()
 	{
@@ -246,7 +240,6 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	 * This is a convenience method to avoid having to check TiApplication.getInstance() is not null every
 	 * time we need to grab the root or current activity.
 	 * @return root activity if exists. If root activity doesn't exist, returns current activity if exists. Otherwise returns null.
-	 * @module.api
 	 */
 	public static Activity getAppRootOrCurrentActivity()
 	{
@@ -255,7 +248,6 @@ public abstract class TiApplication extends Application implements KrollApplicat
 
 	/**
 	 * @return the current activity if exists. Otherwise, the thread will wait for a valid activity to be visible.
-	 * @module.api
 	 */
 	@Override
 	public Activity getCurrentActivity()
@@ -316,13 +308,6 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	}
 
 	@Override
-	protected void attachBaseContext(Context base)
-	{
-		super.attachBaseContext(base);
-		MultiDex.install(this);
-	}
-
-	@Override
 	public void onCreate()
 	{
 		super.onCreate();
@@ -354,7 +339,7 @@ public abstract class TiApplication extends Application implements KrollApplicat
 		File fullPath = new File(TiC.URL_ANDROID_ASSET_RESOURCES, "app.js");
 		baseUrl = fullPath.getParent();
 
-		proxyMap = new HashMap<String, SoftReference<KrollProxy>>(5);
+		proxyMap = new HashMap<>(5);
 
 		deployData = new TiDeployData(this);
 
@@ -380,6 +365,12 @@ public abstract class TiApplication extends Application implements KrollApplicat
 
 				// Delete all Titanium temp files.
 				deleteTiTempFiles();
+
+				if (isAnalyticsEnabled()) {
+
+					// Force send `session.end` event.
+					APSAnalytics.getInstance().sendSessionEndEvent(true);
+				}
 			}
 		});
 	}
@@ -400,9 +391,8 @@ public abstract class TiApplication extends Application implements KrollApplicat
 		TiImageLruCache.getInstance().evictAll();
 
 		// Perform hard garbage collection to reclaim memory.
-		KrollRuntime instance = KrollRuntime.getInstance();
-		if (instance != null) {
-			instance.hardGC();
+		if (KrollRuntime.getInstance() != null) {
+			KrollRuntime.hardGC();
 		}
 
 		super.onLowMemory();
@@ -412,15 +402,14 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	@Override
 	public void onTrimMemory(int level)
 	{
-		if (Build.VERSION.SDK_INT >= TiC.API_LEVEL_HONEYCOMB && level >= TRIM_MEMORY_RUNNING_LOW) {
+		if (level >= TRIM_MEMORY_RUNNING_LOW) {
 			// Release all the cached images
 			TiBlobLruCache.getInstance().evictAll();
 			TiImageLruCache.getInstance().evictAll();
 
 			// Perform soft garbage collection to reclaim memory.
-			KrollRuntime instance = KrollRuntime.getInstance();
-			if (instance != null) {
-				instance.softGC();
+			if (KrollRuntime.getInstance() != null) {
+				KrollRuntime.softGC();
 			}
 		}
 		super.onTrimMemory(level);
@@ -449,6 +438,11 @@ public abstract class TiApplication extends Application implements KrollApplicat
 
 		if (isAnalyticsEnabled()) {
 			APSAnalytics.getInstance().initialize(getAppGUID(), this);
+
+			final int cacheSize = this.appProperties.getInt("ti.analytics.cacheSize", -1);
+			if (cacheSize > -1) {
+				APSAnalytics.getInstance().setCacheSize(cacheSize);
+			}
 		} else {
 			Log.i(TAG, "Analytics have been disabled");
 		}
@@ -575,7 +569,7 @@ public abstract class TiApplication extends Application implements KrollApplicat
 
 	public void setRootActivity(TiRootActivity rootActivity)
 	{
-		this.rootActivity = new WeakReference<TiRootActivity>(rootActivity);
+		this.rootActivity = new WeakReference<>(rootActivity);
 		if (rootActivity == null) {
 			return;
 		}
@@ -634,7 +628,7 @@ public abstract class TiApplication extends Application implements KrollApplicat
 		{
 			Activity currentActivity = getCurrentActivity();
 			if (currentActivity == null || callingActivity == currentActivity) {
-				this.currentActivity = new WeakReference<Activity>(newValue);
+				this.currentActivity = new WeakReference<>(newValue);
 			}
 		}
 	}
@@ -652,7 +646,7 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	public void addAppEventProxy(KrollProxy appEventProxy)
 	{
 		if (appEventProxy != null && !appEventProxies.contains(appEventProxy)) {
-			appEventProxies.add(new WeakReference<KrollProxy>(appEventProxy));
+			appEventProxies.add(new WeakReference<>(appEventProxy));
 		}
 	}
 
@@ -680,7 +674,6 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	/**
 	 * @return the app's properties, which are listed in tiapp.xml.
 	 * App properties can also be set at runtime by the application in Javascript.
-	 * @module.api
 	 */
 	public TiProperties getAppProperties()
 	{
@@ -713,7 +706,7 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	{
 		String proxyId = proxy.getProxyId();
 		if (!proxyMap.containsKey(proxyId)) {
-			proxyMap.put(proxyId, new SoftReference<KrollProxy>(proxy));
+			proxyMap.put(proxyId, new SoftReference<>(proxy));
 		}
 	}
 
@@ -922,7 +915,6 @@ public abstract class TiApplication extends Application implements KrollApplicat
 
 	/**
 	 * @return true if the current thread is the main thread, false otherwise.
-	 * @module.api
 	 */
 	public static boolean isUIThread()
 	{
@@ -949,7 +941,7 @@ public abstract class TiApplication extends Application implements KrollApplicat
 			Log.w(TAG, "Registering module with name already in use.");
 		}
 
-		modules.put(name, new WeakReference<KrollModule>(module));
+		modules.put(name, new WeakReference<>(module));
 	}
 
 	@Override
@@ -1008,5 +1000,11 @@ public abstract class TiApplication extends Application implements KrollApplicat
 		return accessibilityManager;
 	}
 
-	public abstract void verifyCustomModules(TiRootActivity rootActivity);
+	/**
+	 * To be overridden by app template "./android/templates/app/App.java" to verify Titanium modules.
+	 * @param rootActivity Splash screen activity needed to display a module verification error dialog.
+	 */
+	public void verifyCustomModules(TiRootActivity rootActivity)
+	{
+	}
 }

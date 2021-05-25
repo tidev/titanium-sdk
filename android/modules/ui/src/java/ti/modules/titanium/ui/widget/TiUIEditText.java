@@ -353,6 +353,7 @@ public class TiUIEditText extends TextInputEditText implements NestedScrollingCh
 			case MotionEvent.ACTION_CANCEL:
 			case MotionEvent.ACTION_UP: {
 				// Handle the touch release event.
+				boolean hadFocus = isFocused();
 				wasHandled = super.onTouchEvent(event);
 
 				// Stop nested-scrolling if active.
@@ -360,6 +361,12 @@ public class TiUIEditText extends TextInputEditText implements NestedScrollingCh
 				if (this.scrollAxisDirection != ViewCompat.SCROLL_AXIS_NONE) {
 					stopNestedScroll();
 					this.scrollAxisDirection = ViewCompat.SCROLL_AXIS_NONE;
+				}
+
+				// If a tap was handled and gave this view the focus, then invoke the click listener.
+				// Note: Normally a click event is stolen in this case, but we want to match iOS' behavior.
+				if (wasHandled && !hadFocus && isFocused()) {
+					callOnClick();
 				}
 				break;
 			}

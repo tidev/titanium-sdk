@@ -3,33 +3,22 @@ library 'pipeline-library'
 
 // Some branch flags to alter behavior
 def isPR = env.CHANGE_ID || false // CHANGE_ID is set if this is a PR. (We used to look whether branch name started with PR-, which would not be true for a branch from origin filed as PR)
-def MAINLINE_BRANCH_REGEXP = /master|next|\d_\d_(X|\d)/ // a branch is considered mainline if 'master' or like: 6_2_X, 7_0_X, 6_2_1
+def MAINLINE_BRANCH_REGEXP = /master|next|\d+_\d_(X|\d)/ // a branch is considered mainline if 'master' or like: 6_2_X, 7_0_X, 6_2_1
 def isMainlineBranch = (env.BRANCH_NAME ==~ MAINLINE_BRANCH_REGEXP)
 
 // Keep logs/reports/etc of last 30 builds, only keep build artifacts of last 3 builds
-def buildProperties = [buildDiscarder(logRotator(numToKeepStr: '30', artifactNumToKeepStr: '3'))]
-// For mainline branches, notify Teams channel of failures/success/not built/etc
-if (isMainlineBranch) {
-	buildProperties << office365ConnectorWebhooks([[
-		notifyBackToNormal: true,
-		notifyFailure: true,
-		notifyNotBuilt: true,
-		notifyUnstable: true,
-		notifySuccess: true,
-        notifyRepeatedFailure: true,
-		url: 'https://outlook.office.com/webhook/ba1960f7-fcca-4b2c-a5f3-095ff9c87b22@300f59df-78e6-436f-9b27-b64973e34f7d/JenkinsCI/95439e5a0bef45539af8023b563dd345/72931ee3-e99d-4daf-84d2-1427168af2d9'
-	]])
-}
-properties(buildProperties)
+properties([buildDiscarder(logRotator(numToKeepStr: '30', artifactNumToKeepStr: '3'))])
 
 // These values could be changed manually on PRs/branches, but be careful we don't merge the changes in. We want this to be the default behavior for now!
 // target branch of test suite to test with
 def runDanger = isPR // run Danger.JS if it's a PR by default. (should we also run on origin branches that aren't mainline?)
 def publishToS3 = isMainlineBranch // publish zips to S3 if on mainline branch, by default
 def testOnDevices = isMainlineBranch // run tests on devices
+def testOnAndroidDevices = false // testOnDevices // FIXME: Our android device in CI is gone for now!
+def testOnIOSDevices = false // testOnDevices // FIXME: Our iphone device in CI is gone for now!
 
 // Variables we can change
-def nodeVersion = '10.17.0' // NOTE that changing this requires we set up the desired version on jenkins master first!
+def nodeVersion = '12.18.0' // NOTE that changing this requires we set up the desired version on jenkins master first!
 def npmVersion = 'latest' // We can change this without any changes to Jenkins. 5.7.1 is minimum to use 'npm ci'
 
 // Variables which we assign and share between nodes
@@ -83,11 +72,14 @@ def gatherAndroidCrashReports() {
 	}
 }
 
-def androidUnitTests(nodeVersion, npmVersion, testOnDevices) {
+def androidUnitTests(testName, nodeVersion, npmVersion, testOnDevices, deviceId) {
 	return {
 		def labels = 'git && osx && android-emulator && android-sdk' // FIXME get working on windows/linux!
 		if (testOnDevices) {
 			labels += ' && macos-rocket' // run main branch tests on devices, use node with devices connected
+		}
+		if (!deviceId) {
+			deviceId = testOnDevices ? 'all' : 'android-30-playstore-x86';
 		}
 
 		node(labels) {
@@ -106,10 +98,10 @@ def androidUnitTests(nodeVersion, npmVersion, testOnDevices) {
 								sh returnStatus: true, script: 'ti config android.buildTools.selectedVersion --remove'
 								// run main branch tests on devices
 								if (testOnDevices) {
-									sh label: 'Run Test Suite on device(s)', script: "npm run test:integration -- android -T device -C all"
+									sh label: 'Run Test Suite on device(s)', script: "npm run test:integration -- android -T device -C ${deviceId}"
 								// run PR tests on emulator
 								} else {
-									sh label: 'Run Test Suite on emulator', script: "npm run test:integration -- android -T emulator -D test -C android-30-playstore-x86"
+									sh label: 'Run Test Suite on emulator', script: "npm run test:integration -- android -T emulator -D test -C ${deviceId}"
 								}
 							} // timeout
 						}
@@ -131,7 +123,7 @@ def androidUnitTests(nodeVersion, npmVersion, testOnDevices) {
 						}
 					} // try/catch/finally
 					// save the junit reports as artifacts explicitly so danger.js can use them later
-					stash includes: 'junit.*.xml', name: 'test-report-android'
+					stash includes: 'junit.*.xml', name: "test-report-android-${testName}"
 					junit 'junit.*.xml'
 					archiveArtifacts allowEmptyArchive: true, artifacts: 'tests/diffs/,tests/generated/'
 				} // nodejs
@@ -371,9 +363,10 @@ timestamps {
 		// Run unit tests in parallel for android/iOS
 		stage('Test') {
 			parallel(
-				'android unit tests': androidUnitTests(nodeVersion, npmVersion, testOnDevices),
-				'iPhone unit tests': iosUnitTests('iphone', nodeVersion, npmVersion, testOnDevices),
-				'iPad unit tests': iosUnitTests('ipad', nodeVersion, npmVersion, testOnDevices),
+				'android main unit tests': androidUnitTests('main', nodeVersion, npmVersion, testOnAndroidDevices, null),
+				'android 5.0 unit tests': androidUnitTests('5.0', nodeVersion, npmVersion, false, 'android-21-x86'),
+				'iPhone unit tests': iosUnitTests('iphone', nodeVersion, npmVersion, testOnIOSDevices),
+				'iPad unit tests': iosUnitTests('ipad', nodeVersion, npmVersion, testOnIOSDevices),
 				'macOS unit tests': macosUnitTests(nodeVersion, npmVersion),
 				'cli unit tests': cliUnitTests(nodeVersion, npmVersion),
 				failFast: false
@@ -536,7 +529,7 @@ timestamps {
 						} catch (e) {}
 
 						// it's ok to not grab all test results, still run Danger.JS (even if some platforms crashed or we failed before tests)
-						def reports = [ 'ios-ipad', 'ios-iphone', 'ios-macos', 'android', 'cli' ]
+						def reports = [ 'ios-ipad', 'ios-iphone', 'ios-macos', 'android-main', 'android-5.0', 'cli' ]
 						for (int i = 0; i < reports.size(); i++) {
 							try {
 								unstash "test-report-${reports[i]}"

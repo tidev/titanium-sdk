@@ -227,12 +227,6 @@ describe('Titanium.Media', () => {
 			});
 		});
 
-		describe.ios('#hasAudioPermissions', () => {
-			it('is a Function', () => {
-				should(Ti.Media.hasAudioPermissions).be.a.Function();
-			});
-		});
-
 		describe('#hasAudioRecorderPermissions', () => {
 			it('is a Function', () => {
 				should(Ti.Media.hasAudioRecorderPermissions).be.a.Function();
@@ -1122,18 +1116,6 @@ describe('Titanium.Media', () => {
 		describe('.VIDEO_LOAD_STATE_PLAYABLE', () => {
 			it('is a Number', () => {
 				should(Ti.Media).have.a.constant('VIDEO_LOAD_STATE_PLAYABLE').which.is.a.Number();
-			});
-		});
-
-		describe.android('.VIDEO_LOAD_STATE_PLAYTHROUGH_OK', () => {
-			it('is a Number', () => {
-				should(Ti.Media).have.a.constant('VIDEO_LOAD_STATE_PLAYTHROUGH_OK').which.is.a.Number();
-			});
-		});
-
-		describe.android('.VIDEO_LOAD_STATE_STALLED', () => {
-			it('is a Number', () => {
-				should(Ti.Media).have.a.constant('VIDEO_LOAD_STATE_STALLED').which.is.a.Number();
 			});
 		});
 
