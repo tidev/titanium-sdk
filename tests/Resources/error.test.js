@@ -56,7 +56,7 @@ describe('Error', function () {
 			if (utilities.isAndroid()) {
 				ex.message.should.equal('Unable to convert null');
 			} else if (utilities.isIOS()) {
-				ex.message.should.equal('Invalid type passed to function');
+				should(ex.message.startsWith('Invalid type passed to function')).be.true();
 			} else if (utilities.isWindows()) {
 				ex.message.should.equal('Ti.Geolocation.accuracy expects Number');
 			}
@@ -126,8 +126,8 @@ describe('Error', function () {
 				}
 			});
 		} catch (e) {
-			e.message.should.equal('Invalid type passed to function. Must be either \'linear\' or \'radial\'');
-			e.nativeReason.should.equal('Must be either \'linear\' or \'radial\'');
+			should(e.message.startsWith('Invalid type passed to function')).be.true();
+			should(e.nativeReason).be.eql('Must be either \'linear\' or \'radial\'');
 		}
 	});
 
@@ -140,7 +140,7 @@ describe('Error', function () {
 				}
 			});
 		} catch (e) {
-			e.nativeStack.should.match(/TiGradient setType:/);
+			should(e.nativeStack.includes('TiGradient gradientFromObject:')).be.true();
 		}
 	});
 });
