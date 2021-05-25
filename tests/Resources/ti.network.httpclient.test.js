@@ -739,8 +739,7 @@ describe('Titanium.Network.HTTPClient', function () {
 		xhr.send();
 	});
 
-	// TODO: Below URL no longer works. Need a replacement to verify TLSv3 support.
-	it.allBroken('TLSv3 support', function (finish) {
+	it.android('TLSv3 support', function (finish) {
 		// Only supported on Android 10+
 		if (Ti.Platform.Android.API_LEVEL < 29) {
 			return finish();
@@ -759,7 +758,7 @@ describe('Titanium.Network.HTTPClient', function () {
 			onerror: _e => finish(new Error('Could not determine TLSv3 support.')),
 			timeout: 8000
 		});
-		client.open('GET', 'https://ssllabs.com/ssltest/viewMyClient.html');
+		client.open('GET', 'https://clienttest.ssllabs.com/ssltest/viewMyClient.html');
 		client.send();
 	});
 
