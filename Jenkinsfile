@@ -15,7 +15,7 @@ def runDanger = isPR // run Danger.JS if it's a PR by default. (should we also r
 def publishToS3 = isMainlineBranch // publish zips to S3 if on mainline branch, by default
 def testOnDevices = isMainlineBranch // run tests on devices
 def testOnAndroidDevices = false // testOnDevices // FIXME: Our android device in CI is gone for now!
-def testOnIOSDevices = testOnDevices
+def testOnIOSDevices = false // testOnDevices // FIXME: Our iphone device in CI is gone for now!
 
 // Variables we can change
 def nodeVersion = '12.18.0' // NOTE that changing this requires we set up the desired version on jenkins master first!
@@ -430,7 +430,7 @@ timestamps {
 					sh 'rm -rf dist/'
 					unarchive mapping: ['dist/': '.']
 					// Have to use Java-style loop for now: https://issues.jenkins-ci.org/browse/JENKINS-26481
-					def oses = ['osx', 'win32']
+					def oses = ['osx', 'linux', 'win32']
 					for (int i = 0; i < oses.size(); i++) {
 						def os = oses[i]
 						def sha1 = sh(returnStdout: true, script: "shasum ${basename}-${os}.zip").trim().split()[0]

@@ -1324,7 +1324,7 @@ public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionLis
 	/** Stores a set of unique characters that can be easily turned into an array. */
 	private static class CharacterSet
 	{
-		private StringBuilder stringBuilder = new StringBuilder(32);
+		private final StringBuilder stringBuilder = new StringBuilder(32);
 
 		/**
 		 * Adds the given character if not already contained in the set.

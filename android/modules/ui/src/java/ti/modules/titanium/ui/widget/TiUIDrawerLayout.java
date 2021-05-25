@@ -40,7 +40,6 @@ import java.lang.reflect.Field;
 
 public class TiUIDrawerLayout extends TiUIView
 {
-
 	private DrawerLayout layout = null;
 	private ActionBarDrawerToggle drawerToggle = null;
 
@@ -348,7 +347,7 @@ public class TiUIDrawerLayout extends TiUIView
 	{
 		if (d.containsKey(TiC.PROPERTY_LEFT_VIEW)) {
 			Object leftView = d.get(TiC.PROPERTY_LEFT_VIEW);
-			if (leftView != null && leftView instanceof TiViewProxy) {
+			if (leftView instanceof TiViewProxy) {
 				if (leftView instanceof WindowProxy) {
 					throw new IllegalStateException("cannot add window as a child view of other window");
 				}
@@ -361,7 +360,7 @@ public class TiUIDrawerLayout extends TiUIView
 		}
 		if (d.containsKey(TiC.PROPERTY_RIGHT_VIEW)) {
 			Object rightView = d.get(TiC.PROPERTY_RIGHT_VIEW);
-			if (rightView != null && rightView instanceof TiViewProxy) {
+			if (rightView instanceof TiViewProxy) {
 				if (rightView instanceof WindowProxy) {
 					throw new IllegalStateException("cannot add window as a child view of other window");
 				}
@@ -374,7 +373,7 @@ public class TiUIDrawerLayout extends TiUIView
 		}
 		if (d.containsKey(TiC.PROPERTY_CENTER_VIEW)) {
 			Object centerView = d.get(TiC.PROPERTY_CENTER_VIEW);
-			if (centerView != null && centerView instanceof TiViewProxy) {
+			if (centerView instanceof TiViewProxy) {
 				if (centerView instanceof WindowProxy) {
 					throw new IllegalStateException("cannot use window as a child view of other window");
 				}

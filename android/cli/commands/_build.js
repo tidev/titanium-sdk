@@ -556,7 +556,7 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 										}
 									}
 
-								} else if (cli.argv['device-id'] === undefined && results.length && config.get('android.autoSelectDevice', true)) {
+								} else if (cli.argv['device-id'] === undefined && results && results.length && config.get('android.autoSelectDevice', true)) {
 									// we set the device-id to an array of devices so that later in validate()
 									// after the tiapp.xml has been parsed, we can auto select the best device
 									_t.devicesToAutoSelectFrom = results.sort(function (a, b) {
@@ -949,11 +949,11 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 		if (config.get('android.allowAppNameAmpersands', false)) {
 			logger.warn(__('The app name "%s" contains an ampersand (&) which will most likely cause problems.', cli.tiapp.name));
 			logger.warn(__('It is recommended that you define the app name using i18n strings.'));
-			logger.warn(__('Refer to %s for more information.', 'http://appcelerator.com/i18n-app-name'.cyan));
+			logger.warn(__('Refer to %s for more information.', 'https://titaniumsdk.com/guide/Titanium_SDK/Titanium_SDK_How-tos/Cross-Platform_Mobile_Development_In_Titanium/Internationalization.html'.cyan));
 		} else {
 			logger.error(__('The app name "%s" contains an ampersand (&) which will most likely cause problems.', cli.tiapp.name));
 			logger.error(__('It is recommended that you define the app name using i18n strings.'));
-			logger.error(__('Refer to %s for more information.', 'http://appcelerator.com/i18n-app-name'));
+			logger.error(__('Refer to %s for more information.', 'https://titaniumsdk.com/guide/Titanium_SDK/Titanium_SDK_How-tos/Cross-Platform_Mobile_Development_In_Titanium/Internationalization.html'));
 			logger.error(__('To allow ampersands in the app name, run:'));
 			logger.error('    %sti config android.allowAppNameAmpersands true\n', process.env.APPC_ENV ? 'appc ' : '');
 			process.exit(1);
@@ -2573,7 +2573,7 @@ AndroidBuilder.prototype.writeEnvironmentVariables = async function writeEnviron
 	await fs.writeFile(
 		envVarsFile,
 		// for non-development builds, DO NOT WRITE OUT ENV VARIABLES TO APP
-		this.writeEnvVars ? JSON.stringify(process.env) : {}
+		this.writeEnvVars ? JSON.stringify(process.env) : '{}'
 	);
 	this.encryptJS && this.jsFilesToEncrypt.push('_env_.json');
 	this.unmarkBuildDirFile(envVarsFile);
@@ -2849,7 +2849,7 @@ AndroidBuilder.prototype.encryptJSFiles = async function encryptJSFiles() {
 					await fs.readFile(path.join(this.templatesDir, 'AssetCryptImpl.java'), 'utf8'),
 					{
 						appid: this.appid,
-						assets: this.jsFilesToEncrypt,
+						assets: this.jsFilesToEncrypt.map(f => f.replace(/\\/g, '/')),
 						salt: cloak.salt
 					}
 				)

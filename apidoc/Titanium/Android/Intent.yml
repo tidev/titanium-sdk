@@ -152,6 +152,10 @@ methods:
     summary: Get the Data URI from this `Intent`.
     returns:
         type: String
+    deprecated:
+      since: "10.0.0"
+      removed: "10.0.0"
+      notes: Use the <Titanium.Android.Intent.data> property instead.
 
   - name: getDoubleExtra
     summary: Get a double property from this `Intent`.

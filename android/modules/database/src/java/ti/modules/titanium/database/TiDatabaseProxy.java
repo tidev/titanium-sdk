@@ -41,9 +41,9 @@ public class TiDatabaseProxy extends KrollProxy
 	private static final String TAG = "TiDB";
 
 	private Thread thread;
-	private Lock dbLock = new ReentrantLock(true); // use a "fair" lock
-	private BlockingQueue<Runnable> queue = new LinkedBlockingQueue<>();
-	private AtomicBoolean executingQueue = new AtomicBoolean(false);
+	private final Lock dbLock = new ReentrantLock(true); // use a "fair" lock
+	private final BlockingQueue<Runnable> queue = new LinkedBlockingQueue<>();
+	private final AtomicBoolean executingQueue = new AtomicBoolean(false);
 	private boolean isClosed = false;
 
 	protected SQLiteDatabase db;
@@ -260,7 +260,6 @@ public class TiDatabaseProxy extends KrollProxy
 	 * Asynchronously execute a single SQL query.
 	 * @param query SQL query to execute on database.
 	 * @param parameterObjects Parameters for `query`
-	 * @param callback Result callback for query execution.
 	 */
 	@Kroll.method
 	public KrollPromise<TiResultSetProxy> executeAsync(final String query, final Object... parameterObjects)
@@ -501,7 +500,7 @@ public class TiDatabaseProxy extends KrollProxy
 
 		public HashMap getJSProperties()
 		{
-			HashMap map = new HashMap();
+			HashMap<String, Object> map = new HashMap<>();
 			map.put("index", index);
 			if (partialResults != null) {
 				map.put("results", partialResults.toArray());

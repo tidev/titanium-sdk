@@ -69,7 +69,7 @@ public class TiUIScrollableView extends TiUIView
 		mContainer = new TiViewPagerLayout(activity);
 
 		// Add ViewPager to container.
-		mViews = new ArrayList<TiViewProxy>();
+		mViews = new ArrayList<>();
 		mAdapter = new ViewPagerAdapter(activity, mViews);
 		mPager = buildViewPager(activity, mAdapter);
 		if (proxy.hasPropertyAndNotNull(TiC.PROPERTY_CLIP_VIEWS)) {

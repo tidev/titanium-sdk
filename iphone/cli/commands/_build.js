@@ -1091,13 +1091,13 @@ iOSBuilder.prototype.configOptionPPuuid = function configOptionPPuuid(order) {
 							logger.error(__('Unable to find any non-expired development provisioning profiles that match the app id "%s".', appId) + '\n');
 						}
 						logger.log(__('You will need to log in to %s with your Apple Developer account, then create, download, and install a profile.',
-							'http://appcelerator.com/ios-dev-certs'.cyan) + '\n');
+							'https://developer.apple.com/account/resources/certificates/list'.cyan) + '\n');
 						process.exit(1);
 					}
 				} else {
 					logger.error(__('Unable to find any development provisioning profiles') + '\n');
 					logger.log(__('You will need to log in to %s with your Apple Developer account, then create, download, and install a profile.',
-						'http://appcelerator.com/ios-dev-certs'.cyan) + '\n');
+						'https://developer.apple.com/account/resources/certificates/list'.cyan) + '\n');
 					process.exit(1);
 				}
 
@@ -1109,13 +1109,13 @@ iOSBuilder.prototype.configOptionPPuuid = function configOptionPPuuid(order) {
 					} else {
 						logger.error(__('Unable to find any non-expired App Store distribution provisioning profiles that match the app id "%s".', appId) + '\n');
 						logger.log(__('You will need to log in to %s with your Apple Developer account, then create, download, and install a profile.',
-							'http://appcelerator.com/ios-dist-certs'.cyan) + '\n');
+							'https://developer.apple.com/account/resources/certificates/list'.cyan) + '\n');
 						process.exit(1);
 					}
 				} else {
 					logger.error(__('Unable to find any App Store distribution provisioning profiles'));
 					logger.log(__('You will need to log in to %s with your Apple Developer account, then create, download, and install a profile.',
-						'http://appcelerator.com/ios-dist-certs'.cyan) + '\n');
+						'https://developer.apple.com/account/resources/certificates/list'.cyan) + '\n');
 					process.exit(1);
 				}
 
@@ -1136,13 +1136,13 @@ iOSBuilder.prototype.configOptionPPuuid = function configOptionPPuuid(order) {
 					if (!valid) {
 						logger.error(__('Unable to find any non-expired Ad Hoc or Enterprise Ad Hoc provisioning profiles that match the app id "%s".', appId) + '\n');
 						logger.log(__('You will need to log in to %s with your Apple Developer account, then create, download, and install a profile.',
-							'http://appcelerator.com/ios-dist-certs'.cyan) + '\n');
+							'https://developer.apple.com/account/resources/certificates/list'.cyan) + '\n');
 						process.exit(1);
 					}
 				} else {
 					logger.error(__('Unable to find any Ad Hoc or Enterprise Ad Hoc provisioning profiles'));
 					logger.log(__('You will need to log in to %s with your Apple Developer account, then create, download, and install a profile.',
-						'http://appcelerator.com/ios-dist-certs'.cyan) + '\n');
+						'https://developer.apple.com/account/resources/certificates/list'.cyan) + '\n');
 					process.exit(1);
 				}
 			}
@@ -1900,7 +1900,7 @@ iOSBuilder.prototype.validate = function validate(logger, config, cli) {
 			// make sure they have Apple's WWDR cert installed
 			if (!this.iosInfo.certs.wwdr) {
 				logger.error(__('WWDR Intermediate Certificate not found') + '\n');
-				logger.log(__('Download and install the certificate from %s', 'http://appcelerator.com/ios-wwdr'.cyan) + '\n');
+				logger.log(__('Download and install the certificate from %s', 'http://developer.apple.com/certificationauthority/AppleWWDRCA.cer'.cyan) + '\n');
 				process.exit(1);
 			}
 
@@ -5383,7 +5383,7 @@ iOSBuilder.prototype.writeEnvironmentVariables = async function writeEnvironment
 	}
 
 	// for non-development builds, DO NOT WRITE OUT ENV VARIABLES TO APP
-	const contents = this.writeEnvVars ? JSON.stringify(process.env) : {};
+	const contents = this.writeEnvVars ? JSON.stringify(process.env) : '{}';
 	if (!fs.existsSync(envVarsFile) || contents !== fs.readFileSync(envVarsFile, 'utf8')) {
 		this.logger.debug(__('Writing %s', envVarsFile.cyan));
 
@@ -5598,7 +5598,7 @@ iOSBuilder.prototype.createAssetImageSets = async function createAssetImageSets(
 			}
 
 			const imageSet = {
-				idiom: !match[4] ? 'universal' : match[3].replace('~', ''),
+				idiom: !match[4] ? 'universal' : match[4].replace('~', ''),
 				filename: imageName + '.' + imageExt,
 				scale: !match[3] ? '1x' : match[3].replace('@', '')
 			};
@@ -5776,6 +5776,8 @@ iOSBuilder.prototype.createAppIconSetAndiTunesArtwork = async function createApp
 	let defaultIconChanged = false;
 	let defaultIconHasAlpha = false;
 	const defaultIcon = this.defaultIcons.find(icon => fs.existsSync(icon));
+	const flattenedDefaultIconDest = path.join(this.buildDir, 'DefaultIcon.png');
+
 	if (defaultIcon) {
 		const defaultIconPrev = this.previousBuildManifest.files && this.previousBuildManifest.files['DefaultIcon.png'],
 			defaultIconContents = fs.readFileSync(defaultIcon),
@@ -5942,7 +5944,6 @@ iOSBuilder.prototype.createAppIconSetAndiTunesArtwork = async function createApp
 	missingIcons = missingIcons.concat(await this.processLaunchLogos(launchLogos, resourcesToCopy, defaultIcon, defaultIconChanged));
 
 	// Do we need to flatten the default icon?
-	const flattenedDefaultIconDest = path.join(this.buildDir, 'DefaultIcon.png');
 	if (missingIcons.length !== 0 && defaultIcon && defaultIconChanged && defaultIconHasAlpha) {
 		this.defaultIcons = [ flattenedDefaultIconDest ];
 		flattenIcons.push({

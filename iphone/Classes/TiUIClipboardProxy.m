@@ -361,25 +361,15 @@ GETTER_IMPL(bool, allowCreation, AllowCreation);
   return [result autorelease];
 }
 
-- (void)setData:(NSString *)mimeType withData:(id)data
+- (void)setData:(NSString *)mimeType withData:(JSValue *)data
 {
-  if (data == nil) {
+  if (data == nil) { // what about undefined?
     DebugLog(@"[WARN] setData: data object was nil.");
     return;
   }
-  // FIXME: data doesn't get converted properly if it's a TiFile, because trhat's not one of the "new" proxies
-  // Can we convert id to JSValue* in the signature and handle it?\
-  // Or do we need ot keep this ugly code?
-  if ([data isKindOfClass:[NSDictionary class]]) {
-    NSDictionary *dict = (NSDictionary *)data;
-    if (dict.count == 0) {
-      id whatever = JSContext.currentArguments[1];
-      id converted = [self JSValueToNative:whatever];
-      if ([converted isKindOfClass:[TiFile class]]) {
-        data = converted;
-      }
-    }
-  }
+
+  data = [self JSValueToNative:data];
+  // TODO: If value is NSNull or undefined, should we throw or just clear the data for the given mime type?
 
   UIPasteboard *board = [self pasteboard];
   ClipboardType dataType = mimeTypeToDataType(mimeType);
@@ -393,7 +383,12 @@ GETTER_IMPL(bool, allowCreation, AllowCreation);
     break;
   }
   case CLIPBOARD_IMAGE: {
-    board.image = [TiUtils toImage:data proxy:self];
+    UIImage *image = [TiUtils toImage:data proxy:self];
+    if (image) {
+      board.image = image;
+    } else {
+      board.image = nil;
+    }
     break;
   }
   case CLIPBOARD_COLOR: {
@@ -418,7 +413,8 @@ GETTER_IMPL(bool, allowCreation, AllowCreation);
 
 - (void)setText:(NSString *)text
 {
-  [self setData:@"text/plain" withData:text];
+  UIPasteboard *board = [self pasteboard];
+  board.string = text;
 }
 
 @end

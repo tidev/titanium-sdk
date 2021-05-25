@@ -43,8 +43,8 @@ public class TiColorHelper
 
 	private static final String TAG = "TiColorHelper";
 	private static HashMap<String, Integer> colorTable;
-	private static List<String> alphaMissingColors = Arrays.asList(
-		new String[] { "aqua", "fuchsia", "lime", "maroon", "navy", "olive", "purple", "silver", "teal" });
+	private static final List<String> alphaMissingColors = Arrays.asList(
+		"aqua", "fuchsia", "lime", "maroon", "navy", "olive", "purple", "silver", "teal");
 
 	/**
 	 * Convert string representations of colors, like "red" into the corresponding RGB/RGBA representation.
@@ -229,7 +229,7 @@ public class TiColorHelper
 	{
 		synchronized (TiColorHelper.class)
 		{
-			colorTable = new HashMap<String, Integer>(20);
+			colorTable = new HashMap<>(20);
 
 			colorTable.put("black", Color.BLACK);
 			colorTable.put("red", Color.RED);

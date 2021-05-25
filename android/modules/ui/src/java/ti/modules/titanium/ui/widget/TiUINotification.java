@@ -32,13 +32,6 @@ public class TiUINotification extends TiUIView
 	@Override
 	public void processProperties(KrollDict d)
 	{
-
-		float horizontalMargin = toast.getHorizontalMargin();
-		float verticalMargin = toast.getVerticalMargin();
-		int offsetX = toast.getXOffset();
-		int offsetY = toast.getYOffset();
-		int gravity = toast.getGravity();
-
 		if (proxy.hasProperty(TiC.PROPERTY_MESSAGE)) {
 			toast.setText(TiConvert.toString(proxy.getProperty(TiC.PROPERTY_MESSAGE)));
 		}
@@ -49,30 +42,43 @@ public class TiUINotification extends TiUIView
 			toast.setDuration(duration);
 		}
 
-		//float horizontalMargin, float verticalMargin
-		if (proxy.hasProperty("horizontalMargin")) {
-			horizontalMargin = TiConvert.toFloat(proxy.getProperty("horizontalMargin"));
+		// Only change layout if we have custom margins
+		if (proxy.hasProperty("horizontalMargin") || proxy.hasProperty("verticalMargin")) {
+			float horizontalMargin = toast.getHorizontalMargin();
+			float verticalMargin = toast.getVerticalMargin();
+
+			// float horizontalMargin, float verticalMargin
+			if (proxy.hasProperty("horizontalMargin")) {
+				horizontalMargin = TiConvert.toFloat(proxy.getProperty("horizontalMargin"));
+			}
+
+			if (proxy.hasProperty("verticalMargin")) {
+				verticalMargin = TiConvert.toFloat(proxy.getProperty("verticalMargin"));
+			}
+
+			toast.setMargin(horizontalMargin, verticalMargin);
 		}
 
-		if (proxy.hasProperty("verticalMargin")) {
-			verticalMargin = TiConvert.toFloat(proxy.getProperty("verticalMargin"));
+		// Only change gravity if we have custom offsets / gravity
+		if (proxy.hasProperty("offsetX") || proxy.hasProperty("offsetY") || proxy.hasProperty("gravity")) {
+			int offsetX = toast.getXOffset();
+			int offsetY = toast.getYOffset();
+			int gravity = toast.getGravity();
+
+			if (proxy.hasProperty("offsetX")) {
+				offsetX = TiConvert.toInt(proxy.getProperty("offsetX"));
+			}
+
+			if (proxy.hasProperty("offsetY")) {
+				offsetY = TiConvert.toInt(proxy.getProperty("offsetY"));
+			}
+
+			if (proxy.hasProperty("gravity")) {
+				gravity = TiConvert.toInt(proxy.getProperty("gravity"));
+			}
+
+			toast.setGravity(gravity, offsetX, offsetY);
 		}
-
-		toast.setMargin(horizontalMargin, verticalMargin);
-
-		if (proxy.hasProperty("offsetX")) {
-			offsetX = TiConvert.toInt(proxy.getProperty("offsetX"));
-		}
-
-		if (proxy.hasProperty("offsetY")) {
-			offsetY = TiConvert.toInt(proxy.getProperty("offsetY"));
-		}
-
-		if (proxy.hasProperty("gravity")) {
-			gravity = TiConvert.toInt(proxy.getProperty("gravity"));
-		}
-
-		toast.setGravity(gravity, offsetX, offsetY);
 
 		super.processProperties(d);
 	}

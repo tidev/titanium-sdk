@@ -42,6 +42,7 @@ import ti.modules.titanium.ui.widget.tableview.TiTableView;
 		TiC.PROPERTY_MAX_CLASSNAME,
 		TiC.PROPERTY_MIN_ROW_HEIGHT,
 		TiC.PROPERTY_MOVABLE,
+		TiC.PROPERTY_MOVEABLE,
 		TiC.PROPERTY_MOVING,
 		TiC.PROPERTY_OVER_SCROLL_MODE,
 		TiC.PROPERTY_REFRESH_CONTROL,
@@ -225,10 +226,12 @@ public class TableViewProxy extends RecyclerViewProxy
 		final TiTableView tableView = getTableView();
 
 		if (tableView != null) {
-			final TableViewRowProxy item = tableView.getAdapterItem(adapterIndex);
-			final TableViewSectionProxy section = (TableViewSectionProxy) item.getParent();
+			final TableViewRowProxy row = tableView.getAdapterItem(adapterIndex);
+			final TableViewSectionProxy section = (TableViewSectionProxy) row.getParent();
 
-			section.remove(item);
+			row.fireSyncEvent(TiC.EVENT_DELETE, null);
+
+			section.remove(row);
 		}
 	}
 
@@ -317,9 +320,14 @@ public class TableViewProxy extends RecyclerViewProxy
 	@Kroll.method
 	public void deleteSection(int index, @Kroll.argument(optional = true) KrollDict animation)
 	{
-		this.sections.remove(getSectionByIndex(index));
+		final TableViewSectionProxy section = getSectionByIndex(index);
 
-		update();
+		if (section != null) {
+			this.sections.remove(section);
+			section.setParent(null);
+
+			update();
+		}
 	}
 
 	@Override
@@ -351,6 +359,10 @@ public class TableViewProxy extends RecyclerViewProxy
 	public void setData(Object[] data)
 	// clang-format on
 	{
+		for (final TableViewSectionProxy section : this.sections) {
+			section.releaseViews();
+			section.setParent(null);
+		}
 		this.sections.clear();
 
 		for (Object d : data) {
@@ -412,6 +424,17 @@ public class TableViewProxy extends RecyclerViewProxy
 	}
 
 	/**
+	 * Obtain section index from section.
+	 *
+	 * @param section Section in table.
+	 * @return Integer of index.
+	 */
+	private int getIndexOfSection(TableViewSectionProxy section)
+	{
+		return this.sections.indexOf(section);
+	}
+
+	/**
 	 * Get current section count.
 	 *
 	 * @return Integer of section count.
@@ -430,7 +453,7 @@ public class TableViewProxy extends RecyclerViewProxy
 	@Kroll.getProperty
 	public TableViewSectionProxy[] getSections()
 	{
-		return this.sections.toArray(new TableViewSectionProxy[this.sections.size()]);
+		return this.sections.toArray(new TableViewSectionProxy[0]);
 	}
 
 	/**

@@ -16,8 +16,8 @@
 @interface TiUITableViewRowProxy : TiViewProxy <TiProxyDelegate> {
   @private
   NSString *tableClass;
-  TiUITableView *table;
-  TiUITableViewSectionProxy *section;
+  __weak TiUITableView *table;
+  __weak TiUITableViewSectionProxy *section;
   TiDimension height;
   TiDimension leftCap;
   TiDimension topCap;
@@ -31,7 +31,7 @@
   BOOL modifyingRow;
   BOOL attaching;
   NSInteger row;
-  TiUITableViewCell *callbackCell;
+  __weak TiUITableViewCell *callbackCell;
 }
 
 #pragma mark Public APIs
@@ -41,10 +41,10 @@
 
 #pragma mark Framework
 
-@property (nonatomic, readwrite, assign) TiUITableView *table;
-@property (nonatomic, readwrite, assign) TiUITableViewSectionProxy *section;
+@property (nonatomic, readwrite, weak) TiUITableView *table;
+@property (nonatomic, readwrite, weak) TiUITableViewSectionProxy *section;
 @property (nonatomic, readwrite, assign) NSInteger row;
-@property (nonatomic, readwrite, assign) TiUITableViewCell *callbackCell;
+@property (nonatomic, readwrite, weak) TiUITableViewCell *callbackCell;
 
 - (void)prepareTableRowForReuse;
 - (void)initializeTableViewCell:(UITableViewCell *)cell;
