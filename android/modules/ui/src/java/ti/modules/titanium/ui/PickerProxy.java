@@ -759,7 +759,7 @@ public class PickerProxy extends TiViewProxy implements PickerColumnProxy.OnChan
 		for (int i = 0; i < columnCount; i++) {
 			PickerRowProxy rowInColumn = getSelectedRow(i);
 			if (rowInColumn != null) {
-				selectedValues.add(rowInColumn.toString());
+				selectedValues.add(rowInColumn.getTitle());
 			} else {
 				selectedValues.add(null);
 			}
