@@ -135,7 +135,7 @@
     "dateformat": "^4.5.1",
     "eslint": "^7.27.0",
     "eslint-config-axway": "^6.0.1",
-    "eslint-plugin-mocha": "^8.1.0",
+    "eslint-plugin-mocha": "^8.2.0",
     "folder-hash": "^4.0.1",
     "glob": "^7.1.7",
     "husky": "^6.0.0",
