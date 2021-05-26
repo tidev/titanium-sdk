@@ -23,9 +23,11 @@ import android.os.Message;
 
 @Kroll.proxy(creatableInModule = UIModule.class,
 	propertyAccessors = {
+		TiC.PROPERTY_CURRENT_PAGE,
 		TiC.PROPERTY_CACHE_SIZE,
 		TiC.PROPERTY_CLIP_VIEWS,
 		TiC.PROPERTY_PADDING,
+		TiC.PROPERTY_SCROLLING_ENABLED,
 		TiC.PROPERTY_SHOW_PAGING_CONTROL,
 		TiC.PROPERTY_OVER_SCROLL_MODE
 })
@@ -99,18 +101,6 @@ public class ScrollableViewProxy extends TiViewProxy
 					inScroll.set(true);
 					scrollableView.scrollTo(msg.obj);
 					inScroll.set(false);
-					handled = true;
-				}
-				break;
-			case MSG_SET_CURRENT:
-				if (scrollableView != null) {
-					scrollableView.setCurrentPage(msg.obj);
-					handled = true;
-				}
-				break;
-			case MSG_SET_ENABLED:
-				if (scrollableView != null) {
-					scrollableView.setEnabled(msg.obj);
 					handled = true;
 				}
 				break;
@@ -313,28 +303,18 @@ public class ScrollableViewProxy extends TiViewProxy
 		}
 	}
 
-	@Kroll.setProperty
-	public void setScrollingEnabled(Object enabled)
-	{
-		getMainHandler().obtainMessage(MSG_SET_ENABLED, enabled).sendToTarget();
-	}
-
 	@Kroll.getProperty
 	public boolean getScrollingEnabled()
 	{
-		return (scrollableView != null) ? scrollableView.getEnabled() : false;
+		return (scrollableView != null) ? scrollableView.getEnabled()
+			: getProperties().optBoolean(TiC.PROPERTY_SCROLLING_ENABLED, true);
 	}
 
 	@Kroll.getProperty
 	public int getCurrentPage()
 	{
-		return (scrollableView != null) ? scrollableView.getCurrentPage() : 0;
-	}
-
-	@Kroll.setProperty
-	public void setCurrentPage(Object page)
-	{
-		getMainHandler().obtainMessage(MSG_SET_CURRENT, page).sendToTarget();
+		return (scrollableView != null) ? scrollableView.getCurrentPage()
+			: getProperties().optInt(TiC.PROPERTY_CURRENT_PAGE, 0);
 	}
 
 	@Override
