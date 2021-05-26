@@ -236,7 +236,7 @@ examples:
         animation.backgroundColor = 'black';
         animation.duration = 1000;
         const animationHandler = () => {
-          animation.removeEventListener('complete',animationHandler);
+          animation.removeEventListener('complete', animationHandler);
           animation.backgroundColor = 'orange';
           view.animate(animation);
         };
