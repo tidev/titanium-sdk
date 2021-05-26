@@ -206,7 +206,7 @@ public class ScrollableViewProxy extends TiViewProxy
 	public void removeView(Object viewObject)
 	{
 		if (viewObject instanceof Number) {
-			this.views.remove(viewObject);
+			this.views.remove((int) viewObject);
 
 		} else if (viewObject instanceof TiViewProxy) {
 			final TiViewProxy view = (TiViewProxy) viewObject;
