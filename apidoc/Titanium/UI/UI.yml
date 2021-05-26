@@ -1523,6 +1523,43 @@ properties:
     permission: read-only
     since: "10.0.0"
 
+  - name: DATE_PICKER_STYLE_AUTOMATIC
+    summary: |
+        Displays a <Titanium.UI.Picker> using the best visual style on the current platform for date/time selection.
+    description: |
+        On Android and iOS, a picker with this style will be shown in compatct form,
+        where the picker will be a read-only text field which opens a selection dialog when tapped on.
+
+        Note: Prior to iOS 14, this property is only used on iOS Catalyst apps.
+    type: Number
+    permission: read-only
+    since: "10.0.1"
+    osver: { ios: { min: "13.4" } }
+
+  - name: DATE_PICKER_STYLE_WHEELS
+    summary: Displays a <Titanium.UI.Picker> as spinner wheels for date/time selection.
+    type: Number
+    permission: read-only
+    since: "10.0.1"
+    osver: { ios: { min: "13.4" } }
+
+  - name: DATE_PICKER_STYLE_COMPACT
+    summary: Displays a <Titanium.UI.Picker> as a read-only text field which opens a selection dialog when tapped on.
+    description: "Note: Prior to iOS 14, this property is only used on iOS Catalyst apps."
+    type: Number
+    permission: read-only
+    since: "10.0.1"
+    osver: { ios: { min: "13.4" } }
+
+  - name: DATE_PICKER_STYLE_INLINE
+    summary: Displays a <Titanium.UI.Picker> as a large calendar or clock view for date/time selection.
+    description: |
+        On iOS, an inlined "time" picker will appear as a text field with spinners for hours and minutes.
+    type: Number
+    permission: read-only
+    since: "10.0.1"
+    osver: { ios: { min: "14.0" } }
+
   - name: HINT_TYPE_STATIC
     summary: |
         Use when creating a TextField to specify the hintType as static.
