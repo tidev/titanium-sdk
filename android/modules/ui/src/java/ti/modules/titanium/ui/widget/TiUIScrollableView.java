@@ -223,6 +223,9 @@ public class TiUIScrollableView extends TiUIView
 								if (proxy != null) {
 									((ScrollableViewProxy) proxy).fireScrollEnd(this.lastSelectedPageIndex, pageProxy);
 								}
+
+								// Update current page in proxy.
+								proxy.setProperty(TiC.PROPERTY_CURRENT_PAGE, mCurIndex);
 							}
 						}
 
