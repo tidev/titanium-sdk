@@ -326,6 +326,11 @@ public class ScrollableViewProxy extends TiViewProxy
 			view.releaseViews();
 		}
 
+		// Force proxy to use `getViews()` after release.
+		this.properties.remove(TiC.PROPERTY_VIEWS);
+
+		// Remove reference to scrollable view component.
+		// NOTE: This is the same as `this.view`
 		this.scrollableView = null;
 
 		super.releaseViews();
