@@ -638,6 +638,7 @@ public class ListItemProxy extends TiViewProxy
 	public void release()
 	{
 		releaseViews();
+		this.holder = null;
 
 		super.release();
 	}
@@ -648,8 +649,6 @@ public class ListItemProxy extends TiViewProxy
 	@Override
 	public void releaseViews()
 	{
-		this.holder = null;
-
 		super.releaseViews();
 	}
 
