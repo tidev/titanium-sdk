@@ -66,7 +66,17 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 		this.recyclerView.setFocusable(true);
 		this.recyclerView.setFocusableInTouchMode(true);
 		this.recyclerView.setBackgroundColor(Color.TRANSPARENT);
-		this.recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+		this.recyclerView.setLayoutManager(new LinearLayoutManager(getContext()) {
+
+			@Override
+			public void onLayoutCompleted(RecyclerView.State state)
+			{
+				super.onLayoutCompleted(state);
+
+				// Process markers after layout.
+				proxy.handleMarkers();
+			}
+		});
 		this.recyclerView.setFocusableInTouchMode(false);
 
 		// Add listener to fire scroll events.
@@ -79,7 +89,10 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 
 				if (isScrolling && newState == RecyclerView.SCROLL_STATE_IDLE) {
 					isScrolling = false;
-					proxy.fireSyncEvent(TiC.EVENT_SCROLLEND, generateScrollPayload());
+
+					if (proxy.hierarchyHasListener(TiC.EVENT_SCROLLEND)) {
+						proxy.fireSyncEvent(TiC.EVENT_SCROLLEND, generateScrollPayload());
+					}
 				}
 			}
 
@@ -96,11 +109,15 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 
 				if (!isScrolling) {
 					isScrolling = true;
-					proxy.fireSyncEvent(TiC.EVENT_SCROLLSTART, generateScrollPayload());
+
+					if (proxy.hierarchyHasListener(TiC.EVENT_SCROLLSTART)) {
+						proxy.fireSyncEvent(TiC.EVENT_SCROLLSTART, generateScrollPayload());
+					}
 				}
 
 				// Only fire `scrolling` event upon direction change.
-				if (lastScrollDeltaY >= 0 && dy <= 0 || lastScrollDeltaY <= 0 && dy >= 0) {
+				if (proxy.hierarchyHasListener(TiC.EVENT_SCROLLING)
+					&& (lastScrollDeltaY >= 0 && dy <= 0 || lastScrollDeltaY <= 0 && dy >= 0)) {
 					final KrollDict payload = generateScrollPayload();
 
 					// Determine scroll direction.
@@ -114,6 +131,9 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 				}
 
 				lastScrollDeltaY = dy;
+
+				// Process markers.
+				proxy.handleMarkers();
 			}
 		});
 
@@ -250,18 +270,12 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 	 */
 	public KrollDict generateScrollPayload()
 	{
-		final KrollDict payload = new KrollDict();
+		final ListItemProxy firstVisibleProxy = getFirstVisibleItem();
 		final LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
+		final KrollDict payload = new KrollDict();
 
 		// Obtain first visible list item view.
-		final View firstVisibleView =
-			layoutManager.findViewByPosition(layoutManager.findFirstVisibleItemPosition());
-		if (firstVisibleView != null) {
-			final ListViewHolder firstVisibleHolder =
-				(ListViewHolder) recyclerView.getChildViewHolder(firstVisibleView);
-
-			// Obtain first visible list item proxy.
-			final ListItemProxy firstVisibleProxy = (ListItemProxy) firstVisibleHolder.getProxy();
+		if (firstVisibleProxy != null) {
 			payload.put(TiC.PROPERTY_FIRST_VISIBLE_ITEM, firstVisibleProxy);
 
 			// Obtain first visible list item index in section.
@@ -354,6 +368,50 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 	public ListItemProxy getAdapterItem(int index)
 	{
 		return this.items.get(index);
+	}
+
+	/**
+	 * Obtain first visible list item proxy.
+	 *
+	 * @return ListItemProxy
+	 */
+	public ListItemProxy getFirstVisibleItem()
+	{
+		final LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
+		final View firstVisibleView =
+			layoutManager.findViewByPosition(layoutManager.findFirstVisibleItemPosition());
+
+		if (firstVisibleView != null) {
+			final ListViewHolder firstVisibleHolder =
+				(ListViewHolder) recyclerView.getChildViewHolder(firstVisibleView);
+
+			// Obtain first visible list item proxy.
+			return (ListItemProxy) firstVisibleHolder.getProxy();
+		}
+
+		return null;
+	}
+
+	/**
+	 * Obtain last visible list item proxy.
+	 *
+	 * @return ListItemProxy
+	 */
+	public ListItemProxy getLastVisibleItem()
+	{
+		final LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
+		final View lastVisibleView =
+			layoutManager.findViewByPosition(layoutManager.findLastVisibleItemPosition());
+
+		if (lastVisibleView != null) {
+			final ListViewHolder lastVisibleHolder =
+				(ListViewHolder) recyclerView.getChildViewHolder(lastVisibleView);
+
+			// Obtain last visible list item proxy.
+			return (ListItemProxy) lastVisibleHolder.getProxy();
+		}
+
+		return null;
 	}
 
 	/**
