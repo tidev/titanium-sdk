@@ -3,37 +3,6 @@ updates:
 - package-ecosystem: npm
   directory: "/"
   schedule:
-    interval: daily
-    time: "10:00"
+    interval: weekly
   open-pull-requests-limit: 10
-  ignore:
-  - dependency-name: node-ios-device
-    versions:
-    - ">= 2.a, < 3"
-  - dependency-name: node-ios-device
-    versions:
-    - ">= 3.a, < 4"
-  - dependency-name: xmldom
-    versions:
-    - 0.5.0
-  - dependency-name: liveview
-    versions:
-    - 1.5.5
-  - dependency-name: node-ios-device
-    versions:
-    - 1.9.1
-  - dependency-name: eslint
-    versions:
-    - 7.22.0
-  - dependency-name: rollup
-    versions:
-    - 2.41.1
-  - dependency-name: husky
-    versions:
-    - 5.1.2
-  - dependency-name: "@commitlint/cli"
-    versions:
-    - 12.0.1
-  - dependency-name: commander
-    versions:
-    - 7.0.0
+  
