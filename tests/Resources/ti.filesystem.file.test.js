@@ -731,7 +731,7 @@ describe('Titanium.Filesystem.File', function () {
 			filesFound[rootPath + 'txtFiles' + Ti.Filesystem.separator] = false; // Subdirectory containing only assets.
 			filesFound[rootPath + 'txtFiles' + Ti.Filesystem.separator + 'text.txt'] = false;
 			function searchFileTree(file) {
-				if (!file) {
+				if (!file || !file.isDirectory()) {
 					return;
 				}
 
