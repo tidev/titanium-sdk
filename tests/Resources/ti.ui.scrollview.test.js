@@ -4,6 +4,7 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+/* global OS_IOS */
 /* eslint-env mocha */
 /* eslint no-unused-expressions: "off" */
 'use strict';
@@ -72,14 +73,19 @@ describe('Titanium.UI.ScrollView', function () {
 			should(scrollView.contentOffset.x).eql(0);
 			should(scrollView.contentOffset.y).eql(0);
 
-			scrollView.contentOffset = { x: 0, y: '10dp' };
+			const point = { x: 0, y: '10dp' };
+			if (OS_IOS) {
+				scrollView.setContentOffset(point, { animated: false });
+			} else {
+				scrollView.contentOffset = point;
+			}
 
 			setTimeout(() => {
 				should(scrollView.contentOffset.x).eql(0);
 				should(scrollView.contentOffset.y).eql(10);
 
 				finish();
-			}, 100);
+			}, 10);
 
 		});
 
