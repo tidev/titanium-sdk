@@ -438,6 +438,11 @@ public abstract class TiApplication extends Application implements KrollApplicat
 
 		if (isAnalyticsEnabled()) {
 			APSAnalytics.getInstance().initialize(getAppGUID(), this);
+
+			final int cacheSize = this.appProperties.getInt("ti.analytics.cacheSize", -1);
+			if (cacheSize > -1) {
+				APSAnalytics.getInstance().setCacheSize(cacheSize);
+			}
 		} else {
 			Log.i(TAG, "Analytics have been disabled");
 		}
@@ -993,5 +998,13 @@ public abstract class TiApplication extends Application implements KrollApplicat
 			accessibilityManager = (AccessibilityManager) getSystemService(Context.ACCESSIBILITY_SERVICE);
 		}
 		return accessibilityManager;
+	}
+
+	/**
+	 * To be overridden by app template "./android/templates/app/App.java" to verify Titanium modules.
+	 * @param rootActivity Splash screen activity needed to display a module verification error dialog.
+	 */
+	public void verifyCustomModules(TiRootActivity rootActivity)
+	{
 	}
 }

@@ -1014,10 +1014,10 @@ properties:
         For example:
 
         ``` js
-        listView.setTableSeparatorInsets({
-            left:10,
-            right:10
-        });
+        listView.tableSeparatorInsets = {
+            left: 10,
+            right: 10
+        };
         ```
     type: HorizontalInsets
     since: "5.2.0"
@@ -1043,10 +1043,10 @@ properties:
 
         For example:
         ``` js
-        listView.setListSeparatorInsets({
-            left:10,
-            right:10
-        });
+        listView.listSeparatorInsets = {
+            left: 10,
+            right: 10
+        };
         ```
     type: HorizontalInsets
     since: "5.4.0"
@@ -1062,10 +1062,10 @@ properties:
 
         For example:
         ``` js
-        listView.setRowSeparatorInsets({
-            left:10,
-            right:10
-        });
+        listView.rowSeparatorInsets = {
+            left: 10,
+            right: 10
+        };
         ```
     type: HorizontalInsets
     since: "5.2.0"
@@ -1439,7 +1439,7 @@ examples:
         var grainSection = Ti.UI.createListSection({ headerTitle: 'Grains / Granos', items: grainDataSet});
         sections.push(grainSection);
 
-        listView.setSections(sections);
+        listView.sections = sections;
         win.add(listView);
         win.open();
         ```

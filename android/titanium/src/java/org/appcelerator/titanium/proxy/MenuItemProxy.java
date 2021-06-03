@@ -92,24 +92,28 @@ public class MenuItemProxy extends KrollProxy
 	}
 
 	@Kroll.getProperty
+	@Kroll.method
 	public boolean isChecked()
 	{
 		return item.isChecked();
 	}
 
 	@Kroll.getProperty
+	@Kroll.method
 	public boolean isCheckable()
 	{
 		return item.isCheckable();
 	}
 
 	@Kroll.getProperty
+	@Kroll.method
 	public boolean isEnabled()
 	{
 		return item.isEnabled();
 	}
 
 	@Kroll.getProperty
+	@Kroll.method
 	public boolean isVisible()
 	{
 		return item.isVisible();
@@ -313,6 +317,7 @@ public class MenuItemProxy extends KrollProxy
 	}
 
 	@Kroll.getProperty
+	@Kroll.method
 	public boolean isActionViewExpanded()
 	{
 		return item.isActionViewExpanded();

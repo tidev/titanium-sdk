@@ -36,6 +36,12 @@ NSArray *pickerKeySequence;
   return @"Ti.UI.Picker";
 }
 
+- (void)dealloc
+{
+  RELEASE_TO_NIL(pickerKeySequence);
+  [super dealloc];
+}
+
 - (void)_destroy
 {
   RELEASE_TO_NIL(selectOnLoad);
@@ -104,8 +110,7 @@ NSArray *pickerKeySequence;
   TiUIPickerColumnProxy *column = [[TiUIPickerColumnProxy alloc] _initWithPageContext:[self executionContext]];
   column.column = index;
   [columns addObject:column];
-  [column release];
-  return column;
+  return [column autorelease];
 }
 
 #pragma mark support methods for add:
@@ -254,9 +259,9 @@ NSArray *pickerKeySequence;
         TiUIPickerRowProxy *row = [[TiUIPickerRowProxy alloc] _initWithPageContext:[self executionContext] args:[NSArray arrayWithObject:rowdata]];
         TiUIPickerColumnProxy *column = [self columnAt:0];
         NSNumber *rowIndex = [column addRow:row];
+        NSDictionary *params = [NSDictionary dictionaryWithObjectsAndKeys:row, @"row", column, @"column", rowIndex, @"rowIndex", nil];
         [row release];
 
-        NSDictionary *params = [NSDictionary dictionaryWithObjectsAndKeys:row, @"row", column, @"column", rowIndex, @"rowIndex", nil];
         [self addRowOfDicts:params];
       }
     } else {

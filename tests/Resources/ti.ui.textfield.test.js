@@ -446,7 +446,7 @@ describe('Titanium.UI.TextField', () => {
 			win.addEventListener('postlayout', function listener () {
 				win.removeEventListener('postlayout', listener);
 				textField.setSelection(0, 5);
-				setTimeout(function (e) {
+				setTimeout(function () {
 					try {
 						should(textField.selection.length).eql(5);
 						should(textField.selection.location).eql(0);
