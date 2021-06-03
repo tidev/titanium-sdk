@@ -5383,7 +5383,7 @@ iOSBuilder.prototype.writeEnvironmentVariables = async function writeEnvironment
 	}
 
 	// for non-development builds, DO NOT WRITE OUT ENV VARIABLES TO APP
-	const contents = this.writeEnvVars ? JSON.stringify(process.env) : {};
+	const contents = this.writeEnvVars ? JSON.stringify(process.env) : '{}';
 	if (!fs.existsSync(envVarsFile) || contents !== fs.readFileSync(envVarsFile, 'utf8')) {
 		this.logger.debug(__('Writing %s', envVarsFile.cyan));
 
