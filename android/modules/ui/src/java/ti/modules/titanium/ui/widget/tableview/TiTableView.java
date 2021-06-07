@@ -21,6 +21,7 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.RectShape;
 import android.os.Handler;
+import android.os.SystemClock;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -49,6 +50,7 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 	private static final String TAG = "TiTableView";
 
 	private static final int CACHE_SIZE = 32;
+	private static final int PRELOAD_INTERVAL = 800;
 
 	private final TableViewAdapter adapter;
 	private final DividerItemDecoration decoration;
@@ -532,8 +534,9 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 		// Pre-load items of empty list.
 		if (shouldPreload) {
 			final Handler handler = new Handler();
+			final long startTime = SystemClock.elapsedRealtime();
 
-			for (int i = 0; i < this.rows.size(); i++) {
+			for (int i = 0; i < Math.min(this.rows.size(), PRELOAD_INTERVAL / 8); i++) {
 				final TableViewRowProxy row = this.rows.get(i);
 
 				// Fill event queue with pre-load attempts.
@@ -542,7 +545,13 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 					@Override
 					public void run()
 					{
-						if (recyclerView.getLastTouchX() == 0
+						final long currentTime = SystemClock.elapsedRealtime();
+						final long delta = currentTime - startTime;
+
+						// Only pre-load views for a maximum period of time.
+						// This prevents over-taxing older devices.
+						if (delta <= PRELOAD_INTERVAL
+							&& recyclerView.getLastTouchX() == 0
 							&& recyclerView.getLastTouchY() == 0) {
 
 							// While there is no user interaction;
