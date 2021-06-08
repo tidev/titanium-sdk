@@ -556,7 +556,7 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 										}
 									}
 
-								} else if (cli.argv['device-id'] === undefined && results.length && config.get('android.autoSelectDevice', true)) {
+								} else if (cli.argv['device-id'] === undefined && results && results.length && config.get('android.autoSelectDevice', true)) {
 									// we set the device-id to an array of devices so that later in validate()
 									// after the tiapp.xml has been parsed, we can auto select the best device
 									_t.devicesToAutoSelectFrom = results.sort(function (a, b) {
@@ -2572,7 +2572,7 @@ AndroidBuilder.prototype.writeEnvironmentVariables = async function writeEnviron
 	await fs.writeFile(
 		envVarsFile,
 		// for non-development builds, DO NOT WRITE OUT ENV VARIABLES TO APP
-		this.writeEnvVars ? JSON.stringify(process.env) : {}
+		this.writeEnvVars ? JSON.stringify(process.env) : '{}'
 	);
 	this.encryptJS && this.jsFilesToEncrypt.push('_env_.json');
 	this.unmarkBuildDirFile(envVarsFile);
@@ -2848,7 +2848,7 @@ AndroidBuilder.prototype.encryptJSFiles = async function encryptJSFiles() {
 					await fs.readFile(path.join(this.templatesDir, 'AssetCryptImpl.java'), 'utf8'),
 					{
 						appid: this.appid,
-						assets: this.jsFilesToEncrypt,
+						assets: this.jsFilesToEncrypt.map(f => f.replace(/\\/g, '/')),
 						salt: cloak.salt
 					}
 				)

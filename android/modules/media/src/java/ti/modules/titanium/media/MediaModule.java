@@ -118,10 +118,6 @@ public class MediaModule extends KrollModule implements Handler.Callback
 	public static final int VIDEO_LOAD_STATE_UNKNOWN = 0;
 	@Kroll.constant
 	public static final int VIDEO_LOAD_STATE_PLAYABLE = 1;
-	@Kroll.constant
-	public static final int VIDEO_LOAD_STATE_PLAYTHROUGH_OK = 1 << 1;
-	@Kroll.constant
-	public static final int VIDEO_LOAD_STATE_STALLED = 1 << 2;
 
 	@Kroll.constant
 	public static final int VIDEO_PLAYBACK_STATE_STOPPED = 0;
