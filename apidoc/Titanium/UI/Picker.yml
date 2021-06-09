@@ -210,6 +210,24 @@ properties:
     since: { iphone: "5.2.0", ipad: "5.2.0", android: "0.9.0"}
     default: White (iOS), Transparent (Android)
 
+  - name: borderStyle
+    summary: Border style to use when picker is shown as a text field or drop-down field.
+    description: |
+        This is an Android only property which only applies to pickers of type:
+
+        * [PICKER_TYPE_DATE](Titanium.UI.PICKER_TYPE_DATE) or [PICKER_TYPE_TIME](Titanium.UI.PICKER_TYPE_TIME)
+        that also have [datePickerStyle](Titanium.UI.Picker.datePickerStyle) set to 
+        [DATE_PICKER_STYLE_COMPACT](Titanium.UI.DATE_PICKER_STYLE_COMPACT).
+
+        * [PICKER_TYPE_PLAIN](Titanium.UI.PICKER_TYPE_PLAIN) that also have property
+        [useSpinner](Titanium.UI.Picker.useSpinner) set `false` to show a drop-down picker.
+    type: Number
+    constants: Titanium.UI.INPUT_BORDERSTYLE_*
+    default: <Titanium.UI.INPUT_BORDERSTYLE_FILLED>
+    availability: creation
+    platforms: [android]
+    since: "10.0.1"
+
   - name: columns
     summary: Columns used for this picker, as an array of <Titanium.UI.PickerColumn> objects.
     description: |
@@ -254,8 +272,8 @@ properties:
         The picker type <Titanium.UI.PICKER_TYPE_DATE> does not support text customizing as stated in the
         [UIKit User Interface Catalog](https://developer.apple.com/documentation/uikit/uidatepicker).
 
-        Important: On iOS 14+, you also have to set the <Titanium.UI.Picker.datePickerStyle> to <Titanium.UI.iOS.DATE_PICKER_STYLE_WHEELS>
-        in order to use this property.
+        Important: On iOS 14+, you also have to set the <Titanium.UI.Picker.datePickerStyle> to
+        <Titanium.UI.DATE_PICKER_STYLE_WHEELS> in order to use this property.
     type: [String, Titanium.UI.Color]
     platforms: [iphone, ipad]
     since: "5.2.0"
@@ -265,24 +283,29 @@ properties:
     summary: |
         Determines whether the Time pickers display in 24-hour or 12-hour clock format.
     description: |
-        Applicable to <Titanium.UI.PICKER_TYPE_TIME> and <Titanium.UI.PICKER_TYPE_DATE_AND_TIME>
-        picker types.
+        Only applcable to pickers of type <Titanium.UI.PICKER_TYPE_TIME>.
 
-        When this property is enabled, a time picker is displayed with hours 0 through 23,
-        or with hours 1 through 12 and am/pm controls otherwise.
-
-        For backward compatibility, the default value of this property depends on the style of
-        picker in use.
-
-        For a spinner picker (when `useSpinner` is `true`), this defaults to `true` (24-hour format.)
-        For a native picker (when `useSpinner` is either un-set or `false`), this defaults to `false`
-        (12-hour format.)
-
-        The value of this property may be modified even after a picker is rendered and the UI will be
-        updated accordingly.
+        When this property is set `true`, a time picker is displayed with hours 0 through 23.
+        When set `false`, hours will be 1 through 12 with am/pm controls.
     type: Boolean
-    default: true (spinner enabled), false (otherwise)
+    default: false
     platforms: [android]
+
+  - name: hintText
+    summary: Text to be shown above date/time when picker is shown as a text field or drop-down field.
+    description: |
+        This is an Android only property which only applies to pickers of type:
+
+        * [PICKER_TYPE_DATE](Titanium.UI.PICKER_TYPE_DATE) or [PICKER_TYPE_TIME](Titanium.UI.PICKER_TYPE_TIME)
+        that also have [datePickerStyle](Titanium.UI.Picker.datePickerStyle) set to 
+        [DATE_PICKER_STYLE_COMPACT](Titanium.UI.DATE_PICKER_STYLE_COMPACT).
+
+        * [PICKER_TYPE_PLAIN](Titanium.UI.PICKER_TYPE_PLAIN) that also have property
+        [useSpinner](Titanium.UI.Picker.useSpinner) set `false` to show a drop-down picker.
+    type: String
+    default: undefined
+    platforms: [android]
+    since: "10.0.1"
 
   - name: locale
     summary: Locale used when displaying Date and Time picker values.
@@ -348,13 +371,13 @@ properties:
     summary: |
         Determines whether the visual selection indicator is shown.
     description: |
-        If `true`, selection indicator is enabled.
-
-        Since iOS 7 and later you cannot customize the picker view's selection indicator.
-        The selection indicator is always shown, so setting this property to `false` has no effect.
+        As of Titanium 10.0.1, this property will be ignored and Android will always show an indicator.
     type: Boolean
-    default: true (Android), false (iPhone, iPad)
-    platforms: [android, iphone, ipad, macos]
+    default: true
+    platforms: [android]
+    deprecated:
+      since: "10.0.1"
+      notes: This property is ignored as of Titanium 10.0.1.
 
   - name: selectionOpens
     summary: |
@@ -369,15 +392,19 @@ properties:
     since: "5.0.0"
 
   - name: datePickerStyle
-    summary: Request a style if the picker is a date picker (`PICKER_TYPE_DATE`).
+    summary: Determines how a date or time picker should appear.
     description: |
-        If the style changed, then the date picker may need to be resized and will
-        generate a layout pass to display correctly.
+        Used to display the picker has calendar/clock view, as wheel spinners, or
+        as a field which displays selection dialog when tapped on.
+
+        This property is ignored if the [type](Titanium.UI.Picker.type) property is set to
+        <Titanium.UI.PICKER_TYPE_PLAIN>.
     type: Number
-    platforms: [iphone, ipad]
-    since: "9.2.0"
-    constants: Titanium.UI.iOS.DATE_PICKER_STYLE_*
-    default: <Titanium.UI.iOS.DATE_PICKER_STYLE_AUTOMATIC>
+    availability: creation
+    platforms: [android, iphone, ipad, macos]
+    since: {android: 10.0.1, iphone: 9.2.0, ipad: 9.2.0, macos: 9.2.0}
+    constants: Titanium.UI.DATE_PICKER_STYLE_*
+    default: <Titanium.UI.DATE_PICKER_STYLE_AUTOMATIC>
     osver: { ios: { min: "13.4" } }
 
   - name: type
@@ -393,37 +420,41 @@ properties:
     default: <Titanium.UI.PICKER_TYPE_PLAIN>
 
   - name: useSpinner
-    summary: |
-        Determines whether the non-native Android control, with a spinning wheel that looks and
-        behaves like the iOS picker, is invoked rather than the default native "dropdown" style.
+    summary: Determines if a multicolumn spinner or single column drop-down picker should be used.
     description: |
-        If `true`, the spinner is enabled.
+        This property is intended to be used by plain picker types. When set on date/time pickers,
+        this property will override the [datePickerStyle](Titanium.UI.Picker.datePickerStyle) property.
 
-        This property should be set either at picker creation, i.e.
-        `Titanium.UI.createPicker({ useSpinner:true });`, or before the picker is added to its parent.
+        If `true`, Android will show spinners for each column like iOS.
 
-        This property must be enabled for multi-column pickers.
+        If `false`, Android will display the 1st column as a drop-down list picker and all other
+        columns will be ignored.
+
+        As of Titanium 10.0.1, this property shows a native Android spinner widget like how the
+        [nativeSpinner](Titanium.UI.Picker.nativeSpinner) property worked in older versions.
+        On older Titanium versions, this property shows a non-native custom spinner view.
     type: Boolean
     default: false
+    availability: creation
     platforms: [android]
-    deprecated:
-      since: "5.2.1"
-      notes: This property is deprecated. Please use the default native "dropdown" style.
 
   - name: nativeSpinner
-    summary: |
-        Creates a native Android control for creating a Time Spinner with Type `Ti.UI.PICKER_TYPE_TIME`.
-        This is invoked rather than the default native "dropdown" style.
+    summary: Determines if a multicolumn spinner or single column drop-down picker should be used.
     description: |
-        If `true`, the nativeSpinner is enabled.
+        This property is intended to be used by time picker types.
 
-        This property should be set either at picker creation, i.e.
-        `Titanium.UI.createPicker({ nativeSpinner:true });`, or before the picker is added to its parent.
+        If `true`, Android will show hour, minute, and am/pm spinners like iOS.
 
-        Example as follows:
+        If `false`, Android will display a clock view.
+
+        If `undefined` with Titanium 10.0.1 or higher, the
+        [datePickerStyle](Titanium.UI.Picker.datePickerStyle) property is used.
+
+        As of Titanium 10.0.1, this property has the same effect as the
+        [useSpinner](Titanium.UI.Picker.useSpinner) property which also shows a native spinner.
 
         ``` js
-        var picker = Ti.UI.createPicker({
+        const picker = Ti.UI.createPicker({
             type: Ti.UI.PICKER_TYPE_TIME,
             nativeSpinner: true,
             format24: false,
@@ -435,6 +466,7 @@ properties:
         ```
     type: Boolean
     default: false
+    availability: creation
     platforms: [android]
     since: "5.4.0"
 
@@ -461,6 +493,9 @@ properties:
     type: Number
     default: 5
     platforms: [android]
+    deprecated:
+      since: "10.0.1"
+      notes: This property is ignored as of Titanium 10.0.1.
 
   - name: calendarViewShown
     summary: |

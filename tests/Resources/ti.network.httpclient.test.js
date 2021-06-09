@@ -758,7 +758,7 @@ describe('Titanium.Network.HTTPClient', function () {
 			onerror: _e => finish(new Error('Could not determine TLSv3 support.')),
 			timeout: 8000
 		});
-		client.open('GET', 'https://ssllabs.com/ssltest/viewMyClient.html');
+		client.open('GET', 'https://clienttest.ssllabs.com/ssltest/viewMyClient.html');
 		client.send();
 	});
 
