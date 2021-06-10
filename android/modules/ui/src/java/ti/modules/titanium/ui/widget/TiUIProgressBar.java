@@ -6,7 +6,6 @@
  */
 package ti.modules.titanium.ui.widget;
 
-import android.content.res.ColorStateList;
 import android.view.Gravity;
 import android.widget.LinearLayout;
 import com.google.android.material.progressindicator.LinearProgressIndicator;
@@ -66,10 +65,10 @@ public class TiUIProgressBar extends TiUIView
 			handleSetMessageColor(color);
 		}
 		if (d.containsKey(TiC.PROPERTY_TINT_COLOR)) {
-			handleSetTintColor(TiConvert.toColor(d, TiC.PROPERTY_TINT_COLOR));
+			this.progress.setIndicatorColor(TiConvert.toColor(d, TiC.PROPERTY_TINT_COLOR));
 		}
 		if (d.containsKey(TiC.PROPERTY_TRACK_TINT_COLOR)) {
-			handleSetTrackTintColor(TiConvert.toColor(d, TiC.PROPERTY_TRACK_TINT_COLOR));
+			this.progress.setTrackColor(TiConvert.toColor(d, TiC.PROPERTY_TRACK_TINT_COLOR));
 		}
 		updateProgress();
 	}
@@ -90,11 +89,9 @@ public class TiUIProgressBar extends TiUIView
 			final int color = TiConvert.toColor(TiConvert.toString(newValue));
 			handleSetMessageColor(color);
 		} else if (key.equals(TiC.PROPERTY_TINT_COLOR)) {
-			int tintColor = TiConvert.toColor(TiConvert.toString(newValue));
-			handleSetTintColor(tintColor);
+			this.progress.setIndicatorColor(TiConvert.toColor(TiConvert.toString(newValue)));
 		} else if (key.equals(TiC.PROPERTY_TRACK_TINT_COLOR)) {
-			int trackTintColor = TiConvert.toColor(TiConvert.toString(newValue));
-			handleSetTrackTintColor(trackTintColor);
+			this.progress.setTrackColor(TiConvert.toColor(TiConvert.toString(newValue)));
 		}
 	}
 
@@ -148,17 +145,5 @@ public class TiUIProgressBar extends TiUIView
 	protected void handleSetMessageColor(int color)
 	{
 		label.setTextColor(color);
-	}
-
-	protected void handleSetTintColor(int color)
-	{
-		ColorStateList singleColorStateList = ColorStateList.valueOf(color);
-		progress.setProgressTintList(singleColorStateList);
-	}
-
-	protected void handleSetTrackTintColor(int color)
-	{
-		ColorStateList singleColorStateList = ColorStateList.valueOf(color);
-		progress.setProgressBackgroundTintList(singleColorStateList);
 	}
 }
