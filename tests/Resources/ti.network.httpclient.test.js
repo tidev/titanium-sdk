@@ -181,7 +181,7 @@ describe('Titanium.Network.HTTPClient', function () {
 
 	it('responseHeaders', function (finish) {
 		const xhr = Ti.Network.createHTTPClient({
-			timeout: 5000
+			timeout: 30000
 		});
 		xhr.onload = e => {
 			try {
@@ -206,7 +206,7 @@ describe('Titanium.Network.HTTPClient', function () {
 				finish(new Error('failed to retrieve headers: ' + e));
 			}
 		};
-		xhr.open('GET', 'https://google.com');
+		xhr.open('GET', 'https://www.axway.com');
 		xhr.send();
 	});
 
@@ -803,6 +803,7 @@ describe('Titanium.Network.HTTPClient', function () {
 
 	it.ios('#timeoutForResource', function (finish) {
 		const xhr = Ti.Network.createHTTPClient({
+			cache: false,
 			timeout: 6e4,
 			timeoutForResource: 50
 		});
@@ -819,7 +820,7 @@ describe('Titanium.Network.HTTPClient', function () {
 			finish();
 		};
 
-		xhr.open('GET', 'https://www.google.com/');
+		xhr.open('GET', 'https://www.axway.com');
 		xhr.send();
 	});
 });
