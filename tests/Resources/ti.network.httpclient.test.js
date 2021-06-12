@@ -801,7 +801,8 @@ describe('Titanium.Network.HTTPClient', function () {
 		xhr.send();
 	});
 
-	it.ios('#timeoutForResource', function (finish) {
+	// The timing of this iOS-only unit test is very unreliable. Skip it.
+	it.allBroken('#timeoutForResource', function (finish) {
 		const xhr = Ti.Network.createHTTPClient({
 			cache: false,
 			timeout: 6e4,
