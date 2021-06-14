@@ -82,10 +82,10 @@ describe('Titanium.UI.ScrollView', function () {
 
 			setTimeout(() => {
 				should(scrollView.contentOffset.x).eql(0);
-				should(scrollView.contentOffset.y).eql(10);
+				should(scrollView.contentOffset.y).equalOneOf([ 10, '10dp' ]);
 
 				finish();
-			}, 10);
+			}, 50);
 
 		});
 
