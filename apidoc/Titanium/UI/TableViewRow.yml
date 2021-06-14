@@ -238,6 +238,18 @@ properties:
         the `footerTitle` property of a <Titanium.UI.TableViewSection>.
     type: String
     platforms: [iphone, ipad, android, macos]
+    deprecated:
+      since: "10.0.0"
+      notes: Use the <Titanium.UI.TableViewRow.footerTitle> property instead.
+
+  - name: footerTitle
+    summary: The footer title of the row.
+    description: |
+        The `footerTitle` property is used to assign a footer title to a row. It has the same effect as setting
+        the `footerTitle` property of a <Titanium.UI.TableViewSection>.
+    type: String
+    platforms: [iphone, ipad, android, macos]
+    since: {android: "10.0.0", iphone: "10.0.0", ipad: "10.0.0", macos: "10.0.0"}
 
   - name: hasCheck
     summary: |
@@ -285,6 +297,18 @@ properties:
         the `headerTitle` property of a <Titanium.UI.TableViewSection>.
     type: String
     platforms: [iphone, ipad, android, macos]
+    deprecated:
+      since: "10.0.0"
+      notes: Use the <Titanium.UI.TableViewRow.headerTitle> property instead.
+
+  - name: headerTitle
+    summary: The header title of the row.
+    description: |
+        The `headerTitle` property is used to assign a header title to a row. It has the same effect as setting
+        the `headerTitle` property of a <Titanium.UI.TableViewSection>.
+    type: String
+    platforms: [iphone, ipad, android, macos]
+    since: {android: "10.0.0", iphone: "10.0.0", ipad: "10.0.0", macos: "10.0.0"}
 
   - name: indentionLevel
     summary: Indention level for the row.

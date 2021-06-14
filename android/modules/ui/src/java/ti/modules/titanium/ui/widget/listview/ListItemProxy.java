@@ -292,7 +292,6 @@ public class ListItemProxy extends TiViewProxy
 					final KrollDict childTemplate = new KrollDict((HashMap) o);
 					final TiViewProxy childView = generateViewFromTemplate(null, childTemplate);
 					if (childView != null) {
-						childView.setActivity(parent.getActivity());
 						parent.add(childView);
 					}
 				}

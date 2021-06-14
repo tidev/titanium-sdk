@@ -1,15 +1,12 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2021 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 package ti.modules.titanium.network;
 
 import java.io.UnsupportedEncodingException;
-
-import javax.net.ssl.X509KeyManager;
-import javax.net.ssl.X509TrustManager;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
@@ -287,36 +284,6 @@ public class HTTPClientProxy extends KrollProxy
 			return TiConvert.toString(this.getProperty(TiC.PROPERTY_DOMAIN));
 		}
 		return null;
-	}
-
-	// This uses Apache
-	/*
-	@Kroll.method
-	public void addAuthFactory(String scheme, Object factory)
-	{
-		//Sanity Checks
-		if ( (scheme == null) || (scheme.length() == 0) || (! (factory instanceof AuthSchemeFactory) )) {
-			return;
-		}
-
-		client.addAuthFactory(scheme, (AuthSchemeFactory)factory);
-	}
-	*/
-
-	@Kroll.method
-	public void addTrustManager(Object manager)
-	{
-		if (manager instanceof X509TrustManager) {
-			client.addTrustManager((X509TrustManager) manager);
-		}
-	}
-
-	@Kroll.method
-	public void addKeyManager(Object manager)
-	{
-		if (manager instanceof X509KeyManager) {
-			client.addKeyManager((X509KeyManager) manager);
-		}
 	}
 
 	@Kroll.setProperty

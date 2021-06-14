@@ -248,15 +248,15 @@ dependencies {
 	implementation 'androidx.drawerlayout:drawerlayout:1.1.1'
 	implementation 'androidx.exifinterface:exifinterface:1.3.2'
 	implementation "androidx.fragment:fragment:${project.ext.tiAndroidXFragmentLibVersion}"
-	implementation 'androidx.media:media:1.2.1'
-	implementation 'androidx.recyclerview:recyclerview:1.1.0'
+	implementation 'androidx.media:media:1.3.1'
+	implementation 'androidx.recyclerview:recyclerview:1.2.0'
 	implementation 'androidx.recyclerview:recyclerview-selection:1.1.0'
 	implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
-	implementation 'androidx.transition:transition:1.4.0'
+	implementation 'androidx.transition:transition:1.4.1'
 	implementation 'androidx.vectordrawable:vectordrawable:1.1.0'
 	implementation 'androidx.vectordrawable:vectordrawable-animated:1.1.0'
 	implementation 'androidx.viewpager:viewpager:1.0.0'
-	compileOnly 'androidx.annotation:annotation:1.1.0'
+	compileOnly 'androidx.annotation:annotation:1.2.0'
 
 	// Google's "Material Components" themed UI library.
 	implementation "com.google.android.material:material:${project.ext.tiMaterialLibVersion}"
@@ -264,7 +264,7 @@ dependencies {
 	// The Google Play Services libraries are only used by Titanium's geolocation feature.
 	// We link to them dynamically at runtime. So, they can be safely excluded when in the app project.
 	implementation "com.google.android.gms:play-services-base:${project.ext.tiPlayServicesBaseLibVersion}"
-	implementation 'com.google.android.gms:play-services-location:17.1.0'
+	implementation 'com.google.android.gms:play-services-location:18.0.0'
 
 	// XML library providing XPath support to our Ti.XML APIs.
 	implementation 'jaxen:jaxen:1.2.0'
