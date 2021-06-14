@@ -18,6 +18,20 @@
 
 @implementation TiUITextViewImpl
 
+@synthesize enableCopy;
+
+- (BOOL)canPerformAction:(SEL)action withSender:(id)sender
+{
+  // If copy support is disabled, then remove actions "copy", "cut", and "share" from context menu.
+  // Note: The "share" API is private. So, we remove it by accepting all other actions.
+  if (!enableCopy) {
+    if ((action != @selector(select:)) && (action != @selector(selectAll:)) && (action != @selector(paste:)) && (action != @selector(delete:))) {
+      return NO;
+    }
+  }
+  return [super canPerformAction:action withSender:sender];
+}
+
 - (void)setTouchHandler:(TiUIView *)handler
 {
   //Assign only. No retain
@@ -93,6 +107,7 @@
     [textViewImpl setTouchHandler:self];
     textViewImpl.delaysContentTouches = NO;
     textViewImpl.delegate = self;
+    textViewImpl.enableCopy = YES;
     textViewImpl.text = @"";
 
     [self addSubview:textViewImpl];
@@ -216,6 +231,11 @@
 {
   BOOL _trulyEnabled = ([TiUtils boolValue:value def:YES] && [TiUtils boolValue:[[self proxy] valueForUndefinedKey:@"editable"] def:YES]);
   [(UITextView *)[self textWidgetView] setEditable:_trulyEnabled];
+}
+
+- (void)setEnableCopy_:(id)value
+{
+  ((TiUITextViewImpl *)[self textWidgetView]).enableCopy = [TiUtils boolValue:value def:YES];
 }
 
 - (void)setScrollable_:(id)value

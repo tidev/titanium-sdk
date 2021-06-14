@@ -36,7 +36,7 @@ properties:
     summary: Enables smooth progress change animation when changing the value.
     type: Boolean
     default: true
-    since: "10.0.0"
+    since: "10.0.1"
 
   - name: color
     summary: Color of the progress bar message, as a color name or hex triplet.
