@@ -392,6 +392,7 @@ public class TiC
 	public static final String PROPERTY_EMAIL = "email";
 	public static final String PROPERTY_ENABLE_ZOOM_CONTROLS = "enableZoomControls";
 	public static final String PROPERTY_ENABLED = "enabled";
+	public static final String PROPERTY_ENABLE_COPY = "enableCopy";
 	public static final String PROPERTY_ENABLE_JAVASCRIPT_INTERFACE = "enableJavascriptInterface";
 	public static final String PROPERTY_ENABLE_LIGHTS = "enableLights";
 	public static final String PROPERTY_ENABLE_RETURN_KEY = "enableReturnKey";

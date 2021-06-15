@@ -17,8 +17,11 @@ import java.net.URI;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicReference;
@@ -42,8 +45,8 @@ public class TiDownloadManager implements Handler.Callback
 	protected static TiDownloadManager _instance;
 	public static final int THREAD_POOL_SIZE = 2;
 
-	protected HashMap<String, ArrayList<SoftReference<TiDownloadListener>>> listeners = new HashMap<>();
-	protected ArrayList<String> downloadingURIs = new ArrayList<>();
+	protected Map<String, List<SoftReference<TiDownloadListener>>> listeners = new HashMap<>();
+	protected List<String> downloadingURIs = Collections.synchronizedList(new ArrayList<>());
 	protected ExecutorService threadPool;
 	protected Handler handler;
 
@@ -242,42 +245,53 @@ public class TiDownloadManager implements Handler.Callback
 	protected void startDownload(URI uri, TiDownloadListener listener)
 	{
 		String key = uri.toString();
-		ArrayList<SoftReference<TiDownloadListener>> listenerList = null;
+		List<SoftReference<TiDownloadListener>> listenerList;
+
 		synchronized (listeners)
 		{
-			if (!listeners.containsKey(key)) {
-				listenerList = new ArrayList<SoftReference<TiDownloadListener>>();
+			listenerList = listeners.get(key);
+
+			if (listenerList == null) {
+				listenerList = new ArrayList<>();
 				listeners.put(key, listenerList);
-			} else {
-				listenerList = listeners.get(key);
 			}
-			// We only allow a listener once per URI
-			for (SoftReference<TiDownloadListener> l : listenerList) {
-				if (l.get() == listener) {
+		}
+
+		synchronized (listenerList)
+		{
+			for (Iterator<SoftReference<TiDownloadListener>> i = listenerList.iterator(); i.hasNext(); ) {
+				TiDownloadListener downloadListener = i.next().get();
+
+				if (downloadListener == listener) {
 					return;
 				}
 			}
-			listenerList.add(new SoftReference<TiDownloadListener>(listener));
+			listenerList.add(new SoftReference<>(listener));
 		}
-		synchronized (downloadingURIs)
-		{
-			if (!downloadingURIs.contains(key)) {
-				downloadingURIs.add(key);
-				threadPool.execute(new DownloadJob(uri));
-			}
+
+		if (downloadingURIs.add(key)) {
+			threadPool.execute(new DownloadJob(uri));
 		}
 	}
 
 	protected void handleFireDownloadMessage(URI uri, int what)
 	{
-		ArrayList<SoftReference<TiDownloadListener>> listenerList;
+		List<SoftReference<TiDownloadListener>> listenerList;
+
 		synchronized (listeners)
 		{
 			listenerList = listeners.get(uri.toString());
 		}
-		if (listenerList != null) {
-			for (Iterator<SoftReference<TiDownloadListener>> i = listenerList.iterator(); i.hasNext();) {
+
+		if (listenerList == null) {
+			return;
+		}
+
+		synchronized (listenerList)
+		{
+			for (Iterator<SoftReference<TiDownloadListener>> i = listenerList.iterator(); i.hasNext(); ) {
 				TiDownloadListener downloadListener = i.next().get();
+
 				if (downloadListener != null) {
 					if (what == MSG_FIRE_DOWNLOAD_FINISHED) {
 						downloadListener.downloadTaskFinished(uri);
@@ -310,20 +324,25 @@ public class TiDownloadManager implements Handler.Callback
 					}
 				}
 
-				synchronized (downloadingURIs)
-				{
-					downloadingURIs.remove(uri.toString());
-				}
+				downloadingURIs.remove(uri.toString());
 
 				// If there is additional background task, run it here.
-				ArrayList<SoftReference<TiDownloadListener>> listenerList;
+
+				List<SoftReference<TiDownloadListener>> listenerList;
+
 				synchronized (listeners)
 				{
 					listenerList = listeners.get(uri.toString());
+
+					if (listenerList != null) {
+						listenerList = new ArrayList<>(listenerList);
+					}
 				}
+
 				if (listenerList != null) {
-					for (Iterator<SoftReference<TiDownloadListener>> i = listenerList.iterator(); i.hasNext();) {
-						TiDownloadListener downloadListener = i.next().get();
+					for (SoftReference<TiDownloadListener> listener : listenerList) {
+						TiDownloadListener downloadListener = listener.get();
+
 						if (downloadListener != null) {
 							downloadListener.postDownload(uri);
 						}
@@ -333,10 +352,7 @@ public class TiDownloadManager implements Handler.Callback
 				sendMessage(uri, MSG_FIRE_DOWNLOAD_FINISHED);
 			} catch (Exception e) {
 
-				synchronized (downloadingURIs)
-				{
-					downloadingURIs.remove(uri.toString());
-				}
+				downloadingURIs.remove(uri.toString());
 
 				// fire a download fail event if we are unable to download
 				sendMessage(uri, MSG_FIRE_DOWNLOAD_FAILED);

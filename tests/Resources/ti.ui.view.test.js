@@ -699,6 +699,31 @@ describe('Titanium.UI.View', function () {
 		win.open();
 	});
 
+	// On iOS, the animation's 'complete' event used to never fire. See: TIMOB-27236
+	it('animate width/height from zero', function (finish) {
+		win = Ti.UI.createWindow({ backgroundColor: 'white' });
+		const view = Ti.UI.createView({
+			backgroundColor: 'orange',
+			top: 0,
+			left: 0,
+			width: 0,
+			height: 0,
+		});
+		win.add(view);
+		win.addEventListener('open', () => {
+			const animation = Ti.UI.createAnimation({
+				duration: 250,
+				width: win.size.width,
+				height: win.size.height,
+			});
+			animation.addEventListener('complete', () => {
+				finish();
+			});
+			view.animate(animation);
+		});
+		win.open();
+	});
+
 	it.windowsBroken('convertPointToView', function (finish) {
 		win = Ti.UI.createWindow();
 		const a = Ti.UI.createView({ backgroundColor: 'red' });
