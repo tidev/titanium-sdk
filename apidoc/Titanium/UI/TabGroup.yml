@@ -43,7 +43,7 @@ description: |
 extends: Titanium.UI.Window
 since: "0.9"
 excludes:
-    methods: [add, remove, removeAllChildren, replaceAt]
+    methods: [add, remove, removeAllChildren, replaceAt, setToolbar]
     properties: [accessibilityHidden,accessibilityHint,accessibilityLabel,accessibilityValue,
                  anchorPoint,animatedCenter,backgroundDisabledColor,backgroundDisabledImage,
                  backgroundFocusedColor,backgroundFocusedImage,backgroundGradient,backgroundImage,backgroundLeftCap,

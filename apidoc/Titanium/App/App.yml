@@ -309,14 +309,14 @@ events:
         type: String
         platforms: [android]
       - name: lineOffset
-        summary: The offset on the line where the error occurred.
+        summary: The offset on the line where the error occurred. (Deprecated since 9.0.0. Use `column` instead.)
         type: Number
         deprecated: 
           since: "9.0.0"
           notes: Use `column` property for cross-platform parity.
         platforms: [android]
-      - name: jsStack
-        summary: The javascript stack trace of the exception.
+      - name: javascriptStack
+        summary: The javascript stack trace of the exception. (Deprecated since 9.0.0. Use `stack` instead.)
         type: String
         since: "8.0.0"
         deprecated: 
@@ -324,7 +324,7 @@ events:
           notes: Use `stack` property for cross-platform parity.
         platforms: [android]
       - name: javaStack
-        summary: The java stack trace of the exception.
+        summary: The java stack trace of the exception. (Deprecated since 9.0.0. Use `nativeStack` instead.)
         type: String
         since: "8.0.0"
         deprecated: 
@@ -466,6 +466,10 @@ methods:
     platforms: [iphone, ipad, macos]
     returns:
         type: launchOptions
+    deprecated:
+      since: "10.0.0"
+      removed: "10.0.0"
+      notes: Use the <Titanium.App.arguments> property instead
 
 properties:
   - name: EVENT_ACCESSIBILITY_ANNOUNCEMENT
@@ -636,6 +640,17 @@ properties:
     accessors: false
     platforms: [iphone, ipad, macos]
     since: {iphone: "7.5.0", ipad: "7.5.0", macos: "9.2.0"}
+
+  - name: arguments
+    summary: The arguments passed to the application on startup.
+    description : |
+        On Android, fetch the [Ti.Android.rootActivity](Titanium.Android.rootActivity) object and
+        read its [intent](Titanium.Android.Activity.intent) property to retrieve the parameters used
+        to launch the application activity. Note that this [intent](Titanium.Android.Activity.intent)
+        will change when a "[newintent](Titanium.Android.Activity.newintent)" event has been fired.
+    platforms: [iphone, ipad, macos]
+    type: launchOptions
+
 
 ---
 name: launchOptions

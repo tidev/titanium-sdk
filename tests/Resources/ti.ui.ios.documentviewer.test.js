@@ -11,7 +11,8 @@
 const should = require('./utilities/assertions');
 const utilities = require('./utilities/utilities');
 
-const isCI = Ti.App.Properties.getBool('isCI', false);
+// DocumentView is only supported on iOS or macOS 11+. See: https://developer.apple.com/forums/thread/125819
+const isSupported = !utilities.isMacOS() || (OS_VERSION_MAJOR >= 11);
 
 describe.ios('Titanium.UI.iOS',  () => {
 	it('#createDocumentViewer()', () => {
@@ -24,14 +25,15 @@ describe.ios('Titanium.UI.iOS.DocumentViewer', () => {
 	let documentViewer;
 
 	beforeEach(() => {
-		documentViewer = Ti.UI.iOS.createDocumentViewer({
-			url: 'example.html'
-		});
+		if (isSupported) {
+			documentViewer = Ti.UI.iOS.createDocumentViewer({
+				url: 'example.html'
+			});
+		}
 	});
 
 	it('.name', function () {
-		// On macOS < 11, it is failing. https://developer.apple.com/forums/thread/125819
-		if (isCI && utilities.isMacOS() && OS_VERSION_MAJOR < 11) {
+		if (!isSupported) {
 			this.skip();
 			return;
 		}
@@ -40,8 +42,7 @@ describe.ios('Titanium.UI.iOS.DocumentViewer', () => {
 	});
 
 	it('.annotation', function () {
-		// On macOS < 11, it is failing. https://developer.apple.com/forums/thread/125819
-		if (isCI && utilities.isMacOS() && OS_VERSION_MAJOR < 11) {
+		if (!isSupported) {
 			this.skip();
 			return;
 		}
