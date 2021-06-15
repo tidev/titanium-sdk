@@ -5,6 +5,7 @@
  * Please see the LICENSE included with this distribution for details.
  */
 #import "KrollModule.h"
+#import "ObjcModule.h"
 #import "TiBindingTiValue.h"
 #import "TiEvaluator.h"
 #import "TiHost.h"
@@ -79,7 +80,7 @@
   }
 
   // FIXME: Extract a Proxy protocol for ObjcProxy/TiProxy and place methods like boundBridge:withKrollObject: on it!
-  if ([module respondsToSelector:@selector(JSValueInContext:)]) {
+  if ([module isKindOfClass:[ObjcModule class]]) {
     return [module JSValueInContext:context];
   }
   KrollObject *ko = [[self executionContext] registerProxy:module]; // This basically retains the module for the lifetime of the bridge
