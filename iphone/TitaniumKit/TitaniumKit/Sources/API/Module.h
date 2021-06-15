@@ -2,7 +2,7 @@
 
 @class TiHost;
 
-@protocol Module
+@protocol Module <NSObject>
 
 /*
  * Used to force a module name for native modules. This is used in the calculation of the expected proxy name for proxy factory method calls.
