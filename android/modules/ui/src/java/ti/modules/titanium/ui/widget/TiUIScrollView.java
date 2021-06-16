@@ -43,7 +43,8 @@ public class TiUIScrollView extends TiUIView
 	private static final String TAG = "TiUIScrollView";
 
 	private View scrollView;
-	private int offsetX = 0, offsetY = 0;
+	private TiDimension offsetX = new TiDimension(0, TiDimension.TYPE_LEFT);
+	private TiDimension offsetY = new TiDimension(0, TiDimension.TYPE_TOP);
 	private boolean setInitialOffset = false;
 	private boolean mScrollingEnabled = true;
 	private boolean isScrolling = false;
@@ -459,7 +460,7 @@ public class TiUIScrollView extends TiUIView
 			super.onDraw(canvas);
 			// setting offset once when this view is visible
 			if (!setInitialOffset) {
-				scrollTo(offsetX, offsetY);
+				scrollTo(offsetX.getAsPixels(scrollView), offsetY.getAsPixels(scrollView));
 				setInitialOffset = true;
 			}
 		}
@@ -474,11 +475,13 @@ public class TiUIScrollView extends TiUIView
 				getProxy().fireEvent(TiC.EVENT_DRAGSTART, data);
 			}
 
-			KrollDict data = new KrollDict();
-			data.put(TiC.EVENT_PROPERTY_X, l);
-			data.put(TiC.EVENT_PROPERTY_Y, t);
-			data.put(TiC.PROPERTY_CONTENT_SIZE, contentSize());
 			setContentOffset(l, t);
+
+			KrollDict data = new KrollDict();
+			data.put(TiC.EVENT_PROPERTY_X, offsetX.getAsDefault(scrollView));
+			data.put(TiC.EVENT_PROPERTY_Y, offsetY.getAsDefault(scrollView));
+			data.put(TiC.PROPERTY_CONTENT_SIZE, contentSize());
+
 			getProxy().fireEvent(TiC.EVENT_SCROLL, data);
 		}
 
@@ -584,7 +587,7 @@ public class TiUIScrollView extends TiUIView
 			super.onDraw(canvas);
 			// setting offset once this view is visible
 			if (!setInitialOffset) {
-				scrollTo(offsetX, offsetY);
+				scrollTo(offsetX.getAsPixels(scrollView), offsetY.getAsPixels(scrollView));
 				setInitialOffset = true;
 			}
 		}
@@ -600,11 +603,13 @@ public class TiUIScrollView extends TiUIView
 				getProxy().fireEvent(TiC.EVENT_DRAGSTART, data);
 			}
 
-			data = new KrollDict();
-			data.put(TiC.EVENT_PROPERTY_X, l);
-			data.put(TiC.EVENT_PROPERTY_Y, t);
-			data.put(TiC.PROPERTY_CONTENT_SIZE, contentSize());
 			setContentOffset(l, t);
+
+			data = new KrollDict();
+			data.put(TiC.EVENT_PROPERTY_X, offsetX.getAsDefault(scrollView));
+			data.put(TiC.EVENT_PROPERTY_Y, offsetY.getAsDefault(scrollView));
+			data.put(TiC.PROPERTY_CONTENT_SIZE, contentSize());
+
 			getProxy().fireEvent(TiC.EVENT_SCROLL, data);
 		}
 
@@ -683,22 +688,38 @@ public class TiUIScrollView extends TiUIView
 		super.release();
 	}
 
+	/**
+	 * Set content offset from pixels.
+	 *
+	 * @param x x-offset in pixels.
+	 * @param y y-offset in pixels.
+	 */
 	public void setContentOffset(int x, int y)
 	{
 		KrollDict offset = new KrollDict();
-		offsetX = x;
-		offsetY = y;
-		offset.put(TiC.EVENT_PROPERTY_X, offsetX);
-		offset.put(TiC.EVENT_PROPERTY_Y, offsetY);
+		offsetX = new TiDimension(x, TiDimension.TYPE_LEFT);
+		offsetY = new TiDimension(y, TiDimension.TYPE_TOP);
+		offset.put(TiC.EVENT_PROPERTY_X, offsetX.getAsDefault(scrollView));
+		offset.put(TiC.EVENT_PROPERTY_Y, offsetY.getAsDefault(scrollView));
 		getProxy().setProperty(TiC.PROPERTY_CONTENT_OFFSET, offset);
 	}
 
+	/**
+	 * Set content offset from dictionary.
+	 *
+	 * @param hashMap Dictionary containing x and y offsets.
+	 */
 	public void setContentOffset(Object hashMap)
 	{
 		if (hashMap instanceof HashMap) {
-			HashMap contentOffset = (HashMap) hashMap;
-			offsetX = TiConvert.toInt(contentOffset, TiC.PROPERTY_X);
-			offsetY = TiConvert.toInt(contentOffset, TiC.PROPERTY_Y);
+			KrollDict contentOffset = new KrollDict((HashMap) hashMap);
+
+			if (contentOffset.containsKeyAndNotNull(TiC.PROPERTY_X)) {
+				offsetX = TiConvert.toTiDimension(contentOffset, TiC.PROPERTY_X, TiDimension.TYPE_LEFT);
+			}
+			if (contentOffset.containsKeyAndNotNull(TiC.PROPERTY_Y)) {
+				offsetY = TiConvert.toTiDimension(contentOffset, TiC.PROPERTY_Y, TiDimension.TYPE_TOP);
+			}
 		} else {
 			Log.e(TAG, "ContentOffset must be an instance of HashMap");
 		}
@@ -713,7 +734,7 @@ public class TiUIScrollView extends TiUIView
 
 		if (key.equals(TiC.PROPERTY_CONTENT_OFFSET)) {
 			setContentOffset(newValue);
-			scrollTo(offsetX, offsetY, false);
+			scrollTo((int) offsetX.getAsDefault(scrollView), (int) offsetY.getAsDefault(scrollView), false);
 		} else if (key.equals(TiC.PROPERTY_CAN_CANCEL_EVENTS)) {
 			View view = this.scrollView;
 			boolean canCancelEvents = TiConvert.toBoolean(newValue);
