@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2018 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2021 by Axway, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -10,14 +10,11 @@ package org.appcelerator.titanium.util;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.KrollObject;
-import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.io.TiStream;
-
 import ti.modules.titanium.BufferProxy;
 
 public class TiStreamHelper
@@ -81,11 +78,6 @@ public class TiStreamHelper
 			return 0;
 		}
 
-		String warningMessage
-			= "Synchronous invocation of read will cause performance issues under the main thread."
-			+ " This will no longer be supported in SDK 10.0.0."
-			+ " Please invoke with a final callback function to receive the result.";
-		Log.w(TAG, warningMessage);
 		final BufferProxy finalBufferProxy = bufferProxy;
 		final int finalOffset = offset;
 		final int finalLength = length;
@@ -182,11 +174,6 @@ public class TiStreamHelper
 			return 0;
 		}
 
-		String warningMessage
-			= "Synchronous invocation of write will cause performance issues under the main thread."
-			+ " This will no longer be supported in SDK 10.0.0."
-			+ " Please invoke with a final callback function to receive the result.";
-		Log.w(TAG, warningMessage);
 		final BufferProxy finalBufferProxy = bufferProxy;
 		final int finalOffset = offset;
 		final int finalLength = length;

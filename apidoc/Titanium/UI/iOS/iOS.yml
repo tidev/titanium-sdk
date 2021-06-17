@@ -715,6 +715,9 @@ properties:
     permission: read-only
     since: "9.2.0"
     osver: { ios: { min: "13.4" } }
+    deprecated:
+        since: "10.0.1"
+        notes: Use [Titanium.UI.DATE_PICKER_STYLE_AUTOMATIC](Titanium.UI.DATE_PICKER_STYLE_AUTOMATIC) instead.
 
   - name: DATE_PICKER_STYLE_WHEELS
     summary: |
@@ -723,6 +726,9 @@ properties:
     permission: read-only
     since: "9.2.0"
     osver: { ios: { min: "13.4" } }
+    deprecated:
+        since: "10.0.1"
+        notes: Use [Titanium.UI.DATE_PICKER_STYLE_WHEELS](Titanium.UI.DATE_PICKER_STYLE_WHEELS) instead.
 
   - name: DATE_PICKER_STYLE_COMPACT
     summary: |
@@ -732,6 +738,9 @@ properties:
     permission: read-only
     since: "9.2.0"
     osver: { ios: { min: "13.4" } }
+    deprecated:
+        since: "10.0.1"
+        notes: Use [Titanium.UI.DATE_PICKER_STYLE_COMPACT](Titanium.UI.DATE_PICKER_STYLE_COMPACT) instead.
 
   - name: DATE_PICKER_STYLE_INLINE
     summary: |
@@ -740,6 +749,9 @@ properties:
     permission: read-only
     since: "9.2.0"
     osver: { ios: { min: "14.0" } }
+    deprecated:
+        since: "10.0.1"
+        notes: Use [Titanium.UI.DATE_PICKER_STYLE_INLINE](Titanium.UI.DATE_PICKER_STYLE_INLINE) instead.
 
   - name: forceTouchSupported
     summary: Determines if the 3D-Touch capability "Force Touch" is supported (`true`) or not (`false`) by the device.
