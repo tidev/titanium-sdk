@@ -63,8 +63,8 @@
 	},
 	"hyperloop": {
 		"hyperloop": {
-			"url":"https://github.com/appcelerator/hyperloop.next/releases/download/v7.0.1/hyperloop-7.0.1.zip",
-			"integrity":"sha512-k1ZPCglcdr8KPskvPwaQE0e8ohtdB4aYuOtFNKLOmOFu+JD6Ft7MPmXnZNPJe2IXOHt6UXb0pkAEzwHo/8JFVg=="
+			"url": "https://github.com/appcelerator/hyperloop.next/releases/download/v7.0.2/hyperloop-7.0.2.zip",
+			"integrity": "sha512-OYwbUyWpf+kvtlk/kjbDk8+qkri9rtvpRosUCZnRTIL5rwak6zgKu7DErCwJh9tF4kF3Gl7L/+xq5JtVE8i0hw=="
 		}
 	}
 }
