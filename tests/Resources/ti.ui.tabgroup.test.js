@@ -231,7 +231,18 @@ describe('Titanium.UI.TabGroup', function () {
 				should(tabGroup.tabs).eql([ tabA, tabB ]);
 			});
 
-			it.androidBroken('has no accessors', () => { // Windows are created during open
+			it('set properties before open event', () => {
+				const tab = Ti.UI.createTab({ window: Ti.UI.createWindow() });
+				tabGroup.tabs = [ tab ];
+				tabGroup.tabs[0].title = 'Tab 1';
+				tabGroup.tabs[0].badge = '5';
+				tabGroup.tabs[0].icon = '/SmallLogo.png';
+				should(tab.title).eql('Tab 1');
+				should(tab.badge).eql('5');
+				should(tab.icon.endsWith('/SmallLogo.png')).be.true();
+			});
+
+			it('has no accessors', () => {
 				should(tabGroup).not.have.accessors('barColor');
 			});
 

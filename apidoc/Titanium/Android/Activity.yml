@@ -157,6 +157,10 @@ methods:
         summary: Orientation mode for the activity.
         constants: Titanium.Android.SCREEN_ORIENTATION_*
         type: Number
+    deprecated:
+      since: "10.0.0"
+      removed: "10.0.0"
+      notes: Use the <Titanium.Android.requestedOrientation> property instead
 
   - name: setResult
     summary: Sets the result of this activity using an `Intent`. 
