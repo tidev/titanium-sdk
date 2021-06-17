@@ -257,7 +257,7 @@ class ProcessJsTask extends IncrementalFileTask {
 			throw new Error(`Unable to resolve relative path for ${filePathAndName}.`);
 		}
 
-		const bootstrapPath = file.substr(0, file.length - 3);  // Remove the ".js" extension.
+		const bootstrapPath = file.substr(0, file.length - 3).replace(/\\/g, '/');  // Remove the ".js" extension.
 		if (bootstrapPath.endsWith('.bootstrap') && !this.jsBootstrapFiles.includes(bootstrapPath)) {
 			this.jsBootstrapFiles.push(bootstrapPath);
 		}
@@ -265,7 +265,7 @@ class ProcessJsTask extends IncrementalFileTask {
 		const info = this.jsFiles[file];
 		if (this.builder.encryptJS) {
 			if (this.platform === 'ios') {
-				if (file.indexOf('/') === 0) {
+				if (file.indexOf(path.sep) === 0) {
 					file = path.basename(file);
 				}
 				this.builder.jsFilesEncrypted.push(file); // original name
@@ -366,7 +366,7 @@ class ProcessJsTask extends IncrementalFileTask {
 	 */
 	async handleDeletedFile(filePathAndName) {
 		let file = this.resolveRelativePath(filePathAndName, this.data.jsFiles);
-		const bootstrapPath = file.substr(0, file.length - 3);  // Remove the ".js" extension.
+		const bootstrapPath = file.substr(0, file.length - 3).replace(/\\/g, '/');  // Remove the ".js" extension.
 		if (bootstrapPath.endsWith('.bootstrap')) {
 			const index = this.jsBootstrapFiles.indexOf(bootstrapPath);
 			if (index !== -1) {

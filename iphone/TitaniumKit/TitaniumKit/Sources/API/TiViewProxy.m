@@ -700,7 +700,6 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
         }
         TiUIView *myview = [self view];
         CGSize size = myview.bounds.size;
-        CGRect bounds = myview.bounds;
         if (CGSizeEqualToSize(size, CGSizeZero) || size.width == 0 || size.height == 0) {
 #ifndef TI_USE_AUTOLAYOUT
           CGFloat width = [self autoWidthForSize:CGSizeMake(1000, 1000)];
@@ -719,14 +718,12 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
           }
           CGRect rect = CGRectMake(0, 0, size.width, size.height);
           [TiUtils setView:myview positionRect:rect];
-          bounds = rect;
         }
         if (!viewIsAttached) {
           [self layoutChildren:NO];
         }
-
         UIGraphicsBeginImageContextWithOptions(size, [myview.layer isOpaque], (honorScale ? 0.0 : 1.0));
-        [myview drawViewHierarchyInRect:bounds afterScreenUpdates:YES];
+        [myview.layer renderInContext:UIGraphicsGetCurrentContext()];
         UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
         blob = [[[TiBlob alloc] initWithImage:image] autorelease];
         [blob setMimeType:@"image/png" type:TiBlobTypeImage];
@@ -1327,8 +1324,7 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
 
 - (BOOL)viewReady
 {
-  return view != nil && !CGRectIsEmpty(view.bounds) && !CGRectIsNull(view.bounds) &&
-      [view superview] != nil;
+  return (view != nil) && ([view superview] != nil);
 }
 
 - (BOOL)windowHasOpened
