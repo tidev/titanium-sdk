@@ -9,7 +9,6 @@ package ti.modules.titanium.ui.widget.listview;
 import java.util.List;
 
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiRHelper;
 
 import android.content.Context;
@@ -74,6 +73,25 @@ public class ListViewAdapter extends TiRecyclerViewAdapter<ListViewHolder>
 	}
 
 	/**
+	 * Get unique integer identifier of the template the item uses.
+	 * This tells the RecyclerView to only bind scrolled-in items to holders of the same type/template.
+	 * @param position Index position of item to obtain identifier.
+	 * @return Unique integer ID of the template the item uses.
+	 */
+	@Override
+	public int getItemViewType(int position)
+	{
+		ListItemProxy proxy = this.models.get(position);
+		if (proxy != null) {
+			String templateId = proxy.getTemplateId();
+			if (templateId != null) {
+				return templateId.hashCode();
+			}
+		}
+		return 0;
+	}
+
+	/**
 	 * Get list of models (items).
 	 *
 	 * @return List of models.
@@ -97,7 +115,6 @@ public class ListViewAdapter extends TiRecyclerViewAdapter<ListViewHolder>
 		final boolean selected = tracker != null ? tracker.isSelected(item) : false;
 
 		// Update ListViewHolder with new model data.
-		// TODO: Optimize `bind()`.
 		holder.bind(item, selected);
 	}
 
@@ -115,24 +132,6 @@ public class ListViewAdapter extends TiRecyclerViewAdapter<ListViewHolder>
 		// Create new TableViewHolder instance.
 		final RelativeLayout layout = (RelativeLayout) inflater.inflate(id_holder, null);
 		return new ListViewHolder(parent.getContext(), layout);
-	}
-
-	/**
-	 * Recycle holder for future binding.
-	 * This is used when holders are scrolled out of visibility.
-	 *
-	 * @param holder
-	 */
-	@Override
-	public void onViewRecycled(@NonNull ListViewHolder holder)
-	{
-		super.onViewRecycled(holder);
-
-		// Release child views for recycled holder.
-		final TiViewProxy proxy = holder.getProxy();
-		if (proxy != null) {
-			proxy.releaseViews();
-		}
 	}
 
 	/**
