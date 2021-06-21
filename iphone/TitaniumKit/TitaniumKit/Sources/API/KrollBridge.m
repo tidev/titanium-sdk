@@ -563,6 +563,25 @@ CFMutableSetRef krollBridgeRegistry = nil;
   return result;
 }
 
+- (id)require:(KrollContext *)kroll path:(NSString *)path
+{
+  if (!kroll || !path) {
+    return nil;
+  }
+
+  JSContext *jsContext = [JSContext contextWithJSGlobalContextRef:kroll.context];
+  JSValue *jsResult = [jsContext.globalObject invokeMethod:@"require" withArguments:@[ path ]];
+  if (![jsResult isObject]) {
+    return nil;
+  }
+
+  KrollWrapper *krollResult = [[KrollWrapper alloc] init];
+  [krollResult setBridge:self];
+  [krollResult setJsobject:(JSObjectRef)[jsResult JSValueRef]];
+  [krollResult protectJsobject];
+  return [krollResult autorelease];
+}
+
 + (NSArray *)krollBridgesUsingProxy:(id)proxy
 {
   NSMutableArray *results = nil;
