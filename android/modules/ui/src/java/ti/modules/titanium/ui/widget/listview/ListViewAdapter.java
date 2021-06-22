@@ -6,9 +6,11 @@
  */
 package ti.modules.titanium.ui.widget.listview;
 
+import java.util.LinkedList;
 import java.util.List;
 
 import org.appcelerator.kroll.common.Log;
+import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiRHelper;
 
 import android.content.Context;
@@ -26,6 +28,7 @@ public class ListViewAdapter extends TiRecyclerViewAdapter<ListViewHolder>
 	private static int id_holder;
 	private LayoutInflater inflater;
 	private List<ListItemProxy> models;
+	private final LinkedList<ListItemProxy> recyclableItems = new LinkedList<>();
 	private SelectionTracker tracker;
 
 	public ListViewAdapter(@NonNull Context context, @NonNull List<ListItemProxy> models)
@@ -111,8 +114,24 @@ public class ListViewAdapter extends TiRecyclerViewAdapter<ListViewHolder>
 	@Override
 	public void onBindViewHolder(@NonNull ListViewHolder holder, int position)
 	{
+		// Fetch item proxy for given list position.
 		final ListItemProxy item = this.models.get(position);
 		final boolean selected = tracker != null ? tracker.isSelected(item) : false;
+
+		// If item is in recycle collection, then remove it.
+		this.recyclableItems.remove(item);
+
+		// If item has no child proxies/views, then take the children from a recyclable item.
+		// This significantly boosts scroll performance by avoiding creating new views.
+		if (!item.hasChildren()) {
+			while (!this.recyclableItems.isEmpty()) {
+				ListItemProxy oldItem = this.recyclableItems.poll();
+				if ((oldItem != null) && (oldItem.getHolder() == null) && oldItem.hasChildren()) {
+					oldItem.moveChildrenTo(item);
+					break;
+				}
+			}
+		}
 
 		// Update ListViewHolder with new model data.
 		holder.bind(item, selected);
@@ -132,6 +151,31 @@ public class ListViewAdapter extends TiRecyclerViewAdapter<ListViewHolder>
 		// Create new TableViewHolder instance.
 		final RelativeLayout layout = (RelativeLayout) inflater.inflate(id_holder, null);
 		return new ListViewHolder(parent.getContext(), layout);
+	}
+
+	/**
+	 * Recycle holder for future binding.
+	 * This is used when holders are scrolled out of visibility.
+	 *
+	 * @param holder
+	 */
+	@Override
+	public void onViewRecycled(@NonNull ListViewHolder holder)
+	{
+		super.onViewRecycled(holder);
+
+		TiViewProxy view = holder.getProxy();
+		if (view instanceof ListItemProxy) {
+			// Add item to recycle list so that it's child proxies/views can be re-used by another item.
+			ListItemProxy item = (ListItemProxy) view;
+			if (item.hasChildren() && (item.getHolder() == holder) && !this.recyclableItems.contains(item)) {
+				item.setHolder(null);
+				this.recyclableItems.add(item);
+			}
+		} else if (view != null) {
+			// Release the native views for all other proxy types.
+			view.releaseViews();
+		}
 	}
 
 	/**
