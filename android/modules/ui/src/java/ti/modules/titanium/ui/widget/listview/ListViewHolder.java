@@ -90,21 +90,6 @@ public class ListViewHolder extends TiRecyclerViewHolder
 	{
 		reset();
 
-		// Move this holder's previous child proxies/views to the given proxy.
-		// This allows us to re-use/recycle the existing native views for the scrolled-in item.
-		TiViewProxy lastProxy = getProxy();
-		if (proxy != lastProxy) {
-			if ((lastProxy instanceof ListItemProxy)) {
-				ListItemProxy lastItemProxy = (ListItemProxy) lastProxy;
-				if ((lastItemProxy.getHolder() == this) || (lastItemProxy.getHolder() == null)) {
-					lastItemProxy.moveChildrenTo(proxy);
-					lastItemProxy.setHolder(null);
-				}
-			} else if (lastProxy != null) {
-				lastProxy.releaseViews();
-			}
-		}
-
 		// Update model proxy holder.
 		this.proxy = new WeakReference<>(proxy);
 		proxy.setHolder(this);

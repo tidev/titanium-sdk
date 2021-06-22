@@ -1156,6 +1156,18 @@ public abstract class TiViewProxy extends KrollProxy
 	}
 
 	/**
+	 * Determines if this proxy has any child view proxies.
+	 * @return Returns true if this view has at least 1 child view proxy. Returns false if it has no children.
+	 */
+	public boolean hasChildren()
+	{
+		if (this.children == null) {
+			return false;
+		}
+		return !this.children.isEmpty();
+	}
+
+	/**
 	 * @return An array of the children view proxies of this view.
 	 */
 	@Kroll.getProperty

@@ -154,7 +154,8 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 		// Disable list animations.
 		this.recyclerView.setItemAnimator(null);
 
-		// Optimize scroll performance.
+		// Disable cache since it creates cached holder dynamically, which causes stutter on initial scroll.
+		// We improved it by creating off-screen items on 1st call of onLayoutChildren().
 		recyclerView.setItemViewCacheSize(0);
 
 		// Set list separator.
