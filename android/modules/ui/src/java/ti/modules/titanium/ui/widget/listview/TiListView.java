@@ -49,6 +49,7 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 	private final TiNestedRecyclerView recyclerView;
 	private final SelectionTracker tracker;
 
+	private boolean hasLaidOutChildren = false;
 	private boolean isScrolling = false;
 	private int lastScrollDeltaY;
 	private String filterQuery;
@@ -64,6 +65,22 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 		this.recyclerView.setFocusableInTouchMode(true);
 		this.recyclerView.setBackgroundColor(Color.TRANSPARENT);
 		this.recyclerView.setLayoutManager(new LinearLayoutManager(getContext()) {
+			@Override
+			public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state)
+			{
+				super.onLayoutChildren(recycler, state);
+
+				// The first time we load items, load the next 4 offscreen items to get them cached.
+				// This helps improve initial scroll performance.
+				if (!hasLaidOutChildren && (getChildCount() > 0)) {
+					int startIndex = findFirstVisibleItemPosition() + getChildCount();
+					int endIndex = Math.min(startIndex + 3, state.getItemCount() - 1);
+					for (int index = startIndex; index <= endIndex; index++) {
+						recycler.getViewForPosition(index);
+					}
+					hasLaidOutChildren = true;
+				}
+			}
 
 			@Override
 			public void onLayoutCompleted(RecyclerView.State state)
