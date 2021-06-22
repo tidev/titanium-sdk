@@ -96,7 +96,7 @@ public class ListViewHolder extends TiRecyclerViewHolder
 		if (proxy != lastProxy) {
 			if ((lastProxy instanceof ListItemProxy)) {
 				ListItemProxy lastItemProxy = (ListItemProxy) lastProxy;
-				if (lastItemProxy.getHolder() == this) {
+				if ((lastItemProxy.getHolder() == this) || (lastItemProxy.getHolder() == null)) {
 					lastItemProxy.moveChildrenTo(proxy);
 					lastItemProxy.setHolder(null);
 				}
