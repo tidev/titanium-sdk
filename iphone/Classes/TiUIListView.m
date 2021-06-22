@@ -581,7 +581,7 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
   if (isSearchBarInNavigation) {
     dimmingView.frame = CGRectMake(0, 0, self.frame.size.width, self.frame.size.height);
   } else {
-    dimmingView.frame = CGRectMake(0, searchController.searchBar.frame.size.height, self.frame.size.width, self.frame.size.height - searchController.searchBar.frame.size.height);
+    dimmingView.frame = CGRectMake(0, self.safeAreaInsets.top + searchController.searchBar.frame.size.height, self.frame.size.width, self.frame.size.height - searchController.searchBar.frame.size.height);
     CGPoint convertedOrigin = [self.superview convertPoint:self.frame.origin toView:searchControllerPresenter.view];
 
     UIView *searchSuperView = [searchController.view superview];
@@ -1749,6 +1749,11 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
     if (size < DEFAULT_SECTION_HEADERFOOTER_HEIGHT) {
       size += DEFAULT_SECTION_HEADERFOOTER_HEIGHT;
     }
+  } else if (0 == section) {
+    // Make sure grouped style always shows the 1st header if it contains no text/view.
+    if ((tableView.style == UITableViewStyleGrouped) || (tableView.style == UITableViewStyleInsetGrouped)) {
+      size = 35.0;
+    }
   }
   return size;
 }
@@ -2252,6 +2257,7 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
     }
     if (!controller.navigationItem.searchController) {
       controller.navigationItem.searchController = searchController;
+      [controller.navigationController.navigationBar sizeToFit];
     }
   }
 
@@ -2355,7 +2361,7 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
     searchController.delegate = self;
     searchController.searchResultsUpdater = self;
     searchController.hidesNavigationBarDuringPresentation = NO;
-    searchController.dimsBackgroundDuringPresentation = NO;
+    searchController.obscuresBackgroundDuringPresentation = NO;
 
     searchController.searchBar.frame = CGRectMake(searchController.searchBar.frame.origin.x, searchController.searchBar.frame.origin.y, 0, 44.0);
     searchController.searchBar.autoresizingMask = UIViewAutoresizingFlexibleWidth;
@@ -2413,7 +2419,7 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
 - (void)createDimmingView
 {
   if (dimmingView == nil) {
-    dimmingView = [[UIView alloc] initWithFrame:CGRectMake(0, searchController.searchBar.frame.size.height, self.frame.size.width, self.frame.size.height - searchController.searchBar.frame.size.height)];
+    dimmingView = [[UIView alloc] initWithFrame:CGRectMake(0, self.safeAreaInsets.top + searchController.searchBar.frame.size.height, self.frame.size.width, self.frame.size.height - searchController.searchBar.frame.size.height)];
     dimmingView.backgroundColor = [UIColor blackColor];
     dimmingView.alpha = .2;
     UITapGestureRecognizer *tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(dismissSearchController)];
@@ -2427,7 +2433,7 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
   if (isSearchBarInNavigation) {
     dimmingView.frame = CGRectMake(0, 0, self.frame.size.width, self.frame.size.height);
   } else {
-    dimmingView.frame = CGRectMake(0, searchController.searchBar.frame.size.height, self.frame.size.width, self.frame.size.height - searchController.searchBar.frame.size.height);
+    dimmingView.frame = CGRectMake(0, self.safeAreaInsets.top + searchController.searchBar.frame.size.height, self.frame.size.width, self.frame.size.height - searchController.searchBar.frame.size.height);
   }
   if (!dimmingView.superview) {
     [self addSubview:dimmingView];
