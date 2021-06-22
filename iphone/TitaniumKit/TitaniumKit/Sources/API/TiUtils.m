@@ -396,7 +396,7 @@ static NSDictionary *sizeMap = nil;
     NSDictionary *dict = (NSDictionary *)value;
 
     TiDimension tDimension = [self dimensionValue:@"top" properties:dict];
-    CGFloat t = t.value;
+    CGFloat t = tDimension.value;
 
     TiDimension lDimension = [self dimensionValue:@"left" properties:dict];
     CGFloat l = lDimension.value;
