@@ -210,7 +210,15 @@ public class ScrollableViewProxy extends TiViewProxy
 		}
 
 		if (scrollableView != null) {
+			final int currentPage = scrollableView.getCurrentPage();
+
 			scrollableView.getAdapter().notifyDataSetChanged();
+
+			if (currentPage >= this.views.size()) {
+
+				// Last view removed, set to valid view.
+				scrollableView.setCurrentPage(this.views.size() - 1);
+			}
 		}
 	}
 
