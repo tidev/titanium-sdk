@@ -6,6 +6,7 @@
  */
 package ti.modules.titanium.ui.widget.listview;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -28,7 +29,7 @@ public class ListViewAdapter extends TiRecyclerViewAdapter<ListViewHolder>
 	private static int id_holder;
 	private LayoutInflater inflater;
 	private List<ListItemProxy> models;
-	private final LinkedList<ListItemProxy> recyclableItems = new LinkedList<>();
+	private final HashMap<String, LinkedList<ListItemProxy>> recyclableItemsMap = new HashMap<>();
 	private SelectionTracker tracker;
 
 	public ListViewAdapter(@NonNull Context context, @NonNull List<ListItemProxy> models)
@@ -118,17 +119,21 @@ public class ListViewAdapter extends TiRecyclerViewAdapter<ListViewHolder>
 		final ListItemProxy item = this.models.get(position);
 		final boolean selected = tracker != null ? tracker.isSelected(item) : false;
 
-		// If item is in recycle collection, then remove it.
-		this.recyclableItems.remove(item);
+		// Check if we have any recyclable items for the current template.
+		LinkedList<ListItemProxy> recyclableItems = this.recyclableItemsMap.get(item.getTemplateId());
+		if (recyclableItems != null) {
+			// If item is in recycle collection, then remove it.
+			recyclableItems.remove(item);
 
-		// If item has no child proxies/views, then take the children from a recyclable item.
-		// This significantly boosts scroll performance by avoiding creating new views.
-		if (!item.hasChildren()) {
-			while (!this.recyclableItems.isEmpty()) {
-				ListItemProxy oldItem = this.recyclableItems.poll();
-				if ((oldItem != null) && (oldItem.getHolder() == null) && oldItem.hasChildren()) {
-					oldItem.moveChildrenTo(item);
-					break;
+			// If item has no child proxies/views, then take the children from a recyclable item.
+			// This significantly boosts scroll performance by avoiding creating new views.
+			if (!item.hasChildren()) {
+				while (!recyclableItems.isEmpty()) {
+					ListItemProxy oldItem = recyclableItems.poll();
+					if ((oldItem != null) && (oldItem.getHolder() == null) && oldItem.hasChildren()) {
+						oldItem.moveChildrenTo(item);
+						break;
+					}
 				}
 			}
 		}
@@ -168,9 +173,16 @@ public class ListViewAdapter extends TiRecyclerViewAdapter<ListViewHolder>
 		if (view instanceof ListItemProxy) {
 			// Add item to recycle list so that it's child proxies/views can be re-used by another item.
 			ListItemProxy item = (ListItemProxy) view;
-			if (item.hasChildren() && (item.getHolder() == holder) && !this.recyclableItems.contains(item)) {
-				item.setHolder(null);
-				this.recyclableItems.add(item);
+			if (item.hasChildren() && (item.getHolder() == holder)) {
+				LinkedList<ListItemProxy> recyclableItems = this.recyclableItemsMap.get(item.getTemplateId());
+				if (recyclableItems == null) {
+					recyclableItems = new LinkedList<>();
+					this.recyclableItemsMap.put(item.getTemplateId(), recyclableItems);
+				}
+				if (!recyclableItems.contains(item)) {
+					item.setHolder(null);
+					recyclableItems.add(item);
+				}
 			}
 		} else if (view != null) {
 			// Release the native views for all other proxy types.
