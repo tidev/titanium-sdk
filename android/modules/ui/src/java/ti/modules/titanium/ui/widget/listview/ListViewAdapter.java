@@ -99,12 +99,6 @@ public class ListViewAdapter extends TiRecyclerViewAdapter<ListViewHolder>
 		// Update ListViewHolder with new model data.
 		// TODO: Optimize `bind()`.
 		holder.bind(item, selected);
-
-		// Handle ListView markers.
-		final ListViewProxy listViewProxy = item.getListViewProxy();
-		if (listViewProxy != null) {
-			listViewProxy.handleMarker(item);
-		}
 	}
 
 	/**

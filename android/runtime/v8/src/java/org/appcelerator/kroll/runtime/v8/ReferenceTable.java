@@ -23,7 +23,7 @@ public final class ReferenceTable
 	 * A simple Map used to hold strong/weak reference to the Java objects we have paired/wrapped in native
 	 * titanium::Proxy/JavaObject instances.
 	 */
-	private static final HashMap<Long, Object> references = new HashMap<>();
+	private static final HashMap<Long, Object> references = new HashMap<>(1024);
 
 	/**
 	 * Incrementing key, used to generate new keys when a new strong reference is created. FIXME Handle "wrapping" the
@@ -77,7 +77,6 @@ public final class ReferenceTable
 	{
 		Log.d(TAG, "Downgrading to weak reference for key: " + key, Log.DEBUG_MODE);
 		Object ref = getReference(key);
-		references.remove(key);
 		references.put(key, new WeakReference<>(ref));
 	}
 
@@ -90,7 +89,6 @@ public final class ReferenceTable
 	{
 		Log.d(TAG, "Downgrading to soft reference for key: " + key, Log.DEBUG_MODE);
 		Object ref = getReference(key);
-		references.remove(key);
 		references.put(key, new SoftReference<>(ref));
 	}
 
@@ -105,7 +103,6 @@ public final class ReferenceTable
 	{
 		Log.d(TAG, "Upgrading reference to strong for key: " + key, Log.DEBUG_MODE);
 		Object ref = getReference(key);
-		references.remove(key);
 		references.put(key, ref);
 		return ref;
 	}
