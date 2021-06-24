@@ -377,20 +377,13 @@ public class ListItemProxy extends TiViewProxy
 				continue;
 			}
 
-			// Fetch properties dictionary to store child view's changes to.
-			HashMap cachedProperties = null;
-			Object object = this.childProperties.get(bindsEntry.getKey());
-			if (object instanceof HashMap) {
-				cachedProperties = (HashMap) object;
-			} else {
-				cachedProperties = new KrollDict();
-				this.childProperties.put(bindsEntry.getKey(), cachedProperties);
-			}
-
 			// Copy all view proxy properties to this list item's dictionary.
 			// Saves view's current state when scrolled offscreen so we can restore it when scrolled back in.
-			for (KrollDict.Entry<String, Object> proxyPropertyEntry : proxyProperties.entrySet()) {
-				cachedProperties.put(proxyPropertyEntry.getKey(), proxyPropertyEntry.getValue());
+			Object object = this.childProperties.get(bindsEntry.getKey());
+			if (object instanceof HashMap) {
+				((HashMap) object).putAll(proxyProperties);
+			} else {
+				this.childProperties.put(bindsEntry.getKey(), new KrollDict(proxyProperties));
 			}
 		}
 	}
