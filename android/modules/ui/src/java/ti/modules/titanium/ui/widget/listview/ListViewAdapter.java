@@ -6,9 +6,9 @@
  */
 package ti.modules.titanium.ui.widget.listview;
 
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.TreeMap;
 
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.proxy.TiViewProxy;
@@ -29,7 +29,7 @@ public class ListViewAdapter extends TiRecyclerViewAdapter<ListViewHolder>
 	private static int id_holder;
 	private LayoutInflater inflater;
 	private List<ListItemProxy> models;
-	private final HashMap<String, LinkedList<ListItemProxy>> recyclableItemsMap = new HashMap<>();
+	private final TreeMap<String, LinkedList<ListItemProxy>> recyclableItemsMap = new TreeMap<>();
 	private SelectionTracker tracker;
 
 	public ListViewAdapter(@NonNull Context context, @NonNull List<ListItemProxy> models)
