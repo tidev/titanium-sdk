@@ -805,6 +805,8 @@ properties:
     summary: Interval in milliseconds before a `heading` event is fired.
     description: |
         Set to a value greater than zero to reduce the number of heading events generated.
+        If you target Android 12 and want to use a time below 200ms you need to add the
+        HIGH_SAMPLING_RATE_SENSORS permission. See [Motion sensors are rate-limited](https://developer.android.com/about/versions/12/behavior-changes-12#motion-sensor-rate-limiting)
     type: Number
     default: 250
     platforms: [android]
