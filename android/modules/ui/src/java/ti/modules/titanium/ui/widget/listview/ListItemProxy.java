@@ -102,7 +102,7 @@ public class ListItemProxy extends TiViewProxy
 		}
 
 		// Generate all child proxies from template and create all views.
-		if (this.children.isEmpty()) {
+		if (!hasChildren()) {
 			generateViewFromTemplate(this, this.template);
 		}
 		return new ItemView(this);
@@ -337,10 +337,13 @@ public class ListItemProxy extends TiViewProxy
 			return;
 		}
 
-		// Do not continue if this proxy has no children.
+		// Do not continue if this proxy has no child views.
 		// This will force given proxy to regenerate child proxies from template.
+		if (!hasChildren()) {
+			return;
+		}
 		TiViewProxy[] childProxies = getChildren();
-		if ((childProxies == null) || (childProxies.length <= 0) || (childProxies[0].peekView() == null)) {
+		if (childProxies[0].peekView() == null) {
 			return;
 		}
 
