@@ -79,26 +79,27 @@ function bootstrap (global, kroll) {
 		 * @return {object}                wrapper around the externalModule
 		 */
 		createModuleWrapper (externalModule, sourceUrl) {
+			if (OS_IOS) {
+				// iOS does not need a module wrapper, return original external module
+				return externalModule;
+			}
 
 			// The module wrapper forwards on using the original as a prototype
 			function ModuleWrapper() {}
 			ModuleWrapper.prototype = externalModule;
 
 			const wrapper = new ModuleWrapper();
-			if (OS_ANDROID) {
-				// Android-specific portion!
-				// Here we take the APIs defined in the bootstrap.js
-				// and effectively lazily hook them
-				// We explicitly guard the code so iOS doesn't even use/include the referenced invoker.js import
-				const invocationAPIs = externalModule.invocationAPIs || [];
-				for (const api of invocationAPIs) {
-					const delegate = externalModule[api];
-					if (!delegate) {
-						continue;
-					}
-
-					wrapper[api] = invoker.createInvoker(externalModule, delegate, new kroll.ScopeVars({ sourceUrl }));
+			// Here we take the APIs defined in the bootstrap.js
+			// and effectively lazily hook them
+			// We explicitly guard the code so iOS doesn't even use/include the referenced invoker.js import
+			const invocationAPIs = externalModule.invocationAPIs || [];
+			for (const api of invocationAPIs) {
+				const delegate = externalModule[api];
+				if (!delegate) {
+					continue;
 				}
+
+				wrapper[api] = invoker.createInvoker(externalModule, delegate, new kroll.ScopeVars({ sourceUrl }));
 			}
 
 			wrapper.addEventListener = function (...args) {
