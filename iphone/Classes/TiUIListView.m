@@ -2082,8 +2082,11 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
   if ([searchBar.text length] == 0) {
     self.searchString = @"";
     [self buildResultsForSearchText];
-    [self performSelector:@selector(dismissSearchController) withObject:nil afterDelay:.2];
   }
+
+  // Finished editing, always dismiss search controller.
+  // Only one search controller can be active at a time.
+  [self performSelector:@selector(dismissSearchController) withObject:nil afterDelay:.2];
 }
 
 - (void)searchBar:(UISearchBar *)searchBar textDidChange:(NSString *)searchText
