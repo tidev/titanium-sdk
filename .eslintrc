@@ -33,6 +33,14 @@
       }
     },
     {
+      "files": [ "build/**/test-*.mjs" ],
+      "parserOptions": {
+        "ecmaVersion": 2020,
+        "sourceType": "module"
+      },
+      "extends": [ "axway/+mocha" ]
+    },
+    {
       "files": [ "common/Resources/**/*.js" ],
       "extends": [ "axway/env-titanium" ],
       "parserOptions": {
@@ -49,7 +57,7 @@
       }
     },
     {
-      "files": [ "android/cli/tests/test-android-manifest.js", "build/**/test-*.js" ],
+      "files": [ "android/cli/tests/test-android-manifest.js" ],
       "extends": [ "axway/env-node", "axway/+mocha"]
     },
     {
