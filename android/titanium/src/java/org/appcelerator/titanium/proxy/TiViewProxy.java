@@ -441,11 +441,8 @@ public abstract class TiViewProxy extends KrollProxy
 				Log.d(TAG, "getView: " + getClass().getSimpleName(), Log.DEBUG_MODE);
 			}
 
-			TiViewProxy parentProxy = getParent();
-			Activity parentActivity = (parentProxy != null) ? parentProxy.getActivity() : null;
-
 			Activity lastActivity = getActivity();
-			Activity activity = (parentActivity != null) ? parentActivity : lastActivity;
+			Activity activity = lastActivity;
 			TiBaseActivity baseActivity = null;
 
 			if (activity instanceof TiBaseActivity) {
@@ -460,9 +457,13 @@ public abstract class TiViewProxy extends KrollProxy
 				activity = baseActivity;
 
 			} else if (activity == null) {
-				if (parentActivity != null) {
-					activity = parentActivity;
-				} else {
+				for (TiViewProxy parent = getParent(); parent != null; parent = parent.getParent()) {
+					activity = parent.getActivity();
+					if (activity != null) {
+						break;
+					}
+				}
+				if (activity == null) {
 					activity = TiApplication.getAppRootOrCurrentActivity();
 				}
 			}
