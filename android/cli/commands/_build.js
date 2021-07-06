@@ -2187,9 +2187,8 @@ AndroidBuilder.prototype.generateRootProjectFiles = async function generateRootP
 			+ fileContent.toString() + '\n');
 	}
 
-	// Create a "local.properties" file providing a path to the Android SDK/NDK directories.
-	const androidNdkPath = this.androidInfo.ndk ? this.androidInfo.ndk.path : null;
-	await gradlew.writeLocalPropertiesFile(this.androidInfo.sdk.path, androidNdkPath);
+	// Create a "local.properties" file providing a path to the Android SDK directory.
+	await gradlew.writeLocalPropertiesFile(this.androidInfo.sdk.path);
 
 	// Copy our root "build.gradle" template script to the root build directory.
 	await fs.copyFile(
@@ -2573,7 +2572,7 @@ AndroidBuilder.prototype.writeEnvironmentVariables = async function writeEnviron
 	await fs.writeFile(
 		envVarsFile,
 		// for non-development builds, DO NOT WRITE OUT ENV VARIABLES TO APP
-		this.writeEnvVars ? JSON.stringify(process.env) : {}
+		this.writeEnvVars ? JSON.stringify(process.env) : '{}'
 	);
 	this.encryptJS && this.jsFilesToEncrypt.push('_env_.json');
 	this.unmarkBuildDirFile(envVarsFile);
