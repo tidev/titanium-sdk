@@ -43,7 +43,7 @@ description: |
 extends: Titanium.UI.Window
 since: "0.9"
 excludes:
-    methods: [add, remove, removeAllChildren, replaceAt]
+    methods: [add, remove, removeAllChildren, replaceAt, setToolbar]
     properties: [accessibilityHidden,accessibilityHint,accessibilityLabel,accessibilityValue,
                  anchorPoint,animatedCenter,backgroundDisabledColor,backgroundDisabledImage,
                  backgroundFocusedColor,backgroundFocusedImage,backgroundGradient,backgroundImage,backgroundLeftCap,
@@ -256,6 +256,10 @@ methods:
     summary: Gets the currently-active tab.
     returns:
         type: Titanium.UI.Tab
+    deprecated:
+        since: "10.0.0"
+        removed: "10.0.0"
+        notes: Use the <Titanium.UI.TabGroup.activeTab> property instead.
 
   - name: open
     summary: Opens the tab group and makes it visible.
@@ -274,11 +278,19 @@ methods:
       - name: indexOrObject
         summary: Index or object of the tab to switch to.
         type: [Number, Titanium.UI.Tab]
+    deprecated:
+        since: "10.0.0"
+        removed: "10.0.0"
+        notes: Use the <Titanium.UI.TabGroup.activeTab> property instead.
 
   - name: getTabs
     summary: Gets all tabs that are managed by the tab group.
     returns:
         type: Array<Titanium.UI.Tab>
+    deprecated:
+        since: "10.0.0"
+        removed: "10.0.0"
+        notes: Use the <Titanium.UI.TabGroup.tabs> property instead.
 
 properties:
   - name: activeTab
@@ -572,7 +584,10 @@ properties:
     description: |
         For information about color values, see the "Colors" section of <Titanium.UI>.
 
-        A tab's [backgroundSelectedColor](Titanium.UI.Tab.backgroundSelectedColor) property takes
+        This property is only supported by
+        [TABS_STYLE_BOTTOM_NAVIGATION](Titanium.UI.Android.TABS_STYLE_BOTTOM_NAVIGATION).
+
+        A tab's [backgroundFocusedColor](Titanium.UI.Tab.backgroundFocusedColor) property takes
         precedence if set.
     type: String
     platforms: [android]

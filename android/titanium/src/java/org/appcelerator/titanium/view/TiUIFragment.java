@@ -56,7 +56,7 @@ public abstract class TiUIFragment extends TiUIView implements Handler.Callback
 		}
 	}
 
-	private Runnable onCommitRunnable = new Runnable() {
+	private final Runnable onCommitRunnable = new Runnable() {
 		@Override
 		public void run()
 		{

@@ -139,7 +139,8 @@ describe.ios('Titanium.UI.iOS.CollisionBehavior', () => {
 			}
 		});
 
-		it('works', finish => {
+		// FIXME: intermittent crashes on macOS (and rarely iPad) https://jira.appcelerator.org/browse/TIMOB-28339
+		it.macBroken('works', finish => {
 			win = Ti.UI.createWindow({
 				backgroundColor: 'white',
 				fullscreen: true

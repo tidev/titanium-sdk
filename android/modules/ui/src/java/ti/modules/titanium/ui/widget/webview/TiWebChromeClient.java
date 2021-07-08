@@ -306,7 +306,7 @@ public class TiWebChromeClient extends WebChromeClient
 		}
 
 		KrollFunction onCreateWindowFunction = (KrollFunction) onCreateWindow;
-		HashMap<String, Object> args = new HashMap<String, Object>();
+		HashMap<String, Object> args = new HashMap<>();
 		args.put(TiC.EVENT_PROPERTY_IS_DIALOG, isDialog);
 		args.put(TiC.EVENT_PROPERTY_IS_USER_GESTURE, isUserGesture);
 

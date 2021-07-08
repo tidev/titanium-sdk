@@ -27,7 +27,6 @@ public class ElementProxy extends NodeProxy
 		this.element = element;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getTextContent()
 	{
@@ -106,7 +105,6 @@ public class ElementProxy extends NodeProxy
 		return filterThisFromNodeList(element.getElementsByTagNameNS(namespaceURI, localName));
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getTagName()
 	{

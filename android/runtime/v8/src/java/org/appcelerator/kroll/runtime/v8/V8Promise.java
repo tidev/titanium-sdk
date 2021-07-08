@@ -24,6 +24,11 @@ public class V8Promise<V extends Object> extends V8Object implements KrollPromis
 		super(nativeCreate());
 	}
 
+	public V8Promise(long ptr)
+	{
+		super(ptr);
+	}
+
 	@Override
 	public void resolve(V value)
 	{

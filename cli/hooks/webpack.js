@@ -30,6 +30,7 @@ exports.init = (logger, config, cli) => {
 	let isWebpackEnabled = false;
 	let projectType;
 	let client;
+	let appcdRootPath;
 
 	cli.on('cli:command-loaded', (hookData) => {
 		const command = hookData.command;
@@ -48,7 +49,6 @@ exports.init = (logger, config, cli) => {
 			return;
 		}
 
-		let appcdRootPath;
 		if (isAppcCli) {
 			// we were invoked by appc-cli, load bundled daemon client.
 			appcdRootPath = resolveModuleRoot('appcd');
@@ -94,15 +94,23 @@ exports.init = (logger, config, cli) => {
 			});
 			Promise.resolve().then(async () => {
 				await webpackService.build();
-				return callback();
+				return callback(); // eslint-disable-line promise/no-callback-in-promise
 			}).catch(e => {
 				if (e.status === 404) {
 					badgedLogger.info('Daemon was unable to find the Webpack plugin. To continue you need to:');
 					badgedLogger.info('');
-					const installCommand = 'npm i -g @appcd/plugin-webpack';
-					badgedLogger.info(`- Install it with ${installCommand.cyan}`);
-					const restartCommand = `${isAppcCli ? 'appc ' : ''}appcd restart`;
-					badgedLogger.info(`- Restart the daemon with ${restartCommand.cyan}`);
+
+					const appcdVersion = getAppcdVersion(appcdRootPath);
+					const appcdCommand = isAppcCli ? 'appc appcd' : 'appcd';
+					const pluginName = '@appcd/plugin-webpack';
+
+					if (semver.gte(appcdVersion, '4.0.0')) {
+						badgedLogger.info(`- Install it with ${appcdCommand} pm install ${pluginName}`);
+					} else {
+						badgedLogger.info(`- Install it with npm i -g ${pluginName}`);
+						badgedLogger.info(`- Restart the daemon with ${appcdCommand} restart`);
+					}
+
 					badgedLogger.info('');
 				}
 
@@ -112,7 +120,7 @@ exports.init = (logger, config, cli) => {
 					logger.error(e.stack);
 				}
 
-				callback(e);
+				callback(e); // eslint-disable-line promise/no-callback-in-promise
 			});
 		}
 	});
@@ -159,11 +167,16 @@ function resolveModuleRoot(name, paths) {
 }
 
 function ensureAppcdVersion(appcdRootPath, version, isAppcCli = false) {
+	const appcdVersion = getAppcdVersion(appcdRootPath);
+	if (!semver.gte(appcdVersion, version)) {
+		throw new Error(`The Webpack build system requires Appcelerator Daemon v${MIN_APPCD_VERSION}+ (installed: ${appcdVersion}). Please update your ${isAppcCli ? 'appc-cli with "appc use latest"' : 'global daemon install with "npm i appcd -g"'}.`);
+	}
+}
+
+function getAppcdVersion(appcdRootPath) {
 	// eslint-disable-next-line security/detect-non-literal-require
 	const pkg = require(path.join(appcdRootPath, 'package.json'));
-	if (!semver.gte(pkg.version, version)) {
-		throw new Error(`The Webpack build system requires Appcelerator Daemon v${MIN_APPCD_VERSION}+ (installed: ${pkg.version}). Please update your ${isAppcCli ? 'appc-cli with "appc use latest"' : 'global daemon install with "npm i appcd -g"'}.`);
-	}
+	return pkg.version;
 }
 
 function resolveAppcdClient(appcdPackagePath) {

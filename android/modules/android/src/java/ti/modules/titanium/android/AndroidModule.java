@@ -541,7 +541,7 @@ public class AndroidModule extends KrollModule
 	public static final int FOREGROUND_SERVICE_TYPE_CAMERA = ServiceInfo.FOREGROUND_SERVICE_TYPE_CAMERA;
 
 	protected RProxy r;
-	private LinkedList<BroadcastReceiverProxy> registeredBroadcastReceiverProxyList = new LinkedList<>();
+	private final LinkedList<BroadcastReceiverProxy> registeredBroadcastReceiverProxyList = new LinkedList<>();
 
 	private static final int REQUEST_CODE = 99;
 
@@ -611,7 +611,6 @@ public class AndroidModule extends KrollModule
 		return r;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public ActivityProxy getCurrentActivity()
 	{
@@ -622,7 +621,6 @@ public class AndroidModule extends KrollModule
 		return null;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public ActivityProxy getRootActivity()
 	{
@@ -657,7 +655,7 @@ public class AndroidModule extends KrollModule
 	public boolean hasPermission(Object permissionObject)
 	{
 		if (Build.VERSION.SDK_INT >= 23) {
-			ArrayList<String> permissions = new ArrayList<String>();
+			ArrayList<String> permissions = new ArrayList<>();
 			if (permissionObject instanceof String) {
 				permissions.add((String) permissionObject);
 			} else if (permissionObject instanceof Object[]) {
@@ -707,8 +705,7 @@ public class AndroidModule extends KrollModule
 				if (filteredPermissions.size() > 0) {
 					TiBaseActivity.registerPermissionRequestCallback(REQUEST_CODE, permissionCallback,
 						callbackThisObject, promise);
-					currentActivity.requestPermissions(filteredPermissions.toArray(
-						new String[filteredPermissions.size()]), REQUEST_CODE);
+					currentActivity.requestPermissions(filteredPermissions.toArray(new String[0]), REQUEST_CODE);
 					return;
 				}
 			}

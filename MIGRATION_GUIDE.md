@@ -3,12 +3,46 @@
 This guide is intended to give a very high-level listing of APIs removed in major releases and the replacement API or notes.
 
 - [MIGRATION GUIDE](#migration-guide)
+	- [10.0.0](#1000)
 	- [9.0.0](#900)
 	- [8.2.0](#820)
 	- [8.1.0](#810)
 	- [8.0.0](#800)
 	- [7.0.0](#700)
 	- [6.0.0](#600)
+
+## 10.0.0
+
+The following APIs were removed in 10.0.0:
+
+| Removed API | Notes / Replacement |
+|-------------|---------------------|
+| `Ti.Android.PENDING_INTENT_FOR_ACTIVITY` | No longer used. |
+| `Ti.Android.PENDING_INTENT_FOR_BROADCAST` | No longer used. |
+| `Ti.Android.PENDING_INTENT_FOR_SERVICE` |  No longer used. |
+| `Ti.Android.PENDING_INTENT_MAX_VALUE` |  No longer used. |
+| `Ti.Android.Intent#getData()` | Use the `Ti.Android.Intent.data` property instead. |
+| `Ti.Android.MenuItem#setCheckable()` | Use the `Ti.Android.MenuItem.checkable` property instead. |
+| `Ti.Android.MenuItem#setChecked()` | Use the `Ti.Android.MenuItem.checked` property instead. |
+| `Ti.Android.MenuItem#setEnabled()` | Use the `Ti.Android.MenuItem.enabled` property instead. |
+| `Ti.Android.MenuItem#setVisible()` | Use the `Ti.Android.MenuItem.visible` property instead. |
+| `Ti.Media.AudioPlayer#getPaused()` | Use the cross-platform API `Ti.Media.AudioPlayer.paused` property instead. |
+| `Ti.Media.AudioPlayer#isPaused()` | Use the cross-platform API `Ti.Media.AudioPlayer.paused` property instead. |
+| `Ti.Media.AudioPlayer#getPlaying()` | Use the cross-platform API `Ti.Media.AudioPlayer.playing` property instead. |
+| `Ti.Media.AudioPlayer#isPlaying()` | Use the cross-platform API `Ti.Media.AudioPlayer.playing` property instead. |
+| `Ti.Media.AudioPlayer#setPaused()` | Use the cross-platform API `Ti.Media.AudioPlayer.pause` instead. |
+| `Ti.Media#hasAudioPermissions()` | Use `Ti.Media.hasAudioRecorderPermissions` instead. |
+| `PreviewImageError.message` | Use `error` property instead |
+| `Ti.Media.Sound.error.message` | Use the `error` property instead |
+| `Ti.Media.VideoPlayer.error.message` | Use `error` property instead |
+| `Ti.Network.HTTPClient#setTimeout()` | Use the `Ti.Network.HTTPClient.timeout` property instead. |
+| `Ti.UI.iOS.NavigationWindow` | Use `Ti.UI.NavigationWindow` instead. |
+| `Ti.UI.iOS.TabbedBar` | Use `Ti.UI.TabbedBar` instead. |
+| `Ti.UI.iOS.Toolbar` | Use the cross-platform `Ti.UI.Toolbar` instead. |
+| `Ti.UI.TabGroup#getActiveTab()` | Use the `Ti.UI.TabGroup.activeTab` property instead. |
+| `Ti.UI.TabGroup#setActiveTab()` | Use the `Ti.UI.TabGroup.activeTab` property instead. |
+| `Ti.UI.TabGroup#getTabs()` | Use the `Ti.UI.TabGroup.tabs` property instead. |
+| `Ti.UI.TableView#setHeaderPullView()` | Use the `Ti.UI.TableView.headerPullView` property instead. |
 
 ## 9.0.0
 

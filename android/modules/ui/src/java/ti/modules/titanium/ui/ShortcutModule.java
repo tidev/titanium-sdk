@@ -97,7 +97,7 @@ public class ShortcutModule extends KrollModule
 			items.add(shortcutItemProxy);
 		}
 
-		return items.toArray(new ShortcutItemProxy[items.size()]);
+		return items.toArray(new ShortcutItemProxy[0]);
 	}
 
 	/**

@@ -45,7 +45,7 @@ public class TiUIVideoView
 	/**
 	 * Used when setting video view to one created by our fullscreen TiVideoActivity, in which
 	 * case we shouldn't create one of our own in this class.
-	 * @param vv instance of TiVideoView8 created by TiVideoActivity
+	 * @param layout The activity's view group this method will attempt to find the VideoView in.
 	 */
 	public void setVideoViewFromActivityLayout(TiCompositeLayout layout)
 	{

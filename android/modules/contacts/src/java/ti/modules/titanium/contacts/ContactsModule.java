@@ -64,7 +64,6 @@ public class ContactsModule extends KrollModule implements TiActivityResultHandl
 		contactsApi = CommonContactsApi.getInstance();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public int getContactsAuthorization()
 	{
@@ -172,10 +171,10 @@ public class ContactsModule extends KrollModule implements TiActivityResultHandl
 		int requestCode = requestCodeGen.getAndIncrement();
 
 		if (requests == null) {
-			requests = new HashMap<Integer, Map<String, KrollFunction>>();
+			requests = new HashMap<>();
 		}
-		Map<String, KrollFunction> callbacks = new HashMap<String, KrollFunction>();
-		requests.put(new Integer(requestCode), callbacks);
+		Map<String, KrollFunction> callbacks = new HashMap<>();
+		requests.put(requestCode, callbacks);
 
 		String[] callbacksToConsider = new String[] { "selectedPerson", "cancel" };
 		for (String callbackToConsider : callbacksToConsider) {
@@ -187,7 +186,7 @@ public class ContactsModule extends KrollModule implements TiActivityResultHandl
 			}
 			if (d.containsKey("proxy")) {
 				Object test = d.get("proxy");
-				if (test != null && test instanceof KrollProxy) {
+				if (test instanceof KrollProxy) {
 					launchingActivity = ((KrollProxy) test).getActivity();
 				}
 			}
@@ -207,7 +206,7 @@ public class ContactsModule extends KrollModule implements TiActivityResultHandl
 	@Override
 	public void onResult(Activity activity, int requestCode, int resultCode, Intent data)
 	{
-		Integer rcode = new Integer(requestCode);
+		Integer rcode = requestCode;
 		if (requests.containsKey(rcode)) {
 			Map<String, KrollFunction> request = requests.get(rcode);
 			Log.d(TAG, "Received result from contact picker.  Result code: " + resultCode, Log.DEBUG_MODE);

@@ -33,21 +33,18 @@ public class CharacterDataProxy extends NodeProxy
 		data.deleteData(offset, count);
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getData() throws DOMException
 	{
 		return data.getData();
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setData(String data) throws DOMException
 	{
 		this.data.setData(data);
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public int getLength()
 	{

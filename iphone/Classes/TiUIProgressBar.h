@@ -15,7 +15,7 @@
   UIProgressViewStyle style;
   CGFloat max;
   CGFloat min;
-
+  BOOL animated;
   UILabel *messageLabel;
 
 #ifdef TI_USE_AUTOLAYOUT
