@@ -188,7 +188,8 @@ events:
 
   - name: delete
     summary: Fired when a table row is deleted by the user.
-    platforms: [iphone, ipad, macos]
+    platforms: [android, iphone, ipad, macos]
+    since: {android: "10.0.0"}
     properties:
       - name: detail
         summary: Indicates whether the delete button was clicked. Always `false` for this event.
@@ -1013,6 +1014,11 @@ methods:
         type: Titanium.UI.View
     platforms: [iphone, ipad, macos]
     since: "2.1.0"
+    deprecated:
+      since: "10.0.0"
+      removed: "10.0.0"
+      notes: Use the <Titanium.UI.TableView.headerPullView> property instead.
+
 
   - name: updateRow
     summary: Updates an existing row, optionally with animation.
@@ -1485,29 +1491,39 @@ properties:
 
         For example:
         ``` js
-        tableView1.setSeparatorInsets({
-            left:10,
-            right:10
-        });
+        tableView1.separatorInsets = {
+            left: 10,
+            right: 10
+        };
         ```
     type: HorizontalInsets
     since: 3.2.0
     osver: {ios: {min: "7.0"}}
     platforms: [iphone, ipad, macos]
 
+  - name: touchFeedback
+    summary: A material design visual construct that provides an instantaneous visual confirmation of touch point.
+    description: |
+        Touch feedback is only applied to a view's background.
+    type: Boolean
+    default: true
+    platforms: [android]
+    osver: {android: {min: "5.0"}}
+    since: "10.0.0"
+
   - name: tableSeparatorInsets
     summary: The insets for the table view header and footer.
     description: |
-        Cell separators do not extend all the way to the edge of the table view.Set this to a
+        Cell separators do not extend all the way to the edge of the table view. Set this to a
         dictionary with two keys, `left` specifying inset from left edge and `right` specifying the inset from the
         right edge. If the rowSeparatorInsets is not set, the tableSeparatorInsets will also set the cell insets.
 
         For example:
         ``` js
-        tableView1.setTableSeparatorInsets({
-            left:10,
-            right:10
-        });
+        tableView1.tableSeparatorInsets = {
+            left: 10,
+            right: 10
+        };
         ```
     type: HorizontalInsets
     since: "5.2.0"
@@ -1517,16 +1533,16 @@ properties:
   - name: rowSeparatorInsets
     summary: The insets for table view cells (applies to all cells).
     description: |
-        Cell separators do not extend all the way to the edge of the table view.Set this to a
+        Cell separators do not extend all the way to the edge of the table view. Set this to a
         dictionary with two keys, `left` specifying inset from left edge and `right` specifying the inset from the
         right edge. This property is only available upon creation of the cells.
 
         For example:
         ``` js
-        tableView1.setRowSeparatorInsets({
-            left:10,
-            right:10
-        });
+        tableView1.rowSeparatorInsets = {
+            left: 10,
+            right: 10
+        };
         ```
     type: HorizontalInsets
     since: "5.2.0"
@@ -1661,11 +1677,8 @@ examples:
         Create a table of rows that contain a custom child-view layout.
 
         ``` js
-        Ti.UI.setBackgroundColor('#000');
         var win = Ti.UI.createWindow({
           backgroundColor: 'black',
-          exitOnClose: true,
-          fullscreen: false,
           title: 'TableView Demo'
         });
 

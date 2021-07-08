@@ -58,7 +58,6 @@ public class BigPictureStyleProxy extends StyleProxy
 		}
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setBigLargeIcon(Object icon)
 	{
@@ -81,7 +80,6 @@ public class BigPictureStyleProxy extends StyleProxy
 		setProperty(TiC.PROPERTY_BIG_LARGE_ICON, icon);
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setBigPicture(Object picture)
 	{
@@ -98,7 +96,6 @@ public class BigPictureStyleProxy extends StyleProxy
 		setProperty(TiC.PROPERTY_BIG_PICTURE, picture);
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setBigContentTitle(String title)
 	{
@@ -106,7 +103,6 @@ public class BigPictureStyleProxy extends StyleProxy
 		setProperty(TiC.PROPERTY_BIG_CONTENT_TITLE, title);
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setSummaryText(String text)
 	{

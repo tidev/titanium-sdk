@@ -29,7 +29,6 @@ import android.util.Log;
 
 public class TiSocketFactory extends SSLSocketFactory
 {
-
 	private SSLContext sslContext;
 	private String tlsVersion;
 	private static final String TAG = "TiSocketFactory";
@@ -149,7 +148,7 @@ public class TiSocketFactory extends SSLSocketFactory
 	protected SSLSocket setSupportedAndEnabledProtocolsInSocket(String[] enabledProtocols, SSLSocket sslSocket)
 	{
 		String[] supportedProtocols = sslSocket.getSupportedProtocols();
-		List<String> supportedAndEnabledProtocols = new ArrayList<String>();
+		List<String> supportedAndEnabledProtocols = new ArrayList<>();
 
 		for (String enabledProtocol : enabledProtocols) {
 			for (String supportedProtocol : supportedProtocols) {
@@ -164,7 +163,7 @@ public class TiSocketFactory extends SSLSocketFactory
 		//Default enabled protocols varies depending on API level.
 		if (supportedAndEnabledProtocols.size() > 0) {
 			sslSocket.setEnabledProtocols(
-				supportedAndEnabledProtocols.toArray(new String[supportedAndEnabledProtocols.size()]));
+				supportedAndEnabledProtocols.toArray(new String[0]));
 		}
 
 		return sslSocket;

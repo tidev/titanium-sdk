@@ -114,7 +114,7 @@ public class KrollAnnotationUtils
 
 	public HashMap<String, Object> mapToHash(Map<? extends ExecutableElement, ? extends AnnotationValue> source)
 	{
-		HashMap<String, Object> result = new HashMap<String, Object>();
+		HashMap<String, Object> result = new HashMap<>();
 		for (Map.Entry<? extends ExecutableElement, ? extends AnnotationValue> mirrorEntry : source.entrySet()) {
 			String mirrorKey = mirrorEntry.getKey().getSimpleName().toString();
 			Object value = mirrorEntry.getValue().getValue();
@@ -167,7 +167,7 @@ public class KrollAnnotationUtils
 
 	public HashMap<String, Object> getAnnotationParams(Element element, String annotationClass)
 	{
-		final HashMap<String, Object> params = new HashMap<String, Object>();
+		final HashMap<String, Object> params = new HashMap<>();
 		acceptAnnotations(element, annotationClass, new KrollVisitor<AnnotationMirror>() {
 			@Override
 			public boolean visit(AnnotationMirror element, Object arg)

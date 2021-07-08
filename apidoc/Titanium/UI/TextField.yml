@@ -213,10 +213,14 @@ properties:
 
   - name: borderStyle
     summary: Border style for the field.
+    description: On Android, this is a creation-only property and cannot be changed dynamically.
     type: Number
     constants: Titanium.UI.INPUT_BORDERSTYLE_*
-    default: <Titanium.UI.INPUT_BORDERSTYLE_NONE>
-    platforms: [iphone, ipad, macos]
+    default: |
+        <Titanium.UI.INPUT_BORDERSTYLE_NONE> (on iOS),
+        <Titanium.UI.INPUT_BORDERSTYLE_FILLED> (on Android)
+    platforms: [android, iphone, ipad, macos]
+    since: {android: 10.0.0, iphone: 0.8.0, ipad: 0.8.0, macos: 9.2.0}
 
   - name: clearButtonMode
     summary: Determines when the clear button is displayed.
@@ -246,6 +250,18 @@ properties:
     type: Boolean
     default: false
     platforms: [android]
+
+  - name: enableCopy
+    summary: Determines if user can copy or cut text from the text field.
+    description: |
+        When set `false`, the "copy" and "cut" options will not appear in the context menu.
+        The `Command+C` and `Command+X` keyboard shortcuts will be ignored as well.
+
+        If <Titanium.UI.TextField.passwordMask> is set `true`, then copy support is always disabled,
+        even if you set this property `true`.
+    type: Boolean
+    default: true
+    since: "10.0.1"
 
   - name: enableReturnKey
     summary: |

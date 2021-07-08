@@ -37,13 +37,10 @@ public final class V8Runtime extends KrollRuntime implements Handler.Callback
 
 	private boolean libLoaded = false;
 
-	private HashMap<String, Class<? extends KrollExternalModule>> externalModules =
-		new HashMap<String, Class<? extends KrollExternalModule>>();
-	private static HashMap<String, KrollSourceCodeProvider> externalCommonJsModules =
-		new HashMap<String, KrollSourceCodeProvider>();
-
-	private ArrayList<String> loadedLibs = new ArrayList<String>();
-	private AtomicBoolean shouldGC = new AtomicBoolean(false);
+	private final HashMap<String, Class<? extends KrollExternalModule>> externalModules = new HashMap<>();
+	private static final HashMap<String, KrollSourceCodeProvider> externalCommonJsModules = new HashMap<>();
+	private final ArrayList<String> loadedLibs = new ArrayList<>();
+	private final AtomicBoolean shouldGC = new AtomicBoolean(false);
 	private long lastV8Idle;
 
 	/**

@@ -31,9 +31,8 @@ public class TiLoadImageManager implements Handler.Callback
 	protected static TiLoadImageManager _instance;
 	public static final int THREAD_POOL_SIZE = 2;
 
-	protected SparseArray<ArrayList<SoftReference<TiLoadImageListener>>> listeners =
-		new SparseArray<ArrayList<SoftReference<TiLoadImageListener>>>();
-	protected ArrayList<Integer> loadingImageRefs = new ArrayList<Integer>();
+	protected SparseArray<ArrayList<SoftReference<TiLoadImageListener>>> listeners = new SparseArray<>();
+	protected ArrayList<Integer> loadingImageRefs = new ArrayList<>();
 	protected ExecutorService threadPool;
 	protected Handler handler;
 

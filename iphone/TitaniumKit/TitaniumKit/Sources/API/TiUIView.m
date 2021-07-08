@@ -984,7 +984,9 @@ DEFINE_EXCEPTIONS
 - (void)setViewShadowRadius_:(id)arg
 {
   [[self proxy] replaceValue:arg forKey:@"viewShadowRadius" notification:NO];
-  [[self shadowLayer] setShadowRadius:[TiUtils floatValue:arg def:0.0]];
+
+  TiDimension radiusDimension = [TiUtils dimensionValue:arg];
+  [[self shadowLayer] setShadowRadius:radiusDimension.value];
 }
 
 - (void)setViewShadowColor_:(id)arg

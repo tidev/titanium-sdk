@@ -63,7 +63,7 @@ if (OS_ANDROID) {
 			}
 		});
 
-		_open.call(this, options);
+		return _open.call(this, options);
 	};
 
 	const _add = Window.prototype.add;

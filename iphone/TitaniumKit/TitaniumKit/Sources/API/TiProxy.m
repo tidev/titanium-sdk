@@ -936,10 +936,11 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void *payload)
       NSThread.isMainThread);
 }
 
-- (void)setValuesForKeysWithDictionary:(NSDictionary *)keyedValues
+- (void)setValuesForKeysWithDictionary:(NSDictionary *)dictionary
 {
   //It's possible that the 'setvalueforkey' has its own plans of what should be in the JS object,
   //so we should do this first as to not overwrite the subclass's setter.
+  NSDictionary *keyedValues = [dictionary copy];
   if ((bridgeCount == 1) && (pageKrollObject != nil)) {
     for (NSString *currentKey in keyedValues) {
       id currentValue = [keyedValues objectForKey:currentKey];
@@ -991,6 +992,7 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void *payload)
     }
     [self setValue:thisValue forKey:thisKey];
   }
+  RELEASE_TO_NIL(keyedValues);
 }
 
 DEFINE_EXCEPTIONS
@@ -1212,6 +1214,22 @@ DEFINE_EXCEPTIONS
 {
   DebugLog(@"[ERROR] Subclasses must override the apiName API endpoint.");
   return @"Ti.Proxy";
+}
+
+- (JSContext *)currentContext
+{
+  id<TiEvaluator> evaluator = self.pageContext;
+  if (evaluator == nil) {
+    evaluator = self.executionContext;
+    if (evaluator == nil) {
+      return nil; // TODO: Try [JSContext currentContext]? I think it will always fail for old-school proxies in this hierarchy
+    }
+  }
+  JSGlobalContextRef globalRef = [[evaluator krollContext] context];
+  if (globalRef) {
+    return [JSContext contextWithJSGlobalContextRef:globalRef];
+  }
+  return nil;
 }
 
 + (id)createProxy:(NSString *)qualifiedName withProperties:(NSDictionary *)properties inContext:(id<TiEvaluator>)context

@@ -139,9 +139,7 @@
     [self addSubview:scrollView];
 #endif
   }
-  if ([TiUtils isIOSVersionOrGreater:@"11.0"]) {
-    [self adjustScrollViewInsets];
-  }
+  [self adjustScrollViewInsets];
   return scrollView;
 }
 
