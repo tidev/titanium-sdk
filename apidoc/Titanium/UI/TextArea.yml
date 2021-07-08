@@ -224,6 +224,15 @@ properties:
     since: {android: "3.0.0"}
     platforms: [android, iphone, ipad, macos]
 
+  - name: borderStyle
+    summary: Border style for the text area.
+    type: Number
+    constants: Titanium.UI.INPUT_BORDERSTYLE_*
+    default: <Titanium.UI.INPUT_BORDERSTYLE_FILLED>
+    availability: creation
+    platforms: [android]
+    since: 10.0.0
+
   - name: clearOnEdit
     summary: Determines whether the value of this text area should be cleared when it is focused.
     type: Boolean
@@ -246,6 +255,15 @@ properties:
     type: Boolean
     default: false
     platforms: [android]
+
+  - name: enableCopy
+    summary: Determines if user can copy or cut text from the text area.
+    description: |
+        When set `false`, the "copy" and "cut" options will not appear in the context menu.
+        The `Command+C` and `Command+X` keyboard shortcuts will be ignored as well.
+    type: Boolean
+    default: true
+    since: "10.0.1"
 
   - name: enableReturnKey
     summary: |

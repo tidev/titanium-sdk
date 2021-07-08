@@ -99,7 +99,7 @@ public class TiAnimationBuilder
 	private static final String TAG = "TiAnimationBuilder";
 
 	// Views on which animations are currently running.
-	private static ArrayList<WeakReference<View>> sRunningViews = new ArrayList<WeakReference<View>>();
+	private static final ArrayList<WeakReference<View>> sRunningViews = new ArrayList<>();
 	private static final TiAnimationCurve DEFAULT_CURVE = TiAnimationCurve.EASE_IN_OUT;
 
 	protected float anchorX;
@@ -292,7 +292,7 @@ public class TiAnimationBuilder
 	 */
 	private AnimatorSet buildPropertyAnimators(int x, int y, int w, int h, int parentWidth, int parentHeight)
 	{
-		List<Animator> animators = new ArrayList<Animator>();
+		List<Animator> animators = new ArrayList<>();
 		boolean includesRotation = false;
 
 		if (toOpacity != null) {
@@ -1101,7 +1101,7 @@ public class TiAnimationBuilder
 	{
 		if (running) {
 			if (!isAnimationRunningFor(v)) {
-				sRunningViews.add(new WeakReference<View>(v));
+				sRunningViews.add(new WeakReference<>(v));
 			}
 
 		} else {

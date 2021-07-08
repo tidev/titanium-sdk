@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		030FB71825EDEEB200B68467 /* TiUIOptionBarProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 030FB71625EDEEB200B68467 /* TiUIOptionBarProxy.m */; };
 		0BF9338A1CA0948D0091C7EC /* TiUIiOSStepper.m in Sources */ = {isa = PBXBuildFile; fileRef = 0BF933891CA0948D0091C7EC /* TiUIiOSStepper.m */; };
 		0BFAD90F1CA1B86B00A04BF7 /* TiUIiOSStepperProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 0BFAD90E1CA1B86B00A04BF7 /* TiUIiOSStepperProxy.m */; };
 		1592CC2E1C47148D00C3DB83 /* TiUIiOSTableViewScrollPositionProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 1592CC2D1C47148D00C3DB83 /* TiUIiOSTableViewScrollPositionProxy.m */; };
@@ -296,6 +297,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		030FB71625EDEEB200B68467 /* TiUIOptionBarProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIOptionBarProxy.m; sourceTree = "<group>"; };
+		030FB71725EDEEB200B68467 /* TiUIOptionBarProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIOptionBarProxy.h; sourceTree = "<group>"; };
 		0BF933881CA0948D0091C7EC /* TiUIiOSStepper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIiOSStepper.h; sourceTree = "<group>"; };
 		0BF933891CA0948D0091C7EC /* TiUIiOSStepper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIiOSStepper.m; sourceTree = "<group>"; };
 		0BFAD90D1CA1B86B00A04BF7 /* TiUIiOSStepperProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIiOSStepperProxy.h; sourceTree = "<group>"; };
@@ -343,7 +346,6 @@
 		1DF5F4DF0D08C38300B7A737 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		2412F464115C296300454E5B /* TiMediaVideoPlayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiMediaVideoPlayer.h; sourceTree = "<group>"; };
 		2412F465115C296300454E5B /* TiMediaVideoPlayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiMediaVideoPlayer.m; sourceTree = "<group>"; };
-		241EAA21118AB3BB0081A5BE /* defines.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = defines.h; path = ../Classes/defines.h; sourceTree = SOURCE_ROOT; };
 		241EAEC5118E2BA90081A5BE /* project.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = project.xcconfig; sourceTree = "<group>"; };
 		242E967311BAD2F20046A0D0 /* AsyncSocket.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AsyncSocket.h; path = ../Classes/AsyncSocket.h; sourceTree = SOURCE_ROOT; };
 		242E967411BAD2F20046A0D0 /* AsyncSocket.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AsyncSocket.m; path = ../Classes/AsyncSocket.m; sourceTree = SOURCE_ROOT; };
@@ -817,6 +819,15 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		030FB71525EDEE7200B68467 /* OptionBar */ = {
+			isa = PBXGroup;
+			children = (
+				030FB71725EDEEB200B68467 /* TiUIOptionBarProxy.h */,
+				030FB71625EDEEB200B68467 /* TiUIOptionBarProxy.m */,
+			);
+			name = OptionBar;
+			sourceTree = "<group>";
+		};
 		0BF933871CA0929A0091C7EC /* Stepper */ = {
 			isa = PBXGroup;
 			children = (
@@ -1192,6 +1203,7 @@
 				24CA8C72111167590084E2DE /* Label */,
 				24CA8C701111672E0084E2DE /* Button */,
 				24CA8C6F111167140084E2DE /* ButtonBar */,
+				030FB71525EDEE7200B68467 /* OptionBar */,
 				24CA8C711111673C0084E2DE /* ProgressBar */,
 				24CA8C6D111166C20084E2DE /* Searchbar */,
 				24CA8C6C111166BA0084E2DE /* ActivityIndicator */,
@@ -1600,7 +1612,6 @@
 				673144D5211DBAD7001BDBF2 /* TiUIApplication.m */,
 				32CA4F630368D1EE00C91783 /* Titanium_Prefix.pch */,
 				29B97316FDCFA39411CA2CEA /* main.m */,
-				241EAA21118AB3BB0081A5BE /* defines.h */,
 				24596691118E70D300519F79 /* ApplicationRouting.h */,
 				24596692118E70D300519F79 /* ApplicationRouting.m */,
 				2478B2A311C447A4005814DF /* ApplicationMods.h */,
@@ -2198,6 +2209,7 @@
 				84A00FFF17FB833000D4BF94 /* TiPushBehavior.m in Sources */,
 				1592CC2E1C47148D00C3DB83 /* TiUIiOSTableViewScrollPositionProxy.m in Sources */,
 				24CA8BDC111161FE0084E2DE /* NetworkModule.m in Sources */,
+				030FB71825EDEEB200B68467 /* TiUIOptionBarProxy.m in Sources */,
 				24CA8BDE111161FE0084E2DE /* MediaModule.m in Sources */,
 				24CA8BE3111161FE0084E2DE /* GestureModule.m in Sources */,
 				24CA8BE5111161FE0084E2DE /* FilesystemModule.m in Sources */,
@@ -2359,10 +2371,14 @@
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = Titanium_Prefix.pch;
-				GCC_PREPROCESSOR_DEFINITIONS = "";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"TI_VERSION=$(TI_VERSION)",
+					"$(TI_SYMBOL_MACROS)",
+					"$(GCC_DEFINITIONS)",
+				);
 				GCC_THUMB_SUPPORT = NO;
 				INFOPLIST_FILE = Titanium.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				LD_DEPENDENCY_INFO_FILE = "$(OBJECT_FILE_DIR_$(CURRENT_VARIANT))/$(CURRENT_ARCH)/$(PRODUCT_NAME)_dependency_info.dat";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -2381,6 +2397,7 @@
 				"OTHER_LDFLAGS[sdk=iphonesimulator*]" = "$(inherited)";
 				PRODUCT_BUNDLE_IDENTIFIER = com.appcelerator.titanium;
 				PRODUCT_NAME = Titanium;
+				STRIP_STYLE = debugging;
 				SUPPORTS_MACCATALYST = NO;
 				SWIFT_OBJC_BRIDGING_HEADER = "Titanium-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
@@ -2411,10 +2428,14 @@
 				ENABLE_NS_ASSERTIONS = NO;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = Titanium_Prefix.pch;
-				GCC_PREPROCESSOR_DEFINITIONS = "";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"TI_VERSION=$(TI_VERSION)",
+					"$(TI_SYMBOL_MACROS)",
+					"$(GCC_DEFINITIONS)",
+				);
 				GCC_THUMB_SUPPORT = NO;
 				INFOPLIST_FILE = Titanium.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				LD_DEPENDENCY_INFO_FILE = "$(OBJECT_FILE_DIR_$(CURRENT_VARIANT))/$(CURRENT_ARCH)/$(PRODUCT_NAME)_dependency_info.dat";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -2433,6 +2454,7 @@
 				"OTHER_LDFLAGS[sdk=iphonesimulator*]" = "$(inherited)";
 				PRODUCT_BUNDLE_IDENTIFIER = com.appcelerator.titanium;
 				PRODUCT_NAME = Titanium;
+				STRIP_STYLE = debugging;
 				SUPPORTS_MACCATALYST = NO;
 				SWIFT_OBJC_BRIDGING_HEADER = "Titanium-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
@@ -2476,7 +2498,11 @@
 				GCC_C_LANGUAGE_STANDARD = c99;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PREPROCESSOR_DEFINITIONS = "TI_VERSION=$(TI_VERSION)";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"TI_VERSION=$(TI_VERSION)",
+					"$(GCC_DEFINITIONS)",
+					"$(TI_SYMBOL_MACROS)",
+				);
 				GCC_THUMB_SUPPORT = NO;
 				GCC_TREAT_WARNINGS_AS_ERRORS = NO;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
@@ -2493,13 +2519,14 @@
 					"${\"SDKROOT\"}/usr/include/libxml2",
 					../headers,
 				);
-				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CFLAGS = "-DDEBUG";
 				OTHER_LDFLAGS = "-ObjC";
 				PROVISIONING_PROFILE = "";
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
 				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(GCC_DEFINITIONS) $(TI_SYMBOL_MACROS) TI_VERSION=$(TI_VERSION)";
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
@@ -2536,7 +2563,11 @@
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_C_LANGUAGE_STANDARD = c99;
 				GCC_NO_COMMON_BLOCKS = YES;
-				GCC_PREPROCESSOR_DEFINITIONS = "TI_VERSION=$(TI_VERSION)";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"TI_VERSION=$(TI_VERSION)",
+					"$(GCC_DEFINITIONS)",
+					"$(TI_SYMBOL_MACROS)",
+				);
 				GCC_THUMB_SUPPORT = NO;
 				GCC_TREAT_WARNINGS_AS_ERRORS = NO;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
@@ -2553,11 +2584,12 @@
 					"${\"SDKROOT\"}/usr/include/libxml2",
 					../headers,
 				);
-				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				OTHER_LDFLAGS = "-ObjC";
 				PROVISIONING_PROFILE = "";
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
 				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(GCC_DEFINITIONS) $(TI_SYMBOL_MACROS) TI_VERSION=$(TI_VERSION)";
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VALIDATE_PRODUCT = YES;
 			};

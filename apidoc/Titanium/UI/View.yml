@@ -1982,22 +1982,23 @@ properties:
   - name: viewShadowRadius
     summary: Determines the blur radius used to create the shadow.
     description: Defaults to `undefined`. Behaves as if set to 3.
-    type: Number
-    platforms: [iphone,ipad, macos]
+        Accepts density units as of 10.0.1.
+    type: [Number,String]
+    platforms: [iphone, ipad, macos]
     since: "3.3.0"
 
   - name: viewShadowColor
     summary: Determines the color of the shadow.
     description: Defaults to `undefined`. Behaves as if transparent.
     type: [String, Titanium.UI.Color]
-    platforms: [iphone,ipad, macos]
+    platforms: [iphone, ipad, macos]
     since: "3.3.0"
 
   - name: viewShadowOffset
     summary: Determines the offset for the shadow of the view.
     description: Defaults to `undefined`. Behaves as if set to (0,-3)
     type: Point
-    platforms: [iphone,ipad, macos]
+    platforms: [iphone, ipad, macos]
     since: "3.3.0"
 
   - name: visible

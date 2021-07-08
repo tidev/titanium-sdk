@@ -1119,18 +1119,6 @@ describe('Titanium.Media', () => {
 			});
 		});
 
-		describe.android('.VIDEO_LOAD_STATE_PLAYTHROUGH_OK', () => {
-			it('is a Number', () => {
-				should(Ti.Media).have.a.constant('VIDEO_LOAD_STATE_PLAYTHROUGH_OK').which.is.a.Number();
-			});
-		});
-
-		describe.android('.VIDEO_LOAD_STATE_STALLED', () => {
-			it('is a Number', () => {
-				should(Ti.Media).have.a.constant('VIDEO_LOAD_STATE_STALLED').which.is.a.Number();
-			});
-		});
-
 		describe('.VIDEO_LOAD_STATE_UNKNOWN', () => {
 			it('is a Number', () => {
 				should(Ti.Media).have.a.constant('VIDEO_LOAD_STATE_UNKNOWN').which.is.a.Number();

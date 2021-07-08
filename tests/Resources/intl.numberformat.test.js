@@ -141,9 +141,11 @@ describe('Intl.NumberFormat', () => {
 	});
 
 	describe('#formatToParts()', () => {
-		if (OS_IOS && (OS_VERSION_MAJOR < 13)) {
-			return;
-		}
+		before(function () {
+			if (OS_IOS && (OS_VERSION_MAJOR < 13)) {
+				this.skip();
+			}
+		});
 
 		it('validate function', () => {
 			const formatter = new Intl.NumberFormat();

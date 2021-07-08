@@ -46,7 +46,7 @@ public class TiContentFile extends TiBaseFile
 	/** The file's creation time in milliseconds since 1970. Will be negative if unknown. */
 	private long createdTime = -1L;
 
-	/** The file's modfication time in milliseconds since 1970. Will be negative if unknown. */
+	/** The file's modification time in milliseconds since 1970. Will be negative if unknown. */
 	private long modifiedTime = -1L;
 
 	/**

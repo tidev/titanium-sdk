@@ -1,12 +1,11 @@
 package ti.modules.titanium.android.quicksettings;
 
 import android.annotation.TargetApi;
-import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.graphics.drawable.Icon;
 import android.service.quicksettings.TileService;
-
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollRuntime;
 import org.appcelerator.kroll.annotations.Kroll;
@@ -27,7 +26,7 @@ public class QuickSettingsServiceProxy extends ServiceProxy
 	private TileService tileService;
 	//workaround for dealing with Icon class
 	private Object pathObject = null;
-	private AlertDialog.Builder builder;
+	private MaterialAlertDialogBuilder builder;
 
 	public QuickSettingsServiceProxy(TileService serviceInstance)
 	{
@@ -43,6 +42,7 @@ public class QuickSettingsServiceProxy extends ServiceProxy
 
 	//Setting Tile's icon
 	@Kroll.method
+	@Kroll.setProperty
 	public void setIcon(Object path)
 	{
 		tileService.getQsTile().setIcon(Icon.createWithBitmap(
@@ -52,6 +52,7 @@ public class QuickSettingsServiceProxy extends ServiceProxy
 
 	//Setting Tile's state
 	@Kroll.method
+	@Kroll.setProperty
 	public void setState(int state)
 	{
 		tileService.getQsTile().setState(state);
@@ -59,6 +60,7 @@ public class QuickSettingsServiceProxy extends ServiceProxy
 
 	//Setting Tile's label
 	@Kroll.method
+	@Kroll.setProperty
 	public void setLabel(String label)
 	{
 		tileService.getQsTile().setLabel(label);
@@ -66,6 +68,7 @@ public class QuickSettingsServiceProxy extends ServiceProxy
 
 	//Getting Tile'c icon
 	@Kroll.method
+	@Kroll.getProperty
 	public Object getIcon()
 	{
 		return pathObject;
@@ -73,6 +76,7 @@ public class QuickSettingsServiceProxy extends ServiceProxy
 
 	//Getting Tile's state
 	@Kroll.method
+	@Kroll.getProperty
 	public int getState()
 	{
 		return tileService.getQsTile().getState();
@@ -80,6 +84,7 @@ public class QuickSettingsServiceProxy extends ServiceProxy
 
 	//Getting Tile's label
 	@Kroll.method
+	@Kroll.getProperty
 	public String getLabel()
 	{
 		return tileService.getQsTile().getLabel().toString();
@@ -128,7 +133,7 @@ public class QuickSettingsServiceProxy extends ServiceProxy
 
 	private Dialog createDialogFromDictionary(KrollDict krollDict)
 	{
-		builder = new AlertDialog.Builder(tileService.getApplicationContext());
+		builder = new MaterialAlertDialogBuilder(tileService.getApplicationContext());
 		String[] buttonText = null;
 		if (krollDict.containsKey(TiC.PROPERTY_TITLE)) {
 			builder.setTitle(krollDict.getString(TiC.PROPERTY_TITLE));
