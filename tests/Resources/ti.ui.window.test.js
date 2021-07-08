@@ -8,6 +8,7 @@
 /* eslint-env mocha */
 /* eslint no-unused-expressions: "off" */
 /* eslint mocha/no-identical-title: "off" */
+/* eslint promise/no-callback-in-promise: "off" */
 'use strict';
 const should = require('./utilities/assertions');
 const utilities = require('./utilities/utilities');
@@ -18,12 +19,7 @@ describe('Titanium.UI.Window', function () {
 	let win;
 	afterEach(done => { // fires after every test in sub-suites too...
 		if (win && !win.closed) {
-			win.addEventListener('close', function listener () {
-				win.removeEventListener('close', listener);
-				win = null;
-				done();
-			});
-			win.close();
+			win.close().then(() => done()).catch(_e => done());
 		} else {
 			win = null;
 			done();
@@ -57,7 +53,7 @@ describe('Titanium.UI.Window', function () {
 				done();
 			});
 			win.open();
-			win.closed.should.be.false(); // should be open now
+			// win.closed.should.be.false(); // no guarantees about state here since window is async opening
 		});
 
 		it.ios('.extendSafeArea', function (finish) {
@@ -120,8 +116,8 @@ describe('Titanium.UI.Window', function () {
 				should(win.hidesBackButton).be.false();
 			});
 
-			it('has accessors', () => {
-				should(win).have.accessors('hidesBackButton');
+			it('has no accessors', () => {
+				should(win).not.have.accessors('hidesBackButton');
 			});
 
 			// TODO: Add snapshot test
@@ -147,8 +143,8 @@ describe('Titanium.UI.Window', function () {
 				should(win.homeIndicatorAutoHidden).be.true();
 			});
 
-			it('has accessors', () => {
-				should(win).have.accessors('homeIndicatorAutoHidden');
+			it('has no accessors', () => {
+				should(win).not.have.accessors('homeIndicatorAutoHidden');
 			});
 		});
 
@@ -173,8 +169,8 @@ describe('Titanium.UI.Window', function () {
 				should(win.largeTitleEnabled).be.false();
 			});
 
-			it('has accessors', () => {
-				should(win).have.accessors('largeTitleEnabled');
+			it('has no accessors', () => {
+				should(win).not.have.accessors('largeTitleEnabled');
 			});
 		});
 
@@ -199,8 +195,8 @@ describe('Titanium.UI.Window', function () {
 				should(win.largeTitleDisplayMode).eql(Ti.UI.iOS.LARGE_TITLE_DISPLAY_MODE_AUTOMATIC);
 			});
 
-			it('has accessors', () => {
-				should(win).have.accessors('largeTitleDisplayMode');
+			it('has no accessors', () => {
+				should(win).not.have.accessors('largeTitleDisplayMode');
 			});
 		});
 
@@ -547,8 +543,8 @@ describe('Titanium.UI.Window', function () {
 				should(win.title).eql('other text');
 			});
 
-			it('has accessors', () => {
-				should(win).have.accessors('title');
+			it('has no accessors', () => {
+				should(win).not.have.accessors('title');
 			});
 		});
 
@@ -577,8 +573,8 @@ describe('Titanium.UI.Window', function () {
 				should(win.title).eql('this is my value'); // FIXME Windows: https://jira.appcelerator.org/browse/TIMOB-23498
 			});
 
-			it('has accessors', () => {
-				should(win).have.accessors('titleid');
+			it('has no accessors', () => {
+				should(win).not.have.accessors('titleid');
 			});
 		});
 
@@ -681,6 +677,89 @@ describe('Titanium.UI.Window', function () {
 			should.not.exist(win.custom);
 			win.applyProperties({ custom: 1234 });
 			should(win.custom).eql(1234);
+		});
+
+		describe('#close()', () => {
+			it('is a Function', () => {
+				win = Ti.UI.createWindow({
+					backgroundColor: '#0000ff'
+				});
+
+				should(win).have.a.property('close').which.is.a.Function();
+			});
+
+			it('returns a Promise', finish => {
+				win = Ti.UI.createWindow({
+					backgroundColor: '#0000ff'
+				});
+
+				const openPromise = win.open();
+				openPromise.then(() => {
+					const result = win.close();
+					result.should.be.a.Promise();
+					// eslint-disable-next-line promise/no-nesting
+					return result.then(() => finish()).catch(e => finish(e));
+				}).catch(e => finish(e));
+			});
+
+			it('called on unopened Window rejects Promise', finish => {
+				win = Ti.UI.createWindow({
+					backgroundColor: '#0000ff'
+				});
+
+				const result = win.close();
+				result.should.be.a.Promise();
+				result.then(() => finish(new Error('Expected #close() to be rejected on unopened Window'))).catch(_e => finish());
+			});
+
+			it('called twice on Window rejects second Promise', finish => {
+				win = Ti.UI.createWindow({
+					backgroundColor: '#0000ff'
+				});
+
+				win.open().then(() => {
+					// eslint-disable-next-line promise/no-nesting
+					return win.close().then(() => {
+						// eslint-disable-next-line promise/no-nesting
+						return win.close().then(() => finish(new Error('Expected second #close() call on Window to be rejected'))).catch(() => finish());
+					}).catch(e => finish(e));
+				}).catch(e => finish(e));
+			});
+		});
+
+		describe('#open()', () => {
+			it('is a Function', () => {
+				win = Ti.UI.createWindow({
+					backgroundColor: '#0000ff'
+				});
+
+				should(win).have.a.property('open').which.is.a.Function();
+			});
+
+			it('returns a Promise', finish => {
+				win = Ti.UI.createWindow({
+					backgroundColor: '#0000ff'
+				});
+
+				const result = win.open();
+				result.should.be.a.Promise();
+				result.then(() => finish()).catch(e => finish(e));
+			});
+
+			it('called twice on same Window rejects second Promise', finish => {
+				win = Ti.UI.createWindow({
+					backgroundColor: '#0000ff'
+				});
+
+				const first = win.open();
+				first.should.be.a.Promise();
+				first.then(() => {
+					const second = win.open();
+					second.should.be.a.Promise();
+					// eslint-disable-next-line promise/no-nesting
+					return second.then(() => finish(new Error('Expected second #open() to be rejected'))).catch(() => finish());
+				}).catch(e => finish(e));
+			});
 		});
 
 		it('#remove(View)', function (finish) {
@@ -1114,7 +1193,7 @@ describe('Titanium.UI.Window', function () {
 		});
 		win.addEventListener('open', function openListener () {
 			win.removeEventListener('open', openListener);
-			setTimeout(() => win.close(), 1); // close it after we fail
+			setTimeout(() => win.close(), 1);
 			finish(new Error('Expected window to never open if we call open and then close immediately!'));
 		});
 		win.open();
@@ -1127,7 +1206,7 @@ describe('Titanium.UI.Window', function () {
 	});
 
 	it('TIMOB-28267 On removing event listener multiple times and adding once afterward, event should be fired', finish => {
-		const win = Ti.UI.createWindow({
+		win = Ti.UI.createWindow({
 			backgroundColor: '#0000ff'
 		});
 

@@ -33,8 +33,8 @@ describe('Titanium.UI.Tab', () => {
 				should(tab.activeTintColor).eql('blue');
 			});
 
-			it('has accessors', () => {
-				should(tab).have.accessors('activeTintColor');
+			it('has no accessors', () => {
+				should(tab).not.have.accessors('activeTintColor');
 			});
 		});
 
@@ -59,8 +59,8 @@ describe('Titanium.UI.Tab', () => {
 				should(tab.activeTitleColor).eql('blue');
 			});
 
-			it('has accessors', () => {
-				should(tab).have.accessors('activeTitleColor');
+			it('has no accessors', () => {
+				should(tab).not.have.accessors('activeTitleColor');
 			});
 		});
 
@@ -99,8 +99,8 @@ describe('Titanium.UI.Tab', () => {
 				should(tab.badge).eql(2);
 			});
 
-			it('has accessors', () => {
-				should(tab).have.accessors('badge');
+			it('has no accessors', () => {
+				should(tab).not.have.accessors('badge');
 			});
 		});
 
@@ -126,8 +126,8 @@ describe('Titanium.UI.Tab', () => {
 				should(tab.badgeColor).eql('blue');
 			});
 
-			it('has accessors', () => {
-				should(tab).have.accessors('badgeColor');
+			it('has no accessors', () => {
+				should(tab).not.have.accessors('badgeColor');
 			});
 		});
 
@@ -152,8 +152,8 @@ describe('Titanium.UI.Tab', () => {
 				should(tab.tintColor).eql('blue');
 			});
 
-			it('has accessors', () => {
-				should(tab).have.accessors('tintColor');
+			it('has no accessors', () => {
+				should(tab).not.have.accessors('tintColor');
 			});
 		});
 
@@ -178,8 +178,8 @@ describe('Titanium.UI.Tab', () => {
 				should(tab.title).eql('other text');
 			});
 
-			it('has accessors', () => {
-				should(tab).have.accessors('title');
+			it('has no accessors', () => {
+				should(tab).not.have.accessors('title');
 			});
 		});
 
@@ -209,8 +209,8 @@ describe('Titanium.UI.Tab', () => {
 				should(tab.title).eql('this is my value');
 			});
 
-			it('has accessors', () => {
-				should(tab).have.accessors('titleid');
+			it('has no accessors', () => {
+				should(tab).not.have.accessors('titleid');
 			});
 		});
 
@@ -235,8 +235,8 @@ describe('Titanium.UI.Tab', () => {
 				should(tab.titleColor).eql('blue');
 			});
 
-			it('has accessors', () => {
-				should(tab).have.accessors('titleColor');
+			it('has no accessors', () => {
+				should(tab).not.have.accessors('titleColor');
 			});
 		});
 	});

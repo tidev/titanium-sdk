@@ -30,7 +30,6 @@ import android.provider.CalendarContract.Instances;
 @Kroll.proxy(parentModule = CalendarModule.class, propertyAccessors = { TiC.PROPERTY_RECURRENCE_RULES })
 public class EventProxy extends KrollProxy
 {
-
 	public static final String TAG = "EventProxy";
 
 	public static final int STATUS_TENTATIVE = 0;
@@ -79,7 +78,7 @@ public class EventProxy extends KrollProxy
 	public static ArrayList<EventProxy> queryEventsBetweenDates(long date1, long date2, String query,
 																String[] queryArgs)
 	{
-		ArrayList<EventProxy> events = new ArrayList<EventProxy>();
+		ArrayList<EventProxy> events = new ArrayList<>();
 		if (!CalendarProxy.hasCalendarPermissions()) {
 			return events;
 		}
@@ -155,7 +154,7 @@ public class EventProxy extends KrollProxy
 
 	public static ArrayList<EventProxy> queryEvents(Uri uri, String query, String[] queryArgs, String orderBy)
 	{
-		ArrayList<EventProxy> events = new ArrayList<EventProxy>();
+		ArrayList<EventProxy> events = new ArrayList<>();
 		if (!CalendarProxy.hasCalendarPermissions()) {
 			return events;
 		}
@@ -335,12 +334,11 @@ public class EventProxy extends KrollProxy
 		return result;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public ReminderProxy[] getReminders()
 	{
 		ArrayList<ReminderProxy> reminders = ReminderProxy.getRemindersForEvent(this);
-		return reminders.toArray(new ReminderProxy[reminders.size()]);
+		return reminders.toArray(new ReminderProxy[0]);
 	}
 
 	@Kroll.method
@@ -361,12 +359,11 @@ public class EventProxy extends KrollProxy
 		return new RecurrenceRuleProxy(data);
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public AlertProxy[] getAlerts()
 	{
 		ArrayList<AlertProxy> alerts = AlertProxy.getAlertsForEvent(this);
-		return alerts.toArray(new AlertProxy[alerts.size()]);
+		return alerts.toArray(new AlertProxy[0]);
 	}
 
 	@Kroll.method
@@ -376,84 +373,72 @@ public class EventProxy extends KrollProxy
 		return AlertProxy.createAlert(this, minutes);
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getId()
 	{
 		return id;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getTitle()
 	{
 		return title;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getDescription()
 	{
 		return description;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getLocation()
 	{
 		return location;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public Date getBegin()
 	{
 		return begin;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public Date getEnd()
 	{
 		return end;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public boolean getAllDay()
 	{
 		return allDay;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public AttendeeProxy[] getAttendees()
 	{
 		return getAttendeeProxies();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public boolean getHasAlarm()
 	{
 		return hasAlarm;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public boolean getHasExtendedProperties()
 	{
 		return hasExtendedProperties;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public int getStatus()
 	{
 		return status;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public int getVisibility()
 	{
@@ -469,35 +454,30 @@ public class EventProxy extends KrollProxy
 		setProperty(TiC.PROPERTY_RECURRENCE_RULES, result);
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getRecurrenceDate()
 	{
 		return recurrenceDate;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getRecurrenceExceptionRule()
 	{
 		return recurrenceExceptionRule;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getRecurrenceExceptionDate()
 	{
 		return recurrenceExceptionDate;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public Date getLastDate()
 	{
 		return lastDate;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public KrollDict getExtendedProperties()
 	{

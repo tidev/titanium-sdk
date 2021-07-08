@@ -199,6 +199,7 @@ description: |
 
 extends: Titanium.Module
 since: "0.1"
+platforms: [android, iphone, ipad, macos]
 methods:
   - name: forwardGeocoder
     summary: Resolves an address to a location.
@@ -215,15 +216,19 @@ methods:
     returns:
       summary: On SDK 10+, this method will return a `Promise` whose resolved value is equivalent to that passed to the optional callback argument.
       type: Promise<ForwardGeocodeResponse>
-    platforms: [android, iphone, ipad, macos]
 
   - name: getCurrentHeading
     summary: Retrieves the current compass heading.
     parameters:
       - name: callback
-        summary: Function to invoke on success or failure of obtaining the current heading.
+        summary: |
+            Function to invoke on success or failure of obtaining the current heading.
+            Optional on SDK 10, as this method will return a `Promise`, which may be used to handle the result.
         type: Callback<HeadingResponse>
-    platforms: [android, iphone, ipad, macos]
+        optional: true
+    returns:
+      summary: On SDK 10+, this method will return a `Promise` whose resolved value is equivalent to that passed to the optional callback argument.
+      type: Promise<HeadingResponse>
 
   - name: getCurrentPosition
     summary: Retrieves the last known location from the device.
@@ -234,9 +239,14 @@ methods:
         On iOS the radios **may** be used if the location is too "old".
     parameters:
       - name: callback
-        summary: Function to invoke on success or failure of obtaining the current location.
+        summary: |
+            Function to invoke on success or failure of obtaining the current location.
+            Optional on SDK 10, as this method will return a `Promise`, which may be used to handle the result.
         type: Callback<LocationResults>
-    platforms: [android, iphone, ipad, macos]
+        optional: true
+    returns:
+      summary: On SDK 10+, this method will return a `Promise` whose resolved value is equivalent to that passed to the optional callback argument.
+      type: Promise<LocationResults>
 
   - name: hasLocationPermissions
     summary: Returns `true` if the app has location access.
@@ -247,7 +257,6 @@ methods:
         type: Number
     returns:
         type: Boolean
-    platforms: [iphone, ipad, android, macos]
     since: "5.1.0"
 
   - name: requestLocationPermissions
@@ -291,7 +300,6 @@ methods:
     returns:
       summary: On SDK 10+, this method will return a `Promise` whose resolved value is equivalent to that passed to the optional callback argument.
       type: Promise<LocationAuthorizationResponse>
-    platforms: [iphone, ipad, android, macos]
     since: "5.1.0"
 
   - name: requestTemporaryFullAccuracyAuthorization
@@ -375,7 +383,6 @@ methods:
     returns:
       summary: On SDK 10+, this method will return a `Promise` whose resolved value is equivalent to that passed to the optional callback argument.
       type: Promise<ReverseGeocodeResponse>
-    platforms: [android, iphone, ipad, macos]
 
 events:
   - name: calibration
@@ -390,17 +397,14 @@ events:
       - name: code
         summary: If `success` is `false`, the error code is available.
         type: Number
-        platforms: [android, iphone, ipad, macos]
 
       - name: success
         summary: Indicate if the heading event was successfully received. Android returns this since SDK 7.5.0.
         type: Boolean
-        platforms: [android, iphone, ipad, macos]
 
       - name: error
         summary: If `success` is false, a string describing the error.
         type: String
-        platforms: [android, iphone, ipad, macos]
 
       - name: heading
         summary: Dictionary object containing the heading data.
@@ -409,7 +413,6 @@ events:
   - name: location
     summary: Fired when a location update is received.
     properties:
-
       - name: code
         summary: if `success` is false, the error code if available.
         type: Number
@@ -465,7 +468,6 @@ events:
     since: "3.4.0"
 
 properties:
-
   - name: ACCURACY_BEST
     summary: |
         Use with [accuracy](Titanium.Geolocation.accuracy) to request the best
@@ -532,7 +534,6 @@ properties:
         Using this value on Android enables *simple mode* operation.
     type: Number
     permission: read-only
-    platforms: [android, iphone, ipad, macos]
     since: "2.0.0"
 
   - name: ACCURACY_BEST_FOR_NAVIGATION
@@ -556,7 +557,6 @@ properties:
         Using this value on Android enables *simple mode* operation.
     type: Number
     permission: read-only
-    platforms: [android, iphone, ipad, macos]
     since: "2.0.0"
 
   - name: ACCURACY_REDUCED
@@ -771,6 +771,7 @@ properties:
   - name: frequency
     deprecated:
         since: "2.0.0"
+        removed: "8.0.0"
         notes: |
             Android legacy mode operation is deprecated. For new development, use
             either simple mode or manual mode. See "Configurating Location Updates on Android"
@@ -784,12 +785,12 @@ properties:
          A lower frequency value generally increases power consumption.
         A value of 0 means that updates should be generated as quickly as possible.
     type: Number
+    platforms: [android]
 
   - name: hasCompass
     summary: Indicates whether the current device supports a compass.
     type: Boolean
     permission: read-only
-    platforms: [android, iphone, ipad, macos]
 
   - name: headingFilter
     summary: Minimum heading change (in degrees) before a `heading` event is fired.
@@ -823,6 +824,7 @@ properties:
   - name: preferredProvider
     deprecated:
         since: "2.0.0"
+        removed: "8.0.0"
         notes: |
             Android legacy mode operation is deprecated. For new development, use
             either simple mode or manual mode. See "Configurating Location Updates on Android"
@@ -956,7 +958,6 @@ properties:
     type: String
     since: "3.1.2"
     permission: read-only
-    platforms: [android, iphone, ipad, macos]
 
 ---
 name: LocationResults
@@ -1053,19 +1054,17 @@ summary: |
 
     Note that Android includes a number of extra fields.
 extends: ErrorResponse
+platforms: [android, iphone, ipad, macos]
 properties:
-
   - name: success
     summary: Indicates if the operation succeeded.
     description: Returns `true` if request succeeded, `false` otherwise.
     type: Boolean
-    platforms: [android, iphone, ipad, macos]
 
   - name: error
     summary: Error message, if any returned.
     description: Will be undefined if `success` is `true`.
     type: String
-    platforms: [android, iphone, ipad, macos]
 
   - name: code
     summary: Error code. Returns 0 if `success` is `true`.
@@ -1075,8 +1074,7 @@ properties:
         Otherwise, this value will be -1.
     type: Number
     since: { android: "3.1.0", iphone: "3.1.0", ipad: "3.1.0" }
-    platforms: [android, iphone, ipad, macos]
-
+    
   - name: accuracy
     summary: Estimated accuracy of the geocoding, in meters.
     type: Number
@@ -1085,12 +1083,10 @@ properties:
   - name: longitude
     summary: Longitude of the geocoded address.
     type: String
-    platforms: [android, iphone, ipad, macos]
 
   - name: latitude
     summary: Latitude of the geocoded address.
     type: String
-    platforms: [android, iphone, ipad, macos]
 
   - name: street
     summary: Street name, without street address.
@@ -1153,7 +1149,6 @@ summary: |
     Argument passed to the [getCurrentHeading](Titanium.Geolocation.getCurrentHeading) callback.
 extends: ErrorResponse
 properties:
-
   - name: success
     summary: Indicates a successful operation.
     description: Returns `true` if request succeeded, `false` otherwise.
@@ -1182,8 +1177,8 @@ properties:
 ---
 name: HeadingData
 summary: Simple object holding compass heading data.
+platforms: [iphone, ipad, android, macos]
 properties:
-
   - name: accuracy
     summary: Accuracy of the compass heading, in platform-specific units.
     description: |
@@ -1213,7 +1208,6 @@ properties:
         On Android, `trueHeading` is `undefined` if a recent location fix is not available.
 
     type: Number
-    platforms: [android, iphone, ipad, macos]
 
   - name: timestamp
     summary: Timestamp for the heading data, in milliseconds.
@@ -1222,17 +1216,14 @@ properties:
   - name: x
     summary: Raw geomagnetic data for the X axis.
     type: Number
-    platforms: [iphone, ipad, android, macos]
 
   - name: y
     summary: Raw geomagnetic data for the Y axis.
     type: Number
-    platforms: [iphone, ipad, android, macos]
 
   - name: z
     summary: Raw geomagnetic data for the Z axis.
     type: Number
-    platforms: [iphone, ipad, android, macos]
 
 ---
 name: LocationProviderDict
@@ -1248,7 +1239,6 @@ description: |
     high power requirements will use more battery power than a provider with low power
     requirements.
 properties:
-
   - name: accuracy
     summary: |
         Accuracy of the location provider, either fine (1) or coarse (2).
@@ -1270,7 +1260,6 @@ summary: |
     [reverseGeocoder](Titanium.Geolocation.reverseGeocoder) method.
 extends: ErrorResponse
 properties:
-
   - name: places
     summary: An array of reverse-geocoded addresses matching the requested location.
     type: Array<GeocodedAddress>
@@ -1295,11 +1284,11 @@ name: GeocodedAddress
 summary: |
     Simple object representing a place, returned in the callback from the
     [reverseGeocoder](Titanium.Geolocation.reverseGeocoder) method.
+platforms: [android, iphone, ipad, macos]
 properties:
   - name: street
     summary: Street name, without street address.
     type: String
-    platforms: [android, iphone, ipad, macos]
 
   - name: street1
     summary: Street name.
@@ -1309,7 +1298,6 @@ properties:
   - name: city
     summary: City name.
     type: String
-    platforms: [android, iphone, ipad, macos]
 
   - name: region1
     summary: First line of region.
@@ -1324,7 +1312,12 @@ properties:
   - name: postalCode
     summary: Postal code
     type: String
-    platforms: [android, iphone, ipad, macos]
+
+  - name: state
+    summary: State name.
+    description: |
+        This property may return the full name or abbreviated name.
+    type: String
 
   - name: zipcode
     summary: Postal code. To be replaced by `postalCode`
@@ -1338,12 +1331,10 @@ properties:
   - name: country
     summary: Country name.
     type: String
-    platforms: [android, iphone, ipad, macos]
 
   - name: countryCode
     summary: Country code.
     type: String
-    platforms: [android, iphone, ipad, macos]
 
   - name: country_code
     summary: Country code. To be replaced by `countryCode`.
@@ -1357,12 +1348,10 @@ properties:
   - name: longitude
     summary: Longitude of the geocoded point.
     type: Number
-    platforms: [android, iphone, ipad, macos]
 
   - name: latitude
     summary: Latitude of the geocoded point.
     type: Number
-    platforms: [android, iphone, ipad, macos]
 
   - name: displayAddress
     summary: Display address. Identical to `address`.
@@ -1376,7 +1365,6 @@ properties:
   - name: address
     summary: Full address.
     type: String
-    platforms: [android, iphone, ipad, macos]
 
 ---
 name: LocationAuthorizationResponse

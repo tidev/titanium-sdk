@@ -20,6 +20,8 @@ import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.RectShape;
+import android.os.Handler;
+import android.os.SystemClock;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -47,8 +49,8 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 {
 	private static final String TAG = "TiTableView";
 
-	private static final int CACHE_SIZE = 8;
-	private static final int PRELOAD_SIZE = CACHE_SIZE / 2;
+	private static final int CACHE_SIZE = 32;
+	private static final int PRELOAD_INTERVAL = 800;
 
 	private final TableViewAdapter adapter;
 	private final DividerItemDecoration decoration;
@@ -162,7 +164,10 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 				@Override
 				public Object getKey(int position)
 				{
-					return rows.get(position);
+					if (position > -1 && position < rows.size()) {
+						return rows.get(position);
+					}
+					return null;
 				}
 
 				@Override
@@ -192,7 +197,12 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 							@Override
 							public Object getSelectionKey()
 							{
-								return rows.get(getPosition());
+								final int position = getPosition();
+
+								if (position > -1 && position < rows.size()) {
+									return rows.get(position);
+								}
+								return null;
 							}
 						};
 					}
@@ -430,6 +440,7 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 		final boolean filterAnchored = properties.optBoolean(TiC.PROPERTY_FILTER_ANCHORED, false);
 		final String filterAttribute = properties.optString(TiC.PROPERTY_FILTER_ATTRIBUTE, TiC.PROPERTY_TITLE);
 		int filterResultsCount = 0;
+		int index = 0;
 
 		String query = this.filterQuery;
 		if (query != null && caseInsensitive) {
@@ -456,6 +467,7 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 		// Iterate through data, processing each supported entry.
 		for (final Object entry : this.proxy.getData()) {
 
+			int filteredIndex = 0;
 			if (entry instanceof TableViewSectionProxy) {
 				final TableViewSectionProxy section = (TableViewSectionProxy) entry;
 				final TableViewRowProxy[] rows = section.getRows();
@@ -468,10 +480,11 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 					this.rows.add(row);
 				}
 
-				int index = 0;
-				int filteredIndex = 0;
 				for (int i = 0; i < rows.length; i++) {
 					final TableViewRowProxy row = rows[i];
+
+					// Maintain true row index.
+					row.index = index++;
 
 					// Handle search query.
 					if (query != null) {
@@ -492,7 +505,6 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 					// Update filtered index of row.
 					row.setFilteredIndex(query != null ? filteredIndex++ : -1);
 
-					row.index = index++;
 					this.rows.add(row);
 				}
 				filterResultsCount += filteredIndex;
@@ -519,13 +531,35 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 			this.proxy.fireEvent(TiC.EVENT_NO_RESULTS, null);
 		}
 
+		// Pre-load items of empty list.
 		if (shouldPreload) {
-			final int preloadSize = Math.min(this.rows.size(), PRELOAD_SIZE);
+			final Handler handler = new Handler();
+			final long startTime = SystemClock.elapsedRealtime();
 
-			for (int i = 0; i < preloadSize; i++) {
+			for (int i = 0; i < Math.min(this.rows.size(), PRELOAD_INTERVAL / 8); i++) {
+				final TableViewRowProxy row = this.rows.get(i);
 
-				// Pre-load views for smooth initial scroll.
-				this.rows.get(i).getOrCreateView();
+				// Fill event queue with pre-load attempts.
+				handler.postDelayed(new Runnable()
+				{
+					@Override
+					public void run()
+					{
+						final long currentTime = SystemClock.elapsedRealtime();
+						final long delta = currentTime - startTime;
+
+						// Only pre-load views for a maximum period of time.
+						// This prevents over-taxing older devices.
+						if (delta <= PRELOAD_INTERVAL
+							&& recyclerView.getLastTouchX() == 0
+							&& recyclerView.getLastTouchY() == 0) {
+
+							// While there is no user interaction;
+							// pre-load views for smooth initial scroll.
+							row.getOrCreateView();
+						}
+					}
+				}, 8); // Pre-load at 120Hz to prevent noticeable UI blocking.
 			}
 		}
 

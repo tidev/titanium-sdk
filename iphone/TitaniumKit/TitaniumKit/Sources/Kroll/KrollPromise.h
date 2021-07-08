@@ -13,17 +13,22 @@
   @private
   JSValue *resolveFunc;
   JSValue *rejectFunc;
+  BOOL _fulfilled;
+  BOOL _flushMe;
 }
 
-@property (readonly) JSValue *JSValue;
+@property (readonly, nonatomic) JSValue *JSValue;
 
 - (void)resolve:(NSArray *)arguments;
 - (void)reject:(NSArray *)arguments;
+- (void)rejectWithErrorMessage:(NSString *)message;
+- (void)flush;
 
 - (KrollPromise *)initInContext:(JSContext *)context;
 
-+ (JSValue *)resolved:(NSArray *)arguments inContext:(JSContext *)context;
-+ (JSValue *)rejected:(NSArray *)arguments inContext:(JSContext *)context;
++ (KrollPromise *)resolved:(NSArray *)arguments inContext:(JSContext *)context;
++ (KrollPromise *)rejected:(NSArray *)arguments inContext:(JSContext *)context;
++ (KrollPromise *)rejectedWithErrorMessage:(NSString *)message inContext:(JSContext *)context;
 
 @end
 

@@ -60,7 +60,7 @@
 
 - (NSNumber *)muted;
 
-- (void)externalPlaybackActive;
+- (NSNumber *)externalPlaybackActive;
 
 - (NSNumber *)bufferSize;
 

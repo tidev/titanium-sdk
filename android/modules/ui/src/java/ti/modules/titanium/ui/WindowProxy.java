@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2013 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2013-2021 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -11,6 +11,7 @@ import java.lang.ref.WeakReference;
 import java.util.HashMap;
 
 import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollPromise;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiActivity;
@@ -105,7 +106,7 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 	}
 
 	@Override
-	public void open(@Kroll.argument(optional = true) Object arg)
+	public KrollPromise<Void> open(@Kroll.argument(optional = true) Object arg)
 	{
 		HashMap<String, Object> option = null;
 		if (arg instanceof HashMap) {
@@ -127,16 +128,7 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 		properties.remove(TiC.PROPERTY_BOTTOM);
 		properties.remove(TiC.PROPERTY_LEFT);
 		properties.remove(TiC.PROPERTY_RIGHT);
-		super.open(arg);
-	}
-
-	@Override
-	public void close(@Kroll.argument(optional = true) Object arg)
-	{
-		if (!(opened || opening)) {
-			return;
-		}
-		super.close(arg);
+		return super.open(arg);
 	}
 
 	@Override
@@ -225,7 +217,7 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 	@Override
 	public void windowCreated(TiBaseActivity activity, Bundle savedInstanceState)
 	{
-		windowActivity = new WeakReference<TiBaseActivity>(activity);
+		windowActivity = new WeakReference<>(activity);
 		activity.setWindowProxy(this);
 		setActivity(activity);
 
@@ -419,7 +411,6 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 		super.onPropertyChanged(name, value);
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setSustainedPerformanceMode(boolean mode)
 	{
@@ -430,7 +421,6 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 		}
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public boolean getSustainedPerformanceMode()
 	{
@@ -439,7 +429,6 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 
 	@Override
 	@Kroll.setProperty(retain = false)
-	@Kroll.method
 	public void setWidth(Object width)
 	{
 		if (opening || opened) {
@@ -454,7 +443,6 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 
 	@Override
 	@Kroll.setProperty(retain = false)
-	@Kroll.method
 	public void setHeight(Object height)
 	{
 		if (opening || opened) {

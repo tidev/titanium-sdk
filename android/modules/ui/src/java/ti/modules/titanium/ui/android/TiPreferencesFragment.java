@@ -1,3 +1,9 @@
+/**
+ * Appcelerator Titanium Mobile
+ * Copyright (c) 2011-2021 by Axway, Inc. All Rights Reserved.
+ * Licensed under the terms of the Apache Public License
+ * Please see the LICENSE included with this distribution for details.
+ */
 package ti.modules.titanium.ui.android;
 
 import org.appcelerator.kroll.common.Log;
@@ -9,7 +15,6 @@ import android.preference.PreferenceFragment;
 
 public class TiPreferencesFragment extends PreferenceFragment
 {
-
 	private static final String TAG = "TiPreferencesFragment";
 	private CharSequence title = null;
 
@@ -31,11 +36,9 @@ public class TiPreferencesFragment extends PreferenceFragment
 				}
 			} else {
 				Log.e(TAG, "xml." + prefsName + " preferences not found.");
-				return;
 			}
 		} catch (TiRHelper.ResourceNotFoundException e) {
 			Log.e(TAG, "Error loading preferences: " + e.getMessage());
-			return;
 		}
 	}
 

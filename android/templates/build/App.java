@@ -41,7 +41,6 @@ public final class <%= classname %>Application extends TiApplication
 		KrollAssetCache.init(this);
 
 		super.onCreate();
-		postAppInfo();
 
 		V8Runtime runtime = new V8Runtime();
 
@@ -83,7 +82,7 @@ public final class <%= classname %>Application extends TiApplication
 <% }); %>
 
 		KrollRuntime.init(this, runtime);
-
+		postAppInfo();
 		postOnCreate();
 
 <% if (customModules.length) { %>
@@ -134,9 +133,6 @@ public final class <%= classname %>Application extends TiApplication
 	@Override
 	public void verifyCustomModules(TiRootActivity rootActivity)
 	{
-<% if (deployType != 'production') { %>
-		org.appcelerator.titanium.TiVerify verify = new org.appcelerator.titanium.TiVerify(rootActivity, this);
-		verify.verify();
-<% } %>
+		// This method is needed by the "appc" CLI.
 	}
 }
