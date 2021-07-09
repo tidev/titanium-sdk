@@ -79,6 +79,59 @@ void V8Util::objectExtend(Isolate* isolate, Local<Object> dest, Local<Object> sr
 	}
 }
 
+PropertyDescriptor* V8Util::objectToDescriptor(Local<Context> context, Local<Object> descriptorObject)
+{
+	Isolate* isolate = context->GetIsolate();
+	PropertyDescriptor* descriptor = nullptr;
+
+	if (!descriptorObject.IsEmpty()) {
+		MaybeLocal<Value> value = descriptorObject->GetRealNamedProperty(context, STRING_NEW(isolate, "value"));
+		MaybeLocal<Value> writable = descriptorObject->GetRealNamedProperty(context, STRING_NEW(isolate, "writable"));
+		MaybeLocal<Value> get = descriptorObject->GetRealNamedProperty(context, STRING_NEW(isolate, "get"));
+		MaybeLocal<Value> set = descriptorObject->GetRealNamedProperty(context, STRING_NEW(isolate, "set"));
+		MaybeLocal<Value> configurable = descriptorObject->GetRealNamedProperty(context, STRING_NEW(isolate, "configurable"));
+		MaybeLocal<Value> enumerable = descriptorObject->GetRealNamedProperty(context, STRING_NEW(isolate, "enumerable"));
+
+		if (!value.IsEmpty()) {
+			Local<Value> valueValue = value.ToLocalChecked();
+
+			if (writable.IsEmpty()) {
+				descriptor = new PropertyDescriptor(valueValue);
+			} else {
+				Local<Value> writableValue = writable.ToLocalChecked();
+
+				if (writableValue->IsBoolean()) {
+					descriptor = new PropertyDescriptor(valueValue, writableValue.As<Boolean>()->Value());
+				}
+			}
+
+		} else if (!get.IsEmpty()) {
+			Local<Value> getValue = get.ToLocalChecked();
+			Local<Value> setValue = set.IsEmpty() ? Undefined(isolate).As<Value>() : set.ToLocalChecked();
+
+			descriptor = new PropertyDescriptor(getValue, setValue);
+		}
+		if (descriptor != nullptr) {
+			if (!configurable.IsEmpty()) {
+				Local<Value> configurableValue = configurable.ToLocalChecked();
+
+				if (configurableValue->IsBoolean()) {
+					descriptor->set_configurable(configurableValue.As<Boolean>()->Value());
+				}
+			}
+			if (!enumerable.IsEmpty()) {
+				Local<Value> enumerableValue = enumerable.ToLocalChecked();
+
+				if (enumerableValue->IsBoolean()) {
+					descriptor->set_enumerable(enumerableValue.As<Boolean>()->Value());
+				}
+			}
+		}
+	}
+
+	return descriptor;
+}
+
 #define EXC_TAG "V8Exception"
 
 void V8Util::reportException(Isolate* isolate, TryCatch &tryCatch, bool showLine)

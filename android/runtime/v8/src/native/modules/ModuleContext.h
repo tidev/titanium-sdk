@@ -11,10 +11,27 @@ namespace titanium {
 	using namespace v8;
 
 	class ModuleContext {
-		public:
+	public:
+			enum EmbedderIndex {
+				kReference = 0,
+				kData = 1
+			};
+			enum DataIndex {
+				kHandlersEnabled = 0,
+				kParentGlobal = 1,
+				kExtensions = 2
+			};
+
+			static void CopyPrototypes(Local<Context> sourceContext, Local<Context> destinationContext);
 			static Local<Context> New(Local<Context> context, Local<Object> extensions = Local<Object>());
 
 		private:
+			static Persistent<String> PROTOTYPE_STRING;
+			static Persistent<Set, CopyablePersistentTraits<Set>> BUILTINS;
+
+			static Local<Object> GetPrototype(Local<Context> context, Local<Object> object);
+			static bool SetHandlersEnabled(Local<Context> context, bool enabled);
+
 			static void GetterCallback(Local<Name> property, const PropertyCallbackInfo<Value>& info);
 			static void SetterCallback(Local<Name> property, Local<Value> value, const PropertyCallbackInfo<Value>& info);
 			static void QueryCallback(Local<Name> property, const PropertyCallbackInfo<Integer>& info);

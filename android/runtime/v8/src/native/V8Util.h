@@ -158,6 +158,7 @@ public:
 	static v8::Local<v8::Value> executeString(v8::Isolate* isolate, v8::Local<v8::String> source, v8::Local<v8::Value> filename);
 	static void objectExtend(v8::Local<v8::Object> dest, v8::Local<v8::Object> src); // TODO: Remove when we do a breaking change!
 	static void objectExtend(v8::Isolate* isolate, v8::Local<v8::Object> dest, v8::Local<v8::Object> src);
+	static v8::PropertyDescriptor* objectToDescriptor(v8::Local<v8::Context> context, v8::Local<v8::Object> descriptor);
 	static void reportException(v8::Isolate* isolate, v8::TryCatch &tryCatch, bool showLine = true);
 	static void openJSErrorDialog(v8::Isolate* isolate, v8::TryCatch &tryCatch);
 	static void fatalException(v8::Isolate* isolate, v8::TryCatch &tryCatch);
