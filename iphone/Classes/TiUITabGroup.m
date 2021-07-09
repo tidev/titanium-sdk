@@ -42,6 +42,12 @@ DEFINE_EXCEPTIONS
     controller.delegate = self;
     controller.moreNavigationController.delegate = self;
     [TiUtils configureController:controller withObject:self.proxy];
+    if ([TiUtils isIOSVersionOrGreater:@"15.0"]) {
+      UITabBarAppearance *appearance = controller.tabBar.standardAppearance;
+      [appearance configureWithDefaultBackground];
+      appearance.backgroundColor = UIColor.clearColor;
+      controller.tabBar.scrollEdgeAppearance = appearance;
+    }
   }
   return controller;
 }
@@ -365,6 +371,10 @@ DEFINE_EXCEPTIONS
   UITabBar *tabBar = [controller tabBar];
   //A nil tintColor is fine, too.
   [tabBar setBarTintColor:[color color]];
+  if ([TiUtils isIOSVersionOrGreater:@"15.0"]) {
+    tabBar.standardAppearance.backgroundColor = [color color];
+    tabBar.scrollEdgeAppearance.backgroundColor = [color color];
+  }
 }
 
 - (void)setTabsTintColor_:(id)value
