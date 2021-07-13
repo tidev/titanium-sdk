@@ -63,6 +63,16 @@ public class ScrollableViewProxy extends TiViewProxy
 	}
 
 	@Override
+	public void handleCreationDict(KrollDict properties)
+	{
+		super.handleCreationDict(properties);
+
+		if (properties.containsKey(TiC.PROPERTY_VIEWS)) {
+			setViews(properties.get(TiC.PROPERTY_VIEWS));
+		}
+	}
+
+	@Override
 	public TiUIView createView(Activity activity)
 	{
 		this.scrollableView = new TiUIScrollableView(this);
