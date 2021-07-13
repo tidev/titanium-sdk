@@ -399,10 +399,8 @@ class InspectFrameworksTask extends IncrementalFileTask {
 			const metadata = await fs.readJSON(this._metadataPathAndFilename);
 			for (const frameworkPath of Object.keys(metadata)) {
 				const frameworkMetadata = metadata[frameworkPath];
-				this._frameworks.set(frameworkMetadata.name, new FrameworkInfo({
-					...frameworkMetadata,
-					architectures: new Set(frameworkMetadata.architectures)
-				}));
+				frameworkMetadata.architectures = new Set(frameworkMetadata.architectures);
+				this._frameworks.set(frameworkMetadata.name, new FrameworkInfo(frameworkMetadata));
 			}
 			return true;
 		} catch (e) {
