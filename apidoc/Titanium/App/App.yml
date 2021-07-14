@@ -466,6 +466,9 @@ methods:
     platforms: [iphone, ipad, macos]
     returns:
         type: launchOptions
+    deprecated:
+      since: "10.0.0"
+      notes: Use the <Titanium.App.arguments> property instead
 
 properties:
   - name: EVENT_ACCESSIBILITY_ANNOUNCEMENT
@@ -636,6 +639,18 @@ properties:
     accessors: false
     platforms: [iphone, ipad, macos]
     since: {iphone: "7.5.0", ipad: "7.5.0", macos: "9.2.0"}
+
+  - name: arguments
+    summary: The arguments passed to the application on startup.
+    description : |
+        On Android, fetch the [Ti.Android.rootActivity](Titanium.Android.rootActivity) object and
+        read its [intent](Titanium.Android.Activity.intent) property to retrieve the parameters used
+        to launch the application activity. Note that this [intent](Titanium.Android.Activity.intent)
+        will change when a "[newintent](Titanium.Android.Activity.newintent)" event has been fired.
+    platforms: [iphone, ipad, macos]
+    since: {iphone: "10.0.1", ipad: "10.0.1", macos: "10.0.1"}
+    type: launchOptions
+
 
 ---
 name: launchOptions
