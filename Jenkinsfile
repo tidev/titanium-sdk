@@ -336,7 +336,7 @@ timestamps {
 								buildCommand += ' -- --all'
 							}
 							try {
-								withEnv(["JAVA_HOME=${tool name:'OpenJDK 11.0.11+9', type: jdk}"]) {
+								withEnv(["JAVA_HOME=${tool name:'OpenJDK 11.0.11+9', type: 'jdk'}"]) {
 									sh label: 'build', script: buildCommand
 								}
 							} finally {
