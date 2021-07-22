@@ -1,0 +1,122 @@
+---
+name: Titanium.UI.BottomSheet
+summary: A slideable/dragable view attached at the bottom.
+description: |
+
+    A view that is attached to the bottom that can be dragged up by the user.
+
+    Use the <Titanium.UI.createBottomSheet> method or **`<BottomSheet>`** Alloy element to create a slider.
+
+    #### Android Platform Implementation Notes
+
+    It will use the Android BottomSheet: https://material.io/components/sheets-bottom/android
+
+extends: Titanium.UI.View
+since: "10.1.0"
+examples:
+  - title: BottomSheet example
+    example: |
+        The following example will create a simple BottomSheet ad some items to it and attach events.
+
+        ``` js
+        var win = Ti.UI.createWindow({
+        	backgroundColor: '#eee'
+        });
+        var bottomSheet = Ti.UI.createBottomSheet({
+        	bottom: 0,
+        	width: Ti.UI.FILL,
+        	height: Ti.UI.SIZE,
+        	peakHeight: 32,
+        	backgroundColor: "#fff"
+        });
+        bottomSheet.addEventListener("stateChanged", function(e) {
+        	console.log("New state: " + e.state);
+        })
+        win.add(bottomSheet);
+
+        var view = Ti.UI.createView({
+        	backgroundColor:"#fff",
+        	width: Ti.UI.FILL,
+        	height: Ti.UI.SIZE,
+        	layout: "vertical",
+        });
+        var img = Ti.UI.createImageView({
+        	image: "/appicon.png",
+        	width: 100,
+        	height: 100
+        });
+        var lbl = Ti.UI.createLabel({
+        	text: "Custom label text\nCustom label text\nCustom label text",
+        	color: "#000"
+        });
+        view.add(img);
+        view.add(lbl);
+        bottomSheet.add(view);
+
+        var btn_toggle = Ti.UI.createButton({
+        	top: 5,
+        	title: "toggle bottomsheet"
+        });
+        btn_toggle.addEventListener("click", function() {
+        	bottomSheet.toggle();
+        })
+        win.add(btn_toggle);
+
+        var btn_fullheight = Ti.UI.createButton({
+        	top: 50,
+        	title: "full height"
+        });
+        btn_fullheight.addEventListener("click", function() {
+        	bottomSheet.height = Ti.UI.FILL;
+        	bottomSheet.expand();
+        })
+        win.add(btn_fullheight);
+
+        var btn_collapse = Ti.UI.createButton({
+        	top: 100,
+        	title: "collapse"
+        });
+        btn_collapse.addEventListener("click", function() {
+        	bottomSheet.height = Ti.UI.SIZE;
+        	bottomSheet.collapse();
+        })
+        win.add(btn_collapse);
+
+        win.open();
+        ```
+
+  - title: Alloy XML Markup
+    example: |
+        index.xml:
+
+        ``` xml
+        <Alloy>
+            <Window id="window" backgroundColor="white">
+                <BottomSheet id="bottomSheet" peakHeight="32"/>
+            </Window>
+        </Alloy>
+        ```
+
+methods:
+  - name: collapse
+    summary: Minimizes the BottomSheet to the peakHeight
+    platforms: [android]
+
+  - name: expand
+    summary: Extends the BottomSheet to the heighest level.
+    platforms: [android]
+
+events:
+  - name: stateChanged
+    summary: Fired when the state of the BottomSheet changes.
+    properties:
+
+      - name: state
+        summary: State of the BottomSheet.
+        type: Number
+
+properties:
+  - name: peakHeight
+    summary: The height of the BottomSheet when it is collapsed.
+    type: Number
+    platforms: [android]
