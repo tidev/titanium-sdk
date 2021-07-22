@@ -6641,7 +6641,12 @@ iOSBuilder.prototype.processTiSymbols = function processTiSymbols() {
 		if (parts.length) {
 			namespaces[parts[0].toLowerCase()] = 1;
 			while (parts.length) {
-				symbols[parts.join('.').replace(/\.create/gi, '').replace(/\./g, '').replace(/-/g, '_').toUpperCase()] = 1;
+				const value = parts.join('.').replace(/\.create/gi, '').replace(/\./g, '').replace(/-/g, '_').toUpperCase();
+				// Ignore any value that is not a single uppercased word, this is most likely an
+				// invalid detection by the babel plugin that collects the symbols used
+				if (/^\w+$/.test(value)) {
+					symbols[value] = 1;
+				}
 				parts.pop();
 			}
 		}
