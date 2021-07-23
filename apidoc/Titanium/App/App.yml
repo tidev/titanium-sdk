@@ -468,7 +468,6 @@ methods:
         type: launchOptions
     deprecated:
       since: "10.0.0"
-      removed: "10.0.0"
       notes: Use the <Titanium.App.arguments> property instead
 
 properties:
@@ -649,6 +648,7 @@ properties:
         to launch the application activity. Note that this [intent](Titanium.Android.Activity.intent)
         will change when a "[newintent](Titanium.Android.Activity.newintent)" event has been fired.
     platforms: [iphone, ipad, macos]
+    since: {iphone: "10.0.1", ipad: "10.0.1", macos: "10.0.1"}
     type: launchOptions
 
 
