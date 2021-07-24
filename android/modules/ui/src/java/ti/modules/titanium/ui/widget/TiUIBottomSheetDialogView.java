@@ -41,7 +41,8 @@ public class TiUIBottomSheetDialogView extends TiUIView
 	int peakHeight = 32;
 	BottomSheetDialog dialog;
 	float density = TiApplication.getInstance().getResources().getDisplayMetrics().density;
-	int cancelable = -1;
+	int destructive = -1;
+	boolean cancelable = false;
 
 	public TiUIBottomSheetDialogView(TiViewProxy proxy)
 	{
@@ -52,8 +53,7 @@ public class TiUIBottomSheetDialogView extends TiUIView
 		}
 	}
 
-	@Override
-	public void add(TiUIView child)
+	private void addViews(TiUIView child)
 	{
 		View view = getNativeView(child.getProxy());
 		Object width = child.getProxy().getProperty(TiC.PROPERTY_WIDTH);
@@ -122,14 +122,26 @@ public class TiUIBottomSheetDialogView extends TiUIView
 			} else {
 				tf.setTextColor(Color.BLACK);
 			}
+
+			if (destructive > -1) {
+				tf.setTextColor(Color.RED);
+			}
 			int paddingValue = (int) (15 * density);
 			tf.setPadding(paddingValue, paddingValue, paddingValue, paddingValue);
 			tf.setTextSize(20);
 			bsLayout.addView(tf);
 		}
 
-		if (d.containsKeyAndNotNull(TiC.PROPERTY_OPTIONS)) {
+		if (d.containsKeyAndNotNull(TiC.PROPERTY_CANCELABLE)) {
+			cancelable = d.getBoolean(TiC.PROPERTY_CANCELABLE);
+		}
 
+		if (d.containsKeyAndNotNull("destructive")) {
+			destructive = d.getInt("destructive");
+		}
+
+		if (d.containsKeyAndNotNull(TiC.PROPERTY_OPTIONS)) {
+			// display options
 			String[] options = d.getStringArray(TiC.PROPERTY_OPTIONS);
 
 			for (int i = 0, len = options.length; i < len; i++) {
@@ -152,19 +164,48 @@ public class TiUIBottomSheetDialogView extends TiUIView
 					{
 						KrollDict event = new KrollDict();
 						event.put("index", finalI);
-						event.put("cancel", cancelable == finalI);
+						event.put("cancel", false);
 						fireEvent("click", event);
+						dialog.dismiss();
 					}
 				});
 			}
 		} else if (d.containsKeyAndNotNull(TiC.PROPERTY_ANDROID_VIEW)) {
+			// display custom view
 			TiViewProxy tv = (TiViewProxy) d.get(TiC.PROPERTY_ANDROID_VIEW);
-			add(tv.getOrCreateView());
+			addViews(tv.getOrCreateView());
 		}
 
 		dialog = new BottomSheetDialog(TiApplication.getAppCurrentActivity());
 		dialog.setContentView(layout);
+		dialog.setCancelable(cancelable);
 
+		try {
+			View touchOutside = null;
+			touchOutside = dialog.getWindow().getDecorView().findViewById(
+				TiRHelper.getResource("id.touch_outside"));
+
+			if (touchOutside != null) {
+				touchOutside.setOnClickListener(new View.OnClickListener()
+				{
+					@Override
+					public void onClick(View v)
+					{
+						if (dialog.isShowing()) {
+							if (cancelable) {
+								KrollDict event = new KrollDict();
+								event.put("index", -1);
+								event.put("cancel", true);
+								fireEvent("click", event);
+								dialog.dismiss();
+							}
+						}
+					}
+				});
+			}
+		} catch (TiRHelper.ResourceNotFoundException e) {
+			//
+		}
 	}
 
 	public void show()
