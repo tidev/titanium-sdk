@@ -39,7 +39,6 @@ public class TiUIBottomSheetView extends TiUIView
 	public TiUIBottomSheetView(TiViewProxy proxy)
 	{
 		super(proxy);
-
 		if (this.nativeView == null) {
 			processProperties(getProxy().getProperties());
 		}
@@ -104,11 +103,9 @@ public class TiUIBottomSheetView extends TiUIView
 		LayoutInflater inflater = LayoutInflater.from(proxy.getActivity());
 		layout = (CoordinatorLayout) inflater.inflate(id_drawer_layout, null);
 		setNativeView(layout);
-
 		bsLayout = (RelativeLayout) layout.findViewById(id_bottomSheet);
 		bottomSheetBehavior = BottomSheetBehavior.from(bsLayout);
 		bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
-
 		int localPeak = (int) TiConvert.toTiDimension(TiConvert.toString(peakHeight),
 			TiDimension.TYPE_HEIGHT).getAsPixels(getNativeView());
 		bottomSheetBehavior.setPeekHeight(localPeak);

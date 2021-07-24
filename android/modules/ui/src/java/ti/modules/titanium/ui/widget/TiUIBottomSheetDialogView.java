@@ -9,6 +9,7 @@ package ti.modules.titanium.ui.widget;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,6 +28,7 @@ import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.proxy.TiViewProxy;
+import org.appcelerator.titanium.util.TiColorHelper;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiRHelper;
 import org.appcelerator.titanium.view.TiDrawableReference;
@@ -131,6 +133,10 @@ public class TiUIBottomSheetDialogView extends TiUIView
 			if (destructive > -1) {
 				tf.setTextColor(Color.RED);
 			}
+
+			if (d.containsKeyAndNotNull(TiC.PROPERTY_TITLE_COLOR)) {
+				tf.setTextColor(TiColorHelper.parseColor(d.getString(TiC.PROPERTY_TITLE_COLOR)));
+			}
 			int paddingValue = (int) (15 * density);
 			tf.setPadding(paddingValue, paddingValue, paddingValue, paddingValue);
 			tf.setTextSize(18);
@@ -160,6 +166,11 @@ public class TiUIBottomSheetDialogView extends TiUIView
 				for (int i = 0, len = options.length; i < len; i++) {
 					HashMap map = (HashMap) options[i];
 					AppCompatTextView tf = createOption((String) map.get("title"), i);
+
+					if (!map.get("color").equals("")) {
+						tf.setTextColor(TiColorHelper.parseColor((String) map.get("color")));
+					}
+
 					tf.setCompoundDrawablePadding((int) (15 * density));
 					Object value = map.get("image");
 					TiDrawableReference drawableRef = null;
@@ -217,6 +228,7 @@ public class TiUIBottomSheetDialogView extends TiUIView
 		tf.setId(View.generateViewId());
 		LinearLayoutCompat.LayoutParams lp = new LinearLayoutCompat.LayoutParams(
 			LinearLayoutCompat.LayoutParams.MATCH_PARENT, LinearLayoutCompat.LayoutParams.WRAP_CONTENT);
+		lp.gravity = Gravity.VERTICAL_GRAVITY_MASK;
 		tf.setLayoutParams(lp);
 		tf.setText(title);
 		int paddingValue = (int) (15 * density);

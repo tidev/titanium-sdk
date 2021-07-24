@@ -10,6 +10,7 @@ import android.app.Activity;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiUIView;
@@ -30,6 +31,7 @@ public class BottomSheetProxy extends TiViewProxy
 	public BottomSheetProxy()
 	{
 		super();
+		defaultValues.put(TiC.PROPERTY_BOTTOM, 0);
 		defaultValues.put("peakHeight", peakHeight);
 	}
 
