@@ -13,8 +13,8 @@
 			"integrity": "sha512-NZRCRuhLlDQTtcVvSxg6TVjidkGYfuDh2AGnN3CXruaNrYIorTZysVZaVjv6h/3B0yppLOOoaPG27k9YrU1iaA=="
 		},
 		"ti.map": {
-			"url": "https://github.com/appcelerator-modules/ti.map/releases/download/v5.1.0-iphone/ti.map-iphone-5.1.0.zip",
-			"integrity": "sha512-BmGCv9KqV24e+qJJf/XafkjdENt0XMHuRtN+H23glqa3qJ2F3/b53d2sTrahq/XB4NgsD0oWGE9l7BnqpJSpMQ=="
+			"url": "https://github.com/appcelerator-modules/ti.map/releases/download/v6.0.0-iphone/ti.map-iphone-6.0.0.zip",
+			"integrity": "sha512-FkfVMLvCI2KEXW5U+y9UiQj33zuDHx42eMLjJxxgbKC9OBvEkb17rW6mVrgSI6GPcv1LxDBRFoY8cSv7cY2krQ=="
 		},
 		"ti.webdialog": {
 			"url": "https://github.com/appcelerator-modules/titanium-web-dialog/releases/download/v3.0.0-iphone/ti.webdialog-iphone-3.0.0.zip",
