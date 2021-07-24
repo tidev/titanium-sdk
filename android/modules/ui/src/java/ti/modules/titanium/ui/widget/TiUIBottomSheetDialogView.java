@@ -8,6 +8,7 @@ package ti.modules.titanium.ui.widget;
 
 import android.content.res.Configuration;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,12 +23,16 @@ import com.google.android.material.bottomsheet.BottomSheetDialog;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.titanium.TiApplication;
+import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiRHelper;
+import org.appcelerator.titanium.view.TiDrawableReference;
 import org.appcelerator.titanium.view.TiUIView;
+
+import java.util.HashMap;
 
 public class TiUIBottomSheetDialogView extends TiUIView
 {
@@ -128,7 +133,7 @@ public class TiUIBottomSheetDialogView extends TiUIView
 			}
 			int paddingValue = (int) (15 * density);
 			tf.setPadding(paddingValue, paddingValue, paddingValue, paddingValue);
-			tf.setTextSize(20);
+			tf.setTextSize(18);
 			bsLayout.addView(tf);
 		}
 
@@ -142,33 +147,32 @@ public class TiUIBottomSheetDialogView extends TiUIView
 
 		if (d.containsKeyAndNotNull(TiC.PROPERTY_OPTIONS)) {
 			// display options
-			String[] options = d.getStringArray(TiC.PROPERTY_OPTIONS);
 
-			for (int i = 0, len = options.length; i < len; i++) {
-				AppCompatTextView tf = new AppCompatTextView(proxy.getActivity());
-				tf.setId(View.generateViewId());
-				LinearLayoutCompat.LayoutParams lp = new LinearLayoutCompat.LayoutParams(
-					LinearLayoutCompat.LayoutParams.MATCH_PARENT,	LinearLayoutCompat.LayoutParams.WRAP_CONTENT);
-				tf.setLayoutParams(lp);
-				tf.setText(options[i]);
-				int paddingValue = (int) (15 * density);
-				tf.setPadding(paddingValue, paddingValue, paddingValue, paddingValue);
-				tf.setTextSize(20);
-				bsLayout.addView(tf);
+			Object obj = d.get(TiC.PROPERTY_OPTIONS);
+			if (obj instanceof String[]) {
+				String[] options = d.getStringArray(TiC.PROPERTY_OPTIONS);
 
-				int finalI = i;
-				tf.setOnClickListener(new View.OnClickListener()
-				{
-					@Override
-					public void onClick(View v)
-					{
-						KrollDict event = new KrollDict();
-						event.put("index", finalI);
-						event.put("cancel", false);
-						fireEvent("click", event);
-						dialog.dismiss();
+				for (int i = 0, len = options.length; i < len; i++) {
+					AppCompatTextView tf = createOption(options[i], i);
+				}
+			} else {
+				Object[] options = (Object[]) d.get(TiC.PROPERTY_OPTIONS);
+				for (int i = 0, len = options.length; i < len; i++) {
+					HashMap map = (HashMap) options[i];
+					AppCompatTextView tf = createOption((String) map.get("title"), i);
+					tf.setCompoundDrawablePadding((int) (15 * density));
+					Object value = map.get("image");
+					TiDrawableReference drawableRef = null;
+					if (value instanceof String) {
+						drawableRef = TiDrawableReference.fromUrl(proxy, (String) value);
+					} else if (value instanceof TiBlob) {
+						drawableRef = TiDrawableReference.fromBlob(proxy.getActivity(), (TiBlob) value);
 					}
-				});
+					if (drawableRef != null) {
+						Drawable image = drawableRef.getDensityScaledDrawable();
+						tf.setCompoundDrawablesWithIntrinsicBounds(image, null, null, null);
+					}
+				}
 			}
 		} else if (d.containsKeyAndNotNull(TiC.PROPERTY_ANDROID_VIEW)) {
 			// display custom view
@@ -181,8 +185,7 @@ public class TiUIBottomSheetDialogView extends TiUIView
 		dialog.setCancelable(cancelable);
 
 		try {
-			View touchOutside = null;
-			touchOutside = dialog.getWindow().getDecorView().findViewById(
+			View touchOutside = dialog.getWindow().getDecorView().findViewById(
 				TiRHelper.getResource("id.touch_outside"));
 
 			if (touchOutside != null) {
@@ -206,6 +209,37 @@ public class TiUIBottomSheetDialogView extends TiUIView
 		} catch (TiRHelper.ResourceNotFoundException e) {
 			//
 		}
+	}
+
+	private AppCompatTextView createOption(String title, int position)
+	{
+		AppCompatTextView tf = new AppCompatTextView(proxy.getActivity());
+		tf.setId(View.generateViewId());
+		LinearLayoutCompat.LayoutParams lp = new LinearLayoutCompat.LayoutParams(
+			LinearLayoutCompat.LayoutParams.MATCH_PARENT, LinearLayoutCompat.LayoutParams.WRAP_CONTENT);
+		tf.setLayoutParams(lp);
+		tf.setText(title);
+		int paddingValue = (int) (15 * density);
+		tf.setPadding(paddingValue, paddingValue, paddingValue, paddingValue);
+		tf.setTextSize(18);
+		tf.setMaxLines(1);
+
+		bsLayout.addView(tf);
+
+		int finalI = position;
+		tf.setOnClickListener(new View.OnClickListener()
+		{
+			@Override
+			public void onClick(View v)
+			{
+				KrollDict event = new KrollDict();
+				event.put("index", finalI);
+				event.put("cancel", false);
+				fireEvent("click", event);
+				dialog.dismiss();
+			}
+		});
+		return tf;
 	}
 
 	public void show()
