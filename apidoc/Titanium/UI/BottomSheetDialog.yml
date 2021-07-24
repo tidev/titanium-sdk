@@ -1,0 +1,110 @@
+---
+name: Titanium.UI.BottomSheetDialog
+summary: A slideable/dragable dialog attached at the bottom.
+description: |
+
+    A view that is attached to the bottom that displays options to the user.
+
+    Use the <Titanium.UI.createBottomSheetDialog> method or **`<BottomSheetDialog>`** Alloy element to create a slider.
+
+    #### Android Platform Implementation Notes
+
+    It will use the Android BottomSheet: https://material.io/components/sheets-bottom/android
+
+extends: Titanium.UI.View
+since: "10.1.0"
+examples:
+  - title: BottomSheetDialog example
+    example: |
+        The following example will create a simple BottomSheet ad some items to it and attach events.
+
+        ``` js
+        var win = Ti.UI.createWindow({
+        	backgroundColor: '#eee'
+        });
+        var bsd = Ti.UI.createBottomSheetDialog({
+        	title: "My options",
+        	options: ["option 1", "option 2", "option 3"]
+        });        
+        win.add(bsd);
+        bsd.addEventListener("click", function(e) {
+            console.log(e.index, e.cancel);
+        })
+        win.addEventListener("open", function(e){
+            bsd.show()
+        });
+        win.open();
+        ```
+
+  - title: Alloy XML Markup
+    example: |
+        index.xml:
+
+        ``` xml
+        <Alloy>
+            <Window id="window" backgroundColor="white">
+                <!-- TODO -->
+            </Window>
+        </Alloy>
+        ```
+
+methods:
+  - name: show
+    summary: Shows the dialog
+    platforms: [android]
+
+events:
+  - name: click
+    summary: Fired when an option is clicked
+    properties:
+
+      - name: index
+        summary: Index of the clicked option. 
+        type: Number
+
+      - name: cancel
+        summary: If the user clicked outside of the dialog to dismiss it.
+        type: Number
+        
+properties:
+  - name: title
+    summary: Title of the dialog
+    type: String
+    platforms: [android]
+
+  - name: titleColor
+    summary: Color of the title
+    type: String
+    platforms: [android]
+
+  - name: options
+    summary: Options to display in the dialog. If set the `androidView` will be ignored
+    type: [Array<String>, Array<BottomSheetDialogOptions>]
+    platforms: [android]
+
+  - name: cancelable
+    summary: Force the user to make a selection by setting it to false
+    type: Boolean
+    platforms: [android]
+
+  - name: destructive
+    summary: Title will be displayed in red
+    type: Number
+    platforms: [android]    
+
+
+---
+name: BottomSheetDialogOptions
+summary: Dialog options
+properties:
+  - name: title
+    type: String
+    summary: Title
+
+  - name: color
+    type: String
+    summary: Text color
+
+  - name: image
+    type: String
+    summary: Left image of the option

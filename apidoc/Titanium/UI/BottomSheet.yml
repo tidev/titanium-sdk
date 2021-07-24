@@ -23,7 +23,6 @@ examples:
         	backgroundColor: '#eee'
         });
         var bottomSheet = Ti.UI.createBottomSheet({
-        	bottom: 0,
         	width: Ti.UI.FILL,
         	height: Ti.UI.SIZE,
         	peakHeight: 32,
