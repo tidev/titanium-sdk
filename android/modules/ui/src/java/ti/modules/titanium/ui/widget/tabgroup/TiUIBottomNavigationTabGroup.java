@@ -6,7 +6,23 @@
  */
 package ti.modules.titanium.ui.widget.tabgroup;
 
-import java.util.ArrayList;
+import android.annotation.SuppressLint;
+import android.content.res.ColorStateList;
+import android.graphics.Rect;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.RippleDrawable;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewParent;
+
+import androidx.annotation.ColorInt;
+import androidx.core.graphics.ColorUtils;
+
+import com.google.android.material.badge.BadgeDrawable;
+import com.google.android.material.bottomnavigation.BottomNavigationItemView;
+import com.google.android.material.bottomnavigation.BottomNavigationMenuView;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.bottomnavigation.LabelVisibilityMode;
 
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiBaseActivity;
@@ -16,23 +32,9 @@ import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiCompositeLayout;
+import org.appcelerator.titanium.R;
 
-import android.annotation.SuppressLint;
-import android.content.res.ColorStateList;
-import android.graphics.Rect;
-import android.graphics.drawable.Drawable;
-import android.graphics.drawable.RippleDrawable;
-import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewParent;
-import androidx.annotation.ColorInt;
-import androidx.core.graphics.ColorUtils;
-
-import com.google.android.material.badge.BadgeDrawable;
-import com.google.android.material.bottomnavigation.BottomNavigationItemView;
-import com.google.android.material.bottomnavigation.BottomNavigationMenuView;
-import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.google.android.material.bottomnavigation.LabelVisibilityMode;
+import java.util.ArrayList;
 
 import ti.modules.titanium.ui.TabGroupProxy;
 import ti.modules.titanium.ui.TabProxy;
@@ -80,6 +82,11 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 															   activity.getPackageName());
 		this.mBottomNavigationHeightValue = activity.getResources().getDimensionPixelSize(resourceID);
 
+		int paddingLeft = proxy.getProperties().optInt(TiC.PROPERTY_PADDING_LEFT, 0);
+		int paddingRight = proxy.getProperties().optInt(TiC.PROPERTY_PADDING_RIGHT, 0);
+		int paddingBottom = proxy.getProperties().optInt(TiC.PROPERTY_PADDING_BOTTOM, 0);
+		boolean isFloating = (paddingLeft != 0 || paddingRight != 0 || paddingBottom != 0);
+
 		// Create the bottom tab navigation view.
 		this.mBottomNavigationView = new BottomNavigationView(activity) {
 			@Override
@@ -101,12 +108,15 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 				// Update bottom inset based on tab bar's height and position in window.
 				super.onLayout(hasChanged, left, top, right, bottom);
 				insetsProvider.setBottomBasedOn(this);
+				if (isFloating) {
+					setBackgroundResource(R.drawable.titanium_rounded_corners);
+					setElevation(8);
+				}
 			}
 		};
 		this.mBottomNavigationView.setFitsSystemWindows(true);
 		this.mBottomNavigationView.setItemRippleColor(
 			TiUIAbstractTabGroup.createRippleColorStateListFrom(getColorPrimary()));
-
 		// Add tab bar and view pager to the root Titanium view.
 		// Note: If getFitsSystemWindows() returns false, then Titanium window's "extendSafeArea" is set true.
 		//       This means the bottom tab bar should overlap/overlay the view pager content.
@@ -115,7 +125,8 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 			TiCompositeLayout.LayoutParams params = new TiCompositeLayout.LayoutParams();
 			params.autoFillsWidth = true;
 			params.autoFillsHeight = true;
-			if (compositeLayout.getFitsSystemWindows()) {
+
+			if (compositeLayout.getFitsSystemWindows() && !isFloating) {
 				params.optionBottom = new TiDimension(mBottomNavigationHeightValue, TiDimension.TYPE_BOTTOM);
 			}
 			compositeLayout.addView(this.tabGroupViewPager, params);
@@ -123,7 +134,13 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 		{
 			TiCompositeLayout.LayoutParams params = new TiCompositeLayout.LayoutParams();
 			params.autoFillsWidth = true;
-			params.optionBottom = new TiDimension(0, TiDimension.TYPE_BOTTOM);
+			if (isFloating) {
+				params.optionLeft = new TiDimension(paddingLeft, TiDimension.TYPE_LEFT);
+				params.optionRight = new TiDimension(paddingRight, TiDimension.TYPE_RIGHT);
+				params.optionBottom = new TiDimension(paddingBottom, TiDimension.TYPE_BOTTOM);
+			} else {
+				params.optionBottom = new TiDimension(0, TiDimension.TYPE_BOTTOM);
+			}
 			compositeLayout.addView(this.mBottomNavigationView, params);
 		}
 
