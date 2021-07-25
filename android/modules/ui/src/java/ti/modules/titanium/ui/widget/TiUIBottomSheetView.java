@@ -35,6 +35,7 @@ public class TiUIBottomSheetView extends TiUIView
 	BottomSheetBehavior<RelativeLayout> bottomSheetBehavior;
 	RelativeLayout bsLayout;
 	int peakHeight = 32;
+	public boolean nestedScrolling = false;
 
 	public TiUIBottomSheetView(TiViewProxy proxy)
 	{
@@ -102,6 +103,7 @@ public class TiUIBottomSheetView extends TiUIView
 		}
 		LayoutInflater inflater = LayoutInflater.from(proxy.getActivity());
 		layout = (CoordinatorLayout) inflater.inflate(id_drawer_layout, null);
+		layout.setClickable(false);
 		setNativeView(layout);
 		bsLayout = (RelativeLayout) layout.findViewById(id_bottomSheet);
 		bottomSheetBehavior = BottomSheetBehavior.from(bsLayout);
@@ -112,6 +114,11 @@ public class TiUIBottomSheetView extends TiUIView
 
 		if (d.containsKeyAndNotNull(TiC.PROPERTY_BACKGROUND_COLOR)) {
 			bsLayout.setBackgroundColor(TiConvert.toColor(TiConvert.toString(d.get(TiC.PROPERTY_BACKGROUND_COLOR))));
+		}
+
+		if (d.containsKeyAndNotNull("nestedScrolling")) {
+			nestedScrolling = TiConvert.toBoolean(d.get("nestedScrolling"), false);
+			bsLayout.setNestedScrollingEnabled(nestedScrolling);
 		}
 
 		bottomSheetBehavior.addBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback()
@@ -149,5 +156,11 @@ public class TiUIBottomSheetView extends TiUIView
 	public void collapse()
 	{
 		bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+	}
+
+	public void setNestedScrolling(boolean value)
+	{
+		bsLayout.setNestedScrollingEnabled(value);
+		nestedScrolling = value;
 	}
 }

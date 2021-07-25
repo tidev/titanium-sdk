@@ -119,3 +119,9 @@ properties:
     summary: The height of the BottomSheet when it is collapsed.
     type: Number
     platforms: [android]
+
+  - name: nestedScrolling
+    summary: Disable or enable nested scrolling
+    type: Boolean
+    default: false
+    platforms: [android]

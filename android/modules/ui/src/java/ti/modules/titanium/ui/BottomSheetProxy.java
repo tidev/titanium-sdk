@@ -33,6 +33,7 @@ public class BottomSheetProxy extends TiViewProxy
 		super();
 		defaultValues.put(TiC.PROPERTY_BOTTOM, 0);
 		defaultValues.put("peakHeight", peakHeight);
+		defaultValues.put(TiC.PROPERTY_ZINDEX, 10000);
 	}
 
 	@Override
@@ -69,6 +70,18 @@ public class BottomSheetProxy extends TiViewProxy
 	public void expand()
 	{
 		bottomSheet.expand();
+	}
+
+	@Kroll.getProperty
+	public boolean nestedScrolling()
+	{
+		return bottomSheet.nestedScrolling;
+	}
+
+	@Kroll.setProperty
+	public void nestedScrolling(boolean value)
+	{
+		bottomSheet.setNestedScrolling(value);
 	}
 
 	@Override
