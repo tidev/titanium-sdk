@@ -20,8 +20,6 @@ import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.RectShape;
-import android.os.Handler;
-import android.os.SystemClock;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -44,16 +42,14 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 {
 	private static final String TAG = "TiListView";
 
-	private static final int CACHE_SIZE = 32;
-	private static final int PRELOAD_INTERVAL = 800;
-
 	private final ListViewAdapter adapter;
 	private final DividerItemDecoration decoration;
-	private final List<ListItemProxy> items = new ArrayList<>(CACHE_SIZE);
+	private final List<ListItemProxy> items = new ArrayList<>(128);
 	private final ListViewProxy proxy;
 	private final TiNestedRecyclerView recyclerView;
 	private final SelectionTracker tracker;
 
+	private boolean hasLaidOutChildren = false;
 	private boolean isScrolling = false;
 	private int lastScrollDeltaY;
 	private String filterQuery;
@@ -69,6 +65,22 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 		this.recyclerView.setFocusableInTouchMode(true);
 		this.recyclerView.setBackgroundColor(Color.TRANSPARENT);
 		this.recyclerView.setLayoutManager(new LinearLayoutManager(getContext()) {
+			@Override
+			public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state)
+			{
+				super.onLayoutChildren(recycler, state);
+
+				// The first time we load items, load the next 4 offscreen items to get them cached.
+				// This helps improve initial scroll performance.
+				if (!hasLaidOutChildren && (getChildCount() > 0)) {
+					int startIndex = findFirstVisibleItemPosition() + getChildCount();
+					int endIndex = Math.min(startIndex + 3, state.getItemCount() - 1);
+					for (int index = startIndex; index <= endIndex; index++) {
+						recycler.getViewForPosition(index);
+					}
+					hasLaidOutChildren = true;
+				}
+			}
 
 			@Override
 			public void onLayoutCompleted(RecyclerView.State state)
@@ -142,8 +154,9 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 		// Disable list animations.
 		this.recyclerView.setItemAnimator(null);
 
-		// Optimize scroll performance.
-		recyclerView.setItemViewCacheSize(CACHE_SIZE);
+		// Disable cache since it creates cached holder dynamically, which causes stutter on initial scroll.
+		// We improved it by creating off-screen items on 1st call of onLayoutChildren().
+		recyclerView.setItemViewCacheSize(0);
 
 		// Set list separator.
 		decoration = new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL);
@@ -469,9 +482,7 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 	 */
 	public void update()
 	{
-
 		final KrollDict properties = this.proxy.getProperties();
-		final boolean shouldPreload = this.items.size() == 0;
 		int filterResultsCount = 0;
 
 		final boolean hasHeader = properties.containsKeyAndNotNull(TiC.PROPERTY_HEADER_TITLE)
@@ -571,38 +582,6 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 		// If filtered and no results, fire `noresult` event.
 		if (isFiltered() && filterResultsCount == 0) {
 			this.proxy.fireEvent(TiC.EVENT_NO_RESULTS, null);
-		}
-
-		// Pre-load items of empty list.
-		if (shouldPreload) {
-			final Handler handler = new Handler();
-			final long startTime = SystemClock.elapsedRealtime();
-
-			for (int i = 0; i < Math.min(this.items.size(), PRELOAD_INTERVAL / 8); i++) {
-				final ListItemProxy item = this.items.get(i);
-
-				// Fill event queue with pre-load attempts.
-				handler.postDelayed(new Runnable()
-				{
-					@Override
-					public void run()
-					{
-						final long currentTime = SystemClock.elapsedRealtime();
-						final long delta = currentTime - startTime;
-
-						// Only pre-load views for a maximum period of time.
-						// This prevents over-taxing older devices.
-						if (delta <= PRELOAD_INTERVAL
-							&& recyclerView.getLastTouchX() == 0
-							&& recyclerView.getLastTouchY() == 0) {
-
-							// While there is no user interaction;
-							// pre-load views for smooth initial scroll.
-							item.getOrCreateView();
-						}
-					}
-				}, 8); // Pre-load at 120Hz to prevent noticeable UI blocking.
-			}
 		}
 
 		// Notify adapter of changes on UI thread.
