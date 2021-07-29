@@ -924,7 +924,7 @@ bool KrollHasInstance(JSContextRef ctx, JSObjectRef constructor, JSValueRef poss
   JSValueUnprotect(jscontext, self.jsobject);
 }
 
-static char KrollObjectBase64Table[] = {
+static const char KrollObjectBase64Table[] = {
   'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H',
   'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P',
   'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X',
