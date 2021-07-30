@@ -226,13 +226,13 @@ npm run cleanbuild
 The build and package commands will default to all target platforms on your host OS unless explicitly specified. (i.e. Android, iOS on macOS; Windows and Android on Windows). It will compile, package and install the locally-built SDK for you
 as well, so you can test it in your own applications without any further procedures.
 
-The build command will look for Android NDK and SDK using $ANDROID_NDK and $ANDROID_SDK env variables if not explicitly passed using command line arguments.
+The build command will look for the Android SDK directory path via the $ANDROID_SDK env variables if not explicitly passed using command line arguments.
 
 You can use the `-h` flag to display the full list of comands and options.
 
 ```bash
 npm ci
-npm run cleanbuild -- [platform1] [platform2] --android-ndk /opt/android-ndk --android-sdk /opt/android-sdk /Users/build/android-sdk-macosx
+npm run cleanbuild -- [platform1] [platform2] --android-sdk /opt/android-sdk /Users/build/android-sdk-macosx
 ```
 
 ### Unit tests
