@@ -382,10 +382,6 @@ public class TiUIScrollableView extends TiUIView
 	@Override
 	public void processProperties(KrollDict d)
 	{
-		if (d.containsKey(TiC.PROPERTY_VIEWS)) {
-			getScrollableViewProxy().setViews(d.get(TiC.PROPERTY_VIEWS));
-		}
-
 		if (d.containsKey(TiC.PROPERTY_CURRENT_PAGE)) {
 			int page = TiConvert.toInt(d, TiC.PROPERTY_CURRENT_PAGE);
 			if (page > 0) {
