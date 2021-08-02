@@ -2,6 +2,6 @@
 <DatePicker xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_height="wrap_content"
     android:layout_width="wrap_content"
-    android:datePickerMode ="spinner"
-    android:calendarViewShown="false"
-    android:spinnersShown="true"/>
+    android:datePickerMode ="calendar"
+    android:calendarViewShown="true"
+    android:spinnersShown="false"/>

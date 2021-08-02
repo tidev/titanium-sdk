@@ -181,7 +181,7 @@ describe('Titanium.Network.HTTPClient', function () {
 
 	it('responseHeaders', function (finish) {
 		const xhr = Ti.Network.createHTTPClient({
-			timeout: 5000
+			timeout: 30000
 		});
 		xhr.onload = e => {
 			try {
@@ -206,7 +206,7 @@ describe('Titanium.Network.HTTPClient', function () {
 				finish(new Error('failed to retrieve headers: ' + e));
 			}
 		};
-		xhr.open('GET', 'https://google.com');
+		xhr.open('GET', 'https://www.axway.com');
 		xhr.send();
 	});
 
@@ -758,7 +758,7 @@ describe('Titanium.Network.HTTPClient', function () {
 			onerror: _e => finish(new Error('Could not determine TLSv3 support.')),
 			timeout: 8000
 		});
-		client.open('GET', 'https://ssllabs.com/ssltest/viewMyClient.html');
+		client.open('GET', 'https://clienttest.ssllabs.com/ssltest/viewMyClient.html');
 		client.send();
 	});
 
@@ -801,8 +801,10 @@ describe('Titanium.Network.HTTPClient', function () {
 		xhr.send();
 	});
 
-	it.ios('#timeoutForResource', function (finish) {
+	// The timing of this iOS-only unit test is very unreliable. Skip it.
+	it.allBroken('#timeoutForResource', function (finish) {
 		const xhr = Ti.Network.createHTTPClient({
+			cache: false,
 			timeout: 6e4,
 			timeoutForResource: 50
 		});
@@ -819,7 +821,7 @@ describe('Titanium.Network.HTTPClient', function () {
 			finish();
 		};
 
-		xhr.open('GET', 'https://www.google.com/');
+		xhr.open('GET', 'https://www.axway.com');
 		xhr.send();
 	});
 });

@@ -243,7 +243,7 @@ def cliUnitTests(nodeVersion, npmVersion) {
 // Wrap in timestamper
 timestamps {
 	try {
-		node('git && android-sdk && android-ndk && ant && gperf && osx && xcode-12 && osx-10.15') {
+		node('git && android-sdk && ant && gperf && osx && xcode-12 && osx-10.15') {
 			stage('Checkout') {
 				// Update our shared reference repo for all branches/PRs
 				dir('..') {
@@ -324,19 +324,21 @@ timestamps {
 
 					ansiColor('xterm') {
 						timeout(15) {
-							def buildCommand = "npm run clean -- --android-ndk ${env.ANDROID_NDK_R21D}"
+							def buildCommand = 'npm run clean'
 							if (isMainlineBranch) {
-								buildCommand += ' --all'
+								buildCommand += ' -- --all'
 							}
 							sh label: 'clean', script: buildCommand
 						} // timeout
 						timeout(15) {
-							def buildCommand = "npm run build -- --android-ndk ${env.ANDROID_NDK_R21D}"
+							def buildCommand = 'npm run build'
 							if (isMainlineBranch) {
-								buildCommand += ' --all'
+								buildCommand += ' -- --all'
 							}
 							try {
-								sh label: 'build', script: buildCommand
+								withEnv(["JAVA_HOME=${tool name:'OpenJDK 11.0.11+9', type: 'jdk'}"]) {
+									sh label: 'build', script: buildCommand
+								}
 							} finally {
 								recordIssues(tools: [clang(), java()])
 							}
