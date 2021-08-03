@@ -340,7 +340,7 @@ properties:
         When using [TABS_STYLE_BOTTOM_NAVIGATION](Titanium.UI.Android.TABS_STYLE_BOTTOM_NAVIGATION) you can set the padding to have
         a floating bottom navigation
     since: "10.1.0"
-    type: Number
+    type: [Number,String]
     platforms: [android]
     
   - name: paddingRight
@@ -349,7 +349,7 @@ properties:
         When using [TABS_STYLE_BOTTOM_NAVIGATION](Titanium.UI.Android.TABS_STYLE_BOTTOM_NAVIGATION) you can set the padding to have
         a floating bottom navigation
     since: "10.1.0"
-    type: Number
+    type: [Number,String]
     platforms: [android]
 
   - name: paddingBottom
@@ -358,7 +358,7 @@ properties:
         When using [TABS_STYLE_BOTTOM_NAVIGATION](Titanium.UI.Android.TABS_STYLE_BOTTOM_NAVIGATION) you can set the padding to have
         a floating bottom navigation
     since: "10.1.0"
-    type: Number
+    type: [Number,String]
     platforms: [android]
     
   - name: translucent
