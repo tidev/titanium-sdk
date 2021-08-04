@@ -294,7 +294,10 @@ timestamps {
 							// squash, env var not set at OS-level
 						}
 					}
-					def npmTestResult = sh(returnStatus: true, script: "ANDROID_SDK_ROOT=${androidSDK} npm test &> npm_test.log")
+					def npmTestResult
+					withEnv(["JAVA_HOME=${tool name:'OpenJDK 11.0.11+9', type: 'jdk'}"]) {
+						npmTestResult = sh(returnStatus: true, script: "ANDROID_SDK_ROOT=${androidSDK} npm test &> npm_test.log")
+					}
 					recordIssues(tools: [checkStyle(pattern: 'android/**/build/reports/checkstyle/checkJavaStyle.xml')])
 					if (runDanger) { // Stash files for danger.js later
 						stash includes: 'package.json,package-lock.json,dangerfile.js,.eslintignore,.eslintrc,npm_test.log,android/**/*.java', name: 'danger'
