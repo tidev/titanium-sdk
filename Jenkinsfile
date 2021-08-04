@@ -331,7 +331,9 @@ timestamps {
 							if (isMainlineBranch) {
 								buildCommand += ' -- --all'
 							}
-							sh label: 'clean', script: buildCommand
+							withEnv(["JAVA_HOME=${tool name:'OpenJDK 11.0.11+9', type: 'jdk'}"]) {
+								sh label: 'clean', script: buildCommand
+							}
 						} // timeout
 						timeout(15) {
 							def buildCommand = 'npm run build'
