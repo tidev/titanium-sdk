@@ -377,7 +377,7 @@ TI_INLINE void waitForMemoryPanicCleared(void); //WARNING: This must never be ru
     }
 
     // Update launchOptions so that we send only expected values rather than NSUserActivity
-    [launchOptions setObject:@{ @"UIApplicationLaunchOptionsUserActivityKey": dict }
+    [launchOptions setObject:@{ @"UIApplicationLaunchOptionsUserActivityKey" : dict }
                       forKey:UIApplicationLaunchOptionsUserActivityDictionaryKey];
   }
 
