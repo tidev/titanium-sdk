@@ -244,6 +244,9 @@ def cliUnitTests(nodeVersion, npmVersion) {
 timestamps {
 	try {
 		node('git && android-sdk && ant && gperf && osx && xcode-12 && osx-10.15') {
+			env.JAVA_HOME="${tool name:'OpenJDK 11.0.11+9', type: 'jdk'}"
+			env.PATH="${env.JAVA_HOME}/bin:${env.PATH}"
+			
 			stage('Checkout') {
 				// Update our shared reference repo for all branches/PRs
 				dir('..') {
@@ -294,10 +297,7 @@ timestamps {
 							// squash, env var not set at OS-level
 						}
 					}
-					def npmTestResult
-					withEnv(["JAVA_HOME=${tool name:'OpenJDK 11.0.11+9', type: 'jdk'}"]) {
-						npmTestResult = sh(returnStatus: true, script: "ANDROID_SDK_ROOT=${androidSDK} npm test &> npm_test.log")
-					}
+					def npmTestResult = sh(returnStatus: true, script: "ANDROID_SDK_ROOT=${androidSDK} npm test &> npm_test.log")
 					recordIssues(tools: [checkStyle(pattern: 'android/**/build/reports/checkstyle/checkJavaStyle.xml')])
 					if (runDanger) { // Stash files for danger.js later
 						stash includes: 'package.json,package-lock.json,dangerfile.js,.eslintignore,.eslintrc,npm_test.log,android/**/*.java', name: 'danger'
@@ -331,9 +331,7 @@ timestamps {
 							if (isMainlineBranch) {
 								buildCommand += ' -- --all'
 							}
-							withEnv(["JAVA_HOME=${tool name:'OpenJDK 11.0.11+9', type: 'jdk'}"]) {
-								sh label: 'clean', script: buildCommand
-							}
+							sh label: 'clean', script: buildCommand
 						} // timeout
 						timeout(15) {
 							def buildCommand = 'npm run build'
@@ -341,9 +339,7 @@ timestamps {
 								buildCommand += ' -- --all'
 							}
 							try {
-								withEnv(["JAVA_HOME=${tool name:'OpenJDK 11.0.11+9', type: 'jdk'}"]) {
-									sh label: 'build', script: buildCommand
-								}
+								sh label: 'build', script: buildCommand
 							} finally {
 								recordIssues(tools: [clang(), java()])
 							}
