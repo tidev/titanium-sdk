@@ -878,9 +878,8 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 	}
 	cli.tiapp.properties['ti.deploytype'] = { type: 'string', value: this.deployType };
 
-	// Fetch Java max heap size settings.
+	// Fetch Java max heap size setting.
 	this.javacMaxMemory = cli.tiapp.properties['android.javac.maxmemory'] && cli.tiapp.properties['android.javac.maxmemory'].value || config.get('android.javac.maxMemory', '3072M');
-	this.dxMaxMemory = cli.tiapp.properties['android.dx.maxmemory'] && cli.tiapp.properties['android.dx.maxmemory'].value || config.get('android.dx.maxMemory', '3072M');
 
 	// Transpilation details
 	this.transpile = cli.tiapp['transpile'] !== false; // Transpiling is an opt-out process now
@@ -2352,7 +2351,6 @@ AndroidBuilder.prototype.generateAppProject = async function generateAppProject(
 	buildGradleContent = ejs.render(buildGradleContent.toString(), {
 		applicationId: this.appid,
 		compileSdkVersion: this.compileSdkVersion,
-		dexJavaMaxHeapSize: this.dxMaxMemory,
 		minSdkVersion: this.minSDK,
 		targetSdkVersion: this.targetSDK,
 		versionCode: versionCode,
