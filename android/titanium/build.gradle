@@ -234,6 +234,8 @@ task snapshotTiCommonFiles() {
 project.afterEvaluate {
 	externalNativeBuildDebug.dependsOn compileDebugJavaWithJavac
 	externalNativeBuildRelease.dependsOn compileReleaseJavaWithJavac
+	buildCMakeDebug.dependsOn compileDebugJavaWithJavac
+	buildCMakeRelWithDebInfo.dependsOn compileReleaseJavaWithJavac
 }
 
 // Runs our "prebuild.js" script before the C/C++ compile, but after Java compile. (Mid-build script?)
