@@ -83,6 +83,9 @@ def androidUnitTests(testName, nodeVersion, npmVersion, testOnDevices, deviceId)
 		}
 
 		node(labels) {
+			env.JAVA_HOME="${tool name:'OpenJDK 11.0.11+9', type: 'jdk'}"
+			env.PATH="${env.JAVA_HOME}/bin:${env.PATH}"
+			
 			// TODO: Do a shallow checkout rather than stash/unstash?
 			unstash 'mocha-tests'
 			try {
