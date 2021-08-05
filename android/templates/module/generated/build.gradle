@@ -157,6 +157,8 @@ preBuild.doFirst {
 project.afterEvaluate {
 	externalNativeBuildDebug.dependsOn compileDebugJavaWithJavac
 	externalNativeBuildRelease.dependsOn compileReleaseJavaWithJavac
+	buildNdkBuildDebug.dependsOn compileDebugJavaWithJavac
+	buildNdkBuildRelease.dependsOn compileReleaseJavaWithJavac
 }
 
 // Hook into Java compile task.
