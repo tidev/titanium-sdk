@@ -63,9 +63,7 @@
     // don't add the movie more than once if the same
     return;
   }
-  [controller willMoveToParentViewController:nil];
   [[controller view] removeFromSuperview];
-  [controller removeFromParentViewController];
   [spinner removeFromSuperview];
   RELEASE_TO_NIL(spinner);
   RELEASE_TO_NIL(controller);
@@ -86,13 +84,30 @@
     } else {
       parentController = [[[TiApp app] controller] retain];
     }
+
+    if (parentController != nil) {
+
+      // Remove from current controller.
+      [controller willMoveToParentViewController:nil];
+      [controller removeFromParentViewController];
+
+      // Add to new parent view.
+      // NOTE: Should not be sent to back, that would hide the video player.
+      [[parentController view] addSubview:[controller view]];
+
+      // Add to new controller.
+      [parentController addChildViewController:controller];
+      [controller didMoveToParentViewController:parentController];
+    } else {
+
+      // Could not find viable parent controller, fallback to old behaviour.
+      // NOTE: This should never happen.
+      [self addSubview:[controller view]];
+      [self sendSubviewToBack:[controller view]];
+    }
   }
 
-  [parentController addChildViewController:controller];
   [TiUtils setView:[controller view] positionRect:self.bounds];
-  [self addSubview:[controller view]];
-  [self sendSubviewToBack:[controller view]];
-  [controller didMoveToParentViewController:parentController];
 
   TiColor *bgcolor = [TiUtils colorValue:[self.proxy valueForKey:@"backgroundColor"]];
   UIActivityIndicatorViewStyle style = UIActivityIndicatorViewStyleGray;
