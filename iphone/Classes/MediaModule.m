@@ -11,6 +11,7 @@
 #import "TiMediaItem.h"
 #import "TiMediaMusicPlayer.h"
 
+#import <TitaniumKit/KrollPromise.h>
 #import <TitaniumKit/Mimetypes.h>
 #import <TitaniumKit/Ti2DMatrix.h>
 #import <TitaniumKit/TiApp.h>
@@ -1175,37 +1176,38 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
 #endif
 
 #ifdef USE_TI_MEDIAREQUESTMUSICLIBRARYPERMISSIONS
-- (void)requestMusicLibraryPermissions:(id)args
+- (JSValue *)requestMusicLibraryPermissions:(id)args
 {
+  KrollPromise *promise = [[[KrollPromise alloc] initInContext:[self currentContext]] autorelease];
   NSString *musicPermission = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSAppleMusicUsageDescription"];
 
-  if (!musicPermission) {
-    NSLog(@"[ERROR] iOS 10 and later requires the key \"NSAppleMusicUsageDescription\" inside the plist in your tiapp.xml when accessing the native microphone. Please add the key and re-run the application.");
-  }
-
-  ENSURE_SINGLE_ARG(args, KrollCallback);
   KrollCallback *callback = args;
 
-  if ([TiUtils isIOSVersionOrGreater:@"9.3"]) {
+  if (musicPermission) {
     TiThreadPerformOnMainThread(
         ^() {
           [MPMediaLibrary requestAuthorization:^(MPMediaLibraryAuthorizationStatus status) {
             BOOL granted = status == MPMediaLibraryAuthorizationStatusAuthorized;
+            NSDictionary *propertiesDict = [TiUtils dictionaryWithCode:(granted ? 0 : 1) message:nil];
             KrollEvent *invocationEvent = [[KrollEvent alloc] initWithCallback:callback
-                                                                   eventObject:[TiUtils dictionaryWithCode:(granted ? 0 : 1) message:nil]
+                                                                   eventObject:propertiesDict
                                                                     thisObject:self];
-            [[callback context] enqueue:invocationEvent];
+            if (callback != nil && ![callback isUndefined]) {
+              [[callback context] enqueue:invocationEvent];
+            }
+            [promise resolve:@[ propertiesDict ]];
             RELEASE_TO_NIL(invocationEvent);
           }];
         },
         NO);
   } else {
-    NSDictionary *propertiesDict = [TiUtils dictionaryWithCode:0 message:nil];
-    NSArray *invocationArray = [[NSArray alloc] initWithObjects:&propertiesDict count:1];
-    [callback call:invocationArray thisObject:self];
-    [invocationArray release];
-    return;
+    NSDictionary *propertiesDict = [TiUtils dictionaryWithCode:1 message:@"iOS 10 and later requires the key \"NSAppleMusicUsageDescription\" inside the plist in your tiapp.xml when accessing the native microphone. Please add the key and re-run the application."];
+    if (callback != nil && ![callback isUndefined]) {
+      [callback call:@[ propertiesDict ] thisObject:self];
+    }
+    [promise resolve:@[ propertiesDict ]];
   }
+  return promise.JSValue;
 }
 #endif
 
