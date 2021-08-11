@@ -7,11 +7,14 @@
 package ti.modules.titanium.media.android;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.KrollModule;
+import org.appcelerator.kroll.KrollPromise;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
@@ -20,6 +23,8 @@ import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiDrawableReference;
 
 import ti.modules.titanium.media.MediaModule;
+
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.WallpaperManager;
 import android.content.Context;
@@ -42,17 +47,23 @@ public class AndroidModule extends KrollModule
 	}
 
 	@Kroll.method
-	public void scanMediaFiles(Object[] paths, Object[] mimeTypes, KrollFunction callback)
+	public KrollPromise<KrollDict[]> scanMediaFiles(Object[] paths, Object[] mimeTypes,
+													@Kroll.argument(optional = true) KrollFunction callback)
 	{
-		String[] mediaPaths = new String[paths.length];
-		for (int i = 0; i < paths.length; i++) {
-			mediaPaths[i] = resolveUrl(null, TiConvert.toString(paths[i]));
-		}
+		return KrollPromise.create((promise) -> {
+			String[] mediaPaths = new String[paths.length];
+			for (int i = 0; i < paths.length; i++) {
+				mediaPaths[i] = resolveUrl(null, TiConvert.toString(paths[i]));
+			}
 
-		Activity activity = TiApplication.getInstance().getCurrentActivity();
-		(new MediaScannerClient(activity, mediaPaths, mimeTypes, callback)).scan();
+			Activity activity = TiApplication.getInstance().getCurrentActivity();
+			MediaScannerClient mediaScannerClient =
+				new MediaScannerClient(activity, mediaPaths, mimeTypes, callback, promise);
+			mediaScannerClient.scan();
+		});
 	}
 
+	@SuppressLint("MissingPermission")
 	@Kroll.method
 	public void setSystemWallpaper(TiBlob image, boolean scale)
 	{
@@ -81,16 +92,20 @@ public class AndroidModule extends KrollModule
 		private String[] paths;
 		private Object[] mimeTypes;
 		private KrollFunction callback;
+		private KrollPromise<KrollDict[]> promise;
 		private MediaScannerConnection connection;
 		private AtomicInteger completedScanCount = new AtomicInteger(0);
 		private Activity activity;
+		private List<KrollDict> results = new ArrayList<>();
 
-		public MediaScannerClient(Activity activity, String[] paths, Object[] mimeTypes, KrollFunction callback)
+		public MediaScannerClient(Activity activity, String[] paths, Object[] mimeTypes, KrollFunction callback,
+								  KrollPromise<KrollDict[]> promise)
 		{
 			this.activity = activity;
 			this.paths = paths;
 			this.mimeTypes = mimeTypes;
 			this.callback = callback;
+			this.promise = promise;
 		}
 
 		@Override
@@ -115,15 +130,20 @@ public class AndroidModule extends KrollModule
 		@Override
 		public void onScanCompleted(String path, Uri uri)
 		{
+			KrollDict properties = new KrollDict(2);
+			properties.put("path", path);
+			properties.put("uri", uri == null ? null : uri.toString());
+			results.add(properties);
+
 			if (completedScanCount.incrementAndGet() >= paths.length) {
 				connection.disconnect();
 			}
 
 			if (callback != null) {
-				KrollDict properties = new KrollDict(2);
-				properties.put("path", path);
-				properties.put("uri", uri == null ? null : uri.toString());
 				callback.callAsync(AndroidModule._instance.getKrollObject(), new Object[] { properties });
+			}
+			if (promise != null && !connection.isConnected()) {
+				promise.resolve(results.toArray(new KrollDict[0]));
 			}
 		}
 
