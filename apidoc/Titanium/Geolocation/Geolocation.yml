@@ -355,9 +355,13 @@ methods:
       - name: callback
         summary: Function to call upon user decision to grant authorization.
         type: Callback<LocationAccuracyAuthorizationResponse>
+        optional: true
     platforms: [iphone, ipad]
     osver: {ios: {min: "14.0"}}
     since: "9.2.0"
+    returns:
+      summary: On SDK 10.1.0, this method will return a `Promise` whose resolved value is equivalent to that passed to the optional callback argument.
+      type: Promise<LocationAccuracyAuthorizationResponse>
 
   - name: reverseGeocoder
     summary: Tries to resolve a location to an address.
