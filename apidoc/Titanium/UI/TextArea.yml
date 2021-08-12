@@ -256,6 +256,15 @@ properties:
     default: false
     platforms: [android]
 
+  - name: enableCopy
+    summary: Determines if user can copy or cut text from the text area.
+    description: |
+        When set `false`, the "copy" and "cut" options will not appear in the context menu.
+        The `Command+C` and `Command+X` keyboard shortcuts will be ignored as well.
+    type: Boolean
+    default: true
+    since: "10.0.1"
+
   - name: enableReturnKey
     summary: |
         Determines whether the return key is enabled automatically when there is text in this text

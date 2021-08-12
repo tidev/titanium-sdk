@@ -350,6 +350,36 @@ TI_INLINE void waitForMemoryPanicCleared(void); //WARNING: This must never be ru
   UILocalNotification *_localNotification = [launchOptions objectForKey:UIApplicationLaunchOptionsLocalNotificationKey];
   NSNumber *launchedLocation = [launchOptions objectForKey:UIApplicationLaunchOptionsLocationKey];
   UIApplicationShortcutItem *shortcut = [launchOptions objectForKey:UIApplicationLaunchOptionsShortcutItemKey];
+  NSDictionary *userActivityDictionary = launchOptions[UIApplicationLaunchOptionsUserActivityDictionaryKey];
+
+  // Map user activity if exists
+  if (userActivityDictionary != nil) {
+    NSUserActivity *userActivity = userActivityDictionary[@"UIApplicationLaunchOptionsUserActivityKey"];
+
+    NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithDictionary:@{ @"activityType" : [userActivity activityType] }];
+
+    if ([TiUtils isIOSVersionOrGreater:@"9.0"] && [[userActivity activityType] isEqualToString:CSSearchableItemActionType]) {
+      if ([userActivity userInfo] != nil) {
+        [dict setObject:[[userActivity userInfo] objectForKey:CSSearchableItemActivityIdentifier] forKey:@"searchableItemActivityIdentifier"];
+      }
+    }
+
+    if ([userActivity title] != nil) {
+      [dict setObject:[userActivity title] forKey:@"title"];
+    }
+
+    if ([userActivity webpageURL] != nil) {
+      [dict setObject:[[userActivity webpageURL] absoluteString] forKey:@"webpageURL"];
+    }
+
+    if ([userActivity userInfo] != nil) {
+      [dict setObject:[userActivity userInfo] forKey:@"userInfo"];
+    }
+
+    // Update launchOptions so that we send only expected values rather than NSUserActivity
+    [launchOptions setObject:@{ @"UIApplicationLaunchOptionsUserActivityKey" : dict }
+                      forKey:UIApplicationLaunchOptionsUserActivityDictionaryKey];
+  }
 
   // Map background location key
   if (launchedLocation != nil) {

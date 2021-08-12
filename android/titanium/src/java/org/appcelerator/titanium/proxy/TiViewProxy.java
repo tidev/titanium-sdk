@@ -457,7 +457,15 @@ public abstract class TiViewProxy extends KrollProxy
 				activity = baseActivity;
 
 			} else if (activity == null) {
-				activity = TiApplication.getAppRootOrCurrentActivity();
+				for (TiViewProxy parent = getParent(); parent != null; parent = parent.getParent()) {
+					activity = parent.getActivity();
+					if (activity != null) {
+						break;
+					}
+				}
+				if (activity == null) {
+					activity = TiApplication.getAppRootOrCurrentActivity();
+				}
 			}
 
 			if (activity != lastActivity) {
@@ -586,6 +594,23 @@ public abstract class TiViewProxy extends KrollProxy
 			}
 		} else if (args instanceof TiViewProxy) {
 			TiViewProxy child = (TiViewProxy) args;
+
+			// Check if given view already has a parent.
+			TiViewProxy parent = child.getParent();
+			if ((parent == this) || (parent == child)) {
+				// Do not continue if already added or given view is try to add to itself.
+				return;
+			} else if (parent != null) {
+				// Remove given view from its current parent. (Do not release its native view.)
+				if (parent.children != null) {
+					parent.children.remove(child);
+				}
+				if (parent.view != null) {
+					parent.view.remove(child.peekView());
+				}
+			}
+
+			// Add given view as a child to this view.
 			children.add(child);
 			child.parent = new WeakReference<>(this);
 			if ((peekView() != null) && (view != null)) {
@@ -595,7 +620,6 @@ public abstract class TiViewProxy extends KrollProxy
 				}
 				view.add(child.getOrCreateView());
 			}
-			//TODO zOrder
 		} else {
 			Log.w(TAG, "add() unsupported argument type: " + args.getClass().getSimpleName());
 		}
@@ -1133,6 +1157,18 @@ public abstract class TiViewProxy extends KrollProxy
 	}
 
 	/**
+	 * Determines if this proxy has any child view proxies.
+	 * @return Returns true if this view has at least 1 child view proxy. Returns false if it has no children.
+	 */
+	public boolean hasChildren()
+	{
+		if (this.children == null) {
+			return false;
+		}
+		return !this.children.isEmpty();
+	}
+
+	/**
 	 * @return An array of the children view proxies of this view.
 	 */
 	@Kroll.getProperty
@@ -1276,7 +1312,7 @@ public abstract class TiViewProxy extends KrollProxy
 			return null;
 		}
 		View nativeView = view.getNativeView();
-		View destNativeView = destView.getNativeView();
+		View destNativeView = destView.getNativeContentView();
 		if (nativeView == null || nativeView.getParent() == null) {
 			Log.w(TAG, "convertPointToView: View has not been attached, cannot convert point");
 			return null;

@@ -1,229 +1,220 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2021 by Axway, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 package ti.modules.titanium.ui;
 
-import org.appcelerator.kroll.KrollDict;
-import org.appcelerator.kroll.annotations.Kroll;
-import org.appcelerator.titanium.proxy.TiViewProxy;
-import org.appcelerator.titanium.view.TiUIView;
-
-import ti.modules.titanium.ui.PickerRowProxy.PickerRowListener;
-import ti.modules.titanium.ui.widget.picker.TiUIPickerColumn;
-import ti.modules.titanium.ui.widget.picker.TiUISpinnerColumn;
-import android.app.Activity;
 import android.util.Log;
+import java.util.ArrayList;
+import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollProxy;
+import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.titanium.TiC;
 
-@Kroll.proxy(creatableInModule = UIModule.class)
-public class PickerColumnProxy extends TiViewProxy implements PickerRowListener
+@Kroll.proxy(creatableInModule = UIModule.class,
+	propertyAccessors = {
+		TiC.PROPERTY_WIDTH,
+})
+public class PickerColumnProxy extends KrollProxy implements PickerRowProxy.OnChangedListener
 {
+	public interface OnChangedListener {
+		void onChanged(PickerColumnProxy proxy);
+	}
+
 	private static final String TAG = "PickerColumnProxy";
+	private final ArrayList<PickerRowProxy> rowList = new ArrayList<>();
+	private final ArrayList<PickerColumnProxy.OnChangedListener> listeners = new ArrayList<>();
+	private boolean canInvokeListeners = true;
 
-	private PickerColumnListener columnListener = null;
-	private boolean useSpinner = false;
-	private boolean suppressListenerEvents = false;
-
-	// Indicate whether this picker column is not created by users.
-	// Users can directly add picker rows to the picker. In this case, we create a picker column for them and this is
-	// the only column in the picker.
-	private boolean createIfMissing = false;
-
-	public PickerColumnProxy()
+	@Override
+	public void release()
 	{
-		super();
+		super.release();
+
+		for (PickerRowProxy rowProxy : this.rowList) {
+			rowProxy.removeListener(this);
+		}
+		this.rowList.clear();
 	}
 
-	public void setColumnListener(PickerColumnListener listener)
+	public void addListener(PickerColumnProxy.OnChangedListener listener)
 	{
-		columnListener = listener;
+		if ((listener != null) && !this.listeners.contains(listener)) {
+			this.listeners.add(listener);
+		}
 	}
 
-	public void setUseSpinner(boolean value)
+	public void removeListener(PickerColumnProxy.OnChangedListener listener)
 	{
-		useSpinner = value;
+		this.listeners.remove(listener);
 	}
 
 	@Override
-	public void handleCreationDict(KrollDict dict)
+	public void handleCreationDict(KrollDict options)
 	{
-		super.handleCreationDict(dict);
-		if (dict.containsKey("rows")) {
-			Object rowsAtCreation = dict.get("rows");
-			if (rowsAtCreation.getClass().isArray()) {
-				Object[] rowsArray = (Object[]) rowsAtCreation;
-				addRows(rowsArray);
+		super.handleCreationDict(options);
+
+		if (options.containsKey(TiC.PROPERTY_ROWS)) {
+			Object value = options.get(TiC.PROPERTY_ROWS);
+			if ((value != null) && value.getClass().isArray()) {
+				setRows((Object[]) value);
+			} else {
+				setRows(null);
 			}
 		}
 	}
 
-	@Override
-	public void add(Object args)
+	@Kroll.setProperty
+	public void setFont(KrollDict value)
 	{
-		handleAddRow((TiViewProxy) args);
+		setPropertyAndFire(TiC.PROPERTY_FONT, value);
+		onColumnChanged();
 	}
 
-	private void handleAddRow(TiViewProxy o)
+	@Kroll.method
+	public void add(Object value)
 	{
-		if (o == null)
+		if (value instanceof PickerRowProxy) {
+			// Add single row.
+			addRow((PickerRowProxy) value);
+		} else if ((value != null) && value.getClass().isArray()) {
+			// Add array of rows.
+			int rowCount = this.rowList.size();
+			boolean wasEnabled = this.canInvokeListeners;
+			this.canInvokeListeners = true;
+			for (Object nextObject : (Object[]) value) {
+				add(nextObject);
+			}
+			this.canInvokeListeners = wasEnabled;
+			if (rowCount != this.rowList.size()) {
+				onColumnChanged();
+			}
+		} else {
+			Log.w(TAG, "Unable to add row to PickerColumn. Must be of type: Ti.UI.PickerRow");
+		}
+	}
+
+	@Kroll.method
+	public void addRow(PickerRowProxy rowProxy)
+	{
+		// Validate.
+		if (rowProxy == null) {
 			return;
-		if (o instanceof PickerRowProxy) {
-			((PickerRowProxy) o).setRowListener(this);
-			super.add((PickerRowProxy) o);
-			if (columnListener != null && !suppressListenerEvents) {
-				int index = children.indexOf(o);
-				columnListener.rowAdded(this, index);
-			}
-		} else {
-			Log.w(TAG, "add() unsupported argument type: " + o.getClass().getSimpleName());
 		}
-	}
 
-	@Override
-	public void remove(TiViewProxy o)
-	{
-		if (o instanceof PickerRowProxy) {
-			int index = children.indexOf(o);
-			super.remove((PickerRowProxy) o);
-			if (columnListener != null && !suppressListenerEvents) {
-				columnListener.rowRemoved(this, index);
-			}
-		} else if (o != null) {
-			Log.w(TAG, "remove() unsupported argment type: " + o.getClass().getSimpleName());
+		// Do not continue if already added.
+		if (this.rowList.contains(rowProxy)) {
+			return;
 		}
+
+		// Add row to collection.
+		this.rowList.add(rowProxy);
+		rowProxy.addListener(this);
+
+		// Notify listeners that row has been added.
+		onColumnChanged();
 	}
 
 	@Kroll.method
-	public void addRow(Object row)
+	public void remove(Object row)
 	{
-		if (row instanceof PickerRowProxy) {
-			this.add((PickerRowProxy) row);
-		} else {
-			Log.w(TAG, "Unable to add the row. Invalid type for row.");
-		}
-	}
-
-	protected void addRows(Object[] rows)
-	{
-		for (Object row : rows) {
-			addRow(row);
-		}
+		removeRow(row);
 	}
 
 	@Kroll.method
-	public void removeRow(Object row)
+	public void removeAllChildren()
 	{
-		if (row instanceof PickerRowProxy) {
-			this.remove((PickerRowProxy) row);
-		} else {
-			Log.w(TAG, "Unable to remove the row. Invalid type for row.");
+		setRows(null);
+	}
+
+	@Kroll.method
+	public void removeRow(Object value)
+	{
+		// Validate argument.
+		if (!(value instanceof PickerRowProxy)) {
+			Log.w(TAG, "Unable to remove given row. Must be of type: Ti.UI.PickerRow");
+			return;
 		}
+		PickerRowProxy rowProxy = (PickerRowProxy) value;
+
+		// Fetch index of given row by reference.
+		int index = this.rowList.indexOf(rowProxy);
+		if (index < 0) {
+			return;
+		}
+
+		// Remove given row.
+		this.rowList.remove(index);
+		rowProxy.removeListener(this);
+
+		// Notify listeners that row was removed.
+		onColumnChanged();
 	}
 
 	@Kroll.getProperty
 	public PickerRowProxy[] getRows()
 	{
-		if (children == null || children.size() == 0) {
-			return null;
-		}
-		return children.toArray(new PickerRowProxy[0]);
+		return this.rowList.toArray(new PickerRowProxy[0]);
 	}
 
-	@Kroll.setProperty
+	@Kroll.setProperty(retain = false)
 	public void setRows(Object[] rows)
 	{
-		try {
-			suppressListenerEvents = true;
-			if (children != null && children.size() > 0) {
-				int count = children.size();
-				for (int i = (count - 1); i >= 0; i--) {
-					remove(children.get(i));
-				}
+		// Temporarily disable listeners.
+		boolean wasEnabled = this.canInvokeListeners;
+		this.canInvokeListeners = false;
+
+		// Remove all rows.
+		while (!this.rowList.isEmpty()) {
+			removeRow(this.rowList.get(this.rowList.size() - 1));
+		}
+
+		// Add given rows.
+		if (rows != null) {
+			for (Object nextRow : rows) {
+				add(nextRow);
 			}
-			addRows(rows);
-		} finally {
-			suppressListenerEvents = false;
 		}
-		if (columnListener != null) {
-			columnListener.rowsReplaced(this);
+
+		// Notify listeners that column has changed.
+		this.canInvokeListeners = wasEnabled;
+		onColumnChanged();
+	}
+
+	public PickerRowProxy getRowByIndex(int index)
+	{
+		if ((index >= 0) && (index < this.rowList.size())) {
+			return this.rowList.get(index);
 		}
+		return null;
 	}
 
 	@Kroll.getProperty
 	public int getRowCount()
 	{
-		return children.size();
+		return this.rowList.size();
 	}
 
 	@Override
-	public TiUIView createView(Activity activity)
+	public void onChanged(PickerRowProxy row)
 	{
-		if (useSpinner) {
-			return new TiUISpinnerColumn(this);
-		} else {
-			return new TiUIPickerColumn(this);
+		onColumnChanged();
+	}
+
+	private void onColumnChanged()
+	{
+		if (!canInvokeListeners) {
+			return;
 		}
-	}
 
-	public interface PickerColumnListener {
-		void rowAdded(PickerColumnProxy column, int rowIndex);
-		void rowRemoved(PickerColumnProxy column, int oldRowIndex);
-		void rowChanged(PickerColumnProxy column, int rowIndex);
-		void rowSelected(PickerColumnProxy column, int rowIndex);
-		void rowsReplaced(PickerColumnProxy column); // wholesale replace of rows
-	}
-
-	@Override
-	public void rowChanged(PickerRowProxy row)
-	{
-		if (columnListener != null && !suppressListenerEvents) {
-			int index = children.indexOf(row);
-			columnListener.rowChanged(this, index);
+		ArrayList<PickerColumnProxy.OnChangedListener> clonedListeners = new ArrayList<>(this.listeners);
+		for (OnChangedListener listener : clonedListeners) {
+			if (this.listeners.contains(listener)) {
+				listener.onChanged(this);
+			}
 		}
-	}
-
-	public void onItemSelected(int rowIndex)
-	{
-		if (columnListener != null && !suppressListenerEvents) {
-			columnListener.rowSelected(this, rowIndex);
-		}
-	}
-
-	public PickerRowProxy getSelectedRow()
-	{
-		if (!(peekView() instanceof TiUISpinnerColumn)) {
-			return null;
-		}
-		int rowIndex = ((TiUISpinnerColumn) peekView()).getSelectedRowIndex();
-		if (rowIndex < 0) {
-			return null;
-		} else {
-			return (PickerRowProxy) children.get(rowIndex);
-		}
-	}
-
-	public int getThisColumnIndex()
-	{
-		return ((PickerProxy) getParent()).getColumnIndex(this);
-	}
-
-	public void parentShouldRequestLayout()
-	{
-		if (getParent() instanceof PickerProxy) {
-			((PickerProxy) getParent()).forceRequestLayout();
-		}
-	}
-
-	public void setCreateIfMissing(boolean flag)
-	{
-		createIfMissing = flag;
-	}
-
-	public boolean getCreateIfMissing()
-	{
-		return createIfMissing;
 	}
 
 	@Override
