@@ -1459,6 +1459,14 @@ properties:
     since: { android: 3.1.0, iphone: 3.0.0, ipad: 3.0.0 }
     platforms: [android, iphone, ipad, macos]
 
+  - name: sectionHeaderTopPadding
+    summary: Padding above each section header.
+    description: If not set or set to `-1`, it defaults to an automatic spacing determined by the system.
+    type: Number
+    since: 10.1.0
+    platforms: [iphone, ipad, macos]
+    osver: { ios: { min: "15.0" } }
+
   - name: separatorColor
     summary: Separator line color between rows, as a color name or hex triplet.
     description: |
