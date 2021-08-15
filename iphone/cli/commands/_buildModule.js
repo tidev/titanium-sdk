@@ -601,7 +601,13 @@ iOSModuleBuilder.prototype.buildModule = function buildModule(next) {
 					}
 				});
 			}
-			if (legacyFrameworks.size > 0) {
+			legacyCheck: if (legacyFrameworks.size > 0) {
+				// If macOS is enabled, the developer explicitely wants to build the module with the frameworks.
+				// This can be fine, because "legacy frameworks" can be made iOS only in the "Build Phases" section
+				if (this.isMacOSEnabled) {
+					break legacyCheck;
+				}
+
 				const pbxFilePath = path.join(this.projectDir, `${this.moduleName}.xcodeproj`, 'project.pbxproj');
 				const proj = xcode.project(pbxFilePath).parseSync();
 				const configurations = proj.hash.project.objects.XCBuildConfiguration;
