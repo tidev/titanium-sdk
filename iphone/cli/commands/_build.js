@@ -4118,7 +4118,7 @@ iOSBuilder.prototype._embedCapabilitiesAndWriteEntitlementsPlist = function _emb
 		// write the entitlements.plist
 		const contents = plist.toString('xml');
 
-		if (!fs.existsSync(dest) || contents !== fs.readFileSync(dest).toString()) {
+		if (!fs.existsSync(dest) || contents !== fs.readFileSync(dest, 'utf-8').trim()) {
 			if (!this.forceRebuild) {
 				this.logger.info(__('Forcing rebuild: %s has changed since last build', dest.replace(this.projectDir + '/', '')));
 				this.forceRebuild = true;
@@ -5383,7 +5383,7 @@ iOSBuilder.prototype.writeEnvironmentVariables = async function writeEnvironment
 	}
 
 	// for non-development builds, DO NOT WRITE OUT ENV VARIABLES TO APP
-	const contents = this.writeEnvVars ? JSON.stringify(process.env) : {};
+	const contents = this.writeEnvVars ? JSON.stringify(process.env) : '{}';
 	if (!fs.existsSync(envVarsFile) || contents !== fs.readFileSync(envVarsFile, 'utf8')) {
 		this.logger.debug(__('Writing %s', envVarsFile.cyan));
 
@@ -5598,7 +5598,7 @@ iOSBuilder.prototype.createAssetImageSets = async function createAssetImageSets(
 			}
 
 			const imageSet = {
-				idiom: !match[4] ? 'universal' : match[3].replace('~', ''),
+				idiom: !match[4] ? 'universal' : match[4].replace('~', ''),
 				filename: imageName + '.' + imageExt,
 				scale: !match[3] ? '1x' : match[3].replace('@', '')
 			};
@@ -6641,7 +6641,12 @@ iOSBuilder.prototype.processTiSymbols = function processTiSymbols() {
 		if (parts.length) {
 			namespaces[parts[0].toLowerCase()] = 1;
 			while (parts.length) {
-				symbols[parts.join('.').replace(/\.create/gi, '').replace(/\./g, '').replace(/-/g, '_').toUpperCase()] = 1;
+				const value = parts.join('.').replace(/\.create/gi, '').replace(/\./g, '').replace(/-/g, '_').toUpperCase();
+				// Ignore any value that is not a single uppercased word, this is most likely an
+				// invalid detection by the babel plugin that collects the symbols used
+				if (/^\w+$/.test(value)) {
+					symbols[value] = 1;
+				}
 				parts.pop();
 			}
 		}

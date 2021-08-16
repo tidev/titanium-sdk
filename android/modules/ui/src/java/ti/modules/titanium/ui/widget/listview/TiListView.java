@@ -42,16 +42,14 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 {
 	private static final String TAG = "TiListView";
 
-	private static final int CACHE_SIZE = 8;
-	private static final int PRELOAD_SIZE = CACHE_SIZE / 2;
-
 	private final ListViewAdapter adapter;
 	private final DividerItemDecoration decoration;
-	private final List<ListItemProxy> items = new ArrayList<>(CACHE_SIZE);
+	private final List<ListItemProxy> items = new ArrayList<>(128);
 	private final ListViewProxy proxy;
 	private final TiNestedRecyclerView recyclerView;
 	private final SelectionTracker tracker;
 
+	private boolean hasLaidOutChildren = false;
 	private boolean isScrolling = false;
 	private int lastScrollDeltaY;
 	private String filterQuery;
@@ -66,7 +64,33 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 		this.recyclerView.setFocusable(true);
 		this.recyclerView.setFocusableInTouchMode(true);
 		this.recyclerView.setBackgroundColor(Color.TRANSPARENT);
-		this.recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+		this.recyclerView.setLayoutManager(new LinearLayoutManager(getContext()) {
+			@Override
+			public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state)
+			{
+				super.onLayoutChildren(recycler, state);
+
+				// The first time we load items, load the next 4 offscreen items to get them cached.
+				// This helps improve initial scroll performance.
+				if (!hasLaidOutChildren && (getChildCount() > 0)) {
+					int startIndex = findFirstVisibleItemPosition() + getChildCount();
+					int endIndex = Math.min(startIndex + 3, state.getItemCount() - 1);
+					for (int index = startIndex; index <= endIndex; index++) {
+						recycler.getViewForPosition(index);
+					}
+					hasLaidOutChildren = true;
+				}
+			}
+
+			@Override
+			public void onLayoutCompleted(RecyclerView.State state)
+			{
+				super.onLayoutCompleted(state);
+
+				// Process markers after layout.
+				proxy.handleMarkers();
+			}
+		});
 		this.recyclerView.setFocusableInTouchMode(false);
 
 		// Add listener to fire scroll events.
@@ -79,7 +103,10 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 
 				if (isScrolling && newState == RecyclerView.SCROLL_STATE_IDLE) {
 					isScrolling = false;
-					proxy.fireSyncEvent(TiC.EVENT_SCROLLEND, generateScrollPayload());
+
+					if (proxy.hierarchyHasListener(TiC.EVENT_SCROLLEND)) {
+						proxy.fireSyncEvent(TiC.EVENT_SCROLLEND, generateScrollPayload());
+					}
 				}
 			}
 
@@ -96,11 +123,15 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 
 				if (!isScrolling) {
 					isScrolling = true;
-					proxy.fireSyncEvent(TiC.EVENT_SCROLLSTART, generateScrollPayload());
+
+					if (proxy.hierarchyHasListener(TiC.EVENT_SCROLLSTART)) {
+						proxy.fireSyncEvent(TiC.EVENT_SCROLLSTART, generateScrollPayload());
+					}
 				}
 
 				// Only fire `scrolling` event upon direction change.
-				if (lastScrollDeltaY >= 0 && dy <= 0 || lastScrollDeltaY <= 0 && dy >= 0) {
+				if (proxy.hierarchyHasListener(TiC.EVENT_SCROLLING)
+					&& (lastScrollDeltaY >= 0 && dy <= 0 || lastScrollDeltaY <= 0 && dy >= 0)) {
 					final KrollDict payload = generateScrollPayload();
 
 					// Determine scroll direction.
@@ -114,14 +145,18 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 				}
 
 				lastScrollDeltaY = dy;
+
+				// Process markers.
+				proxy.handleMarkers();
 			}
 		});
 
 		// Disable list animations.
 		this.recyclerView.setItemAnimator(null);
 
-		// Optimize scroll performance.
-		recyclerView.setItemViewCacheSize(CACHE_SIZE);
+		// Disable cache since it creates cached holder dynamically, which causes stutter on initial scroll.
+		// We improved it by creating off-screen items on 1st call of onLayoutChildren().
+		recyclerView.setItemViewCacheSize(0);
 
 		// Set list separator.
 		decoration = new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL);
@@ -250,18 +285,12 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 	 */
 	public KrollDict generateScrollPayload()
 	{
-		final KrollDict payload = new KrollDict();
+		final ListItemProxy firstVisibleProxy = getFirstVisibleItem();
 		final LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
+		final KrollDict payload = new KrollDict();
 
 		// Obtain first visible list item view.
-		final View firstVisibleView =
-			layoutManager.findViewByPosition(layoutManager.findFirstVisibleItemPosition());
-		if (firstVisibleView != null) {
-			final ListViewHolder firstVisibleHolder =
-				(ListViewHolder) recyclerView.getChildViewHolder(firstVisibleView);
-
-			// Obtain first visible list item proxy.
-			final ListItemProxy firstVisibleProxy = (ListItemProxy) firstVisibleHolder.getProxy();
+		if (firstVisibleProxy != null) {
 			payload.put(TiC.PROPERTY_FIRST_VISIBLE_ITEM, firstVisibleProxy);
 
 			// Obtain first visible list item index in section.
@@ -357,6 +386,50 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 	}
 
 	/**
+	 * Obtain first visible list item proxy.
+	 *
+	 * @return ListItemProxy
+	 */
+	public ListItemProxy getFirstVisibleItem()
+	{
+		final LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
+		final View firstVisibleView =
+			layoutManager.findViewByPosition(layoutManager.findFirstVisibleItemPosition());
+
+		if (firstVisibleView != null) {
+			final ListViewHolder firstVisibleHolder =
+				(ListViewHolder) recyclerView.getChildViewHolder(firstVisibleView);
+
+			// Obtain first visible list item proxy.
+			return (ListItemProxy) firstVisibleHolder.getProxy();
+		}
+
+		return null;
+	}
+
+	/**
+	 * Obtain last visible list item proxy.
+	 *
+	 * @return ListItemProxy
+	 */
+	public ListItemProxy getLastVisibleItem()
+	{
+		final LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
+		final View lastVisibleView =
+			layoutManager.findViewByPosition(layoutManager.findLastVisibleItemPosition());
+
+		if (lastVisibleView != null) {
+			final ListViewHolder lastVisibleHolder =
+				(ListViewHolder) recyclerView.getChildViewHolder(lastVisibleView);
+
+			// Obtain last visible list item proxy.
+			return (ListItemProxy) lastVisibleHolder.getProxy();
+		}
+
+		return null;
+	}
+
+	/**
 	 * Determine if table results are filtered by query.
 	 *
 	 * @return Boolean
@@ -409,9 +482,7 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 	 */
 	public void update()
 	{
-
 		final KrollDict properties = this.proxy.getProperties();
-		final boolean shouldPreload = this.items.size() == 0;
 		int filterResultsCount = 0;
 
 		final boolean hasHeader = properties.containsKeyAndNotNull(TiC.PROPERTY_HEADER_TITLE)
@@ -511,17 +582,6 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 		// If filtered and no results, fire `noresult` event.
 		if (isFiltered() && filterResultsCount == 0) {
 			this.proxy.fireEvent(TiC.EVENT_NO_RESULTS, null);
-		}
-
-		// Pre-load items of empty list.
-		if (shouldPreload) {
-			final int preloadSize = Math.min(this.items.size(), PRELOAD_SIZE);
-
-			for (int i = 0; i < preloadSize; i++) {
-
-				// Pre-load views for smooth initial scroll.
-				this.items.get(i).getOrCreateView();
-			}
 		}
 
 		// Notify adapter of changes on UI thread.

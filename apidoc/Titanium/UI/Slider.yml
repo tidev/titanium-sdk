@@ -91,6 +91,7 @@ methods:
     description: |
         On iOS, you can specify that the value change should be animated by passing the
         optional `options` parameter.
+    platforms: [iphone,ipad,macos]
     parameters:
 
       - name: value
