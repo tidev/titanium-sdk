@@ -729,13 +729,13 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
 }
 #endif
 
-- (void)takeScreenshot:(id)arg
+- (JSValue *)takeScreenshot:(id)arg
 {
   ENSURE_SINGLE_ARG(arg, KrollCallback);
-  ENSURE_UI_THREAD(takeScreenshot, arg);
+  KrollCallback *callback = arg;
+  KrollPromise *promise = [[[KrollPromise alloc] initInContext:[self currentContext]] autorelease];
 
   // Create a graphics context with the target size
-
   CGSize imageSize = [[UIScreen mainScreen] bounds].size;
   UIGraphicsBeginImageContextWithOptions(imageSize, NO, 0);
 
@@ -775,7 +775,11 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
 
   TiBlob *blob = [[[TiBlob alloc] initWithImage:image] autorelease];
   NSDictionary *event = [NSDictionary dictionaryWithObject:blob forKey:@"media"];
-  [self _fireEventToListener:@"screenshot" withObject:event listener:arg thisObject:nil];
+  if (callback != nil && ![callback isUndefined]) {
+    [callback callWithArguments:@[ event ]];
+  }
+  [promise resolve:@[ event ]];
+  return promise.JSValue;
 }
 
 #ifdef USE_TI_MEDIASAVETOPHOTOGALLERY
