@@ -35,6 +35,7 @@ import ti.modules.titanium.ui.widget.tableview.TiTableView;
 		TiC.PROPERTY_HAS_DETAIL,
 		TiC.PROPERTY_EDITABLE,
 		TiC.PROPERTY_MOVABLE,
+		TiC.PROPERTY_MOVEABLE,
 		TiC.PROPERTY_CLASS_NAME,
 		TiC.PROPERTY_LAYOUT,
 		TiC.PROPERTY_LEFT_IMAGE,
@@ -132,7 +133,6 @@ public class TableViewRowProxy extends TiViewProxy
 			}
 			payload.put(TiC.EVENT_PROPERTY_ROW, this);
 			payload.put(TiC.EVENT_PROPERTY_INDEX, index);
-			payload.put(TiC.EVENT_PROPERTY_DETAIL, false);
 
 			if (tableView != null) {
 				payload.put(TiC.EVENT_PROPERTY_SEARCH_MODE, tableView.isFiltered());
@@ -318,8 +318,7 @@ public class TableViewRowProxy extends TiViewProxy
 	 */
 	private void headerDeprecationLog()
 	{
-		// TODO: Display deprecation warning in SDK 10.0
-		// Log.w(TAG, "Usage of 'TableViewRow.header' has been deprecated, use 'TableViewRow.headerTitle' instead.");
+		Log.w(TAG, "Usage of 'TableViewRow.header' has been deprecated, use 'TableViewRow.headerTitle' instead.");
 	}
 
 	/**
@@ -327,8 +326,7 @@ public class TableViewRowProxy extends TiViewProxy
 	 */
 	private void footerDeprecationLog()
 	{
-		// TODO: Display deprecation warning in SDK 10.0
-		// Log.w(TAG, "Usage of 'TableViewRow.footer' has been deprecated, use 'TableViewRow.footerTitle' instead.");
+		Log.w(TAG, "Usage of 'TableViewRow.footer' has been deprecated, use 'TableViewRow.footerTitle' instead.");
 	}
 
 	/**

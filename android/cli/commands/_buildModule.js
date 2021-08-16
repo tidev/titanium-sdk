@@ -507,11 +507,16 @@ AndroidModuleBuilder.prototype.generateRootProjectFiles = async function generat
 		key: 'org.gradle.jvmargs',
 		value: `-Xmx${this.javacMaxMemory} -Dkotlin.daemon.jvm.options="-Xmx${this.javacMaxMemory}"`
 	});
+
+	// Kotlin KAPT compatibility for JDK16
+	// NOTE: This parameter is removed in JDK17 and will prevent modules from compiling.
+	// https://youtrack.jetbrains.com/issue/KT-45545
+	gradleProperties.push({ key: 'org.gradle.jvmargs', value: '--illegal-access=permit' });
+
 	await gradlew.writeGradlePropertiesFile(gradleProperties);
 
-	// Create a "local.properties" file providing a path to the Android SDK/NDK directories.
-	const androidNdkPath = this.androidInfo.ndk ? this.androidInfo.ndk.path : null;
-	await gradlew.writeLocalPropertiesFile(this.androidInfo.sdk.path, androidNdkPath);
+	// Create a "local.properties" file providing a path to the Android SDK directory.
+	await gradlew.writeLocalPropertiesFile(this.androidInfo.sdk.path);
 
 	// Copy our root "build.gradle" template script to the root build directory.
 	const templatesDir = path.join(this.platformPath, 'templates', 'build');

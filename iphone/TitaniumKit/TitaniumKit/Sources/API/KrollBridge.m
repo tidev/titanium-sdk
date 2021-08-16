@@ -348,47 +348,83 @@ CFMutableSetRef krollBridgeRegistry = nil;
   // Load ti.kernel.js (kroll.js equivalent)
   NSURL *bootstrapURL = [TiHost resourceBasedURL:@"ti.kernel.js" baseURL:NULL];
   NSString *source = [AssetsModule readURL:bootstrapURL];
-
-  JSValue *bootstrapFunc = [objcJSContext evaluateScript:source withSourceURL:bootstrapURL];
-  if (objcJSContext.exception != nil) {
+  if (source == nil || source.length == 0) {
+    NSLog(@"[ERROR] Error reading ti.kernel.js, source is nil/empty. Most likely due to failure to decrypt via remote policy and device offline.");
     evaluationError = YES;
-    [TiExceptionHandler.defaultExceptionHandler reportScriptError:objcJSContext.exception inJSContext:objcJSContext];
-  }
-  [bootstrapFunc callWithArguments:@[ global, [[KrollModule alloc] init] ]];
-  if (objcJSContext.exception != nil) {
-    evaluationError = YES;
-    [TiExceptionHandler.defaultExceptionHandler reportScriptError:objcJSContext.exception inJSContext:objcJSContext];
-  }
-
-  JSValue *titanium = global[@"Ti"];
-  TopTiModule *module = [titanium toObject];
-  if ([[TiSharedConfig defaultConfig] isAnalyticsEnabled]) {
-    APSAnalytics *sharedAnalytics = [APSAnalytics sharedInstance];
-    NSString *buildType = [[TiSharedConfig defaultConfig] applicationBuildType];
-    NSString *deployType = [[TiSharedConfig defaultConfig] applicationDeployType];
-    NSString *guid = [[TiSharedConfig defaultConfig] applicationGUID];
-    if (buildType != nil || buildType.length > 0) {
-      [sharedAnalytics performSelector:@selector(setBuildType:) withObject:buildType];
+    // Don't put up a dialog, as the most likely cause here is remote policy encryption/decryption failing to decrypt due to being offline.
+    // And if we have a dialog up, the security violation dialog won't appear
+  } else {
+    JSValue *bootstrapFunc = [objcJSContext evaluateScript:source withSourceURL:bootstrapURL];
+    if (objcJSContext.exception != nil) {
+      NSLog(@"[ERROR] Error eval'ing ti.kernel.js bootstrap script. Please contact Titanium developers and file a bug report.");
+      evaluationError = YES;
+      [TiExceptionHandler.defaultExceptionHandler reportScriptError:objcJSContext.exception inJSContext:objcJSContext];
+    } else if (bootstrapFunc == nil || [bootstrapFunc isUndefined]) {
+      // it didn't export a bootstrap function! Most likely reason is we hosed the file
+      NSLog(@"[ERROR] Error eval'ing ti.kernel.js, bootstrap function is undefined/nil. Please contact Titanium developers and file a bug report.");
+      evaluationError = YES;
+      [TiExceptionHandler.defaultExceptionHandler reportScriptError:objcJSContext.exception inJSContext:objcJSContext];
+    } else {
+      // ti.kernel.js eval'd OK, so now let's run the exported bootstrap function
+      [bootstrapFunc callWithArguments:@[ global, [[KrollModule alloc] init] ]];
+      if (objcJSContext.exception != nil) {
+        NSLog(@"[ERROR] Error calling ti.kernel.js' exported bootstrap function. Please contact Titanium developers and file a bug report.");
+        evaluationError = YES;
+        [TiExceptionHandler.defaultExceptionHandler reportScriptError:objcJSContext.exception inJSContext:objcJSContext];
+      }
     }
-    [sharedAnalytics performSelector:@selector(setSDKVersion:) withObject:[module performSelector:@selector(version)]];
+  }
+
+  JSValue *titanium = global[@"Ti"]; // This may be nil/undefined it we couldn't load ti.kernel.js or the bootstrapping failed
+  if (TiSharedConfig.defaultConfig.isAnalyticsEnabled) {
+    APSAnalytics *sharedAnalytics = APSAnalytics.sharedInstance;
+    NSString *buildType = TiSharedConfig.defaultConfig.applicationBuildType;
+    if (buildType != nil || buildType.length > 0) {
+      [sharedAnalytics setBuildType:buildType];
+    }
+    TopTiModule *module;
+    if (titanium != nil && ![titanium isUndefined]) {
+      module = [titanium toObject];
+    } else {
+      // Uh-oh, something went really wrong! For analytics sake, let's just create the module
+      module = [[TopTiModule alloc] init];
+      global[@"Ti"] = module;
+      global[@"Titanium"] = module;
+    }
+    [sharedAnalytics setSDKVersion:module.version];
+    NSString *deployType = TiSharedConfig.defaultConfig.applicationDeployType;
+    NSString *guid = TiSharedConfig.defaultConfig.applicationGUID;
     [sharedAnalytics enableWithAppKey:guid andDeployType:deployType];
+
+    // Set analytics event cache size.
+    id cacheSizeObj = [[TiApp tiAppProperties] objectForKey:@"ti.analytics.cacheSize"];
+    if ([cacheSizeObj isKindOfClass:[NSNumber class]]) {
+      int cacheSize = [cacheSizeObj intValue];
+      if (cacheSize > -1) {
+        [sharedAnalytics setCacheSize:cacheSize];
+      }
+    }
   }
 
   NSURL *startURL = nil;
   //if we have a preload dictionary, register those static key/values into our namespace
   if (preload != nil) {
-    for (NSString *name in preload) {
-      JSValue *moduleJSObject = titanium[name];
-      KrollObject *ti = (KrollObject *)JSObjectGetPrivate(JSValueToObject(jsContext, moduleJSObject.JSValueRef, NULL));
-      NSDictionary *values = preload[name];
-      for (id key in values) {
-        id target = values[key];
-        KrollObject *ko = [self krollObjectForProxy:target];
-        if (ko == nil) {
-          ko = [self registerProxy:target];
+    // Guard for top level Titanium object being unassigned. likley means we had issues
+    // setting up ti.kernel.js, so we likely need to skip most everything here.
+    if (titanium != nil && ![titanium isUndefined]) {
+      for (NSString *name in preload) {
+        JSValue *moduleJSObject = titanium[name];
+        KrollObject *ti = (KrollObject *)JSObjectGetPrivate(JSValueToObject(jsContext, moduleJSObject.JSValueRef, NULL));
+        NSDictionary *values = preload[name];
+        for (id key in values) {
+          id target = values[key];
+          KrollObject *ko = [self krollObjectForProxy:target];
+          if (ko == nil) {
+            ko = [self registerProxy:target];
+          }
+          [ti noteKrollObject:ko forKey:key];
+          [ti setStaticValue:ko forKey:key purgable:NO];
         }
-        [ti noteKrollObject:ko forKey:key];
-        [ti setStaticValue:ko forKey:key purgable:NO];
       }
     }
     startURL = [url copy]; // should be the entry point of the background service js file
@@ -398,7 +434,14 @@ CFMutableSetRef krollBridgeRegistry = nil;
 
   // We need to run this before the entry js file, which means it has to be here.
   TiBindingRunLoopAnnounceStart(kroll);
-  [self evalFile:[startURL absoluteString] callback:self selector:@selector(booted)];
+  if (!evaluationError) {
+    [self evalFile:[startURL absoluteString] callback:self selector:@selector(booted)];
+  } else {
+    NSLog(@"[ERROR] Error loading/executing ti.kernel.js bootstrap code, refusing to launch app main file.");
+    // DO NOT POP AN ERROR DIALOG! The most likley scenario here is that the app is remotely encrypted
+    // and the decryption failed because the device is offline
+    // If we pop a dialog here, it will block the "Security Violation" error dialog that would show in that case
+  }
 
   if (TiUtils.isHyperloopAvailable) {
     Class cls = NSClassFromString(@"Hyperloop");
@@ -518,6 +561,25 @@ CFMutableSetRef krollBridgeRegistry = nil;
   }
   os_unfair_lock_unlock(&proxyLock);
   return result;
+}
+
+- (id)require:(KrollContext *)kroll path:(NSString *)path
+{
+  if (!kroll || !path) {
+    return nil;
+  }
+
+  JSContext *jsContext = [JSContext contextWithJSGlobalContextRef:kroll.context];
+  JSValue *jsResult = [jsContext.globalObject invokeMethod:@"require" withArguments:@[ path ]];
+  if (![jsResult isObject]) {
+    return nil;
+  }
+
+  KrollWrapper *krollResult = [[KrollWrapper alloc] init];
+  [krollResult setBridge:self];
+  [krollResult setJsobject:(JSObjectRef)[jsResult JSValueRef]];
+  [krollResult protectJsobject];
+  return [krollResult autorelease];
 }
 
 + (NSArray *)krollBridgesUsingProxy:(id)proxy

@@ -32,8 +32,8 @@ function isHijackableModuleId(path) {
 	return firstChar !== '.' && firstChar !== '/';
 }
 
-// Hack require to point to this as a core module "binding"
-const originalRequire = global.require;
+// Hack require to point to this as core module "binding". (Note that iOS does not have a global require.)
+const originalRequire = global.require ? global.require : require.main.require.bind(require.main);
 // This works for Windows as-is, and also intercepts the call on Android/iOS for ti.main.js (the first file executed)
 global.require = function (moduleId) {
 

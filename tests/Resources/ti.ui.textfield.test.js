@@ -40,6 +40,40 @@ describe('Titanium.UI.TextField', () => {
 			});
 		});
 
+		describe('.enableCopy', () => {
+			it('is a Boolean', () => {
+				const textField = Ti.UI.createTextField();
+				should(textField).have.readOnlyProperty('enableCopy').which.is.a.Boolean();
+			});
+
+			it('defaults to true', () => {
+				const textField = Ti.UI.createTextField();
+				should(textField.enableCopy).be.true();
+			});
+
+			it('can be initialized false', () => {
+				const textField = Ti.UI.createTextField({ enableCopy: false });
+				should(textField.enableCopy).be.false();
+			});
+
+			it('can be changed dynamically', (finish) => {
+				const textField = Ti.UI.createTextField();
+				win = Ti.UI.createWindow({ backgroundColor: '#fff' });
+				win.add(textField);
+				win.addEventListener('postlayout', function listener() {
+					try {
+						win.removeEventListener('postlayout', listener);
+						textField.enableCopy = false;
+						should(textField.enableCopy).be.false();
+						finish();
+					} catch (err) {
+						finish(err);
+					}
+				});
+				win.open();
+			});
+		});
+
 		it('.focused', done => {
 			win = Ti.UI.createWindow({ backgroundColor: '#fff' });
 			const textField = Ti.UI.createTextField({
@@ -412,7 +446,7 @@ describe('Titanium.UI.TextField', () => {
 			win.addEventListener('postlayout', function listener () {
 				win.removeEventListener('postlayout', listener);
 				textField.setSelection(0, 5);
-				setTimeout(function (e) {
+				setTimeout(function () {
 					try {
 						should(textField.selection.length).eql(5);
 						should(textField.selection.location).eql(0);

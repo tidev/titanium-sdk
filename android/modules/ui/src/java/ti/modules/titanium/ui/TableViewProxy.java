@@ -42,6 +42,7 @@ import ti.modules.titanium.ui.widget.tableview.TiTableView;
 		TiC.PROPERTY_MAX_CLASSNAME,
 		TiC.PROPERTY_MIN_ROW_HEIGHT,
 		TiC.PROPERTY_MOVABLE,
+		TiC.PROPERTY_MOVEABLE,
 		TiC.PROPERTY_MOVING,
 		TiC.PROPERTY_OVER_SCROLL_MODE,
 		TiC.PROPERTY_REFRESH_CONTROL,
@@ -664,12 +665,18 @@ public class TableViewProxy extends RecyclerViewProxy
 	public void scrollToIndex(int index, @Kroll.argument(optional = true) KrollDict animation)
 	{
 		final TiTableView tableView = getTableView();
+		final boolean animated = animation == null || animation.optBoolean(TiC.PROPERTY_ANIMATED, true);
 
 		if (tableView != null) {
 			final RecyclerView recyclerView = tableView.getRecyclerView();
 
 			if (recyclerView != null) {
-				recyclerView.scrollToPosition(tableView.getAdapterIndex(index));
+
+				if (animated) {
+					recyclerView.smoothScrollToPosition(tableView.getAdapterIndex(index));
+				} else {
+					recyclerView.scrollToPosition(tableView.getAdapterIndex(index));
+				}
 			}
 		}
 	}
