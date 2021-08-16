@@ -43,7 +43,7 @@ describe('Titanium.Network.HTTPClient', function () {
 			}
 		};
 
-		xhr.open('GET', 'http://www.appcelerator.com/feed');
+		xhr.open('GET', 'https://httpbin.org/xml');
 		xhr.send();
 	});
 
