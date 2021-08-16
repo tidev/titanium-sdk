@@ -12,7 +12,6 @@ import java.util.HashMap;
 @SuppressWarnings("serial")
 public class TiWeakMap<K, V> extends HashMap<WeakReference<K>, V>
 {
-
 	@Override
 	public boolean containsKey(Object object)
 	{

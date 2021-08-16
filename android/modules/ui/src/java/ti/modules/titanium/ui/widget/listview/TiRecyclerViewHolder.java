@@ -28,7 +28,6 @@ import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
-import org.appcelerator.titanium.util.TiFileHelper;
 import org.appcelerator.titanium.util.TiUIHelper;
 
 import java.lang.ref.WeakReference;
@@ -45,7 +44,6 @@ public abstract class TiRecyclerViewHolder extends RecyclerView.ViewHolder
 	protected static Drawable moreDrawable;
 
 	protected static Resources resources;
-	protected static TiFileHelper fileHelper;
 
 	protected WeakReference<TiViewProxy> proxy;
 
@@ -102,11 +100,6 @@ public abstract class TiRecyclerViewHolder extends RecyclerView.ViewHolder
 		} else {
 			Log.w(TAG, "Could not obtain context resources instance.");
 		}
-		if (fileHelper == null) {
-
-			// Obtain file helper instance.
-			fileHelper = new TiFileHelper(context);
-		}
 	}
 
 	/**
@@ -117,19 +110,23 @@ public abstract class TiRecyclerViewHolder extends RecyclerView.ViewHolder
 	 */
 	protected Drawable generateRippleDrawable(Drawable drawable, String color)
 	{
-		final int[][] rippleStates = new int[][] { new int[] { } };
-		final TypedValue typedValue = new TypedValue();
 		final Activity activity = TiApplication.getAppCurrentActivity();
-		final TypedArray colorControlHighlight = activity.obtainStyledAttributes(
-			typedValue.data, new int[] { android.R.attr.colorControlHighlight });
-		final int colorControlHighlightInt = color != null && !color.isEmpty()
-			? TiConvert.toColor(color) : colorControlHighlight.getColor(0, 0);
-		final int[] rippleColors = new int[] { colorControlHighlightInt };
-		final ColorStateList colorStateList = new ColorStateList(rippleStates, rippleColors);
-		final ShapeDrawable maskDrawable = drawable == null ? new ShapeDrawable() : null;
 
-		// Create the RippleDrawable.
-		drawable = new RippleDrawable(colorStateList, drawable, maskDrawable);
+		if (activity != null) {
+			final int[][] rippleStates = new int[][] { new int[] {} };
+			final TypedValue typedValue = new TypedValue();
+
+			final TypedArray colorControlHighlight = activity.obtainStyledAttributes(
+				typedValue.data, new int[] { android.R.attr.colorControlHighlight });
+			final int colorControlHighlightInt = color != null && !color.isEmpty()
+				? TiConvert.toColor(color) : colorControlHighlight.getColor(0, 0);
+			final int[] rippleColors = new int[] { colorControlHighlightInt };
+			final ColorStateList colorStateList = new ColorStateList(rippleStates, rippleColors);
+			final ShapeDrawable maskDrawable = drawable == null ? new ShapeDrawable() : null;
+
+			// Create the RippleDrawable.
+			drawable = new RippleDrawable(colorStateList, drawable, maskDrawable);
+		}
 
 		return drawable;
 	}

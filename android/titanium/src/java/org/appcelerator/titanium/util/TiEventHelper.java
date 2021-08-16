@@ -37,7 +37,7 @@ public class TiEventHelper
 			fireViewEvent(view, type, (Map<String, Object>) null);
 		}
 
-		Map<String, Object> extraProperties = new HashMap<String, Object>();
+		Map<String, Object> extraProperties = new HashMap<>();
 		for (int i = 0; i < properties.length; i++) {
 			if (i + 1 < properties.length) {
 				extraProperties.put(properties[i], properties[++i]);

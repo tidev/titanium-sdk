@@ -11,7 +11,6 @@
 'use strict';
 
 const should = require('./utilities/assertions');
-const utilities = require('./utilities/utilities');
 
 describe('Titanium.UI.Clipboard', () => {
 

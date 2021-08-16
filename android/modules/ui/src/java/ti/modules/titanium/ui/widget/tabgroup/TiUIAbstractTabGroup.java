@@ -138,7 +138,7 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 	 * Returns the value of the Tab's title.
 	 *
 	 * @param index the index of the Tab.
-	 * @return
+	 * @return Returns the tab's title.
 	 */
 	public abstract String getTabTitle(int index);
 
@@ -160,9 +160,9 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 	private int colorSurfaceInt;
 	private int colorPrimaryInt;
 	private int colorOnSurfaceInt;
-	private AtomicLong fragmentIdGenerator = new AtomicLong();
-	private ArrayList<Long> tabFragmentIDs = new ArrayList<Long>();
-	protected ArrayList<TiUITab> tabs = new ArrayList<TiUITab>();
+	private final AtomicLong fragmentIdGenerator = new AtomicLong();
+	private final ArrayList<Long> tabFragmentIDs = new ArrayList<>();
+	protected ArrayList<TiUITab> tabs = new ArrayList<>();
 	// endregion
 
 	public TiUIAbstractTabGroup(final TabGroupProxy proxy, TiBaseActivity activity)
@@ -264,6 +264,25 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 	}
 
 	/**
+	 * Determines if given tab needs to call textColorStateList() for custom text color handling.
+	 * @param tabProxy The tab to check for custom color properties. Can be null.
+	 * @return Returns true if textColorStateList() needs to be called.
+	 */
+	protected boolean hasCustomTextColor(TiViewProxy tabProxy)
+	{
+		// Do not continue if released.
+		if ((this.proxy == null) || (tabProxy == null)) {
+			return false;
+		}
+
+		// Check if the properties used by the textColorStateList() method are defined.
+		return this.proxy.hasProperty(TiC.PROPERTY_TITLE_COLOR)
+			|| this.proxy.hasProperty(TiC.PROPERTY_ACTIVE_TITLE_COLOR)
+			|| tabProxy.hasProperty(TiC.PROPERTY_TITLE_COLOR)
+			|| tabProxy.hasProperty(TiC.PROPERTY_ACTIVE_TITLE_COLOR);
+	}
+
+	/**
 	 * Method for creating a ColorStateList instance usef for item in the Controller.
 	 * It creates a ColorStateList with two states - one for the provided parameter and
 	 * one for the negative value of the provided parameter.
@@ -281,7 +300,10 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 		}
 
 		int[][] textColorStates = new int[][] { new int[] { -stateToUse }, new int[] { stateToUse } };
-		int[] textColors = { this.colorOnSurfaceInt, this.colorPrimaryInt };
+		int[] textColors = {
+			ColorUtils.setAlphaComponent(this.colorOnSurfaceInt, 153),  // 60% opacity
+			this.colorPrimaryInt
+		};
 
 		final KrollDict tabProperties = tabProxy.getProperties();
 		final KrollDict properties = getProxy().getProperties();
@@ -299,6 +321,25 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 			textColors[1] = TiColorHelper.parseColor(colorString);
 		}
 		return new ColorStateList(textColorStates, textColors);
+	}
+
+	/**
+	 * Determines if given tab needs to call createBackgroundDrawableForState() for custom background color handling.
+	 * @param tabProxy The tab to check for custom color properties. Can be null.
+	 * @return Returns true if createBackgroundDrawableForState() needs to be called.
+	 */
+	protected boolean hasCustomBackground(TiViewProxy tabProxy)
+	{
+		// Do not continue if released.
+		if ((this.proxy == null) || (tabProxy == null)) {
+			return false;
+		}
+
+		// Check if the properties used by the createBackgroundDrawableForState() method are defined.
+		return this.proxy.hasProperty(TiC.PROPERTY_TABS_BACKGROUND_COLOR)
+			|| this.proxy.hasProperty(TiC.PROPERTY_TABS_BACKGROUND_SELECTED_COLOR)
+			|| tabProxy.hasProperty(TiC.PROPERTY_BACKGROUND_COLOR)
+			|| tabProxy.hasProperty(TiC.PROPERTY_BACKGROUND_FOCUSED_COLOR);
 	}
 
 	/**
@@ -459,6 +500,20 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 		}
 	}
 
+	public boolean hasCustomIconTint(TiViewProxy tabProxy)
+	{
+		// Do not continue if released.
+		if ((this.proxy == null) || (tabProxy == null)) {
+			return false;
+		}
+
+		// Check if the properties used by the updateIconTint() method are defined.
+		return this.proxy.hasProperty(TiC.PROPERTY_ACTIVE_TINT_COLOR)
+			|| this.proxy.hasProperty(TiC.PROPERTY_TINT_COLOR)
+			|| tabProxy.hasProperty(TiC.PROPERTY_ACTIVE_TINT_COLOR)
+			|| tabProxy.hasProperty(TiC.PROPERTY_TINT_COLOR);
+	}
+
 	public Drawable updateIconTint(TiViewProxy tabProxy, Drawable drawable, boolean selected)
 	{
 		if (drawable == null) {
@@ -481,7 +536,7 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 			}
 			drawable.setColorFilter(color, PorterDuff.Mode.SRC_IN);
 		} else {
-			color = this.colorOnSurfaceInt;
+			color = ColorUtils.setAlphaComponent(this.colorOnSurfaceInt, 153);  // 60% opacity
 			if (tabProperties.containsKeyAndNotNull(TiC.PROPERTY_TINT_COLOR)
 				|| properties.containsKeyAndNotNull(TiC.PROPERTY_TINT_COLOR)) {
 				final String colorString = tabProperties.optString(TiC.PROPERTY_TINT_COLOR,
@@ -498,6 +553,18 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 	protected int getColorPrimary()
 	{
 		return this.colorPrimaryInt;
+	}
+
+	@ColorInt
+	protected int getActiveColor(TiViewProxy tabProxy)
+	{
+		Object colorObject = null;
+		if ((tabProxy != null) && tabProxy.hasPropertyAndNotNull(TiC.PROPERTY_ACTIVE_TINT_COLOR)) {
+			colorObject = tabProxy.getProperty(TiC.PROPERTY_ACTIVE_TINT_COLOR);
+		} else if ((this.proxy != null) && this.proxy.hasPropertyAndNotNull(TiC.PROPERTY_ACTIVE_TINT_COLOR)) {
+			colorObject = this.proxy.getProperty(TiC.PROPERTY_ACTIVE_TINT_COLOR);
+		}
+		return (colorObject != null) ? TiColorHelper.parseColor(colorObject.toString()) : this.colorPrimaryInt;
 	}
 
 	public static ColorStateList createRippleColorStateListFrom(@ColorInt int colorInt)

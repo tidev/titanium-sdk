@@ -23,7 +23,6 @@ import android.net.Uri;
 @Kroll.proxy(parentModule = CalendarModule.class)
 public class AlertProxy extends KrollProxy
 {
-
 	public static final int STATE_SCHEDULED = 0;
 	public static final int STATE_FIRED = 1;
 	public static final int STATE_DISMISSED = 2;
@@ -50,7 +49,7 @@ public class AlertProxy extends KrollProxy
 
 	public static ArrayList<AlertProxy> queryAlerts(String query, String[] queryArgs, String orderBy)
 	{
-		ArrayList<AlertProxy> alerts = new ArrayList<AlertProxy>();
+		ArrayList<AlertProxy> alerts = new ArrayList<>();
 		if (!CalendarProxy.hasCalendarPermissions()) {
 			return alerts;
 		}

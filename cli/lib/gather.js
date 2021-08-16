@@ -9,10 +9,10 @@ const FILENAME_REGEXP = /^(.*)\.(\w+)$/;
 // iOS specific stuff
 const LAUNCH_IMAGE_REGEXP = /^(Default(-(Landscape|Portrait))?(-[0-9]+h)?(@[2-9]x)?)\.png$/;
 const LAUNCH_LOGO_REGEXP = /^LaunchLogo(@[23]x)?(~(iphone|ipad))?\.(png|jpg)$/;
-const BUNDLE_FILE_REGEXP = /.+\.bundle\/.+/;
+const BUNDLE_FILE_REGEXP = /.+\.bundle[/|\\].+/;
 // Android-specific stuff
-const DRAWABLE_REGEXP = /^images\/(high|medium|low|res-[^/]+)(\/(.*))$/;
-const ANDROID_SPLASH_REGEXP = /^(images\/(high|medium|low|res-[^/]+)\/)?default\.(9\.png|png|jpg)$/;
+const DRAWABLE_REGEXP = /^images[/|\\](high|medium|low|res-[^/]+)([/|\\](.*))$/;
+const ANDROID_SPLASH_REGEXP = /^(images[/|\\](high|medium|low|res-[^/]+)[/|\\])?default\.(9\.png|png|jpg)$/;
 
 /**
  * Merges multiple maps
@@ -197,7 +197,7 @@ class Walker {
 			return;
 		}
 		const info = new FileInfo(name, from, to);
-		const relPath = from.replace((origSrc || src) + path.sep, prefix ? prefix + path.sep : '').replace(/\\/g, '/');
+		const relPath = from.replace((origSrc || src) + path.sep, prefix ? prefix + path.sep : '').replace(/\\/g, path.sep);
 		results.set(relPath, info);
 	}
 }

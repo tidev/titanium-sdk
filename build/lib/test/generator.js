@@ -65,8 +65,9 @@ async function generateTest(apidoc) {
 }
 
 /**
- * @param {string} constants
- * @returns {Promise<string[]}
+ * Fetches an array of fully qualified constant names based on the given wildcard string.
+ * @param {string} constants Wildcard string. Example: 'Ti.UI.ANIMATION_CURVE_*'
+ * @returns {Promise<string[]>} Returns array of fully qualified constant names.
  */
 async function expandWildcard(constants) {
 	// split by '.', find owning type, gather constants
@@ -92,7 +93,7 @@ async function expandWildcard(constants) {
 }
 
 /**
- * Generate a unit test givne an input apidoc yml file
+ * Generate a unit test given an input apidoc yml file
  * @param {string[]} args program args
  */
 async function main(args) {

@@ -41,7 +41,7 @@ public class TiExceptionHandler implements Handler.Callback, KrollExceptionHandl
 {
 	private static final String TAG = "TiExceptionHandler";
 	private static final int MSG_OPEN_ERROR_DIALOG = 10011;
-	private static LinkedList<ExceptionMessage> errorMessages = new LinkedList<ExceptionMessage>();
+	private static final LinkedList<ExceptionMessage> errorMessages = new LinkedList<>();
 	private static boolean dialogShowing = false;
 	private static Handler mainHandler;
 
@@ -54,7 +54,7 @@ public class TiExceptionHandler implements Handler.Callback, KrollExceptionHandl
 	public static final String ERROR_STACK = "stack";
 	public static final String ERROR_NATIVESTACK = "nativeStack";
 
-	// DEPRECATED in 9.0.0, REMOVE 10.0.0
+	// DEPRECATED in 9.0.0, REMOVE 11.0.0
 	public static final String ERROR_LINEOFFSET = "lineOffset";
 	public static final String ERROR_JS_STACK = "javascriptStack";
 	public static final String ERROR_JAVA_STACK = "javaStack";
@@ -78,7 +78,7 @@ public class TiExceptionHandler implements Handler.Callback, KrollExceptionHandl
 		dict.put(ERROR_STACK, error.jsStack);
 		dict.put(ERROR_NATIVESTACK, error.javaStack);
 
-		// DEPRECATED in 9.0.0, REMOVE 10.0.0
+		// DEPRECATED in 9.0.0, REMOVE 11.0.0
 		dict.put(ERROR_LINEOFFSET, error.lineOffset);
 		dict.put(ERROR_JS_STACK, error.jsStack);
 		dict.put(ERROR_JAVA_STACK, error.javaStack);
@@ -87,7 +87,7 @@ public class TiExceptionHandler implements Handler.Callback, KrollExceptionHandl
 
 	public static String getError(KrollDict error)
 	{
-		String output = new String();
+		String output = "";
 
 		final String sourceName = error.getString(ERROR_SOURCENAME);
 		final String message = error.getString(ERROR_MESSAGE);
@@ -290,7 +290,6 @@ public class TiExceptionHandler implements Handler.Callback, KrollExceptionHandl
 	/**
 	 * Handles the exception by opening an error dialog with an error message
 	 * @param error An error message containing line number, error title, message, etc
-	 * @module.api
 	 */
 	public void handleException(ExceptionMessage error)
 	{

@@ -43,7 +43,7 @@ description: |
 extends: Titanium.UI.Window
 since: "0.9"
 excludes:
-    methods: [add, remove, removeAllChildren, replaceAt]
+    methods: [add, remove, removeAllChildren, replaceAt, setToolbar]
     properties: [accessibilityHidden,accessibilityHint,accessibilityLabel,accessibilityValue,
                  anchorPoint,animatedCenter,backgroundDisabledColor,backgroundDisabledImage,
                  backgroundFocusedColor,backgroundFocusedImage,backgroundGradient,backgroundImage,backgroundLeftCap,
@@ -256,6 +256,10 @@ methods:
     summary: Gets the currently-active tab.
     returns:
         type: Titanium.UI.Tab
+    deprecated:
+        since: "10.0.0"
+        removed: "10.0.0"
+        notes: Use the <Titanium.UI.TabGroup.activeTab> property instead.
 
   - name: open
     summary: Opens the tab group and makes it visible.
@@ -274,11 +278,19 @@ methods:
       - name: indexOrObject
         summary: Index or object of the tab to switch to.
         type: [Number, Titanium.UI.Tab]
+    deprecated:
+        since: "10.0.0"
+        removed: "10.0.0"
+        notes: Use the <Titanium.UI.TabGroup.activeTab> property instead.
 
   - name: getTabs
     summary: Gets all tabs that are managed by the tab group.
     returns:
         type: Array<Titanium.UI.Tab>
+    deprecated:
+        since: "10.0.0"
+        removed: "10.0.0"
+        notes: Use the <Titanium.UI.TabGroup.tabs> property instead.
 
 properties:
   - name: activeTab
@@ -321,7 +333,34 @@ properties:
         A value of `transparent` results in a semi-opaque black bar style.
     type: [String, Titanium.UI.Color]
     platforms: [iphone, ipad, android, macos]
+    
+  - name: paddingLeft
+    summary: Left padding of bottom navigation
+    description: |
+        When using [TABS_STYLE_BOTTOM_NAVIGATION](Titanium.UI.Android.TABS_STYLE_BOTTOM_NAVIGATION) you can set the padding to have
+        a floating bottom navigation
+    since: "10.1.0"
+    type: [Number,String]
+    platforms: [android]
+    
+  - name: paddingRight
+    summary: Right padding of bottom navigation
+    description: |
+        When using [TABS_STYLE_BOTTOM_NAVIGATION](Titanium.UI.Android.TABS_STYLE_BOTTOM_NAVIGATION) you can set the padding to have
+        a floating bottom navigation
+    since: "10.1.0"
+    type: [Number,String]
+    platforms: [android]
 
+  - name: paddingBottom
+    summary: Bottom padding of bottom navigation
+    description: |
+        When using [TABS_STYLE_BOTTOM_NAVIGATION](Titanium.UI.Android.TABS_STYLE_BOTTOM_NAVIGATION) you can set the padding to have
+        a floating bottom navigation
+    since: "10.1.0"
+    type: [Number,String]
+    platforms: [android]
+    
   - name: translucent
     summary: Boolean value indicating if the nav bar (typically for the **More** tab), is translucent.
     platforms: [iphone, ipad, macos]
@@ -447,6 +486,15 @@ properties:
         the TabGroup with a list of Tabs in a controller at the bottom of the screen. The recommended usage of this 
         style is for items count between three and five: (https://material.io/design/components/bottom-navigation.html#usage) 
         In Android it is limited to supporting a maximum number of five tabs.
+        You can use paddingLeft, paddingRight, paddingBottom to create a floating bottom navigation. If you want to change the
+        radius or background color you'll need to create `/app/platform/android/res/drawable/titanium_rounded_corners.xml` and set it to
+        ```xml
+        <?xml version="1.0" encoding="UTF-8"?>
+        <shape xmlns:android="http://schemas.android.com/apk/res/android">
+            <solid android:color="#FFFFFF" />
+            <corners android:radius="7dp" />
+        </shape>
+        ```
 
     availability: creation
     constants: Titanium.UI.Android.TABS_STYLE_*
@@ -572,7 +620,10 @@ properties:
     description: |
         For information about color values, see the "Colors" section of <Titanium.UI>.
 
-        A tab's [backgroundSelectedColor](Titanium.UI.Tab.backgroundSelectedColor) property takes
+        This property is only supported by
+        [TABS_STYLE_BOTTOM_NAVIGATION](Titanium.UI.Android.TABS_STYLE_BOTTOM_NAVIGATION).
+
+        A tab's [backgroundFocusedColor](Titanium.UI.Tab.backgroundFocusedColor) property takes
         precedence if set.
     type: String
     platforms: [android]

@@ -159,6 +159,10 @@ public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionLis
 			tv.setEnabled(TiConvert.toBoolean(d, TiC.PROPERTY_ENABLED, true));
 		}
 
+		if (d.containsKey(TiC.PROPERTY_ENABLE_COPY)) {
+			tv.setIsCopyEnabled(TiConvert.toBoolean(d, TiC.PROPERTY_ENABLE_COPY, true));
+		}
+
 		this.inputFilterHandler.setMaxLength(TiConvert.toInt(d.get(TiC.PROPERTY_MAX_LENGTH), -1));
 
 		// Disable change event temporarily as we are setting the default value
@@ -315,6 +319,8 @@ public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionLis
 			tv.setAutofillHints(TiConvert.toString(newValue));
 		} else if (key.equals(TiC.PROPERTY_ENABLED)) {
 			tv.setEnabled(TiConvert.toBoolean(newValue));
+		} else if (key.equals(TiC.PROPERTY_ENABLE_COPY)) {
+			tv.setIsCopyEnabled(TiConvert.toBoolean(newValue));
 		} else if (key.equals(TiC.PROPERTY_VALUE)) {
 			this.disableChangeEvent = true;
 			tv.setText(TiConvert.toString(newValue, ""));
@@ -1324,7 +1330,7 @@ public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionLis
 	/** Stores a set of unique characters that can be easily turned into an array. */
 	private static class CharacterSet
 	{
-		private StringBuilder stringBuilder = new StringBuilder(32);
+		private final StringBuilder stringBuilder = new StringBuilder(32);
 
 		/**
 		 * Adds the given character if not already contained in the set.

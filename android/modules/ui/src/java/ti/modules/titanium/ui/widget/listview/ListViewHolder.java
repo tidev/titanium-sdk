@@ -92,6 +92,7 @@ public class ListViewHolder extends TiRecyclerViewHolder
 
 		// Update model proxy holder.
 		this.proxy = new WeakReference<>(proxy);
+		proxy.setHolder(this);
 
 		// Obtain ListView proxy for item.
 		final ListViewProxy listViewProxy = proxy.getListViewProxy();
@@ -141,8 +142,15 @@ public class ListViewHolder extends TiRecyclerViewHolder
 		}
 
 		if (proxy != null) {
-			final TiUIView view = proxy.getOrCreateView();
+			// Update list item proxy's activity in case it has changed, such as after a dark/light theme change.
+			final Context context = this.itemView.getContext();
+			if ((context instanceof Activity) && (proxy.getActivity() != context)) {
+				proxy.releaseViews();
+				proxy.setActivity((Activity) context);
+			}
 
+			// Get or create the view. (Must be called after updating activity above.)
+			final TiUIView view = proxy.getOrCreateView();
 			if (view != null) {
 				final ViewGroup borderView = (ViewGroup) view.getOuterView();
 				final ViewGroup nativeView = (ViewGroup) view.getNativeView();
@@ -229,7 +237,7 @@ public class ListViewHolder extends TiRecyclerViewHolder
 				// Only set header on first row in section.
 				setHeaderFooter(listViewProxy, sectionProperties, true, false);
 			}
-			if ((indexInSection >= section.getItems().length - 1)
+			if ((indexInSection >= section.getItemCount() - 1)
 				|| (filteredIndex >= section.getFilteredItemCount() - 1)
 				|| proxy.isPlaceholder()) {
 
@@ -237,8 +245,6 @@ public class ListViewHolder extends TiRecyclerViewHolder
 				setHeaderFooter(listViewProxy, sectionProperties, false, true);
 			}
 		}
-
-		proxy.setHolder(this);
 	}
 
 	/**

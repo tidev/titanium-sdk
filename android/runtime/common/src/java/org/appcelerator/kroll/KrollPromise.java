@@ -21,7 +21,7 @@ public interface KrollPromise<V> {
 		return promise;
 	}
 
-	static class NullPromise implements KrollPromise
+	class NullPromise implements KrollPromise
 	{
 		@Override
 		public void resolve(Object value) {}

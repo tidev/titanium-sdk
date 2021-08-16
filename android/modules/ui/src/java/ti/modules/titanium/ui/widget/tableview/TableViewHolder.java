@@ -19,6 +19,7 @@ import org.appcelerator.titanium.view.TiBorderWrapperView;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiUIView;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.res.ColorStateList;
@@ -29,6 +30,7 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.PaintDrawable;
 import android.os.Build;
 import android.util.TypedValue;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -121,6 +123,7 @@ public class TableViewHolder extends TiRecyclerViewHolder
 		this.leftImage.setVisibility(View.GONE);
 		this.title.setVisibility(View.GONE);
 		this.rightImage.setVisibility(View.GONE);
+		this.rightImage.setOnTouchListener(null);
 
 		this.border.reset();
 	}
@@ -130,6 +133,7 @@ public class TableViewHolder extends TiRecyclerViewHolder
 	 * @param proxy TableViewRowProxy to bind.
 	 * @param selected Is row selected.
 	 */
+	@SuppressLint("ClickableViewAccessibility")
 	public void bind(final TableViewRowProxy proxy, final boolean selected)
 	{
 		reset();
@@ -150,6 +154,13 @@ public class TableViewHolder extends TiRecyclerViewHolder
 		// Obtain proxy properties.
 		final KrollDict properties = proxy.getProperties();
 
+		// Update row proxy's activity in case it has changed, such as after a dark/light theme change.
+		final Context context = this.itemView.getContext();
+		if ((context instanceof Activity) && (proxy.getActivity() != context)) {
+			proxy.releaseViews();
+			proxy.setActivity((Activity) context);
+		}
+
 		// Obtain row view.
 		final TableViewRowProxy.RowView rowView = (TableViewRowProxy.RowView) proxy.getOrCreateView();
 		if (rowView != null) {
@@ -161,8 +172,23 @@ public class TableViewHolder extends TiRecyclerViewHolder
 				return;
 			}
 
+			// Set maximum row height.
+			final String rawMaxHeight = properties.optString(TiC.PROPERTY_MAX_ROW_HEIGHT,
+				tableViewProperties.getString(TiC.PROPERTY_MAX_ROW_HEIGHT));
+			final TiDimension maxHeightDimension = TiConvert.toTiDimension(rawMaxHeight, TiDimension.TYPE_HEIGHT);
+			final int maxHeight = rawMaxHeight != null ? maxHeightDimension.getAsPixels(itemView) : -1;
+			if (maxHeight > -1) {
+				nativeRowView.measure(0, 0);
+
+				// Enforce max row height.
+				if (nativeRowView.getMeasuredHeight() > maxHeight) {
+					rowView.getLayoutParams().optionHeight = maxHeightDimension;
+				}
+			}
+
 			// Set minimum row height.
-			final String rawMinHeight = properties.optString(TiC.PROPERTY_MIN_ROW_HEIGHT, "0");
+			final String rawMinHeight = properties.optString(TiC.PROPERTY_MIN_ROW_HEIGHT,
+				tableViewProperties.getString(TiC.PROPERTY_MIN_ROW_HEIGHT));
 			final int minHeight = TiConvert.toTiDimension(rawMinHeight, TiDimension.TYPE_HEIGHT).getAsPixels(itemView);
 			this.container.setMinimumHeight(minHeight);
 
@@ -209,15 +235,19 @@ public class TableViewHolder extends TiRecyclerViewHolder
 			// Handle row left and right images.
 			if (properties.containsKeyAndNotNull(TiC.PROPERTY_LEFT_IMAGE)) {
 				final String url = properties.getString(TiC.PROPERTY_LEFT_IMAGE);
-				final Drawable drawable = fileHelper.loadDrawable(url, false);
-				this.leftImage.setImageDrawable(drawable);
-				this.leftImage.setVisibility(View.VISIBLE);
+				final Drawable drawable = TiUIHelper.getResourceDrawable((Object) url);
+				if (drawable != null) {
+					this.leftImage.setImageDrawable(drawable);
+					this.leftImage.setVisibility(View.VISIBLE);
+				}
 			}
 			if (properties.containsKeyAndNotNull(TiC.PROPERTY_RIGHT_IMAGE)) {
 				final String url = properties.getString(TiC.PROPERTY_RIGHT_IMAGE);
-				final Drawable drawable = fileHelper.loadDrawable(url, false);
-				this.rightImage.setImageDrawable(drawable);
-				this.rightImage.setVisibility(View.VISIBLE);
+				final Drawable drawable = TiUIHelper.getResourceDrawable((Object) url);
+				if (drawable != null) {
+					this.rightImage.setImageDrawable(drawable);
+					this.rightImage.setVisibility(View.VISIBLE);
+				}
 			} else {
 				final boolean hasCheck = properties.optBoolean(TiC.PROPERTY_HAS_CHECK, false);
 				final boolean hasChild = properties.optBoolean(TiC.PROPERTY_HAS_CHILD, false);
@@ -233,15 +263,35 @@ public class TableViewHolder extends TiRecyclerViewHolder
 				} else if (hasDetail) {
 					this.rightImage.setImageDrawable(disclosureDrawable);
 					this.rightImage.setVisibility(View.VISIBLE);
+					this.rightImage.setOnTouchListener(new View.OnTouchListener()
+					{
+						@Override
+						public boolean onTouch(View v, MotionEvent e)
+						{
+							if (e.getAction() == MotionEvent.ACTION_UP) {
+								final TiUIView view = proxy.peekView();
+
+								if (view != null) {
+									final KrollDict data = view.getLastUpEvent();
+
+									data.put(TiC.EVENT_PROPERTY_DETAIL, true);
+									proxy.fireEvent(TiC.EVENT_CLICK, data);
+								}
+							}
+							return true;
+						}
+					});
 				}
 			}
 
 			// Display drag drawable when row is movable.
 			final boolean isEditing = tableViewProperties.optBoolean(TiC.PROPERTY_EDITING, false);
 			final boolean isMoving = tableViewProperties.optBoolean(TiC.PROPERTY_MOVING, false);
+			final boolean isMoveable = properties.optBoolean(TiC.PROPERTY_MOVEABLE,
+				tableViewProperties.optBoolean(TiC.PROPERTY_MOVEABLE, false));
 			final boolean isMovable = properties.optBoolean(TiC.PROPERTY_MOVABLE,
 				tableViewProperties.optBoolean(TiC.PROPERTY_MOVABLE, false));
-			if ((isEditing || isMoving) && isMovable) {
+			if ((isEditing || isMoving) && (isMoveable || isMovable)) {
 				this.rightImage.setImageDrawable(dragDrawable);
 				this.rightImage.setVisibility(View.VISIBLE);
 			}
@@ -314,7 +364,6 @@ public class TableViewHolder extends TiRecyclerViewHolder
 				// Add row to content.
 				this.content.addView(nativeRowView, rowView.getLayoutParams());
 				this.content.setVisibility(View.VISIBLE);
-
 			}
 			if (properties.containsKeyAndNotNull(TiC.PROPERTY_TITLE)
 				&& proxy.getChildren().length == 0) {

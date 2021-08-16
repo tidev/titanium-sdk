@@ -30,7 +30,6 @@ import android.provider.CalendarContract.Instances;
 @Kroll.proxy(parentModule = CalendarModule.class, propertyAccessors = { TiC.PROPERTY_RECURRENCE_RULES })
 public class EventProxy extends KrollProxy
 {
-
 	public static final String TAG = "EventProxy";
 
 	public static final int STATUS_TENTATIVE = 0;
@@ -79,7 +78,7 @@ public class EventProxy extends KrollProxy
 	public static ArrayList<EventProxy> queryEventsBetweenDates(long date1, long date2, String query,
 																String[] queryArgs)
 	{
-		ArrayList<EventProxy> events = new ArrayList<EventProxy>();
+		ArrayList<EventProxy> events = new ArrayList<>();
 		if (!CalendarProxy.hasCalendarPermissions()) {
 			return events;
 		}
@@ -155,7 +154,7 @@ public class EventProxy extends KrollProxy
 
 	public static ArrayList<EventProxy> queryEvents(Uri uri, String query, String[] queryArgs, String orderBy)
 	{
-		ArrayList<EventProxy> events = new ArrayList<EventProxy>();
+		ArrayList<EventProxy> events = new ArrayList<>();
 		if (!CalendarProxy.hasCalendarPermissions()) {
 			return events;
 		}
@@ -339,7 +338,7 @@ public class EventProxy extends KrollProxy
 	public ReminderProxy[] getReminders()
 	{
 		ArrayList<ReminderProxy> reminders = ReminderProxy.getRemindersForEvent(this);
-		return reminders.toArray(new ReminderProxy[reminders.size()]);
+		return reminders.toArray(new ReminderProxy[0]);
 	}
 
 	@Kroll.method
@@ -364,7 +363,7 @@ public class EventProxy extends KrollProxy
 	public AlertProxy[] getAlerts()
 	{
 		ArrayList<AlertProxy> alerts = AlertProxy.getAlertsForEvent(this);
-		return alerts.toArray(new AlertProxy[alerts.size()]);
+		return alerts.toArray(new AlertProxy[0]);
 	}
 
 	@Kroll.method

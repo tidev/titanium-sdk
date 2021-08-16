@@ -1785,7 +1785,7 @@ describe('Titanium.UI.TableView', function () {
 
 	it.ios('All text should show if TableView.style is .INSET_GROUPED ', () => {
 		// FIXME: Does not honour scale correctly on macOS: https://jira.appcelerator.org/browse/TIMOB-28261
-		if (isCI && utilities.isMacOS() && OS_VERSION_MAJOR < 11) {
+		if (utilities.isMacOS() && OS_VERSION_MAJOR < 11) {
 			return;
 		}
 
@@ -1809,8 +1809,7 @@ describe('Titanium.UI.TableView', function () {
 		view.add(tableView);
 
 		should(view).matchImage('snapshots/tableview_style_inset_grouped.png', {
-			threshold: 0.1,
-			maxPixelMismatch: 14840
+			threshold: 0.1
 		});
 	});
 });

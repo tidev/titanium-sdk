@@ -18,7 +18,7 @@ import android.util.SparseArray;
 public class TiActivitySupportHelpers
 {
 	protected static AtomicInteger supportHelperIdGenerator = new AtomicInteger();
-	protected static SparseArray<TiActivitySupportHelper> supportHelpers = new SparseArray<TiActivitySupportHelper>();
+	protected static SparseArray<TiActivitySupportHelper> supportHelpers = new SparseArray<>();
 
 	public static int addSupportHelper(TiActivitySupportHelper supportHelper)
 	{
