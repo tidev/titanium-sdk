@@ -7154,7 +7154,7 @@ async function processArchitecture() {
 				reject(error);
 				return;
 			}
-			resolve(stdout);
+			resolve(stdout.trim());
 		});
 	});
 }
