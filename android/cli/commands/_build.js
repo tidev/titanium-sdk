@@ -266,10 +266,6 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 								if (!alias) {
 									return callback(new Error(__('Invalid "--alias" value "%s"', value)));
 								}
-								if (alias.sigalg && alias.sigalg.toLowerCase() === 'sha256withrsa') {
-									logger.warn(__('The selected alias %s uses the %s signature algorithm which will likely have issues with Android 4.3 and older.', ('"' + value + '"').cyan, ('"' + alias.sigalg + '"').cyan));
-									logger.warn(__('Certificates that use the %s or %s signature algorithm will provide better compatibility.', '"SHA1withRSA"'.cyan, '"MD5withRSA"'.cyan));
-								}
 							}
 							callback(null, value);
 						}
@@ -882,9 +878,8 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 	}
 	cli.tiapp.properties['ti.deploytype'] = { type: 'string', value: this.deployType };
 
-	// Fetch Java max heap size settings.
+	// Fetch Java max heap size setting.
 	this.javacMaxMemory = cli.tiapp.properties['android.javac.maxmemory'] && cli.tiapp.properties['android.javac.maxmemory'].value || config.get('android.javac.maxMemory', '3072M');
-	this.dxMaxMemory = cli.tiapp.properties['android.dx.maxmemory'] && cli.tiapp.properties['android.dx.maxmemory'].value || config.get('android.dx.maxMemory', '3072M');
 
 	// Transpilation details
 	this.transpile = cli.tiapp['transpile'] !== false; // Transpiling is an opt-out process now
@@ -2187,9 +2182,8 @@ AndroidBuilder.prototype.generateRootProjectFiles = async function generateRootP
 			+ fileContent.toString() + '\n');
 	}
 
-	// Create a "local.properties" file providing a path to the Android SDK/NDK directories.
-	const androidNdkPath = this.androidInfo.ndk ? this.androidInfo.ndk.path : null;
-	await gradlew.writeLocalPropertiesFile(this.androidInfo.sdk.path, androidNdkPath);
+	// Create a "local.properties" file providing a path to the Android SDK directory.
+	await gradlew.writeLocalPropertiesFile(this.androidInfo.sdk.path);
 
 	// Copy our root "build.gradle" template script to the root build directory.
 	await fs.copyFile(
@@ -2357,7 +2351,6 @@ AndroidBuilder.prototype.generateAppProject = async function generateAppProject(
 	buildGradleContent = ejs.render(buildGradleContent.toString(), {
 		applicationId: this.appid,
 		compileSdkVersion: this.compileSdkVersion,
-		dexJavaMaxHeapSize: this.dxMaxMemory,
 		minSdkVersion: this.minSDK,
 		targetSdkVersion: this.targetSDK,
 		versionCode: versionCode,
