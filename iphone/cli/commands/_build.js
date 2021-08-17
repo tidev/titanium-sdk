@@ -7145,17 +7145,18 @@ function sha1(value) {
 // This function has the advantage to detect bridges architectures
 // like x86_64 in Rosetta mode (process.arch would still print "arm64" in that case)
 async function processArchitecture() {
-    return new Promise((resolve, reject) => {
-        const exec = require('child_process').exec;
+	return new Promise((resolve, reject) => {
+		// eslint-disable-next-line security/detect-child-process
+		const exec = require('child_process').exec;
 
-        exec('uname -m', function (error, stdout, stderr) { 
-          if (error) {
-            reject(error);
-            return;
-          }
-          resolve(stdout);
-        });
-    });
+		exec('uname -m', function (error, stdout) {
+			if (error) {
+				reject(error);
+				return;
+			}
+			resolve(stdout);
+		});
+	});
 }
 
 // create the builder instance and expose the public api
