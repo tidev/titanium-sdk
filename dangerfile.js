@@ -101,7 +101,7 @@ async function checkJIRA() {
 		return;
 	}
 
-	const body = github.pr.body;
+	const body = github.pr.body || '';
 	// TODO: Cross-reference JIRA tickets linked in PR body versus in commit messages!
 	const hasJIRALink = body.match(/https:\/\/jira\.appcelerator\.org\/browse\/[A-Z]+-\d+/);
 	if (!hasJIRALink) {
