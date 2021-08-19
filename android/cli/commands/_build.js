@@ -3361,6 +3361,39 @@ AndroidBuilder.prototype.generateTheme = async function generateTheme() {
 		];
 		await fs.ensureDir(valuesDirPath);
 		await fs.writeFile(path.join(valuesDirPath, xmlFileName), xmlLines.join('\n'));
+
+		// Set up translucent status/navigation bars to show dark icons/buttons on Android 8.1 - 11.x.
+		valuesDirPath = path.join(this.buildAppMainResDir, 'values-v27');
+		xmlLines = [
+			'<?xml version="1.0" encoding="utf-8"?>',
+			'<resources>',
+			'	<style name="Theme.Titanium" parent="Base.Theme.Titanium.Splash">',
+			'		<item name="android:windowLightNavigationBar">false</item>',
+			'		<item name="android:windowLightStatusBar">false</item>',
+			'		<item name="android:windowTranslucentNavigation">true</item>',
+			'		<item name="android:windowTranslucentStatus">true</item>',
+			`		${windowBackgroundImageXmlString}`,
+			'	</style>',
+			'</resources>'
+		];
+		await fs.ensureDir(valuesDirPath);
+		await fs.writeFile(path.join(valuesDirPath, xmlFileName), xmlLines.join('\n'));
+
+		// Set up translucent status bars to show dark icons on Android 6.0 - 8.0. (Cannot do this with nav buttons.)
+		valuesDirPath = path.join(this.buildAppMainResDir, 'values-v23');
+		xmlLines = [
+			'<?xml version="1.0" encoding="utf-8"?>',
+			'<resources>',
+			'	<style name="Theme.Titanium" parent="Base.Theme.Titanium.Splash">',
+			'		<item name="android:windowLightStatusBar">false</item>',
+			'		<item name="android:windowTranslucentNavigation">true</item>',
+			'		<item name="android:windowTranslucentStatus">true</item>',
+			`		${windowBackgroundImageXmlString}`,
+			'	</style>',
+			'</resources>'
+		];
+		await fs.ensureDir(valuesDirPath);
+		await fs.writeFile(path.join(valuesDirPath, xmlFileName), xmlLines.join('\n'));
 	} else if (this.appRoundIconManifestValue) {
 		// Project is set up to use app icon for the splash on all Android OS versions. (No fullscreen splash image.)
 		// Since manifest has an "android:roundIcon" adaptive icon defined, use it on Android 8 and higher.
