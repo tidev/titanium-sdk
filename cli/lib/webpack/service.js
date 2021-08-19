@@ -225,6 +225,20 @@ class WebpackService extends EventEmitter {
 		await this.subcribeToWebpackStatusChanges();
 
 		return new Promise((resolve, reject) => {
+			const showTimeoutInfo = () => {
+				const buildUrl = `${this.webUiUrl}/build/${this.jobIdentifier}`.cyan;
+				const logcatCommand = `${process.env.APPC_ENV ? 'appc ' : ''}appcd logcat "*webpack*"`;
+				this.logger.info('Did not receive any Webpack status updates in the last 30 seconds while waiting');
+				this.logger.info('for the build to complete.');
+				this.logger.info('');
+				this.logger.info(`  - Open ${buildUrl.cyan} to see full build details`);
+				this.logger.info(`  - Use ${'--force'.grey} to restart the Webpack build`);
+				this.logger.info(`  - View Daemon logs from Webpack with ${logcatCommand.grey}`);
+				this.logger.info('');
+				const error = new Error('Timeout while waiting for the Webpack build to complete.');
+				reject(error);
+			};
+
 			const handler = e => {
 				if (e.state === STATE_READY || e.state === STATE_ERROR) {
 					this.off('status', handler);
@@ -240,19 +254,7 @@ class WebpackService extends EventEmitter {
 					return reject(new Error('Webpack compilation failed.'));
 				}
 			};
-			const showTimeoutInfo = () => {
-				const buildUrl = `${this.webUiUrl}/build/${this.jobIdentifier}`.cyan;
-				const logcatCommand = `${process.env.APPC_ENV ? 'appc ' : ''}appcd logcat "*webpack*"`;
-				this.logger.info('Did not receive any Webpack status updates in the last 30 seconds while waiting');
-				this.logger.info('for the build to complete.');
-				this.logger.info('');
-				this.logger.info(`  - Open ${buildUrl.cyan} to see full build details`);
-				this.logger.info(`  - Use ${'--force'.grey} to restart the Webpack build`);
-				this.logger.info(`  - View Daemon logs from Webpack with ${logcatCommand.grey}`);
-				this.logger.info('');
-				const error = new Error('Timeout while waiting for the Webpack build to complete.');
-				reject(error);
-			};
+
 			this.on('status', handler);
 			this.on('timeout', showTimeoutInfo);
 		});

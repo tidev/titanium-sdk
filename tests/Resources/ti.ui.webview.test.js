@@ -321,7 +321,7 @@ describe.androidARM64Broken('Titanium.UI.WebView', function () {
 
 		webView.addEventListener('load', function (e) {
 			const html = e.source.html;
-			const exp = /id="rawUa">rawUa: ([^<]+)<\/li/m.exec(html);
+			const exp = /id="rawUa">rawUa: ([^<]+)<\/li/m.exec(html); // eslint-disable-line security/detect-child-process
 			const userAgent = exp && exp.length > 1 ? exp[1] : undefined;
 			if (userAgent && userAgent === webView.userAgent) {
 				return finish();

@@ -25,6 +25,8 @@
 
 - (void)setValues:(id)object;
 
+- (void)add:(TiPoint *)value;
+
 /**
  Provides access to point struct.
  */

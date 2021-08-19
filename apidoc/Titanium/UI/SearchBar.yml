@@ -6,54 +6,23 @@ description: |
     | ------- | --- | ------- |
     | ![Android](./searchbar_android.png) | ![iOS](./searchbar_ios.png) | ![Windows](./searchbar_windows.png) |
 
-    The `SearchBar` object is closely modeled on an iOS native search bar.
-    As such, not all features are supported on other platforms. For Android applications,
-    consider using a <Titanium.UI.Android.SearchView> object instead.
+    Search bars are most commonly used for filtering the rows in a [TableView](Titanium.UI.TableView) and
+    [ListView](Titanium.UI.ListView). You can add a search bar to a table view via its
+    [search](Titanium.UI.TableView.search) property. You can add a search bar to a list view via its
+    [searchView](Titanium.UI.TableView.searchView) property.
 
-    Search bars are most commonly used for filtering the rows in a [TableView](Titanium.UI.TableView).
-    You can add a search bar to a table view by setting the table view's [search](Titanium.UI.TableView.search) property.
-    A search bar can also be used without a table view.
-
-    You can also use a `SearchView` object as the <Titanium.UI.ListView.searchView>
-    property of a [ListView](Titanium.UI.ListView) object.
+    A search bar can also be used on its own.
 
     Use the <Titanium.UI.createSearchBar> method or Alloy **`<SearchBar>`** element to create a search bar.
 
-    #### Android Platform Implementation Notes
+    #### Android Notes
 
-    On Android, there are several issues with the current implementation:
+    On Android, the search bar's `[x]` clear button is used as a cancel button if
+    [iconifiedByDefault](Titanium.UI.SearchBar.iconifiedByDefault) is set `true`,
+    causing it to collapse back into an icon. Otherwise, it will only clear the text
+    and you'll receive a [change](Titanium.UI.SearchBar.change) event instead of a
+    [cancel](Titanium.UI.SearchBar.cancel) event like iOS.
 
-    * The cancel button does not work. It does not clear the search bar text or
-      close the onscreen keyboard.
-
-    * Calling the `blur` method on the search bar closes the onscreen keyboard,
-      but the search bar retains its focused appearance.
-
-    * The search bar does not lose focus when the user clicks on a row in the search
-      results.
-
-    * The `value` property cannot be specified in the `createSearchBar` method.
-
-    To use a search bar on Android, you may need to explicitly control the focus and
-    clearing of the search bar, depending on your desired behavior. For example, to clear
-    the search bar and dismiss the onscreen keyboard when the user selects a row, you
-    could add code like this to the `click` event handler on your table view:
-
-    ``` js
-    myTableView.addEventListener('click', function(e) {
-        if (Ti.Platform.name === 'android') {
-            // Clear search bar
-            mySearchBar.value ="";
-            // hiding and showing the search bar forces it back to its non-focused appearance.
-            mySearchBar.hide();
-            mySearchBar.show();
-        }
-        // standard click event handling here
-    });
-    ```
-
-    **Note**: Due to native limitations, the SearchBar's positional properties may not work properly
-    when nested within a TableView or ListView (properties such as left, right, width and so on).
 extends: Titanium.UI.View
 excludes:
     methods: [add, remove, removeAllChildren, replaceAt]
@@ -102,6 +71,7 @@ methods:
       - name: index
         type: Number
         summary: The index to insert the token at.
+    platforms: [iphone, ipad, macos]
     osver: { ios: { min: "13.0" } }
     since: 9.1.0
 
@@ -111,6 +81,7 @@ methods:
       - name: index
         type: Number
         summary: The index to remove the token at.
+    platforms: [iphone, ipad, macos]
     osver: { ios: { min: "13.0" } }
     since: 9.1.0
 
@@ -164,13 +135,15 @@ properties:
     summary: Determines how text is capitalized during typing.
     type: Number
     constants: Titanium.UI.TEXT_AUTOCAPITALIZATION_*
-    platforms: [iphone, ipad, macos]
+    platforms: [android, iphone, ipad, macos]
+    since: { android: "10.0.0", iphone: "0.8", ipad: "0.8", macos: "9.2.0" }
     default: Titanium.UI.TEXT_AUTOCAPITALIZATION_NONE
 
   - name: autocorrect
     summary: Determines whether the text in the search bar is autocorrected during typing.
     type: Boolean
-    platforms: [iphone, ipad, macos]
+    platforms: [android, iphone, ipad, macos]
+    since: { android: "10.0.0", iphone: "0.8", ipad: "0.8", macos: "9.2.0" }
     default: false
 
   - name: barColor
@@ -244,6 +217,20 @@ properties:
     description: Only one of `hintText` or `hinttextid` should be specified.
     type: String
 
+  - name: iconified
+    summary: Collapses/expands the search view to/from a search icon.
+    description: |
+        See [Android Documentation](https://developer.android.com/reference/android/widget/SearchView.html#setIconified(boolean)) for more details.
+    type: Boolean
+    default: undefined
+
+  - name: iconifiedByDefault
+    summary: Set true show as a search icon that expands to a search view when tapped on.
+    description: |
+        See [Android Documentation](https://developer.android.com/reference/android/widget/SearchView.html#setIconifiedByDefault(boolean)) for more details.
+    type: Boolean
+    default: false
+
   - name: keyboardType
     summary: Keyboard type constant to use when the field is focused.
     type: Number
@@ -261,14 +248,16 @@ properties:
 
   - name: prompt
     summary: Single line of text displayed at the top of the search bar.
+    description: On Android, this property is no longer supported as of Titanium 10.0.0.
     type: String
-    platforms: [android, iphone, ipad, macos]
+    platforms: [iphone, ipad, macos]
     default: No prompt.
 
   - name: promptid
     summary: |
         Key identifying a string from the locale file to use for the
         [prompt](Titanium.UI.SearchBar.prompt) property.
+    description: On Android, this property is no longer supported as of Titanium 10.0.0.
     type: String
     platforms: [iphone, ipad, macos]
 
@@ -298,12 +287,13 @@ properties:
   - name: value
     summary: Value of the search bar.
     description: |
-        On Android, the value cannot be set until after the search bar is created.
+        On Android and before Titanium 10.0.0, the value cannot be set until after the search bar is created.
     type: String
 
   - name: tokens
     summary: The token of a search text field
     since: 9.1.0
+    platforms: [iphone, ipad, macos]
     osver: { ios: { min: "13.0" } }
     type: Array<String>
     default: []

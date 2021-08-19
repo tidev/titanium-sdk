@@ -57,6 +57,16 @@ describe('Titanium.App', () => {
 			});
 		});
 
+		describe.ios('.arguments', () => {
+			it('is an Object', () => {
+				should(Ti.App).have.a.readOnlyProperty('arguments').which.is.an.Object();
+			});
+
+			it('has getter', () => {
+				should(Ti.App).have.a.getter('arguments');
+			});
+		});
+
 		describe('.copyright', () => {
 			it('is a read-only String', () => {
 				should(Ti.App).have.a.readOnlyProperty('copyright').which.is.a.String();

@@ -4,7 +4,7 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-/* globals OS_ANDROID */
+/* globals OS_ANDROID, OS_IOS */
 if (OS_ANDROID) {
 	const Tab = Titanium.UI.Tab;
 
@@ -48,6 +48,7 @@ if (OS_ANDROID) {
 		_setWindow.call(this, window);
 	};
 
+	// TODO: Remove! This is an undocumented accessor method
 	Tab.prototype.getWindow = function () {
 		return this._window;
 	};
@@ -57,4 +58,10 @@ if (OS_ANDROID) {
 		set: Tab.prototype.setWindow,
 		get: Tab.prototype.getWindow
 	});
+} else if (OS_IOS) {
+	const tab = Titanium.UI.createTab();
+	const TabPrototype = Object.getPrototypeOf(tab);
+	TabPrototype.setWindow = function (window) {
+		this.window = window; // forward to setting property
+	};
 }

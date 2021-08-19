@@ -144,6 +144,7 @@ function loadTests() {
 	require('./ti.ui.alertdialog.test');
 	if (OS_ANDROID) {
 		require('./ti.ui.android.test');
+		require('./ti.ui.android.cardview.test');
 		require('./ti.ui.android.drawerlayout.test');
 		require('./ti.ui.android.progressindicator.test');
 	}
@@ -159,6 +160,7 @@ function loadTests() {
 		require('./ti.ui.ios.collisionbehavior.test');
 		require('./ti.ui.ios.feedbackgenerator.test');
 		require('./ti.ui.ios.previewcontext.test');
+		require('./ti.ui.ios.documentviewer.test');
 		require('./ti.ui.ios.splitwindow.test');
 		require('./ti.ui.ios.statusbar.test');
 		require('./ti.ui.ios.stepper.test');

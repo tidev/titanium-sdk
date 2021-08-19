@@ -595,7 +595,7 @@ bool KrollHasInstance(JSContextRef ctx, JSObjectRef constructor, JSValueRef poss
       [method setArgcount:2];
     }
     // Responds to basic setter?
-    if ([target respondsToSelector:selector]) {
+    if ([target respondsToSelector:selector] || [target respondsToSelector:selectorWithObject]) {
       return method;
     }
   } else {
@@ -774,6 +774,11 @@ bool KrollHasInstance(JSContextRef ctx, JSObjectRef constructor, JSValueRef poss
   }
 
   selector = NSSelectorFromString([NSString stringWithFormat:@"%@", propertyName]);
+  if ([target respondsToSelector:selector]) {
+    return YES;
+  }
+
+  selector = NSSelectorFromString([[NSString stringWithFormat:@"%@:", propertyName] stringByAppendingString:@"withObject:"]);
   if ([target respondsToSelector:selector]) {
     return YES;
   }

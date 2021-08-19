@@ -54,7 +54,7 @@ public class PersonProxy extends KrollProxy
 	private String fullName = "";
 
 	// Contact Modifications
-	private HashMap<String, Boolean> modified = new HashMap<String, Boolean>();
+	private final HashMap<String, Boolean> modified = new HashMap<>();
 
 	public PersonProxy()
 	{

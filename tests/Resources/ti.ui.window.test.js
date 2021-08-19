@@ -8,6 +8,7 @@
 /* eslint-env mocha */
 /* eslint no-unused-expressions: "off" */
 /* eslint mocha/no-identical-title: "off" */
+/* eslint promise/no-callback-in-promise: "off" */
 'use strict';
 const should = require('./utilities/assertions');
 const utilities = require('./utilities/utilities');
@@ -696,7 +697,8 @@ describe('Titanium.UI.Window', function () {
 				openPromise.then(() => {
 					const result = win.close();
 					result.should.be.a.Promise();
-					result.then(() => finish()).catch(e => finish(e));
+					// eslint-disable-next-line promise/no-nesting
+					return result.then(() => finish()).catch(e => finish(e));
 				}).catch(e => finish(e));
 			});
 
@@ -716,8 +718,10 @@ describe('Titanium.UI.Window', function () {
 				});
 
 				win.open().then(() => {
-					win.close().then(() => {
-						win.close().then(() => finish(new Error('Expected second #close() call on Window to be rejected'))).catch(e => finish());
+					// eslint-disable-next-line promise/no-nesting
+					return win.close().then(() => {
+						// eslint-disable-next-line promise/no-nesting
+						return win.close().then(() => finish(new Error('Expected second #close() call on Window to be rejected'))).catch(() => finish());
 					}).catch(e => finish(e));
 				}).catch(e => finish(e));
 			});
@@ -752,7 +756,8 @@ describe('Titanium.UI.Window', function () {
 				first.then(() => {
 					const second = win.open();
 					second.should.be.a.Promise();
-					second.then(() => finish(new Error('Expected second #open() to be rejected'))).catch(_e => finish());
+					// eslint-disable-next-line promise/no-nesting
+					return second.then(() => finish(new Error('Expected second #open() to be rejected'))).catch(() => finish());
 				}).catch(e => finish(e));
 			});
 		});

@@ -137,7 +137,7 @@ public class NotificationManagerModule extends KrollModule
 		Notification notification = notificationProxy.buildNotification();
 
 		// targeting Android O or above? create default channel
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && notification.getChannelId() == DEFAULT_CHANNEL_ID) {
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && DEFAULT_CHANNEL_ID.equals(notification.getChannelId())) {
 			useDefaultChannel();
 		}
 

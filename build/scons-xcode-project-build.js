@@ -45,13 +45,13 @@ async function generateIndexJSON(dirToTraverse) {
 }
 
 async function generateBundle(outputDir) {
-	const program = { args: [ 'ios' ] };
-	const builder = new Builder(program);
+	const options = { };
+	const builder = new Builder(options, [ 'ios' ]);
 	await builder.ensureGitHash();
 	const ios = new IOS({
 		sdkVersion: require('../package.json').version,
-		gitHash: program.gitHash,
-		timestamp: program.timestamp
+		gitHash: options.gitHash,
+		timestamp: options.timestamp
 	});
 
 	await builder.transpile('ios', ios.babelOptions(), outputDir);

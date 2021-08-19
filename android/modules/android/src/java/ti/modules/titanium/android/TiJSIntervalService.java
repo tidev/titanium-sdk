@@ -65,7 +65,7 @@ public class TiJSIntervalService extends TiJSService
 		}
 
 		if (runners == null) {
-			runners = Collections.synchronizedList(new ArrayList<IntervalServiceRunner>());
+			runners = Collections.synchronizedList(new ArrayList<>());
 		}
 
 		String fullUrl = url;
@@ -139,7 +139,7 @@ public class TiJSIntervalService extends TiJSService
 		runners.remove(runner);
 	}
 
-	private class IntervalServiceRunner
+	private static class IntervalServiceRunner
 	{
 		protected ServiceProxy proxy;
 		private long interval;
@@ -148,7 +148,7 @@ public class TiJSIntervalService extends TiJSService
 		private String serviceSimpleName;
 		private String url;
 		private byte[] source;
-		private AtomicInteger counter = new AtomicInteger();
+		private final AtomicInteger counter = new AtomicInteger();
 
 		IntervalServiceRunner(Service service, ServiceProxy proxy, long interval, String url)
 		{

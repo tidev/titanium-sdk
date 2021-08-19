@@ -120,7 +120,23 @@ public class ListSectionProxy extends TiViewProxy
 	{
 		super.setActivity(activity);
 
-		for (ListItemProxy item : this.items) {
+		// Update activity of header/footer views.
+		if (hasPropertyAndNotNull(TiC.PROPERTY_HEADER_VIEW)) {
+			final Object headerObject = getProperty(TiC.PROPERTY_HEADER_VIEW);
+			if (headerObject instanceof TiViewProxy) {
+				final TiViewProxy headerProxy = (TiViewProxy) headerObject;
+				headerProxy.setActivity(activity);
+			}
+		}
+		if (hasPropertyAndNotNull(TiC.PROPERTY_FOOTER_VIEW)) {
+			final Object footerObject = getProperty(TiC.PROPERTY_FOOTER_VIEW);
+			if (footerObject instanceof TiViewProxy) {
+				final TiViewProxy footerProxy = (TiViewProxy) footerObject;
+				footerProxy.setActivity(activity);
+			}
+		}
+
+		for (final ListItemProxy item : this.items) {
 			item.setActivity(activity);
 		}
 	}
@@ -336,6 +352,14 @@ public class ListSectionProxy extends TiViewProxy
 
 			// Set new section items.
 			setItems(value, null);
+
+		} else if (name.equals(TiC.PROPERTY_HEADER_VIEW) || name.equals(TiC.PROPERTY_FOOTER_VIEW)) {
+			if (value instanceof TiViewProxy) {
+				final TiViewProxy view = (TiViewProxy) value;
+
+				view.setActivity(getActivity());
+				view.setParent(this);
+			}
 		}
 	}
 
@@ -357,10 +381,19 @@ public class ListSectionProxy extends TiViewProxy
 	@Override
 	public void releaseViews()
 	{
+		// Release all section item views.
 		for (final ListItemProxy item : this.items) {
-
-			// Release all section item views.
 			item.releaseViews();
+		}
+
+		// Release header/footer views.
+		if (hasPropertyAndNotNull(TiC.PROPERTY_HEADER_VIEW)) {
+			final TiViewProxy headerProxy = (TiViewProxy) getProperty(TiC.PROPERTY_HEADER_VIEW);
+			headerProxy.releaseViews();
+		}
+		if (hasPropertyAndNotNull(TiC.PROPERTY_FOOTER_VIEW)) {
+			final TiViewProxy footerProxy = (TiViewProxy) getProperty(TiC.PROPERTY_FOOTER_VIEW);
+			footerProxy.releaseViews();
 		}
 	}
 
