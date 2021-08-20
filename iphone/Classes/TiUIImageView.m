@@ -295,6 +295,7 @@ DEFINE_EXCEPTIONS
     imageView = [[UIImageView alloc] initWithFrame:[self bounds]];
     [imageView setAutoresizingMask:UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight];
     [imageView setContentMode:[self contentModeForImageView]];
+    imageView.clipsToBounds = YES;
     [self addSubview:imageView];
   }
   return imageView;
@@ -374,6 +375,7 @@ DEFINE_EXCEPTIONS
         newImageView.image = imageToUse;
         newImageView.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
         newImageView.contentMode = [self contentModeForImageView];
+        newImageView.clipsToBounds = YES;
 
         // remove the spinner now that we've loaded our image
         UIView *spinner = [[view subviews] count] > 0 ? [[view subviews] objectAtIndex:0] : nil;
