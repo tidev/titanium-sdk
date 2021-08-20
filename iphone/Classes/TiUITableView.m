@@ -1821,6 +1821,17 @@
   }
 }
 
+#if IS_SDK_IOS_15
+- (void)setSectionHeaderTopPadding_:(id)value
+{
+  if (![TiUtils isIOSVersionOrGreater:@"15.0"]) {
+    return;
+  }
+
+  self.tableView.sectionHeaderTopPadding = [TiUtils floatValue:value def:UITableViewAutomaticDimension];
+}
+#endif
+
 - (void)initSearhController
 {
   if (searchController == nil) {
