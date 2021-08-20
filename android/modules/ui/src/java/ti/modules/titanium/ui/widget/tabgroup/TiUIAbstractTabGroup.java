@@ -14,7 +14,6 @@ import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.StateListDrawable;
 import android.os.Bundle;
-import android.util.TypedValue;
 
 import androidx.annotation.ColorInt;
 import androidx.core.graphics.ColorUtils;
@@ -41,6 +40,7 @@ import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.proxy.TiWindowProxy;
 import org.appcelerator.titanium.util.TiColorHelper;
 import org.appcelerator.titanium.util.TiConvert;
+import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiInsetsProvider;
 import org.appcelerator.titanium.view.TiUIView;
 
@@ -174,9 +174,7 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 
 		// Determines if theme has the "titaniumIsSolidTheme" attribute and it's set to "true".
 		// Used by our "Theme.Titanium.*.Solid" themes to shade the top/bottom tabs appropriately.
-		TypedValue typedValue = new TypedValue();
-		activity.getTheme().resolveAttribute(R.attr.titaniumIsSolidTheme, typedValue, true);
-		this.isUsingSolidTitaniumTheme = ((typedValue.type == TypedValue.TYPE_INT_BOOLEAN) && (typedValue.data != 0));
+		this.isUsingSolidTitaniumTheme = TiUIHelper.isUsingSolidTitaniumTheme(activity);
 
 		// Fetch primary background and text colors from ActionBar style assigned to activity theme.
 		// Note: We use ActionBar style for backward compatibility with Titanium versions older than 8.0.0.
