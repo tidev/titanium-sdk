@@ -406,7 +406,6 @@ public class TiDrawableReference
 				}
 			} else {
 				if (is == null) {
-					Log.w(TAG, "Could not open stream to get bitmap");
 					return null;
 				}
 				try {
@@ -419,7 +418,6 @@ public class TiDrawableReference
 			}
 		} finally {
 			if (is == null) {
-				Log.w(TAG, "Could not open stream to get bitmap");
 				return null;
 			}
 			try {
@@ -674,7 +672,6 @@ public class TiDrawableReference
 
 		InputStream is = getInputStream();
 		if (is == null) {
-			Log.w(TAG, "Could not open stream to get bitmap");
 			return null;
 		}
 

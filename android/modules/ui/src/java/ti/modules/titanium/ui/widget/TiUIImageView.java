@@ -42,8 +42,6 @@ import ti.modules.titanium.ui.ImageViewProxy;
 import ti.modules.titanium.ui.ScrollViewProxy;
 import android.app.Activity;
 import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
@@ -70,6 +68,7 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 	private boolean firedLoad;
 	private ImageViewProxy imageViewProxy;
 	private int currentDuration;
+	private TiImageView view;
 
 	private ArrayList<TiDrawableReference> imageSources;
 	private TiDrawableReference defaultImageSource;
@@ -93,7 +92,7 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 
 		Log.d(TAG, "Creating an ImageView", Log.DEBUG_MODE);
 
-		TiImageView view = new TiImageView(proxy.getActivity(), proxy);
+		view = new TiImageView(proxy.getActivity(), proxy);
 
 		downloadListener = new TiDownloadListener() {
 			@Override
@@ -169,6 +168,30 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 	}
 
 	@Override
+	protected void applyContentDescription()
+	{
+		if (proxy == null || nativeView == null) {
+			return;
+		}
+		String contentDescription = composeContentDescription();
+		if (contentDescription != null) {
+			this.view.getImageView().setContentDescription(contentDescription);
+		}
+	}
+
+	@Override
+	protected void applyContentDescription(KrollDict properties)
+	{
+		if (proxy == null || nativeView == null) {
+			return;
+		}
+		String contentDescription = composeContentDescription(properties);
+		if (contentDescription != null) {
+			this.view.getImageView().setContentDescription(contentDescription);
+		}
+	}
+
+	@Override
 	public void setProxy(TiViewProxy proxy)
 	{
 		super.setProxy(proxy);
@@ -177,7 +200,7 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 
 	private TiImageView getView()
 	{
-		return (TiImageView) nativeView;
+		return this.view;
 	}
 
 	protected View getParentView()
@@ -817,6 +840,14 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 		if (d.containsKey(TiC.PROPERTY_DEFAULT_IMAGE)) {
 			setDefaultImageSource(d.get(TiC.PROPERTY_DEFAULT_IMAGE));
 		}
+		if (d.containsKey(TiC.PROPERTY_IMAGE_TOUCH_FEEDBACK_COLOR)) {
+			String colorString = TiConvert.toString(d.get(TiC.PROPERTY_IMAGE_TOUCH_FEEDBACK_COLOR));
+			view.setImageRippleColor(
+				(colorString != null) ? TiConvert.toColor(colorString) : view.getDefaultRippleColor());
+		}
+		if (d.containsKey(TiC.PROPERTY_IMAGE_TOUCH_FEEDBACK)) {
+			view.setIsImageRippleEnabled(TiConvert.toBoolean(d.get(TiC.PROPERTY_IMAGE_TOUCH_FEEDBACK), false));
+		}
 		if (d.containsKey(TiC.PROPERTY_IMAGE)) {
 			// processProperties is also called from TableView, we need check if we changed before re-creating the
 			// bitmap
@@ -874,6 +905,12 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 			view.setEnableZoomControls(TiConvert.toBoolean(newValue));
 		} else if (key.equals(TiC.PROPERTY_SCALING_MODE)) {
 			view.setScalingMode(TiConvert.toInt(newValue, MediaModule.IMAGE_SCALING_AUTO));
+		} else if (key.equals(TiC.PROPERTY_IMAGE_TOUCH_FEEDBACK)) {
+			view.setIsImageRippleEnabled(TiConvert.toBoolean(newValue, false));
+		} else if (key.equals(TiC.PROPERTY_IMAGE_TOUCH_FEEDBACK_COLOR)) {
+			String colorString = TiConvert.toString(newValue);
+			view.setImageRippleColor(
+				(colorString != null) ? TiConvert.toColor(colorString) : view.getDefaultRippleColor());
 		} else if (key.equals(TiC.PROPERTY_IMAGE)) {
 			if ((oldValue == null && newValue != null) || (oldValue != null && !oldValue.equals(newValue))) {
 				TiDrawableReference source = TiDrawableReference.fromObject(getProxy(), newValue);
@@ -967,18 +1004,15 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 		} else {
 			TiImageView view = getView();
 			if (view != null) {
-				Drawable drawable = view.getImageDrawable();
-				if (drawable instanceof BitmapDrawable) {
-					Bitmap bitmap = ((BitmapDrawable) drawable).getBitmap();
-					if (bitmap == null && imageSources != null && imageSources.size() == 1) {
-						bitmap = imageSources.get(0).getBitmap(true);
+				Bitmap bitmap = view.getImageBitmap();
+				if (bitmap == null && imageSources != null && imageSources.size() == 1) {
+					bitmap = imageSources.get(0).getBitmap(true);
+				}
+				if (bitmap != null) {
+					if (imageReference != null) {
+						mMemoryCache.put(imageReference.hashCode(), bitmap);
 					}
-					if (bitmap != null) {
-						if (imageReference != null) {
-							mMemoryCache.put(imageReference.hashCode(), bitmap);
-						}
-						return TiBlob.blobFromImage(bitmap);
-					}
+					return TiBlob.blobFromImage(bitmap);
 				}
 			}
 		}

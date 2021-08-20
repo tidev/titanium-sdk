@@ -7,10 +7,14 @@
 package ti.modules.titanium.ui.widget;
 
 import android.content.Context;
+import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.graphics.ColorFilter;
 import android.graphics.Matrix;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.RippleDrawable;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
@@ -23,8 +27,10 @@ import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
 import android.widget.ZoomControls;
 import android.graphics.PorterDuff.Mode;
+import com.google.android.material.color.MaterialColors;
 import java.lang.ref.WeakReference;
 import org.appcelerator.titanium.proxy.TiViewProxy;
+import org.appcelerator.titanium.R;
 import org.appcelerator.titanium.util.TiExifOrientation;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.util.TiColorHelper;
@@ -43,6 +49,10 @@ public class TiImageView extends ViewGroup implements Handler.Callback, OnClickL
 
 	private boolean enableScale;
 	private boolean enableZoomControls;
+
+	private boolean isImageRippleEnabled;
+	private int imageRippleColor;
+	private int defaultRippleColor;
 
 	private GestureDetector gestureDetector;
 	private ImageView imageView;
@@ -81,6 +91,9 @@ public class TiImageView extends ViewGroup implements Handler.Callback, OnClickL
 
 		baseMatrix = new Matrix();
 		changeMatrix = new Matrix();
+
+		this.defaultRippleColor = MaterialColors.getColor(context, R.attr.colorControlHighlight, Color.DKGRAY);
+		this.imageRippleColor = defaultRippleColor;
 
 		imageView = new ImageView(context);
 		imageView.setAdjustViewBounds(true);
@@ -179,9 +192,70 @@ public class TiImageView extends ViewGroup implements Handler.Callback, OnClickL
 		}
 	}
 
+	public boolean isImageRippleEnabled()
+	{
+		return this.isImageRippleEnabled;
+	}
+
+	public void setIsImageRippleEnabled(boolean value)
+	{
+		// Do not continue if setting isn't changing.
+		if (this.isImageRippleEnabled == value) {
+			return;
+		}
+
+		// Add or remove RippleDrawable to the image.
+		this.isImageRippleEnabled = value;
+		Bitmap bitmap = getImageBitmap();
+		if (bitmap != null) {
+			setImageBitmap(bitmap);
+		}
+	}
+
+	public int getImageRippleColor()
+	{
+		return this.imageRippleColor;
+	}
+
+	public int getDefaultRippleColor()
+	{
+		return this.defaultRippleColor;
+	}
+
+	public void setImageRippleColor(int value)
+	{
+		// Do not continue if setting isn't changing.
+		if (this.imageRippleColor == value) {
+			return;
+		}
+
+		// Update image's RippleDrawable with given color.
+		this.imageRippleColor = value;
+		if (this.isImageRippleEnabled) {
+			Bitmap bitmap = getImageBitmap();
+			if (bitmap != null) {
+				setImageBitmap(bitmap);
+			}
+		}
+	}
+
 	public Drawable getImageDrawable()
 	{
 		return imageView.getDrawable();
+	}
+
+	public Bitmap getImageBitmap()
+	{
+		Drawable drawable = getImageDrawable();
+		if (drawable instanceof RippleDrawable) {
+			if (((RippleDrawable) drawable).getNumberOfLayers() > 0) {
+				drawable = ((RippleDrawable) drawable).getDrawable(0);
+			}
+		}
+		if (drawable instanceof BitmapDrawable) {
+			return ((BitmapDrawable) drawable).getBitmap();
+		}
+		return null;
 	}
 
 	/**
@@ -190,15 +264,20 @@ public class TiImageView extends ViewGroup implements Handler.Callback, OnClickL
 	 */
 	public void setImageBitmap(Bitmap bitmap)
 	{
+		// Remove image from view if given null.
 		if (bitmap == null) {
-
-			// Reset drawable to null.
-			// setImageBitmap() will create a drawable that will affect width/height.
-			imageView.setImageDrawable(null);
+			this.imageView.setImageDrawable(null);
 			return;
 		}
 
-		imageView.setImageBitmap(bitmap);
+		// Apply the image to the view.
+		if (this.isImageRippleEnabled) {
+			BitmapDrawable bitmapDrawable = new BitmapDrawable(this.imageView.getContext().getResources(), bitmap);
+			this.imageView.setImageDrawable(
+				new RippleDrawable(ColorStateList.valueOf(this.imageRippleColor), bitmapDrawable, null));
+		} else {
+			this.imageView.setImageBitmap(bitmap);
+		}
 	}
 
 	public void setOnClickListener(OnClickListener clickListener)
@@ -555,5 +634,10 @@ public class TiImageView extends ViewGroup implements Handler.Callback, OnClickL
 	public int getTintColor()
 	{
 		return tintColor;
+	}
+
+	public ImageView getImageView()
+	{
+		return this.imageView;
 	}
 }
