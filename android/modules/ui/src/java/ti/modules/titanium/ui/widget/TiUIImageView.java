@@ -67,6 +67,7 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 	private boolean firedLoad;
 	private ImageViewProxy imageViewProxy;
 	private int currentDuration;
+	private TiImageView view;
 
 	private ArrayList<TiDrawableReference> imageSources;
 	private TiDrawableReference defaultImageSource;
@@ -90,7 +91,7 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 
 		Log.d(TAG, "Creating an ImageView", Log.DEBUG_MODE);
 
-		TiImageView view = new TiImageView(proxy.getActivity(), proxy);
+		view = new TiImageView(proxy.getActivity(), proxy);
 
 		downloadListener = new TiDownloadListener() {
 			@Override
@@ -166,6 +167,30 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 	}
 
 	@Override
+	protected void applyContentDescription()
+	{
+		if (proxy == null || nativeView == null) {
+			return;
+		}
+		String contentDescription = composeContentDescription();
+		if (contentDescription != null) {
+			this.view.getImageView().setContentDescription(contentDescription);
+		}
+	}
+
+	@Override
+	protected void applyContentDescription(KrollDict properties)
+	{
+		if (proxy == null || nativeView == null) {
+			return;
+		}
+		String contentDescription = composeContentDescription(properties);
+		if (contentDescription != null) {
+			this.view.getImageView().setContentDescription(contentDescription);
+		}
+	}
+
+	@Override
 	public void setProxy(TiViewProxy proxy)
 	{
 		super.setProxy(proxy);
@@ -174,7 +199,7 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 
 	private TiImageView getView()
 	{
-		return (TiImageView) nativeView;
+		return this.view;
 	}
 
 	protected View getParentView()
