@@ -4877,7 +4877,7 @@ iOSBuilder.prototype.copyTitaniumiOSFiles = function copyTitaniumiOSFiles() {
 	copyAndReplaceFile.call(
 		this,
 		path.join(this.platformPath, 'iphone', 'Titanium.xcodeproj', 'xcshareddata', 'WorkspaceSettings.xcsettings'),
-		path.join(this.buildDir, this.tiapp.name + '.xcodeproj', 'xcuserdata', `${require('os').userInfo().username}.xcuserdatad`, 'WorkspaceSettings.xcsettings')
+		path.join(this.buildDir, this.tiapp.name + '.xcodeproj', 'project.xcworkspace', 'xcuserdata', `${require('os').userInfo().username}.xcuserdatad`, 'WorkspaceSettings.xcsettings')
 	);
 	copyAndReplaceFile.call(
 		this,
