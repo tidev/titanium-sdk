@@ -808,7 +808,7 @@ class FrameworkInspector {
 					if (!await fs.pathExists(headersDirectory)) {
 						this._logger.debug(`Creating ${headersDirectory} and writing .keep file to it`);
 						await fs.mkdir(headersDirectory);
-						await fs.writeFile(path.join(headersDirectory, '.keep'), 'This file is to ensure the Headers directory gets checked into source control');
+						await fs.writeFile(path.join(headersDirectory, `.${frameworkName}-keep`), 'This file is to ensure the Headers directory gets checked into source control');
 					}
 				}
 			}

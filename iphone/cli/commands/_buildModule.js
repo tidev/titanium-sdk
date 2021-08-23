@@ -748,7 +748,7 @@ iOSModuleBuilder.prototype.createUniversalBinary = function createUniversalBinar
 			const headersPath = path.join(xcframeworkDest, dir, 'Headers');
 
 			if (fs.existsSync(headersPath) && fs.readdirSync(headerPath).length === 0) {
-				fs.writeFileSync(path.join(headersPath, '.keep'), 'This file is to ensure the Headers directory gets checked into source control');
+				fs.writeFileSync(path.join(headersPath, `.${moduleId}-keep`), 'This file is to ensure the Headers directory gets checked into source control');
 			}
 		}
 		next();
