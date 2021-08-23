@@ -97,7 +97,7 @@ async function checkCommitMessages() {
 // Check that we have a JIRA Link in the body
 async function checkJIRA() {
 	// Don't require dependabot dependency updates require a JIRA ticket
-	if (github.pr.user.login === 'dependabot-preview[bot]') {
+	if (github.pr.user.type === 'Bot') {
 		return;
 	}
 
@@ -169,7 +169,7 @@ async function checkMergeable() {
 // Check PR author to see if it's community, etc
 async function checkCommunity() {
 	// Don't give special thanks to bot accounts
-	if (github.pr.user.login === 'dependabot-preview[bot]') {
+	if (github.pr.user.type === 'Bot') {
 		return;
 	}
 
