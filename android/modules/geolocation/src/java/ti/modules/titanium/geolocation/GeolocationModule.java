@@ -42,11 +42,14 @@ import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
+import android.location.LocationManager;
 import android.location.LocationProvider;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
+
 import androidx.annotation.NonNull;
+import androidx.core.location.LocationManagerCompat;
 
 /**
  * GeolocationModule exposes all common methods and properties relating to geolocation behavior
@@ -145,6 +148,7 @@ public class GeolocationModule extends KrollModule implements Handler.Callback, 
 
 	private FusedLocationProvider fusedLocationProvider;
 	private Geocoder geocoder;
+	private LocationManager locationManager;
 
 	/**
 	 * Constructor
@@ -157,6 +161,7 @@ public class GeolocationModule extends KrollModule implements Handler.Callback, 
 
 		fusedLocationProvider = new FusedLocationProvider(context, this);
 		geocoder = new Geocoder(context);
+		locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
 
 		tiLocation = new TiLocation();
 		tiCompass = new TiCompass(this, tiLocation);
@@ -534,8 +539,8 @@ public class GeolocationModule extends KrollModule implements Handler.Callback, 
 			// Do not continue if there is no activity to host the request dialog.
 			Activity activity = TiApplication.getInstance().getCurrentActivity();
 			if (activity == null) {
-				KrollDict response = new KrollDict();
-				response.putCodeAndMessage(-1, "There are no activities to host the location request dialog.");
+				KrollDict response =
+					buildLocationErrorEvent(-1, "There are no activities to host the location request dialog.");
 				if (permissionCB != null) {
 					permissionCB.callAsync(callbackThisObject, response);
 				}
@@ -722,7 +727,7 @@ public class GeolocationModule extends KrollModule implements Handler.Callback, 
 	@Kroll.getProperty
 	public boolean getLocationServicesEnabled()
 	{
-		return tiLocation.getLocationServicesEnabled();
+		return LocationManagerCompat.isLocationEnabled(locationManager);
 	}
 
 	/**
