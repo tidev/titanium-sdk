@@ -18,6 +18,11 @@
 	<!-- See "values-land/values.xml" which fixes action bar height for landscape. -->
 	<dimen name="ti_action_bar_height">@dimen/mtrl_toolbar_default_height</dimen>
 
+	<!-- Define theme attribute used to customize Titanium's splash screen background drawable. -->
+	<declare-styleable name="TitaniumSplashBackground">
+		<attr name="titaniumSplashIcon" format="reference"/>
+	</declare-styleable>
+
 	<!-- Titanium's button text style is not all-caps just like Google's apps. -->
 	<style name="TextAppearance.Titanium.Button" parent="TextAppearance.MaterialComponents.Button">
 		<item name="android:textAllCaps">false</item>
@@ -114,11 +119,11 @@
 	<!-- Base theme to be used by the "TiRootActivity" class. -->
 	<style name="Base.Theme.Titanium.Splash" parent="Theme.AppDerived">
 		<item name="android:windowActionBar">false</item>
+		<item name="android:windowBackground">@drawable/titanium_splash_icon_background</item>
 		<item name="android:windowNoTitle">true</item>
+		<item name="titaniumSplashIcon">@drawable/titanium_icon_splash_empty</item>
 		<item name="windowActionBar">false</item>
 		<item name="windowNoTitle">true</item>
-		<item name="android:windowTranslucentStatus">true</item>
-		<item name="android:windowTranslucentNavigation">true</item>
 	</style>
 
 	<!-- Theme to be replaced by app project and have a "windowBackground" image applied to it. -->
