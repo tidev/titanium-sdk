@@ -695,6 +695,17 @@ public class GeolocationModule extends KrollModule implements Handler.Callback, 
 				LocationProviderProxy locationProvider = locationProviders.get(iterator.next());
 				registerLocationProvider(locationProvider);
 			}
+
+			// On Android 12+, check for ACCESS_FINE_LOCATION.
+			// If ACCESS_FINE_LOCATION is denied, return last known location.
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+				Context context = TiApplication.getInstance();
+				int result = context.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION);
+
+				if (result == PackageManager.PERMISSION_DENIED) {
+					onLocationChanged(tiLocation.getLastKnownLocation());
+				}
+			}
 		}
 	}
 
