@@ -698,7 +698,7 @@ public class GeolocationModule extends KrollModule implements Handler.Callback, 
 
 			// On Android 12+, check for ACCESS_FINE_LOCATION.
 			// If ACCESS_FINE_LOCATION is denied, return last known location.
-			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && hasLocationPermissions()) {
 				Context context = TiApplication.getInstance();
 				int result = context.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION);
 
