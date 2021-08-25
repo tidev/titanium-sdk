@@ -212,6 +212,9 @@ public class GeolocationModule extends KrollModule implements Handler.Callback, 
 	 */
 	public void onLocationChanged(Location location)
 	{
+		if (location == null) {
+			return;
+		}
 		lastLocation = location;
 
 		// Execute getCurrentPosition() callbacks/Promises
