@@ -18,6 +18,12 @@
 	<!-- See "values-land/values.xml" which fixes action bar height for landscape. -->
 	<dimen name="ti_action_bar_height">@dimen/mtrl_toolbar_default_height</dimen>
 
+	<!-- Defines attribute indicating if a "Theme.Titanium.*.Solid" theme is being used at runtime. -->
+	<!-- Used by TabGroup to apply special handling to top/bottom tab bars. -->
+	<declare-styleable name="TitaniumTheme">
+		<attr name="titaniumIsSolidTheme" format="boolean"/>
+	</declare-styleable>
+
 	<!-- Define theme attribute used to customize Titanium's splash screen background drawable. -->
 	<declare-styleable name="TitaniumSplashBackground">
 		<attr name="titaniumSplashIcon" format="reference"/>
@@ -61,6 +67,32 @@
 		<item name="android:windowFullscreen">true</item>
 	</style>
 
+	<!-- Titanium's dark material theme with an action bar. -->
+	<!-- Status bar, action bar, and nav bar use same background color as window giving it one solid appearance. -->
+	<style name="Theme.Titanium.Dark.Solid" parent="Theme.Titanium.Dark">
+		<item name="android:navigationBarColor">?android:attr/colorBackground</item>
+		<item name="android:statusBarColor">?android:attr/colorBackground</item>
+		<item name="actionBarStyle">@style/Widget.AppCompat.ActionBar</item>
+		<item name="actionBarTheme">@style/ThemeOverlay.MaterialComponents.Dark.ActionBar</item>
+		<item name="titaniumIsSolidTheme">true</item>
+	</style>
+
+	<!-- Titanium's dark material theme without an action bar. -->
+	<!-- Status bar, action bar, and nav bar use same background color as window giving it one solid appearance. -->
+	<style name="Theme.Titanium.Dark.Solid.NoTitleBar" parent="Theme.Titanium.Dark.Solid">
+		<item name="android:windowActionBar">false</item>
+		<item name="android:windowContentOverlay">@null</item>
+		<item name="android:windowNoTitle">true</item>
+		<item name="windowActionBar">false</item>
+		<item name="windowNoTitle">true</item>
+	</style>
+
+	<!-- Titanium's dark material theme without an action bar and status bar. -->
+	<!-- Status bar, action bar, and nav bar use same background color as window giving it one solid appearance. -->
+	<style name="Theme.Titanium.Dark.Solid.Fullscreen" parent="Theme.Titanium.Dark.Solid.NoTitleBar">
+		<item name="android:windowFullscreen">true</item>
+	</style>
+
 	<!-- Titanium's light material theme with an action bar. -->
 	<style name="Theme.Titanium.Light" parent="Theme.MaterialComponents.Light.DarkActionBar">
 		<item name="actionBarSize">@dimen/ti_action_bar_height</item>
@@ -91,6 +123,31 @@
 		<item name="android:windowFullscreen">true</item>
 	</style>
 
+	<!-- Titanium's light material theme with an action bar. -->
+	<!-- Status bar, action bar, and nav bar use same background color as window giving it one solid appearance. -->
+	<style name="Theme.Titanium.Light.Solid" parent="Theme.Titanium.Light">
+		<item name="android:navigationBarColor">@android:color/black</item>
+		<item name="actionBarStyle">@style/Widget.AppCompat.Light.ActionBar</item>
+		<item name="actionBarTheme">@style/ThemeOverlay.MaterialComponents.ActionBar</item>
+		<item name="titaniumIsSolidTheme">true</item>
+	</style>
+
+	<!-- Titanium's light material theme without an action bar. -->
+	<!-- Status bar, action bar, and nav bar use same background color as window giving it one solid appearance. -->
+	<style name="Theme.Titanium.Light.Solid.NoTitleBar" parent="Theme.Titanium.Light.Solid">
+		<item name="android:windowActionBar">false</item>
+		<item name="android:windowContentOverlay">@null</item>
+		<item name="android:windowNoTitle">true</item>
+		<item name="windowActionBar">false</item>
+		<item name="windowNoTitle">true</item>
+	</style>
+
+	<!-- Titanium's light material theme without an action bar and status bar. -->
+	<!-- Status bar, action bar, and nav bar use same background color as window giving it one solid appearance. -->
+	<style name="Theme.Titanium.Light.Solid.Fullscreen" parent="Theme.Titanium.Light.Solid.NoTitleBar">
+		<item name="android:windowFullscreen">true</item>
+	</style>
+
 	<!-- Titanium style supporting dark/light theme switching with an action bar. -->
 	<style name="Theme.Titanium.DayNight" parent="Theme.Titanium.Light"/>
 
@@ -108,9 +165,29 @@
 		<item name="android:windowFullscreen">true</item>
 	</style>
 
+	<!-- Titanium style supporting dark/light theme switching with an action bar. -->
+	<!-- Status bar, action bar, and nav bar use same background color as window giving it one solid appearance. -->
+	<style name="Theme.Titanium.DayNight.Solid" parent="Theme.Titanium.Light.Solid"/>
+
+	<!-- Titanium style supporting dark/light theme switching without an action bar. -->
+	<!-- Status bar, action bar, and nav bar use same background color as window giving it one solid appearance. -->
+	<style name="Theme.Titanium.DayNight.Solid.NoTitleBar" parent="Theme.Titanium.DayNight.Solid">
+		<item name="android:windowActionBar">false</item>
+		<item name="android:windowContentOverlay">@null</item>
+		<item name="android:windowNoTitle">true</item>
+		<item name="windowActionBar">false</item>
+		<item name="windowNoTitle">true</item>
+	</style>
+
+	<!-- Titanium style supporting dark/light theme switching without an action bar and status bar. -->
+	<!-- Status bar, action bar, and nav bar use same background color as window giving it one solid appearance. -->
+	<style name="Theme.Titanium.DayNight.Solid.Fullscreen" parent="Theme.Titanium.DayNight.Solid.NoTitleBar">
+		<item name="android:windowFullscreen">true</item>
+	</style>
+
 	<!-- The default theme Titanium applies to the <application/> in the manifest. -->
 	<!-- Our "_build.js" will replace parent with ".NoTitleBar" or ".Fullscreen" if set in "tiapp.xml". -->
-	<style name="Theme.Titanium.App" parent="Theme.Titanium.DayNight"/>
+	<style name="Theme.Titanium.App" parent="Theme.Titanium.DayNight.Solid"/>
 
 	<!-- The app theme which all Titanium activities will use by default. -->
 	<!-- Our "_build.js" will replace parent if "AndroidManifest.xml" was assigned a custom application theme. -->
