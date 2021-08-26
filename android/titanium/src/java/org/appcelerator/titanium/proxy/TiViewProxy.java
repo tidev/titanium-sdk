@@ -645,6 +645,31 @@ public abstract class TiViewProxy extends KrollProxy
 		}
 	}
 
+	public void recreateChild(TiViewProxy child)
+	{
+		if (child == null || this.children == null) {
+			return;
+		}
+
+		final int index = this.children.indexOf(child);
+		final TiUIView oldView = child.peekView();
+
+		child.releaseViews();
+
+		if (oldView != null && this.view != null && this.view.getChildren() != null) {
+			final int oldViewIndex = this.view.getChildren().indexOf(oldView);
+
+			if (oldViewIndex > -1) {
+				final TiUIView newView = child.getOrCreateView();
+
+				this.view.remove(oldView);
+				this.view.insertAt(newView, oldViewIndex);
+			} else {
+				releaseViews();
+			}
+		}
+	}
+
 	/**
 	 * Adds a child to this view proxy in the specified position. This is useful for "vertical" and
 	 * "horizontal" layouts.
