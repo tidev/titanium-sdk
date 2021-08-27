@@ -32,6 +32,7 @@ import android.view.ViewGroup;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
+import org.appcelerator.titanium.R;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.ActivityProxy;
@@ -39,7 +40,7 @@ import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.proxy.TiWindowProxy;
 import org.appcelerator.titanium.util.TiColorHelper;
 import org.appcelerator.titanium.util.TiConvert;
-import org.appcelerator.titanium.util.TiRHelper;
+import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiInsetsProvider;
 import org.appcelerator.titanium.view.TiUIView;
 
@@ -157,6 +158,8 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 	// endregion
 
 	// region private fields
+	private final boolean isUsingSolidTitaniumTheme;
+	private int colorBackgroundInt;
 	private int colorSurfaceInt;
 	private int colorPrimaryInt;
 	private int colorOnSurfaceInt;
@@ -169,22 +172,29 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 	{
 		super(proxy);
 
+		// Determines if theme has the "titaniumIsSolidTheme" attribute and it's set to "true".
+		// Used by our "Theme.Titanium.*.Solid" themes to shade the top/bottom tabs appropriately.
+		this.isUsingSolidTitaniumTheme = TiUIHelper.isUsingSolidTitaniumTheme(activity);
+
 		// Fetch primary background and text colors from ActionBar style assigned to activity theme.
 		// Note: We use ActionBar style for backward compatibility with Titanium versions older than 8.0.0.
+		this.colorBackgroundInt = Color.TRANSPARENT;
 		this.colorPrimaryInt = 0xFF212121; // Default to dark gray.
 		this.colorOnSurfaceInt = 0xFFBBBBBB; // Default to light gray.
 		this.colorSurfaceInt = Color.TRANSPARENT;
 		try {
 			final int[] idArray = new int[] {
-				TiRHelper.getResource("attr.colorPrimary"),
-				TiRHelper.getResource("attr.colorSurface"),
-				TiRHelper.getResource("attr.colorOnSurface")
+				android.R.attr.colorBackground,
+				R.attr.colorPrimary,
+				R.attr.colorSurface,
+				R.attr.colorOnSurface
 			};
 			final TypedArray typedArray =  activity.getTheme().obtainStyledAttributes(idArray);
 
-			this.colorPrimaryInt = typedArray.getColor(0, this.colorPrimaryInt);
-			this.colorSurfaceInt = typedArray.getColor(1, this.colorSurfaceInt);
-			this.colorOnSurfaceInt = typedArray.getColor(2, this.colorOnSurfaceInt);
+			this.colorBackgroundInt = typedArray.getColor(0, this.colorBackgroundInt);
+			this.colorPrimaryInt = typedArray.getColor(1, this.colorPrimaryInt);
+			this.colorSurfaceInt = typedArray.getColor(2, this.colorSurfaceInt);
+			this.colorOnSurfaceInt = typedArray.getColor(3, this.colorOnSurfaceInt);
 			typedArray.recycle();
 		} catch (Exception ex) {
 			Log.e(TAG, "Failed to fetch color from theme.", ex);
@@ -464,7 +474,7 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 		if (d.containsKeyAndNotNull(TiC.PROPERTY_TABS_BACKGROUND_COLOR)) {
 			setBackgroundColor(TiColorHelper.parseColor(d.get(TiC.PROPERTY_TABS_BACKGROUND_COLOR).toString()));
 		} else {
-			setBackgroundColor(this.colorSurfaceInt);
+			setBackgroundColor(getDefaultBackgroundColor());
 		}
 		super.processProperties(d);
 	}
@@ -549,10 +559,27 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 		return drawable;
 	}
 
+	public boolean isUsingSolidTitaniumTheme()
+	{
+		return this.isUsingSolidTitaniumTheme;
+	}
+
+	@ColorInt
+	protected int getColorBackground()
+	{
+		return this.colorBackgroundInt;
+	}
+
 	@ColorInt
 	protected int getColorPrimary()
 	{
 		return this.colorPrimaryInt;
+	}
+
+	@ColorInt
+	protected int getDefaultBackgroundColor()
+	{
+		return this.colorSurfaceInt;
 	}
 
 	@ColorInt
