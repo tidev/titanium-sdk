@@ -3295,11 +3295,11 @@ AndroidBuilder.prototype.generateTheme = async function generateTheme() {
 	this.logger.info(__('Generating theme file: %s', xmlFileName.cyan));
 
 	// Set default theme to be used in "AndroidManifest.xml" and style resources.
-	let defaultAppThemeName = 'Theme.Titanium.DayNight';
+	let defaultAppThemeName = 'Theme.Titanium.DayNight.Solid';
 	if (this.tiapp.fullscreen || this.tiapp['statusbar-hidden']) {
-		defaultAppThemeName = 'Theme.Titanium.DayNight.Fullscreen';
+		defaultAppThemeName += '.Fullscreen';
 	} else if (this.tiapp['navbar-hidden']) {
-		defaultAppThemeName = 'Theme.Titanium.DayNight.NoTitleBar';
+		defaultAppThemeName += '.NoTitleBar';
 	}
 
 	// Set up "Theme.AppDerived" to use the <application/> defined theme, if assigned.
