@@ -251,6 +251,19 @@ class Categorizer {
 				results.cssFiles.set(relPath, info);
 				break;
 
+			case 'svg':
+				// if we are using app thinning, then don't copy the image, instead mark the
+				// image to be injected into the asset catalog. Also, exclude images that are
+				// managed by their bundles.
+				if (this.useAppThinning && !relPath.match(BUNDLE_FILE_REGEXP)) {
+					results.imageAssets.set(relPath, info);
+					return;
+				}
+
+				// Normal SVG, so just copy it
+				results.resourcesToCopy.set(relPath, info);
+				break;
+
 			case 'png':
 				if (this.platform === 'ios') {
 					// check if we have an app icon

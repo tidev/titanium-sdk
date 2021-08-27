@@ -5557,7 +5557,7 @@ iOSBuilder.prototype.createAssetImageSets = async function createAssetImageSets(
 
 	this.logger.info(__('Creating assets image set'));
 	const assetCatalog = path.join(this.buildDir, 'Assets.xcassets');
-	const imageNameRegExp = /^(.*?)(-dark)?(@[23]x)?(~iphone|~ipad)?\.(png|jpg)$/;
+	const imageNameRegExp = /^(.*?)(-dark)?(@[23]x)?(~iphone|~ipad)?\.(png|jpg|svg)$/;
 
 	const imageSets = {};
 	for (let [ file, info ] of imageAssets) {
@@ -5599,9 +5599,13 @@ iOSBuilder.prototype.createAssetImageSets = async function createAssetImageSets(
 
 			const imageSet = {
 				idiom: !match[4] ? 'universal' : match[4].replace('~', ''),
-				filename: imageName + '.' + imageExt,
-				scale: !match[3] ? '1x' : match[3].replace('@', '')
+				filename: imageName + '.' + imageExt
 			};
+
+			// SVG's are single-scaled
+			if (imageExt !== 'svg') {
+				imageSet.scale = !match[3] ? '1x' : match[3].replace('@', '');
+			}
 
 			if (match[2]) {
 				imageSet.appearances = [ {
