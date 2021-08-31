@@ -18,6 +18,7 @@ import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.view.TiUIView;
 
 import android.app.Activity;
+import android.view.View;
 
 import androidx.recyclerview.selection.SelectionTracker;
 import androidx.recyclerview.widget.RecyclerView;
@@ -749,11 +750,34 @@ public class TableViewProxy extends RecyclerViewProxy
 			final RecyclerView recyclerView = tableView.getRecyclerView();
 
 			if (recyclerView != null) {
+				final TableViewRowProxy row = getRowByIndex(index);
 
-				if (animated) {
-					recyclerView.smoothScrollToPosition(tableView.getAdapterIndex(index));
-				} else {
-					recyclerView.scrollToPosition(tableView.getAdapterIndex(index));
+				if (row != null) {
+					final int rowAdapterIndex = tableView.getAdapterIndex(index);
+					final Runnable action = () -> {
+						if (animated) {
+							recyclerView.smoothScrollToPosition(rowAdapterIndex);
+						} else {
+							recyclerView.scrollToPosition(rowAdapterIndex);
+						}
+					};
+
+					// This is a workaround for when `EDITING` mode is set, as it recreates the TableView.
+					// We need to listen for when it has updated before scrolling.
+					if (row.getHolder() == null) {
+						tableView.addOnLayoutChangeListener(new View.OnLayoutChangeListener()
+						{
+							@Override
+							public void onLayoutChange(View view, int i, int i1, int i2, int i3, int i4, int i5, int i6,
+													   int i7)
+							{
+								action.run();
+								tableView.removeOnLayoutChangeListener(this);
+							}
+						});
+					} else {
+						action.run();
+					}
 				}
 			}
 		}
@@ -787,10 +811,34 @@ public class TableViewProxy extends RecyclerViewProxy
 			final TiTableView tableView = getTableView();
 
 			if (tableView != null) {
-				final SelectionTracker tracker = tableView.getTracker();
+				final Runnable action = () -> {
+					final SelectionTracker tracker = tableView.getTracker();
+					final TiUIView rowView = row.peekView();
+					final boolean visible = rowView != null && rowView.getNativeView().isShown();
 
-				if (tracker != null) {
-					tracker.select(row);
+					if (!visible) {
+						scrollToIndex(index, null);
+					}
+					if (tracker != null) {
+						tracker.select(row);
+					}
+				};
+
+				// This is a workaround for when `EDITING` mode is set, as it recreates the TableView.
+				// We need to listen for when it has updated before testing visibility/scrolling.
+				if (row.getHolder() == null) {
+					tableView.addOnLayoutChangeListener(new View.OnLayoutChangeListener()
+					{
+						@Override
+						public void onLayoutChange(View view, int i, int i1, int i2, int i3, int i4, int i5, int i6,
+												   int i7)
+						{
+							action.run();
+							tableView.removeOnLayoutChangeListener(this);
+						}
+					});
+				} else {
+					action.run();
 				}
 			}
 		}
