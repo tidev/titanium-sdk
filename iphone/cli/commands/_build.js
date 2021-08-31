@@ -4118,7 +4118,7 @@ iOSBuilder.prototype._embedCapabilitiesAndWriteEntitlementsPlist = function _emb
 		// write the entitlements.plist
 		const contents = plist.toString('xml');
 
-		if (!fs.existsSync(dest) || contents !== fs.readFileSync(dest).toString()) {
+		if (!fs.existsSync(dest) || contents !== fs.readFileSync(dest, 'utf-8').trim()) {
 			if (!this.forceRebuild) {
 				this.logger.info(__('Forcing rebuild: %s has changed since last build', dest.replace(this.projectDir + '/', '')));
 				this.forceRebuild = true;
@@ -6641,7 +6641,12 @@ iOSBuilder.prototype.processTiSymbols = function processTiSymbols() {
 		if (parts.length) {
 			namespaces[parts[0].toLowerCase()] = 1;
 			while (parts.length) {
-				symbols[parts.join('.').replace(/\.create/gi, '').replace(/\./g, '').replace(/-/g, '_').toUpperCase()] = 1;
+				const value = parts.join('.').replace(/\.create/gi, '').replace(/\./g, '').replace(/-/g, '_').toUpperCase();
+				// Ignore any value that is not a single uppercased word, this is most likely an
+				// invalid detection by the babel plugin that collects the symbols used
+				if (/^\w+$/.test(value)) {
+					symbols[value] = 1;
+				}
 				parts.pop();
 			}
 		}

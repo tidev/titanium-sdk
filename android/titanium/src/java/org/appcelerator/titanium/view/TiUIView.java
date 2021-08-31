@@ -2147,6 +2147,11 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 		}
 	}
 
+	public KrollDict getLastUpEvent()
+	{
+		return dictFromEvent(this.lastUpEvent);
+	}
+
 	/**
 	 * Retrieve the saved animated scale values, which we store here since Android provides no property
 	 * for looking them up.
@@ -2209,7 +2214,7 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 		animatedAlpha = Float.MIN_VALUE;                                         // we use min val to signal no val.
 	}
 
-	private void applyContentDescription()
+	protected void applyContentDescription()
 	{
 		if (proxy == null || nativeView == null) {
 			return;
@@ -2220,7 +2225,7 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 		}
 	}
 
-	private void applyContentDescription(KrollDict properties)
+	protected void applyContentDescription(KrollDict properties)
 	{
 		if (proxy == null || nativeView == null) {
 			return;

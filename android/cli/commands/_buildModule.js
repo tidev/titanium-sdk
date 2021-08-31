@@ -507,6 +507,12 @@ AndroidModuleBuilder.prototype.generateRootProjectFiles = async function generat
 		key: 'org.gradle.jvmargs',
 		value: `-Xmx${this.javacMaxMemory} -Dkotlin.daemon.jvm.options="-Xmx${this.javacMaxMemory}"`
 	});
+
+	// Kotlin KAPT compatibility for JDK16
+	// NOTE: This parameter is removed in JDK17 and will prevent modules from compiling.
+	// https://youtrack.jetbrains.com/issue/KT-45545
+	gradleProperties.push({ key: 'org.gradle.jvmargs', value: '--illegal-access=permit' });
+
 	await gradlew.writeGradlePropertiesFile(gradleProperties);
 
 	// Create a "local.properties" file providing a path to the Android SDK directory.
