@@ -739,11 +739,30 @@ public class ListViewProxy extends RecyclerViewProxy
 				final ListItemProxy item = section.getListItemAt(itemIndex);
 
 				if (item != null) {
+					final int itemAdapterIndex = listView.getAdapterIndex(item.index);
+					final Runnable action = () -> {
+						if (animated) {
+							listView.getRecyclerView().smoothScrollToPosition(itemAdapterIndex);
+						} else {
+							listView.getRecyclerView().scrollToPosition(itemAdapterIndex);
+						}
+					};
 
-					if (animated) {
-						listView.getRecyclerView().smoothScrollToPosition(listView.getAdapterIndex(item.index));
+					// This is a workaround for when `EDITING` mode is set, as it recreates the ListView.
+					// We need to listen for when it has updated before scrolling.
+					if (item.getHolder() == null) {
+						listView.addOnLayoutChangeListener(new View.OnLayoutChangeListener()
+						{
+							@Override
+							public void onLayoutChange(View view, int i, int i1, int i2, int i3, int i4, int i5, int i6,
+													   int i7)
+							{
+								action.run();
+								listView.removeOnLayoutChangeListener(this);
+							}
+						});
 					} else {
-						listView.getRecyclerView().scrollToPosition(listView.getAdapterIndex(item.index));
+						action.run();
 					}
 				}
 			}
@@ -759,8 +778,6 @@ public class ListViewProxy extends RecyclerViewProxy
 	@Kroll.method
 	public void selectItem(int sectionIndex, int itemIndex)
 	{
-		scrollToItem(sectionIndex, itemIndex, null);
-
 		final TiListView listView = getListView();
 
 		if (listView != null) {
@@ -770,10 +787,34 @@ public class ListViewProxy extends RecyclerViewProxy
 				final ListItemProxy item = section.getListItemAt(itemIndex);
 
 				if (item != null) {
-					final SelectionTracker tracker = listView.getTracker();
+					final Runnable action = () -> {
+						final SelectionTracker tracker = listView.getTracker();
+						final TiUIView itemView = item.peekView();
+						final boolean visible = itemView != null && itemView.getNativeView().isShown();
 
-					if (tracker != null) {
-						tracker.select(item);
+						if (!visible) {
+							scrollToItem(sectionIndex, itemIndex, null);
+						}
+						if (tracker != null) {
+							tracker.select(item);
+						}
+					};
+
+					// This is a workaround for when `EDITING` mode is set, as it recreates the ListView.
+					// We need to listen for when it has updated before testing visibility/scrolling.
+					if (item.getHolder() == null) {
+						listView.addOnLayoutChangeListener(new View.OnLayoutChangeListener()
+						{
+							@Override
+							public void onLayoutChange(View view, int i, int i1, int i2, int i3, int i4, int i5, int i6,
+													   int i7)
+							{
+								action.run();
+								listView.removeOnLayoutChangeListener(this);
+							}
+						});
+					} else {
+						action.run();
 					}
 				}
 			}
