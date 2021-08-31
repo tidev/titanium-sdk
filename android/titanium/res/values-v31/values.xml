@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<style name="Base.Theme.Titanium.Splash" parent="Theme.AppDerived">
+		<item name="android:navigationBarColor">?android:attr/colorBackground</item>
+		<item name="android:statusBarColor">?android:attr/colorBackground</item>
+		<item name="android:windowActionBar">false</item>
+		<item name="android:windowBackground">@drawable/titanium_splash_icon_background</item>
+		<item name="android:windowLightNavigationBar">?attr/isLightTheme</item>
+		<item name="android:windowLightStatusBar">?attr/isLightTheme</item>
+		<item name="android:windowNoTitle">true</item>
+		<item name="android:windowSplashScreenBackground">?android:attr/colorBackground</item>
+		<item name="android:windowSplashScreenIconBackgroundColor">@android:color/white</item>
+		<item name="android:windowTranslucentNavigation">false</item>
+		<item name="android:windowTranslucentStatus">false</item>
+		<item name="titaniumSplashIcon">@drawable/titanium_icon_splash_empty</item>
+		<item name="windowActionBar">false</item>
+		<item name="windowNoTitle">true</item>
+	</style>
+</resources>
+ 

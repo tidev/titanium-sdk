@@ -1,12 +1,17 @@
 'use strict';
 
+const { Arborist } = require('@npmcli/arborist');
 const fs = require('fs-extra');
 const path = require('path');
 
-const NODE_MODULES = 'node_modules';
-
 const copier = {};
+
 /**
+ * Reads of the node_modules on disk, and then produces a Set of paths to copy that match the
+ * criteria. Will always ignore development dependencies, titanium native modules (denoted by
+ * titanium.type in package.json being native-modules), and optionally peer and optional
+ * dependencies
+ *
  * @param {string} projectPath absolute filepath for project root directory
  * @param {object} [options] options object
  * @param {boolean} [options.includeOptional=true] whether to include optional dependencies when gathering
@@ -20,14 +25,18 @@ copier.gather = async function (projectPath, options = { includeOptional: true, 
 	// resolve path names for file copying
 	projectPath = path.resolve(projectPath);
 
-	// recursively gather the full set of dependencies/directories we need to copy
-	const root = new Dependency(null, 'fake-id', projectPath);
-	const directoriesToBeCopied = await root.getDirectoriesToCopy(options.includeOptional, options.includePeers);
+	const arb = new Arborist({ path: projectPath });
+	const tree = await arb.loadActual();
+
+	const directoriesToBeCopied = await getDirectoriesToCopy(tree, projectPath, options.includeOptional, options.includePeers, projectPath);
 
 	return new Set(directoriesToBeCopied); // de-duplicate
 };
 
 /**
+ * Given a path, traverse its node_modules and determine the directories to copy across, then copy
+ * those directories.
+ *
  * @param {string} projectPath absolute filepath for project root directory
  * @param {string} targetPath absolute filepath for target directory to copy node_modules into
  * @param {object} [options] options object
@@ -59,106 +68,78 @@ copier.execute = async function (projectPath, targetPath, options = { includeOpt
 	}));
 };
 
-class Dependency {
-	constructor(parent, name, directory) {
-		this.name = name;
-		this.parent = parent;
-		this.directory = directory;
-	}
+/**
+ * Walks a tree from @npmcli/arborist, gathering the required paths to copy from node_modules
+ *
+ * @param {Object} tree A tree loaded from @npmcli/arborist.loadActual
+ * @param {string} projectPath The path of the root project
+ * @param {boolean} includeOptional Whether to include optional dependencies
+ * @param {boolean} includePeers Whether to include peer dependencies
+ * @returns {Promise<string[]>} An array of directory paths to copy
+ */
+async function getDirectoriesToCopy (tree, projectPath, includeOptional, includePeers) {
 
-	isRoot() {
-		return this.parent === null;
-	}
-
-	/**
-	 * @description Get directories that need to be copied to target.
-	 * @param {boolean} [includeOptional=true] - Include optional dependencies?
-	 * @param {boolean} [includePeers=true] - Include peer dependencies?
-	 * @returns {Promise<string[]>} Full set of directories to copy.
-	 */
-	async getDirectoriesToCopy(includeOptional = true, includePeers = true) {
-		const childrenNames = await this.gatherChildren(includeOptional, includePeers);
-		if (childrenNames.length === 0) {
-			if (this.isRoot()) {
-				return []; // if root has no children, return empty set of dirs!
-			}
-			return [ this.directory ]; // just need our own directory!
-		}
-
-		const children = (await Promise.all(childrenNames.map(name => this.resolve(name)))).filter(child => child !== null);
-		const allDirs = await Promise.all(children.map(c => c.getDirectoriesToCopy(includeOptional, includePeers)));
-		// flatten allDirs doen to single Array
-		const flattened = allDirs.reduce((acc, val) => acc.concat(val), []); // TODO: replace with flat() call once Node 11+
-
-		// if this isn't the "root" module...
-		if (!this.isRoot()) {
-			// ...prune any children directories that are underneath this one
-			const filtered = flattened.filter(dir => !dir.startsWith(this.directory + path.sep));
-			filtered.push(this.directory); // We need to include our own directory
-			return filtered;
-		}
-		return flattened;
-	}
-
-	/**
-	 * @description Gather a list of all child dependencies.
-	 * @param {boolean} [includeOptional=true] - Include optional dependencies?
-	 * @param {boolean} [includePeers=true] - Include peer dependencies?
-	 * @returns {Promise<string[]>} Set of dependency names.
-	 */
-	async gatherChildren(includeOptional = true, includePeers = true) {
-		try {
-			const packageJson = await fs.readJson(path.join(this.directory, 'package.json'));
-
-			// if package is specifically marked to be ignored or is a native module wrapped in a package, skip it
-			if (packageJson.titanium) {
-				if (packageJson.titanium.ignore) {
-					return []; // ignore this module
-				}
-
-				// native modules as npm packages are handled separately by CLI native module code
-				if (packageJson.titanium.type === 'native-module') {
-					return [];
-				}
-			}
-
-			const dependencies = Object.keys(packageJson.dependencies || {});
-			// include optional dependencies too?
-			if (includeOptional && packageJson.optionalDependencies) {
-				dependencies.push(...Object.keys(packageJson.optionalDependencies));
-			}
-
-			if (includePeers && packageJson.peerDependencies) {
-				dependencies.push(...Object.keys(packageJson.peerDependencies));
-			}
-
-			return dependencies;
-		} catch (err) {
+	const children = await gatherChildren(tree.children, includeOptional, includePeers);
+	if (children.size === 0) {
+		if (tree.path === projectPath) {
 			return [];
 		}
+		return [ tree.path ];
 	}
 
-	/**
-	 * Attempts to resolve a given module by id to the correct
-	 * @param {string} subModule id of a module that is it's dependency
-	 * @returns {Promise<Dependency>} the resolved dependency
-	 */
-	async resolve(subModule) {
-		try {
-			// First try underneath the current module
-			const targetDir = path.join(this.directory, NODE_MODULES, subModule);
-			const packageJsonExists = await fs.pathExists(path.join(targetDir, 'package.json'));
-			if (packageJsonExists) {
-				return new Dependency(this, subModule, targetDir);
-			}
-		} catch (err) {
-			// do nothing...
-		}
-		if (!this.isRoot()) {
-			return this.parent.resolve(subModule); // Try the parent (recursively)
-		}
-		return null;
+	const allDirs = [];
+	for (const child of children) {
+		const dirs = await getDirectoriesToCopy(child, projectPath, includeOptional, includePeers, child.path);
+		allDirs.push(...dirs.flat());
 	}
+
+	if (tree.path !== projectPath) {
+		const filtered = allDirs.filter(dir => !dir.startsWith(tree.path + path.sep));
+		filtered.push(tree.path);
+		return filtered;
+	}
+
+	return allDirs;
+}
+
+/**
+ * Filters the children property to exclude development dependencies, titanium native modules,
+ * and optionally peer or optional dependencies.
+ *
+ * @param {Object} children The children property from a @npmcli/arborist Node
+ * @param {boolean} includeOptional Whether to include optional dependencies
+ * @param {boolean} includePeers Whether to include peer dependencies
+ * @returns {Promise<Node[]>} An array of Nodes from the provided children object that should be
+ * traversed
+ */
+async function gatherChildren (children, includeOptional, includePeers) {
+	const filteredChildren = [];
+	for (const [ , node ] of children) {
+
+		if (node.dev) {
+			continue;
+		}
+
+		if (node.optional && !includeOptional) {
+			continue;
+		}
+
+		if (node.peer && !includePeers) {
+			continue;
+		}
+
+		const packageJson = await fs.readJson(path.join(node.path, 'package.json'));
+
+		if (packageJson.titanium) {
+			if (packageJson.titanium.ignore || packageJson.titanium.type === 'native-module') {
+				continue;
+			}
+		}
+
+		filteredChildren.push(node);
+	}
+
+	return filteredChildren;
 }
 
 module.exports = copier;

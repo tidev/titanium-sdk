@@ -392,6 +392,7 @@ public class TiC
 	public static final String PROPERTY_EMAIL = "email";
 	public static final String PROPERTY_ENABLE_ZOOM_CONTROLS = "enableZoomControls";
 	public static final String PROPERTY_ENABLED = "enabled";
+	public static final String PROPERTY_ENABLE_COPY = "enableCopy";
 	public static final String PROPERTY_ENABLE_JAVASCRIPT_INTERFACE = "enableJavascriptInterface";
 	public static final String PROPERTY_ENABLE_LIGHTS = "enableLights";
 	public static final String PROPERTY_ENABLE_RETURN_KEY = "enableReturnKey";
@@ -472,6 +473,8 @@ public class TiC
 	public static final String PROPERTY_ICONIFIED_BY_DEFAULT = "iconifiedByDefault";
 	public static final String PROPERTY_ID = "id";
 	public static final String PROPERTY_IMAGE = "image";
+	public static final String PROPERTY_IMAGE_TOUCH_FEEDBACK = "imageTouchFeedback";
+	public static final String PROPERTY_IMAGE_TOUCH_FEEDBACK_COLOR = "imageTouchFeedbackColor";
 	public static final String PROPERTY_IMAGES = "images";
 	public static final String PROPERTY_IMPORTANCE = "importance";
 	public static final String PROPERTY_INDICATOR_COLOR = "indicatorColor";
