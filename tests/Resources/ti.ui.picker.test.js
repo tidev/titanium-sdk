@@ -54,6 +54,132 @@ describe('Titanium.UI.Picker', function () {
 			win.open();
 		});
 
+		describe('.datePickerStyle', () => {
+			function test(datePickerStyle, finish) {
+				const date = new Date();
+				const picker = Ti.UI.createPicker({
+					type: Ti.UI.PICKER_TYPE_DATE,
+					datePickerStyle: datePickerStyle,
+					value: date
+				});
+				win = Ti.UI.createWindow();
+				win.add(picker);
+				win.addEventListener('open', () => {
+					try {
+						should(picker.datePickerStyle).be.eql(datePickerStyle);
+						should(picker.value).be.eql(date);
+					} catch (err) {
+						return finish(err);
+					}
+					finish();
+				});
+				win.open();
+			}
+
+			it('Ti.UI.DATE_PICKER_STYLE_AUTOMATIC', (finish) => {
+				test(Ti.UI.DATE_PICKER_STYLE_AUTOMATIC, finish);
+			});
+
+			it('Ti.UI.DATE_PICKER_STYLE_COMPACT', (finish) => {
+				test(Ti.UI.DATE_PICKER_STYLE_COMPACT, finish);
+			});
+
+			it('Ti.UI.DATE_PICKER_STYLE_INLINE', (finish) => {
+				test(Ti.UI.DATE_PICKER_STYLE_INLINE, finish);
+			});
+
+			it('Ti.UI.DATE_PICKER_STYLE_WHEELS', (finish) => {
+				test(Ti.UI.DATE_PICKER_STYLE_WHEELS, finish);
+			});
+		});
+
+		describe.android('.borderStyle', () => {
+			function test(borderStyle, finish) {
+				const date = new Date();
+				const picker = Ti.UI.createPicker({
+					type: Ti.UI.PICKER_TYPE_DATE,
+					datePickerStyle: Ti.UI.DATE_PICKER_STYLE_COMPACT,
+					borderStyle: borderStyle,
+					value: date
+				});
+				win = Ti.UI.createWindow();
+				win.add(picker);
+				win.addEventListener('open', () => {
+					try {
+						should(picker.borderStyle).be.eql(borderStyle);
+						should(picker.value).be.eql(date);
+					} catch (err) {
+						return finish(err);
+					}
+					finish();
+				});
+				win.open();
+			}
+
+			it('Ti.UI.INPUT_BORDERSTYLE_NONE', (finish) => {
+				test(Ti.UI.INPUT_BORDERSTYLE_NONE, finish);
+			});
+
+			it('Ti.UI.INPUT_BORDERSTYLE_UNDERLINED', (finish) => {
+				test(Ti.UI.INPUT_BORDERSTYLE_UNDERLINED, finish);
+			});
+
+			it('Ti.UI.INPUT_BORDERSTYLE_FILLED', (finish) => {
+				test(Ti.UI.INPUT_BORDERSTYLE_FILLED, finish);
+			});
+
+			it('Ti.UI.INPUT_BORDERSTYLE_LINE', (finish) => {
+				test(Ti.UI.INPUT_BORDERSTYLE_LINE, finish);
+			});
+
+			it('Ti.UI.INPUT_BORDERSTYLE_ROUNDED', (finish) => {
+				test(Ti.UI.INPUT_BORDERSTYLE_ROUNDED, finish);
+			});
+		});
+
+		it.android('.hintText', (finish) => {
+			const date = new Date();
+			const picker = Ti.UI.createPicker({
+				type: Ti.UI.PICKER_TYPE_DATE,
+				datePickerStyle: Ti.UI.DATE_PICKER_STYLE_COMPACT,
+				hintText: 'Hint Text',
+				value: date
+			});
+			win = Ti.UI.createWindow();
+			win.add(picker);
+			win.addEventListener('open', () => {
+				try {
+					should(picker.hintText).be.eql('Hint Text');
+					should(picker.value).be.eql(date);
+				} catch (err) {
+					return finish(err);
+				}
+				finish();
+			});
+			win.open();
+		});
+
+		it.android('.useSpinner', (finish) => {
+			const date = new Date();
+			const picker = Ti.UI.createPicker({
+				type: Ti.UI.PICKER_TYPE_DATE,
+				useSpinner: true,
+				value: date
+			});
+			win = Ti.UI.createWindow();
+			win.add(picker);
+			win.addEventListener('open', () => {
+				try {
+					should(picker.useSpinner).be.true();
+					should(picker.value).be.eql(date);
+				} catch (err) {
+					return finish(err);
+				}
+				finish();
+			});
+			win.open();
+		});
+
 		it.ios('.dateTimeColor (invalid "type" - TIMOB-28181)', function (finish) {
 			const dp = Ti.UI.createPicker({
 				type: Ti.UI.PICKER_TYPE_PLAIN,
@@ -76,7 +202,7 @@ describe('Titanium.UI.Picker', function () {
 		it.ios('.dateTimeColor (valid "type" + "datePickerStyle" - TIMOB-28181)', function (finish) {
 			const dp = Ti.UI.createPicker({
 				type: Ti.UI.PICKER_TYPE_DATE,
-				datePickerStyle: Ti.UI.iOS.DATE_PICKER_STYLE_WHEELS,
+				datePickerStyle: Ti.UI.DATE_PICKER_STYLE_WHEELS,
 				dateTimeColor: 'red'
 			});
 
@@ -216,6 +342,136 @@ describe('Titanium.UI.Picker', function () {
 			});
 			win.open();
 		});
+
+		describe('.datePickerStyle', () => {
+			function test(datePickerStyle, finish) {
+				const date = new Date();
+				const picker = Ti.UI.createPicker({
+					type: Ti.UI.PICKER_TYPE_TIME,
+					datePickerStyle: datePickerStyle,
+					value: date
+				});
+				win = Ti.UI.createWindow();
+				win.add(picker);
+				win.addEventListener('open', () => {
+					try {
+						should(picker.datePickerStyle).be.eql(datePickerStyle);
+						should(picker.value.getHours()).be.eql(date.getHours());
+						should(picker.value.getMinutes()).be.eql(date.getMinutes());
+					} catch (err) {
+						return finish(err);
+					}
+					finish();
+				});
+				win.open();
+			}
+
+			it('Ti.UI.DATE_PICKER_STYLE_AUTOMATIC', (finish) => {
+				test(Ti.UI.DATE_PICKER_STYLE_AUTOMATIC, finish);
+			});
+
+			it('Ti.UI.DATE_PICKER_STYLE_COMPACT', (finish) => {
+				test(Ti.UI.DATE_PICKER_STYLE_COMPACT, finish);
+			});
+
+			it('Ti.UI.DATE_PICKER_STYLE_INLINE', (finish) => {
+				test(Ti.UI.DATE_PICKER_STYLE_INLINE, finish);
+			});
+
+			it('Ti.UI.DATE_PICKER_STYLE_WHEELS', (finish) => {
+				test(Ti.UI.DATE_PICKER_STYLE_WHEELS, finish);
+			});
+		});
+
+		describe.android('.borderStyle', () => {
+			function test(borderStyle, finish) {
+				const date = new Date();
+				const picker = Ti.UI.createPicker({
+					type: Ti.UI.PICKER_TYPE_TIME,
+					datePickerStyle: Ti.UI.DATE_PICKER_STYLE_COMPACT,
+					borderStyle: borderStyle,
+					value: date
+				});
+				win = Ti.UI.createWindow();
+				win.add(picker);
+				win.addEventListener('open', () => {
+					try {
+						should(picker.borderStyle).be.eql(borderStyle);
+						should(picker.value.getHours()).be.eql(date.getHours());
+						should(picker.value.getMinutes()).be.eql(date.getMinutes());
+					} catch (err) {
+						return finish(err);
+					}
+					finish();
+				});
+				win.open();
+			}
+
+			it('Ti.UI.INPUT_BORDERSTYLE_NONE', (finish) => {
+				test(Ti.UI.INPUT_BORDERSTYLE_NONE, finish);
+			});
+
+			it('Ti.UI.INPUT_BORDERSTYLE_UNDERLINED', (finish) => {
+				test(Ti.UI.INPUT_BORDERSTYLE_UNDERLINED, finish);
+			});
+
+			it('Ti.UI.INPUT_BORDERSTYLE_FILLED', (finish) => {
+				test(Ti.UI.INPUT_BORDERSTYLE_FILLED, finish);
+			});
+
+			it('Ti.UI.INPUT_BORDERSTYLE_LINE', (finish) => {
+				test(Ti.UI.INPUT_BORDERSTYLE_LINE, finish);
+			});
+
+			it('Ti.UI.INPUT_BORDERSTYLE_ROUNDED', (finish) => {
+				test(Ti.UI.INPUT_BORDERSTYLE_ROUNDED, finish);
+			});
+		});
+
+		it.android('.hintText', (finish) => {
+			const date = new Date();
+			const picker = Ti.UI.createPicker({
+				type: Ti.UI.PICKER_TYPE_TIME,
+				datePickerStyle: Ti.UI.DATE_PICKER_STYLE_COMPACT,
+				hintText: 'Hint Text',
+				value: date
+			});
+			win = Ti.UI.createWindow();
+			win.add(picker);
+			win.addEventListener('open', () => {
+				try {
+					should(picker.hintText).be.eql('Hint Text');
+					should(picker.value.getHours()).be.eql(date.getHours());
+					should(picker.value.getMinutes()).be.eql(date.getMinutes());
+				} catch (err) {
+					return finish(err);
+				}
+				finish();
+			});
+			win.open();
+		});
+
+		it.android('.useSpinner', (finish) => {
+			const date = new Date();
+			const picker = Ti.UI.createPicker({
+				type: Ti.UI.PICKER_TYPE_TIME,
+				useSpinner: true,
+				value: date
+			});
+			win = Ti.UI.createWindow();
+			win.add(picker);
+			win.addEventListener('open', () => {
+				try {
+					should(picker.useSpinner).be.true();
+					should(picker.value.getHours()).be.eql(date.getHours());
+					should(picker.value.getMinutes()).be.eql(date.getMinutes());
+				} catch (err) {
+					return finish(err);
+				}
+				finish();
+			});
+			win.open();
+		});
 	});
 
 	describe('.type is PICKER_TYPE_PLAIN', () => {
@@ -274,7 +530,8 @@ describe('Titanium.UI.Picker', function () {
 
 		it('#add(multiple PickerColumn)', function (finish) {
 			const picker = Ti.UI.createPicker({
-				type: Ti.UI.PICKER_TYPE_PLAIN
+				type: Ti.UI.PICKER_TYPE_PLAIN,
+				useSpinner: true
 			});
 
 			win = Ti.UI.createWindow({
@@ -379,6 +636,75 @@ describe('Titanium.UI.Picker', function () {
 				finish();
 			});
 			win.open();
+		});
+
+		it.android('.hintText', (finish) => {
+			const picker = Ti.UI.createPicker({
+				type: Ti.UI.PICKER_TYPE_PLAIN,
+				useSpinner: false,
+				hintText: 'Hint Text',
+				columns: [
+					Ti.UI.createPickerColumn({ rows: [ Ti.UI.createPickerRow({ title: 'Item 1' }) ] })
+				]
+			});
+			win = Ti.UI.createWindow();
+			win.add(picker);
+			win.addEventListener('open', () => {
+				finish();
+			});
+			win.open();
+		});
+
+		describe.android('.borderStyle', () => {
+			function test(borderStyle, finish) {
+				const picker = Ti.UI.createPicker({
+					type: Ti.UI.PICKER_TYPE_PLAIN,
+					useSpinner: false,
+					borderStyle: borderStyle,
+					columns: [
+						Ti.UI.createPickerColumn({
+							rows: [
+								Ti.UI.createPickerRow({ title: 'Item 1' }),
+								Ti.UI.createPickerRow({ title: 'Item 2' }),
+								Ti.UI.createPickerRow({ title: 'Item 3' }),
+							]
+						})
+					],
+				});
+				picker.setSelectedRow(0, 1, false);
+				win = Ti.UI.createWindow();
+				win.add(picker);
+				win.addEventListener('open', () => {
+					try {
+						should(picker.borderStyle).be.eql(borderStyle);
+						should(picker.getSelectedRow(0).title).be.eql('Item 2');
+					} catch (err) {
+						return finish(err);
+					}
+					finish();
+				});
+				win.open();
+			}
+
+			it('Ti.UI.INPUT_BORDERSTYLE_NONE', (finish) => {
+				test(Ti.UI.INPUT_BORDERSTYLE_NONE, finish);
+			});
+
+			it('Ti.UI.INPUT_BORDERSTYLE_UNDERLINED', (finish) => {
+				test(Ti.UI.INPUT_BORDERSTYLE_UNDERLINED, finish);
+			});
+
+			it('Ti.UI.INPUT_BORDERSTYLE_FILLED', (finish) => {
+				test(Ti.UI.INPUT_BORDERSTYLE_FILLED, finish);
+			});
+
+			it('Ti.UI.INPUT_BORDERSTYLE_LINE', (finish) => {
+				test(Ti.UI.INPUT_BORDERSTYLE_LINE, finish);
+			});
+
+			it('Ti.UI.INPUT_BORDERSTYLE_ROUNDED', (finish) => {
+				test(Ti.UI.INPUT_BORDERSTYLE_ROUNDED, finish);
+			});
 		});
 
 		describe('events', () => {

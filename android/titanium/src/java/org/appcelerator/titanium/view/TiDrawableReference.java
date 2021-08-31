@@ -27,6 +27,7 @@ import org.appcelerator.titanium.io.TiBaseFile;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiDownloadListener;
 import org.appcelerator.titanium.util.TiDownloadManager;
+import org.appcelerator.titanium.util.TiExifOrientation;
 import org.appcelerator.titanium.util.TiFileHelper;
 import org.appcelerator.titanium.util.TiImageHelper;
 import org.appcelerator.titanium.util.TiImageLruCache;
@@ -405,7 +406,6 @@ public class TiDrawableReference
 				}
 			} else {
 				if (is == null) {
-					Log.w(TAG, "Could not open stream to get bitmap");
 					return null;
 				}
 				try {
@@ -418,7 +418,6 @@ public class TiDrawableReference
 			}
 		} finally {
 			if (is == null) {
-				Log.w(TAG, "Could not open stream to get bitmap");
 				return null;
 			}
 			try {
@@ -673,7 +672,6 @@ public class TiDrawableReference
 
 		InputStream is = getInputStream();
 		if (is == null) {
-			Log.w(TAG, "Could not open stream to get bitmap");
 			return null;
 		}
 
@@ -946,6 +944,17 @@ public class TiDrawableReference
 		} catch (Exception ex) {
 		}
 		return orientation;
+	}
+
+	public TiExifOrientation getExifOrientation()
+	{
+		try (InputStream inputStream = getInputStream()) {
+			if (inputStream != null) {
+				return TiImageHelper.getExifOrientation(inputStream);
+			}
+		} catch (Exception ex) {
+		}
+		return TiExifOrientation.UPRIGHT;
 	}
 
 	public void setAutoRotate(boolean autoRotate)
