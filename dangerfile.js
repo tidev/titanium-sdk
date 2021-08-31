@@ -337,7 +337,7 @@ async function main() {
 		checkJIRA(),
 		linkToSDK(),
 		checkForIOSCrash(),
-		junit({ pathToReport: './junit.*.xml' }),
+		junit({ pathToReport: './junit.*.xml', onlyWarn: true }),
 		checkChangedFileLocations(),
 		checkCommunity(),
 		checkMergeable(),
