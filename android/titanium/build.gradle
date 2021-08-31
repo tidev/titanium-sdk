@@ -45,7 +45,7 @@ android {
 	compileSdkVersion 31
 	defaultConfig {
 		minSdkVersion 21
-		targetSdkVersion 30
+		targetSdkVersion 31
 		versionName tiBuildVersionString
 		versionCode tiBuildVersionCode
 		buildConfigField('int', 'VERSION_CODE', tiBuildVersionCode.toString())

@@ -26,7 +26,7 @@
 	"minSDKVersion": "21",
 	"compileSDKVersion": "31",
 	"vendorDependencies": {
-		"android sdk": ">=23.x <=30.x",
+		"android sdk": ">=23.x <=31.x",
 		"android build tools": ">=30.0.2 <=31.x",
 		"android platform tools": "31.x",
 		"android tools": "<=26.x",
