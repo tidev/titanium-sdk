@@ -728,11 +728,17 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 				}
 
 				if (firstUpdate && tracker != null) {
+					final boolean editing = properties.optBoolean(TiC.PROPERTY_EDITING, false);
+
 					for (final ListItemProxy item : items) {
 
 						// Re-select previously selected items.
 						// This can occur when the theme is changed.
 						if (item.isSelected()) {
+							if (!editing) {
+								item.setSelected(false);
+								continue;
+							}
 							tracker.select(item);
 						}
 					}

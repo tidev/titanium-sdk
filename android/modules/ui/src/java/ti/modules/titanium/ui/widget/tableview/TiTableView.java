@@ -735,11 +735,17 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 				}
 
 				if (firstUpdate && tracker != null) {
+					final boolean editing = properties.optBoolean(TiC.PROPERTY_EDITING, false);
+
 					for (final TableViewRowProxy row : rows) {
 
-						// Re-select previously selected items.
+						// Re-select previously selected rows.
 						// This can occur when the theme is changed.
 						if (row.isSelected()) {
+							if (!editing) {
+								row.setSelected(false);
+								continue;
+							}
 							tracker.select(row);
 						}
 					}
