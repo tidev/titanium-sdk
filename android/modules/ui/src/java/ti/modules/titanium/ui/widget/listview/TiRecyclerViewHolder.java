@@ -11,12 +11,15 @@ import android.content.Context;
 import android.content.res.ColorStateList;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
+import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Paint;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.RippleDrawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.StateListDrawable;
+import android.graphics.drawable.shapes.Shape;
 import android.os.Build;
 import android.util.TypedValue;
 import android.view.ViewGroup;
@@ -166,8 +169,7 @@ public abstract class TiRecyclerViewHolder extends RecyclerView.ViewHolder
 				? TiConvert.toColor(color) : colorControlHighlight.getColor(0, 0);
 			final int[] rippleColors = new int[] { colorControlHighlightInt };
 			final ColorStateList colorStateList = new ColorStateList(rippleStates, rippleColors);
-			final ShapeDrawable maskDrawable =
-				drawable == null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.N ? new ShapeDrawable() : null;
+			final ShapeDrawable maskDrawable = drawable == null ? new ShapeDrawable() : null;
 
 			// Create the RippleDrawable.
 			drawable = new RippleDrawable(colorStateList, drawable, maskDrawable);
@@ -201,6 +203,29 @@ public abstract class TiRecyclerViewHolder extends RecyclerView.ViewHolder
 			stateDrawable.addState(new int[] { android.R.attr.state_activated }, new ColorDrawable(COLOR_SELECTED));
 		}
 
+		// NOTE: Android 6.0 and below require ShapeDrawable to have non-null Shape.
+		// This bug is fixed on Android 7.0 and above.
+		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
+			Drawable currentDrawable = drawable;
+
+			if (currentDrawable instanceof RippleDrawable) {
+				currentDrawable = ((RippleDrawable) currentDrawable).getDrawable(0);
+			}
+			if (currentDrawable instanceof ShapeDrawable) {
+				final ShapeDrawable shapeDrawable = (ShapeDrawable) currentDrawable;
+
+				if (shapeDrawable.getShape() == null) {
+					shapeDrawable.setShape(new Shape()
+					{
+						@Override
+						public void draw(Canvas canvas, Paint paint)
+						{
+							canvas.drawPaint(paint);
+						}
+					});
+				}
+			}
+		}
 		stateDrawable.addState(new int[] {}, drawable);
 
 		return stateDrawable;
