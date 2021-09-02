@@ -221,7 +221,8 @@ public class ListViewHolder extends TiRecyclerViewHolder
 					}
 
 					// Support selected backgrounds.
-					this.container.setBackground(generateSelectedDrawable(properties, backgroundDrawable));
+					nativeView.setBackground(backgroundDrawable);
+					this.container.setBackground(generateSelectedDrawable(properties, null));
 					this.container.setActivated(selected);
 
 					// Allow states to bubble up for ripple effect.
