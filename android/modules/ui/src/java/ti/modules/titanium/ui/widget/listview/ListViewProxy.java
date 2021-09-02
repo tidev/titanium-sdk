@@ -397,8 +397,11 @@ public class ListViewProxy extends RecyclerViewProxy
 
 			// NOTE: Since obtaining the scroll offset from RecyclerView is unreliable
 			// when items are added/removed, also grab the current visible item instead.
-			final int currentIndex = listView.getAdapterIndex(listView.getFirstVisibleItem().index);
-			contentOffset.put(TiC.PROPERTY_INDEX, currentIndex);
+			final ListItemProxy firstVisibleItem = listView.getFirstVisibleItem();
+			if (firstVisibleItem != null) {
+				final int currentIndex = listView.getAdapterIndex(firstVisibleItem.index);
+				contentOffset.put(TiC.PROPERTY_INDEX, currentIndex);
+			}
 
 			this.contentOffset = contentOffset;
 		}

@@ -362,8 +362,11 @@ public class TableViewProxy extends RecyclerViewProxy
 
 			// NOTE: Since obtaining the scroll offset from RecyclerView is unreliable
 			// when items are added/removed, also grab the current visible item instead.
-			final int currentIndex = tableView.getAdapterIndex(tableView.getFirstVisibleItem().index);
-			contentOffset.put(TiC.PROPERTY_INDEX, currentIndex);
+			final TableViewRowProxy firstVisibleItem = tableView.getFirstVisibleItem();
+			if (firstVisibleItem != null) {
+				final int currentIndex = tableView.getAdapterIndex(firstVisibleItem.index);
+				contentOffset.put(TiC.PROPERTY_INDEX, currentIndex);
+			}
 
 			this.contentOffset = contentOffset;
 		}
