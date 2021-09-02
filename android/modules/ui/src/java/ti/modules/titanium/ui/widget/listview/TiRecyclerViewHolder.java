@@ -226,7 +226,9 @@ public abstract class TiRecyclerViewHolder extends RecyclerView.ViewHolder
 				}
 			}
 		}
-		stateDrawable.addState(new int[] {}, drawable);
+		if (drawable != null) {
+			stateDrawable.addState(new int[] {}, drawable);
+		}
 
 		return stateDrawable;
 	}
