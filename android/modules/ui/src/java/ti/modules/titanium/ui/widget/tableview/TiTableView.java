@@ -734,7 +734,7 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 					}
 				}
 
-				if (firstUpdate && tracker != null) {
+				if (firstUpdate) {
 					final boolean editing = properties.optBoolean(TiC.PROPERTY_EDITING, false);
 
 					for (final TableViewRowProxy row : rows) {
@@ -746,7 +746,9 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 								row.setSelected(false);
 								continue;
 							}
-							tracker.select(row);
+							if (tracker != null) {
+								tracker.select(row);
+							}
 						}
 					}
 				}
