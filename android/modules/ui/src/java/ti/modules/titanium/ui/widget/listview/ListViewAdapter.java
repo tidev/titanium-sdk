@@ -182,6 +182,7 @@ public class ListViewAdapter extends TiRecyclerViewAdapter<ListViewHolder>
 					this.recyclableItemsMap.put(item.getTemplateId(), recyclableItems);
 				}
 				if (!recyclableItems.contains(item)) {
+					item.setSelected(false);
 					item.setHolder(null);
 					recyclableItems.add(item);
 				}
