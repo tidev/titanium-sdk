@@ -210,7 +210,7 @@ async function addTiAppProperties() {
 		content.push('\t\t\t<application android:theme="@style/Theme.Titanium.Dark">');
 		content.push('\t\t\t\t<meta-data android:name="com.google.android.geo.API_KEY" android:value="AIzaSyCN_aC6RMaynan8YzsO1HNHbhsr9ZADDlY"/>');
 		content.push('\t\t\t\t<uses-library android:name="org.apache.http.legacy" android:required="false" />');
-		content.push(`\t\t\t\t<activity android:name=".${PROJECT_NAME.charAt(0).toUpperCase() + PROJECT_NAME.slice(1).toLowerCase()}Activity">`);
+		content.push(`\t\t\t\t<activity android:name=".${PROJECT_NAME.charAt(0).toUpperCase() + PROJECT_NAME.slice(1).toLowerCase()}Activity" android:exported="true">`);
 		content.push('\t\t\t\t\t<intent-filter>');
 		content.push('\t\t\t\t\t\t<action android:name="android.intent.action.MAIN"/>');
 		content.push('\t\t\t\t\t\t<category android:name="android.intent.category.LAUNCHER"/>');

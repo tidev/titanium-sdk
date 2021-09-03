@@ -2214,7 +2214,7 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 		animatedAlpha = Float.MIN_VALUE;                                         // we use min val to signal no val.
 	}
 
-	private void applyContentDescription()
+	protected void applyContentDescription()
 	{
 		if (proxy == null || nativeView == null) {
 			return;
@@ -2225,7 +2225,7 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 		}
 	}
 
-	private void applyContentDescription(KrollDict properties)
+	protected void applyContentDescription(KrollDict properties)
 	{
 		if (proxy == null || nativeView == null) {
 			return;
