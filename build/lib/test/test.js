@@ -50,12 +50,13 @@ const isCI = !!(process.env.BUILD_NUMBER || process.env.CI || false);
  * @param {String} [deviceId] Titanium device id target to run the tests on
  * @param {string} [deployType] 'development' || 'test'
  * @param {string} [deviceFamily] 'ipad' || 'iphone'
+ * @param {string} [junitPrefix] A prefix for the junit filename
  * @param {string} [snapshotDir='../../../tests/Resources'] directory to place generated snapshot images
  * @returns {Promise<object>}
  */
-async function test(platforms, target, deviceId, deployType, deviceFamily, snapshotDir = path.join(__dirname, '../../../tests/Resources')) {
+async function test(platforms, target, deviceId, deployType, deviceFamily, junitPrefix, snapshotDir = path.join(__dirname, '../../../tests/Resources')) {
 	const snapshotPromises = []; // place to stick commands we've fired off to pull snapshot images
-
+	console.log(platforms);
 	// delete old test app (if does not exist, this will no-op)
 	await fs.remove(PROJECT_DIR);
 
@@ -70,7 +71,7 @@ async function test(platforms, target, deviceId, deployType, deviceFamily, snaps
 		const results = {};
 		for (const platform of platforms) {
 			const result = await runBuild(platform, target, deviceId, deployType, deviceFamily, snapshotDir, snapshotPromises);
-			const prefix = generateJUnitPrefix(platform, target, deviceFamily);
+			const prefix = generateJUnitPrefix(platform, target, junitPrefix || deviceFamily);
 			results[prefix] = result;
 			await outputJUnitXML(result, prefix);
 		}
@@ -902,16 +903,16 @@ function massageJSONString(testResults) {
 /**
  * @param {string} platform 'ios' || 'android'
  * @param {string} [target] 'emulator' || 'simulator' || 'device'
- * @param {string} [deviceFamily] 'iphone' || 'ipad'
+ * @param {string} [customPrefix] A custom prefix to help differentiate junit results
  * @returns {string}
  */
-function generateJUnitPrefix(platform, target, deviceFamily) {
+function generateJUnitPrefix(platform, target, customPrefix) {
 	let prefix = platform;
 	if (target) {
 		prefix += '.' + target;
 	}
-	if (deviceFamily) {
-		prefix += '.' + deviceFamily;
+	if (customPrefix) {
+		prefix += '.' + customPrefix;
 	}
 	return prefix;
 }
