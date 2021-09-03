@@ -94,7 +94,7 @@ def androidUnitTests(testName, nodeVersion, npmVersion, deviceId) {
 							timeout(30) {
 								// Forcibly remove value for specific build tools version to use (set by module builds)
 								sh returnStatus: true, script: 'ti config android.buildTools.selectedVersion --remove'
-								sh label: 'Run Test Suite on emulator', script: "npm run test:integration -- android -T emulator -D test -C ${deviceId}"
+								sh label: 'Run Test Suite on emulator', script: "npm run test:integration -- android -T emulator -D test -C ${deviceId} -J ${testName}"
 							} // timeout
 						}
 					} catch (e) {
