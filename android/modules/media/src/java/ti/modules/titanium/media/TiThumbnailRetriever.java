@@ -57,7 +57,7 @@ public class TiThumbnailRetriever implements Handler.Callback
 		if (mUri == null) {
 			KrollDict event = new KrollDict();
 			event.putCodeAndMessage(TiC.ERROR_CODE_UNKNOWN, "Error getting Thumbnail. Url is null.");
-			thumbnailResponseHandler.handleThumbnailResponse(event);
+			thumbnailResponseHandler.handleThumbnailResponse(event, true);
 			return;
 		}
 		Message message = runtimeHandler.obtainMessage(MSG_GET_BITMAP);
@@ -68,7 +68,7 @@ public class TiThumbnailRetriever implements Handler.Callback
 	}
 
 	public interface ThumbnailResponseHandler {
-		void handleThumbnailResponse(KrollDict bitmapResponse);
+		void handleThumbnailResponse(KrollDict bitmapResponse, boolean lastThumbnail);
 	}
 
 	@Override
@@ -107,7 +107,8 @@ public class TiThumbnailRetriever implements Handler.Callback
 						return null;
 					}
 
-					for (int sec : arrayOfTimes) {
+					for (int i = 0; i < arrayOfTimes.length; i++) {
+						int sec = arrayOfTimes[i];
 						//If request is cancelled, do not continue with fetching thumbnail
 						if (isCancelled()) {
 							return null;
@@ -125,7 +126,7 @@ public class TiThumbnailRetriever implements Handler.Callback
 							event.putCodeAndMessage(TiC.ERROR_CODE_UNKNOWN, "Error getting Thumbnail");
 						}
 
-						mThumbnailResponseHandler.handleThumbnailResponse(event);
+						mThumbnailResponseHandler.handleThumbnailResponse(event, i == arrayOfTimes.length - 1);
 					}
 
 				} catch (Throwable t) {

@@ -41,6 +41,7 @@ import org.appcelerator.titanium.util.TiIntentWrapper;
 import org.appcelerator.titanium.util.TiUIHelper;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.ClipData;
 import android.content.ContentResolver;
@@ -224,6 +225,7 @@ public class MediaModule extends KrollModule implements Handler.Callback
 		}
 	}
 
+	@SuppressLint("MissingPermission")
 	@Kroll.method
 	public void vibrate(@Kroll.argument(optional = true) long[] pattern)
 	{
@@ -1354,7 +1356,7 @@ public class MediaModule extends KrollModule implements Handler.Callback
 				if (callback != null) {
 					callback.callAsync(getKrollObject(), new Object[] { null });
 				}
-				promise.reject();
+				promise.reject(null);
 				return;
 			}
 
@@ -1372,7 +1374,7 @@ public class MediaModule extends KrollModule implements Handler.Callback
 				callback.callAsync(getKrollObject(), new Object[] { image });
 			}
 			promise.resolve(image);
-		};
+		});
 	}
 
 	@Kroll.method
