@@ -80,7 +80,7 @@
     }
   },
   "dependencies": {
-    "@npmcli/arborist": "^2.8.2",
+    "@npmcli/arborist": "^2.8.3",
     "always-tail": "^0.2.0",
     "ansi-escapes": "^4.3.2",
     "appc-tasks": "^1.0.3",
