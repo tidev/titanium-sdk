@@ -35,8 +35,8 @@
 			"integrity": "sha512-INcD9X+KvAapc8ZRHZVWU5fHAulhzjRysXQv3uCstAj6Xa7Ka7dFlO9pWn9DC58v1q1FlfjG/5kKxhJ/q+sdLg=="
 		},
 		"ti.cloudpush": {
-			"url": "https://appcelerator-modules.s3.amazonaws.com/ti.cloudpush-android-7.1.0.zip",
-			"integrity": "sha512-z5Zx2OpSKDl3MCgP2Bf8uSQ58Op60FaUWFddWpyix3XAFNRlO3o3TqAmOUJAZvgDymRh71iWDOwghe50kznkZw=="
+			"url": "https://appcelerator-modules.s3.amazonaws.com/ti.cloudpush-android-8.0.0.zip",
+			"integrity": "sha512-hJnDgcMOL3QxZbBa0OpQwB8rhj//0ZbTVvWZM+gky9uiRmaZub6dTnXYTdnPdEM8KqAiJf2BFctBJjGGs+MXkw=="
 		},
 		"ti.map": {
 			"url": "https://github.com/appcelerator-modules/ti.map/releases/download/v5.3.3-android/ti.map-android-5.3.3.zip",
