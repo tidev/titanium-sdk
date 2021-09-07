@@ -309,7 +309,7 @@ describe('Titanium.Platform', () => {
 			});
 
 			it('returns true for typical http URL', () => {
-				should(Ti.Platform.canOpenURL('http://www.appcelerator.com/')).be.true();
+				should(Ti.Platform.canOpenURL('http://www.example.com/')).be.true();
 			});
 
 			it('returns true for app-sepcific URI scheme', () => {

@@ -96,7 +96,7 @@ describe('Titanium.Network.HTTPClient', function () {
 		xhr.onload = () => finish();
 
 		xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
-		xhr.open('POST', 'http://www.appcelerator.com/');
+		xhr.open('POST', 'http://www.example.com/');
 		xhr.send('TIMOB-23127');
 	});
 
@@ -107,7 +107,7 @@ describe('Titanium.Network.HTTPClient', function () {
 		xhr.onload = () => finish();
 
 		xhr.setRequestHeader('Content-Type', 'application/json');
-		xhr.open('GET', 'http://www.appcelerator.com/');
+		xhr.open('GET', 'http://www.example.com/');
 		xhr.send();
 	});
 
@@ -206,7 +206,7 @@ describe('Titanium.Network.HTTPClient', function () {
 				finish(new Error('failed to retrieve headers: ' + e));
 			}
 		};
-		xhr.open('GET', 'https://www.axway.com');
+		xhr.open('GET', 'https://www.example.com');
 		xhr.send();
 	});
 
@@ -242,7 +242,7 @@ describe('Titanium.Network.HTTPClient', function () {
 				finish(new Error('failed to retrieve headers: ' + e)); // Failing on Windows here, likely need to update test!
 			}
 		};
-		xhr.open('GET', 'http://www.appcelerator.com'); // FIXME Update URL!
+		xhr.open('GET', 'http://www.example.com');
 		xhr.send();
 	});
 
@@ -821,7 +821,7 @@ describe('Titanium.Network.HTTPClient', function () {
 			finish();
 		};
 
-		xhr.open('GET', 'https://www.axway.com');
+		xhr.open('GET', 'https://www.example.com');
 		xhr.send();
 	});
 });
