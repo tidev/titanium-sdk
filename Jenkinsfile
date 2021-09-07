@@ -74,7 +74,7 @@ def androidUnitTests(testName, nodeVersion, npmVersion, deviceId) {
 		def labels = 'git && osx && android-emulator && android-sdk' // FIXME get working on windows/linux!
 		
 		if (!deviceId) {
-			deviceId = 'android-30-playstore-x86';
+			deviceId = 'android-31-playstore-x86_64';
 		}
 
 		node(labels) {
