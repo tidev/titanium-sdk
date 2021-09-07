@@ -522,7 +522,7 @@ describe('Titanium.UI.WebView', function () {
 	it('blacklistedURLs', (finish) => {
 		win = Ti.UI.createWindow();
 		const webView = Ti.UI.createWebView({
-			url: 'https://www.example.com',
+			url: 'https://www.github.com',
 			blacklistedURLs: [ 'www.apple.com', 'www.google.com' ]
 		});
 		webView.addEventListener('load', () => {
@@ -535,7 +535,7 @@ describe('Titanium.UI.WebView', function () {
 	it('blockedURLs', (finish) => {
 		win = Ti.UI.createWindow();
 		const webView = Ti.UI.createWebView({
-			url: 'https://www.example.com',
+			url: 'https://www.github.com',
 			blockedURLs: [ 'www.apple.com', 'www.google.com' ]
 		});
 		webView.addEventListener('load', () => {
@@ -614,7 +614,7 @@ describe('Titanium.UI.WebView', function () {
 	});
 
 	it.ios('beforeload should provide the URL that is about to be loaded and handle redirects', (finish) => {
-		const url = 'https://mockbin.org/redirect/301?to=https%3A%2F%2Fexample.com';
+		const url = 'https://mockbin.org/redirect/301?to=https%3A%2F%2Fgoogle.com';
 		win = Ti.UI.createWindow();
 		const webView = Ti.UI.createWebView({
 			url: url
@@ -678,7 +678,7 @@ describe('Titanium.UI.WebView', function () {
 	it('requestHeaders with redirecting url should work properly', function (finish) {
 		win = Ti.UI.createWindow();
 		const webView = Ti.UI.createWebView({
-			url: 'https://mockbin.org/redirect/301?to=https%3A%2F%2Fexample.com',
+			url: 'https://mockbin.org/redirect/301?to=https%3A%2F%2Fgoogle.com',
 			requestHeaders: { 'Custom-field1': 'value1' }
 		});
 
@@ -897,7 +897,7 @@ describe('Titanium.UI.WebView', function () {
 				return;
 			}
 			const webView = Ti.UI.createWebView({
-				url: 'https://www.example.com'
+				url: 'https://www.google.com'
 			});
 			should(webView.findString).be.a.Function();
 		});
@@ -909,11 +909,11 @@ describe('Titanium.UI.WebView', function () {
 			}
 			win = Ti.UI.createWindow();
 			const webView = Ti.UI.createWebView({
-				url: 'https://www.example.com'
+				url: 'https://www.google.com'
 			});
 
 			webView.addEventListener('load', function () {
-				webView.findString('EXAMPLE', function (e) {
+				webView.findString('GOOGLE', function (e) {
 					if (e.success) {
 						finish();
 					} else {
@@ -932,12 +932,12 @@ describe('Titanium.UI.WebView', function () {
 			}
 			win = Ti.UI.createWindow();
 			const webView = Ti.UI.createWebView({
-				url: 'https://www.example.com'
+				url: 'https://www.google.com'
 			});
 
 			webView.addEventListener('load', function () {
 				// It should fail.
-				webView.findString('EXAMPLE', { caseSensitive: true, backwards: false, wraps: true }, function (e) {
+				webView.findString('GOOGLE', { caseSensitive: true, backwards: false, wraps: true }, function (e) {
 					if (e.success) {
 						finish(new Error('Search should fail'));
 					} else {
