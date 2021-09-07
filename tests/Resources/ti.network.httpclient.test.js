@@ -96,7 +96,7 @@ describe('Titanium.Network.HTTPClient', function () {
 		xhr.onload = () => finish();
 
 		xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
-		xhr.open('POST', 'https://www.google.com/');
+		xhr.open('POST', 'https://httpbin.org/post');
 		xhr.send('TIMOB-23127');
 	});
 
