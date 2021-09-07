@@ -1794,6 +1794,11 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
 
 #pragma mark PHPickerViewControllerDelegate
 
+- (void)presentationControllerDidDismiss:(PHPickerViewController *)picker
+{
+  [self sendPickerCancel];
+}
+
 - (void)picker:(PHPickerViewController *)picker didFinishPicking:(NSArray<PHPickerResult *> *)results
 {
   // If user cancels, results count will be 0
