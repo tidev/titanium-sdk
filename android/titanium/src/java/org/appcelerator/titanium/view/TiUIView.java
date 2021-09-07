@@ -299,6 +299,20 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 	}
 
 	/**
+	 * Gets the native view's internal content view used to host child views.
+	 * Called by the convertPointToView() method to convert coordinates.
+	 * <p>
+	 * Overridden by ScrollView since its content view is typically larger than the parent view.
+	 * <p>
+	 * For most other views, this method returns same view as getNativeView() method.
+	 * @return Returns the native content view used to host child views.
+	 */
+	public View getNativeContentView()
+	{
+		return getNativeView();
+	}
+
+	/**
 	 * @return the Android native view.
 	 */
 	public View getNativeView()
@@ -2133,6 +2147,11 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 		}
 	}
 
+	public KrollDict getLastUpEvent()
+	{
+		return dictFromEvent(this.lastUpEvent);
+	}
+
 	/**
 	 * Retrieve the saved animated scale values, which we store here since Android provides no property
 	 * for looking them up.
@@ -2195,7 +2214,7 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 		animatedAlpha = Float.MIN_VALUE;                                         // we use min val to signal no val.
 	}
 
-	private void applyContentDescription()
+	protected void applyContentDescription()
 	{
 		if (proxy == null || nativeView == null) {
 			return;
@@ -2206,7 +2225,7 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 		}
 	}
 
-	private void applyContentDescription(KrollDict properties)
+	protected void applyContentDescription(KrollDict properties)
 	{
 		if (proxy == null || nativeView == null) {
 			return;

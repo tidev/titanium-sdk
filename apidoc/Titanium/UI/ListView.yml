@@ -953,6 +953,14 @@ properties:
     type: Number
     permission: read-only
 
+  - name: sectionHeaderTopPadding
+    summary: Padding above each section header.
+    description: If not set or set to `-1`, it defaults to an automatic spacing determined by the system.
+    type: Number
+    since: 10.1.0
+    platforms: [iphone, ipad, macos]
+    osver: { ios: { min: "15.0" } }
+
   - name: showVerticalScrollIndicator
     summary: Determines whether this list view displays a vertical scroll indicator.
     description: Set to `false` to hide the vertical scroll indicator.
@@ -1743,12 +1751,12 @@ summary: |
     A simple object for specifying the animation properties to use when inserting or deleting
     sections or cells, or scrolling the list.
 description: |
-    These properties are only used on iOS. Not all properties apply to all methods.
+    Not all properties apply to all methods.
     `animationStyle` does not apply to the `scrollToItem` method.
     `positon` only applies to the `scrollToItem` method.
     Since Release 3.3.0 of the Titanium SDK, Android supports the `animated` property and is applicable only to `scrollToItem`
 platforms: [iphone, ipad, android, macos]
-since: '3.1.0'
+since: {android: "10.1.0", iphone: "3.1.0", ipad: "3.1.0", macos: "9.2.0"}
 properties:
   - name: animated
     summary: Whether this list change should be animated. Ignored if any `animationStyle` value is specified.
