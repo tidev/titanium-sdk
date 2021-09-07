@@ -111,11 +111,12 @@ jobs:
         rm -f ~/.gradle/caches/modules-2/gc.properties
 
   ios:
-    runs-on: macos-latest
+    runs-on: macos-11
     name: iOS
     env:
       CCACHE_DIR: ${{ github.workspace }}/.ccache
       USE_CCACHE: 1
+      DEVELOPER_DIR: /Applications/Xcode_13.0.app/Contents/Developer
     steps:
     - uses: actions/checkout@v2
 
@@ -185,10 +186,11 @@ jobs:
       name: Lint
   
   package:
-    runs-on: macos-latest
+    runs-on: macos-11
     name: Package
     env:
       SDK_BUILD_CACHE_DIR: ${{ github.workspace }}/.native-modules
+      DEVELOPER_DIR: /Applications/Xcode_13.0.app/Contents/Developer
     needs: [android, ios, js]
     steps:
     - uses: actions/checkout@v2
