@@ -186,11 +186,11 @@ describe('Titanium.Network.HTTPClient', function () {
 		xhr.onload = e => {
 			try {
 				const responseHeaders = e.source.responseHeaders;
-
-				if (responseHeaders['Content-Type']
-					&& responseHeaders['Content-Type'].startsWith('text/html')) {
-					finish();
+				if (responseHeaders['freeform']
+					&& responseHeaders['freeform'] === 'titanium=awesome') {
+					return finish();
 				}
+				return finish(new Error('Expected header was not present'));
 			} catch (err) {
 				return finish(err);
 			}
@@ -206,7 +206,7 @@ describe('Titanium.Network.HTTPClient', function () {
 				finish(new Error('failed to retrieve headers: ' + e));
 			}
 		};
-		xhr.open('GET', 'https://www.google.com');
+		xhr.open('GET', 'https://httpbin.org/response-headers?freeform=titanium%3Dawesome');
 		xhr.send();
 	});
 
