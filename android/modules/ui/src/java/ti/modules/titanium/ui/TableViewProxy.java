@@ -767,7 +767,7 @@ public class TableViewProxy extends RecyclerViewProxy
 
 					// This is a workaround for when `EDITING` mode is set, as it recreates the TableView.
 					// We need to listen for when it has updated before scrolling.
-					if (row.getHolder() == null) {
+					if (!tableView.getHasLaidOutChildren()) {
 						tableView.addOnLayoutChangeListener(new View.OnLayoutChangeListener()
 						{
 							@Override
@@ -829,7 +829,7 @@ public class TableViewProxy extends RecyclerViewProxy
 
 				// This is a workaround for when `EDITING` mode is set, as it recreates the TableView.
 				// We need to listen for when it has updated before testing visibility/scrolling.
-				if (row.getHolder() == null) {
+				if (!tableView.getHasLaidOutChildren()) {
 					tableView.addOnLayoutChangeListener(new View.OnLayoutChangeListener()
 					{
 						@Override

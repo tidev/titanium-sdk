@@ -399,6 +399,16 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 	}
 
 	/**
+	 * Get status of child layouts.
+	 *
+	 * @return Boolean to determine if child layouts are processed.
+	 */
+	public boolean getHasLaidOutChildren()
+	{
+		return this.hasLaidOutChildren;
+	}
+
+	/**
 	 * Get linear layout manager.
 	 *
 	 * @return LinearLayoutManager

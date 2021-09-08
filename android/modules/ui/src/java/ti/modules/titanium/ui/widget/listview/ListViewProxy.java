@@ -753,7 +753,7 @@ public class ListViewProxy extends RecyclerViewProxy
 
 					// This is a workaround for when `EDITING` mode is set, as it recreates the ListView.
 					// We need to listen for when it has updated before scrolling.
-					if (item.getHolder() == null) {
+					if (!listView.getHasLaidOutChildren()) {
 						listView.addOnLayoutChangeListener(new View.OnLayoutChangeListener()
 						{
 							@Override
@@ -805,7 +805,7 @@ public class ListViewProxy extends RecyclerViewProxy
 
 					// This is a workaround for when `EDITING` mode is set, as it recreates the ListView.
 					// We need to listen for when it has updated before testing visibility/scrolling.
-					if (item.getHolder() == null) {
+					if (!listView.getHasLaidOutChildren()) {
 						listView.addOnLayoutChangeListener(new View.OnLayoutChangeListener()
 						{
 							@Override

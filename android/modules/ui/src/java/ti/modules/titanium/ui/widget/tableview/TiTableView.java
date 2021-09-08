@@ -60,6 +60,7 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 	private final List<TableViewRowProxy> rows = new ArrayList<>(CACHE_SIZE);
 	private final List<KrollDict> selectedRows = new ArrayList<>();
 
+	private boolean hasLaidOutChildren = false;
 	private SelectionTracker tracker;
 	private boolean isScrolling = false;
 	private int scrollOffsetX = 0;
@@ -77,7 +78,17 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 		this.recyclerView.setFocusable(true);
 		this.recyclerView.setFocusableInTouchMode(true);
 		this.recyclerView.setBackgroundColor(Color.TRANSPARENT);
-		this.recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+		this.recyclerView.setLayoutManager(new LinearLayoutManager(getContext()) {
+			@Override
+			public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state)
+			{
+				super.onLayoutChildren(recycler, state);
+
+				if (!hasLaidOutChildren) {
+					hasLaidOutChildren = true;
+				}
+			}
+		});
 
 		// Add listener to fire scroll events.
 		this.recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener()
@@ -382,6 +393,16 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 	public TableViewAdapter getAdapter()
 	{
 		return this.adapter;
+	}
+
+	/**
+	 * Get status of child layouts.
+	 *
+	 * @return Boolean to determine if child layouts are processed.
+	 */
+	public boolean getHasLaidOutChildren()
+	{
+		return this.hasLaidOutChildren;
 	}
 
 	/**
