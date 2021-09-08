@@ -166,7 +166,7 @@ describe('Titanium.Platform', () => {
 			});
 
 			it('is one of known constant String values', () => {
-				should(Ti.Platform.name).be.equalOneOf([ 'android', 'iOS', 'windows', 'mobileweb', 'Mac OS X' ]);
+				should(Ti.Platform.name).be.equalOneOf([ 'android', 'iOS', 'windows', 'mobileweb', 'Mac OS X', 'iPadOS' ]);
 				// TODO match with osname!
 			});
 		});
