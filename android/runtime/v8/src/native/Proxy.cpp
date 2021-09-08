@@ -47,7 +47,7 @@ void Proxy::bindProxy(Local<Object> exports, Local<Context> context)
 	Isolate* isolate = context->GetIsolate();
 	Local<String> javaClass = NEW_SYMBOL(isolate, "__javaClass__");
 	javaClassSymbol.Reset(isolate, javaClass);
-	constructorSymbol.Reset(isolate, NEW_SYMBOL(isolate, "_constructor"));
+	constructorSymbol.Reset(isolate, NEW_SYMBOL(isolate, "constructor"));
 	inheritSymbol.Reset(isolate, NEW_SYMBOL(isolate, "inherit"));
 	propertiesSymbol.Reset(isolate, NEW_SYMBOL(isolate, "_properties"));
 	lengthSymbol.Reset(isolate, NEW_SYMBOL(isolate, "length"));
