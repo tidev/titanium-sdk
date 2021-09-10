@@ -640,8 +640,22 @@ public abstract class TiViewProxy extends KrollProxy
 		}
 		if (children != null && children.size() > position) {
 			TiViewProxy childToRemove = children.get(position);
-			insertAt(params);
 			remove(childToRemove);
+			insertAt(params);
+		}
+	}
+
+	public void recreateChild(TiViewProxy child)
+	{
+		if (child == null || this.children == null) {
+			return;
+		}
+
+		final int position = this.children.indexOf(child);
+
+		if (position > -1) {
+			remove(child);
+			insertAt(child, position);
 		}
 	}
 
@@ -672,12 +686,21 @@ public abstract class TiViewProxy extends KrollProxy
 			Log.e(TAG, "insertAt must be contain a view");
 			return;
 		}
+
+		insertAt(child, position);
+	}
+
+	public void insertAt(TiViewProxy child, int position)
+	{
+		if (child == null) {
+			return;
+		}
 		if (position < 0 || position > children.size()) {
 			position = children.size();
 		}
 
 		children.add(position, child);
-		child.parent = new WeakReference<TiViewProxy>(this);
+		child.parent = new WeakReference<>(this);
 
 		if (view != null) {
 			child.setActivity(getActivity());
