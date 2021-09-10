@@ -13,17 +13,21 @@ import java.util.List;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiC;
+import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.view.TiUIView;
 
 import android.app.Activity;
+import android.view.View;
 
+import androidx.recyclerview.selection.SelectionTracker;
 import androidx.recyclerview.widget.RecyclerView;
 
 import ti.modules.titanium.ui.widget.TiUITableView;
 import ti.modules.titanium.ui.widget.listview.RecyclerViewProxy;
-import ti.modules.titanium.ui.widget.tableview.TableViewAdapter;
 import ti.modules.titanium.ui.widget.tableview.TiTableView;
+
+import static android.util.TypedValue.COMPLEX_UNIT_DIP;
 
 @Kroll.proxy(
 	creatableInModule = UIModule.class,
@@ -50,6 +54,7 @@ import ti.modules.titanium.ui.widget.tableview.TiTableView;
 		TiC.PROPERTY_SEARCH,
 		TiC.PROPERTY_SEPARATOR_COLOR,
 		TiC.PROPERTY_SEPARATOR_STYLE,
+		TiC.PROPERTY_SHOW_SELECTION_CHECK,
 		TiC.PROPERTY_SHOW_VERTICAL_SCROLL_INDICATOR,
 		TiC.PROPERTY_TOUCH_FEEDBACK,
 		TiC.PROPERTY_TOUCH_FEEDBACK_COLOR
@@ -61,12 +66,15 @@ public class TableViewProxy extends RecyclerViewProxy
 
 	private final List<TableViewSectionProxy> sections = new ArrayList<>();
 
+	private KrollDict contentOffset = null;
+
 	public TableViewProxy()
 	{
 		super();
 
 		defaultValues.put(TiC.PROPERTY_OVER_SCROLL_MODE, 0);
 		defaultValues.put(TiC.PROPERTY_SCROLLABLE, true);
+		defaultValues.put(TiC.PROPERTY_SHOW_SELECTION_CHECK, true);
 		defaultValues.put(TiC.PROPERTY_TOUCH_FEEDBACK, true);
 	}
 
@@ -336,6 +344,72 @@ public class TableViewProxy extends RecyclerViewProxy
 		return "Ti.UI.TableView";
 	}
 
+	// NOTE: For internal use only.
+	public KrollDict getContentOffset()
+	{
+		final TiTableView tableView = getTableView();
+
+		if (tableView != null) {
+			final KrollDict contentOffset = new KrollDict();
+
+			final int x = (int) new TiDimension(tableView.getScrollOffsetX(),
+				TiDimension.TYPE_WIDTH, COMPLEX_UNIT_DIP).getAsDefault(tableView);
+			final int y = (int) new TiDimension(tableView.getScrollOffsetY(),
+				TiDimension.TYPE_HEIGHT, COMPLEX_UNIT_DIP).getAsDefault(tableView);
+
+			contentOffset.put(TiC.PROPERTY_X, x);
+			contentOffset.put(TiC.PROPERTY_Y, y);
+
+			// NOTE: Since obtaining the scroll offset from RecyclerView is unreliable
+			// when items are added/removed, also grab the current visible item instead.
+			final TableViewRowProxy firstVisibleItem = tableView.getFirstVisibleItem();
+			if (firstVisibleItem != null) {
+				final int currentIndex = tableView.getAdapterIndex(firstVisibleItem.index);
+				contentOffset.put(TiC.PROPERTY_INDEX, currentIndex);
+			}
+
+			this.contentOffset = contentOffset;
+		}
+
+		return this.contentOffset;
+	}
+
+	@Kroll.method
+	public void setContentOffset(KrollDict contentOffset, @Kroll.argument(optional = true) KrollDict options)
+	{
+		final TiTableView tableView = getTableView();
+
+		if (contentOffset != null) {
+			this.contentOffset = contentOffset;
+
+			if (tableView != null) {
+
+				if (contentOffset.containsKeyAndNotNull(TiC.PROPERTY_INDEX)) {
+
+					// If available, scroll to provided index provided by internal `getContentOffset()` method.
+					tableView.getRecyclerView().scrollToPosition(contentOffset.getInt(TiC.PROPERTY_INDEX));
+					return;
+				}
+
+				final int x = contentOffset.optInt(TiC.EVENT_PROPERTY_X, 0);
+				final int y = contentOffset.optInt(TiC.EVENT_PROPERTY_Y, 0);
+				final int pixelX = new TiDimension(x, TiDimension.TYPE_WIDTH).getAsPixels(tableView);
+				final int pixelY = new TiDimension(y, TiDimension.TYPE_HEIGHT).getAsPixels(tableView);
+
+				// NOTE: `scrollTo()` is not supported, this is a minor workaround.
+				tableView.getRecyclerView().scrollToPosition(0);
+				tableView.getRecyclerView().post(new Runnable()
+				{
+					@Override
+					public void run()
+					{
+						tableView.getRecyclerView().scrollBy(pixelX, pixelY);
+					}
+				});
+			}
+		}
+	}
+
 	/**
 	 * Get current table data.
 	 *
@@ -484,6 +558,12 @@ public class TableViewProxy extends RecyclerViewProxy
 		// Update table if being re-used.
 		if (view != null) {
 			update();
+
+			if (this.contentOffset != null) {
+
+				// Restore previous content position.
+				setContentOffset(this.contentOffset, null);
+			}
 		}
 
 		return view;
@@ -648,6 +728,8 @@ public class TableViewProxy extends RecyclerViewProxy
 	@Override
 	public void releaseViews()
 	{
+		this.contentOffset = getContentOffset();
+
 		super.releaseViews();
 
 		for (TableViewSectionProxy section : this.sections) {
@@ -671,11 +753,34 @@ public class TableViewProxy extends RecyclerViewProxy
 			final RecyclerView recyclerView = tableView.getRecyclerView();
 
 			if (recyclerView != null) {
+				final TableViewRowProxy row = getRowByIndex(index);
 
-				if (animated) {
-					recyclerView.smoothScrollToPosition(tableView.getAdapterIndex(index));
-				} else {
-					recyclerView.scrollToPosition(tableView.getAdapterIndex(index));
+				if (row != null) {
+					final int rowAdapterIndex = tableView.getAdapterIndex(index);
+					final Runnable action = () -> {
+						if (animated) {
+							recyclerView.smoothScrollToPosition(rowAdapterIndex);
+						} else {
+							recyclerView.scrollToPosition(rowAdapterIndex);
+						}
+					};
+
+					// This is a workaround for when `EDITING` mode is set, as it recreates the TableView.
+					// We need to listen for when it has updated before scrolling.
+					if (!tableView.getHasLaidOutChildren()) {
+						tableView.addOnLayoutChangeListener(new View.OnLayoutChangeListener()
+						{
+							@Override
+							public void onLayoutChange(View view, int i, int i1, int i2, int i3, int i4, int i5, int i6,
+													   int i7)
+							{
+								action.run();
+								tableView.removeOnLayoutChangeListener(this);
+							}
+						});
+					} else {
+						action.run();
+					}
 				}
 			}
 		}
@@ -709,14 +814,34 @@ public class TableViewProxy extends RecyclerViewProxy
 			final TiTableView tableView = getTableView();
 
 			if (tableView != null) {
-				final RecyclerView recyclerView = tableView.getRecyclerView();
+				final Runnable action = () -> {
+					final SelectionTracker tracker = tableView.getTracker();
+					final TiUIView rowView = row.peekView();
+					final boolean visible = rowView != null && rowView.getNativeView().isShown();
 
-				if (recyclerView != null) {
-					final TableViewAdapter adapter = (TableViewAdapter) recyclerView.getAdapter();
-
-					if (adapter != null) {
-						adapter.getTracker().select(row);
+					if (!visible) {
+						scrollToIndex(index, null);
 					}
+					if (tracker != null) {
+						tracker.select(row);
+					}
+				};
+
+				// This is a workaround for when `EDITING` mode is set, as it recreates the TableView.
+				// We need to listen for when it has updated before testing visibility/scrolling.
+				if (!tableView.getHasLaidOutChildren()) {
+					tableView.addOnLayoutChangeListener(new View.OnLayoutChangeListener()
+					{
+						@Override
+						public void onLayoutChange(View view, int i, int i1, int i2, int i3, int i4, int i5, int i6,
+												   int i7)
+						{
+							action.run();
+							tableView.removeOnLayoutChangeListener(this);
+						}
+					});
+				} else {
+					action.run();
 				}
 			}
 		}
@@ -773,12 +898,21 @@ public class TableViewProxy extends RecyclerViewProxy
 	{
 		if (name.equals(TiC.PROPERTY_DATA) || name.equals(TiC.PROPERTY_SECTIONS)) {
 			setData((Object[]) value);
-		}
 
-		if (name.equals(TiC.PROPERTY_EDITING)
-			|| name.equals(TiC.PROPERTY_MOVING)) {
+		} else if (name.equals(TiC.PROPERTY_EDITING)) {
+			final TiViewProxy parent = getParent();
 
-			// Update table to display drag-handles.
+			if (parent != null) {
+
+				// Due to Android limitations, selection trackers cannot be removed.
+				// Re-create TableView with new selection tracker.
+				parent.recreateChild(this);
+			}
+
+		} else if (name.equals(TiC.PROPERTY_MOVING)
+			|| name.equals(TiC.PROPERTY_SHOW_SELECTION_CHECK)) {
+
+			// Update and refresh table.
 			update();
 		}
 	}
