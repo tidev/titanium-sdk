@@ -520,8 +520,6 @@ describe('util', () => {
 						+ '}'
 					);
 				} else if (OS_VERSION_MAJOR >= 15) {
-					// {\n  foo: 'bar',\n  foobar: 1,\n  func: <ref *1> [Function: func] {\n    [length]: 0,\n    [name]: 'func',\n    [prototype]: func { [constructor]: [Circular *1] }\n  }\n}
-					// {\n  foo: 'bar',\n  foobar: 1,\n  func: <ref *1> [Function: func] {\n    [prototype]: func { [constructor]: [Circular *1] },\n    [name]: 'func',\n    [length]: 0\n  }\n}
 					result.should.eql(
 						'{\n'
 						+ '  foo: \'bar\',\n'
