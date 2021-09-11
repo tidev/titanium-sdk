@@ -759,6 +759,9 @@
   if (hidesBackButton) {
     [self setHidesBackButton:hidesBackButton];
   }
+  if (isModal && opening) {
+    [self windowDidOpen];
+  }
 
   [self willShow];
 }
@@ -771,9 +774,6 @@
 }
 - (void)viewDidAppear:(BOOL)animated
 {
-  if (isModal && opening) {
-    [self windowDidOpen];
-  }
   if (controller != nil && !self.isManaged) {
     [self gainFocus];
   }
