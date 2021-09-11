@@ -350,6 +350,22 @@ describe('Titanium.Media', () => {
 			it('is a Function', () => {
 				should(Ti.Media.requestMusicLibraryPermissions).be.a.Function();
 			});
+
+			it('callback', finish => {
+				Ti.Media.requestMusicLibraryPermissions(result => {
+					should(result).have.a.property('success').which.is.a.Boolean();
+					should(result.success).be.false();
+					finish();
+				});
+			});
+
+			it('promise', async finish => {
+				const result = await Ti.Media.requestMusicLibraryPermissions();
+
+				should(result).have.a.property('success').which.is.a.Boolean();
+				should(result.success).be.false();
+				finish();
+			});
 		});
 
 		describe('#requestPhotoGalleryPermissions', () => {
