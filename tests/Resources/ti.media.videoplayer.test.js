@@ -380,7 +380,7 @@ describe.androidARM64Broken('Titanium.Media.VideoPlayer', () => {
 				const videoWindow = Ti.UI.createWindow();
 
 				player = Ti.Media.createVideoPlayer({
-					url: 'https://raw.githubusercontent.com/appcelerator/titanium_mobile/master/tests/remote/mov_bbb.mp4',
+					url: 'mov_bbb.mp4',
 					top: 2,
 					autoplay: false,
 					backgroundColor: 'blue',
@@ -419,7 +419,7 @@ describe.androidARM64Broken('Titanium.Media.VideoPlayer', () => {
 				const videoWindow = Ti.UI.createWindow();
 
 				player = Ti.Media.createVideoPlayer({
-					url: 'https://raw.githubusercontent.com/appcelerator/titanium_mobile/master/tests/remote/mov_bbb.mp4',
+					url: 'mov_bbb.mp4',
 					top: 2,
 					autoplay: false,
 					backgroundColor: 'blue',
