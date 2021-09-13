@@ -1346,7 +1346,7 @@ public class MediaModule extends KrollModule implements Handler.Callback
 	}
 
 	@Kroll.method
-	public KrollPromise<KrollDict> takeScreenshot(KrollFunction callback)
+	public KrollPromise<KrollDict> takeScreenshot(@Kroll.argument(optional = true) KrollFunction callback)
 	{
 		return KrollPromise.create((promise) -> {
 			Activity a = TiApplication.getAppCurrentActivity();
