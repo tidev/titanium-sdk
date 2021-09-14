@@ -16,14 +16,19 @@ import java.util.Set;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiC;
+import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.view.TiUIView;
 
 import android.app.Activity;
 import android.view.View;
 
+import androidx.recyclerview.selection.SelectionTracker;
+
 import ti.modules.titanium.ui.UIModule;
 import ti.modules.titanium.ui.widget.TiUIListView;
+
+import static android.util.TypedValue.COMPLEX_UNIT_DIP;
 
 @Kroll.proxy(
 	creatableInModule = ti.modules.titanium.ui.UIModule.class,
@@ -43,6 +48,7 @@ import ti.modules.titanium.ui.widget.TiUIListView;
 		TiC.PROPERTY_SEPARATOR_COLOR,
 		TiC.PROPERTY_SEPARATOR_HEIGHT,
 		TiC.PROPERTY_SEPARATOR_STYLE,
+		TiC.PROPERTY_SHOW_SELECTION_CHECK,
 		TiC.PROPERTY_SHOW_VERTICAL_SCROLL_INDICATOR,
 		TiC.PROPERTY_TEMPLATES,
 		TiC.PROPERTY_TOUCH_FEEDBACK,
@@ -55,6 +61,7 @@ public class ListViewProxy extends RecyclerViewProxy
 
 	private List<ListSectionProxy> sections = new ArrayList<>();
 	private HashMap<Integer, Set<Integer>> markers = new HashMap<>();
+	private KrollDict contentOffset = null;
 
 	public ListViewProxy()
 	{
@@ -64,6 +71,7 @@ public class ListViewProxy extends RecyclerViewProxy
 		defaultValues.put(TiC.PROPERTY_CASE_INSENSITIVE_SEARCH, true);
 		defaultValues.put(TiC.PROPERTY_DEFAULT_ITEM_TEMPLATE, UIModule.LIST_ITEM_TEMPLATE_DEFAULT);
 		defaultValues.put(TiC.PROPERTY_FAST_SCROLL, false);
+		defaultValues.put(TiC.PROPERTY_SHOW_SELECTION_CHECK, true);
 		defaultValues.put(TiC.PROPERTY_TOUCH_FEEDBACK, true);
 	}
 
@@ -306,6 +314,27 @@ public class ListViewProxy extends RecyclerViewProxy
 	}
 
 	/**
+	 * Get selected items.
+	 *
+	 * @return Array of ListItemProxy.
+	 */
+	@Kroll.getProperty
+	public KrollDict[] getSelectedItems()
+	{
+		final TiListView listView = getListView();
+
+		if (listView != null) {
+			final List<KrollDict> selectedItems = listView.getSelectedItems();
+
+			if (selectedItems != null) {
+				return selectedItems.toArray(new KrollDict[selectedItems.size()]);
+			}
+		}
+
+		return new KrollDict[0];
+	}
+
+	/**
 	 * Is ListView currently filtered by search results.
 	 *
 	 * @return Boolean
@@ -350,6 +379,72 @@ public class ListViewProxy extends RecyclerViewProxy
 		}
 	}
 
+	// NOTE: For internal use only.
+	public KrollDict getContentOffset()
+	{
+		final TiListView listView = getListView();
+
+		if (listView != null) {
+			final KrollDict contentOffset = new KrollDict();
+
+			final int x = (int) new TiDimension(listView.getScrollOffsetX(),
+				TiDimension.TYPE_WIDTH, COMPLEX_UNIT_DIP).getAsDefault(listView);
+			final int y = (int) new TiDimension(listView.getScrollOffsetY(),
+				TiDimension.TYPE_HEIGHT, COMPLEX_UNIT_DIP).getAsDefault(listView);
+
+			contentOffset.put(TiC.PROPERTY_X, x);
+			contentOffset.put(TiC.PROPERTY_Y, y);
+
+			// NOTE: Since obtaining the scroll offset from RecyclerView is unreliable
+			// when items are added/removed, also grab the current visible item instead.
+			final ListItemProxy firstVisibleItem = listView.getFirstVisibleItem();
+			if (firstVisibleItem != null) {
+				final int currentIndex = listView.getAdapterIndex(firstVisibleItem.index);
+				contentOffset.put(TiC.PROPERTY_INDEX, currentIndex);
+			}
+
+			this.contentOffset = contentOffset;
+		}
+
+		return this.contentOffset;
+	}
+
+	@Kroll.method
+	public void setContentOffset(KrollDict contentOffset, @Kroll.argument(optional = true) KrollDict options)
+	{
+		final TiListView listView = getListView();
+
+		if (contentOffset != null) {
+			this.contentOffset = contentOffset;
+
+			if (listView != null) {
+
+				if (contentOffset.containsKeyAndNotNull(TiC.PROPERTY_INDEX)) {
+
+					// If available, scroll to provided index provided by internal `getContentOffset()` method.
+					listView.getRecyclerView().scrollToPosition(contentOffset.getInt(TiC.PROPERTY_INDEX));
+					return;
+				}
+
+				final int x = contentOffset.optInt(TiC.EVENT_PROPERTY_X, 0);
+				final int y = contentOffset.optInt(TiC.EVENT_PROPERTY_Y, 0);
+				final int pixelX = new TiDimension(x, TiDimension.TYPE_WIDTH).getAsPixels(listView);
+				final int pixelY = new TiDimension(y, TiDimension.TYPE_HEIGHT).getAsPixels(listView);
+
+				// NOTE: `scrollTo()` is not supported, this is a minor workaround.
+				listView.getRecyclerView().scrollToPosition(0);
+				listView.getRecyclerView().post(new Runnable()
+				{
+					@Override
+					public void run()
+					{
+						listView.getRecyclerView().scrollBy(pixelX, pixelY);
+					}
+				});
+			}
+		}
+	}
+
 	/**
 	 * Handle setting of property.
 	 *
@@ -376,11 +471,20 @@ public class ListViewProxy extends RecyclerViewProxy
 
 			// Set list sections.
 			setSections((Object[]) value);
-		}
 
-		if (name.equals(TiC.PROPERTY_EDITING)) {
+		} else if (name.equals(TiC.PROPERTY_EDITING)) {
+			final TiViewProxy parent = getParent();
 
-			// Update list.
+			if (parent != null) {
+
+				// Due to Android limitations, selection trackers cannot be removed.
+				// Re-create ListView with new selection tracker.
+				parent.recreateChild(this);
+			}
+
+		} else if (name.equals(TiC.PROPERTY_SHOW_SELECTION_CHECK)) {
+
+			// Update and refresh list.
 			update();
 		}
 	}
@@ -424,6 +528,12 @@ public class ListViewProxy extends RecyclerViewProxy
 		// Update table if being re-used.
 		if (view != null) {
 			update();
+
+			if (this.contentOffset != null) {
+
+				// Restore previous content position.
+				setContentOffset(this.contentOffset, null);
+			}
 		}
 
 		return view;
@@ -573,6 +683,8 @@ public class ListViewProxy extends RecyclerViewProxy
 	@Override
 	public void releaseViews()
 	{
+		this.contentOffset = getContentOffset();
+
 		super.releaseViews();
 
 		if (hasPropertyAndNotNull(TiC.PROPERTY_SEARCH_VIEW)) {
@@ -618,9 +730,10 @@ public class ListViewProxy extends RecyclerViewProxy
 	 * @param itemIndex Index of item in section.
 	 */
 	@Kroll.method
-	public void scrollToItem(int sectionIndex, int itemIndex)
+	public void scrollToItem(int sectionIndex, int itemIndex, @Kroll.argument(optional = true) KrollDict animation)
 	{
 		final TiListView listView = getListView();
+		final boolean animated = animation == null || animation.optBoolean(TiC.PROPERTY_ANIMATED, true);
 
 		if (listView != null) {
 			final ListSectionProxy section = getSectionByIndex(sectionIndex);
@@ -629,7 +742,31 @@ public class ListViewProxy extends RecyclerViewProxy
 				final ListItemProxy item = section.getListItemAt(itemIndex);
 
 				if (item != null) {
-					listView.getRecyclerView().smoothScrollToPosition(listView.getAdapterIndex(item.index));
+					final int itemAdapterIndex = listView.getAdapterIndex(item.index);
+					final Runnable action = () -> {
+						if (animated) {
+							listView.getRecyclerView().smoothScrollToPosition(itemAdapterIndex);
+						} else {
+							listView.getRecyclerView().scrollToPosition(itemAdapterIndex);
+						}
+					};
+
+					// This is a workaround for when `EDITING` mode is set, as it recreates the ListView.
+					// We need to listen for when it has updated before scrolling.
+					if (!listView.getHasLaidOutChildren()) {
+						listView.addOnLayoutChangeListener(new View.OnLayoutChangeListener()
+						{
+							@Override
+							public void onLayoutChange(View view, int i, int i1, int i2, int i3, int i4, int i5, int i6,
+													   int i7)
+							{
+								action.run();
+								listView.removeOnLayoutChangeListener(this);
+							}
+						});
+					} else {
+						action.run();
+					}
 				}
 			}
 		}
@@ -644,8 +781,6 @@ public class ListViewProxy extends RecyclerViewProxy
 	@Kroll.method
 	public void selectItem(int sectionIndex, int itemIndex)
 	{
-		scrollToItem(sectionIndex, itemIndex);
-
 		final TiListView listView = getListView();
 
 		if (listView != null) {
@@ -655,7 +790,35 @@ public class ListViewProxy extends RecyclerViewProxy
 				final ListItemProxy item = section.getListItemAt(itemIndex);
 
 				if (item != null) {
-					((ListViewAdapter) listView.getRecyclerView().getAdapter()).getTracker().select(item);
+					final Runnable action = () -> {
+						final SelectionTracker tracker = listView.getTracker();
+						final TiUIView itemView = item.peekView();
+						final boolean visible = itemView != null && itemView.getNativeView().isShown();
+
+						if (!visible) {
+							scrollToItem(sectionIndex, itemIndex, null);
+						}
+						if (tracker != null) {
+							tracker.select(item);
+						}
+					};
+
+					// This is a workaround for when `EDITING` mode is set, as it recreates the ListView.
+					// We need to listen for when it has updated before testing visibility/scrolling.
+					if (!listView.getHasLaidOutChildren()) {
+						listView.addOnLayoutChangeListener(new View.OnLayoutChangeListener()
+						{
+							@Override
+							public void onLayoutChange(View view, int i, int i1, int i2, int i3, int i4, int i5, int i6,
+													   int i7)
+							{
+								action.run();
+								listView.removeOnLayoutChangeListener(this);
+							}
+						});
+					} else {
+						action.run();
+					}
 				}
 			}
 		}

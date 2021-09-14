@@ -22,7 +22,7 @@ describe('Titanium.Network.Socket.TCP', function () {
 
 	it('#connect()', function (finish) {
 		socket = Ti.Network.Socket.createTCP({
-			host: 'www.appcelerator.com', port: 80,
+			host: 'www.google.com', port: 80,
 			connected: function () {
 				finish();
 			},
@@ -56,11 +56,11 @@ describe('Titanium.Network.Socket.TCP', function () {
 	// FIXME: Android chokes with : android.os.NetworkOnMainThreadException
 	it('#connect() and send data', function (finish) {
 		socket = Ti.Network.Socket.createTCP({
-			host: 'www.appcelerator.com', port: 80,
+			host: 'www.google.com', port: 80,
 			connected: function () {
 				should(socket.write).not.be.null();
 				should(socket.write).be.a.Function();
-				socket.write(Ti.createBuffer({ value: 'GET / HTTP/1.1\r\nHost: www.appcelerator.com\r\nConnection: close\r\n\r\n' }));
+				socket.write(Ti.createBuffer({ value: 'GET / HTTP/1.1\r\nHost: www.google.com\r\nConnection: close\r\n\r\n' }));
 				finish();
 			},
 			error: function (e) {
@@ -114,15 +114,15 @@ describe('Titanium.Network.Socket.TCP', function () {
 
 	it('#connect() and #write() async', function (finish) {
 		socket = Ti.Network.Socket.createTCP({
-			host: 'www.appcelerator.com',
+			host: 'www.google.com',
 			port: 80,
 			connected: function () {
 				should(socket.write).not.be.null();
 				should(socket.write).be.a.Function();
-				socket.write(Ti.createBuffer({ value: 'GET / HTTP/1.1\r\nHost: www.appcelerator.com\r\nConnection: close\r\n\r\n' }), function (evt) {
+				socket.write(Ti.createBuffer({ value: 'GET / HTTP/1.1\r\nHost: www.google.com\r\nConnection: close\r\n\r\n' }), function (evt) {
 					try {
 						evt.success.should.be.true();
-						evt.bytesProcessed.should.eql(65);
+						evt.bytesProcessed.should.eql(59);
 						finish();
 					} catch (err) {
 						finish(err);

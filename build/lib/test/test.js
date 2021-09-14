@@ -50,12 +50,13 @@ const isCI = !!(process.env.BUILD_NUMBER || process.env.CI || false);
  * @param {String} [deviceId] Titanium device id target to run the tests on
  * @param {string} [deployType] 'development' || 'test'
  * @param {string} [deviceFamily] 'ipad' || 'iphone'
+ * @param {string} [junitPrefix] A prefix for the junit filename
  * @param {string} [snapshotDir='../../../tests/Resources'] directory to place generated snapshot images
  * @returns {Promise<object>}
  */
-async function test(platforms, target, deviceId, deployType, deviceFamily, snapshotDir = path.join(__dirname, '../../../tests/Resources')) {
+async function test(platforms, target, deviceId, deployType, deviceFamily, junitPrefix, snapshotDir = path.join(__dirname, '../../../tests/Resources')) {
 	const snapshotPromises = []; // place to stick commands we've fired off to pull snapshot images
-
+	console.log(platforms);
 	// delete old test app (if does not exist, this will no-op)
 	await fs.remove(PROJECT_DIR);
 
@@ -70,7 +71,7 @@ async function test(platforms, target, deviceId, deployType, deviceFamily, snaps
 		const results = {};
 		for (const platform of platforms) {
 			const result = await runBuild(platform, target, deviceId, deployType, deviceFamily, snapshotDir, snapshotPromises);
-			const prefix = generateJUnitPrefix(platform, target, deviceFamily);
+			const prefix = generateJUnitPrefix(platform, target, junitPrefix || deviceFamily);
 			results[prefix] = result;
 			await outputJUnitXML(result, prefix);
 		}
@@ -210,7 +211,7 @@ async function addTiAppProperties() {
 		content.push('\t\t\t<application android:theme="@style/Theme.Titanium.Dark">');
 		content.push('\t\t\t\t<meta-data android:name="com.google.android.geo.API_KEY" android:value="AIzaSyCN_aC6RMaynan8YzsO1HNHbhsr9ZADDlY"/>');
 		content.push('\t\t\t\t<uses-library android:name="org.apache.http.legacy" android:required="false" />');
-		content.push(`\t\t\t\t<activity android:name=".${PROJECT_NAME.charAt(0).toUpperCase() + PROJECT_NAME.slice(1).toLowerCase()}Activity">`);
+		content.push(`\t\t\t\t<activity android:name=".${PROJECT_NAME.charAt(0).toUpperCase() + PROJECT_NAME.slice(1).toLowerCase()}Activity" android:exported="true">`);
 		content.push('\t\t\t\t\t<intent-filter>');
 		content.push('\t\t\t\t\t\t<action android:name="android.intent.action.MAIN"/>');
 		content.push('\t\t\t\t\t\t<category android:name="android.intent.category.LAUNCHER"/>');
@@ -902,16 +903,16 @@ function massageJSONString(testResults) {
 /**
  * @param {string} platform 'ios' || 'android'
  * @param {string} [target] 'emulator' || 'simulator' || 'device'
- * @param {string} [deviceFamily] 'iphone' || 'ipad'
+ * @param {string} [customPrefix] A custom prefix to help differentiate junit results
  * @returns {string}
  */
-function generateJUnitPrefix(platform, target, deviceFamily) {
+function generateJUnitPrefix(platform, target, customPrefix) {
 	let prefix = platform;
 	if (target) {
 		prefix += '.' + target;
 	}
-	if (deviceFamily) {
-		prefix += '.' + deviceFamily;
+	if (customPrefix) {
+		prefix += '.' + customPrefix;
 	}
 	return prefix;
 }

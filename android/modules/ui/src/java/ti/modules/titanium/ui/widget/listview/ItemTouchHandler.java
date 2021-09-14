@@ -14,6 +14,7 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.PaintDrawable;
 import android.graphics.drawable.RippleDrawable;
 import android.graphics.drawable.ShapeDrawable;
+import android.graphics.drawable.StateListDrawable;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
@@ -133,12 +134,17 @@ public class ItemTouchHandler extends ItemTouchHelper.SimpleCallback
 	 */
 	private Drawable getBackground(TiUIView parentView, boolean ignoreTransparent)
 	{
-		Drawable parentBackground = null;
+		Drawable parentBackground = parentView.getBackground();
 		View parentNativeView = parentView.getNativeView();
 
 		while (parentNativeView != null && parentBackground == null) {
 			parentBackground = parentNativeView.getBackground();
 
+			if (parentBackground instanceof StateListDrawable) {
+				final StateListDrawable stateListDrawable = (StateListDrawable) parentBackground;
+
+				parentBackground = stateListDrawable.getCurrent();
+			}
 			if (parentBackground instanceof RippleDrawable) {
 				final RippleDrawable rippleDrawable = (RippleDrawable) parentBackground;
 
