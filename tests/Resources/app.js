@@ -144,6 +144,7 @@ function loadTests() {
 	require('./ti.ui.alertdialog.test');
 	if (OS_ANDROID) {
 		require('./ti.ui.android.test');
+		require('./ti.ui.android.cardview.test');
 		require('./ti.ui.android.drawerlayout.test');
 		require('./ti.ui.android.progressindicator.test');
 	}

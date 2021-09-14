@@ -43,7 +43,7 @@ describe('Titanium.Network.HTTPClient', function () {
 			}
 		};
 
-		xhr.open('GET', 'http://www.appcelerator.com/feed');
+		xhr.open('GET', 'https://httpbin.org/xml');
 		xhr.send();
 	});
 
@@ -85,7 +85,7 @@ describe('Titanium.Network.HTTPClient', function () {
 			}
 		};
 
-		xhr.open('GET', 'https://userscontent2.emaze.com/images/de1f3140-6f4e-4a67-9626-14c39a8f93a2/18aaaec3-31fb-463b-bac9-19d848f7a583.png');
+		xhr.open('GET', 'https://raw.githubusercontent.com/appcelerator/titanium_mobile/master/tests/Resources/large.jpg');
 		xhr.send();
 	});
 
@@ -96,7 +96,7 @@ describe('Titanium.Network.HTTPClient', function () {
 		xhr.onload = () => finish();
 
 		xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
-		xhr.open('POST', 'http://www.appcelerator.com/');
+		xhr.open('POST', 'https://httpbin.org/post');
 		xhr.send('TIMOB-23127');
 	});
 
@@ -107,7 +107,7 @@ describe('Titanium.Network.HTTPClient', function () {
 		xhr.onload = () => finish();
 
 		xhr.setRequestHeader('Content-Type', 'application/json');
-		xhr.open('GET', 'http://www.appcelerator.com/');
+		xhr.open('GET', 'https://www.google.com/');
 		xhr.send();
 	});
 
@@ -153,7 +153,7 @@ describe('Titanium.Network.HTTPClient', function () {
 			}
 		};
 
-		xhr.open('GET', 'http://mockbin.org/redirect/301?to=http%3A%2F%2Ftimobile.appcelerator.com.s3.amazonaws.com%2F18aaaec3-31fb-463b-bac9-19d848f7a583.png');
+		xhr.open('GET', 'http://mockbin.org/redirect/301?to=https%3A%2F%2Fraw.githubusercontent.com%2Fappcelerator%2Ftitanium_mobile%2Fmaster%2Ftests%2FResources%2Flarge.jpg');
 		xhr.send();
 	});
 
@@ -181,16 +181,16 @@ describe('Titanium.Network.HTTPClient', function () {
 
 	it('responseHeaders', function (finish) {
 		const xhr = Ti.Network.createHTTPClient({
-			timeout: 5000
+			timeout: 30000
 		});
 		xhr.onload = e => {
 			try {
 				const responseHeaders = e.source.responseHeaders;
-
-				if (responseHeaders['Content-Type']
-					&& responseHeaders['Content-Type'].startsWith('text/html')) {
-					finish();
+				if (responseHeaders['freeform']
+					&& responseHeaders['freeform'] === 'titanium=awesome') {
+					return finish();
 				}
+				return finish(new Error('Expected header was not present'));
 			} catch (err) {
 				return finish(err);
 			}
@@ -206,7 +206,7 @@ describe('Titanium.Network.HTTPClient', function () {
 				finish(new Error('failed to retrieve headers: ' + e));
 			}
 		};
-		xhr.open('GET', 'https://google.com');
+		xhr.open('GET', 'https://httpbin.org/response-headers?freeform=titanium%3Dawesome');
 		xhr.send();
 	});
 
@@ -242,7 +242,7 @@ describe('Titanium.Network.HTTPClient', function () {
 				finish(new Error('failed to retrieve headers: ' + e)); // Failing on Windows here, likely need to update test!
 			}
 		};
-		xhr.open('GET', 'http://www.appcelerator.com'); // FIXME Update URL!
+		xhr.open('GET', 'http://www.google.com');
 		xhr.send();
 	});
 
@@ -255,9 +255,9 @@ describe('Titanium.Network.HTTPClient', function () {
 			if (xhr.status === 200) {
 				should(e.success).be.true();
 
-				const response = JSON.parse(xhr.responseText);
-				response['adhocHeader'].should.eql('notcleared');
-				response.should.not.have.property('clearedHeader');
+				const response = JSON.parse(xhr.responseText).headers;
+				response['Adhoc-Header'].should.eql('notcleared');
+				response.should.not.have.property('Cleared-Header');
 			} else if (xhr.status !== 503) { // service unavailable (over quota)
 				return finish(new Error(`Received unexpected response: ${xhr.status}`));
 			}
@@ -269,11 +269,11 @@ describe('Titanium.Network.HTTPClient', function () {
 			}
 			finish();
 		};
-		xhr.open('GET', 'http://headers.jsontest.com/');
-		xhr.setRequestHeader('adhocHeader', 'notcleared');
-		xhr.setRequestHeader('clearedHeader', 'notcleared');
+		xhr.open('GET', 'https://httpbin.org/headers');
+		xhr.setRequestHeader('Adhoc-Header', 'notcleared');
+		xhr.setRequestHeader('Cleared-Header', 'notcleared');
 		should(function () {
-			xhr.setRequestHeader('clearedHeader', null);
+			xhr.setRequestHeader('Cleared-Header', null);
 		}).not.throw();
 		xhr.send();
 	});
@@ -484,7 +484,7 @@ describe('Titanium.Network.HTTPClient', function () {
 			}
 		};
 
-		xhr.open('GET', 'http://www.pdf995.com/samples/pdf.pdf');
+		xhr.open('GET', 'https://raw.githubusercontent.com/appcelerator/titanium_mobile/master/tests/remote/test-pdf.pdf');
 		xhr.send();
 	});
 
@@ -657,7 +657,7 @@ describe('Titanium.Network.HTTPClient', function () {
 			}
 		};
 
-		xhr.open('GET', 'https://upload.wikimedia.org/wikipedia/commons/d/db/Titan-crystal_bar.JPG');
+		xhr.open('GET', 'https://raw.githubusercontent.com/appcelerator/titanium_mobile/master/tests/Resources/large.jpg');
 		xhr.send();
 	});
 
@@ -758,7 +758,7 @@ describe('Titanium.Network.HTTPClient', function () {
 			onerror: _e => finish(new Error('Could not determine TLSv3 support.')),
 			timeout: 8000
 		});
-		client.open('GET', 'https://ssllabs.com/ssltest/viewMyClient.html');
+		client.open('GET', 'https://clienttest.ssllabs.com/ssltest/viewMyClient.html');
 		client.send();
 	});
 
@@ -801,8 +801,10 @@ describe('Titanium.Network.HTTPClient', function () {
 		xhr.send();
 	});
 
-	it.ios('#timeoutForResource', function (finish) {
+	// The timing of this iOS-only unit test is very unreliable. Skip it.
+	it.allBroken('#timeoutForResource', function (finish) {
 		const xhr = Ti.Network.createHTTPClient({
+			cache: false,
 			timeout: 6e4,
 			timeoutForResource: 50
 		});
@@ -819,7 +821,7 @@ describe('Titanium.Network.HTTPClient', function () {
 			finish();
 		};
 
-		xhr.open('GET', 'https://www.google.com/');
+		xhr.open('GET', 'https://www.google.com');
 		xhr.send();
 	});
 });

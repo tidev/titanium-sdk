@@ -90,6 +90,40 @@ describe('Titanium.UI.TextArea', () => {
 			});
 		});
 
+		describe('.enableCopy', () => {
+			it('is a Boolean', () => {
+				const textArea = Ti.UI.createTextArea();
+				should(textArea).have.readOnlyProperty('enableCopy').which.is.a.Boolean();
+			});
+
+			it('defaults to true', () => {
+				const textArea = Ti.UI.createTextArea();
+				should(textArea.enableCopy).be.true();
+			});
+
+			it('can be initialized false', () => {
+				const textArea = Ti.UI.createTextArea({ enableCopy: false });
+				should(textArea.enableCopy).be.false();
+			});
+
+			it('can be changed dynamically', (finish) => {
+				const textArea = Ti.UI.createTextArea();
+				win = Ti.UI.createWindow({ backgroundColor: '#fff' });
+				win.add(textArea);
+				win.addEventListener('postlayout', function listener() {
+					try {
+						win.removeEventListener('postlayout', listener);
+						textArea.enableCopy = false;
+						should(textArea.enableCopy).be.false();
+						finish();
+					} catch (err) {
+						finish(err);
+					}
+				});
+				win.open();
+			});
+		});
+
 		it('.focused', function (done) {
 			this.slow(2000);
 			this.timeout(5000);

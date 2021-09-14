@@ -9,6 +9,7 @@
 #import "TiUITextWidget.h"
 
 @interface TiTextField : UITextField {
+  BOOL enableCopy;
   CGFloat paddingLeft;
   CGFloat paddingRight;
   CGFloat leftButtonPadding;
@@ -22,6 +23,7 @@
   TiUIView *touchHandler;
 }
 
+@property (nonatomic, readwrite, assign) BOOL enableCopy;
 @property (nonatomic, readwrite, assign) CGFloat paddingLeft;
 @property (nonatomic, readwrite, assign) CGFloat paddingRight;
 @property (nonatomic, readwrite, assign) CGFloat leftButtonPadding;

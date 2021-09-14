@@ -14,6 +14,7 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.PaintDrawable;
 import android.graphics.drawable.RippleDrawable;
 import android.graphics.drawable.ShapeDrawable;
+import android.graphics.drawable.StateListDrawable;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
@@ -24,6 +25,7 @@ import androidx.core.util.Pair;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
+import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.titanium.R;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
@@ -83,18 +85,24 @@ public class ItemTouchHandler extends ItemTouchHelper.SimpleCallback
 	 */
 	private boolean canMove(TiViewProxy holderProxy)
 	{
-		String moveProperty = TiC.PROPERTY_MOVABLE;
+		final KrollDict recyclerProperties = this.recyclerViewProxy.getProperties();
+		final KrollDict holderProperties = holderProxy.getProperties();
+
 		if (holderProxy instanceof ListItemProxy) {
 
-			// Set to `canMove` property for ListItem.
-			moveProperty = TiC.PROPERTY_CAN_MOVE;
+			// Use `canMove` property for ListItem.
+			final boolean canMove = holderProperties.optBoolean(TiC.PROPERTY_CAN_MOVE,
+				recyclerProperties.optBoolean(TiC.PROPERTY_CAN_MOVE, false));
+
+			return canMove;
 		}
 
-		// Obtain default move value from RecyclerView proxy.
-		final boolean defaultValue = this.recyclerViewProxy.getProperties().optBoolean(moveProperty, false);
+		final boolean isMoveable = holderProperties.optBoolean(TiC.PROPERTY_MOVEABLE,
+			recyclerProperties.optBoolean(TiC.PROPERTY_MOVEABLE, false));
+		final boolean isMovable = holderProperties.optBoolean(TiC.PROPERTY_MOVABLE,
+			recyclerProperties.optBoolean(TiC.PROPERTY_MOVABLE, false));
 
-		// Obtain move value from current holder proxy.
-		return holderProxy.getProperties().optBoolean(moveProperty, defaultValue);
+		return isMoveable || isMovable;
 	}
 
 	/**
@@ -126,12 +134,17 @@ public class ItemTouchHandler extends ItemTouchHelper.SimpleCallback
 	 */
 	private Drawable getBackground(TiUIView parentView, boolean ignoreTransparent)
 	{
-		Drawable parentBackground = null;
+		Drawable parentBackground = parentView.getBackground();
 		View parentNativeView = parentView.getNativeView();
 
 		while (parentNativeView != null && parentBackground == null) {
 			parentBackground = parentNativeView.getBackground();
 
+			if (parentBackground instanceof StateListDrawable) {
+				final StateListDrawable stateListDrawable = (StateListDrawable) parentBackground;
+
+				parentBackground = stateListDrawable.getCurrent();
+			}
 			if (parentBackground instanceof RippleDrawable) {
 				final RippleDrawable rippleDrawable = (RippleDrawable) parentBackground;
 

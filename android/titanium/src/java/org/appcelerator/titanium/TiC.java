@@ -79,6 +79,7 @@ public class TiC
 	public static final String EVENT_KEY_PRESSED = "keypressed";
 	public static final String EVENT_HEADING = "heading";
 	public static final String EVENT_ITEM_CLICK = "itemclick";
+	public static final String EVENT_ITEMS_SELECTED = "itemsselected";
 	public static final String EVENT_LOAD = "load";
 	public static final String EVENT_LOADSTATE = "loadstate";
 	public static final String EVENT_LOCATION = "location";
@@ -152,6 +153,7 @@ public class TiC
 	public static final String EVENT_RESUME = "resume";
 	public static final String EVENT_RESUMED = "resumed";
 	public static final String EVENT_RETURN = "return";
+	public static final String EVENT_ROWS_SELECTED = "rowsselected";
 	public static final String EVENT_SCROLL = "scroll";
 	public static final String EVENT_SCROLLEND = "scrollend";
 	public static final String EVENT_SCROLLING = "scrolling";
@@ -237,6 +239,9 @@ public class TiC
 	public static final String PROPERTY_ADDRESS = "address";
 	public static final String PROPERTY_ALLOW_BACKGROUND = "allowBackground";
 	public static final String PROPERTY_ALLOW_MULTIPLE = "allowMultiple";
+	public static final String PROPERTY_ALLOWS_SELECTION_DURING_EDITING = "allowsSelectionDuringEditing";
+	public static final String PROPERTY_ALLOWS_MULTIPLE_SELECTION_DURING_EDITING
+		= "allowsMultipleSelectionDuringEditing";
 	public static final String PROPERTY_ALTITUDE = "altitude";
 	public static final String PROPERTY_ALTITUDE_ACCURACY = "altitudeAccuracy";
 	public static final String PROPERTY_ATTRIBUTES = "attributes";
@@ -338,6 +343,7 @@ public class TiC
 	public static final String PROPERTY_CLIP_VIEWS = "clipViews";
 	public static final String PROPERTY_CODE = "code";
 	public static final String PROPERTY_COLOR = "color";
+	public static final String PROPERTY_COLUMNS = "columns";
 	public static final String PROPERTY_COMMENT = "comment";
 	public static final String PROPERTY_CONTENT_HEIGHT = "contentHeight";
 	public static final String PROPERTY_CONTENT_SIZE = "contentSize";
@@ -364,6 +370,7 @@ public class TiC
 	public static final String PROPERTY_CURVE = "curve";
 	public static final String PROPERTY_DATA = "data";
 	public static final String PROPERTY_DATE = "date";
+	public static final String PROPERTY_DATE_PICKER_STYLE = "datePickerStyle";
 	public static final String PROPERTY_DAY_BEFORE_MONTH = "dayBeforeMonth";
 	public static final String PROPERTY_DECODE_RETRIES = "decodeRetries";
 	public static final String PROPERTY_DESCRIPTION = "description";
@@ -390,6 +397,7 @@ public class TiC
 	public static final String PROPERTY_EMAIL = "email";
 	public static final String PROPERTY_ENABLE_ZOOM_CONTROLS = "enableZoomControls";
 	public static final String PROPERTY_ENABLED = "enabled";
+	public static final String PROPERTY_ENABLE_COPY = "enableCopy";
 	public static final String PROPERTY_ENABLE_JAVASCRIPT_INTERFACE = "enableJavascriptInterface";
 	public static final String PROPERTY_ENABLE_LIGHTS = "enableLights";
 	public static final String PROPERTY_ENABLE_RETURN_KEY = "enableReturnKey";
@@ -470,6 +478,8 @@ public class TiC
 	public static final String PROPERTY_ICONIFIED_BY_DEFAULT = "iconifiedByDefault";
 	public static final String PROPERTY_ID = "id";
 	public static final String PROPERTY_IMAGE = "image";
+	public static final String PROPERTY_IMAGE_TOUCH_FEEDBACK = "imageTouchFeedback";
+	public static final String PROPERTY_IMAGE_TOUCH_FEEDBACK_COLOR = "imageTouchFeedbackColor";
 	public static final String PROPERTY_IMAGES = "images";
 	public static final String PROPERTY_IMPORTANCE = "importance";
 	public static final String PROPERTY_INDICATOR_COLOR = "indicatorColor";
@@ -552,6 +562,7 @@ public class TiC
 	public static final String PROPERTY_MODE = "mode";
 	public static final String PROPERTY_MOTHER = "mother";
 	public static final String PROPERTY_MOVABLE = "movable";
+	public static final String PROPERTY_MOVEABLE = "moveable";
 	public static final String PROPERTY_MOVING = "moving";
 	public static final String PROPERTY_MULTIPLY = "multiply";
 	public static final String PROPERTY_NAME = "name";
@@ -646,6 +657,7 @@ public class TiC
 	public static final String PROPERTY_ROTATION_Y = "rotationY";
 	public static final String PROPERTY_ROW_DATA = "rowData";
 	public static final String PROPERTY_ROW_HEIGHT = "rowHeight";
+	public static final String PROPERTY_ROWS = "rows";
 	public static final String PROPERTY_SCALE = "scale";
 	public static final String PROPERTY_SCALE_X = "scaleX";
 	public static final String PROPERTY_SCALE_Y = "scaleY";
@@ -666,8 +678,11 @@ public class TiC
 	public static final String PROPERTY_SELECTED_BACKGROUND_COLOR = "selectedBackgroundColor";
 	public static final String PROPERTY_SELECTED_BACKGROUND_IMAGE = "selectedBackgroundImage";
 	public static final String PROPERTY_SELECTED_INDEX = "selectedIndex";
+	public static final String PROPERTY_SELECTED_ITEMS = "selectedItems";
 	public static final String PROPERTY_SELECTION_INDICATOR = "selectionIndicator";
 	public static final String PROPERTY_SELECTION_OPENS = "selectionOpens";
+	public static final String PROPERTY_SELECTED_ROWS = "selectedRows";
+	public static final String PROPERTY_SELECTION_STYLE = "selectionStyle";
 	public static final String PROPERTY_SEPARATOR_COLOR = "separatorColor";
 	public static final String PROPERTY_SEPARATOR_HEIGHT = "separatorHeight";
 	public static final String PROPERTY_SEPARATOR_STYLE = "separatorStyle";
@@ -683,6 +698,7 @@ public class TiC
 	public static final String PROPERTY_SHOW_VERTICAL_SCROLL_INDICATOR = "showVerticalScrollIndicator";
 	public static final String PROPERTY_SHOW_PAGING_CONTROL = "showPagingControl";
 	public static final String PROPERTY_SHOW_PROGRESS = "showProgress";
+	public static final String PROPERTY_SHOW_SELECTION_CHECK = "showSelectionCheck";
 	public static final String PROPERTY_SISTER = "sister";
 	public static final String PROPERTY_SIZE = "size";
 	public static final String PROPERTY_SOFT_KEYBOARD_ON_FOCUS = "softKeyboardOnFocus";
@@ -695,6 +711,8 @@ public class TiC
 	public static final String PROPERTY_SPLIT_TRACK = "splitTrack";
 	public static final String PROPERTY_SPOUSE = "spouse";
 	public static final String PROPERTY_START = "start";
+	public static final String PROPERTY_STARTING_ITEM = "startingItem";
+	public static final String PROPERTY_STARTING_ROW = "startingRow";
 	public static final String PROPERTY_STATE = "state";
 	public static final String PROPERTY_STATUS = "status";
 	public static final String PROPERTY_STOP = "stop";
@@ -768,7 +786,6 @@ public class TiC
 	public static final String PROPERTY_VISIBLE = "visible";
 	public static final String PROPERTY_VISIBILITY = "visibility";
 	public static final String PROPERTY_VISIBLE_ITEM_COUNT = "visibleItemCount";
-	public static final String PROPERTY_VISIBLE_ITEMS = "visibleItems";
 	public static final String PROPERTY_VIEW = "view";
 	public static final String PROPERTY_VIEWS = "views";
 	public static final String PROPERTY_VOLUME = "volume";
