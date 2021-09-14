@@ -20,7 +20,6 @@ import android.view.ViewGroup;
 import android.widget.RelativeLayout;
 
 import androidx.annotation.NonNull;
-import androidx.recyclerview.selection.SelectionTracker;
 
 public class ListViewAdapter extends TiRecyclerViewAdapter<ListViewHolder>
 {
@@ -30,7 +29,6 @@ public class ListViewAdapter extends TiRecyclerViewAdapter<ListViewHolder>
 	private LayoutInflater inflater;
 	private List<ListItemProxy> models;
 	private final TreeMap<String, LinkedList<ListItemProxy>> recyclableItemsMap = new TreeMap<>();
-	private SelectionTracker tracker;
 
 	public ListViewAdapter(@NonNull Context context, @NonNull List<ListItemProxy> models)
 	{
@@ -117,7 +115,7 @@ public class ListViewAdapter extends TiRecyclerViewAdapter<ListViewHolder>
 	{
 		// Fetch item proxy for given list position.
 		final ListItemProxy item = this.models.get(position);
-		final boolean selected = tracker != null ? tracker.isSelected(item) : false;
+		final boolean selected = this.tracker != null ? this.tracker.isSelected(item) : false;
 
 		// Check if we have any recyclable items for the current template.
 		LinkedList<ListItemProxy> recyclableItems = this.recyclableItemsMap.get(item.getTemplateId());
@@ -137,6 +135,10 @@ public class ListViewAdapter extends TiRecyclerViewAdapter<ListViewHolder>
 				}
 			}
 		}
+
+		// Notify item of its selected status.
+		// This is necessary to maintain selection status on theme change.
+		item.setSelected(selected);
 
 		// Update ListViewHolder with new model data.
 		holder.bind(item, selected);
@@ -180,6 +182,7 @@ public class ListViewAdapter extends TiRecyclerViewAdapter<ListViewHolder>
 					this.recyclableItemsMap.put(item.getTemplateId(), recyclableItems);
 				}
 				if (!recyclableItems.contains(item)) {
+					item.setSelected(false);
 					item.setHolder(null);
 					recyclableItems.add(item);
 				}

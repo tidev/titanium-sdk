@@ -441,11 +441,8 @@ public abstract class TiViewProxy extends KrollProxy
 				Log.d(TAG, "getView: " + getClass().getSimpleName(), Log.DEBUG_MODE);
 			}
 
-			TiViewProxy parentProxy = getParent();
-			Activity parentActivity = (parentProxy != null) ? parentProxy.getActivity() : null;
-
 			Activity lastActivity = getActivity();
-			Activity activity = (parentActivity != null) ? parentActivity : lastActivity;
+			Activity activity = lastActivity;
 			TiBaseActivity baseActivity = null;
 
 			if (activity instanceof TiBaseActivity) {
@@ -460,9 +457,13 @@ public abstract class TiViewProxy extends KrollProxy
 				activity = baseActivity;
 
 			} else if (activity == null) {
-				if (parentActivity != null) {
-					activity = parentActivity;
-				} else {
+				for (TiViewProxy parent = getParent(); parent != null; parent = parent.getParent()) {
+					activity = parent.getActivity();
+					if (activity != null) {
+						break;
+					}
+				}
+				if (activity == null) {
 					activity = TiApplication.getAppRootOrCurrentActivity();
 				}
 			}
@@ -639,8 +640,22 @@ public abstract class TiViewProxy extends KrollProxy
 		}
 		if (children != null && children.size() > position) {
 			TiViewProxy childToRemove = children.get(position);
-			insertAt(params);
 			remove(childToRemove);
+			insertAt(params);
+		}
+	}
+
+	public void recreateChild(TiViewProxy child)
+	{
+		if (child == null || this.children == null) {
+			return;
+		}
+
+		final int position = this.children.indexOf(child);
+
+		if (position > -1) {
+			remove(child);
+			insertAt(child, position);
 		}
 	}
 
@@ -671,12 +686,21 @@ public abstract class TiViewProxy extends KrollProxy
 			Log.e(TAG, "insertAt must be contain a view");
 			return;
 		}
+
+		insertAt(child, position);
+	}
+
+	public void insertAt(TiViewProxy child, int position)
+	{
+		if (child == null) {
+			return;
+		}
 		if (position < 0 || position > children.size()) {
 			position = children.size();
 		}
 
 		children.add(position, child);
-		child.parent = new WeakReference<TiViewProxy>(this);
+		child.parent = new WeakReference<>(this);
 
 		if (view != null) {
 			child.setActivity(getActivity());
