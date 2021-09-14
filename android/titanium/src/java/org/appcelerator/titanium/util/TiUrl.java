@@ -102,7 +102,7 @@ public class TiUrl
 		return bUrl;
 	}
 
-	private static HashMap<String, TiUrl> proxyUrlCache = new HashMap<String, TiUrl>(5);
+	private static final HashMap<String, TiUrl> proxyUrlCache = new HashMap<>(5);
 	public static TiUrl createProxyUrl(String url)
 	{
 		if (proxyUrlCache.containsKey(url)) {

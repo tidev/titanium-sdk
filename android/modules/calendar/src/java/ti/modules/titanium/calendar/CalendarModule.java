@@ -149,22 +149,20 @@ public class CalendarModule extends KrollModule
 		});
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public CalendarProxy[] getAllCalendars()
 	{
 		ArrayList<CalendarProxy> calendars = CalendarProxy.queryCalendars(null, null);
-		return calendars.toArray(new CalendarProxy[calendars.size()]);
+		return calendars.toArray(new CalendarProxy[0]);
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public CalendarProxy[] getSelectableCalendars()
 	{
 		// selectable calendars are "visible"
 		ArrayList<CalendarProxy> calendars;
 		calendars = CalendarProxy.queryCalendars("Calendars.visible = ?", new String[] { "1" });
-		return calendars.toArray(new CalendarProxy[calendars.size()]);
+		return calendars.toArray(new CalendarProxy[0]);
 	}
 
 	@Kroll.method
@@ -180,12 +178,11 @@ public class CalendarModule extends KrollModule
 		}
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public AlertProxy[] getAllAlerts()
 	{
 		ArrayList<AlertProxy> alerts = AlertProxy.queryAlerts(null, null, null);
-		return alerts.toArray(new AlertProxy[alerts.size()]);
+		return alerts.toArray(new AlertProxy[0]);
 	}
 
 	@Override

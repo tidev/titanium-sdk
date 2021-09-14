@@ -70,7 +70,6 @@
 
 - (void)resignCurrent:(id)unused;
 
-#if IS_SDK_IOS_12
 - (NSString *)persistentIdentifier;
 
 - (void)setPersistentIdentifier:(NSString *)value;
@@ -82,7 +81,6 @@
 - (void)deleteSavedUserActivitiesForPersistentIdentifiers:(id)persistentIdentifiers;
 
 - (void)deleteAllSavedUserActivities:(id)unused;
-#endif
 
 @end
 

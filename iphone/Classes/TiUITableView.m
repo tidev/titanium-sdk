@@ -262,7 +262,7 @@
   }
 }
 
-- (void)setSelectedBackgroundGradient_:(TiGradient *)newGradient
+- (void)setBackgroundSelectedGradient_:(TiGradient *)newGradient
 {
   if (newGradient == selectedBackgroundGradient) {
     return;
@@ -273,6 +273,11 @@
   if ([self selectedOrHighlighted]) {
     [self updateGradientLayer:YES withAnimation:NO];
   }
+}
+- (void)setSelectedBackgroundGradient_:(TiGradient *)newGradient
+{
+  DEPRECATED_REPLACED(@"selectedBackgroundGradient", @"10.0.0", @"backgroundSelectedGradient");
+  [self setBackgroundSelectedGradient_:newGradient];
 }
 
 - (NSMutableDictionary *)payloadWithTouch:(UITouch *)touch
@@ -1539,7 +1544,7 @@
   UIView *searchView = [searchField view];
 
   if (tableHeaderView == nil) {
-    CGFloat wrapperHeight = [TiUtils isIOSVersionOrGreater:@"11.0"] ? TI_SEARCHBAR_HEIGHT : TI_NAVBAR_HEIGHT;
+    CGFloat wrapperHeight = TI_SEARCHBAR_HEIGHT;
     CGRect wrapperFrame = CGRectMake(0, 0, [tableview bounds].size.width, wrapperHeight);
     tableHeaderView = [[UIView alloc] initWithFrame:wrapperFrame];
     [tableHeaderView setAutoresizingMask:UIViewAutoresizingFlexibleWidth];
@@ -1563,6 +1568,13 @@
   searchActivated = YES;
   // Dont reload here since user started editing but not yet started typing.
   // Also if a previous search string exists this reload results in blank cells.
+}
+
+- (void)searchBarTextDidEndEditing:(UISearchBar *)searchBar
+{
+  // Finished editing, always dismiss search controller.
+  // Only one search controller can be active at a time.
+  [self performSelector:@selector(dismissSearchController) withObject:nil afterDelay:.2];
 }
 
 - (void)searchBarSearchButtonClicked:(UISearchBar *)searchBar
@@ -1782,7 +1794,7 @@
   RELEASE_TO_NIL(searchField);
   RELEASE_TO_NIL(searchController);
 
-  isSearchBarInNavigation = [TiUtils boolValue:[self.proxy valueForKey:@"showSearchBarInNavBar"] def:NO] && [TiUtils isIOSVersionOrGreater:@"11.0"];
+  isSearchBarInNavigation = [TiUtils boolValue:[self.proxy valueForKey:@"showSearchBarInNavBar"] def:NO];
 
   if (search != nil) {
     //TODO: now that we're using the search controller, we can move away from
@@ -1809,12 +1821,23 @@
   }
 }
 
+#if IS_SDK_IOS_15
+- (void)setSectionHeaderTopPadding_:(id)value
+{
+  if (![TiUtils isIOSVersionOrGreater:@"15.0"]) {
+    return;
+  }
+
+  self.tableView.sectionHeaderTopPadding = [TiUtils floatValue:value def:UITableViewAutomaticDimension];
+}
+#endif
+
 - (void)initSearhController
 {
   if (searchController == nil) {
     searchController = [[UISearchController alloc] initWithSearchResultsController:nil];
     searchController.hidesNavigationBarDuringPresentation = NO;
-    searchController.dimsBackgroundDuringPresentation = NO;
+    searchController.obscuresBackgroundDuringPresentation = NO;
     searchController.searchBar.frame = CGRectMake(searchController.searchBar.frame.origin.x, searchController.searchBar.frame.origin.y, 0, 44.0);
     searchController.searchBar.autoresizingMask = UIViewAutoresizingFlexibleWidth;
     searchController.searchBar.placeholder = [[searchField searchBar] placeholder];
@@ -2275,7 +2298,6 @@
   [self triggerActionForIndexPath:destinationIndexPath fromPath:sourceIndexPath tableView:ourTableView wasAccessory:NO search:NO name:@"move"];
 }
 
-#if IS_SDK_IOS_13
 - (BOOL)tableView:(UITableView *)tableView shouldBeginMultipleSelectionInteractionAtIndexPath:(NSIndexPath *)indexPath
 {
   RETURN_IF_SEARCH_TABLE_VIEW(NO);
@@ -2315,7 +2337,6 @@
     [self.proxy fireEvent:@"rowsselected" withObject:@{ @"selectedRows" : selectedItems, @"startingRow" : startingRowObject }];
   }
 }
-#endif
 
 #pragma mark Collation
 
@@ -2402,6 +2423,7 @@
     }
     if (!controller.navigationItem.searchController) {
       controller.navigationItem.searchController = searchController;
+      [[[controller navigationController] navigationBar] sizeToFit];
     }
     RELEASE_TO_NIL(controller);
   }
@@ -2442,7 +2464,9 @@
 
 - (void)dismissSearchController
 {
-  [searchController setActive:NO];
+  if (searchController.isActive) {
+    [searchController setActive:NO];
+  }
 }
 
 - (void)keyboardWillChangeFrame:(NSNotification *)notification
@@ -2582,6 +2606,9 @@
     }
   }
 
+  if (tableview.style == UITableViewStyleInsetGrouped) {
+    rowWidth -= tableview.layoutMargins.left + tableview.layoutMargins.right;
+  }
   return rowWidth;
 }
 

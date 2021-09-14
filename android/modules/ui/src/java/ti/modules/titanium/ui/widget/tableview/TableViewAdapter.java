@@ -18,7 +18,6 @@ import android.view.ViewGroup;
 import android.widget.RelativeLayout;
 
 import androidx.annotation.NonNull;
-import androidx.recyclerview.selection.SelectionTracker;
 
 import ti.modules.titanium.ui.TableViewRowProxy;
 import ti.modules.titanium.ui.widget.listview.TiRecyclerViewAdapter;
@@ -28,10 +27,8 @@ public class TableViewAdapter extends TiRecyclerViewAdapter<TableViewHolder>
 	private static final String TAG = "TableViewAdapter";
 
 	private static int id_holder;
-
 	private LayoutInflater inflater;
 	private List<TableViewRowProxy> models;
-	private SelectionTracker tracker;
 
 	public TableViewAdapter(@NonNull Context context, @NonNull List<TableViewRowProxy> models)
 	{
@@ -78,26 +75,6 @@ public class TableViewAdapter extends TiRecyclerViewAdapter<TableViewHolder>
 	}
 
 	/**
-	 * Get selection tracker object.
-	 *
-	 * @return Selection tracker.
-	 */
-	public SelectionTracker getTracker()
-	{
-		return tracker;
-	}
-
-	/**
-	 * Set selection tracker for adapter.
-	 *
-	 * @param tracker Selection tracker.
-	 */
-	public void setTracker(SelectionTracker tracker)
-	{
-		this.tracker = tracker;
-	}
-
-	/**
 	 * Bind item to holder.
 	 * This is the listener that updates our table holders to the correct items.
 	 *
@@ -110,8 +87,11 @@ public class TableViewAdapter extends TiRecyclerViewAdapter<TableViewHolder>
 		final TableViewRowProxy row = this.models.get(position);
 		final boolean selected = tracker != null ? tracker.isSelected(row) : false;
 
+		// Notify row of its selected status.
+		// This is necessary to maintain selection status on theme change.
+		row.setSelected(selected);
+
 		// Update TableViewHolder with new model data.
-		// TODO: Optimize `bind()`.
 		holder.bind(row, selected);
 	}
 

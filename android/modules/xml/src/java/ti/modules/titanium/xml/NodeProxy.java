@@ -143,98 +143,84 @@ public class NodeProxy extends KrollProxy
 		return getProxy(node.cloneNode(deep));
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public NamedNodeMapProxy getAttributes()
 	{
 		return new NamedNodeMapProxy(node.getAttributes());
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public NodeListProxy getChildNodes()
 	{
 		return new NodeListProxy(node.getChildNodes());
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public NodeProxy getFirstChild()
 	{
 		return getProxy(node.getFirstChild());
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public NodeProxy getLastChild()
 	{
 		return getProxy(node.getLastChild());
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getLocalName()
 	{
 		return node.getLocalName();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getNamespaceURI()
 	{
 		return node.getNamespaceURI();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public NodeProxy getNextSibling()
 	{
 		return getProxy(node.getNextSibling());
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getNodeName()
 	{
 		return node.getNodeName();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public short getNodeType()
 	{
 		return node.getNodeType();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getNodeValue() throws DOMException
 	{
 		return node.getNodeValue();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public DocumentProxy getOwnerDocument()
 	{
 		return new DocumentProxy(node.getOwnerDocument());
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public NodeProxy getParentNode()
 	{
 		return getProxy(node.getParentNode());
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getPrefix()
 	{
 		return node.getPrefix();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public NodeProxy getPreviousSibling()
 	{
@@ -285,14 +271,12 @@ public class NodeProxy extends KrollProxy
 		return removeProxyForNode(oldNode);
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setNodeValue(String nodeValue) throws DOMException
 	{
 		node.setNodeValue(nodeValue);
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setPrefix(String prefix) throws DOMException
 	{

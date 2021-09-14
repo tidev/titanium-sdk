@@ -20,6 +20,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
@@ -253,7 +254,6 @@ public class TiFile extends TiBaseFile
 		return file.length();
 	}
 
-	@SuppressWarnings("deprecation")
 	@Override
 	public long spaceAvailable()
 	{
@@ -309,7 +309,7 @@ public class TiFile extends TiBaseFile
 	public List<String> getDirectoryListing()
 	{
 		File dir = getNativeFile();
-		List<String> listing = new ArrayList<String>();
+		List<String> listing = new ArrayList<>();
 
 		String[] names = dir.list();
 		if (names != null) {
@@ -358,7 +358,7 @@ public class TiFile extends TiBaseFile
 			if (binary) {
 				instream = new BufferedInputStream(getInputStream());
 			} else {
-				inreader = new BufferedReader(new InputStreamReader(new FileInputStream(file), "utf-8"));
+				inreader = new BufferedReader(new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8));
 			}
 		} else {
 			OutputStream os = getOutputStream(mode);
@@ -416,7 +416,7 @@ public class TiFile extends TiBaseFile
 				if (binary) {
 					copyStream(blob.getInputStream(), outstream);
 				} else {
-					outwriter.write(new String(blob.getBytes(), "UTF-8"));
+					outwriter.write(new String(blob.getBytes(), StandardCharsets.UTF_8));
 				}
 			}
 		}
@@ -462,7 +462,7 @@ public class TiFile extends TiBaseFile
 				} else {
 					BufferedReader ir = null;
 					try {
-						ir = new BufferedReader(new InputStreamReader(f.getInputStream(), "utf-8"));
+						ir = new BufferedReader(new InputStreamReader(f.getInputStream(), StandardCharsets.UTF_8));
 						copyStream(ir, outwriter);
 					} finally {
 						if (ir != null) {

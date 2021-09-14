@@ -70,6 +70,7 @@ void ${className}::bindProxy(Local<Object> exports, Local<Context> context)
 	moduleInstance.Reset(isolate, instance);
 	<#else>
 	exports->Set(context, nameSymbol, constructor);
+	exports->Set(context, constructorSymbol.Get(isolate), constructor);
 	</#if>
 }
 
@@ -232,12 +233,6 @@ Local<FunctionTemplate> ${className}::getProxyTemplate(v8::Isolate* isolate)
 		titanium::Proxy::getProperty,
 		titanium::Proxy::onPropertyChanged);
 	</#if>
-	<#if !methods?? || !methods?keys?seq_contains(getter)>
-	DEFINE_PROTOTYPE_METHOD_DATA(isolate, t, "${getter}", titanium::Proxy::getProperty, ${name});
-	</#if>
-	<#if !methods?? || !methods?keys?seq_contains(setter)>
-	DEFINE_PROTOTYPE_METHOD_DATA(isolate, t, "${setter}", titanium::Proxy::onPropertyChanged, ${name});
-	</#if>
 	</@Proxy.listPropertyAccessors>
 
 	<#if interceptor??>
@@ -276,22 +271,14 @@ void ${className}::${method.apiName}(const FunctionCallbackInfo<Value>& args)
 	jvalue* jArguments = 0;
 	</#if>
 
-	<#if method.args?size == 0 && name[0..2] == "get" && isDynamic>
+	<#if method.args?size == 0 && name[0..2] == "get" && isDynamic && !isTitaniumSdk>
 		<#assign propertyName = name[3]?lower_case + name[4..]>
 	const char *deprecationMessage = "Getter method deprecated, please use \"obj.${propertyName};\" or \"obj['${propertyName}'];\" instead.";
-		<#if isTitaniumSdk>
-	Proxy::logDeprecation(isolate, deprecationMessage);
-		<#else>
 	LOGW(TAG, deprecationMessage);
-		</#if>
-	<#elseif method.args?size == 1 && name[0..2] == "set" && isDynamic>
+	<#elseif method.args?size == 1 && name[0..2] == "set" && isDynamic && !isTitaniumSdk>
 		<#assign propertyName = name[3]?lower_case + name[4..]>
 	const char *deprecationMessage = "Setter method deprecated, please use \"obj.${propertyName} = val;\" or \"obj['${propertyName}'] = val;\" instead.";
-		<#if isTitaniumSdk>
-	Proxy::logDeprecation(isolate, deprecationMessage);
-		<#else>
 	LOGW(TAG, deprecationMessage);
-		</#if>
 	</#if>
 
 	jobject javaProxy = proxy->getJavaObject();

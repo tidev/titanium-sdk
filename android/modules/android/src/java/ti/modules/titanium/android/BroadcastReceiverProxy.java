@@ -46,14 +46,12 @@ public class BroadcastReceiverProxy extends KrollProxy
 		}
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setUrl(String url)
 	{
 		receiver.setUrl(url);
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setOnReceived(Object callback)
 	{

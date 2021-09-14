@@ -529,9 +529,9 @@ USE_VIEW_FOR_CONTENT_HEIGHT
 
   TiUITableViewRowProxy *newrow = [self tableRowFromArg:data];
   TiUITableViewActionType actionType = TiUITableViewActionInsertRowBefore;
-  id header = [newrow valueForKey:@"header"];
-  if (header != nil) {
-    TiUITableViewSectionProxy *newSection = [self sectionWithHeader:header table:table];
+  id headerTitle = [self getRowHeaderTitle:newrow];
+  if (headerTitle != nil) {
+    TiUITableViewSectionProxy *newSection = [self sectionWithHeader:headerTitle table:table];
 
     // Insert the new section into the array - but, exactly WHERE we insert depends.
     NSInteger sectionIndex = [sections indexOfObject:section];
@@ -600,9 +600,9 @@ USE_VIEW_FOR_CONTENT_HEIGHT
 
   TiUITableViewRowProxy *newrow = [self tableRowFromArg:data];
   TiUITableViewActionType actionType = TiUITableViewActionInsertRowAfter;
-  id header = [newrow valueForKey:@"header"];
-  if (header != nil) {
-    TiUITableViewSectionProxy *newSection = [self sectionWithHeader:header table:table];
+  id headerTitle = [self getRowHeaderTitle:newrow];
+  if (headerTitle != nil) {
+    TiUITableViewSectionProxy *newSection = [self sectionWithHeader:headerTitle table:table];
 
     // Set up the new section
     newSection.section = section.section + 1;
@@ -668,12 +668,12 @@ USE_VIEW_FOR_CONTENT_HEIGHT
     [self setData:[NSArray arrayWithObject:data] withObject:anim immediate:YES];
     return;
   } else {
-    id header = [row valueForKey:@"header"];
     TiUITableViewActionType actionType = TiUITableViewActionAppendRow;
     TiUITableViewSectionProxy *section = [sections lastObject];
-    if (header != nil) {
+    id headerTitle = [self getRowHeaderTitle:row];
+    if (headerTitle != nil) {
       NSInteger newSectionIndex = section.section + 1;
-      section = [self sectionWithHeader:header table:table];
+      section = [self sectionWithHeader:headerTitle table:table];
       section.section = newSectionIndex;
       actionType = TiUITableViewActionAppendRowWithSection;
     }
@@ -710,16 +710,16 @@ USE_VIEW_FOR_CONTENT_HEIGHT
     if ([row isKindOfClass:dictionaryClass]) {
       NSDictionary *dict = (NSDictionary *)row;
       TiUITableViewRowProxy *rowProxy = [self makeTableViewRowFromDict:dict];
-      NSString *header = [dict objectForKey:@"header"];
-      if (section == nil || header != nil) {
+      id headerTitle = [self getRowHeaderTitle:dict];
+      if (section == nil || headerTitle != nil) {
         // if we don't yet have a section, that means we need to create one
         // if we have a header property, that means start a new section
-        section = [self sectionWithHeader:header table:nil];
+        section = [self sectionWithHeader:headerTitle table:nil];
         [data addObject:section];
       }
-      NSString *footer = [dict objectForKey:@"footer"];
-      if (footer != nil) {
-        [section replaceValue:footer forKey:@"footerTitle" notification:NO];
+      id footerTitle = [self getRowFooterTitle:dict];
+      if (footerTitle != nil) {
+        [section replaceValue:footerTitle forKey:@"footerTitle" notification:NO];
       }
       [section add:rowProxy];
     } else if ([row isKindOfClass:sectionClass]) {
@@ -727,15 +727,15 @@ USE_VIEW_FOR_CONTENT_HEIGHT
       [self rememberProxy:row];
       [data addObject:section];
     } else if ([row isKindOfClass:rowClass]) {
-      id rowHeader = [row valueForKey:@"header"];
-      id rowFooter = [row valueForKey:@"footer"];
-      if (section == nil || rowHeader != nil) {
-        section = [self sectionWithHeader:rowHeader table:[self tableView]];
+      id headerTitle = [self getRowHeaderTitle:row];
+      id footerTitle = [self getRowFooterTitle:row];
+      if (section == nil || headerTitle != nil) {
+        section = [self sectionWithHeader:headerTitle table:[self tableView]];
         section.section = [data count];
         [data addObject:section];
       }
-      if (rowFooter != nil) {
-        [section replaceValue:rowFooter forKey:@"footerTitle" notification:NO];
+      if (footerTitle != nil) {
+        [section replaceValue:footerTitle forKey:@"footerTitle" notification:NO];
       }
       [section add:row];
     }
@@ -1160,6 +1160,32 @@ DEFINE_DEF_PROP(scrollsToTop, [NSNumber numberWithBool:YES]);
 - (void)add:(id)arg
 {
   NSLog(@"[ERROR] Cannot add sub-views to table views. Use \"appendRow\" or \"appendSection\" instead.");
+}
+
+- (NSString *)getRowHeaderTitle:(id)row
+{
+  id headerTitle = [row valueForKey:@"headerTitle"];
+  if (headerTitle == nil) {
+    headerTitle = [row valueForKey:@"header"];
+
+    if (headerTitle != nil) {
+      DEPRECATED_REPLACED(@"header", @"10.0.0", @"headerTitle");
+    }
+  }
+  return headerTitle;
+}
+
+- (NSString *)getRowFooterTitle:(id)row
+{
+  id footerTitle = [row valueForKey:@"footerTitle"];
+  if (footerTitle == nil) {
+    footerTitle = [row valueForKey:@"footer"];
+
+    if (footerTitle != nil) {
+      DEPRECATED_REPLACED(@"footer", @"10.0.0", @"footerTitle");
+    }
+  }
+  return footerTitle;
 }
 
 #pragma mark Accessibility Overrides

@@ -18,7 +18,7 @@ public class KrollAssetCache
 {
 	private static final String TAG = "TiAssetCache";
 
-	private static HashMap<String, byte[]> cache = new HashMap<>();
+	private static final HashMap<String, byte[]> cache = new HashMap<>();
 
 	/**
      * Asynchronous task to load specified assets into cache.

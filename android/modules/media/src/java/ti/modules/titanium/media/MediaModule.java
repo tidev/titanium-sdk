@@ -89,6 +89,17 @@ public class MediaModule extends KrollModule implements Handler.Callback
 	public static final int NO_VIDEO = 3;
 
 	@Kroll.constant
+	public static final int IMAGE_SCALING_AUTO = -1;
+	@Kroll.constant
+	public static final int IMAGE_SCALING_NONE = 0;
+	@Kroll.constant
+	public static final int IMAGE_SCALING_FILL = 1;
+	@Kroll.constant
+	public static final int IMAGE_SCALING_ASPECT_FILL = 2;
+	@Kroll.constant
+	public static final int IMAGE_SCALING_ASPECT_FIT = 3;
+
+	@Kroll.constant
 	public static final int VIDEO_SCALING_NONE = 0;
 	@Kroll.constant
 	public static final int VIDEO_SCALING_ASPECT_FILL = 1;
@@ -117,11 +128,7 @@ public class MediaModule extends KrollModule implements Handler.Callback
 	@Kroll.constant
 	public static final int VIDEO_LOAD_STATE_UNKNOWN = 0;
 	@Kroll.constant
-	public static final int VIDEO_LOAD_STATE_PLAYABLE = 1 << 0;
-	@Kroll.constant
-	public static final int VIDEO_LOAD_STATE_PLAYTHROUGH_OK = 1 << 1;
-	@Kroll.constant
-	public static final int VIDEO_LOAD_STATE_STALLED = 1 << 2;
+	public static final int VIDEO_LOAD_STATE_PLAYABLE = 1;
 
 	@Kroll.constant
 	public static final int VIDEO_PLAYBACK_STATE_STOPPED = 0;
@@ -558,7 +565,7 @@ public class MediaModule extends KrollModule implements Handler.Callback
 				if (permissionCallback != null) {
 					permissionCallback.callAsync(callbackThisObject, response);
 				}
-				promise.reject(response);
+				promise.reject(new Throwable(response.getString(TiC.EVENT_PROPERTY_ERROR)));
 				return;
 			}
 
@@ -601,7 +608,7 @@ public class MediaModule extends KrollModule implements Handler.Callback
 				if (permissionCallback != null) {
 					permissionCallback.callAsync(callbackThisObject, response);
 				}
-				promise.reject(response);
+				promise.reject(new Throwable(response.getString(TiC.EVENT_PROPERTY_ERROR)));
 				return;
 			}
 
@@ -639,7 +646,7 @@ public class MediaModule extends KrollModule implements Handler.Callback
 				if (permissionCallback != null) {
 					permissionCallback.callAsync(callbackThisObject, response);
 				}
-				promise.reject(response);
+				promise.reject(new Throwable(response.getString(TiC.EVENT_PROPERTY_ERROR)));
 				return;
 			}
 
@@ -860,14 +867,12 @@ public class MediaModule extends KrollModule implements Handler.Callback
 		}
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setCameraFlashMode(int flashMode)
 	{
 		TiCameraActivity.setFlashMode(flashMode);
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public int getCameraFlashMode()
 	{
@@ -1411,14 +1416,12 @@ public class MediaModule extends KrollModule implements Handler.Callback
 		activity.switchCamera(whichCamera);
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public boolean getIsCameraSupported()
 	{
 		return Camera.getNumberOfCameras() > 0;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public int[] getAvailableCameras()
 	{
@@ -1449,7 +1452,6 @@ public class MediaModule extends KrollModule implements Handler.Callback
 		return result;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public boolean getCanRecord()
 	{

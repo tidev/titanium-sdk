@@ -6,7 +6,9 @@
  */
 package ti.modules.titanium.ui.widget.listview;
 
+import java.util.LinkedList;
 import java.util.List;
+import java.util.TreeMap;
 
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.proxy.TiViewProxy;
@@ -18,17 +20,15 @@ import android.view.ViewGroup;
 import android.widget.RelativeLayout;
 
 import androidx.annotation.NonNull;
-import androidx.recyclerview.selection.SelectionTracker;
 
 public class ListViewAdapter extends TiRecyclerViewAdapter<ListViewHolder>
 {
 	private static final String TAG = "ListViewAdapter";
 
 	private static int id_holder;
-
 	private LayoutInflater inflater;
 	private List<ListItemProxy> models;
-	private SelectionTracker tracker;
+	private final TreeMap<String, LinkedList<ListItemProxy>> recyclableItemsMap = new TreeMap<>();
 
 	public ListViewAdapter(@NonNull Context context, @NonNull List<ListItemProxy> models)
 	{
@@ -75,6 +75,25 @@ public class ListViewAdapter extends TiRecyclerViewAdapter<ListViewHolder>
 	}
 
 	/**
+	 * Get unique integer identifier of the template the item uses.
+	 * This tells the RecyclerView to only bind scrolled-in items to holders of the same type/template.
+	 * @param position Index position of item to obtain identifier.
+	 * @return Unique integer ID of the template the item uses.
+	 */
+	@Override
+	public int getItemViewType(int position)
+	{
+		ListItemProxy proxy = this.models.get(position);
+		if (proxy != null) {
+			String templateId = proxy.getTemplateId();
+			if (templateId != null) {
+				return templateId.hashCode();
+			}
+		}
+		return 0;
+	}
+
+	/**
 	 * Get list of models (items).
 	 *
 	 * @return List of models.
@@ -94,18 +113,35 @@ public class ListViewAdapter extends TiRecyclerViewAdapter<ListViewHolder>
 	@Override
 	public void onBindViewHolder(@NonNull ListViewHolder holder, int position)
 	{
+		// Fetch item proxy for given list position.
 		final ListItemProxy item = this.models.get(position);
-		final boolean selected = tracker != null ? tracker.isSelected(item) : false;
+		final boolean selected = this.tracker != null ? this.tracker.isSelected(item) : false;
+
+		// Check if we have any recyclable items for the current template.
+		LinkedList<ListItemProxy> recyclableItems = this.recyclableItemsMap.get(item.getTemplateId());
+		if (recyclableItems != null) {
+			// If item is in recycle collection, then remove it.
+			recyclableItems.remove(item);
+
+			// If item has no child proxies/views, then take the children from a recyclable item.
+			// This significantly boosts scroll performance by avoiding creating new views.
+			if (!item.hasChildren()) {
+				while (!recyclableItems.isEmpty()) {
+					ListItemProxy oldItem = recyclableItems.poll();
+					if ((oldItem != null) && (oldItem.getHolder() == null) && oldItem.hasChildren()) {
+						oldItem.moveChildrenTo(item);
+						break;
+					}
+				}
+			}
+		}
+
+		// Notify item of its selected status.
+		// This is necessary to maintain selection status on theme change.
+		item.setSelected(selected);
 
 		// Update ListViewHolder with new model data.
-		// TODO: Optimize `bind()`.
 		holder.bind(item, selected);
-
-		// Handle ListView markers.
-		final ListViewProxy listViewProxy = item.getListViewProxy();
-		if (listViewProxy != null) {
-			listViewProxy.handleMarker(item);
-		}
 	}
 
 	/**
@@ -135,10 +171,25 @@ public class ListViewAdapter extends TiRecyclerViewAdapter<ListViewHolder>
 	{
 		super.onViewRecycled(holder);
 
-		// Release child views for recycled holder.
-		final TiViewProxy proxy = holder.getProxy();
-		if (proxy != null) {
-			proxy.releaseViews();
+		TiViewProxy view = holder.getProxy();
+		if (view instanceof ListItemProxy) {
+			// Add item to recycle list so that it's child proxies/views can be re-used by another item.
+			ListItemProxy item = (ListItemProxy) view;
+			if (item.hasChildren() && (item.getHolder() == holder)) {
+				LinkedList<ListItemProxy> recyclableItems = this.recyclableItemsMap.get(item.getTemplateId());
+				if (recyclableItems == null) {
+					recyclableItems = new LinkedList<>();
+					this.recyclableItemsMap.put(item.getTemplateId(), recyclableItems);
+				}
+				if (!recyclableItems.contains(item)) {
+					item.setSelected(false);
+					item.setHolder(null);
+					recyclableItems.add(item);
+				}
+			}
+		} else if (view != null) {
+			// Release the native views for all other proxy types.
+			view.releaseViews();
 		}
 	}
 

@@ -40,7 +40,7 @@ describe('Titanium.Locale', () => {
 			});
 
 			it('has no getter', () => {
-				should(Ti.Locale).have.a.getter('currentCountry');
+				should(Ti.Locale).not.have.a.getter('currentCountry');
 			});
 		});
 
@@ -54,7 +54,7 @@ describe('Titanium.Locale', () => {
 			});
 
 			it('has no getter', () => {
-				should(Ti.Locale).have.a.getter('currentLanguage');
+				should(Ti.Locale).not.have.a.getter('currentLanguage');
 			});
 		});
 
@@ -68,7 +68,7 @@ describe('Titanium.Locale', () => {
 			});
 
 			it('has no getter', () => {
-				should(Ti.Locale).have.a.getter('currentLocale');
+				should(Ti.Locale).not.have.a.getter('currentLocale');
 			});
 		});
 	});

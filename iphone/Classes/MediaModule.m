@@ -247,6 +247,13 @@ MAKE_SYSTEM_UINT(AUDIO_SESSION_OVERRIDE_ROUTE_NONE, AVAudioSessionPortOverrideNo
 MAKE_SYSTEM_UINT(AUDIO_SESSION_OVERRIDE_ROUTE_SPEAKER, AVAudioSessionPortOverrideSpeaker);
 #endif
 
+// Constants for ImageView.scalingMode
+MAKE_SYSTEM_PROP(IMAGE_SCALING_AUTO, -1);
+MAKE_SYSTEM_PROP(IMAGE_SCALING_NONE, UIViewContentModeCenter);
+MAKE_SYSTEM_PROP(IMAGE_SCALING_FILL, UIViewContentModeScaleToFill);
+MAKE_SYSTEM_PROP(IMAGE_SCALING_ASPECT_FILL, UIViewContentModeScaleAspectFill);
+MAKE_SYSTEM_PROP(IMAGE_SCALING_ASPECT_FIT, UIViewContentModeScaleAspectFit);
+
 // Constants for VideoPlayer.playbackState
 MAKE_SYSTEM_PROP(VIDEO_PLAYBACK_STATE_INTERRUPTED, TiVideoPlayerPlaybackStateInterrupted);
 MAKE_SYSTEM_PROP(VIDEO_PLAYBACK_STATE_PAUSED, TiVideoPlayerPlaybackStatePaused);
@@ -1047,7 +1054,7 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
   }
 
   // Writing (!) to gallery permissions are required on iOS 11 and later.
-  if ([TiUtils isIOSVersionOrGreater:@"11.0"] && !addToGalleryPermission) {
+  if (!addToGalleryPermission) {
     NSLog(@"[ERROR] iOS 11 and later requires the key \"NSPhotoLibraryAddUsageDescription\" inside the plist in your tiapp.xml when writing to the photo library to store media. It will be ignored on devices < iOS 11. Please add the key and re-run the application.");
   }
 
@@ -1587,7 +1594,7 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
     }
 
     // Writing (!) to gallery permissions are also required on iOS 11 and later.
-    if ([TiUtils isIOSVersionOrGreater:@"11.0"] && saveToRoll && !addToGalleryPermission) {
+    if (saveToRoll && !addToGalleryPermission) {
       NSLog(@"[ERROR] iOS 11 and later requires the key \"NSPhotoLibraryAddUsageDescription\" inside the plist in your tiapp.xml when writing to the photo library to store media. It will be ignored on devices < iOS 11. Please add the key and re-run the application.");
     }
 
@@ -1662,11 +1669,9 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
       [self displayCamera:picker];
     }
   } else {
-    if ([TiUtils isIOSVersionOrGreater:@"11.0"]) {
-      BOOL allowTranscoding = [TiUtils boolValue:@"allowTranscoding" properties:args def:YES];
-      if (!allowTranscoding) {
-        picker.videoExportPreset = AVAssetExportPresetPassthrough;
-      }
+    BOOL allowTranscoding = [TiUtils boolValue:@"allowTranscoding" properties:args def:YES];
+    if (!allowTranscoding) {
+      picker.videoExportPreset = AVAssetExportPresetPassthrough;
     }
     [self displayModalPicker:picker settings:args];
   }

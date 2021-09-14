@@ -38,6 +38,19 @@
   }
 }
 
+- (void)add:(TiPoint *)value
+{
+  if (!value) {
+    return;
+  }
+
+  CGPoint offsetPoint = [value point];
+  CGPoint newPoint = [self point];
+  newPoint.x += offsetPoint.x;
+  newPoint.y += offsetPoint.y;
+  [self setPoint:newPoint];
+}
+
 - (void)setPoint:(CGPoint)point_
 {
   xDimension = TiDimensionDip(point_.x);

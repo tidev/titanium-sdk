@@ -35,9 +35,9 @@ describe('Titanium.UI.ImageView', function () {
 	});
 
 	describe('.image', () => {
-		it('has accessors', () => {
+		it('has no accessors', () => {
 			const imageView = Ti.UI.createImageView({});
-			should(imageView).have.accessors('image');
+			should(imageView).not.have.accessors('image');
 		});
 
 		it('with an URL', () => {
@@ -253,6 +253,30 @@ describe('Titanium.UI.ImageView', function () {
 		});
 	});
 
+	describe.android('.imageTouchFeedback', () => {
+		function test(imageViewProperties, finish) {
+			win = Ti.UI.createWindow();
+			win.add(Ti.UI.createImageView(imageViewProperties));
+			win.addEventListener('postlayout', function listener() {
+				win.removeEventListener('postlayout', listener);
+				finish();
+			});
+			win.open();
+		}
+
+		it('without image', function (finish) {
+			test({ imageTouchFeedback: true }, finish);
+		});
+
+		it('with image', function (finish) {
+			test({ image: 'Logo.png', imageTouchFeedback: true }, finish);
+		});
+
+		it('with imageTouchFeedbackColor', function (finish) {
+			test({ image: 'Logo.png', imageTouchFeedback: true, imageTouchFeedbackColor: 'yellow' }, finish);
+		});
+	});
+
 	// TODO: Combine all tests for 'images' property into one suite
 	// TODO Make this test cross-platform. We're using ms-appx urls here
 	it.windows('images', function (finish) {
@@ -363,6 +387,46 @@ describe('Titanium.UI.ImageView', function () {
 
 		win.add(imageView);
 		win.open();
+	});
+
+	describe('.scalingMode', () => {
+		function test(scalingMode, finish) {
+			win = Ti.UI.createWindow();
+			const imageView = Ti.UI.createImageView({
+				image: '/Logo.png',
+				scalingMode: scalingMode,
+				autosize: true,
+				width: Ti.UI.FILL,
+				height: Ti.UI.FILL
+			});
+			win.add(imageView);
+			win.addEventListener('postlayout', function listener() {
+				try {
+					win.removeEventListener('postlayout', listener);
+					should(imageView.scalingMode).be.eql(scalingMode);
+				} catch (err) {
+					finish(err);
+				}
+				finish();
+			});
+			win.open();
+		}
+
+		it('IMAGE_SCALING_NONE', function (finish) {
+			test(Ti.Media.IMAGE_SCALING_NONE, finish);
+		});
+
+		it('IMAGE_SCALING_FILL', function (finish) {
+			test(Ti.Media.IMAGE_SCALING_FILL, finish);
+		});
+
+		it('IMAGE_SCALING_ASPECT_FILL', function (finish) {
+			test(Ti.Media.IMAGE_SCALING_ASPECT_FILL, finish);
+		});
+
+		it('IMAGE_SCALING_ASPECT_FIT', function (finish) {
+			test(Ti.Media.IMAGE_SCALING_ASPECT_FIT, finish);
+		});
 	});
 
 	// TIMOB-18684
