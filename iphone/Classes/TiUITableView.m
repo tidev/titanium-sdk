@@ -1570,6 +1570,13 @@
   // Also if a previous search string exists this reload results in blank cells.
 }
 
+- (void)searchBarTextDidEndEditing:(UISearchBar *)searchBar
+{
+  // Finished editing, always dismiss search controller.
+  // Only one search controller can be active at a time.
+  [self performSelector:@selector(dismissSearchController) withObject:nil afterDelay:.2];
+}
+
 - (void)searchBarSearchButtonClicked:(UISearchBar *)searchBar
 {
   // called when keyboard search button pressed
@@ -1814,12 +1821,23 @@
   }
 }
 
+#if IS_SDK_IOS_15
+- (void)setSectionHeaderTopPadding_:(id)value
+{
+  if (![TiUtils isIOSVersionOrGreater:@"15.0"]) {
+    return;
+  }
+
+  self.tableView.sectionHeaderTopPadding = [TiUtils floatValue:value def:UITableViewAutomaticDimension];
+}
+#endif
+
 - (void)initSearhController
 {
   if (searchController == nil) {
     searchController = [[UISearchController alloc] initWithSearchResultsController:nil];
     searchController.hidesNavigationBarDuringPresentation = NO;
-    searchController.dimsBackgroundDuringPresentation = NO;
+    searchController.obscuresBackgroundDuringPresentation = NO;
     searchController.searchBar.frame = CGRectMake(searchController.searchBar.frame.origin.x, searchController.searchBar.frame.origin.y, 0, 44.0);
     searchController.searchBar.autoresizingMask = UIViewAutoresizingFlexibleWidth;
     searchController.searchBar.placeholder = [[searchField searchBar] placeholder];
@@ -2405,6 +2423,7 @@
     }
     if (!controller.navigationItem.searchController) {
       controller.navigationItem.searchController = searchController;
+      [[[controller navigationController] navigationBar] sizeToFit];
     }
     RELEASE_TO_NIL(controller);
   }
@@ -2445,7 +2464,9 @@
 
 - (void)dismissSearchController
 {
-  [searchController setActive:NO];
+  if (searchController.isActive) {
+    [searchController setActive:NO];
+  }
 }
 
 - (void)keyboardWillChangeFrame:(NSNotification *)notification

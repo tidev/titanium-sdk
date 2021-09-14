@@ -32,21 +32,28 @@
       resolveFunc = [[JSValue valueWithJSValueRef:resolve inContext:context] retain];
       rejectFunc = [[JSValue valueWithJSValueRef:reject inContext:context] retain];
     } else {
-      // Alternative code for earlier versions of iOS. We hack it by evaluating JS
-      // TODO: I assume this is pretty slow. Can we re-use eval'd values here?
-      JSValue *executor = [context evaluateScript:@"function executor(resolve, reject) { executor.resolve = resolve; executor.reject = reject; }\nexecutor;"];
+      // For older iOS versions, create promise via below JS since there is no native API.
+      const NSString *JS_FUNCTION_NAME = @"_createKrollPromiseHandler";
+      JSValue *createPromiseHandler = context[JS_FUNCTION_NAME];
+      if (createPromiseHandler.isUndefined) {
+        [context evaluateScript:@"function _createKrollPromiseHandler() {"
+                                 "   const handler = {};"
+                                 "   handler.promise = new Promise((resolve, reject) => {"
+                                 "      handler.resolve = resolve;"
+                                 "      handler.reject = reject;"
+                                 "   });"
+                                 "   return handler;"
+                                 "}"];
+        createPromiseHandler = context[JS_FUNCTION_NAME];
+      }
       JSValue *exception = context.exception;
       if (exception != nil) {
         [TiExceptionHandler.defaultExceptionHandler reportScriptError:exception inJSContext:context];
       }
-      JSValue *createPromise = [context evaluateScript:@"function createPromise(executor) { return new Promise(executor); }\ncreatePromise;"];
-      exception = context.exception;
-      if (exception != nil) {
-        [TiExceptionHandler.defaultExceptionHandler reportScriptError:exception inJSContext:context];
-      }
-      _JSValue = [[createPromise callWithArguments:@[ executor ]] retain];
-      resolveFunc = [executor[@"resolve"] retain];
-      rejectFunc = [executor[@"reject"] retain];
+      JSValue *handler = [createPromiseHandler callWithArguments:nil];
+      _JSValue = [handler[@"promise"] retain];
+      resolveFunc = [handler[@"resolve"] retain];
+      rejectFunc = [handler[@"reject"] retain];
     }
   }
   return self;
