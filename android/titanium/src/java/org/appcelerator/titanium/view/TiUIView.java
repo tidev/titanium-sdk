@@ -1802,7 +1802,7 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 
 				if (proxy != null && proxy.hierarchyHasListener(TiC.EVENT_ROTATE) && event.getPointerCount() == 2) {
 					doRotationEvent(event);
-        }
+				}
 
 				// Do custom "longpress" event tracking. Store motion event data to be used by onLongClick() listener.
 				// Note: Can't use GestureDetector for this since we would have to handle onDown() to make it work,
