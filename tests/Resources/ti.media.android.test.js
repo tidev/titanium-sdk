@@ -41,7 +41,7 @@ describe.android('Titanium.Media.Android', () => {
 				Ti.Media.Android.scanMediaFiles([ dst.nativePath ], null, e => {
 					should(e).be.a.Object();
 					should(e.path).be.a.String();
-					should(e.path).eql(dst.nativePath);
+					should(e.path).eql('file://' + dst.nativePath);
 					finish();
 				});
 			});
@@ -57,7 +57,7 @@ describe.android('Titanium.Media.Android', () => {
 
 				should(scanned[0]).be.a.Object();
 				should(scanned[0].path).be.a.String();
-				should(scanned[0].path).eql(dst.nativePath);
+				should(scanned[0].path).eql('file://' + dst.nativePath);
 			});
 		});
 	});
