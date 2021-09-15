@@ -169,23 +169,30 @@ describe('Titanium.UI.ImageView', function () {
 			imageView.image = fromFile;
 		});
 
-		// Windows: TIMOB-24985
-		// FIXME Android and iOS don't fire the 'load' event! Seems like android only fires load if image isn't in cache
-		it.allBroken('with Ti.Blob', finish => {
-			const fromFile = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, 'Logo.png');
-			const blob = fromFile.read();
-			const imageView = Ti.UI.createImageView();
-			imageView.addEventListener('load', function () {
+		function doBlobTest(blob, finish) {
+			win = Ti.UI.createWindow();
+			const imageView = Ti.UI.createImageView({ image: blob });
+			win.add(imageView);
+			win.addEventListener('postlayout', function listener(e) {
 				try {
-					should(imageView.image).be.an.Object();
-					should(imageView.toBlob()).eql(blob);
+					win.removeEventListener(e.type, listener);
+					should(imageView.size.width > 0).be.true();
+					finish();
 				} catch (err) {
-					return finish(err);
+					finish(err);
 				}
-				finish();
 			});
+			win.open();
+		}
 
-			imageView.image = blob;
+		it('with Ti.Blob PNG', function (finish) {
+			const blob = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, 'Logo.png').read();
+			doBlobTest(blob, finish);
+		});
+
+		it('with Ti.Blob WebP', function (finish) {
+			const blob = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, 'Logo.webp').read();
+			doBlobTest(blob, finish);
 		});
 
 		it.windowsBroken('with redirected URL and autorotate set to true', function (finish) {
