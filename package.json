@@ -130,7 +130,7 @@
     "commander": "^8.1.0",
     "commitizen": "^4.2.4",
     "conventional-changelog-cli": "^2.1.1",
-    "core-js": "^3.16.4",
+    "core-js": "^3.18.0",
     "cz-conventional-changelog": "^3.3.0",
     "danger": "^10.6.6",
     "dateformat": "^4.5.1",
