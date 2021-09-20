@@ -39,7 +39,6 @@ import org.appcelerator.titanium.view.TiUIView;
 import ti.modules.titanium.filesystem.FileProxy;
 import ti.modules.titanium.media.MediaModule;
 import ti.modules.titanium.ui.ImageViewProxy;
-import ti.modules.titanium.ui.ScrollViewProxy;
 import android.app.Activity;
 import android.graphics.Bitmap;
 import android.os.Handler;
@@ -882,12 +881,6 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 		}
 		if (d.containsKey(TiC.PROPERTY_TINT_COLOR)) {
 			setTintColor(d.getString("tintColor"));
-		}
-
-		// If height and width is not defined, disable scaling for scrollview since an image
-		// can extend beyond the screensize in scrollview.
-		if (proxy.getParent() instanceof ScrollViewProxy && !heightDefined && !widthDefined) {
-			view.setEnableScale(false);
 		}
 
 		super.processProperties(d);
