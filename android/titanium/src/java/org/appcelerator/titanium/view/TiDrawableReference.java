@@ -29,8 +29,8 @@ import org.appcelerator.titanium.util.TiDownloadListener;
 import org.appcelerator.titanium.util.TiDownloadManager;
 import org.appcelerator.titanium.util.TiExifOrientation;
 import org.appcelerator.titanium.util.TiFileHelper;
+import org.appcelerator.titanium.util.TiImageCache;
 import org.appcelerator.titanium.util.TiImageHelper;
-import org.appcelerator.titanium.util.TiImageLruCache;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.util.TiUrl;
 
@@ -394,7 +394,7 @@ public class TiDrawableReference
 						oomOccurred = true;
 						Log.e(TAG, "Unable to load bitmap. Not enough memory: " + e.getMessage(), e);
 						Log.i(TAG, "Clear memory cache and signal a GC. Will retry load.", Log.DEBUG_MODE);
-						TiImageLruCache.getInstance().evictAll();
+						TiImageCache.clear();
 						System.gc(); // See if we can force a compaction
 						try {
 							Thread.sleep(1000);

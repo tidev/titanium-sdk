@@ -315,12 +315,14 @@ public class TiDownloadManager implements Handler.Callback
 
 		public void run()
 		{
+			boolean wasSuccessful = false;
 			try {
 				// Download the file/content referenced by the URI.
 				// Once all content has been pumped below, content will be made available via "TiResponseCache".
 				try (InputStream stream = blockingDownload(uri)) {
 					if (stream != null) {
 						KrollStreamHelper.pump(stream, null);
+						wasSuccessful = true;
 					}
 				}
 
@@ -348,15 +350,17 @@ public class TiDownloadManager implements Handler.Callback
 						}
 					}
 				}
-
-				sendMessage(uri, MSG_FIRE_DOWNLOAD_FINISHED);
 			} catch (Exception e) {
-
-				downloadingURIs.remove(uri.toString());
-
-				// fire a download fail event if we are unable to download
-				sendMessage(uri, MSG_FIRE_DOWNLOAD_FAILED);
+				wasSuccessful = false;
 				Log.e(TAG, "Exception downloading from: " + uri + "\n" + e.getMessage());
+			} finally {
+				downloadingURIs.remove(uri.toString());
+			}
+
+			if (wasSuccessful) {
+				sendMessage(uri, MSG_FIRE_DOWNLOAD_FINISHED);
+			} else {
+				sendMessage(uri, MSG_FIRE_DOWNLOAD_FAILED);
 			}
 		}
 	}
