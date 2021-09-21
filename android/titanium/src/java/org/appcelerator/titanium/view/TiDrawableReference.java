@@ -45,6 +45,7 @@ import android.graphics.drawable.Drawable;
 import android.util.DisplayMetrics;
 import android.view.View;
 import android.webkit.URLUtil;
+import androidx.annotation.NonNull;
 
 /**
  * Helper class for loading, scaling, and caching images if necessary.
@@ -52,11 +53,7 @@ import android.webkit.URLUtil;
 @SuppressWarnings("deprecation")
 public class TiDrawableReference
 {
-	private static Map<Integer, Bounds> boundsCache;
-	static
-	{
-		boundsCache = Collections.synchronizedMap(new HashMap<Integer, Bounds>());
-	}
+	private static final Map<Integer, Bounds> boundsCache = Collections.synchronizedMap(new HashMap<>());
 
 	public enum DrawableReferenceType { NULL, URL, RESOURCE_ID, BLOB, FILE }
 
@@ -67,10 +64,84 @@ public class TiDrawableReference
 		public int width = UNKNOWN;
 	}
 
+	/**
+	 * Uniquely identifies an image loaded by TiDrawableReference.
+	 * Intended to be used as a key in collections (such as HashTable) and by the TiImageCache class.
+	 * Instances of this class are returned by the TiDrawableReference.getKey() method.
+	 */
+	public static final class Key
+	{
+		private final TiDrawableReference drawableRef;
+
+		public Key(@NonNull TiDrawableReference drawableRef)
+		{
+			this.drawableRef = drawableRef;
+		}
+
+		@Override
+		public int hashCode()
+		{
+			int hashCode = this.drawableRef.type.ordinal();
+			switch (this.drawableRef.type) {
+				case URL:
+					if (this.drawableRef.url != null) {
+						hashCode ^= this.drawableRef.url.hashCode();
+					}
+					break;
+				case RESOURCE_ID:
+					hashCode ^= this.drawableRef.resourceId;
+					break;
+				case BLOB:
+					if (this.drawableRef.blob != null) {
+						hashCode ^= this.drawableRef.blob.hashCode();
+					}
+					break;
+				case FILE:
+					if (this.drawableRef.file != null) {
+						hashCode ^= this.drawableRef.file.hashCode();
+					}
+					break;
+			}
+			return hashCode;
+		}
+
+		@Override
+		public boolean equals(Object value)
+		{
+			if (!(value instanceof Key)) {
+				return false;
+			}
+
+			Key key = (Key) value;
+			if (key.drawableRef.type == this.drawableRef.type) {
+				switch (this.drawableRef.type) {
+					case NULL:
+						return true;
+					case URL:
+						if (key.drawableRef.url == null) {
+							return (this.drawableRef.url == null);
+						}
+						return key.drawableRef.url.equals(this.drawableRef.url);
+					case RESOURCE_ID:
+						return (key.drawableRef.resourceId == this.drawableRef.resourceId);
+					case BLOB:
+						return key.drawableRef.blob == this.drawableRef.blob;
+					case FILE:
+						if (key.drawableRef.file == null) {
+							return (this.drawableRef.file == null);
+						}
+						return key.drawableRef.file.equals(this.drawableRef.file);
+				}
+			}
+			return false;
+		}
+	}
+
 	private static final String TAG = "TiDrawableReference";
 	private static final String FILE_PREFIX = "file://";
 	private static final int UNKNOWN = -1;
 	private static final int DEFAULT_SAMPLE_SIZE = 1;
+	private final TiDrawableReference.Key key = new TiDrawableReference.Key(this);
 	private int resourceId = UNKNOWN;
 	private String url;
 	private TiBlob blob;
@@ -89,7 +160,7 @@ public class TiDrawableReference
 
 	public TiDrawableReference(Activity activity, DrawableReferenceType type)
 	{
-		this.type = type;
+		this.type = (type != null) ? type : DrawableReferenceType.NULL;
 		softActivity = new SoftReference<>(activity);
 		ApplicationInfo appInfo;
 
@@ -102,31 +173,24 @@ public class TiDrawableReference
 		decodeRetries = DEFAULT_DECODE_RETRIES;
 	}
 
-	/**
-	 * A very primitive implementation based on org.apache.commons.lang3.builder.HashCodeBuilder,
-	 * which is licensed under Apache 2.0 license.
-	 * @see <a href="http://svn.apache.org/viewvc/commons/proper/lang/trunk/src/main/java/org/apache/commons/lang3/builder/HashCodeBuilder.java?view=markup">HashCodeBuilder</a>
-	 */
 	@Override
 	public int hashCode()
 	{
-		int total = 17;
-		final int constant = 37;
-		total = total * constant + type.ordinal();
-		total = total * constant + (url == null ? 0 : url.hashCode());
-		total = total * constant + (blob == null ? 0 : blob.hashCode());
-		total = total * constant + (file == null ? 0 : file.hashCode());
-		total = total * constant + resourceId;
-		return total;
+		return this.key.hashCode();
+	}
+
+	public TiDrawableReference.Key getKey()
+	{
+		return this.key;
 	}
 
 	@Override
 	public boolean equals(Object object)
 	{
 		if (!(object instanceof TiDrawableReference)) {
-			return super.equals(object);
+			return false;
 		}
-		return (this.hashCode() == ((TiDrawableReference) object).hashCode());
+		return this.key.equals(((TiDrawableReference) object).key);
 	}
 
 	public static TiDrawableReference fromResourceId(Activity activity, int resourceId)

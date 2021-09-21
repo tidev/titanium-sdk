@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2021 by Axway, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -9,7 +9,6 @@ package ti.modules.titanium.ui.widget;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -229,7 +228,6 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 			case SET_TINT:
 				handleTint((String) msg.obj);
 				return true;
-
 			default:
 				return false;
 		}
@@ -246,15 +244,15 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 			if (imageref.equals(imgsrc)
 				|| imageref.equals(
 					   TiDrawableReference.fromUrl(imageViewProxy, TiUrl.getCleanUri(imgsrc.getUrl()).toString()))) {
-				int hash = imageref.hashCode();
+				var key = imageref.getKey();
 				Bitmap bitmap = imageref.getBitmap(true);
 				if (bitmap != null) {
 					TiExifOrientation orientation = null;
-					if (TiImageCache.getBitmap(hash) == null) {
+					if (TiImageCache.getBitmap(key) == null) {
 						orientation = imageref.getExifOrientation();
-						TiImageCache.add(new TiImageInfo(hash, bitmap, orientation));
+						TiImageCache.add(new TiImageInfo(key, bitmap, orientation));
 					} else {
-						orientation = TiImageCache.getOrientation(hash);
+						orientation = TiImageCache.getOrientation(key);
 					}
 					setImage(bitmap, isAutoRotateEnabled() ? orientation : null);
 					if (!firedLoad) {
@@ -272,6 +270,7 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 			TiMessenger.postOnMain(() -> {
 				setImage(bitmap, exifOrientation);
 			});
+			return;
 		}
 
 		TiImageView view = getView();
@@ -296,7 +295,6 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 	private class Loader implements Runnable
 	{
 		private ArrayBlockingQueue<BitmapWithIndex> bitmapQueue;
-		private LinkedList<Integer> hashTable;
 		private int waitTime = 0;
 		private int sleepTime = 50; //ms
 		private int repeatIndex = 0;
@@ -304,7 +302,6 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 		public Loader()
 		{
 			bitmapQueue = new ArrayBlockingQueue<BitmapWithIndex>(FRAME_QUEUE_SIZE);
-			hashTable = new LinkedList<Integer>();
 		}
 
 		private boolean isRepeating()
@@ -408,14 +405,13 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 						TiDrawableReference imageRef = imageSources.get(j);
 						Bitmap b = null;
 						if (shouldCache) {
-							int hash = imageRef.hashCode();
-							b = TiImageCache.getBitmap(hash);
+							var key = imageRef.getKey();
+							b = TiImageCache.getBitmap(key);
 							if (b == null) {
 								Log.i(TAG, "Image isn't cached");
 								b = imageRef.getBitmap(true);
 								TiExifOrientation orientation = imageRef.getExifOrientation();
-								TiImageCache.add(new TiImageInfo(hash, b, orientation));
-								hashTable.add(hash);
+								TiImageCache.add(new TiImageInfo(key, b, orientation));
 							}
 						} else {
 							b = imageRef.getBitmap(true);
@@ -739,10 +735,10 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 			TiDrawableReference imageref = imageSources.get(0);
 
 			// Check if the image is cached in memory
-			int hash = imageref.hashCode();
-			Bitmap bitmap = TiImageCache.getBitmap(hash);
+			var key = imageref.getKey();
+			Bitmap bitmap = TiImageCache.getBitmap(key);
 			if (bitmap != null) {
-				setImage(bitmap, isAutoRotateEnabled() ? TiImageCache.getOrientation(hash) : null);
+				setImage(bitmap, isAutoRotateEnabled() ? TiImageCache.getOrientation(key) : null);
 				if (!firedLoad) {
 					fireLoad(TiC.PROPERTY_IMAGE);
 					firedLoad = true;
@@ -981,7 +977,7 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 	{
 		TiDrawableReference imageReference =
 			imageSources != null && imageSources.size() == 1 ? imageSources.get(0) : null;
-		Bitmap cachedBitmap = imageReference != null ? TiImageCache.getBitmap(imageReference.hashCode()) : null;
+		Bitmap cachedBitmap = imageReference != null ? TiImageCache.getBitmap(imageReference.getKey()) : null;
 
 		if (cachedBitmap != null && !cachedBitmap.isRecycled()) {
 			return TiBlob.blobFromImage(cachedBitmap);
@@ -995,9 +991,9 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 				}
 				if (bitmap != null) {
 					if (imageReference != null) {
-						int hashCode = imageReference.hashCode();
+						var key = imageReference.getKey();
 						TiExifOrientation orientation = imageReference.getExifOrientation();
-						TiImageCache.add(new TiImageInfo(hashCode, bitmap, orientation));
+						TiImageCache.add(new TiImageInfo(key, bitmap, orientation));
 					}
 					return TiBlob.blobFromImage(bitmap);
 				}

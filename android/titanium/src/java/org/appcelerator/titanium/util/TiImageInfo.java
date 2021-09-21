@@ -7,16 +7,17 @@
 package org.appcelerator.titanium.util;
 
 import android.graphics.Bitmap;
+import org.appcelerator.titanium.view.TiDrawableReference;
 
 public class TiImageInfo
 {
-	private final int hashCode;
+	private final TiDrawableReference.Key key;
 	private final Bitmap bitmap;
 	private final TiExifOrientation orientation;
 
-	public TiImageInfo(int hashCode, Bitmap bitmap, TiExifOrientation orientation)
+	public TiImageInfo(TiDrawableReference.Key key, Bitmap bitmap, TiExifOrientation orientation)
 	{
-		this.hashCode = hashCode;
+		this.key = key;
 		this.bitmap = bitmap;
 		this.orientation = orientation;
 	}
@@ -25,7 +26,7 @@ public class TiImageInfo
 	public boolean equals(Object value)
 	{
 		if (value instanceof TiImageInfo) {
-			return ((TiImageInfo) value).hashCode == this.hashCode;
+			return ((TiImageInfo) value).key.equals(this.key);
 		}
 		return false;
 	}
@@ -33,7 +34,12 @@ public class TiImageInfo
 	@Override
 	public int hashCode()
 	{
-		return this.hashCode;
+		return (this.key != null) ? this.key.hashCode() : 0;
+	}
+
+	public TiDrawableReference.Key getKey()
+	{
+		return this.key;
 	}
 
 	public Bitmap getBitmap()
