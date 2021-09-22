@@ -21,8 +21,8 @@ import android.os.Looper;
 public class TiLoadImageManager
 {
 	public interface Listener {
-		void onLoadImageFinished(TiImageInfo imageInfo);
-		void onLoadImageFailed();
+		void onLoadImageFinished(TiDrawableReference drawableRef, TiImageInfo imageInfo);
+		void onLoadImageFailed(TiDrawableReference drawableRef);
 	}
 
 	private static final String TAG = "TiLoadImageManager";
@@ -42,17 +42,21 @@ public class TiLoadImageManager
 	private TiLoadImageManager()
 	{
 		handler = new Handler(Looper.getMainLooper());
-		threadPool = Executors.newFixedThreadPool(2);
+		threadPool = Executors.newFixedThreadPool(4);
 	}
 
-	public void load(TiDrawableReference imageref, TiLoadImageManager.Listener listener)
+	public void load(TiDrawableReference drawableRef, TiLoadImageManager.Listener listener)
 	{
+		if (drawableRef == null) {
+			return;
+		}
+
 		this.threadPool.execute(() -> {
 			TiImageInfo imageInfo = null;
 			try {
-				Bitmap bitmap = imageref.getBitmap(true);
-				TiExifOrientation orientation = imageref.getExifOrientation();
-				imageInfo = new TiImageInfo(imageref.getKey(), bitmap, orientation);
+				Bitmap bitmap = drawableRef.getBitmap(true);
+				TiExifOrientation orientation = drawableRef.getExifOrientation();
+				imageInfo = new TiImageInfo(drawableRef.getKey(), bitmap, orientation);
 			} catch (Exception ex) {
 				Log.e(TAG, "Exception loading image: " + ex.getLocalizedMessage());
 			}
@@ -61,9 +65,9 @@ public class TiLoadImageManager
 				final TiImageInfo finalImageInfo = imageInfo;
 				handler.post(() -> {
 					if (finalImageInfo != null) {
-						listener.onLoadImageFinished(finalImageInfo);
+						listener.onLoadImageFinished(drawableRef, finalImageInfo);
 					} else {
-						listener.onLoadImageFailed();
+						listener.onLoadImageFailed(drawableRef);
 					}
 				});
 			}

@@ -6,8 +6,6 @@
  */
 package ti.modules.titanium.ui.widget;
 
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -24,13 +22,10 @@ import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiLifecycle.OnLifecycleEvent;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
-import org.appcelerator.titanium.util.TiDownloadListener;
-import org.appcelerator.titanium.util.TiDownloadManager;
 import org.appcelerator.titanium.util.TiExifOrientation;
 import org.appcelerator.titanium.util.TiImageCache;
 import org.appcelerator.titanium.util.TiImageInfo;
 import org.appcelerator.titanium.util.TiLoadImageManager;
-import org.appcelerator.titanium.util.TiResponseCache;
 import org.appcelerator.titanium.util.TiUrl;
 import org.appcelerator.titanium.view.TiDrawableReference;
 import org.appcelerator.titanium.view.TiUIView;
@@ -71,7 +66,6 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 
 	private ArrayList<TiDrawableReference> imageSources;
 	private TiDrawableReference defaultImageSource;
-	private TiDownloadListener downloadListener;
 	private TiLoadImageManager.Listener loadImageListener;
 	private final Object releasedLock = new Object();
 
@@ -89,38 +83,9 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 
 		view = new TiImageView(proxy.getActivity(), proxy);
 
-		downloadListener = new TiDownloadListener() {
-			@Override
-			public void downloadTaskFinished(URI uri)
-			{
-			}
-
-			@Override
-			public void downloadTaskFailed(URI uri)
-			{
-				// If the download failed, fire an error event
-				fireError("Download Failed", uri.toString());
-			}
-
-			// Handle decoding and caching in the background thread so it won't block UI.
-			@Override
-			public void postDownload(URI uri)
-			{
-				var drawableRef = TiDrawableReference.fromUrl(imageViewProxy, uri.toString());
-				if (TiResponseCache.peekFollowingRedirects(uri)) {
-					// Downloaded image is stored in HTTP response cache. Load image from there.
-					handleCacheAndSetImage(drawableRef);
-				} else {
-					// HTTP response was not cached. Likely had "Cache-Control: No-Cache" in the response header.
-					// Download image again and decode it straight from the HTTP response stream.
-					TiLoadImageManager.getInstance().load(drawableRef, loadImageListener);
-				}
-			}
-		};
-
 		loadImageListener = new TiLoadImageManager.Listener() {
 			@Override
-			public void onLoadImageFinished(TiImageInfo imageInfo)
+			public void onLoadImageFinished(TiDrawableReference drawableRef, TiImageInfo imageInfo)
 			{
 				if ((imageInfo != null) && (imageInfo.getBitmap() != null)) {
 					// Cache the image.
@@ -149,9 +114,15 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 			}
 
 			@Override
-			public void onLoadImageFailed()
+			public void onLoadImageFailed(TiDrawableReference drawableRef)
 			{
-				Log.w(TAG, "Unable to load image", Log.DEBUG_MODE);
+				if (drawableRef == null) {
+					return;
+				}
+
+				String message = "Failed to load image.";
+				Log.w(TAG, message, Log.DEBUG_MODE);
+				fireError(message, drawableRef.toString());
 			}
 		};
 
@@ -230,37 +201,6 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 				return true;
 			default:
 				return false;
-		}
-	}
-
-	private void handleCacheAndSetImage(TiDrawableReference imageref)
-	{
-		// Don't update UI if the current image source has been changed.
-		if (imageSources != null && imageSources.size() == 1) {
-			TiDrawableReference imgsrc = imageSources.get(0);
-			if (imgsrc == null || imgsrc.getUrl() == null) {
-				return;
-			}
-			if (imageref.equals(imgsrc)
-				|| imageref.equals(
-					   TiDrawableReference.fromUrl(imageViewProxy, TiUrl.getCleanUri(imgsrc.getUrl()).toString()))) {
-				var key = imageref.getKey();
-				Bitmap bitmap = imageref.getBitmap(true);
-				if (bitmap != null) {
-					TiExifOrientation orientation = null;
-					if (TiImageCache.getBitmap(key) == null) {
-						orientation = imageref.getExifOrientation();
-						TiImageCache.add(new TiImageInfo(key, bitmap, orientation));
-					} else {
-						orientation = TiImageCache.getOrientation(key);
-					}
-					setImage(bitmap, isAutoRotateEnabled() ? orientation : null);
-					if (!firedLoad) {
-						fireLoad(TiC.PROPERTY_IMAGE);
-						firedLoad = true;
-					}
-				}
-			}
 		}
 	}
 
@@ -743,30 +683,6 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 					fireLoad(TiC.PROPERTY_IMAGE);
 					firedLoad = true;
 				}
-				return;
-			}
-
-			if (imageref.isNetworkUrl()) {
-				boolean isCachedInDisk = false;
-				URI uri = null;
-				try {
-					String imageUrl = TiUrl.getCleanUri(imageref.getUrl()).toString();
-					uri = new URI(imageUrl);
-					isCachedInDisk = TiResponseCache.peekFollowingRedirects(uri);
-				} catch (URISyntaxException e) {
-					Log.e(TAG, "URISyntaxException for url " + imageref.getUrl(), e);
-				} catch (NullPointerException e) {
-					Log.e(TAG, "NullPointerException for url " + imageref.getUrl(), e);
-				}
-
-				// Check if the image is not cached in disc and the uri is valid.
-				if (!isCachedInDisk && uri != null) {
-					TiDownloadManager.getInstance().download(uri, downloadListener);
-				} else {
-					// If the image has been cached in disk or the uri is not valid,
-					// fetch and cache it and update the UI.
-					TiLoadImageManager.getInstance().load(imageref, loadImageListener);
-				}
 			} else {
 				TiLoadImageManager.getInstance().load(imageref, loadImageListener);
 			}
@@ -1042,7 +958,6 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 		}
 		defaultImageSource = null;
 		imageViewProxy = null;
-		downloadListener = null;
 		loadImageListener = null;
 
 		super.release();
