@@ -13,6 +13,7 @@ import org.appcelerator.titanium.view.TiDrawableReference;
 import android.graphics.Bitmap;
 import android.os.Handler;
 import android.os.Looper;
+import androidx.annotation.NonNull;
 
 /**
  * Manages the asynchronous opening of InputStreams from URIs so that
@@ -21,28 +22,29 @@ import android.os.Looper;
 public class TiLoadImageManager
 {
 	public interface Listener {
-		void onLoadImageFinished(TiDrawableReference drawableRef, TiImageInfo imageInfo);
-		void onLoadImageFailed(TiDrawableReference drawableRef);
+		void onLoadImageFinished(@NonNull TiDrawableReference drawableRef, @NonNull TiImageInfo imageInfo);
+		void onLoadImageFailed(@NonNull TiDrawableReference drawableRef);
 	}
 
 	private static final String TAG = "TiLoadImageManager";
-	private static TiLoadImageManager _instance;
 
 	private final ExecutorService threadPool;
 	private final Handler handler;
 
+	private static class InstanceHolder
+	{
+		private static final TiLoadImageManager INSTANCE = new TiLoadImageManager();
+	}
+
 	public static TiLoadImageManager getInstance()
 	{
-		if (_instance == null) {
-			_instance = new TiLoadImageManager();
-		}
-		return _instance;
+		return InstanceHolder.INSTANCE;
 	}
 
 	private TiLoadImageManager()
 	{
 		handler = new Handler(Looper.getMainLooper());
-		threadPool = Executors.newFixedThreadPool(4);
+		threadPool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 	}
 
 	public void load(TiDrawableReference drawableRef, TiLoadImageManager.Listener listener)
@@ -55,8 +57,10 @@ public class TiLoadImageManager
 			TiImageInfo imageInfo = null;
 			try {
 				Bitmap bitmap = drawableRef.getBitmap(true);
-				TiExifOrientation orientation = drawableRef.getExifOrientation();
-				imageInfo = new TiImageInfo(drawableRef.getKey(), bitmap, orientation);
+				if (bitmap != null) {
+					TiExifOrientation orientation = drawableRef.getExifOrientation();
+					imageInfo = new TiImageInfo(drawableRef.getKey(), bitmap, orientation);
+				}
 			} catch (Exception ex) {
 				Log.e(TAG, "Exception loading image: " + ex.getLocalizedMessage());
 			}

@@ -11,7 +11,6 @@ import android.os.Looper;
 import android.os.Message;
 import java.io.InputStream;
 import java.lang.ref.SoftReference;
-import java.lang.reflect.Constructor;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
@@ -32,6 +31,9 @@ import org.appcelerator.kroll.util.KrollStreamHelper;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.io.TiInputStreamWrapper;
 
+import ti.modules.titanium.network.NetworkModule;
+import ti.modules.titanium.network.TiSocketFactory;
+
 /**
  * Manages the asynchronous opening of InputStreams from URIs so that
  * the resources get put into our TiResponseCache.
@@ -42,26 +44,26 @@ public class TiDownloadManager implements Handler.Callback
 	private static final int MSG_FIRE_DOWNLOAD_FINISHED = 1000;
 	private static final int MSG_FIRE_DOWNLOAD_FAILED = 1001;
 	private static final int TIMEOUT_IN_MILLISECONDS = 10000;
-	protected static TiDownloadManager _instance;
-	public static final int THREAD_POOL_SIZE = 2;
 
 	protected Map<String, List<SoftReference<TiDownloadListener>>> listeners = new HashMap<>();
 	protected List<String> downloadingURIs = Collections.synchronizedList(new ArrayList<>());
 	protected ExecutorService threadPool;
 	protected Handler handler;
 
+	private static class InstanceHolder
+	{
+		private static final TiDownloadManager INSTANCE = new TiDownloadManager();
+	}
+
 	public static TiDownloadManager getInstance()
 	{
-		if (_instance == null) {
-			_instance = new TiDownloadManager();
-		}
-		return _instance;
+		return InstanceHolder.INSTANCE;
 	}
 
 	protected TiDownloadManager()
 	{
 		handler = new Handler(Looper.getMainLooper(), this);
-		threadPool = Executors.newFixedThreadPool(THREAD_POOL_SIZE);
+		threadPool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 	}
 
 	/**
@@ -156,13 +158,7 @@ public class TiDownloadManager implements Handler.Callback
 				connection.setDoInput(true);
 				if (connection instanceof HttpsURLConnection) {
 					final HttpsURLConnection httpsConnection = (HttpsURLConnection) connection;
-
-					// NOTE: use reflection to prevent circular reference to the network module
-					// TODO: move TiDownloadManager into network module
-					final Class TiSocketFactory = Class.forName("ti.modules.titanium.network.TiSocketFactory");
-					final Constructor constructor = TiSocketFactory.getConstructors()[0];
-					final SSLSocketFactory socketFactory = (SSLSocketFactory) constructor.newInstance(null, null, 0);
-
+					final SSLSocketFactory socketFactory = new TiSocketFactory(null, null, NetworkModule.TLS_DEFAULT);
 					httpsConnection.setSSLSocketFactory(socketFactory);
 				}
 				if (connection instanceof HttpURLConnection) {
