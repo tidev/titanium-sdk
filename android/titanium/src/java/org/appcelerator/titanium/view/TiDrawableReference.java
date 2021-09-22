@@ -137,8 +137,7 @@ public class TiDrawableReference
 	private boolean autoRotate;
 	private int orientation = -1;
 
-	// TIMOB-3599: A bug in Gingerbread forces us to retry decoding bitmaps when they initially fail
-	public static final int DEFAULT_DECODE_RETRIES = 5;
+	public static final int DEFAULT_DECODE_RETRIES = 2;
 	private int decodeRetries;
 
 	private SoftReference<Activity> softActivity = null;
@@ -392,9 +391,9 @@ public class TiDrawableReference
 	 */
 	public Bitmap getBitmap(boolean needRetry, boolean densityScaled)
 	{
-		InputStream is = getInputStream();
-		Bitmap b = null;
+		// Configure image decoding options.
 		BitmapFactory.Options opts = new BitmapFactory.Options();
+		opts.inSampleSize = 1;
 		opts.inInputShareable = true;
 		opts.inPurgeable = true;
 		opts.inPreferredConfig = Bitmap.Config.ARGB_8888;
@@ -402,81 +401,46 @@ public class TiDrawableReference
 			DisplayMetrics dm = new DisplayMetrics();
 			dm.setToDefaults();
 			opts.inDensity = DisplayMetrics.DENSITY_MEDIUM;
-
 			opts.inTargetDensity = dm.densityDpi;
 			opts.inScaled = true;
 		}
 
-		try {
-			if (needRetry) {
-				for (int i = 0; i < decodeRetries; i++) {
-					// getInputStream() fails sometimes but after retry it will get
-					// input stream successfully.
-					if (is == null) {
-						Log.i(TAG, "Unable to get input stream for bitmap. Will retry.", Log.DEBUG_MODE);
-						try {
-							Thread.sleep(100);
-						} catch (InterruptedException ie) {
-							// Ignore
-						}
-						is = getInputStream();
-						continue;
-					}
-					try {
-						oomOccurred = false;
-						b = BitmapFactory.decodeStream(is, null, opts);
-						if (b != null) {
-							break;
-						}
-						// Decode fails because of TIMOB-3599.
-						// Really odd Android 2.3/Gingerbread behavior -- BitmapFactory.decode* Skia functions
-						// fail randomly and seemingly without a cause. Retry 5 times by default w/ 250ms between each try.
-						// Usually the 2nd or 3rd try succeeds, but the "decodeRetries" property in ImageView
-						// will allow users to tweak this if needed
-						Log.i(TAG, "Unable to decode bitmap. Will retry.", Log.DEBUG_MODE);
-						try {
-							Thread.sleep(250);
-						} catch (InterruptedException ie) {
-							// Ignore
-						}
-					} catch (OutOfMemoryError e) { // Decode fails because of out of memory
-						oomOccurred = true;
-						Log.e(TAG, "Unable to load bitmap. Not enough memory: " + e.getMessage(), e);
-						Log.i(TAG, "Clear memory cache and signal a GC. Will retry load.", Log.DEBUG_MODE);
-						TiImageCache.clear();
-						System.gc(); // See if we can force a compaction
-						try {
-							Thread.sleep(1000);
-						} catch (InterruptedException ie) {
-							// Ignore
-						}
-						opts.inSampleSize = (int) Math.pow(2, i);
-					}
-				}
-			} else {
-				if (is == null) {
-					return null;
-				}
-				try {
-					oomOccurred = false;
-					b = BitmapFactory.decodeStream(is, null, opts);
-				} catch (OutOfMemoryError e) {
-					oomOccurred = true;
-					Log.e(TAG, "Unable to load bitmap. Not enough memory: " + e.getMessage(), e);
+		// Attempt to decode image to bitmap. Retry if not enough heap memory.
+		Bitmap bitmap = null;
+		final int maxRetries = needRetry ? this.decodeRetries : 0;
+		for (int index = 0; index <= maxRetries; index++) {
+			if (index > 0) {
+				Log.i(TAG, "Will retry decoding image: " + this.toString(), Log.DEBUG_MODE);
+			}
+			try (var inputStream = getInputStream()) {
+				// Decode image to an uncompressed bitmap.
+				this.oomOccurred = false;
+				bitmap = BitmapFactory.decodeStream(inputStream, null, opts);
+			} catch (OutOfMemoryError ex) {
+				// Notify that app does not have enough heap memory to load image.
+				this.oomOccurred = true;
+				Log.e(TAG, "Not enough memory to load image: " + this.toString(), ex);
+				Log.i(TAG, "Clearing image cache and forcing garbage collection.", Log.DEBUG_MODE);
+
+				// Clear image cache and force garbage collection.
+				TiImageCache.clear();
+				System.gc();
+
+				// Down-sample image by a power of 2.
+				// Similar to downscaling, except it skips pixels during the decoding process.
+				opts.inSampleSize *= 2;
+			} catch (Throwable ex) {
+				if (bitmap != null) {
+					Log.e(TAG, "Error closing input stream for image: " + this.toString(), ex);
+				} else {
+					Log.e(TAG, "Error decoding image: " + this.toString(), ex);
 				}
 			}
-		} finally {
-			if (is == null) {
-				return null;
-			}
-			try {
-				is.close();
-			} catch (IOException e) {
-				Log.e(TAG, "Problem closing stream: " + e.getMessage(), e);
+			if (bitmap != null) {
+				break;
 			}
 		}
-
-		return b;
+		return bitmap;
 	}
 
 	private Resources getResources()
