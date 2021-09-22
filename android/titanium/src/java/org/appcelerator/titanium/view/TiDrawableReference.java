@@ -14,6 +14,7 @@ import java.net.URISyntaxException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
@@ -82,26 +83,10 @@ public class TiDrawableReference
 		public int hashCode()
 		{
 			int hashCode = this.drawableRef.type.ordinal();
-			switch (this.drawableRef.type) {
-				case URL:
-					if (this.drawableRef.url != null) {
-						hashCode ^= this.drawableRef.url.hashCode();
-					}
-					break;
-				case RESOURCE_ID:
-					hashCode ^= this.drawableRef.resourceId;
-					break;
-				case BLOB:
-					if (this.drawableRef.blob != null) {
-						hashCode ^= this.drawableRef.blob.hashCode();
-					}
-					break;
-				case FILE:
-					if (this.drawableRef.file != null) {
-						hashCode ^= this.drawableRef.file.hashCode();
-					}
-					break;
-			}
+			hashCode = (31 * hashCode) + Objects.hashCode(this.drawableRef.url);
+			hashCode = (31 * hashCode) + this.drawableRef.resourceId;
+			hashCode = (31 * hashCode) + Objects.hashCode(this.drawableRef.blob);
+			hashCode = (31 * hashCode) + Objects.hashCode(this.drawableRef.file);
 			return hashCode;
 		}
 
@@ -1034,5 +1019,28 @@ public class TiDrawableReference
 	public String getUrl()
 	{
 		return url;
+	}
+
+	@Override
+	public String toString()
+	{
+		final String NULL_STRING = "(null)";
+		switch (this.type) {
+			case URL:
+				return (this.url != null) ? this.url : NULL_STRING;
+			case RESOURCE_ID:
+				return "Resource ID " + this.resourceId;
+			case BLOB:
+				if (this.blob != null) {
+					String path = this.blob.getNativePath();
+					return (path != null) ? path : "(blob)";
+				}
+				return NULL_STRING;
+			case FILE: {
+				String path = (this.file != null) ? this.file.nativePath() : null;
+				return (path != null) ? path : NULL_STRING;
+			}
+		}
+		return NULL_STRING;
 	}
 }
