@@ -26,7 +26,6 @@ import org.appcelerator.titanium.util.TiExifOrientation;
 import org.appcelerator.titanium.util.TiImageCache;
 import org.appcelerator.titanium.util.TiImageInfo;
 import org.appcelerator.titanium.util.TiLoadImageManager;
-import org.appcelerator.titanium.util.TiUrl;
 import org.appcelerator.titanium.view.TiDrawableReference;
 import org.appcelerator.titanium.view.TiUIView;
 
@@ -42,6 +41,7 @@ import android.os.Message;
 import android.os.Bundle;
 import android.view.View;
 import android.view.ViewParent;
+import androidx.annotation.NonNull;
 
 public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler.Callback
 {
@@ -69,7 +69,7 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 	private TiLoadImageManager.Listener loadImageListener;
 	private final Object releasedLock = new Object();
 
-	private Handler mainHandler = new Handler(Looper.getMainLooper(), this);
+	private final Handler mainHandler = new Handler(Looper.getMainLooper(), this);
 	private static final int START = 10002;
 	private static final int STOP = 10003;
 	private static final int SET_TINT = 10004;
@@ -85,41 +85,33 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 
 		loadImageListener = new TiLoadImageManager.Listener() {
 			@Override
-			public void onLoadImageFinished(TiDrawableReference drawableRef, TiImageInfo imageInfo)
+			public void onLoadImageFinished(@NonNull TiDrawableReference drawableRef, @NonNull TiImageInfo imageInfo)
 			{
-				if ((imageInfo != null) && (imageInfo.getBitmap() != null)) {
-					// Cache the image.
-					TiImageCache.add(imageInfo);
+				// Cache the image.
+				TiImageCache.add(imageInfo);
 
-					// Update UI if the current image source has not been changed.
-					if (imageSources != null && imageSources.size() == 1) {
-						TiDrawableReference imgsrc = imageSources.get(0);
-						if (imgsrc == null) {
-							return;
-						}
-						if (imgsrc.hashCode() == imageInfo.hashCode()
-							|| (imgsrc.getUrl() != null
-								&& TiDrawableReference
-										   .fromUrl(imageViewProxy, TiUrl.getCleanUri(imgsrc.getUrl()).toString())
-										   .hashCode()
-									   == imageInfo.hashCode())) {
-							setImage(imageInfo.getBitmap(), isAutoRotateEnabled() ? imageInfo.getOrientation() : null);
-							if (!firedLoad) {
-								fireLoad(TiC.PROPERTY_IMAGE);
-								firedLoad = true;
-							}
-						}
-					}
+				// Make sure proxy's "image" property matches the loaded image.
+				// Note: Handles the case where "image" property changes while last image was loading.
+				//       This commonly happens in ListView where ImageView is recycled while scrolling.
+				if ((imageSources == null) || (imageSources.size() != 1) || (imageSources.get(0) != drawableRef)) {
+					return;
+				}
+				TiDrawableReference expectedDrawableRef = imageSources.get(0);
+				if ((expectedDrawableRef == null) || !expectedDrawableRef.equals(drawableRef)) {
+					return;
+				}
+
+				// Show decoded bitmap in ImageView.
+				setImage(imageInfo.getBitmap(), isAutoRotateEnabled() ? imageInfo.getOrientation() : null);
+				if (!firedLoad) {
+					fireLoad(TiC.PROPERTY_IMAGE);
+					firedLoad = true;
 				}
 			}
 
 			@Override
-			public void onLoadImageFailed(TiDrawableReference drawableRef)
+			public void onLoadImageFailed(@NonNull TiDrawableReference drawableRef)
 			{
-				if (drawableRef == null) {
-					return;
-				}
-
 				String message = "Failed to load image.";
 				Log.w(TAG, message, Log.DEBUG_MODE);
 				fireError(message, drawableRef.toString());
