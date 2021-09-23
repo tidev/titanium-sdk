@@ -47,7 +47,6 @@ public class TiImageView extends ViewGroup implements Handler.Callback, OnClickL
 
 	private OnClickListener clickListener;
 
-	private boolean enableScale;
 	private boolean enableZoomControls;
 
 	private boolean isImageRippleEnabled;
@@ -99,7 +98,6 @@ public class TiImageView extends ViewGroup implements Handler.Callback, OnClickL
 		imageView.setAdjustViewBounds(true);
 		imageView.setScaleType(ScaleType.MATRIX);
 		addView(imageView);
-		setEnableScale(true);
 
 		gestureDetector = new GestureDetector(getContext(), new GestureDetector.SimpleOnGestureListener() {
 			@Override
@@ -170,12 +168,6 @@ public class TiImageView extends ViewGroup implements Handler.Callback, OnClickL
 	{
 		this(context);
 		this.proxy = new WeakReference<>(proxy);
-	}
-
-	public void setEnableScale(boolean enableScale)
-	{
-		this.enableScale = enableScale;
-		requestLayout();
 	}
 
 	public void setEnableZoomControls(boolean enableZoomControls)
@@ -407,7 +399,7 @@ public class TiImageView extends ViewGroup implements Handler.Callback, OnClickL
 		// Apply "scalingMode" to image.
 		int scalingMode = this.scalingMode;
 		if (scalingMode == MediaModule.IMAGE_SCALING_AUTO) {
-			if (!this.enableZoomControls && !this.enableScale && this.viewWidthDefined && this.viewHeightDefined) {
+			if (this.viewWidthDefined && this.viewHeightDefined) {
 				scalingMode = MediaModule.IMAGE_SCALING_FILL;
 			} else {
 				scalingMode = MediaModule.IMAGE_SCALING_ASPECT_FIT;
