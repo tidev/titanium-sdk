@@ -63,7 +63,7 @@ public class TiDownloadManager implements Handler.Callback
 	protected TiDownloadManager()
 	{
 		handler = new Handler(Looper.getMainLooper(), this);
-		threadPool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+		threadPool = Executors.newFixedThreadPool(Math.max(Runtime.getRuntime().availableProcessors(), 2));
 	}
 
 	/**

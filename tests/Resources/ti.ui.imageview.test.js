@@ -240,11 +240,10 @@ describe('Titanium.UI.ImageView', function () {
 		});
 
 		it('fires error event for URL pointing at resource that does not exist', function (finish) {
-			if (OS_IOS) {
-				this.timeout(21000); // default timeout of underlying request is 20 seconds, so let's wait one extra
-			}
-			win = Ti.UI.createWindow();
+			// Default timeout for iOS is 20 seconds.
+			this.timeout(21000);
 
+			win = Ti.UI.createWindow();
 			const img = Ti.UI.createImageView({});
 			img.addEventListener('error', () => finish());
 			img.image = 'https://invalid.host.com/image.jpg';

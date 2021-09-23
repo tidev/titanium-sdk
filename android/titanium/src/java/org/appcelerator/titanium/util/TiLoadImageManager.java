@@ -44,7 +44,7 @@ public class TiLoadImageManager
 	private TiLoadImageManager()
 	{
 		handler = new Handler(Looper.getMainLooper());
-		threadPool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+		threadPool = Executors.newFixedThreadPool(Math.max(Runtime.getRuntime().availableProcessors(), 2));
 	}
 
 	public void load(TiDrawableReference drawableRef, TiLoadImageManager.Listener listener)
