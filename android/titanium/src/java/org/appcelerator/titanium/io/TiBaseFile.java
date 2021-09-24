@@ -76,6 +76,35 @@ public abstract class TiBaseFile
 		this.binary = false;
 	}
 
+	@Override
+	public boolean equals(Object value)
+	{
+		// Not equal if given null.
+		if (value == null) {
+			return false;
+		}
+
+		// Check if give object is same type as this instance such as TiFile, TiResourceFile, etc.
+		if (value.getClass().equals(getClass()) == false) {
+			return false;
+		}
+
+		// Compare native paths. (This can return null.)
+		String thisNativePath = nativePath();
+		String givenNativePath = ((TiBaseFile) value).nativePath();
+		if (thisNativePath == null) {
+			return (givenNativePath == null);
+		}
+		return thisNativePath.equals(givenNativePath);
+	}
+
+	@Override
+	public int hashCode()
+	{
+		String nativePath = nativePath();
+		return (nativePath != null) ? nativePath.hashCode() : 0;
+	}
+
 	/**
 	 * @return true if the file is a File, false otherwise. See {@link java.io.File#isFile()} for more details.
 	 */
