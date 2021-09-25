@@ -171,16 +171,16 @@ describe('Titanium.UI.ImageView', function () {
 		function doBlobTest(blob, finish) {
 			win = Ti.UI.createWindow();
 			const imageView = Ti.UI.createImageView({ image: blob });
-			win.add(imageView);
-			win.addEventListener('postlayout', function listener(e) {
+			imageView.addEventListener('postlayout', function listener(e) {
 				try {
-					win.removeEventListener(e.type, listener);
+					imageView.removeEventListener(e.type, listener);
 					should(imageView.size.width > 0).be.true();
 					finish();
 				} catch (err) {
 					finish(err);
 				}
 			});
+			win.add(imageView);
 			win.open();
 		}
 
