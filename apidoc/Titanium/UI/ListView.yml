@@ -902,6 +902,15 @@ properties:
     platforms: [android, iphone, ipad, macos]
     since: 3.2.0
 
+  - name: continuousUpdate
+    summary: Determines if the scrolling event should fire every time there is a new visible item.
+    description: |
+        When setting `continuousUpdate` to `true` the [scrolling](Titanium.UI.ListView.scrolling) event will everytime a new item is visible.
+    type: Boolean
+    default: false
+    platforms: [android]
+    since: 10.2.0
+
   - name: keepSectionsInSearch
     summary: Determines if the section information is displayed in the search results when using the `searchText` property.
     description: |
@@ -1459,7 +1468,7 @@ examples:
         win.open();
         ```
 
-  - title: List View with a pullView 
+  - title: List View with a pullView
     example: |
         This sample shows how the [pullView](Titanium.UI.ListView.pullView) property could be
         utilized along with the [pull](Titanium.UI.ListView.pull) and [pullend](Titanium.UI.ListView.pullend) events to
@@ -1482,7 +1491,7 @@ examples:
             {properties: { title: 'Potatoes'}},
         ];
         var vegSection = Ti.UI.createListSection({ headerTitle: 'Vegetables', items: vegDataSet});
-        
+
         var fishDataSet = [
             {properties: { title: 'Cod'}},
             {properties: { title: 'Haddock'}},
