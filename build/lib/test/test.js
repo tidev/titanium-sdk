@@ -52,12 +52,13 @@ const isCI = !!(process.env.BUILD_NUMBER || process.env.CI || false);
  * @param {String} [deviceId] Titanium device id target to run the tests on
  * @param {string} [deployType] 'development' || 'test'
  * @param {string} [deviceFamily] 'ipad' || 'iphone'
+ * @param {string} [junitPrefix] A prefix for the junit filename
  * @param {string} [snapshotDir='../../../tests/Resources'] directory to place generated snapshot images
  * @returns {Promise<object>}
  */
-async function test(platforms, target, deviceId, deployType, deviceFamily, snapshotDir = path.join(__dirname, '../../../tests/Resources')) {
+async function test(platforms, target, deviceId, deployType, deviceFamily, junitPrefix, snapshotDir = path.join(__dirname, '../../../tests/Resources')) {
 	const snapshotPromises = []; // place to stick commands we've fired off to pull snapshot images
-
+	console.log(platforms);
 	// delete old test app (if does not exist, this will no-op)
 	await fs.remove(PROJECT_DIR);
 
@@ -72,7 +73,7 @@ async function test(platforms, target, deviceId, deployType, deviceFamily, snaps
 		const results = {};
 		for (const platform of platforms) {
 			const result = await runBuild(platform, target, deviceId, deployType, deviceFamily, snapshotDir, snapshotPromises);
-			const prefix = generateJUnitPrefix(platform, target, deviceFamily);
+			const prefix = generateJUnitPrefix(platform, target, junitPrefix || deviceFamily);
 			results[prefix] = result;
 			await outputJUnitXML(result, prefix);
 		}
@@ -133,16 +134,21 @@ async function generateProject(platforms) {
  */
 async function copyMochaAssets() {
 	console.log('Copying resources to project...');
-	// TODO: Support root-level package.json!
-	const resourcesDir = path.join(PROJECT_DIR, 'Resources');
 	return Promise.all([
-		// Resources
+		// root-level package.json stuff
 		(async () => {
-			await fs.copy(path.join(SOURCE_DIR, 'Resources'), resourcesDir);
-			if (await fs.pathExists(path.join(resourcesDir, 'package.json'))) {
-				return npmInstall(resourcesDir);
-			}
+			await Promise.all([
+				fs.copy(path.join(SOURCE_DIR, 'fake_node_modules'), path.join(PROJECT_DIR, 'fake_node_modules')),
+				fs.copy(path.join(SOURCE_DIR, 'package.json'), path.join(PROJECT_DIR, 'package.json')),
+				fs.copy(path.join(SOURCE_DIR, 'package-lock.json'), path.join(PROJECT_DIR, 'package-lock.json')),
+			]);
+			// then run npm install in root of project
+			return npmInstall(PROJECT_DIR);
 		})(),
+		// babel.config.json
+		fs.copy(path.join(SOURCE_DIR, 'babel.config.json'), path.join(PROJECT_DIR, 'babel.config.json')),
+		// Resources
+		fs.copy(path.join(SOURCE_DIR, 'Resources'), path.join(PROJECT_DIR, 'Resources')),
 		// modules
 		(async () => {
 			await fs.copy(path.join(SOURCE_DIR, 'modules'), path.join(PROJECT_DIR, 'modules'));
@@ -167,12 +173,7 @@ async function copyMochaAssets() {
  */
 async function npmInstall(dir) {
 	// If package-lock.json exists, try to run npm ci --production!
-	let args;
-	if (await fs.exists(path.join(dir, 'package-lock.json'))) {
-		args = [ 'ci', '--production' ];
-	} else {
-		args = [ 'install', '--production' ];
-	}
+	const args = [ 'ci', '--production' ];
 	return new Promise((resolve, reject) => {
 		let child;
 		if (process.platform === 'win32') {
@@ -216,10 +217,10 @@ async function addTiAppProperties() {
 	const tiapp_xml_string = await fs.readFile(tiapp_xml, 'utf8');
 	const content = [];
 	const insertManifest = () => {
-		content.push('\t\t\t<application>');
+		content.push('\t\t\t<application android:theme="@style/Theme.Titanium.Dark">');
 		content.push('\t\t\t\t<meta-data android:name="com.google.android.geo.API_KEY" android:value="AIzaSyCN_aC6RMaynan8YzsO1HNHbhsr9ZADDlY"/>');
 		content.push('\t\t\t\t<uses-library android:name="org.apache.http.legacy" android:required="false" />');
-		content.push(`\t\t\t\t<activity android:name=".${PROJECT_NAME.charAt(0).toUpperCase() + PROJECT_NAME.slice(1).toLowerCase()}Activity">`);
+		content.push(`\t\t\t\t<activity android:name=".${PROJECT_NAME.charAt(0).toUpperCase() + PROJECT_NAME.slice(1).toLowerCase()}Activity" android:exported="true">`);
 		content.push('\t\t\t\t\t<intent-filter>');
 		content.push('\t\t\t\t\t\t<action android:name="android.intent.action.MAIN"/>');
 		content.push('\t\t\t\t\t\t<category android:name="android.intent.category.LAUNCHER"/>');
@@ -261,6 +262,17 @@ async function addTiAppProperties() {
 		content.push('\t\t\t\t<string>Requesting location permission</string>');
 		content.push('\t\t\t\t<key>NSMicrophoneUsageDescription</key>');
 		content.push('\t\t\t\t<string>Requesting microphone permission</string>');
+		content.push('\t\t\t\t<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>');
+		content.push('\t\t\t\t<string>Can we access your location?</string>');
+		content.push('\t\t\t\t<key>NSLocationAlwaysUsageDescription</key>');
+		content.push('\t\t\t\t<string>Can we always access your location?</string>');
+		content.push('\t\t\t\t<key>NSLocationWhenInUseUsageDescription</key>');
+		content.push('\t\t\t\t<string>Can we access your location when using the app?</string>');
+		content.push('\t\t\t\t<key>NSLocationTemporaryUsageDescriptionDictionary</key>');
+		content.push('\t\t\t\t<dict>');
+		content.push('\t\t\t\t\t<key>Purpose1</key>');
+		content.push('\t\t\t\t\t<string>Can we temporarily access your location?</string>');
+		content.push('\t\t\t\t</dict>');
 
 		// Add a static shortcut.
 		content.push('\t\t\t\t<key>UIApplicationShortcutItems</key>');
@@ -408,7 +420,7 @@ async function runBuild(platform, target, deviceId, deployType, deviceFamily, sn
 
 	args.push('--no-prompt');
 	args.push('--color');
-	const prc = spawn('node', args);
+	const prc = spawn('node', args, { cwd: PROJECT_DIR });
 	return handleBuild(prc, target, snapshotDir, snapshotPromises);
 }
 
@@ -480,10 +492,9 @@ class DeviceTestDetails {
 	/**
 	 * Handle a new line of output for a given device/emulator
 	 * @param {string} token line of output (raw)
-	 * @param {string} stripped output stripped of ansi colors
 	 * @returns {boolean} true if successfully finished the test suite (completed, may have test failures/errors)
 	 */
-	handleLine(token, stripped) {
+	handleLine(token) {
 		if (this.testEndIncomplete) {
 			if (token.includes(TEST_START_PREFIX) || token.includes(TEST_SUITE_STOP)) {
 				// Make up a failed test result
@@ -702,6 +713,14 @@ class DeviceTestDetails {
 		await fs.ensureDir(path.dirname(dest));
 		if (platform === 'android') {
 			// Pull the file via adb shell
+			let adbPath = 'adb';
+			const androidSdkPath = process.env.ANDROID_SDK;
+			if (androidSdkPath) {
+				const filePath = path.join(androidSdkPath, 'platform-tools', 'adb');
+				if (await fs.pathExists(filePath)) {
+					adbPath = filePath;
+				}
+			}
 			if (this.target === 'device') {
 				const id = await this.deviceId();
 				let adbTargetArgs = `-s ${id}`;
@@ -710,11 +729,11 @@ class DeviceTestDetails {
 					adbTargetArgs = '-d';
 					// FIXME: Grab device listing and pick first one?!
 				}
-				await exec(`adb ${adbTargetArgs} shell "run-as ${APP_ID} cat '${filepath}'" > ${dest}`);
+				await exec(`${adbPath} ${adbTargetArgs} shell "run-as ${APP_ID} cat '${filepath}'" > ${dest}`);
 			} else {
-				// await exec(`adb -e shell "run-as ${APP_ID} cat '${filepath}'" > ${dest}`);
+				// await exec(`${adbPath} -e shell "run-as ${APP_ID} cat '${filepath}'" > ${dest}`);
 				// Using cat as above on some emulators (especially older ones) mangles image files
-				await exec(`adb -e pull ${filepath} ${dest}`);
+				await exec(`${adbPath} -e pull ${filepath} ${dest}`);
 			}
 			return dest;
 		}
@@ -759,6 +778,7 @@ async function handleBuild(prc, target, snapshotDir, snapshotPromises) {
 		splitter.encoding = 'utf8';
 
 		function getDeviceName(token) {
+			// eslint-disable-next-line security/detect-child-process
 			const matches = /^[\s\b]+\[([^\]]+)\]\s/g.exec(token.substring(token.indexOf(':') + 1));
 			if (matches && matches.length === 2) {
 				return matches[1];
@@ -816,7 +836,7 @@ async function handleBuild(prc, target, snapshotDir, snapshotPromises) {
 				deviceMap.set(device, new DeviceTestDetails(device, target, snapshotDir, snapshotPromises));
 			}
 			const curTest = deviceMap.get(device);
-			const done = curTest.handleLine(token, stripped);
+			const done = curTest.handleLine(token);
 			if (done) {
 				let results = [];
 				// check if all devices have completed tests
@@ -871,9 +891,9 @@ async function handleBuild(prc, target, snapshotDir, snapshotPromises) {
 }
 
 /**
- *
- * @param {string} testResults
- * @returns {string}
+ * Escapes given test output string so it can be used by JSON.parse() method.
+ * @param {string} testResults The test output to be escaped and parsed as JSON.
+ * @returns {string} Returns a string that can be passed to JSON.parse() method.
  */
 function massageJSONString(testResults) {
 	// preserve newlines, etc - use valid JSON
@@ -892,16 +912,16 @@ function massageJSONString(testResults) {
 /**
  * @param {string} platform 'ios' || 'android'
  * @param {string} [target] 'emulator' || 'simulator' || 'device'
- * @param {string} [deviceFamily] 'iphone' || 'ipad'
+ * @param {string} [customPrefix] A custom prefix to help differentiate junit results
  * @returns {string}
  */
-function generateJUnitPrefix(platform, target, deviceFamily) {
+function generateJUnitPrefix(platform, target, customPrefix) {
 	let prefix = platform;
 	if (target) {
 		prefix += '.' + target;
 	}
-	if (deviceFamily) {
-		prefix += '.' + deviceFamily;
+	if (customPrefix) {
+		prefix += '.' + customPrefix;
 	}
 	return prefix;
 }

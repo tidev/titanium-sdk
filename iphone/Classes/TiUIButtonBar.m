@@ -231,8 +231,12 @@
   }
 
   if (![segmentedControl isMomentary]) {
+    if ((selectedIndex < 0) && (segmentedControl.numberOfSegments > 0)) {
+      selectedIndex = 0;
+    }
     [segmentedControl setSelectedSegmentIndex:selectedIndex];
   }
+  [(TiViewProxy *)[self proxy] contentsWillChange];
 }
 
 - (IBAction)onSegmentChange:(id)sender

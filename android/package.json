@@ -19,19 +19,22 @@
 	],
 	"architectures": ["arm64-v8a", "armeabi-v7a", "x86", "x86_64"],
 	"v8": {
-		"version": "8.8.278.15",
+		"version": "8.8.278.17",
 		"mode": "release",
-		"integrity": "sha512-DXomXksM9sUQsSq/Xj0RgMayIXHfrNod99s4ddZYetD90NN2jspirV2UIX4MZHPUYhvYpO27lEZxzowHfB/v4A=="
+		"integrity": "sha512-A0tV+fYtkpKfIF5roRTCFPtdULMFygmfWlEuuHOBjC3q4rz/mKnAsJTYBlqayC/4oYEWehj867Oh1o6vy26XHQ=="
 	},
 	"minSDKVersion": "21",
-	"compileSDKVersion": "30",
+	"compileSDKVersion": "31",
 	"vendorDependencies": {
-		"android sdk": ">=23.x <=30.x",
-		"android build tools": ">=29.0.2 <=30.x",
-		"android platform tools": "30.x",
+		"android sdk": ">=23.x <=31.x",
+		"android build tools": ">=30.0.2 <=31.x",
+		"android platform tools": "31.x",
 		"android tools": "<=26.x",
-		"android ndk": ">=r11c <=r21d",	
-		"java": ">=1.8.x"
+		"android ndk": ">=r21 <=r22b",
+		"java": ">=11.x"
+	},
+	"engines": {
+		"node": ">=12.13.0"
 	},
 	"repository": {
 		"type": "git",

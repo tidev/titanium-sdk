@@ -83,8 +83,8 @@ JSExportAs(forwardGeocoder,
            -(JSValue *)forwardGeocoder
            : (NSString *)address withCallback
            : (JSValue *)callback);
-- (void)getCurrentHeading:(JSValue *)callback;
-- (void)getCurrentPosition:(JSValue *)callback;
+- (JSValue *)getCurrentHeading:(JSValue *)callback;
+- (JSValue *)getCurrentPosition:(JSValue *)callback;
 - (bool)hasLocationPermissions:(CLAuthorizationStatus)authorizationType;
 JSExportAs(requestLocationPermissions,
            -(JSValue *)requestLocationPermissions
@@ -106,7 +106,6 @@ JSExportAs(requestTemporaryFullAccuracyAuthorization,
 
 @interface GeolocationModule : ObjcModule <GeolocationExports, CLLocationManagerDelegate> {
   CLLocationManager *locationManager;
-  CLLocationManager *tempManager; // Our 'fakey' manager for handling certain <=3.2 requests
   CLLocationManager *locationPermissionManager; // used for just permissions requests
 
   CLLocationAccuracy accuracy;
@@ -120,7 +119,7 @@ JSExportAs(requestTemporaryFullAccuracyAuthorization,
   BOOL trackSignificantLocationChange;
   bool allowsBackgroundLocationUpdates;
   BOOL showBackgroundLocationIndicator;
-  JSManagedValue *authorizationCallback;
+  JSValue *authorizationCallback;
   KrollPromise *authorizationPromise;
   CLAuthorizationStatus requestedAuthorizationStatus;
 

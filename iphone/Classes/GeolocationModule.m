@@ -7,11 +7,12 @@
 #ifdef USE_TI_GEOLOCATION
 
 #import "GeolocationModule.h"
+#import <Contacts/CNPostalAddress.h>
+#import <Contacts/CNPostalAddressFormatter.h>
 #import <TitaniumKit/APSHTTPClient.h>
 #import <TitaniumKit/KrollPromise.h>
 #import <TitaniumKit/NSData+Additions.h>
 #import <TitaniumKit/TiApp.h>
-
 #import <sys/utsname.h>
 
 extern NSString *const TI_APPLICATION_GUID;
@@ -45,68 +46,26 @@ extern NSString *const TI_APPLICATION_GUID;
   [super dealloc];
 }
 
-- (void)start:(NSDictionary *)params
-{
-  // https://api.appcelerator.net/p/v1/geo
-  NSString *kGeolocationURL = stringWithHexString(@"68747470733a2f2f6170692e61707063656c657261746f722e636f6d2f702f76312f67656f");
-
-  NSMutableString *url = [[[NSMutableString alloc] init] autorelease];
-  [url appendString:kGeolocationURL];
-  [url appendString:@"?"];
-  for (id key in params) {
-    NSString *value = [TiUtils stringValue:[params objectForKey:key]];
-    [url appendFormat:@"%@=%@&", key, [value stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLHostAllowedCharacterSet]]];
-  }
-
-  APSHTTPRequest *req = [[APSHTTPRequest alloc] init];
-  [req addRequestHeader:@"User-Agent" value:[[TiApp app] systemUserAgent]];
-  [req setUrl:[NSURL URLWithString:url]];
-  [req setDelegate:self];
-  [req setMethod:@"GET"];
-  // Place it in the main thread since we're not using a queue and yet we need the
-  // delegate methods to be called...
-  TiThreadPerformOnMainThread(
-      ^{
-        [req send];
-        [req autorelease];
-      },
-      NO);
-}
-
-- (void)requestSuccess:(NSString *)data
+- (void)requestSuccess:(NSDictionary *)data
 {
 }
 
 - (void)requestError:(NSError *)error
 {
-  NSDictionary *event = [TiUtils dictionaryWithCode:[error code] message:[TiUtils messageFromError:error]];
+  NSString *message = [TiUtils messageFromError:error];
+  NSDictionary *event = [TiUtils dictionaryWithCode:[error code] message:message];
   if (callback != nil) {
     [callback callWithArguments:@[ event ]];
   }
-  [promise reject:@[ event ]];
+  [promise rejectWithErrorMessage:message];
 }
 
-- (void)request:(APSHTTPRequest *)request onLoad:(APSHTTPResponse *)response
-{
-  [[TiApp app] stopNetwork];
+@end
 
-  if (request != nil && [response error] == nil) {
-    NSString *data = [response responseString];
-    [self requestSuccess:data];
-  } else {
-    [self requestError:[response error]];
-  }
+@interface HeadingCallback : GeolocationCallback
+@end
 
-  [self autorelease];
-}
-
-- (void)request:(APSHTTPRequest *)request onError:(APSHTTPResponse *)response
-{
-  [[TiApp app] stopNetwork];
-  [self requestError:[response error]];
-  [self autorelease];
-}
-
+@interface PositionCallback : GeolocationCallback
 @end
 
 @interface ForwardGeoCallback : GeolocationCallback
@@ -115,26 +74,38 @@ extern NSString *const TI_APPLICATION_GUID;
 @interface ReverseGeoCallback : GeolocationCallback
 @end
 
+@implementation HeadingCallback
+- (void)fireEvent:(id)event withProxy:(ObjcProxy *)proxy
+{
+  if (callback != nil) {
+    [proxy _fireEventToListener:@"heading" withObject:event listener:callback];
+  }
+  if ([event[@"success"] boolValue]) {
+    [promise resolve:@[ event ]];
+  } else {
+    [promise rejectWithErrorMessage:event[@"error"]];
+  }
+}
+@end
+
+@implementation PositionCallback
+- (void)fireEvent:(id)event withProxy:(ObjcProxy *)proxy
+{
+  if (callback != nil) {
+    [proxy _fireEventToListener:@"location" withObject:event listener:callback];
+  }
+  if ([event[@"success"] boolValue]) {
+    [promise resolve:@[ event ]];
+  } else {
+    [promise rejectWithErrorMessage:event[@"error"]];
+  }
+}
+@end
+
 @implementation ForwardGeoCallback
 
-- (void)requestSuccess:(NSString *)locationString
+- (void)requestSuccess:(NSDictionary *)event
 {
-  NSMutableDictionary *event = nil;
-
-  NSArray *listItems = [locationString componentsSeparatedByString:@","];
-  if ([listItems count] == 4 && [[listItems objectAtIndex:0] isEqualToString:@"200"]) {
-    id accuracy = [listItems objectAtIndex:1];
-    id latitude = [listItems objectAtIndex:2];
-    id longitude = [listItems objectAtIndex:3];
-    event = [TiUtils dictionaryWithCode:0 message:nil];
-    [event setObject:accuracy forKey:@"accuracy"];
-    [event setObject:latitude forKey:@"latitude"];
-    [event setObject:longitude forKey:@"longitude"];
-  } else {
-    //TODO: better error handling
-    event = [TiUtils dictionaryWithCode:-1 message:@"error obtaining geolocation"];
-  }
-
   if (callback != nil) {
     [callback callWithArguments:@[ event ]];
   }
@@ -145,28 +116,12 @@ extern NSString *const TI_APPLICATION_GUID;
 
 @implementation ReverseGeoCallback
 
-- (void)requestSuccess:(NSString *)locationString
+- (void)requestSuccess:(NSDictionary *)event
 {
-  NSError *error = nil;
-  id event = [TiUtils jsonParse:locationString error:&error];
-  if (error != nil) {
-    [self requestError:error];
-  } else {
-    BOOL success = [TiUtils boolValue:@"success" properties:event def:YES];
-    NSMutableDictionary *revisedEvent = [TiUtils dictionaryWithCode:success ? 0 : -1 message:success ? nil : @"error reverse geocoding"];
-    [revisedEvent setValuesForKeysWithDictionary:event];
-    NSArray<NSMutableDictionary *> *places = (NSArray<NSMutableDictionary *> *)revisedEvent[@"places"];
-    for (NSMutableDictionary *dict in places) {
-      dict[@"postalCode"] = dict[@"zipcode"];
-      [dict removeObjectForKey:@"zipcode"];
-      dict[@"countryCode"] = dict[@"country_code"];
-      [dict removeObjectForKey:@"country_code"];
-    }
-    if (callback != nil) {
-      [callback callWithArguments:@[ revisedEvent ]];
-    }
-    [promise resolve:@[ revisedEvent ]];
+  if (callback != nil) {
+    [callback callWithArguments:@[ event ]];
   }
+  [promise resolve:@[ event ]];
 }
 
 @end
@@ -205,11 +160,12 @@ extern NSString *const TI_APPLICATION_GUID;
 {
   [self shutdownLocationManager];
   [self releaseSingleshotListeners];
-  RELEASE_TO_NIL(tempManager);
   RELEASE_TO_NIL(locationPermissionManager);
   RELEASE_TO_NIL(purpose);
   RELEASE_TO_NIL(lock);
   RELEASE_TO_NIL(lastLocationDict);
+  RELEASE_TO_NIL(authorizationCallback);
+  RELEASE_TO_NIL(authorizationPromise);
   [super dealloc];
 }
 
@@ -224,9 +180,8 @@ extern NSString *const TI_APPLICATION_GUID;
 - (BOOL)releaseStoredCallbackArray:(NSMutableArray *)array
 {
   if (array != nil) {
-    for (JSManagedValue *callback in [NSArray arrayWithArray:array]) {
+    for (GeolocationCallback *callback in [NSArray arrayWithArray:array]) {
       [array removeObject:callback];
-      [[callback value].context.virtualMachine removeManagedReference:callback withOwner:self];
     }
     if ([array count] == 0) {
       RELEASE_TO_NIL(array);
@@ -288,7 +243,6 @@ extern NSString *const TI_APPLICATION_GUID;
 {
   [lock lock];
   if (locationManager == nil) {
-    RELEASE_TO_NIL(tempManager);
     locationManager = [[CLLocationManager alloc] init];
     locationManager.delegate = self;
     if (!trackSignificantLocationChange) {
@@ -310,7 +264,7 @@ extern NSString *const TI_APPLICATION_GUID;
              "or\n\n"
              "Ti.Geolocation.requestLocationPermissions(Ti.Geolocation.AUTHORIZATION_WHEN_IN_USE, function(e) {\n"
              "\t// Handle authorization via e.success\n"
-             "})\nPicking the hightest permission by default.");
+             "})\nPicking the highest permission by default.");
       if (![[NSBundle mainBundle] objectForInfoDictionaryKey:kTiGeolocationUsageDescriptionWhenInUse]) {
         NSLog(@"[WARN] Apps targeting iOS 11 and later always have to include the \"%@\" key in the tiapp.xml <plist> section in order to use any geolocation-services. This is a constraint Apple introduced to improve user-privacy by suggesting developers to incrementally upgrade the location permissions from \"When in Use\" to \"Always\" only if necessary. You can specify the new iOS 11+ plist-key \"%@\" which is used while upgrading from \"When in Use\" to \"Always\". Use the the Ti.Geolocation.requestLocationPermissions method, which should be called before using any Ti.Geolocation related API. Please verify location permissions and call this method again.", kTiGeolocationUsageDescriptionWhenInUse, kTiGeolocationUsageDescriptionAlwaysAndWhenInUse);
       }
@@ -349,72 +303,59 @@ extern NSString *const TI_APPLICATION_GUID;
   return locationManager;
 }
 
-// this is useful for a few methods below that need to use an instance but we
-// don't necessarily want to hold on to this guy
-- (CLLocationManager *)tempLocationManager
-{
-  if (locationManager != nil) {
-    // if we have an instance, just use it
-    return locationManager;
-  }
-
-  if (tempManager == nil) {
-    tempManager = [[CLLocationManager alloc] init];
-  }
-  return tempManager;
-}
-
 - (void)startStopLocationManagerIfNeeded
 {
   BOOL startHeading = NO;
   BOOL startLocation = NO;
 
-  if (singleHeading != nil && [singleHeading count] > 0) {
+  // if we have queued getCurrentHeading() calls or a 'heading' event listener, startHeading
+  if ((singleHeading != nil && [singleHeading count] > 0) || [self _hasListeners:@"heading"]) {
     startHeading = YES;
   }
-  if (singleLocation != nil && [singleLocation count] > 0) {
-    startLocation = YES;
-  }
-  if (!startHeading && [self _hasListeners:@"heading"]) {
-    startHeading = YES;
-  }
-  if (!startLocation && [self _hasListeners:@"location"]) {
+  // if we have queued getCurrentPosition() calls or a 'location' event listener, startLocation
+  if ((singleLocation != nil && [singleLocation count] > 0) || [self _hasListeners:@"location"]) {
     startLocation = YES;
   }
 
-  if (startHeading || startLocation) {
-    CLLocationManager *lm = [self locationManager];
-    if (startHeading && !trackingHeading) {
-      [lm startUpdatingHeading];
-      trackingHeading = YES;
+  // Basically we need to guard against "starting" location manager unnecessarily
+  // So if both are NO *and* it's already nil, return early
+  if (!startHeading && !startLocation && locationManager == nil) {
+    return;
+  }
+
+  // Otherwise toggle based on if we're already tracking heading/location
+  CLLocationManager *lm = [self locationManager];
+
+  // heading
+  if (startHeading && !trackingHeading) { // track heading if we aren't already...
+    [lm startUpdatingHeading];
+    trackingHeading = YES;
+  } else if (!startHeading && trackingHeading) { // turn off heading if we were and don't want to anymore...
+    trackingHeading = NO;
+    [lm stopUpdatingHeading];
+  }
+
+  // location
+  if (startLocation && !trackingLocation) { // track location if we aren't already...
+    if (trackSignificantLocationChange) {
+      [lm startMonitoringSignificantLocationChanges];
+    } else {
+      [lm startUpdatingLocation];
     }
-    if (startLocation && !trackingLocation) {
-      if (trackSignificantLocationChange) {
-        [lm startMonitoringSignificantLocationChanges];
-      } else {
-        [lm startUpdatingLocation];
-      }
-      trackingLocation = YES;
+    trackingLocation = YES;
+  } else if (!startLocation && trackingLocation) { // turn off location if we were and don't want to anymore...
+    trackingLocation = NO;
+    if (trackSignificantLocationChange) {
+      [lm stopMonitoringSignificantLocationChanges];
+    } else {
+      [lm stopUpdatingLocation];
     }
-  } else if ((!startHeading || !startLocation) && locationManager != nil) {
-    CLLocationManager *lm = [self locationManager];
-    if (!startHeading && trackingHeading) {
-      trackingHeading = NO;
-      [lm stopUpdatingHeading];
-    }
-    if (!startLocation && trackingLocation) {
-      trackingLocation = NO;
-      if (trackSignificantLocationChange) {
-        [lm stopMonitoringSignificantLocationChanges];
-      } else {
-        [lm stopUpdatingLocation];
-      }
-    }
-    if ((!startHeading && !startLocation) || (!trackingHeading && !trackingLocation)) {
-      [self shutdownLocationManager];
-      trackingLocation = NO;
-      trackingHeading = NO;
-    }
+  }
+
+  // If we turned both heading and location off...
+  // TODO: Move this to top? it turns off heading/location under the covers if necessary
+  if (!trackingHeading && !trackingLocation) {
+    [self shutdownLocationManager]; // shut down the location manager
   }
 }
 
@@ -481,35 +422,57 @@ extern NSString *const TI_APPLICATION_GUID;
 
 GETTER_IMPL(BOOL, hasCompass, HasCompass);
 
-- (void)performGeo:(NSString *)direction address:(NSString *)address callback:(GeolocationCallback *)callback
-{
-  [[TiApp app] startNetwork];
-
-  id aguid = TI_APPLICATION_GUID;
-  id sid = [[TiApp app] sessionId];
-
-  NSMutableDictionary *params = [@{
-    @"d" : direction,
-    @"aguid" : aguid,
-    @"mid" : [TiUtils appIdentifier],
-    @"sid" : sid,
-    @"q" : address,
-  } mutableCopy];
-
-  NSString *countryCode = [[NSLocale currentLocale] objectForKey:NSLocaleCountryCode];
-  if (countryCode) {
-    [params setValue:countryCode forKey:@"c"];
-  }
-  [callback start:params];
-  RELEASE_TO_NIL(params);
-}
-
 - (JSValue *)reverseGeocoder:(double)latitude longitude:(double)longitude withCallback:(JSValue *)callback
 {
 #ifndef __clang_analyzer__ // Ignore static analyzer error here, memory will be released. See TIMOB-19444
   KrollPromise *promise = [[[KrollPromise alloc] initInContext:[self currentContext]] autorelease];
   ReverseGeoCallback *rcb = [[ReverseGeoCallback alloc] initWithCallback:callback andPromise:promise];
-  [self performGeo:@"r" address:[NSString stringWithFormat:@"%f,%f", latitude, longitude] callback:rcb];
+
+  CLGeocoder *geoCoder = [[[CLGeocoder alloc] init] autorelease];
+  CLLocation *clLocation = [[[CLLocation alloc] initWithLatitude:latitude longitude:longitude] autorelease];
+  [geoCoder reverseGeocodeLocation:clLocation
+                   preferredLocale:[NSLocale currentLocale]
+                 completionHandler:^(NSArray<CLPlacemark *> *_Nullable placemarks, NSError *_Nullable error) {
+                   if (error != nil) {
+                     [rcb requestError:error];
+                   } else {
+                     NSMutableDictionary *events = [TiUtils dictionaryWithCode:0 message:nil];
+
+                     NSMutableArray<NSMutableDictionary *> *places = [NSMutableArray array];
+                     for (CLPlacemark *placemark in placemarks) {
+                       NSMutableDictionary *place = [NSMutableDictionary dictionary];
+
+                       if (placemark.thoroughfare) {
+                         place[@"street"] = placemark.thoroughfare;
+                       }
+                       if (placemark.locality) {
+                         place[@"city"] = placemark.locality;
+                       }
+                       if (placemark.administrativeArea) {
+                         place[@"state"] = placemark.administrativeArea;
+                       }
+                       if (placemark.country) {
+                         place[@"country"] = placemark.country;
+                       }
+                       if (placemark.postalCode) {
+                         place[@"postalCode"] = placemark.postalCode;
+                       }
+                       if (placemark.ISOcountryCode) {
+                         place[@"countryCode"] = placemark.ISOcountryCode;
+                       }
+                       if (placemark.location) {
+                         place[@"latitude"] = @(placemark.location.coordinate.latitude);
+                         place[@"longitude"] = @(placemark.location.coordinate.longitude);
+                       }
+                       if (placemark.postalAddress) {
+                         place[@"address"] = [CNPostalAddressFormatter stringFromPostalAddress:placemark.postalAddress style:CNPostalAddressFormatterStyleMailingAddress];
+                       }
+                       [places addObject:place];
+                     }
+                     events[@"places"] = places;
+                     [rcb requestSuccess:events];
+                   }
+                 }];
   return promise.JSValue;
 #endif
 }
@@ -519,28 +482,53 @@ GETTER_IMPL(BOOL, hasCompass, HasCompass);
 #ifndef __clang_analyzer__ // Ignore static analyzer error here, memory will be released. See TIMOB-19444
   KrollPromise *promise = [[[KrollPromise alloc] initInContext:[self currentContext]] autorelease];
   ForwardGeoCallback *fcb = [[ForwardGeoCallback alloc] initWithCallback:callback andPromise:promise];
-  [self performGeo:@"f" address:address callback:fcb];
+  CLGeocoder *geoCoder = [[[CLGeocoder alloc] init] autorelease];
+  [geoCoder geocodeAddressString:address
+                        inRegion:nil
+                 preferredLocale:[NSLocale currentLocale]
+               completionHandler:^(NSArray<CLPlacemark *> *_Nullable placemarks, NSError *_Nullable error) {
+                 if (error != nil) {
+                   [fcb requestError:error];
+                 } else {
+                   NSMutableDictionary *events = [TiUtils dictionaryWithCode:0 message:nil];
+                   CLPlacemark *placemark = [placemarks firstObject]; // For forward geocode, take first object only
+                   if (placemark.location) {
+                     events[@"latitude"] = @(placemark.location.coordinate.latitude);
+                     events[@"longitude"] = @(placemark.location.coordinate.longitude);
+                   }
+                   [fcb requestSuccess:events];
+                 }
+               }];
   return promise.JSValue;
 #endif
 }
 
-- (void)getCurrentHeading:(JSValue *)callback
+- (JSValue *)getCurrentHeading:(JSValue *)callback
 {
   ENSURE_UI_THREAD(getCurrentHeading, callback);
-  if (singleHeading == nil) {
-    singleHeading = [[NSMutableArray alloc] initWithCapacity:1];
+  JSContext *context = [self currentContext];
+  KrollPromise *promise = [[[KrollPromise alloc] initInContext:context] autorelease];
+  HeadingCallback *cb = [[HeadingCallback alloc] initWithCallback:callback andPromise:promise];
+  if (![self headingAvailable]) {
+    // if we can't track heading we'll never fire unless we do so manually here
+    NSMutableDictionary *event = [TiUtils dictionaryWithCode:1 message:@"The location manager is not able to generate heading-related events on this device"];
+    [cb fireEvent:event withProxy:self];
+  } else {
+    // We need to hold on to the promise and optional callback in some dictionary or pair object
+    if (singleHeading == nil) {
+      singleHeading = [[NSMutableArray alloc] initWithCapacity:1];
+    }
+    [singleHeading addObject:cb];
+    [self startStopLocationManagerIfNeeded];
   }
-
-  // Need to use JSManagedValue here!
-  JSManagedValue *managedValue = [JSManagedValue managedValueWithValue:callback andOwner:self];
-  [singleHeading addObject:managedValue];
-  [self startStopLocationManagerIfNeeded];
+  return promise.JSValue;
 }
 
-- (void)getCurrentPosition:(JSValue *)callback
+- (JSValue *)getCurrentPosition:(JSValue *)callback
 {
   ENSURE_UI_THREAD(getCurrentPosition, callback);
 
+  KrollPromise *promise = [[[KrollPromise alloc] initInContext:[self currentContext]] autorelease];
   // If the location updates are started, invoke the callback directly.
   if (locationManager != nil && locationManager.location != nil && trackingLocation) {
     CLLocation *currentLocation = locationManager.location;
@@ -549,19 +537,21 @@ GETTER_IMPL(BOOL, hasCompass, HasCompass);
     event[@"type"] = @"location";
     event[@"source"] = self;
     // FIXME queue this up to happen async
-    [callback callWithArguments:@[ event ]];
+    if (callback != nil && ![callback isUndefined]) {
+      [callback callWithArguments:@[ event ]];
+    }
+    [promise resolve:@[ event ]];
   }
   // Otherwise, start the location manager.
   else {
     if (singleLocation == nil) {
       singleLocation = [[NSMutableArray alloc] initWithCapacity:1];
     }
-    // Need to use JSManagedValue here!
-    JSManagedValue *managedValue = [JSManagedValue managedValueWithValue:callback andOwner:self];
-    [callback.context.virtualMachine addManagedReference:managedValue withOwner:self];
-    [singleLocation addObject:managedValue];
+    PositionCallback *cb = [[PositionCallback alloc] initWithCallback:callback andPromise:promise];
+    [singleLocation addObject:cb];
     [self startStopLocationManagerIfNeeded];
   }
+  return promise.JSValue;
 }
 
 - (NSString *)lastGeolocation
@@ -780,24 +770,26 @@ MAKE_SYSTEM_PROP(ACTIVITYTYPE_OTHER_NAVIGATION, CLActivityTypeOtherNavigation);
 
 - (bool)hasLocationPermissions:(CLAuthorizationStatus)authorizationType
 {
-  BOOL locationServicesEnabled = [CLLocationManager locationServicesEnabled];
-  CLAuthorizationStatus currentPermissionLevel = [CLLocationManager authorizationStatus];
-  CLAuthorizationStatus requestedPermissionLevel = authorizationType;
-  return locationServicesEnabled && currentPermissionLevel == requestedPermissionLevel;
+  if (!CLLocationManager.locationServicesEnabled) {
+    return false;
+  }
+  CLAuthorizationStatus currentPermissionLevel = CLLocationManager.authorizationStatus;
+  // FIXME: If user does not supply the value, what should we do?
+  // Basically if they give a value other than AUTHORIZATION_ALWAYS, assume WHEN_IN_USE
+  CLAuthorizationStatus requestedPermissionLevel = (authorizationType == kCLAuthorizationStatusAuthorizedAlways) ? kCLAuthorizationStatusAuthorizedAlways : kCLAuthorizationStatusAuthorizedWhenInUse;
+  return currentPermissionLevel == requestedPermissionLevel;
 }
 
 - (JSValue *)requestLocationPermissions:(CLAuthorizationStatus)authorizationType withCallback:(JSValue *)callback
 {
   // Store the authorization callback for later usage
-  if (callback != nil) {
+  // FIXME: What about multiple calls before resolution. We should store in an array like we do for getCurrentPosition
+  if (callback != nil && ![callback isUndefined]) {
     if (authorizationCallback != nil) {
-      JSValue *actualCallback = [authorizationCallback value];
-      [actualCallback.context.virtualMachine removeManagedReference:authorizationCallback withOwner:self];
       [authorizationCallback release];
       authorizationCallback = nil;
     }
-    authorizationCallback = [[JSManagedValue managedValueWithValue:callback andOwner:self] retain];
-    [callback.context.virtualMachine addManagedReference:authorizationCallback withOwner:self];
+    authorizationCallback = [callback retain];
   }
 
   // Promise to return
@@ -817,8 +809,7 @@ MAKE_SYSTEM_PROP(ACTIVITYTYPE_OTHER_NAVIGATION, CLActivityTypeOtherNavigation);
     [self executeAndReleaseCallbackWithCode:0 andMessage:nil];
     return promise.JSValue;
   } else if (currentPermissionLevel == kCLAuthorizationStatusDenied) {
-    NSString *message = @"The user denied access to use location services.";
-    [self executeAndReleaseCallbackWithCode:1 andMessage:message];
+    [self executeAndReleaseCallbackWithCode:1 andMessage:@"The user denied access to use location services."];
     return promise.JSValue;
   }
 
@@ -858,7 +849,7 @@ MAKE_SYSTEM_PROP(ACTIVITYTYPE_OTHER_NAVIGATION, CLActivityTypeOtherNavigation);
 
   if (errorMessage != nil) {
     NSLog(@"[ERROR] %@", errorMessage);
-    [self executeAndReleaseCallbackWithCode:(errorMessage == nil) ? 0 : 1 andMessage:errorMessage];
+    [self executeAndReleaseCallbackWithCode:1 andMessage:errorMessage];
     RELEASE_TO_NIL(errorMessage);
   }
   return promise.JSValue;
@@ -875,6 +866,10 @@ MAKE_SYSTEM_PROP(ACTIVITYTYPE_OTHER_NAVIGATION, CLActivityTypeOtherNavigation);
   NSDictionary *descriptionDict = [[NSBundle mainBundle] objectForInfoDictionaryKey:kTiGeolocationTemporaryUsageDescriptionDictionary];
   if (!descriptionDict || ![descriptionDict valueForKey:purposeKey]) {
     DebugLog(@"[WARN] Add %@ key with purpose key %@ in info.plist", kTiGeolocationTemporaryUsageDescriptionDictionary, purposeKey);
+    NSString *msg = [NSString stringWithFormat:@"Add %@ key with purpose key %@ in info.plist", kTiGeolocationTemporaryUsageDescriptionDictionary, purposeKey];
+    NSMutableDictionary *propertiesDict = [TiUtils dictionaryWithCode:1 message:msg];
+    [callback callWithArguments:@[ propertiesDict ]];
+    return;
   }
   [[self locationPermissionManager] requestTemporaryFullAccuracyAuthorizationWithPurposeKey:purposeKey
                                                                                  completion:^(NSError *_Nullable error) {
@@ -920,7 +915,7 @@ READWRITE_IMPL(bool, showCalibration, ShowCalibration);
 {
   NSMutableDictionary *fullDict = [TiUtils dictionaryWithCode:code message:message];
   if (dict != nil) {
-    [fullDict setDictionary:dict];
+    [fullDict addEntriesFromDictionary:dict];
   }
   NSArray *invocationArray = @[ fullDict ];
 
@@ -928,17 +923,17 @@ READWRITE_IMPL(bool, showCalibration, ShowCalibration);
     if (code == 0) {
       [authorizationPromise resolve:invocationArray];
     } else {
-      [authorizationPromise reject:invocationArray];
+      [authorizationPromise rejectWithErrorMessage:message];
     }
     [authorizationPromise release];
     authorizationPromise = nil;
   }
 
   if (authorizationCallback != nil) {
-    JSValue *actualCallback = [authorizationCallback value];
-    [actualCallback callWithArguments:invocationArray];
+    if (![authorizationCallback isUndefined]) {
+      [authorizationCallback callWithArguments:invocationArray];
+    }
     // release the stored callback
-    [actualCallback.context.virtualMachine removeManagedReference:authorizationCallback withOwner:self];
     [authorizationCallback release];
     authorizationCallback = nil;
   }
@@ -996,10 +991,8 @@ READWRITE_IMPL(bool, showCalibration, ShowCalibration);
 {
   // check to see if we have any single shot location callbacks
   if (singleLocation != nil) {
-    for (JSManagedValue *managedCallback in singleLocation) {
-      JSValue *callback = [managedCallback value];
-      [self _fireEventToListener:@"location" withObject:event listener:callback];
-      [callback.context.virtualMachine removeManagedReference:managedCallback withOwner:self];
+    for (PositionCallback *cb in singleLocation) {
+      [cb fireEvent:event withProxy:self];
     }
 
     // after firing, we remove them
@@ -1018,10 +1011,8 @@ READWRITE_IMPL(bool, showCalibration, ShowCalibration);
 {
   // check to see if we have any single shot heading callbacks
   if (singleHeading != nil) {
-    for (JSManagedValue *managedCallback in singleHeading) {
-      JSValue *callback = [managedCallback value];
-      [self _fireEventToListener:@"heading" withObject:event listener:callback];
-      [callback.context.virtualMachine removeManagedReference:managedCallback withOwner:self];
+    for (HeadingCallback *cb in singleHeading) {
+      [cb fireEvent:event withProxy:self];
     }
 
     // after firing, we remove them
@@ -1085,7 +1076,7 @@ READWRITE_IMPL(bool, showCalibration, ShowCalibration);
   BOOL requestedStatusMatchesActualStatus = status == requestedAuthorizationStatus;
 
   // The new callback for android parity used inside Ti.Geolocation.requestLocationPermissions()
-  if (authorizationCallback != nil && status != kCLAuthorizationStatusNotDetermined) {
+  if (authorizationPromise != nil && status != kCLAuthorizationStatusNotDetermined) {
     int code = 0;
     NSString *errorStr = nil;
 
@@ -1150,7 +1141,12 @@ READWRITE_IMPL(bool, showCalibration, ShowCalibration);
 
 - (void)locationManager:(CLLocationManager *)manager didFailWithError:(NSError *)error
 {
-  NSMutableDictionary *event = [TiUtils dictionaryWithCode:[error code] message:[TiUtils messageFromError:error]];
+  // Error code may be 0 here, but then we report success!
+  NSInteger code = error.code;
+  if (code == 0) {
+    code = -1; // explicitly use non-zero code to force success to be false!
+  }
+  NSMutableDictionary *event = [TiUtils dictionaryWithCode:code message:[TiUtils messageFromError:error]];
 
   if ([self _hasListeners:@"location"]) {
     [self fireEvent:@"location" withDict:event];

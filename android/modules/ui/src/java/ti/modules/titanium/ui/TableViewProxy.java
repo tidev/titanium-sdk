@@ -13,43 +13,51 @@ import java.util.List;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiC;
+import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.view.TiUIView;
 
 import android.app.Activity;
+import android.view.View;
 
+import androidx.recyclerview.selection.SelectionTracker;
 import androidx.recyclerview.widget.RecyclerView;
 
 import ti.modules.titanium.ui.widget.TiUITableView;
 import ti.modules.titanium.ui.widget.listview.RecyclerViewProxy;
-import ti.modules.titanium.ui.widget.tableview.TableViewAdapter;
 import ti.modules.titanium.ui.widget.tableview.TiTableView;
+
+import static android.util.TypedValue.COMPLEX_UNIT_DIP;
 
 @Kroll.proxy(
 	creatableInModule = UIModule.class,
 	propertyAccessors = {
 		TiC.PROPERTY_EDITABLE,
 		TiC.PROPERTY_EDITING,
-		TiC.PROPERTY_FILTER_ATTRIBUTE,
 		TiC.PROPERTY_FILTER_ANCHORED,
+		TiC.PROPERTY_FILTER_ATTRIBUTE,
 		TiC.PROPERTY_FILTER_CASE_INSENSITIVE,
-		TiC.PROPERTY_HEADER_TITLE,
-		TiC.PROPERTY_HEADER_VIEW,
+		TiC.PROPERTY_FOOTER_DIVIDERS_ENABLED,
 		TiC.PROPERTY_FOOTER_TITLE,
 		TiC.PROPERTY_FOOTER_VIEW,
+		TiC.PROPERTY_HEADER_DIVIDERS_ENABLED,
+		TiC.PROPERTY_HEADER_TITLE,
+		TiC.PROPERTY_HEADER_VIEW,
+		TiC.PROPERTY_MAX_CLASSNAME,
+		TiC.PROPERTY_MIN_ROW_HEIGHT,
+		TiC.PROPERTY_MOVABLE,
+		TiC.PROPERTY_MOVEABLE,
+		TiC.PROPERTY_MOVING,
+		TiC.PROPERTY_OVER_SCROLL_MODE,
+		TiC.PROPERTY_REFRESH_CONTROL,
+		TiC.PROPERTY_SCROLLABLE,
 		TiC.PROPERTY_SEARCH,
 		TiC.PROPERTY_SEPARATOR_COLOR,
 		TiC.PROPERTY_SEPARATOR_STYLE,
-		TiC.PROPERTY_OVER_SCROLL_MODE,
-		TiC.PROPERTY_MIN_ROW_HEIGHT,
-		TiC.PROPERTY_MOVABLE,
-		TiC.PROPERTY_MOVING,
-		TiC.PROPERTY_HEADER_DIVIDERS_ENABLED,
-		TiC.PROPERTY_FOOTER_DIVIDERS_ENABLED,
-		TiC.PROPERTY_MAX_CLASSNAME,
-		TiC.PROPERTY_REFRESH_CONTROL,
-		TiC.PROPERTY_SCROLLABLE,
-		TiC.PROPERTY_SHOW_VERTICAL_SCROLL_INDICATOR
+		TiC.PROPERTY_SHOW_SELECTION_CHECK,
+		TiC.PROPERTY_SHOW_VERTICAL_SCROLL_INDICATOR,
+		TiC.PROPERTY_TOUCH_FEEDBACK,
+		TiC.PROPERTY_TOUCH_FEEDBACK_COLOR
 	}
 )
 public class TableViewProxy extends RecyclerViewProxy
@@ -58,12 +66,16 @@ public class TableViewProxy extends RecyclerViewProxy
 
 	private final List<TableViewSectionProxy> sections = new ArrayList<>();
 
+	private KrollDict contentOffset = null;
+
 	public TableViewProxy()
 	{
 		super();
 
 		defaultValues.put(TiC.PROPERTY_OVER_SCROLL_MODE, 0);
 		defaultValues.put(TiC.PROPERTY_SCROLLABLE, true);
+		defaultValues.put(TiC.PROPERTY_SHOW_SELECTION_CHECK, true);
+		defaultValues.put(TiC.PROPERTY_TOUCH_FEEDBACK, true);
 	}
 
 	/**
@@ -222,10 +234,12 @@ public class TableViewProxy extends RecyclerViewProxy
 		final TiTableView tableView = getTableView();
 
 		if (tableView != null) {
-			final TableViewRowProxy item = tableView.getAdapterItem(adapterIndex);
-			final TableViewSectionProxy section = (TableViewSectionProxy) item.getParent();
+			final TableViewRowProxy row = tableView.getAdapterItem(adapterIndex);
+			final TableViewSectionProxy section = (TableViewSectionProxy) row.getParent();
 
-			section.remove(item);
+			row.fireSyncEvent(TiC.EVENT_DELETE, null);
+
+			section.remove(row);
 		}
 	}
 
@@ -314,15 +328,86 @@ public class TableViewProxy extends RecyclerViewProxy
 	@Kroll.method
 	public void deleteSection(int index, @Kroll.argument(optional = true) KrollDict animation)
 	{
-		this.sections.remove(getSectionByIndex(index));
+		final TableViewSectionProxy section = getSectionByIndex(index);
 
-		update();
+		if (section != null) {
+			this.sections.remove(section);
+			section.setParent(null);
+
+			update();
+		}
 	}
 
 	@Override
 	public String getApiName()
 	{
 		return "Ti.UI.TableView";
+	}
+
+	// NOTE: For internal use only.
+	public KrollDict getContentOffset()
+	{
+		final TiTableView tableView = getTableView();
+
+		if (tableView != null) {
+			final KrollDict contentOffset = new KrollDict();
+
+			final int x = (int) new TiDimension(tableView.getScrollOffsetX(),
+				TiDimension.TYPE_WIDTH, COMPLEX_UNIT_DIP).getAsDefault(tableView);
+			final int y = (int) new TiDimension(tableView.getScrollOffsetY(),
+				TiDimension.TYPE_HEIGHT, COMPLEX_UNIT_DIP).getAsDefault(tableView);
+
+			contentOffset.put(TiC.PROPERTY_X, x);
+			contentOffset.put(TiC.PROPERTY_Y, y);
+
+			// NOTE: Since obtaining the scroll offset from RecyclerView is unreliable
+			// when items are added/removed, also grab the current visible item instead.
+			final TableViewRowProxy firstVisibleItem = tableView.getFirstVisibleItem();
+			if (firstVisibleItem != null) {
+				final int currentIndex = tableView.getAdapterIndex(firstVisibleItem.index);
+				contentOffset.put(TiC.PROPERTY_INDEX, currentIndex);
+			}
+
+			this.contentOffset = contentOffset;
+		}
+
+		return this.contentOffset;
+	}
+
+	@Kroll.method
+	public void setContentOffset(KrollDict contentOffset, @Kroll.argument(optional = true) KrollDict options)
+	{
+		final TiTableView tableView = getTableView();
+
+		if (contentOffset != null) {
+			this.contentOffset = contentOffset;
+
+			if (tableView != null) {
+
+				if (contentOffset.containsKeyAndNotNull(TiC.PROPERTY_INDEX)) {
+
+					// If available, scroll to provided index provided by internal `getContentOffset()` method.
+					tableView.getRecyclerView().scrollToPosition(contentOffset.getInt(TiC.PROPERTY_INDEX));
+					return;
+				}
+
+				final int x = contentOffset.optInt(TiC.EVENT_PROPERTY_X, 0);
+				final int y = contentOffset.optInt(TiC.EVENT_PROPERTY_Y, 0);
+				final int pixelX = new TiDimension(x, TiDimension.TYPE_WIDTH).getAsPixels(tableView);
+				final int pixelY = new TiDimension(y, TiDimension.TYPE_HEIGHT).getAsPixels(tableView);
+
+				// NOTE: `scrollTo()` is not supported, this is a minor workaround.
+				tableView.getRecyclerView().scrollToPosition(0);
+				tableView.getRecyclerView().post(new Runnable()
+				{
+					@Override
+					public void run()
+					{
+						tableView.getRecyclerView().scrollBy(pixelX, pixelY);
+					}
+				});
+			}
+		}
 	}
 
 	/**
@@ -348,6 +433,10 @@ public class TableViewProxy extends RecyclerViewProxy
 	public void setData(Object[] data)
 	// clang-format on
 	{
+		for (final TableViewSectionProxy section : this.sections) {
+			section.releaseViews();
+			section.setParent(null);
+		}
 		this.sections.clear();
 
 		for (Object d : data) {
@@ -409,6 +498,17 @@ public class TableViewProxy extends RecyclerViewProxy
 	}
 
 	/**
+	 * Obtain section index from section.
+	 *
+	 * @param section Section in table.
+	 * @return Integer of index.
+	 */
+	private int getIndexOfSection(TableViewSectionProxy section)
+	{
+		return this.sections.indexOf(section);
+	}
+
+	/**
 	 * Get current section count.
 	 *
 	 * @return Integer of section count.
@@ -427,7 +527,7 @@ public class TableViewProxy extends RecyclerViewProxy
 	@Kroll.getProperty
 	public TableViewSectionProxy[] getSections()
 	{
-		return this.sections.toArray(new TableViewSectionProxy[this.sections.size()]);
+		return this.sections.toArray(new TableViewSectionProxy[0]);
 	}
 
 	/**
@@ -458,6 +558,12 @@ public class TableViewProxy extends RecyclerViewProxy
 		// Update table if being re-used.
 		if (view != null) {
 			update();
+
+			if (this.contentOffset != null) {
+
+				// Restore previous content position.
+				setContentOffset(this.contentOffset, null);
+			}
 		}
 
 		return view;
@@ -622,6 +728,8 @@ public class TableViewProxy extends RecyclerViewProxy
 	@Override
 	public void releaseViews()
 	{
+		this.contentOffset = getContentOffset();
+
 		super.releaseViews();
 
 		for (TableViewSectionProxy section : this.sections) {
@@ -639,12 +747,41 @@ public class TableViewProxy extends RecyclerViewProxy
 	public void scrollToIndex(int index, @Kroll.argument(optional = true) KrollDict animation)
 	{
 		final TiTableView tableView = getTableView();
+		final boolean animated = animation == null || animation.optBoolean(TiC.PROPERTY_ANIMATED, true);
 
 		if (tableView != null) {
 			final RecyclerView recyclerView = tableView.getRecyclerView();
 
 			if (recyclerView != null) {
-				recyclerView.scrollToPosition(tableView.getAdapterIndex(index));
+				final TableViewRowProxy row = getRowByIndex(index);
+
+				if (row != null) {
+					final int rowAdapterIndex = tableView.getAdapterIndex(index);
+					final Runnable action = () -> {
+						if (animated) {
+							recyclerView.smoothScrollToPosition(rowAdapterIndex);
+						} else {
+							recyclerView.scrollToPosition(rowAdapterIndex);
+						}
+					};
+
+					// This is a workaround for when `EDITING` mode is set, as it recreates the TableView.
+					// We need to listen for when it has updated before scrolling.
+					if (!tableView.getHasLaidOutChildren()) {
+						tableView.addOnLayoutChangeListener(new View.OnLayoutChangeListener()
+						{
+							@Override
+							public void onLayoutChange(View view, int i, int i1, int i2, int i3, int i4, int i5, int i6,
+													   int i7)
+							{
+								action.run();
+								tableView.removeOnLayoutChangeListener(this);
+							}
+						});
+					} else {
+						action.run();
+					}
+				}
 			}
 		}
 	}
@@ -677,14 +814,34 @@ public class TableViewProxy extends RecyclerViewProxy
 			final TiTableView tableView = getTableView();
 
 			if (tableView != null) {
-				final RecyclerView recyclerView = tableView.getRecyclerView();
+				final Runnable action = () -> {
+					final SelectionTracker tracker = tableView.getTracker();
+					final TiUIView rowView = row.peekView();
+					final boolean visible = rowView != null && rowView.getNativeView().isShown();
 
-				if (recyclerView != null) {
-					final TableViewAdapter adapter = (TableViewAdapter) recyclerView.getAdapter();
-
-					if (adapter != null) {
-						adapter.getTracker().select(row);
+					if (!visible) {
+						scrollToIndex(index, null);
 					}
+					if (tracker != null) {
+						tracker.select(row);
+					}
+				};
+
+				// This is a workaround for when `EDITING` mode is set, as it recreates the TableView.
+				// We need to listen for when it has updated before testing visibility/scrolling.
+				if (!tableView.getHasLaidOutChildren()) {
+					tableView.addOnLayoutChangeListener(new View.OnLayoutChangeListener()
+					{
+						@Override
+						public void onLayoutChange(View view, int i, int i1, int i2, int i3, int i4, int i5, int i6,
+												   int i7)
+						{
+							action.run();
+							tableView.removeOnLayoutChangeListener(this);
+						}
+					});
+				} else {
+					action.run();
 				}
 			}
 		}
@@ -696,6 +853,25 @@ public class TableViewProxy extends RecyclerViewProxy
 		super.onPropertyChanged(name, value);
 
 		processProperty(name, value);
+	}
+
+	/**
+	 * Sets the activity this proxy's view should be attached to.
+	 * @param activity The activity this proxy's view should be attached to.
+	 */
+	@Override
+	public void setActivity(Activity activity)
+	{
+		super.setActivity(activity);
+
+		if (hasPropertyAndNotNull(TiC.PROPERTY_SEARCH)) {
+			final TiViewProxy search = (TiViewProxy) getProperty(TiC.PROPERTY_SEARCH);
+			search.setActivity(activity);
+		}
+
+		for (TableViewSectionProxy section : this.sections) {
+			section.setActivity(activity);
+		}
 	}
 
 	/**
@@ -722,12 +898,21 @@ public class TableViewProxy extends RecyclerViewProxy
 	{
 		if (name.equals(TiC.PROPERTY_DATA) || name.equals(TiC.PROPERTY_SECTIONS)) {
 			setData((Object[]) value);
-		}
 
-		if (name.equals(TiC.PROPERTY_EDITING)
-			|| name.equals(TiC.PROPERTY_MOVING)) {
+		} else if (name.equals(TiC.PROPERTY_EDITING)) {
+			final TiViewProxy parent = getParent();
 
-			// Update table to display drag-handles.
+			if (parent != null) {
+
+				// Due to Android limitations, selection trackers cannot be removed.
+				// Re-create TableView with new selection tracker.
+				parent.recreateChild(this);
+			}
+
+		} else if (name.equals(TiC.PROPERTY_MOVING)
+			|| name.equals(TiC.PROPERTY_SHOW_SELECTION_CHECK)) {
+
+			// Update and refresh table.
 			update();
 		}
 	}

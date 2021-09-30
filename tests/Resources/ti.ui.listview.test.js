@@ -1016,6 +1016,8 @@ describe('Titanium.UI.ListView', function () {
 			extendEdges: [ Ti.UI.EXTEND_EDGE_ALL ]
 		});
 
+		const control = Ti.UI.createRefreshControl();
+
 		window.addEventListener('open', function () {
 			control.beginRefreshing();
 		});
@@ -1023,8 +1025,6 @@ describe('Titanium.UI.ListView', function () {
 		const nav = Ti.UI.createNavigationWindow({
 			window: window
 		});
-
-		const control = Ti.UI.createRefreshControl();
 
 		const listView = Ti.UI.createListView({
 			refreshControl: control
@@ -1124,9 +1124,10 @@ describe('Titanium.UI.ListView', function () {
 		win.open();
 	});
 
-	it('ListViewItem scaling (percent)', () => {
+	it('ListViewItem scaling (percent)', function () {
 		// FIXME: Does not honour scale correctly on macOS: https://jira.appcelerator.org/browse/TIMOB-28261
 		if (isCI && utilities.isMacOS() && OS_VERSION_MAJOR < 11) {
+			this.skip();
 			return;
 		}
 
@@ -1160,9 +1161,10 @@ describe('Titanium.UI.ListView', function () {
 		should(view).matchImage('snapshots/listViewItemScaling_percent.png', { maxPixelMismatch: OS_IOS ? 2 : 0 }); // 2 pixels differ on actual iPhone
 	});
 
-	it('ListViewItem scaling (FILL)', () => {
+	it('ListViewItem scaling (FILL)', function () {
 		// FIXME: Does not honour scale correctly on macOS: https://jira.appcelerator.org/browse/TIMOB-28261
 		if (isCI && utilities.isMacOS() && OS_VERSION_MAJOR < 11) {
+			this.skip();
 			return;
 		}
 
@@ -1196,9 +1198,10 @@ describe('Titanium.UI.ListView', function () {
 		should(view).matchImage('snapshots/listViewItemScaling_fill.png', { maxPixelMismatch: OS_IOS ? 10 : 0 }); // 10 pixels differ on actual iPhone
 	});
 
-	it('ListViewItem accessoryType', () => {
+	it('ListViewItem accessoryType', function () {
 		// FIXME: Does not honour scale correctly on macOS: https://jira.appcelerator.org/browse/TIMOB-28261
 		if (isCI && utilities.isMacOS() && OS_VERSION_MAJOR < 11) {
+			this.skip();
 			return;
 		}
 
@@ -1231,9 +1234,10 @@ describe('Titanium.UI.ListView', function () {
 		should(view).matchImage('snapshots/listViewItem_accessoryTypes.png', { maxPixelMismatch: OS_IOS ? 378 : 0 }); // iphone device can differ by 378
 	});
 
-	it('ListViewItem borderRadius', () => {
+	it('ListViewItem borderRadius', function () {
 		// FIXME: Does not honour scale correctly on macOS: https://jira.appcelerator.org/browse/TIMOB-28261
 		if (isCI && utilities.isMacOS() && OS_VERSION_MAJOR < 11) {
+			this.skip();
 			return;
 		}
 
@@ -1267,9 +1271,10 @@ describe('Titanium.UI.ListView', function () {
 		should(view).matchImage('snapshots/listViewItem_borderRadius.png', { maxPixelMismatch: OS_IOS ? 28 : 0 }); // 28 pixels differ on actual iPhone
 	});
 
-	it('ListItem default template layout', () => {
+	it('ListItem default template layout', function () {
 		// FIXME: Does not honour scale correctly on macOS: https://jira.appcelerator.org/browse/TIMOB-28261
 		if (isCI && utilities.isMacOS() && OS_VERSION_MAJOR < 11) {
+			this.skip();
 			return;
 		}
 
@@ -1300,9 +1305,10 @@ describe('Titanium.UI.ListView', function () {
 		should(view).matchImage('snapshots/listItem_defaultTemplate.png', { maxPixelMismatch: OS_IOS ? 21 : 0 }); // 21 pixels differ on actual iPhone
 	});
 
-	it('ListItem template property', () => {
+	it('ListItem template property', function () {
 		// FIXME: Does not honour scale correctly on macOS: https://jira.appcelerator.org/browse/TIMOB-28261
 		if (isCI && utilities.isMacOS() && OS_VERSION_MAJOR < 11) {
+			this.skip();
 			return;
 		}
 
@@ -1353,9 +1359,10 @@ describe('Titanium.UI.ListView', function () {
 		should(view).matchImage('snapshots/listViewItem_template.png', { maxPixelMismatch: OS_IOS ? 23 : 0 }); // 23 pixels differ on actual iPhone
 	});
 
-	it('ListView header & footer', () => {
+	it('ListView header & footer', function () {
 		// FIXME: Does not honour scale correctly on macOS: https://jira.appcelerator.org/browse/TIMOB-28261
 		if (isCI && utilities.isMacOS() && OS_VERSION_MAJOR < 11) {
+			this.skip();
 			return;
 		}
 
@@ -1381,9 +1388,10 @@ describe('Titanium.UI.ListView', function () {
 		should(view).matchImage('snapshots/listView_header_footer.png', options);
 	});
 
-	it('ListView + ListSection header & footer', () => {
+	it('ListView + ListSection header & footer', function () {
 		// FIXME: Does not honour scale correctly on macOS: https://jira.appcelerator.org/browse/TIMOB-28261
 		if (isCI && utilities.isMacOS() && OS_VERSION_MAJOR < 11) {
+			this.skip();
 			return;
 		}
 
@@ -1416,7 +1424,7 @@ describe('Titanium.UI.ListView', function () {
 
 	it.ios('All text should show if ListView.style is .INSET_GROUPED ', () => {
 		// FIXME: Does not honour scale correctly on macOS: https://jira.appcelerator.org/browse/TIMOB-28261
-		if (isCI && utilities.isMacOS() && OS_VERSION_MAJOR < 11) {
+		if (utilities.isMacOS() && OS_VERSION_MAJOR < 11) {
 			return;
 		}
 

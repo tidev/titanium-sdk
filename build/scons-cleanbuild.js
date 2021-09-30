@@ -7,7 +7,6 @@ program
 	.option('-v, --sdk-version [version]', 'Override the SDK version we report', process.env.PRODUCT_VERSION || version)
 	.option('-t, --version-tag [tag]', 'Override the SDK version tag we report')
 	.option('-s, --android-sdk [path]', 'Explicitly set the path to the Android SDK used for building')
-	.option('-n, --android-ndk [path]', 'Explicitly set the path to the Android NDK used for building')
 	.option('--no-docs', 'Do not produce docs')
 	.option('--symlink', 'If possible, symlink the SDK folder to destination rather than copying')
 	.option('-a, --all', 'Build a zipfile for every OS')
@@ -16,7 +15,7 @@ program
 
 async function main(program) {
 	const Builder = require('./lib/builder');
-	const builder = new Builder(program);
+	const builder = new Builder(program.opts(), program.args);
 	await builder.clean();
 	await builder.build();
 	await builder.generateDocs();

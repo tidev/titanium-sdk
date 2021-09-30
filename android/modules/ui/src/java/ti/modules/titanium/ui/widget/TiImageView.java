@@ -1,23 +1,20 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2021 by Axway, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 package ti.modules.titanium.ui.widget;
 
-import java.lang.ref.WeakReference;
-
-import org.appcelerator.kroll.common.Log;
-import org.appcelerator.titanium.proxy.TiViewProxy;
-import org.appcelerator.titanium.util.TiUIHelper;
 import android.content.Context;
+import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.graphics.ColorFilter;
 import android.graphics.Matrix;
-import android.graphics.Rect;
-import android.graphics.RectF;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.RippleDrawable;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
@@ -30,7 +27,14 @@ import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
 import android.widget.ZoomControls;
 import android.graphics.PorterDuff.Mode;
+import com.google.android.material.color.MaterialColors;
+import java.lang.ref.WeakReference;
+import org.appcelerator.titanium.proxy.TiViewProxy;
+import org.appcelerator.titanium.R;
+import org.appcelerator.titanium.util.TiExifOrientation;
+import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.util.TiColorHelper;
+import ti.modules.titanium.media.MediaModule;
 
 public class TiImageView extends ViewGroup implements Handler.Callback, OnClickListener
 {
@@ -43,13 +47,17 @@ public class TiImageView extends ViewGroup implements Handler.Callback, OnClickL
 
 	private OnClickListener clickListener;
 
-	private boolean enableScale;
 	private boolean enableZoomControls;
+
+	private boolean isImageRippleEnabled;
+	private int imageRippleColor;
+	private int defaultRippleColor;
 
 	private GestureDetector gestureDetector;
 	private ImageView imageView;
 	private ZoomControls zoomControls;
 
+	private int scalingMode = MediaModule.IMAGE_SCALING_AUTO;
 	private float scaleFactor;
 	private float scaleIncrement;
 	private float scaleMin;
@@ -62,7 +70,7 @@ public class TiImageView extends ViewGroup implements Handler.Callback, OnClickL
 	private boolean viewWidthDefined;
 	private boolean viewHeightDefined;
 
-	private int orientation;
+	private TiExifOrientation exifOrientation = TiExifOrientation.UPRIGHT;
 	private int tintColor;
 	private WeakReference<TiViewProxy> proxy;
 
@@ -79,14 +87,17 @@ public class TiImageView extends ViewGroup implements Handler.Callback, OnClickL
 		scaleIncrement = 0.1f;
 		scaleMin = 1.0f;
 		scaleMax = 5.0f;
-		orientation = 0;
 
 		baseMatrix = new Matrix();
 		changeMatrix = new Matrix();
 
+		this.defaultRippleColor = MaterialColors.getColor(context, R.attr.colorControlHighlight, Color.DKGRAY);
+		this.imageRippleColor = defaultRippleColor;
+
 		imageView = new ImageView(context);
+		imageView.setAdjustViewBounds(true);
+		imageView.setScaleType(ScaleType.MATRIX);
 		addView(imageView);
-		setEnableScale(true);
 
 		gestureDetector = new GestureDetector(getContext(), new GestureDetector.SimpleOnGestureListener() {
 			@Override
@@ -156,13 +167,7 @@ public class TiImageView extends ViewGroup implements Handler.Callback, OnClickL
 	public TiImageView(Context context, TiViewProxy proxy)
 	{
 		this(context);
-		this.proxy = new WeakReference<TiViewProxy>(proxy);
-	}
-
-	public void setEnableScale(boolean enableScale)
-	{
-		this.enableScale = enableScale;
-		updateScaleType();
+		this.proxy = new WeakReference<>(proxy);
 	}
 
 	public void setEnableZoomControls(boolean enableZoomControls)
@@ -171,9 +176,78 @@ public class TiImageView extends ViewGroup implements Handler.Callback, OnClickL
 		updateScaleType();
 	}
 
+	public void setScalingMode(int mode)
+	{
+		if (mode != this.scalingMode) {
+			this.scalingMode = mode;
+			requestLayout();
+		}
+	}
+
+	public boolean isImageRippleEnabled()
+	{
+		return this.isImageRippleEnabled;
+	}
+
+	public void setIsImageRippleEnabled(boolean value)
+	{
+		// Do not continue if setting isn't changing.
+		if (this.isImageRippleEnabled == value) {
+			return;
+		}
+
+		// Add or remove RippleDrawable to the image.
+		this.isImageRippleEnabled = value;
+		Bitmap bitmap = getImageBitmap();
+		if (bitmap != null) {
+			setImageBitmap(bitmap);
+		}
+	}
+
+	public int getImageRippleColor()
+	{
+		return this.imageRippleColor;
+	}
+
+	public int getDefaultRippleColor()
+	{
+		return this.defaultRippleColor;
+	}
+
+	public void setImageRippleColor(int value)
+	{
+		// Do not continue if setting isn't changing.
+		if (this.imageRippleColor == value) {
+			return;
+		}
+
+		// Update image's RippleDrawable with given color.
+		this.imageRippleColor = value;
+		if (this.isImageRippleEnabled) {
+			Bitmap bitmap = getImageBitmap();
+			if (bitmap != null) {
+				setImageBitmap(bitmap);
+			}
+		}
+	}
+
 	public Drawable getImageDrawable()
 	{
 		return imageView.getDrawable();
+	}
+
+	public Bitmap getImageBitmap()
+	{
+		Drawable drawable = getImageDrawable();
+		if (drawable instanceof RippleDrawable) {
+			if (((RippleDrawable) drawable).getNumberOfLayers() > 0) {
+				drawable = ((RippleDrawable) drawable).getDrawable(0);
+			}
+		}
+		if (drawable instanceof BitmapDrawable) {
+			return ((BitmapDrawable) drawable).getBitmap();
+		}
+		return null;
 	}
 
 	/**
@@ -182,15 +256,20 @@ public class TiImageView extends ViewGroup implements Handler.Callback, OnClickL
 	 */
 	public void setImageBitmap(Bitmap bitmap)
 	{
+		// Remove image from view if given null.
 		if (bitmap == null) {
-
-			// Reset drawable to null.
-			// setImageBitmap() will create a drawable that will affect width/height.
-			imageView.setImageDrawable(null);
+			this.imageView.setImageDrawable(null);
 			return;
 		}
 
-		imageView.setImageBitmap(bitmap);
+		// Apply the image to the view.
+		if (this.isImageRippleEnabled) {
+			BitmapDrawable bitmapDrawable = new BitmapDrawable(this.imageView.getContext().getResources(), bitmap);
+			this.imageView.setImageDrawable(
+				new RippleDrawable(ColorStateList.valueOf(this.imageRippleColor), bitmapDrawable, null));
+		} else {
+			this.imageView.setImageBitmap(bitmap);
+		}
 	}
 
 	public void setOnClickListener(OnClickListener clickListener)
@@ -269,56 +348,83 @@ public class TiImageView extends ViewGroup implements Handler.Callback, OnClickL
 
 	private void computeBaseMatrix()
 	{
-		Drawable d = imageView.getDrawable();
-		baseMatrix.reset();
+		// Reset base matrix used to apply "scalingMode" and EXIF orientation to image,
+		// but does not have "zoom" scaling/panning applied to it.
+		this.baseMatrix.reset();
 
-		if (d != null) {
-			// The base matrix is the matrix that displays the entire image bitmap.
-			// It orients the image when orientation is set and scales in X and Y independently,
-			// so that src matches dst exactly.
-			// This may change the aspect ratio of the src.
-			Rect r = new Rect();
-			getDrawingRect(r);
-			int intrinsicWidth = d.getIntrinsicWidth();
-			int intrinsicHeight = d.getIntrinsicHeight();
-			int dwidth = intrinsicWidth;
-			int dheight = intrinsicHeight;
+		// Fetch the image drawable.
+		Drawable drawable = imageView.getDrawable();
+		if (drawable == null) {
+			return;
+		}
 
-			if (orientation > 0) {
-				baseMatrix.postRotate(orientation);
-				if (orientation == 90 || orientation == 270) {
-					dwidth = intrinsicHeight;
-					dheight = intrinsicWidth;
-				}
+		// Fetch the image's pixel dimensions.
+		boolean isUpright = !this.exifOrientation.isSideways();
+		float imageWidth = isUpright ? drawable.getIntrinsicWidth() : drawable.getIntrinsicHeight();
+		float imageHeight = isUpright ? drawable.getIntrinsicHeight() : drawable.getIntrinsicWidth();
+
+		// Rotate image to upright position and undo mirroring if needed.
+		if (this.exifOrientation != TiExifOrientation.UPRIGHT) {
+			this.baseMatrix.postRotate(this.exifOrientation.getDegreesCounterClockwise());
+			switch (this.exifOrientation.getDegreesCounterClockwise()) {
+				case 90:
+					this.baseMatrix.postTranslate(imageWidth, 0);
+					break;
+				case 180:
+					this.baseMatrix.postTranslate(imageWidth, imageHeight);
+					break;
+				case 270:
+					this.baseMatrix.postTranslate(0, imageHeight);
+					break;
 			}
+			if (this.exifOrientation.isMirrored()) {
+				this.baseMatrix.postScale(-1.0f, 1.0f, imageWidth * 0.5f, 0.0f);
+			}
+		}
 
-			float vwidth = getWidth() - getPaddingLeft() - getPaddingRight();
-			float vheight = getHeight() - getPaddingTop() - getPaddingBottom();
+		// Fetch the pixel width/height of the view hosting the image.
+		float viewWidth = getWidth() - getPaddingLeft() - getPaddingRight();
+		float viewHeight = getHeight() - getPaddingTop() - getPaddingBottom();
 
-			RectF dRectF = null;
-			RectF vRectF = new RectF(0, 0, vwidth, vheight);
-			if (orientation == 0) {
-				dRectF = new RectF(0, 0, dwidth, dheight);
-			} else if (orientation == 90) {
-				dRectF = new RectF(-dwidth, 0, 0, dheight);
-			} else if (orientation == 180) {
-				dRectF = new RectF(-dwidth, -dheight, 0, 0);
-			} else if (orientation == 270) {
-				dRectF = new RectF(0, -dheight, dwidth, 0);
+		// Calculate scale factors needed to stretch image to fit width/height of view.
+		float scaleX = 0.0f;
+		float scaleY = 0.0f;
+		if (imageWidth > 0) {
+			scaleX = viewWidth / imageWidth;
+		}
+		if (imageHeight > 0) {
+			scaleY = viewHeight / imageHeight;
+		}
+
+		// Apply "scalingMode" to image.
+		int scalingMode = this.scalingMode;
+		if (scalingMode == MediaModule.IMAGE_SCALING_AUTO) {
+			if (this.viewWidthDefined && this.viewHeightDefined) {
+				scalingMode = MediaModule.IMAGE_SCALING_FILL;
 			} else {
-				Log.e(TAG, "Invalid value for orientation. Cannot compute the base matrix for the image.");
-				return;
+				scalingMode = MediaModule.IMAGE_SCALING_ASPECT_FIT;
 			}
-
-			Matrix m = new Matrix();
-			Matrix.ScaleToFit scaleType;
-			if (viewWidthDefined && viewHeightDefined) {
-				scaleType = Matrix.ScaleToFit.FILL;
-			} else {
-				scaleType = Matrix.ScaleToFit.CENTER;
+		}
+		switch (scalingMode) {
+			case MediaModule.IMAGE_SCALING_ASPECT_FILL:
+			case MediaModule.IMAGE_SCALING_ASPECT_FIT: {
+				// Crop or letterbox/pillar-box scale the image.
+				boolean isCropped = (scalingMode == MediaModule.IMAGE_SCALING_ASPECT_FILL);
+				float scale = isCropped ? Math.max(scaleX, scaleY) : Math.min(scaleX, scaleY);
+				this.baseMatrix.postScale(scale, scale);
+				this.baseMatrix.postTranslate(
+					(viewWidth - (imageWidth * scale)) * 0.5f, (viewHeight - (imageHeight * scale)) * 0.5f);
+				break;
 			}
-			m.setRectToRect(dRectF, vRectF, scaleType);
-			baseMatrix.postConcat(m);
+			case MediaModule.IMAGE_SCALING_FILL:
+				// Stretch the image to fit container.
+				this.baseMatrix.postScale(scaleX, scaleY);
+				break;
+			case MediaModule.IMAGE_SCALING_NONE:
+			default:
+				// Do not scale the image.
+				this.baseMatrix.postTranslate((viewWidth - imageWidth) * 0.5f, (viewHeight - imageHeight) * 0.5f);
+				break;
 		}
 	}
 
@@ -365,6 +471,7 @@ public class TiImageView extends ViewGroup implements Handler.Callback, OnClickL
 	{
 		super.onMeasure(widthMeasureSpec, heightMeasureSpec);
 
+		boolean isUpright = !this.exifOrientation.isSideways();
 		int maxWidth = 0;
 		int maxHeight = 0;
 
@@ -373,33 +480,49 @@ public class TiImageView extends ViewGroup implements Handler.Callback, OnClickL
 		if (!viewWidthDefined || !viewHeightDefined) {
 			Drawable d = imageView.getDrawable();
 			if (d != null) {
-				float aspectRatio = 1;
+				float aspectRatio = 1.0f;
 				int w = MeasureSpec.getSize(widthMeasureSpec);
 				int h = MeasureSpec.getSize(heightMeasureSpec);
 
-				int ih = d.getIntrinsicHeight();
-				int iw = d.getIntrinsicWidth();
+				int ih = isUpright ? d.getIntrinsicHeight() : d.getIntrinsicWidth();
+				int iw = isUpright ? d.getIntrinsicWidth() : d.getIntrinsicHeight();
 				if (ih != 0 && iw != 0) {
-					aspectRatio = 1f * ih / iw;
+					aspectRatio = (float) ih / (float) iw;
+				}
+
+				switch (this.scalingMode) {
+					case MediaModule.IMAGE_SCALING_NONE:
+					case MediaModule.IMAGE_SCALING_ASPECT_FILL:
+						maxWidth = iw;
+						maxHeight = ih;
+						break;
 				}
 
 				if (viewWidthDefined) {
 					maxWidth = w;
-					maxHeight = Math.round(w * aspectRatio);
+					if (maxHeight <= 0) {
+						maxHeight = Math.round(w * aspectRatio);
+					}
 				}
 				if (viewHeightDefined) {
 					maxHeight = h;
-					maxWidth = Math.round(h / aspectRatio);
+					if (maxWidth <= 0) {
+						maxWidth = Math.round(h / aspectRatio);
+					}
 				}
 			}
 		}
 
 		// TODO padding and margins
 
-		measureChild(imageView, widthMeasureSpec, heightMeasureSpec);
+		if (isUpright) {
+			measureChild(imageView, widthMeasureSpec, heightMeasureSpec);
+		} else {
+			measureChild(imageView, heightMeasureSpec, widthMeasureSpec);
+		}
 
-		maxWidth = Math.max(maxWidth, imageView.getMeasuredWidth());
-		maxHeight = Math.max(maxHeight, imageView.getMeasuredHeight());
+		maxWidth = Math.max(maxWidth, isUpright ? imageView.getMeasuredWidth() : imageView.getMeasuredHeight());
+		maxHeight = Math.max(maxHeight, isUpright ? imageView.getMeasuredHeight() : imageView.getMeasuredWidth());
 
 		// Allow for zoom controls.
 		if (enableZoomControls) {
@@ -441,21 +564,12 @@ public class TiImageView extends ViewGroup implements Handler.Callback, OnClickL
 
 	private void updateScaleType()
 	{
-		if (orientation > 0 || enableZoomControls) {
-			imageView.setScaleType(ScaleType.MATRIX);
-			imageView.setAdjustViewBounds(false);
+		if (this.enableZoomControls || (this.viewWidthDefined && this.viewHeightDefined)) {
+			this.imageView.setAdjustViewBounds(false);
 		} else {
-			if (viewWidthDefined && viewHeightDefined) {
-				imageView.setAdjustViewBounds(false);
-				imageView.setScaleType(ScaleType.FIT_XY);
-			} else if (!enableScale) {
-				imageView.setAdjustViewBounds(false);
-				imageView.setScaleType(ScaleType.CENTER);
-			} else {
-				imageView.setAdjustViewBounds(true);
-				imageView.setScaleType(ScaleType.FIT_CENTER);
-			}
+			this.imageView.setAdjustViewBounds(true);
 		}
+		this.imageView.setScaleType(ScaleType.MATRIX);
 		requestLayout();
 	}
 
@@ -471,9 +585,12 @@ public class TiImageView extends ViewGroup implements Handler.Callback, OnClickL
 		updateScaleType();
 	}
 
-	public void setOrientation(int orientation)
+	public void setOrientation(TiExifOrientation exifOrientation)
 	{
-		this.orientation = orientation;
+		if (exifOrientation == null) {
+			exifOrientation = TiExifOrientation.UPRIGHT;
+		}
+		this.exifOrientation = exifOrientation;
 		updateScaleType();
 	}
 
@@ -509,5 +626,10 @@ public class TiImageView extends ViewGroup implements Handler.Callback, OnClickL
 	public int getTintColor()
 	{
 		return tintColor;
+	}
+
+	public ImageView getImageView()
+	{
+		return this.imageView;
 	}
 }

@@ -28,6 +28,7 @@ describe('Titanium.UI.View', function () {
 
 	function closeWindow(win, done) {
 		if (win && !win.closed) {
+			// eslint-disable-next-line promise/no-callback-in-promise
 			win.close().then(() => done()).catch(_e => done());
 		} else {
 			win = null;
@@ -698,6 +699,37 @@ describe('Titanium.UI.View', function () {
 		win.open();
 	});
 
+	// On iOS, the animation's 'complete' event used to never fire. See: TIMOB-27236
+	it('animate width/height from zero', function (finish) {
+		// This fails for Mac on Jenkins.
+		// Maybe because the animation's "complete" event won't fire if there is no monitor connected?
+		if (isCI && utilities.isMacOS()) {
+			return finish();
+		}
+
+		win = Ti.UI.createWindow({ backgroundColor: 'white' });
+		const view = Ti.UI.createView({
+			backgroundColor: 'orange',
+			top: 0,
+			left: 0,
+			width: 0,
+			height: 0,
+		});
+		win.add(view);
+		win.addEventListener('open', () => {
+			const animation = Ti.UI.createAnimation({
+				duration: 250,
+				width: win.size.width,
+				height: win.size.height,
+			});
+			animation.addEventListener('complete', () => {
+				finish();
+			});
+			view.animate(animation);
+		});
+		win.open();
+	});
+
 	it.windowsBroken('convertPointToView', function (finish) {
 		win = Ti.UI.createWindow();
 		const a = Ti.UI.createView({ backgroundColor: 'red' });
@@ -1001,18 +1033,20 @@ describe('Titanium.UI.View', function () {
 		win.open();
 	});
 
-	describe('borderRadius corners', () => {
+	describe('borderRadius corners', function () {
+		// FIXME: Does not honour scale correctly on macOS: https://jira.appcelerator.org/browse/TIMOB-28261
+		before(function () {
+			if (isCI && utilities.isMacOS() && OS_VERSION_MAJOR < 11) {
+				this.skip();
+			}
+		});
+
 		// FIXME: Don't use dp/pts in the actual radii so we can avoid needing separate images per density?
 		// Do separate tests for verifying use of pts/dp versus density?
 
 		beforeEach(() => {
 			win = Ti.UI.createWindow({ backgroundColor: 'blue' });
 		});
-
-		// FIXME: Does not honour scale correctly on macOS: https://jira.appcelerator.org/browse/TIMOB-28261
-		if (isCI && utilities.isMacOS() && OS_VERSION_MAJOR < 11) {
-			return;
-		}
 
 		it('4 values in String', finish => {
 			const outerView = Ti.UI.createView({

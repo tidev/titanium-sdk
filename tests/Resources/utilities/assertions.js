@@ -170,6 +170,8 @@ class ImageMatchDetails {
 			// Then try density specific image
 			result.push(`${withoutSuffix}@${density}x.png`);
 		}
+		// Try device specific image
+		result.push(`${withoutSuffix}~${Ti.Platform.osname}.png`);
 		// Then try base image
 		result.push(`${withoutSuffix}.png`);
 
@@ -323,3 +325,158 @@ should.Assertion.add('matchImage', function (image, options = { threshold: 0.1, 
 // TODO Add an assertion for "exclusive" group of constants: A set of constants whose values must be unique (basically an enum), i.e. Ti.UI.FILL vs SIZE vs UNKNOWN
 // TODO Use more custom assertions for things like color properties?
 module.exports = should;
+
+const filter = require('./mocha-filter');
+// Use custom mocha filters for platform-specific tests
+const filters = {
+	android: () => utilities.isAndroid(),
+	ios: () => utilities.isIOS(),
+	ipad: () => utilities.isIPad(),
+	iphone: () => utilities.isIPhone(),
+	mac: () => utilities.isMacOS(),
+	windows: () => utilities.isWindows(),
+	// To mark APIs meant to be cross-platform but missing from a given platform
+	androidMissing: () => (utilities.isAndroid() ? 'skip' : true),
+	iosMissing: () => (utilities.isIOS() ? 'skip' : true),
+	macMissing: () => (utilities.isMacOS() ? 'skip' : true),
+	windowsMissing: () => (utilities.isWindows() ? 'skip' : true),
+	androidARM64Broken: () => (utilities.isAndroidARM64Emulator() ? 'skip' : true),
+	androidIosAndWindowsPhoneBroken: function () {
+		if (utilities.isAndroid() || utilities.isIOS() || utilities.isWindowsPhone()) {
+			return 'skip';
+		}
+		return true;
+	},
+	androidIosAndWindowsDesktopBroken: function () {
+		if (utilities.isAndroid() || utilities.isIOS() || utilities.isWindowsDesktop()) {
+			return 'skip';
+		}
+		return true;
+	},
+	// to mark when there's a bug in both iOS and Android impl
+	androidAndIosBroken: function () {
+		if (utilities.isAndroid() || utilities.isIOS()) {
+			return 'skip';
+		}
+		return true;
+	},
+	androidAndMacBroken: function () {
+		if (utilities.isAndroid() || utilities.isMacOS()) {
+			return 'skip';
+		}
+		return true;
+	},
+	// to mark when there's a bug in both Android and Windows Desktop impl
+	androidAndWindowsDesktopBroken: function () {
+		if (utilities.isAndroid() || utilities.isWindowsDesktop()) {
+			return 'skip';
+		}
+		return true;
+	},
+	// to mark when there's a bug in both Android and Windows Phone impl
+	androidAndWindowsPhoneBroken: function () {
+		if (utilities.isAndroid() || utilities.isWindowsPhone()) {
+			return 'skip';
+		}
+		return true;
+	},
+	// to mark when there's a bug in both Android and Windows impl
+	androidAndWindowsBroken: function () {
+		if (utilities.isAndroid() || utilities.isWindows()) {
+			return 'skip';
+		}
+		return true;
+	},
+	// to mark when there's a bug in both iOS and Windows impl
+	iosAndWindowsBroken: function () {
+		if (utilities.isWindows() || utilities.isIOS()) {
+			return 'skip';
+		}
+		return true;
+	},
+	iosAndWindowsPhoneBroken: function () {
+		if (utilities.isIOS() || utilities.isWindowsPhone()) {
+			return 'skip';
+		}
+		return true;
+	},
+	iosAndWindowsDesktopBroken: function () {
+		if (utilities.isWindowsDesktop() || utilities.isIOS()) {
+			return 'skip';
+		}
+		return true;
+	},
+	macAndWindowsBroken: function () {
+		if (utilities.isWindows() || utilities.isMacOS()) {
+			return 'skip';
+		}
+		return true;
+	},
+	macAndWindowsDesktopBroken: function () {
+		if (utilities.isWindowsDesktop() || utilities.isMacOS()) {
+			return 'skip';
+		}
+		return true;
+	},
+	// mark bugs specific to Windows 8.1 Desktop/Store
+	windowsDesktop81Broken: function () {
+		if (utilities.isWindows8_1() || utilities.isWindowsDesktop()) {
+			return 'skip';
+		}
+		return true;
+	},
+	// mark bugs specific to Windows 8.1 Phone
+	windowsPhone81Broken: function () {
+		if (utilities.isWindows8_1() || utilities.isWindowsPhone()) {
+			return 'skip';
+		}
+		return true;
+	},
+	// mark bugs specific to Windows Emulator
+	windowsEmulatorBroken: function () {
+		if (utilities.isWindowsEmulator()) {
+			return 'skip';
+		}
+		return true;
+	},
+	// mark bugs specific to Windows Store
+	windowsDesktopBroken: function () {
+		if (utilities.isWindowsDesktop()) {
+			return 'skip';
+		}
+		return true;
+	},
+	// mark bugs specific to Windows Phone
+	windowsPhoneBroken: function () {
+		if (utilities.isWindowsPhone()) {
+			return 'skip';
+		}
+		return true;
+	},
+	// mark bugs specific to Windows 8.1
+	windows81Broken: function () {
+		if (utilities.isWindows8_1()) {
+			return 'skip';
+		}
+		return true;
+	},
+	allBroken: () => 'skip'
+};
+
+// Alias broken tests on a given platform to "missing" filter for that platform.
+// This is just handy to try and label where we have gaps in our APIs versus where we have bugs in our impl for a given platform
+filters.androidBroken = filters.androidMissing;
+filters.iosBroken = filters.iosMissing;
+filters.macBroken = filters.macMissing;
+filters.windowsBroken = filters.windowsMissing;
+filters.androidAndWindowsMissing = filters.androidAndWindowsBroken;
+filters.androidBrokenAndIosMissing = filters.androidAndIosBroken;
+filters.androidMissingAndIosBroken = filters.androidAndIosBroken;
+filters.androidMissingAndWindowsBroken = filters.androidAndWindowsMissing;
+filters.androidMissingAndWindowsDesktopBroken = filters.androidAndWindowsDesktopBroken;
+filters.iosMissingAndWindowsDesktopBroken = filters.iosAndWindowsDesktopBroken;
+filters.macBrokenAndWindowsMissing = filters.macAndWindowsBroken;
+filters.macMissingAndWindowsBroken = filters.macAndWindowsBroken;
+filters.macAndWindowsMissing = filters.macAndWindowsBroken;
+// Add our custom filters
+filter.addFilters(filters);

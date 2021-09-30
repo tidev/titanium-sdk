@@ -3,34 +3,16 @@ library 'pipeline-library'
 
 // Some branch flags to alter behavior
 def isPR = env.CHANGE_ID || false // CHANGE_ID is set if this is a PR. (We used to look whether branch name started with PR-, which would not be true for a branch from origin filed as PR)
-def MAINLINE_BRANCH_REGEXP = /master|next|\d_\d_(X|\d)/ // a branch is considered mainline if 'master' or like: 6_2_X, 7_0_X, 6_2_1
+def MAINLINE_BRANCH_REGEXP = /master|next|\d+_\d_(X|\d)/ // a branch is considered mainline if 'master' or like: 6_2_X, 7_0_X, 6_2_1
 def isMainlineBranch = (env.BRANCH_NAME ==~ MAINLINE_BRANCH_REGEXP)
 
 // Keep logs/reports/etc of last 30 builds, only keep build artifacts of last 3 builds
-def buildProperties = [buildDiscarder(logRotator(numToKeepStr: '30', artifactNumToKeepStr: '3'))]
-// For mainline branches, notify Teams channel of failures/success/not built/etc
-if (isMainlineBranch) {
-	withCredentials([string(credentialsId: 'titanium_mobile_ms_teams_webhook', variable: 'WEBHOOK_URL')]) {
-	    buildProperties << office365ConnectorWebhooks([[
-			notifyBackToNormal: true,
-			notifyFailure: true,
-			notifyNotBuilt: true,
-			notifyUnstable: true,
-			notifySuccess: true,
-			notifyRepeatedFailure: true,
-			url: "${WEBHOOK_URL}"
-		]])
-	}
-}
-properties(buildProperties)
+properties([buildDiscarder(logRotator(numToKeepStr: '30', artifactNumToKeepStr: '3'))])
 
 // These values could be changed manually on PRs/branches, but be careful we don't merge the changes in. We want this to be the default behavior for now!
 // target branch of test suite to test with
 def runDanger = isPR // run Danger.JS if it's a PR by default. (should we also run on origin branches that aren't mainline?)
 def publishToS3 = isMainlineBranch // publish zips to S3 if on mainline branch, by default
-def testOnDevices = isMainlineBranch // run tests on devices
-def testOnAndroidDevices = false // testOnDevices // FIXME: Our android device in CI is gone for now!
-def testOnIOSDevices = testOnDevices
 
 // Variables we can change
 def nodeVersion = '12.18.0' // NOTE that changing this requires we set up the desired version on jenkins master first!
@@ -87,17 +69,18 @@ def gatherAndroidCrashReports() {
 	}
 }
 
-def androidUnitTests(testName, nodeVersion, npmVersion, testOnDevices, deviceId) {
+def androidUnitTests(testName, nodeVersion, npmVersion, deviceId) {
 	return {
 		def labels = 'git && osx && android-emulator && android-sdk' // FIXME get working on windows/linux!
-		if (testOnDevices) {
-			labels += ' && macos-rocket' // run main branch tests on devices, use node with devices connected
-		}
+		
 		if (!deviceId) {
-			deviceId = testOnDevices ? 'all' : 'android-30-playstore-x86';
+			deviceId = 'android-31-playstore-x86_64';
 		}
 
 		node(labels) {
+			env.JAVA_HOME="${tool name:'OpenJDK 11.0.11+9', type: 'jdk'}"
+			env.PATH="${env.JAVA_HOME}/bin:${env.PATH}"
+			
 			// TODO: Do a shallow checkout rather than stash/unstash?
 			unstash 'mocha-tests'
 			try {
@@ -111,13 +94,7 @@ def androidUnitTests(testName, nodeVersion, npmVersion, testOnDevices, deviceId)
 							timeout(30) {
 								// Forcibly remove value for specific build tools version to use (set by module builds)
 								sh returnStatus: true, script: 'ti config android.buildTools.selectedVersion --remove'
-								// run main branch tests on devices
-								if (testOnDevices) {
-									sh label: 'Run Test Suite on device(s)', script: "npm run test:integration -- android -T device -C ${deviceId}"
-								// run PR tests on emulator
-								} else {
-									sh label: 'Run Test Suite on emulator', script: "npm run test:integration -- android -T emulator -D test -C ${deviceId}"
-								}
+								sh label: 'Run Test Suite on emulator', script: "npm run test:integration -- android -T emulator -D test -C ${deviceId} -J ${testName}"
 							} // timeout
 						}
 					} catch (e) {
@@ -151,7 +128,7 @@ def androidUnitTests(testName, nodeVersion, npmVersion, testOnDevices, deviceId)
 
 def macosUnitTests(nodeVersion, npmVersion) {
 	return {
-		node('git && osx && xcode-12 && osx-10.15') {
+		node('git && xcode-13') {
 			// TODO: Do a shallow checkout rather than stash/unstash?
 			unstash 'mocha-tests'
 			try {
@@ -186,15 +163,9 @@ def macosUnitTests(nodeVersion, npmVersion) {
 	}
 }
 
-def iosUnitTests(deviceFamily, nodeVersion, npmVersion, testOnDevices) {
+def iosUnitTests(deviceFamily, nodeVersion, npmVersion) {
 	return {
-		def labels = 'git && osx'
-		if (testOnDevices && deviceFamily == 'iphone') {
-			labels += ' && macos-darwin' // run main branch tests on devices, use node with devices connected
-		} else {
-			labels += '&& xcode-12' // Use xcode-12 to make use of ios 14 APIs
-		}
-		node(labels) {
+		node('git && xcode-13') {
 			// TODO: Do a shallow checkout rather than stash/unstash?
 			unstash 'mocha-tests'
 			try {
@@ -206,11 +177,7 @@ def iosUnitTests(deviceFamily, nodeVersion, npmVersion, testOnDevices) {
 					try {
 						withEnv(['CI=1']) {
 							timeout(40) {
-								if (testOnDevices && deviceFamily == 'iphone') {
-									sh label: 'Run Test Suite on device(s)', script: "npm run test:integration -- ios -F ${deviceFamily} -T device -C all"
-								} else { // run PR tests on simulator
-									sh label: 'Run Test Suite on simulator', script: "npm run test:integration -- ios -F ${deviceFamily}"
-								}
+								sh label: 'Run Test Suite on simulator', script: "npm run test:integration -- ios -F ${deviceFamily}"
 							}
 						}
 					} catch (e) {
@@ -258,7 +225,10 @@ def cliUnitTests(nodeVersion, npmVersion) {
 // Wrap in timestamper
 timestamps {
 	try {
-		node('git && android-sdk && android-ndk && ant && gperf && osx && xcode-12 && osx-10.15') {
+		node('git && android-sdk && gperf && xcode-13') {
+			env.JAVA_HOME="${tool name:'OpenJDK 11.0.11+9', type: 'jdk'}"
+			env.PATH="${env.JAVA_HOME}/bin:${env.PATH}"
+
 			stage('Checkout') {
 				// Update our shared reference repo for all branches/PRs
 				dir('..') {
@@ -339,16 +309,16 @@ timestamps {
 
 					ansiColor('xterm') {
 						timeout(15) {
-							def buildCommand = "npm run clean -- --android-ndk ${env.ANDROID_NDK_R21D}"
+							def buildCommand = 'npm run clean'
 							if (isMainlineBranch) {
-								buildCommand += ' --all'
+								buildCommand += ' -- --all'
 							}
 							sh label: 'clean', script: buildCommand
 						} // timeout
 						timeout(15) {
-							def buildCommand = "npm run build -- --android-ndk ${env.ANDROID_NDK_R21D}"
+							def buildCommand = 'npm run build'
 							if (isMainlineBranch) {
-								buildCommand += ' --all'
+								buildCommand += ' -- --all'
 							}
 							try {
 								sh label: 'build', script: buildCommand
@@ -378,10 +348,10 @@ timestamps {
 		// Run unit tests in parallel for android/iOS
 		stage('Test') {
 			parallel(
-				'android main unit tests': androidUnitTests('main', nodeVersion, npmVersion, testOnAndroidDevices, null),
-				'android 5.0 unit tests': androidUnitTests('5.0', nodeVersion, npmVersion, false, 'android-21-x86'),
-				'iPhone unit tests': iosUnitTests('iphone', nodeVersion, npmVersion, testOnIOSDevices),
-				'iPad unit tests': iosUnitTests('ipad', nodeVersion, npmVersion, testOnIOSDevices),
+				'android main unit tests': androidUnitTests('main', nodeVersion, npmVersion, null),
+				'android 5.0 unit tests': androidUnitTests('5.0', nodeVersion, npmVersion, 'android-21-x86'),
+				'iPhone unit tests': iosUnitTests('iphone', nodeVersion, npmVersion),
+				'iPad unit tests': iosUnitTests('ipad', nodeVersion, npmVersion),
 				'macOS unit tests': macosUnitTests(nodeVersion, npmVersion),
 				'cli unit tests': cliUnitTests(nodeVersion, npmVersion),
 				failFast: false

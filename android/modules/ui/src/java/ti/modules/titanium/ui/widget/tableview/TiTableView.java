@@ -7,6 +7,7 @@
 package ti.modules.titanium.ui.widget.tableview;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import org.appcelerator.kroll.KrollDict;
@@ -20,6 +21,8 @@ import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.RectShape;
+import android.os.Handler;
+import android.os.SystemClock;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -47,16 +50,18 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 {
 	private static final String TAG = "TiTableView";
 
-	private static final int CACHE_SIZE = 8;
-	private static final int PRELOAD_SIZE = CACHE_SIZE / 2;
+	private static final int CACHE_SIZE = 32;
+	private static final int PRELOAD_INTERVAL = 800;
 
 	private final TableViewAdapter adapter;
 	private final DividerItemDecoration decoration;
 	private final TableViewProxy proxy;
 	private final TiNestedRecyclerView recyclerView;
 	private final List<TableViewRowProxy> rows = new ArrayList<>(CACHE_SIZE);
-	private final SelectionTracker tracker;
+	private final List<KrollDict> selectedRows = new ArrayList<>();
 
+	private boolean hasLaidOutChildren = false;
+	private SelectionTracker tracker;
 	private boolean isScrolling = false;
 	private int scrollOffsetX = 0;
 	private int scrollOffsetY = 0;
@@ -73,7 +78,17 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 		this.recyclerView.setFocusable(true);
 		this.recyclerView.setFocusableInTouchMode(true);
 		this.recyclerView.setBackgroundColor(Color.TRANSPARENT);
-		this.recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+		this.recyclerView.setLayoutManager(new LinearLayoutManager(getContext()) {
+			@Override
+			public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state)
+			{
+				super.onLayoutChildren(recycler, state);
+
+				if (!hasLaidOutChildren) {
+					hasLaidOutChildren = true;
+				}
+			}
+		});
 
 		// Add listener to fire scroll events.
 		this.recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener()
@@ -106,6 +121,10 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 			{
 				super.onScrolled(recyclerView, dx, dy);
 
+				// Update scroll offsets.
+				scrollOffsetX += dx;
+				scrollOffsetY += dy;
+
 				if (dx == 0 && dy == 0) {
 
 					// Not scrolled, skip.
@@ -113,10 +132,6 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 				}
 
 				isScrolling = true;
-
-				// Update scroll offsets.
-				scrollOffsetX += dx;
-				scrollOffsetY += dy;
 
 				final KrollDict payload = generateScrollPayload();
 
@@ -153,8 +168,7 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 			}
 		});
 
-		// TODO: Implement native item selection.
-		this.tracker = new SelectionTracker.Builder("table_view_selection",
+		final SelectionTracker.Builder trackerBuilder = new SelectionTracker.Builder("table_view_selection",
 			this.recyclerView,
 			new ItemKeyProvider(1)
 			{
@@ -162,7 +176,10 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 				@Override
 				public Object getKey(int position)
 				{
-					return rows.get(position);
+					if (position > -1 && position < rows.size()) {
+						return rows.get(position);
+					}
+					return null;
 				}
 
 				@Override
@@ -192,7 +209,26 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 							@Override
 							public Object getSelectionKey()
 							{
-								return rows.get(getPosition());
+								final int position = getPosition();
+
+								if (position > -1 && position < rows.size()) {
+									return rows.get(position);
+								}
+								return null;
+							}
+
+							@Override
+							public boolean inSelectionHotspot(@NonNull MotionEvent e)
+							{
+								if (holder.getProxy() instanceof TableViewRowProxy) {
+									final TableViewRowProxy row = (TableViewRowProxy) holder.getProxy();
+
+									// Prevent selection of placeholders.
+									return !row.isPlaceholder();
+								}
+
+								// Returning true allows taps to immediately select this row.
+								return true;
 							}
 						};
 					}
@@ -200,26 +236,73 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 				}
 			},
 			StorageStrategy.createLongStorage()
-		)
-			.withSelectionPredicate(SelectionPredicates.<Long>createSelectSingleAnything())
-			.build();
-		this.tracker.addObserver(new SelectionTracker.SelectionObserver() {
+		);
 
-			@Override
-			public void onSelectionChanged()
-			{
-				super.onSelectionChanged();
+		final KrollDict properties = proxy.getProperties();
+		final boolean editing = properties.optBoolean(TiC.PROPERTY_EDITING, false);
+		final boolean allowsSelection = properties.optBoolean(TiC.PROPERTY_ALLOWS_SELECTION_DURING_EDITING, false);
+		final boolean allowsMultipleSelection
+			= properties.optBoolean(TiC.PROPERTY_ALLOWS_MULTIPLE_SELECTION_DURING_EDITING, false);
 
-				/*if (tracker.hasSelection()) {
-					final Iterator<TableViewRowProxy> i = tracker.getSelection().iterator();
-					while (i.hasNext()) {
-						final TableViewRowProxy proxy = i.next();
-						// Log.d(TAG, "SELECTED: " + proxy.getProperties().getString(TiC.PROPERTY_TITLE));
-					}
-				}*/
+		if (editing && allowsSelection) {
+			if (allowsMultipleSelection) {
+				this.tracker = trackerBuilder.withSelectionPredicate(SelectionPredicates.createSelectAnything())
+					.build();
+			} else {
+				this.tracker = trackerBuilder.withSelectionPredicate(SelectionPredicates.createSelectSingleAnything())
+					.build();
 			}
-		});
-		this.adapter.setTracker(this.tracker);
+
+			if (this.tracker != null) {
+				this.tracker.addObserver(new SelectionTracker.SelectionObserver()
+				{
+					@Override
+					public void onSelectionChanged()
+					{
+						super.onSelectionChanged();
+
+						selectedRows.clear();
+
+						if (tracker.hasSelection()) {
+							final Iterator<TableViewRowProxy> i = tracker.getSelection().iterator();
+
+							while (i.hasNext()) {
+								final TableViewRowProxy row = i.next();
+
+								if (row.isPlaceholder()) {
+									continue;
+								}
+
+								final KrollDict selectedRow = new KrollDict();
+
+								selectedRow.put(TiC.PROPERTY_INDEX, row.index);
+								selectedRow.put(TiC.EVENT_PROPERTY_ROW, row);
+								selectedRow.put(TiC.PROPERTY_ROW_DATA, row.getProperties());
+								if (getParent() instanceof TableViewSectionProxy) {
+									selectedRow.put(TiC.PROPERTY_SECTION, getParent());
+								}
+
+								selectedRows.add(selectedRow);
+
+								if (!allowsMultipleSelection) {
+									row.fireEvent(TiC.EVENT_CLICK, null);
+									break;
+								}
+							}
+						}
+
+						if (allowsMultipleSelection) {
+							final KrollDict data = new KrollDict();
+
+							data.put(TiC.PROPERTY_SELECTED_ROWS, selectedRows.toArray(new KrollDict[0]));
+							data.put(TiC.PROPERTY_STARTING_ROW, selectedRows.isEmpty() ? null : selectedRows.get(0));
+							proxy.fireEvent(TiC.EVENT_ROWS_SELECTED, data);
+						}
+					}
+				});
+				this.adapter.setTracker(this.tracker);
+			}
+		}
 
 		// Disable pull-down refresh support until a Titanium "RefreshControl" has been assigned.
 		setSwipeRefreshEnabled(false);
@@ -313,6 +396,26 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 	}
 
 	/**
+	 * Get status of child layouts.
+	 *
+	 * @return Boolean to determine if child layouts are processed.
+	 */
+	public boolean getHasLaidOutChildren()
+	{
+		return this.hasLaidOutChildren;
+	}
+
+	/**
+	 * Get linear layout manager.
+	 *
+	 * @return LinearLayoutManager
+	 */
+	public LinearLayoutManager getLayoutManager()
+	{
+		return (LinearLayoutManager) this.recyclerView.getLayoutManager();
+	}
+
+	/**
 	 * Get recycler view of table.
 	 *
 	 * @return TiNestedRecyclerView
@@ -336,6 +439,38 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 			}
 		}
 		return null;
+	}
+
+	/**
+	 * Get current x-axis scroll offset.
+	 * NOTE: This is unreliable when items are added/removed.
+	 *
+	 * @return Integer of scroll offset.
+	 */
+	public int getScrollOffsetX()
+	{
+		return this.scrollOffsetX;
+	}
+
+	/**
+	 * Get current y-axis scroll offset.
+	 * NOTE: This is unreliable when items are added/removed.
+	 *
+	 * @return Integer of scroll offset.
+	 */
+	public int getScrollOffsetY()
+	{
+		return this.scrollOffsetY;
+	}
+
+	/**
+	 * Get selection tracker.
+	 *
+	 * @return SelectionTracker
+	 */
+	public SelectionTracker getTracker()
+	{
+		return this.tracker;
 	}
 
 	/**
@@ -363,6 +498,50 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 	public TableViewRowProxy getAdapterItem(int index)
 	{
 		return this.rows.get(index);
+	}
+
+	/**
+	 * Obtain first visible table row proxy.
+	 *
+	 * @return TableViewRowProxy
+	 */
+	public TableViewRowProxy getFirstVisibleItem()
+	{
+		final LinearLayoutManager layoutManager = getLayoutManager();
+		final View firstVisibleView =
+			layoutManager.findViewByPosition(layoutManager.findFirstVisibleItemPosition());
+
+		if (firstVisibleView != null) {
+			final TableViewHolder firstVisibleHolder =
+				(TableViewHolder) recyclerView.getChildViewHolder(firstVisibleView);
+
+			// Obtain first visible table row proxy.
+			return (TableViewRowProxy) firstVisibleHolder.getProxy();
+		}
+
+		return null;
+	}
+
+	/**
+	 * Obtain last visible table row proxy.
+	 *
+	 * @return TableViewRowProxy
+	 */
+	public TableViewRowProxy getLastVisibleItem()
+	{
+		final LinearLayoutManager layoutManager = getLayoutManager();
+		final View lastVisibleView =
+			layoutManager.findViewByPosition(layoutManager.findLastVisibleItemPosition());
+
+		if (lastVisibleView != null) {
+			final TableViewHolder lastVisibleHolder =
+				(TableViewHolder) recyclerView.getChildViewHolder(lastVisibleView);
+
+			// Obtain last visible table row proxy.
+			return (TableViewRowProxy) lastVisibleHolder.getProxy();
+		}
+
+		return null;
 	}
 
 	/**
@@ -419,7 +598,7 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 	public void update()
 	{
 		final KrollDict properties = this.proxy.getProperties();
-		final boolean shouldPreload = this.rows.size() == 0;
+		final boolean firstUpdate = this.rows.size() == 0;
 
 		final boolean hasHeader = properties.containsKeyAndNotNull(TiC.PROPERTY_HEADER_TITLE)
 			|| properties.containsKeyAndNotNull(TiC.PROPERTY_HEADER_VIEW);
@@ -430,6 +609,7 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 		final boolean filterAnchored = properties.optBoolean(TiC.PROPERTY_FILTER_ANCHORED, false);
 		final String filterAttribute = properties.optString(TiC.PROPERTY_FILTER_ATTRIBUTE, TiC.PROPERTY_TITLE);
 		int filterResultsCount = 0;
+		int index = 0;
 
 		String query = this.filterQuery;
 		if (query != null && caseInsensitive) {
@@ -456,6 +636,7 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 		// Iterate through data, processing each supported entry.
 		for (final Object entry : this.proxy.getData()) {
 
+			int filteredIndex = 0;
 			if (entry instanceof TableViewSectionProxy) {
 				final TableViewSectionProxy section = (TableViewSectionProxy) entry;
 				final TableViewRowProxy[] rows = section.getRows();
@@ -468,10 +649,11 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 					this.rows.add(row);
 				}
 
-				int index = 0;
-				int filteredIndex = 0;
 				for (int i = 0; i < rows.length; i++) {
 					final TableViewRowProxy row = rows[i];
+
+					// Maintain true row index.
+					row.index = index++;
 
 					// Handle search query.
 					if (query != null) {
@@ -492,7 +674,6 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 					// Update filtered index of row.
 					row.setFilteredIndex(query != null ? filteredIndex++ : -1);
 
-					row.index = index++;
 					this.rows.add(row);
 				}
 				filterResultsCount += filteredIndex;
@@ -519,13 +700,34 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 			this.proxy.fireEvent(TiC.EVENT_NO_RESULTS, null);
 		}
 
-		if (shouldPreload) {
-			final int preloadSize = Math.min(this.rows.size(), PRELOAD_SIZE);
+		if (firstUpdate) {
+			final Handler handler = new Handler();
+			final long startTime = SystemClock.elapsedRealtime();
 
-			for (int i = 0; i < preloadSize; i++) {
+			for (int i = 0; i < Math.min(this.rows.size(), PRELOAD_INTERVAL / 8); i++) {
+				final TableViewRowProxy row = this.rows.get(i);
 
-				// Pre-load views for smooth initial scroll.
-				this.rows.get(i).getOrCreateView();
+				// Fill event queue with pre-load attempts.
+				handler.postDelayed(new Runnable()
+				{
+					@Override
+					public void run()
+					{
+						final long currentTime = SystemClock.elapsedRealtime();
+						final long delta = currentTime - startTime;
+
+						// Only pre-load views for a maximum period of time.
+						// This prevents over-taxing older devices.
+						if (delta <= PRELOAD_INTERVAL
+							&& recyclerView.getLastTouchX() == 0
+							&& recyclerView.getLastTouchY() == 0) {
+
+							// While there is no user interaction;
+							// pre-load views for smooth initial scroll.
+							row.getOrCreateView();
+						}
+					}
+				}, 8); // Pre-load at 120Hz to prevent noticeable UI blocking.
 			}
 		}
 
@@ -538,12 +740,12 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 		final Activity activity = TiApplication.getAppCurrentActivity();
 		final View previousFocus = activity != null ? activity.getCurrentFocus() : null;
 
-		if (previousFocus != null) {
-			activity.runOnUiThread(new Runnable()
+		activity.runOnUiThread(new Runnable()
+		{
+			@Override
+			public void run()
 			{
-				@Override
-				public void run()
-				{
+				if (previousFocus != null) {
 					final View currentFocus = activity != null ? activity.getCurrentFocus() : null;
 
 					if (currentFocus != previousFocus) {
@@ -552,7 +754,26 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 						previousFocus.requestFocus();
 					}
 				}
-			});
-		}
+
+				if (firstUpdate) {
+					final boolean editing = properties.optBoolean(TiC.PROPERTY_EDITING, false);
+
+					for (final TableViewRowProxy row : rows) {
+
+						// Re-select previously selected rows.
+						// This can occur when the theme is changed.
+						if (row.isSelected()) {
+							if (!editing) {
+								row.setSelected(false);
+								continue;
+							}
+							if (tracker != null) {
+								tracker.select(row);
+							}
+						}
+					}
+				}
+			}
+		});
 	}
 }
