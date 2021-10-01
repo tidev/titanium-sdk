@@ -2013,7 +2013,7 @@ iOSBuilder.prototype.validate = function validate(logger, config, cli) {
 			},
 
 			function selectDevice(next) {
-				if (cli.argv.target === 'dist-appstore' || cli.argv.target === 'dist-adhoc') {
+				if (cli.argv.target.startsWith('dist') || cli.argv.target === 'macos') {
 					return next();
 				}
 
