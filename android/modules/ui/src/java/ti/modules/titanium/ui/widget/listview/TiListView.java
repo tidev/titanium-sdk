@@ -101,7 +101,8 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 		this.recyclerView.setFocusableInTouchMode(false);
 
 		// Add listener to fire scroll events.
-		this.recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+		this.recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener()
+		{
 			@Override
 			public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState)
 			{
@@ -222,7 +223,8 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 					return items.indexOf(key);
 				}
 			},
-			new ItemDetailsLookup() {
+			new ItemDetailsLookup()
+			{
 				@Nullable
 				@Override
 				public ItemDetails getItemDetails(@NonNull MotionEvent e)
@@ -280,15 +282,16 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 
 		if (editing && allowsSelection) {
 			if (allowsMultipleSelection) {
-				this.tracker =
-					trackerBuilder.withSelectionPredicate(SelectionPredicates.createSelectAnything()).build();
+				this.tracker = trackerBuilder.withSelectionPredicate(SelectionPredicates.createSelectAnything())
+					.build();
 			} else {
-				this.tracker =
-					trackerBuilder.withSelectionPredicate(SelectionPredicates.createSelectSingleAnything()).build();
+				this.tracker = trackerBuilder.withSelectionPredicate(SelectionPredicates.createSelectSingleAnything())
+					.build();
 			}
 
 			if (this.tracker != null) {
-				this.tracker.addObserver(new SelectionTracker.SelectionObserver() {
+				this.tracker.addObserver(new SelectionTracker.SelectionObserver()
+				{
 					@Override
 					public void onSelectionChanged()
 					{
@@ -554,10 +557,12 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 	public ListItemProxy getLastVisibleItem()
 	{
 		final LinearLayoutManager layoutManager = getLayoutManager();
-		final View lastVisibleView = layoutManager.findViewByPosition(layoutManager.findLastVisibleItemPosition());
+		final View lastVisibleView =
+			layoutManager.findViewByPosition(layoutManager.findLastVisibleItemPosition());
 
 		if (lastVisibleView != null) {
-			final ListViewHolder lastVisibleHolder = (ListViewHolder) recyclerView.getChildViewHolder(lastVisibleView);
+			final ListViewHolder lastVisibleHolder =
+				(ListViewHolder) recyclerView.getChildViewHolder(lastVisibleView);
 
 			// Obtain last visible list item proxy.
 			return (ListItemProxy) lastVisibleHolder.getProxy();
