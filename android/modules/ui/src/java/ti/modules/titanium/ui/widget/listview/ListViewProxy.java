@@ -19,6 +19,7 @@ import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.view.TiUIView;
+import org.appcelerator.titanium.util.TiConvert;
 
 import android.app.Activity;
 import android.view.View;
@@ -35,6 +36,7 @@ import static android.util.TypedValue.COMPLEX_UNIT_DIP;
 	propertyAccessors = {
 		TiC.PROPERTY_CAN_SCROLL,
 		TiC.PROPERTY_CASE_INSENSITIVE_SEARCH,
+		TiC.PROPERTY_CONTINUOUS_UPDATE,
 		TiC.PROPERTY_DEFAULT_ITEM_TEMPLATE,
 		TiC.PROPERTY_EDITING,
 		TiC.PROPERTY_FAST_SCROLL,
@@ -486,6 +488,11 @@ public class ListViewProxy extends RecyclerViewProxy
 
 			// Update and refresh list.
 			update();
+		} else if (name.equals(TiC.PROPERTY_CONTINUOUS_UPDATE)) {
+			final TiListView listView = getListView();
+			if (listView != null) {
+				listView.setContinousUpdate(TiConvert.toBoolean(value, false));
+			}
 		}
 	}
 

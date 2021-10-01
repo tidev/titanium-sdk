@@ -192,7 +192,8 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 		itemTouchHelper.attachToRecyclerView(this.recyclerView);
 
 		// Fire `postlayout` on layout changes.
-		this.addOnLayoutChangeListener(new OnLayoutChangeListener() {
+		this.addOnLayoutChangeListener(new OnLayoutChangeListener()
+		{
 			@Override
 			public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft, int oldTop,
 									   int oldRight, int oldBottom)
@@ -201,9 +202,10 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 			}
 		});
 
-		final SelectionTracker.Builder trackerBuilder = new SelectionTracker.Builder(
-			"list_view_selection", this.recyclerView,
-			new ItemKeyProvider(1) {
+		final SelectionTracker.Builder trackerBuilder = new SelectionTracker.Builder("list_view_selection",
+			this.recyclerView,
+			new ItemKeyProvider(1)
+			{
 				@Nullable
 				@Override
 				public Object getKey(int position)
@@ -228,7 +230,8 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 					final View view = recyclerView.findChildViewUnder(e.getX(), e.getY());
 					if (view != null) {
 						final ListViewHolder holder = (ListViewHolder) recyclerView.getChildViewHolder(view);
-						return new ItemDetails() {
+						return new ItemDetails()
+						{
 							@Override
 							public int getPosition()
 							{
@@ -265,13 +268,14 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 					return null;
 				}
 			},
-			StorageStrategy.createLongStorage());
+			StorageStrategy.createLongStorage()
+		);
 
 		final KrollDict properties = proxy.getProperties();
 		final boolean editing = properties.optBoolean(TiC.PROPERTY_EDITING, false);
 		final boolean allowsSelection = properties.optBoolean(TiC.PROPERTY_ALLOWS_SELECTION_DURING_EDITING, false);
-		final boolean allowsMultipleSelection =
-			properties.optBoolean(TiC.PROPERTY_ALLOWS_MULTIPLE_SELECTION_DURING_EDITING, false);
+		final boolean allowsMultipleSelection
+			= properties.optBoolean(TiC.PROPERTY_ALLOWS_MULTIPLE_SELECTION_DURING_EDITING, false);
 		continuousUpdate = properties.optBoolean(TiC.PROPERTY_CONTINUOUS_UPDATE, false);
 
 		if (editing && allowsSelection) {
@@ -528,7 +532,8 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 	public ListItemProxy getFirstVisibleItem()
 	{
 		final LinearLayoutManager layoutManager = getLayoutManager();
-		final View firstVisibleView = layoutManager.findViewByPosition(layoutManager.findFirstVisibleItemPosition());
+		final View firstVisibleView =
+			layoutManager.findViewByPosition(layoutManager.findFirstVisibleItemPosition());
 
 		if (firstVisibleView != null) {
 			final ListViewHolder firstVisibleHolder =
@@ -620,9 +625,9 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 		int index = 0;
 
 		final boolean hasHeader = properties.containsKeyAndNotNull(TiC.PROPERTY_HEADER_TITLE)
-								  || properties.containsKeyAndNotNull(TiC.PROPERTY_HEADER_VIEW);
+			|| properties.containsKeyAndNotNull(TiC.PROPERTY_HEADER_VIEW);
 		final boolean hasFooter = properties.containsKeyAndNotNull(TiC.PROPERTY_FOOTER_TITLE)
-								  || properties.containsKeyAndNotNull(TiC.PROPERTY_FOOTER_VIEW);
+			|| properties.containsKeyAndNotNull(TiC.PROPERTY_FOOTER_VIEW);
 
 		String query = properties.optString(TiC.PROPERTY_SEARCH_TEXT, filterQuery);
 		final boolean caseInsensitive = properties.optBoolean(TiC.PROPERTY_CASE_INSENSITIVE_SEARCH, true);
@@ -678,19 +683,23 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 			section.setFilteredItemCount(query != null ? filteredIndex : -1);
 
 			final boolean sectionHasHeader = sectionProperties.containsKeyAndNotNull(TiC.PROPERTY_HEADER_TITLE)
-											 || sectionProperties.containsKeyAndNotNull(TiC.PROPERTY_HEADER_VIEW);
+				|| sectionProperties.containsKeyAndNotNull(TiC.PROPERTY_HEADER_VIEW);
 			final boolean sectionHasFooter = sectionProperties.containsKeyAndNotNull(TiC.PROPERTY_FOOTER_TITLE)
-											 || sectionProperties.containsKeyAndNotNull(TiC.PROPERTY_FOOTER_VIEW);
+				|| sectionProperties.containsKeyAndNotNull(TiC.PROPERTY_FOOTER_VIEW);
 
 			// Allow header and footer to show when no items are present.
 			if ((sectionHasHeader || sectionHasFooter) && sectionItems.size() == 0) {
 				final ListItemProxy item = new ListItemProxy(true);
 
 				// Add a placeholder item that will display the section header/footer.
-				item.getProperties().put(TiC.PROPERTY_HEADER_TITLE, sectionProperties.get(TiC.PROPERTY_HEADER_TITLE));
-				item.getProperties().put(TiC.PROPERTY_HEADER_VIEW, sectionProperties.get(TiC.PROPERTY_HEADER_VIEW));
-				item.getProperties().put(TiC.PROPERTY_FOOTER_TITLE, sectionProperties.get(TiC.PROPERTY_FOOTER_TITLE));
-				item.getProperties().put(TiC.PROPERTY_FOOTER_VIEW, sectionProperties.get(TiC.PROPERTY_FOOTER_VIEW));
+				item.getProperties().put(TiC.PROPERTY_HEADER_TITLE,
+					sectionProperties.get(TiC.PROPERTY_HEADER_TITLE));
+				item.getProperties().put(TiC.PROPERTY_HEADER_VIEW,
+					sectionProperties.get(TiC.PROPERTY_HEADER_VIEW));
+				item.getProperties().put(TiC.PROPERTY_FOOTER_TITLE,
+					sectionProperties.get(TiC.PROPERTY_FOOTER_TITLE));
+				item.getProperties().put(TiC.PROPERTY_FOOTER_VIEW,
+					sectionProperties.get(TiC.PROPERTY_FOOTER_VIEW));
 
 				item.setParent(this.proxy);
 				this.items.add(item);
@@ -722,7 +731,8 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 		final Activity activity = TiApplication.getAppCurrentActivity();
 		final View previousFocus = activity != null ? activity.getCurrentFocus() : null;
 
-		activity.runOnUiThread(new Runnable() {
+		activity.runOnUiThread(new Runnable()
+		{
 			@Override
 			public void run()
 			{
