@@ -88,6 +88,14 @@ USE_VIEW_FOR_CONTENT_HEIGHT
   }
 }
 
+- (void)windowWillClose
+{
+  if ([self viewInitialized]) {
+    [self makeViewPerformSelector:@selector(cleanup:) withObject:nil createIfNeeded:NO waitUntilDone:YES];
+  }
+  [super windowWillClose];
+}
+
 - (void)gainFocus
 {
   [[self tableView] viewGetFocus];

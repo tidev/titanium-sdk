@@ -318,6 +318,15 @@
   return self;
 }
 
+- (void)cleanup:(id)unused
+{
+  if (searchController.isActive) {
+    searchController.active = NO;
+  }
+
+  [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(dismissSearchController) object:nil];
+}
+
 - (void)dealloc
 {
   if ([searchController isActive]) {
