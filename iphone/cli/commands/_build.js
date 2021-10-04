@@ -7102,7 +7102,7 @@ iOSBuilder.prototype.invokeXcodeBuild = async function invokeXcodeBuild(next) {
 			this.logger.warn(`The app is using native modules (${Array.from(this.legacyModules)}) that do not support arm64 simulators, we will exclude arm64. This may fail if you're on an arm64 Apple Silicon device.`);
 			args.push('EXCLUDED_ARCHS=arm64');
 		}
-	} else if (this.target === 'device') {
+	} else if( this.target ==='device' || this.target ==='dist-adhoc' ){
 		args.push('-destination', 'generic/platform=iOS');
 	}
 
