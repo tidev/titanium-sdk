@@ -669,7 +669,7 @@ properties:
         setting this will be accompanied by an OS-provided indicator. However, the iOS
         simulator does not honor this volume setting, and is a known issue with Apple's
         simulator.
-    platforms: [iphone, ipad, macos]
+    platforms: [android, iphone, ipad, macos]
     type: Number
     default: 1.0
     since: "2.1"
