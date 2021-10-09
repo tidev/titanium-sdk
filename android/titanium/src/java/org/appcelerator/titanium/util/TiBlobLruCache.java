@@ -19,14 +19,14 @@ public class TiBlobLruCache extends LruCache<String, Bitmap>
 	// Use 1/8th of the available memory for this memory cache.
 	private static final int cacheSize = maxMemory / 8;
 
-	protected static TiBlobLruCache _instance;
+	private static class InstanceHolder
+	{
+		private static final TiBlobLruCache INSTANCE = new TiBlobLruCache();
+	}
 
 	public static TiBlobLruCache getInstance()
 	{
-		if (_instance == null) {
-			_instance = new TiBlobLruCache();
-		}
-		return _instance;
+		return InstanceHolder.INSTANCE;
 	}
 
 	public TiBlobLruCache()
@@ -44,12 +44,12 @@ public class TiBlobLruCache extends LruCache<String, Bitmap>
 	public void addBitmapToMemoryCache(String key, Bitmap bitmap)
 	{
 		if (getBitmapFromMemCache(key) == null) {
-			_instance.put(key, bitmap);
+			getInstance().put(key, bitmap);
 		}
 	}
 
 	public Bitmap getBitmapFromMemCache(String key)
 	{
-		return _instance.get(key);
+		return getInstance().get(key);
 	}
 }
