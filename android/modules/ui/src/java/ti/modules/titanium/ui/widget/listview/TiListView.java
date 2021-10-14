@@ -503,6 +503,17 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 	}
 
 	/**
+	 * Obtains adapter index from list item reference.
+	 *
+	 * @param itemProxy The list item to search for by reference. Can be null.
+	 * @return Returns the adapter index position of the given item. Returns -1 if not found.
+	 */
+	public int getAdapterIndex(ListItemProxy itemProxy)
+	{
+		return this.items.indexOf(itemProxy);
+	}
+
+	/**
 	 * Obtain item from adapter index.
 	 *
 	 * @param index List item adapter index.
@@ -692,7 +703,7 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 				item.getProperties().put(TiC.PROPERTY_FOOTER_VIEW,
 					sectionProperties.get(TiC.PROPERTY_FOOTER_VIEW));
 
-				item.setParent(this.proxy);
+				item.setParent(section);
 				this.items.add(item);
 			}
 		}

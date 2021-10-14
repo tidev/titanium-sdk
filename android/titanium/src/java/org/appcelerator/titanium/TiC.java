@@ -282,6 +282,9 @@ public class TiC
 	public static final String PROPERTY_BACKGROUND_SELECTED_IMAGE = "backgroundSelectedImage";
 	public static final String PROPERTY_BADGE = "badge";
 	public static final String PROPERTY_BADGE_COLOR = "badgeColor";
+	public static final String PROPERTY_TARGET_ITEM_INDEX = "targetItemIndex";
+	public static final String PROPERTY_TARGET_SECTION = "targetSection";
+	public static final String PROPERTY_TARGET_SECTION_INDEX = "targetSectionIndex";
 	public static final String PROPERTY_TOUCH_FEEDBACK = "touchFeedback";
 	public static final String PROPERTY_TOUCH_FEEDBACK_COLOR = "touchFeedbackColor";
 	public static final String PROPERTY_TRANSITION_NAME = "transitionName";
