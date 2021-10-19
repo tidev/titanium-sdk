@@ -600,7 +600,7 @@ Local<ArrayBuffer> TypeConverter::javaByteArrayToJsArrayBuffer(Isolate* isolate,
 	Local<ArrayBuffer> jsArray = ArrayBuffer::New(isolate, byteCount);
 	if (byteCount > 0) {
 		void* sourcePointer = (void*)(env->GetByteArrayElements(javaByteArray, 0));
-		void* destinationPointer = jsArray->GetContents().Data();
+		void* destinationPointer = jsArray->GetBackingStore()->Data();
 		memcpy(destinationPointer, sourcePointer, byteCount);
 		env->ReleaseByteArrayElements(javaByteArray, reinterpret_cast<jbyte*>(sourcePointer), JNI_ABORT);
 	}
