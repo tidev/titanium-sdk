@@ -38,6 +38,18 @@
   touchHandler = handler;
 }
 
+- (NSComparisonResult)comparePosition:(UITextPosition *)position toPosition:(UITextPosition *)other
+{
+  NSComparisonResult result = NSOrderedAscending;
+  @try {
+    result = [super comparePosition:position toPosition:other];
+  }
+  @catch (NSException *ex) {
+    // Ignore exception that can occur on iOS 15 if "maxLength" trims text that was dragged-and-dropped.
+  }
+  return result;
+}
+
 - (BOOL)touchesShouldBegin:(NSSet *)touches withEvent:(UIEvent *)event inContentView:(UIView *)view
 {
   //If the content view is of type TiUIView touch events will automatically propagate
@@ -376,7 +388,7 @@
     }
   }
 
-  return TRUE;
+  return YES;
 }
 
 - (void)setHandleLinks_:(id)args
