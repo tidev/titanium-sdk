@@ -159,7 +159,7 @@
     "url": "git://github.com/appcelerator/titanium_mobile.git"
   },
   "vendorDependencies": {
-    "node": "12.x || 14.x"
+    "node": "12.x || 14.x || 16.x"
   },
   "engines": {
     "node": ">=12.13.0"
