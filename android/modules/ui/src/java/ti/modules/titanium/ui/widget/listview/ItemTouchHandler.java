@@ -21,7 +21,6 @@ import android.view.View.OnTouchListener;
 import android.view.ViewParent;
 
 import androidx.annotation.NonNull;
-import androidx.core.util.Pair;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -37,8 +36,7 @@ public class ItemTouchHandler extends ItemTouchHelper.SimpleCallback
 
 	private TiRecyclerViewAdapter adapter;
 	private RecyclerViewProxy recyclerViewProxy;
-	private Pair<Integer,  Integer> movePair = null;
-
+	private int moveEndIndex = -1;
 	private Drawable icon;
 	private final ColorDrawable background;
 
@@ -59,14 +57,10 @@ public class ItemTouchHandler extends ItemTouchHelper.SimpleCallback
 			public boolean onTouch(View v, MotionEvent event)
 			{
 				if (event.getAction() == MotionEvent.ACTION_UP) {
-
-					// Only fire `move` event upon final movement location.
-
-					if (movePair != null) {
-						final int fromIndex = movePair.first;
-
-						recyclerViewProxy.fireMoveEvent(fromIndex);
-						movePair = null;
+					if (moveEndIndex >= 0) {
+						// Notify owner that item movement has ended. Will fire a "move" event.
+						recyclerViewProxy.onMoveItemEnded(moveEndIndex);
+						moveEndIndex = -1;
 					}
 				}
 				return false;
@@ -274,12 +268,26 @@ public class ItemTouchHandler extends ItemTouchHelper.SimpleCallback
 						  @NonNull RecyclerView.ViewHolder fromHolder,
 						  @NonNull RecyclerView.ViewHolder toHolder)
 	{
+		// Fetch index positions of items to swap.
 		final int fromIndex = fromHolder.getAdapterPosition();
 		final int toIndex = toHolder.getAdapterPosition();
 
-		movePair = new Pair<>(fromIndex, toIndex);
-		this.recyclerViewProxy.moveItem(fromIndex, toIndex);
-		return true;
+		// Notify owner if this is the start of item movement.
+		if (this.moveEndIndex < 0) {
+			boolean canMove = this.recyclerViewProxy.onMoveItemStarting(fromIndex);
+			if (!canMove) {
+				return false;
+			}
+		}
+
+		// Swap items and store destination index position which is needed by onMoveItemEnded() call.
+		// Note: "fromIndex" and "toIndex" will become invalid if item was moved into an empty placeholder section.
+		//       This causes placeholder to be removed and adapter collection length to be reduced by one.
+		int newToIndex = this.recyclerViewProxy.moveItem(fromIndex, toIndex);
+		if (newToIndex >= 0) {
+			this.moveEndIndex = newToIndex;
+		}
+		return (newToIndex >= 0);
 	}
 
 	/**

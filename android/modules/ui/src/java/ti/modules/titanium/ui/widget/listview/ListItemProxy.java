@@ -132,9 +132,9 @@ public class ListItemProxy extends TiViewProxy
 				final ListSectionProxy section = (ListSectionProxy) parent;
 
 				// Include section specific properties.
-				payload.put(TiC.PROPERTY_SECTION, section);
-				payload.put(TiC.PROPERTY_SECTION_INDEX, listViewProxy.getIndexOfSection(section));
-				payload.put(TiC.PROPERTY_ITEM_INDEX, getIndexInSection());
+				payload.putIfAbsent(TiC.PROPERTY_SECTION, section);
+				payload.putIfAbsent(TiC.PROPERTY_SECTION_INDEX, listViewProxy.getIndexOfSection(section));
+				payload.putIfAbsent(TiC.PROPERTY_ITEM_INDEX, getIndexInSection());
 			}
 
 			final Object itemId = getProperties().get(TiC.PROPERTY_ITEM_ID);
