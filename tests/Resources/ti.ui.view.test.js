@@ -19,7 +19,7 @@ describe('Titanium.UI.View', function () {
 	let win;
 
 	this.slow(2000);
-	this.timeout(10000);
+	this.timeout(15000);
 
 	before(finish => {
 		rootWindow = Ti.UI.createWindow({ exitOnClose: false });
