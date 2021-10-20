@@ -285,20 +285,6 @@ public class ListViewProxy extends RecyclerViewProxy
 		return "Ti.UI.ListView";
 	}
 
-	public List<ListItemProxy> getCurrentItems()
-	{
-		final TiListView listView = getListView();
-
-		if (listView != null) {
-			final ListViewAdapter adapter = listView.getAdapter();
-
-			if (adapter != null) {
-				return adapter.getModels();
-			}
-		}
-		return null;
-	}
-
 	/**
 	 * Get index for specified section.
 	 *
@@ -535,7 +521,7 @@ public class ListViewProxy extends RecyclerViewProxy
 		} else if (name.equals(TiC.PROPERTY_SHOW_SELECTION_CHECK)) {
 
 			// Update and refresh list.
-			update();
+			update(true);
 		}
 	}
 
@@ -890,13 +876,17 @@ public class ListViewProxy extends RecyclerViewProxy
 	/**
 	 * Notify ListView to update all adapter items.
 	 */
-	public void update()
+	public void update(boolean force)
 	{
 		final TiListView listView = getListView();
 
 		if (listView != null) {
-			listView.update();
+			listView.update(force);
 		}
+	}
+	public void update()
+	{
+		this.update(false);
 	}
 
 	/** Stores starting position info of an item being dragged-and-dropped. */

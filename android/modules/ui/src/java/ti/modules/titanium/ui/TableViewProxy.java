@@ -939,20 +939,24 @@ public class TableViewProxy extends RecyclerViewProxy
 			|| name.equals(TiC.PROPERTY_SHOW_SELECTION_CHECK)) {
 
 			// Update and refresh table.
-			update();
+			update(true);
 		}
 	}
 
 	/**
 	 * Notify TableView to update all adapter rows.
 	 */
-	public void update()
+	public void update(boolean force)
 	{
 		final TiTableView tableView = getTableView();
 
 		if (tableView != null) {
-			tableView.update();
+			tableView.update(force);
 		}
+	}
+	public void update()
+	{
+		this.update(false);
 	}
 
 	/**
