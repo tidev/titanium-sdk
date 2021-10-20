@@ -189,7 +189,7 @@ public class FusedLocationProvider
 							public void onSuccess(Location location)
 							{
 								if (location != null) {
-									geolocationModule.fusedLocation(location);
+									geolocationModule.onLocationChanged(location);
 								}
 							}
 						});

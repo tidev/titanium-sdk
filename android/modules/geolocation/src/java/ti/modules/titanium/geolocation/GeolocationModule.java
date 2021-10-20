@@ -910,12 +910,6 @@ public class GeolocationModule extends KrollModule implements Handler.Callback, 
 		});
 	}
 
-	public void fusedLocation(Location location)
-	{
-		fireEvent(TiC.EVENT_LOCATION,
-			buildLocationEvent(location, tiLocation.locationManager.getProvider(location.getProvider())));
-	}
-
 	/**
 	 * Called to determine if the specified location is "better" than the current location.
 	 * This is determined by comparing the new location to the current location according
