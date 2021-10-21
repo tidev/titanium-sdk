@@ -571,7 +571,9 @@ describe('Titanium.Geolocation', () => {
 			});
 		});
 
-		describe('#forwardGeocoder()', () => {
+		describe('#forwardGeocoder()', function () {
+			// retry theses tests up to 3 times if they fail, just incase there are network issues
+			this.retries(3);
 			it('is a Function', () => should(Ti.Geolocation.forwardGeocoder).be.a.Function());
 
 			it('works via callback argument', function (finish) {
@@ -633,7 +635,10 @@ describe('Titanium.Geolocation', () => {
 			});
 		});
 
-		describe('#reverseGeocoder()', () => {
+		describe('#reverseGeocoder()', function () {
+			// retry theses tests up to 3 times if they fail, just incase there are network issues
+			this.retries(3);
+
 			it('is a Function', () => should(Ti.Geolocation.reverseGeocoder).be.a.Function());
 
 			it('works via function callback', function (finish) {
