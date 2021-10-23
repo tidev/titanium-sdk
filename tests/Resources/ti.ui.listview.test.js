@@ -1104,7 +1104,7 @@ describe('Titanium.UI.ListView', function () {
 			items.push({
 				label: { text: "item " + i },
 				template: 'test'
-			})
+			});
 		}
 
 		win = Ti.UI.createWindow({
