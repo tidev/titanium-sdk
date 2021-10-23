@@ -1102,7 +1102,7 @@ describe('Titanium.UI.ListView', function () {
 
 		for (let i = 0; i < 100; i++) {
 			items.push({
-				label: { text: "item " + i },
+				label: { text: 'item ' + i },
 				template: 'test'
 			});
 		}
@@ -1123,7 +1123,7 @@ describe('Titanium.UI.ListView', function () {
 				finish();
 			}
 		});
-		setTimeout(function() {
+		setTimeout(() => {
 			listView.scrollToItem(0, 99);
 		}, 1000);
 		win.add(listView);
