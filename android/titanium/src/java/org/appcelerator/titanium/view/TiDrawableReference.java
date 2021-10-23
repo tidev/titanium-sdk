@@ -36,6 +36,7 @@ import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.util.TiUrl;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
@@ -443,21 +444,21 @@ public class TiDrawableReference
 		return bitmap;
 	}
 
-	private Resources getResources()
-	{
-		return TiApplication.getInstance().getResources();
-	}
-
 	private Drawable getResourceDrawable()
 	{
 		if (!isTypeResourceId()) {
 			return null;
 		}
+
 		Drawable drawable = null;
-		Resources resources = getResources();
+		Context context = TiApplication.getAppCurrentActivity();
+		if (context == null) {
+			context = TiApplication.getInstance();
+		}
+		Resources resources = context.getResources();
 		if (resources != null && resourceId > 0) {
 			try {
-				drawable = resources.getDrawable(resourceId);
+				drawable = resources.getDrawable(resourceId, context.getTheme());
 			} catch (Resources.NotFoundException e) {
 				drawable = null;
 			}
