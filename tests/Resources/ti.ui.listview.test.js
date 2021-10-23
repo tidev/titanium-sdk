@@ -1115,10 +1115,10 @@ describe('Titanium.UI.ListView', function () {
 		listView.sections = [ section ];
 
 		let count = 0;
-		listView.addEventListener('scrolling', (e) => {
+		listView.addEventListener('scrolling', () => {
 			count++;
 		});
-		listView.addEventListener('scrollend', (e) => {
+		listView.addEventListener('scrollend', () => {
 			if (count > 50) {
 				finish();
 			}
