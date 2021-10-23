@@ -204,6 +204,7 @@ function loadTests() {
 	// Modules
 	require('./ti.cloudpush.test');
 	require('./ti.map.test');
+	require('./ti.modulesdk920.test');
 	if (OS_ANDROID) {
 		require('./ti.playservices.test');
 	}

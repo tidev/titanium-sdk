@@ -490,6 +490,17 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 	}
 
 	/**
+	 * Obtains adapter index from list item reference.
+	 *
+	 * @param rowProxy The row object to search for by reference. Can be null.
+	 * @return Returns the adapter index position of the given row. Returns -1 if not found.
+	 */
+	public int getAdapterIndex(TableViewRowProxy rowProxy)
+	{
+		return this.rows.indexOf(rowProxy);
+	}
+
+	/**
 	 * Obtain row from adapter index.
 	 *
 	 * @param index List item adapter index.
