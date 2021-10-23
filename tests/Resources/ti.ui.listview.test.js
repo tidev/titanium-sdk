@@ -1124,7 +1124,7 @@ describe('Titanium.UI.ListView', function () {
 			}
 		});
 		setTimeout(function() {
-			listView.scrollToItem(0, 99)
+			listView.scrollToItem(0, 99);
 		}, 1000);
 		win.add(listView);
 		win.open();
