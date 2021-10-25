@@ -159,6 +159,9 @@ public abstract class TiRecyclerViewHolder extends RecyclerView.ViewHolder
 	{
 		final Activity activity = TiApplication.getAppCurrentActivity();
 
+		if (drawable instanceof RippleDrawable) {
+			drawable = ((RippleDrawable) drawable).getDrawable(0);
+		}
 		if (activity != null) {
 			final int[][] rippleStates = new int[][] { new int[] {} };
 			final TypedValue typedValue = new TypedValue();

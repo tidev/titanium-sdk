@@ -391,7 +391,10 @@
 #pragma mark - TiWindowProtocol
 - (void)viewWillAppear:(BOOL)animated
 {
-  if ([self viewAttached]) {
+  if (navController && [self viewAttached]) {
+    UIViewController *parentController = [self windowHoldingController];
+    [parentController addChildViewController:navController];
+    [navController didMoveToParentViewController:parentController];
     [navController viewWillAppear:animated];
   }
   [super viewWillAppear:animated];
@@ -525,18 +528,6 @@
   [nview setFrame:[[self view] bounds]];
   [[self view] addSubview:nview];
   [super windowWillOpen];
-}
-
-- (void)windowDidOpen
-{
-  // Set parent for navigation controller
-  if (navController) {
-    UIViewController *parentController = [self windowHoldingController];
-    [parentController addChildViewController:navController];
-    [navController didMoveToParentViewController:parentController];
-  }
-
-  [super windowDidOpen];
 }
 
 - (void)windowDidClose
