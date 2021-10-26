@@ -9,6 +9,7 @@ package ti.modules.titanium.ui.widget.listview;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.TreeSet;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollEventCallback;
@@ -19,6 +20,7 @@ import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.ColorProxy;
 import org.appcelerator.titanium.proxy.TiViewProxy;
+import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiUIView;
 
 import android.app.Activity;
@@ -403,6 +405,7 @@ public class ListItemProxy extends TiViewProxy
 		final Object[] childTemplates = (Object[]) template.get(TiC.PROPERTY_CHILD_TEMPLATES);
 
 		// Update all child proxies.
+		var excludeKeys = new TreeSet<String>();
 		for (int index = 0; index < proxies.length; index++) {
 			// Fetch child's template.
 			KrollDict childTemplate = null;
@@ -436,11 +439,33 @@ public class ListItemProxy extends TiViewProxy
 				properties.putAll((HashMap) childPropertiesObj);
 			}
 
-			// Assign properties to child. For best performance, only update property if value is different.
-			for (KrollDict.Entry<String, Object> entry : properties.entrySet()) {
-				if (proxy.shouldFireChange(proxy.getProperty(entry.getKey()), entry.getValue())) {
-					proxy.setPropertyAndFire(entry.getKey(), entry.getValue());
+			// Assign properties to child proxy.
+			excludeKeys.clear();
+			for (var entry : properties.entrySet()) {
+				// Skip property if in exclusion set. We do this for localized properties.
+				if (excludeKeys.contains(entry.getKey())) {
+					continue;
 				}
+
+				// Skip copying property if value isn't changing. (This drastically improves performance.)
+				if (!proxy.shouldFireChange(proxy.getProperty(entry.getKey()), entry.getValue())) {
+					continue;
+				}
+
+				// Do special handling for localized properties, such as "textid" or "titleid".
+				// Returned "pair" provides property key/value that should be changed, such as "text" or "title".
+				if (proxy.isLocaleProperty(entry.getKey())) {
+					var pair = proxy.updateLocaleProperty(entry.getKey(), TiConvert.toString(entry.getValue()));
+					if (pair != null) {
+						excludeKeys.add(pair.first);
+						proxy.setProperty(entry.getKey(), entry.getValue());
+						proxy.firePropertyChanged(pair.first, proxy.getProperty(pair.first), pair.second);
+						continue;
+					}
+				}
+
+				// Update property value and invoke onPropetyChanged() callback.
+				proxy.setPropertyAndFire(entry.getKey(), entry.getValue());
 			}
 
 			// Add child's binding ID to main dictionary.
