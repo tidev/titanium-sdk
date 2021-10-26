@@ -1160,6 +1160,7 @@ properties:
         Set it to `true` if all TableView items have the same size to gain some performance.
     type: Boolean
     default: false
+    availability: creation
     since: 10.2.0
     platforms: [android]
 
