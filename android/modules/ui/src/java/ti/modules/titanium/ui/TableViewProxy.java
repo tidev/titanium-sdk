@@ -262,9 +262,11 @@ public class TableViewProxy extends RecyclerViewProxy
 			final TableViewSectionProxy fromSection = (TableViewSectionProxy) fromItem.getParent();
 			final TableViewRowProxy toItem = tableView.getAdapterItem(toAdapterIndex);
 			final TiViewProxy parentProxy = toItem.getParent();
+
 			if (parentProxy instanceof TableViewSectionProxy) {
 				final TableViewSectionProxy toSection = (TableViewSectionProxy) parentProxy;
 				final int toIndex = Math.max(toItem.getIndexInSection(), 0);
+
 				fromSection.remove(fromItem);
 				toSection.add(toIndex, fromItem);
 				update();
@@ -951,7 +953,10 @@ public class TableViewProxy extends RecyclerViewProxy
 		final TiTableView tableView = getTableView();
 
 		if (tableView != null) {
-			tableView.update(force);
+			final boolean editing = getProperties().optBoolean(TiC.PROPERTY_EDITING, false);
+			final boolean moving = getProperties().optBoolean(TiC.PROPERTY_MOVING, false);
+
+			tableView.update(force || editing || moving);
 		}
 	}
 	public void update()

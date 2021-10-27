@@ -191,9 +191,11 @@ public class ListViewProxy extends RecyclerViewProxy
 			final int fromIndex = fromItem.getIndexInSection();
 			final ListItemProxy toItem = listView.getAdapterItem(toAdapterIndex);
 			final TiViewProxy parentProxy = toItem.getParent();
+
 			if (parentProxy instanceof ListSectionProxy) {
 				final ListSectionProxy toSection = (ListSectionProxy) parentProxy;
 				final int toIndex = Math.max(toItem.getIndexInSection(), 0);
+
 				fromSection.deleteItemsAt(fromIndex, 1, null);
 				toSection.insertItemsAt(toIndex, fromItem, null);
 				return listView.getAdapterIndex(fromItem);
@@ -881,7 +883,9 @@ public class ListViewProxy extends RecyclerViewProxy
 		final TiListView listView = getListView();
 
 		if (listView != null) {
-			listView.update(force);
+			final boolean editing = getProperties().optBoolean(TiC.PROPERTY_EDITING, false);
+
+			listView.update(force || editing);
 		}
 	}
 	public void update()

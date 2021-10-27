@@ -469,13 +469,17 @@ public class ListSectionProxy extends TiViewProxy
 	/**
 	 * Notify ListView to update all adapter items.
 	 */
-	private void update()
+	private void update(boolean force)
 	{
 		final ListViewProxy listViewProxy = getListViewProxy();
 
 		if (listViewProxy != null) {
-			listViewProxy.update();
+			listViewProxy.update(force);
 		}
+	}
+	private void update()
+	{
+		this.update(false);
 	}
 
 	/**

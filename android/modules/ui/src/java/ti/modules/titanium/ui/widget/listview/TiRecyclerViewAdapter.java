@@ -33,7 +33,7 @@ public abstract class TiRecyclerViewAdapter<VH extends TiRecyclerViewHolder<V>, 
 	protected List<V> models;
 	protected SelectionTracker tracker;
 
-	private Deque<List<V>> pendingUpdates = new ArrayDeque<>();
+	private final Deque<List<V>> pendingUpdates = new ArrayDeque<>();
 
 	public TiRecyclerViewAdapter(@NonNull Context context, @NonNull List<V> models)
 	{
