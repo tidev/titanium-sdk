@@ -47,6 +47,40 @@ describe.android('Titanium.Android.ActionBar', function () {
 		win.open();
 	});
 
+	it('.homeAsUpIndicator (Image)', (finish) => {
+		win = Ti.UI.createWindow();
+		win.activity.onCreate = () => {
+			try {
+				const actionBar = win.activity.actionBar;
+				actionBar.displayHomeAsUp = true;
+				actionBar.homeButtonEnabled = true;
+				actionBar.homeAsUpIndicator = 'SmallLogo.png';
+				actionBar.onHomeIconItemSelected = () => {};
+				finish();
+			} catch (err) {
+				finish(err);
+			}
+		};
+		win.open();
+	});
+
+	it('.homeAsUpIndicator (Resource ID)', (finish) => {
+		win = Ti.UI.createWindow();
+		win.activity.onCreate = () => {
+			try {
+				const actionBar = win.activity.actionBar;
+				actionBar.displayHomeAsUp = true;
+				actionBar.homeButtonEnabled = true;
+				actionBar.homeAsUpIndicator = Ti.App.Android.R.drawable.ic_baseline_close_24;
+				actionBar.onHomeIconItemSelected = () => {};
+				finish();
+			} catch (err) {
+				finish(err);
+			}
+		};
+		win.open();
+	});
+
 	it('.icon (Image)', (finish) => {
 		win = Ti.UI.createWindow();
 		win.activity.onCreate = () => {

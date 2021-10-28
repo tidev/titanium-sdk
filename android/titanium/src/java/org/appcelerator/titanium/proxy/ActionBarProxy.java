@@ -50,6 +50,23 @@ public class ActionBarProxy extends KrollProxy
 	}
 
 	@Kroll.setProperty
+	public void setHomeAsUpIndicator(Object icon)
+	{
+		if (this.actionBar == null) {
+			Log.w(TAG, ACTION_BAR_NOT_AVAILABLE_MESSAGE);
+			return;
+		}
+
+		if (icon instanceof Number) {
+			this.actionBar.setHomeAsUpIndicator(TiConvert.toInt(icon));
+		} else if (icon != null) {
+			this.actionBar.setHomeAsUpIndicator(TiUIHelper.getResourceDrawable(icon));
+		} else {
+			this.actionBar.setHomeAsUpIndicator(null);
+		}
+	}
+
+	@Kroll.setProperty
 	public void setHomeButtonEnabled(boolean homeButtonEnabled)
 	{
 		if (actionBar != null) {

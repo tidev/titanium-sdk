@@ -157,6 +157,16 @@ properties:
     type: Boolean
     permission: write-only
 
+  - name: homeAsUpIndicator
+    summary: Sets a custom icon for the "home" button in the corner of the action bar.
+    description: |
+        Can be set to a `String` file path or URL to an image, to an image blob, or to a resource ID
+        from `Ti.App.Android.R.drawable.*` or `Ti.Android.R.drawable.*`. It's highly recommended to set this
+        to a vector drawable resource ID.
+    type: [String, Number, Titanium.Blob]
+    since: "10.2.0"
+    permission: write-only
+
   - name: homeButtonEnabled
     summary: Enable or disable the "home" button in the corner of the action bar.
     description: |
