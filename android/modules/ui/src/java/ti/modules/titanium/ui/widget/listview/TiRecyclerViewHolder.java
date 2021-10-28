@@ -206,9 +206,9 @@ public abstract class TiRecyclerViewHolder extends RecyclerView.ViewHolder
 			stateDrawable.addState(new int[] { android.R.attr.state_activated }, new ColorDrawable(COLOR_SELECTED));
 		}
 
-		// NOTE: Android 6.0 and below require ShapeDrawable to have non-null Shape.
-		// This bug is fixed on Android 7.0 and above.
-		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
+		// NOTE: Android 7.1 and below require ShapeDrawable to have non-null Shape.
+		// This bug is fixed on Android 8.0 and above.
+		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
 			Drawable currentDrawable = drawable;
 
 			if (currentDrawable instanceof RippleDrawable) {
