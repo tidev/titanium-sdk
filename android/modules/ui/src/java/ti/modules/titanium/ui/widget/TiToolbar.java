@@ -17,6 +17,7 @@ import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiColorHelper;
+import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiDrawableReference;
 import org.appcelerator.titanium.view.TiToolbarStyleHandler;
@@ -256,9 +257,15 @@ public class TiToolbar extends TiUIView
 	 */
 	public void setNavigationIcon(Object object)
 	{
-		navigationIcon = object;
-		TiDrawableReference tiDrawableReference = TiDrawableReference.fromObject(proxy, object);
-		((MaterialToolbar) getNativeView()).setNavigationIcon(tiDrawableReference.getDrawable());
+		this.navigationIcon = object;
+		if (object instanceof Number) {
+			this.toolbar.setNavigationIcon(TiConvert.toInt(object));
+		} else if (object != null) {
+			TiDrawableReference tiDrawableReference = TiDrawableReference.fromObject(proxy, object);
+			this.toolbar.setNavigationIcon(tiDrawableReference.getDrawable());
+		} else {
+			this.toolbar.setNavigationIcon(null);
+		}
 	}
 
 	/**
@@ -276,9 +283,13 @@ public class TiToolbar extends TiUIView
 	 */
 	public void setOverflowMenuIcon(Object object)
 	{
-		overflowMenuIcon = object;
-		TiDrawableReference tiDrawableReference = TiDrawableReference.fromObject(proxy, object);
-		((MaterialToolbar) getNativeView()).setOverflowIcon(tiDrawableReference.getDrawable());
+		this.overflowMenuIcon = object;
+		if (object != null) {
+			TiDrawableReference tiDrawableReference = TiDrawableReference.fromObject(proxy, object);
+			this.toolbar.setOverflowIcon(tiDrawableReference.getDrawable());
+		} else {
+			this.toolbar.setOverflowIcon(null);
+		}
 	}
 
 	/**
