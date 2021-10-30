@@ -583,6 +583,15 @@ public class TiImageView extends ViewGroup
 				return true;
 			}
 
+			// Do not allow scale to be greater than 5x.
+			final float MAX_SCALE = 5.0f;
+			if ((matrixValues[Matrix.MSCALE_X] > MAX_SCALE) || (matrixValues[Matrix.MSCALE_Y] > MAX_SCALE)) {
+				this.matrix.postScale(
+					MAX_SCALE / matrixValues[Matrix.MSCALE_X], MAX_SCALE / matrixValues[Matrix.MSCALE_Y],
+					this.tiImageView.getWidth() / 2.0f, this.tiImageView.getHeight() / 2.0f);
+				this.matrix.getValues(matrixValues);
+			}
+
 			// Fetch min/max bounds the image can be scrolled to, preventing image from being scrolled off-screen.
 			float translateX = -matrixValues[Matrix.MTRANS_X];
 			float translateY = -matrixValues[Matrix.MTRANS_Y];
