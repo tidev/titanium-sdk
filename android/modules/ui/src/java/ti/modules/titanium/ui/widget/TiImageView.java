@@ -24,6 +24,7 @@ import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
 import android.graphics.PorterDuff.Mode;
+import androidx.annotation.NonNull;
 import com.google.android.material.color.MaterialColors;
 import java.lang.ref.WeakReference;
 import org.appcelerator.titanium.proxy.TiViewProxy;
@@ -37,22 +38,15 @@ public class TiImageView extends ViewGroup
 {
 	private static final String TAG = "TiImageView";
 
-	private boolean enableZoomControls;
-
 	private boolean isImageRippleEnabled;
 	private int imageRippleColor;
 	private int defaultRippleColor;
 
-	private final AccelerateDecelerateInterpolator interpolator = new AccelerateDecelerateInterpolator();
-	private GestureDetector gestureDetector;
-	private ScaleGestureDetector scaleGestureDetector;
 	private ImageView imageView;
 
 	private int scalingMode = MediaModule.IMAGE_SCALING_AUTO;
 	private final Matrix baseMatrix = new Matrix();
-	private final Matrix changeMatrix = new Matrix();
-	private float lastFocusX;
-	private float lastFocusY;
+	private TiImageView.ZoomHandler zoomHandler;
 
 	// Flags to help determine whether width/height is defined, so we can scale appropriately
 	private boolean viewWidthDefined;
@@ -66,124 +60,13 @@ public class TiImageView extends ViewGroup
 	{
 		super(context);
 
-		final TiImageView me = this;
-
 		this.defaultRippleColor = MaterialColors.getColor(context, R.attr.colorControlHighlight, Color.DKGRAY);
-		this.imageRippleColor = defaultRippleColor;
+		this.imageRippleColor = this.defaultRippleColor;
 
 		this.imageView = new ImageView(context);
 		this.imageView.setAdjustViewBounds(true);
 		this.imageView.setScaleType(ScaleType.MATRIX);
 		addView(this.imageView);
-
-		// Detector used to handle double tap zoom-in/out and scrolling.
-		this.gestureDetector = new GestureDetector(context, new GestureDetector.SimpleOnGestureListener() {
-			@Override
-			public boolean onDoubleTap(MotionEvent e)
-			{
-				// Do not continue if zoom is disable or we're in the middle of a pinch-zoom.
-				if (!enableZoomControls || scaleGestureDetector.isInProgress()) {
-					return false;
-				}
-
-				// Fetch zoom position and translation coordinates.
-				float[] matrixValues = new float[9];
-				changeMatrix.getValues(matrixValues);
-				final boolean isZoomingIn = changeMatrix.isIdentity();
-				final float zoomInScaleFactor = isZoomingIn ? 2.5f : matrixValues[Matrix.MSCALE_X];
-				final float translateX = matrixValues[Matrix.MTRANS_X];
-				final float translateY = matrixValues[Matrix.MTRANS_Y];
-				final float zoomInX = e.getX();
-				final float zoomInY = e.getY();
-				final long startTime = SystemClock.uptimeMillis();
-
-				// Animate the zoom in/out.
-				post(new Runnable() {
-					@Override
-					public void run()
-					{
-						// Do not continue if zoom feature has been disabled.
-						if (!enableZoomControls) {
-							return;
-						}
-
-						// Get next position in zoom animation.
-						long deltaTime = SystemClock.uptimeMillis() - startTime;
-						float normalizedValue = Math.min(deltaTime / 250.0f, 1.0f);
-						boolean isAnimationDone = (normalizedValue >= 1.0f);
-						normalizedValue = interpolator.getInterpolation(normalizedValue);
-						if (!isZoomingIn) {
-							normalizedValue = 1.0f - normalizedValue;
-						}
-
-						// Scale the image.
-						changeMatrix.reset();
-						if (isZoomingIn) {
-							float scaleFactor = (zoomInScaleFactor * normalizedValue) + 1.0f;
-							changeMatrix.postScale(scaleFactor, scaleFactor, zoomInX, zoomInY);
-						} else {
-							float scaleFactor = ((zoomInScaleFactor - 1.0f) * normalizedValue) + 1.0f;
-							changeMatrix.postScale(scaleFactor, scaleFactor);
-							changeMatrix.postTranslate(translateX * normalizedValue, translateY * normalizedValue);
-						}
-						requestLayout();
-
-						// Re-run this runnable if the animation isn't done yet.
-						if (!isAnimationDone) {
-							post(this);
-						}
-					}
-				});
-				return true;
-			}
-
-			@Override
-			public boolean onScroll(MotionEvent e1, MotionEvent e2, float dx, float dy)
-			{
-				if (enableZoomControls && !scaleGestureDetector.isInProgress() && !changeMatrix.isIdentity()) {
-					changeMatrix.postTranslate(-dx, -dy);
-					applyLimitsToChangeMatrix();
-					requestLayout();
-					return true;
-				}
-				return false;
-			}
-		});
-		this.gestureDetector.setIsLongpressEnabled(false);
-
-		// Detector used to handle pinch zoom.
-		var scaleGestureListener = new ScaleGestureDetector.SimpleOnScaleGestureListener() {
-			@Override
-			public boolean onScaleBegin(ScaleGestureDetector detector)
-			{
-				lastFocusX = detector.getFocusX();
-				lastFocusY = detector.getFocusY();
-				return enableZoomControls;
-			}
-
-			@Override
-			public boolean onScale(ScaleGestureDetector detector)
-			{
-				changeMatrix.postScale(
-					detector.getScaleFactor(), detector.getScaleFactor(),
-					detector.getFocusX(), detector.getFocusY());
-				changeMatrix.postTranslate(detector.getFocusX() - lastFocusX, detector.getFocusY() - lastFocusY);
-				applyLimitsToChangeMatrix();
-				lastFocusX = detector.getFocusX();
-				lastFocusY = detector.getFocusY();
-				requestLayout();
-				return true;
-			}
-
-			@Override
-			public void onScaleEnd(ScaleGestureDetector detector)
-			{
-				if (applyLimitsToChangeMatrix()) {
-					requestLayout();
-				}
-			}
-		};
-		this.scaleGestureDetector = new ScaleGestureDetector(context, scaleGestureListener);
 	}
 
 	/**
@@ -199,8 +82,11 @@ public class TiImageView extends ViewGroup
 
 	public void setEnableZoomControls(boolean value)
 	{
-		if (value != this.enableZoomControls) {
-			this.enableZoomControls = value;
+		if (value && (this.zoomHandler == null)) {
+			this.zoomHandler = new TiImageView.ZoomHandler(this);
+			updateScaleType();
+		} else if (!value && (this.zoomHandler != null)) {
+			this.zoomHandler = null;
 			updateScaleType();
 		}
 	}
@@ -387,8 +273,8 @@ public class TiImageView extends ViewGroup
 	public boolean onTouchEvent(MotionEvent ev)
 	{
 		boolean handled = false;
-		if (this.enableZoomControls) {
-			handled = this.gestureDetector.onTouchEvent(ev) || this.scaleGestureDetector.onTouchEvent(ev);
+		if (this.zoomHandler != null) {
+			handled = this.zoomHandler.onTouchEvent(ev);
 		}
 		if (!handled) {
 			handled = super.onTouchEvent(ev);
@@ -458,10 +344,12 @@ public class TiImageView extends ViewGroup
 	@Override
 	protected void onLayout(boolean changed, int left, int top, int right, int bottom)
 	{
-		applyLimitsToChangeMatrix();
 		computeBaseMatrix();
 		Matrix newMatrix = new Matrix(this.baseMatrix);
-		newMatrix.postConcat(this.changeMatrix);
+		if (this.zoomHandler != null) {
+			this.zoomHandler.applyLimitsToMatrix();
+			newMatrix.postConcat(this.zoomHandler.getMatrix());
+		}
 		this.imageView.setImageMatrix(newMatrix);
 		this.imageView.layout(0, 0, right - left, bottom - top);
 
@@ -476,7 +364,7 @@ public class TiImageView extends ViewGroup
 
 	private void updateScaleType()
 	{
-		if (this.enableZoomControls || (this.viewWidthDefined && this.viewHeightDefined)) {
+		if ((this.zoomHandler != null) || (this.viewWidthDefined && this.viewHeightDefined)) {
 			this.imageView.setAdjustViewBounds(false);
 		} else {
 			this.imageView.setAdjustViewBounds(true);
@@ -506,50 +394,6 @@ public class TiImageView extends ViewGroup
 		updateScaleType();
 	}
 
-	private boolean applyLimitsToChangeMatrix()
-	{
-		// Do not continue if matrix has no translations or scales applied to it. (This is an optimization.)
-		if (this.changeMatrix.isIdentity()) {
-			return false;
-		}
-
-		// Fetch matrix values.
-		float[] matrixValues = new float[9];
-		this.changeMatrix.getValues(matrixValues);
-
-		// Do not allow scale to be less than 1x.
-		if ((matrixValues[Matrix.MSCALE_X] < 1.0f) || (matrixValues[Matrix.MSCALE_Y] < 1.0f)) {
-			changeMatrix.reset();
-			return true;
-		}
-
-		// Fetch min/max bounds the image can be scrolled to, preventing image from being scrolled off-screen.
-		float translateX = -matrixValues[Matrix.MTRANS_X];
-		float translateY = -matrixValues[Matrix.MTRANS_Y];
-		float minTranslateX = 0;
-		float minTranslateY = 0;
-		float maxTranslateX = (getWidth() * matrixValues[Matrix.MSCALE_X]) - getWidth();
-		float maxTranslateY = (getHeight() * matrixValues[Matrix.MSCALE_Y]) - getHeight();
-
-		// Apply translation limits.
-		boolean wasChanged = false;
-		if (translateX < minTranslateX) {
-			this.changeMatrix.postTranslate(translateX - minTranslateX, 0);
-			wasChanged = true;
-		} else if (translateX > maxTranslateX) {
-			this.changeMatrix.postTranslate(translateX - maxTranslateX, 0);
-			wasChanged = true;
-		}
-		if (translateY < minTranslateY) {
-			this.changeMatrix.postTranslate(0, translateY - minTranslateY);
-			wasChanged = true;
-		} else if (translateY > maxTranslateY) {
-			this.changeMatrix.postTranslate(0, translateY - maxTranslateY);
-			wasChanged = true;
-		}
-		return wasChanged;
-	}
-
 	public void setTintColor(String color)
 	{
 		if (color == null || color.isEmpty()) {
@@ -569,5 +413,199 @@ public class TiImageView extends ViewGroup
 	public ImageView getImageView()
 	{
 		return this.imageView;
+	}
+
+	/**
+	 * Handles touch events on an ImageView to perform pinch-zoom, double tap zoom, and scrolling.
+	 * <p/>
+	 * When the view's onTouchEvent() method is called, you should pass the event to this handler's onTouchEvent()
+	 * method. The getMatrix() method will return the zoom/transformation that should be applied to the image.
+	 */
+	private static final class ZoomHandler
+		extends GestureDetector.SimpleOnGestureListener
+		implements ScaleGestureDetector.OnScaleGestureListener
+	{
+		/** The TiImageView that owns this handler and whose image will be zoomed on. */
+		private final TiImageView tiImageView;
+
+		/** Interpolator applied to double-tap zoom animations. */
+		private final AccelerateDecelerateInterpolator interpolator;
+
+		/** Detector handling double-tap zooms and scrolling. */
+		private final GestureDetector gestureDetector;
+
+		/** Detector handling pinch-zooms. */
+		private final ScaleGestureDetector scaleGestureDetector;
+
+		/** Zoom transformation matrix to be applied to the image. */
+		private final Matrix matrix;
+
+		/** Last scale center point used during a pinch-zoom along the x-axis. */
+		private float lastFocusX;
+
+		/** Last scale center point used during a pinch-zoom along the y-axis. */
+		private float lastFocusY;
+
+		public ZoomHandler(@NonNull TiImageView tiImageView)
+		{
+			this.tiImageView = tiImageView;
+			this.interpolator = new AccelerateDecelerateInterpolator();
+			this.gestureDetector = new GestureDetector(tiImageView.getContext(), this);
+			this.gestureDetector.setIsLongpressEnabled(false);
+			this.scaleGestureDetector = new ScaleGestureDetector(tiImageView.getContext(), this);
+			this.matrix = new Matrix();
+		}
+
+		public Matrix getMatrix()
+		{
+			return this.matrix;
+		}
+
+		public boolean onTouchEvent(MotionEvent event)
+		{
+			return this.gestureDetector.onTouchEvent(event) || this.scaleGestureDetector.onTouchEvent(event);
+		}
+
+		@Override
+		public boolean onDoubleTap(MotionEvent e)
+		{
+			// Do not continue if we're in the middle of a pinch-zoom.
+			if (this.scaleGestureDetector.isInProgress()) {
+				return false;
+			}
+
+			// Fetch zoom position and translation coordinates.
+			float[] matrixValues = new float[9];
+			this.matrix.getValues(matrixValues);
+			final boolean isZoomingIn = this.matrix.isIdentity();
+			final float zoomInScaleFactor = isZoomingIn ? 2.5f : matrixValues[Matrix.MSCALE_X];
+			final float translateX = matrixValues[Matrix.MTRANS_X];
+			final float translateY = matrixValues[Matrix.MTRANS_Y];
+			final float zoomInX = e.getX();
+			final float zoomInY = e.getY();
+			final long startTime = SystemClock.uptimeMillis();
+
+			// Animate the zoom in/out.
+			this.tiImageView.post(new Runnable() {
+				@Override
+				public void run()
+				{
+					// Do not continue if zoom feature has been disabled.
+					if (tiImageView.zoomHandler != ZoomHandler.this) {
+						return;
+					}
+
+					// Get next position in zoom animation.
+					long deltaTime = SystemClock.uptimeMillis() - startTime;
+					float normalizedValue = Math.min(deltaTime / 250.0f, 1.0f);
+					boolean isAnimationDone = (normalizedValue >= 1.0f);
+					normalizedValue = interpolator.getInterpolation(normalizedValue);
+
+					// Scale the image.
+					matrix.reset();
+					if (isZoomingIn) {
+						float scaleFactor = (zoomInScaleFactor * normalizedValue) + 1.0f;
+						matrix.postScale(scaleFactor, scaleFactor, zoomInX, zoomInY);
+					} else {
+						normalizedValue = 1.0f - normalizedValue;
+						float scaleFactor = ((zoomInScaleFactor - 1.0f) * normalizedValue) + 1.0f;
+						matrix.postScale(scaleFactor, scaleFactor);
+						matrix.postTranslate(translateX * normalizedValue, translateY * normalizedValue);
+					}
+					tiImageView.requestLayout();
+
+					// Re-run this runnable if the animation isn't done yet.
+					if (!isAnimationDone) {
+						tiImageView.post(this);
+					}
+				}
+			});
+			return true;
+		}
+
+		@Override
+		public boolean onScroll(MotionEvent e1, MotionEvent e2, float dx, float dy)
+		{
+			// Only allow scrolls if image is zoomed and we're not in the middle of doing a pinch-zoom.
+			if (!this.scaleGestureDetector.isInProgress() && !this.matrix.isIdentity()) {
+				this.matrix.postTranslate(-dx, -dy);
+				applyLimitsToMatrix();
+				this.tiImageView.requestLayout();
+				return true;
+			}
+			return false;
+		}
+
+		@Override
+		public boolean onScaleBegin(ScaleGestureDetector detector)
+		{
+			this.lastFocusX = detector.getFocusX();
+			this.lastFocusY = detector.getFocusY();
+			return true;
+		}
+
+		@Override
+		public boolean onScale(ScaleGestureDetector detector)
+		{
+			this.matrix.postScale(
+				detector.getScaleFactor(), detector.getScaleFactor(),
+				detector.getFocusX(), detector.getFocusY());
+			this.matrix.postTranslate(detector.getFocusX() - this.lastFocusX, detector.getFocusY() - this.lastFocusY);
+			applyLimitsToMatrix();
+			this.lastFocusX = detector.getFocusX();
+			this.lastFocusY = detector.getFocusY();
+			this.tiImageView.requestLayout();
+			return true;
+		}
+
+		@Override
+		public void onScaleEnd(ScaleGestureDetector detector)
+		{
+			if (applyLimitsToMatrix()) {
+				this.tiImageView.requestLayout();
+			}
+		}
+
+		public boolean applyLimitsToMatrix()
+		{
+			// Do not continue if matrix has no translations or scales applied to it. (This is an optimization.)
+			if (this.matrix.isIdentity()) {
+				return false;
+			}
+
+			// Fetch matrix values.
+			float[] matrixValues = new float[9];
+			this.matrix.getValues(matrixValues);
+
+			// Do not allow scale to be less than 1x.
+			if ((matrixValues[Matrix.MSCALE_X] < 1.0f) || (matrixValues[Matrix.MSCALE_Y] < 1.0f)) {
+				this.matrix.reset();
+				return true;
+			}
+
+			// Fetch min/max bounds the image can be scrolled to, preventing image from being scrolled off-screen.
+			float translateX = -matrixValues[Matrix.MTRANS_X];
+			float translateY = -matrixValues[Matrix.MTRANS_Y];
+			float maxTranslateX = (tiImageView.getWidth() * matrixValues[Matrix.MSCALE_X]) - tiImageView.getWidth();
+			float maxTranslateY = (tiImageView.getHeight() * matrixValues[Matrix.MSCALE_Y]) - tiImageView.getHeight();
+
+			// Apply translation limits.
+			boolean wasChanged = false;
+			if (translateX < 0) {
+				this.matrix.postTranslate(translateX, 0);
+				wasChanged = true;
+			} else if (translateX > maxTranslateX) {
+				this.matrix.postTranslate(translateX - maxTranslateX, 0);
+				wasChanged = true;
+			}
+			if (translateY < 0) {
+				this.matrix.postTranslate(0, translateY);
+				wasChanged = true;
+			} else if (translateY > maxTranslateY) {
+				this.matrix.postTranslate(0, translateY - maxTranslateY);
+				wasChanged = true;
+			}
+			return wasChanged;
+		}
 	}
 }
