@@ -34,6 +34,24 @@ CFMutableSetRef krollBridgeRegistry = nil;
 
 @implementation KrollBridge
 
+- (NSDictionary<NSString *, id> *)modules
+{
+  // Some 3rd party modules built before Titanium 10.0.0 depend on this method.
+  // Returns a dictionary of all external modules, using module ID as the key and module instance as the value.
+  NSDictionary<NSString *, id> *orig = [self.host valueForKey:@"modules"];
+  NSMutableDictionary<NSString *, id> *copy = [[orig mutableCopy] autorelease];
+  for (NSString *key in orig) {
+    id module = [orig objectForKey:key];
+    if ([module respondsToSelector:@selector(moduleId)]) {
+      NSString *moduleId = [module moduleId];
+      if (moduleId) {
+        copy[moduleId] = module;
+      }
+    }
+  }
+  return copy;
+}
+
 + (void)initialize
 {
   if (krollBridgeRegistry == nil) {
