@@ -17,7 +17,6 @@ import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
-import org.appcelerator.titanium.view.TiDrawableReference;
 import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.AttributedStringProxy;
@@ -311,18 +310,17 @@ public class TiUIButton extends TiUIView
 		}
 
 		// Fetch the image.
-		TiDrawableReference drawableRef = null;
+		Drawable drawable = null;
 		Object imageObject = this.proxy.getProperty(TiC.PROPERTY_IMAGE);
 		if (imageObject != null) {
-			drawableRef = TiDrawableReference.fromObject(this.proxy.getActivity(), imageObject);
+			drawable = TiUIHelper.getResourceDrawable(imageObject);
 		}
 
 		// Update button's image/icon.
-		if (drawableRef != null) {
+		if (drawable != null) {
 			boolean imageIsMask = TiConvert.toBoolean(this.proxy.getProperty(TiC.PROPERTY_IMAGE_IS_MASK), true);
 			String colorString = TiConvert.toString(this.proxy.getProperty(TiC.PROPERTY_TINT_COLOR));
 			int colorValue = (colorString != null) ? TiConvert.toColor(colorString) : this.defaultColor;
-			Drawable drawable = drawableRef.getDensityScaledDrawable();
 			if (button instanceof MaterialButton) {
 				MaterialButton materialButton = (MaterialButton) button;
 				materialButton.setIcon(drawable);
