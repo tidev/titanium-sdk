@@ -63,6 +63,7 @@ public class ListViewProxy extends RecyclerViewProxy
 	private HashMap<Integer, Set<Integer>> markers = new HashMap<>();
 	private KrollDict contentOffset = null;
 	private final MoveEventInfo moveEventInfo = new MoveEventInfo();
+	private boolean shouldUpdate = true;
 
 	public ListViewProxy()
 	{
@@ -196,8 +197,16 @@ public class ListViewProxy extends RecyclerViewProxy
 				final ListSectionProxy toSection = (ListSectionProxy) parentProxy;
 				final int toIndex = Math.max(toItem.getIndexInSection(), 0);
 
+				// Prevent updating items during move operations.
+				shouldUpdate = false;
+
 				fromSection.deleteItemsAt(fromIndex, 1, null);
 				toSection.insertItemsAt(toIndex, fromItem, null);
+
+				// Allow updating items after move operations.
+				shouldUpdate = true;
+				update();
+
 				return listView.getAdapterIndex(fromItem);
 			}
 		}
@@ -880,12 +889,13 @@ public class ListViewProxy extends RecyclerViewProxy
 	 */
 	public void update(boolean force)
 	{
+		if (!shouldUpdate) {
+			return;
+		}
 		final TiListView listView = getListView();
 
 		if (listView != null) {
-			final boolean editing = getProperties().optBoolean(TiC.PROPERTY_EDITING, false);
-
-			listView.update(force || editing);
+			listView.update(force);
 		}
 	}
 	public void update()

@@ -7,7 +7,6 @@
 package ti.modules.titanium.ui.widget.listview;
 
 import android.content.Context;
-import android.os.Handler;
 import android.view.LayoutInflater;
 
 import androidx.annotation.NonNull;
@@ -18,10 +17,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 
-import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Deque;
 import java.util.List;
 
 public abstract class TiRecyclerViewAdapter<VH extends TiRecyclerViewHolder<V>, V extends TiViewProxy>
@@ -32,8 +29,6 @@ public abstract class TiRecyclerViewAdapter<VH extends TiRecyclerViewHolder<V>, 
 	protected LayoutInflater inflater;
 	protected List<V> models;
 	protected SelectionTracker tracker;
-
-	private final Deque<List<V>> pendingUpdates = new ArrayDeque<>();
 
 	public TiRecyclerViewAdapter(@NonNull Context context, @NonNull List<V> models)
 	{
@@ -112,87 +107,23 @@ public abstract class TiRecyclerViewAdapter<VH extends TiRecyclerViewHolder<V>, 
 		final var newModelsClone = new ArrayList<>(newModels);
 
 		if (force) {
-			pendingUpdates.clear();
-
-			// Update adapter for all models.
-			notifyDataSetChanged();
 
 			// Update models.
 			this.models = newModelsClone;
 
+			// Update adapter for all models.
+			notifyDataSetChanged();
+
 			return;
 		}
 
-		// Queue update.
-		pendingUpdates.push(newModelsClone);
+		final var diffResult = DiffUtil.calculateDiff(new DiffCallback(newModelsClone, this.models));
 
-		if (pendingUpdates.size() > 1) {
-
-			// Wait for current update to finish.
-			return;
-		}
-
-		processUpdates(newModelsClone);
-	}
-
-	/**
-	 * Process diff of adapter models on background thread.
-	 *
-	 * @param newModels Replacement models.
-	 */
-	protected void processUpdates(final List<V> newModels)
-	{
-		final Handler handler = new Handler();
-
-		new Thread(new Runnable()
-		{
-			@Override
-			public void run()
-			{
-				// Calculate diff on background thread.
-				final var diffResult = DiffUtil.calculateDiff(new DiffCallback(newModels, models));
-
-				handler.post(new Runnable()
-				{
-					@Override
-					public void run()
-					{
-						// Dispatch updates on UI thread.
-						dispatchUpdates(newModels, diffResult);
-					}
-				});
-			}
-		}).start();
-	}
-
-	/**
-	 * Update adapter based on diff.
-	 *
-	 * @param models Replacement models.
-	 * @param diffResult Difference of models.
-	 */
-	protected void dispatchUpdates(List<V> models, DiffUtil.DiffResult diffResult)
-	{
-		pendingUpdates.remove(models);
-
-		if (pendingUpdates.size() > 0) {
-
-			// Obtain latest update.
-			final List<V> latestModels = pendingUpdates.pop();
-
-			// Clear all older updates.
-			pendingUpdates.clear();
-
-			// Update adapter with latest update.
-			processUpdates(latestModels);
-			return;
-		}
+		// Update models.
+		this.models = newModelsClone;
 
 		// Update adapter based on diff.
 		diffResult.dispatchUpdatesTo(this);
-
-		// Update models.
-		this.models = models;
 	}
 
 	/**

@@ -67,6 +67,8 @@ public class TableViewProxy extends RecyclerViewProxy
 	private final List<TableViewSectionProxy> sections = new ArrayList<>();
 	private KrollDict contentOffset = null;
 
+	private boolean shouldUpdate = true;
+
 	public TableViewProxy()
 	{
 		super();
@@ -148,8 +150,10 @@ public class TableViewProxy extends RecyclerViewProxy
 			return;
 		}
 
+		// Prevent updating rows during iteration.
+		shouldUpdate = false;
+
 		// Append rows to last section.
-		// NOTE: Will notify TableView of update.
 		for (TableViewRowProxy row : rowList) {
 
 			// Create section if one does not exist.
@@ -180,6 +184,10 @@ public class TableViewProxy extends RecyclerViewProxy
 			// Add row to section.
 			section.add(row);
 		}
+
+		// Allow updating rows after iteration.
+		shouldUpdate = true;
+		update();
 	}
 
 	/**
@@ -267,8 +275,15 @@ public class TableViewProxy extends RecyclerViewProxy
 				final TableViewSectionProxy toSection = (TableViewSectionProxy) parentProxy;
 				final int toIndex = Math.max(toItem.getIndexInSection(), 0);
 
+				// Prevent updating rows during move operation.
+				shouldUpdate = false;
+
 				fromSection.remove(fromItem);
 				toSection.add(toIndex, fromItem);
+
+				// Allow updating rows after move operation.
+				shouldUpdate = true;
+
 				update();
 				return tableView.getAdapterIndex(fromItem);
 			}
@@ -467,6 +482,9 @@ public class TableViewProxy extends RecyclerViewProxy
 		}
 		this.sections.clear();
 
+		// Preventing updating rows during iteration.
+		shouldUpdate = false;
+
 		for (Object d : data) {
 			if (d instanceof TableViewRowProxy) {
 				final TableViewRowProxy row = (TableViewRowProxy) d;
@@ -492,6 +510,9 @@ public class TableViewProxy extends RecyclerViewProxy
 				appendSection(section, null);
 			}
 		}
+
+		// Allow updating rows after iteration.
+		shouldUpdate = true;
 
 		update();
 	}
@@ -950,13 +971,13 @@ public class TableViewProxy extends RecyclerViewProxy
 	 */
 	public void update(boolean force)
 	{
+		if (!shouldUpdate) {
+			return;
+		}
 		final TiTableView tableView = getTableView();
 
 		if (tableView != null) {
-			final boolean editing = getProperties().optBoolean(TiC.PROPERTY_EDITING, false);
-			final boolean moving = getProperties().optBoolean(TiC.PROPERTY_MOVING, false);
-
-			tableView.update(force || editing || moving);
+			tableView.update(force);
 		}
 	}
 	public void update()

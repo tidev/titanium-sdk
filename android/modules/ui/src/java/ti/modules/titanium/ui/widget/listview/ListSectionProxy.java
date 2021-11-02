@@ -33,6 +33,7 @@ public class ListSectionProxy extends TiViewProxy
 	protected List<ListItemProxy> items = new ArrayList<>();
 
 	private int filteredItemCount = -1;
+	private boolean shouldUpdate = true;
 
 	public ListSectionProxy()
 	{
@@ -420,8 +421,15 @@ public class ListSectionProxy extends TiViewProxy
 	public void replaceItemsAt(int index, int count, Object dataItems,
 							   @Kroll.argument(optional = true) KrollDict animation)
 	{
+		// Prevent items from updating during operations.
+		shouldUpdate = false;
+
 		deleteItemsAt(index, count, null);
 		insertItemsAt(index, dataItems, null);
+
+		// Allow items to update after operations.
+		shouldUpdate = true;
+		update();
 	}
 
 	/**
@@ -436,7 +444,6 @@ public class ListSectionProxy extends TiViewProxy
 		final List<ListItemProxy> newItems = processItems(dataItems);
 
 		removeAllItems();
-
 		this.items.addAll(newItems);
 
 		// Notify ListView of new items.
@@ -471,6 +478,9 @@ public class ListSectionProxy extends TiViewProxy
 	 */
 	private void update(boolean force)
 	{
+		if (!shouldUpdate) {
+			return;
+		}
 		final ListViewProxy listViewProxy = getListViewProxy();
 
 		if (listViewProxy != null) {
