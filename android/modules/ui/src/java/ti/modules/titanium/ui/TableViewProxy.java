@@ -67,6 +67,8 @@ public class TableViewProxy extends RecyclerViewProxy
 	private final List<TableViewSectionProxy> sections = new ArrayList<>();
 	private KrollDict contentOffset = null;
 
+	private boolean shouldUpdate = true;
+
 	public TableViewProxy()
 	{
 		super();
@@ -148,8 +150,10 @@ public class TableViewProxy extends RecyclerViewProxy
 			return;
 		}
 
+		// Prevent updating rows during iteration.
+		shouldUpdate = false;
+
 		// Append rows to last section.
-		// NOTE: Will notify TableView of update.
 		for (TableViewRowProxy row : rowList) {
 
 			// Create section if one does not exist.
@@ -180,6 +184,10 @@ public class TableViewProxy extends RecyclerViewProxy
 			// Add row to section.
 			section.add(row);
 		}
+
+		// Allow updating rows after iteration.
+		shouldUpdate = true;
+		update();
 	}
 
 	/**
@@ -262,11 +270,20 @@ public class TableViewProxy extends RecyclerViewProxy
 			final TableViewSectionProxy fromSection = (TableViewSectionProxy) fromItem.getParent();
 			final TableViewRowProxy toItem = tableView.getAdapterItem(toAdapterIndex);
 			final TiViewProxy parentProxy = toItem.getParent();
+
 			if (parentProxy instanceof TableViewSectionProxy) {
 				final TableViewSectionProxy toSection = (TableViewSectionProxy) parentProxy;
 				final int toIndex = Math.max(toItem.getIndexInSection(), 0);
+
+				// Prevent updating rows during move operation.
+				shouldUpdate = false;
+
 				fromSection.remove(fromItem);
 				toSection.add(toIndex, fromItem);
+
+				// Allow updating rows after move operation.
+				shouldUpdate = true;
+
 				update();
 				return tableView.getAdapterIndex(fromItem);
 			}
@@ -465,6 +482,9 @@ public class TableViewProxy extends RecyclerViewProxy
 		}
 		this.sections.clear();
 
+		// Preventing updating rows during iteration.
+		shouldUpdate = false;
+
 		for (Object d : data) {
 			if (d instanceof TableViewRowProxy) {
 				final TableViewRowProxy row = (TableViewRowProxy) d;
@@ -490,6 +510,9 @@ public class TableViewProxy extends RecyclerViewProxy
 				appendSection(section, null);
 			}
 		}
+
+		// Allow updating rows after iteration.
+		shouldUpdate = true;
 
 		update();
 	}
@@ -939,20 +962,27 @@ public class TableViewProxy extends RecyclerViewProxy
 			|| name.equals(TiC.PROPERTY_SHOW_SELECTION_CHECK)) {
 
 			// Update and refresh table.
-			update();
+			update(true);
 		}
 	}
 
 	/**
 	 * Notify TableView to update all adapter rows.
 	 */
-	public void update()
+	public void update(boolean force)
 	{
+		if (!shouldUpdate) {
+			return;
+		}
 		final TiTableView tableView = getTableView();
 
 		if (tableView != null) {
-			tableView.update();
+			tableView.update(force);
 		}
+	}
+	public void update()
+	{
+		this.update(false);
 	}
 
 	/**
