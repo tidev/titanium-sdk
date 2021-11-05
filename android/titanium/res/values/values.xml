@@ -46,7 +46,9 @@
 		<item name="colorAccent">@color/ti_dark_accent</item>
 		<item name="colorSurface">@color/ti_dark_surface</item>
 		<item name="android:colorBackground">@color/ti_dark_background</item>
+		<item name="android:indeterminateTint">?attr/colorPrimary</item>
 		<item name="android:navigationBarColor">?attr/colorPrimaryDark</item>
+		<item name="android:progressTint">?attr/colorPrimary</item>
 		<item name="android:buttonStyle">@style/Widget.Titanium.Button</item>
 		<item name="android:statusBarColor">?attr/colorPrimaryDark</item>
 		<item name="buttonStyle">@style/Widget.Titanium.Button</item>
@@ -102,7 +104,9 @@
 		<item name="colorAccent">@color/ti_light_accent</item>
 		<item name="colorSurface">@color/ti_light_surface</item>
 		<item name="android:colorBackground">@color/ti_light_background</item>
+		<item name="android:indeterminateTint">?attr/colorPrimary</item>
 		<item name="android:navigationBarColor">?attr/colorPrimaryDark</item>
+		<item name="android:progressTint">?attr/colorPrimary</item>
 		<item name="android:buttonStyle">@style/Widget.Titanium.Button</item>
 		<item name="android:statusBarColor">?attr/colorPrimaryDark</item>
 		<item name="buttonStyle">@style/Widget.Titanium.Button</item>
