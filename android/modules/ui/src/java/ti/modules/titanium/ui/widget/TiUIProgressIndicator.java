@@ -286,9 +286,16 @@ public class TiUIProgressIndicator extends TiUIView implements
 	@Override
 	public void onShow(DialogInterface dialog)
 	{
+		// Fetch progress dialog reference.
+		// Note: Argument won't match "progressDialog" member variable if hide() was called before dialog was shown.
+		if ((dialog instanceof ProgressDialog) == false) {
+			return;
+		}
+		ProgressDialog progressDialog = (ProgressDialog) dialog;
+
 		// Work-around Android 5.x and older issue where it ignores "indeterminateTint" color in theme.
 		// Only happens to the indeterminate type. The determinate type is okay.
-		if ((Build.VERSION.SDK_INT < 23) && (type == INDETERMINANT)) {
+		if ((Build.VERSION.SDK_INT < 23) && progressDialog.isIndeterminate()) {
 			var view = progressDialog.findViewById(android.R.id.progress);
 			if (view instanceof ProgressBar) {
 				int colorValue = MaterialColors.getColor(
