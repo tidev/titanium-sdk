@@ -1,5 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+	<style name="Base.Theme.Titanium.Dark" parent="Theme.MaterialComponents">
+		<item name="android:windowLightNavigationBar">false</item>
+		<item name="android:windowLightStatusBar">false</item>
+	</style>
+	<style name="Base.Theme.Titanium.Light" parent="Theme.MaterialComponents.Light.DarkActionBar">
+		<item name="android:windowLightNavigationBar">false</item>
+		<item name="android:windowLightStatusBar">false</item>
+	</style>
+
 	<style name="Theme.Titanium.Light.Solid" parent="Theme.Titanium.Light">
 		<item name="android:navigationBarColor">?android:attr/colorBackground</item>
 		<item name="android:statusBarColor">?android:attr/colorBackground</item>
