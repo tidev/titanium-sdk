@@ -15,6 +15,8 @@ import android.view.ViewParent;
 import android.widget.RelativeLayout;
 
 import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.LinearSnapHelper;
+import androidx.recyclerview.widget.SnapHelper;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
@@ -40,6 +42,7 @@ public class TiUIListView extends TiUIView
 
 	protected final TiListView listView;
 	private TiViewProxy searchProxy;
+	SnapHelper snapHelper = new LinearSnapHelper();
 
 	public TiUIListView(TiViewProxy proxy)
 	{
@@ -240,6 +243,14 @@ public class TiUIListView extends TiUIView
 
 			// Set vertical scroll indicator.
 			this.listView.getRecyclerView().setVerticalScrollBarEnabled(TiConvert.toBoolean(value, true));
+		}
+
+		if (name.equals(TiC.PROPERTY_SNAPPING)) {
+			if (TiConvert.toBoolean(value, false)) {
+				snapHelper.attachToRecyclerView(this.listView.getRecyclerView());
+			} else {
+				snapHelper.attachToRecyclerView(null);
+			}
 		}
 
 		if (name.equals(TiC.PROPERTY_HEADER_TITLE)
