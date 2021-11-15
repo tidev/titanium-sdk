@@ -139,7 +139,7 @@ static NSDictionary *TI_filterableItemProperties;
                                                         MPMediaItemPropertyGenrePersistentID, @"genrePersistentID",
                                                         MPMediaItemPropertyComposerPersistentID, @"composerPersistentID",
                                                         MPMediaItemPropertyIsCloudItem, @"isCloudItem",
-                                                        [TiUtils isIOSVersionOrGreater:@"9.2"] ? MPMediaItemPropertyHasProtectedAsset : NO, @"hasProtectedAsset",
+                                                        MPMediaItemPropertyHasProtectedAsset, @"hasProtectedAsset",
                                                         MPMediaItemPropertyPodcastTitle, @"podcastTitle",
                                                         MPMediaItemPropertyPodcastPersistentID, @"podcastPersistentID",
                                                         nil];
@@ -166,12 +166,9 @@ static NSDictionary *TI_filterableItemProperties;
                                                      MPMediaItemPropertyLastPlayedDate, @"lastPlayedDate",
                                                      MPMediaItemPropertyUserGrouping, @"userGrouping",
                                                      MPMediaItemPropertyBookmarkTime, @"bookmarkTime",
+                                                     MPMediaItemPropertyDateAdded, @"dateAdded",
+                                                     MPMediaItemPropertyPlaybackStoreID, @"playbackStoreID",
                                                      nil];
-
-    TI_itemProperties[@"dateAdded"] = MPMediaItemPropertyDateAdded;
-    if ([TiUtils isIOSVersionOrGreater:@"10.3"]) {
-      TI_itemProperties[@"playbackStoreID"] = MPMediaItemPropertyPlaybackStoreID;
-    }
   }
 
   return TI_itemProperties;
@@ -1170,7 +1167,7 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
 - (NSNumber *)hasMusicLibraryPermissions:(id)unused
 {
   // Will return true for iOS < 9.3, since authorization was introduced in iOS 9.3
-  return NUMBOOL(![TiUtils isIOSVersionOrGreater:@"9.3"] || [MPMediaLibrary authorizationStatus] == MPMediaLibraryAuthorizationStatusAuthorized);
+  return NUMBOOL([MPMediaLibrary authorizationStatus] == MPMediaLibraryAuthorizationStatusAuthorized);
 }
 #endif
 
@@ -1186,26 +1183,18 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
   ENSURE_SINGLE_ARG(args, KrollCallback);
   KrollCallback *callback = args;
 
-  if ([TiUtils isIOSVersionOrGreater:@"9.3"]) {
-    TiThreadPerformOnMainThread(
-        ^() {
-          [MPMediaLibrary requestAuthorization:^(MPMediaLibraryAuthorizationStatus status) {
-            BOOL granted = status == MPMediaLibraryAuthorizationStatusAuthorized;
-            KrollEvent *invocationEvent = [[KrollEvent alloc] initWithCallback:callback
-                                                                   eventObject:[TiUtils dictionaryWithCode:(granted ? 0 : 1) message:nil]
-                                                                    thisObject:self];
-            [[callback context] enqueue:invocationEvent];
-            RELEASE_TO_NIL(invocationEvent);
-          }];
-        },
-        NO);
-  } else {
-    NSDictionary *propertiesDict = [TiUtils dictionaryWithCode:0 message:nil];
-    NSArray *invocationArray = [[NSArray alloc] initWithObjects:&propertiesDict count:1];
-    [callback call:invocationArray thisObject:self];
-    [invocationArray release];
-    return;
-  }
+  TiThreadPerformOnMainThread(
+      ^() {
+        [MPMediaLibrary requestAuthorization:^(MPMediaLibraryAuthorizationStatus status) {
+          BOOL granted = status == MPMediaLibraryAuthorizationStatusAuthorized;
+          KrollEvent *invocationEvent = [[KrollEvent alloc] initWithCallback:callback
+                                                                 eventObject:[TiUtils dictionaryWithCode:(granted ? 0 : 1) message:nil]
+                                                                  thisObject:self];
+          [[callback context] enqueue:invocationEvent];
+          RELEASE_TO_NIL(invocationEvent);
+        }];
+      },
+      NO);
 }
 #endif
 
@@ -1216,7 +1205,7 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
 
   NSString *musicPermission = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSAppleMusicUsageDescription"];
 
-  if ([TiUtils isIOSVersionOrGreater:@"9.3"] && [MPMediaLibrary authorizationStatus] != MPMediaLibraryAuthorizationStatusAuthorized) {
+  if ([MPMediaLibrary authorizationStatus] != MPMediaLibraryAuthorizationStatusAuthorized) {
     NSLog(@"[ERROR] It looks like you are accessing the music-library without sufficient permissions. Please use the Ti.Media.hasMusicLibraryPermissions() method to validate the permissions and only call this method if permissions are granted.");
   }
 
@@ -2009,7 +1998,7 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
   }
 
   BOOL isVideo = [mediaType isEqualToString:(NSString *)kUTTypeMovie];
-  BOOL isLivePhoto = ([TiUtils isIOSVersionOrGreater:@"9.1"] && [mediaType isEqualToString:(NSString *)kUTTypeLivePhoto]);
+  BOOL isLivePhoto = [mediaType isEqualToString:(NSString *)kUTTypeLivePhoto];
 
   NSURL *mediaURL = [editingInfo objectForKey:UIImagePickerControllerMediaURL];
 
