@@ -117,6 +117,75 @@ describe('Titanium.UI.Button', function () {
 		win.open();
 	});
 
+	describe('imageIsMask', () => {
+		it('true', function (finish) {
+			this.slow(1000);
+			this.timeout(5000);
+
+			win = Ti.UI.createWindow();
+			const button = Ti.UI.createButton({
+				title: 'Button',
+				image: 'Logo.png',
+				imageIsMask: true,
+			});
+			win.add(button);
+			win.addEventListener('open', () => {
+				try {
+					should(button.imageIsMask).be.true();
+					finish();
+				} catch (err) {
+					finish(err);
+				}
+			});
+			win.open();
+		});
+
+		it('false', function (finish) {
+			this.slow(1000);
+			this.timeout(5000);
+
+			win = Ti.UI.createWindow();
+			const button = Ti.UI.createButton({
+				title: 'Button',
+				image: 'Logo.png',
+				imageIsMask: false,
+			});
+			win.add(button);
+			win.addEventListener('open', () => {
+				try {
+					should(button.imageIsMask).be.false();
+					finish();
+				} catch (err) {
+					finish(err);
+				}
+			});
+			win.open();
+		});
+	});
+
+	it('tintColor', function (finish) {
+		this.slow(1000);
+		this.timeout(5000);
+
+		win = Ti.UI.createWindow();
+		const button = Ti.UI.createButton({
+			title: 'Button',
+			image: 'Logo.png',
+			imageIsMask: true,
+			tintColor: 'red',
+		});
+		win.add(button);
+		win.addEventListener('open', () => {
+			try {
+				should(button.tintColor).be.eql('red');
+				finish();
+			} catch (err) {
+				finish(err);
+			}
+		});
+		win.open();
+	});
+
 	// FIXME Get working on iOS and Android. borderColor defaults to undefined there, we're verifying it's a String
 	it.androidAndIosBroken('backgroundColor/Image', function (finish) {
 		var view;

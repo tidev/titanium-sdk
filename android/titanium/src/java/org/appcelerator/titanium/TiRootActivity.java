@@ -18,7 +18,6 @@ import org.appcelerator.kroll.KrollRuntime;
 import org.appcelerator.kroll.util.KrollAssetHelper;
 import org.appcelerator.titanium.proxy.IntentProxy;
 import org.appcelerator.titanium.util.TiActivitySupport;
-import org.appcelerator.titanium.util.TiRHelper;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -29,10 +28,14 @@ import android.content.res.Configuration;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.TypedValue;
+import android.view.View;
 import android.view.Window;
+import androidx.appcompat.content.res.AppCompatResources;
 
 import ti.modules.titanium.ui.ShortcutItemProxy;
 
@@ -334,6 +337,12 @@ public class TiRootActivity extends TiLaunchActivity implements TiActivitySuppor
 				Log.e(TAG, "Failed to parse: " + TiC.EXTRA_TI_NEW_INTENT, ex);
 			}
 		}
+
+		// As of Android 12, the OS automatically shows a splash screen for us.
+		// Adding the following listener prevents the splash from being dismissed.
+		if (Build.VERSION.SDK_INT >= 31) {
+			getSplashScreen().setOnExitAnimationListener((splashView) -> {});
+		}
 	}
 
 	@Override
@@ -520,18 +529,18 @@ public class TiRootActivity extends TiLaunchActivity implements TiActivitySuppor
 	public void onConfigurationChanged(Configuration newConfig)
 	{
 		super.onConfigurationChanged(newConfig);
-		try {
-			int backgroundId = TiRHelper.getResource("drawable.background");
-			if (backgroundId != 0) {
-				Drawable d = this.getResources().getDrawable(backgroundId);
-				if (d != null) {
-					Drawable bg = getWindow().getDecorView().getBackground();
-					getWindow().setBackgroundDrawable(d);
-					bg.setCallback(null);
+
+		// Update background in case it uses different images/layouts for new config, such as after orientation change.
+		View layout = getLayout();
+		if (layout != null) {
+			TypedValue typedValue = new TypedValue();
+			getTheme().resolveAttribute(android.R.attr.windowBackground, typedValue, true);
+			if (typedValue.resourceId != 0) {
+				Drawable drawable = AppCompatResources.getDrawable(this, typedValue.resourceId);
+				if (drawable != null) {
+					layout.setBackground(drawable);
 				}
 			}
-		} catch (Exception e) {
-			Log.e(TAG, "Resource not found 'drawable.background': " + e.getMessage());
 		}
 	}
 

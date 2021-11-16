@@ -7,12 +7,15 @@
 package ti.modules.titanium.ui.widget.tabgroup;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.res.ColorStateList;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.RippleDrawable;
+import android.os.Build;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewParent;
+import android.view.Window;
 
 import androidx.annotation.ColorInt;
 import androidx.core.graphics.ColorUtils;
@@ -298,11 +301,31 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 	@Override
 	public void setBackgroundColor(int colorInt)
 	{
+		// Update tab bar's background color.
 		Drawable drawable = mBottomNavigationView.getBackground();
 		if (drawable instanceof MaterialShapeDrawable) {
-			((MaterialShapeDrawable) drawable).setFillColor(ColorStateList.valueOf(colorInt));
+			MaterialShapeDrawable shapeDrawable = (MaterialShapeDrawable) drawable;
+			shapeDrawable.setFillColor(ColorStateList.valueOf(colorInt));
+			shapeDrawable.setElevation(0); // Drawable will tint the fill color if elevation is non-zero.
 		} else {
 			mBottomNavigationView.setBackgroundColor(colorInt);
+		}
+
+		// Apply given color to bottom navigation bar if using a "solid" theme.
+		if (isUsingSolidTitaniumTheme() && (Build.VERSION.SDK_INT >= 27)) {
+			Activity activity = (this.proxy != null) ? this.proxy.getActivity() : null;
+			Window window = (activity != null) ? activity.getWindow() : null;
+			View decorView = (window != null) ? window.getDecorView() : null;
+			if ((window != null) && (decorView != null)) {
+				int uiFlags = decorView.getSystemUiVisibility();
+				if (ColorUtils.calculateLuminance(colorInt) > 0.5) {
+					uiFlags |= View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR;
+				} else {
+					uiFlags &= ~View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR;
+				}
+				decorView.setSystemUiVisibility(uiFlags);
+				window.setNavigationBarColor(colorInt);
+			}
 		}
 	}
 

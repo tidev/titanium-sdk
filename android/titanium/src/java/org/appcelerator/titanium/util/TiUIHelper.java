@@ -25,6 +25,7 @@ import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.CurrentActivityListener;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiMessenger;
+import org.appcelerator.titanium.R;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiBlob;
@@ -1031,7 +1032,11 @@ public class TiUIHelper
 
 	public static Drawable getResourceDrawable(int res_id)
 	{
-		return TiApplication.getInstance().getResources().getDrawable(res_id);
+		Context context = TiApplication.getAppCurrentActivity();
+		if (context == null) {
+			context = TiApplication.getInstance();
+		}
+		return context.getResources().getDrawable(res_id, context.getTheme());
 	}
 
 	public static Drawable getResourceDrawable(Object path)
@@ -1275,6 +1280,23 @@ public class TiUIHelper
 		boolean isMaterial = typedArray.hasValue(0);
 		typedArray.recycle();
 		return isMaterial;
+	}
+
+	/**
+	 * Determines if given context has theme attribute "titaniumIsSolidTheme" set to "true".
+	 * Attribute is used by our "Theme.Titanium.*.Solid" themes to shade top/bottom TabGroup tabs appropriately.
+	 * @param context Reference to the context such as an Activity or Application object to inspect. Can be null.
+	 * @return Returns true if assigned a "solid" Titanium theme. Returns false if not or argument is null.
+	 */
+	public static boolean isUsingSolidTitaniumTheme(Context context)
+	{
+		if (context == null) {
+			return false;
+		}
+
+		TypedValue typedValue = new TypedValue();
+		context.getTheme().resolveAttribute(R.attr.titaniumIsSolidTheme, typedValue, true);
+		return ((typedValue.type == TypedValue.TYPE_INT_BOOLEAN) && (typedValue.data != 0));
 	}
 
 	public static String hexStringFrom(int colorInt)

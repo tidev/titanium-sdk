@@ -2018,7 +2018,7 @@ iOSBuilder.prototype.validate = function validate(logger, config, cli) {
 			},
 
 			function selectDevice(next) {
-				if (cli.argv.target === 'dist-appstore' || cli.argv.target === 'dist-adhoc') {
+				if (cli.argv.target.startsWith('dist') || cli.argv.target === 'macos') {
 					return next();
 				}
 
@@ -6951,7 +6951,7 @@ iOSBuilder.prototype.optimizeFiles = function optimizeFiles(next) {
 	], next);
 };
 
-iOSBuilder.prototype.invokeXcodeBuild = function invokeXcodeBuild(next) {
+iOSBuilder.prototype.invokeXcodeBuild = async function invokeXcodeBuild(next) {
 	if (!this.forceRebuild) {
 		this.logger.info(__('Skipping xcodebuild'));
 		return next();
@@ -7117,6 +7117,16 @@ iOSBuilder.prototype.invokeXcodeBuild = function invokeXcodeBuild(next) {
 		if (this.simOnlyActiveArch) {
 			args.push('ONLY_ACTIVE_ARCH=1');
 		}
+		// Exclude arm64 architecture from simulator build in XCode 12+ - TIMOB-28042
+		if (this.legacyModules.size > 0 && parseFloat(this.xcodeEnv.version) >= 12.0) {
+			if (await processArchitecture() === 'arm64') {
+				return next(new Error(`The app is using native modules that do not support arm64 simulators and you are on an arm64 device:\n- ${Array.from(this.legacyModules).join('\n- ')}`));
+			}
+			this.logger.warn(`The app is using native modules (${Array.from(this.legacyModules)}) that do not support arm64 simulators, we will exclude arm64. This may fail if you're on an arm64 Apple Silicon device.`);
+			args.push('EXCLUDED_ARCHS=arm64');
+		}
+	} else if (this.target === 'device' || this.target === 'dist-adhoc') {
+		args.push('-destination', 'generic/platform=iOS');
 	}
 
 	xcodebuildHook(

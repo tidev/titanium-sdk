@@ -800,6 +800,17 @@ class FrameworkInspector {
 					libInfo.SupportedArchitectures.forEach(a => archs.add(a));
 					supportedPlatforms.add(libInfo.SupportedPlatform); // should always be 'ios'
 				}
+
+				// Ensure that each Headers directory contains a file to keep it around in source control
+				if (libInfo.HeadersPath) {
+					const headersDirectory = path.join(frameworkPath, libInfo.LibraryIdentifier, libInfo.HeadersPath);
+
+					if (!await fs.pathExists(headersDirectory)) {
+						this._logger.debug(`Creating ${headersDirectory} and writing .keep file to it`);
+						await fs.mkdir(headersDirectory);
+						await fs.writeFile(path.join(headersDirectory, `.${frameworkName}-keep`), 'This file is to ensure the Headers directory gets checked into source control');
+					}
+				}
 			}
 			meta.type = type;
 			meta.architectures = archs;
@@ -808,6 +819,7 @@ class FrameworkInspector {
 		}
 		const archs = Array.from(frameworkInfo.architectures.values()).join(', ');
 		this._logger.debug(`Found framework ${frameworkName.green} (type: ${type}, archs: ${archs}) at ${frameworkPath.cyan}`);
+
 		return frameworkInfo;
 	}
 

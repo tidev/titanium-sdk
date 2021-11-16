@@ -128,11 +128,27 @@ describe('Titanium.Blob', function () {
 			[ 'text/javascript', 'application/javascript' ].should.containEql(blob.mimeType);
 		});
 
+		it('image/jpeg', () => {
+			const blob = Ti.Filesystem.getFile('ExifRotate90.jpg').read();
+			should(blob.mimeType).be.a.String();
+			should(blob.mimeType.length).be.above(0);
+			should(blob.mimeType).be.eql('image/jpeg');
+			// TODO Test that it's read-only
+		});
+
 		it('image/png', () => {
 			const blob = Ti.Filesystem.getFile('Logo.png').read();
 			should(blob.mimeType).be.a.String();
 			should(blob.mimeType.length).be.above(0);
 			should(blob.mimeType).be.eql('image/png');
+			// TODO Test that it's read-only
+		});
+
+		it('image/webp', () => {
+			const blob = Ti.Filesystem.getFile('Logo.webp').read();
+			should(blob.mimeType).be.a.String();
+			should(blob.mimeType.length).be.above(0);
+			should(blob.mimeType).be.eql('image/webp');
 			// TODO Test that it's read-only
 		});
 	});
@@ -173,6 +189,15 @@ describe('Titanium.Blob', function () {
 			// TODO Test that it's read-only
 		});
 
+		it('returns pixel count for WebP', () => {
+			const blob = Ti.Filesystem.getFile('Logo.webp').read();
+			should(blob.width).be.a.Number();
+			should(blob.width).be.eql(150);
+			should(blob.uprightWidth).be.a.Number();
+			should(blob.uprightWidth).be.eql(blob.width);
+			// TODO Test that it's read-only
+		});
+
 		it('returns 0 for non-image (JS file)', function () {
 			var blob = Ti.Filesystem.getFile('app.js').read();
 			should(blob.width).be.a.Number();
@@ -184,6 +209,15 @@ describe('Titanium.Blob', function () {
 	describe('.height', function () {
 		it('returns pixel count for PNG', () => {
 			const blob = Ti.Filesystem.getFile('Logo.png').read();
+			should(blob.height).be.a.Number();
+			should(blob.height).be.eql(150);
+			should(blob.uprightHeight).be.a.Number();
+			should(blob.uprightHeight).be.eql(blob.height);
+			// TODO Test that it's read-only
+		});
+
+		it('returns pixel count for WebP', () => {
+			const blob = Ti.Filesystem.getFile('Logo.webp').read();
 			should(blob.height).be.a.Number();
 			should(blob.height).be.eql(150);
 			should(blob.uprightHeight).be.a.Number();
@@ -219,12 +253,17 @@ describe('Titanium.Blob', function () {
 			const blob = Ti.Filesystem.getFile('Logo.png').read();
 			const b = blob.imageAsCompressed(0.5);
 			should(b).be.an.Object();
-			// width and height should remain the same
 			should(b.width).be.eql(blob.width);
 			should(b.height).be.eql(blob.height);
-			// Ideally, the byte size should drop - though that's not guranteed!
-			// should(b.length).be.below(blob.length);
-			// becomes a JPEG, so I guess we could test mimeType?
+			should(b.mimeType).be.eql('image/jpeg');
+		});
+
+		it('with WebP', function () {
+			const blob = Ti.Filesystem.getFile('Logo.webp').read();
+			const b = blob.imageAsCompressed(0.5);
+			should(b).be.an.Object();
+			should(b.width).be.eql(blob.width);
+			should(b.height).be.eql(blob.height);
 			should(b.mimeType).be.eql('image/jpeg');
 		});
 
@@ -437,7 +476,7 @@ describe('Titanium.Blob', function () {
 	// Canvas: trying to draw too large(211527936bytes) bitmap.
 	// it breaks on older android devices with an OutOfMemory Error on calling imageAsResized
 	it.androidBroken('resize very large image', function (finish) {
-		this.timeout(10000);
+		this.timeout(15000);
 		win = Ti.UI.createWindow({ backgroundColor: 'gray' });
 		const img = Ti.UI.createImageView();
 
