@@ -1,4 +1,4 @@
-## [10.1.1](https://github.com/appcelerator/titanium_mobile/compare/10_1_0_GA...10.1.1) (2021-11-18)
+## [10.1.1](https://github.com/appcelerator/titanium_mobile/compare/10_1_0_GA...10.1.1) (2021-11-19)
 
 ## About this release
 
