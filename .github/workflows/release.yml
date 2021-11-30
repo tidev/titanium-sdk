@@ -1,0 +1,94 @@
+name: Release
+
+on: workflow_dispatch
+
+jobs:
+  android:
+    runs-on: ubuntu-18.04
+    env:
+      CCACHE_DIR: ${{ github.workspace }}/.ccache
+      USE_CCACHE: 1
+    steps:
+      - uses: actions/checkout@v2
+      - name: Android build
+        uses: ./.github/actions/build-android
+        with:
+          node-version: '12.x'
+          java-version: '11'
+
+  ios:
+    runs-on: macos-11
+    name: iOS
+    env:
+      CCACHE_DIR: ${{ github.workspace }}/.ccache
+      USE_CCACHE: 1
+      DEVELOPER_DIR: /Applications/Xcode_13.0.app/Contents/Developer
+    steps:
+      - uses: actions/checkout@v2
+      - name: iOS build
+        uses: ./.github/actions/build-ios
+        with:
+          node-version: '12.x'
+
+  package:
+    runs-on: macos-11
+    name: Package
+    outputs:
+      vtag: ${{ steps.vtag.outputs.vtag }}
+    env:
+      SDK_BUILD_CACHE_DIR: ${{ github.workspace }}/.native-modules
+      DEVELOPER_DIR: /Applications/Xcode_13.0.app/Contents/Developer
+    needs: [android, ios]
+    steps:
+    - uses: actions/checkout@v2
+    - name: Create version tag
+      id: vtag
+      run: |
+        PACKAGE_VERSION=$(sed -n 's/^ *"version": *"//p' package.json | tr -d '"' | tr -d ',' | tr -d '[[:space:]]')
+        VTAG="${PACKAGE_VERSION}.GA"
+        echo "vtag=${VTAG}" >> $GITHUB_ENV
+        echo "::set-output name=vtag::${VTAG}"
+    - name: Package
+      uses: ./.github/actions/package
+      with:
+        node-version: '12.x'
+        java-version: '11'
+        vtag: ${{ env.vtag }}
+
+  release:
+    runs-on: ubuntu-latest
+    name: Release
+    environment: Release
+    needs: [package]
+    env:
+      vtag: ${{ needs.package.outputs.vtag }}
+    steps:
+    - uses: actions/checkout@v2
+    - run: echo ${{ env.vtag }}
+    - name: Download Linux artifact
+      uses: actions/download-artifact@v2
+      with:
+        name: mobilesdk-${{ env.vtag }}-linux
+    - name: Download MacOS artifact
+      uses: actions/download-artifact@v2
+      with:
+        name: mobilesdk-${{ env.vtag }}-osx
+    - name: Download Windows artifact
+      uses: actions/download-artifact@v2
+      with:
+        name: mobilesdk-${{ env.vtag }}-win32
+    - name: Create and push tag
+      run: |
+        TAG_VERSION=$( echo ${{ env.vtag }} | tr '.' '_' )
+        git config user.name "${GITHUB_ACTOR}"
+        git config user.email "${GITHUB_ACTOR}@users.noreply.github.com"
+        git tag "${TAG_VERSION}"
+        git push origin "${TAG_VERSION}"
+        echo "clean-tag=${TAG_VERSION}" >> $GITHUB_ENV
+    - name: Upload SDK zips
+      uses: softprops/action-gh-release@v1
+      with:
+        files: mobilesdk-${{ env.vtag }}-*
+        tag_name: ${{ env.clean-tag }}
+        name: ${{ env.vtag }}
+

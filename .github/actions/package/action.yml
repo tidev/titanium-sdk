@@ -96,7 +96,7 @@ runs:
     - name: Archive Linux artifact
       uses: actions/upload-artifact@v2
       with:
-        name:  mobilesdk-${{ inputs.vtag }}-linux
+        name: mobilesdk-${{ inputs.vtag }}-linux
         path: |
           dist/mobilesdk-*-linux.zip
 
