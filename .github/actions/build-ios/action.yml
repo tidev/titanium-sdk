@@ -1,0 +1,51 @@
+name: iOS Build
+description: Installs required dependencies and then builds the iOS side of the SDK
+
+inputs:
+  node-version:
+    description: The version of Node.js to use
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Use Node.js 12.x
+      uses: actions/setup-node@v1
+      with:
+        node-version: '12.x'
+
+    - name: Cache Node.js modules
+      id: node-cache
+      uses: actions/cache@v2
+      with:
+        path: node_modules
+        key: ${{ runner.OS }}-node-modules-${{ hashFiles('package-lock.json') }}
+        restore-keys: |
+          ${{ runner.OS }}-node-modules-
+          ${{ runner.OS }}-
+
+    - name: Install dependencies
+      if: steps.node-cache.outputs.cache-hit != 'true'
+      run: npm ci
+      shell: bash
+
+    - name: Lint
+      run: npm run lint:ios
+      shell: bash 
+
+    - name: Build
+      run: npm run build:ios
+      shell: bash
+
+    - name: Package build output
+      run: >
+        tar -czvf ios-build.tar.gz
+        dist/tmp/common
+        iphone/TitaniumKit/build/TitaniumKit.xcframework
+      shell: bash
+
+    - uses: actions/upload-artifact@v2
+      with:
+        name: ios-build
+        retention-days: 1
+        path: ios-build.tar.gz
