@@ -20,9 +20,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.log4j.BasicConfigurator;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONValue;
 import org.json.simple.parser.ParseException;
@@ -62,9 +59,6 @@ public class KrollBindingGenerator
 
 	protected void initTemplates()
 	{
-		BasicConfigurator.configure();
-		Logger.getRootLogger().setLevel(Level.ERROR);
-
 		fmConfig = new Configuration();
 		fmConfig.setObjectWrapper(new DefaultObjectWrapper());
 		fmConfig.setClassForTemplateLoading(getClass(), "");
