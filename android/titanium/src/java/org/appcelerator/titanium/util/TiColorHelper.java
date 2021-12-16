@@ -36,6 +36,8 @@ public class TiColorHelper
 		"rgba\\(\\s*([0-9]{1,3})\\s*,\\s*([0-9]{1,3})\\s*,\\s*([0-9]{1,3})\\s*,\\s*([0-9]{1,3}[^\\.\\)])\\s*\\)");
 	static Pattern rgbaPattern = Pattern.compile(
 		"rgba\\(\\s*([0-9]{1,3})\\s*,\\s*([0-9]{1,3})\\s*,\\s*([0-9]{1,3})\\s*,\\s*(\\d\\.\\d+)\\s*\\)");
+	static Pattern rgbaPatternInts = Pattern.compile(
+		"rgba\\(\\s*([0-9]{1,3})\\s*,\\s*([0-9]{1,3})\\s*,\\s*([0-9]{1,3})\\s*,\\s*([0-9]{1,3})\\s*\\)");
 	static Pattern floatsPattern = Pattern.compile(
 		"rgba\\(\\s*(\\d\\.\\d+)\\s*,\\s*(\\d\\.\\d+)\\s*,\\s*(\\d\\.\\d+)\\s*,\\s*(\\d\\.\\d+)\\s*\\)");
 	static Pattern rgbaPatternFallback =
@@ -83,6 +85,11 @@ public class TiColorHelper
 		if ((m = rgbaPattern.matcher(lowval)).matches()) {
 			return Color.argb(Math.round(Float.valueOf(m.group(4)) * 255f), Integer.valueOf(m.group(1)),
 							  Integer.valueOf(m.group(2)), Integer.valueOf(m.group(3)));
+		}
+		// rgba(int, int, int, int)
+		if ((m = rgbaPatternInts.matcher(lowval)).matches()) {
+			return Color.argb(Integer.valueOf(m.group(4)), Integer.valueOf(m.group(1)), Integer.valueOf(m.group(2)),
+							  Integer.valueOf(m.group(3)));
 		}
 		// rgba(int, int, int) with missing alpha value
 		if ((m = rgbaPatternFallback.matcher(lowval)).matches()) {
