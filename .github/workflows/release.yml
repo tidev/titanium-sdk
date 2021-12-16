@@ -1,15 +1,70 @@
 name: Release
 
-on: workflow_dispatch
+on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: The branch to release from
+        required: true
+        default: master
+      release-type:
+        description: The type of release to perform
+        required: true
+        default: GA
+        type: choice
+        options:
+          - GA
+          - RC
+          - Beta
+
 
 jobs:
+  validate:
+    runs-on: ubuntu-latest
+    name: Validate input parameters
+    outputs:
+      vtag: ${{ steps.vtag.outputs.vtag }}
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          ref: ${{ github.event.inputs.branch }}
+      - name: Create version tag
+        id: vtag
+        run: |
+          PACKAGE_VERSION=$(sed -n 's/^ *"version": *"//p' package.json | tr -d '"' | tr -d ',' | tr -d '[[:space:]]')
+          VTAG="${PACKAGE_VERSION}.${{ github.event.inputs.release-type }}"
+          echo "vtag=${VTAG}" >> $GITHUB_ENV
+          echo "::set-output name=vtag::${VTAG}"
+      - name: Validate version
+        uses: actions/github-script@v5
+        env:
+          vtag: ${{ env.vtag }}
+        with:
+          script: |
+            const releaseMeta = github.rest.repos.listReleases.endpoint.merge({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+            });
+
+            const releases = await github.paginate(releaseMeta);
+
+            for (const release of releases) {
+              if (release.name === process.env.vtag) {
+                throw new Error(`${process.env.vtag} already exists`);
+              }
+            }
+            console.log(`${process.env.vtag} does not exist so continuing`)
+
   android:
     runs-on: ubuntu-18.04
+    needs: [validate]
     env:
       CCACHE_DIR: ${{ github.workspace }}/.ccache
       USE_CCACHE: 1
     steps:
       - uses: actions/checkout@v2
+        with:
+          ref: ${{ github.event.inputs.branch }}
       - name: Android build
         uses: ./.github/actions/build-android
         with:
@@ -19,12 +74,15 @@ jobs:
   ios:
     runs-on: macos-11
     name: iOS
+    needs: [validate]
     env:
       CCACHE_DIR: ${{ github.workspace }}/.ccache
       USE_CCACHE: 1
       DEVELOPER_DIR: /Applications/Xcode_13.0.app/Contents/Developer
     steps:
       - uses: actions/checkout@v2
+        with:
+            ref: ${{ github.event.inputs.branch }}
       - name: iOS build
         uses: ./.github/actions/build-ios
         with:
@@ -33,21 +91,15 @@ jobs:
   package:
     runs-on: macos-11
     name: Package
-    outputs:
-      vtag: ${{ steps.vtag.outputs.vtag }}
     env:
       SDK_BUILD_CACHE_DIR: ${{ github.workspace }}/.native-modules
       DEVELOPER_DIR: /Applications/Xcode_13.0.app/Contents/Developer
-    needs: [android, ios]
+      vtag: ${{ needs.validate.outputs.vtag }}
+    needs: [validate, android, ios]
     steps:
     - uses: actions/checkout@v2
-    - name: Create version tag
-      id: vtag
-      run: |
-        PACKAGE_VERSION=$(sed -n 's/^ *"version": *"//p' package.json | tr -d '"' | tr -d ',' | tr -d '[[:space:]]')
-        VTAG="${PACKAGE_VERSION}.GA"
-        echo "vtag=${VTAG}" >> $GITHUB_ENV
-        echo "::set-output name=vtag::${VTAG}"
+      with:
+          ref: ${{ github.event.inputs.branch }}
     - name: Package
       uses: ./.github/actions/package
       with:
@@ -59,11 +111,13 @@ jobs:
     runs-on: ubuntu-latest
     name: Release
     environment: Release
-    needs: [package]
+    needs: [validate, package]
     env:
-      vtag: ${{ needs.package.outputs.vtag }}
+      vtag: ${{ needs.validate.outputs.vtag }}
     steps:
     - uses: actions/checkout@v2
+      with:
+          ref: ${{ github.event.inputs.branch }}
     - run: echo ${{ env.vtag }}
     - name: Download Linux artifact
       uses: actions/download-artifact@v2
@@ -91,4 +145,11 @@ jobs:
         files: mobilesdk-${{ env.vtag }}-*
         tag_name: ${{ env.clean-tag }}
         name: ${{ env.vtag }}
+    - name: Bump version
+      run: |
+        npm version patch --no-git-tag-version
+        git add package.json
+        git add package-lock.json
+        git commit -m "chore(release): bump version"
+        git push
 
