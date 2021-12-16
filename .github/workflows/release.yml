@@ -139,13 +139,23 @@ jobs:
         git tag "${TAG_VERSION}"
         git push origin "${TAG_VERSION}"
         echo "clean-tag=${TAG_VERSION}" >> $GITHUB_ENV
-    - name: Upload SDK zips
+    - name: Upload SDK zips (GA)
       uses: softprops/action-gh-release@v1
+      if: ${{ github.event.inputs.release-type == 'GA' }}
       with:
         files: mobilesdk-${{ env.vtag }}-*
         tag_name: ${{ env.clean-tag }}
         name: ${{ env.vtag }}
+    - name: Upload SDK zips (non-GA)
+      uses: softprops/action-gh-release@v1
+      if: ${{ github.event.inputs.release-type != 'GA' }}
+      with:
+        files: mobilesdk-${{ env.vtag }}-*
+        tag_name: ${{ env.clean-tag }}
+        name: ${{ env.vtag }}
+        prerelease: true
     - name: Bump version
+      if: ${{ github.event.inputs.release-type == 'GA' }}
       run: |
         npm version patch --no-git-tag-version
         git add package.json
