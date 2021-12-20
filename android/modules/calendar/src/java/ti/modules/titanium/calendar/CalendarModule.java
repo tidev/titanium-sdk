@@ -165,6 +165,18 @@ public class CalendarModule extends KrollModule
 		return calendars.toArray(new CalendarProxy[0]);
 	}
 
+	@Kroll.getProperty
+	public CalendarProxy getDefaultCalendar()
+	{
+		ArrayList<CalendarProxy> calendars;
+		calendars = CalendarProxy.queryCalendars("Calendars.isPrimary = ?", new String[] { "1" });
+		if (calendars.size() > 0) {
+			return calendars.get(0);
+		} else {
+			return null;
+		}
+	}
+
 	@Kroll.method
 	public CalendarProxy getCalendarById(int id)
 	{
