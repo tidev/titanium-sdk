@@ -6,23 +6,24 @@
  */
 package org.appcelerator.titanium.util;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import org.appcelerator.kroll.common.Log;
-import org.appcelerator.titanium.TiApplication;
-
 import android.content.Context;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.util.TypedValue;
+
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
+
+import org.appcelerator.kroll.common.Log;
+import org.appcelerator.titanium.TiApplication;
+
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * This class contain utility methods that converts a String color, like "red", into its corresponding RGB/RGBA representation.
@@ -36,10 +37,11 @@ public class TiColorHelper
 		"rgba\\(\\s*([0-9]{1,3})\\s*,\\s*([0-9]{1,3})\\s*,\\s*([0-9]{1,3})\\s*,\\s*([0-9]{1,3}[^\\.\\)])\\s*\\)");
 	static Pattern rgbaPattern = Pattern.compile(
 		"rgba\\(\\s*([0-9]{1,3})\\s*,\\s*([0-9]{1,3})\\s*,\\s*([0-9]{1,3})\\s*,\\s*(\\d\\.\\d+)\\s*\\)");
-	static Pattern rgbaPatternInts = Pattern.compile(
-		"rgba\\(\\s*([0-9]{1,3})\\s*,\\s*([0-9]{1,3})\\s*,\\s*([0-9]{1,3})\\s*,\\s*([0-9]{1,3})\\s*\\)");
 	static Pattern floatsPattern = Pattern.compile(
 		"rgba\\(\\s*(\\d\\.\\d+)\\s*,\\s*(\\d\\.\\d+)\\s*,\\s*(\\d\\.\\d+)\\s*,\\s*(\\d\\.\\d+)\\s*\\)");
+	static Pattern rgbafloatPattern = Pattern.compile(
+		"rgba\\((0|[1-9]\\d{0,2}),\\s*(0|[1-9]\\d{0,2}),\\s*(0|[1-9]\\d{0,2}),"
+			+ "\\s*(0|1|(0){0,1}\\.\\d{1,10}|1\\.0{1,10})\\s*\\)");
 	static Pattern rgbaPatternFallback =
 		Pattern.compile("rgba\\(\\s*([0-9]{1,3})\\s*,\\s*([0-9]{1,3})\\s*,\\s*([0-9]{1,3})\\s*\\)");
 
@@ -86,10 +88,10 @@ public class TiColorHelper
 			return Color.argb(Math.round(Float.valueOf(m.group(4)) * 255f), Integer.valueOf(m.group(1)),
 							  Integer.valueOf(m.group(2)), Integer.valueOf(m.group(3)));
 		}
-		// rgba(int, int, int, int)
-		if ((m = rgbaPatternInts.matcher(lowval)).matches()) {
-			return Color.argb(Integer.valueOf(m.group(4)), Integer.valueOf(m.group(1)), Integer.valueOf(m.group(2)),
-							  Integer.valueOf(m.group(3)));
+		// rgba(int, int, int, float)
+		if ((m = rgbafloatPattern.matcher(lowval)).matches()) {
+			return Color.argb(Math.round(Float.valueOf(m.group(4)) * 255f), Integer.valueOf(m.group(1)),
+							  Integer.valueOf(m.group(2)), Integer.valueOf(m.group(3)));
 		}
 		// rgba(int, int, int) with missing alpha value
 		if ((m = rgbaPatternFallback.matcher(lowval)).matches()) {
