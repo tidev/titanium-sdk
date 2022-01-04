@@ -238,6 +238,7 @@ public class TiC
 	public static final String PROPERTY_ADD = "add";
 	public static final String PROPERTY_ADDRESS = "address";
 	public static final String PROPERTY_ALLOW_BACKGROUND = "allowBackground";
+	public static final String PROPERTY_ALLOW_FILE_ACCESS = "allowFileAccess";
 	public static final String PROPERTY_ALLOW_MULTIPLE = "allowMultiple";
 	public static final String PROPERTY_ALLOWS_SELECTION_DURING_EDITING = "allowsSelectionDuringEditing";
 	public static final String PROPERTY_ALLOWS_MULTIPLE_SELECTION_DURING_EDITING
