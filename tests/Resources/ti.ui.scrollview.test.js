@@ -4,6 +4,7 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+/* global OS_IOS */
 /* eslint-env mocha */
 /* eslint no-unused-expressions: "off" */
 'use strict';
@@ -44,12 +45,73 @@ describe('Titanium.UI.ScrollView', function () {
 		should(bar.contentHeight).be.a.String(); // defaults to undefined on Android and iOS
 	});
 
-	// Windows gives: expected '' to be a number
-	it.windowsBroken('contentOffset', function () {
+	it('contentOffset', function (finish) {
+		const win = Ti.UI.createWindow();
+		const scrollView = Ti.UI.createScrollView({
+			layout: 'vertical',
+			backgroundColor: 'white',
+			width: Ti.UI.FILL,
+			height: Ti.UI.FILL
+		});
+		const view_a = Ti.UI.createView({
+			backgroundColor: 'red',
+			width: '100%',
+			height: '100%'
+		});
+		const view_b = Ti.UI.createView({
+			backgroundColor: 'green',
+			width: '100%',
+			height: '100%'
+		});
+
+		win.addEventListener('open', () => {
+
+			should(scrollView.contentOffset).be.an.Object();
+			should(scrollView.contentOffset.x).be.a.Number();
+			should(scrollView.contentOffset.y).be.a.Number();
+
+			should(scrollView.contentOffset.x).eql(0);
+			should(scrollView.contentOffset.y).eql(0);
+
+			const point = { x: 0, y: '10dp' };
+			if (OS_IOS) {
+				scrollView.setContentOffset(point, { animated: false });
+			} else {
+				scrollView.contentOffset = point;
+			}
+
+			setTimeout(() => {
+				should(scrollView.contentOffset.x).eql(0);
+				should(scrollView.contentOffset.y).equalOneOf([ 10, '10dp' ]);
+
+				finish();
+			}, 50);
+
+		});
+
+		scrollView.add([
+			view_a,
+			view_b
+		]);
+
+		win.add(scrollView);
+		win.open();
+	});
+
+	it.ios('#setContentOffset', function (finish) {
+		win = Ti.UI.createWindow();
 		const bar = Ti.UI.createScrollView({});
-		should(bar.contentOffset).be.an.Object();
-		should(bar.contentOffset.x).be.a.Number(); // expected '' to be a number on Windows
-		should(bar.contentOffset.y).be.a.Number();
+		win.add(bar);
+		win.addEventListener('postlayout', function listener(e) {
+			win.removeEventListener(e.type, listener);
+			try {
+				bar.setContentOffset({ x: 0, y: 0 }, { animated: true });
+			} catch (err) {
+				return finish(err);
+			}
+			finish();
+		});
+		win.open();
 	});
 
 	it.androidAndIosBroken('contentWidth', function () {
@@ -151,6 +213,22 @@ describe('Titanium.UI.ScrollView', function () {
 	it.androidMissing('zoomScale', function () {
 		const bar = Ti.UI.createScrollView({});
 		should(bar.zoomScale).be.a.Number();
+	});
+
+	it.androidMissing('#setZoomScale', function (finish) {
+		win = Ti.UI.createWindow();
+		const bar = Ti.UI.createScrollView({});
+		win.add(bar);
+		win.addEventListener('postlayout', function listener(e) {
+			win.removeEventListener(e.type, listener);
+			try {
+				bar.setZoomScale(2, { animated: true });
+			} catch (err) {
+				return finish(err);
+			}
+			finish();
+		});
+		win.open();
 	});
 
 	it('#scrollTo()', function () {

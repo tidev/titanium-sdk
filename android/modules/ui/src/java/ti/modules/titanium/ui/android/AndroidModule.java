@@ -39,6 +39,9 @@ public class AndroidModule extends KrollModule
 	private static final String TAG = "UIAndroidModule";
 
 	@Kroll.constant
+	public static final int FLAG_LAYOUT_NO_LIMITS = WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS;
+
+	@Kroll.constant
 	public static final int FLAG_TRANSLUCENT_NAVIGATION = WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION;
 	@Kroll.constant
 	public static final int FLAG_TRANSLUCENT_STATUS = WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS;
@@ -98,12 +101,15 @@ public class AndroidModule extends KrollModule
 	@Kroll.constant
 	public static final int SOFT_KEYBOARD_SHOW_ON_FOCUS = TiUIView.SOFT_KEYBOARD_SHOW_ON_FOCUS;
 
+	@Deprecated
 	@Kroll.constant
-	public static final int SWITCH_STYLE_CHECKBOX = 0;
+	public static final int SWITCH_STYLE_CHECKBOX = UIModule.SWITCH_STYLE_CHECKBOX;
+	@Deprecated
 	@Kroll.constant
-	public static final int SWITCH_STYLE_TOGGLEBUTTON = 1;
+	public static final int SWITCH_STYLE_TOGGLEBUTTON = UIModule.SWITCH_STYLE_TOGGLE_BUTTON;
+	@Deprecated
 	@Kroll.constant
-	public static final int SWITCH_STYLE_SWITCH = 2;
+	public static final int SWITCH_STYLE_SWITCH = UIModule.SWITCH_STYLE_SLIDER;
 
 	@Kroll.constant
 	public static final int WEBVIEW_PLUGINS_OFF = TiUIWebView.PLUGIN_STATE_OFF;

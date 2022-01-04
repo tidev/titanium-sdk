@@ -28,13 +28,14 @@
 		android:label="<%- appLabel %>"
 		android:name="<%- classname %>Application"
 		android:usesCleartextTraffic="true"
-		android:theme="<%- appTheme %>">
+		android:theme="@style/Theme.Titanium.App">
 
 		<activity
 			android:name=".<%- classname %>Activity"
 			android:configChanges="${tiActivityConfigChanges}"
 			android:label="@string/app_name"
 			android:theme="@style/Theme.Titanium"
+			android:exported="true"
 			android:alwaysRetainTaskState="true">
 			<intent-filter>
 				<action android:name="android.intent.action.MAIN" />

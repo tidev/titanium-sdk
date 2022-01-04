@@ -240,14 +240,14 @@
   return nil;
 }
 
-- (void)setSelectionFrom:(id)start to:(id)end
+- (void)setSelectionFrom:(NSInteger)start to:(NSInteger)end
 {
   UIView<UITextInput> *textView = (UIView<UITextInput> *)[self textWidgetView];
   if ([textView conformsToProtocol:@protocol(UITextInput)]) {
     if ([textView becomeFirstResponder] || [textView isFirstResponder]) {
       UITextPosition *beginning = textView.beginningOfDocument;
-      UITextPosition *startPos = [textView positionFromPosition:beginning offset:[TiUtils intValue:start]];
-      UITextPosition *endPos = [textView positionFromPosition:beginning offset:[TiUtils intValue:end]];
+      UITextPosition *startPos = [textView positionFromPosition:beginning offset:start];
+      UITextPosition *endPos = [textView positionFromPosition:beginning offset:end];
       UITextRange *textRange;
       textRange = [textView textRangeFromPosition:startPos toPosition:endPos];
       [textView setSelectedTextRange:textRange];

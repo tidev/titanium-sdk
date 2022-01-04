@@ -29,7 +29,6 @@ public class KrollDict extends HashMap<String, Object>
 
 	/**
 	 * Constructs a KrollDict with a default capacity.
-	 * @module.api
 	 */
 	public KrollDict()
 	{
@@ -73,7 +72,6 @@ public class KrollDict extends HashMap<String, Object>
 	/**
 	 * Constructs a KrollDict by copying an existing Map
 	 * @param map the existing map to copy
-	 * @module.api
 	 */
 	public KrollDict(Map<? extends String, ? extends Object> map)
 	{
@@ -83,7 +81,6 @@ public class KrollDict extends HashMap<String, Object>
 	/**
 	 * Constructs a KrollDict with the specified capacity.
 	 * @param size the specified capacity.
-	 * @module.api
 	 */
 	public KrollDict(int size)
 	{
@@ -97,6 +94,15 @@ public class KrollDict extends HashMap<String, Object>
 		if (message != null) {
 			this.put(TiC.EVENT_PROPERTY_ERROR, message);
 		}
+	}
+
+	public Object putIfAbsent(String key, Object value)
+	{
+		Object existingValue = this.get(key);
+		if (existingValue == null) {
+			this.put(key, value);
+		}
+		return existingValue;
 	}
 
 	public boolean containsKeyAndNotNull(String key)

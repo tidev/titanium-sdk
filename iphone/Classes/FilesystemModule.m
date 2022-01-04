@@ -83,6 +83,7 @@
     if (fileProxy != nil) {
       NSArray *payload = @[ [NSNumber numberWithInt:mode] ];
       TiStreamProxy *streamProxy = [fileProxy open:payload];
+      streamProxy.executionContext = self.executionContext; //TIMOB-28324 Should we pass this executionContext in open function of TiFilesystemFileProxy?
       if (streamProxy != nil) {
         return [self NativeToJSValue:streamProxy];
       }

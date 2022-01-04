@@ -33,6 +33,14 @@ describe.windowsBroken('Core', () => {
 			});
 
 			describe('Proxy', () => {
+				describe('constructor', () => {
+					it('should be correctly set on a proxy', () => {
+						const view = Ti.UI.createView();
+						view.should.have.property('constructor');
+						should(view.constructor).be.a.Function();
+					});
+				});
+
 				describe('Properties', () => {
 					it('should check for properties on the object\'s target', () => {
 						const view = Ti.UI.createView({

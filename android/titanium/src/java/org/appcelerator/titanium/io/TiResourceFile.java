@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import javax.crypto.CipherInputStream;
 import org.appcelerator.kroll.common.Log;
@@ -96,7 +97,7 @@ public class TiResourceFile extends TiBaseFile
 				if (binary) {
 					instream = new BufferedInputStream(in);
 				} else {
-					inreader = new BufferedReader(new InputStreamReader(in, "utf-8"));
+					inreader = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8));
 				}
 				opened = true;
 			} else {

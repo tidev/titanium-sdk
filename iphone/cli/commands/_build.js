@@ -1091,13 +1091,13 @@ iOSBuilder.prototype.configOptionPPuuid = function configOptionPPuuid(order) {
 							logger.error(__('Unable to find any non-expired development provisioning profiles that match the app id "%s".', appId) + '\n');
 						}
 						logger.log(__('You will need to log in to %s with your Apple Developer account, then create, download, and install a profile.',
-							'http://appcelerator.com/ios-dev-certs'.cyan) + '\n');
+							'https://developer.apple.com/account/resources/certificates/list'.cyan) + '\n');
 						process.exit(1);
 					}
 				} else {
 					logger.error(__('Unable to find any development provisioning profiles') + '\n');
 					logger.log(__('You will need to log in to %s with your Apple Developer account, then create, download, and install a profile.',
-						'http://appcelerator.com/ios-dev-certs'.cyan) + '\n');
+						'https://developer.apple.com/account/resources/certificates/list'.cyan) + '\n');
 					process.exit(1);
 				}
 
@@ -1109,13 +1109,13 @@ iOSBuilder.prototype.configOptionPPuuid = function configOptionPPuuid(order) {
 					} else {
 						logger.error(__('Unable to find any non-expired App Store distribution provisioning profiles that match the app id "%s".', appId) + '\n');
 						logger.log(__('You will need to log in to %s with your Apple Developer account, then create, download, and install a profile.',
-							'http://appcelerator.com/ios-dist-certs'.cyan) + '\n');
+							'https://developer.apple.com/account/resources/certificates/list'.cyan) + '\n');
 						process.exit(1);
 					}
 				} else {
 					logger.error(__('Unable to find any App Store distribution provisioning profiles'));
 					logger.log(__('You will need to log in to %s with your Apple Developer account, then create, download, and install a profile.',
-						'http://appcelerator.com/ios-dist-certs'.cyan) + '\n');
+						'https://developer.apple.com/account/resources/certificates/list'.cyan) + '\n');
 					process.exit(1);
 				}
 
@@ -1136,13 +1136,13 @@ iOSBuilder.prototype.configOptionPPuuid = function configOptionPPuuid(order) {
 					if (!valid) {
 						logger.error(__('Unable to find any non-expired Ad Hoc or Enterprise Ad Hoc provisioning profiles that match the app id "%s".', appId) + '\n');
 						logger.log(__('You will need to log in to %s with your Apple Developer account, then create, download, and install a profile.',
-							'http://appcelerator.com/ios-dist-certs'.cyan) + '\n');
+							'https://developer.apple.com/account/resources/certificates/list'.cyan) + '\n');
 						process.exit(1);
 					}
 				} else {
 					logger.error(__('Unable to find any Ad Hoc or Enterprise Ad Hoc provisioning profiles'));
 					logger.log(__('You will need to log in to %s with your Apple Developer account, then create, download, and install a profile.',
-						'http://appcelerator.com/ios-dist-certs'.cyan) + '\n');
+						'https://developer.apple.com/account/resources/certificates/list'.cyan) + '\n');
 					process.exit(1);
 				}
 			}
@@ -1900,7 +1900,7 @@ iOSBuilder.prototype.validate = function validate(logger, config, cli) {
 			// make sure they have Apple's WWDR cert installed
 			if (!this.iosInfo.certs.wwdr) {
 				logger.error(__('WWDR Intermediate Certificate not found') + '\n');
-				logger.log(__('Download and install the certificate from %s', 'http://appcelerator.com/ios-wwdr'.cyan) + '\n');
+				logger.log(__('Download and install the certificate from %s', 'http://developer.apple.com/certificationauthority/AppleWWDRCA.cer'.cyan) + '\n');
 				process.exit(1);
 			}
 
@@ -2013,7 +2013,7 @@ iOSBuilder.prototype.validate = function validate(logger, config, cli) {
 			},
 
 			function selectDevice(next) {
-				if (cli.argv.target === 'dist-appstore' || cli.argv.target === 'dist-adhoc') {
+				if (cli.argv.target.startsWith('dist') || cli.argv.target === 'macos') {
 					return next();
 				}
 
@@ -4118,7 +4118,7 @@ iOSBuilder.prototype._embedCapabilitiesAndWriteEntitlementsPlist = function _emb
 		// write the entitlements.plist
 		const contents = plist.toString('xml');
 
-		if (!fs.existsSync(dest) || contents !== fs.readFileSync(dest).toString()) {
+		if (!fs.existsSync(dest) || contents !== fs.readFileSync(dest, 'utf-8').trim()) {
 			if (!this.forceRebuild) {
 				this.logger.info(__('Forcing rebuild: %s has changed since last build', dest.replace(this.projectDir + '/', '')));
 				this.forceRebuild = true;
@@ -5228,6 +5228,7 @@ iOSBuilder.prototype.gatherResources = async function gatherResources() {
 	const categorizer = new gather.Categorizer({
 		tiappIcon: this.tiapp.icon,
 		useAppThinning: this.useAppThinning,
+		platform: 'ios',
 	});
 	const categorized = await categorizer.run(combined);
 
@@ -5382,7 +5383,7 @@ iOSBuilder.prototype.writeEnvironmentVariables = async function writeEnvironment
 	}
 
 	// for non-development builds, DO NOT WRITE OUT ENV VARIABLES TO APP
-	const contents = this.writeEnvVars ? JSON.stringify(process.env) : {};
+	const contents = this.writeEnvVars ? JSON.stringify(process.env) : '{}';
 	if (!fs.existsSync(envVarsFile) || contents !== fs.readFileSync(envVarsFile, 'utf8')) {
 		this.logger.debug(__('Writing %s', envVarsFile.cyan));
 
@@ -5597,7 +5598,7 @@ iOSBuilder.prototype.createAssetImageSets = async function createAssetImageSets(
 			}
 
 			const imageSet = {
-				idiom: !match[4] ? 'universal' : match[3].replace('~', ''),
+				idiom: !match[4] ? 'universal' : match[4].replace('~', ''),
 				filename: imageName + '.' + imageExt,
 				scale: !match[3] ? '1x' : match[3].replace('@', '')
 			};
@@ -5775,6 +5776,8 @@ iOSBuilder.prototype.createAppIconSetAndiTunesArtwork = async function createApp
 	let defaultIconChanged = false;
 	let defaultIconHasAlpha = false;
 	const defaultIcon = this.defaultIcons.find(icon => fs.existsSync(icon));
+	const flattenedDefaultIconDest = path.join(this.buildDir, 'DefaultIcon.png');
+
 	if (defaultIcon) {
 		const defaultIconPrev = this.previousBuildManifest.files && this.previousBuildManifest.files['DefaultIcon.png'],
 			defaultIconContents = fs.readFileSync(defaultIcon),
@@ -5941,7 +5944,6 @@ iOSBuilder.prototype.createAppIconSetAndiTunesArtwork = async function createApp
 	missingIcons = missingIcons.concat(await this.processLaunchLogos(launchLogos, resourcesToCopy, defaultIcon, defaultIconChanged));
 
 	// Do we need to flatten the default icon?
-	const flattenedDefaultIconDest = path.join(this.buildDir, 'DefaultIcon.png');
 	if (missingIcons.length !== 0 && defaultIcon && defaultIconChanged && defaultIconHasAlpha) {
 		this.defaultIcons = [ flattenedDefaultIconDest ];
 		flattenIcons.push({
@@ -6226,7 +6228,7 @@ iOSBuilder.prototype.processLaunchLogos = async function processLaunchLogos(laun
 	}
 
 	// Resize the launch logo to the other dimensions needed
-	await new Promise((resolve, reject) => {
+	await new Promise((resolve) => {
 		appc.image.resize(launchLogo.src, missingLaunchLogos, error => {
 			if (error) {
 				this.logger.error(error);
@@ -6639,7 +6641,12 @@ iOSBuilder.prototype.processTiSymbols = function processTiSymbols() {
 		if (parts.length) {
 			namespaces[parts[0].toLowerCase()] = 1;
 			while (parts.length) {
-				symbols[parts.join('.').replace(/\.create/gi, '').replace(/\./g, '').replace(/-/g, '_').toUpperCase()] = 1;
+				const value = parts.join('.').replace(/\.create/gi, '').replace(/\./g, '').replace(/-/g, '_').toUpperCase();
+				// Ignore any value that is not a single uppercased word, this is most likely an
+				// invalid detection by the babel plugin that collects the symbols used
+				if (/^\w+$/.test(value)) {
+					symbols[value] = 1;
+				}
 				parts.pop();
 			}
 		}
@@ -6735,8 +6742,10 @@ iOSBuilder.prototype.processTiSymbols = function processTiSymbols() {
 				'USE_TI_UIMASKEDIMAGE',
 				'USE_TI_UIPROGRESSBAR',
 				'USE_TI_UIACTIVITYINDICATOR',
+				'USE_TI_UIOPTIONBAR',
 				'USE_TI_UISWITCH',
 				'USE_TI_UISLIDER',
+				'USE_TI_UITABBEDBAR',
 				'USE_TI_UITEXTFIELD',
 				'USE_TI_UITEXTAREA',
 				'USE_TI_UISCROLLABLEVIEW',
@@ -6919,7 +6928,7 @@ iOSBuilder.prototype.optimizeFiles = function optimizeFiles(next) {
 	], next);
 };
 
-iOSBuilder.prototype.invokeXcodeBuild = function invokeXcodeBuild(next) {
+iOSBuilder.prototype.invokeXcodeBuild = async function invokeXcodeBuild(next) {
 	if (!this.forceRebuild) {
 		this.logger.info(__('Skipping xcodebuild'));
 		return next();
@@ -7087,12 +7096,14 @@ iOSBuilder.prototype.invokeXcodeBuild = function invokeXcodeBuild(next) {
 		}
 		// Exclude arm64 architecture from simulator build in XCode 12+ - TIMOB-28042
 		if (this.legacyModules.size > 0 && parseFloat(this.xcodeEnv.version) >= 12.0) {
-			if (process.arch === 'arm64') {
-				return next(new Error('The app is using native modules that do not support arm64 simulators and you are on an arm64 device.'));
+			if (await processArchitecture() === 'arm64') {
+				return next(new Error(`The app is using native modules that do not support arm64 simulators and you are on an arm64 device:\n- ${Array.from(this.legacyModules).join('\n- ')}`));
 			}
 			this.logger.warn(`The app is using native modules (${Array.from(this.legacyModules)}) that do not support arm64 simulators, we will exclude arm64. This may fail if you're on an arm64 Apple Silicon device.`);
 			args.push('EXCLUDED_ARCHS=arm64');
 		}
+	} else if (this.target === 'device' || this.target === 'dist-adhoc') {
+		args.push('-destination', 'generic/platform=iOS');
 	}
 
 	xcodebuildHook(
@@ -7131,6 +7142,23 @@ iOSBuilder.prototype.sanitizedAppName = function sanitizedAppName() {
 
 function sha1(value) {
 	return crypto.createHash('sha1').update(value).digest('hex');
+}
+
+// This function has the advantage to detect bridges architectures
+// like x86_64 in Rosetta mode (process.arch would still print "arm64" in that case)
+async function processArchitecture() {
+	return new Promise((resolve, reject) => {
+		// eslint-disable-next-line security/detect-child-process
+		const exec = require('child_process').exec;
+
+		exec('uname -m', function (error, stdout) {
+			if (error) {
+				reject(error);
+				return;
+			}
+			resolve(stdout.trim());
+		});
+	});
 }
 
 // create the builder instance and expose the public api

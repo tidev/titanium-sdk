@@ -57,6 +57,16 @@ describe('Titanium.App', () => {
 			});
 		});
 
+		describe.ios('.arguments', () => {
+			it('is an Object', () => {
+				should(Ti.App).have.a.readOnlyProperty('arguments').which.is.an.Object();
+			});
+
+			it('has getter', () => {
+				should(Ti.App).have.a.getter('arguments');
+			});
+		});
+
 		describe('.copyright', () => {
 			it('is a read-only String', () => {
 				should(Ti.App).have.a.readOnlyProperty('copyright').which.is.a.String();
@@ -198,6 +208,8 @@ describe('Titanium.App', () => {
 			it.iosBroken('can be assigned a Boolean value', () => { // iOS does it async? I don't know
 				Ti.App.proximityDetection = true;
 				should(Ti.App.proximityDetection).be.true();
+				Ti.App.proximityDetection = false;
+				should(Ti.App.proximityDetection).be.false();
 			});
 
 			it('has no accessors', () => {

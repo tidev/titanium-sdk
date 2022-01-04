@@ -154,7 +154,8 @@ iOSModuleBuilder.prototype.run = function run(logger, config, cli, finished) {
 		'buildModule',
 		'createUniversalBinary',
 		function (next) {
-			this.verifyBuildArch().then(next, next);
+			// eslint-disable-next-line promise/no-callback-in-promise
+			this.verifyBuildArch().then(next).catch(next);
 		},
 		'packageModule',
 		function (next) {
@@ -740,6 +741,15 @@ iOSModuleBuilder.prototype.createUniversalBinary = function createUniversalBinar
 			this.logger.error(__('Failed to generate universal binary (code %s):', code));
 			this.logger.error(err.trim() + '\n');
 			process.exit(1);
+		}
+
+		// Ensure that each Headers directory contains a file to keep it around in source control
+		for (const dir of fs.readdirSync(xcframeworkDest)) {
+			const headersPath = path.join(xcframeworkDest, dir, 'Headers');
+
+			if (fs.existsSync(headersPath) && fs.readdirSync(headerPath).length === 0) {
+				fs.writeFileSync(path.join(headersPath, `.${moduleId}-keep`), 'This file is to ensure the Headers directory gets checked into source control');
+			}
 		}
 		next();
 	}.bind(this));

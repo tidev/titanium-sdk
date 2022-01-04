@@ -636,7 +636,6 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void *payload)
     }
     KrollObject *krollObject = [rememberedProxy krollObjectForBridge:(KrollBridge *)pageContext];
     [pageKrollObject noteKeylessKrollObject:krollObject];
-    [krollObject removeGarbageCollectionSafeguard];
     return;
   }
   if (bridgeCount < 1) {
@@ -657,7 +656,6 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void *payload)
     }
     KrollObject *krollObject = [thisBridge krollObjectForProxy:rememberedProxy];
     [[thisBridge krollObjectForProxy:self] noteKeylessKrollObject:krollObject];
-    [krollObject removeGarbageCollectionSafeguard];
   }
 }
 
@@ -936,10 +934,11 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void *payload)
       NSThread.isMainThread);
 }
 
-- (void)setValuesForKeysWithDictionary:(NSDictionary *)keyedValues
+- (void)setValuesForKeysWithDictionary:(NSDictionary *)dictionary
 {
   //It's possible that the 'setvalueforkey' has its own plans of what should be in the JS object,
   //so we should do this first as to not overwrite the subclass's setter.
+  NSDictionary *keyedValues = [dictionary copy];
   if ((bridgeCount == 1) && (pageKrollObject != nil)) {
     for (NSString *currentKey in keyedValues) {
       id currentValue = [keyedValues objectForKey:currentKey];
@@ -991,6 +990,7 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void *payload)
     }
     [self setValue:thisValue forKey:thisKey];
   }
+  RELEASE_TO_NIL(keyedValues);
 }
 
 DEFINE_EXCEPTIONS

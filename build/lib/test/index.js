@@ -25,11 +25,12 @@ async function runTests(platforms, program) {
 		fs.emptyDir(path.join(snapshotDir, '..', 'generated')),
 		fs.emptyDir(path.join(snapshotDir, '..', 'diffs'))
 	]);
-	return test(platforms, program.target, program.deviceId, program.deployType, program.deviceFamily, snapshotDir);
+	return test(platforms, program.target, program.deviceId, program.deployType, program.deviceFamily, program.junitPrefix, snapshotDir);
 }
 
 /**
- * @param {object} results
+ * Outputs the given test results to the console.
+ * @param {object} results Dictionary of test results to be outputted.
  * @returns {Promise<void>}
  */
 async function outputMultipleResults(results) {
