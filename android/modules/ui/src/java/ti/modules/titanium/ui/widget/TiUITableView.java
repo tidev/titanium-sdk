@@ -250,7 +250,7 @@ public class TiUITableView extends TiUIView
 			|| name.equals(TiC.PROPERTY_FOOTER_TITLE)
 			|| name.equals(TiC.PROPERTY_FOOTER_VIEW)
 			|| name.equals(TiC.PROPERTY_BACKGROUND_COLOR)) {
-			this.tableView.update();
+			this.tableView.update(true);
 		}
 	}
 
@@ -284,7 +284,7 @@ public class TiUITableView extends TiUIView
 			|| key.equals(TiC.PROPERTY_TOUCH_FEEDBACK_COLOR)) {
 
 			// Update table items.
-			this.tableView.update();
+			this.tableView.update(true);
 
 			// Return to prevent property being handled by TiUIView.
 			return;

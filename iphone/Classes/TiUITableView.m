@@ -318,6 +318,15 @@
   return self;
 }
 
+- (void)cleanup:(id)unused
+{
+  if (searchController.isActive) {
+    searchController.active = NO;
+  }
+
+  [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(dismissSearchController) object:nil];
+}
+
 - (void)dealloc
 {
   if ([searchController isActive]) {
@@ -1821,6 +1830,17 @@
   }
 }
 
+#if IS_SDK_IOS_15
+- (void)setSectionHeaderTopPadding_:(id)value
+{
+  if (![TiUtils isIOSVersionOrGreater:@"15.0"]) {
+    return;
+  }
+
+  self.tableView.sectionHeaderTopPadding = [TiUtils floatValue:value def:UITableViewAutomaticDimension];
+}
+#endif
+
 - (void)initSearhController
 {
   if (searchController == nil) {
@@ -2301,30 +2321,7 @@
 
 - (void)tableViewDidEndMultipleSelectionInteraction:(UITableView *)tableView
 {
-  if ([self.proxy _hasListeners:@"rowsselected"]) {
-    NSMutableArray *selectedItems = [NSMutableArray arrayWithCapacity:tableView.indexPathsForSelectedRows.count];
-    NSMutableDictionary *startingRowObject = [NSMutableDictionary dictionaryWithCapacity:1];
-
-    for (int i = 0; i < tableView.indexPathsForSelectedRows.count; i++) {
-      NSIndexPath *index = tableView.indexPathsForSelectedRows[i];
-      NSInteger sectionIdx = [index section];
-      NSArray *sections = [(TiUITableViewProxy *)[self proxy] internalSections];
-      TiUITableViewSectionProxy *section = [self sectionForIndex:sectionIdx];
-
-      NSInteger dataIndex = [self rowIndexForIndexPath:index andSections:sections];
-
-      TiUITableViewRowProxy *row = [section rowAtIndex:[index row]];
-
-      NSMutableDictionary *eventObject = [NSMutableDictionary dictionaryWithObjectsAndKeys:
-                                                                  section, @"section",
-                                                              NUMINTEGER(dataIndex), @"index",
-                                                              row, @"row",
-                                                              row, @"rowData",
-                                                              nil];
-      [selectedItems addObject:eventObject];
-    }
-    [self.proxy fireEvent:@"rowsselected" withObject:@{ @"selectedRows" : selectedItems, @"startingRow" : startingRowObject }];
-  }
+  [self fireRowsSelectedEvent];
 }
 
 #pragma mark Collation
@@ -2494,6 +2491,12 @@
     search = YES;
   }
   [self triggerActionForIndexPath:indexPath fromPath:nil tableView:ourTableView wasAccessory:NO search:search name:@"click"];
+  [self fireRowsSelectedEvent];
+}
+
+- (void)tableView:(UITableView *)tableView didDeselectRowAtIndexPath:(NSIndexPath *)indexPath
+{
+  [self fireRowsSelectedEvent];
 }
 
 - (void)tableView:(UITableView *)ourTableView willDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath
@@ -2759,6 +2762,45 @@
   if ([self.proxy _hasListeners:@"scroll"]) {
     [self.proxy fireEvent:@"scroll" withObject:[self eventObjectForScrollView:scrollView]];
   }
+}
+
+- (void)fireRowsSelectedEvent
+{
+  // Do not continue if TableView has been released.
+  if (!tableview) {
+    return;
+  }
+
+  // Do not continue if not in multi-selection edit mode.
+  if (!tableview.editing || !tableview.allowsMultipleSelectionDuringEditing) {
+    return;
+  }
+
+  // Do not continue if there aren't any listeners.
+  NSString *eventName = @"rowsselected";
+  if (![self.proxy _hasListeners:eventName]) {
+    return;
+  }
+
+  // Fire an event providing an array of all selected rows.
+  NSMutableArray *selectedItems = [NSMutableArray arrayWithCapacity:tableview.indexPathsForSelectedRows.count];
+  NSMutableDictionary *startingRowObject = [NSMutableDictionary dictionaryWithCapacity:1];
+  for (int i = 0; i < tableview.indexPathsForSelectedRows.count; i++) {
+    NSIndexPath *index = tableview.indexPathsForSelectedRows[i];
+    NSInteger sectionIdx = [index section];
+    NSArray *sections = [(TiUITableViewProxy *)[self proxy] internalSections];
+    TiUITableViewSectionProxy *section = [self sectionForIndex:sectionIdx];
+    NSInteger dataIndex = [self rowIndexForIndexPath:index andSections:sections];
+    TiUITableViewRowProxy *row = [section rowAtIndex:[index row]];
+    NSMutableDictionary *eventObject = [NSMutableDictionary dictionaryWithObjectsAndKeys:
+                                                                section, @"section",
+                                                            NUMINTEGER(dataIndex), @"index",
+                                                            row, @"row",
+                                                            row, @"rowData",
+                                                            nil];
+    [selectedItems addObject:eventObject];
+  }
+  [self.proxy fireEvent:eventName withObject:@{ @"selectedRows" : selectedItems, @"startingRow" : startingRowObject }];
 }
 
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView
