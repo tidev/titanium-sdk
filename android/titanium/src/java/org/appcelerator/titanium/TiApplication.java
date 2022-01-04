@@ -33,7 +33,7 @@ import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.kroll.util.KrollAssetHelper;
 import org.appcelerator.titanium.util.TiBlobLruCache;
 import org.appcelerator.titanium.util.TiFileHelper;
-import org.appcelerator.titanium.util.TiImageLruCache;
+import org.appcelerator.titanium.util.TiImageCache;
 import org.appcelerator.titanium.util.TiResponseCache;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.util.TiWeakList;
@@ -388,7 +388,7 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	{
 		// Release all the cached images
 		TiBlobLruCache.getInstance().evictAll();
-		TiImageLruCache.getInstance().evictAll();
+		TiImageCache.clear();
 
 		// Perform hard garbage collection to reclaim memory.
 		if (KrollRuntime.getInstance() != null) {
@@ -405,7 +405,7 @@ public abstract class TiApplication extends Application implements KrollApplicat
 		if (level >= TRIM_MEMORY_RUNNING_LOW) {
 			// Release all the cached images
 			TiBlobLruCache.getInstance().evictAll();
-			TiImageLruCache.getInstance().evictAll();
+			TiImageCache.clear();
 
 			// Perform soft garbage collection to reclaim memory.
 			if (KrollRuntime.getInstance() != null) {

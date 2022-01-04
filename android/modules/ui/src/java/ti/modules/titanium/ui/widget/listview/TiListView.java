@@ -341,7 +341,7 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 	public void filterBy(String query)
 	{
 		this.filterQuery = query;
-		update();
+		update(true);
 	}
 
 	/**
@@ -503,6 +503,17 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 	}
 
 	/**
+	 * Obtains adapter index from list item reference.
+	 *
+	 * @param itemProxy The list item to search for by reference. Can be null.
+	 * @return Returns the adapter index position of the given item. Returns -1 if not found.
+	 */
+	public int getAdapterIndex(ListItemProxy itemProxy)
+	{
+		return this.items.indexOf(itemProxy);
+	}
+
+	/**
 	 * Obtain item from adapter index.
 	 *
 	 * @param index List item adapter index.
@@ -608,7 +619,7 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 	/**
 	 * Update list items for adapter.
 	 */
-	public void update()
+	public void update(boolean force)
 	{
 		final KrollDict properties = this.proxy.getProperties();
 		int filterResultsCount = 0;
@@ -692,7 +703,7 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 				item.getProperties().put(TiC.PROPERTY_FOOTER_VIEW,
 					sectionProperties.get(TiC.PROPERTY_FOOTER_VIEW));
 
-				item.setParent(this.proxy);
+				item.setParent(section);
 				this.items.add(item);
 			}
 		}
@@ -714,7 +725,7 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 		}
 
 		// Notify adapter of changes on UI thread.
-		this.adapter.notifyDataSetChanged();
+		this.adapter.update(this.items, force);
 
 		// FIXME: This is not an ideal workaround for an issue where recycled rows that were in focus
 		//        lose their focus when the data set changes. There are improvements to be made here.
@@ -755,5 +766,9 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 				}
 			}
 		});
+	}
+	public void update()
+	{
+		this.update(false);
 	}
 }

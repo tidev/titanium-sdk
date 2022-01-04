@@ -375,8 +375,17 @@ DEFINE_EXCEPTIONS
   [tabBar setBarTintColor:[color color]];
 #if IS_SDK_IOS_15
   if ([TiUtils isIOSVersionOrGreater:@"15.0"]) {
+    // Update main tab bar's appearance.
     tabBar.standardAppearance.backgroundColor = [color color];
     tabBar.scrollEdgeAppearance.backgroundColor = [color color];
+
+    // We must also update each tab in case they override main tab bar's appearance.
+    id tabs = [[self proxy] valueForKey:@"tabs"];
+    if ([tabs isKindOfClass:[NSArray class]]) {
+      for (TiUITabProxy *tabProxy in (NSArray *)tabs) {
+        [tabProxy updateTabBarItem];
+      }
+    }
   }
 #endif
 }

@@ -63,6 +63,8 @@ public class ListViewProxy extends RecyclerViewProxy
 	private List<ListSectionProxy> sections = new ArrayList<>();
 	private HashMap<Integer, Set<Integer>> markers = new HashMap<>();
 	private KrollDict contentOffset = null;
+	private final MoveEventInfo moveEventInfo = new MoveEventInfo();
+	private boolean shouldUpdate = true;
 
 	public ListViewProxy()
 	{
@@ -161,11 +163,12 @@ public class ListViewProxy extends RecyclerViewProxy
 
 		if (listView != null) {
 			final ListItemProxy item = listView.getAdapterItem(adapterIndex);
-			final ListSectionProxy section = (ListSectionProxy) item.getParent();
-
-			item.fireSyncEvent(TiC.EVENT_DELETE, null);
-
-			section.deleteItemsAt(item.getIndexInSection(), 1, null);
+			final TiViewProxy parentProxy = item.getParent();
+			if (parentProxy instanceof ListSectionProxy) {
+				final ListSectionProxy section = (ListSectionProxy) parentProxy;
+				item.fireSyncEvent(TiC.EVENT_DELETE, null);
+				section.deleteItemsAt(item.getIndexInSection(), 1, null);
+			}
 		}
 	}
 
@@ -174,8 +177,13 @@ public class ListViewProxy extends RecyclerViewProxy
 	 *
 	 * @param fromAdapterIndex Index of item in adapter.
 	 * @param toAdapterIndex Index of item in adapter.
+	 * @return
+	 * Returns adapter index the item was moved to after updating adapter list,
+	 * which might not match given "toAdapterIndex" if moved to an empty section placeholder.
+	 * <p/>
+	 * Returns -1 if item was not moved. Can happen if indexes are invalid or if move to destination is not allowed.
 	 */
-	public void moveItem(int fromAdapterIndex, int toAdapterIndex)
+	public int moveItem(int fromAdapterIndex, int toAdapterIndex)
 	{
 		final TiListView listView = getListView();
 
@@ -184,28 +192,81 @@ public class ListViewProxy extends RecyclerViewProxy
 			final ListSectionProxy fromSection = (ListSectionProxy) fromItem.getParent();
 			final int fromIndex = fromItem.getIndexInSection();
 			final ListItemProxy toItem = listView.getAdapterItem(toAdapterIndex);
-			final ListSectionProxy toSection = (ListSectionProxy) toItem.getParent();
-			final int toIndex = toItem.getIndexInSection();
+			final TiViewProxy parentProxy = toItem.getParent();
 
-			fromSection.deleteItemsAt(fromIndex, 1, null);
-			toSection.insertItemsAt(toIndex, fromItem, null);
+			if (parentProxy instanceof ListSectionProxy) {
+				final ListSectionProxy toSection = (ListSectionProxy) parentProxy;
+				final int toIndex = Math.max(toItem.getIndexInSection(), 0);
+
+				// Prevent updating items during move operations.
+				shouldUpdate = false;
+
+				fromSection.deleteItemsAt(fromIndex, 1, null);
+				toSection.insertItemsAt(toIndex, fromItem, null);
+
+				// Allow updating items after move operations.
+				shouldUpdate = true;
+				update();
+
+				return listView.getAdapterIndex(fromItem);
+			}
 		}
+		return -1;
 	}
 
 	/**
-	 * Fire `move` event upon finalized movement of an item.
+	 * Called when item drag-and-drop movement is about to start.
 	 *
-	 * @param fromAdapterIndex Index of item in adapter.
+	 * @param adapterIndex Index of item in adapter that is about to be moved.
+	 * @return Returns true if item movement is allowed. Returns false to prevent item movement.
 	 */
-	public void fireMoveEvent(int fromAdapterIndex)
+	public boolean onMoveItemStarting(int adapterIndex)
 	{
 		final TiListView listView = getListView();
-
-		if (listView != null) {
-			final ListItemProxy fromItem = listView.getAdapterItem(fromAdapterIndex);
-
-			fromItem.fireEvent(TiC.EVENT_MOVE, null);
+		if ((listView != null) && (adapterIndex >= 0)) {
+			final ListItemProxy itemProxy = listView.getAdapterItem(adapterIndex);
+			if (itemProxy != null) {
+				final TiViewProxy parentProxy = itemProxy.getParent();
+				if (parentProxy instanceof ListSectionProxy) {
+					this.moveEventInfo.sectionProxy = (ListSectionProxy) parentProxy;
+					this.moveEventInfo.sectionIndex = getIndexOfSection(this.moveEventInfo.sectionProxy);
+					this.moveEventInfo.itemIndex = itemProxy.getIndexInSection();
+					return true;
+				}
+			}
 		}
+		return false;
+	}
+
+	/**
+	 * Called when item drag-and-drop movement has ended.
+	 *
+	 * @param adapterIndex Index of position the item was dragged in adapter list.
+	 */
+	public void onMoveItemEnded(int adapterIndex)
+	{
+		// Fire a "move" event.
+		final TiListView listView = getListView();
+		if ((listView != null) && this.moveEventInfo.isMoving()) {
+			final ListItemProxy targetItemProxy = listView.getAdapterItem(adapterIndex);
+			if (targetItemProxy != null) {
+				final TiViewProxy targetParentProxy = targetItemProxy.getParent();
+				if (targetParentProxy instanceof ListSectionProxy) {
+					ListSectionProxy targetSectionProxy = (ListSectionProxy) targetParentProxy;
+					KrollDict data = new KrollDict();
+					data.put(TiC.PROPERTY_SECTION, this.moveEventInfo.sectionProxy);
+					data.put(TiC.PROPERTY_SECTION_INDEX, this.moveEventInfo.sectionIndex);
+					data.put(TiC.PROPERTY_ITEM_INDEX, this.moveEventInfo.itemIndex);
+					data.put(TiC.PROPERTY_TARGET_SECTION, targetSectionProxy);
+					data.put(TiC.PROPERTY_TARGET_SECTION_INDEX, getIndexOfSection(targetSectionProxy));
+					data.put(TiC.PROPERTY_TARGET_ITEM_INDEX, targetItemProxy.getIndexInSection());
+					targetItemProxy.fireEvent(TiC.EVENT_MOVE, data);
+				}
+			}
+		}
+
+		// Clear last "move" event info.
+		this.moveEventInfo.clear();
 	}
 
 	/**
@@ -234,20 +295,6 @@ public class ListViewProxy extends RecyclerViewProxy
 	public String getApiName()
 	{
 		return "Ti.UI.ListView";
-	}
-
-	public List<ListItemProxy> getCurrentItems()
-	{
-		final TiListView listView = getListView();
-
-		if (listView != null) {
-			final ListViewAdapter adapter = listView.getAdapter();
-
-			if (adapter != null) {
-				return adapter.getModels();
-			}
-		}
-		return null;
 	}
 
 	/**
@@ -473,7 +520,7 @@ public class ListViewProxy extends RecyclerViewProxy
 			// Set list sections.
 			setSections((Object[]) value);
 
-		} else if (name.equals(TiC.PROPERTY_EDITING)) {
+		} else if (name.equals(TiC.PROPERTY_EDITING) || name.equals(TiC.PROPERTY_VISIBLE)) {
 			final TiViewProxy parent = getParent();
 
 			if (parent != null) {
@@ -486,7 +533,7 @@ public class ListViewProxy extends RecyclerViewProxy
 		} else if (name.equals(TiC.PROPERTY_SHOW_SELECTION_CHECK)) {
 
 			// Update and refresh list.
-			update();
+			update(true);
 		}
 	}
 
@@ -841,12 +888,49 @@ public class ListViewProxy extends RecyclerViewProxy
 	/**
 	 * Notify ListView to update all adapter items.
 	 */
-	public void update()
+	public void update(boolean force)
 	{
+		if (!shouldUpdate) {
+			return;
+		}
 		final TiListView listView = getListView();
 
 		if (listView != null) {
-			listView.update();
+			listView.update(force);
+		}
+	}
+	public void update()
+	{
+		this.update(false);
+	}
+
+	/** Stores starting position info of an item being dragged-and-dropped. */
+	private static class MoveEventInfo
+	{
+		/** Section proxy the item being dragged originally belonged to. */
+		public ListSectionProxy sectionProxy;
+
+		/** Index of section in list the item being dragged originally belonged to. */
+		public int sectionIndex = -1;
+
+		/** Original index position of the item being dragged. */
+		public int itemIndex = -1;
+
+		/**
+		 * Determines if this object contains start position info.
+		 * @return Returns true if start position info is stored. Returns false if not.
+		 */
+		public boolean isMoving()
+		{
+			return (this.itemIndex >= 0);
+		}
+
+		/** Clears start position info. Should be called at end of drag-and-drop event. */
+		public void clear()
+		{
+			this.sectionProxy = null;
+			this.sectionIndex = -1;
+			this.itemIndex = -1;
 		}
 	}
 }
