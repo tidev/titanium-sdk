@@ -44,7 +44,7 @@ import ti.modules.titanium.ui.TableViewSectionProxy;
 import ti.modules.titanium.ui.widget.TiUITableView;
 import ti.modules.titanium.ui.widget.listview.TiRecyclerViewHolder;
 
-public class TableViewHolder extends TiRecyclerViewHolder
+public class TableViewHolder extends TiRecyclerViewHolder<TableViewRowProxy>
 {
 	private static final String TAG = "TableViewHolder";
 
@@ -241,6 +241,22 @@ public class TableViewHolder extends TiRecyclerViewHolder
 					this.leftImage.setVisibility(View.VISIBLE);
 				}
 			}
+
+			// Handle selection, override row left image.
+			if (tableViewProperties.optBoolean(TiC.PROPERTY_SHOW_SELECTION_CHECK, false)
+				&& tableViewProperties.optBoolean(TiC.PROPERTY_EDITING, false)
+				&& tableViewProperties.optBoolean(TiC.PROPERTY_ALLOWS_SELECTION_DURING_EDITING, false)
+				&& tableViewProperties.optBoolean(TiC.PROPERTY_ALLOWS_MULTIPLE_SELECTION_DURING_EDITING, false)
+				&& !proxy.isPlaceholder()) {
+
+				if (selected) {
+					this.leftImage.setImageDrawable(checkcircleDrawable);
+				} else {
+					this.leftImage.setImageDrawable(circleDrawable);
+				}
+				this.leftImage.setVisibility(View.VISIBLE);
+			}
+
 			if (properties.containsKeyAndNotNull(TiC.PROPERTY_RIGHT_IMAGE)) {
 				final String url = properties.getString(TiC.PROPERTY_RIGHT_IMAGE);
 				final Drawable drawable = TiUIHelper.getResourceDrawable((Object) url);

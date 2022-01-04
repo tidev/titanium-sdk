@@ -592,16 +592,12 @@
     }
 
     if (image != nil) {
-      if ([image respondsToSelector:@selector(imageWithRenderingMode:)]) {
-        NSInteger theMode = iconOriginal ? UIImageRenderingModeAlwaysOriginal : UIImageRenderingModeAlwaysTemplate;
-        image = [image imageWithRenderingMode:theMode];
-      }
+      NSInteger theMode = iconOriginal ? UIImageRenderingModeAlwaysOriginal : UIImageRenderingModeAlwaysTemplate;
+      image = [image imageWithRenderingMode:theMode];
     }
     if (activeImage != nil) {
-      if ([activeImage respondsToSelector:@selector(imageWithRenderingMode:)]) {
-        NSInteger theMode = activeIconOriginal ? UIImageRenderingModeAlwaysOriginal : UIImageRenderingModeAlwaysTemplate;
-        activeImage = [activeImage imageWithRenderingMode:theMode];
-      }
+      NSInteger theMode = activeIconOriginal ? UIImageRenderingModeAlwaysOriginal : UIImageRenderingModeAlwaysTemplate;
+      activeImage = [activeImage imageWithRenderingMode:theMode];
     }
 
     TiColor *tintColor = [TiUtils colorValue:[self valueForKey:@"tintColor"]];
@@ -646,15 +642,39 @@
   if (titleColor == nil) {
     titleColor = [TiUtils colorValue:[tabGroup valueForKey:@"titleColor"]];
   }
-  if (titleColor != nil) {
-    [ourItem setTitleTextAttributes:[NSDictionary dictionaryWithObjectsAndKeys:[titleColor color], NSForegroundColorAttributeName, nil] forState:UIControlStateNormal];
-  }
   TiColor *activeTitleColor = [TiUtils colorValue:[self valueForKey:@"activeTitleColor"]];
   if (activeTitleColor == nil) {
     activeTitleColor = [TiUtils colorValue:[tabGroup valueForKey:@"activeTitleColor"]];
   }
-  if (activeTitleColor != nil) {
-    [ourItem setTitleTextAttributes:[NSDictionary dictionaryWithObjectsAndKeys:[activeTitleColor color], NSForegroundColorAttributeName, nil] forState:UIControlStateSelected];
+  if ((titleColor != nil) || (activeTitleColor != nil)) {
+#if IS_SDK_IOS_15
+    if ([TiUtils isIOSVersionOrGreater:@"15.0"]) {
+      UITabBarAppearance *appearance = UITabBarAppearance.new;
+      if (titleColor != nil) {
+        UITabBarItemStateAppearance *normalAppearance = appearance.stackedLayoutAppearance.normal;
+        normalAppearance.titleTextAttributes = @{ NSForegroundColorAttributeName : [titleColor color] };
+      }
+      if (activeTitleColor != nil) {
+        UITabBarItemStateAppearance *selectedAppearance = appearance.stackedLayoutAppearance.selected;
+        selectedAppearance.titleTextAttributes = @{ NSForegroundColorAttributeName : [activeTitleColor color] };
+      }
+      TiColor *backgroundColor = [TiUtils colorValue:[tabGroup valueForKey:@"tabsBackgroundColor"]];
+      if (backgroundColor != nil) {
+        appearance.backgroundColor = [backgroundColor color];
+      }
+      ourItem.standardAppearance = appearance;
+      ourItem.scrollEdgeAppearance = appearance;
+    } else {
+#endif
+      if (titleColor != nil) {
+        [ourItem setTitleTextAttributes:[NSDictionary dictionaryWithObjectsAndKeys:[titleColor color], NSForegroundColorAttributeName, nil] forState:UIControlStateNormal];
+      }
+      if (activeTitleColor != nil) {
+        [ourItem setTitleTextAttributes:[NSDictionary dictionaryWithObjectsAndKeys:[activeTitleColor color], NSForegroundColorAttributeName, nil] forState:UIControlStateSelected];
+      }
+#if IS_SDK_IOS_15
+    }
+#endif
   }
 
   if (iconInsets != nil) {

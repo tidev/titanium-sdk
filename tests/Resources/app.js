@@ -84,6 +84,7 @@ function loadTests() {
 	require('./ti.analytics.test');
 	if (OS_ANDROID) {
 		require('./ti.android.test');
+		require('./ti.android.actionbar.test');
 		require('./ti.android.notificationmanager.test');
 		require('./ti.android.r.test');
 		require('./ti.android.service.test');
@@ -204,6 +205,7 @@ function loadTests() {
 	// Modules
 	require('./ti.cloudpush.test');
 	require('./ti.map.test');
+	require('./ti.modulesdk920.test');
 	if (OS_ANDROID) {
 		require('./ti.playservices.test');
 	}
