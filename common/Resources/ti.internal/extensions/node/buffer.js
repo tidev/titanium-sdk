@@ -99,8 +99,8 @@ function Buffer(arg, encodingOrOffset, length) {
 
 /**
  * @param {integer[]|Buffer|string} value value we're wrapping
- * @param {string|number} [encodingOrOffset]
- * @param {number} [length]
+ * @param {string|integer} encodingOrOffset encoding of the string, or start offset of array/buffer
+ * @param {integer} length length of the underlying array/buffer to wrap
  * @returns {Buffer}
  */
 Buffer.from = function (value, encodingOrOffset, length) {

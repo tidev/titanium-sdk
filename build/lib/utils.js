@@ -6,7 +6,6 @@ const path = require('path');
 const fs = require('fs-extra');
 const os = require('os');
 const titanium = require.resolve('titanium');
-const spawn = require('child_process').spawn; // eslint-disable-line security/detect-child-process
 const exec = util.promisify(require('child_process').exec); // eslint-disable-line security/detect-child-process
 
 const glob = promisify(require('glob'));
@@ -16,7 +15,6 @@ const ssri = require('ssri');
 
 const tempDir = os.tmpdir();
 const Utils = {};
-const ROOT_DIR = path.join(__dirname, '../..');
 
 function leftpad(str, len, ch) {
 	str = String(str);
@@ -101,7 +99,7 @@ function download(url, destination, options = { progress: true }) {
 		req.on('error', function (err) {
 			fs.existsSync(destination) && fs.unlinkSync(destination);
 			console.log();
-			console.error('Failed to download: %s', err.toString());
+			console.error('Failed to download: %s %s', url, err.toString());
 			reject(err);
 		});
 

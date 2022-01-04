@@ -8,8 +8,7 @@ description: |
     Use the <Titanium.UI.createTab> method or **`<Tab>`** Alloy element to create a tab.
 
     Use [TabGroup.setActiveTab](Titanium.UI.TabGroup.setActiveTab) to switch between tabs
-    in a tab group. The <Titanium.UI.currentTab> property provides a global reference to
-    the currently active tab.
+    in a tab group.
 
     The behavior of tabs and tab groups follows the platform's native navigation style,
     which varies significantly between platforms.
@@ -126,6 +125,9 @@ methods:
       - name: window
         summary: Root window of the tab.
         type: Titanium.UI.Window
+    deprecated:
+      since: "10.0.0"
+      notes: Set the value of the [window](Titanium.UI.Tab.window) property directly.
 
   - name: popToRootWindow
     # FIXME: I don't think this exists on Android!
@@ -176,7 +178,8 @@ properties:
   - name: backgroundFocusedColor
     summary: Sets the color of the tab when it is focused.
     description: |
-        On the Android platform, this sets the color of the active tab.
+        On the Android platform, this sets the color of the active tab and is only supported by
+        [TABS_STYLE_BOTTOM_NAVIGATION](Titanium.UI.Android.TABS_STYLE_BOTTOM_NAVIGATION).
 
         For information about color values, see the "Colors" section of <Titanium.UI>.
     platforms: [android]
@@ -267,13 +270,13 @@ properties:
     platforms: [iphone,ipad, macos]
 
   - name: tintColor
-    summary: Defines the color of the tab icon. Will fallback to titleColor when not defined.
+    summary: Defines the color of the tab icon.
     type: String
     since: {iphone: "3.1.3", ipad: "3.1.3", android: "9.0.3"}
     platforms: [iphone, ipad, android, macos]
 
   - name: activeTintColor
-    summary: Defines the color of the tab icon when it is active. Will fallback to activeTitleColor when not defined.
+    summary: Defines the color of the tab icon when it is active.
     type: String
     since: {android: "9.0.3"}
     platforms: [iphone, ipad, android, macos]
@@ -289,7 +292,7 @@ properties:
   - name: titleColor
     summary: Defines the color of the title of tab when it's inactive.
     description: |
-        The color of the title of the tab when it's inactive. If not defined, it will use the default tint color.
+        The color of the title of the tab when it's inactive.
     type: [String, Titanium.UI.Color]
     since: {iphone: "4.1.0", ipad: "4.1.0", android: "8.0.0"}
     osver: {ios: {min: "5.0"}}
@@ -298,7 +301,7 @@ properties:
   - name: activeTitleColor
     summary: Defines the color of the title of tab when it's active.
     description: |
-        The color of the title of the tab when it's active. If not defined, it will use the default tint color.
+        The color of the title of the tab when it's active.
     type: [String, Titanium.UI.Color]
     since: {iphone: "4.1.0", ipad: "4.1.0", android: "8.0.0"}
     osver: {ios: {min: "5.0"}}
@@ -315,7 +318,7 @@ events:
     deprecated:
         since: "5.2.0"
         removed: "9.0.0"
-        notes: Use [Titanium.UI.Tab.unselected](Titanium.UI.Tab.unselected) instead.
+        notes: Use [Titanium.UI.Tab.unselected](Titanium.UI.Tab.unselected) event instead.
     properties:
       - name: index
         summary: Index of the current active tab.
@@ -358,7 +361,7 @@ events:
     deprecated:
         since: "5.2.0"
         removed: "9.0.0"
-        notes: Use [Titanium.UI.Tab.selected](Titanium.UI.Tab.selected) instead.
+        notes: Use [Titanium.UI.Tab.selected](Titanium.UI.Tab.selected) event instead.
     properties:
       - name: index
         summary: Index of the current active tab.

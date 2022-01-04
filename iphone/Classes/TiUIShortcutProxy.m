@@ -120,6 +120,7 @@
       }
     }
     UIApplication.sharedApplication.shortcutItems = shortcutsCopy;
+    RELEASE_TO_NIL(shortcutsCopy);
   }
 }
 

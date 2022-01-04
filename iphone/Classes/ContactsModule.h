@@ -4,20 +4,17 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#import <TitaniumKit/TiModule.h>
-
-#if defined(USE_TI_CONTACTS) && (!TARGET_OS_MACCATALYST || IS_SDK_IOS_14)
+#ifdef USE_TI_CONTACTS
 
 #import "TiContactsPerson.h"
-#import <AddressBook/AddressBook.h>
-#import <AddressBookUI/AddressBookUI.h>
 #import <Contacts/Contacts.h>
 #import <ContactsUI/ContactsUI.h>
 #import <TitaniumKit/KrollCallback.h>
+#import <TitaniumKit/TiModule.h>
 
-@interface ContactsModule : TiModule <ABPeoplePickerNavigationControllerDelegate, CNContactPickerDelegate, CNContactViewControllerDelegate, TiContactsPersonUpdateObserver> {
+@interface ContactsModule : TiModule <CNContactPickerDelegate, CNContactViewControllerDelegate, TiContactsPersonUpdateObserver> {
   @private
-  BOOL reloadAddressBook;
+  BOOL needsContactStoreFetch;
   BOOL animated;
   BOOL _includeNote;
   KrollCallback *cancelCallback;

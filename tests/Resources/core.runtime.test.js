@@ -4,13 +4,13 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+/* global OS_IOS */
 /* eslint-env mocha */
 /* eslint no-unused-expressions: "off" */
 
 'use strict';
 
 const should = require('./utilities/assertions');
-const utilities = require('./utilities/utilities');
 
 describe.windowsBroken('Core', () => {
 	describe('Runtime', () => {
@@ -33,25 +33,11 @@ describe.windowsBroken('Core', () => {
 			});
 
 			describe('Proxy', () => {
-				describe('Getter/Setter', () => {
-					it('should check for existing getter method', () => {
-						const tabGroup = Ti.UI.createTabGroup();
-						tabGroup.should.have.property('getTabs');
-					});
-
-					it.ios('should check for dynamic getter method', () => {
+				describe('constructor', () => {
+					it('should be correctly set on a proxy', () => {
 						const view = Ti.UI.createView();
-						view.should.have.property('getFoo');
-					});
-
-					it('should check for existing setter method', () => {
-						const webView = Ti.UI.createWebView();
-						webView.should.have.property('setHtml');
-					});
-
-					it.ios('should check for dynamic setter method', () => {
-						const view = Ti.UI.createView();
-						view.should.have.property('setFoo');
+						view.should.have.property('constructor');
+						should(view.constructor).be.a.Function();
 					});
 				});
 
@@ -75,7 +61,7 @@ describe.windowsBroken('Core', () => {
 
 					it('should properly handle properties with value of nil (TIMOB-26452)', () => {
 						should(Ti.Geolocation).have.property('lastGeolocation');
-						if (utilities.isIOS()) {
+						if (OS_IOS) {
 							should.not.exist(Ti.Geolocation.lastGeolocation);
 						} else {
 							should(Ti.Geolocation.lastGeolocation).be.equal('{}');

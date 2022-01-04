@@ -64,7 +64,6 @@ public class TextProxy extends CharacterDataProxy
 		return getProxy(returnNode);
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getTextContent()
 	{

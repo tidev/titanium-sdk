@@ -79,11 +79,8 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
       [(UIDatePicker *)picker setDatePickerMode:type];
       [picker addTarget:self action:@selector(valueChanged:) forControlEvents:UIControlEventValueChanged];
     }
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
     [picker setBackgroundColor:[TiUtils isIOSVersionOrGreater:@"13.0"] ? UIColor.systemBackgroundColor : UIColor.whiteColor];
-#else
-    [picker setBackgroundColor:UIColor.whiteColor];
-#endif
+
     [self addSubview:picker];
   }
   return picker;
@@ -233,7 +230,7 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
 - (void)setDateTimeColor_:(id)value
 {
   // Guard date picker and iOS 14+ date picker style
-  if (![self isDatePicker]) {
+  if (![self isDatePicker] || [TiUtils isMacOS]) {
     return;
   }
 #if IS_SDK_IOS_13_4
@@ -330,7 +327,7 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
 - (NSInteger)pickerView:(UIPickerView *)pickerView numberOfRowsInComponent:(NSInteger)component
 {
   TiUIPickerColumnProxy *proxy = [[self columns] objectAtIndex:component];
-  return [proxy rowCount];
+  return proxy.rowCount.integerValue;
 }
 
 #pragma mark Delegates (only for UIPickerView)

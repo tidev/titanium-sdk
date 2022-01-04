@@ -193,7 +193,7 @@
   return NUMBOOL([[self player] isMuted]);
 }
 
-- (void)externalPlaybackActive
+- (NSNumber *)externalPlaybackActive
 {
   return NUMBOOL([[self player] isExternalPlaybackActive]);
 }

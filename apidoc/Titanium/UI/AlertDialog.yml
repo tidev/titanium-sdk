@@ -509,12 +509,9 @@ examples:
         Create a single-button alert dialog using the global `alert()` alias.
 
         ``` js
-        Ti.UI.setBackgroundColor('white');
         var win = Ti.UI.createWindow({
           title: 'Click window to test',
-          backgroundColor: 'white',
-          exitOnClose: true,
-          fullscreen: false
+          backgroundColor: 'white'
         });
 
         win.addEventListener('click', function(e) {
@@ -529,12 +526,9 @@ examples:
         property, which is invoked when the app window is clicked.
 
         ``` js
-        Ti.UI.setBackgroundColor('white');
         var win = Ti.UI.createWindow({
           title: 'Click window to test',
-          backgroundColor: 'white',
-        exitOnClose: true,
-        fullscreen: false
+          backgroundColor: 'white'
         });
 
         win.addEventListener('click', function(e) {
@@ -554,12 +548,9 @@ examples:
         Output a message to the log when the cancel button is clicked.
 
         ``` js
-        Ti.UI.setBackgroundColor('white');
         var win = Ti.UI.createWindow({
           title: 'Click window to test',
-          backgroundColor: 'white',
-          exitOnClose: true,
-          fullscreen: false
+          backgroundColor: 'white'
         });
         win.addEventListener('click', function(e) {
           var dialog = Ti.UI.createAlertDialog({
@@ -588,7 +579,6 @@ examples:
         Output entered text value to the log when the OK button is clicked.
 
         ``` js
-        Ti.UI.setBackgroundColor('white');
         var win = Ti.UI.createWindow({
           title: 'Click window to test'
         });

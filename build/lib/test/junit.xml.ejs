@@ -36,14 +36,15 @@ suites.forEach(function(currentSuite)
 		 classname="<%= prefix ? (prefix + '.') : '' %><%= currentSuite.suite %>"
 		 name="<%= title %>"
 		 time="<%= (test.duration / 1000.0) %>">
-<% 			if (test.state == "failed") {
-				if (test.error.name === 'AssertionError') { -%>
-			<failure message="<%= test.message %>" type="<%= test.error.name ? test.error.name : 'Error' %>">
+<% 			if (test.state == 'failed') {
+				const testErrorName = test.error && test.error.name ? test.error.name : 'Error';
+				if (testErrorName === 'AssertionError') { -%>
+			<failure message="<%= test.message %>" type="<%= testErrorName %>">
 <%  // TODO Do a unified diff here! See https://github.com/futurice/mocha-jenkins-reporter/blob/master/lib/jenkins.js -%>
 				<%= test.stack %>
 			</failure>
 <% 				} else { -%>
-			<error message="<%= test.message %>" type="<%= test.error.name ? test.error.name : 'Error' %>">
+			<error message="<%= test.message %>" type="<%= testErrorName %>">
 				<%= test.stack %>
 			</error>
 <% 				}

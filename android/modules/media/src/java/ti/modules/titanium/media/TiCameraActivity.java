@@ -65,8 +65,6 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 	private static int backCameraId = Integer.MIN_VALUE;  //cache
 	private static final int VIDEO_QUALITY_LOW = CamcorderProfile.QUALITY_LOW;
 	private static final int VIDEO_QUALITY_HIGH = CamcorderProfile.QUALITY_HIGH;
-	private static final String MEDIA_TYPE_PHOTO = "public.image";
-	private static final String MEDIA_TYPE_VIDEO = "public.video";
 
 	private TiViewProxy localOverlayProxy = null;
 	private SurfaceView preview;
@@ -88,7 +86,7 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 
 	public static int videoMaximumDuration = 0;
 	public static int videoQuality = VIDEO_QUALITY_HIGH;
-	public static String mediaType = MEDIA_TYPE_PHOTO;
+	public static String mediaType = MediaModule.MEDIA_TYPE_PHOTO;
 	public static int cameraType = 0;
 	private static int cameraRotation = 0;
 	private static MediaRecorder recorder;
@@ -170,7 +168,10 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 		previewHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
 
 		// set preview overlay
-		localOverlayProxy = overlayProxy;
+		this.localOverlayProxy = overlayProxy;
+		if (this.localOverlayProxy != null) {
+			this.localOverlayProxy.setActivity(this);
+		}
 
 		// set overall layout - will populate in onResume
 		previewLayout = new PreviewLayout(this);
@@ -400,7 +401,7 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 		if (pictureSize != null) {
 			param.setPictureSize(pictureSize.width, pictureSize.height);
 		}
-		if (MEDIA_TYPE_VIDEO.equals(mediaType)) {
+		if (MediaModule.MEDIA_TYPE_VIDEO.equals(mediaType)) {
 			param.setRecordingHint(true);
 		}
 		camera.setParameters(param);

@@ -731,7 +731,7 @@ describe('Titanium.Filesystem.File', function () {
 			filesFound[rootPath + 'txtFiles' + Ti.Filesystem.separator] = false; // Subdirectory containing only assets.
 			filesFound[rootPath + 'txtFiles' + Ti.Filesystem.separator + 'text.txt'] = false;
 			function searchFileTree(file) {
-				if (!file) {
+				if (!file || !file.isDirectory()) {
 					return;
 				}
 
@@ -772,15 +772,40 @@ describe('Titanium.Filesystem.File', function () {
 		should(dir.exists()).be.false();
 	});
 
-	// TIMOB-14364
-	// FIXME: This pops a prompt dialog for permission to Documents folder on macOS
-	it.ios('#setRemoteBackup()', function () {
-		if (utilities.isMacOS()) {
+	describe.ios('.remoteBackup', () => {
+		// TIMOB-14364
+		it('assigning Boolean value doesn\'t throw', () => {
+			should(function () {
+				Ti.Filesystem.getFile(Ti.Filesystem.applicationDataDirectory).remoteBackup = false;
+			}).not.throw();
+		});
+
+		it('has no accessors', () => {
+			const file = Ti.Filesystem.getFile(Ti.Filesystem.applicationDataDirectory);
+			should(file).not.have.accessors('remoteBackup');
+		});
+	});
+
+	it.android('externalCacheDirectory read/write', function () {
+		if (!Ti.Filesystem.isExternalStoragePresent()) {
+			this.skip();
 			return;
 		}
-		should(function () {
-			Ti.Filesystem.getFile(Ti.Filesystem.applicationDataDirectory).setRemoteBackup(false);
-		}).not.throw();
+		const stringContent = 'My external file content.';
+		const file = Ti.Filesystem.getFile(Ti.Filesystem.externalCacheDirectory, 'MyFile.txt');
+		should(file.write(stringContent)).be.true();
+		should(file.read().text).be.eql(stringContent);
+	});
+
+	it.android('externalStorageDirectory read/write', function () {
+		if (!Ti.Filesystem.isExternalStoragePresent()) {
+			this.skip();
+			return;
+		}
+		const stringContent = 'My external file content.';
+		const file = Ti.Filesystem.getFile(Ti.Filesystem.externalStorageDirectory, 'MyFile.txt');
+		should(file.write(stringContent)).be.true();
+		should(file.read().text).be.eql(stringContent);
 	});
 
 	it.android('TIMOB-27193', () => {

@@ -148,6 +148,34 @@ properties:
     platforms: [android, iphone, ipad, macos]
     accessors: false
 
+  - name: backgroundSelectedColor
+    summary: Background color of the view, as a color name or hex triplet when item is selected.
+    description: |
+        On Android, clicking on ListItem's sub-views will not trigger this unless these views have 'touchEnabled' set to false.
+        For information about color values, see the "Colors" section of <Titanium.UI>.
+    type: [String, Titanium.UI.Color]
+    since: 10.0.0
+    platforms: [android, iphone, ipad, macos]
+    default: transparent
+    accessors: false
+
+  - name: backgroundSelectedImage
+    summary: Background image to render when the item is selected.
+    description: |
+        Must be a local resource.
+        On Android, clicking on ListItem's sub-views will not trigger this unless these views have 'touchEnabled' set to false.
+    type: String
+    since: 10.0.0
+    platforms: [android, iphone, ipad, macos]
+    accessors: false
+
+  - name: backgroundSelectedGradient
+    summary: Background gradient to render when the item is selected.
+    type: Gradient
+    since: 10.0.0
+    platforms: [iphone, ipad, macos]
+    accessors: false
+
   - name: selectedBackgroundColor
     summary: Background color of the view, as a color name or hex triplet when item is selected.
     description: |
@@ -156,8 +184,11 @@ properties:
     type: [String, Titanium.UI.Color]
     since: 3.2.0
     platforms: [android, iphone, ipad, macos]
-    default: Transparent
+    default: transparent
     accessors: false
+    deprecated:
+        since: "10.0.0"
+        notes: This property has been deprecated in favor of <Titanium.UI.ListItem.backgroundSelectedColor>.
 
   - name: selectedBackgroundImage
     summary: Background image to render when the item is selected.
@@ -168,6 +199,9 @@ properties:
     since: 3.2.0
     platforms: [android, iphone, ipad, macos]
     accessors: false
+    deprecated:
+        since: "10.0.0"
+        notes: This property has been deprecated in favor of <Titanium.UI.ListItem.backgroundSelectedImage>.
 
   - name: selectedBackgroundGradient
     summary: Background gradient to render when the item is selected.
@@ -175,6 +209,9 @@ properties:
     since: 3.2.0
     platforms: [iphone, ipad, macos]
     accessors: false
+    deprecated:
+        since: "10.0.0"
+        notes: This property has been deprecated in favor of <Titanium.UI.ListItem.backgroundSelectedGradient>.
 
   - name: canEdit
     summary: Specifies if the item can be deleted by a user initiated action.
@@ -182,8 +219,8 @@ properties:
         For more information see the "Editing Support" section of <Titanium.UI.ListView>.
     type: Boolean
     default: false
-    since: 3.2.0
-    platforms: [iphone, ipad, macos]
+    since: {android: "9.3.0", iphone: "3.2.0", ipad: "3.2.0", macos: "9.2.0"}
+    platforms: [android, iphone, ipad, macos]
     accessors: false
 
   - name: canInsert
@@ -202,8 +239,8 @@ properties:
         For more information see the "Editing Support" section of <Titanium.UI.ListView>.
     type: Boolean
     default: false
-    since: 3.2.0
-    platforms: [iphone, ipad, macos]
+    since: {android: "9.3.0", iphone: "3.2.0", ipad: "3.2.0", macos: "9.2.0"}
+    platforms: [android, iphone, ipad, macos]
     accessors: false
 
   - name: editActions
@@ -311,9 +348,10 @@ properties:
   - name: selectionStyle
     summary: Selection style constant to control the selection color.
     description: |
-        Specify one of the constants from <Titanium.UI.iOS.ListViewCellSelectionStyle>.
+        Specify one of the constants from <Titanium.UI.SELECTION_STYLE_*>.
     type: Number
-    platforms: [iphone,ipad, macos]
+    platforms: [android, iphone, ipad, macos]
+    since: {android: "10.1.0", iphone: "5.4.0", ipad: "5.4.0", macos: "9.2.0"}
     accessors: false
 
   - name: subtitle
@@ -356,7 +394,7 @@ examples:
         }
 
         var section = Ti.UI.createListSection();
-        section.setItems(data);
+        section.items = data;
         listView.sections = [section];
         listView.addEventListener('itemclick', function(e) {
             var item = section.getItemAt(e.itemIndex);
@@ -498,7 +536,7 @@ examples:
         }
 
         var section = Ti.UI.createListSection();
-        section.setItems(data);
+        section.items = data;
         listView.sections = [section];
 
         // Modified version of the `itemclick` event listener

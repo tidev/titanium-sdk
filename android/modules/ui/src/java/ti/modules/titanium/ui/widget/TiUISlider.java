@@ -23,7 +23,6 @@ import android.graphics.Rect;
 import android.graphics.drawable.ClipDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
-import android.os.Build;
 import android.view.Gravity;
 import android.widget.SeekBar;
 
@@ -95,9 +94,7 @@ public class TiUISlider extends TiUIView implements SeekBar.OnSeekBarChangeListe
 			updateThumb(seekBar, d);
 		}
 		if (d.containsKey(TiC.PROPERTY_SPLIT_TRACK)) {
-			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-				seekBar.setSplitTrack(TiConvert.toBoolean(d.get(TiC.PROPERTY_SPLIT_TRACK)));
-			}
+			seekBar.setSplitTrack(TiConvert.toBoolean(d.get(TiC.PROPERTY_SPLIT_TRACK)));
 		}
 		if (d.containsKey("leftTrackImage") || d.containsKey("rightTrackImage")) {
 			updateTrackingImages(seekBar, d);
@@ -162,7 +159,7 @@ public class TiUISlider extends TiUIView implements SeekBar.OnSeekBarChangeListe
 			String url = proxy.resolveUrl(null, thumbImage);
 			Drawable thumb = tfh.loadDrawable(url, false);
 			if (thumb != null) {
-				thumbDrawable = new SoftReference<Drawable>(thumb);
+				thumbDrawable = new SoftReference<>(thumb);
 				seekBar.setThumb(thumb);
 			} else {
 				Log.e(TAG, "Unable to locate thumb image for progress bar: " + url);
@@ -297,9 +294,7 @@ public class TiUISlider extends TiUIView implements SeekBar.OnSeekBarChangeListe
 			//seekBar.invalidate();
 			Log.i(TAG, "Dynamically changing thumbImage is not yet supported. Native control doesn't draw");
 		} else if (key.equals(TiC.PROPERTY_SPLIT_TRACK)) {
-			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-				seekBar.setSplitTrack(TiConvert.toBoolean(newValue));
-			}
+			seekBar.setSplitTrack(TiConvert.toBoolean(newValue));
 		} else if (key.equals("leftTrackImage") || key.equals("rightTrackImage")) {
 			//updateTrackingImages(seekBar, proxy.getDynamicProperties());
 			//seekBar.invalidate();
@@ -380,10 +375,8 @@ public class TiUISlider extends TiUIView implements SeekBar.OnSeekBarChangeListe
 	{
 		SeekBar seekBar = (SeekBar) getNativeView();
 
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-			ColorStateList singleColorStateList = ColorStateList.valueOf(color);
-			seekBar.setProgressTintList(singleColorStateList);
-		}
+		ColorStateList singleColorStateList = ColorStateList.valueOf(color);
+		seekBar.setProgressTintList(singleColorStateList);
 	}
 
 	protected void handleSetTrackTintColor(int color)
@@ -391,9 +384,7 @@ public class TiUISlider extends TiUIView implements SeekBar.OnSeekBarChangeListe
 		SeekBar seekBar = (SeekBar) getNativeView();
 
 		ColorStateList singleColorStateList = ColorStateList.valueOf(color);
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-			seekBar.setProgressBackgroundTintList(singleColorStateList);
-		}
+		seekBar.setProgressBackgroundTintList(singleColorStateList);
 	}
 
 	private float scaledValue()

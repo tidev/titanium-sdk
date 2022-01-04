@@ -6,48 +6,191 @@
  */
 /* eslint-env mocha */
 /* eslint no-unused-expressions: "off" */
+/* eslint promise/no-callback-in-promise: "off" */
 'use strict';
 const should = require('./utilities/assertions');
 
-describe.windowsMissing('Titanium.UI.NavigationWindow', function () {
+describe('Titanium.UI.NavigationWindow', function () {
 	this.timeout(10000);
 
 	let nav;
-	afterEach(function () {
-		if (nav) {
-			nav.close();
+	afterEach(done => {
+		if (nav && !nav.closed) {
+			nav.close().then(() => done()).catch(_e => done());
+		} else {
+			nav = null;
+			done();
 		}
-		nav = null;
 	});
 
-	it.iosBroken('Ti.UI.NavigationWindow', () => { // should this be defined?
+	it.iosBroken('namespace exists', () => { // should this be defined?
 		should(Ti.UI.NavigationWindow).not.be.undefined();
 	});
 
-	it('.apiName', function () {
-		var view = Ti.UI.createNavigationWindow();
-		should(view).have.readOnlyProperty('apiName').which.is.a.String();
-		should(view.apiName).be.eql('Ti.UI.NavigationWindow');
+	describe('properties', () => {
+		it('.apiName', () => {
+			const view = Ti.UI.createNavigationWindow();
+			should(view).have.readOnlyProperty('apiName').which.is.a.String();
+			should(view.apiName).be.eql('Ti.UI.NavigationWindow');
+		});
 	});
 
-	it('#open()', function () {
-		var view = Ti.UI.createNavigationWindow();
-		should(view.open).be.a.Function();
-	});
+	describe('methods', () => {
+		describe('#close()', () => {
+			it('is a Function', () => {
+				const nav = Ti.UI.createNavigationWindow();
 
-	it('#openWindow()', function () {
-		var view = Ti.UI.createNavigationWindow();
-		should(view.openWindow).be.a.Function();
-	});
+				should(nav).have.a.property('close').which.is.a.Function();
+			});
 
-	it('#close()', function () {
-		var view = Ti.UI.createNavigationWindow();
-		should(view.close).be.a.Function();
-	});
+			it('returns a Promise', finish => {
+				nav = Ti.UI.createNavigationWindow({ window: Ti.UI.createWindow() });
 
-	it('#closeWindow()', function () {
-		var view = Ti.UI.createNavigationWindow();
-		should(view.closeWindow).be.a.Function();
+				const openPromise = nav.open();
+				openPromise.then(() => {
+					const result = nav.close();
+					result.should.be.a.Promise();
+					return result.then(() => finish()).catch(e => finish(e)); // eslint-disable-line promise/no-nesting
+				}).catch(e => finish(e));
+			});
+
+			it('called on unopened Window rejects Promise', finish => {
+				nav = Ti.UI.createNavigationWindow({ window: Ti.UI.createWindow() });
+
+				const result = nav.close();
+				result.should.be.a.Promise();
+				result.then(() => finish(new Error('Expected #close() to be rejected on unopened Window'))).catch(_e => finish());
+			});
+
+			it('called twice on Window rejects second Promise', finish => {
+				nav = Ti.UI.createNavigationWindow({ window: Ti.UI.createWindow() });
+
+				nav.open().then(() => {
+					// eslint-disable-next-line promise/no-nesting
+					return nav.close().then(() => {
+						// eslint-disable-next-line promise/no-nesting
+						return nav.close().then(() => finish(new Error('Expected second #close() call on Window to be rejected'))).catch(() => finish());
+					}).catch(e => finish(e));
+				}).catch(e => finish(e));
+			});
+		});
+
+		it('#closeWindow()', () => {
+			const nav = Ti.UI.createNavigationWindow();
+			should(nav.closeWindow).be.a.Function();
+		});
+
+		describe('#open()', () => {
+			it('is a Function', () => {
+				nav = Ti.UI.createNavigationWindow();
+
+				should(nav).have.a.property('open').which.is.a.Function();
+			});
+
+			it('returns a Promise', finish => {
+				nav = Ti.UI.createNavigationWindow({ window: Ti.UI.createWindow() });
+
+				const result = nav.open();
+				result.should.be.a.Promise();
+				result.then(() => finish()).catch(e => finish(e));
+			});
+
+			it('called twice on same Window rejects second Promise', finish => {
+				nav = Ti.UI.createNavigationWindow({ window: Ti.UI.createWindow() });
+
+				const first = nav.open();
+				first.should.be.a.Promise();
+				// eslint-disable-next-line promise/catch-or-return
+				first.then(() => nav.open(), e => finish(e)).then(() => finish(new Error('Expected second #open() to be rejected')), _e => finish());
+			});
+		});
+
+		describe('#openWindow()', () => {
+			it('is a Function', () => {
+				const view = Ti.UI.createNavigationWindow();
+				should(view.openWindow).be.a.Function();
+			});
+		});
+
+		// FIXME: Seems to be crashing silently on iOS?
+		it('#openWindow, #closeWindow', function (finish) {
+			const rootWindow = Ti.UI.createWindow();
+			const subWindow = Ti.UI.createWindow();
+			nav = Ti.UI.createNavigationWindow({
+				window: rootWindow
+			});
+
+			rootWindow.addEventListener('open', () => {
+				console.log('rootWindow open event');
+				setTimeout(() => {
+					try {
+						nav.openWindow(subWindow);
+						should(subWindow.navigationWindow).eql(nav);
+					} catch (err) {
+						finish(err);
+					}
+				}, 1);
+			});
+
+			subWindow.addEventListener('open', () => {
+				console.log('subWindow open event');
+				setTimeout(() => nav.closeWindow(subWindow), 1);
+			});
+
+			subWindow.addEventListener('close', () => {
+				console.log('subWindow close event');
+				try {
+					should(subWindow.navigationWindow).not.be.ok(); // null or undefined
+				} catch (err) {
+					return finish(err);
+				}
+				finish();
+			});
+
+			nav.open();
+		});
+
+		describe('#popToRootWindow()', () => {
+			it('is a Function', () => {
+				const view = Ti.UI.createNavigationWindow();
+				should(view.popToRootWindow).be.a.Function();
+			});
+
+			// FIXME: Crashes frequently on macOS on CI boxes
+			it.macBroken('works without crashing', function (finish) {
+				var rootWindow = Ti.UI.createWindow();
+				var subWindow = Ti.UI.createWindow();
+
+				nav = Ti.UI.createNavigationWindow({
+					window: rootWindow
+				});
+
+				rootWindow.addEventListener('open', function open() {
+					rootWindow.removeEventListener('open', open);
+					setTimeout(() => nav.openWindow(subWindow), 1);
+				});
+
+				subWindow.addEventListener('close', function close () {
+					subWindow.removeEventListener('close', close);
+					try {
+						should(subWindow.navigationWindow).not.be.ok(); // null or undefined
+						// how else can we tell it got closed? I don't think a visible check is right...
+						// win should not be closed!
+						should(rootWindow.navigationWindow).eql(nav);
+					} catch (err) {
+						return finish(err);
+					}
+					finish();
+				});
+
+				subWindow.addEventListener('open', function open() {
+					subWindow.removeEventListener('open', open);
+					setTimeout(() => nav.popToRootWindow(), 1);
+				});
+
+				nav.open();
+			});
+		});
 	});
 
 	it('open/close should open/close the window', function (finish) {
@@ -106,96 +249,27 @@ describe.windowsMissing('Titanium.UI.NavigationWindow', function () {
 		navigation.open();
 	});
 
-	it('#openWindow, #closeWindow', function (finish) {
-		var rootWindow = Ti.UI.createWindow();
-		var subWindow = Ti.UI.createWindow();
-		nav = Ti.UI.createNavigationWindow({
-			window: rootWindow
-		});
-
-		rootWindow.addEventListener('open', function () {
-			setTimeout(function () {
-				try {
-					nav.openWindow(subWindow);
-					should(subWindow.navigationWindow).eql(nav);
-				} catch (err) {
-					finish(err);
-				}
-			}, 1);
-		});
-
-		subWindow.addEventListener('open', function () {
-			setTimeout(function () {
-				nav.closeWindow(subWindow);
-			}, 1);
-		});
-
-		subWindow.addEventListener('close', function () {
-			try {
-				should(subWindow.navigationWindow).not.be.ok(); // null or undefined
-				finish();
-			} catch (err) {
-				finish(err);
-			}
-		});
-
-		nav.open();
-	});
-
-	it('#popToRootWindow()', function (finish) {
-		var rootWindow = Ti.UI.createWindow();
-		var subWindow = Ti.UI.createWindow();
-
-		nav = Ti.UI.createNavigationWindow({
-			window: rootWindow
-		});
-		should(nav.popToRootWindow).be.a.Function();
-
-		rootWindow.addEventListener('open', function open() {
-			rootWindow.removeEventListener('open', open);
-			setTimeout(() => nav.openWindow(subWindow), 1);
-		});
-
-		subWindow.addEventListener('close', function close () {
-			subWindow.removeEventListener('close', close);
-			try {
-				should(subWindow.navigationWindow).not.be.ok(); // null or undefined
-				// how else can we tell it got closed? I don't think a visible check is right...
-				// win should not be closed!
-				should(rootWindow.navigationWindow).eql(nav);
-			} catch (err) {
-				return finish(err);
-			}
-			finish();
-		});
-
-		subWindow.addEventListener('open', function open() {
-			subWindow.removeEventListener('open', open);
-			setTimeout(() => nav.popToRootWindow(), 1);
-		});
-
-		nav.open();
-	});
-
 	function createTab(title) {
-		var windowForTab = Ti.UI.createWindow({ title: title });
-		var tab = Ti.UI.createTab({
-			title: title,
-			window: windowForTab
+		const window = Ti.UI.createWindow({ title });
+		return Ti.UI.createTab({
+			title,
+			window
 		});
-		return tab;
 	}
 
-	it('have TabGroup as a root window', function () {
-		var tabGroup = Ti.UI.createTabGroup({ title: 'TabGroup',
-			tabs: [ createTab('Tab 1'),
+	it('have TabGroup as a root window', done => {
+		const tabGroup = Ti.UI.createTabGroup({
+			title: 'TabGroup',
+			tabs: [
+				createTab('Tab 1'),
 				createTab('Tab 2'),
-				createTab('Tab 3') ]
+				createTab('Tab 3')
+			]
 		});
 		nav = Ti.UI.createNavigationWindow({
-			window: tabGroup,
+			window: tabGroup
 		});
-		nav.open();
+		nav.open().then(() => done()).catch(e => done(e));
 	});
 
 	it('have a TabGroup child in stack', function () {
@@ -214,19 +288,19 @@ describe.windowsMissing('Titanium.UI.NavigationWindow', function () {
 });
 
 describe('Titanium.UI.Window', function () {
-	var nav;
+	let nav;
 
 	this.timeout(10000);
 
-	afterEach(function () {
-		if (nav !== null) {
-			nav.close();
+	afterEach(done => {
+		if (nav) {
+			nav.close().then(() => done()).catch(() => done());
 		}
 		nav = null;
 	});
 
 	it.windowsMissing('.navigationWindow', function (finish) {
-		var rootWindow = Ti.UI.createWindow();
+		const rootWindow = Ti.UI.createWindow();
 		nav = Ti.UI.createNavigationWindow({
 			window: rootWindow
 		});
@@ -236,30 +310,33 @@ describe('Titanium.UI.Window', function () {
 				should(nav).not.be.undefined();
 				should(rootWindow.navigationWindow).eql(nav);
 				should(rootWindow.navigationWindow.apiName).eql('Ti.UI.NavigationWindow');
-
-				finish();
 			} catch (err) {
-				finish(err);
+				return finish(err);
 			}
+			finish();
 		});
 
 		nav.open();
 	});
 
 	it('open window from open event of window (TIMOB-26838)', function (finish) {
-		var window = Ti.UI.createWindow();
-		nav = Ti.UI.createNavigationWindow({
-			window: window
-		});
+		const window = Ti.UI.createWindow();
+		console.log('created window, creating navigation window...');
+		nav = Ti.UI.createNavigationWindow({ window	});
+		console.log('created navigation window, creating next window...');
 
-		var nextWindow = Ti.UI.createWindow();
-
-		nextWindow.addEventListener('open', function () {
+		const nextWindow = Ti.UI.createWindow();
+		console.log('adding open listener to nextWindow...');
+		nextWindow.addEventListener('open', () => {
+			console.log('finished');
 			finish();
 		});
-		window.addEventListener('open', function () {
+		console.log('adding open listener to first window...');
+		window.addEventListener('open', () => {
+			console.log('calling nav.openWindow()');
 			nav.openWindow(nextWindow, { animated: true });
 		});
+		console.log('opening navigation window...');
 		nav.open();
 	});
 });

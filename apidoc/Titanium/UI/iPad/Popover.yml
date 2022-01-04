@@ -81,7 +81,7 @@ properties:
         Set this property to any <Titanium.UI.View> object, including a <Titanium.UI.Window> or
         <Titanium.UI.NavigationWindow> object.
 
-        This property does not support the <Titanium.UI.iPad.SplitWindow> or <Titanium.UI.TabGroup> objects.
+        This property does not support the <Titanium.UI.iOS.SplitWindow> or <Titanium.UI.TabGroup> objects.
 
         When this property is set to a valid object, the popover **does not include the navigation
         controller** unless it is set to a <Titanium.UI.NavigationWindow> object.
@@ -112,71 +112,12 @@ properties:
     type: [Number, String]
     exclude-platforms: [macos]
 
-  - name: leftNavButton
-    summary: Left button in the navigation area of the popover.
-    deprecated:
-        since: "3.4.2"
-        notes: This property is no longer supported.
-        removed: "3.4.2"
-    exclude-platforms: [macos]
-    description: |
-        Ignored when [Titanium.UI.iPad.Popover.contentView](Titanium.UI.iPad.Popover.contentView) is set.
-
-        In an Alloy application, you can specify this property as a `<LeftNavButton>` child element
-        of the `<Popover>` element:
-
-        ``` xml
-        <Alloy>
-            <Popover>
-                <LeftNavButton>
-                    <Button onClick='showAlert'>Alert</Button>
-                </LeftNavButton>
-            </Popover>
-        </Alloy>
-        ```
-    type: Object
-
   - name: passthroughViews
     summary: Passthrough views to use when the popover is shown.
     description: |
         Specify view objects that the user can interact with while the popover is open. While
         interacting with these view, the popover will not be dismissed.
     type: Array<Titanium.UI.View>
-
-  - name: rightNavButton
-    summary: Right button in the navigation area of the popover.
-    deprecated:
-        since: "3.4.2"
-        notes: This property is no longer supported.
-        removed: "3.4.2"
-    exclude-platforms: [macos]
-    description: |
-        Ignored when [Titanium.UI.iPad.Popover.contentView](Titanium.UI.iPad.Popover.contentView) is set.
-
-        In an Alloy application, you can specify this property as a `<RightNavButton>` child element
-        of the `<Popover>` element:
-
-        ``` xml
-        <Alloy>
-            <Popover>
-                <RightNavButton>
-                    <Button onClick='showAlert'>Alert</Button>
-                </RightNavButton>
-            </Popover>
-        </Alloy>
-        ```
-    type: Object
-
-  - name: title
-    summary: Title of the navigation area of the popover.
-    deprecated:
-        since: "3.4.2"
-        notes: This property is no longer supported.
-        removed: "3.4.2"
-    exclude-platforms: [macos]
-    description: |
-        Ignored when [Titanium.UI.iPad.Popover.contentView](Titanium.UI.iPad.Popover.contentView) is set.
-    type: String
 
   - name: width
     summary: Width of the popover.

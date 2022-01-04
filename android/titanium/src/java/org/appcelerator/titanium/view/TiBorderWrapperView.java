@@ -20,7 +20,7 @@ import android.graphics.Path.Direction;
 import android.graphics.PorterDuff;
 import android.graphics.Rect;
 import android.graphics.RectF;
-import android.os.Build;
+import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewOutlineProvider;
 import android.widget.FrameLayout;
@@ -35,7 +35,7 @@ public class TiBorderWrapperView extends FrameLayout
 
 	private int color = Color.TRANSPARENT;
 	private int backgroundColor = Color.TRANSPARENT;
-	private float[] radius = { 0, 0, 0, 0, 0, 0, 0, 0 };
+	private final float[] radius = { 0, 0, 0, 0, 0, 0, 0, 0 };
 	private float borderWidth = 0;
 	private int alpha = -1;
 	private Paint paint;
@@ -45,10 +45,33 @@ public class TiBorderWrapperView extends FrameLayout
 	public TiBorderWrapperView(Context context)
 	{
 		super(context);
+		init();
+	}
+
+	public TiBorderWrapperView(Context context, AttributeSet set)
+	{
+		super(context, set);
+		init();
+	}
+
+	private void init()
+	{
 		setWillNotDraw(false);
 
 		paint = new Paint(Paint.ANTI_ALIAS_FLAG);
 		bounds = new Rect();
+	}
+
+	public void reset()
+	{
+		this.color = Color.TRANSPARENT;
+		this.backgroundColor = Color.TRANSPARENT;
+		this.borderWidth = 0;
+		this.alpha = -1;
+
+		for (int i = 0; i < this.radius.length; i++) {
+			this.radius[i] = 0;
+		}
 	}
 
 	@Override
@@ -73,21 +96,11 @@ public class TiBorderWrapperView extends FrameLayout
 			for (int i = 0; i < this.radius.length; i++) {
 				innerRadius[i] = this.radius[i] - padding;
 			}
-			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-				// Set specified border corners.
-				outerPath.addRoundRect(innerRect, innerRadius, Direction.CCW);
-			} else {
-				outerPath.addRoundRect(innerRect, innerRadius[0], innerRadius[0], Direction.CCW);
-			}
+			outerPath.addRoundRect(innerRect, innerRadius, Direction.CCW);
 			Path innerPath = new Path(outerPath);
 
 			// Draw border.
-			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-				// Set specified border corners.
-				outerPath.addRoundRect(outerRect, this.radius, Direction.CW);
-			} else {
-				outerPath.addRoundRect(outerRect, this.radius[0], this.radius[0], Direction.CW);
-			}
+			outerPath.addRoundRect(outerRect, this.radius, Direction.CW);
 			canvas.drawPath(outerPath, paint);
 
 			// TIMOB-16909: hack to fix anti-aliasing
@@ -107,7 +120,7 @@ public class TiBorderWrapperView extends FrameLayout
 		}
 
 		// TIMOB-20076: set the outline for the view in order to use elevation
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && viewOutlineProvider == null) {
+		if (viewOutlineProvider == null) {
 			viewOutlineProvider = new ViewOutlineProvider() {
 				@Override
 				public void getOutline(View view, Outline outline)
@@ -123,9 +136,7 @@ public class TiBorderWrapperView extends FrameLayout
 	public void onDescendantInvalidated(View child, View target)
 	{
 		// Also invalidate outline to recalculate drop shadow.
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-			invalidateOutline();
-		}
+		invalidateOutline();
 		super.onDescendantInvalidated(child, target);
 	}
 

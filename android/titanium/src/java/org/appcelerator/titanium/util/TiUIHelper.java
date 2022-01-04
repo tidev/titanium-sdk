@@ -12,9 +12,7 @@ import java.io.InputStream;
 import java.lang.ref.WeakReference;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -27,6 +25,7 @@ import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.CurrentActivityListener;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiMessenger;
+import org.appcelerator.titanium.R;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiBlob;
@@ -74,6 +73,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Process;
 import android.text.Spanned;
+import android.text.Layout;
 import android.text.method.LinkMovementMethod;
 import android.text.util.Linkify;
 import android.util.DisplayMetrics;
@@ -83,6 +83,7 @@ import android.view.View;
 import android.view.View.MeasureSpec;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.TextView;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 /**
  * A set of utility methods focused on UI and View operations.
@@ -98,9 +99,8 @@ public class TiUIHelper
 	public static final String MIME_TYPE_PNG = "image/png";
 
 	private static Method overridePendingTransition;
-	private static Map<String, String> resourceImageKeys = Collections.synchronizedMap(new HashMap<String, String>());
-	private static Map<String, Typeface> mCustomTypeFaces =
-		Collections.synchronizedMap(new HashMap<String, Typeface>());
+	private static final Map<String, String> resourceImageKeys = Collections.synchronizedMap(new HashMap<>());
+	private static final Map<String, Typeface> mCustomTypeFaces = Collections.synchronizedMap(new HashMap<>());
 
 	public static OnClickListener createDoNothingListener()
 	{
@@ -142,7 +142,7 @@ public class TiUIHelper
 			negativeListener = createKillListener();
 		}
 
-		new AlertDialog.Builder(context)
+		new MaterialAlertDialogBuilder(context)
 			.setTitle(title)
 			.setMessage(message)
 			.setPositiveButton("Continue", positiveListener)
@@ -218,12 +218,12 @@ public class TiUIHelper
 		}
 		final OnClickListener fListener = listener;
 		waitForCurrentActivity(new CurrentActivityListener() {
-			// TODO @Override
+			@Override
 			public void onCurrentActivityReady(Activity activity)
 			{
 				//add dialog to activity for cleaning up purposes
 				if (!activity.isFinishing()) {
-					AlertDialog dialog = new AlertDialog.Builder(activity)
+					AlertDialog dialog = new MaterialAlertDialogBuilder(activity)
 											 .setTitle(title)
 											 .setMessage(message)
 											 .setPositiveButton(android.R.string.ok, fListener)
@@ -232,7 +232,7 @@ public class TiUIHelper
 					if (activity instanceof TiBaseActivity) {
 						TiBaseActivity baseActivity = (TiBaseActivity) activity;
 						baseActivity.addDialog(new TiBaseActivity.DialogWrapper(
-							dialog, true, new WeakReference<TiBaseActivity>(baseActivity)));
+							dialog, true, new WeakReference<>(baseActivity)));
 						dialog.setOwnerActivity(activity);
 					}
 					dialog.show();
@@ -484,12 +484,20 @@ public class TiUIHelper
 		int gravity = Gravity.NO_GRAVITY;
 
 		if (textAlign != null) {
+
+			if (!"justify".equals(textAlign) && Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+				// reset justification
+				tv.setJustificationMode(Layout.JUSTIFICATION_MODE_NONE);
+			}
+
 			if ("left".equals(textAlign)) {
 				gravity |= Gravity.LEFT;
 			} else if ("center".equals(textAlign)) {
 				gravity |= Gravity.CENTER_HORIZONTAL;
 			} else if ("right".equals(textAlign)) {
 				gravity |= Gravity.RIGHT;
+			} else if ("justify".equals(textAlign) && Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+				tv.setJustificationMode(Layout.JUSTIFICATION_MODE_INTER_WORD);
 			} else {
 				Log.w(TAG, "Unsupported horizontal alignment: " + textAlign);
 			}
@@ -614,7 +622,7 @@ public class TiUIHelper
 		// Create an array of the layers that will compose this background.
 		// Note that the order in which the layers is important to get the
 		// correct rendering behavior.
-		ArrayList<Drawable> layers = new ArrayList<Drawable>(3);
+		ArrayList<Drawable> layers = new ArrayList<>(3);
 
 		if (color != null) {
 			Drawable colorDrawable = new ColorDrawable(TiColorHelper.parseColor(color));
@@ -638,7 +646,7 @@ public class TiUIHelper
 			layers.add(imageDrawable);
 		}
 
-		return new LayerDrawable(layers.toArray(new Drawable[layers.size()]));
+		return new LayerDrawable(layers.toArray(new Drawable[0]));
 	}
 
 	public static final int[] BACKGROUND_DEFAULT_STATE_1 = {
@@ -674,7 +682,7 @@ public class TiUIHelper
 			/** Creates a new image drawable loader. */
 			public ImageDrawableLoader()
 			{
-				this.imagePathDrawableMap = new HashMap<String, Drawable>(4);
+				this.imagePathDrawableMap = new HashMap<>(4);
 			}
 
 			/**
@@ -843,7 +851,6 @@ public class TiUIHelper
 	 * Creates and returns a Bitmap from an InputStream.
 	 * @param stream an InputStream to read bitmap data.
 	 * @return a new bitmap instance.
-	 * @module.api
 	 */
 	public static Bitmap createBitmap(InputStream stream)
 	{
@@ -968,7 +975,6 @@ public class TiUIHelper
 	 * Creates and returns a bitmap from its url.
 	 * @param url the bitmap url.
 	 * @return a new bitmap instance
-	 * @module.api
 	 */
 	public static Bitmap getResourceBitmap(String url)
 	{
@@ -984,7 +990,6 @@ public class TiUIHelper
 	 * Creates and returns a bitmap for the specified resource ID.
 	 * @param res_id the bitmap id.
 	 * @return a new bitmap instance.
-	 * @module.api
 	 */
 	public static Bitmap getResourceBitmap(int res_id)
 	{
@@ -1027,7 +1032,11 @@ public class TiUIHelper
 
 	public static Drawable getResourceDrawable(int res_id)
 	{
-		return TiApplication.getInstance().getResources().getDrawable(res_id);
+		Context context = TiApplication.getAppCurrentActivity();
+		if (context == null) {
+			context = TiApplication.getInstance();
+		}
+		return context.getResources().getDrawable(res_id, context.getTheme());
 	}
 
 	public static Drawable getResourceDrawable(Object path)
@@ -1053,10 +1062,6 @@ public class TiUIHelper
 
 	public static void overridePendingTransition(Activity activity)
 	{
-		if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.DONUT) {
-			return;
-		}
-
 		if (overridePendingTransition == null) {
 			try {
 				overridePendingTransition =
@@ -1203,37 +1208,6 @@ public class TiUIHelper
 	 */
 	public static Uri getRedirectUri(Uri mUri) throws MalformedURLException, IOException
 	{
-		if (Build.VERSION.SDK_INT < TiC.API_LEVEL_HONEYCOMB
-			&& ("http".equals(mUri.getScheme()) || "https".equals(mUri.getScheme()))) {
-			// Media player doesn't handle redirects, try to follow them
-			// here. (Redirects work fine without this in ICS.)
-			while (true) {
-				// java.net.URL doesn't handle rtsp
-				if (mUri.getScheme() != null && mUri.getScheme().equals("rtsp"))
-					break;
-
-				URL url = new URL(mUri.toString());
-				HttpURLConnection cn = (HttpURLConnection) url.openConnection();
-				cn.setInstanceFollowRedirects(false);
-				String location = cn.getHeaderField("Location");
-				if (location != null) {
-					String host = mUri.getHost();
-					int port = mUri.getPort();
-					String scheme = mUri.getScheme();
-					mUri = Uri.parse(location);
-					if (mUri.getScheme() == null) {
-						// Absolute URL on existing host/port/scheme
-						if (scheme == null) {
-							scheme = "http";
-						}
-						String authority = port == -1 ? host : host + ":" + port;
-						mUri = mUri.buildUpon().scheme(scheme).encodedAuthority(authority).build();
-					}
-				} else {
-					break;
-				}
-			}
-		}
 		return mUri;
 	}
 
@@ -1306,6 +1280,23 @@ public class TiUIHelper
 		boolean isMaterial = typedArray.hasValue(0);
 		typedArray.recycle();
 		return isMaterial;
+	}
+
+	/**
+	 * Determines if given context has theme attribute "titaniumIsSolidTheme" set to "true".
+	 * Attribute is used by our "Theme.Titanium.*.Solid" themes to shade top/bottom TabGroup tabs appropriately.
+	 * @param context Reference to the context such as an Activity or Application object to inspect. Can be null.
+	 * @return Returns true if assigned a "solid" Titanium theme. Returns false if not or argument is null.
+	 */
+	public static boolean isUsingSolidTitaniumTheme(Context context)
+	{
+		if (context == null) {
+			return false;
+		}
+
+		TypedValue typedValue = new TypedValue();
+		context.getTheme().resolveAttribute(R.attr.titaniumIsSolidTheme, typedValue, true);
+		return ((typedValue.type == TypedValue.TYPE_INT_BOOLEAN) && (typedValue.data != 0));
 	}
 
 	public static String hexStringFrom(int colorInt)

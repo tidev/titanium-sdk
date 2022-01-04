@@ -908,12 +908,12 @@ methods:
 
         There are certain top-level containers that are not intended to be added
         as the children of other views. These top-level containers include
-        <Titanium.UI.Window>, <Titanium.UI.iPad.SplitWindow>, <Titanium.UI.NavigationWindow>,
+        <Titanium.UI.Window>, <Titanium.UI.iOS.SplitWindow>, <Titanium.UI.NavigationWindow>,
         and <Titanium.UI.TabGroup>.  Other types of views must be added
         to a top-level container in order to be displayed on screen.
 
         The special containers <Titanium.UI.NavigationWindow>,
-        <Titanium.UI.iPad.SplitWindow>, <Titanium.UI.Tab>, and
+        <Titanium.UI.iOS.SplitWindow>, <Titanium.UI.Tab>, and
         <Titanium.UI.TabGroup> manage windows.
         These managed windows may be referred to as *children* of the
         container, but they are not added using the `add` method.
@@ -1975,22 +1975,23 @@ properties:
   - name: viewShadowRadius
     summary: Determines the blur radius used to create the shadow.
     description: Defaults to `undefined`. Behaves as if set to 3.
-    type: Number
-    platforms: [iphone,ipad, macos]
+        Accepts density units as of 10.0.1.
+    type: [Number,String]
+    platforms: [iphone, ipad, macos]
     since: "3.3.0"
 
   - name: viewShadowColor
     summary: Determines the color of the shadow.
     description: Defaults to `undefined`. Behaves as if transparent.
     type: [String, Titanium.UI.Color]
-    platforms: [iphone,ipad, macos]
+    platforms: [iphone, ipad, macos]
     since: "3.3.0"
 
   - name: viewShadowOffset
     summary: Determines the offset for the shadow of the view.
     description: Defaults to `undefined`. Behaves as if set to (0,-3)
     type: Point
-    platforms: [iphone,ipad, macos]
+    platforms: [iphone, ipad, macos]
     since: "3.3.0"
 
   - name: visible

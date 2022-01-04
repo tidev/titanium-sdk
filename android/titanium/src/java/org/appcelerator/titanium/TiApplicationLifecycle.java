@@ -18,7 +18,7 @@ public class TiApplicationLifecycle implements Application.ActivityLifecycleCall
 {
 	private static final String TAG = "TiApplicationLifecycle";
 
-	private TiApplication tiApp = TiApplication.getInstance();
+	private final TiApplication tiApp = TiApplication.getInstance();
 	private int existingActivityCount;
 	private int visibleActivityCount;
 	private boolean wasPaused;

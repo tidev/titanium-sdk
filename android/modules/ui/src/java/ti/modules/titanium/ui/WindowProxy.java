@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2013 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2013-2021 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -11,6 +11,7 @@ import java.lang.ref.WeakReference;
 import java.util.HashMap;
 
 import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollPromise;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiActivity;
@@ -105,7 +106,7 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 	}
 
 	@Override
-	public void open(@Kroll.argument(optional = true) Object arg)
+	public KrollPromise<Void> open(@Kroll.argument(optional = true) Object arg)
 	{
 		HashMap<String, Object> option = null;
 		if (arg instanceof HashMap) {
@@ -127,16 +128,7 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 		properties.remove(TiC.PROPERTY_BOTTOM);
 		properties.remove(TiC.PROPERTY_LEFT);
 		properties.remove(TiC.PROPERTY_RIGHT);
-		super.open(arg);
-	}
-
-	@Override
-	public void close(@Kroll.argument(optional = true) Object arg)
-	{
-		if (!(opened || opening)) {
-			return;
-		}
-		super.close(arg);
+		return super.open(arg);
 	}
 
 	@Override
@@ -225,7 +217,7 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 	@Override
 	public void windowCreated(TiBaseActivity activity, Bundle savedInstanceState)
 	{
-		windowActivity = new WeakReference<TiBaseActivity>(activity);
+		windowActivity = new WeakReference<>(activity);
 		activity.setWindowProxy(this);
 		setActivity(activity);
 
@@ -257,9 +249,7 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 		}
 
 		// Handle activity transitions
-		if (LOLLIPOP_OR_GREATER) {
-			applyActivityTransitions(win, properties);
-		}
+		applyActivityTransitions(win, properties);
 
 		// Handle the width and height of the window.
 		// TODO: If width / height is a percentage value, we can not get the dimension in pixel because
@@ -421,7 +411,6 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 		super.onPropertyChanged(name, value);
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setSustainedPerformanceMode(boolean mode)
 	{
@@ -432,7 +421,6 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 		}
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public boolean getSustainedPerformanceMode()
 	{
@@ -441,7 +429,6 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 
 	@Override
 	@Kroll.setProperty(retain = false)
-	@Kroll.method
 	public void setWidth(Object width)
 	{
 		if (opening || opened) {
@@ -456,7 +443,6 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 
 	@Override
 	@Kroll.setProperty(retain = false)
-	@Kroll.method
 	public void setHeight(Object height)
 	{
 		if (opening || opened) {
@@ -530,44 +516,42 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 	 */
 	private void applyActivityTransitions(Window win, KrollDict props)
 	{
-		if (LOLLIPOP_OR_GREATER) {
-			// Return and reenter transitions defaults to enter and exit transitions respectively only if they are not set.
-			// And setting a null transition makes the view unaccounted from transition.
-			if (props.containsKeyAndNotNull(TiC.PROPERTY_ENTER_TRANSITION)) {
-				win.setEnterTransition(createTransition(props, TiC.PROPERTY_ENTER_TRANSITION));
-			}
+		// Return and reenter transitions defaults to enter and exit transitions respectively only if they are not set.
+		// And setting a null transition makes the view unaccounted from transition.
+		if (props.containsKeyAndNotNull(TiC.PROPERTY_ENTER_TRANSITION)) {
+			win.setEnterTransition(createTransition(props, TiC.PROPERTY_ENTER_TRANSITION));
+		}
 
-			if (props.containsKeyAndNotNull(TiC.PROPERTY_EXIT_TRANSITION)) {
-				win.setExitTransition(createTransition(props, TiC.PROPERTY_EXIT_TRANSITION));
-			}
+		if (props.containsKeyAndNotNull(TiC.PROPERTY_EXIT_TRANSITION)) {
+			win.setExitTransition(createTransition(props, TiC.PROPERTY_EXIT_TRANSITION));
+		}
 
-			if (props.containsKeyAndNotNull(TiC.PROPERTY_RETURN_TRANSITION)) {
-				win.setReturnTransition(createTransition(props, TiC.PROPERTY_RETURN_TRANSITION));
-			}
+		if (props.containsKeyAndNotNull(TiC.PROPERTY_RETURN_TRANSITION)) {
+			win.setReturnTransition(createTransition(props, TiC.PROPERTY_RETURN_TRANSITION));
+		}
 
-			if (props.containsKeyAndNotNull(TiC.PROPERTY_REENTER_TRANSITION)) {
-				win.setReenterTransition(createTransition(props, TiC.PROPERTY_REENTER_TRANSITION));
-			}
+		if (props.containsKeyAndNotNull(TiC.PROPERTY_REENTER_TRANSITION)) {
+			win.setReenterTransition(createTransition(props, TiC.PROPERTY_REENTER_TRANSITION));
+		}
 
-			if (props.containsKeyAndNotNull(TiC.PROPERTY_SHARED_ELEMENT_ENTER_TRANSITION)) {
-				win.setSharedElementEnterTransition(
-					createTransition(props, TiC.PROPERTY_SHARED_ELEMENT_ENTER_TRANSITION));
-			}
+		if (props.containsKeyAndNotNull(TiC.PROPERTY_SHARED_ELEMENT_ENTER_TRANSITION)) {
+			win.setSharedElementEnterTransition(
+				createTransition(props, TiC.PROPERTY_SHARED_ELEMENT_ENTER_TRANSITION));
+		}
 
-			if (props.containsKeyAndNotNull(TiC.PROPERTY_SHARED_ELEMENT_EXIT_TRANSITION)) {
-				win.setSharedElementExitTransition(
-					createTransition(props, TiC.PROPERTY_SHARED_ELEMENT_EXIT_TRANSITION));
-			}
+		if (props.containsKeyAndNotNull(TiC.PROPERTY_SHARED_ELEMENT_EXIT_TRANSITION)) {
+			win.setSharedElementExitTransition(
+				createTransition(props, TiC.PROPERTY_SHARED_ELEMENT_EXIT_TRANSITION));
+		}
 
-			if (props.containsKeyAndNotNull(TiC.PROPERTY_SHARED_ELEMENT_REENTER_TRANSITION)) {
-				win.setSharedElementReenterTransition(
-					createTransition(props, TiC.PROPERTY_SHARED_ELEMENT_REENTER_TRANSITION));
-			}
+		if (props.containsKeyAndNotNull(TiC.PROPERTY_SHARED_ELEMENT_REENTER_TRANSITION)) {
+			win.setSharedElementReenterTransition(
+				createTransition(props, TiC.PROPERTY_SHARED_ELEMENT_REENTER_TRANSITION));
+		}
 
-			if (props.containsKeyAndNotNull(TiC.PROPERTY_SHARED_ELEMENT_RETURN_TRANSITION)) {
-				win.setSharedElementReturnTransition(
-					createTransition(props, TiC.PROPERTY_SHARED_ELEMENT_RETURN_TRANSITION));
-			}
+		if (props.containsKeyAndNotNull(TiC.PROPERTY_SHARED_ELEMENT_RETURN_TRANSITION)) {
+			win.setSharedElementReturnTransition(
+				createTransition(props, TiC.PROPERTY_SHARED_ELEMENT_RETURN_TRANSITION));
 		}
 	}
 
@@ -583,11 +567,6 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 	{
 		// Validate arguments.
 		if ((props == null) || (key == null)) {
-			return null;
-		}
-
-		// This feature is only supported on Android 5.0 and higher.
-		if (!LOLLIPOP_OR_GREATER) {
 			return null;
 		}
 

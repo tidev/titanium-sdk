@@ -27,13 +27,18 @@ methods:
     summary: |
         Get image from SF Symbols provided by Apple.
     description: |
-        More details on SF Symbols can be found on https://developer.apple.com/design/human-interface-guidelines/sf-symbols/overview.
-        One can download SF Symbols app from https://developer.apple.com/design/downloads/SF-Symbols.dmg and 
-        use it to lookup the inbuilt SF Symbol name.
+        More details on SF Symbols can be found [here](https://developer.apple.com/design/human-interface-guidelines/sf-symbols/overview).
+        One can download SF Symbols app from [here](https://developer.apple.com/design/downloads/SF-Symbols.dmg) and
+        use it to lookup the built-in SF Symbol name.
     parameters:
       - name: name
         summary: Name of SF Symbol.
         type: String
+      - name: parameters
+        optional: true
+        summary: |
+            Additional parameters to pass to the SF Symbol. Available in Titanium SDK 10.1.0 and later
+        type: SystemImageParameters
     returns:
       type: Titanium.Blob
     since: "8.2.0"
@@ -93,696 +98,6 @@ properties:
     since: "5.2.0"
     osver: {ios: {min: "9.1"}}
     permission: read-only
-
-  - name: ANIMATION_CURVE_EASE_IN
-    deprecated:
-        since: "2.1.0"
-        notes: Use [Titanium.UI.ANIMATION_CURVE_EASE_IN](Titanium.UI.ANIMATION_CURVE_EASE_IN) instead.
-        removed: "6.0.0"
-    summary: |
-        Use with [Animation.curve](Titanium.UI.Animation.curve) to specify an animation that starts
-        slowly and speeds up.
-    type: Number
-    permission: read-only
-    exclude-platforms: [macos]
-
-  - name: ANIMATION_CURVE_EASE_IN_OUT
-    deprecated:
-        since: "2.1.0"
-        notes: Use [Titanium.UI.ANIMATION_CURVE_EASE_IN_OUT](Titanium.UI.ANIMATION_CURVE_EASE_IN_OUT) instead.
-        removed: "6.0.0"
-    summary: |
-        Use with [Animation.curve](Titanium.UI.Animation.curve) to specify an animation that starts
-        slowly, and speeds up, then slows down at the end of the animation.
-    type: Number
-    permission: read-only
-    exclude-platforms: [macos]
-
-  - name: ANIMATION_CURVE_EASE_OUT
-    deprecated:
-        since: "2.1.0"
-        notes: Use [Titanium.UI.ANIMATION_CURVE_EASE_OUT](Titanium.UI.ANIMATION_CURVE_EASE_OUT) instead.
-        removed: "6.0.0"
-    summary: |
-        Use with [Animation.curve](Titanium.UI.Animation.curve) to specify an animation that starts
-        quickly, then slows down at the end of the animation.
-    type: Number
-    permission: read-only
-    exclude-platforms: [macos]
-
-  - name: ANIMATION_CURVE_LINEAR
-    deprecated:
-        since: "2.1.0"
-        notes: Use [Titanium.UI.ANIMATION_CURVE_LINEAR](Titanium.UI.ANIMATION_CURVE_LINEAR) instead.
-        removed: "6.0.0"
-    summary: |
-        Use with [Animation.curve](Titanium.UI.Animation.curve) to specify an animation that proceeds
-        at a constant rate.
-    type: Number
-    permission: read-only
-    exclude-platforms: [macos]
-
-  - name: ATTRIBUTE_FONT
-    summary: |
-        Use with <Attribute.type> to specify a font.
-    deprecated:
-        since: "3.6.0"
-        notes: Use the [Titanium.UI.ATTRIBUTE_FONT](Titanium.UI.ATTRIBUTE_FONT) constant instead (without the iOS namespace).
-        removed: "6.0.0"
-    description: |
-        Use a <Font> dictionary for <Attribute.value>.
-
-        See <Attribute> for more information.
-    type: Number
-    osver: {ios: {min: "6.0"}}
-    permission: read-only
-    exclude-platforms: [macos]
-
-  - name: ATTRIBUTE_FOREGROUND_COLOR
-    summary: |
-        Use with <Attribute.type> to specify a font color.
-    deprecated:
-        since: "3.6.0"
-        notes: Use the [Titanium.UI.ATTRIBUTE_FOREGROUND_COLOR](Titanium.UI.ATTRIBUTE_FOREGROUND_COLOR) constant instead (without the iOS namespace).
-        removed: "6.0.0"
-    description: |
-        Use a color name or hex value for <Attribute.value>.
-
-        See <Attribute> for more information.
-    type: Number
-    osver: {ios: {min: "6.0"}}
-    permission: read-only
-    exclude-platforms: [macos]
-
-  - name: ATTRIBUTE_BACKGROUND_COLOR
-    summary: |
-        Use with <Attribute.type> to specify a background color.
-    deprecated:
-        since: "3.6.0"
-        notes: Use the [Titanium.UI.ATTRIBUTE_BACKGROUND_COLOR](Titanium.UI.ATTRIBUTE_BACKGROUND_COLOR) constant instead (without the iOS namespace).
-        removed: "6.0.0"
-    description: |
-        Use a color name or hex value for <Attribute.value>.
-
-        See <Attribute> for more information.
-    type: Number
-    osver: {ios: {min: "6.0"}}
-    permission: read-only
-    exclude-platforms: [macos]
-
-  - name: ATTRIBUTE_LIGATURE
-    summary: |
-        Use with <Attribute.type> to enable or disable ligatures.
-    deprecated:
-        since: "3.6.0"
-        notes: Use the [Titanium.UI.ATTRIBUTE_LIGATURE](Titanium.UI.ATTRIBUTE_LIGATURE) constant instead (without the iOS namespace).
-        removed: "6.0.0"
-    description: |
-        Set <Attribute.value> to `1` to enable ligatures, else `0` to disable.
-        Ligatures are only supported on certain fonts.
-
-        See <Attribute> for more information.
-    type: Number
-    osver: {ios: {min: "6.0"}}
-    permission: read-only
-    exclude-platforms: [macos]
-
-  - name: ATTRIBUTE_LETTERPRESS_STYLE
-    summary: |
-        Use with <Attribute.value> to use a letterpress text effect.
-    deprecated:
-        since: "3.6.0"
-        notes: Use the [Titanium.UI.ATTRIBUTE_LETTERPRESS_STYLE](Titanium.UI.ATTRIBUTE_LETTERPRESS_STYLE) constant instead (without the iOS namespace).
-        removed: "6.0.0"
-    description: |
-        Use this constant when <Attribute.type> is
-        <Titanium.UI.iOS.ATTRIBUTE_TEXT_EFFECT>.
-
-        See <Attribute> for more information.
-    type: Number
-    osver: {ios: {min: "7.0"}}
-    permission: read-only
-    exclude-platforms: [macos]
-
-  - name: ATTRIBUTE_KERN
-    summary: |
-        Use with <Attribute.type> to specify kerning (space between characters).
-    deprecated:
-        since: "3.6.0"
-        notes: Use the [Titanium.UI.ATTRIBUTE_KERN](Titanium.UI.ATTRIBUTE_KERN) constant instead (without the iOS namespace).
-        removed: "6.0.0"
-    description: |
-        Set <Attribute.value> to a float value specifying how many pixels to increase the character
-        spacing.
-
-        See <Attribute> for more information.
-    type: Number
-    osver: {ios: {min: "6.0"}}
-    permission: read-only
-    exclude-platforms: [macos]
-
-  - name: ATTRIBUTE_STRIKETHROUGH_STYLE
-    summary: |
-        Use with <Attribute.type> to place a horizontal line through the text.
-    deprecated:
-        since: "3.6.0"
-        notes: Use the [Titanium.UI.ATTRIBUTE_STRIKETHROUGH_STYLE](Titanium.UI.ATTRIBUTE_STRIKETHROUGH_STYLE) constant instead (without the iOS namespace).
-        removed: "6.0.0"
-    description: |
-        Set the `value` property to a `Titanium.UI.iOS.ATTRIBUTE_UNDERLINE_*` constant.
-
-        See <Attribute> for more information.
-    type: Number
-    osver: {ios: {min: "6.0"}}
-    permission: read-only
-    exclude-platforms: [macos]
-
-  - name: ATTRIBUTE_UNDERLINES_STYLE
-    summary: |
-        Use with <Attribute.type> to place a horizontal line under the text.
-    deprecated:
-        since: "3.6.0"
-        notes: Use the [Titanium.UI.ATTRIBUTE_UNDERLINES_STYLE](Titanium.UI.ATTRIBUTE_UNDERLINES_STYLE) constant instead (without the iOS namespace).
-        removed: "6.0.0"
-    description: |
-        Set the `value` property to a `Titanium.UI.iOS.ATTRIBUTE_UNDERLINE_*` constant.
-
-        See <Attribute> for more information.
-    type: Number
-    osver: {ios: {min: "6.0"}}
-    permission: read-only
-    exclude-platforms: [macos]
-
-  - name: ATTRIBUTE_STROKE_COLOR
-    summary: |
-        Use with <Attribute.type> to specify a color for the stroke text.
-    deprecated:
-        since: "3.6.0"
-        notes: Use the [Titanium.UI.ATTRIBUTE_STROKE_COLOR](Titanium.UI.ATTRIBUTE_STROKE_COLOR) constant instead (without the iOS namespace).
-        removed: "6.0.0"
-    description: |
-        Use a color name or hex value for the `value` property in the attributes dictionary.
-
-        See <Attribute> for more information on type modes.
-    type: Number
-    osver: {ios: {min: "6.0"}}
-    permission: read-only
-    exclude-platforms: [macos]
-
-  - name: ATTRIBUTE_STROKE_WIDTH
-    summary: |
-        Use with <Attribute.type> to specify the width of the stroke text.
-    deprecated:
-        since: "3.6.0"
-        notes: Use the [Titanium.UI.ATTRIBUTE_STROKE_WIDTH](Titanium.UI.ATTRIBUTE_STROKE_WIDTH) constant instead (without the iOS namespace).
-        removed: "6.0.0"
-    description: |
-        Set <Attribute.value> to a float value specifying the size of stroke width as a percentage of the
-        font size. A positive value displays an outline of the charater, while a negative value
-        fills the character.
-
-        See <Attribute> for more information.
-    type: Number
-    osver: {ios: {min: "6.0"}}
-    permission: read-only
-    exclude-platforms: [macos]
-
-  - name: ATTRIBUTE_SHADOW
-    summary: |
-        Use with <Attribute.type> to display a shadow behind the text.
-    deprecated:
-        since: "3.6.0"
-        notes: Use the [Titanium.UI.ATTRIBUTE_SHADOW](Titanium.UI.ATTRIBUTE_SHADOW) constant instead (without the iOS namespace).
-        removed: "6.0.0"
-    description: |
-        Set <Attribute.value> to a [Shadow](shadowDict) dictionary.
-
-        See <Attribute> for more information.
-    type: Number
-    osver: {ios: {min: "6.0"}}
-    permission: read-only
-    exclude-platforms: [macos]
-
-  - name: ATTRIBUTE_WRITING_DIRECTION
-    summary: |
-        Use with <Attribute.type> to control the direction of the text.
-    deprecated:
-        since: "3.6.0"
-        notes: Use the [Titanium.UI.ATTRIBUTE_WRITING_DIRECTION](Titanium.UI.ATTRIBUTE_WRITING_DIRECTION) constant instead (without the iOS namespace).
-        removed: "6.0.0"
-    description: |
-        Set <Attribute.value> to a `Titanium.UI.iOS.ATTRIBUTE_WRITING_DIRECTION_*` constant.
-
-        See <Attribute> for more information on type modes.
-    type: Number
-    osver: {ios: {min: "7.0"}}
-    permission: read-only
-    exclude-platforms: [macos]
-
-  - name: ATTRIBUTE_TEXT_EFFECT
-    summary: |
-        Use with <Attribute.type> to apply a text effect.
-    deprecated:
-        since: "3.6.0"
-        notes: Use the [Titanium.UI.ATTRIBUTE_TEXT_EFFECT](Titanium.UI.ATTRIBUTE_TEXT_EFFECT) constant instead (without the iOS namespace).
-        removed: "6.0.0"
-    description: |
-        Set <Attribute.value> to `Titainium.UI.iOS.ATTRIBUTE_LETTERPRESS_STYLE` to apply a
-        letterpress effect to the text.
-
-        See <Attribute> for more information.
-    type: Number
-    osver: {ios: {min: "7.0"}}
-    permission: read-only
-    exclude-platforms: [macos]
-
-  - name: ATTRIBUTE_LINK
-    summary: |
-        Use with <Attribute.type> to create a link.
-    deprecated:
-        since: "3.6.0"
-        notes: Use the [Titanium.UI.ATTRIBUTE_LINK](Titanium.UI.ATTRIBUTE_LINK) constant instead (without the iOS namespace).
-        removed: "6.0.0"
-    description: |
-        Set <Attribute.value> to a URL.
-
-        Use the Label's [link](Titanium.UI.Label.link) event to determine when the user triggers a
-        long press (not a click) event on the linked text.
-
-        See <Attribute> for more information.
-    type: Number
-    osver: {ios: {min: "7.0"}}
-    permission: read-only
-    exclude-platforms: [macos]
-
-  - name: ATTRIBUTE_BASELINE_OFFSET
-    summary: |
-        Use with <Attribute.type> to apply a different baseline to the text.
-    deprecated:
-        since: "3.6.0"
-        notes: Use the [Titanium.UI.ATTRIBUTE_BASELINE_OFFSET](Titanium.UI.ATTRIBUTE_BASELINE_OFFSET) constant instead (without the iOS namespace).
-        removed: "6.0.0"
-    description: |
-        Set <Attribute.value> to a number to specify how many pixels to raise or lower the text.
-
-        See <Attribute> for more information.
-    type: Number
-    osver: {ios: {min: "7.0"}}
-    permission: read-only
-    exclude-platforms: [macos]
-
-  - name: ATTRIBUTE_UNDERLINE_COLOR
-    summary: |
-        Use with <Attribute.type> to change the color of the horizontal line.
-    deprecated:
-        since: "3.6.0"
-        notes: Use the [Titanium.UI.ATTRIBUTE_UNDERLINE_COLOR](Titanium.UI.ATTRIBUTE_UNDERLINE_COLOR) constant instead (without the iOS namespace).
-        removed: "6.0.0"
-    description: |
-        Use a color name or hex value for <Attribute.value>.
-
-        See <Attribute> for more information.
-    type: Number
-    osver: {ios: {min: "7.0"}}
-    permission: read-only
-    exclude-platforms: [macos]
-
-  - name: ATTRIBUTE_STRIKETHROUGH_COLOR
-    summary: |
-        Use with <Attribute.type> to change the color of the horizontal line.
-    deprecated:
-        since: "3.6.0"
-        notes: Use the [Titanium.UI.ATTRIBUTE_STRIKETHROUGH_COLOR](Titanium.UI.ATTRIBUTE_STRIKETHROUGH_COLOR) constant instead (without the iOS namespace).
-        removed: "6.0.0"
-    description: |
-        Use a color name or hex value for <Attribute.value>.
-
-        See <Attribute> for more information.
-    type: Number
-    osver: {ios: {min: "7.0"}}
-    permission: read-only
-    exclude-platforms: [macos]
-
-  - name: ATTRIBUTE_OBLIQUENESS
-    summary: |
-        Use with <Attribute.type> to skew the text.
-    deprecated:
-        since: "3.6.0"
-        notes: Use the [Titanium.UI.ATTRIBUTE_OBLIQUENESS](Titanium.UI.ATTRIBUTE_OBLIQUENESS) constant instead (without the iOS namespace).
-        removed: "6.0.0"
-    description: |
-        Set <Attribute.value> to a float value to specify how much to skew the text.
-
-        See <Attribute> for more information.
-    type: Number
-    osver: {ios: {min: "7.0"}}
-    permission: read-only
-    exclude-platforms: [macos]
-
-  - name: ATTRIBUTE_EXPANSION
-    summary: |
-        Use with <Attribute.type> to stretch the text horizontally.
-    deprecated:
-        since: "3.6.0"
-        notes: Use the [Titanium.UI.ATTRIBUTE_EXPANSION](Titanium.UI.ATTRIBUTE_EXPANSION) constant instead (without the iOS namespace).
-        removed: "6.0.0"
-    description: |
-        Set <Attribute.value> to a float value to specify how much to stretch the text.
-
-        See <Attribute> for more information.
-    type: Number
-    osver: {ios: {min: "7.0"}}
-    permission: read-only
-    exclude-platforms: [macos]
-
-  - name: ATTRIBUTE_UNDERLINE_STYLE_NONE
-    summary: |
-        Use with <Attribute.value> to not draw a line.
-    deprecated:
-        since: "3.6.0"
-        notes: Use the [Titanium.UI.ATTRIBUTE_UNDERLINE_STYLE_NONE](Titanium.UI.ATTRIBUTE_UNDERLINE_STYLE_NONE) constant instead (without the iOS namespace).
-        removed: "6.0.0"
-    description: |
-        Use this constant when <Attribute.type> is either
-        <Titanium.UI.iOS.ATTRIBUTE_UNDERLINES_STYLE> or
-        <Titanium.UI.iOS.ATTRIBUTE_STRIKETHROUGH_STYLE>.
-
-        See <Attribute> for more information.
-    type: Number
-    osver: {ios: {min: "6.0"}}
-    permission: read-only
-    exclude-platforms: [macos]
-
-  - name: ATTRIBUTE_UNDERLINE_STYLE_SINGLE
-    summary: |
-        Use with <Attribute.value> to draw a single line.
-    deprecated:
-        since: "3.6.0"
-        notes: Use the [Titanium.UI.ATTRIBUTE_UNDERLINE_STYLE_SINGLE](Titanium.UI.ATTRIBUTE_UNDERLINE_STYLE_SINGLE) constant instead (without the iOS namespace).
-        removed: "6.0.0"
-    description: |
-        Use this constant when <Attribute.type> is either
-        <Titanium.UI.iOS.ATTRIBUTE_UNDERLINES_STYLE> or
-        <Titanium.UI.iOS.ATTRIBUTE_STRIKETHROUGH_STYLE>.
-
-        See <Attribute> for more information.
-    type: Number
-    osver: {ios: {min: "6.0"}}
-    permission: read-only
-    exclude-platforms: [macos]
-
-  - name: ATTRIBUTE_UNDERLINE_STYLE_THICK
-    summary: |
-        Use with <Attribute.value> to draw a thick line.
-    deprecated:
-        since: "3.6.0"
-        notes: Use the [Titanium.UI.ATTRIBUTE_UNDERLINE_STYLE_THICK](Titanium.UI.ATTRIBUTE_UNDERLINE_STYLE_THICK) constant instead (without the iOS namespace).
-        removed: "6.0.0"
-    description: |
-        Use this constant when <Attribute.type> is either
-        <Titanium.UI.iOS.ATTRIBUTE_UNDERLINES_STYLE> or
-        <Titanium.UI.iOS.ATTRIBUTE_STRIKETHROUGH_STYLE>.
-
-        See <Attribute> for more information.
-    type: Number
-    osver: {ios: {min: "7.0"}}
-    permission: read-only
-    exclude-platforms: [macos]
-
-  - name: ATTRIBUTE_UNDERLINE_STYLE_DOUBLE
-    summary: |
-        Use with <Attribute.value> to draw a double line.
-    deprecated:
-        since: "3.6.0"
-        notes: Use the [Titanium.UI.ATTRIBUTE_UNDERLINE_STYLE_DOUBLE](Titanium.UI.ATTRIBUTE_UNDERLINE_STYLE_DOUBLE) constant instead (without the iOS namespace).
-        removed: "6.0.0"
-    description: |
-        Use this constant when <Attribute.type> is either
-        <Titanium.UI.iOS.ATTRIBUTE_UNDERLINES_STYLE> or
-        <Titanium.UI.iOS.ATTRIBUTE_STRIKETHROUGH_STYLE>.
-
-        See <Attribute> for more information.
-    type: Number
-    osver: {ios: {min: "7.0"}}
-    permission: read-only
-    exclude-platforms: [macos]
-
-  - name: ATTRIBUTE_UNDERLINE_PATTERN_SOLID
-    summary: |
-        Use with <Attribute.value> to draw a solid line.
-    deprecated:
-        since: "3.6.0"
-        notes: Use the [Titanium.UI.ATTRIBUTE_UNDERLINE_PATTERN_SOLID](Titanium.UI.ATTRIBUTE_UNDERLINE_PATTERN_SOLID) constant instead (without the iOS namespace).
-        removed: "6.0.0"
-    description: |
-        Use this constant when <Attribute.type> is either
-        <Titanium.UI.iOS.ATTRIBUTE_UNDERLINES_STYLE> or
-        <Titanium.UI.iOS.ATTRIBUTE_STRIKETHROUGH_STYLE>.
-
-        See <Attribute> for more information.
-    type: Number
-    osver: {ios: {min: "7.0"}}
-    permission: read-only
-    exclude-platforms: [macos]
-
-  - name: ATTRIBUTE_UNDERLINE_PATTERN_DOT
-    summary: |
-        Use with <Attribute.value> to draw a dotted line.
-    deprecated:
-        since: "3.6.0"
-        notes: Use the [Titanium.UI.ATTRIBUTE_UNDERLINE_PATTERN_DOT](Titanium.UI.ATTRIBUTE_UNDERLINE_PATTERN_DOT) constant instead (without the iOS namespace).
-        removed: "6.0.0"
-    description: |
-        Use this constant when <Attribute.type> is either
-        <Titanium.UI.iOS.ATTRIBUTE_UNDERLINES_STYLE> or
-        <Titanium.UI.iOS.ATTRIBUTE_STRIKETHROUGH_STYLE>.
-
-        See <Attribute> for more information.
-    type: Number
-    osver: {ios: {min: "7.0"}}
-    permission: read-only
-    exclude-platforms: [macos]
-
-  - name: ATTRIBUTE_UNDERLINE_PATTERN_DASH
-    summary: |
-        Use with <Attribute.value> to draw a dashed line.
-    deprecated:
-        since: "3.6.0"
-        notes: Use the [Titanium.UI.ATTRIBUTE_UNDERLINE_PATTERN_DASH](Titanium.UI.ATTRIBUTE_UNDERLINE_PATTERN_DASH) constant instead (without the iOS namespace).
-        removed: "6.0.0"
-    description: |
-        Use this constant when <Attribute.type> is either
-        <Titanium.UI.iOS.ATTRIBUTE_UNDERLINES_STYLE> or
-        <Titanium.UI.iOS.ATTRIBUTE_STRIKETHROUGH_STYLE>.
-
-        See <Attribute> for more information.
-    type: Number
-    osver: {ios: {min: "7.0"}}
-    permission: read-only
-    exclude-platforms: [macos]
-
-  - name: ATTRIBUTE_UNDERLINE_PATTERN_DASH_DOT
-    summary: |
-        Use with <Attribute.value> to draw an alternating line of dashes and dots.
-    deprecated:
-        since: "3.6.0"
-        notes: Use the [Titanium.UI.ATTRIBUTE_UNDERLINE_PATTERN_DASH_DOT](Titanium.UI.ATTRIBUTE_UNDERLINE_PATTERN_DASH_DOT) constant instead (without the iOS namespace).
-        removed: "6.0.0"
-    description: |
-        Use this constant when <Attribute.type> is either
-        <Titanium.UI.iOS.ATTRIBUTE_UNDERLINES_STYLE> or
-        <Titanium.UI.iOS.ATTRIBUTE_STRIKETHROUGH_STYLE>.
-
-        See <Attribute> for more information.
-    type: Number
-    osver: {ios: {min: "7.0"}}
-    permission: read-only
-    exclude-platforms: [macos]
-
-  - name: ATTRIBUTE_UNDERLINE_PATTERN_DASH_DOT_DOT
-    summary: |
-        Use with <Attribute.value> to draw an alternating line of dashes and two dots.
-    deprecated:
-        since: "3.6.0"
-        notes: Use the [Titanium.UI.ATTRIBUTE_UNDERLINE_PATTERN_DASH_DOT_DOT](Titanium.UI.ATTRIBUTE_UNDERLINE_PATTERN_DASH_DOT_DOT) constant instead (without the iOS namespace).
-        removed: "6.0.0"
-    description: |
-        Use this constant when <Attribute.type> is either
-        <Titanium.UI.iOS.ATTRIBUTE_UNDERLINES_STYLE> or
-        <Titanium.UI.iOS.ATTRIBUTE_STRIKETHROUGH_STYLE>.
-
-        See <Attribute> for more information.
-    type: Number
-    osver: {ios: {min: "7.0"}}
-    permission: read-only
-    exclude-platforms: [macos]
-
-  - name: ATTRIBUTE_UNDERLINE_BY_WORD
-    summary: |
-        Use with <Attribute.value> to draw a line only underneath or through words.
-    deprecated:
-        since: "3.6.0"
-        notes: Use the [Titanium.UI.ATTRIBUTE_UNDERLINE_BY_WORD](Titanium.UI.ATTRIBUTE_UNDERLINE_BY_WORD) constant instead (without the iOS namespace).
-        removed: "6.0.0"
-    description: |
-        Use this constant when <Attribute.type> is either
-        <Titanium.UI.iOS.ATTRIBUTE_UNDERLINES_STYLE> or
-        <Titanium.UI.iOS.ATTRIBUTE_STRIKETHROUGH_STYLE>.
-
-        See <Attribute> for more information.
-    type: Number
-    osver: {ios: {min: "7.0"}}
-    permission: read-only
-    exclude-platforms: [macos]
-
-  - name: ATTRIBUTE_WRITING_DIRECTION_EMBEDDING
-    summary: |
-        Use with <Attribute.value> to use the embedded text direction.
-    deprecated:
-        since: "3.6.0"
-        notes: Use the [Titanium.UI.ATTRIBUTE_WRITING_DIRECTION_EMBEDDING](Titanium.UI.ATTRIBUTE_WRITING_DIRECTION_EMBEDDING) constant instead (without the iOS namespace).
-        removed: "6.0.0"
-    description: |
-        Use this constant when <Attribute.type> is
-        <Titanium.UI.iOS.ATTRIBUTE_WRITING_DIRECTION>.
-
-        See <Attribute> for more information.
-    type: Number
-    osver: {ios: {min: "7.0"}}
-    permission: read-only
-    exclude-platforms: [macos]
-
-  - name: ATTRIBUTE_WRITING_DIRECTION_OVERRIDE
-    summary: |
-        Use with <Attribute.value> to override the text direction.
-    deprecated:
-        since: "3.6.0"
-        notes: Use the [Titanium.UI.ATTRIBUTE_WRITING_DIRECTION_OVERRIDE](Titanium.UI.ATTRIBUTE_WRITING_DIRECTION_OVERRIDE) constant instead (without the iOS namespace).
-        removed: "6.0.0"
-    description: |
-        Use this constant when <Attribute.type> is
-        <Titanium.UI.iOS.ATTRIBUTE_WRITING_DIRECTION>.
-
-        See <Attribute> for more information.
-    type: Number
-    osver: {ios: {min: "7.0"}}
-    permission: read-only
-    exclude-platforms: [macos]
-
-  - name: ATTRIBUTE_WRITING_DIRECTION_NATURAL
-    summary: |
-        Use with <Attribute.value> to use the
-        [Unicode Bidirection Algorithm rules P2 and P3](http://www.unicode.org/reports/tr9/#The_Paragraph_Level)
-        to determine which direction to use.
-    deprecated:
-        since: "3.6.0"
-        notes: Use the [Titanium.UI.ATTRIBUTE_WRITING_DIRECTION_NATURAL](Titanium.UI.ATTRIBUTE_WRITING_DIRECTION_NATURAL) constant instead (without the iOS namespace).
-        removed: "6.0.0"
-    description: |
-        Use this constant when <Attribute.type> is
-        <Titanium.UI.iOS.ATTRIBUTE_WRITING_DIRECTION>.
-
-        See <Attribute> for more information.
-    type: Number
-    osver: {ios: {min: "7.0"}}
-    permission: read-only
-    exclude-platforms: [macos]
-
-  - name: ATTRIBUTE_WRITING_DIRECTION_LEFT_TO_RIGHT
-    summary: |
-        Use with <Attribute.value> to write text left to right.
-    deprecated:
-        since: "3.6.0"
-        notes: Use the [Titanium.UI.ATTRIBUTE_WRITING_DIRECTION_LEFT_TO_RIGHT](Titanium.UI.ATTRIBUTE_WRITING_DIRECTION_LEFT_TO_RIGHT) constant instead (without the iOS namespace).
-        removed: "6.0.0"
-    description: |
-        Use this constant when <Attribute.type> is
-        <Titanium.UI.iOS.ATTRIBUTE_WRITING_DIRECTION>.
-
-        See <Attribute> for more information.
-    type: Number
-    osver: {ios: {min: "7.0"}}
-    permission: read-only
-    exclude-platforms: [macos]
-
-  - name: ATTRIBUTE_WRITING_DIRECTION_RIGHT_TO_LEFT
-    summary: |
-        Use with <Attribute.value> to write text right to left.
-    deprecated:
-        since: "3.6.0"
-        notes: Use the [Titanium.UI.ATTRIBUTE_WRITING_DIRECTION_RIGHT_TO_LEFT](Titanium.UI.ATTRIBUTE_WRITING_DIRECTION_RIGHT_TO_LEFT) constant instead (without the iOS namespace).
-        removed: "6.0.0"
-    description: |
-        Use this constant when <Attribute.type> is
-        <Titanium.UI.iOS.ATTRIBUTE_WRITING_DIRECTION>.
-
-        See <Attribute> for more information.
-    type: Number
-    osver: {ios: {min: "7.0"}}
-    permission: read-only
-    exclude-platforms: [macos]
-
-  - name: AUTODETECT_ADDRESS
-    deprecated:
-        since: "3.0.0"
-        notes: Use [Titanium.UI.AUTOLINK_MAP_ADDRESSES](Titanium.UI.AUTOLINK_MAP_ADDRESSES) instead.
-        removed: "6.0.0"
-    summary: Converts strings formatted as addresses into clickable links.
-    type: Number
-    osver: {ios: {min: "4.0"}}
-    permission: read-only
-    exclude-platforms: [macos]
-
-  - name: AUTODETECT_ALL
-    deprecated:
-        since: "3.0.0"
-        notes: Use [Titanium.UI.AUTOLINK_ALL](Titanium.UI.AUTOLINK_ALL) instead.
-        removed: "6.0.0"
-    summary: Converts all detectable types of data into clickable links.
-    type: Number
-    permission: read-only
-    exclude-platforms: [macos]
-
-  - name: AUTODETECT_CALENDAR
-    deprecated:
-        since: "3.0.0"
-        notes: Use [Titanium.UI.AUTOLINK_CALENDAR](Titanium.UI.AUTOLINK_CALENDAR) instead.
-        removed: "6.0.0"
-    summary: Converts strings formatted as calendar events into clickable links.
-    type: Number
-    osver: {ios: {min: "4.0"}}
-    permission: read-only
-    exclude-platforms: [macos]
-
-  - name: AUTODETECT_LINK
-    deprecated:
-        since: "3.0.0"
-        notes: Use [Titanium.UI.AUTOLINK_URLS](Titanium.UI.AUTOLINK_URLS) instead.
-        removed: "6.0.0"
-    summary: Converts strings formatted as URLs into clickable links.
-    type: Number
-    permission: read-only
-    exclude-platforms: [macos]
-
-  - name: AUTODETECT_NONE
-    deprecated:
-        since: "3.0.0"
-        notes: Use [Titanium.UI.AUTOLINK_NONE](Titanium.UI.AUTOLINK_NONE) instead.
-        removed: "6.0.0"
-    summary: Disables converting strings into clickable links.
-    type: Number
-    permission: read-only
-    exclude-platforms: [macos]
-
-  - name: AUTODETECT_PHONE
-    deprecated:
-        since: "3.0.0"
-        notes: Use [Titanium.UI.AUTOLINK_PHONE_NUMBERS](Titanium.UI.AUTOLINK_PHONE_NUMBERS) instead.
-        removed: "6.0.0"
-    summary: Converts strings formatted as phone numbers into clickable links.
-    type: Number
-    permission: read-only
-    exclude-platforms: [macos]
 
   - name: BLEND_MODE_CLEAR
     deprecated:
@@ -1348,24 +663,6 @@ properties:
     permission: read-only
     since: "8.2.0"
     osver: {ios: {min: "13.0"}}
-                    
-  - name: AD_SIZE_PORTRAIT
-    summary: |
-        Use with [AdView.adSize](Titanium.UI.iOS.AdView.adSize) to specify a banner ad size
-        appropriate for portrait orientations.
-    description: Note that fullscreen ads always display in portrait orientation.
-    type: String
-    permission: read-only
-    since: "1.8.1"
-
-  - name: AD_SIZE_LANDSCAPE
-    summary: |
-        Use with [AdView.adSize](Titanium.UI.iOS.AdView.adSize) to specify a banner ad size
-        appropriate for landscape orientations.
-    description: Note that fullscreen ads always display in portrait orientation.
-    type: String
-    permission: read-only
-    since: "1.8.1"
 
   - name: CLIP_MODE_DEFAULT
     summary: |
@@ -1423,6 +720,9 @@ properties:
     permission: read-only
     since: "9.2.0"
     osver: { ios: { min: "13.4" } }
+    deprecated:
+        since: "10.0.1"
+        notes: Use [Titanium.UI.DATE_PICKER_STYLE_AUTOMATIC](Titanium.UI.DATE_PICKER_STYLE_AUTOMATIC) instead.
 
   - name: DATE_PICKER_STYLE_WHEELS
     summary: |
@@ -1431,6 +731,9 @@ properties:
     permission: read-only
     since: "9.2.0"
     osver: { ios: { min: "13.4" } }
+    deprecated:
+        since: "10.0.1"
+        notes: Use [Titanium.UI.DATE_PICKER_STYLE_WHEELS](Titanium.UI.DATE_PICKER_STYLE_WHEELS) instead.
 
   - name: DATE_PICKER_STYLE_COMPACT
     summary: |
@@ -1440,6 +743,9 @@ properties:
     permission: read-only
     since: "9.2.0"
     osver: { ios: { min: "13.4" } }
+    deprecated:
+        since: "10.0.1"
+        notes: Use [Titanium.UI.DATE_PICKER_STYLE_COMPACT](Titanium.UI.DATE_PICKER_STYLE_COMPACT) instead.
 
   - name: DATE_PICKER_STYLE_INLINE
     summary: |
@@ -1448,6 +754,9 @@ properties:
     permission: read-only
     since: "9.2.0"
     osver: { ios: { min: "14.0" } }
+    deprecated:
+        since: "10.0.1"
+        notes: Use [Titanium.UI.DATE_PICKER_STYLE_INLINE](Titanium.UI.DATE_PICKER_STYLE_INLINE) instead.
 
   - name: forceTouchSupported
     summary: Determines if the 3D-Touch capability "Force Touch" is supported (`true`) or not (`false`) by the device.
@@ -2418,3 +1727,19 @@ properties:
     type: Number
     since: "8.0.0"
     permission: read-only
+
+---
+name: SystemImageParameters
+summary: |
+    Dictionary object of parameters for the 2nd parameter of the <Titanium.UI.iOS.systemButton> method
+    to pass additional configuration options like `weight` and `size`. Available in Titanium SDK 10.1.0
+    and later.
+properties:
+  - name: weight
+    summary: |
+        The symbol weight to use for the SF Symbol.
+        Can be one of `ultralight`, `light`, `thin`, `normal`, `semibold`, `bold`, `heavy` or `black`.
+    type: String
+  - name: size
+    summary: The symbol point size to use for the SF Symbol
+    type: Number

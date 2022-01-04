@@ -17,7 +17,6 @@ import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.TiRootActivity;
-import org.appcelerator.titanium.proxy.TiWindowProxy;
 import org.appcelerator.titanium.util.TiAnimationCurve;
 import org.appcelerator.titanium.util.TiColorHelper;
 import org.appcelerator.titanium.util.TiDeviceOrientation;
@@ -37,6 +36,7 @@ import android.text.util.Linkify;
 import android.view.View;
 import android.webkit.WebViewClient;
 import android.widget.Toast;
+import androidx.appcompat.app.AppCompatDelegate;
 
 @Kroll.module
 public class UIModule extends KrollModule
@@ -199,6 +199,28 @@ public class UIModule extends KrollModule
 	public static final int BLEND_MODE_PLUS_LIGHTER = 27;
 
 	@Kroll.constant
+	public static final int BUTTON_STYLE_FILLED = 1;
+	@Kroll.constant
+	public static final int BUTTON_STYLE_OUTLINED = 2;
+	@Kroll.constant
+	public static final int BUTTON_STYLE_TEXT = 3;
+	@Kroll.constant
+	public static final int BUTTON_STYLE_OPTION_POSITIVE = 4;
+	@Kroll.constant
+	public static final int BUTTON_STYLE_OPTION_NEGATIVE = 5;
+	@Kroll.constant
+	public static final int BUTTON_STYLE_OPTION_NEUTRAL = 6;
+
+	@Kroll.constant
+	public static final int DATE_PICKER_STYLE_AUTOMATIC = 1;
+	@Kroll.constant
+	public static final int DATE_PICKER_STYLE_COMPACT = 2;
+	@Kroll.constant
+	public static final int DATE_PICKER_STYLE_INLINE = 3;
+	@Kroll.constant
+	public static final int DATE_PICKER_STYLE_WHEELS = 4;
+
+	@Kroll.constant
 	public static final int INPUT_BORDERSTYLE_NONE = 0;
 	@Kroll.constant
 	public static final int INPUT_BORDERSTYLE_ROUNDED = 1;
@@ -206,6 +228,11 @@ public class UIModule extends KrollModule
 	public static final int INPUT_BORDERSTYLE_BEZEL = 2;
 	@Kroll.constant
 	public static final int INPUT_BORDERSTYLE_LINE = 3;
+	@Kroll.constant
+	public static final int INPUT_BORDERSTYLE_UNDERLINED = 4;
+	@Kroll.constant
+	public static final int INPUT_BORDERSTYLE_FILLED = 5;
+
 	@Kroll.constant
 	public static final int INPUT_BUTTONMODE_ONFOCUS = 0;
 	@Kroll.constant
@@ -232,6 +259,20 @@ public class UIModule extends KrollModule
 	public static final int MAP_VIEW_HYBRID = 3;
 
 	@Kroll.constant
+	public static final int SELECTION_STYLE_NONE = 0;
+	@Kroll.constant
+	public static final int SELECTION_STYLE_DEFAULT = 1;
+
+	@Kroll.constant
+	public static final int SWITCH_STYLE_CHECKBOX = 0;
+	@Kroll.constant
+	public static final int SWITCH_STYLE_TOGGLE_BUTTON = 1;
+	@Kroll.constant
+	public static final int SWITCH_STYLE_SLIDER = 2;
+	@Kroll.constant
+	public static final int SWITCH_STYLE_CHIP = 3;
+
+	@Kroll.constant
 	public static final int TABLEVIEW_POSITION_ANY = 0;
 	@Kroll.constant
 	public static final int TABLEVIEW_POSITION_TOP = 1;
@@ -246,6 +287,8 @@ public class UIModule extends KrollModule
 	public static final String TEXT_ALIGNMENT_CENTER = "center";
 	@Kroll.constant
 	public static final String TEXT_ALIGNMENT_RIGHT = "right";
+	@Kroll.constant
+	public static final String TEXT_ALIGNMENT_JUSTIFY = "justify";
 	@Kroll.constant
 	public static final String TEXT_VERTICAL_ALIGNMENT_BOTTOM = "bottom";
 	@Kroll.constant
@@ -393,12 +436,14 @@ public class UIModule extends KrollModule
 
 	protected static final int MSG_LAST_ID = KrollProxy.MSG_LAST_ID + 101;
 
+	private UIModule.Receiver broadcastReceiver;
+
 	public UIModule()
 	{
 		super();
 
 		// Register the module's broadcast receiver.
-		final UIModule.Receiver broadcastReceiver = new UIModule.Receiver(this);
+		this.broadcastReceiver = new UIModule.Receiver(this);
 		TiApplication.getInstance().registerReceiver(broadcastReceiver,
 													 new IntentFilter(Intent.ACTION_CONFIGURATION_CHANGED));
 
@@ -417,7 +462,6 @@ public class UIModule extends KrollModule
 	}
 
 	@Kroll.setProperty(runOnUiThread = true)
-	@Kroll.method(runOnUiThread = true)
 	public void setBackgroundColor(String color)
 	{
 		doSetBackgroundColor(color);
@@ -432,7 +476,6 @@ public class UIModule extends KrollModule
 	}
 
 	@Kroll.setProperty(runOnUiThread = true)
-	@Kroll.method(runOnUiThread = true)
 	public void setBackgroundImage(Object image)
 	{
 		doSetBackgroundImage(image);
@@ -487,39 +530,57 @@ public class UIModule extends KrollModule
 		return result;
 	}
 
-	protected void doSetOrientation(int tiOrientationMode)
+	@Kroll.getProperty
+	public int getOverrideUserInterfaceStyle()
 	{
-		Activity activity = TiApplication.getInstance().getCurrentActivity();
+		switch (AppCompatDelegate.getDefaultNightMode()) {
+			case AppCompatDelegate.MODE_NIGHT_NO:
+				return Configuration.UI_MODE_NIGHT_NO;
+			case AppCompatDelegate.MODE_NIGHT_YES:
+				return Configuration.UI_MODE_NIGHT_YES;
+		}
+		return Configuration.UI_MODE_NIGHT_UNDEFINED;
+	}
+
+	@Kroll.setProperty
+	public void setOverrideUserInterfaceStyle(int styleId)
+	{
+		// Convert given "UI_MODE_*" constant to a "MODE_NIGHT_*" constant.
+		int nightModeId = AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM;
+		if (styleId == Configuration.UI_MODE_NIGHT_NO) {
+			nightModeId = AppCompatDelegate.MODE_NIGHT_NO;
+		} else if (styleId == Configuration.UI_MODE_NIGHT_YES) {
+			nightModeId = AppCompatDelegate.MODE_NIGHT_YES;
+		}
+
+		// Do not continue if the mode isn't changing.
+		if (nightModeId == AppCompatDelegate.getDefaultNightMode()) {
+			return;
+		}
+
+		// Change the night mode.
+		AppCompatDelegate.setDefaultNightMode(nightModeId);
+
+		// Fire a "userinterfacestyle" change event via our broadcast receiver.
+		this.broadcastReceiver.onReceive(TiApplication.getInstance(), null);
+
+		// Force our top-most activity apply the assigned night mode.
+		// Note: Works-around a Google bug where it doesn't always call the activity's onNightModeChanged() method.
+		Activity activity = TiApplication.getAppCurrentActivity();
 		if (activity instanceof TiBaseActivity) {
-			int[] orientationModes;
-
-			if (tiOrientationMode == -1) {
-				orientationModes = new int[] {};
-			} else {
-				orientationModes = new int[] { tiOrientationMode };
-			}
-
-			// this should only be entered if a LW window is created on top of the root activity
-			TiBaseActivity tiBaseActivity = (TiBaseActivity) activity;
-			TiWindowProxy windowProxy = tiBaseActivity.getWindowProxy();
-
-			if (windowProxy == null) {
-				if (tiBaseActivity.lwWindow != null) {
-					tiBaseActivity.lwWindow.setOrientationModes(orientationModes);
-				} else {
-					Log.e(TAG, "No window has been associated with activity, unable to set orientation");
-				}
-			} else {
-				windowProxy.setOrientationModes(orientationModes);
-			}
+			((TiBaseActivity) activity).applyNightMode();
 		}
 	}
 
 	@Kroll.getProperty
 	public int getUserInterfaceStyle()
 	{
-		return TiApplication.getInstance().getApplicationContext().getResources().getConfiguration().uiMode
-			& Configuration.UI_MODE_NIGHT_MASK;
+		int styleId = getOverrideUserInterfaceStyle();
+		if (styleId == Configuration.UI_MODE_NIGHT_UNDEFINED) {
+			Configuration config = TiApplication.getInstance().getResources().getConfiguration();
+			styleId = config.uiMode & Configuration.UI_MODE_NIGHT_MASK;
+		}
+		return styleId;
 	}
 
 	@Override
@@ -528,7 +589,7 @@ public class UIModule extends KrollModule
 		return "Ti.UI";
 	}
 
-	private class Receiver extends BroadcastReceiver
+	private static class Receiver extends BroadcastReceiver
 	{
 		private UIModule module;
 		private int lastEmittedStyle;

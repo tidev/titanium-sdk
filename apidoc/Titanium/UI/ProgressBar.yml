@@ -32,6 +32,12 @@ excludes:
     properties: [children]
     methods: [add, remove, removeAllChildren, replaceAt]
 properties:
+  - name: animated
+    summary: Enables smooth progress change animation when changing the value.
+    type: Boolean
+    default: true
+    since: "10.0.1"
+
   - name: color
     summary: Color of the progress bar message, as a color name or hex triplet.
     description: |
@@ -41,6 +47,7 @@ properties:
   - name: font
     summary: Font for the progress bar text.
     type: Font
+    exclude-platforms: [android]
 
   - name: max
     summary: Maximum value of the progress bar.

@@ -7,8 +7,8 @@
 /* eslint-env mocha */
 /* eslint no-unused-expressions: "off" */
 'use strict';
-var should = require('./utilities/assertions'),
-	utilities = require('./utilities/utilities');
+const should = require('./utilities/assertions');
+const utilities = require('./utilities/utilities');
 
 describe('Titanium.UI.Label', function () {
 	let win;
@@ -26,7 +26,7 @@ describe('Titanium.UI.Label', function () {
 		}
 	});
 
-	it('apiName', function () {
+	it('.apiName', () => {
 		const label = Ti.UI.createLabel({
 			text: 'this is some text'
 		});
@@ -34,149 +34,174 @@ describe('Titanium.UI.Label', function () {
 		should(label.apiName).be.eql('Ti.UI.Label');
 	});
 
-	it('maxLines', function () {
-		const label = Ti.UI.createLabel({
-			text: 'This is a label with propably more than three lines of text. The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog.',
-			maxLines: 2
+	describe('.maxLines', () => {
+		it('is a Number', () => {
+			const label = Ti.UI.createLabel({
+				text: 'This is a label with propably more than three lines of text. The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog.',
+				maxLines: 2
+			});
+			should(label.maxLines).be.a.Number();
+			should(label.maxLines).eql(2);
+			label.maxLines = 1;
+			should(label.maxLines).eql(1);
 		});
-		should(label.maxLines).be.a.Number();
-		should(label.getMaxLines).be.a.Function(); // Windows gives undefined
-		should(label.maxLines).eql(2);
-		should(label.getMaxLines()).eql(2);
-		label.maxLines = 1;
-		should(label.maxLines).eql(1);
-		should(label.getMaxLines()).eql(1);
+
+		it('has no accessors', () => {
+			const label = Ti.UI.createLabel({
+				text: 'This is a label with propably more than three lines of text. The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog.',
+				maxLines: 2
+			});
+			should(label).not.have.accessors('maxLines');
+		});
+
+		// Tests if "maxLines" correctly truncates strings with '\n' characters.
+		it('truncates strings with newline characters', function (finish) {
+			this.slow(1000);
+			this.timeout(5000);
+
+			win = Ti.UI.createWindow({
+				layout: 'vertical',
+			});
+			const label1 = Ti.UI.createLabel({
+				// This label is 1 line tall.
+				text: 'Line 1',
+			});
+			win.add(label1);
+			const label2 = Ti.UI.createLabel({
+				// The label should be 1 line tall since 'maxLines' is set to 1.
+				text: 'Line 1\nLine2',
+				maxLines: 1,
+			});
+			win.add(label2);
+			win.addEventListener('postlayout', function listener() {
+				win.removeEventListener('postlayout', listener);
+
+				try {
+					// Both labels are expected to be 1 line tall.
+					should(label1.size.height).be.approximately(label2.size.height, 1);
+				} catch (err) {
+					return finish(err);
+				}
+				finish();
+			});
+			win.open();
+		});
 	});
 
-	// Tests if "maxLines" correctly truncates strings with '\n' characters.
-	it('maxLines-newline', function (finish) {
-		this.slow(1000);
-		this.timeout(5000);
+	describe('.text', () => {
+		it('is a String', () => {
+			const label = Ti.UI.createLabel({
+				text: 'this is some text'
+			});
+			should(label.text).be.a.String();
+			should(label.text).eql('this is some text');
+			label.text = 'other text';
+			should(label.text).eql('other text');
+		});
 
-		win = Ti.UI.createWindow({
-			layout: 'vertical',
+		it('has no accessors', () => {
+			const label = Ti.UI.createLabel({
+				text: 'this is some text'
+			});
+			should(label).not.have.accessors('text');
 		});
-		const label1 = Ti.UI.createLabel({
-			// This label is 1 line tall.
-			text: 'Line 1',
-		});
-		win.add(label1);
-		const label2 = Ti.UI.createLabel({
-			// The label should be 1 line tall since 'maxLines' is set to 1.
-			text: 'Line 1\nLine2',
-			maxLines: 1,
-		});
-		win.add(label2);
-		win.addEventListener('postlayout', function listener() {
-			win.removeEventListener('postlayout', listener);
-
-			// Both labels are expected to be 1 line tall.
-			should(label1.size.height).be.approximately(label2.size.height, 1);
-			finish();
-		});
-		win.open();
 	});
 
-	it('text', function () {
-		const label = Ti.UI.createLabel({
-			text: 'this is some text'
+	describe('.textid', () => {
+		it('is a String', () => {
+			const label = Ti.UI.createLabel({
+				textid: 'this_is_my_key'
+			});
+			should(label.textid).be.a.String();
+			should(label.textid).eql('this_is_my_key');
+			should(label.text).eql('this is my value');
+			label.textid = 'other text';
+			should(label.textid).eql('other text');
+			should(label.text).eql('this is my value'); // Windows issue
 		});
-		should(label.text).be.a.String();
-		should(label.getText).be.a.Function();
-		should(label.text).eql('this is some text');
-		should(label.getText()).eql('this is some text');
-		label.text = 'other text';
-		should(label.text).eql('other text');
-		should(label.getText()).eql('other text');
+
+		it('has no accessors', () => {
+			const label = Ti.UI.createLabel({
+				textid: 'this_is_my_key'
+			});
+			should(label).not.have.accessors('textid');
+		});
 	});
 
-	it('textid', function () {
-		const label = Ti.UI.createLabel({
-			textid: 'this_is_my_key'
-		});
-		should(label.textid).be.a.String();
-		should(label.getTextid).be.a.Function();
-		should(label.textid).eql('this_is_my_key');
-		should(label.getTextid()).eql('this_is_my_key');
-		should(label.text).eql('this is my value');
-		label.textid = 'other text';
-		should(label.textid).eql('other text');
-		should(label.getTextid()).eql('other text');
-		should(label.text).eql('this is my value'); // Windows issue
-	});
+	describe('.textAlign', () => {
+		it('is a String/Number', () => {
+			const label = Ti.UI.createLabel({
+				text: 'this is some text',
+				textAlign: Ti.UI.TEXT_ALIGNMENT_CENTER
+			});
+			if (utilities.isAndroid()) {
+				should(label.textAlign).be.a.String();
+			} else {
+				should(label.textAlign).be.a.Number();
+			}
+			should(label.textAlign).eql(Ti.UI.TEXT_ALIGNMENT_CENTER);
+			label.textAlign = Ti.UI.TEXT_ALIGNMENT_RIGHT;
+			should(label.textAlign).eql(Ti.UI.TEXT_ALIGNMENT_RIGHT);
 
-	it('textAlign', function () {
-		const label = Ti.UI.createLabel({
-			text: 'this is some text',
-			textAlign: Ti.UI.TEXT_ALIGNMENT_CENTER
-		});
-		if (utilities.isAndroid()) {
-			should(label.textAlign).be.a.String();
-		} else {
-			should(label.textAlign).be.a.Number();
-		}
-		should(label.getTextAlign).be.a.Function();
-		should(label.textAlign).eql(Ti.UI.TEXT_ALIGNMENT_CENTER);
-		should(label.getTextAlign()).eql(Ti.UI.TEXT_ALIGNMENT_CENTER);
-		label.textAlign = Ti.UI.TEXT_ALIGNMENT_RIGHT;
-		should(label.textAlign).eql(Ti.UI.TEXT_ALIGNMENT_RIGHT);
-		should(label.getTextAlign()).eql(Ti.UI.TEXT_ALIGNMENT_RIGHT);
-
-		// TIMOB-3408
-		if (utilities.isIOS()) {
+			// TIMOB-3408
 			label.textAlign = Ti.UI.TEXT_ALIGNMENT_JUSTIFY;
 			should(label.textAlign).eql(Ti.UI.TEXT_ALIGNMENT_JUSTIFY);
-			should(label.getTextAlign()).eql(Ti.UI.TEXT_ALIGNMENT_JUSTIFY);
-		}
+		});
+
+		it('has no accessors', () => {
+			const label = Ti.UI.createLabel({
+				text: 'this is some text',
+				textAlign: Ti.UI.TEXT_ALIGNMENT_CENTER
+			});
+			should(label).not.have.accessors('textAlign');
+		});
 	});
 
-	it('verticalAlign', function () {
-		const label = Ti.UI.createLabel({
-			text: 'this is some text',
-			verticalAlign: Ti.UI.TEXT_VERTICAL_ALIGNMENT_BOTTOM
+	describe('.verticalAlign', () => {
+		it('is a String/Number', () => {
+			const label = Ti.UI.createLabel({
+				text: 'this is some text',
+				verticalAlign: Ti.UI.TEXT_VERTICAL_ALIGNMENT_BOTTOM
+			});
+			// The internal structure is managed differently (string vs NSInteger enum)
+			if (utilities.isAndroid()) {
+				should(label.verticalAlign).be.a.String();
+			} else {
+				should(label.verticalAlign).be.a.Number();
+			}
+			should(label.verticalAlign).eql(Ti.UI.TEXT_VERTICAL_ALIGNMENT_BOTTOM);
+			label.verticalAlign = Ti.UI.TEXT_VERTICAL_ALIGNMENT_TOP;
+			should(label.verticalAlign).eql(Ti.UI.TEXT_VERTICAL_ALIGNMENT_TOP);
 		});
-		if (utilities.isAndroid()) {
-			should(label.verticalAlign).be.a.String();
-		} else {
-			should(label.verticalAlign).be.a.Number();
-		}
-		should(label.getVerticalAlign).be.a.Function();
-		should(label.verticalAlign).eql(Ti.UI.TEXT_VERTICAL_ALIGNMENT_BOTTOM);
-		should(label.getVerticalAlign()).eql(Ti.UI.TEXT_VERTICAL_ALIGNMENT_BOTTOM);
-		label.verticalAlign = Ti.UI.TEXT_VERTICAL_ALIGNMENT_TOP;
-		should(label.verticalAlign).eql(Ti.UI.TEXT_VERTICAL_ALIGNMENT_TOP);
-		should(label.getVerticalAlign()).eql(Ti.UI.TEXT_VERTICAL_ALIGNMENT_TOP);
+
+		it('has no accessors', () => {
+			const label = Ti.UI.createLabel({
+				text: 'this is some text',
+				verticalAlign: Ti.UI.TEXT_VERTICAL_ALIGNMENT_BOTTOM
+			});
+			should(label).not.have.accessors('verticalAlign');
+		});
 	});
 
-	// set ellipsize in the label
-	// Default: Ti.UI.TEXT_ELLIPSIZE_TRUNCATE_END
-	it('ellipsize', function () {
-		const label = Ti.UI.createLabel({
-			text: 'this is some text'
+	describe('.ellipsize', () => {
+		// set ellipsize in the label
+		// Default: Ti.UI.TEXT_ELLIPSIZE_TRUNCATE_END
+		it('is a Number', () => {
+			const label = Ti.UI.createLabel({
+				text: 'this is some text'
+			});
+			should(label.ellipsize).be.a.Number(); // Windows gives false!
+			should(label.ellipsize).eql(Ti.UI.TEXT_ELLIPSIZE_TRUNCATE_END);
+			label.ellipsize = Ti.UI.TEXT_ELLIPSIZE_TRUNCATE_MIDDLE;
+			should(label.ellipsize).eql(Ti.UI.TEXT_ELLIPSIZE_TRUNCATE_MIDDLE);
 		});
-		should(label.ellipsize).be.a.Number(); // Windows gives false!
-		should(label.getEllipsize).be.a.Function();
-		should(label.ellipsize).eql(Ti.UI.TEXT_ELLIPSIZE_TRUNCATE_END);
-		should(label.getEllipsize()).eql(Ti.UI.TEXT_ELLIPSIZE_TRUNCATE_END);
-		label.ellipsize = Ti.UI.TEXT_ELLIPSIZE_TRUNCATE_MIDDLE;
-		should(label.getEllipsize()).eql(Ti.UI.TEXT_ELLIPSIZE_TRUNCATE_MIDDLE);
-		should(label.ellipsize).eql(Ti.UI.TEXT_ELLIPSIZE_TRUNCATE_MIDDLE);
-	});
 
-	// Enable or disable word wrapping in the label.
-	// Defaults: true
-	// Intentionally skip on iOS, property not on platform.
-	it.iosMissing('wordWrap', function () {
-		const label = Ti.UI.createLabel({
-			text: 'this is some text'
+		it('has no accessors', () => {
+			const label = Ti.UI.createLabel({
+				text: 'this is some text'
+			});
+			should(label).not.have.accessors('ellipsize');
 		});
-		should(label.wordWrap).be.a.Boolean();
-		should(label.getWordWrap).be.a.Function();
-		should(label.wordWrap).be.true();
-		should(label.getWordWrap()).be.true();
-		label.wordWrap = false;
-		should(label.getWordWrap()).be.false();
-		should(label.wordWrap).be.false();
 	});
 
 	// FIXME Can't rely on Ti.UI.Window.postlayout event firing because neither platform fires it for that type (only maybe bubbles up from label)
@@ -267,26 +292,41 @@ describe('Titanium.UI.Label', function () {
 		win.open();
 	});
 
-	it.ios('minimumFontSize', function () {
-		const label = Ti.UI.createLabel({
-			text: 'this is some text',
-			textAlign: 'left',
-			font: {
-				fontSize: 36
-			},
-			color: 'black',
-			wordWrap: false,
-			ellipsize: false,
-			minimumFontSize: 28,
-			height: 50
+	describe.ios('.minimumFontSize', () => {
+		it('is a Number', () => {
+			const label = Ti.UI.createLabel({
+				text: 'this is some text',
+				textAlign: 'left',
+				font: {
+					fontSize: 36
+				},
+				color: 'black',
+				wordWrap: false,
+				ellipsize: false,
+				minimumFontSize: 28,
+				height: 50
+			});
+			should(label.minimumFontSize).be.a.Number();
+			should(label.minimumFontSize).eql(28);
+			label.minimumFontSize = 22;
+			should(label.minimumFontSize).eql(22);
 		});
-		should(label.minimumFontSize).be.a.Number();
-		should(label.getMinimumFontSize).be.a.Function();
-		should(label.minimumFontSize).eql(28);
-		should(label.getMinimumFontSize()).eql(28);
-		label.minimumFontSize = 22;
-		should(label.minimumFontSize).eql(22);
-		should(label.getMinimumFontSize()).eql(22);
+
+		it('has no accessors', () => {
+			const label = Ti.UI.createLabel({
+				text: 'this is some text',
+				textAlign: 'left',
+				font: {
+					fontSize: 36
+				},
+				color: 'black',
+				wordWrap: false,
+				ellipsize: false,
+				minimumFontSize: 28,
+				height: 50
+			});
+			should(label).not.have.accessors('minimumFontSize');
+		});
 	});
 
 	it('animate font color', function (finish) {

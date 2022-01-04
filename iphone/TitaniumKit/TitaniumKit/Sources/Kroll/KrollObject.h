@@ -48,6 +48,7 @@ bool KrollDeleteProperty(JSContextRef ctx, JSObjectRef object, JSStringRef prope
 + (id)toID:(KrollContext *)context value:(JSValueRef)ref;
 + (JSValueRef)toValue:(KrollContext *)context value:(id)obj;
 + (id)nonNull:(id)value;
++ (BOOL)isFinalizing;
 
 /**
  Checks if a property with the given name exists on our target.

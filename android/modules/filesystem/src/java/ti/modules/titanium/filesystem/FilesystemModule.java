@@ -8,7 +8,6 @@ package ti.modules.titanium.filesystem;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.MalformedURLException;
 
 import android.Manifest;
 import android.app.Activity;
@@ -19,8 +18,11 @@ import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.KrollInvocation;
 import org.appcelerator.kroll.KrollModule;
+import org.appcelerator.kroll.KrollObject;
+import org.appcelerator.kroll.KrollPromise;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
+import org.appcelerator.titanium.io.TiFileFactory;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
@@ -39,8 +41,6 @@ public class FilesystemModule extends KrollModule
 	public static final int MODE_WRITE = 1;
 	@Kroll.constant
 	public static final int MODE_APPEND = 2;
-
-	private static String[] RESOURCES_DIR = { "app://" };
 
 	// Methods
 	public FilesystemModule()
@@ -115,96 +115,84 @@ public class FilesystemModule extends KrollModule
 	}
 
 	@Kroll.method
-	public void requestStoragePermissions(@Kroll.argument(optional = true) KrollFunction permissionCallback)
+	public KrollPromise<KrollDict> requestStoragePermissions(
+		@Kroll.argument(optional = true) final KrollFunction permissionCallback)
 	{
-		if (hasStoragePermissions()) {
-			KrollDict response = new KrollDict();
-			response.putCodeAndMessage(0, null);
-			permissionCallback.callAsync(getKrollObject(), response);
-			return;
-		}
+		final KrollObject callbackThisObject = getKrollObject();
+		return KrollPromise.create((promise) -> {
+			if (hasStoragePermissions()) {
+				KrollDict response = new KrollDict();
+				response.putCodeAndMessage(0, null);
+				permissionCallback.callAsync(callbackThisObject, response);
+				promise.resolve(response);
+				return;
+			}
 
-		String[] permissions = new String[] {
-			android.Manifest.permission.READ_EXTERNAL_STORAGE,
-			android.Manifest.permission.WRITE_EXTERNAL_STORAGE
-		};
-		Activity currentActivity = TiApplication.getInstance().getCurrentActivity();
-		TiBaseActivity.registerPermissionRequestCallback(TiC.PERMISSION_CODE_EXTERNAL_STORAGE, permissionCallback,
-														 getKrollObject());
-		currentActivity.requestPermissions(permissions, TiC.PERMISSION_CODE_EXTERNAL_STORAGE);
+			String[] permissions = new String[] {
+				android.Manifest.permission.READ_EXTERNAL_STORAGE,
+				android.Manifest.permission.WRITE_EXTERNAL_STORAGE
+			};
+			Activity currentActivity = TiApplication.getInstance().getCurrentActivity();
+			TiBaseActivity.registerPermissionRequestCallback(TiC.PERMISSION_CODE_EXTERNAL_STORAGE,
+				permissionCallback, callbackThisObject, promise);
+			currentActivity.requestPermissions(permissions, TiC.PERMISSION_CODE_EXTERNAL_STORAGE);
+		});
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public FileProxy getApplicationDirectory()
 	{
 		return null;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getApplicationDataDirectory()
 	{
-		return "appdata-private://";
+		return TiFileFactory.APPDATA_PRIVATE_URL_SCHEME + "://";
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getResRawDirectory()
 	{
 		return "android.resource://" + TiApplication.getInstance().getPackageName() + "/raw/";
 	}
 
-	@SuppressWarnings("deprecation")
-	@Kroll.method
 	@Kroll.getProperty
 	public String getApplicationCacheDirectory()
 	{
-		TiApplication app = TiApplication.getInstance();
-		if (app == null) {
-			return null;
-		}
-
-		File cacheDir = app.getCacheDir();
-
-		try {
-			return cacheDir.toURL().toString();
-
-		} catch (MalformedURLException e) {
-			Log.e(TAG, "Exception converting cache directory to URL", e);
-			return null;
-		}
+		return "file://" + TiApplication.getInstance().getCacheDir().getAbsolutePath();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getResourcesDirectory()
 	{
-		return "app://";
+		return TiC.URL_APP_PREFIX;
 	}
 
-	@Kroll.method
+	@Kroll.getProperty
+	public String getExternalCacheDirectory()
+	{
+		return TiFileFactory.APPCACHE_EXTERNAL_URL_SCHEME + "://";
+	}
+
 	@Kroll.getProperty
 	public String getExternalStorageDirectory()
 	{
-		return "appdata://";
+		return TiFileFactory.APPDATA_URL_SCHEME + "://";
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getTempDirectory()
 	{
 		return "file://" + TiApplication.getInstance().getTiTempDir().getAbsolutePath();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getSeparator()
 	{
 		return File.separator;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getLineEnding()
 	{
