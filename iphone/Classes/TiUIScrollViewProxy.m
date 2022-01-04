@@ -349,6 +349,17 @@ static NSArray *scrollViewKeySequence;
       YES);
 }
 
+- (void)setContentOffset:(id)args
+{
+  id arg1 = args;
+  id arg2 = nil;
+  if ([args isKindOfClass:[NSArray class]]) {
+    arg1 = VALUE_AT_INDEX_OR_NIL(args, 0);
+    arg2 = VALUE_AT_INDEX_OR_NIL(args, 1);
+  }
+  [self setContentOffset:arg1 withObject:arg2];
+}
+
 - (void)setContentOffset:(id)value withObject:(id)animated
 {
   TiThreadPerformOnMainThread(
@@ -356,6 +367,17 @@ static NSArray *scrollViewKeySequence;
         [(TiUIScrollView *)[self view] setContentOffset_:value withObject:animated];
       },
       YES);
+}
+
+- (void)setZoomScale:(id)args
+{
+  id arg1 = args;
+  id arg2 = nil;
+  if ([args isKindOfClass:[NSArray class]]) {
+    arg1 = VALUE_AT_INDEX_OR_NIL(args, 0);
+    arg2 = VALUE_AT_INDEX_OR_NIL(args, 1);
+  }
+  [self setZoomScale:arg1 withObject:arg2];
 }
 
 - (void)setZoomScale:(id)value withObject:(id)animated

@@ -160,6 +160,10 @@ public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionLis
 			tv.setEnabled(TiConvert.toBoolean(d, TiC.PROPERTY_ENABLED, true));
 		}
 
+		if (d.containsKey(TiC.PROPERTY_ENABLE_COPY)) {
+			tv.setIsCopyEnabled(TiConvert.toBoolean(d, TiC.PROPERTY_ENABLE_COPY, true));
+		}
+
 		this.inputFilterHandler.setMaxLength(TiConvert.toInt(d.get(TiC.PROPERTY_MAX_LENGTH), -1));
 
 		// Disable change event temporarily as we are setting the default value
@@ -306,6 +310,30 @@ public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionLis
 		textInputLayout.setEndIconTintList(colorStateList);
 	}
 
+	@Override
+	protected void applyContentDescription()
+	{
+		if (proxy == null || nativeView == null) {
+			return;
+		}
+		String contentDescription = composeContentDescription();
+		if (contentDescription != null) {
+			this.tv.setContentDescription(contentDescription);
+		}
+	}
+
+	@Override
+	protected void applyContentDescription(KrollDict properties)
+	{
+		if (proxy == null || nativeView == null) {
+			return;
+		}
+		String contentDescription = composeContentDescription(properties);
+		if (contentDescription != null) {
+			this.tv.setContentDescription(contentDescription);
+		}
+	}
+
 	private void updateTextField()
 	{
 		if (!field) {
@@ -359,6 +387,8 @@ public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionLis
 			tv.setAutofillHints(TiConvert.toString(newValue));
 		} else if (key.equals(TiC.PROPERTY_ENABLED)) {
 			tv.setEnabled(TiConvert.toBoolean(newValue));
+		} else if (key.equals(TiC.PROPERTY_ENABLE_COPY)) {
+			tv.setIsCopyEnabled(TiConvert.toBoolean(newValue));
 		} else if (key.equals(TiC.PROPERTY_VALUE)) {
 			this.disableChangeEvent = true;
 			tv.setText(TiConvert.toString(newValue, ""));

@@ -487,9 +487,15 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
   }
 }
 
-- (id)arguments:(id)args
+- (NSDictionary *)arguments
 {
   return [[TiApp app] launchOptions];
+}
+
+- (id)getArguments:(id)args
+{
+  DEPRECATED_REPLACED(@"App.getArguments()", @"10.0.0", @"App.arguments");
+  return self.arguments;
 }
 
 - (id)iD

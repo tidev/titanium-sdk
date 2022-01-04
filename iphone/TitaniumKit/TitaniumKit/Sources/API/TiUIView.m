@@ -331,6 +331,22 @@ DEFINE_EXCEPTIONS
   return self;
 }
 
+- (void)traitCollectionDidChange:(UITraitCollection *)previousTraitCollection
+{
+  [super traitCollectionDidChange:previousTraitCollection];
+
+  // Redraw the border- and view shadow color since they're using CGColor references
+  id borderColor = [self.proxy valueForKey:@"borderColor"];
+  if (borderColor != nil) {
+    [self setBorderColor_:borderColor];
+  }
+
+  id viewShadowColor = [self.proxy valueForKey:@"viewShadowColor"];
+  if (viewShadowColor != nil) {
+    [self setViewShadowColor_:viewShadowColor];
+  }
+}
+
 #pragma mark - Accessibility API
 
 - (void)setAccessibilityLabel_:(id)accessibilityLabel
@@ -984,7 +1000,9 @@ DEFINE_EXCEPTIONS
 - (void)setViewShadowRadius_:(id)arg
 {
   [[self proxy] replaceValue:arg forKey:@"viewShadowRadius" notification:NO];
-  [[self shadowLayer] setShadowRadius:[TiUtils floatValue:arg def:0.0]];
+
+  TiDimension radiusDimension = [TiUtils dimensionValue:arg];
+  [[self shadowLayer] setShadowRadius:radiusDimension.value];
 }
 
 - (void)setViewShadowColor_:(id)arg

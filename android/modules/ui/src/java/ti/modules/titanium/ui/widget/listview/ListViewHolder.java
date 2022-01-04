@@ -37,7 +37,7 @@ import java.lang.ref.WeakReference;
 import ti.modules.titanium.ui.UIModule;
 import ti.modules.titanium.ui.widget.TiUIListView;
 
-public class ListViewHolder extends TiRecyclerViewHolder
+public class ListViewHolder extends TiRecyclerViewHolder<ListItemProxy>
 {
 	private static final String TAG = "ListViewHolder";
 
@@ -47,6 +47,7 @@ public class ListViewHolder extends TiRecyclerViewHolder
 
 	// Middle
 	private final ViewGroup container;
+	private final ImageView leftImage;
 	private final TiCompositeLayout content;
 	private final ImageView rightImage;
 
@@ -67,6 +68,8 @@ public class ListViewHolder extends TiRecyclerViewHolder
 		setTitleAttributes("header", context, this.headerTitle);
 
 		this.container = viewGroup.findViewById(R.id.titanium_ui_listview_holder_outer_content_container);
+
+		this.leftImage = viewGroup.findViewById(R.id.titanium_ui_listview_holder_left_image);
 
 		this.content = viewGroup.findViewById(R.id.titanium_ui_listview_holder_content);
 
@@ -92,6 +95,7 @@ public class ListViewHolder extends TiRecyclerViewHolder
 
 		// Update model proxy holder.
 		this.proxy = new WeakReference<>(proxy);
+		proxy.setHolder(this);
 
 		// Obtain ListView proxy for item.
 		final ListViewProxy listViewProxy = proxy.getListViewProxy();
@@ -111,6 +115,21 @@ public class ListViewHolder extends TiRecyclerViewHolder
 		final String rawMinHeight = properties.optString(TiC.PROPERTY_MIN_ROW_HEIGHT, "0");
 		final int minHeight = TiConvert.toTiDimension(rawMinHeight, TiDimension.TYPE_HEIGHT).getAsPixels(itemView);
 		this.content.setMinimumHeight(minHeight);
+
+		// Handle selection checkmark.
+		if (listViewProperties.optBoolean(TiC.PROPERTY_SHOW_SELECTION_CHECK, false)
+			&& listViewProperties.optBoolean(TiC.PROPERTY_EDITING, false)
+			&& listViewProperties.optBoolean(TiC.PROPERTY_ALLOWS_SELECTION_DURING_EDITING, false)
+			&& listViewProperties.optBoolean(TiC.PROPERTY_ALLOWS_MULTIPLE_SELECTION_DURING_EDITING, false)
+			&& !proxy.isPlaceholder()) {
+
+			if (selected) {
+				this.leftImage.setImageDrawable(checkcircleDrawable);
+			} else {
+				this.leftImage.setImageDrawable(circleDrawable);
+			}
+			this.leftImage.setVisibility(View.VISIBLE);
+		}
 
 		// Handle accessory type icon.
 		if (properties.containsKeyAndNotNull(TiC.PROPERTY_ACCESSORY_TYPE)) {
@@ -202,8 +221,9 @@ public class ListViewHolder extends TiRecyclerViewHolder
 					}
 
 					// Support selected backgrounds.
-					nativeView.setBackground(generateSelectedDrawable(properties, backgroundDrawable));
-					borderView.setActivated(selected);
+					nativeView.setBackground(backgroundDrawable);
+					this.container.setBackground(generateSelectedDrawable(properties, null));
+					this.container.setActivated(selected);
 
 					// Allow states to bubble up for ripple effect.
 					borderView.setAddStatesFromChildren(true);
@@ -236,7 +256,7 @@ public class ListViewHolder extends TiRecyclerViewHolder
 				// Only set header on first row in section.
 				setHeaderFooter(listViewProxy, sectionProperties, true, false);
 			}
-			if ((indexInSection >= section.getItems().length - 1)
+			if ((indexInSection >= section.getItemCount() - 1)
 				|| (filteredIndex >= section.getFilteredItemCount() - 1)
 				|| proxy.isPlaceholder()) {
 
@@ -244,8 +264,6 @@ public class ListViewHolder extends TiRecyclerViewHolder
 				setHeaderFooter(listViewProxy, sectionProperties, false, true);
 			}
 		}
-
-		proxy.setHolder(this);
 	}
 
 	/**
@@ -262,6 +280,7 @@ public class ListViewHolder extends TiRecyclerViewHolder
 		this.footer.setVisibility(View.GONE);
 		this.footerTitle.setVisibility(View.GONE);
 		this.content.setVisibility(View.GONE);
+		this.leftImage.setVisibility(View.GONE);
 		this.rightImage.setVisibility(View.GONE);
 	}
 
