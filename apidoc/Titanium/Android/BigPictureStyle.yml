@@ -118,10 +118,10 @@ properties:
     default: <Titanium.Android.Notification.contentTitle>
 
   - name: decodeRetries
-    summary: |
-        Number of times to retry decoding the bitmap at bigPicture URL.
+    summary: Number of times to retry decoding the bitmap at bigPicture URL.
+    description: Defaults to 2 on Titanium 10.1.0 and higher. Defaults to 5 on older SDK versions.
     type: Number
-    default: 5
+    default: 2
 
   - name: summaryText
     summary: Set the first line of text after the detail section in the big form of the notification.
