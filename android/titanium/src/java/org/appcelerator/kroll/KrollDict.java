@@ -96,6 +96,15 @@ public class KrollDict extends HashMap<String, Object>
 		}
 	}
 
+	public Object putIfAbsent(String key, Object value)
+	{
+		Object existingValue = this.get(key);
+		if (existingValue == null) {
+			this.put(key, value);
+		}
+		return existingValue;
+	}
+
 	public boolean containsKeyAndNotNull(String key)
 	{
 		return containsKey(key) && get(key) != null;

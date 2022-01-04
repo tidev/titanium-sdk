@@ -260,7 +260,7 @@ public class TiUIListView extends TiUIView
 			|| name.equals(TiC.PROPERTY_FOOTER_TITLE)
 			|| name.equals(TiC.PROPERTY_FOOTER_VIEW)
 			|| name.equals(TiC.PROPERTY_SEARCH_TEXT)) {
-			this.listView.update();
+			this.listView.update(true);
 		}
 	}
 
@@ -294,7 +294,7 @@ public class TiUIListView extends TiUIView
 			|| key.equals(TiC.PROPERTY_TOUCH_FEEDBACK_COLOR)) {
 
 			// Update list items.
-			this.listView.update();
+			this.listView.update(true);
 
 			// Return to prevent property being handled by TiUIView.
 			return;
