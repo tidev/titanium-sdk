@@ -23,6 +23,7 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import androidx.annotation.ColorInt;
 
 import com.google.android.material.badge.BadgeDrawable;
 import com.google.android.material.tabs.TabLayout;
@@ -201,6 +202,16 @@ public class TiUITabLayoutTabGroup extends TiUIAbstractTabGroup implements TabLa
 	public void setBackgroundColor(int colorInt)
 	{
 		this.mTabLayout.setBackgroundColor(colorInt);
+	}
+
+	@Override
+	@ColorInt
+	protected int getDefaultBackgroundColor()
+	{
+		if (isUsingSolidTitaniumTheme()) {
+			return getColorBackground();
+		}
+		return super.getDefaultBackgroundColor();
 	}
 
 	@Override

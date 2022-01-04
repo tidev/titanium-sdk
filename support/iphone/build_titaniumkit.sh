@@ -33,7 +33,7 @@ fi
 
 if [ -z "$GIT_HASH" ]
 then
-      GIT_HASH=`git rev-parse --short --no-color HEAD`
+      GIT_HASH=`git rev-parse --short=10 --no-color HEAD`
 fi
 
 # Inject the values into the source

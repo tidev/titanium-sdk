@@ -22,12 +22,18 @@ jobs:
       run: |
         sudo dpkg --add-architecture i386
         sudo apt-get update -y -qq
-        sudo apt-get install -y -qq gperf libc6:i386 libncurses5:i386 libstdc++6:i386
+        sudo apt-get install -y -qq gperf libatomic1:i386 libc6:i386 libncurses5:i386 libstdc++6:i386
 
     - name: Use Node.js 12.x
       uses: actions/setup-node@v1
       with:
         node-version: '12.x'
+
+    - name: Use JDK 11
+      uses: actions/setup-java@v2
+      with:
+        distribution: 'adopt'
+        java-version: '11'
 
     - name: Cache Node.js modules
       id: node-cache
@@ -105,11 +111,12 @@ jobs:
         rm -f ~/.gradle/caches/modules-2/gc.properties
 
   ios:
-    runs-on: macos-latest
+    runs-on: macos-11
     name: iOS
     env:
       CCACHE_DIR: ${{ github.workspace }}/.ccache
       USE_CCACHE: 1
+      DEVELOPER_DIR: /Applications/Xcode_13.0.app/Contents/Developer
     steps:
     - uses: actions/checkout@v2
 
@@ -179,10 +186,11 @@ jobs:
       name: Lint
   
   package:
-    runs-on: macos-latest
+    runs-on: macos-11
     name: Package
     env:
       SDK_BUILD_CACHE_DIR: ${{ github.workspace }}/.native-modules
+      DEVELOPER_DIR: /Applications/Xcode_13.0.app/Contents/Developer
     needs: [android, ios, js]
     steps:
     - uses: actions/checkout@v2
@@ -198,6 +206,12 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: '12.x'
+
+    - name: Use JDK 11
+      uses: actions/setup-java@v2
+      with:
+        distribution: 'adopt'
+        java-version: '11'
 
     - name: Cache Node.js modules
       id: node-cache
