@@ -1,5 +1,7 @@
 # Releasing the SDK
 
+This document pertains to the Axway process for releasing the SDK, it will not be updated moving forward. Instead please refer to [this document](./maintainer-docs/releasing-the-sdk.md).
+
 ## Cutting a maintenance branch
 
 Typically before a release we generate a new maintenance branch for it, i.e. `9_0_X`

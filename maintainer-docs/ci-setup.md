@@ -36,7 +36,7 @@ This has no requirements
 
 ### Release
 
-This is the release workflow that will automatically build and create a new release on the repository. Before running this step you have completed all the required steps in the [release guid](TODO)
+This is the release workflow that will automatically build and create a new release on the repository. Before running this step you have completed all the required steps in the [release guide](./releasing-the-sdk.md)
 
 1. Navigate to the [workflow page](https://github.com/appcelerator/titanium_mobile/actions/workflows/release.yml)
 2. Click `Run workflow`
@@ -45,6 +45,13 @@ This is the release workflow that will automatically build and create a new rele
    * Enter the release type
 3. Wait for the build to run to the `Release` step
 4. Ask someone else to approve the release on the run page
+
+The job will perform the following:
+
+1. Validate that the requested release does not exist
+2. Build the Android and iOS portions of the SDK
+3. Package the Android and iOS artifacts into a SDK zip for Linux, MacOS, and Windows
+4. Create a tag, create a release with the SDK zips, bump the patch version and push back to the repository.
 
 This requires a GitHub token to perform the required actions, this token is automatically provided to the workflow however so it does not need setting up.
 
