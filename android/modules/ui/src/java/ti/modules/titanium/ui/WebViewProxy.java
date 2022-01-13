@@ -28,6 +28,10 @@ import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiUIView;
 import ti.modules.titanium.ui.widget.webview.TiUIWebView;
 
+import android.webkit.JavascriptInterface;
+import android.content.Context;
+import org.appcelerator.kroll.KrollProxy;
+
 @Kroll.proxy(creatableInModule = UIModule.class,
 	propertyAccessors = {
 		TiC.PROPERTY_BLACKLISTED_URLS,  // DEPRECATED: Superseded by PROPERTY_BLOCKED_URLS.
@@ -73,6 +77,28 @@ public class WebViewProxy extends ViewProxy implements Handler.Callback, OnLifec
 		defaultValues.put(TiC.PROPERTY_ZOOM_LEVEL, 1.0);
 	}
 
+	// Web interface
+	public class WebAppInterface
+	{
+		Context mContext;
+		KrollProxy proxy;
+
+		/** Instantiate the interface and set the context */
+		WebAppInterface(Context c, KrollProxy p)
+		{
+			mContext = c;
+			proxy = p;
+		}
+
+		@JavascriptInterface
+		public void postMessage(String value)
+		{
+			KrollDict dict = new KrollDict();
+			dict.put("value", value);
+			proxy.fireEvent("message", dict);
+		}
+	}
+	
 	@Override
 	public TiUIView createView(Activity activity)
 	{
@@ -85,6 +111,10 @@ public class WebViewProxy extends ViewProxy implements Handler.Callback, OnLifec
 			postCreateMessage = null;
 		}
 
+		webView.getWebView().addJavascriptInterface(
+			new WebAppInterface(TiApplication.getInstance().getApplicationContext(), this), "Android"
+		);
+		
 		return webView;
 	}
 
