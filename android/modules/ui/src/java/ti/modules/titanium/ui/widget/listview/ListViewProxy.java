@@ -6,6 +6,24 @@
  */
 package ti.modules.titanium.ui.widget.listview;
 
+import static android.util.TypedValue.COMPLEX_UNIT_DIP;
+
+import android.app.Activity;
+import android.view.View;
+
+import androidx.recyclerview.selection.SelectionTracker;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.LinearSmoothScroller;
+import androidx.recyclerview.widget.RecyclerView;
+
+import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.titanium.TiApplication;
+import org.appcelerator.titanium.TiC;
+import org.appcelerator.titanium.TiDimension;
+import org.appcelerator.titanium.proxy.TiViewProxy;
+import org.appcelerator.titanium.view.TiUIView;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -13,22 +31,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import org.appcelerator.kroll.KrollDict;
-import org.appcelerator.kroll.annotations.Kroll;
-import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.TiDimension;
-import org.appcelerator.titanium.proxy.TiViewProxy;
-import org.appcelerator.titanium.view.TiUIView;
-
-import android.app.Activity;
-import android.view.View;
-
-import androidx.recyclerview.selection.SelectionTracker;
-
 import ti.modules.titanium.ui.UIModule;
+import ti.modules.titanium.ui.ListViewScrollPositionModule;
 import ti.modules.titanium.ui.widget.TiUIListView;
-
-import static android.util.TypedValue.COMPLEX_UNIT_DIP;
 
 @Kroll.proxy(
 	creatableInModule = ti.modules.titanium.ui.UIModule.class,
@@ -781,6 +786,14 @@ public class ListViewProxy extends RecyclerViewProxy
 	{
 		final TiListView listView = getListView();
 		final boolean animated = animation == null || animation.optBoolean(TiC.PROPERTY_ANIMATED, true);
+		final int position = animation != null ? animation.optInt(TiC.PROPERTY_POSITION, 0) : 0;
+		final RecyclerView.SmoothScroller smoothScrollerToTop =
+			new LinearSmoothScroller(TiApplication.getAppCurrentActivity())
+			{
+				@Override
+				protected int getVerticalSnapPreference()
+				{ return LinearSmoothScroller.SNAP_TO_START; }
+			};
 
 		if (listView != null) {
 			final ListSectionProxy section = getSectionByIndex(sectionIndex);
@@ -792,9 +805,19 @@ public class ListViewProxy extends RecyclerViewProxy
 					final int itemAdapterIndex = listView.getAdapterIndex(item.index);
 					final Runnable action = () -> {
 						if (animated) {
-							listView.getRecyclerView().smoothScrollToPosition(itemAdapterIndex);
+							if (position == ListViewScrollPositionModule.TOP) {
+								smoothScrollerToTop.setTargetPosition(itemAdapterIndex);
+								listView.getRecyclerView().getLayoutManager().startSmoothScroll(smoothScrollerToTop);
+							} else {
+								listView.getRecyclerView().smoothScrollToPosition(itemAdapterIndex);
+							}
 						} else {
-							listView.getRecyclerView().scrollToPosition(itemAdapterIndex);
+							if (position == ListViewScrollPositionModule.TOP) {
+								((LinearLayoutManager) listView.getRecyclerView().getLayoutManager())
+									.scrollToPositionWithOffset(itemAdapterIndex, 0);
+							} else {
+								listView.getRecyclerView().scrollToPosition(itemAdapterIndex);
+							}
 						}
 					};
 
