@@ -60,6 +60,7 @@ public class TiUILabel extends TiUIView
 	private float unscaledFontSizeInPixels = -1.0f;
 	private CharSequence originalText = "";
 	private boolean isInvalidationAndLayoutsEnabled = true;
+	private float oldFontSize = -1.0f;
 
 	public TiUILabel(final TiViewProxy proxy)
 	{
@@ -464,6 +465,7 @@ public class TiUILabel extends TiUIView
 
 		if (d.containsKey(TiC.PROPERTY_AUTOSIZE)) {
 			if (TiConvert.toBoolean(d, TiC.PROPERTY_AUTOSIZE, false)) {
+				oldFontSize = tv.getTextSize();
 				TextViewCompat.setAutoSizeTextTypeWithDefaults(tv, TextViewCompat.AUTO_SIZE_TEXT_TYPE_UNIFORM);
 			}
 		}
@@ -587,6 +589,18 @@ public class TiUILabel extends TiUIView
 			if (hadFixedSize && isAutoSized) {
 				updateLabelText();
 			}
+		} else if (key.equals(TiC.PROPERTY_AUTOSIZE)) {
+			if (TiConvert.toBoolean(newValue, false)) {
+				oldFontSize = tv.getTextSize();
+				TextViewCompat.setAutoSizeTextTypeWithDefaults(tv, TextViewCompat.AUTO_SIZE_TEXT_TYPE_UNIFORM);
+			} else {
+				TextViewCompat.setAutoSizeTextTypeWithDefaults(tv, TextViewCompat.AUTO_SIZE_TEXT_TYPE_NONE);
+				if (oldFontSize != -1) {
+					tv.setTextSize(android.util.TypedValue.COMPLEX_UNIT_PX, oldFontSize);
+					tv.requestLayout();
+				}
+			}
+
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
