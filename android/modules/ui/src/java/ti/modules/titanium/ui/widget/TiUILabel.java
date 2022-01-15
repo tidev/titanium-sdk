@@ -37,6 +37,8 @@ import android.text.TextPaint;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import androidx.annotation.NonNull;
+import androidx.core.widget.TextViewCompat;
+
 import com.google.android.material.textview.MaterialTextView;
 
 public class TiUILabel extends TiUIView
@@ -458,6 +460,12 @@ public class TiUILabel extends TiUIView
 		}
 		if (needShadow) {
 			tv.setShadowLayer(shadowRadius, shadowX, shadowY, shadowColor);
+		}
+
+		if (d.containsKey(TiC.PROPERTY_AUTOSIZE)) {
+			if (TiConvert.toBoolean(d, TiC.PROPERTY_AUTOSIZE, false)) {
+				TextViewCompat.setAutoSizeTextTypeWithDefaults(tv, TextViewCompat.AUTO_SIZE_TEXT_TYPE_UNIFORM);
+			}
 		}
 
 		// This needs to be the last operation.
