@@ -1071,7 +1071,7 @@ describe('Titanium.UI.ListView', function () {
 		win.open();
 	});
 
-	it.android('scrolling event', finish => {
+	it('scrolling event', finish => {
 		const listView = Ti.UI.createListView({
 			continuousUpdate: true,
 			templates: {
