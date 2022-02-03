@@ -331,6 +331,22 @@ DEFINE_EXCEPTIONS
   return self;
 }
 
+- (void)traitCollectionDidChange:(UITraitCollection *)previousTraitCollection
+{
+  [super traitCollectionDidChange:previousTraitCollection];
+
+  // Redraw the border- and view shadow color since they're using CGColor references
+  id borderColor = [self.proxy valueForKey:@"borderColor"];
+  if (borderColor != nil) {
+    [self setBorderColor_:borderColor];
+  }
+
+  id viewShadowColor = [self.proxy valueForKey:@"viewShadowColor"];
+  if (viewShadowColor != nil) {
+    [self setViewShadowColor_:viewShadowColor];
+  }
+}
+
 #pragma mark - Accessibility API
 
 - (void)setAccessibilityLabel_:(id)accessibilityLabel
