@@ -1367,8 +1367,8 @@ examples:
             {properties: { title: 'Carrots'}},
             {properties: { title: 'Potatoes'}},
         ];
-        sections.push(vegSection);
         var vegSection = Ti.UI.createListSection({ headerTitle: 'Vegetables', items: vegDataSet});
+        sections.push(vegSection);
 
         listView.sections = sections;
         win.add(listView);
