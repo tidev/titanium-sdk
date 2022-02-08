@@ -8,6 +8,7 @@ package ti.modules.titanium.ui.widget;
 
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.view.View;
 import android.view.ViewGroup;
@@ -227,10 +228,12 @@ public class TiUIListView extends TiUIView
 
 			} else {
 				final TypedArray divider = context.obtainStyledAttributes(new int[] { android.R.attr.listDivider });
-				final GradientDrawable defaultDrawable = (GradientDrawable) divider.getDrawable(0);
+				final Drawable defaultDrawable = divider.getDrawable(0);
 
 				// Set platform default separator.
-				defaultDrawable.setSize(0, height);
+				if (defaultDrawable instanceof GradientDrawable) {
+					((GradientDrawable) defaultDrawable).setSize(0, height);
+				}
 				this.listView.setSeparator(defaultDrawable);
 				divider.recycle();
 			}
