@@ -215,7 +215,9 @@ public class TiUIListView extends TiUIView
 				? TiConvert.toTiDimension(heightString, TiDimension.TYPE_HEIGHT)
 				.getAsPixels((View) getNativeView().getParent()) : 0;
 
-			if (name.equals(TiC.PROPERTY_SEPARATOR_COLOR)
+			if (height == 0) {
+				this.listView.setSeparator(0, height);
+			} else if (name.equals(TiC.PROPERTY_SEPARATOR_COLOR)
 				|| properties.containsKey(TiC.PROPERTY_SEPARATOR_COLOR)) {
 				String colorString = properties.getString(TiC.PROPERTY_SEPARATOR_COLOR);
 				if (name.equals(TiC.PROPERTY_SEPARATOR_COLOR)) {
