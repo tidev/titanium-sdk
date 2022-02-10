@@ -161,7 +161,7 @@ public class TiUICardView extends TiUIView
 		}
 
 		if (d.containsKey(TiC.PROPERTY_BORDER_COLOR)) {
-			cardview.setStrokeColor(TiConvert.toColor(d, TiC.PROPERTY_BORDER_COLOR));
+			cardview.setStrokeColor(TiConvert.toColor(d, TiC.PROPERTY_BORDER_COLOR, proxy.getActivity()));
 		}
 
 		if (d.containsKey(TiC.PROPERTY_BORDER_RADIUS)) {
@@ -198,8 +198,9 @@ public class TiUICardView extends TiUIView
 		if (!d.optBoolean(TiC.PROPERTY_TOUCH_FEEDBACK, true)) {
 			cardview.setRippleColor(ColorStateList.valueOf(Color.TRANSPARENT));
 		} else if (d.containsKey(TiC.PROPERTY_TOUCH_FEEDBACK_COLOR)) {
+			// TODO: reset to default value when property is null
 			String colorString = TiConvert.toString(d.get(TiC.PROPERTY_TOUCH_FEEDBACK_COLOR));
-			cardview.setRippleColor(ColorStateList.valueOf(TiConvert.toColor(colorString)));
+			cardview.setRippleColor(ColorStateList.valueOf(TiConvert.toColor(colorString, proxy.getActivity())));
 		} else if (this.defaultRippleColorSateList != null) {
 			cardview.setRippleColor(this.defaultRippleColorSateList);
 		}
@@ -291,10 +292,10 @@ public class TiUICardView extends TiUIView
 		TiCardView cardview = ((TiCardView) getNativeView());
 
 		if (key.equals(TiC.PROPERTY_BACKGROUND_COLOR)) {
-			cardview.setCardBackgroundColor(TiConvert.toColor(TiConvert.toString(newValue)));
+			cardview.setCardBackgroundColor(TiConvert.toColor(newValue, proxy.getActivity()));
 			cardview.requestLayout();
 		} else if (key.equals(TiC.PROPERTY_BORDER_COLOR)) {
-			cardview.setStrokeColor(TiConvert.toColor(TiConvert.toString(newValue)));
+			cardview.setStrokeColor(TiConvert.toColor(newValue, proxy.getActivity()));
 		} else if (key.equals(TiC.PROPERTY_BORDER_RADIUS)) {
 			float radius = 0;
 			TiDimension radiusDim = TiConvert.toTiDimension(newValue, TiDimension.TYPE_WIDTH);
@@ -390,7 +391,7 @@ public class TiUICardView extends TiUIView
 				cardview.setRippleColor(ColorStateList.valueOf(Color.TRANSPARENT));
 			} else if (this.proxy.hasProperty(TiC.PROPERTY_TOUCH_FEEDBACK_COLOR)) {
 				String colorString = TiConvert.toString(this.proxy.getProperty(TiC.PROPERTY_TOUCH_FEEDBACK_COLOR));
-				cardview.setRippleColor(ColorStateList.valueOf(TiConvert.toColor(colorString)));
+				cardview.setRippleColor(ColorStateList.valueOf(TiConvert.toColor(colorString, proxy.getActivity())));
 			} else if (this.defaultRippleColorSateList != null) {
 				cardview.setRippleColor(this.defaultRippleColorSateList);
 			}

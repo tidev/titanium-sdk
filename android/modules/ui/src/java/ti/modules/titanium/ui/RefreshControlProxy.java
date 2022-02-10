@@ -126,7 +126,7 @@ public class RefreshControlProxy extends KrollProxy
 		if (colorName == null) {
 			this.tintColor = RefreshControlProxy.DEFAULT_TINT_COLOR;
 		} else if (colorName instanceof String) {
-			this.tintColor = TiColorHelper.parseColor((String) colorName);
+			this.tintColor = TiColorHelper.parseColor((String) colorName, getActivity());
 		} else {
 			Log.e(TAG, "Property '" + TiC.PROPERTY_TINT_COLOR + "' must be of type string.");
 			return;

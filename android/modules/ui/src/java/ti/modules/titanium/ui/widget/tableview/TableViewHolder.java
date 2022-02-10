@@ -160,6 +160,7 @@ public class TableViewHolder extends TiRecyclerViewHolder<TableViewRowProxy>
 			proxy.releaseViews();
 			proxy.setActivity((Activity) context);
 		}
+		final Activity activity = proxy.getActivity();
 
 		// Obtain row view.
 		final TableViewRowProxy.RowView rowView = (TableViewRowProxy.RowView) proxy.getOrCreateView();
@@ -198,7 +199,7 @@ public class TableViewHolder extends TiRecyclerViewHolder<TableViewRowProxy>
 			// Set title color.
 			int titleColor = 0;
 			if (properties.containsKeyAndNotNull(TiC.PROPERTY_COLOR)) {
-				final int color = TiConvert.toColor(properties.getString(TiC.PROPERTY_COLOR));
+				final int color = TiConvert.toColor(properties, TiC.PROPERTY_COLOR, proxy.getActivity());
 
 				if (color != Color.TRANSPARENT) {
 
@@ -210,8 +211,8 @@ public class TableViewHolder extends TiRecyclerViewHolder<TableViewRowProxy>
 
 				// Determine title color based on background.
 				final int tableBackgroundColor =
-					TiConvert.toColor(tableViewProxy.getProperties(), TiC.PROPERTY_BACKGROUND_COLOR);
-				final int rowBackgroundColor = TiConvert.toColor(properties, TiC.PROPERTY_BACKGROUND_COLOR);
+					TiConvert.toColor(tableViewProxy.getProperties(), TiC.PROPERTY_BACKGROUND_COLOR, activity);
+				final int rowBackgroundColor = TiConvert.toColor(properties, TiC.PROPERTY_BACKGROUND_COLOR, activity);
 				final int backgroundColor = rowBackgroundColor != Color.TRANSPARENT
 					? rowBackgroundColor : tableBackgroundColor;
 				final int defaultTitleColor = backgroundColor < (Color.BLACK / 2) ? Color.WHITE : Color.BLACK;

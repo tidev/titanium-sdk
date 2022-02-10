@@ -403,11 +403,12 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 			return;
 		}
 
-		if (tabProxy.getProperty(TiC.PROPERTY_BADGE_COLOR) != null) {
+		// TODO: reset to default value when property is null
+		if (tabProxy.hasPropertyAndNotNull(TiC.PROPERTY_BADGE_COLOR)) {
 			int menuItemId = this.mBottomNavigationView.getMenu().getItem(index).getItemId();
 			BadgeDrawable badgeDrawable = this.mBottomNavigationView.getOrCreateBadge(menuItemId);
 			badgeDrawable.setBackgroundColor(
-				TiConvert.toColor((String) tabProxy.getProperty(TiC.PROPERTY_BADGE_COLOR)));
+				TiConvert.toColor(tabProxy.getProperty(TiC.PROPERTY_BADGE_COLOR), tabProxy.getActivity()));
 		}
 	}
 

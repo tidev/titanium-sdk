@@ -6,6 +6,7 @@
  */
 package ti.modules.titanium.ui.widget.tabgroup;
 
+import android.app.Activity;
 import android.content.res.ColorStateList;
 import android.content.res.TypedArray;
 import android.graphics.Color;
@@ -317,18 +318,19 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 
 		final KrollDict tabProperties = tabProxy.getProperties();
 		final KrollDict properties = getProxy().getProperties();
+		final Activity activity = getProxy().getActivity();
 
 		if (tabProperties.containsKeyAndNotNull(TiC.PROPERTY_TITLE_COLOR)
 			|| properties.containsKeyAndNotNull(TiC.PROPERTY_TITLE_COLOR)) {
 			final String colorString = tabProperties.optString(TiC.PROPERTY_TITLE_COLOR,
 				properties.getString(TiC.PROPERTY_TITLE_COLOR));
-			textColors[0] = TiColorHelper.parseColor(colorString);
+			textColors[0] = TiColorHelper.parseColor(colorString, activity);
 		}
 		if (tabProperties.containsKeyAndNotNull(TiC.PROPERTY_ACTIVE_TITLE_COLOR)
 			|| properties.containsKeyAndNotNull(TiC.PROPERTY_ACTIVE_TITLE_COLOR)) {
 			final String colorString = tabProperties.optString(TiC.PROPERTY_ACTIVE_TITLE_COLOR,
 				properties.getString(TiC.PROPERTY_ACTIVE_TITLE_COLOR));
-			textColors[1] = TiColorHelper.parseColor(colorString);
+			textColors[1] = TiColorHelper.parseColor(colorString, activity);
 		}
 		return new ColorStateList(textColorStates, textColors);
 	}
@@ -365,28 +367,32 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 	 */
 	protected Drawable createBackgroundDrawableForState(TiViewProxy tabProxy, int stateToUse)
 	{
+		if (proxy == null || tabProxy == null) {
+			return null;
+		}
+		final KrollDict tabProperties = tabProxy.getProperties();
+		final KrollDict properties = proxy.getProperties();
+		final Activity activity = proxy.getActivity();
 		StateListDrawable stateListDrawable = new StateListDrawable();
 		int colorInt;
 
 		// If the TabGroup has backgroundColor property, use it. If not - use the primaryColor of the theme.
-		colorInt = proxy.hasPropertyAndNotNull(TiC.PROPERTY_TABS_BACKGROUND_COLOR)
-					   ? TiColorHelper.parseColor(proxy.getProperty(TiC.PROPERTY_TABS_BACKGROUND_COLOR).toString())
+		colorInt = properties.containsKeyAndNotNull(TiC.PROPERTY_TABS_BACKGROUND_COLOR)
+					   ? TiColorHelper.parseColor(properties.getString(TiC.PROPERTY_TABS_BACKGROUND_COLOR), activity)
 					   : this.colorSurfaceInt;
 		// If the Tab has its own backgroundColor property, use it instead.
-		colorInt = tabProxy.hasPropertyAndNotNull(TiC.PROPERTY_BACKGROUND_COLOR)
-					   ? TiColorHelper.parseColor(tabProxy.getProperty(TiC.PROPERTY_BACKGROUND_COLOR).toString())
+		colorInt = tabProperties.containsKeyAndNotNull(TiC.PROPERTY_BACKGROUND_COLOR)
+					   ? TiColorHelper.parseColor(tabProperties.getString(TiC.PROPERTY_BACKGROUND_COLOR), activity)
 					   : colorInt;
 		stateListDrawable.addState(new int[] { -stateToUse }, new ColorDrawable(colorInt));
 
 		// Take the TabGroup tabsBackgroundSelectedProperty.
-		colorInt =
-			proxy.hasPropertyAndNotNull(TiC.PROPERTY_TABS_BACKGROUND_SELECTED_COLOR)
-				? TiColorHelper.parseColor(proxy.getProperty(TiC.PROPERTY_TABS_BACKGROUND_SELECTED_COLOR).toString())
+		colorInt = properties.containsKeyAndNotNull(TiC.PROPERTY_TABS_BACKGROUND_SELECTED_COLOR)
+				? TiColorHelper.parseColor(properties.getString(TiC.PROPERTY_TABS_BACKGROUND_SELECTED_COLOR), activity)
 				: colorInt;
 		// If a tab specific background color is defined for selected state, use it instead.
-		colorInt =
-			tabProxy.hasPropertyAndNotNull(TiC.PROPERTY_BACKGROUND_FOCUSED_COLOR)
-				? TiColorHelper.parseColor(tabProxy.getProperty(TiC.PROPERTY_BACKGROUND_FOCUSED_COLOR).toString())
+		colorInt = tabProperties.containsKeyAndNotNull(TiC.PROPERTY_BACKGROUND_FOCUSED_COLOR)
+				? TiColorHelper.parseColor(tabProperties.getString(TiC.PROPERTY_BACKGROUND_FOCUSED_COLOR), activity)
 				: colorInt;
 		stateListDrawable.addState(new int[] { stateToUse }, new ColorDrawable(colorInt));
 		return stateListDrawable;
@@ -449,7 +455,7 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 					|| windowProperties.containsKeyAndNotNull(TiC.PROPERTY_BAR_COLOR)) {
 					final String colorString = properties.optString(TiC.PROPERTY_BAR_COLOR,
 						windowProperties.getString(TiC.PROPERTY_BAR_COLOR));
-					final int color = TiColorHelper.parseColor(colorString);
+					final int color = TiColorHelper.parseColor(colorString, proxy.getActivity());
 					actionBar.setBackgroundDrawable(new ColorDrawable(color));
 				}
 			}
@@ -474,7 +480,7 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 			this.smoothScrollOnTabClick = d.getBoolean(TiC.PROPERTY_SMOOTH_SCROLL_ON_TAB_CLICK);
 		}
 		if (d.containsKeyAndNotNull(TiC.PROPERTY_TABS_BACKGROUND_COLOR)) {
-			setBackgroundColor(TiColorHelper.parseColor(d.get(TiC.PROPERTY_TABS_BACKGROUND_COLOR).toString()));
+			setBackgroundColor(TiConvert.toColor(d, TiC.PROPERTY_TABS_BACKGROUND_COLOR, proxy.getActivity()));
 		} else {
 			setBackgroundColor(getDefaultBackgroundColor());
 		}
@@ -492,7 +498,7 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 			for (TiUITab tabView : tabs) {
 				updateTabBackgroundDrawable(tabs.indexOf(tabView));
 			}
-			setBackgroundColor(TiColorHelper.parseColor(newValue.toString()));
+			setBackgroundColor(TiColorHelper.parseColor(newValue.toString(), proxy.getActivity()));
 		} else if (key.equals(TiC.PROPERTY_TABS_BACKGROUND_SELECTED_COLOR)) {
 			for (TiUITab tabView : tabs) {
 				updateTabBackgroundDrawable(tabs.indexOf(tabView));
@@ -537,6 +543,7 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 
 		final KrollDict tabProperties = tabProxy.getProperties();
 		final KrollDict properties = getProxy().getProperties();
+		final Activity activity = getProxy().getActivity();
 
 		int color = this.colorPrimaryInt;
 		if (selected) {
@@ -544,7 +551,7 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 				|| properties.containsKeyAndNotNull(TiC.PROPERTY_ACTIVE_TINT_COLOR)) {
 				final String colorString = tabProperties.optString(TiC.PROPERTY_ACTIVE_TINT_COLOR,
 					properties.getString(TiC.PROPERTY_ACTIVE_TINT_COLOR));
-				color = TiColorHelper.parseColor(colorString);
+				color = TiColorHelper.parseColor(colorString, activity);
 			}
 			drawable.setColorFilter(color, PorterDuff.Mode.SRC_IN);
 		} else {
@@ -553,7 +560,7 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 				|| properties.containsKeyAndNotNull(TiC.PROPERTY_TINT_COLOR)) {
 				final String colorString = tabProperties.optString(TiC.PROPERTY_TINT_COLOR,
 					properties.getString(TiC.PROPERTY_TINT_COLOR));
-				color = TiColorHelper.parseColor(colorString);
+				color = TiColorHelper.parseColor(colorString, activity);
 			}
 			drawable.setColorFilter(color, PorterDuff.Mode.SRC_IN);
 		}
@@ -587,13 +594,14 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 	@ColorInt
 	protected int getActiveColor(TiViewProxy tabProxy)
 	{
-		Object colorObject = null;
+		String colorString = null;
 		if ((tabProxy != null) && tabProxy.hasPropertyAndNotNull(TiC.PROPERTY_ACTIVE_TINT_COLOR)) {
-			colorObject = tabProxy.getProperty(TiC.PROPERTY_ACTIVE_TINT_COLOR);
+			colorString = tabProxy.getProperty(TiC.PROPERTY_ACTIVE_TINT_COLOR).toString();
 		} else if ((this.proxy != null) && this.proxy.hasPropertyAndNotNull(TiC.PROPERTY_ACTIVE_TINT_COLOR)) {
-			colorObject = this.proxy.getProperty(TiC.PROPERTY_ACTIVE_TINT_COLOR);
+			colorString = this.proxy.getProperty(TiC.PROPERTY_ACTIVE_TINT_COLOR).toString();
 		}
-		return (colorObject != null) ? TiColorHelper.parseColor(colorObject.toString()) : this.colorPrimaryInt;
+		Activity activity = getProxy().getActivity();
+		return (colorString != null) ? TiColorHelper.parseColor(colorString, activity) : this.colorPrimaryInt;
 	}
 
 	public static ColorStateList createRippleColorStateListFrom(@ColorInt int colorInt)

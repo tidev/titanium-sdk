@@ -18,6 +18,7 @@ import org.appcelerator.titanium.util.TiFileHelper;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiUIView;
 
+import android.app.Activity;
 import android.content.res.ColorStateList;
 import android.graphics.Rect;
 import android.graphics.drawable.ClipDrawable;
@@ -70,6 +71,7 @@ public class TiUISlider extends TiUIView implements SeekBar.OnSeekBarChangeListe
 		super.processProperties(d);
 
 		SeekBar seekBar = (SeekBar) getNativeView();
+		Activity activity = proxy.getActivity();
 
 		if (d.containsKey(TiC.PROPERTY_VALUE)) {
 			pos = TiConvert.toFloat(d, TiC.PROPERTY_VALUE, 0);
@@ -100,10 +102,10 @@ public class TiUISlider extends TiUIView implements SeekBar.OnSeekBarChangeListe
 			updateTrackingImages(seekBar, d);
 		}
 		if (d.containsKeyAndNotNull(TiC.PROPERTY_TINT_COLOR)) {
-			handleSetTintColor(TiConvert.toColor(d, TiC.PROPERTY_TINT_COLOR));
+			handleSetTintColor(TiConvert.toColor(d, TiC.PROPERTY_TINT_COLOR, activity));
 		}
 		if (d.containsKeyAndNotNull(TiC.PROPERTY_TRACK_TINT_COLOR)) {
-			handleSetTrackTintColor(TiConvert.toColor(d, TiC.PROPERTY_TRACK_TINT_COLOR));
+			handleSetTrackTintColor(TiConvert.toColor(d, TiC.PROPERTY_TRACK_TINT_COLOR, activity));
 		}
 		updateRange();
 		updateControl();
@@ -280,14 +282,14 @@ public class TiUISlider extends TiUIView implements SeekBar.OnSeekBarChangeListe
 			int curPos = (int) Math.floor(scaleFactor * (pos + offset));
 			onProgressChanged(seekBar, curPos, false);
 		} else if (key.equals(TiC.PROPERTY_TINT_COLOR)) {
-			String stringValue = TiConvert.toString(newValue);
-			if (stringValue != null) {
-				handleSetTintColor(TiConvert.toColor(stringValue));
+			// TODO: reset to default value when property is null
+			if (newValue != null) {
+				handleSetTintColor(TiConvert.toColor(newValue, proxy.getActivity()));
 			}
 		} else if (key.equals(TiC.PROPERTY_TRACK_TINT_COLOR)) {
-			String stringValue = TiConvert.toString(newValue);
-			if (stringValue != null) {
-				handleSetTrackTintColor(TiConvert.toColor(stringValue));
+			// TODO: reset to default value when property is null
+			if (newValue != null) {
+				handleSetTrackTintColor(TiConvert.toColor(newValue, proxy.getActivity()));
 			}
 		} else if (key.equals("thumbImage")) {
 			//updateThumb(seekBar, proxy.getDynamicProperties());

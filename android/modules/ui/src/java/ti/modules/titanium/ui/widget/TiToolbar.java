@@ -128,7 +128,7 @@ public class TiToolbar extends TiUIView
 	 */
 	public void setToolbarColor(String color)
 	{
-		toolbar.setBackgroundColor((TiColorHelper.parseColor(color)));
+		toolbar.setBackgroundColor((TiColorHelper.parseColor(color, proxy.getActivity())));
 		if (proxy.hasProperty(TiC.PROPERTY_TRANSLUCENT)) {
 			if ((Boolean) proxy.getProperty(TiC.PROPERTY_TRANSLUCENT)) {
 				toolbar.getBackground().setAlpha(BACKGROUND_TRANSLUCENT_VALUE);
@@ -324,7 +324,7 @@ public class TiToolbar extends TiUIView
 	 */
 	private void setTitleTextColor(String value)
 	{
-		toolbar.setTitleTextColor(TiColorHelper.parseColor(value));
+		toolbar.setTitleTextColor(TiColorHelper.parseColor(value, proxy.getActivity()));
 	}
 
 	/**
@@ -342,7 +342,7 @@ public class TiToolbar extends TiUIView
 	 */
 	private void setSubtitleTextColor(String value)
 	{
-		toolbar.setSubtitleTextColor(TiColorHelper.parseColor(value));
+		toolbar.setSubtitleTextColor(TiColorHelper.parseColor(value, proxy.getActivity()));
 	}
 
 	/**

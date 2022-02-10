@@ -178,14 +178,16 @@ public class VideoPlayerProxy extends TiViewProxy implements TiLifecycle.OnLifec
 
 	private void launchVideoActivity(KrollDict options)
 	{
-		final Intent intent = new Intent(getActivity(), TiVideoActivity.class);
+		final Activity activity = getActivity();
+		final Intent intent = new Intent(activity, TiVideoActivity.class);
 
 		if (options.containsKey(TiC.PROPERTY_BACKGROUND_COLOR)) {
-			intent.putExtra(TiC.PROPERTY_BACKGROUND_COLOR, TiConvert.toColor(options, TiC.PROPERTY_BACKGROUND_COLOR));
+			int color = TiConvert.toColor(options, TiC.PROPERTY_BACKGROUND_COLOR, activity);
+			intent.putExtra(TiC.PROPERTY_BACKGROUND_COLOR, color);
 		}
 		videoActivityHandler = createControlHandler();
 		intent.putExtra(TiC.PROPERTY_MESSENGER, new Messenger(videoActivityHandler));
-		getActivity().startActivity(intent);
+		activity.startActivity(intent);
 	}
 
 	/**
