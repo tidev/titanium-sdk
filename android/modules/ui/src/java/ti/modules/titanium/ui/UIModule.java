@@ -37,6 +37,8 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatDelegate;
 
+import java.util.WeakHashMap;
+
 @Kroll.module
 public class UIModule extends KrollModule implements TiApplication.ConfigurationChangedListener
 {
@@ -436,6 +438,31 @@ public class UIModule extends KrollModule implements TiApplication.Configuration
 
 	protected static final int MSG_LAST_ID = KrollProxy.MSG_LAST_ID + 101;
 
+	protected static WeakHashMap<UIStyleChangedListener, Object> uiStyleChangedListeners = new WeakHashMap<>();
+
+	public interface UIStyleChangedListener {
+		void onUserInterfaceStyleChanged(int styleId);
+	}
+
+	public static void addUIStyleChangedListener(UIStyleChangedListener a)
+	{
+		Log.d(TAG, "addUIStyleChangedListener");
+		uiStyleChangedListeners.put(a, null);
+	}
+
+	public static void removeUIStyleChangedListener(UIStyleChangedListener a)
+	{
+		Log.d(TAG, "removeUIStyleChangedListener");
+		uiStyleChangedListeners.remove(a);
+	}
+
+	public static void notifyUIStyleChangedListeners(int styleId)
+	{
+		for (UIStyleChangedListener listener: uiStyleChangedListeners.keySet()) {
+			listener.onUserInterfaceStyleChanged(styleId);
+		}
+	}
+
 	public UIModule()
 	{
 		super();
@@ -610,6 +637,7 @@ public class UIModule extends KrollModule implements TiApplication.Configuration
 		KrollDict event = new KrollDict();
 		event.put(TiC.PROPERTY_VALUE, lastEmittedStyle);
 		fireEvent(TiC.EVENT_USER_INTERFACE_STYLE, event);
+		notifyUIStyleChangedListeners(lastEmittedStyle);
 
 	}
 }
