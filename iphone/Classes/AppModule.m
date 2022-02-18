@@ -7,7 +7,6 @@
 #ifdef USE_TI_APP
 
 #import "AppModule.h"
-#import "TiUtils+Addons.h"
 #import <TitaniumKit/ListenerEntry.h>
 #import <TitaniumKit/TiApp.h>
 #import <TitaniumKit/TiHost.h>
@@ -36,9 +35,10 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 
 - (void)_restart:(id)unused
 {
-  TiThreadPerformOnMainThread(^{
-    [[[TiApp app] controller] shutdownUi:self];
-  },
+  TiThreadPerformOnMainThread(
+      ^{
+        [[[TiApp app] controller] shutdownUi:self];
+      },
       NO);
 }
 
@@ -61,7 +61,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
   /* Disconnect the old modules. */
   NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
   NSMutableArray *delegateModules = (NSMutableArray *)[appDelegate valueForKey:@"modules"];
-  for (TiModule *thisModule in delegateModules) {
+  for (id<Module> thisModule in delegateModules) {
     [nc removeObserver:thisModule];
   }
 /* Because of other issues, we must leak the modules as well as the runtime */
@@ -487,9 +487,15 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
   }
 }
 
-- (id)arguments:(id)args
+- (NSDictionary *)arguments
 {
   return [[TiApp app] launchOptions];
+}
+
+- (id)getArguments:(id)args
+{
+  DEPRECATED_REPLACED(@"App.getArguments()", @"10.0.0", @"App.arguments");
+  return self.arguments;
 }
 
 - (id)iD

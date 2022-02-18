@@ -88,18 +88,9 @@
       [_collisionBehavior setTranslatesReferenceBoundsIntoBoundary:NO];
     }
     [viewItems release];
-    void (^update)(void) = ^{
-      [self updateItems];
-    };
-    [_collisionBehavior setAction:update];
   }
   _needsRefresh = NO;
   return _collisionBehavior;
-}
-
-- (void)updateItems
-{
-  //Nothing to do here
 }
 
 - (void)updatePositioning
@@ -122,9 +113,10 @@
     [self rememberProxy:args];
     [_items addObject:args];
     if (_collisionBehavior != nil) {
-      TiThreadPerformOnMainThread(^{
-        [_collisionBehavior addItem:[(TiViewProxy *)args view]];
-      },
+      TiThreadPerformOnMainThread(
+          ^{
+            [_collisionBehavior addItem:[(TiViewProxy *)args view]];
+          },
           YES);
     }
   }
@@ -135,9 +127,10 @@
   ENSURE_SINGLE_ARG(args, TiViewProxy);
   if ([_items containsObject:args]) {
     if (_collisionBehavior != nil) {
-      TiThreadPerformOnMainThread(^{
-        [_collisionBehavior removeItem:[(TiViewProxy *)args view]];
-      },
+      TiThreadPerformOnMainThread(
+          ^{
+            [_collisionBehavior removeItem:[(TiViewProxy *)args view]];
+          },
           YES);
     }
     [_items removeObject:args];
@@ -170,9 +163,10 @@
           [_boundaries addObject:boundary];
           [_identifiers addObject:identifier];
           if (_collisionBehavior != nil) {
-            TiThreadPerformOnMainThread(^{
-              [_collisionBehavior addBoundaryWithIdentifier:identifier fromPoint:p1 toPoint:p2];
-            },
+            TiThreadPerformOnMainThread(
+                ^{
+                  [_collisionBehavior addBoundaryWithIdentifier:identifier fromPoint:p1 toPoint:p2];
+                },
                 YES);
           }
           [boundary release];
@@ -198,9 +192,10 @@
     [_boundaries removeObjectAtIndex:index];
     [_identifiers removeObjectAtIndex:index];
     if (_collisionBehavior != nil) {
-      TiThreadPerformOnMainThread(^{
-        [_collisionBehavior removeBoundaryWithIdentifier:args];
-      },
+      TiThreadPerformOnMainThread(
+          ^{
+            [_collisionBehavior removeBoundaryWithIdentifier:args];
+          },
           YES);
     }
   }
@@ -211,9 +206,10 @@
   [_identifiers removeAllObjects];
   [_boundaries removeAllObjects];
   if (_collisionBehavior != nil) {
-    TiThreadPerformOnMainThread(^{
-      [_collisionBehavior removeAllBoundaries];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          [_collisionBehavior removeAllBoundaries];
+        },
         YES);
   }
 }
@@ -225,13 +221,14 @@
   if (newVal != _treatReferenceAsBoundary) {
     _treatReferenceAsBoundary = newVal;
     if (_collisionBehavior != nil) {
-      TiThreadPerformOnMainThread(^{
-        if (_treatReferenceAsBoundary) {
-          [_collisionBehavior setTranslatesReferenceBoundsIntoBoundaryWithInsets:_insets];
-        } else {
-          [_collisionBehavior setTranslatesReferenceBoundsIntoBoundary:NO];
-        }
-      },
+      TiThreadPerformOnMainThread(
+          ^{
+            if (_treatReferenceAsBoundary) {
+              [_collisionBehavior setTranslatesReferenceBoundsIntoBoundaryWithInsets:_insets];
+            } else {
+              [_collisionBehavior setTranslatesReferenceBoundsIntoBoundary:NO];
+            }
+          },
           YES);
     }
   }
@@ -249,9 +246,10 @@
   if (!UIEdgeInsetsEqualToEdgeInsets(newInsets, _insets)) {
     _insets = newInsets;
     if (_treatReferenceAsBoundary && _collisionBehavior != nil) {
-      TiThreadPerformOnMainThread(^{
-        [_collisionBehavior setTranslatesReferenceBoundsIntoBoundaryWithInsets:_insets];
-      },
+      TiThreadPerformOnMainThread(
+          ^{
+            [_collisionBehavior setTranslatesReferenceBoundsIntoBoundaryWithInsets:_insets];
+          },
           YES);
     }
   }
@@ -281,9 +279,10 @@
   if (newMode != _mode) {
     _mode = newMode;
     if (_collisionBehavior != nil) {
-      TiThreadPerformOnMainThread(^{
-        [_collisionBehavior setCollisionMode:_mode];
-      },
+      TiThreadPerformOnMainThread(
+          ^{
+            [_collisionBehavior setCollisionMode:_mode];
+          },
           YES);
     }
   }
@@ -308,15 +307,17 @@
 - (void)collisionBehavior:(UICollisionBehavior *)behavior beganContactForItem:(id<UIDynamicItem>)item1 withItem:(id<UIDynamicItem>)item2 atPoint:(CGPoint)p
 {
   if ([self _hasListeners:@"itemcollision"]) {
-    NSDictionary *theEvent = [[[NSDictionary dictionaryWithObjectsAndKeys:[(TiUIView *)item1 proxy], @"item1", [(TiUIView *)item2 proxy], @"item2", [TiUtils pointToDictionary:p], @"point", NUMBOOL(YES), @"start", nil] retain] autorelease];
+    NSDictionary *theEvent = [[NSDictionary alloc] initWithObjectsAndKeys:[(TiUIView *)item1 proxy], @"item1", [(TiUIView *)item2 proxy], @"item2", [TiUtils pointToDictionary:p], @"point", NUMBOOL(YES), @"start", nil];
     [self fireEvent:@"itemcollision" withObject:theEvent propagate:NO reportSuccess:NO errorCode:0 message:nil];
+    [theEvent release];
   }
 }
 - (void)collisionBehavior:(UICollisionBehavior *)behavior endedContactForItem:(id<UIDynamicItem>)item1 withItem:(id<UIDynamicItem>)item2
 {
   if ([self _hasListeners:@"itemcollision"]) {
-    NSDictionary *theEvent = [[[NSDictionary dictionaryWithObjectsAndKeys:[(TiUIView *)item1 proxy], @"item1", [(TiUIView *)item2 proxy], @"item2", NUMBOOL(NO), @"start", nil] retain] autorelease];
+    NSDictionary *theEvent = [[NSDictionary alloc] initWithObjectsAndKeys:[(TiUIView *)item1 proxy], @"item1", [(TiUIView *)item2 proxy], @"item2", NUMBOOL(NO), @"start", nil];
     [self fireEvent:@"itemcollision" withObject:theEvent propagate:NO reportSuccess:NO errorCode:0 message:nil];
+    [theEvent release];
   }
 }
 
@@ -327,8 +328,9 @@
     if (identifier == nil) {
       identifier = [NSNull null];
     }
-    NSDictionary *theEvent = [[[NSDictionary dictionaryWithObjectsAndKeys:[(TiUIView *)item proxy], @"item", identifier, @"identifier", [TiUtils pointToDictionary:p], @"point", NUMBOOL(YES), @"start", nil] retain] autorelease];
+    NSDictionary *theEvent = [[NSDictionary alloc] initWithObjectsAndKeys:[(TiUIView *)item proxy], @"item", identifier, @"identifier", [TiUtils pointToDictionary:p], @"point", NUMBOOL(YES), @"start", nil];
     [self fireEvent:@"boundarycollision" withObject:theEvent propagate:NO reportSuccess:NO errorCode:0 message:nil];
+    [theEvent release];
   }
 }
 - (void)collisionBehavior:(UICollisionBehavior *)behavior endedContactForItem:(id<UIDynamicItem>)item withBoundaryIdentifier:(id<NSCopying>)identifier
@@ -337,8 +339,9 @@
     if (identifier == nil) {
       identifier = [NSNull null];
     }
-    NSDictionary *theEvent = [[[NSDictionary dictionaryWithObjectsAndKeys:[(TiUIView *)item proxy], @"item", identifier, @"identifier", NUMBOOL(NO), @"start", nil] retain] autorelease];
+    NSDictionary *theEvent = [[NSDictionary alloc] initWithObjectsAndKeys:[(TiUIView *)item proxy], @"item", identifier, @"identifier", NUMBOOL(NO), @"start", nil];
     [self fireEvent:@"boundarycollision" withObject:theEvent propagate:NO reportSuccess:NO errorCode:0 message:nil];
+    [theEvent release];
   }
 }
 

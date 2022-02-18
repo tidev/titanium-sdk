@@ -5,14 +5,12 @@ summary: |
     <ListViewAnimationProperties> when invoking the ListView's `scrollToItem`, `appendSection`,
     `deleteSectionAt`, `insertSectionAt` and `replaceSectionAt` methods.
 extends: Titanium.Proxy
-since: '5.4.0'
-platforms: [iphone, ipad]
-
+platforms: [iphone, ipad, macos]
+since: {iphone: "5.4.0", ipad: "5.4.0", macos: "9.2.0"}
 excludes:
     properties: [bubbleParent]
     methods: [addEventListener, applyProperties, fireEvent, removeEventListener]
 createable: false
-
 properties:
   - name: BOTTOM
     summary: The list view scrolls the row of interest to the bottom of the visible list view.

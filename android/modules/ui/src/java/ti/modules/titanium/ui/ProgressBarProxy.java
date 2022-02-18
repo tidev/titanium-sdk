@@ -13,9 +13,10 @@ import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.widget.TiUIProgressBar;
 import android.app.Activity;
-// clang-format off
+
 @Kroll.proxy(creatableInModule = UIModule.class,
 	propertyAccessors = {
+		TiC.PROPERTY_ANIMATED,
 		TiC.PROPERTY_MIN,
 		TiC.PROPERTY_MAX,
 		TiC.PROPERTY_VALUE,
@@ -24,12 +25,12 @@ import android.app.Activity;
 		TiC.PROPERTY_TINT_COLOR,
 		TiC.PROPERTY_TRACK_TINT_COLOR,
 })
-// clang-format on
 public class ProgressBarProxy extends TiViewProxy
 {
 	public ProgressBarProxy()
 	{
 		super();
+		defaultValues.put(TiC.PROPERTY_ANIMATED, true);
 	}
 
 	@Override

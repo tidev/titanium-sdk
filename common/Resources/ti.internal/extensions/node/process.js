@@ -179,11 +179,12 @@ process.platform = Ti.Platform.osname;
 process.ppid = 0;
 // TODO: Add release property (Object)
 // TODO: Can we expose stdout/stderr/stdin natively?
+// Don't wrap console.log/error because technically global console wraps process.stdout/stderr (or should)
 process.stderr = {
 	isTTY: false,
 	writable: true,
 	write: (chunk, encoding, callback) => {
-		console.error(chunk);
+		Ti.API.error(chunk);
 		if (callback) {
 			callback();
 		}
@@ -194,7 +195,7 @@ process.stdout = {
 	isTTY: false,
 	writable: true,
 	write: (chunk, encoding, callback) => {
-		console.log(chunk);
+		Ti.API.info(chunk);
 		if (callback) {
 			callback();
 		}
@@ -216,6 +217,7 @@ process.versions = {
 	jsc: '' // TODO: report javascriptcore version for iOS/WIndows?
 	// TODO: Report ios/Android/Windows platform versions?
 };
+process[Symbol.toStringTag] = 'process';
 
 global.process = process;
 // handle spitting out warnings

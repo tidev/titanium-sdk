@@ -32,10 +32,6 @@ import java.util.HashMap;
 public class NotificationManagerModule extends KrollModule
 {
 	private static final String TAG = "TiNotification";
-	protected static final int PENDING_INTENT_FOR_ACTIVITY = 0;
-	protected static final int PENDING_INTENT_FOR_SERVICE = 1;
-	protected static final int PENDING_INTENT_FOR_BROADCAST = 2;
-	protected static final int PENDING_INTENT_MAX_VALUE = PENDING_INTENT_FOR_SERVICE;
 
 	private static NotificationManager notificationManager = null;
 	private static NotificationChannel defaultChannel = null;
@@ -100,9 +96,11 @@ public class NotificationManagerModule extends KrollModule
 			defaultChannel =
 				new NotificationChannel(DEFAULT_CHANNEL_ID, "miscellaneous", NotificationManager.IMPORTANCE_DEFAULT);
 			getManager().createNotificationChannel(defaultChannel);
-			Log.w(
-				TAG,
-				"Falling back to default notification channel.\nIt is highly advised to create your own notification channel using Ti.Android.NotificationManager.createNotificationChannel()");
+			String warningMessage
+				= "Falling back to default notification channel.\n"
+				+ "It is highly advised to create your own notification channel using"
+				+ " Ti.Android.NotificationManager.createNotificationChannel()";
+			Log.w(TAG, warningMessage);
 		}
 
 		return useDefaultChannel;
@@ -139,7 +137,7 @@ public class NotificationManagerModule extends KrollModule
 		Notification notification = notificationProxy.buildNotification();
 
 		// targeting Android O or above? create default channel
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && notification.getChannelId() == DEFAULT_CHANNEL_ID) {
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && DEFAULT_CHANNEL_ID.equals(notification.getChannelId())) {
 			useDefaultChannel();
 		}
 

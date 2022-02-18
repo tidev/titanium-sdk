@@ -21,8 +21,6 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-import android.os.Build;
-import android.provider.Settings;
 import androidx.core.view.accessibility.AccessibilityEventCompat;
 import androidx.core.view.accessibility.AccessibilityManagerCompat;
 import androidx.core.view.accessibility.AccessibilityManagerCompat.AccessibilityStateChangeListenerCompat;
@@ -61,11 +59,8 @@ public class AppModule extends KrollModule implements SensorEventListener
 		TiApplication.getInstance().removeAppEventProxy(this);
 	}
 
-	// clang-format off
-	@Kroll.method
 	@Kroll.getProperty
 	public String getId()
-	// clang-format on
 	{
 		return appInfo.getId();
 	}
@@ -76,38 +71,26 @@ public class AppModule extends KrollModule implements SensorEventListener
 		return getId();
 	}
 
-	// clang-format off
-	@Kroll.method
 	@Kroll.getProperty
 	public String getName()
-	// clang-format on
 	{
 		return appInfo.getName();
 	}
 
-	// clang-format off
-	@Kroll.method
 	@Kroll.getProperty
 	public String getVersion()
-	// clang-format on
 	{
 		return appInfo.getVersion();
 	}
 
-	// clang-format off
-	@Kroll.method
 	@Kroll.getProperty
 	public String getPublisher()
-	// clang-format on
 	{
 		return appInfo.getPublisher();
 	}
 
-	// clang-format off
-	@Kroll.method
 	@Kroll.getProperty
 	public String getUrl()
-	// clang-format on
 	{
 		return appInfo.getUrl();
 	}
@@ -118,29 +101,20 @@ public class AppModule extends KrollModule implements SensorEventListener
 		return getUrl();
 	}
 
-	// clang-format off
-	@Kroll.method
 	@Kroll.getProperty
 	public String getDescription()
-	// clang-format on
 	{
 		return appInfo.getDescription();
 	}
 
-	// clang-format off
-	@Kroll.method
 	@Kroll.getProperty
 	public String getCopyright()
-	// clang-format on
 	{
 		return appInfo.getCopyright();
 	}
 
-	// clang-format off
-	@Kroll.method
 	@Kroll.getProperty
 	public String getGuid()
-	// clang-format on
 	{
 		return appInfo.getGUID();
 	}
@@ -151,29 +125,20 @@ public class AppModule extends KrollModule implements SensorEventListener
 		return getGuid();
 	}
 
-	// clang-format off
-	@Kroll.method
 	@Kroll.getProperty
 	public String getDeployType()
-	// clang-format on
 	{
 		return TiApplication.getInstance().getDeployType();
 	}
 
-	// clang-format off
-	@Kroll.method
 	@Kroll.getProperty
 	public String getSessionId()
-	// clang-format on
 	{
 		return APSAnalytics.getInstance().getCurrentSessionId();
 	}
 
-	// clang-format off
-	@Kroll.method
 	@Kroll.getProperty
 	public boolean getAnalytics()
-	// clang-format on
 	{
 		return appInfo.isAnalyticsEnabled();
 	}
@@ -184,28 +149,10 @@ public class AppModule extends KrollModule implements SensorEventListener
 		return resolveUrl(null, url);
 	}
 
-	// clang-format off
-	@Kroll.method
 	@Kroll.getProperty
 	public boolean getAccessibilityEnabled()
-	// clang-format on
 	{
-		AccessibilityManager manager = TiApplication.getInstance().getAccessibilityManager();
-		boolean enabled = manager.isEnabled();
-
-		if (!enabled && Build.VERSION.SDK_INT < TiC.API_LEVEL_HONEYCOMB) {
-			// Prior to Honeycomb, AccessibilityManager.isEnabled() would sometimes
-			// return false erroneously the because manager service would asynchronously set the
-			// enabled property in the manager client. So when checking the value, it
-			// might not have been set yet. In studying the changes they made for
-			// Honeycomb, we can see that they do the following in order to determine
-			// if accessibility really is enabled or not:
-			enabled = Settings.Secure.getInt(TiApplication.getInstance().getContentResolver(),
-											 Settings.Secure.ACCESSIBILITY_ENABLED, 0)
-					  == 1;
-		}
-
-		return enabled;
+		return TiApplication.getInstance().getAccessibilityManager().isEnabled();
 	}
 
 	@Kroll.method(name = "_restart")
@@ -277,20 +224,14 @@ public class AppModule extends KrollModule implements SensorEventListener
 		}
 	}
 
-	// clang-format off
-	@Kroll.method
 	@Kroll.getProperty
 	public boolean getProximityDetection()
-	// clang-format on
 	{
 		return proximityDetection;
 	}
 
-	// clang-format off
-	@Kroll.method
 	@Kroll.setProperty
 	public void setProximityDetection(Object value)
-	// clang-format on
 	{
 		proximityDetection = TiConvert.toBoolean(value);
 		if (proximityDetection) {
@@ -302,11 +243,8 @@ public class AppModule extends KrollModule implements SensorEventListener
 		}
 	}
 
-	// clang-format off
-	@Kroll.method
 	@Kroll.getProperty
 	public boolean getProximityState()
-	// clang-format on
 	{
 		return proximityState;
 	}

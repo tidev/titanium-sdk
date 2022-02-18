@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+	<shortcut
+		android:shortcutId="static_shortcut1"
+		android:enabled="true"
+		android:shortcutShortLabel="@string/static_shortcut1_title"
+		android:shortcutLongLabel="@string/static_shortcut1_subtitle"
+		android:shortcutDisabledMessage="@string/static_shortcut1_disabled">
+		<intent
+			android:action="android.intent.action.VIEW"
+			android:targetPackage="com.appcelerator.testApp.testing"
+			android:targetClass="com.appcelerator.testApp.testing.MochaActivity"/>
+		<categories android:name="android.shortcut.conversation"/>
+	</shortcut>
+</shortcuts>

@@ -37,7 +37,7 @@ public class KrollAnnotationUtils
 		return annotationType.equals(annotationClassName);
 	}
 
-	public boolean annotationTypeIsOneOf(AnnotationMirror annotation, String annotationClasses[])
+	public boolean annotationTypeIsOneOf(AnnotationMirror annotation, String[] annotationClasses)
 	{
 		boolean found = false;
 		for (String annClass : annotationClasses) {
@@ -114,7 +114,7 @@ public class KrollAnnotationUtils
 
 	public HashMap<String, Object> mapToHash(Map<? extends ExecutableElement, ? extends AnnotationValue> source)
 	{
-		HashMap<String, Object> result = new HashMap<String, Object>();
+		HashMap<String, Object> result = new HashMap<>();
 		for (Map.Entry<? extends ExecutableElement, ? extends AnnotationValue> mirrorEntry : source.entrySet()) {
 			String mirrorKey = mirrorEntry.getKey().getSimpleName().toString();
 			Object value = mirrorEntry.getValue().getValue();
@@ -167,7 +167,7 @@ public class KrollAnnotationUtils
 
 	public HashMap<String, Object> getAnnotationParams(Element element, String annotationClass)
 	{
-		final HashMap<String, Object> params = new HashMap<String, Object>();
+		final HashMap<String, Object> params = new HashMap<>();
 		acceptAnnotations(element, annotationClass, new KrollVisitor<AnnotationMirror>() {
 			@Override
 			public boolean visit(AnnotationMirror element, Object arg)
@@ -190,13 +190,13 @@ public class KrollAnnotationUtils
 		return acceptAnnotations(element, new String[] { annotationClass }, visitor, arg);
 	}
 
-	public boolean acceptAnnotations(Element element, String annotationClasses[],
+	public boolean acceptAnnotations(Element element, String[] annotationClasses,
 									 KrollVisitor<AnnotationMirror> visitor)
 	{
 		return acceptAnnotations(element, annotationClasses, visitor, null);
 	}
 
-	public boolean acceptAnnotations(Element element, String annotationClasses[],
+	public boolean acceptAnnotations(Element element, String[] annotationClasses,
 									 KrollVisitor<AnnotationMirror> visitor, Object arg)
 	{
 		for (AnnotationMirror ann : element.getAnnotationMirrors()) {

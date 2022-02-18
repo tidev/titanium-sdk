@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2011-2015 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2011-2020 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -19,6 +19,9 @@ import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 /**
  * The common Javascript runtime instance that Titanium interacts with.
@@ -48,7 +51,7 @@ public abstract class KrollRuntime implements Handler.Callback
 	}
 
 	private static KrollRuntime instance;
-	private static ArrayList<OnDisposingListener> disposingListeners = new ArrayList<>();
+	private static final ArrayList<OnDisposingListener> disposingListeners = new ArrayList<>();
 	private static int activityRefCount = 0;
 	private static int serviceReceiverRefCount = 0;
 
@@ -96,8 +99,8 @@ public abstract class KrollRuntime implements Handler.Callback
 
 		// Set up runtime member variables.
 		Looper looper = Looper.getMainLooper();
-		runtime.krollApplication = new WeakReference<KrollApplication>((KrollApplication) context);
-		runtime.exceptionHandlers = new HashMap<String, KrollExceptionHandler>();
+		runtime.krollApplication = new WeakReference<>((KrollApplication) context);
+		runtime.exceptionHandlers = new HashMap<>();
 		runtime.threadId = looper.getThread().getId();
 		runtime.handler = new Handler(looper, runtime);
 
@@ -109,16 +112,43 @@ public abstract class KrollRuntime implements Handler.Callback
 		runtime.doInit();
 	}
 
+	@Nullable
 	public static KrollRuntime getInstance()
 	{
+		// TODO: Prevent this method from requiring `null` checks.
 		return instance;
 	}
 
+	/**
+	 * Suggest V8 garbage collection during idle.
+	 */
 	public static void suggestGC()
 	{
 		if (instance != null) {
 			instance.setGCFlag();
 		}
+	}
+
+	/**
+	 * Force V8 garbage collection.
+	 */
+	public static void softGC()
+	{
+		// Force V8 garbage collection.
+		if (instance != null) {
+			instance.forceGC();
+		}
+	}
+
+	/**
+	 * Force both V8 and JVM garbage collection.
+	 */
+	public static void hardGC()
+	{
+		softGC();
+
+		// Force JVM garbage collection.
+		System.gc();
 	}
 
 	public static boolean isInitialized()
@@ -236,7 +266,7 @@ public abstract class KrollRuntime implements Handler.Callback
 	 * Equivalent to <pre>evalString(source, SOURCE_ANONYMOUS)</pre>
 	 * @see #evalString(String, String)
 	 * @param source A string containing Javascript source
-	 * @return The Java representation of the return value of {@link source}, as long as Kroll supports the return value
+	 * @return The Java representation of the return value of {@code source}, as long as Kroll supports the return value
 	 */
 	public Object evalString(String source)
 	{
@@ -256,8 +286,8 @@ public abstract class KrollRuntime implements Handler.Callback
 	 * <li>Any Proxy type that extends {@link org.appcelerator.kroll.KrollProxy}</li>
 	 * </ul>
 	 * @param source A string containing Javascript source
-	 * @param filename The name of the filename represented by {@link source}
-	 * @return The Java representation of the return value of {@link source}, as long as Kroll supports the return value
+	 * @param filename The name of the filename represented by {@code source}
+	 * @return The Java representation of the return value of {@code source}, as long as Kroll supports the return value
 	 */
 	public Object evalString(String source, String filename)
 	{
@@ -441,6 +471,11 @@ public abstract class KrollRuntime implements Handler.Callback
 		// No-op V8 should override.
 	}
 
+	public void forceGC()
+	{
+		// No-op V8 should override.
+	}
+
 	public State getRuntimeState()
 	{
 		return runtimeState;
@@ -451,7 +486,6 @@ public abstract class KrollRuntime implements Handler.Callback
 	 * time.
 	 *
 	 * @param handler The exception handler to set
-	 * @module.api
 	 */
 	public static void setPrimaryExceptionHandler(KrollExceptionHandler handler)
 	{
@@ -466,7 +500,6 @@ public abstract class KrollRuntime implements Handler.Callback
 	 *
 	 * @param handler The exception handler to set
 	 * @param key The key for the exception handler
-	 * @module.api
 	 */
 	public static void addAdditionalExceptionHandler(KrollExceptionHandler handler, String key)
 	{
@@ -478,7 +511,6 @@ public abstract class KrollRuntime implements Handler.Callback
 	/**
 	 * Removes the exception handler from the list of additional handlers. This will not affect the default handler.
 	 * @param key The key for the exception handler
-	 * @module.api
 	 */
 	public static void removeExceptionHandler(String key)
 	{
@@ -575,4 +607,6 @@ public abstract class KrollRuntime implements Handler.Callback
 	public abstract String getRuntimeName();
 	public abstract void initRuntime();
 	public abstract void initObject(KrollProxySupport proxy);
+	@NonNull
+	public abstract KrollPromise createPromise();
 }

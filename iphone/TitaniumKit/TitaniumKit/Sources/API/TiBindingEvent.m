@@ -263,8 +263,7 @@ void TiBindingEventProcess(TiBindingRunLoop runloop, void *payload)
       JSValueRef exception = NULL;
       JSObjectCallAsFunction(context, (JSObjectRef)currentCallback, (JSObjectRef)eventTargetRef, 1, (JSValueRef *)&eventObjectRef, &exception);
       if (exception != NULL) {
-        id excm = TiBindingTiValueToNSObject(context, exception);
-        [[TiExceptionHandler defaultExceptionHandler] reportScriptError:[TiUtils scriptErrorValue:excm]];
+        [TiExceptionHandler.defaultExceptionHandler reportScriptError:exception inKrollContext:runloop];
       }
 
       // Note cancel bubble

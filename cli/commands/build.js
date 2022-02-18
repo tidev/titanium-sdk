@@ -15,7 +15,6 @@ const appc = require('node-appc'),
 	sprintf = require('sprintf'),
 	ti = require('node-titanium-sdk'),
 	tiappxml = require('node-titanium-sdk/lib/tiappxml'),
-	semver = require('semver'),
 	__ = appc.i18n(__dirname).__;
 
 fields.setup({

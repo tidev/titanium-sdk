@@ -62,12 +62,23 @@ class AndroidManifest {
 
 	/**
 	 * Creates an XML string of the manifest contents.
-	 * @returns {String} Returns an XML string of the Android manfiest contents. Will never return null.
+	 * @returns {String} Returns an XML string of the Android manifest contents. Will never return null.
 	 */
 	toString() {
 		let text = '<?xml version="1.0" encoding="utf-8"?>' + os.EOL;
 		if (this._xmlDomDocument && this._xmlDomDocument.documentElement) {
+			// Write XML content to string.
 			text += this._xmlDomDocument.documentElement + os.EOL;
+
+			// Remove all "xmlns:android=<url>"" namespace definitions from child elements.
+			// Google only allows it in root <manifest/> element or else a build/validation error will occur.
+			let startReplaceIndex = text.indexOf('<manifest');
+			if (startReplaceIndex >= 0) {
+				startReplaceIndex = text.indexOf('>', startReplaceIndex);
+				text = text.replace(/\sxmlns:android=".*?"/g, (match, offset) => {
+					return (offset <= startReplaceIndex) ? match : '';
+				});
+			}
 		}
 		return text;
 	}
@@ -208,6 +219,27 @@ class AndroidManifest {
 
 		// Assign package name to <manifest/> element.
 		manifestElement.setAttribute('package', name);
+	}
+
+	/**
+	 * Fetches the "versionCode" and "versionName" attributes from the <manifest/> element.
+	 * @return {{versionCode: {String}, versionName: {String}}}
+	 * Returns a dictionary providing the "versionCode" and "versionName" attributes read from <manifest/> element.
+	 *
+	 * Returns null if no XML content has been loaded;
+	 */
+	getAppVersionInfo() {
+		let versionInfo = null;
+		if (!this.isEmpty()) {
+			const element = this._xmlDomDocument.documentElement;
+			if (element.tagName === 'manifest') {
+				versionInfo = {
+					versionCode: element.getAttribute('android:versionCode'),
+					versionName: element.getAttribute('android:versionName')
+				};
+			}
+		}
+		return versionInfo;
 	}
 
 	/**
@@ -402,6 +434,23 @@ class AndroidManifest {
 		// Apply "tools:replace" attribute to <manifest/> element. (Must be done after setting namespace above.)
 		applyToolsReplaceToElement(manifestElement);
 
+		// Apply 'tools:node="replace"' to WRITE_EXTERNAL_STORAGE permission if no other tools attribute is set.
+		// Titanium adds "maxSdkVersion" attribute to this permission by default. This removes that attribute.
+		const permissionElement = getFirstChildElementByTagAndAndroidName(
+			manifestElement, 'uses-permission', 'android.permission.WRITE_EXTERNAL_STORAGE');
+		if (permissionElement) {
+			let hasToolsAttribute = false;
+			for (let index = 0; index < permissionElement.attributes.length; index++) {
+				if (permissionElement.attributes.item(index).name.startsWith('tools:')) {
+					hasToolsAttribute = true;
+					break;
+				}
+			}
+			if (!hasToolsAttribute) {
+				permissionElement.setAttribute('tools:node', 'replace');
+			}
+		}
+
 		// Fetch the <application/> element.
 		const appElement = getFirstChildElementByTagName(manifestElement, 'application');
 		if (!appElement) {
@@ -461,7 +510,7 @@ class AndroidManifest {
 			if (sourceElement.hasAttributes()) {
 				for (let index = 0; index < sourceElement.attributes.length; index++) {
 					const sourceAttribute = sourceElement.attributes.item(index);
-					destinationElement.setAttribute(sourceAttribute.name, sourceAttribute.value);
+					destinationElement.setAttributeNode(sourceAttribute.cloneNode());
 				}
 			}
 
@@ -470,10 +519,13 @@ class AndroidManifest {
 				return;
 			}
 
-			// We only support merging child nodes immediately under <manifest/> or <application/> elements.
+			// We only support merging child nodes immediately under <manifest/>, <queries/>, or <application/>.
 			// For all other XML elements, we simply replace the child nodes, but only if children were provided.
 			const isManifestElement = (sourceElement.tagName === 'manifest');
-			const canMergeChildren = isManifestElement || (sourceElement.tagName === 'application');
+			const canMergeChildren
+				=  isManifestElement
+				|| (sourceElement.tagName === 'application')
+				|| (sourceElement.tagName === 'queries');
 			if (!canMergeChildren) {
 				while (destinationElement.hasChildNodes()) {
 					destinationElement.removeChild(destinationElement.firstChild);
@@ -499,8 +551,9 @@ class AndroidManifest {
 				}
 
 				// Attempt to find a matching child element under destination.
+				// Note: Never merge <intent/> block. Only append them. (Duplicate intent blocks are okay.)
 				let destinationChildElement = null;
-				if (tagName) {
+				if (tagName && (tagName !== 'intent')) {
 					if (androidName) {
 						destinationChildElement = getFirstChildElementByTagAndAndroidName(destinationElement, tagName, androidName);
 					} else {
@@ -598,20 +651,30 @@ class AndroidManifest {
 			throw new Error('1st argument must be of type string.');
 		}
 
-		// Inject commonly used Android XML namespaces into the <manifest/> element if missing.
-		// Note: Needed for backward compatibility since older versions of Titanium would inject them too.
+		// Process the XML string before parsing it.
 		const MANIFEST_ELEMENT_PREFIX = '<manifest';
 		const manifestIndex = text.indexOf(MANIFEST_ELEMENT_PREFIX);
 		if (manifestIndex >= 0) {
+			// Inject commonly used Android XML namespaces into the <manifest/> element if missing.
+			// Needed for backward compatibility since older versions of Titanium would inject them too.
 			const insertIndex = manifestIndex + MANIFEST_ELEMENT_PREFIX.length;
-			if (text.indexOf('xmlns:tools') < 0) {
+			let attributeIndex = text.indexOf('xmlns:tools', manifestIndex);
+			if ((attributeIndex < 0) || (attributeIndex > text.indexOf('>', manifestIndex))) {
 				const attributeString = ' xmlns:tools="http://schemas.android.com/tools"';
 				text = text.substring(0, insertIndex) + attributeString + text.substring(insertIndex);
 			}
-			if (text.indexOf('xmlns:android') < 0) {
+			attributeIndex = text.indexOf('xmlns:android', manifestIndex);
+			if ((attributeIndex < 0) || (attributeIndex > text.indexOf('>', manifestIndex))) {
 				const attributeString = ' xmlns:android="http://schemas.android.com/apk/res/android"';
 				text = text.substring(0, insertIndex) + attributeString + text.substring(insertIndex);
 			}
+
+			// Remove "xmlns:android" namespace attributes from all child elements. Only supported in <manifest/>.
+			// Note: CLI used to wrongly inject these after updating "tiapp.xml" if missing from root element.
+			const manifestEndIndex = text.indexOf('>', manifestIndex);
+			text = text.replace(/\sxmlns:android=".*?"/g, (match, offset) => {
+				return (offset <= manifestEndIndex) ? match : '';
+			});
 		}
 
 		// Parse given XML string and wrap it in a new AndroidManifest instance.

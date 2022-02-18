@@ -7,6 +7,7 @@
 #import "ObjcProxy.h"
 #import "KrollBridge.h"
 #import "TiBindingTiValue.h"
+#import "TiExceptionHandler.h"
 #import "TiHost.h"
 
 @implementation ObjcProxy
@@ -55,14 +56,14 @@
 
 - (void)throwException:(NSString *)reason subreason:(NSString *)subreason location:(NSString *)location
 {
-  JSContext *context = [JSContext currentContext];
+  JSContext *context = JSContext.currentContext;
   JSValue *error = [self createError:reason subreason:subreason location:location inContext:context];
   [context setException:error];
 }
 
 + (void)throwException:(NSString *)reason subreason:(NSString *)subreason location:(NSString *)location
 {
-  JSContext *context = [JSContext currentContext];
+  JSContext *context = JSContext.currentContext;
   JSValue *error = [ObjcProxy createError:reason subreason:subreason location:location inContext:context];
   [context setException:error];
 }
@@ -70,32 +71,41 @@
 // Conversion methods for interacting with "old" KrollObject style proxies
 - (id)JSValueToNative:(JSValue *)jsValue
 {
-  JSContext *context = [jsValue context];
-  JSGlobalContextRef jsContext = [context JSGlobalContextRef];
-  JSValueRef valueRef = [jsValue JSValueRef];
-  id obj = TiBindingTiValueToNSObject(jsContext, valueRef);
-  return obj;
+  return TiBindingTiValueToNSObject(jsValue.context.JSGlobalContextRef, jsValue.JSValueRef);
 }
 
 - (JSValue *)NativeToJSValue:(id)native
 {
-  JSContext *context = [JSContext currentContext];
-  JSGlobalContextRef jsContext = [context JSGlobalContextRef];
-  JSValueRef jsValueRef = TiBindingTiValueFromNSObject(jsContext, native);
+  return [self NativeToJSValue:native inContext:JSContext.currentContext];
+}
+
+- (JSValue *)NativeToJSValue:(id)native inContext:(JSContext *)context
+{
+  JSValueRef jsValueRef = TiBindingTiValueFromNSObject(context.JSGlobalContextRef, native);
   return [JSValue valueWithJSValueRef:jsValueRef inContext:context];
+}
+
+- (JSValue *)JSValue
+{
+  return [self NativeToJSValue:self];
+}
+
+- (JSValue *)JSValueInContext:(JSContext *)context
+{
+  return [self NativeToJSValue:self inContext:context];
 }
 
 - (id)init
 {
   if (self = [super init]) {
     self.bubbleParent = YES;
-    JSContext *context = [JSContext currentContext];
+    JSContext *context = JSContext.currentContext;
     if (context == nil) { // from native code!
       // Ask KrollBridge for current URL?
       NSString *basePath = [TiHost resourcePath];
       baseURL = [[NSURL fileURLWithPath:basePath] retain];
     } else {
-      JSValue *filename = [context evaluateScript:@"__filename"];
+      JSValue *filename = [context evaluateScript:@"__filename"]; // FIXME: This may not be defined!
       NSString *asString = [filename toString];
       NSString *base;
       [TiHost resourceBasedURL:asString baseURL:&base];
@@ -157,13 +167,13 @@
     if (_listeners == nil) {
       _listeners = [[NSMutableDictionary alloc] initWithCapacity:3];
     }
-    JSManagedValue *managedRef = [JSManagedValue managedValueWithValue:callback];
-    [callback.context.virtualMachine addManagedReference:managedRef withOwner:self];
     NSMutableArray *listenersForType = [_listeners objectForKey:name];
     if (listenersForType == nil) {
       listenersForType = [[NSMutableArray alloc] init];
     }
-    [listenersForType addObject:managedRef];
+    // TIMOB-27839. Instead of using JSManagedValue we are using JSValue to force a retain cycle
+    // between the module/proxy and the event listeners to keep both alive so long as there were any listeners
+    [listenersForType addObject:callback];
     ourCallbackCount = [listenersForType count];
     [_listeners setObject:listenersForType forKey:name];
   }
@@ -189,11 +199,9 @@
 
     NSUInteger count = [listenersForType count];
     for (NSUInteger i = 0; i < count; i++) {
-      JSManagedValue *storedCallback = (JSManagedValue *)[listenersForType objectAtIndex:i];
-      JSValue *actualCallback = [storedCallback value];
+      JSValue *actualCallback = (JSValue *)[listenersForType objectAtIndex:i];
       if ([actualCallback isEqualToObject:callback]) {
         // if the callback matches, remove the listener from our mapping and mark unmanaged
-        [actualCallback.context.virtualMachine removeManagedReference:storedCallback withOwner:self];
         [listenersForType removeObjectAtIndex:i];
         [_listeners setObject:listenersForType forKey:name];
         ourCallbackCount = count - 1;
@@ -243,20 +251,22 @@
   pthread_rwlock_rdlock(&_listenerLock);
   @try {
     if (_listeners == nil) {
+      pthread_rwlock_unlock(&_listenerLock);
       return;
     }
-    NSArray *listenersForType = [_listeners objectForKey:name];
+    NSArray *listenersForType = [[_listeners objectForKey:name] copy];
+    pthread_rwlock_unlock(&_listenerLock);
+
     if (listenersForType == nil) {
       return;
     }
     // FIXME: looks like we need to handle bubble logic/etc. See other fireEvent impl
-    for (JSManagedValue *storedCallback in listenersForType) {
-      JSValue *function = [storedCallback value];
-      [self _fireEventToListener:name withObject:dict listener:function];
+    for (JSValue *storedCallback in listenersForType) {
+      [self _fireEventToListener:name withObject:dict listener:storedCallback];
     }
+    [listenersForType autorelease];
   }
   @finally {
-    pthread_rwlock_unlock(&_listenerLock);
   }
 }
 
@@ -279,6 +289,11 @@
 
   if (listener != nil) {
     [listener callWithArguments:@[ eventObject ]];
+    // handle an uncaught exception
+    JSValue *exception = listener.context.exception;
+    if (exception != nil) {
+      [TiExceptionHandler.defaultExceptionHandler reportScriptError:exception inJSContext:listener.context];
+    }
   }
 }
 
@@ -317,8 +332,28 @@ READWRITE_IMPL(BOOL, bubbleParent, BubbleParent);
 
 - (id<TiEvaluator>)executionContext
 {
-  KrollContext *context = GetKrollContext([[JSContext currentContext] JSGlobalContextRef]);
+  return [ObjcProxy executionContext:[self currentContext]];
+}
+
++ (id<TiEvaluator>)executionContext:(JSContext *)jsContext
+{
+  KrollContext *context = GetKrollContext(jsContext.JSGlobalContextRef);
   return (KrollBridge *)[context delegate];
+}
+
+- (JSContext *)currentContext
+{
+  JSContext *cur = JSContext.currentContext;
+  if (cur != nil) {
+    return cur;
+  }
+  KrollBridge *bridge = [KrollBridge krollBridgeForThreadName:NSThread.currentThread.name];
+  if (bridge != nil) {
+    KrollContext *krollContext = bridge.krollContext;
+    JSGlobalContextRef globalRef = krollContext.context;
+    return [JSContext contextWithJSGlobalContextRef:globalRef];
+  }
+  return nil;
 }
 
 @end

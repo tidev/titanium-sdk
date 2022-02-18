@@ -139,9 +139,7 @@
     [self addSubview:scrollView];
 #endif
   }
-  if ([TiUtils isIOSVersionOrGreater:@"11.0"]) {
-    [self adjustScrollViewInsets];
-  }
+  [self adjustScrollViewInsets];
   return scrollView;
 }
 
@@ -227,9 +225,10 @@
 #ifndef TI_USE_AUTOLAYOUT
   if (!needsHandleContentSize) {
     needsHandleContentSize = YES;
-    TiThreadPerformOnMainThread(^{
-      [self handleContentSize];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          [self handleContentSize];
+        },
         NO);
   }
 #endif

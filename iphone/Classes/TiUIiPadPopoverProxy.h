@@ -27,6 +27,7 @@
   NSCondition *closingCondition;
   TiDimension poWidth;
   TiDimension poHeight;
+  BOOL deviceRotated;
 }
 
 - (void)updatePopover:(NSNotification *)notification;

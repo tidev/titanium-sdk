@@ -1,0 +1,32 @@
+{
+	"textColor": {
+	  "dark": "#ff85e2",
+	  "light": "#ff1f1f"
+	},
+	"green_100.0": {
+	  "light": { "color": "#00ff00", "alpha": "100.0" },
+	  "dark": { "color": "#008000", "alpha": "100.0" }
+	},
+	"blue_75.0": {
+	  "light": { "color": "#0000ff", "alpha": "75.0" },
+	  "dark": { "color": "#000080", "alpha": "75.0" }
+	},
+	"cyan_50.0": {
+	  "light": { "color": "#00ffff", "alpha": "50.0" },
+	  "dark": { "color": "#008080", "alpha": "50.0" }
+	},
+	"red_25.0": {
+	  "light": { "color": "#ff0000", "alpha": "25.0" },
+	  "dark": { "color": "#800000", "alpha": "25.0" }
+	},
+	"magenta_0": {
+	  "light": { "color": "#ff00ff", "alpha": "0" },
+	  "dark": { "color": "#800080", "alpha": "0.0" }
+	},
+	"yellow_noalpha": { "light": "#ffff00", "dark": "#808000" },
+	"green_hex8": {
+	  "light": "#8000ff00",
+	  "dark": "#80008000"
+	}
+  }
+  

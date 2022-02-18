@@ -4,7 +4,7 @@
  * @module cli/_build
  *
  * @copyright
- * Copyright (c) 2009-2019 by Axway, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2021 by Axway, Inc. All Rights Reserved.
  *
  * @license
  * Licensed under the terms of the Apache Public License
@@ -14,7 +14,6 @@
 'use strict';
 
 const ADB = require('node-titanium-sdk/lib/adb'),
-	AdmZip = require('adm-zip'),
 	android = require('node-titanium-sdk/lib/android'),
 	androidDetect = require('../lib/detect').detect,
 	AndroidManifest = require('../lib/android-manifest'),
@@ -23,20 +22,22 @@ const ADB = require('node-titanium-sdk/lib/adb'),
 	Builder = require('node-titanium-sdk/lib/builder'),
 	GradleWrapper = require('../lib/gradle-wrapper'),
 	ProcessJsTask = require('../../../cli/lib/tasks/process-js-task'),
-	CleanCSS = require('clean-css'),
+	ProcessDrawablesTask = require('../lib/process-drawables-task'),
+	ProcessSplashesTask = require('../lib/process-splashes-task'),
+	Color = require('../../../common/lib/color'),
+	ProcessCSSTask = require('../../../cli/lib/tasks/process-css-task'),
+	CopyResourcesTask = require('../../../cli/lib/tasks/copy-resources-task'),
 	DOMParser = require('xmldom').DOMParser,
 	ejs = require('ejs'),
 	EmulatorManager = require('node-titanium-sdk/lib/emulator'),
 	fields = require('fields'),
 	fs = require('fs-extra'),
 	i18n = require('node-titanium-sdk/lib/i18n'),
-	jsanalyze = require('node-titanium-sdk/lib/jsanalyze'),
 	path = require('path'),
 	temp = require('temp'),
 	ti = require('node-titanium-sdk'),
 	tiappxml = require('node-titanium-sdk/lib/tiappxml'),
 	util = require('util'),
-	Cloak = require('ti.cloak').default,
 
 	afs = appc.fs,
 	i18nLib = appc.i18n(__dirname),
@@ -44,6 +45,8 @@ const ADB = require('node-titanium-sdk/lib/adb'),
 	__n = i18nLib.__n,
 	version = appc.version,
 	V8_STRING_VERSION_REGEXP = /(\d+)\.(\d+)\.\d+\.\d+/;
+
+const platformsRegExp = new RegExp('^(' + ti.allPlatformNames.join('|') + ')$'); // eslint-disable-line security/detect-non-literal-regexp
 
 function AndroidBuilder() {
 	Builder.apply(this, arguments);
@@ -103,6 +106,8 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 			return callback();
 		}
 
+		_t.buildOnly = cli.argv['build-only'];
+
 		async.series([
 			function (next) {
 				// detect android environment
@@ -110,30 +115,6 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 					_t.androidInfo = androidInfo;
 					assertIssue(logger, androidInfo.issues, 'ANDROID_JDK_NOT_FOUND');
 					assertIssue(logger, androidInfo.issues, 'ANDROID_JDK_PATH_CONTAINS_AMPERSANDS');
-					assertIssue(logger, androidInfo.issues, 'ANDROID_BUILD_TOOLS_CONFIG_SETTING_NOT_INSTALLED');
-					assertIssue(logger, androidInfo.issues, 'ANDROID_BUILD_TOOLS_TOO_NEW');
-					assertIssue(logger, androidInfo.issues, 'ANDROID_BUILD_TOOLS_NOT_SUPPORTED');
-
-					if (!cli.argv.prompt) {
-						// check that the Android SDK is found and sane
-						// note: if we're prompting, then we'll do this check in the --android-sdk validate() callback
-						assertIssue(logger, androidInfo.issues, 'ANDROID_SDK_NOT_FOUND');
-						assertIssue(logger, androidInfo.issues, 'ANDROID_SDK_MISSING_PROGRAMS');
-
-						// make sure we have an Android SDK and some Android targets
-						if (!Object.keys(androidInfo.targets).filter(function (id) {
-							var t = androidInfo.targets[id];
-							return t.type === 'platform' && t['api-level'] >= _t.minTargetApiLevel;
-						}).length) {
-							if (Object.keys(androidInfo.targets).length) {
-								logger.error(__('No valid Android SDK targets found.'));
-							} else {
-								logger.error(__('No Android SDK targets found.'));
-							}
-							logger.error(__('Please download an Android SDK target API level %s or newer from the Android SDK Manager and try again.', _t.minTargetApiLevel) + '\n');
-							process.exit(1);
-						}
-					}
 
 					// if --android-sdk was not specified, then we simply try to set a default android sdk
 					if (!cli.argv['android-sdk']) {
@@ -285,10 +266,6 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 								if (!alias) {
 									return callback(new Error(__('Invalid "--alias" value "%s"', value)));
 								}
-								if (alias.sigalg && alias.sigalg.toLowerCase() === 'sha256withrsa') {
-									logger.warn(__('The selected alias %s uses the %s signature algorithm which will likely have issues with Android 4.3 and older.', ('"' + value + '"').cyan, ('"' + alias.sigalg + '"').cyan));
-									logger.warn(__('Certificates that use the %s or %s signature algorithm will provide better compatibility.', '"SHA1withRSA"'.cyan, '"MD5withRSA"'.cyan));
-								}
 							}
 							callback(null, value);
 						}
@@ -328,37 +305,36 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 							} else if (process.platform === 'win32' && value.indexOf('&') !== -1) {
 								callback(new Error(__('The Android SDK path cannot contain ampersands (&) on Windows')));
 							} else if (_t.androidInfo.sdk && _t.androidInfo.sdk.path === afs.resolvePath(value)) {
-								// no sense doing the detection again, just make sure we found the sdk
-								assertIssue(logger, _t.androidInfo.issues, 'ANDROID_SDK_NOT_FOUND');
-								assertIssue(logger, _t.androidInfo.issues, 'ANDROID_SDK_MISSING_PROGRAMS');
 								callback(null, value);
 							} else {
-								// do a quick scan to see if the path is correct
-								android.findSDK(value, config, appc.pkginfo.package(module), function (err) {
-									if (err) {
-										callback(new Error(__('Invalid Android SDK path: %s', value)));
+								// attempt to find android sdk
+								android.findSDK(value, config, appc.pkginfo.package(module), function () {
+
+									// NOTE: ignore errors when finding sdk, let gradle validate the sdk
+
+									function next() {
+										// set the android sdk in the config just in case a plugin or something needs it
+										config.set('android.sdkPath', value);
+
+										// path looks good, do a full scan again
+										androidDetect(config, { packageJson: _t.packageJson, bypassCache: true }, function (androidInfo) {
+
+											// assume sdk is valid, let gradle validate the sdk
+											if (!androidInfo.sdk) {
+												androidInfo.sdk = { path: value };
+											}
+
+											_t.androidInfo = androidInfo;
+											callback(null, value);
+										});
+									}
+
+									// new android sdk path looks good
+									// if we found an android sdk in the pre-validate hook, then we need to kill the other sdk's adb server
+									if (_t.androidInfo.sdk) {
+										new ADB(config).stopServer(next);
 									} else {
-										function next() {
-											// set the android sdk in the config just in case a plugin or something needs it
-											config.set('android.sdkPath', value);
-
-											// path looks good, do a full scan again
-											androidDetect(config, { packageJson: _t.packageJson, bypassCache: true }, function (androidInfo) {
-												// check that the Android SDK is found and sane
-												assertIssue(logger, androidInfo.issues, 'ANDROID_SDK_NOT_FOUND');
-												assertIssue(logger, androidInfo.issues, 'ANDROID_SDK_MISSING_PROGRAMS');
-												_t.androidInfo = androidInfo;
-												callback(null, value);
-											});
-										}
-
-										// new android sdk path looks good
-										// if we found an android sdk in the pre-validate hook, then we need to kill the other sdk's adb server
-										if (_t.androidInfo.sdk) {
-											new ADB(config).stopServer(next);
-										} else {
-											next();
-										}
+										next();
 									}
 								});
 							}
@@ -434,13 +410,14 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 								// if there are no devices/emulators, error
 								if (!Object.keys(opts).length) {
 									if (cli.argv.target === 'device') {
-										logger.error(__('Unable to find any devices') + '\n');
-										logger.log(__('Please plug in an Android device, then try again.') + '\n');
+										logger.warn(__('Unable to find any devices, possibily due to missing dependencies.') + '\n');
+										logger.log(__('Continuing with build... (will attempt to install missing dependencies)') + '\n');
 									} else {
-										logger.error(__('Unable to find any emulators') + '\n');
-										logger.log(__('Please create an Android emulator, then try again.') + '\n');
+										logger.warn(__('Unable to find any emulators, possibily due to missing dependencies.') + '\n');
+										logger.log(__('Continuing with build... (will attempt to install missing dependencies)') + '\n');
 									}
-									process.exit(1);
+									_t.buildOnly = true;
+									return callback();
 								}
 
 								callback(fields.select({
@@ -484,7 +461,7 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 							});
 						},
 						verifyIfRequired: function (callback) {
-							if (cli.argv['build-only']) {
+							if (_t.buildOnly) {
 								// not required if we're build only
 								return callback();
 							}
@@ -575,7 +552,7 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 										}
 									}
 
-								} else if (cli.argv['device-id'] === undefined && results.length && config.get('android.autoSelectDevice', true)) {
+								} else if (cli.argv['device-id'] === undefined && results && results.length && config.get('android.autoSelectDevice', true)) {
 									// we set the device-id to an array of devices so that later in validate()
 									// after the tiapp.xml has been parsed, we can auto select the best device
 									_t.devicesToAutoSelectFrom = results.sort(function (a, b) {
@@ -601,8 +578,11 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 									return callback();
 								}
 
-								// yup, still required
-								callback(true);
+								// Failed to find devices, fallback to buildOnly.
+								logger.warn('Unable to find any emulators or devices, possibily due to missing dependencies.');
+								logger.warn('Continuing with build... (will attempt to install missing dependencies)');
+								_t.buildOnly = true;
+								return callback();
 							});
 						}
 					},
@@ -898,12 +878,8 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 	}
 	cli.tiapp.properties['ti.deploytype'] = { type: 'string', value: this.deployType };
 
-	// Titanium's gradle build system currently ignores these settings.
+	// Fetch Java max heap size setting.
 	this.javacMaxMemory = cli.tiapp.properties['android.javac.maxmemory'] && cli.tiapp.properties['android.javac.maxmemory'].value || config.get('android.javac.maxMemory', '3072M');
-	this.javacSource = cli.tiapp.properties['android.javac.source'] && cli.tiapp.properties['android.javac.source'].value || config.get('android.javac.source', '1.7');
-	this.javacTarget = cli.tiapp.properties['android.javac.target'] && cli.tiapp.properties['android.javac.target'].value || config.get('android.javac.target', '1.7');
-	this.dxMaxMemory = cli.tiapp.properties['android.dx.maxmemory'] && cli.tiapp.properties['android.dx.maxmemory'].value || config.get('android.dx.maxMemory', '3072M');
-	this.dxMaxIdxNumber = cli.tiapp.properties['android.dx.maxIdxNumber'] && cli.tiapp.properties['android.dx.maxIdxNumber'].value || config.get('android.dx.maxIdxNumber', '65536');
 
 	// Transpilation details
 	this.transpile = cli.tiapp['transpile'] !== false; // Transpiling is an opt-out process now
@@ -968,11 +944,11 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 		if (config.get('android.allowAppNameAmpersands', false)) {
 			logger.warn(__('The app name "%s" contains an ampersand (&) which will most likely cause problems.', cli.tiapp.name));
 			logger.warn(__('It is recommended that you define the app name using i18n strings.'));
-			logger.warn(__('Refer to %s for more information.', 'http://appcelerator.com/i18n-app-name'.cyan));
+			logger.warn(__('Refer to %s for more information.', 'https://titaniumsdk.com/guide/Titanium_SDK/Titanium_SDK_How-tos/Cross-Platform_Mobile_Development_In_Titanium/Internationalization.html'.cyan));
 		} else {
 			logger.error(__('The app name "%s" contains an ampersand (&) which will most likely cause problems.', cli.tiapp.name));
 			logger.error(__('It is recommended that you define the app name using i18n strings.'));
-			logger.error(__('Refer to %s for more information.', 'http://appcelerator.com/i18n-app-name'));
+			logger.error(__('Refer to %s for more information.', 'https://titaniumsdk.com/guide/Titanium_SDK/Titanium_SDK_How-tos/Cross-Platform_Mobile_Development_In_Titanium/Internationalization.html'));
 			logger.error(__('To allow ampersands in the app name, run:'));
 			logger.error('    %sti config android.allowAppNameAmpersands true\n', process.env.APPC_ENV ? 'appc ' : '');
 			process.exit(1);
@@ -1040,7 +1016,13 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 	}
 
 	// map sdk versions to sdk targets instead of by id
-	const targetSDKMap = {};
+	const targetSDKMap = {
+
+		// placeholder for gradle to use
+		[this.compileSdkVersion]: {
+			sdk: this.compileSdkVersion
+		}
+	};
 	Object.keys(this.androidInfo.targets).forEach(function (i) {
 		var t = this.androidInfo.targets[i];
 		if (t.type === 'platform') {
@@ -1050,11 +1032,6 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 
 	// check the Android SDK we require to build exists
 	this.androidCompileSDK = targetSDKMap[this.compileSdkVersion];
-	if (!this.androidCompileSDK) {
-		logger.error(__('Unable to find Android SDK API %s', this.compileSdkVersion));
-		logger.error(__('Android SDK API %s is required to build Android apps', this.compileSdkVersion) + '\n');
-		process.exit(1);
-	}
 
 	// If "tiapp.xml" contains "AndroidManifest.xml" info, then load/store it to "this.customAndroidManifest" field.
 	try {
@@ -1184,77 +1161,17 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 		}
 
 	} else {
-		// if no target sdk, then default to most recent supported/installed
-		Object
-			.keys(targetSDKMap)
-			.sort(function (a, b) {
-				if (targetSDKMap[a].sdk === targetSDKMap[b].sdk && targetSDKMap[a].revision === targetSDKMap[b].revision) {
-					return 0;
-				} else if (targetSDKMap[a].sdk < targetSDKMap[b].sdk || (targetSDKMap[a].sdk === targetSDKMap[b].sdk && targetSDKMap[a].revision < targetSDKMap[b].revision)) {
-					return -1;
-				}
-				return 1;
-			})
-			.reverse()
-			.some(function (ver) {
-				if (targetSDKMap[ver].sdk >= this.minTargetApiLevel && targetSDKMap[ver].sdk <= this.maxSupportedApiLevel) {
-					this.targetSDK = this.realTargetSDK = targetSDKMap[ver].sdk;
-					return true;
-				}
-				return false;
-			}, this);
-
-		if (!this.targetSDK || this.realTargetSDK < this.minTargetApiLevel) {
-			if (this.minTargetApiLevel === this.maxSupportedApiLevel) {
-				logger.error(__('Unable to find Android SDK API %s', this.maxSupportedApiLevel));
-				logger.error(__('Android SDK API %s is required to build Android apps', this.maxSupportedApiLevel) + '\n');
-			} else {
-				logger.error(__('Unable to find a suitable installed Android SDK that is API >=%s and <=%s', this.minTargetApiLevel, this.maxSupportedApiLevel) + '\n');
-			}
-			process.exit(1);
-		}
+		this.targetSDK = this.maxSupportedApiLevel;
+		this.realTargetSDK = this.targetSDK;
 	}
 
 	// check that we have this target sdk installed
 	this.androidTargetSDK = targetSDKMap[this.targetSDK];
 
 	if (!this.androidTargetSDK) {
-		logger.error(__('Target Android SDK API %s is not installed', this.targetSDK) + '\n');
-
-		const sdks = Object.keys(targetSDKMap).filter(function (ver) {
-			return ~~ver > this.minSupportedApiLevel;
-		}.bind(this)).sort().filter(function (s) { return s >= this.minSDK; }, this);
-
-		if (sdks.length) {
-			logger.log(__('To target Android SDK API %s, you first must install it using the Android SDK manager.', String(this.targetSDK).cyan) + '\n');
-			logger.log(
-				appc.string.wrap(
-					__('Alternatively, you can set the %s in the %s section of the tiapp.xml to one of the following installed Android target SDK APIs: %s', '<uses-sdk>'.cyan, '<android> <manifest>'.cyan, sdks.join(', ').cyan),
-					config.get('cli.width', 100)
-				)
-			);
-			logger.log();
-			logger.log('<ti:app xmlns:ti="http://ti.appcelerator.org">'.grey);
-			logger.log('    <android>'.grey);
-			logger.log('        <manifest>'.grey);
-			logger.log(('            <uses-sdk '
-				+ (this.minSDK ? 'android:minSdkVersion="' + this.minSDK + '" ' : '')
-				+ 'android:targetSdkVersion="' + sdks[0] + '" '
-				+ (this.maxSDK ? 'android:maxSdkVersion="' + this.maxSDK + '" ' : '')
-				+ '/>').magenta);
-			logger.log('        </manifest>'.grey);
-			logger.log('    </android>'.grey);
-			logger.log('</ti:app>'.grey);
-			logger.log();
-		} else {
-			logger.log(__('To target Android SDK API %s, you first must install it using the Android SDK manager', String(this.targetSDK).cyan) + '\n');
-		}
-		process.exit(1);
-	}
-
-	if (!this.androidTargetSDK.androidJar) {
-		logger.error(__('Target Android SDK API %s is missing "android.jar"', this.targetSDK) + '\n');
-		process.exit(1);
+		this.androidTargetSDK = {
+			sdk: this.targetSDK
+		};
 	}
 
 	if (this.realTargetSDK < this.realMinSDK) {
@@ -1281,12 +1198,12 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 	// determine the abis to support
 	this.abis = this.validABIs;
 	const customABIs = cli.tiapp.android && cli.tiapp.android.abi && cli.tiapp.android.abi.indexOf('all') === -1;
-	if (!customABIs && this.deployType === 'production') {
-		// If a users has not specified the abi tag in the tiapp,
-		// remove 'x86' from production builds 'x86' devices are scarce;
-		// this is predominantly used for emulators
-		// we can save 16MB+ by removing this from release builds
-		this.abis.splice(this.abis.indexOf('x86'), 1);
+	if (!customABIs && (this.deployType === 'production')) {
+		// If "tiapp.xml" does not have <abi/> entry, then exclude "x86" and "x86_64" from production builds by default.
+		// These abis are mostly needed for testing in an emulator. Physical x86 devices are extremely rare.
+		this.abis = this.abis.filter(abi => {
+			return !abi.startsWith('x86');
+		});
 	}
 	if (customABIs) {
 		this.abis = cli.tiapp.android.abi;
@@ -1305,21 +1222,19 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 
 	let deviceId = cli.argv['device-id'];
 
-	if (!cli.argv['build-only'] && /^device|emulator$/.test(this.target) && deviceId === undefined && config.get('android.autoSelectDevice', true)) {
+	if (!this.buildOnly && /^device|emulator$/.test(this.target) && deviceId === undefined && config.get('android.autoSelectDevice', true)) {
 		// no --device-id, so intelligently auto select one
-		const ver = this.androidTargetSDK.version,
-			apiLevel = this.androidTargetSDK.sdk,
-			devicesToAutoSelectFrom = this.devicesToAutoSelectFrom,
-			len = devicesToAutoSelectFrom.length,
-			verRegExp = /^((\d\.)?\d\.)?\d$/;
+		const apiLevel = this.androidTargetSDK.sdk,
+			devicesToAutoSelectFrom = this.devicesToAutoSelectFrom.sort((a, b) => b.api - a.api),
+			len = devicesToAutoSelectFrom.length;
 
 		// reset the device id
 		deviceId = null;
 
 		if (cli.argv.target === 'device') {
-			logger.info(__('Auto selecting device that closest matches %s', ver.cyan));
+			logger.info('Auto selecting device');
 		} else {
-			logger.info(__('Auto selecting emulator that closest matches %s', ver.cyan));
+			logger.info('Auto selecting emulator');
 		}
 
 		function setDeviceId(device) {
@@ -1339,68 +1254,44 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 			}
 		}
 
-		function gte(device) {
-			return device.api >= apiLevel && (!verRegExp.test(device.version) || appc.version.gte(device.version, ver));
-		}
-
-		function lt(device) {
-			return device.api < apiLevel && (!verRegExp.test(device.version) || appc.version.lt(device.version, ver));
-		}
-
-		// find the first one where version is >= and google apis == true
-		logger.debug(__('Searching for version >= %s and has Google APIs', ver));
+		logger.debug(__('Searching for API >= %s and has Google APIs', apiLevel.cyan));
 		for (let i = 0; i < len; i++) {
-			if (gte(devicesToAutoSelectFrom[i]) && devicesToAutoSelectFrom[i].googleApis) {
+			if (devicesToAutoSelectFrom[i].api >= apiLevel && devicesToAutoSelectFrom[i].googleApis) {
 				setDeviceId(devicesToAutoSelectFrom[i]);
 				break;
 			}
 		}
 
 		if (!deviceId) {
-			// find first one where version is >= and google apis is a maybe
-			logger.debug(__('Searching for version >= %s and may have Google APIs', ver));
+			logger.debug(__('Searching for API >= %s', apiLevel.cyan));
 			for (let i = 0; i < len; i++) {
-				if (gte(devicesToAutoSelectFrom[i]) && devicesToAutoSelectFrom[i].googleApis === null) {
+				if (devicesToAutoSelectFrom[i].api >= apiLevel) {
 					setDeviceId(devicesToAutoSelectFrom[i]);
 					break;
 				}
 			}
 
 			if (!deviceId) {
-				// find first one where version is >= and no google apis
-				logger.debug(__('Searching for version >= %s and no Google APIs', ver));
+				logger.debug(__('Searching for API < %s and has Google APIs', apiLevel.cyan));
 				for (let i = 0; i < len; i++) {
-					if (gte(devicesToAutoSelectFrom[i])) {
+					if (devicesToAutoSelectFrom[i].api < apiLevel && devicesToAutoSelectFrom[i].googleApis) { // eslint-disable-line max-depth
 						setDeviceId(devicesToAutoSelectFrom[i]);
 						break;
 					}
 				}
 
 				if (!deviceId) {
-					// find first one where version < and google apis == true
-					logger.debug(__('Searching for version < %s and has Google APIs', ver));
-					for (let i = len - 1; i >= 0; i--) {
-						if (lt(devicesToAutoSelectFrom[i])) { // eslint-disable-line max-depth
+					logger.debug(__('Searching for API < %s', apiLevel.cyan));
+					for (let i = 0; i < len; i++) { // eslint-disable-line max-depth
+						if (devicesToAutoSelectFrom[i].api < apiLevel) { // eslint-disable-line max-depth
 							setDeviceId(devicesToAutoSelectFrom[i]);
 							break;
 						}
 					}
 
-					if (!deviceId) {
-						// find first one where version <
-						logger.debug(__('Searching for version < %s and no Google APIs', ver));
-						for (let i = len - 1; i >= 0; i--) { // eslint-disable-line max-depth
-							if (lt(devicesToAutoSelectFrom[i]) && devicesToAutoSelectFrom[i].googleApis) { // eslint-disable-line max-depth
-								setDeviceId(devicesToAutoSelectFrom[i]);
-								break;
-							}
-						}
-
-						if (!deviceId) { // eslint-disable-line max-depth
-							// just grab first one
-							logger.debug(__('Selecting first device'));
-							setDeviceId(devicesToAutoSelectFrom[0]);
-						}
+					if (!deviceId) { // eslint-disable-line max-depth
+						logger.debug(__('Selecting first device'));
+						setDeviceId(devicesToAutoSelectFrom[0]);
 					}
 				}
 			}
@@ -1507,16 +1398,33 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 	}
 
 	// make sure we have an icon
+	this.appIconManifestValue = null;
+	this.appRoundIconManifestValue = null;
 	if (this.customAndroidManifest) {
-		const appIconValue = this.customAndroidManifest.getAppAttribute('android:icon');
-		if (appIconValue) {
-			cli.tiapp.icon = appIconValue.replace(/^@drawable\//, '') + '.png';
+		// Fetch the app "icon" and "roundIcon" attributes as-is from the "AndroidManfiest.xml".
+		this.appIconManifestValue = this.customAndroidManifest.getAppAttribute('android:icon');
+		this.appRoundIconManifestValue = this.customAndroidManifest.getAppAttribute('android:roundIcon');
+		if (this.appIconManifestValue) {
+			// Turn the "android:icon" value to an image file name. Remove the "@drawable/" or "@mipmap/" prefix.
+			let appIconName = this.appIconManifestValue;
+			const index = appIconName.lastIndexOf('/');
+			if (index >= 0) {
+				appIconName = appIconName.substring(index + 1);
+			}
+			cli.tiapp.icon = appIconName + '.png';
 		}
 	}
 	if (!cli.tiapp.icon || ![ 'Resources', 'Resources/android' ].some(function (p) {
 		return fs.existsSync(cli.argv['project-dir'], p, cli.tiapp.icon);
 	})) {
 		cli.tiapp.icon = 'appicon.png';
+	}
+	if (!this.appIconManifestValue) {
+		this.appIconManifestValue = '@drawable/' + cli.tiapp.icon;
+		const index = this.appIconManifestValue.indexOf('.');
+		if (index >= 0) {
+			this.appIconManifestValue = this.appIconManifestValue.substring(0, index);
+		}
 	}
 
 	return function (callback) {
@@ -1558,6 +1466,15 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 							process.exit(1);
 						}
 					}
+				} else {
+					// Limit application build ABI to that of provided native modules.
+					this.abis = this.abis.filter(abi => {
+						if (!module.manifest.architectures.includes(abi)) {
+							this.logger.warn(__('Module %s does not contain %s ABI. Application will build without %s ABI support!', module.id.cyan, abi.cyan, abi.cyan));
+							return false;
+						}
+						return true;
+					});
 				}
 
 				// scan the module for any CLI hooks
@@ -1612,9 +1529,7 @@ AndroidBuilder.prototype.run = async function run(logger, config, cli, finished)
 		Builder.prototype.run.apply(this, arguments);
 
 		// Notify plugins that we're about to begin.
-		await new Promise((resolve) => {
-			cli.emit('build.pre.construct', this, resolve);
-		});
+		await new Promise(resolve => cli.emit('build.pre.construct', this, resolve));
 
 		// Post build anlytics.
 		await this.doAnalytics();
@@ -1627,8 +1542,8 @@ AndroidBuilder.prototype.run = async function run(logger, config, cli, finished)
 		await this.checkIfNeedToRecompile();
 
 		// Notify plugins that we're prepping to compile.
-		await new Promise((resolve) => {
-			cli.emit('build.pre.compile', this, resolve);
+		await new Promise((resolve, reject) => {
+			cli.emit('build.pre.compile', this, e => (e ? reject(e) : resolve()));
 		});
 
 		// Make sure we have an "app.js" script. Will exit with a build failure if not found.
@@ -1642,13 +1557,9 @@ AndroidBuilder.prototype.run = async function run(logger, config, cli, finished)
 		await this.generateAppProject();
 
 		// Build the app.
-		await new Promise((resolve) => {
-			cli.emit('build.pre.build', this, resolve);
-		});
+		await new Promise(resolve => cli.emit('build.pre.build', this, resolve));
 		await this.buildAppProject();
-		await new Promise((resolve) => {
-			cli.emit('build.post.build', this, resolve);
-		});
+		await new Promise(resolve => cli.emit('build.post.build', this, resolve));
 
 		// Write Titanium build settings to file. Used to determine if next build can be incremental or not.
 		await this.writeBuildManifest();
@@ -1660,12 +1571,8 @@ AndroidBuilder.prototype.run = async function run(logger, config, cli, finished)
 		}
 
 		// Notify plugins that the build is done.
-		await new Promise((resolve) => {
-			cli.emit('build.post.compile', this, resolve);
-		});
-		await new Promise((resolve) => {
-			cli.emit('build.finalize', this, resolve);
-		});
+		await new Promise(resolve => cli.emit('build.post.compile', this, resolve));
+		await new Promise(resolve => cli.emit('build.finalize', this, resolve));
 	} catch (err) {
 		// Failed to build app. Print the error message and stack trace (if possible), then exit out.
 		// Note: "err" can be whatever type (including undefined) that was passed into Promise.reject().
@@ -1724,8 +1631,6 @@ AndroidBuilder.prototype.initialize = async function initialize() {
 		return appc.string.capitalize(word.toLowerCase());
 	}).join('');
 	/^[0-9]/.test(this.classname) && (this.classname = '_' + this.classname);
-
-	this.buildOnly = argv['build-only'];
 
 	const deviceId = this.deviceId = argv['device-id'];
 	if (!this.buildOnly && this.target === 'emulator') {
@@ -2058,9 +1963,23 @@ AndroidBuilder.prototype.checkIfShouldForceRebuild = function checkIfShouldForce
 };
 
 AndroidBuilder.prototype.checkIfNeedToRecompile = async function checkIfNeedToRecompile() {
-	// Delete all files under the "./build/android" if we need to do a full rebuild.
+	// Determine if we should do a "clean" build.
 	this.forceRebuild = this.checkIfShouldForceRebuild();
 	if (this.forceRebuild) {
+		// On Windows, stop gradle daemon to make it release its file locks so that they can be deleted.
+		if (process.platform === 'win32') {
+			try {
+				const gradlew = new GradleWrapper(this.buildDir);
+				gradlew.logger = this.logger;
+				if (await gradlew.hasWrapperFiles()) {
+					await gradlew.stopDaemon();
+				}
+			} catch (err) {
+				this.logger.error(`Failed to stop gradle daemon. Reason:\n${err}`);
+			}
+		}
+
+		// Delete all files under the "./build/android" directory.
 		await fs.emptyDir(this.buildDir);
 		this.unmarkBuildDirFiles(this.buildDir);
 	}
@@ -2265,6 +2184,7 @@ AndroidBuilder.prototype.generateRootProjectFiles = async function generateRootP
 	const gradleProperties = await gradlew.fetchDefaultGradleProperties();
 	gradleProperties.push({ key: 'android.useAndroidX', value: 'true' });
 	gradleProperties.push({ key: 'android.enableJetifier', value: 'true' });
+	gradleProperties.push({ key: 'org.gradle.jvmargs', value: `-Xmx${this.javacMaxMemory}` });
 	await gradlew.writeGradlePropertiesFile(gradleProperties);
 
 	// Copy optional "gradle.properties" file contents from Titainum project to the above generated file.
@@ -2279,9 +2199,8 @@ AndroidBuilder.prototype.generateRootProjectFiles = async function generateRootP
 			+ fileContent.toString() + '\n');
 	}
 
-	// Create a "local.properties" file providing a path to the Android SDK/NDK directories.
-	const androidNdkPath = this.androidInfo.ndk ? this.androidInfo.ndk.path : null;
-	await gradlew.writeLocalPropertiesFile(this.androidInfo.sdk.path, androidNdkPath);
+	// Create a "local.properties" file providing a path to the Android SDK directory.
+	await gradlew.writeLocalPropertiesFile(this.androidInfo.sdk.path);
 
 	// Copy our root "build.gradle" template script to the root build directory.
 	await fs.copyFile(
@@ -2320,6 +2239,9 @@ AndroidBuilder.prototype.generateAppProject = async function generateAppProject(
 
 	// Make sure Titanium's "assets" directory exists. (This is not an APK "assets" directory.)
 	// We output transpiled/polyfilled JS files here via copyResources() method.
+	// This is a temporary output path for transpiled JS files
+	// If we encrypt, we expect the input files to be here and encrypted copies placed in this.buildAppMainAssetsResourcesDir
+	// IF we do not encrypt we copy from this path to this.buildAppMainAssetsResourcesDir
 	// Note: Do NOT delete this folder. We do our own incremental build handling on it.
 	await fs.ensureDir(this.buildAssetsDir);
 
@@ -2329,37 +2251,6 @@ AndroidBuilder.prototype.generateAppProject = async function generateAppProject(
 	const rootLibsDirPath = path.join(this.buildDir, 'libs');
 	await fs.emptyDir(rootLibsDirPath);
 	await fs.ensureDir(rootLibsDirPath);
-
-	// Copy "./platform/android" directory tree from all modules and main project to "app" project's "./src/main".
-	// Android build tools auto-grabs folders named "assets", "res", "aidl", etc. from this folder.
-	// Note 1: Our "build.gradle" is configured to look for JAR/AAR files here too. (Needed by hyperloop.)
-	// Note 2: Main Titanium project's folder must be copied last, allowing it to replace asset or res files.
-	const platformDirPaths = [];
-	for (const module of this.modules) {
-		if (!module.native) {
-			platformDirPaths.push(path.join(module.modulePath, 'platform', 'android'));
-		}
-	}
-	platformDirPaths.push(path.join(this.projectDir, 'platform', 'android'));
-	for (const nextPath of platformDirPaths) {
-		if (await fs.exists(nextPath)) {
-			afs.copyDirSyncRecursive(nextPath, this.buildAppMainDir, {
-				logger: this.logger.debug,
-				preserve: true
-			});
-		}
-	}
-
-	// Copy Titanium project's "./platform/android" directory tree to "app" project's "./src/main".
-	// Android build tools auto-grabs folders named "assets", "res", "aidl", etc. in this folder.
-	// Note: Our "build.gradle" is configured to look for JAR/AAR files here too. (Needed by hyperloop.)
-	const tiPlatformAndroidDirPath = path.join(this.projectDir, 'platform', 'android');
-	if (await fs.exists(tiPlatformAndroidDirPath)) {
-		afs.copyDirSyncRecursive(tiPlatformAndroidDirPath, this.buildAppMainDir, {
-			logger: this.logger.debug,
-			preserve: false
-		});
-	}
 
 	// Create a "deploy.json" file if debugging/profiling is enabled.
 	const deployJsonFile = path.join(this.buildAppMainAssetsDir, 'deploy.json');
@@ -2378,9 +2269,7 @@ AndroidBuilder.prototype.generateAppProject = async function generateAppProject(
 
 	// Copy files from Titanium project's "Resources" directory to the build directory.
 	await fs.ensureDir(this.buildAppMainResDrawableDir);
-	await new Promise((resolve) => {
-		this.copyResources(resolve);
-	});
+	await this.copyResources();
 
 	// We can do the following in parallel.
 	await Promise.all([
@@ -2395,7 +2284,10 @@ AndroidBuilder.prototype.generateAppProject = async function generateAppProject(
 		this.generateI18N(),
 
 		// Generate a "res/values" styles XML file if a custom theme was assigned in app's "AndroidManifest.xml".
-		this.generateTheme()
+		this.generateTheme(),
+
+		// Generate "semantic.colors.xml" in "res/values" and "res/values-night"
+		this.generateSemanticColors()
 	]);
 
 	// Generate an "AndroidManifest.xml" for the app and copy in any custom manifest settings from "tiapp.xml".
@@ -2455,6 +2347,21 @@ AndroidBuilder.prototype.generateAppProject = async function generateAppProject(
 		dexerHook('', [ '', '' ], {}, resolve);
 	});
 
+	// Acquire the app's version integer code and name to be written to "build.gradle" later.
+	let versionCode = '1';
+	let versionName = this.tiapp.version ? this.tiapp.version : '1';
+	if (this.customAndroidManifest) {
+		const versionInfo = this.customAndroidManifest.getAppVersionInfo();
+		if (versionInfo) {
+			if (versionInfo.versionCode) {
+				versionCode = versionInfo.versionCode;
+			}
+			if (versionInfo.versionName) {
+				versionName = versionInfo.versionName;
+			}
+		}
+	}
+
 	// Generate a "build.gradle" file for this project from the SDK's "app.build.gradle" EJS template.
 	// Note: Google does not support setting "maxSdkVersion" via gradle script.
 	let buildGradleContent = await fs.readFile(path.join(this.templatesDir, 'app.build.gradle'));
@@ -2463,7 +2370,8 @@ AndroidBuilder.prototype.generateAppProject = async function generateAppProject(
 		compileSdkVersion: this.compileSdkVersion,
 		minSdkVersion: this.minSDK,
 		targetSdkVersion: this.targetSDK,
-		versionName: this.tiapp.version ? this.tiapp.version : '1',
+		versionCode: versionCode,
+		versionName: versionName,
 		libFilePaths: this.libFilePaths,
 		libProjectNames: this.libProjectNames,
 		libDependencyStrings: this.libDependencyStrings,
@@ -2475,580 +2383,489 @@ AndroidBuilder.prototype.generateAppProject = async function generateAppProject(
 	await fs.writeFile(path.join(this.buildAppDir, 'build.gradle'), buildGradleContent);
 };
 
-AndroidBuilder.prototype.copyResources = function copyResources(next) {
-	const ignoreDirs = this.ignoreDirs,
-		ignoreFiles = this.ignoreFiles,
-		extRegExp = /\.(\w+)$/,
-		drawableRegExp = /^images\/(high|medium|low|res-[^/]+)(\/(.*))/,
-		drawableDpiRegExp = /^(high|medium|low)$/,
-		drawableExtRegExp = /((\.9)?\.(png|jpg))$/,
-		splashScreenRegExp = /^default\.(9\.png|png|jpg)$/,
-		relSplashScreenRegExp = /^default\.(9\.png|png|jpg)$/,
-		drawableResources = {},
-		jsFiles = {},
-		jsFilesToEncrypt = this.jsFilesToEncrypt = [],
-		jsBootstrapFiles = [],
-		htmlJsFiles = this.htmlJsFiles = {},
-		symlinkFiles = process.platform !== 'win32' && this.config.get('android.symlinkResources', true),
-		_t = this,
-		cloak = this.encryptJS ? new Cloak() : null;
+/**
+ * Walks the project resources/assets, module resources/assets and gathers up a categorized listing
+ * of files to process. (css, html, js, images, etc)
+ * @returns {Promise<Result>}
+ */
+AndroidBuilder.prototype.gatherResources = async function gatherResources() {
+	const gather = require('../../../cli/lib/gather');
+	const walker = new gather.Walker({
+		ignoreDirs: this.ignoreDirs,
+		ignoreFiles: this.ignoreFiles,
+	});
 
-	this.logger.info('Copying resource files');
+	this.logger.info(__('Analyzing Resources directory'));
+	const firstWave = await Promise.all([
+		walker.walk(path.join(this.titaniumSdkPath, 'common', 'Resources', 'android'), this.buildAppMainAssetsResourcesDir),
+		// NOTE: we copy over platform/android as-is without any transform/walk. Should iOS do the same?
+		// walker.walk(path.join(this.projectDir, 'platform', 'android'), this.buildAppMainDir),
+		walker.walk(path.join(this.projectDir, 'Resources'),           this.buildAppMainAssetsResourcesDir, platformsRegExp),
+		walker.walk(path.join(this.projectDir, 'Resources', 'android'), this.buildAppMainAssetsResourcesDir),
+	]);
+	let combined = gather.mergeMaps(firstWave);
 
-	function copyDir(opts, callback) {
-		if (opts && opts.src && fs.existsSync(opts.src) && opts.dest) {
-			opts.origSrc = opts.src;
-			opts.origDest = opts.dest;
-			recursivelyCopy.call(this, opts.src, opts.dest, opts.ignoreRootDirs, opts, callback);
-		} else {
-			callback();
-		}
-	}
+	// node_modules
+	this.logger.info(__('Analyzing NPM package files'));
+	const moduleCopier = require('../../../cli/lib/module-copier');
+	const dirSet = await moduleCopier.gather(this.projectDir);
+	const nodeModuleDirs = Array.from(dirSet);
+	const secondWave = await Promise.all(nodeModuleDirs.map(async dir => {
+		// here dir is the absolute path to the directory
+		// That means we need to construct the relative path to append to this.projectDir and this.xcodeAppDir
+		const relativePath = dir.substring(this.projectDir.length + 1);
+		return walker.walk(dir, path.join(this.buildAppMainAssetsResourcesDir, relativePath), null, null, relativePath);
+	}));
+	// merge the node_modules results on top of the project results... (shouldn't be any conflicts!)
+	secondWave.unshift(combined);
+	combined = gather.mergeMaps(secondWave);
 
-	function copyFile(from, to, next) {
-		var d = path.dirname(to);
-		fs.ensureDirSync(d);
-
-		if (fs.existsSync(to)) {
-			_t.logger.warn(__('Overwriting file %s', to.cyan));
-		}
-
-		if (symlinkFiles) {
-			// Remove prior symlink.
-			fs.existsSync(to) && fs.unlinkSync(to);
-			// Remove prior file. (if previously did not symlink)
-			fs.existsSync(to) && fs.removeSync(to);
-			this.logger.debug(__('Symlinking %s => %s', from.cyan, to.cyan));
-			if (next) {
-				fs.symlink(from, to, next);
-			} else {
-				fs.symlinkSync(from, to);
-			}
-		} else {
-			this.logger.debug(__('Copying %s => %s', from.cyan, to.cyan));
-			if (next) {
-				fs.readFile(from, function (err, data) {
-					if (err) {
-						throw err;
-					}
-					fs.writeFile(to, data, next);
-				});
-			} else {
-				fs.writeFileSync(to, fs.readFileSync(from));
-			}
-		}
-	}
-
-	function recursivelyCopy(src, dest, ignoreRootDirs, opts, done) {
-		var files;
-		if (fs.statSync(src).isDirectory()) {
-			files = fs.readdirSync(src);
-		} else {
-			// we have a file, so fake a directory listing
-			files = [ path.basename(src) ];
-			src = path.dirname(src);
-		}
-
-		async.whilst(
-			function () {
-				return files.length;
-			},
-
-			function (next) {
-				const filename = files.shift(),
-					from = path.join(src, filename);
-
-				let destDir = dest,
-					to = path.join(destDir, filename);
-
-				// check that the file actually exists and isn't a broken symlink
-				if (!fs.existsSync(from)) {
-					return next();
-				}
-
-				const isDir = fs.statSync(from).isDirectory();
-
-				// check if we are ignoring this file
-				if ((isDir && ignoreRootDirs && ignoreRootDirs.indexOf(filename) !== -1) || (isDir ? ignoreDirs : ignoreFiles).test(filename)) {
-					_t.logger.debug(__('Ignoring %s', from.cyan));
-					return next();
-				}
-
-				// if this is a directory, recurse
-				if (isDir) {
-					recursivelyCopy.call(_t, from, path.join(destDir, filename), null, opts, next);
-					return;
-				}
-
-				// we have a file, now we need to see what sort of file
-
-				// check if it's a drawable resource
-				const relPath = from.replace(opts.origSrc, '').replace(/\\/g, '/').replace(/^\//, '');
-				let m = relPath.match(drawableRegExp);
-				let isDrawable = false;
-
-				if (m && m.length >= 4 && m[3]) {
-					const destFilename = m[3].toLowerCase();
-
-					destDir = path.join(
-						_t.buildAppMainResDir,
-						drawableDpiRegExp.test(m[1]) ? 'drawable-' + m[1][0] + 'dpi' : 'drawable-' + m[1].substring(4)
-					);
-
-					if (splashScreenRegExp.test(filename)) {
-						// we have a splash screen image
-						const extMatch = destFilename.match(drawableExtRegExp);
-						const origExt = extMatch && extMatch[1] || '';
-						to = path.join(destDir, 'background' + origExt);
-					} else {
-						to = path.join(destDir, filename);
-					}
-					isDrawable = true;
-				} else if (m = relPath.match(relSplashScreenRegExp)) {
-					// we have a splash screen
-					// if it's a 9 patch, then the image goes in drawable-nodpi, not drawable
-					if (m[1] === '9.png') {
-						destDir = path.join(_t.buildAppMainResDir, 'drawable-nodpi');
-						to = path.join(destDir, filename.replace('default.', 'background.'));
-					} else {
-						destDir = _t.buildAppMainResDrawableDir;
-						to = path.join(_t.buildAppMainResDrawableDir, filename.replace('default.', 'background.'));
-					}
-					isDrawable = true;
-				}
-
-				if (isDrawable) {
-					const _from = from.replace(_t.projectDir, '').substring(1),
-						_to = to.replace(_t.buildAppMainResDir, '').replace(drawableExtRegExp, '').substring(1);
-					if (drawableResources[_to]) {
-						_t.logger.error(__('Found conflicting resources:'));
-						_t.logger.error('   ' + drawableResources[_to]);
-						_t.logger.error('   ' + from.replace(_t.projectDir, '').substring(1));
-						_t.logger.error(__('You cannot have resources that resolve to the same resource entry name') + '\n');
-						process.exit(1);
-					}
-					drawableResources[_to] = _from;
-				}
-
-				// if the destination directory does not exists, create it
-				fs.ensureDirSync(destDir);
-
-				const ext = filename.match(extRegExp);
-
-				if (ext && ext[1] !== 'js') {
-					// we exclude js files because we'll check if they need to be removed after all files have been copied
-					_t.unmarkBuildDirFile(to);
-				}
-
-				switch (ext && ext[1]) {
-					case 'css':
-						// if we encounter a css file, check if we should minify it
-						if (_t.minifyCSS) {
-							_t.logger.debug(__('Copying and minifying %s => %s', from.cyan, to.cyan));
-							fs.readFile(from, function (err, data) {
-								if (err) {
-									throw err;
-								}
-								fs.writeFile(to, new CleanCSS({ processImport: false }).minify(data.toString()).styles, next);
-							});
-						} else {
-							copyFile.call(_t, from, to, next);
-						}
-						break;
-
-					case 'html':
-						// find all js files referenced in this html file
-						let htmlRelPath = from.replace(opts.origSrc, '').replace(/\\/g, '/').replace(/^\//, '').split('/');
-						htmlRelPath.pop(); // remove the filename
-						htmlRelPath = htmlRelPath.join('/');
-						jsanalyze.analyzeHtmlFile(from, htmlRelPath).forEach(function (file) {
-							htmlJsFiles[file] = 1;
-						});
-
-						_t.cli.createHook('build.android.copyResource', _t, function (from, to, cb) {
-							copyFile.call(_t, from, to, cb);
-						})(from, to, next);
-						break;
-
-					case 'js':
-						// track each js file so we can copy/minify later
-
-						// we use the destination file name minus the path to the assets dir as the id
-						// which will eliminate dupes
-						const id = to.replace(opts.origDest, opts.prefix ? opts.prefix : '').replace(/\\/g, '/').replace(/^\//, '');
-
-						if (!jsFiles[id] || !opts || !opts.onJsConflict || opts.onJsConflict(from, to, id)) {
-							jsFiles[id] = from;
-
-							// JS files that end with "*.bootstrap.js" are loaded before the "app.js".
-							// Add it as a require() compatible string to bootstrap array if it's a match.
-							const bootstrapPath = id.substr(0, id.length - 3);  // Remove the ".js" extension.
-							if (bootstrapPath.endsWith('.bootstrap')) {
-								jsBootstrapFiles.push(bootstrapPath);
-							}
-						}
-
-						next();
-						break;
-
-					default:
-						// normal file, just copy it to the app project's "assets" directory
-						_t.cli.createHook('build.android.copyResource', _t, function (from, to, cb) {
-							copyFile.call(_t, from, to, cb);
-						})(from, to, next);
-				}
-			},
-
-			done
-		);
-	}
-
-	function warnDupeDrawableFolders(resourceDir) {
-		const dir = path.join(resourceDir, 'images');
-		[ 'high', 'medium', 'low' ].forEach(function (dpi) {
-			let oldDir = path.join(dir, dpi),
-				newDir = path.join(dir, 'res-' + dpi[0] + 'dpi');
-			if (fs.existsSync(oldDir) && fs.existsSync(newDir)) {
-				oldDir = oldDir.replace(this.projectDir, '').replace(/^\//, '');
-				newDir = newDir.replace(this.projectDir, '').replace(/^\//, '');
-				this.logger.warn(__('You have both an %s folder and an %s folder', oldDir.cyan, newDir.cyan));
-				this.logger.warn(__('Files from both of these folders will end up in %s', ('res/drawable-' + dpi[0] + 'dpi').cyan));
-				this.logger.warn(__('If two files are named the same, there is no guarantee which one will be copied last and therefore be the one the application uses'));
-				this.logger.warn(__('You should use just one of these folders to avoid conflicts'));
-			}
-		}, this);
-	}
-
-	const tasks = [
-		// First copy all of the Titanium SDK's core JS files shared by all platforms.
-		function (cb) {
-			const src = path.join(this.titaniumSdkPath, 'common', 'Resources', 'android');
-			warnDupeDrawableFolders.call(this, src);
-			_t.logger.debug(__('Copying %s', src.cyan));
-			copyDir.call(this, {
-				src: src,
-				dest: this.buildAppMainAssetsResourcesDir,
-				ignoreRootDirs: ti.allPlatformNames
-			}, cb);
-		},
-
-		// Next, copy all files in the project's Resources directory,
-		// but ignore any directory that is the name of a known platform.
-		function (cb) {
-			const src = path.join(this.projectDir, 'Resources');
-			warnDupeDrawableFolders.call(this, src);
-			_t.logger.debug(__('Copying %s', src.cyan));
-			copyDir.call(this, {
-				src: src,
-				dest: this.buildAppMainAssetsResourcesDir,
-				ignoreRootDirs: ti.allPlatformNames
-			}, cb);
-		},
-
-		// Last, copy all files from the Android specific Resources directory.
-		function (cb) {
-			const src = path.join(this.projectDir, 'Resources', 'android');
-			warnDupeDrawableFolders.call(this, src);
-			_t.logger.debug(__('Copying %s', src.cyan));
-			copyDir.call(this, {
-				src: src,
-				dest: this.buildAppMainAssetsResourcesDir
-			}, cb);
-		}
-	];
-
-	// Fire an event requesting additional "Resources" paths from plugins.
-	tasks.push((done) => {
-		const hook = this.cli.createHook('build.android.requestResourcesDirPaths', this, (paths, done) => {
+	// Fire an event requesting additional "Resources" paths from plugins. (used by hyperloop)
+	this.logger.info(__('Analyzing plugin-contributed files'));
+	this.htmlJsFiles = {}; // for hyperloop to mark files it doesn't want processed
+	const hook = this.cli.createHook('build.android.requestResourcesDirPaths', this, async (paths, done) => {
+		try {
 			const newTasks = [];
 			if (Array.isArray(paths)) {
 				for (const nextPath of paths) {
 					if (typeof nextPath !== 'string') {
 						continue;
 					}
-					if (!fs.existsSync(nextPath) || !fs.statSync(nextPath).isDirectory()) {
+					if (!await fs.exists(nextPath) || !(await fs.stat(nextPath)).isDirectory()) {
 						continue;
 					}
-					newTasks.push((done) => {
-						_t.logger.debug(__('Copying %s', nextPath.cyan));
-						copyDir.call(this, {
-							src: nextPath,
-							dest: this.buildAppMainAssetsResourcesDir
-						}, done);
-					});
+					newTasks.push(
+						walker.walk(nextPath, this.buildAppMainAssetsResourcesDir)
+					);
 				}
 			}
-			appc.async.series(this, newTasks, done);
-		});
-		hook([], done);
-	});
-
-	// Copy resource files from all modules.
-	for (const module of this.modules) {
-		// Create a task which copies commonjs non-asset files.
-		if (!module.native) {
-			tasks.push(function (cb) {
-				_t.logger.debug(__('Copying %s', module.modulePath.cyan));
-				copyDir.call(this, {
-					src: module.modulePath,
-					// Copy under subfolder named after module.id
-					dest: path.join(this.buildAppMainAssetsResourcesDir, path.basename(module.id)),
-					// Don't copy files under apidoc, docs, documentation, example or assets (assets is handled below)
-					ignoreRootDirs: [ 'apidoc', 'documentation', 'docs', 'example', 'assets' ],
-					// Make note that files are copied relative to the module.id folder at dest
-					// so that we don't see clashes between module1/index.js and module2/index.js
-					prefix: module.id,
-					onJsConflict: function (src, dest, id) {
-						this.logger.error(__('There is a project resource "%s" that conflicts with a CommonJS module', id));
-						this.logger.error(__('Please rename the file, then rebuild') + '\n');
-						process.exit(1);
-					}.bind(this)
-				}, cb);
-			});
+			const results = await Promise.all(newTasks);
+			done(null, results);
+		} catch (err) {
+			return done(err);
 		}
+	});
+	const hookResults = await util.promisify(hook)([]);
+	// merge the hook results on top of the project/node_modules results... (shouldn't be any conflicts!)
+	hookResults.unshift(combined);
+	combined = gather.mergeMaps(hookResults);
 
+	this.logger.info(__('Analyzing module files'));
+	// detect ambiguous modules
+	// this.modules.forEach(module => {
+	// 	const filename = `${module.id}.js`;
+	// 	if (combined.has(filename)) {
+	// 		this.logger.error(__('There is a project resource "%s" that conflicts with a native Android module', filename));
+	// 		this.logger.error(__('Please rename the file, then rebuild') + '\n');
+	// 		process.exit(1);
+	// 	}
+	// });
+	// do modules in parallel - and for each we need to merge the results together!
+	const allModulesResults = await Promise.all(this.modules.map(async module => {
+		const tasks = [];
+		let assetDest = this.buildAppMainAssetsResourcesDir;
+		if (!module.native) {
+			// Copy CommonJS non-asset files
+			const dest = path.join(this.buildAppMainAssetsResourcesDir, path.basename(module.id));
+			// Pass in the relative path prefix we should give because we aren't copying direct to the root here.
+			// Otherwise index.js in one module "overwrites" index.js in another (because they're at same relative path inside module)
+			tasks.push(walker.walk(module.modulePath, dest, /^(apidoc|docs|documentation|example|assets)$/, null, module.id)); // TODO Consult some .moduleignore file in the module or something? .npmignore?
+			// CommonJS assets go to special location
+			assetDest = path.join(assetDest, 'modules', module.id.toLowerCase());
+		}
 		// Create a task which copies "assets" file tree from all modules.
 		// Note: Android native module asset handling is inconsistent with commonjs modules and iOS native modules where
 		//       we're not copying assets to "modules/moduleId" directory. Continue doing this for backward compatibility.
-		const sourceAssetsDirPath = path.join(module.modulePath, 'assets');
-		if (fs.existsSync(sourceAssetsDirPath) && fs.statSync(sourceAssetsDirPath).isDirectory()) {
-			let destinationDirPath = this.buildAppMainAssetsResourcesDir;
-			if (!module.native) {
-				destinationDirPath = path.join(destinationDirPath, 'modules', module.id.toLowerCase());
+		tasks.push(walker.walk(path.join(module.modulePath, 'assets'), assetDest));
+
+		// NOTE: Android just copies without any special processing for platform/android. Should iOS?
+		// walker.walk(path.join(module.modulePath, 'platform', 'android'), this.buildAppMainDir),
+
+		// Resources
+		tasks.push(walker.walk(path.join(module.modulePath, 'Resources'), this.buildAppMainAssetsResourcesDir, platformsRegExp));
+		tasks.push(walker.walk(path.join(module.modulePath, 'Resources', 'android'), this.buildAppMainAssetsResourcesDir));
+		const moduleResults = await Promise.all(tasks);
+		return gather.mergeMaps(moduleResults);
+	}));
+	//  merge the allModulesResults over top our current combined!
+	allModulesResults.unshift(combined);
+	combined = gather.mergeMaps(allModulesResults);
+
+	// Ok, so we have a Map<string, FileInfo> for the full set of unique relative paths
+	// now categorize (i.e. lump into buckets of js/css/html/assets/generic resources)
+	const categorizer = new gather.Categorizer({
+		tiappIcon: this.tiapp.icon,
+		jsFilesNotToProcess: Object.keys(this.htmlJsFiles),
+		platform: 'android',
+	});
+	return await categorizer.run(combined);
+};
+
+/**
+ * Optionally mifies the input css files and copies them to the app
+ * @param {Map<string,object>} files map from filename to file info
+ * @returns {Promise<void>}
+ */
+AndroidBuilder.prototype.copyCSSFiles = async function copyCSSFiles(files) {
+	this.logger.debug(__('Copying CSS files'));
+	const task = new ProcessCSSTask({
+		files,
+		incrementalDirectory: path.join(this.buildTiIncrementalDir, 'process-css'),
+		logger: this.logger,
+		builder: this,
+	});
+	return task.run();
+};
+
+/**
+ * Copies drawable resources into the app
+ * @param {Map<string,object>} files map from filename to file info
+ * @returns {Promise<void>}
+ */
+AndroidBuilder.prototype.processDrawableFiles = async function processDrawableFiles(files) {
+	this.logger.debug(__('Copying Drawables'));
+	const task = new ProcessDrawablesTask({
+		files,
+		incrementalDirectory: path.join(this.buildTiIncrementalDir, 'process-drawables'),
+		logger: this.logger,
+		builder: this,
+	});
+	return task.run();
+};
+
+/**
+ * Copies splash screen resources into the app
+ * @param {Map<string,object>} files map from filename to file info
+ * @returns {Promise<void>}
+ */
+AndroidBuilder.prototype.processSplashesFiles = async function processSplashesFiles(files) {
+	this.logger.debug(__('Copying Splash Screens'));
+	const task = new ProcessSplashesTask({
+		files,
+		incrementalDirectory: path.join(this.buildTiIncrementalDir, 'process-splashes'),
+		logger: this.logger,
+		builder: this,
+	});
+	return task.run();
+};
+
+/**
+ * Used to de4termine the destination path for special assets (_app_props_.json, bootstrap.json) based on encyption or not.
+ * @returns {string} destination directory to place file
+ */
+AndroidBuilder.prototype.buildAssetsPath = function buildAssetsPath() {
+	return this.encryptJS ? this.buildAssetsDir : this.buildAppMainAssetsResourcesDir;
+};
+
+/**
+ * Write out file used by Ti.Properties to access properties at runtime
+ * This may modify this.jsFilesToEncrypt
+ * @returns {Promise<void>}
+ */
+AndroidBuilder.prototype.writeAppProps = async function writeAppProps() {
+	const appPropsFile = path.join(this.buildAssetsPath(), '_app_props_.json');
+	const props = {};
+	Object.keys(this.tiapp.properties).forEach(prop => {
+		props[prop] = this.tiapp.properties[prop].value;
+	});
+	await fs.writeFile(appPropsFile, JSON.stringify(props));
+	this.encryptJS && this.jsFilesToEncrypt.push('_app_props_.json');
+	this.unmarkBuildDirFile(appPropsFile);
+};
+
+/**
+ * Write the env variables file - used by node shim for process.env
+ * This may modify this.jsFilesToEncrypt
+ * @returns {Promise<void>}
+ */
+AndroidBuilder.prototype.writeEnvironmentVariables = async function writeEnvironmentVariables() {
+	const envVarsFile = path.join(this.buildAssetsPath(), '_env_.json');
+	await fs.writeFile(
+		envVarsFile,
+		// for non-development builds, DO NOT WRITE OUT ENV VARIABLES TO APP
+		this.writeEnvVars ? JSON.stringify(process.env) : '{}'
+	);
+	this.encryptJS && this.jsFilesToEncrypt.push('_env_.json');
+	this.unmarkBuildDirFile(envVarsFile);
+};
+
+/**
+ * This may modify this.jsFilesToEncrypt
+ * @param {Map<string, object>} jsFilesMap map from filename to file info
+ * @returns {Promise<void>}
+ */
+AndroidBuilder.prototype.processJSFiles = async function processJSFiles(jsFilesMap) {
+	// do the processing
+	this.logger.info(__('Processing JavaScript files'));
+	const sdkCommonFolder = path.join(this.titaniumSdkPath, 'common', 'Resources', 'android');
+	// For now, need to adapt our Map results to String[] and Object for ProcessJsTask
+	// Note that because we wipe build/android/app/src/main every build, we have to use a middleman
+	// directory to hold processed files for incremental builds!
+	// FIXME: Can we avoid emptying the directory each time?! see generateAppProject()
+	const jsFiles = {};
+	const inputFiles = [];
+	for (let [ key, value ] of jsFilesMap) {
+		jsFiles[key] = {
+			src: value.src,
+			dest: path.join(this.buildAssetsDir, key) // hijack destination to point to build/assets
+		};
+		inputFiles.push(value.src);
+	}
+
+	const jsBootstrapFiles = []; // modified by the task and then used after the fact to write our bootstrap.json file
+	const task = new ProcessJsTask({
+		inputFiles,
+		incrementalDirectory: path.join(this.buildTiIncrementalDir, 'process-js'),
+		logger: this.logger,
+		builder: this,
+		jsFiles,
+		jsBootstrapFiles,
+		sdkCommonFolder,
+		defaultAnalyzeOptions: {
+			minify: this.minifyJS,
+			transpile: this.transpile,
+			sourceMap: this.sourceMaps,
+			resourcesDir: this.buildAssetsDir,
+			logger: this.logger,
+			targets: {
+				chrome: this.chromeVersion
 			}
-			tasks.push(function (cb) {
-				_t.logger.debug(__('Copying %s', sourceAssetsDirPath.cyan));
-				copyDir.call(this, {
-					src: sourceAssetsDirPath,
-					dest: destinationDirPath
-				}, cb);
-			});
 		}
+	});
+	await task.run();
+	if (this.useWebpack) {
+		// Merge Ti symbols from Webpack with the ones from legacy js processing
+		Object.keys(task.data.tiSymbols).forEach(file => {
+			const existingSymbols = this.tiSymbols[file] || [];
+			const additionalSymbols = task.data.tiSymbols[file];
+			this.tiSymbols[file] = Array.from(new Set(existingSymbols.concat(additionalSymbols)));
+		});
+	} else {
+		this.tiSymbols = task.data.tiSymbols;  // record API usage for analytics
+	}
 
-		// Create a task which copies "Resources" file tree from all modules to APK "assets/Resources".
-		const sourceResourcesDirPath = path.join(module.modulePath, 'Resources');
-		if (fs.existsSync(sourceResourcesDirPath) && fs.statSync(sourceResourcesDirPath).isDirectory()) {
-			tasks.push(function (cb) {
-				_t.logger.debug(__('Copying %s', sourceResourcesDirPath.cyan));
-				copyDir.call(this, {
-					src: sourceResourcesDirPath,
-					dest: this.buildAppMainAssetsResourcesDir
-				}, cb);
+	// Copy all unencrypted files processed by ProcessJsTask to "app" project's APK "assets" directory.
+	// Note: For encrypted builds, our encryptJSFiles() method will write encrypted JS files to the app project.
+	if (!this.encryptJS) {
+		// Now we need to copy the processed JS files from build/assets to build/app/src/main/assets/Resources
+		const resourcesToCopy = new Map();
+		for (let [ key, value ] of jsFilesMap) {
+			resourcesToCopy.set(key, {
+				src: path.join(this.buildAssetsDir, key),
+				dest: value.dest
 			});
+			this.unmarkBuildDirFile(value.dest);
 		}
+		const copyTask = new CopyResourcesTask({
+			incrementalDirectory: path.join(this.buildTiIncrementalDir, 'copy-processed-js'),
+			name: 'copy-processed-js',
+			logger: this.logger,
+			builder: this,
+			files: resourcesToCopy
+		});
+		await copyTask.run();
+	}
 
-		// Create a task which copies "Resources/android" file tree from all modules to APK "assets/Resources".
-		const sourceResourcesAndroidDirPath = path.join(module.modulePath, 'Resources', 'android');
-		if (fs.existsSync(sourceResourcesAndroidDirPath) && fs.statSync(sourceResourcesAndroidDirPath).isDirectory()) {
-			tasks.push(function (cb) {
-				_t.logger.debug(__('Copying %s', sourceResourcesAndroidDirPath.cyan));
-				copyDir.call(this, {
-					src: sourceResourcesAndroidDirPath,
-					dest: this.buildAppMainAssetsResourcesDir
-				}, cb);
+	// then write the bootstrap json
+	return this.writeBootstrapJson(jsBootstrapFiles);
+};
+
+/**
+ * @param {string[]} jsBootstrapFiles list of bootstrap js files to add to listing we generate
+ * @returns {Promise<void>}
+ */
+AndroidBuilder.prototype.writeBootstrapJson = async function writeBootstrapJson(jsBootstrapFiles) {
+	this.logger.info(__('Writing bootstrap json'));
+	// Write the "bootstrap.json" file, even if the bootstrap array is empty.
+	// Note: An empty array indicates the app has no bootstrap files.
+	const bootstrapJsonRelativePath = path.join('ti.internal', 'bootstrap.json');
+	const bootstrapJsonAbsolutePath = path.join(this.buildAssetsPath(), bootstrapJsonRelativePath);
+	await fs.ensureDir(path.dirname(bootstrapJsonAbsolutePath));
+	await fs.writeFile(bootstrapJsonAbsolutePath, JSON.stringify({ scripts: jsBootstrapFiles }));
+	this.encryptJS && this.jsFilesToEncrypt.push(bootstrapJsonRelativePath);
+	this.unmarkBuildDirFile(bootstrapJsonAbsolutePath);
+};
+
+/**
+ * Copy "./platform/android" directory tree from all modules and main project to "app" project's "./src/main".
+ * Android build tools auto-grabs folders named "assets", "res", "aidl", etc. from this folder.
+ * Note 1: Our "build.gradle" is configured to look for JAR/AAR files here too. (Needed by hyperloop.)
+ * Note 2: Main Titanium project's folder must be copied last, allowing it to replace asset or res files.
+ * @returns {Promise<void>}
+ */
+AndroidBuilder.prototype.copyPlatformDirs = async function copyPlatformDirs() {
+	const platformDirPaths = [];
+	for (const module of this.modules) {
+		if (!module.native) {
+			platformDirPaths.push(path.join(module.modulePath, 'platform', 'android'));
+		}
+	}
+	const googleServicesFile = path.join(this.projectDir, 'platform', 'android', 'google-services.json');
+	if (await fs.exists(googleServicesFile)) {
+		afs.copyFileSync(googleServicesFile, path.join(this.buildAppDir, 'google-services.json'), {
+			logger: this.logger.debug,
+			preserve: true
+		});
+	}
+	platformDirPaths.push(path.join(this.projectDir, 'platform', 'android'));
+	for (const nextPath of platformDirPaths) {
+		if (await fs.exists(nextPath)) {
+			afs.copyDirSyncRecursive(nextPath, this.buildAppMainDir, {
+				logger: this.logger.debug,
+				preserve: true
 			});
 		}
 	}
+};
 
-	tasks.push(done => {
-		// copy js files into assets directory and minify if needed
-		this.logger.info(__('Processing JavaScript files'));
+AndroidBuilder.prototype.copyResources = async function copyResources() {
+	// First walk all the input dirs and gather/categorize the files into buckets
+	const gatheredResults = await this.gatherResources();
+	this.jsFilesToEncrypt = []; // set listing of files to encrypt to empty array (may be modified by tasks below)
 
-		const inputFiles = [];
-		const outputFileMap = {};
-		const copyUnmodified = [];
-		Object.keys(jsFiles).forEach(relPath => {
-			const from = jsFiles[relPath];
-			if (htmlJsFiles[relPath]) {
-				// this js file is referenced from an html file, so don't minify or encrypt
-				copyUnmodified.push(relPath);
-			} else {
-				inputFiles.push(from);
-			}
-			outputFileMap[relPath] = path.join(this.buildAssetsDir, relPath);
-		});
+	// ok we now have them organized into broad categories
+	// we can schedule tasks to happen in parallel:
+	await Promise.all([
+		this.copyCSSFiles(gatheredResults.cssFiles),
+		this.processJSFiles(gatheredResults.jsFiles),
+		this.processDrawableFiles(gatheredResults.imageAssets),
+		this.processSplashesFiles(gatheredResults.launchImages),
+		this.writeAppProps(), // writes _app_props_.json for Ti.Properties
+		this.writeEnvironmentVariables(), // writes _env_.json for process.env
+		this.copyPlatformDirs(), // copies platform/android dirs from project/modules
+		this.copyUnmodifiedResources(gatheredResults.resourcesToCopy), // copies any other files that don't require special handling (like JS/CSS do)
+	]);
 
-		const task = new ProcessJsTask({
-			inputFiles,
-			incrementalDirectory: path.join(this.buildTiIncrementalDir, 'process-js'),
-			logger: this.logger,
-			builder: this,
-			jsFiles: Object.keys(jsFiles).reduce((jsFilesInfo, relPath) => {
-				jsFilesInfo[relPath] = {
-					src: jsFiles[relPath],
-					dest: outputFileMap[relPath]
-				};
-				return jsFilesInfo;
-			}, {}),
-			jsBootstrapFiles,
-			sdkCommonFolder: path.join(this.titaniumSdkPath, 'common', 'Resources'),
-			defaultAnalyzeOptions: {
-				minify: this.minifyJS,
-				transpile: this.transpile,
-				sourceMap: this.sourceMaps,
-				resourcesDir: this.buildAssetsDir,
-				logger: this.logger,
-				targets: {
-					chrome: this.chromeVersion
-				}
-			}
-		});
-		task.run()
-			.then(() => {
-				// Copy all unencrypted files processed by ProcessJsTask to "app" project's APK "assets" directory.
-				// Note: Encrypted files are handled by "titanium_prep" instead.
-				if (this.encryptJS) {
-					return null;
-				}
-				return new Promise((resolve) => {
-					appc.async.parallel(this, Object.keys(outputFileMap).map(relPath => {
-						return next => {
-							const from = outputFileMap[relPath];
-							const to = path.join(this.buildAppMainAssetsResourcesDir, relPath);
-							this.unmarkBuildDirFile(to);
-							if (fs.existsSync(from)) {
-								copyFile.call(this, from, to, next);
-							} else {
-								next(); // eslint-disable-line promise/no-callback-in-promise
-							}
-						};
-					}), resolve);
-				});
-			})
-			.then(() => {
-				this.tiSymbols = task.data.tiSymbols;
+	// Finish doing the following after the above tasks have copied files to the build folder.
+	const templateDir = path.join(this.platformPath, 'templates', 'app', 'default', 'template', 'Resources', 'android');
+	return Promise.all([
+		this.encryptJSFiles(),
+		this.ensureAppIcon(templateDir),
+		this.detectLegacySplashImage(),
+	]);
+};
 
-				// Copy all unprocessed files to "app" project's APK "assets" directory.
-				appc.async.parallel(this, copyUnmodified.map(relPath => {
-					return next => {
-						const from = jsFiles[relPath];
-						const to = path.join(this.buildAppMainAssetsResourcesDir, relPath);
-						copyFile.call(this, from, to, next);
-						this.unmarkBuildDirFile(to);
-					};
-				}), done);
-
-				return null;
-			})
-			.catch(e => {
-				this.logger.error(e);
-				process.exit(1);
-			});
+/**
+ * Copies all the rest of the files that need no extra processing.
+ * @param {Map<string, object>} resourcesToCopy filepaths to file info
+ * @returns {Promise<void>}
+ */
+AndroidBuilder.prototype.copyUnmodifiedResources = async function copyUnmodifiedResources(resourcesToCopy) {
+	this.logger.debug(__('Copying resources'));
+	const task = new CopyResourcesTask({
+		incrementalDirectory: path.join(this.buildTiIncrementalDir, 'copy-resources'),
+		logger: this.logger,
+		builder: this,
+		files: resourcesToCopy
 	});
+	return task.run();
+};
 
-	appc.async.series(this, tasks, async () => {
-		const templateDir = path.join(this.platformPath, 'templates', 'app', 'default', 'template', 'Resources', 'android');
-		const srcIcon = path.join(templateDir, 'appicon.png');
-		const destIcon = path.join(this.buildAppMainAssetsResourcesDir, this.tiapp.icon);
-
-		// if an app icon hasn't been copied, copy the default one
-		if (!(await fs.exists(destIcon))) {
-			copyFile.call(this, srcIcon, destIcon);
-		}
-		this.unmarkBuildDirFile(destIcon);
-
-		const destIcon2 = path.join(this.buildAppMainResDrawableDir, this.tiapp.icon);
-		if (!(await fs.exists(destIcon2))) {
-			// Note, we are explicitly copying destIcon here as we want to ensure that we're
-			// copying the user specified icon, srcIcon is the default Titanium icon
-			copyFile.call(this, destIcon, destIcon2);
-		}
-		this.unmarkBuildDirFile(destIcon2);
-
-		// make sure we have a splash screen
-		const backgroundRegExp = /^background(\.9)?\.(png|jpg)$/,
-			destBg = path.join(this.buildAppMainResDrawableDir, 'background.png'),
-			nodpiDir = path.join(this.buildAppMainResDir, 'drawable-nodpi');
-		if (!(await fs.readdir(this.buildAppMainResDrawableDir)).some(name => {
-			if (backgroundRegExp.test(name)) {
-				this.unmarkBuildDirFile(path.join(this.buildAppMainResDrawableDir, name));
-				return true;
-			}
-			return false;
-		}, this)) {
-			// no background image in drawable, but what about drawable-nodpi?
-			if (!(await fs.exists(nodpiDir)) || !(await fs.readdir(nodpiDir)).some(name => {
-				if (backgroundRegExp.test(name)) {
-					this.unmarkBuildDirFile(path.join(nodpiDir, name));
-					return true;
+/**
+ * Checks if a legacy splash screen "background.png" exists in generated build folder.
+ * Note: As of Titanium 10.1.0, this image is optional and will use the app icon instead if not found.
+ */
+AndroidBuilder.prototype.detectLegacySplashImage = async function detectLegacySplashImage() {
+	// Check if a "background" splash image exists under one of the "res/drawable" folders.
+	this.hasSplashBackgroundImage = false;
+	const backgroundRegExp = /^background(\.9)?\.(png|jpg)$/;
+	for (const dirName of await fs.readdir(this.buildAppMainResDir)) {
+		if (dirName.startsWith('drawable')) {
+			const drawableDirPath = path.join(this.buildAppMainResDir, dirName);
+			for (const fileName of await fs.readdir(drawableDirPath)) {
+				if (backgroundRegExp.test(fileName)) {
+					this.hasSplashBackgroundImage = true;
+					this.unmarkBuildDirFile(path.join(drawableDirPath, fileName));
+					break;
 				}
-				return false;
-			}, this)) {
-				this.unmarkBuildDirFile(destBg);
-				copyFile.call(this, path.join(templateDir, 'default.png'), destBg);
+			}
+			if (this.hasSplashBackgroundImage) {
+				break;
 			}
 		}
+	}
+};
 
-		// write the properties file
-		const buildAssetsPath = this.encryptJS ? this.buildAssetsDir : this.buildAppMainAssetsResourcesDir,
-			appPropsFile = path.join(buildAssetsPath, '_app_props_.json'),
-			props = {};
-		Object.keys(this.tiapp.properties).forEach(function (prop) {
-			props[prop] = this.tiapp.properties[prop].value;
-		}, this);
-		await fs.writeFile(appPropsFile, JSON.stringify(props));
-		this.encryptJS && jsFilesToEncrypt.push('_app_props_.json');
-		this.unmarkBuildDirFile(appPropsFile);
+/**
+ * Ensures the generated app has an app icon
+ * @param {string} templateDir the filepath to the Titanium SDK's app template for Android apps
+ */
+AndroidBuilder.prototype.ensureAppIcon = async function ensureAppIcon(templateDir) {
+	const srcIcon = path.join(templateDir, 'appicon.png');
+	const destIcon = path.join(this.buildAppMainAssetsResourcesDir, this.tiapp.icon);
 
-		// Write the "bootstrap.json" file, even if the bootstrap array is empty.
-		// Note: An empty array indicates the app has no bootstrap files.
-		const bootstrapJsonRelativePath = path.join('ti.internal', 'bootstrap.json'),
-			bootstrapJsonAbsolutePath = path.join(buildAssetsPath, bootstrapJsonRelativePath);
-		await fs.ensureDir(path.dirname(bootstrapJsonAbsolutePath));
-		await fs.writeFile(bootstrapJsonAbsolutePath, JSON.stringify({ scripts: jsBootstrapFiles }));
-		this.encryptJS && jsFilesToEncrypt.push(bootstrapJsonRelativePath);
-		this.unmarkBuildDirFile(bootstrapJsonAbsolutePath);
+	// if an app icon hasn't been copied, copy the default one from our app template
+	if (!(await fs.exists(destIcon))) {
+		this.copyFileSync(srcIcon, destIcon); // TODO: Use async call!
+	}
+	this.unmarkBuildDirFile(destIcon);
 
-		if (!jsFilesToEncrypt.length) {
-			// nothing to encrypt, continue
-			return next();
+	const destIcon2 = path.join(this.buildAppMainResDrawableDir, this.tiapp.icon);
+	if (!(await fs.exists(destIcon2))) {
+		// Note, we are explicitly copying destIcon here as we want to ensure that we're
+		// copying the user specified icon, srcIcon is the default Titanium icon
+		this.copyFileSync(destIcon, destIcon2); // TODO: Use async call!
+	}
+	this.unmarkBuildDirFile(destIcon2);
+};
+
+/**
+ * @returns {Promise<void>}
+ */
+AndroidBuilder.prototype.encryptJSFiles = async function encryptJSFiles() {
+	if (!this.jsFilesToEncrypt.length) {
+		// nothing to encrypt, continue
+		return;
+	}
+
+	const Cloak = require('ti.cloak').default;
+	const cloak = this.encryptJS ? new Cloak() : null;
+	if (!cloak) {
+		throw new Error('Could not load encryption library!');
+	}
+
+	this.logger.info('Encrypting javascript assets...');
+
+	// NOTE: maintain 'build.android.titaniumprep' hook for remote encryption policy.
+	const hook = this.cli.createHook('build.android.titaniumprep', this, async function (exe, args, opts, next) {
+		try {
+			await Promise.all(
+				this.jsFilesToEncrypt.map(async file => {
+					const from = path.join(this.buildAssetsDir, file);
+					const to = path.join(this.buildAppMainAssetsResourcesDir, file + '.bin');
+
+					this.logger.debug(__('Encrypting: %s', from.cyan));
+					await fs.ensureDir(path.dirname(to));
+					this.unmarkBuildDirFile(to);
+					return await cloak.encryptFile(from, to);
+				})
+			);
+
+			this.logger.info('Writing encryption key...');
+			await cloak.setKey('android', this.abis, path.join(this.buildAppMainDir, 'jniLibs'));
+
+			// Generate 'AssetCryptImpl.java' from template.
+			const assetCryptDest = path.join(this.buildGenAppIdDir, 'AssetCryptImpl.java');
+			this.unmarkBuildDirFile(assetCryptDest);
+			await fs.ensureDir(this.buildGenAppIdDir);
+			await fs.writeFile(
+				assetCryptDest,
+				ejs.render(
+					await fs.readFile(path.join(this.templatesDir, 'AssetCryptImpl.java'), 'utf8'),
+					{
+						appid: this.appid,
+						assets: this.jsFilesToEncrypt.map(f => f.replace(/\\/g, '/')),
+						salt: cloak.salt
+					}
+				)
+			);
+
+			next();
+		} catch (e) {
+			next(new Error('Could not encrypt assets!\n' + e));
 		}
-		if (!cloak) {
-			return next(new Error('Could not load encryption library!'));
-		}
-
-		this.logger.info('Encrypting javascript assets...');
-
-		// NOTE: maintain 'build.android.titaniumprep' hook for remote encryption policy.
-		this.cli.createHook('build.android.titaniumprep', this, async next => {
-			try {
-				await Promise.all(
-					jsFilesToEncrypt.map(async file => {
-						const from = path.join(this.buildAssetsDir, file);
-						const to = path.join(this.buildAppMainAssetsResourcesDir, file + '.bin');
-
-						this.logger.debug(__('Encrypting: %s', from.cyan));
-						await fs.ensureDir(path.dirname(to));
-						this.unmarkBuildDirFile(to);
-						return await cloak.encryptFile(from, to);
-					})
-				);
-
-				this.logger.info('Writing encryption key...');
-				await cloak.setKey('android', this.abis, path.join(this.buildAppMainDir, 'jniLibs'));
-
-				// Generate 'AssetCryptImpl.java' from template.
-				const assetCryptDest = path.join(this.buildGenAppIdDir, 'AssetCryptImpl.java');
-				this.unmarkBuildDirFile(assetCryptDest);
-				await fs.ensureDir(this.buildGenAppIdDir);
-				await fs.writeFile(
-					assetCryptDest,
-					ejs.render(
-						await fs.readFile(path.join(this.templatesDir, 'AssetCryptImpl.java'), 'utf8'),
-						{
-							appid: this.appid,
-							assets: jsFilesToEncrypt,
-							salt: cloak.salt
-						}
-					)
-				);
-
-				next();
-			} catch (e) {
-				next(new Error('Could not encrypt assets!\n' + e));
-			}
-		})(next, [ this.tiapp.guid, '' ], {}, next);
 	});
+	return util.promisify(hook)(null, [ this.tiapp.guid, '' ], {});
 };
 
 AndroidBuilder.prototype.generateRequireIndex = async function generateRequireIndex() {
@@ -3057,22 +2874,25 @@ AndroidBuilder.prototype.generateRequireIndex = async function generateRequireIn
 	// Fetch relative paths to all of the app's *.js and *.json files.
 	const filePathDictionary = {};
 	const normalizedAssetsDir = this.buildAppMainAssetsDir.replace(/\\/g, '/');
-	(function walk(dir) {
-		fs.readdirSync(dir).forEach(function (fileName) {
-			const filePath = path.join(dir, fileName);
-			const stat = fs.statSync(filePath);
+	const walkDir = async (directoryPath) => {
+		const fileNameArray = await fs.readdir(directoryPath);
+		for (const fileName of fileNameArray) {
+			const filePath = path.join(directoryPath, fileName);
+			const stat = await fs.stat(filePath);
 			if (stat.isDirectory()) {
-				walk(filePath);
+				await walkDir(filePath);
 			} else if (stat.isFile()) {
 				const lowerCaseFileName = fileName.toLowerCase();
-				if (lowerCaseFileName.endsWith('.js') || lowerCaseFileName.endsWith('.json')) {
+				// TODO: Support mjs files!
+				if (lowerCaseFileName.endsWith('.js') || lowerCaseFileName.endsWith('.json') || lowerCaseFileName.endsWith('.cjs')) {
 					let normalizedFilePath = filePath.replace(/\\/g, '/');
 					normalizedFilePath = normalizedFilePath.replace(normalizedAssetsDir + '/', '');
 					filePathDictionary[normalizedFilePath] = 1;
 				}
 			}
-		});
-	}(this.buildAppMainAssetsResourcesDir));
+		}
+	};
+	await walkDir(this.buildAppMainAssetsResourcesDir);
 	for (const filePath of this.jsFilesToEncrypt) {
 		filePathDictionary['Resources/' + filePath.replace(/\\/g, '/')] = 1;
 	}
@@ -3102,35 +2922,58 @@ AndroidBuilder.prototype.generateRequireIndex = async function generateRequireIn
 	await fs.writeFile(cacheJsonFilePath, JSON.stringify(cacheAssets));
 };
 
-AndroidBuilder.prototype.getNativeModuleBindings = function getNativeModuleBindings(jarFile) {
-	var zip = new AdmZip(jarFile),
-		zipEntries = zip.getEntries(),
-		i = 0,
-		len = zipEntries.length,
-		pathName = 'org/appcelerator/titanium/bindings/',
-		pathNameLen = pathName.length,
-		entry, name;
-
-	for (; i < len; i++) {
-		entry = zipEntries[i];
-		name = entry.entryName.toString();
-		if (name.length > pathNameLen && name.indexOf(pathName) === 0) {
-			try {
-				return JSON.parse(entry.getData());
-			} catch (e) {
-				// ignore
+/**
+ * @param {string} jarFile filepath to JAR
+ * @returns {Promise<Object>} parsed JSON of the module's bindings
+ */
+AndroidBuilder.prototype.getNativeModuleBindings = async function getNativeModuleBindings(jarFile) {
+	return new Promise((resolve, reject) => {
+		const yauzl = require('yauzl');
+		yauzl.open(jarFile, { lazyEntries: true }, (err, zipfile) => {
+			if (err) {
+				return reject(err);
 			}
-			return;
-		}
-	}
+
+			zipfile.once('error', reject);
+			zipfile.on('entry', entry => {
+				if (!entry.fileName.startsWith('org/appcelerator/titanium/bindings/')) {
+					zipfile.readEntry(); // move on
+					return;
+				}
+				// read the entry
+				zipfile.openReadStream(entry, function (err, readStream) {
+					if (err) {
+						return reject(err);
+					}
+
+					// read file contents and when done, parse as JSON
+					const chunks = [];
+					readStream.once('error', reject);
+					readStream.on('data', chunk => chunks.push(chunk));
+					readStream.on('end', () => {
+						try {
+							zipfile.close();
+							const str = Buffer.concat(chunks).toString('utf8');
+							return resolve(JSON.parse(str));
+						} catch (error) {
+							reject(error);
+						}
+					});
+				});
+			});
+			zipfile.readEntry();
+		});
+	});
 };
 
 AndroidBuilder.prototype.generateJavaFiles = async function generateJavaFiles() {
 	this.logger.info('Generating Java files');
 
-	const copyTemplate = (src, dest, ejsParams) => {
+	const copyTemplate = async (src, dest, ejsParams) => {
 		this.logger.debug(__('Copying template %s => %s', src.cyan, dest.cyan));
-		fs.writeFileSync(dest, ejs.render(fs.readFileSync(src).toString(), ejsParams));
+		let fileContent = await fs.readFile(src);
+		fileContent = ejs.render(fileContent.toString(), ejsParams);
+		await fs.writeFile(dest, fileContent);
 	};
 
 	// Fetch Java proxy class information from all modules.
@@ -3167,7 +3010,7 @@ AndroidBuilder.prototype.generateJavaFiles = async function generateJavaFiles() 
 			const jarFilePath = path.join(module.modulePath, moduleName + '.jar');
 			try {
 				if (await fs.exists(jarFilePath)) {
-					javaBindings = this.getNativeModuleBindings(jarFilePath);
+					javaBindings = await this.getNativeModuleBindings(jarFilePath);
 				}
 			} catch (ex) {
 				this.logger.error(__n('The module "%s" has an invalid jar file: %s', module.id, jarFilePath));
@@ -3198,10 +3041,10 @@ AndroidBuilder.prototype.generateJavaFiles = async function generateJavaFiles() 
 	}
 
 	// Copy main application Java classes.
-	fs.ensureDirSync(this.buildGenAppIdDir);
-	copyTemplate(
+	await fs.ensureDir(this.buildGenAppIdDir);
+	await copyTemplate(
 		path.join(this.templatesDir, 'AppInfo.java'),
-		path.join(this.buildGenAppIdDir, this.classname + 'AppInfo.java'),
+		path.join(this.buildGenAppIdDir, `${this.classname}AppInfo.java`),
 		{
 			appid: this.appid,
 			buildType: this.buildType,
@@ -3209,9 +3052,9 @@ AndroidBuilder.prototype.generateJavaFiles = async function generateJavaFiles() 
 			deployType: this.deployType,
 			tiapp: this.tiapp
 		});
-	copyTemplate(
+	await copyTemplate(
 		path.join(this.templatesDir, 'App.java'),
-		path.join(this.buildGenAppIdDir, this.classname + 'Application.java'),
+		path.join(this.buildGenAppIdDir, `${this.classname}Application.java`),
 		{
 			appid: this.appid,
 			classname: this.classname,
@@ -3219,9 +3062,9 @@ AndroidBuilder.prototype.generateJavaFiles = async function generateJavaFiles() 
 			deployType: this.deployType,
 			encryptJS: this.encryptJS
 		});
-	copyTemplate(
+	await copyTemplate(
 		path.join(this.templatesDir, 'Activity.java'),
-		path.join(this.buildGenAppIdDir, this.classname + 'Activity.java'),
+		path.join(this.buildGenAppIdDir, `${this.classname}Activity.java`),
 		{
 			appid: this.appid,
 			classname: this.classname
@@ -3236,24 +3079,25 @@ AndroidBuilder.prototype.generateJavaFiles = async function generateJavaFiles() 
 	// Generate the JavaScript-based activity classes.
 	const android = this.tiapp.android;
 	if (android && android.activities) {
-		const activityTemplate = fs.readFileSync(path.join(this.templatesDir, 'JSActivity.java')).toString();
-		Object.keys(android.activities).forEach(function (name) {
-			var activity = android.activities[name];
+		const activityTemplate = (await fs.readFile(path.join(this.templatesDir, 'JSActivity.java'))).toString();
+		for (const activityName in android.activities) {
+			const activity = android.activities[activityName];
 			this.logger.debug(__('Generating activity class: %s', activity.classname.cyan));
-			fs.writeFileSync(path.join(this.buildGenAppIdDir, activity.classname + '.java'), ejs.render(activityTemplate, {
+			const fileContent = ejs.render(activityTemplate, {
 				appid: this.appid,
 				activity: activity
-			}));
-		}, this);
+			});
+			await fs.writeFile(path.join(this.buildGenAppIdDir, `${activity.classname}.java`), fileContent);
+		}
 	}
 
 	// Generate the JavaScript-based Service classes.
 	if (android && android.services) {
-		const serviceTemplate = fs.readFileSync(path.join(this.templatesDir, 'JSService.java')).toString();
-		const intervalServiceTemplate = fs.readFileSync(path.join(this.templatesDir, 'JSIntervalService.java')).toString();
-		const quickSettingsServiceTemplate = fs.readFileSync(path.join(this.templatesDir, 'JSQuickSettingsService.java')).toString();
-		Object.keys(android.services).forEach(function (name) {
-			const service = android.services[name];
+		const serviceTemplate = (await fs.readFile(path.join(this.templatesDir, 'JSService.java'))).toString();
+		const intervalServiceTemplate = (await fs.readFile(path.join(this.templatesDir, 'JSIntervalService.java'))).toString();
+		const quickSettingsServiceTemplate = (await fs.readFile(path.join(this.templatesDir, 'JSQuickSettingsService.java'))).toString();
+		for (const serviceName in android.services) {
+			const service = android.services[serviceName];
 			let tpl = serviceTemplate;
 			if (service.type === 'interval') {
 				tpl = intervalServiceTemplate;
@@ -3264,11 +3108,12 @@ AndroidBuilder.prototype.generateJavaFiles = async function generateJavaFiles() 
 			} else {
 				this.logger.debug(__('Generating service class: %s', service.classname.cyan));
 			}
-			fs.writeFileSync(path.join(this.buildGenAppIdDir, service.classname + '.java'), ejs.render(tpl, {
+			const fileContent = ejs.render(tpl, {
 				appid: this.appid,
 				service: service
-			}));
-		}, this);
+			});
+			await fs.writeFile(path.join(this.buildGenAppIdDir, `${service.classname}.java`), fileContent);
+		}
 	}
 };
 
@@ -3310,41 +3155,53 @@ AndroidBuilder.prototype.generateI18N = async function generateI18N() {
 		return locale;
 	}
 
-	Object.keys(data).forEach(function (locale) {
-		const localeSuffixName = (locale === 'en' ? '' : '-' + resolveRegionName(locale));
-		const dirPath = path.join(this.buildAppMainResDir, `values${localeSuffixName}`);
-		const filePath = path.join(dirPath, 'ti_i18n_strings.xml');
+	// Traverse all loaded i18n locales and write them to XML files under the Android "res" folder.
+	for (const locale in data) {
+		// Create a localized strings dictionary if no i18n "strings.xml" file was found.
+		const localeData = data[locale];
+		if (!localeData.strings) {
+			localeData.strings = {};
+		}
+
+		// Add localized app name to strings dictionary under the "app_name" key:
+		// 1) If not already defined in i18n "strings.xml" file. (This is undocumented, but some devs do this.)
+		// 2) If defined in i18n "app.xml". (The preferred cross-platform way to localize it.)
+		// 3) Default to "tiapp.xml" file's <name/> if not defined under i18n. (Not localized.)
+		let appName = localeData.strings.app_name;
+		if (!appName) {
+			appName = localeData.app && localeData.app.appname;
+			if (!appName) {
+				appName = this.tiapp.name;
+			}
+			localeData.strings.app_name = appName;
+		}
+
+		// Create the XML content for all localized strings.
 		const dom = new DOMParser().parseFromString('<resources/>', 'text/xml');
 		const root = dom.documentElement;
-		const appname = data[locale].app && data[locale].app.appname || this.tiapp.name;
-		const appnameNode = dom.createElement('string');
-
-		appnameNode.setAttribute('name', 'app_name');
-		appnameNode.setAttribute('formatted', 'false');
-		appnameNode.appendChild(dom.createTextNode(appname));
-		root.appendChild(dom.createTextNode('\n\t'));
-		root.appendChild(appnameNode);
-
-		data[locale].strings && Object.keys(data[locale].strings).forEach(function (name) {
+		for (const name in localeData.strings) {
 			if (name.indexOf(' ') !== -1) {
 				badStringNames[locale] || (badStringNames[locale] = []);
 				badStringNames[locale].push(name);
-			} else if (name !== 'appname') {
+			} else {
 				const node = dom.createElement('string');
 				node.setAttribute('name', name);
 				node.setAttribute('formatted', 'false');
-				node.appendChild(dom.createTextNode(data[locale].strings[name].replace(/\\?'/g, '\\\'').replace(/^\s+/g, replaceSpaces).replace(/\s+$/g, replaceSpaces)));
+				node.appendChild(dom.createTextNode(localeData.strings[name].replace(/\\?'/g, '\\\'').replace(/^\s+/g, replaceSpaces).replace(/\s+$/g, replaceSpaces)));
 				root.appendChild(dom.createTextNode('\n\t'));
 				root.appendChild(node);
 			}
-		});
-
+		}
 		root.appendChild(dom.createTextNode('\n'));
 
+		// Create the XML file under the Android "res/values-<locale>" folder.
+		const localeSuffixName = (locale === 'en' ? '' : '-' + resolveRegionName(locale));
+		const dirPath = path.join(this.buildAppMainResDir, `values${localeSuffixName}`);
+		const filePath = path.join(dirPath, 'ti_i18n_strings.xml');
 		this.logger.debug(__('Writing %s strings => %s', locale.cyan, filePath.cyan));
-		fs.ensureDirSync(dirPath);
-		fs.writeFileSync(filePath, '<?xml version="1.0" encoding="UTF-8"?>\n' + dom.documentElement.toString());
-	}, this);
+		await fs.ensureDir(dirPath);
+		await fs.writeFile(filePath, '<?xml version="1.0" encoding="UTF-8"?>\n' + dom.documentElement.toString());
+	}
 
 	if (Object.keys(badStringNames).length) {
 		this.logger.error(__('Found invalid i18n string names:'));
@@ -3363,65 +3220,216 @@ AndroidBuilder.prototype.generateI18N = async function generateI18N() {
 	}
 };
 
-AndroidBuilder.prototype.generateTheme = async function generateTheme() {
-	// Log the theme XML file we're about to generate.
+AndroidBuilder.prototype.generateSemanticColors = async function generateSemanticColors() {
+	this.logger.info(__('Generating semantic colors resources'));
+	const _t = this;
+	const xmlFileName = 'ti.semantic.colors.xml';
 	const valuesDirPath = path.join(this.buildAppMainResDir, 'values');
-	const xmlFilePath = path.join(valuesDirPath, 'ti_styles.xml');
-	this.logger.info(__('Generating theme file: %s', xmlFilePath.cyan));
+	const valuesNightDirPath = path.join(this.buildAppMainResDir, 'values-night');
+	await fs.ensureDir(valuesDirPath);
+	await fs.ensureDir(valuesNightDirPath);
+	const destLight = path.join(valuesDirPath, xmlFileName);
+	const destNight = path.join(valuesNightDirPath, xmlFileName);
 
-	// Set up all "Base.Theme.Titanium.Basic" inherited themed activities to be fullscreen if enabled in "tiapp.xml".
-	let basicParentThemeName = 'Theme.AppCompat';
-	if (this.tiapp.fullscreen || this.tiapp['statusbar-hidden']) {
-		basicParentThemeName += '.Fullscreen';
+	let colorsFile = path.join(this.projectDir, 'Resources', 'android', 'semantic.colors.json');
+
+	if (!fs.existsSync(colorsFile)) {
+		// Fallback to root of Resources folder for Classic applications
+		colorsFile = path.join(this.projectDir, 'Resources', 'semantic.colors.json');
 	}
 
-	// Set up all "Base.Theme.Titanium.Customizable" inherited themes to use one of the following:
-	// - The custom theme applied to the <application/> element in "AndroidManifest.xml".
-	// - The above fullsceen enabled basic theme if custom theme was not applied.
-	let customizableParentThemeName = basicParentThemeName;
-	if (this.customAndroidManifest) {
-		let appTheme = this.customAndroidManifest.getAppAttribute('android:theme');
-		if (appTheme && appTheme.startsWith('@style/') && (appTheme !== '@style/Theme.Titanium.Translucent')) {
-			customizableParentThemeName = appTheme.replace('@style/', '');
+	if (!fs.existsSync(colorsFile)) {
+		this.logger.debug(__('Skipping colorset generation as "semantic.colors.json" file does not exist'));
+		return;
+	}
+
+	function appendToXml(dom, root, color, colorValue) {
+		const appnameNode = dom.createElement('color');
+		appnameNode.setAttribute('name', `${color}`);
+		const colorObj = Color.fromSemanticColorsEntry(colorValue);
+		appnameNode.appendChild(dom.createTextNode(colorObj.toARGBHexString()));
+		root.appendChild(dom.createTextNode('\n\t'));
+		root.appendChild(appnameNode);
+	}
+
+	function writeXml(dom, dest, mode) {
+		if (fs.existsSync(dest)) {
+			_t.logger.debug(__('Merging %s semantic colors => %s', mode.cyan, dest.cyan));
+		} else {
+			_t.logger.debug(__('Writing %s semantic colors => %s', mode.cyan, dest.cyan));
 		}
+		return fs.writeFile(dest, '<?xml version="1.0" encoding="UTF-8"?>\n' + dom.documentElement.toString());
+	}
+
+	const colors = fs.readJSONSync(colorsFile);
+	const domLight = new DOMParser().parseFromString('<resources/>', 'text/xml');
+	const domNight = new DOMParser().parseFromString('<resources/>', 'text/xml');
+
+	const rootLight = domLight.documentElement;
+	const rootNight = domNight.documentElement;
+
+	for (const [ color, colorValue ] of Object.entries(colors)) {
+		if (!colorValue.light) {
+			this.logger.warn(`Skipping ${color} as it does not include a light value`);
+			continue;
+		}
+
+		if (!colorValue.dark) {
+			this.logger.warn(`Skipping ${color} as it does not include a dark value`);
+			continue;
+		}
+
+		appendToXml(domLight, rootLight, color, colorValue.light);
+		appendToXml(domNight, rootNight, color, colorValue.dark);
+	}
+
+	return Promise.all([
+		writeXml(domLight, destLight, 'light'),
+		writeXml(domNight, destNight, 'night')
+	]);
+};
+
+AndroidBuilder.prototype.generateTheme = async function generateTheme() {
+	// Log the theme XML file we're about to generate.
+	const xmlFileName = 'ti_styles.xml';
+	this.logger.info(__('Generating theme file: %s', xmlFileName.cyan));
+
+	// Set default theme to be used in "AndroidManifest.xml" and style resources.
+	let defaultAppThemeName = 'Theme.Titanium.DayNight.Solid';
+	if (this.tiapp.fullscreen || this.tiapp['statusbar-hidden']) {
+		defaultAppThemeName += '.Fullscreen';
+	} else if (this.tiapp['navbar-hidden']) {
+		defaultAppThemeName += '.NoTitleBar';
+	}
+
+	// Set up "Theme.AppDerived" to use the <application/> defined theme, if assigned.
+	let actualAppTheme = 'Theme.Titanium.App';
+	if (this.customAndroidManifest) {
+		const appTheme = this.customAndroidManifest.getAppAttribute('android:theme');
+		if (appTheme && !appTheme.startsWith('@style/Theme.AppDerived') && (appTheme !== '@style/Theme.Titanium')) {
+			actualAppTheme = appTheme;
+		}
+	}
+
+	// Use background/default PNG for splash if found. Otherwise theme will default to using app icon.
+	// Also show semi-transparent status/navigation bar if image is set, which was the 10.0.0 behavior.
+	const translucentXmlValue = this.hasSplashBackgroundImage ? 'true' : 'false';
+	let windowBackgroundImageXmlString = '';
+	if (this.hasSplashBackgroundImage) {
+		windowBackgroundImageXmlString = '<item name="android:windowBackground">@drawable/background</item>';
 	}
 
 	// Create the theme XML file with above activity style.
 	// Also apply app's background image to root splash activity theme.
+	let valuesDirPath = path.join(this.buildAppMainResDir, 'values');
 	let xmlLines = [
 		'<?xml version="1.0" encoding="utf-8"?>',
 		'<resources>',
-		`	<style name="Base.Theme.Titanium.Basic" parent="${basicParentThemeName}"/>`,
-		`	<style name="Base.Theme.Titanium.Customizable" parent="${customizableParentThemeName}"/>`,
+		`	<style name="Theme.Titanium.App" parent="${defaultAppThemeName}"/>`,
+		`	<style name="Theme.AppDerived" parent="${actualAppTheme}"/>`,
 		'',
-		'	<!-- Theme used by "TiRootActivity" derived class which displays the splash screen. -->',
-		'	<style name="Theme.Titanium" parent="@style/Base.Theme.Titanium.Splash">',
-		'		<item name="android:windowBackground">@drawable/background</item>',
+		'	<style name="Theme.Titanium" parent="Base.Theme.Titanium.Splash">',
+		`		<item name="titaniumSplashIcon">${this.appIconManifestValue}</item>`,
+		`		<item name="android:windowTranslucentNavigation">${translucentXmlValue}</item>`,
+		`		<item name="android:windowTranslucentStatus">${translucentXmlValue}</item>`,
+		`		${windowBackgroundImageXmlString}`,
 		'	</style>',
 		'</resources>'
 	];
 	await fs.ensureDir(valuesDirPath);
-	await fs.writeFile(xmlFilePath, xmlLines.join('\n'));
+	await fs.writeFile(path.join(valuesDirPath, xmlFileName), xmlLines.join('\n'));
+
+	// Create a theme XML for different Android OS versions depending on how the splash is configured.
+	const iconDrawable = '@drawable/titanium_splash_icon_background';
+	const adaptiveIconDrawable = '@drawable/titanium_splash_adaptive_icon_background';
+	if (this.hasSplashBackgroundImage) {
+		// Project uses background/default PNG for splash, but we will ignore it on Android 12 and higher.
+		// Note: Android 12 forces all apps to use an icon for splash screen. Cannot opt-out.
+		const iconValue = this.appRoundIconManifestValue ? this.appRoundIconManifestValue : this.appIconManifestValue;
+		const windowBackgroundValue = this.appRoundIconManifestValue ? adaptiveIconDrawable : iconDrawable;
+		valuesDirPath = path.join(this.buildAppMainResDir, 'values-v31');
+		xmlLines = [
+			'<?xml version="1.0" encoding="utf-8"?>',
+			'<resources>',
+			'	<style name="Theme.Titanium" parent="Base.Theme.Titanium.Splash">',
+			`		<item name="titaniumSplashIcon">${iconValue}</item>`,
+			`		<item name="android:windowBackground">${windowBackgroundValue}</item>`,
+			'		<item name="android:windowTranslucentNavigation">false</item>',
+			'		<item name="android:windowTranslucentStatus">false</item>',
+			'	</style>',
+			'</resources>'
+		];
+		await fs.ensureDir(valuesDirPath);
+		await fs.writeFile(path.join(valuesDirPath, xmlFileName), xmlLines.join('\n'));
+
+		// Set up translucent status/navigation bars to show dark icons/buttons on Android 8.1 - 11.x.
+		valuesDirPath = path.join(this.buildAppMainResDir, 'values-v27');
+		xmlLines = [
+			'<?xml version="1.0" encoding="utf-8"?>',
+			'<resources>',
+			'	<style name="Theme.Titanium" parent="Base.Theme.Titanium.Splash">',
+			'		<item name="android:windowLightNavigationBar">false</item>',
+			'		<item name="android:windowLightStatusBar">false</item>',
+			'		<item name="android:windowTranslucentNavigation">true</item>',
+			'		<item name="android:windowTranslucentStatus">true</item>',
+			`		${windowBackgroundImageXmlString}`,
+			'	</style>',
+			'</resources>'
+		];
+		await fs.ensureDir(valuesDirPath);
+		await fs.writeFile(path.join(valuesDirPath, xmlFileName), xmlLines.join('\n'));
+
+		// Set up translucent status bars to show dark icons on Android 6.0 - 8.0. (Cannot do this with nav buttons.)
+		valuesDirPath = path.join(this.buildAppMainResDir, 'values-v23');
+		xmlLines = [
+			'<?xml version="1.0" encoding="utf-8"?>',
+			'<resources>',
+			'	<style name="Theme.Titanium" parent="Base.Theme.Titanium.Splash">',
+			'		<item name="android:windowLightStatusBar">false</item>',
+			'		<item name="android:windowTranslucentNavigation">true</item>',
+			'		<item name="android:windowTranslucentStatus">true</item>',
+			`		${windowBackgroundImageXmlString}`,
+			'	</style>',
+			'</resources>'
+		];
+		await fs.ensureDir(valuesDirPath);
+		await fs.writeFile(path.join(valuesDirPath, xmlFileName), xmlLines.join('\n'));
+	} else if (this.appRoundIconManifestValue) {
+		// Project is set up to use app icon for the splash on all Android OS versions. (No fullscreen splash image.)
+		// Since manifest has an "android:roundIcon" adaptive icon defined, use it on Android 8 and higher.
+		valuesDirPath = path.join(this.buildAppMainResDir, 'values-v26');
+		xmlLines = [
+			'<?xml version="1.0" encoding="utf-8"?>',
+			'<resources>',
+			'	<style name="Theme.Titanium" parent="Base.Theme.Titanium.Splash">',
+			`		<item name="titaniumSplashIcon">${this.appRoundIconManifestValue}</item>`,
+			`		<item name="android:windowBackground">${adaptiveIconDrawable}</item>`,
+			'	</style>',
+			'</resources>'
+		];
+		await fs.ensureDir(valuesDirPath);
+		await fs.writeFile(path.join(valuesDirPath, xmlFileName), xmlLines.join('\n'));
+	}
 };
 
-AndroidBuilder.prototype.fetchNeededAndroidPermissions = function fetchNeededAndroidPermissions() {
-	// Do not continue if permission injection has been disabled in "tiapp.xml".
-	if (this.tiapp['override-permissions']) {
-		return [];
-	}
+AndroidBuilder.prototype.fetchNeededManifestSettings = function fetchNeededManifestSettings() {
+	// Check if permission injection is disabled in "tiapp.xml".
+	// Note: Recommended solution is to use 'tools:node="remove"' attributes within <manifest/> instead.
+	const canAddPermissions = !this.tiapp['override-permissions'];
 
 	// Define Android <uses-permission/> names needed by our core Titanium APIs.
 	const calendarPermissions = [ 'android.permission.READ_CALENDAR', 'android.permission.WRITE_CALENDAR' ];
-	const cameraPermissions = [ 'android.permission.CAMERA' ];
+	const cameraPermissions = [ 'android.permission.CAMERA', 'android.permission.WRITE_EXTERNAL_STORAGE' ];
 	const contactsPermissions = [ 'android.permission.READ_CONTACTS', 'android.permission.WRITE_CONTACTS' ];
 	const contactsReadPermissions = [ 'android.permission.READ_CONTACTS' ];
 	const geoPermissions = [ 'android.permission.ACCESS_COARSE_LOCATION', 'android.permission.ACCESS_FINE_LOCATION' ];
+	const storagePermissions = [ 'android.permission.WRITE_EXTERNAL_STORAGE' ];
 	const vibratePermissions = [ 'android.permission.VIBRATE' ];
 	const wallpaperPermissions = [ 'android.permission.SET_WALLPAPER' ];
 
 	// Define namespaces that need permissions when accessed in JavaScript.
 	const tiNamespacePermissions = {
-		geolocation: geoPermissions
+		Geolocation: geoPermissions
 	};
 
 	// Define methods that need permissions when invoked in JavaScript.
@@ -3440,7 +3448,10 @@ AndroidBuilder.prototype.fetchNeededAndroidPermissions = function fetchNeededAnd
 		'Contacts.getAllPeople': contactsReadPermissions,
 		'Contacts.getAllGroups': contactsReadPermissions,
 
+		'Filesystem.requestStoragePermissions': storagePermissions,
+
 		'Media.Android.setSystemWallpaper': wallpaperPermissions,
+		'Media.saveToPhotoGallery': storagePermissions,
 		'Media.showCamera': cameraPermissions,
 		'Media.vibrate': vibratePermissions,
 	};
@@ -3448,12 +3459,27 @@ AndroidBuilder.prototype.fetchNeededAndroidPermissions = function fetchNeededAnd
 	// Add Titanium's default permissions.
 	// Note: You would normally define needed permissions in AAR library's manifest file,
 	//       but we want "tiapp.xml" property "override-permissions" to be able to override this behavior.
-	const neededPermissionDictionary = {
-		'android.permission.INTERNET': true,
-		'android.permission.ACCESS_WIFI_STATE': true,
-		'android.permission.ACCESS_NETWORK_STATE': true,
-		'android.permission.WRITE_EXTERNAL_STORAGE': true
+	const neededPermissionDictionary = {};
+	if (canAddPermissions) {
+		neededPermissionDictionary['android.permission.INTERNET'] = true;
+		neededPermissionDictionary['android.permission.ACCESS_WIFI_STATE'] = true;
+		neededPermissionDictionary['android.permission.ACCESS_NETWORK_STATE'] = true;
+	}
+
+	// Set the max API Level the "WRITE_EXTERNAL_STORAGE" permission should use.
+	// Android 10 and higher doesn't need this permission unless requestStoragePermissions() method is used.
+	let storagePermissionMaxSdkVersion = 28;
+
+	// Define JavaScript methods that need manifest <queries> entries.
+	// The value strings are used as boolean property names in our "AndroidManifest.xml" EJS template.
+	const tiMethodQueries = {
+		'UI.createEmailDialog': 'sendEmail',
+		'UI.EmailDialog': 'sendEmail'
 	};
+
+	// To be populated with <queries/> needed by the app.
+	// Uses the string values from "tiMethodQueries" as keys.
+	const neededQueriesDictionary = {};
 
 	// Make sure Titanium symbols variable "tiSymbols" is valid.
 	if (!this.tiSymbols) {
@@ -3461,7 +3487,7 @@ AndroidBuilder.prototype.fetchNeededAndroidPermissions = function fetchNeededAnd
 	}
 
 	// Traverse all accessed namespaces/methods in JavaScript.
-	// Add any Android permissions needed if matching the above mappings.
+	// Add any Android permissions/queries needed if matching the above mappings.
 	const accessedSymbols = {};
 	for (const file in this.tiSymbols) {
 		// Fetch all symbols from the next JavaScript file.
@@ -3478,29 +3504,52 @@ AndroidBuilder.prototype.fetchNeededAndroidPermissions = function fetchNeededAnd
 			}
 			accessedSymbols[symbol] = true;
 
-			// If symbol is a namespace, then check if it needs permission.
-			// Note: Check each namespace component separately, split via periods.
-			const namespaceParts = symbol.split('.').slice(0, -1);
-			for (;namespaceParts.length > 0; namespaceParts.pop()) {
-				const namespace = namespaceParts.join('.');
-				if (namespace && tiNamespacePermissions[namespace]) {
-					for (const permission of tiNamespacePermissions) {
+			// Check if symbol requires any Android permissions.
+			if (canAddPermissions) {
+				let permissionArray;
+
+				// If symbol is a namespace, then check if it needs permission.
+				// Note: Check each namespace component separately, split via periods.
+				const namespaceParts = symbol.split('.').slice(0, -1);
+				for (;namespaceParts.length > 0; namespaceParts.pop()) {
+					const namespace = namespaceParts.join('.');
+					if (namespace) {
+						permissionArray = tiNamespacePermissions[namespace];
+						if (permissionArray) { // eslint-disable-line max-depth
+							for (const permission of permissionArray) { // eslint-disable-line max-depth
+								neededPermissionDictionary[permission] = true;
+							}
+						}
+					}
+				}
+
+				// If symbol is a method, then check if it needs permission.
+				permissionArray = tiMethodPermissions[symbol];
+				if (permissionArray) {
+					for (const permission of permissionArray) {
 						neededPermissionDictionary[permission] = true;
+					}
+					if (symbol === 'Filesystem.requestStoragePermissions') {
+						storagePermissionMaxSdkVersion = undefined;
 					}
 				}
 			}
 
-			// If symbol is a method, then check if it needs permission.
-			if (tiMethodPermissions[symbol]) {
-				for (const permission of tiMethodPermissions[symbol]) {
-					neededPermissionDictionary[permission] = true;
-				}
+			// Check if symbol requires an Android <queries/> entry.
+			const queryName = tiMethodQueries[symbol];
+			if (queryName) {
+				neededQueriesDictionary[queryName] = true;
 			}
 		}
 	}
 
-	// Return an array of Android <uses-permission/> names needed.
-	return Object.keys(neededPermissionDictionary);
+	// Return the entries needed to be injected into the generated "AndroidManifest.xml" file.
+	const neededSettings = {
+		queries: neededQueriesDictionary,
+		storagePermissionMaxSdkVersion: storagePermissionMaxSdkVersion,
+		usesPermissions: Object.keys(neededPermissionDictionary)
+	};
+	return neededSettings;
 };
 
 AndroidBuilder.prototype.generateAndroidManifest = async function generateAndroidManifest() {
@@ -3516,16 +3565,6 @@ AndroidBuilder.prototype.generateAndroidManifest = async function generateAndroi
 			= 'Titanium CLI option "android.mergeCustomAndroidManifest" is no longer supported. '
 			+ 'Use Google\'s "AndroidManifest.xml" feature "tools:remove" to remove XML elements instead.';
 		this.logger.warn(__n(message));
-	}
-
-	// Choose app theme to be used by all activities depending on following "tiapp.xml" settings.
-	let appThemeName = '@style/Theme.AppCompat';
-	if (this.tiapp.fullscreen || this.tiapp['statusbar-hidden']) {
-		if (this.tiapp['navbar-hidden']) {
-			appThemeName += '.NoTitleBar';
-		} else {
-			appThemeName += '.Fullscreen';
-		}
 	}
 
 	// Generate all XML lines to be added as children within the manifest's <application/> block.
@@ -3592,20 +3631,22 @@ AndroidBuilder.prototype.generateAndroidManifest = async function generateAndroi
 		}
 	}
 
+	// Scan app's JS code to see what <uses-permission/> and <queries/> entries should be auto-injected into manifest.
+	const neededManifestSettings = this.fetchNeededManifestSettings();
+
 	// Generate the app's main manifest from EJS template.
 	let mainManifestContent = await fs.readFile(path.join(this.templatesDir, 'AndroidManifest.xml'));
 	mainManifestContent = ejs.render(mainManifestContent.toString(), {
 		appChildXmlLines: appChildXmlLines,
-		appIcon: '@drawable/' + this.tiapp.icon.replace(/((\.9)?\.(png|jpg))$/, ''),
+		appIcon: this.appIconManifestValue,
 		appLabel: this.tiapp.name,
-		appTheme: appThemeName,
 		classname: this.classname,
-		packageName: this.appid
+		storagePermissionMaxSdkVersion: neededManifestSettings.storagePermissionMaxSdkVersion,
+		packageName: this.appid,
+		queries: neededManifestSettings.queries,
+		usesPermissions: neededManifestSettings.usesPermissions
 	});
 	const mainManifest = AndroidManifest.fromXmlString(mainManifestContent);
-
-	// Add <uses-permission/> needed by Titanium. Will add permissions based on JS APIs used such as geolocation.
-	mainManifest.addUsesPermissions(this.fetchNeededAndroidPermissions());
 
 	// Write the main "AndroidManifest.xml" file providing Titanium's default app manifest settings.
 	const mainManifestFilePath = path.join(this.buildAppMainDir, 'AndroidManifest.xml');
@@ -3725,9 +3766,28 @@ AndroidBuilder.prototype.buildAppProject = async function buildAppProject() {
 	const gradlew = new GradleWrapper(this.buildDir);
 	gradlew.logger = this.logger;
 	if (this.allowDebugging) {
+		// Build a debug version of the APK. (Native code can be debugged via Android Studio.)
 		await gradlew.assembleDebug('app');
 	} else {
+		// Build a release version of the APK.
 		await gradlew.assembleRelease('app');
+
+		// Create an "*.aab" app-bundle file of the app.
+		// Note: This is a Google Play publishing format. App-bundles cannot be ran on Android devices.
+		//       Google's server will generate multiple APKs from this split by architecture and image density.
+		await gradlew.bundleRelease('app');
+
+		// Set path to the app-bundle file that was built up above.
+		// Our "package.js" event hook will later copy it to the developer's chosen destination directory.
+		this.aabFile = path.join(this.buildDir, 'app', 'build', 'outputs', 'bundle', 'release', 'app-release.aab');
+	}
+
+	// Verify that we can find the above built file(s).
+	if (!await fs.exists(this.apkFile)) {
+		throw new Error(`Failed to find built APK file: ${this.apkFile}`);
+	}
+	if (this.aabFile && !await fs.exists(this.aabFile)) {
+		throw new Error(`Failed to find built AAB file: ${this.aabFile}`);
 	}
 };
 

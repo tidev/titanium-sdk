@@ -8,7 +8,7 @@
 #import <JavaScriptCore/JavaScriptCore.h>
 #import <pthread.h>
 
-// Macros to make life easier for defining properties with getters/setter accessor methods (which we'll remove in SDK 9.0.0
+// Macros to make life easier for defining properties with getters/setter accessor methods (which we'll remove in SDK 10.0.0
 
 // Defines a setProp() accessor method in JS-world that points to setterProp:(TYPE)value in native code
 #define SETTER(TYPE, NAME) JSExportAs(set##NAME, -(void)setter##NAME \
@@ -40,15 +40,13 @@
   SETTER_IMPL(TYPE, UPPER);
 
 #define PROPERTY(TYPE, LOWER, UPPER) \
-  @property TYPE LOWER;              \
-  READWRITE(TYPE, UPPER);
+  @property TYPE LOWER;
 
 #define CONSTANT(TYPE, NAME) \
   @property (readonly) TYPE NAME;
 
 #define READONLY_PROPERTY(TYPE, LOWER, UPPER) \
-  CONSTANT(TYPE, LOWER);                      \
-  GETTER(TYPE, UPPER);
+  CONSTANT(TYPE, LOWER);
 
 // TODO: Log a warning/error if negative?
 // We could also define as NSUInteger and do: if (arg - 1 == NSIntegerMax) as NaN check
@@ -155,10 +153,20 @@ JSExportAs(fireEvent,
 // FIXME: Should id be TiProxy* here?
 - (id)JSValueToNative:(JSValue *)jsValue;
 - (JSValue *)NativeToJSValue:(id)proxy;
+- (JSValue *)JSValue;
+- (JSValue *)JSValueInContext:(JSContext *)context;
 
 /**
  * Convenience method to interface with "old-style" proxies, which typically need this passed in as
  * the "page context" in their initializers.
  **/
 - (id<TiEvaluator>)executionContext;
++ (id<TiEvaluator>)executionContext:(JSContext *)jsContext;
+
+/**
+ * Due to mix and match of new and old C API, JSContext.currentContext (and currentThis) may be null
+ * If we get called back through the old C API function callback, it will be, so we need to hack.
+ */
+- (JSContext *)currentContext;
+
 @end

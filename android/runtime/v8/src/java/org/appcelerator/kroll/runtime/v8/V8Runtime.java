@@ -6,7 +6,6 @@
  */
 package org.appcelerator.kroll.runtime.v8;
 
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -16,6 +15,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.appcelerator.kroll.KrollApplication;
 import org.appcelerator.kroll.KrollExternalModule;
+import org.appcelerator.kroll.KrollPromise;
 import org.appcelerator.kroll.KrollProxySupport;
 import org.appcelerator.kroll.KrollRuntime;
 import org.appcelerator.kroll.common.KrollSourceCodeProvider;
@@ -25,8 +25,9 @@ import org.appcelerator.kroll.common.TiDeployData;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
-import android.os.Message;
 import android.os.MessageQueue.IdleHandler;
+
+import androidx.annotation.NonNull;
 
 public final class V8Runtime extends KrollRuntime implements Handler.Callback
 {
@@ -36,13 +37,10 @@ public final class V8Runtime extends KrollRuntime implements Handler.Callback
 
 	private boolean libLoaded = false;
 
-	private HashMap<String, Class<? extends KrollExternalModule>> externalModules =
-		new HashMap<String, Class<? extends KrollExternalModule>>();
-	private static HashMap<String, KrollSourceCodeProvider> externalCommonJsModules =
-		new HashMap<String, KrollSourceCodeProvider>();
-
-	private ArrayList<String> loadedLibs = new ArrayList<String>();
-	private AtomicBoolean shouldGC = new AtomicBoolean(false);
+	private final HashMap<String, Class<? extends KrollExternalModule>> externalModules = new HashMap<>();
+	private static final HashMap<String, KrollSourceCodeProvider> externalCommonJsModules = new HashMap<>();
+	private final ArrayList<String> loadedLibs = new ArrayList<>();
+	private final AtomicBoolean shouldGC = new AtomicBoolean(false);
 	private long lastV8Idle;
 
 	/**
@@ -58,6 +56,12 @@ public final class V8Runtime extends KrollRuntime implements Handler.Callback
 			|| Build.MANUFACTURER.contains("Genymotion")
 			|| (Build.BRAND.startsWith("generic") && Build.DEVICE.startsWith("generic"))
 			|| "google_sdk".equals(Build.PRODUCT);
+	}
+
+	@Override
+	public void forceGC()
+	{
+		nativeIdle();
 	}
 
 	@Override
@@ -206,6 +210,16 @@ public final class V8Runtime extends KrollRuntime implements Handler.Callback
 	public void setGCFlag()
 	{
 		shouldGC.set(true);
+	}
+
+	@Override
+	@NonNull
+	public KrollPromise createPromise()
+	{
+		if (KrollRuntime.isDisposed()) {
+			return new KrollPromise.NullPromise();
+		}
+		return new V8Promise();
 	}
 
 	// JNI method prototypes

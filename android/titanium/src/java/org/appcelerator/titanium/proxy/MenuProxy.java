@@ -35,7 +35,7 @@ public class MenuProxy extends KrollProxy
 	public MenuProxy(Menu menu)
 	{
 		this.menu = menu;
-		menuMap = new HashMap<MenuItem, MenuItemProxy>();
+		menuMap = new HashMap<>();
 	}
 
 	@Kroll.method
@@ -184,7 +184,7 @@ public class MenuProxy extends KrollProxy
 	{
 		//TODO will get to get items in the group and remove them from our map
 		menu.removeGroup(groupId);
-		HashMap<MenuItem, MenuItemProxy> mm = new HashMap<MenuItem, MenuItemProxy>(menu.size());
+		HashMap<MenuItem, MenuItemProxy> mm = new HashMap<>(menu.size());
 		int len = menu.size();
 		for (int i = 0; i < len; i++) {
 			MenuItem mi = menu.getItem(i);
@@ -254,11 +254,8 @@ public class MenuProxy extends KrollProxy
 		return menu.size();
 	}
 
-	// clang-format off
-	@Kroll.method
 	@Kroll.getProperty
 	public MenuItemProxy[] getItems()
-	// clang-format on
 	{
 		int len = menu.size();
 		MenuItemProxy[] proxies = new MenuItemProxy[len];
@@ -284,10 +281,6 @@ public class MenuProxy extends KrollProxy
 		}
 		this.menu = menu;
 	}
-
-	//	public ArrayList<MenuItemProxy> getMenuItems() {
-	//		return menuItems;
-	//	}
 
 	public void release()
 	{

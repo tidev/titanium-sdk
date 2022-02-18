@@ -2,24 +2,16 @@
 name: Titanium.UI.TextField
 summary: A single line text field.
 description: |
-    <table id="platformComparison">
-      <tbody>
-        <tr>
-          <td><img src="images/textfield/textfield_android.png" height="25" /></td>
-          <td><img src="images/textfield/textfield_ios.png" height="25" /></td>
-          <td><img src="images/textfield/textfield_wp.png" height="25" /></td>
-        </tr>
-      </tbody>
-      <tfoot>
-        <tr>
-          <th>Android</th>
-          <th>iOS</th>
-          <th>Windows Phone</th>
-        </tr>
-      </tfoot>
-    </table>
+    | Android | iOS | Windows |
+    | ------- | --- | ------- |
+    | ![Android](./textfield_android.png) | ![iOS](./textfield_ios.png) | ![Windows](./textfield_wp.png) |
 
     Use the <Titanium.UI.createTextField> method or **`<TextField>`** Alloy element to create a text field.
+
+    #### `click` event in iOS
+
+    In iOS 11+, `click` event in text field is not fired due to changes from apple. 
+    Use `touchstart` event instead of `click` event.
 extends: Titanium.UI.View
 since: "0.8"
 excludes:
@@ -41,7 +33,7 @@ methods:
 
   - name: setSelection
     summary: Selects the text in range (start, end).
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     since: "3.0.0"
     osver: {ios: {min: "5.0"}}
     parameters:
@@ -75,7 +67,7 @@ properties:
     type: Number
     constants: [Titanium.UI.KEYBOARD_APPEARANCE_DARK, Titanium.UI.KEYBOARD_APPEARANCE_LIGHT, Titanium.UI.KEYBOARD_APPEARANCE_DEFAULT]
     default: <Titanium.UI.KEYBOARD_APPEARANCE_DEFAULT>
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: attributedString
     summary: TextField attributed string.
@@ -86,34 +78,38 @@ properties:
         For Alloy, you can use an `<AttributedString>` element inside a `<TextField>` element and set
         the text property as node text:
 
-            <Alloy>
-              <Window>
-                  <TextField>
-                    <AttributedString>
-                        Alloy is great!
-                    </AttributedString>
-                  </TextField>
-              </Window>
-            </Alloy>
+        ``` xml
+        <Alloy>
+          <Window>
+              <TextField>
+                <AttributedString>
+                    Alloy is great!
+                </AttributedString>
+              </TextField>
+          </Window>
+        </Alloy>
+        ```
 
         Then set attributes in the TSS file:
 
-            "AttributedString" : {
-              attributes: [
-                {
-                  type: Ti.UI.ATTRIBUTE_FOREGROUND_COLOR,
-                  value: 'red',
-                  range: [0, 5]
-                },
-                {
-                  type: Ti.UI.ATTRIBUTE_UNDERLINES_STYLE,
-                  value: Ti.UI.ATTRIBUTE_UNDERLINE_STYLE_SINGLE,
-                  range: [9, 5]
-                }
-              ]
+        ``` js
+        "AttributedString" : {
+          attributes: [
+            {
+              type: Ti.UI.ATTRIBUTE_FOREGROUND_COLOR,
+              value: 'red',
+              range: [0, 5]
+            },
+            {
+              type: Ti.UI.ATTRIBUTE_UNDERLINES_STYLE,
+              value: Ti.UI.ATTRIBUTE_UNDERLINE_STYLE_SINGLE,
+              range: [9, 5]
             }
+          ]
+        }
+        ```
     type: Titanium.UI.AttributedString
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     since:
         android: 3.6.0
         iphone: 3.2.0
@@ -133,34 +129,38 @@ properties:
         Since Appcelerator CLI 4.1.0 (Alloy 1.7.0), for Alloy, you can use an `<AttributedHintText>`
         element inside a `<TextField>` element and set the text property as node text:
 
-            <Alloy>
-              <Window>
-                  <TextField>
-                    <AttributedHintText>
-                        Alloy is great!
-                    </AttributedHintText>
-                  </TextField>
-              </Window>
-            </Alloy>
+        ``` xml
+        <Alloy>
+          <Window>
+              <TextField>
+                <AttributedHintText>
+                    Alloy is great!
+                </AttributedHintText>
+              </TextField>
+          </Window>
+        </Alloy>
+        ```
 
         Then set attributes in the TSS file:
 
-            "AttributedString" : {
-              attributes: [
-                {
-                  type: Ti.UI.ATTRIBUTE_FOREGROUND_COLOR,
-                  value: 'red',
-                  range: [0, 5]
-                },
-                {
-                  type: Ti.UI.ATTRIBUTE_UNDERLINES_STYLE,
-                  value: Ti.UI.ATTRIBUTE_UNDERLINE_STYLE_SINGLE,
-                  range: [9, 5]
-                }
-              ]
+        ``` js
+        "AttributedString" : {
+          attributes: [
+            {
+              type: Ti.UI.ATTRIBUTE_FOREGROUND_COLOR,
+              value: 'red',
+              range: [0, 5]
+            },
+            {
+              type: Ti.UI.ATTRIBUTE_UNDERLINES_STYLE,
+              value: Ti.UI.ATTRIBUTE_UNDERLINE_STYLE_SINGLE,
+              range: [9, 5]
             }
+          ]
+        }
+        ```
     type: Titanium.UI.AttributedString
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     since:
         android: 3.6.0
         iphone: 3.2.0
@@ -193,14 +193,16 @@ properties:
     default: undefined
     since: "6.3.0"
     osver: {ios: {min: "10.0"}, android: {min: "8.0"}}
-    platforms: [iphone, ipad, android]
+    platforms: [iphone, ipad, android, macos]
 
   - name: autoLink
     summary: Automatically convert text to clickable links.
     description: |
         Multiple autolink values can be combined with a bitwise OR. For example:
 
-            textField.autoLink = Ti.UI.AUTOLINK_MAP_ADDRESSES | Ti.UI.AUTOLINK_PHONE_NUMBERS;
+        ``` js
+        textField.autoLink = Ti.UI.AUTOLINK_MAP_ADDRESSES | Ti.UI.AUTOLINK_PHONE_NUMBERS;
+        ```
 
         The Android-specific `LINKIFY` legacy constants are defined in <Titanium.UI.Android>.
     type: Number
@@ -211,17 +213,21 @@ properties:
 
   - name: borderStyle
     summary: Border style for the field.
+    description: On Android, this is a creation-only property and cannot be changed dynamically.
     type: Number
     constants: Titanium.UI.INPUT_BORDERSTYLE_*
-    default: <Titanium.UI.INPUT_BORDERSTYLE_NONE>
-    platforms: [iphone, ipad]
+    default: |
+        <Titanium.UI.INPUT_BORDERSTYLE_NONE> (on iOS),
+        <Titanium.UI.INPUT_BORDERSTYLE_FILLED> (on Android)
+    platforms: [android, iphone, ipad, macos]
+    since: {android: 10.0.0, iphone: 0.8.0, ipad: 0.8.0, macos: 9.2.0}
 
   - name: clearButtonMode
     summary: Determines when the clear button is displayed.
     type: Number
     constants: Titanium.UI.INPUT_BUTTONMODE_*
     default: Titanium.UI.INPUT_BUTTONMODE_NEVER
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: clearOnEdit
     summary: Determines whether the value of this text field should be cleared when it is focused.
@@ -232,7 +238,7 @@ properties:
     summary: Color of the text in this text field, as a color name or hex triplet.
     description: |
         For information about color values, see the "Colors" section of <Titanium.UI>.
-    type: String
+    type: [String, Titanium.UI.Color]
 
   - name: editable
     summary: Determines whether this field can be edited.
@@ -244,6 +250,18 @@ properties:
     type: Boolean
     default: false
     platforms: [android]
+
+  - name: enableCopy
+    summary: Determines if user can copy or cut text from the text field.
+    description: |
+        When set `false`, the "copy" and "cut" options will not appear in the context menu.
+        The `Command+C` and `Command+X` keyboard shortcuts will be ignored as well.
+
+        If <Titanium.UI.TextField.passwordMask> is set `true`, then copy support is always disabled,
+        even if you set this property `true`.
+    type: Boolean
+    default: true
+    since: "10.0.1"
 
   - name: enableReturnKey
     summary: |
@@ -257,6 +275,13 @@ properties:
         the key itself won't be **disabled**.
     type: Boolean
     default: false
+
+  - name: focused
+    summary: Determines whether this TextField has focus.
+    type: Boolean
+    default: false
+    permission: read-only
+    since: "9.1.0"
 
   - name: font
     summary: Font to use for text.
@@ -289,7 +314,7 @@ properties:
 
   - name: hintTextColor
     summary: Hint text color to display when the field is empty.
-    platforms: [iphone, ipad, android]
+    platforms: [iphone, ipad, android, macos]
     since: {iphone: "5.4.0", ipad: "5.4.0", android: "4.1.0"}
     description: |
         Sets the color of the <Titanium.UI.TextField.hintText>. Please not that this can be overriden
@@ -300,19 +325,21 @@ properties:
         used that defines the `android:textColorHint` attribute.
 
         **Android Note**:
-        The hint text color in Android is determined by the theme of the application. By default, the
-        theme is 'Theme.AppCompat' which is a Dark theme. When you create the background to be white,
+        The hint text color in Android is determined by the theme of the application.
+        By default, a Titanium app uses a Dark theme. When you create the background to be white,
         the hint text color would also be white, hence not visible to the user. To change this, you can
         edit the tiapp.xml file with another theme. Example as follows:
 
-            <android xmlns:android="http://schemas.android.com/apk/res/android">
-                <manifest>
-                    <application android:theme="@style/Theme.AppCompat.Light"/>
-                </manifest>
-            </android>
+        ``` xml
+        <android xmlns:android="http://schemas.android.com/apk/res/android">
+            <manifest>
+                <application android:theme="@style/Theme.MaterialComponents.Light.Bridge"/>
+            </manifest>
+        </android>
+        ```
 
         Another way to change the hint text color is to use this property and specify a color.
-    type: String
+    type: [String, Titanium.UI.Color]
     default: The platform's default hint text color.
 
   - name: hinttextid
@@ -347,46 +374,43 @@ properties:
 
   - name: keyboardToolbar
     summary: |
-        Array of toolbar button objects or a [toolbar](Titanium.UI.iOS.Toolbar) to be used when the
+        Array of toolbar button objects or a [toolbar](Titanium.UI.Toolbar) to be used when the
         keyboard is displayed.
     description: |
-        As of Release 2.0, because iOS disallows a view (including toolbar buttons) to be in two places at
-        once, developers desiring textAreas or [textFields](Titanium.UI.TextField) to share a toolbar
-        can instead use a single [toolbar](Titanium.UI.iOS.Toolbar) instead of having arrays sharing
-        toolbar buttons.
-
         In Alloy, you can use a `<KeyboardToolbar>` element inside a `<TextField>` element to create
         a `KeyboardToolbar`.
 
-            <Alloy>
-                <TextField id="textfield" platform="ios" hintText="Tap here...">
-                    <!-- Nested properties -->
-                    <KeyboardToolbar >
-                        <Toolbar >
-                            <Items >
-                                <Button>button 1</Button>
-                                <FlexSpace />
-                                <Button>button 2</Button>
-                            </Items>
-                        </Toolbar>
-                    </KeyboardToolbar>
-                </TextField>
-            </Alloy>
-    type: [Array<Titanium.UI.View>, Titanium.UI.iOS.Toolbar]
-    platforms: [iphone, ipad]
+        ``` xml
+        <Alloy>
+            <TextField id="textfield" platform="ios" hintText="Tap here...">
+                <!-- Nested properties -->
+                <KeyboardToolbar >
+                    <Toolbar >
+                        <Items >
+                            <Button>button 1</Button>
+                            <FlexSpace />
+                            <Button>button 2</Button>
+                        </Items>
+                    </Toolbar>
+                </KeyboardToolbar>
+            </TextField>
+        </Alloy>
+        ```
+    type: [Array<Titanium.UI.View>, Titanium.UI.Toolbar]
+    platforms: [iphone, ipad, macos]
 
   - name: keyboardToolbarColor
     summary: |
         Color of the keyboard toolbar if keyboardToolbar is an array, as a color name or hex triplet.
     description: |
         For information about color values, see the "Colors" section of <Titanium.UI>.
-    type: String
-    platforms: [iphone, ipad]
+    type: [String, Titanium.UI.Color]
+    platforms: [iphone, ipad, macos]
 
   - name: keyboardToolbarHeight
     summary: Height of the keyboard toolbar if keyboardToolbar is an array.
     type: Number
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: keyboardType
     summary: Keyboard type to display when this text field is focused.
@@ -407,45 +431,47 @@ properties:
 
         In Alloy you can use a `<LeftButton>` element inside the `<TextField>` element.
 
-            <Alloy>
-                <Window>
-                    <!-- iOS TextField properties -->
-                    <TextField id="textfield" platform="ios">
-                        <LeftButton>
-                            <Button onClick="sayHi">Say Hi</Button>
-                        </LeftButton>
-                        <RightButton>
-                            <Button onClick="doAlert">Do Alert</Button>
-                        </RightButton>
-                    </TextField>
-                </Window>
-            </Alloy>
+        ``` xml
+        <Alloy>
+            <Window>
+                <!-- iOS TextField properties -->
+                <TextField id="textfield" platform="ios">
+                    <LeftButton>
+                        <Button onClick="sayHi">Say Hi</Button>
+                    </LeftButton>
+                    <RightButton>
+                        <Button onClick="doAlert">Do Alert</Button>
+                    </RightButton>
+                </TextField>
+            </Window>
+        </Alloy>
+        ```
     type: Titanium.UI.View
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: leftButtonMode
     summary: Determines when to display the left button view.
     type: Number
     constants: Titanium.UI.INPUT_BUTTONMODE_*
     default: <Titanium.UI.INPUT_BUTTONMODE_NEVER>
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: leftButtonPadding
     summary: Padding between the left button and the edge of the field.
     type: Number
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: minimumFontSize
     summary: |
         Minimum size of the font when the font is sized based on the contents.  Enables font
         scaling to fit.
     type: Number
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: padding
     summary: Sets the padding of this text field.
     type: TextFieldPadding
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     since: "6.0.0"
 
   - name: paddingLeft
@@ -486,7 +512,7 @@ properties:
     type: String
     since: "7.5.0"
     osver: { ios: { min: "12.0" } }
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: returnKeyType
     summary: Specifies the text to display on the keyboard `Return` key when this field is focused.
@@ -503,40 +529,42 @@ properties:
         Using an object other than a [Button](Titanium.UI.Button) may have unpredictable results.
         In Alloy you can use a `<RightButton>` element inside the `<TextField>` element.
 
-            <Alloy>
-                <Window>
-                    <!-- iOS TextField properties -->
-                    <TextField id="textfield" platform="ios">
-                        <LeftButton>
-                            <Button onClick="sayHi">Say Hi</Button>
-                        </LeftButton>
-                        <RightButton>
-                            <Button onClick="doAlert">Do Alert</Button>
-                        </RightButton>
-                    </TextField>
-                </Window>
-            </Alloy>
+        ``` xml
+        <Alloy>
+            <Window>
+                <!-- iOS TextField properties -->
+                <TextField id="textfield" platform="ios">
+                    <LeftButton>
+                        <Button onClick="sayHi">Say Hi</Button>
+                    </LeftButton>
+                    <RightButton>
+                        <Button onClick="doAlert">Do Alert</Button>
+                    </RightButton>
+                </TextField>
+            </Window>
+        </Alloy>
+        ```
 
         The `sayHi` and `doAlert` methods are defined in the Alloy controller.
     type: Titanium.UI.View
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: rightButtonMode
     summary: Determines when to display the right button view.
     type: Number
     constants: Titanium.UI.INPUT_BUTTONMODE_*
     default: Titanium.UI.INPUT_BUTTONMODE_NEVER
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: rightButtonPadding
     summary: Padding between the right button and the edge of the field.
     type: Number
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: suppressReturn
     summary: Determines whether the return key should be suppressed during entry.
     type: Boolean
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: selection
     summary: Returns the currently selected text of the text field.
@@ -549,14 +577,14 @@ properties:
         to the window.
     type: textFieldSelectedParams
     permission: read-only
-    platforms: [iphone, ipad, android]
+    platforms: [iphone, ipad, android, macos]
     since: "3.3.0"
 
   - name: showUndoRedoActions
     summary: Determinates if the undo and redo buttons on the left side of the keyboard should be displayed or not. Only valid on iOS9 and above.
     type: Boolean
     default: true
-    platforms: [ipad]
+    platforms: [ipad, macos]
     osver: {ios: {min: "9.0"}}
     since: "5.0.0"
 
@@ -586,7 +614,7 @@ properties:
     type: [Number, String]
     constants: Titanium.UI.TEXT_VERTICAL_ALIGNMENT_*
     default: <Titanium.UI.TEXT_VERTICAL_ALIGNMENT_CENTER>
-    platforms: [iphone, ipad, android]
+    platforms: [iphone, ipad, android, macos]
 
   - name: maxLength
     summary: Maximum length of text field input.
@@ -632,62 +660,66 @@ examples:
     example: |
         Create a simple text field with green text color.
 
-            var win = Ti.UI.createWindow({
-              backgroundColor: 'white'
-            });
+        ``` js
+        var win = Ti.UI.createWindow({
+          backgroundColor: 'white'
+        });
 
-            var textField = Ti.UI.createTextField({
-              backgroundColor: '#fafafa',
-              color: 'green',
-              width: 250,
-              height: 40
-            });
+        var textField = Ti.UI.createTextField({
+          backgroundColor: '#fafafa',
+          color: 'green',
+          width: 250,
+          height: 40
+        });
 
-            win.add(textField);
-            win.open();
+        win.add(textField);
+        win.open();
+        ```
 
   - title: Custom Keyboard Toolbar (iOS)
     example: |
         On iOS, a configurable toolbar can be displayed above the virtual keyboard.
-        Toolbars can be used with both text areas and text fields. See <Titanium.UI.iOS.Toolbar>
+        Toolbars can be used with both text areas and text fields. See <Titanium.UI.Toolbar>
         for more information.
 
         This code excerpt creates a text field with a toolbar:
 
-            var win = Ti.UI.createWindow({
-                backgroundColor: 'white'
-            });
+        ``` js
+        var win = Ti.UI.createWindow({
+            backgroundColor: 'white'
+        });
 
-            var send = Ti.UI.createButton({
-                title: 'Send',
-                style: Ti.UI.iOS.SystemButtonStyle.DONE,
-            });
+        var send = Ti.UI.createButton({
+            title: 'Send',
+            style: Ti.UI.iOS.SystemButtonStyle.DONE,
+        });
 
-            var camera = Ti.UI.createButton({
-                systemButton: Ti.UI.iOS.SystemButton.CAMERA,
-            });
+        var camera = Ti.UI.createButton({
+            systemButton: Ti.UI.iOS.SystemButton.CAMERA,
+        });
 
-            var cancel = Ti.UI.createButton({
-                systemButton: Ti.UI.iOS.SystemButton.CANCEL
-            });
+        var cancel = Ti.UI.createButton({
+            systemButton: Ti.UI.iOS.SystemButton.CANCEL
+        });
 
-            var flexSpace = Ti.UI.createButton({
-                systemButton: Ti.UI.iOS.SystemButton.FLEXIBLE_SPACE
-            });
+        var flexSpace = Ti.UI.createButton({
+            systemButton: Ti.UI.iOS.SystemButton.FLEXIBLE_SPACE
+        });
 
-            var textfield = Ti.UI.createTextField({
-                borderStyle: Ti.UI.INPUT_BORDERSTYLE_BEZEL,
-                hintText: 'Focus to see keyboard with toolbar',
-                keyboardToolbar : [cancel, flexSpace, camera, flexSpace, send],
-                keyboardToolbarColor: '#999',
-                keyboardToolbarHeight: 40,
-                top: 10,
-                width: 300,
-                height: 35
-            });
+        var textfield = Ti.UI.createTextField({
+            borderStyle: Ti.UI.INPUT_BORDERSTYLE_BEZEL,
+            hintText: 'Focus to see keyboard with toolbar',
+            keyboardToolbar : [cancel, flexSpace, camera, flexSpace, send],
+            keyboardToolbarColor: '#999',
+            keyboardToolbarHeight: 40,
+            top: 10,
+            width: 300,
+            height: 35
+        });
 
-            win.add(textField);
-            win.open();
+        win.add(textField);
+        win.open();
+        ```
 
   - title: Alloy XML Markup
     example: |
@@ -695,11 +727,13 @@ examples:
 
         Alternatively, define the properties using the TSS file.
 
-            <Alloy>
-                <Window id="win" backgroundColor="white">
-                    <TextField class="myTextField" color="green" width="250" height="45" />
-                </Window>
-            </Alloy>
+        ``` xml
+        <Alloy>
+            <Window id="win" backgroundColor="white">
+                <TextField class="myTextField" color="green" width="250" height="45" />
+            </Window>
+        </Alloy>
+        ```
 
   - title: Alloy Custom Keyboard Toolbar (iOS)
     example: |
@@ -709,33 +743,35 @@ examples:
         You can also declare the `leftButton` and `rightButton` properties in XML markup as the
         `<LeftButton>` and `<RightButton>` XML elements.
 
-            <Alloy>
-                <Window fullscreen="true" backgroundColor="white">
-                    <TextField
-                        platform="ios"
-                        borderStyle="Ti.UI.INPUT_BORDERSTYLE_BEZEL"
-                        keyboardToolbarColor="#999"
-                        keyboardToolbarHeight="40"
-                        top="10"
-                        height="35"
-                        width="300"
-                        value="Focus to see keyboard with toolbar">
+        ``` xml
+        <Alloy>
+            <Window fullscreen="true" backgroundColor="white">
+                <TextField
+                    platform="ios"
+                    borderStyle="Ti.UI.INPUT_BORDERSTYLE_BEZEL"
+                    keyboardToolbarColor="#999"
+                    keyboardToolbarHeight="40"
+                    top="10"
+                    height="35"
+                    width="300"
+                    value="Focus to see keyboard with toolbar">
 
-                        <!-- Sets the keyboardToolbar property -->
-                        <KeyboardToolbar>
-                            <Toolbar>
-                                <Items>
-                                    <Button systemButton="CANCEL" />
-                                    <FlexSpace/>
-                                    <Button systemButton="CAMERA" />
-                                    <FlexSpace/>
-                                    <Button style="DONE">Send</Button>
-                                </Items>
-                            </Toolbar>
-                        </KeyboardToolbar>
-                    </TextField>
-                </Window>
-            </Alloy>
+                    <!-- Sets the keyboardToolbar property -->
+                    <KeyboardToolbar>
+                        <Toolbar>
+                            <Items>
+                                <Button systemButton="CANCEL" />
+                                <FlexSpace/>
+                                <Button systemButton="CAMERA" />
+                                <FlexSpace/>
+                                <Button style="DONE">Send</Button>
+                            </Items>
+                        </Toolbar>
+                    </KeyboardToolbar>
+                </TextField>
+            </Window>
+        </Alloy>
+        ```
 
 ---
 name: textFieldSelectedParams
@@ -755,7 +791,7 @@ name: TextFieldPadding
 extends: Padding
 summary: Dictionary object of parameters for the <Titanium.UI.TextField.padding> that describes the padding. Most notable difference from typical <Padding> is that `top`/`bottom` are only supported on Android.
 since: "6.0.0"
-platforms: [android, iphone, ipad]
+platforms: [android, iphone, ipad, macos]
 properties:
   - name: left
     type: Number

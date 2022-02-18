@@ -34,21 +34,6 @@ description: |
     See the [TableView](Titanium.UI.TableView) description and examples section for more information
     about creating table rows.
 
-    #### Improved Table Performance (Android)
-
-    If you are experiencing performance issues on Android when using custom rows, you can
-    try setting the [className](Titanium.UI.TableViewRow.className) property. The class name serves as a
-    cue for reusing the underlying views used to display the rows.
-
-    A given `className` value indicates a row with a particular set of child views.
-    All rows that share a class name must have the same set of children -- for example, the class
-    name "myCustomRow" could identify a row containing two labels and an image view.
-
-    The properties of the child controls may be different. For example, each instance of
-    "myCustomRow" could have a different image and different text on the labels.
-
-    Note that `className` is no longer used on iOS, and is ignored.
-
     #### Platform Implementation Notes
 
     The `top`, `left` and other positional parameters are not used for their usual purposes, because
@@ -75,7 +60,6 @@ description: |
 
     For iOS, read the [Row Editing and Moving Modes notes on TableView](Titanium.UI.TableView) regarding
     the interactions between edit modes and swipes.
-
 extends: Titanium.UI.View
 since: "0.9"
 excludes:
@@ -130,7 +114,7 @@ events:
         [scroll](Titanium.UI.TableView.scroll) event cannot occur concurrently. If a table begins
         to scroll during a touch event, the appropriate row or table `touchcancel` event fire
         before the `scroll` event begins.
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     properties:
       - name: x
         summary: X coordinate of the event from the `source` view's coordinate system.
@@ -147,7 +131,7 @@ events:
         [scroll](Titanium.UI.TableView.scroll) event cannot occur concurrently. If a table begins
         to scroll during a touch event, the appropriate row or table `touchcancel` event fire
         before the `scroll` event begins.
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     properties:
       - name: x
         summary: X coordinate of the event from the `source` view's coordinate system.
@@ -164,7 +148,7 @@ events:
         [scroll](Titanium.UI.TableView.scroll) event cannot occur concurrently. If a table begins
         to scroll during a touch event, the appropriate row or table `touchcancel` event fire
         before the `scroll` event begins.
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     properties:
       - name: x
         summary: X coordinate of the event from the `source` view's coordinate system.
@@ -181,7 +165,7 @@ events:
         [scroll](Titanium.UI.TableView.scroll) event cannot occur concurrently. If a table begins
         to scroll during a touch event, the appropriate row or table `touchcancel` event fire
         before the `scroll` event begins.
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: {iphone: "3.0.1", ipad: "3.0.1"}
     properties:
       - name: x
@@ -191,7 +175,6 @@ events:
       - name: y
         summary: Y coordinate of the event from the `source` view's coordinate system.
         type: Number
-
 
 properties:
   - name: className
@@ -218,7 +201,7 @@ properties:
         On Android, the default text color is black if the background color is closer to white
         otherwise the default text color is white also `selectedColor` is not supported
         so the text is always displayed in this color.
-    type: String
+    type: [String, Titanium.UI.Color]
 
   - name: deleteButtonTitle
     summary: Text to display on the delete button when editable is enabled
@@ -240,7 +223,8 @@ properties:
         If you want to change the title of the delete button, use the [deleteButtonTitle](Titanium.UI.TableViewRow.deleteButtonTitle] property
     type: Boolean
     default: undefined
-    platforms: [iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
+    since: {android: "9.3.0", iphone: "3.2.0", ipad: "3.2.0", macos: "9.2.0"}
 
   - name: font
     summary: Font to use for the row title.
@@ -253,7 +237,19 @@ properties:
         The `footer` property is used to assign a footer title to a row. It has the same effect as setting
         the `footerTitle` property of a <Titanium.UI.TableViewSection>.
     type: String
-    platforms: [iphone, ipad, android]
+    platforms: [iphone, ipad, android, macos]
+    deprecated:
+      since: "10.0.0"
+      notes: Use the <Titanium.UI.TableViewRow.footerTitle> property instead.
+
+  - name: footerTitle
+    summary: The footer title of the row.
+    description: |
+        The `footerTitle` property is used to assign a footer title to a row. It has the same effect as setting
+        the `footerTitle` property of a <Titanium.UI.TableViewSection>.
+    type: String
+    platforms: [iphone, ipad, android, macos]
+    since: {android: "10.0.0", iphone: "10.0.0", ipad: "10.0.0", macos: "10.0.0"}
 
   - name: hasCheck
     summary: |
@@ -261,7 +257,6 @@ properties:
         the row.
     type: Boolean
     default: false
-
 
   - name: hasChild
     summary: |
@@ -292,7 +287,8 @@ properties:
         For rows that have `hasDetail` set to false, the `detail` flag is always `false`.
     type: Boolean
     default: false
-    platforms: [iphone,ipad]
+    platforms: [iphone,ipad, android, macos]
+    since: {android: "9.3.0"}
 
   - name: header
     summary: The header title of the row.
@@ -300,14 +296,26 @@ properties:
         The `header` property is used to assign a header title to a row. It has the same effect as setting
         the `headerTitle` property of a <Titanium.UI.TableViewSection>.
     type: String
-    platforms: [iphone, ipad, android]
+    platforms: [iphone, ipad, android, macos]
+    deprecated:
+      since: "10.0.0"
+      notes: Use the <Titanium.UI.TableViewRow.headerTitle> property instead.
+
+  - name: headerTitle
+    summary: The header title of the row.
+    description: |
+        The `headerTitle` property is used to assign a header title to a row. It has the same effect as setting
+        the `headerTitle` property of a <Titanium.UI.TableViewSection>.
+    type: String
+    platforms: [iphone, ipad, android, macos]
+    since: {android: "10.0.0", iphone: "10.0.0", ipad: "10.0.0", macos: "10.0.0"}
 
   - name: indentionLevel
     summary: Indention level for the row.
     description: Indentation values greater than 0 indent the row text.
     type: Number
     default: 0
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: leftImage
     summary: Image to render in the left image area of the row, specified as a local path or URL.
@@ -326,7 +334,8 @@ properties:
         row `editing` and `moving` modes.
     type: Boolean
     default: undefined
-    platforms: [iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
+    since: {android: "9.3.0", iphone: "3.2.0", ipad: "3.2.0", macos: "9.2.0"}
 
   - name: opacity
     description: |
@@ -338,31 +347,48 @@ properties:
     summary: Image to render in the right image area of the row, specified as a local path or URL.
     type: String
 
+  - name: backgroundSelectedColor
+    summary: Background color to render when the row is selected, as a color name or hex triplet.
+    description: |
+        For information about color values, see the "Colors" section of <Titanium.UI>.
+    type: [String, Titanium.UI.Color]
+    since: "10.0.0"
+
+  - name: backgroundSelectedImage
+    summary: Background image to render when the row is selected.
+    type: String
+    since: "10.0.0"
+
   - name: selectedBackgroundColor
     summary: Background color to render when the row is selected, as a color name or hex triplet.
     description: |
         For information about color values, see the "Colors" section of <Titanium.UI>.
-    type: String
-
+    type: [String, Titanium.UI.Color]
+    deprecated:
+        since: "10.0.0"
+        notes: This property has been deprecated in favor of <Titanium.UI.TableViewRow.backgroundSelectedColor>.
 
   - name: selectedBackgroundImage
     summary: Background image to render when the row is selected.
     type: String
-
+    deprecated:
+        since: "10.0.0"
+        notes: This property has been deprecated in favor of <Titanium.UI.TableViewRow.backgroundSelectedImage>.
 
   - name: selectedColor
     summary: Color of the row text when the row is selected, as a color name or hex triplet.
     description: |
         For information about color values, see the "Colors" section of <Titanium.UI>.
-    type: String
-    platforms: [iphone,ipad]
+    type: [String, Titanium.UI.Color]
+    platforms: [iphone, ipad, macos]
 
   - name: selectionStyle
     summary: Selection style constant to control the selection color.
     description: |
-        Specify one of the constants from <Titanium.UI.iOS.TableViewCellSelectionStyle>.
+        Specify one of the constants from <Titanium.UI.SELECTION_STYLE_*>.
     type: Number
-    platforms: [iphone,ipad]
+    platforms: [android, iphone, ipad, macos]
+    since: {android: "10.1.0", iphone: "5.4.0", ipad: "5.4.0", macos: "9.2.0"}
 
   - name: title
     summary: Text to display on the row.
@@ -374,7 +400,7 @@ properties:
     description: |
         See <Titanium.UI.View.accessibilityLabel> description.
     since: "3.0.0"
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     type: String
 
 examples:
@@ -382,79 +408,85 @@ examples:
     example: |
         Create a table view row containing a red square view.
 
-            var row = Titanium.UI.createTableViewRow();
-            var view = Titanium.UI.createView({
-              backgroundColor:'red',
-              width: 20, height: 20
-            });
-            row.add(view);
+        ``` js
+        var row = Titanium.UI.createTableViewRow();
+        var view = Titanium.UI.createView({
+          backgroundColor:'red',
+          width: 20, height: 20
+        });
+        row.add(view);
+        ```
   - title: Row Swipe Gestures
     example: |
         Create a table of rows. When a row is swiped, output its ID to the log.
 
-            var tableData = [];
+        ``` js
+        var tableData = [];
 
-            var win = Ti.UI.createWindow({ backgroundColor: 'white' });
+        var win = Ti.UI.createWindow({ backgroundColor: 'white' });
 
-            var table = Ti.UI.createTableView({ objName: 'table' });
+        var table = Ti.UI.createTableView({ objName: 'table' });
 
-            for (var i = 0; i <= 20; i++){
-              var row = Ti.UI.createTableViewRow({
-                className: 'row',
-                objName: 'row',
-                touchEnabled: true,
-                height: 100
-              });
+        for (var i = 0; i <= 20; i++){
+          var row = Ti.UI.createTableViewRow({
+            className: 'row',
+            objName: 'row',
+            touchEnabled: true,
+            height: 100
+          });
 
-              var enabledWrapperView = Ti.UI.createView({
-                backgroundColor:'#008FD5',
-                objName: 'enabledWrapperView',
-                rowID: i,
-                width: Ti.UI.FILL, height: '100%'
-              });
+          var enabledWrapperView = Ti.UI.createView({
+            backgroundColor:'#008FD5',
+            objName: 'enabledWrapperView',
+            rowID: i,
+            width: Ti.UI.FILL, height: '100%'
+          });
 
-              var disabledWrapperView = Ti.UI.createView({
-                backgroundColor:'#A2E0FF',
-                objName: 'disabledWrapperView',
-                touchEnabled: false,
-                width: 300, height: '80%'
-              });
-              enabledWrapperView.add(disabledWrapperView);
+          var disabledWrapperView = Ti.UI.createView({
+            backgroundColor:'#A2E0FF',
+            objName: 'disabledWrapperView',
+            touchEnabled: false,
+            width: 300, height: '80%'
+          });
+          enabledWrapperView.add(disabledWrapperView);
 
-              var label = Ti.UI.createLabel({
-                backgroundColor:'#313F48',
-                color: 'white',
-                objName: 'label',
-                text: i,
-                touchEnabled: false,
-                left: 0,
-                width: 200
-              });
-              disabledWrapperView.add(label);
+          var label = Ti.UI.createLabel({
+            backgroundColor:'#313F48',
+            color: 'white',
+            objName: 'label',
+            text: i,
+            touchEnabled: false,
+            left: 0,
+            width: 200
+          });
+          disabledWrapperView.add(label);
 
-              row.add(enabledWrapperView);
-              tableData.push(row);
-            }
+          row.add(enabledWrapperView);
+          tableData.push(row);
+        }
 
-            table.setData(tableData);
+        table.data = tableData;
 
-            table.addEventListener('swipe', function(e){
-              if (e.source && e.source.objName !== 'table'){
-                Ti.API.info('Row swiped: ' + e.source);
-                Ti.API.info('Row swiped: ' + e.source.objName);
-                Ti.API.info('Row ID : ' + e.source.rowID);
-              }
-            });
+        table.addEventListener('swipe', function(e){
+          if (e.source && e.source.objName !== 'table'){
+            Ti.API.info('Row swiped: ' + e.source);
+            Ti.API.info('Row swiped: ' + e.source.objName);
+            Ti.API.info('Row ID : ' + e.source.rowID);
+          }
+        });
 
-            win.add(table);
-            win.open();
+        win.add(table);
+        win.open();
+        ```
 
   - title: Alloy XML Markup
     example: |
         Previous simple table view row example as an Alloy view.
 
-            <Alloy>
-                <TableViewRow id="row">
-                    <View id="view" backgroundColor="red" width="20" height="20"/>
-                </TableViewRow>
-            </Alloy>
+        ``` xml
+        <Alloy>
+            <TableViewRow id="row">
+                <View id="view" backgroundColor="red" width="20" height="20"/>
+            </TableViewRow>
+        </Alloy>
+        ```

@@ -95,20 +95,14 @@ public class DocumentProxy extends NodeProxy
 		return getProxy(doc.createTextNode(data));
 	}
 
-	// clang-format off
-	@Kroll.method
 	@Kroll.getProperty
 	public DocumentTypeProxy getDoctype()
-	// clang-format on
 	{
 		return getProxy(doc.getDoctype());
 	}
 
-	// clang-format off
-	@Kroll.method
 	@Kroll.getProperty
 	public ElementProxy getDocumentElement()
-	// clang-format on
 	{
 		return getProxy(doc.getDocumentElement());
 	}
@@ -131,11 +125,8 @@ public class DocumentProxy extends NodeProxy
 		return new NodeListProxy(doc.getElementsByTagNameNS(namespaceURI, localName));
 	}
 
-	// clang-format off
-	@Kroll.method
 	@Kroll.getProperty
 	public DOMImplementationProxy getImplementation()
-	// clang-format on
 	{
 		return new DOMImplementationProxy(doc.getImplementation());
 	}

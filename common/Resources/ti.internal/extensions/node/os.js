@@ -187,7 +187,7 @@ const OS = {
 	userInfo: () => { // fake it!
 		return {
 			uid: -1,
-			guid: -1,
+			gid: -1,
 			username: Ti.Platform.username,
 			homedir: Ti.Filesystem.applicationDataDirectory,
 			shell: null
@@ -205,6 +205,16 @@ if (isIOS) {
 	// Now a giant hack for looking up CPU info for OS.cpus() on iOS
 	// https://www.theiphonewiki.com/wiki/List_of_iPhones
 	const AppleMap = {
+		// iPhone 12 Pro Max
+		'iPhone13,4': [ 'Apple A14 Bionic @ 2.99 GHz', 2990 ],
+		// iPhone 12 Pro
+		'iPhone13,3': [ 'Apple A14 Bionic @ 2.99 GHz', 2990 ],
+		// iPhone 12
+		'iPhone13,2': [ 'Apple A14 Bionic @ 2.99 GHz', 2990 ],
+		// iPhone 12 mini
+		'iPhone13,1': [ 'Apple A14 Bionic @ 2.99 GHz', 2990 ],
+		// iPhone SE (2nd gen)
+		'iPhone12,8': [ 'Apple A13 Bionic @ 2.66 GHz', 2660 ],
 		// iPhone 11 Pro Max
 		'iPhone12,5': [ 'Apple A13 Bionic @ 2.66 GHz', 2660 ],
 		// iPhone 11 Pro
@@ -268,6 +278,15 @@ if (isIOS) {
 		// ////// iPads
 		// https://www.theiphonewiki.com/wiki/List_of_iPads
 		// https://en.wikipedia.org/wiki/IPad
+		// iPad Pro (4th gen)
+		'iPad8,12': [ 'Apple A12Z @ 2.49 GHz', 2490 ],
+		'iPad8,11': [ 'Apple A12Z @ 2.49 GHz', 2490 ],
+		// iPad mini (5th gen)
+		'iPad11,1': [ 'Apple A12 Bionic @ 2.49 GHz', 2490 ],
+		'iPad11,2': [ 'Apple A12 Bionic @ 2.49 GHz', 2490 ],
+		// iPad Air (3rd gen)
+		'iPad11,3': [ 'Apple A12 Bionic @ 2.49 GHz', 2490 ],
+		'iPad11,4': [ 'Apple A12 Bionic @ 2.49 GHz', 2490 ],
 		// iPad Pro (12.9" 3rd gen)
 		'iPad8,8': [ 'Apple A12X @ 2.49 GHz', 2490 ],
 		'iPad8,7': [ 'Apple A12X @ 2.49 GHz', 2490 ],
@@ -278,6 +297,9 @@ if (isIOS) {
 		'iPad8,3': [ 'Apple A12X @ 2.49 GHz', 2490 ],
 		'iPad8,2': [ 'Apple A12X @ 2.49 GHz', 2490 ],
 		'iPad8,1': [ 'Apple A12X @ 2.49 GHz', 2490 ],
+		// iPad (7th gen)
+		'iPad7,11': [ 'Apple A10 @ 2.31 GHz', 2310 ],
+		'iPad7,12': [ 'Apple A10 @ 2.31 GHz', 2310 ],
 		// iPad (6th gen)
 		'iPad7,6': [ 'Apple A10 @ 2.31 GHz', 2310 ], // FIXME: Wikipedia says 2.34 GHz
 		'iPad7,5': [ 'Apple A10 @ 2.31 GHz', 2310 ],
@@ -331,6 +353,8 @@ if (isIOS) {
 		'iPad2,3': [ 'Apple A5 @ 1 GHz', 1000 ],
 		'iPad2,2': [ 'Apple A5 @ 1 GHz', 1000 ],
 		'iPad2,1': [ 'Apple A5 @ 1 GHz', 1000 ],
+		// iPad 3G
+		'iPad1,2': [ 'Apple A4 @ 1 GHz', 1000 ],
 		// iPad
 		'iPad1,1': [ 'Apple A4 @ 1 GHz', 1000 ],
 	};

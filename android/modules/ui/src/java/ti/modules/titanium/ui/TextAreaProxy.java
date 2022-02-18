@@ -16,7 +16,7 @@ import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.widget.TiUIText;
 import android.app.Activity;
-// clang-format off
+
 @Kroll.proxy(creatableInModule = UIModule.class,
 	propertyAccessors = {
 		TiC.PROPERTY_ATTRIBUTED_STRING,
@@ -28,6 +28,7 @@ import android.app.Activity;
 		TiC.PROPERTY_COLOR,
 		TiC.PROPERTY_EDITABLE,
 		TiC.PROPERTY_ELLIPSIZE,
+		TiC.PROPERTY_ENABLE_COPY,
 		TiC.PROPERTY_ENABLE_RETURN_KEY,
 		TiC.PROPERTY_FONT,
 		TiC.PROPERTY_FULLSCREEN,
@@ -45,7 +46,6 @@ import android.app.Activity;
 		TiC.PROPERTY_PADDING,
 		TiC.PROPERTY_RETURN_KEY_TYPE
 })
-// clang-format on
 public class TextAreaProxy extends TiViewProxy
 {
 	public TextAreaProxy()
@@ -57,6 +57,7 @@ public class TextAreaProxy extends TiViewProxy
 		defaultValues.put(TiC.PROPERTY_MAX_LENGTH, -1);
 		defaultValues.put(TiC.PROPERTY_FULLSCREEN, true);
 		defaultValues.put(TiC.PROPERTY_EDITABLE, true);
+		defaultValues.put(TiC.PROPERTY_ENABLE_COPY, true);
 		defaultValues.put(TiC.PROPERTY_HINT_TYPE, UIModule.HINT_TYPE_STATIC);
 	}
 
@@ -88,11 +89,8 @@ public class TextAreaProxy extends TiViewProxy
 		}
 	}
 
-	// clang-format off
-	@Kroll.method
 	@Kroll.getProperty
 	public KrollDict getSelection()
-	// clang-format on
 	{
 		TiUIView v = peekView();
 		if (v instanceof TiUIText) {
@@ -105,5 +103,15 @@ public class TextAreaProxy extends TiViewProxy
 	public String getApiName()
 	{
 		return "Ti.UI.TextArea";
+	}
+
+	@Kroll.getProperty(name = "focused")
+	public boolean isFocused()
+	{
+		TiUIView v = peekView();
+		if (v != null) {
+			return v.isFocused();
+		}
+		return false;
 	}
 }

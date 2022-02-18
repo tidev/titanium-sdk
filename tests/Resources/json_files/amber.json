@@ -1,0 +1,74 @@
+{
+  "sdk": "7.4.0.v20180627024922",
+  "tickets": {
+    "TIMOB-26083": {
+      "title": "Titanium CLI: Add ability opt-out analytics and remove email from analytics payload",
+      "status": "Closed",
+      "code": {
+        "jira": [
+          "appc ti config cli.analytics false\n",
+          "appc ti config cli.analytics false\n"
+        ],
+        "github": []
+      }
+    },
+    "TIMOB-26084": {
+      "title": "Remove project directory from analytics payloads",
+      "status": "Closed",
+      "code": {
+        "jira": [
+          "SDK Ver: 7.3.0.v20180604180041, 7.2.0.v20180605053055\nOS Ver: 10.13.5, 1803\nAppc NPM: 4.2.13\nAppc CLI: 7.0.4-master.3\nTi CLI Ver: 5.1.1\nNode Ver: 8.9.4, 8.9.1\nNPM Ver: 6.0.0, 5.7.1\n"
+        ],
+        "github": []
+      }
+    },
+    "TIMOB-26046": {
+      "title": "iOS/Android: Remove \"ti.geo\" background event from Ti.Geolocation (GDPR)",
+      "status": "Closed",
+      "code": {
+        "jira": [],
+        "github": []
+      }
+    },
+    "TIMOB-26004": {
+      "title": "iOS: Provide API to support opt-out of Analytics at runtime",
+      "status": "Closed",
+      "code": {
+        "jira": [],
+        "github": []
+      }
+    },
+    "TIMOB-26027": {
+      "title": "Android: Analytics can cause a crash on Android 8 if app is backgrounded",
+      "status": "Closed",
+      "code": {
+        "jira": [
+          "java.lang.IllegalStateException: \n \nat android.app.ContextImpl.startServiceCommon (ContextImpl.java:1538)\nat android.app.ContextImpl.startService (ContextImpl.java:1484)\nat android.content.ContextWrapper.startService (ContextWrapper.java:663)\nat com.appcelerator.aps.APSAnalyticsHelper$AnalyticsCallback.handleMessage (APSAnalyticsHelper.java:540)\nat android.os.Handler.dispatchMessage (Handler.java:101)\nat android.os.Looper.loop (Looper.java:164)\nat android.app.ActivityThread.main (ActivityThread.java:6938)\nat java.lang.reflect.Method.invoke (Native Method)\nat com.android.internal.os.Zygote$MethodAndArgsCaller.run (Zygote.java:327)\nat com.android.internal.os.ZygoteInit.main (ZygoteInit.java:1374)\n"
+        ],
+        "github": []
+      }
+    },
+    "TIMOB-26005": {
+      "title": "Windows: Provide API to support opt-out of Analytics at runtime",
+      "status": "Closed",
+      "code": {
+        "jira": [
+          "-- Start application log -----------------------------------------------------\n[ERROR] :  ----- Titanium Javascript Runtime Error -----\n[ERROR] :  Message: Uncaught Error: Runtime Error: Ti.Analytics.setOptedOut is not a function. (In 'Ti.Analytics.setOptedOut(true)', 'Ti.Analytics.setOptedOut' is undefined)\n"
+        ],
+        "github": [
+          "Ti.API.info('1. Checking Ti.Analytics.optedOut=' + Ti.Analytics.optedOut); // This should preserve last state, by default it's false\nTi.API.info('2. Checking Ti.Analytics.getOptedOut()=' + Ti.Analytics.getOptedOut()); // This should preserve last state, by default it's false\nTi.Analytics.setOptedOut(true); // This should print \"Saving Ti.Analytics.getOptedOut=true\" in debug log\nTi.API.info('3. Checking Ti.Analytics.optedOut=' + Ti.Analytics.optedOut); // should return true\nTi.API.info('4. Checking Ti.Analytics.getOptedOut()=' + Ti.Analytics.getOptedOut()); // should return true\nTi.Analytics.featureEvent('app.feature'); // This should print 'Skipping Ti.Analytics.postEvents...' in debug log\nTi.Analytics.optedOut = false; // This should print \"Saving Ti.Analytics.optedOut=false\" in debug log\nTi.API.info('5. Checking Ti.Analytics.optedOut=' + Ti.Analytics.optedOut);  // should return false\nTi.API.info('6. Checking Ti.Analytics.getOptedOut()=' + Ti.Analytics.getOptedOut()); // should return false\nTi.Analytics.featureEvent('app.feature'); // This should print nothing\nTi.Analytics.optedOut = true;  // This should print \"Saving Ti.Analytics.optedOut=true\" in debug log\nTi.API.info('7. Checking Ti.Analytics.optedOut=' + Ti.Analytics.optedOut); // should return true\nTi.API.info('8. Checking Ti.Analytics.getOptedOut()=' + Ti.Analytics.getOptedOut()); // should return true\nTi.Analytics.featureEvent('app.feature'); // This should print 'Skipping Ti.Analytics.postEvents...' in debug log\nTi.Analytics.optedOut = false;  // This should print \"Saving Ti.Analytics.optedOut=false\" in debug log\n\n// After all of above, then you should see \"Start posting initial Ti.Analytics events\" in debug log.",
+          "Ti.API.info('1. Checking Ti.Analytics.optedOut=' + Ti.Analytics.optedOut); // This should preserve last state, by default it's false\nTi.API.info('2. Checking Ti.Analytics.getOptedOut()=' + Ti.Analytics.getOptedOut()); // This should preserve last state, by default it's false\nTi.Analytics.setOptedOut(true); // This should print \"Saving Ti.Analytics.getOptedOut=true\" in debug log\nTi.API.info('3. Checking Ti.Analytics.optedOut=' + Ti.Analytics.optedOut); // should return true\nTi.API.info('4. Checking Ti.Analytics.getOptedOut()=' + Ti.Analytics.getOptedOut()); // should return true\nTi.Analytics.featureEvent('app.feature'); // This should print 'Skipping Ti.Analytics.postEvents...' in debug log\nTi.Analytics.optedOut = false; // This should print \"Saving Ti.Analytics.optedOut=false\" in debug log\nTi.API.info('5. Checking Ti.Analytics.optedOut=' + Ti.Analytics.optedOut);  // should return false\nTi.API.info('6. Checking Ti.Analytics.getOptedOut()=' + Ti.Analytics.getOptedOut()); // should return false\nTi.Analytics.featureEvent('app.feature'); // This should print nothing\nTi.Analytics.optedOut = true;  // This should print \"Saving Ti.Analytics.optedOut=true\" in debug log\nTi.API.info('7. Checking Ti.Analytics.optedOut=' + Ti.Analytics.optedOut); // should return true\nTi.API.info('8. Checking Ti.Analytics.getOptedOut()=' + Ti.Analytics.getOptedOut()); // should return true\nTi.Analytics.featureEvent('app.feature'); // This should print 'Skipping Ti.Analytics.postEvents...' in debug log\nTi.Analytics.optedOut = false;  // This should print \"Saving Ti.Analytics.optedOut=false\" in debug log\n\n// After all of above, then you should see \"Start posting initial Ti.Analytics events\" in debug log.",
+          "Ti.API.info('1. Checking Ti.Analytics.optedOut=' + Ti.Analytics.optedOut); // This should preserve last state, by default it's false\nTi.API.info('2. Checking Ti.Analytics.getOptedOut()=' + Ti.Analytics.getOptedOut()); // This should preserve last state, by default it's false\nTi.Analytics.setOptedOut(true); // This should print \"Saving Ti.Analytics.getOptedOut=true\" in debug log\nTi.API.info('3. Checking Ti.Analytics.optedOut=' + Ti.Analytics.optedOut); // should return true\nTi.API.info('4. Checking Ti.Analytics.getOptedOut()=' + Ti.Analytics.getOptedOut()); // should return true\nTi.Analytics.featureEvent('app.feature'); // This should print 'Skipping Ti.Analytics.postEvents...' in debug log\nTi.Analytics.optedOut = false; // This should print \"Saving Ti.Analytics.optedOut=false\" in debug log\nTi.API.info('5. Checking Ti.Analytics.optedOut=' + Ti.Analytics.optedOut);  // should return false\nTi.API.info('6. Checking Ti.Analytics.getOptedOut()=' + Ti.Analytics.getOptedOut()); // should return false\nTi.Analytics.featureEvent('app.feature'); // This should print nothing\nTi.Analytics.optedOut = true;  // This should print \"Saving Ti.Analytics.optedOut=true\" in debug log\nTi.API.info('7. Checking Ti.Analytics.optedOut=' + Ti.Analytics.optedOut); // should return true\nTi.API.info('8. Checking Ti.Analytics.getOptedOut()=' + Ti.Analytics.getOptedOut()); // should return true\nTi.Analytics.featureEvent('app.feature'); // This should print 'Skipping Ti.Analytics.postEvents...' in debug log\nTi.Analytics.optedOut = false;  // This should print \"Saving Ti.Analytics.optedOut=false\" in debug log\n\n// After all of above, then you should see \"Start posting initial Ti.Analytics events\" in debug log."
+        ]
+      }
+    },
+    "TIMOB-26003": {
+      "title": "Android: Provide API to support opt-out of Analytics at runtime",
+      "status": "Closed",
+      "code": {
+        "jira": [],
+        "github": []
+      }
+    }
+  }
+}

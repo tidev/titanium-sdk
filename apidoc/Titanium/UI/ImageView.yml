@@ -49,27 +49,25 @@ methods:
   - name: pause
     summary: Pauses a running animation. Use `resume` method to continue.
     description:  This method only works if multiple images are specified.
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: resume
     summary: Resumes an animation from a `pause` state.
     description:  This method only works if multiple images are specified.
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: start
     summary: |
         Starts the image animation. On Android, also resets `index` to the first image.
     description:  This method only works if multiple images are specified.
 
-
   - name: stop
     summary: Stops a running animation. On iOS, also resets `index` to the first image.
     description:  This method only works if multiple images are specified.
 
-
   - name: toBlob
     summary: Returns the image as a Blob object.
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     returns:
         type: Titanium.Blob
 
@@ -92,14 +90,11 @@ events:
             [images](Titanium.UI.ImageView.images) property are loaded.
         type: String
 
-
   - name: start
     summary: Fired when the animation starts.
 
-
   - name: stop
     summary: Fired when the animation stops.
-
 
   - name: error
     summary: Fired when an image fails to load.
@@ -126,7 +121,7 @@ events:
 
   - name: pause
     summary: Fired when the animation pauses.
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     since: { android: "2.1.1" }
 
 properties:
@@ -137,29 +132,29 @@ properties:
     default: false on creation, true on load (Android), false (iPhone, iPad)
     permission: read-only
 
-
   - name: autorotate
     summary: |
-        Indicates whether the image should be rotated based on exif orientation data.
-        By default, this is false on android and true on iOS.
+        Indicates whether the image should be rotated based on EXIF orientation data.
+
+        Before Titanium 10.1.0, this defaulted to `false` on Android.
     type: Boolean
-    default: false on android, true on iOS.
+    default: true
     availability: creation
     since: 3.0.0
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: decodeRetries
-    summary: |
-        Number of times to retry decoding the bitmap at a URL.
+    summary: Number of times to retry decoding the bitmap at a URL.
+    description: Defaults to 2 on Titanium 10.1.0 and higher. Defaults to 5 on older SDK versions.
     type: Number
-    default: 5
+    default: 2
     platforms: [android]
     since: "1.7.0"
 
   - name: defaultImage
     summary: Local path to the default image to display while loading a remote image.
     type: String
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: duration
     summary: Amount of time in milliseconds to animate one cycle.
@@ -177,14 +172,12 @@ properties:
     type: Number
     default: 200 ms in Release 2.1.1 and later. Platform-specific default in earlier releases.
 
-
   - name: enableZoomControls
     summary: Show zoom controls when the user touches the image view.
     type: Boolean
     default: false
     platforms: [android]
     since: "1.3.0"
-
 
   - name: hires
     summary: |
@@ -196,7 +189,7 @@ properties:
         filenames, and thus this property is only applicable to remote images.
     type: Boolean
     default: false
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: image
     summary: Image to display.
@@ -209,6 +202,25 @@ properties:
         for more information.
     type: [ String, Titanium.Blob, Titanium.Filesystem.File ]
 
+  - name: imageTouchFeedback
+    summary: Enables a ripple effect when the foreground image is touched.
+    description: |
+        Note that the [touchFeedback](Titanium.UI.View.touchFeedback) property applies a ripple effect to the
+        view's background. If the image is opaque and completely covers the view (such as a photo),
+        then the background's ripple won't be visible. In this case, you should use this `imageTouchFeedback`
+        property to apply a ripple effect to the foreground image assigned via the `image` property.
+    type: Boolean
+    default: false
+    platforms: [android]
+    since: "10.1.0"
+
+  - name: imageTouchFeedbackColor
+    summary: Optional touch feedback ripple color. This has no effect unless `imageTouchFeedback` is true.
+    description: Defaults to provided theme color.
+    type: String
+    platforms: [android]
+    since: "10.1.0"
+
   - name: images
     summary: |
         Array of images to animate, defined using local filesystem paths, `File` objects,
@@ -219,13 +231,11 @@ properties:
         Related properties/methods to look at: `start`, `stop`, `pause`, `reverse`, `resume` and `repeatCount`
     type: [ Array<String>, Array<Titanium.Blob>, Array<Titanium.Filesystem.File> ]
 
-
   - name: paused
     summary: Indicates whether the animation is paused.
     type: Boolean
     default: false
     permission: read-only
-
 
   - name: preventDefaultImage
     summary: |
@@ -233,7 +243,7 @@ properties:
         is ignored when the `defaultImage` property is set.
     type: Boolean
     default: false
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: repeatCount
     summary: Number of times to repeat the image animation.
@@ -245,33 +255,35 @@ properties:
     type: Boolean
     default: false
 
-  - name: tintColor
-    summary: The view's tintColor.
-    type: String
-    default: null
-    platforms: [android, iphone, ipad]
-    since: { android: "5.4.0", iphone: "5.4.0", ipad: "5.4.0"}
+  - name: scalingMode
+    summary: Determines how the image is scaled within the view.
+    type: Number
+    constants: Titanium.Media.IMAGE_SCALING_*
+    default: <Titanium.Media.IMAGE_SCALING_AUTO>
+    since: "10.1.0"
 
-  - name: url
-    summary: URL to the image to display.
-    deprecated:
-        since: "1.5.0"
-        removed: "3.0.0"
-        notes: Use [Titanium.UI.ImageView.image](Titanium.UI.ImageView.image) instead.
-    type: String
+  - name: tintColor
+    summary: The view's tintColor. Android does not support setting instances of <Titanium.UI.Color>
+    type: [String, Titanium.UI.Color]
+    default: null
+    platforms: [android, iphone, ipad, macos]
+    since: { android: "5.4.0", iphone: "5.4.0", ipad: "5.4.0"}
 
 examples:
   - title: Basic Image View
     example: |
         In this example, we create a simple image view:
 
-            Ti.UI.backgroundColor = 'white';
-            var win = Ti.UI.createWindow();
-            var image = Ti.UI.createImageView({
-              image:'/images/myimage.png'
-            });
-            win.add(image);
-            win.open();
+        ``` js
+        Ti.UI.backgroundColor = 'white';
+        var win = Ti.UI.createWindow();
+        var image = Ti.UI.createImageView({
+          image:'/images/myimage.png'
+        });
+        win.add(image);
+        win.open();
+        ```
+
   - title: Button with Nine-patch Background Image
     example: |
         Create a button with a nine-patch image background, that swaps with another image when
@@ -280,33 +292,37 @@ examples:
         Note that images are referenced in the code without the `.9` part of the filename, and that
         the project should be cleaned to ensure that the files are correctly copied to the project.
 
-            var win = Ti.UI.createWindow({
-                backgroundColor: 'white',
-                exitOnClose: true,
-                fullscreen: false,
-                title: 'Click button to test'
-            });
+        ``` js
+        var win = Ti.UI.createWindow({
+            backgroundColor: 'white',
+            exitOnClose: true,
+            fullscreen: false,
+            title: 'Click button to test'
+        });
 
-            var button = Ti.UI.createButton({
-                backgroundImage: '/images/custom-slider-right.png',
-                backgroundSelectedImage:'/images/custom-slider-left.png',
-                title: 'Click me!',
-                top: 10,
-                width: 300,
-                height: 200
-            });
-            button.addEventListener('click',function(e){
-                Ti.API.info("You clicked the button");
-            });
-            win.add(button);
-            win.open();
+        var button = Ti.UI.createButton({
+            backgroundImage: '/images/custom-slider-right.png',
+            backgroundSelectedImage:'/images/custom-slider-left.png',
+            title: 'Click me!',
+            top: 10,
+            width: 300,
+            height: 200
+        });
+        button.addEventListener('click',function(e){
+            Ti.API.info("You clicked the button");
+        });
+        win.add(button);
+        win.open();
+        ```
 
   - title: Alloy XML Markup
     example: |
         Previous basic image view example as an Alloy view.
 
-            <Alloy>
-                <Window id="win" backgroundColor="white">
-                    <ImageView id="image" image="/images/myimage.png" />
-                </Window>
-            </Alloy>
+        ``` xml
+        <Alloy>
+            <Window id="win" backgroundColor="white">
+                <ImageView id="image" image="/images/myimage.png" />
+            </Window>
+        </Alloy>
+        ```

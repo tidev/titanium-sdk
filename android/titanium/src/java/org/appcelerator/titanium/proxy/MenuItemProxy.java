@@ -15,7 +15,6 @@ import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiFileHelper;
-import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.util.TiUrl;
 import org.appcelerator.titanium.view.TiUIView;
 
@@ -55,47 +54,32 @@ public class MenuItemProxy extends KrollProxy
 		MenuItemCompat.setOnActionExpandListener(item, new CompatActionExpandListener());
 	}
 
-	// clang-format off
-	@Kroll.method
 	@Kroll.getProperty
 	public int getGroupId()
-	// clang-format on
 	{
 		return item.getGroupId();
 	}
 
-	// clang-format off
-	@Kroll.method
 	@Kroll.getProperty
 	public int getItemId()
-	// clang-format on
 	{
 		return item.getItemId();
 	}
 
-	// clang-format off
-	@Kroll.method
 	@Kroll.getProperty
 	public int getOrder()
-	// clang-format on
 	{
 		return item.getOrder();
 	}
 
-	// clang-format off
-	@Kroll.method
 	@Kroll.getProperty
 	public String getTitle()
-	// clang-format on
 	{
 		return (String) item.getTitle();
 	}
 
-	// clang-format off
-	@Kroll.method
 	@Kroll.getProperty
 	public String getTitleCondensed()
-	// clang-format on
 	{
 		return (String) item.getTitleCondensed();
 	}
@@ -106,65 +90,48 @@ public class MenuItemProxy extends KrollProxy
 		return item.hasSubMenu();
 	}
 
-	// clang-format off
-	@Kroll.method
 	@Kroll.getProperty
+	@Kroll.method
 	public boolean isChecked()
-	// clang-format on
 	{
 		return item.isChecked();
 	}
 
-	// clang-format off
-	@Kroll.method
 	@Kroll.getProperty
+	@Kroll.method
 	public boolean isCheckable()
-	// clang-format on
 	{
 		return item.isCheckable();
 	}
 
-	// clang-format off
-	@Kroll.method
 	@Kroll.getProperty
+	@Kroll.method
 	public boolean isEnabled()
-	// clang-format on
 	{
 		return item.isEnabled();
 	}
 
-	// clang-format off
-	@Kroll.method
 	@Kroll.getProperty
+	@Kroll.method
 	public boolean isVisible()
-	// clang-format on
 	{
 		return item.isVisible();
 	}
 
-	// clang-format off
-	@Kroll.method
 	@Kroll.getProperty
 	public String getAccessibilityLabel()
-	// clang-format on
 	{
 		return TiConvert.toString(properties, TiC.PROPERTY_ACCESSIBILITY_LABEL);
 	}
 
-	// clang-format off
-	@Kroll.method
 	@Kroll.getProperty
 	public String getAccessibilityHint()
-	// clang-format on
 	{
 		return TiConvert.toString(properties, TiC.PROPERTY_ACCESSIBILITY_HINT);
 	}
 
-	// clang-format off
-	@Kroll.method
 	@Kroll.getProperty
 	public String getAccessibilityValue()
-	// clang-format on
 	{
 		return TiConvert.toString(properties, TiC.PROPERTY_ACCESSIBILITY_VALUE);
 	}
@@ -195,11 +162,8 @@ public class MenuItemProxy extends KrollProxy
 		updateContentDescription();
 	}
 
-	// clang-format off
-	@Kroll.method
 	@Kroll.setProperty
 	public void setAccessibilityLabel(String label)
-	// clang-format on
 	{
 		if (label != null && label.length() != 0) {
 			properties.put(TiC.PROPERTY_ACCESSIBILITY_LABEL, label);
@@ -209,11 +173,8 @@ public class MenuItemProxy extends KrollProxy
 		updateContentDescription();
 	}
 
-	// clang-format off
-	@Kroll.method
 	@Kroll.setProperty
 	public void setAccessibilityHint(String hint)
-	// clang-format on
 	{
 		if (hint != null && hint.length() != 0) {
 			properties.put(TiC.PROPERTY_ACCESSIBILITY_HINT, hint);
@@ -223,11 +184,8 @@ public class MenuItemProxy extends KrollProxy
 		updateContentDescription();
 	}
 
-	// clang-format off
-	@Kroll.method
 	@Kroll.setProperty
 	public void setAccessibilityValue(String value)
-	// clang-format on
 	{
 		if (value != null && value.length() != 0) {
 			properties.put(TiC.PROPERTY_ACCESSIBILITY_VALUE, value);
@@ -238,41 +196,29 @@ public class MenuItemProxy extends KrollProxy
 		updateContentDescription();
 	}
 
-	// clang-format off
-	@Kroll.method
 	@Kroll.setProperty
 	public MenuItemProxy setCheckable(boolean checkable)
-	// clang-format on
 	{
 		item.setCheckable(checkable);
 		return this;
 	}
 
-	// clang-format off
-	@Kroll.method
 	@Kroll.setProperty
 	public MenuItemProxy setChecked(boolean checked)
-	// clang-format on
 	{
 		item.setChecked(checked);
 		return this;
 	}
 
-	// clang-format off
-	@Kroll.method
 	@Kroll.setProperty
 	public MenuItemProxy setEnabled(boolean enabled)
-	// clang-format on
 	{
 		item.setEnabled(enabled);
 		return this;
 	}
 
-	// clang-format off
-	@Kroll.method
 	@Kroll.setProperty
 	public MenuItemProxy setIcon(Object icon)
-	// clang-format on
 	{
 		if (icon != null) {
 			if (icon instanceof String) {
@@ -286,50 +232,35 @@ public class MenuItemProxy extends KrollProxy
 					}
 				}
 			} else if (icon instanceof Number) {
-				Drawable d = TiUIHelper.getResourceDrawable(TiConvert.toInt(icon));
-				if (d != null) {
-					item.setIcon(d);
-				}
+				item.setIcon(TiConvert.toInt(icon));
 			}
 		}
 		return this;
 	}
 
-	// clang-format off
-	@Kroll.method
 	@Kroll.setProperty
 	public MenuItemProxy setTitle(String title)
-	// clang-format on
 	{
 		item.setTitle(title);
 		return this;
 	}
 
-	// clang-format off
-	@Kroll.method
 	@Kroll.setProperty
 	public MenuItemProxy setTitleCondensed(String title)
-	// clang-format on
 	{
 		item.setTitleCondensed(title);
 		return this;
 	}
 
-	// clang-format off
-	@Kroll.method
 	@Kroll.setProperty
 	public MenuItemProxy setVisible(boolean visible)
-	// clang-format on
 	{
 		item.setVisible(visible);
 		return this;
 	}
 
-	// clang-format off
-	@Kroll.method
 	@Kroll.setProperty
 	public void setActionView(Object view)
-	// clang-format on
 	{
 		if (view instanceof TiViewProxy) {
 			final View v = ((TiViewProxy) view).getOrCreateView().getNativeView();
@@ -345,11 +276,8 @@ public class MenuItemProxy extends KrollProxy
 		}
 	}
 
-	// clang-format off
-	@Kroll.method
 	@Kroll.setProperty
 	public void setShowAsAction(final int flag)
-	// clang-format on
 	{
 		TiMessenger.postOnMain(new Runnable() {
 			@Override
@@ -384,11 +312,9 @@ public class MenuItemProxy extends KrollProxy
 		});
 	}
 
-	// clang-format off
-	@Kroll.method
 	@Kroll.getProperty
+	@Kroll.method
 	public boolean isActionViewExpanded()
-	// clang-format on
 	{
 		return item.isActionViewExpanded();
 	}

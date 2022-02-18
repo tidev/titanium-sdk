@@ -4,13 +4,11 @@ const promisify = require('util').promisify;
 const path = require('path');
 const os = require('os');
 const exec = promisify(require('child_process').exec);  // eslint-disable-line security/detect-child-process
-const spawn = require('child_process').spawn; // eslint-disable-line security/detect-child-process
 const fs = require('fs-extra');
 const packageJSON = require('../../package.json');
 const utils = require('./utils');
 const copyFile = utils.copyFile;
 const copyFiles = utils.copyFiles;
-const moduleCopier = require('./module-copier');
 
 const ROOT_DIR = path.join(__dirname, '../..');
 const TMP_DIR = path.join(ROOT_DIR, 'dist', 'tmp');
@@ -33,7 +31,7 @@ const TITANIUM_PREP_LOCATIONS = [
  */
 async function zip(cwd, filename) {
 	const command = os.platform() === 'win32' ? path.join(ROOT_DIR, 'build/win32/zip') : 'zip';
-	await exec(`${command} -9 -q -r "${path.join('..', path.basename(filename))}" *`, { cwd });
+	await exec(`${command} -9 -q -r -y "${path.join('..', path.basename(filename))}" *`, { cwd });
 
 	const outputFolder = path.resolve(cwd, '..');
 	const outputFile = path.join(outputFolder, path.basename(filename));
@@ -44,30 +42,6 @@ async function zip(cwd, filename) {
 
 	const destFolder = path.dirname(filename);
 	return copyFile(outputFolder, destFolder, path.basename(filename));
-}
-
-/**
- * @param {string} zipfile zip file to unzip
- * @param {string} dest destination folder to unzip to
- * @returns {Promise<void>}
- */
-async function unzip(zipfile, dest) {
-	return new Promise((resolve, reject) => {
-		console.log(`Unzipping ${zipfile} to ${dest}`);
-		const command = os.platform() === 'win32' ? path.join(ROOT_DIR, 'build/win32/unzip') : 'unzip';
-		const child = spawn(command, [ '-o', zipfile, '-d', dest ], { stdio: [ 'ignore', 'ignore', 'pipe' ] });
-		let err = '';
-		child.stderr.on('data', buffer => {
-			err += buffer.toString();
-		});
-		child.on('error', err => reject(err));
-		child.on('close', code => {
-			if (code !== 0) {
-				return reject(new Error(`Unzipping of ${zipfile} exited with non-zero exit code ${code}. ${err}`));
-			}
-			resolve();
-		});
-	});
 }
 
 class Packager {
@@ -96,7 +70,7 @@ class Packager {
 		// Location where we build up the zip file contents
 		this.zipDir = path.join(this.outputDir, `mobilesdk-${this.versionTag}-${this.targetOS}`);
 		this.zipSDKDir = path.join(this.zipDir, 'mobilesdk', this.targetOS, this.versionTag);
-		this.commonResourcesDir = path.join(this.zipSDKDir, 'common', 'Resources');
+		this.commonDir = path.join(this.zipSDKDir, 'common');
 		this.skipZip = options.skipZip;
 		this.options = options;
 	}
@@ -115,7 +89,7 @@ class Packager {
 			// copy misc dirs/files over
 			this.copy([ 'CREDITS', 'README.md', 'package.json', 'cli', 'templates' ]),
 			// copy over 'common' bundle optimized for each platform
-			this.copyCommonBundles(),
+			this.copyCommon(),
 			// grab down and unzip the native modules
 			this.includePackagedModules(),
 			// copy over support/
@@ -135,12 +109,22 @@ class Packager {
 	}
 
 	/**
-	 * Copy 'common' bundles
+	 * Copy 'common' code over
 	 * @returns {Promise<void>}
 	 */
-	async copyCommonBundles() {
-		await fs.ensureDir(this.commonResourcesDir);
-		return fs.copy(path.join(TMP_DIR, 'common'), this.commonResourcesDir);
+	async copyCommon() {
+		await Promise.all([
+			fs.emptyDir(this.commonDir),
+			// ti.kernel.js gets baked directly into C code for Android, so wipe it
+			fs.remove(path.join(TMP_DIR, 'common/Resources/android/ti.kernel.js')),
+		]);
+		return Promise.all([
+			// copy common/lib from src to SDK (needed by CLI)
+			fs.copy(path.join(ROOT_DIR, 'common/lib'), path.join(this.commonDir, 'lib')),
+			// copy dist/tmp/common to SDK as common/Resources
+			// (under platform-specific sub-folders there are the ti.kernel.js and ti.main.js bundled files)
+			fs.copy(path.join(TMP_DIR, 'common'), path.join(this.commonDir, 'Resources')),
+		]);
 	}
 
 	/**
@@ -149,6 +133,7 @@ class Packager {
 	 */
 	async packageNodeModules() {
 		console.log('Copying production npm dependencies');
+		const moduleCopier = require('../../cli/lib/module-copier');
 		// Copy node_modules/
 		await moduleCopier.execute(this.srcDir, this.zipSDKDir);
 
@@ -158,22 +143,26 @@ class Packager {
 		// Now include all the pre-built node-ios-device bindings/binaries
 		if (this.targetOS === 'osx') {
 			let dir = path.join(this.zipSDKDir, 'node_modules/node-ios-device');
-			if (!await fs.exists(dir)) {
+			if (!await fs.pathExists(dir)) {
 				dir = path.join(this.zipSDKDir, 'node_modules/ioslib/node_modules/node-ios-device');
 			}
 
-			if (!await fs.exists(dir)) {
+			if (!await fs.pathExists(dir)) {
 				throw new Error('Unable to find node-ios-device module');
+			}
+			// Hack to remove the super old node 0.10 entry for apple arm64
+			if (process.arch === 'arm64') {
+				const nodeIOSDevicePackageJSON = path.join(dir, 'package.json');
+				const original = await fs.readJSON(nodeIOSDevicePackageJSON);
+				delete original.binary.targets['0.10.48'];
+				await fs.writeJSON(nodeIOSDevicePackageJSON, original);
 			}
 
 			await exec('node bin/download-all.js', { cwd: dir, stdio: 'inherit' });
 		}
 
 		// Include 'ti.cloak'
-		await unzip(path.join(ROOT_DIR, 'support', 'ti.cloak.zip'), path.join(this.zipSDKDir, 'node_modules'));
-
-		// hack the fake titanium-sdk npm package in
-		return this.hackTitaniumSDKModule();
+		return utils.unzip(path.join(ROOT_DIR, 'support', 'ti.cloak.zip'), path.join(this.zipSDKDir, 'node_modules'));
 	}
 
 	/**
@@ -223,25 +212,11 @@ class Packager {
 		return copyFiles(this.srcDir, this.zipSDKDir, files);
 	}
 
-	async hackTitaniumSDKModule() {
-		// FIXME Remove these hacks for titanium-sdk when titanium-cli has been released and the tisdk3fixes.js hook is gone!
-		// Now copy over hacked titanium-sdk fake node_module
-		console.log('Copying titanium-sdk node_module stub for backwards compatibility with titanium-cli');
-		await fs.copy(path.join(__dirname, '../titanium-sdk'), path.join(this.zipSDKDir, 'node_modules/titanium-sdk'));
-
-		// Hack the package.json to include "titanium-sdk": "*" in dependencies
-		console.log('Inserting titanium-sdk as production dependency');
-		const packageJSONPath = path.join(this.zipSDKDir, 'package.json');
-		const packageJSON = require(packageJSONPath); // eslint-disable-line security/detect-non-literal-require
-		packageJSON.dependencies['titanium-sdk'] = '*';
-		return fs.writeJSON(packageJSONPath, packageJSON);
-	}
-
 	/**
 	 * Includes the pre-packaged pre-built native modules. We now gather them from a JSON file listing URLs to download.
 	 */
 	async includePackagedModules() {
-		console.log('Zipping packaged modules');
+		console.log('Including pre-packaged native modules...');
 		// Unzip all the zipfiles in support/module/packaged
 		const supportedPlatforms = this.platforms.concat([ 'commonjs' ]); // we want a copy here...
 		// Include aliases for ios/iphone/ipad
@@ -268,24 +243,44 @@ class Packager {
 		// remove duplicates
 		modules = Array.from(new Set(modules));
 
-		// Fetch the listed modules from URLs...
-		const zipFiles = await Promise.all(modules.map(m => utils.downloadURL(m.url, m.integrity, { progress: false })));
+		// Fetch the listed modules from URLs, unzip to tmp dir, then copy to our ultimate build dir
+		const modulesDir = path.join(this.zipDir, 'modules');
 
-		// ...then unzip them
-		// MUST RUN IN SERIES or they will clobber each other and unzip will fail mysteriously
-		const outDir = this.zipDir;
-		for (const zipFile of zipFiles) {
-			await unzip(zipFile, outDir);
+		// We have a race condition problem where where the top-level modules folder and the platform-specific
+		// sub-folders are trying to be created at the same time if we copy modules in parallel
+		// How can we avoid? Pre-create the common folder structure in advance!
+		await fs.emptyDir(modulesDir);
+		const subDirs = this.platforms.concat([ 'commonjs' ]);
+		// Convert ios to iphone
+		const iosIndex = subDirs.indexOf('ios');
+		if (iosIndex !== -1) {
+			subDirs[iosIndex] = 'iphone';
 		}
+		await Promise.all(subDirs.map(d => fs.emptyDir(path.join(modulesDir, d))));
+		// Now download/extract/copy the modules
+		await Promise.all(modules.map(m => this.handleModule(m)));
 
 		// Need to wipe directories of multi-platform modules for platforms we don't need!
 		// i.e. modules/iphone on win32 builds (there because of hyperloop)
-		const subdirs = await fs.readdir(path.join(this.zipDir, 'modules'));
+		const subdirs = await fs.readdir(modulesDir);
 		for (const subDir of subdirs) {
 			if (!supportedPlatforms.includes(subDir)) {
-				await fs.remove(path.join(this.zipDir, 'modules', subDir));
+				await fs.remove(path.join(modulesDir, subDir));
 			}
 		}
+	}
+
+	async handleModule(m) {
+		// download (with caching based on integrity hash)
+		const zipFile = await utils.downloadURL(m.url, m.integrity, { progress: false });
+		// then unzip to temp dir (again with caching based on inut integrity hash)
+		const tmpZipPath = utils.cachedDownloadPath(m.url);
+		const tmpOutDir = tmpZipPath.substring(0, tmpZipPath.length - '.zip'.length); // drop .zip
+		await utils.cacheUnzip(zipFile, m.integrity, tmpOutDir);
+		// then copy from tmp dir over to this.zipDir
+		// Might have to tweak this a bit! probably want to copy some subdir
+		console.log(`Copying ${tmpOutDir} to ${this.zipDir}`);
+		return fs.copy(tmpOutDir, this.zipDir);
 	}
 
 	async copySupportDir() {
@@ -297,7 +292,7 @@ class Packager {
 		if (this.targetOS !== 'win32') {
 			ignoreDirs.push(path.join(SUPPORT_DIR, 'win32'));
 		}
-		// FIXME: Usee Array.prototype.some to filter more succinctly
+		// FIXME: Use Array.prototype.some to filter more succinctly
 		const filter = src => {
 			for (const ignore of ignoreDirs) {
 				if (src.includes(ignore)) {

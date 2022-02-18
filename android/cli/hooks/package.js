@@ -19,29 +19,37 @@ exports.init = function (logger, config, cli) {
 	cli.on('build.post.compile', {
 		priority: 10000,
 		post: function (builder, finished) {
+			// Do not continue if this is not a "production" build.
 			if (builder.target !== 'dist-playstore') {
 				return finished();
 			}
 
-			let sourceFilePath = builder.apkFile;
-			if (!sourceFilePath || !fs.existsSync(sourceFilePath)) {
-				logger.error(__('No APK file to deploy, skipping'));
-				return finished();
-			}
-
+			// Do not continue if developer did not provide a destination directory.
 			const outputDir = builder.outputDir;
 			if (!outputDir) {
 				logger.error(__('Packaging output directory path cannot be empty.'));
 				return finished();
 			}
 
-			if (outputDir !== path.dirname(sourceFilePath)) {
-				fs.ensureDirSync(outputDir);
+			// Create the destination directory.
+			fs.ensureDirSync(outputDir);
+
+			// Copy built APK to destination, if available.
+			if (builder.apkFile && fs.existsSync(builder.apkFile)) {
 				const outputFilePath = path.join(outputDir, builder.tiapp.name + '.apk');
 				if (fs.existsSync(outputFilePath)) {
 					fs.unlinkSync(outputFilePath);
 				}
-				appc.fs.copyFileSync(sourceFilePath, outputFilePath, { logger: logger.debug });
+				appc.fs.copyFileSync(builder.apkFile, outputFilePath, { logger: logger.debug });
+			}
+
+			// Copy built app-bundle to destination, if available.
+			if (builder.aabFile && fs.existsSync(builder.aabFile)) {
+				const outputFilePath = path.join(outputDir, builder.tiapp.name + '.aab');
+				if (fs.existsSync(outputFilePath)) {
+					fs.unlinkSync(outputFilePath);
+				}
+				appc.fs.copyFileSync(builder.aabFile, outputFilePath, { logger: logger.debug });
 			}
 
 			logger.info(__('Packaging complete'));

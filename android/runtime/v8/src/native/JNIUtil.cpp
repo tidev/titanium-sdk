@@ -30,6 +30,7 @@ jclass JNIUtil::doubleClass = NULL;
 jclass JNIUtil::booleanClass = NULL;
 jclass JNIUtil::stringArrayClass = NULL;
 jclass JNIUtil::objectArrayClass = NULL;
+jclass JNIUtil::byteArrayClass = NULL;
 jclass JNIUtil::shortArrayClass = NULL;
 jclass JNIUtil::intArrayClass = NULL;
 jclass JNIUtil::longArrayClass = NULL;
@@ -45,6 +46,7 @@ jclass JNIUtil::nullPointerException = NULL;
 jclass JNIUtil::throwableClass = NULL;
 jclass JNIUtil::stackTraceElementClass = NULL;
 
+jclass JNIUtil::v8PromiseClass = NULL;
 jclass JNIUtil::v8ObjectClass = NULL;
 jclass JNIUtil::v8FunctionClass = NULL;
 jclass JNIUtil::krollRuntimeClass = NULL;
@@ -88,6 +90,7 @@ jmethodID JNIUtil::throwableGetStackTraceMethod = NULL;
 jmethodID JNIUtil::stackTraceElementToStringMethod = NULL;
 
 jfieldID JNIUtil::v8ObjectPtrField = NULL;
+jmethodID JNIUtil::v8PromiseInitMethod = NULL;
 jmethodID JNIUtil::v8ObjectInitMethod = NULL;
 jmethodID JNIUtil::v8FunctionInitMethod = NULL;
 
@@ -312,6 +315,7 @@ void JNIUtil::initCache()
 	floatClass = findClass("java/lang/Float");
 	doubleClass = findClass("java/lang/Double");
 	booleanClass = findClass("java/lang/Boolean");
+	byteArrayClass = findClass("[B");
 	shortArrayClass = findClass("[S");
 	intArrayClass = findClass("[I");
 	longArrayClass = findClass("[J");
@@ -329,6 +333,7 @@ void JNIUtil::initCache()
 	throwableClass = findClass("java/lang/Throwable");
 	stackTraceElementClass = findClass("java/lang/StackTraceElement");
 
+	v8PromiseClass = findClass("org/appcelerator/kroll/runtime/v8/V8Promise");
 	v8ObjectClass = findClass("org/appcelerator/kroll/runtime/v8/V8Object");
 	v8FunctionClass = findClass("org/appcelerator/kroll/runtime/v8/V8Function");
 	krollRuntimeClass = findClass("org/appcelerator/kroll/KrollRuntime");
@@ -371,6 +376,7 @@ void JNIUtil::initCache()
 	stackTraceElementToStringMethod = getMethodID(stackTraceElementClass, "toString", "()Ljava/lang/String;", false);
 
 	v8ObjectPtrField = getFieldID(v8ObjectClass, "ptr", "J");
+	v8PromiseInitMethod = getMethodID(v8PromiseClass, "<init>", "(J)V", false);
 	v8ObjectInitMethod = getMethodID(v8ObjectClass, "<init>", "(J)V", false);
 	v8FunctionInitMethod = getMethodID(v8FunctionClass, "<init>", "(J)V", false);
 

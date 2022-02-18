@@ -13,9 +13,7 @@ import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiApplication;
-import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.util.TiConvert;
-import org.appcelerator.titanium.util.TiPlatformHelper;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -34,7 +32,7 @@ public class AnalyticsModule extends KrollModule
 	protected static final String PROPERTY_APP_FEATURE = "app.feature";
 	protected static final String PROPERTY_APP_SETTINGS = "app.settings";
 	protected static final String PROPERTY_APP_USER = "app.user";
-	private APSAnalytics analytics = APSAnalytics.getInstance();
+	private final APSAnalytics analytics = APSAnalytics.getInstance();
 
 	public static final int MAX_LEVELS = 5;
 	public static final int MAX_SERLENGTH = 1000;
@@ -50,20 +48,14 @@ public class AnalyticsModule extends KrollModule
 		super();
 	}
 
-	// clang-format off
-	@Kroll.method
 	@Kroll.getProperty
 	public boolean getOptedOut()
-	// clang-format on
 	{
 		return APSAnalytics.getInstance().isOptedOut();
 	}
 
-	// clang-format off
-	@Kroll.method
 	@Kroll.setProperty
 	public void setOptedOut(boolean optedOut)
-	// clang-format on
 	{
 		APSAnalytics.getInstance().setOptedOut(optedOut);
 	}
@@ -200,11 +192,8 @@ public class AnalyticsModule extends KrollModule
 		return SUCCESS;
 	}
 
-	// clang-format off
-	@Kroll.method
 	@Kroll.getProperty
 	public String getLastEvent()
-	// clang-format on
 	{
 		if (TiApplication.getInstance().isAnalyticsEnabled()) {
 			if (analytics.getLastEvent() != null) {

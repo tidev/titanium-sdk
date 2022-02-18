@@ -11,8 +11,8 @@
 #import "UIImage+Alpha.h"
 #import "UIImage+Resize.h"
 #import "UIImage+RoundedCorner.h"
-
 //NOTE:FilesystemFile is conditionally compiled based on the filesystem module.
+#import "KrollPromise.h"
 #import "TiFilesystemFileProxy.h"
 
 static NSString *const MIMETYPE_PNG = @"image/png";
@@ -68,27 +68,39 @@ static NSString *const MIMETYPE_JPEG = @"image/jpeg";
 {
   [self ensureImageLoaded];
   if (image != nil) {
-    return image.size.width;
+    return image.size.width * image.scale;
   }
   return 0;
 }
 GETTER_IMPL(NSUInteger, width, Width);
 
+- (NSUInteger)uprightWidth
+{
+  return [self width];
+}
+GETTER_IMPL(NSUInteger, uprightWidth, UprightWidth);
+
 - (NSUInteger)height
 {
   [self ensureImageLoaded];
   if (image != nil) {
-    return image.size.height;
+    return image.size.height * image.scale;
   }
   return 0;
 }
 GETTER_IMPL(NSUInteger, height, Height);
 
+- (NSUInteger)uprightHeight
+{
+  return [self height];
+}
+GETTER_IMPL(NSUInteger, uprightHeight, UprightHeight);
+
 - (NSUInteger)size
 {
   [self ensureImageLoaded];
   if (image != nil) {
-    return image.size.width * image.size.height;
+    return image.size.width * image.size.height * image.scale * image.scale;
   }
   switch (type) {
   case TiBlobTypeData: {
@@ -132,23 +144,36 @@ GETTER_IMPL(NSUInteger, size, Size);
   if (self = [super init]) {
     image = [image_ retain];
     type = TiBlobTypeImage;
-    mimetype = [([UIImageAlpha hasAlpha:image_] ? MIMETYPE_PNG : MIMETYPE_JPEG)copy];
+    mimetype = [([UIImageAlpha hasAlpha:image_] ? MIMETYPE_PNG : MIMETYPE_JPEG) copy];
   }
   return self;
 }
 
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
-- (id)initWithSystemImage:(NSString *)imageName
+- (id)initWithSystemImage:(NSString *)imageName andParameters:(NSDictionary *)parameters
 {
   if (![TiUtils isIOSVersionOrGreater:@"13.0"]) {
     return nil;
   }
 
   if (self = [super init]) {
-    image = [[UIImage systemImageNamed:imageName] retain];
+    if (parameters == nil) {
+      image = [[UIImage systemImageNamed:imageName] retain];
+    } else {
+      UIImageSymbolWeight nativeWeight = [TiUtils symbolWeightFromString:parameters[@"weight"]];
+      CGFloat nativeSize = [TiUtils floatValue:parameters[@"size"] def:0.0];
+      UIImageSymbolConfiguration *configuration;
+
+      if (nativeSize > 0) {
+        configuration = [UIImageSymbolConfiguration configurationWithPointSize:nativeSize weight:nativeWeight scale:UIImageSymbolScaleDefault];
+      } else {
+        configuration = [UIImageSymbolConfiguration configurationWithWeight:nativeWeight];
+      }
+
+      image = [[UIImage systemImageNamed:imageName withConfiguration:configuration] retain];
+    }
     type = TiBlobTypeSystemImage;
     systemImageName = [imageName retain];
-    mimetype = [([UIImageAlpha hasAlpha:image] ? MIMETYPE_PNG : MIMETYPE_JPEG)copy];
+    mimetype = [([UIImageAlpha hasAlpha:image] ? MIMETYPE_PNG : MIMETYPE_JPEG) copy];
   }
   return self;
 }
@@ -157,7 +182,6 @@ GETTER_IMPL(NSUInteger, size, Size);
 {
   return systemImageName;
 }
-#endif
 
 - (id)initWithData:(NSData *)data_ mimetype:(NSString *)mimetype_
 {
@@ -443,7 +467,52 @@ GETTER_IMPL(NSUInteger, length, Length);
   if (t != nil) {
     return t;
   }
-  return [super toString];
+  return @"[object TiBlob]";
 }
 
+static void jsArrayBufferFreeDeallocator(void *data, void *ctx)
+{
+  free(data);
+}
+
+- (JSValue *)toArrayBuffer
+{
+  NSData *theData = [self data];
+  // Copy the raw bytes of the NSData we're wrapping
+  NSUInteger len = [theData length];
+  void *arrayBytes = malloc(len);
+  [theData getBytes:arrayBytes length:len];
+
+  // Now make an ArrayBuffer with the copied bytes
+  JSContext *context = JSContext.currentContext;
+  JSValueRef *exception;
+  JSObjectRef arrayBuffer = JSObjectMakeArrayBufferWithBytesNoCopy(context.JSGlobalContextRef, arrayBytes, len, jsArrayBufferFreeDeallocator, nil, exception);
+  return [JSValue valueWithJSValueRef:arrayBuffer inContext:context];
+}
+
+- (JSValue *)arrayBuffer
+{
+  JSContext *context = [self currentContext];
+  KrollPromise *promise = [[[KrollPromise alloc] initInContext:context] autorelease];
+  TiThreadPerformOnMainThread(
+      ^{
+        NSData *theData = [self data];
+        // Copy the raw bytes of the NSData we're wrapping
+        NSUInteger len = [theData length];
+        void *arrayBytes = malloc(len);
+        [theData getBytes:arrayBytes length:len];
+
+        // Now make an ArrayBuffer with the copied bytes
+        JSValueRef *exception;
+        JSObjectRef arrayBuffer = JSObjectMakeArrayBufferWithBytesNoCopy(context.JSGlobalContextRef, arrayBytes, len, jsArrayBufferFreeDeallocator, nil, exception);
+        if (exception) {
+          [promise reject:@[ [JSValue valueWithJSValueRef:exception inContext:context] ]];
+        } else {
+          JSValue *buffer = [JSValue valueWithJSValueRef:arrayBuffer inContext:context];
+          [promise resolve:@[ buffer ]];
+        }
+      },
+      NO);
+  return promise.JSValue;
+}
 @end

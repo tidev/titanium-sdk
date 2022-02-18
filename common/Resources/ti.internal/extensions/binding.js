@@ -32,9 +32,9 @@ function isHijackableModuleId(path) {
 	return firstChar !== '.' && firstChar !== '/';
 }
 
-// Hack require to point to this as a core module "binding"
-const originalRequire = global.require;
-// This works for iOS as-is, and also intercepts the call on Android for ti.main.js (the first file executed)
+// Hack require to point to this as core module "binding". (Note that iOS does not have a global require.)
+const originalRequire = global.require ? global.require : require.main.require.bind(require.main);
+// This works for Windows as-is, and also intercepts the call on Android/iOS for ti.main.js (the first file executed)
 global.require = function (moduleId) {
 
 	if (bindings.has(moduleId)) {
@@ -47,21 +47,19 @@ global.require = function (moduleId) {
 	return originalRequire(moduleId);
 };
 
-if (Ti.Platform.name === 'android') {
-	// ... but we still need to hack it when requiring from other files for Android
-	const originalModuleRequire = global.Module.prototype.require;
-	global.Module.prototype.require = function (path, context) {
+// ... but we still need to hack it when requiring from other files for Android/iOS (due to module.js impl)
+const originalModuleRequire = global.Module.prototype.require;
+global.Module.prototype.require = function (path, context) {
 
-		if (bindings.has(path)) {
-			return bindings.get(path);
-		}
-		if (redirects.has(path)) {
-			path = redirects.get(path);
-		}
+	if (bindings.has(path)) {
+		return bindings.get(path);
+	}
+	if (redirects.has(path)) {
+		path = redirects.get(path);
+	}
 
-		return originalModuleRequire.call(this, path, context);
-	};
-}
+	return originalModuleRequire.call(this, path, context);
+};
 
 /**
  * Registers a binding from a short module id to an already loaded/constructed object/value to export for that core module id
@@ -108,8 +106,9 @@ export function redirect(moduleId, filepath) {
 	redirects.set(moduleId, filepath);
 }
 
-const binding = {
-	register,
-	redirect
-};
-global.binding = binding;
+// FIXME: There's a collision here with global.binding declared in KrollBridge.m on iOS
+if (!global.binding) {
+	global.binding = {};
+}
+global.binding.register = register;
+global.binding.redirect = redirect;

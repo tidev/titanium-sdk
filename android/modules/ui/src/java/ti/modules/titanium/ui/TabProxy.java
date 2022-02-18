@@ -18,16 +18,19 @@ import org.appcelerator.titanium.view.TiUIView;
 import ti.modules.titanium.ui.widget.tabgroup.TiUIAbstractTabGroup;
 
 import android.app.Activity;
-// clang-format off
+
 @Kroll.proxy(creatableInModule = UIModule.class,
 	propertyAccessors = {
+		TiC.PROPERTY_ACTIVE_TINT_COLOR,
 		TiC.PROPERTY_ACTIVE_TITLE_COLOR,
+		TiC.PROPERTY_BADGE,
+		TiC.PROPERTY_BADGE_COLOR,
 		TiC.PROPERTY_ICON,
+		TiC.PROPERTY_TINT_COLOR,
 		TiC.PROPERTY_TITLE,
 		TiC.PROPERTY_TITLE_COLOR,
 		TiC.PROPERTY_TITLEID
 	})
-// clang-format on
 public class TabProxy extends TiViewProxy
 {
 	@SuppressWarnings("unused")
@@ -67,11 +70,8 @@ public class TabProxy extends TiViewProxy
 		}
 	}
 
-	// clang-format off
-	@Kroll.method
 	@Kroll.getProperty
 	public boolean getActive()
-	// clang-format on
 	{
 		if (tabGroupProxy != null) {
 			return tabGroupProxy.getActiveTab() == this;
@@ -80,11 +80,8 @@ public class TabProxy extends TiViewProxy
 		return false;
 	}
 
-	// clang-format off
-	@Kroll.method
 	@Kroll.setProperty
 	public void setActive(boolean active)
-	// clang-format on
 	{
 		if (tabGroupProxy != null) {
 			tabGroupProxy.setActiveTab(this);
@@ -123,11 +120,8 @@ public class TabProxy extends TiViewProxy
 		return this.window;
 	}
 
-	// clang-format off
-	@Kroll.method
 	@Kroll.getProperty
 	public TabGroupProxy getTabGroup()
-	// clang-format on
 	{
 		return this.tabGroupProxy;
 	}
@@ -144,16 +138,6 @@ public class TabProxy extends TiViewProxy
 			window.setTabGroupProxy(tabGroupProxy);
 		}
 	}
-
-	/*@Kroll.getProperty
-	public String getTitle()
-	{
-		// Validate tabGroup proxy.
-		if (tabGroupProxy == null ) {
-			return null;
-		}
-		return ((TiUIAbstractTabGroup) tabGroupProxy.getOrCreateView()).getTabTitle(tabGroupProxy.getTabIndex(this));
-	}*/
 
 	public void setWindowId(int id)
 	{
@@ -208,7 +192,8 @@ public class TabProxy extends TiViewProxy
 		String event = focused ? TiC.EVENT_FOCUS : TiC.EVENT_BLUR;
 
 		if (window != null) {
-			window.fireEvent(event, null, false);
+			// Let window proxy handle setting state boolean and firing event
+			window.onWindowFocusChange(focused);
 		}
 		fireEvent(event, eventData, true);
 	}
@@ -241,23 +226,27 @@ public class TabProxy extends TiViewProxy
 	public void onPropertyChanged(String name, Object value)
 	{
 		super.onPropertyChanged(name, value);
-		// Check if the Tab Group proxy has been released.
-		if (tabGroupProxy == null) {
+
+		// Fetch the TabGroup's view. If currently null, then we have to wait for TabGroup activity to be created.
+		TiUIView view = (this.tabGroupProxy != null) ? this.tabGroupProxy.peekView() : null;
+		if (!(view instanceof TiUIAbstractTabGroup)) {
 			return;
 		}
+		TiUIAbstractTabGroup tabGroupView = (TiUIAbstractTabGroup) view;
+
+		// Update tab.
 		if (name.equals(TiC.PROPERTY_BACKGROUND_COLOR) || name.equals(TiC.PROPERTY_BACKGROUND_FOCUSED_COLOR)) {
-			((TiUIAbstractTabGroup) tabGroupProxy.getOrCreateView())
-				.updateTabBackgroundDrawable(tabGroupProxy.getTabIndex(this));
-		}
-		if (name.equals(TiC.PROPERTY_TITLE)) {
-			((TiUIAbstractTabGroup) tabGroupProxy.getOrCreateView()).updateTabTitle(tabGroupProxy.getTabIndex(this));
-		}
-		if (name.equals(TiC.PROPERTY_TITLE_COLOR) || name.equals(TiC.PROPERTY_ACTIVE_TITLE_COLOR)) {
-			((TiUIAbstractTabGroup) tabGroupProxy.getOrCreateView())
-				.updateTabTitleColor(tabGroupProxy.getTabIndex(this));
-		}
-		if (name.equals(TiC.PROPERTY_ICON)) {
-			((TiUIAbstractTabGroup) tabGroupProxy.getOrCreateView()).updateTabIcon(tabGroupProxy.getTabIndex(this));
+			tabGroupView.updateTabBackgroundDrawable(this.tabGroupProxy.getTabIndex(this));
+		} else if (name.equals(TiC.PROPERTY_TITLE)) {
+			tabGroupView.updateTabTitle(this.tabGroupProxy.getTabIndex(this));
+		} else if (name.equals(TiC.PROPERTY_TITLE_COLOR) || name.equals(TiC.PROPERTY_ACTIVE_TITLE_COLOR)) {
+			tabGroupView.updateTabTitleColor(this.tabGroupProxy.getTabIndex(this));
+		} else if (name.equals(TiC.PROPERTY_ICON)) {
+			tabGroupView.updateTabIcon(this.tabGroupProxy.getTabIndex(this));
+		} else if (name.equals(TiC.PROPERTY_BADGE)) {
+			tabGroupView.updateBadge(this.tabGroupProxy.getTabIndex(this));
+		} else if (name.equals(TiC.PROPERTY_BADGE_COLOR)) {
+			tabGroupView.updateBadgeColor(this.tabGroupProxy.getTabIndex(this));
 		}
 	}
 

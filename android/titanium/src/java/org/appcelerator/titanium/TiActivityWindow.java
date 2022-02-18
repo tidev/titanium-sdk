@@ -11,7 +11,7 @@ import android.os.Bundle;
 /**
  * Implementations of this interface can be notified when their activity window has been created
  * by registering themselves with {@link TiActivityWindows#addWindow(TiActivityWindow)}.
- * 
+ *
  * To retrieve the callback, fill the Activity's Intent with the following two properties:
  * <code>
  * int uniqueWindowId = TiActivityWindows.addWindow(this);
@@ -19,5 +19,5 @@ import android.os.Bundle;
  * </code>
  */
 public interface TiActivityWindow {
-	public void windowCreated(TiBaseActivity activity, Bundle savedInstanceState);
+	void windowCreated(TiBaseActivity activity, Bundle savedInstanceState);
 }

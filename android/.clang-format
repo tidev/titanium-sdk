@@ -24,3 +24,4 @@ SpaceAfterCStyleCast: true
 # Spaces inside {} for array literals, i.e. "new Object[] { args }"
 Cpp11BracedListStyle: false
 ReflowComments: false
+JavaImportGroups: ['java', 'javax', 'org', 'android', 'com']

@@ -54,7 +54,7 @@ public class TiDeployData
 
 			InputStream in = assetManager.open("deploy.json");
 			ByteArrayOutputStream out = new ByteArrayOutputStream();
-			byte buffer[] = new byte[1024];
+			byte[] buffer = new byte[1024];
 			int count = 0;
 
 			while ((count = in.read(buffer)) != -1) {

@@ -23,12 +23,14 @@
 
   BOOL _willHandleTouches;
   NSArray<NSString *> *_blacklistedURLs;
+  NSArray<NSString *> *_blockedURLs;
   NSURL *_currentURL;
   UIActivityIndicatorView *_loadingIndicator;
   BOOL _isViewDetached;
   BOOL _tiCookieHandlerAdded;
   BOOL ignoreNextRequest;
   SEL reloadMethod;
+  NSString *assetsDirectory;
 }
 
 @property (nonatomic, retain) id reloadData;

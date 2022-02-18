@@ -17,6 +17,10 @@
 #import "TiUIActivityIndicatorStyleProxy.h"
 #endif
 
+#if defined(USE_TI_UISHORTCUT) || defined(USE_TI_UISHORTCUTITEM)
+#import "TiUIShortcutProxy.h"
+#endif
+
 @interface UIModule : TiModule {
 
   @private
@@ -29,6 +33,10 @@
 #ifdef USE_TI_UICLIPBOARD
   TiProxy *clipboard;
 #endif
+#if defined(USE_TI_UISHORTCUT) || defined(USE_TI_UISHORTCUTITEM)
+  TiUIShortcutProxy *shortcut;
+#endif
+  NSNumber *lastEmittedMode;
 }
 
 //TODO: review these, maybe they need to go on iPhone Animation Style - however, they are platform generic
@@ -94,8 +102,10 @@
 
 @property (nonatomic, readonly) NSNumber *INPUT_BORDERSTYLE_NONE;
 @property (nonatomic, readonly) NSNumber *INPUT_BORDERSTYLE_LINE;
+@property (nonatomic, readonly) NSNumber *INPUT_BORDERSTYLE_UNDERLINED;
 @property (nonatomic, readonly) NSNumber *INPUT_BORDERSTYLE_BEZEL;
 @property (nonatomic, readonly) NSNumber *INPUT_BORDERSTYLE_ROUNDED;
+@property (nonatomic, readonly) NSNumber *INPUT_BORDERSTYLE_FILLED;
 
 @property (nonatomic, readonly) NSNumber *PORTRAIT;
 @property (nonatomic, readonly) NSNumber *LANDSCAPE_LEFT;
@@ -139,6 +149,21 @@
 @property (nonatomic, readonly) NSNumber *BLEND_MODE_XOR;
 @property (nonatomic, readonly) NSNumber *BLEND_MODE_PLUS_DARKER;
 @property (nonatomic, readonly) NSNumber *BLEND_MODE_PLUS_LIGHTER;
+
+@property (nonatomic, readonly) NSNumber *BUTTON_STYLE_FILLED;
+@property (nonatomic, readonly) NSNumber *BUTTON_STYLE_OUTLINED;
+@property (nonatomic, readonly) NSNumber *BUTTON_STYLE_TEXT;
+@property (nonatomic, readonly) NSNumber *BUTTON_STYLE_OPTION_POSITIVE;
+@property (nonatomic, readonly) NSNumber *BUTTON_STYLE_OPTION_NEGATIVE;
+@property (nonatomic, readonly) NSNumber *BUTTON_STYLE_OPTION_NEUTRAL;
+
+@property (nonatomic, readonly) NSNumber *SELECTION_STYLE_NONE;
+@property (nonatomic, readonly) NSNumber *SELECTION_STYLE_DEFAULT;
+
+@property (nonatomic, readonly) NSNumber *SWITCH_STYLE_SLIDER;
+@property (nonatomic, readonly) NSNumber *SWITCH_STYLE_CHECKBOX;
+@property (nonatomic, readonly) NSNumber *SWITCH_STYLE_TOGGLE_BUTTON;
+@property (nonatomic, readonly) NSNumber *SWITCH_STYLE_CHIP;
 
 @property (nonatomic, readonly) NSNumber *AUTOLINK_NONE;
 @property (nonatomic, readonly) NSNumber *AUTOLINK_ALL;
@@ -274,6 +299,10 @@
 
 #ifdef USE_TI_UIACTIVITYINDICATORSTYLE
 @property (nonatomic, readonly) TiUIActivityIndicatorStyleProxy *ActivityIndicatorStyle;
+#endif
+
+#if defined(USE_TI_UISHORTCUT) || defined(USE_TI_UISHORTCUTITEM)
+@property (nonatomic, readonly) TiUIShortcutProxy *Shortcut;
 #endif
 
 @end

@@ -42,6 +42,14 @@ DEFINE_EXCEPTIONS
     controller.delegate = self;
     controller.moreNavigationController.delegate = self;
     [TiUtils configureController:controller withObject:self.proxy];
+#if IS_SDK_IOS_15
+    if ([TiUtils isIOSVersionOrGreater:@"15.0"]) {
+      UITabBarAppearance *appearance = controller.tabBar.standardAppearance;
+      [appearance configureWithDefaultBackground];
+      appearance.backgroundColor = UIColor.clearColor;
+      controller.tabBar.scrollEdgeAppearance = appearance;
+    }
+#endif
   }
   return controller;
 }
@@ -99,6 +107,8 @@ DEFINE_EXCEPTIONS
     return;
   }
 
+  // FIXME: COmbine with focusEvent! That one builds the very first focus event
+  // This builds later ones
   NSMutableDictionary *event = [NSMutableDictionary dictionaryWithCapacity:4];
 
   NSArray *tabArray = [controller viewControllers];
@@ -161,10 +171,10 @@ DEFINE_EXCEPTIONS
   BOOL translucent = [TiUtils boolValue:[self.proxy valueForUndefinedKey:@"translucent"] def:YES];
 
   // Update the UINavigationBar appearance
-  [[UINavigationBar appearanceWhenContainedInInstancesOfClasses:@ [[UITabBarController class]]] setBarStyle:navBarStyle];
-  [[UINavigationBar appearanceWhenContainedInInstancesOfClasses:@ [[UITabBarController class]]] setTitleTextAttributes:theAttributes];
-  [[UINavigationBar appearanceWhenContainedInInstancesOfClasses:@ [[UITabBarController class]]] setBarTintColor:theColor];
-  [[UINavigationBar appearanceWhenContainedInInstancesOfClasses:@ [[UITabBarController class]]] setTintColor:nTintColor];
+  [[UINavigationBar appearanceWhenContainedInInstancesOfClasses:@[ [UITabBarController class] ]] setBarStyle:navBarStyle];
+  [[UINavigationBar appearanceWhenContainedInInstancesOfClasses:@[ [UITabBarController class] ]] setTitleTextAttributes:theAttributes];
+  [[UINavigationBar appearanceWhenContainedInInstancesOfClasses:@[ [UITabBarController class] ]] setBarTintColor:theColor];
+  [[UINavigationBar appearanceWhenContainedInInstancesOfClasses:@[ [UITabBarController class] ]] setTintColor:nTintColor];
 
   if ([[moreController viewControllers] count] != 1) {
     return;
@@ -363,6 +373,21 @@ DEFINE_EXCEPTIONS
   UITabBar *tabBar = [controller tabBar];
   //A nil tintColor is fine, too.
   [tabBar setBarTintColor:[color color]];
+#if IS_SDK_IOS_15
+  if ([TiUtils isIOSVersionOrGreater:@"15.0"]) {
+    // Update main tab bar's appearance.
+    tabBar.standardAppearance.backgroundColor = [color color];
+    tabBar.scrollEdgeAppearance.backgroundColor = [color color];
+
+    // We must also update each tab in case they override main tab bar's appearance.
+    id tabs = [[self proxy] valueForKey:@"tabs"];
+    if ([tabs isKindOfClass:[NSArray class]]) {
+      for (TiUITabProxy *tabProxy in (NSArray *)tabs) {
+        [tabProxy updateTabBarItem];
+      }
+    }
+  }
+#endif
 }
 
 - (void)setTabsTintColor_:(id)value
@@ -596,20 +621,6 @@ DEFINE_EXCEPTIONS
   UIView *view = [self tabController].view;
   [view setFrame:[self bounds]];
   [self addSubview:view];
-
-  // on an open, make sure we send the focus event to focused tab
-  NSArray *tabArray = [controller viewControllers];
-  NSInteger index = 0;
-  if (focusedTabProxy != nil) {
-    index = [tabArray indexOfObject:[(TiUITabProxy *)focusedTabProxy controller]];
-  }
-  NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:focusedTabProxy, @"tab", NUMINTEGER(index), @"index", NUMINT(-1), @"previousIndex", [NSNull null], @"previousTab", nil];
-  if ([self.proxy _hasListeners:@"focus"]) {
-    [self.proxy fireEvent:@"focus" withObject:event];
-  }
-
-  // Tab has already been focused by the tab controller delegate
-  //[focused handleDidFocus:event];
 }
 
 - (void)close:(id)args
@@ -618,6 +629,24 @@ DEFINE_EXCEPTIONS
     controller.viewControllers = nil;
   }
   RELEASE_TO_NIL(controller);
+}
+
+// This is the focus event we fire on initial open, or when the TabGroup gets focus
+// Note that handleDidShowTab builds the more complex event for switching tabs
+// (and also fires a blur event)
+- (NSDictionary *)focusEvent
+{
+  NSArray *tabArray = [controller viewControllers];
+  NSInteger index = 0;
+  if (focusedTabProxy != nil) {
+    index = [tabArray indexOfObject:[(TiUITabProxy *)focusedTabProxy controller]];
+  }
+  return @{
+    @"tab" : NULL_IF_NIL(focusedTabProxy),
+    @"index" : NUMINTEGER(index),
+    @"previousIndex" : NUMINT(-1),
+    @"previousTab" : [NSNull null]
+  };
 }
 
 @end

@@ -262,11 +262,15 @@ DEFINE_EXCEPTIONS
 
 - (UIViewContentMode)contentModeForImageView
 {
-  if (TiDimensionIsAuto(width) || TiDimensionIsAutoSize(width) || TiDimensionIsUndefined(width) || TiDimensionIsAuto(height) || TiDimensionIsAutoSize(height) || TiDimensionIsUndefined(height)) {
-    return UIViewContentModeScaleAspectFit;
-  } else {
-    return UIViewContentModeScaleToFill;
+  int contentMode = [TiUtils intValue:[self.proxy valueForKey:@"scalingMode"] def:-1];
+  if (contentMode < 0) {
+    if (TiDimensionIsAuto(width) || TiDimensionIsAutoSize(width) || TiDimensionIsUndefined(width) || TiDimensionIsAuto(height) || TiDimensionIsAutoSize(height) || TiDimensionIsUndefined(height)) {
+      contentMode = UIViewContentModeScaleAspectFit;
+    } else {
+      contentMode = UIViewContentModeScaleToFill;
+    }
   }
+  return contentMode;
 }
 
 - (void)updateContentMode
@@ -291,6 +295,7 @@ DEFINE_EXCEPTIONS
     imageView = [[UIImageView alloc] initWithFrame:[self bounds]];
     [imageView setAutoresizingMask:UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight];
     [imageView setContentMode:[self contentModeForImageView]];
+    imageView.clipsToBounds = YES;
     [self addSubview:imageView];
   }
   return imageView;
@@ -363,52 +368,54 @@ DEFINE_EXCEPTIONS
     autoHeight = imageToUse.size.height;
   }
 
-  TiThreadPerformOnMainThread(^{
-    UIView *view = [[container subviews] objectAtIndex:position];
-    UIImageView *newImageView = [[UIImageView alloc] initWithFrame:[view bounds]];
-    newImageView.image = imageToUse;
-    newImageView.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
-    newImageView.contentMode = [self contentModeForImageView];
+  TiThreadPerformOnMainThread(
+      ^{
+        UIView *view = [[container subviews] objectAtIndex:position];
+        UIImageView *newImageView = [[UIImageView alloc] initWithFrame:[view bounds]];
+        newImageView.image = imageToUse;
+        newImageView.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
+        newImageView.contentMode = [self contentModeForImageView];
+        newImageView.clipsToBounds = YES;
 
-    // remove the spinner now that we've loaded our image
-    UIView *spinner = [[view subviews] count] > 0 ? [[view subviews] objectAtIndex:0] : nil;
-    if (spinner != nil && [spinner isKindOfClass:[UIActivityIndicatorView class]]) {
-      [spinner removeFromSuperview];
-    }
-    [view addSubview:newImageView];
-    view.clipsToBounds = YES;
-    [newImageView release];
-    view.hidden = YES;
+        // remove the spinner now that we've loaded our image
+        UIView *spinner = [[view subviews] count] > 0 ? [[view subviews] objectAtIndex:0] : nil;
+        if (spinner != nil && [spinner isKindOfClass:[UIActivityIndicatorView class]]) {
+          [spinner removeFromSuperview];
+        }
+        [view addSubview:newImageView];
+        view.clipsToBounds = YES;
+        [newImageView release];
+        view.hidden = YES;
 
 #if IMAGEVIEW_DEBUG == 1
-    UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(10, 10, 50, 20)];
-    label.text = [NSString stringWithFormat:@"%d", position];
-    label.font = [UIFont boldSystemFontOfSize:28];
-    label.textColor = [UIColor redColor];
-    label.backgroundColor = [UIColor clearColor];
-    [view addSubview:label];
-    [view bringSubviewToFront:label];
-    [label release];
+        UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(10, 10, 50, 20)];
+        label.text = [NSString stringWithFormat:@"%d", position];
+        label.font = [UIFont boldSystemFontOfSize:28];
+        label.textColor = [UIColor redColor];
+        label.backgroundColor = [UIColor clearColor];
+        [view addSubview:label];
+        [view bringSubviewToFront:label];
+        [label release];
 #endif
 
-    loadCount++;
-    if (loadCount == loadTotal) {
-      [self fireLoadEventWithState:@"images"];
-    }
+        loadCount++;
+        if (loadCount == loadTotal) {
+          [self fireLoadEventWithState:@"images"];
+        }
 
-    if (ready) {
-      //NOTE: for now i'm just making sure you have at least one frame loaded before starting the timer
-      //but in the future we may want to be more sophisticated
-      int min = 1;
-      readyCount++;
-      if (readyCount >= min) {
-        readyCount = 0;
-        ready = NO;
+        if (ready) {
+          //NOTE: for now i'm just making sure you have at least one frame loaded before starting the timer
+          //but in the future we may want to be more sophisticated
+          int min = 1;
+          readyCount++;
+          if (readyCount >= min) {
+            readyCount = 0;
+            ready = NO;
 
-        [self startTimerWithEvent:@"start"];
-      }
-    }
-  },
+            [self startTimerWithEvent:@"start"];
+          }
+        }
+      },
       NO);
 }
 
@@ -480,31 +487,25 @@ DEFINE_EXCEPTIONS
       NSRange range = [pathStr rangeOfString:@".app"];
       NSString *imageArg = nil;
       if (range.location != NSNotFound) {
-        imageArg = [pathStr substringFromIndex:range.location + 5];
+        if ([TiUtils isMacOS]) {
+          imageArg = [pathStr substringFromIndex:range.location + 24]; //Contents/Resources/ for mac
+        } else {
+          imageArg = [pathStr substringFromIndex:range.location + 5];
+        }
       }
+
       //remove suffixes.
       imageArg = [imageArg stringByReplacingOccurrencesOfString:@"@3x" withString:@""];
       imageArg = [imageArg stringByReplacingOccurrencesOfString:@"@2x" withString:@""];
       imageArg = [imageArg stringByReplacingOccurrencesOfString:@"~iphone" withString:@""];
       imageArg = [imageArg stringByReplacingOccurrencesOfString:@"~ipad" withString:@""];
-      if (imageArg != nil) {
-        unsigned char digest[CC_SHA1_DIGEST_LENGTH];
-        NSData *stringBytes = [imageArg dataUsingEncoding:NSUTF8StringEncoding];
-        if (CC_SHA1([stringBytes bytes], (CC_LONG)[stringBytes length], digest)) {
-          // SHA-1 hash has been calculated and stored in 'digest'.
-          NSMutableString *sha = [[NSMutableString alloc] init];
-          for (int i = 0; i < CC_SHA1_DIGEST_LENGTH; i++) {
-            [sha appendFormat:@"%02x", digest[i]];
-          }
-          [sha appendString:@"."];
-          [sha appendString:[img pathExtension]];
-          image = [UIImage imageNamed:sha];
-          RELEASE_TO_NIL(sha)
-        }
-      }
+
+      image = [UIImage imageNamed:imageArg];
+
       if (image == nil) {
         image = [UIImage imageWithContentsOfFile:[img path]];
       }
+
       if (image != nil) {
         UIImage *imageToUse = [self rotatedImage:image];
         autoWidth = imageToUse.size.width;
@@ -670,6 +671,11 @@ DEFINE_EXCEPTIONS
   [self updateContentMode];
 }
 
+- (void)setScalingMode_:(id)value
+{
+  [self updateContentMode];
+}
+
 - (void)setTintColor_:(id)value
 {
   ENSURE_TYPE_OR_NIL(value, NSObject);
@@ -784,9 +790,10 @@ DEFINE_EXCEPTIONS
     autoHeight = autoHeight / 2;
   }
 
-  TiThreadPerformOnMainThread(^{
-    [self setURLImageOnUIThread:imageToUse];
-  },
+  TiThreadPerformOnMainThread(
+      ^{
+        [self setURLImageOnUIThread:imageToUse];
+      },
       NO);
 }
 

@@ -19,7 +19,10 @@ const KNOWN_EMPLOYEE_EMAILS = [
 	'yordan.banev@gmail.com',
 	'iw@whitfin.io',
 	'mukherjee2@users.noreply.github.com',
-	'14187093+Sajoha@users.noreply.github.com'
+	'14187093+Sajoha@users.noreply.github.com',
+	'Topener@users.noreply.github.com',
+	'brenton.house@gmail.com',
+	'build@users.noreply.github.com'
 ];
 
 // others use our company email addresses
@@ -93,7 +96,7 @@ function guessPreviousBranch(version) {
 }
 
 function urlToVersion(url) {
-	return /-(\d+\.\d+\.\d+)\.zip$/.exec(url)[1];
+	return /-(\d+\.\d+\.\d+)\.zip$/.exec(url)[1]; // eslint-disable-line security/detect-child-process
 }
 
 function gatherModules() {
@@ -133,23 +136,47 @@ function gatherModules() {
  * Gather up the community contributions to thank them specifically
  */
 const communityContributions = new Map();
+const breakingChanges = []; // gather the breaking changes specially
+
+/**
+ * @param {string} from branch/tag/commit sha to start
+ * @returns {Set<string>} array of valid commit shas
+ */
+function getFilteredShaListing(from) {
+	const stdout = execSync(`git log --cherry-pick --right-only --no-merges ${from}...HEAD --format=%H`, { encoding: 'utf8' });
+	return new Set(stdout.split(/\r?\n/));
+}
+
+const filteredCommitSHAs = getFilteredShaListing(previousBranch);
 
 module.exports = {
 	gitRawCommitsOpts: {
+		// 'right-only': true, // --right-only
+		// 'cherry-pick': true, // --cherry-pick
+		// merges: false, // --no-merges
+		// NOTE: This does a 9_0_X..HEAD comparison, but we need a 9_0_X...HEAD comparison with cherry-picks removed
+		// We do that above by getting the hashes of that subset and then skip anythign this collects that don't fall into that set
 		from: previousBranch,
 		// We override to include authorName and authorEmail!
 		format: '%B%n-hash-%n%H%n-gitTags-%n%d%n-committerDate-%n%ci%n-authorName-%n%an%n-authorEmail-%n%ae'
 	},
 	writerOpts: {
 		transform: function (commit) {
-			// flag to not end up discarding breaking changes regardless of commit type
+			// skip commits that may have cherry-picks on both sides
+			if (!filteredCommitSHAs.has(commit.hash)) {
+				return;
+			}
+
 			let discard = true;
 			let community = false;
+			let breaking = false;
 
-			// Don't discard breaking change commits!
+			// Special handling of breaking changes. We gather them in a separate array
+			// and place them all together (so discard them from the normal listings)
 			commit.notes.forEach(note => {
 				note.title = 'BREAKING CHANGES';
-				discard = false;
+				discard = true;
+				breaking = true;
 			});
 
 			// check authorName/authorEmail against known axway employee list or some whitelist or something to determine community credits?
@@ -158,7 +185,8 @@ module.exports = {
 				const domain = emailParts[1];
 				if (!KNOWN_EMPLOYEE_EMAIL_DOMAINS.includes(domain)
 					&& !KNOWN_EMPLOYEE_EMAILS.includes(commit.authorEmail)
-					&& !commit.authorEmail.includes('greenkeeper[bot]')) {
+					&& !commit.authorEmail.includes('greenkeeper[bot]')
+					&& !commit.authorEmail.includes('dependabot')) {
 					// If this is a noreply github email address, strip it to username so we can link to them
 					// if (domain === 'users.noreply.github.com') {
 					// 	const usernameParts = emailParts[0].split('+'); // may be ID+username, or just username
@@ -182,11 +210,13 @@ module.exports = {
 			// Limit to features, bug fixes and performance improvements
 			if (commit.type === 'feat') {
 				commit.type = 'Features';
+				discard = false;
 			} else if (commit.type === 'fix') {
 				commit.type = 'Bug Fixes';
+				discard = false;
 			} else if (commit.type === 'perf') {
 				commit.type = 'Performance Improvements';
-			} else if (discard && !community) {
+			} else if (discard && !community && !breaking) {
 				return; // ignore this commit!
 			// Only retain other types of commits if they somehow contain breaking changes...
 			} else if (commit.type === 'revert') {
@@ -251,6 +281,16 @@ module.exports = {
 				}
 			}
 
+			// was this a breaking change? We have a special place for that!
+			if (breaking) {
+				breakingChanges.push(commit);
+				// it may have been a refactoring or other change we don't normally list,
+				// so don't include whatever random category it was
+				if (discard) {
+					return;
+				}
+			}
+
 			return commit;
 		},
 		finalizeContext: function (context) {
@@ -274,6 +314,19 @@ module.exports = {
 				};
 			});
 
+			// HACK the breaking change commits into one heading with sub-headings by platform
+			const grouped = groupBy(breakingChanges, commit => prettifiedScope(commit.scope));
+			const scopeGroups = [];
+			grouped.forEach((val, key) => {
+				scopeGroups.push({ title: key, commits: val });
+			});
+			context.noteGroups = [
+				{
+					title: 'BREAKING CHANGES',
+					scopeGroups
+				}
+			];
+
 			// convert communityContributions from map to array of objects!
 			context.communityContributions = [];
 			communityContributions.forEach((value, key) => {
@@ -283,7 +336,7 @@ module.exports = {
 				});
 			});
 
-			// We need to know not onlif it a release is a patch release, but also if its major or minor
+			// We need to know not only if it a release is a patch release, but also if its major or minor
 			if (context.version && semver.valid(context.version)) {
 				context.isMajor = !context.isPatch && semver.minor(context.version) === 0;
 			}
@@ -318,6 +371,7 @@ module.exports = {
 		},
 		commitPartial: fs.readFileSync(path.join(__dirname, 'templates/commit.hbs'), 'utf8'),
 		headerPartial: fs.readFileSync(path.join(__dirname, 'templates/header.hbs'), 'utf8'),
+		footerPartial: fs.readFileSync(path.join(__dirname, 'templates/footer.hbs'), 'utf8'),
 		mainTemplate: fs.readFileSync(path.join(__dirname, 'templates/template.hbs'), 'utf8'),
 		partials: {
 			about: fs.readFileSync(path.join(__dirname, 'templates/about.hbs'), 'utf8'),

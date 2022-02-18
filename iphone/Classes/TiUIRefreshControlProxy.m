@@ -59,39 +59,42 @@
   ENSURE_SINGLE_ARG_OR_NIL(value, TiUIAttributedStringProxy);
   [self replaceValue:value forKey:@"title" notification:NO];
 
-  TiThreadPerformOnMainThread(^{
-    [[self control] setAttributedTitle:[(TiUIAttributedStringProxy *)value attributedString]];
-  },
+  TiThreadPerformOnMainThread(
+      ^{
+        [[self control] setAttributedTitle:[(TiUIAttributedStringProxy *)value attributedString]];
+      },
       NO);
 #endif
 }
 
 - (void)setTintColor:(id)value
 {
-  ENSURE_SINGLE_ARG_OR_NIL(value, NSString);
   [self replaceValue:value forKey:@"tintColor" notification:NO];
 
-  TiThreadPerformOnMainThread(^{
-    [[self control] setTintColor:[[TiUtils colorValue:value] color]];
-  },
+  TiThreadPerformOnMainThread(
+      ^{
+        [[self control] setTintColor:[[TiUtils colorValue:value] color]];
+      },
       NO);
 }
 
 - (void)beginRefreshing:(id)unused
 {
-  TiThreadPerformOnMainThread(^{
-    [[self control] beginRefreshing];
-    [[self control] sendActionsForControlEvents:UIControlEventValueChanged];
-  },
+  TiThreadPerformOnMainThread(
+      ^{
+        [[self control] beginRefreshing];
+        [[self control] sendActionsForControlEvents:UIControlEventValueChanged];
+      },
       NO);
 }
 
 - (void)endRefreshing:(id)unused
 {
-  TiThreadPerformOnMainThread(^{
-    [[self control] endRefreshing];
-    [self refreshingDidEnd];
-  },
+  TiThreadPerformOnMainThread(
+      ^{
+        [[self control] endRefreshing];
+        [self refreshingDidEnd];
+      },
       NO);
 }
 

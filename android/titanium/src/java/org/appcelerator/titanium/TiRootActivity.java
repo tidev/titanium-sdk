@@ -18,7 +18,8 @@ import org.appcelerator.kroll.KrollRuntime;
 import org.appcelerator.kroll.util.KrollAssetHelper;
 import org.appcelerator.titanium.proxy.IntentProxy;
 import org.appcelerator.titanium.util.TiActivitySupport;
-import org.appcelerator.titanium.util.TiRHelper;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import android.app.Activity;
 import android.content.ComponentName;
@@ -27,10 +28,16 @@ import android.content.res.Configuration;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.TypedValue;
+import android.view.View;
 import android.view.Window;
+import androidx.appcompat.content.res.AppCompatResources;
+
+import ti.modules.titanium.ui.ShortcutItemProxy;
 
 public class TiRootActivity extends TiLaunchActivity implements TiActivitySupport
 {
@@ -50,9 +57,9 @@ public class TiRootActivity extends TiLaunchActivity implements TiActivitySuppor
 	 */
 	private static boolean isScriptRunning;
 
-	private ArrayList<OnNewIntentListener> newIntentListeners = new ArrayList<>(16);
-	private LinkedList<Runnable> pendingRuntimeRunnables = new LinkedList<>();
-	private Drawable[] backgroundLayers = { null, null };
+	private final ArrayList<OnNewIntentListener> newIntentListeners = new ArrayList<>(16);
+	private final LinkedList<Runnable> pendingRuntimeRunnables = new LinkedList<>();
+	private final Drawable[] backgroundLayers = { null, null };
 	private int runtimeStartedListenerId = KrollProxy.INVALID_EVENT_LISTENER_ID;
 	private boolean wasRuntimeStarted;
 	private boolean isDuplicateInstance;
@@ -317,9 +324,6 @@ public class TiRootActivity extends TiLaunchActivity implements TiActivitySuppor
 		tiApp.setCurrentActivity(this, this);
 		tiApp.setRootActivity(this);
 		super.onCreate(savedInstanceState);
-		if (isNotRestoringActivity) {
-			tiApp.verifyCustomModules(this);
-		}
 
 		// Invoke activity's onNewIntent() behavior if above code bundled an extra intent into it.
 		// This happens if activity was initially created with a non-main launcher intent, such as a URL scheme.
@@ -332,6 +336,12 @@ public class TiRootActivity extends TiLaunchActivity implements TiActivitySuppor
 			} catch (Exception ex) {
 				Log.e(TAG, "Failed to parse: " + TiC.EXTRA_TI_NEW_INTENT, ex);
 			}
+		}
+
+		// As of Android 12, the OS automatically shows a splash screen for us.
+		// Adding the following listener prevents the splash from being dismissed.
+		if (Build.VERSION.SDK_INT >= 31) {
+			getSplashScreen().setOnExitAnimationListener((splashView) -> {});
 		}
 	}
 
@@ -366,13 +376,29 @@ public class TiRootActivity extends TiLaunchActivity implements TiActivitySuppor
 		// Handle the intent if set.
 		if (intent != null) {
 			// If this is a shortcut intent, then fire a Titanium App "shortcutitemclick" event.
-			String shortcutId = intent.getStringExtra(TiC.EVENT_PROPERTY_SHORTCUT);
+			final String shortcutId = intent.getStringExtra(TiC.EVENT_PROPERTY_SHORTCUT);
+			final String shortcutPropertiesJsonString = intent.getStringExtra(TiC.PROPERTY_PROPERTIES);
+			KrollDict shortcutProperties = null;
+			try {
+				if (shortcutPropertiesJsonString != null) {
+					shortcutProperties = new KrollDict(new JSONObject(shortcutPropertiesJsonString));
+				}
+			} catch (JSONException e) {
+			}
 			if (shortcutId != null) {
-				KrollModule appModule = getTiApp().getModuleByName("App");
+				final KrollModule appModule = getTiApp().getModuleByName("App");
+				final KrollModule shortcutModule = getTiApp().getModuleByName("Shortcut");
 				if (appModule != null) {
 					KrollDict data = new KrollDict();
 					data.put(TiC.PROPERTY_ID, shortcutId);
 					appModule.fireEvent(TiC.EVENT_SHORTCUT_ITEM_CLICK, data);
+				}
+				if (shortcutModule != null && shortcutProperties != null) {
+					final KrollDict data = new KrollDict();
+					final ShortcutItemProxy item = new ShortcutItemProxy();
+					item.handleCreationDict(shortcutProperties);
+					data.put(TiC.PROPERTY_ITEM, item);
+					shortcutModule.fireEvent(TiC.EVENT_CLICK, data);
 				}
 			}
 
@@ -503,18 +529,18 @@ public class TiRootActivity extends TiLaunchActivity implements TiActivitySuppor
 	public void onConfigurationChanged(Configuration newConfig)
 	{
 		super.onConfigurationChanged(newConfig);
-		try {
-			int backgroundId = TiRHelper.getResource("drawable.background");
-			if (backgroundId != 0) {
-				Drawable d = this.getResources().getDrawable(backgroundId);
-				if (d != null) {
-					Drawable bg = getWindow().getDecorView().getBackground();
-					getWindow().setBackgroundDrawable(d);
-					bg.setCallback(null);
+
+		// Update background in case it uses different images/layouts for new config, such as after orientation change.
+		View layout = getLayout();
+		if (layout != null) {
+			TypedValue typedValue = new TypedValue();
+			getTheme().resolveAttribute(android.R.attr.windowBackground, typedValue, true);
+			if (typedValue.resourceId != 0) {
+				Drawable drawable = AppCompatResources.getDrawable(this, typedValue.resourceId);
+				if (drawable != null) {
+					layout.setBackground(drawable);
 				}
 			}
-		} catch (Exception e) {
-			Log.e(TAG, "Resource not found 'drawable.background': " + e.getMessage());
 		}
 	}
 

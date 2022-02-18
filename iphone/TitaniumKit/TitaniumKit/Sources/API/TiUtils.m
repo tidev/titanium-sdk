@@ -86,7 +86,7 @@ static NSDictionary *sizeMap = nil;
 
 + (BOOL)isRetinaFourInch
 {
-  CGSize mainScreenBoundsSize = [[UIScreen mainScreen] bounds].size;
+  CGSize mainScreenBoundsSize = UIScreen.mainScreen.bounds.size;
   return (mainScreenBoundsSize.height == 568 || mainScreenBoundsSize.width == 568);
 }
 
@@ -107,37 +107,37 @@ static NSDictionary *sizeMap = nil;
 
 + (BOOL)isRetina4_7Inch
 {
-  CGSize mainScreenBoundsSize = [[UIScreen mainScreen] bounds].size;
+  CGSize mainScreenBoundsSize = UIScreen.mainScreen.bounds.size;
   return (mainScreenBoundsSize.height == 667 || mainScreenBoundsSize.width == 667);
 }
 
 + (BOOL)isRetina5_5Inch
 {
-  CGSize mainScreenBoundsSize = [[UIScreen mainScreen] bounds].size;
+  CGSize mainScreenBoundsSize = UIScreen.mainScreen.bounds.size;
   return (mainScreenBoundsSize.height == 736 || mainScreenBoundsSize.width == 736);
 }
 
 + (BOOL)isSuperRetina5_8Inch
 {
-  CGSize mainScreenBoundsSize = [[UIScreen mainScreen] bounds].size;
+  CGSize mainScreenBoundsSize = UIScreen.mainScreen.bounds.size;
   return (mainScreenBoundsSize.height == 812 || mainScreenBoundsSize.width == 812);
 }
 
 + (BOOL)isRetina6_1Inch
 {
-  CGSize mainScreenBoundsSize = [[UIScreen mainScreen] bounds].size;
+  CGSize mainScreenBoundsSize = UIScreen.mainScreen.bounds.size;
   return (mainScreenBoundsSize.height == 896 || mainScreenBoundsSize.width == 896) && ![TiUtils is3xRetina];
 }
 
 + (BOOL)isSuperRetina6_5Inch
 {
-  CGSize mainScreenBoundsSize = [[UIScreen mainScreen] bounds].size;
+  CGSize mainScreenBoundsSize = UIScreen.mainScreen.bounds.size;
   return (mainScreenBoundsSize.height == 896 || mainScreenBoundsSize.width == 896) && [TiUtils is3xRetina];
 }
 
 + (BOOL)is3xRetina
 {
-  return [UIScreen mainScreen].scale == 3.0;
+  return UIScreen.mainScreen.scale == 3.0;
 }
 
 + (BOOL)is2xRetina
@@ -150,16 +150,27 @@ static NSDictionary *sizeMap = nil;
     // future proof against possible different model names, but in the event of
     // an iPad with a retina display, this will need to be fixed.
     // Credit to Brion on github for the origional fix.
-    if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone) {
-      NSRange iPadStringPosition = [[[UIDevice currentDevice] model] rangeOfString:@"iPad"];
+    UIDevice *device = UIDevice.currentDevice;
+    if (device.userInterfaceIdiom == UIUserInterfaceIdiomPhone) {
+      NSRange iPadStringPosition = [device.model rangeOfString:@"iPad"];
       if (iPadStringPosition.location != NSNotFound) {
         scale = 1.0;
         return NO;
       }
     }
-    scale = [[UIScreen mainScreen] scale];
+    scale = UIScreen.mainScreen.scale;
   }
   return scale > 1.0; // TODO: In the future (next major), this should be == 2.0 which is a breaking change
+}
+
++ (BOOL)isMacOS
+{
+#if TARGET_OS_MACCATALYST
+  return YES;
+#else
+  //  TODO: Just return NO? Use NSProcessInfo.processInfo.isMacCatalystApp or iOSAppOnMac?
+  return [UIDevice.currentDevice.systemName isEqualToString:@"Mac OS X"];
+#endif
 }
 
 + (BOOL)isRetinaHDDisplay
@@ -214,17 +225,17 @@ static NSDictionary *sizeMap = nil;
 
 + (BOOL)isIOSVersionOrGreater:(NSString *)version
 {
-  return [[[UIDevice currentDevice] systemVersion] compare:version options:NSNumericSearch] != NSOrderedAscending;
+  return [UIDevice.currentDevice.systemVersion compare:version options:NSNumericSearch] != NSOrderedAscending;
 }
 
 + (BOOL)isIOSVersionLower:(NSString *)version
 {
-  return [[[UIDevice currentDevice] systemVersion] compare:version options:NSNumericSearch] == NSOrderedAscending;
+  return [UIDevice.currentDevice.systemVersion compare:version options:NSNumericSearch] == NSOrderedAscending;
 }
 
 + (BOOL)isIPad
 {
-  return [[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad;
+  return UIDevice.currentDevice.userInterfaceIdiom == UIUserInterfaceIdiomPad;
 }
 
 + (BOOL)isIPhone4
@@ -236,7 +247,7 @@ static NSDictionary *sizeMap = nil;
     // for now, this is all we know. we assume this
     // will continue to increase with new models but
     // for now we can't really assume
-    if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone) {
+    if (UIDevice.currentDevice.userInterfaceIdiom == UIUserInterfaceIdiomPhone) {
       struct utsname u;
       uname(&u);
       if (!strcmp(u.machine, "iPhone3,1")) {
@@ -383,10 +394,19 @@ static NSDictionary *sizeMap = nil;
 {
   if ([value isKindOfClass:[NSDictionary class]]) {
     NSDictionary *dict = (NSDictionary *)value;
-    CGFloat t = [TiUtils floatValue:@"top" properties:dict def:0];
-    CGFloat l = [TiUtils floatValue:@"left" properties:dict def:0];
-    CGFloat b = [TiUtils floatValue:@"bottom" properties:dict def:0];
-    CGFloat r = [TiUtils floatValue:@"right" properties:dict def:0];
+
+    TiDimension tDimension = [self dimensionValue:@"top" properties:dict];
+    CGFloat t = tDimension.value;
+
+    TiDimension lDimension = [self dimensionValue:@"left" properties:dict];
+    CGFloat l = lDimension.value;
+
+    TiDimension bDimension = [self dimensionValue:@"bottom" properties:dict];
+    CGFloat b = bDimension.value;
+
+    TiDimension rDimension = [self dimensionValue:@"right" properties:dict];
+    CGFloat r = rDimension.value;
+
     return UIEdgeInsetsMake(t, l, b, r);
   }
   return UIEdgeInsetsMake(0, 0, 0, 0);
@@ -396,10 +416,19 @@ static NSDictionary *sizeMap = nil;
 {
   if ([value isKindOfClass:[NSDictionary class]]) {
     NSDictionary *dict = (NSDictionary *)value;
-    CGFloat x = [TiUtils floatValue:@"x" properties:dict def:0];
-    CGFloat y = [TiUtils floatValue:@"y" properties:dict def:0];
-    CGFloat w = [TiUtils floatValue:@"width" properties:dict def:0];
-    CGFloat h = [TiUtils floatValue:@"height" properties:dict def:0];
+
+    TiDimension xDimension = [self dimensionValue:@"x" properties:dict];
+    CGFloat x = xDimension.value;
+
+    TiDimension yDimension = [self dimensionValue:@"y" properties:dict];
+    CGFloat y = yDimension.value;
+
+    TiDimension wDimension = [self dimensionValue:@"width" properties:dict];
+    CGFloat w = wDimension.value;
+
+    TiDimension hDimension = [self dimensionValue:@"height" properties:dict];
+    CGFloat h = hDimension.value;
+
     return CGRectMake(x, y, w, h);
   }
   return CGRectMake(0, 0, 0, 0);
@@ -407,13 +436,7 @@ static NSDictionary *sizeMap = nil;
 
 + (CGPoint)pointValue:(id)value
 {
-  if ([value isKindOfClass:[TiPoint class]]) {
-    return [value point];
-  }
-  if ([value isKindOfClass:[NSDictionary class]]) {
-    return CGPointMake([[value objectForKey:@"x"] floatValue], [[value objectForKey:@"y"] floatValue]);
-  }
-  return CGPointMake(0, 0);
+  return [self pointValue:value valid:NULL];
 }
 
 + (CGPoint)pointValue:(id)value valid:(BOOL *)isValid
@@ -424,20 +447,13 @@ static NSDictionary *sizeMap = nil;
     }
     return [value point];
   } else if ([value isKindOfClass:[NSDictionary class]]) {
-    id xVal = [value objectForKey:@"x"];
-    id yVal = [value objectForKey:@"y"];
-    if (xVal && yVal) {
-      if (![xVal respondsToSelector:@selector(floatValue)] || ![yVal respondsToSelector:@selector(floatValue)]) {
-        if (isValid) {
-          *isValid = NO;
-        }
-        return CGPointMake(0.0, 0.0);
-      }
-
+    TiDimension xDimension = [self dimensionValue:@"x" properties:value];
+    TiDimension yDimension = [self dimensionValue:@"y" properties:value];
+    if (!TiDimensionIsUndefined(xDimension) && !TiDimensionIsUndefined(yDimension)) {
       if (isValid) {
         *isValid = YES;
       }
-      return CGPointMake([xVal floatValue], [yVal floatValue]);
+      return CGPointMake(xDimension.value, yDimension.value);
     }
   }
   if (isValid) {
@@ -457,7 +473,7 @@ static NSDictionary *sizeMap = nil;
     yDimension = [value yDimension];
   } else if ([value isKindOfClass:[NSDictionary class]]) {
     xDimension = [self dimensionValue:@"x" properties:value];
-    yDimension = [self dimensionValue:@"x" properties:value];
+    yDimension = [self dimensionValue:@"y" properties:value];
   } else {
     xDimension = TiDimensionUndefined;
     yDimension = TiDimensionUndefined;
@@ -530,14 +546,23 @@ static NSDictionary *sizeMap = nil;
 
   id offset = [value objectForKey:@"offset"];
   if (offset != nil && [offset isKindOfClass:[NSDictionary class]]) {
-    id w = [offset objectForKey:@"width"];
-    id h = [offset objectForKey:@"height"];
-    [shadow setShadowOffset:CGSizeMake([TiUtils floatValue:w def:0], [TiUtils floatValue:h def:0])];
+    NSDictionary *dict = (NSDictionary *)offset;
+
+    TiDimension wDimension = [self dimensionValue:@"width" properties:dict];
+    CGFloat w = wDimension.value;
+
+    TiDimension hDimension = [self dimensionValue:@"height" properties:dict];
+    CGFloat h = hDimension.value;
+
+    [shadow setShadowOffset:CGSizeMake(w, h)];
   }
+
   id blurRadius = [value objectForKey:@"blurRadius"];
-  if (blurRadius != nil) {
-    [shadow setShadowBlurRadius:[TiUtils floatValue:blurRadius def:0]];
+  TiDimension blurRadiusDimension = [self dimensionValue:blurRadius];
+  if (!TiDimensionIsUndefined(blurRadiusDimension)) {
+    [shadow setShadowBlurRadius:blurRadiusDimension.value];
   }
+
   id color = [value objectForKey:@"color"];
   if (color != nil) {
     [shadow setShadowColor:[[TiUtils colorValue:color] _color]];
@@ -585,12 +610,23 @@ static NSDictionary *sizeMap = nil;
 
 + (NSString *)hexColorValue:(UIColor *)color
 {
-  const CGFloat *components = CGColorGetComponents(color.CGColor);
-
-  return [NSString stringWithFormat:@"#%02lX%02lX%02lX",
-                   lroundf(components[0] * 255),
-                   lroundf(components[1] * 255),
-                   lroundf(components[2] * 255)];
+  CGFloat red;
+  CGFloat green;
+  CGFloat blue;
+  CGFloat alpha;
+  BOOL wasConverted = [color getRed:&red
+                              green:&green
+                               blue:&blue
+                              alpha:&alpha];
+  if (!wasConverted) {
+    return @"#000000";
+  }
+  if (lroundf(alpha * 255.0) != 255) {
+    // AARRGGBB
+    return [NSString stringWithFormat:@"#%02lX%02lX%02lX%02lX", lroundf(alpha * 255.0), lroundf(red * 255.0), lroundf(green * 255.0), lroundf(blue * 255.0)];
+  }
+  // RRGGBB
+  return [NSString stringWithFormat:@"#%02lX%02lX%02lX", lroundf(red * 255.0), lroundf(green * 255.0), lroundf(blue * 255.0)];
 }
 
 + (TiDimension)dimensionValue:(id)value
@@ -757,6 +793,23 @@ static NSDictionary *sizeMap = nil;
   UIGraphicsEndImageContext();
 
   return imageCopy;
+}
+
++ (UIImage *)imageWithTint:(UIImage *)image tintColor:(UIColor *)tintColor
+{
+  if ([TiUtils isIOSVersionOrGreater:@"13.0"]) {
+    return [image imageWithTintColor:tintColor renderingMode:UIImageRenderingModeAlwaysOriginal];
+  }
+  UIImage *imageNew = [image imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+  UIImageView *imageView = [[UIImageView alloc] initWithImage:imageNew];
+  imageView.tintColor = tintColor;
+
+  UIGraphicsBeginImageContextWithOptions(imageView.bounds.size, NO, 0.0);
+  [imageView.layer renderInContext:UIGraphicsGetCurrentContext()];
+  UIImage *tintedImage = UIGraphicsGetImageFromCurrentImageContext();
+  UIGraphicsEndImageContext();
+
+  return [tintedImage imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal];
 }
 
 + (NSURL *)checkFor2XImage:(NSURL *)url
@@ -1233,8 +1286,8 @@ If the new path starts with / and the base url is app://..., we have to massage 
 + (CGRect)contentFrame:(BOOL)window
 {
   double height = 0;
-  if (window && ![[UIApplication sharedApplication] isStatusBarHidden]) {
-    CGRect statusFrame = [[UIApplication sharedApplication] statusBarFrame];
+  if (window && !UIApplication.sharedApplication.isStatusBarHidden) {
+    CGRect statusFrame = UIApplication.sharedApplication.statusBarFrame;
     height = statusFrame.size.height;
   }
 
@@ -1270,6 +1323,51 @@ If the new path starts with / and the base url is app://..., we have to massage 
 + (WebFont *)fontValue:(id)value
 {
   return [self fontValue:value def:[WebFont defaultFont]];
+}
+
++ (TiScriptError *)scriptErrorFromValueRef:(JSValueRef)valueRef inContext:(JSGlobalContextRef)contextRef
+{
+  JSContext *context = [JSContext contextWithJSGlobalContextRef:contextRef];
+  JSValue *error = [JSValue valueWithJSValueRef:valueRef inContext:context];
+  NSMutableDictionary *errorDict = [NSMutableDictionary new];
+
+  if ([error hasProperty:@"constructor"]) {
+    [errorDict setObject:[error[@"constructor"][@"name"] toString] forKey:@"type"];
+  }
+
+  // error message
+  if ([error hasProperty:@"message"]) {
+    [errorDict setObject:[error[@"message"] toString] forKey:@"message"];
+  }
+  if ([error hasProperty:@"nativeReason"]) {
+    [errorDict setObject:[error[@"nativeReason"] toString] forKey:@"nativeReason"];
+  }
+
+  // error location
+  if ([error hasProperty:@"sourceURL"]) {
+    [errorDict setObject:[error[@"sourceURL"] toString] forKey:@"sourceURL"];
+  }
+  if ([error hasProperty:@"line"]) {
+    [errorDict setObject:[error[@"line"] toNumber] forKey:@"line"];
+  }
+  if ([error hasProperty:@"column"]) {
+    [errorDict setObject:[error[@"column"] toNumber] forKey:@"column"];
+  }
+
+  // stack trace
+  if ([error hasProperty:@"backtrace"]) {
+    [errorDict setObject:[error[@"backtrace"] toString] forKey:@"backtrace"];
+  }
+  if ([error hasProperty:@"stack"]) {
+    [errorDict setObject:[error[@"stack"] toString] forKey:@"stack"];
+  }
+  if ([error hasProperty:@"nativeStack"] && error[@"nativeStack"].isString) {
+    NSString *callStack = error[@"nativeStack"].toString;
+    NSArray<NSString *> *nativeStack = [callStack componentsSeparatedByCharactersInSet:NSCharacterSet.newlineCharacterSet];
+    [errorDict setObject:nativeStack forKey:@"nativeStack"];
+  }
+
+  return [[[TiScriptError alloc] initWithDictionary:errorDict] autorelease];
 }
 
 + (TiScriptError *)scriptErrorValue:(id)value;
@@ -1344,7 +1442,7 @@ If the new path starts with / and the base url is app://..., we have to massage 
 
 + (UIInterfaceOrientation)orientation
 {
-  UIDeviceOrientation orient = [UIDevice currentDevice].orientation;
+  UIDeviceOrientation orient = UIDevice.currentDevice.orientation;
   //	TODO: A previous bug was DeviceOrientationUnknown == 0, which is always true. Uncomment this when pushing.
   if (UIDeviceOrientationUnknown == orient) {
     return (UIInterfaceOrientation)UIDeviceOrientationPortrait;
@@ -1355,7 +1453,7 @@ If the new path starts with / and the base url is app://..., we have to massage 
 
 + (CGRect)screenRect
 {
-  return [UIScreen mainScreen].bounds;
+  return UIScreen.mainScreen.bounds;
 }
 
 //TODO: rework these to be more accurate and multi-device
@@ -1404,7 +1502,7 @@ If the new path starts with / and the base url is app://..., we have to massage 
   return;
 #endif
 
-  CGPoint anchorPoint = [[view layer] anchorPoint];
+  CGPoint anchorPoint = view.layer.anchorPoint;
   CGPoint newCenter;
   newCenter.x = frameRect.origin.x + (anchorPoint.x * frameRect.size.width);
   newCenter.y = frameRect.origin.y + (anchorPoint.y * frameRect.size.height);
@@ -1475,9 +1573,9 @@ If the new path starts with / and the base url is app://..., we have to massage 
     return CGRectZero;
   }
 
-  CGPoint anchorPoint = [[view layer] anchorPoint];
-  CGRect bounds = [view bounds];
-  CGPoint center = [view center];
+  CGPoint anchorPoint = view.layer.anchorPoint;
+  CGRect bounds = view.bounds;
+  CGPoint center = view.center;
 
   return CGRectMake(center.x - (anchorPoint.x * bounds.size.width),
       center.y - (anchorPoint.y * bounds.size.height),
@@ -1487,15 +1585,21 @@ If the new path starts with / and the base url is app://..., we have to massage 
 + (NSData *)loadAppResource:(NSURL *)url
 {
   BOOL app = [[url scheme] hasPrefix:@"app"];
+  BOOL isFileURL = [url isFileURL];
 
-  if ([url isFileURL] || app) {
+  if (isFileURL || app) {
     BOOL leadingSlashRemoved = NO;
     NSString *urlstring = [[url standardizedURL] path];
-    NSString *resourceurl = [[NSBundle mainBundle] resourcePath];
-    NSRange range = [urlstring rangeOfString:resourceurl];
     NSString *appurlstr = urlstring;
-    if (range.location != NSNotFound) {
-      appurlstr = [urlstring substringFromIndex:range.location + range.length + 1];
+    if (isFileURL) {
+      // strip resources dir filepath prefix (if it's there)
+      NSString *resourceurl = [[NSBundle mainBundle] resourcePath];
+      NSString *standardized = [resourceurl stringByStandardizingPath];
+      if ([urlstring hasPrefix:resourceurl]) {
+        appurlstr = [urlstring stringByReplacingOccurrencesOfString:resourceurl withString:@""];
+      } else if (![resourceurl isEqualToString:standardized] && [urlstring hasPrefix:standardized]) {
+        appurlstr = [urlstring stringByReplacingOccurrencesOfString:standardized withString:@""];
+      }
     }
     if ([appurlstr hasPrefix:@"/"]) {
 #ifndef __clang_analyzer__
@@ -1503,7 +1607,7 @@ If the new path starts with / and the base url is app://..., we have to massage 
 #endif
       appurlstr = [appurlstr substringFromIndex:1];
     }
-#if TARGET_IPHONE_SIMULATOR
+#if TARGET_OS_SIMULATOR
     NSString *resourcesDirectory = [[TiSharedConfig defaultConfig] applicationResourcesDirectory];
 
     if (app == YES && leadingSlashRemoved) {
@@ -1546,7 +1650,7 @@ If the new path starts with / and the base url is app://..., we have to massage 
 
 + (BOOL)barTranslucencyForColor:(TiColor *)color
 {
-  return [color _color] == [UIColor clearColor];
+  return [color _color] == UIColor.clearColor;
 }
 
 + (UIColor *)barColorForColor:(TiColor *)color
@@ -1554,7 +1658,7 @@ If the new path starts with / and the base url is app://..., we have to massage 
   UIColor *result = [color _color];
   // TODO: Return nil for the appropriate colors once Apple fixes how the 'cancel' button
   // is displayed on nil-color bars.
-  if (result == [UIColor clearColor]) {
+  if (result == UIColor.clearColor) {
     return nil;
   }
   return result;
@@ -1565,7 +1669,7 @@ If the new path starts with / and the base url is app://..., we have to massage 
   UIColor *result = [color _color];
   // TODO: Return UIBarStyleBlack for the appropriate colors once Apple fixes how the 'cancel' button
   // is displayed on nil-color bars.
-  if (result == [UIColor clearColor]) {
+  if (result == UIColor.clearColor) {
     return UIBarStyleBlack;
   }
   return UIBarStyleDefault;
@@ -1645,7 +1749,7 @@ If the new path starts with / and the base url is app://..., we have to massage 
 
 + (CGRect)frameForController:(UIViewController *)theController
 {
-  CGRect mainScreen = [[UIScreen mainScreen] bounds];
+  CGRect mainScreen = UIScreen.mainScreen.bounds;
   CGRect rect = UIApplication.sharedApplication.keyWindow.frame;
   NSUInteger edges = [theController edgesForExtendedLayout];
   //Check if I cover status bar
@@ -2201,6 +2305,29 @@ If the new path starts with / and the base url is app://..., we have to massage 
     isHyperloopAvailable = cls != nil;
   });
   return isHyperloopAvailable;
+}
+
++ (UIImageSymbolWeight)symbolWeightFromString:(NSString *)string
+{
+  if ([string isEqualToString:@"ultralight"]) {
+    return UIImageSymbolWeightUltraLight;
+  } else if ([string isEqualToString:@"light"]) {
+    return UIImageSymbolWeightLight;
+  } else if ([string isEqualToString:@"thin"]) {
+    return UIImageSymbolWeightThin;
+  } else if ([string isEqualToString:@"normal"]) {
+    return UIImageSymbolWeightRegular;
+  } else if ([string isEqualToString:@"semibold"]) {
+    return UIImageSymbolWeightSemibold;
+  } else if ([string isEqualToString:@"bold"]) {
+    return UIImageSymbolWeightBold;
+  } else if ([string isEqualToString:@"heavy"]) {
+    return UIImageSymbolWeightHeavy;
+  } else if ([string isEqualToString:@"black"]) {
+    return UIImageSymbolWeightBlack;
+  }
+
+  return UIImageSymbolWeightRegular;
 }
 
 @end

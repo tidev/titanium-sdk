@@ -9,10 +9,9 @@ description: |
 
     Both iOS and Android lack DTD support.
 extends: Titanium.Module
-since: "0.9"
-platforms: [android, iphone, ipad]
+since: {android: "0.9", iphone: "0.9", ipad: "0.9", macos: "9.2.0"}
+platforms: [android, iphone, ipad, macos]
 methods:
-
   - name: parseString
     summary: |
         Parses an XML string into a <Titanium.XML.Document> object.

@@ -6,30 +6,33 @@
  */
 package org.appcelerator.titanium.util;
 
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
 import java.io.InputStream;
 import java.lang.ref.SoftReference;
-import java.lang.reflect.Constructor;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-
-import org.appcelerator.kroll.common.Log;
-import org.appcelerator.kroll.util.KrollStreamHelper;
-import org.appcelerator.titanium.io.TiInputStreamWrapper;
-import org.appcelerator.titanium.TiApplication;
-
-import android.os.Handler;
-import android.os.Looper;
-import android.os.Message;
-
+import java.util.concurrent.atomic.AtomicReference;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLSocketFactory;
+import org.appcelerator.kroll.common.Log;
+import org.appcelerator.kroll.util.KrollStreamHelper;
+import org.appcelerator.titanium.TiApplication;
+import org.appcelerator.titanium.io.TiInputStreamWrapper;
+
+import ti.modules.titanium.network.NetworkModule;
+import ti.modules.titanium.network.TiSocketFactory;
 
 /**
  * Manages the asynchronous opening of InputStreams from URIs so that
@@ -41,27 +44,26 @@ public class TiDownloadManager implements Handler.Callback
 	private static final int MSG_FIRE_DOWNLOAD_FINISHED = 1000;
 	private static final int MSG_FIRE_DOWNLOAD_FAILED = 1001;
 	private static final int TIMEOUT_IN_MILLISECONDS = 10000;
-	protected static TiDownloadManager _instance;
-	public static final int THREAD_POOL_SIZE = 2;
 
-	protected HashMap<String, ArrayList<SoftReference<TiDownloadListener>>> listeners =
-		new HashMap<String, ArrayList<SoftReference<TiDownloadListener>>>();
-	protected ArrayList<String> downloadingURIs = new ArrayList<String>();
+	protected Map<String, List<SoftReference<TiDownloadListener>>> listeners = new HashMap<>();
+	protected List<String> downloadingURIs = Collections.synchronizedList(new ArrayList<>());
 	protected ExecutorService threadPool;
 	protected Handler handler;
 
+	private static class InstanceHolder
+	{
+		private static final TiDownloadManager INSTANCE = new TiDownloadManager();
+	}
+
 	public static TiDownloadManager getInstance()
 	{
-		if (_instance == null) {
-			_instance = new TiDownloadManager();
-		}
-		return _instance;
+		return InstanceHolder.INSTANCE;
 	}
 
 	protected TiDownloadManager()
 	{
 		handler = new Handler(Looper.getMainLooper(), this);
-		threadPool = Executors.newFixedThreadPool(THREAD_POOL_SIZE);
+		threadPool = Executors.newFixedThreadPool(Math.max(Runtime.getRuntime().availableProcessors(), 2));
 	}
 
 	/**
@@ -86,9 +88,9 @@ public class TiDownloadManager implements Handler.Callback
 	 * @return
 	 * Returns a stream to the file/content being downloaded.
 	 * <p>
-	 * Returns null if failed to download content or if given an invalid argument.
+	 * Throws exception if failed to download content.
 	 */
-	public InputStream blockingDownload(final URI uri)
+	public InputStream blockingDownload(final URI uri) throws Exception
 	{
 		// Validate.
 		if (uri == null) {
@@ -113,46 +115,36 @@ public class TiDownloadManager implements Handler.Callback
 		// Note: Using "HttpUrlConnection" on UI thread will cause a "NetworkOnMainThreadException" to be thrown.
 		if (TiApplication.isUIThread()) {
 			// Perform the blocking download on another thread.
-			// Downloaded content will be made available via Titanium's "TiResponseCache".
-			try {
-				Thread thread = new Thread(new Runnable() {
-					@Override
-					public void run()
-					{
-						try (InputStream stream = blockingDownload(uri)) {
-							if (stream != null) {
-								KrollStreamHelper.pump(stream, null);
-							}
-						} catch (Exception ex) {
-							Log.e(TAG, "Exception downloading from: " + uri.toString(), ex);
-						}
+			// Downloaded content will be made available via Titanium's "TiResponseCache"
+			AtomicReference<Exception> exception = new AtomicReference<>(null);
+			Thread thread = new Thread(() -> {
+				try (InputStream stream = blockingDownload(uri)) {
+					if (stream != null) {
+						KrollStreamHelper.pump(stream, null);
 					}
-				});
-				thread.start();
-				thread.join();
-			} catch (Exception ex) {
+				} catch (Exception ex) {
+					exception.set(ex);
+				}
+			});
+			thread.start();
+			thread.join();
+
+			// Handle download thread exception.
+			if (exception.get() != null) {
+				throw exception.get();
 			}
 
 			// Return a stream to the downloaded file/content via our response cache.
 			URI cachedUri = TiResponseCache.fetchEndpointFollowingRedirects(uri);
 			if (cachedUri != null) {
-				try {
-					inputStream = TiResponseCache.openCachedStream(cachedUri);
-				} catch (Exception ex) {
-				}
+				inputStream = TiResponseCache.openCachedStream(cachedUri);
 			}
 			return inputStream;
 		}
 
 		// Convert the given URI to a URL object.
 		// Note: This object will validate the string and throw an exception if malformed.
-		URL url = null;
-		try {
-			url = new URL(uri.toString());
-		} catch (Exception ex) {
-			Log.e(TAG, "Failed to parse URL: " + uri.toString(), ex);
-			return null;
-		}
+		URL url = new URL(uri.toString());
 
 		// Attempt to download the file.
 		URLConnection connection = null;
@@ -166,13 +158,7 @@ public class TiDownloadManager implements Handler.Callback
 				connection.setDoInput(true);
 				if (connection instanceof HttpsURLConnection) {
 					final HttpsURLConnection httpsConnection = (HttpsURLConnection) connection;
-
-					// NOTE: use reflection to prevent circular reference to the network module
-					// TODO: move TiDownloadManager into network module
-					final Class TiSocketFactory = Class.forName("ti.modules.titanium.network.TiSocketFactory");
-					final Constructor constructor = TiSocketFactory.getConstructors()[0];
-					final SSLSocketFactory socketFactory = (SSLSocketFactory) constructor.newInstance(null, null, 0);
-
+					final SSLSocketFactory socketFactory = new TiSocketFactory(null, null, NetworkModule.TLS_DEFAULT);
 					httpsConnection.setSSLSocketFactory(socketFactory);
 				}
 				if (connection instanceof HttpURLConnection) {
@@ -215,9 +201,6 @@ public class TiDownloadManager implements Handler.Callback
 				}
 				break;
 			}
-		} catch (Exception ex) {
-			// Failed to download file/content.
-			Log.e(TAG, "Failed to download from: " + uri.toString(), ex);
 		} finally {
 			// Close the connection if we don't have a stream to the response body. (Nothing to download.)
 			if ((inputStream == null) && (connection instanceof HttpURLConnection)) {
@@ -258,42 +241,53 @@ public class TiDownloadManager implements Handler.Callback
 	protected void startDownload(URI uri, TiDownloadListener listener)
 	{
 		String key = uri.toString();
-		ArrayList<SoftReference<TiDownloadListener>> listenerList = null;
+		List<SoftReference<TiDownloadListener>> listenerList;
+
 		synchronized (listeners)
 		{
-			if (!listeners.containsKey(key)) {
-				listenerList = new ArrayList<SoftReference<TiDownloadListener>>();
+			listenerList = listeners.get(key);
+
+			if (listenerList == null) {
+				listenerList = new ArrayList<>();
 				listeners.put(key, listenerList);
-			} else {
-				listenerList = listeners.get(key);
 			}
-			// We only allow a listener once per URI
-			for (SoftReference<TiDownloadListener> l : listenerList) {
-				if (l.get() == listener) {
+		}
+
+		synchronized (listenerList)
+		{
+			for (Iterator<SoftReference<TiDownloadListener>> i = listenerList.iterator(); i.hasNext(); ) {
+				TiDownloadListener downloadListener = i.next().get();
+
+				if (downloadListener == listener) {
 					return;
 				}
 			}
-			listenerList.add(new SoftReference<TiDownloadListener>(listener));
+			listenerList.add(new SoftReference<>(listener));
 		}
-		synchronized (downloadingURIs)
-		{
-			if (!downloadingURIs.contains(key)) {
-				downloadingURIs.add(key);
-				threadPool.execute(new DownloadJob(uri));
-			}
+
+		if (downloadingURIs.add(key)) {
+			threadPool.execute(new DownloadJob(uri));
 		}
 	}
 
 	protected void handleFireDownloadMessage(URI uri, int what)
 	{
-		ArrayList<SoftReference<TiDownloadListener>> listenerList;
+		List<SoftReference<TiDownloadListener>> listenerList;
+
 		synchronized (listeners)
 		{
 			listenerList = listeners.get(uri.toString());
 		}
-		if (listenerList != null) {
-			for (Iterator<SoftReference<TiDownloadListener>> i = listenerList.iterator(); i.hasNext();) {
+
+		if (listenerList == null) {
+			return;
+		}
+
+		synchronized (listenerList)
+		{
+			for (Iterator<SoftReference<TiDownloadListener>> i = listenerList.iterator(); i.hasNext(); ) {
 				TiDownloadListener downloadListener = i.next().get();
+
 				if (downloadListener != null) {
 					if (what == MSG_FIRE_DOWNLOAD_FINISHED) {
 						downloadListener.downloadTaskFinished(uri);
@@ -317,46 +311,52 @@ public class TiDownloadManager implements Handler.Callback
 
 		public void run()
 		{
+			boolean wasSuccessful = false;
 			try {
 				// Download the file/content referenced by the URI.
 				// Once all content has been pumped below, content will be made available via "TiResponseCache".
 				try (InputStream stream = blockingDownload(uri)) {
 					if (stream != null) {
 						KrollStreamHelper.pump(stream, null);
+						wasSuccessful = true;
 					}
 				}
 
-				synchronized (downloadingURIs)
-				{
-					downloadingURIs.remove(uri.toString());
-				}
+				downloadingURIs.remove(uri.toString());
 
 				// If there is additional background task, run it here.
-				ArrayList<SoftReference<TiDownloadListener>> listenerList;
+
+				List<SoftReference<TiDownloadListener>> listenerList;
+
 				synchronized (listeners)
 				{
 					listenerList = listeners.get(uri.toString());
+
+					if (listenerList != null) {
+						listenerList = new ArrayList<>(listenerList);
+					}
 				}
+
 				if (listenerList != null) {
-					for (Iterator<SoftReference<TiDownloadListener>> i = listenerList.iterator(); i.hasNext();) {
-						TiDownloadListener downloadListener = i.next().get();
+					for (SoftReference<TiDownloadListener> listener : listenerList) {
+						TiDownloadListener downloadListener = listener.get();
+
 						if (downloadListener != null) {
 							downloadListener.postDownload(uri);
 						}
 					}
 				}
-
-				sendMessage(uri, MSG_FIRE_DOWNLOAD_FINISHED);
 			} catch (Exception e) {
+				wasSuccessful = false;
+				Log.e(TAG, "Exception downloading from: " + uri + "\n" + e.getMessage());
+			} finally {
+				downloadingURIs.remove(uri.toString());
+			}
 
-				synchronized (downloadingURIs)
-				{
-					downloadingURIs.remove(uri.toString());
-				}
-
-				// fire a download fail event if we are unable to download
+			if (wasSuccessful) {
+				sendMessage(uri, MSG_FIRE_DOWNLOAD_FINISHED);
+			} else {
 				sendMessage(uri, MSG_FIRE_DOWNLOAD_FAILED);
-				Log.e(TAG, "Exception downloading from: " + uri, e);
 			}
 		}
 	}

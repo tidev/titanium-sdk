@@ -12,14 +12,13 @@ import android.os.Bundle;
 
 import com.appcelerator.aps.APSAnalytics;
 
-import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.KrollModule;
 
 public class TiApplicationLifecycle implements Application.ActivityLifecycleCallbacks
 {
 	private static final String TAG = "TiApplicationLifecycle";
 
-	private TiApplication tiApp = TiApplication.getInstance();
+	private final TiApplication tiApp = TiApplication.getInstance();
 	private int existingActivityCount;
 	private int visibleActivityCount;
 	private boolean wasPaused;

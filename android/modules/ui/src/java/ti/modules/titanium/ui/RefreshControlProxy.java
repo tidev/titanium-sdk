@@ -15,13 +15,12 @@ import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.util.TiColorHelper;
 import ti.modules.titanium.ui.widget.TiSwipeRefreshLayout;
-// clang-format off
+
 @Kroll.proxy(creatableInModule = UIModule.class,
 	propertyAccessors = {
 		TiC.PROPERTY_TINT_COLOR,
 		TiC.PROPERTY_TITLE,
 })
-// clang-format on
 public class RefreshControlProxy extends KrollProxy
 {
 	/** The default Android log tag name to be used by this class. */
@@ -38,7 +37,7 @@ public class RefreshControlProxy extends KrollProxy
 	 * "TiSwipeRefreshLayout" view. Instances must be removed when this class' static
 	 * unassignFrom() method has been called.
 	 */
-	private static HashSet<RefreshControlProxy> assignedControls = new HashSet<RefreshControlProxy>();
+	private static final HashSet<RefreshControlProxy> assignedControls = new HashSet<>();
 
 	/** Color integer value to be applied to the refresh layout's progress indicator. */
 	private int tintColor = DEFAULT_TINT_COLOR;

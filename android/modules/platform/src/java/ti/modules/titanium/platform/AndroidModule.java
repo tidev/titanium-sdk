@@ -9,7 +9,6 @@ import android.os.Build;
 @Kroll.module(parentModule = PlatformModule.class)
 public class AndroidModule extends PlatformModule
 {
-
 	@Kroll.constant
 	public static final int API_LEVEL = Build.VERSION.SDK_INT;
 
@@ -22,21 +21,18 @@ public class AndroidModule extends PlatformModule
 	@Kroll.constant
 	public static final int PHYSICAL_SIZE_CATEGORY_LARGE = Configuration.SCREENLAYOUT_SIZE_LARGE;
 	@Kroll.constant
-	public static final int PHYSICAL_SIZE_CATEGORY_XLARGE = 4; // Configuration.SCREENLAYOUT_SIZE_XLARGE (API 9)
+	public static final int PHYSICAL_SIZE_CATEGORY_XLARGE = Configuration.SCREENLAYOUT_SIZE_XLARGE;
 
-	// clang-format off
-	@Kroll.method
 	@Kroll.getProperty
 	public int getPhysicalSizeCategory()
-	// clang-format on
 	{
-		int size = TiApplication.getInstance().getApplicationContext().getResources().getConfiguration().screenLayout
+		int size = TiApplication.getInstance().getResources().getConfiguration().screenLayout
 				   & Configuration.SCREENLAYOUT_SIZE_MASK;
 		switch (size) {
 			case Configuration.SCREENLAYOUT_SIZE_SMALL:
 			case Configuration.SCREENLAYOUT_SIZE_NORMAL:
 			case Configuration.SCREENLAYOUT_SIZE_LARGE:
-			case 4: // Configuration.SCREENLAYOUT_SIZE_XLARGE (API 9)
+			case Configuration.SCREENLAYOUT_SIZE_XLARGE:
 				return size;
 			case Configuration.SCREENLAYOUT_SIZE_UNDEFINED:
 			default:

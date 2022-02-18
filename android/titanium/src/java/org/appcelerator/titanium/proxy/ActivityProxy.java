@@ -28,7 +28,6 @@ import android.content.Intent;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
-// clang-format off
 @Kroll.proxy(propertyAccessors = {
 	TiC.PROPERTY_SUPPORT_TOOLBAR,
 	TiC.PROPERTY_ON_CREATE_OPTIONS_MENU,
@@ -41,7 +40,6 @@ import androidx.appcompat.widget.Toolbar;
 	TiC.PROPERTY_ON_STOP,
 	TiC.PROPERTY_ON_DESTROY
 })
-// clang-format on
 /**
  * This is a proxy representation of the Android Activity type.
  * Refer to <a href="http://developer.android.com/reference/android/app/Activity.html">Android Activity</a>
@@ -196,20 +194,14 @@ public class ActivityProxy extends KrollProxy implements TiActivityResultHandler
 		return application.getString(resId, formatArgs);
 	}
 
-	// clang-format off
-	@Kroll.method
 	@Kroll.getProperty
 	public IntentProxy getIntent()
-	// clang-format on
 	{
 		return intentProxy;
 	}
 
-	// clang-format off
-	@Kroll.method
 	@Kroll.setProperty
 	public void setRequestedOrientation(int orientation)
-	// clang-format on
 	{
 		Activity activity = getWrappedActivity();
 		if (activity != null) {
@@ -253,11 +245,8 @@ public class ActivityProxy extends KrollProxy implements TiActivityResultHandler
 		return null;
 	}
 
-	// clang-format off
-	@Kroll.method
 	@Kroll.getProperty
 	public TiWindowProxy getWindow()
-	// clang-format on
 	{
 		Activity activity = getWrappedActivity();
 		if (!(activity instanceof TiBaseActivity)) {
@@ -268,11 +257,8 @@ public class ActivityProxy extends KrollProxy implements TiActivityResultHandler
 		return tiActivity.getWindowProxy();
 	}
 
-	// clang-format off
-	@Kroll.method
 	@Kroll.getProperty
 	public ActionBarProxy getActionBar()
-	// clang-format on
 	{
 		AppCompatActivity activity = (AppCompatActivity) getWrappedActivity();
 		if (actionBarProxy == null && activity != null) {
@@ -294,7 +280,7 @@ public class ActivityProxy extends KrollProxy implements TiActivityResultHandler
 	public void invalidateOptionsMenu()
 	{
 		Activity activity = getWrappedActivity();
-		if (activity != null && activity instanceof AppCompatActivity) {
+		if (activity instanceof AppCompatActivity) {
 			((AppCompatActivity) activity).supportInvalidateOptionsMenu();
 		}
 	}
@@ -375,7 +361,7 @@ public class ActivityProxy extends KrollProxy implements TiActivityResultHandler
 	 */
 	private static class ProxyModelListener implements KrollProxyListener
 	{
-		private static ProxyModelListener instance = new ProxyModelListener();
+		private static final ProxyModelListener instance = new ProxyModelListener();
 
 		public static ProxyModelListener getInstance()
 		{

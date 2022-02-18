@@ -11,8 +11,6 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.appcelerator.kroll.KrollRuntime;
-
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
@@ -20,23 +18,23 @@ import android.os.Message;
 /**
  * A messenger interface that maintains a {@link android.os.MessageQueue}, and
  * {@link android.os.Looper} but with better primitives for blocking and single
- * loop iteration. The TiMessenger also provides information on the main and 
+ * loop iteration. The TiMessenger also provides information on the main and
  * runtime threads and supports posting runnable's on both threads.
- * 
+ *
  * TiMessengers have one instance per thread tied by a ThreadLocal. The main
  * thread's TiMessenger can be retrieved by calling {@link
- * #getMainMessenger()}.  The runtime thread's TiMessenger can be retrieved by 
+ * #getMainMessenger()}.  The runtime thread's TiMessenger can be retrieved by
  * calling {@link #getRuntimeMessenger()}.  A TiMessenger can be lazily created/queried for
  * the current Thread by calling {@link #getMessenger()}.
- * 
+ *
  * To simply send a message, see {@link #sendMessage(Message)} and {@link
  * #post(Runnable)}.
- * 
+ *
  * In situations where the current thread needs to be blocked while waiting on
  * another thread to process a message, see {@link
- * #sendBlockingMainMessage(Message, Object)} and {@link 
+ * #sendBlockingMainMessage(Message, Object)} and {@link
  * #sendBlockingRuntimeMessage(Message, Object)}.
- * 
+ *
  * To process and dispatch a single message from the message queue, see {@link
  * #dispatchMessage()}.
  */
@@ -70,7 +68,7 @@ public class TiMessenger implements Handler.Callback
 		}
 	};
 
-	protected ArrayBlockingQueue<Message> messageQueue = new ArrayBlockingQueue<Message>(10);
+	protected ArrayBlockingQueue<Message> messageQueue = new ArrayBlockingQueue<>(10);
 	protected CountDownLatch blockingLatch;
 	protected AtomicInteger blockingMessageCount = new AtomicInteger(0);
 	protected Handler.Callback callback;
@@ -92,7 +90,6 @@ public class TiMessenger implements Handler.Callback
 	 * As of Titanium 8.0.0, the JavaScript runtime only supports running on the main thread. This means
 	 * that getMainMessenger() and getRuntimeMessenger() will always return the same TiMessenger instance.
 	 * @return the main UI thread TiMessenger instance.
-	 * @module.api
 	 */
 	public static TiMessenger getMainMessenger()
 	{
@@ -106,7 +103,6 @@ public class TiMessenger implements Handler.Callback
 	 * As of Titanium 8.0.0, the JavaScript runtime only supports running on the main thread. This means
 	 * that getMainMessenger() and getRuntimeMessenger() will always return the same TiMessenger instance.
 	 * @return the KrollRuntime TiMessenger instance.
-	 * @module.api
 	 */
 	public static TiMessenger getRuntimeMessenger()
 	{
@@ -135,7 +131,6 @@ public class TiMessenger implements Handler.Callback
 	 * queue while blocking on the passed in AsyncResult. The blocking is done on the Main thread.
 	 * @param message  the message to send.
 	 * @return  The getResult() value of the AsyncResult put on the message.
-	 * @module.api
 	 */
 	public static Object sendBlockingMainMessage(Message message)
 	{
@@ -149,7 +144,6 @@ public class TiMessenger implements Handler.Callback
 	 * @param message   the message to send.
 	 * @param asyncArg  argument to be added to the AsyncResult.
 	 * @return  The getResult() value of the AsyncResult put on the message.
-	 * @module.api
 	 */
 	public static Object sendBlockingMainMessage(Message message, Object asyncArg)
 	{
@@ -157,12 +151,11 @@ public class TiMessenger implements Handler.Callback
 	}
 
 	/**
-	 * Sends a message to an {@link java.util.concurrent.ArrayBlockingQueue#ArrayBlockingQueue(int) ArrayBlockingQueue}, 
+	 * Sends a message to an {@link java.util.concurrent.ArrayBlockingQueue#ArrayBlockingQueue(int) ArrayBlockingQueue},
 	 * and dispatch messages on the current
 	 * queue while blocking on the passed in AsyncResult. The blocking is done on the KrollRuntime thread.
 	 * @param message  the message to send.
 	 * @return  The getResult() value of the AsyncResult put on the message.
-	 * @module.api
 	 */
 	public static Object sendBlockingRuntimeMessage(Message message)
 	{
@@ -170,13 +163,12 @@ public class TiMessenger implements Handler.Callback
 	}
 
 	/**
-	 * Sends a message to an {@link java.util.concurrent.ArrayBlockingQueue#ArrayBlockingQueue(int) ArrayBlockingQueue}, 
+	 * Sends a message to an {@link java.util.concurrent.ArrayBlockingQueue#ArrayBlockingQueue(int) ArrayBlockingQueue},
 	 * and dispatch messages on the current
 	 * queue while blocking on the passed in AsyncResult. The blocking is done on the KrollRuntime thread.
 	 * @param message   the message to send.
 	 * @param asyncArg  the argument to be added to AsyncResult.
 	 * @return  The getResult() value of the AsyncResult put on the message.
-	 * @module.api
 	 */
 	public static Object sendBlockingRuntimeMessage(Message message, Object asyncArg)
 	{
@@ -192,7 +184,6 @@ public class TiMessenger implements Handler.Callback
 	 * @param asyncArg  the argument to be added to AsyncResult.
 	 * @param maxTimeout the maximum time to wait for a permit from the semaphore, in the unit of milliseconds.
 	 * @return  The getResult() value of the AsyncResult put on the message.
-	 * @module.api
 	 */
 	public static Object sendBlockingRuntimeMessage(Message message, Object asyncArg, long maxTimeout)
 	{
@@ -207,7 +198,6 @@ public class TiMessenger implements Handler.Callback
 
 	/**
 	 * @return the native looper. See {@link android.os.Looper} for more details.
-	 * @module.api
 	 */
 	public Looper getLooper()
 	{
@@ -298,7 +288,7 @@ public class TiMessenger implements Handler.Callback
 	 * <li>If this TiMessenger is <b>NOT</b> current blocking, it is queued to
 	 * it's Handler normally by using msg.sendToTarget()</li>
 	 * </ul>
-	 * 
+	 *
 	 * @param message The message to send
 	 */
 	public void sendMessage(Message message)

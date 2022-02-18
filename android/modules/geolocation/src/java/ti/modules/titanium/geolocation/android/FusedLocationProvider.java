@@ -41,7 +41,6 @@ import java.util.Iterator;
  */
 public class FusedLocationProvider
 {
-
 	private static final String TAG = "FusedLocationProvider";
 
 	public static final String PROVIDER = "fused";
@@ -76,6 +75,7 @@ public class FusedLocationProvider
 		}
 		try {
 			Class.forName("com.google.android.gms.common.GoogleApiAvailability");
+			Class.forName("com.google.android.gms.location.FusedLocationProviderClient");
 			return PlayServices.validVersion() && PlayServices.available(context);
 		} catch (Exception e) {
 			useFusedLocation = false;
@@ -138,8 +138,8 @@ public class FusedLocationProvider
 		private static GoogleApiClient googleApiClient;
 		private static FusedLocationProviderClient fusedLocationClient;
 
-		private static ArrayList<LocationProviderProxy> fusedLocationQueue = new ArrayList<>();
-		private static ArrayList<LocationProviderProxy> fusedLocationProviders = new ArrayList<>();
+		private static final ArrayList<LocationProviderProxy> fusedLocationQueue = new ArrayList<>();
+		private static final ArrayList<LocationProviderProxy> fusedLocationProviders = new ArrayList<>();
 
 		public static void init(Context context, final GeolocationModule geolocationModule)
 		{

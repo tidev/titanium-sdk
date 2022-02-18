@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2018 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2021 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -10,6 +10,7 @@
 #import "KrollContext.h"
 #import "KrollMethod.h"
 #import "KrollObject.h"
+#import "KrollPromise.h"
 #import <objc/runtime.h>
 
 /*
@@ -32,9 +33,7 @@ NSDictionary *TiBindingTiValueToNSDictionary(JSContextRef jsContext, JSValueRef 
 {
   JSObjectRef obj = JSValueToObject(jsContext, objRef, NULL);
   JSPropertyNameArrayRef props = JSObjectCopyPropertyNames(jsContext, obj);
-
   NSMutableDictionary *dict = [[NSMutableDictionary alloc] init];
-
   size_t count = JSPropertyNameArrayGetCount(props);
   for (size_t i = 0; i < count; i++) {
     JSStringRef jsString = JSPropertyNameArrayGetNameAtIndex(props, i);
@@ -46,23 +45,30 @@ NSDictionary *TiBindingTiValueToNSDictionary(JSContextRef jsContext, JSValueRef 
     }
     [jsonkey release];
   }
+  JSPropertyNameArrayRelease(props);
 
-  // if this looks like a JS Error object, get the message
-  if ([dict objectForKey:@"line"] != nil && [dict objectForKey:@"column"] != nil) {
-    JSStringRef messageKeyRef = JSStringCreateWithUTF8CString("message");
-    JSStringRef stackKeyRef = JSStringCreateWithUTF8CString("stack");
-    JSValueRef messageRef = JSObjectGetProperty(jsContext, obj, messageKeyRef, NULL);
-    JSValueRef stackRef = JSObjectGetProperty(jsContext, obj, stackKeyRef, NULL);
-
-    id message = TiBindingTiValueToNSObject(jsContext, messageRef);
-    if (message && ![message isEqual:[NSNull null]]) {
+  // if this looks like a JS Error object, get related non-enumerable properties
+  JSContext *context = [JSContext contextWithJSGlobalContextRef:JSContextGetGlobalContext(jsContext)];
+  JSValue *value = [JSValue valueWithJSValueRef:objRef inContext:context];
+  if ([value hasProperty:@"line"] && [value hasProperty:@"column"]) {
+    if ([dict objectForKey:@"message"] == nil && [value hasProperty:@"message"]) {
+      NSString *message = [value[@"message"] toString];
       [dict setObject:message forKey:@"message"];
     }
-    JSStringRelease(messageKeyRef);
-
-    id stack = TiBindingTiValueToNSObject(jsContext, stackRef);
-    if (stack && ![stack isEqual:[NSNull null]]) {
-
+    if ([dict objectForKey:@"line"] == nil && [value hasProperty:@"line"]) {
+      NSNumber *line = [value[@"line"] toNumber];
+      [dict setObject:line forKey:@"line"];
+    }
+    if ([dict objectForKey:@"column"] == nil && [value hasProperty:@"column"]) {
+      NSNumber *column = [value[@"column"] toNumber];
+      [dict setObject:column forKey:@"column"];
+    }
+    if ([dict objectForKey:@"sourceURL"] == nil && [value hasProperty:@"sourceURL"]) {
+      NSString *sourceURL = [value[@"sourceURL"] toString];
+      [dict setObject:sourceURL forKey:@"sourceURL"];
+    }
+    if ([dict objectForKey:@"stack"] == nil && [value hasProperty:@"stack"]) {
+      NSString *stack = [value[@"stack"] toString];
       // lets re-format the stack similar to node.js
       stack = [stack stringByReplacingOccurrencesOfString:[NSString stringWithFormat:@"file://%@", [[NSBundle mainBundle] bundlePath]] withString:@"("];
       stack = [stack stringByReplacingOccurrencesOfString:@"\n" withString:@")\n    at "];
@@ -72,10 +78,7 @@ NSDictionary *TiBindingTiValueToNSDictionary(JSContextRef jsContext, JSValueRef 
 
       [dict setObject:stack forKey:@"stack"];
     }
-    JSStringRelease(stackKeyRef);
   }
-
-  JSPropertyNameArrayRelease(props);
 
   return [dict autorelease];
 }
@@ -276,21 +279,23 @@ JSValueRef TiBindingTiValueFromNSObject(JSContextRef jsContext, NSObject *obj)
     JSValueRef result = JSValueMakeString(jsContext, jsString);
     JSStringRelease(jsString);
     JSObjectRef excObject = JSObjectMakeError(jsContext, 1, &result, NULL);
+    JSContext *objcContext = [JSContext contextWithJSGlobalContextRef:JSContextGetGlobalContext(jsContext)];
+    JSValue *excValue = [JSValue valueWithJSValueRef:excObject inContext:objcContext];
     NSDictionary *details = [(NSException *)obj userInfo];
 
     // Add "nativeReason" key
     NSString *subreason = [details objectForKey:kTiExceptionSubreason];
     if (subreason != nil) {
-      JSStringRef propertyName = JSStringCreateWithUTF8CString("nativeReason");
-      JSStringRef valueString = JSStringCreateWithCFString((CFStringRef)subreason);
-      JSObjectSetProperty(jsContext, excObject, propertyName, JSValueMakeString(jsContext, valueString), kJSPropertyAttributeReadOnly, NULL);
-      JSStringRelease(propertyName);
-      JSStringRelease(valueString);
+      NSString *message = [excValue[@"message"] toString];
+      NSString *format = [message hasSuffix:@"."] ? @"%@ %@" : @"%@. %@";
+      message = [NSString stringWithFormat:format, message, subreason];
+      excValue[@"message"] = [JSValue valueWithObject:message inContext:objcContext];
+      excValue[@"nativeReason"] = [JSValue valueWithObject:subreason inContext:objcContext];
     }
 
     // Add "nativeStack" key
     NSArray<NSString *> *nativeStack = [(NSException *)obj callStackSymbols];
-    NSInteger startIndex = 3; // Starting at index = 4 to not include the script-error API's
+    NSInteger startIndex = 0;
     if (nativeStack == nil) { // the exception was created, but never thrown, so grab the current stack frames
       nativeStack = [NSThread callStackSymbols]; // this happens when we construct an exception manually in our ENSURE macros for obj-c proxies
       startIndex = 2; // drop ObjcProxy.throwException and this method from frames
@@ -303,7 +308,10 @@ JSValueRef TiBindingTiValueFromNSObject(JSContextRef jsContext, NSObject *obj)
 
       // re-size stack trace and format results
       for (NSUInteger i = startIndex; i < endIndex; i++) {
-        NSString *line = [[nativeStack objectAtIndex:i] stringByReplacingOccurrencesOfString:@"     " withString:@""];
+        NSString *line = [nativeStack objectAtIndex:i];
+        while ([line rangeOfString:@"  "].location != NSNotFound) {
+          line = [line stringByReplacingOccurrencesOfString:@"  " withString:@" "];
+        }
         [formattedStackTrace addObject:line];
       }
 
@@ -355,6 +363,13 @@ JSValueRef TiBindingTiValueFromNSObject(JSContextRef jsContext, NSObject *obj)
     JSValueRef args[1];
     args[0] = JSValueMakeNumber(jsContext, number);
     return JSObjectMakeDate(jsContext, 1, args, NULL);
+  }
+  if ([obj isKindOfClass:[JSValue class]]) {
+    JSValue *jsValue = (JSValue *)obj;
+    return jsValue.JSValueRef;
+  }
+  if ([obj isKindOfClass:[KrollPromise class]]) {
+    return ((KrollPromise *)obj).JSValue.JSValueRef;
   }
   return TiBindingTiValueFromProxy(jsContext, (TiProxy *)obj);
 }

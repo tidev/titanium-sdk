@@ -6,74 +6,71 @@
  */
 package ti.modules.titanium.media;
 
-import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.kroll.KrollProxy;
+import org.appcelerator.kroll.KrollRuntime;
 import org.appcelerator.titanium.TiFileProxy;
+import org.appcelerator.titanium.io.TiBaseFile;
 import org.appcelerator.titanium.io.TiFileFactory;
 
 @Kroll.proxy(creatableInModule = MediaModule.class)
 public class AudioRecorderProxy extends KrollProxy
 {
+	TiAudioRecorder tiAudioRecorder;
+	KrollRuntime.OnDisposingListener runtimeOnDisposingListener;
 
-	TiAudioRecorder tiAudioRecorder = new TiAudioRecorder();
+	public AudioRecorderProxy()
+	{
+		// Create the microphone handler.
+		this.tiAudioRecorder = new TiAudioRecorder();
 
-	// clang-format off
-	@Kroll.method
+		// Stop recording when the JavaScript runtime is being terminated.
+		// This releases the microphone to be used by another audio recorder instance.
+		this.runtimeOnDisposingListener = new KrollRuntime.OnDisposingListener() {
+			@Override
+			public void onDisposing(KrollRuntime runtime)
+			{
+				stop();
+			}
+		};
+	}
+
 	@Kroll.setProperty
 	public void setCompression(int value)
-	// clang-format on
 	{
 	}
 
-	// clang-format off
-	@Kroll.method
 	@Kroll.setProperty
 	public void setFormat(int value)
-	// clang-format on
 	{
 	}
 
-	// clang-format off
-	@Kroll.method
 	@Kroll.getProperty
 	public int getFormat()
-	// clang-format on
 	{
 		return 0;
 	}
 
-	// clang-format off
-	@Kroll.method
 	@Kroll.getProperty
 	public int getCompression()
-	// clang-format on
 	{
 		return 0;
 	}
 
-	// clang-format off
-	@Kroll.method
 	@Kroll.getProperty
 	public boolean getPaused()
-	// clang-format on
 	{
 		return tiAudioRecorder.isPaused();
 	}
 
-	// clang-format off
-	@Kroll.method
 	@Kroll.getProperty
 	public boolean getRecording()
-	// clang-format on
 	{
 		return tiAudioRecorder.isRecording();
 	}
 
-	// clang-format off
-	@Kroll.method
 	@Kroll.getProperty
 	public boolean getStopped()
-	// clang-format on
 	{
 		return tiAudioRecorder.isStopped();
 	}
@@ -81,13 +78,22 @@ public class AudioRecorderProxy extends KrollProxy
 	@Kroll.method
 	public void start()
 	{
-		tiAudioRecorder.startRecording();
+		this.tiAudioRecorder.startRecording();
+		KrollRuntime.addOnDisposingListener(this.runtimeOnDisposingListener);
 	}
 
 	@Kroll.method
 	public TiFileProxy stop()
 	{
-		return new TiFileProxy(TiFileFactory.createTitaniumFile(tiAudioRecorder.stopRecording(), false));
+		KrollRuntime.removeOnDisposingListener(this.runtimeOnDisposingListener);
+		String filePath = this.tiAudioRecorder.stopRecording();
+		if (filePath != null) {
+			TiBaseFile tiBaseFile = TiFileFactory.createTitaniumFile(filePath, false);
+			if (tiBaseFile != null) {
+				return new TiFileProxy(tiBaseFile);
+			}
+		}
+		return null;
 	}
 
 	@Kroll.method
@@ -100,5 +106,18 @@ public class AudioRecorderProxy extends KrollProxy
 	public void pause()
 	{
 		tiAudioRecorder.pauseRecording();
+	}
+
+	@Override
+	public void release()
+	{
+		stop();
+		super.release();
+	}
+
+	@Override
+	public String getApiName()
+	{
+		return "Ti.Media.AudioRecorder";
 	}
 }

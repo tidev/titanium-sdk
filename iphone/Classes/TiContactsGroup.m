@@ -5,6 +5,7 @@
  * Please see the LICENSE included with this distribution for details.
  */
 #ifdef USE_TI_CONTACTS
+
 #import "TiContactsGroup.h"
 
 @implementation TiContactsGroup
@@ -39,9 +40,10 @@
 {
   if (![NSThread isMainThread]) {
     __block id result;
-    TiThreadPerformOnMainThread(^{
-      result = [[self name] retain];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          result = [[self name] retain];
+        },
         YES);
     return [result autorelease];
   }
@@ -64,9 +66,10 @@
 {
   if (![NSThread isMainThread]) {
     __block id result;
-    TiThreadPerformOnMainThread(^{
-      result = [[self members:unused] retain];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          result = [[self members:unused] retain];
+        },
         YES);
     return [result autorelease];
   }
@@ -104,9 +107,10 @@
   ENSURE_SINGLE_ARG(value, NSNumber)
   if (![NSThread isMainThread]) {
     __block id result;
-    TiThreadPerformOnMainThread(^{
-      result = [[self sortedMembers:value] retain];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          result = [[self sortedMembers:value] retain];
+        },
         YES);
     return [result autorelease];
   }
@@ -118,10 +122,10 @@
   CNContactSortOrder sortOrder;
   int sortType = [value intValue];
   switch (sortType) {
-  case kABPersonSortByFirstName:
+  case CNContactSortOrderGivenName:
     sortOrder = CNContactSortOrderGivenName;
     break;
-  case kABPersonSortByLastName:
+  case CNContactSortOrderFamilyName:
     sortOrder = CNContactSortOrderFamilyName;
     break;
   default:

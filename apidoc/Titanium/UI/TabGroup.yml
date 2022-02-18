@@ -43,7 +43,7 @@ description: |
 extends: Titanium.UI.Window
 since: "0.9"
 excludes:
-    methods: [add, remove, removeAllChildren, replaceAt]
+    methods: [add, remove, removeAllChildren, replaceAt, setToolbar]
     properties: [accessibilityHidden,accessibilityHint,accessibilityLabel,accessibilityValue,
                  anchorPoint,animatedCenter,backgroundDisabledColor,backgroundDisabledImage,
                  backgroundFocusedColor,backgroundFocusedImage,backgroundGradient,backgroundImage,backgroundLeftCap,
@@ -115,7 +115,7 @@ events:
     description: |
         On Android, this event also fires before putting the activity in the background
         (before the activity enters the pause state).
-    platforms: [iphone, ipad,android]
+    platforms: [iphone, ipad, android, macos]
     properties:
       - name: index
         summary: |
@@ -142,7 +142,7 @@ events:
   - name: close
     summary: Fired when the tab group is closed.
     since: {android: "7.1.0"}
-    platforms: [iphone, ipad, android]
+    platforms: [iphone, ipad, android, macos]
 
   - name: focus
     summary: |
@@ -151,7 +151,7 @@ events:
     description: |
         On Android, this event also fires when the activity enters the foreground
         (after the activity enters the resume state).
-    platforms: [iphone, ipad,android]
+    platforms: [iphone, ipad, android, macos]
     properties:
       - name: index
         summary: Index of the current active tab.
@@ -180,7 +180,7 @@ events:
     deprecated:
         since: "5.2.0"
         removed: "9.0.0"
-        notes: Use [Titanium.UI.Tab.focus](Titanium.UI.Tab.focus) instead.
+        notes: Use [Titanium.UI.Tab.focus](Titanium.UI.Tab.focus) event instead.
     properties:
       - name: index
         summary: Index of the current active tab.
@@ -206,7 +206,7 @@ events:
     deprecated:
         since: "5.2.0"
         removed: "9.0.0"
-        notes: Use [Titanium.UI.Tab.blur](Titanium.UI.Tab.blur) instead.
+        notes: Use [Titanium.UI.Tab.blur](Titanium.UI.Tab.blur) event instead.
     properties:
       - name: index
         summary: |
@@ -256,13 +256,17 @@ methods:
     summary: Gets the currently-active tab.
     returns:
         type: Titanium.UI.Tab
+    deprecated:
+        since: "10.0.0"
+        removed: "10.0.0"
+        notes: Use the <Titanium.UI.TabGroup.activeTab> property instead.
 
   - name: open
     summary: Opens the tab group and makes it visible.
 
   - name: removeTab
     summary: Removes a tab from the tab group.
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     parameters:
       - name: tab
         summary: Tab to remove.
@@ -274,11 +278,19 @@ methods:
       - name: indexOrObject
         summary: Index or object of the tab to switch to.
         type: [Number, Titanium.UI.Tab]
+    deprecated:
+        since: "10.0.0"
+        removed: "10.0.0"
+        notes: Use the <Titanium.UI.TabGroup.activeTab> property instead.
 
   - name: getTabs
     summary: Gets all tabs that are managed by the tab group.
     returns:
         type: Array<Titanium.UI.Tab>
+    deprecated:
+        since: "10.0.0"
+        removed: "10.0.0"
+        notes: Use the <Titanium.UI.TabGroup.tabs> property instead.
 
 properties:
   - name: activeTab
@@ -310,7 +322,7 @@ properties:
     description: Set to `false` to prevent tab reordering.
     type: Boolean
     default: true
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: barColor
     summary: |
@@ -319,12 +331,39 @@ properties:
         For information about color values, see the "Colors" section of <Titanium.UI>.
 
         A value of `transparent` results in a semi-opaque black bar style.
-    type: String
-    platforms: [iphone, ipad]
+    type: [String, Titanium.UI.Color]
+    platforms: [iphone, ipad, android, macos]
+    
+  - name: paddingLeft
+    summary: Left padding of bottom navigation
+    description: |
+        When using [TABS_STYLE_BOTTOM_NAVIGATION](Titanium.UI.Android.TABS_STYLE_BOTTOM_NAVIGATION) you can set the padding to have
+        a floating bottom navigation
+    since: "10.1.0"
+    type: [Number,String]
+    platforms: [android]
+    
+  - name: paddingRight
+    summary: Right padding of bottom navigation
+    description: |
+        When using [TABS_STYLE_BOTTOM_NAVIGATION](Titanium.UI.Android.TABS_STYLE_BOTTOM_NAVIGATION) you can set the padding to have
+        a floating bottom navigation
+    since: "10.1.0"
+    type: [Number,String]
+    platforms: [android]
 
+  - name: paddingBottom
+    summary: Bottom padding of bottom navigation
+    description: |
+        When using [TABS_STYLE_BOTTOM_NAVIGATION](Titanium.UI.Android.TABS_STYLE_BOTTOM_NAVIGATION) you can set the padding to have
+        a floating bottom navigation
+    since: "10.1.0"
+    type: [Number,String]
+    platforms: [android]
+    
   - name: translucent
     summary: Boolean value indicating if the nav bar (typically for the **More** tab), is translucent.
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     default: true on iOS7 and above, false otherwise.
     type: Boolean
     since: "3.3.0"
@@ -334,23 +373,39 @@ properties:
     description: |
         Use this property to specify the color, font and shadow attributes of the title.
     since: "3.3.0"
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     type: titleAttributesParams
+
+  - name: titleColor
+    summary: Defines the color of the title of tab when it's inactive.
+    description: |
+        The color of the title of the tab when it's inactive.
+    type: [String, Titanium.UI.Color]
+    since: {iphone: "9.0.3", ipad: "9.0.3", android: "9.0.3"}
+    platforms: [iphone, ipad, android, macos]
+
+  - name: activeTitleColor
+    summary: Defines the color of the title of tab when it's active.
+    description: |
+        The color of the title of the tab when it's active.
+    type: [String, Titanium.UI.Color]
+    since: {iphone: "9.0.3", ipad: "9.0.3", android: "9.0.3"}
+    platforms: [iphone, ipad, android, macos]
 
   - name: navTintColor
     summary: The tintColor to apply to the navigation bar (typically for the **More** tab).
     description: |
         This property is a direct correspondant of the tintColor property of NavigationBar on iOS.
-    type: [String]
+    type: [String, Titanium.UI.Color]
     since: "3.3.0"
     default: null
     osver: {ios: {min: "7.0"}}
-    platforms: [iphone,ipad]
+    platforms: [iphone,ipad, macos]
 
   - name: editButtonTitle
     summary: Title for the edit button on the **More** tab.
     type: String
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: exitOnClose
     summary: |
@@ -431,6 +486,15 @@ properties:
         the TabGroup with a list of Tabs in a controller at the bottom of the screen. The recommended usage of this 
         style is for items count between three and five: (https://material.io/design/components/bottom-navigation.html#usage) 
         In Android it is limited to supporting a maximum number of five tabs.
+        You can use paddingLeft, paddingRight, paddingBottom to create a floating bottom navigation. If you want to change the
+        radius or background color you'll need to create `/app/platform/android/res/drawable/titanium_rounded_corners.xml` and set it to
+        ```xml
+        <?xml version="1.0" encoding="UTF-8"?>
+        <shape xmlns:android="http://schemas.android.com/apk/res/android">
+            <solid android:color="#FFFFFF" />
+            <corners android:radius="7dp" />
+        </shape>
+        ```
 
     availability: creation
     constants: Titanium.UI.Android.TABS_STYLE_*
@@ -447,9 +511,9 @@ properties:
 
         This property applies to all states and tabs, not just inactive tabs. Furthermore, the inactive 
         tab icons without activeIcon will be tinted this color.
-    type: String
+    type: [String, Titanium.UI.Color]
     since: {android: "3.0.0", iphone: "3.0.0", ipad: "3.0.0"}
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: tabsTintColor
     summary: The tintColor to apply to the tabs.
@@ -457,10 +521,13 @@ properties:
         This property is a direct correspondant of the tintColor property of UITabBar on iOS. This effects the
         title and icons rendered in the active tab. When not specified the active icons are tinted with a bright
         blue.
-    type: String
+    type: [String, Titanium.UI.Color]
     since: "3.1.3"
     default: null
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
+    deprecated:
+        since: "9.0.3"
+        notes: Deprecated in favor of [Titanium.UI.TabGroup.tintColor](Titanium.UI.TabGroup.tintColor) or alternatively [Titanium.UI.Tab.tintColor](Titanium.UI.Tab.tintColor).
 
   - name: tabsTranslucent
     summary: A Boolean value that indicates whether the tab bar is translucent.
@@ -480,7 +547,25 @@ properties:
     type: Boolean
     since: "6.2.0"
     default: true
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
+
+  - name: activeTintColor
+    summary: The activeTintColor to apply to tabs.
+    description: |
+        This property affects the tint of selected tab icons.
+    type: String
+    since: "9.0.3"
+    default: null
+    platforms: [iphone, ipad, android, macos]
+
+  - name: tintColor
+    summary: The tintColor to apply to tabs.
+    description: |
+        This property affects the tint of unselected tab icons.
+    type: String
+    since: "9.0.3"
+    default: null
+    platforms: [iphone, ipad, android, macos]
 
   - name: title
     summary: Title for this tabGroup.
@@ -491,7 +576,7 @@ properties:
   - name: tabsBackgroundImage
     summary: Default background image for tabs.
     type: String
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: { iphone: "3.1.0", ipad: "3.1.0" }
     osver: {ios: {min: "5.0"}}
 
@@ -501,10 +586,13 @@ properties:
         indicates that the tab group should use its default value instead.
     description: |
         For information about color values, see the "Colors" section of <Titanium.UI>.
-    type: String
+    type: [String, Titanium.UI.Color]
     since: 6.1.0
     osver: {ios: {min: "10.0"}}
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
+    deprecated:
+        since: "9.0.3"
+        notes: Deprecated in favor of [Titanium.UI.TabGroup.tintColor](Titanium.UI.TabGroup.tintColor) or alternatively [Titanium.UI.Tab.tintColor](Titanium.UI.Tab.tintColor).
 
   - name: shadowImage
     summary: Image of the shadow placed between the tab bar and the content area.
@@ -512,24 +600,30 @@ properties:
         The <Titanium.UI.TabGroup.tabsBackgroundImage> property must also be set 
         in order for this to take effect.
     type: String
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: { iphone: "3.1.0", ipad: "3.1.0" }
 
   - name: activeTabIconTint
     summary: Color applied to active tabs icons, as a color name or hex triplet, where the tab's activeIcon was not defined.
     description: |
         For information about color values, see the "Colors" section of <Titanium.UI>.
-    type: String
+    type: [String, Titanium.UI.Color]
     since: {iphone: "3.1.0", ipad: "3.1.0" }
     osver: {ios: {min: "5.0"}}
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
+    deprecated:
+        since: "9.0.3"
+        notes: Deprecated in favor of [Titanium.UI.TabGroup.activeTintColor](Titanium.UI.TabGroup.activeTintColor) or alternatively [Titanium.UI.Tab.activeTintColor](Titanium.UI.Tab.activeTintColor).
 
   - name: tabsBackgroundSelectedColor
     summary: Default background selected color for tabs, as a color name or hex triplet.
     description: |
         For information about color values, see the "Colors" section of <Titanium.UI>.
 
-        A tab's [backgroundSelectedColor](Titanium.UI.Tab.backgroundSelectedColor) property takes
+        This property is only supported by
+        [TABS_STYLE_BOTTOM_NAVIGATION](Titanium.UI.Android.TABS_STYLE_BOTTOM_NAVIGATION).
+
+        A tab's [backgroundFocusedColor](Titanium.UI.Tab.backgroundFocusedColor) property takes
         precedence if set.
     type: String
     platforms: [android]
@@ -538,7 +632,7 @@ properties:
   - name: activeTabBackgroundImage
     summary: Default background image for the active tab.
     type: String
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: { iphone: "3.1.0", ipad: "3.1.0" }
     osver: {ios: {min: "5.0"}}
 
@@ -547,47 +641,51 @@ examples:
     example: |
         Default Titanium project as an Alloy view.
 
-                <Alloy>
-                    <TabGroup backgroundColor="white" >
-                        <Tab id="tab1" title="Tab 1" icon="KS_nav_views.png">
-                            <Window id="win1" title="Tab 1">
-                               <Label id="label1" color="#999">I am Window 1</Label>
-                            </Window>
-                        </Tab>
-                        <Tab id="tab2" title="Tab 2" icon="KS_nav_views.png">
-                            <Window id="win2" title="Tab 2">
-                                <Label id="label2" color="#999">I am Window 2</Label>
-                            </Window>
-                        </Tab>
-                        <!-- Use the Require tag to include external Ti.UI.Tab views -->
-                    </TabGroup>
-                </Alloy>
+        ``` xml
+        <Alloy>
+            <TabGroup backgroundColor="white" >
+                <Tab id="tab1" title="Tab 1" icon="KS_nav_views.png">
+                    <Window id="win1" title="Tab 1">
+                        <Label id="label1" color="#999">I am Window 1</Label>
+                    </Window>
+                </Tab>
+                <Tab id="tab2" title="Tab 2" icon="KS_nav_views.png">
+                    <Window id="win2" title="Tab 2">
+                        <Label id="label2" color="#999">I am Window 2</Label>
+                    </Window>
+                </Tab>
+                <!-- Use the Require tag to include external Ti.UI.Tab views -->
+            </TabGroup>
+        </Alloy>
+        ```
 
   - title: Classic Titanium Example
     example: |
         Simple two-tabbed app.
 
-            var win1 = Ti.UI.createWindow({
-                backgroundColor: 'blue',
-                title: 'Blue'
-            });
-            win1.add(Ti.UI.createLabel({text: 'I am a blue window.'}));
+        ``` js
+        var win1 = Ti.UI.createWindow({
+            backgroundColor: 'blue',
+            title: 'Blue'
+        });
+        win1.add(Ti.UI.createLabel({text: 'I am a blue window.'}));
 
-            var win2 = Ti.UI.createWindow({
-                backgroundColor: 'red',
-                title: 'Red'
-            });
-            win2.add(Ti.UI.createLabel({text: 'I am a red window.'}));
+        var win2 = Ti.UI.createWindow({
+            backgroundColor: 'red',
+            title: 'Red'
+        });
+        win2.add(Ti.UI.createLabel({text: 'I am a red window.'}));
 
-            var tab1 = Ti.UI.createTab({
-                window: win1,
-                title: 'Blue'
-            }),
-            tab2 = Ti.UI.createTab({
-                window: win2,
-                title: 'Red'
-            }),
-            tabGroup = Ti.UI.createTabGroup({
-                tabs: [tab1, tab2]
-            });
-            tabGroup.open();
+        var tab1 = Ti.UI.createTab({
+            window: win1,
+            title: 'Blue'
+        }),
+        tab2 = Ti.UI.createTab({
+            window: win2,
+            title: 'Red'
+        }),
+        tabGroup = Ti.UI.createTabGroup({
+            tabs: [tab1, tab2]
+        });
+        tabGroup.open();
+        ```

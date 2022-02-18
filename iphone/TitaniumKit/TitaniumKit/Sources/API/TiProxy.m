@@ -70,9 +70,10 @@ void DoProxyDelegateChangedValuesWithProxy(UIView<TiProxyDelegate> *target, NSSt
         key = [NSString stringWithFormat:@"set%@%@_", [[key substringToIndex:1] uppercaseString], [key substringFromIndex:1]];
       }
       NSArray *arg = [NSArray arrayWithObjects:key, firstarg, secondarg, target, nil];
-      TiThreadPerformOnMainThread(^{
-        [proxy _dispatchWithObjectOnUIThread:arg];
-      },
+      TiThreadPerformOnMainThread(
+          ^{
+            [proxy _dispatchWithObjectOnUIThread:arg];
+          },
           YES);
     }
     return;
@@ -80,9 +81,10 @@ void DoProxyDelegateChangedValuesWithProxy(UIView<TiProxyDelegate> *target, NSSt
 
   sel = SetterForKrollProperty(key);
   if ([target respondsToSelector:sel]) {
-    TiThreadPerformOnMainThread(^{
-      [target performSelector:sel withObject:newValue];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          [target performSelector:sel withObject:newValue];
+        },
         YES);
   }
 }
@@ -104,9 +106,10 @@ void DoProxyDispatchToSecondaryArg(UIView<TiProxyDelegate> *target, SEL sel, NSS
       key = [NSString stringWithFormat:@"set%@%@_", [[key substringToIndex:1] uppercaseString], [key substringFromIndex:1]];
     }
     NSArray *arg = [NSArray arrayWithObjects:key, firstarg, secondarg, target, nil];
-    TiThreadPerformOnMainThread(^{
-      [proxy _dispatchWithObjectOnUIThread:arg];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          [proxy _dispatchWithObjectOnUIThread:arg];
+        },
         YES);
   }
 }
@@ -135,9 +138,10 @@ void DoProxyDelegateReadKeyFromProxy(UIView<TiProxyDelegate> *target, NSString *
   if (useThisThread) {
     [target performSelector:sel withObject:value];
   } else {
-    TiThreadPerformOnMainThread(^{
-      [target performSelector:sel withObject:value];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          [target performSelector:sel withObject:value];
+        },
         NO);
   }
 }
@@ -401,9 +405,10 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void *payload)
   RELEASE_TO_NIL(baseURL);
   RELEASE_TO_NIL(krollDescription);
   if ((void *)modelDelegate != self) {
-    TiThreadPerformOnMainThread(^{
-      RELEASE_TO_NIL(modelDelegate);
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          RELEASE_TO_NIL(modelDelegate);
+        },
         YES);
   }
   pageContext = nil;
@@ -420,7 +425,6 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void *payload)
 #if PROXY_MEMORY_TRACK == 1
   NSLog(@"[DEBUG] DEALLOC: %@ (%d)", self, [self hash]);
 #endif
-  RELEASE_TO_NIL(modelDelegate);
   [self _destroy];
   pthread_rwlock_destroy(&listenerLock);
   pthread_rwlock_destroy(&dynpropsLock);
@@ -444,20 +448,9 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void *payload)
   return nil;
 }
 
-- (TiProxy *)currentWindow
-{
-  return [[self pageContext] preloadForKey:@"currentWindow" name:@"UI"];
-}
-
 - (NSURL *)_baseURL
 {
   if (baseURL == nil) {
-    TiProxy *currentWindow = [self currentWindow];
-    if (currentWindow != nil) {
-      // cache it
-      [self _setBaseURL:[currentWindow _baseURL]];
-      return baseURL;
-    }
     return [[self _host] baseURL];
   }
   return baseURL;
@@ -643,7 +636,6 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void *payload)
     }
     KrollObject *krollObject = [rememberedProxy krollObjectForBridge:(KrollBridge *)pageContext];
     [pageKrollObject noteKeylessKrollObject:krollObject];
-    [krollObject removeGarbageCollectionSafeguard];
     return;
   }
   if (bridgeCount < 1) {
@@ -664,7 +656,6 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void *payload)
     }
     KrollObject *krollObject = [thisBridge krollObjectForProxy:rememberedProxy];
     [[thisBridge krollObjectForProxy:self] noteKeylessKrollObject:krollObject];
-    [krollObject removeGarbageCollectionSafeguard];
   }
 }
 
@@ -796,10 +787,10 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void *payload)
 
   //TODO: You know, we can probably nip this in the bud and do this at a lower level,
   //Or make this less onerous.
-  int ourCallbackCount = 0;
 
   pthread_rwlock_wrlock(&listenerLock);
-  ourCallbackCount = [[listeners objectForKey:type] intValue] - 1;
+  int ourCallbackCount = [[listeners objectForKey:type] intValue];
+  ourCallbackCount = MAX(0, ourCallbackCount - 1);
   [listeners setObject:NUMINT(ourCallbackCount) forKey:type];
   pthread_rwlock_unlock(&listenerLock);
 
@@ -896,18 +887,26 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void *payload)
     return;
   }
 
-  TiThreadPerformOnMainThread(^{
-    TiBindingEvent ourEvent;
-    ourEvent = TiBindingEventCreateWithNSObjects(self, self, type, obj);
-    if (report || (code != 0)) {
-      TiBindingEventSetErrorCode(ourEvent, code);
-    }
-    if (message != nil) {
-      TiBindingEventSetErrorMessageWithNSString(ourEvent, message);
-    }
-    TiBindingEventSetBubbles(ourEvent, propagate);
-    TiBindingEventFire(ourEvent);
-  },
+  __weak TiProxy *weakSelf = self;
+
+  TiThreadPerformOnMainThread(
+      ^{
+        TiProxy *strongSelf = weakSelf;
+        if (strongSelf == nil) {
+          return;
+        }
+
+        TiBindingEvent ourEvent;
+        ourEvent = TiBindingEventCreateWithNSObjects(strongSelf, strongSelf, type, obj);
+        if (report || (code != 0)) {
+          TiBindingEventSetErrorCode(ourEvent, code);
+        }
+        if (message != nil) {
+          TiBindingEventSetErrorMessageWithNSString(ourEvent, message);
+        }
+        TiBindingEventSetBubbles(ourEvent, propagate);
+        TiBindingEventFire(ourEvent);
+      },
       NSThread.isMainThread);
 }
 
@@ -918,26 +917,28 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void *payload)
     return;
   }
 
-  TiThreadPerformOnMainThread(^{
-    TiBindingEvent ourEvent;
+  TiThreadPerformOnMainThread(
+      ^{
+        TiBindingEvent ourEvent;
 
-    ourEvent = TiBindingEventCreateWithNSObjects(self, source, type, obj);
-    if (report || (code != 0)) {
-      TiBindingEventSetErrorCode(ourEvent, code);
-    }
-    if (message != nil) {
-      TiBindingEventSetErrorMessageWithNSString(ourEvent, message);
-    }
-    TiBindingEventSetBubbles(ourEvent, propagate);
-    TiBindingEventFire(ourEvent);
-  },
+        ourEvent = TiBindingEventCreateWithNSObjects(self, source, type, obj);
+        if (report || (code != 0)) {
+          TiBindingEventSetErrorCode(ourEvent, code);
+        }
+        if (message != nil) {
+          TiBindingEventSetErrorMessageWithNSString(ourEvent, message);
+        }
+        TiBindingEventSetBubbles(ourEvent, propagate);
+        TiBindingEventFire(ourEvent);
+      },
       NSThread.isMainThread);
 }
 
-- (void)setValuesForKeysWithDictionary:(NSDictionary *)keyedValues
+- (void)setValuesForKeysWithDictionary:(NSDictionary *)dictionary
 {
   //It's possible that the 'setvalueforkey' has its own plans of what should be in the JS object,
   //so we should do this first as to not overwrite the subclass's setter.
+  NSDictionary *keyedValues = [dictionary copy];
   if ((bridgeCount == 1) && (pageKrollObject != nil)) {
     for (NSString *currentKey in keyedValues) {
       id currentValue = [keyedValues objectForKey:currentKey];
@@ -989,6 +990,7 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void *payload)
     }
     [self setValue:thisValue forKey:thisKey];
   }
+  RELEASE_TO_NIL(keyedValues);
 }
 
 DEFINE_EXCEPTIONS
@@ -1210,6 +1212,22 @@ DEFINE_EXCEPTIONS
 {
   DebugLog(@"[ERROR] Subclasses must override the apiName API endpoint.");
   return @"Ti.Proxy";
+}
+
+- (JSContext *)currentContext
+{
+  id<TiEvaluator> evaluator = self.pageContext;
+  if (evaluator == nil) {
+    evaluator = self.executionContext;
+    if (evaluator == nil) {
+      return nil; // TODO: Try [JSContext currentContext]? I think it will always fail for old-school proxies in this hierarchy
+    }
+  }
+  JSGlobalContextRef globalRef = [[evaluator krollContext] context];
+  if (globalRef) {
+    return [JSContext contextWithJSGlobalContextRef:globalRef];
+  }
+  return nil;
 }
 
 + (id)createProxy:(NSString *)qualifiedName withProperties:(NSDictionary *)properties inContext:(id<TiEvaluator>)context

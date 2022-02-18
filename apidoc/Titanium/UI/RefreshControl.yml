@@ -19,7 +19,7 @@ description: |
 
 extends: Titanium.Proxy
 since: { android: "6.2.0", iphone: "3.2.0", ipad: "3.2.0" }
-platforms: [android, iphone, ipad]
+platforms: [android, iphone, ipad, macos]
 methods:
   - name: beginRefreshing
     summary: Tells the control that a refresh operation was started programmatically.
@@ -41,15 +41,15 @@ properties:
     description: |
         Title text is only supported on iOS. Android will ignore this property. 
     type: Titanium.UI.AttributedString
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: { iphone: "3.2.0", ipad: "3.2.0" }
 
   - name: tintColor
     summary: The tint color for the refresh control, as a color name or hex triplet.
     description: |
         For information about color values, see the "Colors" section of <Titanium.UI>. 
-    type: String
-    platforms: [android, iphone, ipad]
+    type: [String, Titanium.UI.Color]
+    platforms: [android, iphone, ipad, macos]
     since: { android: "6.2.0", iphone: "3.2.0", ipad: "3.2.0" }
 
 events:
@@ -57,7 +57,7 @@ events:
     summary: | 
         Fired in response to a user initiated an action to refresh the contents of the 
         table view, list view or scroll view.
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     since: { android: "6.2.0", iphone: "3.2.0", ipad: "3.2.0" }
     properties:
       - name: bubbles
@@ -67,7 +67,7 @@ events:
     summary: | 
         Fired in response to a user finished action to refresh the contents of the 
         table view, list view or scroll view.
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     since: { android: "6.2.0", iphone: "6.0.0", ipad: "6.0.0" }
     properties:
       - name: bubbles
@@ -77,37 +77,35 @@ examples:
   - title: Basic Pull To Refresh
     example: |
         A basic sample showing the usage of refreshstart event with endRefreshing functionality.
-                    
-            var win = Ti.UI.createWindow({
-                fullscreen:true
-            });
-            var counter = 0;
-            function genData()
-            {
-                var data = [];
-                var i=1;
-                for (i=1;i<=3;i++) {
-                    data.push({properties:{title:'ROW '+(counter+i)}})
-                }
-                counter += 3;
-                return data;
+
+        ``` js
+        const win = Ti.UI.createWindow();
+        let counter = 0;
+        function genData() {
+            const data = [];
+            for (let i = 1; i <= 3; i++) {
+                data.push({ properties:{ title: `ROW ${counter + i}` } });
             }
-            var section = Ti.UI.createListSection();
-            section.setItems(genData());
-            var control = Ti.UI.createRefreshControl({
-                tintColor:'red'
-            })
-            var listView = Ti.UI.createListView({
-                sections:[section],
-                refreshControl:control
-            });
-            control.addEventListener('refreshstart',function(e){
-                Ti.API.info('refreshstart');
-                setTimeout(function(){
-                    Ti.API.debug('Timeout');
-                    section.appendItems(genData());
-                    control.endRefreshing();
-                }, 2000);
-            })
-            win.add(listView);
-            win.open();
+            counter += 3;
+            return data;
+        }
+        const section = Ti.UI.createListSection();
+        section.items = genData();
+        const control = Ti.UI.createRefreshControl({
+            tintColor: 'red'
+        });
+        const listView = Ti.UI.createListView({
+            sections: [section],
+            refreshControl: control
+        });
+        control.addEventListener('refreshstart', () => {
+            Ti.API.info('refreshstart');
+            setTimeout(() => {
+                Ti.API.debug('Timeout');
+                section.appendItems(genData());
+                control.endRefreshing();
+            }, 2000);
+        });
+        win.add(listView);
+        win.open();
+        ```

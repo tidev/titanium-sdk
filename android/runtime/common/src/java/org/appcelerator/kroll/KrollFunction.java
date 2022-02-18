@@ -12,7 +12,7 @@ import java.util.HashMap;
  * An interface that exposes a Javascript function to Java.
  */
 public interface KrollFunction {
-	public class FunctionArgs
+	class FunctionArgs
 	{
 		public KrollObject krollObject;
 		public Object[] args;
@@ -29,32 +29,28 @@ public interface KrollFunction {
 	 * @param krollObject The object that represents <code>this</code> in Javascript.
 	 * @param args A single object argument for the function (for convenience)
 	 * @return the result of the executed function.
-	 * @module.api
 	 */
-	public Object call(KrollObject krollObject, HashMap args);
+	Object call(KrollObject krollObject, HashMap args);
 
 	/**
 	 * Executes a function synchronously. The result of call is the result of the Javascript function.
 	 * @param krollObject The object that represents <code>this</code> in Javascript.
 	 * @param args the function's arguments.
 	 * @return the result of the executed function.
-	 * @module.api
 	 */
-	public Object call(KrollObject krollObject, Object[] args);
+	Object call(KrollObject krollObject, Object[] args);
 
 	/**
-	 * Executes a function asynchronously. 
+	 * Executes a function asynchronously.
 	 * @param krollObject The object that represents <code>this</code> in Javascript.
 	 * @param args A single object argument for the function (for convenience)
-	 * @module.api
 	 */
-	public void callAsync(KrollObject krollObject, HashMap args);
+	void callAsync(KrollObject krollObject, HashMap args);
 
 	/**
-	 * Executes a function asynchronously. 
+	 * Executes a function asynchronously.
 	 * @param krollObject The object that represents <code>this</code> in Javascript.
 	 * @param args the function's arguments.
-	 * @module.api
 	 */
-	public void callAsync(KrollObject krollObject, Object[] args);
+	void callAsync(KrollObject krollObject, Object[] args);
 }

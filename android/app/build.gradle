@@ -1,20 +1,21 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2019 by Axway. All Rights Reserved.
+ * Copyright (c) 2009-2020 by Axway. All Rights Reserved.
  * Licensed under the terms of the Apache Public License.
  * Please see the LICENSE included with this distribution for details.
  */
 
 apply plugin: 'com.android.application'
 
+// Set up Android app project.
 android {
-	compileSdkVersion 29
+	compileSdkVersion 31
 	defaultConfig {
 		applicationId 'com.titanium.test'
-		minSdkVersion 19
-		targetSdkVersion 28
+		minSdkVersion 21
+		targetSdkVersion 31
 		versionCode 1
-		versionName "1.0"
+		versionName '1.0'
 		manifestPlaceholders = project.ext.tiManifestPlaceholders
 		manifestPlaceholders.put('localApplicationId', applicationId) // Legacy placeholder old AARs sometimes use.
 	}
@@ -29,8 +30,54 @@ android {
 			]
 		}
 	}
+	compileOptions {
+		sourceCompatibility JavaVersion.VERSION_11
+		targetCompatibility JavaVersion.VERSION_11
+	}
 }
 
+// Checks our Java code against our style guidelines and for common coding mistakes using "checkstyle.xml".
+// Will trigger a build failure if any violations have been detected.
+// Customize all the Checkstyle tasks
+tasks.withType(Checkstyle) {
+	// Specify all files that should be checked
+	classpath = files()
+	source android.sourceSets.main.java.srcDirs
+}
+// Execute Checkstyle on all files
+task checkJavaStyle(type: Checkstyle) {
+	// include '**/*.java'
+}
+// Execute Checkstyle on all modified files
+task checkstyleChanged(type: Checkstyle) {
+	include getChangedFiles()
+}
+
+// Used to strip the src dir prefixes from the changed java files
+def getChangedFiles() {
+	if (!project.hasProperty('changedFiles')) {
+		return new ArrayList<>()
+	}
+	def allFiles = project.changedFiles.split(',')
+
+	// Remove the prefix
+	List<String> files = new ArrayList<>()
+	for (file in allFiles) {
+		def index = file.indexOf('src/main/java/')
+		if (index != -1) {
+			files.add(file.substring(index + 14))
+		}
+	}
+
+	// Return the list of touched files
+	files
+}
+
+tasks.withType(JavaCompile) {
+	dependsOn checkJavaStyle
+}
+
+// Define library dependencies used by this app.
 dependencies {
 	implementation(project(':titanium')) {
 // Uncomment the below to exclude Google Play Services from app.
@@ -38,4 +85,5 @@ dependencies {
 	}
 
 	implementation "androidx.appcompat:appcompat:${project.ext.tiAndroidXAppCompatLibVersion}"
+	implementation "com.google.android.material:material:${project.ext.tiMaterialLibVersion}"
 }

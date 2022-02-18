@@ -37,6 +37,7 @@ using namespace v8;
 <#assign className = Proxy.className(proxyClassName)>
 
 Persistent<FunctionTemplate> ${className}::proxyTemplate;
+Persistent<Object> ${className}::moduleInstance;
 jclass ${className}::javaClass = NULL;
 
 ${className}::${className}() : titanium::Proxy()
@@ -60,14 +61,16 @@ void ${className}::bindProxy(Local<Object> exports, Local<Context> context)
 	Local<String> nameSymbol = NEW_SYMBOL(isolate, "${proxyAttrs.name}"); // use symbol over string for efficiency
 	<#if isModule>
 	MaybeLocal<Object> maybeInstance = constructor->NewInstance(context);
-	Local<Object> moduleInstance;
-	if (!maybeInstance.ToLocal(&moduleInstance)) {
+	Local<Object> instance;
+	if (!maybeInstance.ToLocal(&instance)) {
 		titanium::V8Util::fatalException(isolate, tryCatch);
 		return;
 	}
-	exports->Set(context, nameSymbol, moduleInstance);
+	exports->Set(context, nameSymbol, instance);
+	moduleInstance.Reset(isolate, instance);
 	<#else>
 	exports->Set(context, nameSymbol, constructor);
+	exports->Set(context, constructorSymbol.Get(isolate), constructor);
 	</#if>
 }
 
@@ -76,6 +79,9 @@ void ${className}::dispose(Isolate* isolate)
 	LOGD(TAG, "dispose()");
 	if (!proxyTemplate.IsEmpty()) {
 		proxyTemplate.Reset();
+	}
+	if (!moduleInstance.IsEmpty()) {
+	    moduleInstance.Reset();
 	}
 
 	<#if superProxyClassName??>
@@ -227,12 +233,6 @@ Local<FunctionTemplate> ${className}::getProxyTemplate(v8::Isolate* isolate)
 		titanium::Proxy::getProperty,
 		titanium::Proxy::onPropertyChanged);
 	</#if>
-	<#if !methods?? || !methods?keys?seq_contains(getter)>
-	DEFINE_PROTOTYPE_METHOD_DATA(isolate, t, "${getter}", titanium::Proxy::getProperty, ${name});
-	</#if>
-	<#if !methods?? || !methods?keys?seq_contains(setter)>
-	DEFINE_PROTOTYPE_METHOD_DATA(isolate, t, "${setter}", titanium::Proxy::onPropertyChanged, ${name});
-	</#if>
 	</@Proxy.listPropertyAccessors>
 
 	<#if interceptor??>
@@ -271,12 +271,14 @@ void ${className}::${method.apiName}(const FunctionCallbackInfo<Value>& args)
 	jvalue* jArguments = 0;
 	</#if>
 
-	<#if method.args?size == 0 && name[0..2] == "get" && isDynamic>
+	<#if method.args?size == 0 && name[0..2] == "get" && isDynamic && !isTitaniumSdk>
 		<#assign propertyName = name[3]?lower_case + name[4..]>
-	LOGW(TAG, "Automatic getter methods for properties are deprecated in SDK 8.0.0 and will be removed in SDK 9.0.0. Please access the property in standard JS style: obj.${propertyName}; or obj['${propertyName}'];");
-	<#elseif method.args?size == 1 && name[0..2] == "set" && isDynamic>
+	const char *deprecationMessage = "Getter method deprecated, please use \"obj.${propertyName};\" or \"obj['${propertyName}'];\" instead.";
+	LOGW(TAG, deprecationMessage);
+	<#elseif method.args?size == 1 && name[0..2] == "set" && isDynamic && !isTitaniumSdk>
 		<#assign propertyName = name[3]?lower_case + name[4..]>
-	LOGW(TAG, "Automatic setter methods for properties are deprecated in SDK 8.0.0 and will be removed in SDK 9.0.0. Please modify the property in standard JS style: obj.${propertyName} = value; or obj['${propertyName}'] = value;");
+	const char *deprecationMessage = "Setter method deprecated, please use \"obj.${propertyName} = val;\" or \"obj['${propertyName}'] = val;\" instead.";
+	LOGW(TAG, deprecationMessage);
 	</#if>
 
 	jobject javaProxy = proxy->getJavaObject();

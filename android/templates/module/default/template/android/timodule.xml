@@ -4,8 +4,6 @@
 		Similar to tiapp.xml, but contains module/platform specific
 		configuration in <iphone> and <android> sections
 	-->
-	<iphone>
-	</iphone>
 	<android xmlns:android="http://schemas.android.com/apk/res/android">
 	</android>
 </ti:module>

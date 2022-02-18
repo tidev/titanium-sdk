@@ -19,6 +19,7 @@ DEFINE_DEF_BOOL_PROP(suppressReturn, YES);
 {
   [self initializeProperty:@"enabled" defaultValue:NUMBOOL(YES)];
   [self initializeProperty:@"editable" defaultValue:NUMBOOL(YES)];
+  [self initializeProperty:@"enableCopy" defaultValue:NUMBOOL(YES)];
   [super _initWithProperties:properties];
 }
 
@@ -57,9 +58,10 @@ DEFINE_DEF_BOOL_PROP(suppressReturn, YES);
 {
   if ([self viewAttached]) {
     __block BOOL viewHasText = NO;
-    TiThreadPerformOnMainThread(^{
-      viewHasText = [(TiUITextWidget *)[self view] hasText];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          viewHasText = [(TiUITextWidget *)[self view] hasText];
+        },
         YES);
     return [NSNumber numberWithBool:viewHasText];
   } else {
@@ -85,13 +87,26 @@ DEFINE_DEF_BOOL_PROP(suppressReturn, YES);
   }
 }
 
+// This is exposed to JS as "focused" property
+- (BOOL)isFocused
+{
+  if ([self viewAttached]) {
+    // we explicitly defer to underlying class
+    // because the focus event gets fired *before* isFirstResponder call would return true (impl in focused method below)
+    // So we toggle a boolean flag in the impl's focus/blur methods
+    return [(TiUITextWidget *)[self view] isFocused];
+  }
+  return NO;
+}
+
 - (BOOL)focused:(id)unused
 {
   if (![NSThread isMainThread]) {
     __block BOOL result = NO;
-    TiThreadPerformOnMainThread(^{
-      result = [self focused:nil];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          result = [self focused:nil];
+        },
         YES);
     return result;
   }
@@ -105,14 +120,16 @@ DEFINE_DEF_BOOL_PROP(suppressReturn, YES);
 
 - (void)noteValueChange:(NSString *)newValue
 {
-  if (![[self valueForKey:@"value"] isEqual:newValue]) {
+  NSString *oldValue = [TiUtils stringValue:[self valueForKey:@"value"]];
+  if (![oldValue isEqual:newValue]) {
     [self replaceValue:newValue forKey:@"value" notification:NO];
     [self contentsWillChange];
     [self fireEvent:@"change" withObject:[NSDictionary dictionaryWithObject:newValue forKey:@"value"]];
-    TiThreadPerformOnMainThread(^{
-      //Make sure the text widget is in view when editing.
-      [(TiUITextWidget *)[self view] updateKeyboardStatus];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          //Make sure the text widget is in view when editing.
+          [(TiUITextWidget *)[self view] updateKeyboardStatus];
+        },
         NO);
   }
 }
@@ -278,28 +295,31 @@ DEFINE_DEF_BOOL_PROP(suppressReturn, YES);
 {
   if ([self viewAttached]) {
     __block NSDictionary *result = nil;
-    TiThreadPerformOnMainThread(^{
-      result = [[(TiUITextWidget *)[self view] selectedRange] retain];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          result = [[(TiUITextWidget *)[self view] selectedRange] retain];
+        },
         YES);
     return [result autorelease];
   }
   return nil;
 }
 
-- (void)setSelection:(id)arg withObject:(id)property
+- (void)setSelection:(id)args
 {
-  NSInteger start = [TiUtils intValue:arg def:-1];
-  NSInteger end = [TiUtils intValue:property def:-1];
+  ENSURE_ARG_COUNT(args, 2);
+  NSInteger start = [TiUtils intValue:args[0] def:-1];
+  NSInteger end = [TiUtils intValue:args[1] def:-1];
   NSString *curValue = [TiUtils stringValue:[self valueForKey:@"value"]];
   NSInteger textLength = [curValue length];
   if ((start < 0) || (start > textLength) || (end < 0) || (end > textLength)) {
     DebugLog(@"Invalid range for text selection. Ignoring.");
     return;
   }
-  TiThreadPerformOnMainThread(^{
-    [(TiUITextWidget *)[self view] setSelectionFrom:arg to:property];
-  },
+  TiThreadPerformOnMainThread(
+      ^{
+        [(TiUITextWidget *)[self view] setSelectionFrom:start to:end];
+      },
       NO);
 }
 #ifndef TI_USE_AUTOLAYOUT

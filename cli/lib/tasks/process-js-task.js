@@ -27,7 +27,7 @@ class ProcessJsTask extends IncrementalFileTask {
 	 * @param {String[]} options.incrementalDirectory Path to a folder where incremental task data will be stored.
 	 * @param {Object} options.logger The logger instance used by this task.
 	 * @param {Object} options.builder iOS builder instance.
-	 * @param {String[]} options.jsFiles Array with info about JS files to resolve paths.
+	 * @param {object} options.jsFiles Object with keys of filenames and values are info about JS files to resolve paths.
 	 * @param {String[]} options.jsBootstrapFiles Array of bootstrap scripts to consider. The task will directly modify this array.
 	 * @param {String} options.sdkCommonFolder Path to common JS files from the SDK.
 	 * @param {Object} options.defaultAnalyzeOptions Default configuration options for jsanalyze.
@@ -48,7 +48,53 @@ class ProcessJsTask extends IncrementalFileTask {
 		this.jsFiles = options.jsFiles;
 		this.jsBootstrapFiles = options.jsBootstrapFiles;
 		this.sdkCommonFolder = options.sdkCommonFolder;
-		this.defaultAnalyzeOptions = options.defaultAnalyzeOptions;
+
+		// set up the object used by babel-plugin-transform-titanium to inline statics/etc
+		const transform = {
+			platform: this.platform,
+			deploytype: this.builder.deployType,
+			target: this.builder.target,
+			Ti: {
+				version: this.builder.titaniumSdkVersion, // use the shortened version number, i.e. 9.1.0
+				// TODO: Do these work?
+				// buildHash: ti.manifest.githash,
+				// buildDate: ti.manifest.timestamp,
+				App: {
+					copyright: this.builder.cli.tiapp.copyright,
+					deployType: this.builder.deployType,
+					description: this.builder.cli.tiapp.description,
+					guid: this.builder.cli.tiapp.guid,
+					id: this.builder.cli.tiapp.id,
+					name: this.builder.cli.tiapp.name,
+					publisher: this.builder.cli.tiapp.publisher,
+					url: this.builder.cli.tiapp.url,
+					version: this.builder.cli.tiapp.version,
+				},
+				Platform: {
+					runtime: 'javascriptcore', // overridden below for android
+				},
+				Filesystem: {
+					lineEnding: '\n',
+					separator: '/',
+				}
+			}
+		};
+		switch (this.platform) {
+			case 'android':
+				transform.Ti.Platform.osname = 'android';
+				transform.Ti.Platform.name = 'android';
+				transform.Ti.Platform.runtime = 'v8'; // override
+				break;
+			case 'ios':
+				// if not 'universal' it is 'ipad' or 'iphone'
+				if (this.builder.deviceFamily !== 'universal') {
+					transform.Ti.Platform.osname = this.builder.deviceFamily;
+				}
+				transform.Ti.Platform.manufacturer = 'apple';
+				break;
+		}
+
+		this.defaultAnalyzeOptions = Object.assign({}, options.defaultAnalyzeOptions, { transform });
 
 		this.dataFilePath = path.join(this.incrementalDirectory, 'data.json');
 
@@ -57,6 +103,20 @@ class ProcessJsTask extends IncrementalFileTask {
 		this.resetTaskData();
 
 		this.createHooks();
+	}
+
+	/**
+	 * List of files that this task generates
+	 *
+	 * Each path will passed to {@link #ChangeManager#monitorOutputPath|ChangeManager.monitorOutputPath}
+	 * to determine if the output files of a task have changed.
+	 *
+	 * @return {Array.<String>}
+	 */
+	get incrementalOutputs() {
+		const outputFiles = [];
+		Object.values(this.jsFiles).forEach(info => outputFiles.push(info.dest));
+		return outputFiles;
 	}
 
 	/**
@@ -197,7 +257,7 @@ class ProcessJsTask extends IncrementalFileTask {
 			throw new Error(`Unable to resolve relative path for ${filePathAndName}.`);
 		}
 
-		const bootstrapPath = file.substr(0, file.length - 3);  // Remove the ".js" extension.
+		const bootstrapPath = file.substr(0, file.length - 3).replace(/\\/g, '/');  // Remove the ".js" extension.
 		if (bootstrapPath.endsWith('.bootstrap') && !this.jsBootstrapFiles.includes(bootstrapPath)) {
 			this.jsBootstrapFiles.push(bootstrapPath);
 		}
@@ -205,7 +265,7 @@ class ProcessJsTask extends IncrementalFileTask {
 		const info = this.jsFiles[file];
 		if (this.builder.encryptJS) {
 			if (this.platform === 'ios') {
-				if (file.indexOf('/') === 0) {
+				if (file.indexOf(path.sep) === 0) {
 					file = path.basename(file);
 				}
 				this.builder.jsFilesEncrypted.push(file); // original name
@@ -238,16 +298,22 @@ class ProcessJsTask extends IncrementalFileTask {
 			transpile,
 		});
 
-		const modified = jsanalyze.analyzeJs(source, analyzeOptions);
-		const newContents = modified.contents;
-
-		// we want to sort by the "to" filename so that we correctly handle file overwriting
-		this.data.tiSymbols[to] = modified.symbols;
+		let newContents;
+		if (this.builder.useWebpack && !isFileFromCommonFolder) {
+			// Webpack already did all the work, just copy the file's content
+			newContents = source;
+			this.logger.debug(__('Copying %s => %s', from.cyan, to.cyan));
+		} else {
+			// legacy JS processing
+			const modified = jsanalyze.analyzeJs(source, analyzeOptions);
+			newContents = modified.contents;
+			// we want to sort by the "to" filename so that we correctly handle file overwriting
+			this.data.tiSymbols[to] = modified.symbols;
+			this.logger.debug(__(`Copying${this.builder.minifyJS ? ' and minifying' : ''} %s => %s`, from.cyan, to.cyan));
+		}
 
 		const dir = path.dirname(to);
 		await fs.ensureDir(dir);
-
-		this.logger.debug(__('Copying and minifying %s => %s', from.cyan, to.cyan));
 		await fs.writeFile(to, newContents);
 		this.builder.jsFilesChanged = true;
 		this.builder.unmarkBuildDirFile(to);
@@ -300,7 +366,7 @@ class ProcessJsTask extends IncrementalFileTask {
 	 */
 	async handleDeletedFile(filePathAndName) {
 		let file = this.resolveRelativePath(filePathAndName, this.data.jsFiles);
-		const bootstrapPath = file.substr(0, file.length - 3);  // Remove the ".js" extension.
+		const bootstrapPath = file.substr(0, file.length - 3).replace(/\\/g, '/');  // Remove the ".js" extension.
 		if (bootstrapPath.endsWith('.bootstrap')) {
 			const index = this.jsBootstrapFiles.indexOf(bootstrapPath);
 			if (index !== -1) {

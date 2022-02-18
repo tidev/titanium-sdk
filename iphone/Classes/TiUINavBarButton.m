@@ -114,11 +114,18 @@ DEFINE_EXCEPTIONS
       [[proxy_ view] setBounds:bounds];
 #endif
     } else if (image != nil) {
-      NSURL *url = [TiUtils toURL:image proxy:proxy_];
-      UIImage *theimage = [[ImageLoader sharedLoader] loadImmediateStretchableImage:url];
-      self = [super initWithImage:theimage style:[self style:proxy_] target:self action:@selector(clicked:)];
+      UIImage *nativeImage;
+      // The image can be a raw image (e.g. for blobs / system icons)
+      if ([image isKindOfClass:[TiBlob class]]) {
+        nativeImage = [(TiBlob *)image image];
+      } else {
+        NSURL *url = [TiUtils toURL:image proxy:proxy_];
+        nativeImage = [[ImageLoader sharedLoader] loadImmediateStretchableImage:url];
+      }
+      self = [super initWithImage:nativeImage style:[self style:proxy_] target:self action:@selector(clicked:)];
     } else {
       self = [super initWithTitle:[self title:proxy_] style:[self style:proxy_] target:self action:@selector(clicked:)];
+      self.tintColor = [proxy_ valueForKey:@"color"] ? [TiUtils colorValue:[proxy_ valueForKey:@"color"]].color : [TiUtils colorValue:[proxy_ valueForKey:@"tintColor"]].color;
     }
   }
   proxy = proxy_; // Don't retain
@@ -201,30 +208,34 @@ DEFINE_EXCEPTIONS
   id changeView = (self.customView != nil) ? (id)self.customView : (id)self;
 
   if ([key isEqualToString:@"title"]) {
-    TiThreadPerformOnMainThread(^{
-      [changeView setTitle_:newValue];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          [changeView setTitle_:newValue];
+        },
         NO);
     return;
   }
   if ([key isEqualToString:@"image"]) {
-    TiThreadPerformOnMainThread(^{
-      [changeView setImage_:newValue];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          [changeView setImage_:newValue];
+        },
         NO);
     return;
   }
   if ([key isEqualToString:@"width"]) {
-    TiThreadPerformOnMainThread(^{
-      [changeView setWidth_:newValue];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          [changeView setWidth_:newValue];
+        },
         NO);
     return;
   }
   if ([key isEqualToString:@"enabled"]) {
-    TiThreadPerformOnMainThread(^{
-      [self setEnabled_:newValue];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          [self setEnabled_:newValue];
+        },
         NO);
     return;
   }

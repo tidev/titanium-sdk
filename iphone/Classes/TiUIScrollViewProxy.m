@@ -41,11 +41,12 @@ static NSArray *scrollViewKeySequence;
 - (TiPoint *)contentOffset
 {
   if ([self viewAttached]) {
-    TiThreadPerformOnMainThread(^{
-      contentOffset = [[TiPoint alloc] initWithPoint:CGPointMake(
-                                                         [(TiUIScrollView *)[self view] scrollView].contentOffset.x,
-                                                         [(TiUIScrollView *)[self view] scrollView].contentOffset.y)];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          contentOffset = [[TiPoint alloc] initWithPoint:CGPointMake(
+                                                             [(TiUIScrollView *)[self view] scrollView].contentOffset.x,
+                                                             [(TiUIScrollView *)[self view] scrollView].contentOffset.y)];
+        },
         YES);
   } else {
     contentOffset = [[TiPoint alloc] initWithPoint:CGPointMake(0, 0)];
@@ -332,33 +333,59 @@ static NSArray *scrollViewKeySequence;
 
 - (void)scrollToBottom:(id)unused
 {
-  TiThreadPerformOnMainThread(^{
-    [(TiUIScrollView *)[self view] scrollToBottom];
-  },
+  TiThreadPerformOnMainThread(
+      ^{
+        [(TiUIScrollView *)[self view] scrollToBottom];
+      },
       YES);
 }
 
 - (void)scrollToTop:(id)unused
 {
-  TiThreadPerformOnMainThread(^{
-    [(TiUIScrollView *)[self view] scrollToTop];
-  },
+  TiThreadPerformOnMainThread(
+      ^{
+        [(TiUIScrollView *)[self view] scrollToTop];
+      },
       YES);
+}
+
+- (void)setContentOffset:(id)args
+{
+  id arg1 = args;
+  id arg2 = nil;
+  if ([args isKindOfClass:[NSArray class]]) {
+    arg1 = VALUE_AT_INDEX_OR_NIL(args, 0);
+    arg2 = VALUE_AT_INDEX_OR_NIL(args, 1);
+  }
+  [self setContentOffset:arg1 withObject:arg2];
 }
 
 - (void)setContentOffset:(id)value withObject:(id)animated
 {
-  TiThreadPerformOnMainThread(^{
-    [(TiUIScrollView *)[self view] setContentOffset_:value withObject:animated];
-  },
+  TiThreadPerformOnMainThread(
+      ^{
+        [(TiUIScrollView *)[self view] setContentOffset_:value withObject:animated];
+      },
       YES);
+}
+
+- (void)setZoomScale:(id)args
+{
+  id arg1 = args;
+  id arg2 = nil;
+  if ([args isKindOfClass:[NSArray class]]) {
+    arg1 = VALUE_AT_INDEX_OR_NIL(args, 0);
+    arg2 = VALUE_AT_INDEX_OR_NIL(args, 1);
+  }
+  [self setZoomScale:arg1 withObject:arg2];
 }
 
 - (void)setZoomScale:(id)value withObject:(id)animated
 {
-  TiThreadPerformOnMainThread(^{
-    [(TiUIScrollView *)[self view] setZoomScale_:value withObject:animated];
-  },
+  TiThreadPerformOnMainThread(
+      ^{
+        [(TiUIScrollView *)[self view] setZoomScale_:value withObject:animated];
+      },
       YES);
 }
 

@@ -12,13 +12,9 @@ import java.util.Map;
 
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
-import org.appcelerator.titanium.util.TiPlatformHelper;
-
-import android.os.Build;
-import android.util.DisplayMetrics;
 
 /**
- * This class allows us to retrieve Android resource IDs 
+ * This class allows us to retrieve Android resource IDs
  * from the various Android R classes using
  * strings at runtime.
  */
@@ -26,15 +22,14 @@ public class TiRHelper
 {
 	private static final String TAG = "TiRHelper";
 
-	private static Map<String, Class<?>> clsCache = Collections.synchronizedMap(new HashMap<String, Class<?>>());
-	private static Map<String, Integer> valCache = Collections.synchronizedMap(new HashMap<String, Integer>());
+	private static final Map<String, Class<?>> clsCache = Collections.synchronizedMap(new HashMap<>());
+	private static final Map<String, Integer> valCache = Collections.synchronizedMap(new HashMap<>());
 
-	private static String clsPrefixAndroid = "android.R$";
+	private static final String clsPrefixAndroid = "android.R$";
 	private static String clsPrefixApplication = null;
 
 	/**
 	 * The exception thrown by TiRHelper when a particular resource is not found.
-	 * @module.api
 	 */
 	public static final class ResourceNotFoundException extends ClassNotFoundException
 	{
@@ -78,9 +73,10 @@ public class TiRHelper
 		throws ResourceNotFoundException
 	{
 		if (prefix != null && path != null && prefix.startsWith("android.R") && path.startsWith("drawable.")) {
-			Log.w(
-				TAG,
-				"Using android.R.drawable is not recommended since they are changed/removed across Android versions. Instead copy images to res folder.");
+			String message
+				= "Using android.R.drawable is not recommended since they are changed/removed across Android versions."
+				+ " Instead copy images to res folder.";
+			Log.w(TAG, message);
 		}
 
 		// Get the clsPrefixApplication if this is the first time
@@ -108,11 +104,10 @@ public class TiRHelper
 	 * Searches for an Android compiled resource given its path. These resources are traditionally accessed via a resource ID
 	 * (either from the application's resource bundle, or Android's internal resource bundle)
 	 * @param path the resource's path.
-	 * @param includeSystemResources indicates whether or not {@link #getResource(String, boolean)} will look in the system's (Android)
+	 * @param includeSystemResources Set true to lookup Android system resources.
 	 * resource bundle, if the resource is not found in the application's resource bundle.
 	 * @return the resource, if found.
 	 * @throws ResourceNotFoundException the exception thrown when the resource is not found in either location listed above.
-	 * @module.api
 	 */
 	public static int getResource(String path, boolean includeSystemResources) throws ResourceNotFoundException
 	{
@@ -139,7 +134,6 @@ public class TiRHelper
 	 * @return the resource, if found.
 	 * @throws ResourceNotFoundException the exception thrown when the resource is not found in either
 	 * the application's resource bundle, or Android's internal resource bundle.
-	 * @module.api
 	 */
 	public static int getResource(String path) throws ResourceNotFoundException
 	{
@@ -147,9 +141,24 @@ public class TiRHelper
 	}
 
 	/**
+	 * Checks if the given resource path exists. Refer to {@link #getResource(String)} for more details.
+	 * @param path the resource's path
+	 * @return whether or not the resource exists in the application's resource bundle.
+	 */
+	public static boolean hasResource(String path)
+	{
+		try {
+			int id = TiRHelper.getResource(path);
+			return id != 0;
+		} catch (ResourceNotFoundException e) {
+			return false;
+		}
+	}
+
+	/**
 	 * @param path path of the resource.
 	 * @return the application resource given its path.
-	 * @throws ResourceNotFoundException
+	 * @throws ResourceNotFoundException Thrown if given resource name was not found.
 	 */
 	public static int getApplicationResource(String path) throws ResourceNotFoundException
 	{
@@ -159,50 +168,6 @@ public class TiRHelper
 	public static int getAndroidResource(String path) throws ResourceNotFoundException
 	{
 		return getResource(clsPrefixAndroid, path);
-	}
-
-	/**
-	 * Find the resource id for an image located at android/modules/ui/res/ in the correct density
-	 * @param imageName the name of the imagefile without the size.
-	 * @return the resource, if found.
-	 * @throws ResourceNotFoundException the exception thrown when the resource is not found in either location listed above.
-	 * @module.api
-	 */
-	public static int getImageRessource(String imageName) throws ResourceNotFoundException
-	{
-		//
-		String resName = imageName + "_48"; // default medium
-		int density = TiPlatformHelper.applicationLogicalDensity;
-
-		switch (density) {
-			case DisplayMetrics.DENSITY_HIGH:
-				resName = imageName + "_72";
-				break;
-			case DisplayMetrics.DENSITY_MEDIUM:
-				resName = imageName + "_48";
-				break;
-			case DisplayMetrics.DENSITY_LOW:
-				resName = imageName + "_36";
-				break;
-		}
-
-		if (Build.VERSION.SDK_INT >= 9 && density == DisplayMetrics.DENSITY_XHIGH) {
-			resName = imageName + "_96";
-		}
-
-		if (Build.VERSION.SDK_INT >= 16 && density >= DisplayMetrics.DENSITY_XXHIGH) {
-			resName = imageName + "_144";
-		}
-
-		if (Build.VERSION.SDK_INT >= 16 && density >= DisplayMetrics.DENSITY_XXXHIGH) {
-			resName = imageName + "_192";
-		}
-		try {
-			return getResource(resName);
-		} catch (ResourceNotFoundException e) {
-			Log.e(TAG, "XML resources could not be found!!!", Log.DEBUG_MODE);
-			throw e;
-		}
 	}
 
 	/**

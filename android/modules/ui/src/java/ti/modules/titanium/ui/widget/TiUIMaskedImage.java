@@ -14,7 +14,6 @@ import android.graphics.ComposeShader;
 import android.graphics.Shader;
 import android.content.Context;
 import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.LinearGradient;
 import android.graphics.Matrix;
@@ -206,7 +205,7 @@ public class TiUIMaskedImage extends TiUIView
 		ImageView.ScaleType scaleType = ImageView.ScaleType.FIT_XY;
 		if ((layoutParams.optionWidth == null) && (layoutParams.optionHeight == null)) {
 			if (!layoutParams.autoFillsWidth && !layoutParams.autoFillsHeight) {
-				if (layoutParams.sizeOrFillWidthEnabled && layoutParams.sizeOrFillWidthEnabled) {
+				if (layoutParams.sizeOrFillWidthEnabled && layoutParams.sizeOrFillHeightEnabled) {
 					scaleType = ImageView.ScaleType.CENTER;
 				}
 			}
@@ -1031,13 +1030,6 @@ public class TiUIMaskedImage extends TiUIView
 				} else if (blendMode == PorterDuff.Mode.DST_IN) {
 					bitmap = getBitmapFrom(getMaskedDrawable().getImageDrawable());
 				}
-				if ((Build.VERSION.SDK_INT == 19) || (Build.VERSION.SDK_INT == 20)) {
-					// Android 4.4 has a bug where if bitmap byte width does not fit a 4 byte packing alignment,
-					// then mask will appear skewed. Resizing bitmap doesn't work. So, give up if this happens.
-					if ((bitmap != null) && ((bitmap.getWidth() % 4) != 0)) {
-						bitmap = null;
-					}
-				}
 				if (bitmap != null) {
 					try {
 						if (bitmap.getConfig() != Bitmap.Config.ALPHA_8) {
@@ -1177,9 +1169,6 @@ public class TiUIMaskedImage extends TiUIView
 		{
 			if (maskedDrawable == null) {
 				return false;
-			}
-			if (Build.VERSION.SDK_INT < 18) {
-				return false; // Versions older than Android 4.3 have a HW acceleration bug with this handler.
 			}
 			if (maskedDrawable.isTintingEnabled()) {
 				return false;
@@ -1411,11 +1400,7 @@ public class TiUIMaskedImage extends TiUIView
 					Display display = windowManager.getDefaultDisplay();
 					if (display != null) {
 						DisplayMetrics metrics = new DisplayMetrics();
-						if (Build.VERSION.SDK_INT >= 17) {
-							display.getRealMetrics(metrics);
-						} else {
-							display.getMetrics(metrics);
-						}
+						display.getRealMetrics(metrics);
 						return Math.max(metrics.widthPixels, metrics.heightPixels);
 					}
 				}

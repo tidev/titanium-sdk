@@ -4,7 +4,6 @@ import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiC;
 
-// clang-format off
 @Kroll.proxy(propertyAccessors = {
 	TiC.PROPERTY_EMAIL,
 	TiC.PROPERTY_NAME,
@@ -12,10 +11,8 @@ import org.appcelerator.titanium.TiC;
 	TiC.PROPERTY_TYPE,
 	TiC.PROPERTY_RELATIONSHIP
 })
-// clang-format on
 public class AttendeeProxy extends KrollProxy
 {
-
 	public AttendeeProxy()
 	{
 		super();

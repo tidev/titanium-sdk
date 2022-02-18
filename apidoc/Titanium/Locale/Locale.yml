@@ -29,7 +29,7 @@ methods:
         `getCurrencyCode('en-US')` returns `USD`. See the `xe.com` website 
         [Currency List](http://www.xe.com/iso4217.php#section2) section of the `www.xe.com` website for 
         reference.
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     returns:
         type: String
     parameters:
@@ -49,7 +49,7 @@ methods:
         `getCurrencySymbol('USD')` returns `$`. See the 
         [Currency Symbols](http://www.xe.com/symbols.php#section2) section of the 
         `www.xe.com` website for reference.
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     returns:
         type: String
     parameters:
@@ -73,8 +73,7 @@ methods:
 
         When changing to a language with a different layout direction, such as English to Arabic or vice-versa,
         you will need to close and re-open the window in order to apply the new right-to-left setting.
-
-    platforms: [iphone, ipad, android]
+    platforms: [iphone, ipad, android, macos]
     parameters: 
       - name: language
         summary: The specified ISO 639-1 code.
@@ -87,7 +86,7 @@ methods:
         `getLocaleCurrencySymbol('en-US')` returns `$`. See the 
         [Currency Symbols](http://www.xe.com/symbols.php#section2) section of the 
         `www.xe.com` website for reference.
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     returns:
         type: String
     parameters:
@@ -132,36 +131,72 @@ methods:
             Note: use the device's system settings to change locales and test this code.
             
             #### `/i18n/en/strings.xml`
-            
-                <?xml version="1.0" encoding="UTF-8"?>
-                <resources>
-                  <string name="phrase" formatted="false">You say %2$s and I say %1$s!</string>
-                  <string name="greeting">hello</string>
-                  <string name="signoff">goodbye</string>
-                </resources>
+            ``` xml
+            <?xml version="1.0" encoding="UTF-8"?>
+            <resources>
+              <string name="phrase" formatted="false">You say %2$s and I say %1$s!</string>
+              <string name="greeting">hello</string>
+              <string name="signoff">goodbye</string>
+            </resources>
+            ```
             
             #### `/i18n/es/strings.xml`
-            
-                <?xml version="1.0" encoding="UTF-8"?>
-                <resources>
-                  <string name="phrase" formatted="false">You say %2$s and I say %1$s!</string>
-                  <string name="greeting">hola</string>
-                  <string name="signoff">adios</string>
-                </resources>
+            ``` xml
+            <?xml version="1.0" encoding="UTF-8"?>
+            <resources>
+              <string name="phrase" formatted="false">You say %2$s and I say %1$s!</string>
+              <string name="greeting">hola</string>
+              <string name="signoff">adios</string>
+            </resources>
+            ```
             
             #### `/Resources/app.js`
-                
-                var i18nMissingMsg = '<no translation available>';
-                
-                // for English locales, displays "You say goodbye and I say hello!"
-                // for Spanish locales, displays "You say adios and I say hola!"
-                Ti.API.info('You say ' + Ti.Locale.getString('signoff', i18nMissingMsg) + ' and I say ' + Ti.Locale.getString('greeting', i18nMissingMsg) + '!');
-                
-                // uses alias L() instead of Ti.Locale.getString()
-                // formatted="false" is used in the strings.xml element for multiple string substitution
-                // for English locales, displays "You say goodbye and I say hello!"
-                // for Spanish locales, displays "You say adios and I say hola!"
-                Ti.API.info(String.format(L('phrase'), L('greeting', i18nMissingMsg), L('signoff', i18nMissingMsg)));
+            ``` js
+            var i18nMissingMsg = '<no translation available>';
+            
+            // for English locales, displays "You say goodbye and I say hello!"
+            // for Spanish locales, displays "You say adios and I say hola!"
+            Ti.API.info('You say ' + Ti.Locale.getString('signoff', i18nMissingMsg) + ' and I say ' + Ti.Locale.getString('greeting', i18nMissingMsg) + '!');
+            
+            // uses alias L() instead of Ti.Locale.getString()
+            // formatted="false" is used in the strings.xml element for multiple string substitution
+            // for English locales, displays "You say goodbye and I say hello!"
+            // for Spanish locales, displays "You say adios and I say hola!"
+            Ti.API.info(String.format(L('phrase'), L('greeting', i18nMissingMsg), L('signoff', i18nMissingMsg)));
+            ```
+
+  - name: parseDecimal
+    summary: Parses a number from the given string using the current or given locale.
+    platforms: [android, iphone, ipad, macos]
+    returns:
+        type: Number
+        summary: Returns the parsed number. Returns `NaN` (Not-a-Number) if given string is invalid.
+    parameters:
+      - name: text
+        summary: The string to be parsed.
+        type: String
+
+      - name: locale
+        summary: |
+            Locale, as a combination of ISO 2-letter language and country codes. For example, 
+            `en-US` or `en-GB`. See the 
+            [ISO 639-1](http://en.wikipedia.org/wiki/ISO_639-1) and 
+            [ISO 3166-1 alpha-2](http://en.wikipedia.org/wiki/ISO_3166-1_alpha-2#Officially_assigned_code_elements) 
+            sections of wikipedia for reference.
+        type: String
+        optional: true
+    examples:
+      - title: Parsing Localized Numeric Strings
+        example: |
+            ``` javascript
+            // You can convert to/from a localized numeric string like this.
+            var numericString = String.formatDecimal(1234.5);
+            var numericValue = Ti.Locale.parseDecimal(numericString);
+            
+            // The numbers returned will be the same for the 2 different locales.
+            var number1 = Ti.Locale.parseDecimal('1,234,567.8', 'en-US');
+            var number2 = Ti.Locale.parseDecimal('1.234.567,8', 'de-DE');
+            ```
 
 events:
   - name: change
@@ -179,7 +214,7 @@ properties:
         This property holds a value such as `US` or `GB`. See the 
         [ISO 3166-1 alpha-2](http://en.wikipedia.org/wiki/ISO_3166-1_alpha-2#Officially_assigned_code_elements) 
         country codes section of wikipedia for reference.
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     type: String
     permission: read-only
     

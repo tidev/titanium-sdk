@@ -165,6 +165,15 @@ typedef enum {
 + (UIImage *)adjustRotation:(UIImage *)image;
 
 /**
+ Tint image to specified color.
+
+ @param image The image to be tinted.
+ @param tintColor The color to tint the image.
+ @return The tinted image.
+ */
++ (UIImage *)imageWithTint:(UIImage *)image tintColor:(UIColor *)tintColor;
+
+/**
  Constructs URL from string using provided base URL.
 
  @param relativeString The relative URL
@@ -523,6 +532,8 @@ typedef enum {
 
 + (TiScriptError *)scriptErrorValue:(id)value;
 
++ (TiScriptError *)scriptErrorFromValueRef:(JSValueRef)valueRef inContext:(JSGlobalContextRef)contextRef;
+
 + (NSTextAlignment)textAlignmentValue:(id)alignment;
 
 + (NSString *)jsonStringify:(id)value;
@@ -854,5 +865,15 @@ typedef enum {
  @return _YES_ if Hyperloop is available, _NO_ otherwise.
  */
 + (BOOL)isHyperloopAvailable;
+
++ (BOOL)isMacOS;
+
+/**
+ Maps a string-based symbol weight (e.g. for SFSymbols) to a native symbol weight.
+
+ @param string The raw string to map.
+ @return The mapped symbol weight.
+ */
++ (UIImageSymbolWeight)symbolWeightFromString:(NSString *)string NS_AVAILABLE_IOS(13_0);
 
 @end

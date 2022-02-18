@@ -33,7 +33,7 @@ public class FileStreamProxy extends KrollProxy implements TiStream
 
 	// TiStream interface methods
 	@Kroll.method
-	public int read(Object args[]) throws Exception
+	public int read(Object[] args) throws Exception
 	{
 		if (!isOpen) {
 			throw new IOException("Unable to read from file, not open");
@@ -54,7 +54,7 @@ public class FileStreamProxy extends KrollProxy implements TiStream
 	}
 
 	@Kroll.method
-	public int write(Object args[]) throws Exception
+	public int write(Object[] args) throws Exception
 	{
 		if (!isOpen) {
 			throw new IOException("Unable to write to file, not open");

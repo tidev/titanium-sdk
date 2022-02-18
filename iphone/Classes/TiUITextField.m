@@ -19,11 +19,12 @@
 
 @implementation TiTextField
 
-@synthesize leftButtonPadding, rightButtonPadding, paddingLeft, paddingRight;
+@synthesize enableCopy, leftButtonPadding, rightButtonPadding, paddingLeft, paddingRight;
 
 - (void)configure
 {
   // defaults
+  enableCopy = YES;
   leftMode = UITextFieldViewModeAlways;
   rightMode = UITextFieldViewModeAlways;
   leftButtonPadding = 0;
@@ -41,6 +42,18 @@
   RELEASE_TO_NIL(leftView);
   RELEASE_TO_NIL(rightView);
   [super dealloc];
+}
+
+- (BOOL)canPerformAction:(SEL)action withSender:(id)sender
+{
+  // If copy support is disabled, then remove actions "copy", "cut", and "share" from context menu.
+  // Note: The "share" API is private. So, we remove it by accepting all other actions.
+  if (!enableCopy) {
+    if ((action != @selector(select:)) && (action != @selector(selectAll:)) && (action != @selector(paste:)) && (action != @selector(delete:))) {
+      return NO;
+    }
+  }
+  return [super canPerformAction:action withSender:sender];
 }
 
 - (void)setTouchHandler:(TiUIView *)handler
@@ -341,6 +354,11 @@
   [(TiTextField *)[self textWidgetView] setEnabled:_trulyEnabled];
 }
 
+- (void)setEnableCopy_:(id)value
+{
+  ((TiTextField *)[self textWidgetView]).enableCopy = [TiUtils boolValue:value def:YES];
+}
+
 - (void)setBackgroundImage_:(id)image
 {
   TiTextField *tf = (TiTextField *)[self textWidgetView];
@@ -411,9 +429,10 @@
 
 - (void)setBorderStyle_:(id)value
 {
-  TiThreadPerformOnMainThread(^{
-    [(TiTextField *)[self textWidgetView] setBorderStyle:[TiUtils intValue:value]];
-  },
+  TiThreadPerformOnMainThread(
+      ^{
+        [(TiTextField *)[self textWidgetView] setBorderStyle:[TiUtils intValue:value]];
+      },
       NO);
 }
 

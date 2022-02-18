@@ -150,10 +150,8 @@
       return UIStatusBarStyleDefault;
     } else if ([theString isEqualToString:@"UIStatusBarStyleBlackTranslucent"] || [theString isEqualToString:@"UIStatusBarStyleLightContent"] || [theString isEqualToString:@"UIStatusBarStyleBlackOpaque"]) {
       return UIStatusBarStyleLightContent;
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
     } else if ([theString isEqualToString:@"UIStatusBarStyleDarkContent"]) {
       return UIStatusBarStyleDarkContent;
-#endif
     }
   }
   return UIStatusBarStyleDefault;
@@ -237,9 +235,10 @@
   }
   [bgImage release];
   bgImage = [newImage retain];
-  TiThreadPerformOnMainThread(^{
-    [self updateBackground];
-  },
+  TiThreadPerformOnMainThread(
+      ^{
+        [self updateBackground];
+      },
       NO);
 }
 
@@ -250,9 +249,10 @@
   }
   [bgColor release];
   bgColor = [newColor retain];
-  TiThreadPerformOnMainThread(^{
-    [self updateBackground];
-  },
+  TiThreadPerformOnMainThread(
+      ^{
+        [self updateBackground];
+      },
       NO);
 }
 
@@ -1203,15 +1203,8 @@
 #ifdef FORCE_WITH_MODAL
     [self forceRotateToOrientation:target];
 #else
-    if ([TiUtils isIOSVersionOrGreater:@"11.0"] && [TiUtils isIOSVersionLower:@"12.0"]) {
-      forcingStatusBarOrientation = YES;
-      [[UIApplication sharedApplication] setStatusBarOrientation:target animated:NO];
-      [UIViewController attemptRotationToDeviceOrientation];
-      forcingStatusBarOrientation = NO;
-    } else {
-      [self rotateHostingViewToOrientation:target
-                           fromOrientation:[[UIApplication sharedApplication] statusBarOrientation]];
-    }
+    [self rotateHostingViewToOrientation:target
+                         fromOrientation:[[UIApplication sharedApplication] statusBarOrientation]];
     forcingRotation = NO;
 #endif
   } else {
@@ -1370,11 +1363,13 @@
 {
   WARN_IF_BACKGROUND_THREAD_OBJ;
   if ([self presentedViewController] == nil && isCurrentlyVisible) {
+#if !TARGET_OS_MACCATALYST
     [self refreshOrientationWithDuration:nil];
+#endif
     [self updateStatusBar];
   }
 
-  if ([TiUtils isIOSVersionOrGreater:@"11.0"] && [self respondsToSelector:@selector(setNeedsUpdateOfHomeIndicatorAutoHidden)]) {
+  if ([self respondsToSelector:@selector(setNeedsUpdateOfHomeIndicatorAutoHidden)]) {
     [self setNeedsUpdateOfHomeIndicatorAutoHidden];
   }
 }
@@ -1425,7 +1420,7 @@
 {
   [self resetTransformAndForceLayout:YES];
 
-  [[NSNotificationCenter defaultCenter] postNotificationName:kTiTraitCollectionChanged];
+  [[NSNotificationCenter defaultCenter] postNotificationName:kTiTraitCollectionChanged object:self];
 
   [super traitCollectionDidChange:previousTraitCollection];
 }

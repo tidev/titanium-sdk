@@ -4,7 +4,7 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#ifdef USE_TI_CONTACTS
+#if defined(USE_TI_CONTACTS)
 
 #import "TiContactsPerson.h"
 #import "ContactsModule.h"
@@ -271,9 +271,10 @@ static NSDictionary *iOS9propertyKeys;
 {
   if (![NSThread isMainThread]) {
     __block id result;
-    TiThreadPerformOnMainThread(^{
-      result = [[self fullName] retain];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          result = [[self fullName] retain];
+        },
         YES);
     return [result autorelease];
   }
@@ -322,9 +323,10 @@ static NSDictionary *iOS9propertyKeys;
 {
   if (![NSThread isMainThread]) {
     __block id result;
-    TiThreadPerformOnMainThread(^{
-      result = [[self image] retain];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          result = [[self image] retain];
+        },
         YES);
     return [result autorelease];
   }
@@ -353,16 +355,17 @@ static NSDictionary *iOS9propertyKeys;
 {
   if (![NSThread isMainThread]) {
     __block id result;
-    TiThreadPerformOnMainThread(^{
-      result = [[self valueForUndefinedKey:key] retain];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          result = [[self valueForUndefinedKey:key] retain];
+        },
         YES);
     return [result autorelease];
   }
   id property = nil;
 
   // Birthday property managed seperately
-  if ([key isEqualToString:@"birthday"] && [person isKeyAvailable:CNContactBirthdayKey]) {
+  if ([key isEqualToString:@"birthday"] && [person isKeyAvailable:CNContactBirthdayKey] && person.birthday != nil) {
     NSDate *date = [[NSCalendar currentCalendar] dateFromComponents:person.birthday];
     return [TiUtils UTCDateForDate:date];
   }
@@ -402,9 +405,10 @@ static NSDictionary *iOS9propertyKeys;
 - (void)setValue:(id)value forUndefinedKey:(NSString *)key
 {
   if (![NSThread isMainThread]) {
-    TiThreadPerformOnMainThread(^{
-      [self setValue:value forUndefinedKey:key];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          [self setValue:value forUndefinedKey:key];
+        },
         YES);
     return;
   }

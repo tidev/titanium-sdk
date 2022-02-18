@@ -30,10 +30,11 @@
   @private
 }
 
+@property (readonly, getter=isFocused) BOOL focused;
 - (void)textWidget:(UIView<UITextInputTraits> *)tw didFocusWithText:(NSString *)value;
 - (void)textWidget:(UIView<UITextInputTraits> *)tw didBlurWithText:(NSString *)value;
 - (void)setValue_:(id)text;
-- (void)setSelectionFrom:(id)start to:(id)end;
+- (void)setSelectionFrom:(NSInteger)start to:(NSInteger)end;
 #pragma mark - Titanium Internal Use Only
 - (void)updateKeyboardStatus;
 - (NSDictionary *)selectedRange;

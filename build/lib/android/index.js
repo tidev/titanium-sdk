@@ -3,7 +3,7 @@
 const path = require('path');
 const fs = require('fs-extra');
 const utils = require('../utils');
-const exec = require('child_process').exec; // eslint-disable-line security/detect-child-process
+const { spawn } = require('child_process'); // eslint-disable-line security/detect-child-process
 const copyFile = utils.copyFile;
 const copyFiles = utils.copyFiles;
 const copyAndModifyFile = utils.copyAndModifyFile;
@@ -16,24 +16,27 @@ const ROOT_DIR = path.join(__dirname, '..', '..', '..');
 const TITANIUM_ANDROID_PATH = path.join(__dirname, '..', '..', '..', 'android');
 const DIST_ANDROID_PATH = path.join(__dirname, '..', '..', '..', 'dist', 'android');
 const GRADLEW_FILE_PATH = path.join(TITANIUM_ANDROID_PATH, isWindows ? 'gradlew.bat' : 'gradlew');
+// On CI server, use plain output to avoid nasty progress bars filling up logs
+// But on local dev, use the nice UI
+const GRADLE_CONSOLE_MODE = (process.env.TRAVIS || process.env.JENKINS || process.env.CI) ? 'plain' : 'rich';
 const V8_STRING_VERSION_REGEXP = /(\d+)\.(\d+)\.\d+\.\d+/;
 
 class Android {
 	/**
 	 * @param {Object} options options object
 	 * @param {String} options.androidSdk path to the Android SDK to build with
-	 * @param {String} options.androidNdk path to the Andorid NDK to build with
 	 * @param {String} options.sdkVersion version of Titanium SDK
 	 * @param {String} options.versionTag version of the Titanium SDK package folder/zip
 	 * @param {String} options.gitHash SHA of Titanium SDK HEAD
+	 * @param {string} options.timestamp Value injected for Ti.buildDate
 	 * @constructor
 	 */
 	constructor (options) {
 		this.androidSdk = options.androidSdk;
-		this.androidNdk = options.androidNdk;
 		this.sdkVersion = options.sdkVersion;
 		this.versionTag = options.versionTag;
 		this.gitHash = options.gitHash;
+		this.timestamp = options.timestamp;
 	}
 
 	babelOptions() {
@@ -44,22 +47,33 @@ class Android {
 		return {
 			targets: {
 				chrome: version
-			}
+			},
+			transform: {
+				platform: 'android',
+				Ti: {
+					version: this.sdkVersion,
+					buildHash: this.gitHash,
+					buildDate: this.timestamp,
+					Platform: {
+						osname: 'android',
+						name: 'android',
+						runtime: 'v8',
+					},
+					Filesystem: {
+						lineEnding: '\n',
+						separator: '/',
+					},
+				},
+			},
 		};
 	}
 
 	async clean() {
-		// Create "local.properties" file which tells gradle where to find the Android SDK/NDK directories.
-		await createLocalPropertiesFile(this.androidSdk, this.androidNdk);
-
 		// Clean all Titanium Android projects.
-		await gradlew('clean');
+		await this.runGradleTask('clean');
 	}
 
 	async build() {
-		// Create "local.properties" file which tells gradle where to find the Android SDK/NDK directories.
-		await createLocalPropertiesFile(this.androidSdk, this.androidNdk);
-
 		// Set up the build system to fail if unable to generate a V8 snapshot. Needed for fast app startup times.
 		// Note: Allow system to override this behavior if environment variable is already defined.
 		if (typeof process.env.TI_SDK_BUILD_REQUIRES_V8_SNAPSHOTS === 'undefined') {
@@ -69,8 +83,9 @@ class Android {
 		// Build the "titanium" library project only.
 		process.env.TI_SDK_BUILD_VERSION = this.sdkVersion;
 		process.env.TI_SDK_BUILD_GIT_HASH = this.gitHash;
+		process.env.TI_SDK_BUILD_TIMESTAMP = this.timestamp;
 		process.env.TI_SDK_VERSION_TAG = this.versionTag;
-		await gradlew(':titanium:assembleRelease');
+		await this.runGradleTask(':titanium:assembleRelease');
 	}
 
 	async package(packager) {
@@ -80,14 +95,11 @@ class Android {
 		const ZIP_ANDROID_PATH = path.join(packager.zipSDKDir, 'android');
 		await fs.mkdirs(ZIP_ANDROID_PATH);
 
-		// Create "local.properties" file which tells gradle where to find the Android SDK/NDK directories.
-		await createLocalPropertiesFile(this.androidSdk, this.androidNdk);
-
 		// Generate a maven repo directory structure and dependencies POM file for last built Titanium AAR library.
 		process.env.TI_SDK_BUILD_VERSION = this.sdkVersion;
 		process.env.TI_SDK_BUILD_GIT_HASH = this.gitHash;
 		process.env.TI_SDK_VERSION_TAG = this.versionTag;
-		await gradlew(':titanium:publish');
+		await this.runGradleTask(':titanium:publish');
 
 		// Copy the above created maven directory tree to the destination.
 		await copyFile(path.join(TITANIUM_ANDROID_PATH, 'titanium', 'build', 'outputs'), ZIP_ANDROID_PATH, 'm2repository');
@@ -143,14 +155,25 @@ class Android {
 		// This generates C/C++ interop code between JavaScript and the Java APIs which have these annotations.
 		await copyFile(path.join(TITANIUM_ANDROID_PATH, 'kroll-apt', 'build', 'libs'), ZIP_ANDROID_PATH, 'kroll-apt.jar');
 	}
+
+	async runGradleTask(task, args) {
+		// Create "local.properties" file which tells gradle where to find the Android SDK directory.
+		await createLocalPropertiesFile(this.androidSdk);
+
+		// Run the given gradle task.
+		const newArgs = [ task ];
+		if (Array.isArray(args)) {
+			newArgs.push(...args);
+		} else {
+			newArgs.push('--console', GRADLE_CONSOLE_MODE, '--warning-mode', 'all');
+		}
+		await gradlew(newArgs);
+	}
 }
 
-async function gradlew(argsString) {
+async function gradlew(args) {
 	await new Promise((resolve, reject) => {
-		const commandLineString = `"${GRADLEW_FILE_PATH}" ${argsString} --console plain --warning-mode all`;
-		const childProcess = exec(commandLineString, { cwd: TITANIUM_ANDROID_PATH });
-		childProcess.stdout.pipe(process.stdout);
-		childProcess.stderr.pipe(process.stderr);
+		const childProcess = spawn(GRADLEW_FILE_PATH, args, { cwd: TITANIUM_ANDROID_PATH, stdio: 'inherit' });
 		childProcess.on('error', reject);
 		childProcess.on('exit', (exitCode) => {
 			if (exitCode === 0) {
@@ -162,7 +185,7 @@ async function gradlew(argsString) {
 	});
 }
 
-async function createLocalPropertiesFile(sdkPath, ndkPath) {
+async function createLocalPropertiesFile(sdkPath) {
 	// The "local.properties" file must be in the root gradle project directory.
 	const fileName = 'local.properties';
 	const filePath = path.join(TITANIUM_ANDROID_PATH, fileName);
@@ -228,104 +251,13 @@ async function createLocalPropertiesFile(sdkPath, ndkPath) {
 		}
 	}
 
-	// Set up an array of Android NDK directory paths to do an existence check on.
-	const ndkSideBySidePath = path.join(sdkPath, 'ndk');
-	const ndkTestPaths = [
-		ndkPath,                            // Prefer given argument's path 1st if provided and it exists.
-		process.env.ANDROID_NDK,            // Titanium's preferred environment variable for setting the path.
-		ndkSideBySidePath,                  // Google installs multiple NDK versions under Android SDK folder as of 2019.
-		path.join(sdkPath, 'ndk-bundle')    // Google installed only one NDK version under Android SDK before 2019.
-	];
-
-	// Use the 1st existing NDK path configured in the array above.
-	ndkPath = null;
-	for (const nextPath of ndkTestPaths) {
-		if (nextPath && (await fs.exists(nextPath))) {
-			if (nextPath === ndkSideBySidePath) {
-				// We've found an NDK side-by-side directory which contains folders with version names.
-				// Fetch all folders, sort them by version string, and choose the newest versioned folder.
-				const fileNames = await fs.readdir(nextPath);
-				fileNames.sort(versionStringSortComparer);
-				for (let index = fileNames.length - 1; index >= 0; index--) {
-					const ndkVersionPath = path.join(nextPath, fileNames[index]);
-					if ((await fs.stat(ndkVersionPath)).isDirectory()) {
-						ndkPath = ndkVersionPath;
-						break;
-					}
-				}
-			} else {
-				// NDK directory path exists. Select it.
-				ndkPath = nextPath;
-			}
-			if (ndkPath) {
-				break;
-			}
-		}
-	}
-	if (!ndkPath) {
-		const message = 'Failed to find Android NDK directory path.';
-		if (await fs.exists(filePath)) {
-			console.warn(`Warning: ${message} Will use last generated "${fileName}" file.`);
-			return;
-		} else {
-			throw new Error(message);
-		}
-	}
-
 	// Create a "local.properties" file under Titanium's root "android" directory.
 	// This is required by the Android gradle plugin or else it will fail to build.
-	const fileContentString
-		= '# This file was generated by Titanium\'s build tools.\n'
-		+ 'sdk.dir=' + sdkPath.replace(/\\/g, '\\\\') + '\n'
-		+ 'ndk.dir=' + ndkPath.replace(/\\/g, '\\\\') + '\n';
-	await fs.writeFile(filePath, fileContentString);
-}
-
-function versionStringSortComparer(element1, element2) {
-	// Check if the references match. (This is an optimization.)
-	// eslint-disable-next-line eqeqeq
-	if (element1 == element2) {
-		return 0;
-	}
-
-	// Compare element types. String types are always greater than non-string types.
-	const isElement1String = (typeof element1 === 'string');
-	const isElement2String = (typeof element2 === 'string');
-	if (isElement1String && !isElement2String) {
-		return 1;
-	} else if (!isElement1String && isElement2String) {
-		return -1;
-	} else if (!isElement1String && !isElement2String) {
-		return 0;
-	}
-
-	// Split version strings into components. Example: '1.2.3' -> ['1', '2', '3']
-	// If there is version component lenght mismatch, then pad the rest with zeros.
-	const version1Components = element1.split('.');
-	const version2Components = element2.split('.');
-	const componentLengthDelta = version1Components.length - version2Components.length;
-	if (componentLengthDelta > 0) {
-		version2Components.push(...Array(componentLengthDelta).fill('0'));
-	} else if (componentLengthDelta < 0) {
-		version1Components.push(...Array(-componentLengthDelta).fill('0'));
-	}
-
-	// Compare the 2 given version strings by their numeric components.
-	for (let index = 0; index < version1Components.length; index++) {
-		let value1 = Number.parseInt(version1Components[index], 10);
-		if (Number.isNaN(value1)) {
-			value1 = 0;
-		}
-		let value2 = Number.parseInt(version2Components[index], 10);
-		if (Number.isNaN(value2)) {
-			value2 = 0;
-		}
-		const valueDelta = value1 - value2;
-		if (valueDelta !== 0) {
-			return valueDelta;
-		}
-	}
-	return 0;
+	const fileLines = [
+		'# This file was generated by Titanium\'s build tools.',
+		'sdk.dir=' + sdkPath.replace(/\\/g, '\\\\')
+	];
+	await fs.writeFile(filePath, fileLines.join('\n') + '\n');
 }
 
 module.exports = Android;

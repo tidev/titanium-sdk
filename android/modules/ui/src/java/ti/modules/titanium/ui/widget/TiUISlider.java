@@ -23,7 +23,6 @@ import android.graphics.Rect;
 import android.graphics.drawable.ClipDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
-import android.os.Build;
 import android.view.Gravity;
 import android.widget.SeekBar;
 
@@ -95,9 +94,7 @@ public class TiUISlider extends TiUIView implements SeekBar.OnSeekBarChangeListe
 			updateThumb(seekBar, d);
 		}
 		if (d.containsKey(TiC.PROPERTY_SPLIT_TRACK)) {
-			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-				seekBar.setSplitTrack(TiConvert.toBoolean(d.get(TiC.PROPERTY_SPLIT_TRACK)));
-			}
+			seekBar.setSplitTrack(TiConvert.toBoolean(d.get(TiC.PROPERTY_SPLIT_TRACK)));
 		}
 		if (d.containsKey("leftTrackImage") || d.containsKey("rightTrackImage")) {
 			updateTrackingImages(seekBar, d);
@@ -162,7 +159,7 @@ public class TiUISlider extends TiUIView implements SeekBar.OnSeekBarChangeListe
 			String url = proxy.resolveUrl(null, thumbImage);
 			Drawable thumb = tfh.loadDrawable(url, false);
 			if (thumb != null) {
-				thumbDrawable = new SoftReference<Drawable>(thumb);
+				thumbDrawable = new SoftReference<>(thumb);
 				seekBar.setThumb(thumb);
 			} else {
 				Log.e(TAG, "Unable to locate thumb image for progress bar: " + url);
@@ -213,8 +210,10 @@ public class TiUISlider extends TiUIView implements SeekBar.OnSeekBarChangeListe
 				ld = new LayerDrawable(lda);
 				ld.setId(0, android.R.id.secondaryProgress);
 			} else {
-				Drawable[] lda = { rightDrawable,
-								   new ClipDrawable(leftDrawable, Gravity.LEFT, ClipDrawable.HORIZONTAL) };
+				Drawable[] lda = {
+					rightDrawable,
+					new ClipDrawable(leftDrawable, Gravity.LEFT, ClipDrawable.HORIZONTAL)
+				};
 				ld = new LayerDrawable(lda);
 				ld.setId(0, android.R.id.background);
 				ld.setId(1, android.R.id.progress);
@@ -241,7 +240,7 @@ public class TiUISlider extends TiUIView implements SeekBar.OnSeekBarChangeListe
 			pos = TiConvert.toFloat(newValue);
 			int curPos = (int) Math.floor(scaleFactor * (pos + offset));
 			seekBar.setProgress(curPos);
-			onProgressChanged(seekBar, curPos, true);
+			onProgressChanged(seekBar, curPos, false);
 		} else if (key.equals("min")) {
 			min = TiConvert.toInt(newValue);
 			minRange = min;
@@ -251,7 +250,7 @@ public class TiUISlider extends TiUIView implements SeekBar.OnSeekBarChangeListe
 			}
 			updateControl();
 			int curPos = (int) Math.floor(scaleFactor * (pos + offset));
-			onProgressChanged(seekBar, curPos, true);
+			onProgressChanged(seekBar, curPos, false);
 		} else if (key.equals("minRange")) {
 			minRange = TiConvert.toInt(newValue);
 			updateRange();
@@ -260,7 +259,7 @@ public class TiUISlider extends TiUIView implements SeekBar.OnSeekBarChangeListe
 			}
 			updateControl();
 			int curPos = (int) Math.floor(scaleFactor * (pos + offset));
-			onProgressChanged(seekBar, curPos, true);
+			onProgressChanged(seekBar, curPos, false);
 		} else if (key.equals("max")) {
 			max = TiConvert.toInt(newValue);
 			maxRange = max;
@@ -270,7 +269,7 @@ public class TiUISlider extends TiUIView implements SeekBar.OnSeekBarChangeListe
 			}
 			updateControl();
 			int curPos = (int) Math.floor(scaleFactor * (pos + offset));
-			onProgressChanged(seekBar, curPos, true);
+			onProgressChanged(seekBar, curPos, false);
 		} else if (key.equals("maxRange")) {
 			maxRange = TiConvert.toInt(newValue);
 			updateRange();
@@ -279,7 +278,7 @@ public class TiUISlider extends TiUIView implements SeekBar.OnSeekBarChangeListe
 			}
 			updateControl();
 			int curPos = (int) Math.floor(scaleFactor * (pos + offset));
-			onProgressChanged(seekBar, curPos, true);
+			onProgressChanged(seekBar, curPos, false);
 		} else if (key.equals(TiC.PROPERTY_TINT_COLOR)) {
 			String stringValue = TiConvert.toString(newValue);
 			if (stringValue != null) {
@@ -295,15 +294,14 @@ public class TiUISlider extends TiUIView implements SeekBar.OnSeekBarChangeListe
 			//seekBar.invalidate();
 			Log.i(TAG, "Dynamically changing thumbImage is not yet supported. Native control doesn't draw");
 		} else if (key.equals(TiC.PROPERTY_SPLIT_TRACK)) {
-			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-				seekBar.setSplitTrack(TiConvert.toBoolean(newValue));
-			}
+			seekBar.setSplitTrack(TiConvert.toBoolean(newValue));
 		} else if (key.equals("leftTrackImage") || key.equals("rightTrackImage")) {
 			//updateTrackingImages(seekBar, proxy.getDynamicProperties());
 			//seekBar.invalidate();
-			Log.i(
-				TAG,
-				"Dynamically changing leftTrackImage or rightTrackImage is not yet supported. Native control doesn't draw");
+			String infoMessage
+				= "Dynamically changing leftTrackImage or rightTrackImage is not yet supported. "
+				+ "Native control doesn't draw.";
+			Log.i(TAG, infoMessage);
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
@@ -353,6 +351,7 @@ public class TiUISlider extends TiUIView implements SeekBar.OnSeekBarChangeListe
 		data.put(TiC.PROPERTY_VALUE, scaledValue);
 		data.put(TiC.EVENT_PROPERTY_THUMB_OFFSET, offset);
 		data.put(TiC.EVENT_PROPERTY_THUMB_SIZE, size);
+		data.put("isTrusted", fromUser);
 		proxy.setProperty(TiC.PROPERTY_VALUE, scaledValue);
 
 		fireEvent(TiC.EVENT_CHANGE, data);
@@ -376,10 +375,8 @@ public class TiUISlider extends TiUIView implements SeekBar.OnSeekBarChangeListe
 	{
 		SeekBar seekBar = (SeekBar) getNativeView();
 
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-			ColorStateList singleColorStateList = ColorStateList.valueOf(color);
-			seekBar.setProgressTintList(singleColorStateList);
-		}
+		ColorStateList singleColorStateList = ColorStateList.valueOf(color);
+		seekBar.setProgressTintList(singleColorStateList);
 	}
 
 	protected void handleSetTrackTintColor(int color)
@@ -387,9 +384,7 @@ public class TiUISlider extends TiUIView implements SeekBar.OnSeekBarChangeListe
 		SeekBar seekBar = (SeekBar) getNativeView();
 
 		ColorStateList singleColorStateList = ColorStateList.valueOf(color);
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-			seekBar.setProgressBackgroundTintList(singleColorStateList);
-		}
+		seekBar.setProgressBackgroundTintList(singleColorStateList);
 	}
 
 	private float scaledValue()

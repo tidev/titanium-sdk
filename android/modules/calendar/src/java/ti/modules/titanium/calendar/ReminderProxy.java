@@ -21,7 +21,6 @@ import android.net.Uri;
 @Kroll.proxy(parentModule = CalendarModule.class)
 public class ReminderProxy extends KrollProxy
 {
-
 	public static final int METHOD_DEFAULT = 0;
 	public static final int METHOD_ALERT = 1;
 	public static final int METHOD_EMAIL = 2;
@@ -42,7 +41,7 @@ public class ReminderProxy extends KrollProxy
 
 	public static ArrayList<ReminderProxy> getRemindersForEvent(EventProxy event)
 	{
-		ArrayList<ReminderProxy> reminders = new ArrayList<ReminderProxy>();
+		ArrayList<ReminderProxy> reminders = new ArrayList<>();
 		if (!CalendarProxy.hasCalendarPermissions()) {
 			return reminders;
 		}
@@ -93,29 +92,20 @@ public class ReminderProxy extends KrollProxy
 		return reminder;
 	}
 
-	// clang-format off
-	@Kroll.method
 	@Kroll.getProperty
 	public String getId()
-	// clang-format on
 	{
 		return id;
 	}
 
-	// clang-format off
-	@Kroll.method
 	@Kroll.getProperty
 	public int getMinutes()
-	// clang-format on
 	{
 		return minutes;
 	}
 
-	// clang-format off
-	@Kroll.method
 	@Kroll.getProperty
 	public int getMethod()
-	// clang-format on
 	{
 		return method;
 	}

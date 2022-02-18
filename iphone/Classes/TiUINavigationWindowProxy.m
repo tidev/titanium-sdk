@@ -5,10 +5,11 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-#if defined(USE_TI_UINAVIGATIONWINDOW) || defined(USE_TI_UIIOSNAVIGATIONWINDOW)
+#if defined(USE_TI_UINAVIGATIONWINDOW)
 
 #import "TiUINavigationWindowProxy.h"
 #import "TiUINavigationWindowInternal.h"
+#import <TitaniumKit/KrollPromise.h>
 #import <TitaniumKit/TiApp.h>
 
 @implementation TiUINavigationWindowProxy
@@ -83,7 +84,6 @@
 {
   if (navController == nil) {
     navController = [[UINavigationController alloc] initWithRootViewController:[self rootController]];
-    ;
     navController.delegate = self;
     [TiUtils configureController:navController withObject:self];
     [navController.interactivePopGestureRecognizer addTarget:self action:@selector(popGestureStateHandler:)];
@@ -102,15 +102,17 @@
   return !isRootWindow;
 }
 
-- (void)openWindow:(NSArray *)args
+- (KrollPromise *)openWindow:(NSArray *)args
 {
   TiWindowProxy *window = [args objectAtIndex:0];
   ENSURE_TYPE(window, TiWindowProxy);
 
+  JSContext *context = [self currentContext];
+
   if (window == rootWindow) {
     [rootWindow windowWillOpen];
     [rootWindow windowDidOpen];
-    return;
+    return [KrollPromise resolved:@[] inContext:context];
   }
   [window setIsManaged:YES];
   [window setTab:(TiViewProxy<TiTab> *)self];
@@ -121,38 +123,50 @@
     if (args != nil) {
       args = [NSArray arrayWithObject:args];
     }
-    [window open:args];
-    return;
+    return [window open:args]; // return underlying promise
   }
 
+  KrollPromise *promise = [[[KrollPromise alloc] initInContext:context] autorelease];
+  BOOL animated = args != nil && [args count] > 1 ? [TiUtils boolValue:@"animated" properties:[args objectAtIndex:1] def:YES] : YES;
   [[[TiApp app] controller] dismissKeyboard];
-  TiThreadPerformOnMainThread(^{
-    [self pushOnUIThread:args];
-  },
+  TiThreadPerformOnMainThread(
+      ^{
+        [self pushOnUIThread:@[ window, [NSNumber numberWithBool:animated], promise ]];
+      },
       YES);
+  return promise;
 }
 
-- (void)closeWindow:(NSArray *)args
+- (KrollPromise *)closeWindow:(NSArray *)args
 {
   TiWindowProxy *window = [args objectAtIndex:0];
   ENSURE_TYPE(window, TiWindowProxy);
+
+  JSContext *context = [self currentContext];
+
   if (window == rootWindow && ![[TiApp app] willTerminate]) {
     DebugLog(@"[ERROR] Can not close the root window of the NavigationWindow. Close the NavigationWindow instead.");
-    return;
+    return [KrollPromise rejectedWithErrorMessage:@"Can not close the root window of the NavigationWindow. Close the NavigationWindow instead." inContext:context];
   }
-  TiThreadPerformOnMainThread(^{
-    [self popOnUIThread:args];
-  },
+
+  KrollPromise *promise = [[[KrollPromise alloc] initInContext:context] autorelease];
+  BOOL animated = args != nil && [args count] > 1 ? [TiUtils boolValue:@"animated" properties:[args objectAtIndex:1] def:YES] : YES;
+  TiThreadPerformOnMainThread(
+      ^{
+        [self popOnUIThread:@[ window, [NSNumber numberWithBool:animated], promise ]];
+      },
       YES);
+  return promise;
 }
 
 - (void)popToRootWindow:(id)args
 {
   ENSURE_SINGLE_ARG_OR_NIL(args, NSDictionary);
 
-  TiThreadPerformOnMainThread(^{
-    [navController popToRootViewControllerAnimated:[TiUtils boolValue:@"animated" properties:args def:NO]];
-  },
+  TiThreadPerformOnMainThread(
+      ^{
+        [navController popToRootViewControllerAnimated:[TiUtils boolValue:@"animated" properties:args def:NO]];
+      },
       YES);
 }
 
@@ -278,19 +292,25 @@
     transitionIsAnimating = YES;
   }
 
+  KrollPromise *promise = [args objectAtIndex:2];
   @try {
     TiWindowProxy *window = [args objectAtIndex:0];
-    BOOL animated = args != nil && [args count] > 1 ? [TiUtils boolValue:@"animated" properties:[args objectAtIndex:1] def:YES] : YES;
-
     // Prevent UIKit  crashes when trying to push a window while it's already in the nav stack (e.g. on really slow devices)
     if ([[[self rootController].navigationController viewControllers] containsObject:window.hostingController]) {
       NSLog(@"[WARN] Trying to push a view controller that is already in the navigation window controller stack. Skipping open …");
       return;
     }
 
+    BOOL animated = [[args objectAtIndex:1] boolValue];
     [navController pushViewController:[window hostingController] animated:animated];
+    if (promise != nil) {
+      [promise resolve:@[]];
+    }
   } @catch (NSException *ex) {
     NSLog(@"[ERROR] %@", ex.description);
+    if (promise != nil) {
+      [promise rejectWithErrorMessage:ex.description];
+    }
   }
 }
 
@@ -301,15 +321,23 @@
     return;
   }
   TiWindowProxy *window = [args objectAtIndex:0];
+  BOOL animated = [[args objectAtIndex:1] boolValue];
+  KrollPromise *promise = [args objectAtIndex:2];
 
   if (window == current) {
-    BOOL animated = args != nil && [args count] > 1 ? [TiUtils boolValue:@"animated" properties:[args objectAtIndex:1] def:YES] : YES;
     if (animated && !transitionWithGesture) {
       transitionIsAnimating = YES;
     }
     [navController popViewControllerAnimated:animated];
+    if (promise != nil) {
+      [promise resolve:@[]];
+    }
   } else {
+    // FIXME: forward/chain the underying promise from [window close:] done internally here rather than assume success
     [self closeWindow:window animated:NO];
+    if (promise != nil) {
+      [promise resolve:@[]];
+    }
   }
 }
 
@@ -335,31 +363,38 @@
 
 - (void)cleanNavStack
 {
-  TiThreadPerformOnMainThread(^{
-    if (navController != nil) {
-      [navController setDelegate:nil];
-      NSArray *currentControllers = [navController viewControllers];
-      [navController setViewControllers:[NSArray array]];
+  TiThreadPerformOnMainThread(
+      ^{
+        if (navController != nil) {
+          [navController setDelegate:nil];
+          NSArray *currentControllers = [navController viewControllers];
+          [navController setViewControllers:[NSArray array]];
 
-      for (UIViewController *viewController in currentControllers) {
-        TiWindowProxy *win = (TiWindowProxy *)[(TiViewController *)viewController proxy];
-        [win setTab:nil];
-        [win setParentOrientationController:nil];
-        [win close:nil];
-      }
-      [navController.view removeFromSuperview];
-      RELEASE_TO_NIL(navController);
-      RELEASE_TO_NIL(rootWindow);
-      RELEASE_TO_NIL(current);
-    }
-  },
+          for (UIViewController *viewController in currentControllers) {
+            TiWindowProxy *win = (TiWindowProxy *)[(TiViewController *)viewController proxy];
+            [win setTab:nil];
+            [win setParentOrientationController:nil];
+            [[win close:nil] flush];
+          }
+          // Remove navigation controller from parent controller
+          [navController willMoveToParentViewController:nil];
+          [navController.view removeFromSuperview];
+          [navController removeFromParentViewController];
+          RELEASE_TO_NIL(navController);
+          RELEASE_TO_NIL(rootWindow);
+          RELEASE_TO_NIL(current);
+        }
+      },
       YES);
 }
 
 #pragma mark - TiWindowProtocol
 - (void)viewWillAppear:(BOOL)animated
 {
-  if ([self viewAttached]) {
+  if (navController && [self viewAttached]) {
+    UIViewController *parentController = [self windowHoldingController];
+    [parentController addChildViewController:navController];
+    [navController didMoveToParentViewController:parentController];
     [navController viewWillAppear:animated];
   }
   [super viewWillAppear:animated];
@@ -492,7 +527,7 @@
   UIView *nview = [[self controller] view];
   [nview setFrame:[[self view] bounds]];
   [[self view] addSubview:nview];
-  return [super windowWillOpen];
+  [super windowWillOpen];
 }
 
 - (void)windowDidClose

@@ -47,7 +47,7 @@ CGSize SizeConstraintViewWithSizeAddingResizing(LayoutConstraint *constraint, NS
 
   if ([autoSizer isKindOfClass:[TiViewProxy class]]) {
     TiViewProxy *parent = [(TiViewProxy *)autoSizer parent];
-    if (parent != nil && (!TiLayoutRuleIsAbsolute([parent layoutProperties] -> layoutStyle))) {
+    if (parent != nil && (!TiLayoutRuleIsAbsolute([parent layoutProperties]->layoutStyle))) {
       //Sandbox with percent values is garbage
       ignorePercent = YES;
       parentSize = [parent size].rect.size;
@@ -193,7 +193,7 @@ CGPoint PositionConstraintGivenSizeBoundsAddingResizing(LayoutConstraint *constr
 {
   BOOL clearMargins = NO;
   TiViewProxy *parent = [viewProxy parent];
-  if (parent != nil && (!TiLayoutRuleIsAbsolute([parent layoutProperties] -> layoutStyle))) {
+  if (parent != nil && (!TiLayoutRuleIsAbsolute([parent layoutProperties]->layoutStyle))) {
     //Calculated Sandbox implies fixed margins
     clearMargins = YES;
   }

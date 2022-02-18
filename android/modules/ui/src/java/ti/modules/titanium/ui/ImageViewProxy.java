@@ -1,19 +1,19 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2021 by Axway, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 package ti.modules.titanium.ui;
 
+import android.app.Activity;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.view.TiUIView;
-
+import ti.modules.titanium.media.MediaModule;
 import ti.modules.titanium.ui.widget.TiUIImageView;
-import android.app.Activity;
-// clang-format off
+
 @Kroll.proxy(creatableInModule = UIModule.class,
 	propertyAccessors = {
 		TiC.PROPERTY_DECODE_RETRIES,
@@ -22,16 +22,19 @@ import android.app.Activity;
 		TiC.PROPERTY_DURATION,
 		TiC.PROPERTY_ENABLE_ZOOM_CONTROLS,
 		TiC.PROPERTY_IMAGE,
+		TiC.PROPERTY_IMAGE_TOUCH_FEEDBACK,
+		TiC.PROPERTY_IMAGE_TOUCH_FEEDBACK_COLOR,
 		TiC.PROPERTY_IMAGES,
 		TiC.PROPERTY_REPEAT_COUNT,
-		TiC.PROPERTY_URL
+		TiC.PROPERTY_SCALING_MODE
 })
-// clang-format on
 public class ImageViewProxy extends ViewProxy
 {
 	public ImageViewProxy()
 	{
 		super();
+		defaultValues.put(TiC.PROPERTY_AUTOROTATE, true);
+		defaultValues.put(TiC.PROPERTY_SCALING_MODE, MediaModule.IMAGE_SCALING_AUTO);
 	}
 
 	@Override
@@ -75,38 +78,26 @@ public class ImageViewProxy extends ViewProxy
 		getImageView().resume();
 	}
 
-	// clang-format off
-	@Kroll.method
 	@Kroll.getProperty
 	public boolean getAnimating()
-	// clang-format on
 	{
 		return getImageView().isAnimating();
 	}
 
-	// clang-format off
-	@Kroll.method
 	@Kroll.getProperty
 	public boolean getPaused()
-	// clang-format on
 	{
 		return getImageView().isPaused();
 	}
 
-	// clang-format off
-	@Kroll.method
 	@Kroll.getProperty
 	public boolean getReverse()
-	// clang-format on
 	{
 		return getImageView().isReverse();
 	}
 
-	// clang-format off
 	@Kroll.setProperty(runOnUiThread = true)
-	@Kroll.method(runOnUiThread = true)
 	public void setReverse(boolean reverse)
-	// clang-format on
 	{
 		getImageView().setReverse(reverse);
 	}
@@ -117,20 +108,14 @@ public class ImageViewProxy extends ViewProxy
 		return getImageView().toBlob();
 	}
 
-	// clang-format off
 	@Kroll.setProperty(runOnUiThread = true)
-	@Kroll.method(runOnUiThread = true)
 	public void setTintColor(String color)
-	// clang-format on
 	{
 		getImageView().setTintColor(color);
 	}
 
-	// clang-format off
-	@Kroll.method
 	@Kroll.getProperty
 	public int getTintColor()
-	// clang-format on
 	{
 		return getImageView().getTintColor();
 	}

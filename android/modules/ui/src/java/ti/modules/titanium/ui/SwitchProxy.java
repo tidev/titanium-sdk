@@ -10,11 +10,9 @@ import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.view.TiUIView;
-
-import ti.modules.titanium.ui.android.AndroidModule;
 import ti.modules.titanium.ui.widget.TiUISwitch;
 import android.app.Activity;
-// clang-format off
+
 @Kroll.proxy(creatableInModule = UIModule.class,
 	propertyAccessors = {
 		TiC.PROPERTY_VALUE,
@@ -27,14 +25,13 @@ import android.app.Activity;
 		TiC.PROPERTY_TEXT_ALIGN,
 		TiC.PROPERTY_VERTICAL_ALIGN
 })
-// clang-format on
 public class SwitchProxy extends TiViewProxy
 {
 	public SwitchProxy()
 	{
 		super();
 		defaultValues.put(TiC.PROPERTY_VALUE, false);
-		defaultValues.put(TiC.PROPERTY_STYLE, AndroidModule.SWITCH_STYLE_SWITCH);
+		defaultValues.put(TiC.PROPERTY_STYLE, UIModule.SWITCH_STYLE_SLIDER);
 	}
 
 	@Override

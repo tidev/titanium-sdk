@@ -103,7 +103,7 @@
 #ifndef TI_USE_AUTOLAYOUT
   // Treat 'undefined' like 'auto' when we have an available width for ALL control segments
   UISegmentedControl *ourControl = [self segmentedControl];
-  if (controlSpecifiedWidth && TiDimensionIsUndefined([(TiViewProxy *)[self proxy] layoutProperties] -> width)) {
+  if (controlSpecifiedWidth && TiDimensionIsUndefined([(TiViewProxy *)[self proxy] layoutProperties]->width)) {
     CGRect controlBounds = bounds_;
     controlBounds.size = [ourControl sizeThatFits:CGSizeZero];
     [ourControl setBounds:controlBounds];
@@ -156,7 +156,6 @@
   [[self segmentedControl] setTitleTextAttributes:@{ NSForegroundColorAttributeName : color } forState:UIControlStateSelected];
 }
 
-#if IS_SDK_IOS_13
 - (void)setSelectedButtonColor_:(id)value
 {
   if (![TiUtils isIOSVersionOrGreater:@"13.0"]) {
@@ -165,7 +164,6 @@
   UIColor *color = [[TiUtils colorValue:value] color];
   [[self segmentedControl] setSelectedSegmentTintColor:color];
 }
-#endif
 
 - (void)setIndex_:(id)value
 {
@@ -233,8 +231,12 @@
   }
 
   if (![segmentedControl isMomentary]) {
+    if ((selectedIndex < 0) && (segmentedControl.numberOfSegments > 0)) {
+      selectedIndex = 0;
+    }
     [segmentedControl setSelectedSegmentIndex:selectedIndex];
   }
+  [(TiViewProxy *)[self proxy] contentsWillChange];
 }
 
 - (IBAction)onSegmentChange:(id)sender

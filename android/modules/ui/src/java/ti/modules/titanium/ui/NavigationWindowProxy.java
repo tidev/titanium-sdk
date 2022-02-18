@@ -1,11 +1,13 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2018 by Axway, Inc. All Rights Reserved.
+ * Copyright (c) 2018-2021 by Axway, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 package ti.modules.titanium.ui;
 
+import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollPromise;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiWindowProxy;
@@ -13,64 +15,66 @@ import org.appcelerator.titanium.proxy.TiWindowProxy;
 import java.util.ArrayList;
 import java.util.List;
 
+import androidx.annotation.NonNull;
+
 @Kroll.proxy(creatableInModule = UIModule.class)
 public class NavigationWindowProxy extends WindowProxy
 {
 	private static final String TAG = "NavigationWindowProxy";
 
-	private List<TiWindowProxy> windows = new ArrayList<>();
+	private final List<TiWindowProxy> windows = new ArrayList<>();
 
 	public NavigationWindowProxy()
 	{
 		super();
 	}
 
-	// clang-format off
 	@Override
 	@Kroll.method
-	public void open(@Kroll.argument(optional = true) Object arg)
-	// clang-format on
+	public KrollPromise<Void> open(@Kroll.argument(optional = true) Object arg)
 	{
 		// FIXME: Shouldn't this complain/blow up if window isn't specified?
-		if (getProperties().containsKeyAndNotNull(TiC.PROPERTY_WINDOW)) {
+		if (!opened && getProperties().containsKeyAndNotNull(TiC.PROPERTY_WINDOW)) {
 			opened = true;
 			Object rootView = getProperties().get(TiC.PROPERTY_WINDOW);
 			if (rootView instanceof WindowProxy || rootView instanceof TabGroupProxy) {
 				openWindow(rootView, arg);
+				fireEvent(TiC.EVENT_OPEN, null);
 			}
-			return;
+			return KrollPromise.create((promise) -> {
+				promise.resolve(null);
+			});
 		}
-		super.open(arg);
+		return super.open(arg);
 	}
 
-	// clang-format off
 	@Kroll.method
 	public void popToRootWindow(@Kroll.argument(optional = true) Object arg)
-	// clang-format on
 	{
 		// Keep first "root" window
 		for (int i = windows.size() - 1; i > 0; i--) {
 			TiWindowProxy window = windows.get(i);
-			window.close(arg);
-			windows.remove(window);
+			closeWindow(window, arg);
 		}
 	}
 
-	// clang-format off
-	@Override
-	@Kroll.method
-	public void close(@Kroll.argument(optional = true) Object arg)
-	// clang-format on
+	protected void handleClose(@NonNull KrollDict options)
 	{
-		popToRootWindow(arg);
-		closeWindow(windows.get(0), arg); // close the root window
-		super.close(arg);
+		if (opened) {
+			opened = false;
+			popToRootWindow(options);
+			closeWindow(windows.get(0), options); // close the root window
+			fireEvent(TiC.EVENT_CLOSE, null);
+			if (closePromise != null) {
+				closePromise.resolve(null);
+				closePromise = null;
+			}
+		}
+		super.handleClose(options);
 	}
 
-	// clang-format off
 	@Kroll.method
 	public void openWindow(Object childToOpen, @Kroll.argument(optional = true) Object arg)
-	// clang-format on
 	{
 		if (!opened) {
 			open(null);
@@ -91,10 +95,8 @@ public class NavigationWindowProxy extends WindowProxy
 		}
 	}
 
-	// clang-format off
 	@Kroll.method
 	public void closeWindow(Object childToClose, @Kroll.argument(optional = true) Object arg)
-	// clang-format on
 	{
 		// TODO: If they try to close root window, yell at them:
 		// DebugLog(@"[ERROR] Can not close the root window of the NavigationWindow. Close the NavigationWindow instead.");
@@ -104,9 +106,10 @@ public class NavigationWindowProxy extends WindowProxy
 			return;
 		}
 
-		windows.remove(childToClose);
-		((TiWindowProxy) childToClose).close(arg);
-		((TiWindowProxy) childToClose).setNavigationWindow(null);
+		TiWindowProxy window = (TiWindowProxy) childToClose;
+		windows.remove(window);
+		window.setNavigationWindow(null);
+		window.close(arg);
 	}
 
 	@Override

@@ -36,6 +36,12 @@ NSArray *pickerKeySequence;
   return @"Ti.UI.Picker";
 }
 
+- (void)dealloc
+{
+  RELEASE_TO_NIL(pickerKeySequence);
+  [super dealloc];
+}
+
 - (void)_destroy
 {
   RELEASE_TO_NIL(selectOnLoad);
@@ -83,7 +89,8 @@ NSArray *pickerKeySequence;
   // Tell all of the picker bits that their window has opened.  Can't operate
   // on the rows array directly; they're returned as a copy from the column.
   for (TiUIPickerColumnProxy *column in [self columns]) {
-    for (NSInteger i = 0; i < [column rowCount]; i++) {
+    NSUInteger rowCount = column.rowCount.unsignedIntegerValue;
+    for (NSUInteger i = 0; i < rowCount; i++) {
       [[column rowAt:i] windowWillOpen];
     }
   }
@@ -103,8 +110,7 @@ NSArray *pickerKeySequence;
   TiUIPickerColumnProxy *column = [[TiUIPickerColumnProxy alloc] _initWithPageContext:[self executionContext]];
   column.column = index;
   [columns addObject:column];
-  [column release];
-  return column;
+  return [column autorelease];
 }
 
 #pragma mark support methods for add:
@@ -123,10 +129,11 @@ NSArray *pickerKeySequence;
 
   [self reloadColumn:column];
   if ([TiUtils boolValue:[row valueForUndefinedKey:@"selected"] def:NO]) {
-    TiThreadPerformOnMainThread(^{
-      [[self picker] selectRow:
-                         [NSArray arrayWithObjects:NUMINT(0), rowIndex, nil]];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          [[self picker] selectRow:
+                             [NSArray arrayWithObjects:NUMINT(0), rowIndex, nil]];
+        },
         NO);
   }
 }
@@ -137,7 +144,8 @@ NSArray *pickerKeySequence;
   NSMutableArray *columns = [params objectForKey:@"columns"];
   TiUIPickerColumnProxy *column = [params objectForKey:@"column"];
   if (windowOpened) {
-    for (NSInteger i = 0; i < [column rowCount]; i++) {
+    NSUInteger rowCount = column.rowCount.unsignedIntegerValue;
+    for (NSUInteger i = 0; i < rowCount; i++) {
       TiUIPickerRowProxy *row = [column rowAt:i];
 
       [row windowWillOpen];
@@ -153,10 +161,13 @@ NSArray *pickerKeySequence;
 {
   ENSURE_UI_THREAD_1_ARG(params);
   NSMutableArray *columns = [params objectForKey:@"columns"];
-  NSArray *data = [params objectForKey:@"data"];
-  for (id column in data) {
+  NSArray<TiUIPickerColumnProxy *> *data = [params objectForKey:@"data"];
+  for (TiUIPickerColumnProxy *column in data) {
     if (windowOpened) {
-      for (NSInteger i = 0; i < [column rowCount]; i++) {
+      ENSURE_TYPE(column, TiUIPickerColumnProxy);
+
+      NSUInteger rowCount = column.rowCount.unsignedIntegerValue;
+      for (NSUInteger i = 0; i < rowCount; i++) {
         TiUIPickerRowProxy *row = [column rowAt:i];
 
         [row windowWillOpen];
@@ -208,9 +219,10 @@ NSArray *pickerKeySequence;
 {
   if (![NSThread isMainThread]) {
     __block id result = nil;
-    TiThreadPerformOnMainThread(^{
-      result = [[[self picker] value_] retain];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          result = [[[self picker] value_] retain];
+        },
         YES);
     return [result autorelease];
   }
@@ -247,9 +259,9 @@ NSArray *pickerKeySequence;
         TiUIPickerRowProxy *row = [[TiUIPickerRowProxy alloc] _initWithPageContext:[self executionContext] args:[NSArray arrayWithObject:rowdata]];
         TiUIPickerColumnProxy *column = [self columnAt:0];
         NSNumber *rowIndex = [column addRow:row];
+        NSDictionary *params = [NSDictionary dictionaryWithObjectsAndKeys:row, @"row", column, @"column", rowIndex, @"rowIndex", nil];
         [row release];
 
-        NSDictionary *params = [NSDictionary dictionaryWithObjectsAndKeys:row, @"row", column, @"column", rowIndex, @"rowIndex", nil];
         [self addRowOfDicts:params];
       }
     } else {

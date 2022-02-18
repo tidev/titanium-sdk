@@ -7,5 +7,5 @@
 package org.appcelerator.kroll.annotations.generator;
 
 public interface KrollVisitor<T> {
-	public boolean visit(T element, Object arg);
+	boolean visit(T element, Object arg);
 }

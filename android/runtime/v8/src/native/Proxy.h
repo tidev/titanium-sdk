@@ -143,6 +143,11 @@ public:
 
 	static void dispose(v8::Isolate* isolate);
 
+	/**
+     * Log detailed deprecation warning.
+     */
+	static void logDeprecation(v8::Isolate* isolate, const char* message);
+
 private:
 
 	/**

@@ -17,7 +17,6 @@ import org.appcelerator.titanium.util.TiConvert;
 import android.database.AbstractWindowedCursor;
 import android.database.Cursor;
 import android.database.SQLException;
-import android.os.Build;
 
 @Kroll.proxy(parentModule = DatabaseModule.class)
 public class TiResultSetProxy extends KrollProxy
@@ -34,7 +33,7 @@ public class TiResultSetProxy extends KrollProxy
 
 		this.rs = rs;
 		String[] names = rs.getColumnNames();
-		this.columnNames = new HashMap<String, Integer>(names.length);
+		this.columnNames = new HashMap<>(names.length);
 		for (int i = 0; i < names.length; i++) {
 			columnNames.put(names[i].toLowerCase(), i);
 		}
@@ -122,11 +121,7 @@ public class TiResultSetProxy extends KrollProxy
 			if (fromString) {
 				result = rs.getString(index);
 			}
-			if (outOfBounds && Build.VERSION.SDK_INT >= 11) {
-				// TIMOB-4515: Column number doesn't exist, yet no exception
-				// occurred. This is known to happen in Honeycomb. So
-				// we'll throw instead. We throw the same exception type that
-				// Android would.
+			if (outOfBounds) {
 				throw new IllegalStateException("Requested column number " + index + " does not exist");
 			}
 		} catch (RuntimeException e) {
@@ -216,11 +211,8 @@ public class TiResultSetProxy extends KrollProxy
 		return result;
 	}
 
-	// clang-format off
-	@Kroll.method
 	@Kroll.getProperty
 	public int getFieldCount()
-	// clang-format on
 	{
 		if (rs != null) {
 			try {
@@ -254,11 +246,8 @@ public class TiResultSetProxy extends KrollProxy
 		return null;
 	}
 
-	// clang-format off
-	@Kroll.method
 	@Kroll.getProperty
 	public int getRowCount()
-	// clang-format on
 	{
 		if (rs != null) {
 			return rs.getCount();
@@ -267,11 +256,9 @@ public class TiResultSetProxy extends KrollProxy
 		return 0;
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
 	public boolean isValidRow()
-	// clang-format on
 	{
 		boolean valid = false;
 		if (rs != null && !rs.isClosed() && !rs.isAfterLast()) {
@@ -300,10 +287,8 @@ public class TiResultSetProxy extends KrollProxy
 	@Override
 	public void release()
 	{
-
 		// Close ResultSet on cleanup.
 		this.close();
-
 		super.release();
 	}
 }

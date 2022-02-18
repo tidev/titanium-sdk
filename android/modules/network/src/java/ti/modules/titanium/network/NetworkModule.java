@@ -38,7 +38,6 @@ import android.webkit.CookieSyncManager;
 @Kroll.module
 public class NetworkModule extends KrollModule
 {
-
 	private static final String TAG = "TiNetwork";
 	private static java.net.CookieManager cookieManager;
 
@@ -111,7 +110,7 @@ public class NetworkModule extends KrollModule
 	private TiNetworkListener networkListener;
 	private ConnectivityManager connectivityManager;
 
-	private Handler messageHandler = new Handler() {
+	private final Handler messageHandler = new Handler() {
 		public void handleMessage(Message msg)
 		{
 			Bundle b = msg.getData();
@@ -174,11 +173,8 @@ public class NetworkModule extends KrollModule
 		}
 	}
 
-	// clang-format off
-	@Kroll.method
 	@Kroll.getProperty
 	public boolean getOnline()
-	// clang-format on
 	{
 		boolean result = false;
 
@@ -215,11 +211,8 @@ public class NetworkModule extends KrollModule
 		return type;
 	}
 
-	// clang-format off
-	@Kroll.method
 	@Kroll.getProperty
 	public int getNetworkType()
-	// clang-format on
 	{
 		int type = NETWORK_UNKNOWN;
 
@@ -241,11 +234,8 @@ public class NetworkModule extends KrollModule
 		return type;
 	}
 
-	// clang-format off
-	@Kroll.method
 	@Kroll.getProperty
 	public String getNetworkTypeName()
-	// clang-format on
 	{
 		return networkTypeToTypeName(getNetworkType());
 	}
@@ -266,20 +256,16 @@ public class NetworkModule extends KrollModule
 		}
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.topLevel
 	public String encodeURIComponent(String component)
-	// clang-format on
 	{
 		return Uri.encode(component);
 	}
 
-	// clang-format off
 	@Kroll.method
 	@Kroll.topLevel
 	public String decodeURIComponent(String component)
-	// clang-format on
 	{
 		return Uri.decode(component);
 	}
@@ -380,7 +366,7 @@ public class NetworkModule extends KrollModule
 		if (path == null || path.length() == 0) {
 			path = "/";
 		}
-		ArrayList<CookieProxy> cookieList = new ArrayList<CookieProxy>();
+		ArrayList<CookieProxy> cookieList = new ArrayList<>();
 		List<HttpCookie> cookies = getCookieManagerInstance().getCookieStore().getCookies();
 		for (HttpCookie cookie : cookies) {
 			String cookieName = cookie.getName();
@@ -392,7 +378,7 @@ public class NetworkModule extends KrollModule
 			}
 		}
 		if (!cookieList.isEmpty()) {
-			return cookieList.toArray(new CookieProxy[cookieList.size()]);
+			return cookieList.toArray(new CookieProxy[0]);
 		}
 		return null;
 	}
@@ -411,7 +397,7 @@ public class NetworkModule extends KrollModule
 			}
 			return null;
 		}
-		ArrayList<CookieProxy> cookieList = new ArrayList<CookieProxy>();
+		ArrayList<CookieProxy> cookieList = new ArrayList<>();
 		List<HttpCookie> cookies = getCookieManagerInstance().getCookieStore().getCookies();
 		for (HttpCookie cookie : cookies) {
 			String cookieDomain = cookie.getDomain();
@@ -420,7 +406,7 @@ public class NetworkModule extends KrollModule
 			}
 		}
 		if (!cookieList.isEmpty()) {
-			return cookieList.toArray(new CookieProxy[cookieList.size()]);
+			return cookieList.toArray(new CookieProxy[0]);
 		}
 		return null;
 	}
@@ -440,7 +426,7 @@ public class NetworkModule extends KrollModule
 			return;
 		}
 		java.net.CookieStore cookieStore = getCookieManagerInstance().getCookieStore();
-		List<HttpCookie> cookies = new ArrayList<HttpCookie>(getCookieManagerInstance().getCookieStore().getCookies());
+		List<HttpCookie> cookies = new ArrayList<>(getCookieManagerInstance().getCookieStore().getCookies());
 		cookieStore.removeAll();
 		for (HttpCookie cookie : cookies) {
 			String cookieName = cookie.getName();
@@ -467,7 +453,7 @@ public class NetworkModule extends KrollModule
 	public void removeHTTPCookiesForDomain(String domain)
 	{
 		java.net.CookieStore cookieStore = getCookieManagerInstance().getCookieStore();
-		List<HttpCookie> cookies = new ArrayList<HttpCookie>(getCookieManagerInstance().getCookieStore().getCookies());
+		List<HttpCookie> cookies = new ArrayList<>(getCookieManagerInstance().getCookieStore().getCookies());
 		cookieStore.removeAll();
 		for (HttpCookie cookie : cookies) {
 			String cookieDomain = cookie.getDomain();
@@ -496,7 +482,7 @@ public class NetworkModule extends KrollModule
 	/**
 	 * Adds a cookie to the system cookie store. Any existing cookie with the same domain, path and name will be replaced with
 	 * the new cookie. The cookie being set must not have expired, otherwise it will be ignored.
-	 * @param cookieProxy the cookie to add
+	 * @param cookieURLConnectionProxy the cookie to add
 	 */
 	@Kroll.method
 	public void addSystemCookie(CookieProxy cookieURLConnectionProxy)
@@ -555,7 +541,7 @@ public class NetworkModule extends KrollModule
 			path = "/";
 		}
 
-		ArrayList<CookieProxy> cookieList = new ArrayList<CookieProxy>();
+		ArrayList<CookieProxy> cookieList = new ArrayList<>();
 		CookieSyncManager.createInstance(TiApplication.getInstance().getRootOrCurrentActivity());
 		CookieManager cookieManager = CookieManager.getInstance();
 		String url = domain.toLowerCase() + path;
@@ -573,7 +559,7 @@ public class NetworkModule extends KrollModule
 			}
 		}
 		if (!cookieList.isEmpty()) {
-			return cookieList.toArray(new CookieProxy[cookieList.size()]);
+			return cookieList.toArray(new CookieProxy[0]);
 		}
 		return null;
 	}

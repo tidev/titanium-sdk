@@ -1,0 +1,18 @@
+{
+    "name": "titanium-unit-test-app-resources",
+    "version": "1.0.0",
+    "dependencies": {
+        "abbrev": "file:fake_node_modules/abbrev",
+        "bar": "file:fake_node_modules/bar",
+        "baz": "file:fake_node_modules/baz",
+        "browserify-zlib": "^0.2.0",
+        "cgbi-to-png": "^1.0.7",
+        "foo": "file:fake_node_modules/foo",
+        "mocha": "^8.2.1",
+        "pixelmatch": "^5.2.0",
+        "should": "^13.2.3"
+    },
+    "devDependencies": {
+        "detect-node": "^2.0.4"
+    }
+}

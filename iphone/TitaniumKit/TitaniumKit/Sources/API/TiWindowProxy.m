@@ -1,11 +1,12 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2014 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2021 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 
 #import "TiWindowProxy.h"
+#import "KrollPromise.h"
 #import "TiApp.h"
 #import "TiErrorController.h"
 #import "TiUIWindow.h"
@@ -25,9 +26,10 @@
 - (void)dealloc
 {
   if (controller != nil) {
-    TiThreadPerformOnMainThread(^{
-      RELEASE_TO_NIL(controller);
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          RELEASE_TO_NIL(controller);
+        },
         YES);
   }
 
@@ -35,6 +37,9 @@
     [self forgetProxy:transitionProxy];
     RELEASE_TO_NIL(transitionProxy)
   }
+
+  RELEASE_TO_NIL(openPromise);
+  RELEASE_TO_NIL(closePromise);
 
   [super dealloc];
 }
@@ -98,6 +103,13 @@
   }
 }
 
+- (void)fireFocusEvent
+{
+  if ([self _hasListeners:@"focus"]) {
+    [self fireEvent:@"focus" withObject:nil withSource:self propagate:NO reportSuccess:NO errorCode:0 message:nil];
+  }
+}
+
 - (void)windowDidOpen
 {
   opening = NO;
@@ -105,10 +117,12 @@
   if ([self _hasListeners:@"open"]) {
     [self fireEvent:@"open" withObject:nil withSource:self propagate:NO reportSuccess:NO errorCode:0 message:nil];
   }
-  if (focussed && [self handleFocusEvents]) {
-    if ([self _hasListeners:@"focus"]) {
-      [self fireEvent:@"focus" withObject:nil withSource:self propagate:NO reportSuccess:NO errorCode:0 message:nil];
-    }
+  if (openPromise != nil) {
+    [openPromise resolve:@[]];
+    RELEASE_TO_NIL(openPromise);
+  }
+  if (focussed) {
+    [self fireFocusEvent];
   }
   [super windowDidOpen];
   [self forgetProxy:openAnimation];
@@ -134,6 +148,10 @@
   if ([self _hasListeners:@"close"]) {
     [self fireEvent:@"close" withObject:nil withSource:self propagate:NO reportSuccess:NO errorCode:0 message:nil];
   }
+  if (closePromise != nil) {
+    [closePromise resolve:@[]];
+    RELEASE_TO_NIL(closePromise);
+  }
   [self forgetProxy:closeAnimation];
   RELEASE_TO_NIL(closeAnimation);
   if (tab == nil && !self.isManaged) {
@@ -153,23 +171,6 @@
   TiUIView *theView = [self view];
   [rootView addSubview:theView];
   [rootView bringSubviewToFront:theView];
-
-  // TODO: Revisit
-  /*
-    UIViewController<TiControllerContainment>* topContainerController = [[[TiApp app] controller] topContainerController];
-    UIView *rootView = [topContainerController hostingView];
-
-    UIViewController* thisViewController = [self hostingController];
-    UIView* theView = [thisViewController view];
-    [theView setFrame:[rootView bounds]];
-
-    [thisViewController willMoveToParentViewController:topContainerController];
-    [topContainerController addChildViewController:thisViewController];
-
-    [rootView addSubview:theView];
-    [rootView bringSubviewToFront:theView];
-    [thisViewController didMoveToParentViewController:topContainerController];
-     */
 }
 
 - (BOOL)argOrWindowPropertyExists:(NSString *)key args:(id)args
@@ -213,32 +214,39 @@
 }
 
 #pragma mark - TiWindowProtocol Base Methods
-- (void)open:(id)args
+- (KrollPromise *)open:(id)args
 {
-  //If an error is up, Go away
+  JSContext *context = [self currentContext];
+
+  // If an error is up, Go away
   if ([[[[TiApp app] controller] topPresentedController] isKindOfClass:[TiErrorNavigationController class]]) {
     DebugLog(@"[ERROR] ErrorController is up. ABORTING open");
-    return;
+    return [KrollPromise rejectedWithErrorMessage:@"ErrorController is up. ABORTING open" inContext:context];
   }
 
-  //I am already open or will be soon. Go Away
+  // I am already open or will be soon. Go Away
   if (opening || opened) {
-    return;
+    return [KrollPromise rejectedWithErrorMessage:@"Window is already opened or opening." inContext:context];
   }
 
-  //Lets keep ourselves safe
+  // Lets keep ourselves safe
   [self rememberSelf];
+
+  // Don't recreate if we're calling ourselves again because root view is not loaded/attached!
+  if (openPromise == nil) {
+    openPromise = [[KrollPromise alloc] initInContext:context];
+  }
 
   //Make sure our RootView Controller is attached
   if (![self isRootViewLoaded]) {
     DebugLog(@"[WARN] ROOT VIEW NOT LOADED. WAITING");
     [self performSelector:@selector(open:) withObject:args afterDelay:0.1];
-    return;
+    return openPromise;
   }
   if (![self isRootViewAttached]) {
     DebugLog(@"[WARN] ROOT VIEW NOT ATTACHED. WAITING");
     [self performSelector:@selector(open:) withObject:args afterDelay:0.1];
-    return;
+    return openPromise;
   }
 
   opening = YES;
@@ -268,10 +276,12 @@
   _supportedOrientations = [TiUtils TiOrientationFlagsFromObject:object];
 
   //GO ahead and call open on the UI thread
-  TiThreadPerformOnMainThread(^{
-    [self openOnUIThread:args];
-  },
-      YES);
+  TiThreadPerformOnMainThread(
+      ^{
+        [self openOnUIThread:args];
+      },
+      NO);
+  return openPromise;
 }
 
 - (void)setStatusBarStyle:(id)style
@@ -280,29 +290,34 @@
   [self assignStatusBarStyle:theStyle];
   [self setValue:NUMINT(barStyle) forUndefinedKey:@"statusBarStyle"];
   if (focussed) {
-    TiThreadPerformOnMainThread(^{
-      [[[TiApp app] controller] updateStatusBar];
-    },
+    TiThreadPerformOnMainThread(
+        ^{
+          [[[TiApp app] controller] updateStatusBar];
+        },
         YES);
   }
 }
 
-- (void)close:(id)args
+- (KrollPromise *)close:(id)args
 {
-  //I am not open. Go Away
-  if (opening) {
-    DebugLog(@"Window is opening. Ignoring this close call");
-    return;
-  }
+  JSContext *context = [self currentContext];
 
   if (!opened) {
+    // If I've been asked to open but haven't yet, short-circuit it and tell it not to open
+    if (opening) {
+      opening = NO; // _handleOpen: should check this and abort opening
+      DebugLog(@"Window is not open yet. Attempting to stop it from opening...");
+      // Should we reject or resolve here?! This feels more like "success", so maybe resolve? or do we have to wait on the end result of the openPromise to know?
+      return [KrollPromise resolved:@[] inContext:context];
+    }
+
     DebugLog(@"Window is not open. Ignoring this close call");
-    return;
+    return [KrollPromise rejectedWithErrorMessage:@"Window is not open. Ignoring this close call" inContext:context];
   }
 
   if (closing) {
     DebugLog(@"Window is already closing. Ignoring this close call.");
-    return;
+    return [KrollPromise rejectedWithErrorMessage:@"Window is already closing. Ignoring this close call." inContext:context];
   }
 
   if (tab != nil) {
@@ -311,21 +326,36 @@
     } else {
       args = [NSArray arrayWithObject:self];
     }
-    [tab closeWindow:args];
-    return;
+    return [tab closeWindow:args];
+  }
+
+  if (closePromise == nil) {
+    closePromise = [[KrollPromise alloc] initInContext:context];
   }
 
   closing = YES;
 
-  //TODO Argument Processing
+  // TODO: Argument Processing
   closeAnimation = [[TiAnimation animationFromArg:args context:[self pageContext] create:NO] retain];
   [self rememberProxy:closeAnimation];
 
-  //GO ahead and call close on UI thread
-  TiThreadPerformOnMainThread(^{
-    [self closeOnUIThread:args];
-  },
-      YES);
+  // GO ahead and call close on UI thread
+  TiThreadPerformOnMainThread(
+      ^{
+        [self closeOnUIThread:args];
+      },
+      NO);
+  return closePromise;
+}
+
+- (NSNumber *)closed
+{
+  return NUMBOOL(!opening && !opened && !closing);
+}
+
+- (NSNumber *)focused
+{
+  return NUMBOOL(focussed);
 }
 
 - (BOOL)_handleOpen:(id)args
@@ -340,6 +370,11 @@
     DeveloperLog(@"[WARN] The top View controller is not a container controller. This window will open behind the presented controller without animations.")
         [self forgetProxy:openAnimation];
     RELEASE_TO_NIL(openAnimation);
+  }
+
+  // Did someone try to close before we ever finished opening?
+  if (!opening) {
+    return NO;
   }
 
   return YES;
@@ -382,24 +417,15 @@
 
 - (NSNumber *)homeIndicatorAutoHidden
 {
-  if (![TiUtils isIOSVersionOrGreater:@"11.0"]) {
-    NSLog(@"[ERROR] This property is available on iOS 11 and above.");
-    return @(NO);
-  }
   return @([self homeIndicatorAutoHide]);
 }
 
 - (void)setHomeIndicatorAutoHidden:(id)arg
 {
-  if (![TiUtils isIOSVersionOrGreater:@"11.0"]) {
-    NSLog(@"[ERROR] This property is available on iOS 11 and above.");
-    return;
-  }
-
   ENSURE_TYPE(arg, NSNumber);
   id current = [self valueForUndefinedKey:@"homeIndicatorAutoHidden"];
   [self replaceValue:arg forKey:@"homeIndicatorAutoHidden" notification:NO];
-  if (current != arg && [TiUtils isIOSVersionOrGreater:@"11.0"]) {
+  if (current != arg) {
     [[[TiApp app] controller] setNeedsUpdateOfHomeIndicatorAutoHidden];
   }
 }
@@ -428,10 +454,8 @@
 {
   if (!focussed) {
     focussed = YES;
-    if ([self handleFocusEvents] && opened) {
-      if ([self _hasListeners:@"focus"]) {
-        [self fireEvent:@"focus" withObject:nil withSource:self propagate:NO reportSuccess:NO errorCode:0 message:nil];
-      }
+    if (opened) {
+      [self fireFocusEvent];
     }
     UIAccessibilityPostNotification(UIAccessibilityScreenChangedNotification, nil);
     [[self view] setAccessibilityElementsHidden:NO];
@@ -444,9 +468,10 @@
     }
     [self processForSafeArea];
   }
-  TiThreadPerformOnMainThread(^{
-    [self forceNavBarFrame];
-  },
+  TiThreadPerformOnMainThread(
+      ^{
+        [self forceNavBarFrame];
+      },
       NO);
 }
 
@@ -480,11 +505,20 @@
 
 - (UIViewController *)windowHoldingController
 {
+  // Use assigned controller if set.
   if (controller != nil) {
     return controller;
-  } else {
-    return [[TiApp app] controller];
   }
+
+  // Walk up the view hierarchy for the 1st controller available.
+  for (UIResponder *responder = [self view].nextResponder; responder != nil; responder = responder.nextResponder) {
+    if ([responder isKindOfClass:[UIViewController class]]) {
+      return (UIViewController *)responder;
+    }
+  }
+
+  // Fallback to the app's root view controller.
+  return [[TiApp app] controller];
 }
 
 #pragma mark - Private Methods
@@ -498,9 +532,7 @@
   switch (style) {
   case UIStatusBarStyleDefault:
   case UIStatusBarStyleLightContent:
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
   case UIStatusBarStyleDarkContent:
-#endif
     barStyle = style;
     break;
   default:
@@ -544,7 +576,7 @@
       } else {
         args = [NSArray arrayWithObject:self];
       }
-      [tab openWindow:args];
+      [[tab openWindow:args] flush]; // TODO: release?
     } else if (isModal) {
       UIViewController *theController = [self hostingController];
       [self windowWillOpen];
@@ -562,12 +594,10 @@
         }
       }
 
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
       if ([TiUtils isIOSVersionOrGreater:@"13.0"]) {
         forceModal = [TiUtils boolValue:@"forceModal" properties:dict def:NO];
         theController.modalInPresentation = forceModal;
       }
-#endif
       BOOL animated = [TiUtils boolValue:@"animated" properties:dict def:YES];
       [[TiApp app] showModalController:theController animated:animated];
     } else {
@@ -588,6 +618,11 @@
     opened = NO;
     [self forgetProxy:openAnimation];
     RELEASE_TO_NIL(openAnimation);
+    // reject the openPromise!
+    if (openPromise != nil) {
+      [openPromise rejectWithErrorMessage:@"open aborted"];
+      RELEASE_TO_NIL(openPromise);
+    }
   }
 }
 
@@ -612,6 +647,10 @@
     DebugLog(@"[WARN] CLOSE ABORTED. _handleClose returned NO");
     closing = NO;
     RELEASE_TO_NIL(closeAnimation);
+    if (closePromise != nil) {
+      [closePromise rejectWithErrorMessage:@"close aborted"];
+      RELEASE_TO_NIL(closePromise);
+    }
   }
 }
 

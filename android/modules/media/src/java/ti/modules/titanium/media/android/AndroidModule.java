@@ -44,7 +44,7 @@ public class AndroidModule extends KrollModule
 	@Kroll.method
 	public void scanMediaFiles(Object[] paths, Object[] mimeTypes, KrollFunction callback)
 	{
-		String mediaPaths[] = new String[paths.length];
+		String[] mediaPaths = new String[paths.length];
 		for (int i = 0; i < paths.length; i++) {
 			mediaPaths[i] = resolveUrl(null, TiConvert.toString(paths[i]));
 		}

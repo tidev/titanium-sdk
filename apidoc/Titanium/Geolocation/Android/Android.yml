@@ -76,12 +76,14 @@ description: |
     To specify a location provider, create a new provider object, then register it
     with [addLocationProvider](Titanium.Geolocation.Android.createLocationProvider):
 
-        var gpsProvider = Ti.Geolocation.Android.createLocationProvider({
-            name: Ti.Geolocation.Android.PROVIDER_GPS,
-            minUpdateTime: 60, 
-            minUpdateDistance: 100
-        });
-        Ti.Geolocation.Android.addLocationProvider(gpsProvider);
+    ``` js
+    var gpsProvider = Ti.Geolocation.Android.createLocationProvider({
+        name: Ti.Geolocation.Android.PROVIDER_GPS,
+        minUpdateTime: 60, 
+        minUpdateDistance: 100
+    });
+    Ti.Geolocation.Android.addLocationProvider(gpsProvider);
+    ```
 
     As shown above, when you create a location provider, you can specify two
     properties to limit update frequency:
@@ -116,16 +118,18 @@ description: |
     specify a location rule, create a new rule object, then register it with 
     [addLocationRule](Titanium.Geolocation.Android.createLocationProvider):
 
-        var gpsRule = Ti.Geolocation.Android.createLocationRule({
-            provider: Ti.Geolocation.PROVIDER_GPS,
-            // Updates should be accurate to 100m
-            accuracy: 100,
-            // Updates should be no older than 5m
-            maxAge: 300000
-            // But  no more frequent than once per 10 seconds
-            minAge: 10000
-        });
-        Ti.Geolocation.Android.addLocationRule(gpsRule);
+    ``` js
+    var gpsRule = Ti.Geolocation.Android.createLocationRule({
+        provider: Ti.Geolocation.PROVIDER_GPS,
+        // Updates should be accurate to 100m
+        accuracy: 100,
+        // Updates should be no older than 5m
+        maxAge: 300000
+        // But  no more frequent than once per 10 seconds
+        minAge: 10000
+    });
+    Ti.Geolocation.Android.addLocationRule(gpsRule);
+    ```
     
     Each rule can specify any combination of the following criteria:
 
@@ -242,5 +246,3 @@ methods:
       - name: rule
         summary: The location rule to remove.
         type: Titanium.Geolocation.Android.LocationRule
-
-

@@ -28,9 +28,10 @@
   // retaining 'self' by creating a __block access ref. Note that
   // this is only safe as long as the block until completion is YES.
   __block id bself = self;
-  TiThreadPerformOnMainThread(^{
-    [bself unregisterForNotifications];
-  },
+  TiThreadPerformOnMainThread(
+      ^{
+        [bself unregisterForNotifications];
+      },
       YES);
 
   RELEASE_TO_NIL(host);
@@ -113,9 +114,10 @@
     classNameLookup = CFDictionaryCreateMutable(kCFAllocatorDefault, 1, &kCFTypeDictionaryKeyCallBacks, NULL);
     //We do not retain the Class, but simply assign them.
   }
-  TiThreadPerformOnMainThread(^{
-    [self registerForNotifications];
-  },
+  TiThreadPerformOnMainThread(
+      ^{
+        [self registerForNotifications];
+      },
       NO);
 
   // Prevent JavascriptCore from releasing module proxy.
@@ -233,7 +235,7 @@
   NSURL *path = [NSURL fileURLWithPath:[NSString stringWithFormat:@"%@/modules/%@/%@", resourceurl, [self moduleId], name]];
   return path;
 }
-
+// TODO: Remove now that we do this in JS code in module.js
 - (id)bindCommonJSModule:(NSString *)code
 {
   NSString *js = [[NSString alloc] initWithFormat:TitaniumModuleRequireFormat, code];
@@ -247,7 +249,7 @@
   }
   return result;
 }
-
+// TODO: Remove now that we do this in JS code in module.js
 - (id)bindCommonJSModuleForPath:(NSURL *)path
 {
   NSString *code = [NSString stringWithContentsOfURL:path encoding:NSUTF8StringEncoding error:nil];

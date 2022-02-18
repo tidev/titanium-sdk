@@ -17,6 +17,8 @@
 
 @implementation TiUITextWidget
 
+@synthesize focused;
+
 #ifdef TI_USE_AUTOLAYOUT
 - (void)initializeTiLayoutView
 {
@@ -74,10 +76,11 @@
 - (void)dealloc
 {
   //Because text fields MUST be played with on main thread, we cannot release if there's the chance we're on a BG thread
-  TiThreadPerformOnMainThread(^{
-    [textWidgetView removeFromSuperview];
-    RELEASE_TO_NIL(textWidgetView);
-  },
+  TiThreadPerformOnMainThread(
+      ^{
+        [textWidgetView removeFromSuperview];
+        RELEASE_TO_NIL(textWidgetView);
+      },
       YES);
   [super dealloc];
 }
@@ -161,19 +164,12 @@
   [[self textWidgetView] setSecureTextEntry:[TiUtils boolValue:value]];
 }
 
-#if IS_SDK_IOS_12
 - (void)setPasswordRules_:(NSString *)passwordRules
 {
   ENSURE_TYPE_OR_NIL(passwordRules, NSString);
 
-  if (![TiUtils isIOSVersionOrGreater:@"12.0"]) {
-    NSLog(@"[ERROR] The 'passwordRules' property is only available on iOS 12 and later.");
-    return;
-  }
-
   [[self textWidgetView] setPasswordRules:[UITextInputPasswordRules passwordRulesWithDescriptor:passwordRules]];
 }
-#endif
 
 #pragma mark Responder methods
 
@@ -192,6 +188,7 @@
 - (void)textWidget:(UIView<UITextInputTraits> *)tw didFocusWithText:(NSString *)value
 {
   TiUITextWidgetProxy *ourProxy = (TiUITextWidgetProxy *)[self proxy];
+  focused = YES;
   [[ourProxy keyboardAccessoryView] setBounds:CGRectMake(0, 0, 0, [ourProxy keyboardAccessoryHeight])];
 
   [[TiApp controller] didKeyboardFocusOnProxy:(TiViewProxy<TiKeyboardFocusableView> *)ourProxy];
@@ -208,6 +205,7 @@
 - (void)textWidget:(UIView<UITextInputTraits> *)tw didBlurWithText:(NSString *)value
 {
   TiUITextWidgetProxy *ourProxy = (TiUITextWidgetProxy *)[self proxy];
+  focused = NO;
 
   [[TiApp controller] didKeyboardBlurOnProxy:(TiViewProxy<TiKeyboardFocusableView> *)ourProxy];
 
@@ -242,14 +240,14 @@
   return nil;
 }
 
-- (void)setSelectionFrom:(id)start to:(id)end
+- (void)setSelectionFrom:(NSInteger)start to:(NSInteger)end
 {
   UIView<UITextInput> *textView = (UIView<UITextInput> *)[self textWidgetView];
   if ([textView conformsToProtocol:@protocol(UITextInput)]) {
     if ([textView becomeFirstResponder] || [textView isFirstResponder]) {
       UITextPosition *beginning = textView.beginningOfDocument;
-      UITextPosition *startPos = [textView positionFromPosition:beginning offset:[TiUtils intValue:start]];
-      UITextPosition *endPos = [textView positionFromPosition:beginning offset:[TiUtils intValue:end]];
+      UITextPosition *startPos = [textView positionFromPosition:beginning offset:start];
+      UITextPosition *endPos = [textView positionFromPosition:beginning offset:end];
       UITextRange *textRange;
       textRange = [textView textRangeFromPosition:startPos toPosition:endPos];
       [textView setSelectedTextRange:textRange];

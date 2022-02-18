@@ -12,16 +12,14 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.Writer;
+import java.io.StringWriter;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.log4j.BasicConfigurator;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONValue;
 import org.json.simple.parser.ParseException;
@@ -38,15 +36,16 @@ public class KrollBindingGenerator
 	private String outPath, moduleId;
 	private Configuration fmConfig;
 	private Template v8SourceTemplate, v8HeaderTemplate;
-	private HashMap<String, Object> apiTree = new HashMap<String, Object>();
-	private HashMap<String, Object> proxies = new HashMap<String, Object>();
-	private HashMap<String, Object> modules = new HashMap<String, Object>();
+	private final HashMap<String, Object> apiTree = new HashMap<>();
+	private final HashMap<String, Object> proxies = new HashMap<>();
+	private final HashMap<String, Object> modules = new HashMap<>();
 
 	// These maps are used so we can load up Titanium JSON metadata when generating source for 3rd party modules
-	private HashMap<String, Object> tiProxies = new HashMap<String, Object>();
-	private HashMap<String, Object> tiModules = new HashMap<String, Object>();
+	private final HashMap<String, Object> tiProxies = new HashMap<>();
+	private final HashMap<String, Object> tiModules = new HashMap<>();
 
 	private JSONUtils jsonUtils;
+	private boolean canOverwrite = true;
 
 	public KrollBindingGenerator(String outPath, String moduleId)
 	{
@@ -60,9 +59,6 @@ public class KrollBindingGenerator
 
 	protected void initTemplates()
 	{
-		BasicConfigurator.configure();
-		Logger.getRootLogger().setLevel(Level.ERROR);
-
 		fmConfig = new Configuration();
 		fmConfig.setObjectWrapper(new DefaultObjectWrapper());
 		fmConfig.setClassForTemplateLoading(getClass(), "");
@@ -85,29 +81,34 @@ public class KrollBindingGenerator
 
 	protected void saveTypeTemplate(Template template, String outFile, Map<Object, Object> root)
 	{
-		Writer writer = null;
+		FileWriter fileWriter = null;
 		try {
-			File file = new File(outPath, outFile);
-			System.out.println("Generating " + file.getAbsolutePath());
-
-			File parent = file.getParentFile();
-			if (!parent.exists()) {
-				parent.mkdirs();
+			File file = new File(this.outPath, outFile);
+			if (!file.exists()) {
+				// Generate a new source file.
+				System.out.println("Generating " + file.getAbsolutePath());
+				fileWriter = new FileWriter(file);
+				template.process(root, fileWriter);
+			} else if (this.canOverwrite) {
+				// Generate source code content and only overwrite existing file if content has changed.
+				// This significantly improves incremental build times.
+				StringWriter stringWriter = new StringWriter();
+				template.process(root, stringWriter);
+				String stringContent = stringWriter.toString();
+				if (!stringContent.equals(readFileAsString(file))) {
+					System.out.println("Generating " + file.getAbsolutePath());
+					fileWriter = new FileWriter(file);
+					fileWriter.write(stringContent);
+				}
 			}
-
-			writer = new FileWriter(file);
-			template.process(root, writer);
-
 		} catch (Exception e) {
 			e.printStackTrace();
-
 		} finally {
-			if (writer != null) {
+			if (fileWriter != null) {
 				try {
-					writer.flush();
-					writer.close();
-
-				} catch (IOException e) {
+					fileWriter.flush();
+					fileWriter.close();
+				} catch (Exception e) {
 					e.printStackTrace();
 				}
 			}
@@ -158,7 +159,7 @@ public class KrollBindingGenerator
 			}
 
 			if (!tree.containsKey(api)) {
-				HashMap<String, Object> subTree = new HashMap<String, Object>();
+				HashMap<String, Object> subTree = new HashMap<>();
 				tree.put(api, subTree);
 			}
 
@@ -229,6 +230,16 @@ public class KrollBindingGenerator
 		loadBindingsFrom(properties);
 	}
 
+	public boolean getCanOverwrite()
+	{
+		return this.canOverwrite;
+	}
+
+	public void setCanOverwrite(boolean value)
+	{
+		this.canOverwrite = value;
+	}
+
 	public void loadBindingsFrom(Map<Object, Object> properties)
 	{
 		if (properties == null) {
@@ -278,10 +289,20 @@ public class KrollBindingGenerator
 	{
 		generateApiTree();
 
+		// Create the output directory if it doesn't already exist.
+		try {
+			File outDir = new File(this.outPath);
+			outDir.mkdirs();
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+
+		// Generate all of the proxy "*.cpp" and "*.h" files.
+		ArrayList<String> sourceFileList = new ArrayList<>(this.proxies.size());
 		for (String proxyName : proxies.keySet()) {
 			Map<Object, Object> proxy = jsonUtils.getMap(proxies, proxyName);
 
-			HashMap<Object, Object> root = new HashMap<Object, Object>(proxy);
+			HashMap<Object, Object> root = new HashMap<>(proxy);
 			root.put("allModules", modules);
 			root.put("allProxies", proxies);
 			root.put("moduleId", moduleId);
@@ -291,10 +312,39 @@ public class KrollBindingGenerator
 
 			String v8ProxyHeader = proxyName + ".h";
 			String v8ProxySource = proxyName + ".cpp";
+			sourceFileList.add(v8ProxySource);
 
 			saveTypeTemplate(v8HeaderTemplate, v8ProxyHeader, root);
 			validateProxyShape(root);
 			saveTypeTemplate(v8SourceTemplate, v8ProxySource, root);
+		}
+
+		// Generate a "CMakeLists.txt" which lists every source file generated above.
+		File cmakeFile = new File(this.outPath, "CMakeLists.txt");
+		if (this.canOverwrite || !cmakeFile.exists()) {
+			// Create the cmake file's string content.
+			StringBuilder stringBuilder = new StringBuilder();
+			stringBuilder.append("# This file was generated.\n");
+			stringBuilder.append("target_sources(${PROJECT_NAME} PRIVATE\n");
+			sourceFileList.sort(null);
+			for (String fileName : sourceFileList) {
+				stringBuilder.append("\t${CMAKE_CURRENT_SOURCE_DIR}/");
+				stringBuilder.append(fileName);
+				stringBuilder.append('\n');
+			}
+			stringBuilder.append(")\n");
+			String cmakeStringContent = stringBuilder.toString();
+
+			// Write the file, but only if file doesn't already exist with the exact same content.
+			// Note: This optimizes incremental build times.
+			if (!cmakeStringContent.equals(readFileAsString(cmakeFile))) {
+				try (FileWriter fileWriter = new FileWriter(cmakeFile)) {
+					fileWriter.write(cmakeStringContent);
+					fileWriter.flush();
+				} catch (Exception ex) {
+					ex.printStackTrace();
+				}
+			}
 		}
 	}
 
@@ -322,26 +372,32 @@ public class KrollBindingGenerator
 				// if there's no setProperty impl, then need to add one and remove from propertyAccessors
 				if (dynamicProperties.containsKey(propertyName)) {
 					System.out.println(
-						"[WARN] Clashing property definition in proxy.propertyAccessors and a @Kroll.set/getProperty annotations for property '"
-						+ proxyClassName + "." + propertyName + "'.");
+						"[WARN] Clashing property definition in proxy.propertyAccessors and a @Kroll.set/getProperty "
+						+ "annotations for property '" + proxyClassName + "." + propertyName + "'.");
 					Map<String, Object> dynamicProperty = (Map<String, Object>) dynamicProperties.get(propertyName);
 					if ((Boolean) dynamicProperty.get("set")) { // there's a setter
 						// is getter defined?
 						if ((Boolean) dynamicProperty.get("get")) {
 							System.err.println(
-								"Likely fix is to remove from proxy.propertyAccessors listing, as both getter and setter methods are defined.");
+								"Likely fix is to remove from proxy.propertyAccessors listing, as both getter and "
+								+ "setter methods are defined.");
 						} else {
 							System.err.println(
-								"Likely fix is to remove from proxy.propertyAccessors listing, as a setter method is already defined. A getter IS NOT defined, so you may want to add a @Kroll.getProperty implementation as well (or rely n the default getter generated, which uses #onPropertyChanged() to react).");
+								"Likely fix is to remove from proxy.propertyAccessors listing, as a setter method "
+								+ "is already defined. A getter IS NOT defined, so you may want to add a "
+								+ "@Kroll.getProperty implementation as well (or rely n the default getter generated, "
+								+ "which uses #onPropertyChanged() to react).");
 						}
 						System.exit(1);
 					} else {
 						// NO SETTER! (must have getter)
 						// This may be a valid usage pattern: override getProperty, wants the "default" set implementation
 						System.out.println(
-							"[WARN] This will use the 'default' implementation for a setter and treat the property as readwrite, with a non-default getter.");
+							"[WARN] This will use the 'default' implementation for a setter and treat the property as "
+							+ "readwrite, with a non-default getter.");
 						System.out.println(
-							"[WARN] This is not an error, but you may want to consider adding a @Kroll.setProperty implementation and then removing from proxy.propertyAccessors listing.");
+							"[WARN] This is not an error, but you may want to consider adding a @Kroll.setProperty "
+							+ "implementation and then removing from proxy.propertyAccessors listing.");
 					}
 					// Don't check for clashing methods, since we handle that for dynamic properties in next loop (and we have a dynamic property with same name)
 					continue;
@@ -355,31 +411,34 @@ public class KrollBindingGenerator
 				boolean hasClashingSetter = methods.containsKey("set" + upperProp);
 				if (hasClashingGetter && hasClashingSetter) {
 					System.err.println(
-						"Clashing method definitions in proxy.propertyAccessors and @Kroll.method annotations for property accessors on '"
-						+ proxyClassName + "." + propertyName + " - get" + upperProp + "() and set" + upperProp
-						+ "()'.");
+						"Clashing method definitions in proxy.propertyAccessors and @Kroll.method annotations for "
+						+ "property accessors on '" + proxyClassName + "." + propertyName
+						+ " - get" + upperProp + "() and set" + upperProp + "()'.");
 					System.err.println(
-						"Likely fix is to remove from proxy.propertyAccessors listing, remove @Kroll.method annotation and add @Kroll.getProperty/@Kroll.setProperty annotations to the methods.");
+						"Likely fix is to remove from proxy.propertyAccessors listing, remove @Kroll.method "
+						+ "annotation and add @Kroll.getProperty/@Kroll.setProperty annotations to the methods.");
 					System.err.println("Alternately, please rename the methods to avoid the clash.");
 					System.exit(1);
 				}
 				if (hasClashingGetter) {
 					// There's a getter due to propertyAccessor entry, but also a method with same name
 					System.err.println(
-						"Clashing method definition in proxy.propertyAccessors and a @Kroll.method annotation for property accessor '"
-						+ proxyClassName + "#get" + upperProp + "()'.");
+						"Clashing method definition in proxy.propertyAccessors and a @Kroll.method annotation for "
+						+ "property accessor '" + proxyClassName + "#get" + upperProp + "()'.");
 					System.err.println(
-						"Likely fix is to remove @Kroll.method annotation and add @Kroll.getProperty annotation to method.");
+						"Likely fix is to remove @Kroll.method annotation and add @Kroll.getProperty "
+						+ "annotation to method.");
 					System.err.println("Alternately, please rename the method to avoid the clash.");
 					System.exit(1);
 				}
 				if (hasClashingSetter) {
 					// There's a setter due to propertyAccessor entry, but also a method with same name
 					System.err.println(
-						"Clashing method definition in proxy.propertyAccessors and a @Kroll.method annotation for property accessor '"
-						+ proxyClassName + "#set" + upperProp + "()'.");
+						"Clashing method definition in proxy.propertyAccessors and a @Kroll.method annotation "
+						+ "for property accessor '" + proxyClassName + "#set" + upperProp + "()'.");
 					System.err.println(
-						"Likely fix is to remove @Kroll.method annotation and add @Kroll.setProperty annotation to method.");
+						"Likely fix is to remove @Kroll.method annotation and add @Kroll.setProperty "
+						+ "annotation to method.");
 					System.err.println("Alternately, please rename the method to avoid the clash.");
 					System.exit(1);
 				}
@@ -392,18 +451,6 @@ public class KrollBindingGenerator
 				if (getterName == null) {
 					hasGetter = false;
 					getterName = "get" + Character.toUpperCase(propertyName.charAt(0)) + propertyName.substring(1);
-				}
-
-				// Turns out implying @Kroll.method from @Kroll.getProperty/setProperty is a pain in the ass (as they have properties that can change their names)!
-				// so let's warn when they're not paired up
-
-				// method has @Kroll.getProperty but no @Kroll.method. This is ok in some cases, but generally we want getter accessors until they get removed in SDK 9
-				if (hasGetter && !methods.containsKey(getterName)) {
-					// There are rare cases where we don't want this, like Ti.Android.R (I assume we don't want Ti.Android#getR())
-					System.out.println(
-						"[WARN] Property has getter defined with @Kroll.getProperty on " + proxyClassName + "#"
-						+ getterName
-						+ "(), but has no @Kroll.method annotation. Consider adding one to expose the getter accessor to JS.");
 				}
 
 				// there's no getProperty defined, but there's a method with the target name
@@ -422,14 +469,6 @@ public class KrollBindingGenerator
 				if (setterName == null) {
 					hasSetter = false;
 					setterName = "set" + Character.toUpperCase(propertyName.charAt(0)) + propertyName.substring(1);
-				}
-
-				if (hasSetter && !methods.containsKey(setterName)) {
-					// method has @Kroll.setProperty but no @Kroll.method. This is ok in some cases, but generally we want setter accessors unitl they get removed in SDK 9
-					System.out.println(
-						"[WARN] Property has setter defined with @Kroll.getProperty on " + proxyClassName + "#"
-						+ setterName
-						+ "(), but has no @Kroll.method annotation. Consider adding one to expose the setter accessor to JS.");
 				}
 
 				// there's no setProperty defined, but there's a method with the target name
@@ -451,5 +490,28 @@ public class KrollBindingGenerator
 				}
 			}
 		}
+	}
+
+	private static String readFileAsString(File file)
+	{
+		if (file == null) {
+			return null;
+		}
+		if (!file.exists()) {
+			return null;
+		}
+
+		String content = null;
+		try (StringWriter writer = new StringWriter(); FileReader reader = new FileReader(file)) {
+			char[] charArray = new char[8192];
+			int charCount;
+			while ((charCount = reader.read(charArray)) > 0) {
+				writer.write(charArray, 0, charCount);
+			}
+			content = writer.toString();
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+		return content;
 	}
 }
