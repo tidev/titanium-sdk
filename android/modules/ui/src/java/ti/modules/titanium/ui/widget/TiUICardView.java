@@ -292,12 +292,7 @@ public class TiUICardView extends TiUIView
 		} else if (key.equals(TiC.PROPERTY_BORDER_COLOR)) {
 			cardview.setStrokeColor(TiConvert.toColor(TiConvert.toString(newValue)));
 		} else if (key.equals(TiC.PROPERTY_BORDER_RADIUS)) {
-			float radius = 0;
-			TiDimension radiusDim = TiConvert.toTiDimension(newValue, TiDimension.TYPE_WIDTH);
-			if (radiusDim != null) {
-				radius = (float) radiusDim.getPixels(cardview);
-			}
-			cardview.setRadius(radius);
+			setRadius(newValue);
 			cardview.requestLayout();
 		} else if (key.equals(TiC.PROPERTY_BORDER_WIDTH)) {
 			TiDimension tiDimension = TiConvert.toTiDimension(TiConvert.toString(newValue), TiDimension.TYPE_WIDTH);
