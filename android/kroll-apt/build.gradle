@@ -74,5 +74,4 @@ jar {
 dependencies {
 	implementation 'com.googlecode.json-simple:json-simple:1.1'
 	implementation 'org.freemarker:freemarker:2.3.30'
-	implementation 'log4j:log4j:1.2.17'
 }

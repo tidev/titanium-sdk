@@ -438,18 +438,20 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 		});
 
 		// Set action bar color.
-		final ActionBar actionBar = ((AppCompatActivity) proxy.getActivity()).getSupportActionBar();
-		if (actionBar != null) {
-			final TiWindowProxy windowProxy = ((TabProxy) this.tabs.get(tabIndex).getProxy()).getWindow();
-			final KrollDict windowProperties = windowProxy.getProperties();
-			final KrollDict properties = getProxy().getProperties();
+		if (proxy != null) {
+			final ActionBar actionBar = ((AppCompatActivity) proxy.getActivity()).getSupportActionBar();
+			if (actionBar != null) {
+				final TiWindowProxy windowProxy = ((TabProxy) this.tabs.get(tabIndex).getProxy()).getWindow();
+				final KrollDict windowProperties = windowProxy.getProperties();
+				final KrollDict properties = getProxy().getProperties();
 
-			if (properties.containsKeyAndNotNull(TiC.PROPERTY_BAR_COLOR)
-				|| windowProperties.containsKeyAndNotNull(TiC.PROPERTY_BAR_COLOR)) {
-				final String colorString = properties.optString(TiC.PROPERTY_BAR_COLOR,
-					windowProperties.getString(TiC.PROPERTY_BAR_COLOR));
-				final int color = TiColorHelper.parseColor(colorString);
-				actionBar.setBackgroundDrawable(new ColorDrawable(color));
+				if (properties.containsKeyAndNotNull(TiC.PROPERTY_BAR_COLOR)
+					|| windowProperties.containsKeyAndNotNull(TiC.PROPERTY_BAR_COLOR)) {
+					final String colorString = properties.optString(TiC.PROPERTY_BAR_COLOR,
+						windowProperties.getString(TiC.PROPERTY_BAR_COLOR));
+					final int color = TiColorHelper.parseColor(colorString);
+					actionBar.setBackgroundDrawable(new ColorDrawable(color));
+				}
 			}
 		}
 	}
