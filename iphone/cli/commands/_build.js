@@ -2271,8 +2271,8 @@ iOSBuilder.prototype.validate = function validate(logger, config, cli) {
 					}, this);
 
 					// Exclude arm64 architecture from simulator build in XCode 12+ - TIMOB-28042
-					if (this.legacyModules.size > 0 && parseFloat(this.xcodeEnv.version) >= 12.0) {
-						if (await processArchitecture() === 'arm64') {
+					if (this.legacyModules.size > 0 && appc.version.gte(this.xcodeEnv.version, '12.0.0')) {
+						if (process.arch === 'arm64') {
 							return next(new Error(`The app is using native modules that do not support arm64 simulators and you are on an arm64 device:\n- ${Array.from(this.legacyModules).join('\n- ')}`));
 						}
 						this.logger.warn(`The app is using native modules (${Array.from(this.legacyModules)}) that do not support arm64 simulators, we will exclude arm64. This may fail if you're on an arm64 Apple Silicon device.`);
@@ -7118,8 +7118,8 @@ iOSBuilder.prototype.invokeXcodeBuild = async function invokeXcodeBuild(next) {
 			args.push('ONLY_ACTIVE_ARCH=1');
 		}
 		// Exclude arm64 architecture from simulator build in XCode 12+ - TIMOB-28042
-		if (this.legacyModules.size > 0 && parseFloat(this.xcodeEnv.version) >= 12.0) {
-			if (await processArchitecture() === 'arm64') {
+		if (this.legacyModules.size > 0 && appc.version.gte(this.xcodeEnv.version, '12.0.0')) {
+			if (process.arch === 'arm64') {
 				return next(new Error(`The app is using native modules that do not support arm64 simulators and you are on an arm64 device:\n- ${Array.from(this.legacyModules).join('\n- ')}`));
 			}
 			this.logger.warn(`The app is using native modules (${Array.from(this.legacyModules)}) that do not support arm64 simulators, we will exclude arm64. This may fail if you're on an arm64 Apple Silicon device.`);
@@ -7165,23 +7165,6 @@ iOSBuilder.prototype.sanitizedAppName = function sanitizedAppName() {
 
 function sha1(value) {
 	return crypto.createHash('sha1').update(value).digest('hex');
-}
-
-// This function has the advantage to detect bridges architectures
-// like x86_64 in Rosetta mode (process.arch would still print "arm64" in that case)
-async function processArchitecture() {
-	return new Promise((resolve, reject) => {
-		// eslint-disable-next-line security/detect-child-process
-		const exec = require('child_process').exec;
-
-		exec('uname -m', function (error, stdout) {
-			if (error) {
-				reject(error);
-				return;
-			}
-			resolve(stdout.trim());
-		});
-	});
 }
 
 // create the builder instance and expose the public api
