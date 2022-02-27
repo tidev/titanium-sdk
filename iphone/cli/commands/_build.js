@@ -2170,7 +2170,7 @@ iOSBuilder.prototype.validate = function validate(logger, config, cli) {
 			},
 
 			function validateModules(next) {
-				this.validateTiModules([ 'ios', 'iphone' ], this.deployType, async function (err, modules) {
+				this.validateTiModules([ 'ios', 'iphone' ], this.deployType, function (err, modules) {
 					this.modules = modules.found;
 
 					this.commonJsModules = [];
