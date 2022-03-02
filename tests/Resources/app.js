@@ -203,7 +203,6 @@ function loadTests() {
 	}
 	require('./ti.xml.test');
 	// Modules
-	require('./ti.cloudpush.test');
 	require('./ti.map.test');
 	require('./ti.modulesdk920.test');
 	if (OS_ANDROID) {
