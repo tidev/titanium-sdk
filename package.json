@@ -129,7 +129,7 @@
     "clang-format": "1.5.0",
     "commander": "^8.2.0",
     "commitizen": "^4.2.4",
-    "conventional-changelog-cli": "^2.1.1",
+    "conventional-changelog-cli": "^2.2.2",
     "core-js": "^3.18.3",
     "cz-conventional-changelog": "^3.3.0",
     "danger": "^10.6.6",
