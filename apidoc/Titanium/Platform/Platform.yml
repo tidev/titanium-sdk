@@ -27,7 +27,7 @@ methods:
     description: |
         As of iOS 9, this method may return `false` if you have not added the URL schemes you query to the
         "tiapp.xml" file. You can do this by adding a `<key>LSApplicationQueriesSchemes</key>` plist section
-        as shown [here](https://docs.appcelerator.com/platform/latest/#!/guide/tiapp.xml_and_timodule.xml_Reference-section-src-29004921_tiapp.xmlandtimodule.xmlReference-iOS9SecurityandcanOpenUrl).
+        as shown [here](https://titaniumsdk.com/guide/Titanium_SDK/Titanium_SDK_Guide/Appendices/tiapp.xml_and_timodule.xml_Reference.html#ios9-security-and-canopenurl).
 
         As of Android 11, this method may return `false` if you have not added the URL schemes to a `<queries/>`
         manifest section in the "tiapp.xml" file. Google documents examples how to do
