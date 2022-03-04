@@ -222,7 +222,7 @@ methods:
 
       ``` js
       setHtml('<html><body>Hello, <a href="/documentation">Titanium</a>!</body></html>',
-              { baseURL: 'https://developer.appcelerator.com/' });
+              { baseURL: 'https://titaniumsdk.com/' });
       ```
     parameters:
       - name: html
@@ -1263,7 +1263,7 @@ examples:
         Create a web view to a remote URL and open the window as modal.
 
         ``` js
-        var webview = Titanium.UI.createWebView({url:'http://www.appcelerator.com'});
+        var webview = Titanium.UI.createWebView({url:'http://www.titaniumsdk.com'});
         var window = Titanium.UI.createWindow();
         window.add(webview);
         window.open({modal:true});
@@ -1275,7 +1275,7 @@ examples:
         ``` xml
         <Alloy>
             <Window id="win" modal="true">
-                <WebView id="webview" url="http://www.appcelerator.com" />
+                <WebView id="webview" url="http://www.titaniumsdk.com" />
             </Window>
         </Alloy>
         ```
@@ -1285,7 +1285,7 @@ examples:
 
         ``` js
         var webview = Ti.UI.createWebView({
-            url:'http://www.appcelerator.com'
+            url:'http://www.titaniumsdk.com'
         });
         webview.startListeningToProperties([ 'title' ]);
         webview.addEventListener('title', function(e) {
