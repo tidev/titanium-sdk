@@ -50,6 +50,12 @@
 
 @implementation UIModule
 
+#define FORGET_AND_RELEASE(x) \
+  {                           \
+    [self forgetProxy:x];     \
+    RELEASE_TO_NIL(x);        \
+  }
+
 - (void)dealloc
 {
 #ifdef USE_TI_UIIPAD
@@ -597,6 +603,10 @@ MAKE_SYSTEM_PROP(EXTEND_EDGE_ALL, 15); //UIEdgeRectAll
 #ifdef USE_TI_UICLIPBOARD
   RELEASE_TO_NIL(clipboard);
 #endif
+#if defined(USE_TI_UITABLEVIEWSCROLLPOSITION) || defined(USE_TI_UILISTVIEWSCROLLPOSITION)
+  FORGET_AND_RELEASE(_TableViewScrollPosition);
+  FORGET_AND_RELEASE(_ListViewScrollPosition);
+#endif
   [super didReceiveMemoryWarning:notification];
 }
 
@@ -827,6 +837,24 @@ MAKE_SYSTEM_PROP(TABLE_VIEW_SEPARATOR_STYLE_SINGLE_LINE, UITableViewCellSeparato
     shortcut = [[TiUIShortcutProxy alloc] init];
   }
   return shortcut;
+}
+#endif
+
+#if defined(USE_TI_UITABLEVIEWSCROLLPOSITION) || defined(USE_TI_UILISTVIEWSCROLLPOSITION)
+- (TiUITableViewScrollPositionProxy *)TableViewScrollPosition
+{
+  if (_TableViewScrollPosition == nil) {
+    _TableViewScrollPosition = [[TiUITableViewScrollPositionProxy alloc] _initWithPageContext:[self pageContext]];
+  }
+  return _TableViewScrollPosition;
+}
+
+- (TiUITableViewScrollPositionProxy *)ListViewScrollPosition
+{
+  if (_ListViewScrollPosition == nil) {
+    _ListViewScrollPosition = [[TiUITableViewScrollPositionProxy alloc] _initWithPageContext:[self pageContext]];
+  }
+  return _ListViewScrollPosition;
 }
 #endif
 
