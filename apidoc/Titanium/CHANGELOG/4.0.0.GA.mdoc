@@ -46,10 +46,10 @@ with this Release.
       * [Contacts](#contacts)
       * [Split Window](#split_window)
       * [User Defaults](#user_defaults)
-  * [Known Issues](#known_issues) 
+  * [Known Issues](#known_issues)
     * [Cannot Preview Mobile Web Application in Studio](#web_server)
     * [Fail to Encrypt JavaScript Files on Windows](#windows_java)
-  * [API Changes](#apis) 
+  * [API Changes](#apis)
     * [New APIs](#new_apis)
     * [Deprecated APIs](#deprecated_apis)
     * [Removed APIs](#removed_apis)
@@ -67,15 +67,15 @@ This release includes over 150 bug fixes and improvements, see the [full list of
 ### Alloy 1.6.0
 
 This release coincides with the release of Alloy 1.6.0.
- 
+
 **Summary of New Features:**
- 
+
   * Support for Backbone 1.1.2
   * Upgrade to Underscore 1.6.0
   * Update extract-i18n command to extract localized strings from XML files in addition to JavaScript and TSS files
   * XML Markup/TSS Enhancements:
     * Set the `Titanium.Android.MenuItem.actionView` property in XML Markup using the &lt;ActionView/&gt; element
- 
+
 For more details, see the Alloy [Changelog](https://github.com/appcelerator/alloy/blob/1_6_X/CHANGELOG.md).
 
 <a name="android"></a>
@@ -107,7 +107,7 @@ This Release coincides with the release of Studio 4.0.0.
 For more details, see the [Studio Release Notes](https://docs.appcelerator.com/platform/latest/#!/guide/Studio_Release_Notes).
 
 <a name="changes"></a>
-## Notice of Feature or Behavior Changes 
+## Notice of Feature or Behavior Changes
 
 <a name="deprecated_android"></a>
 ### Android Platform
@@ -144,7 +144,7 @@ This section lists changes for the iOS platform.
 <a name="ios_attributed_string"></a>
 #### iOS Attributed String
 
-Since Android supports attributed strings, the `Titanium.UI.iOS.AttributedString` class is deprecated and a new  [Titanium.UI.AttributedString](https://docs.appcelerator.com/platform/latest/#!/api/Titanium.UI.AttributedString) class was added.  The new class behaves the same as the old class.  If you currently use attributed strings in your application, just remove the iOS namespace.  Note that Android only supports a subset of attributes as compared to iOS.
+Since Android supports attributed strings, the `Titanium.UI.iOS.AttributedString` class is deprecated and a new  [Titanium.UI.AttributedString](https://titaniumsdk.com/api/titanium/ui/attributedstring.html) class was added.  The new class behaves the same as the old class.  If you currently use attributed strings in your application, just remove the iOS namespace.  Note that Android only supports a subset of attributes as compared to iOS.
 
 The Label `link` event now responds to a single tap rather than a long press.
 
@@ -168,7 +168,7 @@ This section lists new features and improvements only available on the Android p
 <a name="attributed_string"></a>
 #### Attributed String
 
-As of this Release, the Android platform supports attributed strings using the [Titanium.UI.AttributedString](https://docs.appcelerator.com/platform/latest/#!/api/Titanium.UI.AttributedString) class.  Previously, this feature was only available for iOS.
+As of this Release, the Android platform supports attributed strings using the [Titanium.UI.AttributedString](https://titaniumsdk.com/api/titanium/ui/attributedstring.html) class.  Previously, this feature was only available for iOS.
 
 For more details, see the [Attributed String guide](https://docs.appcelerator.com/platform/latest/#!/guide/Attributed_Strings).
 
@@ -180,7 +180,7 @@ Starting with this Release, the Titanium SDK exposes the Material Theme color pa
 To use the Material Theme with Titanium, you need to create a custom theme that extends one of the AppCompat themes, then set the color palette attributes you want to change from the default theme.
 
 For details, see the "Material Theme" section in the
-[Android Themes guide](https://docs.appcelerator.com/platform/latest/#!/guide/Android_Themes).
+[Android Themes guide](https://titaniumsdk.com/guide/Titanium_SDK/Titanium_SDK_How-tos/User_Interface_Deep_Dives/Android_UI_Components_and_Conventions/Android_Themes.html).
 
 <a name="lifecycle"></a>
 #### Module Lifecycle Hooks
@@ -201,8 +201,8 @@ The `Titanium.Android.Notifications` class exposes the following new properties:
   * [priority](https://docs.appcelerator.com/platform/latest/#!/api/Titanium.Android.Notification-property-priority): Set to a `Titanium.Android.PRIORITY_*` constant to determine where the notification is displayed in the drawer.  Supported on Android 4.1 and greater.
   * [visibility](https://docs.appcelerator.com/platform/latest/#!/api/Titanium.Android.Notification-property-visibility): Set to a `Titanium.Android.VISIBILITY_*` constant to filter notifications in the lock screen. Supported on Android 5.0 and greater.
 
-For details, see the 
-[Android Notifications guide](https://docs.appcelerator.com/platform/latest/#!/guide/Android_Notifications).
+For details, see the
+[Android Notifications guide](https://titaniumsdk.com/guide/Titanium_SDK/Titanium_SDK_How-tos/Notification_Services/Android_Notifications.html).
 
 <a name="scrollable_tabs"></a>
 #### Scrollable Tabs
@@ -221,7 +221,7 @@ This Release adds support for scrollable tabs, where users can swipe to navigate
 
 This Release adds support for the split action bar, which displays action items in a separate bar at the bottom of the window instead of at the top.  To create a split action bar, set the
 [splitActionBar property](https://docs.appcelerator.com/platform/latest/#!/api/Titanium.UI.Window-property-splitActionBar)
-to `true` when creating a Window object. 
+to `true` when creating a Window object.
 
 <a name="tls_support"></a>
 #### TLS Support
@@ -246,7 +246,7 @@ The following `Titanium.Media.VideoPlayer` methods are exposed to the Android pl
 Previously, this feature was only available for iOS.
 
 
-      
+
 <a name="facebook"></a>
 ### Facebook Module
 
@@ -504,8 +504,8 @@ the last selected tab window is shown.
   <tr><td>Titanium.UI.Window.getSplitActionBar</td><td>method</td><td><p>Gets the value of the splitActionBar property. (New API, supported on Android.)</p></td></tr>
   <tr><td>Titanium.UI.Window.splitActionBar</td><td>property</td><td><p>Boolean value to enable split action bar. (New API, supported on Android.)</p></td></tr>
   <tr><td>Titanium.UI.createAttributedString</td><td>method</td><td><p>Creates and returns an instance of Titanium.UI.AttributedString. (New API, supported on iPhone, iPad and Android.)</p></td></tr>
-  <tr><td>Titanium.UI.iOS.SplitWindow</td><td>object</td><td><p>A SplitWindow is a window that manages the presentation of two side-by-side view 
-controllers. 
+  <tr><td>Titanium.UI.iOS.SplitWindow</td><td>object</td><td><p>A SplitWindow is a window that manages the presentation of two side-by-side view
+controllers.
  (New API, supported on iPhone and iPad.)</p></td></tr>
   <tr><td>Titanium.UI.iOS.createSplitWindow</td><td>method</td><td><p>Creates and returns an instance of Titanium.UI.iOS.SplitWindow. (New API, supported on iPhone and iPad.)</p></td></tr>
 <tr>
