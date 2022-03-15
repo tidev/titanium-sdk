@@ -102,7 +102,7 @@ description: |
     On Android, use the <Titanium.Network.HTTPClient.tlsVersion> property to set the version of the TLS protocol
     if you know the version the server is running.  If you do not know, do not set this property.
 
-    On iOS, add the `NSExceptionMinimumTLSVersion` key in the `<plist>` section of `tiapp.xml` to set a minimum TLS version. 
+    On iOS, add the `NSExceptionMinimumTLSVersion` key in the `<plist>` section of `tiapp.xml` to set a minimum TLS version.
     See following example:
 
     ```
@@ -110,14 +110,14 @@ description: |
     <dict>
       <key>NSExceptionDomains</key>
       <dict>
-        <key>www.appcelerator.com</key>
+        <key>www.titaniumsdk.com</key>
         <dict>
           <key>NSExceptionMinimumTLSVersion</key>
           <string>TLSv1.3</string>
         </dict>
       </dict>
     </dict>
-    ```  
+    ```
     Titanium will not fallback with a lower TLS version if the `tlsVersion` property in android or `NSExceptionMinimumTLSVersion` in iOS, is set.
     Setting the TLS version saves time from re-attempting connections with lower TLS versions and
     provides added security by denying attempts to use lower TLS versions.
@@ -144,7 +144,7 @@ description: |
     On iOS 14 and later, while connecting to local network a prompt will be shown to request user's permission.
     Add key `NSLocalNetworkUsageDescription` to the `ios plist` section of the tiapp.xml file to show the message on prompt.
     If this key is not added default message will be shown in prompt.
-    
+
     Example:
 
     ``` xml
@@ -157,7 +157,7 @@ description: |
             <key>NSLocalNetworkUsageDescription</key>
             <string>
                 Specify the reason for accessing the local network.
-                This appears in the alert dialog when asking the user 
+                This appears in the alert dialog when asking the user
                 for permission to access local network.
             </string>
           </dict>
@@ -548,8 +548,8 @@ properties:
     summary: |
         A Boolean value that indicates whether the session should wait for connectivity to become available, or fail immediately.
     description: |
-        Causes tasks to wait for network connectivity to become available, rather than immediately failing 
-        with an error when it is not. When waiting for connectivity, the <Ti.Network.HttpClient.timeout> 
+        Causes tasks to wait for network connectivity to become available, rather than immediately failing
+        with an error when it is not. When waiting for connectivity, the <Ti.Network.HttpClient.timeout>
         property does not apply, but the <Ti.Network.HttpClient.timeoutForResource> property does.
     default: false
     type: Boolean
@@ -615,7 +615,7 @@ examples:
         The following code excerpt does a simple GET request and logs the response text.
 
         ``` js
-        var url = "http://www.appcelerator.com";
+        var url = "http://www.titaniumsdk.com";
         var client = Ti.Network.createHTTPClient({
             // function called when the response data is available
             onload : function(e) {
