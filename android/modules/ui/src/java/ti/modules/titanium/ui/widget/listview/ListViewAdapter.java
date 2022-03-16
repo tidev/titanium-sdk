@@ -15,63 +15,29 @@ import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiRHelper;
 
 import android.content.Context;
-import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import android.widget.RelativeLayout;
 
 import androidx.annotation.NonNull;
 
-public class ListViewAdapter extends TiRecyclerViewAdapter<ListViewHolder>
+public class ListViewAdapter extends TiRecyclerViewAdapter<ListViewHolder, ListItemProxy>
 {
 	private static final String TAG = "ListViewAdapter";
 
-	private static int id_holder;
-	private LayoutInflater inflater;
-	private List<ListItemProxy> models;
 	private final TreeMap<String, LinkedList<ListItemProxy>> recyclableItemsMap = new TreeMap<>();
 
 	public ListViewAdapter(@NonNull Context context, @NonNull List<ListItemProxy> models)
 	{
-		this.context = context;
-
-		// Obtain layout inflater instance.
-		inflater = LayoutInflater.from(context);
+		super(context, models);
 
 		// Obtain TableViewHolder layout identifier.
 		try {
-			if (id_holder == 0) {
-				id_holder = TiRHelper.getResource("layout.titanium_ui_listview_holder");
+			if (this.id_holder == 0) {
+				this.id_holder = TiRHelper.getResource("layout.titanium_ui_listview_holder");
 			}
 		} catch (TiRHelper.ResourceNotFoundException e) {
 			Log.e(TAG, "Could not load 'layout.titanium_ui_listview_holder'.");
 		}
-
-		this.models = models;
-
-		setHasStableIds(true);
-	}
-
-	/**
-	 * Get number of items in list.
-	 *
-	 * @return Integer of item count.
-	 */
-	@Override
-	public int getItemCount()
-	{
-		return this.models.size();
-	}
-
-	/**
-	 * Get unique item identifier.
-	 *
-	 * @param position Index position of item to obtain identifier.
-	 * @return Long of item identifier.
-	 */
-	@Override
-	public long getItemId(int position)
-	{
-		return this.models.get(position).hashCode();
 	}
 
 	/**
@@ -91,16 +57,6 @@ public class ListViewAdapter extends TiRecyclerViewAdapter<ListViewHolder>
 			}
 		}
 		return 0;
-	}
-
-	/**
-	 * Get list of models (items).
-	 *
-	 * @return List of models.
-	 */
-	public List<ListItemProxy> getModels()
-	{
-		return this.models;
 	}
 
 	/**
@@ -191,16 +147,5 @@ public class ListViewAdapter extends TiRecyclerViewAdapter<ListViewHolder>
 			// Release the native views for all other proxy types.
 			view.releaseViews();
 		}
-	}
-
-	/**
-	 * Replace models in adapter.
-	 *
-	 * @param models Replacement models.
-	 */
-	public void replaceModels(List<ListItemProxy> models)
-	{
-		this.models = models;
-		notifyDataSetChanged();
 	}
 }
