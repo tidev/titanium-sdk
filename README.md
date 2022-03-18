@@ -1,4 +1,4 @@
-<p align="center"><a href="https://appcelerator.com" target="_blank"><img width="120" src=".github/logo-titanium.png"></a></p>
+<p align="center"><a href="https://titaniumsdk.com" target="_blank"><img width="120" src=".github/logo-titanium.png"></a></p>
 
 <h1 align="center">Titanium <a href="https://jenkins.appcelerator.org/job/titanium-sdk/job/titanium_mobile/job/master/" target="_blank"><img src="https://jenkins.appcelerator.org/buildStatus/icon?job=titanium-sdk/titanium_mobile/master" /></a></h1>
 
@@ -184,16 +184,12 @@ Community support and discussion about Titanium is available on Slack at [TiSlac
 
 Please consider following [@Appcelerator](http://www.twitter.com/appcelerator) and [@AppcDev](https://twitter.com/AppcDev) on Twitter for updates.
 
-### Blog
-
-The Appcelerator blog is located at (http://www.appcelerator.com/blog).
-
 ### Commercial Support, Licensing
 
 We give our software away for FREE! In order to do that, we have programs for
 companies that require additional level of assistance through training or commercial support,
 need special licensing or want additional levels of capabilities. Please visit the
-[Appcelerator Website](http://www.appcelerator.com) for more information about Appcelerator or
+[Appcelerator Website](http://www.titaniumsdk.com) for more information about Appcelerator or
 email [info@appcelerator.com](mailto:info@appcelerator.com).
 
 ## Contributing

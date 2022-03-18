@@ -78,7 +78,7 @@ describe.windowsBroken('Titanium.XML', function () {
 
 	// TIMOB-9071
 	it('getOrCreateAttributeNS', function () {
-		var xmlDoc = Ti.XML.parseString('<html><head></head><body><a href="http://appcelerator.com/" /></body></html>');
+		var xmlDoc = Ti.XML.parseString('<html><head></head><body><a href="http://titaniumsdk.com/" /></body></html>');
 		var anchor = xmlDoc.getElementsByTagName('a').item(0);
 		should(function () {
 			anchor.getAttributeNS(null, 'href');

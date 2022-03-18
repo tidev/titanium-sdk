@@ -27,7 +27,7 @@ description: |
     ```
 
     For more instructions and examples of using `ListView`, refer to the
-    [ListViews guide](https://docs.appcelerator.com/platform/latest/#!/guide/ListViews).
+    [ListViews guide](https://titaniumsdk.com/guide/Titanium_SDK/Titanium_SDK_How-tos/User_Interface_Deep_Dives/ListViews/).
 
     #### Creating a List
 
@@ -1461,7 +1461,7 @@ examples:
         win.open();
         ```
 
-  - title: List View with a pullView 
+  - title: List View with a pullView
     example: |
         This sample shows how the [pullView](Titanium.UI.ListView.pullView) property could be
         utilized along with the [pull](Titanium.UI.ListView.pull) and [pullend](Titanium.UI.ListView.pullend) events to
@@ -1484,7 +1484,7 @@ examples:
             {properties: { title: 'Potatoes'}},
         ];
         var vegSection = Ti.UI.createListSection({ headerTitle: 'Vegetables', items: vegDataSet});
-        
+
         var fishDataSet = [
             {properties: { title: 'Cod'}},
             {properties: { title: 'Haddock'}},
