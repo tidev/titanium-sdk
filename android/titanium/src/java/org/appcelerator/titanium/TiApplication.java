@@ -365,12 +365,6 @@ public abstract class TiApplication extends Application implements KrollApplicat
 
 				// Delete all Titanium temp files.
 				deleteTiTempFiles();
-
-				if (isAnalyticsEnabled()) {
-
-					// Force send `session.end` event.
-					APSAnalytics.getInstance().sendSessionEndEvent(true);
-				}
 			}
 		});
 	}
@@ -435,17 +429,6 @@ public abstract class TiApplication extends Application implements KrollApplicat
 		APSAnalyticsMeta.setDeployType(deployType);
 		APSAnalyticsMeta.setSdkVersion(getTiBuildVersion());
 		APSAnalytics.getInstance().setMachineId(this);
-
-		if (isAnalyticsEnabled()) {
-			APSAnalytics.getInstance().initialize(getAppGUID(), this);
-
-			final int cacheSize = this.appProperties.getInt("ti.analytics.cacheSize", -1);
-			if (cacheSize > -1) {
-				APSAnalytics.getInstance().setCacheSize(cacheSize);
-			}
-		} else {
-			Log.i(TAG, "Analytics have been disabled");
-		}
 	}
 
 	public void postOnCreate()
@@ -724,7 +707,7 @@ public abstract class TiApplication extends Application implements KrollApplicat
 
 	public boolean isAnalyticsEnabled()
 	{
-		return getAppInfo().isAnalyticsEnabled();
+		return false;
 	}
 
 	/**
