@@ -11,6 +11,7 @@ import com.appcelerator.aps.APSAnalytics;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.kroll.common.Log;
 import org.json.JSONObject;
 
 @Kroll.module
@@ -28,40 +29,47 @@ public class AnalyticsModule extends KrollModule
 
 	public static int validateJSON(JSONObject jsonObject, int level)
 	{
+		Log.d(TAG, "Analytics is deprecated and should be removed from the app.");
 		return SUCCESS;
 	}
 
 	@Kroll.getProperty
 	public boolean getOptedOut()
 	{
+		Log.d(TAG, "Analytics is deprecated and should be removed from the app.");
 		return true;
 	}
 
 	@Kroll.setProperty
 	public void setOptedOut(boolean optedOut)
 	{
+		Log.d(TAG, "Analytics is deprecated and should be removed from the app.");
 	}
 
 	@Kroll.method
 	public void navEvent(String from, String to, @Kroll.argument(optional = true) String event,
 						 @Kroll.argument(optional = true) KrollDict data)
 	{
+		Log.d(TAG, "Analytics is deprecated and should be removed from the app.");
 	}
 
 	@Kroll.method
 	public void filterEvents(Object eventsObj)
 	{
+		Log.d(TAG, "Analytics is deprecated and should be removed from the app.");
 	}
 
 	@Kroll.method
 	public int featureEvent(String event, @Kroll.argument(optional = true) KrollDict data)
 	{
+		Log.d(TAG, "Analytics is deprecated and should be removed from the app.");
 		return ANALYTICS_DISABLED;
 	}
 
 	@Kroll.getProperty
 	public String getLastEvent()
 	{
+		Log.d(TAG, "Analytics is deprecated and should be removed from the app.");
 		return null;
 	}
 
