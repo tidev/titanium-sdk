@@ -58,7 +58,20 @@ public class TiFileHelper
 	private static HashSet<String> resourcePathCache;
 	private static HashSet<String> foundResourcePathCache;
 	private static HashSet<String> notFoundResourcePathCache;
-	private static TiFileHelper _instance = null;
+
+	private static class InstanceHolder
+	{
+		private static final TiFileHelper INSTANCE = new TiFileHelper(TiApplication.getInstance());
+	}
+
+	/**
+	 * Creates or retrieves the TiFileHelper instance.
+	 * @return the TiFileHelper instance.
+	 */
+	public static TiFileHelper getInstance()
+	{
+		return InstanceHolder.INSTANCE;
+	}
 
 	public TiFileHelper(Context context)
 	{
@@ -110,18 +123,6 @@ public class TiFileHelper
 				systemIcons.put("ic_menu_zoom", android.R.drawable.ic_menu_zoom);
 			}
 		}
-	}
-
-	/**
-	 * Creates or retrieves the TiFileHelper instance.
-	 * @return the TiFileHelper instance.
-	 */
-	public static TiFileHelper getInstance()
-	{
-		if (_instance == null) {
-			_instance = new TiFileHelper(TiApplication.getInstance());
-		}
-		return _instance;
 	}
 
 	public InputStream openInputStream(String path, boolean report) throws IOException

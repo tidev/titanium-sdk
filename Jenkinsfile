@@ -74,7 +74,7 @@ def androidUnitTests(testName, nodeVersion, npmVersion, deviceId) {
 		def labels = 'git && osx && android-emulator && android-sdk' // FIXME get working on windows/linux!
 		
 		if (!deviceId) {
-			deviceId = 'android-30-playstore-x86';
+			deviceId = 'android-31-playstore-x86_64';
 		}
 
 		node(labels) {
@@ -94,7 +94,7 @@ def androidUnitTests(testName, nodeVersion, npmVersion, deviceId) {
 							timeout(30) {
 								// Forcibly remove value for specific build tools version to use (set by module builds)
 								sh returnStatus: true, script: 'ti config android.buildTools.selectedVersion --remove'
-								sh label: 'Run Test Suite on emulator', script: "npm run test:integration -- android -T emulator -D test -C ${deviceId}"
+								sh label: 'Run Test Suite on emulator', script: "npm run test:integration -- android -T emulator -D test -C ${deviceId} -J ${testName}"
 							} // timeout
 						}
 					} catch (e) {
@@ -128,7 +128,7 @@ def androidUnitTests(testName, nodeVersion, npmVersion, deviceId) {
 
 def macosUnitTests(nodeVersion, npmVersion) {
 	return {
-		node('git && xcode-12') {
+		node('git && xcode-13') {
 			// TODO: Do a shallow checkout rather than stash/unstash?
 			unstash 'mocha-tests'
 			try {
@@ -165,7 +165,7 @@ def macosUnitTests(nodeVersion, npmVersion) {
 
 def iosUnitTests(deviceFamily, nodeVersion, npmVersion) {
 	return {
-		node('git && xcode-12') {
+		node('git && xcode-13') {
 			// TODO: Do a shallow checkout rather than stash/unstash?
 			unstash 'mocha-tests'
 			try {
@@ -225,7 +225,7 @@ def cliUnitTests(nodeVersion, npmVersion) {
 // Wrap in timestamper
 timestamps {
 	try {
-		node('git && android-sdk && gperf && xcode-12') {
+		node('git && android-sdk && gperf && xcode-13') {
 			env.JAVA_HOME="${tool name:'OpenJDK 11.0.11+9', type: 'jdk'}"
 			env.PATH="${env.JAVA_HOME}/bin:${env.PATH}"
 

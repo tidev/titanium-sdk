@@ -197,17 +197,17 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 							((ViewGroup) nv).addView(cv, child.getLayoutParams());
 						}
 					}
-					if (children.contains(child)) {
-						children.remove(child);
-					}
-					if (childIndex == -1) {
-						children.add(child);
-					} else {
-						children.add(childIndex, child);
-					}
-					child.parent = proxy;
 				}
 			}
+			if (children.contains(child)) {
+				children.remove(child);
+			}
+			if (childIndex == -1) {
+				children.add(child);
+			} else {
+				children.add(childIndex, child);
+			}
+			child.parent = proxy;
 		}
 	}
 
@@ -238,10 +238,10 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 				View nv = getNativeView();
 				if (nv instanceof ViewGroup) {
 					((ViewGroup) nv).removeView(cv);
-					children.remove(child);
-					child.parent = null;
 				}
 			}
+			children.remove(child);
+			child.parent = null;
 		}
 	}
 
@@ -1337,7 +1337,8 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 			}
 		}
 		if (children != null) {
-			for (TiUIView child : children) {
+			ArrayList<TiUIView> childViews = new ArrayList<>(children);
+			for (TiUIView child : childViews) {
 				remove(child);
 			}
 			children.clear();
@@ -2214,7 +2215,7 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 		animatedAlpha = Float.MIN_VALUE;                                         // we use min val to signal no val.
 	}
 
-	private void applyContentDescription()
+	protected void applyContentDescription()
 	{
 		if (proxy == null || nativeView == null) {
 			return;
@@ -2225,7 +2226,7 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 		}
 	}
 
-	private void applyContentDescription(KrollDict properties)
+	protected void applyContentDescription(KrollDict properties)
 	{
 		if (proxy == null || nativeView == null) {
 			return;
