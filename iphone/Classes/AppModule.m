@@ -27,7 +27,6 @@ extern NSString *const TI_APPLICATION_VERSION;
 extern NSString *const TI_APPLICATION_DESCRIPTION;
 extern NSString *const TI_APPLICATION_COPYRIGHT;
 extern NSString *const TI_APPLICATION_GUID;
-extern BOOL const TI_APPLICATION_ANALYTICS;
 
 @implementation AppModule
 
@@ -570,7 +569,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 
 - (id)analytics
 {
-  return NUMBOOL(TI_APPLICATION_ANALYTICS);
+  return @(NO);
 }
 
 - (NSNumber *)keyboardVisible
