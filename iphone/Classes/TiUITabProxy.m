@@ -658,6 +658,10 @@
         UITabBarItemStateAppearance *selectedAppearance = appearance.stackedLayoutAppearance.selected;
         selectedAppearance.titleTextAttributes = @{ NSForegroundColorAttributeName : [activeTitleColor color] };
       }
+      TiColor *backgroundColor = [TiUtils colorValue:[tabGroup valueForKey:@"tabsBackgroundColor"]];
+      if (backgroundColor != nil) {
+        appearance.backgroundColor = [backgroundColor color];
+      }
       ourItem.standardAppearance = appearance;
       ourItem.scrollEdgeAppearance = appearance;
     } else {

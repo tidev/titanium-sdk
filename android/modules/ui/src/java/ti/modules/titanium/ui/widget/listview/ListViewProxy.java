@@ -65,6 +65,7 @@ public class ListViewProxy extends RecyclerViewProxy
 	private HashMap<Integer, Set<Integer>> markers = new HashMap<>();
 	private KrollDict contentOffset = null;
 	private final MoveEventInfo moveEventInfo = new MoveEventInfo();
+	private boolean shouldUpdate = true;
 
 	public ListViewProxy()
 	{
@@ -193,11 +194,21 @@ public class ListViewProxy extends RecyclerViewProxy
 			final int fromIndex = fromItem.getIndexInSection();
 			final ListItemProxy toItem = listView.getAdapterItem(toAdapterIndex);
 			final TiViewProxy parentProxy = toItem.getParent();
+
 			if (parentProxy instanceof ListSectionProxy) {
 				final ListSectionProxy toSection = (ListSectionProxy) parentProxy;
 				final int toIndex = Math.max(toItem.getIndexInSection(), 0);
+
+				// Prevent updating items during move operations.
+				shouldUpdate = false;
+
 				fromSection.deleteItemsAt(fromIndex, 1, null);
 				toSection.insertItemsAt(toIndex, fromItem, null);
+
+				// Allow updating items after move operations.
+				shouldUpdate = true;
+				update();
+
 				return listView.getAdapterIndex(fromItem);
 			}
 		}
@@ -285,20 +296,6 @@ public class ListViewProxy extends RecyclerViewProxy
 	public String getApiName()
 	{
 		return "Ti.UI.ListView";
-	}
-
-	public List<ListItemProxy> getCurrentItems()
-	{
-		final TiListView listView = getListView();
-
-		if (listView != null) {
-			final ListViewAdapter adapter = listView.getAdapter();
-
-			if (adapter != null) {
-				return adapter.getModels();
-			}
-		}
-		return null;
 	}
 
 	/**
@@ -535,9 +532,8 @@ public class ListViewProxy extends RecyclerViewProxy
 			}
 
 		} else if (name.equals(TiC.PROPERTY_SHOW_SELECTION_CHECK)) {
-
 			// Update and refresh list.
-			update();
+			update(true);
 		} else if (name.equals(TiC.PROPERTY_CONTINUOUS_UPDATE)) {
 			final TiListView listView = getListView();
 			if (listView != null) {
@@ -897,13 +893,20 @@ public class ListViewProxy extends RecyclerViewProxy
 	/**
 	 * Notify ListView to update all adapter items.
 	 */
-	public void update()
+	public void update(boolean force)
 	{
+		if (!shouldUpdate) {
+			return;
+		}
 		final TiListView listView = getListView();
 
 		if (listView != null) {
-			listView.update();
+			listView.update(force);
 		}
+	}
+	public void update()
+	{
+		this.update(false);
 	}
 
 	/** Stores starting position info of an item being dragged-and-dropped. */
