@@ -150,8 +150,8 @@ methods:
         summary: |
             Parameters used to create the background task.
         type: BackgroundTaskObject
-    since: "10.0.0"
-    osver: {ios: {min: "13.0"}}
+    since: "10.2.0"
+    osver: { ios: { min: "13.0" } }
     platforms: [iphone, ipad, macos]
 
   - name: registerUserNotificationSettings
@@ -567,9 +567,9 @@ properties:
         such as the latest stock values.
     type: String
     permission: read-only
-    osver: {ios: {min: "13.0"}}
+    since: "10.2.0"
+    osver: { ios: { min: "13.0" } }
     value: "refresh"
-    since: "10.0.0"
 
   - name: BACKGROUND_TASK_TYPE_PROCESS
     summary: Background task type process.
@@ -579,9 +579,9 @@ properties:
         processing data, and app maintenance.
     type: String
     permission: read-only
-    osver: {ios: {min: "13.0"}}
+    since: "10.2.0"
+    osver: { ios: { min: "13.0" } }
     value: "process"
-    since: "10.0.0"
 
   - name: UTTYPE_TEXT
     summary: |
@@ -1085,7 +1085,7 @@ events:
         type: String
     platforms: [iphone, ipad, macos]
     osver: {ios: {min: "7.0"}}
-    since: {iphone: "3.2.0", ipad: "3.2.0", macos: "10.0.0"}
+    since: {iphone: "3.2.0", ipad: "3.2.0", macos: "10.2.0"}
 
   - name: backgroundprocess
     summary: Fired when the application is woken up for a processing operation. Available on macOS and iOS 13+ .
@@ -1111,8 +1111,8 @@ events:
             to the [endBackgroundHandler](Titanium.App.iOS.endBackgroundHandler) method.
         type: String
     platforms: [iphone, ipad, macos]
-    osver: {ios: {min: "13.0"}}
-    since: "10.0.0"
+    osver: { ios: { min: "13.0" } }
+    since: "10.2.0"
 
   - name: silentpush
     summary: Fired when the application is woken up by a silent remote notification. Available only on iOS 7 and later.
@@ -1719,7 +1719,7 @@ name: BackgroundTaskObject
 summary: |
     Dictionary object of parameters used to register the background task using
     the <Titanium.App.iOS.registerBackgroundTask> method.
-since: "10.0.0"
+since: "10.2.0"
 platforms: [iphone, ipad, macos]
 
 properties:
