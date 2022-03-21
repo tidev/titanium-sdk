@@ -16,8 +16,8 @@ import ti.modules.titanium.ui.widget.TiUIImageView;
 
 @Kroll.proxy(creatableInModule = UIModule.class,
 	propertyAccessors = {
-		TiC.PROPERTY_DECODE_RETRIES,
 		TiC.PROPERTY_AUTOROTATE,
+		TiC.PROPERTY_DECODE_RETRIES,
 		TiC.PROPERTY_DEFAULT_IMAGE,
 		TiC.PROPERTY_DURATION,
 		TiC.PROPERTY_ENABLE_ZOOM_CONTROLS,
@@ -26,7 +26,8 @@ import ti.modules.titanium.ui.widget.TiUIImageView;
 		TiC.PROPERTY_IMAGE_TOUCH_FEEDBACK_COLOR,
 		TiC.PROPERTY_IMAGES,
 		TiC.PROPERTY_REPEAT_COUNT,
-		TiC.PROPERTY_SCALING_MODE
+		TiC.PROPERTY_SCALING_MODE,
+		TiC.PROPERTY_TINT_COLOR
 })
 public class ImageViewProxy extends ViewProxy
 {
@@ -106,18 +107,6 @@ public class ImageViewProxy extends ViewProxy
 	public TiBlob toBlob()
 	{
 		return getImageView().toBlob();
-	}
-
-	@Kroll.setProperty(runOnUiThread = true)
-	public void setTintColor(String color)
-	{
-		getImageView().setTintColor(color);
-	}
-
-	@Kroll.getProperty
-	public int getTintColor()
-	{
-		return getImageView().getTintColor();
 	}
 
 	@Override

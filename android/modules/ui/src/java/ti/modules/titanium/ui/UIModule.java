@@ -17,6 +17,7 @@ import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.TiRootActivity;
+import org.appcelerator.titanium.proxy.ColorProxy;
 import org.appcelerator.titanium.util.TiAnimationCurve;
 import org.appcelerator.titanium.util.TiColorHelper;
 import org.appcelerator.titanium.util.TiDeviceOrientation;
@@ -455,12 +456,12 @@ public class UIModule extends KrollModule implements TiApplication.Configuration
 	}
 
 	@Kroll.setProperty(runOnUiThread = true)
-	public void setBackgroundColor(String color)
+	public void setBackgroundColor(Object color)
 	{
 		doSetBackgroundColor(color);
 	}
 
-	protected void doSetBackgroundColor(String color)
+	protected void doSetBackgroundColor(Object color)
 	{
 		TiRootActivity root = TiApplication.getInstance().getRootActivity();
 		if (root != null) {
@@ -569,6 +570,17 @@ public class UIModule extends KrollModule implements TiApplication.Configuration
 	public int getUserInterfaceStyle()
 	{
 		return getUserInterfaceStyle(TiApplication.getInstance().getResources().getConfiguration());
+	}
+
+	@Kroll.method
+	public ColorProxy fetchSemanticColor(Object value)
+	{
+		if (value instanceof ColorProxy) {
+			return (ColorProxy) value;
+		} else if (value instanceof String) {
+			return TiColorHelper.getColorProxy(value);
+		}
+		return null;
 	}
 
 	@Override

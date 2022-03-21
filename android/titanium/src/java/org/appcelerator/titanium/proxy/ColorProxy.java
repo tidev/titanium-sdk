@@ -19,10 +19,23 @@ import androidx.annotation.ColorInt;
 public class ColorProxy extends KrollProxy
 {
 	private final @ColorInt int color;
+	private final String name;
 
 	public ColorProxy(@ColorInt int colorInt)
 	{
 		this.color = colorInt;
+		this.name = null;
+	}
+
+	public ColorProxy(@ColorInt int colorInt, String name)
+	{
+		this.color = colorInt;
+		this.name = name;
+	}
+
+	public String getName()
+	{
+		return name;
 	}
 
 	@Kroll.method
@@ -41,6 +54,9 @@ public class ColorProxy extends KrollProxy
 	@Override
 	public String toString()
 	{
+		if (this.name != null) {
+			return this.name;
+		}
 		return toHex();
 	}
 
