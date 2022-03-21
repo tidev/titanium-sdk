@@ -45,6 +45,7 @@ import android.view.LayoutInflater;
 		TiC.PROPERTY_TABS_BACKGROUND_COLOR,
 		TiC.PROPERTY_TABS_BACKGROUND_SELECTED_COLOR,
 		TiC.PROPERTY_SWIPEABLE,
+		TiC.PROPERTY_AUTO_TAB_TITLE,
 		TiC.PROPERTY_EXIT_ON_CLOSE,
 		TiC.PROPERTY_SMOOTH_SCROLL_ON_TAB_CLICK
 })
@@ -68,11 +69,13 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 	private Object selectedTab; // NOTE: Can be TabProxy or Number
 	private String tabGroupTitle = null;
 	private static int id_toolbar;
+	private boolean autoTabTitle = false;
 
 	public TabGroupProxy()
 	{
 		super();
 		defaultValues.put(TiC.PROPERTY_SWIPEABLE, true);
+		defaultValues.put(TiC.PROPERTY_AUTO_TAB_TITLE, autoTabTitle);
 		defaultValues.put(TiC.PROPERTY_SMOOTH_SCROLL_ON_TAB_CLICK, true);
 	}
 
@@ -246,6 +249,9 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 			}
 		}
 
+		if (options.containsKeyAndNotNull(TiC.PROPERTY_AUTO_TAB_TITLE)) {
+			autoTabTitle = options.getBoolean(TiC.PROPERTY_AUTO_TAB_TITLE);
+		}
 		if (options.containsKeyAndNotNull(TiC.PROPERTY_TABS)) {
 			setTabs(options.get(TiC.PROPERTY_TABS));
 		}
@@ -277,7 +283,11 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 	{
 		// If the native view is drawn directly set the String as a title for the SupportActionBar.
 		if (view != null) {
-			((TiUIAbstractTabGroup) view).updateTitle(title);
+			if (autoTabTitle) {
+				((TiUIAbstractTabGroup) view).updateTitle("");
+			} else {
+				((TiUIAbstractTabGroup) view).updateTitle(title);
+			}
 		} else {
 			// If the native view is not yet drawn save the value to be passed during creation.
 			this.tabGroupTitle = title;
@@ -336,7 +346,11 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		}
 		// If we have set a title before the creation of the native view, set it now.
 		if (this.tabGroupTitle != null) {
-			((TiUIAbstractTabGroup) view).updateTitle(this.tabGroupTitle);
+			if (autoTabTitle) {
+				((TiUIAbstractTabGroup) view).updateTitle("");
+			} else {
+				((TiUIAbstractTabGroup) view).updateTitle(this.tabGroupTitle);
+			}
 		}
 		setModelListener(view);
 
@@ -381,6 +395,15 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		// Finish open handling by loading proxy settings.
 		handlePostOpen();
 
+		if (autoTabTitle) {
+			// expand title to fix truncated title
+			TiUIAbstractTabGroup tabGroup = (TiUIAbstractTabGroup) view;
+			tabGroup.updateTitle(tabs.get(0).getProperty(TiC.PROPERTY_TITLE).toString() + " "
+				+ tabs.get(0).getProperty(TiC.PROPERTY_TITLE).toString());
+
+			// clear it again
+			tabGroup.updateTitle("");
+		}
 		super.onWindowActivityCreated();
 	}
 
@@ -394,10 +417,10 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		}
 
 		// Load any tabs added before the tab group opened.
-		TiUIAbstractTabGroup tg = (TiUIAbstractTabGroup) view;
+		TiUIAbstractTabGroup tabGroup = (TiUIAbstractTabGroup) view;
 		for (TabProxy tab : tabs) {
 			if (tab != null) {
-				tg.addTab(tab);
+				tabGroup.addTab(tab);
 			}
 		}
 
@@ -405,7 +428,7 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		// then we need to invoke onTabSelected so focus/blur event fire appropriately
 		TabProxy tab = getActiveTabProxy();
 		if (tab != null) {
-			tg.selectTab(tab);
+			tabGroup.selectTab(tab);
 			selectedTab = tab;
 		}
 
