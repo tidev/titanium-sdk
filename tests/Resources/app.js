@@ -81,7 +81,7 @@ function loadTests() {
 	// Titanium APIs
 	require('./core.runtime.test'); // tests on how proxies behave w/regard to hasOwnProperty
 	require('./ti.accelerometer.test');
-	require('./ti.analytics.test');
+
 	if (OS_ANDROID) {
 		require('./ti.android.test');
 		require('./ti.android.actionbar.test');
