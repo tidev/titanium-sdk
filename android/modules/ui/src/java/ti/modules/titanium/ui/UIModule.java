@@ -212,6 +212,15 @@ public class UIModule extends KrollModule
 	public static final int BUTTON_STYLE_OPTION_NEUTRAL = 6;
 
 	@Kroll.constant
+	public static final int DATE_PICKER_STYLE_AUTOMATIC = 1;
+	@Kroll.constant
+	public static final int DATE_PICKER_STYLE_COMPACT = 2;
+	@Kroll.constant
+	public static final int DATE_PICKER_STYLE_INLINE = 3;
+	@Kroll.constant
+	public static final int DATE_PICKER_STYLE_WHEELS = 4;
+
+	@Kroll.constant
 	public static final int INPUT_BORDERSTYLE_NONE = 0;
 	@Kroll.constant
 	public static final int INPUT_BORDERSTYLE_ROUNDED = 1;
@@ -248,6 +257,11 @@ public class UIModule extends KrollModule
 	public static final int MAP_VIEW_SATELLITE = 2;
 	@Kroll.constant
 	public static final int MAP_VIEW_HYBRID = 3;
+
+	@Kroll.constant
+	public static final int SELECTION_STYLE_NONE = 0;
+	@Kroll.constant
+	public static final int SELECTION_STYLE_DEFAULT = 1;
 
 	@Kroll.constant
 	public static final int SWITCH_STYLE_CHECKBOX = 0;

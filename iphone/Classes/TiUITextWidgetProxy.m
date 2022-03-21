@@ -19,6 +19,7 @@ DEFINE_DEF_BOOL_PROP(suppressReturn, YES);
 {
   [self initializeProperty:@"enabled" defaultValue:NUMBOOL(YES)];
   [self initializeProperty:@"editable" defaultValue:NUMBOOL(YES)];
+  [self initializeProperty:@"enableCopy" defaultValue:NUMBOOL(YES)];
   [super _initWithProperties:properties];
 }
 
@@ -304,10 +305,11 @@ DEFINE_DEF_BOOL_PROP(suppressReturn, YES);
   return nil;
 }
 
-- (void)setSelection:(id)arg withObject:(id)property
+- (void)setSelection:(id)args
 {
-  NSInteger start = [TiUtils intValue:arg def:-1];
-  NSInteger end = [TiUtils intValue:property def:-1];
+  ENSURE_ARG_COUNT(args, 2);
+  NSInteger start = [TiUtils intValue:args[0] def:-1];
+  NSInteger end = [TiUtils intValue:args[1] def:-1];
   NSString *curValue = [TiUtils stringValue:[self valueForKey:@"value"]];
   NSInteger textLength = [curValue length];
   if ((start < 0) || (start > textLength) || (end < 0) || (end > textLength)) {
@@ -316,7 +318,7 @@ DEFINE_DEF_BOOL_PROP(suppressReturn, YES);
   }
   TiThreadPerformOnMainThread(
       ^{
-        [(TiUITextWidget *)[self view] setSelectionFrom:arg to:property];
+        [(TiUITextWidget *)[self view] setSelectionFrom:start to:end];
       },
       NO);
 }

@@ -25,6 +25,7 @@ import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.CurrentActivityListener;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiMessenger;
+import org.appcelerator.titanium.R;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiBlob;
@@ -98,9 +99,8 @@ public class TiUIHelper
 	public static final String MIME_TYPE_PNG = "image/png";
 
 	private static Method overridePendingTransition;
-	private static Map<String, String> resourceImageKeys = Collections.synchronizedMap(new HashMap<String, String>());
-	private static Map<String, Typeface> mCustomTypeFaces =
-		Collections.synchronizedMap(new HashMap<String, Typeface>());
+	private static final Map<String, String> resourceImageKeys = Collections.synchronizedMap(new HashMap<>());
+	private static final Map<String, Typeface> mCustomTypeFaces = Collections.synchronizedMap(new HashMap<>());
 
 	public static OnClickListener createDoNothingListener()
 	{
@@ -218,7 +218,7 @@ public class TiUIHelper
 		}
 		final OnClickListener fListener = listener;
 		waitForCurrentActivity(new CurrentActivityListener() {
-			// TODO @Override
+			@Override
 			public void onCurrentActivityReady(Activity activity)
 			{
 				//add dialog to activity for cleaning up purposes
@@ -232,7 +232,7 @@ public class TiUIHelper
 					if (activity instanceof TiBaseActivity) {
 						TiBaseActivity baseActivity = (TiBaseActivity) activity;
 						baseActivity.addDialog(new TiBaseActivity.DialogWrapper(
-							dialog, true, new WeakReference<TiBaseActivity>(baseActivity)));
+							dialog, true, new WeakReference<>(baseActivity)));
 						dialog.setOwnerActivity(activity);
 					}
 					dialog.show();
@@ -622,7 +622,7 @@ public class TiUIHelper
 		// Create an array of the layers that will compose this background.
 		// Note that the order in which the layers is important to get the
 		// correct rendering behavior.
-		ArrayList<Drawable> layers = new ArrayList<Drawable>(3);
+		ArrayList<Drawable> layers = new ArrayList<>(3);
 
 		if (color != null) {
 			Drawable colorDrawable = new ColorDrawable(TiColorHelper.parseColor(color));
@@ -646,7 +646,7 @@ public class TiUIHelper
 			layers.add(imageDrawable);
 		}
 
-		return new LayerDrawable(layers.toArray(new Drawable[layers.size()]));
+		return new LayerDrawable(layers.toArray(new Drawable[0]));
 	}
 
 	public static final int[] BACKGROUND_DEFAULT_STATE_1 = {
@@ -682,7 +682,7 @@ public class TiUIHelper
 			/** Creates a new image drawable loader. */
 			public ImageDrawableLoader()
 			{
-				this.imagePathDrawableMap = new HashMap<String, Drawable>(4);
+				this.imagePathDrawableMap = new HashMap<>(4);
 			}
 
 			/**
@@ -851,7 +851,6 @@ public class TiUIHelper
 	 * Creates and returns a Bitmap from an InputStream.
 	 * @param stream an InputStream to read bitmap data.
 	 * @return a new bitmap instance.
-	 * @module.api
 	 */
 	public static Bitmap createBitmap(InputStream stream)
 	{
@@ -976,7 +975,6 @@ public class TiUIHelper
 	 * Creates and returns a bitmap from its url.
 	 * @param url the bitmap url.
 	 * @return a new bitmap instance
-	 * @module.api
 	 */
 	public static Bitmap getResourceBitmap(String url)
 	{
@@ -992,7 +990,6 @@ public class TiUIHelper
 	 * Creates and returns a bitmap for the specified resource ID.
 	 * @param res_id the bitmap id.
 	 * @return a new bitmap instance.
-	 * @module.api
 	 */
 	public static Bitmap getResourceBitmap(int res_id)
 	{
@@ -1035,7 +1032,11 @@ public class TiUIHelper
 
 	public static Drawable getResourceDrawable(int res_id)
 	{
-		return TiApplication.getInstance().getResources().getDrawable(res_id);
+		Context context = TiApplication.getAppCurrentActivity();
+		if (context == null) {
+			context = TiApplication.getInstance();
+		}
+		return context.getResources().getDrawable(res_id, context.getTheme());
 	}
 
 	public static Drawable getResourceDrawable(Object path)
@@ -1279,6 +1280,23 @@ public class TiUIHelper
 		boolean isMaterial = typedArray.hasValue(0);
 		typedArray.recycle();
 		return isMaterial;
+	}
+
+	/**
+	 * Determines if given context has theme attribute "titaniumIsSolidTheme" set to "true".
+	 * Attribute is used by our "Theme.Titanium.*.Solid" themes to shade top/bottom TabGroup tabs appropriately.
+	 * @param context Reference to the context such as an Activity or Application object to inspect. Can be null.
+	 * @return Returns true if assigned a "solid" Titanium theme. Returns false if not or argument is null.
+	 */
+	public static boolean isUsingSolidTitaniumTheme(Context context)
+	{
+		if (context == null) {
+			return false;
+		}
+
+		TypedValue typedValue = new TypedValue();
+		context.getTheme().resolveAttribute(R.attr.titaniumIsSolidTheme, typedValue, true);
+		return ((typedValue.type == TypedValue.TYPE_INT_BOOLEAN) && (typedValue.data != 0));
 	}
 
 	public static String hexStringFrom(int colorInt)

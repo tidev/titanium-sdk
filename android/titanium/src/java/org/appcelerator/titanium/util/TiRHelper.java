@@ -22,15 +22,14 @@ public class TiRHelper
 {
 	private static final String TAG = "TiRHelper";
 
-	private static Map<String, Class<?>> clsCache = Collections.synchronizedMap(new HashMap<String, Class<?>>());
-	private static Map<String, Integer> valCache = Collections.synchronizedMap(new HashMap<String, Integer>());
+	private static final Map<String, Class<?>> clsCache = Collections.synchronizedMap(new HashMap<>());
+	private static final Map<String, Integer> valCache = Collections.synchronizedMap(new HashMap<>());
 
-	private static String clsPrefixAndroid = "android.R$";
+	private static final String clsPrefixAndroid = "android.R$";
 	private static String clsPrefixApplication = null;
 
 	/**
 	 * The exception thrown by TiRHelper when a particular resource is not found.
-	 * @module.api
 	 */
 	public static final class ResourceNotFoundException extends ClassNotFoundException
 	{
@@ -105,11 +104,10 @@ public class TiRHelper
 	 * Searches for an Android compiled resource given its path. These resources are traditionally accessed via a resource ID
 	 * (either from the application's resource bundle, or Android's internal resource bundle)
 	 * @param path the resource's path.
-	 * @param includeSystemResources indicates whether or not {@link #getResource(String, boolean)} will look in the system's (Android)
+	 * @param includeSystemResources Set true to lookup Android system resources.
 	 * resource bundle, if the resource is not found in the application's resource bundle.
 	 * @return the resource, if found.
 	 * @throws ResourceNotFoundException the exception thrown when the resource is not found in either location listed above.
-	 * @module.api
 	 */
 	public static int getResource(String path, boolean includeSystemResources) throws ResourceNotFoundException
 	{
@@ -136,7 +134,6 @@ public class TiRHelper
 	 * @return the resource, if found.
 	 * @throws ResourceNotFoundException the exception thrown when the resource is not found in either
 	 * the application's resource bundle, or Android's internal resource bundle.
-	 * @module.api
 	 */
 	public static int getResource(String path) throws ResourceNotFoundException
 	{
@@ -147,7 +144,6 @@ public class TiRHelper
 	 * Checks if the given resource path exists. Refer to {@link #getResource(String)} for more details.
 	 * @param path the resource's path
 	 * @return whether or not the resource exists in the application's resource bundle.
-	 * @module.api
 	 */
 	public static boolean hasResource(String path)
 	{
@@ -162,7 +158,7 @@ public class TiRHelper
 	/**
 	 * @param path path of the resource.
 	 * @return the application resource given its path.
-	 * @throws ResourceNotFoundException
+	 * @throws ResourceNotFoundException Thrown if given resource name was not found.
 	 */
 	public static int getApplicationResource(String path) throws ResourceNotFoundException
 	{

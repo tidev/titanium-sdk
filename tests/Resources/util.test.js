@@ -8,6 +8,7 @@
 /* eslint no-unused-expressions: "off" */
 /* eslint no-array-constructor: "off" */
 /* eslint no-new-wrappers: "off" */
+/* globals OS_IOS, OS_VERSION_MAJOR */
 
 const should = require('./utilities/assertions');
 const utilities = require('./utilities/utilities');
@@ -393,6 +394,18 @@ describe('util', () => {
 						+ '  }\n'
 						+ '}'
 					);
+				} else if (OS_VERSION_MAJOR >= 15) {
+					result.should.eql(
+						'{\n'
+						+ '  foo: \'bar\',\n'
+						+ '  foobar: 1,\n'
+						+ '  func: <ref *1> [Function: func] {\n'
+						+ '    [length]: 0,\n'
+						+ '    [name]: \'func\',\n'
+						+ '    [prototype]: func { [constructor]: [Circular *1] }\n'
+						+ '  }\n'
+						+ '}'
+					);
 				} else { // iOS/JSC
 					result.should.eql(
 						'{\n'
@@ -429,6 +442,23 @@ describe('util', () => {
 						+ '        [name]: \'a\',\n'
 						+ '        [arguments]: null,\n'
 						+ '        [caller]: null,\n'
+						+ '        [prototype]: a { [constructor]: [Circular *1] }\n'
+						+ '      }\n'
+						+ '    },\n'
+						+ '    [length]: 1\n'
+						+ '  ]\n'
+						+ '}'
+					);
+				} else if (OS_VERSION_MAJOR >= 15) {
+					result.should.eql(
+						'{\n'
+						+ '  foo: \'bar\',\n'
+						+ '  foobar: 1,\n'
+						+ '  func: [\n'
+						+ '    {\n'
+						+ '      a: <ref *1> [Function: a] {\n'
+						+ '        [length]: 0,\n'
+						+ '        [name]: \'a\',\n'
 						+ '        [prototype]: a { [constructor]: [Circular *1] }\n'
 						+ '      }\n'
 						+ '    },\n'
@@ -486,6 +516,26 @@ describe('util', () => {
 						+ '    [arguments]: null,\n'
 						+ '    [caller]: null,\n'
 						+ '    [prototype]: func { [constructor]: [Circular *1] }\n'
+						+ '  }\n'
+						+ '}'
+					);
+				} else if (OS_VERSION_MAJOR >= 15) {
+					result.should.eql(
+						'{\n'
+						+ '  foo: \'bar\',\n'
+						+ '  foobar: 1,\n'
+						+ '  func: <ref *1> [Function: func] {\n'
+						+ '    [length]: 0,\n'
+						+ '    [name]: \'func\',\n'
+						+ '    [prototype]: func { [constructor]: [Circular *1] }\n'
+						+ '  }\n'
+						+ '} {\n'
+						+ '  foo: \'bar\',\n'
+						+ '  foobar: 1,\n'
+						+ '  func: <ref *1> [Function: func] {\n'
+						+ '    [prototype]: func { [constructor]: [Circular *1] },\n'
+						+ '    [name]: \'func\',\n'
+						+ '    [length]: 0\n'
 						+ '  }\n'
 						+ '}'
 					);
@@ -702,13 +752,19 @@ describe('util', () => {
 				func: function () {}
 			};
 			// In Node 10+, we can sort the properties to ensure order to match, otherwise JSC/V8 return arguments/caller in different order on Functions
-			util.inspect(obj, {
+			const inspected = 	util.inspect(obj, {
 				showHidden: true,
 				breakLength: Infinity,
 				sorted: true
-			}).should.eql(
-				'{ foo: \'bar\', foobar: 1, func: <ref *1> [Function: func] { [arguments]: null, [caller]: null, [length]: 0, [name]: \'func\', [prototype]: func { [constructor]: [Circular *1] } } }'
-			);
+			});
+			if (OS_IOS && OS_VERSION_MAJOR >= 15) {
+				inspected.should.eql('{ foo: \'bar\', foobar: 1, func: <ref *1> [Function: func] { [length]: 0, [name]: \'func\', [prototype]: func { [constructor]: [Circular *1] } } }'
+				);
+			} else {
+				inspected.should.eql(
+					'{ foo: \'bar\', foobar: 1, func: <ref *1> [Function: func] { [arguments]: null, [caller]: null, [length]: 0, [name]: \'func\', [prototype]: func { [constructor]: [Circular *1] } } }'
+				);
+			}
 		});
 
 		it('with nested object and infinite depth', () => {
@@ -719,21 +775,36 @@ describe('util', () => {
 			};
 
 			// In Node 10+, we can sort the properties to ensure order to match, otheerwise JSC/V8 return arguments/caller in different order on Functions
-			util.inspect(nestedObj2, {
+			const inspected = util.inspect(nestedObj2, {
 				showHidden: true,
 				breakLength: Infinity,
 				depth: Infinity,
 				sorted: true
-			}).should.eql(
-				'{\n'
-				+ '  foo: \'bar\',\n'
-				+ '  foobar: 1,\n'
-				+ '  func: [\n'
-				+ '    { a: <ref *1> [Function: a] { [arguments]: null, [caller]: null, [length]: 0, [name]: \'a\', [prototype]: a { [constructor]: [Circular *1] } } },\n'
-				+ '    [length]: 1\n'
-				+ '  ]\n'
-				+ '}'
-			);
+			});
+
+			if (OS_IOS && OS_VERSION_MAJOR >= 15) {
+				inspected.should.eql(
+					'{\n'
+					+ '  foo: \'bar\',\n'
+					+ '  foobar: 1,\n'
+					+ '  func: [\n'
+					+ '    { a: <ref *1> [Function: a] { [length]: 0, [name]: \'a\', [prototype]: a { [constructor]: [Circular *1] } } },\n'
+					+ '    [length]: 1\n'
+					+ '  ]\n'
+					+ '}'
+				);
+			} else {
+				inspected.should.eql(
+					'{\n'
+					+ '  foo: \'bar\',\n'
+					+ '  foobar: 1,\n'
+					+ '  func: [\n'
+					+ '    { a: <ref *1> [Function: a] { [arguments]: null, [caller]: null, [length]: 0, [name]: \'a\', [prototype]: a { [constructor]: [Circular *1] } } },\n'
+					+ '    [length]: 1\n'
+					+ '  ]\n'
+					+ '}'
+				);
+			}
 		});
 
 		it('with nested object and default depth', () => {

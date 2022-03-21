@@ -12,7 +12,6 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.appcelerator.kroll.KrollDict;
-import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiC;
@@ -36,6 +35,7 @@ import ti.modules.titanium.ui.widget.tableview.TiTableView;
 		TiC.PROPERTY_HAS_DETAIL,
 		TiC.PROPERTY_EDITABLE,
 		TiC.PROPERTY_MOVABLE,
+		TiC.PROPERTY_MOVEABLE,
 		TiC.PROPERTY_CLASS_NAME,
 		TiC.PROPERTY_LAYOUT,
 		TiC.PROPERTY_LEFT_IMAGE,
@@ -58,10 +58,11 @@ public class TableViewRowProxy extends TiViewProxy
 	private int filteredIndex = -1;
 	private TableViewHolder holder;
 	private boolean placeholder = false;
+	private boolean selected = false;
 
 	// FIXME: On iOS the same row can be added to a table multiple times.
 	//        Due to constraints, we need to create a new proxy and track changes.
-	private List<WeakReference<TableViewRowProxy>> clones = new ArrayList<>(0);
+	private final List<WeakReference<TableViewRowProxy>> clones = new ArrayList<>(0);
 
 	public TableViewRowProxy()
 	{
@@ -81,14 +82,10 @@ public class TableViewRowProxy extends TiViewProxy
 	 *
 	 * @return TableViewRowProxy
 	 */
+	@Override
 	public TableViewRowProxy clone()
 	{
-		final TableViewRowProxy proxy = (TableViewRowProxy) KrollProxy.createProxy(
-			this.getClass(),
-			getKrollObject(),
-			new Object[] { properties },
-			this.creationUrl.url
-		);
+		final TableViewRowProxy proxy = (TableViewRowProxy) super.clone();
 
 		// Reference clone, to update properties.
 		clones.add(new WeakReference<>(proxy));
@@ -137,7 +134,6 @@ public class TableViewRowProxy extends TiViewProxy
 			}
 			payload.put(TiC.EVENT_PROPERTY_ROW, this);
 			payload.put(TiC.EVENT_PROPERTY_INDEX, index);
-			payload.put(TiC.EVENT_PROPERTY_DETAIL, false);
 
 			if (tableView != null) {
 				payload.put(TiC.EVENT_PROPERTY_SEARCH_MODE, tableView.isFiltered());
@@ -154,7 +150,7 @@ public class TableViewRowProxy extends TiViewProxy
 	 * @param eventName Name of fired event.
 	 * @param data      Data payload of fired event.
 	 * @param bubbles   Specify if event should bubble up to parent.
-	 * @return
+	 * @return Returns true if the event was successfully fired to listener(s)
 	 */
 	@Override
 	public boolean fireEvent(String eventName, Object data, boolean bubbles)
@@ -283,6 +279,24 @@ public class TableViewRowProxy extends TiViewProxy
 	}
 
 	/**
+	 * Determine if row is currently selected.
+	 *
+	 * @return Boolean of selection status.
+	 */
+	public boolean isSelected()
+	{
+		return selected;
+	}
+
+	/**
+	 * Set row selection status.
+	 */
+	public void setSelected(boolean selected)
+	{
+		this.selected = selected;
+	}
+
+	/**
 	 * Handle initial creation properties.
 	 *
 	 * @param options Initial creation properties.
@@ -323,8 +337,7 @@ public class TableViewRowProxy extends TiViewProxy
 	 */
 	private void headerDeprecationLog()
 	{
-		// TODO: Display deprecation warning in SDK 10.0
-		// Log.w(TAG, "Usage of 'TableViewRow.header' has been deprecated, use 'TableViewRow.headerTitle' instead.");
+		Log.w(TAG, "Usage of 'TableViewRow.header' has been deprecated, use 'TableViewRow.headerTitle' instead.");
 	}
 
 	/**
@@ -332,8 +345,7 @@ public class TableViewRowProxy extends TiViewProxy
 	 */
 	private void footerDeprecationLog()
 	{
-		// TODO: Display deprecation warning in SDK 10.0
-		// Log.w(TAG, "Usage of 'TableViewRow.footer' has been deprecated, use 'TableViewRow.footerTitle' instead.");
+		Log.w(TAG, "Usage of 'TableViewRow.footer' has been deprecated, use 'TableViewRow.footerTitle' instead.");
 	}
 
 	/**
@@ -400,6 +412,22 @@ public class TableViewRowProxy extends TiViewProxy
 			footerDeprecationLog();
 		}
 
+		// Set selected color from selection style.
+		if (!hasPropertyAndNotNull(TiC.PROPERTY_BACKGROUND_SELECTED_COLOR)
+			&& name.equals(TiC.PROPERTY_SELECTION_STYLE)
+			&& value instanceof Integer) {
+			String selectionColor = null;
+
+			switch ((Integer) value) {
+				case UIModule.SELECTION_STYLE_NONE:
+					selectionColor = "transparent";
+					break;
+			}
+
+			setProperty(TiC.PROPERTY_BACKGROUND_SELECTED_COLOR, selectionColor);
+			invalidate();
+		}
+
 		if (name.equals(TiC.PROPERTY_LEFT_IMAGE)
 			|| name.equals(TiC.PROPERTY_RIGHT_IMAGE)
 			|| name.equals(TiC.PROPERTY_HAS_CHECK)
@@ -408,7 +436,9 @@ public class TableViewRowProxy extends TiViewProxy
 			|| name.equals(TiC.PROPERTY_BACKGROUND_COLOR)
 			|| name.equals(TiC.PROPERTY_BACKGROUND_IMAGE)
 			|| name.equals(TiC.PROPERTY_SELECTED_BACKGROUND_COLOR)
+			|| name.equals(TiC.PROPERTY_BACKGROUND_SELECTED_COLOR)
 			|| name.equals(TiC.PROPERTY_SELECTED_BACKGROUND_IMAGE)
+			|| name.equals(TiC.PROPERTY_BACKGROUND_SELECTED_IMAGE)
 			|| name.equals(TiC.PROPERTY_TITLE)
 			|| name.equals(TiC.PROPERTY_COLOR)
 			|| name.equals(TiC.PROPERTY_FONT)

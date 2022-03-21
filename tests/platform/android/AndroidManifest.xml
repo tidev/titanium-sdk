@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" android:versionName="v1.01">
+	<application>
+		<meta-data android:name="metatadata1" android:value="Metadata 1"/>
+	</application>
+</manifest>

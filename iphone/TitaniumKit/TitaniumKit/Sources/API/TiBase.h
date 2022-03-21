@@ -574,7 +574,6 @@ extern NSString *const kTiPausedNotification;
 extern NSString *const kTiResumeNotification;
 extern NSString *const kTiResumedNotification;
 extern NSString *const kTiErrorNotification;
-extern NSString *const kTiAnalyticsNotification;
 extern NSString *const kTiRemoteDeviceUUIDNotification;
 extern NSString *const kTiGestureShakeNotification;
 extern NSString *const kTiRemoteControlNotification;

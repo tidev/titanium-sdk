@@ -33,16 +33,16 @@ public final class JSDebugger
 	private final Object waitLock;
 
 	// Are we ready to continue? Has the debugger been connected and we've processed the first set of messages?
-	private AtomicBoolean ready = new AtomicBoolean(false);
+	private final AtomicBoolean ready = new AtomicBoolean(false);
 
 	// Holding place for messages received from V8 intended for debugger
-	private LinkedBlockingQueue<String> v8Messages = new LinkedBlockingQueue<String>();
+	private final LinkedBlockingQueue<String> v8Messages = new LinkedBlockingQueue<>();
 
 	// The queue holding messages coming from debugger -> V8
-	private LinkedBlockingQueue<String> inspectorMessages = new LinkedBlockingQueue<String>();
+	private final LinkedBlockingQueue<String> inspectorMessages = new LinkedBlockingQueue<>();
 	// The initial queue of messages received after debugger connected to "initialize" (until we get
 	// Runtime.runIfWaitingForDebugger)
-	private LinkedBlockingQueue<String> initialMessages = new LinkedBlockingQueue<String>();
+	private final LinkedBlockingQueue<String> initialMessages = new LinkedBlockingQueue<>();
 
 	// The thread which acts as the main agent for listening to debugger and V8 messages
 	private InspectorAgent agentThread;
@@ -93,6 +93,7 @@ public final class JSDebugger
 	{
 		try {
 			this.agentThread = new InspectorAgent(this.port);
+			this.agentThread.setReuseAddr(true);
 			this.agentThread.start();
 		} catch (Exception e) {
 			Log.e(TAG, "Failed to start websocket server agent to handle debugger connection", e);
@@ -236,7 +237,7 @@ public final class JSDebugger
 	private class V8MessageHandler implements Runnable
 	{
 		private WebSocket conn;
-		private AtomicBoolean stop = new AtomicBoolean(false);
+		private final AtomicBoolean stop = new AtomicBoolean(false);
 
 		// Dummy message used to stop the sentinel loop if it was waiting on v8Messages.take() while stop() got called.
 		private static final String STOP_MESSAGE = "STOP_MESSAGE";

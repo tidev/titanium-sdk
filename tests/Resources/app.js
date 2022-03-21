@@ -81,9 +81,10 @@ function loadTests() {
 	// Titanium APIs
 	require('./core.runtime.test'); // tests on how proxies behave w/regard to hasOwnProperty
 	require('./ti.accelerometer.test');
-	require('./ti.analytics.test');
+
 	if (OS_ANDROID) {
 		require('./ti.android.test');
+		require('./ti.android.actionbar.test');
 		require('./ti.android.notificationmanager.test');
 		require('./ti.android.r.test');
 		require('./ti.android.service.test');
@@ -144,6 +145,7 @@ function loadTests() {
 	require('./ti.ui.alertdialog.test');
 	if (OS_ANDROID) {
 		require('./ti.ui.android.test');
+		require('./ti.ui.android.cardview.test');
 		require('./ti.ui.android.drawerlayout.test');
 		require('./ti.ui.android.progressindicator.test');
 	}
@@ -159,6 +161,7 @@ function loadTests() {
 		require('./ti.ui.ios.collisionbehavior.test');
 		require('./ti.ui.ios.feedbackgenerator.test');
 		require('./ti.ui.ios.previewcontext.test');
+		require('./ti.ui.ios.documentviewer.test');
 		require('./ti.ui.ios.splitwindow.test');
 		require('./ti.ui.ios.statusbar.test');
 		require('./ti.ui.ios.stepper.test');
@@ -200,8 +203,8 @@ function loadTests() {
 	}
 	require('./ti.xml.test');
 	// Modules
-	require('./ti.cloudpush.test');
 	require('./ti.map.test');
+	require('./ti.modulesdk920.test');
 	if (OS_ANDROID) {
 		require('./ti.playservices.test');
 	}

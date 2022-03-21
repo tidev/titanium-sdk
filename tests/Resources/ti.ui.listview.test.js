@@ -1016,6 +1016,8 @@ describe('Titanium.UI.ListView', function () {
 			extendEdges: [ Ti.UI.EXTEND_EDGE_ALL ]
 		});
 
+		const control = Ti.UI.createRefreshControl();
+
 		window.addEventListener('open', function () {
 			control.beginRefreshing();
 		});
@@ -1023,8 +1025,6 @@ describe('Titanium.UI.ListView', function () {
 		const nav = Ti.UI.createNavigationWindow({
 			window: window
 		});
-
-		const control = Ti.UI.createRefreshControl();
 
 		const listView = Ti.UI.createListView({
 			refreshControl: control
@@ -1424,7 +1424,7 @@ describe('Titanium.UI.ListView', function () {
 
 	it.ios('All text should show if ListView.style is .INSET_GROUPED ', () => {
 		// FIXME: Does not honour scale correctly on macOS: https://jira.appcelerator.org/browse/TIMOB-28261
-		if (isCI && utilities.isMacOS() && OS_VERSION_MAJOR < 11) {
+		if (utilities.isMacOS() && OS_VERSION_MAJOR < 11) {
 			return;
 		}
 

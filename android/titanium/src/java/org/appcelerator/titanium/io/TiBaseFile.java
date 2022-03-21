@@ -76,9 +76,37 @@ public abstract class TiBaseFile
 		this.binary = false;
 	}
 
+	@Override
+	public boolean equals(Object value)
+	{
+		// Not equal if given null.
+		if (value == null) {
+			return false;
+		}
+
+		// Check if give object is same type as this instance such as TiFile, TiResourceFile, etc.
+		if (value.getClass().equals(getClass()) == false) {
+			return false;
+		}
+
+		// Compare native paths. (This can return null.)
+		String thisNativePath = nativePath();
+		String givenNativePath = ((TiBaseFile) value).nativePath();
+		if (thisNativePath == null) {
+			return (givenNativePath == null);
+		}
+		return thisNativePath.equals(givenNativePath);
+	}
+
+	@Override
+	public int hashCode()
+	{
+		String nativePath = nativePath();
+		return (nativePath != null) ? nativePath.hashCode() : 0;
+	}
+
 	/**
 	 * @return true if the file is a File, false otherwise. See {@link java.io.File#isFile()} for more details.
-	 * @module.api
 	 */
 	public boolean isFile()
 	{
@@ -87,7 +115,6 @@ public abstract class TiBaseFile
 
 	/**
 	 * @return true if the file is a directory, false otherwise. See {@link java.io.File#isDirectory()} for more details.
-	 * @module.api
 	 */
 	public boolean isDirectory()
 	{
@@ -96,7 +123,6 @@ public abstract class TiBaseFile
 
 	/**
 	 * @return  true if the file is executable, false otherwise.
-	 * @module.api
 	 */
 	public boolean isExecutable()
 	{
@@ -105,7 +131,6 @@ public abstract class TiBaseFile
 
 	/**
 	 * @return  true if the file is read-only, false otherwise.
-	 * @module.api
 	 */
 	public boolean isReadonly()
 	{
@@ -114,7 +139,6 @@ public abstract class TiBaseFile
 
 	/**
 	 * @return  true if the file is writable, false otherwise.
-	 * @module.api
 	 */
 	public boolean isWriteable()
 	{
@@ -123,7 +147,6 @@ public abstract class TiBaseFile
 
 	/**
 	 * @return true if the file is hidden, false otherwise.
-	 * @module.api
 	 */
 	public boolean isHidden()
 	{
@@ -132,7 +155,6 @@ public abstract class TiBaseFile
 
 	/**
 	 * @return true if the file is a symbolic link, false otherwise.
-	 * @module.api
 	 */
 	public boolean isSymbolicLink()
 	{
@@ -241,7 +263,6 @@ public abstract class TiBaseFile
 
 	/**
 	 * @return Whether or not this file exists.
-	 * @module.api
 	 */
 	public boolean exists()
 	{
@@ -257,7 +278,6 @@ public abstract class TiBaseFile
 
 	/**
 	 * @return a list of all files and directories in this directory.
-	 * @module.api
 	 */
 	public List<String> getDirectoryListing()
 	{
@@ -267,7 +287,6 @@ public abstract class TiBaseFile
 
 	/**
 	 * @return The parent directory of this file
-	 * @module.api
 	 */
 	public TiBaseFile getParent()
 	{
@@ -331,7 +350,6 @@ public abstract class TiBaseFile
 
 	/**
 	 * @return the file's name.
-	 * @module.api
 	 */
 	public String name()
 	{
@@ -341,7 +359,6 @@ public abstract class TiBaseFile
 
 	/**
 	 * @return the file's path.
-	 * @module.api
 	 */
 	public String nativePath()
 	{
@@ -541,7 +558,6 @@ public abstract class TiBaseFile
 	 * the contents of the file.
 	 * @return  the InputStream of the file.
 	 * @throws IOException the thrown exception.
-	 * @module.api
 	 */
 	public abstract InputStream getInputStream() throws IOException;
 
@@ -549,14 +565,12 @@ public abstract class TiBaseFile
 	 * Implementing subclasses should return an OutputStream for writing to the file.
 	 * @return  the OutputStream of the file.
 	 * @throws IOException the thrown exception.
-	 * @module.api
 	 */
 	public abstract OutputStream getOutputStream() throws IOException;
 
 	/**
 	 * Implementing subclasses should return the file object.
 	 * @return  the file object.
-	 * @module.api
 	 */
 	public abstract File getNativeFile();
 }

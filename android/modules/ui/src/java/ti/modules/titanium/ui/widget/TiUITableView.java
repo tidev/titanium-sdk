@@ -19,6 +19,7 @@ import android.content.res.TypedArray;
 import android.graphics.drawable.GradientDrawable;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewParent;
 import android.widget.RelativeLayout;
 
 import androidx.annotation.NonNull;
@@ -113,26 +114,45 @@ public class TiUITableView extends TiUIView
 		}
 
 		if (name.equals(TiC.PROPERTY_SEARCH) || name.equals(TiC.PROPERTY_SEARCH_AS_CHILD)) {
+			final ViewParent parent = getOuterView().getParent();
+			final TiViewProxy parentProxy = getProxy().getParent();
 			final KrollDict properties = getProxy().getProperties();
 			final boolean searchAsChild = TiConvert.toBoolean(
 				name.equals(TiC.PROPERTY_SEARCH_AS_CHILD)
 					? value : properties.optBoolean(TiC.PROPERTY_SEARCH_AS_CHILD, true));
+
+			if (parent instanceof ViewGroup) {
+
+				// Remove current view from parent.
+				((ViewGroup) parent).removeView(getOuterView());
+			}
+
 			this.searchProxy = (TiViewProxy) (name.equals(TiC.PROPERTY_SEARCH)
 				? value : properties.get(TiC.PROPERTY_SEARCH));
+
+			// Reset current border and background so this does not corrupt the new view.
+			this.borderView = null;
+			this.background = null;
+
+			final ViewParent tableViewParent = this.tableView.getParent();
+			if (tableViewParent instanceof ViewGroup) {
+
+				// Remove table view from parent, could be TiBorderWrapperView or RelativeLayout.
+				((ViewGroup) tableViewParent).removeView(this.tableView);
+			}
 
 			if (this.searchProxy != null) {
 				final TiUIView search = this.searchProxy.getOrCreateView();
 
 				if (this.searchProxy instanceof SearchBarProxy) {
-					((TiUISearchBar) search).setOnSearchChangeListener(tableView);
+					((TiUISearchBar) search).setOnSearchChangeListener(this.tableView);
 				} else {
-					((TiUISearchView) search).setOnSearchChangeListener(tableView);
+					((TiUISearchView) search).setOnSearchChangeListener(this.tableView);
 				}
 
 				if (searchAsChild) {
 					final View searchView = search.getOuterView();
 					final ViewGroup searchViewParent = (ViewGroup) searchView.getParent();
-					final ViewGroup tableViewParent = (ViewGroup) tableView.getParent();
 					searchView.setId(SEARCHVIEW_ID);
 
 					final RelativeLayout view = new RelativeLayout(proxy.getActivity());
@@ -155,12 +175,29 @@ public class TiUITableView extends TiUIView
 					tableViewLayout.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
 					tableViewLayout.addRule(RelativeLayout.BELOW, SEARCHVIEW_ID);
 
-					if (tableViewParent != null) {
-						tableViewParent.removeView(tableView);
-					}
-					view.addView(tableView, tableViewLayout);
+					view.addView(this.tableView, tableViewLayout);
 
+					// Set new view layout with search child.
 					setNativeView(view);
+				}
+			}
+			if (this.searchProxy == null || !searchAsChild) {
+
+				// No search proxy or not child, reset back to table.
+				setNativeView(this.tableView);
+			}
+
+			// Re-apply background and border to new view.
+			super.processProperties(getProxy().getProperties());
+
+			if (parent != null && parentProxy != null) {
+				final TiUIView parentView = parentProxy.peekView();
+
+				if (parentView != null) {
+
+					// Release view and reconstruct parent.
+					proxy.releaseViews();
+					parentProxy.realizeViews(parentView);
 				}
 			}
 		}
@@ -213,7 +250,7 @@ public class TiUITableView extends TiUIView
 			|| name.equals(TiC.PROPERTY_FOOTER_TITLE)
 			|| name.equals(TiC.PROPERTY_FOOTER_VIEW)
 			|| name.equals(TiC.PROPERTY_BACKGROUND_COLOR)) {
-			this.tableView.update();
+			this.tableView.update(true);
 		}
 	}
 
@@ -247,7 +284,7 @@ public class TiUITableView extends TiUIView
 			|| key.equals(TiC.PROPERTY_TOUCH_FEEDBACK_COLOR)) {
 
 			// Update table items.
-			this.tableView.update();
+			this.tableView.update(true);
 
 			// Return to prevent property being handled by TiUIView.
 			return;
