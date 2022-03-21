@@ -64,6 +64,45 @@ describe.android('Titanium.UI.Android.CardView', function () {
 		win.open();
 	});
 
+	it('.borderRadius (single value)', (finish) => {
+		win = Ti.UI.createWindow();
+		const cardView = Ti.UI.Android.createCardView({
+			borderRadius: 20
+		});
+		win.add(cardView);
+		win.addEventListener('postlayout', function listener() {
+			win.removeEventListener('postlayout', listener);
+			finish();
+		});
+		win.open();
+	});
+
+	it('.borderRadius (array of radii)', (finish) => {
+		win = Ti.UI.createWindow();
+		const cardView = Ti.UI.Android.createCardView({
+			borderRadius: [ 0, 0, 20, 20 ]
+		});
+		win.add(cardView);
+		win.addEventListener('postlayout', function listener() {
+			win.removeEventListener('postlayout', listener);
+			finish();
+		});
+		win.open();
+	});
+
+	it('.borderRadius (string of radii)', (finish) => {
+		win = Ti.UI.createWindow();
+		const cardView = Ti.UI.Android.createCardView({
+			borderRadius: '0 0 20 20'
+		});
+		win.add(cardView);
+		win.addEventListener('postlayout', function listener() {
+			win.removeEventListener('postlayout', listener);
+			finish();
+		});
+		win.open();
+	});
+
 	it('.touchFeedback', (finish) => {
 		win = Ti.UI.createWindow();
 		const cardView = Ti.UI.Android.createCardView({

@@ -29,14 +29,6 @@
 		<attr name="titaniumSplashIcon" format="reference"/>
 	</declare-styleable>
 
-	<!-- Titanium's button text style is not all-caps just like Google's apps. -->
-	<style name="TextAppearance.Titanium.Button" parent="TextAppearance.MaterialComponents.Button">
-		<item name="android:textAllCaps">false</item>
-	</style>
-	<style name="Widget.Titanium.Button" parent="Widget.AppCompat.Button">
-		<item name="android:textAllCaps">false</item>
-	</style>
-
 	<!-- Titanium's dark material theme with an action bar. -->
 	<style name="Theme.Titanium.Dark" parent="Theme.MaterialComponents">
 		<item name="actionBarSize">@dimen/ti_action_bar_height</item>
@@ -46,11 +38,12 @@
 		<item name="colorAccent">@color/ti_dark_accent</item>
 		<item name="colorSurface">@color/ti_dark_surface</item>
 		<item name="android:colorBackground">@color/ti_dark_background</item>
+		<item name="android:indeterminateTint">?attr/colorPrimary</item>
 		<item name="android:navigationBarColor">?attr/colorPrimaryDark</item>
-		<item name="android:buttonStyle">@style/Widget.Titanium.Button</item>
+		<item name="android:progressTint">?attr/colorPrimary</item>
 		<item name="android:statusBarColor">?attr/colorPrimaryDark</item>
-		<item name="buttonStyle">@style/Widget.Titanium.Button</item>
-		<item name="textAppearanceButton">@style/TextAppearance.Titanium.Button</item>
+		<item name="android:textAllCaps">false</item>
+		<item name="textAllCaps">false</item>
 	</style>
 
 	<!-- Titanium's dark material theme without an action bar. -->
@@ -102,11 +95,12 @@
 		<item name="colorAccent">@color/ti_light_accent</item>
 		<item name="colorSurface">@color/ti_light_surface</item>
 		<item name="android:colorBackground">@color/ti_light_background</item>
+		<item name="android:indeterminateTint">?attr/colorPrimary</item>
 		<item name="android:navigationBarColor">?attr/colorPrimaryDark</item>
-		<item name="android:buttonStyle">@style/Widget.Titanium.Button</item>
+		<item name="android:progressTint">?attr/colorPrimary</item>
 		<item name="android:statusBarColor">?attr/colorPrimaryDark</item>
-		<item name="buttonStyle">@style/Widget.Titanium.Button</item>
-		<item name="textAppearanceButton">@style/TextAppearance.Titanium.Button</item>
+		<item name="android:textAllCaps">false</item>
+		<item name="textAllCaps">false</item>
 	</style>
 
 	<!-- Titanium's light material theme without an action bar. -->
