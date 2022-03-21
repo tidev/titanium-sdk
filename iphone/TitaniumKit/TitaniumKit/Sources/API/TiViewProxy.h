@@ -243,6 +243,7 @@ enum {
 
 - (void)setBackgroundGradient:(id)arg;
 - (KrollPromise *)toImage:(id)args;
+- (TiPoint *)contentOffset;
 
 #pragma mark nonpublic accessors not related to Housecleaning
 

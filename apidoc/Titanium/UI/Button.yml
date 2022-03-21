@@ -242,13 +242,21 @@ properties:
     type: Font
 
   - name: image
-    summary: Image to display on the button, specified as a local
-        path, URL or a `Blob`.
+    summary: Image to display next to the button title.
     description: |
-        The image is displayed to the left of the title.
+        As of Titanium 10.2.0, the [imageIsMask](Titanium.UI.Button.imageIsMask) property determines how
+        this image is displayed. If set `true`, this image will be tinted using the color assigned to the
+        [tintColor](Titanium.UI.Button.tintColor) property. If set `false`, the image is displayed as-is.
 
-        Support for using <Titanium.Blob> for this property is only available on Android and iOS.
-    type: [String, Titanium.Blob]
+        On Android, you can set this to a numeric resource drawable ID via `Ti.App.Android.R.drawable.*`
+        which lets you use native vector drawbles that are commonly used as icons.
+    type: [String, Number, Titanium.Blob]
+
+  - name: imageIsMask
+    summary: Set true to tint the button image. Set false to show the image as-is.
+    type: Boolean
+    default: true
+    since: "10.2.0"
 
   - name: selectedColor
     summary: Button text color used to indicate the selected state, as a color name or hex triplet.
@@ -325,7 +333,13 @@ properties:
     default: <Titanium.UI.TEXT_ALIGNMENT_CENTER>
 
   - name: tintColor
-    summary: Button tint color.
+    summary: Color applied to button's image and title.
+    description: |
+        Color to be applied to the button's [image](Titanium.UI.Button.image), but only if the
+        [imageIsMask](Titanium.UI.Button.imageIsMask) property is set `true`.
+
+        This tint color is also applied to the button's [title](Titanium.UI.Button.title)
+        unless the [color](Titanium.UI.Button.color) property is set.
     type: String
     platforms: [android,iphone,ipad, macos]
     osver: {ios: {min: "7.0"}}
@@ -351,7 +365,7 @@ properties:
     type: [Number,String]
     constants: Titanium.UI.TEXT_VERTICAL_ALIGNMENT_*
     default: Titanium.UI.TEXT_VERTICAL_ALIGNMENT_CENTER
-    platforms: [android]
+    platforms: [android, iphone, ipad, macos]
 
 examples:
   - title: Simple Button Example

@@ -739,6 +739,11 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
   return promise;
 }
 
+- (TiPoint *)contentOffset
+{
+  return [[[TiPoint alloc] initWithPoint:CGPointMake(0, 0)] autorelease];
+}
+
 - (TiPoint *)convertPointToView:(id)args
 {
   id arg1 = nil;
@@ -767,6 +772,7 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
   TiPoint *tiPoint = [[TiPoint alloc] autorelease];
   [tiPoint setX:NUMFLOAT(convertDipToDefaultUnit(pointOffsetDips.x + givenPoint.x))];
   [tiPoint setY:NUMFLOAT(convertDipToDefaultUnit(pointOffsetDips.y + givenPoint.y))];
+  [tiPoint add:[arg2 contentOffset]];
   return tiPoint;
 }
 
@@ -1320,8 +1326,7 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
 
 - (BOOL)viewReady
 {
-  return view != nil && !CGRectIsEmpty(view.bounds) && !CGRectIsNull(view.bounds) &&
-      [view superview] != nil;
+  return (view != nil) && ([view superview] != nil);
 }
 
 - (BOOL)windowHasOpened

@@ -39,7 +39,7 @@ import org.json.JSONObject;
 /**
  * This is the parent class of all proxies. A proxy is a dynamic object that can be created or
  * queried by the user through a module or another proxy's API. When you create a native view with
- * <a href="http://developer.appcelerator.com/apidoc/mobile/latest/Titanium.UI.createView-method.html">Titanium.UI.createView </a>,
+ * <a href="https://titaniumsdk.com/api/titanium/ui.html#createview">Titanium.UI.createView </a>,
  * the view object is a proxy itself.
  */
 @Kroll.proxy(name = "KrollProxy", propertyAccessors = { KrollProxy.PROPERTY_HAS_JAVA_LISTENER })
@@ -120,7 +120,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 		// Associate the activity with the proxy.  if the proxy needs activity association delayed until a
 		// later point then initActivity should be overridden to be a no-op and then call setActivity directly
 		// at the appropriate time
-		initActivity(TiApplication.getAppRootOrCurrentActivity());
+		initActivity(TiApplication.getAppCurrentActivity());
 
 		// Setup the proxy according to the creation arguments TODO - pass in createdInModule
 		handleCreationArgs(null, creationArguments);
@@ -151,7 +151,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 	{
 		// our proxy must always be associated with a valid activity
 		if (activity == null) {
-			initActivity(TiApplication.getAppRootOrCurrentActivity());
+			initActivity(TiApplication.getAppCurrentActivity());
 			return;
 		}
 		this.activity = new WeakReference<>(activity);
@@ -170,7 +170,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 	{
 		// our proxy must always be associated with a valid activity
 		if (this.activity == null || this.activity.get() == null) {
-			initActivity(TiApplication.getAppRootOrCurrentActivity());
+			initActivity(TiApplication.getAppCurrentActivity());
 		}
 		return this.activity.get();
 	}

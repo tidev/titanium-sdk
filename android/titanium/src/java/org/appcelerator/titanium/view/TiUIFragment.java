@@ -38,21 +38,30 @@ public abstract class TiUIFragment extends TiUIView implements Handler.Callback
 			fragment = createFragment();
 		} else {
 			TiCompositeLayout container = new TiCompositeLayout(activity, proxy) {
+				private boolean transactionCommitted = false;
 				@Override
 				public boolean dispatchTouchEvent(MotionEvent ev)
 				{
 					return interceptTouchEvent(ev) || super.dispatchTouchEvent(ev);
 				}
+
+				@Override
+				protected void onAttachedToWindow()
+				{
+					super.onAttachedToWindow();
+					if (!transactionCommitted) {
+						transactionCommitted = true;
+						FragmentManager manager = ((FragmentActivity) getContext()).getSupportFragmentManager();
+						FragmentTransaction transaction = manager.beginTransaction();
+						transaction.runOnCommit(onCommitRunnable);
+						fragment = createFragment();
+						transaction.add(getId(), fragment);
+						transaction.commitAllowingStateLoss();
+					}
+				}
 			};
 			container.setId(View.generateViewId());
 			setNativeView(container);
-
-			FragmentManager manager = ((FragmentActivity) activity).getSupportFragmentManager();
-			FragmentTransaction transaction = manager.beginTransaction();
-			transaction.runOnCommit(onCommitRunnable);
-			fragment = createFragment();
-			transaction.add(container.getId(), fragment);
-			transaction.commitAllowingStateLoss();
 		}
 	}
 
@@ -68,6 +77,9 @@ public abstract class TiUIFragment extends TiUIView implements Handler.Callback
 
 	public void realizeFragmentViews()
 	{
+		if (childrenToRealize == null) {
+			return;
+		}
 		for (TiUIView child : childrenToRealize) {
 			// Draw the views
 			((ViewGroup) getNativeView()).addView(child.getOuterView(), child.getLayoutParams());

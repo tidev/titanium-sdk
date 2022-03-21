@@ -377,33 +377,9 @@ CFMutableSetRef krollBridgeRegistry = nil;
 
   JSValue *titanium = global[@"Ti"]; // This may be nil/undefined it we couldn't load ti.kernel.js or the bootstrapping failed
   if (TiSharedConfig.defaultConfig.isAnalyticsEnabled) {
+    // TODO: Remove this unused statement once we can fully remove APSAnalytics
+    // Right now, the build would fail is we fully remove it
     APSAnalytics *sharedAnalytics = APSAnalytics.sharedInstance;
-    NSString *buildType = TiSharedConfig.defaultConfig.applicationBuildType;
-    if (buildType != nil || buildType.length > 0) {
-      [sharedAnalytics setBuildType:buildType];
-    }
-    TopTiModule *module;
-    if (titanium != nil && ![titanium isUndefined]) {
-      module = [titanium toObject];
-    } else {
-      // Uh-oh, something went really wrong! For analytics sake, let's just create the module
-      module = [[TopTiModule alloc] init];
-      global[@"Ti"] = module;
-      global[@"Titanium"] = module;
-    }
-    [sharedAnalytics setSDKVersion:module.version];
-    NSString *deployType = TiSharedConfig.defaultConfig.applicationDeployType;
-    NSString *guid = TiSharedConfig.defaultConfig.applicationGUID;
-    [sharedAnalytics enableWithAppKey:guid andDeployType:deployType];
-
-    // Set analytics event cache size.
-    id cacheSizeObj = [[TiApp tiAppProperties] objectForKey:@"ti.analytics.cacheSize"];
-    if ([cacheSizeObj isKindOfClass:[NSNumber class]]) {
-      int cacheSize = [cacheSizeObj intValue];
-      if (cacheSize > -1) {
-        [sharedAnalytics setCacheSize:cacheSize];
-      }
-    }
   }
 
   NSURL *startURL = nil;
@@ -561,6 +537,25 @@ CFMutableSetRef krollBridgeRegistry = nil;
   }
   os_unfair_lock_unlock(&proxyLock);
   return result;
+}
+
+- (id)require:(KrollContext *)kroll path:(NSString *)path
+{
+  if (!kroll || !path) {
+    return nil;
+  }
+
+  JSContext *jsContext = [JSContext contextWithJSGlobalContextRef:kroll.context];
+  JSValue *jsResult = [jsContext.globalObject invokeMethod:@"require" withArguments:@[ path ]];
+  if (![jsResult isObject]) {
+    return nil;
+  }
+
+  KrollWrapper *krollResult = [[KrollWrapper alloc] init];
+  [krollResult setBridge:self];
+  [krollResult setJsobject:(JSObjectRef)[jsResult JSValueRef]];
+  [krollResult protectJsobject];
+  return [krollResult autorelease];
 }
 
 + (NSArray *)krollBridgesUsingProxy:(id)proxy

@@ -70,14 +70,14 @@ public class TiUIScrollView extends TiUIView
 				@Override
 				public void onLongPress(MotionEvent e)
 				{
-					if (proxy.hierarchyHasListener(TiC.EVENT_LONGPRESS)) {
+					if (proxy != null && proxy.hierarchyHasListener(TiC.EVENT_LONGPRESS)) {
 						fireEvent(TiC.EVENT_LONGPRESS, dictFromEvent(e));
 					}
 				}
 				@Override
 				public boolean onSingleTapConfirmed(MotionEvent e)
 				{
-					if (proxy.hierarchyHasListener(TiC.EVENT_SINGLE_TAP)) {
+					if (proxy != null && proxy.hierarchyHasListener(TiC.EVENT_SINGLE_TAP)) {
 						fireEvent(TiC.EVENT_SINGLE_TAP, dictFromEvent(e));
 					}
 					return true;
@@ -85,7 +85,7 @@ public class TiUIScrollView extends TiUIView
 				@Override
 				public boolean onDoubleTap(MotionEvent e)
 				{
-					if (proxy.hierarchyHasListener(TiC.EVENT_DOUBLE_TAP)) {
+					if (proxy != null && proxy.hierarchyHasListener(TiC.EVENT_DOUBLE_TAP)) {
 						fireEvent(TiC.EVENT_DOUBLE_TAP, dictFromEvent(e));
 					}
 					return true;
@@ -938,6 +938,12 @@ public class TiUIScrollView extends TiUIView
 			return ((TiHorizontalScrollView) nativeView).layout;
 		}
 		return null;
+	}
+
+	@Override
+	public View getNativeContentView()
+	{
+		return getLayout();
 	}
 
 	public void setScrollingEnabled(Object value)

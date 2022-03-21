@@ -32,6 +32,7 @@ import android.view.ViewGroup;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
+import org.appcelerator.titanium.R;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.ActivityProxy;
@@ -39,7 +40,7 @@ import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.proxy.TiWindowProxy;
 import org.appcelerator.titanium.util.TiColorHelper;
 import org.appcelerator.titanium.util.TiConvert;
-import org.appcelerator.titanium.util.TiRHelper;
+import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiInsetsProvider;
 import org.appcelerator.titanium.view.TiUIView;
 
@@ -157,34 +158,45 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 	// endregion
 
 	// region private fields
+	private boolean autoTabTitle = false;
+	private int lastTab = -1;
+	private AtomicLong fragmentIdGenerator = new AtomicLong();
+	private ArrayList<Long> tabFragmentIDs = new ArrayList<Long>();
+	protected ArrayList<TiUITab> tabs = new ArrayList<TiUITab>();
+	private final boolean isUsingSolidTitaniumTheme;
+	private int colorBackgroundInt;
 	private int colorSurfaceInt;
 	private int colorPrimaryInt;
 	private int colorOnSurfaceInt;
-	private final AtomicLong fragmentIdGenerator = new AtomicLong();
-	private final ArrayList<Long> tabFragmentIDs = new ArrayList<>();
-	protected ArrayList<TiUITab> tabs = new ArrayList<>();
 	// endregion
 
 	public TiUIAbstractTabGroup(final TabGroupProxy proxy, TiBaseActivity activity)
 	{
 		super(proxy);
 
+		// Determines if theme has the "titaniumIsSolidTheme" attribute and it's set to "true".
+		// Used by our "Theme.Titanium.*.Solid" themes to shade the top/bottom tabs appropriately.
+		this.isUsingSolidTitaniumTheme = TiUIHelper.isUsingSolidTitaniumTheme(activity);
+
 		// Fetch primary background and text colors from ActionBar style assigned to activity theme.
 		// Note: We use ActionBar style for backward compatibility with Titanium versions older than 8.0.0.
+		this.colorBackgroundInt = Color.TRANSPARENT;
 		this.colorPrimaryInt = 0xFF212121; // Default to dark gray.
 		this.colorOnSurfaceInt = 0xFFBBBBBB; // Default to light gray.
 		this.colorSurfaceInt = Color.TRANSPARENT;
 		try {
 			final int[] idArray = new int[] {
-				TiRHelper.getResource("attr.colorPrimary"),
-				TiRHelper.getResource("attr.colorSurface"),
-				TiRHelper.getResource("attr.colorOnSurface")
+				android.R.attr.colorBackground,
+				R.attr.colorPrimary,
+				R.attr.colorSurface,
+				R.attr.colorOnSurface
 			};
 			final TypedArray typedArray =  activity.getTheme().obtainStyledAttributes(idArray);
 
-			this.colorPrimaryInt = typedArray.getColor(0, this.colorPrimaryInt);
-			this.colorSurfaceInt = typedArray.getColor(1, this.colorSurfaceInt);
-			this.colorOnSurfaceInt = typedArray.getColor(2, this.colorOnSurfaceInt);
+			this.colorBackgroundInt = typedArray.getColor(0, this.colorBackgroundInt);
+			this.colorPrimaryInt = typedArray.getColor(1, this.colorPrimaryInt);
+			this.colorSurfaceInt = typedArray.getColor(2, this.colorSurfaceInt);
+			this.colorOnSurfaceInt = typedArray.getColor(3, this.colorOnSurfaceInt);
 			typedArray.recycle();
 		} catch (Exception ex) {
 			Log.e(TAG, "Failed to fetch color from theme.", ex);
@@ -412,6 +424,12 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 			@Override
 			public void onPageScrolled(int i, float v, int i1)
 			{
+				if (autoTabTitle && i != lastTab) {
+					if (tabs.get(i).getWindowProxy() != null) {
+						updateTitle(tabs.get(i).getWindowProxy().getProperty(TiC.PROPERTY_TITLE).toString());
+					}
+					lastTab = i;
+				}
 			}
 
 			@Override
@@ -428,18 +446,20 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 		});
 
 		// Set action bar color.
-		final ActionBar actionBar = ((AppCompatActivity) proxy.getActivity()).getSupportActionBar();
-		if (actionBar != null) {
-			final TiWindowProxy windowProxy = ((TabProxy) this.tabs.get(tabIndex).getProxy()).getWindow();
-			final KrollDict windowProperties = windowProxy.getProperties();
-			final KrollDict properties = getProxy().getProperties();
+		if (proxy != null) {
+			final ActionBar actionBar = ((AppCompatActivity) proxy.getActivity()).getSupportActionBar();
+			if (actionBar != null) {
+				final TiWindowProxy windowProxy = ((TabProxy) this.tabs.get(tabIndex).getProxy()).getWindow();
+				final KrollDict windowProperties = windowProxy.getProperties();
+				final KrollDict properties = getProxy().getProperties();
 
-			if (properties.containsKeyAndNotNull(TiC.PROPERTY_BAR_COLOR)
-				|| windowProperties.containsKeyAndNotNull(TiC.PROPERTY_BAR_COLOR)) {
-				final String colorString = properties.optString(TiC.PROPERTY_BAR_COLOR,
-					windowProperties.getString(TiC.PROPERTY_BAR_COLOR));
-				final int color = TiColorHelper.parseColor(colorString);
-				actionBar.setBackgroundDrawable(new ColorDrawable(color));
+				if (properties.containsKeyAndNotNull(TiC.PROPERTY_BAR_COLOR)
+					|| windowProperties.containsKeyAndNotNull(TiC.PROPERTY_BAR_COLOR)) {
+					final String colorString = properties.optString(TiC.PROPERTY_BAR_COLOR,
+						windowProperties.getString(TiC.PROPERTY_BAR_COLOR));
+					final int color = TiColorHelper.parseColor(colorString);
+					actionBar.setBackgroundDrawable(new ColorDrawable(color));
+				}
 			}
 		}
 	}
@@ -458,13 +478,16 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 		if (d.containsKey(TiC.PROPERTY_SWIPEABLE)) {
 			this.swipeable = d.getBoolean(TiC.PROPERTY_SWIPEABLE);
 		}
+		if (d.containsKey(TiC.PROPERTY_AUTO_TAB_TITLE)) {
+			this.autoTabTitle = d.getBoolean(TiC.PROPERTY_AUTO_TAB_TITLE);
+		}
 		if (d.containsKey(TiC.PROPERTY_SMOOTH_SCROLL_ON_TAB_CLICK)) {
 			this.smoothScrollOnTabClick = d.getBoolean(TiC.PROPERTY_SMOOTH_SCROLL_ON_TAB_CLICK);
 		}
 		if (d.containsKeyAndNotNull(TiC.PROPERTY_TABS_BACKGROUND_COLOR)) {
 			setBackgroundColor(TiColorHelper.parseColor(d.get(TiC.PROPERTY_TABS_BACKGROUND_COLOR).toString()));
 		} else {
-			setBackgroundColor(this.colorSurfaceInt);
+			setBackgroundColor(getDefaultBackgroundColor());
 		}
 		super.processProperties(d);
 	}
@@ -476,6 +499,8 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 			this.swipeable = TiConvert.toBoolean(newValue);
 		} else if (key.equals(TiC.PROPERTY_SMOOTH_SCROLL_ON_TAB_CLICK)) {
 			this.smoothScrollOnTabClick = TiConvert.toBoolean(newValue);
+		} else if (key.equals(TiC.PROPERTY_AUTO_TAB_TITLE)) {
+			this.autoTabTitle = TiConvert.toBoolean(newValue);
 		} else if (key.equals(TiC.PROPERTY_TABS_BACKGROUND_COLOR)) {
 			for (TiUITab tabView : tabs) {
 				updateTabBackgroundDrawable(tabs.indexOf(tabView));
@@ -549,10 +574,27 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 		return drawable;
 	}
 
+	public boolean isUsingSolidTitaniumTheme()
+	{
+		return this.isUsingSolidTitaniumTheme;
+	}
+
+	@ColorInt
+	protected int getColorBackground()
+	{
+		return this.colorBackgroundInt;
+	}
+
 	@ColorInt
 	protected int getColorPrimary()
 	{
 		return this.colorPrimaryInt;
+	}
+
+	@ColorInt
+	protected int getDefaultBackgroundColor()
+	{
+		return this.colorSurfaceInt;
 	}
 
 	@ColorInt
