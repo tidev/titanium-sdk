@@ -28,6 +28,7 @@ describe('Titanium.UI.View', function () {
 
 	function closeWindow(win, done) {
 		if (win && !win.closed) {
+			// eslint-disable-next-line promise/no-callback-in-promise
 			win.close().then(() => done()).catch(_e => done());
 		} else {
 			win = null;
@@ -695,6 +696,37 @@ describe('Titanium.UI.View', function () {
 			finish();
 		});
 		win.add(controlView);
+		win.open();
+	});
+
+	// On iOS, the animation's 'complete' event used to never fire. See: TIMOB-27236
+	it('animate width/height from zero', function (finish) {
+		// This fails for Mac on Jenkins.
+		// Maybe because the animation's "complete" event won't fire if there is no monitor connected?
+		if (isCI && utilities.isMacOS()) {
+			return finish();
+		}
+
+		win = Ti.UI.createWindow({ backgroundColor: 'white' });
+		const view = Ti.UI.createView({
+			backgroundColor: 'orange',
+			top: 0,
+			left: 0,
+			width: 0,
+			height: 0,
+		});
+		win.add(view);
+		win.addEventListener('open', () => {
+			const animation = Ti.UI.createAnimation({
+				duration: 250,
+				width: win.size.width,
+				height: win.size.height,
+			});
+			animation.addEventListener('complete', () => {
+				finish();
+			});
+			view.animate(animation);
+		});
 		win.open();
 	});
 

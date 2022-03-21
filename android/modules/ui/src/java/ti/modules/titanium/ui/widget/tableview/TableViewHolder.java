@@ -8,28 +8,29 @@ package ti.modules.titanium.ui.widget.tableview;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.titanium.R;
-import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiRHelper;
 import org.appcelerator.titanium.util.TiUIHelper;
+import org.appcelerator.titanium.view.TiBackgroundDrawable;
 import org.appcelerator.titanium.view.TiBorderWrapperView;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiUIView;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.content.res.Resources;
-import android.content.res.TypedArray;
 import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
-import android.graphics.drawable.RippleDrawable;
-import android.graphics.drawable.StateListDrawable;
+import android.graphics.drawable.PaintDrawable;
 import android.os.Build;
 import android.util.TypedValue;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -43,11 +44,11 @@ import ti.modules.titanium.ui.TableViewSectionProxy;
 import ti.modules.titanium.ui.widget.TiUITableView;
 import ti.modules.titanium.ui.widget.listview.TiRecyclerViewHolder;
 
-public class TableViewHolder extends TiRecyclerViewHolder
+public class TableViewHolder extends TiRecyclerViewHolder<TableViewRowProxy>
 {
 	private static final String TAG = "TableViewHolder";
 
-	private static ColorStateList defaultTextColors = null;
+	private ColorStateList defaultTextColors = null;
 
 	// Top
 	private final TiCompositeLayout header;
@@ -85,9 +86,7 @@ public class TableViewHolder extends TiRecyclerViewHolder
 		this.content = viewGroup.findViewById(R.id.titanium_ui_tableview_holder_content);
 
 		this.title = viewGroup.findViewById(R.id.titanium_ui_tableview_holder_content_title);
-		if (defaultTextColors == null) {
-			defaultTextColors = this.title.getTextColors();
-		}
+		this.defaultTextColors = this.title.getTextColors();
 
 		this.rightImage = viewGroup.findViewById(R.id.titanium_ui_tableview_holder_right_image);
 
@@ -124,6 +123,7 @@ public class TableViewHolder extends TiRecyclerViewHolder
 		this.leftImage.setVisibility(View.GONE);
 		this.title.setVisibility(View.GONE);
 		this.rightImage.setVisibility(View.GONE);
+		this.rightImage.setOnTouchListener(null);
 
 		this.border.reset();
 	}
@@ -133,6 +133,7 @@ public class TableViewHolder extends TiRecyclerViewHolder
 	 * @param proxy TableViewRowProxy to bind.
 	 * @param selected Is row selected.
 	 */
+	@SuppressLint("ClickableViewAccessibility")
 	public void bind(final TableViewRowProxy proxy, final boolean selected)
 	{
 		reset();
@@ -153,6 +154,13 @@ public class TableViewHolder extends TiRecyclerViewHolder
 		// Obtain proxy properties.
 		final KrollDict properties = proxy.getProperties();
 
+		// Update row proxy's activity in case it has changed, such as after a dark/light theme change.
+		final Context context = this.itemView.getContext();
+		if ((context instanceof Activity) && (proxy.getActivity() != context)) {
+			proxy.releaseViews();
+			proxy.setActivity((Activity) context);
+		}
+
 		// Obtain row view.
 		final TableViewRowProxy.RowView rowView = (TableViewRowProxy.RowView) proxy.getOrCreateView();
 		if (rowView != null) {
@@ -164,8 +172,23 @@ public class TableViewHolder extends TiRecyclerViewHolder
 				return;
 			}
 
+			// Set maximum row height.
+			final String rawMaxHeight = properties.optString(TiC.PROPERTY_MAX_ROW_HEIGHT,
+				tableViewProperties.getString(TiC.PROPERTY_MAX_ROW_HEIGHT));
+			final TiDimension maxHeightDimension = TiConvert.toTiDimension(rawMaxHeight, TiDimension.TYPE_HEIGHT);
+			final int maxHeight = rawMaxHeight != null ? maxHeightDimension.getAsPixels(itemView) : -1;
+			if (maxHeight > -1) {
+				nativeRowView.measure(0, 0);
+
+				// Enforce max row height.
+				if (nativeRowView.getMeasuredHeight() > maxHeight) {
+					rowView.getLayoutParams().optionHeight = maxHeightDimension;
+				}
+			}
+
 			// Set minimum row height.
-			final String rawMinHeight = properties.optString(TiC.PROPERTY_MIN_ROW_HEIGHT, "0");
+			final String rawMinHeight = properties.optString(TiC.PROPERTY_MIN_ROW_HEIGHT,
+				tableViewProperties.getString(TiC.PROPERTY_MIN_ROW_HEIGHT));
 			final int minHeight = TiConvert.toTiDimension(rawMinHeight, TiDimension.TYPE_HEIGHT).getAsPixels(itemView);
 			this.container.setMinimumHeight(minHeight);
 
@@ -206,21 +229,41 @@ public class TableViewHolder extends TiRecyclerViewHolder
 			} else {
 
 				// Set default `title` color from current theme.
-				this.title.setTextColor(defaultTextColors);
+				this.title.setTextColor(this.defaultTextColors);
 			}
 
 			// Handle row left and right images.
 			if (properties.containsKeyAndNotNull(TiC.PROPERTY_LEFT_IMAGE)) {
 				final String url = properties.getString(TiC.PROPERTY_LEFT_IMAGE);
-				final Drawable drawable = fileHelper.loadDrawable(url, false);
-				this.leftImage.setImageDrawable(drawable);
+				final Drawable drawable = TiUIHelper.getResourceDrawable((Object) url);
+				if (drawable != null) {
+					this.leftImage.setImageDrawable(drawable);
+					this.leftImage.setVisibility(View.VISIBLE);
+				}
+			}
+
+			// Handle selection, override row left image.
+			if (tableViewProperties.optBoolean(TiC.PROPERTY_SHOW_SELECTION_CHECK, false)
+				&& tableViewProperties.optBoolean(TiC.PROPERTY_EDITING, false)
+				&& tableViewProperties.optBoolean(TiC.PROPERTY_ALLOWS_SELECTION_DURING_EDITING, false)
+				&& tableViewProperties.optBoolean(TiC.PROPERTY_ALLOWS_MULTIPLE_SELECTION_DURING_EDITING, false)
+				&& !proxy.isPlaceholder()) {
+
+				if (selected) {
+					this.leftImage.setImageDrawable(checkcircleDrawable);
+				} else {
+					this.leftImage.setImageDrawable(circleDrawable);
+				}
 				this.leftImage.setVisibility(View.VISIBLE);
 			}
+
 			if (properties.containsKeyAndNotNull(TiC.PROPERTY_RIGHT_IMAGE)) {
 				final String url = properties.getString(TiC.PROPERTY_RIGHT_IMAGE);
-				final Drawable drawable = fileHelper.loadDrawable(url, false);
-				this.rightImage.setImageDrawable(drawable);
-				this.rightImage.setVisibility(View.VISIBLE);
+				final Drawable drawable = TiUIHelper.getResourceDrawable((Object) url);
+				if (drawable != null) {
+					this.rightImage.setImageDrawable(drawable);
+					this.rightImage.setVisibility(View.VISIBLE);
+				}
 			} else {
 				final boolean hasCheck = properties.optBoolean(TiC.PROPERTY_HAS_CHECK, false);
 				final boolean hasChild = properties.optBoolean(TiC.PROPERTY_HAS_CHILD, false);
@@ -236,15 +279,35 @@ public class TableViewHolder extends TiRecyclerViewHolder
 				} else if (hasDetail) {
 					this.rightImage.setImageDrawable(disclosureDrawable);
 					this.rightImage.setVisibility(View.VISIBLE);
+					this.rightImage.setOnTouchListener(new View.OnTouchListener()
+					{
+						@Override
+						public boolean onTouch(View v, MotionEvent e)
+						{
+							if (e.getAction() == MotionEvent.ACTION_UP) {
+								final TiUIView view = proxy.peekView();
+
+								if (view != null) {
+									final KrollDict data = view.getLastUpEvent();
+
+									data.put(TiC.EVENT_PROPERTY_DETAIL, true);
+									proxy.fireEvent(TiC.EVENT_CLICK, data);
+								}
+							}
+							return true;
+						}
+					});
 				}
 			}
 
 			// Display drag drawable when row is movable.
 			final boolean isEditing = tableViewProperties.optBoolean(TiC.PROPERTY_EDITING, false);
 			final boolean isMoving = tableViewProperties.optBoolean(TiC.PROPERTY_MOVING, false);
+			final boolean isMoveable = properties.optBoolean(TiC.PROPERTY_MOVEABLE,
+				tableViewProperties.optBoolean(TiC.PROPERTY_MOVEABLE, false));
 			final boolean isMovable = properties.optBoolean(TiC.PROPERTY_MOVABLE,
 				tableViewProperties.optBoolean(TiC.PROPERTY_MOVABLE, false));
-			if ((isEditing || isMoving) && isMovable) {
+			if ((isEditing || isMoving) && (isMoveable || isMovable)) {
 				this.rightImage.setImageDrawable(dragDrawable);
 				this.rightImage.setVisibility(View.VISIBLE);
 			}
@@ -265,13 +328,40 @@ public class TableViewHolder extends TiRecyclerViewHolder
 					parentView.removeView(nativeRowView);
 				}
 
+				// Obtain background drawable.
 				Drawable backgroundDrawable = rowView.getBackground();
+				if (backgroundDrawable instanceof TiBackgroundDrawable) {
+					final TiBackgroundDrawable drawable = (TiBackgroundDrawable) backgroundDrawable;
 
-				if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+					backgroundDrawable = drawable.getBackground();
+				}
 
-					// To enable the ripple effect, we set the foreground to `selectableItemBackgroundBorderless`.
-					// However, this is not supported below Android 7.0 so we set the background instead.
-					backgroundDrawable = generateRippleDrawable(backgroundDrawable);
+				// Parse background color to determine transparency.
+				int backgroundColor = -1;
+				if (backgroundDrawable instanceof PaintDrawable) {
+					final PaintDrawable drawable = (PaintDrawable) backgroundDrawable;
+
+					backgroundColor = drawable.getPaint().getColor();
+				} else if (backgroundDrawable instanceof ColorDrawable) {
+					final ColorDrawable drawable = (ColorDrawable) backgroundDrawable;
+
+					backgroundColor = drawable.getColor();
+				}
+				if (Color.alpha(backgroundColor) <= 0) {
+
+					// Do not use drawable for transparent backgrounds.
+					backgroundDrawable = null;
+				}
+
+				final boolean touchFeedback = tableViewProperties.optBoolean(TiC.PROPERTY_TOUCH_FEEDBACK,
+					properties.optBoolean(TiC.PROPERTY_TOUCH_FEEDBACK, true));
+				final String touchFeedbackColor =
+					tableViewProperties.optString(TiC.PROPERTY_TOUCH_FEEDBACK_COLOR,
+						properties.optString(TiC.PROPERTY_TOUCH_FEEDBACK_COLOR, null));
+
+				// Set ripple background.
+				if (touchFeedback) {
+					backgroundDrawable = generateRippleDrawable(backgroundDrawable, touchFeedbackColor);
 				}
 
 				// Set container background.
@@ -279,7 +369,7 @@ public class TableViewHolder extends TiRecyclerViewHolder
 				this.container.setActivated(selected);
 
 				// Remove original background as it has been set on `container`.
-				nativeRowView.setBackgroundColor(Color.TRANSPARENT);
+				nativeRowView.setBackground(null);
 
 				// Allow states to bubble up for ripple effect.
 				nativeRowView.setAddStatesFromChildren(true);
@@ -290,7 +380,6 @@ public class TableViewHolder extends TiRecyclerViewHolder
 				// Add row to content.
 				this.content.addView(nativeRowView, rowView.getLayoutParams());
 				this.content.setVisibility(View.VISIBLE);
-
 			}
 			if (properties.containsKeyAndNotNull(TiC.PROPERTY_TITLE)
 				&& proxy.getChildren().length == 0) {
@@ -351,61 +440,6 @@ public class TableViewHolder extends TiRecyclerViewHolder
 
 		// Update model proxy holder.
 		proxy.setHolder(this);
-	}
-
-	/**
-	 * Generate ripple effect drawable from specified drawable.
-	 * TODO: Move into a utility class?
-	 *
-	 * @param drawable Drawable to apply ripple effect.
-	 * @return Drawable
-	 */
-	protected Drawable generateRippleDrawable(Drawable drawable)
-	{
-		if (!(drawable instanceof RippleDrawable)) {
-			final int[][] rippleStates = new int[][] { new int[] { android.R.attr.state_pressed } };
-			final TypedValue typedValue = new TypedValue();
-			final Activity activity = TiApplication.getAppRootOrCurrentActivity();
-			final TypedArray colorControlHighlight = activity.obtainStyledAttributes(
-				typedValue.data, new int[] { android.R.attr.colorControlHighlight });
-			final int colorControlHighlightInt = colorControlHighlight.getColor(0, 0);
-			final int[] rippleColors = new int[] { colorControlHighlightInt };
-			final ColorStateList colorStateList = new ColorStateList(rippleStates, rippleColors);
-
-			// Create the RippleDrawable.
-			drawable = new RippleDrawable(colorStateList, drawable, null);
-		}
-		return drawable;
-	}
-
-	/**
-	 * Generate selected background from proxy properties.
-	 * TODO: Move into a utility class?
-	 *
-	 * @param properties Dictionary containing selected background properties.
-	 * @return Drawable
-	 */
-	protected Drawable generateSelectedDrawable(KrollDict properties, Drawable drawable)
-	{
-		if (properties.containsKeyAndNotNull(TiC.PROPERTY_SELECTED_BACKGROUND_COLOR)
-			|| properties.containsKeyAndNotNull(TiC.PROPERTY_SELECTED_BACKGROUND_IMAGE)) {
-
-			final StateListDrawable stateDrawable = new StateListDrawable();
-			final Drawable selectedBackgroundDrawable = TiUIHelper.buildBackgroundDrawable(
-				properties.getString(TiC.PROPERTY_SELECTED_BACKGROUND_COLOR),
-				properties.getString(TiC.PROPERTY_SELECTED_BACKGROUND_IMAGE),
-				TiConvert.toBoolean(properties.get(TiC.PROPERTY_BACKGROUND_REPEAT), false),
-				null
-			);
-
-			stateDrawable.addState(
-				new int[] { android.R.attr.state_activated }, selectedBackgroundDrawable);
-			stateDrawable.addState(new int[] {}, drawable);
-
-			return stateDrawable;
-		}
-
-		return drawable;
 	}
 
 	/**
@@ -522,6 +556,8 @@ public class TableViewHolder extends TiRecyclerViewHolder
 			return;
 		}
 
+		final Context context = this.itemView.getContext();
+
 		// Handle `header` and `footer`.
 		if (updateHeader) {
 
@@ -538,8 +574,12 @@ public class TableViewHolder extends TiRecyclerViewHolder
 
 				// Handle header view.
 				final TiViewProxy headerProxy = (TiViewProxy) properties.get(TiC.PROPERTY_HEADER_VIEW);
-				final TiUIView view = headerProxy.getOrCreateView();
+				if ((context instanceof Activity) && (headerProxy.getActivity() != context)) {
+					headerProxy.releaseViews();
+					headerProxy.setActivity((Activity) context);
+				}
 
+				final TiUIView view = headerProxy.getOrCreateView();
 				if (view != null) {
 					final View headerView = view.getOuterView();
 
@@ -576,8 +616,12 @@ public class TableViewHolder extends TiRecyclerViewHolder
 
 				// Handle footer view.
 				final TiViewProxy footerProxy = (TiViewProxy) properties.get(TiC.PROPERTY_FOOTER_VIEW);
-				final TiUIView view = footerProxy.getOrCreateView();
+				if ((context instanceof Activity) && (footerProxy.getActivity() != context)) {
+					footerProxy.releaseViews();
+					footerProxy.setActivity((Activity) context);
+				}
 
+				final TiUIView view = footerProxy.getOrCreateView();
 				if (view != null) {
 					final View footerView = view.getOuterView();
 

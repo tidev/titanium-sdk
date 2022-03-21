@@ -9,6 +9,7 @@ package ti.modules.titanium.geolocation;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import org.appcelerator.kroll.KrollDict;
@@ -27,7 +28,6 @@ import org.appcelerator.titanium.util.TiConvert;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import ti.modules.titanium.geolocation.TiLocation.GeocodeResponseHandler;
 import ti.modules.titanium.geolocation.android.AndroidModule;
 import ti.modules.titanium.geolocation.android.FusedLocationProvider;
 import ti.modules.titanium.geolocation.android.LocationProviderProxy;
@@ -39,11 +39,17 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.location.Address;
+import android.location.Geocoder;
 import android.location.Location;
+import android.location.LocationManager;
 import android.location.LocationProvider;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
+
+import androidx.annotation.NonNull;
+import androidx.core.location.LocationManagerCompat;
 
 /**
  * GeolocationModule exposes all common methods and properties relating to geolocation behavior
@@ -100,8 +106,7 @@ import android.os.Message;
  * accuracy, frequency properties or even changing modes are respected and kept but don't actually get applied on the OS until
  * the listener count is greater than 0.
  */
-// TODO deprecate the frequency and preferredProvider property
-@Kroll.module(propertyAccessors = { TiC.PROPERTY_ACCURACY, TiC.PROPERTY_FREQUENCY, TiC.PROPERTY_PREFERRED_PROVIDER })
+@Kroll.module(propertyAccessors = { TiC.PROPERTY_ACCURACY })
 public class GeolocationModule extends KrollModule implements Handler.Callback, LocationProviderListener
 {
 	@Kroll.constant
@@ -132,16 +137,18 @@ public class GeolocationModule extends KrollModule implements Handler.Callback, 
 	private Context context;
 	private TiCompass tiCompass;
 	private boolean compassListenersRegistered = false;
-	private ArrayList<LocationRuleProxy> simpleLocationRules = new ArrayList<LocationRuleProxy>();
+	private final ArrayList<LocationRuleProxy> simpleLocationRules = new ArrayList<>();
 	private LocationRuleProxy simpleLocationGpsRule;
 	private LocationRuleProxy simpleLocationNetworkRule;
 	private Location currentLocation;
 	//currentLocation is conditionally updated. lastLocation is unconditionally updated
 	//since currentLocation determines when to send out updates, and lastLocation is passive
 	private Location lastLocation;
-	private HashMap<KrollPromise<KrollDict>, KrollFunction> currentPositionCallback = new HashMap<>();
+	private final HashMap<KrollPromise<KrollDict>, KrollFunction> currentPositionCallback = new HashMap<>();
 
 	private FusedLocationProvider fusedLocationProvider;
+	private Geocoder geocoder;
+	private LocationManager locationManager;
 
 	/**
 	 * Constructor
@@ -153,6 +160,8 @@ public class GeolocationModule extends KrollModule implements Handler.Callback, 
 		context = TiApplication.getInstance().getRootOrCurrentActivity();
 
 		fusedLocationProvider = new FusedLocationProvider(context, this);
+		geocoder = new Geocoder(context);
+		locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
 
 		tiLocation = new TiLocation();
 		tiCompass = new TiCompass(this, tiLocation);
@@ -203,6 +212,9 @@ public class GeolocationModule extends KrollModule implements Handler.Callback, 
 	 */
 	public void onLocationChanged(Location location)
 	{
+		if (location == null) {
+			return;
+		}
 		lastLocation = location;
 
 		// Execute getCurrentPosition() callbacks/Promises
@@ -331,12 +343,6 @@ public class GeolocationModule extends KrollModule implements Handler.Callback, 
 	{
 		if (key.equals(TiC.PROPERTY_ACCURACY)) {
 			propertyChangedAccuracy(newValue);
-
-		} else if (key.equals(TiC.PROPERTY_FREQUENCY)) {
-			propertyChangedFrequency(newValue);
-
-		} else if (key.equals(TiC.PROPERTY_PREFERRED_PROVIDER)) {
-			propertyChangedPreferredProvider(newValue);
 		}
 	}
 
@@ -364,31 +370,6 @@ public class GeolocationModule extends KrollModule implements Handler.Callback, 
 			if (!getManualMode()) {
 				registerLocationProvider(gpsProvider);
 			}
-		}
-	}
-
-	/**
-	 * Handles property change for Ti.Geolocation.frequency
-	 *
-	 * @param newValue					new frequency value
-	 */
-	private void propertyChangedFrequency(Object newValue)
-	{
-		double frequencyProperty = TiConvert.toDouble(newValue) * 1000;
-	}
-
-	/**
-	 * Handles property change for Ti.Geolocation.preferredProvider
-	 *
-	 * @param newValue					new preferredProvider value
-	 */
-	@SuppressLint("MissingPermission")
-	private void propertyChangedPreferredProvider(Object newValue)
-	{
-		String preferredProviderProperty = TiConvert.toString(newValue);
-		if (!(preferredProviderProperty.equals(AndroidModule.PROVIDER_NETWORK))
-			&& (!(preferredProviderProperty.equals(AndroidModule.PROVIDER_GPS)))) {
-			return;
 		}
 	}
 
@@ -525,12 +506,11 @@ public class GeolocationModule extends KrollModule implements Handler.Callback, 
 		if (Build.VERSION.SDK_INT < 23) {
 			return true;
 		}
-		Context context = TiApplication.getInstance().getApplicationContext();
-		if (context.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION)
-			== PackageManager.PERMISSION_GRANTED) {
-			return true;
-		}
-		return false;
+
+		Context context = TiApplication.getInstance();
+		int result = context.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION);
+		result &= context.checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION);
+		return (result == PackageManager.PERMISSION_GRANTED);
 	}
 
 	@SuppressLint("NewApi")
@@ -540,6 +520,7 @@ public class GeolocationModule extends KrollModule implements Handler.Callback, 
 	{
 		final KrollObject callbackThisObject = getKrollObject();
 		return KrollPromise.create((promise) -> {
+			// Fetch the optional callback argument.
 			KrollFunction permissionCB;
 			if (type instanceof KrollFunction && permissionCallback == null) {
 				permissionCB = (KrollFunction) type;
@@ -547,7 +528,7 @@ public class GeolocationModule extends KrollModule implements Handler.Callback, 
 				permissionCB = permissionCallback;
 			}
 
-			// already have permissions, fall through
+			// Do not continue if we already have permission.
 			if (hasLocationPermissions()) {
 				KrollDict response = new KrollDict();
 				response.putCodeAndMessage(0, null);
@@ -558,11 +539,72 @@ public class GeolocationModule extends KrollModule implements Handler.Callback, 
 				return;
 			}
 
-			TiBaseActivity.registerPermissionRequestCallback(TiC.PERMISSION_CODE_LOCATION, permissionCB,
-				callbackThisObject, promise);
-			Activity currentActivity = TiApplication.getInstance().getCurrentActivity();
-			currentActivity.requestPermissions(new String[] { Manifest.permission.ACCESS_FINE_LOCATION },
-											TiC.PERMISSION_CODE_LOCATION);
+			// Do not continue if there is no activity to host the request dialog.
+			Activity activity = TiApplication.getInstance().getCurrentActivity();
+			if (activity == null) {
+				KrollDict response =
+					buildLocationErrorEvent(-1, "There are no activities to host the location request dialog.");
+				if (permissionCB != null) {
+					permissionCB.callAsync(callbackThisObject, response);
+				}
+				promise.reject(new Throwable(response.getString(TiC.EVENT_PROPERTY_ERROR)));
+				return;
+			}
+
+			// Set up a custom callback to handle the user's grant/denial of this permission.
+			TiBaseActivity.OnRequestPermissionsResultCallback activityCallback;
+			activityCallback = new TiBaseActivity.OnRequestPermissionsResultCallback() {
+				@Override
+				public void onRequestPermissionsResult(
+					@NonNull TiBaseActivity activity, int requestCode,
+					@NonNull String[] permissions, @NonNull int[] grantResults)
+				{
+					// Unregister this callback.
+					TiBaseActivity.unregisterPermissionRequestCallback(TiC.PERMISSION_CODE_LOCATION);
+
+					// Do not continue if there is no callback to invoke with the result.
+					if ((permissionCB) == null && (promise == null)) {
+						return;
+					}
+
+					// Check if at least 1 location permission has been granted.
+					// Note: As of Android 12, COARSE permission can be granted while FINE is denied.
+					boolean wasGranted = false;
+					if (permissions.length == grantResults.length) {
+						for (int index = 0; index < permissions.length; index++) {
+							switch (permissions[index]) {
+								case Manifest.permission.ACCESS_COARSE_LOCATION:
+								case Manifest.permission.ACCESS_FINE_LOCATION:
+									wasGranted = (grantResults[index] == PackageManager.PERMISSION_GRANTED);
+									break;
+							}
+							if (wasGranted) {
+								break;
+							}
+						}
+					}
+
+					// Invoke callback(s) with the result.
+					KrollDict response = new KrollDict();
+					if (wasGranted) {
+						response.putCodeAndMessage(0, null);
+						promise.resolve(response);
+					} else {
+						response.putCodeAndMessage(-1, "Location permission denied.");
+						promise.reject(response);
+					}
+					if (permissionCB != null) {
+						permissionCB.callAsync(callbackThisObject, response);
+					}
+				}
+			};
+
+			// Prompt end-user for permission.
+			// Note: As of Android 12, we cannot request FINE permission by itself. We must also include COARSE.
+			TiBaseActivity.registerPermissionRequestCallback(TiC.PERMISSION_CODE_LOCATION, activityCallback);
+			activity.requestPermissions(
+				new String[] { Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION },
+				TiC.PERMISSION_CODE_LOCATION);
 		});
 	}
 
@@ -643,7 +685,7 @@ public class GeolocationModule extends KrollModule implements Handler.Callback, 
 	 * should occur on the runtime thread in order to make sure threading issues are
 	 * avoiding
 	 *
-	 * @param locationProviders
+	 * @param locationProviders Dictionary of providers to use.
 	 */
 	private void doEnableLocationProviders(HashMap<String, LocationProviderProxy> locationProviders)
 	{
@@ -655,6 +697,17 @@ public class GeolocationModule extends KrollModule implements Handler.Callback, 
 			while (iterator.hasNext()) {
 				LocationProviderProxy locationProvider = locationProviders.get(iterator.next());
 				registerLocationProvider(locationProvider);
+			}
+
+			// On Android 12+, check for ACCESS_FINE_LOCATION.
+			// If ACCESS_FINE_LOCATION is denied, return last known location.
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && hasLocationPermissions()) {
+				Context context = TiApplication.getInstance();
+				int result = context.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION);
+
+				if (result == PackageManager.PERMISSION_DENIED) {
+					onLocationChanged(tiLocation.getLastKnownLocation());
+				}
 			}
 		}
 	}
@@ -688,7 +741,7 @@ public class GeolocationModule extends KrollModule implements Handler.Callback, 
 	@Kroll.getProperty
 	public boolean getLocationServicesEnabled()
 	{
-		return tiLocation.getLocationServicesEnabled();
+		return LocationManagerCompat.isLocationEnabled(locationManager);
 	}
 
 	/**
@@ -751,7 +804,8 @@ public class GeolocationModule extends KrollModule implements Handler.Callback, 
 
 	/**
 	 * Converts the specified address to coordinates and returns the value to the specified
-	 * Javascript function
+	 * Javascript function.
+	 * NOTE: This will fail on devices without Google API availability.
 	 *
 	 * @param address			address to be converted
 	 * @param callback			Javascript function that will be invoked with the coordinates
@@ -762,13 +816,45 @@ public class GeolocationModule extends KrollModule implements Handler.Callback, 
 												   @Kroll.argument(optional = true) final KrollFunction callback)
 	{
 		return KrollPromise.create((promise) -> {
-			tiLocation.forwardGeocode(address, createGeocodeResponseHandler(callback, promise));
+			new Thread(() -> {
+				final KrollDict response = new KrollDict();
+
+				response.put(TiC.EVENT_PROPERTY_SOURCE, this);
+
+				try {
+					final List<Address> addresses = geocoder.getFromLocationName(address, 1);
+
+					if (addresses.size() > 0) {
+						response.putAll(TiLocation.placeFromAddress(addresses.get(0)));
+					} else {
+
+						// Could not resolve address.
+						throw new Exception("Could not resolve address to location.");
+					}
+
+					// Success, resolve.
+					response.putCodeAndMessage(0, null);
+					promise.resolve(response);
+
+				} catch (Exception e) {
+
+					// Failed, reject.
+					response.putCodeAndMessage(-1, null);
+					promise.reject(response);
+				}
+
+				if (callback == null) {
+					return;
+				}
+				callback.call(getKrollObject(), new Object[] { response });
+			}).start();
 		});
 	}
 
 	/**
 	 * Converts the specified latitude and longitude to a human readable address and returns
-	 * the value to the specified Javascript function
+	 * the value to the specified Javascript function.
+	 * NOTE: This will fail on devices without Google API availability.
 	 *
 	 * @param latitude			latitude to be used in looking up the associated address
 	 * @param longitude			longitude to be used in looking up the associated address
@@ -780,35 +866,48 @@ public class GeolocationModule extends KrollModule implements Handler.Callback, 
 								@Kroll.argument(optional = true) final KrollFunction callback)
 	{
 		return KrollPromise.create((promise) -> {
-			tiLocation.reverseGeocode(latitude, longitude, createGeocodeResponseHandler(callback, promise));
-		});
-	}
+			new Thread(() -> {
+				final KrollDict response = new KrollDict();
 
-	/**
-	 * Convenience method for creating a response handler that is used when doing a
-	 * geocode lookup.
-	 *
-	 * @param callback			Javascript function that the response handler will invoke
-	 * 							once the geocode response is ready
-	 * @return					the geocode response handler
-	 */
-	private GeocodeResponseHandler createGeocodeResponseHandler(final KrollFunction callback,
-																final KrollPromise<KrollDict> promise)
-	{
-		final GeolocationModule geolocationModule = this;
+				response.put(TiC.EVENT_PROPERTY_SOURCE, this);
 
-		return new GeocodeResponseHandler() {
-			@Override
-			public void handleGeocodeResponse(KrollDict geocodeResponse)
-			{
-				geocodeResponse.put(TiC.EVENT_PROPERTY_SOURCE, geolocationModule);
-				promise.resolve(geocodeResponse);
+				try {
+					final List<Address> addresses = geocoder.getFromLocation(latitude, longitude, 10);
+					final List<KrollDict> places = new ArrayList<>(addresses.size());
+
+					if (addresses.size() == 0) {
+
+						// Could not resolve location.
+						throw new Exception("Could not resolve location.");
+					}
+
+					for (final Address address : addresses) {
+						final KrollDict place = TiLocation.placeFromAddress(address);
+
+						// Include place to places array.
+						places.add(place);
+					}
+
+					// Add all places to response payload.
+					response.put(TiC.PROPERTY_PLACES, places.toArray());
+
+					// Success, resolve.
+					response.putCodeAndMessage(0, null);
+					promise.resolve(response);
+
+				} catch (Exception e) {
+
+					// Failed, reject.
+					response.putCodeAndMessage(-1, null);
+					promise.reject(response);
+				}
+
 				if (callback == null) {
 					return;
 				}
-				callback.call(getKrollObject(), new Object[] { geocodeResponse });
-			}
-		};
+				callback.call(getKrollObject(), new Object[] { response });
+			}).start();
+		});
 	}
 
 	/**

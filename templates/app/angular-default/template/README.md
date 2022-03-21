@@ -16,6 +16,6 @@ Run `npm run lint` to lint your project via [eslint](https://eslint.org/).
 
 ## Further help
 
-To get more help on Titanium Angular go check out the [Titanium Angular Guide](https://docs.appcelerator.com/platform/latest/#!/guide/Titanium_and_Angular). For more examples check out the [sample app](https://github.com/appcelerator/titanium-angular/tree/master/ti-angular-example) in the [titanium-angular](https://github.com/appcelerator/titanium-angular) repository.
+To get more help on Titanium Angular go check out the [Titanium Angular Guide](https://titaniumsdk.com/guide/Titanium_SDK/Titanium_SDK_Guide/Titanium_and_Angular/). For more examples check out the [sample app](https://github.com/appcelerator/titanium-angular/tree/master/ti-angular-example) in the [titanium-angular](https://github.com/appcelerator/titanium-angular) repository.
 
-To get more help on Titanium in general go check out the [How-tos](https://docs.appcelerator.com/platform/latest/#!/guide/Titanium_SDK_How-tos) and [API Docs](https://docs.appcelerator.com/platform/latest/#!/api).
+To get more help on Titanium in general go check out the [How-tos](https://titaniumsdk.com/guide/Titanium_SDK/Titanium_SDK_How-tos/) and [API Docs](https://titaniumsdk.com/api/).

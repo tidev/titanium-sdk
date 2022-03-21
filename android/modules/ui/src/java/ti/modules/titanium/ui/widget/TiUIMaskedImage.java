@@ -205,7 +205,7 @@ public class TiUIMaskedImage extends TiUIView
 		ImageView.ScaleType scaleType = ImageView.ScaleType.FIT_XY;
 		if ((layoutParams.optionWidth == null) && (layoutParams.optionHeight == null)) {
 			if (!layoutParams.autoFillsWidth && !layoutParams.autoFillsHeight) {
-				if (layoutParams.sizeOrFillWidthEnabled && layoutParams.sizeOrFillWidthEnabled) {
+				if (layoutParams.sizeOrFillWidthEnabled && layoutParams.sizeOrFillHeightEnabled) {
 					scaleType = ImageView.ScaleType.CENTER;
 				}
 			}

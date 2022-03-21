@@ -99,7 +99,7 @@ description: |
         window: win
       });
       var webview = Ti.UI.createWebView({
-        url: 'http://appcelerator.com',
+        url: 'http://titaniumsdk.com',
         bottom: 50
       });
       win.add(close);
@@ -184,7 +184,7 @@ description: |
           }
           listViewData.push(obj);
         }
-        listSection.setItems(listViewData);
+        listSection.items = listViewData;
       });
       listView.addEventListener('itemclick', function(e) {
         var item = e.section.getItemAt(e.itemIndex);

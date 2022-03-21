@@ -6,7 +6,28 @@
  */
 package ti.modules.titanium.ui.widget.tabgroup;
 
-import java.util.ArrayList;
+import android.annotation.SuppressLint;
+import android.app.Activity;
+import android.content.res.ColorStateList;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.RippleDrawable;
+import android.os.Build;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewParent;
+import android.view.Window;
+
+import androidx.annotation.ColorInt;
+import androidx.core.graphics.ColorUtils;
+
+import com.google.android.material.badge.BadgeDrawable;
+import com.google.android.material.bottomnavigation.BottomNavigationItemView;
+import com.google.android.material.bottomnavigation.BottomNavigationMenuView;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.bottomnavigation.LabelVisibilityMode;
+import com.google.android.material.shape.CornerFamily;
+import com.google.android.material.shape.MaterialShapeDrawable;
+import com.google.android.material.shape.ShapeAppearanceModel;
 
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiBaseActivity;
@@ -17,18 +38,7 @@ import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 
-import android.annotation.SuppressLint;
-import android.graphics.Rect;
-import android.graphics.drawable.Drawable;
-import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewParent;
-
-import com.google.android.material.badge.BadgeDrawable;
-import com.google.android.material.bottomnavigation.BottomNavigationItemView;
-import com.google.android.material.bottomnavigation.BottomNavigationMenuView;
-import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.google.android.material.bottomnavigation.LabelVisibilityMode;
+import java.util.ArrayList;
 
 import ti.modules.titanium.ui.TabGroupProxy;
 import ti.modules.titanium.ui.TabProxy;
@@ -44,7 +54,7 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 	// We track the previously selected item index manually to mimic the behavior in order to keep parity across styles.
 	private int currentlySelectedIndex = -1;
 	private BottomNavigationView mBottomNavigationView;
-	private ArrayList<MenuItem> mMenuItemsArray = new ArrayList<>();
+	private final ArrayList<MenuItem> mMenuItemsArray = new ArrayList<>();
 	// endregion
 
 	public TiUIBottomNavigationTabGroup(TabGroupProxy proxy, TiBaseActivity activity)
@@ -76,30 +86,70 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 															   activity.getPackageName());
 		this.mBottomNavigationHeightValue = activity.getResources().getDimensionPixelSize(resourceID);
 
-		// Create the bottom tab navigation view.
-		this.mBottomNavigationView = new BottomNavigationView(activity) {
-			@Override
-			protected boolean fitSystemWindows(Rect insets)
-			{
-				// Remove top inset when bottom tab bar is to be extended beneath system insets.
-				// This prevents Google from blindly padding top of tab bar based on this inset.
-				if ((insets != null) && getFitsSystemWindows()) {
-					insets = new Rect(insets);
-					insets.top = 0;
-				}
-				super.fitSystemWindows(insets);
-				return false;
-			}
+		// Fetch padding properties. If at least 1 property is non-zero, then show a floating tab bar.
+		final TiDimension paddingLeft = TiConvert.toTiDimension(
+			this.proxy.getProperty(TiC.PROPERTY_PADDING_LEFT), TiDimension.TYPE_LEFT);
+		final TiDimension paddingRight = TiConvert.toTiDimension(
+			this.proxy.getProperty(TiC.PROPERTY_PADDING_RIGHT), TiDimension.TYPE_RIGHT);
+		final TiDimension paddingBottom = TiConvert.toTiDimension(
+			this.proxy.getProperty(TiC.PROPERTY_PADDING_BOTTOM), TiDimension.TYPE_BOTTOM);
+		final boolean isFloating
+			=  ((paddingLeft != null) && (paddingLeft.getValue() > 0))
+			|| ((paddingRight != null) && (paddingRight.getValue() > 0))
+			|| ((paddingBottom != null) && (paddingBottom.getValue() > 0));
 
+		// Create the bottom tab navigation view.
+		mBottomNavigationView = new BottomNavigationView(activity);
+		mBottomNavigationView.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
 			@Override
-			protected void onLayout(boolean hasChanged, int left, int top, int right, int bottom)
+			public void onLayoutChange(
+				View view, int left, int top, int right, int bottom,
+				int oldLeft, int oldTop, int oldRight, int oldBottom)
 			{
 				// Update bottom inset based on tab bar's height and position in window.
-				super.onLayout(hasChanged, left, top, right, bottom);
-				insetsProvider.setBottomBasedOn(this);
+				insetsProvider.setBottomBasedOn(view);
 			}
-		};
-		this.mBottomNavigationView.setFitsSystemWindows(true);
+		});
+		if (isFloating) {
+			// Set up tab bar to look like a floating toolbar with rounded corners.
+			MaterialShapeDrawable shapeDrawable = null;
+			Drawable background = this.mBottomNavigationView.getBackground();
+			if (background instanceof MaterialShapeDrawable) {
+				shapeDrawable = (MaterialShapeDrawable) background;
+			} else {
+				shapeDrawable = new MaterialShapeDrawable();
+				background = shapeDrawable;
+				mBottomNavigationView.setBackground(shapeDrawable);
+			}
+			ShapeAppearanceModel model = shapeDrawable.getShapeAppearanceModel();
+			float radius = (new TiDimension("17dp", TiDimension.TYPE_LEFT)).getAsPixels(mBottomNavigationView);
+			model = model.toBuilder().setAllCorners(CornerFamily.ROUNDED, radius).build();
+			shapeDrawable.setShapeAppearanceModel(model);
+			this.mBottomNavigationView.setPadding((int) (radius * 0.75), 0, (int) (radius * 0.75), 0);
+			mBottomNavigationView.setElevation(
+				(new TiDimension("8dp", TiDimension.TYPE_BOTTOM)).getAsPixels(mBottomNavigationView));
+			this.mBottomNavigationView.setOnApplyWindowInsetsListener((view, insets) -> {
+				// Add additional padding to compensate for device notch and translucent status/nav bars.
+				int leftInsetPixels
+					= ((paddingLeft != null) ? paddingLeft.getAsPixels(view) : 0)
+					+ insets.getStableInsetLeft();
+				int rightInsetPixels
+					= ((paddingRight != null) ? paddingRight.getAsPixels(view) : 0)
+					+ insets.getStableInsetRight();
+				int bottomInsetPixels
+					= ((paddingBottom != null) ? paddingBottom.getAsPixels(view) : 0)
+					+ insets.getStableInsetBottom();
+				TiCompositeLayout.LayoutParams params = (TiCompositeLayout.LayoutParams) view.getLayoutParams();
+				params.optionLeft = new TiDimension(leftInsetPixels, TiDimension.TYPE_LEFT);
+				params.optionRight = new TiDimension(rightInsetPixels, TiDimension.TYPE_RIGHT);
+				params.optionBottom = new TiDimension(bottomInsetPixels, TiDimension.TYPE_BOTTOM);
+				insets.consumeSystemWindowInsets();
+				return insets;
+			});
+		}
+		this.mBottomNavigationView.setFitsSystemWindows(!isFloating);
+		this.mBottomNavigationView.setItemRippleColor(
+			TiUIAbstractTabGroup.createRippleColorStateListFrom(getColorPrimary()));
 
 		// Add tab bar and view pager to the root Titanium view.
 		// Note: If getFitsSystemWindows() returns false, then Titanium window's "extendSafeArea" is set true.
@@ -109,7 +159,7 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 			TiCompositeLayout.LayoutParams params = new TiCompositeLayout.LayoutParams();
 			params.autoFillsWidth = true;
 			params.autoFillsHeight = true;
-			if (compositeLayout.getFitsSystemWindows()) {
+			if (compositeLayout.getFitsSystemWindows() && !isFloating) {
 				params.optionBottom = new TiDimension(mBottomNavigationHeightValue, TiDimension.TYPE_BOTTOM);
 			}
 			compositeLayout.addView(this.tabGroupViewPager, params);
@@ -117,7 +167,13 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 		{
 			TiCompositeLayout.LayoutParams params = new TiCompositeLayout.LayoutParams();
 			params.autoFillsWidth = true;
-			params.optionBottom = new TiDimension(0, TiDimension.TYPE_BOTTOM);
+			if (isFloating) {
+				params.optionLeft = paddingLeft;
+				params.optionRight = paddingRight;
+				params.optionBottom = paddingBottom;
+			} else {
+				params.optionBottom = new TiDimension(0, TiDimension.TYPE_BOTTOM);
+			}
 			compositeLayout.addView(this.mBottomNavigationView, params);
 		}
 
@@ -245,19 +301,47 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 	@Override
 	public void setBackgroundColor(int colorInt)
 	{
-		this.mBottomNavigationView.setBackgroundColor(colorInt);
+		// Update tab bar's background color.
+		Drawable drawable = mBottomNavigationView.getBackground();
+		if (drawable instanceof MaterialShapeDrawable) {
+			MaterialShapeDrawable shapeDrawable = (MaterialShapeDrawable) drawable;
+			shapeDrawable.setFillColor(ColorStateList.valueOf(colorInt));
+			shapeDrawable.setElevation(0); // Drawable will tint the fill color if elevation is non-zero.
+		} else {
+			mBottomNavigationView.setBackgroundColor(colorInt);
+		}
+
+		// Apply given color to bottom navigation bar if using a "solid" theme.
+		if (isUsingSolidTitaniumTheme() && (Build.VERSION.SDK_INT >= 27)) {
+			Activity activity = (this.proxy != null) ? this.proxy.getActivity() : null;
+			Window window = (activity != null) ? activity.getWindow() : null;
+			View decorView = (window != null) ? window.getDecorView() : null;
+			if ((window != null) && (decorView != null)) {
+				int uiFlags = decorView.getSystemUiVisibility();
+				if (ColorUtils.calculateLuminance(colorInt) > 0.5) {
+					uiFlags |= View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR;
+				} else {
+					uiFlags &= ~View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR;
+				}
+				decorView.setSystemUiVisibility(uiFlags);
+				window.setNavigationBarColor(colorInt);
+			}
+		}
 	}
 
 	@Override
 	public void updateTabBackgroundDrawable(int index)
 	{
 		try {
-			BottomNavigationMenuView bottomMenuView =
-				((BottomNavigationMenuView) this.mBottomNavigationView.getChildAt(0));
 			// BottomNavigationMenuView rebuilds itself after adding a new item, so we need to reset the colors each time.
 			TiViewProxy tabProxy = tabs.get(index).getProxy();
-			Drawable backgroundDrawable = createBackgroundDrawableForState(tabProxy, android.R.attr.state_checked);
-			bottomMenuView.getChildAt(index).setBackground(backgroundDrawable);
+			if (hasCustomBackground(tabProxy) || hasCustomIconTint(tabProxy)) {
+				BottomNavigationMenuView bottomMenuView =
+					((BottomNavigationMenuView) this.mBottomNavigationView.getChildAt(0));
+				Drawable drawable = createBackgroundDrawableForState(tabProxy, android.R.attr.state_checked);
+				drawable = new RippleDrawable(createRippleColorStateListFrom(getActiveColor(tabProxy)), drawable, null);
+				bottomMenuView.getChildAt(index).setBackground(drawable);
+			}
 		} catch (Exception e) {
 			Log.w(TAG, WARNING_LAYOUT_MESSAGE);
 		}
@@ -331,13 +415,15 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 	public void updateTabTitleColor(int index)
 	{
 		try {
-			BottomNavigationMenuView bottomMenuView =
-				((BottomNavigationMenuView) this.mBottomNavigationView.getChildAt(0));
 			// BottomNavigationMenuView rebuilds itself after adding a new item, so we need to reset the colors each time.
 			TiViewProxy tabProxy = tabs.get(index).getProxy();
-			// Set the TextView textColor.
-			((BottomNavigationItemView) bottomMenuView.getChildAt(index))
-				.setTextColor(textColorStateList(tabProxy, android.R.attr.state_checked));
+			if (hasCustomTextColor(tabProxy)) {
+				// Set the TextView textColor.
+				BottomNavigationMenuView bottomMenuView =
+					((BottomNavigationMenuView) this.mBottomNavigationView.getChildAt(0));
+				((BottomNavigationItemView) bottomMenuView.getChildAt(index))
+					.setTextColor(textColorStateList(tabProxy, android.R.attr.state_checked));
+			}
 		} catch (Exception e) {
 			Log.w(TAG, WARNING_LAYOUT_MESSAGE);
 		}
@@ -372,8 +458,8 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 	/**
 	 * After a menu item is clicked this method sends the proper index to the ViewPager to a select
 	 * a page. Also takes care of sending SELECTED/UNSELECTED events from the proper tabs.
-	 * @param item
-	 * @return
+	 * @param item The menu item that was clicked on.
+	 * @return Returns true if overridden and to prevent tab selection. Returns false to allow tab selection.
 	 */
 	@Override
 	public boolean onMenuItemClick(MenuItem item)
@@ -405,9 +491,8 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 	private void updateIconTint()
 	{
 		for (int i = 0; i < this.tabs.size(); i++) {
-			final TiUITab tab = this.tabs.get(i);
-			if (tab.getProxy() != null) {
-				final TiViewProxy tabProxy = tab.getProxy();
+			final TiViewProxy tabProxy = this.tabs.get(i).getProxy();
+			if (hasCustomIconTint(tabProxy)) {
 				final boolean selected = i == currentlySelectedIndex;
 				Drawable drawable = this.mBottomNavigationView.getMenu().getItem(i).getIcon();
 				drawable = updateIconTint(tabProxy, drawable, selected);
@@ -423,5 +508,40 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 
 		updateIconTint();
 		updateTabBackgroundDrawable(tabIndex);
+	}
+
+	public static ColorStateList createRippleColorStateListFrom(@ColorInt int colorInt)
+	{
+		int[][] rippleStates = new int[][] {
+			// Selected tab states.
+			new int[] { android.R.attr.state_selected, android.R.attr.state_pressed },
+			new int[] { android.R.attr.state_selected, android.R.attr.state_focused, android.R.attr.state_hovered },
+			new int[] { android.R.attr.state_selected, android.R.attr.state_focused },
+			new int[] { android.R.attr.state_selected, android.R.attr.state_hovered },
+			new int[] { android.R.attr.state_selected },
+
+			// Unselected tab states.
+			new int[] { android.R.attr.state_pressed },
+			new int[] { android.R.attr.state_focused, android.R.attr.state_hovered },
+			new int[] { android.R.attr.state_focused },
+			new int[] { android.R.attr.state_hovered },
+			new int[] {}
+		};
+		int[] rippleColors = new int[] {
+			// The "selected" tab tap colors.
+			ColorUtils.setAlphaComponent(colorInt, 128),
+			ColorUtils.setAlphaComponent(colorInt, 128),
+			ColorUtils.setAlphaComponent(colorInt, 128),
+			ColorUtils.setAlphaComponent(colorInt, 48),
+			ColorUtils.setAlphaComponent(colorInt, 48),
+
+			// The "unselected" tab tap color.
+			ColorUtils.setAlphaComponent(colorInt, 128),
+			ColorUtils.setAlphaComponent(colorInt, 128),
+			ColorUtils.setAlphaComponent(colorInt, 128),
+			ColorUtils.setAlphaComponent(colorInt, 48),
+			ColorUtils.setAlphaComponent(colorInt, 48)
+		};
+		return new ColorStateList(rippleStates, rippleColors);
 	}
 }

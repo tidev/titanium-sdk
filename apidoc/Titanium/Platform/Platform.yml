@@ -27,7 +27,7 @@ methods:
     description: |
         As of iOS 9, this method may return `false` if you have not added the URL schemes you query to the
         "tiapp.xml" file. You can do this by adding a `<key>LSApplicationQueriesSchemes</key>` plist section
-        as shown [here](https://docs.appcelerator.com/platform/latest/#!/guide/tiapp.xml_and_timodule.xml_Reference-section-src-29004921_tiapp.xmlandtimodule.xmlReference-iOS9SecurityandcanOpenUrl).
+        as shown [here](https://titaniumsdk.com/guide/Titanium_SDK/Titanium_SDK_Guide/Appendices/tiapp.xml_and_timodule.xml_Reference.html#ios9-security-and-canopenurl).
 
         As of Android 11, this method may return `false` if you have not added the URL schemes to a `<queries/>`
         manifest section in the "tiapp.xml" file. Google documents examples how to do
@@ -89,7 +89,7 @@ methods:
     description: |
         Here are some example URL strings this can be set to.
 
-          * `'https://www.appcelerator.com'`  (Opens in web browser.)
+          * `'https://www.titaniumsdk.com'`  (Opens in web browser.)
           * `'mailto:user@domain.com'`  (Opens a new draft in e-mail app.)
           * `'mailto:user@domain.com?cc=johndoe@domain.com,janedoe@domain.com&subject=My%20Subject&body=The%20body.'`
           * `'tel:123-456-7890'`  (Opens phone app if applicable.)

@@ -119,7 +119,6 @@ public abstract class TiViewProxy extends KrollProxy
 
 	/**
 	 * Constructs a new TiViewProxy instance.
-	 * @module.api
 	 */
 	public TiViewProxy()
 	{
@@ -151,7 +150,7 @@ public abstract class TiViewProxy extends KrollProxy
 		return overrideCurrentAnimation;
 	}
 
-	private static HashMap<TiUrl, String> styleSheetUrlCache = new HashMap<TiUrl, String>(5);
+	private static final HashMap<TiUrl, String> styleSheetUrlCache = new HashMap<>(5);
 	protected String getBaseUrlForStylesheet()
 	{
 		TiUrl creationUrl = getCreationUrl();
@@ -388,7 +387,6 @@ public abstract class TiViewProxy extends KrollProxy
 
 	/**
 	 * @return the TiUIView associated with this proxy.
-	 * @module.api
 	 */
 	public TiUIView peekView()
 	{
@@ -427,7 +425,6 @@ public abstract class TiViewProxy extends KrollProxy
 	/**
 	 * Creates or retrieves the view associated with this proxy.
 	 * @return a TiUIView instance.
-	 * @module.api
 	 */
 	public TiUIView getOrCreateView()
 	{
@@ -444,7 +441,8 @@ public abstract class TiViewProxy extends KrollProxy
 				Log.d(TAG, "getView: " + getClass().getSimpleName(), Log.DEBUG_MODE);
 			}
 
-			Activity activity = getActivity();
+			Activity lastActivity = getActivity();
+			Activity activity = lastActivity;
 			TiBaseActivity baseActivity = null;
 
 			if (activity instanceof TiBaseActivity) {
@@ -459,7 +457,19 @@ public abstract class TiViewProxy extends KrollProxy
 				activity = baseActivity;
 
 			} else if (activity == null) {
-				activity = TiApplication.getAppRootOrCurrentActivity();
+				for (TiViewProxy parent = getParent(); parent != null; parent = parent.getParent()) {
+					activity = parent.getActivity();
+					if (activity != null) {
+						break;
+					}
+				}
+				if (activity == null) {
+					activity = TiApplication.getAppRootOrCurrentActivity();
+				}
+			}
+
+			if (activity != lastActivity) {
+				setActivity(activity);
 			}
 
 			view = createView(activity);
@@ -538,14 +548,34 @@ public abstract class TiViewProxy extends KrollProxy
 	 * Implementing classes should use this method to create and return the appropriate view.
 	 * @param activity the context activity.
 	 * @return a TiUIView instance.
-	 * @module.api
 	 */
 	public abstract TiUIView createView(Activity activity);
 
 	/**
+	 * Create clone of existing proxy, including children.
+	 *
+	 * @return TiViewProxy
+	 */
+	public TiViewProxy clone()
+	{
+		final TiViewProxy proxy = (TiViewProxy) KrollProxy.createProxy(
+			this.getClass(),
+			getKrollObject(),
+			new Object[] { properties },
+			this.creationUrl.url
+		);
+
+		// Include children.
+		for (final TiViewProxy child : this.children) {
+			proxy.add(child.clone());
+		}
+
+		return proxy;
+	}
+
+	/**
 	 * Adds a child to this view proxy.
 	 * @param args The child view proxy/proxies to add.
-	 * @module.api
 	 */
 	@Kroll.method
 	public void add(Object args)
@@ -564,8 +594,25 @@ public abstract class TiViewProxy extends KrollProxy
 			}
 		} else if (args instanceof TiViewProxy) {
 			TiViewProxy child = (TiViewProxy) args;
+
+			// Check if given view already has a parent.
+			TiViewProxy parent = child.getParent();
+			if ((parent == this) || (parent == child)) {
+				// Do not continue if already added or given view is try to add to itself.
+				return;
+			} else if (parent != null) {
+				// Remove given view from its current parent. (Do not release its native view.)
+				if (parent.children != null) {
+					parent.children.remove(child);
+				}
+				if (parent.view != null) {
+					parent.view.remove(child.peekView());
+				}
+			}
+
+			// Add given view as a child to this view.
 			children.add(child);
-			child.parent = new WeakReference<TiViewProxy>(this);
+			child.parent = new WeakReference<>(this);
 			if ((peekView() != null) && (view != null)) {
 				child.setActivity(getActivity());
 				if (this instanceof DecorViewProxy) {
@@ -573,7 +620,6 @@ public abstract class TiViewProxy extends KrollProxy
 				}
 				view.add(child.getOrCreateView());
 			}
-			//TODO zOrder
 		} else {
 			Log.w(TAG, "add() unsupported argument type: " + args.getClass().getSimpleName());
 		}
@@ -594,8 +640,22 @@ public abstract class TiViewProxy extends KrollProxy
 		}
 		if (children != null && children.size() > position) {
 			TiViewProxy childToRemove = children.get(position);
-			insertAt(params);
 			remove(childToRemove);
+			insertAt(params);
+		}
+	}
+
+	public void recreateChild(TiViewProxy child)
+	{
+		if (child == null || this.children == null) {
+			return;
+		}
+
+		final int position = this.children.indexOf(child);
+
+		if (position > -1) {
+			remove(child);
+			insertAt(child, position);
 		}
 	}
 
@@ -603,7 +663,6 @@ public abstract class TiViewProxy extends KrollProxy
 	 * Adds a child to this view proxy in the specified position. This is useful for "vertical" and
 	 * "horizontal" layouts.
 	 * @param params A Dictionary containing a TiViewProxy for the view and an int for the position
-	 * @module.api
 	 */
 	@Kroll.method
 	public void insertAt(Object params)
@@ -627,12 +686,21 @@ public abstract class TiViewProxy extends KrollProxy
 			Log.e(TAG, "insertAt must be contain a view");
 			return;
 		}
+
+		insertAt(child, position);
+	}
+
+	public void insertAt(TiViewProxy child, int position)
+	{
+		if (child == null) {
+			return;
+		}
 		if (position < 0 || position > children.size()) {
 			position = children.size();
 		}
 
 		children.add(position, child);
-		child.parent = new WeakReference<TiViewProxy>(this);
+		child.parent = new WeakReference<>(this);
 
 		if (view != null) {
 			child.setActivity(getActivity());
@@ -647,7 +715,6 @@ public abstract class TiViewProxy extends KrollProxy
 	/**
 	 * Removes a view from this view proxy, releasing the underlying native view if it exists.
 	 * @param child The child to remove.
-	 * @module.api
 	 */
 	@Kroll.method
 	public void remove(TiViewProxy child)
@@ -662,16 +729,15 @@ public abstract class TiViewProxy extends KrollProxy
 		} else {
 			if (children != null) {
 				children.remove(child);
-				if (child.parent != null && child.parent.get() == this) {
-					child.parent = null;
-				}
 			}
+		}
+		if (child.parent != null && child.parent.get() == this) {
+			child.parent = null;
 		}
 	}
 
 	/**
 	 * Removes all children views.
-	 * @module.api
 	 */
 	@Kroll.method
 	public void removeAllChildren()
@@ -689,7 +755,6 @@ public abstract class TiViewProxy extends KrollProxy
 
 	/**
 	* Returns the view by the given ID.
-	* @module.api
 	*/
 	@Kroll.method
 	public TiViewProxy getViewById(String id)
@@ -839,7 +904,6 @@ public abstract class TiViewProxy extends KrollProxy
 			View view = tiv.getNativeView();
 			if (view == null || (view.getWidth() == 0 && view.getHeight() == 0) || tiv.isLayoutPending()) {
 				getMainHandler().sendEmptyMessage(MSG_QUEUED_ANIMATE);
-				return;
 			} else {
 				tiv.animate();
 			}
@@ -980,7 +1044,6 @@ public abstract class TiViewProxy extends KrollProxy
 
 	/**
 	 * @return The parent view proxy of this view proxy.
-	 * @module.api
 	 */
 	@Kroll.getProperty
 	public TiViewProxy getParent()
@@ -1117,8 +1180,19 @@ public abstract class TiViewProxy extends KrollProxy
 	}
 
 	/**
+	 * Determines if this proxy has any child view proxies.
+	 * @return Returns true if this view has at least 1 child view proxy. Returns false if it has no children.
+	 */
+	public boolean hasChildren()
+	{
+		if (this.children == null) {
+			return false;
+		}
+		return !this.children.isEmpty();
+	}
+
+	/**
 	 * @return An array of the children view proxies of this view.
-	 * @module.api
 	 */
 	@Kroll.getProperty
 	public TiViewProxy[] getChildren()
@@ -1126,7 +1200,7 @@ public abstract class TiViewProxy extends KrollProxy
 		if (children == null) {
 			return new TiViewProxy[0];
 		}
-		return children.toArray(new TiViewProxy[children.size()]);
+		return children.toArray(new TiViewProxy[0]);
 	}
 
 	@Override
@@ -1172,7 +1246,7 @@ public abstract class TiViewProxy extends KrollProxy
 		// This is a pretty naive implementation right now,
 		// but it will work for our current needs
 		String baseUrl = getBaseUrlForStylesheet();
-		ArrayList<String> classes = new ArrayList<String>();
+		ArrayList<String> classes = new ArrayList<>();
 		for (Object c : classNames) {
 			classes.add(TiConvert.toString(c));
 		}
@@ -1261,7 +1335,7 @@ public abstract class TiViewProxy extends KrollProxy
 			return null;
 		}
 		View nativeView = view.getNativeView();
-		View destNativeView = destView.getNativeView();
+		View destNativeView = destView.getNativeContentView();
 		if (nativeView == null || nativeView.getParent() == null) {
 			Log.w(TAG, "convertPointToView: View has not been attached, cannot convert point");
 			return null;

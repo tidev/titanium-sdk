@@ -815,6 +815,36 @@ describe('Titanium.Media', () => {
 			});
 		});
 
+		describe('.IMAGE_SCALING_AUTO', () => {
+			it('is a Number', () => {
+				should(Ti.Media).have.a.constant('IMAGE_SCALING_AUTO').which.is.a.Number();
+			});
+		});
+
+		describe('.IMAGE_SCALING_NONE', () => {
+			it('is a Number', () => {
+				should(Ti.Media).have.a.constant('IMAGE_SCALING_NONE').which.is.a.Number();
+			});
+		});
+
+		describe('.IMAGE_SCALING_FILL', () => {
+			it('is a Number', () => {
+				should(Ti.Media).have.a.constant('IMAGE_SCALING_FILL').which.is.a.Number();
+			});
+		});
+
+		describe('.IMAGE_SCALING_ASPECT_FILL', () => {
+			it('is a Number', () => {
+				should(Ti.Media).have.a.constant('IMAGE_SCALING_ASPECT_FILL').which.is.a.Number();
+			});
+		});
+
+		describe('.IMAGE_SCALING_ASPECT_FIT', () => {
+			it('is a Number', () => {
+				should(Ti.Media).have.a.constant('IMAGE_SCALING_ASPECT_FIT').which.is.a.Number();
+			});
+		});
+
 		describe.ios('.MEDIA_TYPE_LIVEPHOTO', () => {
 			it('is a String', () => {
 				should(Ti.Media).have.a.constant('MEDIA_TYPE_LIVEPHOTO').which.is.a.String();
@@ -1116,18 +1146,6 @@ describe('Titanium.Media', () => {
 		describe('.VIDEO_LOAD_STATE_PLAYABLE', () => {
 			it('is a Number', () => {
 				should(Ti.Media).have.a.constant('VIDEO_LOAD_STATE_PLAYABLE').which.is.a.Number();
-			});
-		});
-
-		describe.android('.VIDEO_LOAD_STATE_PLAYTHROUGH_OK', () => {
-			it('is a Number', () => {
-				should(Ti.Media).have.a.constant('VIDEO_LOAD_STATE_PLAYTHROUGH_OK').which.is.a.Number();
-			});
-		});
-
-		describe.android('.VIDEO_LOAD_STATE_STALLED', () => {
-			it('is a Number', () => {
-				should(Ti.Media).have.a.constant('VIDEO_LOAD_STATE_STALLED').which.is.a.Number();
 			});
 		});
 

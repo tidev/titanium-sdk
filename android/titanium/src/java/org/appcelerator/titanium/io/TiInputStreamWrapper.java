@@ -81,7 +81,7 @@ public class TiInputStreamWrapper extends InputStream
 	 * reposition the stream back to the given marked position.
 	 * <p>
 	 * This method does nothing if the stream's markSupported() method returns false.
-	 * @param The maximum number of bytes that can be read before the mark position becomes invalid.
+	 * @param readLimit The maximum number of bytes that can be read before the mark position becomes invalid.
 	 */
 	@Override
 	public void mark(int readLimit)

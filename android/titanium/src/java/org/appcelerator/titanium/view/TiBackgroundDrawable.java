@@ -26,7 +26,6 @@ import android.util.AttributeSet;
 
 public class TiBackgroundDrawable extends StateListDrawable
 {
-
 	private Drawable background;
 	private RectF innerRect;
 	private static final int NOT_SET = -1;

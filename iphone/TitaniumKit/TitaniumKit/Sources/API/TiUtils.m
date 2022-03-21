@@ -394,10 +394,19 @@ static NSDictionary *sizeMap = nil;
 {
   if ([value isKindOfClass:[NSDictionary class]]) {
     NSDictionary *dict = (NSDictionary *)value;
-    CGFloat t = [TiUtils floatValue:@"top" properties:dict def:0];
-    CGFloat l = [TiUtils floatValue:@"left" properties:dict def:0];
-    CGFloat b = [TiUtils floatValue:@"bottom" properties:dict def:0];
-    CGFloat r = [TiUtils floatValue:@"right" properties:dict def:0];
+
+    TiDimension tDimension = [self dimensionValue:@"top" properties:dict];
+    CGFloat t = tDimension.value;
+
+    TiDimension lDimension = [self dimensionValue:@"left" properties:dict];
+    CGFloat l = lDimension.value;
+
+    TiDimension bDimension = [self dimensionValue:@"bottom" properties:dict];
+    CGFloat b = bDimension.value;
+
+    TiDimension rDimension = [self dimensionValue:@"right" properties:dict];
+    CGFloat r = rDimension.value;
+
     return UIEdgeInsetsMake(t, l, b, r);
   }
   return UIEdgeInsetsMake(0, 0, 0, 0);
@@ -407,10 +416,19 @@ static NSDictionary *sizeMap = nil;
 {
   if ([value isKindOfClass:[NSDictionary class]]) {
     NSDictionary *dict = (NSDictionary *)value;
-    CGFloat x = [TiUtils floatValue:@"x" properties:dict def:0];
-    CGFloat y = [TiUtils floatValue:@"y" properties:dict def:0];
-    CGFloat w = [TiUtils floatValue:@"width" properties:dict def:0];
-    CGFloat h = [TiUtils floatValue:@"height" properties:dict def:0];
+
+    TiDimension xDimension = [self dimensionValue:@"x" properties:dict];
+    CGFloat x = xDimension.value;
+
+    TiDimension yDimension = [self dimensionValue:@"y" properties:dict];
+    CGFloat y = yDimension.value;
+
+    TiDimension wDimension = [self dimensionValue:@"width" properties:dict];
+    CGFloat w = wDimension.value;
+
+    TiDimension hDimension = [self dimensionValue:@"height" properties:dict];
+    CGFloat h = hDimension.value;
+
     return CGRectMake(x, y, w, h);
   }
   return CGRectMake(0, 0, 0, 0);
@@ -418,13 +436,7 @@ static NSDictionary *sizeMap = nil;
 
 + (CGPoint)pointValue:(id)value
 {
-  if ([value isKindOfClass:[TiPoint class]]) {
-    return [value point];
-  }
-  if ([value isKindOfClass:[NSDictionary class]]) {
-    return CGPointMake([[value objectForKey:@"x"] floatValue], [[value objectForKey:@"y"] floatValue]);
-  }
-  return CGPointMake(0, 0);
+  return [self pointValue:value valid:NULL];
 }
 
 + (CGPoint)pointValue:(id)value valid:(BOOL *)isValid
@@ -534,14 +546,23 @@ static NSDictionary *sizeMap = nil;
 
   id offset = [value objectForKey:@"offset"];
   if (offset != nil && [offset isKindOfClass:[NSDictionary class]]) {
-    id w = [offset objectForKey:@"width"];
-    id h = [offset objectForKey:@"height"];
-    [shadow setShadowOffset:CGSizeMake([TiUtils floatValue:w def:0], [TiUtils floatValue:h def:0])];
+    NSDictionary *dict = (NSDictionary *)offset;
+
+    TiDimension wDimension = [self dimensionValue:@"width" properties:dict];
+    CGFloat w = wDimension.value;
+
+    TiDimension hDimension = [self dimensionValue:@"height" properties:dict];
+    CGFloat h = hDimension.value;
+
+    [shadow setShadowOffset:CGSizeMake(w, h)];
   }
+
   id blurRadius = [value objectForKey:@"blurRadius"];
-  if (blurRadius != nil) {
-    [shadow setShadowBlurRadius:[TiUtils floatValue:blurRadius def:0]];
+  TiDimension blurRadiusDimension = [self dimensionValue:blurRadius];
+  if (!TiDimensionIsUndefined(blurRadiusDimension)) {
+    [shadow setShadowBlurRadius:blurRadiusDimension.value];
   }
+
   id color = [value objectForKey:@"color"];
   if (color != nil) {
     [shadow setShadowColor:[[TiUtils colorValue:color] _color]];
@@ -788,7 +809,7 @@ static NSDictionary *sizeMap = nil;
   UIImage *tintedImage = UIGraphicsGetImageFromCurrentImageContext();
   UIGraphicsEndImageContext();
 
-  return tintedImage;
+  return [tintedImage imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal];
 }
 
 + (NSURL *)checkFor2XImage:(NSURL *)url
@@ -1340,8 +1361,10 @@ If the new path starts with / and the base url is app://..., we have to massage 
   if ([error hasProperty:@"stack"]) {
     [errorDict setObject:[error[@"stack"] toString] forKey:@"stack"];
   }
-  if ([error hasProperty:@"nativeStack"]) {
-    [errorDict setObject:[error[@"nativeStack"] toString] forKey:@"nativeStack"];
+  if ([error hasProperty:@"nativeStack"] && error[@"nativeStack"].isString) {
+    NSString *callStack = error[@"nativeStack"].toString;
+    NSArray<NSString *> *nativeStack = [callStack componentsSeparatedByCharactersInSet:NSCharacterSet.newlineCharacterSet];
+    [errorDict setObject:nativeStack forKey:@"nativeStack"];
   }
 
   return [[[TiScriptError alloc] initWithDictionary:errorDict] autorelease];
@@ -2282,6 +2305,29 @@ If the new path starts with / and the base url is app://..., we have to massage 
     isHyperloopAvailable = cls != nil;
   });
   return isHyperloopAvailable;
+}
+
++ (UIImageSymbolWeight)symbolWeightFromString:(NSString *)string
+{
+  if ([string isEqualToString:@"ultralight"]) {
+    return UIImageSymbolWeightUltraLight;
+  } else if ([string isEqualToString:@"light"]) {
+    return UIImageSymbolWeightLight;
+  } else if ([string isEqualToString:@"thin"]) {
+    return UIImageSymbolWeightThin;
+  } else if ([string isEqualToString:@"normal"]) {
+    return UIImageSymbolWeightRegular;
+  } else if ([string isEqualToString:@"semibold"]) {
+    return UIImageSymbolWeightSemibold;
+  } else if ([string isEqualToString:@"bold"]) {
+    return UIImageSymbolWeightBold;
+  } else if ([string isEqualToString:@"heavy"]) {
+    return UIImageSymbolWeightHeavy;
+  } else if ([string isEqualToString:@"black"]) {
+    return UIImageSymbolWeightBlack;
+  }
+
+  return UIImageSymbolWeightRegular;
 }
 
 @end

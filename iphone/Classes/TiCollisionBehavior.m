@@ -307,15 +307,17 @@
 - (void)collisionBehavior:(UICollisionBehavior *)behavior beganContactForItem:(id<UIDynamicItem>)item1 withItem:(id<UIDynamicItem>)item2 atPoint:(CGPoint)p
 {
   if ([self _hasListeners:@"itemcollision"]) {
-    NSDictionary *theEvent = [[[NSDictionary dictionaryWithObjectsAndKeys:[(TiUIView *)item1 proxy], @"item1", [(TiUIView *)item2 proxy], @"item2", [TiUtils pointToDictionary:p], @"point", NUMBOOL(YES), @"start", nil] retain] autorelease];
+    NSDictionary *theEvent = [[NSDictionary alloc] initWithObjectsAndKeys:[(TiUIView *)item1 proxy], @"item1", [(TiUIView *)item2 proxy], @"item2", [TiUtils pointToDictionary:p], @"point", NUMBOOL(YES), @"start", nil];
     [self fireEvent:@"itemcollision" withObject:theEvent propagate:NO reportSuccess:NO errorCode:0 message:nil];
+    [theEvent release];
   }
 }
 - (void)collisionBehavior:(UICollisionBehavior *)behavior endedContactForItem:(id<UIDynamicItem>)item1 withItem:(id<UIDynamicItem>)item2
 {
   if ([self _hasListeners:@"itemcollision"]) {
-    NSDictionary *theEvent = [[[NSDictionary dictionaryWithObjectsAndKeys:[(TiUIView *)item1 proxy], @"item1", [(TiUIView *)item2 proxy], @"item2", NUMBOOL(NO), @"start", nil] retain] autorelease];
+    NSDictionary *theEvent = [[NSDictionary alloc] initWithObjectsAndKeys:[(TiUIView *)item1 proxy], @"item1", [(TiUIView *)item2 proxy], @"item2", NUMBOOL(NO), @"start", nil];
     [self fireEvent:@"itemcollision" withObject:theEvent propagate:NO reportSuccess:NO errorCode:0 message:nil];
+    [theEvent release];
   }
 }
 
@@ -326,8 +328,9 @@
     if (identifier == nil) {
       identifier = [NSNull null];
     }
-    NSDictionary *theEvent = [[[NSDictionary dictionaryWithObjectsAndKeys:[(TiUIView *)item proxy], @"item", identifier, @"identifier", [TiUtils pointToDictionary:p], @"point", NUMBOOL(YES), @"start", nil] retain] autorelease];
+    NSDictionary *theEvent = [[NSDictionary alloc] initWithObjectsAndKeys:[(TiUIView *)item proxy], @"item", identifier, @"identifier", [TiUtils pointToDictionary:p], @"point", NUMBOOL(YES), @"start", nil];
     [self fireEvent:@"boundarycollision" withObject:theEvent propagate:NO reportSuccess:NO errorCode:0 message:nil];
+    [theEvent release];
   }
 }
 - (void)collisionBehavior:(UICollisionBehavior *)behavior endedContactForItem:(id<UIDynamicItem>)item withBoundaryIdentifier:(id<NSCopying>)identifier
@@ -336,8 +339,9 @@
     if (identifier == nil) {
       identifier = [NSNull null];
     }
-    NSDictionary *theEvent = [[[NSDictionary dictionaryWithObjectsAndKeys:[(TiUIView *)item proxy], @"item", identifier, @"identifier", NUMBOOL(NO), @"start", nil] retain] autorelease];
+    NSDictionary *theEvent = [[NSDictionary alloc] initWithObjectsAndKeys:[(TiUIView *)item proxy], @"item", identifier, @"identifier", NUMBOOL(NO), @"start", nil];
     [self fireEvent:@"boundarycollision" withObject:theEvent propagate:NO reportSuccess:NO errorCode:0 message:nil];
+    [theEvent release];
   }
 }
 

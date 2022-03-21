@@ -58,28 +58,41 @@ public class TiFileHelper
 	private static HashSet<String> resourcePathCache;
 	private static HashSet<String> foundResourcePathCache;
 	private static HashSet<String> notFoundResourcePathCache;
-	private static TiFileHelper _instance = null;
+
+	private static class InstanceHolder
+	{
+		private static final TiFileHelper INSTANCE = new TiFileHelper(TiApplication.getInstance());
+	}
+
+	/**
+	 * Creates or retrieves the TiFileHelper instance.
+	 * @return the TiFileHelper instance.
+	 */
+	public static TiFileHelper getInstance()
+	{
+		return InstanceHolder.INSTANCE;
+	}
 
 	public TiFileHelper(Context context)
 	{
-		softContext = new SoftReference<Context>(context);
+		softContext = new SoftReference<>(context);
 		this.nph = new TiNinePatchHelper();
 		if (resourcePathCache == null) {
-			resourcePathCache = new HashSet<String>();
-			foundResourcePathCache = new HashSet<String>();
-			notFoundResourcePathCache = new HashSet<String>();
+			resourcePathCache = new HashSet<>();
+			foundResourcePathCache = new HashSet<>();
+			notFoundResourcePathCache = new HashSet<>();
 		}
 
 		if (resourcePathCache == null) {
-			resourcePathCache = new HashSet<String>();
-			foundResourcePathCache = new HashSet<String>();
-			notFoundResourcePathCache = new HashSet<String>();
+			resourcePathCache = new HashSet<>();
+			foundResourcePathCache = new HashSet<>();
+			notFoundResourcePathCache = new HashSet<>();
 		}
 
 		synchronized (TI_DIR)
 		{
 			if (systemIcons == null) {
-				systemIcons = new HashMap<String, Integer>();
+				systemIcons = new HashMap<>();
 				systemIcons.put("ic_menu_camera", android.R.drawable.ic_menu_camera);
 				//systemIcons.put("ic_menu_compose", android.R.drawable.ic_menu_compose);
 				systemIcons.put("ic_menu_search", android.R.drawable.ic_menu_search);
@@ -110,18 +123,6 @@ public class TiFileHelper
 				systemIcons.put("ic_menu_zoom", android.R.drawable.ic_menu_zoom);
 			}
 		}
-	}
-
-	/**
-	 * Creates or retrieves the TiFileHelper instance.
-	 * @return the TiFileHelper instance.
-	 */
-	public static TiFileHelper getInstance()
-	{
-		if (_instance == null) {
-			_instance = new TiFileHelper(TiApplication.getInstance());
-		}
-		return _instance;
 	}
 
 	public InputStream openInputStream(String path, boolean report) throws IOException
@@ -402,7 +403,7 @@ public class TiFileHelper
 	{
 		Context ctx = softContext.get();
 		if (ctx != null) {
-			ArrayList<String> paths = new ArrayList<String>();
+			ArrayList<String> paths = new ArrayList<>();
 			AssetManager am = ctx.getAssets();
 			walkAssets(am, "", paths);
 
@@ -696,9 +697,7 @@ public class TiFileHelper
 			String name = ze.getName();
 			zis.closeEntry();
 
-			if (name.startsWith(MACOSX_PREFIX)) {
-				continue;
-			} else {
+			if (!name.startsWith(MACOSX_PREFIX)) {
 				if (name.indexOf("tiapp.xml") > -1) {
 					String[] segments = name.split("\\/");
 					if (segments.length == 2) {
