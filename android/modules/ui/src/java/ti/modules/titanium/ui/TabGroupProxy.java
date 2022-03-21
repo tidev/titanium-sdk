@@ -397,14 +397,14 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		// Finish open handling by loading proxy settings.
 		handlePostOpen();
 
-		TiUIAbstractTabGroup tg = (TiUIAbstractTabGroup) view;
 		if (autoTabTitle) {
 			// expand title to fix truncated title
-			tg.updateTitle(tabs.get(0).getProperty(TiC.PROPERTY_TITLE).toString() + " "
+			TiUIAbstractTabGroup tabGroup = (TiUIAbstractTabGroup) view;
+			tabGroup.updateTitle(tabs.get(0).getProperty(TiC.PROPERTY_TITLE).toString() + " "
 				+ tabs.get(0).getProperty(TiC.PROPERTY_TITLE).toString());
 
 			// clear it again
-			tg.updateTitle("");
+			tabGroup.updateTitle("");
 		}
 		super.onWindowActivityCreated();
 	}
@@ -419,10 +419,10 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		}
 
 		// Load any tabs added before the tab group opened.
-		TiUIAbstractTabGroup tg = (TiUIAbstractTabGroup) view;
+		TiUIAbstractTabGroup tabGroup = (TiUIAbstractTabGroup) view;
 		for (TabProxy tab : tabs) {
 			if (tab != null) {
-				tg.addTab(tab);
+				tabGroup.addTab(tab);
 			}
 		}
 
@@ -430,7 +430,7 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		// then we need to invoke onTabSelected so focus/blur event fire appropriately
 		TabProxy tab = getActiveTabProxy();
 		if (tab != null) {
-			tg.selectTab(tab);
+			tabGroup.selectTab(tab);
 			selectedTab = tab;
 		}
 
