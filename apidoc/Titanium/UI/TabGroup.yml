@@ -324,6 +324,13 @@ properties:
     default: true
     platforms: [iphone, ipad, macos]
 
+  - name: autoTabTitle
+    summary: If set to `true` it will automatically set the actionbar title to the current tabs window title.
+    type: Boolean
+    default: false
+    since: 10.2.0
+    platforms: [android]
+
   - name: barColor
     summary: |
         Default navigation bar color (typically for the **More** tab), as a color name or hex triplet.
