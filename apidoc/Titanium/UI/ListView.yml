@@ -27,7 +27,7 @@ description: |
     ```
 
     For more instructions and examples of using `ListView`, refer to the
-    [ListViews guide](https://docs.appcelerator.com/platform/latest/#!/guide/ListViews).
+    [ListViews guide](https://titaniumsdk.com/guide/Titanium_SDK/Titanium_SDK_How-tos/User_Interface_Deep_Dives/ListViews/).
 
     #### Creating a List
 
@@ -758,6 +758,8 @@ properties:
     description: |
         Height of the ListView separator, in platform-specific units. If undefined, default native height will be used.
         Numerical inputs are treated as pixels. For example, 3 and "3px" are equivalent.
+        On Android API < 23 you must specify <Titanium.UI.ListView.separatorStyle> and
+        <Titanium.UI.ListView.separatorColor> for this property to work.
     type: [String, Number]
     since: "4.1.0"
     platforms: [android]
@@ -1367,8 +1369,8 @@ examples:
             {properties: { title: 'Carrots'}},
             {properties: { title: 'Potatoes'}},
         ];
-        sections.push(vegSection);
         var vegSection = Ti.UI.createListSection({ headerTitle: 'Vegetables', items: vegDataSet});
+        sections.push(vegSection);
 
         listView.sections = sections;
         win.add(listView);
@@ -1459,7 +1461,7 @@ examples:
         win.open();
         ```
 
-  - title: List View with a pullView 
+  - title: List View with a pullView
     example: |
         This sample shows how the [pullView](Titanium.UI.ListView.pullView) property could be
         utilized along with the [pull](Titanium.UI.ListView.pull) and [pullend](Titanium.UI.ListView.pullend) events to
@@ -1482,7 +1484,7 @@ examples:
             {properties: { title: 'Potatoes'}},
         ];
         var vegSection = Ti.UI.createListSection({ headerTitle: 'Vegetables', items: vegDataSet});
-        
+
         var fishDataSet = [
             {properties: { title: 'Cod'}},
             {properties: { title: 'Haddock'}},
