@@ -21,6 +21,10 @@
 #import "TiUIShortcutProxy.h"
 #endif
 
+#if defined(USE_TI_UITABLEVIEWSCROLLPOSITION) || defined(USE_TI_UILISTVIEWSCROLLPOSITION)
+#import "TiUITableViewScrollPositionProxy.h"
+#endif
+
 @interface UIModule : TiModule {
 
   @private
@@ -303,6 +307,11 @@
 
 #if defined(USE_TI_UISHORTCUT) || defined(USE_TI_UISHORTCUTITEM)
 @property (nonatomic, readonly) TiUIShortcutProxy *Shortcut;
+#endif
+
+#if defined(USE_TI_UITABLEVIEWSCROLLPOSITION) || defined(USE_TI_UILISTVIEWSCROLLPOSITION)
+@property (nonatomic, readwrite, assign) TiUITableViewScrollPositionProxy *TableViewScrollPosition;
+@property (nonatomic, readwrite, assign) TiUITableViewScrollPositionProxy *ListViewScrollPosition;
 #endif
 
 @end
