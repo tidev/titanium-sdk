@@ -185,6 +185,12 @@
   THROW_IF_HANDLE_NIL(CODELOCATION);
 
   if (length == 0) {
+    if (callback != nil) {
+      NSMutableDictionary *event = [TiUtils dictionaryWithCode:0 message:nil];
+      [event setObject:self forKey:@"source"];
+      [event setObject:NUMUINTEGER(0) forKey:@"bytesProcessed"];
+      [self _fireEventToListener:@"write" withObject:event listener:callback thisObject:nil];
+    }
     return 0; // NO-OP
   }
 

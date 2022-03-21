@@ -10,12 +10,10 @@ description: |
     that the methods `appendChild`, `insertBefore`, `removeChild`, and
     `replaceChild` only work on `Element` objects. If one of these methods is called on
     another type of node, it throws an exception.
-
 createable: false
-platforms: [android, iphone, ipad]
-
+since: {android: "0.9", iphone: "0.9", ipad: "0.9", macos: "9.2.0"}
+platforms: [android, iphone, ipad, macos]
 properties:
-
   - name: ELEMENT_NODE
     summary: |
         Used with [nodeType](Titanium.XML.Node.nodeType) to identify an
@@ -143,7 +141,7 @@ properties:
         [Text](Titanium.XML.Text) nodes only.
     type: String
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     accessors: false
 
   - name: text
@@ -154,7 +152,7 @@ properties:
         Content (value) of all text nodes within this node.
     type: String
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     accessors: false
 
   - name: nodeType
@@ -244,7 +242,6 @@ properties:
     accessors: false
 
 methods:
-
   - name: appendChild
     summary: Appends the node `newChild` as a child of this node.
     description: |

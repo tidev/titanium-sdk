@@ -29,6 +29,7 @@ import android.app.Activity;
 		TiC.PROPERTY_COLOR,
 		TiC.PROPERTY_EDITABLE,
 		TiC.PROPERTY_ELLIPSIZE,
+		TiC.PROPERTY_ENABLE_COPY,
 		TiC.PROPERTY_ENABLE_RETURN_KEY,
 		TiC.PROPERTY_FONT,
 		TiC.PROPERTY_FULLSCREEN,
@@ -53,6 +54,7 @@ public class TextFieldProxy extends TiViewProxy
 		super();
 		defaultValues.put(TiC.PROPERTY_VALUE, "");
 		defaultValues.put(TiC.PROPERTY_MAX_LENGTH, -1);
+		defaultValues.put(TiC.PROPERTY_ENABLE_COPY, true);
 		defaultValues.put(TiC.PROPERTY_FULLSCREEN, true);
 		defaultValues.put(TiC.PROPERTY_HINT_TYPE, UIModule.HINT_TYPE_STATIC);
 	}
@@ -93,7 +95,6 @@ public class TextFieldProxy extends TiViewProxy
 		}
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public KrollDict getSelection()
 	{
@@ -108,5 +109,15 @@ public class TextFieldProxy extends TiViewProxy
 	public String getApiName()
 	{
 		return "Ti.UI.TextField";
+	}
+
+	@Kroll.getProperty(name = "focused")
+	public boolean isFocused()
+	{
+		TiUIView v = peekView();
+		if (v != null) {
+			return v.isFocused();
+		}
+		return false;
 	}
 }

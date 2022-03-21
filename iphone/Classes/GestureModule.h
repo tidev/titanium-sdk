@@ -6,18 +6,18 @@
  */
 #ifdef USE_TI_GESTURE
 #import <JavaScriptCore/JavaScriptCore.h>
-#import <TitaniumKit/ObjcProxy.h>
+#import <TitaniumKit/ObjcModule.h>
 
 @protocol GestureExports <JSExport>
 
 // Properties (and accessors)
-READONLY_PROPERTY(BOOL, landscape, Landscape);
+READONLY_PROPERTY(bool, landscape, Landscape);
 READONLY_PROPERTY(NSNumber *, orientation, Orientation);
-READONLY_PROPERTY(BOOL, portrait, Portrait);
+READONLY_PROPERTY(bool, portrait, Portrait);
 
 @end
 
-@interface GestureModule : ObjcProxy <GestureExports> {
+@interface GestureModule : ObjcModule <GestureExports> {
   NSTimeInterval lastShakeTime;
 }
 

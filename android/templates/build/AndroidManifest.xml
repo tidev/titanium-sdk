@@ -4,18 +4,38 @@
 	package="<%- packageName %>"
 	android:versionCode="1">
 
+<% if (usesPermissions) { for (const nextPermission of usesPermissions) { %>
+<% if ((nextPermission === 'android.permission.WRITE_EXTERNAL_STORAGE') && storagePermissionMaxSdkVersion) { %>
+	<uses-permission android:name="<%- nextPermission %>" android:maxSdkVersion="<%- storagePermissionMaxSdkVersion %>"/>
+<% } else { %>
+	<uses-permission android:name="<%- nextPermission %>"/>
+<% } %>
+<% } } %>
+
+<% if (queries && (Object.keys(queries).length > 0)) { %>
+	<queries>
+<% if (queries.sendEmail) { %>
+		<intent>
+			<action android:name="android.intent.action.SEND"/>
+			<data android:mimeType="message/rfc822"/>
+		</intent>
+<% } %>
+	</queries>
+<% } %>
+
 	<application
 		android:icon="<%- appIcon %>"
 		android:label="<%- appLabel %>"
 		android:name="<%- classname %>Application"
 		android:usesCleartextTraffic="true"
-		android:theme="<%- appTheme %>">
+		android:theme="@style/Theme.Titanium.App">
 
 		<activity
 			android:name=".<%- classname %>Activity"
 			android:configChanges="${tiActivityConfigChanges}"
 			android:label="@string/app_name"
 			android:theme="@style/Theme.Titanium"
+			android:exported="true"
 			android:alwaysRetainTaskState="true">
 			<intent-filter>
 				<action android:name="android.intent.action.MAIN" />
@@ -23,7 +43,7 @@
 			</intent-filter>
 		</activity>
 
-<% if (appChildXmlLines) { for (let nextLine of appChildXmlLines) { %>
+<% if (appChildXmlLines) { for (const nextLine of appChildXmlLines) { %>
 		<%- nextLine %>
 <% } } %>
 

@@ -1,20 +1,18 @@
-<p align="center"><a href="https://appcelerator.com" target="_blank"><img width="120" src=".github/logo-titanium.png"></a></p>
+<p align="center"><a href="https://titaniumsdk.com" target="_blank"><img width="120" src=".github/logo-titanium.png"></a></p>
 
 <h1 align="center">Titanium <a href="https://jenkins.appcelerator.org/job/titanium-sdk/job/titanium_mobile/job/master/" target="_blank"><img src="https://jenkins.appcelerator.org/buildStatus/icon?job=titanium-sdk/titanium_mobile/master" /></a></h1>
 
 Welcome to the Titanium open source project. Titanium provides a mature platform for developers to build
 completely native cross-platform mobile applications using JavaScript.
 
-Currently supported native platforms are iOS, Android and Windows Phone / Windows Desktop.
+Currently supported native platforms are iOS and Android.
 
 Titanium is licensed under the OSI approved Apache Public License (version 2). Please
-see the LICENSE file for specific details.
+see the [LICENSE](LICENSE) file for specific details.
 
 *[Download Pre-built Titanium](http://builds.appcelerator.com/#master)*
 
 # Table of Contents
-
-[![Greenkeeper badge](https://badges.greenkeeper.io/appcelerator/titanium_mobile.svg)](https://greenkeeper.io/)
 
 - [Table of Contents](#table-of-contents)
   - [Features](#features)
@@ -43,9 +41,6 @@ see the LICENSE file for specific details.
     - [Unit tests](#unit-tests)
       - [How it works](#how-it-works)
       - [How to modify the tests locally and in your PRs](#how-to-modify-the-tests-locally-and-in-your-prs)
-        - [Adding a new test suite](#adding-a-new-test-suite)
-        - [Editing an existing test suite](#editing-an-existing-test-suite)
-        - [Merging the modified tests back to the common suite](#merging-the-modified-tests-back-to-the-common-suite)
   - [Legal Stuff](#legal-stuff)
 
 ## Features
@@ -80,12 +75,12 @@ your application code into an efficient native executable for each target mobile
 - [x] Support for Web Views incorporating HTML5, CSS etc.
 - [x] Completely extensible via Module API and Hyperloop for building your own controls or extending capabilities
 
-And much, much more (see our [Documentation](http://docs.appcelerator.com/platform/latest/#!/api/Titanium) for more infos).
+And much, much more (see our [Documentation](https://titaniumsdk.com/) for more infos).
 
 ## Hyperloop
 
 Use Hyperloop, our latest addition to the Appcelerator Platform, to extend your Titanium apps by native API's using
-JavaScript. Prior to Hyperloop, you would use [native modules](http://docs.appcelerator.com/platform/latest/#!/guide/Titanium_Module_Concepts) to extend the Titanium API. With
+JavaScript. Prior to Hyperloop, you would use [native modules](https://titaniumsdk.com/guide/Titanium_SDK/Titanium_SDK_How-tos/Extending_Titanium_Mobile/Titanium_Module_Concepts.html) to extend the Titanium API. With
 Hyperloop, you are now able to implement native classes, 3rd-Party libraries (Cocoapods, local frameworks, .aar files)
 and more directly into your apps. Hyperloop is available for iOS, Android and Windows Phone (Tech Preview).
 
@@ -117,7 +112,7 @@ Mobile app development for every major mobile OS – with no hybrid compromises.
 
 ### Example
 
-Create a native view in iOS, Android and Windows Phone:
+Create a native view in iOS and Android:
 
 ```js
 // iOS
@@ -125,18 +120,15 @@ var view = new UIView();
 
 // Android
 var view = new View(activity);
-
-// Windows Phone
-var view = new Canvas();
 ```
 
 ### Getting Started
 
-Check out our [Hyperloop Sample App](https://github.com/appcelerator/hyperloop-examples) and [Hyperloop Programming Guide](http://docs.appcelerator.com/platform/latest/#!/guide/Hyperloop) to get started with Hyperloop today!
+Check out our [Hyperloop Sample App](https://github.com/appcelerator/hyperloop-examples) and [Hyperloop Programming Guide](https://titaniumsdk.com/guide/Titanium_SDK/Titanium_SDK_Guide/Hyperloop/) to get started with Hyperloop today!
 
 ## Alloy
 
-[Alloy](http://docs.appcelerator.com/platform/latest/#!/guide/Alloy_Getting_Started) is the MVC application framework built
+[Alloy](https://titaniumsdk.com/guide/Alloy_Framework/Alloy_Getting_Started.html) is the MVC application framework built
 on top of Titanium. It is optional. It rocks. Check it out if you're considering using Titanium.
 It is also a separate [open source project](https://github.com/appcelerator/alloy) available under Apache Public License.
 
@@ -145,6 +137,7 @@ It is also a separate [open source project](https://github.com/appcelerator/allo
 Manage your application scope by separating your code into different models, views, controllers and more:
 
 **index.xml** (View)
+
 ```xml
 <Alloy>
   <Window title="Titanium and Alloy">
@@ -154,6 +147,7 @@ Manage your application scope by separating your code into different models, vie
 ```
 
 **index.js** (Controller)
+
 ```js
 function handleClick() {
   alert('Hello from the Controller!');
@@ -161,6 +155,7 @@ function handleClick() {
 ```
 
 **index.tss** (Style)
+
 ```js
 Window: {
   backgroundColor: 'white'
@@ -179,18 +174,9 @@ There are a number of ways to get help with Titanium.
 
 ### Official Documentation, Tutorials and Videos
 
-Please visit the official documentation site at [http://docs.appcelerator.com/](http://docs.appcelerator.com/) for the latest and historical documentation on Titanium, Alloy and the various products built by Appcelerator.
+Please visit the official documentation site at [https://titaniumsdk.com/](https://titaniumsdk.com/) for the latest and historical documentation on Titanium, Alloy and the various products built by Appcelerator.
 
-### Developer Community
-
-[Appcelerator Developer](https://developer.axway.com/) is our developer community.
-
-### Video Tutorials
-
-[Appcelerator University](http://university.appcelerator.com/) is our main video channel
-for video tutorials on Titanium.
-
-### Slack
+### Slack / Developer Community
 
 Community support and discussion about Titanium is available on Slack at [TiSlack](http://www.tislack.org).
 
@@ -198,16 +184,12 @@ Community support and discussion about Titanium is available on Slack at [TiSlac
 
 Please consider following [@Appcelerator](http://www.twitter.com/appcelerator) and [@AppcDev](https://twitter.com/AppcDev) on Twitter for updates.
 
-### Blog
-
-The Appcelerator blog is located at (http://www.appcelerator.com/blog).
-
 ### Commercial Support, Licensing
 
 We give our software away for FREE! In order to do that, we have programs for
 companies that require additional level of assistance through training or commercial support,
 need special licensing or want additional levels of capabilities. Please visit the
-[Appcelerator Website](http://www.appcelerator.com) for more information about Appcelerator or
+[Appcelerator Website](http://www.titaniumsdk.com) for more information about Appcelerator or
 email [info@appcelerator.com](mailto:info@appcelerator.com).
 
 ## Contributing
@@ -217,7 +199,6 @@ Titanium is an open source project.  Titanium wouldn't be where it is now withou
 To protect the interests of the Titanium contributors, Appcelerator, customers and end users we require contributors to sign a Contributors License Agreement (CLA) before we pull the changes into the main repository. Our CLA is simple and straightforward - it requires that the contributions you make to any Appcelerator open source project are properly licensed and that you have the legal authority to make those changes. This helps us significantly reduce future legal risk for everyone involved. It is easy, helps everyone, takes only a few minutes, and only needs to be completed once.
 
 [You can digitally sign the CLA](http://cla.appcelerator.com) online. Please indicate your email address in your first pull request so that we can make sure that will locate your CLA.  Once you've submitted it, you no longer need to send one for subsequent submissions.
-
 
 ## Building Locally
 
@@ -232,18 +213,18 @@ npm run cleanbuild
 The build and package commands will default to all target platforms on your host OS unless explicitly specified. (i.e. Android, iOS on macOS; Windows and Android on Windows). It will compile, package and install the locally-built SDK for you
 as well, so you can test it in your own applications without any further procedures.
 
-The build command will look for Android NDK and SDK using $ANDROID_NDK and $ANDROID_SDK env variables if not explicitly passed using command line arguments.
+The build command will look for the Android SDK directory path via the $ANDROID_SDK env variables if not explicitly passed using command line arguments.
 
 You can use the `-h` flag to display the full list of comands and options.
 
 ```bash
 npm ci
-npm run cleanbuild -- [platform1] [platform2] --android-ndk /opt/android-ndk --android-sdk /opt/android-sdk /Users/build/android-sdk-macosx
+npm run cleanbuild -- [platform1] [platform2] --android-sdk /opt/android-sdk /Users/build/android-sdk-macosx
 ```
 
 ### Unit tests
 
-We have a [common unit test suite](https://github.com/appcelerator/titanium-mobile-mocha-suite) intended to run across all supported platforms.
+We have a [unit test suite](tests/) intended to run across all supported platforms.
 
 We have npm scripts set up to run a full clean, build, package, symlinked install, `ti sdk select` the built sdk, and then run the unit test suite:
 
@@ -255,31 +236,13 @@ npm run test:ipad
 
 #### How it works
 
-The common test suite generates a single titaniun project targeting the specified platform, builds the project for emulator, launches the app on the emulator and then runs a series of tests defined via ti-mocha and should.js.
+The test suite generates a single Titanium project targeting the specified platform(s), builds the project for emulator, launches the app on the emulator and then runs a series of tests defined via ti-mocha and should.js.
 
 The tests spit out their results to the console log, and the test scripts listen to the logs to gather the results. We then generate an overview on the console as well as a junit report xml file (to be consume by CI build systems like Jenkins).
 
 #### How to modify the tests locally and in your PRs
 
-The `tests` folder acts as an override folder for the common suite. Any files living within that directory are copied on top of the common suite's app structure.
-
-##### Adding a new test suite
-
-We also have a mechanism in our test suite to auto load any files under `tests/Resources` with the suffix `.addontest.js`. So adding new tests, is simply a matter of creating a file named something like `tests/Resources/ti.namespace.addontest.j
-
-
-
-##### Editing an existing test suite
-
-If we want to edit the set of tests for the `Ti.App` namespace, we'd copy the existing test from `titanium-mobile-mocha-suite/Resources/ti.app.test.js` to `tests/Resources/ti.foo.test.js`. We'd then edit the file to add/remove/modify the existing suite.
-
-##### Merging the modified tests back to the common suite
-
-We do not have any automated process for merging the modified tests from the `tests` override folder back to the [common unit test suite](https://github.com/appcelerator/titanium-mobile-mocha-suite).
-
-As a result, we need to manually 'migrate' the modified files back to the suite ourselves. This involves copying the modified folders to a clone of that repository on the same mainline branch (i.e. master, 6_1_X, 7_0_X), committing and pushing it up to the common suite; then removing the files from `titanium_mobile/tests`.
-
-A future improvement could be to modify our Jenkins build in `Jenkinsfile` to automate this merge back to the common suite if all tests run and pass on a mainline branch.
+The `tests` folder contains the test suite. Any files living within that directory are copied on top of the test app's structure.
 
 ## Legal Stuff
 

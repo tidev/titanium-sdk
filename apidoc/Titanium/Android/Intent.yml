@@ -10,7 +10,7 @@ description: |
     To receive an intent, an application needs to declare an Intent Filter. An intent filter
     indicates to the Android OS that your application can handle certain data types or URIs.
     For details on using Intent Filters, see the
-    [Android Intent Filters guide](https://docs.appcelerator.com/platform/latest/#!/guide/Android_Intent_Filters).
+    [Android Intent Filters guide](https://titaniumsdk.com/guide/Titanium_SDK/Titanium_SDK_How-tos/Platform_API_Deep_Dives/Android_API_Deep_Dives/Android_Intent_Filters.html).
 
     Intents can be used to start an activity, start a service or start a broadcast.
 
@@ -101,9 +101,8 @@ description: |
 
     #### Further Reading
 
-      * [Android Intents guide](https://docs.appcelerator.com/platform/latest/#!/guide/Android_Intents)
+      * [Android Intents guide](https://titaniumsdk.com/guide/Titanium_SDK/Titanium_SDK_How-tos/Platform_API_Deep_Dives/Android_API_Deep_Dives/Android_Intent_Filters.html)
       * [Android Developer: Intent](https://developer.android.com/reference/android/content/Intent.html)
-
 
 extends: Titanium.Proxy
 platforms: [android]
@@ -153,6 +152,10 @@ methods:
     summary: Get the Data URI from this `Intent`.
     returns:
         type: String
+    deprecated:
+      since: "10.0.0"
+      removed: "10.0.0"
+      notes: Use the <Titanium.Android.Intent.data> property instead.
 
   - name: getDoubleExtra
     summary: Get a double property from this `Intent`.
@@ -227,23 +230,24 @@ methods:
 
       - name: value
         summary: Property value to set.
-        type: Object
+        type: any
+        # TODO: Declare instead as:
+        # type: [ String, Array<String>, Titanium.Blob, Number, Boolean, Titanium.Android.Intent ]
+        # The code handles these explicitly, but also tries to convert anything else to string
 
   - name: putExtraUri
     summary:
         Put a URI property on this `Intent` (useful for <Titanium.Android.EXTRA_STREAM>).
     parameters:
-
       - name: name
         summary: The property name.
         type: String
 
       - name: value
         summary: The URI, as a string or a string array.
-        type: Object
+        type: [ String, Array<String> ]
 
 properties:
-
   - name: action
     summary: The action associated with this intent.
     description:
@@ -303,32 +307,38 @@ examples:
     example: |
         This example creates an intent and uses it to launch a new activity.
 
-            var intent = Ti.Android.createIntent({
-                action: Ti.Android.ACTION_MAIN,
-                url: 'activity1.js'
-            });
-            intent.addCategory(Ti.Android.CATEGORY_LAUNCHER);
-            Ti.Android.currentActivity.startActivity(intent);
+        ``` js
+        var intent = Ti.Android.createIntent({
+            action: Ti.Android.ACTION_MAIN,
+            url: 'activity1.js'
+        });
+        intent.addCategory(Ti.Android.CATEGORY_LAUNCHER);
+        Ti.Android.currentActivity.startActivity(intent);
+        ```
 
   - title: Create an Intent to get a Contact URI
     example: |
         This example creates an intent to retrieve contact information from the user's
         contacts.
 
-            var intent = Ti.Android.createIntent({
-                action: Ti.Android.ACTION_GET_CONTENT,
-                type: "vnd.android.cursor.item/phone"
-            });
+        ``` js
+        var intent = Ti.Android.createIntent({
+            action: Ti.Android.ACTION_GET_CONTENT,
+            type: "vnd.android.cursor.item/phone"
+        });
+        ```
 
   - title: Pick a Photo from the Photo Gallery
     example: |
         This example creates an intent to pick an image from the photo gallery.
 
-            var intent = Ti.Android.createIntent({
-                action: Ti.Android.ACTION_PICK,
-                type: "image/*"
-            });
-            intent.addCategory(Ti.Android.CATEGORY_DEFAULT);
+        ``` js
+        var intent = Ti.Android.createIntent({
+            action: Ti.Android.ACTION_PICK,
+            type: "image/*"
+        });
+        intent.addCategory(Ti.Android.CATEGORY_DEFAULT);
+        ```
 
   - title: Create an ImageView from an Image Send Intent
     example: |
@@ -336,52 +346,53 @@ examples:
         After copying the default root activity of your application from the `AndroidManifest.xml`
         file to the Android manifest section of the `tiapp.xml` file, add an intent filter.
         For detailed instructions, refer to the
-        [Android Intent Filters guide](https://docs.appcelerator.com/platform/latest/#!/guide/Android_Intent_Filters).
+        [Android Intent Filters guide](https://titaniumsdk.com/guide/Titanium_SDK/Titanium_SDK_How-tos/Platform_API_Deep_Dives/Android_API_Deep_Dives/Android_Intent_Filters.html).
 
         You can trigger this intent filter by long pressing on an image in the Android gallery
         and selecting "share".
 
         `tiapp.xml`:
-
-            <ti:app>
-                <android>
-                    <manifest>
-                        <application>
-                            <activity android:name=".YourapplicationnameActivity">
-                                <intent-filter>
-                                    <data android:mimeType="image/*"/>
-                                    <action android:name="android.intent.action.SEND"/>
-                                    <category android:name="android.intent.category.DEFAULT"/>
-                                </intent-filter>
-                            </activity>
-                        </application>
-                    </manifest>
-                </android>
-            </ti:app>
+        ``` xml
+        <ti:app>
+            <android>
+                <manifest>
+                    <application>
+                        <activity android:name=".YourapplicationnameActivity">
+                            <intent-filter>
+                                <data android:mimeType="image/*"/>
+                                <action android:name="android.intent.action.SEND"/>
+                                <category android:name="android.intent.category.DEFAULT"/>
+                            </intent-filter>
+                        </activity>
+                    </application>
+                </manifest>
+            </android>
+        </ti:app>
+        ```
 
         `app.js`:
-
-             var win = Ti.UI.createWindow({
-                 backgroundColor: '#fff',
-                 fullscreen: false,
-                 exitOnClose: true
-             });
-             win.addEventListener('open', function(e) {
-                 var intent = Ti.Android.currentActivity.getIntent();
-                 var iname = Ti.Android.EXTRA_STREAM;
-                 if (intent && intent.hasExtra(iname)) {
-                     // Create ImageView from TiBlob
-                     var blob = intent.getBlobExtra(iname);
-                     win.add(Ti.UI.createImageView({
-                         image: blob,
-                         height: 300,
-                         width: 300,
-                         left: 0,
-                         top: 0
-                     }));
-                 } else {
-                     Ti.API.info('No extra named "' + iname + '" found in Intent');
-                 }
-             });
-             win.open();
-
+        ``` js
+        var win = Ti.UI.createWindow({
+              backgroundColor: '#fff',
+              fullscreen: false,
+              exitOnClose: true
+          });
+          win.addEventListener('open', function(e) {
+              var intent = Ti.Android.currentActivity.getIntent();
+              var iname = Ti.Android.EXTRA_STREAM;
+              if (intent && intent.hasExtra(iname)) {
+                  // Create ImageView from TiBlob
+                  var blob = intent.getBlobExtra(iname);
+                  win.add(Ti.UI.createImageView({
+                      image: blob,
+                      height: 300,
+                      width: 300,
+                      left: 0,
+                      top: 0
+                  }));
+              } else {
+                  Ti.API.info('No extra named "' + iname + '" found in Intent');
+              }
+          });
+          win.open();
+          ```

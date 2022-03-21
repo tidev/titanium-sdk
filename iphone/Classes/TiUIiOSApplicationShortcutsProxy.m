@@ -9,7 +9,7 @@
 #import "TiUIiOSApplicationShortcutsProxy.h"
 #import <TitaniumKit/TiBlob.h>
 #import <TitaniumKit/TiUtils.h>
-#ifdef USE_TI_CONTACTS
+#if defined(USE_TI_CONTACTS) && !TARGET_OS_MACCATALYST
 #import "TiContactsPerson.h"
 #endif
 #import <CommonCrypto/CommonDigest.h>
@@ -192,7 +192,7 @@
     return nil;
   }
 
-#ifdef USE_TI_CONTACTS
+#if defined(USE_TI_CONTACTS) && !TARGET_OS_MACCATALYST
   if ([value isKindOfClass:[TiContactsPerson class]]) {
     ENSURE_TYPE(value, TiContactsPerson);
     return [UIApplicationShortcutIcon iconWithContact:[(TiContactsPerson *)value nativePerson]];
@@ -213,14 +213,12 @@
     return [UIApplicationShortcutIcon iconWithTemplateImageName:value];
   }
 
-#if IS_SDK_IOS_13
   if ([value isKindOfClass:[TiBlob class]] && [TiUtils isIOSVersionOrGreater:@"13.0"]) {
     TiBlob *blob = (TiBlob *)value;
     if (blob.type == TiBlobTypeSystemImage) {
       return [UIApplicationShortcutIcon iconWithSystemImageName:blob.systemImageName];
     }
   }
-#endif
 
   NSLog(@"[ERROR] Ti.UI.iOS.ApplicationShortcuts: Invalid icon provided, defaulting to use no icon.");
   return nil;

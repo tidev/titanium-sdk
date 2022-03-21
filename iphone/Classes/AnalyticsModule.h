@@ -6,13 +6,13 @@
  */
 
 @import JavaScriptCore;
-@import TitaniumKit.ObjcProxy;
+@import TitaniumKit.ObjcModule;
 
 @protocol AnalyticsExports <JSExport>
 
 // Properties (and accessors)
 READONLY_PROPERTY(NSString *, lastEvent, LastEvent);
-PROPERTY(BOOL, optedOut, OptedOut);
+PROPERTY(bool, optedOut, OptedOut);
 
 // Methods
 JSExportAs(featureEvent,
@@ -29,10 +29,6 @@ JSExportAs(navEvent,
 
 @end
 
-@interface AnalyticsModule : ObjcProxy <AnalyticsExports>
-
-#pragma mark Internal API's
-
-+ (BOOL)isEventFiltered:(NSString *)eventName;
+@interface AnalyticsModule : ObjcModule <AnalyticsExports>
 
 @end

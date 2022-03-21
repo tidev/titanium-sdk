@@ -188,7 +188,6 @@
   return @([[self searchBar] searchBarStyle]);
 }
 
-#if IS_SDK_IOS_13
 - (void)insertTokenAtIndex:(id)params
 {
   ENSURE_ARG_COUNT(params, 2);
@@ -235,7 +234,11 @@
 
   return result;
 }
-#endif
+
+- (NSNumber *)focused
+{
+  return NUMBOOL([[self searchBar] isFirstResponder]);
+}
 
 USE_VIEW_FOR_CONTENT_HEIGHT
 @end

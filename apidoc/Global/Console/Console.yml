@@ -1,5 +1,5 @@
 ---
-name: Console
+name: Global.Console
 summary: Console logging facilities.
 description: |
     The toplevel `console` support is intended to supplement <Titanium.API>
@@ -24,7 +24,7 @@ methods:
     parameters:
       - name: message
         summary: The message(s) to log.
-        type: Object
+        type: any
         repeatable: true
 
   - name: info
@@ -36,7 +36,7 @@ methods:
     parameters:
       - name: message
         summary: The message(s) to log.
-        type: Object
+        type: any
         repeatable: true
 
   - name: warn
@@ -48,7 +48,7 @@ methods:
     parameters:
       - name: message
         summary: The message(s) to log.
-        type: Object
+        type: any
         repeatable: true
             
   - name: error
@@ -60,7 +60,7 @@ methods:
     parameters:
       - name: message
         summary: The message(s) to log.
-        type: Object
+        type: any
         repeatable: true
         
   - name: debug
@@ -72,7 +72,7 @@ methods:
     parameters:
       - name: message
         summary: The message(s) to log.
-        type: Object
+        type: any
         repeatable: true
 
   - name: time
@@ -93,7 +93,7 @@ methods:
   - name: timeEnd
     summary: Stop a timer that was previously started.
     description: |
-          Stop a timer that was started by calling [console.time](Console.time), and
+          Stop a timer that was started by calling [console.time](Global.Console.time), and
           output the time since the timer was begun to the console in milliseconds.
           If no timer exists a warning will be logged to the console.
     parameters:
@@ -108,7 +108,7 @@ methods:
     summary: Log duration taken so far for an operation.
     description: |
           Output the time since a timer was started by calling
-          [console.time](Console.time) to the console, as well as any
+          [console.time](Global.Console.time) to the console, as well as any
           other `data` arguments provided. To log extra data a label must
           be provided. If no timer exists a warning will be logged to the
           console.
@@ -120,7 +120,79 @@ methods:
         default: "default"
       - name: data
         summary: Extra log data to be provided when logging, can be a single argument or any number of arguments.
-        type: Object
+        type: any
         optional: true
         repeatable: true
-    since: 7.5.0
+    since: "7.5.0"
+
+  - name: trace
+    summary: Log a message at the `trace` level.
+    description: |
+        The message to log can either be a single argument, or any number
+        of arguments, which will be converted to strings and then concatenated
+        together with a space character.
+    since: "9.1.0"
+    parameters:
+      - name: message
+        summary: The message(s) to log.
+        type: any
+        repeatable: true
+
+  - name: count
+    summary: Maintains an internal counter specific to `label` and outputs to stdout the number of times `console.count()` has been called with the given `label`.
+    since: "9.1.0"
+    parameters:
+      - name: label
+        summary: The display label for the counter
+        type: String
+        optional: true
+        default: 'default'
+
+  - name: countReset
+    summary: Resets the internal counter specific to `label`.
+    since: "9.1.0"
+    parameters:
+      - name: label
+        summary: The display label for the counter
+        type: String
+        optional: true
+        default: 'default'
+
+  - name: assert
+    summary: A simple assertion test that verifies whether value is truthy. If it is not, Assertion failed is logged. If provided, the error message is formatted using `util.format()` by passing along all message arguments. The output is used as the error message.
+    since: "9.1.0"
+    parameters:
+      - name: value
+        summary: The value tested for being truthy.
+        type: any
+        optional: true
+        default: 'default'
+      - name: message
+        summary: All arguments besides value are used as error message.
+        type: any
+        optional: true
+        repeatable: true
+
+  - name: group
+    summary: Increases indentation of subsequent lines by spaces for `groupIndentation` length.
+    since: "9.1.0"
+    parameters:
+      - name: label
+        summary: Labels to print before indentation (if provided)
+        type: any
+        optional: true
+        repeatable: true
+
+  - name: groupCollapsed
+    summary: Alias for `group()`
+    since: "9.1.0"
+    parameters:
+      - name: label
+        summary: Labels to print before indentation (if provided)
+        type: any
+        optional: true
+        repeatable: true
+
+  - name: groupEnd
+    summary: Decreases indentation of subsequent lines by spaces for `groupIndentation` length.
+    since: "9.1.0"

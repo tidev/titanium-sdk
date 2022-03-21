@@ -10,10 +10,16 @@
 
 @interface TiUITextViewImpl : UITextView {
   @private
+  BOOL enableCopy;
   TiUIView *touchHandler;
   UIView *touchedContentView;
 }
+
+@property (nonatomic, readwrite, assign) BOOL enableCopy;
+
 - (void)setTouchHandler:(TiUIView *)handler;
+- (NSComparisonResult)comparePosition:(UITextPosition *)position toPosition:(UITextPosition *)other;
+
 @end
 
 @interface TiUITextArea : TiUITextWidget <UITextViewDelegate> {

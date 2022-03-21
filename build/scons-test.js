@@ -6,16 +6,15 @@ const version = require('../package.json').version;
 program
 	.option('-C, --device-id [id]', 'Titanium device id to run the unit tests on. Only valid when there is a target provided')
 	.option('-T, --target [target]', 'Titanium platform target to run the unit tests on. Only valid when there is a single platform provided')
-	.option('-s, --skip-sdk-install', 'Skip the SDK installation step')
-	.option('-b, --branch [branch]', 'Which branch of the test suite to use', 'master')
 	.option('-v, --sdk-version [version]', 'Override the SDK version we report', process.env.PRODUCT_VERSION || version)
 	.option('-D, --deploy-type <type>', 'Override the deploy type used to build the project', /^(development|test)$/)
 	.option('-F, --device-family <value>', 'Override the device family used to build the project', /^(iphone|ipad)$/)
+	.option('-J --junit-prefix <value>', 'A prefix to add to junit tests to help distinguish them. Useful if targeting same platform and target', '')
 	.parse(process.argv);
 
 async function main(program) {
 	const Builder = require('./lib/builder');
-	return new Builder(program).test();
+	return new Builder(program.opts(), program.args).test();
 }
 
 main(program)

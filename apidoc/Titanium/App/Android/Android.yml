@@ -22,7 +22,9 @@ properties:
         exists in the project, it can be accessed using its resource name,
         as follows.
 
-            var resid = Titanium.App.Android.R.drawable.icon;
+        ``` js
+        var resid = Titanium.App.Android.R.drawable.icon;
+        ```
 
         To access system-wide resources, rather than application resources, use
         <Titanium.Android.R> instead.
@@ -79,15 +81,19 @@ examples:
         For example, to utilize a custom localization file, create and populate 
         `platform/android/res/values/mystrings.xml` with the following data.
         
-            <?xml version="1.0" encoding="utf-8"?>
-            <resources>
-                <string name="mystring">testing 1 2 3</string>
-            </resources>
+        ``` xml
+        <?xml version="1.0" encoding="utf-8"?>
+        <resources>
+            <string name="mystring">testing 1 2 3</string>
+        </resources>
+        ```
         
         In Javascript, this can be accessed as follows.
     
-            var activity = Ti.Android.currentActivity;
-            var R = Ti.App.Android.R;
-            
-            var mystring = activity.getString(R.string.mystring);
-            Ti.API.debug("mystring = " + mystring);
+        ``` js
+        var activity = Ti.Android.currentActivity;
+        var R = Ti.App.Android.R;
+        
+        var mystring = activity.getString(R.string.mystring);
+        Ti.API.debug("mystring = " + mystring);
+        ```

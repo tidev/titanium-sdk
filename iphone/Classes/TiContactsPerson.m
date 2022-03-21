@@ -4,7 +4,7 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#ifdef USE_TI_CONTACTS
+#if defined(USE_TI_CONTACTS)
 
 #import "TiContactsPerson.h"
 #import "ContactsModule.h"
@@ -365,7 +365,7 @@ static NSDictionary *iOS9propertyKeys;
   id property = nil;
 
   // Birthday property managed seperately
-  if ([key isEqualToString:@"birthday"] && [person isKeyAvailable:CNContactBirthdayKey]) {
+  if ([key isEqualToString:@"birthday"] && [person isKeyAvailable:CNContactBirthdayKey] && person.birthday != nil) {
     NSDate *date = [[NSCalendar currentCalendar] dateFromComponents:person.birthday];
     return [TiUtils UTCDateForDate:date];
   }

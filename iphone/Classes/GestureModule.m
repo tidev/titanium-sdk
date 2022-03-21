@@ -100,17 +100,17 @@
   }
 }
 
-- (BOOL)landscape
+- (bool)landscape
 {
   return [TiUtils isOrientationLandscape];
 }
-GETTER_IMPL(BOOL, landscape, Landscape);
+GETTER_IMPL(bool, landscape, Landscape);
 
-- (BOOL)portrait
+- (bool)portrait
 {
   return [TiUtils isOrientationPortait];
 }
-GETTER_IMPL(BOOL, portrait, Portrait);
+GETTER_IMPL(bool, portrait, Portrait);
 
 - (NSNumber *)orientation
 {

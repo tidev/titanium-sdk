@@ -76,10 +76,8 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
 
     [config setUserContentController:controller];
 
-    if ([TiUtils isIOSVersionOrGreater:@"11.0"]) {
-      if (![WKWebView handlesURLScheme:[WebAppProtocolHandler specialProtocolScheme]]) {
-        [config setURLSchemeHandler:[[WebAppProtocolHandler alloc] init] forURLScheme:[WebAppProtocolHandler specialProtocolScheme]];
-      }
+    if (![WKWebView handlesURLScheme:[WebAppProtocolHandler specialProtocolScheme]]) {
+      [config setURLSchemeHandler:[[WebAppProtocolHandler alloc] init] forURLScheme:[WebAppProtocolHandler specialProtocolScheme]];
     }
 
     _willHandleTouches = [TiUtils boolValue:[[self proxy] valueForKey:@"willHandleTouches"] def:YES];
@@ -158,7 +156,12 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
 - (void)setZoomLevel_:(id)zoomLevel
 {
   ENSURE_TYPE(zoomLevel, NSNumber);
-
+#if IS_SDK_IOS_14
+  if ([TiUtils isIOSVersionOrGreater:@"14.0"]) {
+    [self webView].pageZoom = [zoomLevel floatValue];
+    return;
+  }
+#endif
   [[self webView] evaluateJavaScript:[NSString stringWithFormat:@"document.body.style.zoom = %@;", zoomLevel]
                    completionHandler:nil];
 }
@@ -223,9 +226,11 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
   }
 
   NSData *data = nil;
+  NSString *mimeType = nil;
 
   if ([value isKindOfClass:[TiBlob class]]) {
     data = [(TiBlob *)value data];
+    mimeType = [(TiBlob *)value mimeType];
   } else if ([value isKindOfClass:[TiFile class]]) {
 #ifdef USE_TI_FILESYSTEM
     data = [[(TiFilesystemFileProxy *)value blob] data];
@@ -237,21 +242,33 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
   [_webView.configuration.userContentController removeScriptMessageHandlerForName:@"_Ti_"];
   [_webView.configuration.userContentController addScriptMessageHandler:self name:@"_Ti_"];
 
+  mimeType = mimeType ?: [self mimeTypeForData:data];
   [[self webView] loadData:data
-                   MIMEType:[self mimeTypeForData:data]
+                   MIMEType:mimeType
       characterEncodingName:@"UTF-8"
                     baseURL:[[NSBundle mainBundle] resourceURL]];
 }
 
 - (void)setBlacklistedURLs_:(id)blacklistedURLs
 {
-  ENSURE_TYPE(blacklistedURLs, NSArray);
+  DEPRECATED_REPLACED(@"UI.WebView.blacklistedURLs", @"9.2.0", @"UI.WebView.blockedURLs");
 
-  for (id blacklistedURL in blacklistedURLs) {
-    ENSURE_TYPE(blacklistedURL, NSString);
+  ENSURE_TYPE(blacklistedURLs, NSArray);
+  for (id nextURL in blacklistedURLs) {
+    ENSURE_TYPE(nextURL, NSString);
   }
 
   _blacklistedURLs = blacklistedURLs;
+}
+
+- (void)setBlockedURLs_:(id)blockedURLs
+{
+  ENSURE_TYPE(blockedURLs, NSArray);
+  for (id nextURL in blockedURLs) {
+    ENSURE_TYPE(nextURL, NSString);
+  }
+
+  _blockedURLs = blockedURLs;
 }
 
 - (void)setHtml_:(id)args
@@ -754,21 +771,10 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
       NSString *method = [[message body] objectForKey:@"method"];
       NSString *moduleName = [method isEqualToString:@"log"] ? @"API" : @"App";
 
-      // FIXME: This doesn't play nice with the new obj-c based modules!
-      // Unify the special handling for init with the code in KrollBridge?
-      // Maybe just fork the behavior altogether here, since I don't think the event stuff will work properly?
-      id module;
-      if ([moduleName isEqualToString:@"API"]) {
-        // Really we need to grab the same instance we stuck into the Ti namespace, not a brand new one. But how?
-        // Maybe grab Ti from global and just ask for property with module name?
-        Class moduleClass = NSClassFromString([NSString stringWithFormat:@"%@Module", moduleName]);
-        module = [[moduleClass alloc] init];
-      } else {
-        id<TiEvaluator> context = [[(TiUIWebViewProxy *)self.proxy host] contextForToken:_pageToken];
-        TiModule *tiModule = (TiModule *)[[(TiUIWebViewProxy *)self.proxy host] moduleNamed:moduleName context:context];
-        [tiModule setExecutionContext:context];
-        module = tiModule;
-      }
+      TiHost *host = [(TiUIWebViewProxy *)self.proxy host];
+      id<TiEvaluator> context = [host contextForToken:_pageToken];
+      id<Module> module = [host moduleNamed:[NSString stringWithFormat:@"%@Module", moduleName] context:context];
+      [module setExecutionContext:context];
 
       if ([method isEqualToString:@"fireEvent"]) {
         [module fireEvent:name withObject:payload];
@@ -887,18 +893,16 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
   [self _cleanupLoadingIndicator];
   [(TiUIWebViewProxy *)[self proxy] refreshHTMLContent];
 
-  if ([TiUtils isIOSVersionOrGreater:@"11.0"]) {
-    // TO DO: Once TIMOB-26915 done, remove this
-    __block BOOL finishedEvaluation = NO;
-    [_webView.configuration.websiteDataStore.httpCookieStore getAllCookies:^(NSArray<NSHTTPCookie *> *cookies) {
-      for (NSHTTPCookie *cookie in cookies) {
-        [NSHTTPCookieStorage.sharedHTTPCookieStorage setCookie:cookie];
-      }
-      finishedEvaluation = YES;
-    }];
-    while (!finishedEvaluation) {
-      [NSRunLoop.currentRunLoop runMode:NSDefaultRunLoopMode beforeDate:NSDate.distantFuture];
+  // TO DO: Once TIMOB-26915 done, remove this
+  __block BOOL finishedEvaluation = NO;
+  [_webView.configuration.websiteDataStore.httpCookieStore getAllCookies:^(NSArray<NSHTTPCookie *> *cookies) {
+    for (NSHTTPCookie *cookie in cookies) {
+      [NSHTTPCookieStorage.sharedHTTPCookieStorage setCookie:cookie];
     }
+    finishedEvaluation = YES;
+  }];
+  while (!finishedEvaluation) {
+    [NSRunLoop.currentRunLoop runMode:NSDefaultRunLoopMode beforeDate:NSDate.distantFuture];
   }
 
   if ([[self proxy] _hasListeners:@"load"]) {
@@ -1010,12 +1014,12 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
   }
   NSArray<NSString *> *allowedURLSchemes = [[self proxy] valueForKey:@"allowedURLSchemes"];
 
-  // Handle blacklisted URL's
+  // Do not load the URL if it's black-listed.
+  // DEPRECATED: Should use "blockedURLs" property with a "blockedurl" event listener instead.
+  NSString *urlCandidate = navigationAction.request.URL.absoluteString;
   if (_blacklistedURLs != nil && _blacklistedURLs.count > 0) {
-    NSString *urlCandidate = navigationAction.request.URL.absoluteString;
-
-    for (NSString *blackListedURL in _blacklistedURLs) {
-      if ([urlCandidate rangeOfString:blackListedURL options:NSCaseInsensitiveSearch].location != NSNotFound) {
+    for (NSString *blockedURL in _blacklistedURLs) {
+      if ([urlCandidate rangeOfString:blockedURL options:NSCaseInsensitiveSearch].location != NSNotFound) {
         if ([[self proxy] _hasListeners:@"blacklisturl"]) {
           [[self proxy] fireEvent:@"blacklisturl"
                        withObject:@{
@@ -1023,7 +1027,24 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
                          @"message" : @"Webview did not load blacklisted url."
                        }];
         }
+        decisionHandler(WKNavigationActionPolicyCancel);
+        [self _cleanupLoadingIndicator];
+        return;
+      }
+    }
+  }
 
+  // Do not load the URL if it's on the block-list.
+  if (_blockedURLs != nil && _blockedURLs.count > 0) {
+    for (NSString *blockedURL in _blockedURLs) {
+      if ([urlCandidate rangeOfString:blockedURL options:NSCaseInsensitiveSearch].location != NSNotFound) {
+        if ([[self proxy] _hasListeners:@"blockedurl"]) {
+          [[self proxy] fireEvent:@"blockedurl"
+                       withObject:@{
+                         @"url" : urlCandidate,
+                         @"message" : @"Webview did not load blocked url."
+                       }];
+        }
         decisionHandler(WKNavigationActionPolicyCancel);
         [self _cleanupLoadingIndicator];
         return;

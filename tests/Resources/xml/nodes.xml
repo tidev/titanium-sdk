@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<response>
+	<nodes id="nodes">
+		<node id="node 1">
+			<node id="node 2">
+				<node id="node 3"/>
+			</node>
+			<node id="node 4">
+				<node id="node 5"/>
+			</node>
+			<node id="node 6">
+				<node id="node 7"/>
+			</node>
+		</node>
+		<node id="node 8">
+			<node id="node 9">
+				<node id="node 10"/>
+			</node>
+		</node>
+		<node id="node 11">
+			<node id="node 12">
+				<node id="node 13"/>
+			</node>
+		</node>
+	</nodes>
+</response>

@@ -23,7 +23,6 @@ public class XPathNodeListProxy extends KrollProxy
 		this.nodeList = nodeList;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public int getLength()
 	{

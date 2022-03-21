@@ -262,11 +262,15 @@ DEFINE_EXCEPTIONS
 
 - (UIViewContentMode)contentModeForImageView
 {
-  if (TiDimensionIsAuto(width) || TiDimensionIsAutoSize(width) || TiDimensionIsUndefined(width) || TiDimensionIsAuto(height) || TiDimensionIsAutoSize(height) || TiDimensionIsUndefined(height)) {
-    return UIViewContentModeScaleAspectFit;
-  } else {
-    return UIViewContentModeScaleToFill;
+  int contentMode = [TiUtils intValue:[self.proxy valueForKey:@"scalingMode"] def:-1];
+  if (contentMode < 0) {
+    if (TiDimensionIsAuto(width) || TiDimensionIsAutoSize(width) || TiDimensionIsUndefined(width) || TiDimensionIsAuto(height) || TiDimensionIsAutoSize(height) || TiDimensionIsUndefined(height)) {
+      contentMode = UIViewContentModeScaleAspectFit;
+    } else {
+      contentMode = UIViewContentModeScaleToFill;
+    }
   }
+  return contentMode;
 }
 
 - (void)updateContentMode
@@ -291,6 +295,7 @@ DEFINE_EXCEPTIONS
     imageView = [[UIImageView alloc] initWithFrame:[self bounds]];
     [imageView setAutoresizingMask:UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight];
     [imageView setContentMode:[self contentModeForImageView]];
+    imageView.clipsToBounds = YES;
     [self addSubview:imageView];
   }
   return imageView;
@@ -370,6 +375,7 @@ DEFINE_EXCEPTIONS
         newImageView.image = imageToUse;
         newImageView.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
         newImageView.contentMode = [self contentModeForImageView];
+        newImageView.clipsToBounds = YES;
 
         // remove the spinner now that we've loaded our image
         UIView *spinner = [[view subviews] count] > 0 ? [[view subviews] objectAtIndex:0] : nil;
@@ -481,7 +487,11 @@ DEFINE_EXCEPTIONS
       NSRange range = [pathStr rangeOfString:@".app"];
       NSString *imageArg = nil;
       if (range.location != NSNotFound) {
-        imageArg = [pathStr substringFromIndex:range.location + 5];
+        if ([TiUtils isMacOS]) {
+          imageArg = [pathStr substringFromIndex:range.location + 24]; //Contents/Resources/ for mac
+        } else {
+          imageArg = [pathStr substringFromIndex:range.location + 5];
+        }
       }
 
       //remove suffixes.
@@ -658,6 +668,11 @@ DEFINE_EXCEPTIONS
 - (void)setHeight_:(id)height_
 {
   height = TiDimensionFromObject(height_);
+  [self updateContentMode];
+}
+
+- (void)setScalingMode_:(id)value
+{
   [self updateContentMode];
 }
 

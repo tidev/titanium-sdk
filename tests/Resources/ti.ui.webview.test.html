@@ -1,0 +1,12 @@
+<html>
+<head>
+    <script>
+        Ti.App.addEventListener("app:fromTitanium", function(e) {
+            Ti.API.info(e.message);
+        });
+    </script>
+</head>
+<body>
+    <button onclick="Ti.App.fireEvent('app:fromWebView', { message: 'event fired from WebView, handled in Titanium' });">fromWebView</button>
+</body>
+</html>

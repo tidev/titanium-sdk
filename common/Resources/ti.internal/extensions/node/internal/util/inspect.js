@@ -231,7 +231,7 @@ Object.defineProperty(inspect, 'defaultOptions', {
 		if (options === null || typeof options !== 'object') {
 			throw new ERR_INVALID_ARG_TYPE('options', 'Object', options);
 		}
-		return Object.assign(inspectDefaultOptions, options);
+		Object.assign(inspectDefaultOptions, options);
 	}
 });
 

@@ -10,7 +10,7 @@ description: |
 
     To use this feature make sure you have a compatible device running iOS 9 or later.
 extends: Titanium.Proxy
-platforms: [iphone,ipad]
+platforms: [iphone,ipad, macos]
 since: "5.0.0"
 createable: true
 methods:
@@ -18,7 +18,7 @@ methods:
     summary: Indicates whether indexing is supported by the device.
     returns:
         type: Boolean
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     osver: {ios: {min: "9.0"}}
 
   - name: addToDefaultSearchableIndex
@@ -31,7 +31,7 @@ methods:
       - name: callback
         summary: Function to invoke on success or failure of adding the array Titanium.App.iOS.SearchableItem object to the default search index.
         type: Callback<Dictionary>
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     osver: {ios: {min: "9.0"}}
 
   - name: deleteAllSearchableItems
@@ -41,7 +41,7 @@ methods:
       - name: callback
         summary: Function to invoke on success or failure of deleting all search items.
         type: Callback<Dictionary>
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     osver: {ios: {min: "9.0"}}
 
   - name: deleteAllSearchableItemByDomainIdenifiers
@@ -54,7 +54,7 @@ methods:
       - name: callback
         summary: Function to invoke on success or failure of removing search items from the default search index.
         type: Callback<Dictionary>
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     osver: {ios: {min: "9.0"}}
 
   - name: deleteSearchableItemsByIdentifiers
@@ -67,7 +67,7 @@ methods:
       - name: callback
         summary: Function to invoke on success or failure of removing search items from the default search index.
         type: Callback<Dictionary>
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     osver: {ios: {min: "9.0"}}
 examples:
   - title: Add Searchable Content to the On-Device Index
@@ -77,30 +77,29 @@ examples:
         Ti.App.iOS.SearchableIndex object to add it to the on-device search index.
 
         #### app.js
+        ``` js
+        var searchItems = [];
+        var itemAttr = Ti.App.iOS.createSearchableItemAttributeSet({
+            itemContentType: Ti.App.iOS.UTTYPE_IMAGE,
+            title:"Titanium Core Spotlight Tutorial",
+            contentDescription:"Tech Example \nOn: " + String.formatDate(new Date(),"short"),
+            keywords:["Mobile","Appcelerator","Titanium"]
+        });
 
-            var searchItems = [];
-            var itemAttr = Ti.App.iOS.createSearchableItemAttributeSet({
-                itemContentType: Ti.App.iOS.UTTYPE_IMAGE,
-                title:"Titanium Core Spotlight Tutorial",
-                contentDescription:"Tech Example \nOn: " + String.formatDate(new Date(),"short"),
-                keywords:["Mobile","Appcelerator","Titanium"]
-            });
+        var item = Ti.App.iOS.createSearchableItem({
+            identifier:"my-id",
+            domainIdentifier:"com.mydomain",
+            attributeSet:itemAttr
+        });
+        searchItems.push(item);
 
-            var item = Ti.App.iOS.createSearchableItem({
-                identifier:"my-id",
-                domainIdentifier:"com.mydomain",
-                attributeSet:itemAttr
-            });
-            searchItems.push(item);
+        var indexer = Ti.App.iOS.createSearchableIndex();
 
-            var indexer = Ti.App.iOS.createSearchableIndex();
-
-            indexer.addToDefaultSearchableIndex([searchItems],function(e){
-                if(e.success){
-                    alert("Press the home button and now search for your keywords");
-                }else{
-                    alert("Errored: " + JSON.stringify(e.error));
-                }
-            });
-
-
+        indexer.addToDefaultSearchableIndex([searchItems],function(e){
+            if(e.success){
+                alert("Press the home button and now search for your keywords");
+            }else{
+                alert("Errored: " + JSON.stringify(e.error));
+            }
+        });
+        ```

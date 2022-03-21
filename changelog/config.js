@@ -19,9 +19,11 @@ const KNOWN_EMPLOYEE_EMAILS = [
 	'yordan.banev@gmail.com',
 	'iw@whitfin.io',
 	'mukherjee2@users.noreply.github.com',
-	'14187093+Sajoha@users.noreply.github.com'
+	'14187093+Sajoha@users.noreply.github.com',
+	'Topener@users.noreply.github.com',
+	'brenton.house@gmail.com',
+	'build@users.noreply.github.com'
 ];
-// TODO: Skip bots like dependabot!
 
 // others use our company email addresses
 const KNOWN_EMPLOYEE_EMAIL_DOMAINS = [
@@ -94,7 +96,7 @@ function guessPreviousBranch(version) {
 }
 
 function urlToVersion(url) {
-	return /-(\d+\.\d+\.\d+)\.zip$/.exec(url)[1];
+	return /-(\d+\.\d+\.\d+)\.zip$/.exec(url)[1]; // eslint-disable-line security/detect-child-process
 }
 
 function gatherModules() {
@@ -134,16 +136,37 @@ function gatherModules() {
  * Gather up the community contributions to thank them specifically
  */
 const communityContributions = new Map();
-const breakingChanges = []; // gathe rthe breaking changes specially
+const breakingChanges = []; // gather the breaking changes specially
+
+/**
+ * @param {string} from branch/tag/commit sha to start
+ * @returns {Set<string>} array of valid commit shas
+ */
+function getFilteredShaListing(from) {
+	const stdout = execSync(`git log --cherry-pick --right-only --no-merges ${from}...HEAD --format=%H`, { encoding: 'utf8' });
+	return new Set(stdout.split(/\r?\n/));
+}
+
+const filteredCommitSHAs = getFilteredShaListing(previousBranch);
 
 module.exports = {
 	gitRawCommitsOpts: {
+		// 'right-only': true, // --right-only
+		// 'cherry-pick': true, // --cherry-pick
+		// merges: false, // --no-merges
+		// NOTE: This does a 9_0_X..HEAD comparison, but we need a 9_0_X...HEAD comparison with cherry-picks removed
+		// We do that above by getting the hashes of that subset and then skip anythign this collects that don't fall into that set
 		from: previousBranch,
 		// We override to include authorName and authorEmail!
 		format: '%B%n-hash-%n%H%n-gitTags-%n%d%n-committerDate-%n%ci%n-authorName-%n%an%n-authorEmail-%n%ae'
 	},
 	writerOpts: {
 		transform: function (commit) {
+			// skip commits that may have cherry-picks on both sides
+			if (!filteredCommitSHAs.has(commit.hash)) {
+				return;
+			}
+
 			let discard = true;
 			let community = false;
 			let breaking = false;
@@ -163,7 +186,7 @@ module.exports = {
 				if (!KNOWN_EMPLOYEE_EMAIL_DOMAINS.includes(domain)
 					&& !KNOWN_EMPLOYEE_EMAILS.includes(commit.authorEmail)
 					&& !commit.authorEmail.includes('greenkeeper[bot]')
-					&& !commit.authorEmail.includes('dependabot-preview[bot]')) {
+					&& !commit.authorEmail.includes('dependabot')) {
 					// If this is a noreply github email address, strip it to username so we can link to them
 					// if (domain === 'users.noreply.github.com') {
 					// 	const usernameParts = emailParts[0].split('+'); // may be ID+username, or just username
@@ -187,8 +210,10 @@ module.exports = {
 			// Limit to features, bug fixes and performance improvements
 			if (commit.type === 'feat') {
 				commit.type = 'Features';
+				discard = false;
 			} else if (commit.type === 'fix') {
 				commit.type = 'Bug Fixes';
+				discard = false;
 			} else if (commit.type === 'perf') {
 				commit.type = 'Performance Improvements';
 			} else if (discard && !community && !breaking) {

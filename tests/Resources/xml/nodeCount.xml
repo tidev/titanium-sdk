@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root id='here'>
+	<one>**
+		<two>*
+			<three/>
+			<three/>*
+		</two>**
+		<two>
+			<three/>
+			<three/>
+		</two>
+	</one>
+	<foo id='bar'>yo</foo>
+</root>

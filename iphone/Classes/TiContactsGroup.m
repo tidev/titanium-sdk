@@ -5,6 +5,7 @@
  * Please see the LICENSE included with this distribution for details.
  */
 #ifdef USE_TI_CONTACTS
+
 #import "TiContactsGroup.h"
 
 @implementation TiContactsGroup
@@ -121,10 +122,10 @@
   CNContactSortOrder sortOrder;
   int sortType = [value intValue];
   switch (sortType) {
-  case kABPersonSortByFirstName:
+  case CNContactSortOrderGivenName:
     sortOrder = CNContactSortOrderGivenName;
     break;
-  case kABPersonSortByLastName:
+  case CNContactSortOrderFamilyName:
     sortOrder = CNContactSortOrderFamilyName;
     break;
   default:

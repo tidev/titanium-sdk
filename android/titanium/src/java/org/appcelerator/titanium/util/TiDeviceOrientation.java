@@ -7,7 +7,6 @@
 package org.appcelerator.titanium.util;
 
 import android.content.Context;
-import android.os.Build;
 import android.util.DisplayMetrics;
 import android.view.Display;
 import android.view.Surface;
@@ -456,15 +455,7 @@ public enum TiDeviceOrientation {
 
 			// Acquire screen metrics from the given display.
 			DisplayMetrics metrics = new DisplayMetrics();
-			if (Build.VERSION.SDK_INT >= 17) {
-				// Fetch full screen metrics, which includes status bar and navigation bar.
-				// Note: This includes entire screen, even when in split-screen mode.
-				display.getRealMetrics(metrics);
-			} else {
-				// Fetch this app's window metrics, excluding status bar and navigation bar.
-				// Note: This is our only option on older OS versions.
-				display.getMetrics(metrics);
-			}
+			display.getRealMetrics(metrics);
 
 			// Return information about the given display.
 			DisplayInfo displayInfo = new DisplayInfo();

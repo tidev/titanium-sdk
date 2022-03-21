@@ -244,7 +244,8 @@ Creator.prototype.configOptionId = function configOptionId(order) {
 };
 
 /**
- * Defines the -c option to selec the code base (Swift or Obj-C).
+ * Defines the -c option to select the code base (Swift or Obj-C).
+ * Kept for backwards compatibility, remove in SDK 10
  *
  * @param {Integer} order - The order to apply to this option.
  *
@@ -268,22 +269,10 @@ Creator.prototype.configOptionCodeBase = function configCodeBase(order) {
 		desc: __('the code base of the iOS project'),
 		order: order,
 		default: !cli.argv.prompt ? 'objc' : undefined, // if we're prompting, then force the platforms to be prompted for, otherwise force 'all'
-		prompt: function (callback) {
-			callback(fields.text({
-				promptLabel: __('iOS code base (' + validTypes.join('|') + ')'),
-				default: 'objc',
-				validate: validate
-			}));
-		},
-		required: true,
+		required: false,
 		validate: validate,
 		values: validTypes,
-		verifyIfRequired: function (callback) {
-			if (cli.argv.platforms.includes('ios') || cli.argv.platforms.includes('iphone') || cli.argv.platforms.includes('ipad')) {
-				return callback(true);
-			}
-			return callback();
-		}
+		hidden: true
 	};
 };
 
@@ -309,11 +298,11 @@ Creator.prototype.configOptionName = function configOptionName(order) {
 			if (config.get('android.allowAppNameAmpersands', false)) {
 				logger.warn(__('The project name contains an ampersand (&) which will most likely cause problems.'));
 				logger.warn(__('It is recommended that you change the app name in the tiapp.xml or define the app name using i18n strings.'));
-				logger.warn(__('Refer to %s for more information.', 'http://appcelerator.com/i18n-app-name'.cyan));
+				logger.warn(__('Refer to %s for more information.', 'https://titaniumsdk.com/guide/Titanium_SDK/Titanium_SDK_How-tos/Cross-Platform_Mobile_Development_In_Titanium/Internationalization.html'.cyan));
 			} else {
 				logger.error(__('The project name contains an ampersand (&) which will most likely cause problems.'));
 				logger.error(__('It is recommended that you change the app name in the tiapp.xml or define the app name using i18n strings.'));
-				logger.error(__('Refer to %s for more information.', 'http://appcelerator.com/i18n-app-name'));
+				logger.error(__('Refer to %s for more information.', 'https://titaniumsdk.com/guide/Titanium_SDK/Titanium_SDK_How-tos/Cross-Platform_Mobile_Development_In_Titanium/Internationalization.html'));
 				logger.error(__('To allow ampersands in the app name, run:'));
 				logger.error('    %sti config android.allowAppNameAmpersands true\n', process.env.APPC_ENV ? 'appc ' : '');
 				return callback(true);

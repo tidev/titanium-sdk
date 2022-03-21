@@ -15,19 +15,21 @@ examples:
     example: |
         The following example shows how to create a notification with a channel.
 
-            var channel = Ti.Android.NotificationManager.createNotificationChannel({
-                    id: 'my_channel',
-                    name: 'TEST CHANNEL',
-                    importance: Ti.Android.IMPORTANCE_DEFAULT
-                }),
-                notification = Ti.Android.createNotification({
-                    icon: Ti.Android.R.drawable.ic_dialog_info,
-                    contentTitle: 'TITLE',
-                    contentText : 'This is a test',
-                    channelId: channel.getId()
-                });
+        ``` js
+        var channel = Ti.Android.NotificationManager.createNotificationChannel({
+                id: 'my_channel',
+                name: 'TEST CHANNEL',
+                importance: Ti.Android.IMPORTANCE_DEFAULT
+            }),
+            notification = Ti.Android.createNotification({
+                icon: Ti.Android.R.drawable.ic_dialog_info,
+                contentTitle: 'TITLE',
+                contentText : 'This is a test',
+                channelId: channel.getId()
+            });
 
-            Ti.Android.NotificationManager.notify(100, notification);
+        Ti.Android.NotificationManager.notify(100, notification);
+        ```
 
 extends: Titanium.Proxy
 since: "7.0.0"
@@ -74,6 +76,12 @@ properties:
     type: Number
     constants: [Titanium.Android.VISIBILITY_*]
 
+  - name: name
+    summary: |
+        The visible name of this channel.
+        The recommended maximum length is 40 characters; the value may be truncated if it is too long.
+    type: String
+
   - name: showBadge
     summary: Whether notifications posted to this channel can appear as application icon badges in a Launcher.
     type: Boolean
@@ -88,7 +96,9 @@ properties:
         To create a raw resource, place the audio file in the `platform/android/res/raw`
         folder and reference it as:
 
-            notificationChannel.sound = Ti.Filesystem.resRawDirectory + 'my_sound.wav';
+        ``` js
+        notificationChannel.sound = Ti.Filesystem.resRawDirectory + 'my_sound.wav';
+        ```
 
     type: String
     since: "7.5.0"

@@ -1548,14 +1548,19 @@ function makeError(code, message, errno, syscall, path) {
  * @returns {Buffer} node-compatible Buffer instance
  */
 function encodeBuffer(encoding, tiBuffer) {
-	const buffer = Buffer.from(tiBuffer);
 	switch (encoding) {
 		case 'buffer':
 		case null:
 		case undefined:
-			return buffer;
+			// In this case we're always reading a file into a Ti.Buffer
+			// Wrapping Ti.Buffer is super-slow and should really only be if we're going to write to it
+			// Go the faster path by converting to ArrayBuffer and wrapping that
+			// TODO: Explicitly release the blob after conversion?
+			return Buffer.from(tiBuffer.toBlob().toArrayBuffer());
 		default:
-			return buffer.toString(encoding);
+			// here' were converting to a string based on encoding. Internally our faster Buffer impl still delegates to Ti.Buffer in most cases
+			// so I don't think there's much benefit from converting to ArrayBuffer first
+			return Buffer.from(tiBuffer).toString(encoding);
 	}
 }
 

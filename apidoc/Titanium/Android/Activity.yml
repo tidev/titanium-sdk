@@ -69,7 +69,9 @@ description: |
     [android:alwaysRetainTaskState](https://developer.android.com/guide/topics/manifest/activity-element#always)
     to the root activity instead
 
-            <property name="ti.android.root.reappears.restart" type="bool">true</property>
+    ``` xml
+    <property name="ti.android.root.reappears.restart" type="bool">true</property>
+    ```
 
     Prior to Release 3.4.0, to monitor lifecycle events, use the activity's events, `create`, `destroy`,
     `pause`, `resume`, `start` and `stop`, to be notified when an activity is created, destroyed, paused,
@@ -81,8 +83,6 @@ description: |
     described on the <Titanium.UI.Window> reference page. A *heavyweight* window creates a 
     new `Activity`. A *lightweight* window runs inside the same activity as the code that
     created it.  If you try to reference the activity of lightweight window, it returns undefined.
-
-
 extends: Titanium.Proxy
 platforms: [android]
 createable: false
@@ -102,15 +102,21 @@ methods:
         corresponding format specifiers in the string. For example, given the following
         string resource:
 
-            <string name="greeting">"Hello %1$s, this is %2$s."</string>
+        ``` xml
+        <string name="greeting">"Hello %1$s, this is %2$s."</string>
+        ```
 
         You could call `getString` like this:
 
-            Ti.Android.currentActivity.getString(Ti.App.Android.R.string.greeting,  "Bob", "Doug" );
+        ``` js
+        Ti.Android.currentActivity.getString(Ti.App.Android.R.string.greeting,  "Bob", "Doug" );
+        ```
 
         The resulting string is:
 
-            "Hello Bob, this is Doug."
+        ```
+        "Hello Bob, this is Doug."
+        ```
 
         See also:
         *   [getString](https://developer.android.com/reference/android/content/Context.html#getString(int))
@@ -128,7 +134,9 @@ methods:
 
       - name: format
         summary: Optional format arguments for the String resource. May be repeated.
-        type: Object
+        type: any
+        repeatable: true
+        optional: true
 
   - name: invalidateOptionsMenu
     summary: Declares that the option menu has changed and should be recreated.
@@ -149,6 +157,10 @@ methods:
         summary: Orientation mode for the activity.
         constants: Titanium.Android.SCREEN_ORIENTATION_*
         type: Number
+    deprecated:
+      since: "10.0.0"
+      removed: "10.0.0"
+      notes: Use the <Titanium.Android.requestedOrientation> property instead
 
   - name: setResult
     summary: Sets the result of this activity using an `Intent`. 
@@ -244,7 +256,7 @@ events:
     deprecated:
         since: "3.4.0"
         removed: "9.0.0"
-        notes: Use [Titanium.Android.Activity.onCreate](Titanium.Android.Activity.onCreate) instead.
+        notes: Use the [Titanium.Android.Activity.onCreate](Titanium.Android.Activity.onCreate) callback property instead.
     description: |
         See also:
         [onCreate](https://developer.android.com/reference/android/app/Activity.html#onCreate(android.os.Bundle))
@@ -255,7 +267,7 @@ events:
     deprecated:
         since: "3.4.0"
         removed: "9.0.0"
-        notes: Use [Titanium.Android.Activity.onDestroy](Titanium.Android.Activity.onDestroy) instead.
+        notes: Use the [Titanium.Android.Activity.onDestroy](Titanium.Android.Activity.onDestroy) callback property instead.
     description: |
         See also: [onDestroy](https://developer.android.com/reference/android/app/Activity.html#onDestroy())
         in the Android Developer Reference.
@@ -290,7 +302,7 @@ events:
     deprecated:
         since: "3.4.0"
         removed: "9.0.0"
-        notes: Use [Titanium.Android.Activity.onPause](Titanium.Android.Activity.onPause) instead.
+        notes: Use the [Titanium.Android.Activity.onPause](Titanium.Android.Activity.onPause) callback property instead.
     description: |
         See also:
         [onPause](https://developer.android.com/reference/android/app/Activity.html#onPause())
@@ -301,7 +313,7 @@ events:
     deprecated:
         since: "3.4.0"
         removed: "9.0.0"
-        notes: Use [Titanium.Android.Activity.onRestart](Titanium.Android.Activity.onRestart) instead.
+        notes: Use the [Titanium.Android.Activity.onRestart](Titanium.Android.Activity.onRestart) callback property instead.
     description: |
         See also: [onRestart](https://developer.android.com/reference/android/app/Activity.html#onRestart())
         in the Android Developer Reference.
@@ -311,7 +323,7 @@ events:
     deprecated:
         since: "3.4.0"
         removed: "9.0.0"
-        notes: Use [Titanium.Android.Activity.onResume](Titanium.Android.Activity.onResume) instead.
+        notes: Use the [Titanium.Android.Activity.onResume](Titanium.Android.Activity.onResume) callback property instead.
     description: |
         See also: [onResume](https://developer.android.com/reference/android/app/Activity.html#onResume())
         in the Android Developer Reference.
@@ -321,7 +333,7 @@ events:
     deprecated:
         since: "3.4.0"
         removed: "9.0.0"
-        notes: Use [Titanium.Android.Activity.onStart](Titanium.Android.Activity.onStart) instead.
+        notes: Use the [Titanium.Android.Activity.onStart](Titanium.Android.Activity.onStart) callback property instead.
     description: |
         See also: [onStart](https://developer.android.com/reference/android/app/Activity.html#onStart())
         in the Android Developer Reference.
@@ -331,7 +343,7 @@ events:
     deprecated:
         since: "3.4.0"
         removed: "9.0.0"
-        notes: Use [Titanium.Android.Activity.onStop](Titanium.Android.Activity.onStop) instead.
+        notes: Use the [Titanium.Android.Activity.onStop](Titanium.Android.Activity.onStop) callback property instead.
     description: |
         See also: [onStop](https://developer.android.com/reference/android/app/Activity.html#onStop())
         in the Android Developer Reference.
@@ -365,7 +377,6 @@ events:
     since: "7.5.0"
 
 properties:
-
   - name: actionBar
     summary: The action bar for this activity.
     description: |
@@ -467,18 +478,20 @@ examples:
     example: |
         The following example shows how to start an activity and retrieve a result code
         and optional data intent when the activity ends.
-        
-            activity.startActivityForResult(intent, function(e) {
-                // The request code used to start this Activity
-                var requestCode = e.requestCode;
-                // The result code returned from the activity 
-                // (https://developer.android.com/reference/android/app/Activity.html#StartingActivities)
-                var resultCode = e.resultCode;
-                // A Titanium.Android.Intent filled with data returned from the Activity
-                var intent = e.intent;
-                // The Activity the received the result
-                var source = e.source;
-            });
+
+        ``` js        
+        activity.startActivityForResult(intent, function(e) {
+            // The request code used to start this Activity
+            var requestCode = e.requestCode;
+            // The result code returned from the activity 
+            // (https://developer.android.com/reference/android/app/Activity.html#StartingActivities)
+            var resultCode = e.resultCode;
+            // A Titanium.Android.Intent filled with data returned from the Activity
+            var intent = e.intent;
+            // The Activity the received the result
+            var source = e.source;
+        });
+        ```
         
 ---
 name: ActivityResult
