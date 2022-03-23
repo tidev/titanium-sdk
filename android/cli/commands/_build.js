@@ -266,10 +266,6 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 								if (!alias) {
 									return callback(new Error(__('Invalid "--alias" value "%s"', value)));
 								}
-								if (alias.sigalg && alias.sigalg.toLowerCase() === 'sha256withrsa') {
-									logger.warn(__('The selected alias %s uses the %s signature algorithm which will likely have issues with Android 4.3 and older.', ('"' + value + '"').cyan, ('"' + alias.sigalg + '"').cyan));
-									logger.warn(__('Certificates that use the %s or %s signature algorithm will provide better compatibility.', '"SHA1withRSA"'.cyan, '"MD5withRSA"'.cyan));
-								}
 							}
 							callback(null, value);
 						}
@@ -882,9 +878,8 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 	}
 	cli.tiapp.properties['ti.deploytype'] = { type: 'string', value: this.deployType };
 
-	// Fetch Java max heap size settings.
+	// Fetch Java max heap size setting.
 	this.javacMaxMemory = cli.tiapp.properties['android.javac.maxmemory'] && cli.tiapp.properties['android.javac.maxmemory'].value || config.get('android.javac.maxMemory', '3072M');
-	this.dxMaxMemory = cli.tiapp.properties['android.dx.maxmemory'] && cli.tiapp.properties['android.dx.maxmemory'].value || config.get('android.dx.maxMemory', '3072M');
 
 	// Transpilation details
 	this.transpile = cli.tiapp['transpile'] !== false; // Transpiling is an opt-out process now
@@ -1403,16 +1398,33 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 	}
 
 	// make sure we have an icon
+	this.appIconManifestValue = null;
+	this.appRoundIconManifestValue = null;
 	if (this.customAndroidManifest) {
-		const appIconValue = this.customAndroidManifest.getAppAttribute('android:icon');
-		if (appIconValue) {
-			cli.tiapp.icon = appIconValue.replace(/^@drawable\//, '') + '.png';
+		// Fetch the app "icon" and "roundIcon" attributes as-is from the "AndroidManfiest.xml".
+		this.appIconManifestValue = this.customAndroidManifest.getAppAttribute('android:icon');
+		this.appRoundIconManifestValue = this.customAndroidManifest.getAppAttribute('android:roundIcon');
+		if (this.appIconManifestValue) {
+			// Turn the "android:icon" value to an image file name. Remove the "@drawable/" or "@mipmap/" prefix.
+			let appIconName = this.appIconManifestValue;
+			const index = appIconName.lastIndexOf('/');
+			if (index >= 0) {
+				appIconName = appIconName.substring(index + 1);
+			}
+			cli.tiapp.icon = appIconName + '.png';
 		}
 	}
 	if (!cli.tiapp.icon || ![ 'Resources', 'Resources/android' ].some(function (p) {
 		return fs.existsSync(cli.argv['project-dir'], p, cli.tiapp.icon);
 	})) {
 		cli.tiapp.icon = 'appicon.png';
+	}
+	if (!this.appIconManifestValue) {
+		this.appIconManifestValue = '@drawable/' + cli.tiapp.icon;
+		const index = this.appIconManifestValue.indexOf('.');
+		if (index >= 0) {
+			this.appIconManifestValue = this.appIconManifestValue.substring(0, index);
+		}
 	}
 
 	return function (callback) {
@@ -2356,7 +2368,6 @@ AndroidBuilder.prototype.generateAppProject = async function generateAppProject(
 	buildGradleContent = ejs.render(buildGradleContent.toString(), {
 		applicationId: this.appid,
 		compileSdkVersion: this.compileSdkVersion,
-		dexJavaMaxHeapSize: this.dxMaxMemory,
 		minSdkVersion: this.minSDK,
 		targetSdkVersion: this.targetSDK,
 		versionCode: versionCode,
@@ -2725,12 +2736,12 @@ AndroidBuilder.prototype.copyResources = async function copyResources() {
 		this.copyUnmodifiedResources(gatheredResults.resourcesToCopy), // copies any other files that don't require special handling (like JS/CSS do)
 	]);
 
-	// Then do the rest of the shit...
+	// Finish doing the following after the above tasks have copied files to the build folder.
 	const templateDir = path.join(this.platformPath, 'templates', 'app', 'default', 'template', 'Resources', 'android');
 	return Promise.all([
 		this.encryptJSFiles(),
 		this.ensureAppIcon(templateDir),
-		this.ensureSplashScreen(templateDir),
+		this.detectLegacySplashImage(),
 	]);
 };
 
@@ -2751,31 +2762,26 @@ AndroidBuilder.prototype.copyUnmodifiedResources = async function copyUnmodified
 };
 
 /**
- * Ensures the generated app has a splash screen image
- * @param {string} templateDir the filepath to the Titanium SDK's app template for Android apps
+ * Checks if a legacy splash screen "background.png" exists in generated build folder.
+ * Note: As of Titanium 10.1.0, this image is optional and will use the app icon instead if not found.
  */
-AndroidBuilder.prototype.ensureSplashScreen = async function ensureSplashScreen(templateDir) {
-	// make sure we have a splash screen
+AndroidBuilder.prototype.detectLegacySplashImage = async function detectLegacySplashImage() {
+	// Check if a "background" splash image exists under one of the "res/drawable" folders.
+	this.hasSplashBackgroundImage = false;
 	const backgroundRegExp = /^background(\.9)?\.(png|jpg)$/;
-	const destBg = path.join(this.buildAppMainResDrawableDir, 'background.png');
-	const nodpiDir = path.join(this.buildAppMainResDir, 'drawable-nodpi');
-	if (!(await fs.readdir(this.buildAppMainResDrawableDir)).some(name => {
-		if (backgroundRegExp.test(name)) {
-			this.unmarkBuildDirFile(path.join(this.buildAppMainResDrawableDir, name));
-			return true;
-		}
-		return false;
-	}, this)) {
-		// no background image in drawable, but what about drawable-nodpi?
-		if (!(await fs.exists(nodpiDir)) || !(await fs.readdir(nodpiDir)).some(name => {
-			if (backgroundRegExp.test(name)) {
-				this.unmarkBuildDirFile(path.join(nodpiDir, name));
-				return true;
+	for (const dirName of await fs.readdir(this.buildAppMainResDir)) {
+		if (dirName.startsWith('drawable')) {
+			const drawableDirPath = path.join(this.buildAppMainResDir, dirName);
+			for (const fileName of await fs.readdir(drawableDirPath)) {
+				if (backgroundRegExp.test(fileName)) {
+					this.hasSplashBackgroundImage = true;
+					this.unmarkBuildDirFile(path.join(drawableDirPath, fileName));
+					break;
+				}
 			}
-			return false;
-		}, this)) {
-			this.unmarkBuildDirFile(destBg);
-			this.copyFileSync(path.join(templateDir, 'default.png'), destBg);
+			if (this.hasSplashBackgroundImage) {
+				break;
+			}
 		}
 	}
 };
@@ -3285,16 +3291,15 @@ AndroidBuilder.prototype.generateSemanticColors = async function generateSemanti
 
 AndroidBuilder.prototype.generateTheme = async function generateTheme() {
 	// Log the theme XML file we're about to generate.
-	const valuesDirPath = path.join(this.buildAppMainResDir, 'values');
-	const xmlFilePath = path.join(valuesDirPath, 'ti_styles.xml');
-	this.logger.info(__('Generating theme file: %s', xmlFilePath.cyan));
+	const xmlFileName = 'ti_styles.xml';
+	this.logger.info(__('Generating theme file: %s', xmlFileName.cyan));
 
 	// Set default theme to be used in "AndroidManifest.xml" and style resources.
-	let defaultAppThemeName = 'Theme.Titanium.DayNight';
+	let defaultAppThemeName = 'Theme.Titanium.DayNight.Solid';
 	if (this.tiapp.fullscreen || this.tiapp['statusbar-hidden']) {
-		defaultAppThemeName = 'Theme.Titanium.DayNight.Fullscreen';
+		defaultAppThemeName += '.Fullscreen';
 	} else if (this.tiapp['navbar-hidden']) {
-		defaultAppThemeName = 'Theme.Titanium.DayNight.NoTitleBar';
+		defaultAppThemeName += '.NoTitleBar';
 	}
 
 	// Set up "Theme.AppDerived" to use the <application/> defined theme, if assigned.
@@ -3306,22 +3311,105 @@ AndroidBuilder.prototype.generateTheme = async function generateTheme() {
 		}
 	}
 
+	// Use background/default PNG for splash if found. Otherwise theme will default to using app icon.
+	// Also show semi-transparent status/navigation bar if image is set, which was the 10.0.0 behavior.
+	const translucentXmlValue = this.hasSplashBackgroundImage ? 'true' : 'false';
+	let windowBackgroundImageXmlString = '';
+	if (this.hasSplashBackgroundImage) {
+		windowBackgroundImageXmlString = '<item name="android:windowBackground">@drawable/background</item>';
+	}
+
 	// Create the theme XML file with above activity style.
 	// Also apply app's background image to root splash activity theme.
+	let valuesDirPath = path.join(this.buildAppMainResDir, 'values');
 	let xmlLines = [
 		'<?xml version="1.0" encoding="utf-8"?>',
 		'<resources>',
 		`	<style name="Theme.Titanium.App" parent="${defaultAppThemeName}"/>`,
 		`	<style name="Theme.AppDerived" parent="${actualAppTheme}"/>`,
 		'',
-		'	<!-- Theme used by "TiRootActivity" derived class which displays the splash screen. -->',
 		'	<style name="Theme.Titanium" parent="Base.Theme.Titanium.Splash">',
-		'		<item name="android:windowBackground">@drawable/background</item>',
+		`		<item name="titaniumSplashIcon">${this.appIconManifestValue}</item>`,
+		`		<item name="android:windowTranslucentNavigation">${translucentXmlValue}</item>`,
+		`		<item name="android:windowTranslucentStatus">${translucentXmlValue}</item>`,
+		`		${windowBackgroundImageXmlString}`,
 		'	</style>',
 		'</resources>'
 	];
 	await fs.ensureDir(valuesDirPath);
-	await fs.writeFile(xmlFilePath, xmlLines.join('\n'));
+	await fs.writeFile(path.join(valuesDirPath, xmlFileName), xmlLines.join('\n'));
+
+	// Create a theme XML for different Android OS versions depending on how the splash is configured.
+	const iconDrawable = '@drawable/titanium_splash_icon_background';
+	const adaptiveIconDrawable = '@drawable/titanium_splash_adaptive_icon_background';
+	if (this.hasSplashBackgroundImage) {
+		// Project uses background/default PNG for splash, but we will ignore it on Android 12 and higher.
+		// Note: Android 12 forces all apps to use an icon for splash screen. Cannot opt-out.
+		const iconValue = this.appRoundIconManifestValue ? this.appRoundIconManifestValue : this.appIconManifestValue;
+		const windowBackgroundValue = this.appRoundIconManifestValue ? adaptiveIconDrawable : iconDrawable;
+		valuesDirPath = path.join(this.buildAppMainResDir, 'values-v31');
+		xmlLines = [
+			'<?xml version="1.0" encoding="utf-8"?>',
+			'<resources>',
+			'	<style name="Theme.Titanium" parent="Base.Theme.Titanium.Splash">',
+			`		<item name="titaniumSplashIcon">${iconValue}</item>`,
+			`		<item name="android:windowBackground">${windowBackgroundValue}</item>`,
+			'		<item name="android:windowTranslucentNavigation">false</item>',
+			'		<item name="android:windowTranslucentStatus">false</item>',
+			'	</style>',
+			'</resources>'
+		];
+		await fs.ensureDir(valuesDirPath);
+		await fs.writeFile(path.join(valuesDirPath, xmlFileName), xmlLines.join('\n'));
+
+		// Set up translucent status/navigation bars to show dark icons/buttons on Android 8.1 - 11.x.
+		valuesDirPath = path.join(this.buildAppMainResDir, 'values-v27');
+		xmlLines = [
+			'<?xml version="1.0" encoding="utf-8"?>',
+			'<resources>',
+			'	<style name="Theme.Titanium" parent="Base.Theme.Titanium.Splash">',
+			'		<item name="android:windowLightNavigationBar">false</item>',
+			'		<item name="android:windowLightStatusBar">false</item>',
+			'		<item name="android:windowTranslucentNavigation">true</item>',
+			'		<item name="android:windowTranslucentStatus">true</item>',
+			`		${windowBackgroundImageXmlString}`,
+			'	</style>',
+			'</resources>'
+		];
+		await fs.ensureDir(valuesDirPath);
+		await fs.writeFile(path.join(valuesDirPath, xmlFileName), xmlLines.join('\n'));
+
+		// Set up translucent status bars to show dark icons on Android 6.0 - 8.0. (Cannot do this with nav buttons.)
+		valuesDirPath = path.join(this.buildAppMainResDir, 'values-v23');
+		xmlLines = [
+			'<?xml version="1.0" encoding="utf-8"?>',
+			'<resources>',
+			'	<style name="Theme.Titanium" parent="Base.Theme.Titanium.Splash">',
+			'		<item name="android:windowLightStatusBar">false</item>',
+			'		<item name="android:windowTranslucentNavigation">true</item>',
+			'		<item name="android:windowTranslucentStatus">true</item>',
+			`		${windowBackgroundImageXmlString}`,
+			'	</style>',
+			'</resources>'
+		];
+		await fs.ensureDir(valuesDirPath);
+		await fs.writeFile(path.join(valuesDirPath, xmlFileName), xmlLines.join('\n'));
+	} else if (this.appRoundIconManifestValue) {
+		// Project is set up to use app icon for the splash on all Android OS versions. (No fullscreen splash image.)
+		// Since manifest has an "android:roundIcon" adaptive icon defined, use it on Android 8 and higher.
+		valuesDirPath = path.join(this.buildAppMainResDir, 'values-v26');
+		xmlLines = [
+			'<?xml version="1.0" encoding="utf-8"?>',
+			'<resources>',
+			'	<style name="Theme.Titanium" parent="Base.Theme.Titanium.Splash">',
+			`		<item name="titaniumSplashIcon">${this.appRoundIconManifestValue}</item>`,
+			`		<item name="android:windowBackground">${adaptiveIconDrawable}</item>`,
+			'	</style>',
+			'</resources>'
+		];
+		await fs.ensureDir(valuesDirPath);
+		await fs.writeFile(path.join(valuesDirPath, xmlFileName), xmlLines.join('\n'));
+	}
 };
 
 AndroidBuilder.prototype.fetchNeededManifestSettings = function fetchNeededManifestSettings() {
@@ -3550,7 +3638,7 @@ AndroidBuilder.prototype.generateAndroidManifest = async function generateAndroi
 	let mainManifestContent = await fs.readFile(path.join(this.templatesDir, 'AndroidManifest.xml'));
 	mainManifestContent = ejs.render(mainManifestContent.toString(), {
 		appChildXmlLines: appChildXmlLines,
-		appIcon: '@drawable/' + this.tiapp.icon.replace(/((\.9)?\.(png|jpg))$/, ''),
+		appIcon: this.appIconManifestValue,
 		appLabel: this.tiapp.name,
 		classname: this.classname,
 		storagePermissionMaxSdkVersion: neededManifestSettings.storagePermissionMaxSdkVersion,

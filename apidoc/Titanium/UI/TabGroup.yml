@@ -51,7 +51,7 @@ excludes:
                  borderColor,borderRadius,borderWidth,bottom,children,enabled,focusable,height,
                  horizontalWrap,layout,left,opacity,right,softKeyboardOnFocus,
                  top,transform,width,zIndex]
-    events: [click, dblclick, doubletap, keypressed, longclick, longpress, pinch, postlayout, 
+    events: [click, dblclick, doubletap, keypressed, longclick, longpress, pinch, postlayout,
              singletap, swipe, touchcancel, touchend, touchmove, touchstart, twofingertap]
 
 events:
@@ -324,6 +324,13 @@ properties:
     default: true
     platforms: [iphone, ipad, macos]
 
+  - name: autoTabTitle
+    summary: If set to `true` it will automatically set the actionbar title to the current tabs window title.
+    type: Boolean
+    default: false
+    since: 10.2.0
+    platforms: [android]
+
   - name: barColor
     summary: |
         Default navigation bar color (typically for the **More** tab), as a color name or hex triplet.
@@ -333,6 +340,33 @@ properties:
         A value of `transparent` results in a semi-opaque black bar style.
     type: [String, Titanium.UI.Color]
     platforms: [iphone, ipad, android, macos]
+
+  - name: paddingLeft
+    summary: Left padding of bottom navigation
+    description: |
+        When using [TABS_STYLE_BOTTOM_NAVIGATION](Titanium.UI.Android.TABS_STYLE_BOTTOM_NAVIGATION) you can set the padding to have
+        a floating bottom navigation
+    since: "10.1.0"
+    type: [Number,String]
+    platforms: [android]
+
+  - name: paddingRight
+    summary: Right padding of bottom navigation
+    description: |
+        When using [TABS_STYLE_BOTTOM_NAVIGATION](Titanium.UI.Android.TABS_STYLE_BOTTOM_NAVIGATION) you can set the padding to have
+        a floating bottom navigation
+    since: "10.1.0"
+    type: [Number,String]
+    platforms: [android]
+
+  - name: paddingBottom
+    summary: Bottom padding of bottom navigation
+    description: |
+        When using [TABS_STYLE_BOTTOM_NAVIGATION](Titanium.UI.Android.TABS_STYLE_BOTTOM_NAVIGATION) you can set the padding to have
+        a floating bottom navigation
+    since: "10.1.0"
+    type: [Number,String]
+    platforms: [android]
 
   - name: translucent
     summary: Boolean value indicating if the nav bar (typically for the **More** tab), is translucent.
@@ -438,9 +472,13 @@ properties:
         This property allows the user to choose whether they would use this design
         behavior.
 
+        Default is 1 (true) to show title only when the tab is selected. Selected tab will be bigger.
+        Set it to 0 (false) to show all titles and make the buttons the same size.
+        Set it to 2 hide all titles and make the buttons the same size. Title stays hidden for active tabs.
+
         NOTE: This property only affects TabGroups with the [TABS_STYLE_BOTTOM_NAVIGATION](Titanium.UI.Android.TABS_STYLE_BOTTOM_NAVIGATION).
-    type: Boolean
-    default: true
+    type: Number
+    default: 1
     since: "8.0.0"
     platforms: [android]
 
@@ -456,9 +494,18 @@ properties:
         prior to 8.0.0.GA. It displays the TabGroup with a list of Tabs at the top of the screen.
 
         [TABS_STYLE_BOTTOM_NAVIGATION](Titanium.UI.Android.TABS_STYLE_BOTTOM_NAVIGATION) is a style that displays
-        the TabGroup with a list of Tabs in a controller at the bottom of the screen. The recommended usage of this 
-        style is for items count between three and five: (https://material.io/design/components/bottom-navigation.html#usage) 
+        the TabGroup with a list of Tabs in a controller at the bottom of the screen. The recommended usage of this
+        style is for items count between three and five: (https://material.io/design/components/bottom-navigation.html#usage)
         In Android it is limited to supporting a maximum number of five tabs.
+        You can use paddingLeft, paddingRight, paddingBottom to create a floating bottom navigation. If you want to change the
+        radius or background color you'll need to create `/app/platform/android/res/drawable/titanium_rounded_corners.xml` and set it to
+        ```xml
+        <?xml version="1.0" encoding="UTF-8"?>
+        <shape xmlns:android="http://schemas.android.com/apk/res/android">
+            <solid android:color="#FFFFFF" />
+            <corners android:radius="7dp" />
+        </shape>
+        ```
 
     availability: creation
     constants: Titanium.UI.Android.TABS_STYLE_*
@@ -473,7 +520,7 @@ properties:
 
         A tab's [backgroundColor](Titanium.UI.Tab.backgroundColor) property takes precedence if set.
 
-        This property applies to all states and tabs, not just inactive tabs. Furthermore, the inactive 
+        This property applies to all states and tabs, not just inactive tabs. Furthermore, the inactive
         tab icons without activeIcon will be tinted this color.
     type: [String, Titanium.UI.Color]
     since: {android: "3.0.0", iphone: "3.0.0", ipad: "3.0.0"}
@@ -561,7 +608,7 @@ properties:
   - name: shadowImage
     summary: Image of the shadow placed between the tab bar and the content area.
     description: |
-        The <Titanium.UI.TabGroup.tabsBackgroundImage> property must also be set 
+        The <Titanium.UI.TabGroup.tabsBackgroundImage> property must also be set
         in order for this to take effect.
     type: String
     platforms: [iphone, ipad, macos]
@@ -650,6 +697,37 @@ examples:
         }),
         tabGroup = Ti.UI.createTabGroup({
             tabs: [tab1, tab2]
+        });
+        tabGroup.open();
+        ```
+
+  - title: Example with different colors
+    example: |
+        Create a TabGroup with different active and inactive colors.
+
+        ``` js
+        function createTab(title, icon) {
+          const window = Ti.UI.createWindow({ title: title });
+          window.add(Ti.UI.createLabel({ text: title + " View" }));
+            const tab = Ti.UI.createTab({
+            title: title,
+            icon: icon,
+            window: window,
+          });
+          return tab;
+        }
+
+        const tabGroup = Ti.UI.createTabGroup({
+          tabs: [
+            createTab("Tab 1", "/assets/images/tab1.png"),
+            createTab("Tab 2", "/assets/images/tab2.png"),
+            createTab("Tab 3", "/assets/images/tab1.png")
+          ],
+          activeTintColor: "red",
+          activeTitleColor: "red",
+          tintColor: "purple",
+          titleColor: "purple",
+          tabsBackgroundColor: "#F7F7F7",
         });
         tabGroup.open();
         ```

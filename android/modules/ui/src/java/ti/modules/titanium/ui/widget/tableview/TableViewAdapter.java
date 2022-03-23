@@ -13,87 +13,30 @@ import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiRHelper;
 
 import android.content.Context;
-import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import android.widget.RelativeLayout;
 
 import androidx.annotation.NonNull;
-import androidx.recyclerview.selection.SelectionTracker;
 
 import ti.modules.titanium.ui.TableViewRowProxy;
 import ti.modules.titanium.ui.widget.listview.TiRecyclerViewAdapter;
 
-public class TableViewAdapter extends TiRecyclerViewAdapter<TableViewHolder>
+public class TableViewAdapter extends TiRecyclerViewAdapter<TableViewHolder, TableViewRowProxy>
 {
 	private static final String TAG = "TableViewAdapter";
 
-	private static int id_holder;
-	private LayoutInflater inflater;
-	private List<TableViewRowProxy> models;
-	private SelectionTracker tracker;
-
 	public TableViewAdapter(@NonNull Context context, @NonNull List<TableViewRowProxy> models)
 	{
-		this.context = context;
-
-		// Obtain layout inflater instance.
-		inflater = LayoutInflater.from(context);
+		super(context, models);
 
 		// Obtain TableViewHolder layout identifier.
 		try {
-			if (id_holder == 0) {
-				id_holder = TiRHelper.getResource("layout.titanium_ui_tableview_holder");
+			if (this.id_holder == 0) {
+				this.id_holder = TiRHelper.getResource("layout.titanium_ui_tableview_holder");
 			}
 		} catch (TiRHelper.ResourceNotFoundException e) {
 			Log.e(TAG, "Could not load 'layout.titanium_ui_tableview_holder'.");
 		}
-
-		this.models = models;
-
-		setHasStableIds(true);
-	}
-
-	/**
-	 * Get number of items in table.
-	 *
-	 * @return Integer of item count.
-	 */
-	@Override
-	public int getItemCount()
-	{
-		return this.models.size();
-	}
-
-	/**
-	 * Get unique item identifier.
-	 *
-	 * @param position Index position of item to obtain identifier.
-	 * @return Long of item identifier.
-	 */
-	@Override
-	public long getItemId(int position)
-	{
-		return this.models.get(position).hashCode();
-	}
-
-	/**
-	 * Get selection tracker object.
-	 *
-	 * @return Selection tracker.
-	 */
-	public SelectionTracker getTracker()
-	{
-		return tracker;
-	}
-
-	/**
-	 * Set selection tracker for adapter.
-	 *
-	 * @param tracker Selection tracker.
-	 */
-	public void setTracker(SelectionTracker tracker)
-	{
-		this.tracker = tracker;
 	}
 
 	/**
@@ -109,8 +52,11 @@ public class TableViewAdapter extends TiRecyclerViewAdapter<TableViewHolder>
 		final TableViewRowProxy row = this.models.get(position);
 		final boolean selected = tracker != null ? tracker.isSelected(row) : false;
 
+		// Notify row of its selected status.
+		// This is necessary to maintain selection status on theme change.
+		row.setSelected(selected);
+
 		// Update TableViewHolder with new model data.
-		// TODO: Optimize `bind()`.
 		holder.bind(row, selected);
 	}
 
@@ -146,16 +92,5 @@ public class TableViewAdapter extends TiRecyclerViewAdapter<TableViewHolder>
 		if (proxy != null) {
 			proxy.releaseViews();
 		}
-	}
-
-	/**
-	 * Replace models in adapter.
-	 *
-	 * @param models Replacement models.
-	 */
-	public void replaceModels(List<TableViewRowProxy> models)
-	{
-		this.models = models;
-		notifyDataSetChanged();
 	}
 }

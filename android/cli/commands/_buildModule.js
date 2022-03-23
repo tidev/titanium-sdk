@@ -286,9 +286,6 @@ AndroidModuleBuilder.prototype.run = async function run(logger, config, cli, fin
 		// Update module's config files, if necessary.
 		await this.migrate();
 
-		// Post build anlytics.
-		await this.doAnalytics();
-
 		// Initialize build variables and directory.
 		await this.initialize();
 		await this.loginfo();
@@ -356,24 +353,6 @@ AndroidModuleBuilder.prototype.dirWalker = async function dirWalker(directoryPat
 			callback(filePath, fileName);
 		}
 	}
-};
-
-AndroidModuleBuilder.prototype.doAnalytics = async function doAnalytics() {
-	var cli = this.cli,
-		manifest = this.manifest,
-		eventName = 'android.' + cli.argv.type;
-
-	cli.addAnalyticsEvent(eventName, {
-		name: manifest.name,
-		publisher: manifest.author,
-		appid: manifest.moduleid,
-		description: manifest.description,
-		type: cli.argv.type,
-		guid: manifest.guid,
-		version: manifest.version,
-		copyright: manifest.copyright,
-		date: (new Date()).toDateString()
-	});
 };
 
 AndroidModuleBuilder.prototype.initialize = async function initialize() {
@@ -507,6 +486,12 @@ AndroidModuleBuilder.prototype.generateRootProjectFiles = async function generat
 		key: 'org.gradle.jvmargs',
 		value: `-Xmx${this.javacMaxMemory} -Dkotlin.daemon.jvm.options="-Xmx${this.javacMaxMemory}"`
 	});
+
+	// Kotlin KAPT compatibility for JDK16
+	// NOTE: This parameter is removed in JDK17 and will prevent modules from compiling.
+	// https://youtrack.jetbrains.com/issue/KT-45545
+	gradleProperties.push({ key: 'org.gradle.jvmargs', value: '--illegal-access=permit' });
+
 	await gradlew.writeGradlePropertiesFile(gradleProperties);
 
 	// Create a "local.properties" file providing a path to the Android SDK directory.
