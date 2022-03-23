@@ -322,7 +322,7 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 	public void filterBy(String query)
 	{
 		this.filterQuery = query;
-		update();
+		update(true);
 	}
 
 	/**
@@ -609,7 +609,7 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 	/**
 	 * Update table rows, including headers and footers.
 	 */
-	public void update()
+	public void update(boolean force)
 	{
 		final KrollDict properties = this.proxy.getProperties();
 		final boolean firstUpdate = this.rows.size() == 0;
@@ -746,7 +746,7 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 		}
 
 		// Notify adapter of changes on UI thread.
-		this.adapter.notifyDataSetChanged();
+		this.adapter.update(this.rows, force);
 
 		// FIXME: This is not an ideal workaround for an issue where recycled items that were in focus
 		//        lose their focus when the data set changes. There are improvements to be made here.
@@ -789,5 +789,9 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 				}
 			}
 		});
+	}
+	public void update()
+	{
+		this.update(false);
 	}
 }

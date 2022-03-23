@@ -13,7 +13,7 @@ description: |
 
     Use the <Titanium.UI.createTableView> method or **`<TableView>`** Alloy element to create a `TableView`.
 
-    Also see the [TableViews guide](https://docs.appcelerator.com/platform/latest/#!/guide/TableViews).
+    Also see the [TableViews guide](https://titaniumsdk.com/guide/Titanium_SDK/Titanium_SDK_How-tos/User_Interface_Deep_Dives/TableViews.html).
 
     #### Creating Tables
 
@@ -1199,7 +1199,7 @@ properties:
         To specify the wrapper color see <Titanium.UI.View.pullBackgroundColor>.
 
         For an example, see the "Pull to refresh" section in the
-        [TableViews guide](https://docs.appcelerator.com/platform/latest/#!/guide/TableViews).
+        [TableViews guide](https://titaniumsdk.com/guide/Titanium_SDK/Titanium_SDK_How-tos/User_Interface_Deep_Dives/TableViews.html).
 
         Alloy applications can use a `<HeaderPullView>` element inside a `<TableView>` element.
 
