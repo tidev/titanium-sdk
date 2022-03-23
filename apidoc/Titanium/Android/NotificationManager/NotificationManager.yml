@@ -7,7 +7,7 @@ description: |
 
     Further Reading:
 
-      * [Android Notifications guide](https://docs.appcelerator.com/platform/latest/#!/guide/Android_Notifications)
+      * [Android Notifications guide](https://titaniumsdk.com/guide/Titanium_SDK/Titanium_SDK_How-tos/Notification_Services/Android_Notifications.html)
       * [Android Developer: Notifications](https://developer.android.com/guide/topics/ui/notifiers/notifications.html)
 extends: Titanium.Module
 platforms: [android]
