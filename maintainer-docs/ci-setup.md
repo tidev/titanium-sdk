@@ -24,7 +24,7 @@ This is the main workflow, it will run for branches and pull requests. It will u
 
 This is ran automatically on pull requests and on pushes to branches. There is no way to (and no need to) trigger this outside of those actions.
 
-This has no requirements
+This has no requirements.
 
 ### Docs
 
@@ -32,13 +32,13 @@ This validates the documentation contained in `apidoc` using the `tdoc` tooling.
 
 This is ran automatically on pull requests and on pushes to branches. There is no way to (and no need to) trigger this outside of those actions.
 
-This has no requirements
+This has no requirements.
 
 ### Release
 
 This is the release workflow that will automatically build and create a new release on the repository. Before running this step you have completed all the required steps in the [release guide](./releasing-the-sdk.md)
 
-1. Navigate to the [workflow page](https://github.com/appcelerator/titanium_mobile/actions/workflows/release.yml)
+1. Navigate to the [workflow page](https://github.com/tidev/titanium_mobile/actions/workflows/release.yml)
 2. Click `Run workflow`
    * Leave `Use workflow from` as the default
    * Enter the branch to release from
@@ -73,7 +73,7 @@ For example:
       - name: Android build
         uses: ./.github/actions/build-android
         with:
-          node-version: '12.x'
+          node-version: '16.x'
           java-version: '11'
 ```
 
@@ -89,7 +89,7 @@ For example:
       - name: iOS build
         uses: ./.github/actions/build-ios
         with:
-          node-version: '12.x'
+          node-version: '16.x'
 ```
 
 ### Package
@@ -104,7 +104,7 @@ For example:
     - name: Package
       uses: ./.github/actions/package
       with:
-        node-version: '12.x'
+        node-version: '16.x'
         java-version: '11'
         vtag: ${{ env.vtag }}
 ```
