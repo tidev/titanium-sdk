@@ -14,11 +14,14 @@ jobs:
       CCACHE_DIR: ${{ github.workspace }}/.ccache
       USE_CCACHE: 1
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
       - name: Android build
         uses: ./.github/actions/build-android
         with:
-          node-version: '12.x'
+          node-version: '16.x'
           java-version: '11'
 
   ios:
@@ -29,22 +32,28 @@ jobs:
       USE_CCACHE: 1
       DEVELOPER_DIR: /Applications/Xcode_13.0.app/Contents/Developer
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
       - name: iOS build
         uses: ./.github/actions/build-ios
         with:
-          node-version: '12.x'
+          node-version: '16.x'
 
   js:
     runs-on: ubuntu-latest
     name: JavaScript
     steps:
-    - uses: actions/checkout@v2
+    - name: Checkout repository
+      uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
 
     - name: Use Node.js 12.x
       uses: actions/setup-node@v2
       with:
-        node-version: '12.x'
+        node-version: '16.x'
         cache: 'npm'
 
     - name: Install dependencies
@@ -61,7 +70,10 @@ jobs:
       DEVELOPER_DIR: /Applications/Xcode_13.0.app/Contents/Developer
     needs: [android, ios, js]
     steps:
-    - uses: actions/checkout@v2
+    - name: Checkout repository
+      uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
     - name: Create version tag
       run: |
         PACKAGE_VERSION=$(sed -n 's/^ *"version": *"//p' package.json | tr -d '"' | tr -d ',' | tr -d '[[:space:]]')
@@ -71,6 +83,6 @@ jobs:
     - name: Package
       uses: ./.github/actions/package
       with:
-        node-version: '12.x'
+        node-version: '16.x'
         java-version: '11'
         vtag: ${{ env.vtag }}

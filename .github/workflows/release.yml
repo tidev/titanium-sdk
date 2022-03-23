@@ -17,7 +17,6 @@ on:
           - RC
           - Beta
 
-
 jobs:
   validate:
     runs-on: ubuntu-latest
@@ -25,8 +24,10 @@ jobs:
     outputs:
       vtag: ${{ steps.vtag.outputs.vtag }}
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout repository
+        uses: actions/checkout@v3
         with:
+          fetch-depth: 0
           ref: ${{ github.event.inputs.branch }}
       - name: Create version tag
         id: vtag
@@ -62,13 +63,15 @@ jobs:
       CCACHE_DIR: ${{ github.workspace }}/.ccache
       USE_CCACHE: 1
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout repository
+        uses: actions/checkout@v3
         with:
+          fetch-depth: 0
           ref: ${{ github.event.inputs.branch }}
       - name: Android build
         uses: ./.github/actions/build-android
         with:
-          node-version: '12.x'
+          node-version: '16.x'
           java-version: '11'
 
   ios:
@@ -80,13 +83,15 @@ jobs:
       USE_CCACHE: 1
       DEVELOPER_DIR: /Applications/Xcode_13.0.app/Contents/Developer
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout repository
+        uses: actions/checkout@v3
         with:
+          fetch-depth: 0
             ref: ${{ github.event.inputs.branch }}
       - name: iOS build
         uses: ./.github/actions/build-ios
         with:
-          node-version: '12.x'
+          node-version: '16.x'
 
   package:
     runs-on: macos-11
@@ -97,13 +102,15 @@ jobs:
       vtag: ${{ needs.validate.outputs.vtag }}
     needs: [validate, android, ios]
     steps:
-    - uses: actions/checkout@v2
-      with:
+    - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
           ref: ${{ github.event.inputs.branch }}
     - name: Package
       uses: ./.github/actions/package
       with:
-        node-version: '12.x'
+        node-version: '16.x'
         java-version: '11'
         vtag: ${{ env.vtag }}
 
@@ -115,9 +122,11 @@ jobs:
     env:
       vtag: ${{ needs.validate.outputs.vtag }}
     steps:
-    - uses: actions/checkout@v2
+    - name: Checkout repository
+      uses: actions/checkout@v3
       with:
-          ref: ${{ github.event.inputs.branch }}
+        fetch-depth: 0
+        ref: ${{ github.event.inputs.branch }}
     - run: echo ${{ env.vtag }}
     - name: Download Linux artifact
       uses: actions/download-artifact@v2
