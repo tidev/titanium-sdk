@@ -25,6 +25,7 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import androidx.annotation.NonNull;
 import com.google.android.material.card.MaterialCardView;
+import com.google.android.material.shape.CornerFamily;
 
 public class TiUICardView extends TiUIView
 {
@@ -165,12 +166,7 @@ public class TiUICardView extends TiUIView
 		}
 
 		if (d.containsKey(TiC.PROPERTY_BORDER_RADIUS)) {
-			float radius = 0;
-			TiDimension radiusDim = TiConvert.toTiDimension(d.get(TiC.PROPERTY_BORDER_RADIUS), TiDimension.TYPE_WIDTH);
-			if (radiusDim != null) {
-				radius = (float) radiusDim.getPixels(cardview);
-			}
-			cardview.setRadius(radius);
+			setRadius(d.get(TiC.PROPERTY_BORDER_RADIUS));
 		}
 
 		if (d.containsKey(TiC.PROPERTY_BORDER_WIDTH)) {
@@ -296,12 +292,7 @@ public class TiUICardView extends TiUIView
 		} else if (key.equals(TiC.PROPERTY_BORDER_COLOR)) {
 			cardview.setStrokeColor(TiConvert.toColor(TiConvert.toString(newValue)));
 		} else if (key.equals(TiC.PROPERTY_BORDER_RADIUS)) {
-			float radius = 0;
-			TiDimension radiusDim = TiConvert.toTiDimension(newValue, TiDimension.TYPE_WIDTH);
-			if (radiusDim != null) {
-				radius = (float) radiusDim.getPixels(cardview);
-			}
-			cardview.setRadius(radius);
+			setRadius(newValue);
 			cardview.requestLayout();
 		} else if (key.equals(TiC.PROPERTY_BORDER_WIDTH)) {
 			TiDimension tiDimension = TiConvert.toTiDimension(TiConvert.toString(newValue), TiDimension.TYPE_WIDTH);
@@ -412,5 +403,66 @@ public class TiUICardView extends TiUIView
 		// This prevents "TiUIView" class from handling the border.
 		// We apply border properties to CardView ourselves via its stroke methods.
 		return false;
+	}
+
+	private void setRadius(Object borderRadius)
+	{
+		float radius = 0;
+		TiCardView cardView = (TiCardView) getNativeView();
+
+		// Case 1: A string of border radii (e.g. '0 0 20 20') or a single string radius (e.g. '20')
+		if (borderRadius instanceof String) {
+			final String[] corners = ((String) borderRadius).split("\\s");
+			if (corners != null && corners.length > 1) {
+				setRadius(corners);
+			} else {
+				setRadius(new String[]{ corners[0], corners[0], corners[0], corners[0] });
+			}
+
+		// Case 2: An array of border radii (e.g. ['0 0 20 20'])
+		} else if (borderRadius instanceof Object[]) {
+			final Object[] cornerObjects = (Object[]) borderRadius;
+			final float[] cornerPixels = new float[cornerObjects.length];
+
+			for (int i = 0; i < cornerObjects.length; i++) {
+				final Object corner = cornerObjects[i];
+				final TiDimension radiusDimension = TiConvert.toTiDimension(corner, TiDimension.TYPE_WIDTH);
+				if (radiusDimension != null) {
+					cornerPixels[i] = (float) radiusDimension.getPixels(this.nativeView);
+				} else {
+					Log.w(TAG, "Invalid value specified for borderRadius[" + i + "].");
+					cornerPixels[i] = 0;
+				}
+			}
+
+			if (cornerPixels.length >= 4) {
+				cardView.setShapeAppearanceModel(
+					cardView.getShapeAppearanceModel()
+						.toBuilder()
+						.setTopLeftCorner(CornerFamily.ROUNDED, cornerPixels[0])
+						.setTopRightCorner(CornerFamily.ROUNDED, cornerPixels[1])
+						.setBottomRightCorner(CornerFamily.ROUNDED, cornerPixels[2])
+						.setBottomLeftCorner(CornerFamily.ROUNDED, cornerPixels[3])
+						.build());
+			} else {
+				Log.w(TAG, "Could not set borderRadius, empty array.");
+			}
+		// Case 3: A single radius (e.g. 20)
+		} else {
+			final TiDimension radiusDimension = TiConvert.toTiDimension(borderRadius, TiDimension.TYPE_WIDTH);
+			float pixels = 0;
+
+			if (radiusDimension != null) {
+				pixels = (float) radiusDimension.getPixels(this.nativeView);
+			} else {
+				Log.w(TAG, "Invalid value specified for borderRadius.");
+			}
+
+			TiDimension radiusDim = TiConvert.toTiDimension(borderRadius, TiDimension.TYPE_WIDTH);
+			if (radiusDim != null) {
+				radius = (float) radiusDim.getPixels(cardView);
+			}
+			cardView.setRadius(radius);
+		}
 	}
 }
