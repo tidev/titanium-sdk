@@ -39,7 +39,7 @@ import org.json.JSONObject;
 /**
  * This is the parent class of all proxies. A proxy is a dynamic object that can be created or
  * queried by the user through a module or another proxy's API. When you create a native view with
- * <a href="http://developer.appcelerator.com/apidoc/mobile/latest/Titanium.UI.createView-method.html">Titanium.UI.createView </a>,
+ * <a href="https://titaniumsdk.com/api/titanium/ui.html#createview">Titanium.UI.createView </a>,
  * the view object is a proxy itself.
  */
 @Kroll.proxy(name = "KrollProxy", propertyAccessors = { KrollProxy.PROPERTY_HAS_JAVA_LISTENER })

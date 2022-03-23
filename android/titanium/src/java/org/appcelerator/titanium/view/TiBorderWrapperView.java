@@ -20,6 +20,7 @@ import android.graphics.Path.Direction;
 import android.graphics.PorterDuff;
 import android.graphics.Rect;
 import android.graphics.RectF;
+import android.os.Build;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewOutlineProvider;
@@ -104,12 +105,12 @@ public class TiBorderWrapperView extends FrameLayout
 			canvas.drawPath(outerPath, paint);
 
 			// TIMOB-16909: hack to fix anti-aliasing
-			if (backgroundColor != Color.TRANSPARENT) {
+			if (Build.VERSION.SDK_INT < 31 && backgroundColor != Color.TRANSPARENT) {
 				paint.setColor(backgroundColor);
 				canvas.drawPath(innerPath, paint);
 			}
 			canvas.clipPath(innerPath);
-			if (backgroundColor != Color.TRANSPARENT) {
+			if (Build.VERSION.SDK_INT < 31 && backgroundColor != Color.TRANSPARENT) {
 				canvas.drawColor(0, PorterDuff.Mode.CLEAR);
 			}
 		} else {
