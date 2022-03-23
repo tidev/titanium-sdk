@@ -758,6 +758,8 @@ properties:
     description: |
         Height of the ListView separator, in platform-specific units. If undefined, default native height will be used.
         Numerical inputs are treated as pixels. For example, 3 and "3px" are equivalent.
+        On Android API < 23 you must specify <Titanium.UI.ListView.separatorStyle> and
+        <Titanium.UI.ListView.separatorColor> for this property to work.
     type: [String, Number]
     since: "4.1.0"
     platforms: [android]
@@ -1367,8 +1369,8 @@ examples:
             {properties: { title: 'Carrots'}},
             {properties: { title: 'Potatoes'}},
         ];
-        sections.push(vegSection);
         var vegSection = Ti.UI.createListSection({ headerTitle: 'Vegetables', items: vegDataSet});
+        sections.push(vegSection);
 
         listView.sections = sections;
         win.add(listView);
