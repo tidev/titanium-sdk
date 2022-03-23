@@ -178,66 +178,26 @@ public class TiBlob extends KrollProxy
 	 */
 	public String guessContentTypeFromStream()
 	{
-		String mt = null;
-		InputStream is = getInputStream();
-		// We shouldn't try and sniff content type if mark isn't supported by this
-		// input stream! Otherwise we'll read bytes that we can't stuff back anymore
-		// so the stream will have been modified for future reads.
-		if (is != null && is.markSupported()) {
-			try {
-				mt = URLConnection.guessContentTypeFromStream(is);
-				if (mt == null) {
-					mt = guessAdditionalContentTypeFromStream(is);
+		String mimeType = null;
+		try (var inputStream = getInputStream()) {
+			if ((inputStream != null) && inputStream.markSupported()) {
+				// First, attempt to fetch mime-type via BitmapFactory. Will only work for image formats.
+				BitmapFactory.Options options = new BitmapFactory.Options();
+				options.inJustDecodeBounds = true;
+				BitmapFactory.decodeStream(inputStream, null, options);
+				mimeType = options.outMimeType;
+
+				// If above failed, then try to guess mime-type via WebKit.
+				// Note: This returns wrong mime-type for WebP images, which is why we use BitmapFactory 1st.
+				if (mimeType == null) {
+					inputStream.reset();
+					mimeType = URLConnection.guessContentTypeFromStream(inputStream);
 				}
-			} catch (Exception e) {
-				Log.e(TAG, e.getMessage(), e, Log.DEBUG_MODE);
 			}
+		} catch (Exception ex) {
+			Log.e(TAG, ex.getMessage(), ex, Log.DEBUG_MODE);
 		}
-		return mt;
-	}
-
-	/**
-	 * Check for additional content type reading first few characters from the given input stream.
-	 *
-	 * @return the guessed MIME-type or null if the type could not be determined.
-	 */
-	private String guessAdditionalContentTypeFromStream(InputStream is)
-	{
-		String mt = null;
-
-		if (is != null) {
-			try {
-
-				// Look ahead up to 12 bytes (highest number of bytes we care about for now)
-				is.mark(12);
-				byte[] bytes = new byte[12];
-				int length = is.read(bytes);
-				is.reset();
-				if (length == -1) {
-					return null;
-				}
-
-				// This is basically exactly what the normal JDK sniffs for, but Android's fork does not
-				if (bytes[0] == 'G' && bytes[1] == 'I' && bytes[2] == 'F' && bytes[3] == '8') {
-					mt = "image/gif";
-				} else if (bytes[0] == (byte) 0x89 && bytes[1] == (byte) 0x50 && bytes[2] == (byte) 0x4E
-						   && bytes[3] == (byte) 0x47 && bytes[4] == (byte) 0x0D && bytes[5] == (byte) 0x0A
-						   && bytes[6] == (byte) 0x1A && bytes[7] == (byte) 0x0A) {
-					mt = "image/png";
-				} else if (bytes[0] == (byte) 0xFF && bytes[1] == (byte) 0xD8 && bytes[2] == (byte) 0xFF) {
-					if ((bytes[3] == (byte) 0xE0)
-						|| (bytes[3] == (byte) 0xE1 && bytes[6] == 'E' && bytes[7] == 'x' && bytes[8] == 'i'
-							&& bytes[9] == 'f' && bytes[10] == 0)) {
-						mt = "image/jpeg";
-					} else if (bytes[3] == (byte) 0xEE) {
-						mt = "image/jpg";
-					}
-				}
-			} catch (Exception e) {
-				Log.e(TAG, e.getMessage(), e);
-			}
-		}
-		return mt;
+		return mimeType;
 	}
 
 	/**
@@ -245,10 +205,12 @@ public class TiBlob extends KrollProxy
 	 */
 	public void loadBitmapInfo()
 	{
-		String mt = guessContentTypeFromStream();
-		// Update mimetype based on the guessed MIME-type.
-		if (mt != null && !mt.equals(mimetype)) {
-			mimetype = mt;
+		// If assigned mime-type is null or generic, then attempt to guess it.
+		if ((this.mimetype == null) || this.mimetype.equals(TiMimeTypeHelper.MIME_TYPE_OCTET_STREAM)) {
+			String newMimeType = guessContentTypeFromStream();
+			if (newMimeType != null) {
+				this.mimetype = newMimeType;
+			}
 		}
 
 		// If the MIME-type is "image/*" or undetermined, try to decode the file / data into a bitmap.

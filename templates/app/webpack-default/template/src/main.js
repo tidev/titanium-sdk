@@ -5,7 +5,7 @@
  * You can use the existing UI code as a starting point or delete it and
  * design your app UI from scratch.
  *
- * @see https://docs.appcelerator.com/platform/latest/#!/api/Titanium.UI
+ * @see https://titaniumsdk.com/api/titanium/ui.html
  */
 
 import homeTab from './home';
