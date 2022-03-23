@@ -115,6 +115,9 @@ public class TiUIOptionBar extends TiUIView
 					((Checkable) view).setChecked(true);
 					this.isIgnoringCheckEvent = oldValue;
 				}
+			} else if (index == -1) {
+				// unselect all
+				getButtonGroup().clearChecked();
 			}
 		}
 	}
@@ -231,7 +234,6 @@ public class TiUIOptionBar extends TiUIView
 				if (((Checkable) childView).isChecked()) {
 					// Update the proxy's "index" property.
 					this.proxy.setProperty(TiC.PROPERTY_INDEX, index);
-
 					// Fire a "click" event for selected option.
 					if (!this.isIgnoringCheckEvent) {
 						KrollDict data = new KrollDict();
