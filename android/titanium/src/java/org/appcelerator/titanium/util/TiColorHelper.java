@@ -57,6 +57,10 @@ public class TiColorHelper
 	 */
 	public static int parseColor(String value)
 	{
+		return parseColor(value, null);
+	}
+	public static int parseColor(String value, Context context)
+	{
 		if (value == null) {
 			return Color.TRANSPARENT;
 		}
@@ -109,14 +113,19 @@ public class TiColorHelper
 		final String TI_SEMANTIC_COLOR_PREFIX = "ti.semantic.color:";
 		if (value.startsWith(TI_SEMANTIC_COLOR_PREFIX)) {
 			String themePrefix = "light=";
-			Configuration config = TiApplication.getInstance().getResources().getConfiguration();
+			Configuration config;
+			if (context != null) {
+				config = context.getResources().getConfiguration();
+			} else {
+				config = TiApplication.getInstance().getResources().getConfiguration();
+			}
 			if ((config.uiMode & Configuration.UI_MODE_NIGHT_YES) != 0) {
 				themePrefix = "dark=";
 			}
 			String[] stringArray = value.substring(TI_SEMANTIC_COLOR_PREFIX.length()).split(";");
 			for (String nextString : stringArray) {
 				if (nextString.startsWith(themePrefix)) {
-					return TiColorHelper.parseColor(nextString.substring(themePrefix.length()));
+					return TiColorHelper.parseColor(nextString.substring(themePrefix.length()), context);
 				}
 			}
 			Log.e(TAG, "Cannot find named color: " + value);
@@ -124,9 +133,9 @@ public class TiColorHelper
 		}
 
 		// Ti.Android.R.color or Ti.App.Android.R.color resource (by name)
-		if (TiColorHelper.hasColorResource(value)) {
+		if (TiColorHelper.hasColorResource(value, context)) {
 			try {
-				return TiColorHelper.getColorResource(value);
+				return TiColorHelper.getColorResource(value, context);
 			} catch (Exception e) {
 				Log.e(TAG, "Cannot find named color: " + value, e);
 			}
@@ -157,16 +166,25 @@ public class TiColorHelper
 
 	public static boolean hasColorResource(String colorName)
 	{
+		return hasColorResource(colorName, null);
+	}
+	public static boolean hasColorResource(String colorName, Context context)
+	{
 		try {
-			TypedValue typedValue = TiColorHelper.getColorResourceTypedValue(colorName);
+			TypedValue typedValue = TiColorHelper.getColorResourceTypedValue(colorName, context);
 			return TiColorHelper.isColor(typedValue);
 		} catch (Exception ex) {
 		}
 		return false;
 	}
-
 	@NonNull
 	public static TypedValue getColorResourceTypedValue(String colorName) throws Resources.NotFoundException
+	{
+		return getColorResourceTypedValue(colorName, null);
+	}
+	@NonNull
+	public static TypedValue getColorResourceTypedValue(String colorName, Context context)
+		throws Resources.NotFoundException
 	{
 		TypedValue typedValue = new TypedValue();
 
@@ -178,13 +196,12 @@ public class TiColorHelper
 		// Resource ID starting with '?' (instead of '@') should favor current activity theme.
 		// Note: Resources.getIdentifier() won't accept leading '?'. We must replace it.
 		TiApplication app = TiApplication.getInstance();
-		Context context = app;
+		if (context == null) {
+			Context activity = app.getCurrentActivity();
+			context = activity != null ? activity : app;
+		}
 		if (colorName.startsWith("?")) {
 			colorName = "@" + colorName.substring(1);
-			Context activity = app.getCurrentActivity();
-			if (activity != null) {
-				context = activity;
-			}
 		}
 
 		// First check if resource name is defined in app or its libraries.
@@ -216,7 +233,11 @@ public class TiColorHelper
 
 	public static @ColorInt int getColorResource(String colorName) throws Resources.NotFoundException
 	{
-		TypedValue typedValue = TiColorHelper.getColorResourceTypedValue(colorName);
+		return getColorResource(colorName, null);
+	}
+	public static @ColorInt int getColorResource(String colorName, Context context) throws Resources.NotFoundException
+	{
+		TypedValue typedValue = TiColorHelper.getColorResourceTypedValue(colorName, context);
 		if (TiColorHelper.isColor(typedValue)) {
 			return typedValue.data;
 		}

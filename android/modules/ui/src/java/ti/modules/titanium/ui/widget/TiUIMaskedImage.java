@@ -399,14 +399,14 @@ public class TiUIMaskedImage extends TiUIView
 	private void updateMaskTintWith(Object value)
 	{
 		if (this.maskedDrawable != null) {
-			if (value instanceof String) {
-				int color = TiConvert.toColor((String) value);
+			if (value == null) {
+				this.maskedDrawable.setTintingEnabled(false);
+			} else if (value instanceof String) {
+				int color = TiConvert.toColor(value, proxy.getActivity());
 				this.maskedDrawable.setTintColor(color);
 				this.maskedDrawable.setTintingEnabled(true);
-			} else if (value != null) {
-				Log.w(TAG, "MaskedImage 'tint' property must be set to a string.");
 			} else {
-				this.maskedDrawable.setTintingEnabled(false);
+				Log.w(TAG, "MaskedImage 'tint' property must be set to a string.");
 			}
 		}
 	}
@@ -418,13 +418,13 @@ public class TiUIMaskedImage extends TiUIView
 	private void updateTintColorFilterWith(Object value)
 	{
 		if (this.maskedDrawable != null) {
-			if (value instanceof String) {
-				int color = TiConvert.toColor((String) value);
+			if (value == null) {
+				this.maskedDrawable.clearColorFilter();
+			} else if (value instanceof String) {
+				int color = TiConvert.toColor(value, proxy.getActivity());
 				this.maskedDrawable.setColorFilter(color, PorterDuff.Mode.MULTIPLY);
 			} else if (value != null) {
 				Log.w(TAG, "MaskedImage 'tintColor' property must be set to a string.");
-			} else {
-				this.maskedDrawable.clearColorFilter();
 			}
 		}
 	}
