@@ -222,7 +222,7 @@ describe('Titanium.Network.HTTPClient', function () {
 		});
 		xhr.onload = function () {
 			try {
-				const allHeaders = xhr.allResponseHeaders;
+				const allHeaders = xhr.getAllResponseHeaders();
 				should(allHeaders.toLowerCase().indexOf('server:')).be.within(0, 1 / 0);
 				const header = xhr.getResponseHeader('Server');
 				should(header.length).be.greaterThan(0);

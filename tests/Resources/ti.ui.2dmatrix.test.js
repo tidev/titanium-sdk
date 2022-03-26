@@ -11,16 +11,21 @@
 const should = require('./utilities/assertions');
 const utilities = require('./utilities/utilities');
 
-describe('Titanium.UI.Matrix2D', function () {
+// FIXME: We're moving the name to Ti.UI.Matrix2D now!
+describe('Titanium.UI.2DMatrix', function () {
 	it('apiName', function () {
-		const matrix = Ti.UI.createMatrix2D();
+		const matrix = Ti.UI.create2DMatrix();
 		should(matrix).have.readOnlyProperty('apiName').which.is.a.String();
-		should(matrix.apiName).be.eql('Ti.UI.Matrix2D');
+		if (utilities.isWindows()) {
+			should(matrix.apiName).be.eql('Ti.UI.Matrix2D');
+		} else {
+			should(matrix.apiName).be.eql('Ti.UI.2DMatrix');
+		}
 	});
 
 	it('#invert()', function () {
-		var matrix1 = Ti.UI.createMatrix2D();
-		var matrix2 = Ti.UI.createMatrix2D();
+		var matrix1 = Ti.UI.create2DMatrix();
+		var matrix2 = Ti.UI.create2DMatrix();
 		should(matrix1.invert()).be.an.Object();
 		matrix1 = matrix1.scale(2, 2);
 		should(matrix1.invert()).be.an.Object();
@@ -33,8 +38,8 @@ describe('Titanium.UI.Matrix2D', function () {
 	});
 
 	it('#multiply()', function () {
-		var matrix1 = Ti.UI.createMatrix2D();
-		var matrix2 = Ti.UI.createMatrix2D();
+		var matrix1 = Ti.UI.create2DMatrix();
+		var matrix2 = Ti.UI.create2DMatrix();
 		should(matrix1.multiply(matrix2)).be.an.Object();
 		should(matrix1.multiply(matrix1)).be.an.Object();
 		if (utilities.isAndroid()) {
@@ -55,7 +60,7 @@ describe('Titanium.UI.Matrix2D', function () {
 	});
 
 	it('#rotate()', function () {
-		var matrix1 = Ti.UI.createMatrix2D();
+		var matrix1 = Ti.UI.create2DMatrix();
 		should(matrix1.rotate(0)).be.an.Object();
 		should(matrix1.rotate(90)).be.an.Object();
 		should(matrix1.rotate(360)).be.an.Object();
@@ -65,14 +70,14 @@ describe('Titanium.UI.Matrix2D', function () {
 	});
 
 	it('#scale()', function () {
-		var matrix1 = Ti.UI.createMatrix2D();
+		var matrix1 = Ti.UI.create2DMatrix();
 		should(matrix1.scale(50, 50)).be.an.Object();
 		should(matrix1.scale(0, -1)).be.an.Object();
 		should(matrix1.scale(-100, -100)).be.an.Object();
 	});
 
 	it('#translate()', function () {
-		var matrix1 = Ti.UI.createMatrix2D();
+		var matrix1 = Ti.UI.create2DMatrix();
 		should(matrix1.translate(-1, 0)).be.an.Object();
 		should(matrix1.translate(50, 50)).be.an.Object();
 		should(matrix1.translate(0, -1)).be.an.Object();

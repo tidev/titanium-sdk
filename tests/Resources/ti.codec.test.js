@@ -390,7 +390,7 @@ describe('Titanium.Codec', () => {
 				dest: buffer,
 				type: Ti.Codec.TYPE_LONG
 			});
-			if (Ti.Codec.nativeByteOrder == Ti.Codec.BIG_ENDIAN) { // eslint-disable-line eqeqeq
+			if (Ti.Codec.getNativeByteOrder() == Ti.Codec.BIG_ENDIAN) { // eslint-disable-line eqeqeq
 				for (i = 0; i < 3; i++) {
 					should(buffer[i]).eql(0);
 				}
@@ -546,13 +546,13 @@ describe('Titanium.Codec', () => {
 		});
 	});
 
-	describe('#nativeByteOrder', () => {
-		it('is a getter', () => {
-			should(Ti.Codec).have.a.getter('nativeByteOrder');
+	describe('#getNativeByteOrder', () => {
+		it('is a Function', () => {
+			should(Ti.Codec.getNativeByteOrder).be.a.Function();
 		});
 
 		it('returns one of [Ti.Codec.BIG_ENDIAN,Ti.Codec.LITTLE_ENDIAN]', () => {
-			should([ Ti.Codec.BIG_ENDIAN, Ti.Codec.LITTLE_ENDIAN ]).containEql(Ti.Codec.nativeByteOrder);
+			should([ Ti.Codec.BIG_ENDIAN, Ti.Codec.LITTLE_ENDIAN ]).containEql(Ti.Codec.getNativeByteOrder());
 		});
 	});
 
