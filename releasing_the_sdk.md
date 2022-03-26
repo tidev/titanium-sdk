@@ -108,7 +108,7 @@ Run the `wiki-export` job to force a new wiki export and eventual publish of the
 
 #### Manually generate static release note html/landing
 
-Follow the instructions at https://github.com/appcelerator/doctools#single-release to manually generate a static HTML page for the release notes that gets included in the doc site landing pages. (The landing page and note get shown here: http://docs.appcelerator.com/platform/latest/)
+Follow the instructions at https://github.com/tidev/doctools#single-release to manually generate a static HTML page for the release notes that gets included in the doc site landing pages. (The landing page and note get shown here: http://docs.appcelerator.com/platform/latest/)
 
 ## Pushing out the SDK Release to the World
 

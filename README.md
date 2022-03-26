@@ -124,13 +124,13 @@ var view = new View(activity);
 
 ### Getting Started
 
-Check out our [Hyperloop Sample App](https://github.com/appcelerator/hyperloop-examples) and [Hyperloop Programming Guide](https://titaniumsdk.com/guide/Titanium_SDK/Titanium_SDK_Guide/Hyperloop/) to get started with Hyperloop today!
+Check out our [Hyperloop Sample App](https://github.com/tidev/hyperloop-examples) and [Hyperloop Programming Guide](https://titaniumsdk.com/guide/Titanium_SDK/Titanium_SDK_Guide/Hyperloop/) to get started with Hyperloop today!
 
 ## Alloy
 
 [Alloy](https://titaniumsdk.com/guide/Alloy_Framework/Alloy_Getting_Started.html) is the MVC application framework built
 on top of Titanium. It is optional. It rocks. Check it out if you're considering using Titanium.
-It is also a separate [open source project](https://github.com/appcelerator/alloy) available under Apache Public License.
+It is also a separate [open source project](https://github.com/tidev/alloy) available under Apache Public License.
 
 ### Example
 
