@@ -20,6 +20,8 @@ import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.widget.searchbar.TiUISearchBar.OnSearchChangeListener;
 import androidx.appcompat.widget.SearchView;
+
+import android.app.Activity;
 import android.widget.EditText;
 
 public class TiUISearchView extends TiUIView implements SearchView.OnQueryTextListener, SearchView.OnCloseListener
@@ -49,6 +51,8 @@ public class TiUISearchView extends TiUIView implements SearchView.OnQueryTextLi
 	{
 		super.processProperties(props);
 
+		final Activity activity = proxy.getActivity();
+
 		// Check if the hint text is specified when the view is created.
 		if (props.containsKey(TiC.PROPERTY_HINT_TEXT)) {
 			searchView.setQueryHint(props.getString(TiC.PROPERTY_HINT_TEXT));
@@ -58,7 +62,7 @@ public class TiUISearchView extends TiUIView implements SearchView.OnQueryTextLi
 				int id = TiRHelper.getResource("id.search_src_text");
 				EditText text = (EditText) searchView.findViewById(id);
 				if (text != null) {
-					text.setHintTextColor(TiConvert.toColor(props, TiC.PROPERTY_HINT_TEXT_COLOR));
+					text.setHintTextColor(TiConvert.toColor(props, TiC.PROPERTY_HINT_TEXT_COLOR, activity));
 				}
 			} catch (ResourceNotFoundException e) {
 				Log.e(TAG, "Could not find SearchView EditText");
@@ -83,7 +87,7 @@ public class TiUISearchView extends TiUIView implements SearchView.OnQueryTextLi
 				int id = TiRHelper.getResource("id.search_src_text");
 				EditText text = (EditText) searchView.findViewById(id);
 				if (text != null) {
-					text.setTextColor(TiConvert.toColor(props, TiC.PROPERTY_COLOR));
+					text.setTextColor(TiConvert.toColor(props, TiC.PROPERTY_COLOR, activity));
 				}
 			} catch (ResourceNotFoundException e) {
 				Log.e(TAG, "Could not find SearchView EditText");
@@ -100,7 +104,8 @@ public class TiUISearchView extends TiUIView implements SearchView.OnQueryTextLi
 				int id = TiRHelper.getResource("id.search_src_text");
 				EditText text = (EditText) searchView.findViewById(id);
 				if (text != null) {
-					text.setTextColor(TiConvert.toColor((String) newValue));
+					// TODO: reset to default value when property is null
+					text.setTextColor(TiConvert.toColor(newValue, proxy.getActivity()));
 				}
 			} catch (ResourceNotFoundException e) {
 				Log.e(TAG, "Could not find SearchView EditText");
@@ -112,7 +117,8 @@ public class TiUISearchView extends TiUIView implements SearchView.OnQueryTextLi
 				int id = TiRHelper.getResource("id.search_src_text");
 				EditText text = (EditText) searchView.findViewById(id);
 				if (text != null) {
-					text.setHintTextColor(TiConvert.toColor((String) newValue));
+					// TODO: reset to default value when property is null
+					text.setHintTextColor(TiConvert.toColor(newValue, proxy.getActivity()));
 				}
 			} catch (ResourceNotFoundException e) {
 				Log.e(TAG, "Could not find SearchView EditText");

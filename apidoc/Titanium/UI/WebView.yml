@@ -35,6 +35,22 @@ description: |
     [evalJS](Titanium.UI.WebView.evalJS) method to execute a JavaScript expression
     inside the web view and retrieve the value of an expression.
 
+    You can inject the local `Ti.App.fireEvent` bindings yourself by adding a script element using
+    evalJS.
+
+    ```js
+    webview.evalJS(
+      'javascript=(function addBinding(){' +
+        'var s=document.createElement("script");' +
+        's.setAttribute("type","text/javascript");' +
+        's.innerHTML="' + require('/binding.js') + '";'
+        +
+        'document.getElementsByTagName("body")[0].appendChild(s);' +
+      '})()'
+    );
+    ```
+    The `binding.min.js` is available in the [repository](https://github.com/tidev/titanium_mobile/tree/master/android/modules/ui/assets/Resources/ti.internal/webview).
+
     #### Local JavaScript Files
 
     During the build process for creating a package, all JavaScript files, that is, any file with a

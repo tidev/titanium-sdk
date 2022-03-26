@@ -464,7 +464,7 @@ public class UIModule extends KrollModule implements TiApplication.Configuration
 	{
 		TiRootActivity root = TiApplication.getInstance().getRootActivity();
 		if (root != null) {
-			root.setBackgroundColor(color != null ? TiColorHelper.parseColor(color) : Color.TRANSPARENT);
+			root.setBackgroundColor(color != null ? TiColorHelper.parseColor(color, root) : Color.TRANSPARENT);
 		}
 	}
 

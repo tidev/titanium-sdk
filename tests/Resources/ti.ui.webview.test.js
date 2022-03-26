@@ -494,7 +494,7 @@ describe('Titanium.UI.WebView', function () {
 		win = Ti.UI.createWindow();
 		const webView = Ti.UI.createWebView({
 			url: 'https://google.com',
-			blacklistedURLs: [ 'https://google.com' ]
+			blockedURLs: [ 'https://google.com' ]
 		});
 
 		webView.addEventListener('blacklisturl', function () {
