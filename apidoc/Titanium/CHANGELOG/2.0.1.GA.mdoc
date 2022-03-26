@@ -198,14 +198,14 @@ you can find them at the following locations:
 This section lists the most notable known issues and regressions in this release.
 
 *   iOS: WebView canGoBack/canGoForward does not work for local files.
-    ([TIMOB-7965](https://jira.appcelerator.org/browse/TIMOB-7965))
+    ([TIMOB-7965](https://jira-archive.titaniumsdk.com/TIMOB-7965))
 
 *   iOS: VideoPlayer does not fire touch events. This was a regression in
-    Release 1.8.1. ([TIMOB-8486](https://jira.appcelerator.org/browse/TIMOB-8486))
+    Release 1.8.1. ([TIMOB-8486](https://jira-archive.titaniumsdk.com/TIMOB-8486))
 
 *   Android: Titanium.CloudPush module does not work with Android OS 3.0 and newer.
     A fix for this issue is being tested and an updated module will be made available
-    soon. ([CLOUDSRV-429](https://jira.appcelerator.org/browse/CLOUDSRV-429))
+    soon. ([CLOUDSRV-429](https://jira-archive.titaniumsdk.com/CLOUDSRV-429))
 
 <a name="android"></a>
 
@@ -221,32 +221,32 @@ This section lists the most notable known issues and regressions in this release
 *Bug Fixes*
 
 *   Support for background image tiling on a view. This feature was added for iOS in Release
-    1.8.1. ([TIMOB-6586](https://jira.appcelerator.org/browse/TIMOB-6586))
+    1.8.1. ([TIMOB-6586](https://jira-archive.titaniumsdk.com/TIMOB-6586))
 
 *   Several fixes related to WebViews:
 
     *   Improved handling of local URLs inside WebView, including correctly handling
         forward/back for local URLs
-        ([TIMOB-8028](https://jira.appcelerator.org/browse/TIMOB-8028)); and resolving
+        ([TIMOB-8028](https://jira-archive.titaniumsdk.com/TIMOB-8028)); and resolving
         a crash that occurred when reopening a local URL
-        ([TIMOB-8144](https://jira.appcelerator.org/browse/TIMOB-8144)).
+        ([TIMOB-8144](https://jira-archive.titaniumsdk.com/TIMOB-8144)).
 
     *   Fixed a regression where a WebView reloaded when it was removed from the
         view hierarchy, and then re-added.
-        ([TIMOB-7808](https://jira.appcelerator.org/browse/TIMOB-7808)).
+        ([TIMOB-7808](https://jira-archive.titaniumsdk.com/TIMOB-7808)).
 
     *   Fixed a web view crash that occurred when handling the back button.
-        ([TIMOB-7695](https://jira.appcelerator.org/browse/TIMOB-7695)).
+        ([TIMOB-7695](https://jira-archive.titaniumsdk.com/TIMOB-7695)).
 
     *   Resolved a crash when reusing a web view on an activity window.
-        ([TIMOB-8267](https://jira.appcelerator.org/browse/TIMOB-8267))
+        ([TIMOB-8267](https://jira-archive.titaniumsdk.com/TIMOB-8267))
 
     *   Resolved several issues related to the `html` property.
-        ([TIMOB-974](https://jira.appcelerator.org/browse/TIMOB-974) and
-        [TIMOB-7840](https://jira.appcelerator.org/browse/TIMOB-7840))
+        ([TIMOB-974](https://jira-archive.titaniumsdk.com/TIMOB-974) and
+        [TIMOB-7840](https://jira-archive.titaniumsdk.com/TIMOB-7840))
 
 *   Improved open event handling for tabs.
-    ([TIMOB-8192](https://jira.appcelerator.org/browse/TIMOB-8192))
+    ([TIMOB-8192](https://jira-archive.titaniumsdk.com/TIMOB-8192))
 
 For a complete list of Android fixes in this release, see:
 [Fixed Android Issues in JIRA](https://jira.appcelerator.org/secure/IssueNavigator.jspa?mode=hide&requestId=12744)
@@ -273,28 +273,28 @@ The following section lists notable bug fixes in iOS.
 
     This change was required because Apple has changed its policies, and apps using UDID
     may now be rejected from the app store.
-    ([TIMOB-8173](https://jira.appcelerator.org/browse/TIMOB-8173))
+    ([TIMOB-8173](https://jira-archive.titaniumsdk.com/TIMOB-8173))
 
-*   Newsstand content notifications. ([TIMOB-5910](https://jira.appcelerator.org/browse/TIMOB-5910))
+*   Newsstand content notifications. ([TIMOB-5910](https://jira-archive.titaniumsdk.com/TIMOB-5910))
 
 
 *Bug Fixes*
 
 
-*   Fixed "suspend" and "resume" behavior. ([TIMOB-4538](https://jira.appcelerator.org/browse/TIMOB-4538))
-*   Several App verification fixes. ([TIMOB-6575](https://jira.appcelerator.org/browse/TIMOB-6575),
-    [TIMOB-7674](https://jira.appcelerator.org/browse/TIMOB-7674)))
-*   Fixed numerous crashes. ([TIMOB-8105](https://jira.appcelerator.org/browse/TIMOB-8105),
-    [TIMOB-8102](https://jira.appcelerator.org/browse/TIMOB-8102),
-    [TIMOB-8081](https://jira.appcelerator.org/browse/TIMOB-8081),
-    [TIMOB-7334](https://jira.appcelerator.org/browse/TIMOB-7334))
+*   Fixed "suspend" and "resume" behavior. ([TIMOB-4538](https://jira-archive.titaniumsdk.com/TIMOB-4538))
+*   Several App verification fixes. ([TIMOB-6575](https://jira-archive.titaniumsdk.com/TIMOB-6575),
+    [TIMOB-7674](https://jira-archive.titaniumsdk.com/TIMOB-7674)))
+*   Fixed numerous crashes. ([TIMOB-8105](https://jira-archive.titaniumsdk.com/TIMOB-8105),
+    [TIMOB-8102](https://jira-archive.titaniumsdk.com/TIMOB-8102),
+    [TIMOB-8081](https://jira-archive.titaniumsdk.com/TIMOB-8081),
+    [TIMOB-7334](https://jira-archive.titaniumsdk.com/TIMOB-7334))
 *   Fixed memory leaks and garbage collection issues.
-    ([TIMOB-7644](https://jira.appcelerator.org/browse/TIMOB-7644),
-    [TIMOB-7642](https://jira.appcelerator.org/browse/TIMOB-7642),
-    [TIMOB-7467](https://jira.appcelerator.org/browse/TIMOB-7467),
-    [TIMOB-6463](https://jira.appcelerator.org/browse/TIMOB-6463))
+    ([TIMOB-7644](https://jira-archive.titaniumsdk.com/TIMOB-7644),
+    [TIMOB-7642](https://jira-archive.titaniumsdk.com/TIMOB-7642),
+    [TIMOB-7467](https://jira-archive.titaniumsdk.com/TIMOB-7467),
+    [TIMOB-6463](https://jira-archive.titaniumsdk.com/TIMOB-6463))
 *   HTTP client support for Shift_JIS, EUC-JP encodings.
-    ([TIMOB-6835](https://jira.appcelerator.org/browse/TIMOB-6835))
+    ([TIMOB-6835](https://jira-archive.titaniumsdk.com/TIMOB-6835))
 
 For a complete list of iOS fixes in this release, see:
 [Fixed iOS Issues in JIRA](https://jira.appcelerator.org/secure/IssueNavigator.jspa?mode=hide&requestId=12745).

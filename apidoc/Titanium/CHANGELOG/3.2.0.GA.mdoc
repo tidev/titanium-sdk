@@ -126,7 +126,7 @@ This release includes support for Android 4.4 (KitKat).
 This release includes preliminary support for iOS 7.1 Beta. A complete testing pass is being
 performed against Release 3.2. The following issues were discovered:
 
-  * [TIMOB-15741](https://jira.appcelerator.org/browse/TIMOB-15741): Cannot launch the application on the iOS 7.1 simulator
+  * [TIMOB-15741](https://jira-archive.titaniumsdk.com/TIMOB-15741): Cannot launch the application on the iOS 7.1 simulator
 
 <a name="studio3_2"></a>
 ### Studio 3.2.0
@@ -387,7 +387,7 @@ This section lists new features and improvements only available on the Android p
 
 This Release fixes many bugs with 2D matrix transformations, and incorporates a new library
 to achieve parity closer to the performance of the iOS platform
-([TIMOB-11811](https://jira.appcelerator.org/browse/TIMOB-11811)).
+([TIMOB-11811](https://jira-archive.titaniumsdk.com/TIMOB-11811)).
 
 No additions or changes were made to the existing APIs.
 
@@ -421,7 +421,7 @@ Android manifest section should look like:
 #### Build Command
 
 The Titanium CLI build for Android is now written in JavaScript with many, many bug fixes and
-improvements ([TIMOB-9028](https://jira.appcelerator.org/browse/TIMOB-9028)).
+improvements ([TIMOB-9028](https://jira-archive.titaniumsdk.com/TIMOB-9028)).
 
 The rewritten build command works the same as the old Python build script except for the ones
 mentioned in the ["Breaking Changes" section](#build_command).
@@ -726,7 +726,7 @@ The following issues are known with this release.
     }
 ```
 
-**Issue animating view's height and width on Samsung S3** -- On a Samsung S3, animating a view's height and width may produce unexpected results ([TIMOB-15719](https://jira.appcelerator.org/browse/TIMOB-15719)). To workaround this issue, enable hardware acceleration in the `<application/>` element of the Android manifest in your project's tiapp.xml file:
+**Issue animating view's height and width on Samsung S3** -- On a Samsung S3, animating a view's height and width may produce unexpected results ([TIMOB-15719](https://jira-archive.titaniumsdk.com/TIMOB-15719)). To workaround this issue, enable hardware acceleration in the `<application/>` element of the Android manifest in your project's tiapp.xml file:
 
 ```
 <ti:app xmlns:ti="http://ti.appcelerator.org">

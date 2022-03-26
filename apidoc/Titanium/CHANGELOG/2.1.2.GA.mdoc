@@ -34,7 +34,7 @@ https://jira.appcelerator.org/secure/IssueNavigator.jspa?mode=hide&requestId=135
 During testing for this release, the following issue was discovered. 
 
 *   Windows 7: Packaging fails for Android modules
-    ([TIMOB-10726](https://jira.appcelerator.org/browse/TIMOB-10726)).
+    ([TIMOB-10726](https://jira-archive.titaniumsdk.com/TIMOB-10726)).
 
     This issue has been reproduced with Titanium SDK 2.1.1 and 2.1.2. The workaround is 
     to manually create the `build/docs` folder in the module project directory.
@@ -50,10 +50,10 @@ Lion (10.7).
 When using Xcode 4.4,  note the following known issues:
 
 *   Xcode does not function as expected when installed on a partition other than the boot
-    parition ([TIMOB-10360](https://jira.appcelerator.org/browse/TIMOB-10360)).
+    parition ([TIMOB-10360](https://jira-archive.titaniumsdk.com/TIMOB-10360)).
 
 *   A warning is generated when launching the simulator 
-    ([TIMOB-10243](https://jira.appcelerator.org/browse/TIMOB-10243)). The warning reads:
+    ([TIMOB-10243](https://jira-archive.titaniumsdk.com/TIMOB-10243)). The warning reads:
 
         dyld: DYLD_ environment variables being ignored because main executable (/usr/bin/osascript) is code signed with entitlements
 
@@ -69,56 +69,56 @@ platform.
 New Feature:
 
 *   Expose method for controlling selection and cursor in `TextField` and `TextArea` 
-    ([TIMOB-6006](https://jira.appcelerator.org/browse/TIMOB-6006)).
+    ([TIMOB-6006](https://jira-archive.titaniumsdk.com/TIMOB-6006)).
     The new `setSelection` method sets the selection area and cursor position 
     for a text field or text area.
 
 Bug Fixes:
 
 *   Animations don't work with 'dp' values 
-    ([TIMOB-9825](https://jira.appcelerator.org/browse/TIMOB-9825)).
+    ([TIMOB-9825](https://jira-archive.titaniumsdk.com/TIMOB-9825)).
 
 *   App crashes when scrolling a scroll view on Android with 3 fingers 
-    ([TIMOB-10452](https://jira.appcelerator.org/browse/TIMOB-10452)).
+    ([TIMOB-10452](https://jira-archive.titaniumsdk.com/TIMOB-10452)).
 
 *   App intermittently crashes on app restart 
-    ([TIMOB-10012](https://jira.appcelerator.org/browse/TIMOB-10012)).
+    ([TIMOB-10012](https://jira-archive.titaniumsdk.com/TIMOB-10012)).
 
 *   Background services stop when the app is closed via the **Back** button 
-    ([TIMOB-9831](https://jira.appcelerator.org/browse/TIMOB-9831)).
+    ([TIMOB-9831](https://jira-archive.titaniumsdk.com/TIMOB-9831)).
 
 *   `Button`: `touchend` event not fired when `touchmove` gesture moves out of button 
-    ([TIMOB-10153](https://jira.appcelerator.org/browse/TIMOB-10153)).
+    ([TIMOB-10153](https://jira-archive.titaniumsdk.com/TIMOB-10153)).
 
 *   Default project appears with an alert "Restart Required" while launching Android Jelly Bean emulator 
-    ([TIMOB-10306](https://jira.appcelerator.org/browse/TIMOB-10306)).
+    ([TIMOB-10306](https://jira-archive.titaniumsdk.com/TIMOB-10306)).
 
 *   Geolocation: `forwardGeocoder` callback is not called for a bad address 
-    ([TIMOB-10309](https://jira.appcelerator.org/browse/TIMOB-10309)).
+    ([TIMOB-10309](https://jira-archive.titaniumsdk.com/TIMOB-10309)).
 
 *   `HTTPClient`: POST of a Blob or File object leaves behind a temporary file on 
-    internal phone storage ([TIMOB-9797](https://jira.appcelerator.org/browse/TIMOB-9797)).
+    internal phone storage ([TIMOB-9797](https://jira-archive.titaniumsdk.com/TIMOB-9797)).
 
 *   `HTTPClient`: PUT fails for binary Blob or File objects
-    ([TIMOB-9590](https://jira.appcelerator.org/browse/TIMOB-9590)).
+    ([TIMOB-9590](https://jira-archive.titaniumsdk.com/TIMOB-9590)).
 
 *   `HTTPClient`: Uppercase HTTP or HTTPS in URL scheme causes failure 
-    ([TIMOB-10350](https://jira.appcelerator.org/browse/TIMOB-10350)).
+    ([TIMOB-10350](https://jira-archive.titaniumsdk.com/TIMOB-10350)).
 
 *   KitchenSink crashes on relaunch after opening a tab and leaving the device idle for some time 
-    ([TIMOB-10227](https://jira.appcelerator.org/browse/TIMOB-10227)).
+    ([TIMOB-10227](https://jira-archive.titaniumsdk.com/TIMOB-10227)).
 
 *   Map View: Annotations with the same title cannot be uniquely selected. The first is always selected 
-    ([TIMOB-10296](https://jira.appcelerator.org/browse/TIMOB-10296)).
+    ([TIMOB-10296](https://jira-archive.titaniumsdk.com/TIMOB-10296)).
 
 *   Map View `selectAnnotation` parity with iOS 
-    ([TIMOB-10009](https://jira.appcelerator.org/browse/TIMOB-10009)). In previous releases, 
+    ([TIMOB-10009](https://jira-archive.titaniumsdk.com/TIMOB-10009)). In previous releases, 
     `selectAnnotation` centered the view exactly on the annotation's coordinates. On very
     small maps, this can result in cutting off the top of the annotation.  With this fix, 
     the map center is adjusted to show the annotation.
 
 *   Message "An application restart is required" fires incorrectly 
-    ([TIMOB-9285](https://jira.appcelerator.org/browse/TIMOB-9285)).
+    ([TIMOB-9285](https://jira-archive.titaniumsdk.com/TIMOB-9285)).
     This fix provides a new workaround for Android bug 2373. This fix supersedes previous
     fixes for this issue, and has been tested with Android versions 2.x, 3.x, and 4.x. For
     complete details on the fix, see JIRA issue.
@@ -131,25 +131,25 @@ Bug Fixes:
     properties.
 
 *   `ScrollView` not scrolling with horizontal layout 
-    ([TIMOB-9966](https://jira.appcelerator.org/browse/TIMOB-9966)).
+    ([TIMOB-9966](https://jira-archive.titaniumsdk.com/TIMOB-9966)).
 
 *   `ScrollableView`: `addView` method not working 
-    ([TIMOB-9423](https://jira.appcelerator.org/browse/TIMOB-9423)).
+    ([TIMOB-9423](https://jira-archive.titaniumsdk.com/TIMOB-9423)).
     This method was already supported on iOS. A parity bug is open for Mobile Web
-    ([TIMOB-10723](https://jira.appcelerator.org/browse/TIMOB-10723)).
+    ([TIMOB-10723](https://jira-archive.titaniumsdk.com/TIMOB-10723)).
 
 *   `Switch`: Values of switches added to a `TableView` get changed while scrolling 
-    ([TIMOB-9795](https://jira.appcelerator.org/browse/TIMOB-9795)).
+    ([TIMOB-9795](https://jira-archive.titaniumsdk.com/TIMOB-9795)).
 
 *   `Ti.UI.SIZE` does not work well with nested views 
-    ([TIMOB-10003](https://jira.appcelerator.org/browse/TIMOB-10003)).
+    ([TIMOB-10003](https://jira-archive.titaniumsdk.com/TIMOB-10003)).
 
-*   Timers leak memory ([TIMOB-10351](https://jira.appcelerator.org/browse/TIMOB-10351)).
+*   Timers leak memory ([TIMOB-10351](https://jira-archive.titaniumsdk.com/TIMOB-10351)).
     This issue prevented the callback functions passed to `setTimeout` and
     `setInterval` from being garbage collected.
 
 *   `View`: vertical layout does not respect the `bottom` value when padding views 
-    ([TIMOB-10175](https://jira.appcelerator.org/browse/TIMOB-10175)).
+    ([TIMOB-10175](https://jira-archive.titaniumsdk.com/TIMOB-10175)).
 
 
 To browse this list in JIRA, see: 
@@ -165,7 +165,7 @@ The following section lists all bug fixes and enhancements for the iOS platform.
 New Feature:
 
 *   Allow setting base iOS SDK version in `tiapp.xml`
-    ([TIMOB-2999](https://jira.appcelerator.org/browse/TIMOB-2999)). With this fix, the
+    ([TIMOB-2999](https://jira-archive.titaniumsdk.com/TIMOB-2999)). With this fix, the
     minimum SDK version can be set by adding text like this to the `tiapp.xml` file:
 
         <ios>
@@ -180,7 +180,7 @@ New Feature:
     must set the minimum version directly through Xcode in this case.
 
 *   Geolocation: Expose iOS `startMonitoringSignificantLocationChanges` method 
-    ([TIMOB-10041](https://jira.appcelerator.org/browse/TIMOB-10041)).  
+    ([TIMOB-10041](https://jira-archive.titaniumsdk.com/TIMOB-10041)).  
     This new feature adds the ability to receive location updates on significant location changes 
     only, greatly reducing battery usage. Enable this feature by setting the 
     [trackSignificantLocationChange](https://docs.appcelerator.com/titanium/latest/#!/api/Titanium.Geolocation-property-trackSignificantLocationChange) 
@@ -189,36 +189,36 @@ New Feature:
 Bug Fixes:
 
 *   Camera overlay rendering issues 
-    ([TIMOB-10354](https://jira.appcelerator.org/browse/TIMOB-10354)).
+    ([TIMOB-10354](https://jira-archive.titaniumsdk.com/TIMOB-10354)).
 
 *   Debugger: The `this` variable does not occur in variables view in the Studio debugger 
-    ([TIMOB-9636](https://jira.appcelerator.org/browse/TIMOB-9636)).
+    ([TIMOB-9636](https://jira-archive.titaniumsdk.com/TIMOB-9636)).
 
 *   Map View: Annotation image cannot be changed dynamically 
-    ([TIMOB-10203](https://jira.appcelerator.org/browse/TIMOB-10203)).
+    ([TIMOB-10203](https://jira-archive.titaniumsdk.com/TIMOB-10203)).
 
 *   Map View: Annotations caret is offset from pin top and overlaps pin top 
-    ([TIMOB-10220](https://jira.appcelerator.org/browse/TIMOB-10220)).
+    ([TIMOB-10220](https://jira-archive.titaniumsdk.com/TIMOB-10220)).
 
 *   Networking: Allow network activity indicator to be hidden 
-    ([TIMOB-9841](https://jira.appcelerator.org/browse/TIMOB-9841)).
+    ([TIMOB-9841](https://jira-archive.titaniumsdk.com/TIMOB-9841)).
 
 *   Picker: `setSelectedRow` on picker not working if window is not open 
-    ([TIMOB-10146](https://jira.appcelerator.org/browse/TIMOB-10146)).
+    ([TIMOB-10146](https://jira-archive.titaniumsdk.com/TIMOB-10146)).
 
 *   Precompiled headers modified error 
-    ([TIMOB-8025](https://jira.appcelerator.org/browse/TIMOB-8025)).
+    ([TIMOB-8025](https://jira-archive.titaniumsdk.com/TIMOB-8025)).
 
 *   Refactored Kitchen Sink crashes randomly on start 
-    ([TIMOB-10236](https://jira.appcelerator.org/browse/TIMOB-10236)).
+    ([TIMOB-10236](https://jira-archive.titaniumsdk.com/TIMOB-10236)).
 
 *   TableView: Add `scrollsToTop` property 
-    ([TIMOB-10052](https://jira.appcelerator.org/browse/TIMOB-10052)). When using multiple table 
+    ([TIMOB-10052](https://jira-archive.titaniumsdk.com/TIMOB-10052)). When using multiple table 
     views in a single page, this feature allows the developer to specify which tableview scrolls 
     to the top of the screen when the status bar is tapped.
 
 *   TextField: Focusing text fields based on 'return' bounces the keyboard 
-    ([TIMOB-10356](https://jira.appcelerator.org/browse/TIMOB-10356)).
+    ([TIMOB-10356](https://jira-archive.titaniumsdk.com/TIMOB-10356)).
 
 To browse this list in JIRA, see: 
 [Fixed iOS Issues in
