@@ -359,8 +359,8 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 			return;
 		}
 
-		TiAnimationBuilder builder = proxy.getPendingAnimation();
-		if (builder == null) {
+		tiBuilder = proxy.getPendingAnimation();
+		if (tiBuilder == null) {
 			return;
 		}
 

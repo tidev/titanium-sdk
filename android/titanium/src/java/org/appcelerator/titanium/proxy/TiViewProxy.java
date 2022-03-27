@@ -853,7 +853,8 @@ public abstract class TiViewProxy extends KrollProxy
 	}
 
 	@Kroll.method
-	public void animate(@Kroll.argument(optional = true) Object arg, @Kroll.argument(optional = true) KrollFunction callback)
+	public void animate(@Kroll.argument(optional = true) Object arg,
+		@Kroll.argument(optional = true) KrollFunction callback)
 	{
 		synchronized (pendingAnimationLock)
 		{

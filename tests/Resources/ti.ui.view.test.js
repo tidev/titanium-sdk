@@ -730,6 +730,62 @@ describe('Titanium.UI.View', function () {
 		win.open();
 	});
 
+	it.android('animate and stopAnimation', function (finish) {
+		win = Ti.UI.createWindow({ backgroundColor: 'white' });
+		const view = Ti.UI.createView({
+			backgroundColor: 'orange',
+			top: 0,
+			left: 0,
+			width: 100,
+			height: 100,
+		});
+		win.add(view);
+		win.addEventListener('open', () => {
+			const animation = Ti.UI.createAnimation({
+				duration: 2000,
+				left: 200
+			});
+			animation.addEventListener('cancel', () => {
+				should(view.rect.x).be.above(0);
+				should(view.rect.x).be.below(200);
+				finish();
+			});
+			view.animate(animation);
+			setTimeout(function () {
+				view.stopAnimation();
+			}, 500);
+		});
+		win.open();
+	});
+
+	it.android('animate and empty animation', function (finish) {
+		win = Ti.UI.createWindow({ backgroundColor: 'white' });
+		const view = Ti.UI.createView({
+			backgroundColor: 'orange',
+			top: 0,
+			left: 0,
+			width: 100,
+			height: 100,
+		});
+		win.add(view);
+		win.addEventListener('open', () => {
+			const animation = Ti.UI.createAnimation({
+				duration: 2000,
+				left: 200
+			});
+			animation.addEventListener('cancel', () => {
+				should(view.rect.x).be.above(0);
+				should(view.rect.x).be.below(200);
+				finish();
+			});
+			view.animate(animation);
+			setTimeout(function () {
+				view.animate();
+			}, 500);
+		});
+		win.open();
+	});
+
 	it.windowsBroken('convertPointToView', function (finish) {
 		win = Ti.UI.createWindow();
 		const a = Ti.UI.createView({ backgroundColor: 'red' });

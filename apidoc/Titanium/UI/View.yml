@@ -1079,7 +1079,7 @@ methods:
     description: |
         Stops a running view [Animation](Titanium.UI.Animation).
     platforms: [android]
-    since: { android: "7.4.0" }
+    since: { android: "10.2.0" }
 
   - name: toImage
     summary: Returns an image of the rendered view, as a Blob.
