@@ -481,7 +481,7 @@ events:
       - name: rotate
         summary: Rotation in degrees.
         type: Number
-    since: "9.0.0"
+    since: "10.2.0"
 
   - name: singletap
     summary: Fired when the device detects a single tap against the view.
