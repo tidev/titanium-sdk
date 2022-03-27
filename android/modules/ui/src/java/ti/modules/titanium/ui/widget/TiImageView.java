@@ -6,6 +6,7 @@
  */
 package ti.modules.titanium.ui.widget;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
@@ -400,8 +401,15 @@ public class TiImageView extends ViewGroup
 			imageView.clearColorFilter();
 			return;
 		}
+		Activity activity = null;
+		if (proxy != null) {
+			TiViewProxy p = proxy.get();
+			if (p != null) {
+				activity = p.getActivity();
+			}
+		}
 
-		this.tintColor = TiColorHelper.parseColor(color);
+		this.tintColor = TiColorHelper.parseColor(color, activity);
 		imageView.setColorFilter(this.tintColor, Mode.SRC_IN);
 	}
 
