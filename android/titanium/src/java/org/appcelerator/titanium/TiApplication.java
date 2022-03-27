@@ -13,10 +13,14 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.res.Configuration;
 import android.os.Looper;
 import android.os.SystemClock;
 import android.util.DisplayMetrics;
 import android.view.accessibility.AccessibilityManager;
+
+import androidx.annotation.NonNull;
+
 import com.appcelerator.aps.APSAnalytics;
 import com.appcelerator.aps.APSAnalyticsMeta;
 
@@ -99,6 +103,7 @@ public abstract class TiApplication extends Application implements KrollApplicat
 
 	public static AtomicBoolean isActivityTransition = new AtomicBoolean(false);
 	protected static ArrayList<ActivityTransitionListener> activityTransitionListeners = new ArrayList<>();
+	protected static ArrayList<ConfigurationChangedListener> configurationChangedListeners = new ArrayList<>();
 	protected static TiWeakList<Activity> activityStack = new TiWeakList<>();
 
 	public interface ActivityTransitionListener {
@@ -120,6 +125,27 @@ public abstract class TiApplication extends Application implements KrollApplicat
 		isActivityTransition.set(state);
 		for (int i = 0; i < activityTransitionListeners.size(); ++i) {
 			activityTransitionListeners.get(i).onActivityTransition(state);
+		}
+	}
+
+	public interface ConfigurationChangedListener {
+		void onConfigurationChanged(@NonNull Configuration newConfig);
+	}
+
+	public static void addConfigurationChangeListener(ConfigurationChangedListener a)
+	{
+		configurationChangedListeners.add(a);
+	}
+
+	public static void removeConfigurationChangedListener(ConfigurationChangedListener a)
+	{
+		configurationChangedListeners.remove(a);
+	}
+
+	public static void notifyConfigurationChangedListeners(@NonNull Configuration newConfig)
+	{
+		for (int i = 0; i < configurationChangedListeners.size(); ++i) {
+			configurationChangedListeners.get(i).onConfigurationChanged(newConfig);
 		}
 	}
 
@@ -270,6 +296,13 @@ public abstract class TiApplication extends Application implements KrollApplicat
 		return null;
 	}
 
+	@Override
+	public void onConfigurationChanged(@NonNull Configuration newConfig)
+	{
+		super.onConfigurationChanged(newConfig);
+		TiApplication.notifyConfigurationChangedListeners(newConfig);
+	}
+
 	/**
 	 * @return root activity if exists. If root activity doesn't exist, returns current activity if exists. Otherwise returns null.
 	 */
@@ -365,12 +398,6 @@ public abstract class TiApplication extends Application implements KrollApplicat
 
 				// Delete all Titanium temp files.
 				deleteTiTempFiles();
-
-				if (isAnalyticsEnabled()) {
-
-					// Force send `session.end` event.
-					APSAnalytics.getInstance().sendSessionEndEvent(true);
-				}
 			}
 		});
 	}
@@ -435,17 +462,6 @@ public abstract class TiApplication extends Application implements KrollApplicat
 		APSAnalyticsMeta.setDeployType(deployType);
 		APSAnalyticsMeta.setSdkVersion(getTiBuildVersion());
 		APSAnalytics.getInstance().setMachineId(this);
-
-		if (isAnalyticsEnabled()) {
-			APSAnalytics.getInstance().initialize(getAppGUID(), this);
-
-			final int cacheSize = this.appProperties.getInt("ti.analytics.cacheSize", -1);
-			if (cacheSize > -1) {
-				APSAnalytics.getInstance().setCacheSize(cacheSize);
-			}
-		} else {
-			Log.i(TAG, "Analytics have been disabled");
-		}
 	}
 
 	public void postOnCreate()
@@ -724,7 +740,7 @@ public abstract class TiApplication extends Application implements KrollApplicat
 
 	public boolean isAnalyticsEnabled()
 	{
-		return getAppInfo().isAnalyticsEnabled();
+		return false;
 	}
 
 	/**

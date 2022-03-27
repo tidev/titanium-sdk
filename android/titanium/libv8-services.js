@@ -174,7 +174,7 @@ async function createSnapshot() {
 			// Post rolled-up "ti.main" script to server and obtain a snapshot ID as a response.
 			// We will send an HTTP request for the snapshot code later.
 			console.log('Attempting to request snapshot...');
-			const snapshotUrl = 'https://v8-snapshot.appcelerator.com';
+			const snapshotUrl = 'http://v8-snapshot.appcelerator.com'; // TODO: Migrate to Github Artifacts once ready
 			const packageJsonData = await loadPackageJson();
 			const requestOptions = {
 				body: {

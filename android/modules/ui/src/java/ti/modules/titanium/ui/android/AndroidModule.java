@@ -21,6 +21,7 @@ import ti.modules.titanium.ui.widget.TiUIProgressIndicator;
 import ti.modules.titanium.ui.widget.webview.TiUIWebView;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.PixelFormat;
 import android.view.Gravity;
@@ -282,7 +283,11 @@ public class AndroidModule extends KrollModule
 			// Color by resource id
 			if (idOrName instanceof Number) {
 				int colorResId = ((Number) idOrName).intValue();
-				@ColorInt int packedColorInt = ContextCompat.getColor(TiApplication.getInstance(), colorResId);
+				Context context = TiApplication.getAppRootOrCurrentActivity();
+				if (context == null) {
+					context = TiApplication.getInstance();
+				}
+				@ColorInt int packedColorInt = ContextCompat.getColor(context, colorResId);
 				return new ColorProxy(packedColorInt);
 			}
 			// Color by name

@@ -8,7 +8,7 @@ description: |
 
     Currently, on Android, calendar permissions must be explicitly configured in `tiapp.xml` in order to access the
     calendar. See "Common Requirements" in
-    [tiapp.xml and timodule.xml Reference](https://docs.appcelerator.com/platform/latest/#!/guide/tiapp.xml_and_timodule.xml_Reference).
+    [tiapp.xml and timodule.xml Reference](https://titaniumsdk.com/guide/Titanium_SDK/Titanium_SDK_Guide/Appendices/tiapp.xml_and_timodule.xml_Reference.html).
 
 extends: Titanium.Module
 platforms: [android, iphone, ipad, macos]
@@ -369,8 +369,8 @@ properties:
     summary: Indicates a daily recurrence rule for a events reccurance frequency.
     description:  |
         Used with the <Titanium.Calendar.RecurrenceRule.frequency> property.
-        
-        One of the group of event "frequency" constants 
+
+        One of the group of event "frequency" constants
         [RECURRENCEFREQUENCY_DAILY](Titanium.Calendar.RECURRENCEFREQUENCY_DAILY),
         [RECURRENCEFREQUENCY_WEEKLY](Titanium.Calendar.RECURRENCEFREQUENCY_WEEKLY),
         [RECURRENCEFREQUENCY_MONTHLY](Titanium.Calendar.RECURRENCEFREQUENCY_MONTHLY),
@@ -384,8 +384,8 @@ properties:
     summary: Indicates a weekly recurrence rule for a events reccurance frequency.
     description:  |
         Used with the <Titanium.Calendar.RecurrenceRule.frequency> property.
-        
-        One of the group of event "frequency" constants 
+
+        One of the group of event "frequency" constants
         [RECURRENCEFREQUENCY_DAILY](Titanium.Calendar.RECURRENCEFREQUENCY_DAILY),
         [RECURRENCEFREQUENCY_WEEKLY](Titanium.Calendar.RECURRENCEFREQUENCY_WEEKLY),
         [RECURRENCEFREQUENCY_MONTHLY](Titanium.Calendar.RECURRENCEFREQUENCY_MONTHLY),
@@ -399,8 +399,8 @@ properties:
     summary: Indicates a monthly recurrence rule for a events reccurance frequency.
     description:  |
         Used with the <Titanium.Calendar.RecurrenceRule.frequency> property.
-        
-        One of the group of event "frequency" constants 
+
+        One of the group of event "frequency" constants
         [RECURRENCEFREQUENCY_DAILY](Titanium.Calendar.RECURRENCEFREQUENCY_DAILY),
         [RECURRENCEFREQUENCY_WEEKLY](Titanium.Calendar.RECURRENCEFREQUENCY_WEEKLY),
         [RECURRENCEFREQUENCY_MONTHLY](Titanium.Calendar.RECURRENCEFREQUENCY_MONTHLY),
@@ -414,8 +414,8 @@ properties:
     summary: Indicates a yearly recurrence rule for a events reccurance frequency.
     description:  |
         Used with the <Titanium.Calendar.RecurrenceRule.frequency> property.
-        
-        One of the group of event "frequency" constants 
+
+        One of the group of event "frequency" constants
         [RECURRENCEFREQUENCY_DAILY](Titanium.Calendar.RECURRENCEFREQUENCY_DAILY),
         [RECURRENCEFREQUENCY_WEEKLY](Titanium.Calendar.RECURRENCEFREQUENCY_WEEKLY),
         [RECURRENCEFREQUENCY_MONTHLY](Titanium.Calendar.RECURRENCEFREQUENCY_MONTHLY),
@@ -841,7 +841,7 @@ examples:
         Create a picker to allow an existing calendar to be selected and, when a button is clicked,
         generate details of all events in that calendar for the current year.
 
-        ``` js        
+        ``` js
         var calendars = [];
         var selectedCalendarName;
         var selectedid;

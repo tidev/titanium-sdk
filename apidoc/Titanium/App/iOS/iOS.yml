@@ -22,7 +22,7 @@ description: |
          notification.
 
     For instructions on sending local interactive notifications, see the
-    [iOS Local Notifications guide](https://docs.appcelerator.com/platform/latest/#!/guide/iOS_Local_Notifications).
+    [iOS Local Notifications guide](https://titaniumsdk.com/guide/Titanium_SDK/Titanium_SDK_How-tos/Notification_Services/iOS_Local_Notifications.html).
 
     ### Local Interactive Notifications
 
@@ -41,7 +41,7 @@ description: |
       4. Monitor the [localnotificationaction](Titanium.App.iOS.localnotificationaction) event.
 
     For instructions on sending local interactive notifications, see the
-    [iOS Local Notifications guide](https://docs.appcelerator.com/platform/latest/#!/guide/iOS_Local_Notifications).
+    [iOS Local Notifications guide](https://titaniumsdk.com/guide/Titanium_SDK/Titanium_SDK_How-tos/Notification_Services/iOS_Local_Notifications.html).
 
     ### Background Downloads
 
@@ -49,7 +49,7 @@ description: |
     content in the background. These background modes are supported in Titanium SDK 3.2.0 and later.
 
     For more information on getting started, refer to the
-    [iOS Background Services guide](https://docs.appcelerator.com/platform/latest/#!/guide/iOS_Background_Services).
+    [iOS Background Services guide](https://titaniumsdk.com/guide/Titanium_SDK/Titanium_SDK_How-tos/Platform_API_Deep_Dives/iOS_API_Deep_Dives/iOS_Background_Services.html).
 
     ### Handoff User Activities
 
@@ -1258,7 +1258,7 @@ events:
         summary: |
             The response text for [task](Modules.URLSession.task) and [uploadTask](Modules.URLSession.uploadTask).
             This property does not exhist for download task. For download task response,
-            use [downloadcompleted](Titanium.App.iOS.downloadcompleted) event.            
+            use [downloadcompleted](Titanium.App.iOS.downloadcompleted) event.
         type: String
         since: "7.2.0"
 

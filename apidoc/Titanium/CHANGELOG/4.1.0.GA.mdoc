@@ -24,10 +24,10 @@
       * [Tab](#tab)
     * [Region Locale](#region_locale)
     * [Uncaught Errors](#uncaught_errors)
-  * [Known Issues](#known_issues) 
+  * [Known Issues](#known_issues)
     * [iOS Calendar Status Constants](#ios_constants)
     * [Windows Platform](#windows_issues)
-  * [API Changes](#apis) 
+  * [API Changes](#apis)
     * [New APIs](#new_apis)
 
 <a name="about"></a>
@@ -165,7 +165,7 @@ to see when the List View starts or stops scrolling, respectively.
 
 List View now supports adding multiple markers, which fires the `marker ` event when the user
 scrolls to it. Previously, you could only set one marker at a time. For more details, see
-[ListViews: ListView marker event](https://docs.appcelerator.com/platform/latest/#!/guide/ListViews-section-37521650_ListViews-ListViewmarkerEvent).
+[ListViews: ListView marker event](https://titaniumsdk.com/guide/Titanium_SDK/Titanium_SDK_How-tos/User_Interface_Deep_Dives/ListViews/#listview-marker-event).
 
 <a name="map"></a>
 ### Map Module
@@ -199,7 +199,7 @@ action items to list items. Action items appear when the user swipes left on a l
 the user can select an action to perform on the item. Custom action items require iOS 8 and above.
 
 For details, see
-[ListViews: Action Items](https://docs.appcelerator.com/platform/latest/#!/guide/ListViews-section-37521650_ListViews-ActionItems).
+[ListViews: Action Items](https://titaniumsdk.com/guide/Titanium_SDK/Titanium_SDK_How-tos/User_Interface_Deep_Dives/ListViews/#action-items).
 
 <a name="tab"></a>
 #### Tab
@@ -207,7 +207,7 @@ For details, see
 On iOS, the application can set the title color of the active tab or inactive tabs by using the Tab object's
 [activeTitleColor](https://docs.appcelerator.com/platform/latest/#!/api/Titanium.UI.Tab-property-activeTitleColor)
 and [titleColor](https://docs.appcelerator.com/platform/latest/#!/api/Titanium.UI.Tab-property-titleColor)
-properties, respectively. 
+properties, respectively.
 
 <a name="region_locale"></a>
 ### Region Locale
@@ -281,7 +281,7 @@ The following APIs are new or have expanded platform support in Release 4.1.0.
 
   <tr><td>Modules.Map.createPolygon</td><td>method</td><td><p>Creates and returns an instance of Modules.Map.Polygon.
  (New API, supported on Android, iPhone and iPad.)</p></td></tr>
- 
+
    <tr><td>Modules.Map.createPolyline</td><td>method</td><td><p>Creates and returns an instance of Modules.Map.Polyline.
  (New API, supported on Android, iPhone and iPad.)</p></td></tr>
 
@@ -293,7 +293,7 @@ The following APIs are new or have expanded platform support in Release 4.1.0.
   <tr><td>Titanium.Accelerometer</td><td>object</td><td><p>The top-level Accelerometer module, used to determine the device's physical position.
  (Added support for Windows Phone.)</p></td></tr>
 
-  <tr><td>Titanium.Analytics</td><td>object</td><td><p>Used for transmitting developer-defined Analytics events to the Appcelerator Analytics product. 
+  <tr><td>Titanium.Analytics</td><td>object</td><td><p>Used for transmitting developer-defined Analytics events to the Appcelerator Analytics product.
  (Added support for Windows Phone.)</p></td></tr>
 
   <tr><td>Titanium.Analytics.filterEvents</td><td>method</td><td><p>Sets a list of events that will not be sent to the analytics server. (New API, supported on Android, iPhone and iPad.)</p></td></tr>
@@ -302,7 +302,7 @@ The following APIs are new or have expanded platform support in Release 4.1.0.
 application at runtime, and for sending or listening for system events.
  (Added support for Windows Phone.)</p></td></tr>
 
-  <tr><td>Titanium.App.Properties</td><td>object</td><td><p>The App Properties module is used for storing application-related data in property/value pairs 
+  <tr><td>Titanium.App.Properties</td><td>object</td><td><p>The App Properties module is used for storing application-related data in property/value pairs
 that persist beyond application sessions and device power cycles.
  (Added support for Windows Phone.)</p></td></tr>
 
@@ -343,7 +343,7 @@ Returns <code>null</code> if there's an error.
 
   <tr><td>Titanium.Geolocation</td><td>object</td><td><p>The top level Geolocation module. The Geolocation module is used for accessing device location based information. (Added support for Windows Phone.)</p></td></tr>
 
-  <tr><td>Titanium.Gesture</td><td>object</td><td><p>The Gesture module is responsible for high-level device gestures such as orientation changes 
+  <tr><td>Titanium.Gesture</td><td>object</td><td><p>The Gesture module is responsible for high-level device gestures such as orientation changes
 and shake gestures.
  (Added support for Windows Phone.)</p></td></tr>
 
@@ -376,7 +376,7 @@ and shake gestures.
 
   <tr><td>Titanium.Network.Socket.UDP</td><td>object</td><td><p>UDP socket. (New API, supported on Windows Phone.)</p></td></tr>
 
-  <tr><td>Titanium.Platform</td><td>object</td><td><p>The top-level Platform module.  The Platform module is used to access the device's platform-related 
+  <tr><td>Titanium.Platform</td><td>object</td><td><p>The top-level Platform module.  The Platform module is used to access the device's platform-related
 functionality.
  (Added support for Windows Phone.)</p></td></tr>
 
@@ -393,7 +393,7 @@ functionality.
 
   <tr><td>Titanium.UI.ActivityIndicatorStyle</td><td>object</td><td><p>A set of constants for the styles available for Titanium.UI.ActivityIndicator objects. (Added support for Windows Phone.)</p></td></tr>
 
-  <tr><td>Titanium.UI.AlertDialog</td><td>object</td><td><p>An alert dialog is a modal view that includes an optional title, a message and buttons, 
+  <tr><td>Titanium.UI.AlertDialog</td><td>object</td><td><p>An alert dialog is a modal view that includes an optional title, a message and buttons,
 positioned in the middle of the display.
  (Added support for Windows Phone.)</p></td></tr>
 
@@ -405,7 +405,7 @@ positioned in the middle of the display.
   <tr><td>Titanium.UI.EmailDialog</td><td>object</td><td><p>An email dialog is a modal window that allows users to compose and send an email.
  (Added support for Windows Phone.)</p></td></tr>
 
-  <tr><td>Titanium.UI.ImageView</td><td>object</td><td><p>A view to display a single image or series of animated images. 
+  <tr><td>Titanium.UI.ImageView</td><td>object</td><td><p>A view to display a single image or series of animated images.
  (Added support for Windows Phone.)</p></td></tr>
 
   <tr><td>Titanium.UI.Label</td><td>object</td><td><p>A text label, with optional background image. (Added support for Windows Phone.)</p></td></tr>
@@ -453,8 +453,8 @@ in a vertically-scrolling view.
 
   <tr><td>Titanium.UI.Notification</td><td>object</td><td><p>A toast notification. (Added support for Windows Phone.)</p></td></tr>
 
-  <tr><td>Titanium.UI.OptionDialog</td><td>object</td><td><p>An option dialog is a modal view that includes a message and one or more option items positioned 
-in the middle of the display on Android and at the bottom edge on iOS. On Android, buttons may 
+  <tr><td>Titanium.UI.OptionDialog</td><td>object</td><td><p>An option dialog is a modal view that includes a message and one or more option items positioned
+in the middle of the display on Android and at the bottom edge on iOS. On Android, buttons may
 be added below the options.
  (Added support for Windows Phone.)</p></td></tr>
 
@@ -463,7 +463,7 @@ be added below the options.
   <tr><td>Titanium.UI.ScrollView</td><td>object</td><td><p>A view that contains a horizontally and/or vertically-scrollable region of content. <br>
  (Added support for Windows Phone.)</p></td></tr>
 
-  <tr><td>Titanium.UI.ScrollableView</td><td>object</td><td><p>A view that encapsulates a horizontally-scrolling set of child views, known as pages, navigable 
+  <tr><td>Titanium.UI.ScrollableView</td><td>object</td><td><p>A view that encapsulates a horizontally-scrolling set of child views, known as pages, navigable
 using its built-in horizontal swipe gestures.
  (Added support for Windows Phone.)</p></td></tr>
 
@@ -500,7 +500,7 @@ using its built-in horizontal swipe gestures.
 
   <tr><td>Titanium.UI.TabGroup</td><td>object</td><td><p>A tabbed group of windows. (Added support for Windows Phone.)</p></td></tr>
 
-  <tr><td>Titanium.UI.TableView</td><td>object</td><td><p>A table view is used to present information, organized in sections and rows, in a 
+  <tr><td>Titanium.UI.TableView</td><td>object</td><td><p>A table view is used to present information, organized in sections and rows, in a
 vertically-scrolling view.
  (Added support for Windows Phone.)</p></td></tr>
 
@@ -528,7 +528,7 @@ vertically-scrolling view.
 
   <tr><td>Titanium.UI.View</td><td>object</td><td><p>An empty drawing surface or container (Added support for Windows Phone.)</p></td></tr>
 
-  <tr><td>Titanium.UI.WebView</td><td>object</td><td><p>The web view allows you to open an HTML5 based view which can load either local or remote content. 
+  <tr><td>Titanium.UI.WebView</td><td>object</td><td><p>The web view allows you to open an HTML5 based view which can load either local or remote content.
  (Added support for Windows Phone.)</p></td></tr>
 
   <tr><td>Titanium.UI.Window</td><td>object</td><td><p>The Window is an empty drawing surface or container. (Added support for Windows Phone.)</p></td></tr>
@@ -551,7 +551,7 @@ All properties, methods and events in this namespace will only work on Windows P
 
   <tr><td>Titanium.UI.iOS.ROW_ACTION_STYLE_NORMAL</td><td>property</td><td><p>The normal style for RowActionType. (New API, supported on iPhone and iPad.)</p></td></tr>
 
-  <tr><td>Titanium.Utils</td><td>object</td><td><p>The top-level Utils module, containing a set of JavaScript methods that are often useful when 
+  <tr><td>Titanium.Utils</td><td>object</td><td><p>The top-level Utils module, containing a set of JavaScript methods that are often useful when
 building applications.
  (Added support for Windows Phone.)</p></td></tr>
 
@@ -588,7 +588,7 @@ Implements the DOM Level 2 API on Android and iOS. Exposes the DOM Level 3 API i
   <tr><td>Titanium.XML.EntityReference</td><td>object</td><td><p>Represents an XML entity reference.
  (Added support for Windows Phone.)</p></td></tr>
 
-  <tr><td>Titanium.XML.NamedNodeMap</td><td>object</td><td><p>A key-value paired map that maps String objects to  Titanium.XML.Node objects. 
+  <tr><td>Titanium.XML.NamedNodeMap</td><td>object</td><td><p>A key-value paired map that maps String objects to  Titanium.XML.Node objects.
 Implements the DOM Level 2 API  on Android and iOS. Exposes the  DOM Level 3 API implementation on Mobile Web.
  (Added support for Windows Phone.)</p></td></tr>
 
@@ -604,4 +604,3 @@ Implements the DOM Level 2 API  on Android and iOS. Exposes the  DOM Level 3 API
 
 <tr>
 </table>
-

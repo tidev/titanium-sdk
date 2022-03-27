@@ -35,6 +35,22 @@ description: |
     [evalJS](Titanium.UI.WebView.evalJS) method to execute a JavaScript expression
     inside the web view and retrieve the value of an expression.
 
+    You can inject the local `Ti.App.fireEvent` bindings yourself by adding a script element using
+    evalJS.
+
+    ```js
+    webview.evalJS(
+      'javascript=(function addBinding(){' +
+        'var s=document.createElement("script");' +
+        's.setAttribute("type","text/javascript");' +
+        's.innerHTML="' + require('/binding.js') + '";'
+        +
+        'document.getElementsByTagName("body")[0].appendChild(s);' +
+      '})()'
+    );
+    ```
+    The `binding.min.js` is available in the [repository](https://github.com/tidev/titanium_mobile/tree/master/android/modules/ui/assets/Resources/ti.internal/webview).
+
     #### Local JavaScript Files
 
     During the build process for creating a package, all JavaScript files, that is, any file with a
@@ -129,13 +145,13 @@ description: |
     <Titanium.Network.getHTTPCookies>, <Titanium.Network.getHTTPCookiesForDomain>, <Titanium.Network.getSystemCookies>,
     <Titanium.Network.removeHTTPCookie>, <Titanium.Network.removeHTTPCookiesForDomain>, <Titanium.Network.removeAllHTTPCookies>,
     <Titanium.Network.removeSystemCookie>, <Titanium.Network.removeAllSystemCookies>.
-    
+
     **WKWebView**
-    
+
     With Titanium SDK 8.0.0, we now use WKWebView to implement Ti.UI.WebView (as Apple has deprecated UIWebView).
-    WKWebView has few restriction specially with local file accessing. For supporting custom-fonts with WKWebView 
+    WKWebView has few restriction specially with local file accessing. For supporting custom-fonts with WKWebView
     a little modification is required in the HTML files:
-    
+
     ``` html
     <style>
       @font-face
@@ -158,10 +174,10 @@ description: |
 
     ### Ti.UI.SIZE and WebViews
 
-    With Titanium 8.0.0+, <Titanium.UI.SIZE> does not work for WebViews. We recommend to give a **fixed height** 
+    With Titanium 8.0.0+, <Titanium.UI.SIZE> does not work for WebViews. We recommend to give a **fixed height**
     to <Titanium.UI.WebView> (as noted in [TIDOC-3355](https://jira.appcelerator.org/browse/TIDOC-3355)).
-    
-    As a workaround you can try to get the `document.body.scrollHeight` inside <Titanium.UI.WebView.load> event 
+
+    As a workaround you can try to get the `document.body.scrollHeight` inside <Titanium.UI.WebView.load> event
     of webview and set the height to webview. See following example.
 
     ``` js
@@ -175,13 +191,13 @@ description: |
 
     var htmla = "<div style='font-family: Helvetica Neue; font-size:16px'><ul><li>Item 1</li><li>Item 2</li></ul></div>";
     var html = "<!DOCTYPE html>";
-  
+
     html += "<html><head><meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0'><style type='text/css'>html {-webkit-text-size-adjust: none;}</style><script type='text/javascript'>document.ontouchmove = function(event){event.preventDefault();}</script></head><body style='overflow: hidden'>";
     html += htmla;
     html += "</body></html>";
-  
+
     var webview = Ti.UI.createWebView({left: '14dp', right: '14dp', top: '7dp', height: Ti.UI.SIZE, html: html, backgroundColor: "yellow"});
-  
+
     verticalView.add(webview);
 
     verticalView.add(Ti.UI.createLabel({text: 'Label 2', top: 30, width: Ti.UI.SIZE, height: Ti.UI.SIZE}));
@@ -195,12 +211,12 @@ description: |
       Ti.API.info('webview height: ' + result);
       webview.height = result;
     });
-    ``` 
-    
+    ```
+
     #### For More Information
 
     See [Integrating Web
-    Content](https://docs.appcelerator.com/platform/latest/#!/guide/Integrating_Web_Content)
+    Content](https://titaniumsdk.com/guide/Titanium_SDK/Titanium_SDK_How-tos/Integrating_Web_Content/)
     in the Titanium Mobile Guides for more information on using web views, including use
     cases, more code examples, and best practices for web view content.
 extends: Titanium.UI.View
@@ -222,7 +238,7 @@ methods:
 
       ``` js
       setHtml('<html><body>Hello, <a href="/documentation">Titanium</a>!</body></html>',
-              { baseURL: 'https://developer.appcelerator.com/' });
+              { baseURL: 'https://titaniumsdk.com/' });
       ```
     parameters:
       - name: html
@@ -333,7 +349,7 @@ methods:
     summary: |
         Sets the basic authentication for this web view to use on subsequent URL requests.
     description: |
-        The persistence property of this method is only supported on iOS and Titanium SDK 8.0.0+. 
+        The persistence property of this method is only supported on iOS and Titanium SDK 8.0.0+.
         It is ignored on other platforms and versions.
     platforms: [android, iphone, ipad, macos]
     parameters:
@@ -347,7 +363,7 @@ methods:
 
       - name: persistence
         summary: |
-            Constants specify how long the credential will be kept. 
+            Constants specify how long the credential will be kept.
             This is only supported on iOS and Titanium SDK 8.0.0+.
         type: Number
         constants: Titanium.UI.iOS.CREDENTIAL_PERSISTENCE_*
@@ -356,11 +372,11 @@ methods:
     summary: Stops loading a currently loading page.
 
   - name: startListeningToProperties
-    summary: Add native properties for observing for change. 
+    summary: Add native properties for observing for change.
     description: |
-        Some common properties are title, URL, estimatedProgress etc. 
+        Some common properties are title, URL, estimatedProgress etc.
         See native KVO capability at https://developer.apple.com/documentation/webkit/wkwebview.
-        See example section "Listening to Web View properties in iOS" for usage.      
+        See example section "Listening to Web View properties in iOS" for usage.
     platforms: [iphone, ipad, macos]
     since: {iphone: "8.0.0", ipad: "8.0.0", macos: "9.2.0"}
     parameters:
@@ -403,15 +419,15 @@ methods:
   - name: addScriptMessageHandler
     summary: Adds a script message handler.
     description: |
-        Adding a script message handler with name 'name' causes the JavaScript function 
-        window.webkit.messageHandlers.name.postMessage(messageBody) to be defined in all 
-        frames in the web view.      
+        Adding a script message handler with name 'name' causes the JavaScript function
+        window.webkit.messageHandlers.name.postMessage(messageBody) to be defined in all
+        frames in the web view.
     platforms: [iphone, ipad, macos]
     since: {iphone: "8.0.0", ipad: "8.0.0", macos: "9.2.0"}
     parameters:
       - name: handlerName
         summary: |
-            The name of the message handler and should not be '_Ti_', 
+            The name of the message handler and should not be '_Ti_',
             as titanium is using it for internal usage.
         type: String
 
@@ -426,7 +442,7 @@ methods:
 
   - name: backForwardList
     summary: |
-        An object which maintains a list of visited pages used to go back and forward to the most recent page.     
+        An object which maintains a list of visited pages used to go back and forward to the most recent page.
     platforms: [iphone, ipad, macos]
     since: {iphone: "8.0.0", ipad: "8.0.0", macos: "9.2.0"}
     returns:
@@ -448,7 +464,7 @@ methods:
   - name: createWebArchive
     summary: Create WebKit web archive data representing the current web content of the WebView.
     description: |
-        WebKit web archive data represents a snapshot of web content. It can be loaded into a WebView directly, 
+        WebKit web archive data represents a snapshot of web content. It can be loaded into a WebView directly,
         and saved to a file for later use.
     platforms: [iphone, ipad]
     since: "9.2.0"
@@ -617,7 +633,7 @@ events:
   - name: message
     summary: Fired when a script message is received from a webpage.
     description: |
-        This event get fired when you have added a message handler using <Titanium.UI.WebView.addScriptMessageHandler> 
+        This event get fired when you have added a message handler using <Titanium.UI.WebView.addScriptMessageHandler>
         and the webpage sends a message to it.
     platforms: [iphone, ipad, macos]
     since: {iphone: "8.0.0", ipad: "8.0.0", macos: "9.2.0"}
@@ -639,7 +655,7 @@ events:
   - name: progress
     summary: Fired when webpage download progresses.
     description: |
-        Provides a normalized value between 0.0 and 1.0, where 0.0 indicates nothing was downloaded and 
+        Provides a normalized value between 0.0 and 1.0, where 0.0 indicates nothing was downloaded and
         1.0 means the page and all of its resources has finished downloading.
     platforms: [android, ipad, iphone, macos]
     since: {android: "9.1.0", iphone: "8.0.0", ipad: "8.0.0", macos: "9.2.0"}
@@ -775,14 +791,14 @@ properties:
     deprecated:
         since: "8.0.0"
         notes: |
-            This property in no more supported in Titanium SDK 8.0.0+. Use property <Titanium.UI.WebView.allowedURLSchemes> 
-            in conjuction with <Titanium.UI.WebView.handleurl>. See the example section 
+            This property in no more supported in Titanium SDK 8.0.0+. Use property <Titanium.UI.WebView.allowedURLSchemes>
+            in conjuction with <Titanium.UI.WebView.handleurl>. See the example section
             "Usage of allowedURLSchemes and handleurl in iOS".
 
   - name: configuration
     summary: The configuration for the new web view.
     description: |
-        This property can only be set when creating the webview and will be ignored when set afterwards. 
+        This property can only be set when creating the webview and will be ignored when set afterwards.
     type: Titanium.UI.iOS.WebViewConfiguration
     platforms: [iphone, ipad, macos]
     since: {iphone: "8.0.0", ipad: "8.0.0", macos: "9.2.0"}
@@ -790,7 +806,7 @@ properties:
   - name: allowedURLSchemes
     summary: List of allowed URL schemes for the web view.
     description: |
-        See the example section "Usage of allowedURLSchemes and handleurl in iOS". 
+        See the example section "Usage of allowedURLSchemes and handleurl in iOS".
     type: Array<String>
     platforms: [iphone, ipad, macos]
     since: {iphone: "8.0.0", ipad: "8.0.0", macos: "9.2.0"}
@@ -1098,9 +1114,9 @@ properties:
   - name: progress
     summary: An estimate of what fraction of the current navigation has been loaded.
     description: |
-        This value ranges from 0.0 to 1.0 based on the total number of bytes expected 
-        to be received, including the main document and all of its potential subresources. 
-        After loading completes, the progress remains at 1.0 until a new download starts, 
+        This value ranges from 0.0 to 1.0 based on the total number of bytes expected
+        to be received, including the main document and all of its potential subresources.
+        After loading completes, the progress remains at 1.0 until a new download starts,
         at which point progress is reset to 0.0.
     type: Number
     platforms: [android, iphone, ipad, macos]
@@ -1131,7 +1147,7 @@ properties:
 
   - name: secure
     summary: |
-        A Boolean value indicating whether all resources on the page have been loaded through 
+        A Boolean value indicating whether all resources on the page have been loaded through
         securely encrypted connections.
     type: Boolean
     platforms: [iphone, ipad, macos]
@@ -1263,7 +1279,7 @@ examples:
         Create a web view to a remote URL and open the window as modal.
 
         ``` js
-        var webview = Titanium.UI.createWebView({url:'http://www.appcelerator.com'});
+        var webview = Titanium.UI.createWebView({url:'http://www.titaniumsdk.com'});
         var window = Titanium.UI.createWindow();
         window.add(webview);
         window.open({modal:true});
@@ -1275,7 +1291,7 @@ examples:
         ``` xml
         <Alloy>
             <Window id="win" modal="true">
-                <WebView id="webview" url="http://www.appcelerator.com" />
+                <WebView id="webview" url="http://www.titaniumsdk.com" />
             </Window>
         </Alloy>
         ```
@@ -1285,7 +1301,7 @@ examples:
 
         ``` js
         var webview = Ti.UI.createWebView({
-            url:'http://www.appcelerator.com'
+            url:'http://www.titaniumsdk.com'
         });
         webview.startListeningToProperties([ 'title' ]);
         webview.addEventListener('title', function(e) {
@@ -1298,7 +1314,7 @@ examples:
   - title: Usage of allowedURLSchemes and handleurl in iOS
     example: |
         Create a web view and listen 'handleurl' event to open url from Titanium platform.
-        
+
         ``` js
         var webview = Ti.UI.createWebView({
             url: 'https://www.google.com',
@@ -1308,7 +1324,7 @@ examples:
         webview.addEventListener('handleurl', function(e) {
             var handler = e.handler;
             Ti.Platform.openURL(e.url);
-            handler.invoke(Ti.UI.iOS.ACTION_POLICY_CANCEL); 
+            handler.invoke(Ti.UI.iOS.ACTION_POLICY_CANCEL);
         });
         var window = Ti.UI.createWindow();
         window.add(webview);
@@ -1341,7 +1357,7 @@ properties:
     optional: true
   - name: mainFrameOnly
     summary: |
-        A Boolean value indicating whether the script should be injected only into the 
+        A Boolean value indicating whether the script should be injected only into the
         main frame (true) or into all frames (false).
     type: Boolean
     default: false

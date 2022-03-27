@@ -353,11 +353,13 @@ properties:
         For information about color values, see the "Colors" section of <Titanium.UI>.
     type: [String, Titanium.UI.Color]
     since: "10.0.0"
+    platforms: [android, iphone, ipad, macos]
 
   - name: backgroundSelectedImage
     summary: Background image to render when the row is selected.
     type: String
     since: "10.0.0"
+    platforms: [android, iphone, ipad, macos]
 
   - name: selectedBackgroundColor
     summary: Background color to render when the row is selected, as a color name or hex triplet.

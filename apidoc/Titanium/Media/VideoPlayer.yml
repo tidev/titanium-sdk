@@ -542,7 +542,7 @@ properties:
     platforms: [android]
     deprecated:
         since: "7.0.0"
-        notes: Use [Titanium.Media.VideoPlayer.showsControls](Titanium.Media.VideoPlayer.showsControls) instead.
+        notes: On iOS, use [Titanium.Media.VideoPlayer.showsControls](Titanium.Media.VideoPlayer.showsControls) instead.
     summary: The style of the playback controls.
     description: Removed from iOS in SDK 7.0.0
     type: Number
@@ -669,7 +669,7 @@ properties:
         setting this will be accompanied by an OS-provided indicator. However, the iOS
         simulator does not honor this volume setting, and is a known issue with Apple's
         simulator.
-    platforms: [iphone, ipad, macos]
+    platforms: [android, iphone, ipad, macos]
     type: Number
     default: 1.0
     since: "2.1"

@@ -34,10 +34,6 @@
 			"url": "https://github.com/appcelerator-modules/ti.facebook/releases/download/v11.0.2-android/facebook-android-11.0.2.zip",
 			"integrity": "sha512-INcD9X+KvAapc8ZRHZVWU5fHAulhzjRysXQv3uCstAj6Xa7Ka7dFlO9pWn9DC58v1q1FlfjG/5kKxhJ/q+sdLg=="
 		},
-		"ti.cloudpush": {
-			"url": "https://appcelerator-modules.s3.amazonaws.com/ti.cloudpush-android-8.0.0.zip",
-			"integrity": "sha512-hJnDgcMOL3QxZbBa0OpQwB8rhj//0ZbTVvWZM+gky9uiRmaZub6dTnXYTdnPdEM8KqAiJf2BFctBJjGGs+MXkw=="
-		},
 		"ti.map": {
 			"url": "https://github.com/appcelerator-modules/ti.map/releases/download/v5.3.3-android/ti.map-android-5.3.3.zip",
 			"integrity": "sha512-03uYbo7Y7oSHLQFUayJjAqSd/7ACWo9zf7xNEWxjM8UpnFp8Jdld0qhSNtU4j9LZuOArF9KP8HLbInW5BwEcag=="
@@ -56,10 +52,6 @@
 		}
 	},
 	"commonjs": {
-		"ti.cloud": {
-			"url": "https://github.com/appcelerator-modules/ti.cloud/releases/download/3.2.11/ti.cloud-commonjs-3.2.11.zip",
-			"integrity": "sha512-QL0mbMwNIigmXimPVaBzckIJizQyoMpvAkotqh2FSv9NkqTGhK2DtQ3rKpDTKNgxyRU607brE3grc0L30bRlMQ=="
-		}
 	},
 	"hyperloop": {
 		"hyperloop": {
