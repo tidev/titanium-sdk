@@ -876,6 +876,17 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
   [[self tableView] setBounces:![TiUtils boolValue:value def:NO]];
 }
 
+#if IS_SDK_IOS_15
+- (void)setSectionHeaderTopPadding_:(id)value
+{
+  if (![TiUtils isIOSVersionOrGreater:@"15.0"]) {
+    return;
+  }
+
+  self.tableView.sectionHeaderTopPadding = [TiUtils floatValue:value def:UITableViewAutomaticDimension];
+}
+#endif
+
 - (void)setAllowsMultipleSelectionDuringEditing_:(id)value
 {
   ENSURE_TYPE(value, NSNumber);
@@ -1158,30 +1169,7 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
 
 - (void)tableViewDidEndMultipleSelectionInteraction:(UITableView *)tableView
 {
-  if ([self.proxy _hasListeners:@"itemsselected"]) {
-    NSMutableArray *selectedItems = [NSMutableArray arrayWithCapacity:tableView.indexPathsForSelectedRows.count];
-    NSMutableDictionary *startingItem = [NSMutableDictionary dictionaryWithCapacity:1];
-
-    for (int i = 0; i < tableView.indexPathsForSelectedRows.count; i++) {
-      NSIndexPath *indexPath = tableView.indexPathsForSelectedRows[i];
-      NSIndexPath *realIndexPath = [self pathForSearchPath:indexPath];
-      TiUIListSectionProxy *theSection = [[self.listViewProxy sectionForIndex:realIndexPath.section] retain];
-
-      NSMutableDictionary *eventObject = [[NSMutableDictionary alloc] initWithObjectsAndKeys:
-                                                                          theSection, @"section",
-                                                                      NUMINTEGER(realIndexPath.section), @"sectionIndex",
-                                                                      NUMINTEGER(realIndexPath.row), @"itemIndex",
-                                                                      nil];
-      if (i == 0) {
-        [startingItem setDictionary:eventObject];
-      }
-      [selectedItems addObject:eventObject];
-
-      RELEASE_TO_NIL(eventObject);
-      RELEASE_TO_NIL(theSection);
-    }
-    [self.proxy fireEvent:@"itemsselected" withObject:@{ @"selectedItems" : selectedItems, @"startingItem" : startingItem }];
-  }
+  [self fireItemsSelectedEvent];
 }
 
 - (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath
@@ -1880,6 +1868,12 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
 {
   // send indexPath of tableView which could be self.tableView or searchController.searchResultsTableView
   [self fireClickForItemAtIndexPath:indexPath tableView:tableView accessoryButtonTapped:NO];
+  [self fireItemsSelectedEvent];
+}
+
+- (void)tableView:(UITableView *)tableView didDeselectRowAtIndexPath:(NSIndexPath *)indexPath
+{
+  [self fireItemsSelectedEvent];
 }
 
 - (void)tableView:(UITableView *)tableView accessoryButtonTappedForRowWithIndexPath:(NSIndexPath *)indexPath
@@ -2320,6 +2314,34 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
   }
   [self.proxy fireEvent:eventName withObject:eventObject];
   [eventObject release];
+}
+
+- (void)fireItemsSelectedEvent
+{
+  if ((_tableView != nil) && [self.proxy _hasListeners:@"itemsselected"]) {
+    NSMutableArray *selectedItems = [NSMutableArray arrayWithCapacity:_tableView.indexPathsForSelectedRows.count];
+    NSMutableDictionary *startingItem = [NSMutableDictionary dictionaryWithCapacity:1];
+
+    for (int i = 0; i < _tableView.indexPathsForSelectedRows.count; i++) {
+      NSIndexPath *indexPath = _tableView.indexPathsForSelectedRows[i];
+      NSIndexPath *realIndexPath = [self pathForSearchPath:indexPath];
+      TiUIListSectionProxy *theSection = [[self.listViewProxy sectionForIndex:realIndexPath.section] retain];
+
+      NSMutableDictionary *eventObject = [[NSMutableDictionary alloc] initWithObjectsAndKeys:
+                                                                          theSection, @"section",
+                                                                      NUMINTEGER(realIndexPath.section), @"sectionIndex",
+                                                                      NUMINTEGER(realIndexPath.row), @"itemIndex",
+                                                                      nil];
+      if (i == 0) {
+        [startingItem setDictionary:eventObject];
+      }
+      [selectedItems addObject:eventObject];
+
+      RELEASE_TO_NIL(eventObject);
+      RELEASE_TO_NIL(theSection);
+    }
+    [self.proxy fireEvent:@"itemsselected" withObject:@{ @"selectedItems" : selectedItems, @"startingItem" : startingItem }];
+  }
 }
 
 - (CGFloat)contentWidthForWidth:(CGFloat)width

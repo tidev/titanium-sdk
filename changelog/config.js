@@ -186,7 +186,7 @@ module.exports = {
 				if (!KNOWN_EMPLOYEE_EMAIL_DOMAINS.includes(domain)
 					&& !KNOWN_EMPLOYEE_EMAILS.includes(commit.authorEmail)
 					&& !commit.authorEmail.includes('greenkeeper[bot]')
-					&& !commit.authorEmail.includes('dependabot-preview[bot]')) {
+					&& !commit.authorEmail.includes('dependabot')) {
 					// If this is a noreply github email address, strip it to username so we can link to them
 					// if (domain === 'users.noreply.github.com') {
 					// 	const usernameParts = emailParts[0].split('+'); // may be ID+username, or just username

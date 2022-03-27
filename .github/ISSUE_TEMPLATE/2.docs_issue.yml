@@ -1,0 +1,34 @@
+name: Docs Issue
+description: Noticed an issue with the docs, let us know!
+labels: [bug, docs, needs triage]
+body:
+- type: markdown
+  attributes:
+    value: Thank you for the time you have taken to file this issue! Please make sure to ensure you have filled this form out as best you can.
+- type: markdown
+  attributes:
+    value: If you have the time and are interested, why not make a PR that fixes the issue.
+- type: checkboxes
+  attributes:
+    label: I have searched and made sure there are no existing issues for the issue I am filing
+    options:
+      - label: I have searched the existing issues
+        required: true
+- type: input
+  attributes:
+    label: URL
+    description: What is the URL for the docs page?
+  validations:
+    required: true
+- type: textarea
+  attributes:
+    label: Description
+    description: A description of the issue
+  validations:
+    required: true
+- type: textarea
+  attributes:
+    label: Suggestion
+    description: How do you suggest this could be improved? If the issue is with a code sample please provide the suggested replacement.
+  validations:
+    required: true

@@ -24,6 +24,7 @@
 - (void)fireEvent:(NSArray *)args;
 - (int)garbageCollect:(NSArray *)args;
 
+@property (nonatomic, readonly) NSDictionary *arguments;
 @property (nonatomic, readonly) NSString *id;
 @property (nonatomic, readonly) NSString *url;
 @property (nonatomic, readonly) NSString *guid;

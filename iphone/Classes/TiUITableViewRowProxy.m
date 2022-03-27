@@ -407,7 +407,7 @@ TiProxy *DeepScanForProxyOfViewContainingPoint(UIView *targetView, CGPoint point
   }
 
   [(TiUITableViewCell *)cell setBackgroundGradient_:[self valueForKey:@"backgroundGradient"]];
-  if (IS_NULL_OR_NIL([self valueForKey:@"selectedBackgroundGradient"])) {
+  if (!IS_NULL_OR_NIL([self valueForKey:@"selectedBackgroundGradient"])) {
     [(TiUITableViewCell *)cell setSelectedBackgroundGradient_:[self valueForKey:@"selectedBackgroundGradient"]];
   }
   [(TiUITableViewCell *)cell setBackgroundSelectedGradient_:[self valueForKey:@"backgroundSelectedGradient"]];

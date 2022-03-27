@@ -63,6 +63,16 @@ public class ScrollableViewProxy extends TiViewProxy
 	}
 
 	@Override
+	public void handleCreationDict(KrollDict properties)
+	{
+		super.handleCreationDict(properties);
+
+		if (properties.containsKey(TiC.PROPERTY_VIEWS)) {
+			setViews(properties.get(TiC.PROPERTY_VIEWS));
+		}
+	}
+
+	@Override
 	public TiUIView createView(Activity activity)
 	{
 		this.scrollableView = new TiUIScrollableView(this);
@@ -138,28 +148,60 @@ public class ScrollableViewProxy extends TiViewProxy
 	@Kroll.setProperty
 	public void setViews(Object views)
 	{
-		removeAllViews();
+		// Clone current view list.
+		ArrayList<TiViewProxy> oldViewList = new ArrayList<>(this.views);
 
+		// Replace all views with the given view collection.
+		this.views.clear();
 		if (views instanceof Object[]) {
-			for (final Object view : (Object[]) views) {
-				if (view instanceof TiViewProxy) {
-					addView((TiViewProxy) view);
+			for (final Object nextObject : (Object[]) views) {
+				if (nextObject instanceof TiViewProxy) {
+					TiViewProxy view = (TiViewProxy) nextObject;
+					if (!this.views.contains(view)) {
+						view.setActivity(getActivity());
+						view.setParent(this);
+						this.views.add(view);
+					}
 				}
 			}
+		}
+
+		// Release all of the views that are no longer attached to this scrollable view.
+		// Note: If given collection contains views in old collection, then do not release them.
+		for (TiViewProxy oldView : oldViewList) {
+			if (!this.views.contains(oldView)) {
+				oldView.releaseViews();
+				oldView.setParent(null);
+			}
+		}
+
+		// Notify native scrollable view about the view collection change.
+		if (this.scrollableView != null) {
+			this.scrollableView.getAdapter().notifyDataSetChanged();
 		}
 	}
 
 	@Kroll.method
 	public void addView(TiViewProxy view)
 	{
-		if (!this.views.contains(view)) {
-			view.setActivity(getActivity());
-			view.setParent(this);
-			this.views.add(view);
+		// Validate argument.
+		if (view == null) {
+			return;
+		}
 
-			if (scrollableView != null) {
-				scrollableView.getAdapter().notifyDataSetChanged();
-			}
+		// Do not continue if already added.
+		if (this.views.contains(view)) {
+			return;
+		}
+
+		// Add given view to collection.
+		view.setActivity(getActivity());
+		view.setParent(this);
+		this.views.add(view);
+
+		// Notify native scrollable view about the added child view.
+		if (this.scrollableView != null) {
+			this.scrollableView.getAdapter().notifyDataSetChanged();
 		}
 	}
 

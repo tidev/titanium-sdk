@@ -1,4 +1,4 @@
-<p align="center"><a href="https://appcelerator.com" target="_blank"><img width="120" src=".github/logo-titanium.png"></a></p>
+<p align="center"><a href="https://titaniumsdk.com" target="_blank"><img width="120" src=".github/logo-titanium.png"></a></p>
 
 <h1 align="center">Titanium <a href="https://jenkins.appcelerator.org/job/titanium-sdk/job/titanium_mobile/job/master/" target="_blank"><img src="https://jenkins.appcelerator.org/buildStatus/icon?job=titanium-sdk/titanium_mobile/master" /></a></h1>
 
@@ -75,12 +75,12 @@ your application code into an efficient native executable for each target mobile
 - [x] Support for Web Views incorporating HTML5, CSS etc.
 - [x] Completely extensible via Module API and Hyperloop for building your own controls or extending capabilities
 
-And much, much more (see our [Documentation](http://docs.appcelerator.com/platform/latest/#!/api/Titanium) for more infos).
+And much, much more (see our [Documentation](https://titaniumsdk.com/) for more infos).
 
 ## Hyperloop
 
 Use Hyperloop, our latest addition to the Appcelerator Platform, to extend your Titanium apps by native API's using
-JavaScript. Prior to Hyperloop, you would use [native modules](http://docs.appcelerator.com/platform/latest/#!/guide/Titanium_Module_Concepts) to extend the Titanium API. With
+JavaScript. Prior to Hyperloop, you would use [native modules](https://titaniumsdk.com/guide/Titanium_SDK/Titanium_SDK_How-tos/Extending_Titanium_Mobile/Titanium_Module_Concepts.html) to extend the Titanium API. With
 Hyperloop, you are now able to implement native classes, 3rd-Party libraries (Cocoapods, local frameworks, .aar files)
 and more directly into your apps. Hyperloop is available for iOS, Android and Windows Phone (Tech Preview).
 
@@ -124,11 +124,11 @@ var view = new View(activity);
 
 ### Getting Started
 
-Check out our [Hyperloop Sample App](https://github.com/appcelerator/hyperloop-examples) and [Hyperloop Programming Guide](http://docs.appcelerator.com/platform/latest/#!/guide/Hyperloop) to get started with Hyperloop today!
+Check out our [Hyperloop Sample App](https://github.com/appcelerator/hyperloop-examples) and [Hyperloop Programming Guide](https://titaniumsdk.com/guide/Titanium_SDK/Titanium_SDK_Guide/Hyperloop/) to get started with Hyperloop today!
 
 ## Alloy
 
-[Alloy](http://docs.appcelerator.com/platform/latest/#!/guide/Alloy_Getting_Started) is the MVC application framework built
+[Alloy](https://titaniumsdk.com/guide/Alloy_Framework/Alloy_Getting_Started.html) is the MVC application framework built
 on top of Titanium. It is optional. It rocks. Check it out if you're considering using Titanium.
 It is also a separate [open source project](https://github.com/appcelerator/alloy) available under Apache Public License.
 
@@ -174,18 +174,9 @@ There are a number of ways to get help with Titanium.
 
 ### Official Documentation, Tutorials and Videos
 
-Please visit the official documentation site at [http://docs.appcelerator.com/](http://docs.appcelerator.com/) for the latest and historical documentation on Titanium, Alloy and the various products built by Appcelerator.
+Please visit the official documentation site at [https://titaniumsdk.com/](https://titaniumsdk.com/) for the latest and historical documentation on Titanium, Alloy and the various products built by Appcelerator.
 
-### Developer Community
-
-[Appcelerator Developer](https://developer.axway.com/) is our developer community.
-
-### Video Tutorials
-
-[Appcelerator University](http://university.appcelerator.com/) is our main video channel
-for video tutorials on Titanium.
-
-### Slack
+### Slack / Developer Community
 
 Community support and discussion about Titanium is available on Slack at [TiSlack](http://www.tislack.org).
 
@@ -193,16 +184,12 @@ Community support and discussion about Titanium is available on Slack at [TiSlac
 
 Please consider following [@Appcelerator](http://www.twitter.com/appcelerator) and [@AppcDev](https://twitter.com/AppcDev) on Twitter for updates.
 
-### Blog
-
-The Appcelerator blog is located at (http://www.appcelerator.com/blog).
-
 ### Commercial Support, Licensing
 
 We give our software away for FREE! In order to do that, we have programs for
 companies that require additional level of assistance through training or commercial support,
 need special licensing or want additional levels of capabilities. Please visit the
-[Appcelerator Website](http://www.appcelerator.com) for more information about Appcelerator or
+[Appcelerator Website](http://www.titaniumsdk.com) for more information about Appcelerator or
 email [info@appcelerator.com](mailto:info@appcelerator.com).
 
 ## Contributing

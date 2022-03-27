@@ -652,6 +652,57 @@ describe('Titanium.UI.TabGroup', function () {
 		tabGroup.open();
 	});
 
+	// Android only feature where setting the "padding*" properties on the bottom tab bar style
+	// makes it look like a floating toolbar with rounded corners.
+	describe('floating tab bar', () => {
+		it.android('extendSafeArea - false', finish => {
+			this.timeout(5000);
+			tabGroup = Ti.UI.createTabGroup({
+				extendSafeArea: false,
+				paddingLeft: 15,
+				paddingRight: 15,
+				paddingBottom: 15,
+				style: Ti.UI.Android.TABS_STYLE_BOTTOM_NAVIGATION,
+				tabs: [
+					Ti.UI.createTab({
+						icon: '/SmallLogo.png',
+						window: Ti.UI.createWindow({ title: 'Tab 1' })
+					}),
+					Ti.UI.createTab({
+						icon: '/SmallLogo.png',
+						window: Ti.UI.createWindow({ title: 'Tab 2' })
+					}),
+				]
+			});
+			tabGroup.addEventListener('open', () => finish());
+			tabGroup.open();
+		});
+
+		it.android('extendSafeArea - true', finish => {
+			this.timeout(5000);
+			tabGroup = Ti.UI.createTabGroup({
+				extendSafeArea: true,
+				windowFlags: Ti.UI.Android.FLAG_TRANSLUCENT_STATUS | Ti.UI.Android.FLAG_TRANSLUCENT_NAVIGATION,
+				paddingLeft: 15,
+				paddingRight: 15,
+				paddingBottom: 15,
+				style: Ti.UI.Android.TABS_STYLE_BOTTOM_NAVIGATION,
+				tabs: [
+					Ti.UI.createTab({
+						icon: '/SmallLogo.png',
+						window: Ti.UI.createWindow({ title: 'Tab 1' })
+					}),
+					Ti.UI.createTab({
+						icon: '/SmallLogo.png',
+						window: Ti.UI.createWindow({ title: 'Tab 2' })
+					}),
+				]
+			});
+			tabGroup.addEventListener('open', () => finish());
+			tabGroup.open();
+		});
+	});
+
 	describe('closed/focused', () => {
 		beforeEach(() => {
 			tabGroup = Ti.UI.createTabGroup();

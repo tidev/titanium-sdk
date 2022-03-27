@@ -44,6 +44,7 @@ public class TiUITab extends TiUIView
 		// In order for the 'activity' property to work correctly
 		// we need to set the content view's activity to that of the group.
 		Activity tabGroupActivity = ((TabProxy) proxy).getTabGroup().getActivity();
+		proxy.setActivity(tabGroupActivity);
 		windowProxy.setActivity(tabGroupActivity);
 
 		// Assign parent so events bubble up correctly.
@@ -52,7 +53,7 @@ public class TiUITab extends TiUIView
 		return windowProxy.getOrCreateView().getOuterView();
 	}
 
-	private TiWindowProxy getWindowProxy()
+	public TiWindowProxy getWindowProxy()
 	{
 		if (proxy != null) {
 			Object windowProxy = proxy.getProperty(TiC.PROPERTY_WINDOW);

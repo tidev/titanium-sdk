@@ -122,11 +122,11 @@ android {
 		}
 	}
 	compileOptions {
-		sourceCompatibility JavaVersion.VERSION_1_8
-		targetCompatibility JavaVersion.VERSION_1_8
+		sourceCompatibility JavaVersion.VERSION_11
+		targetCompatibility JavaVersion.VERSION_11
 	}
 	kotlinOptions {
-		jvmTarget = JavaVersion.VERSION_1_8
+		jvmTarget = "11"
 	}
 	// Exclude the C++ runtime and Titanium kroll libraries for all architectures when packaging the AAR file.
 	// Avoids app build failure due to library file name collision. (Apps will use "titanium.aar" bundled *.so files.)
@@ -157,6 +157,8 @@ preBuild.doFirst {
 project.afterEvaluate {
 	externalNativeBuildDebug.dependsOn compileDebugJavaWithJavac
 	externalNativeBuildRelease.dependsOn compileReleaseJavaWithJavac
+	buildNdkBuildDebug.dependsOn compileDebugJavaWithJavac
+	buildNdkBuildRelease.dependsOn compileReleaseJavaWithJavac
 }
 
 // Hook into Java compile task.

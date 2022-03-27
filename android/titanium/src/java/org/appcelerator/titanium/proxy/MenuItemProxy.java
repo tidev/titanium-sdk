@@ -15,7 +15,6 @@ import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiFileHelper;
-import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.util.TiUrl;
 import org.appcelerator.titanium.view.TiUIView;
 
@@ -233,10 +232,7 @@ public class MenuItemProxy extends KrollProxy
 					}
 				}
 			} else if (icon instanceof Number) {
-				Drawable d = TiUIHelper.getResourceDrawable(TiConvert.toInt(icon));
-				if (d != null) {
-					item.setIcon(d);
-				}
+				item.setIcon(TiConvert.toInt(icon));
 			}
 		}
 		return this;

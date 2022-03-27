@@ -150,19 +150,6 @@ static NSArray *tabGroupKeySequence;
   [super windowWillOpen];
 }
 
-- (void)windowDidOpen
-{
-  // Set parent view controller for UITabBarController
-  TiUITabGroup *tabGroup = (TiUITabGroup *)self.view;
-  if (tabGroup) {
-    UITabBarController *tabController = [tabGroup tabController];
-    UIViewController *parentController = [self windowHoldingController];
-    [parentController addChildViewController:tabController];
-    [tabController didMoveToParentViewController:parentController];
-  }
-  [super windowDidOpen];
-}
-
 - (void)windowWillClose
 {
   TiUITabGroup *tabGroup = (TiUITabGroup *)self.view;
@@ -230,6 +217,9 @@ static NSArray *tabGroupKeySequence;
 {
   if ([self viewAttached]) {
     UITabBarController *tabController = [(TiUITabGroup *)[self view] tabController];
+    UIViewController *parentController = [self windowHoldingController];
+    [parentController addChildViewController:tabController];
+    [tabController didMoveToParentViewController:parentController];
     [tabController viewWillAppear:animated];
   }
   [super viewWillAppear:animated];

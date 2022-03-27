@@ -446,12 +446,7 @@ describe('Titanium.UI.Clipboard', () => {
 	describe('examples', () => {
 		it('Copy Text to the Clipboard', () => {
 			Ti.UI.Clipboard.clearText();
-			// returns empty string on Android and undefined on iOS
-			if (OS_ANDROID) {
-				should(Ti.UI.Clipboard.getText()).eql('');
-			} else {
-				should.not.exist(Ti.UI.Clipboard.getText());
-			}
+			should.not.exist(Ti.UI.Clipboard.getText());
 			Ti.UI.Clipboard.setText('hello');
 			should(Ti.UI.Clipboard.hasText()).be.true();
 			should(Ti.UI.Clipboard.getText()).eql('hello');

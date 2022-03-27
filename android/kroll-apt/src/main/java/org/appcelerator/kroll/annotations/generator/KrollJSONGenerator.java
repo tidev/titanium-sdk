@@ -37,7 +37,7 @@ import javax.tools.StandardLocation;
 
 import org.json.simple.JSONValue;
 
-@SupportedSourceVersion(SourceVersion.RELEASE_8)
+@SupportedSourceVersion(SourceVersion.RELEASE_11)
 @SuppressWarnings("unchecked")
 @SupportedAnnotationTypes({
 	KrollJSONGenerator.Kroll_argument,

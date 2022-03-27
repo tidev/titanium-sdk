@@ -18,20 +18,24 @@ import org.appcelerator.titanium.view.TiUIView;
 import org.appcelerator.titanium.view.TiCompositeLayout.LayoutArrangement;
 
 import android.content.Context;
+import android.content.res.ColorStateList;
+import android.graphics.Color;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
+import androidx.annotation.NonNull;
 import com.google.android.material.card.MaterialCardView;
+import com.google.android.material.shape.CornerFamily;
 
 public class TiUICardView extends TiUIView
 {
-	public int paddingLeft, paddingTop, paddingRight, paddingBottom;
+	private ColorStateList defaultRippleColorSateList;
+	private int paddingLeft, paddingTop, paddingRight, paddingBottom;
 
 	private static final String TAG = "TiUICardView";
 
 	public class TiUICardViewLayout extends TiCompositeLayout
 	{
-
 		public TiUICardViewLayout(Context context, LayoutArrangement arrangement)
 		{
 			super(context, arrangement, proxy);
@@ -40,7 +44,6 @@ public class TiUICardView extends TiUIView
 
 	public class TiCardView extends MaterialCardView
 	{
-
 		private TiUICardViewLayout layout;
 
 		public TiCardView(Context context, LayoutArrangement arrangement)
@@ -66,6 +69,12 @@ public class TiUICardView extends TiUIView
 		}
 
 		@Override
+		public void setBackgroundColor(int color)
+		{
+			setCardBackgroundColor(color);
+		}
+
+		@Override
 		protected void onLayout(boolean changed, int left, int top, int right, int bottom)
 		{
 			super.onLayout(changed, left, top, right, bottom);
@@ -79,10 +88,20 @@ public class TiUICardView extends TiUIView
 	{
 		super(proxy);
 
-		// generate native view
-		if (this.nativeView == null) {
-			processProperties(getProxy().getProperties());
+		LayoutArrangement arrangement = LayoutArrangement.DEFAULT;
+		Object layoutValue = proxy.getProperty(TiC.PROPERTY_LAYOUT);
+		if (TiC.LAYOUT_VERTICAL.equals(layoutValue)) {
+			arrangement = LayoutArrangement.VERTICAL;
+		} else if (TiC.LAYOUT_HORIZONTAL.equals(layoutValue)) {
+			arrangement = LayoutArrangement.HORIZONTAL;
 		}
+
+		TiCardView cardView = new TiCardView(proxy.getActivity(), arrangement);
+		cardView.setPadding(0, 0, 0, 0);
+		cardView.setFocusable(false);
+		this.defaultRippleColorSateList = cardView.getRippleColor();
+
+		setNativeView(cardView);
 	}
 
 	public TiUICardViewLayout getLayout()
@@ -137,37 +156,17 @@ public class TiUICardView extends TiUIView
 	{
 		super.processProperties(d);
 
-		// we create the view here
-		View view = null;
-		LayoutArrangement arrangement = LayoutArrangement.DEFAULT;
-
-		if (d.containsKey(TiC.PROPERTY_LAYOUT) && d.getString(TiC.PROPERTY_LAYOUT).equals(TiC.LAYOUT_VERTICAL)) {
-			arrangement = LayoutArrangement.VERTICAL;
-		} else if (d.containsKey(TiC.PROPERTY_LAYOUT)
-				   && d.getString(TiC.PROPERTY_LAYOUT).equals(TiC.LAYOUT_HORIZONTAL)) {
-			arrangement = LayoutArrangement.HORIZONTAL;
-		}
-
-		view = new TiCardView(getProxy().getActivity(), arrangement);
-		view.setPadding(0, 0, 0, 0);
-		view.setFocusable(false);
-		TiCardView cardview = (TiCardView) view;
-
-		if (d.containsKey(TiC.PROPERTY_BACKGROUND_COLOR)) {
-			cardview.setCardBackgroundColor(TiConvert.toColor(d, TiC.PROPERTY_BACKGROUND_COLOR));
+		TiCardView cardview = (TiCardView) getNativeView();
+		if (cardview == null) {
+			return;
 		}
 
 		if (d.containsKey(TiC.PROPERTY_BORDER_COLOR)) {
-			cardview.setStrokeColor(TiConvert.toColor(d, TiC.PROPERTY_BORDER_COLOR));
+			cardview.setStrokeColor(TiConvert.toColor(d, TiC.PROPERTY_BORDER_COLOR, proxy.getActivity()));
 		}
 
 		if (d.containsKey(TiC.PROPERTY_BORDER_RADIUS)) {
-			float radius = 0;
-			TiDimension radiusDim = TiConvert.toTiDimension(d.get(TiC.PROPERTY_BORDER_RADIUS), TiDimension.TYPE_WIDTH);
-			if (radiusDim != null) {
-				radius = (float) radiusDim.getPixels(cardview);
-			}
-			cardview.setRadius(radius);
+			setRadius(d.get(TiC.PROPERTY_BORDER_RADIUS));
 		}
 
 		if (d.containsKey(TiC.PROPERTY_BORDER_WIDTH)) {
@@ -190,6 +189,16 @@ public class TiUICardView extends TiUIView
 
 		if (d.containsKey(TiC.PROPERTY_PREVENT_CORNER_OVERLAP)) {
 			cardview.setPreventCornerOverlap(TiConvert.toBoolean(d, TiC.PROPERTY_PREVENT_CORNER_OVERLAP, false));
+		}
+
+		if (!d.optBoolean(TiC.PROPERTY_TOUCH_FEEDBACK, true)) {
+			cardview.setRippleColor(ColorStateList.valueOf(Color.TRANSPARENT));
+		} else if (d.containsKey(TiC.PROPERTY_TOUCH_FEEDBACK_COLOR)) {
+			// TODO: reset to default value when property is null
+			String colorString = TiConvert.toString(d.get(TiC.PROPERTY_TOUCH_FEEDBACK_COLOR));
+			cardview.setRippleColor(ColorStateList.valueOf(TiConvert.toColor(colorString, proxy.getActivity())));
+		} else if (this.defaultRippleColorSateList != null) {
+			cardview.setRippleColor(this.defaultRippleColorSateList);
 		}
 
 		if (d.containsKey(TiC.PROPERTY_PADDING)) {
@@ -267,8 +276,6 @@ public class TiUICardView extends TiUIView
 		}
 
 		cardview.setContentPadding(paddingLeft, paddingTop, paddingRight, paddingBottom);
-
-		setNativeView(view);
 	}
 
 	@Override
@@ -281,17 +288,12 @@ public class TiUICardView extends TiUIView
 		TiCardView cardview = ((TiCardView) getNativeView());
 
 		if (key.equals(TiC.PROPERTY_BACKGROUND_COLOR)) {
-			cardview.setCardBackgroundColor(TiConvert.toColor(TiConvert.toString(newValue)));
+			cardview.setCardBackgroundColor(TiConvert.toColor(newValue, proxy.getActivity()));
 			cardview.requestLayout();
 		} else if (key.equals(TiC.PROPERTY_BORDER_COLOR)) {
-			cardview.setStrokeColor(TiConvert.toColor(TiConvert.toString(newValue)));
+			cardview.setStrokeColor(TiConvert.toColor(newValue, proxy.getActivity()));
 		} else if (key.equals(TiC.PROPERTY_BORDER_RADIUS)) {
-			float radius = 0;
-			TiDimension radiusDim = TiConvert.toTiDimension(newValue, TiDimension.TYPE_WIDTH);
-			if (radiusDim != null) {
-				radius = (float) radiusDim.getPixels(cardview);
-			}
-			cardview.setRadius(radius);
+			setRadius(newValue);
 			cardview.requestLayout();
 		} else if (key.equals(TiC.PROPERTY_BORDER_WIDTH)) {
 			TiDimension tiDimension = TiConvert.toTiDimension(TiConvert.toString(newValue), TiDimension.TYPE_WIDTH);
@@ -374,9 +376,26 @@ public class TiUICardView extends TiUIView
 			paddingTop = (int) radiusTop;
 			cardview.setContentPadding(paddingLeft, paddingTop, paddingRight, paddingBottom);
 			cardview.requestLayout();
+		} else if (key.equals(TiC.PROPERTY_TOUCH_FEEDBACK) || key.equals(TiC.PROPERTY_TOUCH_FEEDBACK_COLOR)) {
+			boolean isEnabled = TiConvert.toBoolean(this.proxy.getProperty(TiC.PROPERTY_TOUCH_FEEDBACK), true);
+			if (!isEnabled) {
+				cardview.setRippleColor(ColorStateList.valueOf(Color.TRANSPARENT));
+			} else if (this.proxy.hasProperty(TiC.PROPERTY_TOUCH_FEEDBACK_COLOR)) {
+				String colorString = TiConvert.toString(this.proxy.getProperty(TiC.PROPERTY_TOUCH_FEEDBACK_COLOR));
+				cardview.setRippleColor(ColorStateList.valueOf(TiConvert.toColor(colorString, proxy.getActivity())));
+			} else if (this.defaultRippleColorSateList != null) {
+				cardview.setRippleColor(this.defaultRippleColorSateList);
+			}
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
+	}
+
+	@Override
+	protected boolean canApplyTouchFeedback(@NonNull KrollDict props)
+	{
+		// Don't let base class apply touch feedback and use MaterialCardView.setRippleColor() instead.
+		return false;
 	}
 
 	@Override
@@ -385,5 +404,66 @@ public class TiUICardView extends TiUIView
 		// This prevents "TiUIView" class from handling the border.
 		// We apply border properties to CardView ourselves via its stroke methods.
 		return false;
+	}
+
+	private void setRadius(Object borderRadius)
+	{
+		float radius = 0;
+		TiCardView cardView = (TiCardView) getNativeView();
+
+		// Case 1: A string of border radii (e.g. '0 0 20 20') or a single string radius (e.g. '20')
+		if (borderRadius instanceof String) {
+			final String[] corners = ((String) borderRadius).split("\\s");
+			if (corners != null && corners.length > 1) {
+				setRadius(corners);
+			} else {
+				setRadius(new String[]{ corners[0], corners[0], corners[0], corners[0] });
+			}
+
+		// Case 2: An array of border radii (e.g. ['0 0 20 20'])
+		} else if (borderRadius instanceof Object[]) {
+			final Object[] cornerObjects = (Object[]) borderRadius;
+			final float[] cornerPixels = new float[cornerObjects.length];
+
+			for (int i = 0; i < cornerObjects.length; i++) {
+				final Object corner = cornerObjects[i];
+				final TiDimension radiusDimension = TiConvert.toTiDimension(corner, TiDimension.TYPE_WIDTH);
+				if (radiusDimension != null) {
+					cornerPixels[i] = (float) radiusDimension.getPixels(this.nativeView);
+				} else {
+					Log.w(TAG, "Invalid value specified for borderRadius[" + i + "].");
+					cornerPixels[i] = 0;
+				}
+			}
+
+			if (cornerPixels.length >= 4) {
+				cardView.setShapeAppearanceModel(
+					cardView.getShapeAppearanceModel()
+						.toBuilder()
+						.setTopLeftCorner(CornerFamily.ROUNDED, cornerPixels[0])
+						.setTopRightCorner(CornerFamily.ROUNDED, cornerPixels[1])
+						.setBottomRightCorner(CornerFamily.ROUNDED, cornerPixels[2])
+						.setBottomLeftCorner(CornerFamily.ROUNDED, cornerPixels[3])
+						.build());
+			} else {
+				Log.w(TAG, "Could not set borderRadius, empty array.");
+			}
+		// Case 3: A single radius (e.g. 20)
+		} else {
+			final TiDimension radiusDimension = TiConvert.toTiDimension(borderRadius, TiDimension.TYPE_WIDTH);
+			float pixels = 0;
+
+			if (radiusDimension != null) {
+				pixels = (float) radiusDimension.getPixels(this.nativeView);
+			} else {
+				Log.w(TAG, "Invalid value specified for borderRadius.");
+			}
+
+			TiDimension radiusDim = TiConvert.toTiDimension(borderRadius, TiDimension.TYPE_WIDTH);
+			if (radiusDim != null) {
+				radius = (float) radiusDim.getPixels(cardView);
+			}
+			cardView.setRadius(radius);
+		}
 	}
 }

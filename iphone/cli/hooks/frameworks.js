@@ -188,7 +188,9 @@ class FrameworkManager {
 
 		const xcodeProject = hookData.args[0];
 		const frameworkIntegrator = new FrameworkIntegrator(xcodeProject, this._builder, this._logger);
-		for (const frameworkInfo of this._frameworks.values()) {
+		const frameworks = Array.from(this._frameworks.values())
+			.sort((a, b) => a.name.localeCompare(b.name));
+		for (const frameworkInfo of frameworks) {
 			this._logger.trace(`Integrating ${frameworkInfo.type} framework ${frameworkInfo.name.green} into Xcode project.`);
 			frameworkIntegrator.integrateFramework(frameworkInfo);
 		}
@@ -397,12 +399,8 @@ class InspectFrameworksTask extends IncrementalFileTask {
 			const metadata = await fs.readJSON(this._metadataPathAndFilename);
 			for (const frameworkPath of Object.keys(metadata)) {
 				const frameworkMetadata = metadata[frameworkPath];
-				this._frameworks.set(frameworkMetadata.name, new FrameworkInfo(
-					frameworkMetadata.name,
-					frameworkMetadata.path,
-					frameworkMetadata.type,
-					new Set(frameworkMetadata.architectures)
-				));
+				frameworkMetadata.architectures = new Set(frameworkMetadata.architectures);
+				this._frameworks.set(frameworkMetadata.name, new FrameworkInfo(frameworkMetadata));
 			}
 			return true;
 		} catch (e) {
@@ -802,6 +800,17 @@ class FrameworkInspector {
 					libInfo.SupportedArchitectures.forEach(a => archs.add(a));
 					supportedPlatforms.add(libInfo.SupportedPlatform); // should always be 'ios'
 				}
+
+				// Ensure that each Headers directory contains a file to keep it around in source control
+				if (libInfo.HeadersPath) {
+					const headersDirectory = path.join(frameworkPath, libInfo.LibraryIdentifier, libInfo.HeadersPath);
+
+					if (!await fs.pathExists(headersDirectory)) {
+						this._logger.debug(`Creating ${headersDirectory} and writing .keep file to it`);
+						await fs.mkdir(headersDirectory);
+						await fs.writeFile(path.join(headersDirectory, `.${frameworkName}-keep`), 'This file is to ensure the Headers directory gets checked into source control');
+					}
+				}
 			}
 			meta.type = type;
 			meta.architectures = archs;
@@ -810,6 +819,7 @@ class FrameworkInspector {
 		}
 		const archs = Array.from(frameworkInfo.architectures.values()).join(', ');
 		this._logger.debug(`Found framework ${frameworkName.green} (type: ${type}, archs: ${archs}) at ${frameworkPath.cyan}`);
+
 		return frameworkInfo;
 	}
 

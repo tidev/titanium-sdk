@@ -171,11 +171,12 @@ public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionLis
 		tv.setText(TiConvert.toString(d.get(TiC.PROPERTY_VALUE), ""));
 
 		if (d.containsKey(TiC.PROPERTY_BACKGROUND_COLOR)) {
+			// Why transparent?
 			tv.setBackgroundColor(Color.TRANSPARENT);
 		}
 
 		if (d.containsKey(TiC.PROPERTY_COLOR)) {
-			tv.setTextColor(TiConvert.toColor(d, TiC.PROPERTY_COLOR));
+			tv.setTextColor(TiConvert.toColor(d, TiC.PROPERTY_COLOR, proxy.getActivity()));
 		}
 
 		if (d.containsKey(TiC.PROPERTY_HINT_TEXT) || d.containsKey(TiC.PROPERTY_HINT_TYPE)) {
@@ -187,7 +188,7 @@ public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionLis
 		}
 
 		if (d.containsKey(TiC.PROPERTY_HINT_TEXT_COLOR)) {
-			tv.setHintTextColor(TiConvert.toColor(d, TiC.PROPERTY_HINT_TEXT_COLOR));
+			tv.setHintTextColor(TiConvert.toColor(d, TiC.PROPERTY_HINT_TEXT_COLOR, proxy.getActivity()));
 		}
 
 		if (d.containsKey(TiC.PROPERTY_ELLIPSIZE)) {
@@ -271,6 +272,30 @@ public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionLis
 		disableChangeEvent = false;
 	}
 
+	@Override
+	protected void applyContentDescription()
+	{
+		if (proxy == null || nativeView == null) {
+			return;
+		}
+		String contentDescription = composeContentDescription();
+		if (contentDescription != null) {
+			this.tv.setContentDescription(contentDescription);
+		}
+	}
+
+	@Override
+	protected void applyContentDescription(KrollDict properties)
+	{
+		if (proxy == null || nativeView == null) {
+			return;
+		}
+		String contentDescription = composeContentDescription(properties);
+		if (contentDescription != null) {
+			this.tv.setContentDescription(contentDescription);
+		}
+	}
+
 	private void updateTextField()
 	{
 		if (!field) {
@@ -331,7 +356,8 @@ public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionLis
 			tv.setBackgroundColor(Color.TRANSPARENT);
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		} else if (key.equals(TiC.PROPERTY_COLOR)) {
-			tv.setTextColor(TiConvert.toColor((String) newValue));
+			// TODO: reset to default value when property is null
+			tv.setTextColor(TiConvert.toColor(newValue, proxy.getActivity()));
 		} else if (key.equals(TiC.PROPERTY_HINT_TEXT)) {
 			int type = UIModule.HINT_TYPE_STATIC;
 			if (proxy.getProperties() != null) {
@@ -339,7 +365,8 @@ public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionLis
 			}
 			setHintText(type, TiConvert.toString(newValue));
 		} else if (key.equals(TiC.PROPERTY_HINT_TEXT_COLOR)) {
-			tv.setHintTextColor(TiConvert.toColor((String) newValue));
+			// TODO: reset to default value when property is null
+			tv.setHintTextColor(TiConvert.toColor(newValue, proxy.getActivity()));
 		} else if (key.equals(TiC.PROPERTY_HINT_TYPE)) {
 			Object attributedHintText = proxy.getProperty(TiC.PROPERTY_ATTRIBUTED_HINT_TEXT);
 			if (attributedHintText instanceof AttributedStringProxy) {

@@ -105,11 +105,10 @@ describe('Titanium.UI.ScrollableView', () => {
 				should(scrollableView.currentPage).eql(0);
 			});
 
-			// FIXME explicitly setting currentPage doesn't seem to update value on Android
-			it.androidBroken('can be assigned an Integer value', () => {
+			it('can be assigned an Integer value', () => {
 				scrollableView.views = [ Ti.UI.createView(), Ti.UI.createView() ];
 				scrollableView.currentPage = 1;
-				should(scrollableView.currentPage).eql(1); // Android gives 0
+				should(scrollableView.currentPage).eql(1);
 			});
 
 			it('has no accessors', () => {
@@ -207,24 +206,39 @@ describe('Titanium.UI.ScrollableView', () => {
 		});
 
 		describe('.views', () => {
-			beforeEach(() => {
-				scrollableView = Ti.UI.createScrollableView();
-			});
-
 			it('is an Array', () => {
+				scrollableView = Ti.UI.createScrollableView();
 				should(scrollableView).have.property('views').which.is.an.Array();
 			});
 
 			it('defaults to empty Array', () => {
+				scrollableView = Ti.UI.createScrollableView();
 				should(scrollableView.views).be.empty();
 			});
 
-			it('can be assigned an Array of Ti.UI.Views', () => {
+			it('assigned during creation', () => {
+				scrollableView = Ti.UI.createScrollableView({
+					views: [ Ti.UI.createView(), Ti.UI.createView(), Ti.UI.createView() ]
+				});
+				should(scrollableView.views.length).eql(3);
+			});
+
+			it('assigned after creation', () => {
+				scrollableView = Ti.UI.createScrollableView();
 				scrollableView.views = [ Ti.UI.createView(), Ti.UI.createView() ];
 				should(scrollableView.views.length).eql(2);
 			});
 
+			it('update after creation', () => {
+				scrollableView = Ti.UI.createScrollableView({
+					views: [ Ti.UI.createView(), Ti.UI.createView() ]
+				});
+				scrollableView.views = scrollableView.views.concat(Ti.UI.createView(), Ti.UI.createView());
+				should(scrollableView.views.length).eql(4);
+			});
+
 			it('has no accessors', () => {
+				scrollableView = Ti.UI.createScrollableView();
 				should(scrollableView).not.have.accessors('views');
 			});
 		});

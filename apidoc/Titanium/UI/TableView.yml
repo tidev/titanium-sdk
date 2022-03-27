@@ -13,7 +13,7 @@ description: |
 
     Use the <Titanium.UI.createTableView> method or **`<TableView>`** Alloy element to create a `TableView`.
 
-    Also see the [TableViews guide](https://docs.appcelerator.com/platform/latest/#!/guide/TableViews).
+    Also see the [TableViews guide](https://titaniumsdk.com/guide/Titanium_SDK/Titanium_SDK_How-tos/User_Interface_Deep_Dives/TableViews.html).
 
     #### Creating Tables
 
@@ -173,10 +173,10 @@ events:
 
   - name: rowsselected
     summary: |
-        Fired when user stops two-pan gesture interaction for selecting multiple rows. 
+        Fired when user stops two-pan gesture interaction for selecting multiple rows.
         It is used in conjunction with <Titanium.UI.TableView.allowsMultipleSelectionInteraction>.
-    platforms: [iphone, ipad, macos]
-    since: 8.2.0
+    platforms: [android, iphone, ipad, macos]
+    since: {android: "10.1.0", iphone: "8.2.0", ipad: "8.2.0", macos: "9.2.0"}
     properties:
       - name: selectedRows
         summary: List of rows selected by user.
@@ -892,7 +892,7 @@ methods:
         type: Number
 
       - name: animation
-        summary: Animation properties. (iOS only.)
+        summary: Animation properties.
         type: TableViewAnimationProperties
         optional: true
 
@@ -922,7 +922,7 @@ methods:
         type: Number
 
       - name: animation
-        summary: Animation properties. (iOS only.)
+        summary: Animation properties.
         type: TableViewAnimationProperties
         optional: true
 
@@ -958,7 +958,7 @@ methods:
 
   - name: setContentOffset
     summary: Sets the value of the content offset of the table view without animation by default.
-    platforms: [iphone, ipad, macos]
+    platforms: [android, iphone, ipad, macos]
     parameters:
       - name: contentOffset
         summary: |
@@ -973,7 +973,7 @@ methods:
         type: AnimatedOptions
         optional: true
         default: "{ animated: false }"
-    since: 3.4.0
+    since: {android: "10.1.0", iphone: "3.4.0", ipad: "3.4.0", macos: "9.2.0"}
 
   - name: selectRow
     summary: |
@@ -1065,13 +1065,15 @@ properties:
     type: Boolean
     default: true
     platforms: [iphone, ipad, macos]
+    since: {iphone: "8.2.0", ipad: "8.2.0", macos: "9.2.0"}
 
   - name: allowsSelectionDuringEditing
     summary: Determines whether this table's rows can be selected while editing the table.
     description: Set to `true` to allow rows to be selected.
     type: Boolean
     default: false
-    platforms: [iphone, ipad, macos]
+    since: {android: "10.1.0", iphone: "5.4.0", ipad: "5.4.0", macos: "9.2.0"}
+    platforms: [android, iphone, ipad, macos]
 
   - name: backgroundColor
     summary: Background color of the view, as a color name or hex triplet.
@@ -1187,7 +1189,7 @@ properties:
         To specify the wrapper color see <Titanium.UI.View.pullBackgroundColor>.
 
         For an example, see the "Pull to refresh" section in the
-        [TableViews guide](https://docs.appcelerator.com/platform/latest/#!/guide/TableViews).
+        [TableViews guide](https://titaniumsdk.com/guide/Titanium_SDK/Titanium_SDK_How-tos/User_Interface_Deep_Dives/TableViews.html).
 
         Alloy applications can use a `<HeaderPullView>` element inside a `<TableView>` element.
 
@@ -1232,20 +1234,20 @@ properties:
     summary: Determines whether multiple items of this table view can be selected at the same time while editing the table.
     type: Boolean
     default: false
-    since: 8.2.0
-    platforms: [iphone, ipad, macos]
+    since: {android: "10.1.0", iphone: "8.2.0", ipad: "8.2.0", macos: "9.2.0"}
+    platforms: [android, iphone, ipad, macos]
 
   - name: allowsMultipleSelectionInteraction
     summary: Allows a two-finger pan gesture to automatically transition the table view into editing mode and start selecting rows.
     description: |
-        Setting this property to true allows the user to start selecting multiple contiguous rows via a two-finger pan gesture. 
-        If the table view is already in editing mode, the user can also select multiple rows via a one-finger pan gesture along 
-        the edge of the table that contains editing controls (checkboxes). In order to support this behavior, 
+        Setting this property to true allows the user to start selecting multiple contiguous rows via a two-finger pan gesture.
+        If the table view is already in editing mode, the user can also select multiple rows via a one-finger pan gesture along
+        the edge of the table that contains editing controls (checkboxes). In order to support this behavior,
         you must also set <Titanium.UI.TableView.allowsMultipleSelectionDuringEditing> to true.
         Once user interaction stops the <Titanium.UI.TableView.rowsselected> event is fired.
     type: Boolean
     default: false
-    since: 8.2.0
+    since: {iphone: "8.2.0", ipad: "8.2.0", macos: "9.2.0"}
     platforms: [iphone, ipad, macos]
 
   - name: footerView
@@ -1416,8 +1418,8 @@ properties:
   - name: showSearchBarInNavBar
     summary: A Boolean indicating whether search bar will be in navigation bar.
     description: |
-          If you want to show the search bar in navigation bar, set this property `true` during creation. 
-          Use the <Titanium.UI.Window.hidesSearchBarWhenScrolling> property to control the visibility of the 
+          If you want to show the search bar in navigation bar, set this property `true` during creation.
+          Use the <Titanium.UI.Window.hidesSearchBarWhenScrolling> property to control the visibility of the
           searchbar when scrolling.
     type: Boolean
     default: false
@@ -1425,7 +1427,7 @@ properties:
     platforms: [iphone, ipad, macos]
     osver: {ios: {min: "11.0"}}
     availability: creation
-    
+
   - name: searchAsChild
     summary: Determines whether the [SearchBar](Titanium.UI.SearchBar) or [SearchView](Titanium.UI.Android.SearchView) appears as part of the TableView.
     description: Set to false if the search view will be displayed in the action bar.
@@ -1458,6 +1460,14 @@ properties:
     type: Array<Titanium.UI.TableViewSection>
     since: { android: 3.1.0, iphone: 3.0.0, ipad: 3.0.0 }
     platforms: [android, iphone, ipad, macos]
+
+  - name: sectionHeaderTopPadding
+    summary: Padding above each section header.
+    description: If not set or set to `-1`, it defaults to an automatic spacing determined by the system.
+    type: Number
+    since: 10.1.0
+    platforms: [iphone, ipad, macos]
+    osver: { ios: { min: "15.0" } }
 
   - name: separatorColor
     summary: Separator line color between rows, as a color name or hex triplet.
@@ -1545,6 +1555,13 @@ properties:
     constants: Titanium.UI.TABLE_VIEW_SEPARATOR_STYLE_*
     platforms: [iphone, ipad, android, macos]
     since: {android: "5.2.0"}
+
+  - name: showSelectionCheck
+    summary: Determines whether the selection checkmark is displayed on selected rows.
+    type: Boolean
+    default: true
+    since: {android: "10.1.0"}
+    platforms: [android]
 
   - name: showVerticalScrollIndicator
     summary: Determines whether this table view displays a vertical scroll indicator.
@@ -1772,11 +1789,13 @@ examples:
 name: TableViewAnimationProperties
 summary: A simple object for specifying the animation properties to use when inserting or deleting rows, or scrolling the table.
 description: |
-    These properties are only used on iOS. Not all properties apply to all methods.
+    Not all properties apply to all methods.
 
     `animationStyle` does not apply to the `scrollToTop` or `scrollToIndex` methods.
 
     `positon` only applies to the `scrollToIndex` method.
+platforms: [iphone, ipad, android, macos]
+since: {android: "10.1.0", iphone: "3.1.0", ipad: "3.1.0", macos: "9.2.0"}
 properties:
   - name: animated
     summary: Whether this table change should be animated. Ignored if any `animationStyle` value is specified.
@@ -1812,8 +1831,8 @@ properties:
 ---
 name: SelectedRowObject
 summary: The arguments for the <Titanium.UI.TableView.rowsselected> event.
-since: 8.2.0
-platforms: [iphone, ipad, macos]    
+since: {android: "10.1.0", iphone: "8.2.0", ipad: "8.2.0", macos: "9.2.0"}
+platforms: [android, iphone, ipad, macos]
 properties:
   - name: index
     summary: Row index.

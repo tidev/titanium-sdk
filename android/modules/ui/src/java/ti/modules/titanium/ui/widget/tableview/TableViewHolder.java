@@ -19,6 +19,7 @@ import org.appcelerator.titanium.view.TiBorderWrapperView;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiUIView;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.res.ColorStateList;
@@ -29,6 +30,7 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.PaintDrawable;
 import android.os.Build;
 import android.util.TypedValue;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -42,7 +44,7 @@ import ti.modules.titanium.ui.TableViewSectionProxy;
 import ti.modules.titanium.ui.widget.TiUITableView;
 import ti.modules.titanium.ui.widget.listview.TiRecyclerViewHolder;
 
-public class TableViewHolder extends TiRecyclerViewHolder
+public class TableViewHolder extends TiRecyclerViewHolder<TableViewRowProxy>
 {
 	private static final String TAG = "TableViewHolder";
 
@@ -121,6 +123,7 @@ public class TableViewHolder extends TiRecyclerViewHolder
 		this.leftImage.setVisibility(View.GONE);
 		this.title.setVisibility(View.GONE);
 		this.rightImage.setVisibility(View.GONE);
+		this.rightImage.setOnTouchListener(null);
 
 		this.border.reset();
 	}
@@ -130,6 +133,7 @@ public class TableViewHolder extends TiRecyclerViewHolder
 	 * @param proxy TableViewRowProxy to bind.
 	 * @param selected Is row selected.
 	 */
+	@SuppressLint("ClickableViewAccessibility")
 	public void bind(final TableViewRowProxy proxy, final boolean selected)
 	{
 		reset();
@@ -156,6 +160,7 @@ public class TableViewHolder extends TiRecyclerViewHolder
 			proxy.releaseViews();
 			proxy.setActivity((Activity) context);
 		}
+		final Activity activity = proxy.getActivity();
 
 		// Obtain row view.
 		final TableViewRowProxy.RowView rowView = (TableViewRowProxy.RowView) proxy.getOrCreateView();
@@ -194,7 +199,7 @@ public class TableViewHolder extends TiRecyclerViewHolder
 			// Set title color.
 			int titleColor = 0;
 			if (properties.containsKeyAndNotNull(TiC.PROPERTY_COLOR)) {
-				final int color = TiConvert.toColor(properties.getString(TiC.PROPERTY_COLOR));
+				final int color = TiConvert.toColor(properties, TiC.PROPERTY_COLOR, proxy.getActivity());
 
 				if (color != Color.TRANSPARENT) {
 
@@ -206,8 +211,8 @@ public class TableViewHolder extends TiRecyclerViewHolder
 
 				// Determine title color based on background.
 				final int tableBackgroundColor =
-					TiConvert.toColor(tableViewProxy.getProperties(), TiC.PROPERTY_BACKGROUND_COLOR);
-				final int rowBackgroundColor = TiConvert.toColor(properties, TiC.PROPERTY_BACKGROUND_COLOR);
+					TiConvert.toColor(tableViewProxy.getProperties(), TiC.PROPERTY_BACKGROUND_COLOR, activity);
+				final int rowBackgroundColor = TiConvert.toColor(properties, TiC.PROPERTY_BACKGROUND_COLOR, activity);
 				final int backgroundColor = rowBackgroundColor != Color.TRANSPARENT
 					? rowBackgroundColor : tableBackgroundColor;
 				final int defaultTitleColor = backgroundColor < (Color.BLACK / 2) ? Color.WHITE : Color.BLACK;
@@ -237,6 +242,22 @@ public class TableViewHolder extends TiRecyclerViewHolder
 					this.leftImage.setVisibility(View.VISIBLE);
 				}
 			}
+
+			// Handle selection, override row left image.
+			if (tableViewProperties.optBoolean(TiC.PROPERTY_SHOW_SELECTION_CHECK, false)
+				&& tableViewProperties.optBoolean(TiC.PROPERTY_EDITING, false)
+				&& tableViewProperties.optBoolean(TiC.PROPERTY_ALLOWS_SELECTION_DURING_EDITING, false)
+				&& tableViewProperties.optBoolean(TiC.PROPERTY_ALLOWS_MULTIPLE_SELECTION_DURING_EDITING, false)
+				&& !proxy.isPlaceholder()) {
+
+				if (selected) {
+					this.leftImage.setImageDrawable(checkcircleDrawable);
+				} else {
+					this.leftImage.setImageDrawable(circleDrawable);
+				}
+				this.leftImage.setVisibility(View.VISIBLE);
+			}
+
 			if (properties.containsKeyAndNotNull(TiC.PROPERTY_RIGHT_IMAGE)) {
 				final String url = properties.getString(TiC.PROPERTY_RIGHT_IMAGE);
 				final Drawable drawable = TiUIHelper.getResourceDrawable((Object) url);
@@ -259,6 +280,24 @@ public class TableViewHolder extends TiRecyclerViewHolder
 				} else if (hasDetail) {
 					this.rightImage.setImageDrawable(disclosureDrawable);
 					this.rightImage.setVisibility(View.VISIBLE);
+					this.rightImage.setOnTouchListener(new View.OnTouchListener()
+					{
+						@Override
+						public boolean onTouch(View v, MotionEvent e)
+						{
+							if (e.getAction() == MotionEvent.ACTION_UP) {
+								final TiUIView view = proxy.peekView();
+
+								if (view != null) {
+									final KrollDict data = view.getLastUpEvent();
+
+									data.put(TiC.EVENT_PROPERTY_DETAIL, true);
+									proxy.fireEvent(TiC.EVENT_CLICK, data);
+								}
+							}
+							return true;
+						}
+					});
 				}
 			}
 

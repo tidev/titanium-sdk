@@ -25,6 +25,28 @@ describe.ios('Titanium.UI.iOS', function () {
 		should(splitWindow.masterView).be.an.Object();
 		should(splitWindow.detailView).be.an.Object();
 	});
+
+	// Verify view controller hierarchy is set up correctly. (Used to crash in 10.0.0. See: TIMOB-28497)
+	it('view controller hierarchy', function (finish) {
+		this.slow(2000);
+		this.timeout(5000);
+		const splitWindow = Ti.UI.iOS.createSplitWindow({
+			detailView: Ti.UI.createNavigationWindow({
+				window: Ti.UI.createWindow({ title: 'Detail View' }),
+			}),
+			masterView: Ti.UI.createNavigationWindow({
+				window: Ti.UI.createWindow({ title: 'Master View' }),
+			}),
+			showMasterInPortrait: true,
+		});
+		const navWindow = Ti.UI.createNavigationWindow({ window: splitWindow });
+		navWindow.addEventListener('postlayout', function listener() {
+			navWindow.removeEventListener('postlayout', listener);
+			navWindow.close();
+			finish();
+		});
+		navWindow.open();
+	});
 });
 
 // describe.ios('Titanium.UI.iOS.SplitWindow', function () {

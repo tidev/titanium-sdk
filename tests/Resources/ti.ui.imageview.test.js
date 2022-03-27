@@ -4,7 +4,6 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-/* globals OS_IOS */
 /* eslint-env mocha */
 /* eslint no-unused-expressions: "off" */
 'use strict';
@@ -169,23 +168,30 @@ describe('Titanium.UI.ImageView', function () {
 			imageView.image = fromFile;
 		});
 
-		// Windows: TIMOB-24985
-		// FIXME Android and iOS don't fire the 'load' event! Seems like android only fires load if image isn't in cache
-		it.allBroken('with Ti.Blob', finish => {
-			const fromFile = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, 'Logo.png');
-			const blob = fromFile.read();
-			const imageView = Ti.UI.createImageView();
-			imageView.addEventListener('load', function () {
+		function doBlobTest(blob, finish) {
+			win = Ti.UI.createWindow();
+			const imageView = Ti.UI.createImageView({ image: blob });
+			imageView.addEventListener('postlayout', function listener(e) {
 				try {
-					should(imageView.image).be.an.Object();
-					should(imageView.toBlob()).eql(blob);
+					imageView.removeEventListener(e.type, listener);
+					should(imageView.size.width > 0).be.true();
+					finish();
 				} catch (err) {
-					return finish(err);
+					finish(err);
 				}
-				finish();
 			});
+			win.add(imageView);
+			win.open();
+		}
 
-			imageView.image = blob;
+		it('with Ti.Blob PNG', function (finish) {
+			const blob = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, 'Logo.png').read();
+			doBlobTest(blob, finish);
+		});
+
+		it('with Ti.Blob WebP', function (finish) {
+			const blob = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, 'Logo.webp').read();
+			doBlobTest(blob, finish);
 		});
 
 		it.windowsBroken('with redirected URL and autorotate set to true', function (finish) {
@@ -240,16 +246,39 @@ describe('Titanium.UI.ImageView', function () {
 		});
 
 		it('fires error event for URL pointing at resource that does not exist', function (finish) {
-			if (OS_IOS) {
-				this.timeout(21000); // default timeout of underlying request is 20 seconds, so let's wait one extra
-			}
-			win = Ti.UI.createWindow();
+			// Default timeout for iOS is 20 seconds.
+			this.timeout(21000);
 
+			win = Ti.UI.createWindow();
 			const img = Ti.UI.createImageView({});
 			img.addEventListener('error', () => finish());
 			img.image = 'https://invalid.host.com/image.jpg';
 			win.add(img);
 			win.open();
+		});
+	});
+
+	describe.android('.imageTouchFeedback', () => {
+		function test(imageViewProperties, finish) {
+			win = Ti.UI.createWindow();
+			win.add(Ti.UI.createImageView(imageViewProperties));
+			win.addEventListener('postlayout', function listener() {
+				win.removeEventListener('postlayout', listener);
+				finish();
+			});
+			win.open();
+		}
+
+		it('without image', function (finish) {
+			test({ imageTouchFeedback: true }, finish);
+		});
+
+		it('with image', function (finish) {
+			test({ image: 'Logo.png', imageTouchFeedback: true }, finish);
+		});
+
+		it('with imageTouchFeedbackColor', function (finish) {
+			test({ image: 'Logo.png', imageTouchFeedback: true, imageTouchFeedbackColor: 'yellow' }, finish);
 		});
 	});
 
@@ -363,6 +392,46 @@ describe('Titanium.UI.ImageView', function () {
 
 		win.add(imageView);
 		win.open();
+	});
+
+	describe('.scalingMode', () => {
+		function test(scalingMode, finish) {
+			win = Ti.UI.createWindow();
+			const imageView = Ti.UI.createImageView({
+				image: '/Logo.png',
+				scalingMode: scalingMode,
+				autosize: true,
+				width: Ti.UI.FILL,
+				height: Ti.UI.FILL
+			});
+			win.add(imageView);
+			win.addEventListener('postlayout', function listener() {
+				try {
+					win.removeEventListener('postlayout', listener);
+					should(imageView.scalingMode).be.eql(scalingMode);
+				} catch (err) {
+					finish(err);
+				}
+				finish();
+			});
+			win.open();
+		}
+
+		it('IMAGE_SCALING_NONE', function (finish) {
+			test(Ti.Media.IMAGE_SCALING_NONE, finish);
+		});
+
+		it('IMAGE_SCALING_FILL', function (finish) {
+			test(Ti.Media.IMAGE_SCALING_FILL, finish);
+		});
+
+		it('IMAGE_SCALING_ASPECT_FILL', function (finish) {
+			test(Ti.Media.IMAGE_SCALING_ASPECT_FILL, finish);
+		});
+
+		it('IMAGE_SCALING_ASPECT_FIT', function (finish) {
+			test(Ti.Media.IMAGE_SCALING_ASPECT_FIT, finish);
+		});
 	});
 
 	// TIMOB-18684

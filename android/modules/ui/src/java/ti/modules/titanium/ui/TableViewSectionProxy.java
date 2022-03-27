@@ -90,10 +90,7 @@ public class TableViewSectionProxy extends TiViewProxy
 			row.setParent(this);
 			this.rows.add(row);
 
-			final TableViewProxy tableViewProxy = getTableViewProxy();
-			if (tableViewProxy != null) {
-				tableViewProxy.update();
-			}
+			update();
 		}
 	}
 
@@ -240,12 +237,7 @@ public class TableViewSectionProxy extends TiViewProxy
 			this.rows.remove(row);
 			row.setParent(null);
 
-			final TableViewProxy tableViewProxy = getTableViewProxy();
-			if (tableViewProxy != null) {
-
-				// Notify TableView of update.
-				tableViewProxy.update();
-			}
+			update();
 		}
 	}
 
@@ -305,5 +297,21 @@ public class TableViewSectionProxy extends TiViewProxy
 	public String toString()
 	{
 		return "[object TableViewSectionProxy]";
+	}
+
+	/**
+	 * Notify TableView to update all adapter items.
+	 */
+	private void update(boolean force)
+	{
+		final TableViewProxy tableViewProxy = getTableViewProxy();
+
+		if (tableViewProxy != null) {
+			tableViewProxy.update(force);
+		}
+	}
+	private void update()
+	{
+		this.update(false);
 	}
 }

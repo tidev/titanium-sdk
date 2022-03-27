@@ -6,7 +6,28 @@
  */
 package ti.modules.titanium.ui.widget.tabgroup;
 
-import java.util.ArrayList;
+import android.annotation.SuppressLint;
+import android.app.Activity;
+import android.content.res.ColorStateList;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.RippleDrawable;
+import android.os.Build;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewParent;
+import android.view.Window;
+
+import androidx.annotation.ColorInt;
+import androidx.core.graphics.ColorUtils;
+
+import com.google.android.material.badge.BadgeDrawable;
+import com.google.android.material.bottomnavigation.BottomNavigationItemView;
+import com.google.android.material.bottomnavigation.BottomNavigationMenuView;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.bottomnavigation.LabelVisibilityMode;
+import com.google.android.material.shape.CornerFamily;
+import com.google.android.material.shape.MaterialShapeDrawable;
+import com.google.android.material.shape.ShapeAppearanceModel;
 
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiBaseActivity;
@@ -17,22 +38,7 @@ import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 
-import android.annotation.SuppressLint;
-import android.content.res.ColorStateList;
-import android.graphics.Rect;
-import android.graphics.drawable.Drawable;
-import android.graphics.drawable.RippleDrawable;
-import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewParent;
-import androidx.annotation.ColorInt;
-import androidx.core.graphics.ColorUtils;
-
-import com.google.android.material.badge.BadgeDrawable;
-import com.google.android.material.bottomnavigation.BottomNavigationItemView;
-import com.google.android.material.bottomnavigation.BottomNavigationMenuView;
-import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.google.android.material.bottomnavigation.LabelVisibilityMode;
+import java.util.ArrayList;
 
 import ti.modules.titanium.ui.TabGroupProxy;
 import ti.modules.titanium.ui.TabProxy;
@@ -80,30 +86,68 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 															   activity.getPackageName());
 		this.mBottomNavigationHeightValue = activity.getResources().getDimensionPixelSize(resourceID);
 
-		// Create the bottom tab navigation view.
-		this.mBottomNavigationView = new BottomNavigationView(activity) {
-			@Override
-			protected boolean fitSystemWindows(Rect insets)
-			{
-				// Remove top inset when bottom tab bar is to be extended beneath system insets.
-				// This prevents Google from blindly padding top of tab bar based on this inset.
-				if ((insets != null) && getFitsSystemWindows()) {
-					insets = new Rect(insets);
-					insets.top = 0;
-				}
-				super.fitSystemWindows(insets);
-				return false;
-			}
+		// Fetch padding properties. If at least 1 property is non-zero, then show a floating tab bar.
+		final TiDimension paddingLeft = TiConvert.toTiDimension(
+			this.proxy.getProperty(TiC.PROPERTY_PADDING_LEFT), TiDimension.TYPE_LEFT);
+		final TiDimension paddingRight = TiConvert.toTiDimension(
+			this.proxy.getProperty(TiC.PROPERTY_PADDING_RIGHT), TiDimension.TYPE_RIGHT);
+		final TiDimension paddingBottom = TiConvert.toTiDimension(
+			this.proxy.getProperty(TiC.PROPERTY_PADDING_BOTTOM), TiDimension.TYPE_BOTTOM);
+		final boolean isFloating
+			=  ((paddingLeft != null) && (paddingLeft.getValue() > 0))
+			|| ((paddingRight != null) && (paddingRight.getValue() > 0))
+			|| ((paddingBottom != null) && (paddingBottom.getValue() > 0));
 
+		// Create the bottom tab navigation view.
+		mBottomNavigationView = new BottomNavigationView(activity);
+		mBottomNavigationView.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
 			@Override
-			protected void onLayout(boolean hasChanged, int left, int top, int right, int bottom)
+			public void onLayoutChange(
+				View view, int left, int top, int right, int bottom,
+				int oldLeft, int oldTop, int oldRight, int oldBottom)
 			{
 				// Update bottom inset based on tab bar's height and position in window.
-				super.onLayout(hasChanged, left, top, right, bottom);
-				insetsProvider.setBottomBasedOn(this);
+				insetsProvider.setBottomBasedOn(view);
 			}
-		};
-		this.mBottomNavigationView.setFitsSystemWindows(true);
+		});
+		if (isFloating) {
+			// Set up tab bar to look like a floating toolbar with rounded corners.
+			MaterialShapeDrawable shapeDrawable = null;
+			Drawable background = this.mBottomNavigationView.getBackground();
+			if (background instanceof MaterialShapeDrawable) {
+				shapeDrawable = (MaterialShapeDrawable) background;
+			} else {
+				shapeDrawable = new MaterialShapeDrawable();
+				background = shapeDrawable;
+				mBottomNavigationView.setBackground(shapeDrawable);
+			}
+			ShapeAppearanceModel model = shapeDrawable.getShapeAppearanceModel();
+			float radius = (new TiDimension("17dp", TiDimension.TYPE_LEFT)).getAsPixels(mBottomNavigationView);
+			model = model.toBuilder().setAllCorners(CornerFamily.ROUNDED, radius).build();
+			shapeDrawable.setShapeAppearanceModel(model);
+			this.mBottomNavigationView.setPadding((int) (radius * 0.75), 0, (int) (radius * 0.75), 0);
+			mBottomNavigationView.setElevation(
+				(new TiDimension("8dp", TiDimension.TYPE_BOTTOM)).getAsPixels(mBottomNavigationView));
+			this.mBottomNavigationView.setOnApplyWindowInsetsListener((view, insets) -> {
+				// Add additional padding to compensate for device notch and translucent status/nav bars.
+				int leftInsetPixels
+					= ((paddingLeft != null) ? paddingLeft.getAsPixels(view) : 0)
+					+ insets.getStableInsetLeft();
+				int rightInsetPixels
+					= ((paddingRight != null) ? paddingRight.getAsPixels(view) : 0)
+					+ insets.getStableInsetRight();
+				int bottomInsetPixels
+					= ((paddingBottom != null) ? paddingBottom.getAsPixels(view) : 0)
+					+ insets.getStableInsetBottom();
+				TiCompositeLayout.LayoutParams params = (TiCompositeLayout.LayoutParams) view.getLayoutParams();
+				params.optionLeft = new TiDimension(leftInsetPixels, TiDimension.TYPE_LEFT);
+				params.optionRight = new TiDimension(rightInsetPixels, TiDimension.TYPE_RIGHT);
+				params.optionBottom = new TiDimension(bottomInsetPixels, TiDimension.TYPE_BOTTOM);
+				insets.consumeSystemWindowInsets();
+				return insets;
+			});
+		}
+		this.mBottomNavigationView.setFitsSystemWindows(!isFloating);
 		this.mBottomNavigationView.setItemRippleColor(
 			TiUIAbstractTabGroup.createRippleColorStateListFrom(getColorPrimary()));
 
@@ -115,7 +159,7 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 			TiCompositeLayout.LayoutParams params = new TiCompositeLayout.LayoutParams();
 			params.autoFillsWidth = true;
 			params.autoFillsHeight = true;
-			if (compositeLayout.getFitsSystemWindows()) {
+			if (compositeLayout.getFitsSystemWindows() && !isFloating) {
 				params.optionBottom = new TiDimension(mBottomNavigationHeightValue, TiDimension.TYPE_BOTTOM);
 			}
 			compositeLayout.addView(this.tabGroupViewPager, params);
@@ -123,7 +167,13 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 		{
 			TiCompositeLayout.LayoutParams params = new TiCompositeLayout.LayoutParams();
 			params.autoFillsWidth = true;
-			params.optionBottom = new TiDimension(0, TiDimension.TYPE_BOTTOM);
+			if (isFloating) {
+				params.optionLeft = paddingLeft;
+				params.optionRight = paddingRight;
+				params.optionBottom = paddingBottom;
+			} else {
+				params.optionBottom = new TiDimension(0, TiDimension.TYPE_BOTTOM);
+			}
 			compositeLayout.addView(this.mBottomNavigationView, params);
 		}
 
@@ -251,7 +301,32 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 	@Override
 	public void setBackgroundColor(int colorInt)
 	{
-		this.mBottomNavigationView.setBackgroundColor(colorInt);
+		// Update tab bar's background color.
+		Drawable drawable = mBottomNavigationView.getBackground();
+		if (drawable instanceof MaterialShapeDrawable) {
+			MaterialShapeDrawable shapeDrawable = (MaterialShapeDrawable) drawable;
+			shapeDrawable.setFillColor(ColorStateList.valueOf(colorInt));
+			shapeDrawable.setElevation(0); // Drawable will tint the fill color if elevation is non-zero.
+		} else {
+			mBottomNavigationView.setBackgroundColor(colorInt);
+		}
+
+		// Apply given color to bottom navigation bar if using a "solid" theme.
+		if (isUsingSolidTitaniumTheme() && (Build.VERSION.SDK_INT >= 27)) {
+			Activity activity = (this.proxy != null) ? this.proxy.getActivity() : null;
+			Window window = (activity != null) ? activity.getWindow() : null;
+			View decorView = (window != null) ? window.getDecorView() : null;
+			if ((window != null) && (decorView != null)) {
+				int uiFlags = decorView.getSystemUiVisibility();
+				if (ColorUtils.calculateLuminance(colorInt) > 0.5) {
+					uiFlags |= View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR;
+				} else {
+					uiFlags &= ~View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR;
+				}
+				decorView.setSystemUiVisibility(uiFlags);
+				window.setNavigationBarColor(colorInt);
+			}
+		}
 	}
 
 	@Override
@@ -328,11 +403,12 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 			return;
 		}
 
-		if (tabProxy.getProperty(TiC.PROPERTY_BADGE_COLOR) != null) {
+		// TODO: reset to default value when property is null
+		if (tabProxy.hasPropertyAndNotNull(TiC.PROPERTY_BADGE_COLOR)) {
 			int menuItemId = this.mBottomNavigationView.getMenu().getItem(index).getItemId();
 			BadgeDrawable badgeDrawable = this.mBottomNavigationView.getOrCreateBadge(menuItemId);
 			badgeDrawable.setBackgroundColor(
-				TiConvert.toColor((String) tabProxy.getProperty(TiC.PROPERTY_BADGE_COLOR)));
+				TiConvert.toColor(tabProxy.getProperty(TiC.PROPERTY_BADGE_COLOR), tabProxy.getActivity()));
 		}
 	}
 

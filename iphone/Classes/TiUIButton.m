@@ -239,10 +239,32 @@
 {
   UIImage *image = value == nil ? nil : [TiUtils image:value proxy:(TiProxy *)self.proxy];
   if (image != nil) {
+    if (![TiUtils boolValue:[[self proxy] valueForKey:@"imageIsMask"] def:YES]) {
+      image = [image imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal];
+    }
     [[self button] setImage:image forState:UIControlStateNormal];
     [(TiViewProxy *)[self proxy] contentsWillChange];
   } else {
     [[self button] setImage:nil forState:UIControlStateNormal];
+  }
+}
+
+- (void)setImageIsMask_:(id)value
+{
+  UIImage *image = [self button].currentImage;
+  if (!image) {
+    return;
+  }
+
+  BOOL imageIsMask = [TiUtils boolValue:value];
+  if (imageIsMask && (image.renderingMode != UIImageRenderingModeAlwaysTemplate)) {
+    image = [image imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+  } else if (!imageIsMask && (image.renderingMode != UIImageRenderingModeAlwaysOriginal)) {
+    image = [image imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal];
+  }
+  if (image != [self button].currentImage) {
+    [[self button] setImage:image forState:UIControlStateNormal];
+    [(TiViewProxy *)[self proxy] contentsWillChange];
   }
 }
 

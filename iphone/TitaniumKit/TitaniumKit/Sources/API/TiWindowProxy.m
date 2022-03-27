@@ -505,11 +505,20 @@
 
 - (UIViewController *)windowHoldingController
 {
+  // Use assigned controller if set.
   if (controller != nil) {
     return controller;
-  } else {
-    return [[TiApp app] controller];
   }
+
+  // Walk up the view hierarchy for the 1st controller available.
+  for (UIResponder *responder = [self view].nextResponder; responder != nil; responder = responder.nextResponder) {
+    if ([responder isKindOfClass:[UIViewController class]]) {
+      return (UIViewController *)responder;
+    }
+  }
+
+  // Fallback to the app's root view controller.
+  return [[TiApp app] controller];
 }
 
 #pragma mark - Private Methods

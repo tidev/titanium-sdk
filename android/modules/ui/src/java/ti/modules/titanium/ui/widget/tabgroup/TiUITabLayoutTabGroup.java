@@ -23,6 +23,7 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import androidx.annotation.ColorInt;
 
 import com.google.android.material.badge.BadgeDrawable;
 import com.google.android.material.tabs.TabLayout;
@@ -204,6 +205,16 @@ public class TiUITabLayoutTabGroup extends TiUIAbstractTabGroup implements TabLa
 	}
 
 	@Override
+	@ColorInt
+	protected int getDefaultBackgroundColor()
+	{
+		if (isUsingSolidTitaniumTheme()) {
+			return getColorBackground();
+		}
+		return super.getDefaultBackgroundColor();
+	}
+
+	@Override
 	public void updateTabBackgroundDrawable(int index)
 	{
 		if (index < 0 || index >= tabs.size()) {
@@ -316,10 +327,11 @@ public class TiUITabLayoutTabGroup extends TiUIAbstractTabGroup implements TabLa
 			return;
 		}
 
-		if (tabProxy.getProperty(TiC.PROPERTY_BADGE_COLOR) != null) {
+		// TODO: reset to default value when property is null
+		if (tabProxy.hasPropertyAndNotNull(TiC.PROPERTY_BADGE_COLOR)) {
 			BadgeDrawable badgeDrawable = this.mTabLayout.getTabAt(index).getOrCreateBadge();
 			badgeDrawable.setBackgroundColor(
-				TiConvert.toColor((String) tabProxy.getProperty(TiC.PROPERTY_BADGE_COLOR)));
+				TiConvert.toColor(tabProxy.getProperty(TiC.PROPERTY_BADGE_COLOR), tabProxy.getActivity()));
 		}
 	}
 
