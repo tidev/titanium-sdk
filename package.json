@@ -132,7 +132,7 @@
     "conventional-changelog-cli": "^2.1.1",
     "core-js": "^3.18.3",
     "cz-conventional-changelog": "^3.3.0",
-    "danger": "^10.6.6",
+    "danger": "^11.0.2",
     "dateformat": "^5.0.1",
     "eslint": "^7.32.0",
     "eslint-config-axway": "^6.0.2",
