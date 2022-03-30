@@ -946,7 +946,7 @@ DEFINE_EXCEPTIONS
 
 /**
  This section of code for shadow support adapted from contributions by Martin Guillon
- See https://github.com/appcelerator/titanium_mobile/pull/2996
+ See https://github.com/tidev/titanium_mobile/pull/2996
  */
 - (void)assignShadowPropertyFromLayer:(CALayer *)fromLayer toLayer:(CALayer *)toLayer
 {

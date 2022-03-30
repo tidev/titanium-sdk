@@ -1,6 +1,6 @@
 # Titanium Mocha Suite
 
-The unit testing app for [Axway Titanium](https://github.com/appcelerator/titanium_mobile), built using [TiMocha](https://github.com/tonylukasavage/ti-mocha).
+The unit testing app for [Axway Titanium](https://github.com/tidev/titanium_mobile), built using [TiMocha](https://github.com/tonylukasavage/ti-mocha).
 
 ## Example
 
@@ -16,7 +16,7 @@ describe('Your test suite', function () {
 ## References
 
 - [Mocha](https://github.com/mochajs/mocha)
-- [Unit Testing in Titanium](https://github.com/appcelerator/titanium_mobile/#unit-tests)
+- [Unit Testing in Titanium](https://github.com/tidev/titanium_mobile/#unit-tests)
 
 ## License
 

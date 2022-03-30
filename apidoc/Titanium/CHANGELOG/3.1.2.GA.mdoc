@@ -66,11 +66,11 @@ A complete testing pass was performed against Release 3.1.2 using DP4 and DP5.  
 This release coincides with the release of Alloy 1.2.0, which now supports dynamic styling, creating ListView objects in markup with data binding enabled, and the Tizen platform.
 
   * [Dynamic Styles guide](https://docs.appcelerator.com/titanium/latest/#!/guide/Dynamic_Styles)
-  * [Dynamic Styling Sample](https://github.com/appcelerator/alloy/tree/master/test/apps/advanced/dynamic_styling)
-  * [ListView Sample](https://github.com/appcelerator/alloy/tree/master/test/apps/ui/listview)
-  * [ListView with Data Binding Sample](https://github.com/appcelerator/alloy/tree/master/test/apps/models/binding_listview)
+  * [Dynamic Styling Sample](https://github.com/tidev/alloy/tree/master/test/apps/advanced/dynamic_styling)
+  * [ListView Sample](https://github.com/tidev/alloy/tree/master/test/apps/ui/listview)
+  * [ListView with Data Binding Sample](https://github.com/tidev/alloy/tree/master/test/apps/models/binding_listview)
 
-For a complete list of updates, see the Alloy [Changelog](https://github.com/appcelerator/alloy/blob/1_2_X/CHANGELOG.md).
+For a complete list of updates, see the Alloy [Changelog](https://github.com/tidev/alloy/blob/1_2_X/CHANGELOG.md).
 
 <a name="install"></a>
 
@@ -197,9 +197,9 @@ This release introduces two new read-only properties to retrieve the last Titani
 
 ### Fastdev Server May Cause the Application to Hang or the Emulator to Crash 
 
-In Studio, if you test a project on the Android emulator, then test on device with Fastdev enabled, the application may hang ([TIMOB-14793](https://jira.appcelerator.org/browse/TIMOB-14793)).
+In Studio, if you test a project on the Android emulator, then test on device with Fastdev enabled, the application may hang ([TIMOB-14793](https://jira-archive.titaniumsdk.com/TIMOB-14793)).
 
-For Android 4.1 and greater, the emulator crashes if Fastdev is enabled ([TIMOB-14769](https://jira.appcelerator.org/browse/TIMOB-14769)).
+For Android 4.1 and greater, the emulator crashes if Fastdev is enabled ([TIMOB-14769](https://jira-archive.titaniumsdk.com/TIMOB-14769)).
 
 To workaround this issue, either remove the `ti.android.fastdev` property from the `tiapp.xml` file or set the property to `false`.  Currently, there is a temporary fix in place for Studio to disable Fastdev if you are building for Android 4.1 and greater.
 
@@ -211,7 +211,7 @@ By default, if this property is not set, Fastdev is enabled for the emulator and
 
 In the TSS files, certain escape sequences, such as a newline ('\n'), are not escaped properly
 and these escape sequences are rendered in the generated code
-([ALOY-789](https://jira.appcelerator.org/browse/ALOY-789)).
+([ALOY-789](https://jira-archive.titaniumsdk.com/ALOY-789)).
 
 A fix for this issue is included with Alloy release candidate 1.2.1.  This fix has not been
 fully tested, but is available if you need it. To download this RC, run the following command:
@@ -239,7 +239,7 @@ case that Android will kill an activity in the background due to memory pressure
 normal use, it is not recommended to turn this option on because this may lead to unexpected issues
 in your apps, such as freezes, force closes and reboots.
  
-Enabling this option causes Titanium applications to close immediately when the first activity is launched ([TIMOB-12939](https://jira.appcelerator.org/browse/TIMOB-12939)).
+Enabling this option causes Titanium applications to close immediately when the first activity is launched ([TIMOB-12939](https://jira-archive.titaniumsdk.com/TIMOB-12939)).
  
 This issue has been fixed in Release 3.1.2 and requires that the root window's `exitOnClose` property be set to `true` to properly close the application when this option is enabled.
 
