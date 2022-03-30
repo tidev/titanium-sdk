@@ -21,8 +21,8 @@ echo "Generating TitaniumKit docs ..."
 jazzy \
   --objc \
   --clean \
-  --author Appcelerator \
-  --author_url https://appcelerator.com \
+  --author TiDev \
+  --author_url https://tidev.io \
   --github_url https://github.com/tidev/titanium_mobile \
   --github-file-prefix https://github.com/tidev/titanium_mobile/tree/next \
   --module-version 8.1.0 \
