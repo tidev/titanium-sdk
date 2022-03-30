@@ -19,6 +19,18 @@ The Android Lifecycle changes in 1.6.0 mean that your Window's URL (and app.js) 
 Try to keep your initial code light, and don't count on window.open() being synchronous, especially if the window is launching a new Activity.
 Use a listener on the Window's "open" event to ensure that code gets executed after the new Activity has been opened.
 
+*Features*
+
+ - Dimensions are supported in views nows. Android supports `mm`, `cm`, `in`, `px`, `pt`, `dp`, `dip`, `sp`, `sip`, and `%`.
+- Added support for setting URIs in Intents. This enables stream based operations such as audio recording. 
+- Support was added for the Facebook Graph SDK. 
+- Android lifecycle events are now fired synchronously. 
+- Beta level support for integration with the Android NDK. We expect to take it to GA level in 1.7.0. 
+- The default behavior for location listeners in Geolocation has changed on Android. Managing the lifecycle of the listener is now up to the developer. 
+- Support was added for `horizontal` layout. 
+- Shake gesture. 
+- Install to SD card support. 
+- Samsung Galaxy Tab support.
 
 iOS Changes
 -----------
