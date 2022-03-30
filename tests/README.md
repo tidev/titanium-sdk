@@ -1,6 +1,6 @@
 # Titanium Mocha Suite
 
-The unit testing app for [Axway Titanium](https://github.com/tidev/titanium_mobile), built using [TiMocha](https://github.com/tonylukasavage/ti-mocha).
+The unit testing app for [Titanium](https://github.com/tidev/titanium_mobile), built using [TiMocha](https://github.com/tonylukasavage/ti-mocha).
 
 ## Example
 
