@@ -950,24 +950,4 @@ describe('Titanium.UI.WebView', function () {
 			win.open();
 		});
 	});
-
-	it('url with clientCertChallenge', function (finish) {
-		const url = 'https://device.login.microsoftonline.com';
-
-		win = Ti.UI.createWindow();
-		const webView = Ti.UI.createWebView({
-			url: url
-		});
-
-		webView.addEventListener('error', function () {
-			finish(new Error('clientCertChallenge must be handled correctly.'));
-		});
-
-		webView.addEventListener('load', function () {
-			finish();
-		});
-
-		win.add(webView);
-		win.open();
-	});
 });
