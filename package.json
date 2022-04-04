@@ -102,7 +102,7 @@
     "node-titanium-sdk": "^5.1.5",
     "node-uuid": "1.4.8",
     "nodeify": "^1.0.1",
-    "p-limit": "^3.1.0",
+    "p-limit": "^4.0.0",
     "pngjs": "^6.0.0",
     "request": "^2.88.2",
     "semver": "^7.3.5",
