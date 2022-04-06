@@ -182,7 +182,7 @@ description: |
 
     ``` js
     var win = Ti.UI.createWindow({
-      backgroundColor: 'white';
+      backgroundColor: 'white'
     });
 
     var verticalView = Ti.UI.createView({layout: 'vertical', width: "100%", height: "100%"});
