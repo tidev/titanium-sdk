@@ -63,7 +63,7 @@ description: |
     Release 3.0:
 
     *   On iOS, the first two arguments to the `updateSection` method are reversed.
-        ([TIMOB-12625](https://jira.appcelerator.org/browse/TIMOB-12625)). This issue has been
+        ([TIMOB-12625](https://jira-archive.titaniumsdk.com/TIMOB-12625)). This issue has been
         addressed in Release 3.3.0 of the Titanium SDK
 
     #### Row Editing and Moving Modes
@@ -1042,7 +1042,7 @@ methods:
 
         *   On iOS, event listeners do not fire correctly after table view sections are
             updated using the `updateSection` methods.
-            ([TIMOB-12616](https://jira.appcelerator.org/browse/TIMOB-12616)
+            ([TIMOB-12616](https://jira-archive.titaniumsdk.com/TIMOB-12616)
     parameters:
       - name: index
         summary: Index of the section to update.

@@ -15,7 +15,7 @@
     "ipad",
     "ios"
   ],
-  "author": "Appcelerator, Inc. <npmjs@appcelerator.com>",
+  "author": "TiDev, Inc. <npm@tidev.io>",
   "scripts": {
     "android": "node ./build/scons cleanbuild android",
     "build": "node ./build/scons build",
