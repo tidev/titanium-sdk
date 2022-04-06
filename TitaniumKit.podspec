@@ -7,7 +7,7 @@ Pod::Spec.new do |s|
   s.summary      = "Titanium iOS Core framework"
 
   s.description  = <<-DESC
-                   TiDev Titanium iOS Core framework.
+                   Titanium iOS Core framework.
                    DESC
 
   s.homepage     = "https://github.com/tidev/titanium_mobile"
