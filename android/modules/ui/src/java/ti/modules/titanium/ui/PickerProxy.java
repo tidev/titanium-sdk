@@ -45,6 +45,7 @@ import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.view.ContextThemeWrapper;
+import androidx.core.util.Pair;
 
 import com.google.android.material.datepicker.CalendarConstraints;
 import com.google.android.material.datepicker.CompositeDateValidator;
@@ -65,7 +66,8 @@ import com.google.android.material.timepicker.TimeFormat;
 		TiC.PROPERTY_MIN_DATE,
 		TiC.PROPERTY_MAX_DATE,
 		TiC.PROPERTY_SELECTION_OPENS,
-		TiC.PROPERTY_VALUE
+		TiC.PROPERTY_VALUE,
+		TiC.PROPERTY_DATE_PICKER_RANGE
 })
 public class PickerProxy extends TiViewProxy implements PickerColumnProxy.OnChangedListener
 {
@@ -75,6 +77,7 @@ public class PickerProxy extends TiViewProxy implements PickerColumnProxy.OnChan
 	private final ArrayList<Integer> selectedRows = new ArrayList<>();
 	private boolean useSpinner = false;
 	private boolean canFireColumnEvents = true;
+	private boolean rangePicker = false;
 
 	public PickerProxy()
 	{
@@ -98,6 +101,9 @@ public class PickerProxy extends TiViewProxy implements PickerColumnProxy.OnChan
 		}
 		if (dict.containsKey(TiC.PROPERTY_COLUMNS)) {
 			setColumns(dict.get(TiC.PROPERTY_COLUMNS));
+		}
+		if (dict.containsKey(TiC.PROPERTY_DATE_PICKER_RANGE)) {
+			this.rangePicker = TiConvert.toBoolean(dict, TiC.PROPERTY_DATE_PICKER_RANGE, false);
 		}
 	}
 
@@ -503,7 +509,9 @@ public class PickerProxy extends TiViewProxy implements PickerColumnProxy.OnChan
 
 		// Get the date to be displayed in the dialog. If not assigned, then use today's date.
 		Calendar calendar = Calendar.getInstance();
-		if (settings.containsKey(TiC.PROPERTY_VALUE)) {
+		if (settings.containsKey(TiC.PROPERTY_FROM)) {
+			calendar.setTime(TiConvert.toDate(settings, TiC.PROPERTY_FROM));
+		} else if (settings.containsKey(TiC.PROPERTY_VALUE)) {
 			calendar.setTime(TiConvert.toDate(settings, TiC.PROPERTY_VALUE));
 		} else if (hasProperty(TiC.PROPERTY_VALUE)) {
 			calendar.setTime(TiConvert.toDate(getProperties(), TiC.PROPERTY_VALUE));
@@ -525,13 +533,6 @@ public class PickerProxy extends TiViewProxy implements PickerColumnProxy.OnChan
 		// Used to indicate if a dialog listener has been invoked.
 		final AtomicInteger callbackCount = new AtomicInteger(0);
 
-		// Configure main picker settings.
-		MaterialDatePicker.Builder<Long> pickerBuilder = MaterialDatePicker.Builder.datePicker();
-		pickerBuilder.setInputMode(MaterialDatePicker.INPUT_MODE_CALENDAR);
-		if (settings.containsKey(TiC.PROPERTY_TITLE)) {
-			pickerBuilder.setTitleText(TiConvert.toString(settings, TiC.PROPERTY_TITLE));
-		}
-
 		// Set up min/max date range if configured.
 		Date minDate = null;
 		if (settings.containsKey(TiC.PROPERTY_MIN_DATE)) {
@@ -540,6 +541,8 @@ public class PickerProxy extends TiViewProxy implements PickerColumnProxy.OnChan
 			minDate = TiConvert.toDate(getProperty(TiC.PROPERTY_MIN_DATE));
 		}
 		Date maxDate = null;
+		CalendarConstraints.Builder constraintsBuilder = null;
+
 		if (settings.containsKey(TiC.PROPERTY_MAX_DATE)) {
 			maxDate = TiConvert.toDate(settings.get(TiC.PROPERTY_MAX_DATE));
 		} else if (hasProperty(TiC.PROPERTY_MAX_DATE)) {
@@ -548,8 +551,9 @@ public class PickerProxy extends TiViewProxy implements PickerColumnProxy.OnChan
 		if ((minDate != null) && (maxDate != null) && !minDate.before(maxDate)) {
 			throw new IllegalArgumentException("showDatePickerDialog() property 'minDate' must be less than 'maxDate'");
 		}
+
 		if ((minDate != null) || (maxDate != null)) {
-			CalendarConstraints.Builder constraintsBuilder = new CalendarConstraints.Builder();
+			constraintsBuilder = new CalendarConstraints.Builder();
 			ArrayList<CalendarConstraints.DateValidator> validatorList = new ArrayList<>();
 			if (minDate != null) {
 				long unixTime = createDateWithoutTime(minDate).getTime();
@@ -569,66 +573,165 @@ public class PickerProxy extends TiViewProxy implements PickerColumnProxy.OnChan
 			}
 			constraintsBuilder.setValidator(CompositeDateValidator.allOf(validatorList));
 			constraintsBuilder.setOpenAt(calendar.getTimeInMillis());
-			pickerBuilder.setCalendarConstraints(constraintsBuilder.build());
 		}
 
-		// Select date from "value" property or current time.
-		// We must do this after applying min/max above (if applicable) to ensure selection is within range.
-		pickerBuilder.setSelection(calendar.getTimeInMillis());
+		if (rangePicker) {
+			MaterialDatePicker.Builder<Pair<Long, Long>> pickerBuilder
+				= MaterialDatePicker.Builder.dateRangePicker();
+			pickerBuilder.setSelection(new Pair(
+				MaterialDatePicker.thisMonthInUtcMilliseconds(),
+				MaterialDatePicker.todayInUtcMilliseconds()
+			));
+			pickerBuilder.setInputMode(MaterialDatePicker.INPUT_MODE_CALENDAR);
+			if (settings.containsKey(TiC.PROPERTY_TITLE)) {
+				pickerBuilder.setTitleText(TiConvert.toString(settings, TiC.PROPERTY_TITLE));
+			}
 
-		// Create the dialog with above settings and assign it listeners.
-		MaterialDatePicker<Long> picker = pickerBuilder.build();
-		picker.setCancelable(true);
-		if (callback != null) {
-			Runnable cancelHandler = () -> {
-				// Invoke callback with a cancel event if not done already.
-				if (callbackCount.get() == 0) {
+			if ((minDate != null) || (maxDate != null) && constraintsBuilder != null) {
+				pickerBuilder.setCalendarConstraints(constraintsBuilder.build());
+			}
+
+			Calendar calendarTo = Calendar.getInstance();
+			if (settings.containsKey(TiC.PROPERTY_TO)) {
+				calendarTo.setTime(TiConvert.toDate(settings, TiC.PROPERTY_TO));
+			} else if (hasProperty(TiC.PROPERTY_TO)) {
+				calendarTo.setTime(TiConvert.toDate(getProperties(), TiC.PROPERTY_TO));
+			} else if (hasProperty(TiC.PROPERTY_VALUE)) {
+				calendarTo.setTime(TiConvert.toDate(getProperties(), TiC.PROPERTY_VALUE));
+			}
+
+			// set selection: from/value -> to
+			pickerBuilder.setSelection(new Pair<>(
+				calendar.getTimeInMillis(),
+				calendarTo.getTimeInMillis()
+			));
+			// Create the dialog with above settings and assign it listeners.
+			MaterialDatePicker<Pair<Long, Long>> picker = pickerBuilder.build();
+			picker.setCancelable(true);
+			if (callback != null) {
+				Runnable cancelHandler = () -> {
+					// Invoke callback with a cancel event if not done already.
+					if (callbackCount.get() == 0) {
+						callbackCount.incrementAndGet();
+						KrollDict data = new KrollDict();
+						data.put(TiC.PROPERTY_CANCEL, true);
+						data.put(TiC.PROPERTY_VALUE, null);
+						callback.callAsync(getKrollObject(), new Object[] { data });
+					}
+				};
+				picker.addOnPositiveButtonClickListener((unixTime) -> {
+					// Flag that the callback was invoked.
 					callbackCount.incrementAndGet();
+
+					Calendar localCalendar = createCalendar(unixTime.first);
+					Date valueFrom = localCalendar.getTime();
+
+					localCalendar = createCalendar(unixTime.second);
+					Date valueTo = localCalendar.getTime();
+
+					// Update proxy's "value" property.
+					setProperty(TiC.PROPERTY_TO, valueTo);
+					setProperty(TiC.PROPERTY_FROM, valueFrom);
+					setProperty(TiC.PROPERTY_VALUE, valueFrom);
+
+					// Invoke callback providing the selected value.
 					KrollDict data = new KrollDict();
-					data.put(TiC.PROPERTY_CANCEL, true);
-					data.put(TiC.PROPERTY_VALUE, null);
+					data.put(TiC.PROPERTY_FROM, valueFrom);
+					data.put(TiC.PROPERTY_VALUE, valueFrom);
+					data.put(TiC.PROPERTY_TO, valueTo);
+					data.put(TiC.PROPERTY_CANCEL, false);
 					callback.callAsync(getKrollObject(), new Object[] { data });
-				}
-			};
-			picker.addOnPositiveButtonClickListener((unixTime) -> {
-				// Flag that the callback was invoked.
-				callbackCount.incrementAndGet();
+				});
+				picker.addOnNegativeButtonClickListener((dialog) -> {
+					cancelHandler.run();
+				});
+				picker.addOnCancelListener((dialog) -> {
+					cancelHandler.run();
+				});
+				picker.addOnDismissListener((dialog) -> {
+					cancelHandler.run();
+				});
+			}
 
-				// Converted selected date from UTC to local time. (Matches iOS' behavior.)
-				Calendar utcCalendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
-				utcCalendar.setTimeInMillis(unixTime);
-				Calendar localCalendar = Calendar.getInstance();
-				localCalendar.set(Calendar.YEAR, utcCalendar.get(Calendar.YEAR));
-				localCalendar.set(Calendar.MONTH, utcCalendar.get(Calendar.MONTH));
-				localCalendar.set(Calendar.DAY_OF_MONTH, utcCalendar.get(Calendar.DAY_OF_MONTH));
-				localCalendar.set(Calendar.HOUR_OF_DAY, 0);
-				localCalendar.set(Calendar.MINUTE, 0);
-				localCalendar.set(Calendar.SECOND, 0);
-				localCalendar.set(Calendar.MILLISECOND, 0);
-				Date value = localCalendar.getTime();
+			// Show the dialog.
+			picker.show(appCompatActivity.getSupportFragmentManager(), picker.toString());
+		} else {
+			// Configure main picker settings.
+			MaterialDatePicker.Builder pickerBuilder = MaterialDatePicker.Builder.datePicker();
+			pickerBuilder.setInputMode(MaterialDatePicker.INPUT_MODE_CALENDAR);
+			if (settings.containsKey(TiC.PROPERTY_TITLE)) {
+				pickerBuilder.setTitleText(TiConvert.toString(settings, TiC.PROPERTY_TITLE));
+			}
 
-				// Update proxy's "value" property.
-				setProperty(TiC.PROPERTY_VALUE, value);
+			if ((minDate != null) || (maxDate != null)  && constraintsBuilder != null) {
+				pickerBuilder.setCalendarConstraints(constraintsBuilder.build());
+			}
 
-				// Invoke callback providing the selected value.
-				KrollDict data = new KrollDict();
-				data.put(TiC.PROPERTY_CANCEL, false);
-				data.put(TiC.PROPERTY_VALUE, value);
-				callback.callAsync(getKrollObject(), new Object[] { data });
-			});
-			picker.addOnNegativeButtonClickListener((dialog) -> {
-				cancelHandler.run();
-			});
-			picker.addOnCancelListener((dialog) -> {
-				cancelHandler.run();
-			});
-			picker.addOnDismissListener((dialog) -> {
-				cancelHandler.run();
-			});
+			// Select date from "value" property or current time.
+			// We must do this after applying min/max above (if applicable) to ensure selection is within range.
+			pickerBuilder.setSelection(calendar.getTimeInMillis());
+
+			// Create the dialog with above settings and assign it listeners.
+			MaterialDatePicker<Long> picker = pickerBuilder.build();
+			picker.setCancelable(true);
+			if (callback != null) {
+				Runnable cancelHandler = () -> {
+					// Invoke callback with a cancel event if not done already.
+					if (callbackCount.get() == 0) {
+						callbackCount.incrementAndGet();
+						KrollDict data = new KrollDict();
+						data.put(TiC.PROPERTY_CANCEL, true);
+						data.put(TiC.PROPERTY_VALUE, null);
+						callback.callAsync(getKrollObject(), new Object[] { data });
+					}
+				};
+				picker.addOnPositiveButtonClickListener((unixTime) -> {
+					// Flag that the callback was invoked.
+					callbackCount.incrementAndGet();
+
+					Calendar localCalendar = createCalendar(unixTime);
+					Date value = localCalendar.getTime();
+
+					// Update proxy's "value" property.
+					setProperty(TiC.PROPERTY_VALUE, value);
+
+					// Invoke callback providing the selected value.
+					KrollDict data = new KrollDict();
+					data.put(TiC.PROPERTY_VALUE, value);
+					data.put(TiC.PROPERTY_CANCEL, false);
+					callback.callAsync(getKrollObject(), new Object[] { data });
+				});
+				picker.addOnNegativeButtonClickListener((dialog) -> {
+					cancelHandler.run();
+				});
+				picker.addOnCancelListener((dialog) -> {
+					cancelHandler.run();
+				});
+				picker.addOnDismissListener((dialog) -> {
+					cancelHandler.run();
+				});
+			}
+
+			// Show the dialog.
+			picker.show(appCompatActivity.getSupportFragmentManager(), picker.toString());
 		}
+	}
 
-		// Show the dialog.
-		picker.show(appCompatActivity.getSupportFragmentManager(), picker.toString());
+	private Calendar createCalendar(Long unixTime)
+	{
+		// Converted selected date from UTC to local time. (Matches iOS' behavior.)
+		Calendar utcCalendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+
+		utcCalendar.setTimeInMillis(unixTime);
+		Calendar localCalendar = Calendar.getInstance();
+		localCalendar.set(Calendar.YEAR, utcCalendar.get(Calendar.YEAR));
+		localCalendar.set(Calendar.MONTH, utcCalendar.get(Calendar.MONTH));
+		localCalendar.set(Calendar.DAY_OF_MONTH, utcCalendar.get(Calendar.DAY_OF_MONTH));
+		localCalendar.set(Calendar.HOUR_OF_DAY, 0);
+		localCalendar.set(Calendar.MINUTE, 0);
+		localCalendar.set(Calendar.SECOND, 0);
+		localCalendar.set(Calendar.MILLISECOND, 0);
+		return localCalendar;
 	}
 
 	/**
