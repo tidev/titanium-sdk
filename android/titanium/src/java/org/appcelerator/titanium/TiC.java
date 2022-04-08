@@ -268,6 +268,11 @@ public class TiC
 	public static final String PROPERTY_AUTOROTATE = "autorotate";
 	public static final String PROPERTY_AUTO_REDIRECT = "autoRedirect";
 	public static final String PROPERTY_AUTO_ENCODE_URL = "autoEncodeUrl";
+	public static final String PROPERTY_AUTO_TAB_TITLE = "autoTabTitle";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_BACKGROUND_COLOR = "backgroundColor";
 	public static final String PROPERTY_BACKGROUND_DISABLED_COLOR = "backgroundDisabledColor";
 	public static final String PROPERTY_BACKGROUND_DISABLED_IMAGE = "backgroundDisabledImage";

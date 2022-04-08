@@ -17,7 +17,7 @@ description: |
     to true disables the Action Bar since it is part of the navigation title bar.
 
     For more examples on using the Action Bar, refer to the
-    [Android Action Bar guide](https://docs.appcelerator.com/platform/latest/#!/guide/Android_Action_Bar).
+    [Android Action Bar guide](https://titaniumsdk.com/guide/Titanium_SDK/Titanium_SDK_How-tos/User_Interface_Deep_Dives/Android_UI_Components_and_Conventions/Android_Action_Bar.html).
 
     #### Application Notes for Alloy
 
@@ -123,7 +123,7 @@ methods:
         [setDisplayShowHomeEnabled](https://developer.android.com/reference/android/app/ActionBar.html#setDisplayShowHomeEnabled(boolean))
         in the Android API Reference.
     since: "3.3.0"
-    
+
   - name: setDisplayShowTitleEnabled
     summary: Shows or hides the action bar title/subtitle
     parameters:
@@ -135,7 +135,7 @@ methods:
         [setDisplayShowTitleEnabled](https://developer.android.com/reference/android/app/ActionBar.html#setDisplayShowTitleEnabled(boolean))
         in the Android API Reference.
     since: "3.3.0"
-        
+
   - name: show
     summary: Shows the action bar if it is currently hidden.
     description: |

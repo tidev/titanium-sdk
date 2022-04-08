@@ -14,4 +14,4 @@ Run `npm run lint` to lint your project via [eslint](https://eslint.org/).
 
 ## Further help
 
-To get more help on Titanium go check out the [How-tos](https://docs.appcelerator.com/platform/latest/#!/guide/Titanium_SDK_How-tos) and [API Docs](https://docs.appcelerator.com/platform/latest/#!/api).
+To get more help on Titanium go check out the [How-tos](https://titaniumsdk.com/guide/Titanium_SDK/Titanium_SDK_How-tos/) and [API Docs](https://titaniumsdk.com/api/).

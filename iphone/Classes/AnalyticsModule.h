@@ -31,8 +31,4 @@ JSExportAs(navEvent,
 
 @interface AnalyticsModule : ObjcModule <AnalyticsExports>
 
-#pragma mark Internal API's
-
-+ (BOOL)isEventFiltered:(NSString *)eventName;
-
 @end
