@@ -122,6 +122,8 @@ methods:
             and a callback defined. Acceptable object properties are
             `callback`, `title` and `value`. Property `okButtonTitle` is only
             supported on Titanium versions older than 10.0.0.
+            If `datePickerRange` is enabled it will also return the `from` and
+            `to` values in the callback parameters.
         type: Object
     platforms: [android]
 
@@ -216,7 +218,7 @@ properties:
         This is an Android only property which only applies to pickers of type:
 
         * [PICKER_TYPE_DATE](Titanium.UI.PICKER_TYPE_DATE) or [PICKER_TYPE_TIME](Titanium.UI.PICKER_TYPE_TIME)
-        that also have [datePickerStyle](Titanium.UI.Picker.datePickerStyle) set to 
+        that also have [datePickerStyle](Titanium.UI.Picker.datePickerStyle) set to
         [DATE_PICKER_STYLE_COMPACT](Titanium.UI.DATE_PICKER_STYLE_COMPACT).
 
         * [PICKER_TYPE_PLAIN](Titanium.UI.PICKER_TYPE_PLAIN) that also have property
@@ -279,6 +281,16 @@ properties:
     since: "5.2.0"
     default: "black"
 
+  - name: datePickerRange
+    summary: Enables range selection in date picker dialog.
+    description: |
+        If set to `true` it will allow the user to pick a range in the date picker dialog. You can set `from`
+        (or `value`) and `to` to define a preselected range.
+    type: Boolean
+    platforms: [android]
+    since: "10.2.0"
+    default: false
+
   - name: format24
     summary: |
         Determines whether the Time pickers display in 24-hour or 12-hour clock format.
@@ -291,13 +303,19 @@ properties:
     default: false
     platforms: [android]
 
+  - name: from
+    summary: Date value for range picker start value.
+    type: Date
+    platforms: [android]
+    since: "10.2.0"
+
   - name: hintText
     summary: Text to be shown above date/time when picker is shown as a text field or drop-down field.
     description: |
         This is an Android only property which only applies to pickers of type:
 
         * [PICKER_TYPE_DATE](Titanium.UI.PICKER_TYPE_DATE) or [PICKER_TYPE_TIME](Titanium.UI.PICKER_TYPE_TIME)
-        that also have [datePickerStyle](Titanium.UI.Picker.datePickerStyle) set to 
+        that also have [datePickerStyle](Titanium.UI.Picker.datePickerStyle) set to
         [DATE_PICKER_STYLE_COMPACT](Titanium.UI.DATE_PICKER_STYLE_COMPACT).
 
         * [PICKER_TYPE_PLAIN](Titanium.UI.PICKER_TYPE_PLAIN) that also have property
@@ -406,6 +424,12 @@ properties:
     constants: Titanium.UI.DATE_PICKER_STYLE_*
     default: <Titanium.UI.DATE_PICKER_STYLE_AUTOMATIC>
     osver: { ios: { min: "13.4" } }
+
+  - name: to
+    summary: Date value for range picker end value.
+    type: Date
+    platforms: [android]
+    since: "10.2.0"
 
   - name: type
     summary: Determines the type of picker displayed
@@ -683,6 +707,44 @@ examples:
 
         picker.addEventListener('change',function(e){
           Ti.API.info("User selected date: " + e.value.toLocaleString());
+        });
+        ```
+
+  - title: Date Picker with range selection (Android only)
+    example: |
+        Create a date picker and handle the subsequent user action.
+
+        ``` js
+        var win = Ti.UI.createWindow({});
+        var btn = Ti.UI.createButton({
+          title: "pick"
+        });
+        win.add(btn);
+        win.open();
+
+        btn.addEventListener("click", function() {
+          Ti.UI.backgroundColor = 'white';
+
+          var picker = Ti.UI.createPicker({
+            type: Ti.UI.PICKER_TYPE_DATE,
+            minDate: new Date(2022, 3, 1),
+            maxDate: new Date(2022, 11, 31),
+            from: new Date(2022, 3, 2),
+            to: new Date(2022, 3, 10),
+            datePickerRange: true,
+            title: "Pick a range..."
+          });
+
+          picker.showDatePickerDialog({
+            value: new Date(),
+            callback: function(e) {
+              if (e.cancel) {
+                Ti.API.info('User canceled dialog');
+              } else {
+                Ti.API.info('User selected date from ' + e.from + " to " + e.to);
+              }
+            }
+          });
         });
         ```
 
