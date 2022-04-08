@@ -46,13 +46,11 @@ properties:
 
   - name: action
     summary: Text of the right hand action button
-    description:
     type: String
     since: "10.2.0"
 
   - name: message
     summary: Text of Snackbar
-    description:
     type: String
     since: "10.2.0"
 
