@@ -30,11 +30,6 @@ public class SnackbarProxy extends TiViewProxy
 
 	private TiUISnackbar snackbar;
 
-	public SnackbarProxy()
-	{
-		super();
-	}
-
 	@Override
 	public TiUIView createView(Activity activity)
 	{

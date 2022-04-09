@@ -60,20 +60,20 @@ examples:
         Display a Snackbar with an action button.
 
         ``` js
-        var win = Ti.UI.createWindow({});
-        var btn = Ti.UI.createButton({
-          title: "show message"
+        const win = Ti.UI.createWindow();
+        const btn = Ti.UI.createButton({
+          title: 'show message'
         });
-        btn.addEventListener("click", function() {
+        btn.addEventListener('click', function() {
           snack.show();
         });
 
-        var snack = Ti.UI.Android.createSnackbar({
-          message: "Hello Snackbar!",
+        const snack = Ti.UI.Android.createSnackbar({
+          message: 'Hello Snackbar!',
           length: Ti.UI.Android.Snackbar.LENGTH_INDEFINITE,
-          action: "click me"
+          action: 'click me'
         });
-        snack.addEventListener("click", function(e) {
+        snack.addEventListener('click', function(e) {
           console.log(e.action);
         });
 
