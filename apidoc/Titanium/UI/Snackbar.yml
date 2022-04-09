@@ -1,11 +1,11 @@
 ---
-name: Titanium.UI.Android.Snackbar
+name: Titanium.UI.Snackbar
 summary: Snackbars provide brief messages about app processes at the bottom of the screen.
 description: |
     For design guidelines, see
     [Material design: Snackbars](https://material.io/components/snackbars)
 since: "10.2.0"
-platforms: [android]
+platforms: [android, iphone, ipad, macos]
 
 methods:
   - name: show
@@ -37,9 +37,9 @@ properties:
   - name: length
     summary: Display time of the Snackbar
     description: |
-        Use with on of the constants: `Ti.UI.Android.Snackbar.LENGTH_SHORT`,
-        `Ti.UI.Android.Snackbar.LENGTH_LONG` or
-        `Ti.UI.Android.Snackbar.LENGTH_INDEFINITE`
+        Use with on of the constants: `Ti.UI.Snackbar.LENGTH_SHORT`,
+        `Ti.UI.Snackbar.LENGTH_LONG` or
+        `Ti.UI.Snackbar.LENGTH_INDEFINITE`
     type: Number
     default: LENGTH_SHORT
     since: "10.2.0"
@@ -68,9 +68,9 @@ examples:
           snack.show();
         });
 
-        const snack = Ti.UI.Android.createSnackbar({
+        const snack = Ti.UI.createSnackbar({
           message: 'Hello Snackbar!',
-          length: Ti.UI.Android.Snackbar.LENGTH_INDEFINITE,
+          length: Ti.UI.Snackbar.LENGTH_INDEFINITE,
           action: 'click me'
         });
         snack.addEventListener('click', function(e) {
