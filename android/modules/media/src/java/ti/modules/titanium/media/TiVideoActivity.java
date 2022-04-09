@@ -40,7 +40,7 @@ public class TiVideoActivity extends Activity
 	{
 		super.onCreate(savedInstanceState);
 
-		Log.i(TAG, "TiVideoActivity onCreate", Log.DEBUG_MODE);
+		Log.d(TAG, "TiVideoActivity onCreate");
 
 		final Intent intent = getIntent();
 
@@ -67,7 +67,7 @@ public class TiVideoActivity extends Activity
 			}
 		}
 
-		Log.i(TAG, "exiting onCreate", Log.DEBUG_MODE);
+		Log.d(TAG, "exiting onCreate");
 	}
 
 	@Override

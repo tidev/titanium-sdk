@@ -50,12 +50,10 @@ public class GestureModule extends KrollModule implements SensorEventListener
 		postShakePeriod = props.getInt("ti.android.shake.quiet.milliseconds", 500);
 		inShakePeriod = props.getInt("ti.android.shake.active.milliseconds", 1000);
 		threshold = shakeFactor * shakeFactor * SensorManager.GRAVITY_EARTH * SensorManager.GRAVITY_EARTH;
-		if (Log.isDebugModeEnabled()) {
-			Log.i(TAG, "Shake Factor: " + shakeFactor);
-			Log.i(TAG, "Post Shake Period (ms): " + postShakePeriod);
-			Log.i(TAG, "In Shake Period(ms): " + inShakePeriod);
-			Log.i(TAG, "Threshold: " + threshold);
-		}
+		Log.d(TAG, "Shake Factor: " + shakeFactor);
+		Log.d(TAG, "Post Shake Period (ms): " + postShakePeriod);
+		Log.d(TAG, "In Shake Period(ms): " + inShakePeriod);
+		Log.d(TAG, "Threshold: " + threshold);
 
 		// Configure and start-up the device orientation monitor.
 		this.deviceOrientationMonitor = new TiDeviceOrientationMonitor(getRuntimeHandler());

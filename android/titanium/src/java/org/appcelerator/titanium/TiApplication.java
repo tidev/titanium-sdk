@@ -468,7 +468,7 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	{
 		KrollRuntime runtime = KrollRuntime.getInstance();
 		if (runtime != null) {
-			Log.i(TAG, "Titanium Javascript runtime: " + runtime.getRuntimeName());
+			Log.d(TAG, "Titanium Javascript runtime: " + runtime.getRuntimeName());
 		} else {
 			// This ought not to be possible.
 			Log.w(TAG, "Titanium Javascript runtime: unknown");
@@ -577,9 +577,7 @@ public abstract class TiApplication extends Application implements KrollApplicat
 		}
 
 		// Async delete the "trash" directory tree.
-		Thread thread = new Thread(() -> {
-			TiFileHelper.getInstance().tryDeleteTree(trashDir);
-		});
+		Thread thread = new Thread(() -> TiFileHelper.getInstance().tryDeleteTree(trashDir));
 		thread.start();
 	}
 

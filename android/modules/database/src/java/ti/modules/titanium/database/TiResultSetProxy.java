@@ -200,7 +200,7 @@ public class TiResultSetProxy extends KrollProxy
 			try {
 				Integer ndx = columnNames.get(fieldName.toLowerCase());
 				if (ndx != null)
-					result = internalGetField(ndx.intValue(), type);
+					result = internalGetField(ndx, type);
 			} catch (SQLException e) {
 				String msg = "Field name " + fieldName + " not found. msg=" + e.getMessage();
 				Log.e(TAG, msg);

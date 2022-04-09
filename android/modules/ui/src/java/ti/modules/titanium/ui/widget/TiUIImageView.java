@@ -78,7 +78,7 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 		super(proxy);
 		imageViewProxy = (ImageViewProxy) proxy;
 
-		Log.d(TAG, "Creating an ImageView", Log.DEBUG_MODE);
+		Log.d(TAG, "Creating an ImageView");
 
 		view = new TiImageView(proxy.getActivity(), proxy);
 
@@ -112,7 +112,7 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 			public void onLoadImageFailed(@NonNull TiDrawableReference drawableRef)
 			{
 				String message = "Failed to load image.";
-				Log.w(TAG, message, Log.DEBUG_MODE);
+				Log.w(TAG, message);
 				fireError(message, drawableRef.toString());
 			}
 		};
@@ -198,9 +198,7 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 	private void setImage(final Bitmap bitmap, final TiExifOrientation exifOrientation)
 	{
 		if (!TiApplication.isUIThread()) {
-			TiMessenger.postOnMain(() -> {
-				setImage(bitmap, exifOrientation);
-			});
+			TiMessenger.postOnMain(() -> setImage(bitmap, exifOrientation));
 			return;
 		}
 
@@ -232,7 +230,7 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 
 		public Loader()
 		{
-			bitmapQueue = new ArrayBlockingQueue<BitmapWithIndex>(FRAME_QUEUE_SIZE);
+			bitmapQueue = new ArrayBlockingQueue<>(FRAME_QUEUE_SIZE);
 		}
 
 		private boolean isRepeating()
@@ -301,7 +299,7 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 					}
 					if (paused && !Thread.currentThread().isInterrupted()) {
 						try {
-							Log.i(TAG, "Pausing", Log.DEBUG_MODE);
+							Log.d(TAG, "Pausing");
 							// User backed-out while animation running
 							if (loader == null) {
 								break;
@@ -312,7 +310,7 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 								wait();
 							}
 
-							Log.i(TAG, "Waking from pause.", Log.DEBUG_MODE);
+							Log.d(TAG, "Waking from pause.");
 							// In the meantime, while paused, user could have backed out, which leads
 							// to release(), which in turn leads to nullified imageSources.
 							if (imageSources == null) {
@@ -339,7 +337,7 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 							var key = imageRef.getKey();
 							b = TiImageCache.getBitmap(key);
 							if (b == null) {
-								Log.i(TAG, "Image isn't cached");
+								Log.d(TAG, "Image isn't cached");
 								b = imageRef.getBitmap(true);
 								TiExifOrientation orientation = imageRef.getExifOrientation();
 								TiImageCache.add(new TiImageInfo(key, b, orientation));
@@ -370,7 +368,7 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 					repeatIndex++;
 				}
 
-				Log.d(TAG, "TIME TO LOAD FRAMES: " + (System.currentTimeMillis() - time) + "ms", Log.DEBUG_MODE);
+				Log.d(TAG, "TIME TO LOAD FRAMES: " + (System.currentTimeMillis() - time) + "ms");
 			}
 			isLoading.set(false);
 		}
@@ -394,7 +392,7 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 			firedLoad = false;
 			loader = new Loader();
 			loaderThread = new Thread(loader);
-			Log.d(TAG, "STARTING LOADER THREAD " + loaderThread + " for " + this, Log.DEBUG_MODE);
+			Log.d(TAG, "STARTING LOADER THREAD " + loaderThread + " for " + this);
 			loaderThread.start();
 		}
 	}
@@ -488,7 +486,7 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 					fireStop();
 				}
 				BitmapWithIndex b = bitmapQueue.take();
-				Log.d(TAG, "set image: " + b.index, Log.DEBUG_MODE);
+				Log.d(TAG, "set image: " + b.index);
 				setImage(b.bitmap, null);
 				fireChange(b.index);
 
@@ -524,7 +522,7 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 			if (loader == null) {
 				loader = new Loader();
 				loaderThread = new Thread(loader);
-				Log.d(TAG, "STARTING LOADER THREAD " + loaderThread + " for " + this, Log.DEBUG_MODE);
+				Log.d(TAG, "STARTING LOADER THREAD " + loaderThread + " for " + this);
 			}
 
 			animator = new Animator(loader);

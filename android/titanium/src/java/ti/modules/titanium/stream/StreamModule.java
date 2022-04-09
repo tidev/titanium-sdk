@@ -319,7 +319,7 @@ public class StreamModule extends KrollModule
 			if (!(args[3] instanceof Boolean)) {
 				throw new IllegalArgumentException("Invalid async flag argument");
 			}
-			isAsync = ((Boolean) args[3]).booleanValue();
+			isAsync = (Boolean) args[3];
 		}
 
 		if (!isAsync) {

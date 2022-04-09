@@ -41,7 +41,7 @@ public class JSONUtils
 	{
 		Map<Object, Object> subMap = (Map<Object, Object>) map.get(name);
 		if (subMap == null) {
-			subMap = new HashMap<Object, Object>();
+			subMap = new HashMap<>();
 			map.put(name, subMap);
 		}
 		return subMap;
@@ -51,7 +51,7 @@ public class JSONUtils
 	{
 		List<Object> list = (List<Object>) map.get(name);
 		if (list == null) {
-			list = new ArrayList<Object>();
+			list = new ArrayList<>();
 			map.put(name, list);
 		}
 		return list;

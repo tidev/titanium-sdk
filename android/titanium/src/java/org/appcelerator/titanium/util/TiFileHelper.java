@@ -494,7 +494,7 @@ public class TiFileHelper
 					if (ze.isDirectory()) {
 						File d = new File(dest, name);
 						d.mkdirs();
-						Log.d(TAG, "Created directory " + d.toString(), Log.DEBUG_MODE);
+						Log.d(TAG, "Created directory " + d, Log.DEBUG_MODE);
 						d = null;
 					} else {
 						FileOutputStream fos = null;
@@ -683,12 +683,12 @@ public class TiFileHelper
 		return path.isEmpty() || path.equals("tiapp.xml") || path.startsWith("Resources");
 	}
 
-	private ZipInputStream getZipInputStream(InputStream is) throws FileNotFoundException, IOException
+	private ZipInputStream getZipInputStream(InputStream is) throws IOException
 	{
 		return new ZipInputStream(is);
 	}
 
-	private String getRootDir(ZipInputStream zis) throws FileNotFoundException, IOException
+	private String getRootDir(ZipInputStream zis) throws IOException
 	{
 		String root = "";
 

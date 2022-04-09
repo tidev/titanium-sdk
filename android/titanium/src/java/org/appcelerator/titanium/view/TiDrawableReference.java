@@ -411,7 +411,7 @@ public class TiDrawableReference
 		final int maxRetries = needRetry ? this.decodeRetries : 0;
 		for (int index = 0; index <= maxRetries; index++) {
 			if (index > 0) {
-				Log.i(TAG, "Will retry decoding image: " + this.toString(), Log.DEBUG_MODE);
+				Log.d(TAG, "Will retry decoding image: " + this);
 			}
 			try (var inputStream = getInputStream()) {
 				// Decode image to an uncompressed bitmap.
@@ -420,8 +420,8 @@ public class TiDrawableReference
 			} catch (OutOfMemoryError ex) {
 				// Notify that app does not have enough heap memory to load image.
 				this.oomOccurred = true;
-				Log.e(TAG, "Not enough memory to load image: " + this.toString(), ex);
-				Log.i(TAG, "Clearing image cache and forcing garbage collection.", Log.DEBUG_MODE);
+				Log.e(TAG, "Not enough memory to load image: " + this, ex);
+				Log.d(TAG, "Clearing image cache and forcing garbage collection.");
 
 				// Clear image cache and force garbage collection.
 				TiImageCache.clear();
@@ -432,9 +432,9 @@ public class TiDrawableReference
 				opts.inSampleSize *= 2;
 			} catch (Throwable ex) {
 				if (bitmap != null) {
-					Log.e(TAG, "Error closing input stream for image: " + this.toString(), ex);
+					Log.e(TAG, "Error closing input stream for image: " + this, ex);
 				} else {
-					Log.e(TAG, "Error decoding image: " + this.toString(), ex);
+					Log.e(TAG, "Error decoding image: " + this, ex);
 				}
 			}
 			if (bitmap != null) {
@@ -535,8 +535,8 @@ public class TiDrawableReference
 	 */
 	public Bitmap getBitmap(int destWidth, int destHeight)
 	{
-		return getBitmap(null, TiConvert.toTiDimension(new Integer(destWidth), TiDimension.TYPE_WIDTH),
-						 TiConvert.toTiDimension(new Integer(destHeight), TiDimension.TYPE_HEIGHT));
+		return getBitmap(null, TiConvert.toTiDimension(destWidth, TiDimension.TYPE_WIDTH),
+						 TiConvert.toTiDimension(destHeight, TiDimension.TYPE_HEIGHT));
 	}
 	/**
 	 * Gets the bitmap, scaled to a specific width, with the height matching the
@@ -696,18 +696,17 @@ public class TiDrawableReference
 			opts.inPurgeable = true;
 			opts.inSampleSize = calcSampleSize(srcWidth, srcHeight, destWidth, destHeight);
 			if (Log.isDebugModeEnabled()) {
-				StringBuilder sb = new StringBuilder();
-				sb.append("Bitmap calcSampleSize results: inSampleSize=");
-				sb.append(opts.inSampleSize);
-				sb.append("; srcWidth=");
-				sb.append(srcWidth);
-				sb.append("; srcHeight=");
-				sb.append(srcHeight);
-				sb.append("; finalWidth=");
-				sb.append(opts.outWidth);
-				sb.append("; finalHeight=");
-				sb.append(opts.outHeight);
-				Log.d(TAG, sb.toString());
+				String sb = "Bitmap calcSampleSize results: inSampleSize="
+					+ opts.inSampleSize
+					+ "; srcWidth="
+					+ srcWidth
+					+ "; srcHeight="
+					+ srcHeight
+					+ "; finalWidth="
+					+ opts.outWidth
+					+ "; finalHeight="
+					+ opts.outHeight;
+				Log.d(TAG, sb);
 			}
 
 			Bitmap bTemp = null;
@@ -720,11 +719,10 @@ public class TiDrawableReference
 				}
 
 				if (Log.isDebugModeEnabled()) {
-					StringBuilder sb = new StringBuilder();
-					sb.append("decodeStream resulting bitmap: .getWidth()=" + bTemp.getWidth());
-					sb.append("; .getHeight()=" + bTemp.getHeight());
-					sb.append("; getDensity()=" + bTemp.getDensity());
-					Log.d(TAG, sb.toString());
+					String sb = "decodeStream resulting bitmap: .getWidth()=" + bTemp.getWidth()
+						+ "; .getHeight()=" + bTemp.getHeight()
+						+ "; getDensity()=" + bTemp.getDensity();
+					Log.d(TAG, sb);
 				}
 
 				// Set the bitmap density to match the view density before scaling, so that scaling
@@ -789,11 +787,10 @@ public class TiDrawableReference
 			}
 		}
 		if (Log.isDebugModeEnabled()) {
-			StringBuilder sb = new StringBuilder();
-			sb.append("Details of returned bitmap: .getWidth()=" + b.getWidth());
-			sb.append("; getHeight()=" + b.getHeight());
-			sb.append("; getDensity()=" + b.getDensity());
-			Log.d(TAG, sb.toString());
+			String sb = "Details of returned bitmap: .getWidth()=" + b.getWidth()
+				+ "; getHeight()=" + b.getHeight()
+				+ "; getDensity()=" + b.getDensity();
+			Log.d(TAG, sb);
 		}
 		return b;
 	}

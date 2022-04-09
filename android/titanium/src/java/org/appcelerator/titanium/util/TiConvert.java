@@ -94,9 +94,7 @@ public class TiConvert
 				else {
 
 					Object[] oa = new Object[len];
-					for (int i = 0; i < len; i++) {
-						oa[i] = a[i];
-					}
+					System.arraycopy(a, 0, oa, 0, len);
 					d.put(key, oa);
 					//throw new IllegalArgumentException("Unsupported array property type " + v.getClass().getSimpleName());
 				}
@@ -663,7 +661,7 @@ public class TiConvert
 	public static TiDimension toTiDimension(Object value, int valueType)
 	{
 		if (value instanceof Number) {
-			value = value.toString() + TiApplication.getInstance().getDefaultUnit();
+			value = value + TiApplication.getInstance().getDefaultUnit();
 		}
 		if (value instanceof String) {
 			return toTiDimension((String) value, valueType);

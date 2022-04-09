@@ -57,7 +57,7 @@ public class TextProxy extends CharacterDataProxy
 			// document tree and therefore has a new sibling
 			// which is the node we really want.
 			Node sibling = this.text.getNextSibling();
-			if (sibling != null && sibling instanceof Text) {
+			if (sibling instanceof Text) {
 				returnNode = (Text) sibling;
 			}
 		}

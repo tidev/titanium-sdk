@@ -102,8 +102,7 @@ public class AudioPlayerProxy extends KrollProxy implements OnLifecycleEvent, On
 			setProperty(TiC.PROPERTY_AUDIO_FOCUS, audioFocus);
 			TiSound.audioFocus = audioFocus;
 		}
-		Log.i(TAG, "Creating audio player proxy for url: " + TiConvert.toString(getProperty(TiC.PROPERTY_URL)),
-			  Log.DEBUG_MODE);
+		Log.d(TAG, "Creating audio player proxy for url: " + TiConvert.toString(getProperty(TiC.PROPERTY_URL)));
 	}
 
 	@Kroll.getProperty

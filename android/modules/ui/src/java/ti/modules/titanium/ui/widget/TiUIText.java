@@ -619,11 +619,7 @@ public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionLis
 		boolean useEmojiFilter = false;
 		boolean useImeFlagForceAscii = false;
 		int keyboardType = TiConvert.toInt(d.get(TiC.PROPERTY_KEYBOARD_TYPE), UIModule.KEYBOARD_TYPE_DEFAULT);
-		switch (keyboardType) {
-			case UIModule.KEYBOARD_TYPE_DEFAULT:
-				// Use a normal text keyboard.
-				inputTypeFlags = InputType.TYPE_CLASS_TEXT;
-				break;
+		switch (keyboardType) { // Use a normal text keyboard.
 			case UIModule.KEYBOARD_TYPE_NUMBERS_PUNCTUATION:
 				// Use a normal text keyboard, but don't allow emoji. (This matches iOS' behavior.)
 				inputTypeFlags = InputType.TYPE_CLASS_TEXT;

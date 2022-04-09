@@ -234,7 +234,8 @@ public class FusedLocationProvider
 					fusedLocationClient
 						.requestLocationUpdates(request, (LocationCallback) locationProvider.getLocationCallback(),
 												null)
-						.addOnCompleteListener(new OnCompleteListener<Void>() {
+						.addOnCompleteListener(new OnCompleteListener<>()
+						{
 							@Override
 							public void onComplete(@NonNull Task<Void> task)
 							{

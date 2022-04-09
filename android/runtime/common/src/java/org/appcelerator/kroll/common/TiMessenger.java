@@ -45,7 +45,8 @@ public class TiMessenger implements Handler.Callback
 
 	protected static TiMessenger mainMessenger;
 
-	protected static ThreadLocal<TiMessenger> threadLocalMessenger = new ThreadLocal<TiMessenger>() {
+	protected static ThreadLocal<TiMessenger> threadLocalMessenger = new ThreadLocal<>()
+	{
 		protected TiMessenger initialValue()
 		{
 			if (Looper.myLooper() == null) {

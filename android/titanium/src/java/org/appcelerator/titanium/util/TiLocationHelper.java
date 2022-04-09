@@ -47,7 +47,7 @@ public class TiLocationHelper
 	private static int buildUpdateFrequency(Integer frequency)
 	{
 		if (frequency != null) {
-			return frequency.intValue() * 1000;
+			return frequency * 1000;
 		} else {
 			return DEFAULT_UPDATE_FREQUENCY;
 		}
@@ -58,7 +58,7 @@ public class TiLocationHelper
 		float updateDistance = DEFAULT_UPDATE_DISTANCE;
 
 		if (accuracy != null) {
-			switch (accuracy.intValue()) {
+			switch (accuracy) {
 				case ACCURACY_BEST:
 					updateDistance = 1.0f;
 					break;
@@ -75,7 +75,7 @@ public class TiLocationHelper
 					updateDistance = 3000.0f;
 					break;
 				default:
-					Log.w(TAG, "Ignoring unknown accuracy value [" + accuracy.intValue() + "]");
+					Log.w(TAG, "Ignoring unknown accuracy value [" + accuracy + "]");
 			}
 		}
 
@@ -92,10 +92,9 @@ public class TiLocationHelper
 			int updateFrequency = buildUpdateFrequency(frequency);
 			float updateDistance = buildUpdateDistance(accuracy);
 
-			Log.i(TAG,
+			Log.d(TAG,
 				  "registering listener with provider [" + provider + "], frequency [" + updateFrequency
-					  + "], distance [" + updateDistance + "]",
-				  Log.DEBUG_MODE);
+					  + "], distance [" + updateDistance + "]");
 
 			locationManager.requestLocationUpdates(provider, updateFrequency, updateDistance, listener);
 			listenerCount.incrementAndGet();
@@ -127,10 +126,9 @@ public class TiLocationHelper
 				int updateFrequency = buildUpdateFrequency(frequency);
 				float updateDistance = buildUpdateDistance(accuracy);
 
-				Log.i(TAG,
+				Log.d(TAG,
 					  "updating listener with provider [" + currentProvider + "], frequency [" + updateFrequency
-						  + "], distance [" + updateDistance + "]",
-					  Log.DEBUG_MODE);
+						  + "], distance [" + updateDistance + "]");
 
 				locationManager.removeUpdates(listener);
 				locationManager.requestLocationUpdates(currentProvider, updateFrequency, updateDistance, listener);
@@ -193,7 +191,7 @@ public class TiLocationHelper
 		criteria.setAccuracy(Criteria.NO_REQUIREMENT);
 
 		if (accuracy != null) {
-			int value = accuracy.intValue();
+			int value = accuracy;
 
 			switch (value) {
 				case ACCURACY_BEST:
@@ -225,13 +223,13 @@ public class TiLocationHelper
 
 		List<String> providers = getLocationManager().getProviders(true);
 		if (providers != null && providers.size() > 0) {
-			Log.i(TAG, "Enabled location provider count: " + providers.size(), Log.DEBUG_MODE);
+			Log.d(TAG, "Enabled location provider count: " + providers.size());
 			for (String name : providers) {
-				Log.i(TAG, "Location [" + name + "] service available", Log.DEBUG_MODE);
+				Log.d(TAG, "Location [" + name + "] service available");
 			}
 			enabled = true;
 		} else {
-			Log.i(TAG, "No available providers", Log.DEBUG_MODE);
+			Log.d(TAG, "No available providers");
 		}
 
 		return enabled;

@@ -40,7 +40,7 @@ public class TiFileFactory
 
 	static
 	{
-		localSchemeSet = new HashSet<String>();
+		localSchemeSet = new HashSet<>();
 		localSchemeSet.add(TiC.URL_APP_SCHEME.toLowerCase());
 		localSchemeSet.add(APPCACHE_EXTERNAL_URL_SCHEME.toLowerCase());
 		localSchemeSet.add(APPDATA_URL_SCHEME.toLowerCase());

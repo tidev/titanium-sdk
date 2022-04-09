@@ -8,6 +8,8 @@ package org.appcelerator.titanium.util;
 
 import org.appcelerator.kroll.KrollDict;
 
+import java.util.Arrays;
+
 public class TiPropertyResolver
 {
 	private KrollDict[] propSets;
@@ -16,16 +18,12 @@ public class TiPropertyResolver
 	{
 		int len = propSets.length;
 		this.propSets = new KrollDict[len];
-		for (int i = 0; i < len; i++) {
-			this.propSets[i] = propSets[i];
-		}
+		System.arraycopy(propSets, 0, this.propSets, 0, len);
 	}
 
 	public void release()
 	{
-		for (int i = 0; i < propSets.length; i++) {
-			propSets[i] = null;
-		}
+		Arrays.fill(propSets, null);
 		propSets = null;
 	}
 

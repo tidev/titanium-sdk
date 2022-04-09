@@ -36,7 +36,7 @@ public class TiActivity extends TiBaseActivity
 		//    So, in this case, we want to keep finishing child activities until we're back to the root activity.
 		// ---------------------------------------------------------------------------------------------------------
 		if (TiRootActivity.isScriptRunning() == false) {
-			Log.i(TAG, "Launching with '" + getClass().getName() + "' is not allowed. Closing activity.");
+			Log.w(TAG, "Launching with '" + getClass().getName() + "' is not allowed. Closing activity.");
 			this.isInvalidLaunch = true;
 			activityOnCreate(savedInstanceState);
 			finish();

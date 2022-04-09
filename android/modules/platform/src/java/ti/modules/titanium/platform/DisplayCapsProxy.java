@@ -32,7 +32,7 @@ public class DisplayCapsProxy extends KrollProxy
 		if (softDisplay == null || softDisplay.get() == null) {
 			// we only need the window manager so it doesn't matter if the root or current activity is used
 			// for accessing it
-			softDisplay = new SoftReference<Display>(
+			softDisplay = new SoftReference<>(
 				TiApplication.getAppRootOrCurrentActivity().getWindowManager().getDefaultDisplay());
 		}
 		return softDisplay.get();

@@ -15,9 +15,7 @@ public interface KrollPromise<V> {
 	static <V> KrollPromise<V> create(OnExecuteCallback<V> callback)
 	{
 		final KrollPromise<V> promise = KrollRuntime.getInstance().createPromise();
-		TiMessenger.postOnRuntime(() -> {
-			callback.onExecute(promise);
-		});
+		TiMessenger.postOnRuntime(() -> callback.onExecute(promise));
 		return promise;
 	}
 

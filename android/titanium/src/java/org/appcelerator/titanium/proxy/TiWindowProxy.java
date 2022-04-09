@@ -105,9 +105,8 @@ public abstract class TiWindowProxy extends TiViewProxy
 	public KrollPromise<Void> open(@Kroll.argument(optional = true) Object arg)
 	{
 		if (opened || opening) {
-			return KrollPromise.create((promise) -> {
-				promise.reject(new Throwable("Window is already opened or opening."));
-			});
+			return KrollPromise.create((promise) ->
+				promise.reject(new Throwable("Window is already opened or opening.")));
 		}
 		opening = true;
 		waitingForOpen = new WeakReference<>(this);
@@ -154,9 +153,8 @@ public abstract class TiWindowProxy extends TiViewProxy
 	public KrollPromise<Void> close(@Kroll.argument(optional = true) Object arg)
 	{
 		if (!(opened || opening)) {
-			return KrollPromise.create((promise) -> {
-				promise.reject(new Throwable("Window is not open or opening, so cannot be closed."));
-			});
+			return KrollPromise.create((promise) ->
+				promise.reject(new Throwable("Window is not open or opening, so cannot be closed.")));
 		}
 
 		// FIXME: Can we "cancel" the open() promise if it's not finished?
@@ -499,9 +497,7 @@ public abstract class TiWindowProxy extends TiViewProxy
 	protected void handlePostOpen()
 	{
 		if (postOpenListener != null) {
-			getMainHandler().post(() -> {
-				postOpenListener.onPostOpen(TiWindowProxy.this);
-			});
+			getMainHandler().post(() -> postOpenListener.onPostOpen(TiWindowProxy.this));
 		}
 
 		if (waitingForOpen != null && waitingForOpen.get() == this) {

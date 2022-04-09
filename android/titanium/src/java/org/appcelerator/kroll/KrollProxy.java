@@ -554,7 +554,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 			}
 
 			Object name = change[INDEX_NAME];
-			if (name == null || !(name instanceof String)) {
+			if (!(name instanceof String)) {
 				continue;
 			}
 
@@ -1074,7 +1074,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 		Object newValue = value;
 
 		if (isLocaleProperty(name)) {
-			Log.i(TAG, "Updating locale: " + name, Log.DEBUG_MODE);
+			Log.d(TAG, "Updating locale: " + name);
 			Pair<String, String> update = updateLocaleProperty(name, TiConvert.toString(value));
 			if (update != null) {
 				propertyName = update.first;
@@ -1103,7 +1103,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 			}
 
 			Object name = change[INDEX_NAME];
-			if (name == null || !(name instanceof String)) {
+			if (!(name instanceof String)) {
 				continue;
 			}
 

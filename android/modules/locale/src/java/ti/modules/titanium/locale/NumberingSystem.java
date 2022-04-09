@@ -67,7 +67,7 @@ public enum NumberingSystem {
 	 * @param ldmlStringId The Unicode LDML (Locale Data Markup Language) BCP-47 string ID.
 	 * @param zeroChar The character used to represent the zero digit.
 	 */
-	private NumberingSystem(String ldmlStringId, char zeroChar)
+	NumberingSystem(String ldmlStringId, char zeroChar)
 	{
 		this.ldmlStringId = ldmlStringId;
 		this.zeroChar = zeroChar;

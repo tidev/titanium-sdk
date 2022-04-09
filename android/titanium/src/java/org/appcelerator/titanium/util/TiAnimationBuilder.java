@@ -885,7 +885,6 @@ public class TiAnimationBuilder
 		}
 
 		@Override
-		@SuppressWarnings("unchecked")
 		public void onAnimationEnd(Animator animator)
 		{
 			if (animator instanceof AnimatorSet) {

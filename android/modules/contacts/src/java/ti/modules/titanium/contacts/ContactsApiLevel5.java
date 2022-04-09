@@ -561,7 +561,7 @@ public class ContactsApiLevel5 extends CommonContactsApi
 		long rawContactId = -1;
 
 		PersonProxy newContact = new PersonProxy();
-		ArrayList<ContentProviderOperation> ops = new ArrayList<ContentProviderOperation>();
+		ArrayList<ContentProviderOperation> ops = new ArrayList<>();
 
 		ops.add(ContentProviderOperation.newInsert(RawContacts.CONTENT_URI)
 					.withValue(RawContacts.ACCOUNT_TYPE, null)

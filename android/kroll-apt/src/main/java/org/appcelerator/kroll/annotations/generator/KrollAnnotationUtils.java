@@ -168,7 +168,8 @@ public class KrollAnnotationUtils
 	public HashMap<String, Object> getAnnotationParams(Element element, String annotationClass)
 	{
 		final HashMap<String, Object> params = new HashMap<>();
-		acceptAnnotations(element, annotationClass, new KrollVisitor<AnnotationMirror>() {
+		acceptAnnotations(element, annotationClass, new KrollVisitor<>()
+		{
 			@Override
 			public boolean visit(AnnotationMirror element, Object arg)
 			{

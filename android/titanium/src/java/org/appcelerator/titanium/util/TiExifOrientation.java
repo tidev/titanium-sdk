@@ -44,7 +44,7 @@ public enum TiExifOrientation {
 	 * @param degreesCounterClockwise Rotation in degrees. Must be 0, 90, 180, or 270.
 	 * @param isMirrored Set true if image is flipped horizontally. Set false if not flipped.
 	 */
-	private TiExifOrientation(int exifInterfaceId, int degreesCounterClockwise, boolean isMirrored)
+	TiExifOrientation(int exifInterfaceId, int degreesCounterClockwise, boolean isMirrored)
 	{
 		this.exifInterfaceId = exifInterfaceId;
 		this.degreesCounterClockwise = degreesCounterClockwise;

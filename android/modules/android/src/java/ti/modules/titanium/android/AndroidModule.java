@@ -688,7 +688,7 @@ public class AndroidModule extends KrollModule
 		final KrollObject callbackThisObject = getKrollObject();
 		return KrollPromise.create((promise) -> {
 			if (Build.VERSION.SDK_INT >= 23) {
-				List<String> permissions = new ArrayList<String>();
+				List<String> permissions = new ArrayList<>();
 				if (permissionObject instanceof String) {
 					permissions.add((String) permissionObject);
 				} else if (permissionObject instanceof Object[]) {
@@ -699,7 +699,7 @@ public class AndroidModule extends KrollModule
 					}
 				}
 				Activity currentActivity = TiApplication.getInstance().getCurrentActivity();
-				List<String> filteredPermissions = new ArrayList<String>();
+				List<String> filteredPermissions = new ArrayList<>();
 				for (String permission : permissions) {
 					if (currentActivity.checkSelfPermission(permission) == PackageManager.PERMISSION_GRANTED) {
 						continue;

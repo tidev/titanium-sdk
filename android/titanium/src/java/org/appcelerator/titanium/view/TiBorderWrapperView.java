@@ -26,6 +26,8 @@ import android.view.View;
 import android.view.ViewOutlineProvider;
 import android.widget.FrameLayout;
 
+import java.util.Arrays;
+
 /**
  * This class is a wrapper for Titanium Views with borders. Any view that specifies a border
  * related property will have a border wrapper view to maintain its border.
@@ -70,9 +72,7 @@ public class TiBorderWrapperView extends FrameLayout
 		this.borderWidth = 0;
 		this.alpha = -1;
 
-		for (int i = 0; i < this.radius.length; i++) {
-			this.radius[i] = 0;
-		}
+		Arrays.fill(this.radius, 0);
 	}
 
 	@Override

@@ -19,9 +19,7 @@ public final class TiImageCache
 
 	static
 	{
-		KrollRuntime.addOnDisposingListener((KrollRuntime runtime) -> {
-			clear();
-		});
+		KrollRuntime.addOnDisposingListener((KrollRuntime runtime) -> clear());
 	}
 
 	private TiImageCache()

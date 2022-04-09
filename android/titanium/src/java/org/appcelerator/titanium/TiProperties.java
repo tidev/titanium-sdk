@@ -7,6 +7,7 @@
 package org.appcelerator.titanium;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 
 import org.appcelerator.kroll.common.Log;
@@ -238,7 +239,7 @@ public class TiProperties
 			//Value stored as something other than boolean. Try and convert to boolean
 			String val = getString(key, "");
 			try {
-				return Boolean.valueOf(val).booleanValue();
+				return Boolean.valueOf(val);
 			} catch (Exception e) {
 				return def;
 			}
@@ -278,7 +279,7 @@ public class TiProperties
 	public String[] getList(String key, String[] def)
 	{
 		if (Log.isDebugModeEnabled()) {
-			Log.d(TAG, "getList called with key:" + key + ", def:" + def);
+			Log.d(TAG, "getList called with key:" + key + ", def:" + Arrays.toString(def));
 		}
 
 		int length = preferences.getInt(key + ".length", -1);
@@ -302,7 +303,7 @@ public class TiProperties
 	public void setList(String key, String[] value)
 	{
 		if (Log.isDebugModeEnabled()) {
-			Log.d(TAG, "setList called with key:" + key + ", value:" + value);
+			Log.d(TAG, "setList called with key:" + key + ", value:" + Arrays.toString(value));
 		}
 
 		SharedPreferences.Editor editor = preferences.edit();
@@ -340,7 +341,7 @@ public class TiProperties
 	 */
 	public String[] listProperties()
 	{
-		ArrayList<String> properties = new ArrayList<String>();
+		ArrayList<String> properties = new ArrayList<>();
 		if (systemProperties != null) {
 			Iterator<?> keys = systemProperties.keys();
 			while (keys.hasNext()) {

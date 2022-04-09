@@ -41,9 +41,7 @@ public class NavigationWindowProxy extends WindowProxy
 				openWindow(rootView, arg);
 				fireEvent(TiC.EVENT_OPEN, null);
 			}
-			return KrollPromise.create((promise) -> {
-				promise.resolve(null);
-			});
+			return KrollPromise.create((promise) -> promise.resolve(null));
 		}
 		return super.open(arg);
 	}

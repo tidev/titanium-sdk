@@ -165,7 +165,8 @@ public class TiCompositeLayout extends ViewGroup implements OnHierarchyChangeLis
 		super(context, set);
 
 		this.arrangement = arrangement;
-		this.viewSorter = new TreeSet<>(new Comparator<View>() {
+		this.viewSorter = new TreeSet<>(new Comparator<>()
+		{
 			public int compare(View o1, View o2)
 			{
 				// TIMOB-20206 and

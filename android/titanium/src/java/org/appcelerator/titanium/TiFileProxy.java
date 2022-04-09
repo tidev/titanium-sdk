@@ -9,6 +9,7 @@ package org.appcelerator.titanium;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
@@ -61,9 +62,7 @@ public class TiFileProxy extends KrollProxy
 				pb.add(uri.getPath());
 			}
 
-			for (int i = 1; i < parts.length; i++) {
-				pb.add(parts[i]);
-			}
+			pb.addAll(Arrays.asList(parts).subList(1, parts.length));
 			String[] newParts = pb.toArray(new String[0]);
 			path = TiFileHelper2.joinSegments(newParts);
 			if (!path.startsWith("..") || !path.startsWith("/")) {
@@ -98,7 +97,7 @@ public class TiFileProxy extends KrollProxy
 
 		StringBuffer buffer = new StringBuffer(String.valueOf(iter.next()));
 		while (iter.hasNext()) {
-			buffer.append(delimiter).append(String.valueOf(iter.next()));
+			buffer.append(delimiter).append(iter.next());
 		}
 
 		return buffer.toString();
@@ -297,7 +296,7 @@ public class TiFileProxy extends KrollProxy
 				} else if (args[0] instanceof TiFileProxy) {
 					tbf.write(((TiFileProxy) args[0]).read(), append);
 				} else {
-					Log.i(TAG, "Unable to write to an unrecognized file type");
+					Log.w(TAG, "Unable to write to an unrecognized file type");
 					return false;
 				}
 				return true;

@@ -68,7 +68,7 @@ public class TiDeployData
 				Log.d(TAG, "deploy.json does not exist, skipping", Log.DEBUG_MODE);
 			} else {
 				deployData = new JSONObject(deployJson);
-				Log.d(TAG, "Loaded deploy.json: " + deployData.toString(), Log.DEBUG_MODE);
+				Log.d(TAG, "Loaded deploy.json: " + deployData, Log.DEBUG_MODE);
 			}
 		} catch (FileNotFoundException e) {
 			// squeltch

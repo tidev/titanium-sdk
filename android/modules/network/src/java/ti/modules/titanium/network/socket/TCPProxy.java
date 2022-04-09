@@ -137,7 +137,7 @@ public class TCPProxy extends KrollProxy implements TiStream
 	public void setOptions(KrollDict options)
 	{
 		// not implemented yet - reserved for future use
-		Log.i(TAG, "setting options on socket is not supported yet");
+		Log.w(TAG, "setting options on socket is not supported yet");
 	}
 
 	@Kroll.setProperty

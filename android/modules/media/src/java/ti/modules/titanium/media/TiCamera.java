@@ -26,7 +26,7 @@ public class TiCamera
 	public TiCamera()
 	{
 		if (camera == null) {
-			Log.i(TAG, "Camera created.", Log.DEBUG_MODE);
+			Log.d(TAG, "Camera created.");
 			camera = Camera.open();
 		}
 	}
@@ -40,7 +40,7 @@ public class TiCamera
 	ShutterCallback shutterCallback = new ShutterCallback() {
 		public void onShutter()
 		{
-			Log.i(TAG, "onShutter() called. Capturing image.", Log.DEBUG_MODE);
+			Log.d(TAG, "onShutter() called. Capturing image.");
 		}
 	};
 
@@ -48,7 +48,7 @@ public class TiCamera
 	PictureCallback rawCallback = new PictureCallback() {
 		public void onPictureTaken(byte[] data, Camera camera)
 		{
-			Log.i(TAG, "Picture taken: raw picture available", Log.DEBUG_MODE);
+			Log.d(TAG, "Picture taken: raw picture available");
 		}
 	};
 

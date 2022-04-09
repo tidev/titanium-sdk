@@ -9,6 +9,7 @@ package org.appcelerator.titanium.proxy;
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.ConcurrentModificationException;
 import java.util.HashMap;
 import java.util.TreeSet;
@@ -177,7 +178,7 @@ public abstract class TiViewProxy extends KrollProxy
 	protected KrollDict handleStyleOptions(KrollDict options)
 	{
 		String viewId = getProxyId();
-		TreeSet<String> styleClasses = new TreeSet<String>();
+		TreeSet<String> styleClasses = new TreeSet<>();
 		// TODO styleClasses.add(getShortAPIName().toLowerCase());
 
 		if (options.containsKey(TiC.PROPERTY_ID)) {
@@ -185,9 +186,7 @@ public abstract class TiViewProxy extends KrollProxy
 		}
 		if (options.containsKey(TiC.PROPERTY_CLASS_NAME)) {
 			String className = TiConvert.toString(options, TiC.PROPERTY_CLASS_NAME);
-			for (String clazz : className.split(" ")) {
-				styleClasses.add(clazz);
-			}
+			Collections.addAll(styleClasses, className.split(" "));
 		}
 		if (options.containsKey(TiC.PROPERTY_CLASS_NAMES)) {
 			Object c = options.get(TiC.PROPERTY_CLASS_NAMES);
@@ -241,7 +240,6 @@ public abstract class TiViewProxy extends KrollProxy
 
 	//This handler callback is tied to the UI thread.
 	@Override
-	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public boolean handleMessage(Message msg)
 	{
 		switch (msg.what) {
@@ -745,8 +743,7 @@ public abstract class TiViewProxy extends KrollProxy
 		if (children != null) {
 			//children might be altered while we loop through it (threading)
 			//so we first copy children as it was when asked to remove all children
-			ArrayList<TiViewProxy> childViews = new ArrayList<TiViewProxy>();
-			childViews.addAll(children);
+			ArrayList<TiViewProxy> childViews = new ArrayList<>(children);
 			for (TiViewProxy child : childViews) {
 				remove(child);
 			}
@@ -1159,7 +1156,7 @@ public abstract class TiViewProxy extends KrollProxy
 			return;
 		}
 
-		this.parent = new WeakReference<TiViewProxy>(parent);
+		this.parent = new WeakReference<>(parent);
 	}
 
 	@Override

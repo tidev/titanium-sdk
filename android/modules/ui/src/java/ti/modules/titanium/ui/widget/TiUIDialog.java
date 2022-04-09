@@ -311,7 +311,7 @@ public class TiUIDialog extends TiUIView
 		if (dialog == null) {
 			if (dialogWrapper.getActivity() == null) {
 				TiBaseActivity dialogActivity = (TiBaseActivity) getCurrentActivity();
-				dialogWrapper.setActivity(new WeakReference<TiBaseActivity>(dialogActivity));
+				dialogWrapper.setActivity(new WeakReference<>(dialogActivity));
 			}
 			processProperties(proxy.getProperties());
 			builder.setOnCancelListener(new OnCancelListener() {
@@ -433,7 +433,7 @@ public class TiUIDialog extends TiUIView
 			//Native dialogs are persistent by default.
 			TiBaseActivity dialogActivity = (TiBaseActivity) currentActivity;
 			dialogWrapper =
-				new TiBaseActivity.DialogWrapper(null, true, new WeakReference<TiBaseActivity>(dialogActivity));
+				new TiBaseActivity.DialogWrapper(null, true, new WeakReference<>(dialogActivity));
 		} else {
 			Log.e(TAG, "Unable to find an activity for dialog.");
 		}

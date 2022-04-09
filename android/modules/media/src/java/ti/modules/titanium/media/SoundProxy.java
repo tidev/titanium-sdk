@@ -109,8 +109,7 @@ public class SoundProxy extends KrollProxy implements org.appcelerator.titanium.
 		if (options.containsKey(TiC.PROPERTY_ALLOW_BACKGROUND)) {
 			setProperty(TiC.PROPERTY_ALLOW_BACKGROUND, options.get(TiC.PROPERTY_ALLOW_BACKGROUND));
 		}
-		Log.i(TAG, "Creating sound proxy for url: " + TiConvert.toString(getProperty(TiC.PROPERTY_URL)),
-			  Log.DEBUG_MODE);
+		Log.d(TAG, "Creating sound proxy for url: " + TiConvert.toString(getProperty(TiC.PROPERTY_URL)));
 	}
 
 	@Kroll.getProperty

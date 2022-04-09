@@ -80,32 +80,32 @@ public class TiColorHelper
 		}
 		// rgb(int, int, int)
 		if ((m = rgbPattern.matcher(lowval)).matches()) {
-			return Color.rgb(Integer.valueOf(m.group(1)), Integer.valueOf(m.group(2)), Integer.valueOf(m.group(3)));
+			return Color.rgb(Integer.parseInt(m.group(1)), Integer.parseInt(m.group(2)), Integer.parseInt(m.group(3)));
 		}
 		// rgba(int, int, int, int)
 		if ((m = argbPattern.matcher(lowval)).matches()) {
-			return Color.argb(Integer.valueOf(m.group(4)), Integer.valueOf(m.group(1)), Integer.valueOf(m.group(2)),
-							  Integer.valueOf(m.group(3)));
+			return Color.argb(Integer.parseInt(m.group(4)), Integer.parseInt(m.group(1)), Integer.parseInt(m.group(2)),
+							  Integer.parseInt(m.group(3)));
 		}
 		// rgba(int, int, int, float)
 		if ((m = rgbaPattern.matcher(lowval)).matches()) {
-			return Color.argb(Math.round(Float.valueOf(m.group(4)) * 255f), Integer.valueOf(m.group(1)),
-							  Integer.valueOf(m.group(2)), Integer.valueOf(m.group(3)));
+			return Color.argb(Math.round(Float.parseFloat(m.group(4)) * 255f), Integer.parseInt(m.group(1)),
+							  Integer.parseInt(m.group(2)), Integer.parseInt(m.group(3)));
 		}
 		// rgba(int, int, int, float)
 		if ((m = rgbafloatPattern.matcher(lowval)).matches()) {
-			return Color.argb(Math.round(Float.valueOf(m.group(4)) * 255f), Integer.valueOf(m.group(1)),
-							  Integer.valueOf(m.group(2)), Integer.valueOf(m.group(3)));
+			return Color.argb(Math.round(Float.parseFloat(m.group(4)) * 255f), Integer.parseInt(m.group(1)),
+							  Integer.parseInt(m.group(2)), Integer.parseInt(m.group(3)));
 		}
 		// rgba(int, int, int) with missing alpha value
 		if ((m = rgbaPatternFallback.matcher(lowval)).matches()) {
-			return Color.rgb(Integer.valueOf(m.group(1)), Integer.valueOf(m.group(2)), Integer.valueOf(m.group(3)));
+			return Color.rgb(Integer.parseInt(m.group(1)), Integer.parseInt(m.group(2)), Integer.parseInt(m.group(3)));
 		}
 		// rgba(float, float, float, float)
 		if ((m = floatsPattern.matcher(lowval)).matches()) {
 			return Color.argb(
-				Math.round(Float.valueOf(m.group(4)) * 255f), Math.round(Float.valueOf(m.group(1)) * 255f),
-				Math.round(Float.valueOf(m.group(2)) * 255f), Math.round(Float.valueOf(m.group(3)) * 255f));
+				Math.round(Float.parseFloat(m.group(4)) * 255f), Math.round(Float.parseFloat(m.group(1)) * 255f),
+				Math.round(Float.parseFloat(m.group(2)) * 255f), Math.round(Float.parseFloat(m.group(3)) * 255f));
 		}
 
 		// Check if this a "semantic.colors.json" generated string from our common "ti.ui.js" script.

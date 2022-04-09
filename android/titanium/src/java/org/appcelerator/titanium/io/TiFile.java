@@ -24,6 +24,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.appcelerator.kroll.common.Log;
@@ -314,9 +315,7 @@ public class TiFile extends TiBaseFile
 		String[] names = dir.list();
 		if (names != null) {
 			int len = names.length;
-			for (int i = 0; i < len; i++) {
-				listing.add(names[i]);
-			}
+			listing.addAll(Arrays.asList(names).subList(0, len));
 		}
 
 		return listing;

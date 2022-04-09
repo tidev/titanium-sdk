@@ -51,7 +51,7 @@ public enum TiDeviceOrientation {
 	 * Creates a new device orientation type using the given data.
 	 * @param tiIntId Unique ID used in JavaScript to identify the orientation position.
 	 */
-	private TiDeviceOrientation(int tiIntId)
+	TiDeviceOrientation(int tiIntId)
 	{
 		this.tiIntId = tiIntId;
 		this.tiConstantName = "Ti.UI." + this.name();

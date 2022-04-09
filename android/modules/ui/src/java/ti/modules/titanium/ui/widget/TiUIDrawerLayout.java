@@ -316,7 +316,7 @@ public class TiUIDrawerLayout extends TiUIView
 		LinearLayout container = (LinearLayout) layout.findViewById(id_drawer_layout_container);
 		TiCompositeLayout content = (TiCompositeLayout) container.getChildAt(1);
 		ViewParent viewParent = view.getParent();
-		if (viewParent != null && viewParent != content && viewParent instanceof ViewGroup) {
+		if (viewParent != content && viewParent instanceof ViewGroup) {
 			((ViewGroup) viewParent).removeView(view);
 		}
 		content.addView(view, contentView.getLayoutParams());

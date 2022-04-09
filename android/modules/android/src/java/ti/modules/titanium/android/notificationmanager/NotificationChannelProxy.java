@@ -241,7 +241,7 @@ public class NotificationChannelProxy extends KrollProxy
 					Log.e(TAG, "invalid vibratePattern array element");
 					return;
 				}
-				pattern[i] = ((Integer) patternArray[i]).intValue();
+				pattern[i] = (Integer) patternArray[i];
 			}
 			channel.setVibrationPattern(pattern);
 		}

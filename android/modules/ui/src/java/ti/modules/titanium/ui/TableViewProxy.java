@@ -336,7 +336,7 @@ public class TableViewProxy extends RecyclerViewProxy
 	public void deleteRow(Object rowObj, @Kroll.argument(optional = true) KrollDict animation)
 	{
 		if (rowObj instanceof Integer) {
-			final int index = ((Integer) rowObj).intValue();
+			final int index = (Integer) rowObj;
 
 			deleteRow(getRowByIndex(index), null);
 		} else {

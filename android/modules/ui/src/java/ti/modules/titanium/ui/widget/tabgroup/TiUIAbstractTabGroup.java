@@ -162,8 +162,8 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 	private boolean autoTabTitle = false;
 	private int lastTab = -1;
 	private AtomicLong fragmentIdGenerator = new AtomicLong();
-	private ArrayList<Long> tabFragmentIDs = new ArrayList<Long>();
-	protected ArrayList<TiUITab> tabs = new ArrayList<TiUITab>();
+	private ArrayList<Long> tabFragmentIDs = new ArrayList<>();
+	protected ArrayList<TiUITab> tabs = new ArrayList<>();
 	private final boolean isUsingSolidTitaniumTheme;
 	private int colorBackgroundInt;
 	private int colorSurfaceInt;
@@ -566,7 +566,6 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 					properties.getString(TiC.PROPERTY_ACTIVE_TINT_COLOR));
 				color = TiColorHelper.parseColor(colorString, activity);
 			}
-			drawable.setColorFilter(color, PorterDuff.Mode.SRC_IN);
 		} else {
 			color = ColorUtils.setAlphaComponent(this.colorOnSurfaceInt, 153);  // 60% opacity
 			if (tabProperties.containsKeyAndNotNull(TiC.PROPERTY_TINT_COLOR)
@@ -575,8 +574,8 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 					properties.getString(TiC.PROPERTY_TINT_COLOR));
 				color = TiColorHelper.parseColor(colorString, activity);
 			}
-			drawable.setColorFilter(color, PorterDuff.Mode.SRC_IN);
 		}
+		drawable.setColorFilter(color, PorterDuff.Mode.SRC_IN);
 
 		return drawable;
 	}

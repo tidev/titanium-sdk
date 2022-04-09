@@ -391,7 +391,7 @@ public class TiResponseCache extends ResponseCache
 
 		this.cacheDir = cachedir;
 
-		maxCacheSize = tiApp.getAppProperties().getInt(CACHE_SIZE_KEY, DEFAULT_CACHE_SIZE) * 1024;
+		maxCacheSize = tiApp.getAppProperties().getInt(CACHE_SIZE_KEY, DEFAULT_CACHE_SIZE) * 1024L;
 		Log.d(TAG, "max cache size is:" + maxCacheSize, Log.DEBUG_MODE);
 
 		cleanupExecutor = Executors.newSingleThreadScheduledExecutor();
@@ -543,7 +543,7 @@ public class TiResponseCache extends ResponseCache
 
 		boolean skipTransferEncodingHeader = false;
 		String tEncoding = getHeader(headers, "transfer-encoding");
-		if (tEncoding != null && tEncoding.toLowerCase().equals("chunked")) {
+		if (tEncoding != null && tEncoding.equalsIgnoreCase("chunked")) {
 			skipTransferEncodingHeader =
 				true; // don't put "chunked" transfer-encoding into our header file, else the http connection object that gets our header information will think the data starts with a chunk length specification
 		}

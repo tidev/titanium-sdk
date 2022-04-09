@@ -140,7 +140,8 @@ public class WebViewProxy extends ViewProxy implements Handler.Callback, OnLifec
 		public void runAsync()
 		{
 			// Runs the newer API provided by Android
-			view.getWebView().evaluateJavascript(code, new ValueCallback<String>() {
+			view.getWebView().evaluateJavascript(code, new ValueCallback<>()
+			{
 				public void onReceiveValue(String value)
 				{
 					callback.callAsync(krollObject, new Object[] { value });

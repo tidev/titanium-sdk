@@ -12,7 +12,6 @@ import java.io.InputStream;
 import java.lang.ref.WeakReference;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -435,7 +434,7 @@ public class TiUIHelper
 		try {
 			String[] fontFiles = mgr.list(customFontPath);
 			for (String f : fontFiles) {
-				if (f.toLowerCase().equals(fontFamily.toLowerCase())
+				if (f.equalsIgnoreCase(fontFamily)
 					|| f.toLowerCase().startsWith(fontFamily.toLowerCase() + ".")) {
 					Typeface tf = Typeface.createFromAsset(mgr, customFontPath + "/" + f);
 					synchronized (mCustomTypeFaces)
@@ -458,7 +457,7 @@ public class TiUIHelper
 		String size = DEFAULT_FONT_SIZE_STRING;
 		TextView tv = new TextView(context);
 		if (tv != null) {
-			size = String.valueOf(tv.getTextSize()) + "px";
+			size = tv.getTextSize() + "px";
 			tv = null;
 		}
 
@@ -852,7 +851,7 @@ public class TiUIHelper
 			}
 
 			if (view.getParent() == null) {
-				Log.i(TAG, "View does not have parent, calling layout", Log.DEBUG_MODE);
+				Log.d(TAG, "View does not have parent, calling layout");
 				view.layout(0, 0, width, height);
 			}
 
@@ -1098,7 +1097,7 @@ public class TiUIHelper
 
 		if (overridePendingTransition != null) {
 			try {
-				overridePendingTransition.invoke(activity, new Object[] { 0, 0 });
+				overridePendingTransition.invoke(activity, 0, 0);
 			} catch (InvocationTargetException e) {
 				Log.e(TAG, "Called incorrectly: " + e.getMessage());
 			} catch (IllegalAccessException e) {
@@ -1231,7 +1230,7 @@ public class TiUIHelper
 	 * To get the redirected Uri
 	 * @param Uri
 	 */
-	public static Uri getRedirectUri(Uri mUri) throws MalformedURLException, IOException
+	public static Uri getRedirectUri(Uri mUri) throws IOException
 	{
 		return mUri;
 	}
@@ -1273,12 +1272,12 @@ public class TiUIHelper
 						return strColor;
 					} else {
 						Log.w(TAG, "Background drawable of unexpected type. Expected - ColorDrawable. Found - "
-									   + drawableFromLayer.getClass().toString());
+									   + drawableFromLayer.getClass());
 						return null;
 					}
 				} else {
 					Log.w(TAG, "Background drawable of unexpected type. Expected - LayerDrawable. Found - "
-								   + drawable.getClass().toString());
+								   + drawable.getClass());
 					return null;
 				}
 			}

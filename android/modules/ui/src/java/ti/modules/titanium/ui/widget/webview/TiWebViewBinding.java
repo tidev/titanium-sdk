@@ -69,8 +69,8 @@ public class TiWebViewBinding
 			Log.w(TAG, "Unable to read Titanium binding code for injection");
 		} else {
 			scriptCode.append("\n");
-			scriptCode.append(tiCode.toString());
-			injectionCode.append(tiCode.toString());
+			scriptCode.append(tiCode);
+			injectionCode.append(tiCode);
 		}
 		scriptCode.append("\n</script>\n");
 		jsonCode = null;
@@ -92,7 +92,7 @@ public class TiWebViewBinding
 
 	public TiWebViewBinding(WebView webView)
 	{
-		codeSnippets = new Stack<String>();
+		codeSnippets = new Stack<>();
 		this.webView = webView;
 		apiBinding = new ApiBinding();
 		appBinding = new AppBinding();
@@ -205,9 +205,9 @@ public class TiWebViewBinding
 				dataString = "";
 			} else if (data instanceof HashMap) {
 				JSONObject json = TiConvert.toJSON((HashMap) data);
-				dataString = ", " + String.valueOf(json);
+				dataString = ", " + json;
 			} else {
-				dataString = ", " + String.valueOf(data);
+				dataString = ", " + data;
 			}
 
 			String code = "Ti.executeListener(" + id + dataString + ");";

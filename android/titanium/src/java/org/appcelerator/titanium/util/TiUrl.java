@@ -303,7 +303,7 @@ public class TiUrl
 				uri = new URI(scheme + uri.toString());
 			}
 			if (uri.getScheme() == null) {
-				return defaultScheme != null ? defaultScheme + "//" + uri.toString() : uri.toString();
+				return defaultScheme != null ? defaultScheme + "//" + uri : uri.toString();
 			} else {
 				return uri.toString();
 			}

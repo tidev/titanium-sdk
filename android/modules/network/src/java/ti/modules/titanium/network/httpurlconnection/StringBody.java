@@ -3,7 +3,7 @@
  * Copyright (c) 2009-2015 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
- * 
+ *
  * Copied and modified from Apache's HTTPClient implementation (APL2 license):
  * org.apache.http.entity.mime.content.StringBody
  */
@@ -82,7 +82,7 @@ public class StringBody extends AbstractContentBody
 	@Override
 	public Map<String, String> getContentTypeParameters()
 	{
-		Map<String, String> map = new HashMap<String, String>();
+		Map<String, String> map = new HashMap<>();
 		map.put("charset", this.charset.name());
 		return map;
 	}

@@ -239,7 +239,7 @@ public class TiVideoView8 extends SurfaceView implements MediaPlayerControl
 			}
 			constantDeprecationWarning(mScalingMode);
 		}
-		Log.i(TAG, "setting size: " + width + 'x' + height, Log.DEBUG_MODE);
+		Log.d(TAG, "setting size: " + width + 'x' + height);
 		setMeasuredDimension(width, height);
 	}
 

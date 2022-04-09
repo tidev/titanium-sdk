@@ -126,7 +126,7 @@ public class RecurrenceRuleProxy extends KrollProxy
 							weeklyRecurrencesString.append(",");
 						}
 					}
-					finalRRule.append(weeklyRecurrencesString.toString());
+					finalRRule.append(weeklyRecurrencesString);
 					finalRRule.append(";");
 					break;
 				case MONTHLY:

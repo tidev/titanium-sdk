@@ -298,7 +298,7 @@ public class KrollJSONGenerator extends AbstractProcessor
 						HashMap<String, Object> topLevelParams = utils.getAnnotationParams(element, Kroll_topLevel);
 						List<?> topLevelNames = (List<?>) topLevelParams.get("value");
 						if (topLevelNames.size() == 1 && topLevelNames.get(0).equals(DEFAULT_NAME)) {
-							topLevelNames = Arrays.asList(apiName);
+							topLevelNames = Collections.singletonList(apiName);
 						}
 
 						proxyAttrs.put("topLevelNames", topLevelNames);
@@ -307,7 +307,8 @@ public class KrollJSONGenerator extends AbstractProcessor
 					BindingVisitor visitor = new BindingVisitor();
 					final BindingVisitor fVisitor = visitor;
 					if (utils.hasAnnotation(element, Kroll_dynamicApis)) {
-						utils.acceptAnnotations(element, Kroll_dynamicApis, new KrollVisitor<AnnotationMirror>() {
+						utils.acceptAnnotations(element, Kroll_dynamicApis, new KrollVisitor<>()
+						{
 							@Override
 							public boolean visit(AnnotationMirror annotation, Object arg)
 							{
@@ -338,9 +339,7 @@ public class KrollJSONGenerator extends AbstractProcessor
 					proxyProperties.put("proxyAttrs", proxyAttrs);
 
 					if (isModule) {
-						StringBuilder b = new StringBuilder();
-						b.append(packageName).append(".").append(proxyClassName);
-						Map<Object, Object> module = getModule(b.toString());
+						Map<Object, Object> module = getModule(packageName + "." + proxyClassName);
 						module.put("apiName", apiName);
 					}
 
@@ -509,7 +508,7 @@ public class KrollJSONGenerator extends AbstractProcessor
 			Map<Object, Object> dynamicProperty = new HashMap<>(params);
 
 			String methodName = utils.getName(element);
-			String defaultName = new String(methodName);
+			String defaultName = methodName;
 			if (defaultName.startsWith("get") || defaultName.startsWith("set")) {
 				defaultName = Character.toLowerCase(defaultName.charAt(3)) + defaultName.substring(4);
 			} else if (defaultName.startsWith("is")) {

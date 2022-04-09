@@ -280,7 +280,7 @@ public class Ti2DMatrix extends KrollProxy
 	 */
 	public Pair<Float, Float> verifyScaleValues(TiUIView view, boolean autoreverse)
 	{
-		ArrayList<Operation> scaleOps = new ArrayList<Operation>();
+		ArrayList<Operation> scaleOps = new ArrayList<>();
 
 		Ti2DMatrix check = this;
 		while (check != null) {
@@ -318,7 +318,7 @@ public class Ti2DMatrix extends KrollProxy
 		if (autoreverse) {
 			return viewCurrentScale;
 		} else {
-			return Pair.create(Float.valueOf(lastToX), Float.valueOf(lastToY));
+			return Pair.create(lastToX, lastToY);
 		}
 	}
 

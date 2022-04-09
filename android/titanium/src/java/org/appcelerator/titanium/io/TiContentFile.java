@@ -131,7 +131,7 @@ public class TiContentFile extends TiBaseFile
 					this.name = this.path.substring(this.path.lastIndexOf(File.pathSeparatorChar) + 1);
 				} else {
 					Uri queryUri = ContentUris.withAppendedId(
-						Uri.parse("content://downloads/public_downloads"), Long.valueOf(id));
+						Uri.parse("content://downloads/public_downloads"), Long.parseLong(id));
 					try (Cursor cursor = contentResolver.query(queryUri, projection, null, null, null)) {
 						if ((cursor != null) && cursor.moveToNext()) {
 							this.name = getStringFrom(cursor, 0);

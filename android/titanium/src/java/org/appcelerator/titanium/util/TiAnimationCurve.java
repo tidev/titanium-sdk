@@ -41,7 +41,7 @@ public enum TiAnimationCurve {
 	 * Creates a new animation curve type assigned the given Android interpolator.
 	 * @param interpolator Object used to perform the easing operation during the animation.
 	 */
-	private TiAnimationCurve(Interpolator interpolator)
+	TiAnimationCurve(Interpolator interpolator)
 	{
 		this.tiConstantName = "Ti.UI.ANIMATION_CURVE_" + this.name();
 		this.interpolator = interpolator;

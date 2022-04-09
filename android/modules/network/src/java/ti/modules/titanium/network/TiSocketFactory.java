@@ -9,7 +9,6 @@ package ti.modules.titanium.network;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
-import java.net.UnknownHostException;
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
@@ -79,7 +78,7 @@ public class TiSocketFactory extends SSLSocketFactory
 			case NetworkModule.TLS_DEFAULT:
 				tlsVersion = TLS_VERSION_1_0_PROTOCOL;
 				enabledProtocols = new String[] { TLS_VERSION_1_0_PROTOCOL };
-				Log.i(TAG, tlsVersion + " protocol is being used. It is a less-secure version.");
+				Log.w(TAG, tlsVersion + " protocol is being used. It is a less-secure version.");
 				break;
 		}
 
@@ -100,7 +99,7 @@ public class TiSocketFactory extends SSLSocketFactory
 	}
 
 	@Override
-	public Socket createSocket(String host, int port) throws IOException, UnknownHostException
+	public Socket createSocket(String host, int port) throws IOException
 	{
 		SSLSocket sslSocket = (SSLSocket) sslContext.getSocketFactory().createSocket(host, port);
 		return setSupportedAndEnabledProtocolsInSocket(enabledProtocols, sslSocket);
@@ -108,7 +107,7 @@ public class TiSocketFactory extends SSLSocketFactory
 
 	@Override
 	public Socket createSocket(String host, int port, InetAddress localHost, int localPort)
-		throws IOException, UnknownHostException
+		throws IOException
 	{
 		SSLSocket sslSocket = (SSLSocket) sslContext.getSocketFactory().createSocket(host, port, localHost, localPort);
 		return setSupportedAndEnabledProtocolsInSocket(enabledProtocols, sslSocket);
@@ -139,7 +138,7 @@ public class TiSocketFactory extends SSLSocketFactory
 
 	@Override
 	public Socket createSocket(Socket socket, String host, int port, boolean autoClose)
-		throws IOException, UnknownHostException
+		throws IOException
 	{
 		SSLSocket sslSocket = (SSLSocket) sslContext.getSocketFactory().createSocket(socket, host, port, autoClose);
 		return setSupportedAndEnabledProtocolsInSocket(enabledProtocols, sslSocket);

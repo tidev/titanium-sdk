@@ -67,7 +67,7 @@ public class TiUIWebView extends TiUIView
 	public static final int PLUGIN_STATE_ON = 1;
 	public static final int PLUGIN_STATE_ON_DEMAND = 2;
 
-	private static enum reloadTypes { DEFAULT, DATA, HTML, URL }
+	private enum reloadTypes { DEFAULT, DATA, HTML, URL }
 
 	private reloadTypes reloadMethod = reloadTypes.DEFAULT;
 	private Object reloadData = null;
@@ -265,7 +265,7 @@ public class TiUIWebView extends TiUIView
 			if (fName != null) {
 				isHTC = fName.contains("com.htc.software.Sense");
 				if (isHTC) {
-					Log.i(TAG, "Detected com.htc.software.Sense feature " + fName);
+					Log.d(TAG, "Detected com.htc.software.Sense feature " + fName);
 					break;
 				}
 			}
@@ -928,7 +928,7 @@ public class TiUIWebView extends TiUIView
 	{
 		Map<String, String> map = items;
 		for (Map.Entry<String, String> item : map.entrySet()) {
-			extraHeaders.put(item.getKey().toString(), item.getValue().toString());
+			extraHeaders.put(item.getKey(), item.getValue());
 		}
 	}
 

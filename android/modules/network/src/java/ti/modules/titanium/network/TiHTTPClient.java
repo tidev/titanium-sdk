@@ -90,7 +90,7 @@ public class TiHTTPClient
 	private static final String TITANIUM_ID_HEADER = "X-Titanium-Id";
 	private static final String TITANIUM_USER_AGENT =
 		"Appcelerator Titanium/" + TiApplication.getInstance().getTiBuildVersion() + " (" + Build.MODEL
-		+ "; Android API Level: " + Integer.toString(Build.VERSION.SDK_INT) + "; "
+		+ "; Android API Level: " + Build.VERSION.SDK_INT + "; "
 		+ TiPlatformHelper.getInstance().getLocale() + ";)";
 	private static final String[] FALLBACK_CHARSETS = { "UTF_8", "ISO_8859_1" };
 
@@ -303,7 +303,7 @@ public class TiHTTPClient
 		return tiFile;
 	}
 
-	private void createFileFromBlob(TiBlob blob, File file) throws FileNotFoundException, IOException
+	private void createFileFromBlob(TiBlob blob, File file) throws IOException
 	{
 		BufferedInputStream bufferedInput = new BufferedInputStream(blob.getInputStream());
 		BufferedOutputStream bufferedOutput = new BufferedOutputStream(new FileOutputStream(file));
@@ -807,10 +807,9 @@ public class TiHTTPClient
 				if (requestHeaders.containsKey(header)) {
 					// Appends a value to a header
 					// If it is a cookie, use ';'. If not, use ','.
-					StringBuffer val = new StringBuffer(requestHeaders.get(header));
-					val.append("Cookie".equalsIgnoreCase(header) ? "; " : ", ");
-					val.append(value);
-					requestHeaders.put(header, val.toString());
+					String val = requestHeaders.get(header) + ("Cookie".equalsIgnoreCase(header) ? "; " : ", ")
+						+ value;
+					requestHeaders.put(header, val);
 				} else {
 					// Set header for the first time
 					requestHeaders.put(header, value);
@@ -946,7 +945,7 @@ public class TiHTTPClient
 			setRequestHeader("X-Requested-With", "XMLHttpRequest");
 
 		} else {
-			Log.i(TAG, "Twitter: not sending X-Requested-With header", Log.DEBUG_MODE);
+			Log.d(TAG, "Twitter: not sending X-Requested-With header");
 		}
 	}
 
@@ -1517,7 +1516,7 @@ public class TiHTTPClient
 
 		public void completeSendingMultipart()
 		{
-			printWriter.append("--" + boundary + "--").append(LINE_FEED);
+			printWriter.append("--").append(boundary).append("--").append(LINE_FEED);
 		}
 
 		private void handleURLEncodedData(UrlEncodedFormEntity form) throws IOException

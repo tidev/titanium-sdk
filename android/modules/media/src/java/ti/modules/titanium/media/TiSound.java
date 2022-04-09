@@ -555,12 +555,10 @@ public class TiSound implements MediaPlayer.OnCompletionListener, MediaPlayer.On
 
 	private void startProgressTimer()
 	{
-		if (progressTimer == null) {
-			progressTimer = new Timer(true);
-		} else {
+		if (progressTimer != null) {
 			progressTimer.cancel();
-			progressTimer = new Timer(true);
 		}
+		progressTimer = new Timer(true);
 
 		progressTimer.schedule(new TimerTask() {
 			@Override

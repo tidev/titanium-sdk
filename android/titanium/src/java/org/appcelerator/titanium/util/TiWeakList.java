@@ -188,7 +188,8 @@ public class TiWeakList<T> extends ArrayList<WeakReference<T>>
 
 	public Iterable<T> nonNull()
 	{
-		return new Iterable<T>() {
+		return new Iterable<>()
+		{
 			public Iterator<T> iterator()
 			{
 				return nonNullIterator();

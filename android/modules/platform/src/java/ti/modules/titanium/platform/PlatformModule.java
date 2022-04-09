@@ -424,7 +424,7 @@ public class PlatformModule extends KrollModule
 	public Object[] cpus()
 	{
 		List<Processor> processors = getProcessors();
-		List<KrollDict> result = new ArrayList<KrollDict>(processors.size());
+		List<KrollDict> result = new ArrayList<>(processors.size());
 		for (Processor p : processors) {
 			if (p.details.containsKey("processor")) {
 				result.add(p.toKrollDict());
@@ -574,7 +574,7 @@ public class PlatformModule extends KrollModule
 	{
 		super.onResume(activity);
 		if (batteryStateReceiver != null) {
-			Log.i(TAG, "Reregistering battery changed receiver", Log.DEBUG_MODE);
+			Log.d(TAG, "Reregistering battery changed receiver");
 			registerBatteryReceiver(batteryStateReceiver);
 		}
 	}

@@ -139,7 +139,7 @@ public class TiThumbnailRetriever implements Handler.Callback
 				if (mUri != null) {
 					// getFrameAtTime uses Microseconds.
 					// Multiplying sec with 1000000 to get Microseconds.
-					Bitmap bm = mMediaMetadataRetriever.getFrameAtTime(sec * 1000000, option);
+					Bitmap bm = mMediaMetadataRetriever.getFrameAtTime(sec * 1000000L, option);
 					return bm;
 				}
 				return null;
@@ -174,7 +174,7 @@ public class TiThumbnailRetriever implements Handler.Callback
 					} else {
 						mUri = TiUIHelper.getRedirectUri(mUri);
 						if (URLUtil.isNetworkUrl(mUri.toString())) {
-							mMediaMetadataRetriever.setDataSource(mUri.toString(), new HashMap<String, String>());
+							mMediaMetadataRetriever.setDataSource(mUri.toString(), new HashMap<>());
 						} else {
 							mMediaMetadataRetriever.setDataSource(TiApplication.getAppRootOrCurrentActivity(), mUri);
 						}

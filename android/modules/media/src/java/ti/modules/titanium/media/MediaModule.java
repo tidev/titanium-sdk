@@ -522,7 +522,7 @@ public class MediaModule extends KrollModule implements Handler.Callback
 			return;
 		}
 		KrollDict cameraOptions = null;
-		if ((options == null) || !(options instanceof HashMap<?, ?>)) {
+		if (!(options instanceof HashMap<?, ?>)) {
 			if (Log.isDebugModeEnabled()) {
 				Log.d(TAG, "showCamera called with invalid options", Log.DEBUG_MODE);
 			}
@@ -533,7 +533,7 @@ public class MediaModule extends KrollModule implements Handler.Callback
 
 		Object overlay = cameraOptions.get(PROP_OVERLAY);
 
-		if ((overlay != null) && (overlay instanceof TiViewProxy)) {
+		if ((overlay instanceof TiViewProxy)) {
 			launchCameraActivity(cameraOptions, (TiViewProxy) overlay);
 		} else {
 			launchNativeCamera(cameraOptions);
@@ -1321,7 +1321,7 @@ public class MediaModule extends KrollModule implements Handler.Callback
 				if (requestCode != code) {
 					return;
 				}
-				Log.i(TAG, "OnResult called: " + resultCode);
+				Log.d(TAG, "OnResult called: " + resultCode);
 				if (fSuccessCallback != null) {
 					KrollDict response = new KrollDict();
 					response.putCodeAndMessage(NO_ERROR, null);

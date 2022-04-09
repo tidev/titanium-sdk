@@ -86,7 +86,7 @@ public class NetworkModule extends KrollModule
 		NOT_CONNECTED
 	}
 
-	class NetInfo
+	static class NetInfo
 	{
 		public State state;
 		public boolean failover;
@@ -675,7 +675,7 @@ public class NetworkModule extends KrollModule
 			return true;
 		}
 		if (s1 != null && s2 != null) {
-			if ((isCaseSensitive && s1.equals(s2)) || (!isCaseSensitive && s1.toLowerCase().equals(s2.toLowerCase()))) {
+			if ((isCaseSensitive && s1.equals(s2)) || (!isCaseSensitive && s1.equalsIgnoreCase(s2))) {
 				return true;
 			}
 		}

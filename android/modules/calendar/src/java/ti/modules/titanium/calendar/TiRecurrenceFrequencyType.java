@@ -17,7 +17,7 @@ public enum TiRecurrenceFrequencyType {
 	private final int tiIntId;
 	private final String rfcStringId;
 
-	private TiRecurrenceFrequencyType(int tiIntId, String rfcStringId)
+	TiRecurrenceFrequencyType(int tiIntId, String rfcStringId)
 	{
 		this.tiIntId = tiIntId;
 		this.rfcStringId = rfcStringId;

@@ -294,7 +294,7 @@ public class TiUISlider extends TiUIView implements SeekBar.OnSeekBarChangeListe
 		} else if (key.equals("thumbImage")) {
 			//updateThumb(seekBar, proxy.getDynamicProperties());
 			//seekBar.invalidate();
-			Log.i(TAG, "Dynamically changing thumbImage is not yet supported. Native control doesn't draw");
+			Log.w(TAG, "Dynamically changing thumbImage is not yet supported. Native control doesn't draw");
 		} else if (key.equals(TiC.PROPERTY_SPLIT_TRACK)) {
 			seekBar.setSplitTrack(TiConvert.toBoolean(newValue));
 		} else if (key.equals("leftTrackImage") || key.equals("rightTrackImage")) {
@@ -303,7 +303,7 @@ public class TiUISlider extends TiUIView implements SeekBar.OnSeekBarChangeListe
 			String infoMessage
 				= "Dynamically changing leftTrackImage or rightTrackImage is not yet supported. "
 				+ "Native control doesn't draw.";
-			Log.i(TAG, infoMessage);
+			Log.d(TAG, infoMessage);
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}

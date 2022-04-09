@@ -101,7 +101,7 @@ public @interface Kroll {
 	@Documented
 	@Retention(RetentionPolicy.SOURCE)
 	@Target({ ElementType.METHOD, ElementType.FIELD })
-	public static @interface inject {
+	@interface inject {
 		/**
 		 * <b>Warning</b>: This is reserved for future use, and not implemented yet
 		 * The name of an object to inject.

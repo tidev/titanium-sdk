@@ -616,15 +616,9 @@ public class PickerProxy extends TiViewProxy implements PickerColumnProxy.OnChan
 				data.put(TiC.PROPERTY_VALUE, value);
 				callback.callAsync(getKrollObject(), new Object[] { data });
 			});
-			picker.addOnNegativeButtonClickListener((dialog) -> {
-				cancelHandler.run();
-			});
-			picker.addOnCancelListener((dialog) -> {
-				cancelHandler.run();
-			});
-			picker.addOnDismissListener((dialog) -> {
-				cancelHandler.run();
-			});
+			picker.addOnNegativeButtonClickListener((dialog) -> cancelHandler.run());
+			picker.addOnCancelListener((dialog) -> cancelHandler.run());
+			picker.addOnDismissListener((dialog) -> cancelHandler.run());
 		}
 
 		// Show the dialog.
@@ -748,15 +742,9 @@ public class PickerProxy extends TiViewProxy implements PickerColumnProxy.OnChan
 				data.put(TiC.PROPERTY_VALUE, value);
 				callback.callAsync(getKrollObject(), new Object[] { data });
 			});
-			picker.addOnNegativeButtonClickListener((dialog) -> {
-				cancelHandler.run();
-			});
-			picker.addOnCancelListener((dialog) -> {
-				cancelHandler.run();
-			});
-			picker.addOnDismissListener((dialog) -> {
-				cancelHandler.run();
-			});
+			picker.addOnNegativeButtonClickListener((dialog) -> cancelHandler.run());
+			picker.addOnCancelListener((dialog) -> cancelHandler.run());
+			picker.addOnDismissListener((dialog) -> cancelHandler.run());
 		}
 
 		// Show the dialog.

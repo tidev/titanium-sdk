@@ -118,7 +118,7 @@ public class GeolocationModule extends KrollModule implements Handler.Callback, 
 	public AndroidModule androidModule;
 	public int numLocationListeners = 0; // FIXME: We need a better way to track if location providers are enabled, since single shot getCurrentPosition messes with this!
 	public HashMap<String, LocationProviderProxy> simpleLocationProviders =
-		new HashMap<String, LocationProviderProxy>();
+		new HashMap<>();
 
 	protected static final int MSG_ENABLE_LOCATION_PROVIDERS = KrollModule.MSG_LAST_ID + 100;
 	protected static final int MSG_LAST_ID = MSG_ENABLE_LOCATION_PROVIDERS;
@@ -815,40 +815,38 @@ public class GeolocationModule extends KrollModule implements Handler.Callback, 
 	public KrollPromise<KrollDict> forwardGeocoder(final String address,
 												   @Kroll.argument(optional = true) final KrollFunction callback)
 	{
-		return KrollPromise.create((promise) -> {
-			new Thread(() -> {
-				final KrollDict response = new KrollDict();
+		return KrollPromise.create((promise) -> new Thread(() -> {
+			final KrollDict response = new KrollDict();
 
-				response.put(TiC.EVENT_PROPERTY_SOURCE, this);
+			response.put(TiC.EVENT_PROPERTY_SOURCE, this);
 
-				try {
-					final List<Address> addresses = geocoder.getFromLocationName(address, 1);
+			try {
+				final List<Address> addresses = geocoder.getFromLocationName(address, 1);
 
-					if (addresses.size() > 0) {
-						response.putAll(TiLocation.placeFromAddress(addresses.get(0)));
-					} else {
+				if (addresses.size() > 0) {
+					response.putAll(TiLocation.placeFromAddress(addresses.get(0)));
+				} else {
 
-						// Could not resolve address.
-						throw new Exception("Could not resolve address to location.");
-					}
-
-					// Success, resolve.
-					response.putCodeAndMessage(0, null);
-					promise.resolve(response);
-
-				} catch (Exception e) {
-
-					// Failed, reject.
-					response.putCodeAndMessage(-1, null);
-					promise.reject(response);
+					// Could not resolve address.
+					throw new Exception("Could not resolve address to location.");
 				}
 
-				if (callback == null) {
-					return;
-				}
-				callback.call(getKrollObject(), new Object[] { response });
-			}).start();
-		});
+				// Success, resolve.
+				response.putCodeAndMessage(0, null);
+				promise.resolve(response);
+
+			} catch (Exception e) {
+
+				// Failed, reject.
+				response.putCodeAndMessage(-1, null);
+				promise.reject(response);
+			}
+
+			if (callback == null) {
+				return;
+			}
+			callback.call(getKrollObject(), new Object[] { response });
+		}).start());
 	}
 
 	/**
@@ -865,49 +863,47 @@ public class GeolocationModule extends KrollModule implements Handler.Callback, 
 	public KrollPromise<KrollDict> reverseGeocoder(double latitude, double longitude,
 								@Kroll.argument(optional = true) final KrollFunction callback)
 	{
-		return KrollPromise.create((promise) -> {
-			new Thread(() -> {
-				final KrollDict response = new KrollDict();
+		return KrollPromise.create((promise) -> new Thread(() -> {
+			final KrollDict response = new KrollDict();
 
-				response.put(TiC.EVENT_PROPERTY_SOURCE, this);
+			response.put(TiC.EVENT_PROPERTY_SOURCE, this);
 
-				try {
-					final List<Address> addresses = geocoder.getFromLocation(latitude, longitude, 10);
-					final List<KrollDict> places = new ArrayList<>(addresses.size());
+			try {
+				final List<Address> addresses = geocoder.getFromLocation(latitude, longitude, 10);
+				final List<KrollDict> places = new ArrayList<>(addresses.size());
 
-					if (addresses.size() == 0) {
+				if (addresses.size() == 0) {
 
-						// Could not resolve location.
-						throw new Exception("Could not resolve location.");
-					}
-
-					for (final Address address : addresses) {
-						final KrollDict place = TiLocation.placeFromAddress(address);
-
-						// Include place to places array.
-						places.add(place);
-					}
-
-					// Add all places to response payload.
-					response.put(TiC.PROPERTY_PLACES, places.toArray());
-
-					// Success, resolve.
-					response.putCodeAndMessage(0, null);
-					promise.resolve(response);
-
-				} catch (Exception e) {
-
-					// Failed, reject.
-					response.putCodeAndMessage(-1, null);
-					promise.reject(response);
+					// Could not resolve location.
+					throw new Exception("Could not resolve location.");
 				}
 
-				if (callback == null) {
-					return;
+				for (final Address address : addresses) {
+					final KrollDict place = TiLocation.placeFromAddress(address);
+
+					// Include place to places array.
+					places.add(place);
 				}
-				callback.call(getKrollObject(), new Object[] { response });
-			}).start();
-		});
+
+				// Add all places to response payload.
+				response.put(TiC.PROPERTY_PLACES, places.toArray());
+
+				// Success, resolve.
+				response.putCodeAndMessage(0, null);
+				promise.resolve(response);
+
+			} catch (Exception e) {
+
+				// Failed, reject.
+				response.putCodeAndMessage(-1, null);
+				promise.reject(response);
+			}
+
+			if (callback == null) {
+				return;
+			}
+			callback.call(getKrollObject(), new Object[] { response });
+		}).start());
 	}
 
 	/**

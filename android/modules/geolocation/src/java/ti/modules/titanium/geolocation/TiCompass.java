@@ -112,16 +112,16 @@ public class TiCompass implements SensorEventListener
 		if (Log.isDebugModeEnabled()) {
 			switch (event.accuracy) {
 				case SensorManager.SENSOR_STATUS_UNRELIABLE:
-					Log.i(TAG, "Compass accuracy unreliable");
+					Log.d(TAG, "Compass accuracy unreliable");
 					break;
 				case SensorManager.SENSOR_STATUS_ACCURACY_LOW:
-					Log.i(TAG, "Compass accuracy low");
+					Log.d(TAG, "Compass accuracy low");
 					break;
 				case SensorManager.SENSOR_STATUS_ACCURACY_MEDIUM:
-					Log.i(TAG, "Compass accuracy medium");
+					Log.d(TAG, "Compass accuracy medium");
 					break;
 				case SensorManager.SENSOR_STATUS_ACCURACY_HIGH:
-					Log.i(TAG, "Compass accuracy high");
+					Log.d(TAG, "Compass accuracy high");
 					break;
 				default:
 					Log.w(TAG, "Unknown compass accuracy value: " + event.accuracy);

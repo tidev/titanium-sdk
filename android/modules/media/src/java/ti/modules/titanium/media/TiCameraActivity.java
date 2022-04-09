@@ -187,9 +187,7 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 	public void surfaceChanged(SurfaceHolder previewHolder, int format, int width, int height)
 	{
 		// force initial onMeasure
-		previewLayout.prepareNewPreview(() -> {
-			startPreview(preview.getHolder());
-		});
+		previewLayout.prepareNewPreview(() -> startPreview(preview.getHolder()));
 	}
 
 	@Override
@@ -674,9 +672,9 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 		long resolution = 0;
 
 		for (Size size : sizes) {
-			if (size.width * size.height > resolution) {
+			if ((long) size.width * size.height > resolution) {
 				optimalSize = size;
-				resolution = size.width * size.height;
+				resolution = (long) size.width * size.height;
 			}
 		}
 
@@ -713,7 +711,7 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 									try {
 										camera.takePicture(shutterCallback, null, jpegCallback);
 									} catch (Exception e) {
-										Log.w(TAG, "Could not take picture: " + e.toString());
+										Log.w(TAG, "Could not take picture: " + e);
 										takingPicture = false;
 									}
 
@@ -725,7 +723,7 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 										camera.cancelAutoFocus();
 										camera.autoFocus(null);
 									} catch (Exception e) {
-										Log.w(TAG, "Failed to cancel auto focus: " + e.toString());
+										Log.w(TAG, "Failed to cancel auto focus: " + e);
 									}
 								} else {
 									Log.w(TAG, "Unable to focus.");
@@ -738,7 +736,7 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 					camera.takePicture(shutterCallback, null, jpegCallback);
 				}
 			} catch (Exception e) {
-				Log.w(TAG, "Could not take picture: " + e.toString());
+				Log.w(TAG, "Could not take picture: " + e);
 				if (camera != null) {
 					camera.release();
 				}
@@ -942,9 +940,7 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 		// measures. The runnable will start the camera preview.
 		// This all guarantees us that the camera preview won't start until
 		// after the layout has been measured.
-		previewLayout.prepareNewPreview(() -> {
-			startPreview(preview.getHolder());
-		});
+		previewLayout.prepareNewPreview(() -> startPreview(preview.getHolder()));
 	}
 
 	@Override

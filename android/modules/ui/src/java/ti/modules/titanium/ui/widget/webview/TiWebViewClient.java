@@ -170,17 +170,17 @@ public class TiWebViewClient extends WebViewClient
 			proxy.setPropertyAndFire(TiC.PROPERTY_URL, url);
 			return true;
 		} else if (url.startsWith(WebView.SCHEME_TEL)) {
-			Log.i(TAG, "Launching dialer for " + url, Log.DEBUG_MODE);
+			Log.d(TAG, "Launching dialer for " + url);
 			Intent dialer = Intent.createChooser(new Intent(Intent.ACTION_DIAL, Uri.parse(url)), "Choose Dialer");
 			proxy.getActivity().startActivity(dialer);
 			return true;
 		} else if (url.startsWith(WebView.SCHEME_MAILTO)) {
-			Log.i(TAG, "Launching mailer for " + url, Log.DEBUG_MODE);
+			Log.d(TAG, "Launching mailer for " + url);
 			Intent mailer = Intent.createChooser(new Intent(Intent.ACTION_SENDTO, Uri.parse(url)), "Send Message");
 			proxy.getActivity().startActivity(mailer);
 			return true;
 		} else if (url.startsWith(WebView.SCHEME_GEO)) {
-			Log.i(TAG, "Launching app for " + url, Log.DEBUG_MODE);
+			Log.d(TAG, "Launching app for " + url);
 			/*geo:latitude,longitude
 			geo:latitude,longitude?z=zoom
 			geo:0,0?q=my+street+address
@@ -291,7 +291,7 @@ public class TiWebViewClient extends WebViewClient
 			handler.proceed();
 
 		} else {
-			Log.e(TAG, "SSL error occurred: " + error.toString());
+			Log.e(TAG, "SSL error occurred: " + error);
 			handler.cancel();
 		}
 	}

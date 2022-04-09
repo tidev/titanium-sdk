@@ -263,9 +263,7 @@ public class TiWebChromeClient extends WebChromeClient
 	@Override
 	public boolean onJsAlert(WebView view, String url, String message, android.webkit.JsResult result)
 	{
-		TiUIHelper.doOkDialog("Alert", message, (DialogInterface dialog, int which) -> {
-			result.confirm();
-		});
+		TiUIHelper.doOkDialog("Alert", message, (DialogInterface dialog, int which) -> result.confirm());
 		return true;
 	}
 

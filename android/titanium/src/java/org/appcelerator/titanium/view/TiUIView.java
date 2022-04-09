@@ -126,7 +126,7 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 	// This gives us parity with iPhone for scale animations that use the 2-argument variant
 	// of Ti2DMatrix.scale().
 	private Pair<Float, Float> animatedScaleValues =
-		Pair.create(Float.valueOf(1f), Float.valueOf(1f)); // default = full size (1f)
+		Pair.create(1f, 1f); // default = full size (1f)
 
 	// Same for rotation animation and for alpha animation.
 	private float animatedRotationDegrees = 0f;    // i.e., no rotation.
@@ -781,7 +781,7 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 		} else if (key.equals(TiC.PROPERTY_ENABLED)) {
 			nativeView.setEnabled(TiConvert.toBoolean(newValue));
 		} else if (key.startsWith(TiC.PROPERTY_BACKGROUND_PADDING)) {
-			Log.i(TAG, key + " not yet implemented.");
+			Log.w(TAG, key + " not yet implemented.");
 		} else if (key.equals(TiC.PROPERTY_OPACITY) || key.equals(TiC.PROPERTY_TOUCH_FEEDBACK_COLOR)
 				   || key.equals(TiC.PROPERTY_TOUCH_FEEDBACK) || key.startsWith(TiC.PROPERTY_BACKGROUND_PREFIX)
 				   || key.startsWith(TiC.PROPERTY_BORDER_PREFIX)) {
@@ -2214,7 +2214,7 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 	private void resetPostAnimationValues()
 	{
 		animatedRotationDegrees = 0f;                                            // i.e., no rotation.
-		animatedScaleValues = Pair.create(Float.valueOf(1f), Float.valueOf(1f)); // 1 means no scaling
+		animatedScaleValues = Pair.create(1f, 1f); // 1 means no scaling
 		animatedAlpha = Float.MIN_VALUE;                                         // we use min val to signal no val.
 	}
 
