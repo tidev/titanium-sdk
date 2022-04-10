@@ -252,6 +252,15 @@ public abstract class TiApplication extends Application implements KrollApplicat
 		return false;
 	}
 
+	public static Context getBaseActivity()
+	{
+		Activity currentActivity = getAppCurrentActivity();
+		if (currentActivity instanceof TiBaseActivity) {
+			return ((TiBaseActivity) currentActivity).baseContext;
+		}
+		return null;
+	}
+
 	/**
 	 * This is a convenience method to avoid having to check TiApplication.getInstance() is not null every
 	 * time we need to grab the current activity.
