@@ -106,7 +106,7 @@
     "pngjs": "^6.0.0",
     "request": "^2.88.2",
     "semver": "^7.3.5",
-    "simple-plist": "^1.1.1",
+    "simple-plist": "^1.3.1",
     "sprintf": "0.1.5",
     "temp": "0.9.4",
     "wrap-ansi": "^7.0.0",
