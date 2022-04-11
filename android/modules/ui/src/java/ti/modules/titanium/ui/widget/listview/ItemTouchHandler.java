@@ -6,8 +6,6 @@
  */
 package ti.modules.titanium.ui.widget.listview;
 
-import static androidx.recyclerview.widget.ItemTouchHelper.ACTION_STATE_DRAG;
-
 import android.annotation.SuppressLint;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -23,7 +21,6 @@ import android.view.View.OnTouchListener;
 import android.view.ViewParent;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
