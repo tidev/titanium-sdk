@@ -43,27 +43,6 @@ public class ItemTouchHandler extends ItemTouchHelper.SimpleCallback
 	private Drawable icon;
 	private final ColorDrawable background;
 
-	@Override
-	public void onSelectedChanged(@Nullable RecyclerView.ViewHolder viewHolder, int actionState)
-	{
-		super.onSelectedChanged(viewHolder, actionState);
-
-		if (actionState == ACTION_STATE_DRAG) {
-			final TiRecyclerViewHolder holder = (TiRecyclerViewHolder) viewHolder;
-			if (viewHolder != null) {
-				holder.itemView.setAlpha(0.5f);
-			}
-		}
-	}
-
-	@Override
-	public void clearView(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder)
-	{
-		super.clearView(recyclerView, viewHolder);
-		final TiRecyclerViewHolder holder = (TiRecyclerViewHolder) viewHolder;
-		holder.itemView.setAlpha(1.0f);
-	}
-
 	@SuppressLint("ClickableViewAccessibility")
 	public ItemTouchHandler(@NonNull TiRecyclerViewAdapter adapter,
 							@NonNull RecyclerViewProxy recyclerViewProxy,
