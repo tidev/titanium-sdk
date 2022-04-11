@@ -95,7 +95,7 @@ public class ItemTouchHandler extends ItemTouchHelper.SimpleCallback
 
 	/**
 	 * Determine if proxy supports movement.
-	 *9
+	 *
 	 * @param holderProxy
 	 * @return Boolean
 	 */
