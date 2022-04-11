@@ -50,10 +50,12 @@ public class ItemTouchHandler extends ItemTouchHelper.SimpleCallback
 
 		if (actionState == ACTION_STATE_DRAG) {
 			final TiRecyclerViewHolder holder = (TiRecyclerViewHolder) viewHolder;
-			holder.itemView.setAlpha(0.5f);
+			if (viewHolder != null) {
+				holder.itemView.setAlpha(0.5f);
+			}
 		}
 	}
-	
+
 	@Override
 	public void clearView(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder)
 	{
