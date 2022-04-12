@@ -1,0 +1,41 @@
+name: Feature Proposal
+description: Propose a new feature or an improvement for Titanium SDK
+labels: [feature, needs triage]
+body:
+- type: markdown
+  attributes:
+    value: Thank you for the time you have taken to file a feature proposal! Please make sure to ensure you have filled this form out as best you can.
+- type: checkboxes
+  attributes:
+    label: I have searched and made sure there are no existing issues for the issue I am filing
+    options:
+      - label: I have searched the existing issues
+        required: true
+- type: textarea
+  attributes:
+    label: Description
+    description: A concise description of the proposal you are making and the use case for it
+  validations:
+    required: true
+- type: textarea
+  attributes:
+    label: Solution
+    description: Describe the solution you are proposing to solve the feature proposal, this could include code snippets
+  validations:
+    required: true
+- type: textarea
+  attributes:
+    label: Alternatives
+    description: Describe any alternatives solutions you have considered
+  validations:
+    required: false
+- type: dropdown
+  attributes:
+    label: Platforms
+    description: What is the platform associated with this proposal?
+    multiple: true
+    options:
+      - Android
+      - iOS
+      - Android & iOS
+      - CLI

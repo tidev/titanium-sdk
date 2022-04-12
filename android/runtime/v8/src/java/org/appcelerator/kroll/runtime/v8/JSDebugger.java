@@ -93,6 +93,7 @@ public final class JSDebugger
 	{
 		try {
 			this.agentThread = new InspectorAgent(this.port);
+			this.agentThread.setReuseAddr(true);
 			this.agentThread.start();
 		} catch (Exception e) {
 			Log.e(TAG, "Failed to start websocket server agent to handle debugger connection", e);

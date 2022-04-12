@@ -1,8 +1,9 @@
 ---
 name: Report a Bug
 about: Create a report to help us improve Titanium
-
 ---
+
+<!-- Please use the proper issue forms to file your issue. Issues opened not using forms could be missing critical information that will help your issue get fixed -->
 
 ### Describe the bug
 A clear and concise description of what the bug is. 
@@ -22,7 +23,7 @@ CLI version:
 
 ### Logs
 Creating a trace-log:
-  - CLI: `appc run - p [ios|android] -l trace`
+  - CLI: `ti build - p [ios|android] -l trace`
   - Studio / Atom: `Log-Level (Bottom right): Trace`
 
 (Attach by dragging into this issue)

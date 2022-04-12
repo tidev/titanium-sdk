@@ -34,8 +34,13 @@ import ti.modules.titanium.ui.widget.picker.TiUITimePicker;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.graphics.Color;
+import android.text.Editable;
+import android.text.InputType;
+import android.text.method.BaseKeyListener;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.KeyEvent;
+import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -182,7 +187,24 @@ public class PickerProxy extends TiViewProxy implements PickerColumnProxy.OnChan
 		editText.setSingleLine();
 		editText.setMaxLines(1);
 		editText.setGravity(Gravity.CENTER_VERTICAL | Gravity.START);
-		editText.setInputType(0);
+		editText.setKeyListener(new BaseKeyListener() {
+			@Override
+			public int getInputType()
+			{
+				return InputType.TYPE_NULL;
+			}
+			@Override
+			public boolean backspace(View view, Editable content, int keyCode, KeyEvent event)
+			{
+				return false;
+			}
+			@Override
+			public boolean forwardDelete(View view, Editable content, int keyCode, KeyEvent event)
+			{
+				return false;
+			}
+		});
+		editText.setRawInputType(InputType.TYPE_NULL);
 		if (textInputLayout.isHintEnabled() == false) {
 			// Remove extra padding from top since hint text is disabled.
 			editText.setPadding(

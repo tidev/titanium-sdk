@@ -10,7 +10,6 @@
 	<icon>appicon.png</icon>
 	<fullscreen>false</fullscreen>
 	<navbar-hidden>false</navbar-hidden>
-	<analytics>true</analytics>
 	<guid></guid>
 	<property name="ti.ui.defaultunit">dp</property>
 	<ios>

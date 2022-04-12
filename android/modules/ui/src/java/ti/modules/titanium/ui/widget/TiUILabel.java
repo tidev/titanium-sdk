@@ -397,11 +397,11 @@ public class TiUILabel extends TiUIView
 			if (color == null) {
 				tv.setTextColor(defaultColor);
 			} else {
-				tv.setTextColor(TiConvert.toColor(d, TiC.PROPERTY_COLOR));
+				tv.setTextColor(TiConvert.toColor(d, TiC.PROPERTY_COLOR, proxy.getActivity()));
 			}
 		}
 		if (d.containsKey(TiC.PROPERTY_HIGHLIGHTED_COLOR)) {
-			tv.setHighlightColor(TiConvert.toColor(d, TiC.PROPERTY_HIGHLIGHTED_COLOR));
+			tv.setHighlightColor(TiConvert.toColor(d, TiC.PROPERTY_HIGHLIGHTED_COLOR, proxy.getActivity()));
 		}
 		if (d.containsKey(TiC.PROPERTY_FONT)) {
 			TiUIHelper.styleText(tv, d.getKrollDict(TiC.PROPERTY_FONT));
@@ -454,7 +454,7 @@ public class TiUILabel extends TiUIView
 		}
 		if (d.containsKey(TiC.PROPERTY_SHADOW_COLOR)) {
 			needShadow = true;
-			shadowColor = TiConvert.toColor(d, TiC.PROPERTY_SHADOW_COLOR);
+			shadowColor = TiConvert.toColor(d, TiC.PROPERTY_SHADOW_COLOR, proxy.getActivity());
 		}
 		if (needShadow) {
 			tv.setShadowLayer(shadowRadius, shadowX, shadowY, shadowColor);
@@ -496,10 +496,11 @@ public class TiUILabel extends TiUIView
 			if (newValue == null) {
 				tv.setTextColor(defaultColor);
 			} else {
-				tv.setTextColor(TiConvert.toColor((String) newValue));
+				tv.setTextColor(TiConvert.toColor(newValue, proxy.getActivity()));
 			}
 		} else if (key.equals(TiC.PROPERTY_HIGHLIGHTED_COLOR)) {
-			tv.setHighlightColor(TiConvert.toColor((String) newValue));
+			// TODO: reset to default value when property is null
+			tv.setHighlightColor(TiConvert.toColor(newValue, proxy.getActivity()));
 		} else if (key.equals(TiC.PROPERTY_TEXT_ALIGN)) {
 			TiUIHelper.setAlignment(tv, TiConvert.toString(newValue), null);
 			tv.requestLayout();
@@ -548,7 +549,7 @@ public class TiUILabel extends TiUIView
 			shadowRadius = TiConvert.toFloat(newValue, DEFAULT_SHADOW_RADIUS);
 			tv.setShadowLayer(shadowRadius, shadowX, shadowY, shadowColor);
 		} else if (key.equals(TiC.PROPERTY_SHADOW_COLOR)) {
-			shadowColor = TiConvert.toColor(TiConvert.toString(newValue));
+			shadowColor = TiConvert.toColor(newValue, proxy.getActivity());
 			tv.setShadowLayer(shadowRadius, shadowX, shadowY, shadowColor);
 		} else if (key.equals(TiC.PROPERTY_LINES)) {
 			this.viewHeightInLines = TiConvert.toInt(newValue, 0);

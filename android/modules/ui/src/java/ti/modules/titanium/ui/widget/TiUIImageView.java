@@ -738,9 +738,12 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 			setDefaultImageSource(d.get(TiC.PROPERTY_DEFAULT_IMAGE));
 		}
 		if (d.containsKey(TiC.PROPERTY_IMAGE_TOUCH_FEEDBACK_COLOR)) {
-			String colorString = TiConvert.toString(d.get(TiC.PROPERTY_IMAGE_TOUCH_FEEDBACK_COLOR));
-			view.setImageRippleColor(
-				(colorString != null) ? TiConvert.toColor(colorString) : view.getDefaultRippleColor());
+			Object colorObject = d.get(TiC.PROPERTY_IMAGE_TOUCH_FEEDBACK_COLOR);
+			if (colorObject == null) {
+				view.setImageRippleColor(view.getDefaultRippleColor());
+			} else {
+				view.setImageRippleColor(TiConvert.toColor(colorObject, proxy.getActivity()));
+			}
 		}
 		if (d.containsKey(TiC.PROPERTY_IMAGE_TOUCH_FEEDBACK)) {
 			view.setIsImageRippleEnabled(TiConvert.toBoolean(d.get(TiC.PROPERTY_IMAGE_TOUCH_FEEDBACK), false));
@@ -794,9 +797,11 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 		} else if (key.equals(TiC.PROPERTY_IMAGE_TOUCH_FEEDBACK)) {
 			view.setIsImageRippleEnabled(TiConvert.toBoolean(newValue, false));
 		} else if (key.equals(TiC.PROPERTY_IMAGE_TOUCH_FEEDBACK_COLOR)) {
-			String colorString = TiConvert.toString(newValue);
-			view.setImageRippleColor(
-				(colorString != null) ? TiConvert.toColor(colorString) : view.getDefaultRippleColor());
+			if (newValue == null) {
+				view.setImageRippleColor(view.getDefaultRippleColor());
+			} else {
+				view.setImageRippleColor(TiConvert.toColor(newValue, proxy.getActivity()));
+			}
 		} else if (key.equals(TiC.PROPERTY_IMAGE)) {
 			if ((oldValue == null && newValue != null) || (oldValue != null && !oldValue.equals(newValue))) {
 				TiDrawableReference source = TiDrawableReference.fromObject(getProxy(), newValue);

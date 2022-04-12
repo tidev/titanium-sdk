@@ -140,7 +140,7 @@ public class AppModule extends KrollModule implements SensorEventListener
 	@Kroll.getProperty
 	public boolean getAnalytics()
 	{
-		return appInfo.isAnalyticsEnabled();
+		return false;
 	}
 
 	@Kroll.method

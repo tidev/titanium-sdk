@@ -25,7 +25,7 @@ description: |
     ### Pass Context Between Windows
 
     To pass data between windows, use a
-    [CommonJS module](https://docs.appcelerator.com/platform/latest/#!/guide/CommonJS_Modules_in_Titanium)
+    [CommonJS module](https://titaniumsdk.com/guide/Titanium_SDK/Titanium_SDK_Guide/Best_Practices_and_Recommendations/CommonJS_Modules_in_Titanium.html)
     to save information from one window then retrieve it in another.  In the example below, the foo
     module exposes two methods to store and retrieve an object.  The first window of the project
     loads the foo module and uses the set method to store some data before opening the second window.
@@ -1137,7 +1137,7 @@ properties:
 
         Since Release 3.3.0, due to changes to support the appcompat library, this property has no
         effect. By default, the action bar is always displayed.  To hide the action bar, see the
-        [Android Action Bar guide](https://docs.appcelerator.com/platform/latest/#!/guide/Android_Action_Bar).
+        [Android Action Bar guide](https://titaniumsdk.com/guide/Titanium_SDK/Titanium_SDK_How-tos/User_Interface_Deep_Dives/Android_UI_Components_and_Conventions/Android_Action_Bar.html).
     platforms: [android, iphone, ipad, macos]
     default: false
     type: Boolean
@@ -1454,8 +1454,8 @@ properties:
   - name: theme
     summary: Name of the theme to apply to the window.
     description: |
-        Set the theme of the window. It can be either a [built-in theme](https://docs.appcelerator.com/platform/latest/#!/guide/Android_Themes-section-34636181_AndroidThemes-Built-inThemes)
-        or a [custom theme](https://docs.appcelerator.com/platform/latest/#!/guide/Android_Themes-section-34636181_AndroidThemes-CustomThemes).
+        Set the theme of the window. It can be either a [built-in theme](https://titaniumsdk.com/guide/Titanium_SDK/Titanium_SDK_How-tos/User_Interface_Deep_Dives/Android_UI_Components_and_Conventions/Android_Themes.html#titanium-material-themes)
+        or a [custom theme](https://titaniumsdk.com/guide/Titanium_SDK/Titanium_SDK_How-tos/User_Interface_Deep_Dives/Android_UI_Components_and_Conventions/Android_Themes.html#custom-themes).
     platforms: [android]
     type: String
     since: "3.4.0"

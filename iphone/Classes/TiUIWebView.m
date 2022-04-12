@@ -880,10 +880,13 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
       completionHandler(NSURLSessionAuthChallengeCancelAuthenticationChallenge, nil);
     }
     // HTTPS in general
-  } else if ([authenticationMethod isEqualToString:NSURLAuthenticationMethodServerTrust]) {
+  } else if ([authenticationMethod isEqualToString:NSURLAuthenticationMethodServerTrust]
+      || [authenticationMethod isEqualToString:NSURLAuthenticationMethodClientCertificate]) {
     completionHandler(NSURLSessionAuthChallengePerformDefaultHandling, nil);
     // Default: Reject authentication challenge
   } else {
+    // Not sure why not let the DefaultHandling handle this but at least warn in the log because of canceled challenge
+    NSLog(@"[WARN] Ti.UI.WebView canceled unknown authentication challenge with method %@", authenticationMethod);
     completionHandler(NSURLSessionAuthChallengeCancelAuthenticationChallenge, nil);
   }
 }

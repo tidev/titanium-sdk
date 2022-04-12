@@ -286,9 +286,6 @@ AndroidModuleBuilder.prototype.run = async function run(logger, config, cli, fin
 		// Update module's config files, if necessary.
 		await this.migrate();
 
-		// Post build anlytics.
-		await this.doAnalytics();
-
 		// Initialize build variables and directory.
 		await this.initialize();
 		await this.loginfo();
@@ -356,24 +353,6 @@ AndroidModuleBuilder.prototype.dirWalker = async function dirWalker(directoryPat
 			callback(filePath, fileName);
 		}
 	}
-};
-
-AndroidModuleBuilder.prototype.doAnalytics = async function doAnalytics() {
-	var cli = this.cli,
-		manifest = this.manifest,
-		eventName = 'android.' + cli.argv.type;
-
-	cli.addAnalyticsEvent(eventName, {
-		name: manifest.name,
-		publisher: manifest.author,
-		appid: manifest.moduleid,
-		description: manifest.description,
-		type: cli.argv.type,
-		guid: manifest.guid,
-		version: manifest.version,
-		copyright: manifest.copyright,
-		date: (new Date()).toDateString()
-	});
 };
 
 AndroidModuleBuilder.prototype.initialize = async function initialize() {

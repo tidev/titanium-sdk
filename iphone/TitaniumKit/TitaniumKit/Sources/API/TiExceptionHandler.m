@@ -6,7 +6,6 @@
  */
 
 #import "TiExceptionHandler.h"
-#import "APSAnalytics.h"
 #import "KrollContext.h"
 #import "TiApp.h"
 #import "TiBase.h"

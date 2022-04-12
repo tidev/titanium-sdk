@@ -412,7 +412,7 @@ public class TiResponseCache extends ResponseCache
 			return null;
 		}
 
-		// Workaround for https://jira.appcelerator.org/browse/TIMOB-18913
+		// Workaround for https://jira-archive.titaniumsdk.com/TIMOB-18913
 		// This workaround should be removed when HTTPClient is refactored with HttpUrlConnection
 		// and HttpResponseCache is used instead of TiResponseCache.
 		// If it is a video, do not use cache. Cache is causing problems for Video Player on Lollipop
@@ -519,7 +519,7 @@ public class TiResponseCache extends ResponseCache
 			}
 		}
 
-		// Workaround for https://jira.appcelerator.org/browse/TIMOB-18913
+		// Workaround for https://jira-archive.titaniumsdk.com/TIMOB-18913
 		// This workaround should be removed when HTTPClient is refactored with HttpUrlConnection
 		// and HttpResponseCache is used instead of TiResponseCache.
 		// If it is a video, do not use cache. Cache is causing problems for Video Player on Lollipop

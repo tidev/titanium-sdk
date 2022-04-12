@@ -16,7 +16,6 @@
     return (TiUINavigationWindowProxy *)parentController;
   }
 
-  NSLog(@"[ERROR] Trying to receive a Ti.UI.NavigationWindow instance that does not exist in this context!");
   return nil;
 }
 #endif
