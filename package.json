@@ -19,6 +19,7 @@
   "scripts": {
     "android": "node ./build/scons cleanbuild android",
     "build": "node ./build/scons build",
+    "build:local": "node ./build/scons build && node ./build/scons package --skip-zip && ./build/scons install",
     "build:android": "npm run build -- android",
     "build:changelog": "conventional-changelog -n changelog/config.js -i CHANGELOG.md -s -p angular",
     "build:docs": "docgen apidoc -o ./dist",
@@ -29,6 +30,7 @@
     "clean:modules": "node ./build/scons clean-modules",
     "clean:sdks": "node ./build/scons clean-sdks",
     "cleanbuild": "node ./build/scons cleanbuild",
+    "cleanbuild:local": "node ./build/scons cleanbuild -- --skip-zip",
     "cleanbuild:android": "npm run cleanbuild -- android",
     "cleanbuild:ios": "npm run cleanbuild -- ios",
     "commit": "git-cz",
