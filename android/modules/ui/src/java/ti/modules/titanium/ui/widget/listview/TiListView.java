@@ -49,6 +49,7 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 	private final ListViewProxy proxy;
 	private final TiNestedRecyclerView recyclerView;
 	private final List<KrollDict> selectedItems = new ArrayList<>();
+	private final ItemTouchHelper itemTouchHelper;
 
 	private boolean hasLaidOutChildren = false;
 	private SelectionTracker tracker = null;
@@ -176,7 +177,7 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 
 		// Create ItemTouchHelper for swipe-to-delete and move gestures.
 		final ItemTouchHandler itemTouchHandler = new ItemTouchHandler(this.adapter, this.proxy, this.recyclerView);
-		final ItemTouchHelper itemTouchHelper = new ItemTouchHelper(itemTouchHandler);
+		itemTouchHelper = new ItemTouchHelper(itemTouchHandler);
 		itemTouchHelper.attachToRecyclerView(this.recyclerView);
 
 		// Fire `postlayout` on layout changes.
@@ -266,6 +267,9 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 		final boolean allowsMultipleSelection
 			= properties.optBoolean(TiC.PROPERTY_ALLOWS_MULTIPLE_SELECTION_DURING_EDITING, false);
 
+		if (properties.optBoolean(TiC.PROPERTY_FIXED_SIZE, false)) {
+			this.recyclerView.setHasFixedSize(true);
+		}
 		if (editing && allowsSelection) {
 			if (allowsMultipleSelection) {
 				this.tracker = trackerBuilder.withSelectionPredicate(SelectionPredicates.createSelectAnything())
@@ -604,6 +608,16 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 		decoration.setDrawable(separator);
 
 		this.recyclerView.invalidate();
+	}
+
+	/**
+	 * Starts dragging programatically.
+	 *
+	 * @param vHolder The dedicated view holder
+	 */
+	public void startDragging(RecyclerView.ViewHolder vHolder)
+	{
+		itemTouchHelper.startDrag(vHolder);
 	}
 
 	/**

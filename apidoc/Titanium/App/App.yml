@@ -490,11 +490,6 @@ properties:
     type: Boolean
     permission: read-only
 
-  - name: analytics
-    summary: Indicates whether Analytics is enabled, determined by `tiapp.xml`.
-    type: Boolean
-    permission: read-only
-
   - name: copyright
     summary: Application copyright statement, determined by `tiapp.xml`.
     type: String

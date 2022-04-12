@@ -6,23 +6,24 @@
  */
 package org.appcelerator.titanium.util;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import org.appcelerator.kroll.common.Log;
-import org.appcelerator.titanium.TiApplication;
-
 import android.content.Context;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.util.TypedValue;
+
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
+
+import org.appcelerator.kroll.common.Log;
+import org.appcelerator.titanium.TiApplication;
+
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * This class contain utility methods that converts a String color, like "red", into its corresponding RGB/RGBA representation.
@@ -38,6 +39,9 @@ public class TiColorHelper
 		"rgba\\(\\s*([0-9]{1,3})\\s*,\\s*([0-9]{1,3})\\s*,\\s*([0-9]{1,3})\\s*,\\s*(\\d\\.\\d+)\\s*\\)");
 	static Pattern floatsPattern = Pattern.compile(
 		"rgba\\(\\s*(\\d\\.\\d+)\\s*,\\s*(\\d\\.\\d+)\\s*,\\s*(\\d\\.\\d+)\\s*,\\s*(\\d\\.\\d+)\\s*\\)");
+	static Pattern rgbafloatPattern = Pattern.compile(
+		"rgba\\((0|[1-9]\\d{0,2}),\\s*(0|[1-9]\\d{0,2}),\\s*(0|[1-9]\\d{0,2}),"
+			+ "\\s*(0|1|(0){0,1}\\.\\d{1,10}|1\\.0{1,10})\\s*\\)");
 	static Pattern rgbaPatternFallback =
 		Pattern.compile("rgba\\(\\s*([0-9]{1,3})\\s*,\\s*([0-9]{1,3})\\s*,\\s*([0-9]{1,3})\\s*\\)");
 
@@ -52,6 +56,10 @@ public class TiColorHelper
 	 * @return the RGB/RGBA representation (int) of the color.
 	 */
 	public static int parseColor(String value)
+	{
+		return parseColor(value, null);
+	}
+	public static int parseColor(String value, Context context)
 	{
 		if (value == null) {
 			return Color.TRANSPARENT;
@@ -84,6 +92,11 @@ public class TiColorHelper
 			return Color.argb(Math.round(Float.valueOf(m.group(4)) * 255f), Integer.valueOf(m.group(1)),
 							  Integer.valueOf(m.group(2)), Integer.valueOf(m.group(3)));
 		}
+		// rgba(int, int, int, float)
+		if ((m = rgbafloatPattern.matcher(lowval)).matches()) {
+			return Color.argb(Math.round(Float.valueOf(m.group(4)) * 255f), Integer.valueOf(m.group(1)),
+							  Integer.valueOf(m.group(2)), Integer.valueOf(m.group(3)));
+		}
 		// rgba(int, int, int) with missing alpha value
 		if ((m = rgbaPatternFallback.matcher(lowval)).matches()) {
 			return Color.rgb(Integer.valueOf(m.group(1)), Integer.valueOf(m.group(2)), Integer.valueOf(m.group(3)));
@@ -100,14 +113,19 @@ public class TiColorHelper
 		final String TI_SEMANTIC_COLOR_PREFIX = "ti.semantic.color:";
 		if (value.startsWith(TI_SEMANTIC_COLOR_PREFIX)) {
 			String themePrefix = "light=";
-			Configuration config = TiApplication.getInstance().getResources().getConfiguration();
+			Configuration config;
+			if (context != null) {
+				config = context.getResources().getConfiguration();
+			} else {
+				config = TiApplication.getInstance().getResources().getConfiguration();
+			}
 			if ((config.uiMode & Configuration.UI_MODE_NIGHT_YES) != 0) {
 				themePrefix = "dark=";
 			}
 			String[] stringArray = value.substring(TI_SEMANTIC_COLOR_PREFIX.length()).split(";");
 			for (String nextString : stringArray) {
 				if (nextString.startsWith(themePrefix)) {
-					return TiColorHelper.parseColor(nextString.substring(themePrefix.length()));
+					return TiColorHelper.parseColor(nextString.substring(themePrefix.length()), context);
 				}
 			}
 			Log.e(TAG, "Cannot find named color: " + value);
@@ -115,9 +133,9 @@ public class TiColorHelper
 		}
 
 		// Ti.Android.R.color or Ti.App.Android.R.color resource (by name)
-		if (TiColorHelper.hasColorResource(value)) {
+		if (TiColorHelper.hasColorResource(value, context)) {
 			try {
-				return TiColorHelper.getColorResource(value);
+				return TiColorHelper.getColorResource(value, context);
 			} catch (Exception e) {
 				Log.e(TAG, "Cannot find named color: " + value, e);
 			}
@@ -148,16 +166,25 @@ public class TiColorHelper
 
 	public static boolean hasColorResource(String colorName)
 	{
+		return hasColorResource(colorName, null);
+	}
+	public static boolean hasColorResource(String colorName, Context context)
+	{
 		try {
-			TypedValue typedValue = TiColorHelper.getColorResourceTypedValue(colorName);
+			TypedValue typedValue = TiColorHelper.getColorResourceTypedValue(colorName, context);
 			return TiColorHelper.isColor(typedValue);
 		} catch (Exception ex) {
 		}
 		return false;
 	}
-
 	@NonNull
 	public static TypedValue getColorResourceTypedValue(String colorName) throws Resources.NotFoundException
+	{
+		return getColorResourceTypedValue(colorName, null);
+	}
+	@NonNull
+	public static TypedValue getColorResourceTypedValue(String colorName, Context context)
+		throws Resources.NotFoundException
 	{
 		TypedValue typedValue = new TypedValue();
 
@@ -169,13 +196,12 @@ public class TiColorHelper
 		// Resource ID starting with '?' (instead of '@') should favor current activity theme.
 		// Note: Resources.getIdentifier() won't accept leading '?'. We must replace it.
 		TiApplication app = TiApplication.getInstance();
-		Context context = app;
+		if (context == null) {
+			Context activity = app.getCurrentActivity();
+			context = activity != null ? activity : app;
+		}
 		if (colorName.startsWith("?")) {
 			colorName = "@" + colorName.substring(1);
-			Context activity = app.getCurrentActivity();
-			if (activity != null) {
-				context = activity;
-			}
 		}
 
 		// First check if resource name is defined in app or its libraries.
@@ -207,7 +233,11 @@ public class TiColorHelper
 
 	public static @ColorInt int getColorResource(String colorName) throws Resources.NotFoundException
 	{
-		TypedValue typedValue = TiColorHelper.getColorResourceTypedValue(colorName);
+		return getColorResource(colorName, null);
+	}
+	public static @ColorInt int getColorResource(String colorName, Context context) throws Resources.NotFoundException
+	{
+		TypedValue typedValue = TiColorHelper.getColorResourceTypedValue(colorName, context);
 		if (TiColorHelper.isColor(typedValue)) {
 			return typedValue.data;
 		}
