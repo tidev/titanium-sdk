@@ -1154,6 +1154,16 @@ properties:
     default: true
     platforms: [android, iphone, ipad, macos]
 
+  - name: fixedSize
+    summary: Sets fixedSize mode on Android TableView.
+    description: |
+        Set it to `true` if all TableView items have the same size to gain some performance.
+    type: Boolean
+    default: false
+    availability: creation
+    since: 10.2.0
+    platforms: [android]
+
   - name: footerDividersEnabled
     summary: When set to false, the ListView will not draw the divider before the footer view.
     type: Boolean

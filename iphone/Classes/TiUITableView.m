@@ -1442,7 +1442,10 @@
   if (isSearchBarInNavigation) {
     dimmingView.frame = CGRectMake(0, 0, self.frame.size.width, self.frame.size.height);
   } else {
-    [dimmingView setFrame:CGRectMake(0, searchController.searchBar.frame.size.height, self.frame.size.width, self.frame.size.height - searchController.searchBar.frame.size.height)];
+    CGFloat dimmingViewTopMargin = searchController.searchBar.frame.size.height + searchController.view.safeAreaInsets.top;
+    CGFloat dimmingViewHeight = self.frame.size.height - searchController.searchBar.frame.size.height;
+
+    [dimmingView setFrame:CGRectMake(0, dimmingViewTopMargin, self.frame.size.width, dimmingViewHeight)];
     CGPoint convertedOrigin = [self.superview convertPoint:self.frame.origin toView:searchControllerPresenter.view];
 
     UIView *searchSuperView = [searchController.view superview];
@@ -2426,7 +2429,7 @@
 - (void)createDimmingView
 {
   if (dimmingView == nil) {
-    dimmingView = [[UIView alloc] initWithFrame:CGRectMake(0, searchController.searchBar.frame.size.height, self.frame.size.width, self.frame.size.height - searchController.searchBar.frame.size.height)];
+    dimmingView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.frame.size.width, self.frame.size.height - searchController.searchBar.frame.size.height)];
     dimmingView.backgroundColor = [UIColor blackColor];
     dimmingView.alpha = .2;
     UITapGestureRecognizer *tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(dismissSearchController)];
@@ -2437,7 +2440,7 @@
 
 - (void)showDimmingView
 {
-  dimmingView.frame = CGRectMake(0, searchController.searchBar.frame.size.height, self.frame.size.width, self.frame.size.height - searchController.searchBar.frame.size.height);
+  dimmingView.frame = CGRectMake(0, 0, self.frame.size.width, self.frame.size.height);
   if (!dimmingView.superview) {
     [self addSubview:dimmingView];
     [self bringSubviewToFront:dimmingView];
