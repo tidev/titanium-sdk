@@ -221,6 +221,7 @@
 
   [ourView setBackgroundColor:chosenColor];
   [[ourView superview] setBackgroundColor:chosenColor];
+  [[UIApplication sharedApplication] keyWindow].backgroundColor = chosenColor;
   if (bgImage != nil) {
     [[ourView layer] setContents:(id)bgImage.CGImage];
   } else {
