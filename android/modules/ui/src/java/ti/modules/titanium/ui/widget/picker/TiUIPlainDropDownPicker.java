@@ -322,9 +322,12 @@ public class TiUIPlainDropDownPicker extends TiUIPlainPicker
 			// Update text color if configured.
 			PickerRowProxy rowProxy = this.getItem(position).getRowProxy();
 			if ((rowProxy != null) && rowProxy.hasProperty(TiC.PROPERTY_COLOR)) {
-				String colorString = TiConvert.toString(rowProxy.getProperty(TiC.PROPERTY_COLOR));
-				int color = (colorString != null) ? TiConvert.toColor(colorString) : this.defaultTextColor;
-				textView.setTextColor(color);
+				Object color = rowProxy.getProperty(TiC.PROPERTY_COLOR);
+				if (color == null) {
+					textView.setTextColor(this.defaultTextColor);
+				} else {
+					textView.setTextColor(TiConvert.toColor(rowProxy.getColor(), rowProxy.getActivity()));
+				}
 			}
 		}
 	}

@@ -685,6 +685,16 @@ properties:
     since: 7.5.0
     platforms: [android]
 
+  - name: fixedSize
+    summary: Sets fixedSize mode on Android ListViews.
+    description: |
+        Set it to `true` if all ListItems have the same size to gain some performance.
+    type: Boolean
+    default: false
+    availability: creation
+    since: 10.2.0
+    platforms: [android]
+
   - name: allowsSelectionDuringEditing
     summary: Determines whether this list view items can be selected while editing the table.
     type: Boolean
