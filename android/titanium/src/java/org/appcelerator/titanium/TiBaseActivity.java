@@ -1619,6 +1619,10 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 			activityProxy = null;
 		}
 
+		if (baseContext != null) {
+			baseContext = null;
+		}
+
 		// Remove this activity from the app-wide Titanium UI stack.
 		TiApplication.removeFromActivityStack(this);
 
