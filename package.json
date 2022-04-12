@@ -151,7 +151,7 @@
     "ssri": "^8.0.1",
     "stream-splitter": "^0.3.2",
     "strip-ansi": "^6.0.0",
-    "titanium": "^5.3.2",
+    "titanium": "^5.4.1",
     "titanium-docgen": "^4.10.3"
   },
   "repository": {
