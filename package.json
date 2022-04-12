@@ -148,7 +148,7 @@
     "nyc": "^15.1.0",
     "request-promise-native": "^1.0.9",
     "rollup": "^2.58.0",
-    "ssri": "^8.0.1",
+    "ssri": "^9.0.0",
     "stream-splitter": "^0.3.2",
     "strip-ansi": "^6.0.0",
     "titanium": "^5.4.1",
