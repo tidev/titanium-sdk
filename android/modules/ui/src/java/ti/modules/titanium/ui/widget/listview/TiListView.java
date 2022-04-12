@@ -267,6 +267,9 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 		final boolean allowsMultipleSelection
 			= properties.optBoolean(TiC.PROPERTY_ALLOWS_MULTIPLE_SELECTION_DURING_EDITING, false);
 
+		if (properties.optBoolean(TiC.PROPERTY_FIXED_SIZE, false)) {
+			this.recyclerView.setHasFixedSize(true);
+		}
 		if (editing && allowsSelection) {
 			if (allowsMultipleSelection) {
 				this.tracker = trackerBuilder.withSelectionPredicate(SelectionPredicates.createSelectAnything())
