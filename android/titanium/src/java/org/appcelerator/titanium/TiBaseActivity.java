@@ -1857,7 +1857,7 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 		}
 	}
 
-	public Context getAppContext()
+	public Context getInitialBaseContext()
 	{
 		return baseContext;
 	}
