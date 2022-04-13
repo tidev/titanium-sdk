@@ -99,7 +99,7 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 	private Intent launchIntent = null;
 	private TiActionBarStyleHandler actionBarStyleHandler;
 	private TiActivitySafeAreaMonitor safeAreaMonitor;
-	public Context baseContext;
+	private Context baseContext;
 	/**
 	 * Callback to be invoked when the TiBaseActivity.onRequestPermissionsResult() has been called,
 	 * providing the results of a requestPermissions() call. Instances of this interface are to
@@ -1855,5 +1855,10 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 		if (this.safeAreaMonitor != null) {
 			this.safeAreaMonitor.removeInsetsProvider(provider);
 		}
+	}
+
+	public Context getBaseContext()
+	{
+		return baseContext;
 	}
 }
