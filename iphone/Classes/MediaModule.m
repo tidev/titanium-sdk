@@ -2175,7 +2175,7 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
 - (void)mediaPicker:(MPMediaPickerController *)mediaPicker_ didPickMediaItems:(MPMediaItemCollection *)collection
 {
   if (autoHidePicker) {
-    [self closeModalPicker:musicPicker];
+    [self closeModalPicker:mediaPicker_];
   }
 
   TiMediaItem *representative = [[[TiMediaItem alloc] _initWithPageContext:[self pageContext] item:[collection representativeItem]] autorelease];
@@ -2197,7 +2197,7 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
 
 - (void)mediaPickerDidCancel:(MPMediaPickerController *)mediaPicker_
 {
-  [self closeModalPicker:musicPicker];
+  [self closeModalPicker:mediaPicker_];
   [self sendPickerCancel];
 }
 #endif
