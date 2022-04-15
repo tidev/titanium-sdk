@@ -50,7 +50,7 @@
   BOOL saveToRoll;
 
 // Music picker
-#ifdef USE_TI_MEDIAOPENMUSICLIBRARY
+#if defined(USE_TI_MEDIAOPENMUSICLIBRARY) || defined(USE_TI_MEDIAQUERYMUSICLIBRARY)
   MPMediaPickerController *musicPicker;
 #endif
 
