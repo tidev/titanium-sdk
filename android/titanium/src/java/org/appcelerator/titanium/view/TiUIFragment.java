@@ -53,10 +53,11 @@ public abstract class TiUIFragment extends TiUIView implements Handler.Callback
 						transactionCommitted = true;
 						FragmentManager manager = ((FragmentActivity) getContext()).getSupportFragmentManager();
 						FragmentTransaction transaction = manager.beginTransaction();
+						transaction.setReorderingAllowed(true);
 						transaction.runOnCommit(onCommitRunnable);
 						fragment = createFragment();
 						transaction.add(getId(), fragment);
-						transaction.commitAllowingStateLoss();
+						transaction.commitNowAllowingStateLoss();
 					}
 				}
 			};
@@ -155,7 +156,7 @@ public abstract class TiUIFragment extends TiUIView implements Handler.Callback
 					transaction = fragmentManager.beginTransaction();
 				}
 				transaction.remove(fragment);
-				transaction.commit();
+				transaction.commitNowAllowingStateLoss();
 			}
 		}
 		super.release();
