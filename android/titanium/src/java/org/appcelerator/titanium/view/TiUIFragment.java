@@ -24,7 +24,7 @@ public abstract class TiUIFragment extends TiUIView implements Handler.Callback
 	private boolean fragmentCommitted = false;
 	protected boolean fragmentOnly = false;
 	private ArrayList<TiUIView> childrenToRealize = new ArrayList<>();
-	FragmentManager manager;
+	FragmentManager manager = null;
 
 	public TiUIFragment(TiViewProxy proxy, Activity activity)
 	{
@@ -50,10 +50,17 @@ public abstract class TiUIFragment extends TiUIView implements Handler.Callback
 				@Override
 				protected void onDetachedFromWindow()
 				{
-					super.onDetachedFromWindow();
 					if (manager != null && !manager.isDestroyed()) {
 						removeMyFragments();
 						manager.executePendingTransactions();
+					}
+
+					super.onDetachedFromWindow();
+					transactionCommitted = false;
+
+					int size = getChildCount();
+					for (int i = size - 1; i >= 0; i--) {
+						removeViewAt(i);
 					}
 				}
 
@@ -61,26 +68,24 @@ public abstract class TiUIFragment extends TiUIView implements Handler.Callback
 				protected void onAttachedToWindow()
 				{
 					super.onAttachedToWindow();
-					if (!transactionCommitted) {
-						transactionCommitted = true;
-						manager = ((FragmentActivity) getContext()).getSupportFragmentManager();
+					if (manager != null) {
 						FragmentTransaction transaction = manager.beginTransaction();
 						transaction.setReorderingAllowed(true);
-						transaction.runOnCommit(onCommitRunnable);
 						fragment = createFragment();
 						transaction.add(getId(), fragment);
-						transaction.commitNowAllowingStateLoss();
+						transaction.commitAllowingStateLoss();
 					}
 				}
 			};
 			container.setId(View.generateViewId());
 			setNativeView(container);
+
+			if (manager == null) {
+				manager = ((FragmentActivity) activity).getSupportFragmentManager();
+			}
 		}
 	}
 
-	/**
-	 * Removes fragments from fragment manager that are attached to this container
-	 */
 	private void removeMyFragments()
 	{
 		FragmentTransaction transaction = manager.beginTransaction();
