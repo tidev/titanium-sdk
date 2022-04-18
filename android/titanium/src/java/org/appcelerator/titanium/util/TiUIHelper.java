@@ -608,16 +608,30 @@ public class TiUIHelper
 	public static Drawable buildBackgroundDrawable(String color, String image, boolean tileImage,
 												   Drawable gradientDrawable)
 	{
+		Log.w(TAG, "Calling .buildBackgroundDrawable() without Context parameter is deprecated");
+		return buildBackgroundDrawable(color, image, tileImage, gradientDrawable, null);
+	}
+
+	public static Drawable buildBackgroundDrawable(String color, String image, boolean tileImage,
+												   Drawable gradientDrawable, Context context)
+	{
 		Drawable imageDrawable = null;
 		if (image != null) {
 			TiFileHelper tfh = TiFileHelper.getInstance();
 			imageDrawable = tfh.loadDrawable(image, false, true, false);
 		}
-		return buildBackgroundDrawable(color, imageDrawable, tileImage, gradientDrawable);
+		return buildBackgroundDrawable(color, imageDrawable, tileImage, gradientDrawable, context);
 	}
 
 	public static Drawable buildBackgroundDrawable(String color, Drawable imageDrawable, boolean tileImage,
 												   Drawable gradientDrawable)
+	{
+		Log.w(TAG, "Calling .buildBackgroundDrawable() without Context parameter is deprecated");
+		return buildBackgroundDrawable(color, imageDrawable, tileImage, gradientDrawable, null);
+	}
+
+	public static Drawable buildBackgroundDrawable(String color, Drawable imageDrawable, boolean tileImage,
+												   Drawable gradientDrawable, Context context)
 	{
 		// Create an array of the layers that will compose this background.
 		// Note that the order in which the layers is important to get the
@@ -625,7 +639,7 @@ public class TiUIHelper
 		ArrayList<Drawable> layers = new ArrayList<>(3);
 
 		if (color != null) {
-			Drawable colorDrawable = new ColorDrawable(TiColorHelper.parseColor(color));
+			Drawable colorDrawable = new ColorDrawable(TiColorHelper.parseColor(color, context));
 			layers.add(colorDrawable);
 		}
 
@@ -671,6 +685,17 @@ public class TiUIHelper
 															String disabledImage, String disabledColor,
 															String focusedImage, String focusedColor,
 															Drawable gradientDrawable)
+	{
+		Log.w(TAG, "Calling .buildBackgroundDrawable() without Context parameter is deprecated");
+		return buildBackgroundDrawable(image, tileImage, color, selectedImage, selectedColor, disabledImage,
+			disabledColor, focusedImage, focusedColor, gradientDrawable, null);
+	}
+
+	public static StateListDrawable buildBackgroundDrawable(String image, boolean tileImage, String color,
+															String selectedImage, String selectedColor,
+															String disabledImage, String disabledColor,
+															String focusedImage, String focusedColor,
+															Drawable gradientDrawable, Context context)
 	{
 		// Anonymous class used by this method to load image drawables.
 		// Supports drawable caching to prevent the same image file from being decoded twice.
@@ -731,21 +756,21 @@ public class TiUIHelper
 		// Create the layered drawable objects for the the UI object's different states.
 		StateListDrawable sld = new StateListDrawable();
 		Drawable bgSelectedDrawable =
-			buildBackgroundDrawable(selectedColor, selectedImageDrawable, tileImage, gradientDrawable);
+			buildBackgroundDrawable(selectedColor, selectedImageDrawable, tileImage, gradientDrawable, context);
 		if (bgSelectedDrawable != null) {
 			sld.addState(BACKGROUND_SELECTED_STATE, bgSelectedDrawable);
 		}
 		Drawable bgFocusedDrawable =
-			buildBackgroundDrawable(focusedColor, focusedImageDrawable, tileImage, gradientDrawable);
+			buildBackgroundDrawable(focusedColor, focusedImageDrawable, tileImage, gradientDrawable, context);
 		if (bgFocusedDrawable != null) {
 			sld.addState(BACKGROUND_FOCUSED_STATE, bgFocusedDrawable);
 		}
 		Drawable bgDisabledDrawable =
-			buildBackgroundDrawable(disabledColor, disabledImageDrawable, tileImage, gradientDrawable);
+			buildBackgroundDrawable(disabledColor, disabledImageDrawable, tileImage, gradientDrawable, context);
 		if (bgDisabledDrawable != null) {
 			sld.addState(BACKGROUND_DISABLED_STATE, bgDisabledDrawable);
 		}
-		Drawable bgDrawable = buildBackgroundDrawable(color, mainImageDrawable, tileImage, gradientDrawable);
+		Drawable bgDrawable = buildBackgroundDrawable(color, mainImageDrawable, tileImage, gradientDrawable, context);
 		if (bgDrawable != null) {
 			sld.addState(BACKGROUND_DEFAULT_STATE_1, bgDrawable);
 			sld.addState(BACKGROUND_DEFAULT_STATE_2, bgDrawable);
@@ -1032,7 +1057,11 @@ public class TiUIHelper
 
 	public static Drawable getResourceDrawable(int res_id)
 	{
-		return TiApplication.getInstance().getResources().getDrawable(res_id);
+		Context context = TiApplication.getAppCurrentActivity();
+		if (context == null) {
+			context = TiApplication.getInstance();
+		}
+		return context.getResources().getDrawable(res_id, context.getTheme());
 	}
 
 	public static Drawable getResourceDrawable(Object path)

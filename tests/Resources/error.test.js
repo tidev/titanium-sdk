@@ -19,23 +19,27 @@ describe('Error', function () {
 			Ti.API.info(e.test.crash);
 			should.fail('Expected to throw exception');
 		} catch (ex) {
-			ex.should.have.property('message').which.is.a.String();
+			should(ex).have.property('message').which.is.a.String();
 			if (utilities.isAndroid()) {
-				ex.message.should.equal('Cannot read property \'crash\' of undefined');
+				should(ex.message).be.equalOneOf([
+					'Cannot read property \'crash\' of undefined',
+					'Cannot read properties of undefined (reading \'crash\')'
+				]);
 			} else {
-				ex.message.should.equal('undefined is not an object (evaluating \'e.test.crash\')');
+				should(ex.message).equal('undefined is not an object (evaluating \'e.test.crash\')');
 			}
 
 			// has typical stack property
-			ex.should.have.property('stack').which.is.a.String();
+			should(ex).have.property('stack').which.is.a.String();
 			if (utilities.isAndroid()) {
-				ex.stack.should.containEql('TypeError: Cannot read property \'crash\' of undefined');
+				should(ex.stack.includes('TypeError: Cannot read properties of undefined (reading \'crash\')')
+					|| ex.stack.includes('TypeError: Cannot read property \'crash\' of undefined')).be.true();
 			}
 			// FIXME We should attempt to format the iOS stack to look/feel similar to Android/Node if possible.
 
 			// iOS Has just the stacktrace without a preceding message/type. Also has 'column', 'line', 'sourceURL'
 			// does not have java stack trace
-			ex.should.not.have.property('nativeStack');
+			should(ex).not.have.property('nativeStack');
 		}
 	});
 

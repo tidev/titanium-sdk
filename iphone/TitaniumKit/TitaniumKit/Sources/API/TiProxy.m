@@ -636,7 +636,6 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void *payload)
     }
     KrollObject *krollObject = [rememberedProxy krollObjectForBridge:(KrollBridge *)pageContext];
     [pageKrollObject noteKeylessKrollObject:krollObject];
-    [krollObject removeGarbageCollectionSafeguard];
     return;
   }
   if (bridgeCount < 1) {
@@ -657,7 +656,6 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void *payload)
     }
     KrollObject *krollObject = [thisBridge krollObjectForProxy:rememberedProxy];
     [[thisBridge krollObjectForProxy:self] noteKeylessKrollObject:krollObject];
-    [krollObject removeGarbageCollectionSafeguard];
   }
 }
 

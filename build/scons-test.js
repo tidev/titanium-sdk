@@ -9,6 +9,7 @@ program
 	.option('-v, --sdk-version [version]', 'Override the SDK version we report', process.env.PRODUCT_VERSION || version)
 	.option('-D, --deploy-type <type>', 'Override the deploy type used to build the project', /^(development|test)$/)
 	.option('-F, --device-family <value>', 'Override the device family used to build the project', /^(iphone|ipad)$/)
+	.option('-J --junit-prefix <value>', 'A prefix to add to junit tests to help distinguish them. Useful if targeting same platform and target', '')
 	.parse(process.argv);
 
 async function main(program) {

@@ -223,13 +223,15 @@ public class TiUITableView extends TiUIView
 				? TiConvert.toTiDimension(heightString, TiDimension.TYPE_HEIGHT)
 					.getAsPixels((View) getNativeView().getParent()) : 0;
 
-			if (name.equals(TiC.PROPERTY_SEPARATOR_COLOR)
-				|| properties.containsKey(TiC.PROPERTY_SEPARATOR_COLOR)) {
-				String colorString = properties.getString(TiC.PROPERTY_SEPARATOR_COLOR);
+			boolean hasColor = name.equals(TiC.PROPERTY_SEPARATOR_COLOR) && value != null;
+			if (hasColor || properties.containsKey(TiC.PROPERTY_SEPARATOR_COLOR)) {
+				String colorString;
 				if (name.equals(TiC.PROPERTY_SEPARATOR_COLOR)) {
 					colorString = TiConvert.toString(value);
+				} else {
+					colorString = properties.getString(TiC.PROPERTY_SEPARATOR_COLOR);
 				}
-				final int color = TiConvert.toColor(colorString);
+				final int color = TiConvert.toColor(colorString, proxy.getActivity());
 
 				// Set separator with specified color.
 				this.tableView.setSeparator(color, height);
@@ -250,7 +252,7 @@ public class TiUITableView extends TiUIView
 			|| name.equals(TiC.PROPERTY_FOOTER_TITLE)
 			|| name.equals(TiC.PROPERTY_FOOTER_VIEW)
 			|| name.equals(TiC.PROPERTY_BACKGROUND_COLOR)) {
-			this.tableView.update();
+			this.tableView.update(true);
 		}
 	}
 
@@ -284,7 +286,7 @@ public class TiUITableView extends TiUIView
 			|| key.equals(TiC.PROPERTY_TOUCH_FEEDBACK_COLOR)) {
 
 			// Update table items.
-			this.tableView.update();
+			this.tableView.update(true);
 
 			// Return to prevent property being handled by TiUIView.
 			return;

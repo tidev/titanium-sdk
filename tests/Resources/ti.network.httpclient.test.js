@@ -96,7 +96,7 @@ describe('Titanium.Network.HTTPClient', function () {
 		xhr.onload = () => finish();
 
 		xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
-		xhr.open('POST', 'http://www.appcelerator.com/');
+		xhr.open('POST', 'https://httpbin.org/post');
 		xhr.send('TIMOB-23127');
 	});
 
@@ -107,7 +107,7 @@ describe('Titanium.Network.HTTPClient', function () {
 		xhr.onload = () => finish();
 
 		xhr.setRequestHeader('Content-Type', 'application/json');
-		xhr.open('GET', 'http://www.appcelerator.com/');
+		xhr.open('GET', 'https://www.google.com/');
 		xhr.send();
 	});
 
@@ -186,11 +186,11 @@ describe('Titanium.Network.HTTPClient', function () {
 		xhr.onload = e => {
 			try {
 				const responseHeaders = e.source.responseHeaders;
-
-				if (responseHeaders['Content-Type']
-					&& responseHeaders['Content-Type'].startsWith('text/html')) {
-					finish();
+				if (responseHeaders['freeform']
+					&& responseHeaders['freeform'] === 'titanium=awesome') {
+					return finish();
 				}
+				return finish(new Error('Expected header was not present'));
 			} catch (err) {
 				return finish(err);
 			}
@@ -206,7 +206,7 @@ describe('Titanium.Network.HTTPClient', function () {
 				finish(new Error('failed to retrieve headers: ' + e));
 			}
 		};
-		xhr.open('GET', 'https://www.axway.com');
+		xhr.open('GET', 'https://httpbin.org/response-headers?freeform=titanium%3Dawesome');
 		xhr.send();
 	});
 
@@ -222,7 +222,7 @@ describe('Titanium.Network.HTTPClient', function () {
 		});
 		xhr.onload = function () {
 			try {
-				const allHeaders = xhr.getAllResponseHeaders();
+				const allHeaders = xhr.allResponseHeaders;
 				should(allHeaders.toLowerCase().indexOf('server:')).be.within(0, 1 / 0);
 				const header = xhr.getResponseHeader('Server');
 				should(header.length).be.greaterThan(0);
@@ -242,7 +242,7 @@ describe('Titanium.Network.HTTPClient', function () {
 				finish(new Error('failed to retrieve headers: ' + e)); // Failing on Windows here, likely need to update test!
 			}
 		};
-		xhr.open('GET', 'http://www.appcelerator.com'); // FIXME Update URL!
+		xhr.open('GET', 'http://www.google.com');
 		xhr.send();
 	});
 
@@ -821,7 +821,7 @@ describe('Titanium.Network.HTTPClient', function () {
 			finish();
 		};
 
-		xhr.open('GET', 'https://www.axway.com');
+		xhr.open('GET', 'https://www.google.com');
 		xhr.send();
 	});
 });

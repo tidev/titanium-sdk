@@ -331,6 +331,22 @@ DEFINE_EXCEPTIONS
   return self;
 }
 
+- (void)traitCollectionDidChange:(UITraitCollection *)previousTraitCollection
+{
+  [super traitCollectionDidChange:previousTraitCollection];
+
+  // Redraw the border- and view shadow color since they're using CGColor references
+  id borderColor = [self.proxy valueForKey:@"borderColor"];
+  if (borderColor != nil) {
+    [self setBorderColor_:borderColor];
+  }
+
+  id viewShadowColor = [self.proxy valueForKey:@"viewShadowColor"];
+  if (viewShadowColor != nil) {
+    [self setViewShadowColor_:viewShadowColor];
+  }
+}
+
 #pragma mark - Accessibility API
 
 - (void)setAccessibilityLabel_:(id)accessibilityLabel
@@ -930,7 +946,7 @@ DEFINE_EXCEPTIONS
 
 /**
  This section of code for shadow support adapted from contributions by Martin Guillon
- See https://github.com/appcelerator/titanium_mobile/pull/2996
+ See https://github.com/tidev/titanium_mobile/pull/2996
  */
 - (void)assignShadowPropertyFromLayer:(CALayer *)fromLayer toLayer:(CALayer *)toLayer
 {

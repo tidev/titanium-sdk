@@ -6,6 +6,7 @@
  */
 package ti.modules.titanium.ui.widget;
 
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
@@ -79,7 +80,8 @@ public class TiUITabbedBar extends TiUIView implements MenuItem.OnMenuItemClickL
 
 	private void createTabLayout()
 	{
-		this.tabLayout = new TabLayout(getProxy().getActivity()) {
+		Activity activity = getProxy().getActivity();
+		this.tabLayout = new TabLayout(activity) {
 			@Override
 			protected void onLayout(boolean changed, int l, int t, int r, int b)
 			{
@@ -92,7 +94,8 @@ public class TiUITabbedBar extends TiUIView implements MenuItem.OnMenuItemClickL
 		// For now use the proxy's selectedBackgroundColor for selected indicator
 		if (getProxy().hasPropertyAndNotNull(TiC.PROPERTY_SELECTED_BACKGROUND_COLOR)) {
 			this.tabLayout.setSelectedTabIndicatorColor(
-				TiColorHelper.parseColor(getProxy().getProperty(TiC.PROPERTY_SELECTED_BACKGROUND_COLOR).toString()));
+				TiColorHelper.parseColor(
+					getProxy().getProperty(TiC.PROPERTY_SELECTED_BACKGROUND_COLOR).toString(), activity));
 		}
 
 		// Set up the touch ripple effect to show primary color for both selected and unselected tabs.

@@ -4,292 +4,85 @@ on:
     branches:
     - master
     - "[0-9]+_[0-9]+_X"
+    - actions_tests
   pull_request:
 
 jobs:
   android:
-    # Use Ubuntu 18.04 as later versions do not maintain i386 repositories.
-    # This is required to run 32-bit mksnapshot binaries for snapshot generation. 
     runs-on: ubuntu-18.04
-    name: Android
     env:
       CCACHE_DIR: ${{ github.workspace }}/.ccache
       USE_CCACHE: 1
     steps:
-    - uses: actions/checkout@v2
-
-    - name: Dependencies including 32-bit support
-      run: |
-        sudo dpkg --add-architecture i386
-        sudo apt-get update -y -qq
-        sudo apt-get install -y -qq gperf libc6:i386 libncurses5:i386 libstdc++6:i386
-
-    - name: Use Node.js 12.x
-      uses: actions/setup-node@v1
-      with:
-        node-version: '12.x'
-
-    - name: Use JDK 11
-      uses: actions/setup-java@v2
-      with:
-        distribution: 'adopt'
-        java-version: '11'
-
-    - name: Cache Node.js modules
-      id: node-cache
-      uses: actions/cache@v2
-      with:
-        path: node_modules
-        key: ${{ runner.OS }}-node-modules-${{ hashFiles('package-lock.json') }}
-        restore-keys: |
-          ${{ runner.OS }}-node-modules-
-          ${{ runner.OS }}-
-
-    - run: npm ci
-      name: Install dependencies
-      if: steps.node-cache.outputs.cache-hit != 'true'
-
-    - name: Cache Gradle packages
-      uses: actions/cache@v2
-      with:
-        path: |
-          ~/.gradle/caches
-          ~/.gradle/wrapper
-        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-        restore-keys: |
-          ${{ runner.os }}-gradle-
-
-    - run: npm run lint:android
-      name: Lint
-
-    - name: Install ccache
-      run: brew install ccache
-
-    - name: Retrieve ccache
-      uses: actions/cache@v2
-      with:
-        path: ${{ env.CCACHE_DIR }}
-        key: ${{ runner.os }}-ccache-${{ github.sha }}
-        restore-keys: |
-          ${{ runner.os }}-ccache-
-
-    - name: Cache V8
-      uses: actions/cache@v2
-      with:
-        path: dist/android/libv8
-        key: libv8-${{ hashFiles('dist/android/libv8/**') }}
-        restore-keys: |
-          libv8-
-
-    - run: npm run build:android
-      name: Build
-
-    - name: Show summary of ccache configuration and statistics counters
-      run: ccache --show-stats
-
-    - name: 'Package build output'
-      run: >
-        tar -czvf android-build.tar.gz
-        android/kroll-apt/build/libs/kroll-apt.jar
-        android/runtime/v8/generated/
-        android/titanium/build/outputs/
-        dist/android/libv8/
-        dist/android/titanium.bindings.json
-        dist/tmp/common
-
-    - uses: actions/upload-artifact@v2
-      with:
-        name: android-build
-        retention-days: 1
-        path: android-build.tar.gz
-
-    - name: Cleanup Gradle Cache
-      # Remove some files from the Gradle cache, so they aren't cached by GitHub Actions.
-      # Restoring these files from a GitHub Actions cache might cause problems for future builds.
-      run: |
-        rm -f ~/.gradle/caches/modules-2/modules-2.lock
-        rm -f ~/.gradle/caches/modules-2/gc.properties
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Android build
+        uses: ./.github/actions/build-android
+        with:
+          node-version: '16.x'
+          java-version: '11'
 
   ios:
-    runs-on: macos-latest
+    runs-on: macos-11
     name: iOS
     env:
       CCACHE_DIR: ${{ github.workspace }}/.ccache
       USE_CCACHE: 1
+      DEVELOPER_DIR: /Applications/Xcode_13.2.1.app/Contents/Developer
     steps:
-    - uses: actions/checkout@v2
-
-    - name: Use Node.js 12.x
-      uses: actions/setup-node@v1
-      with:
-        node-version: '12.x'
-
-    - name: Cache Node.js modules
-      id: node-cache
-      uses: actions/cache@v2
-      with:
-        path: node_modules
-        key: ${{ runner.OS }}-node-modules-${{ hashFiles('package-lock.json') }}
-        restore-keys: |
-          ${{ runner.OS }}-node-modules-
-          ${{ runner.OS }}-
-
-    - run: npm ci
-      name: Install dependencies
-      if: steps.node-cache.outputs.cache-hit != 'true'
-
-    - run: npm run lint:ios
-      name: Lint
-
-    - run: npm run build:ios
-      name: Build
-
-    - name: 'Package build output'
-      run: >
-        tar -czvf ios-build.tar.gz
-        dist/tmp/common
-        iphone/TitaniumKit/build/TitaniumKit.xcframework
-
-    - uses: actions/upload-artifact@v2
-      with:
-        name: ios-build
-        retention-days: 1
-        path: ios-build.tar.gz
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: iOS build
+        uses: ./.github/actions/build-ios
+        with:
+          node-version: '16.x'
 
   js:
     runs-on: ubuntu-latest
     name: JavaScript
     steps:
-    - uses: actions/checkout@v2
+    - name: Checkout repository
+      uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
 
     - name: Use Node.js 12.x
-      uses: actions/setup-node@v1
+      uses: actions/setup-node@v2
       with:
-        node-version: '12.x'
+        node-version: '16.x'
+        cache: 'npm'
 
-    - name: Cache Node.js modules
-      id: node-cache
-      uses: actions/cache@v2
-      with:
-        path: node_modules
-        key: ${{ runner.OS }}-node-modules-${{ hashFiles('package-lock.json') }}
-        restore-keys: |
-          ${{ runner.OS }}-node-modules-
-          ${{ runner.OS }}-
+    - name: Install dependencies
+      run: npm ci
 
-    - run: npm ci
-      name: Install dependencies
-      if: steps.node-cache.outputs.cache-hit != 'true'
-
-    - run: npm run lint:js
-      name: Lint
+    - name: Lint
+      run: npm run lint:js
   
   package:
-    runs-on: macos-latest
+    runs-on: macos-11
     name: Package
     env:
       SDK_BUILD_CACHE_DIR: ${{ github.workspace }}/.native-modules
+      DEVELOPER_DIR: /Applications/Xcode_13.2.1.app/Contents/Developer
     needs: [android, ios, js]
     steps:
-    - uses: actions/checkout@v2
-
+    - name: Checkout repository
+      uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
     - name: Create version tag
       run: |
         PACKAGE_VERSION=$(sed -n 's/^ *"version": *"//p' package.json | tr -d '"' | tr -d ',' | tr -d '[[:space:]]')
         TIMESTAMP=`date +'%Y%m%d%H%M%S'`
         VTAG="${PACKAGE_VERSION}.v${TIMESTAMP}"
         echo "vtag=${VTAG}" >> $GITHUB_ENV
-
-    - name: Use Node.js 12.x
-      uses: actions/setup-node@v1
+    - name: Package
+      uses: ./.github/actions/package
       with:
-        node-version: '12.x'
-
-    - name: Use JDK 11
-      uses: actions/setup-java@v2
-      with:
-        distribution: 'adopt'
+        node-version: '16.x'
         java-version: '11'
-
-    - name: Cache Node.js modules
-      id: node-cache
-      uses: actions/cache@v2
-      with:
-        path: node_modules
-        key: ${{ runner.OS }}-node-modules-${{ hashFiles('package-lock.json') }}
-        restore-keys: |
-          ${{ runner.OS }}-node-modules-
-          ${{ runner.OS }}-
-
-    - run: npm ci
-      name: Install dependencies
-      if: steps.node-cache.outputs.cache-hit != 'true'
-
-    - name: Cache Gradle packages
-      uses: actions/cache@v2
-      with:
-        path: |
-          ~/.gradle/caches
-          ~/.gradle/wrapper
-        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-        restore-keys: |
-          ${{ runner.os }}-gradle-
-
-    - uses: actions/download-artifact@v2
-      with:
-        name: android-build
-
-    - name: 'Extract Android build output'
-      run: tar -xzvf android-build.tar.gz
-
-    - uses: actions/download-artifact@v2
-      with:
-        name: ios-build
-
-    - name: 'Extract iOS build output'
-      run: tar -xzvf ios-build.tar.gz
-
-    - name: Cache Native Modules
-      uses: actions/cache@v2
-      with:
-        path: ${{ env.SDK_BUILD_CACHE_DIR }}
-        key: native-modules-${{ github.sha }}
-        restore-keys: |
-          native-modules-
-
-    - run: npm run package -- --version-tag ${{ env.vtag }} --all
-      name: Package
-
-    - name: Archive OSX artifact
-      uses: actions/upload-artifact@v2
-      with:
-        name: mobilesdk-${{ env.vtag }}-osx
-        path: |
-          dist/mobilesdk-*-osx.zip
-
-    - name: Archive win32 artifact
-      uses: actions/upload-artifact@v2
-      with:
-        name: mobilesdk-${{ env.vtag }}-win32
-        path: |
-          dist/mobilesdk-*-win32.zip
-
-    # - name: Archive Linux artifact
-    #   uses: actions/upload-artifact@v2
-    #   with:
-    #     name: mobilesdk-linux.zip
-    #     path: |
-    #       dist/mobilesdk-*-linux.zip
-
-    - name: Cleanup Gradle Cache
-      # Remove some files from the Gradle cache, so they aren't cached by GitHub Actions.
-      # Restoring these files from a GitHub Actions cache might cause problems for future builds.
-      run: |
-        rm -f ~/.gradle/caches/modules-2/modules-2.lock
-        rm -f ~/.gradle/caches/modules-2/gc.properties
-
-    - uses: geekyeggo/delete-artifact@v1
-      with:
-        name: |
-          android-build
-          ios-build
+        vtag: ${{ env.vtag }}

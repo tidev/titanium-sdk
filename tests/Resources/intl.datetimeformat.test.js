@@ -5,7 +5,7 @@
  * Please see the LICENSE included with this distribution for details.
  */
 /* eslint-env mocha */
-/* globals OS_ANDROID, OS_VERSION_MAJOR */
+/* globals OS_ANDROID, OS_IOS, OS_VERSION_MAJOR */
 
 /* eslint no-unused-expressions: "off" */
 'use strict';
@@ -193,7 +193,7 @@ describe('Intl.DateTimeFormat',  () => {
 			should(partsArray[index++]).be.eql({ type: 'minute', value: '15' });
 			should(partsArray[index++]).be.eql({ type: 'literal', value: ':' });
 			should(partsArray[index++]).be.eql({ type: 'second', value: '30' });
-			if (OS_ANDROID || (utilities.isMacOS() && OS_VERSION_MAJOR >= 11)) {
+			if (OS_ANDROID || (utilities.isMacOS() && OS_VERSION_MAJOR >= 11) || (OS_IOS && OS_VERSION_MAJOR >= 15)) {
 				should(partsArray[index++]).be.eql({ type: 'literal', value: '.' });
 				should(partsArray[index++]).be.eql({ type: 'fractionalSecond', value: '123' });
 			}

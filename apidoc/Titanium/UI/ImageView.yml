@@ -144,10 +144,10 @@ properties:
     platforms: [android, iphone, ipad, macos]
 
   - name: decodeRetries
-    summary: |
-        Number of times to retry decoding the bitmap at a URL.
+    summary: Number of times to retry decoding the bitmap at a URL.
+    description: Defaults to 2 on Titanium 10.1.0 and higher. Defaults to 5 on older SDK versions.
     type: Number
-    default: 5
+    default: 2
     platforms: [android]
     since: "1.7.0"
 

@@ -44,7 +44,7 @@ import ti.modules.titanium.ui.TableViewSectionProxy;
 import ti.modules.titanium.ui.widget.TiUITableView;
 import ti.modules.titanium.ui.widget.listview.TiRecyclerViewHolder;
 
-public class TableViewHolder extends TiRecyclerViewHolder
+public class TableViewHolder extends TiRecyclerViewHolder<TableViewRowProxy>
 {
 	private static final String TAG = "TableViewHolder";
 
@@ -160,6 +160,7 @@ public class TableViewHolder extends TiRecyclerViewHolder
 			proxy.releaseViews();
 			proxy.setActivity((Activity) context);
 		}
+		final Activity activity = proxy.getActivity();
 
 		// Obtain row view.
 		final TableViewRowProxy.RowView rowView = (TableViewRowProxy.RowView) proxy.getOrCreateView();
@@ -198,7 +199,7 @@ public class TableViewHolder extends TiRecyclerViewHolder
 			// Set title color.
 			int titleColor = 0;
 			if (properties.containsKeyAndNotNull(TiC.PROPERTY_COLOR)) {
-				final int color = TiConvert.toColor(properties.getString(TiC.PROPERTY_COLOR));
+				final int color = TiConvert.toColor(properties, TiC.PROPERTY_COLOR, proxy.getActivity());
 
 				if (color != Color.TRANSPARENT) {
 
@@ -210,8 +211,8 @@ public class TableViewHolder extends TiRecyclerViewHolder
 
 				// Determine title color based on background.
 				final int tableBackgroundColor =
-					TiConvert.toColor(tableViewProxy.getProperties(), TiC.PROPERTY_BACKGROUND_COLOR);
-				final int rowBackgroundColor = TiConvert.toColor(properties, TiC.PROPERTY_BACKGROUND_COLOR);
+					TiConvert.toColor(tableViewProxy.getProperties(), TiC.PROPERTY_BACKGROUND_COLOR, activity);
+				final int rowBackgroundColor = TiConvert.toColor(properties, TiC.PROPERTY_BACKGROUND_COLOR, activity);
 				final int backgroundColor = rowBackgroundColor != Color.TRANSPARENT
 					? rowBackgroundColor : tableBackgroundColor;
 				final int defaultTitleColor = backgroundColor < (Color.BLACK / 2) ? Color.WHITE : Color.BLACK;
@@ -241,6 +242,22 @@ public class TableViewHolder extends TiRecyclerViewHolder
 					this.leftImage.setVisibility(View.VISIBLE);
 				}
 			}
+
+			// Handle selection, override row left image.
+			if (tableViewProperties.optBoolean(TiC.PROPERTY_SHOW_SELECTION_CHECK, false)
+				&& tableViewProperties.optBoolean(TiC.PROPERTY_EDITING, false)
+				&& tableViewProperties.optBoolean(TiC.PROPERTY_ALLOWS_SELECTION_DURING_EDITING, false)
+				&& tableViewProperties.optBoolean(TiC.PROPERTY_ALLOWS_MULTIPLE_SELECTION_DURING_EDITING, false)
+				&& !proxy.isPlaceholder()) {
+
+				if (selected) {
+					this.leftImage.setImageDrawable(checkcircleDrawable);
+				} else {
+					this.leftImage.setImageDrawable(circleDrawable);
+				}
+				this.leftImage.setVisibility(View.VISIBLE);
+			}
+
 			if (properties.containsKeyAndNotNull(TiC.PROPERTY_RIGHT_IMAGE)) {
 				final String url = properties.getString(TiC.PROPERTY_RIGHT_IMAGE);
 				final Drawable drawable = TiUIHelper.getResourceDrawable((Object) url);

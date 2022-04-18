@@ -91,7 +91,6 @@ NSString *const kTiPausedNotification = @"TiPaused";
 NSString *const kTiResumeNotification = @"TiResume";
 NSString *const kTiResumedNotification = @"TiResumed";
 NSString *const kTiErrorNotification = @"TiError";
-NSString *const kTiAnalyticsNotification = @"TiAnalytics";
 NSString *const kTiRemoteDeviceUUIDNotification = @"TiDeviceUUID";
 NSString *const kTiGestureShakeNotification = @"TiGestureShake";
 NSString *const kTiRemoteControlNotification = @"TiRemoteControl";

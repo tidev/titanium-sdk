@@ -63,9 +63,7 @@
     // don't add the movie more than once if the same
     return;
   }
-  [controller willMoveToParentViewController:nil];
   [[controller view] removeFromSuperview];
-  [controller removeFromParentViewController];
   [spinner removeFromSuperview];
   RELEASE_TO_NIL(spinner);
   RELEASE_TO_NIL(controller);
@@ -75,24 +73,10 @@
   }
   controller = [controller_ retain];
 
-  // Set parent for AVPlayerViewController controller
-  if (!parentController) {
-    id proxy = [(TiViewProxy *)self.proxy parent];
-    while (proxy != nil && ![proxy isKindOfClass:[TiWindowProxy class]]) {
-      proxy = [proxy parent];
-    }
-    if (proxy != nil) {
-      parentController = [[(TiWindowProxy *)proxy windowHoldingController] retain];
-    } else {
-      parentController = [[[TiApp app] controller] retain];
-    }
-  }
-
-  [parentController addChildViewController:controller];
-  [TiUtils setView:[controller view] positionRect:self.bounds];
   [self addSubview:[controller view]];
   [self sendSubviewToBack:[controller view]];
-  [controller didMoveToParentViewController:parentController];
+
+  [TiUtils setView:[controller view] positionRect:self.bounds];
 
   TiColor *bgcolor = [TiUtils colorValue:[self.proxy valueForKey:@"backgroundColor"]];
   UIActivityIndicatorViewStyle style = UIActivityIndicatorViewStyleGray;

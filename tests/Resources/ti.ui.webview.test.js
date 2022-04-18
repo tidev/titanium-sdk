@@ -11,7 +11,7 @@
 const should = require('./utilities/assertions');
 const utilities = require('./utilities/utilities');
 
-describe.androidARM64Broken('Titanium.UI.WebView', function () {
+describe('Titanium.UI.WebView', function () {
 	this.slow(3000);
 	this.timeout(30000);
 
@@ -494,7 +494,7 @@ describe.androidARM64Broken('Titanium.UI.WebView', function () {
 		win = Ti.UI.createWindow();
 		const webView = Ti.UI.createWebView({
 			url: 'https://google.com',
-			blacklistedURLs: [ 'https://google.com' ]
+			blockedURLs: [ 'https://google.com' ]
 		});
 
 		webView.addEventListener('blacklisturl', function () {
@@ -522,7 +522,7 @@ describe.androidARM64Broken('Titanium.UI.WebView', function () {
 	it('blacklistedURLs', (finish) => {
 		win = Ti.UI.createWindow();
 		const webView = Ti.UI.createWebView({
-			url: 'https://www.axway.com',
+			url: 'https://www.github.com',
 			blacklistedURLs: [ 'www.apple.com', 'www.google.com' ]
 		});
 		webView.addEventListener('load', () => {
@@ -535,7 +535,7 @@ describe.androidARM64Broken('Titanium.UI.WebView', function () {
 	it('blockedURLs', (finish) => {
 		win = Ti.UI.createWindow();
 		const webView = Ti.UI.createWebView({
-			url: 'https://www.axway.com',
+			url: 'https://www.github.com',
 			blockedURLs: [ 'www.apple.com', 'www.google.com' ]
 		});
 		webView.addEventListener('load', () => {
@@ -613,8 +613,8 @@ describe.androidARM64Broken('Titanium.UI.WebView', function () {
 		win.open();
 	});
 
-	it.ios('beforeload', (finish) => {
-		const url = 'https://www.appcelerator.com/';
+	it.ios('beforeload should provide the URL that is about to be loaded and handle redirects', (finish) => {
+		const url = 'https://mockbin.org/redirect/301?to=https%3A%2F%2Fgoogle.com';
 		win = Ti.UI.createWindow();
 		const webView = Ti.UI.createWebView({
 			url: url
@@ -678,7 +678,7 @@ describe.androidARM64Broken('Titanium.UI.WebView', function () {
 	it('requestHeaders with redirecting url should work properly', function (finish) {
 		win = Ti.UI.createWindow();
 		const webView = Ti.UI.createWebView({
-			url: 'https://jira.appcelerator.org/',
+			url: 'https://mockbin.org/redirect/301?to=https%3A%2F%2Fgoogle.com',
 			requestHeaders: { 'Custom-field1': 'value1' }
 		});
 
@@ -897,7 +897,7 @@ describe.androidARM64Broken('Titanium.UI.WebView', function () {
 				return;
 			}
 			const webView = Ti.UI.createWebView({
-				url: 'https://www.appcelerator.com'
+				url: 'https://www.google.com'
 			});
 			should(webView.findString).be.a.Function();
 		});
@@ -909,11 +909,11 @@ describe.androidARM64Broken('Titanium.UI.WebView', function () {
 			}
 			win = Ti.UI.createWindow();
 			const webView = Ti.UI.createWebView({
-				url: 'https://www.appcelerator.com'
+				url: 'https://www.google.com'
 			});
 
 			webView.addEventListener('load', function () {
-				webView.findString('APPCELERATOR', function (e) {
+				webView.findString('GOOGLE', function (e) {
 					if (e.success) {
 						finish();
 					} else {
@@ -932,12 +932,12 @@ describe.androidARM64Broken('Titanium.UI.WebView', function () {
 			}
 			win = Ti.UI.createWindow();
 			const webView = Ti.UI.createWebView({
-				url: 'https://www.appcelerator.com'
+				url: 'https://www.google.com'
 			});
 
 			webView.addEventListener('load', function () {
 				// It should fail.
-				webView.findString('APPCELERATOR', { caseSensitive: true, backwards: false, wraps: true }, function (e) {
+				webView.findString('GOOGLE', { caseSensitive: true, backwards: false, wraps: true }, function (e) {
 					if (e.success) {
 						finish(new Error('Search should fail'));
 					} else {
@@ -949,5 +949,25 @@ describe.androidARM64Broken('Titanium.UI.WebView', function () {
 			win.add(webView);
 			win.open();
 		});
+	});
+
+	it('url with clientCertChallenge', function (finish) {
+		const url = 'https://device.login.microsoftonline.com';
+
+		win = Ti.UI.createWindow();
+		const webView = Ti.UI.createWebView({
+			url: url
+		});
+
+		webView.addEventListener('error', function () {
+			finish(new Error('clientCertChallenge must be handled correctly.'));
+		});
+
+		webView.addEventListener('load', function () {
+			finish();
+		});
+
+		win.add(webView);
+		win.open();
 	});
 });

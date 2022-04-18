@@ -809,7 +809,7 @@ static NSDictionary *sizeMap = nil;
   UIImage *tintedImage = UIGraphicsGetImageFromCurrentImageContext();
   UIGraphicsEndImageContext();
 
-  return tintedImage;
+  return [tintedImage imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal];
 }
 
 + (NSURL *)checkFor2XImage:(NSURL *)url

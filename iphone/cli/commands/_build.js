@@ -1486,7 +1486,7 @@ iOSBuilder.prototype.initTiappSettings = function initTiappSettings() {
 
 	if (cli.argv.$originalPlatform === 'ipad') {
 		logger.warn(__('--platform ipad has been deprecated and will be removed in Titanium SDK 7.0.0'));
-		logger.warn(__('See %s for more details', 'https://jira.appcelerator.org/browse/TIMOB-24228'));
+		logger.warn(__('See %s for more details', 'https://jira-archive.titaniumsdk.com/TIMOB-24228'));
 	}
 
 	// init the extensions
@@ -2013,7 +2013,7 @@ iOSBuilder.prototype.validate = function validate(logger, config, cli) {
 			},
 
 			function selectDevice(next) {
-				if (cli.argv.target === 'dist-appstore' || cli.argv.target === 'dist-adhoc') {
+				if (cli.argv.target.startsWith('dist') || cli.argv.target === 'macos') {
 					return next();
 				}
 
@@ -6928,7 +6928,7 @@ iOSBuilder.prototype.optimizeFiles = function optimizeFiles(next) {
 	], next);
 };
 
-iOSBuilder.prototype.invokeXcodeBuild = function invokeXcodeBuild(next) {
+iOSBuilder.prototype.invokeXcodeBuild = async function invokeXcodeBuild(next) {
 	if (!this.forceRebuild) {
 		this.logger.info(__('Skipping xcodebuild'));
 		return next();
@@ -7096,12 +7096,14 @@ iOSBuilder.prototype.invokeXcodeBuild = function invokeXcodeBuild(next) {
 		}
 		// Exclude arm64 architecture from simulator build in XCode 12+ - TIMOB-28042
 		if (this.legacyModules.size > 0 && parseFloat(this.xcodeEnv.version) >= 12.0) {
-			if (process.arch === 'arm64') {
-				return next(new Error('The app is using native modules that do not support arm64 simulators and you are on an arm64 device.'));
+			if (await processArchitecture() === 'arm64') {
+				return next(new Error(`The app is using native modules that do not support arm64 simulators and you are on an arm64 device:\n- ${Array.from(this.legacyModules).join('\n- ')}`));
 			}
 			this.logger.warn(`The app is using native modules (${Array.from(this.legacyModules)}) that do not support arm64 simulators, we will exclude arm64. This may fail if you're on an arm64 Apple Silicon device.`);
 			args.push('EXCLUDED_ARCHS=arm64');
 		}
+	} else if (this.target === 'device' || this.target === 'dist-adhoc') {
+		args.push('-destination', 'generic/platform=iOS');
 	}
 
 	xcodebuildHook(
@@ -7140,6 +7142,23 @@ iOSBuilder.prototype.sanitizedAppName = function sanitizedAppName() {
 
 function sha1(value) {
 	return crypto.createHash('sha1').update(value).digest('hex');
+}
+
+// This function has the advantage to detect bridges architectures
+// like x86_64 in Rosetta mode (process.arch would still print "arm64" in that case)
+async function processArchitecture() {
+	return new Promise((resolve, reject) => {
+		// eslint-disable-next-line security/detect-child-process
+		const exec = require('child_process').exec;
+
+		exec('uname -m', function (error, stdout) {
+			if (error) {
+				reject(error);
+				return;
+			}
+			resolve(stdout.trim());
+		});
+	});
 }
 
 // create the builder instance and expose the public api

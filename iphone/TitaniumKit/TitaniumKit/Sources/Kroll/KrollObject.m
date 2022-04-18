@@ -924,28 +924,45 @@ bool KrollHasInstance(JSContextRef ctx, JSObjectRef constructor, JSValueRef poss
   JSValueUnprotect(jscontext, self.jsobject);
 }
 
-TI_INLINE JSStringRef TiStringCreateWithPointerValue(int value)
+static const char KrollObjectBase64Table[] = {
+  'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H',
+  'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P',
+  'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X',
+  'Y', 'Z', 'a', 'b', 'c', 'd', 'e', 'f',
+  'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n',
+  'o', 'p', 'q', 'r', 's', 't', 'u', 'v',
+  'w', 'x', 'y', 'z', '0', '1', '2', '3',
+  '4', '5', '6', '7', '8', '9', '+', '/'
+};
+
+TI_INLINE JSStringRef TiStringCreateWithPointerValue(void *value)
 {
-  /*
-	 *	When we note proxies, we need to come up with a property name
-	 *	that is unique. We previously did an nsstring with format
-	 *	of __PX%X, but this method is so often called, and allocating a string
-	 *	can be a waste, so it's better to jump straight to something hardwired
-	 *
-	 *	No sense in doing hex when so many more characters are valid property
-	 *	characters. So we do it in chunks of 6 bits, from '<' (60) to '{' (123)
-	 */
+  // Generate a unique property name for given native pointer by doing a base64 on its memory address.
+  // Note: This function is called extremely often. So, encode it manually for best performance.
+  // TODO: Use a JS Symbol instead to guarantee property uniqueness, but this requires iOS 13.
+#ifdef __LP64__
+  char result[15];
+  result[14] = '\0';
+#else
   char result[10];
+  result[9] = '\0';
+#endif
   result[0] = '_';
   result[1] = '_';
   result[2] = ':';
-  result[3] = '<' + (value & 0x3F);
-  result[4] = '<' + ((value >> 6) & 0x3F);
-  result[5] = '<' + ((value >> 12) & 0x3F);
-  result[6] = '<' + ((value >> 18) & 0x3F);
-  result[7] = '<' + ((value >> 24) & 0x3F);
-  result[8] = '<' + ((value >> 30) & 0x3F);
-  result[9] = 0;
+  result[3] = KrollObjectBase64Table[(uintptr_t)value & 0x3F];
+  result[4] = KrollObjectBase64Table[((uintptr_t)value >> 6) & 0x3F];
+  result[5] = KrollObjectBase64Table[((uintptr_t)value >> 12) & 0x3F];
+  result[6] = KrollObjectBase64Table[((uintptr_t)value >> 18) & 0x3F];
+  result[7] = KrollObjectBase64Table[((uintptr_t)value >> 24) & 0x3F];
+  result[8] = KrollObjectBase64Table[((uintptr_t)value >> 30) & 0x3F];
+#ifdef __LP64__
+  result[9] = KrollObjectBase64Table[((uintptr_t)value >> 36) & 0x3F];
+  result[10] = KrollObjectBase64Table[((uintptr_t)value >> 42) & 0x3F];
+  result[11] = KrollObjectBase64Table[((uintptr_t)value >> 48) & 0x3F];
+  result[12] = KrollObjectBase64Table[((uintptr_t)value >> 54) & 0x3F];
+  result[13] = KrollObjectBase64Table[((uintptr_t)value >> 60) & 0x3F];
+#endif
   return JSStringCreateWithUTF8CString(result);
 }
 
@@ -960,14 +977,14 @@ TI_INLINE JSStringRef TiStringCreateWithPointerValue(int value)
   // by the queue processor). We need to seriously re-evaluate the memory model and thread
   // interactions during such.
 
-  JSStringRef nameRef = TiStringCreateWithPointerValue((int)value);
+  JSStringRef nameRef = TiStringCreateWithPointerValue(value);
   [self noteObject:[value jsobject] forTiString:nameRef context:[context context]];
   JSStringRelease(nameRef);
 }
 
 - (void)forgetKeylessKrollObject:(KrollObject *)value
 {
-  JSStringRef nameRef = TiStringCreateWithPointerValue((int)value);
+  JSStringRef nameRef = TiStringCreateWithPointerValue(value);
   [self forgetObjectForTiString:nameRef context:[context context]];
   JSStringRelease(nameRef);
 }

@@ -223,6 +223,9 @@ MAKE_SYSTEM_PROP(BUTTON_STYLE_OPTION_POSITIVE, UIBarButtonItemStyleDone);
 MAKE_SYSTEM_PROP(BUTTON_STYLE_OPTION_NEGATIVE, UIBarButtonItemStylePlain);
 MAKE_SYSTEM_PROP(BUTTON_STYLE_OPTION_NEUTRAL, UIBarButtonItemStylePlain);
 
+MAKE_SYSTEM_PROP(SELECTION_STYLE_NONE, UITableViewCellSelectionStyleNone);
+MAKE_SYSTEM_PROP(SELECTION_STYLE_DEFAULT, UITableViewCellSelectionStyleDefault);
+
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 140000
 MAKE_SYSTEM_PROP(SWITCH_STYLE_SLIDER, UISwitchStyleSliding);
 MAKE_SYSTEM_PROP(SWITCH_STYLE_CHECKBOX, UISwitchStyleCheckbox);
@@ -448,7 +451,7 @@ MAKE_SYSTEM_PROP(EXTEND_EDGE_ALL, 15); //UIEdgeRectAll
             notification:NO];
   if ([TiUtils isIOSVersionOrGreater:@"13.0"] || [TiUtils isMacOS]) {
     int style = [TiUtils intValue:args def:UIUserInterfaceStyleUnspecified];
-    TiApp.controller.overrideUserInterfaceStyle = style;
+    TiApp.app.window.overrideUserInterfaceStyle = style;
   }
 }
 

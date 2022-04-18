@@ -166,7 +166,7 @@ describe('Titanium.Platform', () => {
 			});
 
 			it('is one of known constant String values', () => {
-				should(Ti.Platform.name).be.equalOneOf([ 'android', 'iOS', 'windows', 'mobileweb', 'Mac OS X' ]);
+				should(Ti.Platform.name).be.equalOneOf([ 'android', 'iOS', 'windows', 'mobileweb', 'Mac OS X', 'iPadOS' ]);
 				// TODO match with osname!
 			});
 		});
@@ -309,7 +309,7 @@ describe('Titanium.Platform', () => {
 			});
 
 			it('returns true for typical http URL', () => {
-				should(Ti.Platform.canOpenURL('http://www.appcelerator.com/')).be.true();
+				should(Ti.Platform.canOpenURL('http://www.google.com/')).be.true();
 			});
 
 			it('returns true for app-sepcific URI scheme', () => {

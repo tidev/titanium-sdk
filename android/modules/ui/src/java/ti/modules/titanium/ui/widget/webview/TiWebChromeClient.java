@@ -82,38 +82,49 @@ public class TiWebChromeClient extends WebChromeClient
 			return;
 		}
 
-		// Prompt end-user for permission on Android 6.0 and higher if needed.
+		// Prompt end-user for FINE location permission on Android 6.0 and higher if needed.
+		// Note: As of Android 12, we must also request the COARSE permission (will fail without it),
+		//       but ignore COARSE permission since WebView location access requires FINE.
 		if (Build.VERSION.SDK_INT >= 23) {
 			int permissionResult = activity.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION);
 			if (permissionResult != PackageManager.PERMISSION_GRANTED) {
-				TiBaseActivity.OnRequestPermissionsResultCallback activityCallback;
-				activityCallback = new TiBaseActivity.OnRequestPermissionsResultCallback() {
-					@Override
-					public void onRequestPermissionsResult(
-						@NonNull TiBaseActivity activity, int requestCode,
-						@NonNull String[] permissions, @NonNull int[] grantResults)
-					{
-						// Unregister this callback.
-						TiBaseActivity.unregisterPermissionRequestCallback(TiC.PERMISSION_CODE_LOCATION);
+				if (activity.shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION)) {
+					// System won't prompt for permission since user already denied it. So, immediately fail it.
+					callback.invoke(origin, false, false);
+				} else {
+					// Prompt end-user for permission.
+					TiBaseActivity.OnRequestPermissionsResultCallback activityCallback;
+					activityCallback = new TiBaseActivity.OnRequestPermissionsResultCallback() {
+						@Override
+						public void onRequestPermissionsResult(
+							@NonNull TiBaseActivity activity, int requestCode,
+							@NonNull String[] permissions, @NonNull int[] grantResults)
+						{
+							// Unregister this callback.
+							TiBaseActivity.unregisterPermissionRequestCallback(TiC.PERMISSION_CODE_LOCATION);
 
-						// Determine if location permission was granted.
-						boolean wasGranted = false;
-						if (permissions.length == grantResults.length) {
-							for (int index = 0; index < permissions.length; index++) {
-								if (Manifest.permission.ACCESS_FINE_LOCATION.equals(permissions[index])) {
-									wasGranted = (grantResults[index] == PackageManager.PERMISSION_GRANTED);
-									break;
+							// Determine if FINE location permission was granted. (Ignore COARSE permission.)
+							boolean granted = false;
+							if (permissions.length == grantResults.length) {
+								for (int index = 0; index < permissions.length; index++) {
+									if (Manifest.permission.ACCESS_FINE_LOCATION.equals(permissions[index])) {
+										granted = (grantResults[index] == PackageManager.PERMISSION_GRANTED);
+										break;
+									}
 								}
 							}
-						}
 
-						// Notify WebView whether or not location access was granted.
-						callback.invoke(origin, wasGranted, false);
-					}
-				};
-				TiBaseActivity.registerPermissionRequestCallback(TiC.PERMISSION_CODE_LOCATION, activityCallback);
-				String[] permissions = new String[] { Manifest.permission.ACCESS_FINE_LOCATION };
-				activity.requestPermissions(permissions, TiC.PERMISSION_CODE_LOCATION);
+							// Notify WebView whether or not location access was granted.
+							callback.invoke(origin, granted, false);
+						}
+					};
+					TiBaseActivity.registerPermissionRequestCallback(TiC.PERMISSION_CODE_LOCATION, activityCallback);
+					String[] permissions = new String[] {
+						Manifest.permission.ACCESS_FINE_LOCATION,
+						Manifest.permission.ACCESS_COARSE_LOCATION
+					};
+					activity.requestPermissions(permissions, TiC.PERMISSION_CODE_LOCATION);
+				}
 				return;
 			}
 		}

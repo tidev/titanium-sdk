@@ -1514,7 +1514,7 @@ describe.android('Titanium.Android', () => {
 		const launchIntent = Ti.App.Android.launchIntent;
 		const newIntent = Ti.Android.createIntent({
 			action: Ti.Android.ACTION_VIEW,
-			data: 'https://www.appcelerator.com',
+			data: 'https://www.example.com',
 			packageName: launchIntent.packageName,
 			className: launchIntent.className
 		});

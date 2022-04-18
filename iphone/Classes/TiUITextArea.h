@@ -18,6 +18,7 @@
 @property (nonatomic, readwrite, assign) BOOL enableCopy;
 
 - (void)setTouchHandler:(TiUIView *)handler;
+- (NSComparisonResult)comparePosition:(UITextPosition *)position toPosition:(UITextPosition *)other;
 
 @end
 

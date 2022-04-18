@@ -1169,30 +1169,7 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
 
 - (void)tableViewDidEndMultipleSelectionInteraction:(UITableView *)tableView
 {
-  if ([self.proxy _hasListeners:@"itemsselected"]) {
-    NSMutableArray *selectedItems = [NSMutableArray arrayWithCapacity:tableView.indexPathsForSelectedRows.count];
-    NSMutableDictionary *startingItem = [NSMutableDictionary dictionaryWithCapacity:1];
-
-    for (int i = 0; i < tableView.indexPathsForSelectedRows.count; i++) {
-      NSIndexPath *indexPath = tableView.indexPathsForSelectedRows[i];
-      NSIndexPath *realIndexPath = [self pathForSearchPath:indexPath];
-      TiUIListSectionProxy *theSection = [[self.listViewProxy sectionForIndex:realIndexPath.section] retain];
-
-      NSMutableDictionary *eventObject = [[NSMutableDictionary alloc] initWithObjectsAndKeys:
-                                                                          theSection, @"section",
-                                                                      NUMINTEGER(realIndexPath.section), @"sectionIndex",
-                                                                      NUMINTEGER(realIndexPath.row), @"itemIndex",
-                                                                      nil];
-      if (i == 0) {
-        [startingItem setDictionary:eventObject];
-      }
-      [selectedItems addObject:eventObject];
-
-      RELEASE_TO_NIL(eventObject);
-      RELEASE_TO_NIL(theSection);
-    }
-    [self.proxy fireEvent:@"itemsselected" withObject:@{ @"selectedItems" : selectedItems, @"startingItem" : startingItem }];
-  }
+  [self fireItemsSelectedEvent];
 }
 
 - (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath
@@ -1891,6 +1868,12 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
 {
   // send indexPath of tableView which could be self.tableView or searchController.searchResultsTableView
   [self fireClickForItemAtIndexPath:indexPath tableView:tableView accessoryButtonTapped:NO];
+  [self fireItemsSelectedEvent];
+}
+
+- (void)tableView:(UITableView *)tableView didDeselectRowAtIndexPath:(NSIndexPath *)indexPath
+{
+  [self fireItemsSelectedEvent];
 }
 
 - (void)tableView:(UITableView *)tableView accessoryButtonTappedForRowWithIndexPath:(NSIndexPath *)indexPath
@@ -2333,6 +2316,34 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
   [eventObject release];
 }
 
+- (void)fireItemsSelectedEvent
+{
+  if ((_tableView != nil) && [self.proxy _hasListeners:@"itemsselected"]) {
+    NSMutableArray *selectedItems = [NSMutableArray arrayWithCapacity:_tableView.indexPathsForSelectedRows.count];
+    NSMutableDictionary *startingItem = [NSMutableDictionary dictionaryWithCapacity:1];
+
+    for (int i = 0; i < _tableView.indexPathsForSelectedRows.count; i++) {
+      NSIndexPath *indexPath = _tableView.indexPathsForSelectedRows[i];
+      NSIndexPath *realIndexPath = [self pathForSearchPath:indexPath];
+      TiUIListSectionProxy *theSection = [[self.listViewProxy sectionForIndex:realIndexPath.section] retain];
+
+      NSMutableDictionary *eventObject = [[NSMutableDictionary alloc] initWithObjectsAndKeys:
+                                                                          theSection, @"section",
+                                                                      NUMINTEGER(realIndexPath.section), @"sectionIndex",
+                                                                      NUMINTEGER(realIndexPath.row), @"itemIndex",
+                                                                      nil];
+      if (i == 0) {
+        [startingItem setDictionary:eventObject];
+      }
+      [selectedItems addObject:eventObject];
+
+      RELEASE_TO_NIL(eventObject);
+      RELEASE_TO_NIL(theSection);
+    }
+    [self.proxy fireEvent:@"itemsselected" withObject:@{ @"selectedItems" : selectedItems, @"startingItem" : startingItem }];
+  }
+}
+
 - (CGFloat)contentWidthForWidth:(CGFloat)width
 {
   return width;
@@ -2433,7 +2444,7 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
 - (void)createDimmingView
 {
   if (dimmingView == nil) {
-    dimmingView = [[UIView alloc] initWithFrame:CGRectMake(0, self.safeAreaInsets.top + searchController.searchBar.frame.size.height, self.frame.size.width, self.frame.size.height - searchController.searchBar.frame.size.height)];
+    dimmingView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.frame.size.width, self.frame.size.height - searchController.searchBar.frame.size.height)];
     dimmingView.backgroundColor = [UIColor blackColor];
     dimmingView.alpha = .2;
     UITapGestureRecognizer *tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(dismissSearchController)];

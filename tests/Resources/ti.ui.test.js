@@ -354,6 +354,14 @@ describe('Titanium.UI', function () {
 				[ 'tertiarySystemFillColor', { light: '#1f767680', dark: '#3d767680' } ],
 				[ 'tertiarySystemGroupedBackgroundColor', { light: '#f2f2f7', dark: '#2c2c2e' } ],
 			]);
+
+			// systemTealColor dark and light are different in iOS 15
+			// quaternaryLabelColor dark is different in iOS 15
+			if (OS_VERSION_MAJOR >= 15) {
+				colors.set('systemTealColor', { light: '#30b0c7', dark: '#40c8e0' });
+				colors.set('quaternaryLabelColor', { light: '#2e3c3c43', dark: '#29ebebf5' });
+			}
+
 			const theme = Ti.UI.semanticColorType; // should be light or dark
 			for (const [ colorName, subcolors ] of colors) {
 				Ti.UI.fetchSemanticColor(colorName).toHex().toLowerCase().should.equal(subcolors[theme], colorName);

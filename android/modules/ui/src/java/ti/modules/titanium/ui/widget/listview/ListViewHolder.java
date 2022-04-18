@@ -27,17 +27,20 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.PaintDrawable;
 import android.os.Build;
 import android.util.TypedValue;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import androidx.recyclerview.widget.RecyclerView;
 
 import java.lang.ref.WeakReference;
 
 import ti.modules.titanium.ui.UIModule;
 import ti.modules.titanium.ui.widget.TiUIListView;
 
-public class ListViewHolder extends TiRecyclerViewHolder
+public class ListViewHolder extends TiRecyclerViewHolder<ListItemProxy>
 {
 	private static final String TAG = "ListViewHolder";
 
@@ -47,6 +50,7 @@ public class ListViewHolder extends TiRecyclerViewHolder
 
 	// Middle
 	private final ViewGroup container;
+	private final ImageView leftImage;
 	private final TiCompositeLayout content;
 	private final ImageView rightImage;
 
@@ -67,6 +71,8 @@ public class ListViewHolder extends TiRecyclerViewHolder
 		setTitleAttributes("header", context, this.headerTitle);
 
 		this.container = viewGroup.findViewById(R.id.titanium_ui_listview_holder_outer_content_container);
+
+		this.leftImage = viewGroup.findViewById(R.id.titanium_ui_listview_holder_left_image);
 
 		this.content = viewGroup.findViewById(R.id.titanium_ui_listview_holder_content);
 
@@ -113,6 +119,21 @@ public class ListViewHolder extends TiRecyclerViewHolder
 		final int minHeight = TiConvert.toTiDimension(rawMinHeight, TiDimension.TYPE_HEIGHT).getAsPixels(itemView);
 		this.content.setMinimumHeight(minHeight);
 
+		// Handle selection checkmark.
+		if (listViewProperties.optBoolean(TiC.PROPERTY_SHOW_SELECTION_CHECK, false)
+			&& listViewProperties.optBoolean(TiC.PROPERTY_EDITING, false)
+			&& listViewProperties.optBoolean(TiC.PROPERTY_ALLOWS_SELECTION_DURING_EDITING, false)
+			&& listViewProperties.optBoolean(TiC.PROPERTY_ALLOWS_MULTIPLE_SELECTION_DURING_EDITING, false)
+			&& !proxy.isPlaceholder()) {
+
+			if (selected) {
+				this.leftImage.setImageDrawable(checkcircleDrawable);
+			} else {
+				this.leftImage.setImageDrawable(circleDrawable);
+			}
+			this.leftImage.setVisibility(View.VISIBLE);
+		}
+
 		// Handle accessory type icon.
 		if (properties.containsKeyAndNotNull(TiC.PROPERTY_ACCESSORY_TYPE)) {
 			final int accessorType = properties.optInt(TiC.PROPERTY_ACCESSORY_TYPE, UIModule.LIST_ACCESSORY_TYPE_NONE);
@@ -139,6 +160,23 @@ public class ListViewHolder extends TiRecyclerViewHolder
 		if (isEditing && canMove) {
 			this.rightImage.setImageDrawable(dragDrawable);
 			this.rightImage.setVisibility(View.VISIBLE);
+
+			RecyclerView.ViewHolder mViewHolder = this;
+
+			this.rightImage.setOnTouchListener(new View.OnTouchListener()
+			{
+				@Override
+				public boolean onTouch(View view, MotionEvent motionEvent)
+				{
+					if (motionEvent.getActionMasked() == MotionEvent.ACTION_DOWN) {
+						TiListView listView = listViewProxy.getListView();
+						listView.startDragging(mViewHolder);
+					}
+					return false;
+				}
+			});
+		} else {
+			this.rightImage.setOnTouchListener(null);
 		}
 
 		if (proxy != null) {
@@ -203,8 +241,9 @@ public class ListViewHolder extends TiRecyclerViewHolder
 					}
 
 					// Support selected backgrounds.
-					nativeView.setBackground(generateSelectedDrawable(properties, backgroundDrawable));
-					borderView.setActivated(selected);
+					nativeView.setBackground(backgroundDrawable);
+					this.container.setBackground(generateSelectedDrawable(properties, null));
+					this.container.setActivated(selected);
 
 					// Allow states to bubble up for ripple effect.
 					borderView.setAddStatesFromChildren(true);
@@ -261,6 +300,7 @@ public class ListViewHolder extends TiRecyclerViewHolder
 		this.footer.setVisibility(View.GONE);
 		this.footerTitle.setVisibility(View.GONE);
 		this.content.setVisibility(View.GONE);
+		this.leftImage.setVisibility(View.GONE);
 		this.rightImage.setVisibility(View.GONE);
 	}
 
