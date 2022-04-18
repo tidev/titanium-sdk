@@ -9,8 +9,10 @@ package ti.modules.titanium.media;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -81,6 +83,7 @@ public class TiCameraXActivity extends TiBaseActivity implements CameraXConfig.P
 	public static TiCameraXActivity cameraActivity = null;
 	public static KrollObject callbackContext;
 	public static KrollFunction successCallback, errorCallback, cancelCallback, androidbackCallback;
+	public static KrollFunction recordingCallback;
 	public static String mediaType = MediaModule.MEDIA_TYPE_PHOTO;
 	public static boolean saveToPhotoGallery = false;
 	public static int videoMaximumDuration = 0;
@@ -88,6 +91,7 @@ public class TiCameraXActivity extends TiBaseActivity implements CameraXConfig.P
 	public static int videoQuality = MediaModule.QUALITY_HD;
 	static Recording recording;
 	static PendingRecording pendingRecording;
+	static String mediaTitle = "";
 	private static ImageCapture imageCapture;
 	private static VideoCapture videoCapture;
 	private static boolean isRecording = false;
@@ -142,6 +146,8 @@ public class TiCameraXActivity extends TiBaseActivity implements CameraXConfig.P
 	@SuppressLint("MissingPermission")
 	public static void startVideoCapture()
 	{
+		KrollDict recordingDict = new KrollDict();
+
 		Consumer<VideoRecordEvent> vre = videoRecordEvent -> {
 			if (videoRecordEvent instanceof VideoRecordEvent.Start) {
 				// Handle the start of a new active recording
@@ -158,12 +164,37 @@ public class TiCameraXActivity extends TiBaseActivity implements CameraXConfig.P
 					// error
 				}
 				Uri uri = finalizeEvent.getOutputResults().getOutputUri();
-				Log.i(TAG, "Video: " + uri);
 
-				File file = new File(uri.getPath());
-				TiBlob blob = TiBlob.blobFromFile(TiFileFactory.createTitaniumFile(file.getPath(), false));
-				KrollDict response = MediaModule.createDictForImage(blob, blob.getMimeType());
-				successCallback.callAsync(callbackContext, response);
+				if (uri.toString().startsWith("content://")) {
+					String path = "";
+					String name = "";
+					ContentResolver contentResolver = TiApplication.getInstance().getContentResolver();
+
+					Uri mediaUri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI;
+					String[] columns = {
+						MediaStore.Video.VideoColumns.TITLE,
+						MediaStore.Video.VideoColumns.DATA
+					};
+					String[] selectionArgs = { mediaTitle };
+					String queryString = MediaStore.Video.VideoColumns.TITLE + " = ? ";
+					Cursor cursor = contentResolver.query(mediaUri, columns, queryString, selectionArgs, null);
+					if ((cursor != null) && cursor.moveToNext()) {
+						name = getStringFrom(cursor, 0);
+						path = getStringFrom(cursor, 1);
+					}
+
+					if (!path.equals("")) {
+						TiBlob blob = TiBlob.blobFromFile(TiFileFactory.createTitaniumFile(path, false));
+						KrollDict response = MediaModule.createDictForImage(blob, blob.getMimeType());
+						successCallback.callAsync(callbackContext, response);
+					}
+				} else {
+					// normal file
+					File file = new File(uri.getPath());
+					TiBlob blob = TiBlob.blobFromFile(TiFileFactory.createTitaniumFile(file.getPath(), false));
+					KrollDict response = MediaModule.createDictForImage(blob, blob.getMimeType());
+					successCallback.callAsync(callbackContext, response);
+				}
 
 				if (cameraActivity != null && autohide) {
 					if (recording != null) {
@@ -179,6 +210,11 @@ public class TiCameraXActivity extends TiBaseActivity implements CameraXConfig.P
 			long recordingTime = (recordingStats.getRecordedDurationNanos() / 1000 / 1000);
 			if (isRecording && videoMaximumDuration > 0 && recordingTime >= videoMaximumDuration) {
 				stopVideoCapture();
+			}
+			if (recordingCallback != null) {
+				recordingDict.put("duration", recordingTime);
+				recordingDict.put("size", recordingStats.getNumBytesRecorded());
+				recordingCallback.callAsync(callbackContext, recordingDict);
 			}
 		};
 
@@ -227,13 +263,23 @@ public class TiCameraXActivity extends TiBaseActivity implements CameraXConfig.P
 	private static String createExternalMediaName()
 	{
 		TiApplication app = TiApplication.getInstance();
-
-		// Fetch app name and restrict it to chars: a-z, A-Z, 0-9, periods, dashes, and underscores
 		String normalizedAppName = app.getAppInfo().getName();
 		normalizedAppName = normalizedAppName.replaceAll("[^\\w.-]", "_");
-
-		// Generate file name.
 		return normalizedAppName + "_" + (new SimpleDateFormat("yyyyMMdd_HHmmssSSS")).format(new Date());
+	}
+
+	private static String getStringFrom(Cursor cursor, int columnIndex)
+	{
+		String result = null;
+		if ((cursor != null) && (columnIndex >= 0)) {
+			try {
+				if (cursor.getType(columnIndex) == Cursor.FIELD_TYPE_STRING) {
+					result = cursor.getString(columnIndex);
+				}
+			} catch (Exception ex) {
+			}
+		}
+		return result;
 	}
 
 	@Override
@@ -303,7 +349,9 @@ public class TiCameraXActivity extends TiBaseActivity implements CameraXConfig.P
 					if (saveToPhotoGallery) {
 						// save to gallery / media storage folder
 						ContentValues contentValues = new ContentValues();
-						contentValues.put(MediaStore.MediaColumns.DISPLAY_NAME, createExternalMediaName());
+						mediaTitle = createExternalMediaName();
+						contentValues.put(MediaStore.MediaColumns.TITLE, mediaTitle);
+						contentValues.put(MediaStore.MediaColumns.DISPLAY_NAME, mediaTitle);
 						contentValues.put(MediaStore.MediaColumns.MIME_TYPE, "video/mp4");
 						MediaStoreOutputOptions.Builder mediaStoreOutputOptions;
 						mediaStoreOutputOptions =

@@ -1936,6 +1936,10 @@ properties:
     summary: Function to call if the user presses the cancel button.
     type: Callback<FailureResponse>
 
+  - name: recording
+    summary: Function to call during recording. Returns size and duration.
+    type: Callback<FailureResponse>
+
   - name: androidback
     summary: Function to call if the user presses the back button.
     description: |

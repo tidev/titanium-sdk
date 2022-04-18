@@ -403,6 +403,7 @@ public class MediaModule extends KrollModule implements Handler.Callback
 		KrollFunction cancelCallback = null;
 		KrollFunction errorCallback = null;
 		KrollFunction androidbackCallback = null;
+		KrollFunction recordingCallback = null;
 		boolean saveToPhotoGallery = false;
 		boolean autohide = true;
 		int videoMaximumDuration = 0;
@@ -424,6 +425,9 @@ public class MediaModule extends KrollModule implements Handler.Callback
 		}
 		if (cameraOptions.containsKeyAndNotNull(TiC.EVENT_ANDROID_BACK)) {
 			androidbackCallback = (KrollFunction) cameraOptions.get(TiC.EVENT_ANDROID_BACK);
+		}
+		if (cameraOptions.containsKeyAndNotNull("recording")) {
+			recordingCallback = (KrollFunction) cameraOptions.get("recording");
 		}
 		if (cameraOptions.containsKeyAndNotNull(PROP_AUTOSAVE)) {
 			saveToPhotoGallery = cameraOptions.getBoolean(PROP_AUTOSAVE);
@@ -470,6 +474,7 @@ public class MediaModule extends KrollModule implements Handler.Callback
 		TiCameraXActivity.whichCamera = whichCamera;
 		TiCameraXActivity.overlayProxy = overLayProxy;
 		TiCameraXActivity.successCallback = successCallback;
+		TiCameraXActivity.recordingCallback = recordingCallback;
 		TiCameraXActivity.cancelCallback = cancelCallback;
 		TiCameraXActivity.errorCallback = errorCallback;
 		TiCameraXActivity.videoMaximumDuration = videoMaximumDuration;
