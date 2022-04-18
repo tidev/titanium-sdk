@@ -106,7 +106,6 @@ public class TiCameraXActivity extends TiBaseActivity implements CameraXConfig.P
 	public static void takePicture()
 	{
 		try {
-
 			File file = null;
 			String imageName = createExternalMediaName() + ".jpg";
 			OutputFileOptions outputFileOptions = null;
@@ -180,7 +179,9 @@ public class TiCameraXActivity extends TiBaseActivity implements CameraXConfig.P
 				}
 			});
 		} catch (Exception ex) {
-			//
+			KrollDict dict = new KrollDict();
+			dict.put(TiC.PROPERTY_MESSAGE, "Error taking a picture");
+			errorCallback.callAsync(callbackContext, dict);
 		}
 	}
 
@@ -251,7 +252,7 @@ public class TiCameraXActivity extends TiBaseActivity implements CameraXConfig.P
 			if (isRecording && videoMaximumDuration > 0 && recordingTime >= videoMaximumDuration) {
 				stopVideoCapture();
 			}
-			if (recordingCallback != null) {
+			if (isRecording && recordingCallback != null) {
 				recordingDict.put("duration", recordingTime);
 				recordingDict.put("size", recordingStats.getNumBytesRecorded());
 				recordingCallback.callAsync(callbackContext, recordingDict);
@@ -458,6 +459,13 @@ public class TiCameraXActivity extends TiBaseActivity implements CameraXConfig.P
 		// Release our camera activity reference.
 		if (cameraActivity == this) {
 			cameraActivity = null;
+		}
+		if (recording != null) {
+			recording.close();
+			recording = null;
+		}
+		if (pendingRecording != null) {
+			pendingRecording = null;
 		}
 		// Destroy this activity.
 		super.onDestroy();
