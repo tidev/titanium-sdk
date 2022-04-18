@@ -858,7 +858,7 @@ public class MediaModule extends KrollModule implements Handler.Callback
 			// Create video file under app's private external storage folder.
 			// Note: This folder does not require "WRITE_EXTERNAL_STORAGE" permission.
 			File moviesDir = app.getExternalFilesDir(Environment.DIRECTORY_MOVIES);
-			Boolean check = moviesDir.mkdirs();
+			moviesDir.mkdirs();
 			File videoFile = new File(moviesDir, fileName + ".mp4");
 			contentUri = TiFileProvider.createUriFrom(videoFile);
 		} else {

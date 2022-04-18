@@ -2333,15 +2333,3 @@ properties:
     summary: An Array of current output ports for the session. See the `AUDIO_SESSION_PORT` constants.
     type: Array<String>
     constants: Titanium.Media.AUDIO_SESSION_PORT_*
----
-name: ResolutionSize
-summary: Maximum resolution
-platforms: [android]
-since: "10.0.0"
-properties:
-  - name: width
-    summary: Width
-    type: int
-  - name: height
-    summary: Height
-    type: int
