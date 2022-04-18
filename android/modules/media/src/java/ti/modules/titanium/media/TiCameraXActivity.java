@@ -92,6 +92,7 @@ public class TiCameraXActivity extends TiBaseActivity implements CameraXConfig.P
 	static Recording recording;
 	static PendingRecording pendingRecording;
 	static String mediaTitle = "";
+	static ContentResolver contentResolver = TiApplication.getInstance().getContentResolver();
 	private static ImageCapture imageCapture;
 	private static VideoCapture videoCapture;
 	private static boolean isRecording = false;
@@ -105,8 +106,21 @@ public class TiCameraXActivity extends TiBaseActivity implements CameraXConfig.P
 	public static void takePicture()
 	{
 		try {
-			File file = TiFileHelper.getInstance().getTempFile(".jpg", true);
-			OutputFileOptions outputFileOptions = new OutputFileOptions.Builder(file).build();
+
+			File file = null;
+			String imageName = createExternalMediaName() + ".jpg";
+			OutputFileOptions outputFileOptions = null;
+			if (saveToPhotoGallery) {
+				ContentValues contentValues = new ContentValues();
+				contentValues.put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg");
+				contentValues.put(MediaStore.Images.Media.DISPLAY_NAME, imageName);
+				outputFileOptions = new ImageCapture.OutputFileOptions.Builder(contentResolver,
+					MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues).build();
+
+			} else {
+				file = TiFileHelper.getInstance().getTempFile(".jpg", true);
+				outputFileOptions = new OutputFileOptions.Builder(file).build();
+			}
 
 			imageCapture.takePicture(outputFileOptions, executor, new OnImageSavedCallback()
 			{
@@ -114,9 +128,36 @@ public class TiCameraXActivity extends TiBaseActivity implements CameraXConfig.P
 				public void onImageSaved(ImageCapture.OutputFileResults outputFileResults)
 				{
 					if (successCallback != null) {
-						TiBlob blob = TiBlob.blobFromFile(TiFileFactory.createTitaniumFile(file.getPath(), false));
-						KrollDict response = MediaModule.createDictForImage(blob, blob.getMimeType());
-						successCallback.callAsync(callbackContext, response);
+						Uri outputUri = outputFileResults.getSavedUri();
+						if (outputUri.toString().startsWith("content://")) {
+							String name = "";
+							String path = "";
+
+							Uri mediaUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
+							String[] columns = {
+								MediaStore.Images.Media.DISPLAY_NAME,
+								MediaStore.Images.Media.DATA
+							};
+							String[] selectionArgs = { imageName };
+							String queryString = MediaStore.Images.ImageColumns.DISPLAY_NAME + " = ? ";
+							Cursor cursor = contentResolver.query(mediaUri, columns, queryString, selectionArgs, null);
+							if ((cursor != null) && cursor.moveToNext()) {
+								name = getStringFrom(cursor, 0);
+								path = getStringFrom(cursor, 1);
+							}
+
+							if (name != null && !name.equals("")) {
+								TiBlob blob = TiBlob.blobFromFile(TiFileFactory.createTitaniumFile(path, false));
+								KrollDict response = MediaModule.createDictForImage(blob, blob.getMimeType());
+								successCallback.callAsync(callbackContext, response);
+							}
+						} else {
+							// normal file
+							File file = new File(outputUri.getPath());
+							TiBlob blob = TiBlob.blobFromFile(TiFileFactory.createTitaniumFile(file.getPath(), false));
+							KrollDict response = MediaModule.createDictForImage(blob, blob.getMimeType());
+							successCallback.callAsync(callbackContext, response);
+						}
 
 						if (cameraActivity != null && autohide) {
 							cameraActivity.finish();
@@ -168,7 +209,6 @@ public class TiCameraXActivity extends TiBaseActivity implements CameraXConfig.P
 				if (uri.toString().startsWith("content://")) {
 					String path = "";
 					String name = "";
-					ContentResolver contentResolver = TiApplication.getInstance().getContentResolver();
 
 					Uri mediaUri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI;
 					String[] columns = {
@@ -183,7 +223,7 @@ public class TiCameraXActivity extends TiBaseActivity implements CameraXConfig.P
 						path = getStringFrom(cursor, 1);
 					}
 
-					if (!path.equals("")) {
+					if (path != null && !path.equals("")) {
 						TiBlob blob = TiBlob.blobFromFile(TiFileFactory.createTitaniumFile(path, false));
 						KrollDict response = MediaModule.createDictForImage(blob, blob.getMimeType());
 						successCallback.callAsync(callbackContext, response);

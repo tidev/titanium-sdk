@@ -41,6 +41,7 @@ import org.appcelerator.titanium.util.TiIntentWrapper;
 import org.appcelerator.titanium.util.TiUIHelper;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.ClipData;
 import android.content.ContentResolver;
@@ -230,6 +231,7 @@ public class MediaModule extends KrollModule implements Handler.Callback
 		}
 	}
 
+	@SuppressLint("MissingPermission")
 	@Kroll.method
 	public void vibrate(@Kroll.argument(optional = true) long[] pattern)
 	{
@@ -567,6 +569,7 @@ public class MediaModule extends KrollModule implements Handler.Callback
 		}
 	}
 
+	@SuppressLint("NewApi")
 	@Kroll.method
 	public KrollPromise<KrollDict> requestCameraPermissions(
 		@Kroll.argument(optional = true) KrollFunction permissionCallback)
@@ -647,6 +650,7 @@ public class MediaModule extends KrollModule implements Handler.Callback
 		});
 	}
 
+	@SuppressLint("NewApi")
 	@Kroll.method
 	public KrollPromise<KrollDict> requestPhotoGalleryPermissions(
 		@Kroll.argument(optional = true) KrollFunction permissionCallback)
