@@ -6,10 +6,48 @@
  */
 package ti.modules.titanium.media;
 
-import java.io.File;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
+import android.Manifest;
+import android.annotation.SuppressLint;
+import android.app.Activity;
+import android.content.ContentValues;
+import android.content.pm.PackageManager;
+import android.net.Uri;
+import android.os.Build;
+import android.os.Bundle;
+import android.os.Environment;
+import android.provider.MediaStore;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.WindowManager;
+import android.widget.FrameLayout;
+
+import androidx.annotation.NonNull;
+import androidx.camera.camera2.Camera2Config;
+import androidx.camera.core.Camera;
+import androidx.camera.core.CameraSelector;
+import androidx.camera.core.CameraXConfig;
+import androidx.camera.core.ImageCapture;
+import androidx.camera.core.ImageCapture.OnImageSavedCallback;
+import androidx.camera.core.ImageCapture.OutputFileOptions;
+import androidx.camera.core.ImageCaptureException;
+import androidx.camera.core.Preview;
+import androidx.camera.lifecycle.ProcessCameraProvider;
+import androidx.camera.video.FallbackStrategy;
+import androidx.camera.video.FileOutputOptions;
+import androidx.camera.video.MediaStoreOutputOptions;
+import androidx.camera.video.PendingRecording;
+import androidx.camera.video.Quality;
+import androidx.camera.video.QualitySelector;
+import androidx.camera.video.Recorder;
+import androidx.camera.video.Recording;
+import androidx.camera.video.RecordingStats;
+import androidx.camera.video.VideoCapture;
+import androidx.camera.video.VideoRecordEvent;
+import androidx.camera.view.PreviewView;
+import androidx.core.content.ContextCompat;
+import androidx.core.util.Consumer;
+
+import com.google.common.util.concurrent.ListenableFuture;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollFunction;
@@ -19,53 +57,25 @@ import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiC;
-// import org.appcelerator.titanium.io.TiContentFile;
 import org.appcelerator.titanium.io.TiFileFactory;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiFileHelper;
 import org.appcelerator.titanium.util.TiRHelper;
 
-import android.app.Activity;
-import android.net.Uri;
-import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
-import android.util.Size;
-import android.view.View;
-import android.view.ViewGroup;
-import android.view.WindowManager;
-import android.widget.FrameLayout;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.camera.core.AspectRatio;
-import androidx.camera.core.Camera;
-import androidx.camera.core.CameraSelector;
-import androidx.camera.core.ImageCapture;
-import androidx.camera.core.ImageCapture.OnImageSavedCallback;
-import androidx.camera.core.ImageCapture.OutputFileOptions;
-import androidx.camera.core.ImageCaptureException;
-import androidx.camera.core.Preview;
-import androidx.camera.core.VideoCapture;
-import androidx.camera.lifecycle.ProcessCameraProvider;
-import androidx.camera.view.PreviewView;
-import androidx.core.content.ContextCompat;
+import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
-import com.google.common.util.concurrent.ListenableFuture;
-
-@SuppressWarnings("deprecation")
-public class TiCameraXActivity extends TiBaseActivity
+public class TiCameraXActivity extends TiBaseActivity implements CameraXConfig.Provider
 {
 	private static final String TAG = "TiCameraXActivity";
-	PreviewView viewFinder;
-	Preview preview;
-	int lensFacing = CameraSelector.LENS_FACING_BACK;
-	private static ImageCapture imageCapture;
-	private static VideoCapture videoCapture;
-	private static Executor executor = Executors.newSingleThreadExecutor();
-	private TiViewProxy localOverlayProxy = null;
-	private ProcessCameraProvider cameraProvider;
+	private static final Executor executor = Executors.newSingleThreadExecutor();
+	private static final Uri videoUri = null;
 	public static boolean autohide = true;
-	public static int cameraFlashMode = MediaModule.CAMERA_FLASH_OFF;
+	public static int cameraFlashMode = ImageCapture.FLASH_MODE_OFF;
 	public static int whichCamera = MediaModule.CAMERA_REAR;
 	public static TiViewProxy overlayProxy = null;
 	public static TiCameraXActivity cameraActivity = null;
@@ -73,84 +83,20 @@ public class TiCameraXActivity extends TiBaseActivity
 	public static KrollFunction successCallback, errorCallback, cancelCallback, androidbackCallback;
 	public static String mediaType = MediaModule.MEDIA_TYPE_PHOTO;
 	public static boolean saveToPhotoGallery = false;
-	private static boolean isRecording = false;
-	private static Uri videoUri = null;
-
-	public static int bitRate = 8 * 1024 * 1024; // in bits/s - default 8 Mbit/s
-	public static int frameRate = 30;
 	public static int videoMaximumDuration = 0;
 	public static long videoMaximumSize = 0;
-	public static Size maxResolution = new Size(1920, 1080);
-
+	public static int videoQuality = MediaModule.QUALITY_HD;
+	static Recording recording;
+	static PendingRecording pendingRecording;
+	private static ImageCapture imageCapture;
+	private static VideoCapture videoCapture;
+	private static boolean isRecording = false;
+	PreviewView viewFinder;
+	Preview preview;
+	int lensFacing = CameraSelector.LENS_FACING_BACK;
 	FrameLayout layout;
-
-	@Override
-	protected void onCreate(Bundle savedInstanceState)
-	{
-		getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
-		super.onCreate(savedInstanceState);
-
-		localOverlayProxy = overlayProxy;
-
-		try {
-			int idLayout = TiRHelper.getResource("layout.titanium_ui_camera");
-			int idPreview = TiRHelper.getResource("id.view_finder");
-
-			layout =
-				(FrameLayout) TiApplication.getAppCurrentActivity().getLayoutInflater().inflate(idLayout, null, false);
-			viewFinder = (PreviewView) layout.findViewById(idPreview);
-			setContentView(layout);
-
-			boolean front = whichCamera == MediaModule.CAMERA_FRONT;
-			if (front) {
-				lensFacing = CameraSelector.LENS_FACING_FRONT;
-			} else {
-				lensFacing = CameraSelector.LENS_FACING_BACK;
-			}
-
-			startCamera();
-		} catch (TiRHelper.ResourceNotFoundException e) {
-			//
-			Log.e(TAG, "Can't create camera.");
-		}
-	}
-
-	private void startCamera()
-	{
-		int rotation = getWindowManager().getDefaultDisplay().getRotation();
-
-		Activity activity = TiApplication.getAppCurrentActivity();
-		ListenableFuture cameraProviderFuture = ProcessCameraProvider.getInstance(activity);
-		cameraProviderFuture.addListener(() -> {
-			try {
-				preview = new Preview.Builder().build();
-				cameraProvider = (ProcessCameraProvider) cameraProviderFuture.get();
-				CameraSelector cameraSelector = new CameraSelector.Builder().requireLensFacing(lensFacing).build();
-
-				if (MediaModule.MEDIA_TYPE_VIDEO.equals(mediaType)) {
-					VideoCapture.Builder videoBuilder = new VideoCapture.Builder();
-					videoBuilder = videoBuilder.setTargetRotation(rotation)
-									   .setTargetAspectRatio(AspectRatio.RATIO_16_9)
-									   .setCameraSelector(cameraSelector)
-									   .setVideoFrameRate(frameRate)
-									   .setMaxResolution(maxResolution)
-									   .setBitRate(bitRate);
-					videoCapture = videoBuilder.build();
-					Camera camera = cameraProvider.bindToLifecycle(this, cameraSelector, videoCapture, preview);
-				} else {
-					imageCapture =
-						new ImageCapture.Builder().setFlashMode(cameraFlashMode).setTargetRotation(rotation).build();
-
-					Camera camera = cameraProvider.bindToLifecycle(this, cameraSelector, imageCapture, preview);
-				}
-				preview.setSurfaceProvider(((PreviewView) viewFinder).getSurfaceProvider());
-			} catch (InterruptedException | ExecutionException e) {
-				// Currently no exceptions thrown. cameraProviderFuture.get()
-				// shouldn't block since the listener is being called, so no need to
-				// handle InterruptedException.
-			}
-		}, ContextCompat.getMainExecutor(activity));
-	}
+	private TiViewProxy localOverlayProxy = null;
+	private ProcessCameraProvider cameraProvider;
 
 	public static void takePicture()
 	{
@@ -158,7 +104,8 @@ public class TiCameraXActivity extends TiBaseActivity
 			File file = TiFileHelper.getInstance().getTempFile(".jpg", true);
 			OutputFileOptions outputFileOptions = new OutputFileOptions.Builder(file).build();
 
-			imageCapture.takePicture(outputFileOptions, executor, new OnImageSavedCallback() {
+			imageCapture.takePicture(outputFileOptions, executor, new OnImageSavedCallback()
+			{
 				@Override
 				public void onImageSaved(ImageCapture.OutputFileResults outputFileResults)
 				{
@@ -172,6 +119,7 @@ public class TiCameraXActivity extends TiBaseActivity
 						}
 					}
 				}
+
 				@Override
 				public void onError(ImageCaptureException error)
 				{
@@ -191,6 +139,215 @@ public class TiCameraXActivity extends TiBaseActivity
 		}
 	}
 
+	@SuppressLint("MissingPermission")
+	public static void startVideoCapture()
+	{
+		Consumer<VideoRecordEvent> vre = videoRecordEvent -> {
+			if (videoRecordEvent instanceof VideoRecordEvent.Start) {
+				// Handle the start of a new active recording
+			} else if (videoRecordEvent instanceof VideoRecordEvent.Pause) {
+				// Handle the case where the active recording is paused
+			} else if (videoRecordEvent instanceof VideoRecordEvent.Resume) {
+				// Handles the case where the active recording is resumed
+			} else if (videoRecordEvent instanceof VideoRecordEvent.Finalize) {
+				VideoRecordEvent.Finalize finalizeEvent =
+					(VideoRecordEvent.Finalize) videoRecordEvent;
+				// Handles a finalize event for the active recording, checking Finalize.getError()
+				int error = finalizeEvent.getError();
+				if (error != VideoRecordEvent.Finalize.ERROR_NONE) {
+					// error
+				}
+				Uri uri = finalizeEvent.getOutputResults().getOutputUri();
+				Log.i(TAG, "Video: " + uri);
+
+				File file = new File(uri.getPath());
+				TiBlob blob = TiBlob.blobFromFile(TiFileFactory.createTitaniumFile(file.getPath(), false));
+				KrollDict response = MediaModule.createDictForImage(blob, blob.getMimeType());
+				successCallback.callAsync(callbackContext, response);
+
+				if (cameraActivity != null && autohide) {
+					if (recording != null) {
+						recording.close();
+						recording = null;
+					}
+					cameraActivity.finish();
+				}
+			}
+			// All events, including VideoRecordEvent.Status, contain RecordingStats.
+			// This can be used to update the UI or track the recording duration.
+			RecordingStats recordingStats = videoRecordEvent.getRecordingStats();
+			long recordingTime = (recordingStats.getRecordedDurationNanos() / 1000 / 1000);
+			if (isRecording && videoMaximumDuration > 0 && recordingTime >= videoMaximumDuration) {
+				stopVideoCapture();
+			}
+		};
+
+		if (cameraActivity.hasAudioRecorderPermissions()) {
+			recording = pendingRecording.withAudioEnabled().start(executor, vre);
+			isRecording = true;
+		} else {
+			recording = pendingRecording.start(executor, vre);
+			isRecording = true;
+		}
+	}
+
+	public static void pauseVideoCapture()
+	{
+		if (recording != null) recording.pause();
+		isRecording = false;
+	}
+
+	public static void resumeVideoCapture()
+	{
+		if (recording != null) recording.resume();
+		isRecording = true;
+	}
+
+	public static void stopVideoCapture()
+	{
+		if (recording != null) recording.stop();
+		isRecording = false;
+	}
+
+	public static void setFlashMode(int cameraFlashMode)
+	{
+	}
+
+	public static void hide()
+	{
+		if (recording != null) {
+			recording.close();
+			recording = null;
+		}
+		if (cameraActivity != null) {
+			cameraActivity.finish();
+		}
+	}
+
+	private static String createExternalMediaName()
+	{
+		TiApplication app = TiApplication.getInstance();
+
+		// Fetch app name and restrict it to chars: a-z, A-Z, 0-9, periods, dashes, and underscores
+		String normalizedAppName = app.getAppInfo().getName();
+		normalizedAppName = normalizedAppName.replaceAll("[^\\w.-]", "_");
+
+		// Generate file name.
+		return normalizedAppName + "_" + (new SimpleDateFormat("yyyyMMdd_HHmmssSSS")).format(new Date());
+	}
+
+	@Override
+	protected void onCreate(Bundle savedInstanceState)
+	{
+		getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+		super.onCreate(savedInstanceState);
+
+		localOverlayProxy = overlayProxy;
+
+		try {
+			int idLayout = TiRHelper.getResource("layout.titanium_ui_camera");
+			int idPreview = TiRHelper.getResource("id.view_finder");
+
+			layout =
+				(FrameLayout) TiApplication.getAppCurrentActivity().getLayoutInflater().inflate(idLayout, null, false);
+			viewFinder = layout.findViewById(idPreview);
+			setContentView(layout);
+
+			boolean front = whichCamera == MediaModule.CAMERA_FRONT;
+			if (front) {
+				lensFacing = CameraSelector.LENS_FACING_FRONT;
+			} else {
+				lensFacing = CameraSelector.LENS_FACING_BACK;
+			}
+
+			startCamera();
+		} catch (TiRHelper.ResourceNotFoundException e) {
+			//
+			Log.e(TAG, "Can't create camera.");
+		}
+	}
+
+	@SuppressLint({ "RestrictedApi", "CheckResult" })
+	private void startCamera()
+	{
+		int rotation = getWindowManager().getDefaultDisplay().getRotation();
+
+		Activity activity = TiApplication.getAppCurrentActivity();
+		ListenableFuture cameraProviderFuture = ProcessCameraProvider.getInstance(activity);
+		cameraProviderFuture.addListener(() -> {
+			try {
+				preview = new Preview.Builder().build();
+				cameraProvider = (ProcessCameraProvider) cameraProviderFuture.get();
+				CameraSelector cameraSelector = new CameraSelector.Builder().requireLensFacing(lensFacing).build();
+
+				if (MediaModule.MEDIA_TYPE_VIDEO.equals(mediaType)) {
+					// video
+
+					Quality quality = Quality.HD;
+					if (videoQuality == MediaModule.QUALITY_UHD) {
+						quality = Quality.UHD;
+					} else if (videoQuality == MediaModule.QUALITY_HD || videoQuality == MediaModule.QUALITY_LOW
+						|| videoQuality == MediaModule.QUALITY_IFRAME_1280x720) {
+						quality = Quality.HD;
+					} else if (videoQuality == MediaModule.QUALITY_SD || videoQuality == MediaModule.QUALITY_640x480) {
+						quality = Quality.SD;
+					} else if (videoQuality == MediaModule.QUALITY_FHD || videoQuality == MediaModule.QUALITY_HIGH) {
+						quality = Quality.FHD;
+					}
+					QualitySelector qualitySelector = QualitySelector.from(quality,
+						FallbackStrategy.higherQualityOrLowerThan(Quality.SD));
+					Recorder recorder = new Recorder.Builder()
+						.setQualitySelector(qualitySelector)
+						.build();
+					VideoCapture<Recorder> videoCapture;
+					if (saveToPhotoGallery) {
+						// save to gallery / media storage folder
+						ContentValues contentValues = new ContentValues();
+						contentValues.put(MediaStore.MediaColumns.DISPLAY_NAME, createExternalMediaName());
+						contentValues.put(MediaStore.MediaColumns.MIME_TYPE, "video/mp4");
+						MediaStoreOutputOptions.Builder mediaStoreOutputOptions;
+						mediaStoreOutputOptions =
+							new MediaStoreOutputOptions.Builder(TiApplication.getAppRootOrCurrentActivity()
+								.getContentResolver(), MediaStore.Video.Media.EXTERNAL_CONTENT_URI)
+								.setContentValues(contentValues);
+						if (videoMaximumSize > 0) {
+							mediaStoreOutputOptions.setFileSizeLimit(videoMaximumSize);
+						}
+						videoCapture = VideoCapture.withOutput(recorder);
+						pendingRecording = videoCapture.getOutput()
+							.prepareRecording(activity, mediaStoreOutputOptions.build());
+					} else {
+						// save to file
+						File moviesDir = TiApplication.getAppRootOrCurrentActivity()
+							.getExternalFilesDir(Environment.DIRECTORY_MOVIES);
+						moviesDir.mkdirs();
+						File videoFile = new File(moviesDir, createExternalMediaName() + ".mp4");
+						FileOutputOptions.Builder fileOutputOptions = new FileOutputOptions.Builder(videoFile);
+						if (videoMaximumSize > 0) {
+							fileOutputOptions.setFileSizeLimit(videoMaximumSize);
+						}
+						videoCapture = VideoCapture.withOutput(recorder);
+						pendingRecording = videoCapture.getOutput()
+							.prepareRecording(activity, fileOutputOptions.build());
+					}
+
+					Camera camera = cameraProvider.bindToLifecycle(this, cameraSelector, videoCapture, preview);
+				} else {
+					// photo
+					imageCapture =
+						new ImageCapture.Builder().setFlashMode(cameraFlashMode).setTargetRotation(rotation).build();
+
+					Camera camera = cameraProvider.bindToLifecycle(this, cameraSelector, imageCapture, preview);
+				}
+				preview.setSurfaceProvider(viewFinder.getSurfaceProvider());
+			} catch (InterruptedException | ExecutionException e) {
+				// Currently no exceptions thrown. cameraProviderFuture.get()
+				// shouldn't block since the listener is being called, so no need to
+				// handle InterruptedException.
+			}
+		}, ContextCompat.getMainExecutor(activity));
+	}
+
 	@Override
 	protected void onResume()
 	{
@@ -203,7 +360,7 @@ public class TiCameraXActivity extends TiBaseActivity
 				parent.removeView(overlayView);
 			}
 			layout.addView(overlayView, new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT,
-																	 FrameLayout.LayoutParams.MATCH_PARENT));
+				FrameLayout.LayoutParams.MATCH_PARENT));
 		}
 	}
 
@@ -259,82 +416,19 @@ public class TiCameraXActivity extends TiBaseActivity
 		startCamera();
 	}
 
-	public static void startVideoCapture()
+	@NonNull
+	@Override
+	public CameraXConfig getCameraXConfig()
 	{
-		try {
-			try {
-				videoUri = MediaModule.createExternalVideoContentUri(saveToPhotoGallery);
-			} catch (Exception ex) {
-				Log.e(TAG, "Failed to open video file in gallery. Creating file in app's sandbox instead.", ex);
-				try {
-					videoUri = MediaModule.createExternalVideoContentUri(false);
-				} catch (Exception e) {}
-			}
-			if (videoUri == null) {
-				KrollDict dict = new KrollDict();
-				dict.put(TiC.PROPERTY_MESSAGE, "Failed to create video file.");
-				errorCallback.callAsync(callbackContext, dict);
-
-				if (cameraActivity != null && autohide) {
-					cameraActivity.finish();
-				}
-				return;
-			}
-			// File file = new File(videoUri.getPath());	// can't save there
-			File file = TiFileHelper.getInstance().getTempFile(".mp4", true);
-
-			VideoCapture.OutputFileOptions fileOptions = new VideoCapture.OutputFileOptions.Builder(file).build();
-
-			isRecording = true;
-			videoCapture.startRecording(fileOptions, executor, new VideoCapture.OnVideoSavedCallback() {
-				@Override
-				public void onVideoSaved(@NonNull VideoCapture.OutputFileResults outputFileResults)
-				{
-					// TiBlob blob = TiBlob.blobFromFile(new TiContentFile(videoUri));	// see above
-					TiBlob blob = TiBlob.blobFromFile(TiFileFactory.createTitaniumFile(file.getPath(), false));
-					KrollDict response = MediaModule.createDictForImage(blob, blob.getMimeType());
-					successCallback.callAsync(callbackContext, response);
-
-					if (cameraActivity != null && autohide) {
-						cameraActivity.finish();
-					}
-				}
-
-				@Override
-				public void onError(int videoCaptureError, @NonNull String message, @Nullable Throwable cause)
-				{
-					Log.e(TAG, "Can't caputre video file. " + message);
-				}
-			});
-
-			// TODO once CameraX supports a maxDuration this can be removed:
-			if (videoMaximumDuration > 0) {
-				final Handler handler = new Handler(Looper.getMainLooper());
-				handler.postDelayed(new Runnable() {
-					@Override
-					public void run()
-					{
-						videoCapture.stopRecording();
-					}
-				}, videoMaximumDuration);
-			}
-		} catch (Exception e) {
-			Log.e(TAG, "Can't create video file: " + e.getMessage());
-		}
+		return Camera2Config.defaultConfig();
 	}
 
-	public static void stopVideoCapture()
+	private boolean hasAudioRecorderPermissions()
 	{
-		videoCapture.stopRecording();
-		isRecording = false;
-	}
-
-	public static void setFlashMode(int cameraFlashMode) {}
-
-	public static void hide()
-	{
-		if (cameraActivity != null) {
-			cameraActivity.finish();
+		if (Build.VERSION.SDK_INT < 23) {
+			return true;
 		}
+		int status = TiApplication.getInstance().checkSelfPermission(Manifest.permission.RECORD_AUDIO);
+		return (status == PackageManager.PERMISSION_GRANTED);
 	}
 }

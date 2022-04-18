@@ -238,13 +238,19 @@ methods:
   - name: startVideoCapture
     summary: Starts video capture using the camera specified.
     platforms: [android, iphone, ipad, macos]
-    since:
-        android: 5.4.0
+    since: "5.4.0"
   - name: stopVideoCapture
     summary: Stops video capture using the camera specified.
     platforms: [android, iphone, ipad, macos]
-    since:
-        android: 5.4.0
+    since: "5.4.0"
+  - name: pauseVideoCapture
+    summary: Pauses video capturing.
+    platforms: [android]
+    since: {android: "10.3.0"}
+  - name: resumeVideoCapture
+    summary: Resumes video capturing.
+    platforms: [android]
+    since: {android: "10.3.0"}
   - name: switchCamera
     summary: |
         Switches between front and rear-facing cameras. Make sure to set one of the below constants to determine
@@ -1163,6 +1169,38 @@ properties:
     type: Number
     permission: read-only
 
+  - name: QUALITY_SD
+    summary: Media type constant for SD video recording.
+    description:
+    type: Number
+    permission: read-only
+    platforms: [android]
+    since: { android: "10.3.0" }
+
+  - name: QUALITY_HD
+    summary: Media type constant for HD video recording.
+    description:
+    type: Number
+    permission: read-only
+    platforms: [android]
+    since: { android: "10.3.0" }
+
+  - name: QUALITY_FHD
+    summary: Media type constant for FHD video recording.
+    description:
+    type: Number
+    permission: read-only
+    platforms: [android]
+    since: { android: "10.3.0" }
+
+  - name: QUALITY_UHD
+    summary: Media type constant for UHD video recording.
+    description:
+    type: Number
+    permission: read-only
+    platforms: [android]
+    since: { android: "10.3.0" }
+
   - name: QUALITY_HIGH
     summary: Media type constant for high-quality video recording.
     description: |
@@ -1925,27 +1963,6 @@ properties:
     type: Boolean
     default: true
     platforms: [iphone, ipad, macos]
-
-  - name: bitRate
-    summary: Specifies video bit rate (in bits/s). The default is 8 Mb/s.
-    type: int
-    default: 8388608
-    since: {android: "10.0.0"}
-    platforms: [android]
-
-  - name: frameRate
-    summary: Specifies video frame rate.
-    type: int
-    default: 30
-    since: {android: "10.0.0"}
-    platforms: [android]
-
-  - name: maxResolution
-    summary: Specifies video maximal resolution
-    type: ResolutionSize
-    default: {width: 1920, height: 1080}
-    since: {android: "10.0.0"}
-    platforms: [android]
 
   - name: saveToPhotoGallery
     summary: Specifies if the media should be saved to the photo gallery upon successful capture.

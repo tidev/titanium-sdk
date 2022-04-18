@@ -60,10 +60,8 @@ import android.os.Handler;
 import android.os.Message;
 import android.os.Vibrator;
 import android.provider.MediaStore;
-import android.util.Size;
 import android.view.Window;
 
-@SuppressWarnings("deprecation")
 @Kroll.module
 @ContextSpecific
 public class MediaModule extends KrollModule implements Handler.Callback
@@ -77,9 +75,6 @@ public class MediaModule extends KrollModule implements Handler.Callback
 	protected static final String PROP_AUTOHIDE = "autohide";
 	protected static final String PROP_AUTOSAVE = "saveToPhotoGallery";
 	protected static final String PROP_OVERLAY = "overlay";
-	protected static final String PROP_BITRATE = "bitRate";
-	protected static final String PROP_FRAMERATE = "frameRate";
-	protected static final String PROP_MAX_RES = "maxResolution";
 
 	@Kroll.constant
 	public static final int UNKNOWN_ERROR = -1;
@@ -157,6 +152,15 @@ public class MediaModule extends KrollModule implements Handler.Callback
 	public static final int QUALITY_IFRAME_1280x720 = CamcorderProfile.QUALITY_720P;
 
 	@Kroll.constant
+	public static final int QUALITY_SD = 10;
+	@Kroll.constant
+	public static final int QUALITY_HD = 11;
+	@Kroll.constant
+	public static final int QUALITY_FHD = 12;
+	@Kroll.constant
+	public static final int QUALITY_UHD = 13;
+
+	@Kroll.constant
 	public static final int VIDEO_FINISH_REASON_PLAYBACK_ENDED = 0;
 	@Kroll.constant
 	public static final int VIDEO_FINISH_REASON_PLAYBACK_ERROR = 1;
@@ -210,11 +214,9 @@ public class MediaModule extends KrollModule implements Handler.Callback
 	@Kroll.constant
 	public static final int AUDIO_STATE_STOPPING = 6; // current playback is in the stopping state
 	@Kroll.constant
-	public static final int AUDIO_STATE_WAITING_FOR_DATA =
-		7; // current playback is in the waiting for audio data from the network state
+	public static final int AUDIO_STATE_WAITING_FOR_DATA = 7; // current playback is in the waiting for audio data from the network state
 	@Kroll.constant
-	public static final int AUDIO_STATE_WAITING_FOR_QUEUE =
-		8; //  current playback is in the waiting for audio data to fill the queue state
+	public static final int AUDIO_STATE_WAITING_FOR_QUEUE = 8; //  current playback is in the waiting for audio data to fill the queue state
 
 	private static String mediaType = MEDIA_TYPE_PHOTO;
 	private static ContentResolver contentResolver;
@@ -405,14 +407,11 @@ public class MediaModule extends KrollModule implements Handler.Callback
 		boolean autohide = true;
 		int videoMaximumDuration = 0;
 		long videoMaximumSize = 0;
-		int videoQuality = QUALITY_HIGH;
+		int videoQuality = QUALITY_HD;
 		int cameraType = 0;
 		String[] mediaTypes = null;
 		int flashMode = CAMERA_FLASH_OFF;
 		int whichCamera = CAMERA_REAR;
-		int bitRate = -1;
-		int frameRate = -1;
-		Size maxResolution = null;
 
 		if (cameraOptions.containsKeyAndNotNull(TiC.PROPERTY_SUCCESS)) {
 			successCallback = (KrollFunction) cameraOptions.get(TiC.PROPERTY_SUCCESS);
@@ -456,39 +455,14 @@ public class MediaModule extends KrollModule implements Handler.Callback
 		if (cameraOptions.containsKeyAndNotNull(TiC.PROPERTY_MEDIA_TYPES)) {
 			mediaTypes = cameraOptions.getStringArray(TiC.PROPERTY_MEDIA_TYPES);
 		}
-		if (cameraOptions.containsKeyAndNotNull(PROP_BITRATE)) {
-			bitRate = cameraOptions.getInt(PROP_BITRATE);
-		}
-		if (cameraOptions.containsKeyAndNotNull(PROP_FRAMERATE)) {
-			frameRate = cameraOptions.getInt(PROP_FRAMERATE);
-		}
-		if (cameraOptions.containsKeyAndNotNull(PROP_FRAMERATE)) {
-			frameRate = cameraOptions.getInt(PROP_FRAMERATE);
-		}
-		if (cameraOptions.containsKeyAndNotNull(PROP_MAX_RES)) {
-			Object maxRes = cameraOptions.get(PROP_MAX_RES);
-			if (maxRes instanceof HashMap) {
-				HashMap center = (HashMap) maxRes;
-				int w = TiConvert.toInt(center, TiC.PROPERTY_WIDTH);
-				int h = TiConvert.toInt(center, TiC.PROPERTY_HEIGHT);
-				maxResolution = new Size(w, h);
-			} else {
-				Log.e(TAG, "Invalid argument type for maxResolution property. Ignoring");
-			}
-		}
+
 		if ((mediaTypes != null) && Arrays.asList(mediaTypes).contains(MEDIA_TYPE_VIDEO)) {
 			MediaModule.mediaType = MEDIA_TYPE_VIDEO;
 		} else {
 			MediaModule.mediaType = MEDIA_TYPE_PHOTO;
 		}
 
-		// TiCameraActivity.mediaContext = this;
-		// TiCameraActivity.saveToPhotoGallery = saveToPhotoGallery;
-
 		TiCameraXActivity.mediaType = MediaModule.mediaType;
-		if (bitRate != -1) TiCameraXActivity.bitRate = bitRate;
-		if (frameRate != -1) TiCameraXActivity.frameRate = frameRate;
-		if (maxResolution != null) TiCameraXActivity.maxResolution = maxResolution;
 		TiCameraXActivity.callbackContext = getKrollObject();
 		TiCameraXActivity.cameraFlashMode = flashMode;
 		TiCameraXActivity.androidbackCallback = androidbackCallback;
@@ -500,10 +474,11 @@ public class MediaModule extends KrollModule implements Handler.Callback
 		TiCameraXActivity.errorCallback = errorCallback;
 		TiCameraXActivity.videoMaximumDuration = videoMaximumDuration;
 		TiCameraXActivity.videoMaximumSize = videoMaximumSize;
+		TiCameraXActivity.videoQuality = videoQuality;
+		TiCameraXActivity.saveToPhotoGallery = saveToPhotoGallery;
 
 		if (MediaModule.mediaType == MEDIA_TYPE_VIDEO && !hasAudioRecorderPermissions()) {
-			Log.e(TAG, "Audio permission is required to record video");
-			return;
+			Log.w(TAG, "Audio permission is required to record video with sound");
 		}
 
 		//Create Intent and Launch
@@ -874,7 +849,7 @@ public class MediaModule extends KrollModule implements Handler.Callback
 			// Create video file under app's private external storage folder.
 			// Note: This folder does not require "WRITE_EXTERNAL_STORAGE" permission.
 			File moviesDir = app.getExternalFilesDir(Environment.DIRECTORY_MOVIES);
-			moviesDir.mkdirs();
+			Boolean check = moviesDir.mkdirs();
 			File videoFile = new File(moviesDir, fileName + ".mp4");
 			contentUri = TiFileProvider.createUriFrom(videoFile);
 		} else {
@@ -1434,6 +1409,28 @@ public class MediaModule extends KrollModule implements Handler.Callback
 		// make sure the preview / camera are open before trying to take photo
 		if (TiCameraXActivity.cameraActivity != null) {
 			TiCameraXActivity.startVideoCapture();
+		} else {
+			Log.e(TAG, "Camera preview is not open, unable to take photo");
+		}
+	}
+
+	@Kroll.method
+	public void pauseVideoCapture()
+	{
+		// make sure the preview / camera are open before trying to take photo
+		if (TiCameraXActivity.cameraActivity != null) {
+			TiCameraXActivity.pauseVideoCapture();
+		} else {
+			Log.e(TAG, "Camera preview is not open, unable to take photo");
+		}
+	}
+
+	@Kroll.method
+	public void resumeVideoCapture()
+	{
+		// make sure the preview / camera are open before trying to take photo
+		if (TiCameraXActivity.cameraActivity != null) {
+			TiCameraXActivity.resumeVideoCapture();
 		} else {
 			Log.e(TAG, "Camera preview is not open, unable to take photo");
 		}
