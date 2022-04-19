@@ -18,6 +18,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
@@ -86,6 +87,7 @@ public class TiCameraXActivity extends TiBaseActivity implements CameraXConfig.P
 	public static KrollFunction recordingCallback;
 	public static String mediaType = MediaModule.MEDIA_TYPE_PHOTO;
 	public static boolean saveToPhotoGallery = false;
+	public static boolean allowZoom = false;
 	public static int videoMaximumDuration = 0;
 	public static long videoMaximumSize = 0;
 	public static int videoQuality = MediaModule.QUALITY_HD;
@@ -100,6 +102,7 @@ public class TiCameraXActivity extends TiBaseActivity implements CameraXConfig.P
 	Preview preview;
 	int lensFacing = CameraSelector.LENS_FACING_BACK;
 	FrameLayout layout;
+	Camera camera;
 	private TiViewProxy localOverlayProxy = null;
 	private ProcessCameraProvider cameraProvider;
 
@@ -328,15 +331,14 @@ public class TiCameraXActivity extends TiBaseActivity implements CameraXConfig.P
 	{
 		getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
 		super.onCreate(savedInstanceState);
-
+		Activity activity = TiApplication.getAppCurrentActivity();
 		localOverlayProxy = overlayProxy;
 
 		try {
 			int idLayout = TiRHelper.getResource("layout.titanium_ui_camera");
 			int idPreview = TiRHelper.getResource("id.view_finder");
 
-			layout =
-				(FrameLayout) TiApplication.getAppCurrentActivity().getLayoutInflater().inflate(idLayout, null, false);
+			layout = (FrameLayout) activity.getLayoutInflater().inflate(idLayout, null, false);
 			viewFinder = layout.findViewById(idPreview);
 			setContentView(layout);
 
@@ -346,7 +348,6 @@ public class TiCameraXActivity extends TiBaseActivity implements CameraXConfig.P
 			} else {
 				lensFacing = CameraSelector.LENS_FACING_BACK;
 			}
-
 			startCamera();
 		} catch (TiRHelper.ResourceNotFoundException e) {
 			//
@@ -420,15 +421,37 @@ public class TiCameraXActivity extends TiBaseActivity implements CameraXConfig.P
 							.prepareRecording(activity, fileOutputOptions.build());
 					}
 
-					Camera camera = cameraProvider.bindToLifecycle(this, cameraSelector, videoCapture, preview);
+					camera = cameraProvider.bindToLifecycle(this, cameraSelector, videoCapture, preview);
 				} else {
 					// photo
 					imageCapture =
 						new ImageCapture.Builder().setFlashMode(cameraFlashMode).setTargetRotation(rotation).build();
 
-					Camera camera = cameraProvider.bindToLifecycle(this, cameraSelector, imageCapture, preview);
+					camera = cameraProvider.bindToLifecycle(this, cameraSelector, imageCapture, preview);
 				}
 				preview.setSurfaceProvider(viewFinder.getSurfaceProvider());
+
+				if (allowZoom) {
+					// zoom gesture
+					ScaleGestureDetector scaleGestureDetector = new ScaleGestureDetector(activity,
+						new ScaleGestureDetector.SimpleOnScaleGestureListener()
+						{
+							@Override
+							public boolean onScale(ScaleGestureDetector detector)
+							{
+								float scale = camera.getCameraInfo().getZoomState()
+									.getValue().getZoomRatio() * detector.getScaleFactor();
+								camera.getCameraControl().setZoomRatio(scale);
+								return true;
+							}
+						});
+
+					viewFinder.setOnTouchListener((v, event) -> {
+						scaleGestureDetector.onTouchEvent(event);
+						v.performClick();
+						return true;
+					});
+				}
 			} catch (InterruptedException | ExecutionException e) {
 				// Currently no exceptions thrown. cameraProviderFuture.get()
 				// shouldn't block since the listener is being called, so no need to
@@ -466,6 +489,9 @@ public class TiCameraXActivity extends TiBaseActivity implements CameraXConfig.P
 		}
 		if (pendingRecording != null) {
 			pendingRecording = null;
+		}
+		if (camera != null) {
+			camera = null;
 		}
 		// Destroy this activity.
 		super.onDestroy();

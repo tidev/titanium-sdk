@@ -1938,7 +1938,9 @@ properties:
 
   - name: recording
     summary: Function to call during recording. Returns size and duration.
-    type: Callback<FailureResponse>
+    type: Callback<CameraRecordingCallback>
+    platforms: [android]
+    since: { android: "10.3.0" }
 
   - name: androidback
     summary: Function to call if the user presses the back button.
@@ -1978,6 +1980,13 @@ properties:
     type: Boolean
     platforms: [iphone, ipad, macos]
     default: false
+
+  - name: zoomEnabled
+    summary: Specifies if pinch to zoom is enabled or not.
+    type: Boolean
+    platforms: [android]
+    default: false
+    since: { android: "10.3.0" }
 
   - name: mediaTypes
     summary: |
@@ -2333,3 +2342,13 @@ properties:
     summary: An Array of current output ports for the session. See the `AUDIO_SESSION_PORT` constants.
     type: Array<String>
     constants: Titanium.Media.AUDIO_SESSION_PORT_*
+---
+name: CameraRecordingCallback
+summary: Infos about the current video recording
+properties:
+  - name: duration
+    summary: Length in milliseconds
+    type: Number
+  - name: size
+    summary: Size of the video in bytes
+    type: Number
