@@ -521,6 +521,7 @@ events:
       - name: textareaHeight
         summary: Content height value of this text area (iOS only)
         type: Number
+        since: {ios: "10.2.0"} 
 
   - name: focus
     summary: Fired when this text area gains focus.
