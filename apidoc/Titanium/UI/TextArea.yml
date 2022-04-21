@@ -519,9 +519,10 @@ events:
         summary: New value of this text area.
         type: String
       - name: textareaHeight
-        summary: Content height value of this text area (iOS only)
+        summary: Content height value of this textarea
         type: Number
-        since: "10.2.0"
+        platforms: [iphone, ipad, android, macos]
+        since: {iphone: "10.2.0", ipad: "10.2.0", macos: "10.2.0"}
 
   - name: focus
     summary: Fired when this text area gains focus.
