@@ -521,7 +521,7 @@ events:
       - name: textareaHeight
         summary: Content height value of this textarea
         type: Number
-        platforms: [iphone, ipad, android, macos]
+        platforms: [iphone, ipad, macos]
         since: {iphone: "10.2.0", ipad: "10.2.0", macos: "10.2.0"}
 
   - name: focus
