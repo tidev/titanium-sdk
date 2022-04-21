@@ -518,6 +518,9 @@ events:
       - name: value
         summary: New value of this text area.
         type: String
+      - name: textareaHeight
+        summary: Height value of this text area (iOS only)
+        type: Number
 
   - name: focus
     summary: Fired when this text area gains focus.
