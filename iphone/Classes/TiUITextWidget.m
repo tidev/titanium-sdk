@@ -58,7 +58,7 @@
     string = [string substringToIndex:maxLength];
   }
   [(id)[self textWidgetView] setText:string];
-  [(TiUITextWidgetProxy *)[self proxy] noteValueChange:string];
+  [(TiUITextWidgetProxy *)[self proxy] noteValueChange:string:nil];
 }
 
 - (void)setMaxLength_:(id)value
