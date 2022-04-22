@@ -518,8 +518,8 @@ events:
       - name: value
         summary: New value of this text area.
         type: String
-      - name: textareaHeight
-        summary: Content height value of this textarea
+      - name: textAreaHeight
+        summary: Content height value of this text area
         type: Number
         platforms: [iphone, ipad, macos]
         since: {iphone: "10.2.0", ipad: "10.2.0", macos: "10.2.0"}
