@@ -337,7 +337,6 @@
 
 - (void)textViewDidChange:(UITextView *)tv
 {
-  CGFloat height = tv.contentSize.height;
   NSNumber *textareaHeight = [NSNumber numberWithFloat:tv.contentSize.height];
 
   [(TiUITextAreaProxy *)[self proxy] noteValueChange:[(UITextView *)textWidgetView text]:textareaHeight];
