@@ -518,7 +518,7 @@ events:
       - name: value
         summary: New value of this text area.
         type: String
-      - name: textAreaHeight
+      - name: contentHeight
         summary: Content height value of this text area
         type: Number
         platforms: [iphone, ipad, macos]
