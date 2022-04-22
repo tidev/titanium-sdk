@@ -126,7 +126,7 @@ DEFINE_DEF_BOOL_PROP(suppressReturn, YES);
 
     NSMutableDictionary *event = [NSMutableDictionary dictionary];
     if (contentHeight != nil) {
-      [event setValue:contentHeight forKey:@"textareaHeight"];
+      [event setValue:contentHeight forKey:@"contentHeight"];
     }
     [event setValue:newValue forKey:@"value"];
     if ([self _hasListeners:@"change"]) {
