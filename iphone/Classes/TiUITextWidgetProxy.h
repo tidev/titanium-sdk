@@ -26,7 +26,7 @@
 }
 
 //Internal values
-- (void)noteValueChange:(NSString *)newValue;
+- (void)noteValueChange:(NSString *)newValue:(NSNumber *)contentHeight;
 
 @property (nonatomic, readwrite, assign) BOOL suppressFocusEvents;
 // workaround bridge layer issue clashing with focused:(id)unused method
