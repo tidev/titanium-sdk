@@ -692,7 +692,7 @@ properties:
     type: Boolean
     default: false
     availability: creation
-    since: 10.2.0
+    since: 11.0.0
     platforms: [android]
 
   - name: allowsSelectionDuringEditing
