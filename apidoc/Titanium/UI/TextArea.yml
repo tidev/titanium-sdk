@@ -10,7 +10,7 @@ description: |
 
     #### `click` event in iOS
 
-    In iOS 11+, `click` event in text area is not fired due to changes from apple. 
+    In iOS 11+, `click` event in text area is not fired due to changes from apple.
     Use `touchstart` event instead of `click` event.
 
 extends: Titanium.UI.View
@@ -522,7 +522,7 @@ events:
         summary: Content height value of this text area
         type: Number
         platforms: [iphone, ipad, macos]
-        since: {iphone: "10.2.0", ipad: "10.2.0", macos: "10.2.0"}
+        since: {iphone: "11.0.0", ipad: "11.0.0", macos: "11.0.0"}
 
   - name: focus
     summary: Fired when this text area gains focus.
