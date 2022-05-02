@@ -104,7 +104,7 @@ exports.init = function (logger, config, cli) {
 
 					// Open the app
 					logger.info(__('Launching Mac application'));
-					const child = spawn(`${builder.iosBuildDir}/${builder.tiapp.name}.app/Contents/MacOS/${builder.tiapp.name}`);
+					const child = spawn(`open`, [`-a`, `${builder.iosBuildDir}/${builder.tiapp.name}.app`, `-W`]);
 					child.on('error', err => logger.error(err));
 					// "Forward" the exit code of the app to this process (when the app exits)
 					child.on('exit', (code, _signal) => {
