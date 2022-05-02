@@ -776,7 +776,7 @@ properties:
     type: Titanium.Calendar.Calendar
     permission: read-only
     platforms: [android, iphone, ipad, macos]
-    since: {android: "10.2.0", iphone: "3.1.0", ipad: "3.1.0"}
+    since: {android: "11.0.0", iphone: "3.1.0", ipad: "3.1.0"}
 
 examples:
   - title: All Calendars vs Selectable Calendars

@@ -1,0 +1,13 @@
+name: Check CLA
+on:
+  - pull_request
+
+jobs:
+  check-cla:
+    runs-on: ubuntu-latest
+    name: Verify contributor
+
+    steps:
+    - env:
+        GITHUB_USER: ${{ github.actor }}
+      uses: tidev/tidev-cla-action@v1

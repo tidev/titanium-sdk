@@ -34,7 +34,7 @@ methods:
         this [here](https://developer.android.com/preview/privacy/package-visibility).
 
         ```xml
-        <ti:app xmlns:ti="http://ti.appcelerator.org">
+        <ti:app xmlns:ti="http://ti.tidev.io">
             <android>
                 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
                     <queries>

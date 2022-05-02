@@ -1692,7 +1692,7 @@ iOSBuilder.prototype.initTiappSettings = function initTiappSettings() {
 					} else {
 						logger.error(__('iOS extension "%s" target "%s" is missing the %s provisioning profile UUID in tiapp.xml.', projectName, '<' + cli.argv.target + '>', targetName));
 						logger.log();
-						logger.log('<ti:app xmlns:ti="http://ti.appcelerator.org">'.grey);
+						logger.log('<ti:app xmlns:ti="http://ti.tidev.io">'.grey);
 						logger.log('    <ios>'.grey);
 						logger.log('        <extensions>'.grey);
 						logger.log(('            <extension projectPath="' + ext.origProjectPath + '">').grey);
@@ -2109,7 +2109,7 @@ iOSBuilder.prototype.validate = function validate(logger, config, cli) {
 								logger.log('  ' + id.cyan);
 							});
 							logger.log();
-							logger.log('<ti:app xmlns:ti="http://ti.appcelerator.org">'.grey);
+							logger.log('<ti:app xmlns:ti="http://ti.tidev.io">'.grey);
 							logger.log('    <ios>'.grey);
 							logger.log('        <team-id>TEAM ID</team-id>'.magenta);
 							logger.log('    </ios>'.grey);
@@ -2152,7 +2152,7 @@ iOSBuilder.prototype.validate = function validate(logger, config, cli) {
 							logger.log(__('The device is running iOS %s, however the app\'s the minimum iOS version is set to %s', device.productVersion.cyan, version.format(this.minIosVer, 2, 3).cyan));
 							logger.log(__('In order to install this app on this device, lower the %s to %s in the tiapp.xml:', '<min-ios-ver>'.cyan, version.format(device.productVersion, 2, 2).cyan));
 							logger.log();
-							logger.log('<ti:app xmlns:ti="http://ti.appcelerator.org">'.grey);
+							logger.log('<ti:app xmlns:ti="http://ti.tidev.io">'.grey);
 							logger.log('    <ios>'.grey);
 							logger.log(('        <min-ios-ver>' + version.format(device.productVersion, 2, 2) + '</min-ios-ver>').magenta);
 							logger.log('    </ios>'.grey);
@@ -4410,7 +4410,7 @@ iOSBuilder.prototype.writeInfoPlist = function writeInfoPlist() {
 		this.logger.error(__('The <iphone> section of the tiapp.xml has been removed in Titanium SDK 7.0.0 and later.'));
 		this.logger.log(__('Please use the <ios> section of the tiapp.xml to specify iOS-specific values instead:'));
 		this.logger.log();
-		this.logger.log('<ti:app xmlns:ti="http://ti.appcelerator.org">'.grey);
+		this.logger.log('<ti:app xmlns:ti="http://ti.tidev.io">'.grey);
 		this.logger.log('    <ios>'.grey);
 		this.logger.log('        <plist>'.grey);
 		this.logger.log('            <dict>'.grey);

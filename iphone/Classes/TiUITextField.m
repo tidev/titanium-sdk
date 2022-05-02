@@ -553,7 +553,7 @@
   if ([ourProxy suppressFocusEvents]) {
     return;
   }
-  [ourProxy noteValueChange:[(UITextField *)textWidgetView text]];
+  [ourProxy noteValueChange:[(UITextField *)textWidgetView text]:nil];
 }
 
 - (BOOL)textFieldShouldEndEditing:(UITextField *)tf
@@ -564,7 +564,7 @@
 - (BOOL)textFieldShouldClear:(UITextField *)tf
 {
   // we notify proxy so he can serialize in the model
-  [(TiUITextFieldProxy *)self.proxy noteValueChange:@""];
+  [(TiUITextFieldProxy *)self.proxy noteValueChange:@"":nil];
   return YES;
 }
 

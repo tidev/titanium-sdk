@@ -1970,7 +1970,7 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
 
 - (void)popoverPresentationControllerDidDismissPopover:(UIPopoverPresentationController *)popoverPresentationController
 {
-#ifdef USE_TI_MEDIAOPENMUSICLIBRARY
+#if defined(USE_TI_MEDIAOPENMUSICLIBRARY) || defined(USE_TI_MEDIAQUERYMUSICLIBRARY)
   if ([popoverPresentationController presentedViewController] == musicPicker) {
     RELEASE_TO_NIL(musicPicker);
   }
