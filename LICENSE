@@ -1,6 +1,6 @@
 ======================================
 Appcelerator Titanium Mobile
-Copyright 2008-2017 Appcelerator, Inc.
+Copyright TiDev, Inc. 04/07/2022-Present
 ======================================
 
    Licensed under the Apache License, Version 2.0 (the "License");
@@ -220,27 +220,3 @@ distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
-
-
-
-PRIVACY NOTICE
-==============
-
-At Appcelerator, we’re committed to transparency and we respect your privacy.
-This software collects information about you and your end-users of any
-applications that you build. The information we collect is used to
-improve the content of our Products, Websites and Applications built using
-our technology (collectively and individually, the "Software"), used to
-customize the content and/or layout of our Software for each individual
-visitor, used to notify users about updates to our Software, used by us to
-contact users for marketing purposes, disclosed when legally required to
-do so, at the request of governmental authorities conducting an investigation,
-to verify or enforce compliance with the policies governing our Software and
-applicable laws or to protect against misuse or unauthorized use of our
-Software, to a successor entity in connection with a corporate merger,
-consolidation, sale of assets or other corporate change respecting the
-Software.
-
-
-Please review the full text of our privacy policy online at:
-<http://www.appcelerator.com/company/privacy/>
