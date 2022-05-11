@@ -158,7 +158,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/appcelerator/titanium_mobile.git"
+    "url": "git://github.com/tidev/titanium_mobile.git"
   },
   "vendorDependencies": {
     "node": "12.x || 14.x || 16.x"
