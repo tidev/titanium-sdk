@@ -1,13 +1,12 @@
 {
   "name": "titanium-mobile",
-  "description": "Appcelerator Titanium Mobile",
+  "description": "TiDev Titanium Mobile",
   "version": "11.0.0",
   "moduleApiVersion": {
     "iphone": "2",
     "android": "4"
   },
   "keywords": [
-    "appcelerator",
     "titanium",
     "mobile",
     "android",
