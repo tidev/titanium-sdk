@@ -124,13 +124,13 @@ var view = new View(activity);
 
 ### Getting Started
 
-Check out our [Hyperloop Sample App](https://github.com/appcelerator/hyperloop-examples) and [Hyperloop Programming Guide](https://titaniumsdk.com/guide/Titanium_SDK/Titanium_SDK_Guide/Hyperloop/) to get started with Hyperloop today!
+Check out our [Hyperloop Sample App](https://github.com/tidev/hyperloop-examples) and [Hyperloop Programming Guide](https://titaniumsdk.com/guide/Titanium_SDK/Titanium_SDK_Guide/Hyperloop/) to get started with Hyperloop today!
 
 ## Alloy
 
 [Alloy](https://titaniumsdk.com/guide/Alloy_Framework/Alloy_Getting_Started.html) is the MVC application framework built
 on top of Titanium. It is optional. It rocks. Check it out if you're considering using Titanium.
-It is also a separate [open source project](https://github.com/appcelerator/alloy) available under Apache Public License.
+It is also a separate [open source project](https://github.com/tidev/alloy) available under Apache Public License.
 
 ### Example
 
@@ -244,8 +244,6 @@ The tests spit out their results to the console log, and the test scripts listen
 
 The `tests` folder contains the test suite. Any files living within that directory are copied on top of the test app's structure.
 
-## Legal Stuff
+## Legal
 
-Appcelerator is a registered trademark of Appcelerator, Inc. Titanium is
-a registered trademark of Appcelerator, Inc.  Please see the LEGAL information about using our trademarks,
-privacy policy, terms of usage and other legal information at [http://www.appcelerator.com/legal](http://www.appcelerator.com/legal).
+Titanium is a registered trademark of TiDev Inc. All Titanium trademark and patent rights were transferred and assigned to TiDev Inc. on 04/07/2022. Please see the LEGAL information about using our trademarks, privacy policy, terms of usage and other legal information at http://www.tidev.io/legal.
