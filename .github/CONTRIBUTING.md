@@ -7,6 +7,6 @@ Thank you for the interest in contributing. We'd like to review and possibly mer
 - [x] If you are fixing an issue that has no GitHub issue, create a [new issue](https://github.com/tidev/titanium_mobile/issues/new/choose) and include the URL in your PR description
 - [x] Use a clear title, e.g. prefixing it with the GitHub Issue number and platform
 
-That's it, you are good to go! If you have any further questions or problems, feel free to ask us on [Ti.Slack](https://tislack.org) or [GitHub Discussions](https://github.com/tidev/titanium_mobile/discussions).
+That's it, you are good to go! If you have any further questions or problems, feel free to ask us on [Ti.Slack](https://slack.tidev.io) or [GitHub Discussions](https://github.com/tidev/titanium_mobile/discussions).
 
 Code strong! :rocket:
