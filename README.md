@@ -178,7 +178,7 @@ Please visit the official documentation site at [https://titaniumsdk.com/](https
 
 ### Slack / Developer Community
 
-Community support and discussion about Titanium is available on Slack at [TiSlack](http://www.tislack.org).
+Community support and discussion about Titanium is available on Slack at [TiSlack](https://slack.tidev.io).
 
 ### Twitter
 
