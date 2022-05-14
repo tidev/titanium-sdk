@@ -335,15 +335,22 @@ DEFINE_EXCEPTIONS
 {
   [super traitCollectionDidChange:previousTraitCollection];
 
-  // Redraw the border- and view shadow color since they're using CGColor references
+  // Redraw the border color
   id borderColor = [self.proxy valueForKey:@"borderColor"];
   if (borderColor != nil) {
     [self setBorderColor_:borderColor];
   }
 
+  // Redraw the view shadow color
   id viewShadowColor = [self.proxy valueForKey:@"viewShadowColor"];
   if (viewShadowColor != nil) {
     [self setViewShadowColor_:viewShadowColor];
+  }
+
+  // Redraw the background gradient
+  id backgroundGradient = [self.proxy valueForKey:@"backgroundGradient"];
+  if (backgroundGradient != nil) {
+    [self setBackgroundGradient_:backgroundGradient];
   }
 }
 
