@@ -244,6 +244,10 @@ The tests spit out their results to the console log, and the test scripts listen
 
 The `tests` folder contains the test suite. Any files living within that directory are copied on top of the test app's structure.
 
+### Update packaged modules
+
+Some modules like ti.map or ti.facebook are included with the SDK. To update to the latest versions you have to edit the links in `support/module/packaged/modules.json` and run `node build/scons-modules-integrity.js`. This will download the files and update the integrity values.
+
 ## Legal
 
 Titanium is a registered trademark of TiDev Inc. All Titanium trademark and patent rights were transferred and assigned to TiDev Inc. on 04/07/2022. Please see the LEGAL information about using our trademarks, privacy policy, terms of usage and other legal information at https://tidev.io/legal.
