@@ -8,6 +8,6 @@ jobs:
     name: Verify contributor
 
     steps:
-    - env:
-        GITHUB_USER: ${{ github.actor }}
-      uses: tidev/tidev-cla-action@v1
+    - uses: tidev/tidev-cla-action@v1
+      with:
+        repo-token: ${{ secrets.GITHUB_TOKEN }}

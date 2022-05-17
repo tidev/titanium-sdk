@@ -1,13 +1,13 @@
 {
   "name": "titanium-mobile",
-  "description": "Appcelerator Titanium Mobile",
+  "description": "TiDev Titanium Mobile",
   "version": "11.0.0",
   "moduleApiVersion": {
     "iphone": "2",
     "android": "4"
   },
   "keywords": [
-    "appcelerator",
+    "tidev",
     "titanium",
     "mobile",
     "android",
@@ -19,7 +19,7 @@
   "scripts": {
     "android": "node ./build/scons cleanbuild android",
     "build": "node ./build/scons build",
-    "build:local": "node ./build/scons build && node ./build/scons package --skip-zip && ./build/scons install",
+    "build:local": "node ./build/scons build && node ./build/scons package --skip-zip && node ./build/scons install",
     "build:android": "npm run build -- android",
     "build:changelog": "conventional-changelog -n changelog/config.js -i CHANGELOG.md -s -p angular",
     "build:docs": "docgen apidoc -o ./dist",
@@ -158,7 +158,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/appcelerator/titanium_mobile.git"
+    "url": "git://github.com/tidev/titanium_mobile.git"
   },
   "vendorDependencies": {
     "node": "12.x || 14.x || 16.x"
