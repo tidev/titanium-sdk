@@ -42,6 +42,8 @@ typedef enum {
 @property (nonatomic, readwrite, assign) BOOL backfillEnd;
 
 - (void)paintContext:(CGContextRef)context bounds:(CGRect)bounds;
+- (void)clearCache;
+- (void)setColors:(NSArray *)newColors;
 
 + (TiGradient *)gradientFromObject:(id)value proxy:(TiProxy *)proxy;
 
