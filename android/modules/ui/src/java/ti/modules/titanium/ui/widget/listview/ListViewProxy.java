@@ -312,7 +312,7 @@ public class ListViewProxy extends RecyclerViewProxy
 	 *
 	 * @return TiListView
 	 */
-	private TiListView getListView()
+	public TiListView getListView()
 	{
 		final TiUIListView view = (TiUIListView) this.view;
 
