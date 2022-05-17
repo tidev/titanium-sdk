@@ -348,8 +348,10 @@ DEFINE_EXCEPTIONS
   }
 
   // Redraw the background gradient
-  id backgroundGradient = [self.proxy valueForKey:@"backgroundGradient"];
+  TiGradient *backgroundGradient = [self.proxy valueForKey:@"backgroundGradient"];
   if (backgroundGradient != nil) {
+    [backgroundGradient clearCache];
+    [backgroundGradient setColors:[backgroundGradient valueForKey:@"colors"]];
     [self setBackgroundGradient_:backgroundGradient];
   }
 }
