@@ -41,6 +41,7 @@ see the [LICENSE](LICENSE) file for specific details.
     - [Unit tests](#unit-tests)
       - [How it works](#how-it-works)
       - [How to modify the tests locally and in your PRs](#how-to-modify-the-tests-locally-and-in-your-prs)
+    - [Upgrade gradle and gradle plugin](#upgrade-gradle-and-gradle-plugin)
   - [Legal Stuff](#legal-stuff)
 
 ## Features
@@ -124,13 +125,13 @@ var view = new View(activity);
 
 ### Getting Started
 
-Check out our [Hyperloop Sample App](https://github.com/appcelerator/hyperloop-examples) and [Hyperloop Programming Guide](https://titaniumsdk.com/guide/Titanium_SDK/Titanium_SDK_Guide/Hyperloop/) to get started with Hyperloop today!
+Check out our [Hyperloop Sample App](https://github.com/tidev/hyperloop-examples) and [Hyperloop Programming Guide](https://titaniumsdk.com/guide/Titanium_SDK/Titanium_SDK_Guide/Hyperloop/) to get started with Hyperloop today!
 
 ## Alloy
 
 [Alloy](https://titaniumsdk.com/guide/Alloy_Framework/Alloy_Getting_Started.html) is the MVC application framework built
 on top of Titanium. It is optional. It rocks. Check it out if you're considering using Titanium.
-It is also a separate [open source project](https://github.com/appcelerator/alloy) available under Apache Public License.
+It is also a separate [open source project](https://github.com/tidev/alloy) available under Apache Public License.
 
 ### Example
 
@@ -178,7 +179,7 @@ Please visit the official documentation site at [https://titaniumsdk.com/](https
 
 ### Slack / Developer Community
 
-Community support and discussion about Titanium is available on Slack at [TiSlack](http://www.tislack.org).
+Community support and discussion about Titanium is available on Slack at [TiSlack](https://slack.tidev.io).
 
 ### Twitter
 
@@ -244,8 +245,25 @@ The tests spit out their results to the console log, and the test scripts listen
 
 The `tests` folder contains the test suite. Any files living within that directory are copied on top of the test app's structure.
 
-## Legal Stuff
 
-Appcelerator is a registered trademark of Appcelerator, Inc. Titanium is
-a registered trademark of Appcelerator, Inc.  Please see the LEGAL information about using our trademarks,
-privacy policy, terms of usage and other legal information at [http://www.appcelerator.com/legal](http://www.appcelerator.com/legal).
+### Upgrade gradle and gradle plugin
+
+The gradle (tool, build system) and gradle plugin (plugin that adds several features that are specific to building Android apps) version numbers are located in:
+* `android/build.gradle`
+* `android/gradle/wrapper/gradle-wrapper.properties`
+* `android/templates/build/root.build.gradle`.
+
+You can run `./android/gradlew wrapper --gradle-version 7.4.2 --distribution-type all` to update the gradle tool. It will download the version, change the `gradle-wrapper.properties` link, update the gradlew file and the gradle-wrapper.jar.
+To update the plugin to a newer version (check https://mvnrepository.com/artifact/com.android.tools.build/gradle?repo=google) you have to change the `build.gradle` and `root.build.gradle` from the links above.
+When you change the gradle plugin make sure to look at the `Compatibility` section at https://developer.android.com/studio/releases/gradle-plugin#compatibility-7-1-0 and adjust the `android build tools` section in `android/package.json`.
+If needed make sure the other libraries e.g. the kotlin version in `build.gradle` are working with the current setup.
+
+After you've made the changes and compiled the SDK make sure to run the test suite, build the kitchensink and hyperloop example app. Create a and build a module (java and kotlin) and run those in a test app too.
+
+### Update packaged modules
+
+Some modules like ti.map or ti.facebook are included with the SDK. To update to the latest versions you have to edit the links in `support/module/packaged/modules.json` and run `node build/scons-modules-integrity.js`. This will download the files and update the integrity values.
+
+## Legal
+
+Titanium is a registered trademark of TiDev Inc. All Titanium trademark and patent rights were transferred and assigned to TiDev Inc. on 04/07/2022. Please see the LEGAL information about using our trademarks, privacy policy, terms of usage and other legal information at https://tidev.io/legal.
