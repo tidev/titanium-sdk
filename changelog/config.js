@@ -360,10 +360,9 @@ module.exports = {
 				}
 				eosDate.setMonth(eosDate.getMonth() + 6);
 			}
-			const yyyy = eosDate.getUTCFullYear();
-			const mm = (eosDate.getUTCMonth() + 1).toString().padStart(2, '0');
-			const dd = eosDate.getUTCDate().toString().padStart(2, '0');
-			context.eosDate = `${yyyy}-${mm}-${dd}}`;
+
+			// yyyy-mm-dd
+			context.eosDate = eosDate.toISOString().split('T')[0];
 
 			// Gather up the modules shipped with this version and toss into a variable we can put into the changelog
 			const modules = gatherModules();
