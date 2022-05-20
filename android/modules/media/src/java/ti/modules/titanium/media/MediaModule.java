@@ -89,6 +89,13 @@ public class MediaModule extends KrollModule implements Handler.Callback
 	public static final int NO_VIDEO = 3;
 
 	@Kroll.constant
+	public static final int  AUDIO_FILEFORMAT_WAVE = 0;
+	@Kroll.constant
+	public static final int AUDIO_FILEFORMAT_MP4 = 1;
+	@Kroll.constant
+	public static final int  AUDIO_FILEFORMAT_AAC = 2;
+
+	@Kroll.constant
 	public static final int IMAGE_SCALING_AUTO = -1;
 	@Kroll.constant
 	public static final int IMAGE_SCALING_NONE = 0;

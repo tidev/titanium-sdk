@@ -9,6 +9,10 @@ package ti.modules.titanium.media;
 import android.media.AudioFormat;
 import android.media.AudioRecord;
 import android.media.MediaRecorder;
+import android.os.Build;
+
+import androidx.annotation.RequiresApi;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
@@ -42,6 +46,9 @@ public class TiAudioRecorder
 	private File tempFileReference;
 	private RandomAccessFile randomAccessFile;
 	private AudioRecord audioRecord;
+	int format = MediaModule.AUDIO_FILEFORMAT_WAVE;
+	MediaRecorder recorder;
+	boolean recorderIsRunning = false;
 
 	public TiAudioRecorder()
 	{
@@ -55,6 +62,9 @@ public class TiAudioRecorder
 		if (this.audioRecord != null) {
 			return (this.audioRecord.getRecordingState() != AudioRecord.RECORDSTATE_RECORDING);
 		}
+		if (this.recorder != null) {
+			return recorderIsRunning;
+		}
 		return false;
 	}
 
@@ -62,6 +72,9 @@ public class TiAudioRecorder
 	{
 		if (this.audioRecord != null) {
 			return (this.audioRecord.getRecordingState() == AudioRecord.RECORDSTATE_RECORDING);
+		}
+		if (this.recorder != null) {
+			return recorderIsRunning;
 		}
 		return false;
 	}
@@ -71,6 +84,7 @@ public class TiAudioRecorder
 		return (this.audioRecord == null);
 	}
 
+	@RequiresApi(api = Build.VERSION_CODES.O)
 	public void startRecording()
 	{
 		// Do not continue if already started recording.
@@ -79,33 +93,51 @@ public class TiAudioRecorder
 			Log.w(TAG, "AudioRecorder has already been started.");
 			return;
 		}
-
-		// Set up and start audio recording.
 		try {
-			// Create a WAV file to write microphone data to.
-			// We'll update the WAV file's header with the correct info when we stop recording.
-			this.tempFileReference = TiFileHelper.getInstance().getTempFile(".wav", true);
-			this.randomAccessFile = new RandomAccessFile(this.tempFileReference, "rw");
-			this.randomAccessFile.setLength(0);
-			writeWaveFileHeader(this.randomAccessFile, 0, 0, 0, 0, 0);
+			if (format != MediaModule.AUDIO_FILEFORMAT_WAVE) {
+				int localFormat = MediaRecorder.OutputFormat.MPEG_4;
+				String suffix = ".mp4";
+				if (format == MediaModule.AUDIO_FILEFORMAT_AAC) {
+					localFormat = MediaRecorder.OutputFormat.AAC_ADTS;
+					suffix = ".aac";
+				}
+				this.recorder = new MediaRecorder();
+				this.recorder.setAudioSource(MediaRecorder.AudioSource.MIC);
+				this.recorder.setOutputFormat(localFormat);
+				this.tempFileReference = TiFileHelper.getInstance().getTempFile(suffix, true);
+				this.recorder.setOutputFile(this.tempFileReference);
+				this.recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
+				this.recorder.prepare();
+				this.recorder.start();
+				recorderIsRunning = true;
+			} else {
+				// Set up and start audio recording.
 
-			// Initialize audio recorder with a big enough buffer to ensure smooth reading from it without overlap.
-			this.audioRecord = new AudioRecord(
-				MediaRecorder.AudioSource.MIC, RECORDER_SAMPLE_RATE, RECORDER_CHANNEL_CONFIG,
-				RECORDER_AUDIO_ENCODING, bufferSize * 4);
-			this.audioData = new byte[bufferSize];
-			if (this.audioRecord.getState() == AudioRecord.STATE_INITIALIZED) {
-				this.audioRecord.setRecordPositionUpdateListener(onRecordPositionUpdateListener);
-				this.audioRecord.setPositionNotificationPeriod(bufferSize / 4);
-				this.audioRecord.startRecording();
-				if (!isRecording()) {
-					Log.e(TAG, "AudioRecorder.start() failed to start recording. Reason: Unknown");
+				// Create a WAV file to write microphone data to.
+				// We'll update the WAV file's header with the correct info when we stop recording.
+				this.tempFileReference = TiFileHelper.getInstance().getTempFile(".wav", true);
+				this.randomAccessFile = new RandomAccessFile(this.tempFileReference, "rw");
+				this.randomAccessFile.setLength(0);
+				writeWaveFileHeader(this.randomAccessFile, 0, 0, 0, 0, 0);
+
+				// Initialize audio recorder with a big enough buffer to ensure smooth reading from it without overlap.
+				this.audioRecord = new AudioRecord(
+					MediaRecorder.AudioSource.MIC, RECORDER_SAMPLE_RATE, RECORDER_CHANNEL_CONFIG,
+					RECORDER_AUDIO_ENCODING, bufferSize * 4);
+				this.audioData = new byte[bufferSize];
+
+				if (this.audioRecord.getState() == AudioRecord.STATE_INITIALIZED) {
+					this.audioRecord.setRecordPositionUpdateListener(onRecordPositionUpdateListener);
+					this.audioRecord.setPositionNotificationPeriod(bufferSize / 4);
+					this.audioRecord.startRecording();
+					if (!isRecording()) {
+						Log.e(TAG, "AudioRecorder.start() failed to start recording. Reason: Unknown");
+					}
 				}
 			}
 		} catch (Exception ex) {
 			Log.e(TAG, "AudioRecorder.start() failed to start recording.", ex);
 		}
-
 		// If we failed to start recording above, then clean-up any hanging resources.
 		if (!isRecording()) {
 			stopRecording();
@@ -116,6 +148,11 @@ public class TiAudioRecorder
 	{
 		// Stop recording and produce the WAV file.
 		File resultFile = null;
+		if (this.recorder != null) {
+			this.recorder.stop();
+			resultFile = this.tempFileReference;
+			recorderIsRunning = false;
+		}
 		if (this.audioRecord != null) {
 			try {
 				// Stop recording.
@@ -162,14 +199,22 @@ public class TiAudioRecorder
 	public void pauseRecording()
 	{
 		if (isRecording()) {
-			this.audioRecord.stop();
+			if (this.audioRecord != null) this.audioRecord.stop();
+			if (this.recorder != null) {
+				this.recorder.pause();
+				recorderIsRunning = false;
+			}
 		}
 	}
 
 	public void resumeRecording()
 	{
 		if (isPaused()) {
-			this.audioRecord.startRecording();
+			if (this.audioRecord != null) this.audioRecord.startRecording();
+			if (this.recorder != null) {
+				this.recorder.resume();
+				recorderIsRunning = true;
+			}
 		}
 	}
 
