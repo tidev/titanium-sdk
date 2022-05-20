@@ -110,7 +110,7 @@ public class TiAudioRecorder
 				this.recorder.setOutputFormat(localFormat);
 				this.tempFileReference = TiFileHelper.getInstance().getTempFile(suffix, true);
 				this.recorder.setOutputFile(this.tempFileReference);
-				this.recorder.setAudioSamplingRate();
+				this.recorder.setAudioSamplingRate(RECORDER_SAMPLE_RATE);
 				this.recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
 				this.recorder.prepare();
 				this.recorder.start();
