@@ -100,6 +100,12 @@ public class TiAudioRecorder
 				if (format == MediaModule.AUDIO_FILEFORMAT_AAC) {
 					localFormat = MediaRecorder.OutputFormat.AAC_ADTS;
 					suffix = ".aac";
+				} else if (format == MediaModule.AUDIO_FILEFORMAT_OGG) {
+					localFormat = MediaRecorder.OutputFormat.OGG;
+					suffix = ".ogg";
+				} else if (format == MediaModule.AUDIO_FILEFORMAT_WEBM) {
+					localFormat = MediaRecorder.OutputFormat.WEBM;
+					suffix = ".webm";
 				}
 				this.recorder = new MediaRecorder();
 				this.recorder.setAudioSource(MediaRecorder.AudioSource.MIC);

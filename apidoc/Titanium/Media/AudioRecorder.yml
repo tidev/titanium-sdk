@@ -3,15 +3,15 @@ name: Titanium.Media.AudioRecorder
 summary: An audio recorder object used for recording audio from the device microphone.
 description: |
     Use the <Titanium.Media.createAudioRecorder> method to create an audio recorder.
-    
+
     Ensure to request the permissions for audio-recording before starting a new record-session.
     This can be done by using <Titanium.Media.hasAudioRecorderPermissions> to check whether
-    audio-permissions are granted and <Titanium.Media.requestAudioRecorderPermissions> to 
-    request audio-permissions. 
-    
+    audio-permissions are granted and <Titanium.Media.requestAudioRecorderPermissions> to
+    request audio-permissions.
+
     **Android Platform Note**: On Android, you also need to include the following permission
     into the `<android>` section of the tiapp.xml:
-    
+
     ``` xml
     <android xmlns:android="http://schemas.android.com/apk/res/android">
         <manifest>
@@ -19,9 +19,9 @@ description: |
         </manifest>
     </android>
     ```
-    
+
 extends: Titanium.Proxy
-since: 
+since:
   iphone: "0.9"
   ipad: "0.9"
   android: "6.2.0"
@@ -53,10 +53,13 @@ properties:
 
   - name: format
     summary: Audio format to be used for the recording.
+    description: |
+      Android only supports AUDIO_FILEFORMAT_MP4, AUDIO_FILEFORMAT_OGG, AUDIO_FILEFORMAT_WEBM, AUDIO_FILEFORMAT_WAVE.
     type: Number
     constants: Titanium.Media.AUDIO_FILEFORMAT_*
     default: <Titanium.Media.AUDIO_FILEFORMAT_CAF>
-    platforms: [iphone, ipad, macos]
+    platforms: [android, iphone, ipad, macos]
+    since: {android: "11.1.0", iphone: "3.2.4", ipad: "3.2.4", macos: "9.2.0" }
 
   - name: paused
     summary: Indicates if the audio recorder is paused.
@@ -73,36 +76,36 @@ properties:
     type: Boolean
     permission: read-only
 
-examples: 
+examples:
   - title: Audio Recorder Example
     example: |
         The following code-example creates a window that controls the audio-recorder flow.
-        
+
         ``` js
         var window = Ti.UI.createWindow({
           backgroundColor: '#fff'
         });
-        
+
         var recordStart = Ti.UI.createButton({
           title: 'Start',
           top: 10
         });
-        
+
         var recordPause = Ti.UI.createButton({
           title: 'Pause',
           top: 60
         });
-        
+
         var recordStop = Ti.UI.createButton({
           title: 'Stop',
           top: 110
         });
-        
+
         var recordPlay = Ti.UI.createButton({
           title: 'Play',
           top: 160
         });
-        
+
         var audioRecorder = Ti.Media.createAudioRecorder();
         var record;
         var audioPlayer;
