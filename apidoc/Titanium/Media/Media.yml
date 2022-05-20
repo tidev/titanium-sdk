@@ -577,7 +577,8 @@ properties:
     summary: Audio file format MP4.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, macos]
+    platforms: [android, iphone, ipad, macos]
+    since: {android: "11.1.0", iphone: "3.2.4", ipad: "3.2.4", macos: "3.2.4" }
 
   - name: AUDIO_FILEFORMAT_MP4A
     summary: Audio file format MP4A.
@@ -595,7 +596,8 @@ properties:
     summary: Audio format MPEG4 AAC encoding.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, macos]
+    platforms: [android, iphone, ipad, macos]
+    since: {android: "11.1.0", iphone: "3.2.4", ipad: "3.2.4", macos: "3.2.4" }
 
   - name: AUDIO_FORMAT_ALAW
     summary: Audio format 8-bit [aLaw encoding](https://en.wikipedia.org/wiki/A-law_algorithm).
