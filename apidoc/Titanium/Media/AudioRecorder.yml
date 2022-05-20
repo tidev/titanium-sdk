@@ -54,7 +54,7 @@ properties:
   - name: format
     summary: Audio format to be used for the recording.
     description: |
-      Android only supports AUDIO_FILEFORMAT_MP4, AUDIO_FILEFORMAT_OGG, AUDIO_FILEFORMAT_WEBM, AUDIO_FILEFORMAT_WAVE.
+      Android only supports AUDIO_FILEFORMAT_MP4, AUDIO_FILEFORMAT_3GPP, AUDIO_FILEFORMAT_WAVE.
     type: Number
     constants: Titanium.Media.AUDIO_FILEFORMAT_*
     default: <Titanium.Media.AUDIO_FILEFORMAT_CAF>

@@ -100,18 +100,17 @@ public class TiAudioRecorder
 				if (format == MediaModule.AUDIO_FILEFORMAT_AAC) {
 					localFormat = MediaRecorder.OutputFormat.AAC_ADTS;
 					suffix = ".aac";
-				} else if (format == MediaModule.AUDIO_FILEFORMAT_OGG) {
-					localFormat = MediaRecorder.OutputFormat.OGG;
-					suffix = ".ogg";
-				} else if (format == MediaModule.AUDIO_FILEFORMAT_WEBM) {
-					localFormat = MediaRecorder.OutputFormat.WEBM;
-					suffix = ".webm";
+				} else if (format == MediaModule.AUDIO_FILEFORMAT_3GPP) {
+					localFormat = MediaRecorder.OutputFormat.THREE_GPP;
+					suffix = ".3gp";
 				}
+				android.util.Log.i(TAG, "startRecording: " + localFormat + " " + suffix);
 				this.recorder = new MediaRecorder();
 				this.recorder.setAudioSource(MediaRecorder.AudioSource.MIC);
 				this.recorder.setOutputFormat(localFormat);
 				this.tempFileReference = TiFileHelper.getInstance().getTempFile(suffix, true);
 				this.recorder.setOutputFile(this.tempFileReference);
+				this.recorder.setAudioSamplingRate();
 				this.recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
 				this.recorder.prepare();
 				this.recorder.start();

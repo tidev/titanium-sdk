@@ -547,7 +547,8 @@ properties:
     summary: Audio file format 3GPP.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, macos]
+    platforms: [android, iphone, ipad, macos]
+    since: {android: "11.1.0", iphone: "3.2.4", ipad: "3.2.4", macos: "9.2.0" }
 
   - name: AUDIO_FORMAT_AAC
     summary: Audio file format AAC.
@@ -592,20 +593,6 @@ properties:
     type: Number
     permission: read-only
     platforms: [iphone, ipad, macos]
-
-  - name: AUDIO_FILEFORMAT_OGG
-    summary: Audio file format OGG.
-    type: Number
-    permission: read-only
-    platforms: [android]
-    since: {android: "11.1.0" }
-
-  - name: AUDIO_FILEFORMAT_WEBM
-    summary: Audio file format WEBM.
-    type: Number
-    permission: read-only
-    platforms: [android]
-    since: {android: "11.1.0" }
 
   - name: AUDIO_FILEFORMAT_WAVE
     summary: Audio file format WAVE.
