@@ -39,6 +39,7 @@ public class AudioRecorderProxy extends KrollProxy
 	@Kroll.setProperty
 	public void setCompression(int value)
 	{
+		tiAudioRecorder.compression = value;
 	}
 
 	@Kroll.setProperty
@@ -56,7 +57,7 @@ public class AudioRecorderProxy extends KrollProxy
 	@Kroll.getProperty
 	public int getCompression()
 	{
-		return 0;
+		return tiAudioRecorder.compression;
 	}
 
 	@Kroll.getProperty

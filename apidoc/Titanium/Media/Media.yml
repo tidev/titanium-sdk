@@ -633,13 +633,56 @@ properties:
     summary: Audio format 16-bit, [linear PCM encoding](https://en.wikipedia.org/wiki/Pulse-code_modulation).
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, macos]
+    platforms: [android, iphone, ipad, macos]
+    since: {android: "11.1.0", iphone: "3.2.4", ipad: "3.2.4", macos: "9.2.0" }
 
   - name: AUDIO_FORMAT_ULAW
     summary: Audio format 8-bit [muLaw encoding](https://en.wikipedia.org/wiki/M-law_algorithm).
     type: Number
     permission: read-only
     platforms: [iphone, ipad, macos]
+
+  - name: AUDIO_FORMAT_AAC
+    summary: Audio format AAC.
+    type: Number
+    permission: read-only
+    platforms: [android]
+    since: {android: "11.1.0"}
+
+  - name: AUDIO_FORMAT_HE_AAC
+    summary: Audio format HE-AAC.
+    type: Number
+    permission: read-only
+    platforms: [android]
+    since: {android: "11.1.0"}
+
+  - name: AUDIO_FORMAT_AMR_NB
+    summary: Audio format AMR_NB.
+    type: Number
+    permission: read-only
+    platforms: [android]
+    since: {android: "11.1.0"}
+
+  - name: AUDIO_FORMAT_AMR_WB
+    summary: Audio format AMR_WB.
+    type: Number
+    permission: read-only
+    platforms: [android]
+    since: {android: "11.1.0"}
+
+  - name: AUDIO_FORMAT_AAC_ELD
+    summary: Audio format AAC_ELD.
+    type: Number
+    permission: read-only
+    platforms: [android]
+    since: {android: "11.1.0"}
+
+  - name: AUDIO_FORMAT_VORBIS
+    summary: Audio format Vorbis.
+    type: Number
+    permission: read-only
+    platforms: [android]
+    since: {android: "11.1.0"}
 
   - name: AUDIO_SESSION_CATEGORY_AMBIENT
     summary: For long-duration sounds such as rain, car engine noise, and so on.

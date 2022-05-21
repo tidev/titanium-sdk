@@ -47,6 +47,7 @@ public class TiAudioRecorder
 	private RandomAccessFile randomAccessFile;
 	private AudioRecord audioRecord;
 	int format = MediaModule.AUDIO_FILEFORMAT_WAVE;
+	int compression = MediaModule.AUDIO_FORMAT_LINEAR_PCM;
 	MediaRecorder recorder;
 	boolean recorderIsRunning = false;
 
@@ -95,8 +96,11 @@ public class TiAudioRecorder
 		}
 		try {
 			if (format != MediaModule.AUDIO_FILEFORMAT_WAVE) {
+				// use MediaRecorder to record with compression
 				int localFormat = MediaRecorder.OutputFormat.MPEG_4;
+				int localCompression = MediaRecorder.AudioEncoder.DEFAULT;
 				String suffix = ".mp4";
+
 				if (format == MediaModule.AUDIO_FILEFORMAT_AAC) {
 					localFormat = MediaRecorder.OutputFormat.AAC_ADTS;
 					suffix = ".aac";
@@ -104,14 +108,28 @@ public class TiAudioRecorder
 					localFormat = MediaRecorder.OutputFormat.THREE_GPP;
 					suffix = ".3gp";
 				}
-				android.util.Log.i(TAG, "startRecording: " + localFormat + " " + suffix);
+
+				if (compression == MediaModule.AUDIO_FORMAT_AAC) {
+					localCompression = MediaRecorder.AudioEncoder.AAC;
+				} else if (compression == MediaModule.AUDIO_FORMAT_VORBIS) {
+					localCompression = MediaRecorder.AudioEncoder.VORBIS;
+				} else if (compression == MediaModule.AUDIO_FORMAT_HE_AAC) {
+					localCompression = MediaRecorder.AudioEncoder.HE_AAC;
+				} else if (compression == MediaModule.AUDIO_FORMAT_AMR_NB) {
+					localCompression = MediaRecorder.AudioEncoder.AMR_NB;
+				} else if (compression == MediaModule.AUDIO_FORMAT_AMR_WB) {
+					localCompression = MediaRecorder.AudioEncoder.AMR_WB;
+				} else if (compression == MediaModule.AUDIO_FORMAT_AAC_ELD) {
+					localCompression = MediaRecorder.AudioEncoder.AAC_ELD;
+				}
+
 				this.recorder = new MediaRecorder();
 				this.recorder.setAudioSource(MediaRecorder.AudioSource.MIC);
 				this.recorder.setOutputFormat(localFormat);
 				this.tempFileReference = TiFileHelper.getInstance().getTempFile(suffix, true);
 				this.recorder.setOutputFile(this.tempFileReference);
 				this.recorder.setAudioSamplingRate(RECORDER_SAMPLE_RATE);
-				this.recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
+				this.recorder.setAudioEncoder(localCompression);
 				this.recorder.prepare();
 				this.recorder.start();
 				recorderIsRunning = true;
