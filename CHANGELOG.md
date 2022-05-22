@@ -69,7 +69,7 @@ Titanium SDK 11.0.0 is a major release of the SDK, addressing high-priority issu
   * textarea contentHeight fix with new return property textareaHeight in "change" event ([94820d1](https://github.com/tidev/titanium_mobile/commit/94820d1952d5e301b6ea2741576b3046b5b382b5))
   * backgroundcolor Ti.UI.backgroundcolor fixed on modal windows ([a1c83d8](https://github.com/tidev/titanium_mobile/commit/a1c83d8e0a5b071b71ede22d494447949656f639))
 
-* Christian Hauf
+* chauf
   * authenticationMethod NSURLAuthenticationMethodClientCertificate not handled correctly ([edfd037](https://github.com/tidev/titanium_mobile/commit/edfd037c4e6f50aa03cd382247d5128bb9292731))
 
 * Sergey Volkov
