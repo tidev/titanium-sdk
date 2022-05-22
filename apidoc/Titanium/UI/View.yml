@@ -1982,10 +1982,14 @@ properties:
 
   - name: viewShadowColor
     summary: Determines the color of the shadow.
-    description: Defaults to `undefined`. Behaves as if transparent.
+    description: |
+      iOS Defaults to `undefined`. Behaves as if transparent. Android default is black.
+      On Android you can set `<item name="android:ambientShadowAlpha">0.5</item>` and
+      `<item name="android:spotShadowAlpha">0.5</item>` in your theme to change the
+      opacity.
     type: [String, Titanium.UI.Color]
-    platforms: [iphone, ipad, macos]
-    since: "3.3.0"
+    platforms: [android, iphone, ipad, macos]
+    since: {android: "11.1.0", iphone: "3.3.0", ipad: "3.3.0", macos: "9.2.0"}
 
   - name: viewShadowOffset
     summary: Determines the offset for the shadow of the view.

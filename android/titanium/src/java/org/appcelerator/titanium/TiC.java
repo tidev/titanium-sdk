@@ -796,6 +796,7 @@ public class TiC
 	public static final String PROPERTY_VISIBILITY = "visibility";
 	public static final String PROPERTY_VISIBLE_ITEM_COUNT = "visibleItemCount";
 	public static final String PROPERTY_VIEW = "view";
+	public static final String PROPERTY_VIEW_SHADOW_COLOR = "viewShadowColor";
 	public static final String PROPERTY_VIEWS = "views";
 	public static final String PROPERTY_VOLUME = "volume";
 	public static final String PROPERTY_WAKE_LOCK = "wakeLock";
