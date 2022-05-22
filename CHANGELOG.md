@@ -8,9 +8,7 @@ Titanium SDK 11.0.0 is a major release of the SDK, addressing high-priority issu
 ## Community Credits
 
 * Sebastian Klaus
-  * Revert "fix: rollback dateformat version to 4.6.3" ([96ae65c](https://github.com/tidev/titanium_mobile/commit/96ae65ca6e8688e85b3132d01c105f3a4dca96ed))
-  * rollback dateformat version to 4.6.3 ([cbb2746](https://github.com/tidev/titanium_mobile/commit/cbb27466c3f181bd139a8879a44b54fb6ba0eedb))
-  * morey copyrights changed in java files ([4e806df](https://github.com/tidev/titanium_mobile/commit/4e806df95de7f1c26045fbaf9b37b2b1b1fce9ad))
+  * more copyrights changed in java files ([4e806df](https://github.com/tidev/titanium_mobile/commit/4e806df95de7f1c26045fbaf9b37b2b1b1fce9ad))
   * copyright in java files ([e4b50ad](https://github.com/tidev/titanium_mobile/commit/e4b50ad971b0b4741eb79eefb33bc284d670deb7))
   * fixed legal link (#13441) ([11af5ff](https://github.com/tidev/titanium_mobile/commit/11af5ff02a9fd6d71eb3dc05fb1bba34bd73fcbf))
   * replace tislack.org with slack.tidev.io ([81d3f4a](https://github.com/tidev/titanium_mobile/commit/81d3f4a1bfa69a5367b8cf05af40b608b62ebe3b))
@@ -50,6 +48,7 @@ Titanium SDK 11.0.0 is a major release of the SDK, addressing high-priority issu
   * remove Ti.Analytics (iOS / Android) ([3e54924](https://github.com/tidev/titanium_mobile/commit/3e549242e8421601dc5f98bf68cb16e723bf7d27))
   * fix static links ([ae68972](https://github.com/tidev/titanium_mobile/commit/ae6897296355bcd56bfb7586975e368212137902))
   * tabgroup/scrollview null pointer ([c706bea](https://github.com/tidev/titanium_mobile/commit/c706bea567d683d318fe179c97ba33cb20809ab4))
+  * update documentation links in readme ([79a94f7](https://github.com/tidev/titanium_mobile/commit/79a94f746b4971af4b10416761b779c8a431ed04))
 
 * Hans Knöchel
   * fix adaptive background gradients ([6435c02](https://github.com/tidev/titanium_mobile/commit/6435c0241a43de74d63e5b48943653cd20b378e4))
@@ -70,7 +69,7 @@ Titanium SDK 11.0.0 is a major release of the SDK, addressing high-priority issu
   * textarea contentHeight fix with new return property textareaHeight in "change" event ([94820d1](https://github.com/tidev/titanium_mobile/commit/94820d1952d5e301b6ea2741576b3046b5b382b5))
   * backgroundcolor Ti.UI.backgroundcolor fixed on modal windows ([a1c83d8](https://github.com/tidev/titanium_mobile/commit/a1c83d8e0a5b071b71ede22d494447949656f639))
 
-* chauf
+* Christian Hauf
   * authenticationMethod NSURLAuthenticationMethodClientCertificate not handled correctly ([edfd037](https://github.com/tidev/titanium_mobile/commit/edfd037c4e6f50aa03cd382247d5128bb9292731))
 
 * Sergey Volkov
@@ -81,9 +80,6 @@ Titanium SDK 11.0.0 is a major release of the SDK, addressing high-priority issu
   * [TIMOB-28583](https://jira-archive.titaniumsdk.com/TIMOB-28583) - commit fragments transaction only once after wrapping view being attached to a window ([0838db2](https://github.com/tidev/titanium_mobile/commit/0838db24a64d0eec534d02b9b43efea8d98d7d05))
   * crash in ListView on API 21 ([b30de10](https://github.com/tidev/titanium_mobile/commit/b30de101032fc668bcf8284559aec3f0a4eacb52))
   * Titanium.UI.iOS.Toolbar was removed in 10.0.0 ([23986a3](https://github.com/tidev/titanium_mobile/commit/23986a36be11b52a8485ce8971e6e3869c7bc738))
-
-* m1ga
-  * update documentation links in readme ([79a94f7](https://github.com/tidev/titanium_mobile/commit/79a94f746b4971af4b10416761b779c8a431ed04))
 
 * Monili Nicolò
   * [TIMOB-28543](https://jira-archive.titaniumsdk.com/TIMOB-28543) - selectedBackgroundGradient deprecation shown when not using it ([93f5689](https://github.com/tidev/titanium_mobile/commit/93f5689444c57534c5a2defb336ce6802c97e5a6))
