@@ -10,8 +10,6 @@ Currently supported native platforms are iOS and Android.
 Titanium is licensed under the OSI approved Apache Public License (version 2). Please
 see the [LICENSE](LICENSE) file for specific details.
 
-*[Download Pre-built Titanium](http://builds.appcelerator.com/#master)*
-
 # Table of Contents
 
 - [Table of Contents](#table-of-contents)
