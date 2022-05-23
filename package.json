@@ -135,7 +135,6 @@
     "core-js": "^3.18.3",
     "cz-conventional-changelog": "^3.3.0",
     "danger": "^10.6.6",
-    "dateformat": "^5.0.3",
     "eslint": "^8.13.0",
     "eslint-config-axway": "^7.0.0",
     "eslint-plugin-mocha": "^10.0.0",
