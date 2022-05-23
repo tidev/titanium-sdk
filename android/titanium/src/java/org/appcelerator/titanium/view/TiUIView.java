@@ -960,7 +960,7 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 						TiApplication.getAppCurrentActivity()));
 				}
 			} else {
-				Log.w(TAG, "only available for Android P+");
+				Log.w(TAG, "Setting the 'viewShadowColor' property requires Android P or later");
 			}
 		} else if (Log.isDebugModeEnabled()) {
 			Log.d(TAG, "Unhandled property key: " + key, Log.DEBUG_MODE);
@@ -1125,7 +1125,7 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 					TiConvert.toColor(TiConvert.toString(d, TiC.PROPERTY_VIEW_SHADOW_COLOR),
 						TiApplication.getAppCurrentActivity()));
 			} else {
-				Log.w(TAG, "only available for Android P+");
+				Log.w(TAG, "Setting the 'viewShadowColor' property requires Android P or later");
 			}
 		}
 
