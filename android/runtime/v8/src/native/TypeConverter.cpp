@@ -522,8 +522,41 @@ Local<Array> TypeConverter::javaArrayToJsArray(Isolate* isolate, JNIEnv *env, js
 	return javaShortArrayToJsNumberArray(isolate, env, javaShortArray);
 }
 
-jintArray TypeConverter::jsArrayToJavaIntArray(Isolate* isolate, Local<Array> jsArray)
+
+jintArray TypeConverter::jsInt32ArrayToJavaIntArray(Isolate* isolate, Local<Int32Array> jsArray)
 {
+	JNIEnv *env = JNIScope::getEnv();
+	if (env == NULL) {
+		return NULL;
+	}
+	return TypeConverter::jsInt32ArrayToJavaIntArray(isolate, env, jsArray);
+}
+
+
+jintArray TypeConverter::jsInt32ArrayToJavaIntArray(Isolate* isolate, JNIEnv *env, Local<Int32Array> jsArray)
+{
+	int arrayLength = jsArray->Length();
+	jintArray javaIntArray = env->NewIntArray(arrayLength);
+	if (javaIntArray == NULL) 
+	{
+		const char *error = "Something wrong happened with memory.";
+		LOGE(TAG, error);
+		titanium::JSException::Error(isolate, error);
+	}
+
+	void* dataPointer = env->GetIntArrayElements(javaIntArray, 0);
+	jsArray->CopyContents(dataPointer, 4*arrayLength);
+	return javaIntArray;
+}
+
+jintArray TypeConverter::jsArrayToJavaIntArray(Isolate* isolate, Local<Value> jsValue)
+{
+	if(jsValue->IsInt32Array())
+	{
+		return TypeConverter::jsInt32ArrayToJavaIntArray(isolate, jsValue.As<Int32Array>());
+	}
+
+	Local<Array> jsArray = jsValue.As<Array>();
 	JNIEnv *env = JNIScope::getEnv();
 	if (env == NULL) {
 		return NULL;
@@ -531,8 +564,23 @@ jintArray TypeConverter::jsArrayToJavaIntArray(Isolate* isolate, Local<Array> js
 	return TypeConverter::jsArrayToJavaIntArray(isolate, env, jsArray);
 }
 
-jintArray TypeConverter::jsArrayToJavaIntArray(Isolate* isolate, JNIEnv *env, Local<Array> jsArray)
+
+jintArray TypeConverter::jsArrayToJavaIntArray(Isolate* isolate, JNIEnv *env, Local<Value> jsValue)
 {
+	if(jsValue->IsInt32Array())
+	{
+		return TypeConverter::jsInt32ArrayToJavaIntArray(isolate, env, jsValue.As<Int32Array>());
+	}
+
+	if (!jsValue->IsArray()) 
+	{
+		const char *error = "Invalid value, expected type Array.";
+		LOGE(TAG, error);
+		titanium::JSException::Error(isolate, error);
+		return;
+	}
+	
+	Local<Array> jsArray = jsValue.As<Array>();
 	int arrayLength = jsArray->Length();
 	jintArray javaIntArray = env->NewIntArray(arrayLength);
 	if (javaIntArray == NULL) {
@@ -816,6 +864,10 @@ jobject TypeConverter::jsValueToJavaObject(Isolate* isolate, JNIEnv *env, Local<
 
 	} else if (jsValue->IsDate()) {
 		return TypeConverter::jsDateToJavaDate(env, jsValue.As<Date>());
+
+	} else if (jsValue->IsInt32Array()) {
+		*isNew = true;
+		return TypeConverter::jsInt32ArrayToJavaIntArray(isolate, env, jsValue.As<Int32Array>());
 
 	} else if (jsValue->IsArray()) {
 		*isNew = true;

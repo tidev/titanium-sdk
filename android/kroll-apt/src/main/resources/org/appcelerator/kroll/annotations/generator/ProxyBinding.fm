@@ -330,8 +330,8 @@ namespace ${ns?lower_case} {
 		"defaultValue": "null"
 	},
 	"int[]":{
-		"jsType":"Array",
-		"jsHandleCast":"Array",
+		"jsType":"Value",
+		"jsHandleCast":"Value",
 		"jsToJavaConverter":"jsArrayToJavaIntArray",
 		"javaToJsConverter":"javaArrayToJsArray",
 		"jvalue":"l", "signature":"[I",
