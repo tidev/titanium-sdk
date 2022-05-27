@@ -577,7 +577,7 @@ jintArray TypeConverter::jsArrayToJavaIntArray(Isolate* isolate, JNIEnv *env, Lo
 		const char *error = "Invalid value, expected type Array.";
 		LOGE(TAG, error);
 		titanium::JSException::Error(isolate, error);
-		return;
+		return NULL;
 	}
 	
 	Local<Array> jsArray = jsValue.As<Array>();
