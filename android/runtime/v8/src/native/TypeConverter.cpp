@@ -539,9 +539,8 @@ jintArray TypeConverter::jsInt32ArrayToJavaIntArray(Isolate* isolate, JNIEnv *en
 	jintArray javaIntArray = env->NewIntArray(arrayLength);
 	if (javaIntArray == NULL) 
 	{
-		const char *error = "Something wrong happened with memory.";
-		LOGE(TAG, error);
-		titanium::JSException::Error(isolate, error);
+		LOGE(TAG, "unable to create new jintArray");
+		return NULL;
 	}
 
 	void* dataPointer = env->GetIntArrayElements(javaIntArray, 0);
@@ -574,9 +573,7 @@ jintArray TypeConverter::jsArrayToJavaIntArray(Isolate* isolate, JNIEnv *env, Lo
 
 	if (!jsValue->IsArray()) 
 	{
-		const char *error = "Invalid value, expected type Array.";
-		LOGE(TAG, error);
-		titanium::JSException::Error(isolate, error);
+		LOGE(TAG, "Invalid value, expected type Array.");
 		return NULL;
 	}
 	
