@@ -545,39 +545,46 @@ jintArray TypeConverter::jsInt32ArrayToJavaIntArray(Isolate* isolate, JNIEnv *en
 
 	void* dataPointer = env->GetIntArrayElements(javaIntArray, 0);
 	jsArray->CopyContents(dataPointer, 4*arrayLength);
+
 	return javaIntArray;
 }
 
-jintArray TypeConverter::jsArrayToJavaIntArray(Isolate* isolate, Local<Value> jsValue)
+
+jintArray TypeConverter::jsIntArrayToJavaIntArray(Isolate* isolate, Local<Value> jsValue)
 {
 	JNIEnv *env = JNIScope::getEnv();
 	if (env == NULL) {	
 		return NULL;
 	}
 
-	if(jsValue->IsInt32Array())
-	{
-		return TypeConverter::jsInt32ArrayToJavaIntArray(isolate, env, jsValue.As<Int32Array>());
-	}
-	
-	return TypeConverter::jsArrayToJavaIntArray(isolate, env, jsValue);
+	return TypeConverter::jsIntArrayToJavaIntArray(isolate, env, jsValue);
 }
 
 
-jintArray TypeConverter::jsArrayToJavaIntArray(Isolate* isolate, JNIEnv *env, Local<Value> jsValue)
+jintArray TypeConverter::jsIntArrayToJavaIntArray(Isolate* isolate, JNIEnv *env, Local<Value> jsValue)
 {
 	if(jsValue->IsInt32Array())
 	{
 		return TypeConverter::jsInt32ArrayToJavaIntArray(isolate, env, jsValue.As<Int32Array>());
 	}
 
-	if (!jsValue->IsArray()) 
-	{
-		LOGE(TAG, "Invalid value, expected type Array.");
+	return TypeConverter::jsArrayToJavaIntArray(isolate, env, jsValue.As<Array>());
+}
+
+
+jintArray TypeConverter::jsArrayToJavaIntArray(Isolate* isolate, Local<Array> jsArray)
+{
+	JNIEnv *env = JNIScope::getEnv();
+	if (env == NULL) {	
 		return NULL;
 	}
 	
-	Local<Array> jsArray = jsValue.As<Array>();
+	return TypeConverter::jsArrayToJavaIntArray(isolate, env, jsArray);
+}
+
+
+jintArray TypeConverter::jsArrayToJavaIntArray(Isolate* isolate, JNIEnv *env, Local<Array> jsArray)
+{
 	int arrayLength = jsArray->Length();
 	jintArray javaIntArray = env->NewIntArray(arrayLength);
 	if (javaIntArray == NULL) {
