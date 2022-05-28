@@ -550,17 +550,17 @@ jintArray TypeConverter::jsInt32ArrayToJavaIntArray(Isolate* isolate, JNIEnv *en
 
 jintArray TypeConverter::jsArrayToJavaIntArray(Isolate* isolate, Local<Value> jsValue)
 {
-	if(jsValue->IsInt32Array())
-	{
-		return TypeConverter::jsInt32ArrayToJavaIntArray(isolate, jsValue.As<Int32Array>());
-	}
-
-	Local<Array> jsArray = jsValue.As<Array>();
 	JNIEnv *env = JNIScope::getEnv();
-	if (env == NULL) {
+	if (env == NULL) {	
 		return NULL;
 	}
-	return TypeConverter::jsArrayToJavaIntArray(isolate, env, jsArray);
+
+	if(jsValue->IsInt32Array())
+	{
+		return TypeConverter::jsInt32ArrayToJavaIntArray(isolate, env, jsValue.As<Int32Array>());
+	}
+	
+	return TypeConverter::jsArrayToJavaIntArray(isolate, env, jsValue);
 }
 
 
