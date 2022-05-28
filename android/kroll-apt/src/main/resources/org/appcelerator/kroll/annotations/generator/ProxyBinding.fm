@@ -332,7 +332,7 @@ namespace ${ns?lower_case} {
 	"int[]":{
 		"jsType":"Value",
 		"jsHandleCast":"Value",
-		"jsToJavaConverter":"jsArrayToJavaIntArray",
+		"jsToJavaConverter":"jsIntArrayToJavaIntArray",
 		"javaToJsConverter":"javaArrayToJsArray",
 		"jvalue":"l", "signature":"[I",
 		"javaCallMethodType":"Object",
