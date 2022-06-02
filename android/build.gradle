@@ -13,9 +13,10 @@ buildscript {
 		mavenCentral()
 	}
 	dependencies {
-		classpath 'com.android.tools.build:gradle:7.0.4'
+		classpath 'com.android.tools.build:gradle:7.2.1'
 		classpath 'com.google.gms:google-services:4.3.10'
 		classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+		classpath 'org.codehaus.groovy:groovy-json:3.0.11'
 	}
 }
 
@@ -29,7 +30,7 @@ allprojects {
 	project.apply plugin: 'checkstyle'
 	checkstyle {
 		toolVersion = '8.38'
-		configFile file("${rootDir}/checkstyle.xml");
+		configFile file("${rootDir}/checkstyle.xml")
 		ignoreFailures false
 		showViolations true
 	}
