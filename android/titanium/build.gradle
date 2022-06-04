@@ -45,6 +45,8 @@ android {
 	defaultConfig {
 		minSdkVersion 21
 		targetSdkVersion 31
+		versionName tiBuildVersionString
+		versionCode tiBuildVersionCode
 		buildConfigField('int', 'VERSION_CODE', tiBuildVersionCode.toString())
 		buildConfigField('String', 'VERSION_NAME', '"' + tiBuildVersionString + '"')
 		buildConfigField('String', 'TI_BUILD_HASH_STRING', '"' + tiBuildHashString + '"')
