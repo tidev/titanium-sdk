@@ -41,10 +41,10 @@ for (nextString in tiBuildVersionString.split('\\.')) {
 }
 
 android {
-	compileSdkVersion 32
+	compileSdkVersion 31
 	defaultConfig {
 		minSdkVersion 21
-		targetSdkVersion 32
+		targetSdkVersion 31
 		buildConfigField('int', 'VERSION_CODE', tiBuildVersionCode.toString())
 		buildConfigField('String', 'VERSION_NAME', '"' + tiBuildVersionString + '"')
 		buildConfigField('String', 'TI_BUILD_HASH_STRING', '"' + tiBuildHashString + '"')
