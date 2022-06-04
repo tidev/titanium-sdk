@@ -23,16 +23,21 @@ import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.util.TiConvert;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.webkit.CookieManager;
 import android.webkit.CookieSyncManager;
+
+import androidx.annotation.RequiresApi;
 
 @SuppressWarnings("deprecation")
 @Kroll.module
@@ -477,6 +482,24 @@ public class NetworkModule extends KrollModule
 	{
 		java.net.CookieStore cookieStore = getCookieManagerInstance().getCookieStore();
 		cookieStore.removeAll();
+	}
+
+	/**
+	 * Returns true if push notifications are allowed in the app settings
+	 * @return boolean if push notifications are allowed in the app settings
+	 */
+	@RequiresApi(api = Build.VERSION_CODES.S)
+	@Kroll.getProperty
+	public boolean remoteNotificationsEnabled()
+	{
+		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
+			return true;
+		}
+
+		Context context = TiApplication.getInstance();
+		int result = context.checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS);
+		result &= context.checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS);
+		return (result == PackageManager.PERMISSION_GRANTED);
 	}
 
 	/**

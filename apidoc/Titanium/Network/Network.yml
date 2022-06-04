@@ -643,7 +643,8 @@ properties:
     summary: |
         Indicates whether push  notifications have been enabled using
         [registerForPushNotifications](Titanium.Network.registerForPushNotifications).
-    platforms: [iphone, ipad, macos]
+    platforms: [android, iphone, ipad, macos]
+    since: {android: "12.0.0", iphone: "3.3.0", ipad: "3.3.0"}
     type: Boolean
     permission: read-only
 
