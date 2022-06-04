@@ -1,5 +1,6 @@
 name: Regen Docs
 on:
+  workflow_dispatch:
   pull_request:
     types: [ closed ]
     branches: [ master ]
@@ -7,7 +8,7 @@ on:
 
 jobs:
   regen:
-    if: github.event.pull_request.merged == true
+    if: github.event.pull_request.merged == true || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     name: Trigger Regen
 
@@ -34,5 +35,5 @@ jobs:
       uses: peter-evans/repository-dispatch@v2
       with:
         event-type: regen-api-docs
-        repository: tidev/titanium-docs
         token: ${{ secrets.REGEN_DOCS_GITHUB_TOKEN }}
+        repository: tidev/titanium-docs
