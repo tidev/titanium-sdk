@@ -18,6 +18,7 @@
 #import "TiUIRefreshControlProxy.h"
 #endif
 #import <TitaniumKit/ImageLoader.h>
+#import <MobileCoreServices/MobileCoreServices.h>
 
 @interface TiUIListView ()
 @property (nonatomic, readonly) TiUIListViewProxy *listViewProxy;
@@ -208,6 +209,13 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
     _tableView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     _tableView.delegate = self;
     _tableView.dataSource = self;
+
+    BOOL requiresEditingToMove = [TiUtils boolValue:[self.proxy valueForKey:@"requiresEditingToMove"] def:YES];
+    if (!requiresEditingToMove) {
+      _tableView.dragInteractionEnabled = YES;
+      _tableView.dragDelegate = self;
+      _tableView.dropDelegate = self;
+    }
 
     // Fixes incorrect heights in iOS 11 as we calculate them internally already
     _tableView.estimatedRowHeight = 0;
@@ -2551,6 +2559,15 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
   }
   BOOL animate = [TiUtils boolValue:@"animated" properties:properties def:NO];
   return animate ? UITableViewRowAnimationFade : UITableViewRowAnimationNone;
+}
+
+- (nonnull NSArray<UIDragItem *> *)tableView:(nonnull UITableView *)tableView itemsForBeginningDragSession:(nonnull id<UIDragSession>)session atIndexPath:(nonnull NSIndexPath *)indexPath {
+  return @[];  
+}
+
+- (BOOL)tableView:(UITableView *)tableView canHandleDropSession:(id<UIDropSession>)session
+{
+  return [session hasItemsConformingToTypeIdentifiers:@[(NSString *)kUTTypePlainText]];
 }
 
 @end
