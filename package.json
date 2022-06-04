@@ -42,7 +42,7 @@
     "format:android": "echo Formatting Android code is not supported.",
     "format:ios": "npm-run-all --parallel format:objc format:swift",
     "format:objc": "npm run lint:objc -- --fix",
-    "format:swift": "npm run lint:swift -- autocorrect",
+    "format:swift": "npm run lint:swift",
     "format:js": "npm run lint:js -- --fix",
     "ios": "node ./build/scons cleanbuild ios",
     "ios-sanity-check": "node ./build/scons check-ios-toplevel",
