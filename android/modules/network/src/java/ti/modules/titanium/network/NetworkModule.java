@@ -498,7 +498,6 @@ public class NetworkModule extends KrollModule
 
 		Context context = TiApplication.getInstance();
 		int result = context.checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS);
-		result &= context.checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS);
 		return (result == PackageManager.PERMISSION_GRANTED);
 	}
 
