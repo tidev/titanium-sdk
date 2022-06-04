@@ -17,8 +17,8 @@
 #ifdef USE_TI_UIREFRESHCONTROL
 #import "TiUIRefreshControlProxy.h"
 #endif
-#import <TitaniumKit/ImageLoader.h>
 #import <MobileCoreServices/MobileCoreServices.h>
+#import <TitaniumKit/ImageLoader.h>
 
 @interface TiUIListView ()
 @property (nonatomic, readonly) TiUIListViewProxy *listViewProxy;
@@ -2561,13 +2561,14 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
   return animate ? UITableViewRowAnimationFade : UITableViewRowAnimationNone;
 }
 
-- (nonnull NSArray<UIDragItem *> *)tableView:(nonnull UITableView *)tableView itemsForBeginningDragSession:(nonnull id<UIDragSession>)session atIndexPath:(nonnull NSIndexPath *)indexPath {
-  return @[];  
+- (nonnull NSArray<UIDragItem *> *)tableView:(nonnull UITableView *)tableView itemsForBeginningDragSession:(nonnull id<UIDragSession>)session atIndexPath:(nonnull NSIndexPath *)indexPath
+{
+  return @[];
 }
 
 - (BOOL)tableView:(UITableView *)tableView canHandleDropSession:(id<UIDropSession>)session
 {
-  return [session hasItemsConformingToTypeIdentifiers:@[(NSString *)kUTTypePlainText]];
+  return [session hasItemsConformingToTypeIdentifiers:@[ (NSString *)kUTTypePlainText ]];
 }
 
 @end
