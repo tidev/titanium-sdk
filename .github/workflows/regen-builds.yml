@@ -5,6 +5,9 @@ on:
   workflow_run:
     workflows: [Build]
     types: [completed]
+    branches:
+    - master
+    - "[0-9]+_[0-9]+_X"
 
 jobs:
   on-success:
