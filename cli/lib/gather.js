@@ -161,6 +161,7 @@ class Walker {
 	 */
 	async _visitListing(results, dirent, src, dest, ignore, origSrc, prefix) {
 		const name = dirent.name;
+
 		if (ignore && ignore.test(name)) { // if we should ignore this file/dir, skip it
 			return;
 		}
@@ -193,6 +194,7 @@ class Walker {
 	 */
 	_visitFile(results, from, to, name, src, origSrc, prefix) {
 		// if we should ignore this file, skip it
+
 		if (this.ignoreFiles && this.ignoreFiles.test(name)) {
 			return;
 		}
@@ -211,6 +213,7 @@ class Categorizer {
 	 * @param {string} [options.platform] 'ios', 'android'
 	 */
 	constructor(options) {
+		this.excludeAssestsDir = options.excludeAssestsDir;
 		this.useAppThinning = options.useAppThinning;
 		this.platform = options.platform;
 		this.jsFilesNotToProcess = options.jsFilesNotToProcess || [];
@@ -297,14 +300,19 @@ class Categorizer {
 					// if we are using app thinning, then don't copy the image, instead mark the
 					// image to be injected into the asset catalog. Also, exclude images that are
 					// managed by their bundles.
+
+					const checkRegEx = new RegExp(this.excludeAssestsDir);
+
 					if (this.useAppThinning && !relPath.match(BUNDLE_FILE_REGEXP)) {
-						results.imageAssets.set(relPath, info);
-						return;
+						if (!relPath.match(checkRegEx)) {
+							results.imageAssets.set(relPath, info);
+							return;
+						}
 					}
 				}
-
 				// Normal PNG/JPG, so just copy it
 				results.resourcesToCopy.set(relPath, info);
+
 				break;
 
 			case 'html':
