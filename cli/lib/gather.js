@@ -302,7 +302,7 @@ class Categorizer {
 					// managed by their bundles.
 
 					if (this.useAppThinning && !relPath.match(BUNDLE_FILE_REGEXP)) {
-						if (this.excludeAssestsDir != null) {
+						if (this.excludeAssestsDir !== null) {
 							const checkRegEx = new RegExp(this.excludeAssestsDir);
 							if (!relPath.match(checkRegEx)) {
 								results.imageAssets.set(relPath, info);
