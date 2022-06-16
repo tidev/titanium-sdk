@@ -271,6 +271,17 @@ class Categorizer {
 						results.launchImages.set(relPath, info);
 						return;
 					}
+					if (this.excludeAssestsDir !== null) {
+						let testPath = this.excludeAssestsDir;
+						const checkRegEx = new RegExp(`${testPath}`);
+						if (!relPath.match(checkRegEx)) {
+							results.imageAssets.set(relPath, info);
+							return;
+						}
+					} else {
+						results.imageAssets.set(relPath, info);
+						return;
+					}
 				}
 				// fall through to lump with JPG...
 
@@ -303,7 +314,8 @@ class Categorizer {
 
 					if (this.useAppThinning && !relPath.match(BUNDLE_FILE_REGEXP)) {
 						if (this.excludeAssestsDir !== null) {
-							const checkRegEx = new RegExp(this.excludeAssestsDir);
+							let testPath = this.excludeAssestsDir;
+							const checkRegEx = new RegExp(`${testPath}`);
 							if (!relPath.match(checkRegEx)) {
 								results.imageAssets.set(relPath, info);
 								return;
