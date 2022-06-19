@@ -957,7 +957,7 @@ methods:
 
   - name: blur
     summary: Blurs the view
-    description: Uses `x` and `y` to blur the view horizontally and/or vertically.
+    description: Uses `x` and `y` to blur the view horizontally and/or vertically. Only available for Android 12 or later.
     since: "11.1.0"
     parameters:
       - name: x
