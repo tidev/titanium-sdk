@@ -37,11 +37,16 @@ import android.animation.AnimatorListenerAdapter;
 import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
+import android.graphics.RenderEffect;
+import android.graphics.Shader;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.os.Message;
 import android.view.View;
 import android.view.ViewAnimationUtils;
+
+import androidx.annotation.RequiresApi;
 
 /**
  * The parent class of view proxies.
@@ -1369,6 +1374,26 @@ public abstract class TiViewProxy extends KrollProxy
 	public void hideKeyboard()
 	{
 		handleHideKeyboard();
+	}
+
+	@RequiresApi(api = Build.VERSION_CODES.S)
+	@Kroll.method
+	public void blur(KrollDict values)
+	{
+		TiUIView v = peekView();
+		if (v != null) {
+			View nv = v.getNativeView();
+			if (nv != null) {
+				int blurX = values.getInt(TiC.PROPERTY_X);
+				int blurY = values.getInt(TiC.PROPERTY_Y);
+				try {
+					RenderEffect re = RenderEffect.createBlurEffect(blurX, blurY, Shader.TileMode.MIRROR);
+					nv.setRenderEffect(re);
+				} catch (Exception e){
+					//
+				}
+			}
+		}
 	}
 
 	protected void handleHideKeyboard()

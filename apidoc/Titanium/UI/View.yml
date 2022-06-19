@@ -955,6 +955,21 @@ methods:
         type: Callback<Object> # FIXME: iOS appears to fire with the Ti.UI.Animation object, while Android fires with an empty object
         optional: true
 
+  - name: blur
+    summary: Blurs the view
+    description: Uses `x` and `y` to blur the view horizontally and/or vertically.
+    since: "11.1.0"
+    parameters:
+      - name: x
+        summary: |
+            Blur amount in x (horizontally) direction
+        type: Number
+      - name: y
+        summary: |
+            Blur amount in y (vertically) direction
+        type: Number
+    platforms: [android]
+
   - name: clearMotionEffects
     summary: Removes all previously added motion effects.
     description: Use this method together with <Titanium.UI.horizontalMotionEffect> and <Titanium.UI.verticalMotionEffect>.
