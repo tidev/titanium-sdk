@@ -46,8 +46,6 @@ import android.os.Message;
 import android.view.View;
 import android.view.ViewAnimationUtils;
 
-import androidx.annotation.RequiresApi;
-
 /**
  * The parent class of view proxies.
  */
