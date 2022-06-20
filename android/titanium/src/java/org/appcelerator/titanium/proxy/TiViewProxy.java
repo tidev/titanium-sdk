@@ -1374,7 +1374,6 @@ public abstract class TiViewProxy extends KrollProxy
 		handleHideKeyboard();
 	}
 
-
 	@Kroll.method
 	public void blur(KrollDict values)
 	{
