@@ -11,6 +11,7 @@ on:
 
 jobs:
   on-success:
+    if: github.repository_owner == 'tidev'
     runs-on: ubuntu-latest
     name: Regenerate build
     steps:
