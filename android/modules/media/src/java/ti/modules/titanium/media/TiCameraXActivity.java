@@ -102,7 +102,7 @@ public class TiCameraXActivity extends TiBaseActivity implements CameraXConfig.P
 	Preview preview;
 	int lensFacing = CameraSelector.LENS_FACING_BACK;
 	FrameLayout layout;
-	Camera camera;
+	static Camera camera;
 	private TiViewProxy localOverlayProxy = null;
 	private ProcessCameraProvider cameraProvider;
 
@@ -519,6 +519,20 @@ public class TiCameraXActivity extends TiBaseActivity implements CameraXConfig.P
 			}
 			finish();
 		}
+	}
+
+	public static void setZoomLevel(float value)
+	{
+		camera.getCameraControl().setZoomRatio(value);
+	}
+
+	public static float getMaxZoom()
+	{
+		return camera.getCameraInfo().getZoomState().getValue().getMaxZoomRatio();
+	}
+	public static float getMinZoom()
+	{
+		return camera.getCameraInfo().getZoomState().getValue().getMinZoomRatio();
 	}
 
 	protected void switchCamera(int whichCamera)

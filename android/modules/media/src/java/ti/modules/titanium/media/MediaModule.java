@@ -1432,6 +1432,38 @@ public class MediaModule extends KrollModule implements Handler.Callback
 		}
 	}
 
+	@Kroll.setProperty
+	public void zoomLevel(float value)
+	{
+		if (TiCameraXActivity.cameraActivity != null) {
+			TiCameraXActivity.setZoomLevel(value);
+		} else {
+			Log.e(TAG, "Camera preview is not open, unable to take photo");
+		}
+	}
+
+	@Kroll.getProperty
+	public float maxZoomLevel()
+	{
+		if (TiCameraXActivity.cameraActivity != null) {
+			return TiCameraXActivity.getMaxZoom();
+		} else {
+			Log.e(TAG, "Camera preview is not open, unable to take photo");
+		}
+		return 0;
+	}
+
+	@Kroll.getProperty
+	public float minZoomLevel()
+	{
+		if (TiCameraXActivity.cameraActivity != null) {
+			return TiCameraXActivity.getMinZoom();
+		} else {
+			Log.e(TAG, "Camera preview is not open, unable to take photo");
+		}
+		return 0;
+	}
+
 	@Kroll.method
 	public void switchCamera(int whichCamera)
 	{

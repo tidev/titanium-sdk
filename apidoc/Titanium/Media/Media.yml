@@ -1723,6 +1723,22 @@ properties:
     since: "5.2.0"
     osver: {ios: {min: "7.0"}}
 
+  - name: maxZoomLevel
+    summary: |
+        Returns the max zoom level of the camera.
+    type: Number
+    platforms: [android]
+    permission: read-only
+    since: "11.1.0"
+
+  - name: minZoomLevel
+    summary: |
+        Returns the min zoom level of the camera.
+    type: Number
+    platforms: [android]
+    permission: read-only
+    since: "11.1.0"
+
   - name: peakMicrophonePower
     summary: Current microphone level peak power in dB or -1 if microphone monitoring is disabled.
     description: |
@@ -1746,6 +1762,12 @@ properties:
     platforms: [iphone, ipad, macos]
     permission: read-only
 
+  - name: zoomLevel
+    summary: |
+        Sets the zoom level of the camera.
+    type: Number
+    platforms: [android]
+    since: "11.1.0"
 # Pseudo-type for showMusicLibrary argument
 
 ---
