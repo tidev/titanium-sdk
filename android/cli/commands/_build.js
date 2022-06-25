@@ -4,7 +4,7 @@
  * @module cli/_build
  *
  * @copyright
- * Copyright (c) 2009-2021 by Axway, Inc. All Rights Reserved.
+ * Copyright TiDev, Inc. 04/07/2022-Present
  *
  * @license
  * Licensed under the terms of the Apache Public License
@@ -1074,7 +1074,7 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 		logger.log();
 		logger.warn(__('%s has been deprecated, please specify the target SDK API using the %s tag:', '<tool-api-level>'.cyan, '<uses-sdk>'.cyan));
 		logger.warn();
-		logger.warn('<ti:app xmlns:ti="http://ti.appcelerator.org">'.grey);
+		logger.warn('<ti:app xmlns:ti="http://ti.tidev.io">'.grey);
 		logger.warn('    <android>'.grey);
 		logger.warn('        <manifest>'.grey);
 		logger.warn(('            <uses-sdk android:minSdkVersion="' + this.minSupportedApiLevel + '" android:targetSdkVersion="' + this.minTargetApiLevel + '" android:maxSdkVersion="' + this.maxSupportedApiLevel + '"/>').magenta);
@@ -1109,7 +1109,7 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 			)
 		);
 		logger.log();
-		logger.log('<ti:app xmlns:ti="http://ti.appcelerator.org">'.grey);
+		logger.log('<ti:app xmlns:ti="http://ti.tidev.io">'.grey);
 		logger.log('    <android>'.grey);
 		logger.log('        <manifest>'.grey);
 		logger.log(('            <uses-sdk '
@@ -1136,7 +1136,7 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 				)
 			);
 			logger.log();
-			logger.log('<ti:app xmlns:ti="http://ti.appcelerator.org">'.grey);
+			logger.log('<ti:app xmlns:ti="http://ti.tidev.io">'.grey);
 			logger.log('    <android>'.grey);
 			logger.log('        <manifest>'.grey);
 			logger.log(('            <uses-sdk '
@@ -1311,7 +1311,7 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 
 				logger.log(__('You need to add at least one of the device\'s supported ABIs to the tiapp.xml'));
 				logger.log();
-				logger.log('<ti:app xmlns:ti="http://ti.appcelerator.org">'.grey);
+				logger.log('<ti:app xmlns:ti="http://ti.tidev.io">'.grey);
 				logger.log('    <!-- snip -->'.grey);
 				logger.log('    <android>'.grey);
 				logger.log(('        <abi>' + this.abis.concat(device.abi).join(',') + '</abi>').magenta);

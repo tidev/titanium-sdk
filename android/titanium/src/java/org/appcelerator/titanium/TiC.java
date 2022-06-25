@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2021 by Axway, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -797,6 +797,7 @@ public class TiC
 	public static final String PROPERTY_VISIBILITY = "visibility";
 	public static final String PROPERTY_VISIBLE_ITEM_COUNT = "visibleItemCount";
 	public static final String PROPERTY_VIEW = "view";
+	public static final String PROPERTY_VIEW_SHADOW_COLOR = "viewShadowColor";
 	public static final String PROPERTY_VIEWS = "views";
 	public static final String PROPERTY_VOLUME = "volume";
 	public static final String PROPERTY_WAKE_LOCK = "wakeLock";
