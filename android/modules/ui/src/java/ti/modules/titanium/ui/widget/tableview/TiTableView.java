@@ -170,7 +170,7 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 
 		final SelectionTracker.Builder trackerBuilder = new SelectionTracker.Builder("table_view_selection",
 			this.recyclerView,
-			new ItemKeyProvider(1)
+			new ItemKeyProvider(ItemKeyProvider.SCOPE_CACHED)
 			{
 				@Nullable
 				@Override
