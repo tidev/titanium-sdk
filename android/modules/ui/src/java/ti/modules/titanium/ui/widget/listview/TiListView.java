@@ -21,6 +21,7 @@ import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.RectShape;
+import android.os.Parcelable;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -738,6 +739,8 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 			this.proxy.fireEvent(TiC.EVENT_NO_RESULTS, null);
 		}
 
+		Parcelable recyclerViewState = recyclerView.getLayoutManager().onSaveInstanceState();
+
 		// Notify adapter of changes on UI thread.
 		this.adapter.update(this.items, force);
 
@@ -778,6 +781,8 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 						}
 					}
 				}
+
+				recyclerView.getLayoutManager().onRestoreInstanceState(recyclerViewState);
 			}
 		});
 	}
