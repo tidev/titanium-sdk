@@ -194,7 +194,7 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 
 		final SelectionTracker.Builder trackerBuilder = new SelectionTracker.Builder("list_view_selection",
 			this.recyclerView,
-			new ItemKeyProvider(1)
+			new ItemKeyProvider(ItemKeyProvider.SCOPE_CACHED)
 			{
 				@Nullable
 				@Override
