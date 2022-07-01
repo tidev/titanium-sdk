@@ -1582,13 +1582,6 @@
   // Also if a previous search string exists this reload results in blank cells.
 }
 
-- (void)searchBarTextDidEndEditing:(UISearchBar *)searchBar
-{
-  // Finished editing, always dismiss search controller.
-  // Only one search controller can be active at a time.
-  [self performSelector:@selector(dismissSearchController) withObject:nil afterDelay:.2];
-}
-
 - (void)searchBarSearchButtonClicked:(UISearchBar *)searchBar
 {
   // called when keyboard search button pressed
