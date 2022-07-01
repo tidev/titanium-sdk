@@ -15,6 +15,9 @@ description: |
     Note that the `displayCaps` property begins with a lowercase letter, which differentiates it 
     from the `DisplayCaps` object that it returns. Refer to the example to understand how it should 
     be called.
+    
+    On Android you have to make sure that the Activity is created before you fetch the displayCaps
+    values. Use the window `onOpen` event or `win.activity.onCreate = () => {};`.
 extends: Titanium.Proxy
 since: "0.8"
 createable: false
