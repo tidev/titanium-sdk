@@ -1,13 +1,13 @@
 {
   "name": "titanium-mobile",
-  "description": "Appcelerator Titanium Mobile",
-  "version": "11.0.0",
+  "description": "TiDev Titanium Mobile",
+  "version": "11.1.0",
   "moduleApiVersion": {
     "iphone": "2",
     "android": "4"
   },
   "keywords": [
-    "appcelerator",
+    "tidev",
     "titanium",
     "mobile",
     "android",
@@ -19,7 +19,7 @@
   "scripts": {
     "android": "node ./build/scons cleanbuild android",
     "build": "node ./build/scons build",
-    "build:local": "node ./build/scons build && node ./build/scons package --skip-zip && ./build/scons install",
+    "build:local": "node ./build/scons build && node ./build/scons package --skip-zip && node ./build/scons install",
     "build:android": "npm run build -- android",
     "build:changelog": "conventional-changelog -n changelog/config.js -i CHANGELOG.md -s -p angular",
     "build:docs": "docgen apidoc -o ./dist",
@@ -95,13 +95,13 @@
     "ejs": "^3.1.6",
     "fields": "0.1.24",
     "fs-extra": "^10.0.0",
-    "ioslib": "^1.7.28",
+    "ioslib": "^1.7.29",
     "liveview": "^1.5.5",
     "lodash.merge": "^4.6.2",
     "markdown": "0.5.0",
     "moment": "^2.29.1",
-    "node-appc": "^1.1.2",
-    "node-titanium-sdk": "^5.1.5",
+    "node-appc": "^1.1.5",
+    "node-titanium-sdk": "^5.1.6",
     "node-uuid": "1.4.8",
     "nodeify": "^1.0.1",
     "p-limit": "^3.1.0",
@@ -135,7 +135,6 @@
     "core-js": "^3.18.3",
     "cz-conventional-changelog": "^3.3.0",
     "danger": "^10.6.6",
-    "dateformat": "^5.0.3",
     "eslint": "^8.13.0",
     "eslint-config-axway": "^7.0.0",
     "eslint-plugin-mocha": "^10.0.0",
@@ -158,7 +157,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/appcelerator/titanium_mobile.git"
+    "url": "git://github.com/tidev/titanium_mobile.git"
   },
   "vendorDependencies": {
     "node": "12.x || 14.x || 16.x"

@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2020 by Axway, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -170,7 +170,7 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 
 		final SelectionTracker.Builder trackerBuilder = new SelectionTracker.Builder("table_view_selection",
 			this.recyclerView,
-			new ItemKeyProvider(1)
+			new ItemKeyProvider(ItemKeyProvider.SCOPE_CACHED)
 			{
 				@Nullable
 				@Override
