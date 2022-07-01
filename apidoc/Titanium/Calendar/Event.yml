@@ -78,7 +78,7 @@ methods:
         not modify are updated to reflect the most recent value in the database. If the
         event has been deleted from the database, it is re-created as a new event.
 
-        On Android, this method only updates the recurrence rule (if set). See [TIMOB-24248](https://jira.appcelerator.org/browse/TIMOB-24248)
+        On Android, this method only updates the recurrence rule (if set). See [TIMOB-24248](https://jira-archive.titaniumsdk.com/TIMOB-24248)
         to track this new feature.
     returns:
         type: Boolean
