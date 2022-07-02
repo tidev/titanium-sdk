@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2020 by Axway, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -21,6 +21,7 @@ import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.RectShape;
+import android.os.Parcelable;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -49,6 +50,7 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 	private final ListViewProxy proxy;
 	private final TiNestedRecyclerView recyclerView;
 	private final List<KrollDict> selectedItems = new ArrayList<>();
+	private final ItemTouchHelper itemTouchHelper;
 
 	private boolean hasLaidOutChildren = false;
 	private SelectionTracker tracker = null;
@@ -176,7 +178,7 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 
 		// Create ItemTouchHelper for swipe-to-delete and move gestures.
 		final ItemTouchHandler itemTouchHandler = new ItemTouchHandler(this.adapter, this.proxy, this.recyclerView);
-		final ItemTouchHelper itemTouchHelper = new ItemTouchHelper(itemTouchHandler);
+		itemTouchHelper = new ItemTouchHelper(itemTouchHandler);
 		itemTouchHelper.attachToRecyclerView(this.recyclerView);
 
 		// Fire `postlayout` on layout changes.
@@ -192,7 +194,7 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 
 		final SelectionTracker.Builder trackerBuilder = new SelectionTracker.Builder("list_view_selection",
 			this.recyclerView,
-			new ItemKeyProvider(1)
+			new ItemKeyProvider(ItemKeyProvider.SCOPE_CACHED)
 			{
 				@Nullable
 				@Override
@@ -266,6 +268,9 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 		final boolean allowsMultipleSelection
 			= properties.optBoolean(TiC.PROPERTY_ALLOWS_MULTIPLE_SELECTION_DURING_EDITING, false);
 
+		if (properties.optBoolean(TiC.PROPERTY_FIXED_SIZE, false)) {
+			this.recyclerView.setHasFixedSize(true);
+		}
 		if (editing && allowsSelection) {
 			if (allowsMultipleSelection) {
 				this.tracker = trackerBuilder.withSelectionPredicate(SelectionPredicates.createSelectAnything())
@@ -607,6 +612,16 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 	}
 
 	/**
+	 * Starts dragging programatically.
+	 *
+	 * @param vHolder The dedicated view holder
+	 */
+	public void startDragging(RecyclerView.ViewHolder vHolder)
+	{
+		itemTouchHelper.startDrag(vHolder);
+	}
+
+	/**
 	 * Set row separator drawable.
 	 *
 	 * @param drawable Separator drawable.
@@ -724,6 +739,8 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 			this.proxy.fireEvent(TiC.EVENT_NO_RESULTS, null);
 		}
 
+		Parcelable recyclerViewState = recyclerView.getLayoutManager().onSaveInstanceState();
+
 		// Notify adapter of changes on UI thread.
 		this.adapter.update(this.items, force);
 
@@ -764,6 +781,8 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 						}
 					}
 				}
+
+				recyclerView.getLayoutManager().onRestoreInstanceState(recyclerViewState);
 			}
 		});
 	}

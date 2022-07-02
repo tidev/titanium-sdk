@@ -1784,6 +1784,7 @@ describe('Buffer', () => {
 				buf.writeUIntBE(1099511627776, 0, 5);
 			}, RangeError);
 			should.throws(() => {
+				// eslint-disable-next-line no-loss-of-precision
 				buf.writeUIntBE(72057594037927941, 0, 6);
 			}, RangeError);
 		});
@@ -1828,6 +1829,7 @@ describe('Buffer', () => {
 				buf.writeUIntLE(1099511627776, 0, 5);
 			}, RangeError);
 			should.throws(() => {
+				// eslint-disable-next-line no-loss-of-precision
 				buf.writeUIntLE(72057594037927941, 0, 6);
 			}, RangeError);
 		});

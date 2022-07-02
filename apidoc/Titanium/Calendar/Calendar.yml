@@ -770,9 +770,13 @@ properties:
   - name: defaultCalendar
     summary: |
         Calendar that events are added to by default, as specified by user settings.
+    description: |
+        Will return the default calendar of your phone. On Android it will return the first primary
+        calendar in case you have multiple accounts on your phone.
     type: Titanium.Calendar.Calendar
     permission: read-only
-    platforms: [iphone, ipad, macos]
+    platforms: [android, iphone, ipad, macos]
+    since: {android: "11.0.0", iphone: "3.1.0", ipad: "3.1.0"}
 
 examples:
   - title: All Calendars vs Selectable Calendars

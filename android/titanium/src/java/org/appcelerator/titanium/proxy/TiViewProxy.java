@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -86,6 +86,7 @@ import android.view.ViewAnimationUtils;
 	TiC.PROPERTY_SOFT_KEYBOARD_ON_FOCUS,
 	TiC.PROPERTY_TRANSFORM,
 	TiC.PROPERTY_ELEVATION,
+	TiC.PROPERTY_VIEW_SHADOW_COLOR,
 	TiC.PROPERTY_TRANSLATION_X,
 	TiC.PROPERTY_TRANSLATION_Y,
 	TiC.PROPERTY_TRANSLATION_Z,
