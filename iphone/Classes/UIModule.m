@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2020 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -49,6 +49,12 @@
 #import <TitaniumKit/TiUtils.h>
 
 @implementation UIModule
+
+#define FORGET_AND_RELEASE(x) \
+  {                           \
+    [self forgetProxy:x];     \
+    RELEASE_TO_NIL(x);        \
+  }
 
 - (void)dealloc
 {
@@ -451,7 +457,7 @@ MAKE_SYSTEM_PROP(EXTEND_EDGE_ALL, 15); //UIEdgeRectAll
             notification:NO];
   if ([TiUtils isIOSVersionOrGreater:@"13.0"] || [TiUtils isMacOS]) {
     int style = [TiUtils intValue:args def:UIUserInterfaceStyleUnspecified];
-    TiApp.controller.overrideUserInterfaceStyle = style;
+    TiApp.app.window.overrideUserInterfaceStyle = style;
   }
 }
 
@@ -596,6 +602,10 @@ MAKE_SYSTEM_PROP(EXTEND_EDGE_ALL, 15); //UIEdgeRectAll
 #endif
 #ifdef USE_TI_UICLIPBOARD
   RELEASE_TO_NIL(clipboard);
+#endif
+#if defined(USE_TI_UITABLEVIEWSCROLLPOSITION) || defined(USE_TI_UILISTVIEWSCROLLPOSITION)
+  FORGET_AND_RELEASE(_TableViewScrollPosition);
+  FORGET_AND_RELEASE(_ListViewScrollPosition);
 #endif
   [super didReceiveMemoryWarning:notification];
 }
@@ -827,6 +837,24 @@ MAKE_SYSTEM_PROP(TABLE_VIEW_SEPARATOR_STYLE_SINGLE_LINE, UITableViewCellSeparato
     shortcut = [[TiUIShortcutProxy alloc] init];
   }
   return shortcut;
+}
+#endif
+
+#if defined(USE_TI_UITABLEVIEWSCROLLPOSITION) || defined(USE_TI_UILISTVIEWSCROLLPOSITION)
+- (TiUITableViewScrollPositionProxy *)TableViewScrollPosition
+{
+  if (_TableViewScrollPosition == nil) {
+    _TableViewScrollPosition = [[TiUITableViewScrollPositionProxy alloc] _initWithPageContext:[self pageContext]];
+  }
+  return _TableViewScrollPosition;
+}
+
+- (TiUITableViewScrollPositionProxy *)ListViewScrollPosition
+{
+  if (_ListViewScrollPosition == nil) {
+    _ListViewScrollPosition = [[TiUITableViewScrollPositionProxy alloc] _initWithPageContext:[self pageContext]];
+  }
+  return _ListViewScrollPosition;
 }
 #endif
 

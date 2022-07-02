@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-present by Appcelerator, Inc. All Rights Reserved.
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -2736,7 +2736,7 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
   [child setSandboxBounds:bounds];
   if ([[child view] animating]) {
     // changing the layout while animating is bad, ignore for now
-    DebugLog(@"[WARN] New layout set while view %@ animating: Will relayout after animation.", child);
+    DebugLog(@"[DEBUG] New layout set while view %@ animating: Will relayout after animation.", child);
   } else {
     [child relayout];
   }

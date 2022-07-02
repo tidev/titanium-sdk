@@ -6,58 +6,58 @@ This release includes general bug fixes and enhancements for Android and iPhone 
 ### Bug Fixes
 
 - orientation and rotation fixes for iPhone. 
-- [<a href="https://appcelerator.lighthouseapp.com/projects/32238/tickets/521-animating-with-center-causes-crash">#521</a>] Fixed crash related to animation on the center property on iPhone.
-- [<a href="https://appcelerator.lighthouseapp.com/projects/32238/tickets/651-audio-player-crash">#651</a>] Fixed crash related to audio player on iPhone.
-- [<a href="https://appcelerator.lighthouseapp.com/projects/32238/tickets/692-camera-crash">#692</a>] Fixed crash when using camera on iPhone.
-- [<a href="https://appcelerator.lighthouseapp.com/projects/32238/tickets/645-cant-change-index-array-after-table-view-creation">#645</a>] Fixed ability to reorder index on TableView after creation on iPhone.
-- [<a href="https://appcelerator.lighthouseapp.com/projects/32238/tickets/399-updaterow-on-table-view-with-ti-row-object-does-not-work">#399</a>] Fixed updateRow with row object on TableView on iPhone
-- [<a href="https://appcelerator.lighthouseapp.com/projects/32238/tickets/642-email-and-modal-in-landscape-mode">#642</a>] Fixed modal email dialog when switching to landscape mode on iPhone
-- [<a href="https://appcelerator.lighthouseapp.com/projects/32238/tickets/334-android-missing-data-property-on-tableview">#334</a>] Fixed problem with data on TableView for Android.
-- [<a href="https://appcelerator.lighthouseapp.com/projects/32238/tickets/340-table-view-background-color-not-being-recognized-on-creation">#340</a>] TableView backgroundColor property not recognized on creation for Android
-- [<a href="https://appcelerator.lighthouseapp.com/projects/32238/tickets/575-tiuicreatetoolbar-crashes-android">#575</a>] Toolbar on Android crashes. Note: this is not fully resolved but instead will show a temporary toolbar and prevent crash until fully implemented.
-- [<a href="https://appcelerator.lighthouseapp.com/projects/32238/tickets/686-android-mapview-missing-addremove-annotation">#686</a>] Added missing add and removeAnnotation methods on Android for MapView
-- [<a href="https://appcelerator.lighthouseapp.com/projects/32238/tickets/611-android-ks-basic-scroll-view-missing-red-view">#611</a>] Scrollview was not respecting autofill properties correctly for Android
-- [<a href="https://appcelerator.lighthouseapp.com/projects/32238/tickets/625-android-volume-on-sound-not-working">#625</a>] Fixed problem with volume control for Sound object on Android
-- [<a href="https://appcelerator.lighthouseapp.com/projects/32238/tickets/687-android-mapview-event-source-of-click-is-null">#687</a>] Fixed incorrect eventsource property on MapView for Android
-- [<a href="https://appcelerator.lighthouseapp.com/projects/32238/tickets/620-android-ks-inline-html-wcolor-bg-not-showing-yellow">#620</a>] Fixed backgroundColor issue with MapView for Android
-- [<a href="https://appcelerator.lighthouseapp.com/projects/32238/tickets/607-android-imageview-animation-pausestart-not-working">#607</a>] Fixed ImageView start/stop on Android
-- [<a href="https://appcelerator.lighthouseapp.com/projects/32238/tickets/552-android-createuuid-trying-to-create-a-proxy-object">#552</a>] Fixed problem with createUUID method on Android
-- [<a href="https://appcelerator.lighthouseapp.com/projects/32238/tickets/613-android-horizontal-scrollview-test-missing-scroll-bar">#613</a>] Resolved problem with horizontal scrollbar on ScrollView for Android.
-- [<a href="https://appcelerator.lighthouseapp.com/projects/32238/tickets/608-android-ks-image-rapid-update">#608</a>] Fixed problem with ImageView rapid update test case for Android
-- [<a href="https://appcelerator.lighthouseapp.com/projects/32238/tickets/606-android-blob-should-honor-text-property">#606</a>] Fixed problem where Blobs weren't honored the text property for Android
-- [<a href="https://appcelerator.lighthouseapp.com/projects/32238/tickets/624-android-text-fieldarea-blur-source-undefined">#624</a>] Fixed issue with TextArea blur source on Android
-- [<a href="https://appcelerator.lighthouseapp.com/projects/32238/tickets/394-map-view-problems">#394</a>] Resolved Map View issues related to changing annotations for iPhone.
-- [<a href="https://appcelerator.lighthouseapp.com/projects/32238/tickets/657-android-click-on-imageview-doesnt-work">#657</a>] Fixed problem with click events on ImageView for Android
-- [<a href="https://appcelerator.lighthouseapp.com/projects/32238/tickets/612-android-jump-on-scrollable-view-is-inconsistent">#612</a>] Fixed problem with Scrollable View jump on Android
-- [<a href="https://appcelerator.lighthouseapp.com/projects/32238/tickets/377-android-getlist-returns-string">#377</a>] Fixed problem with getList on Properties on Android
-- [<a href="https://appcelerator.lighthouseapp.com/projects/32238/tickets/514-modal-window-opened-in-landscape-mode-does-not-render-correctly">#514</a>] Fixed modal window landscape mode on iPhone
-- [<a href="https://appcelerator.lighthouseapp.com/projects/32238/tickets/554-android-missing-digestutilsmd5hex">#554</a>] Fixed missing hexdigest API on Android
-- [<a href="https://appcelerator.lighthouseapp.com/projects/32238/tickets/579-vertical-layout-transition-causes-some-positioning-problems">#579</a>] Fixed problem with vertical layouts and transitions on iPhone
-- [<a href="https://appcelerator.lighthouseapp.com/projects/32238/tickets/671-android-filecreatedirectory-should-support-optional-recursive-flag">#671</a>] Fixed problem with Filesystem createDirectory not being recursive on Android
-- [<a href="https://appcelerator.lighthouseapp.com/projects/32238/tickets/573-going-to-landscape-while-keyboard-is-up-doesnt-work">#573</a>] Fixed problem with landscape layout while keyboard is up on iPhone
-- [<a href="https://appcelerator.lighthouseapp.com/projects/32238/tickets/698-android-jsonstringify-mishandling-arrays">#698</a>] Fixed problem with JSON stringify and arrays on Android
-- [<a href="https://appcelerator.lighthouseapp.com/projects/32238/tickets/673-httpclient-settimeout-expects-array">#673</a>] Fixed problem on HTTPClient setTimeout that was improperly requiring array of parameters on iPhone
-- [<a href="https://appcelerator.lighthouseapp.com/projects/32238/tickets/688-referencing-file-from-applicationdatadirectory-does-not-work-in-web-view">#688</a>] Fixed problem when referencing file from application data directory in WebView on iPhone
-- [<a href="https://appcelerator.lighthouseapp.com/projects/32238/tickets/679-fireeventclick-not-working-for-button-objects">#679</a>] Fixed problem with custom events not working on iPhone
+-  Fixed crash related to animation on the center property on iPhone.
+-  Fixed crash related to audio player on iPhone.
+-  Fixed crash when using camera on iPhone.
+-  Fixed ability to reorder index on TableView after creation on iPhone.
+-  Fixed updateRow with row object on TableView on iPhone
+-  Fixed modal email dialog when switching to landscape mode on iPhone
+-  Fixed problem with data on TableView for Android.
+-  TableView backgroundColor property not recognized on creation for Android
+-  Toolbar on Android crashes. Note: this is not fully resolved but instead will show a temporary toolbar and prevent crash until fully implemented.
+-  Added missing add and removeAnnotation methods on Android for MapView
+-  Scrollview was not respecting autofill properties correctly for Android
+-  Fixed problem with volume control for Sound object on Android
+-  Fixed incorrect eventsource property on MapView for Android
+-  Fixed backgroundColor issue with MapView for Android
+-  Fixed ImageView start/stop on Android
+-  Fixed problem with createUUID method on Android
+-  Resolved problem with horizontal scrollbar on ScrollView for Android.
+-  Fixed problem with ImageView rapid update test case for Android
+-  Fixed problem where Blobs weren't honored the text property for Android
+-  Fixed issue with TextArea blur source on Android
+-  Resolved Map View issues related to changing annotations for iPhone.
+-  Fixed problem with click events on ImageView for Android
+-  Fixed problem with Scrollable View jump on Android
+-  Fixed problem with getList on Properties on Android
+-  Fixed modal window landscape mode on iPhone
+-  Fixed missing hexdigest API on Android
+-  Fixed problem with vertical layouts and transitions on iPhone
+-  Fixed problem with Filesystem createDirectory not being recursive on Android
+-  Fixed problem with landscape layout while keyboard is up on iPhone
+-  Fixed problem with JSON stringify and arrays on Android
+-  Fixed problem on HTTPClient setTimeout that was improperly requiring array of parameters on iPhone
+-  Fixed problem when referencing file from application data directory in WebView on iPhone
+-  Fixed problem with custom events not working on iPhone
 
 
 
 ### Enhancements
 
-- [<a href="https://appcelerator.lighthouseapp.com/projects/32238/tickets/531-need-a-way-to-specify-selectedcolor-for-labels-in-table-view-rows">#531</a>] ability to specify selectedColor for Table View on iPhone.
-- [<a href="https://appcelerator.lighthouseapp.com/projects/32238/tickets/318-android-menu-labels-missing-in-20-and-21">#318</a>,<a href="https://appcelerator.lighthouseapp.com/projects/32238/tickets/277-android-menu-items-differ-with-different-sdk">#277</a>] Menu Labels on 2.0+ of Android needed to be slightly smaller
-- [<a href="https://appcelerator.lighthouseapp.com/projects/32238/tickets/656-pinch-and-zoom-on-web-view-works-poorly">#656</a>] Improved pinch and zoom on webview for iPhone
-- [<a href="https://appcelerator.lighthouseapp.com/projects/32238/tickets/284-android-expose-verticalalign-property-for-text-fields">#284</a>] Exposed verticalAlign property for TextFields on Android.
-- [<a href="https://appcelerator.lighthouseapp.com/projects/32238/tickets/605-add-new-event-properties-to-map-view">#605</a>] MapView now supports better indication of location in clicksource property of click event
-- [<a href="https://appcelerator.lighthouseapp.com/projects/32238/tickets/510-implement-go-forward-and-go-back-methods-on-web-view">#510</a>] WebView now has support for navigation (goBack, goForward, reload) APIs
-- [<a href="https://appcelerator.lighthouseapp.com/projects/32238/tickets/626-android-filesystem-not-fully-implemented">#626</a>] Improved APIs for Filesystem on Android
-- [<a href="https://appcelerator.lighthouseapp.com/projects/32238/tickets/675-android-merge-pinimage-support-for-mapview">#675</a>] Custom pin support for MapView on Android
-- [<a href="https://appcelerator.lighthouseapp.com/projects/32238/tickets/699-android-reverse-geocode-result-needs-raw-values">#699</a>] Added support for raw values for reverse geocoder on Android
-- [<a href="https://appcelerator.lighthouseapp.com/projects/32238/tickets/689-speed-up-android-app-launch-times">#689</a>] Android simulator launch speedups!
-- [<a href="https://appcelerator.lighthouseapp.com/projects/32238/tickets/659-add-support-for-search-case-insensitivity">#659</a>] Searching on TableView now supports case insensitivity (and controlling property) 
-- [<a href="https://appcelerator.lighthouseapp.com/projects/32238/tickets/701">#701</a>,<a href="https://appcelerator.lighthouseapp.com/projects/32238/tickets/702-android-add-support-for-basic-auth-on-webview">#702</a>] Added support for basic authentication on WebView 
-- [<a href="https://appcelerator.lighthouseapp.com/projects/32238/tickets/672-add-support-for-http-client-self-signed-certificates">#672</a>] Added support for using HTTP client against SSL url that has a self-signed cert
-- [<a href="https://appcelerator.lighthouseapp.com/projects/32238/tickets/708-add-filename-and-mimetype-to-attachment-on-uploading-blob-on-xhr">#708</a>] Added support for filename with extension and correct mimetype in multipart mime attachment and HTTP Client on iPhone
+-  ability to specify selectedColor for Table View on iPhone.
+-  Menu Labels on 2.0+ of Android needed to be slightly smaller
+-  Improved pinch and zoom on webview for iPhone
+-  Exposed verticalAlign property for TextFields on Android.
+-  MapView now supports better indication of location in clicksource property of click event
+-  WebView now has support for navigation (goBack, goForward, reload) APIs
+-  Improved APIs for Filesystem on Android
+-  Custom pin support for MapView on Android
+-  Added support for raw values for reverse geocoder on Android
+-  Android simulator launch speedups!
+-  Searching on TableView now supports case insensitivity (and controlling property) 
+-  Added support for basic authentication on WebView 
+-  Added support for using HTTP client against SSL url that has a self-signed cert
+-  Added support for filename with extension and correct mimetype in multipart mime attachment and HTTP Client on iPhone
 
 
 
