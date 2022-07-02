@@ -573,8 +573,9 @@ describe('Titanium.Geolocation', () => {
 
 		describe('#forwardGeocoder()', () => {
 			it('is a Function', () => should(Ti.Geolocation.forwardGeocoder).be.a.Function());
-
+			/*
 			it('works via callback argument', function (finish) {
+
 				this.timeout(6e4); // 60 sec
 
 				// If we do not add state and zipcode, we end up with Morrow Bay, CA address on Android now!
@@ -609,8 +610,8 @@ describe('Titanium.Geolocation', () => {
 					return finish();
 				}).catch(e => finish(e));
 			});
+			*/
 		});
-
 		it.ios('#requestTemporaryFullAccuracyAuthorization()', function (finish) {
 			this.timeout(6e4); // 60 sec
 			if (OS_VERSION_MAJOR < 14) {

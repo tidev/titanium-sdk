@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2018 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -58,7 +58,7 @@
     string = [string substringToIndex:maxLength];
   }
   [(id)[self textWidgetView] setText:string];
-  [(TiUITextWidgetProxy *)[self proxy] noteValueChange:string];
+  [(TiUITextWidgetProxy *)[self proxy] noteValueChange:string:nil];
 }
 
 - (void)setMaxLength_:(id)value

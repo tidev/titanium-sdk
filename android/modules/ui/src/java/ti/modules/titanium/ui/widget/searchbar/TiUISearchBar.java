@@ -1,11 +1,12 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2021 by Axway, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 package ti.modules.titanium.ui.widget.searchbar;
 
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.text.InputType;
@@ -123,14 +124,16 @@ public class TiUISearchBar extends TiUIView
 			return;
 		}
 
+		final Activity activity = proxy.getActivity();
+
 		// Apply given properties to view.
 		if (properties.containsKey(TiC.PROPERTY_BAR_COLOR)) {
-			searchView.setBackgroundColor(TiConvert.toColor(properties, TiC.PROPERTY_BAR_COLOR));
+			searchView.setBackgroundColor(TiConvert.toColor(properties, TiC.PROPERTY_BAR_COLOR, activity));
 		}
 		if (properties.containsKey(TiC.PROPERTY_COLOR)) {
 			EditText editText = getEditText();
 			if (editText != null) {
-				editText.setTextColor(TiConvert.toColor(properties, TiC.PROPERTY_COLOR));
+				editText.setTextColor(TiConvert.toColor(properties, TiC.PROPERTY_COLOR, activity));
 			}
 		}
 		if (properties.containsKey(TiC.PROPERTY_VALUE)) {
@@ -145,7 +148,7 @@ public class TiUISearchBar extends TiUIView
 		if (properties.containsKey(TiC.PROPERTY_HINT_TEXT_COLOR)) {
 			EditText editText = getEditText();
 			if (editText != null) {
-				editText.setHintTextColor(TiConvert.toColor(properties, TiC.PROPERTY_HINT_TEXT_COLOR));
+				editText.setHintTextColor(TiConvert.toColor(properties, TiC.PROPERTY_HINT_TEXT_COLOR, activity));
 			}
 		}
 		if (properties.containsKey(TiC.PROPERTY_ICONIFIED)) {
@@ -179,11 +182,11 @@ public class TiUISearchBar extends TiUIView
 		if (key.equals(TiC.PROPERTY_SHOW_CANCEL)) {
 			updateCloseButton();
 		} else if (key.equals(TiC.PROPERTY_BAR_COLOR)) {
-			searchView.setBackgroundColor(TiConvert.toColor(TiConvert.toString(newValue)));
+			searchView.setBackgroundColor(TiConvert.toColor(newValue, proxy.getActivity()));
 		} else if (key.equals(TiC.PROPERTY_COLOR)) {
 			EditText editText = getEditText();
 			if (editText != null) {
-				editText.setTextColor(TiConvert.toColor(TiConvert.toString(newValue)));
+				editText.setTextColor(TiConvert.toColor(newValue, proxy.getActivity()));
 			}
 		} else if (key.equals(TiC.PROPERTY_VALUE)) {
 			boolean wasIgnored = this.isIgnoringChangeEvent;
@@ -195,7 +198,7 @@ public class TiUISearchBar extends TiUIView
 		} else if (key.equals(TiC.PROPERTY_HINT_TEXT_COLOR)) {
 			EditText editText = getEditText();
 			if (editText != null) {
-				editText.setHintTextColor(TiConvert.toColor(TiConvert.toString(newValue)));
+				editText.setHintTextColor(TiConvert.toColor(newValue, proxy.getActivity()));
 			}
 		} else if (key.equals(TiC.PROPERTY_ICONIFIED)) {
 			searchView.setIconified(TiConvert.toBoolean(newValue, false));

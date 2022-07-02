@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2021 by Axway, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -39,6 +39,7 @@ public class TiUIActivityIndicator extends TiUIView
 	private boolean visible;
 	private MaterialTextView label;
 	private CircularProgressIndicator progress;
+	private final int defaultTextColor;
 
 	public TiUIActivityIndicator(TiViewProxy proxy)
 	{
@@ -62,6 +63,7 @@ public class TiUIActivityIndicator extends TiUIView
 		view.addView(this.label);
 
 		setNativeView(view);
+		this.defaultTextColor = this.label.getCurrentTextColor();
 	}
 
 	@Override
@@ -81,7 +83,7 @@ public class TiUIActivityIndicator extends TiUIView
 			label.setText(TiConvert.toString(d, TiC.PROPERTY_MESSAGE));
 		}
 		if (d.containsKey(TiC.PROPERTY_COLOR)) {
-			label.setTextColor(TiConvert.toColor(d, TiC.PROPERTY_COLOR));
+			label.setTextColor(TiConvert.toColor(d, TiC.PROPERTY_COLOR, proxy.getActivity()));
 		}
 		updateIndicator();
 
@@ -102,7 +104,11 @@ public class TiUIActivityIndicator extends TiUIView
 			label.setText(TiConvert.toString(newValue));
 			label.requestLayout();
 		} else if (key.equals(TiC.PROPERTY_COLOR)) {
-			label.setTextColor(TiConvert.toColor((String) newValue));
+			if (newValue == null) {
+				label.setTextColor(defaultTextColor);
+			} else {
+				label.setTextColor(TiConvert.toColor(newValue, proxy.getActivity()));
+			}
 		} else if (key.equals(TiC.PROPERTY_INDICATOR_COLOR)) {
 			updateIndicator();
 		} else {
@@ -164,7 +170,7 @@ public class TiUIActivityIndicator extends TiUIView
 
 		// Update indicator's color.
 		if (this.proxy.hasPropertyAndNotNull(TiC.PROPERTY_INDICATOR_COLOR)) {
-			int color = TiConvert.toColor(TiConvert.toString(this.proxy.getProperty(TiC.PROPERTY_INDICATOR_COLOR)));
+			int color = TiConvert.toColor(proxy.getProperty(TiC.PROPERTY_INDICATOR_COLOR), proxy.getActivity());
 			this.progress.getIndeterminateDrawable().setColorFilter(
 				new PorterDuffColorFilter(color, PorterDuff.Mode.SRC_IN));
 		} else if ((styleId == DARK) || (styleId == BIG_DARK)) {
