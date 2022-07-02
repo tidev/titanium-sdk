@@ -17,7 +17,7 @@ description:  |
 
     **NOTE:** <Titanium.UI.Android.PROGRESS_INDICATOR_STATUS_BAR> does not work anymore on devices
     running Android 4.4+ since the underlying API was deprecated and removed by Google. See
-    [TIMOB-27312](https://jira.appcelerator.org/browse/TIMOB-27312) for more details.
+    [TIMOB-27312](https://jira-archive.titaniumsdk.com/TIMOB-27312) for more details.
 
     Calling <Titanium.UI.Android.ProgressIndicator.show> displays the indicator,
     and calling <Titanium.UI.Android.ProgressIndicator.hide> removes it.
