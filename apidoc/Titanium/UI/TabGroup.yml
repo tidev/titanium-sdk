@@ -328,7 +328,7 @@ properties:
     summary: If set to `true` it will automatically set the actionbar title to the current tabs window title.
     type: Boolean
     default: false
-    since: 10.2.0
+    since: 11.0.0
     platforms: [android]
 
   - name: barColor

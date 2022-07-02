@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2015 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -118,13 +118,22 @@ DEFINE_DEF_BOOL_PROP(suppressReturn, YES);
   return result;
 }
 
-- (void)noteValueChange:(NSString *)newValue
+- (void)noteValueChange:(NSString *)newValue:(NSNumber *)contentHeight
 {
   NSString *oldValue = [TiUtils stringValue:[self valueForKey:@"value"]];
   if (![oldValue isEqual:newValue]) {
     [self replaceValue:newValue forKey:@"value" notification:NO];
+
+    NSMutableDictionary *event = [NSMutableDictionary dictionary];
+    if (contentHeight != nil) {
+      [event setValue:contentHeight forKey:@"contentHeight"];
+    }
+    [event setValue:newValue forKey:@"value"];
+    if ([self _hasListeners:@"change"]) {
+      [self fireEvent:@"change" withObject:event];
+    }
+
     [self contentsWillChange];
-    [self fireEvent:@"change" withObject:[NSDictionary dictionaryWithObject:newValue forKey:@"value"]];
     TiThreadPerformOnMainThread(
         ^{
           //Make sure the text widget is in view when editing.

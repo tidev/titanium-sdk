@@ -9,7 +9,7 @@ mac: true
 description: TiModuleSdk920
 author: Axway
 license: Apache Public License v2
-copyright: Copyright (c) 2020 by Axway
+copyright: Copyright TiDev, Inc. 04/07/2022-Present
 
 # these should not be edited
 name: TiModuleSdk920
