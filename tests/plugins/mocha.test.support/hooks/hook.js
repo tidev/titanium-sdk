@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 by Axway, Inc.
+ * Copyright TiDev, Inc. 04/07/2022-Present
  * All Rights Reserved. This library contains intellectual
  * property protected by patents and/or patents pending.
  */
