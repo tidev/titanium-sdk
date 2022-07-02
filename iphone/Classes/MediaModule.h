@@ -1,12 +1,12 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2018 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 #ifdef USE_TI_MEDIA
 
-#if defined(USE_TI_MEDIAGETAPPMUSICPLAYER) || defined(USE_TI_MEDIAOPENMUSICLIBRARY) || defined(USE_TI_MEDIAAPPMUSICPLAYER) || defined(USE_TI_MEDIAGETSYSTEMMUSICPLAYER) || defined(USE_TI_MEDIASYSTEMMUSICPLAYER) || defined(USE_TI_MEDIAHASMUSICLIBRARYPERMISSIONS)
+#if defined(USE_TI_MEDIAGETAPPMUSICPLAYER) || defined(USE_TI_MEDIAOPENMUSICLIBRARY) || defined(USE_TI_MEDIAAPPMUSICPLAYER) || defined(USE_TI_MEDIAGETSYSTEMMUSICPLAYER) || defined(USE_TI_MEDIASYSTEMMUSICPLAYER) || defined(USE_TI_MEDIAHASMUSICLIBRARYPERMISSIONS) || defined(USE_TI_MEDIAQUERYMUSICLIBRARY)
 #import <MediaPlayer/MediaPlayer.h>
 #endif
 #if IS_SDK_IOS_14 && defined(USE_TI_MEDIAOPENPHOTOGALLERY)
@@ -50,7 +50,7 @@
   BOOL saveToRoll;
 
 // Music picker
-#ifdef USE_TI_MEDIAOPENMUSICLIBRARY
+#if defined(USE_TI_MEDIAOPENMUSICLIBRARY) || defined(USE_TI_MEDIAQUERYMUSICLIBRARY)
   MPMediaPickerController *musicPicker;
 #endif
 

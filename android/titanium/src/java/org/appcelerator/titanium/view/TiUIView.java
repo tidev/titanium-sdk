@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2014 by Appcelerator, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -960,6 +960,17 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 			}
 		} else if (key.equals(TiC.PROPERTY_HIDDEN_BEHAVIOR)) {
 			hiddenBehavior = TiConvert.toInt(newValue, View.INVISIBLE);
+		} else if (key.equals(TiC.PROPERTY_VIEW_SHADOW_COLOR)) {
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+				if (nativeView != null) {
+					nativeView.setOutlineAmbientShadowColor(TiConvert.toColor(TiConvert.toString(newValue),
+						TiApplication.getAppCurrentActivity()));
+					nativeView.setOutlineSpotShadowColor(TiConvert.toColor(TiConvert.toString(newValue),
+						TiApplication.getAppCurrentActivity()));
+				}
+			} else {
+				Log.w(TAG, "Setting the 'viewShadowColor' property requires Android P or later");
+			}
 		} else if (Log.isDebugModeEnabled()) {
 			Log.d(TAG, "Unhandled property key: " + key, Log.DEBUG_MODE);
 		}
@@ -1112,6 +1123,19 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 
 		if (d.containsKey(TiC.PROPERTY_TRANSLATION_Z) && !nativeViewNull) {
 			ViewCompat.setTranslationZ(nativeView, TiConvert.toFloat(d, TiC.PROPERTY_TRANSLATION_Z));
+		}
+
+		if (d.containsKey(TiC.PROPERTY_VIEW_SHADOW_COLOR) && !nativeViewNull) {
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+				nativeView.setOutlineAmbientShadowColor(
+					TiConvert.toColor(TiConvert.toString(d, TiC.PROPERTY_VIEW_SHADOW_COLOR),
+						TiApplication.getAppCurrentActivity()));
+				nativeView.setOutlineSpotShadowColor(
+					TiConvert.toColor(TiConvert.toString(d, TiC.PROPERTY_VIEW_SHADOW_COLOR),
+						TiApplication.getAppCurrentActivity()));
+			} else {
+				Log.w(TAG, "Setting the 'viewShadowColor' property requires Android P or later");
+			}
 		}
 
 		if (!nativeViewNull && d.containsKeyAndNotNull(TiC.PROPERTY_TRANSITION_NAME)) {

@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2020 by Axway, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -105,12 +105,12 @@ public class TiBorderWrapperView extends FrameLayout
 			canvas.drawPath(outerPath, paint);
 
 			// TIMOB-16909: hack to fix anti-aliasing
-			if (Build.VERSION.SDK_INT < 31 && backgroundColor != Color.TRANSPARENT) {
+			if (Build.VERSION.SDK_INT < 30 && backgroundColor != Color.TRANSPARENT) {
 				paint.setColor(backgroundColor);
 				canvas.drawPath(innerPath, paint);
 			}
 			canvas.clipPath(innerPath);
-			if (Build.VERSION.SDK_INT < 31 && backgroundColor != Color.TRANSPARENT) {
+			if (Build.VERSION.SDK_INT < 30 && backgroundColor != Color.TRANSPARENT) {
 				canvas.drawColor(0, PorterDuff.Mode.CLEAR);
 			}
 		} else {

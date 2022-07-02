@@ -2,7 +2,7 @@
  * TiModuleSdk920
  *
  * Created by Axway
- * Copyright (c) 2020 Axway. All rights reserved.
+ * Copyright TiDev, Inc. 04/07/2022-Present
  */
 
 #import "TiModule.h"
