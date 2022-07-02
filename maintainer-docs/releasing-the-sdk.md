@@ -32,7 +32,7 @@ If this is a patch release, you do not need to perform this step.
 
 For all other releases you should create a branch for this minor version of the SDK following the `1_2_X` format and bump the version of the master branch to the next version.
 
-The following steps are written from the perspective of a `10.2.0.GA` release.
+The following steps are written from the perspective of a `11.0.0.GA` release.
 
 1. Create the maintenance branch from `master` in the [GitHub UI](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-and-deleting-branches-within-your-repository#creating-a-branch) or in the terminal
    * If using the terminal ensure you push to the correct remote

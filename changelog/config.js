@@ -2,7 +2,6 @@
 
 const path = require('path');
 const semver = require('semver');
-const dateFormat = require('dateformat');
 const fs = require('fs-extra');
 // eslint-disable-next-line security/detect-child-process
 const execSync = require('child_process').execSync;
@@ -361,7 +360,9 @@ module.exports = {
 				}
 				eosDate.setMonth(eosDate.getMonth() + 6);
 			}
-			context.eosDate = dateFormat(eosDate, 'yyyy-mm-dd', true);
+
+			// yyyy-mm-dd
+			context.eosDate = eosDate.toISOString().split('T')[0];
 
 			// Gather up the modules shipped with this version and toss into a variable we can put into the changelog
 			const modules = gatherModules();
