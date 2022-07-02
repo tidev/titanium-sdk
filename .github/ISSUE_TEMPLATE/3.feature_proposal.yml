@@ -1,6 +1,6 @@
 name: Feature Proposal
 description: Propose a new feature or an improvement for Titanium SDK
-labels: [ feature, needs triage ]
+labels: [feature, needs triage]
 body:
 - type: markdown
   attributes:
@@ -9,19 +9,19 @@ body:
   attributes:
     label: I have searched and made sure there are no existing issues for the issue I am filing
     options:
-    - label: I have searched the existing issues
-      required: true
+      - label: I have searched the existing issues
+        required: true
 - type: textarea
   attributes:
     label: Description
     description: A concise description of the proposal you are making and the use case for it
   validations:
-      required: true
+    required: true
 - type: textarea
   attributes:
     label: Solution
     description: Describe the solution you are proposing to solve the feature proposal, this could include code snippets
-  validations: 
+  validations:
     required: true
 - type: textarea
   attributes:
@@ -37,4 +37,5 @@ body:
     options:
       - Android
       - iOS
+      - Android & iOS
       - CLI

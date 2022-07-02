@@ -1,6 +1,6 @@
 name: Docs Issue
 description: Noticed an issue with the docs, let us know!
-labels: [ bug, docs, needs triage ]
+labels: [bug, docs, needs triage]
 body:
 - type: markdown
   attributes:
@@ -12,8 +12,8 @@ body:
   attributes:
     label: I have searched and made sure there are no existing issues for the issue I am filing
     options:
-    - label: I have searched the existing issues
-      required: true
+      - label: I have searched the existing issues
+        required: true
 - type: input
   attributes:
     label: URL
@@ -25,7 +25,7 @@ body:
     label: Description
     description: A description of the issue
   validations:
-      required: true
+    required: true
 - type: textarea
   attributes:
     label: Suggestion

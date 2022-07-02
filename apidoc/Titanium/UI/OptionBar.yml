@@ -21,16 +21,18 @@ excludes:
     properties: [children]
     methods: [add, remove, removeAllChildren, replaceAt]
 
-events: 
+events:
   - name: click
     summary: Fired when an option has been selected.
-    properties: 
+    properties:
       - name: index
         summary: Index of the option clicked on.
         type: Number
 properties:
   - name: index
     summary: Index of the currently selected option.
+    description: |
+      Index of the currently selected option. Setting this to `-1` will deselect all options.
     type: Number
 
   - name: labels
@@ -62,12 +64,19 @@ examples:
         ``` js
         const win = Ti.UI.createWindow();
         const optionBar = Ti.UI.createOptionBar({
-          labels: [ 'Option 1', 'Option 2', Option 3 ]
+          labels: [ 'Option 1', 'Option 2', 'Option 3' ]
         });
+        const btn = Ti.UI.createButton({
+          title:"reset", bottom: 10
+        })
         optionBar.addEventListener('click', (e) => {
           Ti.API.info(`Option ${e.index} was selected.`);
         });
-        win.add(optionBar);
+        btn.addEventListener('click', (e) => {
+          optionBar.index = -1;
+        });
+        win.add([optionBar,btn]);
+
         win.open();
         ```
 

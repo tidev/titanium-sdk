@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2016-2020 by Axway, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -93,6 +93,7 @@ public final class JSDebugger
 	{
 		try {
 			this.agentThread = new InspectorAgent(this.port);
+			this.agentThread.setReuseAddr(true);
 			this.agentThread.start();
 		} catch (Exception e) {
 			Log.e(TAG, "Failed to start websocket server agent to handle debugger connection", e);
