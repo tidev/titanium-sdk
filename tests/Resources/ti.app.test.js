@@ -47,16 +47,6 @@ describe('Titanium.App', () => {
 			});
 		});
 
-		describe('.analytics', () => {
-			it('is a read-only Boolean', () => {
-				should(Ti.App).have.a.readOnlyProperty('analytics').which.is.a.Boolean();
-			});
-
-			it('has no getter', () => {
-				should(Ti.App).not.have.a.getter('analytics');
-			});
-		});
-
 		describe.ios('.arguments', () => {
 			it('is an Object', () => {
 				should(Ti.App).have.a.readOnlyProperty('arguments').which.is.an.Object();

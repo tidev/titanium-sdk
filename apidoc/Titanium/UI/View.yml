@@ -99,7 +99,7 @@ description: |
 
     For more details see:
 
-    * [UI Composite Layout Spec](https://docs.appcelerator.com/platform/latest/#!/guide/UI_Composite_Layout_Behavior_Spec)
+    * [UI Composite Layout Spec](https://titaniumsdk.com/guide/Titanium_SDK/Titanium_SDK_Guide/Contributing_to_Titanium/Platform_Development/Specs/UI_Composite_Layout_Behavior_Spec.html)
 
     #### Size and Position
 
@@ -1456,9 +1456,13 @@ properties:
 
   - name: borderRadius
     summary: Radius for the rounded corners of the view's border.
-    description: Each corner is rounded using an arc of a circle.
+    description: |
+        Each corner is rounded using an arc of a circle.
         Values for each corner can be specified. For example, '20px 20px' will set both left and right corners to `20px`.
         Specifying '20px 20px 20px 20px' will set top-left, top-right, bottom-right and bottom-left corners in that order.
+
+        If you have issues with dark artifacts on Android you can try to disable Hardware acceleration by setting a
+        `backgroundColor` with a small amount of transparency: `backgroundColor:"rgba(255,255,255,254)"`.
     type: [Number, String, Array<Number>, Array<String>]
     default: 0
     osver: {android: {min: "5.0"}}
@@ -1551,7 +1555,7 @@ properties:
     description: |
         Defaults to: If undefined, defaults to either <Titanium.UI.FILL> or <Titanium.UI.SIZE>
         depending on the view. See "View Types and Default Layout Behavior" in
-        [Transitioning to the New UI Layout System](https://docs.appcelerator.com/platform/latest/#!/guide/Transitioning_to_the_New_UI_Layout_System).
+        [Transitioning to the New UI Layout System](https://titaniumsdk.com/guide/Titanium_SDK/Titanium_SDK_Guide/Contributing_to_Titanium/Platform_Development/Specs/UI_Composite_Layout_Behavior_Spec.html).
 
         Can be either a float value or a dimension string (for example, '50%' or '40dp').
         Can also be one of the following special values:
@@ -1714,7 +1718,7 @@ properties:
             precedence is `width`, `left`, `center.x`, `right`.
 
             For complete details on composite layout rules, see
-            [Transitioning to the New UI Layout System](https://docs.appcelerator.com/platform/latest/#!/guide/Transitioning_to_the_New_UI_Layout_System)
+            [Transitioning to the New UI Layout System](https://titaniumsdk.com/guide/Titanium_SDK/Titanium_SDK_Guide/Contributing_to_Titanium/Platform_Development/Specs/UI_Composite_Layout_Behavior_Spec.html)
             in the Titanium Mobile Guides.
 
          *  `vertical`. Children are laid out vertically from top to bottom. The first child
@@ -1982,10 +1986,14 @@ properties:
 
   - name: viewShadowColor
     summary: Determines the color of the shadow.
-    description: Defaults to `undefined`. Behaves as if transparent.
+    description: |
+      iOS Defaults to `undefined`. Behaves as if transparent. Android default is black.
+      On Android you can set `<item name="android:ambientShadowAlpha">0.5</item>` and
+      `<item name="android:spotShadowAlpha">0.5</item>` in your theme to change the
+      opacity.
     type: [String, Titanium.UI.Color]
-    platforms: [iphone, ipad, macos]
-    since: "3.3.0"
+    platforms: [android, iphone, ipad, macos]
+    since: {android: "11.1.0", iphone: "3.3.0", ipad: "3.3.0", macos: "9.2.0"}
 
   - name: viewShadowOffset
     summary: Determines the offset for the shadow of the view.
@@ -2004,7 +2012,7 @@ properties:
     description: |
         Defaults to: If undefined, defaults to either <Titanium.UI.FILL> or <Titanium.UI.SIZE>
         depending on the view. See "View Types and Default Layout Behavior" in
-        [Transitioning to the New UI Layout System](https://docs.appcelerator.com/platform/latest/#!/guide/Transitioning_to_the_New_UI_Layout_System).
+        [Transitioning to the New UI Layout System](https://titaniumsdk.com/guide/Titanium_SDK/Titanium_SDK_Guide/Contributing_to_Titanium/Platform_Development/Specs/UI_Composite_Layout_Behavior_Spec.html).
 
         Can be either a float value or a dimension string (for example, '50%' or '40dp').
         Can also be one of the following special values:

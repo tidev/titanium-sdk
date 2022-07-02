@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2020 by Axway. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License.
  * Please see the LICENSE included with this distribution for details.
  */
@@ -174,7 +174,7 @@ async function createSnapshot() {
 			// Post rolled-up "ti.main" script to server and obtain a snapshot ID as a response.
 			// We will send an HTTP request for the snapshot code later.
 			console.log('Attempting to request snapshot...');
-			const snapshotUrl = 'https://v8-snapshot.appcelerator.com';
+			const snapshotUrl = 'http://v8-snapshot.appcelerator.com'; // TODO: Migrate to Github Artifacts once ready
 			const packageJsonData = await loadPackageJson();
 			const requestOptions = {
 				body: {
@@ -252,7 +252,7 @@ async function updateLibrary() {
 		__dirname, '../../dist/android/libv8', v8TargetVersion, v8TargetMode);
 
 	// Download V8 archive (downloads to temp dir, which helps CI server avoid re-downloading between builds generally)
-	const downloadUrl = `https://github.com/appcelerator/v8_titanium/releases/download/v${v8TargetVersion}/${v8ArchiveFileName}`;
+	const downloadUrl = `https://github.com/tidev/v8_titanium/releases/download/v${v8TargetVersion}/${v8ArchiveFileName}`;
 	// FIXME: Can we skip the download if the ultimate destination exists?!
 	const downloadedTarball = await BuildUtils.downloadURL(downloadUrl, integrity, { progress: false });
 	let tmpExtractDir = BuildUtils.cachedDownloadPath(downloadUrl); // store alongside the place we store the tar.bz2, just drop the extension

@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2014 by Appcelerator, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -812,7 +812,8 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 
 				if (this.nativeView != null) {
 					if (d.containsKeyAndNotNull(TiC.PROPERTY_BACKGROUND_COLOR)) {
-						this.nativeView.setBackgroundColor(TiConvert.toColor(d, TiC.PROPERTY_BACKGROUND_COLOR));
+						this.nativeView.setBackgroundColor(
+							TiConvert.toColor(d, TiC.PROPERTY_BACKGROUND_COLOR, proxy.getActivity()));
 					} else {
 						this.nativeView.setBackground(null);
 					}
@@ -827,7 +828,7 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 
 				if (!hasColorState && !hasGradient) {
 					if (d.get(TiC.PROPERTY_BACKGROUND_COLOR) != null) {
-						bgColor = TiConvert.toColor(d, TiC.PROPERTY_BACKGROUND_COLOR);
+						bgColor = TiConvert.toColor(d, TiC.PROPERTY_BACKGROUND_COLOR, proxy.getActivity());
 						if (newBackground
 							|| (key.equals(TiC.PROPERTY_OPACITY) || key.equals(TiC.PROPERTY_BACKGROUND_COLOR))) {
 							background.setBackgroundColor(bgColor);
@@ -873,7 +874,7 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 			}
 			if (canApplyTouchFeedback(d)) {
 				String colorString = TiConvert.toString(d.get(TiC.PROPERTY_TOUCH_FEEDBACK_COLOR));
-				applyTouchFeedback((colorString != null) ? TiConvert.toColor(colorString) : null);
+				applyTouchFeedback((colorString != null) ? TiConvert.toColor(colorString, proxy.getActivity()) : null);
 			}
 			if (key.equals(TiC.PROPERTY_OPACITY)) {
 				setOpacity(TiConvert.toFloat(newValue, 1f));
@@ -950,6 +951,17 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 			}
 		} else if (key.equals(TiC.PROPERTY_HIDDEN_BEHAVIOR)) {
 			hiddenBehavior = TiConvert.toInt(newValue, View.INVISIBLE);
+		} else if (key.equals(TiC.PROPERTY_VIEW_SHADOW_COLOR)) {
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+				if (nativeView != null) {
+					nativeView.setOutlineAmbientShadowColor(TiConvert.toColor(TiConvert.toString(newValue),
+						TiApplication.getAppCurrentActivity()));
+					nativeView.setOutlineSpotShadowColor(TiConvert.toColor(TiConvert.toString(newValue),
+						TiApplication.getAppCurrentActivity()));
+				}
+			} else {
+				Log.w(TAG, "Setting the 'viewShadowColor' property requires Android P or later");
+			}
 		} else if (Log.isDebugModeEnabled()) {
 			Log.d(TAG, "Unhandled property key: " + key, Log.DEBUG_MODE);
 		}
@@ -993,7 +1005,7 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 		} else if (d.containsKey(TiC.PROPERTY_BACKGROUND_COLOR) && !nativeViewNull) {
 			// Set the background color on the view directly only if there is no border.
 			// If border is present, then we must use the TiBackgroundDrawable.
-			bgColor = TiConvert.toColor(d, TiC.PROPERTY_BACKGROUND_COLOR);
+			bgColor = TiConvert.toColor(d, TiC.PROPERTY_BACKGROUND_COLOR, proxy.getActivity());
 			if (hasBorder(d)) {
 				if (background == null) {
 					applyCustomBackground(false);
@@ -1005,7 +1017,7 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 		}
 		if (canApplyTouchFeedback(d)) {
 			String colorString = TiConvert.toString(d.get(TiC.PROPERTY_TOUCH_FEEDBACK_COLOR));
-			applyTouchFeedback((colorString != null) ? TiConvert.toColor(colorString) : null);
+			applyTouchFeedback((colorString != null) ? TiConvert.toColor(colorString, proxy.getActivity()) : null);
 		}
 
 		if (d.containsKey(TiC.PROPERTY_FILTER_TOUCHES_WHEN_OBSCURED) && !nativeViewNull) {
@@ -1102,6 +1114,19 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 
 		if (d.containsKey(TiC.PROPERTY_TRANSLATION_Z) && !nativeViewNull) {
 			ViewCompat.setTranslationZ(nativeView, TiConvert.toFloat(d, TiC.PROPERTY_TRANSLATION_Z));
+		}
+
+		if (d.containsKey(TiC.PROPERTY_VIEW_SHADOW_COLOR) && !nativeViewNull) {
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+				nativeView.setOutlineAmbientShadowColor(
+					TiConvert.toColor(TiConvert.toString(d, TiC.PROPERTY_VIEW_SHADOW_COLOR),
+						TiApplication.getAppCurrentActivity()));
+				nativeView.setOutlineSpotShadowColor(
+					TiConvert.toColor(TiConvert.toString(d, TiC.PROPERTY_VIEW_SHADOW_COLOR),
+						TiApplication.getAppCurrentActivity()));
+			} else {
+				Log.w(TAG, "Setting the 'viewShadowColor' property requires Android P or later");
+			}
 		}
 
 		if (!nativeViewNull && d.containsKeyAndNotNull(TiC.PROPERTY_TRANSITION_NAME)) {
@@ -1445,7 +1470,8 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 			if (background != null) {
 				Drawable bgDrawable = TiUIHelper.buildBackgroundDrawable(
 					bg, TiConvert.toBoolean(d, TiC.PROPERTY_BACKGROUND_REPEAT, false), bgColor, bgSelected,
-					bgSelectedColor, bgDisabled, bgDisabledColor, bgFocused, bgFocusedColor, gradientDrawable);
+					bgSelectedColor, bgDisabled, bgDisabledColor, bgFocused, bgFocusedColor, gradientDrawable,
+					proxy.getActivity());
 
 				background.setBackgroundDrawable(bgDrawable);
 			}
@@ -1500,7 +1526,7 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 					borderView.setColor(bgColor);
 				}
 				if (d.containsKey(TiC.PROPERTY_BORDER_COLOR)) {
-					borderView.setColor(TiConvert.toColor(d, TiC.PROPERTY_BORDER_COLOR));
+					borderView.setColor(TiConvert.toColor(d, TiC.PROPERTY_BORDER_COLOR, proxy.getActivity()));
 				}
 
 				//Have a default border width of 1 if the border has defined color.
@@ -1532,7 +1558,8 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 	private void handleBorderProperty(String property, Object value)
 	{
 		if (TiC.PROPERTY_BORDER_COLOR.equals(property)) {
-			borderView.setColor(value != null ? TiConvert.toColor(value.toString()) : Color.TRANSPARENT);
+			int color = value != null ? TiConvert.toColor(value.toString(), proxy.getActivity()) : Color.TRANSPARENT;
+			borderView.setColor(color);
 			if (!proxy.hasProperty(TiC.PROPERTY_BORDER_WIDTH)) {
 				borderView.setBorderWidth(1);
 			}

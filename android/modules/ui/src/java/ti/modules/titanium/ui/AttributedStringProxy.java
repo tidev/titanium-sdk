@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2014-2015 by Appcelerator, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -249,12 +249,12 @@ public class AttributedStringProxy extends KrollProxy
 										break;
 									case UIModule.ATTRIBUTE_BACKGROUND_COLOR:
 										spannableText.setSpan(
-											new BackgroundColorSpan(TiConvert.toColor(TiConvert.toString(attrValue))),
+											new BackgroundColorSpan(TiConvert.toColor(attrValue, activity)),
 											range[0], range[0] + range[1], Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 										break;
 									case UIModule.ATTRIBUTE_FOREGROUND_COLOR:
 										spannableText.setSpan(
-											new ForegroundColorSpan(TiConvert.toColor(TiConvert.toString(attrValue))),
+											new ForegroundColorSpan(TiConvert.toColor(attrValue, activity)),
 											range[0], range[0] + range[1], Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 										break;
 									case UIModule.ATTRIBUTE_STRIKETHROUGH_STYLE:
@@ -263,7 +263,7 @@ public class AttributedStringProxy extends KrollProxy
 										break;
 									case UIModule.ATTRIBUTE_UNDERLINE_COLOR:
 										final UnderlineColorSpan underlineColorSpan = new UnderlineColorSpan(
-											TiConvert.toColor(TiConvert.toString(attrValue)));
+											TiConvert.toColor(attrValue, activity));
 
 										spannableText.setSpan(underlineColorSpan, range[0], range[0] + range[1],
 											Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);

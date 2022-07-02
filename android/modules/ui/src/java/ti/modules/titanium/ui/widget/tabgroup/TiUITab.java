@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -53,7 +53,7 @@ public class TiUITab extends TiUIView
 		return windowProxy.getOrCreateView().getOuterView();
 	}
 
-	private TiWindowProxy getWindowProxy()
+	public TiWindowProxy getWindowProxy()
 	{
 		if (proxy != null) {
 			Object windowProxy = proxy.getProperty(TiC.PROPERTY_WINDOW);
