@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2020 by Axway. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License.
  * Please see the LICENSE included with this distribution for details.
  */
@@ -74,5 +74,4 @@ jar {
 dependencies {
 	implementation 'com.googlecode.json-simple:json-simple:1.1'
 	implementation 'org.freemarker:freemarker:2.3.30'
-	implementation 'log4j:log4j:1.2.17'
 }

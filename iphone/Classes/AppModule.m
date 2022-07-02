@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2015 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -27,7 +27,6 @@ extern NSString *const TI_APPLICATION_VERSION;
 extern NSString *const TI_APPLICATION_DESCRIPTION;
 extern NSString *const TI_APPLICATION_COPYRIGHT;
 extern NSString *const TI_APPLICATION_GUID;
-extern BOOL const TI_APPLICATION_ANALYTICS;
 
 @implementation AppModule
 
@@ -570,7 +569,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 
 - (id)analytics
 {
-  return NUMBOOL(TI_APPLICATION_ANALYTICS);
+  return @(NO);
 }
 
 - (NSNumber *)keyboardVisible

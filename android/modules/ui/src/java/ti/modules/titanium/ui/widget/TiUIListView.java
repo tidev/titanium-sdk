@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2020 by Axway, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -8,6 +8,7 @@ package ti.modules.titanium.ui.widget;
 
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.view.View;
 import android.view.ViewGroup;
@@ -217,23 +218,29 @@ public class TiUIListView extends TiUIView
 				? TiConvert.toTiDimension(heightString, TiDimension.TYPE_HEIGHT)
 				.getAsPixels((View) getNativeView().getParent()) : 0;
 
-			if (name.equals(TiC.PROPERTY_SEPARATOR_COLOR)
-				|| properties.containsKey(TiC.PROPERTY_SEPARATOR_COLOR)) {
-				String colorString = properties.getString(TiC.PROPERTY_SEPARATOR_COLOR);
+			boolean hasColor = name.equals(TiC.PROPERTY_SEPARATOR_COLOR) && value != null;
+			if (height == 0) {
+				this.listView.setSeparator(0, height);
+			} else if (hasColor || properties.containsKeyAndNotNull(TiC.PROPERTY_SEPARATOR_COLOR)) {
+				String colorString;
 				if (name.equals(TiC.PROPERTY_SEPARATOR_COLOR)) {
 					colorString = TiConvert.toString(value);
+				} else {
+					colorString = properties.getString(TiC.PROPERTY_SEPARATOR_COLOR);
 				}
-				final int color = TiConvert.toColor(colorString);
+				final int color = TiConvert.toColor(colorString, proxy.getActivity());
 
 				// Set separator with specified color.
 				this.listView.setSeparator(color, height);
 
 			} else {
 				final TypedArray divider = context.obtainStyledAttributes(new int[] { android.R.attr.listDivider });
-				final GradientDrawable defaultDrawable = (GradientDrawable) divider.getDrawable(0);
+				final Drawable defaultDrawable = divider.getDrawable(0);
 
 				// Set platform default separator.
-				defaultDrawable.setSize(0, height);
+				if (defaultDrawable instanceof GradientDrawable) {
+					((GradientDrawable) defaultDrawable).setSize(0, height);
+				}
 				this.listView.setSeparator(defaultDrawable);
 				divider.recycle();
 			}

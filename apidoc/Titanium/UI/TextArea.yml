@@ -10,7 +10,7 @@ description: |
 
     #### `click` event in iOS
 
-    In iOS 11+, `click` event in text area is not fired due to changes from apple. 
+    In iOS 11+, `click` event in text area is not fired due to changes from apple.
     Use `touchstart` event instead of `click` event.
 
 extends: Titanium.UI.View
@@ -360,14 +360,14 @@ properties:
 
   - name: keyboardToolbar
     summary: |
-        Array of toolbar button objects or a [toolbar](Titanium.UI.iOS.Toolbar) to be used when the
+        Array of toolbar button objects or a [toolbar](Titanium.UI.Toolbar) to be used when the
         keyboard is displayed.
     description: |
         As of Release 2.0, because iOS disallows a view (including toolbar buttons) to be in two places at
         once, developers desiring textAreas or [textFields](Titanium.UI.TextField) to share a toolbar
-        can instead use a single [toolbar](Titanium.UI.iOS.Toolbar) instead of having arrays sharing
+        can instead use a single [toolbar](Titanium.UI.Toolbar) instead of having arrays sharing
         toolbar buttons.
-    type: [Array<Titanium.UI.View>, Titanium.UI.Toolbar, Titanium.UI.iOS.Toolbar]
+    type: [Array<Titanium.UI.View>, Titanium.UI.Toolbar]
     platforms: [iphone, ipad, macos]
 
   - name: keyboardToolbarColor
@@ -518,6 +518,11 @@ events:
       - name: value
         summary: New value of this text area.
         type: String
+      - name: contentHeight
+        summary: Content height value of this text area
+        type: Number
+        platforms: [iphone, ipad, macos]
+        since: {iphone: "11.0.0", ipad: "11.0.0", macos: "11.0.0"}
 
   - name: focus
     summary: Fired when this text area gains focus.

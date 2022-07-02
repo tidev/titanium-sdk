@@ -32,9 +32,9 @@ description: |
 
     Further Reading:
 
-      * [Android Services guide](https://docs.appcelerator.com/platform/latest/#!/guide/Android_Services)
+      * [Android Services guide](https://titaniumsdk.com/guide/Titanium_SDK/Titanium_SDK_How-tos/Platform_API_Deep_Dives/Android_API_Deep_Dives/Android_Services.html)
       * [Android Developer: Service](https://developer.android.com/reference/android/app/Service.html)
-    
+
     ### Background Location Service Example
     In order to obtain location events while the application is backgrounded a foreground service must be used.
     Below is an example of a simple background location service.
@@ -81,10 +81,10 @@ description: |
 
     // Set accuracy to high
     Ti.Geolocation.accuracy = Ti.Geolocation.ACCURACY_HIGH;
-    
+
     // Enable manual configuration via location providers.
     Ti.Geolocation.Android.manualMode = true;
-    
+
     // Define a location provider.
     Ti.Geolocation.Android.addLocationProvider(
         Ti.Geolocation.Android.createLocationProvider({
@@ -93,7 +93,7 @@ description: |
             minUpdateTime: 5000
         })
     );
-    
+
     function getLocation () {
 
         // Create location event listener.
@@ -141,7 +141,7 @@ description: |
             backgroundServiceBtn.title = 'START BACKGROUND SERVICE';
         }
     }
-    
+
     win.addEventListener('open', () => {
 
         // Request location permissions.
@@ -178,7 +178,7 @@ description: |
             stopBackgroundLocationService();
         }
     });
-    
+
     win.add([backgroundServiceBtn, listView]);
     win.open();
     ```

@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -27,6 +27,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.content.Context;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 
@@ -136,7 +137,18 @@ public class TiConvert
 	 */
 	public static int toColor(String value)
 	{
-		return TiColorHelper.parseColor(value);
+		Log.w(TAG, "Calling .toColor() without Context parameter is deprecated");
+		return TiColorHelper.parseColor(value, null);
+	}
+
+	public static int toColor(String value, Context context)
+	{
+		return TiColorHelper.parseColor(value, context);
+	}
+
+	public static int toColor(Object value, Context context)
+	{
+		return TiColorHelper.parseColor(toString(value), context);
 	}
 
 	/**
@@ -148,12 +160,24 @@ public class TiConvert
 	 */
 	public static int toColor(HashMap<String, Object> hashMap, String key)
 	{
-		return toColor(TiConvert.toString(hashMap.get(key)));
+		Log.w(TAG, "Calling .toColor() without Context parameter is deprecated");
+		return toColor(hashMap, key, null);
+	}
+
+	public static int toColor(HashMap<String, Object> hashMap, String key, Context context)
+	{
+		return toColor(TiConvert.toString(hashMap.get(key)), context);
 	}
 
 	public static ColorDrawable toColorDrawable(String value)
 	{
-		return new ColorDrawable(toColor(value));
+		Log.w(TAG, "Calling .toColorDrawable() without Context parameter is deprecated");
+		return toColorDrawable(value, null);
+	}
+
+	public static ColorDrawable toColorDrawable(String value, Context context)
+	{
+		return new ColorDrawable(toColor(value, context));
 	}
 
 	public static ColorDrawable toColorDrawable(HashMap<String, Object> hashMap, String key)

@@ -4,7 +4,7 @@
  * @module cli/_buildModule
  *
  * @copyright
- * Copyright (c) 2014-2018 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright TiDev, Inc. 04/07/2022-Present
  *
  * @license
  * Licensed under the terms of the Apache Public License
@@ -194,6 +194,8 @@ AndroidModuleBuilder.prototype.validate = function validate(logger, config, cli)
 	return function (finished) {
 		this.projectDir = cli.argv['project-dir'];
 		this.buildOnly = cli.argv['build-only'];
+		this.target = cli.argv['target'];
+		this.deviceId = cli.argv['device-id'];
 
 		this.cli = cli;
 		this.logger = logger;
@@ -286,9 +288,6 @@ AndroidModuleBuilder.prototype.run = async function run(logger, config, cli, fin
 		// Update module's config files, if necessary.
 		await this.migrate();
 
-		// Post build anlytics.
-		await this.doAnalytics();
-
 		// Initialize build variables and directory.
 		await this.initialize();
 		await this.loginfo();
@@ -356,24 +355,6 @@ AndroidModuleBuilder.prototype.dirWalker = async function dirWalker(directoryPat
 			callback(filePath, fileName);
 		}
 	}
-};
-
-AndroidModuleBuilder.prototype.doAnalytics = async function doAnalytics() {
-	var cli = this.cli,
-		manifest = this.manifest,
-		eventName = 'android.' + cli.argv.type;
-
-	cli.addAnalyticsEvent(eventName, {
-		name: manifest.name,
-		publisher: manifest.author,
-		appid: manifest.moduleid,
-		description: manifest.description,
-		type: cli.argv.type,
-		guid: manifest.guid,
-		version: manifest.version,
-		copyright: manifest.copyright,
-		date: (new Date()).toDateString()
-	});
 };
 
 AndroidModuleBuilder.prototype.initialize = async function initialize() {
@@ -910,7 +891,15 @@ AndroidModuleBuilder.prototype.runModule = async function (cli) {
 
 	// Run the temp app.
 	this.logger.debug(__('Running example project...', tmpDir.cyan));
-	const buildArgs = [ process.argv[1], 'build', '-p', 'android', '-d', tmpProjectDir ];
+	let buildArgs = [ process.argv[1], 'build', '-p', 'android', '-d', tmpProjectDir ];
+	if (this.target) {
+		buildArgs.push('-T');
+		buildArgs.push(this.target);
+	}
+	if (this.deviceId) {
+		buildArgs.push('-C');
+		buildArgs.push(this.deviceId);
+	}
 	await runTiCommand(process.execPath, buildArgs, this.logger);
 };
 

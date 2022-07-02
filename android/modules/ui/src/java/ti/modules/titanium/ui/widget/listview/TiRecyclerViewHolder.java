@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2020 by Axway, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -169,7 +169,7 @@ public abstract class TiRecyclerViewHolder<V extends TiViewProxy> extends Recycl
 			final TypedArray colorControlHighlight = activity.obtainStyledAttributes(
 				typedValue.data, new int[] { android.R.attr.colorControlHighlight });
 			final int colorControlHighlightInt = color != null && !color.isEmpty()
-				? TiConvert.toColor(color) : colorControlHighlight.getColor(0, 0);
+				? TiConvert.toColor(color, getProxy().getActivity()) : colorControlHighlight.getColor(0, 0);
 			final int[] rippleColors = new int[] { colorControlHighlightInt };
 			final ColorStateList colorStateList = new ColorStateList(rippleStates, rippleColors);
 			final ShapeDrawable maskDrawable = drawable == null ? new ShapeDrawable() : null;
@@ -194,11 +194,13 @@ public abstract class TiRecyclerViewHolder<V extends TiViewProxy> extends Recycl
 		if (properties.containsKeyAndNotNull(TiC.PROPERTY_BACKGROUND_SELECTED_COLOR)
 			|| properties.containsKeyAndNotNull(TiC.PROPERTY_BACKGROUND_SELECTED_IMAGE)) {
 
+			V proxy = getProxy();
+			Activity activity = proxy != null ? proxy.getActivity() : null;
 			final Drawable selectedBackgroundDrawable = TiUIHelper.buildBackgroundDrawable(
 				properties.getString(TiC.PROPERTY_BACKGROUND_SELECTED_COLOR),
 				properties.getString(TiC.PROPERTY_BACKGROUND_SELECTED_IMAGE),
 				TiConvert.toBoolean(properties.get(TiC.PROPERTY_BACKGROUND_REPEAT), false),
-				null
+				null, activity
 			);
 
 			stateDrawable.addState(new int[] { android.R.attr.state_activated }, selectedBackgroundDrawable);
