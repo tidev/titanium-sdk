@@ -89,7 +89,7 @@ description: |
     }
     ```
 
-    Read more about the issue in [TIMOB-25680](https://jira.appcelerator.org/browse/TIMOB-25680).
+    Read more about the issue in [TIMOB-25680](https://jira-archive.titaniumsdk.com/TIMOB-25680).
 extends: Titanium.Proxy
 platforms: [iphone, ipad, macos]
 since: {iphone: "2.1.1", ipad: "2.1.1", macos: "9.2.0"}

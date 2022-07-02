@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -880,10 +880,13 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
       completionHandler(NSURLSessionAuthChallengeCancelAuthenticationChallenge, nil);
     }
     // HTTPS in general
-  } else if ([authenticationMethod isEqualToString:NSURLAuthenticationMethodServerTrust]) {
+  } else if ([authenticationMethod isEqualToString:NSURLAuthenticationMethodServerTrust]
+      || [authenticationMethod isEqualToString:NSURLAuthenticationMethodClientCertificate]) {
     completionHandler(NSURLSessionAuthChallengePerformDefaultHandling, nil);
     // Default: Reject authentication challenge
   } else {
+    // Not sure why not let the DefaultHandling handle this but at least warn in the log because of canceled challenge
+    NSLog(@"[WARN] Ti.UI.WebView canceled unknown authentication challenge with method %@", authenticationMethod);
     completionHandler(NSURLSessionAuthChallengeCancelAuthenticationChallenge, nil);
   }
 }

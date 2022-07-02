@@ -1,6 +1,6 @@
 <p align="center"><a href="https://titaniumsdk.com" target="_blank"><img width="120" src=".github/logo-titanium.png"></a></p>
 
-<h1 align="center">Titanium <a href="https://jenkins.appcelerator.org/job/titanium-sdk/job/titanium_mobile/job/master/" target="_blank"><img src="https://jenkins.appcelerator.org/buildStatus/icon?job=titanium-sdk/titanium_mobile/master" /></a></h1>
+<h1 align="center">Titanium <a href="https://github.com/tidev/titanium_mobile/actions/workflows/build.yml?query=branch%3Amaster" target="_blank"><img src="https://github.com/tidev/titanium_mobile/actions/workflows/build.yml/badge.svg?branch=master" /></a></h1>
 
 Welcome to the Titanium open source project. Titanium provides a mature platform for developers to build
 completely native cross-platform mobile applications using JavaScript.
@@ -9,8 +9,6 @@ Currently supported native platforms are iOS and Android.
 
 Titanium is licensed under the OSI approved Apache Public License (version 2). Please
 see the [LICENSE](LICENSE) file for specific details.
-
-*[Download Pre-built Titanium](http://builds.appcelerator.com/#master)*
 
 # Table of Contents
 
@@ -41,6 +39,7 @@ see the [LICENSE](LICENSE) file for specific details.
     - [Unit tests](#unit-tests)
       - [How it works](#how-it-works)
       - [How to modify the tests locally and in your PRs](#how-to-modify-the-tests-locally-and-in-your-prs)
+    - [Upgrade gradle and gradle plugin](#upgrade-gradle-and-gradle-plugin)
   - [Legal Stuff](#legal-stuff)
 
 ## Features
@@ -124,13 +123,13 @@ var view = new View(activity);
 
 ### Getting Started
 
-Check out our [Hyperloop Sample App](https://github.com/appcelerator/hyperloop-examples) and [Hyperloop Programming Guide](https://titaniumsdk.com/guide/Titanium_SDK/Titanium_SDK_Guide/Hyperloop/) to get started with Hyperloop today!
+Check out our [Hyperloop Sample App](https://github.com/tidev/hyperloop-examples) and [Hyperloop Programming Guide](https://titaniumsdk.com/guide/Titanium_SDK/Titanium_SDK_Guide/Hyperloop/) to get started with Hyperloop today!
 
 ## Alloy
 
 [Alloy](https://titaniumsdk.com/guide/Alloy_Framework/Alloy_Getting_Started.html) is the MVC application framework built
 on top of Titanium. It is optional. It rocks. Check it out if you're considering using Titanium.
-It is also a separate [open source project](https://github.com/appcelerator/alloy) available under Apache Public License.
+It is also a separate [open source project](https://github.com/tidev/alloy) available under Apache Public License.
 
 ### Example
 
@@ -178,19 +177,19 @@ Please visit the official documentation site at [https://titaniumsdk.com/](https
 
 ### Slack / Developer Community
 
-Community support and discussion about Titanium is available on Slack at [TiSlack](http://www.tislack.org).
+Community support and discussion about Titanium is available on Slack at [TiSlack](https://slack.tidev.io).
 
 ### Twitter
 
-Please consider following [@Appcelerator](http://www.twitter.com/appcelerator) and [@AppcDev](https://twitter.com/AppcDev) on Twitter for updates.
+Please consider following [@Titanium SDK](http://www.twitter.com/titaniumsdk) and [@TiDev](https://twitter.com/tidevio) on Twitter for updates.
 
 ### Commercial Support, Licensing
 
 We give our software away for FREE! In order to do that, we have programs for
 companies that require additional level of assistance through training or commercial support,
 need special licensing or want additional levels of capabilities. Please visit the
-[Appcelerator Website](http://www.titaniumsdk.com) for more information about Appcelerator or
-email [info@appcelerator.com](mailto:info@appcelerator.com).
+[TiDev Website](https://tidev.io) for more information about TiDev or
+email [info@tidev.io](mailto:info@tidev.io).
 
 ## Contributing
 
@@ -198,7 +197,7 @@ Titanium is an open source project.  Titanium wouldn't be where it is now withou
 
 To protect the interests of the Titanium contributors, Appcelerator, customers and end users we require contributors to sign a Contributors License Agreement (CLA) before we pull the changes into the main repository. Our CLA is simple and straightforward - it requires that the contributions you make to any Appcelerator open source project are properly licensed and that you have the legal authority to make those changes. This helps us significantly reduce future legal risk for everyone involved. It is easy, helps everyone, takes only a few minutes, and only needs to be completed once.
 
-[You can digitally sign the CLA](http://cla.appcelerator.com) online. Please indicate your email address in your first pull request so that we can make sure that will locate your CLA.  Once you've submitted it, you no longer need to send one for subsequent submissions.
+[You can digitally sign the CLA](https://github.com/tidev/organization-docs/blob/main/AUTHORIZED_CONTRIBUTORS.md) online. Please indicate your email address in your first pull request so that we can make sure that will locate your CLA.  Once you've submitted it, you no longer need to send one for subsequent submissions.
 
 ## Building Locally
 
@@ -244,8 +243,51 @@ The tests spit out their results to the console log, and the test scripts listen
 
 The `tests` folder contains the test suite. Any files living within that directory are copied on top of the test app's structure.
 
-## Legal Stuff
 
-Appcelerator is a registered trademark of Appcelerator, Inc. Titanium is
-a registered trademark of Appcelerator, Inc.  Please see the LEGAL information about using our trademarks,
-privacy policy, terms of usage and other legal information at [http://www.appcelerator.com/legal](http://www.appcelerator.com/legal).
+### Upgrade gradle and gradle plugin
+
+The gradle (tool, build system) and gradle plugin (plugin that adds several features that are specific to building Android apps) version numbers are located in:
+* `android/build.gradle`
+* `android/gradle/wrapper/gradle-wrapper.properties`
+* `android/templates/build/root.build.gradle`.
+
+You can run `./android/gradlew wrapper --gradle-version 7.4.2 --distribution-type all` to update the gradle tool. It will download the version, change the `gradle-wrapper.properties` link, update the gradlew file and the gradle-wrapper.jar.
+To update the plugin to a newer version (check https://mvnrepository.com/artifact/com.android.tools.build/gradle?repo=google) you have to change the `build.gradle` and `root.build.gradle` from the links above.
+When you change the gradle plugin make sure to look at the `Compatibility` section at https://developer.android.com/studio/releases/gradle-plugin#compatibility-7-1-0 and adjust the `android build tools` section in `android/package.json`.
+If needed make sure the other libraries e.g. the kotlin version in `build.gradle` are working with the current setup.
+
+After you've made the changes and compiled the SDK make sure to run the test suite, build the kitchensink and hyperloop example app. Create a and build a module (java and kotlin) and run those in a test app too.
+
+### Update packaged modules
+
+Some modules like ti.map or ti.facebook are included with the SDK. To update to the latest versions you have to edit the links in `support/module/packaged/modules.json` and run `node build/scons-modules-integrity.js`. This will download the files and update the integrity values.
+
+## Contributing
+
+Interested in contributing? There are several ways you can help contribute to this project.
+
+### New Features, Improvements, Bug Fixes, & Documentation
+
+Source code contributions are always welcome! Before we can accept your pull request, you must sign a Contributor License Agreement (CLA). Please visit https://tidev.io/contribute for more information.
+
+### Donations
+
+Please consider supporting this project by making a charitable [donation](https://tidev.io/donate). The money you donate goes to compensate the skilled engineeers and maintainers that keep this project going.
+
+### Code of Conduct
+
+TiDev wants to provide a safe and welcoming community for everyone to participate. Please see our [Code of Conduct](https://tidev.io/code-of-conduct) that applies to all contributors.
+
+## Security
+
+If you find a security related issue, please send an email to [security@tidev.io](mailto:security@tidev.io) instead of publicly creating a ticket.
+
+## Stay Connected
+
+For the latest information, please find us on Twitter: [Titanium SDK](https://twitter.com/titaniumsdk) and [TiDev](https://twitter.com/tidevio).
+
+Join our growing Slack community by visiting https://slack.tidev.io
+
+## Legal
+
+Titanium is a registered trademark of TiDev Inc. All Titanium trademark and patent rights were transferred and assigned to TiDev Inc. on 4/7/2022. Please see the LEGAL information about using our trademarks, privacy policy, terms of usage and other legal information at https://tidev.io/legal.

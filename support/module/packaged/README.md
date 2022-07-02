@@ -9,4 +9,4 @@ We use integrity hashes now to verify that the remote file contents match our ex
 to avoid unnecessarily re-downloading them. If we've downloaded them once before and have cleared our OS temp folder location, and they match the
 integrity hash, we'll re-use the cached file, which improves the build time for compiling the SDK locally (using `node scons.js cleanbuild`).
 
-Read more about building the Titanium SDK locally [here](https://github.com/appcelerator/titanium_mobile#building-locally).
+Read more about building the Titanium SDK locally [here](https://github.com/tidev/titanium_mobile#building-locally).
