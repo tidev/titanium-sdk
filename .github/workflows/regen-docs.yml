@@ -8,7 +8,7 @@ on:
 
 jobs:
   regen:
-    if: github.event.pull_request.merged == true || github.event_name == 'workflow_dispatch'
+    if: github.repository_owner == 'tidev' && (github.event.pull_request.merged == true || github.event_name == 'workflow_dispatch')
     runs-on: ubuntu-latest
     name: Trigger Regen
 

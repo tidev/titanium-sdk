@@ -5229,6 +5229,7 @@ iOSBuilder.prototype.gatherResources = async function gatherResources() {
 		tiappIcon: this.tiapp.icon,
 		useAppThinning: this.useAppThinning,
 		platform: 'ios',
+		excludeAssestsDir: this.tiapp.ios['exclude-dir-from-asset-catalog'] ? this.tiapp.ios['exclude-dir-from-asset-catalog'] : undefined,
 	});
 	const categorized = await categorizer.run(combined);
 
