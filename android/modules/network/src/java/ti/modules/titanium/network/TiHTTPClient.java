@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2020 by Axway, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -902,10 +902,10 @@ public class TiHTTPClient
 		// The Android Uri doesn't seem to handle user ids with at-signs (@) in them
 		// properly, even if the @ is escaped.  It will set the host (uri.getHost()) to
 		// the part of the user name after the @.  For example, this Uri would get
-		// the host set to appcelerator.com when it should be mickey.com:
-		// http://testuser@appcelerator.com:password@mickey.com/xx
+		// the host set to example.com when it should be mickey.com:
+		// http://testuser@example.com:password@mickey.com/xx
 		// ... even if that first one is escaped to ...
-		// http://testuser%40appcelerator.com:password@mickey.com/xx
+		// http://testuser%40example.com:password@mickey.com/xx
 		// Tests show that Java URL handles it properly, however.  So revert to using Java URL.getHost()
 		// if we see that the Uri.getUserInfo has an at-sign in it.
 		// Also, uri.getPort() will throw an exception as it will try to parse what it thinks is the port

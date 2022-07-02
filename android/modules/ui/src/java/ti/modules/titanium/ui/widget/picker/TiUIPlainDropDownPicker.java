@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2021 by Axway, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -322,9 +322,12 @@ public class TiUIPlainDropDownPicker extends TiUIPlainPicker
 			// Update text color if configured.
 			PickerRowProxy rowProxy = this.getItem(position).getRowProxy();
 			if ((rowProxy != null) && rowProxy.hasProperty(TiC.PROPERTY_COLOR)) {
-				String colorString = TiConvert.toString(rowProxy.getProperty(TiC.PROPERTY_COLOR));
-				int color = (colorString != null) ? TiConvert.toColor(colorString) : this.defaultTextColor;
-				textView.setTextColor(color);
+				Object color = rowProxy.getProperty(TiC.PROPERTY_COLOR);
+				if (color == null) {
+					textView.setTextColor(this.defaultTextColor);
+				} else {
+					textView.setTextColor(TiConvert.toColor(rowProxy.getColor(), rowProxy.getActivity()));
+				}
 			}
 		}
 	}

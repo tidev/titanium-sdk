@@ -1,11 +1,12 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2021 by Axway, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 package ti.modules.titanium.ui.widget;
 
+import android.app.Activity;
 import android.view.Gravity;
 import android.widget.LinearLayout;
 import com.google.android.material.progressindicator.LinearProgressIndicator;
@@ -57,18 +58,19 @@ public class TiUIProgressBar extends TiUIView
 	{
 		super.processProperties(d);
 
+		Activity activity = proxy.getActivity();
 		if (d.containsKey(TiC.PROPERTY_MESSAGE)) {
 			handleSetMessage(TiConvert.toString(d, TiC.PROPERTY_MESSAGE));
 		}
 		if (d.containsKey(TiC.PROPERTY_COLOR)) {
-			final int color = TiConvert.toColor(d, TiC.PROPERTY_COLOR);
+			final int color = TiConvert.toColor(d, TiC.PROPERTY_COLOR, activity);
 			handleSetMessageColor(color);
 		}
 		if (d.containsKey(TiC.PROPERTY_TINT_COLOR)) {
-			this.progress.setIndicatorColor(TiConvert.toColor(d, TiC.PROPERTY_TINT_COLOR));
+			this.progress.setIndicatorColor(TiConvert.toColor(d, TiC.PROPERTY_TINT_COLOR, activity));
 		}
 		if (d.containsKey(TiC.PROPERTY_TRACK_TINT_COLOR)) {
-			this.progress.setTrackColor(TiConvert.toColor(d, TiC.PROPERTY_TRACK_TINT_COLOR));
+			this.progress.setTrackColor(TiConvert.toColor(d, TiC.PROPERTY_TRACK_TINT_COLOR, activity));
 		}
 		updateProgress();
 	}
@@ -86,12 +88,16 @@ public class TiUIProgressBar extends TiUIView
 				handleSetMessage(message);
 			}
 		} else if (key.equals(TiC.PROPERTY_COLOR)) {
-			final int color = TiConvert.toColor(TiConvert.toString(newValue));
-			handleSetMessageColor(color);
+			// TODO: reset to default value when property is null
+			if (newValue != null) {
+				handleSetMessageColor(TiConvert.toColor(newValue, proxy.getActivity()));
+			}
 		} else if (key.equals(TiC.PROPERTY_TINT_COLOR)) {
-			this.progress.setIndicatorColor(TiConvert.toColor(TiConvert.toString(newValue)));
+			// TODO: reset to default value when property is null
+			this.progress.setIndicatorColor(TiConvert.toColor(newValue, proxy.getActivity()));
 		} else if (key.equals(TiC.PROPERTY_TRACK_TINT_COLOR)) {
-			this.progress.setTrackColor(TiConvert.toColor(TiConvert.toString(newValue)));
+			// TODO: reset to default value when property is null
+			this.progress.setTrackColor(TiConvert.toColor(newValue, proxy.getActivity()));
 		}
 	}
 

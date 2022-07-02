@@ -34,14 +34,14 @@ description: |
 
     * When used with `scalingMode` set to VIDEO_SCALING_ASPECT_FILL or VIDEO_SCALING_NONE,
       the video content is not correctly clipped to the boundaries of the view.
-      ([TIMOB-7628](https://jira.appcelerator.org/browse/TIMOB-7628))
+      ([TIMOB-7628](https://jira-archive.titaniumsdk.com/TIMOB-7628))
 
     * When a border is set on the view, the video content does not take the border width
       into account, so the video content covers the border.
-      ([TIMOB-7628](https://jira.appcelerator.org/browse/TIMOB-7628))
+      ([TIMOB-7628](https://jira-archive.titaniumsdk.com/TIMOB-7628))
 
     * If a borderRadius is specified, the video content is not clipped to the rounded
-      corners. ([TIMOB-7629](https://jira.appcelerator.org/browse/TIMOB-7629))
+      corners. ([TIMOB-7629](https://jira-archive.titaniumsdk.com/TIMOB-7629))
 
     On Android, using a video player inside a scroll view is not recommended. When scrolling,
     black bars may appear over the video content.
@@ -542,7 +542,7 @@ properties:
     platforms: [android]
     deprecated:
         since: "7.0.0"
-        notes: Use [Titanium.Media.VideoPlayer.showsControls](Titanium.Media.VideoPlayer.showsControls) instead.
+        notes: On iOS, use [Titanium.Media.VideoPlayer.showsControls](Titanium.Media.VideoPlayer.showsControls) instead.
     summary: The style of the playback controls.
     description: Removed from iOS in SDK 7.0.0
     type: Number
@@ -669,7 +669,7 @@ properties:
         setting this will be accompanied by an OS-provided indicator. However, the iOS
         simulator does not honor this volume setting, and is a known issue with Apple's
         simulator.
-    platforms: [iphone, ipad, macos]
+    platforms: [android, iphone, ipad, macos]
     type: Number
     default: 1.0
     since: "2.1"

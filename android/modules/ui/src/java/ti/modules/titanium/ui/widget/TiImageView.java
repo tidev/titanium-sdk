@@ -1,11 +1,12 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2021 by Axway, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 package ti.modules.titanium.ui.widget;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
@@ -400,8 +401,15 @@ public class TiImageView extends ViewGroup
 			imageView.clearColorFilter();
 			return;
 		}
+		Activity activity = null;
+		if (proxy != null) {
+			TiViewProxy p = proxy.get();
+			if (p != null) {
+				activity = p.getActivity();
+			}
+		}
 
-		this.tintColor = TiColorHelper.parseColor(color);
+		this.tintColor = TiColorHelper.parseColor(color, activity);
 		imageView.setColorFilter(this.tintColor, Mode.SRC_IN);
 	}
 

@@ -17,7 +17,7 @@ description: |
     to true disables the Action Bar since it is part of the navigation title bar.
 
     For more examples on using the Action Bar, refer to the
-    [Android Action Bar guide](https://docs.appcelerator.com/platform/latest/#!/guide/Android_Action_Bar).
+    [Android Action Bar guide](https://titaniumsdk.com/guide/Titanium_SDK/Titanium_SDK_How-tos/User_Interface_Deep_Dives/Android_UI_Components_and_Conventions/Android_Action_Bar.html).
 
     #### Application Notes for Alloy
 
@@ -123,7 +123,7 @@ methods:
         [setDisplayShowHomeEnabled](https://developer.android.com/reference/android/app/ActionBar.html#setDisplayShowHomeEnabled(boolean))
         in the Android API Reference.
     since: "3.3.0"
-    
+
   - name: setDisplayShowTitleEnabled
     summary: Shows or hides the action bar title/subtitle
     parameters:
@@ -135,7 +135,7 @@ methods:
         [setDisplayShowTitleEnabled](https://developer.android.com/reference/android/app/ActionBar.html#setDisplayShowTitleEnabled(boolean))
         in the Android API Reference.
     since: "3.3.0"
-        
+
   - name: show
     summary: Shows the action bar if it is currently hidden.
     description: |
@@ -164,7 +164,7 @@ properties:
         from `Ti.App.Android.R.drawable.*` or `Ti.Android.R.drawable.*`. It's highly recommended to set this
         to a vector drawable resource ID.
     type: [String, Number, Titanium.Blob]
-    since: "10.2.0"
+    since: "11.0.0"
     permission: write-only
 
   - name: homeButtonEnabled
@@ -179,10 +179,10 @@ properties:
   - name: icon
     summary: Sets the application icon displayed in the "home" area of the action bar.
     description: |
-        Before Titanium 10.2.0, this property only supports a `String` and it must be assigned a local file path
+        Before Titanium 11.0.0, this property only supports a `String` and it must be assigned a local file path
         or URL to an image.
 
-        As of Titanium 10.2.0, this property can also be assigned an image blob or a native drawable resource ID
+        As of Titanium 11.0.0, this property can also be assigned an image blob or a native drawable resource ID
         from `Ti.App.Android.R.drawable.*` or `Ti.Android.R.drawable.*`.
     type: [String, Number, Titanium.Blob]
     permission: write-only
@@ -190,10 +190,10 @@ properties:
   - name: logo
     summary: Sets the application logo displayed in the "home" area of the action bar.
     description: |
-        Before Titanium 10.2.0, this property only supports a `String` and it must be assigned a local file path
+        Before Titanium 11.0.0, this property only supports a `String` and it must be assigned a local file path
         or URL to an image.
 
-        As of Titanium 10.2.0, this property can also be assigned an image blob or a native drawable resource ID
+        As of Titanium 11.0.0, this property can also be assigned an image blob or a native drawable resource ID
         from `Ti.App.Android.R.drawable.*` or `Ti.Android.R.drawable.*`.
     type: [String, Number, Titanium.Blob]
     permission: write-only
@@ -236,4 +236,4 @@ properties:
     description: |
         Setting this property to `true` or `false` is the equivalent of calling the
         [show()](Titanium.Android.ActionBar.show) or [hide()](Titanium.Android.ActionBar.hide) methods.
-    since: "10.2.0"
+    since: "11.0.0"

@@ -1,12 +1,25 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 package ti.modules.titanium.ui.widget;
 
-import java.util.HashMap;
+import android.app.Activity;
+import android.content.res.ColorStateList;
+import android.graphics.Color;
+import android.graphics.PorterDuff.Mode;
+import android.graphics.drawable.Drawable;
+import android.text.TextUtils;
+import android.view.Gravity;
+import android.view.MotionEvent;
+import android.view.View;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.widget.AppCompatButton;
+
+import com.google.android.material.button.MaterialButton;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
@@ -19,21 +32,10 @@ import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiUIView;
 
+import java.util.HashMap;
+
 import ti.modules.titanium.ui.AttributedStringProxy;
 import ti.modules.titanium.ui.UIModule;
-
-import android.content.res.ColorStateList;
-import android.graphics.Color;
-import android.graphics.PorterDuff.Mode;
-import android.graphics.drawable.Drawable;
-import android.text.TextUtils;
-import android.view.Gravity;
-import android.view.MotionEvent;
-import android.view.View;
-import androidx.annotation.NonNull;
-import androidx.appcompat.widget.AppCompatButton;
-
-import com.google.android.material.button.MaterialButton;
 
 public class TiUIButton extends TiUIView
 {
@@ -80,7 +82,7 @@ public class TiUIButton extends TiUIView
 
 		// Determine if a background drawable will be applied to the button.
 		boolean hasCustomBackground
-			=  hasImage(proxy.getProperties())
+			= hasImage(proxy.getProperties())
 			|| hasColorState(proxy.getProperties())
 			|| hasBorder(proxy.getProperties())
 			|| hasGradient(proxy.getProperties());
@@ -89,7 +91,8 @@ public class TiUIButton extends TiUIView
 		// Note: MaterialButton does not support replacing its background drawable. Will log a nasty warning.
 		AppCompatButton btn;
 		if (hasCustomBackground) {
-			btn = new AppCompatButton(proxy.getActivity()) {
+			btn = new AppCompatButton(proxy.getActivity())
+			{
 				@Override
 				public boolean onFilterTouchEventForSecurity(MotionEvent event)
 				{
@@ -101,7 +104,8 @@ public class TiUIButton extends TiUIView
 				}
 			};
 		} else {
-			btn = new MaterialButton(proxy.getActivity(), null, styleId) {
+			btn = new MaterialButton(proxy.getActivity(), null, styleId)
+			{
 				@Override
 				public boolean onFilterTouchEventForSecurity(MotionEvent event)
 				{
@@ -114,7 +118,8 @@ public class TiUIButton extends TiUIView
 			};
 			this.defaultRippleColor = ((MaterialButton) btn).getRippleColor();
 		}
-		btn.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
+		btn.addOnLayoutChangeListener(new View.OnLayoutChangeListener()
+		{
 			@Override
 			public void onLayoutChange(
 				View v, int left, int top, int right, int bottom,
@@ -137,6 +142,7 @@ public class TiUIButton extends TiUIView
 
 		boolean needShadow = false;
 
+		Activity activity = proxy.getActivity();
 		AppCompatButton btn = (AppCompatButton) getNativeView();
 		if (!d.containsKey(TiC.PROPERTY_IMAGE) && d.containsKey(TiC.PROPERTY_BACKGROUND_COLOR)) {
 			// Reset the padding here if the background color is set. By default the padding will be calculated
@@ -148,7 +154,8 @@ public class TiUIButton extends TiUIView
 			ColorStateList colorStateList = null;
 			if (TiConvert.toBoolean(d, TiC.PROPERTY_TOUCH_FEEDBACK, false)) {
 				if (d.containsKeyAndNotNull(TiC.PROPERTY_TOUCH_FEEDBACK_COLOR)) {
-					colorStateList = ColorStateList.valueOf(TiConvert.toColor(d, TiC.PROPERTY_TOUCH_FEEDBACK_COLOR));
+					colorStateList = ColorStateList.valueOf(
+						TiConvert.toColor(d, TiC.PROPERTY_TOUCH_FEEDBACK_COLOR, activity));
 				} else {
 					colorStateList = this.defaultRippleColor;
 				}
@@ -169,7 +176,7 @@ public class TiUIButton extends TiUIView
 			if (colorString == null) {
 				colorString = TiConvert.toString(d.get(TiC.PROPERTY_TINT_COLOR));
 			}
-			btn.setTextColor((colorString != null) ? TiConvert.toColor(colorString) : this.defaultColor);
+			btn.setTextColor((colorString != null) ? TiConvert.toColor(colorString, activity) : this.defaultColor);
 		}
 		if (d.containsKey(TiC.PROPERTY_FONT)) {
 			TiUIHelper.styleText(btn, d.getKrollDict(TiC.PROPERTY_FONT));
@@ -197,7 +204,7 @@ public class TiUIButton extends TiUIView
 		}
 		if (d.containsKey(TiC.PROPERTY_SHADOW_COLOR)) {
 			needShadow = true;
-			shadowColor = TiConvert.toColor(d, TiC.PROPERTY_SHADOW_COLOR);
+			shadowColor = TiConvert.toColor(d, TiC.PROPERTY_SHADOW_COLOR, activity);
 		}
 		if (needShadow) {
 			btn.setShadowLayer(shadowRadius, shadowX, shadowY, shadowColor);
@@ -212,6 +219,7 @@ public class TiUIButton extends TiUIView
 		if (Log.isDebugModeEnabled()) {
 			Log.d(TAG, "Property: " + key + " old: " + oldValue + " new: " + newValue, Log.DEBUG_MODE);
 		}
+		Activity activity = proxy.getActivity();
 
 		AppCompatButton btn = (AppCompatButton) getNativeView();
 		if (key.equals(TiC.PROPERTY_TITLE)) {
@@ -220,7 +228,7 @@ public class TiUIButton extends TiUIView
 			setAttributedStringText((AttributedStringProxy) newValue);
 		} else if (key.equals(TiC.PROPERTY_COLOR)) {
 			String colorString = TiConvert.toString(newValue);
-			btn.setTextColor((colorString != null) ? TiConvert.toColor(colorString) : this.defaultColor);
+			btn.setTextColor((colorString != null) ? TiConvert.toColor(colorString, activity) : this.defaultColor);
 		} else if (key.equals(TiC.PROPERTY_FONT)) {
 			TiUIHelper.styleText(btn, (HashMap) newValue);
 		} else if (key.equals(TiC.PROPERTY_TEXT_ALIGN)) {
@@ -234,7 +242,8 @@ public class TiUIButton extends TiUIView
 			|| key.equals(TiC.PROPERTY_TINT_COLOR)) {
 			if (!proxy.hasProperty(TiC.PROPERTY_COLOR) && key.equals(TiC.PROPERTY_TINT_COLOR)) {
 				String colorString = TiConvert.toString(newValue);
-				btn.setTextColor((colorString != null) ? TiConvert.toColor(colorString) : this.defaultColor);
+				int color = (colorString != null) ? TiConvert.toColor(colorString, activity) : this.defaultColor;
+				btn.setTextColor(color);
 			}
 			updateButtonImage();
 		} else if ((btn instanceof MaterialButton)
@@ -245,7 +254,7 @@ public class TiUIButton extends TiUIView
 				if (TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_TOUCH_FEEDBACK), false)) {
 					if (proxy.hasPropertyAndNotNull(TiC.PROPERTY_TOUCH_FEEDBACK_COLOR)) {
 						String colorString = TiConvert.toString(proxy.getProperty(TiC.PROPERTY_TOUCH_FEEDBACK_COLOR));
-						colorStateList = ColorStateList.valueOf(TiConvert.toColor(colorString));
+						colorStateList = ColorStateList.valueOf(TiConvert.toColor(colorString, activity));
 					} else {
 						colorStateList = this.defaultRippleColor;
 					}
@@ -263,7 +272,7 @@ public class TiUIButton extends TiUIView
 			shadowRadius = TiConvert.toFloat(newValue, DEFAULT_SHADOW_RADIUS);
 			btn.setShadowLayer(shadowRadius, shadowX, shadowY, shadowColor);
 		} else if (key.equals(TiC.PROPERTY_SHADOW_COLOR)) {
-			shadowColor = TiConvert.toColor(TiConvert.toString(newValue));
+			shadowColor = TiConvert.toColor(TiConvert.toString(newValue), activity);
 			btn.setShadowLayer(shadowRadius, shadowX, shadowY, shadowColor);
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
@@ -320,7 +329,10 @@ public class TiUIButton extends TiUIView
 		if (drawable != null) {
 			boolean imageIsMask = TiConvert.toBoolean(this.proxy.getProperty(TiC.PROPERTY_IMAGE_IS_MASK), true);
 			String colorString = TiConvert.toString(this.proxy.getProperty(TiC.PROPERTY_TINT_COLOR));
-			int colorValue = (colorString != null) ? TiConvert.toColor(colorString) : this.defaultColor;
+			int colorValue = this.defaultColor;
+			if (proxy.hasPropertyAndNotNull(TiC.PROPERTY_TINT_COLOR)) {
+				colorValue = TiConvert.toColor(proxy.getProperty(TiC.PROPERTY_TINT_COLOR), proxy.getActivity());
+			}
 			if (button instanceof MaterialButton) {
 				MaterialButton materialButton = (MaterialButton) button;
 				materialButton.setIcon(drawable);

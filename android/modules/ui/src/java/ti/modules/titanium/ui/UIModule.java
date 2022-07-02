@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2020 by Appcelerator, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -23,10 +23,6 @@ import org.appcelerator.titanium.util.TiDeviceOrientation;
 import org.appcelerator.titanium.util.TiUIHelper;
 
 import android.app.Activity;
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.Color;
@@ -36,12 +32,15 @@ import android.text.util.Linkify;
 import android.view.View;
 import android.webkit.WebViewClient;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatDelegate;
 
 @Kroll.module
-public class UIModule extends KrollModule
+public class UIModule extends KrollModule implements TiApplication.ConfigurationChangedListener
 {
 	private static final String TAG = "TiUIModule";
+	private int lastEmittedStyle;
 
 	@Kroll.constant
 	public static final int RETURN_KEY_TYPE_ACTION = 0;
@@ -436,16 +435,13 @@ public class UIModule extends KrollModule
 
 	protected static final int MSG_LAST_ID = KrollProxy.MSG_LAST_ID + 101;
 
-	private UIModule.Receiver broadcastReceiver;
-
 	public UIModule()
 	{
 		super();
 
 		// Register the module's broadcast receiver.
-		this.broadcastReceiver = new UIModule.Receiver(this);
-		TiApplication.getInstance().registerReceiver(broadcastReceiver,
-													 new IntentFilter(Intent.ACTION_CONFIGURATION_CHANGED));
+		TiApplication.addConfigurationChangeListener(this);
+		lastEmittedStyle = getUserInterfaceStyle();
 
 		// Set up a listener to be invoked when the JavaScript runtime is about to be terminated/disposed.
 		KrollRuntime.addOnDisposingListener(new KrollRuntime.OnDisposingListener() {
@@ -454,9 +450,6 @@ public class UIModule extends KrollModule
 			{
 				// Remove this listener from the runtime's static collection.
 				KrollRuntime.removeOnDisposingListener(this);
-
-				// Unregister this module's broadcast receviers.
-				TiApplication.getInstance().unregisterReceiver(broadcastReceiver);
 			}
 		});
 	}
@@ -471,7 +464,7 @@ public class UIModule extends KrollModule
 	{
 		TiRootActivity root = TiApplication.getInstance().getRootActivity();
 		if (root != null) {
-			root.setBackgroundColor(color != null ? TiColorHelper.parseColor(color) : Color.TRANSPARENT);
+			root.setBackgroundColor(color != null ? TiColorHelper.parseColor(color, root) : Color.TRANSPARENT);
 		}
 	}
 
@@ -561,8 +554,8 @@ public class UIModule extends KrollModule
 		// Change the night mode.
 		AppCompatDelegate.setDefaultNightMode(nightModeId);
 
-		// Fire a "userinterfacestyle" change event via our broadcast receiver.
-		this.broadcastReceiver.onReceive(TiApplication.getInstance(), null);
+		// Fire a "userinterfacestyle" change event.
+		this.onConfigurationChanged(TiApplication.getInstance().getResources().getConfiguration());
 
 		// Force our top-most activity apply the assigned night mode.
 		// Note: Works-around a Google bug where it doesn't always call the activity's onNightModeChanged() method.
@@ -575,12 +568,7 @@ public class UIModule extends KrollModule
 	@Kroll.getProperty
 	public int getUserInterfaceStyle()
 	{
-		int styleId = getOverrideUserInterfaceStyle();
-		if (styleId == Configuration.UI_MODE_NIGHT_UNDEFINED) {
-			Configuration config = TiApplication.getInstance().getResources().getConfiguration();
-			styleId = config.uiMode & Configuration.UI_MODE_NIGHT_MASK;
-		}
-		return styleId;
+		return getUserInterfaceStyle(TiApplication.getInstance().getResources().getConfiguration());
 	}
 
 	@Override
@@ -589,30 +577,27 @@ public class UIModule extends KrollModule
 		return "Ti.UI";
 	}
 
-	private static class Receiver extends BroadcastReceiver
+	private int getUserInterfaceStyle(@NonNull Configuration config)
 	{
-		private UIModule module;
-		private int lastEmittedStyle;
-
-		public Receiver(UIModule module)
-		{
-			super();
-			this.module = module;
-			lastEmittedStyle = this.module.getUserInterfaceStyle();
+		int styleId = getOverrideUserInterfaceStyle();
+		if (styleId == Configuration.UI_MODE_NIGHT_UNDEFINED) {
+			styleId = config.uiMode & Configuration.UI_MODE_NIGHT_MASK;
 		}
+		return styleId;
+	}
 
-		@Override
-		public void onReceive(Context context, Intent intent)
-		{
-			int currentMode = this.module.getUserInterfaceStyle();
-			if (currentMode == lastEmittedStyle) {
-				return;
-			}
-			lastEmittedStyle = currentMode;
-
-			KrollDict event = new KrollDict();
-			event.put(TiC.PROPERTY_VALUE, lastEmittedStyle);
-			this.module.fireEvent(TiC.EVENT_USER_INTERFACE_STYLE, event);
+	@Override
+	public void onConfigurationChanged(@NonNull Configuration config)
+	{
+		int currentMode = getUserInterfaceStyle(config);
+		if (currentMode == lastEmittedStyle) {
+			return;
 		}
+		lastEmittedStyle = currentMode;
+
+		KrollDict event = new KrollDict();
+		event.put(TiC.PROPERTY_VALUE, lastEmittedStyle);
+		fireEvent(TiC.EVENT_USER_INTERFACE_STYLE, event);
+
 	}
 }

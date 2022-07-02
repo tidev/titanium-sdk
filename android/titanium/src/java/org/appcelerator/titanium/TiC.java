@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2021 by Axway, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -268,6 +268,11 @@ public class TiC
 	public static final String PROPERTY_AUTOROTATE = "autorotate";
 	public static final String PROPERTY_AUTO_REDIRECT = "autoRedirect";
 	public static final String PROPERTY_AUTO_ENCODE_URL = "autoEncodeUrl";
+	public static final String PROPERTY_AUTO_TAB_TITLE = "autoTabTitle";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_BACKGROUND_COLOR = "backgroundColor";
 	public static final String PROPERTY_BACKGROUND_DISABLED_COLOR = "backgroundDisabledColor";
 	public static final String PROPERTY_BACKGROUND_DISABLED_IMAGE = "backgroundDisabledImage";
@@ -792,6 +797,7 @@ public class TiC
 	public static final String PROPERTY_VISIBILITY = "visibility";
 	public static final String PROPERTY_VISIBLE_ITEM_COUNT = "visibleItemCount";
 	public static final String PROPERTY_VIEW = "view";
+	public static final String PROPERTY_VIEW_SHADOW_COLOR = "viewShadowColor";
 	public static final String PROPERTY_VIEWS = "views";
 	public static final String PROPERTY_VOLUME = "volume";
 	public static final String PROPERTY_WAKE_LOCK = "wakeLock";
@@ -828,6 +834,7 @@ public class TiC
 	public static final String PROPERTY_LASTPHONETIC = "lastPhonetic";
 	public static final String PROPERTY_JOBTITLE = "jobTitle";
 	public static final String PROPERTY_DEPARTMENT = "department";
+	public static final String PROPERTY_FIXED_SIZE = "fixedSize";
 
 	public static final String SIZE_AUTO = "auto";
 	public static final String URL_APP_PREFIX = "app://";

@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2021 by Axway, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -93,7 +93,7 @@ public class TiUISwitch extends TiUIView implements OnCheckedChangeListener
 			cb.setChecked(TiConvert.toBoolean(d, TiC.PROPERTY_VALUE));
 		}
 		if (d.containsKey(TiC.PROPERTY_COLOR)) {
-			cb.setTextColor(TiConvert.toColor(d, TiC.PROPERTY_COLOR));
+			cb.setTextColor(TiConvert.toColor(d, TiC.PROPERTY_COLOR, proxy.getActivity()));
 		}
 		if (d.containsKey(TiC.PROPERTY_FONT)) {
 			TiUIHelper.styleText(cb, d.getKrollDict(TiC.PROPERTY_FONT));
@@ -138,7 +138,8 @@ public class TiUISwitch extends TiUIView implements OnCheckedChangeListener
 		} else if (key.equals(TiC.PROPERTY_VALUE)) {
 			cb.setChecked(TiConvert.toBoolean(newValue));
 		} else if (key.equals(TiC.PROPERTY_COLOR)) {
-			cb.setTextColor(TiConvert.toColor(TiConvert.toString(newValue)));
+			// TODO: reset to default value when property is null
+			cb.setTextColor(TiConvert.toColor(newValue, proxy.getActivity()));
 		} else if (key.equals(TiC.PROPERTY_FONT)) {
 			TiUIHelper.styleText(cb, (KrollDict) newValue);
 		} else if (key.equals(TiC.PROPERTY_TEXT_ALIGN)) {
