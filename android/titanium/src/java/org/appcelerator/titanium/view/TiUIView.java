@@ -36,6 +36,7 @@ import android.content.Context;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.Matrix;
+import android.graphics.Outline;
 import android.graphics.Point;
 import android.graphics.Rect;
 import android.graphics.drawable.ColorDrawable;
@@ -63,6 +64,7 @@ import android.view.View.OnKeyListener;
 import android.view.View.OnTouchListener;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
+import android.view.ViewOutlineProvider;
 import android.view.ViewParent;
 import android.view.ViewTreeObserver.OnGlobalLayoutListener;
 import android.view.ViewTreeObserver.OnPreDrawListener;
@@ -144,6 +146,7 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 	protected TiBorderWrapperView borderView;
 	// For twofingertap detection
 	private boolean didScale = false;
+	private boolean optimizeView = false;
 
 	//to maintain sync visibility between borderview and view. Default is visible
 	private int visibility = View.VISIBLE;
@@ -973,6 +976,10 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 			return;
 		}
 
+		if (d.containsKey("optimizeBorderRadius")) {
+			optimizeView = TiConvert.toBoolean(d, "optimizeBorderRadius", false);
+		}
+
 		boolean nativeViewNull = false;
 		if (nativeView == null) {
 			nativeViewNull = true;
@@ -1483,54 +1490,89 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 		if (hasBorder(d)) {
 
 			if (nativeView != null) {
-
 				if (borderView == null) {
-					Activity currentActivity = proxy.getActivity();
-					if (currentActivity == null) {
-						currentActivity = TiApplication.getAppCurrentActivity();
+
+					if (d.containsKeyAndNotNull(TiC.PROPERTY_BORDER_WIDTH)
+						&& !d.get(TiC.PROPERTY_BORDER_WIDTH).equals("0")) {
+						// disable optimized borderRadius if there is a borderWidth
+						optimizeView = false;
 					}
-					borderView = new TiBorderWrapperView(currentActivity);
-					// Create new layout params for the child view since we just want the
-					// wrapper to control the layout
-					LayoutParams params = new LayoutParams();
-					params.height = android.widget.FrameLayout.LayoutParams.MATCH_PARENT;
-					params.width = android.widget.FrameLayout.LayoutParams.MATCH_PARENT;
-					// If the view already has a parent, we need to detach it from the parent
-					// and add the borderView to the parent as the child
-					ViewGroup savedParent = null;
-					int childIndex = -1;
-					if (nativeView.getParent() != null) {
-						ViewParent nativeParent = nativeView.getParent();
-						if (nativeParent instanceof ViewGroup) {
-							savedParent = (ViewGroup) nativeParent;
-							childIndex = savedParent.indexOfChild(nativeView);
-							savedParent.removeView(nativeView);
+
+					if (d.containsKeyAndNotNull(TiC.PROPERTY_BORDER_RADIUS)
+						&& (d.get(TiC.PROPERTY_BORDER_RADIUS) instanceof Object[]
+							|| d.getString(TiC.PROPERTY_BORDER_RADIUS).split("\\s").length > 1
+						)
+					) {
+						// disable optimized borderRadius if borderRadius is an array
+						optimizeView = false;
+					}
+
+					if (!optimizeView) {
+						Activity currentActivity = proxy.getActivity();
+						if (currentActivity == null) {
+							currentActivity = TiApplication.getAppCurrentActivity();
 						}
-					}
-					borderView.addView(nativeView, params);
-					if (savedParent != null) {
-						savedParent.addView(borderView, childIndex, getLayoutParams());
-					}
-					borderView.setVisibility(this.visibility);
-				}
 
-				if (d.containsKey(TiC.PROPERTY_BORDER_RADIUS)) {
-					if (d.containsKey(TiC.PROPERTY_OPACITY) && LOWER_THAN_MARSHMALLOW) {
-						disableHWAcceleration();
-					}
-					borderView.setRadius(d.get(TiC.PROPERTY_BORDER_RADIUS));
-				}
+						borderView = new TiBorderWrapperView(currentActivity);
+						// Create new layout params for the child view since we just want the
+						// wrapper to control the layout
+						LayoutParams params = new LayoutParams();
+						params.height = android.widget.FrameLayout.LayoutParams.MATCH_PARENT;
+						params.width = android.widget.FrameLayout.LayoutParams.MATCH_PARENT;
+						// If the view already has a parent, we need to detach it from the parent
+						// and add the borderView to the parent as the child
+						ViewGroup savedParent = null;
+						int childIndex = -1;
+						if (nativeView.getParent() != null) {
+							ViewParent nativeParent = nativeView.getParent();
+							if (nativeParent instanceof ViewGroup) {
+								savedParent = (ViewGroup) nativeParent;
+								childIndex = savedParent.indexOfChild(nativeView);
+								savedParent.removeView(nativeView);
+							}
+						}
+						borderView.addView(nativeView, params);
+						if (savedParent != null) {
+							savedParent.addView(borderView, childIndex, getLayoutParams());
+						}
+						borderView.setVisibility(this.visibility);
 
-				if (bgColor != null) {
-					borderView.setBgColor(bgColor);
-					borderView.setColor(bgColor);
-				}
-				if (d.containsKey(TiC.PROPERTY_BORDER_COLOR)) {
-					borderView.setColor(TiConvert.toColor(d, TiC.PROPERTY_BORDER_COLOR, proxy.getActivity()));
+						if (d.containsKey(TiC.PROPERTY_BORDER_RADIUS)) {
+							if (d.containsKey(TiC.PROPERTY_OPACITY) && LOWER_THAN_MARSHMALLOW) {
+								disableHWAcceleration();
+							}
+							borderView.setRadius(d.get(TiC.PROPERTY_BORDER_RADIUS));
+						}
+
+						if (bgColor != null) {
+							borderView.setBgColor(bgColor);
+							borderView.setColor(bgColor);
+						}
+						if (d.containsKey(TiC.PROPERTY_BORDER_COLOR)) {
+							borderView.setColor(TiConvert.toColor(d, TiC.PROPERTY_BORDER_COLOR, proxy.getActivity()));
+						}
+					} else {
+						TiDimension radiusDimension = TiConvert.toTiDimension(
+							d.get(TiC.PROPERTY_BORDER_RADIUS), TiDimension.TYPE_WIDTH);
+
+						ViewOutlineProvider viewOutlineProvider = new ViewOutlineProvider() {
+							@Override
+							public void getOutline(View view, Outline outline)
+							{
+								if (radiusDimension != null) {
+									outline.setRoundRect(0, 0, view.getWidth(),
+										view.getHeight(), (float) radiusDimension.getPixels(view));
+								}
+							}
+						};
+						nativeView.setOutlineProvider(viewOutlineProvider);
+						nativeView.setClipToOutline(true);
+					}
 				}
 
 				//Have a default border width of 1 if the border has defined color.
 				Object borderWidth = d.containsKeyAndNotNull(TiC.PROPERTY_BORDER_COLOR) ? "1" : "0";
+
 				if (d.containsKey(TiC.PROPERTY_BORDER_WIDTH)) {
 					borderWidth = d.get(TiC.PROPERTY_BORDER_WIDTH);
 				} else {
@@ -1538,13 +1580,15 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 					proxy.setProperty(TiC.PROPERTY_BORDER_WIDTH, borderWidth);
 				}
 
-				TiDimension width = TiConvert.toTiDimension(borderWidth, TiDimension.TYPE_WIDTH);
-				if (width != null) {
-					borderView.setBorderWidth((float) width.getPixels(borderView));
+				if (borderView != null) {
+					TiDimension width = TiConvert.toTiDimension(borderWidth, TiDimension.TYPE_WIDTH);
+					if (width != null) {
+						borderView.setBorderWidth((float) width.getPixels(borderView));
+					}
 				}
 
 				nativeView.invalidate();
-				borderView.invalidate();
+				if (borderView != null) borderView.invalidate();
 			}
 
 			// TIMOB-24898: disable HW acceleration to allow transparency
@@ -1559,24 +1603,24 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 	{
 		if (TiC.PROPERTY_BORDER_COLOR.equals(property)) {
 			int color = value != null ? TiConvert.toColor(value.toString(), proxy.getActivity()) : Color.TRANSPARENT;
-			borderView.setColor(color);
+			if (borderView != null) borderView.setColor(color);
 			if (!proxy.hasProperty(TiC.PROPERTY_BORDER_WIDTH)) {
-				borderView.setBorderWidth(1);
+				if (borderView != null) borderView.setBorderWidth(1);
 			}
 		} else if (TiC.PROPERTY_BORDER_RADIUS.equals(property)) {
 			if (proxy.hasProperty(TiC.PROPERTY_OPACITY) && LOWER_THAN_MARSHMALLOW) {
 				disableHWAcceleration();
 			}
-			borderView.setRadius(value);
+			if (borderView != null) borderView.setRadius(value);
 		} else if (TiC.PROPERTY_BORDER_WIDTH.equals(property)) {
 			float width = 0;
 			TiDimension bwidth = TiConvert.toTiDimension(value, TiDimension.TYPE_WIDTH);
 			if (bwidth != null) {
 				width = (float) bwidth.getPixels(getNativeView());
 			}
-			borderView.setBorderWidth(width);
+			if (borderView != null) borderView.setBorderWidth(width);
 		}
-		borderView.postInvalidate();
+		if (borderView != null) borderView.postInvalidate();
 	}
 
 	private static final SparseArray<String> motionEvents = new SparseArray<>();
@@ -2029,7 +2073,6 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 		if (view == null) {
 			return;
 		}
-
 		setAlpha(view, opacity);
 
 		if (opacity == 1.0f) {
