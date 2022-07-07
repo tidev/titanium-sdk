@@ -1,5 +1,5 @@
-**JIRA:** https://jira.appcelerator.org/browse/[TICKET]
+**GitHub discussions:** https://github.com/tidev/titanium_mobile/discussions/[ID]
 
-Provide a clear PR title prefixed with `[TICKET]`
+Provide a clear PR title prefixed with `[ID]`
 
 **Optional Description:**

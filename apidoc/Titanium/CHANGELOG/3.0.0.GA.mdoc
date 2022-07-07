@@ -530,12 +530,12 @@ Xcode organizer.
 
 Some other new features in SDK 3.0 include:
 
-*   [TIMOB-11755](https://jira.appcelerator.org/browse/TIMOB-11755), 
-    [TIMOB-11756](https://jira.appcelerator.org/browse/TIMOB-11756) Added username,
+*   [TIMOB-11755](https://jira-archive.titaniumsdk.com/TIMOB-11755), 
+    [TIMOB-11756](https://jira-archive.titaniumsdk.com/TIMOB-11756) Added username,
     password, and domain properties to HTTPClient. The new properties are currently
     supported on iOS and Android. Mobile Web support will be added in a subsequent
     release.
-*   [TIMOB-10232](https://jira.appcelerator.org/browse/TIMOB-10232) Android: Capturing 
+*   [TIMOB-10232](https://jira-archive.titaniumsdk.com/TIMOB-10232) Android: Capturing 
      onKeyPress from the hardware keyboard.
 
 <a name="known_issues"></a>
@@ -544,10 +544,10 @@ Some other new features in SDK 3.0 include:
 
 The following are newly-discovered issues and regressions in this release.
 
-*   [TIMOB-11555](https://jira.appcelerator.org/browse/TIMOB-11555). Cannot create a
+*   [TIMOB-11555](https://jira-archive.titaniumsdk.com/TIMOB-11555). Cannot create a
     cloud-enabled project using the new CLI.
 
-*   [TIMOB-12093](https://jira.appcelerator.org/browse/TIMOB-12093). Default distribution name for iOS 
+*   [TIMOB-12093](https://jira-archive.titaniumsdk.com/TIMOB-12093). Default distribution name for iOS 
     must be specified in lowercase. 
 
     When doing a iOS dist-adhoc or dist-appstore build, you need to specify a `--distribution-name` argument. 
@@ -564,7 +564,7 @@ The following are newly-discovered issues and regressions in this release.
     This is **not** a problem if you specify the `--distribution-name` on the command line; only if the 
     distribution name is taken from the configuration file. This issue does not affect builds from Studio.
     
-*   [TIMOB-12094](https://jira.appcelerator.org/browse/TIMOB-12094). Invalid code in app.js causes
+*   [TIMOB-12094](https://jira-archive.titaniumsdk.com/TIMOB-12094). Invalid code in app.js causes
     silent pre-compilation failure on iOS. If there are syntax errors in app.js, the build fails
     in the pre-compilation phase, but the failure is not detected and Xcode continues to install the 
     application on device. When the application is run, it fails with an error message stating that app.js 
@@ -574,7 +574,7 @@ The following are newly-discovered issues and regressions in this release.
 
 ## Known Studio Issues
 
-*   [TISTUD-2614](http://jira.appcelerator.org/browse/TISTUD-2614). Studio fails when
+*   [TISTUD-2614](https://jira-archive.titaniumsdk.com/TISTUD-2614). Studio fails when
     attempting to unpublish a Node.ACS application. You can unpublish an application 
     from the command line using the following command:
 
@@ -584,7 +584,7 @@ The following are newly-discovered issues and regressions in this release.
     either an &lt;app_name&gt; or the **-d** &lt;app_dir&gt; options, unless you are running the
     command from the application folder.
 
-*   [TISTUD-2629](http://jira.appcelerator.org/browse/TISTUD-2629). The Node.ACS Tail Logs 
+*   [TISTUD-2629](https://jira-archive.titaniumsdk.com/TISTUD-2629). The Node.ACS Tail Logs 
     command fails in Studio. You can run **acs logcat** from the command line instead.
 
         acs logcat -a <app_version> [ <app_name> | -d <app_dir> ]
