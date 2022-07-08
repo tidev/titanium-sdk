@@ -105,12 +105,12 @@ public class TiBorderWrapperView extends FrameLayout
 			canvas.drawPath(outerPath, paint);
 
 			// TIMOB-16909: hack to fix anti-aliasing
-			if (Build.VERSION.SDK_INT < 31 && backgroundColor != Color.TRANSPARENT) {
+			if (Build.VERSION.SDK_INT < 30 && backgroundColor != Color.TRANSPARENT) {
 				paint.setColor(backgroundColor);
 				canvas.drawPath(innerPath, paint);
 			}
 			canvas.clipPath(innerPath);
-			if (Build.VERSION.SDK_INT < 31 && backgroundColor != Color.TRANSPARENT) {
+			if (Build.VERSION.SDK_INT < 30 && backgroundColor != Color.TRANSPARENT) {
 				canvas.drawColor(0, PorterDuff.Mode.CLEAR);
 			}
 		} else {
