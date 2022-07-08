@@ -32,6 +32,7 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
   UITableView *_tableView;
   NSDictionary<id, TiViewTemplate *> *_templates;
   id _defaultItemTemplate;
+  BOOL _requiresEditingToMove;
 
   TiDimension _rowHeight;
   TiViewProxy *_headerViewProxy;
@@ -210,11 +211,10 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
     _tableView.delegate = self;
     _tableView.dataSource = self;
 
-    BOOL requiresEditingToMove = [TiUtils boolValue:[self.proxy valueForKey:@"requiresEditingToMove"] def:YES];
-    if (!requiresEditingToMove) {
-      _tableView.dragInteractionEnabled = YES;
+    if (!_requiresEditingToMove) {
       _tableView.dragDelegate = self;
       _tableView.dropDelegate = self;
+      _tableView.dragInteractionEnabled = YES;
     }
 
     // Fixes incorrect heights in iOS 11 as we calculate them internally already
@@ -351,6 +351,11 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
   CGPoint offset = [TiUtils pointValue:value];
   BOOL animated = [TiUtils boolValue:[args valueForKey:@"animated"] def:NO];
   [_tableView setContentOffset:offset animated:animated];
+}
+
+- (void)requiresEditingToMove_:(id)value
+{
+  _requiresEditingToMove = [TiUtils boolValue:value];
 }
 
 - (void)setContentInsets_:(id)value withObject:(id)props
@@ -2563,12 +2568,29 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
 
 - (nonnull NSArray<UIDragItem *> *)tableView:(nonnull UITableView *)tableView itemsForBeginningDragSession:(nonnull id<UIDragSession>)session atIndexPath:(nonnull NSIndexPath *)indexPath
 {
-  return @[];
+  NSItemProvider *itemProvider = [NSItemProvider new];
+  NSString *identifier = [NSString stringWithFormat:@"%lu_%lu", indexPath.section, indexPath.row];
+
+  [itemProvider registerDataRepresentationForTypeIdentifier:(NSString *)kUTTypePlainText
+                                                 visibility:NSItemProviderRepresentationVisibilityAll
+                                                loadHandler:^NSProgress * _Nullable(void (^ _Nonnull completionHandler)(NSData * _Nullable, NSError * _Nullable)) {
+    return nil;
+  }];
+
+  UIDragItem *dragItem = [[UIDragItem alloc] initWithItemProvider:itemProvider];
+  dragItem.localObject = identifier;
+
+  return @[dragItem];
+}
+
+- (void)tableView:(UITableView *)tableView performDropWithCoordinator:(id<UITableViewDropCoordinator>)coordinator
+{
+  // NO-OP right now
 }
 
 - (BOOL)tableView:(UITableView *)tableView canHandleDropSession:(id<UIDropSession>)session
 {
-  return [session hasItemsConformingToTypeIdentifiers:@[ (NSString *)kUTTypePlainText ]];
+  return  [session canLoadObjectsOfClass:[NSString class]];
 }
 
 @end
