@@ -2573,14 +2573,14 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
 
   [itemProvider registerDataRepresentationForTypeIdentifier:(NSString *)kUTTypePlainText
                                                  visibility:NSItemProviderRepresentationVisibilityAll
-                                                loadHandler:^NSProgress * _Nullable(void (^ _Nonnull completionHandler)(NSData * _Nullable, NSError * _Nullable)) {
-    return nil;
-  }];
+                                                loadHandler:^NSProgress *_Nullable(void (^_Nonnull completionHandler)(NSData *_Nullable, NSError *_Nullable)) {
+                                                  return nil;
+                                                }];
 
   UIDragItem *dragItem = [[UIDragItem alloc] initWithItemProvider:itemProvider];
   dragItem.localObject = identifier;
 
-  return @[dragItem];
+  return @[ dragItem ];
 }
 
 - (void)tableView:(UITableView *)tableView performDropWithCoordinator:(id<UITableViewDropCoordinator>)coordinator
@@ -2590,7 +2590,7 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
 
 - (BOOL)tableView:(UITableView *)tableView canHandleDropSession:(id<UIDropSession>)session
 {
-  return  [session canLoadObjectsOfClass:[NSString class]];
+  return [session canLoadObjectsOfClass:[NSString class]];
 }
 
 @end
