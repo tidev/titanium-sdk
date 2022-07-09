@@ -684,8 +684,8 @@ properties:
         For more information see the "Editing Support" section of <Titanium.UI.ListView>.
     type: Boolean
     default: true
-    since: {iphone: "11.1.0", ipad: "11.1.0", macos: "11.1.0", android: "11.1.0"}
-    platforms: [iphone, ipad, macos]
+    since: "11.1.0"
+    platforms: [android, iphone, ipad, macos]
 
   - name: fastScroll
     summary: Sets the fastScroll mode on Android ListViews.
