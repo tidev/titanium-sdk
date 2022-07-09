@@ -948,7 +948,7 @@ public class TableViewProxy extends RecyclerViewProxy
 		if (name.equals(TiC.PROPERTY_DATA) || name.equals(TiC.PROPERTY_SECTIONS)) {
 			setData((Object[]) value);
 
-		} else if (name.equals(TiC.PROPERTY_EDITING)) {
+		} else if (name.equals(TiC.PROPERTY_EDITING) || name.equals(TiC.PROPERTY_REQUIRES_EDITING_TO_MOVE)) {
 			final TiViewProxy parent = getParent();
 
 			if (parent != null) {

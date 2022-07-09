@@ -264,6 +264,7 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 
 		final KrollDict properties = proxy.getProperties();
 		final boolean editing = properties.optBoolean(TiC.PROPERTY_EDITING, false);
+		final boolean requiresEditingToMove = properties.optBoolean(TiC.PROPERTY_REQUIRES_EDITING_TO_MOVE, true);
 		final boolean allowsSelection = properties.optBoolean(TiC.PROPERTY_ALLOWS_SELECTION_DURING_EDITING, false);
 		final boolean allowsMultipleSelection
 			= properties.optBoolean(TiC.PROPERTY_ALLOWS_MULTIPLE_SELECTION_DURING_EDITING, false);
@@ -271,7 +272,7 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 		if (properties.optBoolean(TiC.PROPERTY_FIXED_SIZE, false)) {
 			this.recyclerView.setHasFixedSize(true);
 		}
-		if (editing && allowsSelection) {
+		if ((editing && allowsSelection) || !requiresEditingToMove) {
 			if (allowsMultipleSelection) {
 				this.tracker = trackerBuilder.withSelectionPredicate(SelectionPredicates.createSelectAnything())
 					.build();
@@ -767,13 +768,15 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 
 				if (firstUpdate && tracker != null) {
 					final boolean editing = properties.optBoolean(TiC.PROPERTY_EDITING, false);
+					final boolean requiresEditingToMove =
+						properties.optBoolean(TiC.PROPERTY_REQUIRES_EDITING_TO_MOVE, true);
 
 					for (final ListItemProxy item : items) {
 
 						// Re-select previously selected items.
 						// This can occur when the theme is changed.
 						if (item.isSelected()) {
-							if (!editing) {
+							if (!editing || requiresEditingToMove) {
 								item.setSelected(false);
 								continue;
 							}
