@@ -353,7 +353,7 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
   [_tableView setContentOffset:offset animated:animated];
 }
 
-- (void)requiresEditingToMove_:(id)value
+- (void)setRequiresEditingToMove_:(id)value
 {
   _requiresEditingToMove = [TiUtils boolValue:value];
 }
