@@ -272,7 +272,7 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 		if (properties.optBoolean(TiC.PROPERTY_FIXED_SIZE, false)) {
 			this.recyclerView.setHasFixedSize(true);
 		}
-		if ((editing && allowsSelection) || !requiresEditingToMove) {
+		if ((editing || !requiresEditingToMove) && allowsSelection) {
 			if (allowsMultipleSelection) {
 				this.tracker = trackerBuilder.withSelectionPredicate(SelectionPredicates.createSelectAnything())
 					.build();

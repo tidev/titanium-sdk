@@ -525,7 +525,8 @@ public class ListViewProxy extends RecyclerViewProxy
 			// Set list sections.
 			setSections((Object[]) value);
 
-		} else if (name.equals(TiC.PROPERTY_EDITING) || name.equals(TiC.PROPERTY_VISIBLE)) {
+		} else if (name.equals(TiC.PROPERTY_EDITING) || name.equals(TiC.PROPERTY_REQUIRES_EDITING_TO_MOVE)
+			|| name.equals(TiC.PROPERTY_VISIBLE)) {
 			final TiViewProxy parent = getParent();
 
 			if (parent != null) {
