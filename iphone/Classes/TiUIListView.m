@@ -32,7 +32,6 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
   UITableView *_tableView;
   NSDictionary<id, TiViewTemplate *> *_templates;
   id _defaultItemTemplate;
-  BOOL _requiresEditingToMove;
 
   TiDimension _rowHeight;
   TiViewProxy *_headerViewProxy;
@@ -205,13 +204,14 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
 {
   if (_tableView == nil) {
     UITableViewStyle style = [TiUtils intValue:[self.proxy valueForKey:@"style"] def:UITableViewStylePlain];
+    BOOL requiresEditingToMove = [TiUtils boolValue:[self.proxy valueForKey:@"requiresEditingToMove"] def:YES];
 
     _tableView = [[UITableView alloc] initWithFrame:self.bounds style:style];
     _tableView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     _tableView.delegate = self;
     _tableView.dataSource = self;
 
-    if (!_requiresEditingToMove) {
+    if (!requiresEditingToMove) {
       _tableView.dragDelegate = self;
       _tableView.dropDelegate = self;
       _tableView.dragInteractionEnabled = YES;
@@ -351,11 +351,6 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
   CGPoint offset = [TiUtils pointValue:value];
   BOOL animated = [TiUtils boolValue:[args valueForKey:@"animated"] def:NO];
   [_tableView setContentOffset:offset animated:animated];
-}
-
-- (void)setRequiresEditingToMove_:(id)value
-{
-  _requiresEditingToMove = [TiUtils boolValue:value];
 }
 
 - (void)setContentInsets_:(id)value withObject:(id)props
