@@ -310,10 +310,10 @@ public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionLis
 
 	private void setTextPadding(HashMap<String, Object> d)
 	{
-		int paddingLeft = textInputLayout.getPaddingLeft();
-		int paddingRight = textInputLayout.getPaddingRight();
-		int paddingTop = textInputLayout.getPaddingTop();
-		int paddingBottom = textInputLayout.getPaddingBottom();
+		int paddingLeft = tv.getPaddingLeft();
+		int paddingRight = tv.getPaddingRight();
+		int paddingTop = tv.getPaddingTop();
+		int paddingBottom = tv.getPaddingBottom();
 
 		if (d.containsKey(TiC.PROPERTY_LEFT)) {
 			paddingLeft = TiConvert.toInt(d.get(TiC.PROPERTY_LEFT), 0);
@@ -330,8 +330,7 @@ public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionLis
 		if (d.containsKey(TiC.PROPERTY_BOTTOM)) {
 			paddingBottom = TiConvert.toInt(d.get(TiC.PROPERTY_BOTTOM), 0);
 		}
-
-		textInputLayout.setPadding(paddingLeft, paddingTop, paddingRight, paddingBottom);
+		tv.setPadding(paddingLeft, paddingTop, paddingRight, paddingBottom);
 	}
 
 	@Override
