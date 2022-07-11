@@ -1823,8 +1823,8 @@ properties:
   - name: position
     summary: Specifies what position to scroll the selected row to.
     type: Number
-    constants: Titanium.UI.iOS.TableViewScrollPosition.*
-    default: <Titanium.UI.iOS.TableViewScrollPosition.NONE>
+    constants: Titanium.UI.TableViewScrollPosition.*
+    default: <Titanium.UI.TableViewScrollPosition.NONE>
 
 ---
 name: TableViewIndexEntry
