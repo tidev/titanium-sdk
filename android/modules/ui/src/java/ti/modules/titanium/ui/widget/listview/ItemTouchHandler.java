@@ -242,7 +242,11 @@ public class ItemTouchHandler extends ItemTouchHelper.SimpleCallback
 	 */
 	private boolean isEditing()
 	{
-		return this.recyclerViewProxy.getProperties().optBoolean(TiC.PROPERTY_EDITING, false);
+		boolean isEditing = this.recyclerViewProxy.getProperties().optBoolean(TiC.PROPERTY_EDITING, false);
+		boolean requiresEditingToMove =
+			this.recyclerViewProxy.getProperties().optBoolean(TiC.PROPERTY_REQUIRES_EDITING_TO_MOVE, true);
+
+		return isEditing || !requiresEditingToMove;
 	}
 
 	/**
