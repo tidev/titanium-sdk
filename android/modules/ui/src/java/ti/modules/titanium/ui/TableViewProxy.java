@@ -310,6 +310,14 @@ public class TableViewProxy extends RecyclerViewProxy
 	}
 
 	/**
+	 * Called when item drag-and-drop movement has started.
+	 */
+	public void onMoveItemStarted()
+	{
+		fireEvent(TiC.EVENT_MOVE_START, new KrollDict());
+	}
+
+	/**
 	 * Called when row drag-and-drop movement has ended.
 	 *
 	 * @param adapterIndex Index of position the row was dragged in adapter list.

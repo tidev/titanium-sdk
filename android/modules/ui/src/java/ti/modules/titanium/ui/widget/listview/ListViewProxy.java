@@ -244,6 +244,14 @@ public class ListViewProxy extends RecyclerViewProxy
 	}
 
 	/**
+	 * Called when item drag-and-drop movement has started.
+	 */
+	public void onMoveItemStarted()
+	{
+		fireEvent(TiC.EVENT_MOVE_START, new KrollDict());
+	}
+
+	/**
 	 * Called when item drag-and-drop movement has ended.
 	 *
 	 * @param adapterIndex Index of position the item was dragged in adapter list.

@@ -39,6 +39,7 @@ public class ItemTouchHandler extends ItemTouchHelper.SimpleCallback
 	private int moveEndIndex = -1;
 	private Drawable icon;
 	private final ColorDrawable background;
+	private boolean hasTouchStarted = false;
 
 	@SuppressLint("ClickableViewAccessibility")
 	public ItemTouchHandler(@NonNull TiRecyclerViewAdapter adapter,
@@ -56,7 +57,11 @@ public class ItemTouchHandler extends ItemTouchHelper.SimpleCallback
 			@Override
 			public boolean onTouch(View v, MotionEvent event)
 			{
-				if (event.getAction() == MotionEvent.ACTION_UP) {
+				if (event.getAction() == MotionEvent.ACTION_MOVE && !hasTouchStarted) {
+					recyclerViewProxy.onMoveItemStarted();
+					hasTouchStarted = true;
+				} else if (event.getAction() == MotionEvent.ACTION_UP) {
+					hasTouchStarted = false;
 					if (moveEndIndex >= 0) {
 						// Notify owner that item movement has ended. Will fire a "move" event.
 						recyclerViewProxy.onMoveItemEnded(moveEndIndex);
