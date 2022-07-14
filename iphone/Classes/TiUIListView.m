@@ -1102,9 +1102,17 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
   UIDragItem *dragItem = [[UIDragItem alloc] initWithItemProvider:itemProvider];
   dragItem.localObject = identifier;
 
-  [[self proxy] fireEvent:@"movestart"];
-
   return @[ dragItem ];
+}
+
+- (void)tableView:(UITableView *)tableView dropSessionDidEnter:(id<UIDropSession>)session
+{
+  [[self proxy] fireEvent:@"movestart"];
+}
+
+- (void)tableView:(UITableView *)tableView dropSessionDidEnd:(id<UIDropSession>)session
+{
+  [[self proxy] fireEvent:@"moveend"];
 }
 
 - (void)tableView:(UITableView *)tableView performDropWithCoordinator:(id<UITableViewDropCoordinator>)coordinator

@@ -244,14 +244,6 @@ public class ListViewProxy extends RecyclerViewProxy
 	}
 
 	/**
-	 * Called when item drag-and-drop movement has started.
-	 */
-	public void onMoveItemStarted()
-	{
-		fireEvent(TiC.EVENT_MOVE_START, new KrollDict());
-	}
-
-	/**
 	 * Called when item drag-and-drop movement has ended.
 	 *
 	 * @param adapterIndex Index of position the item was dragged in adapter list.
@@ -280,6 +272,22 @@ public class ListViewProxy extends RecyclerViewProxy
 
 		// Clear last "move" event info.
 		this.moveEventInfo.clear();
+	}
+
+	/**
+	 * Called when starting a drag-and-drop gesture (touch start)
+	 */
+	public void onMoveGestureStarted()
+	{
+		fireEvent(TiC.EVENT_MOVE_START, null);
+	}
+
+	/**
+	 * Called when starting a drag-and-drop gesture (touch end)
+	 */
+	public void onMoveGestureEnded()
+	{
+		fireEvent(TiC.EVENT_MOVE_END, null);
 	}
 
 	/**

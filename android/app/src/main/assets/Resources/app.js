@@ -1,55 +1,57 @@
-'use strict';
+const myTemplate = {
+	childTemplates: [
+		{
+			type: 'Ti.UI.Label',
+			bindId: 'title',
+			properties: {
+				left: 15,
+				color: 'black'
+			}
+		}
+	]
+};
 
-// create tab group
-const tabGroup = Titanium.UI.createTabGroup({
-	style: Ti.UI.Android.TABS_STYLE_BOTTOM_NAVIGATION,
+const win = Ti.UI.createWindow({
+	backgroundColor: '#fff'
 });
 
-//
-// create base UI tab and root window
-//
-const win1 = Titanium.UI.createWindow({
-	title: 'Tab 1',
-});
-const tab1 = Titanium.UI.createTab({
-	icon: 'KS_nav_views.png',
-	title: 'Tab 1',
-	window: win1
+const listView = Ti.UI.createListView({
+	templates: { template: myTemplate },
+	requiresEditingToMove: false,
+	defaultItemTemplate: 'template',
+	sections: [
+		Ti.UI.createListSection({
+			headerTitle: 'Section 1',
+			items: [
+				{ properties: { canMove: true, height: 43 }, title: { text: 'Title 1' } },
+				{ properties: { canMove: true, height: 43 }, title: { text: 'Title 2' } },
+				{ properties: { canMove: true, height: 43 }, title: { text: 'Title 3' } },
+				{ properties: { canMove: true, height: 43 }, title: { text: 'Title 4' } }
+			]
+		}),
+		Ti.UI.createListSection({
+			headerTitle: 'Section 1',
+			items: [
+				{ properties: { canMove: true, height: 43 }, title: { text: 'Title 1' } },
+				{ properties: { canMove: true, height: 43 }, title: { text: 'Title 2' } },
+				{ properties: { canMove: true, height: 43 }, title: { text: 'Title 3' } },
+				{ properties: { canMove: true, height: 43 }, title: { text: 'Title 4' } }
+			]
+		})
+	]
 });
 
-const label1 = Titanium.UI.createLabel({
-	text: 'I am Window 1',
-	font: { fontSize: 20, fontFamily: 'Helvetica Neue' },
-	textAlign: 'center',
-	width: 'auto'
+listView.addEventListener('movestart', () => {
+	console.warn('STARTED MOVING');
 });
 
-win1.add(label1);
-
-//
-// create controls tab and root window
-//
-const win2 = Titanium.UI.createWindow({
-	title: 'Tab 2',
+listView.addEventListener('moveend', () => {
+	console.warn('STOPPED MOVING');
 });
-const tab2 = Titanium.UI.createTab({
-	icon: 'KS_nav_ui.png',
-	title: 'Tab 2',
-	window: win2
-});
-var label2 = Titanium.UI.createLabel({
-	text: 'I am Window 2',
-	font: { fontSize: 20, fontFamily: 'Helvetica Neue' },
-	textAlign: 'center',
-	width: 'auto'
-});
-win2.add(label2);
 
-//
-//  add tabs
-//
-tabGroup.addTab(tab1);
-tabGroup.addTab(tab2);
+listView.addEventListener('move', () => {
+	console.warn('FINISHED MOVING');
+});
 
-// open tab group
-tabGroup.open();
+win.add(listView);
+win.open();

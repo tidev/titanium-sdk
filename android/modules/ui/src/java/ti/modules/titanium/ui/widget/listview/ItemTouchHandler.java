@@ -58,10 +58,12 @@ public class ItemTouchHandler extends ItemTouchHelper.SimpleCallback
 			public boolean onTouch(View v, MotionEvent event)
 			{
 				if (event.getAction() == MotionEvent.ACTION_MOVE && !hasTouchStarted) {
-					recyclerViewProxy.onMoveItemStarted();
+					recyclerViewProxy.onMoveGestureStarted();
 					hasTouchStarted = true;
 				} else if (event.getAction() == MotionEvent.ACTION_UP) {
+					recyclerViewProxy.onMoveGestureEnded();
 					hasTouchStarted = false;
+
 					if (moveEndIndex >= 0) {
 						// Notify owner that item movement has ended. Will fire a "move" event.
 						recyclerViewProxy.onMoveItemEnded(moveEndIndex);
