@@ -275,6 +275,22 @@ public class ListViewProxy extends RecyclerViewProxy
 	}
 
 	/**
+	 * Called when starting a drag-and-drop gesture (touch start)
+	 */
+	public void onMoveGestureStarted()
+	{
+		fireEvent(TiC.EVENT_MOVE_START, null);
+	}
+
+	/**
+	 * Called when starting a drag-and-drop gesture (touch end)
+	 */
+	public void onMoveGestureEnded()
+	{
+		fireEvent(TiC.EVENT_MOVE_END, null);
+	}
+
+	/**
 	 * Remove section from list at specified index.
 	 *
 	 * @param index Index of section to remove.

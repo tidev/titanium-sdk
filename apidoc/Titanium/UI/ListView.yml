@@ -384,6 +384,20 @@ events:
         summary: section item index of the reference item.
         type: Number
 
+  - name: movestart
+    summary: Fired when a list row has started moving.
+    description: |
+      This property can be used to change the UI once a new drag-and-drop interaction starts.
+    since: "11.1.0"
+    platforms: [android, iphone, ipad, macos]
+
+  - name: moveend
+    summary: Fired when a list row has ended moving.
+    description: |
+      This property can be used to change the UI once a drag-and-drop interaction ends.
+    since: "11.1.0"
+    platforms: [android, iphone, ipad, macos]
+
   - name: move
     summary: Fired when a list row is moved to a different location by the user.
     description: |

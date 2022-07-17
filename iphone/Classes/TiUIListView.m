@@ -1079,15 +1079,50 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
 - (BOOL)canInsertRowAtIndexPath:(NSIndexPath *)indexPath
 {
   id insertValue = [self valueWithKey:@"canInsert" atIndexPath:indexPath];
-  //canInsert if undefined is false
   return [TiUtils boolValue:insertValue def:NO];
 }
 
 - (BOOL)canMoveRowAtIndexPath:(NSIndexPath *)indexPath
 {
   id moveValue = [self valueWithKey:@"canMove" atIndexPath:indexPath];
-  //canMove if undefined is false
   return [TiUtils boolValue:moveValue def:NO];
+}
+
+- (nonnull NSArray<UIDragItem *> *)tableView:(nonnull UITableView *)tableView itemsForBeginningDragSession:(nonnull id<UIDragSession>)session atIndexPath:(nonnull NSIndexPath *)indexPath
+{
+  NSItemProvider *itemProvider = [NSItemProvider new];
+  NSString *identifier = [NSString stringWithFormat:@"%lu_%lu", indexPath.section, indexPath.row];
+
+  [itemProvider registerDataRepresentationForTypeIdentifier:(NSString *)kUTTypePlainText
+                                                 visibility:NSItemProviderRepresentationVisibilityAll
+                                                loadHandler:^NSProgress *_Nullable(void (^_Nonnull completionHandler)(NSData *_Nullable, NSError *_Nullable)) {
+                                                  return nil;
+                                                }];
+
+  UIDragItem *dragItem = [[UIDragItem alloc] initWithItemProvider:itemProvider];
+  dragItem.localObject = identifier;
+
+  return @[ dragItem ];
+}
+
+- (void)tableView:(UITableView *)tableView dropSessionDidEnter:(id<UIDropSession>)session
+{
+  [[self proxy] fireEvent:@"movestart"];
+}
+
+- (void)tableView:(UITableView *)tableView dropSessionDidEnd:(id<UIDropSession>)session
+{
+  [[self proxy] fireEvent:@"moveend"];
+}
+
+- (void)tableView:(UITableView *)tableView performDropWithCoordinator:(id<UITableViewDropCoordinator>)coordinator
+{
+  // NO-OP right now
+}
+
+- (BOOL)tableView:(UITableView *)tableView canHandleDropSession:(id<UIDropSession>)session
+{
+  return [session canLoadObjectsOfClass:[NSString class]];
 }
 
 - (NSArray *)editActionsFromValue:(id)value
@@ -2559,33 +2594,6 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
   }
   BOOL animate = [TiUtils boolValue:@"animated" properties:properties def:NO];
   return animate ? UITableViewRowAnimationFade : UITableViewRowAnimationNone;
-}
-
-- (nonnull NSArray<UIDragItem *> *)tableView:(nonnull UITableView *)tableView itemsForBeginningDragSession:(nonnull id<UIDragSession>)session atIndexPath:(nonnull NSIndexPath *)indexPath
-{
-  NSItemProvider *itemProvider = [NSItemProvider new];
-  NSString *identifier = [NSString stringWithFormat:@"%lu_%lu", indexPath.section, indexPath.row];
-
-  [itemProvider registerDataRepresentationForTypeIdentifier:(NSString *)kUTTypePlainText
-                                                 visibility:NSItemProviderRepresentationVisibilityAll
-                                                loadHandler:^NSProgress *_Nullable(void (^_Nonnull completionHandler)(NSData *_Nullable, NSError *_Nullable)) {
-                                                  return nil;
-                                                }];
-
-  UIDragItem *dragItem = [[UIDragItem alloc] initWithItemProvider:itemProvider];
-  dragItem.localObject = identifier;
-
-  return @[ dragItem ];
-}
-
-- (void)tableView:(UITableView *)tableView performDropWithCoordinator:(id<UITableViewDropCoordinator>)coordinator
-{
-  // NO-OP right now
-}
-
-- (BOOL)tableView:(UITableView *)tableView canHandleDropSession:(id<UIDropSession>)session
-{
-  return [session canLoadObjectsOfClass:[NSString class]];
 }
 
 @end

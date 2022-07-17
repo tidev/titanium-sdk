@@ -19,4 +19,8 @@ public abstract class RecyclerViewProxy extends TiViewProxy
 	public abstract boolean onMoveItemStarting(int index);
 
 	public abstract void onMoveItemEnded(int index);
+
+	public abstract  void onMoveGestureStarted();
+
+	public abstract  void onMoveGestureEnded();
 }
