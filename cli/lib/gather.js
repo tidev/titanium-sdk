@@ -278,9 +278,6 @@ class Categorizer {
 							results.imageAssets.set(relPath, info);
 							return;
 						}
-					} else {
-						results.imageAssets.set(relPath, info);
-						return;
 					}
 				}
 				// fall through to lump with JPG...

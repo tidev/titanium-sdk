@@ -48,6 +48,7 @@ import ti.modules.titanium.ui.widget.TiUIListView;
 		TiC.PROPERTY_HEADER_TITLE,
 		TiC.PROPERTY_HEADER_VIEW,
 		TiC.PROPERTY_REFRESH_CONTROL,
+		TiC.PROPERTY_REQUIRES_EDITING_TO_MOVE,
 		TiC.PROPERTY_SEARCH_TEXT,
 		TiC.PROPERTY_SEARCH_VIEW,
 		TiC.PROPERTY_SEPARATOR_COLOR,
@@ -271,6 +272,22 @@ public class ListViewProxy extends RecyclerViewProxy
 
 		// Clear last "move" event info.
 		this.moveEventInfo.clear();
+	}
+
+	/**
+	 * Called when starting a drag-and-drop gesture (touch start)
+	 */
+	public void onMoveGestureStarted()
+	{
+		fireEvent(TiC.EVENT_MOVE_START, null);
+	}
+
+	/**
+	 * Called when starting a drag-and-drop gesture (touch end)
+	 */
+	public void onMoveGestureEnded()
+	{
+		fireEvent(TiC.EVENT_MOVE_END, null);
 	}
 
 	/**
@@ -524,7 +541,8 @@ public class ListViewProxy extends RecyclerViewProxy
 			// Set list sections.
 			setSections((Object[]) value);
 
-		} else if (name.equals(TiC.PROPERTY_EDITING) || name.equals(TiC.PROPERTY_VISIBLE)) {
+		} else if (name.equals(TiC.PROPERTY_EDITING) || name.equals(TiC.PROPERTY_REQUIRES_EDITING_TO_MOVE)
+			|| name.equals(TiC.PROPERTY_VISIBLE)) {
 			final TiViewProxy parent = getParent();
 
 			if (parent != null) {
