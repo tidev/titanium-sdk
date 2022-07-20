@@ -669,9 +669,6 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 					// Maintain true row index.
 					row.index = index++;
 
-					// reassign parent
-					row.setParent(this.proxy);
-
 					// Handle search query.
 					if (query != null) {
 						String attribute = row.getProperties().optString(filterAttribute, null);
