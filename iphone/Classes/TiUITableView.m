@@ -55,7 +55,7 @@
 
 - (void)dealloc
 {
-  if ([proxy callbackCell] == self) {
+  if (proxy != nil && [proxy callbackCell] == self) {
     [proxy setCallbackCell:nil];
   }
 
