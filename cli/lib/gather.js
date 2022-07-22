@@ -273,7 +273,7 @@ class Categorizer {
 					}
 					if (this.excludeAssestsDir !== null) {
 						let testPath = this.excludeAssestsDir;
-						const checkRegEx = new RegExp(`${testPath}`);
+						const checkRegEx = new RegExp(testPath);
 						if (!relPath.match(checkRegEx)) {
 							results.imageAssets.set(relPath, info);
 							return;
@@ -312,7 +312,7 @@ class Categorizer {
 					if (this.useAppThinning && !relPath.match(BUNDLE_FILE_REGEXP)) {
 						if (this.excludeAssestsDir !== null) {
 							let testPath = this.excludeAssestsDir;
-							const checkRegEx = new RegExp(`${testPath}`);
+							const checkRegEx = new RegExp(testPath);
 							if (!relPath.match(checkRegEx)) {
 								results.imageAssets.set(relPath, info);
 								return;
