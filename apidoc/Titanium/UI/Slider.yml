@@ -22,7 +22,7 @@ description: |
     [rightTrackImage](Titanium.UI.Slider.rightTrackImage) properties be specified before the properties would be honored. Beginning with
     Titanium SDK 4.0.0 this limitation has been removed. However it is recommended that either both or neither be specified.
 
-    If you want to style different parts of the Slider you can set those properties in a custom Android theme:
+    To style different parts of the Slider you can set these properties in a custom Android theme:
     ``` xml
       <item name="android:progressBackgroundTint">#f4511e</item>
       <item name="android:progressTint">#388e3c</item>
