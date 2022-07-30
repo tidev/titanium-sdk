@@ -856,20 +856,28 @@ MAKE_SYSTEM_PROP(ACTIVITYTYPE_OTHER_NAVIGATION, CLActivityTypeOtherNavigation);
 }
 
 #if IS_SDK_IOS_14
-- (void)requestTemporaryFullAccuracyAuthorization:(NSString *)purposeKey withCallback:(JSValue *)callback
+- (JSValue *)requestTemporaryFullAccuracyAuthorization:(NSString *)purposeKey withCallback:(JSValue *)callback
 {
+  KrollPromise *promise = [[[KrollPromise alloc] initInContext:[self currentContext]] autorelease];
+
   if (![TiUtils isIOSVersionOrGreater:@"14.0"]) {
     NSMutableDictionary *propertiesDict = [TiUtils dictionaryWithCode:1 message:@"Supported on iOS 14+"];
-    [callback callWithArguments:@[ propertiesDict ]];
-    return;
+    if (callback != nil && ![callback isUndefined]) {
+      [callback callWithArguments:@[ propertiesDict ]];
+    }
+    [promise resolve:@[ propertiesDict ]];
+    return promise.JSValue;
   }
   NSDictionary *descriptionDict = [[NSBundle mainBundle] objectForInfoDictionaryKey:kTiGeolocationTemporaryUsageDescriptionDictionary];
   if (!descriptionDict || ![descriptionDict valueForKey:purposeKey]) {
     DebugLog(@"[WARN] Add %@ key with purpose key %@ in info.plist", kTiGeolocationTemporaryUsageDescriptionDictionary, purposeKey);
     NSString *msg = [NSString stringWithFormat:@"Add %@ key with purpose key %@ in info.plist", kTiGeolocationTemporaryUsageDescriptionDictionary, purposeKey];
     NSMutableDictionary *propertiesDict = [TiUtils dictionaryWithCode:1 message:msg];
-    [callback callWithArguments:@[ propertiesDict ]];
-    return;
+    if (callback != nil && ![callback isUndefined]) {
+      [callback callWithArguments:@[ propertiesDict ]];
+    }
+    [promise resolve:@[ propertiesDict ]];
+    return promise.JSValue;
   }
   [[self locationPermissionManager] requestTemporaryFullAccuracyAuthorizationWithPurposeKey:purposeKey
                                                                                  completion:^(NSError *_Nullable error) {
@@ -879,8 +887,12 @@ MAKE_SYSTEM_PROP(ACTIVITYTYPE_OTHER_NAVIGATION, CLActivityTypeOtherNavigation);
                                                                                    } else {
                                                                                      propertiesDict[@"accuracyAuthorization"] = @([[self locationPermissionManager] accuracyAuthorization]);
                                                                                    }
-                                                                                   [callback callWithArguments:@[ propertiesDict ]];
+                                                                                   if (callback != nil && ![callback isUndefined]) {
+                                                                                     [callback callWithArguments:@[ propertiesDict ]];
+                                                                                   }
+                                                                                   [promise resolve:@[ propertiesDict ]];
                                                                                  }];
+  return promise.JSValue;
 }
 
 - (CLAccuracyAuthorization)locationAccuracyAuthorization

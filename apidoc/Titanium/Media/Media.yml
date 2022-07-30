@@ -205,8 +205,13 @@ methods:
       - name: callback
         summary: Function to call indicating if permission was granted or denied.
         type: Callback<RequestMusicLibraryAccessResult>
+        optional: true
     platforms: [iphone, ipad, macos]
     since: "6.0.0"
+    returns:
+      summary: On SDK 10.1.0, this method will return a `Promise` whose resolved value is equivalent to that passed to the optional callback argument.
+      type: Promise<RequestMusicLibraryAccessResult>
+
   - name: queryMusicLibrary
     summary: Searches the music library for items matching the specified search predicates.
     description: |
@@ -366,7 +371,11 @@ methods:
       - name: callback
         summary: Function to call upon capture.
         type: Callback<ScreenshotResult>
+        optional: true
     platforms: [iphone, ipad, android, macos]
+    returns:
+      summary: On SDK 10.1.0+, this method will return a `Promise` whose resolved value is equivalent to that passed to the optional callback argument.
+      type: Promise<ScreenshotResult>
 
   - name: vibrate
     summary: Makes the device vibrate.

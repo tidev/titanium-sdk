@@ -16,7 +16,6 @@ methods:
         newly-created or downloaded resources.
             
         See [MediaScannerConnection in the Android API Reference](https://developer.android.com/reference/android/media/MediaScannerConnection.html).
-        
     parameters:
       - name: paths
         summary: Array of paths to the files you want to scan.
@@ -32,6 +31,10 @@ methods:
         summary: |
             Function to call when each file is done being scanned. 
         type: Callback<MediaScannerResponse>
+        optional: true
+    returns:
+      summary: On SDK 10.1.0, this method will return a `Promise` whose resolved value is equivalent to that passed to the optional callback argument.
+      type: Promise<MediaScannerResponse>
 
   - name: setSystemWallpaper
     summary: Set the system homescreen wallpaper.

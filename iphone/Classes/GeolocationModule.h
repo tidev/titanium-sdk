@@ -98,7 +98,7 @@ JSExportAs(reverseGeocoder,
 
 #if IS_SDK_IOS_14
 JSExportAs(requestTemporaryFullAccuracyAuthorization,
-           -(void)requestTemporaryFullAccuracyAuthorization
+           -(JSValue *)requestTemporaryFullAccuracyAuthorization
            : (NSString *)purposeString withCallback
            : (JSValue *)callback);
 #endif

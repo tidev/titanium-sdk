@@ -41,6 +41,7 @@ import org.appcelerator.titanium.util.TiIntentWrapper;
 import org.appcelerator.titanium.util.TiUIHelper;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.ClipData;
 import android.content.ContentResolver;
@@ -224,6 +225,7 @@ public class MediaModule extends KrollModule implements Handler.Callback
 		}
 	}
 
+	@SuppressLint("MissingPermission")
 	@Kroll.method
 	public void vibrate(@Kroll.argument(optional = true) long[] pattern)
 	{
@@ -1344,30 +1346,35 @@ public class MediaModule extends KrollModule implements Handler.Callback
 	}
 
 	@Kroll.method
-	public void takeScreenshot(KrollFunction callback)
+	public KrollPromise<KrollDict> takeScreenshot(@Kroll.argument(optional = true) KrollFunction callback)
 	{
-		Activity a = TiApplication.getAppCurrentActivity();
+		return KrollPromise.create((promise) -> {
+			Activity a = TiApplication.getAppCurrentActivity();
 
-		if (a == null) {
-			Log.w(TAG, "Could not get current activity for takeScreenshot.", Log.DEBUG_MODE);
-			callback.callAsync(getKrollObject(), new Object[] { null });
-			return;
-		}
+			if (a == null) {
+				Log.w(TAG, "Could not get current activity for takeScreenshot.", Log.DEBUG_MODE);
+				if (callback != null) {
+					callback.callAsync(getKrollObject(), new Object[] { null });
+				}
+				promise.reject(null);
+				return;
+			}
 
-		while (a.getParent() != null) {
-			a = a.getParent();
-		}
+			while (a.getParent() != null) {
+				a = a.getParent();
+			}
 
-		Window w = a.getWindow();
+			Window w = a.getWindow();
+			while (w.getContainer() != null) {
+				w = w.getContainer();
+			}
 
-		while (w.getContainer() != null) {
-			w = w.getContainer();
-		}
-
-		KrollDict image = TiUIHelper.viewToImage(null, w.getDecorView());
-		if (callback != null) {
-			callback.callAsync(getKrollObject(), new Object[] { image });
-		}
+			KrollDict image = TiUIHelper.viewToImage(null, w.getDecorView());
+			if (callback != null) {
+				callback.callAsync(getKrollObject(), new Object[] { image });
+			}
+			promise.resolve(image);
+		});
 	}
 
 	@Kroll.method

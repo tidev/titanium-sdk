@@ -7,9 +7,12 @@
 package ti.modules.titanium.media;
 
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollFunction;
+import org.appcelerator.kroll.KrollPromise;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.AsyncResult;
 import org.appcelerator.kroll.common.Log;
@@ -766,20 +769,25 @@ public class VideoPlayerProxy extends TiViewProxy implements TiLifecycle.OnLifec
 	}
 
 	@Kroll.method
-	public void requestThumbnailImagesAtTimes(Object[] times, Object option, KrollFunction callback)
+	public KrollPromise<KrollDict[]> requestThumbnailImagesAtTimes(Object[] times, Object option,
+															   @Kroll.argument(optional = true) KrollFunction callback)
 	{
-		if (hasProperty(TiC.PROPERTY_URL)) {
-			cancelAllThumbnailImageRequests();
-			mTiThumbnailRetriever = new TiThumbnailRetriever();
-			String url = TiConvert.toString(getProperty(TiC.PROPERTY_URL));
-			if (!URLUtil.isValidUrl(url)) {
-				url = resolveUrl(null, url);
+		return KrollPromise.create((promise) -> {
+			if (hasProperty(TiC.PROPERTY_URL)) {
+				cancelAllThumbnailImageRequests();
+				mTiThumbnailRetriever = new TiThumbnailRetriever();
+				String url = TiConvert.toString(getProperty(TiC.PROPERTY_URL));
+				if (!URLUtil.isValidUrl(url)) {
+					url = resolveUrl(null, url);
+				}
+				Uri uri = Uri.parse(url);
+				mTiThumbnailRetriever.setUri(uri);
+				mTiThumbnailRetriever.getBitmap(TiConvert.toIntArray(times), TiConvert.toInt(option),
+					createThumbnailResponseHandler(callback, promise));
+				return;
 			}
-			Uri uri = Uri.parse(url);
-			mTiThumbnailRetriever.setUri(uri);
-			mTiThumbnailRetriever.getBitmap(TiConvert.toIntArray(times), TiConvert.toInt(option),
-											createThumbnailResponseHandler(callback));
-		}
+			promise.resolve(new KrollDict[0]);
+		});
 	}
 
 	@Kroll.method
@@ -799,15 +807,24 @@ public class VideoPlayerProxy extends TiViewProxy implements TiLifecycle.OnLifec
 	 *                          once the bitmap response is ready
 	 * @return                  the bitmap response handler
 	 */
-	private ThumbnailResponseHandler createThumbnailResponseHandler(final KrollFunction callback)
+	private ThumbnailResponseHandler createThumbnailResponseHandler(final KrollFunction callback,
+																	final KrollPromise<KrollDict[]> promise)
 	{
 		final VideoPlayerProxy videoPlayerProxy = this;
+		final List<KrollDict> results = new ArrayList<>();
+
 		return new ThumbnailResponseHandler() {
 			@Override
-			public void handleThumbnailResponse(KrollDict bitmapResponse)
+			public void handleThumbnailResponse(KrollDict bitmapResponse, boolean lastThumbnail)
 			{
 				bitmapResponse.put(TiC.EVENT_PROPERTY_SOURCE, videoPlayerProxy);
-				callback.call(getKrollObject(), new Object[] { bitmapResponse });
+				results.add(bitmapResponse);
+				if (callback != null) {
+					callback.call(getKrollObject(), new Object[] { bitmapResponse });
+				}
+				if (lastThumbnail) {
+					promise.resolve(results.toArray(new KrollDict[0]));
+				}
 			}
 		};
 	}

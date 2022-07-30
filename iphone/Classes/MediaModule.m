@@ -11,6 +11,7 @@
 #import "TiMediaItem.h"
 #import "TiMediaMusicPlayer.h"
 
+#import <TitaniumKit/KrollPromise.h>
 #import <TitaniumKit/Mimetypes.h>
 #import <TitaniumKit/Ti2DMatrix.h>
 #import <TitaniumKit/TiApp.h>
@@ -728,13 +729,12 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
 }
 #endif
 
-- (void)takeScreenshot:(id)arg
+- (JSValue *)takeScreenshot:(id)callback
 {
-  ENSURE_SINGLE_ARG(arg, KrollCallback);
-  ENSURE_UI_THREAD(takeScreenshot, arg);
+  ENSURE_SINGLE_ARG_OR_NIL(callback, KrollCallback);
+  KrollPromise *promise = [[[KrollPromise alloc] initInContext:[self currentContext]] autorelease];
 
   // Create a graphics context with the target size
-
   CGSize imageSize = [[UIScreen mainScreen] bounds].size;
   UIGraphicsBeginImageContextWithOptions(imageSize, NO, 0);
 
@@ -774,7 +774,11 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
 
   TiBlob *blob = [[[TiBlob alloc] initWithImage:image] autorelease];
   NSDictionary *event = [NSDictionary dictionaryWithObject:blob forKey:@"media"];
-  [self _fireEventToListener:@"screenshot" withObject:event listener:arg thisObject:nil];
+  if (callback != nil) {
+    [callback call:@[ event ] thisObject:self];
+  }
+  [promise resolve:@[ event ]];
+  return promise.JSValue;
 }
 
 #ifdef USE_TI_MEDIASAVETOPHOTOGALLERY
@@ -1175,37 +1179,33 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
 #endif
 
 #ifdef USE_TI_MEDIAREQUESTMUSICLIBRARYPERMISSIONS
-- (void)requestMusicLibraryPermissions:(id)args
+- (JSValue *)requestMusicLibraryPermissions:(id)callback
 {
+  ENSURE_SINGLE_ARG_OR_NIL(callback, KrollCallback);
+  KrollPromise *promise = [[[KrollPromise alloc] initInContext:[self currentContext]] autorelease];
   NSString *musicPermission = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSAppleMusicUsageDescription"];
 
-  if (!musicPermission) {
-    NSLog(@"[ERROR] iOS 10 and later requires the key \"NSAppleMusicUsageDescription\" inside the plist in your tiapp.xml when accessing the native microphone. Please add the key and re-run the application.");
-  }
-
-  ENSURE_SINGLE_ARG(args, KrollCallback);
-  KrollCallback *callback = args;
-
-  if ([TiUtils isIOSVersionOrGreater:@"9.3"]) {
+  if (musicPermission) {
     TiThreadPerformOnMainThread(
         ^() {
           [MPMediaLibrary requestAuthorization:^(MPMediaLibraryAuthorizationStatus status) {
             BOOL granted = status == MPMediaLibraryAuthorizationStatusAuthorized;
-            KrollEvent *invocationEvent = [[KrollEvent alloc] initWithCallback:callback
-                                                                   eventObject:[TiUtils dictionaryWithCode:(granted ? 0 : 1) message:nil]
-                                                                    thisObject:self];
-            [[callback context] enqueue:invocationEvent];
-            RELEASE_TO_NIL(invocationEvent);
+            NSDictionary *propertiesDict = [TiUtils dictionaryWithCode:(granted ? 0 : 1) message:nil];
+            if (callback != nil) {
+              [callback call:@[ propertiesDict ] thisObject:self];
+            }
+            [promise resolve:@[ propertiesDict ]];
           }];
         },
         NO);
   } else {
-    NSDictionary *propertiesDict = [TiUtils dictionaryWithCode:0 message:nil];
-    NSArray *invocationArray = [[NSArray alloc] initWithObjects:&propertiesDict count:1];
-    [callback call:invocationArray thisObject:self];
-    [invocationArray release];
-    return;
+    NSDictionary *propertiesDict = [TiUtils dictionaryWithCode:1 message:@"iOS 10 and later requires the key \"NSAppleMusicUsageDescription\" inside the plist in your tiapp.xml when accessing the native microphone. Please add the key and re-run the application."];
+    if (callback != nil) {
+      [callback call:@[ propertiesDict ] thisObject:self];
+    }
+    [promise resolve:@[ propertiesDict ]];
   }
+  return promise.JSValue;
 }
 #endif
 

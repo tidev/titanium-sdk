@@ -350,6 +350,21 @@ describe('Titanium.Media', () => {
 			it('is a Function', () => {
 				should(Ti.Media.requestMusicLibraryPermissions).be.a.Function();
 			});
+
+			it('callback', finish => {
+				Ti.Media.requestMusicLibraryPermissions(result => {
+					should(result).have.a.property('success').which.is.a.Boolean();
+					should(result.success).be.false();
+					finish();
+				});
+			});
+
+			it('promise', async () => {
+				const result = await Ti.Media.requestMusicLibraryPermissions();
+
+				should(result).have.a.property('success').which.is.a.Boolean();
+				should(result.success).be.false();
+			});
 		});
 
 		describe('#requestPhotoGalleryPermissions', () => {
@@ -468,6 +483,16 @@ describe('Titanium.Media', () => {
 						finish(new Error('failed to obtain screenshot'));
 					}
 				});
+			});
+
+			it('promise', async () => {
+				const image = await Ti.Media.takeScreenshot();
+
+				if (image && image.media) {
+					should(image.media).have.a.readOnlyProperty('apiName').which.eql('Ti.Blob');
+				} else {
+					throw Error('failed to obtain screenshot');
+				}
 			});
 		});
 

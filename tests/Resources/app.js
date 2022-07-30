@@ -115,6 +115,7 @@ function loadTests() {
 	require('./ti.gesture.test');
 	require('./ti.locale.test');
 	require('./ti.media.test');
+	require('./ti.media.android.test');
 	require('./ti.media.audioplayer.test');
 	require('./ti.media.audiorecorder.test');
 	if (OS_IOS) {

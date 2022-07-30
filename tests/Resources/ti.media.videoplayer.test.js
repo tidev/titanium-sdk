@@ -369,6 +369,85 @@ describe.androidARM64Broken('Titanium.Media.VideoPlayer', () => {
 			it('is a Function', () => {
 				should(player.requestThumbnailImagesAtTimes).be.a.Function();
 			});
+
+			it('callback', function (finish) {
+				// Only supported on Android API 21+
+				if (OS_ANDROID && Ti.Platform.Android.API_LEVEL <= 21) {
+					this.skip();
+				}
+				this.timeout(10000);
+
+				const videoWindow = Ti.UI.createWindow();
+
+				player = Ti.Media.createVideoPlayer({
+					url: 'mov_bbb.mp4',
+					top: 2,
+					autoplay: false,
+					backgroundColor: 'blue',
+					height: 300,
+					width: 300,
+				});
+
+				videoWindow.addEventListener('open', () => {
+					player.requestThumbnailImagesAtTimes([ 0 ], Ti.Media.VIDEO_TIME_OPTION_NEAREST_KEYFRAME, e => {
+						should(e.success).be.true();
+						should(e.image).be.a.Object();
+
+						player.release();
+						videoWindow.remove(player);
+						player = null;
+						videoWindow.close();
+					});
+				});
+				videoWindow.addEventListener('close', () => finish());
+				videoWindow.add(player);
+
+				win = Ti.UI.createWindow();
+				win.addEventListener('open', () => {
+					setTimeout(() => videoWindow.open(), 200);
+				});
+				win.open();
+			});
+
+			it('promise', function (finish) {
+				// Only supported on Android API 21+
+				if (OS_ANDROID && Ti.Platform.Android.API_LEVEL <= 21) {
+					this.skip();
+				}
+				this.timeout(10000);
+
+				const videoWindow = Ti.UI.createWindow();
+
+				player = Ti.Media.createVideoPlayer({
+					url: 'mov_bbb.mp4',
+					top: 2,
+					autoplay: false,
+					backgroundColor: 'blue',
+					height: 300,
+					width: 300,
+				});
+
+				videoWindow.addEventListener('open', async () => {
+					const e = await player.requestThumbnailImagesAtTimes([ 0 ], Ti.Media.VIDEO_TIME_OPTION_NEAREST_KEYFRAME);
+
+					should(e).be.a.Array();
+					should(e[0].success).be.true();
+					should(e[0].image).be.a.Object();
+
+					player.release();
+					videoWindow.remove(player);
+					player = null;
+					videoWindow.close();
+				});
+				videoWindow.addEventListener('close', () => finish());
+				videoWindow.add(player);
+
+				win = Ti.UI.createWindow();
+				win.addEventListener('open', () => {
+					setTimeout(() => videoWindow.open(), 200);
+				});
+				win.open();
+			});
 		});
 
 		describe('#stop', () => {

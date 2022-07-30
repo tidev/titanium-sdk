@@ -12,6 +12,7 @@
 #import "TiMediaAudioSession.h"
 #import "TiMediaVideoPlayer.h"
 #import "TiMediaVideoPlayerProxy.h"
+#import <TitaniumKit/KrollPromise.h>
 #import <TitaniumKit/TiApp.h>
 #import <TitaniumKit/TiBlob.h>
 #import <TitaniumKit/TiFile.h>
@@ -389,16 +390,17 @@ NSArray *moviePlayerKeys = nil;
       YES);
 }
 
-- (void)requestThumbnailImagesAtTimes:(id)args
+- (JSValue *)requestThumbnailImagesAtTimes:(id)args
 {
-  ENSURE_ARG_COUNT(args, 3);
+  KrollPromise *promise = [[[KrollPromise alloc] initInContext:[self currentContext]] autorelease];
+  ENSURE_ARG_COUNT(args, 2);
   ENSURE_TYPE([args objectAtIndex:0], NSArray);
   ENSURE_TYPE([args objectAtIndex:1], NSNumber);
-  ENSURE_TYPE([args objectAtIndex:2], KrollCallback);
 
   NSArray *array = [args objectAtIndex:0];
   if ([array count] > 0) {
     NSMutableArray *cmTimeArray = [NSMutableArray arrayWithCapacity:[array count]];
+    NSMutableArray *eventArray = [NSMutableArray arrayWithCapacity:[array count]];
 
     for (NSNumber *time in array) {
       CMTime cmTime = CMTimeMakeWithSeconds([time floatValue], 1);
@@ -417,7 +419,9 @@ NSArray *moviePlayerKeys = nil;
 
     RELEASE_TO_NIL(thumbnailCallback);
     callbackRequestCount = [array count];
-    thumbnailCallback = [[args objectAtIndex:2] retain];
+    if ([args count] > 2) {
+      thumbnailCallback = [[args objectAtIndex:2] retain];
+    }
 
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
       [imageGenerator generateCGImagesAsynchronouslyForTimes:cmTimeArray
@@ -430,20 +434,24 @@ NSArray *moviePlayerKeys = nil;
                                                [event setObject:blob forKey:@"image"];
                                                [image release];
                                                [event setObject:NUMDOUBLE(actualTime.value / actualTime.timescale) forKey:@"time"];
+                                               [eventArray addObject:event];
                                              }
 
-                                             TiThreadPerformOnMainThread(
-                                                 ^{
-                                                   [self _fireEventToListener:@"thumbnail" withObject:event listener:thumbnailCallback thisObject:nil];
-                                                 },
-                                                 YES);
-
+                                             if (thumbnailCallback != nil) {
+                                               TiThreadPerformOnMainThread(
+                                                   ^{
+                                                     [self _fireEventToListener:@"thumbnail" withObject:event listener:thumbnailCallback thisObject:nil];
+                                                   },
+                                                   YES);
+                                             }
                                              if (--callbackRequestCount <= 0) {
+                                               [promise resolve:@[ eventArray ]];
                                                RELEASE_TO_NIL(thumbnailCallback);
                                              }
                                            }];
     });
   }
+  return promise.JSValue;
 }
 
 - (NSNumber *)pictureInPictureEnabled
