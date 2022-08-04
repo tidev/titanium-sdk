@@ -618,9 +618,13 @@ DEFINE_EXCEPTIONS
 
 - (void)open:(id)args
 {
-  UIView *view = [self tabController].view;
-  [view setFrame:[self bounds]];
-  [self addSubview:view];
+  TiThreadPerformOnMainThread(
+      ^{
+        UIView *view = [self tabController].view;
+        [view setFrame:[self bounds]];
+        [self addSubview:view];
+      },
+      NO);
 }
 
 - (void)close:(id)args
