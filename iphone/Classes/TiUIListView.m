@@ -1900,7 +1900,7 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
         }
 
       } else {
-        DebugLog(@"[WARN] Could not retrieve template for SIZE measurement");
+        DebugLog(@"[WARN] Could not retrieve template for SIZE measurement. Template: %@", templateId);
       }
     }
   }
