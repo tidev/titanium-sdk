@@ -126,6 +126,11 @@ public class TableViewProxy extends RecyclerViewProxy
 	@Kroll.method
 	public void appendRow(Object rows, @Kroll.argument(optional = true) KrollDict animation)
 	{
+		appendRowInternal(rows, animation, false);
+	}
+
+	private void appendRowInternal(Object rows, KrollDict animation, boolean internalUpdate)
+	{
 		final List<TableViewRowProxy> rowList = new ArrayList<>();
 
 		if (rows instanceof Object[]) {
@@ -187,7 +192,11 @@ public class TableViewProxy extends RecyclerViewProxy
 
 		// Allow updating rows after iteration.
 		shouldUpdate = true;
-		update();
+
+		// don't update when coming from setData loop
+		if (!internalUpdate) {
+			update();
+		}
 	}
 
 	/**
@@ -505,7 +514,7 @@ public class TableViewProxy extends RecyclerViewProxy
 				final TableViewRowProxy row = (TableViewRowProxy) d;
 
 				// Handle TableViewRow.
-				appendRow(row, null);
+				appendRowInternal(row, null, true);
 
 			} else if (d instanceof Object[]) {
 				setData((Object[]) d);
@@ -516,7 +525,7 @@ public class TableViewProxy extends RecyclerViewProxy
 
 				// Handle TableViewRow dictionary.
 				row.handleCreationDict(new KrollDict((HashMap) d));
-				appendRow(row, null);
+				appendRowInternal(row, null, true);
 
 			} else if (d instanceof TableViewSectionProxy) {
 				final TableViewSectionProxy section = (TableViewSectionProxy) d;
