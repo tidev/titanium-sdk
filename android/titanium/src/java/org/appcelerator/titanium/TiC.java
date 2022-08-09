@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2021 by Axway, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -147,6 +147,8 @@ public class TiC
 	public static final String EVENT_PROPERTY_FORCE = "force";
 	public static final String EVENT_PROPERTY_SIZE = "size";
 	public static final String EVENT_MOVE = "move";
+	public static final String EVENT_MOVE_START = "movestart";
+	public static final String EVENT_MOVE_END = "moveend";
 	public static final String EVENT_REFRESH_END = "refreshend";
 	public static final String EVENT_REFRESH_START = "refreshstart";
 	public static final String EVENT_REGION_CHANGED = "regionchanged";
@@ -652,6 +654,7 @@ public class TiC
 	public static final String PROPERTY_REPEAT_COUNT = "repeatCount";
 	public static final String PROPERTY_REPEAT_MODE = "repeatMode";
 	public static final String PROPERTY_REQUEST_HEADERS = "requestHeaders";
+	public static final String PROPERTY_REQUIRES_EDITING_TO_MOVE = "requiresEditingToMove";
 	public static final String PROPERTY_RETURN_KEY_TYPE = "returnKeyType";
 	public static final String PROPERTY_REVERSE = "reverse";
 	public static final String PROPERTY_RIGHT = "right";
@@ -796,6 +799,7 @@ public class TiC
 	public static final String PROPERTY_VISIBILITY = "visibility";
 	public static final String PROPERTY_VISIBLE_ITEM_COUNT = "visibleItemCount";
 	public static final String PROPERTY_VIEW = "view";
+	public static final String PROPERTY_VIEW_SHADOW_COLOR = "viewShadowColor";
 	public static final String PROPERTY_VIEWS = "views";
 	public static final String PROPERTY_VOLUME = "volume";
 	public static final String PROPERTY_WAKE_LOCK = "wakeLock";
