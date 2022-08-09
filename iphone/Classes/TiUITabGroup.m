@@ -635,7 +635,11 @@ DEFINE_EXCEPTIONS
 {
   if (controller != nil) {
     controller.viewControllers = nil;
+    [controller willMoveToParentViewController:nil];
+    [controller.view removeFromSuperview];
+    [controller removeFromParentViewController];
   }
+
   RELEASE_TO_NIL(controller);
 }
 
