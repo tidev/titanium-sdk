@@ -9,6 +9,7 @@
 #import "TiUITabGroup.h"
 #import "TiUITabGroupProxy.h"
 #import "TiUITabProxy.h"
+#import <TitaniumKit/TiApp.h>
 #import <TitaniumKit/TiColor.h>
 #import <TitaniumKit/TiUtils.h>
 
@@ -620,9 +621,12 @@ DEFINE_EXCEPTIONS
 {
   TiThreadPerformOnMainThread(
       ^{
-        UIView *view = [self tabController].view;
-        [view setFrame:[self bounds]];
-        [self addSubview:view];
+        [self.tabController willMoveToParentViewController:TiApp.controller.topPresentedController];
+
+        self.tabController.view.frame = self.bounds;
+        [self addSubview:self.tabController.view];
+
+        [TiApp.controller.topPresentedController addChildViewController:self.tabController];
       },
       NO);
 }
@@ -631,7 +635,11 @@ DEFINE_EXCEPTIONS
 {
   if (controller != nil) {
     controller.viewControllers = nil;
+    [controller willMoveToParentViewController:nil];
+    [controller.view removeFromSuperview];
+    [controller removeFromParentViewController];
   }
+
   RELEASE_TO_NIL(controller);
 }
 
