@@ -1,0 +1,702 @@
+---
+name: util
+summary: A Node.js-compatible implementation of the core `util` module
+description: |
+    Titanium provides a number of shims and ports of core Node.js module functionality.
+
+    This module is intended to provide a Node-compatible port of the `util` core module.
+    
+    More details on the Node.js API can be found in their [util module documentation](https://nodejs.org/api/util.html)
+platforms: [android, iphone, ipad, macos]
+since: '8.1.0'
+properties:
+  - name: types
+    type: util.types
+    summary: |
+        `util.types` provides type checks for different kinds of built-in objects. Unlike `instanceof` or `Object.prototype.toString.call(value)`, these checks do not inspect properties of the object that are accessible from JavaScript (like their prototype), and usually have the overhead of calling into C++.
+
+        The result generally does not make any guarantees about what kinds of properties or behavior a value exposes in JavaScript. They are primarily useful for addon developers who prefer to do type checking in JavaScript.
+
+methods:
+  - name: callbackify
+    summary: |
+        Takes an `async` function (or a function that returns a `Promise`) and returns a function following the error-first callback style, i.e. taking an `(err, value) => ... callback` as the last argument. In the callback, the first argument will be the rejection reason (or `null` if the `Promise` resolved), and the second argument will be the resolved value.
+    parameters:
+      - name: original
+        type: Function
+        summary: An `async` function
+    returns:
+      type: Function
+      summary: a callback style function
+
+  - name: debug
+    summary: Alias for `util.debuglog`. Usage allows for readability of that doesn't imply logging when only using `util.debuglog().enabled`.
+    parameters:
+      - name: section
+        summary: A string identifying the portion of the application for which the `debuglog` function is being created.
+        type: String
+      - name: callback
+        summary: A callback invoked the first time the logging function is called with a function argument that is a more optimized logging function.
+        optional: true
+        type: Function
+    returns:
+      type: Function
+      summary: The logging function
+
+  - name: debuglog
+    summary: |
+        The `util.debuglog()` method is used to create a function that conditionally writes debug messages to `stderr` based on the existence of the `NODE_DEBUG` environment variable. If the section name appears within the value of that environment variable, then the returned function operates similar to `console.error()`. If not, then the returned function is a no-op.
+
+        **NOTE:** Titanium currently returns a no-op regardless of the `NODE_DEBUG` environment variable.
+    parameters:
+      - name: section
+        summary: A string identifying the portion of the application for which the `debuglog` function is being created.
+        type: String
+      - name: callback
+        summary: A callback invoked the first time the logging function is called with a function argument that is a more optimized logging function.
+        optional: true
+        type: Function
+    returns:
+      type: Function
+      summary: The logging function
+
+  - name: deprecate
+    summary: |
+        The `util.deprecate()` method wraps fn (which may be a function or class) in such a way that it is marked as deprecated.
+    parameters:
+      - name: fn
+        type: Function
+        summary: The function that is being deprecated.
+      - name: msg
+        type: String
+        summary: A warning message to display when the deprecated function is invoked.
+      - name: code
+        summary: A deprecation code. **NOTE:** Titanium currently ignores this argument.
+        optional: true
+        type: String
+    returns:
+      type: Function
+      summary: The deprecated function wrapped to emit a warning.
+
+  - name: format
+    summary: |
+        The `util.format()` method returns a formatted string using the first argument as a printf-like format string which can contain zero or more format specifiers. Each specifier is replaced with the converted value from the corresponding argument.
+    parameters:
+      - name: format
+        type: String
+        summary: A `printf`-like format string.
+
+      - name: args
+        type: any
+        summary: variable arguments to inject into the formatted string
+        optional: true
+        repeatable: true
+
+  - name: formatWithOptions
+    summary: This function is identical to `util.format()`, except in that it takes an `inspectOptions` argument which specifies options that are passed along to `util.inspect()`.
+    parameters:
+      - name: inspectOptions
+        type: UtilInspectOptions
+        summary: Options passed along to <util.inspect>`()`
+
+      - name: format
+        type: String
+        summary: A `printf`-like format string.
+
+  - name: inherits
+    summary: |
+        Usage of `util.inherits()` is discouraged. Please use the ES6 `class` and `extends` keywords to get language level inheritance support. Also note that the two styles are semantically incompatible.
+
+        Inherit the prototype methods from one constructor into another. The prototype of `constructor` will be set to a new object created from `superConstructor`.
+
+        This mainly adds some input validation on top of `Object.setPrototypeOf(constructor.prototype, superConstructor.prototype)`. As an additional convenience, `superConstructor` will be accessible through the `constructor.super_` property.
+    parameters:
+      - name: constructor
+        type: Function
+        summary: constructor function for "subclass"
+
+      - name: superConstructor
+        type: Function
+        summary: constructor function for "super class"
+
+  - name: inspect
+    summary: |
+        The `util.inspect()` method returns a string representation of `object` that is intended for debugging. The output of `util.inspect` may change at any time and should not be depended upon programmatically. Additional `options` may be passed that alter the result. `util.inspect()` will use the constructor's name and/or `@@toStringTag` to make an identifiable tag for an inspected `value`.
+    parameters:
+      - name: object
+        summary: Any JavaScript primitive or Object.
+        type: any
+      - name: options
+        type: UtilInspectOptions
+        summary: Additional options to modify the output of the inspect function
+        optional: true
+    returns:
+      type: String
+  
+  - name: isArray
+    summary: |
+        Alias for `Array.isArray()`.
+
+        Returns `true` if the given `object` is an `Array`. Otherwise, returns `false`.
+    parameters:
+      - name: object
+        type: any
+        summary: any value
+    returns:
+      type: Boolean
+
+  - name: isBoolean
+    summary: Returns `true` if the given `object` is a `Boolean`. Otherwise, returns `false`.
+    parameters:
+      - name: object
+        type: any
+        summary: any value
+    returns:
+      type: Boolean
+
+  - name: isBuffer
+    summary: Returns `true` if the given `object` is a `Buffer`. Otherwise, returns `false`.
+    parameters:
+      - name: object
+        type: any
+        summary: any value
+    returns:
+      type: Boolean
+        
+  - name: isDate
+    summary: Returns `true` if the given `object` is a `Date`. Otherwise, returns `false`.
+    parameters:
+      - name: object
+        type: any
+        summary: any value
+    returns:
+      type: Boolean
+
+  - name: isError
+    summary: Returns `true` if the given `object` is an `Error`. Otherwise, returns `false`.
+    parameters:
+      - name: object
+        type: any
+        summary: any value
+    returns:
+      type: Boolean
+
+  - name: isFunction
+    summary: Returns `true` if the given `object` is a `Function`. Otherwise, returns `false`.
+    parameters:
+      - name: object
+        type: any
+        summary: any value
+    returns:
+      type: Boolean
+  
+  - name: isNull
+    summary: Returns `true` if the given `object` is strictly `null`. Otherwise, returns `false`.
+    parameters:
+      - name: object
+        type: any
+        summary: any value
+    returns:
+      type: Boolean
+  
+  - name: isNullOrUndefined
+    summary: Returns `true` if the given `object` is `null` or `undefined`. Otherwise, returns `false`.
+    parameters:
+      - name: object
+        type: any
+        summary: any value
+    returns:
+      type: Boolean
+
+  - name: isNumber
+    summary: Returns `true` if the given `object` is a `Number`. Otherwise, returns `false`.
+    parameters:
+      - name: object
+        type: any
+        summary: any value
+    returns:
+      type: Boolean
+  
+  - name: isObject
+    summary: Returns `true` if the given `object` is strictly an `Object` **and** not a `Function` (even though functions are objects in JavaScript). Otherwise, returns `false`.
+    parameters:
+      - name: object
+        type: any
+        summary: any value
+    returns:
+      type: Boolean
+  
+  - name: isPrimitive
+    summary: Returns `true` if the given `object` is a primitive type. Otherwise, returns `false`.
+    parameters:
+      - name: object
+        type: any
+        summary: any value
+    returns:
+      type: Boolean
+
+  - name: isRegExp
+    summary: Returns `true` if the given `object` is a `RegExp`. Otherwise, returns `false`.
+    parameters:
+      - name: object
+        type: any
+        summary: any value
+    returns:
+      type: Boolean
+
+  - name: isString
+    summary: Returns `true` if the given `object` is a `string`. Otherwise, returns `false`.
+    parameters:
+      - name: object
+        type: any
+        summary: any value
+    returns:
+      type: Boolean
+  
+  - name: isSymbol
+    summary: Returns `true` if the given `object` is a `Symbol`. Otherwise, returns `false`.
+    parameters:
+      - name: object
+        type: any
+        summary: any value
+    returns:
+      type: Boolean
+  
+  - name: isUndefined
+    summary: Returns `true` if the given `object` is `undefined`. Otherwise, returns `false`.
+    parameters:
+      - name: object
+        type: any
+        summary: any value
+    returns:
+      type: Boolean
+  
+  - name: log
+    summary: The `util.log()` method prints the given `string` to `stdout` with an included timestamp.
+    parameters:
+      - name: string
+        type: String
+        summary: string to print
+
+  - name: promisify
+    summary: |
+        Takes a function following the common error-first callback style, i.e. taking an `(err, value) => ... callback` as the last argument, and returns a version that returns promises.
+    parameters:
+      - name: original
+        type: Function
+        summary: A typical Node.js style callback function
+    returns:
+      type: Function
+      summary: a function that returns a `Promise`
+
+---
+name: UtilInspectOptions
+summary: Abstract type for the options object passed to <util.inspect>
+properties:
+  - name: showHidden
+    type: Boolean
+    summary: |
+        If `true`, object's non-enumerable symbols and properties are included in the formatted result. `WeakMap` and `WeakSet` entries are also included as well as user defined prototype properties (excluding method properties).
+    optional: true
+    default: false
+
+  - name: depth
+    type: Number
+    summary: |
+        Specifies the number of times to recurse while formatting object. This is useful for inspecting large objects. To recurse up to the maximum call stack size pass `Infinity` or `null`.
+    optional: true
+    default: 2
+
+  - name: colors
+    type: Boolean
+    summary: |
+        If `true`, the output is styled with ANSI color codes. Colors are customizable.
+    optional: true
+    default: false
+
+  - name: customInspect
+    type: Boolean
+    summary: If `false`, `[util.inspect.custom](depth, opts)` functions are not invoked.
+    optional: true
+    default: true
+
+  - name: showProxy
+    type: Boolean
+    summary: If `true`, `Proxy` inspection includes the target and handler objects.
+    optional: true
+    default: false
+
+  - name: maxArrayLength
+    type: Number
+    summary: Specifies the maximum number of `Array`, `TypedArray`, `WeakMap` and `WeakSet` elements to include when formatting. Set to `null` or `Infinity` to show all elements. Set to `0` or negative to show no elements.
+    optional: true
+    default: 100
+
+  - name: maxStringLength
+    type: Number
+    summary: Specifies the maximum number of characters to include when formatting. Set to `null` or `Infinity` to show all elements. Set to `0` or negative to show no characters.
+    optional: true
+    default: 10000
+
+  - name: breakLength
+    type: Number
+    summary: The length at which input values are split across multiple lines. Set to `Infinity` to format the input as a single line (in combination with `compact` set to `true` or any number >= `1`).
+    optional: true
+    default: 80
+
+  - name: compact
+    type: [ Boolean, Number ]
+    summary: Setting this to `false` causes each object key to be displayed on a new line. It will also add new lines to text that is longer than `breakLength`. If set to a number, the most n inner elements are united on a single line as long as all properties fit into `breakLength`. Short array elements are also grouped together. No text will be reduced below 16 characters, no matter the `breakLength` size. For more information, see the example below.
+    optional: true
+    default: 3
+
+  - name: sorted
+    type: [ Boolean, Function ]
+    summary: If set to `true` or a function, all properties of an object, and `Set` and `Map` entries are sorted in the resulting string. If set to `true` the default sort is used. If set to a function, it is used as a compare function.
+    optional: true
+
+  - name: getters
+    type: [ Boolean, String ]
+    summary: If set to `true`, getters are inspected. If set to `'get'`, only getters without a corresponding setter are inspected. If set to `'set'`, only getters with a corresponding setter are inspected. This might cause side effects depending on the getter function.
+    optional: true
+    default: false
+
+# TODO: Define a util.types Object!
+---
+name: util.types
+summary: |
+    `util.types` provides type checks for different kinds of built-in objects. Unlike `instanceof` or `Object.prototype.toString.call(value)`, these checks do not inspect properties of the object that are accessible from JavaScript (like their prototype), and usually have the overhead of calling into C++.
+
+    The result generally does not make any guarantees about what kinds of properties or behavior a value exposes in JavaScript. They are primarily useful for addon developers who prefer to do type checking in JavaScript.
+platforms: [android, iphone, ipad, macos]
+since: '8.1.0'
+methods:
+  - name: isAnyArrayBuffer
+    summary: |
+        Returns `true` if the `value` is a built-in `ArrayBuffer` or `SharedArrayBuffer` instance.
+
+        See also `util.types.isArrayBuffer()` and `util.types.isSharedArrayBuffer()`.
+    parameters:
+    - name: value
+      type: any
+      summary: value to check
+    returns:
+      type: Boolean
+
+  - name: isArgumentsObject
+    summary: Returns `true` if the `value` is an `arguments` object.
+    parameters:
+    - name: value
+      type: any
+      summary: value to check
+    returns:
+      type: Boolean
+
+  - name: isArrayBuffer
+    summary: |
+        Returns `true` if the `value` is a built-in `ArrayBuffer` instance. This does not include `SharedArrayBuffer` instances. Usually, it is desirable to test for both; See `util.types.isAnyArrayBuffer()` for that.
+    parameters:
+    - name: value
+      type: any
+      summary: value to check
+    returns:
+      type: Boolean
+
+  - name: isArrayBufferView
+    summary: |
+        Returns `true` if the `value` is an instance of one of the `ArrayBuffer` views, such as typed array objects or `DataView`. Equivalent to `ArrayBuffer.isView()`.
+    parameters:
+    - name: value
+      type: any
+      summary: value to check
+    returns:
+      type: Boolean
+
+  - name: isAsyncFunction
+    summary: |
+        Returns `true` if the `value` is an `async` function. This only reports back what the JavaScript engine is seeing; in particular, the return value may not match the original source code if a transpilation tool was used.
+    parameters:
+    - name: value
+      type: any
+      summary: value to check
+    returns:
+      type: Boolean
+
+  - name: isBigInt64Array
+    summary: Returns `true` if the `value` is a `Bigint64Array` instance.
+    parameters:
+    - name: value
+      type: any
+      summary: value to check
+    returns:
+      type: Boolean
+
+  - name: isBigUint64Array
+    summary: Returns `true` if the `value` is a `BigUint64Array` instance.
+    parameters:
+    - name: value
+      type: any
+      summary: value to check
+    returns:
+      type: Boolean
+
+  - name: isBooleanObject
+    summary: Returns `true` if the `value` is a boolean object, e.g. created by `new Boolean()`.
+    parameters:
+    - name: value
+      type: any
+      summary: value to check
+    returns:
+      type: Boolean
+
+  - name: isBoxedPrimitive
+    summary: Returns `true` if the `value` is any boxed primitive object, e.g. created by `new Boolean()`, `new String()` or `Object(Symbol())`.
+    parameters:
+    - name: value
+      type: any
+      summary: value to check
+    returns:
+      type: Boolean
+
+  - name: isDataView
+    summary: Returns `true` if the `value` is a built-in `DataView` instance.
+    parameters:
+    - name: value
+      type: any
+      summary: value to check
+    returns:
+      type: Boolean
+
+  - name: isDate
+    summary: Returns `true` if the `value` is a built-in `Date` instance.
+    parameters:
+    - name: value
+      type: any
+      summary: value to check
+    returns:
+      type: Boolean
+
+  - name: isFloat32Array
+    summary: Returns `true` if the `value` is a built-in `Float32Array` instance.
+    parameters:
+    - name: value
+      type: any
+      summary: value to check
+    returns:
+      type: Boolean
+
+  - name: isFloat64Array
+    summary: Returns `true` if the `value` is a built-in `Float64Array` instance.
+    parameters:
+    - name: value
+      type: any
+      summary: value to check
+    returns:
+      type: Boolean
+
+  - name: isGeneratorFunction
+    summary: Returns `true` if the `value` is a generator function. This only reports back what the JavaScript engine is seeing; in particular, the return value may not match the original source code if a transpilation tool was used.
+    parameters:
+    - name: value
+      type: any
+      summary: value to check
+    returns:
+      type: Boolean
+
+  - name: isGeneratorObject
+    summary: Returns `true` if the `value` is a generator object as returned from a built-in generator function. This only reports back what the JavaScript engine is seeing; in particular, the return value may not match the original source code if a transpilation tool was used.
+    parameters:
+    - name: value
+      type: any
+      summary: value to check
+    returns:
+      type: Boolean
+
+  - name: isInt8Array
+    summary: Returns `true` if the `value` is a built-in `Int8Array` instance.
+    parameters:
+    - name: value
+      type: any
+      summary: value to check
+    returns:
+      type: Boolean
+
+  - name: isInt16Array
+    summary: Returns `true` if the `value` is a built-in `Int16Array` instance.
+    parameters:
+    - name: value
+      type: any
+      summary: value to check
+    returns:
+      type: Boolean
+
+  - name: isInt32Array
+    summary: Returns `true` if the `value` is a built-in `Int32Array` instance.
+    parameters:
+    - name: value
+      type: any
+      summary: value to check
+    returns:
+      type: Boolean
+
+  - name: isMap
+    summary: Returns `true` if the `value` is a built-in `Map` instance.
+    parameters:
+    - name: value
+      type: any
+      summary: value to check
+    returns:
+      type: Boolean
+
+  - name: isMapIterator
+    summary: Returns `true` if the `value` is an iterator returned for a built-in `Map` instance.
+    parameters:
+    - name: value
+      type: any
+      summary: value to check
+    returns:
+      type: Boolean
+
+  - name: isNativeError
+    summary: Returns `true` if the `value` is an instance of a built-in `Error` type.
+    parameters:
+    - name: value
+      type: any
+      summary: value to check
+    returns:
+      type: Boolean
+
+  - name: isNumberObject
+    summary: Returns `true` if the `value` is a number object, e.g. created by `new Number()`.
+    parameters:
+    - name: value
+      type: any
+      summary: value to check
+    returns:
+      type: Boolean
+
+  - name: isPromise
+    summary: Returns `true` if the `value` is a built-in `Promise`.
+    parameters:
+    - name: value
+      type: any
+      summary: value to check
+    returns:
+      type: Boolean
+
+  - name: isRegExp
+    summary: Returns `true` if the `value` is a regular expression object.
+    parameters:
+    - name: value
+      type: any
+      summary: value to check
+    returns:
+      type: Boolean
+
+  - name: isSet
+    summary: Returns `true` if the `value` is a built-in `Set` instance.
+    parameters:
+    - name: value
+      type: any
+      summary: value to check
+    returns:
+      type: Boolean
+
+  - name: isSetIterator
+    summary: Returns `true` if the `value` is an iterator returned for a built-in `Set` instance.
+    parameters:
+    - name: value
+      type: any
+      summary: value to check
+    returns:
+      type: Boolean
+
+  - name: isSharedArrayBuffer
+    summary: Returns `true` if the `value` is a built-in `SharedArrayBuffer` instance. This does not include `ArrayBuffer` instances. Usually, it is desirable to test for both; See `util.types.isAnyArrayBuffer()` for that.
+    parameters:
+    - name: value
+      type: any
+      summary: value to check
+    returns:
+      type: Boolean
+
+  - name: isStringObject
+    summary: Returns `true` if the `value` is a string object, e.g. created by new `String()`.
+    parameters:
+    - name: value
+      type: any
+      summary: value to check
+    returns:
+      type: Boolean
+
+  - name: isSymbolObject
+    summary: Returns `true` if the `value` is a symbol object, created by calling `Object()` on a `Symbol` primitive.
+    parameters:
+    - name: value
+      type: any
+      summary: value to check
+    returns:
+      type: Boolean
+
+  - name: isTypedArray
+    summary: Returns `true` if the `value` is a built-in `TypedArray` instance.
+    parameters:
+    - name: value
+      type: any
+      summary: value to check
+    returns:
+      type: Boolean
+
+  - name: isUint8Array
+    summary: Returns `true` if the `value` is a built-in `Uint8Array` instance.
+    parameters:
+    - name: value
+      type: any
+      summary: value to check
+    returns:
+      type: Boolean
+
+  - name: isUint8ClampedArray
+    summary: Returns `true` if the `value` is a built-in `Uint8ClampedArray` instance.
+    parameters:
+    - name: value
+      type: any
+      summary: value to check
+    returns:
+      type: Boolean
+
+  - name: isUint16Array
+    summary: Returns `true` if the `value` is a built-in `Uint16Array` instance.
+    parameters:
+    - name: value
+      type: any
+      summary: value to check
+    returns:
+      type: Boolean
+
+  - name: isUint32Array
+    summary: Returns `true` if the `value` is a built-in `Uint32Array` instance.
+    parameters:
+    - name: value
+      type: any
+      summary: value to check
+    returns:
+      type: Boolean
+
+  - name: isWeakMap
+    summary: Returns `true` if the `value` is a built-in `WeakMap` instance.
+    parameters:
+    - name: value
+      type: any
+      summary: value to check
+    returns:
+      type: Boolean
+
+  - name: isWeakSet
+    summary: Returns `true` if the `value` is a built-in `WeakSet` instance.
+    parameters:
+    - name: value
+      type: any
+      summary: value to check
+    returns:
+      type: Boolean

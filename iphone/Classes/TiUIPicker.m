@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -79,11 +79,8 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
       [(UIDatePicker *)picker setDatePickerMode:type];
       [picker addTarget:self action:@selector(valueChanged:) forControlEvents:UIControlEventValueChanged];
     }
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
     [picker setBackgroundColor:[TiUtils isIOSVersionOrGreater:@"13.0"] ? UIColor.systemBackgroundColor : UIColor.whiteColor];
-#else
-    [picker setBackgroundColor:UIColor.whiteColor];
-#endif
+
     [self addSubview:picker];
   }
   return picker;
@@ -232,7 +229,19 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
 
 - (void)setDateTimeColor_:(id)value
 {
-  [[self proxy] replaceValue:value forKey:@"dateTimeColor" notification:NO];
+  // Guard date picker and iOS 14+ date picker style
+  if (![self isDatePicker] || [TiUtils isMacOS]) {
+    return;
+  }
+#if IS_SDK_IOS_13_4
+  if (((UIDatePicker *)[self picker]).preferredDatePickerStyle != UIDatePickerStyleWheels) {
+    return;
+  }
+#endif
+
+  [[self proxy] replaceValue:value
+                      forKey:@"dateTimeColor"
+                notification:NO];
 
   if (picker != nil) {
     [(UIDatePicker *)[self picker] setValue:[[TiUtils colorValue:value] _color] forKeyPath:@"textColor"];
@@ -318,7 +327,7 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
 - (NSInteger)pickerView:(UIPickerView *)pickerView numberOfRowsInComponent:(NSInteger)component
 {
   TiUIPickerColumnProxy *proxy = [[self columns] objectAtIndex:component];
-  return [proxy rowCount];
+  return proxy.rowCount.integerValue;
 }
 
 #pragma mark Delegates (only for UIPickerView)

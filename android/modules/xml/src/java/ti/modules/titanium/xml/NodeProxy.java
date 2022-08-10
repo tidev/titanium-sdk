@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -8,7 +8,6 @@ package ti.modules.titanium.xml;
 
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
-import org.appcelerator.kroll.common.Log;
 import org.w3c.dom.Attr;
 import org.w3c.dom.CDATASection;
 import org.w3c.dom.Comment;
@@ -23,8 +22,6 @@ import org.w3c.dom.Node;
 import org.w3c.dom.Notation;
 import org.w3c.dom.ProcessingInstruction;
 import org.w3c.dom.Text;
-
-import android.os.Build;
 
 @Kroll.proxy(parentModule = XMLModule.class)
 public class NodeProxy extends KrollProxy
@@ -143,105 +140,87 @@ public class NodeProxy extends KrollProxy
 	@Kroll.method
 	public NodeProxy cloneNode(boolean deep)
 	{
-		if (Build.VERSION.SDK_INT < 11) {
-			// TIMOB-4771, android harmony implementation bug fixed in Honeycomb.
-			Log.w(TAG, "cloneNode will often throw exception in versions prior to Honeycomb.");
-		}
 		return getProxy(node.cloneNode(deep));
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public NamedNodeMapProxy getAttributes()
 	{
 		return new NamedNodeMapProxy(node.getAttributes());
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public NodeListProxy getChildNodes()
 	{
 		return new NodeListProxy(node.getChildNodes());
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public NodeProxy getFirstChild()
 	{
 		return getProxy(node.getFirstChild());
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public NodeProxy getLastChild()
 	{
 		return getProxy(node.getLastChild());
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getLocalName()
 	{
 		return node.getLocalName();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getNamespaceURI()
 	{
 		return node.getNamespaceURI();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public NodeProxy getNextSibling()
 	{
 		return getProxy(node.getNextSibling());
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getNodeName()
 	{
 		return node.getNodeName();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public short getNodeType()
 	{
 		return node.getNodeType();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getNodeValue() throws DOMException
 	{
 		return node.getNodeValue();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public DocumentProxy getOwnerDocument()
 	{
 		return new DocumentProxy(node.getOwnerDocument());
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public NodeProxy getParentNode()
 	{
 		return getProxy(node.getParentNode());
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getPrefix()
 	{
 		return node.getPrefix();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public NodeProxy getPreviousSibling()
 	{
@@ -292,14 +271,12 @@ public class NodeProxy extends KrollProxy
 		return removeProxyForNode(oldNode);
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setNodeValue(String nodeValue) throws DOMException
 	{
 		node.setNodeValue(nodeValue);
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setPrefix(String prefix) throws DOMException
 	{

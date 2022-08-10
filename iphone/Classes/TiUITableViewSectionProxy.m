@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -71,10 +71,9 @@
   return [rows countByEnumeratingWithState:state objects:stackbuf count:len];
 }
 
-- (NSInteger)rowCount
+- (NSNumber *)rowCount
 {
-  //The result of a method call on a nil is 0;
-  return [rows count];
+  return NUMUINTEGER((rows != nil) ? rows.count : 0);
 }
 
 - (void)add:(id)proxy
@@ -103,7 +102,7 @@
   return nil;
 }
 
-- (TiUITableViewRowProxy *)rowAtIndex:(NSInteger)index
+- (TiUITableViewRowProxy *)rowAtIndex:(NSUInteger)index
 {
   //Because rowAtIndex is used internally, with an int, it can't be used by the Javascript.
   //The javascript passes in an NSArray pointer, not an index. And things blow up.

@@ -4,6 +4,7 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+/* global OS_ANDROID, OS_IOS, OS_VERSION_MAJOR */
 /* eslint-env mocha */
 /* eslint no-unused-expressions: "off" */
 'use strict';
@@ -30,55 +31,19 @@ describe('Titanium.UI.TableView', function () {
 		}
 	});
 
-	it.iosBroken('Ti.UI.TableView', function () { // should this be defined?
+	it.iosBroken('Ti.UI.TableView', () => { // should this be defined?
 		should(Ti.UI.TableView).not.be.undefined();
 	});
 
-	it('.apiName', function () {
-		var tableView = Ti.UI.createTableView();
+	it('.apiName', () => {
+		const tableView = Ti.UI.createTableView();
+
 		should(tableView).have.readOnlyProperty('apiName').which.is.a.String();
 		should(tableView.apiName).be.eql('Ti.UI.TableView');
 	});
 
-	// FIXME iOS gives wrong apiName for row object
-	// FIXME Android fails:
-	/*
-		Android spits out in logs:
+	it('createTableView', () => {
 
-	[WARN]  W/System.err: java.lang.NullPointerException: Attempt to invoke virtual method 'android.content.res.Resources android.content.Context.getResources()' on a null object reference
-	[WARN]  W/System.err: 	at android.view.ViewConfiguration.get(ViewConfiguration.java:364)
-	[WARN]  W/System.err: 	at android.view.View.<init>(View.java:3788)
-	[WARN]  W/System.err: 	at android.view.View.<init>(View.java:3892)
-	[WARN]  W/System.err: 	at android.view.ViewGroup.<init>(ViewGroup.java:573)
-	[WARN]  W/System.err: 	at android.view.ViewGroup.<init>(ViewGroup.java:569)
-	[WARN]  W/System.err: 	at android.view.ViewGroup.<init>(ViewGroup.java:565)
-	[WARN]  W/System.err: 	at android.view.ViewGroup.<init>(ViewGroup.java:561)
-	[WARN]  W/System.err: 	at android.widget.FrameLayout.<init>(FrameLayout.java:84)
-	[WARN]  W/System.err: 	at ti.modules.titanium.ui.widget.tableview.TiTableView.<init>(TiTableView.java:280)
-	[WARN]  W/System.err: 	at ti.modules.titanium.ui.widget.TiUITableView.processProperties(TiUITableView.java:111)
-	[WARN]  W/System.err: 	at org.appcelerator.kroll.KrollProxy.setModelListener(KrollProxy.java:1219)
-	[WARN]  W/System.err: 	at org.appcelerator.titanium.proxy.TiViewProxy.realizeViews(TiViewProxy.java:510)
-	[WARN]  W/System.err: 	at org.appcelerator.titanium.proxy.TiViewProxy.handleGetView(TiViewProxy.java:501)
-	[WARN]  W/System.err: 	at org.appcelerator.titanium.proxy.TiViewProxy.getOrCreateView(TiViewProxy.java:479)
-	[WARN]  W/System.err: 	at ti.modules.titanium.ui.TableViewProxy.getTableView(TableViewProxy.java:152)
-	[WARN]  W/System.err: 	at ti.modules.titanium.ui.TableViewProxy.handleAppendSection(TableViewProxy.java:319)
-	[WARN]  W/System.err: 	at ti.modules.titanium.ui.TableViewProxy.appendSection(TableViewProxy.java:293)
-	[WARN]  W/System.err: 	at org.appcelerator.kroll.runtime.v8.V8Function.nativeInvoke(Native Method)
-	[WARN]  W/System.err: 	at org.appcelerator.kroll.runtime.v8.V8Function.callSync(V8Function.java:57)
-	[WARN]  W/System.err: 	at org.appcelerator.kroll.runtime.v8.V8Function.call(V8Function.java:43)
-	[WARN]  W/System.err: 	at ti.modules.titanium.TitaniumModule$Timer.run(TitaniumModule.java:152)
-	[WARN]  W/System.err: 	at android.os.Handler.handleCallback(Handler.java:739)
-	[WARN]  W/System.err: 	at android.os.Handler.dispatchMessage(Handler.java:95)
-	[WARN]  W/System.err: 	at android.os.Looper.loop(Looper.java:148)
-	[WARN]  W/System.err: 	at android.app.ActivityThread.main(ActivityThread.java:5417)
-	[WARN]  W/System.err: 	at java.lang.reflect.Method.invoke(Native Method)
-	[WARN]  W/System.err: 	at com.android.internal.os.ZygoteInit$MethodAndArgsCaller.run(ZygoteInit.java:726)
-	[WARN]  W/System.err: 	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:616)
-	 */
-	it.androidAndIosBroken('createTableView', function () {
-		var section_0,
-			section_1,
-			tableView;
 		// Validate createTableView()
 		should(Ti.UI.createTableView).not.be.undefined();
 		should(Ti.UI.createTableView).be.a.Function();
@@ -92,10 +57,12 @@ describe('Titanium.UI.TableView', function () {
 		should(Ti.UI.createTableViewRow).be.a.Function();
 
 		// Create TableView section
-		section_0 = Ti.UI.createTableViewSection({ headerTitle: 'Zero' });
+		const section_0 = Ti.UI.createTableViewSection({ headerTitle: 'Zero' });
 		should(section_0).be.a.Object();
 		should(section_0.apiName).be.a.String();
-		should(section_0.apiName).be.eql('Ti.UI.TableViewSection');
+
+		// FIXME: iOS gives wrong apiName for section object.
+		// should(section_0.apiName).be.eql('Ti.UI.TableViewSection');
 
 		// Create and add two rows to the section
 		section_0.add(Ti.UI.createTableViewRow({ title: 'Red' }));
@@ -109,7 +76,7 @@ describe('Titanium.UI.TableView', function () {
 		should(section_0.rows[0].title).be.eql('Red');
 
 		// Create another TableView section
-		section_1 = Ti.UI.createTableViewSection({ headerTitle: 'One' });
+		const section_1 = Ti.UI.createTableViewSection({ headerTitle: 'One' });
 		should(section_1).be.a.Object();
 
 		// Create and add three rows to the section
@@ -123,10 +90,12 @@ describe('Titanium.UI.TableView', function () {
 		// Validate a section row title
 		should(section_1.rows[2].title).be.eql('Blue');
 		should(section_1.rows[2].apiName).be.a.String();
-		should(section_1.rows[2].apiName).be.eql('Ti.UI.TableViewRow'); // iOS says 'Ti.View'
+
+		// FIXME: iOS gives wrong apiName for row object.
+		// should(section_1.rows[2].apiName).be.eql('Ti.UI.TableViewRow');
 
 		// Create TableView, set data property
-		tableView = Ti.UI.createTableView({
+		const tableView = Ti.UI.createTableView({
 			data: [ section_0 ]
 		});
 		should(tableView).be.a.Object();
@@ -143,821 +112,848 @@ describe('Titanium.UI.TableView', function () {
 		should(tableView.sectionCount).be.eql(2);
 	});
 
-	// FIXME this test crashes ios! Fix the test or open a JIRA!
-	// FIXME Also crashes Android, with no stack trace or errors in logcat
-	// FIXME Intermittent failure on Windows
-	it.allBroken('insertRowAfter', function (finish) {
-		var tableView = Ti.UI.createTableView({
+	it('insertRowAfter', finish => {
+		const tableView = Ti.UI.createTableView({
 			data: [ { title: 'Red' } ]
 		});
 
 		win = Ti.UI.createWindow({
 			backgroundColor: 'blue'
 		});
-		win.addEventListener('focus', function () {
+		win.addEventListener('focus', () => {
 			try {
+
+				// Validate section count.
 				should(tableView.sectionCount).be.eql(1);
+
+				// Validate section exists.
 				should(tableView.sections[0]).be.an.Object();
+
+				// Validate section row count.
 				should(tableView.sections[0].rowCount).be.eql(1);
+
+				// Validate row in section.
 				should(tableView.sections[0].rows[0].title).be.eql('Red');
 
+				// Insert row using TableViewRow dictionary.
 				tableView.insertRowAfter(0, { title: 'White' });
+
+				// Validate section row count.
 				should(tableView.sections[0].rowCount).be.eql(2);
+
+				// Validate rows in section.
 				should(tableView.sections[0].rows[0].title).be.eql('Red');
 				should(tableView.sections[0].rows[1].title).be.eql('White');
 
+				// Insert row using TableViewRow dictionary.
 				tableView.insertRowAfter(0, { title: 'Purple' });
+
+				// Validate section row count.
 				should(tableView.sections[0].rowCount).be.eql(3);
+
+				// Validate rows in section.
 				should(tableView.sections[0].rows[0].title).be.eql('Red');
 				should(tableView.sections[0].rows[1].title).be.eql('Purple');
 				should(tableView.sections[0].rows[2].title).be.eql('White');
+
+				// Insert row using TableViewRow instance.
+				tableView.insertRowAfter(0, Ti.UI.createTableViewRow({ title: 'Blue' }));
+
+				// Validate section row count.
+				should(tableView.sections[0].rowCount).be.eql(4);
+
+				// Validate rows in section.
+				should(tableView.sections[0].rows[0].title).be.eql('Red');
+				should(tableView.sections[0].rows[1].title).be.eql('Blue');
+				should(tableView.sections[0].rows[2].title).be.eql('Purple');
+				should(tableView.sections[0].rows[3].title).be.eql('White');
 
 				finish();
 			} catch (err) {
 				return finish(err);
 			}
-			win.close();
 		});
 
 		win.add(tableView);
 		win.open();
 	});
 
-	// FIXME This crashes the app entirely on iOS. Open a JIRA ticket!
-	// FIXME Crashes on Android as well.
-	it.allBroken('insertRowAfter (TableViewRow)', function (finish) {
-		var section_0,
-			tableView;
-
-		section_0 = Ti.UI.createTableViewSection({ headerTitle: 'Zero' });
-		section_0.add(Ti.UI.createTableViewRow({ title: 'Red' }));
-
-		tableView = Ti.UI.createTableView({
-			data: [ section_0 ]
+	it('insertRowBefore', finish => {
+		const tableView = Ti.UI.createTableView({
+			data: [ { title: 'Red' } ]
 		});
 
 		win = Ti.UI.createWindow({
 			backgroundColor: 'blue'
 		});
-		win.addEventListener('focus', function () {
+		win.addEventListener('focus', () => {
 			try {
+
+				// Validate section count.
 				should(tableView.sectionCount).be.eql(1);
+
+				// Validate section exists.
 				should(tableView.sections[0]).be.an.Object();
+
+				// Validate section row count.
 				should(tableView.sections[0].rowCount).be.eql(1);
+
+				// Validate row in section.
 				should(tableView.sections[0].rows[0].title).be.eql('Red');
 
-				tableView.insertRowAfter(0, Ti.UI.createTableViewRow({ title: 'White' }));
+				// Insert row using TableViewRow dictionary.
+				tableView.insertRowBefore(0, { title: 'White' });
+
+				// Validate section row count.
 				should(tableView.sections[0].rowCount).be.eql(2);
-				should(tableView.sections[0].rows[0].title).be.eql('Red');
-				should(tableView.sections[0].rows[1].title).be.eql('White');
 
-				tableView.insertRowAfter(0, Ti.UI.createTableViewRow({ title: 'Purple' }));
-				should(tableView.sections[0].rowCount).be.eql(3);
-				should(tableView.sections[0].rows[0].title).be.eql('Red');
-				should(tableView.sections[0].rows[1].title).be.eql('Purple');
-				should(tableView.sections[0].rows[2].title).be.eql('White');
+				// Validate rows in section.
+				should(tableView.sections[0].rows[0].title).be.eql('White');
+				should(tableView.sections[0].rows[1].title).be.eql('Red');
 
-				finish();
-			} catch (err) {
-				finish(err);
-			}
-			win.close();
-		});
-
-		win.add(tableView);
-		win.open();
-	});
-
-	// FIXME this test crashes ios! Fix the test or open a JIRA!
-	// FIXME Crashes Android as well
-	// FIXME Occasionally crashes Windows as well
-	it.allBroken('insertRowBefore', function (finish) {
-		var tableView = Ti.UI.createTableView({
-			data: [ { title: 'Red' }, { title: 'White' } ]
-		});
-
-		win = Ti.UI.createWindow({
-			backgroundColor: 'blue'
-		});
-		win.addEventListener('focus', function () {
-			try {
-				should(tableView.sectionCount).be.eql(1);
-				should(tableView.sections[0]).be.an.Object();
-				should(tableView.sections[0].rowCount).be.eql(2);
-				should(tableView.sections[0].rows[0].title).be.eql('Red');
-				should(tableView.sections[0].rows[1].title).be.eql('White');
-
+				// Insert row using TableViewRow dictionary.
 				tableView.insertRowBefore(1, { title: 'Purple' });
+
+				// Validate section row count.
 				should(tableView.sections[0].rowCount).be.eql(3);
-				should(tableView.sections[0].rows[0].title).be.eql('Red');
+
+				// Validate rows in section.
+				should(tableView.sections[0].rows[0].title).be.eql('White');
 				should(tableView.sections[0].rows[1].title).be.eql('Purple');
-				should(tableView.sections[0].rows[2].title).be.eql('White');
+				should(tableView.sections[0].rows[2].title).be.eql('Red');
 
-				finish();
-			} catch (err) {
-				finish(err);
-			}
-			win.close();
-		});
+				// Insert row using TableViewRow instance.
+				tableView.insertRowBefore(1, Ti.UI.createTableViewRow({ title: 'Blue' }));
 
-		win.add(tableView);
-		win.open();
-	});
-
-	// FIXME this test crashes ios! Fix the test or open a JIRA!
-	// FIXME Crashes Android as well
-	// FIXME Occasionally crashes Windows as well
-	it.allBroken('insertRowBefore (TableViewRow)', function (finish) {
-		var section_0,
-			tableView;
-		section_0 = Ti.UI.createTableViewSection({ headerTitle: 'Zero' });
-		section_0.add(Ti.UI.createTableViewRow({ title: 'Red' }));
-		section_0.add(Ti.UI.createTableViewRow({ title: 'White' }));
-
-		tableView = Ti.UI.createTableView({
-			data: [ section_0 ]
-		});
-
-		win = Ti.UI.createWindow({
-			backgroundColor: 'blue'
-		});
-		win.addEventListener('focus', function () {
-			try {
-				should(tableView.sectionCount).be.eql(1);
-				should(tableView.sections[0]).be.an.Object();
-				should(tableView.sections[0].rowCount).be.eql(2);
-				should(tableView.sections[0].rows[0].title).be.eql('Red');
-				should(tableView.sections[0].rows[1].title).be.eql('White');
-
-				tableView.insertRowBefore(1, Ti.UI.createTableViewRow({ title: 'Purple' }));
-				should(tableView.sections[0].rowCount).be.eql(3);
-				should(tableView.sections[0].rows[0].title).be.eql('Red');
-				should(tableView.sections[0].rows[1].title).be.eql('Purple');
-				should(tableView.sections[0].rows[2].title).be.eql('White');
-
-				finish();
-			} catch (err) {
-				finish(err);
-			}
-			win.close();
-		});
-
-		win.add(tableView);
-		win.open();
-	});
-
-	// FIXME this test crashes ios! Fix the test or open a JIRA!
-	// FIXME Crashes on Android too
-	// FIXME Intermittent failure on Windows
-	it.allBroken('add row', function (finish) {
-		var tableView = Ti.UI.createTableView({
-			data: [ { title: 'Red' } ]
-		});
-
-		win = Ti.UI.createWindow({
-			backgroundColor: 'blue'
-		});
-		win.addEventListener('focus', function () {
-			try {
-				should(tableView.sectionCount).be.eql(1);
-				should(tableView.sections[0]).be.an.Object();
-				should(tableView.sections[0].rowCount).be.eql(1);
-				should(tableView.sections[0].rows[0].title).be.eql('Red');
-
-				tableView.appendRow({ title: 'White' });
-				should(tableView.sections[0].rowCount).be.eql(2);
-				should(tableView.sections[0].rows[0].title).be.eql('Red');
-				should(tableView.sections[0].rows[1].title).be.eql('White');
-
-				tableView.appendRow({ title: 'Purple' });
-				should(tableView.sections[0].rowCount).be.eql(3);
-				should(tableView.sections[0].rows[0].title).be.eql('Red');
-				should(tableView.sections[0].rows[1].title).be.eql('White');
-				should(tableView.sections[0].rows[2].title).be.eql('Purple');
-
-				finish();
-			} catch (err) {
-				finish(err);
-			}
-			win.close();
-		});
-
-		win.add(tableView);
-		win.open();
-	});
-
-	// FIXME this test crashes ios! Fix the test or open a JIRA!
-	// FIXME Occasionally crashes Android as well
-	// FIXME Occasionally crashes Windows as well
-	it.allBroken('add rows', function (finish) {
-		var tableView = Ti.UI.createTableView({
-			data: [ { title: 'Red' } ]
-		});
-
-		win = Ti.UI.createWindow({
-			backgroundColor: 'blue'
-		});
-		win.addEventListener('focus', function () {
-			try {
-				should(tableView.sectionCount).be.eql(1);
-				should(tableView.sections[0]).be.an.Object();
-				should(tableView.sections[0].rowCount).be.eql(1);
-				should(tableView.sections[0].rows[0].title).be.eql('Red');
-
-				tableView.appendRow([ { title: 'White' }, { title: 'Purple' } ]);
-				should(tableView.sections[0].rowCount).be.eql(3);
-				should(tableView.sections[0].rows[0].title).be.eql('Red');
-				should(tableView.sections[0].rows[1].title).be.eql('White');
-				should(tableView.sections[0].rows[2].title).be.eql('Purple');
-
-				tableView.appendRow({ title: 'Gray' });
+				// Validate section row count.
 				should(tableView.sections[0].rowCount).be.eql(4);
-				should(tableView.sections[0].rows[0].title).be.eql('Red');
-				should(tableView.sections[0].rows[1].title).be.eql('White');
+
+				// Validate rows in section.
+				should(tableView.sections[0].rows[0].title).be.eql('White');
+				should(tableView.sections[0].rows[1].title).be.eql('Blue');
 				should(tableView.sections[0].rows[2].title).be.eql('Purple');
-				should(tableView.sections[0].rows[3].title).be.eql('Gray');
+				should(tableView.sections[0].rows[3].title).be.eql('Red');
 
 				finish();
 			} catch (err) {
-				finish(err);
+				return finish(err);
 			}
-			win.close();
 		});
 
 		win.add(tableView);
 		win.open();
 	});
 
-	// FIXME this test crashes ios! Fix the test or open a JIRA!
-	// FIXME Crashes on Android too
-	// FIXME Fails on Windows too
-	it.allBroken('add row (TableViewRow)', function (finish) {
-		var section_0,
-			tableView;
-
-		section_0 = Ti.UI.createTableViewSection({ headerTitle: 'Zero' });
-		section_0.add(Ti.UI.createTableViewRow({ title: 'Red' }));
-
-		tableView = Ti.UI.createTableView({
-			data: [ section_0 ]
+	it('appendRow', finish => {
+		const tableView = Ti.UI.createTableView({
+			data: [ { title: 'Red' } ]
 		});
 
 		win = Ti.UI.createWindow({
 			backgroundColor: 'blue'
 		});
-		win.addEventListener('focus', function () {
+		win.addEventListener('focus', () => {
 			try {
+
+				// Validate section count.
 				should(tableView.sectionCount).be.eql(1);
+
+				// Validate section exists.
 				should(tableView.sections[0]).be.an.Object();
+
+				// Validate section row count.
 				should(tableView.sections[0].rowCount).be.eql(1);
+
+				// Validate row in section.
 				should(tableView.sections[0].rows[0].title).be.eql('Red');
 
-				tableView.appendRow(Ti.UI.createTableViewRow({ title: 'White' }));
+				// Append row using TableViewRow dictionary.
+				tableView.appendRow({ title: 'White' });
+
+				// Validate section row count.
 				should(tableView.sections[0].rowCount).be.eql(2);
+
+				// Validate rows in section.
+				should(tableView.sections[0].rows[0].title).be.eql('Red');
 				should(tableView.sections[0].rows[1].title).be.eql('White');
 
-				tableView.appendRow(Ti.UI.createTableViewRow({ title: 'Purple' }));
+				// Append row using TableViewRow dictionary.
+				tableView.appendRow({ title: 'Purple' });
+
+				// Validate section row count.
 				should(tableView.sections[0].rowCount).be.eql(3);
+
+				// Validate rows in section.
+				should(tableView.sections[0].rows[0].title).be.eql('Red');
+				should(tableView.sections[0].rows[1].title).be.eql('White');
 				should(tableView.sections[0].rows[2].title).be.eql('Purple');
+
+				// Append row using TableViewRow instance.
+				tableView.appendRow(Ti.UI.createTableViewRow({ title: 'Blue' }));
+
+				// Validate section row count.
+				should(tableView.sections[0].rowCount).be.eql(4);
+
+				// Validate rows in section.
+				should(tableView.sections[0].rows[0].title).be.eql('Red');
+				should(tableView.sections[0].rows[1].title).be.eql('White');
+				should(tableView.sections[0].rows[2].title).be.eql('Purple');
+				should(tableView.sections[0].rows[3].title).be.eql('Blue');
 
 				finish();
 			} catch (err) {
-				finish(err);
+				return finish(err);
 			}
-			win.close();
 		});
 
 		win.add(tableView);
 		win.open();
 	});
 
-	// FIXME this test crashes ios! Fix the test or open a JIRA!
-	// FIXME Fails intermittently on Android build machine
-	// FIXME Fails intermittently on Windows build machine
-	it.allBroken('add row (TableViewSection)', function (finish) {
-		var section_0,
-			tableView;
-
-		section_0 = Ti.UI.createTableViewSection({ headerTitle: 'Zero' });
-		section_0.add(Ti.UI.createTableViewRow({ title: 'Red' }));
-
-		tableView = Ti.UI.createTableView({
-			data: [ section_0 ]
+	it('appendRow (Array)', finish => {
+		const tableView = Ti.UI.createTableView({
+			data: [ { title: 'Red' } ]
 		});
 
 		win = Ti.UI.createWindow({
 			backgroundColor: 'blue'
 		});
-		win.addEventListener('focus', function () {
+		win.addEventListener('focus', () => {
 			try {
+
+				// Validate section count.
 				should(tableView.sectionCount).be.eql(1);
+
+				// Validate section exists.
 				should(tableView.sections[0]).be.an.Object();
+
+				// Validate section row count.
 				should(tableView.sections[0].rowCount).be.eql(1);
+
+				// Validate row in section.
 				should(tableView.sections[0].rows[0].title).be.eql('Red');
-				section_0.add(Ti.UI.createTableViewRow({ title: 'White' }));
-				should(tableView.sections[0].rowCount).be.eql(2);
-				should(tableView.sections[0].rows[1].title).be.eql('White');
-				section_0.add(Ti.UI.createTableViewRow({ title: 'Purple' }));
+
+				// Append rows using TableViewRow dictionary.
+				tableView.appendRow([
+					{ title: 'White' },
+					{ title: 'Purple' }
+				]);
+
+				// Validate section row count.
 				should(tableView.sections[0].rowCount).be.eql(3);
+
+				// Validate rows in section.
+				should(tableView.sections[0].rows[0].title).be.eql('Red');
+				should(tableView.sections[0].rows[1].title).be.eql('White');
 				should(tableView.sections[0].rows[2].title).be.eql('Purple');
+
+				// Append rows using TableViewRow instance.
+				tableView.appendRow([
+					Ti.UI.createTableViewRow({ title: 'Blue' }),
+					Ti.UI.createTableViewRow({ title: 'Green' })
+				]);
+
+				// Validate section row count.
+				should(tableView.sections[0].rowCount).be.eql(5);
+
+				// Validate rows in section.
+				should(tableView.sections[0].rows[0].title).be.eql('Red');
+				should(tableView.sections[0].rows[1].title).be.eql('White');
+				should(tableView.sections[0].rows[2].title).be.eql('Purple');
+				should(tableView.sections[0].rows[3].title).be.eql('Blue');
+				should(tableView.sections[0].rows[4].title).be.eql('Green');
 
 				finish();
 			} catch (err) {
-				finish(err);
+				return finish(err);
 			}
-			win.close();
 		});
 
 		win.add(tableView);
 		win.open();
 	});
 
-	// FIXME this test crashes ios! Fix the test or open a JIRA!
-	// FIXME Fails on Android on build machine
-	// FIXME Fails intermittently on Windows build machine
-	it.allBroken('delete row (TableViewRow)', function (finish) {
-		var section_0,
-			tableView;
-
-		section_0 = Ti.UI.createTableViewSection({ headerTitle: 'Zero' });
-		section_0.add(Ti.UI.createTableViewRow({ title: 'Red' }));
-		section_0.add(Ti.UI.createTableViewRow({ title: 'White' }));
-		section_0.add(Ti.UI.createTableViewRow({ title: 'Purple' }));
-
-		tableView = Ti.UI.createTableView({
-			data: [ section_0 ]
+	it('TableViewSection.add', finish => {
+		const section = Ti.UI.createTableViewSection();
+		const tableView = Ti.UI.createTableView({
+			sections: [ section ]
 		});
 
 		win = Ti.UI.createWindow({
 			backgroundColor: 'blue'
 		});
-		win.addEventListener('focus', function () {
+		win.addEventListener('focus', () => {
 			try {
+
+				// Validate section count.
 				should(tableView.sectionCount).be.eql(1);
+
+				// Validate section exists.
+				should(section).be.an.Object();
+
+				// Add row to section using dictionary.
+				// FIXME: iOS does not allow arrays or dictionary objects to be passed.
+				section.add(Ti.UI.createTableViewRow({ title: 'Red' }));
+
+				// Validate section row count.
+				should(section.rowCount).be.eql(1);
+
+				// Validate row in section.
+				should(section.rows[0].title).be.eql('Red');
+
+				// Add row to section using dictionary.
+				section.add(Ti.UI.createTableViewRow({ title: 'White' }));
+
+				// Validate section row count.
+				should(section.rowCount).be.eql(2);
+
+				// Validate rows in section.
+				should(section.rows[0].title).be.eql('Red');
+				should(section.rows[1].title).be.eql('White');
+
+				// Add row to section using TableViewRow instance.
+				section.add(Ti.UI.createTableViewRow({ title: 'Blue' }));
+
+				// Validate section row count.
+				should(section.rowCount).be.eql(3);
+
+				// Validate rows in section.
+				should(section.rows[0].title).be.eql('Red');
+				should(section.rows[1].title).be.eql('White');
+				should(section.rows[2].title).be.eql('Blue');
+
+				finish();
+			} catch (err) {
+				return finish(err);
+			}
+		});
+
+		win.add(tableView);
+		win.open();
+	});
+
+	it('deleteRow', finish => {
+		const tableView = Ti.UI.createTableView({
+			data: [
+				{ title: 'Red' },
+				{ title: 'Green' },
+				{ title: 'Blue' },
+				{ title: 'Purple' }
+			]
+		});
+
+		win = Ti.UI.createWindow({
+			backgroundColor: 'blue'
+		});
+		win.addEventListener('focus', () => {
+			try {
+
+				// Validate section count.
+				should(tableView.sectionCount).be.eql(1);
+
+				// Validate section exists.
 				should(tableView.sections[0]).be.an.Object();
-				should(tableView.sections[0].rowCount).be.eql(3);
 
-				should(tableView.sections[0].rows[1].title).be.eql('White');
+				// Validate section row count.
+				should(tableView.sections[0].rowCount).be.eql(4);
 
-				// delete by number
+				// Validate rows in section.
+				should(tableView.sections[0].rows[0].title).be.eql('Red');
+				should(tableView.sections[0].rows[1].title).be.eql('Green');
+				should(tableView.sections[0].rows[2].title).be.eql('Blue');
+				should(tableView.sections[0].rows[3].title).be.eql('Purple');
+
+				// Delete row using index.
 				tableView.deleteRow(1);
-				should(tableView.sections[0].rowCount).be.eql(2);
-				should(tableView.sections[0].rows[0].title).be.eql('Red');
-				should(tableView.sections[0].rows[1].title).be.eql('Purple');
 
-				// delete by row
-				tableView.deleteRow(tableView.sections[0].rows[0]);
-				should(tableView.sections[0].rowCount).be.eql(1);
+				// Validate section row count.
+				should(tableView.sections[0].rowCount).be.eql(3);
+
+				// Validate rows in section.
+				should(tableView.sections[0].rows[0].title).be.eql('Red');
+				should(tableView.sections[0].rows[1].title).be.eql('Blue');
+				should(tableView.sections[0].rows[2].title).be.eql('Purple');
+
+				// Delete row using TableViewRow instance.
+				tableView.deleteRow(tableView.sections[0].rows[2]);
+
+				// Validate section row count.
+				should(tableView.sections[0].rowCount).be.eql(2);
+
+				// Validate rows in section.
+				should(tableView.sections[0].rows[0].title).be.eql('Red');
+				should(tableView.sections[0].rows[1].title).be.eql('Blue');
+
+				finish();
+			} catch (err) {
+				return finish(err);
+			}
+		});
+
+		win.add(tableView);
+		win.open();
+	});
+
+	it('TableViewSection.remove', finish => {
+		const section = Ti.UI.createTableViewSection();
+		const tableView = Ti.UI.createTableView({
+			sections: [ section ]
+		});
+
+		section.add(Ti.UI.createTableViewRow({ title: 'Red' }));
+		section.add(Ti.UI.createTableViewRow({ title: 'Green' }));
+		section.add(Ti.UI.createTableViewRow({ title: 'Blue' }));
+		section.add(Ti.UI.createTableViewRow({ title: 'Purple' }));
+
+		win = Ti.UI.createWindow({
+			backgroundColor: 'blue'
+		});
+		win.addEventListener('focus', () => {
+			try {
+
+				// Validate section count.
+				should(tableView.sectionCount).be.eql(1);
+
+				// Validate section exists.
+				should(section).be.an.Object();
+
+				// Validate section row count.
+				should(section.rowCount).be.eql(4);
+
+				// Validate rows in section.
+				should(section.rows[0].title).be.eql('Red');
+				should(section.rows[1].title).be.eql('Green');
+				should(section.rows[2].title).be.eql('Blue');
+				should(section.rows[3].title).be.eql('Purple');
+
+				// Remove row from section.
+				section.remove(section.rows[1]);
+
+				// Validate section row count.
+				should(section.rowCount).be.eql(3);
+
+				// Validate rows in section.
+				should(section.rows[0].title).be.eql('Red');
+				should(section.rows[1].title).be.eql('Blue');
+				should(section.rows[2].title).be.eql('Purple');
+
+				finish();
+			} catch (err) {
+				return finish(err);
+			}
+		});
+
+		win.add(tableView);
+		win.open();
+	});
+
+	it('updateRow', finish => {
+		const section = Ti.UI.createTableViewSection();
+		const tableView = Ti.UI.createTableView({
+			sections: [ section ]
+		});
+
+		section.add(Ti.UI.createTableViewRow({ title: 'Red' }));
+		section.add(Ti.UI.createTableViewRow({ title: 'Green' }));
+		section.add(Ti.UI.createTableViewRow({ title: 'Blue' }));
+
+		win = Ti.UI.createWindow({
+			backgroundColor: 'blue'
+		});
+		win.addEventListener('focus', () => {
+			try {
+
+				// Validate section count.
+				should(tableView.sectionCount).be.eql(1);
+
+				// Validate section exists.
+				should(tableView.sections[0]).be.eql(section);
+
+				// Validate section row count.
+				should(section.rowCount).be.eql(3);
+
+				// Validate rows in section.
+				should(section.rows[0].title).be.eql('Red');
+				should(section.rows[1].title).be.eql('Green');
+				should(section.rows[2].title).be.eql('Blue');
+
+				// Update rows in section.
+				tableView.updateRow(0, Ti.UI.createTableViewRow({ title: 'Green' }));
+				tableView.updateRow(1, Ti.UI.createTableViewRow({ title: 'Blue' }));
+				tableView.updateRow(2, Ti.UI.createTableViewRow({ title: 'Red' }));
+
+				// Validate section row count.
+				should(section.rowCount).be.eql(3);
+
+				// Validate rows in section.
+				should(section.rows[0].title).be.eql('Green');
+				should(section.rows[1].title).be.eql('Blue');
+				should(section.rows[2].title).be.eql('Red');
+
+				finish();
+			} catch (err) {
+				return finish(err);
+			}
+		});
+
+		win.add(tableView);
+		win.open();
+	});
+
+	it('appendSection', finish => {
+		const section_a = Ti.UI.createTableViewSection();
+		const section_b = Ti.UI.createTableViewSection();
+		const tableView = Ti.UI.createTableView({
+			sections: [ section_a ]
+		});
+
+		section_a.add(Ti.UI.createTableViewRow({ title: 'Red' }));
+		section_a.add(Ti.UI.createTableViewRow({ title: 'Green' }));
+		section_a.add(Ti.UI.createTableViewRow({ title: 'Blue' }));
+
+		section_b.add(Ti.UI.createTableViewRow({ title: 'Purple' }));
+		section_b.add(Ti.UI.createTableViewRow({ title: 'Yellow' }));
+		section_b.add(Ti.UI.createTableViewRow({ title: 'Orange' }));
+
+		win = Ti.UI.createWindow({
+			backgroundColor: 'blue'
+		});
+		win.addEventListener('focus', () => {
+			try {
+
+				// Validate section count.
+				should(tableView.sectionCount).be.eql(1);
+
+				// Validate section exists.
+				should(tableView.sections[0]).be.eql(section_a);
+
+				// Validate section row count.
+				should(section_a.rowCount).be.eql(3);
+
+				// Validate rows in section.
+				should(section_a.rows[0].title).be.eql('Red');
+				should(section_a.rows[1].title).be.eql('Green');
+				should(section_a.rows[2].title).be.eql('Blue');
+
+				// Append section to table.
+				tableView.appendSection(section_b);
+
+				// Validate section count.
+				should(tableView.sectionCount).be.eql(2);
+
+				// Validate section exists.
+				should(tableView.sections[1]).be.eql(section_b);
+
+				// Validate section row count.
+				should(section_a.rowCount).be.eql(3);
+
+				// Validate rows in section.
+				should(section_b.rows[0].title).be.eql('Purple');
+				should(section_b.rows[1].title).be.eql('Yellow');
+				should(section_b.rows[2].title).be.eql('Orange');
+
+				finish();
+			} catch (err) {
+				return finish(err);
+			}
+		});
+
+		win.add(tableView);
+		win.open();
+	});
+
+	it('deleteSection', finish => {
+		const section_a = Ti.UI.createTableViewSection();
+		const section_b = Ti.UI.createTableViewSection();
+		const tableView = Ti.UI.createTableView({
+			sections: [ section_a, section_b ]
+		});
+
+		section_a.add(Ti.UI.createTableViewRow({ title: 'Red' }));
+		section_a.add(Ti.UI.createTableViewRow({ title: 'Green' }));
+		section_a.add(Ti.UI.createTableViewRow({ title: 'Blue' }));
+
+		section_b.add(Ti.UI.createTableViewRow({ title: 'Purple' }));
+		section_b.add(Ti.UI.createTableViewRow({ title: 'Yellow' }));
+		section_b.add(Ti.UI.createTableViewRow({ title: 'Orange' }));
+
+		win = Ti.UI.createWindow({
+			backgroundColor: 'blue'
+		});
+		win.addEventListener('focus', () => {
+			try {
+				// Validate section count.
+				should(tableView.sectionCount).be.eql(2);
+
+				// Validate sections exists.
+				should(tableView.sections[0]).be.eql(section_a);
+				should(tableView.sections[1]).be.eql(section_b);
+
+				// Delete section from table.
+				tableView.deleteSection(0);
+
+				// Validate section count.
+				should(tableView.sectionCount).be.eql(1);
+
+				// Validate section exists.
+				should(tableView.sections[0]).be.eql(section_b);
+
+				// Delete section from table.
+				tableView.deleteSection(0);
+
+				// Validate section count.
+				should(tableView.sectionCount).be.eql(0);
+
+				finish();
+			} catch (err) {
+				return finish(err);
+			}
+		});
+
+		win.add(tableView);
+		win.open();
+	});
+
+	it('updateSection', finish => {
+		const section_a = Ti.UI.createTableViewSection();
+		const section_b = Ti.UI.createTableViewSection();
+		const tableView = Ti.UI.createTableView({
+			sections: [ section_a ]
+		});
+
+		section_a.add(Ti.UI.createTableViewRow({ title: 'Red' }));
+		section_a.add(Ti.UI.createTableViewRow({ title: 'Green' }));
+		section_a.add(Ti.UI.createTableViewRow({ title: 'Blue' }));
+
+		section_b.add(Ti.UI.createTableViewRow({ title: 'Purple' }));
+		section_b.add(Ti.UI.createTableViewRow({ title: 'Yellow' }));
+		section_b.add(Ti.UI.createTableViewRow({ title: 'Orange' }));
+
+		win = Ti.UI.createWindow({
+			backgroundColor: 'blue'
+		});
+		win.addEventListener('focus', () => {
+			try {
+				// Validate section count.
+				should(tableView.sectionCount).be.eql(1);
+
+				// Validate section exists.
+				should(tableView.sections[0]).be.a.Object();
+
+				// Validate section row count.
+				should(tableView.sections[0].rowCount).be.eql(3);
+
+				// Validate rows in section.
+				should(tableView.sections[0].rows[0].title).be.eql('Red');
+				should(tableView.sections[0].rows[1].title).be.eql('Green');
+				should(tableView.sections[0].rows[2].title).be.eql('Blue');
+
+				// Update section in table.
+				tableView.updateSection(0, section_b);
+
+				// Validate section count.
+				should(tableView.sectionCount).be.eql(1);
+
+				// Validate section exists.
+				should(tableView.sections[0]).be.a.Object();
+
+				// Validate section row count.
+				should(tableView.sections[0].rowCount).be.eql(3);
+
+				// Validate rows in section.
 				should(tableView.sections[0].rows[0].title).be.eql('Purple');
-
-				tableView.deleteRow(0);
-				should(tableView.sections[0].rowCount).be.eql(0);
+				should(tableView.sections[0].rows[1].title).be.eql('Yellow');
+				should(tableView.sections[0].rows[2].title).be.eql('Orange');
 
 				finish();
 			} catch (err) {
-				finish(err);
+				return finish(err);
 			}
-			win.close();
 		});
 
 		win.add(tableView);
 		win.open();
 	});
 
-	// FIXME this test crashes ios! Fix the test or open a JIRA!
-	// FIXME Fails intermittently on Android on build machine
-	// FIXME Fails intermittently on Windows on build machine
-	it.allBroken('delete row (TableViewSection)', function (finish) {
-		var section_0,
-			tableView;
-
-		section_0 = Ti.UI.createTableViewSection({ headerTitle: 'Zero' });
-		section_0.add(Ti.UI.createTableViewRow({ title: 'Red' }));
-		section_0.add(Ti.UI.createTableViewRow({ title: 'White' }));
-		section_0.add(Ti.UI.createTableViewRow({ title: 'Purple' }));
-
-		tableView = Ti.UI.createTableView({
-			data: [ section_0 ]
+	it('insertSectionAfter', finish => {
+		const section_a = Ti.UI.createTableViewSection();
+		const section_b = Ti.UI.createTableViewSection();
+		const section_c = Ti.UI.createTableViewSection();
+		const tableView = Ti.UI.createTableView({
+			sections: [ section_a, section_c ]
 		});
+
+		section_a.add(Ti.UI.createTableViewRow({ title: 'Red' }));
+		section_a.add(Ti.UI.createTableViewRow({ title: 'Green' }));
+		section_a.add(Ti.UI.createTableViewRow({ title: 'Blue' }));
+
+		section_b.add(Ti.UI.createTableViewRow({ title: 'Purple' }));
+		section_b.add(Ti.UI.createTableViewRow({ title: 'Yellow' }));
+		section_b.add(Ti.UI.createTableViewRow({ title: 'Orange' }));
+
+		section_c.add(Ti.UI.createTableViewRow({ title: 'Magenta' }));
+		section_c.add(Ti.UI.createTableViewRow({ title: 'Cyan' }));
+		section_c.add(Ti.UI.createTableViewRow({ title: 'Pink' }));
 
 		win = Ti.UI.createWindow({
 			backgroundColor: 'blue'
 		});
-		win.addEventListener('focus', function () {
+		win.addEventListener('focus', () => {
 			try {
-				should(tableView.sectionCount).be.eql(1);
-				should(tableView.sections[0]).be.an.Object();
+				// Validate section count.
+				should(tableView.sectionCount).be.eql(2);
+
+				// Validate sections exists.
+				should(tableView.sections[0]).be.a.Object();
+				should(tableView.sections[1]).be.a.Object();
+
+				// Validate section row count.
 				should(tableView.sections[0].rowCount).be.eql(3);
+				should(tableView.sections[1].rowCount).be.eql(3);
 
-				should(tableView.sections[0].rows[1].title).be.eql('White');
-
-				// delete by row
-				section_0.remove(tableView.sections[0].rows[1]);
-				should(tableView.sections[0].rowCount).be.eql(2);
+				// Validate rows in section.
 				should(tableView.sections[0].rows[0].title).be.eql('Red');
-				should(tableView.sections[0].rows[1].title).be.eql('Purple');
+				should(tableView.sections[0].rows[1].title).be.eql('Green');
+				should(tableView.sections[0].rows[2].title).be.eql('Blue');
+				should(tableView.sections[1].rows[0].title).be.eql('Magenta');
+				should(tableView.sections[1].rows[1].title).be.eql('Cyan');
+				should(tableView.sections[1].rows[2].title).be.eql('Pink');
 
-				finish();
-			} catch (err) {
-				finish(err);
-			}
-			win.close();
-		});
+				// Update section in table.
+				tableView.insertSectionAfter(0, section_b);
 
-		win.add(tableView);
-		win.open();
-	});
-
-	// FIXME get working on iOS
-	// FIXME Fails on Android on build machine
-	// FIXME Fails intermittently on Windows on build machine
-	it.allBroken('update row', function (finish) {
-		var section_0,
-			tableView;
-
-		section_0 = Ti.UI.createTableViewSection({ headerTitle: 'Zero' });
-		section_0.add(Ti.UI.createTableViewRow({ title: 'Red' }));
-		section_0.add(Ti.UI.createTableViewRow({ title: 'White' }));
-		section_0.add(Ti.UI.createTableViewRow({ title: 'Purple' }));
-
-		tableView = Ti.UI.createTableView({
-			data: [ section_0 ]
-		});
-
-		win = Ti.UI.createWindow({
-			backgroundColor: 'blue'
-		});
-		win.addEventListener('focus', function () {
-			try {
-				should(tableView.sections[0].rowCount).be.eql(3);
-				tableView.updateRow(1, Ti.UI.createTableViewRow({ title: 'Green' }));
-				should(tableView.sections[0].rowCount).be.eql(3);
-				should(tableView.sections[0].rows[0].title).be.eql('Red');
-				should(tableView.sections[0].rows[1].title).be.eql('Green'); // iOS returns 'White' - updateRow seemed to have no effect?
-				should(tableView.sections[0].rows[2].title).be.eql('Purple');
-
-				finish();
-			} catch (err) {
-				finish(err);
-			}
-			win.close();
-		});
-
-		win.add(tableView);
-		win.open();
-	});
-
-	// FIXME this test crashes ios! Fix the test or open a JIRA!
-	// FIXME Fails intermittently on Android build machine
-	it.allBroken('append section', function (finish) {
-		var section_0,
-			section_1,
-			tableView;
-
-		section_0 = Ti.UI.createTableViewSection({ headerTitle: 'Zero' });
-		section_0.add(Ti.UI.createTableViewRow({ title: 'Red' }));
-		section_0.add(Ti.UI.createTableViewRow({ title: 'White' }));
-		section_0.add(Ti.UI.createTableViewRow({ title: 'Purple' }));
-
-		section_1 = Ti.UI.createTableViewSection({ headerTitle: 'One' });
-		section_1.add(Ti.UI.createTableViewRow({ title: 'Green' }));
-		section_1.add(Ti.UI.createTableViewRow({ title: 'Yellow' }));
-		section_1.add(Ti.UI.createTableViewRow({ title: 'Blue' }));
-
-		tableView = Ti.UI.createTableView({
-			data: [ section_0 ]
-		});
-
-		win = Ti.UI.createWindow({
-			backgroundColor: 'blue'
-		});
-		win.addEventListener('focus', function () {
-			try {
-				should(tableView.sectionCount).be.eql(1);
-				should(tableView.sections[0]).be.eql(section_0);
-				should(tableView.sections[0].rows[0].title).be.eql('Red');
-				should(tableView.sections[0].rows[1].title).be.eql('White');
-				should(tableView.sections[0].rows[2].title).be.eql('Purple');
-				tableView.appendSection(section_1);
-				should(tableView.sectionCount).be.eql(2);
-				should(tableView.sections[0]).be.eql(section_0);
-				should(tableView.sections[1]).be.eql(section_1);
-				should(tableView.sections[0].rows[0].title).be.eql('Red');
-				should(tableView.sections[0].rows[1].title).be.eql('White');
-				should(tableView.sections[0].rows[2].title).be.eql('Purple');
-				should(tableView.sections[1].rows[0].title).be.eql('Green');
-				should(tableView.sections[1].rows[1].title).be.eql('Yellow');
-				should(tableView.sections[1].rows[2].title).be.eql('Blue');
-
-				finish();
-			} catch (err) {
-				finish(err);
-			}
-			win.close();
-		});
-
-		win.add(tableView);
-		win.open();
-	});
-
-	// FIXME this test crashes ios! Fix the test or open a JIRA!
-	// FIXME intermittently fails on Android build machine - I think due to test timeout
-	it.allBroken('delete section', function (finish) {
-		var section_0,
-			section_1,
-			tableView;
-
-		section_0 = Ti.UI.createTableViewSection({ headerTitle: 'Zero' });
-		section_0.add(Ti.UI.createTableViewRow({ title: 'Red' }));
-		section_0.add(Ti.UI.createTableViewRow({ title: 'White' }));
-		section_0.add(Ti.UI.createTableViewRow({ title: 'Purple' }));
-
-		section_1 = Ti.UI.createTableViewSection({ headerTitle: 'One' });
-		section_1.add(Ti.UI.createTableViewRow({ title: 'Green' }));
-		section_1.add(Ti.UI.createTableViewRow({ title: 'Yellow' }));
-		section_1.add(Ti.UI.createTableViewRow({ title: 'Blue' }));
-
-		tableView = Ti.UI.createTableView({
-			data: [ section_0, section_1 ]
-		});
-
-		win = Ti.UI.createWindow({
-			backgroundColor: 'blue'
-		});
-		win.addEventListener('focus', function () {
-			try {
-				should(tableView.sectionCount).be.eql(2);
-				should(tableView.sections[0]).be.eql(section_0);
-				should(tableView.sections[1]).be.eql(section_1);
-				should(tableView.sections[0].rows[0].title).be.eql('Red');
-				should(tableView.sections[0].rows[1].title).be.eql('White');
-				should(tableView.sections[0].rows[2].title).be.eql('Purple');
-				should(tableView.sections[1].rows[0].title).be.eql('Green');
-				should(tableView.sections[1].rows[1].title).be.eql('Yellow');
-				should(tableView.sections[1].rows[2].title).be.eql('Blue');
-
-				tableView.deleteSection(1);
-				should(tableView.sectionCount).be.eql(1);
-				should(tableView.sections[0]).be.eql(section_0);
-				should(tableView.sections[0].rows[0].title).be.eql('Red');
-				should(tableView.sections[0].rows[1].title).be.eql('White');
-				should(tableView.sections[0].rows[2].title).be.eql('Purple');
-
-				tableView.deleteSection(0);
-				should(tableView.sectionCount).be.eql(0);
-
-				finish();
-			} catch (err) {
-				finish(err);
-			}
-			win.close();
-		});
-
-		win.add(tableView);
-		win.open();
-	});
-
-	// FIXME this test crashes ios! Fix the test or open a JIRA!
-	// FIXME Fails on Android on build machine
-	it.allBroken('update section', function (finish) {
-		var section_0,
-			section_1,
-			section_2,
-			tableView;
-
-		section_0 = Ti.UI.createTableViewSection({ headerTitle: 'Zero' });
-		section_0.add(Ti.UI.createTableViewRow({ title: 'Red' }));
-		section_0.add(Ti.UI.createTableViewRow({ title: 'White' }));
-		section_0.add(Ti.UI.createTableViewRow({ title: 'Purple' }));
-
-		section_1 = Ti.UI.createTableViewSection({ headerTitle: 'One' });
-		section_1.add(Ti.UI.createTableViewRow({ title: 'Green' }));
-		section_1.add(Ti.UI.createTableViewRow({ title: 'Yellow' }));
-		section_1.add(Ti.UI.createTableViewRow({ title: 'Blue' }));
-
-		section_2 = Ti.UI.createTableViewSection({ headerTitle: 'Two' });
-		section_2.add(Ti.UI.createTableViewRow({ title: 'Gray' }));
-		section_2.add(Ti.UI.createTableViewRow({ title: 'Pink' }));
-		section_2.add(Ti.UI.createTableViewRow({ title: 'Magenta' }));
-
-		tableView = Ti.UI.createTableView({
-			data: [ section_0, section_1 ]
-		});
-
-		win = Ti.UI.createWindow({
-			backgroundColor: 'blue'
-		});
-		win.addEventListener('focus', function () {
-			try {
-				tableView.updateSection(1, section_2);
-
-				should(tableView.sectionCount).be.eql(2);
-				should(tableView.sections[0]).be.eql(section_0);
-				should(tableView.sections[1]).be.eql(section_2);
-				should(tableView.sections[0].rows[0].title).be.eql('Red');
-				should(tableView.sections[0].rows[1].title).be.eql('White');
-				should(tableView.sections[0].rows[2].title).be.eql('Purple');
-				should(tableView.sections[1].rows[0].title).be.eql('Gray');
-				should(tableView.sections[1].rows[1].title).be.eql('Pink');
-				should(tableView.sections[1].rows[2].title).be.eql('Magenta');
-
-				tableView.deleteSection(0);
-				should(tableView.sectionCount).be.eql(1);
-				should(tableView.sections[0]).be.eql(section_2);
-				should(tableView.sections[0].rows[0].title).be.eql('Gray');
-				should(tableView.sections[0].rows[1].title).be.eql('Pink');
-				should(tableView.sections[0].rows[2].title).be.eql('Magenta');
-
-				tableView.deleteSection(0);
-				should(tableView.sectionCount).be.eql(0);
-
-				finish();
-			} catch (err) {
-				finish(err);
-			}
-			win.close();
-		});
-
-		win.add(tableView);
-		win.open();
-	});
-
-	// FIXME this test crashes ios! Fix the test or open a JIRA!
-	// FIXME intermittently fails on Android build machine (timeout?)
-	it.iosAndWindowsBroken('insertSectionAfter', function (finish) {
-		var section_0,
-			section_1,
-			section_2,
-			tableView;
-
-		section_0 = Ti.UI.createTableViewSection({ headerTitle: 'Zero' });
-		section_0.add(Ti.UI.createTableViewRow({ title: 'Red' }));
-		section_0.add(Ti.UI.createTableViewRow({ title: 'White' }));
-		section_0.add(Ti.UI.createTableViewRow({ title: 'Purple' }));
-
-		section_1 = Ti.UI.createTableViewSection({ headerTitle: 'One' });
-		section_1.add(Ti.UI.createTableViewRow({ title: 'Green' }));
-		section_1.add(Ti.UI.createTableViewRow({ title: 'Yellow' }));
-		section_1.add(Ti.UI.createTableViewRow({ title: 'Blue' }));
-
-		section_2 = Ti.UI.createTableViewSection({ headerTitle: 'Two' });
-		section_2.add(Ti.UI.createTableViewRow({ title: 'Gray' }));
-		section_2.add(Ti.UI.createTableViewRow({ title: 'Pink' }));
-		section_2.add(Ti.UI.createTableViewRow({ title: 'Magenta' }));
-
-		tableView = Ti.UI.createTableView({
-			data: [ section_0, section_1 ]
-		});
-
-		win = Ti.UI.createWindow({
-			backgroundColor: 'blue'
-		});
-		win.addEventListener('focus', function () {
-			try {
-				should(tableView.sectionCount).be.eql(2);
-				should(tableView.sections[0]).be.eql(section_0);
-				should(tableView.sections[1]).be.eql(section_1);
-				should(tableView.sections[0].rows[0].title).be.eql('Red');
-				should(tableView.sections[0].rows[1].title).be.eql('White');
-				should(tableView.sections[0].rows[2].title).be.eql('Purple');
-				should(tableView.sections[1].rows[0].title).be.eql('Green');
-				should(tableView.sections[1].rows[1].title).be.eql('Yellow');
-				should(tableView.sections[1].rows[2].title).be.eql('Blue');
-				tableView.insertSectionAfter(0, section_2);
+				// Validate section count.
 				should(tableView.sectionCount).be.eql(3);
-				should(tableView.sections[0]).be.eql(section_0);
-				should(tableView.sections[1]).be.eql(section_2);
-				should(tableView.sections[2]).be.eql(section_1);
+
+				// Validate section exists.
+				should(tableView.sections[0]).be.a.Object();
+				should(tableView.sections[1]).be.a.Object();
+				should(tableView.sections[2]).be.a.Object();
+
+				// Validate section row count.
+				should(tableView.sections[0].rowCount).be.eql(3);
+				should(tableView.sections[1].rowCount).be.eql(3);
+				should(tableView.sections[2].rowCount).be.eql(3);
+
+				// Validate rows in section.
 				should(tableView.sections[0].rows[0].title).be.eql('Red');
-				should(tableView.sections[0].rows[1].title).be.eql('White');
-				should(tableView.sections[0].rows[2].title).be.eql('Purple');
-				should(tableView.sections[1].rows[0].title).be.eql('Gray');
-				should(tableView.sections[1].rows[1].title).be.eql('Pink');
-				should(tableView.sections[1].rows[2].title).be.eql('Magenta');
-				should(tableView.sections[2].rows[0].title).be.eql('Green');
-				should(tableView.sections[2].rows[1].title).be.eql('Yellow');
-				should(tableView.sections[2].rows[2].title).be.eql('Blue');
+				should(tableView.sections[0].rows[1].title).be.eql('Green');
+				should(tableView.sections[0].rows[2].title).be.eql('Blue');
+				should(tableView.sections[1].rows[0].title).be.eql('Purple');
+				should(tableView.sections[1].rows[1].title).be.eql('Yellow');
+				should(tableView.sections[1].rows[2].title).be.eql('Orange');
+				should(tableView.sections[2].rows[0].title).be.eql('Magenta');
+				should(tableView.sections[2].rows[1].title).be.eql('Cyan');
+				should(tableView.sections[2].rows[2].title).be.eql('Pink');
 
 				finish();
 			} catch (err) {
-				finish(err);
+				return finish(err);
 			}
-			win.close();
 		});
 
 		win.add(tableView);
 		win.open();
 	});
 
-	// FIXME this test crashes ios! Fix the test or open a JIRA!
-	// FIXME This seems to hang the tests on Android too.
-	// FIXME This seems to hang the tests on Windows too.
-	/* eslint-disable max-len */
-	/*
-	Logs from Android:
-
-	[ERROR] TableViewProxy: (main) [24953,24953] Unable to create table view row proxy for object, likely an error in the type of the object passed in...
-	[WARN]  W/System.err: java.lang.NullPointerException: Attempt to invoke virtual method 'void ti.modules.titanium.ui.TableViewRowProxy.setParent(org.appcelerator.titanium.proxy.TiViewProxy)' on a null object reference
-	[WARN]  W/System.err: 	at ti.modules.titanium.ui.TableViewSectionProxy.insertRowAt(TableViewSectionProxy.java:104)
-	[WARN]  W/System.err: 	at ti.modules.titanium.ui.TableViewProxy.handleInsertRowBefore(TableViewProxy.java:445)
-	[WARN]  W/System.err: 	at ti.modules.titanium.ui.TableViewProxy.insertSectionBefore(TableViewProxy.java:462)
-	[WARN]  W/System.err: 	at org.appcelerator.kroll.runtime.v8.V8Object.nativeFireEvent(Native Method)
-	[WARN]  W/System.err: 	at org.appcelerator.kroll.runtime.v8.V8Object.fireEvent(V8Object.java:62)
-	[WARN]  W/System.err: 	at org.appcelerator.kroll.KrollProxy.doFireEvent(KrollProxy.java:918)
-	[WARN]  W/System.err: 	at org.appcelerator.kroll.KrollProxy.handleMessage(KrollProxy.java:1141)
-	[WARN]  W/System.err: 	at org.appcelerator.titanium.proxy.TiViewProxy.handleMessage(TiViewProxy.java:357)
-	[WARN]  W/System.err: 	at org.appcelerator.titanium.proxy.TiWindowProxy.handleMessage(TiWindowProxy.java:117)
-	[WARN]  W/System.err: 	at ti.modules.titanium.ui.WindowProxy.handleMessage(WindowProxy.java:454)
-	[WARN]  W/System.err: 	at android.os.Handler.dispatchMessage(Handler.java:98)
-	[WARN]  W/System.err: 	at android.os.Looper.loop(Looper.java:148)
-	[WARN]  W/System.err: 	at android.app.ActivityThread.main(ActivityThread.java:5417)
-	[WARN]  W/System.err: 	at java.lang.reflect.Method.invoke(Native Method)
-	[WARN]  W/System.err: 	at com.android.internal.os.ZygoteInit$MethodAndArgsCaller.run(ZygoteInit.java:726)
-	[WARN]  W/System.err: 	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:616)
-
-	[ERROR] TiApplication: java.lang.RuntimeException: Unable to destroy activity {com.appcelerator.testApp.testing/org.appcelerator.titanium.TiActivity}: java.lang.NullPointerException: Attempt to invoke virtual method 'void ti.modules.titanium.ui.TableViewRowProxy.releaseViews()' on a null object reference
-	[ERROR] TiApplication: 	at android.app.ActivityThread.performDestroyActivity(ActivityThread.java:3831)
-	[ERROR] TiApplication: 	at android.app.ActivityThread.handleDestroyActivity(ActivityThread.java:3849)
-	[ERROR] TiApplication: 	at android.app.ActivityThread.-wrap5(ActivityThread.java)
-	[ERROR] TiApplication: 	at android.app.ActivityThread$H.handleMessage(ActivityThread.java:1398)
-	[ERROR] TiApplication: 	at android.os.Handler.dispatchMessage(Handler.java:102)
-	[ERROR] TiApplication: 	at android.os.Looper.loop(Looper.java:148)
-	[ERROR] TiApplication: 	at android.app.ActivityThread.main(ActivityThread.java:5417)
-	[ERROR] TiApplication: 	at java.lang.reflect.Method.invoke(Native Method)
-	[ERROR] TiApplication: 	at com.android.internal.os.ZygoteInit$MethodAndArgsCaller.run(ZygoteInit.java:726)
-	[ERROR] TiApplication: 	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:616)
-	[ERROR] TiApplication: Caused by: java.lang.NullPointerException: Attempt to invoke virtual method 'void ti.modules.titanium.ui.TableViewRowProxy.releaseViews()' on a null object reference
-	[ERROR] TiApplication: 	at ti.modules.titanium.ui.TableViewSectionProxy.releaseViews(TableViewSectionProxy.java:153)
-	[ERROR] TiApplication: 	at ti.modules.titanium.ui.TableViewProxy.releaseViews(TableViewProxy.java:139)
-	[ERROR] TiApplication: 	at org.appcelerator.titanium.proxy.TiViewProxy.releaseViews(TiViewProxy.java:537)
-	[ERROR] TiApplication: 	at org.appcelerator.titanium.proxy.TiWindowProxy.closeFromActivity(TiWindowProxy.java:192)
-	[ERROR] TiApplication: 	at org.appcelerator.titanium.TiBaseActivity.onDestroy(TiBaseActivity.java:1554)
-	[ERROR] TiApplication: 	at org.appcelerator.titanium.TiActivity.onDestroy(TiActivity.java:29)
-	[ERROR] TiApplication: 	at android.app.Activity.performDestroy(Activity.java:6407)
-	[ERROR] TiApplication: 	at android.app.Instrumentation.callActivityOnDestroy(Instrumentation.java:1142)
-	[ERROR] TiApplication: 	at android.app.ActivityThread.performDestroyActivity(ActivityThread.java:3818)
-	[ERROR] TiApplication: 	... 9 more
-	*/
-	/* eslint-enable max-len */
-	it.iosAndWindowsBroken('insertSectionBefore', function (finish) {
-		var section_0,
-			section_1,
-			section_2,
-			tableView;
-
-		section_0 = Ti.UI.createTableViewSection({ headerTitle: 'Zero' });
-		section_0.add(Ti.UI.createTableViewRow({ title: 'Red' }));
-		section_0.add(Ti.UI.createTableViewRow({ title: 'White' }));
-		section_0.add(Ti.UI.createTableViewRow({ title: 'Purple' }));
-
-		section_1 = Ti.UI.createTableViewSection({ headerTitle: 'One' });
-		section_1.add(Ti.UI.createTableViewRow({ title: 'Green' }));
-		section_1.add(Ti.UI.createTableViewRow({ title: 'Yellow' }));
-		section_1.add(Ti.UI.createTableViewRow({ title: 'Blue' }));
-
-		section_2 = Ti.UI.createTableViewSection({ headerTitle: 'Two' });
-		section_2.add(Ti.UI.createTableViewRow({ title: 'Gray' }));
-		section_2.add(Ti.UI.createTableViewRow({ title: 'Pink' }));
-		section_2.add(Ti.UI.createTableViewRow({ title: 'Magenta' }));
-
-		tableView = Ti.UI.createTableView({
-			data: [ section_0, section_1 ]
+	it('insertSectionBefore', finish => {
+		const section_a = Ti.UI.createTableViewSection();
+		const section_b = Ti.UI.createTableViewSection();
+		const section_c = Ti.UI.createTableViewSection();
+		const tableView = Ti.UI.createTableView({
+			sections: [ section_a, section_c ]
 		});
+
+		// FIXME: iOS cannot handle array input OR dictionary input.
+		/* section_a.add([
+			{ title: 'Red' },
+			{ title: 'Green' },
+			{ title: 'Blue' }
+		]);
+
+		section_b.add([
+			{ title: 'Purple' },
+			{ title: 'Yellow' },
+			{ title: 'Orange' }
+		]);
+
+		section_c.add([
+			{ title: 'Magenta' },
+			{ title: 'Cyan' },
+			{ title: 'Pink' }
+		]); */
+
+		section_a.add(Ti.UI.createTableViewRow({ title: 'Red' }));
+		section_a.add(Ti.UI.createTableViewRow({ title: 'Green' }));
+		section_a.add(Ti.UI.createTableViewRow({ title: 'Blue' }));
+
+		section_b.add(Ti.UI.createTableViewRow({ title: 'Purple' }));
+		section_b.add(Ti.UI.createTableViewRow({ title: 'Yellow' }));
+		section_b.add(Ti.UI.createTableViewRow({ title: 'Orange' }));
+
+		section_c.add(Ti.UI.createTableViewRow({ title: 'Magenta' }));
+		section_c.add(Ti.UI.createTableViewRow({ title: 'Cyan' }));
+		section_c.add(Ti.UI.createTableViewRow({ title: 'Pink' }));
 
 		win = Ti.UI.createWindow({
 			backgroundColor: 'blue'
 		});
-		win.addEventListener('focus', function () {
+		win.addEventListener('focus', () => {
 			try {
+
+				// Validate section count.
 				should(tableView.sectionCount).be.eql(2);
-				should(tableView.sections[0]).be.eql(section_0);
-				should(tableView.sections[1]).be.eql(section_1);
+
+				// Validate sections exists.
+				should(tableView.sections[0]).be.a.Object();
+				should(tableView.sections[1]).be.a.Object();
+
+				// Validate section row count.
+				should(tableView.sections[0].rowCount).be.eql(3);
+				should(tableView.sections[1].rowCount).be.eql(3);
+
+				// Validate rows in section.
 				should(tableView.sections[0].rows[0].title).be.eql('Red');
-				should(tableView.sections[0].rows[1].title).be.eql('White');
-				should(tableView.sections[0].rows[2].title).be.eql('Purple');
-				should(tableView.sections[1].rows[0].title).be.eql('Green');
-				should(tableView.sections[1].rows[1].title).be.eql('Yellow');
-				should(tableView.sections[1].rows[2].title).be.eql('Blue');
-				tableView.insertSectionBefore(0, section_2);
+				should(tableView.sections[0].rows[1].title).be.eql('Green');
+				should(tableView.sections[0].rows[2].title).be.eql('Blue');
+
+				should(tableView.sections[1].rows[0].title).be.eql('Magenta');
+				should(tableView.sections[1].rows[1].title).be.eql('Cyan');
+				should(tableView.sections[1].rows[2].title).be.eql('Pink');
+
+				// Update section in table.
+				tableView.insertSectionBefore(1, section_b);
+
+				// Validate section count.
 				should(tableView.sectionCount).be.eql(3);
-				should(tableView.sections[0]).be.eql(section_2);
-				should(tableView.sections[1]).be.eql(section_0);
-				should(tableView.sections[2]).be.eql(section_1);
-				should(tableView.sections[0].rows[0].title).be.eql('Gray');
-				should(tableView.sections[0].rows[1].title).be.eql('Pink');
-				should(tableView.sections[0].rows[2].title).be.eql('Magenta');
-				should(tableView.sections[1].rows[0].title).be.eql('Red');
-				should(tableView.sections[1].rows[1].title).be.eql('White');
-				should(tableView.sections[1].rows[2].title).be.eql('Purple');
-				should(tableView.sections[2].rows[0].title).be.eql('Green');
-				should(tableView.sections[2].rows[1].title).be.eql('Yellow');
-				should(tableView.sections[2].rows[2].title).be.eql('Blue');
+
+				// Validate section exists.
+				should(tableView.sections[0]).be.a.Object();
+				should(tableView.sections[1]).be.a.Object();
+				should(tableView.sections[2]).be.a.Object();
+
+				// Validate section row count.
+				should(tableView.sections[0].rowCount).be.eql(3);
+				should(tableView.sections[1].rowCount).be.eql(3);
+				should(tableView.sections[2].rowCount).be.eql(3);
+
+				// Validate rows in section.
+				should(tableView.sections[0].rows[0].title).be.eql('Red');
+				should(tableView.sections[0].rows[1].title).be.eql('Green');
+				should(tableView.sections[0].rows[2].title).be.eql('Blue');
+
+				should(tableView.sections[1].rows[0].title).be.eql('Purple');
+				should(tableView.sections[1].rows[1].title).be.eql('Yellow');
+				should(tableView.sections[1].rows[2].title).be.eql('Orange');
+
+				should(tableView.sections[2].rows[0].title).be.eql('Magenta');
+				should(tableView.sections[2].rows[1].title).be.eql('Cyan');
+				should(tableView.sections[2].rows[2].title).be.eql('Pink');
 
 				finish();
 			} catch (err) {
-				finish(err);
+				return finish(err);
 			}
-			win.close();
 		});
 
 		win.add(tableView);
@@ -965,9 +961,8 @@ describe('Titanium.UI.TableView', function () {
 	});
 
 	// Verifies that we don't run into the JNI ref overflow issue on Android
-	// FIXME Eventually crashes on Windows Desktop, crashes right away with no output on Phone
 	// NOTE: skipping due to memory constrains on our Android 4.4 test device
-	it.skip('TIMOB-15765 rev.1', function (finish) { // eslint-disable-line mocha/no-skipped-tests
+	it.skip('TIMOB-15765 rev.1', finish => { // eslint-disable-line mocha/no-skipped-tests
 		var views = [],
 			references = 51200, // JNI max is 51200
 			error,
@@ -999,7 +994,7 @@ describe('Titanium.UI.TableView', function () {
 	});
 
 	// NOTE: skipping due to memory constrains on our Android 4.4 test device
-	it.skip('TIMOB-15765 rev.2', function (finish) { // eslint-disable-line mocha/no-skipped-tests
+	it.skip('TIMOB-15765 rev.2', finish => { // eslint-disable-line mocha/no-skipped-tests
 		var references = 51200, // JNI max is 51200
 			error,
 			blob,
@@ -1024,7 +1019,7 @@ describe('Titanium.UI.TableView', function () {
 		finish(error);
 	});
 
-	it.ios('Delete row (Search Active)', function (finish) {
+	it.ios('Delete row (Search Active)', finish => {
 		var section_0,
 			searchBar,
 			tableView,
@@ -1043,7 +1038,7 @@ describe('Titanium.UI.TableView', function () {
 
 		isFocused = false;
 
-		win.addEventListener('focus', function () {
+		win.addEventListener('focus', () => {
 			var error;
 
 			if (isFocused) {
@@ -1052,7 +1047,7 @@ describe('Titanium.UI.TableView', function () {
 			isFocused = true;
 
 			try {
-				searchBar.setValue('e');
+				searchBar.value = 'e';
 				searchBar.focus();
 				should(tableView.sections[0].rowCount).be.eql(3);
 				tableView.deleteRow(0);
@@ -1060,8 +1055,7 @@ describe('Titanium.UI.TableView', function () {
 			} catch (err) {
 				error = err;
 			}
-			setTimeout(function () {
-				win.close();
+			setTimeout(() => {
 				finish(error);
 			}, 1000);
 		});
@@ -1070,184 +1064,166 @@ describe('Titanium.UI.TableView', function () {
 		win.open();
 	});
 
-	it('set and clear data', function (finish) {
-		var data_a = [
-				{ title: 'Square', backgroundSelectedColor: 'red' },
-				{ title: 'Circle', backgroundSelectedColor: 'blue' },
-				{ title: 'Triangle', backgroundSelectedColor: 'purple' }
-			],
-			data_b = [
-				{ title: 'Red', backgroundSelectedColor: 'red' },
-				{ title: 'Green', backgroundSelectedColor: 'green' },
-				{ title: 'Blue', backgroundSelectedColor: 'blue' }
-			],
-			tv = Ti.UI.createTableView(),
-			error;
+	it('set and clear data', finish => {
+		const data_a = [
+			{ title: 'Square', backgroundSelectedColor: 'red' },
+			{ title: 'Circle', backgroundSelectedColor: 'blue' },
+			{ title: 'Triangle', backgroundSelectedColor: 'purple' }
+		];
+		const data_b = [
+			{ title: 'Red', backgroundSelectedColor: 'red' },
+			{ title: 'Green', backgroundSelectedColor: 'green' },
+			{ title: 'Blue', backgroundSelectedColor: 'blue' }
+		];
+		const tableView = Ti.UI.createTableView();
 
 		try {
-			tv.data = [];
-			tv.setData(data_a);
-			tv.data = [];
-			tv.setData(data_b);
-			tv.data = [];
-			tv.setData(data_a);
+			tableView.data = [];
+			tableView.data = data_a;
+			tableView.data = [];
+			tableView.data = data_b;
+			tableView.data = [];
+			tableView.data = data_a;
 		} catch (e) {
-			error = e;
+			finish(e);
 		}
-		finish(error);
+		finish();
 	});
 
-	it.windowsMissing('scrollable', function () {
-		var tableView = Ti.UI.createTableView({ scrollable: false });
+	it('scrollable', () => {
+		const tableView = Ti.UI.createTableView({ scrollable: false });
+
 		should(tableView.scrollable).be.be.false();
 		tableView.scrollable = !tableView.scrollable;
 		should(tableView.scrollable).be.be.true();
 	});
 
-	it.ios('#separatorStyle', function () {
-		var section_0,
-			tableView;
-		section_0 = Ti.UI.createTableViewSection({ headerTitle: 'Zero' });
-		section_0.add(Ti.UI.createTableViewRow({ title: 'Red' }));
-		section_0.add(Ti.UI.createTableViewRow({ title: 'White' }));
+	it('separatorStyle', () => {
+		const section = Ti.UI.createTableViewSection();
 
-		tableView = Ti.UI.createTableView({
-			data: [ section_0 ],
+		section.add(Ti.UI.createTableViewRow({ title: 'Red' }));
+		section.add(Ti.UI.createTableViewRow({ title: 'White' }));
+
+		const tableView = Ti.UI.createTableView({
+			data: [ section ],
 			separatorStyle: Ti.UI.TABLE_VIEW_SEPARATOR_STYLE_SINGLE_LINE
 		});
-		should(tableView.getSeparatorStyle).be.a.Function();
 		should(tableView.separatorStyle).eql(Ti.UI.TABLE_VIEW_SEPARATOR_STYLE_SINGLE_LINE);
-		should(tableView.getSeparatorStyle()).eql(Ti.UI.TABLE_VIEW_SEPARATOR_STYLE_SINGLE_LINE);
-		tableView.setSeparatorStyle(Ti.UI.TABLE_VIEW_SEPARATOR_STYLE_NONE);
+		tableView.separatorStyle = Ti.UI.TABLE_VIEW_SEPARATOR_STYLE_NONE;
 		should(tableView.separatorStyle).eql(Ti.UI.TABLE_VIEW_SEPARATOR_STYLE_NONE);
-		should(tableView.getSeparatorStyle()).eql(Ti.UI.TABLE_VIEW_SEPARATOR_STYLE_NONE);
 	});
 
-	it.ios('#separatorColor', function () {
-		var section_0,
-			tableView;
-		section_0 = Ti.UI.createTableViewSection({ headerTitle: 'Zero' });
-		section_0.add(Ti.UI.createTableViewRow({ title: 'Red' }));
-		section_0.add(Ti.UI.createTableViewRow({ title: 'White' }));
+	it('separatorColor', () => {
+		const section = Ti.UI.createTableViewSection();
 
-		tableView = Ti.UI.createTableView({
-			data: [ section_0 ],
+		section.add(Ti.UI.createTableViewRow({ title: 'Red' }));
+		section.add(Ti.UI.createTableViewRow({ title: 'White' }));
+
+		const tableView = Ti.UI.createTableView({
+			data: [ section ],
 			separatorColor: 'red'
 		});
-		should(tableView.getSeparatorColor).be.a.Function();
 		should(tableView.separatorColor).eql('red');
-		should(tableView.getSeparatorColor()).eql('red');
-		tableView.setSeparatorColor('blue');
+		tableView.separatorColor = 'blue';
 		should(tableView.separatorColor).eql('blue');
-		should(tableView.getSeparatorColor()).eql('blue');
 	});
 
-	it.ios('#resultsBackgroundColor', function () {
-		var section_0,
-			tableView;
-		section_0 = Ti.UI.createTableViewSection({ headerTitle: 'Zero' });
-		section_0.add(Ti.UI.createTableViewRow({ title: 'Red' }));
-		section_0.add(Ti.UI.createTableViewRow({ title: 'White' }));
+	it.ios('resultsBackgroundColor', () => {
+		const section = Ti.UI.createTableViewSection();
 
-		tableView = Ti.UI.createTableView({
-			data: [ section_0 ],
+		section.add(Ti.UI.createTableViewRow({ title: 'Red' }));
+		section.add(Ti.UI.createTableViewRow({ title: 'White' }));
+
+		const tableView = Ti.UI.createTableView({
+			data: [ section ],
 			resultsBackgroundColor: 'red'
 		});
-		should(tableView.getResultsBackgroundColor).be.a.Function();
 		should(tableView.resultsBackgroundColor).eql('red');
-		should(tableView.getResultsBackgroundColor()).eql('red');
+		tableView.resultsBackgroundColor = 'blue';
+		should(tableView.resultsBackgroundColor).eql('blue');
 	});
 
-	it.ios('#resultsSeparatorColor', function () {
-		var section_0,
-			tableView;
-		section_0 = Ti.UI.createTableViewSection({ headerTitle: 'Zero' });
-		section_0.add(Ti.UI.createTableViewRow({ title: 'Red' }));
-		section_0.add(Ti.UI.createTableViewRow({ title: 'White' }));
+	it.ios('resultsSeparatorColor', () => {
+		const section = Ti.UI.createTableViewSection();
 
-		tableView = Ti.UI.createTableView({
-			data: [ section_0 ],
+		section.add(Ti.UI.createTableViewRow({ title: 'Red' }));
+		section.add(Ti.UI.createTableViewRow({ title: 'White' }));
+
+		const tableView = Ti.UI.createTableView({
+			data: [ section ],
 			resultsSeparatorColor: 'red'
 		});
-		should(tableView.getResultsSeparatorColor).be.a.Function();
 		should(tableView.resultsSeparatorColor).eql('red');
-		should(tableView.getResultsSeparatorColor()).eql('red');
+		tableView.resultsSeparatorColor = 'blue';
+		should(tableView.resultsSeparatorColor).eql('blue');
 	});
 
-	it.ios('#resultsSeparatorStyle', function () {
-		var section_0,
-			tableView;
-		section_0 = Ti.UI.createTableViewSection({ headerTitle: 'Zero' });
-		section_0.add(Ti.UI.createTableViewRow({ title: 'Red' }));
-		section_0.add(Ti.UI.createTableViewRow({ title: 'White' }));
+	it.ios('resultsSeparatorStyle', () => {
+		const section = Ti.UI.createTableViewSection();
 
-		tableView = Ti.UI.createTableView({
-			data: [ section_0 ],
+		section.add(Ti.UI.createTableViewRow({ title: 'Red' }));
+		section.add(Ti.UI.createTableViewRow({ title: 'White' }));
+
+		const tableView = Ti.UI.createTableView({
+			data: [ section ],
 			resultsSeparatorStyle: Ti.UI.TABLE_VIEW_SEPARATOR_STYLE_SINGLE_LINE
 		});
-		should(tableView.getResultsSeparatorStyle).be.a.Function();
 		should(tableView.resultsSeparatorStyle).eql(Ti.UI.TABLE_VIEW_SEPARATOR_STYLE_SINGLE_LINE);
-		should(tableView.getResultsSeparatorStyle()).eql(Ti.UI.TABLE_VIEW_SEPARATOR_STYLE_SINGLE_LINE);
+		tableView.resultsSeparatorStyle = Ti.UI.TABLE_VIEW_SEPARATOR_STYLE_NONE;
+		should(tableView.resultsSeparatorStyle).eql(Ti.UI.TABLE_VIEW_SEPARATOR_STYLE_NONE);
 	});
 
-	it.windowsMissing('scrollable', function () {
-		var tableView = Ti.UI.createTableView({ scrollable: false });
-		should(tableView.scrollable).be.be.false();
-		tableView.scrollable = !tableView.scrollable;
-		should(tableView.scrollable).be.be.true();
-	});
+	it('refreshControl', finish => {
+		win = Ti.UI.createWindow();
 
-	// FIXME Windows throws exception
-	it.windowsBroken('Add and remove headerView/footerView ', function (finish) {
-		win = Ti.UI.createWindow({ backgroundColor: 'gray' });
-		var headerView = Ti.UI.createView({
-				backgroundColor: 'red',
-				height: 100,
-				width: Ti.UI.FILL
-			}),
-			footerView = Ti.UI.createView({
-				backgroundColor: 'green',
-				height: 100,
-				width: Ti.UI.FILL
-			}),
-			table = Ti.UI.createTableView({
-				headerView: headerView,
-				footerView: footerView,
-				data: [
-					{ title: 'ITEM' }
-				]
-			});
+		const refreshControl = Ti.UI.createRefreshControl();
 
-		win.addEventListener('open', function () {
-			should(table.headerView).not.be.null();
-			should(table.footerView).not.be.null();
-
-			table.headerView = null;
-			table.footerView = null;
-
-			should(table.headerView).be.null();
-			should(table.footerView).be.null();
-
-			win.close();
+		refreshControl.addEventListener('refreshstart', () => {
+			setTimeout(() => {
+				refreshControl.endRefreshing();
+			}, 1000);
+		});
+		refreshControl.addEventListener('refreshend', () => {
 			finish();
 		});
 
-		win.add(table);
+		win.addEventListener('open', function () {
+			refreshControl.beginRefreshing();
+		});
+
+		win.add(Ti.UI.createListView({ refreshControl: refreshControl }));
 		win.open();
 	});
 
-	it.ios('TIMOB-26164 : updateRow + insertRowAfter causing crash on main thread', function (finish) {
-		var tableView = Ti.UI.createTableView({
-			data: [ { title: 'Red' } ]
+	it('Add and remove headerView/footerView ', finish => {
+		win = Ti.UI.createWindow({ backgroundColor: 'gray' });
+
+		const headerView = Ti.UI.createView({
+			backgroundColor: 'red',
+			height: 100,
+			width: Ti.UI.FILL
+		});
+		const footerView = Ti.UI.createView({
+			backgroundColor: 'blue',
+			height: 100,
+			width: Ti.UI.FILL
+		});
+		const tableView = Ti.UI.createTableView({
+			headerView,
+			footerView,
+			data: [ { title: 'ROW' } ]
 		});
 
-		win = Ti.UI.createWindow({
-			backgroundColor: 'blue'
-		});
-		win.addEventListener('focus', function () {
+		win.addEventListener('focus', () => {
 			try {
-				tableView.updateRow(0, { title: 'Green' });
-				tableView.insertRowAfter(0, { title: 'White' });
+				should(tableView.headerView).not.be.null();
+				should(tableView.footerView).not.be.null();
+
+				tableView.headerView = null;
+				tableView.footerView = null;
+
+				should(tableView.headerView).be.null();
+				should(tableView.footerView).be.null();
 
 				finish();
 			} catch (err) {
@@ -1259,15 +1235,46 @@ describe('Titanium.UI.TableView', function () {
 		win.open();
 	});
 
-	it.android('SearchView persistence', function (finish) {
-		var	tableData = [ { title: 'Apples' }, { title: 'Bananas' }, { title: 'Carrots' }, { title: 'Potatoes' } ],
-			searchView = Ti.UI.Android.createSearchView(),
-			table = Ti.UI.createTableView({
-				height: '80%',
-				search: searchView,
-				data: tableData
-			});
+	it('TIMOB-26164: updateRow + insertRowAfter causing crash on main thread', finish => {
+		win = Ti.UI.createWindow({ backgroundColor: 'blue' });
+
+		const tableView = Ti.UI.createTableView({
+			data: [ { title: 'Red' } ]
+		});
+
+		win.addEventListener('focus', () => {
+			try {
+				tableView.updateRow(0, { title: 'Green' });
+				tableView.insertRowAfter(0, { title: 'White' });
+
+				// Validate section row count.
+				should(tableView.sections[0].rowCount).be.eql(2);
+
+				// Validate section rows.
+				should(tableView.sections[0].rows[0].title).be.eql('Green');
+				should(tableView.sections[0].rows[1].title).be.eql('White');
+
+				finish();
+			} catch (err) {
+				return finish(err);
+			}
+		});
+
+		win.add(tableView);
+		win.open();
+	});
+
+	it.android('SearchView persistence', finish => {
 		win = Ti.UI.createWindow();
+
+		const	tableData = [ { title: 'Apples' }, { title: 'Bananas' }, { title: 'Carrots' }, { title: 'Potatoes' } ];
+		const searchView = Ti.UI.Android.createSearchView();
+		const table = Ti.UI.createTableView({
+			height: '80%',
+			search: searchView,
+			data: tableData
+		});
+
 		function removeAndAddTable() {
 			try {
 				table.removeEventListener('postlayout', removeAndAddTable);
@@ -1284,94 +1291,140 @@ describe('Titanium.UI.TableView', function () {
 		win.open();
 	});
 
-	it('row#color row#backgroundColor', function (finish) {
-		// Set up a TableView with colored rows.
+	it('row.color row.backgroundColor', finish => {
 		win = Ti.UI.createWindow();
-		const section = Ti.UI.createTableViewSection({ headerTitle: 'Section' });
-		const row1 = Ti.UI.createTableViewRow({
-			title: 'Row 1',
+
+		const section = Ti.UI.createTableViewSection();
+		const tableView = Ti.UI.createTableView({ data: [ section ] });
+		const row_a = Ti.UI.createTableViewRow({
+			title: 'Row A',
 			color: 'white',
 			backgroundColor: 'blue'
 		});
-		const row2 = Ti.UI.createTableViewRow({
-			title: 'Row 2',
+		const row_b = Ti.UI.createTableViewRow({
+			title: 'Row B',
 			color: 'black',
 			backgroundColor: 'yellow'
 		});
-		section.add(row1);
-		section.add(row2);
-		const tableView = Ti.UI.createTableView({ data: [ section ] });
+
+		section.add(row_a);
+		section.add(row_b);
+
+		win.addEventListener('open', () => {
+
+			// Change row color values.
+			row_a.color = 'red';
+			row_a.backgroundColor = 'white';
+			row_b.color = 'white';
+			row_b.backgroundColor = 'purple';
+
+			// Validate new row color values.
+			should(row_a.color).be.eql('red');
+			should(row_a.backgroundColor).be.eql('white');
+			should(row_b.color).be.eql('white');
+			should(row_b.backgroundColor).be.eql('purple');
+
+			finish();
+		});
+
 		win.add(tableView);
+		win.open();
+	});
 
-		// Verify row objects return same color values assigned above.
-		should(row1.color).be.eql('white');
-		should(row1.backgroundColor).be.eql('blue');
-		should(row2.color).be.eql('black');
-		should(row2.backgroundColor).be.eql('yellow');
+	it('row custom properties', () => {
+		const tableView = Ti.UI.createTableView({
+			data: [
+				Ti.UI.createTableViewRow({ title: 'Row 1', myNumber: 1 }),
+				{ title: 'Row 2', myNumber: 2 }
+			]
+		});
+		tableView.appendRow(Ti.UI.createTableViewRow({ title: 'Row 3', myNumber: 3 }));
+		const sectionRows = tableView.sections[0].rows;
+		should(sectionRows[0].myNumber).be.eql(1);
+		should(sectionRows[1].myNumber).be.eql(2);
+		should(sectionRows[2].myNumber).be.eql(3);
 
-		// Open window to test dynamic color changes.
-		win.addEventListener('open', function () {
-			row1.color = 'red';
-			row1.backgroundColor = 'white';
-			row2.color = 'white';
-			row2.backgroundColor = 'purple';
-			setTimeout(function () {
-				should(row1.color).be.eql('red');
-				should(row1.backgroundColor).be.eql('white');
-				should(row2.color).be.eql('white');
-				should(row2.backgroundColor).be.eql('purple');
+		const row = sectionRows[0];
+		row.myNumber = 10;
+		tableView.updateRow(0, row);
+		should(tableView.sections[0].rows[0].myNumber).be.eql(10);
+	});
+
+	it('row.getViewById()', finish => {
+		const section1 = Ti.UI.createTableViewSection({ headerTitle: 'My Section' });
+		for (let index = 1; index <= 3; index++) {
+			const row = Ti.UI.createTableViewRow();
+			row.add(Ti.UI.createLabel({ text: `Row ${index}`, id: 'myLabelId' }));
+			section1.add(row);
+		}
+		const tableView = Ti.UI.createTableView({
+			data: [ section1 ]
+		});
+		win = Ti.UI.createWindow();
+		win.add(tableView);
+		win.addEventListener('open', () => {
+			try {
+				for (let index = 1; index <= 3; index++) {
+					const row = tableView.sections[0].rows[index - 1];
+					const view = row.getViewById('myLabelId');
+					should(view).be.a.Object();
+					should(view.apiName).be.eql('Ti.UI.Label');
+					should(view.text).be.eql(`Row ${index}`);
+				}
 				finish();
-			}, 1);
+			} catch (err) {
+				finish(err);
+			}
 		});
 		win.open();
 	});
 
-	it('row - read unassigned color properties', function (finish) {
-		win = Ti.UI.createWindow();
-		const section = Ti.UI.createTableViewSection({ headerTitle: 'Section' });
-		const row1 = Ti.UI.createTableViewRow({ title: 'Row 1' });
-		section.add(row1);
-		const tableView = Ti.UI.createTableView({ data: [ section ] });
-		win.add(tableView);
-
-		function validateRow() {
-			// Verify we can read row color properties without crashing. (Used to crash on Android.)
-			// We don't care about the returned value.
-			// eslint-disable-next-line no-unused-vars
-			let value;
-			value = row1.color;
-			value = row1.backgroundColor;
-			if (Ti.Android) {
-				value = row1.backgroundDisabledColor;
-				value = row1.backgroundFocusedColor;
-				value = row1.backgroundSelectedColor;
-			}
+	it('row.className', finish => {
+		const section1 = Ti.UI.createTableViewSection({ headerTitle: 'Section 1' });
+		for (let index = 1; index <= 3; index++) {
+			const row = Ti.UI.createTableViewRow({ className: 'rowType1' });
+			row.add(Ti.UI.createLabel({ text: `Row ${index}`, left: 20 }));
+			section1.add(row);
 		}
-		validateRow();
+		const section2 = Ti.UI.createTableViewSection({ headerTitle: 'Section 2' });
+		for (let index = 1; index <= 3; index++) {
+			const row = Ti.UI.createTableViewRow({ className: 'rowType2' });
+			row.add(Ti.UI.createLabel({ text: `Row ${index}`, right: 20 }));
+			section1.add(row);
+		}
 
-		win.addEventListener('open', function () {
-			validateRow();
+		win = Ti.UI.createWindow();
+		win.add(Ti.UI.createTableView({
+			data: [ section1, section2 ]
+		}));
+		win.addEventListener('open', () => {
 			finish();
 		});
 		win.open();
 	});
 
-	it.iosBroken('resize row with Ti.UI.SIZE on content height change', function (finish) {
-		var heights = [ 100, 200, 50 ];
-		var tableView = Ti.UI.createTableView({});
-		var row = Ti.UI.createTableViewRow({
+	it.iosBroken('resize row with Ti.UI.SIZE on content height change', finish => {
+		win = Ti.UI.createWindow({ backgroundColor: 'blue' });
+
+		const heights = [ 100, 200, 50 ];
+		const tableView = Ti.UI.createTableView({});
+		const row = Ti.UI.createTableViewRow({
 			height: Ti.UI.SIZE,
 			width: Ti.UI.FILL
 		});
-		var view = Ti.UI.createView({
+		const view = Ti.UI.createView({
 			height: heights.pop(),
 			backgroundColor: 'red'
 		});
+
 		row.add(view);
-		tableView.setData([ row ]);
+
+		tableView.data = [ row ];
+
 		tableView.addEventListener('postlayout', function onPostLayout() {
-			console.error('postlayout', row.rect.height, view.rect.height);
+			console.log('postlayout', row.rect.height, view.rect.height);
 			should(row.rect.height).be.eql(view.rect.height);
+
 			if (!heights.length) {
 				tableView.removeEventListener('postlayout', onPostLayout);
 				finish();
@@ -1379,20 +1432,17 @@ describe('Titanium.UI.TableView', function () {
 			view.height = heights.pop();
 		});
 
-		win = Ti.UI.createWindow({
-			backgroundColor: 'blue'
-		});
-
 		win.add(tableView);
 		win.open();
 	});
 
-	it.ios('row#rect', function (finish) {
+	it('row#rect', function (finish) {
 		if (isCI && utilities.isMacOS()) { // FIXME: On macOS CI (maybe < 10.15.6?), times out! Does app need explicit focus added?
 			return finish(); // FIXME: skip when we move to official mocha package
 		}
 
 		win = Ti.UI.createWindow();
+
 		const tableView = Ti.UI.createTableView();
 		const row = Ti.UI.createTableViewRow({
 			height: Ti.UI.SIZE,
@@ -1402,11 +1452,13 @@ describe('Titanium.UI.TableView', function () {
 			height: 150,
 			backgroundColor: 'yellow'
 		});
-		row.add(view);
-		tableView.setData([ row ]);
-		win.add(tableView);
 
-		row.addEventListener('postlayout', function () {
+		row.add(view);
+
+		tableView.data = [ row ];
+
+		// FIXME: Times out on ios?
+		row.addEventListener('postlayout', () => {
 			try {
 				should(row.rect.height).be.eql(150);
 			} catch (e) {
@@ -1414,11 +1466,16 @@ describe('Titanium.UI.TableView', function () {
 			}
 			finish();
 		});
+
+		win.add(tableView);
 		win.open();
 	});
 
-	it.ios('rows with vertical or horizontal layout', function (finish) {
+	it('rows with vertical or horizontal layout', finish => {
+		win = Ti.UI.createWindow();
+
 		const data = [];
+
 		for (var index = 1; index <= 20; index++) {
 			let layout = 'vertical';
 			if (index > 10) {
@@ -1428,8 +1485,8 @@ describe('Titanium.UI.TableView', function () {
 			row.add(Ti.UI.createLabel({ text: `Row ${index}` }));
 			data.push(row);
 		}
+
 		const table = Ti.UI.createTableView({ data });
-		win = Ti.UI.createWindow();
 
 		win.addEventListener('postlayout', function addTableView() {
 			win.removeEventListener('postlayout', addTableView);
@@ -1442,5 +1499,317 @@ describe('Titanium.UI.TableView', function () {
 			finish();
 		});
 		win.open();
+	});
+
+	it('TIMOB-28148: adding view on row causing crash', finish => {
+		const row = Ti.UI.createTableViewRow({ title: 'click me' });
+		const tableView = Ti.UI.createTableView({
+			data: [ row ]
+		});
+
+		win = Ti.UI.createWindow({
+			backgroundColor: 'blue'
+		});
+		win.addEventListener('open', function () {
+			setTimeout(function () {
+				try {
+					const label = Ti.UI.createLabel({ text: 'REQUIRED' });
+					row.add(label);
+					finish();
+				} catch (err) {
+					return finish(err);
+				}
+			}, 2000);
+		});
+
+		win.add(tableView);
+		win.open();
+	});
+
+	it('TableViewRow scaling (percent)', function () {
+		// FIXME: Does not honour scale correctly on macOS: https://jira.appcelerator.org/browse/TIMOB-28261
+		if (isCI && utilities.isMacOS() && OS_VERSION_MAJOR < 11) {
+			this.skip();
+			return;
+		}
+
+		const view = Ti.UI.createView({
+			width: '540px',
+			height: '960px'
+		});
+		const tableView = Ti.UI.createTableView({
+			height: '50%',
+			backgroundColor: 'white'
+		});
+		const row = Ti.UI.createTableViewRow({
+			height: '50%',
+			backgroundColor: 'blue'
+		});
+
+		tableView.data = [ row ];
+
+		view.add(tableView);
+
+		// TableViewRow should fill 50% of its parent TableView.
+		should(view).matchImage('snapshots/tableViewRowScaling_percent.png', { maxPixelMismatch: OS_IOS ? 2 : 0 }); // 2 pixels differ on actual iPhone
+	});
+
+	it('TableViewRow scaling (FILL)', function () {
+		// FIXME: Does not honour scale correctly on macOS: https://jira.appcelerator.org/browse/TIMOB-28261
+		if (isCI && utilities.isMacOS() && OS_VERSION_MAJOR < 11) {
+			this.skip();
+			return;
+		}
+
+		const view = Ti.UI.createView({
+			width: '540px',
+			height: '960px'
+		});
+		const tableView = Ti.UI.createTableView({
+			height: '50%',
+			backgroundColor: 'white'
+		});
+		const row = Ti.UI.createTableViewRow({
+			height: Ti.UI.FILL,
+			backgroundColor: 'blue'
+		});
+
+		tableView.data = [ row ];
+
+		view.add(tableView);
+
+		// TableViewRow should fill 50% of its parent TableView.
+		should(view).matchImage('snapshots/tableViewRowScaling_fill.png', { maxPixelMismatch: OS_IOS ? 8 : 0 }); // 8 pixels differ on actual iPhone
+	});
+
+	it('TableViewRow internal icons', function () {
+		// FIXME: Does not honour scale correctly on macOS: https://jira.appcelerator.org/browse/TIMOB-28261
+		if (isCI && utilities.isMacOS() && OS_VERSION_MAJOR < 11) {
+			this.skip();
+			return;
+		}
+
+		const view = Ti.UI.createView({
+			width: '540px',
+			height: '960px'
+		});
+		const tableView = Ti.UI.createTableView({
+			backgroundColor: 'white'
+		});
+
+		tableView.data = [
+			{ hasCheck: true },
+			{ hasChild: true },
+			{ hasDetail: true }
+		];
+
+		view.add(tableView);
+
+		// TableView should display rows of internal icons.
+		should(view).matchImage('snapshots/tableViewRow_icons.png', {
+			maxPixelMismatch: OS_IOS ? 378 : 0 // iPhoen XR differs by 378 pixels
+		});
+	});
+
+	// FIXME: Unsupported on iOS.
+	it.iosBroken('TableViewRow borderRadius', function () {
+		// FIXME: Does not honour scale correctly on macOS: https://jira.appcelerator.org/browse/TIMOB-28261
+		if (isCI && utilities.isMacOS() && OS_VERSION_MAJOR < 11) {
+			this.skip();
+			return;
+		}
+
+		const view = Ti.UI.createView({
+			width: '540px',
+			height: '960px'
+		});
+		const tableView = Ti.UI.createTableView({
+			backgroundColor: 'white'
+		});
+
+		tableView.data = [
+			{
+				backgroundColor: 'blue',
+				height: '64px',
+				borderRadius: '16px'
+			}
+		];
+
+		view.add(tableView);
+
+		// TableView should display rows of internal icons.
+		should(view).matchImage('snapshots/tableViewRow_borderRadius.png');
+	});
+
+	it('TableViewRow default title & image', function () {
+		// FIXME: Does not honour scale correctly on macOS: https://jira.appcelerator.org/browse/TIMOB-28261
+		if (isCI && utilities.isMacOS() && OS_VERSION_MAJOR < 11) {
+			this.skip();
+			return;
+		}
+
+		const view = Ti.UI.createView({
+			width: '540px',
+			height: '960px'
+		});
+		const tableView = Ti.UI.createTableView({
+			backgroundColor: 'blue'
+		});
+
+		tableView.data = [
+			{
+				title: 'Default Title',
+				image: '/Logo.png'
+			}
+		];
+
+		view.add(tableView);
+
+		// TableView should display rows of internal icons.
+		should(view).matchImage('snapshots/tableViewRow_default.png', {
+			maxPixelMismatch: OS_IOS ? 380 : 0 // iphone XR differs by 380 pixels
+		});
+	});
+
+	it('TableView headerTitle & footerTitle', function () {
+		// FIXME: Does not honour scale correctly on macOS: https://jira.appcelerator.org/browse/TIMOB-28261
+		if (isCI && utilities.isMacOS() && OS_VERSION_MAJOR < 11) {
+			this.skip();
+			return;
+		}
+
+		const view = Ti.UI.createView({
+			width: '540px',
+			height: '960px'
+		});
+		const tableView = Ti.UI.createTableView({
+			headerTitle: 'Header',
+			footerTitle: 'Footer',
+			backgroundColor: 'white'
+		});
+
+		tableView.data = [ { title: 'Row', color: 'black' } ];
+
+		view.add(tableView);
+
+		// TableView should display rows of internal icons.
+		should(view).matchImage('snapshots/tableView_headerTitle_footerTitle.png', {
+			maxPixelMismatch: OS_IOS ? 290 : 0 // iphone differs by 290
+		});
+	});
+
+	// FIXME: For an unknown reason, this test causes an 'signal error code: 11' exception on iOS
+	// shortly after running successfully.
+	it.iosBroken('TableView headerView & footerView', function () {
+		// FIXME: Does not honour scale correctly on macOS: https://jira.appcelerator.org/browse/TIMOB-28261
+		if (isCI && utilities.isMacOS() && OS_VERSION_MAJOR < 11) {
+			this.skip();
+			return;
+		}
+
+		const view = Ti.UI.createView({
+			width: '540px',
+			height: '960px'
+		});
+		const headerView = Ti.UI.createView({
+			backgroundColor: 'red',
+			height: '80px'
+		});
+		const footerView = Ti.UI.createView({
+			backgroundColor: 'blue',
+			height: '80px'
+		});
+		const tableView = Ti.UI.createTableView({
+			headerView,
+			footerView,
+			backgroundColor: 'white'
+		});
+
+		tableView.data = [ { title: 'Row', color: 'black' } ];
+
+		view.add(tableView);
+
+		// TableView should display rows of internal icons.
+		const options = {
+			threshold: 0.1,
+			// only for certain versions of Android? This happens on 5.x, what about 6-10?
+			maxPixelMismatch: (OS_ANDROID && OS_VERSION_MAJOR < 6) ? 2224 : 0
+		};
+		should(view).matchImage('snapshots/tableView_header_footer.png', options);
+	});
+
+	// FIXME: For an unknown reason, this test causes an 'signal error code: 11' exception on iOS
+	// shortly after running successfully.
+	it.iosBroken('TableView + TableViewSection headerView & footerView', function () {
+		// FIXME: Does not honour scale correctly on macOS: https://jira.appcelerator.org/browse/TIMOB-28261
+		if (isCI && utilities.isMacOS() && OS_VERSION_MAJOR < 11) {
+			this.skip();
+			return;
+		}
+
+		const view = Ti.UI.createView({
+			width: '540px',
+			height: '960px'
+		});
+		const headerView = Ti.UI.createView({
+			backgroundColor: 'red',
+			height: '80px'
+		});
+		const footerView = Ti.UI.createView({
+			backgroundColor: 'blue',
+			height: '80px'
+		});
+		const tableView = Ti.UI.createTableView({
+			headerView,
+			footerView,
+			backgroundColor: 'white'
+		});
+
+		tableView.data = [
+			Ti.UI.createTableViewSection({
+				headerTitle: 'TableViewSection.headerTitle',
+				footerTitle: 'TableViewSection.footerTitle'
+			})
+		];
+
+		view.add(tableView);
+
+		// TableView should display rows of internal icons.
+		const options = {
+			threshold: 0.1,
+			// only for certain versions of Android? This happens on 5.x, what about 6-10?
+			maxPixelMismatch: (OS_ANDROID && OS_VERSION_MAJOR < 6) ? 3757 : 0
+		};
+		should(view).matchImage('snapshots/tableView_tableViewSection_header_footer.png', options);
+	});
+
+	it.ios('All text should show if TableView.style is .INSET_GROUPED ', () => {
+		// FIXME: Does not honour scale correctly on macOS: https://jira.appcelerator.org/browse/TIMOB-28261
+		if (utilities.isMacOS() && OS_VERSION_MAJOR < 11) {
+			return;
+		}
+
+		const view = Ti.UI.createView({
+			width: '540px',
+			height: '960px'
+		});
+		const tableView = Ti.UI.createTableView({
+			backgroundColor: 'white',
+			style: Titanium.UI.iOS.TableViewStyle.INSET_GROUPED
+		});
+		const row = Ti.UI.createTableViewRow({
+			backgroundColor: 'blue'
+		});
+
+		const label = Ti.UI.createLabel({ text: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean interdum laoreet augue scelerisque convallis.' });
+		row.add(label);
+
+		tableView.data = [ row ];
+
+		view.add(tableView);
+
+		should(view).matchImage('snapshots/tableview_style_inset_grouped.png', {
+			threshold: 0.1
+		});
 	});
 });

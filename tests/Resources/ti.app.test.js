@@ -6,213 +6,260 @@
  */
 /* eslint-env mocha */
 /* eslint no-unused-expressions: "off" */
+/* eslint mocha/no-identical-title: "off" */
 'use strict';
-var should = require('./utilities/assertions');
+const should = require('./utilities/assertions');
 
-describe('Titanium.App', function () {
+describe('Titanium.App', () => {
 
-	it('EVENT_ACCESSIBILITY_ANNOUNCEMENT', function () {
-		should(Ti.App).have.constant('EVENT_ACCESSIBILITY_ANNOUNCEMENT').which.is.eql('accessibilityannouncement');
+	describe('constants', () => {
+		it('EVENT_ACCESSIBILITY_ANNOUNCEMENT', () => {
+			should(Ti.App).have.constant('EVENT_ACCESSIBILITY_ANNOUNCEMENT').which.is.eql('accessibilityannouncement');
+		});
+
+		it('EVENT_ACCESSIBILITY_CHANGED', () => {
+			should(Ti.App).have.constant('EVENT_ACCESSIBILITY_CHANGED').which.is.eql('accessibilitychanged');
+		});
 	});
 
-	it('EVENT_ACCESSIBILITY_CHANGED', function () {
-		should(Ti.App).have.constant('EVENT_ACCESSIBILITY_CHANGED').which.is.eql('accessibilitychanged');
-	});
+	describe('properties', () => {
+		describe('.apiName', () => {
+			it('is a read-only String', () => {
+				should(Ti.App).have.readOnlyProperty('apiName').which.is.a.String();
+			});
 
-	// TODO Add tests for set* methods!
+			it('equals \'Ti.App\'', () => {
+				should(Ti.App.apiName).be.eql('Ti.App');
+			});
 
-	it('apiName', function () {
-		should(Ti.App.apiName).be.eql('Ti.App');
-		should(Ti.App).have.readOnlyProperty('apiName').which.is.a.String();
-	});
+			it('has no getter', () => {
+				should(Ti.App).not.have.a.getter('apiName');
+			});
+		});
 
-	it('accessibilityEnabled', function () {
-		should(Ti.App).have.readOnlyProperty('accessibilityEnabled').which.is.a.Boolean();
-	});
+		describe('.accessibilityEnabled', () => {
+			it('is a read-only Boolean', () => {
+				should(Ti.App).have.a.readOnlyProperty('accessibilityEnabled').which.is.a.Boolean();
+			});
 
-	it('#getAccessibilityEnabled()', function () {
-		should(Ti.App.getAccessibilityEnabled).be.a.Function();
-		should(Ti.App.getAccessibilityEnabled()).be.a.Boolean();
-	});
+			it('has no getter', () => {
+				should(Ti.App).not.have.a.getter('accessibilityEnabled');
+			});
+		});
 
-	it('analytics', function () {
-		should(Ti.App).have.readOnlyProperty('analytics').which.is.a.Boolean();
-	});
+		describe.ios('.arguments', () => {
+			it('is an Object', () => {
+				should(Ti.App).have.a.readOnlyProperty('arguments').which.is.an.Object();
+			});
 
-	it('#getAnalytics()', function () {
-		should(Ti.App.getAnalytics).be.a.Function();
-		should(Ti.App.getAnalytics()).be.a.Boolean();
-	});
+			it('has getter', () => {
+				should(Ti.App).have.a.getter('arguments');
+			});
+		});
 
-	it('copyright', function () {
-		should(Ti.App).have.readOnlyProperty('copyright').which.is.a.String();
-	});
+		describe('.copyright', () => {
+			it('is a read-only String', () => {
+				should(Ti.App).have.a.readOnlyProperty('copyright').which.is.a.String();
+			});
 
-	it('#getCopyright()', function () {
-		should(Ti.App.getCopyright).be.a.Function();
-		should(Ti.App.getCopyright()).be.a.String();
-	});
+			it('has no getter', () => {
+				should(Ti.App).not.have.a.getter('copyright');
+			});
+		});
 
-	it('deployType', function () {
-		should(Ti.App).have.readOnlyProperty('deployType').which.is.a.String();
-	});
+		describe('.deployType', () => {
+			it('is a read-only String', () => {
+				should(Ti.App).have.a.readOnlyProperty('deployType').which.is.a.String();
+			});
 
-	it('#getDeployType()', function () {
-		should(Ti.App.getDeployType).be.a.Function();
-		should(Ti.App.getDeployType()).be.a.String();
-	});
+			it('has no getter', () => {
+				should(Ti.App).not.have.a.getter('deployType');
+			});
+		});
 
-	it('description', function () {
-		should(Ti.App).have.readOnlyProperty('description').which.is.a.String();
-	});
+		describe('.description', () => {
+			it('is a read-only String', () => {
+				should(Ti.App).have.a.readOnlyProperty('description').which.is.a.String();
+			});
 
-	it('#getDescription()', function () {
-		should(Ti.App.getDescription).be.a.Function();
-		should(Ti.App.getDescription()).be.a.String();
-	});
+			it('has no getter', () => {
+				should(Ti.App).not.have.a.getter('description');
+			});
+		});
 
-	it.ios('disableNetworkActivityIndicator', function () {
-		should(Ti.App.disableNetworkActivityIndicator).be.a.Boolean();
-	});
+		describe.ios('.disableNetworkActivityIndicator', () => {
+			it('is a Boolean', () => {
+				should(Ti.App).have.a.property('disableNetworkActivityIndicator').which.is.a.Boolean();
+			});
 
-	it.ios('#getDisableNetworkActivityIndicator()', function () {
-		should(Ti.App.getDisableNetworkActivityIndicator).be.a.Function();
-		should(Ti.App.getDisableNetworkActivityIndicator()).be.a.Boolean();
-	});
+			it('defaults to false', () => {
+				should(Ti.App.disableNetworkActivityIndicator).be.false();
+			});
 
-	it.ios('forceSplashAsSnapshot', function () {
-		should(Ti.App.forceSplashAsSnapshot).be.a.Boolean();
-		should(Ti.App.forceSplashAsSnapshot).be.false();
+			it('can be assigned a Boolean value', () => {
+				Ti.App.disableNetworkActivityIndicator = true;
+				should(Ti.App.disableNetworkActivityIndicator).be.true();
+			});
 
-		Ti.App.forceSplashAsSnapshot = true;
-		should(Ti.App.forceSplashAsSnapshot).be.true();
+			it('has no accessors', () => {
+				should(Ti.App).not.have.accessors('disableNetworkActivityIndicator');
+			});
+		});
 
-		Ti.App.forceSplashAsSnapshot = false;
-		should(Ti.App.forceSplashAsSnapshot).be.false();
-	});
+		describe.ios('.forceSplashAsSnapshot', () => {
+			it('is a Boolean', () => {
+				should(Ti.App).have.a.property('forceSplashAsSnapshot').which.is.a.Boolean();
+			});
 
-	it.ios('#getForceSplashAsSnapshot()', function () {
-		should(Ti.App.getForceSplashAsSnapshot).be.a.Function();
-		should(Ti.App.getForceSplashAsSnapshot()).be.a.Boolean();
-	});
+			it('can be assigned a Boolean value', () => {
+				Ti.App.forceSplashAsSnapshot = true;
+				should(Ti.App.forceSplashAsSnapshot).be.true();
+			});
 
-	it('guid', function () {
-		should(Ti.App).have.readOnlyProperty('guid').which.is.a.String();
-	});
+			it('has no accessors', () => {
+				should(Ti.App).not.have.accessors('forceSplashAsSnapshot');
+			});
+		});
 
-	it('#getGuid()', function () {
-		should(Ti.App.getGuid).be.a.Function();
-		should(Ti.App.getGuid()).be.a.String();
-	});
+		describe('.guid', () => {
+			it('is a read-only String', () => {
+				should(Ti.App).have.a.readOnlyProperty('guid').which.is.a.String();
+			});
 
-	it('id', function () {
-		should(Ti.App).have.readOnlyProperty('id').which.is.a.String();
-	});
+			it('has no getter', () => {
+				should(Ti.App).not.have.a.getter('guid');
+			});
+		});
 
-	it('getId()', function () {
-		should(Ti.App.getId).be.a.Function();
-		should(Ti.App.getId()).be.a.String();
-	});
+		describe('.id', () => {
+			it('is a read-only String', () => {
+				should(Ti.App).have.a.readOnlyProperty('id').which.is.a.String();
+			});
 
-	it.ios('idleTimerDisabled', function () {
-		// FIXME Windows has this property and getter below and defaults to false, but you can't change it
-		should(Ti.App.idleTimerDisabled).be.a.Boolean();
-		should(Ti.App.idleTimerDisabled).be.false();
-	});
+			it('has no getter', () => {
+				should(Ti.App).not.have.a.getter('id');
+			});
+		});
 
-	it.ios('#getIdleTimerDisabled()', function () {
-		should(Ti.App.getIdleTimerDisabled).be.a.Function();
-		should(Ti.App.getIdleTimerDisabled()).be.a.Boolean();
-		should(Ti.App.getIdleTimerDisabled()).be.false();
-	});
+		describe.ios('.idleTimerDisabled', () => {
+			it('is a Boolean', () => {
+				should(Ti.App).have.a.property('idleTimerDisabled').which.is.a.Boolean();
+			});
 
-	// TODO Add to Android API?
-	it.androidMissing('installId', function () {
-		should(Ti.App).have.readOnlyProperty('installId').which.is.a.String();
-	});
+			it('can be assigned a Boolean value', () => {
+				Ti.App.idleTimerDisabled = true;
+				should(Ti.App.idleTimerDisabled).be.true();
+			});
 
-	// TODO Add to Android API?
-	it.androidMissing('#getInstallId()', function () {
-		should(Ti.App.getInstallId).be.a.Function();
-		should(Ti.App.getInstallId()).be.a.String();
-	});
+			it('has no accessors', () => {
+				should(Ti.App).not.have.accessors('idleTimerDisabled');
+			});
+		});
 
-	// TODO Add to Android API?
-	it.androidMissing('keyboardVisible', function () {
-		should(Ti.App).have.readOnlyProperty('keyboardVisible').which.is.a.Boolean();
-	});
+		describe.ios('.installId', () => {
+			it('is a read-only String', () => {
+				should(Ti.App).have.a.readOnlyProperty('installId').which.is.a.String();
+			});
 
-	// TODO Add to Android API?
-	it.androidMissing('#getKeyboardVisible()', function () {
-		should(Ti.App.getKeyboardVisible).be.a.Function();
-		should(Ti.App.getKeyboardVisible()).be.a.Boolean();
-	});
+			it('has no getter', () => {
+				should(Ti.App).not.have.a.getter('installId');
+			});
+		});
 
-	it('name', function () {
-		should(Ti.App).have.readOnlyProperty('name').which.is.a.String();
-	});
+		describe.ios('.keyboardVisible', () => {
+			it('is a read-only Boolean', () => {
+				should(Ti.App).have.a.readOnlyProperty('keyboardVisible').which.is.a.Boolean();
+			});
 
-	it('#getName()', function () {
-		should(Ti.App.getName).be.a.Function();
-		should(Ti.App.getName()).be.a.String();
-	});
+			it('has no getter', () => {
+				should(Ti.App).not.have.a.getter('keyboardVisible');
+			});
+		});
 
-	it('proximityDetection', function () {
-		should(Ti.App.proximityDetection).be.a.Boolean();
-	});
+		describe('.name', () => {
+			it('is a read-only String', () => {
+				should(Ti.App).have.a.readOnlyProperty('name').which.is.a.String();
+			});
 
-	it('#getProximityDetection()', function () {
-		should(Ti.App.getProximityDetection).be.a.Function();
-		should(Ti.App.getProximityDetection()).be.a.Boolean();
-	});
+			it('has no getter', () => {
+				should(Ti.App).not.have.a.getter('name');
+			});
+		});
 
-	it('proximityState', function () {
-		should(Ti.App.proximityState).be.a.Boolean();
-	});
+		describe('.proximityDetection', () => {
+			it('is a Boolean', () => {
+				should(Ti.App).have.a.property('proximityDetection').which.is.a.Boolean();
+			});
 
-	it('#getProximityState()', function () {
-		should(Ti.App.getProximityState).be.a.Function();
-		should(Ti.App.getProximityState()).be.a.Boolean();
-	});
+			it('defaults to false', () => {
+				should(Ti.App.proximityDetection).be.false();
+			});
 
-	it('publisher', function () {
-		should(Ti.App).have.readOnlyProperty('publisher').which.is.a.String();
-	});
+			it.iosBroken('can be assigned a Boolean value', () => { // iOS does it async? I don't know
+				Ti.App.proximityDetection = true;
+				should(Ti.App.proximityDetection).be.true();
+				Ti.App.proximityDetection = false;
+				should(Ti.App.proximityDetection).be.false();
+			});
 
-	it('#getPublisher()', function () {
-		should(Ti.App.getPublisher).be.a.Function();
-		should(Ti.App.getPublisher()).be.a.String();
-	});
+			it('has no accessors', () => {
+				should(Ti.App).not.have.accessors('proximityDetection');
+			});
+		});
 
-	it('sessionId', function () {
-		should(Ti.App).have.readOnlyProperty('sessionId').which.is.a.String();
-	});
+		describe('.proximityState', () => {
+			it('is a read-only Boolean', () => {
+				should(Ti.App).have.a.readOnlyProperty('proximityState').which.is.a.Boolean();
+			});
 
-	it('#getSessionId()', function () {
-		should(Ti.App.getSessionId).be.a.Function();
-		should(Ti.App.getSessionId()).be.a.String();
-	});
+			it('has no getter', () => {
+				should(Ti.App).not.have.a.getter('proximityState');
+			});
+		});
 
-	it('url', function () {
-		should(Ti.App).have.readOnlyProperty('url').which.is.a.String();
-	});
+		describe('.publisher', () => {
+			it('is a read-only String', () => {
+				should(Ti.App).have.a.readOnlyProperty('publisher').which.is.a.String();
+			});
 
-	it('#getUrl()', function () {
-		should(Ti.App.getUrl).be.a.Function();
-		should(Ti.App.getUrl()).be.a.String();
-	});
+			it('has no getter', () => {
+				should(Ti.App).not.have.a.getter('publisher');
+			});
+		});
 
-	it('version', function () {
-		should(Ti.App).have.readOnlyProperty('version').which.is.a.String();
-	});
+		describe('.sessionId', () => {
+			it('is a read-only String', () => {
+				should(Ti.App).have.a.readOnlyProperty('sessionId').which.is.a.String();
+			});
 
-	it('#getVersion()', function () {
-		should(Ti.App.getVersion).be.a.Function();
-		should(Ti.App.getVersion()).be.a.String();
+			it('has no getter', () => {
+				should(Ti.App).not.have.a.getter('sessionId');
+			});
+		});
+
+		describe('.url', () => {
+			it('is a read-only String', () => {
+				should(Ti.App).have.a.readOnlyProperty('url').which.is.a.String();
+			});
+
+			it('has no getter', () => {
+				should(Ti.App).not.have.a.getter('url');
+			});
+		});
+
+		describe('.version', () => {
+			it('is a read-only String', () => {
+				should(Ti.App).have.a.readOnlyProperty('version').which.is.a.String();
+			});
+
+			it('has no getter', () => {
+				should(Ti.App).not.have.a.getter('version');
+			});
+		});
 	});
 
 	// TIMOB-23542 test searchQuery
-	it.ios('searchQuery', function () {
+	it.ios('searchQuery', () => {
 		var searchQuery;
 		should(Ti.App.iOS.createSearchQuery).not.be.undefined();
 		should(Ti.App.iOS.createSearchQuery).be.a.Function();
@@ -370,7 +417,7 @@ describe('Titanium.App', function () {
 			action: Ti.Android.ACTION_MAIN,
 		});
 		homeIntent.addCategory(Ti.Android.CATEGORY_HOME);
-		homeIntent.setFlags(Ti.Android.FLAG_ACTIVITY_NEW_TASK);
+		homeIntent.flags = Ti.Android.FLAG_ACTIVITY_NEW_TASK;
 		Ti.Android.currentActivity.startActivity(homeIntent);
 	});
 });

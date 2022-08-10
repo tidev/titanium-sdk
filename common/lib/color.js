@@ -96,7 +96,7 @@ class Color {
 
 	/**
 	 * Converts this color to an rgba expression. This expression is more consistent across platforms.
-	 * (whereas iOS/Android differ in expecttaiosn for hex strings.)
+	 * (whereas iOS/Android differ in expectations for hex strings.)
 	 * @returns {string}
 	 */
 	toRGBAString() {

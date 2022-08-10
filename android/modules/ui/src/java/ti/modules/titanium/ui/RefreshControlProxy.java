@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2017 by Axway, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -37,7 +37,7 @@ public class RefreshControlProxy extends KrollProxy
 	 * "TiSwipeRefreshLayout" view. Instances must be removed when this class' static
 	 * unassignFrom() method has been called.
 	 */
-	private static HashSet<RefreshControlProxy> assignedControls = new HashSet<RefreshControlProxy>();
+	private static final HashSet<RefreshControlProxy> assignedControls = new HashSet<>();
 
 	/** Color integer value to be applied to the refresh layout's progress indicator. */
 	private int tintColor = DEFAULT_TINT_COLOR;
@@ -126,7 +126,7 @@ public class RefreshControlProxy extends KrollProxy
 		if (colorName == null) {
 			this.tintColor = RefreshControlProxy.DEFAULT_TINT_COLOR;
 		} else if (colorName instanceof String) {
-			this.tintColor = TiColorHelper.parseColor((String) colorName);
+			this.tintColor = TiColorHelper.parseColor((String) colorName, getActivity());
 		} else {
 			Log.e(TAG, "Property '" + TiC.PROPERTY_TINT_COLOR + "' must be of type string.");
 			return;

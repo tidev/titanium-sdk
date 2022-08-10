@@ -3,20 +3,26 @@
 	<application>
 		<activity
 			android:name="org.appcelerator.titanium.TiActivity"
+			android:exported="false"
 			android:configChanges="${tiActivityConfigChanges}"/>
 		<activity
 			android:name="org.appcelerator.titanium.TiTranslucentActivity"
+			android:exported="false"
 			android:configChanges="${tiActivityConfigChanges}"
-			android:theme="@style/Theme.Titanium.Translucent"/>
+			android:theme="@style/Theme.AppDerived.Translucent"/>
 		<activity
 			android:name="ti.modules.titanium.media.TiCameraActivity"
+			android:exported="false"
 			android:configChanges="${tiActivityConfigChanges}"
-			android:theme="@style/Theme.Titanium.Translucent.Fullscreen"/>
+			android:theme="@style/Theme.Titanium.Dark.Fullscreen"/>
 		<activity
 			android:name="ti.modules.titanium.media.TiVideoActivity"
+			android:exported="false"
 			android:configChanges="${tiActivityConfigChanges}"
-			android:theme="@style/Theme.Titanium.Fullscreen"/>
-		<activity android:name="ti.modules.titanium.ui.android.TiPreferencesActivity"/>
+			android:theme="@style/Theme.AppDerived.Fullscreen"/>
+		<activity
+			android:name="ti.modules.titanium.ui.android.TiPreferencesActivity"
+			android:exported="false"/>
 
 		<provider
 			android:name="org.appcelerator.titanium.io.TiFileProvider"
@@ -24,9 +30,5 @@
 			android:exported="false"
 			android:grantUriPermissions="true"/>
 
-		<service
-			android:name="com.appcelerator.aps.APSAnalyticsService"
-			android:permission="android.permission.BIND_JOB_SERVICE"
-			android:exported="false"/>
 	</application>
 </manifest>

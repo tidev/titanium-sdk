@@ -1,11 +1,12 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2014-2015 by Appcelerator, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 package ti.modules.titanium.ui;
 
+import java.lang.reflect.Method;
 import java.util.HashMap;
 
 import org.appcelerator.kroll.KrollDict;
@@ -19,9 +20,11 @@ import org.appcelerator.titanium.util.TiUIHelper;
 import android.app.Activity;
 import android.graphics.Paint;
 import android.graphics.Typeface;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.Spannable;
 import android.text.SpannableString;
+import android.text.TextPaint;
 import android.text.TextUtils;
 import android.text.style.AbsoluteSizeSpan;
 import android.text.style.BackgroundColorSpan;
@@ -39,6 +42,65 @@ import android.text.style.SubscriptSpan;
 public class AttributedStringProxy extends KrollProxy
 {
 	private static final String TAG = "AttributedString";
+
+	private static final class UnderlineColorSpan extends UnderlineSpan
+	{
+		private final int color;
+		private final float thickness;
+
+		public UnderlineColorSpan(final int color, final float thickness)
+		{
+			this.color = color;
+			this.thickness = thickness;
+		}
+
+		public UnderlineColorSpan(final int color)
+		{
+			this(color, 2.0f);
+		}
+
+		@Override
+		public void updateDrawState(final TextPaint ds)
+		{
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+				ds.underlineColor = this.color;
+				ds.underlineThickness = this.thickness;
+			} else {
+				try {
+					final Method setUnderlineText =
+						TextPaint.class.getMethod("setUnderlineText", Integer.TYPE, Float.TYPE);
+					setUnderlineText.invoke(ds, this.color, this.thickness);
+				} catch (final Exception e) {
+
+					// Fallback to default underline behavior.
+					ds.setUnderlineText(true);
+				}
+			}
+		}
+	}
+
+	private static final class URLColorSpan extends URLSpan
+	{
+		private boolean underline = true;
+
+		public URLColorSpan(String url)
+		{
+			super(url);
+		}
+
+		public void setUnderline(boolean underline)
+		{
+			this.underline = underline;
+		}
+
+		@Override
+		public void updateDrawState(final TextPaint ds)
+		{
+			super.updateDrawState(ds);
+
+			ds.setUnderlineText(underline);
+		}
+	}
 
 	public AttributedStringProxy()
 	{
@@ -187,17 +249,32 @@ public class AttributedStringProxy extends KrollProxy
 										break;
 									case UIModule.ATTRIBUTE_BACKGROUND_COLOR:
 										spannableText.setSpan(
-											new BackgroundColorSpan(TiConvert.toColor(TiConvert.toString(attrValue))),
+											new BackgroundColorSpan(TiConvert.toColor(attrValue, activity)),
 											range[0], range[0] + range[1], Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 										break;
 									case UIModule.ATTRIBUTE_FOREGROUND_COLOR:
 										spannableText.setSpan(
-											new ForegroundColorSpan(TiConvert.toColor(TiConvert.toString(attrValue))),
+											new ForegroundColorSpan(TiConvert.toColor(attrValue, activity)),
 											range[0], range[0] + range[1], Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 										break;
 									case UIModule.ATTRIBUTE_STRIKETHROUGH_STYLE:
 										spannableText.setSpan(new StrikethroughSpan(), range[0], range[0] + range[1],
 															  Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+										break;
+									case UIModule.ATTRIBUTE_UNDERLINE_COLOR:
+										final UnderlineColorSpan underlineColorSpan = new UnderlineColorSpan(
+											TiConvert.toColor(attrValue, activity));
+
+										spannableText.setSpan(underlineColorSpan, range[0], range[0] + range[1],
+											Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+										final URLColorSpan[] urlSpans = spannableText.getSpans(
+											range[0], range[0] + range[1], URLColorSpan.class);
+										for (final URLColorSpan urlSpan : urlSpans) {
+
+											// Disable link underline, override with our underline color.
+											urlSpan.setUnderline(false);
+										}
 										break;
 									case UIModule.ATTRIBUTE_UNDERLINES_STYLE:
 										spannableText.setSpan(new UnderlineSpan(), range[0], range[0] + range[1],
@@ -213,9 +290,19 @@ public class AttributedStringProxy extends KrollProxy
 										break;
 									case UIModule.ATTRIBUTE_LINK:
 										if (attrValue != null) {
-											spannableText.setSpan(new URLSpan(TiConvert.toString(attrValue)), range[0],
-																  range[0] + range[1],
-																  Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+											final URLColorSpan urlColorSpan =
+												new URLColorSpan(TiConvert.toString(attrValue));
+
+											spannableText.setSpan(urlColorSpan, range[0], range[0] + range[1],
+													Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+											final UnderlineColorSpan[] underlineSpans = spannableText.getSpans(
+												range[0], range[0] + range[1], UnderlineColorSpan.class);
+											if (underlineSpans.length > 0) {
+
+												// Disable link underline, allow override with our underline color.
+												urlColorSpan.setUnderline(false);
+											}
 										}
 										results.putBoolean(TiC.PROPERTY_HAS_LINK, true);
 										break;

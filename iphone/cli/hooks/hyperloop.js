@@ -17,7 +17,7 @@ exports.init = function (logger, config, cli) {
 	let cmds,
 		libfile;
 
-	const archs = [ 'armv7', 'arm64', 'x86_64', 'i386' ];
+	const archs = [ 'arm64', 'x86_64' ];
 	/**
 	 * we need to do this before we actually write out the xcode project file
 	 */

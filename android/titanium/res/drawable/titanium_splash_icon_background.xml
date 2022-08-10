@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+	<item android:drawable="?android:attr/colorBackground"/>
+	<item>
+		<bitmap android:gravity="center" android:src="?attr/titaniumSplashIcon"/>
+	</item>
+</layer-list>

@@ -1,14 +1,11 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-Present by Appcelerator, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 package ti.modules.titanium;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
@@ -30,7 +27,6 @@ import org.appcelerator.titanium.util.TiRHelper;
 import org.appcelerator.titanium.util.TiUIHelper;
 
 import android.app.Activity;
-import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.util.SparseArray;
@@ -44,15 +40,13 @@ public class TitaniumModule extends KrollModule
 	private static final int MSG_ALERT = KrollProxy.MSG_LAST_ID + 100;
 
 	private Stack<String> basePath;
-	private Map<String, NumberFormat> numberFormats =
-		java.util.Collections.synchronizedMap(new HashMap<String, NumberFormat>());
-
-	private static final SparseArray<Timer> activeTimers = new SparseArray<TitaniumModule.Timer>();
+	private final Map<String, NumberFormat> numberFormats = java.util.Collections.synchronizedMap(new HashMap<>());
+	private static final SparseArray<Timer> activeTimers = new SparseArray<>();
 	private static int lastTimerId = 1;
 
 	public TitaniumModule()
 	{
-		basePath = new Stack<String>();
+		basePath = new Stack<>();
 	}
 
 	@Override
@@ -62,7 +56,6 @@ public class TitaniumModule extends KrollModule
 		basePath.push(getCreationUrl().baseUrl);
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getUserAgent()
 	{
@@ -75,28 +68,24 @@ public class TitaniumModule extends KrollModule
 		return builder.toString();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getVersion()
 	{
 		return TiApplication.getInstance().getTiBuildVersion();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getBuildTimestamp()
 	{
 		return TiApplication.getInstance().getTiBuildTimestamp();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getBuildDate()
 	{
 		return TiApplication.getInstance().getTiBuildTimestamp();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getBuildHash()
 	{
@@ -408,28 +397,6 @@ public class TitaniumModule extends KrollModule
 			Log.e(TAG, "Exception trying to localize string '" + key + "': ", e);
 
 			return defaultValue;
-		}
-	}
-
-	@Kroll.method
-	public void dumpCoverage()
-	{
-		TiApplication app = TiApplication.getInstance();
-		if (app == null || !app.isCoverageEnabled()) {
-			Log.w(TAG, "Coverage is not enabled, no coverage data will be generated");
-
-			return;
-		}
-
-		try {
-			File extStorage = Environment.getExternalStorageDirectory();
-			File reportFile = new File(new File(extStorage, app.getPackageName()), "coverage.json");
-			FileOutputStream reportOut = new FileOutputStream(reportFile);
-			// TODO KrollCoverage.writeCoverageReport(reportOut);
-			reportOut.close();
-
-		} catch (IOException e) {
-			Log.e(TAG, e.getMessage(), e);
 		}
 	}
 

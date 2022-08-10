@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-Present by Appcelerator, Inc. All Rights Reserved.
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -87,6 +87,7 @@ JSValueRef ConvertIdTiValue(KrollContext *context, id obj)
 //
 // callback for handling finalization (in JS land)
 //
+static BOOL finalizing = NO;
 void KrollFinalizer(JSObjectRef ref)
 {
   id o = (id)JSObjectGetPrivate(ref);
@@ -112,9 +113,10 @@ void KrollFinalizer(JSObjectRef ref)
       }
     }
   }
-
+  finalizing = YES;
   [o release];
   o = nil;
+  finalizing = NO;
 }
 
 bool KrollDeleteProperty(JSContextRef ctx, JSObjectRef object, JSStringRef propertyName, JSValueRef *exception)
@@ -222,7 +224,6 @@ JSValueRef KrollGetProperty(JSContextRef jsContext, JSObjectRef object, JSString
       }
     }
 
-    // TODO USe a marking protocol to skip when
     if ([result conformsToProtocol:@protocol(JSExport)]) {
       JSContext *objcContext = [JSContext contextWithJSGlobalContextRef:[[o context] context]];
       return [[JSValue valueWithObject:result inContext:objcContext] JSValueRef];
@@ -399,6 +400,11 @@ bool KrollHasInstance(JSContextRef ctx, JSObjectRef constructor, JSValueRef poss
   return KrollObjectClassRef;
 }
 
++ (BOOL)isFinalizing
+{
+  return finalizing;
+}
+
 - (id)initWithTarget:(id)target_ context:(KrollContext *)context_
 {
   if (self = [self init]) {
@@ -545,228 +551,197 @@ bool KrollHasInstance(JSContextRef ctx, JSObjectRef constructor, JSValueRef poss
 
 - (id)_valueForKey:(NSString *)key
 {
-  //TODO: need to consult property_getAttributes to make sure we're not hitting readonly, etc. but do this
-  //only for non-production builds
+  // Is is special case toString or valueOf methods?
+  if ([key isEqualToString:@"toString"] || [key isEqualToString:@"valueOf"]) {
+    return [[[KrollMethod alloc] initWithTarget:target selector:@selector(toString:) argcount:0 type:KrollMethodInvoke name:nil context:[self context]] autorelease];
+  }
 
-  // TODO: We do a significant amount of magic here (set/get routing, and additionally "automatic"
-  // get/set based on what we assume the user is doing) that may need to be removed.
+  // Special handling for className due to conflict with NSObject private API
+  if ([key isEqualToString:@"className"]) {
+    return [target valueForUndefinedKey:key];
+  }
 
-  if ([key hasPrefix:@"set"] && ([key length] >= 4) &&
-      [[NSCharacterSet uppercaseLetterCharacterSet] characterIsMember:[key characterAtIndex:3]]) {
-    // This is PROBABLY a request for an internal setter (either setX('a') or setX('a','b')). But
-    // it could also be:
-    // * Pulling a user-defined property prefixed with 'set'
-    // * Autogenerating a getter/setter
-    // In the event of the former, we actually have to actually pull a jump to
-    // returning the property's appropriate type, as below in the general case.
+  // Is this a property on the Obj-C class? If so, invoke it's getter and return the value
+  objc_property_t p = class_getProperty([target class], key.UTF8String);
+  if (p != NULL) {
+    return [self valueForProperty:p withKey:key];
+  }
 
-    SEL selector;
-
+  // Check if this is a single-argument method
+  SEL selector = NSSelectorFromString([NSString stringWithFormat:@"%@:", key]);
+  // We need special handling for setters so that we "unwrap" arguments
+  // We have two flavors of setters:
+  // - setX:(id)value OR
+  // - setX:(id)value withObject:(id)options
+  if ([key hasPrefix:@"set"]) {
+    // this is a setter method, so let's tag it for special arg unwrapping
+    // special handling for setter methods to basically "unwrap" arguments array when invoking
+    // which aligns w/ obj-c property setter expectations
+    KrollMethod *method = [[[KrollMethod alloc] initWithTarget:target
+                                                      selector:selector
+                                                      argcount:1
+                                                          type:KrollMethodSetter
+                                                          name:nil
+                                                       context:[self context]] autorelease];
+    // Record the underlying property so the setter updates the property on the JS object (if necessary)
     NSString *propertyKey = [self _propertyGetterSetterKey:key];
-    KrollMethod *result = [[KrollMethod alloc] initWithTarget:target context:[self context]];
+    [method setPropertyKey:propertyKey];
+    [method setUpdatesProperty:[(TiProxy *)target retainsJsObjectForKey:propertyKey]];
 
-    [result setArgcount:1];
-    [result setPropertyKey:propertyKey];
-    [result setType:KrollMethodSetter];
-    [result setUpdatesProperty:[(TiProxy *)target retainsJsObjectForKey:propertyKey]];
-
-    selector = NSSelectorFromString([key stringByAppendingString:@":withObject:"]);
-    if ([target respondsToSelector:selector]) {
-      [result setArgcount:2];
-      [result setSelector:selector];
-    } else {
-      selector = NSSelectorFromString([key stringByAppendingString:@":"]);
-      if ([target respondsToSelector:selector]) {
-        // Assume that if there's a getter with same property name, that this is just exposing the property's setter method to JS when it shouldn't be
-        if ([target respondsToSelector:NSSelectorFromString(propertyKey)]) {
-          // This is the code path for delegating something like Ti.Filesystem.File#setHidden(), see KrollMethod for other cases (when type is KrollMethodPropertySetter, the last option in this if block below)
-          // Spit out a deprecation warning to use normal property setter!
-          DebugLog(@"[WARN] Automatic setter methods for properties are deprecated in SDK 8.0.0 and will be removed in SDK 10.0.0. Please modify the property in standard JS style: obj.%@ = value; or obj['%@'] = value;", propertyKey, propertyKey);
-        }
-        [result setSelector:selector];
-      } else {
-        // Either a custom property, OR a request for an autogenerated setter
-        id value = [target valueForKey:key];
-        if (value != nil) {
-          [result release];
-          return [self convertValueToDelegate:value forKey:key];
-        } else {
-          [result setType:KrollMethodPropertySetter];
-          [result setName:propertyKey];
-        }
-      }
+    // Check for special setters that take additional optional options object
+    SEL selectorWithObject = NSSelectorFromString([key stringByAppendingString:@":withObject:"]);
+    if ([target respondsToSelector:selectorWithObject]) {
+      [method setSelector:selectorWithObject];
+      [method setArgcount:2];
     }
-
-    return [result autorelease]; // we simply return a method delegator  against the target to set the property directly on the target
-  } else if ([key hasPrefix:@"get"]) {
-    KrollMethod *result = [[KrollMethod alloc] initWithTarget:target context:[self context]];
-    NSString *propertyKey = [self _propertyGetterSetterKey:key];
-    [result setPropertyKey:propertyKey];
-    [result setArgcount:1];
-    [result setUpdatesProperty:[(TiProxy *)target retainsJsObjectForKey:propertyKey]];
-
-    //first make sure we don't have a method with the fullname
-    SEL fullSelector = NSSelectorFromString([NSString stringWithFormat:@"%@:", key]);
-    if ([target respondsToSelector:fullSelector]) {
-      [result setSelector:fullSelector];
-      [result setType:KrollMethodInvoke];
-      return [result autorelease];
+    // Responds to basic setter?
+    if ([target respondsToSelector:selector] || [target respondsToSelector:selectorWithObject]) {
+      return method;
     }
-
-    // this is a request for a getter method
-    // a.getFoo()
-    NSString *partkey = [self propercase:key index:3];
-    SEL selector = NSSelectorFromString(partkey);
-    if ([target respondsToSelector:selector]) {
-      // Spit out a deprecation warning to use normal property accessor!
-      // This is the code path for delegating something like Ti.Filesystem.File#getHidden(), see KrollMethod for other cases (when type is KrollMethodPropertyGetter, the last option in this if block below)
-      DebugLog(@"[WARN] Automatic getter methods for properties are deprecated in SDK 8.0.0 and will be removed in SDK 10.0.0. Please access the property in standard JS style: obj.%@ or obj['%@']", partkey, partkey);
-      [result setSelector:selector];
-      [result setType:KrollMethodGetter];
-      return [result autorelease];
-    }
-    // see if its an actual method that takes an arg instead
-    selector = NSSelectorFromString([NSString stringWithFormat:@"%@:", partkey]);
-    if ([target respondsToSelector:selector]) {
-      [result setSelector:selector];
-      [result setType:KrollMethodGetter];
-      return [result autorelease];
-    }
-
-    // Check for custom property before returning the autogenerated getter
-    id value = [target valueForKey:key];
-    if (value != nil) {
-      [result release];
-      return [self convertValueToDelegate:value forKey:key];
-    }
-
-    [result setName:propertyKey];
-    [result setArgcount:0];
-    [result setType:KrollMethodPropertyGetter];
-    return [result autorelease];
   } else {
-    // property accessor - need to determine if its a objc property of method
-    objc_property_t p = class_getProperty([target class], [key UTF8String]);
-    if (p == NULL) {
-      if ([key isEqualToString:@"toString"] || [key isEqualToString:@"valueOf"]) {
-        return [[[KrollMethod alloc] initWithTarget:target selector:@selector(toString:) argcount:0 type:KrollMethodInvoke name:nil context:[self context]] autorelease];
-      }
-
-      // For something like TiUiTextWidgetProxy focused:(id)unused - this will assume it's a function/method
-      // So to work around this, we need to explicitly declare a property named "focused" with a different underlying getter
-      // to expose it as a property to JS
-      SEL selector = NSSelectorFromString([NSString stringWithFormat:@"%@:", key]);
-      if ([target respondsToSelector:selector]) {
-        return [[[KrollMethod alloc] initWithTarget:target
-                                           selector:selector
-                                           argcount:1
-                                               type:KrollMethodInvoke
-                                               name:nil
-                                            context:[self context]] autorelease];
-      }
-      // Special handling for className due to conflict with NSObject private API
-      if ([key isEqualToString:@"className"]) {
-        return [target valueForUndefinedKey:key];
-      }
-      // attempt a function that has no args (basically a non-property property)
-      selector = NSSelectorFromString([NSString stringWithFormat:@"%@", key]);
-      if ([target respondsToSelector:selector]) {
-        return [target performSelector:selector];
-      }
-      id result = [target valueForKey:key];
-      if (result != nil) {
-        return [self convertValueToDelegate:result forKey:key];
-      }
-      // see if this is a create factory which we can do dynamically
-      if ([key hasPrefix:@"create"]) {
-        SEL selector = @selector(createProxy:forName:context:);
-        if ([target respondsToSelector:selector]) {
-          return [[[KrollMethod alloc] initWithTarget:target
-                                             selector:selector
-                                             argcount:2
-                                                 type:KrollMethodFactory
-                                                 name:key
-                                              context:[self context]] autorelease];
-        }
-      }
-    } else {
-      NSString *attributes = [NSString stringWithCString:property_getAttributes(p) encoding:NSUTF8StringEncoding];
-      // look up getter name from the property attributes
-      SEL selector;
-      const char *getterName = property_copyAttributeValue(p, "G");
-      if (getterName != nil) {
-        selector = sel_getUid(getterName);
-      } else {
-        // not set, so use the property name
-        selector = NSSelectorFromString([NSString stringWithCString:property_getName(p) encoding:NSUTF8StringEncoding]);
-      }
-
-      if ([attributes hasPrefix:@"T@"]) {
-        // this means its a return type of id
-        return [target performSelector:selector];
-      } else {
-        NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:[target methodSignatureForSelector:selector]];
-        [invocation setSelector:selector];
-        [invocation invokeWithTarget:target];
-        if ([attributes hasPrefix:@"Td,"]) {
-          double d;
-          [invocation getReturnValue:&d];
-          return [NSNumber numberWithDouble:d];
-        } else if ([attributes hasPrefix:@"Tf,"]) {
-          float f;
-          [invocation getReturnValue:&f];
-          return [NSNumber numberWithFloat:f];
-        } else if ([attributes hasPrefix:@"Ti,"]) {
-          int i;
-          [invocation getReturnValue:&i];
-          return [NSNumber numberWithInt:i];
-        } else if ([attributes hasPrefix:@"TI,"]) {
-          unsigned int ui;
-          [invocation getReturnValue:&ui];
-          return [NSNumber numberWithUnsignedInt:ui];
-        } else if ([attributes hasPrefix:@"Tl,"]) {
-          long l;
-          [invocation getReturnValue:&l];
-          return [NSNumber numberWithLong:l];
-        } else if ([attributes hasPrefix:@"TL,"]) {
-          unsigned long ul;
-          [invocation getReturnValue:&ul];
-          return [NSNumber numberWithUnsignedLong:ul];
-        } else if ([attributes hasPrefix:@"Tc,"]) {
-          char c;
-          [invocation getReturnValue:&c];
-          return [NSNumber numberWithChar:c];
-        } else if ([attributes hasPrefix:@"TC,"]) {
-          unsigned char uc;
-          [invocation getReturnValue:&uc];
-          return [NSNumber numberWithUnsignedChar:uc];
-        } else if ([attributes hasPrefix:@"Ts,"]) {
-          short s;
-          [invocation getReturnValue:&s];
-          return [NSNumber numberWithShort:s];
-        } else if ([attributes hasPrefix:@"TS,"]) {
-          unsigned short us;
-          [invocation getReturnValue:&us];
-          return [NSNumber numberWithUnsignedShort:us];
-        } else if ([attributes hasPrefix:@"Tq,"]) {
-          long long ll;
-          [invocation getReturnValue:&ll];
-          return [NSNumber numberWithLongLong:ll];
-        } else if ([attributes hasPrefix:@"TQ,"]) {
-          unsigned long long ull;
-          [invocation getReturnValue:&ull];
-          return [NSNumber numberWithUnsignedLongLong:ull];
-        } else if ([attributes hasPrefix:@"TB,"] || [attributes hasPrefix:@"Tb,"]) {
-          bool b;
-          [invocation getReturnValue:&b];
-          return [NSNumber numberWithBool:b];
-        } else {
-          // let it fall through and return undefined
-          DebugLog(@"[WARN] Unsupported property: %@ for %@, attributes = %@", key, target, attributes);
-        }
-      }
+    // Non-set* methods
+    if ([target respondsToSelector:selector]) {
+      return [[[KrollMethod alloc] initWithTarget:target
+                                         selector:selector
+                                         argcount:1
+                                             type:KrollMethodInvoke
+                                             name:nil
+                                          context:[self context]] autorelease];
     }
   }
+
+  // attempt a function that has no args (basically a non-property property)
+  selector = NSSelectorFromString([NSString stringWithFormat:@"%@", key]);
+  if ([target respondsToSelector:selector]) {
+    return [target performSelector:selector];
+  }
+
+  // see if this is a create factory which we can do dynamically
+  // NOTE: we do this after checking for matching create* method first!
+  // So something like UIModule can override createAnimation:
+  // (all TiModule subclasses will respond to this selector below)
+  if ([key hasPrefix:@"create"]) {
+    SEL selector = @selector(createProxy:forName:context:);
+    if ([target respondsToSelector:selector]) {
+      return [[[KrollMethod alloc] initWithTarget:target
+                                         selector:selector
+                                         argcount:2
+                                             type:KrollMethodFactory
+                                             name:key
+                                          context:[self context]] autorelease];
+    }
+  }
+
+  // generic fall back
+  id result = [target valueForKey:key];
+  if (result != nil) {
+    return [self convertValueToDelegate:result forKey:key];
+  }
+
+  return nil;
+}
+
+- (id)valueForProperty:(objc_property_t)p withKey:(NSString *)key
+{
+  // look up getter name from the property attributes
+  SEL selector;
+  const char *getterName = property_copyAttributeValue(p, "G");
+  if (getterName != nil) {
+    selector = sel_getUid(getterName);
+  } else {
+    // not set, so use the property name
+    selector = NSSelectorFromString([NSString stringWithCString:property_getName(p) encoding:NSUTF8StringEncoding]);
+  }
+
+  NSString *attributes = [NSString stringWithCString:property_getAttributes(p) encoding:NSUTF8StringEncoding];
+  if ([attributes hasPrefix:@"T@"]) {
+    // this means its a return type of id
+    return [target performSelector:selector];
+  }
+
+  NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:[target methodSignatureForSelector:selector]];
+  [invocation setSelector:selector];
+  [invocation invokeWithTarget:target];
+  if ([attributes hasPrefix:@"Td,"]) {
+    double d;
+    [invocation getReturnValue:&d];
+    return [NSNumber numberWithDouble:d];
+  }
+
+  if ([attributes hasPrefix:@"Tf,"]) {
+    float f;
+    [invocation getReturnValue:&f];
+    return [NSNumber numberWithFloat:f];
+  }
+
+  if ([attributes hasPrefix:@"Ti,"]) {
+    int i;
+    [invocation getReturnValue:&i];
+    return [NSNumber numberWithInt:i];
+  }
+
+  if ([attributes hasPrefix:@"TI,"]) {
+    unsigned int ui;
+    [invocation getReturnValue:&ui];
+    return [NSNumber numberWithUnsignedInt:ui];
+  }
+
+  if ([attributes hasPrefix:@"Tl,"]) {
+    long l;
+    [invocation getReturnValue:&l];
+    return [NSNumber numberWithLong:l];
+  }
+
+  if ([attributes hasPrefix:@"TL,"]) {
+    unsigned long ul;
+    [invocation getReturnValue:&ul];
+    return [NSNumber numberWithUnsignedLong:ul];
+  }
+
+  if ([attributes hasPrefix:@"Tc,"]) {
+    char c;
+    [invocation getReturnValue:&c];
+    return [NSNumber numberWithChar:c];
+  }
+
+  if ([attributes hasPrefix:@"TC,"]) {
+    unsigned char uc;
+    [invocation getReturnValue:&uc];
+    return [NSNumber numberWithUnsignedChar:uc];
+  }
+
+  if ([attributes hasPrefix:@"Ts,"]) {
+    short s;
+    [invocation getReturnValue:&s];
+    return [NSNumber numberWithShort:s];
+  }
+
+  if ([attributes hasPrefix:@"TS,"]) {
+    unsigned short us;
+    [invocation getReturnValue:&us];
+    return [NSNumber numberWithUnsignedShort:us];
+  }
+
+  if ([attributes hasPrefix:@"Tq,"]) {
+    long long ll;
+    [invocation getReturnValue:&ll];
+    return [NSNumber numberWithLongLong:ll];
+  }
+
+  if ([attributes hasPrefix:@"TQ,"]) {
+    unsigned long long ull;
+    [invocation getReturnValue:&ull];
+    return [NSNumber numberWithUnsignedLongLong:ull];
+  }
+
+  if ([attributes hasPrefix:@"TB,"] || [attributes hasPrefix:@"Tb,"]) {
+    bool b;
+    [invocation getReturnValue:&b];
+    return [NSNumber numberWithBool:b];
+  }
+
+  // let it fall through and return undefined
+  DebugLog(@"[WARN] Unsupported property: %@ for %@, attributes = %@", key, target, attributes);
   return nil;
 }
 
@@ -777,11 +752,6 @@ bool KrollHasInstance(JSContextRef ctx, JSObjectRef constructor, JSValueRef poss
   }
 
   if (properties != nil && properties[propertyName] != nil) {
-    return YES;
-  }
-
-  if (([propertyName hasPrefix:@"get"] || [propertyName hasPrefix:@"set"]) && (propertyName.length >= 4) &&
-      [NSCharacterSet.uppercaseLetterCharacterSet characterIsMember:[propertyName characterAtIndex:3]]) {
     return YES;
   }
 
@@ -804,6 +774,11 @@ bool KrollHasInstance(JSContextRef ctx, JSObjectRef constructor, JSValueRef poss
   }
 
   selector = NSSelectorFromString([NSString stringWithFormat:@"%@", propertyName]);
+  if ([target respondsToSelector:selector]) {
+    return YES;
+  }
+
+  selector = NSSelectorFromString([[NSString stringWithFormat:@"%@:", propertyName] stringByAppendingString:@"withObject:"]);
   if ([target respondsToSelector:selector]) {
     return YES;
   }
@@ -882,6 +857,8 @@ bool KrollHasInstance(JSContextRef ctx, JSObjectRef constructor, JSValueRef poss
       value = nil;
     }
 
+    // TODO: Shouldn't we be checking for a property of this name, asking for it's setter and calling that?
+    // FIXME: Align with _valueForKey code which does similar stuff!
     NSString *name = [self propercase:key index:0];
     SEL selector = NSSelectorFromString([NSString stringWithFormat:@"set%@:withObject:", name]);
     if ([target respondsToSelector:selector]) {
@@ -947,28 +924,45 @@ bool KrollHasInstance(JSContextRef ctx, JSObjectRef constructor, JSValueRef poss
   JSValueUnprotect(jscontext, self.jsobject);
 }
 
-TI_INLINE JSStringRef TiStringCreateWithPointerValue(int value)
+static const char KrollObjectBase64Table[] = {
+  'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H',
+  'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P',
+  'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X',
+  'Y', 'Z', 'a', 'b', 'c', 'd', 'e', 'f',
+  'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n',
+  'o', 'p', 'q', 'r', 's', 't', 'u', 'v',
+  'w', 'x', 'y', 'z', '0', '1', '2', '3',
+  '4', '5', '6', '7', '8', '9', '+', '/'
+};
+
+TI_INLINE JSStringRef TiStringCreateWithPointerValue(void *value)
 {
-  /*
-	 *	When we note proxies, we need to come up with a property name
-	 *	that is unique. We previously did an nsstring with format
-	 *	of __PX%X, but this method is so often called, and allocating a string
-	 *	can be a waste, so it's better to jump straight to something hardwired
-	 *
-	 *	No sense in doing hex when so many more characters are valid property
-	 *	characters. So we do it in chunks of 6 bits, from '<' (60) to '{' (123)
-	 */
+  // Generate a unique property name for given native pointer by doing a base64 on its memory address.
+  // Note: This function is called extremely often. So, encode it manually for best performance.
+  // TODO: Use a JS Symbol instead to guarantee property uniqueness, but this requires iOS 13.
+#ifdef __LP64__
+  char result[15];
+  result[14] = '\0';
+#else
   char result[10];
+  result[9] = '\0';
+#endif
   result[0] = '_';
   result[1] = '_';
   result[2] = ':';
-  result[3] = '<' + (value & 0x3F);
-  result[4] = '<' + ((value >> 6) & 0x3F);
-  result[5] = '<' + ((value >> 12) & 0x3F);
-  result[6] = '<' + ((value >> 18) & 0x3F);
-  result[7] = '<' + ((value >> 24) & 0x3F);
-  result[8] = '<' + ((value >> 30) & 0x3F);
-  result[9] = 0;
+  result[3] = KrollObjectBase64Table[(uintptr_t)value & 0x3F];
+  result[4] = KrollObjectBase64Table[((uintptr_t)value >> 6) & 0x3F];
+  result[5] = KrollObjectBase64Table[((uintptr_t)value >> 12) & 0x3F];
+  result[6] = KrollObjectBase64Table[((uintptr_t)value >> 18) & 0x3F];
+  result[7] = KrollObjectBase64Table[((uintptr_t)value >> 24) & 0x3F];
+  result[8] = KrollObjectBase64Table[((uintptr_t)value >> 30) & 0x3F];
+#ifdef __LP64__
+  result[9] = KrollObjectBase64Table[((uintptr_t)value >> 36) & 0x3F];
+  result[10] = KrollObjectBase64Table[((uintptr_t)value >> 42) & 0x3F];
+  result[11] = KrollObjectBase64Table[((uintptr_t)value >> 48) & 0x3F];
+  result[12] = KrollObjectBase64Table[((uintptr_t)value >> 54) & 0x3F];
+  result[13] = KrollObjectBase64Table[((uintptr_t)value >> 60) & 0x3F];
+#endif
   return JSStringCreateWithUTF8CString(result);
 }
 
@@ -983,14 +977,14 @@ TI_INLINE JSStringRef TiStringCreateWithPointerValue(int value)
   // by the queue processor). We need to seriously re-evaluate the memory model and thread
   // interactions during such.
 
-  JSStringRef nameRef = TiStringCreateWithPointerValue((int)value);
+  JSStringRef nameRef = TiStringCreateWithPointerValue(value);
   [self noteObject:[value jsobject] forTiString:nameRef context:[context context]];
   JSStringRelease(nameRef);
 }
 
 - (void)forgetKeylessKrollObject:(KrollObject *)value
 {
-  JSStringRef nameRef = TiStringCreateWithPointerValue((int)value);
+  JSStringRef nameRef = TiStringCreateWithPointerValue(value);
   [self forgetObjectForTiString:nameRef context:[context context]];
   JSStringRelease(nameRef);
 }

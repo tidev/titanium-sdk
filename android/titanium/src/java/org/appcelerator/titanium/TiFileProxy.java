@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2011-2019 by Appcelerator, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -18,7 +18,6 @@ import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.io.TiBaseFile;
-import org.appcelerator.titanium.io.TiFile;
 import org.appcelerator.titanium.io.TiFileFactory;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiFileHelper2;
@@ -49,7 +48,7 @@ public class TiFileProxy extends KrollProxy
 		Uri uri = Uri.parse(parts[0]);
 		if (uri.getScheme() != null) {
 			scheme = uri.getScheme() + ":";
-			ArrayList<String> pb = new ArrayList<String>();
+			ArrayList<String> pb = new ArrayList<>();
 
 			int schemeLength = scheme.length();
 			if (parts[0].charAt(schemeLength + 1) == '/') {
@@ -65,7 +64,7 @@ public class TiFileProxy extends KrollProxy
 			for (int i = 1; i < parts.length; i++) {
 				pb.add(parts[i]);
 			}
-			String[] newParts = pb.toArray(new String[pb.size()]);
+			String[] newParts = pb.toArray(new String[0]);
 			path = TiFileHelper2.joinSegments(newParts);
 			if (!path.startsWith("..") || !path.startsWith("/")) {
 				path = "/" + path;
@@ -122,14 +121,12 @@ public class TiFileProxy extends KrollProxy
 		return tbf.isDirectory();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public boolean getReadonly()
 	{
 		return tbf.isReadonly();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public boolean getWritable()
 	{
@@ -194,21 +191,18 @@ public class TiFileProxy extends KrollProxy
 		return tbf.extension();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public boolean getSymbolicLink()
 	{
 		return tbf.isSymbolicLink();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public boolean getExecutable()
 	{
 		return tbf.isExecutable();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public boolean getHidden()
 	{
@@ -225,7 +219,6 @@ public class TiFileProxy extends KrollProxy
 		return dl != null ? dl.toArray(new String[0]) : null;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public TiFileProxy getParent()
 	{
@@ -239,14 +232,12 @@ public class TiFileProxy extends KrollProxy
 		return tbf.move(destination);
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getName()
 	{
 		return tbf.name();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getNativePath()
 	{
@@ -266,7 +257,7 @@ public class TiFileProxy extends KrollProxy
 	}
 
 	@Kroll.method
-	public boolean rename(String destination)
+	public boolean rename(String destination) throws IOException
 	{
 		return tbf.rename(destination);
 	}
@@ -277,7 +268,6 @@ public class TiFileProxy extends KrollProxy
 		return getNativePath();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public long getSize()
 	{
@@ -294,7 +284,6 @@ public class TiFileProxy extends KrollProxy
 	public boolean write(Object[] args)
 	{
 		try {
-
 			if (args != null && args.length > 0) {
 				boolean append = false;
 				if (args.length > 1 && args[1] instanceof Boolean) {
@@ -302,24 +291,21 @@ public class TiFileProxy extends KrollProxy
 				}
 
 				if (args[0] instanceof TiBlob) {
-					((TiFile) tbf).write((TiBlob) args[0], append);
+					tbf.write((TiBlob) args[0], append);
 				} else if (args[0] instanceof String) {
-					((TiFile) tbf).write((String) args[0], append);
+					tbf.write((String) args[0], append);
 				} else if (args[0] instanceof TiFileProxy) {
-					((TiFile) tbf).write(((TiFileProxy) args[0]).read(), append);
+					tbf.write(((TiFileProxy) args[0]).read(), append);
 				} else {
 					Log.i(TAG, "Unable to write to an unrecognized file type");
 					return false;
 				}
-
 				return true;
 			}
-
-			return false;
 		} catch (IOException e) {
 			Log.e(TAG, "IOException encountered", e);
-			return false;
 		}
+		return false;
 	}
 
 	@Kroll.method

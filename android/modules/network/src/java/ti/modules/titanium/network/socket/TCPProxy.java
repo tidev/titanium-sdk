@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -115,28 +115,24 @@ public class TCPProxy extends KrollProxy implements TiStream
 		}
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setHost(String host)
 	{
 		setSocketProperty("host", host);
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setPort(int port)
 	{
 		setSocketProperty("port", port);
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setTimeout(int timeout)
 	{
 		setSocketProperty("timeout", timeout);
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setOptions(KrollDict options)
 	{
@@ -144,28 +140,24 @@ public class TCPProxy extends KrollProxy implements TiStream
 		Log.i(TAG, "setting options on socket is not supported yet");
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setListenQueueSize(int listenQueueSize)
 	{
 		setSocketProperty("listenQueueSize", listenQueueSize);
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setConnected(KrollFunction connected)
 	{
 		setSocketProperty("connected", connected);
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setError(KrollFunction error)
 	{
 		setSocketProperty("error", error);
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setAccepted(KrollFunction accepted)
 	{
@@ -182,7 +174,6 @@ public class TCPProxy extends KrollProxy implements TiStream
 		}
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public int getState()
 	{

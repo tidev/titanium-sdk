@@ -1,12 +1,12 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2018 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 #ifdef USE_TI_MEDIA
 
-#if defined(USE_TI_MEDIAGETAPPMUSICPLAYER) || defined(USE_TI_MEDIAOPENMUSICLIBRARY) || defined(USE_TI_MEDIAAPPMUSICPLAYER) || defined(USE_TI_MEDIAGETSYSTEMMUSICPLAYER) || defined(USE_TI_MEDIASYSTEMMUSICPLAYER) || defined(USE_TI_MEDIAHASMUSICLIBRARYPERMISSIONS)
+#if defined(USE_TI_MEDIAGETAPPMUSICPLAYER) || defined(USE_TI_MEDIAOPENMUSICLIBRARY) || defined(USE_TI_MEDIAAPPMUSICPLAYER) || defined(USE_TI_MEDIAGETSYSTEMMUSICPLAYER) || defined(USE_TI_MEDIASYSTEMMUSICPLAYER) || defined(USE_TI_MEDIAHASMUSICLIBRARYPERMISSIONS) || defined(USE_TI_MEDIAQUERYMUSICLIBRARY)
 #import <MediaPlayer/MediaPlayer.h>
 #endif
 #if IS_SDK_IOS_14 && defined(USE_TI_MEDIAOPENPHOTOGALLERY)
@@ -44,12 +44,13 @@
 #endif
 #if IS_SDK_IOS_14 && defined(USE_TI_MEDIAOPENPHOTOGALLERY)
   PHPickerViewController *_phPicker;
+  BOOL excludeLivePhoto;
 #endif
   BOOL autoHidePicker;
   BOOL saveToRoll;
 
 // Music picker
-#ifdef USE_TI_MEDIAOPENMUSICLIBRARY
+#if defined(USE_TI_MEDIAOPENMUSICLIBRARY) || defined(USE_TI_MEDIAQUERYMUSICLIBRARY)
   MPMediaPickerController *musicPicker;
 #endif
 
@@ -91,7 +92,6 @@
 @property (nonatomic, readonly) NSDictionary *currentRoute;
 @property (nonatomic, readonly) NSNumber *audioPlaying;
 @property (nonatomic, readonly) NSNumber *isCameraSupported;
-@property (nonatomic, assign) NSNumber *audioSessionMode;
 @property (nonatomic, assign) NSString *audioSessionCategory;
 
 #if defined(USE_TI_MEDIAGETAPPMUSICPLAYER) || defined(USE_TI_MEDIAAPPMUSICPLAYER) || defined(USE_TI_MEDIAGETSYSTEMMUSICPLAYER) || defined(USE_TI_MEDIASYSTEMMUSICPLAYER)
@@ -105,12 +105,9 @@
 @property (nonatomic, readonly) NSNumber *NO_VIDEO;
 @property (nonatomic, readonly) NSNumber *NO_MUSIC_PLAYER;
 
-@property (nonatomic, readonly) NSNumber *VIDEO_CONTROL_DEFAULT;
-@property (nonatomic, readonly) NSNumber *VIDEO_CONTROL_HIDDEN;
-
-@property (nonatomic, readonly) NSString *VIDEO_SCALING_MODE_RESIZE;
-@property (nonatomic, readonly) NSString *VIDEO_SCALING_MODE_RESIZE_ASPECT;
-@property (nonatomic, readonly) NSString *VIDEO_SCALING_MODE_RESIZE_ASPECT_FILL;
+@property (nonatomic, readonly) NSString *VIDEO_SCALING_RESIZE;
+@property (nonatomic, readonly) NSString *VIDEO_SCALING_RESIZE_ASPECT;
+@property (nonatomic, readonly) NSString *VIDEO_SCALING_RESIZE_ASPECT_FILL;
 
 @property (nonatomic, readonly) NSNumber *QUALITY_HIGH;
 @property (nonatomic, readonly) NSNumber *QUALITY_MEDIUM;
@@ -134,7 +131,6 @@
 @property (nonatomic, readonly) NSNumber *CAMERA_AUTHORIZATION_AUTHORIZED;
 @property (nonatomic, readonly) NSNumber *CAMERA_AUTHORIZATION_DENIED;
 @property (nonatomic, readonly) NSNumber *CAMERA_AUTHORIZATION_RESTRICTED;
-@property (nonatomic, readonly) NSNumber *CAMERA_AUTHORIZATION_NOT_DETERMINED;
 
 @property (nonatomic, readonly) NSString *MEDIA_TYPE_VIDEO;
 @property (nonatomic, readonly) NSString *MEDIA_TYPE_PHOTO;
@@ -169,6 +165,12 @@
 @property (nonatomic, readonly) NSNumber *AUDIO_SESSION_OVERRIDE_ROUTE_NONE;
 @property (nonatomic, readonly) NSNumber *AUDIO_SESSION_OVERRIDE_ROUTE_SPEAKER;
 
+@property (nonatomic, readonly) NSNumber *IMAGE_SCALING_AUTO;
+@property (nonatomic, readonly) NSNumber *IMAGE_SCALING_NONE;
+@property (nonatomic, readonly) NSNumber *IMAGE_SCALING_FILL;
+@property (nonatomic, readonly) NSNumber *IMAGE_SCALING_ASPECT_FILL;
+@property (nonatomic, readonly) NSNumber *IMAGE_SCALING_ASPECT_FIT;
+
 @property (nonatomic, readonly) NSNumber *MUSIC_MEDIA_TYPE_MUSIC;
 @property (nonatomic, readonly) NSNumber *MUSIC_MEDIA_TYPE_PODCAST;
 @property (nonatomic, readonly) NSNumber *MUSIC_MEDIA_TYPE_AUDIOBOOK;
@@ -188,7 +190,7 @@
 @property (nonatomic, readonly) NSNumber *MUSIC_PLAYER_STATE_PLAYING;
 @property (nonatomic, readonly) NSNumber *MUSIC_PLAYER_STATE_PAUSED;
 @property (nonatomic, readonly) NSNumber *MUSIC_PLAYER_STATE_INTERRUPTED;
-@property (nonatomic, readonly) NSNumber *MUSIC_PLAYER_STATE_SKEEK_FORWARD;
+@property (nonatomic, readonly) NSNumber *MUSIC_PLAYER_STATE_SEEK_FORWARD;
 @property (nonatomic, readonly) NSNumber *MUSIC_PLAYER_STATE_SEEK_BACKWARD;
 
 @property (nonatomic, readonly) NSNumber *MUSIC_PLAYER_REPEAT_DEFAULT;
@@ -201,17 +203,6 @@
 @property (nonatomic, readonly) NSNumber *MUSIC_PLAYER_SHUFFLE_SONGS;
 @property (nonatomic, readonly) NSNumber *MUSIC_PLAYER_SHUFFLE_ALBUMS;
 
-// New constants
-@property (nonatomic, readonly) NSString *VIDEO_SCALE_MODE_KEY;
-@property (nonatomic, readonly) NSString *VIDEO_SCALE_MODE_FIT;
-@property (nonatomic, readonly) NSString *VIDEO_SCALE_MODE_RESIZE;
-@property (nonatomic, readonly) NSString *VIDEO_SCALE_MODE_RESIZE_ASPECT;
-@property (nonatomic, readonly) NSString *VIDEO_SCALE_MODE_RESIZE_ASPECT_FILL;
-
-@property (nonatomic, readonly) NSNumber *VIDEO_SOURCE_TYPE_UNKNOWN;
-@property (nonatomic, readonly) NSNumber *VIDEO_SOURCE_TYPE_FILE;
-@property (nonatomic, readonly) NSNumber *VIDEO_SOURCE_TYPE_STREAMING;
-
 @property (nonatomic, readonly) NSNumber *VIDEO_PLAYBACK_STATE_STOPPED;
 @property (nonatomic, readonly) NSNumber *VIDEO_PLAYBACK_STATE_PLAYING;
 @property (nonatomic, readonly) NSNumber *VIDEO_PLAYBACK_STATE_PAUSED;
@@ -223,10 +214,6 @@
 
 @property (nonatomic, readonly) NSNumber *VIDEO_TIME_OPTION_NEAREST_KEYFRAME;
 @property (nonatomic, readonly) NSNumber *VIDEO_TIME_OPTION_EXACT;
-
-@property (nonatomic, readonly) NSNumber *VIDEO_FINISH_REASON_PLAYBACK_ENDED;
-@property (nonatomic, readonly) NSNumber *VIDEO_FINISH_REASON_PLAYBACK_ERROR;
-@property (nonatomic, readonly) NSNumber *VIDEO_FINISH_REASON_USER_EXITED;
 
 @property (nonatomic, readonly) NSString *AUDIO_SESSION_PORT_LINEIN;
 @property (nonatomic, readonly) NSString *AUDIO_SESSION_PORT_BUILTINMIC;

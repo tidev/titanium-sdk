@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+	<!-- Mimics Android 12 splash screen used by apps without a "roundIcon". -->
+	<!-- Shows an app icon within a white circle like how it appears in the apps screen. -->
+	<item android:drawable="?android:attr/colorBackground"/>
+	<item android:gravity="center">
+		<shape android:shape="oval">
+			<size android:width="160dp" android:height="160dp"/>
+			<solid android:color="@android:color/white"/>
+		</shape>
+	</item>
+	<item
+		android:gravity="center"
+		android:width="90dp"
+		android:height="90dp"
+		android:drawable="?attr/titaniumSplashIcon"/>
+</layer-list>

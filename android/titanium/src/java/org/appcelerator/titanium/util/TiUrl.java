@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -102,7 +102,7 @@ public class TiUrl
 		return bUrl;
 	}
 
-	private static HashMap<String, TiUrl> proxyUrlCache = new HashMap<String, TiUrl>(5);
+	private static final HashMap<String, TiUrl> proxyUrlCache = new HashMap<>(5);
 	public static TiUrl createProxyUrl(String url)
 	{
 		if (proxyUrlCache.containsKey(url)) {

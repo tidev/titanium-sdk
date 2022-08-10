@@ -88,12 +88,7 @@ class IOS {
 	async copyLegacyHeaders(DEST_IOS) {
 		// Gather all the *.h files in TitaniumKit, create "redirecting" headers in iphone/include that point to the TitaniumKit ones
 		await fs.ensureDir(path.join(DEST_IOS, 'include'));
-		let headersDir = path.join(IOS_ROOT, 'TitaniumKit/build/TitaniumKit.xcframework/ios-arm64_armv7/TitaniumKit.framework/Headers');
-		if (!(await fs.pathExists(headersDir))) {
-			// fall back to xcode 11 dir name
-			console.warn('Looks like you\'re building with Xcode 11. The resulting binaries will not include arm64 ios sim support, which is expected in upcoming Apple Silicon devices.');
-			headersDir = path.join(IOS_ROOT, 'TitaniumKit/build/TitaniumKit.xcframework/ios-armv7_arm64/TitaniumKit.framework/Headers');
-		}
+		let headersDir = path.join(IOS_ROOT, 'TitaniumKit/build/TitaniumKit.xcframework/ios-arm64/TitaniumKit.framework/Headers');
 		const subdirs = await fs.readdir(headersDir);
 		// create them all in parallel
 		await Promise.all(subdirs.map(file => {

@@ -161,7 +161,8 @@ describe('Titanium.UI.Layout', function () {
 				should(view.rect.height).eql(10);
 				should(view.bottom).be.undefined();
 				should(view2.bottom).eql(10);
-				should(view2.rect.y).eql(win.size.height - 20);
+				// Allow +/- 1 pixel for devices with odd sizes
+				should(view2.rect.y).be.approximately(win.size.height - 20, 1);
 				should(view2.rect.height).eql(10);
 				should(view2.top).be.undefined();
 

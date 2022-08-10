@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2012 by Appcelerator, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -43,9 +43,8 @@ public class AndroidModule extends KrollModule implements Handler.Callback
 	@Kroll.constant
 	public static final String PROVIDER_GPS = LocationManager.GPS_PROVIDER;
 
-	public HashMap<String, LocationProviderProxy> manualLocationProviders =
-		new HashMap<String, LocationProviderProxy>();
-	public ArrayList<LocationRuleProxy> manualLocationRules = new ArrayList<LocationRuleProxy>();
+	public HashMap<String, LocationProviderProxy> manualLocationProviders = new HashMap<>();
+	public ArrayList<LocationRuleProxy> manualLocationRules = new ArrayList<>();
 	public boolean manualMode = false;
 
 	protected static final int MSG_ADD_LOCATION_PROVIDER = KrollModule.MSG_LAST_ID + 100;
@@ -100,7 +99,6 @@ public class AndroidModule extends KrollModule implements Handler.Callback
 	 * @return			<code>true</code> if the manual location providers are being
 	 * 					used, <code>false</code> if not
 	 */
-	@Kroll.method
 	@Kroll.getProperty
 	public boolean getManualMode()
 	{
@@ -114,8 +112,6 @@ public class AndroidModule extends KrollModule implements Handler.Callback
 	 * @param manualMode			<code>boolean</code> value to indicate whether
 	 * 								the manual providers should be used
 	 */
-	@SuppressWarnings("deprecation")
-	@Kroll.method
 	@Kroll.setProperty
 	public void setManualMode(boolean manualMode)
 	{
@@ -210,18 +206,13 @@ public class AndroidModule extends KrollModule implements Handler.Callback
 
 		// if doesn't exist, add new - otherwise update properties
 		LocationProviderProxy existingLocationProvider = manualLocationProviders.get(providerName);
-		if (existingLocationProvider == null) {
-			manualLocationProviders.put(providerName, locationProvider);
-
-		} else {
+		if (existingLocationProvider != null) {
 			manualLocationProviders.remove(providerName);
-
 			if (manualMode && (geolocationModule.numLocationListeners > 0)) {
 				geolocationModule.unregisterLocationProvider(existingLocationProvider);
 			}
-
-			manualLocationProviders.put(providerName, locationProvider);
 		}
+		manualLocationProviders.put(providerName, locationProvider);
 
 		if (manualMode && (geolocationModule.numLocationListeners > 0)) {
 			geolocationModule.registerLocationProvider(locationProvider);

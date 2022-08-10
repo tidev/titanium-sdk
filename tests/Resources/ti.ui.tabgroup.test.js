@@ -6,6 +6,8 @@
  */
 /* eslint-env mocha */
 /* eslint no-unused-expressions: "off" */
+/* eslint mocha/no-identical-title: "off" */
+/* eslint promise/no-callback-in-promise: "off" */
 'use strict';
 const should = require('./utilities/assertions'); // eslint-disable-line no-unused-vars
 const utilities = require('./utilities/utilities');
@@ -18,46 +20,470 @@ describe('Titanium.UI.TabGroup', function () {
 	let tabGroup;
 	afterEach(done => { // fires after every test in sub-suites too...
 		if (tabGroup && !tabGroup.closed) {
-			tabGroup.addEventListener('close', function listener () {
-				tabGroup.removeEventListener('close', listener);
-				tabGroup = null;
-				done();
-			});
-			tabGroup.close();
+			tabGroup.close().then(() => done()).catch(_e => done());
 		} else {
 			tabGroup = null;
 			done();
 		}
 	});
 
-	it('.barColor', () => {
-		tabGroup = Ti.UI.createTabGroup({
-			title: 'TabGroup',
-			barColor: 'red'
+	describe('properties', () => {
+		describe('.activeTab', () => {
+			it.windowsBroken('assign before open event', finish => {
+				const winA = Ti.UI.createWindow(),
+					tabA = Ti.UI.createTab({
+						title: 'Tab A',
+						window: winA
+					}),
+					winB = Ti.UI.createWindow(),
+					tabB = Ti.UI.createTab({
+						title: 'Tab B',
+						window: winB
+					});
+				tabGroup = Ti.UI.createTabGroup();
+				tabGroup.activeTab = 1;
+				// Does windows fire this event?
+				// Can we test this without even opening tab group?
+				tabGroup.addEventListener('open', () => {
+					try {
+						should(tabGroup.activeTab.title).be.a.String();
+						should(tabGroup.activeTab.title).eql('Tab B');
+					} catch (err) {
+						return finish(err);
+					} finally {
+						tabGroup.removeTab(tabA);
+						tabGroup.removeTab(tabB);
+					}
+					finish();
+				});
+
+				tabGroup.addTab(tabA);
+				tabGroup.addTab(tabB);
+				tabGroup.open();
+			});
+
+			it.windowsBroken('assign after open event', finish => {
+				const winA = Ti.UI.createWindow(),
+					tabA = Ti.UI.createTab({
+						title: 'Tab A',
+						window: winA
+					}),
+					winB = Ti.UI.createWindow(),
+					tabB = Ti.UI.createTab({
+						title: 'Tab B',
+						window: winB
+					});
+				tabGroup = Ti.UI.createTabGroup();
+
+				// Does windows fire this event?
+				// Can we test this without even opening tab group?
+				tabGroup.addEventListener('open', () => {
+					try {
+						tabGroup.activeTab = tabB;
+						should(tabGroup.activeTab.title).be.a.String();
+						should(tabGroup.activeTab.title).eql('Tab B');
+					} catch (err) {
+						return finish(err);
+					} finally {
+						tabGroup.removeTab(tabA);
+						tabGroup.removeTab(tabB);
+					}
+					finish();
+				});
+
+				tabGroup.addTab(tabA);
+				tabGroup.addTab(tabB);
+				tabGroup.open();
+			});
+
+			it.androidBroken('assign in creation dictionary', finish => {
+				const winA = Ti.UI.createWindow(),
+					tabA = Ti.UI.createTab({
+						title: 'Tab A',
+						window: winA
+					}),
+					winB = Ti.UI.createWindow(),
+					tabB = Ti.UI.createTab({
+						title: 'Tab B',
+						window: winB
+					});
+				tabGroup = Ti.UI.createTabGroup({
+					activeTab: 1
+				});
+				// Does windows fire this event?
+				// Can we test this without even opening tab group?
+				tabGroup.addEventListener('open', () => {
+					try {
+						should(tabGroup.activeTab.title).be.a.String(); // undefined on Android!
+						should(tabGroup.activeTab.title).eql('Tab B');
+					} catch (err) {
+						return finish(err);
+					} finally {
+						tabGroup.removeTab(tabA);
+						tabGroup.removeTab(tabB);
+					}
+					finish();
+				});
+
+				tabGroup.addTab(tabA);
+				tabGroup.addTab(tabB);
+				tabGroup.open();
+			});
 		});
 
-		should(tabGroup.barColor).be.a.String();
-		should(tabGroup.barColor).eql('red');
+		describe('.activeTintColor', () => {
+			beforeEach(() => {
+				tabGroup = Ti.UI.createTabGroup({
+					title: 'TabGroup',
+					activeTintColor: 'red'
+				});
+			});
+
+			it('is a String', () => {
+				should(tabGroup).have.property('activeTintColor').which.is.a.String();
+			});
+
+			it('equals value passed to factory method', () => {
+				should(tabGroup.activeTintColor).eql('red');
+			});
+
+			it('can be assigned a String value', () => {
+				tabGroup.activeTintColor = 'blue';
+				should(tabGroup.activeTintColor).eql('blue');
+			});
+
+			it.androidBroken('has no accessors', () => { // Windows are created during open
+				should(tabGroup).not.have.accessors('activeTintColor');
+			});
+		});
+
+		describe.ios('.allowUserCustomization', () => {
+			beforeEach(() => {
+				tabGroup = Ti.UI.createTabGroup();
+			});
+
+			it('is a Boolean', () => {
+				should(tabGroup.allowUserCustomization).be.a.Boolean();
+			});
+
+			it('defaults to true', () => {
+				should(tabGroup.allowUserCustomization).be.true();
+			});
+
+			it('can be assigned a Boolean value', () => {
+				tabGroup.allowUserCustomization = false;
+				should(tabGroup.allowUserCustomization).be.false();
+			});
+
+			it('has no accessors', () => {
+				should(tabGroup).not.have.accessors('allowUserCustomization');
+			});
+		});
+
+		describe('.barColor', () => {
+			beforeEach(() => {
+				tabGroup = Ti.UI.createTabGroup({
+					title: 'TabGroup',
+					barColor: 'red'
+				});
+			});
+
+			it('is a String', () => {
+				should(tabGroup).have.property('barColor').which.is.a.String();
+			});
+
+			it('equals value passed to factory method', () => {
+				should(tabGroup.barColor).eql('red');
+			});
+
+			it('can be assigned a String value', () => {
+				tabGroup.barColor = 'blue';
+				should(tabGroup.barColor).eql('blue');
+			});
+
+			it.androidBroken('has no accessors', () => { // Windows are created during open
+				should(tabGroup).not.have.accessors('barColor');
+			});
+		});
+
+		describe('.tabs', () => {
+			beforeEach(() => {
+				tabGroup = Ti.UI.createTabGroup();
+			});
+
+			it.iosBroken('is an Array', () => { // undfined on iOS?
+				should(tabGroup).have.property('tabs').which.is.an.Array();
+			});
+
+			it('can be assigned an Array of Ti.UI.Tabs', () => {
+				const winA = Ti.UI.createWindow(),
+					tabA = Ti.UI.createTab({
+						title: 'Tab A',
+						window: winA
+					}),
+					winB = Ti.UI.createWindow(),
+					tabB = Ti.UI.createTab({
+						title: 'Tab B',
+						window: winB
+					});
+
+				tabGroup.tabs = [ tabA, tabB ];
+				should(tabGroup.tabs).eql([ tabA, tabB ]);
+			});
+
+			it('set properties before open event', () => {
+				const tab = Ti.UI.createTab({ window: Ti.UI.createWindow() });
+				tabGroup.tabs = [ tab ];
+				tabGroup.tabs[0].title = 'Tab 1';
+				tabGroup.tabs[0].badge = '5';
+				tabGroup.tabs[0].icon = '/SmallLogo.png';
+				should(tab.title).eql('Tab 1');
+				should(tab.badge).eql('5');
+				should(tab.icon.endsWith('/SmallLogo.png')).be.true();
+			});
+
+			it('has no accessors', () => {
+				should(tabGroup).not.have.accessors('barColor');
+			});
+
+			it('#addTab() and #removeTab() affect value', () => {
+				const win = Ti.UI.createWindow();
+				const tab = Ti.UI.createTab({
+					title: 'Tab',
+					window: win
+				});
+
+				tabGroup.addTab(tab);
+				should(tabGroup.tabs.length).eql(1);
+				tabGroup.removeTab(tab);
+				should(tabGroup.tabs.length).eql(0);
+			});
+		});
+
+		describe.ios('.tabsTranslucent', () => {
+			beforeEach(() => {
+				tabGroup = Ti.UI.createTabGroup();
+			});
+
+			it.iosBroken('is a Boolean', () => { // defaults to undefined!
+				should(tabGroup.tabsTranslucent).be.a.Boolean();
+			});
+
+			it.iosBroken('defaults to true', () => { // defaults to undefined!
+				should(tabGroup.tabsTranslucent).be.true();
+			});
+
+			it('can be assigned a Boolean value', () => {
+				tabGroup.tabsTranslucent = false;
+				should(tabGroup.tabsTranslucent).be.false();
+			});
+
+			it('has no accessors', () => {
+				should(tabGroup).not.have.accessors('tabsTranslucent');
+			});
+		});
+
+		describe('.tintColor', () => {
+			beforeEach(() => {
+				tabGroup = Ti.UI.createTabGroup({
+					title: 'TabGroup',
+					tintColor: 'red'
+				});
+			});
+
+			it('is a String', () => {
+				should(tabGroup).have.property('tintColor').which.is.a.String();
+			});
+
+			it('equals value passed to factory method', () => {
+				should(tabGroup.tintColor).eql('red');
+			});
+
+			it('can be assigned a String value', () => {
+				tabGroup.tintColor = 'blue';
+				should(tabGroup.tintColor).eql('blue');
+			});
+
+			it.androidBroken('has no accessors', () => { // Windows are created during open
+				should(tabGroup).not.have.accessors('tintColor');
+			});
+		});
+
+		describe('.title', () => {
+			it.androidBroken('is a String', () => {
+				tabGroup = Ti.UI.createTabGroup({
+					title: 'My title'
+				});
+				should(tabGroup.title).be.a.String(); // null on Android!
+			});
+
+			it.androidBroken('equals value passed in to creation dictionary', () => {
+				tabGroup = Ti.UI.createTabGroup({
+					title: 'My title'
+				});
+				should(tabGroup.title).eql('My title'); // null on Android!
+			});
+
+			it('has no accessors', () => {
+				tabGroup = Ti.UI.createTabGroup();
+				should(tabGroup).not.have.accessors('title');
+			});
+
+			it('assign after drawing the TabGroup', () => {
+				const winA = Ti.UI.createWindow(),
+					winB = Ti.UI.createWindow(),
+					tabA = Ti.UI.createTab({ title: 'titleA', window: winA }),
+					tabB = Ti.UI.createTab({ title: 'titleB', window: winB });
+				tabGroup = Ti.UI.createTabGroup({ tabs: [ tabA, tabB ] });
+				tabGroup.addEventListener('open', () => {
+					tabGroup.title = 'newTitle';
+					tabGroup.activeTab = tabB;
+				});
+				tabB.addEventListener('selected', () => {
+					should(tabGroup.title).be.a.String();
+					should(tabGroup.title).eql('newTitle');
+				});
+			});
+		});
 	});
 
-	it('.tintColor', () => {
-		tabGroup = Ti.UI.createTabGroup({
-			title: 'TabGroup',
-			tintColor: 'red'
+	describe('methods', () => {
+		it.android('#disableTabNavigation()', function (finish) {
+			const winA = Ti.UI.createWindow(),
+				tabA = Ti.UI.createTab({
+					title: 'Tab A',
+					window: winA
+				}),
+				winB = Ti.UI.createWindow(),
+				tabB = Ti.UI.createTab({
+					title: 'Tab B',
+					window: winB
+				});
+			this.timeout(5000);
+			tabGroup = Ti.UI.createTabGroup();
+
+			// does windows fire this event?
+			tabGroup.addEventListener('open', () => {
+				try {
+					tabGroup.disableTabNavigation(true);
+					tabGroup.activeTab = tabB;
+					should(tabGroup.activeTab.title).be.a.String();
+					should(tabGroup.activeTab.title).eql('Tab A');
+					tabGroup.disableTabNavigation(false);
+					tabGroup.activeTab = tabB;
+					should(tabGroup.activeTab.title).be.a.String();
+					should(tabGroup.activeTab.title).eql('Tab B');
+				} catch (err) {
+					return finish(err);
+				} finally {
+					tabGroup.removeTab(tabA);
+					tabGroup.removeTab(tabB);
+				}
+				finish();
+			});
+
+			tabGroup.addTab(tabA);
+			tabGroup.addTab(tabB);
+			tabGroup.open();
 		});
 
-		should(tabGroup.tintColor).be.a.String();
-		should(tabGroup.tintColor).eql('red');
-	});
+		describe('#close()', () => {
+			it('is a Function', () => {
+				tabGroup = Ti.UI.createTabGroup();
 
-	it('.activeTintColor', () => {
-		tabGroup = Ti.UI.createTabGroup({
-			title: 'TabGroup',
-			activeTintColor: 'red'
+				should(tabGroup).have.a.property('close').which.is.a.Function();
+			});
+
+			it('returns a Promise', finish => {
+				const tabA = Ti.UI.createTab({
+					title: 'Tab A',
+					window: Ti.UI.createWindow()
+				});
+				const tabB = Ti.UI.createTab({
+					title: 'Tab B',
+					window: Ti.UI.createWindow()
+				});
+				tabGroup = Ti.UI.createTabGroup();
+				tabGroup.addTab(tabA);
+				tabGroup.addTab(tabB);
+
+				const openPromise = tabGroup.open();
+				openPromise.then(() => {
+					const result = tabGroup.close();
+					result.should.be.a.Promise();
+					return result.then(() => finish()).catch(e => finish(e)); // eslint-disable-line promise/no-nesting
+				}).catch(e => finish(e));
+			});
+
+			it('called on unopened Window rejects Promise', finish => {
+				tabGroup = Ti.UI.createTabGroup();
+				const tabA = Ti.UI.createTab({
+					title: 'Tab A',
+					window: Ti.UI.createWindow()
+				});
+				tabGroup.addTab(tabA);
+
+				const result = tabGroup.close();
+				result.should.be.a.Promise();
+				result.then(() => finish(new Error('Expected #close() to be rejected on unopened TabGroup'))).catch(_e => finish());
+			});
+
+			it('called twice on Window rejects second Promise', finish => {
+				tabGroup = Ti.UI.createTabGroup();
+				const tabA = Ti.UI.createTab({
+					title: 'Tab A',
+					window: Ti.UI.createWindow()
+				});
+				tabGroup.addTab(tabA);
+
+				tabGroup.open().then(() => {
+					// eslint-disable-next-line promise/no-nesting
+					return tabGroup.close().then(() => {
+						// eslint-disable-next-line promise/no-nesting
+						return tabGroup.close().then(() => finish(new Error('Expected second #close() call on TabGroup to be rejected'))).catch(() => finish());
+					}).catch(e => finish(e));
+				}).catch(e => finish(e));
+			});
 		});
 
-		should(tabGroup.activeTintColor).be.a.String();
-		should(tabGroup.activeTintColor).eql('red');
+		describe('#open()', () => {
+			it('is a Function', () => {
+				tabGroup = Ti.UI.createTabGroup();
+
+				should(tabGroup).have.a.property('open').which.is.a.Function();
+			});
+
+			it('returns a Promise', finish => {
+				tabGroup = Ti.UI.createTabGroup();
+				const tabA = Ti.UI.createTab({
+					title: 'Tab A',
+					window: Ti.UI.createWindow()
+				});
+				tabGroup.addTab(tabA);
+
+				const result = tabGroup.open();
+				result.should.be.a.Promise();
+				result.then(() => finish()).catch(e => finish(e));
+			});
+
+			it('called twice on same Window rejects second Promise', finish => {
+				tabGroup = Ti.UI.createTabGroup();
+				const tabA = Ti.UI.createTab({
+					title: 'Tab A',
+					window: Ti.UI.createWindow()
+				});
+				tabGroup.addTab(tabA);
+
+				const first = tabGroup.open();
+				first.should.be.a.Promise();
+				first.then(() => {
+					const second = tabGroup.open();
+					second.should.be.a.Promise();
+					// eslint-disable-next-line promise/no-nesting
+					return second.then(() => finish(new Error('Expected second #open() to be rejected'))).catch(() => finish());
+				}).catch(e => finish(e));
+			});
+		});
 	});
 
 	it.windowsBroken('add Map.View to TabGroup', function (finish) {
@@ -86,151 +512,6 @@ describe('Titanium.UI.TabGroup', function () {
 
 		tabGroup.addTab(tab);
 		tabGroup.open();
-	});
-
-	it.ios('.tabs', () => {
-		const win = Ti.UI.createWindow();
-		tabGroup = Ti.UI.createTabGroup();
-		const tab = Ti.UI.createTab({
-			title: 'Tab',
-			window: win
-		});
-
-		tabGroup.addTab(tab);
-		should(tabGroup.tabs.length).eql(1);
-		tabGroup.removeTab(tab);
-		should(tabGroup.tabs.length).eql(0);
-	});
-
-	it.ios('.allowUserCustomization', () => {
-		const win = Ti.UI.createWindow();
-		tabGroup = Ti.UI.createTabGroup({
-			allowUserCustomization: true
-		});
-		const tab = Ti.UI.createTab({
-			title: 'Tab',
-			window: win
-		});
-
-		tabGroup.addTab(tab);
-		should(tabGroup.allowUserCustomization).be.true();
-		tabGroup.setAllowUserCustomization(false);
-		should(tabGroup.allowUserCustomization).be.false();
-	});
-
-	it.ios('.tabsTranslucent', () => {
-		const win = Ti.UI.createWindow();
-		tabGroup = Ti.UI.createTabGroup({
-			tabsTranslucent: true
-		});
-		const tab = Ti.UI.createTab({
-			title: 'Tab',
-			window: win
-		});
-
-		tabGroup.addTab(tab);
-		should(tabGroup.tabsTranslucent).be.true();
-		tabGroup.setTabsTranslucent(false);
-		should(tabGroup.tabsTranslucent).be.false();
-	});
-
-	it.windowsBroken('#setTabs()', () => {
-		const winA = Ti.UI.createWindow(),
-			tabA = Ti.UI.createTab({
-				title: 'Tab A',
-				window: winA
-			}),
-			winB = Ti.UI.createWindow(),
-			tabB = Ti.UI.createTab({
-				title: 'Tab B',
-				window: winB
-			});
-		tabGroup = Ti.UI.createTabGroup();
-
-		tabGroup.setTabs([ tabA, tabB ]);
-		should(tabGroup.getTabs()).eql([ tabA, tabB ]);
-	});
-
-	it.windowsBroken('#setActiveTab()', finish => {
-		const winA = Ti.UI.createWindow(),
-			tabA = Ti.UI.createTab({
-				title: 'Tab A',
-				window: winA
-			}),
-			winB = Ti.UI.createWindow(),
-			tabB = Ti.UI.createTab({
-				title: 'Tab B',
-				window: winB
-			});
-		tabGroup = Ti.UI.createTabGroup();
-
-		// Does windows fire this event?
-		// Can we test this without even opening tab group?
-		tabGroup.addEventListener('open', () => {
-			try {
-				tabGroup.setActiveTab(tabB);
-				should(tabGroup.getActiveTab().title).be.a.String();
-				should(tabGroup.getActiveTab().title).eql('Tab B');
-				finish();
-			} catch (err) {
-				finish(err);
-			} finally {
-				tabGroup.removeTab(tabA);
-				tabGroup.removeTab(tabB);
-			}
-		});
-
-		tabGroup.addTab(tabA);
-		tabGroup.addTab(tabB);
-		tabGroup.open();
-	});
-
-	it.android('#disableTabNavigation()', function (finish) {
-		const winA = Ti.UI.createWindow(),
-			tabA = Ti.UI.createTab({
-				title: 'Tab A',
-				window: winA
-			}),
-			winB = Ti.UI.createWindow(),
-			tabB = Ti.UI.createTab({
-				title: 'Tab B',
-				window: winB
-			});
-		this.timeout(5000);
-		tabGroup = Ti.UI.createTabGroup();
-
-		// does windows fire this event?
-		tabGroup.addEventListener('open', () => {
-			try {
-				tabGroup.disableTabNavigation(true);
-				tabGroup.setActiveTab(tabB);
-				should(tabGroup.getActiveTab().title).be.a.String();
-				should(tabGroup.getActiveTab().title).eql('Tab A');
-				tabGroup.disableTabNavigation(false);
-				tabGroup.setActiveTab(tabB);
-				should(tabGroup.getActiveTab().title).be.a.String();
-				should(tabGroup.getActiveTab().title).eql('Tab B');
-			} catch (err) {
-				return finish(err);
-			} finally {
-				tabGroup.removeTab(tabA);
-				tabGroup.removeTab(tabB);
-			}
-			finish();
-		});
-
-		tabGroup.addTab(tabA);
-		tabGroup.addTab(tabB);
-		tabGroup.open();
-	});
-
-	it('.title', () => {
-		tabGroup = Ti.UI.createTabGroup({
-			title: 'My title'
-		});
-
-		should(tabGroup.getTitle()).be.a.String();
-		should(tabGroup.getTitle()).eql('My title');
 	});
 
 	describe('events', function () {
@@ -304,189 +585,33 @@ describe('Titanium.UI.TabGroup', function () {
 			tabGroup.addTab(tab);
 			tabGroup.open();
 		});
-	});
 
-	it.windowsBroken('#setActiveTab()', finish => {
-		const winA = Ti.UI.createWindow(),
-			tabA = Ti.UI.createTab({
-				title: 'Tab A',
-				window: winA
-			}),
-			winB = Ti.UI.createWindow(),
-			tabB = Ti.UI.createTab({
-				title: 'Tab B',
-				window: winB
+		it('blur event on opening new window', finish => {
+			const win = Ti.UI.createWindow();
+			tabGroup = Ti.UI.createTabGroup();
+			const tab = Ti.UI.createTab({
+				title: 'Tab',
+				window: win
 			});
-		tabGroup = Ti.UI.createTabGroup();
 
-		// Does windows fire this event?
-		// Can we test this without even opening tab group?
-		tabGroup.addEventListener('open', () => {
-			try {
-				tabGroup.setActiveTab(tabB);
-				should(tabGroup.getActiveTab().title).be.a.String();
-				should(tabGroup.getActiveTab().title).eql('Tab B');
-			} catch (err) {
-				return finish(err);
-			} finally {
-				tabGroup.removeTab(tabA);
-				tabGroup.removeTab(tabB);
+			function openNewWindow() {
+				setTimeout(() => {
+					tabGroup.addEventListener('blur', done);
+					const newWin = Ti.UI.createWindow();
+					newWin.open();
+				}, 1);
 			}
-			finish();
-		});
 
-		tabGroup.addTab(tabA);
-		tabGroup.addTab(tabB);
-		tabGroup.open();
-	});
-
-	it.windowsBroken('#setActiveTab()_before_open', finish => {
-		const winA = Ti.UI.createWindow(),
-			tabA = Ti.UI.createTab({
-				title: 'Tab A',
-				window: winA
-			}),
-			winB = Ti.UI.createWindow(),
-			tabB = Ti.UI.createTab({
-				title: 'Tab B',
-				window: winB
-			});
-		tabGroup = Ti.UI.createTabGroup();
-		tabGroup.setActiveTab(1);
-		// Does windows fire this event?
-		// Can we test this without even opening tab group?
-		tabGroup.addEventListener('open', () => {
-			try {
-				should(tabGroup.getActiveTab().title).be.a.String();
-				should(tabGroup.getActiveTab().title).eql('Tab B');
-			} catch (err) {
-				return finish(err);
-			} finally {
-				tabGroup.removeTab(tabA);
-				tabGroup.removeTab(tabB);
+			function done() {
+				tabGroup.removeEventListener('open', openNewWindow);
+				tabGroup.removeEventListener('blur', done);
+				finish();
 			}
-			finish();
-		});
 
-		tabGroup.addTab(tabA);
-		tabGroup.addTab(tabB);
-		tabGroup.open();
-	});
+			tabGroup.addEventListener('focus', openNewWindow);
 
-	it.windowsBroken('#change_activeTab_property', finish => {
-		const winA = Ti.UI.createWindow(),
-			tabA = Ti.UI.createTab({
-				title: 'Tab A',
-				window: winA
-			}),
-			winB = Ti.UI.createWindow(),
-			tabB = Ti.UI.createTab({
-				title: 'Tab B',
-				window: winB
-			});
-		tabGroup = Ti.UI.createTabGroup();
-
-		// Does windows fire this event?
-		// Can we test this without even opening tab group?
-		tabGroup.addEventListener('open', () => {
-			try {
-				tabGroup.activeTab = tabB;
-				should(tabGroup.getActiveTab().title).be.a.String();
-				should(tabGroup.getActiveTab().title).eql('Tab B');
-			} catch (err) {
-				return finish(err);
-			} finally {
-				tabGroup.removeTab(tabA);
-				tabGroup.removeTab(tabB);
-			}
-			finish();
-		});
-
-		tabGroup.addTab(tabA);
-		tabGroup.addTab(tabB);
-		tabGroup.open();
-	});
-
-	it.windowsBroken('#change_activeTab_property_before_open', finish => {
-		const winA = Ti.UI.createWindow(),
-			tabA = Ti.UI.createTab({
-				title: 'Tab A',
-				window: winA
-			}),
-			winB = Ti.UI.createWindow(),
-			tabB = Ti.UI.createTab({
-				title: 'Tab B',
-				window: winB
-			});
-		tabGroup = Ti.UI.createTabGroup();
-		tabGroup.activeTab = 1;
-		// Does windows fire this event?
-		// Can we test this without even opening tab group?
-		tabGroup.addEventListener('open', () => {
-			try {
-				should(tabGroup.getActiveTab().title).be.a.String();
-				should(tabGroup.getActiveTab().title).eql('Tab B');
-			} catch (err) {
-				return finish(err);
-			} finally {
-				tabGroup.removeTab(tabA);
-				tabGroup.removeTab(tabB);
-			}
-			finish();
-		});
-
-		tabGroup.addTab(tabA);
-		tabGroup.addTab(tabB);
-		tabGroup.open();
-	});
-
-	it.windowsBroken('#set_activeTab_in_creation_dictionary', finish => {
-		const winA = Ti.UI.createWindow(),
-			tabA = Ti.UI.createTab({
-				title: 'Tab A',
-				window: winA
-			}),
-			winB = Ti.UI.createWindow(),
-			tabB = Ti.UI.createTab({
-				title: 'Tab B',
-				window: winB
-			});
-		tabGroup = Ti.UI.createTabGroup({
-			activeTab: 1
-		});
-		// Does windows fire this event?
-		// Can we test this without even opening tab group?
-		tabGroup.addEventListener('open', () => {
-			try {
-				should(tabGroup.getActiveTab().title).be.a.String();
-				should(tabGroup.getActiveTab().title).eql('Tab B');
-			} catch (err) {
-				return finish(err);
-			} finally {
-				tabGroup.removeTab(tabA);
-				tabGroup.removeTab(tabB);
-			}
-			finish();
-		});
-
-		tabGroup.addTab(tabA);
-		tabGroup.addTab(tabB);
-		tabGroup.open();
-	});
-
-	it('title after drawing the TabGroup', () => {
-		const winA = Ti.UI.createWindow(),
-			winB = Ti.UI.createWindow(),
-			tabA = Ti.UI.createTab({ title: 'titleA', window: winA }),
-			tabB = Ti.UI.createTab({ title: 'titleB', window: winB }),
-			tabGroup = Ti.UI.createTabGroup({ tabs: [ tabA, tabB ] });
-		tabGroup.addEventListener('open', () => {
-			tabGroup.title = 'newTitle';
-			tabGroup.setActiveTab(tabB);
-		});
-		tabB.addEventListener('selected', () => {
-			should(tabGroup.title).be.a.String();
-			should(tabGroup.title).eql('newTitle');
+			tabGroup.addTab(tab);
+			tabGroup.open();
 		});
 	});
 
@@ -525,6 +650,57 @@ describe('Titanium.UI.TabGroup', function () {
 		});
 		tabGroup.addEventListener('open', () => finish());
 		tabGroup.open();
+	});
+
+	// Android only feature where setting the "padding*" properties on the bottom tab bar style
+	// makes it look like a floating toolbar with rounded corners.
+	describe('floating tab bar', () => {
+		it.android('extendSafeArea - false', finish => {
+			this.timeout(5000);
+			tabGroup = Ti.UI.createTabGroup({
+				extendSafeArea: false,
+				paddingLeft: 15,
+				paddingRight: 15,
+				paddingBottom: 15,
+				style: Ti.UI.Android.TABS_STYLE_BOTTOM_NAVIGATION,
+				tabs: [
+					Ti.UI.createTab({
+						icon: '/SmallLogo.png',
+						window: Ti.UI.createWindow({ title: 'Tab 1' })
+					}),
+					Ti.UI.createTab({
+						icon: '/SmallLogo.png',
+						window: Ti.UI.createWindow({ title: 'Tab 2' })
+					}),
+				]
+			});
+			tabGroup.addEventListener('open', () => finish());
+			tabGroup.open();
+		});
+
+		it.android('extendSafeArea - true', finish => {
+			this.timeout(5000);
+			tabGroup = Ti.UI.createTabGroup({
+				extendSafeArea: true,
+				windowFlags: Ti.UI.Android.FLAG_TRANSLUCENT_STATUS | Ti.UI.Android.FLAG_TRANSLUCENT_NAVIGATION,
+				paddingLeft: 15,
+				paddingRight: 15,
+				paddingBottom: 15,
+				style: Ti.UI.Android.TABS_STYLE_BOTTOM_NAVIGATION,
+				tabs: [
+					Ti.UI.createTab({
+						icon: '/SmallLogo.png',
+						window: Ti.UI.createWindow({ title: 'Tab 1' })
+					}),
+					Ti.UI.createTab({
+						icon: '/SmallLogo.png',
+						window: Ti.UI.createWindow({ title: 'Tab 2' })
+					}),
+				]
+			});
+			tabGroup.addEventListener('open', () => finish());
+			tabGroup.open();
+		});
 	});
 
 	describe('closed/focused', () => {

@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -30,7 +30,7 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 	 * The key is the Java package name and class name of the TiJSActivity derived class.
 	 * The value is the JavaScript file URL assigned to it.
 	 */
-	private static HashMap<String, String> jsActivityClassScriptMap = new HashMap<>();
+	private static final HashMap<String, String> jsActivityClassScriptMap = new HashMap<>();
 
 	/** JavaScript file URL to be loaded by loadScript() method. This URL is assigned in onCreate() method. */
 	private TiUrl url;

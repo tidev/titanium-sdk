@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -29,7 +29,6 @@ import org.appcelerator.titanium.view.TiUIView;
 import android.graphics.Matrix;
 import android.graphics.Rect;
 import android.graphics.RectF;
-import android.os.Build;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
@@ -100,8 +99,7 @@ public class TiAnimationBuilder
 	private static final String TAG = "TiAnimationBuilder";
 
 	// Views on which animations are currently running.
-	private static ArrayList<WeakReference<View>> sRunningViews = new ArrayList<WeakReference<View>>();
-	private static final boolean PRE_LOLLIPOP = (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP);
+	private static final ArrayList<WeakReference<View>> sRunningViews = new ArrayList<>();
 	private static final TiAnimationCurve DEFAULT_CURVE = TiAnimationCurve.EASE_IN_OUT;
 
 	protected float anchorX;
@@ -293,7 +291,7 @@ public class TiAnimationBuilder
 	 */
 	private AnimatorSet buildPropertyAnimators(int x, int y, int w, int h, int parentWidth, int parentHeight)
 	{
-		List<Animator> animators = new ArrayList<Animator>();
+		List<Animator> animators = new ArrayList<>();
 		boolean includesRotation = false;
 
 		if (toOpacity != null) {
@@ -1038,15 +1036,6 @@ public class TiAnimationBuilder
 			pivotY = height * thisAnchorY;
 		}
 
-		// Passing 0 as both X and Y parameters for a view's pivot point
-		// results in setting the point in the view's center for APIs 16
-		// to 19. This is why we add EPSILON for both parameters if this is the
-		// case.
-		if (PRE_LOLLIPOP && thisAnchorX == 0 && thisAnchorY == 0) {
-			pivotX += EPSILON;
-			pivotY += EPSILON;
-		}
-
 		setViewPivotHC(pivotX, pivotY);
 	}
 
@@ -1097,7 +1086,7 @@ public class TiAnimationBuilder
 	{
 		if (running) {
 			if (!isAnimationRunningFor(v)) {
-				sRunningViews.add(new WeakReference<View>(v));
+				sRunningViews.add(new WeakReference<>(v));
 			}
 
 		} else {

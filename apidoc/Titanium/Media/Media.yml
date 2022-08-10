@@ -6,19 +6,20 @@ description: |
     as using the device's camera and photo gallery, playing media files, or recording
     audio or video.
     For examples of using the Media APIs, refer to the
-    [Working with Media APIs guide](https://docs.appcelerator.com/platform/latest/#!/guide/Working_with_Media_APIs)
+    [Working with Media APIs guide](https://titaniumsdk.com/guide/Titanium_SDK/Titanium_SDK_How-tos/Working_with_Media_APIs/)
     in addition to the other media submodule API documentation.
     **Note**: Some third party Android camera apps may choose to ignore video recording quality
     settings. If you wish to specifically set the video quality, don't assume
-    EXTRA_VIDEO_QUALITY intent will be respected by the camera app and use Titanium's built-in
-    camera window which can be used to assign the "overlay" property when calling the
-    showCamera() method.
+    `EXTRA_VIDEO_QUALITY` intent will be respected by the camera app and use Titanium's built-in
+    camera window which can be used to assign the `overlay` property when calling the
+    `showCamera()` method.
 extends: Titanium.Module
 since: "0.1"
 methods:
   - name: beep
     summary: Plays a device beep notification.
     platforms: [iphone, ipad, macos]
+
   - name: hideCamera
     summary: Hides the device camera UI.
     description: |
@@ -27,12 +28,14 @@ methods:
     platforms: [iphone, ipad, android, macos]
     since:
         android: "3.2.0"
+
   - name: hideMusicLibrary
     summary: Hides the music library.
     description: |
         Must be called after calling [openMusicLibrary](Titanium.Media.openMusicLibrary)
         and only when `autohide` is set to `false`.
     platforms: [iphone, ipad, macos]
+
   - name: isMediaTypeSupported
     summary: Returns `true` if the source supports the specified media type.
     description: |
@@ -57,6 +60,7 @@ methods:
         type: String
         constants: Titanium.Media.MEDIA_TYPE_*
     platforms: [iphone, ipad, macos]
+
   - name: openMusicLibrary
     summary: Shows the music library and allows the user to select one or more tracks.
     description: |
@@ -67,6 +71,7 @@ methods:
       - name: options
         summary: A dictionary of options as described in <MusicLibraryOptionsType>.
         type: MusicLibraryOptionsType
+
   - name: openPhotoGallery
     summary: Opens the photo gallery image picker.
     description: |
@@ -79,6 +84,7 @@ methods:
       - name: options
         summary: Photo gallery options as described in <PhotoGalleryOptionsType>.
         type: PhotoGalleryOptionsType
+
   - name: previewImage
     summary: Displays the given image.
     platforms: [android]
@@ -86,6 +92,7 @@ methods:
       - name: options
         summary: Dictionary containing the image and callback functions.
         type: Dictionary<PreviewImageOptions>
+
   - name: saveToPhotoGallery
     summary: Saves media to the device's photo gallery / camera roll.
     description: |
@@ -100,11 +107,12 @@ methods:
         but `video1.tmp` does not. Currently, the `.mp4` extension is not supported, but MP4
         files may be imported by saving them with the `.mov` extension.
 
-        On Android this method *only supports saving images* to the device gallery prior to Titanium SDK 6.1.0.
+        Make sure to check for gallery access permissions with <Titanium.Media.hasPhotoGalleryPermissions>
+        and request the permissions with <Titanium.Media.requestPhotoGalleryPermissions> if not granted.
+        On iOS, the `NSPhotoLibraryAddUsageDescription` plist key is required in the tiapp.xml in order
+        to use this API.
 
-        On iOS the `NSPhotoLibraryAddUsageDescription` plist key is required in the tiapp.xml in order
-        to use this API. Also make sure to check for the gallery permissions with <Titanium.Media.hasPhotoGalleryPermissions>
-        and request the permissions with <Titanium.Media.requestPhotoGalleryPermissions> if not granted so far.
+        On Android, this method does not support saving videos to the gallery prior to Titanium SDK 6.1.0.
 
     platforms: [iphone, ipad, android, macos]
     parameters:
@@ -119,6 +127,7 @@ methods:
         type: Object
     since:
         android: "3.3.0"
+
   - name: setOverrideAudioRoute
     summary: Overrides the default audio route when using the <Titanium.Media.AUDIO_SESSION_CATEGORY_PLAY_AND_RECORD> session mode.
     description: |
@@ -133,6 +142,7 @@ methods:
         summary: The specified audio route.
         type: Number
         constants: Titanium.Media.AUDIO_SESSION_OVERRIDE_ROUTE_*
+
   - name: showCamera
     summary: Shows the camera.
     description: |
@@ -164,7 +174,6 @@ methods:
         Important: Use <Titanium.Media.hasCameraPermissions> and <Titanium.Media.requestCameraPermissions>
         to ask for camera permissions. This is especially important when running on iOS 10 and later, since
         the application may crash otherwise.
-
     platforms: [iphone, ipad, android, macos]
     parameters:
       - name: options
@@ -180,6 +189,7 @@ methods:
         type: Boolean
     platforms: [iphone, ipad, macos]
     since: "6.0.0"
+
   - name: requestMusicLibraryPermissions
     summary: Request permissions for the native music-library.
     description: |
@@ -193,7 +203,7 @@ methods:
         for more information.
     parameters:
       - name: callback
-        summary: Function to call upon user decision to grant camera access.
+        summary: Function to call indicating if permission was granted or denied.
         type: Callback<RequestMusicLibraryAccessResult>
     platforms: [iphone, ipad, macos]
     since: "6.0.0"
@@ -258,6 +268,7 @@ methods:
         type: Boolean
     platforms: [iphone, ipad, android, macos]
     since: "5.1.0"
+
   - name: requestCameraPermissions
     summary: Requests for camera access.
     description: |
@@ -277,8 +288,14 @@ methods:
         change it in the device settings.
     parameters:
       - name: callback
-        summary: Function to call upon user decision to grant camera access.
+        summary: |
+            Function to call indicating if permission was granted or denied.
+            Optional on SDK 10, as this method will return a `Promise`, which may be used to handle the result.
         type: Callback<RequestCameraAccessResult>
+        optional: true
+    returns:
+      summary: On SDK 10+, this method will return a `Promise` whose resolved value is equivalent to that passed to the optional callback argument.
+      type: Promise<RequestCameraAccessResult>
     platforms: [iphone, ipad, android, macos]
     since: "5.1.0"
     osver: {ios: {min: "7.0"}}
@@ -287,8 +304,11 @@ methods:
     summary: Returns `true` if the app has photo gallery permissions.
     returns:
         type: Boolean
-    platforms: [iphone, ipad, macos]
-    since: "6.0.0"
+    platforms: [android, iphone, ipad, macos]
+    since:
+        android: "9.3.0"
+        iphone: "6.0.0"
+        ipad: "6.0.0"
 
   - name: requestPhotoGalleryPermissions
     summary: Requests for photo gallery permissions.
@@ -302,17 +322,26 @@ methods:
         iOS Apps that do not include this method, will present the system-dialog while the dialog is opened with <Titanium.Media.openPhotoGallery>.
     parameters:
       - name: callback
-        summary: Function to call upon user decision to grant camera access.
+        summary: |
+            Function to call indicating if permission was granted or denied.
+            Optional on SDK 10, as this method will return a `Promise`, which may be used to handle the result.
         type: Callback<RequestPhotoGalleryAccessResult>
-    platforms: [iphone, ipad, macos]
-    since: "6.0.0"
+        optional: true
+    returns:
+      summary: On SDK 10+, this method will return a `Promise` whose resolved value is equivalent to that passed to the optional callback argument.
+      type: Promise<RequestPhotoGalleryAccessResult>
+    platforms: [android, iphone, ipad, macos]
+    since:
+        android: "9.3.0"
+        iphone: "6.0.0"
+        ipad: "6.0.0"
     osver: {ios: {min: "8.0"}}
 
   - name: requestCameraAccess
     deprecated:
       since: "5.1.0"
       removed: "9.0.0"
-      notes: Please use [Titanium.Media.requestCameraPermissions](Titanium.Media.requestCameraPermissions) instead.
+      notes: Please use the [Titanium.Media.requestCameraPermissions](Titanium.Media.requestCameraPermissions) method instead.
     summary: Requests for camera access.
     description: |
        This method allows the app to request for camera access, before or without the user granting
@@ -321,11 +350,12 @@ methods:
        to be made, the user has to change it in the device settings.
     parameters:
       - name: callback
-        summary: Function to call upon user decision to grant camera access.
+        summary: Function to call indicating if permission was granted or denied.
         type: Callback<RequestCameraAccessResult>
     platforms: [iphone, ipad]
     since: "4.0.0"
     osver: {ios: {min: "7.0"}}
+
   - name: takeScreenshot
     summary: Takes a screen shot of the visible UI on the device.
     description: |
@@ -337,6 +367,7 @@ methods:
         summary: Function to call upon capture.
         type: Callback<ScreenshotResult>
     platforms: [iphone, ipad, android, macos]
+
   - name: vibrate
     summary: Makes the device vibrate.
     description: |
@@ -377,7 +408,7 @@ methods:
     deprecated:
         since: "5.1.0"
         removed: "9.0.0"
-        notes: Use [Titanium.Media.requestAudioRecorderPermissions](Titanium.Media.requestAudioRecorderPermissions) instead.
+        notes: Use the [Titanium.Media.requestAudioRecorderPermissions](Titanium.Media.requestAudioRecorderPermissions) method instead.
     since: "3.1.3"
     parameters:
       - name: callback
@@ -401,6 +432,7 @@ methods:
     platforms: [iphone, ipad, macos]
     deprecated:
         since: "6.1.0"
+        removed: "10.0.0"
         notes: Use [Titanium.Media.hasAudioRecorderPermissions](Titanium.Media.hasAudioRecorderPermissions) instead.
     since: "6.0.0"
 
@@ -440,7 +472,7 @@ methods:
     deprecated:
         since: "6.1.0"
         removed: "9.0.0"
-        notes: Use [Titanium.Media.requestAudioRecorderPermissions](Titanium.Media.requestAudioRecorderPermissions) instead.
+        notes: Use the [Titanium.Media.requestAudioRecorderPermissions](Titanium.Media.requestAudioRecorderPermissions) method instead.
     since: "5.1.0"
     parameters:
       - name: callback
@@ -466,33 +498,20 @@ methods:
         ipad: "6.1.0"
     parameters:
       - name: callback
-        summary: Callback function to execute when the users responds to the authorization alert.
+        summary: |
+            Callback function to execute when the users responds to the authorization alert.
+            Optional on SDK 10, as this method will return a `Promise`, which may be used to handle the result.
         type: Callback<MediaAuthorizationResponse>
+        optional: true
+    returns:
+      summary: On SDK 10+, this method will return a `Promise` whose resolved value is equivalent to that passed to the optional callback argument.
+      type: Promise<MediaAuthorizationResponse>
 
 events:
   - name: cameraready
     summary: Fires when the camera overlay is ready to take pictures.
     platforms: [android]
     since: "6.0.0"
-  - name: linechange
-    deprecated:
-        since: "3.4.2"
-        removed: "3.5.1"
-        notes: Titanium no longer fires this event. Use the [Titanium.Media.routechange](Titanium.Media.routechange) event instead.
-    summary: Fired when an audio line type change is detected.
-    platforms: [iphone, ipad]
-
-  - name: recordinginput
-    deprecated:
-        since: "3.4.2"
-        removed: "3.5.1"
-        notes: Titanium no longer fires this event. Use the [Titanium.Media.canRecord](Titanium.Media.canRecord) property to check if an input hardware is available.
-    summary: Fired when the availablity of recording input changes.
-    properties:
-      - name: available
-        summary: Indicates whether the recording device is available.
-        type: Boolean
-    platforms: [iphone, ipad]
 
   - name: routechange
     summary: Fired when an audio line type change is detected.
@@ -612,76 +631,6 @@ properties:
     permission: read-only
     platforms: [iphone, ipad, macos]
 
-  - name: AUDIO_HEADPHONES
-    deprecated:
-        since: "3.4.2"
-        notes: Deprecated in favor of the `AUDIO_SESSION_PORT` constants defined in [Titanium.Media](Titanium.Media).
-        removed: "3.6.0"
-    summary: Line-type constant for headphones.
-    type: Number
-    permission: read-only
-    platforms: [iphone, ipad]
-
-  - name: AUDIO_HEADPHONES_AND_MIC
-    deprecated:
-        since: "3.4.2"
-        notes: Deprecated in favor of the `AUDIO_SESSION_PORT` constants defined in [Titanium.Media](Titanium.Media).
-        removed: "3.6.0"
-    summary: Line-type constant for headphones and microphone.
-    type: Number
-    permission: read-only
-    platforms: [iphone, ipad]
-
-  - name: AUDIO_HEADSET_INOUT
-    deprecated:
-        since: "3.4.2"
-        notes: Deprecated in favor of the `AUDIO_SESSION_PORT` constants defined in [Titanium.Media](Titanium.Media).
-        removed: "3.6.0"
-    summary: Line-type constant for headset in/out.
-    type: Number
-    permission: read-only
-    platforms: [iphone, ipad]
-
-  - name: AUDIO_LINEOUT
-    deprecated:
-        since: "3.4.2"
-        notes: Deprecated in favor of the `AUDIO_SESSION_PORT` constants defined in [Titanium.Media](Titanium.Media).
-        removed: "3.6.0"
-    summary: Line-type constant for line-out.
-    type: Number
-    permission: read-only
-    platforms: [iphone, ipad]
-
-  - name: AUDIO_MICROPHONE
-    deprecated:
-        since: "3.4.2"
-        notes: Deprecated in favor of the `AUDIO_SESSION_PORT` constants defined in [Titanium.Media](Titanium.Media).
-        removed: "3.6.0"
-    summary: Line-type constant for microphone.
-    type: Number
-    permission: read-only
-    platforms: [iphone, ipad]
-
-  - name: AUDIO_MUTED
-    deprecated:
-        since: "3.4.2"
-        notes: Deprecated in favor of the `AUDIO_SESSION_PORT` constants defined in [Titanium.Media](Titanium.Media).
-        removed: "3.6.0"
-    summary: Line-type constant indicated mute switch is on.
-    type: Number
-    permission: read-only
-    platforms: [iphone, ipad]
-
-  - name: AUDIO_RECEIVER_AND_MIC
-    deprecated:
-        since: "3.4.2"
-        notes: Deprecated in favor of the `AUDIO_SESSION_PORT` constants defined in [Titanium.Media](Titanium.Media).
-        removed: "3.6.0"
-    summary: Line-type constant indicating receiver and microphone.
-    type: Number
-    permission: read-only
-    platforms: [iphone, ipad]
-
   - name: AUDIO_SESSION_CATEGORY_AMBIENT
     summary: For long-duration sounds such as rain, car engine noise, and so on.
     description: |
@@ -741,80 +690,6 @@ properties:
     permission: read-only
     platforms: [iphone, ipad, macos]
     since: "3.4.2"
-
-  - name: AUDIO_SESSION_MODE_AMBIENT
-    deprecated:
-        since: "3.4.2"
-        notes: Deprecated in favor of the `AUDIO_SESSION_CATEGORY` constants defined in [Titanium.Media](Titanium.Media).
-        removed: "6.0.0"
-    summary: For long-duration sounds such as rain, car engine noise, and so on.
-    description: |
-        Also used for for 'play along' style applications, such a virtual piano that a
-        user plays over iPod audio.
-
-        See also: [AUDIO_SESSION_MODE_SOLO_AMBIENT](Titanium.Media.AUDIO_SESSION_MODE_SOLO_AMBIENT).
-    type: Number
-    permission: read-only
-    platforms: [iphone, ipad]
-
-  - name: AUDIO_SESSION_MODE_PLAYBACK
-    deprecated:
-        since: "3.4.2"
-        notes: Deprecated in favor of the `AUDIO_SESSION_CATEGORY` constants defined in [Titanium.Media](Titanium.Media).
-        removed: "6.0.0"
-    summary: Session mode for playing recorded music or other sounds that are central to the successful use of your application.
-    description: |
-        When using this mode, your application audio continues with the Ring/Silent switch set
-        to silent or when the screen locks. This property normally disallows mixing iPod audio
-        with application audio.
-    type: Number
-    permission: read-only
-    platforms: [iphone, ipad]
-
-  - name: AUDIO_SESSION_MODE_PLAY_AND_RECORD
-    deprecated:
-        since: "3.4.2"
-        notes: Deprecated in favor of the `AUDIO_SESSION_CATEGORY` constants defined in [Titanium.Media](Titanium.Media).
-        removed: "6.0.0"
-    summary: Session mode for recording (input) and playback (output) of audio, such as for a VOIP (voice over IP) application.
-    description: |
-        This category is appropriate for simultaneous recording and playback, and also for
-        applications that record and play back but not simultaneously. If you want to ensure
-        that sounds such as Messages alerts do not play while your application is recording,
-        use  <Titanium.Media.AUDIO_SESSION_CATEGORY_RECORD> instead. This category normally
-        disallows mixing iPod audio with application audio.
-
-        In this mode, by default audio playback is routed to the speaker in the iPhone receiver. To have audio playback through the iPhone speaker, use <Titanium.Media.setOverrideAudioRoute>.
-    type: Number
-    permission: read-only
-    platforms: [iphone, ipad]
-
-  - name: AUDIO_SESSION_MODE_RECORD
-    deprecated:
-        since: "3.4.2"
-        notes: Deprecated in favor of the `AUDIO_SESSION_CATEGORY_*` constants defined in [Titanium.Media](Titanium.Media).
-        removed: "6.0.0"
-    summary: Session mode for recording audio; it silences playback audio.
-    type: Number
-    permission: read-only
-    platforms: [iphone, ipad]
-
-  - name: AUDIO_SESSION_MODE_SOLO_AMBIENT
-    deprecated:
-        since: "3.4.2"
-        removed: "6.0.0"
-        notes: Deprecated in favor of the `AUDIO_SESSION_CATEGORY` constants defined in [Titanium.Media](Titanium.Media).
-    summary: Session mode for long-duration sounds such as rain, car engine noise, and so on.
-    description: |
-        When you use this category, audio from built-in applications, such as the iPod,
-        is silenced. Your audio is silenced when the Ring/Silent switch is set to `silent`
-        or when the screen locks.
-
-        To use long-duration sounds without silencing built-in applications,
-        see [AUDIO_SESSION_MODE_AMBIENT](Titanium.Media.AUDIO_SESSION_MODE_AMBIENT).
-    type: Number
-    permission: read-only
-    platforms: [iphone, ipad]
 
   - name: AUDIO_SESSION_OVERRIDE_ROUTE_NONE
     summary: Constant that specifies audio should output to the default audio route. See <Titanium.Media.setOverrideAudioRoute> for more information.
@@ -928,36 +803,6 @@ properties:
     since: "3.4.2"
     osver: {ios: {min: "7.0"}}
 
-  - name: AUDIO_SPEAKER
-    deprecated:
-        since: "3.4.2"
-        removed: "3.6.0"
-        notes: Deprecated in favor of the `AUDIO_SESSION_PORT` constants defined in [Titanium.Media](Titanium.Media).
-    summary: Line-type constant for speaker output.
-    type: Number
-    permission: read-only
-    platforms: [iphone, ipad]
-
-  - name: AUDIO_UNAVAILABLE
-    deprecated:
-        since: "3.4.2"
-        notes: Deprecated in favor of the `AUDIO_SESSION_PORT` constants defined in [Titanium.Media](Titanium.Media).
-        removed: "3.6.0"
-    summary: Line-type constant indicating that audio is unavailable.
-    type: Number
-    permission: read-only
-    platforms: [iphone, ipad]
-
-  - name: AUDIO_UNKNOWN
-    deprecated:
-        since: "3.4.2"
-        notes: Deprecated in favor of the `AUDIO_SESSION_PORT` constants defined in [Titanium.Media](Titanium.Media).
-        removed: "3.6.0"
-    summary: Line-type constant indicating that line-type is unknown or not determined.
-    type: Number
-    permission: read-only
-    platforms: [iphone, ipad]
-
   - name: AUDIO_STATE_BUFFERING
     summary: Audio data is being buffered from the network.
     type: Number
@@ -1049,7 +894,7 @@ properties:
     summary: Constant specifying that app is authorized to use camera. This is available on iOS7 and later.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, macos]
+    exclude-platforms: [android]
     since: "4.0.0"
     osver: {ios: {min: "7.0"}}
 
@@ -1057,7 +902,7 @@ properties:
     summary: Constant specifying that app is denied usage of camera. This is available on iOS7 and later.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, macos]
+    exclude-platforms: [android]
     since: "4.0.0"
     osver: {ios: {min: "7.0"}}
 
@@ -1065,27 +910,15 @@ properties:
     summary: Constant specifying that app is restricted from using camera. This is available on iOS7 and later.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, macos]
+    exclude-platforms: [android]
     since: "4.0.0"
     osver: {ios: {min: "7.0"}}
-
-  - name: CAMERA_AUTHORIZATION_NOT_DETERMINED
-    summary: Constant specifying that app is not yet authorized to use camera. This is available on iOS7 and later.
-    type: Number
-    permission: read-only
-    platforms: [iphone, ipad]
-    since: "4.0.0"
-    osver: {ios: {min: "7.0"}}
-    deprecated:
-        since: "5.2.0"
-        removed: "7.0.0"
-        notes: Use [Titanium.Media.CAMERA_AUTHORIZATION_UNKNOWN](Titanium.Media.CAMERA_AUTHORIZATION_UNKNOWN) instead.
 
   - name: CAMERA_AUTHORIZATION_UNKNOWN
     summary: Constant specifying that app is not yet authorized to use camera. This is available on iOS7 and later.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, macos]
+    exclude-platforms: [android]
     since: "5.2.0"
     osver: {ios: {min: "7.0"}}
 
@@ -1094,9 +927,45 @@ properties:
     type: Number
     permission: read-only
 
+  - name: IMAGE_SCALING_AUTO
+    summary: Scales the image depending on how the view container is sized.
+    description: |
+        If a [width](Titanium.UI.View.width) and [height](Titanium.UI.View.height) are both conigured on the
+        image view, then it will use [IMAGE_SCALING_FILL](Titanium.Media.IMAGE_SCALING_FILL)
+        to stretch the image disproportionally to fill the view. Otherwise it will use
+        [IMAGE_SCALING_ASPECT_FIT](Titanium.Media.IMAGE_SCALING_ASPECT_FIT) to letterbox/pillarbox the image.
+    type: Number
+    permission: read-only
+    since: "10.1.0"
+
+  - name: IMAGE_SCALING_NONE
+    summary: Disables scaling and displays the image as-is.
+    type: Number
+    permission: read-only
+    since: "10.1.0"
+
+  - name: IMAGE_SCALING_FILL
+    summary: Stretches the image disproportionally to completely fill the container's bounds.
+    type: Number
+    permission: read-only
+    since: "10.1.0"
+
+  - name: IMAGE_SCALING_ASPECT_FILL
+    summary: Crops the image proportionally causing its content to be clipped either horizontally or vertically.
+    type: Number
+    permission: read-only
+    since: "10.1.0"
+
+  - name: IMAGE_SCALING_ASPECT_FIT
+    summary: Letterbox or pillarbox scales the image proportionally to fit the container.
+    type: Number
+    permission: read-only
+    since: "10.1.0"
+
   - name: MEDIA_TYPE_PHOTO
     summary: Media type constant for photo media.
     type: String
+    value: "public.image"
     permission: read-only
 
   - name: MEDIA_TYPE_LIVEPHOTO
@@ -1104,181 +973,185 @@ properties:
     type: String
     permission: read-only
     since: "5.2.0"
-    platforms: [iphone, ipad, macos]
+    value: "com.apple.live-photo"
+    exclude-platforms: [android]
     osver: {ios: {min: "9.1"}}
 
   - name: MEDIA_TYPE_VIDEO
     summary: Media type constant for video media.
     type: String
+    value: "public.movie"
     permission: read-only
 
   - name: MUSIC_MEDIA_TYPE_ALL
     summary: Music library media containing any type of content.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, macos]
+    exclude-platforms: [android]
 
   - name: MUSIC_MEDIA_TYPE_ANY_AUDIO
     summary: Music library media containing any type of audio content.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, macos]
+    exclude-platforms: [android]
 
   - name: MUSIC_MEDIA_TYPE_AUDIOBOOK
     summary: Music library media containing audiobook content.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, macos]
+    exclude-platforms: [android]
 
   - name: MUSIC_MEDIA_TYPE_MUSIC
     summary: Music library media containing music content.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, macos]
+    exclude-platforms: [android]
 
   - name: MUSIC_MEDIA_TYPE_PODCAST
     summary: Music library media containing podcast content.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, macos]
+    exclude-platforms: [android]
 
   - name: MUSIC_MEDIA_GROUP_TITLE
     summary: Constant for grouping query results by title.
     value: 0
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, macos]
+    exclude-platforms: [android]
+
   - name: MUSIC_MEDIA_GROUP_ALBUM
     summary: Constant for grouping query results by album.
     value: 1
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, macos]
+    exclude-platforms: [android]
 
   - name: MUSIC_MEDIA_GROUP_ARTIST
     summary: Constant for grouping query results by artist.
     value: 2
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, macos]
+    exclude-platforms: [android]
 
   - name: MUSIC_MEDIA_GROUP_ALBUM_ARTIST
     summary: Constant for grouping query results by album and artist.
     value: 3
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, macos]
+    exclude-platforms: [android]
+
   - name: MUSIC_MEDIA_GROUP_COMPOSER
     summary: Constant for grouping query results by composer.
     value: 4
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, macos]
+    exclude-platforms: [android]
 
   - name: MUSIC_MEDIA_GROUP_GENRE
     summary: Constant for grouping query results by genre.
     value: 5
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, macos]
+    exclude-platforms: [android]
 
   - name: MUSIC_MEDIA_GROUP_PLAYLIST
     summary: Constant for grouping query results by playlist.
     value: 6
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, macos]
+    exclude-platforms: [android]
 
   - name: MUSIC_MEDIA_GROUP_PODCAST_TITLE
     summary: Constant for grouping query results by podcast title.
     value: 7
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, macos]
+    exclude-platforms: [android]
 
   - name: MUSIC_PLAYER_REPEAT_ALL
     summary: Constant for "Repeat All" setting.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, macos]
+    exclude-platforms: [android]
 
   - name: MUSIC_PLAYER_REPEAT_DEFAULT
     summary: Constant for user's default repeat setting.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, macos]
+    exclude-platforms: [android]
 
   - name: MUSIC_PLAYER_REPEAT_NONE
     summary: Constant for "No Repeat" setting.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, macos]
+    exclude-platforms: [android]
 
   - name: MUSIC_PLAYER_REPEAT_ONE
     summary: Constant for "Repeat one item" setting.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, macos]
+    exclude-platforms: [android]
 
   - name: MUSIC_PLAYER_SHUFFLE_ALBUMS
     summary: Constant for shuffling complete albums setting.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, macos]
+    exclude-platforms: [android]
 
   - name: MUSIC_PLAYER_SHUFFLE_DEFAULT
     summary: Constant for user's default shuffle setting.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, macos]
+    exclude-platforms: [android]
 
   - name: MUSIC_PLAYER_SHUFFLE_NONE
     summary: Constant for "no shuffle" setting.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, macos]
+    exclude-platforms: [android]
 
   - name: MUSIC_PLAYER_SHUFFLE_SONGS
     summary: Constant for shuffling songs setting.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, macos]
+    exclude-platforms: [android]
 
   - name: MUSIC_PLAYER_STATE_INTERRUPTED
     summary: Constant for interrupted state.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, macos]
+    exclude-platforms: [android]
 
   - name: MUSIC_PLAYER_STATE_PAUSED
     summary: Constant for paused state.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, macos]
+    exclude-platforms: [android]
 
   - name: MUSIC_PLAYER_STATE_PLAYING
     summary: Constant for playing state.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, macos]
+    exclude-platforms: [android]
 
   - name: MUSIC_PLAYER_STATE_SEEK_BACKWARD
     summary: Constant for backward seek state.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, macos]
+    exclude-platforms: [android]
 
   - name: MUSIC_PLAYER_STATE_SEEK_FORWARD
     summary: Constant for forward seek state.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, macos]
+    exclude-platforms: [android]
 
   - name: MUSIC_PLAYER_STATE_STOPPED
     summary: Constant for stopped state.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, macos]
+    exclude-platforms: [android]
 
   - name: NO_CAMERA
     summary: Constant for media no camera error.
@@ -1353,21 +1226,21 @@ properties:
     deprecated:
         since: "7.0.0"
         notes: This property has been removed for iOS in Titanium SDK 7.0.0 as of the official deprecation by Apple.
-        removed: "7.0.0"
     summary: Constant for default video controls.
     description: |
         Used in conjunction with the
         [mediaControlStyle](Titanium.Media.VideoPlayer.mediaControlStyle) property
         of [Titanium.Media.VideoPlayer](Titanium.Media.VideoPlayer).
+
+        Removed on iOS in SDK 7.0.0.
     type: Number
     permission: read-only
-    exclude-platforms: [macos]
+    platforms: [android]
 
   - name: VIDEO_CONTROL_EMBEDDED
     deprecated:
         since: "7.0.0"
         notes: This property has been removed for iOS in Titanium SDK 7.0.0 as of the official deprecation by Apple.
-        removed: "7.0.0"
     summary: Constant for video controls for an embedded view.
     description: |
         Used in conjunction with the
@@ -1376,15 +1249,16 @@ properties:
 
         On Android, this constant has the same effect as VIDEO_CONTROL_DEFAULT. Video controls may
         only be shown or hidden.
+
+        Removed on iOS in SDK 7.0.0.
     type: Number
     permission: read-only
-    platforms: [android, iphone, ipad]
+    platforms: [android]
 
   - name: VIDEO_CONTROL_FULLSCREEN
     deprecated:
         since: "7.0.0"
         notes: This property has been removed for iOS in Titanium SDK 7.0.0 as of the official deprecation by Apple.
-        removed: "7.0.0"
     summary: Constant for fullscreen video controls.
     description: |
         Used in conjunction with the
@@ -1409,56 +1283,59 @@ properties:
 
         On Android, this constant has the same effect as VIDEO_CONTROL_DEFAULT. Video controls may
         only be shown or hidden.
+
+        Removed on iOS in SDK 7.0.0.
     type: Number
     permission: read-only
-    platforms: [android, iphone, ipad]
+    platforms: [android]
 
   - name: VIDEO_CONTROL_HIDDEN
+    deprecated:
+        since: "7.0.0"
+        notes: This property has been removed for iOS in Titanium SDK 7.0.0 as of the official deprecation by Apple.
     summary: Constant for video controls hidden.
     description: |
         Used in conjunction with the
         [mediaControlStyle](Titanium.Media.VideoPlayer.mediaControlStyle) property
         of <Titanium.Media.VideoPlayer>.
+
+        Removed on iOS in SDK 7.0.0.
     type: Number
     permission: read-only
-    platforms: [android, iphone, ipad, macos]
+    platforms: [android]
 
   - name: VIDEO_CONTROL_NONE
+    deprecated:
+        since: "7.0.0"
+        notes: This property has been removed for iOS in Titanium SDK 7.0.0 as of the official deprecation by Apple.
     summary: Constant for no video controls.
     description: |
         Used in conjunction with the
         [mediaControlStyle](Titanium.Media.VideoPlayer.mediaControlStyle) property
         of <Titanium.Media.VideoPlayer>.
-    type: Number
-    permission: read-only
 
-  - name: VIDEO_CONTROL_VOLUME_ONLY
-    deprecated:
-        since: "1.8.0"
-        notes: Use [Titanium.Media.VIDEO_CONTROL_EMBEDDED](Titanium.Media.VIDEO_CONTROL_EMBEDDED) instead.
-        removed: "6.0.0"
-    summary: Constant for video controls volume only.
+        Removed on iOS in SDK 7.0.0.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [android]
 
   - name: VIDEO_FINISH_REASON_PLAYBACK_ENDED
     summary: Video playback ended normally.
     type: Number
     permission: read-only
-    platforms: [android, iphone, ipad, macos]
+    platforms: [android]
 
   - name: VIDEO_FINISH_REASON_PLAYBACK_ERROR
     summary: Video playback ended abnormally.
     type: Number
     permission: read-only
-    platforms: [android, iphone, ipad, macos]
+    platforms: [android]
 
   - name: VIDEO_FINISH_REASON_USER_EXITED
     summary: Video playback ended by user action (such as clicking the `Done` button).
     type: Number
     permission: read-only
-    platforms: [android, iphone, ipad, macos]
+    platforms: [android]
 
   - name: VIDEO_LOAD_STATE_FAILED
     summary: Indicates that the player can no longer play media items because of an error.
@@ -1472,26 +1349,6 @@ properties:
     permission: read-only
     platforms: [android, iphone, ipad, macos]
 
-  - name: VIDEO_LOAD_STATE_PLAYTHROUGH_OK
-    deprecated:
-        since: "7.0.0"
-        notes: This property has been removed for iOS in Titanium SDK 7.0.0 as of the official deprecation by Apple.
-        removed: "7.0.0"
-    summary: Playback will be automatically started in this state when `autoplay` is true.
-    type: Number
-    permission: read-only
-    platforms: [android, iphone, ipad]
-
-  - name: VIDEO_LOAD_STATE_STALLED
-    deprecated:
-        since: "7.0.0"
-        notes: This property has been removed for iOS in Titanium SDK 7.0.0 as of the official deprecation by Apple.
-        removed: "7.0.0"
-    summary: Playback will be automatically paused in this state, if started.
-    type: Number
-    permission: read-only
-    platforms: [android, iphone, ipad]
-
   - name: VIDEO_LOAD_STATE_UNKNOWN
     summary: Current load state is not known.
     type: Number
@@ -1499,34 +1356,64 @@ properties:
     platforms: [android, iphone, ipad, macos]
 
   - name: VIDEO_MEDIA_TYPE_AUDIO
-    deprecated:
-        since: "7.0.0"
-        notes: This property has been removed in Titanium SDK 7.0.0 as of the official deprecation by Apple.
-        removed: "7.0.0"
-    summary: A audio type of media in the movie returned by [Titanium.Media.VideoPlayer](Titanium.Media.VideoPlayer) `mediaTypes` property.
-    type: Number
+    summary: The media contains audio media.
+    type: String
     permission: read-only
-    platforms: [iphone, ipad]
+    exclude-platforms: [android]
 
-  - name: VIDEO_MEDIA_TYPE_NONE
-    deprecated:
-        since: "7.0.0"
-        notes: This property has been removed in Titanium SDK 7.0.0 as of the official deprecation by Apple.
-        removed: "7.0.0"
-    summary: An unknown type of media in the movie returned by [Titanium.Media.VideoPlayer](Titanium.Media.VideoPlayer) `mediaTypes` property.
-    type: Number
+  - name: VIDEO_MEDIA_TYPE_CLOSED_CAPTION
+    summary: The media contains closed-caption content.
+    type: String
     permission: read-only
-    platforms: [iphone, ipad]
+    exclude-platforms: [android]
+
+  - name: VIDEO_MEDIA_TYPE_DEPTH_DATA
+    summary: The media contains depth data.
+    type: String
+    permission: read-only
+    exclude-platforms: [android]
+
+  - name: VIDEO_MEDIA_TYPE_METADATA
+    summary: The media contains metadata.
+    type: String
+    permission: read-only
+    exclude-platforms: [android]
+
+  - name: VIDEO_MEDIA_TYPE_METADATA_OBJECT
+    summary: The media contains metadata objects.
+    type: String
+    permission: read-only
+    exclude-platforms: [android]
+
+  - name: VIDEO_MEDIA_TYPE_MUXED
+    summary: The media contains muxed media.
+    type: String
+    permission: read-only
+    exclude-platforms: [android]
+
+  - name: VIDEO_MEDIA_TYPE_SUBTITLE
+    summary: The media contains subtitles.
+    type: String
+    permission: read-only
+    exclude-platforms: [android]
+
+  - name: VIDEO_MEDIA_TYPE_TEXT
+    summary: The media contains text.
+    type: String
+    permission: read-only
+    exclude-platforms: [android]
+
+  - name: VIDEO_MEDIA_TYPE_TIMECODE
+    summary: The media contains a time code.
+    type: String
+    permission: read-only
+    exclude-platforms: [android]
 
   - name: VIDEO_MEDIA_TYPE_VIDEO
-    deprecated:
-        since: "7.0.0"
-        notes: This property has been removed in Titanium SDK 7.0.0 as of the official deprecation by Apple.
-        removed: "7.0.0"
-    summary: A video type of media in the movie returned by [Titanium.Media.VideoPlayer](Titanium.Media.VideoPlayer) `mediaTypes` property.
-    type: Number
+    summary: The media contains video.
+    type: String
     permission: read-only
-    platforms: [iphone, ipad]
+    exclude-platforms: [android]
 
   - name: VIDEO_PLAYBACK_STATE_INTERRUPTED
     summary: Video playback has been interrupted.
@@ -1548,23 +1435,19 @@ properties:
 
   - name: VIDEO_PLAYBACK_STATE_SEEKING_BACKWARD
     summary: Video playback is rewinding.
+    description: |
+        This constant has been removed on iOS in SDK 7.0.0 by using the official Apple AVPlayer that does not expose this functionality so far.
     type: Number
     permission: read-only
-    platforms: [android, iphone, ipad]
-    deprecated:
-        since: "7.0.0"
-        removed: "7.0.0"
-        notes: "This constant has been removed on iOS by using the official Apple AVPlayer that does not expose this functionality so far."
+    platforms: [android]
 
   - name: VIDEO_PLAYBACK_STATE_SEEKING_FORWARD
     summary: Video playback is seeking forward.
+    description: |
+        This constant has been removed on iOS in SDK 7.0.0 by using the official Apple AVPlayer that does not expose this functionality so far.
     type: Number
     permission: read-only
-    platforms: [android, iphone, ipad]
-    deprecated:
-        since: "7.0.0"
-        removed: "7.0.0"
-        notes: "This constant has been removed on iOS by using the official Apple AVPlayer that does not expose this functionality so far."
+    platforms: [android]
 
   - name: VIDEO_PLAYBACK_STATE_STOPPED
     summary: Video playback is stopped.
@@ -1589,8 +1472,10 @@ properties:
   - name: VIDEO_SCALING_ASPECT_FILL
     deprecated:
         since: "7.0.0"
-        notes: This property has been removed for iOS in Titanium SDK 7.0.0 as of the official deprecation by Apple.
-        removed: "7.0.0"
+        notes: |
+            Use <Titanium.Media.VIDEO_SCALING_RESIZE_ASPECT_FILL> instead.
+
+            This property has been removed for iOS in Titanium SDK 7.0.0 as of the official deprecation by Apple.
     summary: Scale video to fill the screen, clipping edges if necessary.
     description: |
         Video is scaled until the video fills the entire screen. Content at the edges
@@ -1598,97 +1483,72 @@ properties:
         screen exactly. The aspect ratio of the movie is preserved.
     type: Number
     permission: read-only
-    platforms: [android, iphone, ipad]
+    platforms: [android]
 
   - name: VIDEO_SCALING_ASPECT_FIT
     deprecated:
         since: "7.0.0"
-        notes: This property has been removed for iOS in Titanium SDK 7.0.0 as of the official deprecation by Apple.
-        removed: "7.0.0"
-    exclude-platforms: [macos]
+        notes: |
+            Use <Titanium.Media.VIDEO_SCALING_RESIZE_ASPECT> instead.
+
+            This property has been removed for iOS in Titanium SDK 7.0.0 as of the official deprecation by Apple.
+    platforms: [android]
     summary: Scale video to fit the screen, letterboxing if necessary.
     description: |
         Video is scaled until the larger dimension fits on the screen exactly. In the
         other dimension, the region between the edge of the movie and the edge of the screen
         is filled with a black bar. The aspect ratio of the movie is preserved.
+
+        This constant was removed on iOS in SDK 7.0.0
     type: Number
     permission: read-only
 
   - name: VIDEO_SCALING_MODE_FILL
     deprecated:
         since: "7.0.0"
-        notes: This property has been removed for iOS in Titanium SDK 7.0.0 as of the official deprecation by Apple.
-        removed: "7.0.0"
+        notes: |
+            Use <Titanium.Media.VIDEO_SCALING_MODE_RESIZE> instead.
+
+            This property has been removed for iOS in Titanium SDK 7.0.0 as of the official deprecation by Apple.
     summary: Video is scaled until both dimensions fit the screen exactly, stretching if necessary.
-    description: |
-        The aspect ratio of the video is not preserved.
+    description: This constant was removed on iOS in SDK 7.0.0
     type: Number
     permission: read-only
-    platforms: [android, iphone, ipad]
+    platforms: [android]
 
   - name: VIDEO_SCALING_NONE
     deprecated:
         since: "7.0.0"
         notes: This property has been removed for iOS in Titanium SDK 7.0.0 as of the official deprecation by Apple.
-        removed: "7.0.0"
-    exclude-platforms: [macos]
+    platforms: [android]
     summary: Video scaling is disabled.
+    description: This constant was removed on iOS in SDK 7.0.0
     type: Number
     permission: read-only
 
   - name: VIDEO_SCALING_RESIZE
     summary: Specifies that the video should be stretched to fill the bounds of layer.
-    type: String
+    description: This is a `String` on iOS, a `Number` on Android.
+    type: [String, Number]
     permission: read-only
     platforms: [iphone, ipad, android, macos]
     since: {iphone: "7.0.0", ipad: "7.0.0", android: "8.3.0"}
 
   - name: VIDEO_SCALING_RESIZE_ASPECT
     summary: Specifies that the player should preserve the aspect ratio of video and fit the video within the bounds of layer.
-    type: String
+    description: This is a `String` on iOS, a `Number` on Android.
+    type: [String, Number]
     permission: read-only
     platforms: [iphone, ipad, android, macos]
     since: {iphone: "7.0.0", ipad: "7.0.0", android: "8.3.0"}
 
   - name: VIDEO_SCALING_RESIZE_ASPECT_FILL
     summary: Specifies that the player should preserve the aspect ratio of video and fill the bounds of layer.
-    type: String
+    description: This is a `String` on iOS, a `Number` on Android.
+    type: [String, Number]
     permission: read-only
     platforms: [iphone, ipad, android, macos]
     since: {iphone: "7.0.0", ipad: "7.0.0", android: "8.3.0"}
-
-  - name: VIDEO_SOURCE_TYPE_FILE
-    deprecated:
-        since: "7.0.0"
-        notes: This property has been removed in Titanium SDK 7.0.0 as of the official deprecation by Apple.
-        removed: "7.0.0"
-    summary: Video source type is a file.
-    description: Related to the `sourceType` property of [Titanium.Media.VideoPlayer](Titanium.Media.VideoPlayer).
-    type: Number
-    permission: read-only
-    platforms: [iphone, ipad]
-
-  - name: VIDEO_SOURCE_TYPE_STREAMING
-    deprecated:
-        since: "7.0.0"
-        notes: This property has been removed in Titanium SDK 7.0.0 as of the official deprecation by Apple.
-        removed: "7.0.0"
-    summary: Video source type is a remote stream.
-    description: Related to the `sourceType` property of [Titanium.Media.VideoPlayer](Titanium.Media.VideoPlayer)
-    type: Number
-    permission: read-only
-    platforms: [iphone, ipad]
-
-  - name: VIDEO_SOURCE_TYPE_UNKNOWN
-    deprecated:
-        since: "7.0.0"
-        notes: This property has been removed in Titanium SDK 7.0.0 as of the official deprecation by Apple.
-        removed: "7.0.0"
-    summary: Video source type is unknown.
-    description: Related to the `sourceType` property of [Titanium.Media.VideoPlayer](Titanium.Media.VideoPlayer)
-    type: Number
-    permission: read-only
-    platforms: [iphone, ipad]
 
   - name: VIDEO_TIME_OPTION_EXACT
     summary: Use the exact time.
@@ -1734,16 +1594,6 @@ properties:
     platforms: [iphone, ipad, macos]
     permission: read-only
 
-  - name: audioLineType
-    deprecated:
-        since: "3.4.2"
-        removed: "3.6.0"
-        notes: Use [Titanium.Media.currentRoute](Titanium.Media.currentRoute) instead.
-    summary: Returns the line type constant for the current line type.
-    type: Number
-    platforms: [iphone, ipad]
-    permission: read-only
-
   - name: audioPlaying
     summary: Returns `true` if the device is playing audio.
     type: Boolean
@@ -1762,21 +1612,6 @@ properties:
     platforms: [iphone, ipad, macos]
     since: "3.4.2"
 
-  - name: audioSessionMode
-    deprecated:
-        since: "3.4.2"
-        notes: Use [Titanium.Media.audioSessionCategory](Titanium.Media.audioSessionCategory) instead.
-        removed: "6.0.0"
-    summary: A constant for the audio session mode to be used.
-    description: |
-        Set to one of the `AUDIO_SESSION_MODE` constants defined in [Titanium.Media](Titanium.Media).
-
-        Must be set while the audio session is inactive (no sounds are playing, no listeners
-        for audio properties on the Media module, but the iPod may be active).
-    type: Number
-    constants: Titanium.Media.AUDIO_SESSION_MODE*
-    platforms: [iphone, ipad]
-
   - name: availableCameras
     summary: Array indicating which cameras are available, `CAMERA_FRONT`, `CAMERA_REAR` or both.
     type: Array<Number>
@@ -1788,19 +1623,19 @@ properties:
 
   - name: availableCameraMediaTypes
     summary: Array of media type constants supported for the camera.
-    type: Array<Object>
+    type: Array<String>
     constants: Titanium.Media.MEDIA_TYPE_*
     platforms: [iphone, ipad, macos]
 
   - name: availablePhotoGalleryMediaTypes
     summary: Array of media type constants supported for saving to the device's camera roll or saved images album.
-    type: Array<Object>
+    type: Array<String>
     constants: Titanium.Media.MEDIA_TYPE_*
     platforms: [iphone, ipad, macos]
 
   - name: availablePhotoMediaTypes
     summary: Array of media type constants supported for the photo library.
-    type: Array<Object>
+    type: Array<String>
     constants: Titanium.Media.MEDIA_TYPE_*
     platforms: [iphone, ipad, macos]
 
@@ -1818,7 +1653,7 @@ properties:
     constants: Titanium.Media.CAMERA_FLASH_*
     platforms: [android, iphone, ipad, macos]
     since: {android: "3.3.0", iphone: "1.4.0", ipad: "1.4.0"}
-    default: Titanium.Media.CAMERA_FLASH_AUTO
+    default: <Titanium.Media.CAMERA_FLASH_AUTO> on iOS, <Titanium.Media.CAMERA_FLASH_OFF> on Android
 
   - name: canRecord
     summary: |
@@ -1843,20 +1678,6 @@ properties:
     type: Boolean
     platforms: [iphone, ipad, android, macos]
     permission: read-only
-
-  - name: cameraAuthorizationStatus
-    summary: |
-        Returns the authorization status for the camera.
-    deprecated:
-        since: "5.2.0"
-        removed: "9.0.0"
-        notes: Use [Titanium.Media.cameraAuthorization](Titanium.Media.cameraAuthorization) instead.
-    type: Number
-    constants: Titanium.Media.CAMERA_AUTHORIZATION_*
-    platforms: [iphone, ipad]
-    permission: read-only
-    since: "4.0.0"
-    osver: {ios: {min: "7.0"}}
 
   - name: cameraAuthorization
     summary: |
@@ -2068,12 +1889,15 @@ properties:
   - name: success
     summary: Function to call when the camera is closed after a successful capture/selection.
     type: Callback<CameraMediaItemType>
+
   - name: error
     summary: Function to call upon receiving an error.
     type: Callback<FailureResponse>
+
   - name: cancel
     summary: Function to call if the user presses the cancel button.
     type: Callback<FailureResponse>
+
   - name: androidback
     summary: Function to call if the user presses the back button.
     description: |
@@ -2083,6 +1907,7 @@ properties:
     type: Callback<FailureResponse>
     platforms: [android]
     since: {android: "9.0.0"}
+
   - name: autohide
     summary: Specifies if the camera should be hidden automatically after the media capture is completed.
     type: Boolean
@@ -2094,20 +1919,24 @@ properties:
         overlay is not set, the default Android Camera Activity is used, which is only
         capable of reporting back the results of one taken photo, making `autohide`
         meaningless in that context.
+
   - name: animated
     summary: Specifies if the dialog should be animated upon showing and hiding.
     type: Boolean
     default: true
     platforms: [iphone, ipad, macos]
+
   - name: saveToPhotoGallery
     summary: Specifies if the media should be saved to the photo gallery upon successful capture.
     type: Boolean
     default: false
+
   - name: allowEditing
     summary: Specifies if the media should be editable after capture/selection.
     type: Boolean
     platforms: [iphone, ipad, macos]
     default: false
+
   - name: mediaTypes
     summary: |
         Array of media type constants to allow. Note: If you want to select live photos, iOS only  allows
@@ -2119,12 +1948,14 @@ properties:
     platforms: [android, iphone, ipad, macos]
     since:
         android: 5.4.0
+
   - name: videoMaximumDuration
     summary: Maximum duration (in milliseconds) to allow video capture before completing.
     type: Number
     platforms: [android, iphone, ipad, macos]
     since:
         android: 5.4.0
+
   - name: videoQuality
     summary: Constant to indicate the video quality during capture.
     type: Number
@@ -2132,6 +1963,7 @@ properties:
     constants: Titanium.Media.QUALITY_*
     since:
         android: 5.4.0
+
   - name: whichCamera
     summary: Opens the camera with the specified camera direction.
     type: Number
@@ -2139,11 +1971,13 @@ properties:
     platforms: [android]
     since:
         android: 5.4.0
+
   - name: showControls
     summary: Indicates if the built-in camera controls should be displayed.
     type: Boolean
     default: true
     platforms: [iphone, ipad, macos]
+
   - name: overlay
     summary: View to added as an overlay to the camera UI (on top).
     description: |
@@ -2152,6 +1986,7 @@ properties:
         the overlay view.
     type: Titanium.UI.View
     default: no overlay view
+
   - name: transform
     summary: Transformation matrix to apply to the camera or photogallery view.
     description: |
@@ -2161,6 +1996,7 @@ properties:
     type: Titanium.UI.Matrix2D
     default: identity matrix
     platforms: [iphone, ipad, macos]
+
   - name: inPopOver
     summary: Show the camera in a popover.
     description: |
@@ -2168,6 +2004,7 @@ properties:
     type: Boolean
     default: false
     platforms: [ipad, macos]
+
   - name: popoverView
     summary: View to position the camera or photo gallery popover on top of.
     description: |
@@ -2175,6 +2012,7 @@ properties:
         popover (`inPopOver` is `true`).
     type: Titanium.UI.View
     platforms: [ipad, macos]
+
   - name: arrowDirection
     summary: Controls the type of arrow and position of the popover.
     description: |
@@ -2183,6 +2021,7 @@ properties:
     type: Number
     constants: Titanium.UI.iPad.POPOVER_ARROW_DIRECTION*
     platforms: [ipad, macos]
+
   - name: autorotate
     summary: Determines if the camera preview should rotate or not.
     description: |
@@ -2209,12 +2048,15 @@ properties:
         If <Titanium.Media.allowMultiple> is `true`, then Callback<CameraMediaMultipleItemsType> will be invoked.
         Otherwise Callback<CameraMediaItemType> will be invoked for single selection.
     type: [Callback<CameraMediaItemType>, Callback<CameraMediaMultipleItemsType>]
+
   - name: error
     summary: Function to call upon receiving an error.
     type: Callback<FailureResponse>
+
   - name: cancel
     summary: Function to call if the user presses the cancel button.
     type: Callback<FailureResponse>
+
   - name: autohide
     summary: |
         Specifies if the photo gallery should be hidden automatically after the media
@@ -2222,15 +2064,18 @@ properties:
     type: Boolean
     default: true
     platforms: [iphone, ipad, macos]
+
   - name: animated
     summary: Specifies if the dialog should be animated upon showing and hiding.
     type: Boolean
     default: true
     platforms: [iphone, ipad, macos]
+
   - name: allowEditing
     summary: Specifies if the media should be editable after capture/selection.
     type: Boolean
     platforms: [iphone, ipad, macos]
+
   - name: mediaTypes
     summary: |
         Array of media type constants to allow.
@@ -2244,15 +2089,18 @@ properties:
     default: Only photo and video allowed.
     platforms: [android, iphone, ipad, macos]
     since: { android: "7.3.0", iphone: "0.8", ipad: "0.8" }
+
   - name: popoverView
     summary: View to position the photo gallery popover on top of.
     type: Titanium.UI.View
     platforms: [ipad, macos]
+
   - name: arrowDirection
     summary: Controls the type of arrow and position of the popover.
     type: Number
     constants: Titanium.UI.iPad.POPOVER_ARROW_DIRECTION*
     platforms: [ipad, macos]
+
   - name: allowMultiple
     summary: Specifies if the user should be able to select multiple photos.
     description: |
@@ -2261,6 +2109,7 @@ properties:
     platforms: [android, iphone, ipad]
     osver: {ios: {min: "14.0"}}
     since: { android: "6.0.0", iphone: "9.2.0", ipad: "9.2.0" }
+
   - name: selectionLimit
     summary: Specifies number of media item that can be selected.
     description: |
@@ -2270,6 +2119,7 @@ properties:
     platforms: [iphone, ipad]
     osver: {ios: {min: "14.0"}}
     since: "9.2.0"
+
   - name: allowTranscoding
     summary: Specifies if the video should be transcoded (using highest quality preset) . If set to false no video transcoding will be performed.
     type: Boolean
@@ -2288,12 +2138,14 @@ properties:
         The list of selected images.
     type: Array<CameraMediaItemType>
     optional: true
+
   - name: livePhotos
     summary: |
         The list of selected live photo objects.
     type: Array<Titanium.UI.iOS.LivePhoto>
     platforms: [iphone, ipad]
     optional: true
+
   - name: videos
     summary: |
         The list of selected videos.
@@ -2307,32 +2159,39 @@ properties:
   - name: media
     summary: The media object, as a [Blob](Titanium.Blob).
     type: Titanium.Blob
+
   - name: mediaType
     summary: The type of media, either `MEDIA_TYPE_PHOTO`, `MEDIA_TYPE_LIVEPHOTO` or `MEDIA_TYPE_VIDEO` defined in <Titanium.Media>.
     type: String
+
   - name: cropRect
     summary: Simple object defining the user's selected crop rectangle, or `null` if the user has not edited the photo. `width`/`height` values are assumed to be in pixels.
     type: Dimension
     optional: true
+
   - name: previewRect
     summary: Simple object defining the preview image size. This will be undefined when custom camera overlay is not used. Values are assumed to be in pixels.
     type: Size
     platforms: [android]
+
   - name: success
     summary: Indicates if the operation succeeded. Returns `true`.
     description: Returns `true`.
     type: Boolean
     since: "3.1.0"
+
   - name: error
     summary: Error message, if any returned.
     description: Will be undefined.
     type: String
     since: "3.1.0"
+
   - name: code
     summary: Error code. Returns 0.
     description: Error code will be 0.
     type: Number
     since: "3.1.0"
+
   - name: livePhoto
     summary: |
         The live photo object, as a <Titanium.UI.iOS.LivePhoto> and
@@ -2350,14 +2209,17 @@ properties:
     summary: The image to preview. Must be a blob based on a file, such as from <Titanium.Filesystem.File.read>.
     type: Titanium.Blob
     accessors: false
+
   - name: success
     summary: Function to be called back if the preview succeeds. No info is passed.
     type: Callback<SuccessResponse>
     accessors: false
+
   - name: error
     summary: Function called back if the preview fails. Check the `message` property of passed back parameter.
     type: Callback<PreviewImageError>
     accessors: false
+
 ---
 name: PreviewImageError
 summary: The parameter passed to the `error` callback of <PreviewImageOptions>.
@@ -2370,16 +2232,21 @@ properties:
     accessors: false
     deprecated:
         since: "3.1.0"
+        removed: "10.0.0"
+        notes: Use `error` property instead
+
   - name: code
     summary: Error code, if applicable.
     type: Number
     constants: [Titanium.Media.DEVICE_BUSY, Titanium.Media.NO_CAMERA, Titanium.Media.UNKNOWN_ERROR]
     accessors: false
+
   - name: success
     summary: Indicates if the operation succeeded. Returns `false`.
     description: Returns `false`.
     type: Boolean
     since: "3.1.0"
+
   - name: error
     summary: Error message, if any returned.
     description: May be undefined.

@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -57,7 +57,6 @@ public class IntentProxy extends KrollProxy
 		this.intent = intent;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getPackageName()
 	{
@@ -71,7 +70,6 @@ public class IntentProxy extends KrollProxy
 		return null;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getClassName()
 	{
@@ -145,7 +143,7 @@ public class IntentProxy extends KrollProxy
 
 		if (dict.containsKey(TiC.PROPERTY_FLAGS)) {
 			flags = TiConvert.toInt(dict, TiC.PROPERTY_FLAGS);
-			Log.d(TAG, "Setting flags: " + Integer.toString(flags), Log.DEBUG_MODE);
+			Log.d(TAG, "Setting flags: " + flags, Log.DEBUG_MODE);
 			intent.setFlags(flags);
 		} else {
 			setProperty(TiC.PROPERTY_FLAGS, intent.getFlags());
@@ -252,14 +250,12 @@ public class IntentProxy extends KrollProxy
 		intent.addFlags(flags);
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setFlags(int flags)
 	{
 		intent.setFlags(flags);
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public int getFlags()
 	{
@@ -289,7 +285,7 @@ public class IntentProxy extends KrollProxy
 			try {
 				Object[] objVal = (Object[]) value;
 				String[] stringArray = Arrays.copyOf(objVal, objVal.length, String[].class);
-				ArrayList<Uri> imageUris = new ArrayList<Uri>();
+				ArrayList<Uri> imageUris = new ArrayList<>();
 				ClipData clipData = null;
 				for (String s : stringArray) {
 					if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && s.startsWith("file://")) {
@@ -425,7 +421,6 @@ public class IntentProxy extends KrollProxy
 		return null;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getData()
 	{
@@ -440,28 +435,24 @@ public class IntentProxy extends KrollProxy
 		return intent;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getType()
 	{
 		return intent.getType();
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setType(String type)
 	{
 		intent.setType(type);
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getAction()
 	{
 		return intent.getAction();
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setAction(String action)
 	{

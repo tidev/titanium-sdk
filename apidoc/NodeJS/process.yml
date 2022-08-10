@@ -1,0 +1,238 @@
+---
+name: process
+summary: A Node.js-compatible implementation of the core `process` module
+description: |
+    Titanium provides a number of shims and ports of core Node.js module functionality.
+
+    This module is intended to provide a Node-compatible port of the `process` core module.
+    
+    More details on the Node.js API can be found in their [process module documentation](https://nodejs.org/api/process.html)
+
+    Note that this particular shim has many unimplemented, no-op, or unsupported APIs and events.
+
+    The `process` object is a global that provides information about, and control over, the current Node.js process. As a global, it is always available to Node.js applications without using `require()`. It can also be explicitly accessed using `require()`:
+
+    ``` javascript
+    const process = require('process');
+    ```
+extends: EventEmitter
+platforms: [android, iphone, ipad, macos]
+since: '8.1.0'
+properties:
+  - name: arch
+    type: String
+    summary: |
+        Returns the operating system CPU architecture for which the binary was compiled. Possible values are return `'arm'`, `'arm64'`, `'ia32'`, `'x64'`, `'mips'`, and `'unknown'`.
+
+        The return value is equivalent to <os.arch>. Relates strongly to <Titanium.Platform.architecture>.
+
+  - name: argv
+    type: Array<String>
+    summary: |
+        The `process.argv` property returns an array containing the command-line arguments passed when the Node.js process was launched.
+        The first element will be `process.execPath`. See <process.argv0> if access to the original value of `argv[0]` is needed.
+        The second element will be the path to the JavaScript file being executed.
+        The remaining elements will be any additional command-line arguments.
+
+  - name: argv0
+    type: String
+    summary: The `process.argv0` property stores a read-only copy of the original value of `argv[0]` passed when Node.js starts.
+    value: ''
+    permission: read-only
+
+  - name: channel
+    type: Object
+    value: undefined
+    summary: Always `undefined` in Titanium.
+
+  - name: config
+    type: Object
+    summary: Always `{}` in Titanium.
+
+  - name: connected
+    type: Boolean
+    summary: Always `false` in Titanium.
+    value: false
+
+  - name: debugPort
+    type: Number
+    summary: The port used by the debugger when enabled.
+
+  - name: env
+    type: Object
+    summary: |
+        This is an object whose keys are environment variable names and whose values are the related environmnet variable values.
+
+        In Titanium, we will pass along environment variables from the system/CLI to the app for `'development'` builds,
+        *but will not do so for `'production'` builds!*
+
+  - name: execArgv
+    type: Array<String>
+    summary: Always `[]` in Titanium.
+
+  - name: execPath
+    type: String
+    summary: Always `''` in Titanium.
+
+  - name: exitCode
+    type: Number
+    summary: Unused in Titanium.
+    value: undefined
+
+  - name: noDeprecation
+    type: Boolean
+    summary: The `process.noDeprecation` property indicates whether the `--no-deprecation` flag is set on the current Node.js process. See the documentation for the `'warning'` event and the `emitWarning()` method for more information about this flag's behavior.
+    default: false
+
+  - name: pid
+    type: Number
+    value: 0
+    summary: The `process.pid` property returns the PID of the process. Always returns `0` in Titanium.
+
+  - name: platform
+    type: String
+    summary: Equivalent to <Titanium.Platform.osname>
+
+  - name: ppid
+    type: Number
+    value: 0
+    summary: The `process.ppid` property returns the PID of the parent of the current process. Always returns `0` in Titanium.
+
+  - name: stderr
+    type: Object
+    summary: The `process.stderr` property returns a stream connected to `stderr`.
+    # TODO: Define type for stderr?
+
+  - name: stdout
+    type: Object
+    summary: The `process.stdout` property returns a stream connected to `stdout`.
+    # TODO: Define type for stdout?
+
+  - name: title
+    type: String
+    summary: Equivalent to <Titanium.App.name>
+
+  - name: throwDeprecation
+    type: Boolean
+    default: false
+    summary: |
+        The initial value of `process.throwDeprecation` indicates whether the `--throw-deprecation` flag is set on the current Node.js process. process.throwDeprecation is mutable, so whether or not deprecation warnings result in errors may be altered at runtime. See the documentation for the `'warning'` event and the `emitWarning()` method for more information.
+
+  - name: traceDeprecation
+    type: Boolean
+    default: false
+    summary: |
+        The `process.traceDeprecation` property indicates whether the `--trace-deprecation` flag is set on the current Node.js process. See the documentation for the `'warning'` event and the `emitWarning()` method for more information about this flag's behavior.
+
+  - name: version
+    type: String
+    summary: Equivalent to <Titanium.version>
+
+  - name: versions
+    type: Object
+    summary: An object containing version information for included dependencies
+
+methods:
+  - name: abort
+    summary: No-op on Titanium
+
+  - name: binding
+    summary: This is not intended as user-facing API and will throw an `Error` if invoked.
+
+  - name: chdir
+    summary: This is unsupported on Titanium and will throw an `Error` if invoked.
+
+  - name: cpuUsage
+    summary: Returns a dummy object with `0`-ed out values.
+    returns:
+      type: Object
+
+  - name: cwd
+    summary: Returns the value of `__dirname` on Titanium.
+    returns:
+      type: String
+
+  - name: disconnect
+    summary: No-op on Titanium
+
+  - name: dlopen
+    summary: This is unsupported on Titanium and will throw an `Error` if invoked.
+
+  - name: emitWarning
+    summary: The `process.emitWarning()` method can be used to emit custom or application specific process warnings. These can be listened for by adding a handler to the `'warning'` event.
+    parameters:
+      - name: warning
+        type: [ String, Error ]
+        summary: The warning to emit.
+      - name: options
+        type: [ String, EmitWarningOptions ]
+        summary: When `warning` is a `String`, `type` is the name to use for the type of warning being emitted.
+        optional: true
+        default: Warning
+      - name: code
+        type: String
+        summary: A unique identifier for the warning instance being emitted.
+        optional: true
+      - name: ctor
+        summary: When `warning` is a `String`, `ctor` is an optional function used to limit the generated stack trace.
+        optional: true
+        type: Function
+        default: "`process.emitWarning`"
+
+  - name: exit
+    summary: This is unsupported on Titanium and will throw an `Error` if invoked.
+
+  - name: umask
+    summary: No-op on Titanium. Will always return `0`.
+    returns:
+      type: Number
+
+  - name: uptime
+    summary: |
+        The `process.uptime()` method returns the number of seconds the current Node.js process has been running.
+
+        The return value includes fractions of a second. Use `Math.floor()` to get whole seconds.
+    returns:
+      type: Number
+
+events:
+  - name: uncaughtException
+    summary: The `'uncaughtException'` event is emitted when an uncaught JavaScript exception bubbles all the way back to the event loop.
+    properties:
+      - name: err
+        type: Error
+        summary: The uncaught exception.
+
+  - name: warning
+    summary: The `'warning'` event is emitted whenever Node.js emits a `process` warning.
+    properties:
+      - name: warning
+        type: Error
+        summary: The warning thrown.
+
+---
+name: EmitWarningOptions
+summary: An abstract type for the options that may be passed to <process.emitWarning>().
+properties:
+  - name: type
+    type: String
+    summary: When `warning` is a `String`, `type` is the name to use for the type of warning being emitted.
+    optional: true
+    default: Warning
+
+  - name: code
+    type: String
+    summary: A unique identifier for the warning instance being emitted.
+    optional: true
+
+  - name: ctor
+    summary: When `warning` is a `String`, `ctor` is an optional function used to limit the generated stack trace.
+    optional: true
+    type: Function
+    default: "`process.emitWarning`"
+
+  - name: detail
+    type: String
+    summary: Additional text to include with the error.
+    optional: true
+

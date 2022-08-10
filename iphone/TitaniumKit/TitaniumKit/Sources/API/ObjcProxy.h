@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2018-Present by Appcelerator, Inc. All Rights Reserved.
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -40,15 +40,13 @@
   SETTER_IMPL(TYPE, UPPER);
 
 #define PROPERTY(TYPE, LOWER, UPPER) \
-  @property TYPE LOWER;              \
-  READWRITE(TYPE, UPPER);
+  @property TYPE LOWER;
 
 #define CONSTANT(TYPE, NAME) \
   @property (readonly) TYPE NAME;
 
 #define READONLY_PROPERTY(TYPE, LOWER, UPPER) \
-  CONSTANT(TYPE, LOWER);                      \
-  GETTER(TYPE, UPPER);
+  CONSTANT(TYPE, LOWER);
 
 // TODO: Log a warning/error if negative?
 // We could also define as NSUInteger and do: if (arg - 1 == NSIntegerMax) as NaN check
@@ -155,10 +153,20 @@ JSExportAs(fireEvent,
 // FIXME: Should id be TiProxy* here?
 - (id)JSValueToNative:(JSValue *)jsValue;
 - (JSValue *)NativeToJSValue:(id)proxy;
+- (JSValue *)JSValue;
+- (JSValue *)JSValueInContext:(JSContext *)context;
 
 /**
  * Convenience method to interface with "old-style" proxies, which typically need this passed in as
  * the "page context" in their initializers.
  **/
 - (id<TiEvaluator>)executionContext;
++ (id<TiEvaluator>)executionContext:(JSContext *)jsContext;
+
+/**
+ * Due to mix and match of new and old C API, JSContext.currentContext (and currentThis) may be null
+ * If we get called back through the old C API function callback, it will be, so we need to hack.
+ */
+- (JSContext *)currentContext;
+
 @end

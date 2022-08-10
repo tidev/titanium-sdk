@@ -27,6 +27,33 @@ description: |
     Android also supports setting the background color for each of the states. These are not
     supported on iOS.
 
+    The Material style introduced in Titanium SDK 10.0.0 will change the default look of the buttons.
+    You can change button styles with a custom theme as follows:
+    ``` xml
+    <!-- Assign this custom theme to "tiapp.xml" file's android manifest application element. -->
+    <style name="Theme.MyTheme" parent="Theme.Titanium.Light">
+        <item name="textAppearanceButton">@style/TextAppearance.MyButton</item>
+        <item name="android:buttonStyle">@style/Widget.MyButton</item>
+        <item name="buttonStyle">@style/Widget.MyButton</item>
+    </style>
+
+    <!-- Affects the appearance of text in all material buttons. -->
+    <style name="TextAppearance.MyButton" parent="TextAppearance.MaterialComponents.Button">
+        <!-- Do not display button text in all-caps. -->
+        <item name="android:textAllCaps">false</item>
+        <!-- Remove extra spacing between characters. -->
+        <item name="android:letterSpacing">0</item>
+    </style>
+
+    <!-- Affects the appearance of all non-material system buttons. -->
+    <style name="Widget.MyButton" parent="Widget.AppCompat.Button">
+        <!-- Do not display button text in all-caps. -->
+        <item name="android:textAllCaps">false</item>
+        <!-- Remove extra spacing between characters. -->
+        <item name="android:letterSpacing">0</item>
+    </style>
+    ```
+
     #### iOS Platform Notes
 
     iOS buttons have two special properties, `style` and `systemButton`.
@@ -54,7 +81,7 @@ description: |
     * <Titanium.UI.iOS.Toolbar>. The `items` array can contain system buttons.
     * <Titanium.UI.iPad.Popover>. The `leftNavButton` and `rightNavButton` properties can
       refer to system buttons
-    * <Titanium.UI.iPad.SplitWindow>. The `toolbar` array can contain system buttons.
+    * <Titanium.UI.iOS.SplitWindow>. The `toolbar` array can contain system buttons.
     * <Titanium.UI.TextField>. The `keyboardToolbar` array can contain system buttons.
     * <Titanium.UI.TextArea>. The `keyboardToolbar` array can contain system buttons.
     * <Titanium.UI.Window>. The `leftNavButton` and `rightNavButton` properties can refer to
@@ -215,13 +242,21 @@ properties:
     type: Font
 
   - name: image
-    summary: Image to display on the button, specified as a local
-        path, URL or a `Blob`.
+    summary: Image to display next to the button title.
     description: |
-        The image is displayed to the left of the title.
+        As of Titanium 11.0.0, the [imageIsMask](Titanium.UI.Button.imageIsMask) property determines how
+        this image is displayed. If set `true`, this image will be tinted using the color assigned to the
+        [tintColor](Titanium.UI.Button.tintColor) property. If set `false`, the image is displayed as-is.
 
-        Support for using <Titanium.Blob> for this property is only available on Android and iOS.
-    type: [String, Titanium.Blob]
+        On Android, you can set this to a numeric resource drawable ID via `Ti.App.Android.R.drawable.*`
+        which lets you use native vector drawbles that are commonly used as icons.
+    type: [String, Number, Titanium.Blob]
+
+  - name: imageIsMask
+    summary: Set true to tint the button image. Set false to show the image as-is.
+    type: Boolean
+    default: true
+    since: "11.0.0"
 
   - name: selectedColor
     summary: Button text color used to indicate the selected state, as a color name or hex triplet.
@@ -256,9 +291,19 @@ properties:
     since: "3.2.0"
 
   - name: style
-    summary: Style constant for the button, as defined in <Titanium.UI.iOS.SystemButtonStyle>.
+    summary: The border and fill style the button will use.
+    description: |
+        On Android, this is a creation-only property and cannot be changed dynamically.
+
+        For Titanium versions older than 10.0.0, this is an iOS only property and must be assigned
+        a constant from <Titanium.UI.iOS.SystemButtonStyle> which is now deprecated.
     type: Number
-    platforms: [iphone,ipad, macos]
+    constants: Titanium.UI.BUTTON_STYLE_*
+    platforms: [android, iphone, ipad, macos]
+    since: {android: 10.0.0, iphone: 0.8.0, ipad: 0.8.0, macos: 9.2.0}
+    default: |
+        <Titanium.UI.BUTTON_STYLE_TEXT> (on iOS),
+        <Titanium.UI.BUTTON_STYLE_FILLED> (on Android)
 
   - name: systemButton
     summary: Specifies an iOS system button appearance, as defined in <Titanium.UI.iOS.SystemButton>.
@@ -288,7 +333,13 @@ properties:
     default: <Titanium.UI.TEXT_ALIGNMENT_CENTER>
 
   - name: tintColor
-    summary: Button tint color.
+    summary: Color applied to button's image and title.
+    description: |
+        Color to be applied to the button's [image](Titanium.UI.Button.image), but only if the
+        [imageIsMask](Titanium.UI.Button.imageIsMask) property is set `true`.
+
+        This tint color is also applied to the button's [title](Titanium.UI.Button.title)
+        unless the [color](Titanium.UI.Button.color) property is set.
     type: String
     platforms: [android,iphone,ipad, macos]
     osver: {ios: {min: "7.0"}}
@@ -314,7 +365,7 @@ properties:
     type: [Number,String]
     constants: Titanium.UI.TEXT_VERTICAL_ALIGNMENT_*
     default: Titanium.UI.TEXT_VERTICAL_ALIGNMENT_CENTER
-    platforms: [android]
+    platforms: [android, iphone, ipad, macos]
 
 examples:
   - title: Simple Button Example

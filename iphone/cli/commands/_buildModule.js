@@ -28,6 +28,7 @@ const appc = require('node-appc'),
 	path = require('path'),
 	temp = require('temp'),
 	util = require('util'),
+	xcodeParser = require('xcode/lib/parser/pbxproj'),
 	__ = appc.i18n(__dirname).__,
 	series = appc.async.series,
 	xcode = require('xcode');
@@ -117,6 +118,20 @@ iOSModuleBuilder.prototype.detectMacOSTarget = function detectMacOSTarget() {
 	return isMacOSEnabled;
 };
 
+iOSModuleBuilder.prototype.generateXcodeUuid = function generateXcodeUuid(xcodeProject) {
+	// normally we would want truly unique ids, but we want predictability so that we
+	// can detect when the project has changed and if we need to rebuild the app
+	if (!this.xcodeUuidIndex) {
+		this.xcodeUuidIndex = 1;
+	}
+	const id = appc.string.lpad(this.xcodeUuidIndex++, 24, '0');
+	if (xcodeProject && xcodeProject.allUuids().indexOf(id) >= 0) {
+		return this.generateXcodeUuid(xcodeProject);
+	} else {
+		return id;
+	}
+};
+
 iOSModuleBuilder.prototype.run = function run(logger, config, cli, finished) {
 	Builder.prototype.run.apply(this, arguments);
 
@@ -139,10 +154,13 @@ iOSModuleBuilder.prototype.run = function run(logger, config, cli, finished) {
 		'buildModule',
 		'createUniversalBinary',
 		function (next) {
-			this.verifyBuildArch().then(next, next);
+			// eslint-disable-next-line promise/no-callback-in-promise
+			this.verifyBuildArch().then(next).catch(next);
 		},
 		'packageModule',
-		'runModule',
+		function (next) {
+			this.runModule(cli, next);
+		},
 
 		function (next) {
 			cli.emit('build.module.post.compile', this, next);
@@ -237,6 +255,60 @@ iOSModuleBuilder.prototype.processLicense = function processLicense() {
 };
 
 iOSModuleBuilder.prototype.processTiXcconfig = function processTiXcconfig(next) {
+	const srcFile = path.join(this.projectDir, this.moduleName + '.xcodeproj', 'project.pbxproj');
+	const xcodeProject = xcode.project(path.join(this.projectDir, this.moduleName + '.xcodeproj', 'project.pbxproj'));
+	const contents = fs.readFileSync(srcFile).toString();
+	const appName = this.moduleIdAsIdentifier;
+
+	if (this.isFramework && !contents.includes('TitaniumKit.xcframework')) {
+		this.logger.warn(`Module created with sdk < 9.2.0, need to add TitaniumKit.xcframework. The ${this.moduleName}.xcodeproj has been updated.`);
+
+		xcodeProject.hash = xcodeParser.parse(contents);
+		const xobjs = xcodeProject.hash.project.objects,
+			projectUuid = xcodeProject.hash.project.rootObject,
+			pbxProject = xobjs.PBXProject[projectUuid],
+			mainTargetUuid = pbxProject.targets.filter(function (t) { return t.comment.replace(/^"/, '').replace(/"$/, '') === appName; })[0].value,
+			mainGroupChildren = xobjs.PBXGroup[pbxProject.mainGroup].children,
+			buildPhases = xobjs.PBXNativeTarget[mainTargetUuid].buildPhases,
+			frameworksGroup = xobjs.PBXGroup[mainGroupChildren.filter(function (child) { return child.comment === 'Frameworks'; })[0].value],
+			// we lazily find the frameworks and embed frameworks uuids by working our way backwards so we don't have to compare comments
+			frameworksBuildPhase = xobjs.PBXFrameworksBuildPhase[
+				buildPhases.filter(phase => xobjs.PBXFrameworksBuildPhase[phase.value])[0].value
+			],
+			frameworkFileRefUuid = this.generateXcodeUuid(xcodeProject),
+			frameworkBuildFileUuid = this.generateXcodeUuid(xcodeProject);
+
+		xobjs.PBXFileReference[frameworkFileRefUuid] = {
+			isa: 'PBXFileReference',
+			lastKnownFileType: 'wrapper.xcframework',
+			name: '"TitaniumKit.xcframework"',
+			path: '"$(TITANIUM_SDK)/iphone/Frameworks/TitaniumKit.xcframework"',
+			sourceTree: '"<absolute>"'
+		};
+		xobjs.PBXFileReference[frameworkFileRefUuid + '_comment'] = 'TitaniumKit.xcframework';
+
+		xobjs.PBXBuildFile[frameworkBuildFileUuid] = {
+			isa: 'PBXBuildFile',
+			fileRef: frameworkFileRefUuid,
+			fileRef_comment: 'TitaniumKit.xcframework'
+		};
+		xobjs.PBXBuildFile[frameworkBuildFileUuid + '_comment'] = 'TitaniumKit.xcframework in Frameworks';
+
+		frameworksBuildPhase.files.push({
+			value: frameworkBuildFileUuid,
+			comment: xobjs.PBXBuildFile[frameworkBuildFileUuid + '_comment']
+		});
+
+		frameworksGroup.children.push({
+			value: frameworkFileRefUuid,
+			comment: 'TitaniumKit.xcframework'
+		});
+
+		const updatedContent = xcodeProject.writeSync();
+
+		fs.writeFileSync(srcFile, updatedContent);
+	}
+
 	const re = /^(\S+)\s*=\s*(.*)$/,
 		bindingReg = /\$\(([^$]+)\)/g;
 
@@ -501,9 +573,13 @@ iOSModuleBuilder.prototype.buildModule = function buildModule(next) {
 			'-archivePath', path.join(this.projectDir, 'build', target + '.xcarchive'),
 			'-UseNewBuildSystem=YES',
 			'ONLY_ACTIVE_ARCH=NO',
-			'BUILD_LIBRARY_FOR_DISTRIBUTION=YES',
 			'SKIP_INSTALL=NO',
 		];
+
+		if (this.isFramework) {
+			args.push('BUILD_LIBRARY_FOR_DISTRIBUTION=YES');
+		}
+
 		const scheme = this.isFramework ? this.moduleIdAsIdentifier : this.moduleName;
 		args.push('-scheme');
 		args.push(scheme);
@@ -665,6 +741,15 @@ iOSModuleBuilder.prototype.createUniversalBinary = function createUniversalBinar
 			this.logger.error(__('Failed to generate universal binary (code %s):', code));
 			this.logger.error(err.trim() + '\n');
 			process.exit(1);
+		}
+
+		// Ensure that each Headers directory contains a file to keep it around in source control
+		for (const dir of fs.readdirSync(xcframeworkDest)) {
+			const headersPath = path.join(xcframeworkDest, dir, 'Headers');
+
+			if (fs.existsSync(headersPath) && fs.readdirSync(headerPath).length === 0) {
+				fs.writeFileSync(path.join(headersPath, `.${moduleId}-keep`), 'This file is to ensure the Headers directory gets checked into source control');
+			}
 		}
 		next();
 	}.bind(this));
@@ -898,7 +983,7 @@ iOSModuleBuilder.prototype.packageModule = function packageModule(next) {
 	}
 };
 
-iOSModuleBuilder.prototype.runModule = function runModule(next) {
+iOSModuleBuilder.prototype.runModule = function runModule(cli, next) {
 	if (this.buildOnly) {
 		return next();
 	}
@@ -975,12 +1060,13 @@ iOSModuleBuilder.prototype.runModule = function runModule(next) {
 				}
 			);
 
-			// 5. unzip module to the tmp dir. Use native binary on macOS, as AdmZip doesn't support symlinks used in mac catalyst frameworks
-			const proc = spawn('unzip', [ '-o', this.moduleZipPath, '-d', tmpProjectDir ]);
-			proc.stdout.on('data', data => this.logger.trace(data.toString().trimEnd()));
-			proc.stderr.on('data', data => this.logger.error(data.toString().trimEnd()));
-			proc.once('error', err => cb(err));
-			proc.on('exit', () => cb());
+			// 5. unzip module to the tmp dir
+			appc.zip.unzip(this.moduleZipPath, tmpProjectDir, null, cb);
+		},
+
+		// Emit hook so modules can also alter project before launch
+		function (cb) {
+			cli.emit('create.module.app.finalize', [ this, tmpProjectDir ], cb);
 		},
 
 		function (cb) {

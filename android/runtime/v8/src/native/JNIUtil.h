@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2011-2012 by Appcelerator, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -96,6 +96,7 @@ public:
 	static jclass nullPointerException;
 
 	// Titanium classes
+	static jclass v8PromiseClass;
 	static jclass v8ObjectClass;
 	static jclass v8FunctionClass;
 	static jclass krollRuntimeClass;
@@ -136,6 +137,7 @@ public:
 
 	// Titanium methods and fields
 	static jfieldID v8ObjectPtrField;
+	static jmethodID v8PromiseInitMethod;
 	static jmethodID v8ObjectInitMethod;
 	static jmethodID v8FunctionInitMethod;
 

@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -55,12 +55,13 @@ public class TiJSService extends TiBaseService
 		if (!fullUrl.contains("://") && !fullUrl.startsWith("/") && proxy.getCreationUrl().baseUrl != null) {
 			fullUrl = proxy.getCreationUrl().baseUrl + fullUrl;
 		}
+
 		if (Log.isDebugModeEnabled()) {
-			if (url != fullUrl) {
-				Log.d(TAG, "Eval JS Service:" + url + " (" + fullUrl + ")");
-			} else {
-				Log.d(TAG, "Eval JS Service:" + url);
+			String message = "Eval JS Service: " + url;
+			if (!url.equals(fullUrl)) {
+				message += " (" + fullUrl + ")";
 			}
+			Log.d(TAG, message);
 		}
 
 		if (fullUrl.startsWith(TiC.URL_APP_PREFIX)) {

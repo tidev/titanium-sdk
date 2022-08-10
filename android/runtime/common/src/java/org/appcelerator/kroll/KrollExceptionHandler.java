@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -28,11 +28,9 @@ package org.appcelerator.kroll;
  * </pre>
  *
  * To override the default error dialog behavior, simply override the primary handler with a custom handler.
- *
- * @module.api
  */
 public interface KrollExceptionHandler {
-	public class ExceptionMessage
+	class ExceptionMessage
 	{
 		public String title, message, sourceName, lineSource, jsStack, javaStack;
 		public int line, lineOffset;
@@ -56,7 +54,6 @@ public interface KrollExceptionHandler {
 	 * Handles the exception
 	 *
 	 * @param e An exception message containing line number, error title, message, etc
-	 * @module.api
 	 */
 	void handleException(ExceptionMessage e);
 }

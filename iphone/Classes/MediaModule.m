@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2018 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -247,6 +247,13 @@ MAKE_SYSTEM_UINT(AUDIO_SESSION_OVERRIDE_ROUTE_NONE, AVAudioSessionPortOverrideNo
 MAKE_SYSTEM_UINT(AUDIO_SESSION_OVERRIDE_ROUTE_SPEAKER, AVAudioSessionPortOverrideSpeaker);
 #endif
 
+// Constants for ImageView.scalingMode
+MAKE_SYSTEM_PROP(IMAGE_SCALING_AUTO, -1);
+MAKE_SYSTEM_PROP(IMAGE_SCALING_NONE, UIViewContentModeCenter);
+MAKE_SYSTEM_PROP(IMAGE_SCALING_FILL, UIViewContentModeScaleToFill);
+MAKE_SYSTEM_PROP(IMAGE_SCALING_ASPECT_FILL, UIViewContentModeScaleAspectFill);
+MAKE_SYSTEM_PROP(IMAGE_SCALING_ASPECT_FIT, UIViewContentModeScaleAspectFit);
+
 // Constants for VideoPlayer.playbackState
 MAKE_SYSTEM_PROP(VIDEO_PLAYBACK_STATE_INTERRUPTED, TiVideoPlayerPlaybackStateInterrupted);
 MAKE_SYSTEM_PROP(VIDEO_PLAYBACK_STATE_PAUSED, TiVideoPlayerPlaybackStatePaused);
@@ -302,7 +309,7 @@ MAKE_SYSTEM_PROP(MUSIC_PLAYER_STATE_STOPPED, MPMusicPlaybackStateStopped);
 MAKE_SYSTEM_PROP(MUSIC_PLAYER_STATE_PLAYING, MPMusicPlaybackStatePlaying);
 MAKE_SYSTEM_PROP(MUSIC_PLAYER_STATE_PAUSED, MPMusicPlaybackStatePaused);
 MAKE_SYSTEM_PROP(MUSIC_PLAYER_STATE_INTERRUPTED, MPMusicPlaybackStateInterrupted);
-MAKE_SYSTEM_PROP(MUSIC_PLAYER_STATE_SKEEK_FORWARD, MPMusicPlaybackStateSeekingForward);
+MAKE_SYSTEM_PROP(MUSIC_PLAYER_STATE_SEEK_FORWARD, MPMusicPlaybackStateSeekingForward);
 MAKE_SYSTEM_PROP(MUSIC_PLAYER_STATE_SEEK_BACKWARD, MPMusicPlaybackStateSeekingBackward);
 
 //Constants for MusicPlayer repeatMode
@@ -339,21 +346,26 @@ MAKE_SYSTEM_PROP(QUALITY_IFRAME_1280x720, UIImagePickerControllerQualityTypeIFra
 MAKE_SYSTEM_PROP(QUALITY_IFRAME_960x540, UIImagePickerControllerQualityTypeIFrame960x540);
 #endif
 
-//Constants for MediaTypes in VideoPlayer
+// Constants for MediaTypes in VideoPlayer
 #ifdef USE_TI_MEDIAVIDEOPLAYER
-//Constants for VideoPlayer mediaControlStyle
-MAKE_SYSTEM_STR(VIDEO_SCALE_MODE_KEY, AVVideoScalingModeKey);
-MAKE_SYSTEM_STR(VIDEO_SCALE_MODE_FIT, AVVideoScalingModeFit);
-MAKE_SYSTEM_STR(VIDEO_SCALE_MODE_RESIZE, AVVideoScalingModeResize);
-MAKE_SYSTEM_STR(VIDEO_SCALE_MODE_RESIZE_ASPECT, AVVideoScalingModeResizeAspect);
-MAKE_SYSTEM_STR(VIDEO_SCALE_MODE_RESIZE_ASPECT_FILL, AVVideoScalingModeResizeAspectFill);
-
-//Constants for VideoPlayer scalingMode
+// Constants for VideoPlayer scalingMode
 MAKE_SYSTEM_STR(VIDEO_SCALING_RESIZE, AVLayerVideoGravityResize);
 MAKE_SYSTEM_STR(VIDEO_SCALING_RESIZE_ASPECT, AVLayerVideoGravityResizeAspect);
 MAKE_SYSTEM_STR(VIDEO_SCALING_RESIZE_ASPECT_FILL, AVLayerVideoGravityResizeAspectFill);
 
-//Constants for VideoPlayer loadState
+// Constants for VideoPlayer mediaTypes
+MAKE_SYSTEM_STR(VIDEO_MEDIA_TYPE_AUDIO, AVMediaTypeAudio);
+MAKE_SYSTEM_STR(VIDEO_MEDIA_TYPE_CLOSED_CAPTION, AVMediaTypeClosedCaption);
+MAKE_SYSTEM_STR(VIDEO_MEDIA_TYPE_DEPTH_DATA, AVMediaTypeDepthData);
+MAKE_SYSTEM_STR(VIDEO_MEDIA_TYPE_METADATA, AVMediaTypeMetadata);
+MAKE_SYSTEM_STR(VIDEO_MEDIA_TYPE_METADATA_OBJECT, AVMediaTypeMetadataObject);
+MAKE_SYSTEM_STR(VIDEO_MEDIA_TYPE_MUXED, AVMediaTypeMuxed);
+MAKE_SYSTEM_STR(VIDEO_MEDIA_TYPE_SUBTITLE, AVMediaTypeSubtitle);
+MAKE_SYSTEM_STR(VIDEO_MEDIA_TYPE_TEXT, AVMediaTypeText);
+MAKE_SYSTEM_STR(VIDEO_MEDIA_TYPE_TIMECODE, AVMediaTypeTimecode);
+MAKE_SYSTEM_STR(VIDEO_MEDIA_TYPE_VIDEO, AVMediaTypeVideo);
+
+// Constants for VideoPlayer loadState
 MAKE_SYSTEM_PROP(VIDEO_LOAD_STATE_UNKNOWN, AVPlayerStatusUnknown);
 MAKE_SYSTEM_PROP(VIDEO_LOAD_STATE_PLAYABLE, AVPlayerStatusReadyToPlay);
 MAKE_SYSTEM_PROP(VIDEO_LOAD_STATE_FAILED, AVPlayerStatusFailed);
@@ -402,46 +414,6 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
 }
 #endif
 
-- (void)setDefaultAudioSessionMode:(NSNumber *)mode
-{
-  DEPRECATED_REPLACED(@"Media.defaultAudioSessionMode", @"7.0.0", @"Media.audioSessionCategory");
-  [self setAudioSessionMode:mode];
-}
-
-- (NSNumber *)defaultAudioSessionMode
-{
-  DEPRECATED_REPLACED(@"Media.defaultAudioSessionMode", @"7.0.0", @"Media.audioSessionCategory");
-  return [self audioSessionMode];
-}
-
-- (void)setAudioSessionMode:(NSNumber *)mode
-{
-  DEPRECATED_REPLACED(@"Media.audioSessionMode", @"7.0.0", @"Media.audioSessionCategory");
-
-#if !TARGET_OS_MACCATALYST
-  switch ([mode unsignedIntegerValue]) {
-  case kAudioSessionCategory_AmbientSound:
-    [self setAudioSessionCategory:[self AUDIO_SESSION_CATEGORY_AMBIENT]];
-    break;
-  case kAudioSessionCategory_SoloAmbientSound:
-    [self setAudioSessionCategory:[self AUDIO_SESSION_CATEGORY_SOLO_AMBIENT]];
-    break;
-  case kAudioSessionCategory_PlayAndRecord:
-    [self setAudioSessionCategory:[self AUDIO_SESSION_CATEGORY_PLAY_AND_RECORD]];
-    break;
-  case kAudioSessionCategory_RecordAudio:
-    [self setAudioSessionCategory:[self AUDIO_SESSION_CATEGORY_RECORD]];
-    break;
-  case kAudioSessionCategory_MediaPlayback:
-    [self setAudioSessionCategory:[self AUDIO_SESSION_CATEGORY_PLAYBACK]];
-    break;
-  default:
-    DebugLog(@"Unsupported audioSessionMode specified");
-    break;
-  }
-#endif
-}
-
 - (void)setAudioSessionCategory:(NSString *)mode
 {
   [[TiMediaAudioSession sharedSession] setSessionMode:mode];
@@ -487,10 +459,6 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
     WARN_IF_BACKGROUND_THREAD_OBJ; //NSNotificationCenter is not threadsafe!
     [[TiMediaAudioSession sharedSession] startAudioSession]; // Have to start a session to get a listener
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(audioVolumeChanged:) name:kTiMediaAudioSessionVolumeChange object:[TiMediaAudioSession sharedSession]];
-  } else if (count == 1 && [type isEqualToString:@"recordinginput"]) {
-    DebugLog(@"[WARN] This event is no longer supported by the MediaModule. Check the inputs property fo the currentRoute property to check if an input line is available");
-  } else if (count == 1 && [type isEqualToString:@"linechange"]) {
-    DebugLog(@"[WARN] This event is no longer supported by the MediaModule. Listen for the routechange event instead");
   }
 }
 
@@ -619,15 +587,7 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
 /**
  Microphone And Recording Support. These make no sense here and should be moved to Audiorecorder
  **/
-#ifdef USE_TI_MEDIAHASAUDIOPERMISSIONS
-- (id)hasAudioPermissions:(id)unused
-{
-  DEPRECATED_REPLACED(@"Media.hasAudioPermissions", @"6.1.0", @"Media.hasAudioRecorderPermissions");
-  return [self hasAudioRecorderPermissions:unused];
-}
-#endif
-
-#if defined(USE_TI_MEDIAHASAUDIORECORDERPERMISSIONS) || defined(USE_TI_MEDIAHASAUDIOPERMISSIONS) || defined(USE_TI_MEDIASTARTMICROPHONEMONITOR) || defined(USE_TI_MEDIASTOPMICROPHONEMONITOR) || defined(USE_TI_MEDIAPEAKMICROPHONEPOWER) || defined(USE_TI_MEDIAGETPEAKMICROPHONEPOWER) || defined(USE_TI_MEDIAAVERAGEMICROPHONEPOWER) || defined(USE_TI_MEDIAGETAVERAGEMICROPHONEPOWER)
+#if defined(USE_TI_MEDIAHASAUDIORECORDERPERMISSIONS) || defined(USE_TI_MEDIASTARTMICROPHONEMONITOR) || defined(USE_TI_MEDIASTOPMICROPHONEMONITOR) || defined(USE_TI_MEDIAPEAKMICROPHONEPOWER) || defined(USE_TI_MEDIAGETPEAKMICROPHONEPOWER) || defined(USE_TI_MEDIAAVERAGEMICROPHONEPOWER) || defined(USE_TI_MEDIAGETAVERAGEMICROPHONEPOWER)
 - (id)hasAudioRecorderPermissions:(id)unused
 {
   NSString *microphonePermission = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSMicrophoneUsageDescription"];
@@ -1094,7 +1054,7 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
   }
 
   // Writing (!) to gallery permissions are required on iOS 11 and later.
-  if ([TiUtils isIOSVersionOrGreater:@"11.0"] && !addToGalleryPermission) {
+  if (!addToGalleryPermission) {
     NSLog(@"[ERROR] iOS 11 and later requires the key \"NSPhotoLibraryAddUsageDescription\" inside the plist in your tiapp.xml when writing to the photo library to store media. It will be ignored on devices < iOS 11. Please add the key and re-run the application.");
   }
 
@@ -1147,7 +1107,7 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
   [self commonPickerSetup:args];
 
 // iPod not available on simulator
-#if TARGET_IPHONE_SIMULATOR
+#if TARGET_OS_SIMULATOR
   [self sendPickerError:MediaModuleErrorNoMusicPlayer];
 #else
 
@@ -1634,7 +1594,7 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
     }
 
     // Writing (!) to gallery permissions are also required on iOS 11 and later.
-    if ([TiUtils isIOSVersionOrGreater:@"11.0"] && saveToRoll && !addToGalleryPermission) {
+    if (saveToRoll && !addToGalleryPermission) {
       NSLog(@"[ERROR] iOS 11 and later requires the key \"NSPhotoLibraryAddUsageDescription\" inside the plist in your tiapp.xml when writing to the photo library to store media. It will be ignored on devices < iOS 11. Please add the key and re-run the application.");
     }
 
@@ -1709,11 +1669,9 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
       [self displayCamera:picker];
     }
   } else {
-    if ([TiUtils isIOSVersionOrGreater:@"11.0"]) {
-      BOOL allowTranscoding = [TiUtils boolValue:@"allowTranscoding" properties:args def:YES];
-      if (!allowTranscoding) {
-        picker.videoExportPreset = AVAssetExportPresetPassthrough;
-      }
+    BOOL allowTranscoding = [TiUtils boolValue:@"allowTranscoding" properties:args def:YES];
+    if (!allowTranscoding) {
+      picker.videoExportPreset = AVAssetExportPresetPassthrough;
     }
     [self displayModalPicker:picker settings:args];
   }
@@ -1793,6 +1751,7 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
   }
 
   animatedPicker = YES;
+  excludeLivePhoto = YES;
 
   PHPickerConfiguration *configuration = [[PHPickerConfiguration alloc] init];
   NSMutableArray *filterList = [NSMutableArray array];
@@ -1809,6 +1768,7 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
         if ([mediaType isEqualToString:(NSString *)kUTTypeImage]) {
           [filterList addObject:PHPickerFilter.imagesFilter];
         } else if ([mediaType isEqualToString:(NSString *)kUTTypeLivePhoto]) {
+          excludeLivePhoto = NO;
           [filterList addObject:PHPickerFilter.livePhotosFilter];
         } else if ([mediaType isEqualToString:(NSString *)kUTTypeMovie]) {
           [filterList addObject:PHPickerFilter.videosFilter];
@@ -1828,9 +1788,16 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
 
   [_phPicker setDelegate:self];
   [self displayModalPicker:_phPicker settings:args];
+
+  RELEASE_TO_NIL(configuration);
 }
 
 #pragma mark PHPickerViewControllerDelegate
+
+- (void)presentationControllerDidDismiss:(PHPickerViewController *)picker
+{
+  [self sendPickerCancel];
+}
 
 - (void)picker:(PHPickerViewController *)picker didFinishPicking:(NSArray<PHPickerResult *> *)results
 {
@@ -1849,7 +1816,8 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
   for (PHPickerResult *result in results) {
     dispatch_group_enter(group);
 
-    if ([result.itemProvider canLoadObjectOfClass:PHLivePhoto.class]) {
+    // Live photo has image data as well. Untill live photo is not required, do not load it. Instead load image data.
+    if (!excludeLivePhoto && [result.itemProvider canLoadObjectOfClass:PHLivePhoto.class]) {
       if (!livePhotoArray) {
         livePhotoArray = [[NSMutableArray alloc] init];
       }
@@ -2002,7 +1970,7 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
 
 - (void)popoverPresentationControllerDidDismissPopover:(UIPopoverPresentationController *)popoverPresentationController
 {
-#ifdef USE_TI_MEDIAOPENMUSICLIBRARY
+#if defined(USE_TI_MEDIAOPENMUSICLIBRARY) || defined(USE_TI_MEDIAQUERYMUSICLIBRARY)
   if ([popoverPresentationController presentedViewController] == musicPicker) {
     RELEASE_TO_NIL(musicPicker);
   }
@@ -2016,7 +1984,7 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
 - (void)presentationControllerDidDismiss:(UIPresentationController *)presentationController
 {
 #if defined(USE_TI_MEDIASHOWCAMERA) || defined(USE_TI_MEDIAOPENPHOTOGALLERY) || defined(USE_TI_MEDIASTARTVIDEOEDITING)
-#if IS_SDK_IOS_14
+#if IS_SDK_IOS_14 && defined(USE_TI_MEDIAOPENPHOTOGALLERY)
   [self closeModalPicker:picker ?: _phPicker];
 #else
   [self closeModalPicker:picker];

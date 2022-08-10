@@ -1,0 +1,55 @@
+---
+name: string_decoder
+summary: A Node.js-compatible implementation of the core `string_decoder` module
+description: |
+    Titanium provides a number of shims and ports of core Node.js module functionality.
+
+    This module is intended to provide a Node-compatible port of the `string_decoder` core module.
+    
+    More details on the Node.js API can be found in their [string_decoder module documentation](https://nodejs.org/api/string_decoder.html)
+platforms: [android, iphone, ipad, macos]
+since: '8.3.0'
+properties:
+  - name: StringDecoder
+    type: StringDecoder
+    summary: The class/constructor method for `StringDecoder` instances.
+
+---
+name: StringDecoder
+summary: The primary class exported by the <string_decoder> core module.
+platforms: [android, iphone, ipad, macos]
+since: '8.3.0'
+methods:
+  - name: constructor
+    summary: Creates a new `StringDecoder` instance.
+    parameters:
+      - name: encoding
+        summary: The character encoding the `StringDecoder` will use. 
+        type: String
+        optional: true
+        default: 'utf8'
+    returns:
+      type: StringDecoder
+  
+  - name: end
+    summary: |
+        Returns any remaining input stored in the internal buffer as a string. Bytes representing incomplete UTF-8 and UTF-16 characters will be replaced with substitution characters appropriate for the character encoding.
+
+        If the `buffer` argument is provided, one final call to `stringDecoder.write()` is performed before returning the remaining input. After `end()` is called, the `stringDecoder` object can be reused for new input.
+    parameters:
+      - name: buffer
+        summary: A `Buffer`, or `TypedArray`, or `DataView` containing the bytes to decode.
+        type: [ buffer.Buffer, Uint8Array ]
+        optional: true
+        default: 'utf8'
+    returns:
+      type: String
+
+  - name: write
+    summary: Returns a decoded string, ensuring that any incomplete multibyte characters at the end of the `Buffer`, or `TypedArray`, or `DataView` are omitted from the returned string and stored in an internal buffer for the next call to `stringDecoder.write()` or `stringDecoder.end()`.
+    parameters:
+      - name: buffer
+        summary: A `Buffer`, or `TypedArray`, or `DataView` containing the bytes to decode.
+        type: [ buffer.Buffer, Uint8Array ]
+    returns:
+      type: String

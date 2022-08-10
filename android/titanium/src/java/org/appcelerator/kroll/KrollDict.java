@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -29,7 +29,6 @@ public class KrollDict extends HashMap<String, Object>
 
 	/**
 	 * Constructs a KrollDict with a default capacity.
-	 * @module.api
 	 */
 	public KrollDict()
 	{
@@ -73,7 +72,6 @@ public class KrollDict extends HashMap<String, Object>
 	/**
 	 * Constructs a KrollDict by copying an existing Map
 	 * @param map the existing map to copy
-	 * @module.api
 	 */
 	public KrollDict(Map<? extends String, ? extends Object> map)
 	{
@@ -83,7 +81,6 @@ public class KrollDict extends HashMap<String, Object>
 	/**
 	 * Constructs a KrollDict with the specified capacity.
 	 * @param size the specified capacity.
-	 * @module.api
 	 */
 	public KrollDict(int size)
 	{
@@ -92,11 +89,20 @@ public class KrollDict extends HashMap<String, Object>
 
 	public void putCodeAndMessage(int code, String message)
 	{
-		this.put(TiC.PROPERTY_SUCCESS, new Boolean(code == 0));
-		this.put(TiC.PROPERTY_CODE, new Integer(code));
+		this.put(TiC.PROPERTY_SUCCESS, Boolean.valueOf(code == 0));
+		this.put(TiC.PROPERTY_CODE, Integer.valueOf(code));
 		if (message != null) {
 			this.put(TiC.EVENT_PROPERTY_ERROR, message);
 		}
+	}
+
+	public Object putIfAbsent(String key, Object value)
+	{
+		Object existingValue = this.get(key);
+		if (existingValue == null) {
+			this.put(key, value);
+		}
+		return existingValue;
 	}
 
 	public boolean containsKeyAndNotNull(String key)
@@ -126,7 +132,10 @@ public class KrollDict extends HashMap<String, Object>
 		boolean result = defaultValue;
 
 		if (containsKey(key)) {
-			result = getBoolean(key);
+			try {
+				result = getBoolean(key);
+			} catch (Exception e) {
+			}
 		}
 		return result;
 	}
@@ -136,12 +145,16 @@ public class KrollDict extends HashMap<String, Object>
 		return TiConvert.toString(get(key));
 	}
 
-	public String optString(String key, String defalt)
+	public String optString(String key, String defaultString)
 	{
+		String result = defaultString;
 		if (containsKey(key)) {
-			return getString(key);
+			try {
+				result = getString(key);
+			} catch (Exception e) {
+			}
 		}
-		return defalt;
+		return result;
 	}
 
 	public Integer getInt(String key)
@@ -154,7 +167,10 @@ public class KrollDict extends HashMap<String, Object>
 		Integer result = defaultValue;
 
 		if (containsKey(key)) {
-			result = getInt(key);
+			try {
+				result = getInt(key);
+			} catch (Exception e) {
+			}
 		}
 		return result;
 	}

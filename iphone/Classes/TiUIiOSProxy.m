@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2010-2020 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -35,20 +35,8 @@
 #import "TiUIiOSCoverFlowViewProxy.h"
 #endif
 
-#ifdef USE_TI_UIIOSTOOLBAR
-#import "TiUIToolbarProxy.h"
-#endif
-
-#ifdef USE_TI_UIIOSTABBEDBAR
-#import "TiUIiOSTabbedBarProxy.h"
-#endif
-
 #ifdef USE_TI_UIIOSDOCUMENTVIEWER
 #import "TiUIiOSDocumentViewerProxy.h"
-#endif
-
-#ifdef USE_TI_UIIOSNAVIGATIONWINDOW
-#import "TiUIiOSNavigationWindowProxy.h"
 #endif
 
 #ifdef USE_TI_UIIOSSPLITWINDOW
@@ -131,7 +119,6 @@
   ENSURE_SINGLE_ARG(value, NSString);
 
   if ([TiUtils isIOSVersionOrGreater:@"13.0"]) {
-#if IS_SDK_IOS_13
     UIWindow *keyWindow = UIApplication.sharedApplication.keyWindow;
     CGRect frame = keyWindow.windowScene.statusBarManager.statusBarFrame;
     UIView *view = [keyWindow viewWithTag:TI_STATUSBAR_TAG];
@@ -143,7 +130,6 @@
     view.frame = frame;
     view.backgroundColor = [[TiUtils colorValue:value] _color];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(windowDidBecomeKey:) name:UIWindowDidBecomeKeyNotification object:nil];
-#endif
   } else {
     UIView *statusBar = [[[UIApplication sharedApplication] valueForKey:@"statusBarWindow"] valueForKey:@"statusBar"];
     if ([statusBar respondsToSelector:@selector(setBackgroundColor:)]) {
@@ -195,28 +181,28 @@
 #if IS_SDK_IOS_13_4
 - (NSNumber *)DATE_PICKER_STYLE_AUTOMATIC
 {
+  DEPRECATED_REPLACED(@"UI.iOS.DATE_PICKER_STYLE_AUTOMATIC", @"10.0.1", @"UI.DATE_PICKER_STYLE_AUTOMATIC");
   if (![TiUtils isIOSVersionOrGreater:@"13.4"]) {
     return @(-1);
   }
-
   return @(UIDatePickerStyleAutomatic);
 }
 
 - (NSNumber *)DATE_PICKER_STYLE_WHEELS
 {
+  DEPRECATED_REPLACED(@"UI.iOS.DATE_PICKER_STYLE_WHEELS", @"10.0.1", @"UI.DATE_PICKER_STYLE_WHEELS");
   if (![TiUtils isIOSVersionOrGreater:@"13.4"]) {
     return @(-1);
   }
-
   return @(UIDatePickerStyleWheels);
 }
 
 - (NSNumber *)DATE_PICKER_STYLE_COMPACT
 {
+  DEPRECATED_REPLACED(@"UI.iOS.DATE_PICKER_STYLE_COMPACT", @"10.0.1", @"UI.DATE_PICKER_STYLE_COMPACT");
   if (![TiUtils isIOSVersionOrGreater:@"13.4"]) {
     return @(-1);
   }
-
   return @(UIDatePickerStyleCompact);
 }
 #endif
@@ -224,10 +210,10 @@
 #if IS_SDK_IOS_14
 - (NSNumber *)DATE_PICKER_STYLE_INLINE
 {
+  DEPRECATED_REPLACED(@"UI.iOS.DATE_PICKER_STYLE_INLINE", @"10.0.1", @"UI.DATE_PICKER_STYLE_INLINE");
   if (![TiUtils isIOSVersionOrGreater:@"14.0"]) {
     return @(-1);
   }
-
   return @(UIDatePickerStyleInline);
 }
 #endif
@@ -305,7 +291,6 @@
   [super didReceiveMemoryWarning:notification];
 }
 
-#if IS_SDK_IOS_13
 - (void)windowDidBecomeKey:(NSNotification *)notification
 {
   if ([TiUtils isIOSVersionOrGreater:@"13.0"]) {
@@ -317,7 +302,6 @@
     }
   }
 }
-#endif
 
 #ifdef USE_TI_UIIOSALERTDIALOGSTYLE
 - (TIUIiOSAlertDialogStyleProxy *)AlertDialogStyle
@@ -463,17 +447,21 @@
 }
 #endif
 
-#ifdef IS_SDK_IOS_13
 - (TiBlob *)systemImage:(id)arg
 {
   if (![TiUtils isIOSVersionOrGreater:@"13.0"]) {
     return nil;
   }
-  ENSURE_SINGLE_ARG_OR_NIL(arg, NSString);
-  TiBlob *blob = [[TiBlob alloc] initWithSystemImage:arg];
+
+  NSString *systemImage = nil;
+  NSDictionary<NSString *, id> *parameters = nil;
+
+  ENSURE_ARG_OR_NIL_AT_INDEX(systemImage, arg, 0, NSString);
+  ENSURE_ARG_OR_NIL_AT_INDEX(parameters, arg, 1, NSDictionary);
+
+  TiBlob *blob = [[[TiBlob alloc] initWithSystemImage:systemImage andParameters:parameters] autorelease];
   return blob;
 }
-#endif
 
 - (void)setAppBadge:(id)value
 {
@@ -525,7 +513,6 @@ END_UI_THREAD_PROTECTED_VALUE(appSupportsShakeToEdit)
   return NUMINTEGER(UIBlurEffectStyleProminent);
 }
 
-#if IS_SDK_IOS_13
 MAKE_SYSTEM_PROP(BLUR_EFFECT_STYLE_SYSTEM_ULTRA_THIN_MATERIAL, UIBlurEffectStyleSystemUltraThinMaterial);
 MAKE_SYSTEM_PROP(BLUR_EFFECT_STYLE_SYSTEM_THIN_MATERIAL, UIBlurEffectStyleSystemThinMaterial);
 MAKE_SYSTEM_PROP(BLUR_EFFECT_STYLE_SYSTEM_MATERIAL, UIBlurEffectStyleSystemMaterial);
@@ -541,7 +528,6 @@ MAKE_SYSTEM_PROP(BLUR_EFFECT_STYLE_SYSTEM_THIN_MATERIAL_DARK, UIBlurEffectStyleS
 MAKE_SYSTEM_PROP(BLUR_EFFECT_STYLE_SYSTEM_MATERIAL_DARK, UIBlurEffectStyleSystemMaterialDark);
 MAKE_SYSTEM_PROP(BLUR_EFFECT_STYLE_SYSTEM_THICK_MATERIAL_DARK, UIBlurEffectStyleSystemThickMaterialDark);
 MAKE_SYSTEM_PROP(BLUR_EFFECT_STYLE_SYSTEM_CHROME_MATERIAL_DARK, UIBlurEffectStyleSystemChromeMaterialDark);
-#endif
 #endif
 
 #ifdef USE_TI_UIIOSMENUPOPUP
@@ -570,40 +556,10 @@ MAKE_SYSTEM_PROP(KEYBOARD_DISMISS_MODE_INTERACTIVE, UIScrollViewKeyboardDismissM
 }
 #endif
 
-#ifdef USE_TI_UIIOSADVIEW
-- (id)createAdView:(id)args
-{
-  DebugLog(@"[ERROR] iAd has been deprecated in iOS 10 and SDK 5.5.0. It was removed as part of the SDK 7.0.0.");
-}
-#endif
-
-#ifdef USE_TI_UIIOSTOOLBAR
-- (id)createToolbar:(id)args
-{
-  DEPRECATED_REPLACED(@"UI.iOS.Toolbar", @"6.2.0", @"UI.Toolbar (parity with Android)")
-  return [[[TiUIToolbarProxy alloc] _initWithPageContext:[self executionContext] args:args apiName:@"Ti.UI.iOS.Toolbar"] autorelease];
-}
-#endif
-
-#ifdef USE_TI_UIIOSTABBEDBAR
-- (id)createTabbedBar:(id)args
-{
-  DEPRECATED_REPLACED(@"UI.iOS.TabbedBar", @"8.0.0", @"UI.TabbedBar (parity with Android)")
-  return [[[TiUIiOSTabbedBarProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
-}
-#endif
-
 #ifdef USE_TI_UIIOSDOCUMENTVIEWER
 - (id)createDocumentViewer:(id)args
 {
   return [[[TiUIiOSDocumentViewerProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
-}
-#endif
-
-#ifdef USE_TI_UIIOSNAVIGATIONWINDOW
-- (id)createNavigationWindow:(id)args
-{
-  return [[[TiUIiOSNavigationWindowProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
 }
 #endif
 
@@ -911,10 +867,7 @@ MAKE_SYSTEM_PROP(INJECTION_TIME_DOCUMENT_END, WKUserScriptInjectionTimeAtDocumen
 
   DEPRECATED_REPLACED(@"UI.iOS.fetchSemanticColor", @"9.1.0", @"UI.fetchSemanticColor");
 
-  if ([TiUtils isIOSVersionOrGreater:@"11.0"]) {
-    return [[TiColor alloc] initWithColor:[UIColor colorNamed:color] name:nil];
-  }
-  return [[TiColor alloc] initWithColor:UIColor.blackColor name:@"black"];
+  return [[[TiColor alloc] initWithColor:[UIColor colorNamed:color] name:nil] autorelease];
 }
 
 @end

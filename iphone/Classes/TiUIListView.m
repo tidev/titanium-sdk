@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2013-2015 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -17,6 +17,7 @@
 #ifdef USE_TI_UIREFRESHCONTROL
 #import "TiUIRefreshControlProxy.h"
 #endif
+#import <MobileCoreServices/MobileCoreServices.h>
 #import <TitaniumKit/ImageLoader.h>
 
 @interface TiUIListView ()
@@ -192,7 +193,7 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
   _searchWrapper = [self initWrapperProxy];
   _headerWrapper = [self initWrapperProxy];
 
-  isSearchBarInNavigation = [TiUtils boolValue:[(TiViewProxy *)self.proxy valueForUndefinedKey:@"showSearchBarInNavBar"] def:NO] && [TiUtils isIOSVersionOrGreater:@"11.0"];
+  isSearchBarInNavigation = [TiUtils boolValue:[(TiViewProxy *)self.proxy valueForUndefinedKey:@"showSearchBarInNavBar"] def:NO];
   if (!isSearchBarInNavigation) {
     [_headerViewProxy add:_searchWrapper];
   }
@@ -203,11 +204,18 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
 {
   if (_tableView == nil) {
     UITableViewStyle style = [TiUtils intValue:[self.proxy valueForKey:@"style"] def:UITableViewStylePlain];
+    BOOL requiresEditingToMove = [TiUtils boolValue:[self.proxy valueForKey:@"requiresEditingToMove"] def:YES];
 
     _tableView = [[UITableView alloc] initWithFrame:self.bounds style:style];
     _tableView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     _tableView.delegate = self;
     _tableView.dataSource = self;
+
+    if (!requiresEditingToMove) {
+      _tableView.dragDelegate = self;
+      _tableView.dropDelegate = self;
+      _tableView.dragInteractionEnabled = YES;
+    }
 
     // Fixes incorrect heights in iOS 11 as we calculate them internally already
     _tableView.estimatedRowHeight = 0;
@@ -581,7 +589,7 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
   if (isSearchBarInNavigation) {
     dimmingView.frame = CGRectMake(0, 0, self.frame.size.width, self.frame.size.height);
   } else {
-    dimmingView.frame = CGRectMake(0, searchController.searchBar.frame.size.height, self.frame.size.width, self.frame.size.height - searchController.searchBar.frame.size.height);
+    dimmingView.frame = CGRectMake(0, self.safeAreaInsets.top + searchController.searchBar.frame.size.height, self.frame.size.width, self.frame.size.height - searchController.searchBar.frame.size.height);
     CGPoint convertedOrigin = [self.superview convertPoint:self.frame.origin toView:searchControllerPresenter.view];
 
     UIView *searchSuperView = [searchController.view superview];
@@ -876,6 +884,17 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
   [[self tableView] setBounces:![TiUtils boolValue:value def:NO]];
 }
 
+#if IS_SDK_IOS_15
+- (void)setSectionHeaderTopPadding_:(id)value
+{
+  if (![TiUtils isIOSVersionOrGreater:@"15.0"]) {
+    return;
+  }
+
+  self.tableView.sectionHeaderTopPadding = [TiUtils floatValue:value def:UITableViewAutomaticDimension];
+}
+#endif
+
 - (void)setAllowsMultipleSelectionDuringEditing_:(id)value
 {
   ENSURE_TYPE(value, NSNumber);
@@ -1060,15 +1079,50 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
 - (BOOL)canInsertRowAtIndexPath:(NSIndexPath *)indexPath
 {
   id insertValue = [self valueWithKey:@"canInsert" atIndexPath:indexPath];
-  //canInsert if undefined is false
   return [TiUtils boolValue:insertValue def:NO];
 }
 
 - (BOOL)canMoveRowAtIndexPath:(NSIndexPath *)indexPath
 {
   id moveValue = [self valueWithKey:@"canMove" atIndexPath:indexPath];
-  //canMove if undefined is false
   return [TiUtils boolValue:moveValue def:NO];
+}
+
+- (nonnull NSArray<UIDragItem *> *)tableView:(nonnull UITableView *)tableView itemsForBeginningDragSession:(nonnull id<UIDragSession>)session atIndexPath:(nonnull NSIndexPath *)indexPath
+{
+  NSItemProvider *itemProvider = [NSItemProvider new];
+  NSString *identifier = [NSString stringWithFormat:@"%lu_%lu", indexPath.section, indexPath.row];
+
+  [itemProvider registerDataRepresentationForTypeIdentifier:(NSString *)kUTTypePlainText
+                                                 visibility:NSItemProviderRepresentationVisibilityAll
+                                                loadHandler:^NSProgress *_Nullable(void (^_Nonnull completionHandler)(NSData *_Nullable, NSError *_Nullable)) {
+                                                  return nil;
+                                                }];
+
+  UIDragItem *dragItem = [[UIDragItem alloc] initWithItemProvider:itemProvider];
+  dragItem.localObject = identifier;
+
+  return @[ dragItem ];
+}
+
+- (void)tableView:(UITableView *)tableView dropSessionDidEnter:(id<UIDropSession>)session
+{
+  [[self proxy] fireEvent:@"movestart"];
+}
+
+- (void)tableView:(UITableView *)tableView dropSessionDidEnd:(id<UIDropSession>)session
+{
+  [[self proxy] fireEvent:@"moveend"];
+}
+
+- (void)tableView:(UITableView *)tableView performDropWithCoordinator:(id<UITableViewDropCoordinator>)coordinator
+{
+  // NO-OP right now
+}
+
+- (BOOL)tableView:(UITableView *)tableView canHandleDropSession:(id<UIDropSession>)session
+{
+  return [session canLoadObjectsOfClass:[NSString class]];
 }
 
 - (NSArray *)editActionsFromValue:(id)value
@@ -1146,7 +1200,6 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
   return NO;
 }
 
-#if IS_SDK_IOS_13
 - (BOOL)tableView:(UITableView *)tableView shouldBeginMultipleSelectionInteractionAtIndexPath:(NSIndexPath *)indexPath
 {
   return [TiUtils boolValue:[[self proxy] valueForUndefinedKey:@"allowsMultipleSelectionDuringEditing"] def:NO] && [TiUtils boolValue:[[self proxy] valueForUndefinedKey:@"allowsMultipleSelectionInteraction"] def:NO];
@@ -1159,29 +1212,8 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
 
 - (void)tableViewDidEndMultipleSelectionInteraction:(UITableView *)tableView
 {
-  if ([self.proxy _hasListeners:@"itemsselected"]) {
-    NSMutableArray *selectedItems = [NSMutableArray arrayWithCapacity:tableView.indexPathsForSelectedRows.count];
-    NSMutableDictionary *startingItem = [NSMutableDictionary dictionaryWithCapacity:1];
-
-    for (int i = 0; i < tableView.indexPathsForSelectedRows.count; i++) {
-      NSIndexPath *indexPath = tableView.indexPathsForSelectedRows[i];
-      NSIndexPath *realIndexPath = [self pathForSearchPath:indexPath];
-      TiUIListSectionProxy *theSection = [[self.listViewProxy sectionForIndex:realIndexPath.section] retain];
-
-      NSMutableDictionary *eventObject = [[NSMutableDictionary alloc] initWithObjectsAndKeys:
-                                                                          theSection, @"section",
-                                                                      NUMINTEGER(realIndexPath.section), @"sectionIndex",
-                                                                      NUMINTEGER(realIndexPath.row), @"itemIndex",
-                                                                      nil];
-      if (i == 0) {
-        [startingItem setDictionary:eventObject];
-      }
-      [selectedItems addObject:eventObject];
-    }
-    [self.proxy fireEvent:@"itemsselected" withObject:@{ @"selectedItems" : selectedItems, @"startingItem" : startingItem }];
-  }
+  [self fireItemsSelectedEvent];
 }
-#endif
 
 - (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath
 {
@@ -1748,6 +1780,11 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
     if (size < DEFAULT_SECTION_HEADERFOOTER_HEIGHT) {
       size += DEFAULT_SECTION_HEADERFOOTER_HEIGHT;
     }
+  } else if (0 == section) {
+    // Make sure grouped style always shows the 1st header if it contains no text/view.
+    if ((tableView.style == UITableViewStyleGrouped) || (tableView.style == UITableViewStyleInsetGrouped)) {
+      size = 35.0;
+    }
   }
   return size;
 }
@@ -1848,6 +1885,9 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
               maxWidth -= accessoryAdjustment;
             }
           }
+          if (_tableView.style == UITableViewStyleInsetGrouped) {
+            maxWidth -= _tableView.layoutMargins.left + _tableView.layoutMargins.right;
+          }
           if (maxWidth > 0) {
             TiUIListItemProxy *theProxy = [theCell proxy];
 #ifndef TI_USE_AUTOLAYOUT
@@ -1860,7 +1900,7 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
         }
 
       } else {
-        DebugLog(@"[WARN] Could not retrieve template for SIZE measurement");
+        DebugLog(@"[WARN] Could not retrieve template for SIZE measurement. Template: %@", templateId);
       }
     }
   }
@@ -1871,6 +1911,12 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
 {
   // send indexPath of tableView which could be self.tableView or searchController.searchResultsTableView
   [self fireClickForItemAtIndexPath:indexPath tableView:tableView accessoryButtonTapped:NO];
+  [self fireItemsSelectedEvent];
+}
+
+- (void)tableView:(UITableView *)tableView didDeselectRowAtIndexPath:(NSIndexPath *)indexPath
+{
+  [self fireItemsSelectedEvent];
 }
 
 - (void)tableView:(UITableView *)tableView accessoryButtonTappedForRowWithIndexPath:(NSIndexPath *)indexPath
@@ -2073,8 +2119,11 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
   if ([searchBar.text length] == 0) {
     self.searchString = @"";
     [self buildResultsForSearchText];
-    [self performSelector:@selector(dismissSearchController) withObject:nil afterDelay:.2];
   }
+
+  // Finished editing, always dismiss search controller.
+  // Only one search controller can be active at a time.
+  [self performSelector:@selector(dismissSearchController) withObject:nil afterDelay:.2];
 }
 
 - (void)searchBar:(UISearchBar *)searchBar textDidChange:(NSString *)searchText
@@ -2248,6 +2297,7 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
     }
     if (!controller.navigationItem.searchController) {
       controller.navigationItem.searchController = searchController;
+      [controller.navigationController.navigationBar sizeToFit];
     }
   }
 
@@ -2309,6 +2359,34 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
   [eventObject release];
 }
 
+- (void)fireItemsSelectedEvent
+{
+  if ((_tableView != nil) && [self.proxy _hasListeners:@"itemsselected"]) {
+    NSMutableArray *selectedItems = [NSMutableArray arrayWithCapacity:_tableView.indexPathsForSelectedRows.count];
+    NSMutableDictionary *startingItem = [NSMutableDictionary dictionaryWithCapacity:1];
+
+    for (int i = 0; i < _tableView.indexPathsForSelectedRows.count; i++) {
+      NSIndexPath *indexPath = _tableView.indexPathsForSelectedRows[i];
+      NSIndexPath *realIndexPath = [self pathForSearchPath:indexPath];
+      TiUIListSectionProxy *theSection = [[self.listViewProxy sectionForIndex:realIndexPath.section] retain];
+
+      NSMutableDictionary *eventObject = [[NSMutableDictionary alloc] initWithObjectsAndKeys:
+                                                                          theSection, @"section",
+                                                                      NUMINTEGER(realIndexPath.section), @"sectionIndex",
+                                                                      NUMINTEGER(realIndexPath.row), @"itemIndex",
+                                                                      nil];
+      if (i == 0) {
+        [startingItem setDictionary:eventObject];
+      }
+      [selectedItems addObject:eventObject];
+
+      RELEASE_TO_NIL(eventObject);
+      RELEASE_TO_NIL(theSection);
+    }
+    [self.proxy fireEvent:@"itemsselected" withObject:@{ @"selectedItems" : selectedItems, @"startingItem" : startingItem }];
+  }
+}
+
 - (CGFloat)contentWidthForWidth:(CGFloat)width
 {
   return width;
@@ -2351,7 +2429,7 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
     searchController.delegate = self;
     searchController.searchResultsUpdater = self;
     searchController.hidesNavigationBarDuringPresentation = NO;
-    searchController.dimsBackgroundDuringPresentation = NO;
+    searchController.obscuresBackgroundDuringPresentation = NO;
 
     searchController.searchBar.frame = CGRectMake(searchController.searchBar.frame.origin.x, searchController.searchBar.frame.origin.y, 0, 44.0);
     searchController.searchBar.autoresizingMask = UIViewAutoresizingFlexibleWidth;
@@ -2409,11 +2487,12 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
 - (void)createDimmingView
 {
   if (dimmingView == nil) {
-    dimmingView = [[UIView alloc] initWithFrame:CGRectMake(0, searchController.searchBar.frame.size.height, self.frame.size.width, self.frame.size.height - searchController.searchBar.frame.size.height)];
+    dimmingView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.frame.size.width, self.frame.size.height - searchController.searchBar.frame.size.height)];
     dimmingView.backgroundColor = [UIColor blackColor];
     dimmingView.alpha = .2;
     UITapGestureRecognizer *tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(dismissSearchController)];
     [dimmingView addGestureRecognizer:tapGesture];
+    [tapGesture release];
   }
 }
 
@@ -2422,7 +2501,7 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
   if (isSearchBarInNavigation) {
     dimmingView.frame = CGRectMake(0, 0, self.frame.size.width, self.frame.size.height);
   } else {
-    dimmingView.frame = CGRectMake(0, searchController.searchBar.frame.size.height, self.frame.size.width, self.frame.size.height - searchController.searchBar.frame.size.height);
+    dimmingView.frame = CGRectMake(0, self.safeAreaInsets.top + searchController.searchBar.frame.size.height, self.frame.size.width, self.frame.size.height - searchController.searchBar.frame.size.height);
   }
   if (!dimmingView.superview) {
     [self addSubview:dimmingView];

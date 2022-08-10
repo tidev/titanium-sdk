@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2012-2013 by Appcelerator, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -102,7 +102,7 @@ public class LocationProviderProxy extends KrollProxy implements LocationListene
 	}
 
 	/**
-	 * @see FusedLocationProvider.createLocationCallback
+	 * @see FusedLocationProvider#createLocationCallback
 	 */
 	public Object getLocationCallback()
 	{
@@ -174,7 +174,6 @@ public class LocationProviderProxy extends KrollProxy implements LocationListene
 	 *
 	 * @return name associated with this provider
 	 */
-	@Kroll.method
 	@Kroll.getProperty
 	public String getName()
 	{
@@ -193,7 +192,6 @@ public class LocationProviderProxy extends KrollProxy implements LocationListene
 	 *
 	 * @param value name to associate with this provider
 	 */
-	@Kroll.method
 	@Kroll.setProperty
 	public void setName(String value)
 	{
@@ -205,7 +203,6 @@ public class LocationProviderProxy extends KrollProxy implements LocationListene
 	 *
 	 * @return value minimum update distance for this provider
 	 */
-	@Kroll.method
 	@Kroll.getProperty
 	public double getMinUpdateDistance()
 	{
@@ -224,7 +221,6 @@ public class LocationProviderProxy extends KrollProxy implements LocationListene
 	 *
 	 * @param value minimum update distance to associate with this provider
 	 */
-	@Kroll.method
 	@Kroll.setProperty
 	public void setMinUpdateDistance(double value)
 	{
@@ -237,7 +233,6 @@ public class LocationProviderProxy extends KrollProxy implements LocationListene
 	 *
 	 * @return value minimum update time for this provider
 	 */
-	@Kroll.method
 	@Kroll.getProperty
 	public double getMinUpdateTime()
 	{
@@ -256,7 +251,6 @@ public class LocationProviderProxy extends KrollProxy implements LocationListene
 	 *
 	 * @param value minimum update time to associate with this provider
 	 */
-	@Kroll.method
 	@Kroll.setProperty
 	public void setMinUpdateTime(double value)
 	{

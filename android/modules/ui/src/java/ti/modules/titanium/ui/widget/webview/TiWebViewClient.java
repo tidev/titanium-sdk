@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -16,30 +16,24 @@ import org.appcelerator.titanium.util.TiConvert;
 import ti.modules.titanium.media.TiVideoActivity;
 import ti.modules.titanium.ui.WebViewProxy;
 
-import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.net.http.SslError;
-import android.os.AsyncTask;
-import android.os.Build;
 import android.security.KeyChain;
-import android.security.KeyChainAliasCallback;
 import android.webkit.ClientCertRequest;
-import android.webkit.ClientCertRequestHandler;
 import android.webkit.HttpAuthHandler;
 import android.webkit.MimeTypeMap;
 import android.webkit.SslErrorHandler;
 import android.webkit.URLUtil;
 import android.webkit.WebView;
-import android.webkit.WebViewClientClassicExt;
+import android.webkit.WebViewClient;
 
 import java.security.PrivateKey;
 import java.security.cert.X509Certificate;
 
-public class TiWebViewClient extends WebViewClientClassicExt
+public class TiWebViewClient extends WebViewClient
 {
 	private static final String TAG = "TiWVC";
 
@@ -71,7 +65,7 @@ public class TiWebViewClient extends WebViewClientClassicExt
 			enableJavascriptInjection =
 				TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_ENABLE_JAVASCRIPT_INTERFACE), true);
 		}
-		if (Build.VERSION.SDK_INT > 16 || enableJavascriptInjection) {
+		if (enableJavascriptInjection) {
 			WebView nativeWebView = webView.getWebView();
 
 			if (nativeWebView != null) {
@@ -234,105 +228,37 @@ public class TiWebViewClient extends WebViewClientClassicExt
 		this.password = password;
 	}
 
-	/*
-	 * ClientCertRequest wrapper for compatibility with both ClientCertRequest and ClientCertRequestHandler
-	 */
-	private class ClientCertRequestCompat
+	@Override
+	public void onReceivedClientCertRequest(WebView view, final ClientCertRequest request)
 	{
-		private ClientCertRequest clientCertRequest;
-		private ClientCertRequestHandler clientCertRequestHandler;
-
-		ClientCertRequestCompat(Object request)
-		{
-			// API 21+
-			if (Build.VERSION.SDK_INT >= 21 && request instanceof ClientCertRequest) {
-				clientCertRequest = (ClientCertRequest) request;
-
-				// API 16+
-			} else if (request instanceof ClientCertRequestHandler) {
-				clientCertRequestHandler = (ClientCertRequestHandler) request;
-			}
+		// Validate.
+		if (request == null) {
+			return;
 		}
 
-		@SuppressLint("NewApi")
-		public void cancel()
-		{
-			if (clientCertRequest != null) {
-				clientCertRequest.cancel();
-			} else if (clientCertRequestHandler != null) {
-				clientCertRequestHandler.cancel();
-			}
-		}
-
-		@SuppressLint("NewApi")
-		public void ignore()
-		{
-			if (clientCertRequest != null) {
-				clientCertRequest.ignore();
-			} else if (clientCertRequestHandler != null) {
-				clientCertRequestHandler.ignore();
-			}
-		}
-
-		@SuppressLint("NewApi")
-		public void proceed(PrivateKey privateKey, X509Certificate[] x509Certificates)
-		{
-			if (clientCertRequest != null) {
-				clientCertRequest.proceed(privateKey, x509Certificates);
-			} else if (clientCertRequestHandler != null) {
-				clientCertRequestHandler.proceed(privateKey, x509Certificates);
-			}
-		}
-	}
-
-	@TargetApi(16)
-	private void handleClientCertRequest(final Object requestObj, final String host, final int port)
-	{
+		// Fetch top-most activity.
 		final Activity activity = TiApplication.getAppRootOrCurrentActivity();
-		final ClientCertRequestCompat request = new ClientCertRequestCompat(requestObj);
+		if (activity == null) {
+			request.ignore();
+			return;
+		}
 
-		KeyChain.choosePrivateKeyAlias(activity, new KeyChainAliasCallback() {
-			@Override
-			public void alias(final String alias)
-			{
-				final AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>() {
-					@Override
-					protected Void doInBackground(Void... args)
-					{
-						try {
-							PrivateKey privateKey = KeyChain.getPrivateKey(activity, alias);
-							X509Certificate[] certificateChain = KeyChain.getCertificateChain(activity, alias);
-							request.proceed(privateKey, certificateChain);
-						} catch (Exception e) {
-							request.ignore();
-						}
-						return null;
-					}
-				}.execute();
+		// Ask end-user to select an installed certificate.
+		KeyChain.choosePrivateKeyAlias(activity, (String alias) -> {
+			if (alias == null) {
+				request.ignore();
+				return;
 			}
-		}, null, null, host, port, null);
-	}
-
-	@TargetApi(21)
-	@Override
-	public void onReceivedClientCertRequest(WebView view, ClientCertRequest request)
-	{
-		handleClientCertRequest(request, request.getHost(), request.getPort());
-	}
-
-	/*
-	 * this is a "hidden" callback implemented on API 16 - 18 for handling certificate requests
-	 * note: Android 4.4 prevents this from being called, stating "Client certificates not supported in WebView"
-	 */
-	@TargetApi(16)
-	@Override
-	public void onReceivedClientCertRequest(WebView view, ClientCertRequestHandler handler, String host_and_port)
-	{
-		String[] hostPort = host_and_port.split(":");
-		String host = hostPort[0];
-		int port = Integer.parseInt(hostPort[1]);
-
-		handleClientCertRequest(handler, host, port);
+			new Thread(() -> {
+				try {
+					PrivateKey privateKey = KeyChain.getPrivateKey(activity, alias);
+					X509Certificate[] certificateChain = KeyChain.getCertificateChain(activity, alias);
+					request.proceed(privateKey, certificateChain);
+				} catch (Exception e) {
+					request.ignore();
+				}
+			}).start();
+		}, null, null, request.getHost(), request.getPort(), null);
 	}
 
 	@Override
@@ -360,7 +286,7 @@ public class TiWebViewClient extends WebViewClientClassicExt
 			Log.e(TAG, TiC.PROPERTY_WEBVIEW_IGNORE_SSL_ERROR + " property does not contain a boolean value, ignoring");
 		}
 
-		if (ignoreSslError == true) {
+		if (ignoreSslError) {
 			Log.w(TAG, "ran into SSL error but ignoring...");
 			handler.proceed();
 

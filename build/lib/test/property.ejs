@@ -1,0 +1,65 @@
+<%
+	const isReadOnly = prop.permission && prop.permission == 'read-only';
+	let propAssert = isReadOnly ? 'readOnlyProperty' : 'property';
+	const isConstant = isReadOnly &&  prop.name.toUpperCase() === prop.name;
+	if (isConstant) {
+		propAssert = 'constant';
+	}
+	// FIXME: prop.type may be an array of types! In that case we need to...?
+-%>
+		describe<%= filter(prop) %>('.<%= prop.name %>', () => {
+			it('is a <%= prop.type %>', () => {
+				should(<%= instanceName %>).have.a.<%= propAssert %>('<%= prop.name %>').which.is.a.<%= prop.type %>();
+			});
+<%
+	if (prop.name === 'apiName') {
+-%>
+
+			it('equals <%= apiName %>', () => {
+				should(<%= instanceName %>.apiName).eql('<%= apiName %>');
+			});
+<%
+	}
+	if (isConstant && prop.value) {
+-%>
+
+			it('is <%= prop.value %>, () => {
+				should(<%= instanceName %>.<%= prop.name %>).eql(<%= prop.value %>);
+			});
+<%
+	}
+	if (prop.hasOwnProperty('default')) {
+		let value = prop['default'];
+		if (typeof value === 'string' && value.startsWith('<') && value.endsWith('>')) {
+			value = value.slice(1, -1);
+		}
+		let assertion = `eql(${value})`;
+		if (value === true) {
+			assertion = 'be.true()';
+		} else if (value === false) {
+			assertion = 'be.false()';
+		}
+-%>
+
+			it('defaults to <%= value %>', () => {
+				should(<%= instanceName %>.<%= prop.name %>).<%= assertion %>;
+			});
+<%
+	}
+
+	if (prop.constants) {
+		const constants = prop.constants.map(e => e.replace('Titanium', 'Ti'));
+		const wildcard = constants[0].split('_').slice(0, -1).join('_');
+-%>
+
+			it('is one of <%= wildcard %>_*', () => {
+				should([
+<%				for (const constant of constants) { -%>
+					<%= constant%>,
+<%				} -%>
+				]).containEql(<%= instanceName %>.<%= prop.name %>);
+			});
+<%
+	}
+-%>
+		});

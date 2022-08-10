@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2020 by Axway, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -9,49 +9,45 @@ package ti.modules.titanium.media;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileDescriptor;
-import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.KrollModule;
+import org.appcelerator.kroll.KrollObject;
+import org.appcelerator.kroll.KrollPromise;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.kroll.util.TiTempFileHelper;
 import org.appcelerator.titanium.ContextSpecific;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiFileProxy;
+import org.appcelerator.titanium.io.TiBaseFile;
 import org.appcelerator.titanium.io.TiFileFactory;
 import org.appcelerator.titanium.io.TiFileProvider;
-import org.appcelerator.titanium.io.TitaniumBlob;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiActivityResultHandler;
 import org.appcelerator.titanium.util.TiActivitySupport;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiFileHelper;
 import org.appcelerator.titanium.util.TiIntentWrapper;
-import org.appcelerator.titanium.util.TiMimeTypeHelper;
 import org.appcelerator.titanium.util.TiUIHelper;
 
 import android.Manifest;
 import android.app.Activity;
 import android.content.ClipData;
 import android.content.ContentResolver;
-import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.database.Cursor;
-import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.hardware.Camera;
 import android.hardware.Camera.CameraInfo;
@@ -62,7 +58,6 @@ import android.os.Build;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
-import android.os.ParcelFileDescriptor;
 import android.os.Vibrator;
 import android.provider.MediaStore;
 import android.view.Window;
@@ -94,6 +89,17 @@ public class MediaModule extends KrollModule implements Handler.Callback
 	public static final int NO_VIDEO = 3;
 
 	@Kroll.constant
+	public static final int IMAGE_SCALING_AUTO = -1;
+	@Kroll.constant
+	public static final int IMAGE_SCALING_NONE = 0;
+	@Kroll.constant
+	public static final int IMAGE_SCALING_FILL = 1;
+	@Kroll.constant
+	public static final int IMAGE_SCALING_ASPECT_FILL = 2;
+	@Kroll.constant
+	public static final int IMAGE_SCALING_ASPECT_FIT = 3;
+
+	@Kroll.constant
 	public static final int VIDEO_SCALING_NONE = 0;
 	@Kroll.constant
 	public static final int VIDEO_SCALING_ASPECT_FILL = 1;
@@ -122,11 +128,7 @@ public class MediaModule extends KrollModule implements Handler.Callback
 	@Kroll.constant
 	public static final int VIDEO_LOAD_STATE_UNKNOWN = 0;
 	@Kroll.constant
-	public static final int VIDEO_LOAD_STATE_PLAYABLE = 1 << 0;
-	@Kroll.constant
-	public static final int VIDEO_LOAD_STATE_PLAYTHROUGH_OK = 1 << 1;
-	@Kroll.constant
-	public static final int VIDEO_LOAD_STATE_STALLED = 1 << 2;
+	public static final int VIDEO_LOAD_STATE_PLAYABLE = 1;
 
 	@Kroll.constant
 	public static final int VIDEO_PLAYBACK_STATE_STOPPED = 0;
@@ -176,7 +178,7 @@ public class MediaModule extends KrollModule implements Handler.Callback
 	@Kroll.constant
 	public static final String MEDIA_TYPE_PHOTO = "public.image";
 	@Kroll.constant
-	public static final String MEDIA_TYPE_VIDEO = "public.video";
+	public static final String MEDIA_TYPE_VIDEO = "public.movie";
 
 	@Kroll.constant
 	public static final int CAMERA_FRONT = 0;
@@ -211,26 +213,7 @@ public class MediaModule extends KrollModule implements Handler.Callback
 		8; //  current playback is in the waiting for audio data to fill the queue state
 
 	private static String mediaType = MEDIA_TYPE_PHOTO;
-	private static String extension = ".jpg";
-
 	private static ContentResolver contentResolver;
-	private TiTempFileHelper tempFileHelper;
-
-	private static final String MIME_IMAGE = "image/*";
-
-	private static class ApiLevel16
-	{
-		private ApiLevel16()
-		{
-		}
-
-		public static void setIntentClipData(Intent intent, ClipData data)
-		{
-			if (intent != null) {
-				intent.setClipData(data);
-			}
-		}
-	}
 
 	public MediaModule()
 	{
@@ -239,7 +222,6 @@ public class MediaModule extends KrollModule implements Handler.Callback
 		if (contentResolver == null) {
 			contentResolver = TiApplication.getInstance().getContentResolver();
 		}
-		tempFileHelper = new TiTempFileHelper(TiApplication.getInstance());
 	}
 
 	@Kroll.method
@@ -254,78 +236,20 @@ public class MediaModule extends KrollModule implements Handler.Callback
 		}
 	}
 
-	static public Uri getMediaUriFrom(File file)
-	{
-		final String externalStorageDir = Environment.getExternalStorageDirectory().getPath();
-		final String dir = file.getParent();
-		final String relativePath = dir.replace(externalStorageDir, "").substring(1) + "/";
-
-		// Obtain media from external storage.
-		if (dir.startsWith(externalStorageDir)
-			&& !relativePath.startsWith("Android/data/" + TiApplication.getInstance().getPackageName())) {
-			final boolean isMovie = relativePath.startsWith(Environment.DIRECTORY_MOVIES);
-
-			// Attempt to find existing media.
-			final String[] projection =
-				new String[] { MediaStore.MediaColumns._ID, MediaStore.MediaColumns.DISPLAY_NAME,
-							  MediaStore.MediaColumns.RELATIVE_PATH };
-			final Uri contentUri =
-				isMovie ? MediaStore.Video.Media.EXTERNAL_CONTENT_URI : MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
-			try (Cursor cursor = contentResolver.query(contentUri, projection, null, null, null)) {
-				final int idColumn = cursor.getColumnIndex(projection[0]);
-				final int nameColumn = cursor.getColumnIndex(projection[1]);
-				final int pathColumn = cursor.getColumnIndex(projection[2]);
-
-				while (cursor.moveToNext()) {
-					final long id = cursor.getLong(idColumn);
-					final String name = cursor.getString(nameColumn);
-					final String path = cursor.getString(pathColumn);
-
-					if (relativePath.equals(path) && name.equals(file.getName())) {
-
-						// Found existing media, return uri.
-						return ContentUris.withAppendedId(contentUri, id);
-					}
-				}
-
-				// Could not find media, create new one.
-				final ContentValues values = new ContentValues();
-				values.put(MediaStore.MediaColumns.DISPLAY_NAME, file.getName());
-				values.put(MediaStore.MediaColumns.RELATIVE_PATH, relativePath);
-				return contentResolver.insert(contentUri, values);
-			} catch (Exception e) {
-				// Do nothing...
-			}
-		}
-
-		// Return uri from our file provider.
-		return TiFileProvider.createUriFrom(file);
-	}
-
 	private void launchNativeCamera(KrollDict cameraOptions)
 	{
-		KrollFunction successCallback = null;
-		KrollFunction cancelCallback = null;
-		KrollFunction errorCallback = null;
-		boolean saveToPhotoGallery = false;
+		// Fetch camera settings.
+		final KrollFunction successCallback = (KrollFunction) cameraOptions.get(TiC.PROPERTY_SUCCESS);
+		final KrollFunction cancelCallback = (KrollFunction) cameraOptions.get(TiC.PROPERTY_CANCEL);
+		final KrollFunction errorCallback = (KrollFunction) cameraOptions.get(TiC.EVENT_ERROR);
+		final boolean saveToPhotoGallery = TiConvert.toBoolean(cameraOptions.get(PROP_AUTOSAVE), false);
 		String[] mediaTypes = null;
 		String intentType = MediaStore.ACTION_IMAGE_CAPTURE;
 		int videoMaximumDuration = 0;
 		int videoQuality = QUALITY_HIGH;
 		int cameraType = 0;
-
-		if (cameraOptions.containsKeyAndNotNull(TiC.PROPERTY_SUCCESS)) {
-			successCallback = (KrollFunction) cameraOptions.get(TiC.PROPERTY_SUCCESS);
-		}
-		if (cameraOptions.containsKeyAndNotNull(TiC.PROPERTY_CANCEL)) {
-			cancelCallback = (KrollFunction) cameraOptions.get(TiC.PROPERTY_CANCEL);
-		}
-		if (cameraOptions.containsKeyAndNotNull(TiC.EVENT_ERROR)) {
-			errorCallback = (KrollFunction) cameraOptions.get(TiC.EVENT_ERROR);
-		}
-		if (cameraOptions.containsKeyAndNotNull("saveToPhotoGallery")) {
-			saveToPhotoGallery = cameraOptions.getBoolean("saveToPhotoGallery");
-		}
+		boolean isVideo = false;
+		MediaModule.mediaType = MEDIA_TYPE_PHOTO;
 		if (cameraOptions.containsKeyAndNotNull(TiC.PROPERTY_VIDEO_MAX_DURATION)) {
 			videoMaximumDuration = cameraOptions.getInt(TiC.PROPERTY_VIDEO_MAX_DURATION) / 1000;
 		}
@@ -338,21 +262,44 @@ public class MediaModule extends KrollModule implements Handler.Callback
 		if (cameraOptions.containsKeyAndNotNull(TiC.PROPERTY_MEDIA_TYPES)) {
 			mediaTypes = cameraOptions.getStringArray(TiC.PROPERTY_MEDIA_TYPES);
 			if (Arrays.asList(mediaTypes).contains(MEDIA_TYPE_VIDEO)) {
-				mediaType = MEDIA_TYPE_VIDEO;
+				isVideo = true;
 				intentType = MediaStore.ACTION_VIDEO_CAPTURE;
-				extension = ".mp4";
 			} else {
-				mediaType = MEDIA_TYPE_PHOTO;
+				isVideo = false;
 				intentType = MediaStore.ACTION_IMAGE_CAPTURE;
-				extension = ".jpg";
 			}
 		}
-		final String mediaDirectory =
-			mediaType.equals(MEDIA_TYPE_VIDEO) ? Environment.DIRECTORY_MOVIES : Environment.DIRECTORY_PICTURES;
-		final File mediaFile = MediaModule.createExternalStorageFile(extension, mediaDirectory, saveToPhotoGallery);
+		MediaModule.mediaType = isVideo ? MEDIA_TYPE_VIDEO : MEDIA_TYPE_PHOTO;
 
-		//Sanity Checks
-		if (mediaFile == null) {
+		// Fetch the top-most activity to spawn the camera activity from.
+		TiActivitySupport activitySupport = null;
+		Activity activity = TiApplication.getInstance().getCurrentActivity();
+		if (activity instanceof TiActivitySupport) {
+			activitySupport = (TiActivitySupport) activity;
+		}
+		if (activitySupport == null) {
+			if (errorCallback != null) {
+				KrollDict response = new KrollDict();
+				response.putCodeAndMessage(UNKNOWN_ERROR, "There are no activities to show the camera from.");
+				errorCallback.callAsync(getKrollObject(), response);
+			}
+			return;
+		}
+
+		// Do not continue if device does not have a camera.
+		if (getIsCameraSupported() == false) {
+			if (errorCallback != null) {
+				KrollDict response = new KrollDict();
+				response.putCodeAndMessage(UNKNOWN_ERROR, "Camera Not Supported");
+				errorCallback.callAsync(getKrollObject(), response);
+			}
+			Log.e(TAG, "Camera not supported");
+			return;
+		}
+
+		// Create file URI for the camera to write the capture photo/video to.
+		final Uri mediaUri = createExternalMediaContentUri(isVideo, saveToPhotoGallery);
+		if (mediaUri == null) {
 			if (errorCallback != null) {
 				KrollDict response = new KrollDict();
 				response.putCodeAndMessage(NO_CAMERA, "Unable to create file for storage");
@@ -361,45 +308,81 @@ public class MediaModule extends KrollModule implements Handler.Callback
 			return;
 		}
 
-		if (getIsCameraSupported() == false) {
-			if (errorCallback != null) {
-				KrollDict response = new KrollDict();
-				response.putCodeAndMessage(UNKNOWN_ERROR, "Camera Not Supported");
-				errorCallback.callAsync(getKrollObject(), response);
-			}
-			Log.e(TAG, "Camera not supported");
-			mediaFile.delete();
-			return;
-		}
-
-		//Create Intent
-		final Uri fileUri = getMediaUriFrom(mediaFile);
+		// Set up the camera intent.
 		Intent intent = new Intent(intentType);
 		intent.setFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION | Intent.FLAG_GRANT_READ_URI_PERMISSION);
-		if (Build.VERSION.SDK_INT >= 16) {
-			ApiLevel16.setIntentClipData(intent, android.content.ClipData.newRawUri("", fileUri));
-		}
-		intent.putExtra(MediaStore.EXTRA_OUTPUT, fileUri);
+		intent.setClipData(ClipData.newRawUri("", mediaUri));
+		intent.putExtra(MediaStore.EXTRA_OUTPUT, mediaUri);
 		intent.putExtra(MediaStore.EXTRA_VIDEO_QUALITY, videoQuality);
 		intent.putExtra("android.intent.extras.CAMERA_FACING", cameraType);
-
 		if (videoMaximumDuration > 0) {
 			intent.putExtra(MediaStore.EXTRA_DURATION_LIMIT, videoMaximumDuration);
 		}
 
-		//Setup CameraResultHandler
-		Activity activity = TiApplication.getInstance().getCurrentActivity();
+		// Show the default camera app's activity for capturing a photo/video.
+		int requestCode = activitySupport.getUniqueResultCode();
+		activitySupport.launchActivityForResult(intent, requestCode, new TiActivityResultHandler() {
+			@Override
+			public void onResult(Activity activity, int requestCode, int resultCode, Intent data)
+			{
+				// Fetch a URI to the photo/video if successfully captured.
+				Uri captureUri = null;
+				if (resultCode == Activity.RESULT_OK) {
+					if (data != null) {
+						captureUri = data.getData();
+					}
+					if (captureUri == null) {
+						captureUri = mediaUri;
+					}
+				}
 
-		CameraResultHandler resultHandler = new CameraResultHandler();
-		resultHandler.mediaFile = mediaFile;
-		resultHandler.successCallback = successCallback;
-		resultHandler.errorCallback = errorCallback;
-		resultHandler.cancelCallback = cancelCallback;
-		resultHandler.cameraIntent = intent;
-		resultHandler.saveToPhotoGallery = saveToPhotoGallery;
-		resultHandler.activitySupport = (TiActivitySupport) activity;
-		resultHandler.intentType = intentType;
-		activity.runOnUiThread(resultHandler);
+				// Delete temp file we created if not used by camera or user canceled out.
+				if (!mediaUri.equals(captureUri)) {
+					try {
+						contentResolver.delete(mediaUri, null, null);
+					} catch (Exception ex) {
+						Log.e(TAG, "Failed to delete temporary camera file.", ex);
+					}
+				}
+
+				// Notify the caller with the results.
+				if ((resultCode == Activity.RESULT_OK) && (captureUri != null)) {
+					if (successCallback != null) {
+						TiBaseFile tiFile = TiFileFactory.createTitaniumFile(captureUri.toString(), false);
+						TiBlob blob = TiBlob.blobFromFile(tiFile);
+						KrollDict response = MediaModule.createDictForImage(blob, blob.getMimeType());
+						successCallback.callAsync(getKrollObject(), response);
+					}
+				} else if (resultCode == Activity.RESULT_CANCELED) {
+					if (cancelCallback != null) {
+						KrollDict response = new KrollDict();
+						response.putCodeAndMessage(NO_ERROR, null);
+						cancelCallback.callAsync(getKrollObject(), response);
+					}
+				} else {
+					if (errorCallback != null) {
+						errorCallback.callAsync(getKrollObject(), createErrorResponse(UNKNOWN_ERROR, null));
+					}
+				}
+			}
+
+			@Override
+			public void onError(Activity activity, int requestCode, Exception ex)
+			{
+				// Delete the temp file we created.
+				try {
+					contentResolver.delete(mediaUri, null, null);
+				} catch (Exception ex2) {
+				}
+
+				// Notify the caller about the failure.
+				String message = "Camera problem: " + ex.getMessage();
+				Log.e(TAG, message, ex);
+				if (errorCallback != null) {
+					errorCallback.callAsync(getKrollObject(), createErrorResponse(UNKNOWN_ERROR, message));
+				}
+			}
+		});
 	}
 
 	private void launchCameraActivity(KrollDict cameraOptions, TiViewProxy overLayProxy)
@@ -454,13 +437,11 @@ public class MediaModule extends KrollModule implements Handler.Callback
 		}
 		if (cameraOptions.containsKeyAndNotNull(TiC.PROPERTY_MEDIA_TYPES)) {
 			mediaTypes = cameraOptions.getStringArray(TiC.PROPERTY_MEDIA_TYPES);
-			if (Arrays.asList(mediaTypes).contains(MEDIA_TYPE_VIDEO)) {
-				mediaType = MEDIA_TYPE_VIDEO;
-				extension = ".mp4";
-			} else {
-				mediaType = MEDIA_TYPE_PHOTO;
-				extension = ".jpg";
-			}
+		}
+		if ((mediaTypes != null) && Arrays.asList(mediaTypes).contains(MEDIA_TYPE_VIDEO)) {
+			MediaModule.mediaType = MEDIA_TYPE_VIDEO;
+		} else {
+			MediaModule.mediaType = MEDIA_TYPE_PHOTO;
 		}
 
 		TiCameraActivity.callbackContext = getKrollObject();
@@ -475,7 +456,7 @@ public class MediaModule extends KrollModule implements Handler.Callback
 		TiCameraActivity.whichCamera = whichCamera;
 		TiCameraActivity.videoQuality = videoQuality;
 		TiCameraActivity.videoMaximumDuration = videoMaximumDuration;
-		TiCameraActivity.mediaType = mediaType;
+		TiCameraActivity.mediaType = MediaModule.mediaType;
 		TiCameraActivity.setFlashMode(flashMode);
 
 		//Create Intent and Launch
@@ -490,15 +471,19 @@ public class MediaModule extends KrollModule implements Handler.Callback
 		if (Build.VERSION.SDK_INT < 23) {
 			return true;
 		}
-		Context context = TiApplication.getInstance().getApplicationContext();
-		if (context.checkSelfPermission(Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED
-			&& context.checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE)
-				   == PackageManager.PERMISSION_GRANTED
-			&& context.checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
-				   == PackageManager.PERMISSION_GRANTED) {
-			return true;
+
+		TiApplication app = TiApplication.getInstance();
+		int status = app.checkSelfPermission(Manifest.permission.CAMERA);
+		if (status != PackageManager.PERMISSION_GRANTED) {
+			return false;
 		}
-		return false;
+		if (Build.VERSION.SDK_INT < 29) {
+			status = app.checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+			if (status != PackageManager.PERMISSION_GRANTED) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 	@Kroll.method
@@ -507,36 +492,26 @@ public class MediaModule extends KrollModule implements Handler.Callback
 		if (Build.VERSION.SDK_INT < 23) {
 			return true;
 		}
-		Context context = TiApplication.getInstance().getApplicationContext();
-		if (context.checkSelfPermission(Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED) {
-			return true;
-		}
-		return false;
+		int status = TiApplication.getInstance().checkSelfPermission(Manifest.permission.RECORD_AUDIO);
+		return (status == PackageManager.PERMISSION_GRANTED);
 	}
 
-	private boolean hasCameraPermission()
+	@Kroll.method
+	public boolean hasPhotoGalleryPermissions()
 	{
+		// We don't have to request permission on versions older than Android 6.0.
 		if (Build.VERSION.SDK_INT < 23) {
 			return true;
 		}
-		Context context = TiApplication.getInstance().getApplicationContext();
-		if (context.checkSelfPermission(Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
+
+		// We don't need write permission on Android 10 and above.
+		if (Build.VERSION.SDK_INT >= 29) {
 			return true;
 		}
-		return false;
-	}
 
-	private boolean hasStoragePermission()
-	{
-		if (Build.VERSION.SDK_INT < 23) {
-			return true;
-		}
-		Context context = TiApplication.getInstance().getApplicationContext();
-
-		return (context.checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE)
-					== PackageManager.PERMISSION_GRANTED
-				&& context.checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
-					   == PackageManager.PERMISSION_GRANTED);
+		// Check if we can write to external storage.
+		int status = TiApplication.getInstance().checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+		return (status == PackageManager.PERMISSION_GRANTED);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -566,63 +541,132 @@ public class MediaModule extends KrollModule implements Handler.Callback
 	}
 
 	@Kroll.method
-	public void requestCameraPermissions(@Kroll.argument(optional = true) KrollFunction permissionCallback)
+	public KrollPromise<KrollDict> requestCameraPermissions(
+		@Kroll.argument(optional = true) KrollFunction permissionCallback)
 	{
-		if (hasCameraPermissions()) {
-			KrollDict response = new KrollDict();
-			response.putCodeAndMessage(0, null);
-			permissionCallback.callAsync(getKrollObject(), response);
-			return;
-		}
+		final KrollObject callbackThisObject = getKrollObject();
+		return KrollPromise.create((promise) -> {
+			// Do not continue if we already have permission.
+			if (hasCameraPermissions()) {
+				KrollDict response = new KrollDict();
+				response.putCodeAndMessage(0, null);
+				if (permissionCallback != null) {
+					permissionCallback.callAsync(callbackThisObject, response);
+				}
+				promise.resolve(response);
+				return;
+			}
 
-		String[] permissions = null;
-		if (!hasCameraPermission() && !hasStoragePermission()) {
-			permissions = new String[] { Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE,
-										Manifest.permission.WRITE_EXTERNAL_STORAGE };
-		} else if (!hasCameraPermission()) {
-			permissions = new String[] { Manifest.permission.CAMERA };
-		} else {
-			permissions =
-				new String[] { Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE };
-		}
+			// Do not continue if there is no activity to host the request dialog.
+			Activity activity = TiApplication.getInstance().getCurrentActivity();
+			if (activity == null) {
+				KrollDict response = new KrollDict();
+				response.putCodeAndMessage(-1, "There are no activities to host the camera request dialog.");
+				if (permissionCallback != null) {
+					permissionCallback.callAsync(callbackThisObject, response);
+				}
+				promise.reject(new Throwable(response.getString(TiC.EVENT_PROPERTY_ERROR)));
+				return;
+			}
 
-		TiBaseActivity.registerPermissionRequestCallback(TiC.PERMISSION_CODE_CAMERA, permissionCallback,
-														 getKrollObject());
-		Activity currentActivity = TiApplication.getInstance().getCurrentActivity();
-		currentActivity.requestPermissions(permissions, TiC.PERMISSION_CODE_CAMERA);
+			// Create the permission list. On Android 10+, we don't need external storage permission anymore.
+			ArrayList<String> permissionList = new ArrayList<>();
+			permissionList.add(Manifest.permission.CAMERA);
+			if (Build.VERSION.SDK_INT < 29) {
+				permissionList.add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+			}
+
+			// Show dialog requesting permission.
+			TiBaseActivity.registerPermissionRequestCallback(
+				TiC.PERMISSION_CODE_CAMERA, permissionCallback, callbackThisObject, promise);
+			activity.requestPermissions(permissionList.toArray(new String[0]), TiC.PERMISSION_CODE_CAMERA);
+		});
 	}
 
 	@Kroll.method
-	public void requestAudioRecorderPermissions(@Kroll.argument(optional = true) KrollFunction permissionCallback)
+	public KrollPromise<KrollDict> requestAudioRecorderPermissions(
+		@Kroll.argument(optional = true) final KrollFunction permissionCallback)
 	{
-		if (hasAudioRecorderPermissions()) {
-			KrollDict response = new KrollDict();
-			response.putCodeAndMessage(0, null);
-			permissionCallback.callAsync(getKrollObject(), response);
-			return;
-		}
-		String[] permissions = new String[] { Manifest.permission.RECORD_AUDIO };
-		TiBaseActivity.registerPermissionRequestCallback(TiC.PERMISSION_CODE_MICROPHONE, permissionCallback,
-														 getKrollObject());
-		Activity currentActivity = TiApplication.getInstance().getCurrentActivity();
-		currentActivity.requestPermissions(permissions, TiC.PERMISSION_CODE_MICROPHONE);
+		final KrollObject callbackThisObject = getKrollObject();
+		return KrollPromise.create((promise) -> {
+			// Do not continue if we already have permission.
+			if (hasAudioRecorderPermissions()) {
+				KrollDict response = new KrollDict();
+				response.putCodeAndMessage(0, null);
+				if (permissionCallback != null) {
+					permissionCallback.callAsync(callbackThisObject, response);
+				}
+				promise.resolve(response);
+				return;
+			}
+
+			// Do not continue if there is no activity to host the request dialog.
+			Activity activity = TiApplication.getInstance().getCurrentActivity();
+			if (activity == null) {
+				KrollDict response = new KrollDict();
+				response.putCodeAndMessage(-1, "There are no activities to host the camera request dialog.");
+				if (permissionCallback != null) {
+					permissionCallback.callAsync(callbackThisObject, response);
+				}
+				promise.reject(new Throwable(response.getString(TiC.EVENT_PROPERTY_ERROR)));
+				return;
+			}
+
+			// Show dialog requesting permission.
+			TiBaseActivity.registerPermissionRequestCallback(
+				TiC.PERMISSION_CODE_MICROPHONE, permissionCallback, callbackThisObject, promise);
+			activity.requestPermissions(
+				new String[] { Manifest.permission.RECORD_AUDIO }, TiC.PERMISSION_CODE_MICROPHONE);
+		});
 	}
 
-	/*
-	 * Current implementation on Android limited to saving Images only to photo gallery
-	 */
+	@Kroll.method
+	public KrollPromise<KrollDict> requestPhotoGalleryPermissions(
+		@Kroll.argument(optional = true) KrollFunction permissionCallback)
+	{
+		final KrollObject callbackThisObject = getKrollObject();
+		return KrollPromise.create((promise) -> {
+			// Do not continue if we already have permission.
+			if (hasPhotoGalleryPermissions()) {
+				KrollDict response = new KrollDict();
+				response.putCodeAndMessage(0, null);
+				if (permissionCallback != null) {
+					permissionCallback.callAsync(callbackThisObject, response);
+				}
+				promise.resolve(response);
+				return;
+			}
+
+			// Do not continue if there is no activity to host the request dialog.
+			Activity activity = TiApplication.getInstance().getCurrentActivity();
+			if (activity == null) {
+				KrollDict response = new KrollDict();
+				response.putCodeAndMessage(
+					-1, "There are no activities to host the external storage permission request dialog.");
+				if (permissionCallback != null) {
+					permissionCallback.callAsync(callbackThisObject, response);
+				}
+				promise.reject(new Throwable(response.getString(TiC.EVENT_PROPERTY_ERROR)));
+				return;
+			}
+
+			// Show dialog requesting permission.
+			TiBaseActivity.registerPermissionRequestCallback(
+				TiC.PERMISSION_CODE_EXTERNAL_STORAGE, permissionCallback, callbackThisObject, promise);
+			activity.requestPermissions(
+				new String[] { Manifest.permission.WRITE_EXTERNAL_STORAGE }, TiC.PERMISSION_CODE_EXTERNAL_STORAGE);
+		});
+	}
+
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Kroll.method
 	public void saveToPhotoGallery(Object arg, @Kroll.argument(optional = true) HashMap callbackargs)
 	{
+		// Fetch callbacks.
 		KrollFunction successCallback = null;
 		KrollFunction errorCallback = null;
-
-		KrollDict callbackDict = null;
-
-		//Check for callbacks
 		if (callbackargs != null) {
-			callbackDict = new KrollDict(callbackargs);
+			KrollDict callbackDict = new KrollDict(callbackargs);
 			if (callbackDict.containsKeyAndNotNull(TiC.PROPERTY_SUCCESS)) {
 				successCallback = (KrollFunction) callbackDict.get(TiC.PROPERTY_SUCCESS);
 			}
@@ -631,7 +675,7 @@ public class MediaModule extends KrollModule implements Handler.Callback
 			}
 		}
 
-		//Validate arguments
+		// Verify first argument references a blob or file.
 		boolean validType = ((arg instanceof TiBlob) || (arg instanceof TiFileProxy));
 		if (!validType) {
 			if (errorCallback != null) {
@@ -642,17 +686,20 @@ public class MediaModule extends KrollModule implements Handler.Callback
 			return;
 		}
 
-		TiBlob blob = null;
+		// Save given image/video to the gallery.
+		Uri contentUri = null;
 		try {
-			//Make sure our processing argument is a Blob
+			// Fetch the 1st argument as a blob.
+			TiBlob blob = null;
 			if (arg instanceof TiFileProxy) {
 				blob = TiBlob.blobFromFile(((TiFileProxy) arg).getBaseFile());
 			} else {
 				blob = (TiBlob) arg;
 			}
 
+			// If we think we were given an image, verify that it was successfully decoded.
 			boolean isVideo = blob.getMimeType().startsWith("video");
-			if (((blob.getWidth() == 0) || (blob.getHeight() == 0)) && !isVideo) {
+			if (!isVideo && ((blob.getWidth() <= 0) || (blob.getHeight() <= 0))) {
 				if (errorCallback != null) {
 					KrollDict response = new KrollDict();
 					response.putCodeAndMessage(UNKNOWN_ERROR, "Could not decode bitmap from argument");
@@ -661,47 +708,59 @@ public class MediaModule extends KrollModule implements Handler.Callback
 				return;
 			}
 
-			if (blob.getType() == TiBlob.TYPE_IMAGE) {
-				Bitmap image = blob.getImage();
-				if (image.hasAlpha()) {
-					extension = ".png";
-				} else {
-					extension = ".jpg";
-				}
+			// Create an empty image/video in the gallery and fetch its "content://" URI.
+			String mediaName = createExternalMediaName();
+			long unixTime = System.currentTimeMillis();
+			ContentValues contentValues = new ContentValues();
+			contentValues.put(MediaStore.MediaColumns.TITLE, mediaName);
+			contentValues.put(MediaStore.MediaColumns.DISPLAY_NAME, mediaName);
+			contentValues.put(MediaStore.MediaColumns.MIME_TYPE, blob.getMimeType());
+			contentValues.put(MediaStore.MediaColumns.SIZE, blob.getLength());
+			contentValues.put(MediaStore.MediaColumns.DATE_ADDED, unixTime / 1000L);
+			contentValues.put(MediaStore.MediaColumns.DATE_MODIFIED, unixTime / 1000L);
+			if (Build.VERSION.SDK_INT >= 29) {
+				contentValues.put(MediaStore.MediaColumns.DATE_TAKEN, unixTime);
+			}
+			ensureExternalPublicMediaDirectoryExists();
+			if (isVideo) {
+				contentUri = contentResolver.insert(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, contentValues);
 			} else {
+				contentUri = contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues);
+			}
+
+			// Copy the file to the gallery.
+			try (BufferedInputStream in = new BufferedInputStream(blob.getInputStream());
+				 BufferedOutputStream out = new BufferedOutputStream(contentResolver.openOutputStream(contentUri))) {
+				byte[] byteBuffer = new byte[8192];
+				int byteCount = 0;
+				while ((byteCount = in.read(byteBuffer)) > 0) {
+					out.write(byteBuffer, 0, byteCount);
+				}
+				out.flush();
+			}
+		} catch (Throwable t) {
+			// Failed to write to the gallery. Delete the file if we can.
+			if (contentUri != null) {
 				try {
-					String mimetype = blob.getMimeType();
-					extension =
-						'.' + TiMimeTypeHelper.getFileExtensionFromMimeType(mimetype, isVideo ? ".mp4" : ".jpg");
-				} catch (Throwable t) {
-					extension = null;
+					contentResolver.delete(contentUri, null, null);
+				} catch (Exception ex) {
 				}
 			}
-			final String mediaDirectory =
-				mediaType.equals(MEDIA_TYPE_VIDEO) ? Environment.DIRECTORY_MOVIES : Environment.DIRECTORY_PICTURES;
-			final File file = MediaModule.createExternalStorageFile(extension, mediaDirectory, true);
-			final Uri uri = getMediaUriFrom(file);
 
-			copyFile(blob.getInputStream(), contentResolver.openOutputStream(uri));
-
-			Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
-			mediaScanIntent.setData(uri);
-			Activity activity = TiApplication.getInstance().getCurrentActivity();
-			activity.sendBroadcast(mediaScanIntent);
-
-			//All good. Dispatch success callback
-			if (successCallback != null) {
-				KrollDict response = new KrollDict();
-				response.putCodeAndMessage(NO_ERROR, null);
-				successCallback.callAsync(getKrollObject(), response);
-			}
-
-		} catch (Throwable t) {
+			// Notify caller about the error.
 			if (errorCallback != null) {
 				KrollDict response = new KrollDict();
 				response.putCodeAndMessage(UNKNOWN_ERROR, t.getMessage());
 				errorCallback.callAsync(getKrollObject(), response);
 			}
+			return;
+		}
+
+		// We've successfully copied the file to the gallery. Invoke the success callback.
+		if (successCallback != null) {
+			KrollDict response = new KrollDict();
+			response.putCodeAndMessage(NO_ERROR, null);
+			successCallback.callAsync(getKrollObject(), response);
 		}
 	}
 
@@ -725,156 +784,97 @@ public class MediaModule extends KrollModule implements Handler.Callback
 		return super.handleMessage(message);
 	}
 
-	public static File createExternalStorageFile(String extension, String type, boolean isPublic)
+	public static Uri createExternalPictureContentUri(boolean isPublic)
 	{
-		final File dir = isPublic ? Environment.getExternalStoragePublicDirectory(type)
-								  : TiApplication.getInstance().getExternalFilesDir(type);
-		final File appDir = new File(dir, TiApplication.getInstance().getAppInfo().getName());
-		final String ext = extension == null ? ".jpg" : extension;
-
-		try {
-			return TiFileHelper.getInstance().getTempFile(appDir, ext, !isPublic);
-		} catch (IOException e) {
-			Log.e(TAG, "Failed to create file: " + e.getMessage());
-		}
-		return null;
+		boolean isVideo = false;
+		return createExternalMediaContentUri(isVideo, isPublic);
 	}
 
-	private void copyFile(InputStream source, OutputStream destination) throws Throwable
+	public static Uri createExternalVideoContentUri(boolean isPublic)
 	{
-		BufferedInputStream bis = new BufferedInputStream(source);
-		BufferedOutputStream bos = new BufferedOutputStream(destination);
-		byte[] buf = new byte[8192];
-		int len = 0;
-		while ((len = bis.read(buf)) != -1) {
-			bos.write(buf, 0, len);
-		}
-		if (bis != null) {
-			bis.close();
-		}
-		if (bos != null) {
-			bos.close();
-		}
+		boolean isVideo = true;
+		return createExternalMediaContentUri(isVideo, isPublic);
 	}
 
-	private void copyFile(Uri source, Uri destination) throws Throwable
+	private static Uri createExternalMediaContentUri(boolean isVideo, boolean isPublic)
 	{
-		InputStream sourceStream = contentResolver.openInputStream(source);
-		OutputStream outputStream = contentResolver.openOutputStream(destination);
-		copyFile(sourceStream, outputStream);
-	}
+		TiApplication app = TiApplication.getInstance();
 
-	private void copyFile(File source, File destination) throws Throwable
-	{
-		Uri sourceUri = getMediaUriFrom(source);
-		Uri destinationUri = getMediaUriFrom(destination);
-		copyFile(sourceUri, destinationUri);
-	}
+		// Generate a name for the media file. (Will not have an extension.)
+		String fileName = createExternalMediaName();
 
-	protected class CameraResultHandler implements TiActivityResultHandler, Runnable
-	{
-		protected File mediaFile;
-		protected boolean saveToPhotoGallery;
-		protected int code;
-		protected KrollFunction successCallback, cancelCallback, errorCallback;
-		protected TiActivitySupport activitySupport;
-		protected Intent cameraIntent;
-		protected String intentType;
-
-		@Override
-		public void run()
-		{
-			code = activitySupport.getUniqueResultCode();
-			activitySupport.launchActivityForResult(cameraIntent, code, this);
-		}
-
-		@Override
-		public void onResult(Activity activity, int requestCode, int resultCode, Intent data)
-		{
-			if (requestCode == code) {
-
-				Uri uri = data != null ? data.getData() : null;
-				if (uri == null) {
-					uri = getMediaUriFrom(mediaFile);
-				}
-
-				if (resultCode == Activity.RESULT_OK) {
-					if (saveToPhotoGallery) {
-						// Send out broadcast to add to image gallery.
-						Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
-						mediaScanIntent.setData(uri);
-						activity.sendBroadcast(mediaScanIntent);
-					}
-
-					// Create a blob for response.
-					try {
-						TitaniumBlob theFile = new TitaniumBlob(uri.toString());
-						TiBlob theBlob = TiBlob.blobFromFile(theFile);
-						KrollDict response = MediaModule.createDictForImage(theBlob, theBlob.getMimeType());
-						if (successCallback != null) {
-							successCallback.callAsync(getKrollObject(), response);
-						}
-					} catch (Throwable t) {
-						if (errorCallback != null) {
-							KrollDict response = new KrollDict();
-							response.putCodeAndMessage(UNKNOWN_ERROR, t.getMessage());
-							errorCallback.callAsync(getKrollObject(), response);
-						}
-						return;
-					}
-
-				} else {
-					// Delete the file.
-					if (mediaFile != null) {
-						mediaFile.delete();
-					}
-					if (resultCode == Activity.RESULT_CANCELED) {
-						if (cancelCallback != null) {
-							KrollDict response = new KrollDict();
-							response.putCodeAndMessage(NO_ERROR, null);
-							cancelCallback.callAsync(getKrollObject(), response);
-						}
-					} else {
-						// Assume error.
-						if (errorCallback != null) {
-							KrollDict response = new KrollDict();
-							response.putCodeAndMessage(UNKNOWN_ERROR, null);
-							errorCallback.callAsync(getKrollObject(), response);
-						}
-					}
-				}
+		// Create video/photo file and fetch its "content://" URI.
+		Uri contentUri;
+		if (isPublic) {
+			// Create file under system's "Movies" or "Pictures" folder.
+			long unixTime = System.currentTimeMillis();
+			ContentValues contentValues = new ContentValues();
+			contentValues.put(MediaStore.MediaColumns.TITLE, fileName);
+			contentValues.put(MediaStore.MediaColumns.DISPLAY_NAME, fileName);
+			contentValues.put(MediaStore.MediaColumns.MIME_TYPE, isVideo ? "video/mp4" : "image/jpeg");
+			contentValues.put(MediaStore.MediaColumns.DATE_ADDED, unixTime / 1000L);
+			contentValues.put(MediaStore.MediaColumns.DATE_MODIFIED, unixTime / 1000L);
+			if (Build.VERSION.SDK_INT >= 29) {
+				contentValues.put(MediaStore.MediaColumns.DATE_TAKEN, unixTime);
 			}
+			ensureExternalPublicMediaDirectoryExists();
+			if (isVideo) {
+				contentUri = contentResolver.insert(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, contentValues);
+			} else {
+				contentUri = contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues);
+			}
+		} else if (isVideo) {
+			// Create video file under app's private external storage folder.
+			// Note: This folder does not require "WRITE_EXTERNAL_STORAGE" permission.
+			File moviesDir = app.getExternalFilesDir(Environment.DIRECTORY_MOVIES);
+			moviesDir.mkdirs();
+			File videoFile = new File(moviesDir, fileName + ".mp4");
+			contentUri = TiFileProvider.createUriFrom(videoFile);
+		} else {
+			// Create image file under app's private external storage folder.
+			// Note: This folder does not require "WRITE_EXTERNAL_STORAGE" permission.
+			File picturesDir = app.getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+			picturesDir.mkdirs();
+			File imageFile = new File(picturesDir, fileName + ".jpg");
+			contentUri = TiFileProvider.createUriFrom(imageFile);
 		}
+		return contentUri;
+	}
 
-		@Override
-		public void onError(Activity activity, int requestCode, Exception e)
-		{
-			if (requestCode != code) {
-				return;
-			}
-			if (mediaFile != null) {
-				mediaFile.delete();
-			}
-			String msg = "Camera problem: " + e.getMessage();
-			Log.e(TAG, msg, e);
-			if (errorCallback != null) {
-				errorCallback.callAsync(getKrollObject(), createErrorResponse(UNKNOWN_ERROR, msg));
+	private static String createExternalMediaName()
+	{
+		TiApplication app = TiApplication.getInstance();
+
+		// Fetch app name and restrict it to chars: a-z, A-Z, 0-9, periods, dashes, and underscores
+		String normalizedAppName = app.getAppInfo().getName();
+		normalizedAppName = normalizedAppName.replaceAll("[^\\w.-]", "_");
+
+		// Generate file name.
+		return normalizedAppName + "_" + (new SimpleDateFormat("yyyyMMdd_HHmmssSSS")).format(new Date());
+	}
+
+	private static void ensureExternalPublicMediaDirectoryExists()
+	{
+		// Work-around bug on Android 5.x and below where saving a file to gallery via MediaStore insert()
+		// will fail if its directory on external storage doesn't exist yet. Create it if needed.
+		// Bug Report: https://issuetracker.google.com/issues/37002888
+		if (Build.VERSION.SDK_INT < 23) {
+			File externalDir = Environment.getExternalStorageDirectory();
+			if (externalDir != null) {
+				File cameraDir = new File(externalDir, "DCIM/Camera");
+				cameraDir.mkdirs();
 			}
 		}
 	}
 
-	@Kroll
-		.method
-		@Kroll.setProperty
-		public void setCameraFlashMode(int flashMode)
+	@Kroll.setProperty
+	public void setCameraFlashMode(int flashMode)
 	{
 		TiCameraActivity.setFlashMode(flashMode);
 	}
 
-	@Kroll
-		.method
-		@Kroll.getProperty
-		public int getCameraFlashMode()
+	@Kroll.getProperty
+	public int getCameraFlashMode()
 	{
 		return TiCameraActivity.cameraFlashMode;
 	}
@@ -933,9 +933,7 @@ public class MediaModule extends KrollModule implements Handler.Callback
 		}
 		if (isSelectingPhoto && isSelectingVideo) {
 			galleryIntent.getIntent().setType("*/*");
-			if (Build.VERSION.SDK_INT >= 19) {
-				galleryIntent.getIntent().putExtra(Intent.EXTRA_MIME_TYPES, new String[] { "image/*", "video/*" });
-			}
+			galleryIntent.getIntent().putExtra(Intent.EXTRA_MIME_TYPES, new String[] { "image/*", "video/*" });
 			MediaModule.mediaType = MEDIA_TYPE_PHOTO;
 		} else if (isSelectingVideo) {
 			galleryIntent.getIntent().setType("video/*");
@@ -952,7 +950,7 @@ public class MediaModule extends KrollModule implements Handler.Callback
 		final int PICK_IMAGE_MULTIPLE = activitySupport.getUniqueResultCode();
 		boolean allowMultiple = false;
 
-		if (options.containsKey(TiC.PROPERTY_ALLOW_MULTIPLE) && Build.VERSION.SDK_INT >= 18) {
+		if (options.containsKey(TiC.PROPERTY_ALLOW_MULTIPLE)) {
 			allowMultiple = TiConvert.toBoolean(options.get(TiC.PROPERTY_ALLOW_MULTIPLE));
 			galleryIntent.getIntent().putExtra(Intent.EXTRA_ALLOW_MULTIPLE, allowMultiple);
 		}
@@ -966,115 +964,113 @@ public class MediaModule extends KrollModule implements Handler.Callback
 				if (requestCode != code) {
 					return;
 				}
+
+				// Do not continue if no selection was made.
 				Log.d(TAG, "OnResult called: " + resultCode, Log.DEBUG_MODE);
-				Uri uri = data.getData();
-				String path = null;
-				if (data != null) {
-					path = uri.toString();
-				}
-				//Starting with Android-L, backing out of the gallery no longer returns cancel code, but with
-				//an ok code and a null data.
-				if (resultCode == Activity.RESULT_CANCELED || (Build.VERSION.SDK_INT >= 20 && data == null)) {
+				if ((resultCode == Activity.RESULT_CANCELED) || (data == null)) {
 					if (fCancelCallback != null) {
 						KrollDict response = new KrollDict();
 						response.putCodeAndMessage(NO_ERROR, null);
 						fCancelCallback.callAsync(getKrollObject(), response);
 					}
+					return;
+				}
 
-				} else {
-					// Handle multiple file selection, if enabled.
-					if (requestCode == PICK_IMAGE_MULTIPLE && Build.VERSION.SDK_INT >= 18) {
-						// Wrap all selected file(s) in Titanium "CameraMediaItemType" dictionaries.
-						ArrayList<KrollDict> selectedFiles = new ArrayList<>();
-						ClipData clipData = data.getClipData();
-						if (clipData != null) {
-							// Fetch file(s) from clip data.
-							int count = clipData.getItemCount();
-							for (int index = 0; index < count; index++) {
-								ClipData.Item item = clipData.getItemAt(index);
-								if ((item == null) || (item.getUri() == null)) {
-									continue;
-								}
-								KrollDict dictionary = createDictForImage(item.getUri().toString());
-								if (dictionary == null) {
-									continue;
-								}
-								selectedFiles.add(dictionary);
-							}
-						} else if (path != null) {
-							// Only a single file was found.
-							KrollDict dictionary = createDictForImage(path);
-							if (dictionary != null) {
-								selectedFiles.add(dictionary);
-							}
-						}
+				// Fetch a URI to file selected. (Only applicable to single file selection.)
+				Uri uri = data.getData();
+				String path = (uri != null) ? uri.toString() : null;
 
-						// Copy each selected file to either an "images" or "videos" collection.
-						ArrayList<KrollDict> selectedImages = new ArrayList<>();
-						ArrayList<KrollDict> selectedVideos = new ArrayList<>();
-						for (KrollDict dictionary : selectedFiles) {
-							String mediaType = dictionary.getString("mediaType");
-							if (mediaType != null) {
-								if (mediaType.equals(MEDIA_TYPE_PHOTO)) {
-									selectedImages.add(dictionary);
-								} else if (mediaType.equals(MEDIA_TYPE_VIDEO)) {
-									selectedVideos.add(dictionary);
-								}
+				// Handle multiple file selection, if enabled.
+				if (requestCode == PICK_IMAGE_MULTIPLE) {
+					// Wrap all selected file(s) in Titanium "CameraMediaItemType" dictionaries.
+					ArrayList<KrollDict> selectedFiles = new ArrayList<>();
+					ClipData clipData = data.getClipData();
+					if (clipData != null) {
+						// Fetch file(s) from clip data.
+						int count = clipData.getItemCount();
+						for (int index = 0; index < count; index++) {
+							ClipData.Item item = clipData.getItemAt(index);
+							if ((item == null) || (item.getUri() == null)) {
+								continue;
 							}
+							KrollDict dictionary = createDictForImage(item.getUri().toString());
+							if (dictionary == null) {
+								continue;
+							}
+							selectedFiles.add(dictionary);
 						}
-
-						// Invoke a callback with the selection result.
-						if (selectedImages.isEmpty() && selectedVideos.isEmpty()) {
-							if (selectedFiles.isEmpty()) {
-								// Invoke the "cancel" callback if no files were selected.
-								if (fCancelCallback != null) {
-									KrollDict response = new KrollDict();
-									response.putCodeAndMessage(NO_ERROR, null);
-									fCancelCallback.callAsync(getKrollObject(), response);
-								}
-							} else {
-								// Invoke the "error" callback if non-image/video files were selected.
-								String message = "Invalid file types were selected";
-								Log.e(TAG, message);
-								if (fErrorCallback != null) {
-									fErrorCallback.callAsync(getKrollObject(),
-															 createErrorResponse(UNKNOWN_ERROR, message));
-								}
-							}
-						} else {
-							// Invoke the "success" callback with the selected file(s).
-							if (fSuccessCallback != null) {
-								KrollDict d = new KrollDict();
-								d.putCodeAndMessage(NO_ERROR, null);
-								d.put("images", selectedImages.toArray(new KrollDict[0]));
-								d.put("videos", selectedVideos.toArray(new KrollDict[0]));
-								fSuccessCallback.callAsync(getKrollObject(), d);
-							}
+					} else if (path != null) {
+						// Only a single file was found.
+						KrollDict dictionary = createDictForImage(path);
+						if (dictionary != null) {
+							selectedFiles.add(dictionary);
 						}
-						return;
 					}
 
-					// Handle single file selection.
-					try {
-						//Check for invalid path
-						if (path == null) {
-							String msg = "File path is invalid";
-							Log.e(TAG, msg);
-							if (fErrorCallback != null) {
-								fErrorCallback.callAsync(getKrollObject(), createErrorResponse(UNKNOWN_ERROR, msg));
+					// Copy each selected file to either an "images" or "videos" collection.
+					ArrayList<KrollDict> selectedImages = new ArrayList<>();
+					ArrayList<KrollDict> selectedVideos = new ArrayList<>();
+					for (KrollDict dictionary : selectedFiles) {
+						String mediaType = dictionary.getString("mediaType");
+						if (mediaType != null) {
+							if (mediaType.equals(MEDIA_TYPE_PHOTO)) {
+								selectedImages.add(dictionary);
+							} else if (mediaType.equals(MEDIA_TYPE_VIDEO)) {
+								selectedVideos.add(dictionary);
 							}
-							return;
 						}
-						if (fSuccessCallback != null) {
-							fSuccessCallback.callAsync(getKrollObject(), createDictForImage(path));
-						}
+					}
 
-					} catch (OutOfMemoryError e) {
-						String msg = "Not enough memory to get image: " + e.getMessage();
+					// Invoke a callback with the selection result.
+					if (selectedImages.isEmpty() && selectedVideos.isEmpty()) {
+						if (selectedFiles.isEmpty()) {
+							// Invoke the "cancel" callback if no files were selected.
+							if (fCancelCallback != null) {
+								KrollDict response = new KrollDict();
+								response.putCodeAndMessage(NO_ERROR, null);
+								fCancelCallback.callAsync(getKrollObject(), response);
+							}
+						} else {
+							// Invoke the "error" callback if non-image/video files were selected.
+							String message = "Invalid file types were selected";
+							Log.e(TAG, message);
+							if (fErrorCallback != null) {
+								fErrorCallback.callAsync(getKrollObject(),
+															createErrorResponse(UNKNOWN_ERROR, message));
+							}
+						}
+					} else {
+						// Invoke the "success" callback with the selected file(s).
+						if (fSuccessCallback != null) {
+							KrollDict d = new KrollDict();
+							d.putCodeAndMessage(NO_ERROR, null);
+							d.put("images", selectedImages.toArray(new KrollDict[0]));
+							d.put("videos", selectedVideos.toArray(new KrollDict[0]));
+							fSuccessCallback.callAsync(getKrollObject(), d);
+						}
+					}
+					return;
+				}
+
+				// Handle single file selection.
+				try {
+					//Check for invalid path
+					if (path == null) {
+						String msg = "File path is invalid";
 						Log.e(TAG, msg);
 						if (fErrorCallback != null) {
 							fErrorCallback.callAsync(getKrollObject(), createErrorResponse(UNKNOWN_ERROR, msg));
 						}
+						return;
+					}
+					if (fSuccessCallback != null) {
+						fSuccessCallback.callAsync(getKrollObject(), createDictForImage(path));
+					}
+				} catch (OutOfMemoryError e) {
+					String msg = "Not enough memory to get image: " + e.getMessage();
+					Log.e(TAG, msg);
+					if (fErrorCallback != null) {
+						fErrorCallback.callAsync(getKrollObject(), createErrorResponse(UNKNOWN_ERROR, msg));
 					}
 				}
 			}
@@ -1103,38 +1099,13 @@ public class MediaModule extends KrollModule implements Handler.Callback
 
 		// Determine the mime type for the given file.
 		String mimeType = null;
-		boolean isPhoto = false;
 		try {
 			mimeType = contentResolver.getType(Uri.parse(path));
-			if ((mimeType != null) && mimeType.toLowerCase().startsWith("image")) {
-				isPhoto = true;
-			}
 		} catch (Exception ex) {
 		}
 
 		// Wrap the given file in a blob.
-		String[] parts = { path };
-		TiBlob imageData = null;
-		if (isPhoto && path.startsWith("content://com.google.android.apps.photos.contentprovider")) {
-			// This is an image file from the Google Photos cloud.
-			// We don't have direct file access to it. So, load it into memory.
-			ParcelFileDescriptor parcelFileDescriptor;
-			Bitmap image;
-			try {
-				parcelFileDescriptor = contentResolver.openFileDescriptor(Uri.parse(path), "r");
-				FileDescriptor fileDescriptor = parcelFileDescriptor.getFileDescriptor();
-				image = BitmapFactory.decodeFileDescriptor(fileDescriptor);
-				parcelFileDescriptor.close();
-				if (image != null) {
-					imageData = TiBlob.blobFromImage(image);
-				}
-			} catch (Exception ex) {
-			}
-		}
-		if (imageData == null) {
-			// Have the blob wrap the file path or URL.
-			imageData = createImageData(parts, mimeType);
-		}
+		TiBlob imageData = createImageData(new String[] { path }, mimeType);
 
 		// Return a Titanium "CameraMediaItemType" dictionary which wraps the given file.
 		return createDictForImage(imageData, mimeType);
@@ -1251,7 +1222,7 @@ public class MediaModule extends KrollModule implements Handler.Callback
 		cropRect.put("height", height);
 		d.put("cropRect", cropRect);
 		d.put("mediaType", mediaType);
-		d.put("media", TiBlob.blobFromData(data, MIME_IMAGE));
+		d.put("media", TiBlob.blobFromData(data, "image/*"));
 
 		return d;
 	}
@@ -1445,28 +1416,23 @@ public class MediaModule extends KrollModule implements Handler.Callback
 		activity.switchCamera(whichCamera);
 	}
 
-	@Kroll
-		.method
-		@Kroll.getProperty
-		public boolean getIsCameraSupported()
+	@Kroll.getProperty
+	public boolean getIsCameraSupported()
 	{
 		return Camera.getNumberOfCameras() > 0;
 	}
 
-	@Kroll
-		.method
-		@Kroll.getProperty
-		public int[] getAvailableCameras()
+	@Kroll.getProperty
+	public int[] getAvailableCameras()
 	{
 		int cameraCount = Camera.getNumberOfCameras();
-		if (cameraCount == 0) {
-			return null;
-		}
-
 		int[] result = new int[cameraCount];
 
-		CameraInfo cameraInfo = new CameraInfo();
+		if (cameraCount == 0) {
+			return result;
+		}
 
+		CameraInfo cameraInfo = new CameraInfo();
 		for (int i = 0; i < cameraCount; i++) {
 			Camera.getCameraInfo(i, cameraInfo);
 			switch (cameraInfo.facing) {
@@ -1486,10 +1452,8 @@ public class MediaModule extends KrollModule implements Handler.Callback
 		return result;
 	}
 
-	@Kroll
-		.method
-		@Kroll.getProperty
-		public boolean getCanRecord()
+	@Kroll.getProperty
+	public boolean getCanRecord()
 	{
 		return TiApplication.getInstance().getPackageManager().hasSystemFeature("android.hardware.microphone");
 	}

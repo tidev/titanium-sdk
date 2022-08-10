@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -54,7 +54,7 @@ public class PersonProxy extends KrollProxy
 	private String fullName = "";
 
 	// Contact Modifications
-	private HashMap<String, Boolean> modified = new HashMap<String, Boolean>();
+	private final HashMap<String, Boolean> modified = new HashMap<>();
 
 	public PersonProxy()
 	{
@@ -72,7 +72,6 @@ public class PersonProxy extends KrollProxy
 		modified.clear();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getFullName()
 	{
@@ -84,7 +83,6 @@ public class PersonProxy extends KrollProxy
 		fullName = fname;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public long getId()
 	{
@@ -96,7 +94,6 @@ public class PersonProxy extends KrollProxy
 		return (modified.containsKey(field) && modified.get(field));
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public TiBlob getImage()
 	{
@@ -113,7 +110,6 @@ public class PersonProxy extends KrollProxy
 		return this.image;
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setImage(TiBlob blob)
 	{

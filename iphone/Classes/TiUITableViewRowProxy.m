@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -29,7 +29,7 @@ NSString *const defaultRowTableClass = @"_default_";
 #ifdef TI_USE_AUTOLAYOUT
 @interface TiUITableViewRowContainer : TiLayoutView
 #else
-@interface TiUITableViewRowContainer : UIView
+@interface TiUITableViewRowContainer : TiUIView
 #endif
 {
   TiProxy *hitTarget;
@@ -314,17 +314,34 @@ TiProxy *DeepScanForProxyOfViewContainingPoint(UIView *targetView, CGPoint point
   modifyingRow = YES;
   [super _initWithProperties:data];
 
-  // check to see if we have a section header change, too...
-  if ([data objectForKey:@"header"]) {
-    [section setValue:[data objectForKey:@"header"] forUndefinedKey:@"headerTitle"];
-    // we can return since we're reloading the section, will cause the
-    // row to be repainted at the same time
+  id headerTitle = [data objectForKey:@"headerTitle"];
+  if (headerTitle == nil) {
+    headerTitle = [data objectForKey:@"header"];
+
+    if (headerTitle != nil) {
+      DEPRECATED_REPLACED(@"header", @"10.0.0", @"headerTitle");
+    }
   }
-  if ([data objectForKey:@"footer"]) {
-    [section setValue:[data objectForKey:@"footer"] forUndefinedKey:@"footerTitle"];
-    // we can return since we're reloading the section, will cause the
-    // row to be repainted at the same time
+  if (headerTitle != nil) {
+
+    // Update section header with new headerTitle.
+    [section setValue:headerTitle forUndefinedKey:@"headerTitle"];
   }
+
+  id footerTitle = [data objectForKey:@"footerTitle"];
+  if (footerTitle == nil) {
+    footerTitle = [data objectForKey:@"footer"];
+
+    if (footerTitle != nil) {
+      DEPRECATED_REPLACED(@"footer", @"10.0.0", @"footerTitle");
+    }
+  }
+  if (footerTitle != nil) {
+
+    // Update section footer with new footerTitle.
+    [section setValue:footerTitle forUndefinedKey:@"footerTitle"];
+  }
+
   modifyingRow = NO;
 }
 
@@ -390,10 +407,20 @@ TiProxy *DeepScanForProxyOfViewContainingPoint(UIView *targetView, CGPoint point
   }
 
   [(TiUITableViewCell *)cell setBackgroundGradient_:[self valueForKey:@"backgroundGradient"]];
-  [(TiUITableViewCell *)cell setSelectedBackgroundGradient_:[self valueForKey:@"selectedBackgroundGradient"]];
+  if (!IS_NULL_OR_NIL([self valueForKey:@"selectedBackgroundGradient"])) {
+    [(TiUITableViewCell *)cell setSelectedBackgroundGradient_:[self valueForKey:@"selectedBackgroundGradient"]];
+  }
+  [(TiUITableViewCell *)cell setBackgroundSelectedGradient_:[self valueForKey:@"backgroundSelectedGradient"]];
 
   id bgImage = [self valueForKey:@"backgroundImage"];
-  id selBgColor = [self valueForKey:@"selectedBackgroundColor"];
+  id selBgColor = [self valueForKey:@"backgroundSelectedColor"];
+  if (IS_NULL_OR_NIL(selBgColor)) {
+    selBgColor = [self valueForKey:@"selectedBackgroundColor"];
+
+    if (!IS_NULL_OR_NIL(selBgColor)) {
+      DEPRECATED_REPLACED(@"selectedBackgroundColor", @"10.0.0", @"backgroundSelectedColor");
+    }
+  }
 
   if (bgImage != nil) {
     NSURL *url = [TiUtils toURL:bgImage proxy:(TiProxy *)table.proxy];
@@ -409,7 +436,14 @@ TiProxy *DeepScanForProxyOfViewContainingPoint(UIView *targetView, CGPoint point
     cell.backgroundView = nil;
   }
 
-  id selBgImage = [self valueForKey:@"selectedBackgroundImage"];
+  id selBgImage = [self valueForKey:@"backgroundSelectedImage"];
+  if (IS_NULL_OR_NIL(selBgImage)) {
+    selBgImage = [self valueForKey:@"selectedBackgroundImage"];
+
+    if (!IS_NULL_OR_NIL(selBgImage)) {
+      DEPRECATED_REPLACED(@"selectedBackgroundImage", @"10.0.0", @"backgroundSelectedImage");
+    }
+  }
   if (selBgImage != nil) {
     NSURL *url = [TiUtils toURL:selBgImage proxy:(TiProxy *)table.proxy];
     UIImage *image = [[ImageLoader sharedLoader] loadImmediateStretchableImage:url withLeftCap:leftCap topCap:topCap];
@@ -447,7 +481,7 @@ TiProxy *DeepScanForProxyOfViewContainingPoint(UIView *targetView, CGPoint point
       }
     }
     selectedBGView.fillColor = theColor;
-    NSInteger count = [section rowCount];
+    NSUInteger count = section.rowCount.unsignedIntegerValue;
     if (count == 1) {
       selectedBGView.position = TiCellBackgroundViewPositionSingleLine;
     } else {
@@ -528,8 +562,7 @@ TiProxy *DeepScanForProxyOfViewContainingPoint(UIView *targetView, CGPoint point
 
 - (UIView *)view
 {
-  //TIMOB-27935: TiUITableViewRowProxy do not have corresponding view class. So return corresponding cell
-  return callbackCell;
+  return rowContainerView;
 }
 
 //Private method : For internal use only
@@ -852,15 +885,29 @@ TiProxy *DeepScanForProxyOfViewContainingPoint(UIView *targetView, CGPoint point
 
 - (BOOL)shouldUseBackgroundView
 {
-  return [self valueForKey:@"selectedBackgroundColor"]
+  return [self valueForKey:@"backgroundSelectedColor"]
+      || [self valueForKey:@"selectedBackgroundColor"]
       || [self valueForKey:@"backgroundImage"]
+      || [self valueForKey:@"backgroundSelectedImage"]
       || [self valueForKey:@"selectedBackgroundImage"]
       || [self valueForKey:@"backgroundLeftCap"]
       || [self valueForKey:@"backgroundTopCap"];
 }
 
+- (void)setBackgroundSelectedColor:(id)arg
+{
+  [self replaceValue:arg forKey:@"backgroundSelectedColor" notification:NO];
+  TiThreadPerformOnMainThread(
+      ^{
+        if ([self viewAttached]) {
+          [self configureBackground:callbackCell];
+        }
+      },
+      NO);
+}
 - (void)setSelectedBackgroundColor:(id)arg
 {
+  DEPRECATED_REPLACED(@"selectedBackgroundColor", @"10.0.0", @"backgroundSelectedColor");
   [self replaceValue:arg forKey:@"selectedBackgroundColor" notification:NO];
   TiThreadPerformOnMainThread(
       ^{
@@ -883,8 +930,20 @@ TiProxy *DeepScanForProxyOfViewContainingPoint(UIView *targetView, CGPoint point
       NO);
 }
 
+- (void)setBackgroundSelectedImage:(id)arg
+{
+  [self replaceValue:arg forKey:@"backgroundSelectedImage" notification:NO];
+  TiThreadPerformOnMainThread(
+      ^{
+        if ([self viewAttached]) {
+          [self configureBackground:callbackCell];
+        }
+      },
+      NO);
+}
 - (void)setSelectedBackgroundImage:(id)arg
 {
+  DEPRECATED_REPLACED(@"selectedBackgroundImage", @"10.0.0", @"backgroundSelectedImage");
   [self replaceValue:arg forKey:@"selectedBackgroundImage" notification:NO];
   TiThreadPerformOnMainThread(
       ^{
@@ -906,8 +965,19 @@ TiProxy *DeepScanForProxyOfViewContainingPoint(UIView *targetView, CGPoint point
       NO);
 }
 
+- (void)setBackgroundSelectedGradient:(id)arg
+{
+  TiGradient *newGradient = [TiGradient gradientFromObject:arg proxy:self];
+  [self replaceValue:newGradient forKey:@"backgroundSelectedGradient" notification:NO];
+  TiThreadPerformOnMainThread(
+      ^{
+        [callbackCell setBackgroundSelectedGradient_:newGradient];
+      },
+      NO);
+}
 - (void)setSelectedBackgroundGradient:(id)arg
 {
+  DEPRECATED_REPLACED(@"selectedBackgroundGradient", @"10.0.0", @"backgroundSelectedGradient");
   TiGradient *newGradient = [TiGradient gradientFromObject:arg proxy:self];
   [self replaceValue:newGradient forKey:@"selectedBackgroundGradient" notification:NO];
   TiThreadPerformOnMainThread(

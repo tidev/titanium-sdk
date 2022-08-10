@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-Present by Appcelerator, Inc. All Rights Reserved.
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -83,6 +83,7 @@
     if (fileProxy != nil) {
       NSArray *payload = @[ [NSNumber numberWithInt:mode] ];
       TiStreamProxy *streamProxy = [fileProxy open:payload];
+      streamProxy.executionContext = self.executionContext; //TIMOB-28324 Should we pass this executionContext in open function of TiFilesystemFileProxy?
       if (streamProxy != nil) {
         return [self NativeToJSValue:streamProxy];
       }
@@ -192,7 +193,7 @@ GETTER_IMPL(NSString *, lineEnding, LineEnding);
 
 - (TiFile *)getFileProxy:(NSString *)path
 {
-  if ([path hasSuffix:@".js"] || [path hasSuffix:@".json"]) {
+  if ([path hasSuffix:@".js"] || [path hasSuffix:@".json"] || [path hasSuffix:@".cjs"]) { // FIXME: Handle mjs?
     NSString *resourcesDir = [self resourcesDirectory];
     if ([path hasPrefix:resourcesDir] || [path hasPrefix:[resourcesDir stringByStandardizingPath]]) {
       NSURL *url = [NSURL fileURLWithPath:path];

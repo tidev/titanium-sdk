@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -8,6 +8,7 @@
 
 @class TiProxy;
 @class TiWindowProxy;
+@class KrollPromise;
 
 /**
  The protocol for tabs.
@@ -28,13 +29,13 @@
  */
 - (UINavigationController *)controller;
 
-- (void)openWindow:(NSArray *)args;
-- (void)closeWindow:(NSArray *)args;
+- (KrollPromise *)openWindow:(NSArray *)args;
+- (KrollPromise *)closeWindow:(NSArray *)args;
 
 /**
  Tells the tab that its associated window is closing.
  @param window The window being closed.
- @param animated _YES_ if window close is anumated, _NO_ otherwise.
+ @param animated _YES_ if window close is animated, _NO_ otherwise.
  */
 - (void)windowClosing:(TiWindowProxy *)window animated:(BOOL)animated;
 

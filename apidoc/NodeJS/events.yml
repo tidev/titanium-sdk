@@ -1,0 +1,244 @@
+---
+name: events
+summary: A Node.js-compatible implementation of the core `events` module
+description: |
+    Titanium provides a number of shims and ports of core Node.js module functionality.
+
+    This module is intended to provide a Node-compatible port of the `events`.
+    
+    More details on the Node.js API can be found in their [events module documentation](https://nodejs.org/api/events.html)
+platforms: [android, iphone, ipad, macos]
+since: '8.1.0'
+properties:
+  - name: defaultMaxListeners
+    type: Number
+    default: 10
+    summary: The default number of maximum listeners for all EventEmitters
+
+  - name: EventEmitter
+    type: EventEmitter
+    summary: |
+        The `EventEmitter` class is defined and exposed by the `events` module:
+        ``` javascript
+        const EventEmitter = require('events');
+        ```
+        All `EventEmitter`s emit the event `'newListener'` when new listeners are added and `'removeListener'` when existing listeners are removed.
+
+methods:
+  - name: listenerCount
+    summary: A class method that returns the number of listeners for the given `eventName` registered on the given `emitter`.
+    parameters:
+      - name: emitter
+        summary: The emitter to query
+        type: EventEmitter
+      - name: eventName
+        summary: The event name
+        type: String
+    returns:
+        type: Number
+
+---
+name: EventEmitter
+summary: |
+    The EventEmitter class is defined and exposed by the events module:
+    ``` javascript
+    const EventEmitter = require('events');
+    ```
+    All EventEmitters emit the event 'newListener' when new listeners are added and 'removeListener' when existing listeners are removed.
+platforms: [android, iphone, ipad, macos]
+since: '8.1.0'
+methods:
+  - name: addListener
+    summary: Alias for <EventEmitter.on>
+    parameters:
+      - name: eventName
+        summary: The event name
+        type: String
+      - name: listener
+        summary: The event listener/callback function
+        type: Function
+    returns:
+        type: EventEmitter
+
+  - name: emit
+    summary: |
+        Synchronously calls each of the listeners registered for the event named eventName, in the order they were registered, passing the supplied arguments to each.
+
+        Returns `true` if the event had listeners, `false` otherwise.
+    parameters:
+      - name: eventName
+        summary: The event name
+        type: String
+      - name: args
+        summary: Optional arguments to pass along to event listeners
+        type: any
+        optional: true
+        repeatable: true
+    returns:
+        type: Boolean
+
+  - name: eventNames
+    summary: Returns an array listing the events for which the emitter has registered listeners.
+    returns:
+        type: Array<String>
+
+  - name: getMaxListeners
+    summary: Returns the current max listener value for the `EventEmitter` which is either set by <EventEmitter.setMaxListeners> or defaults to <events.defaultMaxListeners>.
+    returns:
+        type: Number
+
+  - name: listenerCount
+    summary: Returns the number of listeners listening to the event named `eventName`.
+    parameters:
+      - name: eventName
+        summary: The event name
+        type: String
+    returns:
+        type: Number
+
+  - name: listeners
+    summary: Returns a copy of the array of listeners for the event named `eventName`.
+    parameters:
+      - name: eventName
+        summary: The event name
+        type: String
+    returns:
+        type: Array<Function>
+
+  - name: 'off'
+    summary: Alias for <EventEmitter.removeListener>.
+    parameters:
+      - name: eventName
+        summary: The event name
+        type: String
+      - name: listener
+        summary: The event listener/callback function
+        type: Function
+    returns:
+        type: EventEmitter
+
+  - name: 'on'
+    summary: Adds the listener function to the end of the listeners array for the event named eventName. 
+    description: |
+        No checks are made to see if the listener has already been added.
+
+        Multiple calls passing the same combination of eventName and listener will result in the listener being added, and called, multiple times.
+    parameters:
+      - name: eventName
+        summary: The event name
+        type: String
+      - name: listener
+        summary: The event listener/callback function
+        type: Function
+    returns:
+        type: EventEmitter
+
+  - name: once
+    summary: Adds a **one-time** listener function for the event named `eventName`. The next time `eventName` is triggered, this listener is removed and then invoked.
+    parameters:
+      - name: eventName
+        summary: The event name
+        type: String
+      - name: listener
+        summary: The event listener/callback function
+        type: Function
+    returns:
+        type: EventEmitter
+
+  - name: prependListener
+    summary: Adds the listener function to the *beginning* of the listeners array for the event named `eventName`.
+    description: |
+        No checks are made to see if the listener has already been added.
+        Multiple calls passing the same combination of eventName and listener will result in the listener being added, and called, multiple times.
+    parameters:
+      - name: eventName
+        summary: The event name
+        type: String
+      - name: listener
+        summary: The event listener/callback function
+        type: Function
+    returns:
+        type: EventEmitter
+
+  - name: prependOnceListener
+    summary: Adds a **one-time** listener function for the event named `eventName` to the *beginning* of the listeners array. The next time `eventName` is triggered, this listener is removed, and then invoked.
+    parameters:
+      - name: eventName
+        summary: The event name
+        type: String
+      - name: listener
+        summary: The event listener/callback function
+        type: Function
+    returns:
+        type: EventEmitter
+
+  - name: rawListeners
+    summary: Returns a copy of the array of listeners for the event named `eventName`, including any wrappers (such as those created by `.once()`).
+    parameters:
+      - name: eventName
+        summary: The event name
+        type: String
+    returns:
+        type: Array<Function>
+
+  - name: removeAllListeners
+    summary: Removes all listeners, or those of the specified `eventName`.
+    description: |
+        It is bad practice to remove listeners added elsewhere in the code, particularly when the `EventEmitter` instance was created by some other component or module (e.g. sockets or file streams).
+
+        Returns a reference to the `EventEmitter`, so that calls can be chained.
+    parameters:
+      - name: eventName
+        summary: The event name
+        type: String
+        optional: true
+    returns:
+        type: EventEmitter
+
+  - name: removeListener
+    summary: Removes the specified listener from the listener array for the event named `eventName`.
+    parameters:
+      - name: eventName
+        summary: The event name
+        type: String
+      - name: listener
+        summary: The event listener/callback function
+        type: Function
+    returns:
+        type: EventEmitter
+
+  - name: setMaxListeners
+    summary: |
+        By default `EventEmitter`s will print a warning if more than `10` listeners are added for a particular event.
+        This is a useful default that helps finding memory leaks.
+        The `emitter.setMaxListeners()` method allows the limit to be modified for this specific `EventEmitter` instance.
+        The value can be set to `Infinity` (or `0`) to indicate an unlimited number of listeners.
+    parameters:
+      - name: n
+        summary: new max listener count
+        type: Number
+    returns:
+        type: EventEmitter
+
+events:
+  - name: newListener
+    summary: The `'newListener'` event is emitted after the listener is added.
+    properties:
+      - name: eventName
+        summary: The event name
+        type: String
+            
+      - name: listener
+        summary: The event handler function
+        type: Function
+
+  - name: removeListener
+    summary: The `'removeListener'` event is emitted after the listener is removed.
+    properties:
+      - name: eventName
+        summary: The event name
+        type: String
+            
+      - name: listener
+        summary: The event handler function
+        type: Function

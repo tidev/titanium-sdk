@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -332,9 +332,8 @@
 - (void)audioPlayerDecodeErrorDidOccur:(AVAudioPlayer *)player error:(NSError *)error
 {
   if ([self _hasListeners:@"error"]) {
-    NSString *message = [TiUtils messageFromError:error];
-    NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:message, @"message", nil];
-    [self fireEvent:@"error" withObject:event errorCode:[error code] message:message];
+    NSMutableDictionary *event = [TiUtils dictionaryWithCode:[error code] message:[TiUtils messageFromError:error]];
+    [self fireEvent:@"error" withObject:event];
   }
   [self forgetSelf];
 }

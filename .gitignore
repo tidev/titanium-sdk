@@ -1,5 +1,4 @@
 *.pyc
-/dist
 .sconsign.dblite
 .DS_Store
 *~
@@ -11,42 +10,48 @@
 *.LOCAL.*
 *.REMOTE.*
 ._*
-npm-debug.log
+.vscode/
 
+# Node/NPM
+npm-debug.log
 /node_modules
 
-retirejs.output.json
-
-/support/ti_mocha_script/testApp
-
-/titanium-mobile-mocha-suite
-junit.*.xml
-junit_report.xml
-/tmp
-
+# Android editor stuff (eclipse/VSCode)
 /android/.project
 /android/app/.classpath
 /android/app/.project
 /android/kroll-apt/.classpath
 /android/kroll-apt/.project
+/android/runtime/v8/src/native/V8Snapshots.h
 /android/titanium/.classpath
 /android/titanium/.project
 
+# Build dirs
+/dist
+/tmp
+
+# iOS stuff
 /iphone/TitaniumKit/Carthage
 /iphone/TitaniumKit/docs
 /iphone/TitaniumKit/build
+/iphone/TitaniumKit/TitaniumKit/Sources/API/TopTiModule.bak
 /iphone/lib/libTiCore.a
 
 .vscode/*
 !.vscode/extensions.json
 !.vscode/settings.json
 
-/android/runtime/v8/src/native/V8Snapshots.h
-
+# Testing
 .nyc_output/
 coverage/
+junit.*.xml
+junit_report.xml
+/tests/diffs/
+/tests/generated/
+/tests/node_modules/
+# in-memory blobs written to disk as the expected image for image comparison tests
+/tests/Resources/ios/snapshots/1[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]_*.png
+/tests/Resources/android/snapshots/1[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]_*.png
 
-tests/diffs/
-# in-memory blobs written to disk as the expected image for image compariosn tests
-tests/Resources/ios/snapshots/1[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9].png
-tests/Resources/android/snapshots/1[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9].png
+# VS Code History Extension
+.history

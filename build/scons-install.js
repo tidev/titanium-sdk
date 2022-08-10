@@ -12,7 +12,7 @@ program
 
 async function main(program) {
 	const Builder = require('./lib/builder');
-	const builder = new Builder(program);
+	const builder = new Builder(program.opts(), program.args);
 	return builder.install(program.args[0]);
 }
 

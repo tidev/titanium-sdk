@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2011-2016 by Appcelerator, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -21,7 +21,6 @@ import android.net.Uri;
 @Kroll.proxy(parentModule = CalendarModule.class)
 public class ReminderProxy extends KrollProxy
 {
-
 	public static final int METHOD_DEFAULT = 0;
 	public static final int METHOD_ALERT = 1;
 	public static final int METHOD_EMAIL = 2;
@@ -42,7 +41,7 @@ public class ReminderProxy extends KrollProxy
 
 	public static ArrayList<ReminderProxy> getRemindersForEvent(EventProxy event)
 	{
-		ArrayList<ReminderProxy> reminders = new ArrayList<ReminderProxy>();
+		ArrayList<ReminderProxy> reminders = new ArrayList<>();
 		if (!CalendarProxy.hasCalendarPermissions()) {
 			return reminders;
 		}
@@ -93,21 +92,18 @@ public class ReminderProxy extends KrollProxy
 		return reminder;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getId()
 	{
 		return id;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public int getMinutes()
 	{
 		return minutes;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public int getMethod()
 	{

@@ -217,6 +217,18 @@ namespace ${ns?lower_case} {
 </#function>
 
 <#assign typeInfo = {
+	"org.appcelerator.kroll.KrollPromise":{
+		"jsType":"Object",
+		"jsConvertType":"Value",
+		"jsToJavaConverter":"jsObjectToJavaPromise",
+		"javaToJsConverter":"javaObjectToJsPromise",
+		"jvalue":"l",
+		"javaCallMethodType":"Object",
+		"javaReturnType":"jobject",
+		"javaValidation":true,
+		"typeValidation":false,
+		"defaultValue": "null"
+	},
 	"org.appcelerator.kroll.KrollProxy":{
 		"jsType":"Object",
 		"jsConvertType":"Value",
@@ -436,6 +448,10 @@ namespace ${ns?lower_case} {
 		<#return typeInfo[type]>
 	</#if>
 
+	<#if type?starts_with("org.appcelerator.kroll.KrollPromise")>
+		<#return typeInfo["org.appcelerator.kroll.KrollPromise"]>
+	</#if>
+
 	<#if type?ends_with("Proxy")>
 		<#return typeInfo["org.appcelerator.kroll.KrollProxy"]>
 	</#if>
@@ -458,6 +474,10 @@ namespace ${ns?lower_case} {
 	<#-- Look up the type's signature. If it does not exist, this
 		 type is a Java object. Object signatures take a special format
 		 which has the full class name in it (ex: Ljava.lang.Object;) -->
+	<#if type?starts_with("org.appcelerator.kroll.KrollPromise")>
+		<#local type = "org.appcelerator.kroll.KrollPromise">
+	</#if>
+	<#--  FIXME: We should ideally have a general case check for removing generic type erasures from signatures here -->
 	<#if typeInfo?keys?seq_contains(type) && typeInfo[type]?keys?seq_contains("signature")>
 		<#return typeInfo[type].signature>
 	<#else>
@@ -643,7 +663,6 @@ fails, a JS exception is returned.
 	</#if>
 
 	<@Proxy.listMethodArguments args=args ; index, info, type, isOptional>
-
 	<#if type != "org.appcelerator.kroll.KrollInvocation">
 		<#if index = varArgsIndex>
 			<@Proxy.convertToVarArgs args=args start=index/>
@@ -697,11 +716,10 @@ beprovided to handle the result.
 	<#if hasResult>
 	${resultExpr}env->${callExpr}(${argExpr});
 
-	<#local jsType = info.jsType>
-	<#if info?keys?seq_contains("jsConvertType")>
-		<#local jsType = info.jsConvertType>
-	</#if>
-
+		<#local jsType = info.jsType>
+		<#if info?keys?seq_contains("jsConvertType")>
+			<#local jsType = info.jsConvertType>
+		</#if>
 	<#else>
 	env->${callExpr}(${argExpr});
 	</#if>

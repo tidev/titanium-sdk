@@ -9,7 +9,6 @@ const packageJSON = require('../../package.json');
 const utils = require('./utils');
 const copyFile = utils.copyFile;
 const copyFiles = utils.copyFiles;
-const moduleCopier = require('./module-copier');
 
 const ROOT_DIR = path.join(__dirname, '../..');
 const TMP_DIR = path.join(ROOT_DIR, 'dist', 'tmp');
@@ -32,7 +31,8 @@ const TITANIUM_PREP_LOCATIONS = [
  */
 async function zip(cwd, filename) {
 	const command = os.platform() === 'win32' ? path.join(ROOT_DIR, 'build/win32/zip') : 'zip';
-	await exec(`${command} -9 -q -r -y "${path.join('..', path.basename(filename))}" *`, { cwd });
+	const params = os.platform() === 'win32' ? '-9 -q -r' : '-9 -q -r -y';
+	await exec(`${command} ${params} "${path.join('..', path.basename(filename))}" *`, { cwd });
 
 	const outputFolder = path.resolve(cwd, '..');
 	const outputFile = path.join(outputFolder, path.basename(filename));
@@ -114,10 +114,17 @@ class Packager {
 	 * @returns {Promise<void>}
 	 */
 	async copyCommon() {
-		await fs.emptyDir(this.commonDir);
+		await Promise.all([
+			fs.emptyDir(this.commonDir),
+			// ti.kernel.js gets baked directly into C code for Android, so wipe it
+			fs.remove(path.join(TMP_DIR, 'common/Resources/android/ti.kernel.js')),
+		]);
 		return Promise.all([
+			// copy common/lib from src to SDK (needed by CLI)
 			fs.copy(path.join(ROOT_DIR, 'common/lib'), path.join(this.commonDir, 'lib')),
-			fs.copy(path.join(TMP_DIR, 'common/Resources'), path.join(this.commonDir, 'Resources')),
+			// copy dist/tmp/common to SDK as common/Resources
+			// (under platform-specific sub-folders there are the ti.kernel.js and ti.main.js bundled files)
+			fs.copy(path.join(TMP_DIR, 'common'), path.join(this.commonDir, 'Resources')),
 		]);
 	}
 
@@ -127,6 +134,7 @@ class Packager {
 	 */
 	async packageNodeModules() {
 		console.log('Copying production npm dependencies');
+		const moduleCopier = require('../../cli/lib/module-copier');
 		// Copy node_modules/
 		await moduleCopier.execute(this.srcDir, this.zipSDKDir);
 
@@ -136,22 +144,26 @@ class Packager {
 		// Now include all the pre-built node-ios-device bindings/binaries
 		if (this.targetOS === 'osx') {
 			let dir = path.join(this.zipSDKDir, 'node_modules/node-ios-device');
-			if (!await fs.exists(dir)) {
+			if (!await fs.pathExists(dir)) {
 				dir = path.join(this.zipSDKDir, 'node_modules/ioslib/node_modules/node-ios-device');
 			}
 
-			if (!await fs.exists(dir)) {
+			if (!await fs.pathExists(dir)) {
 				throw new Error('Unable to find node-ios-device module');
+			}
+			// Hack to remove the super old node 0.10 entry for apple arm64
+			if (process.arch === 'arm64') {
+				const nodeIOSDevicePackageJSON = path.join(dir, 'package.json');
+				const original = await fs.readJSON(nodeIOSDevicePackageJSON);
+				delete original.binary.targets['0.10.48'];
+				await fs.writeJSON(nodeIOSDevicePackageJSON, original);
 			}
 
 			await exec('node bin/download-all.js', { cwd: dir, stdio: 'inherit' });
 		}
 
 		// Include 'ti.cloak'
-		await utils.unzip(path.join(ROOT_DIR, 'support', 'ti.cloak.zip'), path.join(this.zipSDKDir, 'node_modules'));
-
-		// hack the fake titanium-sdk npm package in
-		return this.hackTitaniumSDKModule();
+		return utils.unzip(path.join(ROOT_DIR, 'support', 'ti.cloak.zip'), path.join(this.zipSDKDir, 'node_modules'));
 	}
 
 	/**
@@ -199,20 +211,6 @@ class Packager {
 	 */
 	async copy(files) {
 		return copyFiles(this.srcDir, this.zipSDKDir, files);
-	}
-
-	async hackTitaniumSDKModule() {
-		// FIXME Remove these hacks for titanium-sdk when titanium-cli has been released and the tisdk3fixes.js hook is gone!
-		// Now copy over hacked titanium-sdk fake node_module
-		console.log('Copying titanium-sdk node_module stub for backwards compatibility with titanium-cli');
-		await fs.copy(path.join(__dirname, '../titanium-sdk'), path.join(this.zipSDKDir, 'node_modules/titanium-sdk'));
-
-		// Hack the package.json to include "titanium-sdk": "*" in dependencies
-		console.log('Inserting titanium-sdk as production dependency');
-		const packageJSONPath = path.join(this.zipSDKDir, 'package.json');
-		const packageJSON = require(packageJSONPath); // eslint-disable-line security/detect-non-literal-require
-		packageJSON.dependencies['titanium-sdk'] = '*';
-		return fs.writeJSON(packageJSONPath, packageJSON);
 	}
 
 	/**

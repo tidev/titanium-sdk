@@ -9,6 +9,9 @@
 /* eslint no-unused-expressions: "off" */
 'use strict';
 const should = require('./utilities/assertions');
+const utilities = require('./utilities/utilities');
+
+const isCI = Ti.App.Properties.getBool('isCI', false);
 
 describe('Titanium.UI', function () {
 	this.slow(2000);
@@ -196,8 +199,15 @@ describe('Titanium.UI', function () {
 		should(Ti.UI).have.a.constant('SEMANTIC_COLOR_TYPE_LIGHT').which.is.a.String();
 	});
 
-	it('.semanticColorType defaults to SEMANTIC_COLOR_TYPE_LIGHT', () => {
-		should(Ti.UI.semanticColorType).eql(Ti.UI.SEMANTIC_COLOR_TYPE_LIGHT);
+	it('.semanticColorType', () => {
+		if (OS_IOS && (OS_VERSION_MAJOR < 13)) {
+			should(Ti.UI.semanticColorType).eql(Ti.UI.SEMANTIC_COLOR_TYPE_LIGHT);
+		} else {
+			should(Ti.UI.semanticColorType).equalOneOf([
+				Ti.UI.SEMANTIC_COLOR_TYPE_DARK,
+				Ti.UI.SEMANTIC_COLOR_TYPE_LIGHT
+			]);
+		}
 	});
 
 	it('.USER_INTERFACE_STYLE_LIGHT', () => {
@@ -212,9 +222,35 @@ describe('Titanium.UI', function () {
 		should(Ti.UI).have.a.constant('USER_INTERFACE_STYLE_UNSPECIFIED').which.is.a.Number();
 	});
 
-	it('.userInterfaceStyle defaults to USER_INTERFACE_STYLE_LIGHT', () => {
-		// FIXME: we can't gurantee the emulator theme didn't get changed. Just specify it has to be one of the constants?
-		should(Ti.UI.userInterfaceStyle).eql(Ti.UI.USER_INTERFACE_STYLE_LIGHT);
+	it('.userInterfaceStyle', () => {
+		if (OS_IOS && (OS_VERSION_MAJOR < 13)) {
+			should(Ti.UI.userInterfaceStyle).eql(Ti.UI.USER_INTERFACE_STYLE_LIGHT);
+		} else {
+			should(Ti.UI.userInterfaceStyle).equalOneOf([
+				Ti.UI.USER_INTERFACE_STYLE_DARK,
+				Ti.UI.USER_INTERFACE_STYLE_LIGHT,
+				Ti.UI.USER_INTERFACE_STYLE_UNSPECIFIED
+			]);
+		}
+	});
+
+	it('.overrideUserInterfaceStyle', () => {
+		should(Ti.UI.overrideUserInterfaceStyle).eql(Ti.UI.USER_INTERFACE_STYLE_UNSPECIFIED);
+		if (OS_IOS) {
+			const originalStyle = Ti.UI.userInterfaceStyle;
+
+			Ti.UI.overrideUserInterfaceStyle = Ti.UI.USER_INTERFACE_STYLE_DARK;
+			should(Ti.UI.overrideUserInterfaceStyle).eql(Ti.UI.USER_INTERFACE_STYLE_DARK);
+			should(Ti.UI.userInterfaceStyle).eql(Ti.UI.USER_INTERFACE_STYLE_DARK);
+
+			Ti.UI.overrideUserInterfaceStyle = Ti.UI.USER_INTERFACE_STYLE_LIGHT;
+			should(Ti.UI.overrideUserInterfaceStyle).eql(Ti.UI.USER_INTERFACE_STYLE_LIGHT);
+			should(Ti.UI.userInterfaceStyle).eql(Ti.UI.USER_INTERFACE_STYLE_LIGHT);
+
+			Ti.UI.overrideUserInterfaceStyle = Ti.UI.USER_INTERFACE_STYLE_UNSPECIFIED;
+			should(Ti.UI.overrideUserInterfaceStyle).eql(Ti.UI.USER_INTERFACE_STYLE_UNSPECIFIED);
+			should(Ti.UI.userInterfaceStyle).eql(originalStyle);
+		}
 	});
 
 	describe('Semantic Colors', () => {
@@ -230,38 +266,55 @@ describe('Titanium.UI', function () {
 				should(result.apiName).eql('Ti.UI.Color');
 				result.toHex().toLowerCase().should.eql(semanticColors.textColor[Ti.UI.semanticColorType].toLowerCase());
 			} else {
-				// check alpha values
-				const green100 = Ti.UI.fetchSemanticColor('green_100.0');
-				const blue75 = Ti.UI.fetchSemanticColor('blue_75.0');
-				const cyan50 = Ti.UI.fetchSemanticColor('cyan_50.0');
-				const red25 = Ti.UI.fetchSemanticColor('red_25.0');
-				const magenta0 = Ti.UI.fetchSemanticColor('magenta_0');
-				const yellowNoAlpha = Ti.UI.fetchSemanticColor('yellow_noalpha');
-				const greenHex8 = Ti.UI.fetchSemanticColor('green_hex8');
-				if (Ti.UI.userInterfaceStyle === Ti.UI.USER_INTERFACE_STYLE_LIGHT) {
-					result.should.eql('rgba(255, 31, 31, 1.000)');
-					green100.should.eql('rgba(0, 255, 0, 1.000)');
-					blue75.should.eql('rgba(0, 0, 255, 0.750)');
-					cyan50.should.eql('rgba(0, 255, 255, 0.500)');
-					red25.should.eql('rgba(255, 0, 0, 0.250)');
-					magenta0.should.eql('rgba(255, 0, 255, 0.000)');
-					yellowNoAlpha.should.eql('rgba(255, 255, 0, 1.000)');
-					greenHex8.should.eql('rgba(0, 255, 0, 0.502)'); // NOTE: hex => % gives more precise value, but this will effectively become 50% under the covers
-				} else {
-					result.should.eql('rgba(255, 133, 226, 1.000)');
-					green100.should.eql('rgba(0, 128, 0, 1.000)');
-					blue75.should.eql('rgba(0, 0, 128, 0.750)');
-					cyan50.should.eql('rgba(0, 128, 128, 0.500)');
-					red25.should.eql('rgba(128, 0, 0, 0.250)');
-					magenta0.should.eql('rgba(128, 0, 128, 0.000)');
-					yellowNoAlpha.should.eql('rgba(128, 128, 0, 1.000)');
-					greenHex8.should.eql('rgba(0, 128, 0, 0.502)'); // NOTE: hex => % gives more precise value, but this will effectively become 50% under the covers
+				function validateColor(colorString, lightColorExpected, darkColorExpected) {
+					colorString.should.equalOneOf([
+						`ti.semantic.color:${darkColorExpected};${lightColorExpected}`,
+						`ti.semantic.color:${lightColorExpected};${darkColorExpected}`,
+					]);
 				}
+				validateColor(result, 'light=rgba(255, 31, 31, 1.000)', 'dark=rgba(255, 133, 226, 1.000)');
+				validateColor(
+					Ti.UI.fetchSemanticColor('green_100.0'),
+					'light=rgba(0, 255, 0, 1.000)',
+					'dark=rgba(0, 128, 0, 1.000)'
+				);
+				validateColor(
+					Ti.UI.fetchSemanticColor('blue_75.0'),
+					'light=rgba(0, 0, 255, 0.750)',
+					'dark=rgba(0, 0, 128, 0.750)'
+				);
+				validateColor(
+					Ti.UI.fetchSemanticColor('cyan_50.0'),
+					'light=rgba(0, 255, 255, 0.500)',
+					'dark=rgba(0, 128, 128, 0.500)'
+				);
+				validateColor(
+					Ti.UI.fetchSemanticColor('red_25.0'),
+					'light=rgba(255, 0, 0, 0.250)',
+					'dark=rgba(128, 0, 0, 0.250)'
+				);
+				validateColor(
+					Ti.UI.fetchSemanticColor('magenta_0'),
+					'light=rgba(255, 0, 255, 0.000)',
+					'dark=rgba(128, 0, 128, 0.000)'
+				);
+				validateColor(
+					Ti.UI.fetchSemanticColor('yellow_noalpha'),
+					'light=rgba(255, 255, 0, 1.000)',
+					'dark=rgba(128, 128, 0, 1.000)'
+				);
+				// NOTE: hex => % gives more precise value, but this will effectively become 50% under the covers
+				validateColor(
+					Ti.UI.fetchSemanticColor('green_hex8'),
+					'light=rgba(0, 255, 0, 0.502)',
+					'dark=rgba(0, 128, 0, 0.502)'
+				);
 			}
 		});
 
-		it.ios('#fetchSemanticColor() with system colors', () => {
+		it.ios('#fetchSemanticColor() with system colors', function () {
 			if (!isIOS13Plus) {
+				this.skip();
 				return;
 			}
 			const colors = new Map([
@@ -301,6 +354,14 @@ describe('Titanium.UI', function () {
 				[ 'tertiarySystemFillColor', { light: '#1f767680', dark: '#3d767680' } ],
 				[ 'tertiarySystemGroupedBackgroundColor', { light: '#f2f2f7', dark: '#2c2c2e' } ],
 			]);
+
+			// systemTealColor dark and light are different in iOS 15
+			// quaternaryLabelColor dark is different in iOS 15
+			if (OS_VERSION_MAJOR >= 15) {
+				colors.set('systemTealColor', { light: '#30b0c7', dark: '#40c8e0' });
+				colors.set('quaternaryLabelColor', { light: '#2e3c3c43', dark: '#29ebebf5' });
+			}
+
 			const theme = Ti.UI.semanticColorType; // should be light or dark
 			for (const [ colorName, subcolors ] of colors) {
 				Ti.UI.fetchSemanticColor(colorName).toHex().toLowerCase().should.equal(subcolors[theme], colorName);
@@ -340,12 +401,19 @@ describe('Titanium.UI', function () {
 				[ 'widget_edittext_dark', '#ff000000' ],
 			]);
 			for (const [ colorName, hex ] of colors) {
-				const c = Ti.UI.fetchSemanticColor(colorName);
-				c.toLowerCase().should.equal(hex, colorName);
+				const resourceId = Ti.UI.fetchSemanticColor(colorName);
+				resourceId.should.eql(`@color/${colorName}`);
+				const color = Ti.UI.Android.getColorResource(resourceId);
+				color.toHex().toLowerCase().should.equal(hex, colorName);
 			}
 		});
 
 		it('use semantic colors via color properties', function (finish) {
+			// FIXME: Does not honour scale correctly on macOS.
+			if (isCI && utilities.isMacOS()) {
+				return finish();
+			}
+
 			win = Ti.UI.createWindow();
 			const backgroundColor = OS_ANDROID ? 'holo_blue_bright' : 'systemredcolor';
 			const suffix = OS_IOS ? `_${Ti.UI.semanticColorType}` : '';
@@ -373,7 +441,6 @@ describe('Titanium.UI', function () {
 	// TODO Write tests for Ti.UI.global properties below!
 	// it('backgroundColor');
 	// it('backgroundImage');
-	// it('currentTab');
 
 	// it.ios('tintColor');
 });

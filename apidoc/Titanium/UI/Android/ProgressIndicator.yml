@@ -17,7 +17,7 @@ description:  |
 
     **NOTE:** <Titanium.UI.Android.PROGRESS_INDICATOR_STATUS_BAR> does not work anymore on devices
     running Android 4.4+ since the underlying API was deprecated and removed by Google. See
-    [TIMOB-27312](https://jira.appcelerator.org/browse/TIMOB-27312) for more details.
+    [TIMOB-27312](https://jira-archive.titaniumsdk.com/TIMOB-27312) for more details.
 
     Calling <Titanium.UI.Android.ProgressIndicator.show> displays the indicator,
     and calling <Titanium.UI.Android.ProgressIndicator.hide> removes it.
@@ -36,51 +36,42 @@ excludes:
                  children, clipMode, focusable, height, horizontalWrap, keepScreenOn, layout, left, opacity,overrideCurrentAnimation,
                  pullBackgroundColor, rect, right, size, softKeyboardOnFocus, tintColor, top, touchEnabled, transform,
                  viewShadowColor, viewShadowOffset, viewShadowRadius, visible, width, zIndex]
-
 methods:
   - name: hide
     summary: Hides the progress indicator and stops the animation.
-    platforms: [android]
 
   - name: show
     summary: Shows the progress indicator and starts the animation.
-    platforms: [android]
 
 properties:
   - name: cancelable
     summary: |
         When `true` allows the user to cancel the progress dialog by pressing the BACK button.
     type: Boolean
-    platforms: [android]
 
   - name: canceledOnTouchOutside
     summary: |
         When `cancelable` is set to `true` and this is set to `true`, the dialog is canceled when touched outside the window's bounds.
     type: Boolean
     default: false
-    platforms: [android]
     since: "3.6.0"
 
   - name: message
     summary: Message text.
     type: String
-    platforms: [android]
 
   - name: messageid
     summary: Key identifying a string in the locale file to use for the message text.
     description: Only one of `message` or `messageid` should be specified.
     type: String
-    platforms: [android]
 
   - name: min
     summary: Minimum value of the progress bar.
     type: Number
-    platforms: [android]
 
   - name: max
     summary: Maximum value of the progress bar.
     type: Number
-    platforms: [android]
 
   - name: location
     summary: Location for the progress indicator.
@@ -88,7 +79,6 @@ properties:
     constants: [ Titanium.UI.Android.PROGRESS_INDICATOR_DIALOG,
                  Titanium.UI.Android.PROGRESS_INDICATOR_STATUS_BAR ]
     default: <Titanium.UI.Android.PROGRESS_INDICATOR_DIALOG>
-    platforms: [android]
 
   - name: type
     summary: Type for the progress indicator.
@@ -96,7 +86,6 @@ properties:
     constants: [ Titanium.UI.Android.PROGRESS_INDICATOR_INDETERMINANT,
                  Titanium.UI.Android.PROGRESS_INDICATOR_DETERMINANT ]
     default: <Titanium.UI.Android.PROGRESS_INDICATOR_INDETERMINANT>
-    platforms: [android]
 
 events:
   - name: cancel
@@ -104,7 +93,6 @@ events:
     description: |
         The user triggers this event by pressing the BACK button when the dialog is visible.
         The dialog will be hidden and this event dispatched.
-    platforms: [android]
 
 examples:
   - title: Simple Progress Indicator

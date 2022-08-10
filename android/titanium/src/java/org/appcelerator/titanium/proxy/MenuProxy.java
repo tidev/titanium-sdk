@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -35,7 +35,7 @@ public class MenuProxy extends KrollProxy
 	public MenuProxy(Menu menu)
 	{
 		this.menu = menu;
-		menuMap = new HashMap<MenuItem, MenuItemProxy>();
+		menuMap = new HashMap<>();
 	}
 
 	@Kroll.method
@@ -184,7 +184,7 @@ public class MenuProxy extends KrollProxy
 	{
 		//TODO will get to get items in the group and remove them from our map
 		menu.removeGroup(groupId);
-		HashMap<MenuItem, MenuItemProxy> mm = new HashMap<MenuItem, MenuItemProxy>(menu.size());
+		HashMap<MenuItem, MenuItemProxy> mm = new HashMap<>(menu.size());
 		int len = menu.size();
 		for (int i = 0; i < len; i++) {
 			MenuItem mi = menu.getItem(i);
@@ -254,7 +254,6 @@ public class MenuProxy extends KrollProxy
 		return menu.size();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public MenuItemProxy[] getItems()
 	{

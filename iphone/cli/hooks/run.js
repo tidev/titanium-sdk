@@ -17,15 +17,16 @@ exports.init = function (logger, config, cli) {
 				return finished();
 			}
 
+			const i18n = require('node-appc').i18n(__dirname);
+			const __ = i18n.__;
+			const __n = i18n.__n;
+
 			if (cli.argv['build-only']) {
 				logger.info(__('Performed build only, skipping running of the application'));
 				return finished();
 			}
 
 			const ioslib = require('ioslib');
-			const i18n = require('node-appc').i18n(__dirname);
-			const __ = i18n.__;
-			const __n = i18n.__n;
 			const path = require('path');
 			const fs = require('fs-extra');
 			// eslint-disable-next-line security/detect-child-process
@@ -103,7 +104,7 @@ exports.init = function (logger, config, cli) {
 
 					// Open the app
 					logger.info(__('Launching Mac application'));
-					const child = spawn(`${builder.iosBuildDir}/${builder.tiapp.name}.app/Contents/MacOS/${builder.tiapp.name}`);
+					const child = spawn('open', [ '-a', `${builder.iosBuildDir}/${builder.tiapp.name}.app`, '-W' ]);
 					child.on('error', err => logger.error(err));
 					// "Forward" the exit code of the app to this process (when the app exits)
 					child.on('exit', (code, _signal) => {
@@ -161,8 +162,11 @@ exports.init = function (logger, config, cli) {
 						logger.error('[' + simHandle.appName + '] ' + msg);
 					})
 					.on('app-started', function () {
-						finished && finished();
-						finished = null;
+						// TODO: Add "installed" event to "ioslib" module for simulators and emit below event from there.
+						cli.emit('build.post.install', builder, () => {
+							finished && finished();
+							finished = null;
+						});
 					})
 					.on('app-quit', function (code) {
 						if (code) {

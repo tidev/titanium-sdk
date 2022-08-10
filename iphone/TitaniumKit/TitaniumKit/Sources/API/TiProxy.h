@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -178,7 +178,6 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> *target,
 
 - (void)_dispatchWithObjectOnUIThread:(NSArray *)args;
 - (void)didReceiveMemoryWarning:(NSNotification *)notification;
-- (TiProxy *)currentWindow;
 - (void)contextShutdown:(id)sender;
 - (id)toString:(id)args;
 
@@ -341,5 +340,7 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> *target,
 + (id)createProxy:(NSString *)qualifiedName withProperties:(NSDictionary *)properties inContext:(id<TiEvaluator>)context;
 
 - (NSString *)apiName;
+
+- (JSContext *)currentContext;
 
 @end

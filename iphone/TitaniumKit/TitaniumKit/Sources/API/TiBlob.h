@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-Present by Appcelerator, Inc. All Rights Reserved.
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -82,8 +82,9 @@ JSExportAs(imageWithRoundedCorner,
            : (NSUInteger)cornerSize withBorder
            : (NSNumber *)optionalBorderSize);
 - (TiBlob *)imageWithTransparentBorder:(NSUInteger)size;
-- (NSString *)toString; // FIXME This doesn't seem to override the JS impl. I think we need to find a way to modify the property post-init to override it!
+- (NSString *)toString;
 - (JSValue *)toArrayBuffer;
+- (JSValue *)arrayBuffer;
 
 @end
 
@@ -136,20 +137,17 @@ typedef enum {
  */
 - (id)initWithImage:(UIImage *)image;
 
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
 /**
 Initialize the blob with a system image.
 @param imageName The  system image name
 */
-- (id)initWithSystemImage:(NSString *)imageName;
+- (id)initWithSystemImage:(NSString *)imageName andParameters:(NSDictionary *)parameters;
 
 /**
  Returns the System Image Name .
  @return The string or nil.
  */
 - (NSString *)systemImageName;
-
-#endif
 
 /**
  Initialize the blob with data.

@@ -1,14 +1,16 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 #ifdef USE_TI_MEDIAVIDEOPLAYER
 
 #import "TiMediaVideoPlayer.h"
+#import <TitaniumKit/TiApp.h>
 #import <TitaniumKit/TiUtils.h>
 #import <TitaniumKit/TiViewProxy.h>
+#import <TitaniumKit/TiWindowProxy.h>
 #import <TitaniumKit/Webcolor.h>
 
 @implementation TiMediaVideoPlayer
@@ -71,9 +73,10 @@
   }
   controller = [controller_ retain];
 
-  [TiUtils setView:[controller view] positionRect:self.bounds];
   [self addSubview:[controller view]];
   [self sendSubviewToBack:[controller view]];
+
+  [TiUtils setView:[controller view] positionRect:self.bounds];
 
   TiColor *bgcolor = [TiUtils colorValue:[self.proxy valueForKey:@"backgroundColor"]];
   UIActivityIndicatorViewStyle style = UIActivityIndicatorViewStyleGray;
@@ -118,7 +121,11 @@
 
 - (void)dealloc
 {
+  [controller willMoveToParentViewController:nil];
   [[controller view] removeFromSuperview];
+  [controller removeFromParentViewController];
+
+  RELEASE_TO_NIL(parentController);
   RELEASE_TO_NIL(controller);
   RELEASE_TO_NIL(spinner);
   [super dealloc];

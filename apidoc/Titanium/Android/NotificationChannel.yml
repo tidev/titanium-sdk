@@ -76,6 +76,12 @@ properties:
     type: Number
     constants: [Titanium.Android.VISIBILITY_*]
 
+  - name: name
+    summary: |
+        The visible name of this channel.
+        The recommended maximum length is 40 characters; the value may be truncated if it is too long.
+    type: String
+
   - name: showBadge
     summary: Whether notifications posted to this channel can appear as application icon badges in a Launcher.
     type: Boolean

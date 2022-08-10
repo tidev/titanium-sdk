@@ -136,7 +136,7 @@ methods:
           3. Initialize the module with the `require` method by passing the module ID to the method.
 
         For detailed instructions, refer to
-        [Using a Module](https://docs.appcelerator.com/platform/latest/#!/guide/Using_a_Module).
+        [Using a Module](https://titaniumsdk.com/guide/Titanium_SDK/Titanium_SDK_How-tos/Using_Modules/Using_a_Module.html).
 
         #### CommonJS Module
 
@@ -196,7 +196,7 @@ methods:
         ```
     returns:
         summary: Exported `exports` object of the required module.
-        type: Object
+        type: any
     parameters:
       - name: moduleId
         summary: Native module ID or local path to a JavaScript file *minus* the `.js` extension.
@@ -355,7 +355,7 @@ properties:
     since: "9.2.0"
 
   - name: ENV_DEV
-    summary: Alias for <ENV_DEVELOPMENT>
+    summary: Alias for <Global.ENV_DEVELOPMENT>
     type: Boolean
     permission: read-only
     since: "9.0.0"
@@ -363,8 +363,6 @@ properties:
   - name: ENV_DEVELOPMENT
     summary: A special constant that is replaced during the app build with a boolean `true`/`false` value, based on whether deploy type is `'development'`. Typically true for simulator/emulator builds.
     description: |
-        This value is replaced by an injected boolean literal value indicating if the deploy type is `'development'`.
-
         The replacement is done by a Babel plugin during JS transpilation phase of the app build.
         This is an easy way to guard deploy type-specific codepaths (and make it easier for Babel to strip away dead code paths).
 
@@ -374,7 +372,7 @@ properties:
     since: "9.0.0"
 
   - name: ENV_PROD
-    summary: Alias for <ENV_PRODUCTION>
+    summary: Alias for <Global.ENV_PRODUCTION>
     type: Boolean
     permission: read-only
     since: "9.0.0"
@@ -382,8 +380,6 @@ properties:
   - name: ENV_PRODUCTION
     summary: A special constant that is replaced during the app build with a boolean `true`/`false` value, based on whether deploy type is `'production'`. Typically true for app store/ad-hoc builds.
     description: |
-        This value is replaced by an injected boolean literal value indicating if the deploy type is `'production'`.
-
         The replacement is done by a Babel plugin during JS transpilation phase of the app build.
         This is an easy way to guard deploy type-specific codepaths (and make it easier for Babel to strip away dead code paths).
 
@@ -395,8 +391,6 @@ properties:
   - name: ENV_TEST
     summary: A special constant that is replaced during the app build with a boolean `true`/`false` value, based on whether deploy type is `'test'`. Typically true for device builds.
     description: |
-        This value is replaced by an injected boolean literal value indicating if the deploy type is `'test'`.
-
         The replacement is done by a Babel plugin during JS transpilation phase of the app build.
         This is an easy way to guard deploy type-specific codepaths (and make it easier for Babel to strip away dead code paths).
 
@@ -408,8 +402,6 @@ properties:
   - name: DIST_ADHOC
     summary: A special constant that is replaced during the app build with a boolean `true`/`false` value, based on whether build target is `'dist-adhoc'`.
     description: |
-        This value is replaced by an injected boolean literal value indicating if the deploy type is `'test'`.
-
         The replacement is done by a Babel plugin during JS transpilation phase of the app build.
         This is an easy way to guard deploy type-specific codepaths (and make it easier for Babel to strip away dead code paths).
 
@@ -421,8 +413,6 @@ properties:
   - name: DIST_STORE
     summary: A special constant that is replaced during the app build with a boolean `true`/`false` value, based on whether build target is `'dist-appstore'` or `'dist-playstore'`.
     description: |
-        This value is replaced by an injected boolean literal value indicating if the deploy type is `'test'`.
-
         The replacement is done by a Babel plugin during JS transpilation phase of the app build.
         This is an easy way to guard deploy type-specific codepaths (and make it easier for Babel to strip away dead code paths).
 
@@ -439,4 +429,14 @@ properties:
   - name: global
     summary: Reference to the global object itself.
     type: Global
+    accessors: false
+
+  - name: Buffer
+    summary: a global reference to the [Buffer](buffer.Buffer) class.
+    type: buffer.Buffer
+    accessors: false
+
+  - name: process
+    summary: Reference to the global `process` object.
+    type: process
     accessors: false

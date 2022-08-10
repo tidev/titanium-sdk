@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -21,7 +21,7 @@
 - (NSArray *)data;
 //Sections and Data are the sanitized version.
 @property (nonatomic, readwrite, copy) NSArray *sections;
-- (NSUInteger)sectionCount;
+- (NSNumber *)sectionCount;
 
 #pragma mark NON-JS functionality
 //internalSections is until TODO: Stop JS from using ValueForKey

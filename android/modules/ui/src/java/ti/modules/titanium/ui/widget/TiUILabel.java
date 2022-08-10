@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -36,8 +36,8 @@ import android.text.util.Linkify;
 import android.text.TextPaint;
 import android.view.Gravity;
 import android.view.MotionEvent;
-import android.view.View;
-import android.widget.TextView;
+import androidx.annotation.NonNull;
+import com.google.android.material.textview.MaterialTextView;
 
 public class TiUILabel extends TiUIView
 {
@@ -63,7 +63,7 @@ public class TiUILabel extends TiUIView
 	{
 		super(proxy);
 		Log.d(TAG, "Creating a text label", Log.DEBUG_MODE);
-		TextView tv = new TextView(getProxy().getActivity()) {
+		MaterialTextView tv = new MaterialTextView(getProxy().getActivity()) {
 			@Override
 			protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec)
 			{
@@ -157,7 +157,7 @@ public class TiUILabel extends TiUIView
 			@Override
 			public boolean onTouchEvent(MotionEvent event)
 			{
-				TextView textView = (TextView) this;
+				MaterialTextView textView = (MaterialTextView) this;
 				Object text = textView.getText();
 
 				//For html texts, we will manually detect url clicks.
@@ -220,25 +220,19 @@ public class TiUILabel extends TiUIView
 	/**
 	 * Method used to decrease the fontsize of the text to fit the width
 	 * fontsize should be >= than the property minimumFontSize
-	 * @param view
+	 * @param textView The text view to be adjusted.
 	 */
-	private void adjustTextFontSize(View view)
+	private void adjustTextFontSize(@NonNull MaterialTextView textView)
 	{
 		// Do not continue if auto-sizing the font is disabled.
 		if (this.minimumFontSizeInPixels < FONT_SIZE_EPSILON) {
 			return;
 		}
 
-		// Make sure the given view is a TextView.
-		if ((view instanceof TextView) == false) {
-			return;
-		}
-		TextView textView = (TextView) view;
-
 		// Fetch the display's density scale and calculate pixel's per virtual point, rounded up.
 		// Note: To keep it simple, don't let the scale be below 1x.
 		//       Only obsolete "ldpi" devices use scales lower than this.
-		float densityScale = view.getResources().getDisplayMetrics().density;
+		float densityScale = textView.getResources().getDisplayMetrics().density;
 		if (densityScale <= 0) {
 			densityScale = 1.0f;
 		}
@@ -320,14 +314,7 @@ public class TiUILabel extends TiUIView
 
 		// If the view's font size has changed, then the view's height has changed. Request a re-layout.
 		if (Math.abs(textView.getTextSize() - previousFontSize) >= FONT_SIZE_EPSILON) {
-			final View finalView = view;
-			view.post(new Runnable() {
-				@Override
-				public void run()
-				{
-					finalView.requestLayout();
-				}
-			});
+			textView.post(textView::requestLayout);
 		}
 	}
 
@@ -336,7 +323,7 @@ public class TiUILabel extends TiUIView
 	{
 		super.processProperties(d);
 
-		TextView tv = (TextView) getNativeView();
+		MaterialTextView tv = (MaterialTextView) getNativeView();
 
 		boolean needShadow = false;
 
@@ -410,11 +397,11 @@ public class TiUILabel extends TiUIView
 			if (color == null) {
 				tv.setTextColor(defaultColor);
 			} else {
-				tv.setTextColor(TiConvert.toColor(d, TiC.PROPERTY_COLOR));
+				tv.setTextColor(TiConvert.toColor(d, TiC.PROPERTY_COLOR, proxy.getActivity()));
 			}
 		}
 		if (d.containsKey(TiC.PROPERTY_HIGHLIGHTED_COLOR)) {
-			tv.setHighlightColor(TiConvert.toColor(d, TiC.PROPERTY_HIGHLIGHTED_COLOR));
+			tv.setHighlightColor(TiConvert.toColor(d, TiC.PROPERTY_HIGHLIGHTED_COLOR, proxy.getActivity()));
 		}
 		if (d.containsKey(TiC.PROPERTY_FONT)) {
 			TiUIHelper.styleText(tv, d.getKrollDict(TiC.PROPERTY_FONT));
@@ -467,7 +454,7 @@ public class TiUILabel extends TiUIView
 		}
 		if (d.containsKey(TiC.PROPERTY_SHADOW_COLOR)) {
 			needShadow = true;
-			shadowColor = TiConvert.toColor(d, TiC.PROPERTY_SHADOW_COLOR);
+			shadowColor = TiConvert.toColor(d, TiC.PROPERTY_SHADOW_COLOR, proxy.getActivity());
 		}
 		if (needShadow) {
 			tv.setShadowLayer(shadowRadius, shadowX, shadowY, shadowColor);
@@ -481,7 +468,7 @@ public class TiUILabel extends TiUIView
 	@Override
 	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy)
 	{
-		TextView tv = (TextView) getNativeView();
+		MaterialTextView tv = (MaterialTextView) getNativeView();
 		if (key.equals(TiC.PROPERTY_ATTRIBUTED_STRING) || key.equals(TiC.PROPERTY_HTML) || key.equals(TiC.PROPERTY_TEXT)
 			|| key.equals(TiC.PROPERTY_TITLE)) {
 			CharSequence newText = null;
@@ -509,10 +496,11 @@ public class TiUILabel extends TiUIView
 			if (newValue == null) {
 				tv.setTextColor(defaultColor);
 			} else {
-				tv.setTextColor(TiConvert.toColor((String) newValue));
+				tv.setTextColor(TiConvert.toColor(newValue, proxy.getActivity()));
 			}
 		} else if (key.equals(TiC.PROPERTY_HIGHLIGHTED_COLOR)) {
-			tv.setHighlightColor(TiConvert.toColor((String) newValue));
+			// TODO: reset to default value when property is null
+			tv.setHighlightColor(TiConvert.toColor(newValue, proxy.getActivity()));
 		} else if (key.equals(TiC.PROPERTY_TEXT_ALIGN)) {
 			TiUIHelper.setAlignment(tv, TiConvert.toString(newValue), null);
 			tv.requestLayout();
@@ -561,7 +549,7 @@ public class TiUILabel extends TiUIView
 			shadowRadius = TiConvert.toFloat(newValue, DEFAULT_SHADOW_RADIUS);
 			tv.setShadowLayer(shadowRadius, shadowX, shadowY, shadowColor);
 		} else if (key.equals(TiC.PROPERTY_SHADOW_COLOR)) {
-			shadowColor = TiConvert.toColor(TiConvert.toString(newValue));
+			shadowColor = TiConvert.toColor(newValue, proxy.getActivity());
 			tv.setShadowLayer(shadowRadius, shadowX, shadowY, shadowColor);
 		} else if (key.equals(TiC.PROPERTY_LINES)) {
 			this.viewHeightInLines = TiConvert.toInt(newValue, 0);
@@ -599,7 +587,7 @@ public class TiUILabel extends TiUIView
 
 	public void setClickable(boolean clickable)
 	{
-		((TextView) getNativeView()).setClickable(clickable);
+		((MaterialTextView) getNativeView()).setClickable(clickable);
 	}
 
 	/**
@@ -669,7 +657,7 @@ public class TiUILabel extends TiUIView
 
 	public int getColor()
 	{
-		TextView tv = (TextView) getNativeView();
+		MaterialTextView tv = (MaterialTextView) getNativeView();
 		return tv.getCurrentTextColor();
 	}
 
@@ -680,7 +668,7 @@ public class TiUILabel extends TiUIView
 	private void updateLabelText()
 	{
 		// Fetch the text view.
-		TextView textView = (TextView) getNativeView();
+		MaterialTextView textView = (MaterialTextView) getNativeView();
 		if (textView == null) {
 			return;
 		}
@@ -764,7 +752,7 @@ public class TiUILabel extends TiUIView
 		}
 
 		// Update the view's text.
-		textView.setText(text, TextView.BufferType.NORMAL);
+		textView.setText(text, MaterialTextView.BufferType.NORMAL);
 		textView.requestLayout();
 	}
 }

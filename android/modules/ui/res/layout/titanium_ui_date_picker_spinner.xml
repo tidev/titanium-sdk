@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ti.modules.titanium.ui.widget.picker.CustomDatePicker xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/titanium_ui_date_picker_spinner"
+<DatePicker xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_height="wrap_content"
     android:layout_width="wrap_content"
-    android:datePickerMode ="spinner"/>
+    android:datePickerMode ="spinner"
+    android:calendarViewShown="false"
+    android:spinnersShown="true"/>

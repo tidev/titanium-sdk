@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2014 by Appcelerator, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -22,14 +22,14 @@ public interface SecurityManagerProtocol {
 
 	/**
 	 * Returns the X509TrustManager array for SSL Context.
-	 * @param uri - The end point of the network connection
+	 * @param proxy The client proxy to fetch trust manager info from.
 	 * @return Return array of X509TrustManager for custom server validation. Null otherwise.
 	 */
 	X509TrustManager[] getTrustManagers(HTTPClientProxy proxy);
 
 	/**
 	 * Returns the X509KeyManager array for the SSL Context.
-	 * @param uri - The end point of the network connection
+	 * @param proxy The client proxy to fetch SSL certificate managers from.
 	 * @return Return array of X509KeyManager for custom client certificate management. Null otherwise.
 	 */
 	X509KeyManager[] getKeyManagers(HTTPClientProxy proxy);

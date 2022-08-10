@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -16,6 +16,7 @@ import android.app.Activity;
 
 @Kroll.proxy(creatableInModule = UIModule.class,
 	propertyAccessors = {
+		TiC.PROPERTY_ANIMATED,
 		TiC.PROPERTY_MIN,
 		TiC.PROPERTY_MAX,
 		TiC.PROPERTY_VALUE,
@@ -29,6 +30,7 @@ public class ProgressBarProxy extends TiViewProxy
 	public ProgressBarProxy()
 	{
 		super();
+		defaultValues.put(TiC.PROPERTY_ANIMATED, true);
 	}
 
 	@Override

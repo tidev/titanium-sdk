@@ -138,7 +138,7 @@ description: |
     This can lead to memory leaks if application-level event listeners are added and not
     removed.
 
-    See also: [Event Handling](https://docs.appcelerator.com/platform/latest/#!/guide/Event_Handling)
+    See also: [Event Handling](https://titaniumsdk.com/guide/Titanium_SDK/Titanium_SDK_How-tos/User_Interface_Fundamentals/Event_Handling.html)
     in the Titanium Mobile Guides.
 
     #### System Level Accessibility Events
@@ -291,9 +291,10 @@ events:
       - name: backtrace
         summary: The backtrace of function calls when the error occurred.
         type: String
-        deprecated: 
+        deprecated:
           since: "8.0.0"
           removed: "8.0.0"
+          notes: Use the `stack` property instead.
         platforms: [iphone, ipad]
       - name: title
         summary: The title for the error.
@@ -308,25 +309,25 @@ events:
         type: String
         platforms: [android]
       - name: lineOffset
-        summary: The offset on the line where the error occurred.
+        summary: The offset on the line where the error occurred. (Deprecated since 9.0.0. Use `column` instead.)
         type: Number
-        deprecated: 
+        deprecated:
           since: "9.0.0"
           notes: Use `column` property for cross-platform parity.
         platforms: [android]
-      - name: jsStack
-        summary: The javascript stack trace of the exception.
+      - name: javascriptStack
+        summary: The javascript stack trace of the exception. (Deprecated since 9.0.0. Use `stack` instead.)
         type: String
         since: "8.0.0"
-        deprecated: 
+        deprecated:
           since: "9.0.0"
           notes: Use `stack` property for cross-platform parity.
         platforms: [android]
       - name: javaStack
-        summary: The java stack trace of the exception.
+        summary: The java stack trace of the exception. (Deprecated since 9.0.0. Use `nativeStack` instead.)
         type: String
         since: "8.0.0"
-        deprecated: 
+        deprecated:
           since: "9.0.0"
           notes: Use `nativeStack` property for cross-platform parity.
         platforms: [android]
@@ -452,7 +453,7 @@ methods:
         type: String
       - name: param
         summary: A parameter to be passed to the system event.
-        type: Object
+        type: String
         optional: true
 
   - name: getArguments
@@ -465,6 +466,9 @@ methods:
     platforms: [iphone, ipad, macos]
     returns:
         type: launchOptions
+    deprecated:
+      since: "10.0.0"
+      notes: Use the <Titanium.App.arguments> property instead
 
 properties:
   - name: EVENT_ACCESSIBILITY_ANNOUNCEMENT
@@ -483,11 +487,6 @@ properties:
 
   - name: accessibilityEnabled
     summary: Indicates whether Accessibility is enabled by the system.
-    type: Boolean
-    permission: read-only
-
-  - name: analytics
-    summary: Indicates whether Analytics is enabled, determined by `tiapp.xml`.
     type: Boolean
     permission: read-only
 
@@ -635,6 +634,18 @@ properties:
     accessors: false
     platforms: [iphone, ipad, macos]
     since: {iphone: "7.5.0", ipad: "7.5.0", macos: "9.2.0"}
+
+  - name: arguments
+    summary: The arguments passed to the application on startup.
+    description : |
+        On Android, fetch the [Ti.Android.rootActivity](Titanium.Android.rootActivity) object and
+        read its [intent](Titanium.Android.Activity.intent) property to retrieve the parameters used
+        to launch the application activity. Note that this [intent](Titanium.Android.Activity.intent)
+        will change when a "[newintent](Titanium.Android.Activity.newintent)" event has been fired.
+    platforms: [iphone, ipad, macos]
+    since: {iphone: "10.0.1", ipad: "10.0.1", macos: "10.0.1"}
+    type: launchOptions
+
 
 ---
 name: launchOptions

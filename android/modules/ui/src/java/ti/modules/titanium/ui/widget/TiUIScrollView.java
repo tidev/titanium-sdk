@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -8,9 +8,6 @@ package ti.modules.titanium.ui.widget;
 
 import android.content.Context;
 import android.graphics.Canvas;
-import android.os.Build;
-import androidx.core.view.NestedScrollingChild;
-import androidx.core.view.NestedScrollingChildHelper;
 import androidx.core.widget.NestedScrollView;
 import android.util.AttributeSet;
 import android.util.Xml;
@@ -46,7 +43,8 @@ public class TiUIScrollView extends TiUIView
 	private static final String TAG = "TiUIScrollView";
 
 	private View scrollView;
-	private int offsetX = 0, offsetY = 0;
+	private TiDimension offsetX = new TiDimension(0, TiDimension.TYPE_LEFT);
+	private TiDimension offsetY = new TiDimension(0, TiDimension.TYPE_TOP);
 	private boolean setInitialOffset = false;
 	private boolean mScrollingEnabled = true;
 	private boolean isScrolling = false;
@@ -72,14 +70,14 @@ public class TiUIScrollView extends TiUIView
 				@Override
 				public void onLongPress(MotionEvent e)
 				{
-					if (proxy.hierarchyHasListener(TiC.EVENT_LONGPRESS)) {
+					if (proxy != null && proxy.hierarchyHasListener(TiC.EVENT_LONGPRESS)) {
 						fireEvent(TiC.EVENT_LONGPRESS, dictFromEvent(e));
 					}
 				}
 				@Override
 				public boolean onSingleTapConfirmed(MotionEvent e)
 				{
-					if (proxy.hierarchyHasListener(TiC.EVENT_SINGLE_TAP)) {
+					if (proxy != null && proxy.hierarchyHasListener(TiC.EVENT_SINGLE_TAP)) {
 						fireEvent(TiC.EVENT_SINGLE_TAP, dictFromEvent(e));
 					}
 					return true;
@@ -87,7 +85,7 @@ public class TiUIScrollView extends TiUIView
 				@Override
 				public boolean onDoubleTap(MotionEvent e)
 				{
-					if (proxy.hierarchyHasListener(TiC.EVENT_DOUBLE_TAP)) {
+					if (proxy != null && proxy.hierarchyHasListener(TiC.EVENT_DOUBLE_TAP)) {
 						fireEvent(TiC.EVENT_DOUBLE_TAP, dictFromEvent(e));
 					}
 					return true;
@@ -462,7 +460,7 @@ public class TiUIScrollView extends TiUIView
 			super.onDraw(canvas);
 			// setting offset once when this view is visible
 			if (!setInitialOffset) {
-				scrollTo(offsetX, offsetY);
+				scrollTo(offsetX.getAsPixels(scrollView), offsetY.getAsPixels(scrollView));
 				setInitialOffset = true;
 			}
 		}
@@ -477,11 +475,13 @@ public class TiUIScrollView extends TiUIView
 				getProxy().fireEvent(TiC.EVENT_DRAGSTART, data);
 			}
 
-			KrollDict data = new KrollDict();
-			data.put(TiC.EVENT_PROPERTY_X, l);
-			data.put(TiC.EVENT_PROPERTY_Y, t);
-			data.put(TiC.PROPERTY_CONTENT_SIZE, contentSize());
 			setContentOffset(l, t);
+
+			KrollDict data = new KrollDict();
+			data.put(TiC.EVENT_PROPERTY_X, offsetX.getAsDefault(scrollView));
+			data.put(TiC.EVENT_PROPERTY_Y, offsetY.getAsDefault(scrollView));
+			data.put(TiC.PROPERTY_CONTENT_SIZE, contentSize());
+
 			getProxy().fireEvent(TiC.EVENT_SCROLL, data);
 		}
 
@@ -525,23 +525,15 @@ public class TiUIScrollView extends TiUIView
 		}
 	}
 
-	private class TiHorizontalScrollView extends HorizontalScrollView implements NestedScrollingChild
+	private class TiHorizontalScrollView extends HorizontalScrollView
 	{
 		private TiScrollViewLayout layout;
-		private NestedScrollingChildHelper nestedScrollingChildHelper;
 
 		public TiHorizontalScrollView(Context context, LayoutArrangement arrangement)
 		{
 			super(context, getAttributeSet(context, horizontalAttrId));
 			setScrollBarStyle(SCROLLBARS_INSIDE_OVERLAY);
 			setScrollContainer(true);
-
-			// Set up nested scrolling. Improves "SwipeRefreshLayout" touch interception handling.
-			// Note: On Android 5.0 and above, all views support nested child scrolling. We just need to enable it.
-			//       The "NestedScrollingChildHelper" is only needed for older Android OS versions.
-			if (Build.VERSION.SDK_INT < 21) {
-				this.nestedScrollingChildHelper = new NestedScrollingChildHelper(this);
-			}
 			setNestedScrollingEnabled(true);
 			layout = new TiScrollViewLayout(context, arrangement);
 			FrameLayout.LayoutParams params =
@@ -595,7 +587,7 @@ public class TiUIScrollView extends TiUIView
 			super.onDraw(canvas);
 			// setting offset once this view is visible
 			if (!setInitialOffset) {
-				scrollTo(offsetX, offsetY);
+				scrollTo(offsetX.getAsPixels(scrollView), offsetY.getAsPixels(scrollView));
 				setInitialOffset = true;
 			}
 		}
@@ -611,11 +603,13 @@ public class TiUIScrollView extends TiUIView
 				getProxy().fireEvent(TiC.EVENT_DRAGSTART, data);
 			}
 
-			data = new KrollDict();
-			data.put(TiC.EVENT_PROPERTY_X, l);
-			data.put(TiC.EVENT_PROPERTY_Y, t);
-			data.put(TiC.PROPERTY_CONTENT_SIZE, contentSize());
 			setContentOffset(l, t);
+
+			data = new KrollDict();
+			data.put(TiC.EVENT_PROPERTY_X, offsetX.getAsDefault(scrollView));
+			data.put(TiC.EVENT_PROPERTY_Y, offsetY.getAsDefault(scrollView));
+			data.put(TiC.PROPERTY_CONTENT_SIZE, contentSize());
+
 			getProxy().fireEvent(TiC.EVENT_SCROLL, data);
 		}
 
@@ -657,91 +651,6 @@ public class TiUIScrollView extends TiUIView
 				child.measure(childWidthMeasureSpec, childHeightMeasureSpec);
 			}
 		}
-
-		@Override
-		public boolean dispatchNestedFling(float velocityX, float velocityY, boolean consumed)
-		{
-			if (this.nestedScrollingChildHelper != null) {
-				return this.nestedScrollingChildHelper.dispatchNestedFling(velocityX, velocityY, consumed);
-			}
-			return super.dispatchNestedFling(velocityX, velocityY, consumed);
-		}
-
-		@Override
-		public boolean dispatchNestedPreFling(float velocityX, float velocityY)
-		{
-			if (this.nestedScrollingChildHelper != null) {
-				return this.nestedScrollingChildHelper.dispatchNestedPreFling(velocityX, velocityY);
-			}
-			return super.dispatchNestedPreFling(velocityX, velocityY);
-		}
-
-		@Override
-		public boolean dispatchNestedPreScroll(int dx, int dy, int[] consumed, int[] offsetInWindow)
-		{
-			if (this.nestedScrollingChildHelper != null) {
-				return this.nestedScrollingChildHelper.dispatchNestedPreScroll(dx, dy, consumed, offsetInWindow);
-			}
-			return super.dispatchNestedPreScroll(dx, dy, consumed, offsetInWindow);
-		}
-
-		@Override
-		public boolean dispatchNestedScroll(int dxConsumed, int dyConsumed, int dxUnconsumed, int dyUnconsumed,
-											int[] offsetInWindow)
-		{
-			if (this.nestedScrollingChildHelper != null) {
-				return this.nestedScrollingChildHelper.dispatchNestedScroll(dxConsumed, dyConsumed, dxUnconsumed,
-																			dyUnconsumed, offsetInWindow);
-			}
-			return super.dispatchNestedScroll(dxConsumed, dyConsumed, dxUnconsumed, dyUnconsumed, offsetInWindow);
-		}
-
-		@Override
-		public boolean hasNestedScrollingParent()
-		{
-			if (this.nestedScrollingChildHelper != null) {
-				return this.nestedScrollingChildHelper.hasNestedScrollingParent();
-			}
-			return super.hasNestedScrollingParent();
-		}
-
-		@Override
-		public boolean isNestedScrollingEnabled()
-		{
-			if (this.nestedScrollingChildHelper != null) {
-				return this.nestedScrollingChildHelper.isNestedScrollingEnabled();
-			}
-			return super.isNestedScrollingEnabled();
-		}
-
-		@Override
-		public void setNestedScrollingEnabled(boolean enabled)
-		{
-			if (this.nestedScrollingChildHelper != null) {
-				this.nestedScrollingChildHelper.setNestedScrollingEnabled(enabled);
-			} else {
-				super.setNestedScrollingEnabled(enabled);
-			}
-		}
-
-		@Override
-		public boolean startNestedScroll(int axes)
-		{
-			if (this.nestedScrollingChildHelper != null) {
-				return this.nestedScrollingChildHelper.startNestedScroll(axes);
-			}
-			return super.startNestedScroll(axes);
-		}
-
-		@Override
-		public void stopNestedScroll()
-		{
-			if (this.nestedScrollingChildHelper != null) {
-				this.nestedScrollingChildHelper.stopNestedScroll();
-			} else {
-				super.stopNestedScroll();
-			}
-		}
 	}
 
 	public TiUIScrollView(TiViewProxy proxy)
@@ -779,22 +688,38 @@ public class TiUIScrollView extends TiUIView
 		super.release();
 	}
 
+	/**
+	 * Set content offset from pixels.
+	 *
+	 * @param x x-offset in pixels.
+	 * @param y y-offset in pixels.
+	 */
 	public void setContentOffset(int x, int y)
 	{
 		KrollDict offset = new KrollDict();
-		offsetX = x;
-		offsetY = y;
-		offset.put(TiC.EVENT_PROPERTY_X, offsetX);
-		offset.put(TiC.EVENT_PROPERTY_Y, offsetY);
+		offsetX = new TiDimension(x, TiDimension.TYPE_LEFT);
+		offsetY = new TiDimension(y, TiDimension.TYPE_TOP);
+		offset.put(TiC.EVENT_PROPERTY_X, offsetX.getAsDefault(scrollView));
+		offset.put(TiC.EVENT_PROPERTY_Y, offsetY.getAsDefault(scrollView));
 		getProxy().setProperty(TiC.PROPERTY_CONTENT_OFFSET, offset);
 	}
 
+	/**
+	 * Set content offset from dictionary.
+	 *
+	 * @param hashMap Dictionary containing x and y offsets.
+	 */
 	public void setContentOffset(Object hashMap)
 	{
 		if (hashMap instanceof HashMap) {
-			HashMap contentOffset = (HashMap) hashMap;
-			offsetX = TiConvert.toInt(contentOffset, TiC.PROPERTY_X);
-			offsetY = TiConvert.toInt(contentOffset, TiC.PROPERTY_Y);
+			KrollDict contentOffset = new KrollDict((HashMap) hashMap);
+
+			if (contentOffset.containsKeyAndNotNull(TiC.PROPERTY_X)) {
+				offsetX = TiConvert.toTiDimension(contentOffset, TiC.PROPERTY_X, TiDimension.TYPE_LEFT);
+			}
+			if (contentOffset.containsKeyAndNotNull(TiC.PROPERTY_Y)) {
+				offsetY = TiConvert.toTiDimension(contentOffset, TiC.PROPERTY_Y, TiDimension.TYPE_TOP);
+			}
 		} else {
 			Log.e(TAG, "ContentOffset must be an instance of HashMap");
 		}
@@ -809,7 +734,7 @@ public class TiUIScrollView extends TiUIView
 
 		if (key.equals(TiC.PROPERTY_CONTENT_OFFSET)) {
 			setContentOffset(newValue);
-			scrollTo(offsetX, offsetY, false);
+			scrollTo((int) offsetX.getAsDefault(scrollView), (int) offsetY.getAsDefault(scrollView), false);
 		} else if (key.equals(TiC.PROPERTY_CAN_CANCEL_EVENTS)) {
 			View view = this.scrollView;
 			boolean canCancelEvents = TiConvert.toBoolean(newValue);
@@ -946,10 +871,8 @@ public class TiUIScrollView extends TiUIView
 		scrollViewLayout.setEnableHorizontalWrap(wrap);
 
 		if (d.containsKey(TiC.PROPERTY_OVER_SCROLL_MODE)) {
-			if (Build.VERSION.SDK_INT >= 9) {
-				this.scrollView.setOverScrollMode(
-					TiConvert.toInt(d.get(TiC.PROPERTY_OVER_SCROLL_MODE), View.OVER_SCROLL_ALWAYS));
-			}
+			this.scrollView.setOverScrollMode(
+				TiConvert.toInt(d.get(TiC.PROPERTY_OVER_SCROLL_MODE), View.OVER_SCROLL_ALWAYS));
 		}
 
 		// Set up the swipe refresh layout container which wraps the scroll view.
@@ -1015,6 +938,12 @@ public class TiUIScrollView extends TiUIView
 			return ((TiHorizontalScrollView) nativeView).layout;
 		}
 		return null;
+	}
+
+	@Override
+	public View getNativeContentView()
+	{
+		return getLayout();
 	}
 
 	public void setScrollingEnabled(Object value)

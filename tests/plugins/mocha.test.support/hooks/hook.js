@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 by Axway, Inc.
+ * Copyright TiDev, Inc. 04/07/2022-Present
  * All Rights Reserved. This library contains intellectual
  * property protected by patents and/or patents pending.
  */
@@ -22,10 +22,11 @@ exports.init = (logger, config, cli) => {
 		ANDROID_SDK = cli.argv['android-sdk'];
 	}
 
-	// Set ADB path
-	ADB_PATH = path.join(ANDROID_SDK, 'platform-tools', 'adb');
-
 	cli.on('build.pre.compile', async (builder, done) => {
+		if (builder.platformName === 'android') {
+			// Set ADB path
+			ADB_PATH = path.join(ANDROID_SDK, 'platform-tools', 'adb');
+		}
 		builder.tiapp.properties['Ti.version'] = { type: 'string', value: builder.titaniumSdkVersion };
 		builder.tiapp.properties['js.encrypted'] = { type: 'bool', value: builder.encryptJS };
 		done();
@@ -37,6 +38,28 @@ exports.init = (logger, config, cli) => {
 				.catch(e => logger.warn(`Could not wake ${builder.deviceId}: ${e}`));
 			await enableAutoRotation(logger, builder)
 				.catch(e => logger.warn(`Could not enable auto-rotation ${builder.deviceId}: ${e}`));
+		}
+		done();
+	});
+
+	cli.on('build.post.install', async (builder, done) => {
+		try {
+			if (builder.platformName === 'android') {
+				// Grand all needed permissions on the Android device.
+				await grantAndroidPermissions(logger, builder);
+
+			} else if ((builder.platformName === 'iphone') && (cli.argv.target === 'simulator')) {
+				// Forcibly set location for the simulator
+				await setSimulatorLocation('-c', '37.7765', '-122.3918');
+
+				// Grant all needed permissions on the iOS simulator.
+				await xcrun([ 'simctl', 'privacy', builder.simHandle.udid, 'grant', 'all', builder.tiapp.id ]);
+
+				// Re-launch app in case granting permissions forced-quit it.
+				await xcrun([ 'simctl', 'launch', builder.simHandle.udid, builder.tiapp.id ]);
+			}
+		} catch (err) {
+			logger.warn(`Could not grant permissions to ${builder.deviceId}: ${err}`);
 		}
 		done();
 	});
@@ -85,6 +108,58 @@ async function adb(args) {
 	});
 }
 
+async function setSimulatorLocation(...args) {
+	return new Promise((resolve, reject) => {
+		const child = spawn(path.join(__dirname, 'set-simulator-location'), args, { shell: true });
+		if (child) {
+			let stdout = '';
+			let stderr = '';
+			child.stdout.on('data', data => {
+				stdout += data.toString();
+			});
+			child.stderr.on('data', data => {
+				stderr += data.toString();
+			});
+			child.on('close', code => {
+				if (code === 0) {
+					console.log(stdout);
+					resolve(stdout);
+				} else {
+					console.error(stderr);
+					reject(`${stdout}\n${stderr}`);
+				}
+			});
+		} else {
+			reject();
+		}
+	});
+}
+
+async function xcrun(args) {
+	return new Promise((resolve, reject) => {
+		const child = spawn('xcrun', args, { shell: true });
+		if (child) {
+			let stdout = '';
+			let stderr = '';
+			child.stdout.on('data', data => {
+				stdout += data.toString();
+			});
+			child.stderr.on('data', data => {
+				stderr += data.toString();
+			});
+			child.on('close', code => {
+				if (code === 0) {
+					resolve(stdout);
+				} else {
+					reject(`${stdout}\n${stderr}`);
+				}
+			});
+		} else {
+			reject();
+		}
+	});
+}
+
 async function wakeDevices(logger, builder) {
 
 	async function wake(device) {
@@ -109,9 +184,9 @@ async function wakeDevices(logger, builder) {
 		await adb([ ...deviceId, 'shell', 'settings', 'put', 'system', 'screen_off_timeout', '1800000' ]);
 	}
 
+	//  Write out the listing of devices to disk so test suite can grab mapping/details
+	await fs.writeJSON(path.join(builder.projectDir, 'android-devices.json'), builder.devices);
 	if (builder.deviceId === 'all') {
-		//  Write out the listing of devices to disk so test suite can grab mapping/details
-		await fs.writeJSON(path.join(builder.projectDir, 'android-devices.json'), builder.devices);
 		for (const device of builder.devices) {
 			if (device.id !== 'all') {
 				await wake(device.id);
@@ -144,5 +219,26 @@ async function enableAutoRotation(logger, builder) {
 		}
 	} else {
 		await autoRotate(builder.deviceId);
+	}
+}
+
+async function grantAndroidPermissions(logger, builder) {
+
+	async function grantPermissionTo(device) {
+		const deviceId = builder.target !== 'emulator' ? [ '-s', device ] : [];
+		const args = [ ...deviceId, 'shell', 'pm', 'grant', builder.tiapp.id ];
+		await adb(args.concat('android.permission.ACCESS_COARSE_LOCATION'));
+		await adb(args.concat('android.permission.ACCESS_FINE_LOCATION'));
+		await adb(args.concat('android.permission.RECORD_AUDIO'));
+	}
+
+	if (builder.deviceId === 'all') {
+		for (const device of builder.devices) {
+			if (device.id !== 'all') {
+				await grantPermissionTo(device.id);
+			}
+		}
+	} else {
+		await grantPermissionTo(builder.deviceId);
 	}
 }

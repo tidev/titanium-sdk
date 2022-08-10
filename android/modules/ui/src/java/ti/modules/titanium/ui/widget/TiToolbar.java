@@ -4,14 +4,11 @@ import android.app.Activity;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.Rect;
-import android.os.Build;
 
-import androidx.appcompat.widget.Toolbar;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowInsets;
-import android.view.WindowManager;
-
+import com.google.android.material.appbar.MaterialToolbar;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.TiApplication;
@@ -20,6 +17,7 @@ import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiColorHelper;
+import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiDrawableReference;
 import org.appcelerator.titanium.view.TiToolbarStyleHandler;
@@ -32,7 +30,7 @@ public class TiToolbar extends TiUIView
 	private final int BACKGROUND_SOLID_VALUE = 255;
 	//endregion
 	//region private Object fields
-	private Toolbar toolbar;
+	private MaterialToolbar toolbar;
 	private Object logo = null;
 	private Object navigationIcon = null;
 	private Object overflowMenuIcon = null;
@@ -42,12 +40,11 @@ public class TiToolbar extends TiUIView
 	/**
 	 * Constructs a TiUIView object with the associated proxy.
 	 * @param proxy the associated proxy.
-	 * @module.api
 	 */
 	public TiToolbar(TiViewProxy proxy)
 	{
 		super(proxy);
-		toolbar = new Toolbar(proxy.getActivity()) {
+		toolbar = new MaterialToolbar(proxy.getActivity()) {
 			@Override
 			protected void onConfigurationChanged(Configuration newConfig)
 			{
@@ -131,7 +128,7 @@ public class TiToolbar extends TiUIView
 	 */
 	public void setToolbarColor(String color)
 	{
-		toolbar.setBackgroundColor((TiColorHelper.parseColor(color)));
+		toolbar.setBackgroundColor((TiColorHelper.parseColor(color, proxy.getActivity())));
 		if (proxy.hasProperty(TiC.PROPERTY_TRANSLUCENT)) {
 			if ((Boolean) proxy.getProperty(TiC.PROPERTY_TRANSLUCENT)) {
 				toolbar.getBackground().setAlpha(BACKGROUND_TRANSLUCENT_VALUE);
@@ -146,11 +143,6 @@ public class TiToolbar extends TiUIView
 	 */
 	public void setToolbarExtendBackground()
 	{
-		// This feature is only supported on Android 4.4 or higher.
-		if (Build.VERSION.SDK_INT < 19) {
-			return;
-		}
-
 		// Fetch the currently displayed activity window and its root decor view.
 		// Note: Will be null if all activities have just been destroyed.
 		Activity activity = TiApplication.getAppCurrentActivity();
@@ -183,11 +175,7 @@ public class TiToolbar extends TiUIView
 		int flags = decorView.getSystemUiVisibility();
 		flags |= View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN;
 		decorView.setSystemUiVisibility(flags);
-		if (Build.VERSION.SDK_INT >= 21) {
-			window.setStatusBarColor(Color.TRANSPARENT);
-		} else {
-			window.addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-		}
+		window.setStatusBarColor(Color.TRANSPARENT);
 
 		// Request window to re-fit its views.
 		toolbar.requestFitSystemWindows();
@@ -207,17 +195,23 @@ public class TiToolbar extends TiUIView
 	 * Changes the LayoutParams type of custom views added to the Toolbar.
 	 * Width and height are preserved.
 	 * They need to be of type Toolbar.LayoutParams.
-	 * @param source
-	 * @return
+	 * @param source The view to be changed.
+	 * @return Returns given TiUIView's native view with layout changes applied to it.
 	 */
 	private View convertLayoutParamsForView(TiUIView source)
 	{
 		View res = source.getNativeView();
+		int width = MaterialToolbar.LayoutParams.WRAP_CONTENT;
 		TiDimension widthDimension = source.getLayoutParams().optionWidth;
-		int width = widthDimension != null ? widthDimension.getAsPixels(toolbar) : Toolbar.LayoutParams.WRAP_CONTENT;
+		if (widthDimension != null) {
+			width = widthDimension.getAsPixels(toolbar);
+		}
+		int height = MaterialToolbar.LayoutParams.WRAP_CONTENT;
 		TiDimension heightDimension = source.getLayoutParams().optionHeight;
-		int height = heightDimension != null ? heightDimension.getAsPixels(toolbar) : Toolbar.LayoutParams.WRAP_CONTENT;
-		res.setLayoutParams(new Toolbar.LayoutParams(width, height));
+		if (heightDimension != null) {
+			height = heightDimension.getAsPixels(toolbar);
+		}
+		res.setLayoutParams(new MaterialToolbar.LayoutParams(width, height));
 		return res;
 	}
 
@@ -226,7 +220,7 @@ public class TiToolbar extends TiUIView
 	 */
 	public void showOverFlowMenu()
 	{
-		((Toolbar) getNativeView()).showOverflowMenu();
+		((MaterialToolbar) getNativeView()).showOverflowMenu();
 	}
 
 	/**
@@ -234,7 +228,7 @@ public class TiToolbar extends TiUIView
 	 */
 	public void hideOverFlowMenu()
 	{
-		((Toolbar) getNativeView()).hideOverflowMenu();
+		((MaterialToolbar) getNativeView()).hideOverflowMenu();
 	}
 
 	/**
@@ -245,12 +239,12 @@ public class TiToolbar extends TiUIView
 	{
 		logo = object;
 		TiDrawableReference tiDrawableReference = TiDrawableReference.fromObject(proxy, object);
-		((Toolbar) getNativeView()).setLogo(tiDrawableReference.getDrawable());
+		((MaterialToolbar) getNativeView()).setLogo(tiDrawableReference.getDrawable());
 	}
 
 	/**
 	 * Return the current logo in the format it was passed
-	 * @return
+	 * @return Returns the currently assigned logo.
 	 */
 	public Object getLogo()
 	{
@@ -263,14 +257,20 @@ public class TiToolbar extends TiUIView
 	 */
 	public void setNavigationIcon(Object object)
 	{
-		navigationIcon = object;
-		TiDrawableReference tiDrawableReference = TiDrawableReference.fromObject(proxy, object);
-		((Toolbar) getNativeView()).setNavigationIcon(tiDrawableReference.getDrawable());
+		this.navigationIcon = object;
+		if (object instanceof Number) {
+			this.toolbar.setNavigationIcon(TiConvert.toInt(object));
+		} else if (object != null) {
+			TiDrawableReference tiDrawableReference = TiDrawableReference.fromObject(proxy, object);
+			this.toolbar.setNavigationIcon(tiDrawableReference.getDrawable());
+		} else {
+			this.toolbar.setNavigationIcon(null);
+		}
 	}
 
 	/**
 	 * Returns the currently set navigation icon in the format it was set.
-	 * @return
+	 * @return Returns the currently assigned icon.
 	 */
 	public Object getNavigationIcon()
 	{
@@ -283,14 +283,18 @@ public class TiToolbar extends TiUIView
 	 */
 	public void setOverflowMenuIcon(Object object)
 	{
-		overflowMenuIcon = object;
-		TiDrawableReference tiDrawableReference = TiDrawableReference.fromObject(proxy, object);
-		((Toolbar) getNativeView()).setOverflowIcon(tiDrawableReference.getDrawable());
+		this.overflowMenuIcon = object;
+		if (object != null) {
+			TiDrawableReference tiDrawableReference = TiDrawableReference.fromObject(proxy, object);
+			this.toolbar.setOverflowIcon(tiDrawableReference.getDrawable());
+		} else {
+			this.toolbar.setOverflowIcon(null);
+		}
 	}
 
 	/**
 	 * Returns the overflow menu icon in the format it was set.
-	 * @return
+	 * @return Returns the menu icon to be shown on the right side of the toolbar.
 	 */
 	public Object getOverflowMenuIcon()
 	{
@@ -302,7 +306,7 @@ public class TiToolbar extends TiUIView
 	 */
 	public void dismissPopupMenus()
 	{
-		((Toolbar) getNativeView()).dismissPopupMenus();
+		((MaterialToolbar) getNativeView()).dismissPopupMenus();
 	}
 
 	/**
@@ -320,7 +324,7 @@ public class TiToolbar extends TiUIView
 	 */
 	private void setTitleTextColor(String value)
 	{
-		toolbar.setTitleTextColor(TiColorHelper.parseColor(value));
+		toolbar.setTitleTextColor(TiColorHelper.parseColor(value, proxy.getActivity()));
 	}
 
 	/**
@@ -338,13 +342,13 @@ public class TiToolbar extends TiUIView
 	 */
 	private void setSubtitleTextColor(String value)
 	{
-		toolbar.setSubtitleTextColor(TiColorHelper.parseColor(value));
+		toolbar.setSubtitleTextColor(TiColorHelper.parseColor(value, proxy.getActivity()));
 	}
 
 	/**
 	 * Saves the proxy objects of the views passed as custom items.
 	 * Sets them as current custom views.
-	 * @param value
+	 * @param value Array of view proxies to be shown in the toolbar.
 	 */
 	private void setViewProxiesArray(Object[] value)
 	{

@@ -33,7 +33,7 @@ description: |
     Starting in Titanium SDK 7.3.0, this API exposes all Android related R classes
     for the usage in Hyperloop. For example, it can be used to access `menu` resources
     as part of native user interfaces, e.g. `BottomNavigationView` or `RecyclerView`.
-    See an example in the [Hyperloop Sample App](https://github.com/appcelerator/hyperloop-examples) for details! 
+    See an example in the [Hyperloop Sample App](https://github.com/tidev/hyperloop-examples) for details! 
 
 extends: Titanium.Proxy
 platforms: [android]
@@ -150,6 +150,7 @@ properties:
     accessors: false
     permission: read-only
     since: "7.3.0"
+    osver: {android: {min: "3.0"}}
 
   - name: layout
     summary: |
@@ -236,6 +237,7 @@ properties:
     accessors: false
     permission: read-only
     since: "7.3.0"
+    osver: {android: {min: "5.0"}}
 
   - name: xml
     summary: |

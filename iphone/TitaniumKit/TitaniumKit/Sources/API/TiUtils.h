@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2014 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -867,5 +867,13 @@ typedef enum {
 + (BOOL)isHyperloopAvailable;
 
 + (BOOL)isMacOS;
+
+/**
+ Maps a string-based symbol weight (e.g. for SFSymbols) to a native symbol weight.
+
+ @param string The raw string to map.
+ @return The mapped symbol weight.
+ */
++ (UIImageSymbolWeight)symbolWeightFromString:(NSString *)string NS_AVAILABLE_IOS(13_0);
 
 @end

@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -181,7 +181,9 @@ NSArray *moviePlayerKeys = nil;
 {
   [super windowWillClose];
   [[movie player] pause];
-  [(TiMediaVideoPlayer *)self.view setMovie:nil];
+  if ([self viewAttached]) {
+    [(TiMediaVideoPlayer *)self.view setMovie:nil];
+  }
 }
 
 #pragma mark Public APIs
@@ -446,12 +448,20 @@ NSArray *moviePlayerKeys = nil;
 
 - (NSNumber *)pictureInPictureEnabled
 {
-  return @([movie allowsPictureInPicturePlayback]);
+  if (movie) {
+    return @(movie.allowsPictureInPicturePlayback);
+  } else {
+    RETURN_FROM_LOAD_PROPERTIES(@"pictureInPictureEnabled", @YES);
+  }
 }
 
 - (void)setPictureInPictureEnabled:(NSNumber *)value
 {
-  [movie setAllowsPictureInPicturePlayback:[TiUtils boolValue:value]];
+  if (movie) {
+    movie.allowsPictureInPicturePlayback = [TiUtils boolValue:value def:YES];
+  } else {
+    [loadProperties setValue:value forKey:@"pictureInPictureEnabled"];
+  }
 }
 
 - (NSNumber *)showsControls
@@ -482,30 +492,6 @@ NSArray *moviePlayerKeys = nil;
         [imageGenerator cancelAllCGImageGeneration];
       },
       NO);
-}
-
-- (TiBlob *)thumbnailImageAtTime:(id)args
-{
-  ENSURE_ARG_COUNT(args, 1);
-
-  CGFloat seconds = [TiUtils floatValue:@"time" properties:[args objectAtIndex:0] def:0.0];
-
-  if (seconds == 0.0) {
-    NSLog(@"[ERROR] Please provide a valid \"time\" argument to generate a thumbnail.");
-    return nil;
-  }
-
-  AVPlayerLayer *layer = [AVPlayerLayer playerLayerWithPlayer:[movie player]];
-  CGSize layerSize = CGSizeMake(layer.videoRect.size.width, layer.videoRect.size.height);
-
-  UIImage *screenshot = [self takeScreenshotFromPlayer:layerSize andSpecifiedTime:CMTimeMakeWithSeconds(seconds, 1)];
-
-  if (screenshot == nil) {
-    NSLog(@"[ERROR] The thumbnail could not be generated! Please make sure the player is initialized.");
-    return nil;
-  }
-
-  return [[[TiBlob alloc] initWithImage:screenshot] autorelease];
 }
 
 - (void)setInitialPlaybackTime:(id)time
@@ -663,17 +649,6 @@ NSArray *moviePlayerKeys = nil;
   } else {
     return AVMediaTypeVideo;
   }
-}
-
-- (NSNumber *)sourceType
-{
-  DEPRECATED_REMOVED(@"Media.VideoPlayer.sourceType", @"7.0.0", @"7.0.0");
-  return NUMINT(-1);
-}
-
-- (void)setSourceType:(id)type
-{
-  DEPRECATED_REMOVED(@"Media.VideoPlayer.sourceType", @"7.0.0", @"7.0.0");
 }
 
 - (NSNumber *)playbackState
@@ -842,7 +817,7 @@ NSArray *moviePlayerKeys = nil;
   _playbackState = TiVideoPlayerPlaybackStateInterrupted;
 
   if ([self _hasListeners:@"error"]) {
-    NSDictionary *event = [NSDictionary dictionaryWithObject:[error localizedDescription] forKey:@"error"];
+    NSDictionary *event = [TiUtils dictionaryWithCode:[error code] message:[TiUtils messageFromError:error]];
     [self fireEvent:@"error" withObject:event];
   }
 }

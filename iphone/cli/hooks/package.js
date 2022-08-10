@@ -253,18 +253,16 @@ exports.init = function (logger, config, cli) {
 
 		fs.writeFileSync(exportsOptionsPlistFile, exportsOptions.toString('xml'));
 
-		// construct the command
-		const cmd = [
-			builder.xcodeEnv.executables.xcodebuild,
+		const args = [
 			'-exportArchive',
-			'-archivePath', '"' + stagingArchiveDir + '"',
-			'-exportPath', '"' + outputDir + '"',
-			'-exportOptionsPlist', '"' + exportsOptionsPlistFile + '"'
-		].join(' ');
+			'-archivePath', stagingArchiveDir,
+			'-exportPath', outputDir,
+			'-exportOptionsPlist', exportsOptionsPlistFile
+		];
 
 		// execute!
-		logger.debug(__('Running: %s', cmd.cyan));
-		exec(cmd, function (err, stdout, stderr) {
+		logger.debug(__('Running: %s %s', builder.xcodeEnv.executables.xcodebuild.cyan, args.join(' ').cyan));
+		appc.subprocess.run(builder.xcodeEnv.executables.xcodebuild, args, function (err, stdout, stderr) {
 			if (err) {
 				const output = stderr.trim();
 				output.split('\n').forEach(logger.trace);

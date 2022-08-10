@@ -1,12 +1,14 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2013 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 
 #import "TiViewProxy.h"
 #import <Foundation/Foundation.h>
+
+@class KrollPromise;
 
 /**
  Protocol for orientation controller.
@@ -24,8 +26,8 @@
  */
 @protocol TiWindowProtocol <TiOrientationController>
 
-- (void)open:(id)args;
-- (void)close:(id)args;
+- (KrollPromise *)open:(id)args;
+- (KrollPromise *)close:(id)args;
 - (BOOL)_handleOpen:(id)args;
 - (BOOL)_handleClose:(id)args;
 - (BOOL)opening;

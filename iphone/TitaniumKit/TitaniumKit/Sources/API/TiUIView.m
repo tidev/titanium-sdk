@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2018 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -329,6 +329,31 @@ DEFINE_EXCEPTIONS
 - (id)accessibilityElement
 {
   return self;
+}
+
+- (void)traitCollectionDidChange:(UITraitCollection *)previousTraitCollection
+{
+  [super traitCollectionDidChange:previousTraitCollection];
+
+  // Redraw the border color
+  id borderColor = [self.proxy valueForKey:@"borderColor"];
+  if (borderColor != nil) {
+    [self setBorderColor_:borderColor];
+  }
+
+  // Redraw the view shadow color
+  id viewShadowColor = [self.proxy valueForKey:@"viewShadowColor"];
+  if (viewShadowColor != nil) {
+    [self setViewShadowColor_:viewShadowColor];
+  }
+
+  // Redraw the background gradient
+  TiGradient *backgroundGradient = [self.proxy valueForKey:@"backgroundGradient"];
+  if (backgroundGradient != nil) {
+    [backgroundGradient clearCache];
+    [backgroundGradient setColors:[backgroundGradient valueForKey:@"colors"]];
+    [self setBackgroundGradient_:backgroundGradient];
+  }
 }
 
 #pragma mark - Accessibility API
@@ -930,7 +955,7 @@ DEFINE_EXCEPTIONS
 
 /**
  This section of code for shadow support adapted from contributions by Martin Guillon
- See https://github.com/appcelerator/titanium_mobile/pull/2996
+ See https://github.com/tidev/titanium_mobile/pull/2996
  */
 - (void)assignShadowPropertyFromLayer:(CALayer *)fromLayer toLayer:(CALayer *)toLayer
 {
@@ -984,7 +1009,9 @@ DEFINE_EXCEPTIONS
 - (void)setViewShadowRadius_:(id)arg
 {
   [[self proxy] replaceValue:arg forKey:@"viewShadowRadius" notification:NO];
-  [[self shadowLayer] setShadowRadius:[TiUtils floatValue:arg def:0.0]];
+
+  TiDimension radiusDimension = [TiUtils dimensionValue:arg];
+  [[self shadowLayer] setShadowRadius:radiusDimension.value];
 }
 
 - (void)setViewShadowColor_:(id)arg

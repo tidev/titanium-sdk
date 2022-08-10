@@ -1,19 +1,20 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2018 by Axway, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 package org.appcelerator.titanium;
 
 import java.lang.ref.WeakReference;
+import java.util.HashMap;
 import java.util.Iterator;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.KrollObject;
+import org.appcelerator.kroll.KrollPromise;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.KrollRuntime;
 import org.appcelerator.kroll.common.Log;
@@ -36,7 +37,6 @@ import org.appcelerator.titanium.util.TiActivitySupportHelper;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiLocaleManager;
 import org.appcelerator.titanium.util.TiMenuSupport;
-import org.appcelerator.titanium.util.TiPlatformHelper;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.util.TiWeakList;
 import org.appcelerator.titanium.view.TiActionBarStyleHandler;
@@ -62,7 +62,10 @@ import android.os.Message;
 import android.os.Messenger;
 import android.os.PowerManager;
 import android.os.RemoteException;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
 
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -83,53 +86,33 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 	private boolean onDestroyFired = false;
 	private int originalOrientationMode = -1;
 	private boolean inForeground = false; // Indicates whether this activity is in foreground or not.
-	private TiWeakList<OnLifecycleEvent> lifecycleListeners = new TiWeakList<OnLifecycleEvent>();
-	private TiWeakList<OnWindowFocusChangedEvent> windowFocusChangedListeners =
-		new TiWeakList<OnWindowFocusChangedEvent>();
-	private TiWeakList<interceptOnBackPressedEvent> interceptOnBackPressedListeners =
-		new TiWeakList<interceptOnBackPressedEvent>();
-	private TiWeakList<OnInstanceStateEvent> instanceStateListeners = new TiWeakList<OnInstanceStateEvent>();
-	private TiWeakList<OnActivityResultEvent> onActivityResultListeners = new TiWeakList<OnActivityResultEvent>();
-	private TiWeakList<OnCreateOptionsMenuEvent> onCreateOptionsMenuListeners =
-		new TiWeakList<OnCreateOptionsMenuEvent>();
-	private TiWeakList<OnPrepareOptionsMenuEvent> onPrepareOptionsMenuListeners =
-		new TiWeakList<OnPrepareOptionsMenuEvent>();
+	private final TiWeakList<OnLifecycleEvent> lifecycleListeners = new TiWeakList<>();
+	private final TiWeakList<OnWindowFocusChangedEvent> windowFocusChangedListeners = new TiWeakList<>();
+	private final TiWeakList<interceptOnBackPressedEvent> interceptOnBackPressedListeners = new TiWeakList<>();
+	private final TiWeakList<OnInstanceStateEvent> instanceStateListeners = new TiWeakList<>();
+	private final TiWeakList<OnActivityResultEvent> onActivityResultListeners = new TiWeakList<>();
+	private final TiWeakList<OnCreateOptionsMenuEvent> onCreateOptionsMenuListeners = new TiWeakList<>();
+	private final TiWeakList<OnPrepareOptionsMenuEvent> onPrepareOptionsMenuListeners = new TiWeakList<>();
 	private boolean sustainMode = false;
+	private int lastUIModeFlags = 0;
+	private int lastNightMode = AppCompatDelegate.MODE_NIGHT_UNSPECIFIED;
 	private Intent launchIntent = null;
 	private TiActionBarStyleHandler actionBarStyleHandler;
 	private TiActivitySafeAreaMonitor safeAreaMonitor;
-
-	public static class PermissionContextData
-	{
-		private final Integer requestCode;
-		private final KrollObject context;
-		private final KrollFunction callback;
-
-		public PermissionContextData(Integer requestCode, KrollFunction callback, KrollObject context)
-		{
-			this.requestCode = requestCode;
-			this.callback = callback;
-			this.context = context;
-		}
-
-		public Integer getRequestCode()
-		{
-			return requestCode;
-		}
-
-		public KrollFunction getCallback()
-		{
-			return callback;
-		}
-
-		public KrollObject getContext()
-		{
-			return context;
-		}
+	private Context baseContext;
+	/**
+	 * Callback to be invoked when the TiBaseActivity.onRequestPermissionsResult() has been called,
+	 * providing the results of a requestPermissions() call. Instances of this interface are to
+	 * be passed to the TiBaseActivity.registerPermissionRequestCallback() method.
+	 */
+	public interface OnRequestPermissionsResultCallback {
+		void onRequestPermissionsResult(
+			@NonNull TiBaseActivity activity, int requestCode,
+			@NonNull String[] permissions, @NonNull int[] grantResults);
 	}
 
-	private static ConcurrentHashMap<Integer, PermissionContextData> callbackDataByPermission =
-		new ConcurrentHashMap<Integer, PermissionContextData>();
+	private static final HashMap<Integer, TiBaseActivity.OnRequestPermissionsResultCallback>
+		permissionsResultCallbackMap = new HashMap<>();
 
 	protected View layout;
 	protected TiActivitySupportHelper supportHelper;
@@ -137,14 +120,13 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 	protected TiWindowProxy window;
 	protected TiViewProxy view;
 	protected ActivityProxy activityProxy;
-	protected TiWeakList<ConfigurationChangedListener> configChangedListeners =
-		new TiWeakList<ConfigurationChangedListener>();
+	protected TiWeakList<ConfigurationChangedListener> configChangedListeners = new TiWeakList<>();
 	protected TiMenuSupport menuHelper;
 	protected Messenger messenger;
 	protected int msgActivityCreatedId = -1;
 	protected int msgId = -1;
 	//Storing the activity's dialogs and their persistence
-	private CopyOnWriteArrayList<DialogWrapper> dialogs = new CopyOnWriteArrayList<DialogWrapper>();
+	private final CopyOnWriteArrayList<DialogWrapper> dialogs = new CopyOnWriteArrayList<>();
 
 	public TiWindowProxy lwWindow;
 	public boolean isResumed = false;
@@ -230,7 +212,7 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 
 	/**
 	 * Sets the window proxy.
-	 * @param proxy
+	 * @param proxy The proxy to be assigned to this activity.
 	 */
 	public void setWindowProxy(TiWindowProxy proxy)
 	{
@@ -240,7 +222,7 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 	/**
 	 * Sets the proxy for our layout (used for post layout event)
 	 *
-	 * @param proxy
+	 * @param proxy The proxy to be assigned to activity's root view.
 	 */
 	public void setLayoutProxy(TiViewProxy proxy)
 	{
@@ -251,7 +233,7 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 
 	/**
 	 * Sets the view proxy.
-	 * @param proxy
+	 * @param proxy Proxy to be used as root decor view.
 	 */
 	public void setViewProxy(TiViewProxy proxy)
 	{
@@ -304,7 +286,7 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 
 	public void addConfigurationChangedListener(ConfigurationChangedListener listener)
 	{
-		configChangedListeners.add(new WeakReference<ConfigurationChangedListener>(listener));
+		configChangedListeners.add(new WeakReference<>(listener));
 	}
 
 	public void removeConfigurationChangedListener(ConfigurationChangedListener listener)
@@ -401,65 +383,118 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 	}
 
 	@Override
-	public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults)
+	public void onRequestPermissionsResult(
+		int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults)
 	{
-		if (!callbackDataByPermission.isEmpty()) {
-			handlePermissionRequestResult(requestCode, permissions, grantResults);
-		}
-	}
-
-	private void handlePermissionRequestResult(Integer requestCode, String[] permissions, int[] grantResults)
-	{
-		PermissionContextData cbd = callbackDataByPermission.get(requestCode);
-		if (cbd == null) {
-			return;
-		}
-
-		String deniedPermissions = "";
-		for (int i = 0; i < grantResults.length; ++i) {
-			if (grantResults[i] == PackageManager.PERMISSION_DENIED) {
-				if (deniedPermissions.isEmpty()) {
-					deniedPermissions = permissions[i];
-				} else {
-					deniedPermissions = deniedPermissions + ", " + permissions[i];
-				}
-			}
-		}
-
-		KrollDict response = new KrollDict();
-
-		if (deniedPermissions.isEmpty()) {
-			response.putCodeAndMessage(0, null);
-		} else {
-			response.putCodeAndMessage(-1, "Permission(s) denied: " + deniedPermissions);
-		}
-
-		KrollFunction callback = cbd.getCallback();
+		OnRequestPermissionsResultCallback callback = permissionsResultCallbackMap.get(requestCode);
 		if (callback != null) {
-			KrollObject context = cbd.getContext();
-			if (context == null) {
-				Log.w(TAG, "Permission callback context object is null");
-			}
-			callback.callAsync(context, response);
-		} else {
-			Log.w(TAG, "Permission callback function has not been set");
+			callback.onRequestPermissionsResult(this, requestCode, permissions, grantResults);
 		}
 	}
 
 	/**
-	 * register permission request result callback for activity
-	 *
-	 * @param requestCode request code (8 Bit) to associate callback with request
-	 * @param callback callback function which receives a KrollDict with success,
-	 *                 code, optional message and requestCode
-	 * @param context KrollObject as required by async callback pattern
+	 * Removes the global callback assigned via the registerPermissionRequestCallback() method.
+	 * @param requestCode The unique integer ID associated with the callback.
+	 * @return Returns true if callback was removed. Returns false if callback for given request code was not found.
 	 */
-	public static void registerPermissionRequestCallback(Integer requestCode, KrollFunction callback,
-														 KrollObject context)
+	public static boolean unregisterPermissionRequestCallback(int requestCode)
 	{
-		if (callback != null && context != null) {
-			callbackDataByPermission.put(requestCode, new PermissionContextData(requestCode, callback, context));
+		return (permissionsResultCallbackMap.remove(requestCode) != null);
+	}
+
+	/**
+	 * Registers a global callback to be invoked when onRequestPermissionsResult() is called for the given
+	 * request code. Indicates if permissions were granted from a requestPermissions() method call.
+	 * <p>
+	 * The registered callback can be removed via the TiBaseActivity.unregisterPermissionRequestCallback() method.
+	 * @param requestCode Unique 8-bit integer ID to be used by the requestPermissions() method.
+	 * @param callback Callback to be invoked when the activity's onRequestPermissionsResult() method has been called.
+	 */
+	public static void registerPermissionRequestCallback(
+		int requestCode, @NonNull TiBaseActivity.OnRequestPermissionsResultCallback callback)
+	{
+		if (callback != null) {
+			permissionsResultCallbackMap.put(requestCode, callback);
 		}
+	}
+
+	/**
+	 * Registers a global KrollCallback to be invoked when onRequestPermissionsResult() is called for the given
+	 * request code. Indicates if permissions were granted from a requestPermissions() method call.
+	 * <p>
+	 * The registered callback can be removed via the TiBaseActivity.unregisterPermissionRequestCallback() method.
+	 * @param requestCode Unique 8-bit integer ID to be used by the requestPermissions() method.
+	 * @param callback
+	 * Callback to be invoked with KrollDict properties "success", "code", and an optional "message". Can be null.
+	 * @param context KrollObject providing the JavaScript context needed to invoke a JS callback.
+	 */
+	public static void registerPermissionRequestCallback(
+		Integer requestCode, final KrollFunction callback, final KrollObject context)
+	{
+		TiBaseActivity.registerPermissionRequestCallback(requestCode, callback, context, null);
+	}
+
+	/**
+	 * Registers a global KrollCallback to be invoked when onRequestPermissionsResult() is called for the given
+	 * request code. Indicates if permissions were granted from a requestPermissions() method call.
+	 * <p>
+	 * The registered callback can be removed via the TiBaseActivity.unregisterPermissionRequestCallback() method.
+	 * @param requestCode Unique 8-bit integer ID to be used by the requestPermissions() method.
+	 * @param callback
+	 * Callback to be invoked with KrollDict properties "success", "code", and an optional "message". Can be null.
+	 * @param context KrollObject providing the JavaScript context needed to invoke a JS callback.
+	 * @param promise Promise to be invoked. Can be null.
+	 */
+	public static void registerPermissionRequestCallback(
+		Integer requestCode, final KrollFunction callback, final KrollObject context,
+		final KrollPromise<KrollDict> promise)
+	{
+		if (requestCode == null) {
+			return;
+		}
+
+		permissionsResultCallbackMap.put(requestCode, new OnRequestPermissionsResultCallback() {
+			@Override
+			public void onRequestPermissionsResult(
+				@NonNull TiBaseActivity activity, int requestCode,
+				@NonNull String[] permissions, @NonNull int[] grantResults)
+			{
+				if (callback == null && promise == null) {
+					return;
+				}
+
+				String deniedPermissions = "";
+				for (int i = 0; i < grantResults.length; ++i) {
+					if (grantResults[i] == PackageManager.PERMISSION_DENIED) {
+						if (deniedPermissions.isEmpty()) {
+							deniedPermissions = permissions[i];
+						} else {
+							deniedPermissions = deniedPermissions + ", " + permissions[i];
+						}
+					}
+				}
+
+				KrollDict response = new KrollDict();
+				if (deniedPermissions.isEmpty()) {
+					response.putCodeAndMessage(0, null);
+				} else {
+					response.putCodeAndMessage(-1, "Permission(s) denied: " + deniedPermissions);
+				}
+				if (context == null) {
+					Log.w(TAG, "Permission callback context object is null");
+				}
+				if (callback != null) {
+					callback.callAsync(context, response);
+				}
+				if (promise != null) {
+					if (deniedPermissions.isEmpty()) {
+						promise.resolve(response);
+					} else {
+						promise.reject(response);
+					}
+				}
+			}
+		});
 	}
 
 	protected void setFullscreen(boolean fullscreen)
@@ -477,7 +512,6 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 	}
 
 	// Subclasses can override to handle post-creation (but pre-message fire) logic
-	@SuppressWarnings("deprecation")
 	protected void windowCreated(Bundle savedInstanceState)
 	{
 		boolean fullscreen = getIntentBoolean(TiC.PROPERTY_FULLSCREEN, false);
@@ -553,13 +587,6 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 			}
 		}
 
-		if (modal) {
-			if (Build.VERSION.SDK_INT < TiC.API_LEVEL_ICE_CREAM_SANDWICH) {
-				// This flag is deprecated in API 14. On ICS, the background is not blurred but straight black.
-				getWindow().addFlags(WindowManager.LayoutParams.FLAG_BLUR_BEHIND);
-			}
-		}
-
 		if (hasSoftInputMode) {
 			Log.d(TAG, "windowSoftInputMode: " + softInputMode, Log.DEBUG_MODE);
 			getWindow().setSoftInputMode(softInputMode);
@@ -604,6 +631,7 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 	@Override
 	protected void attachBaseContext(Context newBase)
 	{
+		baseContext = newBase;
 		super.attachBaseContext(TiLocaleManager.getLocalizedContext(newBase));
 	}
 
@@ -620,6 +648,25 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 		this.inForeground = true;
 		this.launchIntent = getIntent();
 		this.safeAreaMonitor = new TiActivitySafeAreaMonitor(this);
+
+		// Fetch the current UI mode flags. Used to determine light/dark theme being used.
+		Configuration config = getResources().getConfiguration();
+		if (config != null) {
+			this.lastUIModeFlags = config.uiMode;
+		}
+
+		// If activity is being recreated/restored, then copy last saved intent extras.
+		// This is needed to acquire the Ti.UI.Window proxy ID this activity should be assigned to.
+		if ((this.launchIntent != null) && (savedInstanceState != null)) {
+			Bundle oldExtras = savedInstanceState.getBundle("tiLaunchIntentExtras");
+			if (oldExtras != null) {
+				Bundle newExtras = this.launchIntent.getExtras();
+				if (newExtras != null) {
+					oldExtras.putAll(newExtras);
+				}
+				this.launchIntent.putExtras(oldExtras);
+			}
+		}
 
 		TiApplication tiApp = getTiApp();
 		TiApplication.addToActivityStack(this);
@@ -644,9 +691,6 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 				getWindow().setFormat(intent.getIntExtra(TiC.PROPERTY_WINDOW_PIXEL_FORMAT, PixelFormat.UNKNOWN));
 			}
 		}
-
-		// Doing this on every create in case the activity is externally created.
-		TiPlatformHelper.getInstance().intializeDisplayMetrics(this);
 
 		// Create the root content layout, if not done already.
 		if (layout == null) {
@@ -688,10 +732,12 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 		// we need to set window features before calling onCreate
 		this.requestWindowFeature(Window.FEATURE_PROGRESS);
 		this.requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-			this.requestWindowFeature(Window.FEATURE_ACTIVITY_TRANSITIONS);
-		}
+		this.requestWindowFeature(Window.FEATURE_ACTIVITY_TRANSITIONS);
 		super.onCreate(savedInstanceState);
+
+		// Fetch app's current night mode setting used to override dark/light theme handling.
+		// In JavaScript, this can be changed via "Ti.UI.overrideUserInterfaceStyle" property.
+		this.lastNightMode = AppCompatDelegate.getDefaultNightMode();
 
 		// If activity is using Google's default ActionBar, then the below will return an ActionBar style handler
 		// intended to be called by onConfigurationChanged() which will resize its title bar and font.
@@ -744,7 +790,11 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 		originalOrientationMode = getRequestedOrientation();
 
 		if (window != null) {
-			window.onWindowActivityCreated();
+			try {
+				window.onWindowActivityCreated();
+			} catch (Throwable t) {
+				Thread.getDefaultUncaughtExceptionHandler().uncaughtException(null, t);
+			}
 		}
 		if (activityProxy != null) {
 			dispatchCallback(TiC.PROPERTY_ON_CREATE, null);
@@ -1137,7 +1187,7 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 	}
 
 	@Override
-	public void onConfigurationChanged(Configuration newConfig)
+	public void onConfigurationChanged(@NonNull Configuration newConfig)
 	{
 		super.onConfigurationChanged(newConfig);
 
@@ -1156,6 +1206,30 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 			if (listener.get() != null) {
 				listener.get().onConfigurationChanged(this, newConfig);
 			}
+		}
+
+		// Recreate this activity if the OS has switched between light/dark theme.
+		final int NIGHT_MASK = Configuration.UI_MODE_NIGHT_MASK;
+		if ((newConfig.uiMode & NIGHT_MASK) != (this.lastUIModeFlags & NIGHT_MASK)) {
+			this.lastNightMode = AppCompatDelegate.getDefaultNightMode();
+			ActivityCompat.recreate(this);
+		}
+		this.lastUIModeFlags = newConfig.uiMode;
+	}
+
+	@Override
+	protected void onNightModeChanged(int mode)
+	{
+		super.onNightModeChanged(mode);
+		applyNightMode();
+	}
+
+	public void applyNightMode()
+	{
+		int mode = AppCompatDelegate.getDefaultNightMode();
+		if (this.inForeground && (mode != this.lastNightMode)) {
+			this.lastNightMode = mode;
+			ActivityCompat.recreate(this);
 		}
 	}
 
@@ -1176,37 +1250,37 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 
 	public void addOnLifecycleEventListener(OnLifecycleEvent listener)
 	{
-		lifecycleListeners.add(new WeakReference<OnLifecycleEvent>(listener));
+		lifecycleListeners.add(new WeakReference<>(listener));
 	}
 
 	public void addOnInstanceStateEventListener(OnInstanceStateEvent listener)
 	{
-		instanceStateListeners.add(new WeakReference<OnInstanceStateEvent>(listener));
+		instanceStateListeners.add(new WeakReference<>(listener));
 	}
 
 	public void addOnWindowFocusChangedEventListener(OnWindowFocusChangedEvent listener)
 	{
-		windowFocusChangedListeners.add(new WeakReference<OnWindowFocusChangedEvent>(listener));
+		windowFocusChangedListeners.add(new WeakReference<>(listener));
 	}
 
 	public void addInterceptOnBackPressedEventListener(interceptOnBackPressedEvent listener)
 	{
-		interceptOnBackPressedListeners.add(new WeakReference<interceptOnBackPressedEvent>(listener));
+		interceptOnBackPressedListeners.add(new WeakReference<>(listener));
 	}
 
 	public void addOnActivityResultListener(OnActivityResultEvent listener)
 	{
-		onActivityResultListeners.add(new WeakReference<OnActivityResultEvent>(listener));
+		onActivityResultListeners.add(new WeakReference<>(listener));
 	}
 
 	public void addOnCreateOptionsMenuEventListener(OnCreateOptionsMenuEvent listener)
 	{
-		onCreateOptionsMenuListeners.add(new WeakReference<OnCreateOptionsMenuEvent>(listener));
+		onCreateOptionsMenuListeners.add(new WeakReference<>(listener));
 	}
 
 	public void addOnPrepareOptionsMenuEventListener(OnPrepareOptionsMenuEvent listener)
 	{
-		onPrepareOptionsMenuListeners.add(new WeakReference<OnPrepareOptionsMenuEvent>(listener));
+		onPrepareOptionsMenuListeners.add(new WeakReference<>(listener));
 	}
 
 	public void removeOnLifecycleEventListener(OnLifecycleEvent listener)
@@ -1389,6 +1463,8 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 				}
 			}
 		}
+
+		applyNightMode();
 	}
 
 	@Override
@@ -1429,6 +1505,8 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 		super.onRestart();
 
 		Log.d(TAG, "Activity " + this + " onRestart", Log.DEBUG_MODE);
+
+		applyNightMode();
 	}
 
 	@Override
@@ -1541,6 +1619,10 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 			activityProxy = null;
 		}
 
+		if (baseContext != null) {
+			baseContext = null;
+		}
+
 		// Remove this activity from the app-wide Titanium UI stack.
 		TiApplication.removeFromActivityStack(this);
 
@@ -1556,10 +1638,14 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 	{
 		super.onSaveInstanceState(outState);
 
-		// If the activity is forced to destroy by Android, save the supportHelperId so
-		// we can get it back when the activity is recovered.
-		if (!isFinishing() && supportHelper != null) {
-			outState.putInt("supportHelperId", supportHelperId);
+		// If activity is being temporarily destroyed, then save settings to be restored when activity is recreated.
+		if (!isFinishing()) {
+			if (supportHelper != null) {
+				outState.putInt("supportHelperId", supportHelperId);
+			}
+			if (this.launchIntent != null) {
+				outState.putBundle("tiLaunchIntentExtras", this.launchIntent.getExtras());
+			}
 		}
 
 		synchronized (instanceStateListeners.synchronizedList())
@@ -1644,12 +1730,6 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 	@Override
 	public void finishAfterTransition()
 	{
-		// This is only supported on Android 5.0 and above. Do a normal finish on older OS versions.
-		if (Build.VERSION.SDK_INT < 21) {
-			finish();
-			return;
-		}
-
 		// Remove this activity from the app-wide Titanium UI stack.
 		TiApplication.removeFromActivityStack(this);
 
@@ -1775,5 +1855,10 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 		if (this.safeAreaMonitor != null) {
 			this.safeAreaMonitor.removeInsetsProvider(provider);
 		}
+	}
+
+	public Context getInitialBaseContext()
+	{
+		return baseContext;
 	}
 }

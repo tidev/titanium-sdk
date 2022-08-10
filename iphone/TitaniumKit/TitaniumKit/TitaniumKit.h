@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2018-present by Appcelerator, Inc. All Rights Reserved.
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -21,8 +21,11 @@ FOUNDATION_EXPORT const unsigned char TitaniumKitVersionString[];
 #import <TitaniumKit/APSHTTPClient.h>
 #import <TitaniumKit/ImageLoader.h>
 #import <TitaniumKit/JSValue+Addons.h>
+#import <TitaniumKit/KrollPromise.h>
 #import <TitaniumKit/Mimetypes.h>
+#import <TitaniumKit/Module.h>
 #import <TitaniumKit/NSData+Additions.h>
+#import <TitaniumKit/ObjcModule.h>
 #import <TitaniumKit/ObjcProxy.h>
 #import <TitaniumKit/OperationQueue.h>
 #import <TitaniumKit/SBJSON.h>

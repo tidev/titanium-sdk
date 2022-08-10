@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2015 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -150,10 +150,8 @@
       return UIStatusBarStyleDefault;
     } else if ([theString isEqualToString:@"UIStatusBarStyleBlackTranslucent"] || [theString isEqualToString:@"UIStatusBarStyleLightContent"] || [theString isEqualToString:@"UIStatusBarStyleBlackOpaque"]) {
       return UIStatusBarStyleLightContent;
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
     } else if ([theString isEqualToString:@"UIStatusBarStyleDarkContent"]) {
       return UIStatusBarStyleDarkContent;
-#endif
     }
   }
   return UIStatusBarStyleDefault;
@@ -223,6 +221,7 @@
 
   [ourView setBackgroundColor:chosenColor];
   [[ourView superview] setBackgroundColor:chosenColor];
+  [[UIApplication sharedApplication] keyWindow].backgroundColor = chosenColor;
   if (bgImage != nil) {
     [[ourView layer] setContents:(id)bgImage.CGImage];
   } else {
@@ -1205,15 +1204,8 @@
 #ifdef FORCE_WITH_MODAL
     [self forceRotateToOrientation:target];
 #else
-    if ([TiUtils isIOSVersionOrGreater:@"11.0"] && [TiUtils isIOSVersionLower:@"12.0"]) {
-      forcingStatusBarOrientation = YES;
-      [[UIApplication sharedApplication] setStatusBarOrientation:target animated:NO];
-      [UIViewController attemptRotationToDeviceOrientation];
-      forcingStatusBarOrientation = NO;
-    } else {
-      [self rotateHostingViewToOrientation:target
-                           fromOrientation:[[UIApplication sharedApplication] statusBarOrientation]];
-    }
+    [self rotateHostingViewToOrientation:target
+                         fromOrientation:[[UIApplication sharedApplication] statusBarOrientation]];
     forcingRotation = NO;
 #endif
   } else {
@@ -1378,7 +1370,7 @@
     [self updateStatusBar];
   }
 
-  if (([TiUtils isIOSVersionOrGreater:@"11.0"] || [TiUtils isMacOS]) && [self respondsToSelector:@selector(setNeedsUpdateOfHomeIndicatorAutoHidden)]) {
+  if ([self respondsToSelector:@selector(setNeedsUpdateOfHomeIndicatorAutoHidden)]) {
     [self setNeedsUpdateOfHomeIndicatorAutoHidden];
   }
 }

@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2011-2012 by Appcelerator, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -24,10 +24,10 @@ public abstract class TiStylesheet
 	// The concrete implementation fills these
 	public TiStylesheet()
 	{
-		classesMap = new HashMap<String, HashMap<String, KrollDict>>();
-		idsMap = new HashMap<String, HashMap<String, KrollDict>>();
-		classesDensityMap = new HashMap<String, HashMap<String, HashMap<String, KrollDict>>>();
-		idsDensityMap = new HashMap<String, HashMap<String, HashMap<String, KrollDict>>>();
+		classesMap = new HashMap<>();
+		idsMap = new HashMap<>();
+		classesDensityMap = new HashMap<>();
+		idsDensityMap = new HashMap<>();
 	}
 
 	protected void addAll(KrollDict result, HashMap<String, KrollDict> map, String key)

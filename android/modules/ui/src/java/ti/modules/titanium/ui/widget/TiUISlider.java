@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2015 by Appcelerator, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -18,12 +18,12 @@ import org.appcelerator.titanium.util.TiFileHelper;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiUIView;
 
+import android.app.Activity;
 import android.content.res.ColorStateList;
 import android.graphics.Rect;
 import android.graphics.drawable.ClipDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
-import android.os.Build;
 import android.view.Gravity;
 import android.widget.SeekBar;
 
@@ -71,6 +71,7 @@ public class TiUISlider extends TiUIView implements SeekBar.OnSeekBarChangeListe
 		super.processProperties(d);
 
 		SeekBar seekBar = (SeekBar) getNativeView();
+		Activity activity = proxy.getActivity();
 
 		if (d.containsKey(TiC.PROPERTY_VALUE)) {
 			pos = TiConvert.toFloat(d, TiC.PROPERTY_VALUE, 0);
@@ -95,18 +96,16 @@ public class TiUISlider extends TiUIView implements SeekBar.OnSeekBarChangeListe
 			updateThumb(seekBar, d);
 		}
 		if (d.containsKey(TiC.PROPERTY_SPLIT_TRACK)) {
-			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-				seekBar.setSplitTrack(TiConvert.toBoolean(d.get(TiC.PROPERTY_SPLIT_TRACK)));
-			}
+			seekBar.setSplitTrack(TiConvert.toBoolean(d.get(TiC.PROPERTY_SPLIT_TRACK)));
 		}
 		if (d.containsKey("leftTrackImage") || d.containsKey("rightTrackImage")) {
 			updateTrackingImages(seekBar, d);
 		}
 		if (d.containsKeyAndNotNull(TiC.PROPERTY_TINT_COLOR)) {
-			handleSetTintColor(TiConvert.toColor(d, TiC.PROPERTY_TINT_COLOR));
+			handleSetTintColor(TiConvert.toColor(d, TiC.PROPERTY_TINT_COLOR, activity));
 		}
 		if (d.containsKeyAndNotNull(TiC.PROPERTY_TRACK_TINT_COLOR)) {
-			handleSetTrackTintColor(TiConvert.toColor(d, TiC.PROPERTY_TRACK_TINT_COLOR));
+			handleSetTrackTintColor(TiConvert.toColor(d, TiC.PROPERTY_TRACK_TINT_COLOR, activity));
 		}
 		updateRange();
 		updateControl();
@@ -162,7 +161,7 @@ public class TiUISlider extends TiUIView implements SeekBar.OnSeekBarChangeListe
 			String url = proxy.resolveUrl(null, thumbImage);
 			Drawable thumb = tfh.loadDrawable(url, false);
 			if (thumb != null) {
-				thumbDrawable = new SoftReference<Drawable>(thumb);
+				thumbDrawable = new SoftReference<>(thumb);
 				seekBar.setThumb(thumb);
 			} else {
 				Log.e(TAG, "Unable to locate thumb image for progress bar: " + url);
@@ -283,23 +282,21 @@ public class TiUISlider extends TiUIView implements SeekBar.OnSeekBarChangeListe
 			int curPos = (int) Math.floor(scaleFactor * (pos + offset));
 			onProgressChanged(seekBar, curPos, false);
 		} else if (key.equals(TiC.PROPERTY_TINT_COLOR)) {
-			String stringValue = TiConvert.toString(newValue);
-			if (stringValue != null) {
-				handleSetTintColor(TiConvert.toColor(stringValue));
+			// TODO: reset to default value when property is null
+			if (newValue != null) {
+				handleSetTintColor(TiConvert.toColor(newValue, proxy.getActivity()));
 			}
 		} else if (key.equals(TiC.PROPERTY_TRACK_TINT_COLOR)) {
-			String stringValue = TiConvert.toString(newValue);
-			if (stringValue != null) {
-				handleSetTrackTintColor(TiConvert.toColor(stringValue));
+			// TODO: reset to default value when property is null
+			if (newValue != null) {
+				handleSetTrackTintColor(TiConvert.toColor(newValue, proxy.getActivity()));
 			}
 		} else if (key.equals("thumbImage")) {
 			//updateThumb(seekBar, proxy.getDynamicProperties());
 			//seekBar.invalidate();
 			Log.i(TAG, "Dynamically changing thumbImage is not yet supported. Native control doesn't draw");
 		} else if (key.equals(TiC.PROPERTY_SPLIT_TRACK)) {
-			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-				seekBar.setSplitTrack(TiConvert.toBoolean(newValue));
-			}
+			seekBar.setSplitTrack(TiConvert.toBoolean(newValue));
 		} else if (key.equals("leftTrackImage") || key.equals("rightTrackImage")) {
 			//updateTrackingImages(seekBar, proxy.getDynamicProperties());
 			//seekBar.invalidate();
@@ -380,10 +377,8 @@ public class TiUISlider extends TiUIView implements SeekBar.OnSeekBarChangeListe
 	{
 		SeekBar seekBar = (SeekBar) getNativeView();
 
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-			ColorStateList singleColorStateList = ColorStateList.valueOf(color);
-			seekBar.setProgressTintList(singleColorStateList);
-		}
+		ColorStateList singleColorStateList = ColorStateList.valueOf(color);
+		seekBar.setProgressTintList(singleColorStateList);
 	}
 
 	protected void handleSetTrackTintColor(int color)
@@ -391,9 +386,7 @@ public class TiUISlider extends TiUIView implements SeekBar.OnSeekBarChangeListe
 		SeekBar seekBar = (SeekBar) getNativeView();
 
 		ColorStateList singleColorStateList = ColorStateList.valueOf(color);
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-			seekBar.setProgressBackgroundTintList(singleColorStateList);
-		}
+		seekBar.setProgressBackgroundTintList(singleColorStateList);
 	}
 
 	private float scaledValue()

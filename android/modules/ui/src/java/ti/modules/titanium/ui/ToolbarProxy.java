@@ -6,8 +6,8 @@ import android.view.View;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiToolbarProxy;
+import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.view.TiUIView;
-
 import ti.modules.titanium.ui.widget.TiToolbar;
 
 @Kroll.proxy(creatableInModule = UIModule.class,
@@ -28,7 +28,6 @@ import ti.modules.titanium.ui.widget.TiToolbar;
 })
 public class ToolbarProxy extends TiToolbarProxy
 {
-
 	private static final java.lang.String TAG = "Toolbar";
 
 	public View getToolbarInstance()
@@ -51,7 +50,25 @@ public class ToolbarProxy extends TiToolbarProxy
 		return new TiToolbar(this);
 	}
 
-	//region Android only methods
+	/**
+	 * Sets the activity this proxy's view should be attached to.
+	 * @param activity The activity this proxy's view should be attached to.
+	 */
+	@Override
+	public void setActivity(Activity activity)
+	{
+		super.setActivity(activity);
+
+		Object value = getProperty(TiC.PROPERTY_ITEMS);
+		if ((value != null) && value.getClass().isArray()) {
+			for (Object nextObject : (Object[]) value) {
+				if (nextObject instanceof TiViewProxy) {
+					((TiViewProxy) nextObject).setActivity(activity);
+				}
+			}
+		}
+	}
+
 	@Kroll.method
 	public void collapseActionView()
 	{
@@ -157,7 +174,21 @@ public class ToolbarProxy extends TiToolbarProxy
 	{
 		getTiToolbarView().showOverFlowMenu();
 	}
-	//endregion
+
+	@Override
+	public void releaseViews()
+	{
+		super.releaseViews();
+
+		Object value = getProperty(TiC.PROPERTY_ITEMS);
+		if ((value != null) && value.getClass().isArray()) {
+			for (Object nextObject : (Object[]) value) {
+				if (nextObject instanceof TiViewProxy) {
+					((TiViewProxy) nextObject).releaseViews();
+				}
+			}
+		}
+	}
 
 	@Override
 	public String getApiName()

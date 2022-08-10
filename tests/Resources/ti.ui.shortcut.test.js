@@ -39,8 +39,9 @@ describe('Titanium.UI.Shortcut', () => {
 	});
 
 	describe('.items', () => {
-		it('is an Array', () => {
+		it('is an Array', function () {
 			if (!androidCompatible) {
+				this.skip();
 				return;
 			}
 			should(Ti.UI.Shortcut.items).be.an.Array();
@@ -48,15 +49,17 @@ describe('Titanium.UI.Shortcut', () => {
 	});
 
 	describe('.staticItems', () => {
-		it('is an Array', () => {
+		it('is an Array', function () {
 			if (!androidCompatible) {
+				this.skip();
 				return;
 			}
 			should(Ti.UI.Shortcut.staticItems).be.an.Array();
 		});
 
-		it('fetch item id', () => {
+		it('fetch item id', function () {
 			if (!androidCompatible) {
+				this.skip();
 				return;
 			}
 			const staticItems = Ti.UI.Shortcut.staticItems;
@@ -66,16 +69,18 @@ describe('Titanium.UI.Shortcut', () => {
 	});
 
 	describe('#removeAll()', () => {
-		it('is a function', () => {
+		it('is a function', function () {
 			if (!androidCompatible) {
+				this.skip();
 				return;
 			}
 			should(Ti.UI.Shortcut.removeAll).not.be.undefined();
 			should(Ti.UI.Shortcut.removeAll).be.a.Function();
 		});
 
-		it('removes shortcut items', () => {
+		it('removes shortcut items', function () {
 			if (!androidCompatible) {
+				this.skip();
 				return;
 			}
 			should(Ti.UI.Shortcut.items.length).be.aboveOrEqual(0);
@@ -97,16 +102,18 @@ describe('Titanium.UI.Shortcut', () => {
 	});
 
 	describe('#remove()', () => {
-		it('is a function', () => {
+		it('is a function', function () {
 			if (!androidCompatible) {
+				this.skip();
 				return;
 			}
 			should(Ti.UI.Shortcut.remove).not.be.undefined();
 			should(Ti.UI.Shortcut.remove).be.a.Function();
 		});
 
-		it('removes single shortcut item', () => {
+		it('removes single shortcut item', function () {
 			if (!androidCompatible) {
+				this.skip();
 				return;
 			}
 			should(Ti.UI.Shortcut.items.length).be.aboveOrEqual(0);
@@ -129,16 +136,18 @@ describe('Titanium.UI.Shortcut', () => {
 	});
 
 	describe('#add()', () => {
-		it('is a function', () => {
+		it('is a function', function () {
 			if (!androidCompatible) {
+				this.skip();
 				return;
 			}
 			should(Ti.UI.Shortcut.add).not.be.undefined();
 			should(Ti.UI.Shortcut.add).be.a.Function();
 		});
 
-		it('add a single shortcut item', () => {
+		it('add a single shortcut item', function () {
 			if (!androidCompatible) {
+				this.skip();
 				return;
 			}
 			should(Ti.UI.Shortcut.items.length).be.aboveOrEqual(0);
@@ -159,8 +168,9 @@ describe('Titanium.UI.Shortcut', () => {
 	});
 
 	describe('#getById()', () => {
-		it('is a function', () => {
+		it('is a function', function () {
 			if (!androidCompatible) {
+				this.skip();
 				return;
 			}
 			should(Ti.UI.Shortcut.getById).not.be.undefined();

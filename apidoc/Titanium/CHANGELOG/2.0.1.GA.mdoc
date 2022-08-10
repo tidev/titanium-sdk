@@ -21,10 +21,10 @@
 ## About This Release
 
 Titanium Mobile SDK Release 2.0.1 is a feature release of the Titanium Mobile SDK, including
-several new features and a number of bug fixes and parity improvements. 
+several new features and a number of bug fixes and parity improvements.
 
-_This is Release 2.0.1.GA Revision 2. The initial 2.0.1.GA release was missing the 
-Appcelerator Cloud Services modules (Titanium.Cloud and Titanium.CloudPush). 
+_This is Release 2.0.1.GA Revision 2. The initial 2.0.1.GA release was missing the
+Appcelerator Cloud Services modules (Titanium.Cloud and Titanium.CloudPush).
 If you installed the initial GA release, please install this version to receive the ACS
 modules._
 
@@ -36,8 +36,6 @@ following sections:
 *   [Layout System Updates](#layout)
 *   [Android Geolocation Enhancements](#geo)
 
-[Full list of Issues that were addressed in Release 2.0.1](https://jira.appcelerator.org/secure/IssueNavigator.jspa?mode=hide&requestId=12747)
-
 If you are upgrading from Titanium Mobile SDK 1.8.0.1 or earlier, this release also
 includes all fixes included in Releases 1.8.1 and 1.8.2.
 
@@ -46,7 +44,7 @@ releases:
 
 * [Release Notes for Release 1.8.1](https://docs.appcelerator.com/titanium/release-notes/?version=1.8.1)
 * [Release Notes for Release 1.8.2](https://docs.appcelerator.com/titanium/release-notes/?version=1.8.2)
-    
+
 Note that Release 1.8.1 included fixes related to developing modules. If you are developing iOS or Android modules, see the 1.8.1 Release Notes for more information.
 
 Further information is available in the [Titanium Mobile SDK and Titanium Studio Documentation](https://docs.appcelerator.com/titanium/2.0/).
@@ -61,7 +59,7 @@ Further information is available in the [Titanium Mobile SDK and Titanium Studio
 
 * Mobile Web Platform Release Candidate
 
-* Android Geolocation Enhancements 
+* Android Geolocation Enhancements
 
 * Defined Module APIs for Android and iOS
 
@@ -70,21 +68,21 @@ Further information is available in the [Titanium Mobile SDK and Titanium Studio
 ### Layout System Updates
 
 This release implements the [Composite Layout
-Specification](https://docs.appcelerator.com/titanium/latest/#!/guide/UI_Composite_Layout_Behavior_Spec), 
+Specification](https://docs.appcelerator.com/titanium/latest/#!/guide/UI_Composite_Layout_Behavior_Spec),
 a major update to the UI layout system. The composite layout specification involves
-several changes to the way the UI system lays out controls, so that all platforms can 
+several changes to the way the UI system lays out controls, so that all platforms can
 follow a common layout model.
 
 The major changes to the layout system involve:
 
 *   Improved handling for automatic sizing of views
 *   Batch layout updates for improved performance
-*   Post-layout event generated when layout is complete 
+*   Post-layout event generated when layout is complete
 *   New precedence order for layout parameters
 
 These changes affect UI behavior on all platforms, and may require application changes.
 
-For details, see [Transitioning to the New UI Layout System](https://docs.appcelerator.com/titanium/2.0/index.html#!/guide/Transitioning_to_the_New_UI_Layout_System)
+For details, see [Transitioning to the New UI Layout System](https://titaniumsdk.com/guide/Titanium_SDK/Titanium_SDK_Guide/Contributing_to_Titanium/Platform_Development/Specs/UI_Composite_Layout_Behavior_Spec.html)
 in the Titanium Mobile Guides.
 
 <a name="cloud"></a>
@@ -92,7 +90,7 @@ in the Titanium Mobile Guides.
 ### Appcelerator Cloud Services Support
 
 This release includes bundled Titanium modules for using Appcelerator Cloud Services
-(ACS). ACS provides a range of backend services for mobile applications, including 
+(ACS). ACS provides a range of backend services for mobile applications, including
 user management, social integration, data storage and push notifications.
 
 The ACS  modules are documented in the main API reference, but they are not included
@@ -105,10 +103,10 @@ module:
 
     var Push = require('ti.cloudpush');
 
-To use ACS services, you must enable ACS for your project. See 
+To use ACS services, you must enable ACS for your project. See
 [Appcelerator Cloud
 Services](https://docs.appcelerator.com/titanium/2.0/#!/guide/Appcelerator_Cloud_Services)
-in the Titanium Mobile Guides 
+in the Titanium Mobile Guides
 for details on how to enable ACS in a Titanium project.
 
 For further documentation and examples of using ACS in Titanium, see the API reference for
@@ -122,50 +120,50 @@ visit [cloud.appcelerator.com](http://cloud.appcelerator.com).
 ### Mobile Web Release Candidate Status
 
 The Mobile Web platform is now officially in Release Candidate status.
-The majority of the Titanium Mobile API is now implemented for Mobile Web.  
+The majority of the Titanium Mobile API is now implemented for Mobile Web.
 
-Specifically, Mobile Web implements a cross-platform subset of the 
+Specifically, Mobile Web implements a cross-platform subset of the
 Titanium Mobile APIs, excluding any platform-specific APIs **and** any APIs
 that require features not available to applications running in a browser.
 
 The following features are not yet implemented for Mobile Web, but will be supported
 in a future release:
 
-*   `Titanium.Database` 
-*   `Titanium.Media.AudioPlayer` 
-*   `Titanium.Media.Sound` 
-*   `Titanium.Network.Socket` 
-*   `Titanium.Network.Socket.TCP` 
-*   `Titanium.Stream` 
+*   `Titanium.Database`
+*   `Titanium.Media.AudioPlayer`
+*   `Titanium.Media.Sound`
+*   `Titanium.Network.Socket`
+*   `Titanium.Network.Socket.TCP`
+*   `Titanium.Stream`
 *   `Titanium.UI.SearchBar`
 *   `Titanium.Locale` -- local locale specific date/currency formatting is not yet
     implemented. Localized messages are implemented.
 
-The following UI controls are not implemented because they are platform-specific controls that 
+The following UI controls are not implemented because they are platform-specific controls that
 have not yet been moved to a platform-specific namespace.
 
-*   `Titanium.UI.ButtonBar` 
-*   `Titanium.UI.MaskedImage` 
-*   `Titanium.UI.Notification` 
-*   `Titanium.UI.3DMatrix` 
+*   `Titanium.UI.ButtonBar`
+*   `Titanium.UI.MaskedImage`
+*   `Titanium.UI.Notification`
+*   `Titanium.UI.3DMatrix`
 
-Finally, the `Titanium.Contacts` module is not supported because no standard exists to 
+Finally, the `Titanium.Contacts` module is not supported because no standard exists to
 expose a device's contacts data to applications running in the browser.
 
 Certain APIs are subject to limitations on Mobile Web because of the constraints
-imposed on application running in the browser. For more information, see 
+imposed on application running in the browser. For more information, see
 [Mobile Web Limitations](https://docs.appcelerator.com/titanium/#!/guide/Mobile_Web_Limitations).
 
 <a name="geo"></a>
 
 ### Android Geolocation Enhancements and Geolocation Simple Mode
 
-This release includes several improvements for geolocation on Android, and a new 
+This release includes several improvements for geolocation on Android, and a new
 "simple mode" for geolocation that is supported on Android, iOS, and Mobile Web.
 
 * Simple mode has two `accuracy` settings,  `ACCURACY_HIGH` and `ACCURACY_LOW`.
   This provides a simple, cross-platform mode for configuring location updates.
-  This is the only mode supported on Mobile Web. On iOS and Android, this 
+  This is the only mode supported on Mobile Web. On iOS and Android, this
   mode should only be used for applications with basic location requirements.
 
 * For applications that have more demanding location requirements on Android,
@@ -195,17 +193,17 @@ you can find them at the following locations:
 
 ## Known Issues
 
-This section lists the most notable known issues and regressions in this release. 
+This section lists the most notable known issues and regressions in this release.
 
 *   iOS: WebView canGoBack/canGoForward does not work for local files.
-    ([TIMOB-7965](https://jira.appcelerator.org/browse/TIMOB-7965))
+    ([TIMOB-7965](https://jira-archive.titaniumsdk.com/TIMOB-7965))
 
-*   iOS: VideoPlayer does not fire touch events. This was a regression in 
-    Release 1.8.1. ([TIMOB-8486](https://jira.appcelerator.org/browse/TIMOB-8486))
+*   iOS: VideoPlayer does not fire touch events. This was a regression in
+    Release 1.8.1. ([TIMOB-8486](https://jira-archive.titaniumsdk.com/TIMOB-8486))
 
 *   Android: Titanium.CloudPush module does not work with Android OS 3.0 and newer.
     A fix for this issue is being tested and an updated module will be made available
-    soon. ([CLOUDSRV-429](https://jira.appcelerator.org/browse/CLOUDSRV-429))
+    soon. ([CLOUDSRV-429](https://jira-archive.titaniumsdk.com/CLOUDSRV-429))
 
 <a name="android"></a>
 
@@ -213,7 +211,7 @@ This section lists the most notable known issues and regressions in this release
 
 *New Features*
 
-*   Geolocation enhancements. See 
+*   Geolocation enhancements. See
     [Android Geolocation Enhancements and Geolocation Simple Mode](#geo).
 
 *   Support for Android SDK Tools Revision 17, Revision 18, and Revision 19.
@@ -221,35 +219,32 @@ This section lists the most notable known issues and regressions in this release
 *Bug Fixes*
 
 *   Support for background image tiling on a view. This feature was added for iOS in Release
-    1.8.1. ([TIMOB-6586](https://jira.appcelerator.org/browse/TIMOB-6586))
+    1.8.1. ([TIMOB-6586](https://jira-archive.titaniumsdk.com/TIMOB-6586))
 
 *   Several fixes related to WebViews:
-    
+
     *   Improved handling of local URLs inside WebView, including correctly handling
         forward/back for local URLs
-        ([TIMOB-8028](https://jira.appcelerator.org/browse/TIMOB-8028)); and resolving
-        a crash that occurred when reopening a local URL 
-        ([TIMOB-8144](https://jira.appcelerator.org/browse/TIMOB-8144)).
+        ([TIMOB-8028](https://jira-archive.titaniumsdk.com/TIMOB-8028)); and resolving
+        a crash that occurred when reopening a local URL
+        ([TIMOB-8144](https://jira-archive.titaniumsdk.com/TIMOB-8144)).
 
     *   Fixed a regression where a WebView reloaded when it was removed from the
         view hierarchy, and then re-added.
-        ([TIMOB-7808](https://jira.appcelerator.org/browse/TIMOB-7808)).
+        ([TIMOB-7808](https://jira-archive.titaniumsdk.com/TIMOB-7808)).
 
-    *   Fixed a web view crash that occurred when handling the back button. 
-        ([TIMOB-7695](https://jira.appcelerator.org/browse/TIMOB-7695)).
+    *   Fixed a web view crash that occurred when handling the back button.
+        ([TIMOB-7695](https://jira-archive.titaniumsdk.com/TIMOB-7695)).
 
     *   Resolved a crash when reusing a web view on an activity window.
-        ([TIMOB-8267](https://jira.appcelerator.org/browse/TIMOB-8267))
+        ([TIMOB-8267](https://jira-archive.titaniumsdk.com/TIMOB-8267))
 
     *   Resolved several issues related to the `html` property.
-        ([TIMOB-974](https://jira.appcelerator.org/browse/TIMOB-974) and 
-        [TIMOB-7840](https://jira.appcelerator.org/browse/TIMOB-7840))
+        ([TIMOB-974](https://jira-archive.titaniumsdk.com/TIMOB-974) and
+        [TIMOB-7840](https://jira-archive.titaniumsdk.com/TIMOB-7840))
 
-*   Improved open event handling for tabs. 
-    ([TIMOB-8192](https://jira.appcelerator.org/browse/TIMOB-8192))
-
-For a complete list of Android fixes in this release, see: 
-[Fixed Android Issues in JIRA](https://jira.appcelerator.org/secure/IssueNavigator.jspa?mode=hide&requestId=12744)
+*   Improved open event handling for tabs.
+    ([TIMOB-8192](https://jira-archive.titaniumsdk.com/TIMOB-8192))
 
 <a name="ios"></a>
 
@@ -269,47 +264,44 @@ The following section lists notable bug fixes in iOS.
 *   Improved CommonJS module encoding.
 
 *   `Titanium.Platform.id` now returns a per-application unique ID, instead of
-    the Apple UDID. 
-    
-    This change was required because Apple has changed its policies, and apps using UDID 
-    may now be rejected from the app store. 
-    ([TIMOB-8173](https://jira.appcelerator.org/browse/TIMOB-8173))
+    the Apple UDID.
 
-*   Newsstand content notifications. ([TIMOB-5910](https://jira.appcelerator.org/browse/TIMOB-5910))
+    This change was required because Apple has changed its policies, and apps using UDID
+    may now be rejected from the app store.
+    ([TIMOB-8173](https://jira-archive.titaniumsdk.com/TIMOB-8173))
+
+*   Newsstand content notifications. ([TIMOB-5910](https://jira-archive.titaniumsdk.com/TIMOB-5910))
 
 
 *Bug Fixes*
 
 
-*   Fixed "suspend" and "resume" behavior. ([TIMOB-4538](https://jira.appcelerator.org/browse/TIMOB-4538))
-*   Several App verification fixes. ([TIMOB-6575](https://jira.appcelerator.org/browse/TIMOB-6575),
-    [TIMOB-7674](https://jira.appcelerator.org/browse/TIMOB-7674)))
-*   Fixed numerous crashes. ([TIMOB-8105](https://jira.appcelerator.org/browse/TIMOB-8105), 
-    [TIMOB-8102](https://jira.appcelerator.org/browse/TIMOB-8102), 
-    [TIMOB-8081](https://jira.appcelerator.org/browse/TIMOB-8081), 
-    [TIMOB-7334](https://jira.appcelerator.org/browse/TIMOB-7334))
-*   Fixed memory leaks and garbage collection issues. 
-    ([TIMOB-7644](https://jira.appcelerator.org/browse/TIMOB-7644), 
-    [TIMOB-7642](https://jira.appcelerator.org/browse/TIMOB-7642), 
-    [TIMOB-7467](https://jira.appcelerator.org/browse/TIMOB-7467),
-    [TIMOB-6463](https://jira.appcelerator.org/browse/TIMOB-6463))
+*   Fixed "suspend" and "resume" behavior. ([TIMOB-4538](https://jira-archive.titaniumsdk.com/TIMOB-4538))
+*   Several App verification fixes. ([TIMOB-6575](https://jira-archive.titaniumsdk.com/TIMOB-6575),
+    [TIMOB-7674](https://jira-archive.titaniumsdk.com/TIMOB-7674)))
+*   Fixed numerous crashes. ([TIMOB-8105](https://jira-archive.titaniumsdk.com/TIMOB-8105),
+    [TIMOB-8102](https://jira-archive.titaniumsdk.com/TIMOB-8102),
+    [TIMOB-8081](https://jira-archive.titaniumsdk.com/TIMOB-8081),
+    [TIMOB-7334](https://jira-archive.titaniumsdk.com/TIMOB-7334))
+*   Fixed memory leaks and garbage collection issues.
+    ([TIMOB-7644](https://jira-archive.titaniumsdk.com/TIMOB-7644),
+    [TIMOB-7642](https://jira-archive.titaniumsdk.com/TIMOB-7642),
+    [TIMOB-7467](https://jira-archive.titaniumsdk.com/TIMOB-7467),
+    [TIMOB-6463](https://jira-archive.titaniumsdk.com/TIMOB-6463))
 *   HTTP client support for Shift_JIS, EUC-JP encodings.
-    ([TIMOB-6835](https://jira.appcelerator.org/browse/TIMOB-6835))
-
-For a complete list of iOS fixes in this release, see: 
-[Fixed iOS Issues in JIRA](https://jira.appcelerator.org/secure/IssueNavigator.jspa?mode=hide&requestId=12745).
+    ([TIMOB-6835](https://jira-archive.titaniumsdk.com/TIMOB-6835))
 
 <a name="xcode43"></a>
 
 ### Using Xcode 4.3
 
-In previous releases of Xcode, when a new version of Xcode was installed, the installer 
+In previous releases of Xcode, when a new version of Xcode was installed, the installer
 invoked the `xcode-select` command to set the new version of Xcode as the active version.
 
 With Xcode 4.3, Xcode is installed by default in a different directory (under
 /Applications instead of under /Developer), and it does not run `xcode-select` to update
 the Xcode path. If you have both Xcode 4.2 and Xcode 4.3 installed, you will need
-to run `xcode-select` manually to determine which version of Xcode is used. 
+to run `xcode-select` manually to determine which version of Xcode is used.
 
 To select Xcode 4.3, run the following command:
 
@@ -326,12 +318,9 @@ specify the appropriate path in the command.
 
 ## Mobile Web Fixes and Enhancements
 
-With this release, the Mobile Web platform is a Release Candidate. See 
-[Mobile Web Platform Release Candidate Status](#mobileweb_rc) for a summary of 
+With this release, the Mobile Web platform is a Release Candidate. See
+[Mobile Web Platform Release Candidate Status](#mobileweb_rc) for a summary of
 what is currently supported in Mobile Web as well as known limitations.
-
-For a complete list of Mobile Web fixes in this release, see: [Fixed Mobile Web Issues in
-JIRA](https://jira.appcelerator.org/secure/IssueNavigator.jspa?mode=hide&requestId=12746).  
 
 <a name="docs"></a>
 
@@ -347,8 +336,3 @@ unified documentation site for the Titanium Mobile SDK and Titanium Studio:
 *   Left-hand navigation tree occasionally stops scrolling. Reloading the site should
     fix this problem.
 *   Display anomalies when a large number of tabs are open.
-    
-For a complete list of documentation fixes in this release, see:
-
-[Fixed Documentation Issues in JIRA](https://jira.appcelerator.org/secure/IssueNavigator.jspa?mode=hide&requestId=12748)
-

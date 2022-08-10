@@ -15,12 +15,19 @@ const titanium = require.resolve('titanium');
 const { promisify } = require('util');
 const stripAnsi = require('strip-ansi');
 const exec = promisify(require('child_process').exec); // eslint-disable-line security/detect-child-process
+const glob = promisify(require('glob'));
+const utils = require('../utils');
 
 const ROOT_DIR = path.join(__dirname, '../../..');
 const SOURCE_DIR = path.join(ROOT_DIR, 'tests');
 const PROJECT_NAME = 'mocha';
+// cert/profile used to build to iOS device
+const DEVELOPER_NAME = 'QE Department (C64864TF2L)';
+const PROVISIONING_PROFILE_UUID = '4a3fc2c3-4647-4472-90e5-15cba3a576df';
+// app id used
 const APP_ID = 'com.appcelerator.testApp.testing';
-const PROJECT_DIR = path.join(ROOT_DIR, 'tmp', PROJECT_NAME);
+const TMP_DIR = path.join(ROOT_DIR, 'tmp');
+const PROJECT_DIR = path.join(TMP_DIR, PROJECT_NAME);
 const REPORT_DIR = ROOT_DIR; // Write junit xml files to root of repo
 const JUNIT_TEMPLATE = path.join(__dirname, 'junit.xml.ejs');
 
@@ -45,12 +52,13 @@ const isCI = !!(process.env.BUILD_NUMBER || process.env.CI || false);
  * @param {String} [deviceId] Titanium device id target to run the tests on
  * @param {string} [deployType] 'development' || 'test'
  * @param {string} [deviceFamily] 'ipad' || 'iphone'
+ * @param {string} [junitPrefix] A prefix for the junit filename
  * @param {string} [snapshotDir='../../../tests/Resources'] directory to place generated snapshot images
  * @returns {Promise<object>}
  */
-async function test(platforms, target, deviceId, deployType, deviceFamily, snapshotDir = path.join(__dirname, '../../../tests/Resources')) {
+async function test(platforms, target, deviceId, deployType, deviceFamily, junitPrefix, snapshotDir = path.join(__dirname, '../../../tests/Resources')) {
 	const snapshotPromises = []; // place to stick commands we've fired off to pull snapshot images
-
+	console.log(platforms);
 	// delete old test app (if does not exist, this will no-op)
 	await fs.remove(PROJECT_DIR);
 
@@ -61,20 +69,38 @@ async function test(platforms, target, deviceId, deployType, deviceFamily, snaps
 	await addTiAppProperties();
 
 	// run build for each platform, and spit out JUnit report
-	const results = {};
-	for (const platform of platforms) {
-		const result = await runBuild(platform, target, deviceId, deployType, deviceFamily, snapshotDir, snapshotPromises);
-		const prefix = generateJUnitPrefix(platform, target, deviceFamily);
-		results[prefix] = result;
-		await outputJUnitXML(result, prefix);
-	}
+	try {
+		const results = {};
+		for (const platform of platforms) {
+			const result = await runBuild(platform, target, deviceId, deployType, deviceFamily, snapshotDir, snapshotPromises);
+			const prefix = generateJUnitPrefix(platform, target, junitPrefix || deviceFamily);
+			results[prefix] = result;
+			await outputJUnitXML(result, prefix);
+		}
 
-	// If we're gathering images, make sure we get them all before we move on
-	if (snapshotPromises.length !== 0) {
-		await Promise.all(snapshotPromises);
-	}
+		// If we're gathering images, make sure we get them all before we move on
+		if (snapshotPromises.length !== 0) {
+			try {
+				await Promise.all(snapshotPromises);
+			} catch (err) {
+				// If grabbing an image fails, can we report more details about why?
+				// The rejected error should have stdout/stderr properties
+				if (err.stderr) {
+					console.error(err.stderr);
+				}
+				if (err.stdout) {
+					console.log(err.stdout);
+				}
+				throw err;
+			}
+		}
 
-	return results;
+		return results;
+	} finally {
+		if (target === 'macos') {
+			exec(`osascript "${path.join(__dirname, 'close_modals.scpt')}"`);
+		}
+	}
 }
 
 /**
@@ -108,18 +134,30 @@ async function generateProject(platforms) {
  */
 async function copyMochaAssets() {
 	console.log('Copying resources to project...');
-	// TODO: Support root-level package.json!
-	const resourcesDir = path.join(PROJECT_DIR, 'Resources');
 	return Promise.all([
-		// Resources
+		// root-level package.json stuff
 		(async () => {
-			await fs.copy(path.join(SOURCE_DIR, 'Resources'), resourcesDir);
-			if (await fs.pathExists(path.join(resourcesDir, 'package.json'))) {
-				return npmInstall(resourcesDir);
+			await Promise.all([
+				fs.copy(path.join(SOURCE_DIR, 'fake_node_modules'), path.join(PROJECT_DIR, 'fake_node_modules')),
+				fs.copy(path.join(SOURCE_DIR, 'package.json'), path.join(PROJECT_DIR, 'package.json')),
+				fs.copy(path.join(SOURCE_DIR, 'package-lock.json'), path.join(PROJECT_DIR, 'package-lock.json')),
+			]);
+			// then run npm install in root of project
+			return npmInstall(PROJECT_DIR);
+		})(),
+		// babel.config.json
+		fs.copy(path.join(SOURCE_DIR, 'babel.config.json'), path.join(PROJECT_DIR, 'babel.config.json')),
+		// Resources
+		fs.copy(path.join(SOURCE_DIR, 'Resources'), path.join(PROJECT_DIR, 'Resources')),
+		// modules
+		(async () => {
+			await fs.copy(path.join(SOURCE_DIR, 'modules'), path.join(PROJECT_DIR, 'modules'));
+			const modulesSourceDir = path.join(SOURCE_DIR, 'modules-source');
+			const zipPaths = await glob('*/*/dist/*.zip', { cwd: modulesSourceDir });
+			for (const nextZipPath of zipPaths) {
+				await utils.unzip(path.join(modulesSourceDir, nextZipPath), PROJECT_DIR);
 			}
 		})(),
-		// modules
-		fs.copy(path.join(SOURCE_DIR, 'modules'), path.join(PROJECT_DIR, 'modules')),
 		// platform
 		fs.copy(path.join(SOURCE_DIR, 'platform'), path.join(PROJECT_DIR, 'platform')),
 		// plugins
@@ -135,12 +173,7 @@ async function copyMochaAssets() {
  */
 async function npmInstall(dir) {
 	// If package-lock.json exists, try to run npm ci --production!
-	let args;
-	if (await fs.exists(path.join(dir, 'package-lock.json'))) {
-		args = [ 'ci', '--production' ];
-	} else {
-		args = [ 'install', '--production' ];
-	}
+	const args = [ 'ci', '--production' ];
 	return new Promise((resolve, reject) => {
 		let child;
 		if (process.platform === 'win32') {
@@ -184,10 +217,10 @@ async function addTiAppProperties() {
 	const tiapp_xml_string = await fs.readFile(tiapp_xml, 'utf8');
 	const content = [];
 	const insertManifest = () => {
-		content.push('\t\t\t<application>');
+		content.push('\t\t\t<application android:theme="@style/Theme.Titanium.Dark">');
 		content.push('\t\t\t\t<meta-data android:name="com.google.android.geo.API_KEY" android:value="AIzaSyCN_aC6RMaynan8YzsO1HNHbhsr9ZADDlY"/>');
 		content.push('\t\t\t\t<uses-library android:name="org.apache.http.legacy" android:required="false" />');
-		content.push(`\t\t\t\t<activity android:name=".${PROJECT_NAME.charAt(0).toUpperCase() + PROJECT_NAME.slice(1).toLowerCase()}Activity">`);
+		content.push(`\t\t\t\t<activity android:name=".${PROJECT_NAME.charAt(0).toUpperCase() + PROJECT_NAME.slice(1).toLowerCase()}Activity" android:exported="true">`);
 		content.push('\t\t\t\t\t<intent-filter>');
 		content.push('\t\t\t\t\t\t<action android:name="android.intent.action.MAIN"/>');
 		content.push('\t\t\t\t\t\t<category android:name="android.intent.category.LAUNCHER"/>');
@@ -202,6 +235,7 @@ async function addTiAppProperties() {
 		content.push('\t\t\t\t</activity>');
 		content.push('\t\t\t</application>');
 		content.push('\t\t\t<uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>');
+		content.push('\t\t\t<uses-permission android:name="android.permission.RECORD_AUDIO"/>');
 	};
 	let insertPlistSettings = () => {
 		// Enable i18n support for the following languages.
@@ -212,6 +246,33 @@ async function addTiAppProperties() {
 		content.push('\t\t\t\t</array>');
 		content.push('\t\t\t\t<key>CFBundleAllowMixedLocalizations</key>');
 		content.push('\t\t\t\t<true/>');
+
+		// Add permission usage descriptions.
+		content.push('\t\t\t\t<key>NSAppleMusicUsageDescription</key>');
+		content.push('\t\t\t\t<string>Requesting music library permission</string>');
+		content.push('\t\t\t\t<key>NSCameraUsageDescription</key>');
+		content.push('\t\t\t\t<string>Requesting camera permission</string>');
+		content.push('\t\t\t\t<key>NSMicrophoneUsageDescription</key>');
+		content.push('\t\t\t\t<string>Requesting microphone permission</string>');
+		content.push('\t\t\t\t<key>NSPhotoLibraryUsageDescription</key>');
+		content.push('\t\t\t\t<string>Requesting photo library read permission</string>');
+		content.push('\t\t\t\t<key>NSPhotoLibraryAddUsageDescription</key>');
+		content.push('\t\t\t\t<string>Requesting photo library write permission</string>');
+		content.push('\t\t\t\t<key>NSLocationWhenInUseUsageDescription</key>');
+		content.push('\t\t\t\t<string>Requesting location permission</string>');
+		content.push('\t\t\t\t<key>NSMicrophoneUsageDescription</key>');
+		content.push('\t\t\t\t<string>Requesting microphone permission</string>');
+		content.push('\t\t\t\t<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>');
+		content.push('\t\t\t\t<string>Can we access your location?</string>');
+		content.push('\t\t\t\t<key>NSLocationAlwaysUsageDescription</key>');
+		content.push('\t\t\t\t<string>Can we always access your location?</string>');
+		content.push('\t\t\t\t<key>NSLocationWhenInUseUsageDescription</key>');
+		content.push('\t\t\t\t<string>Can we access your location when using the app?</string>');
+		content.push('\t\t\t\t<key>NSLocationTemporaryUsageDescriptionDictionary</key>');
+		content.push('\t\t\t\t<dict>');
+		content.push('\t\t\t\t\t<key>Purpose1</key>');
+		content.push('\t\t\t\t\t<string>Can we temporarily access your location?</string>');
+		content.push('\t\t\t\t</dict>');
 
 		// Add a static shortcut.
 		content.push('\t\t\t\t<key>UIApplicationShortcutItems</key>');
@@ -346,9 +407,9 @@ async function runBuild(platform, target, deviceId, deployType, deviceFamily, sn
 
 		if (target === 'device') {
 			args.push('--developer-name');
-			args.push('QE Department (C64864TF2L)');
+			args.push(DEVELOPER_NAME);
 			args.push('--pp-uuid');
-			args.push('20109694-2d18-4c78-ab6a-2195e3719c6b');
+			args.push(PROVISIONING_PROFILE_UUID);
 		}
 
 		if (deviceFamily) {
@@ -359,7 +420,7 @@ async function runBuild(platform, target, deviceId, deployType, deviceFamily, sn
 
 	args.push('--no-prompt');
 	args.push('--color');
-	const prc = spawn('node', args);
+	const prc = spawn('node', args, { cwd: PROJECT_DIR });
 	return handleBuild(prc, target, snapshotDir, snapshotPromises);
 }
 
@@ -431,10 +492,9 @@ class DeviceTestDetails {
 	/**
 	 * Handle a new line of output for a given device/emulator
 	 * @param {string} token line of output (raw)
-	 * @param {string} stripped output stripped of ansi colors
 	 * @returns {boolean} true if successfully finished the test suite (completed, may have test failures/errors)
 	 */
-	handleLine(token, stripped) {
+	handleLine(token) {
 		if (this.testEndIncomplete) {
 			if (token.includes(TEST_START_PREFIX) || token.includes(TEST_SUITE_STOP)) {
 				// Make up a failed test result
@@ -454,13 +514,13 @@ class DeviceTestDetails {
 
 		// check for generated images
 		if (token.includes(GENERATED_IMAGE_PREFIX)) {
-			this.snapshotPromises.push(this.grabGeneratedImage(token));
+			this.snapshotPromises.push(this.grabGeneratedImage(token).catch(e => console.error(e.message)));
 			return false;
 		}
 
 		// check for mismatched images
 		if (token.includes(DIFF_IMAGE_PREFIX)) {
-			this.snapshotPromises.push(this.handleMismatchedImage(token));
+			this.snapshotPromises.push(this.handleMismatchedImage(token).catch(e => console.error(e.message)));
 			return false;
 		}
 
@@ -498,7 +558,7 @@ class DeviceTestDetails {
 			state: 'failed',
 			duration: 0,
 			suite: 'Unknown',
-			title: `Unknown imcomplete test ${Date.now()}`,
+			title: `Unknown incomplete test ${Date.now()}`,
 			message: 'build/lib/test.js failed to parse reported test result',
 			stack: this.partialTestEnd, // where should we stick this?
 			stdout: this.output,
@@ -551,27 +611,37 @@ class DeviceTestDetails {
 		const trimmed = token.slice(imageIndex + DIFF_IMAGE_PREFIX.length).trim();
 		const details = JSON.parse(trimmed);
 
-		const expected = path.join(this.snapshotDir, details.platform, details.relativePath);
-		const diffDir = path.join(this.snapshotDir, '..', 'diffs', details.platform, details.relativePath.slice(0, -4)); // drop '.png'
+		const suffixEx = /(_expected|_diff)\.png/g;
+		const baseImagePath = details.path.replace(suffixEx, '');
+		const baseImageRelativePath = details.relativePath.replace(suffixEx, '');
+		const diffDir = path.join(this.snapshotDir, '..', 'diffs', details.platform);
+
+		const actualOutputPath = path.join(diffDir, `${baseImageRelativePath}.png`);
+		const expectedOutputPath = path.join(diffDir, `${baseImageRelativePath}_expected.png`);
+		const diffOutputPath = path.join(diffDir, `${baseImageRelativePath}_diff.png`);
+
 		await fs.ensureDir(diffDir);
+
+		// Grab actual output image.
+		await this.grabAppImage(details.platform, `${baseImagePath}.png`, actualOutputPath);
+
+		// Grab expected output image.
 		if (!details.blob) {
-			await fs.copy(expected, path.join(diffDir, 'expected.png'));
+			// We're comparing against a snapshot in the suite, copy the original file from the suite over
+			await fs.copy(path.join(PROJECT_DIR, 'Resources', details.platform, `${baseImageRelativePath}.png`), expectedOutputPath);
 		} else {
-			// With ti.blob direct comparisons we have no input image on-disk already
-			const expected = path.join(diffDir, 'expected.png');
-			const expectedPath = `${details.path.slice(0, -4)}/expected.png`; // drop .png, place unde folder named via basenam eof image, save as 'expected.png'
-			await this.grabAppImage(details.platform, expectedPath, expected);
+			// ti.blob generates expected output image for comparison.
+			await this.grabAppImage(details.platform, `${baseImagePath}_expected.png`, expectedOutputPath);
 		}
 
-		const actual = path.join(diffDir, 'actual.png');
-		await this.grabAppImage(details.platform, details.path, actual);
+		// Attempt to grab diff image.
 		try {
-			const diff = path.join(diffDir, 'diff.png');
-			await this.grabAppImage(details.platform, details.path.slice(0, -4) + '_diff.png', diff);
+			await this.grabAppImage(details.platform, `${baseImagePath}_diff.png`, diffOutputPath);
 		} catch (err) {
-			// ignore, diff image may not exist
+			// Ignore, diff image may not exist.
 		}
-		return actual;
+
+		return actualOutputPath;
 	}
 
 	/**
@@ -587,29 +657,42 @@ class DeviceTestDetails {
 		// grab image and place into test suite
 		const dest = path.join(this.snapshotDir, details.platform, details.relativePath);
 		const grabbed = await this.grabAppImage(details.platform, details.path, dest);
-		if (isCI) {
-			// Now also place into location that we can archive on CI/Jenkins
-			const generated = path.join(this.snapshotDir, '..', 'generated', details.platform, details.relativePath);
-			const diffDir = path.dirname(generated);
-			await fs.ensureDir(diffDir);
-			await fs.copy(grabbed, generated);
-		}
+
+		// Now also place into location that we can archive on CI/Jenkins (and see exactly which images are "new" for this run)
+		const generated = path.join(this.snapshotDir, '..', 'generated', details.platform, details.relativePath);
+		console.log(`Copying generated image ${grabbed} to ${generated}`); // TODO: Symlink instead?
+		const diffDir = path.dirname(generated);
+		await fs.ensureDir(diffDir);
+		await fs.copy(grabbed, generated);
+
 		return grabbed;
 	}
 
 	/**
-	 * Lazily try and match the reported namee in the logs back to the underlying id/serial
+	 * Lazily try and match the reported name in the logs back to the underlying id/serial
 	 * Then we can direct adb commands to this device specifically.
 	 */
 	async deviceId() {
 		if (!this._deviceId) {
-			if (!this.name) {
-				this._deviceId = 'device';
-			} else {
+			try {
 				const devices = await fs.readJSON(path.join(PROJECT_DIR, 'android-devices.json'));
-				// android's cli uses model || manufacturer || id as log prefix, see android/cli/hooks/run.js
-				const device = devices.find(d => (d.model || d.manufacturer || d.id) === this.name);
-				this._deviceId = device.id;
+				if (!devices) { // no devices listed, just use generic 'device'
+					this._deviceId = 'device';
+				} else if (devices.length === 1) {
+					// only one "device", use it's id
+					this._deviceId = devices[0].id;
+				} else if (this.name) { // find device with matching name
+					// android's cli uses model || manufacturer || id as log prefix, see android/cli/hooks/run.js
+					const device = devices.find(d => (d.model || d.manufacturer || d.id) === this.name);
+					if (device) {
+						this._deviceId = device.id;
+					}
+				}
+			} catch (err) {
+				// squash
+			}
+			if (!this._deviceId) { // we assigned no value, fall back to default 'device'
+				this._deviceId = 'device';
 			}
 		}
 		return this._deviceId;
@@ -630,17 +713,46 @@ class DeviceTestDetails {
 		await fs.ensureDir(path.dirname(dest));
 		if (platform === 'android') {
 			// Pull the file via adb shell
+			let adbPath = 'adb';
+			const androidSdkPath = process.env.ANDROID_SDK;
+			if (androidSdkPath) {
+				const filePath = path.join(androidSdkPath, 'platform-tools', 'adb');
+				if (await fs.pathExists(filePath)) {
+					adbPath = filePath;
+				}
+			}
 			if (this.target === 'device') {
-				await exec(`adb -s ${await this.deviceId()} shell "run-as ${APP_ID} cat '${filepath}'" > ${dest}`);
+				const id = await this.deviceId();
+				let adbTargetArgs = `-s ${id}`;
+				if (id === 'device') {
+					// we don't know the real device id! Hope there's just one
+					adbTargetArgs = '-d';
+					// FIXME: Grab device listing and pick first one?!
+				}
+				await exec(`${adbPath} ${adbTargetArgs} shell "run-as ${APP_ID} cat '${filepath}'" > ${dest}`);
 			} else {
-				await exec(`adb shell "run-as ${APP_ID} cat '${filepath}'" > ${dest}`);
+				// await exec(`${adbPath} -e shell "run-as ${APP_ID} cat '${filepath}'" > ${dest}`);
+				// Using cat as above on some emulators (especially older ones) mangles image files
+				await exec(`${adbPath} -e pull ${filepath} ${dest}`);
 			}
 			return dest;
 		}
 		// Can't grab images from iOS device
-		// FIXME: We could always transfer bytes somehow! client/server socket?
 		if (this.target === 'device') {
-			throw new Error(`Cannot grab generated image ${filepath} from a device. Please run locally on a simulator and add the image to the suite.`);
+			// Need to strip the filepath to start with /Documents (basically need an absolute path that actually is relative to app folder)
+			// i.e. filepath is: /var/mobile/Containers/Data/Application/1B331056-14FC-4948-B3D1-EFD376A894B1/Documents/snapshots/tableViewRowScaling_percent_540x960.png
+			// strip to /Documents/snapshots/tableViewRowScaling_percent_540x960.png
+			const index = filepath.indexOf('/Documents');
+			filepath = filepath.slice(index);
+			// copy to ../../../tmp, results in ../../../tmp/Documents/snapshots/tableViewRowScaling_percent_540x960.png
+			await exec(`ios-deploy --download=${filepath} --bundle_id ${APP_ID} --to ${TMP_DIR}`);
+			// copy ../../../tmp/Documents/snapshots/tableViewRowScaling_percent_540x960.png to dest
+			const actualDest = path.join(TMP_DIR, filepath);
+			await fs.copyFile(actualDest, dest);
+			// delete ../../../tmp/Documents/snapshots/tableViewRowScaling_percent_540x960.png?
+			// No need to wait for it to happen
+			fs.unlink(actualDest);
+			return dest;
 		}
 		// iOS sim: copy the expected image to destination
 		await fs.copy(filepath, dest);
@@ -666,6 +778,7 @@ async function handleBuild(prc, target, snapshotDir, snapshotPromises) {
 		splitter.encoding = 'utf8';
 
 		function getDeviceName(token) {
+			// eslint-disable-next-line security/detect-child-process
 			const matches = /^[\s\b]+\[([^\]]+)\]\s/g.exec(token.substring(token.indexOf(':') + 1));
 			if (matches && matches.length === 2) {
 				return matches[1];
@@ -723,7 +836,7 @@ async function handleBuild(prc, target, snapshotDir, snapshotPromises) {
 				deviceMap.set(device, new DeviceTestDetails(device, target, snapshotDir, snapshotPromises));
 			}
 			const curTest = deviceMap.get(device);
-			const done = curTest.handleLine(token, stripped);
+			const done = curTest.handleLine(token);
 			if (done) {
 				let results = [];
 				// check if all devices have completed tests
@@ -757,6 +870,11 @@ async function handleBuild(prc, target, snapshotDir, snapshotPromises) {
 				prc.kill(); // quit this build...
 				return reject(new Error('Failed to install test app to device/sim'));
 			}
+			// Handle iOS "soft" crash
+			if (stripped.includes('Application received error: signal error code: 11')) {
+				prc.kill(); // quit this build...
+				return reject(new Error('Application received error: signal error code: 11'));
+			}
 			const device = getDeviceName(stripped);
 			if (!deviceMap.has(device)) {
 				deviceMap.set(device, new DeviceTestDetails(device, target, snapshotDir, snapshotPromises));
@@ -773,9 +891,9 @@ async function handleBuild(prc, target, snapshotDir, snapshotPromises) {
 }
 
 /**
- *
- * @param {string} testResults
- * @returns {string}
+ * Escapes given test output string so it can be used by JSON.parse() method.
+ * @param {string} testResults The test output to be escaped and parsed as JSON.
+ * @returns {string} Returns a string that can be passed to JSON.parse() method.
  */
 function massageJSONString(testResults) {
 	// preserve newlines, etc - use valid JSON
@@ -794,16 +912,16 @@ function massageJSONString(testResults) {
 /**
  * @param {string} platform 'ios' || 'android'
  * @param {string} [target] 'emulator' || 'simulator' || 'device'
- * @param {string} [deviceFamily] 'iphone' || 'ipad'
+ * @param {string} [customPrefix] A custom prefix to help differentiate junit results
  * @returns {string}
  */
-function generateJUnitPrefix(platform, target, deviceFamily) {
+function generateJUnitPrefix(platform, target, customPrefix) {
 	let prefix = platform;
 	if (target) {
 		prefix += '.' + target;
 	}
-	if (deviceFamily) {
-		prefix += '.' + deviceFamily;
+	if (customPrefix) {
+		prefix += '.' + customPrefix;
 	}
 	return prefix;
 }

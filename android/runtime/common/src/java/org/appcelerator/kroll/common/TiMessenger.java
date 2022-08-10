@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2015 by Appcelerator, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -68,7 +68,7 @@ public class TiMessenger implements Handler.Callback
 		}
 	};
 
-	protected ArrayBlockingQueue<Message> messageQueue = new ArrayBlockingQueue<Message>(10);
+	protected ArrayBlockingQueue<Message> messageQueue = new ArrayBlockingQueue<>(10);
 	protected CountDownLatch blockingLatch;
 	protected AtomicInteger blockingMessageCount = new AtomicInteger(0);
 	protected Handler.Callback callback;
@@ -90,7 +90,6 @@ public class TiMessenger implements Handler.Callback
 	 * As of Titanium 8.0.0, the JavaScript runtime only supports running on the main thread. This means
 	 * that getMainMessenger() and getRuntimeMessenger() will always return the same TiMessenger instance.
 	 * @return the main UI thread TiMessenger instance.
-	 * @module.api
 	 */
 	public static TiMessenger getMainMessenger()
 	{
@@ -104,7 +103,6 @@ public class TiMessenger implements Handler.Callback
 	 * As of Titanium 8.0.0, the JavaScript runtime only supports running on the main thread. This means
 	 * that getMainMessenger() and getRuntimeMessenger() will always return the same TiMessenger instance.
 	 * @return the KrollRuntime TiMessenger instance.
-	 * @module.api
 	 */
 	public static TiMessenger getRuntimeMessenger()
 	{
@@ -133,7 +131,6 @@ public class TiMessenger implements Handler.Callback
 	 * queue while blocking on the passed in AsyncResult. The blocking is done on the Main thread.
 	 * @param message  the message to send.
 	 * @return  The getResult() value of the AsyncResult put on the message.
-	 * @module.api
 	 */
 	public static Object sendBlockingMainMessage(Message message)
 	{
@@ -147,7 +144,6 @@ public class TiMessenger implements Handler.Callback
 	 * @param message   the message to send.
 	 * @param asyncArg  argument to be added to the AsyncResult.
 	 * @return  The getResult() value of the AsyncResult put on the message.
-	 * @module.api
 	 */
 	public static Object sendBlockingMainMessage(Message message, Object asyncArg)
 	{
@@ -160,7 +156,6 @@ public class TiMessenger implements Handler.Callback
 	 * queue while blocking on the passed in AsyncResult. The blocking is done on the KrollRuntime thread.
 	 * @param message  the message to send.
 	 * @return  The getResult() value of the AsyncResult put on the message.
-	 * @module.api
 	 */
 	public static Object sendBlockingRuntimeMessage(Message message)
 	{
@@ -174,7 +169,6 @@ public class TiMessenger implements Handler.Callback
 	 * @param message   the message to send.
 	 * @param asyncArg  the argument to be added to AsyncResult.
 	 * @return  The getResult() value of the AsyncResult put on the message.
-	 * @module.api
 	 */
 	public static Object sendBlockingRuntimeMessage(Message message, Object asyncArg)
 	{
@@ -190,7 +184,6 @@ public class TiMessenger implements Handler.Callback
 	 * @param asyncArg  the argument to be added to AsyncResult.
 	 * @param maxTimeout the maximum time to wait for a permit from the semaphore, in the unit of milliseconds.
 	 * @return  The getResult() value of the AsyncResult put on the message.
-	 * @module.api
 	 */
 	public static Object sendBlockingRuntimeMessage(Message message, Object asyncArg, long maxTimeout)
 	{
@@ -205,7 +198,6 @@ public class TiMessenger implements Handler.Callback
 
 	/**
 	 * @return the native looper. See {@link android.os.Looper} for more details.
-	 * @module.api
 	 */
 	public Looper getLooper()
 	{

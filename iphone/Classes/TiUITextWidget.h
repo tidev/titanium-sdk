@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -34,7 +34,7 @@
 - (void)textWidget:(UIView<UITextInputTraits> *)tw didFocusWithText:(NSString *)value;
 - (void)textWidget:(UIView<UITextInputTraits> *)tw didBlurWithText:(NSString *)value;
 - (void)setValue_:(id)text;
-- (void)setSelectionFrom:(id)start to:(id)end;
+- (void)setSelectionFrom:(NSInteger)start to:(NSInteger)end;
 #pragma mark - Titanium Internal Use Only
 - (void)updateKeyboardStatus;
 - (NSDictionary *)selectedRange;

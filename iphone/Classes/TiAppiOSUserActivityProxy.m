@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2015 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -124,18 +124,14 @@
     [_userActivity setRequiredUserInfoKeys:[NSSet setWithArray:[props objectForKey:@"requiredUserInfoKeys"]]];
   }
 
-#if IS_SDK_IOS_12
-  if ([TiUtils isIOSVersionOrGreater:@"12.0"]) {
-    if ([props objectForKey:@"eligibleForPrediction"]) {
-      [_userActivity setEligibleForPrediction:[TiUtils boolValue:@"eligibleForPrediction" properties:props]];
-    }
-
-    if ([props objectForKey:@"persistentIdentifier"]) {
-      [_userActivity setPersistentIdentifier:[TiUtils stringValue:@"persistentIdentifier"
-                                                       properties:props]];
-    }
+  if ([props objectForKey:@"eligibleForPrediction"]) {
+    [_userActivity setEligibleForPrediction:[TiUtils boolValue:@"eligibleForPrediction" properties:props]];
   }
-#endif
+
+  if ([props objectForKey:@"persistentIdentifier"]) {
+    [_userActivity setPersistentIdentifier:[TiUtils stringValue:@"persistentIdentifier"
+                                                     properties:props]];
+  }
 
   _userActivity.delegate = self;
 }
@@ -404,13 +400,8 @@
   [_userActivity resignCurrent];
 }
 
-#if IS_SDK_IOS_12
 - (NSNumber *)eligibleForPrediction
 {
-  if ([TiUtils isIOSVersionLower:@"12.0"]) {
-    return NUMBOOL(NO);
-  }
-
   return @(_userActivity.isEligibleForPrediction);
 }
 
@@ -418,27 +409,17 @@
 {
   ENSURE_UI_THREAD(setEligibleForSearch, value);
   ENSURE_TYPE(value, NSNumber);
-  if ([TiUtils isIOSVersionLower:@"12.0"]) {
-    return;
-  }
+
   [_userActivity setEligibleForPrediction:[TiUtils boolValue:value]];
 }
 
 - (NSString *)persistentIdentifier
 {
-  if ([TiUtils isIOSVersionLower:@"12.0"]) {
-    return nil;
-  }
-
   return _userActivity.persistentIdentifier;
 }
 
 - (void)setPersistentIdentifier:(NSString *)value
 {
-  ENSURE_TYPE(value, NSString);
-  if ([TiUtils isIOSVersionLower:@"12.0"]) {
-    return;
-  }
   [_userActivity setPersistentIdentifier:[TiUtils stringValue:value]];
 }
 
@@ -450,9 +431,6 @@
     ENSURE_TYPE(object, NSString);
   }
 
-  if ([TiUtils isIOSVersionLower:@"12.0"]) {
-    return;
-  }
   [NSUserActivity deleteSavedUserActivitiesWithPersistentIdentifiers:persistentIdentifiers
                                                    completionHandler:^{
                                                      if ([self _hasListeners:@"useractivitydeleted"]) {
@@ -463,16 +441,12 @@
 
 - (void)deleteAllSavedUserActivities:(id)unused
 {
-  if ([TiUtils isIOSVersionLower:@"12.0"]) {
-    return;
-  }
   [NSUserActivity deleteAllSavedUserActivitiesWithCompletionHandler:^{
     if ([self _hasListeners:@"useractivitydeleted"]) {
       [self fireEvent:@"useractivitydeleted" withObject:nil];
     }
   }];
 }
-#endif
 
 @end
 

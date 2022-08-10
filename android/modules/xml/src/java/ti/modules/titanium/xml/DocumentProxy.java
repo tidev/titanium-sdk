@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -95,14 +95,12 @@ public class DocumentProxy extends NodeProxy
 		return getProxy(doc.createTextNode(data));
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public DocumentTypeProxy getDoctype()
 	{
 		return getProxy(doc.getDoctype());
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public ElementProxy getDocumentElement()
 	{
@@ -127,7 +125,6 @@ public class DocumentProxy extends NodeProxy
 		return new NodeListProxy(doc.getElementsByTagNameNS(namespaceURI, localName));
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public DOMImplementationProxy getImplementation()
 	{

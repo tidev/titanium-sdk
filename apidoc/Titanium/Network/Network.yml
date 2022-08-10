@@ -48,16 +48,6 @@ description: |
     </ti:app>
     ```
 
-    Note that Titanium will inject code into the plist file to whitelist `appcelerator.com` subdomains,
-    which is needed to communicate with the Appcelerator Anayltics server. To disable the whitelist,
-    set the `ios.whitelist.appcelerator.com` tiapp application property to false.
-
-    ``` xml
-    <ti:app>
-        <property name="ios.whitelist.appcelerator.com" type="bool">false</property>
-    </ti:app>
-    ```
-
     Listed below are other guidelines from Apple.
 
     **Avoid hard-coded IPv4 address literals**
@@ -134,19 +124,6 @@ description: |
 extends: Titanium.Module
 since: "0.1"
 methods:
-  - name: addConnectivityListener
-    deprecated:
-        since: "1.7.0"
-        removed: "3.0.0"
-        notes: Use the [Titanium.Network.change](Titanium.Network.change) event to monitor connectivity changes.
-    summary: |
-        Legacy method to add a connectivity listener to listen for network changes.
-    parameters:
-      - name: callback
-        summary: Callback function to invoke upon network connectivity changes.
-        type: Callback<Object>
-    platforms: [iphone, ipad]
-
   - name: addHTTPCookie
     summary: |
         Adds a cookie to the HTTP client cookie store.
@@ -546,62 +523,6 @@ properties:
             See [Socket](Titanium.Network.Socket) for constants used with
             [TCP](Titanium.Network.Socket.TCP) sockets.
     summary: Constant value specifying read-write mode for sockets.
-    type: Number
-    permission: read-only
-    platforms: [iphone, ipad]
-
-  - name: SOCKET_CLOSED
-    deprecated:
-        since: "1.7.0"
-        removed: "1.8.0"
-        notes: |
-            Used with the deprecated [Titanium.Network.TCPSocket](Titanium.Network.TCPSocket) only.
-
-            See [Socket](Titanium.Network.Socket) for constants used with
-            [TCP](Titanium.Network.Socket.TCP) sockets.
-    summary: Constant value representing a socket in the CLOSED state.
-    type: Number
-    permission: read-only
-    platforms: [iphone, ipad]
-
-  - name: SOCKET_CONNECTED
-    deprecated:
-        since: "1.7.0"
-        removed: "1.8.0"
-        notes: |
-            Used with the deprecated [Titanium.Network.TCPSocket](Titanium.Network.TCPSocket) only.
-
-            See [Socket](Titanium.Network.Socket) for constants used with
-            [TCP](Titanium.Network.Socket.TCP) sockets.
-    summary: Constant value representing a socket in the CONNECTED state.
-    type: Number
-    permission: read-only
-    platforms: [iphone, ipad]
-
-  - name: SOCKET_ERROR
-    deprecated:
-        since: "1.7.0"
-        removed: "1.8.0"
-        notes: |
-            Used with the deprecated [Titanium.Network.TCPSocket](Titanium.Network.TCPSocket) only.
-
-            See [Socket](Titanium.Network.Socket) for constants used with
-            [TCP](Titanium.Network.Socket.TCP) sockets.
-    summary: Constant value representing a socket in the ERROR state.
-    type: Number
-    permission: read-only
-    platforms: [iphone, ipad]
-
-  - name: SOCKET_INITIALIZED
-    deprecated:
-        since: "1.7.0"
-        removed: "1.8.0"
-        notes: |
-            Used with the deprecated [Titanium.Network.TCPSocket](Titanium.Network.TCPSocket) only.
-
-            See [Socket](Titanium.Network.Socket) for constants used with
-            [TCP](Titanium.Network.Socket.TCP) sockets.
-    summary: Constant value representing a socket in the INITIALIZED state.
     type: Number
     permission: read-only
     platforms: [iphone, ipad]

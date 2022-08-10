@@ -1,7 +1,7 @@
 package org.appcelerator.kroll.annotations;
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2010-2013 by Appcelerator, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -53,7 +53,6 @@ public @interface Kroll {
 		/**
 		 * The argument's name used in error messages and source code generation.<br>
 		 * @default The argument's name from Java source
-		 * @module.api
 		 */
 		String name() default DEFAULT_NAME;
 		/**
@@ -63,7 +62,6 @@ public @interface Kroll {
 		 * <b>Warning</b>: Make sure that <i>all</i> optional arguments are annotated in your {@link method}, or source code generation / binding may fail.
 		 * If the {@link method} has an optional argument in the middle of it's argument list, then all the methods after it should also be annotated as optional.
 		 * </p>
-		 * @module.api
 		 */
 		boolean optional() default false;
 	}
@@ -82,7 +80,6 @@ public @interface Kroll {
 		/**
 		 * The name that this constant is bound to.<br>
 		 * @default The name in Java source.
-		 * @module.api
 		 */
 		String name() default DEFAULT_NAME;
 	}
@@ -140,7 +137,6 @@ public @interface Kroll {
 		/**
 		 * The method's name in the API.<br>
 		 * @default The method's name in Java source.
-		 * @module.api
 		 */
 		String name() default DEFAULT_NAME;
 		/**
@@ -160,7 +156,6 @@ public @interface Kroll {
 		 *     return result.getResult();
 		 * }
 		 * </pre>
-		 * @module.api
 		 */
 		boolean runOnUiThread() default false;
 	}
@@ -188,7 +183,6 @@ public @interface Kroll {
 		 * If this module has a {@link module#parentModule parent module}, this name will be relative to the parent.
 		 * All modules are relative to the top level <pre>Titanium</pre> object. If you wish to bind to the global object, see {@link topLevel @Kroll.topLevel}</p>
 		 * @default If the class name follows the naming convention <pre>XYZModule</pre>, then the default API name is <pre>XYZ</pre>. Otherwise, the default name is the same as the class name.
-		 * @module.api
 		 */
 		String name() default DEFAULT_NAME;
 		/**
@@ -201,13 +195,11 @@ public @interface Kroll {
 		 * public class MyModule extends KrollModule { ... }
 		 * </pre>
 		 * @default The fully qualified class name of the module
-		 * @module.api
 		 */
 		String id() default DEFAULT_NAME;
 		/**
 		 * The parent module class of this module.
 		 * @default No parent module (binds directly to <pre>Titanium</pre>)
-		 * @module.api
 		 */
 		Class<?> parentModule() default DEFAULT.class;
 		/**
@@ -217,7 +209,6 @@ public @interface Kroll {
 		 * &#064;Kroll.module(propertyAccessors={"property1", "property2", "property3"})
 		 * </pre>
 		 * @default No dynamic property accessors are generated
-		 * @module.api
 		 */
 		String[] propertyAccessors() default {};
 	}
@@ -276,7 +267,6 @@ public @interface Kroll {
 		/**
 		 * The name of this property in the API.
 		 * @default The method name stripped of "get", and lower-camel-cased or the method name itself.
-		 * @module.api
 		 */
 		String name() default DEFAULT_NAME;
 		/**
@@ -306,7 +296,6 @@ public @interface Kroll {
 		/**
 		 * The name of this property in the API.<br>
 		 * @default The method name stripped of "set", and lower-camel-cased or the method name itself.
-		 * @module.api
 		 */
 		String name() default DEFAULT_NAME;
 		/**
@@ -344,7 +333,6 @@ public @interface Kroll {
 		/**
 		 * The name of this proxy. Used in debugging, toString(), and {@link proxy#creatableInModule()}.<br>
 		 * @default The name of the proxy class with the "Proxy" suffix removed.
-		 * @module.api
 		 */
 		String name() default DEFAULT_NAME;
 		/**
@@ -357,7 +345,6 @@ public @interface Kroll {
 		 * @default None (don't generate a create method)
 		 * @see org.appcelerator.kroll.KrollProxy#handleCreationArgs(org.appcelerator.kroll.KrollModule, Object[])
 		 * @see org.appcelerator.kroll.KrollProxy#handleCreationDict(org.appcelerator.kroll.KrollDict)
-		 * @module.api
 		 */
 		Class<?> creatableInModule() default DEFAULT.class;
 		/**
@@ -367,14 +354,12 @@ public @interface Kroll {
 		 * &#064;Kroll.proxy(propertyAccessors={"property1", "property2", "property3"})
 		 * </pre>
 		 * @default No dynamic property accessors are generated
-		 * @module.api
 		 */
 		String[] propertyAccessors() default {};
 		/**
 		 * Specify the parent module / namespace for this proxy (if you want this proxy to be expose via "create",
 		 * use {@link proxy#creatableInModule()} instead)
 		 * @default None (lives under the Titanium namespace)
-		 * @module.api
 		 */
 		Class<?> parentModule() default DEFAULT.class;
 	}
@@ -451,7 +436,6 @@ public @interface Kroll {
 	 *     // do something with app
 	 * }
 	 * </pre>
-	 * @module.api
 	 */
 	@Documented
 	@Retention(RetentionPolicy.SOURCE)

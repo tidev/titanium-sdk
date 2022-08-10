@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2018 by Appcelerator, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -20,6 +20,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
@@ -115,9 +116,7 @@ public class TiFile extends TiBaseFile
 	public boolean createFile()
 	{
 		try {
-			if (!file.getParentFile().exists()) {
-				file.mkdirs();
-			}
+			file.getParentFile().mkdirs();
 			if (!file.exists()) {
 				return file.createNewFile();
 			}
@@ -255,15 +254,11 @@ public class TiFile extends TiBaseFile
 		return file.length();
 	}
 
-	@SuppressWarnings("deprecation")
 	@Override
 	public long spaceAvailable()
 	{
 		StatFs stat = new StatFs(file.getPath());
-		if (Build.VERSION.SDK_INT >= 18) {
-			return stat.getAvailableBytes();
-		}
-		return (long) stat.getAvailableBlocks() * (long) stat.getBlockSize();
+		return stat.getAvailableBytes();
 	}
 
 	/**
@@ -301,7 +296,8 @@ public class TiFile extends TiBaseFile
 
 	public OutputStream getOutputStream(int mode) throws IOException
 	{
-		return new FileOutputStream(file, mode == MODE_APPEND ? true : false);
+		this.file.getParentFile().mkdirs();
+		return new FileOutputStream(this.file, (mode == MODE_APPEND));
 	}
 
 	public File getNativeFile()
@@ -313,7 +309,7 @@ public class TiFile extends TiBaseFile
 	public List<String> getDirectoryListing()
 	{
 		File dir = getNativeFile();
-		List<String> listing = new ArrayList<String>();
+		List<String> listing = new ArrayList<>();
 
 		String[] names = dir.list();
 		if (names != null) {
@@ -362,7 +358,7 @@ public class TiFile extends TiBaseFile
 			if (binary) {
 				instream = new BufferedInputStream(getInputStream());
 			} else {
-				inreader = new BufferedReader(new InputStreamReader(new FileInputStream(file), "utf-8"));
+				inreader = new BufferedReader(new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8));
 			}
 		} else {
 			OutputStream os = getOutputStream(mode);
@@ -375,12 +371,6 @@ public class TiFile extends TiBaseFile
 		}
 
 		opened = true; // no exception getting here.
-	}
-
-	@Override
-	public TiBlob read() throws IOException
-	{
-		return TiBlob.blobFromFile(this);
 	}
 
 	@Override
@@ -404,6 +394,7 @@ public class TiFile extends TiBaseFile
 		return result;
 	}
 
+	@Override
 	public void write(TiBlob blob, boolean append) throws IOException
 	{
 		Log.d(TAG, "write called for file = " + file, Log.DEBUG_MODE);
@@ -425,12 +416,13 @@ public class TiFile extends TiBaseFile
 				if (binary) {
 					copyStream(blob.getInputStream(), outstream);
 				} else {
-					outwriter.write(new String(blob.getBytes(), "UTF-8"));
+					outwriter.write(new String(blob.getBytes(), StandardCharsets.UTF_8));
 				}
 			}
 		}
 	}
 
+	@Override
 	public void writeFromUrl(String url, boolean append) throws IOException
 	{
 		Log.d(TAG, "write called for file = " + file, Log.DEBUG_MODE);
@@ -470,7 +462,7 @@ public class TiFile extends TiBaseFile
 				} else {
 					BufferedReader ir = null;
 					try {
-						ir = new BufferedReader(new InputStreamReader(f.getInputStream(), "utf-8"));
+						ir = new BufferedReader(new InputStreamReader(f.getInputStream(), StandardCharsets.UTF_8));
 						copyStream(ir, outwriter);
 					} finally {
 						if (ir != null) {

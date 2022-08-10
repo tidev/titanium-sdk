@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2018 by Axway, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -18,7 +18,7 @@ public class TiApplicationLifecycle implements Application.ActivityLifecycleCall
 {
 	private static final String TAG = "TiApplicationLifecycle";
 
-	private TiApplication tiApp = TiApplication.getInstance();
+	private final TiApplication tiApp = TiApplication.getInstance();
 	private int existingActivityCount;
 	private int visibleActivityCount;
 	private boolean wasPaused;

@@ -146,7 +146,7 @@ async function main(version) {
 main(process.argv[2]).then(results => {
 	if (results && results.length !== 0) {
 		results.forEach(f => {
-			console.error(`${chalk.cyan(f.path)} has been removed since ${chalk.red(pickFirstVersion(f.deprecated.removed))}. Consider dropping from apidocs.`);
+			console.error(`${chalk.cyan(f.path)} has been removed since ${chalk.red(pickFirstVersion(f.deprecated.removed))}${f.deprecated.notes ? ': ' + f.deprecated.notes.trim() : ''}`);
 		});
 		return process.exit(1);
 	}

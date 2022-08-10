@@ -458,4 +458,21 @@ describe('Titanium.Stream', function () {
 		totalsize = 0;
 		Ti.Stream.pump(blobStream, handler, chunksize, true);
 	});
+
+	it('pump - handler should be called(TIMOB-28324))', function (finish) {
+		var	sourceFile = Ti.Filesystem.getFile(Ti.Filesystem.applicationDataDirectory, 'streamfile.txt'),
+			sourceFileStream = Ti.Filesystem.openStream(Ti.Filesystem.MODE_READ, sourceFile.nativePath),
+			handlerCalled = false;
+
+		function handler() {
+			handlerCalled = true;
+		}
+
+		Ti.Stream.pump(sourceFileStream, handler, 20);
+		if (handlerCalled) {
+			finish();
+		} else {
+			finish(Error('Ti.Stream.pump handler not called.'));
+		}
+	});
 });

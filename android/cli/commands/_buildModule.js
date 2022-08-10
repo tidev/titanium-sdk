@@ -4,7 +4,7 @@
  * @module cli/_buildModule
  *
  * @copyright
- * Copyright (c) 2014-2018 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright TiDev, Inc. 04/07/2022-Present
  *
  * @license
  * Licensed under the terms of the Apache Public License
@@ -13,8 +13,7 @@
 
 'use strict';
 
-const AdmZip = require('adm-zip'),
-	androidDetect = require('../lib/detect').detect,
+const androidDetect = require('../lib/detect').detect,
 	AndroidManifest = require('../lib/android-manifest'),
 	appc = require('node-appc'),
 	archiver = require('archiver'),
@@ -195,6 +194,8 @@ AndroidModuleBuilder.prototype.validate = function validate(logger, config, cli)
 	return function (finished) {
 		this.projectDir = cli.argv['project-dir'];
 		this.buildOnly = cli.argv['build-only'];
+		this.target = cli.argv['target'];
+		this.deviceId = cli.argv['device-id'];
 
 		this.cli = cli;
 		this.logger = logger;
@@ -287,9 +288,6 @@ AndroidModuleBuilder.prototype.run = async function run(logger, config, cli, fin
 		// Update module's config files, if necessary.
 		await this.migrate();
 
-		// Post build anlytics.
-		await this.doAnalytics();
-
 		// Initialize build variables and directory.
 		await this.initialize();
 		await this.loginfo();
@@ -309,18 +307,19 @@ AndroidModuleBuilder.prototype.run = async function run(logger, config, cli, fin
 
 		// Build the library and output it to "dist" directory.
 		await this.buildModuleProject();
-		await this.packageZip();
-
-		// Run the built module via "example" project.
-		await this.runModule();
-
 		// Notify plugins that the build is done.
 		await new Promise((resolve) => {
 			cli.emit('build.module.post.compile', this, resolve);
 		});
+
+		await this.packageZip();
+
 		await new Promise((resolve) => {
 			cli.emit('build.module.finalize', this, resolve);
 		});
+
+		// Run the built module via "example" project.
+		await this.runModule(cli);
 	} catch (err) {
 		// Failed to build module. Print the error message and stack trace (if possible).
 		// Note: "err" can be whatever type (including undefined) that was passed into Promise.reject().
@@ -356,24 +355,6 @@ AndroidModuleBuilder.prototype.dirWalker = async function dirWalker(directoryPat
 			callback(filePath, fileName);
 		}
 	}
-};
-
-AndroidModuleBuilder.prototype.doAnalytics = async function doAnalytics() {
-	var cli = this.cli,
-		manifest = this.manifest,
-		eventName = 'android.' + cli.argv.type;
-
-	cli.addAnalyticsEvent(eventName, {
-		name: manifest.name,
-		publisher: manifest.author,
-		appid: manifest.moduleid,
-		description: manifest.description,
-		type: cli.argv.type,
-		guid: manifest.guid,
-		version: manifest.version,
-		copyright: manifest.copyright,
-		date: (new Date()).toDateString()
-	});
 };
 
 AndroidModuleBuilder.prototype.initialize = async function initialize() {
@@ -507,11 +488,16 @@ AndroidModuleBuilder.prototype.generateRootProjectFiles = async function generat
 		key: 'org.gradle.jvmargs',
 		value: `-Xmx${this.javacMaxMemory} -Dkotlin.daemon.jvm.options="-Xmx${this.javacMaxMemory}"`
 	});
+
+	// Kotlin KAPT compatibility for JDK16
+	// NOTE: This parameter is removed in JDK17 and will prevent modules from compiling.
+	// https://youtrack.jetbrains.com/issue/KT-45545
+	gradleProperties.push({ key: 'org.gradle.jvmargs', value: '--illegal-access=permit' });
+
 	await gradlew.writeGradlePropertiesFile(gradleProperties);
 
-	// Create a "local.properties" file providing a path to the Android SDK/NDK directories.
-	const androidNdkPath = this.androidInfo.ndk ? this.androidInfo.ndk.path : null;
-	await gradlew.writeLocalPropertiesFile(this.androidInfo.sdk.path, androidNdkPath);
+	// Create a "local.properties" file providing a path to the Android SDK directory.
+	await gradlew.writeLocalPropertiesFile(this.androidInfo.sdk.path);
 
 	// Copy our root "build.gradle" template script to the root build directory.
 	const templatesDir = path.join(this.platformPath, 'templates', 'build');
@@ -801,7 +787,7 @@ AndroidModuleBuilder.prototype.packageZip = async function () {
 	dest.finalize();
 };
 
-AndroidModuleBuilder.prototype.runModule = async function () {
+AndroidModuleBuilder.prototype.runModule = async function (cli) {
 	// Do not run built module in an app if given command line argument "--build-only".
 	if (this.buildOnly) {
 		return;
@@ -898,12 +884,22 @@ AndroidModuleBuilder.prototype.runModule = async function () {
 	);
 
 	// Unzip module into temp app's "modules" directory.
-	const zip = new AdmZip(this.moduleZipPath);
-	zip.extractAllTo(tmpProjectDir, true);
+	await util.promisify(appc.zip.unzip)(this.moduleZipPath, tmpProjectDir, null);
+
+	// Emit hook so modules can also alter project before launch
+	await new Promise(resolve => cli.emit('create.module.app.finalize', [ this, tmpProjectDir ], resolve));
 
 	// Run the temp app.
 	this.logger.debug(__('Running example project...', tmpDir.cyan));
-	const buildArgs = [ process.argv[1], 'build', '-p', 'android', '-d', tmpProjectDir ];
+	let buildArgs = [ process.argv[1], 'build', '-p', 'android', '-d', tmpProjectDir ];
+	if (this.target) {
+		buildArgs.push('-T');
+		buildArgs.push(this.target);
+	}
+	if (this.deviceId) {
+		buildArgs.push('-C');
+		buildArgs.push(this.deviceId);
+	}
 	await runTiCommand(process.execPath, buildArgs, this.logger);
 };
 

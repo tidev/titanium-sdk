@@ -13,7 +13,7 @@ description: |
 
     Use the <Titanium.UI.createTableView> method or **`<TableView>`** Alloy element to create a `TableView`.
 
-    Also see the [TableViews guide](https://docs.appcelerator.com/platform/latest/#!/guide/TableViews).
+    Also see the [TableViews guide](https://titaniumsdk.com/guide/Titanium_SDK/Titanium_SDK_How-tos/User_Interface_Deep_Dives/TableViews.html).
 
     #### Creating Tables
 
@@ -63,12 +63,12 @@ description: |
     Release 3.0:
 
     *   On iOS, the first two arguments to the `updateSection` method are reversed.
-        ([TIMOB-12625](https://jira.appcelerator.org/browse/TIMOB-12625)). This issue has been
+        ([TIMOB-12625](https://jira-archive.titaniumsdk.com/TIMOB-12625)). This issue has been
         addressed in Release 3.3.0 of the Titanium SDK
 
-    #### Row Editing and Moving Modes (iOS only)
+    #### Row Editing and Moving Modes
 
-    On iOS, table views have an `editing` and a `moving` mode that may be activated to using their
+    Table views have an `editing` and a `moving` mode that may be activated to using their
     respective [editing](Titanium.UI.TableView.editing) and [moving](Titanium.UI.TableView.moving)
     properties. These allow rows to be deleted or re-ordered by the user, depending on each row's
     [editable](Titanium.UI.TableViewRow.editable) and [moveable](Titanium.UI.TableViewRow.moveable)
@@ -173,10 +173,10 @@ events:
 
   - name: rowsselected
     summary: |
-        Fired when user stops two-pan gesture interaction for selecting multiple rows. 
+        Fired when user stops two-pan gesture interaction for selecting multiple rows.
         It is used in conjunction with <Titanium.UI.TableView.allowsMultipleSelectionInteraction>.
-    platforms: [iphone, ipad, macos]
-    since: 8.2.0
+    platforms: [android, iphone, ipad, macos]
+    since: {android: "10.1.0", iphone: "8.2.0", ipad: "8.2.0", macos: "9.2.0"}
     properties:
       - name: selectedRows
         summary: List of rows selected by user.
@@ -188,7 +188,8 @@ events:
 
   - name: delete
     summary: Fired when a table row is deleted by the user.
-    platforms: [iphone, ipad, macos]
+    platforms: [android, iphone, ipad, macos]
+    since: {android: "10.0.0"}
     properties:
       - name: detail
         summary: Indicates whether the delete button was clicked. Always `false` for this event.
@@ -321,7 +322,8 @@ events:
 
   - name: move
     summary: Fired when a table row is moved by the user.
-    platforms: [iphone, ipad, macos]
+    platforms: [android, iphone, ipad, macos]
+    since: {android: "9.3.0", iphone: "3.2.0", ipad: "3.2.0", macos: "9.2.0"}
     properties:
       - name: detail
         summary: Boolean to indicate if the right area was clicked. Always `false` for this event.
@@ -890,7 +892,7 @@ methods:
         type: Number
 
       - name: animation
-        summary: Animation properties. (iOS only.)
+        summary: Animation properties.
         type: TableViewAnimationProperties
         optional: true
 
@@ -920,7 +922,7 @@ methods:
         type: Number
 
       - name: animation
-        summary: Animation properties. (iOS only.)
+        summary: Animation properties.
         type: TableViewAnimationProperties
         optional: true
 
@@ -956,7 +958,7 @@ methods:
 
   - name: setContentOffset
     summary: Sets the value of the content offset of the table view without animation by default.
-    platforms: [iphone, ipad, macos]
+    platforms: [android, iphone, ipad, macos]
     parameters:
       - name: contentOffset
         summary: |
@@ -971,7 +973,7 @@ methods:
         type: AnimatedOptions
         optional: true
         default: "{ animated: false }"
-    since: 3.4.0
+    since: {android: "10.1.0", iphone: "3.4.0", ipad: "3.4.0", macos: "9.2.0"}
 
   - name: selectRow
     summary: |
@@ -1012,6 +1014,11 @@ methods:
         type: Titanium.UI.View
     platforms: [iphone, ipad, macos]
     since: "2.1.0"
+    deprecated:
+      since: "10.0.0"
+      removed: "10.0.0"
+      notes: Use the <Titanium.UI.TableView.headerPullView> property instead.
+
 
   - name: updateRow
     summary: Updates an existing row, optionally with animation.
@@ -1035,7 +1042,7 @@ methods:
 
         *   On iOS, event listeners do not fire correctly after table view sections are
             updated using the `updateSection` methods.
-            ([TIMOB-12616](https://jira.appcelerator.org/browse/TIMOB-12616)
+            ([TIMOB-12616](https://jira-archive.titaniumsdk.com/TIMOB-12616)
     parameters:
       - name: index
         summary: Index of the section to update.
@@ -1058,13 +1065,15 @@ properties:
     type: Boolean
     default: true
     platforms: [iphone, ipad, macos]
+    since: {iphone: "8.2.0", ipad: "8.2.0", macos: "9.2.0"}
 
   - name: allowsSelectionDuringEditing
     summary: Determines whether this table's rows can be selected while editing the table.
     description: Set to `true` to allow rows to be selected.
     type: Boolean
     default: false
-    platforms: [iphone, ipad, macos]
+    since: {android: "10.1.0", iphone: "5.4.0", ipad: "5.4.0", macos: "9.2.0"}
+    platforms: [android, iphone, ipad, macos]
 
   - name: backgroundColor
     summary: Background color of the view, as a color name or hex triplet.
@@ -1089,7 +1098,8 @@ properties:
         `editing` and `moving` modes.
     type: Boolean
     default: Depends on `editing` and `moving` mode
-    platforms: [iphone, ipad, macos]
+    platforms: [android, iphone, ipad, macos]
+    since: {android: "9.3.0", iphone: "3.2.0", ipad: "3.2.0", macos: "9.2.0"}
 
   - name: editing
     summary: |
@@ -1103,7 +1113,8 @@ properties:
         `editing` and `moving` modes.
     type: Boolean
     default: false
-    platforms: [iphone, ipad, macos]
+    platforms: [android, iphone, ipad, macos]
+    since: {android: "9.3.0", iphone: "3.2.0", ipad: "3.2.0", macos: "9.2.0"}
 
   - name: filterAttribute
     summary: Filter attribute to be used when searching.
@@ -1143,6 +1154,16 @@ properties:
     default: true
     platforms: [android, iphone, ipad, macos]
 
+  - name: fixedSize
+    summary: Sets fixedSize mode on Android TableView.
+    description: |
+        Set it to `true` if all TableView items have the same size to gain some performance.
+    type: Boolean
+    default: false
+    availability: creation
+    since: 11.0.0
+    platforms: [android]
+
   - name: footerDividersEnabled
     summary: When set to false, the ListView will not draw the divider before the footer view.
     type: Boolean
@@ -1178,7 +1199,7 @@ properties:
         To specify the wrapper color see <Titanium.UI.View.pullBackgroundColor>.
 
         For an example, see the "Pull to refresh" section in the
-        [TableViews guide](https://docs.appcelerator.com/platform/latest/#!/guide/TableViews).
+        [TableViews guide](https://titaniumsdk.com/guide/Titanium_SDK/Titanium_SDK_How-tos/User_Interface_Deep_Dives/TableViews.html).
 
         Alloy applications can use a `<HeaderPullView>` element inside a `<TableView>` element.
 
@@ -1223,20 +1244,20 @@ properties:
     summary: Determines whether multiple items of this table view can be selected at the same time while editing the table.
     type: Boolean
     default: false
-    since: 8.2.0
-    platforms: [iphone, ipad, macos]
+    since: {android: "10.1.0", iphone: "8.2.0", ipad: "8.2.0", macos: "9.2.0"}
+    platforms: [android, iphone, ipad, macos]
 
   - name: allowsMultipleSelectionInteraction
     summary: Allows a two-finger pan gesture to automatically transition the table view into editing mode and start selecting rows.
     description: |
-        Setting this property to true allows the user to start selecting multiple contiguous rows via a two-finger pan gesture. 
-        If the table view is already in editing mode, the user can also select multiple rows via a one-finger pan gesture along 
-        the edge of the table that contains editing controls (checkboxes). In order to support this behavior, 
+        Setting this property to true allows the user to start selecting multiple contiguous rows via a two-finger pan gesture.
+        If the table view is already in editing mode, the user can also select multiple rows via a one-finger pan gesture along
+        the edge of the table that contains editing controls (checkboxes). In order to support this behavior,
         you must also set <Titanium.UI.TableView.allowsMultipleSelectionDuringEditing> to true.
         Once user interaction stops the <Titanium.UI.TableView.rowsselected> event is fired.
     type: Boolean
     default: false
-    since: 8.2.0
+    since: {iphone: "8.2.0", ipad: "8.2.0", macos: "9.2.0"}
     platforms: [iphone, ipad, macos]
 
   - name: footerView
@@ -1317,7 +1338,8 @@ properties:
         `editing` and `moving` modes.
     type: Boolean
     default: Depends on `editing` and `moving` mode
-    platforms: [iphone, ipad, macos]
+    platforms: [android, iphone, ipad, macos]
+    since: {android: "9.3.0", iphone: "3.2.0", ipad: "3.2.0", macos: "9.2.0"}
 
   - name: moving
     summary: |
@@ -1331,7 +1353,8 @@ properties:
         `editing` and `moving` modes.
     type: Boolean
     default: false
-    platforms: [iphone, ipad, macos]
+    platforms: [android, iphone, ipad, macos]
+    since: {android: "9.3.0", iphone: "3.2.0", ipad: "3.2.0", macos: "9.2.0"}
 
   - name: overScrollMode
     summary: Determines the behavior when the user overscrolls the view.
@@ -1405,8 +1428,8 @@ properties:
   - name: showSearchBarInNavBar
     summary: A Boolean indicating whether search bar will be in navigation bar.
     description: |
-          If you want to show the search bar in navigation bar, set this property `true` during creation. 
-          Use the <Titanium.UI.Window.hidesSearchBarWhenScrolling> property to control the visibility of the 
+          If you want to show the search bar in navigation bar, set this property `true` during creation.
+          Use the <Titanium.UI.Window.hidesSearchBarWhenScrolling> property to control the visibility of the
           searchbar when scrolling.
     type: Boolean
     default: false
@@ -1414,7 +1437,7 @@ properties:
     platforms: [iphone, ipad, macos]
     osver: {ios: {min: "11.0"}}
     availability: creation
-    
+
   - name: searchAsChild
     summary: Determines whether the [SearchBar](Titanium.UI.SearchBar) or [SearchView](Titanium.UI.Android.SearchView) appears as part of the TableView.
     description: Set to false if the search view will be displayed in the action bar.
@@ -1448,6 +1471,14 @@ properties:
     since: { android: 3.1.0, iphone: 3.0.0, ipad: 3.0.0 }
     platforms: [android, iphone, ipad, macos]
 
+  - name: sectionHeaderTopPadding
+    summary: Padding above each section header.
+    description: If not set or set to `-1`, it defaults to an automatic spacing determined by the system.
+    type: Number
+    since: 10.1.0
+    platforms: [iphone, ipad, macos]
+    osver: { ios: { min: "15.0" } }
+
   - name: separatorColor
     summary: Separator line color between rows, as a color name or hex triplet.
     description: |
@@ -1470,29 +1501,39 @@ properties:
 
         For example:
         ``` js
-        tableView1.setSeparatorInsets({
-            left:10,
-            right:10
-        });
+        tableView1.separatorInsets = {
+            left: 10,
+            right: 10
+        };
         ```
     type: HorizontalInsets
     since: 3.2.0
     osver: {ios: {min: "7.0"}}
     platforms: [iphone, ipad, macos]
 
+  - name: touchFeedback
+    summary: A material design visual construct that provides an instantaneous visual confirmation of touch point.
+    description: |
+        Touch feedback is only applied to a view's background.
+    type: Boolean
+    default: true
+    platforms: [android]
+    osver: {android: {min: "5.0"}}
+    since: "10.0.0"
+
   - name: tableSeparatorInsets
     summary: The insets for the table view header and footer.
     description: |
-        Cell separators do not extend all the way to the edge of the table view.Set this to a
+        Cell separators do not extend all the way to the edge of the table view. Set this to a
         dictionary with two keys, `left` specifying inset from left edge and `right` specifying the inset from the
         right edge. If the rowSeparatorInsets is not set, the tableSeparatorInsets will also set the cell insets.
 
         For example:
         ``` js
-        tableView1.setTableSeparatorInsets({
-            left:10,
-            right:10
-        });
+        tableView1.tableSeparatorInsets = {
+            left: 10,
+            right: 10
+        };
         ```
     type: HorizontalInsets
     since: "5.2.0"
@@ -1502,16 +1543,16 @@ properties:
   - name: rowSeparatorInsets
     summary: The insets for table view cells (applies to all cells).
     description: |
-        Cell separators do not extend all the way to the edge of the table view.Set this to a
+        Cell separators do not extend all the way to the edge of the table view. Set this to a
         dictionary with two keys, `left` specifying inset from left edge and `right` specifying the inset from the
         right edge. This property is only available upon creation of the cells.
 
         For example:
         ``` js
-        tableView1.setRowSeparatorInsets({
-            left:10,
-            right:10
-        });
+        tableView1.rowSeparatorInsets = {
+            left: 10,
+            right: 10
+        };
         ```
     type: HorizontalInsets
     since: "5.2.0"
@@ -1524,6 +1565,13 @@ properties:
     constants: Titanium.UI.TABLE_VIEW_SEPARATOR_STYLE_*
     platforms: [iphone, ipad, android, macos]
     since: {android: "5.2.0"}
+
+  - name: showSelectionCheck
+    summary: Determines whether the selection checkmark is displayed on selected rows.
+    type: Boolean
+    default: true
+    since: {android: "10.1.0"}
+    platforms: [android]
 
   - name: showVerticalScrollIndicator
     summary: Determines whether this table view displays a vertical scroll indicator.
@@ -1646,11 +1694,8 @@ examples:
         Create a table of rows that contain a custom child-view layout.
 
         ``` js
-        Ti.UI.setBackgroundColor('#000');
         var win = Ti.UI.createWindow({
           backgroundColor: 'black',
-          exitOnClose: true,
-          fullscreen: false,
           title: 'TableView Demo'
         });
 
@@ -1666,50 +1711,50 @@ examples:
 
         for (var i=1; i<=20; i++){
           var row = Ti.UI.createTableViewRow({
-            className:'forumEvent', // used to improve table performance
-            selectedBackgroundColor:'white',
-            rowIndex:i, // custom property, useful for determining the row during events
-            height:110
+            className: 'forumEvent', // used to improve table performance
+            backgroundSelectedColor: 'white',
+            rowIndex: i, // custom property, useful for determining the row during events
+            height: 110
           });
 
           var imageAvatar = Ti.UI.createImageView({
             image: IMG_BASE + 'custom_tableview/user.png',
-            left:10, top:5,
-            width:50, height:50
+            left: 10, top: 5,
+            width: 50, height: 50
           });
           row.add(imageAvatar);
 
           var labelUserName = Ti.UI.createLabel({
-            color:'#576996',
-            font:{fontFamily:'Arial', fontSize:defaultFontSize+6, fontWeight:'bold'},
-            text:'Fred Smith ' + i,
-            left:70, top: 6,
-            width:200, height: 30
+            color: '#576996',
+            font: {fontFamily:'Arial', fontSize: defaultFontSize+6, fontWeight: 'bold'},
+            text: 'Fred Smith ' + i,
+            left: 70, top: 6,
+            width: 200, height: 30
           });
           row.add(labelUserName);
 
           var labelDetails = Ti.UI.createLabel({
-            color:'#222',
-            font:{fontFamily:'Arial', fontSize:defaultFontSize+2, fontWeight:'normal'},
-            text:'Replied to post with id ' + randomInt(1000) + '.',
-            left:70, top:44,
-            width:360
+            color: '#222',
+            font: {fontFamily:'Arial', fontSize: defaultFontSize+2, fontWeight: 'normal'},
+            text: 'Replied to post with id ' + randomInt(1000) + '.',
+            left: 70, top: 44,
+            width: 360
           });
           row.add(labelDetails);
 
           var imageCalendar = Ti.UI.createImageView({
-            image:IMG_BASE + 'custom_tableview/eventsButton.png',
-            left:70, bottom: 2,
-            width:32, height: 32
+            image: IMG_BASE + 'custom_tableview/eventsButton.png',
+            left: 70, bottom: 2,
+            width: 32, height: 32
           });
           row.add(imageCalendar);
 
           var labelDate = Ti.UI.createLabel({
-            color:'#999',
-            font:{fontFamily:'Arial', fontSize:defaultFontSize, fontWeight:'normal'},
-            text:'on ' + randomInt(30) + ' Nov 2012',
-            left:105, bottom:10,
-            width:200, height:20
+            color: '#999',
+            font: {fontFamily:'Arial', fontSize: defaultFontSize, fontWeight: 'normal'},
+            text: 'on ' + randomInt(30) + ' Nov 2012',
+            left: 105, bottom: 10,
+            width: 200, height: 20
           });
           row.add(labelDate);
 
@@ -1717,8 +1762,8 @@ examples:
         }
 
         var tableView = Ti.UI.createTableView({
-          backgroundColor:'white',
-          data:tableData
+          backgroundColor: 'white',
+          data: tableData
         });
 
         win.add(tableView);
@@ -1754,11 +1799,13 @@ examples:
 name: TableViewAnimationProperties
 summary: A simple object for specifying the animation properties to use when inserting or deleting rows, or scrolling the table.
 description: |
-    These properties are only used on iOS. Not all properties apply to all methods.
+    Not all properties apply to all methods.
 
     `animationStyle` does not apply to the `scrollToTop` or `scrollToIndex` methods.
 
     `positon` only applies to the `scrollToIndex` method.
+platforms: [iphone, ipad, android, macos]
+since: {android: "10.1.0", iphone: "3.1.0", ipad: "3.1.0", macos: "9.2.0"}
 properties:
   - name: animated
     summary: Whether this table change should be animated. Ignored if any `animationStyle` value is specified.
@@ -1776,8 +1823,8 @@ properties:
   - name: position
     summary: Specifies what position to scroll the selected row to.
     type: Number
-    constants: Titanium.UI.iOS.TableViewScrollPosition.*
-    default: <Titanium.UI.iOS.TableViewScrollPosition.NONE>
+    constants: Titanium.UI.TableViewScrollPosition.*
+    default: <Titanium.UI.TableViewScrollPosition.NONE>
 
 ---
 name: TableViewIndexEntry
@@ -1794,8 +1841,8 @@ properties:
 ---
 name: SelectedRowObject
 summary: The arguments for the <Titanium.UI.TableView.rowsselected> event.
-since: 8.2.0
-platforms: [iphone, ipad, macos]    
+since: {android: "10.1.0", iphone: "8.2.0", ipad: "8.2.0", macos: "9.2.0"}
+platforms: [android, iphone, ipad, macos]
 properties:
   - name: index
     summary: Row index.

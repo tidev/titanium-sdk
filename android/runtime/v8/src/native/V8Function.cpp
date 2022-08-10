@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2011-2018 by Appcelerator, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -79,9 +79,9 @@ JNIEXPORT jobject JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Function_nati
 	return TypeConverter::jsValueToJavaObject(V8Runtime::v8_isolate, env, object.ToLocalChecked(), &isNew);
 }
 
-JNIEXPORT void JNICALL
+JNIEXPORT jboolean JNICALL
 Java_org_appcelerator_kroll_runtime_v8_V8Function_nativeRelease
-	(JNIEnv *env, jclass clazz, jlong ptr)
+	(JNIEnv *env, jobject self, jlong ptr)
 {
 	// Release the JS function so it can be collected.
 	// We guard against "bad" pointers by searching by index before releasing
@@ -90,7 +90,9 @@ Java_org_appcelerator_kroll_runtime_v8_V8Function_nativeRelease
 		auto jsFunction = it->second;
 		jsFunction.Reset();
 		TypeConverter::functions.erase(it);
+		return JNI_TRUE;
 	}
+	return JNI_FALSE;
 }
 
 #ifdef __cplusplus

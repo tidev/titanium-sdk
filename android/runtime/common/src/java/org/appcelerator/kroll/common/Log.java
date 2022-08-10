@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -8,7 +8,7 @@ package org.appcelerator.kroll.common;
 
 /**
  * API to send log output. Supported severity-levels include: 'debug', 'warn', 'info' and 'error'.
- * Refer to <a href="http://developer.android.com/reference/android/util/Log.html">Android Log documentation</a> for more information. 
+ * Refer to <a href="http://developer.android.com/reference/android/util/Log.html">Android Log documentation</a> for more information.
  */
 public class Log
 {
@@ -26,13 +26,11 @@ public class Log
 
 	/**
 	 * A constant for the release mode.  In this mode, logs are always processed. This is the default mode if none are specified.
-	 * @module.api
 	 */
 	public static final String RELEASE_MODE = "RELEASE_MODE";
 	/**
 	 * A constant for debug mode. In this mode, logs are only processed when TiConfig.DEBUG is true. (TiConfig.DEBUG
 	 * corresponds to the 'ti.android.debug' property set by the user)
-	 * @module.api
 	 */
 	public static final String DEBUG_MODE = "DEBUG_MODE";
 
@@ -49,9 +47,8 @@ public class Log
 	 * @param tag  used to identify the source of the message.
 	 * @param msg  the message to log.
 	 * @param mode the mode to determine whether the log should be processed
-	 * @return     an integer that is dependent on the content and tag of the log. 
+	 * @return     an integer that is dependent on the content and tag of the log.
 	 *             Two different msgs would have two different return values.
-	 * @module.api
 	 */
 	public static int v(String tag, String msg, String mode)
 	{
@@ -64,9 +61,8 @@ public class Log
 	 * This method is thread safe.
 	 * @param tag  used to identify the source of the message.
 	 * @param msg  the message to log.
-	 * @return     an integer that is dependent on the content and tag of the log. 
+	 * @return     an integer that is dependent on the content and tag of the log.
 	 *             Two different msgs would have two different return values.
-	 * @module.api
 	 */
 	public static int v(String tag, String msg)
 	{
@@ -81,9 +77,8 @@ public class Log
 	 * @param msg  the message to log.
 	 * @param t    the exception to log.
 	 * @param mode the mode to determine whether the log should be processed
-	 * @return     an integer that is dependent on the content and tag of the log. 
+	 * @return     an integer that is dependent on the content and tag of the log.
 	 *             Two different msgs would have two different return values.
-	 * @module.api
 	 */
 	public static int v(String tag, String msg, Throwable t, String mode)
 	{
@@ -97,9 +92,8 @@ public class Log
 	 * @param tag  used to identify the source of the message.
 	 * @param msg  the message to log.
 	 * @param t    the exception to log.
-	 * @return     an integer that is dependent on the content and tag of the log. 
+	 * @return     an integer that is dependent on the content and tag of the log.
 	 *             Two different msgs would have two different return values.
-	 * @module.api
 	 */
 	public static int v(String tag, String msg, Throwable t)
 	{
@@ -113,9 +107,8 @@ public class Log
 	 * @param tag  used to identify the source of the message.
 	 * @param msg  the message to log.
 	 * @param mode the mode to determine whether the log should be processed
-	 * @return     an integer that is dependent on the content and tag of the log. 
+	 * @return     an integer that is dependent on the content and tag of the log.
 	 *             Two different msgs would have two different return values.
-	 * @module.api
 	 */
 	public static int d(String tag, String msg, String mode)
 	{
@@ -128,9 +121,8 @@ public class Log
 	 * This method is thread safe.
 	 * @param tag  used to identify the source of the message.
 	 * @param msg  the message to log.
-	 * @return     an integer that is dependent on the content and tag of the log. 
+	 * @return     an integer that is dependent on the content and tag of the log.
 	 *             Two different msgs would have two different return values.
-	 * @module.api
 	 */
 	public static int d(String tag, String msg)
 	{
@@ -151,9 +143,8 @@ public class Log
 	 * @param msg  the message to log.
 	 * @param t    the exception to log.
 	 * @param mode the mode to determine whether the log should be processed
-	 * @return     an integer that is dependent on the content and tag of the log. 
+	 * @return     an integer that is dependent on the content and tag of the log.
 	 *             Two different msgs would have two different return values.
-	 * @module.api
 	 */
 	public static int d(String tag, String msg, Throwable t, String mode)
 	{
@@ -167,9 +158,8 @@ public class Log
 	 * @param tag  used to identify the source of the message.
 	 * @param msg  the message to log.
 	 * @param t    the exception to log.
-	 * @return     an integer that is dependent on the content and tag of the log. 
+	 * @return     an integer that is dependent on the content and tag of the log.
 	 *             Two different msgs would have two different return values.
-	 * @module.api
 	 */
 	public static int d(String tag, String msg, Throwable t)
 	{
@@ -183,9 +173,8 @@ public class Log
 	 * @param tag  used to identify the source of the message.
 	 * @param msg  the message to log.
 	 * @param mode the mode to determine whether the log should be processed
-	 * @return     an integer that is dependent on the content and tag of the log. 
+	 * @return     an integer that is dependent on the content and tag of the log.
 	 *             Two different msgs would have two different return values.
-	 * @module.api
 	 */
 	public static int i(String tag, String msg, String mode)
 	{
@@ -198,9 +187,8 @@ public class Log
 	 * This method is thread safe.
 	 * @param tag  used to identify the source of the message.
 	 * @param msg  the message to log.
-	 * @return     an integer that is dependent on the content and tag of the log. 
+	 * @return     an integer that is dependent on the content and tag of the log.
 	 *             Two different msgs would have two different return values.
-	 * @module.api
 	 */
 	public static int i(String tag, String msg)
 	{
@@ -208,16 +196,15 @@ public class Log
 	}
 
 	/**
-	 * Sends a 'info' log message, with the thread name and time stamp pre-appended, and log the exception. 
+	 * Sends a 'info' log message, with the thread name and time stamp pre-appended, and log the exception.
 	 * For more information regarding formatting, refer to {@link #w(String, String)}.
 	 * This method is thread safe.
 	 * @param tag  used to idenfity the source of the message.
 	 * @param msg  the message to log.
 	 * @param t    the exception to log.
 	 * @param mode the mode to determine whether the log should be processed
-	 * @return     an integer that is dependent on the content and tag of the log. 
+	 * @return     an integer that is dependent on the content and tag of the log.
 	 *             Two different msgs would have two different return values.
-	 * @module.api
 	 */
 	public static int i(String tag, String msg, Throwable t, String mode)
 	{
@@ -225,15 +212,14 @@ public class Log
 	}
 
 	/**
-	 * Sends a 'info' log message, with the thread name and time stamp pre-appended, and log the exception. 
+	 * Sends a 'info' log message, with the thread name and time stamp pre-appended, and log the exception.
 	 * For more information regarding formatting, refer to {@link #w(String, String)}.
 	 * This method is thread safe.
 	 * @param tag  used to idenfity the source of the message.
 	 * @param msg  the message to log.
 	 * @param t    the exception to log.
-	 * @return     an integer that is dependent on the content and tag of the log. 
+	 * @return     an integer that is dependent on the content and tag of the log.
 	 *             Two different msgs would have two different return values.
-	 * @module.api
 	 */
 	public static int i(String tag, String msg, Throwable t)
 	{
@@ -247,9 +233,8 @@ public class Log
 	 * @param tag  used to identify the source of the message.
 	 * @param msg  the message to log.
 	 * @param mode the mode to determine whether the log should be processed
-	 * @return     an integer that is dependent on the content and tag of the log. 
+	 * @return     an integer that is dependent on the content and tag of the log.
 	 *             Two different msgs would have two different return values.
-	 * @module.api
 	 */
 	public static int w(String tag, String msg, String mode)
 	{
@@ -262,9 +247,8 @@ public class Log
 	 * This method is thread safe.
 	 * @param tag  used to identify the source of the message.
 	 * @param msg  the message to log.
-	 * @return     an integer that is dependent on the content and tag of the log. 
+	 * @return     an integer that is dependent on the content and tag of the log.
 	 *             Two different msgs would have two different return values.
-	 * @module.api
 	 */
 	public static int w(String tag, String msg)
 	{
@@ -279,9 +263,8 @@ public class Log
 	 * @param msg  the message to log.
 	 * @param t    an exception to log.
 	 * @param mode the mode to determine whether the log should be processed
-	 * @return     an integer that is dependent on the content and tag of the log. 
+	 * @return     an integer that is dependent on the content and tag of the log.
 	 *             Two different msgs would have two different return values.
-	 * @module.api
 	 */
 	public static int w(String tag, String msg, Throwable t, String mode)
 	{
@@ -295,9 +278,8 @@ public class Log
 	 * @param tag  used to identify the source of message.
 	 * @param msg  the message to log.
 	 * @param t    an exception to log.
-	 * @return     an integer that is dependent on the content and tag of the log. 
+	 * @return     an integer that is dependent on the content and tag of the log.
 	 *             Two different msgs would have two different return values.
-	 * @module.api
 	 */
 	public static int w(String tag, String msg, Throwable t)
 	{
@@ -311,9 +293,8 @@ public class Log
 	 * @param tag  used to identify the source of message.
 	 * @param msg  the message to log.
 	 * @param mode the mode to determine whether the log should be processed
-	 * @return     an integer that is dependent on the content and tag of the log. 
+	 * @return     an integer that is dependent on the content and tag of the log.
 	 *             Two different msgs would have two different return values.
-	 * @module.api
 	 */
 	public static int e(String tag, String msg, String mode)
 	{
@@ -326,9 +307,8 @@ public class Log
 	 * This method is thread safe.
 	 * @param tag  used to identify the source of message.
 	 * @param msg  the message to log.
-	 * @return     an integer that is dependent on the content and tag of the log. 
+	 * @return     an integer that is dependent on the content and tag of the log.
 	 *             Two different msgs would have two different return values.
-	 * @module.api
 	 */
 	public static int e(String tag, String msg)
 	{
@@ -343,9 +323,8 @@ public class Log
 	 * @param msg  the message to log.
 	 * @param t    the exception to log.
 	 * @param mode the mode to determine whether the log should be processed
-	 * @return     an integer that is dependent on the content and tag of the log. 
+	 * @return     an integer that is dependent on the content and tag of the log.
 	 *             Two different msgs would have two different return values.
-	 * @module.api
 	 */
 	public static int e(String tag, String msg, Throwable t, String mode)
 	{
@@ -359,9 +338,8 @@ public class Log
 	 * @param tag  used to identify the source of message.
 	 * @param msg  the message to log.
 	 * @param t    the exception to log.
-	 * @return     an integer that is dependent on the content and tag of the log. 
+	 * @return     an integer that is dependent on the content and tag of the log.
 	 *             Two different msgs would have two different return values.
-	 * @module.api
 	 */
 	public static int e(String tag, String msg, Throwable t)
 	{

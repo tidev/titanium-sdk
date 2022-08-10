@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -13,7 +13,6 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
-import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -38,8 +37,6 @@ import java.util.zip.GZIPInputStream;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
 
-import android.os.Build;
-
 public class TiResponseCache extends ResponseCache
 {
 	private static final String TAG = "TiResponseCache";
@@ -50,13 +47,11 @@ public class TiResponseCache extends ResponseCache
 	private static final int DEFAULT_CACHE_SIZE = 25 * 1024 * 1024; // 25MB
 	private static final int INITIAL_DELAY = 10000;
 	private static final int CLEANUP_DELAY = 60000;
-	private static HashMap<String, ArrayList<CompleteListener>> completeListeners =
-		new HashMap<String, ArrayList<CompleteListener>>();
+	private static final HashMap<String, ArrayList<CompleteListener>> completeListeners = new HashMap<>();
 	private static long maxCacheSize = 0;
 
 	// List of Video Media Formats from http://developer.android.com/guide/appendix/media-formats.html
-	private static final List<String> videoFormats =
-		new ArrayList<String>(Arrays.asList("mkv", "webm", "3gp", "mp4", "ts"));
+	private static final List<String> videoFormats = new ArrayList<>(Arrays.asList("mkv", "webm", "3gp", "mp4", "ts"));
 
 	private static ScheduledExecutorService cleanupExecutor = null;
 
@@ -74,23 +69,17 @@ public class TiResponseCache extends ResponseCache
 			this.maxSize = maxSize;
 		}
 
-		// TODO @Override
+		@Override
 		public void run()
 		{
 			// Build up a list of access times
-			HashMap<Long, File> lastTime = new HashMap<Long, File>();
-			for (File hdrFile : cacheDir.listFiles(new FilenameFilter() {
-					// TODO @Override
-					public boolean accept(File dir, String name)
-					{
-						return name.endsWith(HEADER_SUFFIX);
-					}
-				})) {
+			HashMap<Long, File> lastTime = new HashMap<>();
+			for (File hdrFile : cacheDir.listFiles((dir, name) -> name.endsWith(HEADER_SUFFIX))) {
 				lastTime.put(hdrFile.lastModified(), hdrFile);
 			}
 
 			// Ensure that the cache is under the required size
-			List<Long> sz = new ArrayList<Long>(lastTime.keySet());
+			List<Long> sz = new ArrayList<>(lastTime.keySet());
 			Collections.sort(sz);
 			Collections.reverse(sz);
 			long cacheSize = 0;
@@ -192,7 +181,7 @@ public class TiResponseCache extends ResponseCache
 	 * Check whether the content from uri has been cached. This method is optimized for
 	 * TiResponseCache. For other kinds of ResponseCache, eg. HttpResponseCache, it only
 	 * checks whether the system's default response cache is set.
-	 * @param uri
+	 * @param uri The uri to check if cached content exists for.
 	 * @return true if the content from uri is cached; false otherwise.
 	 */
 	public static boolean peek(URI uri)
@@ -258,7 +247,7 @@ public class TiResponseCache extends ResponseCache
 		// Check if the given URI is cached. If it is, follow its cached redirects if applicable.
 		try {
 			URI nextUri = uri;
-			HashMap<String, List<String>> requestHeaders = new HashMap<String, List<String>>();
+			HashMap<String, List<String>> requestHeaders = new HashMap<>();
 			while (TiResponseCache.peek(nextUri)) {
 				// Fetch the URI's cached response.
 				CacheResponse response = TiResponseCache.getDefault().get(nextUri, "GET", requestHeaders);
@@ -325,7 +314,7 @@ public class TiResponseCache extends ResponseCache
 
 	/**
 	 * Get the cached content for uri. It works for all kinds of ResponseCache.
-	 * @param uri
+	 * @param uri The URI to fetch cached content from.
 	 * @return an InputStream of the cached content
 	 */
 	public static InputStream openCachedStream(URI uri)
@@ -388,7 +377,7 @@ public class TiResponseCache extends ResponseCache
 		{
 			String key = uri.toString();
 			if (!completeListeners.containsKey(key)) {
-				completeListeners.put(key, new ArrayList<CompleteListener>());
+				completeListeners.put(key, new ArrayList<>());
 			}
 			completeListeners.get(key).add(listener);
 		}
@@ -399,8 +388,8 @@ public class TiResponseCache extends ResponseCache
 	public TiResponseCache(File cachedir, TiApplication tiApp)
 	{
 		super();
-		assert cachedir.isDirectory() : "cachedir MUST be a directory";
-		cacheDir = cachedir;
+
+		this.cacheDir = cachedir;
 
 		maxCacheSize = tiApp.getAppProperties().getInt(CACHE_SIZE_KEY, DEFAULT_CACHE_SIZE) * 1024;
 		Log.d(TAG, "max cache size is:" + maxCacheSize, Log.DEBUG_MODE);
@@ -423,12 +412,12 @@ public class TiResponseCache extends ResponseCache
 			return null;
 		}
 
-		// Workaround for https://jira.appcelerator.org/browse/TIMOB-18913
+		// Workaround for https://jira-archive.titaniumsdk.com/TIMOB-18913
 		// This workaround should be removed when HTTPClient is refactored with HttpUrlConnection
 		// and HttpResponseCache is used instead of TiResponseCache.
 		// If it is a video, do not use cache. Cache is causing problems for Video Player on Lollipop
 		String fileFormat = TiMimeTypeHelper.getFileExtensionFromUrl(uri.toString()).toLowerCase();
-		if (videoFormats.contains(fileFormat) && (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)) {
+		if (videoFormats.contains(fileFormat)) {
 			return null;
 		}
 
@@ -456,7 +445,7 @@ public class TiResponseCache extends ResponseCache
 	private static Map<String, List<String>> readHeaders(File hFile) throws IOException
 	{
 		// Read in the headers
-		Map<String, List<String>> headers = new HashMap<String, List<String>>();
+		Map<String, List<String>> headers = new HashMap<>();
 		BufferedReader rdr = new BufferedReader(new FileReader(hFile), 1024);
 		for (String line = rdr.readLine(); line != null; line = rdr.readLine()) {
 			String[] keyval = line.split("=", 2);
@@ -469,7 +458,7 @@ public class TiResponseCache extends ResponseCache
 			}
 
 			if (!headers.containsKey(keyval[0])) {
-				headers.put(keyval[0], new ArrayList<String>());
+				headers.put(keyval[0], new ArrayList<>());
 			}
 
 			headers.get(keyval[0]).add(keyval[1]);
@@ -502,7 +491,7 @@ public class TiResponseCache extends ResponseCache
 
 	private Map<String, List<String>> makeLowerCaseHeaders(Map<String, List<String>> origHeaders)
 	{
-		Map<String, List<String>> headers = new HashMap<String, List<String>>(origHeaders.size());
+		Map<String, List<String>> headers = new HashMap<>(origHeaders.size());
 		for (String key : origHeaders.keySet()) {
 			if (key != null) {
 				headers.put(key.toLowerCase(), origHeaders.get(key));
@@ -530,12 +519,12 @@ public class TiResponseCache extends ResponseCache
 			}
 		}
 
-		// Workaround for https://jira.appcelerator.org/browse/TIMOB-18913
+		// Workaround for https://jira-archive.titaniumsdk.com/TIMOB-18913
 		// This workaround should be removed when HTTPClient is refactored with HttpUrlConnection
 		// and HttpResponseCache is used instead of TiResponseCache.
 		// If it is a video, do not use cache. Cache is causing problems for Video Player on Lollipop
 		String fileFormat = TiMimeTypeHelper.getFileExtensionFromUrl(uri.toString()).toLowerCase();
-		if (videoFormats.contains(fileFormat) && (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)) {
+		if (videoFormats.contains(fileFormat)) {
 			return null;
 		}
 

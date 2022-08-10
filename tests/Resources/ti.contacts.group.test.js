@@ -9,7 +9,6 @@
 /* eslint no-unused-expressions: "off" */
 'use strict';
 const should = require('./utilities/assertions');
-const utilities = require('./utilities/utilities');
 
 // Intentionally skip on Android, this type doesn't exist
 // FIXME This holds for permission prompt on iOS and hangs the tests. How can we "click OK" for user?

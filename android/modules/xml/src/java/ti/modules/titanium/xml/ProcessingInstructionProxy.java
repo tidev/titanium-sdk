@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -22,21 +22,18 @@ public class ProcessingInstructionProxy extends NodeProxy
 		this.pi = pi;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getData()
 	{
 		return pi.getData();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getTarget()
 	{
 		return pi.getTarget();
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setData(String data) throws DOMException
 	{

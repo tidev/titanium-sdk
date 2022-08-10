@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2018 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -32,7 +32,6 @@ NSString *TITANIUM_VERSION;
 extern void UIColorFlushCache(void);
 
 #define SHUTDOWN_TIMEOUT_IN_SEC 3
-#define TIV @"TiVerify"
 
 BOOL applicationInMemoryPanic = NO; // TODO: Remove in SDK 9.0+
 
@@ -224,10 +223,6 @@ TI_INLINE void waitForMemoryPanicCleared(void); //WARNING: This must never be ru
   [[UIApplication sharedApplication] beginReceivingRemoteControlEvents];
 }
 
-- (void)validator
-{
-  [[[NSClassFromString(TIV) alloc] init] autorelease];
-}
 - (void)booted:(id)bridge
 {
   if ([bridge isKindOfClass:[KrollBridge class]]) {
@@ -253,12 +248,6 @@ TI_INLINE void waitForMemoryPanicCleared(void); //WARNING: This must never be ru
       }
       [_queuedApplicationSelectors removeAllObjects];
     }
-
-    TiThreadPerformOnMainThread(
-        ^{
-          [self validator];
-        },
-        YES);
   }
 }
 
@@ -363,6 +352,36 @@ TI_INLINE void waitForMemoryPanicCleared(void); //WARNING: This must never be ru
   UILocalNotification *_localNotification = [launchOptions objectForKey:UIApplicationLaunchOptionsLocalNotificationKey];
   NSNumber *launchedLocation = [launchOptions objectForKey:UIApplicationLaunchOptionsLocationKey];
   UIApplicationShortcutItem *shortcut = [launchOptions objectForKey:UIApplicationLaunchOptionsShortcutItemKey];
+  NSDictionary *userActivityDictionary = launchOptions[UIApplicationLaunchOptionsUserActivityDictionaryKey];
+
+  // Map user activity if exists
+  if (userActivityDictionary != nil) {
+    NSUserActivity *userActivity = userActivityDictionary[@"UIApplicationLaunchOptionsUserActivityKey"];
+
+    NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithDictionary:@{ @"activityType" : [userActivity activityType] }];
+
+    if ([TiUtils isIOSVersionOrGreater:@"9.0"] && [[userActivity activityType] isEqualToString:CSSearchableItemActionType]) {
+      if ([userActivity userInfo] != nil) {
+        [dict setObject:[[userActivity userInfo] objectForKey:CSSearchableItemActivityIdentifier] forKey:@"searchableItemActivityIdentifier"];
+      }
+    }
+
+    if ([userActivity title] != nil) {
+      [dict setObject:[userActivity title] forKey:@"title"];
+    }
+
+    if ([userActivity webpageURL] != nil) {
+      [dict setObject:[[userActivity webpageURL] absoluteString] forKey:@"webpageURL"];
+    }
+
+    if ([userActivity userInfo] != nil) {
+      [dict setObject:[userActivity userInfo] forKey:@"userInfo"];
+    }
+
+    // Update launchOptions so that we send only expected values rather than NSUserActivity
+    [launchOptions setObject:@{ @"UIApplicationLaunchOptionsUserActivityKey" : dict }
+                      forKey:UIApplicationLaunchOptionsUserActivityDictionaryKey];
+  }
 
   // Map background location key
   if (launchedLocation != nil) {

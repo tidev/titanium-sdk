@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -33,21 +33,18 @@ public class CharacterDataProxy extends NodeProxy
 		data.deleteData(offset, count);
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getData() throws DOMException
 	{
 		return data.getData();
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setData(String data) throws DOMException
 	{
 		this.data.setData(data);
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public int getLength()
 	{

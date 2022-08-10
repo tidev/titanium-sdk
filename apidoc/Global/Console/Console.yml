@@ -24,7 +24,7 @@ methods:
     parameters:
       - name: message
         summary: The message(s) to log.
-        type: Object
+        type: any
         repeatable: true
 
   - name: info
@@ -36,7 +36,7 @@ methods:
     parameters:
       - name: message
         summary: The message(s) to log.
-        type: Object
+        type: any
         repeatable: true
 
   - name: warn
@@ -48,7 +48,7 @@ methods:
     parameters:
       - name: message
         summary: The message(s) to log.
-        type: Object
+        type: any
         repeatable: true
             
   - name: error
@@ -60,7 +60,7 @@ methods:
     parameters:
       - name: message
         summary: The message(s) to log.
-        type: Object
+        type: any
         repeatable: true
         
   - name: debug
@@ -72,7 +72,7 @@ methods:
     parameters:
       - name: message
         summary: The message(s) to log.
-        type: Object
+        type: any
         repeatable: true
 
   - name: time
@@ -120,10 +120,10 @@ methods:
         default: "default"
       - name: data
         summary: Extra log data to be provided when logging, can be a single argument or any number of arguments.
-        type: Object
+        type: any
         optional: true
         repeatable: true
-    since: 7.5.0
+    since: "7.5.0"
 
   - name: trace
     summary: Log a message at the `trace` level.
@@ -135,7 +135,7 @@ methods:
     parameters:
       - name: message
         summary: The message(s) to log.
-        type: Object
+        type: any
         repeatable: true
 
   - name: count
@@ -164,12 +164,12 @@ methods:
     parameters:
       - name: value
         summary: The value tested for being truthy.
-        type: Object
+        type: any
         optional: true
         default: 'default'
       - name: message
         summary: All arguments besides value are used as error message.
-        type: Object
+        type: any
         optional: true
         repeatable: true
 
@@ -179,7 +179,7 @@ methods:
     parameters:
       - name: label
         summary: Labels to print before indentation (if provided)
-        type: Object
+        type: any
         optional: true
         repeatable: true
 
@@ -189,7 +189,7 @@ methods:
     parameters:
       - name: label
         summary: Labels to print before indentation (if provided)
-        type: Object
+        type: any
         optional: true
         repeatable: true
 

@@ -8,7 +8,7 @@ description: |
 
     Currently, on Android, calendar permissions must be explicitly configured in `tiapp.xml` in order to access the
     calendar. See "Common Requirements" in
-    [tiapp.xml and timodule.xml Reference](https://docs.appcelerator.com/platform/latest/#!/guide/tiapp.xml_and_timodule.xml_Reference).
+    [tiapp.xml and timodule.xml Reference](https://titaniumsdk.com/guide/Titanium_SDK/Titanium_SDK_Guide/Appendices/tiapp.xml_and_timodule.xml_Reference.html).
 
 extends: Titanium.Module
 platforms: [android, iphone, ipad, macos]
@@ -61,8 +61,14 @@ methods:
         will crash if your app does not include the key. Check the [Apple docs](https://developer.apple.com/library/content/documentation/General/Reference/InfoPlistKeyReference/Articles/CocoaKeys.html) for more information.
     parameters:
       - name: callback
-        summary: Function to call upon user decision to grant calendar access.
+        summary: |
+            Function to call upon user decision to grant calendar access.
+            Optional on SDK 10, as this method will return a `Promise`, which may be used to handle the result.
         type: Callback<EventsAuthorizationResponse>
+        optional: true
+    returns:
+      summary: On SDK 10+, this method will return a `Promise` whose resolved value is equivalent to that passed to the optional callback argument.
+      type: Promise<EventsAuthorizationResponse>
     platforms: [iphone, ipad, android, macos]
     since: "5.1.0"
 
@@ -190,24 +196,6 @@ properties:
     type: Number
     permission: read-only
     platforms: [iphone, ipad, macos]
-
-  - name: STATUS_CANCELLED
-    summary: Event canceled status.
-    description: |
-        An [event's status](Titanium.Calendar.Event.status) value.
-
-        One of the group of event "status" constants,
-        [STATUS_NONE](Titanium.Calendar.STATUS_NONE),
-        [STATUS_CANCELED](Titanium.Calendar.STATUS_CANCELED),
-        [STATUS_CONFIRMED](Titanium.Calendar.STATUS_CONFIRMED),
-        and [STATUS_TENTATIVE](Titanium.Calendar.STATUS_TENTATIVE).
-    type: Number
-    permission: read-only
-    platforms: [android, iphone, ipad]
-    deprecated:
-        since: "5.2.0"
-        removed: "7.0.0"
-        notes: Use [Titanium.Calendar.STATUS_CANCELED](Titanium.Calendar.STATUS_CANCELED) instead.
 
   - name: STATUS_CANCELED
     summary: Event canceled status.
@@ -381,8 +369,8 @@ properties:
     summary: Indicates a daily recurrence rule for a events reccurance frequency.
     description:  |
         Used with the <Titanium.Calendar.RecurrenceRule.frequency> property.
-        
-        One of the group of event "frequency" constants 
+
+        One of the group of event "frequency" constants
         [RECURRENCEFREQUENCY_DAILY](Titanium.Calendar.RECURRENCEFREQUENCY_DAILY),
         [RECURRENCEFREQUENCY_WEEKLY](Titanium.Calendar.RECURRENCEFREQUENCY_WEEKLY),
         [RECURRENCEFREQUENCY_MONTHLY](Titanium.Calendar.RECURRENCEFREQUENCY_MONTHLY),
@@ -396,8 +384,8 @@ properties:
     summary: Indicates a weekly recurrence rule for a events reccurance frequency.
     description:  |
         Used with the <Titanium.Calendar.RecurrenceRule.frequency> property.
-        
-        One of the group of event "frequency" constants 
+
+        One of the group of event "frequency" constants
         [RECURRENCEFREQUENCY_DAILY](Titanium.Calendar.RECURRENCEFREQUENCY_DAILY),
         [RECURRENCEFREQUENCY_WEEKLY](Titanium.Calendar.RECURRENCEFREQUENCY_WEEKLY),
         [RECURRENCEFREQUENCY_MONTHLY](Titanium.Calendar.RECURRENCEFREQUENCY_MONTHLY),
@@ -411,8 +399,8 @@ properties:
     summary: Indicates a monthly recurrence rule for a events reccurance frequency.
     description:  |
         Used with the <Titanium.Calendar.RecurrenceRule.frequency> property.
-        
-        One of the group of event "frequency" constants 
+
+        One of the group of event "frequency" constants
         [RECURRENCEFREQUENCY_DAILY](Titanium.Calendar.RECURRENCEFREQUENCY_DAILY),
         [RECURRENCEFREQUENCY_WEEKLY](Titanium.Calendar.RECURRENCEFREQUENCY_WEEKLY),
         [RECURRENCEFREQUENCY_MONTHLY](Titanium.Calendar.RECURRENCEFREQUENCY_MONTHLY),
@@ -426,8 +414,8 @@ properties:
     summary: Indicates a yearly recurrence rule for a events reccurance frequency.
     description:  |
         Used with the <Titanium.Calendar.RecurrenceRule.frequency> property.
-        
-        One of the group of event "frequency" constants 
+
+        One of the group of event "frequency" constants
         [RECURRENCEFREQUENCY_DAILY](Titanium.Calendar.RECURRENCEFREQUENCY_DAILY),
         [RECURRENCEFREQUENCY_WEEKLY](Titanium.Calendar.RECURRENCEFREQUENCY_WEEKLY),
         [RECURRENCEFREQUENCY_MONTHLY](Titanium.Calendar.RECURRENCEFREQUENCY_MONTHLY),
@@ -731,7 +719,7 @@ properties:
     deprecated:
         since: "5.2.0"
         removed: "8.1.0"
-        notes: Use [Titanium.Calendar.calendarAuthorization](Titanium.Calendar.calendarAuthorization) instead.
+        notes: Use the [Titanium.Calendar.calendarAuthorization](Titanium.Calendar.calendarAuthorization) property instead.
     type: Number
     constants: Titanium.Calendar.AUTHORIZATION_*
     permission: read-only
@@ -782,9 +770,13 @@ properties:
   - name: defaultCalendar
     summary: |
         Calendar that events are added to by default, as specified by user settings.
+    description: |
+        Will return the default calendar of your phone. On Android it will return the first primary
+        calendar in case you have multiple accounts on your phone.
     type: Titanium.Calendar.Calendar
     permission: read-only
-    platforms: [iphone, ipad, macos]
+    platforms: [android, iphone, ipad, macos]
+    since: {android: "11.0.0", iphone: "3.1.0", ipad: "3.1.0"}
 
 examples:
   - title: All Calendars vs Selectable Calendars
@@ -853,7 +845,7 @@ examples:
         Create a picker to allow an existing calendar to be selected and, when a button is clicked,
         generate details of all events in that calendar for the current year.
 
-        ``` js        
+        ``` js
         var calendars = [];
         var selectedCalendarName;
         var selectedid;

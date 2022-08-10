@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -36,6 +36,19 @@
     xDimension = TiDimensionUndefined;
     yDimension = TiDimensionUndefined;
   }
+}
+
+- (void)add:(TiPoint *)value
+{
+  if (!value) {
+    return;
+  }
+
+  CGPoint offsetPoint = [value point];
+  CGPoint newPoint = [self point];
+  newPoint.x += offsetPoint.x;
+  newPoint.y += offsetPoint.y;
+  [self setPoint:newPoint];
 }
 
 - (void)setPoint:(CGPoint)point_

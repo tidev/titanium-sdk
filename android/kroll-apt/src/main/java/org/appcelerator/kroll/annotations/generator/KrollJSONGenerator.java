@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2010-2013 by Appcelerator, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -37,7 +37,7 @@ import javax.tools.StandardLocation;
 
 import org.json.simple.JSONValue;
 
-@SupportedSourceVersion(SourceVersion.RELEASE_8)
+@SupportedSourceVersion(SourceVersion.RELEASE_11)
 @SuppressWarnings("unchecked")
 @SupportedAnnotationTypes({
 	KrollJSONGenerator.Kroll_argument,
@@ -103,13 +103,14 @@ public class KrollJSONGenerator extends AbstractProcessor
 	protected static final String OPTION_TI_BINDINGS_JSON_FILE_PATH_NAME = "kroll.tiBindingsJsonFilePath";
 
 	// we make these generic because they may be initialized by JSON
-	protected Map<Object, Object> properties = new HashMap<Object, Object>();
-	protected Map<Object, Object> proxyProperties = new HashMap<Object, Object>();
+	protected Map<Object, Object> properties = new HashMap<>();
+	protected Map<Object, Object> proxyProperties = new HashMap<>();
 	protected KrollAnnotationUtils utils;
 	protected JSONUtils jsonUtils;
 	protected String jarJsonPackageName;
 	protected String jarJsonFileName;
 	protected String jsonFilePath;
+	protected boolean isTitaniumSdk = true;
 	protected boolean initialized = false;
 	private boolean hasPropertiesChanged = true;
 
@@ -189,6 +190,7 @@ public class KrollJSONGenerator extends AbstractProcessor
 		if ((stringValue != null) && !stringValue.isEmpty()) {
 			this.jsonFilePath = stringValue;
 		}
+		isTitaniumSdk = (processingEnv.getOptions().get(OPTION_TI_BINDINGS_JSON_FILE_PATH_NAME) == null);
 
 		// If we're set up to generate a JSON file within a JAR,
 		// then attempt to read our previously generated JSON file if it exists.
@@ -224,7 +226,7 @@ public class KrollJSONGenerator extends AbstractProcessor
 				protected Map<Object, Object> getProxyProperties(String packageName, String proxyClassName)
 				{
 					if (properties == null) {
-						properties = new HashMap<Object, Object>();
+						properties = new HashMap<>();
 					}
 					return jsonUtils.getOrCreateMap(jsonUtils.getOrCreateMap(properties, "proxies"),
 													packageName + "." + proxyClassName);
@@ -233,7 +235,7 @@ public class KrollJSONGenerator extends AbstractProcessor
 				protected Map<Object, Object> getModule(String moduleClassName)
 				{
 					if (properties == null) {
-						properties = new HashMap<Object, Object>();
+						properties = new HashMap<>();
 					}
 					return jsonUtils.getOrCreateMap(jsonUtils.getOrCreateMap(properties, "modules"), moduleClassName);
 				}
@@ -296,7 +298,7 @@ public class KrollJSONGenerator extends AbstractProcessor
 						HashMap<String, Object> topLevelParams = utils.getAnnotationParams(element, Kroll_topLevel);
 						List<?> topLevelNames = (List<?>) topLevelParams.get("value");
 						if (topLevelNames.size() == 1 && topLevelNames.get(0).equals(DEFAULT_NAME)) {
-							topLevelNames = Arrays.asList(new String[] { apiName });
+							topLevelNames = Arrays.asList(apiName);
 						}
 
 						proxyAttrs.put("topLevelNames", topLevelNames);
@@ -327,6 +329,7 @@ public class KrollJSONGenerator extends AbstractProcessor
 						proxyProperties.put("superProxyClassName", superTypeName);
 					}
 
+					proxyProperties.put("isTitaniumSdk", isTitaniumSdk);
 					proxyProperties.put("isModule", isModule);
 					proxyProperties.put("packageName", packageName);
 					proxyProperties.put("proxyClassName", proxyClassName);
@@ -408,7 +411,7 @@ public class KrollJSONGenerator extends AbstractProcessor
 
 			Map<Object, Object> methods = jsonUtils.getOrCreateMap(proxyProperties, "methods");
 			Map<Object, Object> methodAttrs = jsonUtils.getOrCreateMap(methods, methodName);
-			List<Object> args = new ArrayList<Object>();
+			List<Object> args = new ArrayList<>();
 			jsonUtils.updateObjectFromAnnotation(methodAttrs, annotation);
 
 			methodAttrs.put("hasInvocation", false);
@@ -421,7 +424,7 @@ public class KrollJSONGenerator extends AbstractProcessor
 
 				String paramName = utils.getName(var);
 
-				Map<Object, Object> argParams = new HashMap<Object, Object>();
+				Map<Object, Object> argParams = new HashMap<>();
 				argParams.put("sourceName", paramName);
 				argParams.put("type", paramType);
 				jsonUtils.updateObjectFromAnnotationParams(argParams, utils.getAnnotationParams(var, Kroll_argument));
@@ -503,7 +506,7 @@ public class KrollJSONGenerator extends AbstractProcessor
 		{
 			Map<Object, Object> dynamicProperties = jsonUtils.getOrCreateMap(proxyProperties, "dynamicProperties");
 			HashMap<String, Object> params = utils.getAnnotationParams(annotation);
-			Map<Object, Object> dynamicProperty = new HashMap<Object, Object>(params);
+			Map<Object, Object> dynamicProperty = new HashMap<>(params);
 
 			String methodName = utils.getName(element);
 			String defaultName = new String(methodName);
@@ -534,7 +537,7 @@ public class KrollJSONGenerator extends AbstractProcessor
 				dynamicProperty.put("defaultValueProvider", KrollConverter);
 			}
 
-			ArrayList<Map<Object, Object>> args = new ArrayList<Map<Object, Object>>();
+			ArrayList<Map<Object, Object>> args = new ArrayList<>();
 			for (VariableElement var : element.getParameters()) {
 				String paramType = utils.getType(var);
 				if (paramType.equals(KrollInvocation)) {
@@ -548,7 +551,7 @@ public class KrollJSONGenerator extends AbstractProcessor
 
 				String paramName = utils.getName(var);
 
-				Map<Object, Object> argParams = new HashMap<Object, Object>();
+				Map<Object, Object> argParams = new HashMap<>();
 				argParams.put("sourceName", paramName);
 				argParams.put("type", paramType);
 				jsonUtils.updateObjectFromAnnotationParams(argParams, utils.getAnnotationParams(var, Kroll_argument));
@@ -569,7 +572,7 @@ public class KrollJSONGenerator extends AbstractProcessor
 				args.add(argParams);
 			}
 
-			ArrayList<String> defaultProviders = new ArrayList<String>();
+			ArrayList<String> defaultProviders = new ArrayList<>();
 			for (VariableElement var : element.getParameters()) {
 				if (utils.hasAnnotation(var, Kroll_argument)) {
 					defaultProviders.add(

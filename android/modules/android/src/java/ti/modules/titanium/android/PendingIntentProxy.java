@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -17,6 +17,7 @@ import org.appcelerator.titanium.util.TiConvert;
 
 import android.app.PendingIntent;
 import android.content.Context;
+import android.os.Build;
 
 @Kroll.proxy(creatableInModule = AndroidModule.class,
 			 propertyAccessors = { TiC.PROPERTY_FLAGS, TiC.PROPERTY_INTENT, TiC.PROPERTY_UPDATE_CURRENT_INTENT })
@@ -87,7 +88,14 @@ public class PendingIntentProxy extends KrollProxy
 
 		//add FLAG_UPDATE_CURRENT if updateCurrentIntent is true
 		if (updateCurrentIntent) {
-			flags = flags | PendingIntent.FLAG_UPDATE_CURRENT;
+			flags |= PendingIntent.FLAG_UPDATE_CURRENT;
+		}
+
+		// NOTE: Android 12 requires mutability flags.
+		// Set `FLAG_IMMUTABLE` if not `FLAG_MUTABLE`.
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
+			&& (flags & PendingIntent.FLAG_MUTABLE) == 0) {
+			flags |= PendingIntent.FLAG_IMMUTABLE;
 		}
 
 		super.handleCreationDict(dict);

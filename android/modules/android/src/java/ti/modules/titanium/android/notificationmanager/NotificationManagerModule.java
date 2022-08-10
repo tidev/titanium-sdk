@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2017 by Axway, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -32,10 +32,6 @@ import java.util.HashMap;
 public class NotificationManagerModule extends KrollModule
 {
 	private static final String TAG = "TiNotification";
-	protected static final int PENDING_INTENT_FOR_ACTIVITY = 0;
-	protected static final int PENDING_INTENT_FOR_SERVICE = 1;
-	protected static final int PENDING_INTENT_FOR_BROADCAST = 2;
-	protected static final int PENDING_INTENT_MAX_VALUE = PENDING_INTENT_FOR_SERVICE;
 
 	private static NotificationManager notificationManager = null;
 	private static NotificationChannel defaultChannel = null;
@@ -141,7 +137,7 @@ public class NotificationManagerModule extends KrollModule
 		Notification notification = notificationProxy.buildNotification();
 
 		// targeting Android O or above? create default channel
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && notification.getChannelId() == DEFAULT_CHANNEL_ID) {
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && DEFAULT_CHANNEL_ID.equals(notification.getChannelId())) {
 			useDefaultChannel();
 		}
 

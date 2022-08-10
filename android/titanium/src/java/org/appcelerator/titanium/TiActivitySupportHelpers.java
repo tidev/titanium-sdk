@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2013 by Appcelerator, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -18,7 +18,7 @@ import android.util.SparseArray;
 public class TiActivitySupportHelpers
 {
 	protected static AtomicInteger supportHelperIdGenerator = new AtomicInteger();
-	protected static SparseArray<TiActivitySupportHelper> supportHelpers = new SparseArray<TiActivitySupportHelper>();
+	protected static SparseArray<TiActivitySupportHelper> supportHelpers = new SparseArray<>();
 
 	public static int addSupportHelper(TiActivitySupportHelper supportHelper)
 	{

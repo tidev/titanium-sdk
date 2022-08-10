@@ -12,7 +12,7 @@ description: |
     root level window. Equivalently, in an Alloy application, insert a `<Window>` element as a child of the
     `<NavigationWindow>` element. See examples below.
 
-    This object is not meant to be added to other windows. However, it can be used within a <Titanium.UI.iPad.SplitWindow>.
+    This object is not meant to be added to other windows. However, it can be used within a <Titanium.UI.iOS.SplitWindow>.
 platforms: [android, iphone, ipad, macos]
 extends: Titanium.UI.Window
 since: "8.0.0"

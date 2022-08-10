@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -10,8 +10,6 @@ import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.view.TiUIView;
-
-import ti.modules.titanium.ui.android.AndroidModule;
 import ti.modules.titanium.ui.widget.TiUISwitch;
 import android.app.Activity;
 
@@ -33,7 +31,7 @@ public class SwitchProxy extends TiViewProxy
 	{
 		super();
 		defaultValues.put(TiC.PROPERTY_VALUE, false);
-		defaultValues.put(TiC.PROPERTY_STYLE, AndroidModule.SWITCH_STYLE_SWITCH);
+		defaultValues.put(TiC.PROPERTY_STYLE, UIModule.SWITCH_STYLE_SLIDER);
 	}
 
 	@Override

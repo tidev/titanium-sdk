@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -171,21 +171,18 @@ public class GestureModule extends KrollModule implements SensorEventListener
 		}
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public boolean getPortrait()
 	{
 		return this.deviceOrientationMonitor.getLastReadOrientation().isPortrait();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public boolean getLandscape()
 	{
 		return this.deviceOrientationMonitor.getLastReadOrientation().isLandscape();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public int getOrientation()
 	{

@@ -24,3 +24,12 @@ properties:
         float when the list view is scrolled.
     type: Number
     permission: read-only
+
+  - name: INSET_GROUPED
+    summary: |
+        A list view whose sections present distinct groups of rows  and grouped sections are inset with rounded corners. 
+        The section headers and footers do not float.
+    type: Number
+    permission: read-only
+    since: {iphone: "8.2.0", ipad: "8.2.0", macos: "9.2.0"}
+    osver: {ios: {min: "13.0"}}

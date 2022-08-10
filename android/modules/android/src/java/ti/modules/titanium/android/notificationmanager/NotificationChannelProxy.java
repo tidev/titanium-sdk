@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2017 by Axway, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -76,154 +76,132 @@ public class NotificationChannelProxy extends KrollProxy
 		}
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getId()
 	{
 		return channel.getId();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public boolean getEnableLights()
 	{
 		return channel.shouldShowLights();
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setEnableLights(boolean lights)
 	{
 		channel.enableLights(lights);
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public boolean getEnableVibration()
 	{
 		return channel.shouldVibrate();
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setEnableVibration(boolean vibration)
 	{
 		channel.enableVibration(vibration);
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public boolean getBypassDnd()
 	{
 		return channel.canBypassDnd();
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setBypassDnd(boolean bypassDnd)
 	{
 		channel.setBypassDnd(bypassDnd);
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getDescription()
 	{
 		return channel.getDescription();
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setDescription(String description)
 	{
 		channel.setDescription(description);
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getGroupId()
 	{
 		return channel.getGroup();
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setGroupId(String groupId)
 	{
 		channel.setGroup(groupId);
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public int getImportance()
 	{
 		return channel.getImportance();
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setImportance(int importance)
 	{
 		channel.setImportance(importance);
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public int getLightColor()
 	{
 		return channel.getLightColor();
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setLightColor(int argb)
 	{
 		channel.setLightColor(argb);
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public int getLockscreenVisibility()
 	{
 		return channel.getLockscreenVisibility();
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setLockscreenVisibility(int lockscreenVisibility)
 	{
 		channel.setLockscreenVisibility(lockscreenVisibility);
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getName()
 	{
 		return channel.getName().toString();
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setName(String name)
 	{
 		channel.setName(name);
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public boolean getShowBadge()
 	{
 		return channel.canShowBadge();
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setShowBadge(boolean showBadge)
 	{
 		channel.setShowBadge(showBadge);
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getSound()
 	{
@@ -231,7 +209,6 @@ public class NotificationChannelProxy extends KrollProxy
 		return (uri != null) ? uri.toString() : null;
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setSound(String path)
 	{
@@ -241,7 +218,6 @@ public class NotificationChannelProxy extends KrollProxy
 		channel.setSound(Uri.parse(resolveUrl(null, path)), attributesBuilder.build());
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public Object getVibrationPattern()
 	{
@@ -253,7 +229,6 @@ public class NotificationChannelProxy extends KrollProxy
 		return patternArray;
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setVibrationPattern(Object patternObj)
 	{

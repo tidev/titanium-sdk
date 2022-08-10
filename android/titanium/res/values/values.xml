@@ -1,17 +1,206 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-	<!-- Base theme applied to Titanium's splash screen activity. -->
-	<!-- Our "_build.js" will replace it with ".NoActionBar" or ".Fullscreen" theme if set in "tiapp.xml" file. -->
-	<style name="Base.Theme.Titanium.Basic" parent="Theme.MaterialComponents.Bridge"/>
+	<!-- Titanium's light theme colors. -->
+	<color name="ti_light_primary">#3475E0</color>
+	<color name="ti_light_primary_dark">#303F9F</color>
+	<color name="ti_light_accent">#3273DB</color>
+	<color name="ti_light_surface">#FFFFFF</color>
+	<color name="ti_light_background">#FFFFFF</color>
 
-	<!-- Base theme applied to all Titanium opaque windows. -->
-	<!-- Our "_build.js" script will replace it if custom theme is applied to application in manifest. -->
-	<style name="Base.Theme.Titanium.Customizable" parent="Theme.AppCompat"/>
+	<!-- Titanium's dark theme colors. -->
+	<color name="ti_dark_primary">#92B4F2</color>
+	<color name="ti_dark_primary_dark">#000000</color>
+	<color name="ti_dark_accent">#92B4F2</color>
+	<color name="ti_dark_surface">#353639</color>
+	<color name="ti_dark_background">#202124</color>
+
+	<!-- Define action bar height to be same size as toolbar for portrait. -->
+	<!-- See "values-land/values.xml" which fixes action bar height for landscape. -->
+	<dimen name="ti_action_bar_height">@dimen/mtrl_toolbar_default_height</dimen>
+
+	<!-- Defines attribute indicating if a "Theme.Titanium.*.Solid" theme is being used at runtime. -->
+	<!-- Used by TabGroup to apply special handling to top/bottom tab bars. -->
+	<declare-styleable name="TitaniumTheme">
+		<attr name="titaniumIsSolidTheme" format="boolean"/>
+	</declare-styleable>
+
+	<!-- Define theme attribute used to customize Titanium's splash screen background drawable. -->
+	<declare-styleable name="TitaniumSplashBackground">
+		<attr name="titaniumSplashIcon" format="reference"/>
+	</declare-styleable>
+
+	<!-- Base dark Titanium theme which applies version specific styles. (See v23 and v27 folders.) -->
+	<style name="Base.Theme.Titanium.Dark" parent="Theme.MaterialComponents"/>
+
+	<!-- Titanium's dark material theme with an action bar. -->
+	<style name="Theme.Titanium.Dark" parent="Base.Theme.Titanium.Dark">
+		<item name="actionBarSize">@dimen/ti_action_bar_height</item>
+		<item name="actionBarStyle">@style/Widget.MaterialComponents.ActionBar.Surface</item>
+		<item name="colorPrimary">@color/ti_dark_primary</item>
+		<item name="colorPrimaryDark">@color/ti_dark_primary_dark</item>
+		<item name="colorAccent">@color/ti_dark_accent</item>
+		<item name="colorSurface">@color/ti_dark_surface</item>
+		<item name="android:colorBackground">@color/ti_dark_background</item>
+		<item name="android:indeterminateTint">?attr/colorPrimary</item>
+		<item name="android:navigationBarColor">?attr/colorPrimaryDark</item>
+		<item name="android:progressTint">?attr/colorPrimary</item>
+		<item name="android:statusBarColor">?attr/colorPrimaryDark</item>
+		<item name="android:textAllCaps">false</item>
+		<item name="textAllCaps">false</item>
+		<item name="titaniumIsSolidTheme">false</item>
+	</style>
+
+	<!-- Titanium's dark material theme without an action bar. -->
+	<style name="Theme.Titanium.Dark.NoTitleBar" parent="Theme.Titanium.Dark">
+		<item name="android:windowActionBar">false</item>
+		<item name="android:windowContentOverlay">@null</item>
+		<item name="android:windowNoTitle">true</item>
+		<item name="windowActionBar">false</item>
+		<item name="windowNoTitle">true</item>
+	</style>
+
+	<!-- Titanium's dark material theme without an action bar and status bar. -->
+	<style name="Theme.Titanium.Dark.Fullscreen" parent="Theme.Titanium.Dark.NoTitleBar">
+		<item name="android:windowFullscreen">true</item>
+	</style>
+
+	<!-- Titanium's dark material theme with an action bar. -->
+	<!-- Status bar, action bar, and nav bar use same background color as window giving it one solid appearance. -->
+	<style name="Theme.Titanium.Dark.Solid" parent="Theme.Titanium.Dark">
+		<item name="android:navigationBarColor">?android:attr/colorBackground</item>
+		<item name="android:statusBarColor">?android:attr/colorBackground</item>
+		<item name="actionBarStyle">@style/Widget.AppCompat.ActionBar</item>
+		<item name="actionBarTheme">@style/ThemeOverlay.MaterialComponents.Dark.ActionBar</item>
+		<item name="titaniumIsSolidTheme">true</item>
+	</style>
+
+	<!-- Titanium's dark material theme without an action bar. -->
+	<!-- Status bar, action bar, and nav bar use same background color as window giving it one solid appearance. -->
+	<style name="Theme.Titanium.Dark.Solid.NoTitleBar" parent="Theme.Titanium.Dark.Solid">
+		<item name="android:windowActionBar">false</item>
+		<item name="android:windowContentOverlay">@null</item>
+		<item name="android:windowNoTitle">true</item>
+		<item name="windowActionBar">false</item>
+		<item name="windowNoTitle">true</item>
+	</style>
+
+	<!-- Titanium's dark material theme without an action bar and status bar. -->
+	<!-- Status bar, action bar, and nav bar use same background color as window giving it one solid appearance. -->
+	<style name="Theme.Titanium.Dark.Solid.Fullscreen" parent="Theme.Titanium.Dark.Solid.NoTitleBar">
+		<item name="android:windowFullscreen">true</item>
+	</style>
+
+	<!-- Base light Titanium theme which applies version specific styles. (See v23 and v27 folders.) -->
+	<style name="Base.Theme.Titanium.Light" parent="Theme.MaterialComponents.Light.DarkActionBar"/>
+
+	<!-- Titanium's light material theme with an action bar. -->
+	<style name="Theme.Titanium.Light" parent="Base.Theme.Titanium.Light">
+		<item name="actionBarSize">@dimen/ti_action_bar_height</item>
+		<item name="actionBarStyle">@style/Widget.AppCompat.Light.ActionBar.Solid</item>
+		<item name="colorPrimary">@color/ti_light_primary</item>
+		<item name="colorPrimaryDark">@color/ti_light_primary_dark</item>
+		<item name="colorAccent">@color/ti_light_accent</item>
+		<item name="colorSurface">@color/ti_light_surface</item>
+		<item name="android:colorBackground">@color/ti_light_background</item>
+		<item name="android:indeterminateTint">?attr/colorPrimary</item>
+		<item name="android:navigationBarColor">?attr/colorPrimaryDark</item>
+		<item name="android:progressTint">?attr/colorPrimary</item>
+		<item name="android:statusBarColor">?attr/colorPrimaryDark</item>
+		<item name="android:textAllCaps">false</item>
+		<item name="textAllCaps">false</item>
+		<item name="titaniumIsSolidTheme">false</item>
+	</style>
+
+	<!-- Titanium's light material theme without an action bar. -->
+	<style name="Theme.Titanium.Light.NoTitleBar" parent="Theme.Titanium.Light">
+		<item name="android:windowActionBar">false</item>
+		<item name="android:windowContentOverlay">@null</item>
+		<item name="android:windowNoTitle">true</item>
+		<item name="windowActionBar">false</item>
+		<item name="windowNoTitle">true</item>
+	</style>
+
+	<!-- Titanium's light material theme without an action bar and status bar. -->
+	<style name="Theme.Titanium.Light.Fullscreen" parent="Theme.Titanium.Light.NoTitleBar">
+		<item name="android:windowFullscreen">true</item>
+	</style>
+
+	<!-- Titanium's light material theme with an action bar. -->
+	<!-- Status bar, action bar, and nav bar use same background color as window giving it one solid appearance. -->
+	<style name="Theme.Titanium.Light.Solid" parent="Theme.Titanium.Light">
+		<item name="android:navigationBarColor">@android:color/black</item>
+		<item name="actionBarStyle">@style/Widget.AppCompat.Light.ActionBar</item>
+		<item name="actionBarTheme">@style/ThemeOverlay.MaterialComponents.ActionBar</item>
+		<item name="titaniumIsSolidTheme">true</item>
+	</style>
+
+	<!-- Titanium's light material theme without an action bar. -->
+	<!-- Status bar, action bar, and nav bar use same background color as window giving it one solid appearance. -->
+	<style name="Theme.Titanium.Light.Solid.NoTitleBar" parent="Theme.Titanium.Light.Solid">
+		<item name="android:windowActionBar">false</item>
+		<item name="android:windowContentOverlay">@null</item>
+		<item name="android:windowNoTitle">true</item>
+		<item name="windowActionBar">false</item>
+		<item name="windowNoTitle">true</item>
+	</style>
+
+	<!-- Titanium's light material theme without an action bar and status bar. -->
+	<!-- Status bar, action bar, and nav bar use same background color as window giving it one solid appearance. -->
+	<style name="Theme.Titanium.Light.Solid.Fullscreen" parent="Theme.Titanium.Light.Solid.NoTitleBar">
+		<item name="android:windowFullscreen">true</item>
+	</style>
+
+	<!-- Titanium style supporting dark/light theme switching with an action bar. -->
+	<style name="Theme.Titanium.DayNight" parent="Theme.Titanium.Light"/>
+
+	<!-- Titanium style supporting dark/light theme switching without an action bar. -->
+	<style name="Theme.Titanium.DayNight.NoTitleBar" parent="Theme.Titanium.DayNight">
+		<item name="android:windowActionBar">false</item>
+		<item name="android:windowContentOverlay">@null</item>
+		<item name="android:windowNoTitle">true</item>
+		<item name="windowActionBar">false</item>
+		<item name="windowNoTitle">true</item>
+	</style>
+
+	<!-- Titanium style supporting dark/light theme switching without an action bar and status bar. -->
+	<style name="Theme.Titanium.DayNight.Fullscreen" parent="Theme.Titanium.DayNight.NoTitleBar">
+		<item name="android:windowFullscreen">true</item>
+	</style>
+
+	<!-- Titanium style supporting dark/light theme switching with an action bar. -->
+	<!-- Status bar, action bar, and nav bar use same background color as window giving it one solid appearance. -->
+	<style name="Theme.Titanium.DayNight.Solid" parent="Theme.Titanium.Light.Solid"/>
+
+	<!-- Titanium style supporting dark/light theme switching without an action bar. -->
+	<!-- Status bar, action bar, and nav bar use same background color as window giving it one solid appearance. -->
+	<style name="Theme.Titanium.DayNight.Solid.NoTitleBar" parent="Theme.Titanium.DayNight.Solid">
+		<item name="android:windowActionBar">false</item>
+		<item name="android:windowContentOverlay">@null</item>
+		<item name="android:windowNoTitle">true</item>
+		<item name="windowActionBar">false</item>
+		<item name="windowNoTitle">true</item>
+	</style>
+
+	<!-- Titanium style supporting dark/light theme switching without an action bar and status bar. -->
+	<!-- Status bar, action bar, and nav bar use same background color as window giving it one solid appearance. -->
+	<style name="Theme.Titanium.DayNight.Solid.Fullscreen" parent="Theme.Titanium.DayNight.Solid.NoTitleBar">
+		<item name="android:windowFullscreen">true</item>
+	</style>
+
+	<!-- The default theme Titanium applies to the <application/> in the manifest. -->
+	<!-- Our "_build.js" will replace parent with ".NoTitleBar" or ".Fullscreen" if set in "tiapp.xml". -->
+	<style name="Theme.Titanium.App" parent="Theme.Titanium.DayNight.Solid"/>
+
+	<!-- The app theme which all Titanium activities will use by default. -->
+	<!-- Our "_build.js" will replace parent if "AndroidManifest.xml" was assigned a custom application theme. -->
+	<style name="Theme.AppDerived" parent="Theme.Titanium.App"/>
 
 	<!-- Base theme to be used by the "TiRootActivity" class. -->
-	<style name="Base.Theme.Titanium.Splash" parent="Base.Theme.Titanium.Basic">
+	<style name="Base.Theme.Titanium.Splash" parent="Theme.AppDerived">
 		<item name="android:windowActionBar">false</item>
+		<item name="android:windowBackground">@drawable/titanium_splash_icon_background</item>
 		<item name="android:windowNoTitle">true</item>
+		<item name="titaniumSplashIcon">@drawable/titanium_icon_splash_empty</item>
 		<item name="windowActionBar">false</item>
 		<item name="windowNoTitle">true</item>
 	</style>
@@ -21,7 +210,7 @@
 	<style name="Theme.Titanium" parent="Base.Theme.Titanium.Splash"/>
 
 	<!-- Activity theme used to remove top title bar, but keeps status bar and app theme. -->
-	<style name="Theme.Titanium.NoTitleBar" parent="Base.Theme.Titanium.Customizable">
+	<style name="Theme.AppDerived.NoTitleBar" parent="Theme.AppDerived">
 		<item name="android:windowActionBar">false</item>
 		<item name="android:windowContentOverlay">@null</item>
 		<item name="android:windowNoTitle">true</item>
@@ -30,12 +219,12 @@
 	</style>
 
 	<!-- Activity theme used to remove top status bar and title bar while preserving app theme. -->
-	<style name="Theme.Titanium.Fullscreen" parent="Theme.Titanium.NoTitleBar">
+	<style name="Theme.AppDerived.Fullscreen" parent="Theme.AppDerived.NoTitleBar">
 		<item name="android:windowFullscreen">true</item>
 	</style>
 
 	<!-- Activity theme applying transparent background while preserving app theme. -->
-	<style name="Theme.Titanium.Translucent" parent="Base.Theme.Titanium.Customizable">
+	<style name="Theme.AppDerived.Translucent" parent="Theme.AppDerived">
 		<item name="android:colorBackgroundCacheHint">@null</item>
 		<item name="android:windowAnimationStyle">@null</item>
 		<item name="android:windowBackground">@android:color/transparent</item>
@@ -43,7 +232,7 @@
 	</style>
 
 	<!-- Activity theme applying transparent background and removes title bar, while preserving app theme. -->
-	<style name="Theme.Titanium.Translucent.NoTitleBar" parent="Theme.Titanium.Translucent">
+	<style name="Theme.AppDerived.Translucent.NoTitleBar" parent="Theme.AppDerived.Translucent">
 		<item name="android:windowActionBar">false</item>
 		<item name="android:windowContentOverlay">@null</item>
 		<item name="android:windowNoTitle">true</item>
@@ -52,11 +241,33 @@
 	</style>
 
 	<!-- Activity theme with transparent background, removes status bar and title bar while preserving app theme. -->
-	<style name="Theme.Titanium.Translucent.Fullscreen" parent="Theme.Titanium.Translucent.NoTitleBar">
+	<style name="Theme.AppDerived.Translucent.Fullscreen" parent="Theme.AppDerived.Translucent.NoTitleBar">
 		<item name="android:windowFullscreen">true</item>
 	</style>
 
+	<!-- Simple error dialog theme with a dark red background and white text. -->
+	<!-- Note: Cannot derive from material theme in case it's displaying a theming error. -->
+	<style name="Theme.Titanium.Dialog.Error" parent="Theme.AppCompat.Dialog.Alert">
+		<item name="android:background">#8A0000</item>
+	</style>
+
+	<!-- DEPRECATED: Use "Theme.AppDerived.NoTitleBar" instead. -->
+	<style name="Theme.Titanium.NoTitleBar" parent="Theme.AppDerived.NoTitleBar"/>
+
+	<!-- DEPRECATED: Use "Theme.AppDerived.Fullscreen" instead. -->
+	<style name="Theme.Titanium.Fullscreen" parent="Theme.AppDerived.Fullscreen"/>
+
+	<!-- DEPRECATED: Use "Theme.AppDerived.Translucent" instead. -->
+	<style name="Theme.Titanium.Translucent" parent="Theme.AppDerived.Translucent"/>
+
+	<!-- DEPRECATED: Use "Theme.AppDerived.Translucent.NoTitleBar" instead. -->
+	<style name="Theme.Titanium.Translucent.NoTitleBar" parent="Theme.AppDerived.Translucent.NoTitleBar"/>
+
+	<!-- DEPRECATED: Use "Theme.AppDerived.Translucent.Fullscreen" instead. -->
+	<style name="Theme.Titanium.Translucent.Fullscreen" parent="Theme.AppDerived.Translucent.Fullscreen"/>
+
 	<!-- Inherits Google's "Theme.MaterialComponents.Bridge" and removes top status and title bar. -->
+	<!-- DEPRECATED: Should use non-bridge version of MaterialComponents theme to avoid material widget issues. -->
 	<style name="Theme.MaterialComponents.Fullscreen.Bridge" parent="Theme.MaterialComponents.Bridge">
 		<item name="android:windowActionBar">false</item>
 		<item name="android:windowContentOverlay">@null</item>

@@ -13,7 +13,7 @@ description: |
     other views. There are a few specialized views that manage windows:
 
     * [NavigationWindow](Titanium.UI.NavigationWindow)
-    * [SplitWindow](Titanium.UI.iPad.SplitWindow)
+    * [SplitWindow](Titanium.UI.iOS.SplitWindow)
     * [TabGroup](Titanium.UI.TabGroup)
     * [Tab](Titanium.UI.Tab)
 
@@ -25,7 +25,7 @@ description: |
     ### Pass Context Between Windows
 
     To pass data between windows, use a
-    [CommonJS module](https://docs.appcelerator.com/platform/latest/#!/guide/CommonJS_Modules_in_Titanium)
+    [CommonJS module](https://titaniumsdk.com/guide/Titanium_SDK/Titanium_SDK_Guide/Best_Practices_and_Recommendations/CommonJS_Modules_in_Titanium.html)
     to save information from one window then retrieve it in another.  In the example below, the foo
     module exposes two methods to store and retrieve an object.  The first window of the project
     loads the foo module and uses the set method to store some data before opening the second window.
@@ -478,6 +478,12 @@ methods:
         summary: Animation or display properties to use when closing the window.
         type: [Titanium.UI.Animation, Dictionary<Titanium.UI.Animation>, closeWindowParams]
         optional: true
+    returns:
+      type: Promise<any>
+      summary: |
+          Starting in SDK 10.0.0, this method returns a `Promise` that will be resolved once the window is closed,
+          akin to adding a one-time listener for the `close` event. If the window fails to close (for example, because
+          it was not yet open) the `Promise` will be rejected.
 
   - name: hideNavBar
     summary: Hides the navigation bar.
@@ -509,6 +515,12 @@ methods:
         summary: Animation or display properties to use when opening the window.
         type: openWindowParams
         optional: true
+    returns:
+      type: Promise<any>
+      summary: |
+          Starting in SDK 10.0.0, this method returns a `Promise` that will be resolved once the window is opened,
+          akin to adding a one-time listener for the `open` event. If the window fails to open (for example, because
+          it is already opened or opening) the `Promise` will be rejected.
 
   - name: removeAllSharedElements
     summary: Clears all added shared elements.
@@ -583,7 +595,7 @@ events:
     deprecated:
         since: "3.0.0"
         removed: "9.0.0"
-        notes: Use [Titanium.UI.Window.androidback](Titanium.UI.Window.androidback) instead.
+        notes: Use the [Titanium.UI.Window.androidback](Titanium.UI.Window.androidback) event instead.
     platforms: [android]
     summary: Fired when the Back button is released.
     description: |
@@ -595,7 +607,7 @@ events:
     deprecated:
         since: "3.0.0"
         removed: "9.0.0"
-        notes: Use [Titanium.UI.Window.androidcamera](Titanium.UI.Window.androidcamera) instead.
+        notes: Use the [Titanium.UI.Window.androidcamera](Titanium.UI.Window.androidcamera) event instead.
     summary: Fired when the Camera button is released.
     description: |
         Setting a listener disables the default key handling for this button. To restore
@@ -607,7 +619,7 @@ events:
     deprecated:
         since: "3.0.0"
         removed: "9.0.0"
-        notes: Use [Titanium.UI.Window.androidfocus](Titanium.UI.Window.androidfocus) instead.
+        notes: Use the [Titanium.UI.Window.androidfocus](Titanium.UI.Window.androidfocus) event instead.
     summary: Fired when the Camera button is half-pressed then released.
     description: |
         Setting a listener disables the default key handling for this button. To restore
@@ -619,7 +631,7 @@ events:
     deprecated:
         since: "3.0.0"
         removed: "9.0.0"
-        notes: Use [Titanium.UI.Window.androidsearch](Titanium.UI.Window.androidsearch) instead.
+        notes: Use the [Titanium.UI.Window.androidsearch](Titanium.UI.Window.androidsearch) event instead.
     summary: Fired when the Search button is released.
     description: |
         Setting a listener disables the default key handling for this button. To restore
@@ -631,7 +643,7 @@ events:
     deprecated:
         since: "3.0.0"
         removed: "9.0.0"
-        notes: Use [Titanium.UI.Window.androidvoldown](Titanium.UI.Window.androidvoldown) instead.
+        notes: Use the [Titanium.UI.Window.androidvoldown](Titanium.UI.Window.androidvoldown) event instead.
     summary: Fired when the volume down button is released.
     description: |
         Setting a listener disables the default key handling for this button. To restore
@@ -643,7 +655,7 @@ events:
     deprecated:
         since: "3.0.0"
         removed: "9.0.0"
-        notes: Use [Titanium.UI.Window.androidvolup](Titanium.UI.Window.androidvolup) instead.
+        notes: Use the [Titanium.UI.Window.androidvolup](Titanium.UI.Window.androidvolup) event instead.
     summary: Fired when the volume up button is released.
     description: |
         Setting a listener disables the default key handling for this button. To restore
@@ -1125,7 +1137,7 @@ properties:
 
         Since Release 3.3.0, due to changes to support the appcompat library, this property has no
         effect. By default, the action bar is always displayed.  To hide the action bar, see the
-        [Android Action Bar guide](https://docs.appcelerator.com/platform/latest/#!/guide/Android_Action_Bar).
+        [Android Action Bar guide](https://titaniumsdk.com/guide/Titanium_SDK/Titanium_SDK_How-tos/User_Interface_Deep_Dives/Android_UI_Components_and_Conventions/Android_Action_Bar.html).
     platforms: [android, iphone, ipad, macos]
     default: false
     type: Boolean
@@ -1442,8 +1454,8 @@ properties:
   - name: theme
     summary: Name of the theme to apply to the window.
     description: |
-        Set the theme of the window. It can be either a [built-in theme](https://docs.appcelerator.com/platform/latest/#!/guide/Android_Themes-section-34636181_AndroidThemes-Built-inThemes)
-        or a [custom theme](https://docs.appcelerator.com/platform/latest/#!/guide/Android_Themes-section-34636181_AndroidThemes-CustomThemes).
+        Set the theme of the window. It can be either a [built-in theme](https://titaniumsdk.com/guide/Titanium_SDK/Titanium_SDK_How-tos/User_Interface_Deep_Dives/Android_UI_Components_and_Conventions/Android_Themes.html#titanium-material-themes)
+        or a [custom theme](https://titaniumsdk.com/guide/Titanium_SDK/Titanium_SDK_How-tos/User_Interface_Deep_Dives/Android_UI_Components_and_Conventions/Android_Themes.html#custom-themes).
     platforms: [android]
     type: String
     since: "3.4.0"
@@ -1562,34 +1574,6 @@ properties:
     platforms: [iphone, ipad, macos]
     default: true on iOS7 and above, false otherwise.
     type: Boolean
-
-  - name: url
-    summary: Loads a JavaScript file from a local URL.
-    deprecated:
-        since: "3.5.0"
-        removed: "6.0.0"
-    exclude-platforms: [macos]
-    description: |
-        **Note:** The recommended way of creating windows with their own context is to either use the
-        [Alloy Framework](https://docs.appcelerator.com/platform/latest/#!/guide/Alloy_Framework) or a
-        [CommonJS module](https://docs.appcelerator.com/platform/latest/#!/guide/CommonJS_Modules_in_Titanium)
-        than using this property. One benefit of using a CommonJS module is that it consumes less
-        resources.
-
-        Use this property to have Windows load a JavaScript file in its own subcontext and thread,
-        separate from the `app.js` global context.
-        Reference a file relative to your project's `Resources` folder for classic Titanium
-        projects or `app/lib` folder for Alloy projects.
-
-        Note that Titanium will refuse to load JavaScript files from a remote URL. Loading
-        remote JavaScript from a URL and providing it with the full capabilities of the Titanium
-        API would be very dangerous.
-
-        When loading JavaScript files using this property, the special property
-        <Titanium.UI.currentWindow> is available inside a multi-context
-        application that points to the JavaScript instance by reference in the global context.
-    type: String
-    availability: creation
 
   - name: windowFlags
     summary: Additional flags to set on the Activity Window.

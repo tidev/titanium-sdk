@@ -80,6 +80,10 @@ methods:
       - name: callback
         summary: Callback when query execution has completed.
         type: Callback<Object, Titanium.Database.ResultSet>
+        optional: true
+    returns:
+      type: Promise<Titanium.Database.ResultSet>
+      summary: On SDK 10+, this method will return a `Promise` whose resolved value is equivalent to that passed to the optional callback argument.
     since: { android: "8.1.0", iphone: "8.1.0", ipad: "8.1.0" }
 
   - name: executeAll
@@ -98,7 +102,7 @@ methods:
   - name: executeAllAsync
     summary: |
       Asynchronously executes an array of SQL statements against the database and fires a callback with a possible Error, and an array of `ResultSet`.
-      On failure, this will call the callback with an [Error](PossibleBatchQueryError) that reports the failed index, and a second argument with the partial results
+      On failure, this will call the callback with an [Error](PossibleBatchQueryError) that reports the failed `index`, and a second argument with the partial `results`.
     platforms: [android, iphone, ipad, macos]
     parameters:
       - name: queries
@@ -108,6 +112,12 @@ methods:
       - name: callback
         summary: Callback when query execution has completed.
         type: Callback<PossibleBatchQueryError, Array<Titanium.Database.ResultSet>>
+        optional: true
+    returns:
+      type: Promise<Array<Titanium.Database.ResultSet>>
+      summary: |
+          On SDK 10+, this method will return a `Promise` whose resolved value is equivalent to that passed to the optional callback argument.
+          If the `Promise` is rejected, the `Error` will have custom properties indicating the `index` of the failed query, and the partial `results` up to that failure. See <PossibleBatchQueryError>.
     since: { android: "8.1.0", iphone: "8.1.0", ipad: "8.1.0" }
 
   - name: remove

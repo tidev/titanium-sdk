@@ -19,23 +19,27 @@ describe('Error', function () {
 			Ti.API.info(e.test.crash);
 			should.fail('Expected to throw exception');
 		} catch (ex) {
-			ex.should.have.property('message').which.is.a.String();
+			should(ex).have.property('message').which.is.a.String();
 			if (utilities.isAndroid()) {
-				ex.message.should.equal('Cannot read property \'crash\' of undefined');
+				should(ex.message).be.equalOneOf([
+					'Cannot read property \'crash\' of undefined',
+					'Cannot read properties of undefined (reading \'crash\')'
+				]);
 			} else {
-				ex.message.should.equal('undefined is not an object (evaluating \'e.test.crash\')');
+				should(ex.message).equal('undefined is not an object (evaluating \'e.test.crash\')');
 			}
 
 			// has typical stack property
-			ex.should.have.property('stack').which.is.a.String();
+			should(ex).have.property('stack').which.is.a.String();
 			if (utilities.isAndroid()) {
-				ex.stack.should.containEql('TypeError: Cannot read property \'crash\' of undefined');
+				should(ex.stack.includes('TypeError: Cannot read properties of undefined (reading \'crash\')')
+					|| ex.stack.includes('TypeError: Cannot read property \'crash\' of undefined')).be.true();
 			}
 			// FIXME We should attempt to format the iOS stack to look/feel similar to Android/Node if possible.
 
 			// iOS Has just the stacktrace without a preceding message/type. Also has 'column', 'line', 'sourceURL'
 			// does not have java stack trace
-			ex.should.not.have.property('nativeStack');
+			should(ex).not.have.property('nativeStack');
 		}
 	});
 
@@ -56,7 +60,7 @@ describe('Error', function () {
 			if (utilities.isAndroid()) {
 				ex.message.should.equal('Unable to convert null');
 			} else if (utilities.isIOS()) {
-				ex.message.should.equal('Invalid type passed to function');
+				should(ex.message.startsWith('Invalid type passed to function')).be.true();
 			} else if (utilities.isWindows()) {
 				ex.message.should.equal('Ti.Geolocation.accuracy expects Number');
 			}
@@ -115,5 +119,32 @@ describe('Error', function () {
 		jsonTable = JSON.parse(jsonString);
 		should(jsonTable.error.message).be.eql(errorTop.message);
 		should(jsonTable.error.nestedError.message).be.eql(errorTop.nestedError.message);
+	});
+
+	it.ios('should include native reason in message', () => {
+		try {
+			Ti.UI.createView({
+				top: 20,
+				backgroundGradient: {
+					type: 'invalid'
+				}
+			});
+		} catch (e) {
+			should(e.message.startsWith('Invalid type passed to function')).be.true();
+			should(e.nativeReason).be.eql('Must be either \'linear\' or \'radial\'');
+		}
+	});
+
+	it.ios('should include full native call stack', () => {
+		try {
+			Ti.UI.createView({
+				top: 20,
+				backgroundGradient: {
+					type: 'invalid'
+				}
+			});
+		} catch (e) {
+			should(e.nativeStack.includes('TiGradient gradientFromObject:')).be.true();
+		}
 	});
 });

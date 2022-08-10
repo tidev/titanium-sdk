@@ -50,6 +50,20 @@ properties:
     summary: Items of this list section.
     type: Array<ListDataItem>
 
+  - name: itemCount
+    summary: Returns the item count of the section.
+    type: Number
+    since: 9.3.0
+    permission: read-only
+    platforms: [android, iphone, ipad]
+
+  - name: filteredItemCount
+    summary: Returns the item count of the section, also incorporating the search filter if active.
+    type: Number
+    since: 9.3.0
+    permission: read-only
+    platforms: [android]
+
 methods:
 
   - name: setItems

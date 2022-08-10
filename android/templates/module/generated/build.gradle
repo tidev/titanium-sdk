@@ -14,32 +14,10 @@ repositories {
 // Path to proxy binding JSON file created by "kroll-apt" annotation processor and used to do C/C++ code generation.
 def tiModuleBindingsJsonPath = "${buildDir}/ti-generated/json/<%- moduleName %>.json".toString()
 
-// Fetch Android NDK version assigned to the "local.properties" file. (Will be missing if NDK not installed.)
-def ndkVersionString = null;
-try {
-	def localProperties = new Properties()
-	localProperties.load(file("${rootDir}/local.properties").newDataInputStream())
-	def ndkDir = localProperties.get('ndk.dir')
-	if (ndkDir != null) {
-		def ndkSourceProperties = new Properties()
-		ndkSourceProperties.load(file("${ndkDir}/source.properties").newDataInputStream())
-		ndkVersionString = ndkSourceProperties.get('Pkg.Revision')
-	}
-} catch (Throwable) {
-}
-
-// If Titanium failed to set Android NDK path in "local.properties", then assume NDK is not installed.
-// Have gradle auto-download NDK by setting the version we want below. (Will fail if a different version is installed.)
-// Must be set to a stable release version listed here: https://developer.android.com/ndk/downloads
-if (ndkVersionString == null) {
-	ndkVersionString = '21.2.6472646'
-	android.ndkVersion ndkVersionString
-}
-
 android {
 	compileSdkVersion <%- compileSdkVersion %>
 	defaultConfig {
-		minSdkVersion <%- minSdkVersion %>
+		minSdkVersion 19
 		targetSdkVersion <%- compileSdkVersion %>
 		versionName '<%- moduleVersion %>'
 
@@ -77,16 +55,12 @@ android {
 		}
 		externalNativeBuild {
 			ndkBuild {
-				cppFlags '-std=c++11'
+				cppFlags '-std=c++14'
 				arguments.addAll([
 					'APP_STL:=c++_shared',
-					"-j${Runtime.runtime.availableProcessors()}".toString()
+					"-j${Runtime.runtime.availableProcessors()}".toString(),
+					'--output-sync=none'
 				])
-				if (Integer.parseInt(ndkVersionString.split('\\.')[0]) >= 21) {
-					// Work-around issue where Google sets "--output-sync=target" by default for NDK v21+
-					// which causes "bad file descriptor" errors when using "-j" parallel executions argument.
-					arguments.add('--output-sync=none')
-				}
 			}
 		}
 		ndk {
@@ -148,11 +122,11 @@ android {
 		}
 	}
 	compileOptions {
-		sourceCompatibility JavaVersion.VERSION_1_8
-		targetCompatibility JavaVersion.VERSION_1_8
+		sourceCompatibility JavaVersion.VERSION_11
+		targetCompatibility JavaVersion.VERSION_11
 	}
 	kotlinOptions {
-		jvmTarget = JavaVersion.VERSION_1_8
+		jvmTarget = "11"
 	}
 	// Exclude the C++ runtime and Titanium kroll libraries for all architectures when packaging the AAR file.
 	// Avoids app build failure due to library file name collision. (Apps will use "titanium.aar" bundled *.so files.)
@@ -183,6 +157,8 @@ preBuild.doFirst {
 project.afterEvaluate {
 	externalNativeBuildDebug.dependsOn compileDebugJavaWithJavac
 	externalNativeBuildRelease.dependsOn compileReleaseJavaWithJavac
+	buildNdkBuildDebug.dependsOn compileDebugJavaWithJavac
+	buildNdkBuildRelease.dependsOn compileReleaseJavaWithJavac
 }
 
 // Hook into Java compile task.

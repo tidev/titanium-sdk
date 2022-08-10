@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2018 by Axway, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -205,7 +205,7 @@ public class TiUIMaskedImage extends TiUIView
 		ImageView.ScaleType scaleType = ImageView.ScaleType.FIT_XY;
 		if ((layoutParams.optionWidth == null) && (layoutParams.optionHeight == null)) {
 			if (!layoutParams.autoFillsWidth && !layoutParams.autoFillsHeight) {
-				if (layoutParams.sizeOrFillWidthEnabled && layoutParams.sizeOrFillWidthEnabled) {
+				if (layoutParams.sizeOrFillWidthEnabled && layoutParams.sizeOrFillHeightEnabled) {
 					scaleType = ImageView.ScaleType.CENTER;
 				}
 			}
@@ -399,14 +399,14 @@ public class TiUIMaskedImage extends TiUIView
 	private void updateMaskTintWith(Object value)
 	{
 		if (this.maskedDrawable != null) {
-			if (value instanceof String) {
-				int color = TiConvert.toColor((String) value);
+			if (value == null) {
+				this.maskedDrawable.setTintingEnabled(false);
+			} else if (value instanceof String) {
+				int color = TiConvert.toColor(value, proxy.getActivity());
 				this.maskedDrawable.setTintColor(color);
 				this.maskedDrawable.setTintingEnabled(true);
-			} else if (value != null) {
-				Log.w(TAG, "MaskedImage 'tint' property must be set to a string.");
 			} else {
-				this.maskedDrawable.setTintingEnabled(false);
+				Log.w(TAG, "MaskedImage 'tint' property must be set to a string.");
 			}
 		}
 	}
@@ -418,13 +418,13 @@ public class TiUIMaskedImage extends TiUIView
 	private void updateTintColorFilterWith(Object value)
 	{
 		if (this.maskedDrawable != null) {
-			if (value instanceof String) {
-				int color = TiConvert.toColor((String) value);
+			if (value == null) {
+				this.maskedDrawable.clearColorFilter();
+			} else if (value instanceof String) {
+				int color = TiConvert.toColor(value, proxy.getActivity());
 				this.maskedDrawable.setColorFilter(color, PorterDuff.Mode.MULTIPLY);
 			} else if (value != null) {
 				Log.w(TAG, "MaskedImage 'tintColor' property must be set to a string.");
-			} else {
-				this.maskedDrawable.clearColorFilter();
 			}
 		}
 	}
@@ -1030,13 +1030,6 @@ public class TiUIMaskedImage extends TiUIView
 				} else if (blendMode == PorterDuff.Mode.DST_IN) {
 					bitmap = getBitmapFrom(getMaskedDrawable().getImageDrawable());
 				}
-				if ((Build.VERSION.SDK_INT == 19) || (Build.VERSION.SDK_INT == 20)) {
-					// Android 4.4 has a bug where if bitmap byte width does not fit a 4 byte packing alignment,
-					// then mask will appear skewed. Resizing bitmap doesn't work. So, give up if this happens.
-					if ((bitmap != null) && ((bitmap.getWidth() % 4) != 0)) {
-						bitmap = null;
-					}
-				}
 				if (bitmap != null) {
 					try {
 						if (bitmap.getConfig() != Bitmap.Config.ALPHA_8) {
@@ -1176,9 +1169,6 @@ public class TiUIMaskedImage extends TiUIView
 		{
 			if (maskedDrawable == null) {
 				return false;
-			}
-			if (Build.VERSION.SDK_INT < 18) {
-				return false; // Versions older than Android 4.3 have a HW acceleration bug with this handler.
 			}
 			if (maskedDrawable.isTintingEnabled()) {
 				return false;
@@ -1410,11 +1400,7 @@ public class TiUIMaskedImage extends TiUIView
 					Display display = windowManager.getDefaultDisplay();
 					if (display != null) {
 						DisplayMetrics metrics = new DisplayMetrics();
-						if (Build.VERSION.SDK_INT >= 17) {
-							display.getRealMetrics(metrics);
-						} else {
-							display.getMetrics(metrics);
-						}
+						display.getRealMetrics(metrics);
 						return Math.max(metrics.widthPixels, metrics.heightPixels);
 					}
 				}

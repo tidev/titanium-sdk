@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2015 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -70,7 +70,6 @@
 
 - (void)resignCurrent:(id)unused;
 
-#if IS_SDK_IOS_12
 - (NSString *)persistentIdentifier;
 
 - (void)setPersistentIdentifier:(NSString *)value;
@@ -82,7 +81,6 @@
 - (void)deleteSavedUserActivitiesForPersistentIdentifiers:(id)persistentIdentifiers;
 
 - (void)deleteAllSavedUserActivities:(id)unused;
-#endif
 
 @end
 

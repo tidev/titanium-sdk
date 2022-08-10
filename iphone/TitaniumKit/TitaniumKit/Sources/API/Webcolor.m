@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2014 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -34,29 +34,7 @@ int toASCIIHexValue(unichar c) { return (c & 0xF) + (c < 'A' ? 0 : 9); }
 
 + (UIColor *)semanticColorNamed:(NSString *)colorName
 {
-  if ([TiUtils isIOSVersionOrGreater:@"11.0"] || [TiUtils isMacOS]) {
-    return [UIColor colorNamed:colorName]; // FIXME: in xcode dev project, this won't work properly because our xcode build doesn't convert semantic.colors.json
-  }
-
-  // Fallback to reading the semantic.colors.json directly for iOS < 11
-  if (semanticColors == nil) {
-    NSString *colorsPath = [NSBundle.mainBundle pathForResource:@"semantic.colors" ofType:@"json"];
-    if (![NSFileManager.defaultManager fileExistsAtPath:colorsPath]) {
-      return nil;
-    }
-
-    NSData *colors = [NSData dataWithContentsOfFile:colorsPath options:NSDataReadingMappedIfSafe error:nil];
-    semanticColors = [[NSJSONSerialization JSONObjectWithData:colors options:NSJSONReadingMutableContainers error:nil] retain];
-  }
-
-  NSDictionary *colorMap = semanticColors[colorName];
-  if (colorMap == nil) {
-    return nil;
-  }
-
-  NSString *currentTraitCollection = TiApp.controller.traitCollection.userInterfaceStyle == UIUserInterfaceStyleDark ? @"dark" : @"light";
-
-  return [Webcolor semanticColorEntry:colorMap[currentTraitCollection]];
+  return [UIColor colorNamed:colorName]; // FIXME: in xcode dev project, this won't work properly because our xcode build doesn't convert semantic.colors.json
 }
 
 + (UIColor *)semanticColorEntry:(id)entry
@@ -125,7 +103,6 @@ int toASCIIHexValue(unichar c) { return (c & 0xF) + (c < 'A' ? 0 : 9); }
       @"ff000000" : UIColor.blackColor,
     }];
 
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
     // NOTE: We explicitly use lowercase names because we cache using lowercase
     // This basically means color names are case insensitive
     [colorLookup addEntriesFromDictionary:@{
@@ -170,7 +147,6 @@ int toASCIIHexValue(unichar c) { return (c & 0xF) + (c < 'A' ? 0 : 9); }
         @"quaternarysystemfillcolor" : UIColor.quaternarySystemFillColor
       }];
     }
-#endif
   }
   if ([colorName hasPrefix:@"#"]) {
     colorName = [colorName substringFromIndex:1];

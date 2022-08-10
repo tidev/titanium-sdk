@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2018 by Axway, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -81,7 +81,7 @@ public class TiInputStreamWrapper extends InputStream
 	 * reposition the stream back to the given marked position.
 	 * <p>
 	 * This method does nothing if the stream's markSupported() method returns false.
-	 * @param The maximum number of bytes that can be read before the mark position becomes invalid.
+	 * @param readLimit The maximum number of bytes that can be read before the mark position becomes invalid.
 	 */
 	@Override
 	public void mark(int readLimit)

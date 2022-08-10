@@ -5,19 +5,21 @@ description: |
     The Clipboard is a temporary data store, used to save a single item of data that may then
     be accessed by the user using UI copy and paste interactions within an app or between apps.
 
-    On iOS, the module's `*Data()` methods enable multiple representations of the
+    On iOS, the module's `setData()` and `getData()` methods enable multiple representations of the
     same data item to be stored together with their respective
     [MIME type](http://en.wikipedia.org/wiki/Internet_media_type) to describe their format. For
     example, `'text'` and `'text/plain'` for text, and `'image/jpg'` and `'image/png'` for an image.
+    iOS Will report back the type of data representation in `getItems()` as 
+    [Universal Type Identifiers](https://developer.apple.com/library/archive/documentation/Miscellaneous/Reference/UTIRef/Articles/System-DeclaredUniformTypeIdentifiers.html).
 
-    When working with text, either the `*Data()` methods may be used with a `'text/plain'` type, or
-    the `*Text()` methods without the need to specify the type.
+    When working with text, either of the `getData()`/`setData()` methods may be used with a `'text/plain'` type, or
+    the `getText()`/`hasText()`/`setText()` methods without the need to specify the type.
 
-    Android currently only supports text type of data to be stored.
+    Android currently only supports text data to be stored.
 
     #### Clipboard Data Types
 
-    The `*Text()` methods are equivalent to calling `*Data()` with a `'text'` or `'text/plain'`
+    The `getText()`/`hasText()`/`setText()` methods are equivalent to calling `getData()`/`setData()` with a `'text'` or `'text/plain'`
     type. These work with plain Unicode strings.
 
     An image is stored using the `'image'` type, or an explicit image MIME type, and is returned as
@@ -28,14 +30,14 @@ description: |
     Any data type that is specified but not correctly mapped to a clipboard type by the system is
     retrieved as a <Titanium.Blob> type.
 extends: Titanium.Module
-platforms: [iphone, ipad, macos]
-since: {iphone: "1.5.0", ipad: "1.5.0", macos: "9.2.0"}
+platforms: [android, iphone, ipad, macos]
+since: {android: "1.8.0", iphone: "1.5.0", ipad: "1.5.0", macos: "9.2.0"}
 methods:
   - name: clearData
     summary: |
         Deletes data of the specified MIME type stored in the clipboard. If MIME type omitted, all
         data is deleted.
-    description: On Android, identical to `clearText` method.
+    description: On Android, identical to the `clearText()` method.
     parameters:
       - name: type
         summary: MIME type. Ignored on Android.
@@ -51,7 +53,7 @@ methods:
   - name: getData
     summary: Gets data of the specified MIME type stored in the clipboard. Returns null if non-text mimetype on Android.
     returns:
-        type: [String,Titanium.Blob]
+        type: [String, Titanium.Blob]
     parameters:
       - name: type
         summary: MIME type. Must be 'text' or 'text/plain' on Android, or else null is returned.
@@ -112,7 +114,8 @@ methods:
       - name: type
         summary: |
             MIME type. Must be 'text' or 'text/plain' on Android.
-            Possible types include: `'text', 'text/plain', 'color', 'image', 'url', 'text/uri-list'`
+            Possible types include: `'text', 'text/plain', 'color', 'image', 'url', 'text/uri-list'`.
+            iOS also supports [Universal Type Identifiers](https://developer.apple.com/library/archive/documentation/Miscellaneous/Reference/UTIRef/Articles/System-DeclaredUniformTypeIdentifiers.html)
         type: String
 
       - name: data
@@ -147,6 +150,10 @@ methods:
 
   - name: getItems
     summary: Gets the items that have been specified earlier using <Titanium.UI.Clipboard.setItems>.
+    description: |
+        The returned Array contains simple Objects whose keys are the reported
+        [Universal Type Identifiers](https://developer.apple.com/library/archive/documentation/Miscellaneous/Reference/UTIRef/Articles/System-DeclaredUniformTypeIdentifiers.html)
+        reported by iOS; and values are the underlying object/data.
     returns:
         - type: Array<Dictionary>
     osver: {ios: {min: "10.0"}}
@@ -215,22 +222,23 @@ examples:
 
         ``` js
         var win = Ti.UI.createWindow({
-            backgroundColor : "#fff"
+            backgroundColor: "#fff"
         });
 
         var btn1 = Ti.UI.createButton({
-            title : "Set clipboard items",
+            title: "Set clipboard items",
             top: 40
         });
 
         var btn2 = Ti.UI.createButton({
-            title : "Get clipboard items",
+            title: "Get clipboard items",
             top: 80
         });
 
-        btn1.addEventListener("click", function() {
-          var localOnly = Ti.UI.CLIPBOARD_OPTION_LOCAL_ONLY;
-          var expirationDate = Ti.UI.CLIPBOARD_OPTION_EXPIRATION_DATE;
+        btn1.addEventListener("click", function () {
+          const options = {};
+          options[Ti.UI.CLIPBOARD_OPTION_LOCAL_ONLY] = true;
+          options[Ti.UI.CLIPBOARD_OPTION_EXPIRATION_DATE] = new Date(2030, 4, 20);
 
             Ti.UI.Clipboard.setItems({
               items: [{
@@ -238,14 +246,11 @@ examples:
               },{
                   "text/plain": "Doe"
               }],
-              options: {
-                  localOnly: true,
-                  expirationDate: new Date(2020, 04, 20)
-              }
+              options
           });
         });
 
-        btn2.addEventListener("click", function() {
+        btn2.addEventListener("click", function () {
             alert(Ti.UI.Clipboard.getItems());
         });
 
@@ -258,13 +263,13 @@ examples:
     example: |
         ``` js
         var clipboard1 = Ti.UI.createClipboard({
-            name : 'myClipboard',
-            allowCreation : true
+            name: 'myClipboard',
+            allowCreation: true
         });
         clipboard1.setText('hello');
 
         var clipboard2 = Ti.UI.createClipboard({
-            name : 'myClipboard'
+            name: 'myClipboard'
         });
 
         Ti.API.info('Clipboard name is: ' + clipboard1.name);
@@ -277,7 +282,7 @@ examples:
     example: |
         ``` js
         var clipboard = Ti.UI.createClipboard({
-            unique : true
+            unique: true
         });
         clipboard.setText('hello');
 
@@ -293,6 +298,7 @@ properties:
     summary: |
         An array of key-value items to add to the clipboard. The key must a valid mime-type
         matching the mime-type of the value.
+        Alterntaively, iOS supports using [Universal Type Identifiers](https://developer.apple.com/library/archive/documentation/Miscellaneous/Reference/UTIRef/Articles/System-DeclaredUniformTypeIdentifiers.html)
     type: Array<Dictionary>
 
   - name: options

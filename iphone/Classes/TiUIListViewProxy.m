@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2013 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -207,7 +207,7 @@
   static dispatch_once_t onceToken;
   static NSArray *keySequence = nil;
   dispatch_once(&onceToken, ^{
-    keySequence = [[NSArray alloc] initWithObjects:@"style", @"templates", @"defaultItemTemplate", @"sections", @"backgroundColor", nil];
+    keySequence = [[NSArray alloc] initWithObjects:@"style", @"requiresEditingToMove", @"showSearchBarInNavBar", @"templates", @"defaultItemTemplate", @"sections", @"backgroundColor", nil];
   });
   return keySequence;
 }

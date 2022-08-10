@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2017 by Axway, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -41,7 +41,6 @@ import java.util.Iterator;
  */
 public class FusedLocationProvider
 {
-
 	private static final String TAG = "FusedLocationProvider";
 
 	public static final String PROVIDER = "fused";
@@ -139,8 +138,8 @@ public class FusedLocationProvider
 		private static GoogleApiClient googleApiClient;
 		private static FusedLocationProviderClient fusedLocationClient;
 
-		private static ArrayList<LocationProviderProxy> fusedLocationQueue = new ArrayList<>();
-		private static ArrayList<LocationProviderProxy> fusedLocationProviders = new ArrayList<>();
+		private static final ArrayList<LocationProviderProxy> fusedLocationQueue = new ArrayList<>();
+		private static final ArrayList<LocationProviderProxy> fusedLocationProviders = new ArrayList<>();
 
 		public static void init(Context context, final GeolocationModule geolocationModule)
 		{

@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2019 by Axway, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -8,6 +8,8 @@ package ti.modules.titanium.database;
 
 import org.appcelerator.kroll.JSError;
 import org.appcelerator.kroll.KrollFunction;
+import org.appcelerator.kroll.KrollObject;
+import org.appcelerator.kroll.KrollPromise;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
@@ -39,9 +41,9 @@ public class TiDatabaseProxy extends KrollProxy
 	private static final String TAG = "TiDB";
 
 	private Thread thread;
-	private Lock dbLock = new ReentrantLock(true); // use a "fair" lock
-	private BlockingQueue<Runnable> queue = new LinkedBlockingQueue<>();
-	private AtomicBoolean executingQueue = new AtomicBoolean(false);
+	private final Lock dbLock = new ReentrantLock(true); // use a "fair" lock
+	private final BlockingQueue<Runnable> queue = new LinkedBlockingQueue<>();
+	private final AtomicBoolean executingQueue = new AtomicBoolean(false);
 	private boolean isClosed = false;
 
 	protected SQLiteDatabase db;
@@ -258,46 +260,60 @@ public class TiDatabaseProxy extends KrollProxy
 	 * Asynchronously execute a single SQL query.
 	 * @param query SQL query to execute on database.
 	 * @param parameterObjects Parameters for `query`
-	 * @param callback Result callback for query execution.
 	 */
 	@Kroll.method
-	public void executeAsync(final String query, final Object... parameterObjects)
+	public KrollPromise<TiResultSetProxy> executeAsync(final String query, final Object... parameterObjects)
 	{
-		// Validate `query` and `callback` parameters.
-		if (query == null || parameterObjects == null || parameterObjects.length == 0) {
-			throw new InvalidParameterException("'query' and 'callback' parameters are required");
+		// Validate `query` parameter.
+		if (query == null) {
+			throw new InvalidParameterException("'query' parameter is required");
 		}
 
-		// Last parameter MUST be the callback function.
-		final Object lastParameter = parameterObjects[parameterObjects.length - 1];
-		if (!(lastParameter instanceof KrollFunction)) {
-			throw new InvalidParameterException("'callback' is not a valid function");
+		KrollFunction possibleCallback = null;
+		Object[] possibleParameters = parameterObjects;
+		if (parameterObjects != null && parameterObjects.length > 0) {
+			// check for callback
+			// Last parameter MUST be the callback function.
+			final Object lastParameter = parameterObjects[parameterObjects.length - 1];
+			if (lastParameter instanceof KrollFunction) {
+				possibleCallback = (KrollFunction) lastParameter;
+				// Reconstruct parameters array without `callback` element.
+				possibleParameters = new Object[parameterObjects.length - 1];
+				System.arraycopy(parameterObjects, 0, possibleParameters, 0, parameterObjects.length - 1);
+			}
 		}
-		final KrollFunction callback = (KrollFunction) lastParameter;
 
-		// Reconstruct parameters array without `callback` element.
-		final Object[] parameters = new Object[parameterObjects.length - 1];
-		System.arraycopy(parameterObjects, 0, parameters, 0, parameterObjects.length - 1);
+		final KrollFunction callback = possibleCallback;
+		final Object[] parameters = possibleParameters;
+		final KrollObject callbackThisObject = getKrollObject();
+		return KrollPromise.create((promise) -> {
+			executingQueue.set(true);
+			try {
+				queue.put(new Runnable() {
+					@Override
+					public void run()
+					{
+						TiResultSetProxy result = null;
+						try {
+							result = executeSQL(query, parameters);
+						} catch (Throwable t) {
+							if (callback != null) {
+								callback.callAsync(callbackThisObject, new Object[] { t });
+							}
+							promise.reject(t);
+							return;
+						}
 
-		executingQueue.set(true);
-		try {
-			queue.put(new Runnable() {
-				@Override
-				public void run()
-				{
-					Object[] args = null;
-					try {
-						final TiResultSetProxy result = executeSQL(query, parameters);
-						args = new Object[] { null, result };
-					} catch (Throwable t) {
-						args = new Object[] { t };
+						if (callback != null) {
+							callback.callAsync(callbackThisObject, new Object[] { null, result });
+						}
+						promise.resolve(result);
 					}
-					callback.callAsync(getKrollObject(), args);
-				}
-			});
-		} catch (InterruptedException e) {
-			// Ignore...
-		}
+				});
+			} catch (InterruptedException e) {
+				promise.reject(e);
+			}
+		});
 	}
 
 	/**
@@ -330,43 +346,53 @@ public class TiDatabaseProxy extends KrollProxy
 	 * @param callback Result callback for query execution.
 	 */
 	@Kroll.method
-	public void executeAllAsync(final String[] queries, final KrollFunction callback)
+	public KrollPromise<Object[]> executeAllAsync(final String[] queries,
+		@Kroll.argument(optional = true) final KrollFunction callback)
 	{
-		// Validate `queries` and `callback` parameters.
-		if (queries == null || queries.length == 0 || callback == null) {
-			throw new InvalidParameterException("'query' and 'callback' parameters are required");
+		// Validate `queries` parameter
+		if (queries == null || queries.length == 0) {
+			throw new InvalidParameterException("'query' parameter is required");
 		}
 
-		executingQueue.set(true);
-		try {
-			queue.put(new Runnable() {
-				@Override
-				public void run()
-				{
-					Throwable error = null;
-					List<TiResultSetProxy> results = new ArrayList<>(queries.length);
-					for (int index = 0; index < queries.length; index++) {
-						try {
-							final TiResultSetProxy result = executeSQL(queries[index], null);
-							results.add(result);
-						} catch (Throwable t) {
-							error = new BatchQueryException(t, index, null);
-							break;
+		final KrollObject callbackThisObject = getKrollObject();
+		return KrollPromise.create((promise) -> {
+			executingQueue.set(true);
+			try {
+				queue.put(new Runnable() {
+					@Override
+					public void run()
+					{
+						Throwable error = null;
+						List<TiResultSetProxy> results = new ArrayList<>(queries.length);
+						for (int index = 0; index < queries.length; index++) {
+							try {
+								final TiResultSetProxy result = executeSQL(queries[index], null);
+								results.add(result);
+							} catch (Throwable t) {
+								error = new BatchQueryException(t, index, results);
+								break;
+							}
+						}
+						if (callback != null) {
+							callback.callAsync(callbackThisObject, new Object[] { error, results.toArray() });
+						}
+						if (error != null) {
+							promise.reject(error);
+						} else {
+							promise.resolve(results.toArray());
 						}
 					}
-					callback.callAsync(getKrollObject(), new Object[] { error, results.toArray() });
-				}
-			});
-		} catch (InterruptedException e) {
-			// Ignore...
-		}
+				});
+			} catch (InterruptedException e) {
+				promise.reject(e);
+			}
+		});
 	}
 
 	/**
 	 * Get database name.
 	 * @return Database name.
 	 */
-	@Kroll.method
 	@Kroll.getProperty
 	public String getName()
 	{
@@ -377,7 +403,6 @@ public class TiDatabaseProxy extends KrollProxy
 	 * Get last inserted row identifier.
 	 * @return Row identifier.
 	 */
-	@Kroll.method
 	@Kroll.getProperty
 	public int getLastInsertRowId()
 	{
@@ -397,7 +422,6 @@ public class TiDatabaseProxy extends KrollProxy
 	 * Get number of rows affected by last query.
 	 * @return Number of rows.
 	 */
-	@Kroll.method
 	@Kroll.getProperty
 	public int getRowsAffected()
 	{
@@ -435,7 +459,6 @@ public class TiDatabaseProxy extends KrollProxy
 	 * Get database file.
 	 * @return `Ti.File` reference of SQLiteDatabase.
 	 */
-	@Kroll.method
 	@Kroll.getProperty
 	public TiFileProxy getFile()
 	{
@@ -477,7 +500,7 @@ public class TiDatabaseProxy extends KrollProxy
 
 		public HashMap getJSProperties()
 		{
-			HashMap map = new HashMap();
+			HashMap<String, Object> map = new HashMap<>();
 			map.put("index", index);
 			if (partialResults != null) {
 				map.put("results", partialResults.toArray());

@@ -82,14 +82,12 @@
     return [UIApplicationShortcutIcon iconWithTemplateImageName:value];
   }
 
-#if IS_SDK_IOS_13
   if ([value isKindOfClass:[TiBlob class]] && [TiUtils isIOSVersionOrGreater:@"13.0"]) {
     TiBlob *blob = (TiBlob *)value;
     if (blob.type == TiBlobTypeSystemImage) {
       return [UIApplicationShortcutIcon iconWithSystemImageName:blob.systemImageName];
     }
   }
-#endif
   NSLog(@"[ERROR] Ti.UI.ApplicationShortcuts: Invalid icon provided, defaulting to use no icon.");
   return nil;
 }

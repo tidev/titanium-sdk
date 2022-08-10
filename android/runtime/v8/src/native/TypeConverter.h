@@ -1,6 +1,6 @@
 /*
- * Appcelerator Titanium Mobile
- * Copyright (c) 2011-2018 by Appcelerator, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -22,6 +22,11 @@ public:
 	static std::map<int64_t, v8::Persistent<v8::Function, v8::CopyablePersistentTraits<v8::Function>>> functions;
 	// The incrementing key to store the persistent functions
 	static int64_t functionIndex;
+
+	// Our global map of "pointers" to persistent functions
+	static std::map<int64_t, v8::Persistent<v8::Promise::Resolver, v8::CopyablePersistentTraits<v8::Promise::Resolver>>> resolvers;
+	// The incrementing key to store the persistent functions
+	static int64_t resolverIndex;
 
 	// short convert methods
 	static jshort jsNumberToJavaShort(v8::Local<v8::Number> jsNumber);
@@ -123,6 +128,13 @@ public:
 
 	static jobject jsObjectToJavaFunction(v8::Isolate* isolate, JNIEnv *env, v8::Local<v8::Object> jsObject);
 	static v8::Local<v8::Function> javaObjectToJsFunction(v8::Isolate* isolate, JNIEnv *env, jobject javaObject);
+
+	// promise resolvers convert methods
+	static jobject jsObjectToJavaPromise(v8::Isolate* isolate, v8::Local<v8::Object> jsObject);
+	static jobject jsObjectToJavaPromise(v8::Isolate* isolate, JNIEnv *env, v8::Local<v8::Object> jsObject);
+
+	static v8::Local<v8::Promise> javaObjectToJsPromise(v8::Isolate* isolate, jobject javaObject);
+	static v8::Local<v8::Promise> javaObjectToJsPromise(v8::Isolate* isolate, JNIEnv *env, jobject javaObject);
 
 	// arguments conversion
 	static jobjectArray jsArgumentsToJavaArray(const v8::FunctionCallbackInfo<v8::Value>& args);

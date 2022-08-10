@@ -322,7 +322,7 @@ properties:
     platforms: [android]
     deprecated:
         since: "3.1.0"
-        notes: Use success or code values to determine error conditions
+        notes: Use the `success` or `code` property values to determine error conditions.
         removed: "9.0.0"
 
   - name: errorDescription
@@ -331,7 +331,7 @@ properties:
     exclude-platforms: [macos]
     deprecated:
         since: "3.1.0"
-        notes: Use error property to determine error message
+        notes: Use the `error` property to determine error message.
         removed: "9.0.0"
 
   - name: success
@@ -381,7 +381,7 @@ properties:
     platforms: [android]
     deprecated:
         since: "3.1.0"
-        notes: Use success or code values to determine error conditions
+        notes: Use the `success` or `code` property values to determine error conditions.
         removed: "9.0.0"
 
   - name: errorDescription
@@ -390,7 +390,7 @@ properties:
     exclude-platforms: [macos]
     deprecated:
         since: "3.1.0"
-        notes: Use error property to determine error message
+        notes: Use the `error` property to determine the error message.
         removed: "9.0.0"
 
   - name: success

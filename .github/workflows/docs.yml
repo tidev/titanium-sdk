@@ -1,0 +1,27 @@
+name: API Docs
+on:
+  push:
+    paths:
+    - 'apidoc/**'
+  pull_request:
+    paths:
+    - 'apidoc/**'
+
+jobs:
+  docs:
+    runs-on: ubuntu-latest
+    name: Docs
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+            fetch-depth: 0
+      - name: Use Node.js 12.x
+        uses: actions/setup-node@v2
+        with:
+          node-version: '16.x'
+          cache: 'npm'
+      - run: npm ci
+        name: Install dependencies
+      - run: npm run lint:docs
+        name: Lint

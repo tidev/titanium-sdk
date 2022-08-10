@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -24,7 +24,6 @@ public interface TiActivitySupport {
 	 * @param code  the request code, a code that represents the launched activity. This code will be returned in
 	 * {@link TiActivityResultHandler#onResult(android.app.Activity, int, int, Intent)} when the activity exits.
 	 * @param handler the callback handler.
-	 * @module.api
 	 */
 	void launchActivityForResult(Intent intent, int code, TiActivityResultHandler handler);
 
@@ -40,8 +39,7 @@ public interface TiActivitySupport {
 	 * @param extraFlags always set to 0.
 	 * @param options additional options for how the Activity should be started. See Context.startActivity(Intent, Bundle) for more details.
 	 * If options have also been supplied by the IntentSender, options given here will override any that conflict with those given by the IntentSender.
-	 * @param handler the callback handler.
-	 * @module.api
+	 * @param resultHandler the callback handler.
 	 */
 	void launchIntentSenderForResult(IntentSender intent, int requestCode, Intent fillInIntent, int flagsMask,
 									 int flagsValues, int extraFlags, Bundle options,
@@ -50,7 +48,6 @@ public interface TiActivitySupport {
 	/**
 	 * @return a code that represents the launched activity. This must be unique to differentiate launched activities that
 	 * use the same callback handler.
-	 * @module.api
 	 */
 	int getUniqueResultCode();
 }

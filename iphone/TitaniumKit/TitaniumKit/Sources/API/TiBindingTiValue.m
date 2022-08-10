@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2018 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -10,6 +10,7 @@
 #import "KrollContext.h"
 #import "KrollMethod.h"
 #import "KrollObject.h"
+#import "KrollPromise.h"
 #import <objc/runtime.h>
 
 /*
@@ -295,6 +296,7 @@ JSValueRef TiBindingTiValueFromNSObject(JSContextRef jsContext, NSObject *obj)
     // Add "nativeStack" key
     NSArray<NSString *> *nativeStack = [(NSException *)obj callStackSymbols];
     NSInteger startIndex = 0; // Starting at index = 4 to not include the script-error API's
+
     if (nativeStack == nil) { // the exception was created, but never thrown, so grab the current stack frames
       nativeStack = [NSThread callStackSymbols]; // this happens when we construct an exception manually in our ENSURE macros for obj-c proxies
       startIndex = 2; // drop ObjcProxy.throwException and this method from frames
@@ -362,6 +364,13 @@ JSValueRef TiBindingTiValueFromNSObject(JSContextRef jsContext, NSObject *obj)
     JSValueRef args[1];
     args[0] = JSValueMakeNumber(jsContext, number);
     return JSObjectMakeDate(jsContext, 1, args, NULL);
+  }
+  if ([obj isKindOfClass:[JSValue class]]) {
+    JSValue *jsValue = (JSValue *)obj;
+    return jsValue.JSValueRef;
+  }
+  if ([obj isKindOfClass:[KrollPromise class]]) {
+    return ((KrollPromise *)obj).JSValue.JSValueRef;
   }
   return TiBindingTiValueFromProxy(jsContext, (TiProxy *)obj);
 }

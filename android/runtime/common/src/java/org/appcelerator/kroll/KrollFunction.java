@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2011 by Appcelerator, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -12,7 +12,7 @@ import java.util.HashMap;
  * An interface that exposes a Javascript function to Java.
  */
 public interface KrollFunction {
-	public class FunctionArgs
+	class FunctionArgs
 	{
 		public KrollObject krollObject;
 		public Object[] args;
@@ -29,7 +29,6 @@ public interface KrollFunction {
 	 * @param krollObject The object that represents <code>this</code> in Javascript.
 	 * @param args A single object argument for the function (for convenience)
 	 * @return the result of the executed function.
-	 * @module.api
 	 */
 	Object call(KrollObject krollObject, HashMap args);
 
@@ -38,7 +37,6 @@ public interface KrollFunction {
 	 * @param krollObject The object that represents <code>this</code> in Javascript.
 	 * @param args the function's arguments.
 	 * @return the result of the executed function.
-	 * @module.api
 	 */
 	Object call(KrollObject krollObject, Object[] args);
 
@@ -46,7 +44,6 @@ public interface KrollFunction {
 	 * Executes a function asynchronously.
 	 * @param krollObject The object that represents <code>this</code> in Javascript.
 	 * @param args A single object argument for the function (for convenience)
-	 * @module.api
 	 */
 	void callAsync(KrollObject krollObject, HashMap args);
 
@@ -54,7 +51,6 @@ public interface KrollFunction {
 	 * Executes a function asynchronously.
 	 * @param krollObject The object that represents <code>this</code> in Javascript.
 	 * @param args the function's arguments.
-	 * @module.api
 	 */
 	void callAsync(KrollObject krollObject, Object[] args);
 }

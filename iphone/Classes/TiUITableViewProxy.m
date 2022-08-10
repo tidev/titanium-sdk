@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -88,6 +88,14 @@ USE_VIEW_FOR_CONTENT_HEIGHT
   }
 }
 
+- (void)windowWillClose
+{
+  if ([self viewInitialized]) {
+    [self makeViewPerformSelector:@selector(cleanup:) withObject:nil createIfNeeded:NO waitUntilDone:YES];
+  }
+  [super windowWillClose];
+}
+
 - (void)gainFocus
 {
   [[self tableView] viewGetFocus];
@@ -108,23 +116,23 @@ USE_VIEW_FOR_CONTENT_HEIGHT
 
 - (NSInteger)indexForRow:(TiUITableViewRowProxy *)row
 {
-  int index = 0;
+  NSInteger index = 0;
   for (TiUITableViewSectionProxy *thisSection in sections) {
     if (thisSection == row.section) {
       return index + row.row;
     }
-    index += [thisSection rowCount];
+    index += thisSection.rowCount.integerValue;
   }
   return index;
 }
 
 - (NSInteger)sectionIndexForIndex:(NSInteger)theindex
 {
-  int index = 0;
-  int section = 0;
+  NSInteger index = 0;
+  NSInteger section = 0;
 
   for (TiUITableViewSectionProxy *thisSection in sections) {
-    index += [thisSection rowCount];
+    index += thisSection.rowCount.integerValue;
     if (theindex < index) {
       return section;
     }
@@ -141,7 +149,7 @@ USE_VIEW_FOR_CONTENT_HEIGHT
   int sectionIdx = 0;
 
   for (TiUITableViewSectionProxy *sectionProxy in sections) {
-    NSInteger rowCount = [sectionProxy rowCount];
+    NSUInteger rowCount = sectionProxy.rowCount.unsignedIntegerValue;
     if (rowCount + current > index) {
       if (section != nil) {
         *section = sectionIdx;
@@ -166,7 +174,7 @@ USE_VIEW_FOR_CONTENT_HEIGHT
   NSInteger row = index;
 
   for (TiUITableViewSectionProxy *thisSection in sections) {
-    NSInteger rowCount = [thisSection rowCount];
+    NSUInteger rowCount = thisSection.rowCount.unsignedIntegerValue;
     if (rowCount + current > index) {
       NSMutableArray *searchIndex = ((TiUITableView *)self.view).searchResultIndexes;
       if (searchIndex.count > 0) {
@@ -200,7 +208,7 @@ USE_VIEW_FOR_CONTENT_HEIGHT
 
 - (NSInteger)indexForIndexPath:(NSIndexPath *)path
 {
-  int index = 0;
+  NSInteger index = 0;
   int section = 0;
 
   for (TiUITableViewSectionProxy *thisSection in sections) {
@@ -208,7 +216,7 @@ USE_VIEW_FOR_CONTENT_HEIGHT
       return index + [path row];
     }
     section++;
-    index += [thisSection rowCount];
+    index += thisSection.rowCount.integerValue;
   }
 
   return 0;
@@ -275,15 +283,15 @@ USE_VIEW_FOR_CONTENT_HEIGHT
 
 - (TiUITableViewSectionProxy *)sectionForIndex:(NSInteger)index row:(TiUITableViewRowProxy **)rowOut
 {
-  int current = 0;
+  NSUInteger current = 0;
   NSInteger row = index;
-  int sectionIdx = 0;
+  NSUInteger sectionIdx = 0;
 
   TiUITableViewRowProxy *rowProxy = nil;
   TiUITableViewSectionProxy *sectionProxy = nil;
 
   for (sectionProxy in sections) {
-    NSInteger rowCount = [sectionProxy rowCount];
+    NSUInteger rowCount = sectionProxy.rowCount.unsignedIntegerValue;
     if (rowCount + current > index) {
       rowProxy = [sectionProxy rowAtIndex:row];
       if (rowOut != nil) {
@@ -394,7 +402,7 @@ USE_VIEW_FOR_CONTENT_HEIGHT
   id data = nil;
   NSDictionary *anim = nil;
 
-  ENSURE_INT_AT_INDEX(index, args, 0);
+  ENSURE_INT_AT_INDEX(index, args, 0); // FIXME: Support larger number by coercing to uint32?
   ENSURE_ARG_AT_INDEX(data, args, 1, NSObject);
   ENSURE_ARG_OR_NIL_AT_INDEX(anim, args, 2, NSDictionary);
 
@@ -404,13 +412,13 @@ USE_VIEW_FOR_CONTENT_HEIGHT
 
   TiThreadPerformOnMainThread(
       ^{
-        int current = 0;
-        int row = index;
-        int sectionIdx = 0;
+        NSUInteger current = 0;
+        NSUInteger row = index;
+        NSUInteger sectionIdx = 0;
         TiUITableViewSectionProxy *sectionProxy = nil;
 
         for (sectionProxy in sections) {
-          NSInteger rowCount = [sectionProxy rowCount];
+          NSUInteger rowCount = sectionProxy.rowCount.unsignedIntegerValue;
           if (rowCount + current > index) {
             rowProxy = [sectionProxy rowAtIndex:row];
             break;
@@ -529,9 +537,9 @@ USE_VIEW_FOR_CONTENT_HEIGHT
 
   TiUITableViewRowProxy *newrow = [self tableRowFromArg:data];
   TiUITableViewActionType actionType = TiUITableViewActionInsertRowBefore;
-  id header = [newrow valueForKey:@"header"];
-  if (header != nil) {
-    TiUITableViewSectionProxy *newSection = [self sectionWithHeader:header table:table];
+  id headerTitle = [self getRowHeaderTitle:newrow];
+  if (headerTitle != nil) {
+    TiUITableViewSectionProxy *newSection = [self sectionWithHeader:headerTitle table:table];
 
     // Insert the new section into the array - but, exactly WHERE we insert depends.
     NSInteger sectionIndex = [sections indexOfObject:section];
@@ -600,9 +608,9 @@ USE_VIEW_FOR_CONTENT_HEIGHT
 
   TiUITableViewRowProxy *newrow = [self tableRowFromArg:data];
   TiUITableViewActionType actionType = TiUITableViewActionInsertRowAfter;
-  id header = [newrow valueForKey:@"header"];
-  if (header != nil) {
-    TiUITableViewSectionProxy *newSection = [self sectionWithHeader:header table:table];
+  id headerTitle = [self getRowHeaderTitle:newrow];
+  if (headerTitle != nil) {
+    TiUITableViewSectionProxy *newSection = [self sectionWithHeader:headerTitle table:table];
 
     // Set up the new section
     newSection.section = section.section + 1;
@@ -668,12 +676,12 @@ USE_VIEW_FOR_CONTENT_HEIGHT
     [self setData:[NSArray arrayWithObject:data] withObject:anim immediate:YES];
     return;
   } else {
-    id header = [row valueForKey:@"header"];
     TiUITableViewActionType actionType = TiUITableViewActionAppendRow;
     TiUITableViewSectionProxy *section = [sections lastObject];
-    if (header != nil) {
+    id headerTitle = [self getRowHeaderTitle:row];
+    if (headerTitle != nil) {
       NSInteger newSectionIndex = section.section + 1;
-      section = [self sectionWithHeader:header table:table];
+      section = [self sectionWithHeader:headerTitle table:table];
       section.section = newSectionIndex;
       actionType = TiUITableViewActionAppendRowWithSection;
     }
@@ -710,16 +718,16 @@ USE_VIEW_FOR_CONTENT_HEIGHT
     if ([row isKindOfClass:dictionaryClass]) {
       NSDictionary *dict = (NSDictionary *)row;
       TiUITableViewRowProxy *rowProxy = [self makeTableViewRowFromDict:dict];
-      NSString *header = [dict objectForKey:@"header"];
-      if (section == nil || header != nil) {
+      id headerTitle = [self getRowHeaderTitle:dict];
+      if (section == nil || headerTitle != nil) {
         // if we don't yet have a section, that means we need to create one
         // if we have a header property, that means start a new section
-        section = [self sectionWithHeader:header table:nil];
+        section = [self sectionWithHeader:headerTitle table:nil];
         [data addObject:section];
       }
-      NSString *footer = [dict objectForKey:@"footer"];
-      if (footer != nil) {
-        [section replaceValue:footer forKey:@"footerTitle" notification:NO];
+      id footerTitle = [self getRowFooterTitle:dict];
+      if (footerTitle != nil) {
+        [section replaceValue:footerTitle forKey:@"footerTitle" notification:NO];
       }
       [section add:rowProxy];
     } else if ([row isKindOfClass:sectionClass]) {
@@ -727,15 +735,15 @@ USE_VIEW_FOR_CONTENT_HEIGHT
       [self rememberProxy:row];
       [data addObject:section];
     } else if ([row isKindOfClass:rowClass]) {
-      id rowHeader = [row valueForKey:@"header"];
-      id rowFooter = [row valueForKey:@"footer"];
-      if (section == nil || rowHeader != nil) {
-        section = [self sectionWithHeader:rowHeader table:[self tableView]];
+      id headerTitle = [self getRowHeaderTitle:row];
+      id footerTitle = [self getRowFooterTitle:row];
+      if (section == nil || headerTitle != nil) {
+        section = [self sectionWithHeader:headerTitle table:[self tableView]];
         section.section = [data count];
         [data addObject:section];
       }
-      if (rowFooter != nil) {
-        [section replaceValue:rowFooter forKey:@"footerTitle" notification:NO];
+      if (footerTitle != nil) {
+        [section replaceValue:footerTitle forKey:@"footerTitle" notification:NO];
       }
       [section add:row];
     }
@@ -882,9 +890,9 @@ DEFINE_DEF_PROP(scrollsToTop, [NSNumber numberWithBool:YES]);
   [(TiUITableView *)[self view] refreshSearchControllerUsingReload:YES];
 }
 
-- (NSUInteger)sectionCount
+- (NSNumber *)sectionCount
 { //TODO: Shouldn't this be in the main thread, too?
-  return [sections count];
+  return NUMUINTEGER((sections != nil) ? sections.count : 0);
 }
 
 - (TiUITableViewSectionProxy *)tableSectionFromArg:(id)arg
@@ -1160,6 +1168,32 @@ DEFINE_DEF_PROP(scrollsToTop, [NSNumber numberWithBool:YES]);
 - (void)add:(id)arg
 {
   NSLog(@"[ERROR] Cannot add sub-views to table views. Use \"appendRow\" or \"appendSection\" instead.");
+}
+
+- (NSString *)getRowHeaderTitle:(id)row
+{
+  id headerTitle = [row valueForKey:@"headerTitle"];
+  if (headerTitle == nil) {
+    headerTitle = [row valueForKey:@"header"];
+
+    if (headerTitle != nil) {
+      DEPRECATED_REPLACED(@"header", @"10.0.0", @"headerTitle");
+    }
+  }
+  return headerTitle;
+}
+
+- (NSString *)getRowFooterTitle:(id)row
+{
+  id footerTitle = [row valueForKey:@"footerTitle"];
+  if (footerTitle == nil) {
+    footerTitle = [row valueForKey:@"footer"];
+
+    if (footerTitle != nil) {
+      DEPRECATED_REPLACED(@"footer", @"10.0.0", @"footerTitle");
+    }
+  }
+  return footerTitle;
 }
 
 #pragma mark Accessibility Overrides

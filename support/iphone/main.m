@@ -1,5 +1,5 @@
 //
-//  Appcelerator Titanium Mobile
+//  TiDev Titanium Mobile
 //  WARNING: this is a generated file and should not be modified
 //
 
@@ -26,7 +26,7 @@ BOOL const TI_APPLICATION_ANALYTICS = __APP_ANALYTICS__;
 BOOL const TI_APPLICATION_SHOW_ERROR_CONTROLLER = __SHOW_ERROR_CONTROLLER__;
 NSString *const TI_APPLICATION_BUILD_TYPE = @"__APP_DEPLOY_TYPE__";
 
-#ifdef TARGET_IPHONE_SIMULATOR
+#ifdef TARGET_OS_SIMULATOR
 NSString *const TI_APPLICATION_RESOURCE_DIR = @"__APP_RESOURCE_DIR__";
 #endif
 

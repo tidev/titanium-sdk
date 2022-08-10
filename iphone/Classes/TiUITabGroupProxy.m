@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -147,16 +147,21 @@ static NSArray *tabGroupKeySequence;
 {
   TiUITabGroup *tg = (TiUITabGroup *)self.view;
   [tg open:nil];
-  return [super windowWillOpen];
+  [super windowWillOpen];
 }
 
 - (void)windowWillClose
 {
   TiUITabGroup *tabGroup = (TiUITabGroup *)self.view;
   if (tabGroup != nil) {
+    // Remove UITabBarController from parent view  controller
+    UITabBarController *tabController = [(TiUITabGroup *)[self view] tabController];
+    [tabController willMoveToParentViewController:nil];
+    [tabController.view removeFromSuperview];
+    [tabController removeFromParentViewController];
     [tabGroup close:nil];
   }
-  return [super windowWillClose];
+  [super windowWillClose];
 }
 
 - (void)didReceiveMemoryWarning:(NSNotification *)notification
@@ -192,6 +197,12 @@ static NSArray *tabGroupKeySequence;
 
 - (void)resignFocus
 {
+  if ([self _hasListeners:@"blur"]) {
+    // focus event and blur event has same parameters
+    NSDictionary *event = [((TiUITabGroup *)self.view) focusEvent];
+    [self fireEvent:@"blur" withObject:event];
+  }
+
   if (focussed) {
     UITabBarController *tabController = [(TiUITabGroup *)[self view] tabController];
     NSUInteger blessedController = [tabController selectedIndex];
@@ -206,6 +217,9 @@ static NSArray *tabGroupKeySequence;
 {
   if ([self viewAttached]) {
     UITabBarController *tabController = [(TiUITabGroup *)[self view] tabController];
+    UIViewController *parentController = [self windowHoldingController];
+    [parentController addChildViewController:tabController];
+    [tabController didMoveToParentViewController:parentController];
     [tabController viewWillAppear:animated];
   }
   [super viewWillAppear:animated];

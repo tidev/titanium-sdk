@@ -6,7 +6,6 @@
  */
 
 #import "TiExceptionHandler.h"
-#import "APSAnalytics.h"
 #import "KrollContext.h"
 #import "TiApp.h"
 #import "TiBase.h"
@@ -46,7 +45,7 @@ static NSUncaughtExceptionHandler *prevUncaughtExceptionHandler = NULL;
 - (void)reportException:(NSException *)exception
 {
   // attempt to generate a script error, which includes JS stack information
-  JSContext *context = [JSContext currentContext];
+  JSContext *context = JSContext.currentContext;
   JSValue *jsError = [JSValue valueWithNewErrorFromMessage:[exception reason] inContext:context];
   @try {
     TiScriptError *error = [TiUtils scriptErrorValue:@{
@@ -144,9 +143,6 @@ static NSUncaughtExceptionHandler *prevUncaughtExceptionHandler = NULL;
 - (id)initWithDictionary:(NSDictionary *)dictionary
 {
   NSString *message = [[dictionary objectForKey:@"message"] description];
-  if (message == nil) {
-    message = [[dictionary objectForKey:@"nativeReason"] description];
-  }
   NSString *sourceURL = [[dictionary objectForKey:@"sourceURL"] description];
   NSInteger lineNo = [[dictionary objectForKey:@"line"] integerValue];
 
@@ -157,8 +153,16 @@ static NSUncaughtExceptionHandler *prevUncaughtExceptionHandler = NULL;
     if (_backtrace == nil) {
       _backtrace = [[[dictionary objectForKey:@"stack"] description] copy];
     }
-    _nativeStack = [[dictionary objectForKey:@"nativeStack"] copy];
     _dictionaryValue = [dictionary copy];
+
+    id nativeStackObject = [dictionary objectForKey:@"nativeStack"];
+    if ([nativeStackObject isKindOfClass:[NSArray class]]) {
+      _nativeStack = [nativeStackObject copy];
+    } else if ([nativeStackObject isKindOfClass:[NSString class]]) {
+      _nativeStack = [[nativeStackObject componentsSeparatedByString:@"\n"] retain];
+    } else {
+      _nativeStack = nil;
+    }
   }
   return self;
 }
@@ -247,7 +251,9 @@ static NSUncaughtExceptionHandler *prevUncaughtExceptionHandler = NULL;
     // starting at index = 2 to not include this method and callee
     startIndex = 2;
   }
+
   NSMutableArray<NSString *> *formattedStackTrace = [[NSMutableArray new] autorelease];
+
   NSUInteger stackTraceLength = MIN([stackTrace count], 20 + startIndex);
   // re-size stack trace and format results.
   for (NSInteger i = startIndex; i < stackTraceLength; i++) {

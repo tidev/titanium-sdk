@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+	<!-- Mimics Android 12 splash screen used by apps with a "roundIcon". -->
+	<!-- Expected to be set to an <adaptive-icon/> drawable which is supported as of Android 8.0. -->
+	<item android:drawable="?android:attr/colorBackground"/>
+	<item
+		android:gravity="center"
+		android:width="160dp"
+		android:height="160dp"
+		android:drawable="?attr/titaniumSplashIcon"/>
+</layer-list>

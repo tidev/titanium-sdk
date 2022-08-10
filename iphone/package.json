@@ -1,7 +1,7 @@
 {
 	"name": "titanium-mobile-ios",
 	"title": "iOS",
-	"description": "Appcelerator Titanium Mobile iOS",
+	"description": "TiDev Titanium Mobile iOS",
 	"keywords": [
 		"appcelerator",
 		"titanium",
@@ -11,20 +11,19 @@
 		"ipad"
 	],
 	"version": "__VERSION__",
-	"author": "Appcelerator, Inc. <info@appcelerator.com>",
-	"maintainers": [
-		"Chris Barber <cbarber@axway.com>",
-		"Hans Knöchel <cbarber@axway.com>"
-	],
-	"minIosVersion": "11.0",
+	"author": "TiDev, Inc. <npm@tidev.io>",
+	"minIosVersion": "12.0",
 	"minWatchosVersion": "2.0",
 	"vendorDependencies": {
-		"xcode": ">=11.0 <=12.x",
-		"ios sdk": ">=10.0 <=14.x"
+		"xcode": ">=11.0 <=13.x",
+		"ios sdk": ">=13.0 <=15.x"
+	},
+	"engines": {
+		"node": ">=12.13.0"
 	},
 	"repository": {
 		"type": "git",
-		"url": "git://github.com/appcelerator/titanium_mobile_ios.git"
+		"url": "git://github.com/tidev/titanium_mobile_ios.git"
 	},
 	"license": "Apache Public License v2"
 }

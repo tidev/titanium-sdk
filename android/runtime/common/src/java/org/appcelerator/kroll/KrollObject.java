@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2011 by Appcelerator, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -20,12 +20,11 @@ import android.os.Message;
  */
 public abstract class KrollObject implements Handler.Callback
 {
-
 	protected static final int MSG_RELEASE = 100;
 	protected static final int MSG_SET_WINDOW = 101;
 	protected static final int MSG_LAST_ID = MSG_SET_WINDOW;
 
-	protected HashMap<String, Boolean> hasListenersForEventType = new HashMap<String, Boolean>();
+	protected HashMap<String, Boolean> hasListenersForEventType = new HashMap<>();
 	protected Handler handler;
 
 	private WeakReference<KrollProxySupport> proxySupport;
@@ -41,7 +40,7 @@ public abstract class KrollObject implements Handler.Callback
 	 */
 	public void setProxySupport(KrollProxySupport proxySupport)
 	{
-		this.proxySupport = new WeakReference<KrollProxySupport>(proxySupport);
+		this.proxySupport = new WeakReference<>(proxySupport);
 	}
 
 	/**
@@ -55,8 +54,7 @@ public abstract class KrollObject implements Handler.Callback
 		if (hasListeners == null) {
 			return false;
 		}
-
-		return hasListeners.booleanValue();
+		return hasListeners;
 	}
 
 	/**
@@ -103,8 +101,7 @@ public abstract class KrollObject implements Handler.Callback
 	 * </p>
 	 *
 	 * <p>
-	 * If the property does not reference a function this method
-	 * will return the {@link KrollRuntime.UNDEFINED} value.
+	 * If the property does not reference a function this method will return null.
 	 * </p>
 	 *
 	 * @param propertyName name of the property that references the function to call
@@ -114,7 +111,7 @@ public abstract class KrollObject implements Handler.Callback
 	public abstract Object callProperty(String propertyName, Object[] args);
 
 	/**
-	 * Releases this KrollObject, that is, removes event listeners and any associated native views or content.	
+	 * Releases this KrollObject, that is, removes event listeners and any associated native views or content.
 	 */
 	protected void release()
 	{

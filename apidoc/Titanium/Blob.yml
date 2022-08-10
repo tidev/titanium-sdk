@@ -68,7 +68,7 @@ properties:
 
         **NOTE 1**: On SDK versions prior to 9.1.0, Ti.Blob images may have reported in points, not pixels.
         This would occur for images with a higher density/scale returned by <Titanium.UI.View.toImage> or images with `@dx` density suffixes.
-        You may multiply by <Ti.Platform.displayCaps.logicalDensityFactor> to try and determine the pixels, but this value may be off for some pixel/density combinations.
+        You may multiply by <Titanium.Platform.DisplayCaps.logicalDensityFactor> to try and determine the pixels, but this value may be off for some pixel/density combinations.
         (i.e. a `10px` image would report as `3` on a `3x` density screen, so multiplying would give you `9` pixels, which is still incorrect)
 
         **NOTE 2**: This represents the height the platform decodes the image to in memory. iOS will automatically
@@ -99,7 +99,7 @@ properties:
 
         **NOTE 1**: On SDK versions prior to 9.1.0, Ti.Blob images may have reported in points, not pixels.
         This would occur for images with a higher density/scale returned by <Titanium.UI.View.toImage> or images with `@dx` density suffixes.
-        You may multiply by <Ti.Platform.displayCaps.logicalDensityFactor> to try and determine the pixels, but this value may be off for some pixel/density combinations.
+        You may multiply by <Titanium.Platform.DisplayCaps.logicalDensityFactor> to try and determine the pixels, but this value may be off for some pixel/density combinations.
         (i.e. a `10px` image would report as `3` on a `3x` density screen, so multiplying would give you `9` pixels, which is still incorrect)
 
         **NOTE 2**: This represents the width the platform decodes the image to in memory. iOS will automatically

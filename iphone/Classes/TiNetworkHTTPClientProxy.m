@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-Present by Appcelerator, Inc. All Rights Reserved.
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -470,6 +470,11 @@ extern NSString *const TI_APPLICATION_GUID;
 }
 
 #pragma mark - Public getter properties
+
+- (NSString *)getAllResponseHeaders:(id)unused
+{
+  return [self allResponseHeaders];
+}
 
 - (NSString *)allResponseHeaders
 {

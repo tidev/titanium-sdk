@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -17,7 +17,7 @@ public final class TiActivityWindows
 	public static final int INVALID_WINDOW_ID = -1;
 
 	private static int nextWindowId = 1;
-	private static HashMap<Integer, TiActivityWindow> windowMap = new HashMap<>(32);
+	private static final HashMap<Integer, TiActivityWindow> windowMap = new HashMap<>(32);
 
 	private TiActivityWindows()
 	{
@@ -34,13 +34,13 @@ public final class TiActivityWindows
 		// Instead, return its already assigned ID.
 		for (HashMap.Entry<Integer, TiActivityWindow> nextEntry : windowMap.entrySet()) {
 			if ((nextEntry != null) && (nextEntry.getValue() == window)) {
-				return nextEntry.getKey().intValue();
+				return nextEntry.getKey();
 			}
 		}
 
 		// Generate a unique ID for the given window.
 		int windowId = nextWindowId;
-		while ((windowId == INVALID_WINDOW_ID) || windowMap.containsKey(Integer.valueOf(windowId))) {
+		while ((windowId == INVALID_WINDOW_ID) || windowMap.containsKey(windowId)) {
 			windowId++;
 		}
 		nextWindowId = windowId + 1;
@@ -52,7 +52,7 @@ public final class TiActivityWindows
 
 	public static void windowCreated(TiBaseActivity activity, int windowId, Bundle savedInstanceState)
 	{
-		TiActivityWindow window = windowMap.get(Integer.valueOf(windowId));
+		TiActivityWindow window = windowMap.get(windowId);
 		if (window != null) {
 			window.windowCreated(activity, savedInstanceState);
 		}
@@ -73,13 +73,13 @@ public final class TiActivityWindows
 	public static void removeWindow(int windowId)
 	{
 		if (windowId != INVALID_WINDOW_ID) {
-			windowMap.remove(Integer.valueOf(windowId));
+			windowMap.remove(windowId);
 		}
 	}
 
 	public static boolean hasWindow(int windowId)
 	{
-		return (windowMap.get(Integer.valueOf(windowId)) != null);
+		return (windowMap.get(windowId) != null);
 	}
 
 	public static int getWindowCount()

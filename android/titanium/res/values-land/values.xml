@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<!-- Set action bar height to be shorter in landscape compared to portrait. -->
+	<!-- This works-around bug in Google's material theme where it sets the height wrong. -->
+	<!-- https://github.com/material-components/material-components-android/issues/779 -->
+	<dimen name="ti_action_bar_height">48dip</dimen>
+</resources>

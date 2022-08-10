@@ -7,7 +7,7 @@
 /* eslint-env mocha */
 /* eslint no-unused-expressions: "off" */
 'use strict';
-var should = require('./utilities/assertions');
+const should = require('./utilities/assertions');
 
 describe.windowsMissing('Titanium.UI.TabbedBar', function () {
 	let win;
@@ -31,150 +31,122 @@ describe.windowsMissing('Titanium.UI.TabbedBar', function () {
 		}
 	});
 
-	it('apiName', () => {
-		const tabbedBar = Ti.UI.createTabbedBar();
-		should(tabbedBar).have.readOnlyProperty('apiName').which.is.a.String();
-		should(tabbedBar.apiName).be.eql('Ti.UI.TabbedBar');
-	});
+	describe('properties', () => {
+		describe('.apiName', () => {
+			it('is a read-only String', () => {
+				const tabbedBar = Ti.UI.createTabbedBar();
+				should(tabbedBar).have.readOnlyProperty('apiName').which.is.a.String();
+			});
 
-	it('Labels from Strings', finish => {
-		const tabbedBar = Ti.UI.createTabbedBar({
-			labels: [ 'A', 'B', 'C' ]
+			it('equals Ti.UI.TabbedBar', () => {
+				const tabbedBar = Ti.UI.createTabbedBar();
+				should(tabbedBar.apiName).be.eql('Ti.UI.TabbedBar');
+			});
 		});
-		function postlayout() {
-			tabbedBar.removeEventListener('postlayout', postlayout);
-			finish();
-		}
-		tabbedBar.addEventListener('postlayout', postlayout);
-		win.add(tabbedBar);
-		win.open();
-	});
 
-	it('Labels from BarItemType', finish => {
-		const tabbedBar = Ti.UI.createTabbedBar({
-			labels: [
-				{ title: 'A' },
-				{ title: 'B' },
-				{ title: 'C' }
-			]
-		});
-		function postlayout() {
-			tabbedBar.removeEventListener('postlayout', postlayout);
-			finish();
-		}
-		tabbedBar.addEventListener('postlayout', postlayout);
-		win.add(tabbedBar);
-		win.open();
-	});
+		describe('.labels', () => {
+			it('from string[]', finish => {
+				const tabbedBar = Ti.UI.createTabbedBar({
+					labels: [ 'A', 'B', 'C' ]
+				});
+				function postlayout() {
+					tabbedBar.removeEventListener('postlayout', postlayout);
+					finish();
+				}
+				tabbedBar.addEventListener('postlayout', postlayout);
+				win.add(tabbedBar);
+				win.open();
+			});
 
-	it('Labels update', finish => {
-		const tabbedBar = Ti.UI.createTabbedBar({
-			labels: [ 'A', 'B', 'C' ]
-		});
-		function postlayout() {
-			tabbedBar.removeEventListener('postlayout', postlayout);
-			try {
-				tabbedBar.labels = [ 'D', 'E', 'F' ];
-				should(tabbedBar.labels[1]).be.eql('E');
-				finish();
-			} catch (err) {
-				finish(err);
-			}
-		}
-		tabbedBar.addEventListener('postlayout', postlayout);
-		win.add(tabbedBar);
-		win.open();
-	});
+			it('from BarItemType[]', finish => {
+				const tabbedBar = Ti.UI.createTabbedBar({
+					labels: [
+						{ title: 'A' },
+						{ title: 'B' },
+						{ title: 'C' }
+					]
+				});
+				function postlayout() {
+					tabbedBar.removeEventListener('postlayout', postlayout);
+					finish();
+				}
+				tabbedBar.addEventListener('postlayout', postlayout);
+				win.add(tabbedBar);
+				win.open();
+			});
 
-	it('Index - direct change', finish => {
-		var tabbedBar = Ti.UI.createTabbedBar({
-			labels: [ 'A', 'B', 'C' ],
-			index: 1
+			it('update', finish => {
+				const tabbedBar = Ti.UI.createTabbedBar({
+					labels: [ 'A', 'B', 'C' ]
+				});
+				function postlayout() {
+					tabbedBar.removeEventListener('postlayout', postlayout);
+					try {
+						tabbedBar.labels = [ 'D', 'E', 'F' ];
+						should(tabbedBar.labels[1]).be.eql('E');
+					} catch (err) {
+						return finish(err);
+					}
+					finish();
+				}
+				tabbedBar.addEventListener('postlayout', postlayout);
+				win.add(tabbedBar);
+				win.open();
+			});
+
+			it('update - before window.open()', finish => {
+				const tabbedBar = Ti.UI.createTabbedBar();
+				tabbedBar.labels = [ 'A', 'B', 'C' ];
+				win.add(tabbedBar);
+				win.addEventListener('open', () => {
+					try {
+						should(tabbedBar.labels[1]).be.eql('B');
+					} catch (err) {
+						return finish(err);
+					}
+					finish();
+				});
+				win.open();
+			});
 		});
-		win.add(tabbedBar);
-		function postlayout() {
-			tabbedBar.removeEventListener('postlayout', postlayout);
-			try {
+
+		describe('.index', () => {
+			it('direct change', finish => {
+				const tabbedBar = Ti.UI.createTabbedBar({
+					labels: [ 'A', 'B', 'C' ],
+					index: 1
+				});
+				win.add(tabbedBar);
+				function postlayout() {
+					tabbedBar.removeEventListener('postlayout', postlayout);
+					try {
+						tabbedBar.index = 2;
+						should(tabbedBar.index).eql(2);
+					} catch (err) {
+						return finish(err);
+					}
+					finish();
+				}
+				tabbedBar.addEventListener('postlayout', postlayout);
+				win.open();
+			});
+
+			it('update - before window.open()', finish => {
+				var tabbedBar = Ti.UI.createTabbedBar({
+					labels: [ 'A', 'B', 'C' ]
+				});
 				tabbedBar.index = 2;
-				should(tabbedBar.index).be.eql(2);
-				finish();
-			} catch (err) {
-				finish(err);
-			}
-		}
-		tabbedBar.addEventListener('postlayout', postlayout);
-		win.open();
-	});
-
-	it('Index - setter change', finish => {
-		const tabbedBar = Ti.UI.createTabbedBar({
-			labels: [ 'A', 'B', 'C' ],
-			index: 1
+				win.add(tabbedBar);
+				win.addEventListener('open', () => {
+					try {
+						should(tabbedBar.index).be.eql(2);
+					} catch (err) {
+						return finish(err);
+					}
+					finish();
+				});
+				win.open();
+			});
 		});
-		win.add(tabbedBar);
-		function postlayout() {
-			tabbedBar.removeEventListener('postlayout', postlayout);
-			try {
-				tabbedBar.setIndex(2);
-				should(tabbedBar.index).be.eql(2);
-				finish();
-			} catch (err) {
-				finish(err);
-			}
-		}
-		tabbedBar.addEventListener('postlayout', postlayout);
-		win.open();
-	});
-
-	it('Index - getter read', finish => {
-		const tabbedBar = Ti.UI.createTabbedBar({
-			labels: [ 'A', 'B', 'C' ],
-			index: 1
-		});
-		win.add(tabbedBar);
-		function postlayout() {
-			tabbedBar.removeEventListener('postlayout', postlayout);
-			try {
-				tabbedBar.setIndex(2);
-				should(tabbedBar.getIndex()).be.eql(2);
-				finish();
-			} catch (err) {
-				finish(err);
-			}
-		}
-		tabbedBar.addEventListener('postlayout', postlayout);
-		win.open();
-	});
-
-	it('Labels update - before window.open()', finish => {
-		const tabbedBar = Ti.UI.createTabbedBar();
-		tabbedBar.labels = [ 'A', 'B', 'C' ];
-		win.add(tabbedBar);
-		win.addEventListener('open', () => {
-			try {
-				should(tabbedBar.labels[1]).be.eql('B');
-				finish();
-			} catch (err) {
-				finish(err);
-			}
-		});
-		win.open();
-	});
-
-	it('Index update - before window.open()', finish => {
-		var tabbedBar = Ti.UI.createTabbedBar({
-			labels: [ 'A', 'B', 'C' ]
-		});
-		tabbedBar.index = 2;
-		win.add(tabbedBar);
-		win.addEventListener('open', () => {
-			try {
-				should(tabbedBar.index).be.eql(2);
-				finish();
-			} catch (err) {
-				finish(err);
-			}
-		});
-		win.open();
 	});
 });

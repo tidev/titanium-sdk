@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -15,7 +15,6 @@ import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiFileHelper;
-import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.util.TiUrl;
 import org.appcelerator.titanium.view.TiUIView;
 
@@ -55,35 +54,30 @@ public class MenuItemProxy extends KrollProxy
 		MenuItemCompat.setOnActionExpandListener(item, new CompatActionExpandListener());
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public int getGroupId()
 	{
 		return item.getGroupId();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public int getItemId()
 	{
 		return item.getItemId();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public int getOrder()
 	{
 		return item.getOrder();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getTitle()
 	{
 		return (String) item.getTitle();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getTitleCondensed()
 	{
@@ -96,49 +90,46 @@ public class MenuItemProxy extends KrollProxy
 		return item.hasSubMenu();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
+	@Kroll.method
 	public boolean isChecked()
 	{
 		return item.isChecked();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
+	@Kroll.method
 	public boolean isCheckable()
 	{
 		return item.isCheckable();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
+	@Kroll.method
 	public boolean isEnabled()
 	{
 		return item.isEnabled();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
+	@Kroll.method
 	public boolean isVisible()
 	{
 		return item.isVisible();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getAccessibilityLabel()
 	{
 		return TiConvert.toString(properties, TiC.PROPERTY_ACCESSIBILITY_LABEL);
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getAccessibilityHint()
 	{
 		return TiConvert.toString(properties, TiC.PROPERTY_ACCESSIBILITY_HINT);
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getAccessibilityValue()
 	{
@@ -171,7 +162,6 @@ public class MenuItemProxy extends KrollProxy
 		updateContentDescription();
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setAccessibilityLabel(String label)
 	{
@@ -183,7 +173,6 @@ public class MenuItemProxy extends KrollProxy
 		updateContentDescription();
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setAccessibilityHint(String hint)
 	{
@@ -195,7 +184,6 @@ public class MenuItemProxy extends KrollProxy
 		updateContentDescription();
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setAccessibilityValue(String value)
 	{
@@ -208,7 +196,6 @@ public class MenuItemProxy extends KrollProxy
 		updateContentDescription();
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public MenuItemProxy setCheckable(boolean checkable)
 	{
@@ -216,7 +203,6 @@ public class MenuItemProxy extends KrollProxy
 		return this;
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public MenuItemProxy setChecked(boolean checked)
 	{
@@ -224,7 +210,6 @@ public class MenuItemProxy extends KrollProxy
 		return this;
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public MenuItemProxy setEnabled(boolean enabled)
 	{
@@ -232,7 +217,6 @@ public class MenuItemProxy extends KrollProxy
 		return this;
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public MenuItemProxy setIcon(Object icon)
 	{
@@ -248,16 +232,12 @@ public class MenuItemProxy extends KrollProxy
 					}
 				}
 			} else if (icon instanceof Number) {
-				Drawable d = TiUIHelper.getResourceDrawable(TiConvert.toInt(icon));
-				if (d != null) {
-					item.setIcon(d);
-				}
+				item.setIcon(TiConvert.toInt(icon));
 			}
 		}
 		return this;
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public MenuItemProxy setTitle(String title)
 	{
@@ -265,7 +245,6 @@ public class MenuItemProxy extends KrollProxy
 		return this;
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public MenuItemProxy setTitleCondensed(String title)
 	{
@@ -273,7 +252,6 @@ public class MenuItemProxy extends KrollProxy
 		return this;
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public MenuItemProxy setVisible(boolean visible)
 	{
@@ -281,7 +259,6 @@ public class MenuItemProxy extends KrollProxy
 		return this;
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setActionView(Object view)
 	{
@@ -299,7 +276,6 @@ public class MenuItemProxy extends KrollProxy
 		}
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setShowAsAction(final int flag)
 	{
@@ -336,8 +312,8 @@ public class MenuItemProxy extends KrollProxy
 		});
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
+	@Kroll.method
 	public boolean isActionViewExpanded()
 	{
 		return item.isActionViewExpanded();

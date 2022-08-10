@@ -56,36 +56,41 @@ properties:
   - name: style
     summary: Style of the switch.
     description: |
-        Prior to Release 4.0, you can only specify either a toggle button or checkbox.
+        For Titanium versions older than 10.0.0, this is an Android only property and must be assigned
+        a `SWITCH_STYLE_*` constant from the <Titanium.UI> module.
     type: Number
-    constants: Titanium.UI.Android.SWITCH_STYLE_*
-    platforms: [android]
-    default: |
-        Titanium.UI.Android.SWITCH_STYLE_SWITCH; prior to Release 4.0, Titanium.UI.Android.SWITCH_STYLE_TOGGLEBUTTON
+    constants: Titanium.UI.SWITCH_STYLE_*
+    platforms: [android, iphone, ipad, macos]
+    since: {android: 0.8.0, iphone: 10.0.0, ipad: 10.0.0, macos: 10.0.0}
+    default: <Titanium.UI.SWITCH_STYLE_SLIDER>
 
   - name: textAlign
     summary: |
         Horizontal text alignment of the switch title.
     description: |
-        On Android, when the switch [style](Titanium.UI.Switch.style) property is set to
-        <Titanium.UI.Android.SWITCH_STYLE_CHECKBOX>, this property is only effective if the
-        [width](Titanium.UI.Switch.width) property is set to a value greater than the width of the
-        [title](Titanium.UI.Switch.title) contents.
+        This property is only applicable when the switch [style](Titanium.UI.Switch.style) is set to
+        [SWITCH_STYLE_CHECKBOX](Titanium.UI.SWITCH_STYLE_CHECKBOX),
+        [SWITCH_STYLE_SLIDER](Titanium.UI.SWITCH_STYLE_SLIDER), or
+        [SWITCH_STYLE_TOGGLE_BUTTON](Titanium.UI.SWITCH_STYLE_TOGGLE_BUTTON),
+
+        This property is only effective if the [width](Titanium.UI.Switch.width) property is set to a
+        value greater than the width of the [title](Titanium.UI.Switch.title) contents.
     type: [String, Number]
     constants: Titanium.UI.TEXT_ALIGNMENT_*
     default: |
         <Titanium.UI.TEXT_ALIGNMENT_CENTER> (toggle button, Android),
+        <Titanium.UI.TEXT_ALIGNMENT_LEFT> (slider, Android),
         <Titanium.UI.TEXT_ALIGNMENT_LEFT> (checkbox, Android)
     platforms: [android]
 
   - name: title
-    summary: Text to display next to the switch, when the checkbox style is in use.
+    summary: Text to display next to the switch, when the checkbox or slider style is in use.
     description: |
-        This property is only effective when the <Titanium.UI.Switch.style> property is set to
-        <Titanium.UI.Android.SWITCH_STYLE_CHECKBOX>.
+        This property is only effective when the [style](Titanium.UI.Switch.style) property is set to
+        [SWITCH_STYLE_CHECKBOX](Titanium.UI.SWITCH_STYLE_CHECKBOX) or
+        [SWITCH_STYLE_SLIDER](Titanium.UI.SWITCH_STYLE_SLIDER).
 
-        Use the [textAlign](Titanium.UI.Switch.textAlign) property to align this text within the
-        switch.
+        Use the [textAlign](Titanium.UI.Switch.textAlign) property to align this text within the switch.
     type: String
     platforms: [android]
 
@@ -223,7 +228,7 @@ examples:
         });
 
         var basicSwitch = Ti.UI.createSwitch({
-          style: Ti.UI.Android.SWITCH_STYLE_TOGGLEBUTTON,
+          style: Ti.UI.SWITCH_STYLE_TOGGLE_BUTTON,
           titleOn:'Notifications Enabled',
           titleOff:'Notifications Disabled',
           value:true,
@@ -248,7 +253,7 @@ examples:
         });
 
         var basicSwitch = Ti.UI.createSwitch({
-          style: Ti.UI.Android.SWITCH_STYLE_CHECKBOX,
+          style: Ti.UI.SWITCH_STYLE_CHECKBOX,
           textAlign:Ti.UI.TEXT_ALIGNMENT_CENTER,
           title:'Notifications',
           value:true,

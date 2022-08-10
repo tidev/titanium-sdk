@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2015 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -165,7 +165,12 @@ static NSDictionary *sizeMap = nil;
 
 + (BOOL)isMacOS
 {
+#if TARGET_OS_MACCATALYST
+  return YES;
+#else
+  //  TODO: Just return NO? Use NSProcessInfo.processInfo.isMacCatalystApp or iOSAppOnMac?
   return [UIDevice.currentDevice.systemName isEqualToString:@"Mac OS X"];
+#endif
 }
 
 + (BOOL)isRetinaHDDisplay
@@ -389,10 +394,19 @@ static NSDictionary *sizeMap = nil;
 {
   if ([value isKindOfClass:[NSDictionary class]]) {
     NSDictionary *dict = (NSDictionary *)value;
-    CGFloat t = [TiUtils floatValue:@"top" properties:dict def:0];
-    CGFloat l = [TiUtils floatValue:@"left" properties:dict def:0];
-    CGFloat b = [TiUtils floatValue:@"bottom" properties:dict def:0];
-    CGFloat r = [TiUtils floatValue:@"right" properties:dict def:0];
+
+    TiDimension tDimension = [self dimensionValue:@"top" properties:dict];
+    CGFloat t = tDimension.value;
+
+    TiDimension lDimension = [self dimensionValue:@"left" properties:dict];
+    CGFloat l = lDimension.value;
+
+    TiDimension bDimension = [self dimensionValue:@"bottom" properties:dict];
+    CGFloat b = bDimension.value;
+
+    TiDimension rDimension = [self dimensionValue:@"right" properties:dict];
+    CGFloat r = rDimension.value;
+
     return UIEdgeInsetsMake(t, l, b, r);
   }
   return UIEdgeInsetsMake(0, 0, 0, 0);
@@ -402,10 +416,19 @@ static NSDictionary *sizeMap = nil;
 {
   if ([value isKindOfClass:[NSDictionary class]]) {
     NSDictionary *dict = (NSDictionary *)value;
-    CGFloat x = [TiUtils floatValue:@"x" properties:dict def:0];
-    CGFloat y = [TiUtils floatValue:@"y" properties:dict def:0];
-    CGFloat w = [TiUtils floatValue:@"width" properties:dict def:0];
-    CGFloat h = [TiUtils floatValue:@"height" properties:dict def:0];
+
+    TiDimension xDimension = [self dimensionValue:@"x" properties:dict];
+    CGFloat x = xDimension.value;
+
+    TiDimension yDimension = [self dimensionValue:@"y" properties:dict];
+    CGFloat y = yDimension.value;
+
+    TiDimension wDimension = [self dimensionValue:@"width" properties:dict];
+    CGFloat w = wDimension.value;
+
+    TiDimension hDimension = [self dimensionValue:@"height" properties:dict];
+    CGFloat h = hDimension.value;
+
     return CGRectMake(x, y, w, h);
   }
   return CGRectMake(0, 0, 0, 0);
@@ -413,13 +436,7 @@ static NSDictionary *sizeMap = nil;
 
 + (CGPoint)pointValue:(id)value
 {
-  if ([value isKindOfClass:[TiPoint class]]) {
-    return [value point];
-  }
-  if ([value isKindOfClass:[NSDictionary class]]) {
-    return CGPointMake([[value objectForKey:@"x"] floatValue], [[value objectForKey:@"y"] floatValue]);
-  }
-  return CGPointMake(0, 0);
+  return [self pointValue:value valid:NULL];
 }
 
 + (CGPoint)pointValue:(id)value valid:(BOOL *)isValid
@@ -430,20 +447,13 @@ static NSDictionary *sizeMap = nil;
     }
     return [value point];
   } else if ([value isKindOfClass:[NSDictionary class]]) {
-    id xVal = [value objectForKey:@"x"];
-    id yVal = [value objectForKey:@"y"];
-    if (xVal && yVal) {
-      if (![xVal respondsToSelector:@selector(floatValue)] || ![yVal respondsToSelector:@selector(floatValue)]) {
-        if (isValid) {
-          *isValid = NO;
-        }
-        return CGPointMake(0.0, 0.0);
-      }
-
+    TiDimension xDimension = [self dimensionValue:@"x" properties:value];
+    TiDimension yDimension = [self dimensionValue:@"y" properties:value];
+    if (!TiDimensionIsUndefined(xDimension) && !TiDimensionIsUndefined(yDimension)) {
       if (isValid) {
         *isValid = YES;
       }
-      return CGPointMake([xVal floatValue], [yVal floatValue]);
+      return CGPointMake(xDimension.value, yDimension.value);
     }
   }
   if (isValid) {
@@ -463,7 +473,7 @@ static NSDictionary *sizeMap = nil;
     yDimension = [value yDimension];
   } else if ([value isKindOfClass:[NSDictionary class]]) {
     xDimension = [self dimensionValue:@"x" properties:value];
-    yDimension = [self dimensionValue:@"x" properties:value];
+    yDimension = [self dimensionValue:@"y" properties:value];
   } else {
     xDimension = TiDimensionUndefined;
     yDimension = TiDimensionUndefined;
@@ -536,14 +546,23 @@ static NSDictionary *sizeMap = nil;
 
   id offset = [value objectForKey:@"offset"];
   if (offset != nil && [offset isKindOfClass:[NSDictionary class]]) {
-    id w = [offset objectForKey:@"width"];
-    id h = [offset objectForKey:@"height"];
-    [shadow setShadowOffset:CGSizeMake([TiUtils floatValue:w def:0], [TiUtils floatValue:h def:0])];
+    NSDictionary *dict = (NSDictionary *)offset;
+
+    TiDimension wDimension = [self dimensionValue:@"width" properties:dict];
+    CGFloat w = wDimension.value;
+
+    TiDimension hDimension = [self dimensionValue:@"height" properties:dict];
+    CGFloat h = hDimension.value;
+
+    [shadow setShadowOffset:CGSizeMake(w, h)];
   }
+
   id blurRadius = [value objectForKey:@"blurRadius"];
-  if (blurRadius != nil) {
-    [shadow setShadowBlurRadius:[TiUtils floatValue:blurRadius def:0]];
+  TiDimension blurRadiusDimension = [self dimensionValue:blurRadius];
+  if (!TiDimensionIsUndefined(blurRadiusDimension)) {
+    [shadow setShadowBlurRadius:blurRadiusDimension.value];
   }
+
   id color = [value objectForKey:@"color"];
   if (color != nil) {
     [shadow setShadowColor:[[TiUtils colorValue:color] _color]];
@@ -778,11 +797,9 @@ static NSDictionary *sizeMap = nil;
 
 + (UIImage *)imageWithTint:(UIImage *)image tintColor:(UIColor *)tintColor
 {
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
   if ([TiUtils isIOSVersionOrGreater:@"13.0"]) {
     return [image imageWithTintColor:tintColor renderingMode:UIImageRenderingModeAlwaysOriginal];
   }
-#endif
   UIImage *imageNew = [image imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
   UIImageView *imageView = [[UIImageView alloc] initWithImage:imageNew];
   imageView.tintColor = tintColor;
@@ -792,7 +809,7 @@ static NSDictionary *sizeMap = nil;
   UIImage *tintedImage = UIGraphicsGetImageFromCurrentImageContext();
   UIGraphicsEndImageContext();
 
-  return tintedImage;
+  return [tintedImage imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal];
 }
 
 + (NSURL *)checkFor2XImage:(NSURL *)url
@@ -1593,7 +1610,7 @@ If the new path starts with / and the base url is app://..., we have to massage 
 #endif
       appurlstr = [appurlstr substringFromIndex:1];
     }
-#if TARGET_IPHONE_SIMULATOR
+#if TARGET_OS_SIMULATOR
     NSString *resourcesDirectory = [[TiSharedConfig defaultConfig] applicationResourcesDirectory];
 
     if (app == YES && leadingSlashRemoved) {
@@ -2291,6 +2308,29 @@ If the new path starts with / and the base url is app://..., we have to massage 
     isHyperloopAvailable = cls != nil;
   });
   return isHyperloopAvailable;
+}
+
++ (UIImageSymbolWeight)symbolWeightFromString:(NSString *)string
+{
+  if ([string isEqualToString:@"ultralight"]) {
+    return UIImageSymbolWeightUltraLight;
+  } else if ([string isEqualToString:@"light"]) {
+    return UIImageSymbolWeightLight;
+  } else if ([string isEqualToString:@"thin"]) {
+    return UIImageSymbolWeightThin;
+  } else if ([string isEqualToString:@"normal"]) {
+    return UIImageSymbolWeightRegular;
+  } else if ([string isEqualToString:@"semibold"]) {
+    return UIImageSymbolWeightSemibold;
+  } else if ([string isEqualToString:@"bold"]) {
+    return UIImageSymbolWeightBold;
+  } else if ([string isEqualToString:@"heavy"]) {
+    return UIImageSymbolWeightHeavy;
+  } else if ([string isEqualToString:@"black"]) {
+    return UIImageSymbolWeightBlack;
+  }
+
+  return UIImageSymbolWeightRegular;
 }
 
 @end

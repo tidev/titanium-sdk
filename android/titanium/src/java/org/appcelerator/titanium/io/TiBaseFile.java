@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -76,9 +76,37 @@ public abstract class TiBaseFile
 		this.binary = false;
 	}
 
+	@Override
+	public boolean equals(Object value)
+	{
+		// Not equal if given null.
+		if (value == null) {
+			return false;
+		}
+
+		// Check if give object is same type as this instance such as TiFile, TiResourceFile, etc.
+		if (value.getClass().equals(getClass()) == false) {
+			return false;
+		}
+
+		// Compare native paths. (This can return null.)
+		String thisNativePath = nativePath();
+		String givenNativePath = ((TiBaseFile) value).nativePath();
+		if (thisNativePath == null) {
+			return (givenNativePath == null);
+		}
+		return thisNativePath.equals(givenNativePath);
+	}
+
+	@Override
+	public int hashCode()
+	{
+		String nativePath = nativePath();
+		return (nativePath != null) ? nativePath.hashCode() : 0;
+	}
+
 	/**
 	 * @return true if the file is a File, false otherwise. See {@link java.io.File#isFile()} for more details.
-	 * @module.api
 	 */
 	public boolean isFile()
 	{
@@ -87,7 +115,6 @@ public abstract class TiBaseFile
 
 	/**
 	 * @return true if the file is a directory, false otherwise. See {@link java.io.File#isDirectory()} for more details.
-	 * @module.api
 	 */
 	public boolean isDirectory()
 	{
@@ -96,7 +123,6 @@ public abstract class TiBaseFile
 
 	/**
 	 * @return  true if the file is executable, false otherwise.
-	 * @module.api
 	 */
 	public boolean isExecutable()
 	{
@@ -105,7 +131,6 @@ public abstract class TiBaseFile
 
 	/**
 	 * @return  true if the file is read-only, false otherwise.
-	 * @module.api
 	 */
 	public boolean isReadonly()
 	{
@@ -114,7 +139,6 @@ public abstract class TiBaseFile
 
 	/**
 	 * @return  true if the file is writable, false otherwise.
-	 * @module.api
 	 */
 	public boolean isWriteable()
 	{
@@ -123,7 +147,6 @@ public abstract class TiBaseFile
 
 	/**
 	 * @return true if the file is hidden, false otherwise.
-	 * @module.api
 	 */
 	public boolean isHidden()
 	{
@@ -132,7 +155,6 @@ public abstract class TiBaseFile
 
 	/**
 	 * @return true if the file is a symbolic link, false otherwise.
-	 * @module.api
 	 */
 	public boolean isSymbolicLink()
 	{
@@ -241,7 +263,6 @@ public abstract class TiBaseFile
 
 	/**
 	 * @return Whether or not this file exists.
-	 * @module.api
 	 */
 	public boolean exists()
 	{
@@ -257,7 +278,6 @@ public abstract class TiBaseFile
 
 	/**
 	 * @return a list of all files and directories in this directory.
-	 * @module.api
 	 */
 	public List<String> getDirectoryListing()
 	{
@@ -267,7 +287,6 @@ public abstract class TiBaseFile
 
 	/**
 	 * @return The parent directory of this file
-	 * @module.api
 	 */
 	public TiBaseFile getParent()
 	{
@@ -286,41 +305,51 @@ public abstract class TiBaseFile
 		return new Date(modificationTimestamp());
 	}
 
-	public boolean move(String destination) throws IOException
+	public boolean move(String destinationPath) throws IOException
 	{
-		boolean moved = false;
+		boolean wasMoved = false;
 
-		if (destination != null) {
-			String[] parts = { destination };
-			TiBaseFile bf = TiFileFactory.createTitaniumFile(parts, false);
-			if (bf != null) {
-				if (bf.exists()) {
+		if ((destinationPath != null) && !destinationPath.isEmpty()) {
+			String[] parts = { destinationPath };
+			TiBaseFile tiDestinationFile = TiFileFactory.createTitaniumFile(parts, false);
+			if (tiDestinationFile != null) {
+				// Do not continue if destination file already exists.
+				if (tiDestinationFile.exists()) {
 					throw new IOException("Destination already exists.");
 				}
 
-				File fsrc = getNativeFile();
-				if (fsrc == null) {
+				// Fetch the source/destination file objects.
+				File sourceFile = getNativeFile();
+				if (sourceFile == null) {
 					throw new FileNotFoundException("Source is not a true file.");
 				}
-				File fdest = bf.getNativeFile();
-				if (fdest == null) {
+				File destinationFile = tiDestinationFile.getNativeFile();
+				if (destinationFile == null) {
 					throw new FileNotFoundException("Destination is not a valid location for writing");
 				}
 
-				if (copy(destination)) {
-					moved = deleteFile();
+				// First, attempt to move the file by renaming it, which is the fastest way to do it.
+				// Will only work if both file paths are on the same volume and we have permission.
+				destinationFile.getParentFile().mkdirs();
+				wasMoved = sourceFile.renameTo(destinationFile);
+
+				// If above failed, then copy source file to destination ourselves and then delete it.
+				if (!wasMoved) {
+					wasMoved = copy(destinationPath);
+					if (wasMoved) {
+						wasMoved = deleteFile();
+					}
 				}
 			} else {
-				throw new FileNotFoundException("Destination not found: " + destination);
+				throw new FileNotFoundException("Destination not found: " + destinationPath);
 			}
 		}
 
-		return moved;
+		return wasMoved;
 	}
 
 	/**
 	 * @return the file's name.
-	 * @module.api
 	 */
 	public String name()
 	{
@@ -330,7 +359,6 @@ public abstract class TiBaseFile
 
 	/**
 	 * @return the file's path.
-	 * @module.api
 	 */
 	public String nativePath()
 	{
@@ -340,8 +368,7 @@ public abstract class TiBaseFile
 
 	public TiBlob read() throws IOException
 	{
-		logNotSupported("read");
-		return null;
+		return TiBlob.blobFromFile(this);
 	}
 
 	public String readLine() throws IOException
@@ -350,18 +377,30 @@ public abstract class TiBaseFile
 		return null;
 	}
 
-	public boolean rename(String destination)
+	public boolean rename(String destination) throws IOException
 	{
-		boolean renamed = false;
-		if (destination != null) {
-			File f = getNativeFile();
-			if (f != null) {
-				File dest = new File(f.getParent(), destination);
-				renamed = f.renameTo(dest);
+		boolean wasSuccessful = false;
+		if ((destination != null) && !destination.isEmpty()) {
+			File sourceFile = getNativeFile();
+			if (sourceFile != null) {
+				if ((destination.indexOf(File.separatorChar) >= 0) || (destination.indexOf(':') >= 0)) {
+					// Received an absolute path. Only rename if destination directory is same as the source.
+					String[] parts = { destination };
+					TiBaseFile tiDestinationFile = TiFileFactory.createTitaniumFile(parts, false);
+					File destinationFile = (tiDestinationFile != null) ? tiDestinationFile.getNativeFile() : null;
+					if (destinationFile != null) {
+						if (sourceFile.getParentFile().equals(destinationFile.getParentFile())) {
+							wasSuccessful = sourceFile.renameTo(destinationFile);
+						}
+					}
+				} else {
+					// We were given a file name. Rename it in same directory.
+					File destinationFile = new File(sourceFile.getParent(), destination);
+					wasSuccessful = sourceFile.renameTo(destinationFile);
+				}
 			}
 		}
-
-		return renamed;
+		return wasSuccessful;
 	}
 
 	public TiBaseFile resolve()
@@ -519,7 +558,6 @@ public abstract class TiBaseFile
 	 * the contents of the file.
 	 * @return  the InputStream of the file.
 	 * @throws IOException the thrown exception.
-	 * @module.api
 	 */
 	public abstract InputStream getInputStream() throws IOException;
 
@@ -527,14 +565,12 @@ public abstract class TiBaseFile
 	 * Implementing subclasses should return an OutputStream for writing to the file.
 	 * @return  the OutputStream of the file.
 	 * @throws IOException the thrown exception.
-	 * @module.api
 	 */
 	public abstract OutputStream getOutputStream() throws IOException;
 
 	/**
 	 * Implementing subclasses should return the file object.
 	 * @return  the file object.
-	 * @module.api
 	 */
 	public abstract File getNativeFile();
 }

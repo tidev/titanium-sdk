@@ -5,30 +5,6 @@ summary: |
     and shake gestures.
 extends: Titanium.Module
 since: "0.8"
-
-methods:
-  - name: isLandscape
-    summary: Returns whether or not the device is currently held in landscape form.
-    description: Value returns `true` if in landscape, and `false` otherwise.
-    exclude-platforms: [macos]
-    deprecated:
-        since: "6.1.0"
-        removed: "7.0.0"
-        notes: Use [Titanium.Gesture.landscape](Titanium.Gesture.landscape) for parity instead. Removed in 7.0.0 on Android, 8.1.0 on iOS.
-    returns:
-        type: Boolean
-
-  - name: isPortrait
-    summary: Returns whether or not the device is currently held in portrait form.
-    description: Value returns `true` if in portrait, and `false` otherwise.
-    exclude-platforms: [macos]
-    deprecated:
-        since: "6.1.0"
-        removed: "7.0.0"
-        notes: Use [Titanium.Gesture.portrait](Titanium.Gesture.portrait) for parity instead. Removed in 7.0.0 on Android, 8.1.0 on iOS.
-    returns:
-        type: Boolean
-
 properties:
   - name: portrait
     summary: Indicates if the device is currently held in portrait form.

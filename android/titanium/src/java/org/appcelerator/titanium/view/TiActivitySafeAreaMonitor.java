@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2018 by Axway, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -101,26 +101,23 @@ public class TiActivitySafeAreaMonitor
 		};
 
 		// Set up a listener for root decor view's inset changes.
-		// Note: This is only available on Android 5.0 and higher.
-		if (Build.VERSION.SDK_INT >= 20) {
-			this.viewInsetListener = new View.OnApplyWindowInsetsListener() {
-				@Override
-				public WindowInsets onApplyWindowInsets(View view, WindowInsets insets)
-				{
-					// Validate.
-					if (view == null) {
-						return insets;
-					}
-
-					// Update safe-area using given insets.
-					updateUsing(insets);
-
-					// Let the view handle the insets.
-					// Allows the View.setFitsSystemWindows(true) method to work.
-					return view.onApplyWindowInsets(insets);
+		this.viewInsetListener = new View.OnApplyWindowInsetsListener() {
+			@Override
+			public WindowInsets onApplyWindowInsets(View view, WindowInsets insets)
+			{
+				// Validate.
+				if (view == null) {
+					return insets;
 				}
-			};
-		}
+
+				// Update safe-area using given insets.
+				updateUsing(insets);
+
+				// Let the view handle the insets.
+				// Allows the View.setFitsSystemWindows(true) method to work.
+				return view.onApplyWindowInsets(insets);
+			}
+		};
 
 		// Set up a listener for custom TiInsetsProvider objects. (Used by Titanium TabGroups.)
 		this.insetsProviderListener = new TiInsetsProvider.OnChangedListener() {

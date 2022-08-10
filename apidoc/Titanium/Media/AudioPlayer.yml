@@ -99,24 +99,40 @@ methods:
     returns:
         type: Boolean
     platforms: [iphone, ipad, macos]
+    deprecated:
+        since: "7.5.0"
+        removed: "10.0.0"
+        notes: Use the cross-platform API <Titanium.Media.AudioPlayer.paused> property instead.
 
   - name: isPaused
     summary: Returns the value of the [paused](Titanium.Media.AudioPlayer.paused) property.
     returns:
         type: Boolean
     platforms: [android]
+    deprecated:
+        since: "7.5.0"
+        removed: "10.0.0"
+        notes: Use the cross-platform API <Titanium.Media.AudioPlayer.paused> property instead.
 
   - name: getPlaying
     summary: Returns the value of the [playing](Titanium.Media.AudioPlayer.playing) property.
     returns:
         type: Boolean
     platforms: [iphone, ipad, macos]
+    deprecated:
+        since: "7.5.0"
+        removed: "10.0.0"
+        notes: Use the cross-platform API <Titanium.Media.AudioPlayer.playing> property instead.
 
   - name: isPlaying
     summary: Returns the value of the [playing](Titanium.Media.AudioPlayer.playing) property.
     returns:
         type: Boolean
     platforms: [android]
+    deprecated:
+        since: "7.5.0"
+        removed: "10.0.0"
+        notes: Use the cross-platform API <Titanium.Media.AudioPlayer.playing> property instead.
 
   - name: pause
     summary: Pauses audio playback.
@@ -150,6 +166,7 @@ methods:
         type: Boolean
     deprecated:
         since: "7.5.0"
+        removed: "10.0.0"
         notes: Use the cross-platform API [Titanium.Media.AudioPlayer.pause](Titanium.Media.AudioPlayer.pause) instead.
     platforms: [iphone, ipad, macos]
 
@@ -185,6 +202,9 @@ methods:
         type: Number
     since: "5.4.0"
     platforms: [android]
+    deprecated:
+      since: "10.0.0"
+      notes: Use the [audioSessionId](Titanium.Media.AudioPlayer.audioSessionId) property instead
 
   - name: start
     summary: Starts or resumes audio playback.
@@ -424,6 +444,13 @@ properties:
     default: false
     availability: creation
     platforms: [android]
+
+  - name: audioSessionId
+    summary: Returns the audio session id.
+    type: Number
+    since: "10.0.0"
+    platforms: [android]
+    permission: read-only
     
   - name: audioType
     summary: Changes the audio-stream-type.

@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2019 by Axway, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -18,7 +18,7 @@ public class KrollAssetCache
 {
 	private static final String TAG = "TiAssetCache";
 
-	private static HashMap<String, byte[]> cache = new HashMap<>();
+	private static final HashMap<String, byte[]> cache = new HashMap<>();
 
 	/**
      * Asynchronous task to load specified assets into cache.

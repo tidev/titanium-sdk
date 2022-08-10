@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -19,14 +19,12 @@ public interface KrollProxyListener {
 	 * @param oldValue  the old value.
 	 * @param newValue  the new value.
 	 * @param proxy  the associated proxy.
-	 * @module.api
 	 */
 	void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy);
 
 	/**
 	 * Implementing classes can use this method to examine the properties passed into the proxy.
 	 * @param properties  a set of properties to process.
-	 * @module.api
 	 */
 	void processProperties(KrollDict properties);
 	void propertiesChanged(List<KrollPropertyChange> changes, KrollProxy proxy);
@@ -36,7 +34,6 @@ public interface KrollProxyListener {
 	 * @param type the added event listener
 	 * @param count the count of event listeners.
 	 * @param proxy the proxy that added the listener.
-	 * @module.api
 	 */
 	void listenerAdded(String type, int count, KrollProxy proxy);
 
@@ -45,7 +42,6 @@ public interface KrollProxyListener {
 	 * @param type the removed event listener
 	 * @param count the count of event listeners.
 	 * @param proxy the proxy that removed the listener.
-	 * @module.api
 	 */
 	void listenerRemoved(String type, int count, KrollProxy proxy);
 }

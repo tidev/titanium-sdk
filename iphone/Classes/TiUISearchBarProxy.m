@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -188,7 +188,6 @@
   return @([[self searchBar] searchBarStyle]);
 }
 
-#if IS_SDK_IOS_13
 - (void)insertTokenAtIndex:(id)params
 {
   ENSURE_ARG_COUNT(params, 2);
@@ -235,7 +234,6 @@
 
   return result;
 }
-#endif
 
 - (NSNumber *)focused
 {

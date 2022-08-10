@@ -33,6 +33,7 @@ platforms: [iphone, ipad, macos]
 since: {iphone: "3.6.0", ipad: "3.6.0", macos: "9.2.0"}
 excludes:
     properties: [transitionAnimation, swipeToClose]
+    methods: [setToolbar]
 methods:
   - name: setShowMasterInPortrait
     summary: Sets the value of the [showMasterInPortrait](Titanium.UI.iOS.SplitWindow.showMasterInPortrait) property.

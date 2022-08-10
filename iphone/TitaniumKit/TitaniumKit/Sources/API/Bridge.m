@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -41,7 +41,7 @@
       basename = [@"app" retain];
     } else {
       NSString *last = [[url path] lastPathComponent];
-      basename = [[last stringByReplacingOccurrencesOfString:@".js" withString:@""] retain];
+      basename = [[last stringByReplacingOccurrencesOfString:@".js" withString:@""] retain]; // FIXME: Handle cjs/mjs?
     }
   }
   return basename;

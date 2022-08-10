@@ -43,6 +43,7 @@ excludes:
 deprecated:
     since: "6.2.0"
     notes: Use the cross-platform [Titanium.UI.Toolbar](Titanium.UI.Toolbar) instead.
+    removed: "10.0.0"
 platforms: [iphone, ipad, macos]
 since: {iphone: "0.8", ipad: "0.8", macos: "9.2.0"}
 

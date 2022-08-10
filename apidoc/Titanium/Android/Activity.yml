@@ -134,7 +134,9 @@ methods:
 
       - name: format
         summary: Optional format arguments for the String resource. May be repeated.
-        type: Object
+        type: any
+        repeatable: true
+        optional: true
 
   - name: invalidateOptionsMenu
     summary: Declares that the option menu has changed and should be recreated.
@@ -155,6 +157,10 @@ methods:
         summary: Orientation mode for the activity.
         constants: Titanium.Android.SCREEN_ORIENTATION_*
         type: Number
+    deprecated:
+      since: "10.0.0"
+      removed: "10.0.0"
+      notes: Use the <Titanium.Android.requestedOrientation> property instead
 
   - name: setResult
     summary: Sets the result of this activity using an `Intent`. 
@@ -250,7 +256,7 @@ events:
     deprecated:
         since: "3.4.0"
         removed: "9.0.0"
-        notes: Use [Titanium.Android.Activity.onCreate](Titanium.Android.Activity.onCreate) instead.
+        notes: Use the [Titanium.Android.Activity.onCreate](Titanium.Android.Activity.onCreate) callback property instead.
     description: |
         See also:
         [onCreate](https://developer.android.com/reference/android/app/Activity.html#onCreate(android.os.Bundle))
@@ -261,7 +267,7 @@ events:
     deprecated:
         since: "3.4.0"
         removed: "9.0.0"
-        notes: Use [Titanium.Android.Activity.onDestroy](Titanium.Android.Activity.onDestroy) instead.
+        notes: Use the [Titanium.Android.Activity.onDestroy](Titanium.Android.Activity.onDestroy) callback property instead.
     description: |
         See also: [onDestroy](https://developer.android.com/reference/android/app/Activity.html#onDestroy())
         in the Android Developer Reference.
@@ -296,7 +302,7 @@ events:
     deprecated:
         since: "3.4.0"
         removed: "9.0.0"
-        notes: Use [Titanium.Android.Activity.onPause](Titanium.Android.Activity.onPause) instead.
+        notes: Use the [Titanium.Android.Activity.onPause](Titanium.Android.Activity.onPause) callback property instead.
     description: |
         See also:
         [onPause](https://developer.android.com/reference/android/app/Activity.html#onPause())
@@ -307,7 +313,7 @@ events:
     deprecated:
         since: "3.4.0"
         removed: "9.0.0"
-        notes: Use [Titanium.Android.Activity.onRestart](Titanium.Android.Activity.onRestart) instead.
+        notes: Use the [Titanium.Android.Activity.onRestart](Titanium.Android.Activity.onRestart) callback property instead.
     description: |
         See also: [onRestart](https://developer.android.com/reference/android/app/Activity.html#onRestart())
         in the Android Developer Reference.
@@ -317,7 +323,7 @@ events:
     deprecated:
         since: "3.4.0"
         removed: "9.0.0"
-        notes: Use [Titanium.Android.Activity.onResume](Titanium.Android.Activity.onResume) instead.
+        notes: Use the [Titanium.Android.Activity.onResume](Titanium.Android.Activity.onResume) callback property instead.
     description: |
         See also: [onResume](https://developer.android.com/reference/android/app/Activity.html#onResume())
         in the Android Developer Reference.
@@ -327,7 +333,7 @@ events:
     deprecated:
         since: "3.4.0"
         removed: "9.0.0"
-        notes: Use [Titanium.Android.Activity.onStart](Titanium.Android.Activity.onStart) instead.
+        notes: Use the [Titanium.Android.Activity.onStart](Titanium.Android.Activity.onStart) callback property instead.
     description: |
         See also: [onStart](https://developer.android.com/reference/android/app/Activity.html#onStart())
         in the Android Developer Reference.
@@ -337,7 +343,7 @@ events:
     deprecated:
         since: "3.4.0"
         removed: "9.0.0"
-        notes: Use [Titanium.Android.Activity.onStop](Titanium.Android.Activity.onStop) instead.
+        notes: Use the [Titanium.Android.Activity.onStop](Titanium.Android.Activity.onStop) callback property instead.
     description: |
         See also: [onStop](https://developer.android.com/reference/android/app/Activity.html#onStop())
         in the Android Developer Reference.
@@ -371,7 +377,6 @@ events:
     since: "7.5.0"
 
 properties:
-
   - name: actionBar
     summary: The action bar for this activity.
     description: |

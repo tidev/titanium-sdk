@@ -1,12 +1,11 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2014 by Appcelerator, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 package org.appcelerator.titanium.util;
 
-import java.lang.reflect.Method;
 import java.util.Currency;
 import java.util.HashMap;
 import java.util.Locale;
@@ -17,67 +16,38 @@ import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
 
 import android.Manifest;
-import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageManager;
-import android.content.res.Resources;
 import android.net.DhcpInfo;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.text.format.Formatter;
-import android.util.DisplayMetrics;
 
 @SuppressWarnings("deprecation")
 public class TiPlatformHelper
 {
 	public static final String TAG = "TiPlatformHelper";
 	private static final Map<String, Locale> locales =
-		java.util.Collections.synchronizedMap(new HashMap<String, Locale>());
+		java.util.Collections.synchronizedMap(new HashMap<>());
 	private static final Map<Locale, String> currencyCodes =
-		java.util.Collections.synchronizedMap(new HashMap<Locale, String>());
+		java.util.Collections.synchronizedMap(new HashMap<>());
 	private static final Map<Locale, String> currencySymbols =
-		java.util.Collections.synchronizedMap(new HashMap<Locale, String>());
+		java.util.Collections.synchronizedMap(new HashMap<>());
 	private static final Map<String, String> currencySymbolsByCode =
-		java.util.Collections.synchronizedMap(new HashMap<String, String>());
-
-	public static float applicationScaleFactor = 1.0F;
-	public static int applicationLogicalDensity = DisplayMetrics.DENSITY_MEDIUM;
+		java.util.Collections.synchronizedMap(new HashMap<>());
 
 	private static class InstanceHolder
 	{
 		private static final TiPlatformHelper INSTANCE = new TiPlatformHelper();
 	}
 
-	public static final TiPlatformHelper getInstance()
+	public static TiPlatformHelper getInstance()
 	{
 		return InstanceHolder.INSTANCE;
 	}
 
 	private TiPlatformHelper()
 	{
-	}
-
-	public synchronized void intializeDisplayMetrics(Activity activity)
-	{
-		DisplayMetrics dm = new DisplayMetrics();
-		activity.getWindowManager().getDefaultDisplay().getMetrics(dm);
-
-		// Note: this isn't public API, so there should be lots of error checking here
-		try {
-			Method gciMethod = Resources.class.getMethod("getCompatibilityInfo");
-			Object compatInfo = gciMethod.invoke(activity.getResources());
-			applicationScaleFactor = (Float) compatInfo.getClass().getField("applicationScale").get(compatInfo);
-		} catch (Exception e) {
-			Log.w(TAG, "Unable to get application scale factor, using reported density and its factor", Log.DEBUG_MODE);
-		}
-
-		if (applicationScaleFactor == 1.0f) {
-			applicationLogicalDensity = dm.densityDpi;
-		} else if (applicationScaleFactor > 1.0f) {
-			applicationLogicalDensity = DisplayMetrics.DENSITY_MEDIUM;
-		} else {
-			applicationLogicalDensity = DisplayMetrics.DENSITY_LOW;
-		}
 	}
 
 	public String getLocale()
@@ -177,11 +147,11 @@ public class TiPlatformHelper
 	public String getIpAddress()
 	{
 		String ipAddress = null;
-		TiApplication tiApp = TiApplication.getInstance();
+		Context context = TiApplication.getInstance().getApplicationContext();
 
-		if (tiApp.getRootActivity().checkCallingOrSelfPermission(Manifest.permission.ACCESS_WIFI_STATE)
+		if (context.checkCallingOrSelfPermission(Manifest.permission.ACCESS_WIFI_STATE)
 			== PackageManager.PERMISSION_GRANTED) {
-			WifiManager wifiManager = (WifiManager) tiApp.getRootActivity().getSystemService(Context.WIFI_SERVICE);
+			WifiManager wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
 			if (wifiManager != null) {
 				WifiInfo wifiInfo = wifiManager.getConnectionInfo();
 				if (wifiInfo != null) {
@@ -203,11 +173,11 @@ public class TiPlatformHelper
 	public String getNetmask()
 	{
 		String netmask = null;
-		TiApplication tiApp = TiApplication.getInstance();
+		Context context = TiApplication.getInstance().getApplicationContext();
 
-		if (tiApp.getRootActivity().checkCallingOrSelfPermission(Manifest.permission.ACCESS_WIFI_STATE)
+		if (context.checkCallingOrSelfPermission(Manifest.permission.ACCESS_WIFI_STATE)
 			== PackageManager.PERMISSION_GRANTED) {
-			WifiManager wifiManager = (WifiManager) tiApp.getRootActivity().getSystemService(Context.WIFI_SERVICE);
+			WifiManager wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
 			if (wifiManager != null) {
 				DhcpInfo dhcpInfo = wifiManager.getDhcpInfo();
 				if (dhcpInfo != null) {

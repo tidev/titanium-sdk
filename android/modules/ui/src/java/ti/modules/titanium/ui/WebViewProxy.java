@@ -1,13 +1,12 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2020 by Appcelerator, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 package ti.modules.titanium.ui;
 
 import android.app.Activity;
-import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
 import android.webkit.ValueCallback;
@@ -58,7 +57,7 @@ public class WebViewProxy extends ViewProxy implements Handler.Callback, OnLifec
 	private static String fusername;
 	private static String fpassword;
 	private static int frequestID = 0;
-	private static Map<Integer, EvalJSRunnable> fevalJSRequests = new HashMap<Integer, EvalJSRunnable>();
+	private static final Map<Integer, EvalJSRunnable> fevalJSRequests = new HashMap<>();
 
 	private Message postCreateMessage;
 
@@ -109,22 +108,14 @@ public class WebViewProxy extends ViewProxy implements Handler.Callback, OnLifec
 		}
 		if (callback != null) {
 			EvalJSRunnable runnable = new EvalJSRunnable(view, getKrollObject(), code, callback);
-			if (Build.VERSION.SDK_INT >= 19) {
-				// When on Android 4.4 we can use the builtin evalAsync method!
-				runnable.runAsync();
-			} else {
-				// Just do our sync eval in a separate Thread. Doesn't need to be done in UI
-				Thread clientThread = new Thread(runnable, "TiWebViewProxy-" + System.currentTimeMillis());
-				clientThread.setPriority(Thread.MIN_PRIORITY);
-				clientThread.start();
-			}
+			runnable.runAsync();
 			return null;
 		}
 		// TODO deprecate the sync variant?
 		return view.getJSValue(code);
 	}
 
-	private class EvalJSRunnable implements Runnable
+	private static class EvalJSRunnable implements Runnable
 	{
 		private final TiUIWebView view;
 		private final KrollObject krollObject;
@@ -158,7 +149,6 @@ public class WebViewProxy extends ViewProxy implements Handler.Callback, OnLifec
 		}
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getHtml()
 	{
@@ -237,7 +227,6 @@ public class WebViewProxy extends ViewProxy implements Handler.Callback, OnLifec
 		getWebView().setBasicAuthentication(username, password);
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setUserAgent(String userAgent)
 	{
@@ -247,7 +236,6 @@ public class WebViewProxy extends ViewProxy implements Handler.Callback, OnLifec
 		}
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getUserAgent()
 	{
@@ -258,7 +246,6 @@ public class WebViewProxy extends ViewProxy implements Handler.Callback, OnLifec
 		return "";
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setRequestHeaders(HashMap params)
 	{
@@ -270,7 +257,6 @@ public class WebViewProxy extends ViewProxy implements Handler.Callback, OnLifec
 		}
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public HashMap getRequestHeaders()
 	{
@@ -323,7 +309,6 @@ public class WebViewProxy extends ViewProxy implements Handler.Callback, OnLifec
 		getMainHandler().sendEmptyMessage(MSG_STOP_LOADING);
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public int getPluginState()
 	{
@@ -336,14 +321,12 @@ public class WebViewProxy extends ViewProxy implements Handler.Callback, OnLifec
 		return pluginState;
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setDisableContextMenu(boolean disableContextMenu)
 	{
 		setPropertyAndFire(TiC.PROPERTY_DISABLE_CONTEXT_MENU, disableContextMenu);
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public boolean getDisableContextMenu()
 	{
@@ -353,7 +336,6 @@ public class WebViewProxy extends ViewProxy implements Handler.Callback, OnLifec
 		return false;
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setPluginState(int pluginState)
 	{
@@ -384,14 +366,12 @@ public class WebViewProxy extends ViewProxy implements Handler.Callback, OnLifec
 		}
 	}
 
-	@Kroll.method(runOnUiThread = true)
 	@Kroll.setProperty(runOnUiThread = true)
 	public void setEnableZoomControls(boolean enabled)
 	{
 		setPropertyAndFire(TiC.PROPERTY_ENABLE_ZOOM_CONTROLS, enabled);
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public boolean getEnableZoomControls()
 	{
@@ -403,7 +383,6 @@ public class WebViewProxy extends ViewProxy implements Handler.Callback, OnLifec
 		return enabled;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public float getZoomLevel()
 	{
@@ -415,7 +394,6 @@ public class WebViewProxy extends ViewProxy implements Handler.Callback, OnLifec
 		}
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setZoomLevel(float value)
 	{

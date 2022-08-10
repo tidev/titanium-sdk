@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2011-2013 by Appcelerator, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -22,11 +22,11 @@ public class RProxy extends KrollProxy
 	private static final String TAG = "TiAndroidRProxy";
 
 	private static final String[] RESOURCE_TYPES = {
-		"anim",      "animator", "array",        "attr",   "bool",
-		"color",     "dimen",    "drawable",     "font",   "fraction",
-		"id",        "integer",  "interpolator", "layout", "menu",
-		"mipmap",    "plurals",  "raw",          "string", "style",
-		"styleable", "xml"
+		"anim",      "animator",   "array",        "attr",   "bool",
+		"color",     "dimen",      "drawable",     "font",   "fraction",
+		"id",        "integer",    "interpolator", "layout", "menu",
+		"mipmap",    "plurals",    "raw",          "string", "style",
+		"styleable", "transition", "xml"
 	};
 
 	public static final int RESOURCE_TYPE_ANDROID = 0;
@@ -34,7 +34,7 @@ public class RProxy extends KrollProxy
 
 	protected String name;
 	protected int resourceType;
-	protected HashMap<String, Object> subResources = new HashMap<String, Object>();
+	protected HashMap<String, Object> subResources = new HashMap<>();
 
 	public RProxy(int resourceType)
 	{

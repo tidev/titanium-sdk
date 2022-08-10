@@ -102,7 +102,7 @@ methods:
         summary: The date to be formatted into parts.
         type: Date
     returns:
-        type: Array<Object>
+        type: Array<DateTimeFormattedPart>
         summary: Array of objects providing the "type" and "value" of each component in formatted string.
     osver: {ios: {min: "11.2"}}
 
@@ -114,7 +114,7 @@ methods:
       For more detail, see the MDN website about
       [resolvedOptions](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Intl/DateTimeFormat/resolvedOptions).
     returns:
-        type: Object
+        type: DateTimeFormatOptions
         summary: Returns the formatting options used.
 
   - name: supportedLocalesOf
@@ -356,3 +356,20 @@ properties:
 
       *    `'short'` Outputs the GMT offset such as `'GMT-8'` for US Pacific Time.
       *    `'long'` Outputs the full time zone name such as `'British Summer Time'`.
+
+---
+name: DateTimeFormattedPart
+summary: Generic type for elements of returned `Array` from <Intl.DateTimeFormat.formatToParts>
+properties:
+  - name: type
+    type: String
+    summary: |
+      The type of the locale-specific token.
+
+      See [MDN formatToParts documentation](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/DateTimeFormat/formatToParts)
+      for details on the possible types and typical values.
+  # TODO: Declare the enumerated set of possible types
+
+  - name: value
+    type: String
+    summary: The locale-specific token value
