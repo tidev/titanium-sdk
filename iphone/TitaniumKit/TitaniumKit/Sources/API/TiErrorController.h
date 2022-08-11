@@ -7,8 +7,6 @@
 
 #import <UIKit/UIKit.h>
 
-@class TiScriptError;
-
 @interface TiErrorNavigationController : UINavigationController
 
 @end
@@ -16,13 +14,12 @@
 @interface TiErrorController : UIViewController {
 
   NSString *error;
-  TiScriptError *scriptError;
+
   UIScrollView *scrollView;
   UITextView *messageView;
   UIButton *continueButton;
 }
 
 - (id)initWithError:(NSString *)error_;
-- (id)initWithScriptError:(TiScriptError *)scriptError_;
 
 @end

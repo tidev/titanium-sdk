@@ -295,8 +295,7 @@ JSValueRef TiBindingTiValueFromNSObject(JSContextRef jsContext, NSObject *obj)
 
     // Add "nativeStack" key
     NSArray<NSString *> *nativeStack = [(NSException *)obj callStackSymbols];
-    NSInteger startIndex = 0; // Starting at index = 4 to not include the script-error API's
-
+    NSInteger startIndex = 0;
     if (nativeStack == nil) { // the exception was created, but never thrown, so grab the current stack frames
       nativeStack = [NSThread callStackSymbols]; // this happens when we construct an exception manually in our ENSURE macros for obj-c proxies
       startIndex = 2; // drop ObjcProxy.throwException and this method from frames

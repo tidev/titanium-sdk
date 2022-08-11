@@ -1366,9 +1366,6 @@ If the new path starts with / and the base url is app://..., we have to massage 
     NSArray<NSString *> *nativeStack = [callStack componentsSeparatedByCharactersInSet:NSCharacterSet.newlineCharacterSet];
     [errorDict setObject:nativeStack forKey:@"nativeStack"];
   }
-  if ([error hasProperty:@"nativeLocation"]) {
-    [errorDict setObject:[error[@"nativeLocation"] toString] forKey:@"nativeLocation"];
-  }
 
   return [[[TiScriptError alloc] initWithDictionary:errorDict] autorelease];
 }
