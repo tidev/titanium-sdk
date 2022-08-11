@@ -4,7 +4,7 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-package ti.modules.titanium.ui;
+package ti.modules.titanium.ui.android;
 
 import android.app.Activity;
 
@@ -16,7 +16,7 @@ import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.widget.TiUISnackbar;
 
-@Kroll.proxy(creatableInModule = UIModule.class)
+@Kroll.proxy(creatableInModule = AndroidModule.class)
 public class SnackbarProxy extends TiViewProxy
 {
 	private static final String TAG = "SnackbarProxy";
