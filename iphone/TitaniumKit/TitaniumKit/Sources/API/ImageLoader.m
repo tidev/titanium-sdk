@@ -232,6 +232,10 @@
 
 + (NSString *)cachePathForURL:(NSURL *)url
 {
+  if (url == nil) {
+    return nil;
+  }
+
   if ([url isFileURL]) {
     return [url path];
   }

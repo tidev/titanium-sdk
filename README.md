@@ -10,8 +10,6 @@ Currently supported native platforms are iOS and Android.
 Titanium is licensed under the OSI approved Apache Public License (version 2). Please
 see the [LICENSE](LICENSE) file for specific details.
 
-*[Download Pre-built Titanium](http://builds.appcelerator.com/#master)*
-
 # Table of Contents
 
 - [Table of Contents](#table-of-contents)
@@ -264,6 +262,32 @@ After you've made the changes and compiled the SDK make sure to run the test sui
 
 Some modules like ti.map or ti.facebook are included with the SDK. To update to the latest versions you have to edit the links in `support/module/packaged/modules.json` and run `node build/scons-modules-integrity.js`. This will download the files and update the integrity values.
 
+## Contributing
+
+Interested in contributing? There are several ways you can help contribute to this project.
+
+### New Features, Improvements, Bug Fixes, & Documentation
+
+Source code contributions are always welcome! Before we can accept your pull request, you must sign a Contributor License Agreement (CLA). Please visit https://tidev.io/contribute for more information.
+
+### Donations
+
+Please consider supporting this project by making a charitable [donation](https://tidev.io/donate). The money you donate goes to compensate the skilled engineeers and maintainers that keep this project going.
+
+### Code of Conduct
+
+TiDev wants to provide a safe and welcoming community for everyone to participate. Please see our [Code of Conduct](https://tidev.io/code-of-conduct) that applies to all contributors.
+
+## Security
+
+If you find a security related issue, please send an email to [security@tidev.io](mailto:security@tidev.io) instead of publicly creating a ticket.
+
+## Stay Connected
+
+For the latest information, please find us on Twitter: [Titanium SDK](https://twitter.com/titaniumsdk) and [TiDev](https://twitter.com/tidevio).
+
+Join our growing Slack community by visiting https://slack.tidev.io
+
 ## Legal
 
-Titanium is a registered trademark of TiDev Inc. All Titanium trademark and patent rights were transferred and assigned to TiDev Inc. on 04/07/2022. Please see the LEGAL information about using our trademarks, privacy policy, terms of usage and other legal information at https://tidev.io/legal.
+Titanium is a registered trademark of TiDev Inc. All Titanium trademark and patent rights were transferred and assigned to TiDev Inc. on 4/7/2022. Please see the LEGAL information about using our trademarks, privacy policy, terms of usage and other legal information at https://tidev.io/legal.
