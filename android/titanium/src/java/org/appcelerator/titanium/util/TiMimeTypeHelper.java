@@ -7,6 +7,7 @@
 package org.appcelerator.titanium.util;
 
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 
@@ -222,7 +223,9 @@ public class TiMimeTypeHelper
 				}
 			} catch (Exception ex) {
 			} finally {
-				mediaRetriever.release();
+				try {
+					mediaRetriever.release();
+				} catch (IOException ex) {}
 			}
 		}
 
