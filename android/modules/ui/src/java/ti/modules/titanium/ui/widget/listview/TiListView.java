@@ -21,6 +21,7 @@ import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.RectShape;
+import android.os.Parcelable;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -193,7 +194,7 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 
 		final SelectionTracker.Builder trackerBuilder = new SelectionTracker.Builder("list_view_selection",
 			this.recyclerView,
-			new ItemKeyProvider(1)
+			new ItemKeyProvider(ItemKeyProvider.SCOPE_CACHED)
 			{
 				@Nullable
 				@Override
@@ -263,6 +264,7 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 
 		final KrollDict properties = proxy.getProperties();
 		final boolean editing = properties.optBoolean(TiC.PROPERTY_EDITING, false);
+		final boolean requiresEditingToMove = properties.optBoolean(TiC.PROPERTY_REQUIRES_EDITING_TO_MOVE, true);
 		final boolean allowsSelection = properties.optBoolean(TiC.PROPERTY_ALLOWS_SELECTION_DURING_EDITING, false);
 		final boolean allowsMultipleSelection
 			= properties.optBoolean(TiC.PROPERTY_ALLOWS_MULTIPLE_SELECTION_DURING_EDITING, false);
@@ -270,7 +272,7 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 		if (properties.optBoolean(TiC.PROPERTY_FIXED_SIZE, false)) {
 			this.recyclerView.setHasFixedSize(true);
 		}
-		if (editing && allowsSelection) {
+		if ((editing || !requiresEditingToMove) && allowsSelection) {
 			if (allowsMultipleSelection) {
 				this.tracker = trackerBuilder.withSelectionPredicate(SelectionPredicates.createSelectAnything())
 					.build();
@@ -738,6 +740,8 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 			this.proxy.fireEvent(TiC.EVENT_NO_RESULTS, null);
 		}
 
+		Parcelable recyclerViewState = recyclerView.getLayoutManager().onSaveInstanceState();
+
 		// Notify adapter of changes on UI thread.
 		this.adapter.update(this.items, force);
 
@@ -764,13 +768,15 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 
 				if (firstUpdate && tracker != null) {
 					final boolean editing = properties.optBoolean(TiC.PROPERTY_EDITING, false);
+					final boolean requiresEditingToMove =
+						properties.optBoolean(TiC.PROPERTY_REQUIRES_EDITING_TO_MOVE, true);
 
 					for (final ListItemProxy item : items) {
 
 						// Re-select previously selected items.
 						// This can occur when the theme is changed.
 						if (item.isSelected()) {
-							if (!editing) {
+							if (!editing || requiresEditingToMove) {
 								item.setSelected(false);
 								continue;
 							}
@@ -778,6 +784,8 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 						}
 					}
 				}
+
+				recyclerView.getLayoutManager().onRestoreInstanceState(recyclerViewState);
 			}
 		});
 	}

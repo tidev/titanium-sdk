@@ -147,6 +147,8 @@ public class TiC
 	public static final String EVENT_PROPERTY_FORCE = "force";
 	public static final String EVENT_PROPERTY_SIZE = "size";
 	public static final String EVENT_MOVE = "move";
+	public static final String EVENT_MOVE_START = "movestart";
+	public static final String EVENT_MOVE_END = "moveend";
 	public static final String EVENT_REFRESH_END = "refreshend";
 	public static final String EVENT_REFRESH_START = "refreshstart";
 	public static final String EVENT_REGION_CHANGED = "regionchanged";
@@ -468,7 +470,6 @@ public class TiC
 	public static final String PROPERTY_HEADER_TITLE = "headerTitle";
 	public static final String PROPERTY_HEADER_VIEW = "headerView";
 	public static final String PROPERTY_HEADING = "heading";
-	public static final String PROPERTY_HEADING_FILTER = "headingFilter";
 	public static final String PROPERTY_HEIGHT = "height";
 	public static final String PROPERTY_HIDE_ANNOTATION_WHEN_TOUCH_MAP = "hideAnnotationWhenTouchMap";
 	public static final String PROPERTY_HIGHLIGHTED_COLOR = "highlightedColor";
@@ -652,6 +653,7 @@ public class TiC
 	public static final String PROPERTY_REPEAT_COUNT = "repeatCount";
 	public static final String PROPERTY_REPEAT_MODE = "repeatMode";
 	public static final String PROPERTY_REQUEST_HEADERS = "requestHeaders";
+	public static final String PROPERTY_REQUIRES_EDITING_TO_MOVE = "requiresEditingToMove";
 	public static final String PROPERTY_RETURN_KEY_TYPE = "returnKeyType";
 	public static final String PROPERTY_REVERSE = "reverse";
 	public static final String PROPERTY_RIGHT = "right";

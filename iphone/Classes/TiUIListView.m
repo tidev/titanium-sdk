@@ -17,6 +17,7 @@
 #ifdef USE_TI_UIREFRESHCONTROL
 #import "TiUIRefreshControlProxy.h"
 #endif
+#import <MobileCoreServices/MobileCoreServices.h>
 #import <TitaniumKit/ImageLoader.h>
 
 @interface TiUIListView ()
@@ -203,11 +204,18 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
 {
   if (_tableView == nil) {
     UITableViewStyle style = [TiUtils intValue:[self.proxy valueForKey:@"style"] def:UITableViewStylePlain];
+    BOOL requiresEditingToMove = [TiUtils boolValue:[self.proxy valueForKey:@"requiresEditingToMove"] def:YES];
 
     _tableView = [[UITableView alloc] initWithFrame:self.bounds style:style];
     _tableView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     _tableView.delegate = self;
     _tableView.dataSource = self;
+
+    if (!requiresEditingToMove) {
+      _tableView.dragDelegate = self;
+      _tableView.dropDelegate = self;
+      _tableView.dragInteractionEnabled = YES;
+    }
 
     // Fixes incorrect heights in iOS 11 as we calculate them internally already
     _tableView.estimatedRowHeight = 0;
@@ -1071,15 +1079,50 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
 - (BOOL)canInsertRowAtIndexPath:(NSIndexPath *)indexPath
 {
   id insertValue = [self valueWithKey:@"canInsert" atIndexPath:indexPath];
-  //canInsert if undefined is false
   return [TiUtils boolValue:insertValue def:NO];
 }
 
 - (BOOL)canMoveRowAtIndexPath:(NSIndexPath *)indexPath
 {
   id moveValue = [self valueWithKey:@"canMove" atIndexPath:indexPath];
-  //canMove if undefined is false
   return [TiUtils boolValue:moveValue def:NO];
+}
+
+- (nonnull NSArray<UIDragItem *> *)tableView:(nonnull UITableView *)tableView itemsForBeginningDragSession:(nonnull id<UIDragSession>)session atIndexPath:(nonnull NSIndexPath *)indexPath
+{
+  NSItemProvider *itemProvider = [NSItemProvider new];
+  NSString *identifier = [NSString stringWithFormat:@"%lu_%lu", indexPath.section, indexPath.row];
+
+  [itemProvider registerDataRepresentationForTypeIdentifier:(NSString *)kUTTypePlainText
+                                                 visibility:NSItemProviderRepresentationVisibilityAll
+                                                loadHandler:^NSProgress *_Nullable(void (^_Nonnull completionHandler)(NSData *_Nullable, NSError *_Nullable)) {
+                                                  return nil;
+                                                }];
+
+  UIDragItem *dragItem = [[UIDragItem alloc] initWithItemProvider:itemProvider];
+  dragItem.localObject = identifier;
+
+  return @[ dragItem ];
+}
+
+- (void)tableView:(UITableView *)tableView dropSessionDidEnter:(id<UIDropSession>)session
+{
+  [[self proxy] fireEvent:@"movestart"];
+}
+
+- (void)tableView:(UITableView *)tableView dropSessionDidEnd:(id<UIDropSession>)session
+{
+  [[self proxy] fireEvent:@"moveend"];
+}
+
+- (void)tableView:(UITableView *)tableView performDropWithCoordinator:(id<UITableViewDropCoordinator>)coordinator
+{
+  // NO-OP right now
+}
+
+- (BOOL)tableView:(UITableView *)tableView canHandleDropSession:(id<UIDropSession>)session
+{
+  return [session canLoadObjectsOfClass:[NSString class]];
 }
 
 - (NSArray *)editActionsFromValue:(id)value
@@ -1857,7 +1900,7 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
         }
 
       } else {
-        DebugLog(@"[WARN] Could not retrieve template for SIZE measurement");
+        DebugLog(@"[WARN] Could not retrieve template for SIZE measurement. Template: %@", templateId);
       }
     }
   }
