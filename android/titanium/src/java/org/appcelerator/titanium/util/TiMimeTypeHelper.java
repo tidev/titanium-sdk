@@ -19,11 +19,13 @@ import android.net.Uri;
 import android.os.ParcelFileDescriptor;
 import android.webkit.MimeTypeMap;
 
+import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.io.TiFileProvider;
 import org.appcelerator.titanium.TiApplication;
 
 public class TiMimeTypeHelper
 {
+	private static final String TAG = "TiMimeTypeHelper";
 	private static final String DEFAULT_MIME_TYPE = "application/octet-stream";
 	public static final String MIME_TYPE_OCTET_STREAM = DEFAULT_MIME_TYPE;
 	public static final String MIME_TYPE_JAVASCRIPT = "text/javascript";
@@ -222,10 +224,13 @@ public class TiMimeTypeHelper
 					}
 				}
 			} catch (Exception ex) {
+				Log.e(TAG, ex.getMessage());
 			} finally {
 				try {
 					mediaRetriever.release();
-				} catch (IOException ex) {}
+				} catch (IOException ex) {
+					Log.e(TAG, ex.getMessage());
+				}
 			}
 		}
 

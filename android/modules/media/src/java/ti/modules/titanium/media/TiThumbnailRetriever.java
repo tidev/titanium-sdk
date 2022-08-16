@@ -50,7 +50,9 @@ public class TiThumbnailRetriever implements Handler.Callback
 		task.cancel(true);
 		try {
 			mMediaMetadataRetriever.release();
-		} catch (IOException ex) {}
+		} catch (IOException ex) {
+			Log.e(TAG, ex.getMessage());
+		}
 		mMediaMetadataRetriever = null;
 	}
 
