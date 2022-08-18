@@ -361,6 +361,7 @@ public class TiC
 	public static final String PROPERTY_CONTENT_INSET_START_WITH_NAVIGATION = "contentInsetStartWithNavigation";
 	public static final String PROPERTY_CONTENT_INTENT = "contentIntent";
 	public static final String PROPERTY_CONTENT_OFFSET = "contentOffset";
+	public static final String PROPERTY_CONTINUOUS_UPDATE = "continuousUpdate";
 	public static final String PROPERTY_PADDING = "padding";
 	public static final String PROPERTY_PADDING_BOTTOM = "paddingBottom";
 	public static final String PROPERTY_PADDING_LEFT = "paddingLeft";
