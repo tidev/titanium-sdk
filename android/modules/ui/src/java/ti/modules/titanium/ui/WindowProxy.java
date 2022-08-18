@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2013-2021 by Appcelerator, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -305,7 +305,7 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 
 		// Handle barColor property.
 		if (hasProperty(TiC.PROPERTY_BAR_COLOR)) {
-			int colorInt = TiColorHelper.parseColor(TiConvert.toString(getProperty(TiC.PROPERTY_BAR_COLOR)));
+			int colorInt = TiColorHelper.parseColor(TiConvert.toString(getProperty(TiC.PROPERTY_BAR_COLOR)), activity);
 			ActionBar actionBar = activity.getSupportActionBar();
 			// Guard for using a theme with actionBar disabled.
 			if (actionBar != null) {
@@ -354,7 +354,7 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 		if (!modal && hasProperty(TiC.PROPERTY_OPACITY)) {
 			intent.setClass(activity, TiTranslucentActivity.class);
 		} else if (hasProperty(TiC.PROPERTY_BACKGROUND_COLOR)) {
-			int bgColor = TiConvert.toColor(properties, TiC.PROPERTY_BACKGROUND_COLOR);
+			int bgColor = TiConvert.toColor(properties, TiC.PROPERTY_BACKGROUND_COLOR, getActivity());
 			if (Color.alpha(bgColor) < 0xFF) {
 				intent.setClass(activity, TiTranslucentActivity.class);
 			}
@@ -396,12 +396,13 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 			// Guard for activity being destroyed
 			if (windowActivity != null && windowActivity.get() != null) {
 				// Get a reference to the ActionBar.
-				ActionBar actionBar = ((AppCompatActivity) windowActivity.get()).getSupportActionBar();
+				AppCompatActivity activity = windowActivity.get();
+				ActionBar actionBar = activity.getSupportActionBar();
 				// Check if it is available ( app is using a theme with one or a Toolbar is used as one ).
 				if (actionBar != null) {
 					// Change to background to the new color.
 					actionBar.setBackgroundDrawable(
-						new ColorDrawable(TiColorHelper.parseColor(TiConvert.toString(value))));
+						new ColorDrawable(TiColorHelper.parseColor(TiConvert.toString(value), activity)));
 				} else {
 					// Log a warning if there is no ActionBar available.
 					Log.w(TAG, "There is no ActionBar available for this Window.");
