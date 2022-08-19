@@ -16,8 +16,8 @@
 #define IS_SDK_IOS_15 false
 #endif
 
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 140000
-#define IS_SDK_IOS_14 true
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 160000
+#define IS_SDK_IOS_16 true
 #else
-#define IS_SDK_IOS_14 false
+#define IS_SDK_IOS_16 false
 #endif

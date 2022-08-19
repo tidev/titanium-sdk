@@ -36,9 +36,7 @@
 #ifdef USE_TI_MEDIAVIDEOPLAYER
 #import "TiMediaVideoPlayerProxy.h"
 #endif
-#if IS_SDK_IOS_14
 #import <UniformTypeIdentifiers/UTCoreTypes.h>
-#endif
 
 // by default, we want to make the camera fullscreen and
 // these transform values will scale it when we have our own overlay
@@ -1072,16 +1070,12 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
   ENSURE_UI_THREAD(openPhotoGallery, args);
 
   NSArray *types = (NSArray *)[args objectForKey:@"mediaTypes"];
-#if IS_SDK_IOS_14
   if ([TiUtils isIOSVersionOrGreater:@"14.0"] && [TiUtils boolValue:[args objectForKey:@"allowMultiple"] def:NO]) {
     [self showPHPicker:args];
   } else {
-#endif
     [self showPicker:args
             isCamera:NO];
-#if IS_SDK_IOS_14
   }
-#endif
 }
 
 #endif
@@ -1354,7 +1348,7 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
   RELEASE_TO_NIL(picker);
 #endif
 
-#if IS_SDK_IOS_14 && defined(USE_TI_MEDIAOPENPHOTOGALLERY)
+#if defined(USE_TI_MEDIAOPENPHOTOGALLERY)
   _phPicker.presentationController.delegate = nil;
   RELEASE_TO_NIL(_phPicker);
 #endif
@@ -1742,7 +1736,7 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
 }
 #endif
 
-#if IS_SDK_IOS_14 && defined(USE_TI_MEDIAOPENPHOTOGALLERY)
+#if defined(USE_TI_MEDIAOPENPHOTOGALLERY)
 - (void)showPHPicker:(NSDictionary *)args
 {
   if (_phPicker != nil) {
@@ -1984,7 +1978,7 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
 - (void)presentationControllerDidDismiss:(UIPresentationController *)presentationController
 {
 #if defined(USE_TI_MEDIASHOWCAMERA) || defined(USE_TI_MEDIAOPENPHOTOGALLERY) || defined(USE_TI_MEDIASTARTVIDEOEDITING)
-#if IS_SDK_IOS_14 && defined(USE_TI_MEDIAOPENPHOTOGALLERY)
+#if defined(USE_TI_MEDIAOPENPHOTOGALLERY)
   [self closeModalPicker:picker ?: _phPicker];
 #else
   [self closeModalPicker:picker];

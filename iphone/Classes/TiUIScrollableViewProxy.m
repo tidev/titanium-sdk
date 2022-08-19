@@ -87,24 +87,24 @@
                     waitUntilDone:NO];
 #else
     TiThreadPerformOnMainThread(
-        ^{
-          [[oldViewProxy view] removeFromSuperview];
-        },
-        YES);
+                                ^{
+                                  [[oldViewProxy view] removeFromSuperview];
+                                },
+                                YES);
 #endif
     if (![args containsObject:oldViewProxy]) {
       [oldViewProxy setParent:nil];
       TiThreadPerformOnMainThread(
-          ^{
-            [oldViewProxy detachView];
-          },
-          YES);
+                                  ^{
+                                    [oldViewProxy detachView];
+                                  },
+                                  YES);
       [self forgetProxy:oldViewProxy];
     }
   }
   [viewProxies autorelease];
   viewProxies = [args mutableCopy];
-
+  
 #ifdef TI_USE_AUTOLAYOUT
   for (TiViewProxy *proxy in viewProxies) {
     [self makeViewPerformSelector:@selector(addView:) withObject:proxy createIfNeeded:YES waitUntilDone:NO];
@@ -119,10 +119,10 @@
   ENSURE_ARG_COUNT(args, 2);
   ENSURE_UI_THREAD(insertViewsAt, args);
   ENSURE_TYPE([args objectAtIndex:0], NSNumber);
-
+  
   NSUInteger insertIndex = [TiUtils intValue:[args objectAtIndex:0]];
   id arg = [args objectAtIndex:1];
-
+  
   if ([arg isKindOfClass:[TiViewProxy class]]) {
     [self _addView:arg atIndex:insertIndex];
   } else if ([arg isKindOfClass:[NSArray class]]) {
@@ -144,13 +144,13 @@
   [self lockViewsForWriting];
   [self rememberProxy:proxy];
   [proxy setParent:self];
-
+  
   if (viewProxies != nil) {
     [viewProxies insertObject:proxy atIndex:index];
   } else {
     viewProxies = [[NSMutableArray alloc] initWithObjects:proxy, nil];
   }
-
+  
   [self unlockViews];
   [self makeViewPerformSelector:@selector(addView:) withObject:proxy createIfNeeded:YES waitUntilDone:NO];
 }
@@ -161,12 +161,12 @@
   ENSURE_UI_THREAD(removeView, args)
 #endif
   ENSURE_SINGLE_ARG(args, NSObject);
-
+  
   [self lockViewsForWriting];
   TiViewProxy *doomedView;
   if ([args isKindOfClass:[TiViewProxy class]]) {
     doomedView = args;
-
+    
     if (![viewProxies containsObject:doomedView]) {
       [self unlockViews];
       [self throwException:@"view not in the scrollableView" subreason:nil location:CODELOCATION];
@@ -185,8 +185,8 @@
     [self unlockViews];
     [self throwException:TiExceptionInvalidType
                subreason:
-                   [NSString stringWithFormat:@"argument needs to be a number or view, but was %@ instead.",
-                             [args class]]
+     [NSString stringWithFormat:@"argument needs to be a number or view, but was %@ instead.",
+      [args class]]
                 location:CODELOCATION];
     return;
   }
@@ -194,10 +194,10 @@
   args = doomedView;
 #endif
   TiThreadPerformOnMainThread(
-      ^{
-        [doomedView detachView];
-      },
-      NO);
+                              ^{
+                                [doomedView detachView];
+                              },
+                              NO);
   [self forgetProxy:doomedView];
   [viewProxies removeObject:doomedView];
   [self unlockViews];
@@ -214,7 +214,7 @@
   } else {
     pageNum = [TiUtils intValue:args];
   }
-
+  
   return pageNum;
 }
 
@@ -225,10 +225,10 @@
   if (index >= 0 && index < [self viewCount]) {
     if ([self viewAttached]) {
       TiThreadPerformOnMainThread(
-          ^{
-            [((TiUIScrollableView *)self.view) setCurrentPage:NUMINTEGER(index) animated:NUMBOOL(YES)];
-          },
-          NO);
+                                  ^{
+                                    [((TiUIScrollableView *)self.view) setCurrentPage:NUMINTEGER(index) animated:NUMBOOL(YES)];
+                                  },
+                                  NO);
     } else {
       [self replaceValue:NUMINTEGER(index) forKey:@"currentPage" notification:NO];
     }
@@ -260,7 +260,7 @@
 - (void)childWillResize:(TiViewProxy *)child
 {
   BOOL hasChild = [[self children] containsObject:child];
-
+  
   if (!hasChild) {
     return;
     //In the case of views added with addView, as they are not part of children, they should be ignored.
@@ -288,7 +288,7 @@
   [self lockViews];
   NSUInteger index = [viewProxies indexOfObject:child];
   [self unlockViews];
-
+  
   if (index != NSNotFound) {
     TiUIScrollableView *ourView = (TiUIScrollableView *)[self view];
     NSArray *scrollWrappers = [[ourView scrollview] subviews];
@@ -361,7 +361,6 @@
   [super willChangeLayout];
 }
 
-#if IS_SDK_IOS_14
 - (void)setIndicatorImageForPage:(id)args
 {
   if (![TiUtils isIOSVersionOrGreater:@"14.0"]) {
@@ -375,7 +374,7 @@
   NSInteger page = [args[1] integerValue];
   [(TiUIScrollableView *)self.view setIndicatorImage:image forPage:page];
 }
-#endif
+
 @end
 
 #endif

@@ -205,7 +205,6 @@
   return @(UIDatePickerStyleCompact);
 }
 
-#if IS_SDK_IOS_14
 - (NSNumber *)DATE_PICKER_STYLE_INLINE
 {
   DEPRECATED_REPLACED(@"UI.iOS.DATE_PICKER_STYLE_INLINE", @"10.0.1", @"UI.DATE_PICKER_STYLE_INLINE");
@@ -214,7 +213,6 @@
   }
   return @(UIDatePickerStyleInline);
 }
-#endif
 
 #endif
 
