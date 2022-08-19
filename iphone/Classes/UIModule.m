@@ -327,7 +327,6 @@ MAKE_SYSTEM_PROP(LIST_ACCESSORY_TYPE_DISCLOSURE, UITableViewCellAccessoryDisclos
 
 #ifdef USE_TI_UIPICKER
 
-#if IS_SDK_IOS_13_4
 - (NSNumber *)DATE_PICKER_STYLE_AUTOMATIC
 {
   if (![TiUtils isIOSVersionOrGreater:@"13.4"]) {
@@ -354,7 +353,6 @@ MAKE_SYSTEM_PROP(LIST_ACCESSORY_TYPE_DISCLOSURE, UITableViewCellAccessoryDisclos
 
   return @(UIDatePickerStyleCompact);
 }
-#endif
 
 #if IS_SDK_IOS_14
 - (NSNumber *)DATE_PICKER_STYLE_INLINE
