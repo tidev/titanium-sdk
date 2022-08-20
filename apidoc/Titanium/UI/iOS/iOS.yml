@@ -95,6 +95,30 @@ properties:
     since: "5.2.0"
     osver: {ios: {min: "9.1"}}
     permission: read-only
+    
+  - name: ALERT_SEVERITY_DEFAULT
+    summary: |
+        Indicates that the system should present the alert using the standard
+        alert style.
+    description: |
+        Use with <Titanium.UI.iOS.createAlertDialog> to specify
+        the alert dialog severity on macOS Catalyst.
+    type: Number
+    since: "12.0.0"
+    osver: {ios: {min: "16.0"}}
+    permission: read-only
+    
+  - name: ALERT_SEVERITY_CRITICAL
+    summary: |
+        Indicates that the system should present the alert using the
+        critical, or caution, style.
+    description: |
+        Use with <Titanium.UI.iOS.createAlertDialog> to specify
+        the alert dialog severity on macOS Catalyst.
+    type: Number
+    since: "12.0.0"
+    osver: {ios: {min: "16.0"}}
+    permission: read-only
 
   - name: BLEND_MODE_CLEAR
     deprecated:

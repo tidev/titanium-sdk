@@ -470,6 +470,26 @@ properties:
     since: 3.0.0
     platforms: [iphone, ipad, macos]
 
+  - name: severity
+    summary: Indicates the severity of the alert in apps built with Mac Catalyst.
+    description: |
+        This property defines the severity options used by the severity property
+        of UIAlertController. In apps built with Mac Catalyst, the severity
+        determines the style of the presented alert. A <Titanium.UI.iOS.ALERT_SEVERITY_CRITICAL>
+        alert appears with a caution icon, and an alert with a <Titanium.UI.iOS.ALERT_SEVERITY_DEFAULT>
+        severity doesn’t. UIKit ignores the alert severity on iOS.
+        
+        You should only use the <Titanium.UI.iOS.ALERT_SEVERITY_CRITICAL> severity if an alert truly requires
+        special attention from the user.
+        
+        For more information, see the [Human Interface Guidelines](https://developer.apple.com/design/human-interface-guidelines/macos/windows-and-views/alerts/) on alerts.
+    type: Number
+    constants: Titanium.UI.iOS.ALERT_SEVERITY_*
+    default: <Titanium.UI.iOS.ALERT_SEVERITY_DEFAULT>
+    since: 12.0.0
+    osver: {ios: {min: "16.0"}}
+    platforms: [iphone, ipad, macos]
+
   - name: tintColor
     summary: The tint-color of the dialog.
     description: |

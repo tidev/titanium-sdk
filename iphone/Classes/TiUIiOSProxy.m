@@ -157,15 +157,15 @@
 #ifdef USE_TI_UILISTVIEW
 - (NSNumber *)ROW_ACTION_STYLE_DEFAULT
 {
-  return NUMINTEGER(UITableViewRowActionStyleDefault);
+  return @(UIContextualActionStyleNormal);
 }
 - (NSNumber *)ROW_ACTION_STYLE_DESTRUCTIVE
 {
-  return NUMINTEGER(UITableViewRowActionStyleDestructive);
+  return @(UIContextualActionStyleDestructive);
 }
 - (NSNumber *)ROW_ACTION_STYLE_NORMAL
 {
-  return NUMINTEGER(UITableViewRowActionStyleNormal);
+  return @(UIContextualActionStyleNormal);
 }
 #endif
 
@@ -299,6 +299,27 @@
   return _AlertDialogStyle;
 }
 #endif
+
+#if IS_SDK_IOS_16
+- (NSNumber *)ALERT_SEVERITY_DEFAULT
+{
+  if (![TiUtils isIOSVersionOrGreater:@"16.0"]) {
+    return @(-1);
+  }
+  
+  return @(UIAlertControllerSeverityDefault);
+}
+
+- (NSNumber *)ALERT_SEVERITY_CRITICAL
+{
+  if (![TiUtils isIOSVersionOrGreater:@"16.0"]) {
+    return @(-1);
+  }
+  
+  return @(UIAlertControllerSeverityCritical);
+}
+#endif
+
 
 #ifdef USE_TI_UIIOSANIMATIONSTYLE
 - (TiUIiOSAnimationStyleProxy *)AnimationStyle
