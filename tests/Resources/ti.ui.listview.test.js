@@ -1071,6 +1071,65 @@ describe('Titanium.UI.ListView', function () {
 		win.open();
 	});
 
+	it('scrolling event', finish => {
+		const listView = Ti.UI.createListView({
+			continuousUpdate: true,
+			templates: {
+				test: {
+					childTemplates: [ {
+						type: 'Ti.UI.View',
+						childTemplates: [ {
+							type: 'Ti.UI.Label',
+							bindId: 'label',
+							properties: {
+								color: 'black',
+								bindId: 'label'
+							}
+						} ],
+						properties: {
+							width: Ti.UI.FILL,
+							height: 100,
+							cardUseCompatPadding: true,
+							backgroundColor: 'white',
+						}
+					} ]
+				}
+			},
+			defaultItemTemplate: 'test'
+		});
+		const section = Ti.UI.createListSection();
+		const items = [];
+
+		for (let i = 0; i < 100; i++) {
+			items.push({
+				label: { text: 'item ' + i },
+				template: 'test'
+			});
+		}
+
+		win = Ti.UI.createWindow({
+			backgroundColor: 'gray'
+		});
+
+		section.setItems(items);
+		listView.sections = [ section ];
+
+		let count = 0;
+		listView.addEventListener('scrolling', () => {
+			count++;
+		});
+		listView.addEventListener('scrollend', () => {
+			if (count > 50) {
+				finish();
+			}
+		});
+		setTimeout(() => {
+			listView.scrollToItem(0, 99);
+		}, 1000);
+		win.add(listView);
+		win.open();
+	});
+
 	it.android('listView with Ti.UI.Android.CardView', finish => {
 		const listView = Ti.UI.createListView({
 			templates: {
