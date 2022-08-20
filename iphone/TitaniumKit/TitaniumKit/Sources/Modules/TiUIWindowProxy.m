@@ -420,7 +420,7 @@
 
 - (BOOL)shouldUseNavBarApperance
 {
-  return ([TiUtils isIOSVersionOrGreater:@"13.0"] && (controller != nil) && !(controller.edgesForExtendedLayout == UIRectEdgeTop || controller.edgesForExtendedLayout == UIRectEdgeAll));
+  return controller != nil && !(controller.edgesForExtendedLayout == UIRectEdgeTop || controller.edgesForExtendedLayout == UIRectEdgeAll);
 }
 
 - (void)updateBarImage
@@ -1058,18 +1058,16 @@
 
 - (void)updateStatusBarView
 {
-  if ([TiUtils isIOSVersionOrGreater:@"13.0"]) {
-    UIWindow *keyWindow = UIApplication.sharedApplication.keyWindow;
-    CGRect frame = keyWindow.windowScene.statusBarManager.statusBarFrame;
-    UIView *view = [keyWindow viewWithTag:TI_STATUSBAR_TAG];
-    if (view) {
-      id top = [[self safeAreaViewProxy] valueForKey:@"top"];
-      if (top && [top floatValue] != frame.size.height) {
-        //TIMOB-28323: Once fixed by apple, remove it.
-        frame = CGRectMake(frame.origin.x, frame.origin.y, frame.size.width, [top floatValue]);
-      }
-      view.frame = frame;
+  UIWindow *keyWindow = UIApplication.sharedApplication.keyWindow;
+  CGRect frame = keyWindow.windowScene.statusBarManager.statusBarFrame;
+  UIView *view = [keyWindow viewWithTag:TI_STATUSBAR_TAG];
+  if (view) {
+    id top = [[self safeAreaViewProxy] valueForKey:@"top"];
+    if (top && [top floatValue] != frame.size.height) {
+      //TIMOB-28323: Once fixed by apple, remove it.
+      frame = CGRectMake(frame.origin.x, frame.origin.y, frame.size.width, [top floatValue]);
     }
+    view.frame = frame;
   }
 }
 

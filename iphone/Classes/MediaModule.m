@@ -1342,9 +1342,7 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
   RELEASE_TO_NIL(musicPicker);
 #endif
 #if defined(USE_TI_MEDIASHOWCAMERA) || defined(USE_TI_MEDIAOPENPHOTOGALLERY)
-  if ([TiUtils isIOSVersionOrGreater:@"13.0"]) {
-    picker.presentationController.delegate = nil;
-  }
+  picker.presentationController.delegate = nil;
   RELEASE_TO_NIL(picker);
 #endif
 
@@ -1449,9 +1447,7 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
 {
   TiApp *tiApp = [TiApp app];
   if (![TiUtils isIPad]) {
-    if ([TiUtils isIOSVersionOrGreater:@"13.0"]) {
-      picker_.presentationController.delegate = self;
-    }
+    picker_.presentationController.delegate = self;
     [tiApp showModalController:picker_ animated:animatedPicker];
   } else {
     TiViewProxy *popoverViewProxy = [args objectForKey:@"popoverView"];

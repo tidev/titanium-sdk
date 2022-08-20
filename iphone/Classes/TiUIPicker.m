@@ -79,7 +79,7 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
       [(UIDatePicker *)picker setDatePickerMode:type];
       [picker addTarget:self action:@selector(valueChanged:) forControlEvents:UIControlEventValueChanged];
     }
-    [picker setBackgroundColor:[TiUtils isIOSVersionOrGreater:@"13.0"] ? UIColor.systemBackgroundColor : UIColor.whiteColor];
+    [picker setBackgroundColor:UIColor.systemBackgroundColor];
 
     [self addSubview:picker];
   }

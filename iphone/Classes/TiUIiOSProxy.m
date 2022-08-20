@@ -118,24 +118,17 @@
   ENSURE_UI_THREAD(setStatusBarBackgroundColor, value);
   ENSURE_SINGLE_ARG(value, NSString);
 
-  if ([TiUtils isIOSVersionOrGreater:@"13.0"]) {
-    UIWindow *keyWindow = UIApplication.sharedApplication.keyWindow;
-    CGRect frame = keyWindow.windowScene.statusBarManager.statusBarFrame;
-    UIView *view = [keyWindow viewWithTag:TI_STATUSBAR_TAG];
-    if (!view) {
-      view = [[UIView alloc] initWithFrame:frame];
-      view.tag = TI_STATUSBAR_TAG;
-      [keyWindow addSubview:view];
-    }
-    view.frame = frame;
-    view.backgroundColor = [[TiUtils colorValue:value] _color];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(windowDidBecomeKey:) name:UIWindowDidBecomeKeyNotification object:nil];
-  } else {
-    UIView *statusBar = [[[UIApplication sharedApplication] valueForKey:@"statusBarWindow"] valueForKey:@"statusBar"];
-    if ([statusBar respondsToSelector:@selector(setBackgroundColor:)]) {
-      statusBar.backgroundColor = [[TiUtils colorValue:value] _color];
-    }
+  UIWindow *keyWindow = UIApplication.sharedApplication.keyWindow;
+  CGRect frame = keyWindow.windowScene.statusBarManager.statusBarFrame;
+  UIView *view = [keyWindow viewWithTag:TI_STATUSBAR_TAG];
+  if (!view) {
+    view = [[UIView alloc] initWithFrame:frame];
+    view.tag = TI_STATUSBAR_TAG;
+    [keyWindow addSubview:view];
   }
+  view.frame = frame;
+  view.backgroundColor = [[TiUtils colorValue:value] _color];
+  [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(windowDidBecomeKey:) name:UIWindowDidBecomeKeyNotification object:nil];
 }
 
 - (NSNumber *)SCROLL_DECELERATION_RATE_NORMAL
@@ -289,13 +282,11 @@
 
 - (void)windowDidBecomeKey:(NSNotification *)notification
 {
-  if ([TiUtils isIOSVersionOrGreater:@"13.0"]) {
-    UIWindow *keyWindow = UIApplication.sharedApplication.keyWindow;
-    CGRect frame = keyWindow.windowScene.statusBarManager.statusBarFrame;
-    UIView *view = [keyWindow viewWithTag:TI_STATUSBAR_TAG];
-    if (view) {
-      view.frame = frame;
-    }
+  UIWindow *keyWindow = UIApplication.sharedApplication.keyWindow;
+  CGRect frame = keyWindow.windowScene.statusBarManager.statusBarFrame;
+  UIView *view = [keyWindow viewWithTag:TI_STATUSBAR_TAG];
+  if (view) {
+    view.frame = frame;
   }
 }
 
@@ -445,10 +436,6 @@
 
 - (TiBlob *)systemImage:(id)arg
 {
-  if (![TiUtils isIOSVersionOrGreater:@"13.0"]) {
-    return nil;
-  }
-
   NSString *systemImage = nil;
   NSDictionary<NSString *, id> *parameters = nil;
 

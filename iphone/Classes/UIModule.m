@@ -78,9 +78,7 @@
 - (void)_listenerAdded:(NSString *)type count:(int)count
 {
   if ((count == 1) && [type isEqual:@"userinterfacestyle"]) {
-    if ([TiUtils isIOSVersionOrGreater:@"13.0"]) {
-      lastEmittedMode = self.userInterfaceStyle;
-    }
+    lastEmittedMode = self.userInterfaceStyle;
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(didChangeTraitCollection:)
                                                  name:kTiTraitCollectionChanged
@@ -97,14 +95,12 @@
 
 - (void)didChangeTraitCollection:(NSNotification *)info
 {
-  if ([TiUtils isIOSVersionOrGreater:@"13.0"]) {
-    NSNumber *currentMode = self.userInterfaceStyle;
-    if (currentMode == lastEmittedMode) {
-      return;
-    }
-    lastEmittedMode = currentMode;
-    [self fireEvent:@"userinterfacestyle" withObject:@{ @"value" : currentMode }];
+  NSNumber *currentMode = self.userInterfaceStyle;
+  if (currentMode == lastEmittedMode) {
+    return;
   }
+  lastEmittedMode = currentMode;
+  [self fireEvent:@"userinterfacestyle" withObject:@{ @"value" : currentMode }];
 }
 
 - (NSString *)apiName
@@ -451,20 +447,13 @@ MAKE_SYSTEM_PROP(EXTEND_EDGE_ALL, 15); //UIEdgeRectAll
       [self replaceValue:args
                   forKey:@"overrideUserInterfaceStyle"
             notification:NO];
-  if ([TiUtils isIOSVersionOrGreater:@"13.0"] || [TiUtils isMacOS]) {
-    int style = [TiUtils intValue:args def:UIUserInterfaceStyleUnspecified];
-    TiApp.app.window.overrideUserInterfaceStyle = style;
-  }
+  int style = [TiUtils intValue:args def:UIUserInterfaceStyleUnspecified];
+  TiApp.app.window.overrideUserInterfaceStyle = style;
 }
 
 - (NSNumber *)overrideUserInterfaceStyle
 {
-  NSNumber *style = nil;
-  if ([TiUtils isIOSVersionOrGreater:@"13.0"] || [TiUtils isMacOS]) {
-    style = @(TiApp.controller.overrideUserInterfaceStyle);
-  } else {
-    style = [self valueForKey:@"overrideUserInterfaceStyle"];
-  }
+  NSNumber *style = @(TiApp.controller.overrideUserInterfaceStyle);
   return (style != nil) ? style : self.USER_INTERFACE_STYLE_UNSPECIFIED;
 }
 
@@ -475,29 +464,17 @@ MAKE_SYSTEM_PROP(EXTEND_EDGE_ALL, 15); //UIEdgeRectAll
 
 - (NSNumber *)USER_INTERFACE_STYLE_UNSPECIFIED
 {
-  if ([TiUtils isIOSVersionOrGreater:@"13.0"] || [TiUtils isMacOS]) {
-    return NUMINT(UIUserInterfaceStyleUnspecified);
-  }
-
-  return NUMINT(0);
+  return NUMINT(UIUserInterfaceStyleUnspecified);
 }
 
 - (NSNumber *)USER_INTERFACE_STYLE_LIGHT
 {
-  if ([TiUtils isIOSVersionOrGreater:@"13.0"] || [TiUtils isMacOS]) {
-    return NUMINT(UIUserInterfaceStyleLight);
-  }
-
-  return NUMINT(0);
+  return NUMINT(UIUserInterfaceStyleLight);
 }
 
 - (NSNumber *)USER_INTERFACE_STYLE_DARK
 {
-  if ([TiUtils isIOSVersionOrGreater:@"13.0"] || [TiUtils isMacOS]) {
-    return NUMINT(UIUserInterfaceStyleDark);
-  }
-
-  return NUMINT(0);
+  return NUMINT(UIUserInterfaceStyleDark);
 }
 
 - (TiColor *)fetchSemanticColor:(id)color
