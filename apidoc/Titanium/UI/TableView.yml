@@ -1507,7 +1507,6 @@ properties:
         ```
     type: HorizontalInsets
     since: 3.2.0
-    osver: {ios: {min: "7.0"}}
     platforms: [iphone, ipad, macos]
 
   - name: touchFeedback
@@ -1536,7 +1535,6 @@ properties:
         ```
     type: HorizontalInsets
     since: "5.2.0"
-    osver: {ios: {min: "7.0"}}
     platforms: [iphone, ipad, macos]
 
   - name: rowSeparatorInsets
@@ -1555,7 +1553,6 @@ properties:
         ```
     type: HorizontalInsets
     since: "5.2.0"
-    osver: {ios: {min: "7.0"}}
     platforms: [iphone, ipad, macos]
 
   - name: separatorStyle

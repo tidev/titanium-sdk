@@ -521,7 +521,6 @@ events:
         before the user action.
     platforms: [iphone, ipad, macos]
     since: 5.0.0
-    osver: {ios: {min: "8.0"}}
     properties:
       - name: action
         summary: The [title](RowActionType.title) as defined in the row action object.
@@ -1032,7 +1031,6 @@ properties:
         Set this to a dictionary with two keys, `left` specifying inset from left edge and `right` specifying the inset from the right edge.
     type: HorizontalInsets
     since: 3.2.0
-    osver: {ios: {min: "7.0"}}
     platforms: [iphone, ipad, macos]
 
   - name: separatorStyle
@@ -1072,7 +1070,6 @@ properties:
         ```
     type: HorizontalInsets
     since: "5.2.0"
-    osver: {ios: {min: "7.0"}}
     platforms: [iphone, ipad, macos]
 
   - name: touchFeedback
@@ -1101,7 +1098,6 @@ properties:
         ```
     type: HorizontalInsets
     since: "5.4.0"
-    osver: {ios: {min: "7.0"}}
     platforms: [iphone, ipad, macos]
 
   - name: rowSeparatorInsets
@@ -1120,7 +1116,6 @@ properties:
         ```
     type: HorizontalInsets
     since: "5.2.0"
-    osver: {ios: {min: "7.0"}}
     platforms: [iphone, ipad, macos]
 
   - name: dimBackgroundForSearch

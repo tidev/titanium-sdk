@@ -56,31 +56,26 @@ properties:
     summary: Returns `true` if the device supports watch connectivity.
     type: Boolean
     permission: read-only
-    osver: {ios: {min: "9.0"}}
 
   - name: isPaired
     summary: Returns `true` if the device is paired with a watch.
     type: Boolean
     permission: read-only
-    osver: {ios: {min: "9.0"}}
 
   - name: isWatchAppInstalled
     summary: Returns `true` if the accompanying watch app is installed.
     type: Boolean
     permission: read-only
-    osver: {ios: {min: "9.0"}}
 
   - name: isComplicationEnabled
     summary: Returns `true` if complication is enabled on the installed watch app.
     type: Boolean
     permission: read-only
-    osver: {ios: {min: "9.0"}}
 
   - name: isReachable
     summary: Returns `true` if the watch is currently reachable.
     type: Boolean
     permission: read-only
-    osver: {ios: {min: "9.0"}}
 
   - name: isActivated
     summary: Returns `true` if the watch is currently activated.
@@ -93,7 +88,6 @@ properties:
     summary: The most recent application context sent to the watch app.
     type: Dictionary
     permission: read-only
-    osver: {ios: {min: "9.0"}}
 
 methods:
   - name: activateSession
@@ -101,7 +95,6 @@ methods:
         Activates the watch session
     description: |
         Activates the watch session to make the app ready to receive messages from the watch app.
-    osver: {ios: {min: "9.0"}}
 
   - name: sendMessage
     summary: |
@@ -124,7 +117,6 @@ methods:
             This function is used to process the direct reply from the watch app after sending one.
         type: Callback<MessageReply>
         optional: true
-    osver: {ios: {min: "9.0"}}
 
   - name: updateApplicationContext
     summary: |
@@ -138,7 +130,6 @@ methods:
       - name: params    
         summary: App context to be updated in apple watch.
         type: Dictionary
-    osver: {ios: {min: "9.0"}}
 
   - name: transferUserInfo
     summary: |
@@ -150,7 +141,6 @@ methods:
       - name: params
         summary: userInfo to be transferred to apple watch.
         type: Dictionary
-    osver: {ios: {min: "9.0"}}
 
   - name: transferFile
     summary: |
@@ -166,7 +156,6 @@ methods:
 
               * `fileURL` (String) (required): Local filesystem path of file to send to the watch app.
               * `metaData` (Dictionary) (optional): Additional information about the file to send to the watch app.
-    osver: {ios: {min: "9.0"}}
 
   - name: transferCurrentComplication
     summary: |
@@ -178,28 +167,24 @@ methods:
       - name: params
         summary: Complication to be transferred to watch app.
         type: Dictionary
-    osver: {ios: {min: "9.0"}}
 
   - name: cancelAllUserInfoTransfers
     summary: |
         Cancels all incomplete user info and complication transfers to the apple watch.
     description: |
         Cancels all incomplete user info and complication transfers to the apple watch.
-    osver: {ios: {min: "9.0"}}
 
   - name: cancelAllFileTransfers
     summary: |
         Cancels all incomplete file transfers to the apple watch.
     description: |
         Cancels all incomplete file transfers to the apple watch.
-    osver: {ios: {min: "9.0"}}
 
   - name: cancelAllTransfers
     summary: |
         Cancels all incomplete transfers to the apple watch.
     description: |
         Cancels all incomplete transfers to the apple watch, including user info, complication and file.
-    osver: {ios: {min: "9.0"}}
 
 events:
   - name: receivemessage
@@ -472,7 +457,6 @@ properties:
     type: Number
 since: "5.1.0"
 platforms: [iphone]
-osver: {ios: {min: "9.0"}}
 examples:
   - title: Creating a Watch Session
     example: |

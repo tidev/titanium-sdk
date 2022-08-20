@@ -197,9 +197,6 @@ events:
     summary: Fired by the system when the device's accessibility service is turned on or off.
     platforms: [android, iphone, ipad, macos]
     since: {android: "3.0.0", iphone: "3.0.0", ipad: "3.0.0", macos: "9.2.0"}
-    osver:
-        android:
-            min: "4.0"
     properties:
       - name: enabled
         summary: Whether accessibility is now enabled or disabled.

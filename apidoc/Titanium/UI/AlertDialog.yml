@@ -222,7 +222,6 @@ properties:
     type: Number
     default: -1
     since: 3.5.0
-    osver: {ios: {min: "8.0"}}
 
   - name: hintText
     summary: Hint text of the text field inside the dialog.
@@ -444,7 +443,6 @@ properties:
     type: Number
     default: -1
     since: 6.0.0
-    osver: {ios: {min: "9.0"}}
 
   - name: returnKeyType
     summary: Specifies the text to display on the keyboard `Return` key when this field is focused.
@@ -480,7 +478,6 @@ properties:
         For information about color values, see the "Colors" section of <Titanium.UI>.
     type: [ String, Titanium.UI.Color ]
     since: "6.2.0"
-    osver: {ios: {min: "8.0"}}
     platforms: [iphone, ipad, macos]
 
   - name: title

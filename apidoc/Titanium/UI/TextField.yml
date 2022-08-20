@@ -35,7 +35,6 @@ methods:
     summary: Selects the text in range (start, end).
     platforms: [android, iphone, ipad, macos]
     since: "3.0.0"
-    osver: {ios: {min: "5.0"}}
     parameters:
       - name: start
         summary: Start index for selection. Value ranges from 0 to the text's length.
@@ -584,7 +583,6 @@ properties:
     type: Boolean
     default: true
     platforms: [ipad, macos]
-    osver: {ios: {min: "9.0"}}
     since: "5.0.0"
 
   - name: textAlign

@@ -6,7 +6,6 @@ summary: |
 
 extends: Titanium.Module
 platforms: [iphone, ipad, macos]
-osver: {ios: {min: "8.0"}}
 since: "7.3.0"
 excludes:
     properties: [bubbleParent]
@@ -139,7 +138,6 @@ properties:
   - name: category
     summary: Category identifier of the notification.
     type: String
-    osver: {ios: {min: "8.0"}}
 
   - name: identifier
     summary: The notification identifier.
