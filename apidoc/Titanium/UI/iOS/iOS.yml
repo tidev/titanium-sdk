@@ -56,7 +56,6 @@ properties:
         <Titanium.UI.Window.largeTitleEnabled> set to `true`.
     type: Number
     since: "6.3.0"
-    osver: {ios: {min: "11.0"}}
     permission: read-only
 
   - name: LARGE_TITLE_DISPLAY_MODE_ALWAYS
@@ -64,7 +63,6 @@ properties:
     description: Use with <Titanium.UI.Window.largeTitleDisplayMode>.
     type: Number
     since: "6.3.0"
-    osver: {ios: {min: "11.0"}}
     permission: read-only
 
   - name: LARGE_TITLE_DISPLAY_MODE_NEVER
@@ -72,7 +70,6 @@ properties:
     description: Use with <Titanium.UI.Window.largeTitleDisplayMode>.
     type: Number
     since: "6.3.0"
-    osver: {ios: {min: "11.0"}}
     permission: read-only
 
   - name: LIVEPHOTO_BADGE_OPTIONS_OVER_CONTENT
@@ -502,7 +499,6 @@ properties:
     type: Number
     permission: read-only
     since: "6.0.0"
-    osver: {ios: {min: "10.0"}}
 
   - name: BLUR_EFFECT_STYLE_PROMINENT
     summary: |
@@ -512,7 +508,6 @@ properties:
     type: Number
     permission: read-only
     since: "6.0.0"
-    osver: {ios: {min: "10.0"}}
 
   - name: BLUR_EFFECT_STYLE_SYSTEM_ULTRA_THIN_MATERIAL
     summary: |
@@ -771,42 +766,36 @@ properties:
     summary: The feedback type to be used when specifying a selection in <Titanium.UI.iOS.FeedbackGenerator>.
     type: Number
     since: "6.0.0"
-    osver: {ios: {min: "10.0"}}
     permission: read-only
 
   - name: FEEDBACK_GENERATOR_TYPE_IMPACT
     summary: The feedback type to be used when specifying an impact in <Titanium.UI.iOS.FeedbackGenerator>.
     type: Number
     since: "6.0.0"
-    osver: {ios: {min: "10.0"}}
     permission: read-only
 
   - name: FEEDBACK_GENERATOR_TYPE_NOTIFICATION
     summary: The feedback type to be used when specifying a received notification in <Titanium.UI.iOS.FeedbackGenerator>.
     type: Number
     since: "6.0.0"
-    osver: {ios: {min: "10.0"}}
     permission: read-only
 
   - name: FEEDBACK_GENERATOR_NOTIFICATION_TYPE_SUCCESS
     summary: The success notification type used as the argument in <Titanium.UI.iOS.FeedbackGenerator.notificationOccurred>.
     type: Number
     since: "6.0.0"
-    osver: {ios: {min: "10.0"}}
     permission: read-only
 
   - name: FEEDBACK_GENERATOR_NOTIFICATION_TYPE_WARNING
     summary: The warning notification type used as the argument in <Titanium.UI.iOS.FeedbackGenerator.notificationOccurred>.
     type: Number
     since: "6.0.0"
-    osver: {ios: {min: "10.0"}}
     permission: read-only
 
   - name: FEEDBACK_GENERATOR_NOTIFICATION_TYPE_ERROR
     summary: The error notification type used as the argument in <Titanium.UI.iOS.FeedbackGenerator.notificationOccurred>.
     type: Number
     since: "6.0.0"
-    osver: {ios: {min: "10.0"}}
     permission: read-only
 
   - name: FEEDBACK_GENERATOR_IMPACT_STYLE_LIGHT
@@ -815,7 +804,6 @@ properties:
         type <Titanium.UI.iOS.FEEDBACK_GENERATOR_TYPE_IMPACT>.
     type: Number
     since: "6.0.0"
-    osver: {ios: {min: "10.0"}}
     permission: read-only
 
   - name: FEEDBACK_GENERATOR_IMPACT_STYLE_MEDIUM
@@ -824,7 +812,6 @@ properties:
         type <Titanium.UI.iOS.FEEDBACK_GENERATOR_TYPE_IMPACT>.
     type: Number
     since: "6.0.0"
-    osver: {ios: {min: "10.0"}}
     permission: read-only
 
   - name: FEEDBACK_GENERATOR_IMPACT_STYLE_HEAVY
@@ -833,7 +820,6 @@ properties:
         type <Titanium.UI.iOS.FEEDBACK_GENERATOR_TYPE_IMPACT>.
     type: Number
     since: "6.0.0"
-    osver: {ios: {min: "10.0"}}
     permission: read-only
 
   - name: LIVEPHOTO_PLAYBACK_STYLE_FULL

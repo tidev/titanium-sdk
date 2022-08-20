@@ -41,7 +41,6 @@ properties:
     summary: Returns `true` if there is more content for the session to deliver.
     type: Boolean
     permission: read-only
-    osver: {ios: {min: "10.0"}}
     since: "6.0.0"
 
   - name: remainingComplicationUserInfoTransfers
@@ -50,7 +49,6 @@ properties:
         transferring the complicationUserInfo as regular userInfos.
     type: Number
     permission: read-only
-    osver: {ios: {min: "10.0"}}
     since: "6.0.0"
     default: 0
 

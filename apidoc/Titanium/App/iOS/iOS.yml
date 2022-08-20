@@ -276,7 +276,6 @@ properties:
         Use with the [types](UserNotificationSettings.types) property.
     type: Number
     permission: read-only
-    osver: {ios: {min: "12.0"}}
     since: "7.4.0"
 
   - name: USER_NOTIFICATION_TYPE_PROVISIONAL
@@ -285,7 +284,6 @@ properties:
         Use with the [types](UserNotificationSettings.types) property.
     type: Number
     permission: read-only
-    osver: {ios: {min: "12.0"}}
     since: "7.4.0"
 
   - name: USER_NOTIFICATION_TYPE_PROVIDES_APP_NOTIFICATION_SETTINGS
@@ -294,7 +292,6 @@ properties:
         Use with the [types](UserNotificationSettings.types) property.
     type: Number
     permission: read-only
-    osver: {ios: {min: "12.0"}}
     since: "7.4.0"
 
   - name: USER_NOTIFICATION_ACTIVATION_MODE_BACKGROUND
@@ -347,7 +344,6 @@ properties:
         <Titanium.App.iOS.UserNotificationCenter.requestUserNotificationSettings>.
     type: Number
     permission: read-only
-    osver: {ios: {min: "10.0"}}
     since: "7.3.0"
 
   - name: USER_NOTIFICATION_AUTHORIZATION_STATUS_AUTHORIZED
@@ -357,7 +353,6 @@ properties:
         <Titanium.App.iOS.UserNotificationCenter.requestUserNotificationSettings>.
     type: Number
     permission: read-only
-    osver: {ios: {min: "10.0"}}
     since: "7.3.0"
 
   - name: USER_NOTIFICATION_AUTHORIZATION_STATUS_DENIED
@@ -367,7 +362,6 @@ properties:
         <Titanium.App.iOS.UserNotificationCenter.requestUserNotificationSettings>.
     type: Number
     permission: read-only
-    osver: {ios: {min: "10.0"}}
     since: "7.3.0"
 
 
@@ -378,7 +372,6 @@ properties:
         <Titanium.App.iOS.UserNotificationCenter.requestUserNotificationSettings>.
     type: Number
     permission: read-only
-    osver: { ios: { min: "12.0" } }
     since: "7.4.0"
 
   - name: USER_NOTIFICATION_SETTING_NOT_SUPPORTED
@@ -388,7 +381,6 @@ properties:
         <Titanium.App.iOS.UserNotificationCenter.requestUserNotificationSettings>.
     type: Number
     permission: read-only
-    osver: {ios: {min: "10.0"}}
     since: "7.3.0"
 
   - name: USER_NOTIFICATION_SETTING_ENABLED
@@ -398,7 +390,6 @@ properties:
         <Titanium.App.iOS.UserNotificationCenter.requestUserNotificationSettings>.
     type: Number
     permission: read-only
-    osver: {ios: {min: "10.0"}}
     since: "7.3.0"
 
   - name: USER_NOTIFICATION_SETTING_DISABLED
@@ -408,7 +399,6 @@ properties:
         <Titanium.App.iOS.UserNotificationCenter.requestUserNotificationSettings>.
     type: Number
     permission: read-only
-    osver: {ios: {min: "10.0"}}
     since: "7.3.0"
 
   - name: USER_NOTIFICATION_ALERT_STYLE_NONE
@@ -418,7 +408,6 @@ properties:
         <Titanium.App.iOS.UserNotificationCenter.requestUserNotificationSettings>.
     type: Number
     permission: read-only
-    osver: {ios: {min: "10.0"}}
     since: "7.3.0"
 
   - name: USER_NOTIFICATION_ALERT_STYLE_ALERT
@@ -428,7 +417,6 @@ properties:
         <Titanium.App.iOS.UserNotificationCenter.requestUserNotificationSettings>.
     type: Number
     permission: read-only
-    osver: {ios: {min: "10.0"}}
     since: "7.3.0"
 
   - name: USER_NOTIFICATION_ALERT_STYLE_BANNER
@@ -438,7 +426,6 @@ properties:
         <Titanium.App.iOS.UserNotificationCenter.requestUserNotificationSettings>.
     type: Number
     permission: read-only
-    osver: {ios: {min: "10.0"}}
     since: "7.3.0"
 
   - name: USER_NOTIFICATION_CATEGORY_OPTION_NONE
@@ -447,7 +434,6 @@ properties:
         Used in the `options` attribute when creating a <Titanium.App.iOS.UserNotificationCategory>.
     type: Number
     permission: read-only
-    osver: {ios: {min: "10.0"}}
     since: "7.3.0"
 
   - name: USER_NOTIFICATION_CATEGORY_OPTION_CUSTOM_DISMISS_ACTION
@@ -456,7 +442,6 @@ properties:
         Used in the `options` attribute when creating a <Titanium.App.iOS.UserNotificationCategory>.
     type: Number
     permission: read-only
-    osver: {ios: {min: "10.0"}}
     since: "7.3.0"
 
   - name: USER_NOTIFICATION_CATEGORY_OPTION_ALLOW_IN_CARPLAY
@@ -465,7 +450,6 @@ properties:
         Used in the `options` attribute when creating a <Titanium.App.iOS.UserNotificationCategory>.
     type: Number
     permission: read-only
-    osver: {ios: {min: "10.0"}}
     since: "7.3.0"
 
   - name: USER_NOTIFICATION_CATEGORY_OPTION_HIDDEN_PREVIEWS_SHOW_TITLE
@@ -474,7 +458,6 @@ properties:
         Used in the `options` attribute when creating a <Titanium.App.iOS.UserNotificationCategory>.
     type: Number
     permission: read-only
-    osver: {ios: {min: "11.0"}}
     since: "7.3.0"
 
   - name: USER_NOTIFICATION_CATEGORY_OPTION_HIDDEN_PREVIEWS_SHOW_SUBTITLE
@@ -483,7 +466,6 @@ properties:
         Used in the `options` attribute when creating a <Titanium.App.iOS.UserNotificationCategory>.
     type: Number
     permission: read-only
-    osver: {ios: {min: "11.0"}}
     since: "7.3.0"
 
   - name: USER_INTERFACE_STYLE_UNSPECIFIED
@@ -1474,7 +1456,6 @@ properties:
     summary: Alert subtitle to display.
     type: String
     optional: true
-    osver: {ios: {min: "10.0"}}
     since: "7.3.0"
 
   - name: alertLaunchImage
@@ -1486,7 +1467,6 @@ properties:
     summary: Notification attachments to display.
     type: Array<UserNotificationAttachment>
     optional: true
-    osver: {ios: {min: "10.0"}}
     since: "7.3.0"
 
   - name: badge
@@ -1541,13 +1521,11 @@ properties:
   - name: summaryArgument
     summary: The string the notification adds to the category's summary format string.
     type: String
-    osver: { ios: { min: "12.0" } }
     since: "7.4.0"
 
   - name: summaryArgumentCount
     summary: The number of items the notification adds to the category's summary format string.
     type: String
-    osver: { ios: { min: "12.0" } }
     since: "7.4.0"
 
 ---
@@ -1558,7 +1536,6 @@ summary: |
     skip the invalid attachment.
 since: "7.3.0"
 platforms: [iphone, ipad, macos]
-osver: {ios: {min: "10.0"}}
 properties:
   - name: identifier
     type: String

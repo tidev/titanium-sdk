@@ -203,7 +203,6 @@ properties:
     description: |
         For information about color values, see the "Colors" section of <Titanium.UI>.
     type: [String, Titanium.UI.Color]
-    osver: {ios: {min: "10.0"}}
     platforms: [android, iphone, ipad, macos]
     since: {android: "9.3.0", iphone: "6.1.0", ipad: "6.1.0", macos: "9.2.0"}
 

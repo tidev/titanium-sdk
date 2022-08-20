@@ -2126,7 +2126,6 @@ properties:
     default: true
     platforms: [iphone, ipad, macos]
     since: "8.1.0"
-    osver: {ios: {min: "11.0"}}
 
 ---
 name: CameraMediaMultipleItemsType

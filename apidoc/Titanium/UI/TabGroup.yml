@@ -599,7 +599,6 @@ properties:
         For information about color values, see the "Colors" section of <Titanium.UI>.
     type: [String, Titanium.UI.Color]
     since: 6.1.0
-    osver: {ios: {min: "10.0"}}
     platforms: [iphone, ipad, macos]
     deprecated:
         since: "9.0.3"

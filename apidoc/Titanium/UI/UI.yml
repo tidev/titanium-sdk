@@ -901,21 +901,21 @@ properties:
     summary: Specifies the expectation of an account or login name.
     type: String
     since: "6.3.0"
-    osver: {ios: {min: "11.0"}, android: {min: "8.0"}}
+    osver: { android: { min: "8.0" } }
     permission: read-only
 
   - name: AUTOFILL_TYPE_PASSWORD
     summary: Specifies the expectation of a password.
     type: String
     since: "6.3.0"
-    osver: {ios: {min: "11.0"}, android: {min: "8.0"}}
+    osver: { android: { min: "8.0" } }
     permission: read-only
 
   - name: AUTOFILL_TYPE_NAME
     summary: Specifies the expectation of a name.
     type: String
     since: "6.3.0"
-    osver: {ios: {min: "10.0"}, android: {min: "8.0"}}
+    osver: { android: { min: "8.0" } }
     permission: read-only
 
   - name: AUTOFILL_TYPE_NAME_PREFIX
@@ -923,7 +923,6 @@ properties:
     type: String
     platforms: [iphone, ipad, macos]
     since: "6.3.0"
-    osver: {ios: {min: "10.0"}}
     permission: read-only
 
   - name: AUTOFILL_TYPE_GIVEN_NAME
@@ -931,7 +930,6 @@ properties:
     type: String
     platforms: [iphone, ipad, macos]
     since: "6.3.0"
-    osver: {ios: {min: "10.0"}}
     permission: read-only
 
   - name: AUTOFILL_TYPE_MIDDLE_NAME
@@ -939,7 +937,6 @@ properties:
     type: String
     platforms: [iphone, ipad, macos]
     since: "6.3.0"
-    osver: {ios: {min: "10.0"}}
     permission: read-only
 
   - name: AUTOFILL_TYPE_FAMILY_NAME
@@ -947,7 +944,6 @@ properties:
     type: String
     platforms: [iphone, ipad, macos]
     since: "6.3.0"
-    osver: {ios: {min: "10.0"}}
     permission: read-only
 
   - name: AUTOFILL_TYPE_NAME_SUFFIX
@@ -955,7 +951,6 @@ properties:
     type: String
     platforms: [iphone, ipad, macos]
     since: "6.3.0"
-    osver: {ios: {min: "10.0"}}
     permission: read-only
 
   - name: AUTOFILL_TYPE_NICKNAME
@@ -963,7 +958,6 @@ properties:
     type: String
     platforms: [iphone, ipad, macos]
     since: "6.3.0"
-    osver: {ios: {min: "10.0"}}
     permission: read-only
 
   - name: AUTOFILL_TYPE_JOB_TITLE
@@ -971,7 +965,6 @@ properties:
     type: String
     platforms: [iphone, ipad, macos]
     since: "6.3.0"
-    osver: {ios: {min: "10.0"}}
     permission: read-only
 
   - name: AUTOFILL_TYPE_ORGANIZATION_NAME
@@ -979,7 +972,6 @@ properties:
     type: String
     platforms: [iphone, ipad, macos]
     since: "6.3.0"
-    osver: {ios: {min: "10.0"}}
     permission: read-only
 
   - name: AUTOFILL_TYPE_LOCATION
@@ -987,14 +979,13 @@ properties:
     type: String
     platforms: [iphone, ipad, macos]
     since: "6.3.0"
-    osver: {ios: {min: "10.0"}}
     permission: read-only
 
   - name: AUTOFILL_TYPE_ADDRESS
     summary: Specifies the expectation of an address.
     type: String
     since: "6.3.0"
-    osver: {ios: {min: "10.0"}, android: {min: "8.0"}}
+    osver: { android: { min: "8.0" } }
     permission: read-only
 
   - name: AUTOFILL_TYPE_ADDRESS_LINE1
@@ -1002,7 +993,6 @@ properties:
     type: String
     platforms: [iphone, ipad, macos]
     since: "6.3.0"
-    osver: {ios: {min: "10.0"}}
     permission: read-only
 
   - name: AUTOFILL_TYPE_ADDRESS_LINE2
@@ -1010,7 +1000,6 @@ properties:
     type: String
     platforms: [iphone, ipad, macos]
     since: "6.3.0"
-    osver: {ios: {min: "10.0"}}
     permission: read-only
 
   - name: AUTOFILL_TYPE_ADDRESS_CITY
@@ -1018,7 +1007,6 @@ properties:
     type: String
     platforms: [iphone, ipad, macos]
     since: "6.3.0"
-    osver: {ios: {min: "10.0"}}
     permission: read-only
 
   - name: AUTOFILL_TYPE_ADDRESS_STATE
@@ -1026,7 +1014,6 @@ properties:
     type: String
     platforms: [iphone, ipad, macos]
     since: "6.3.0"
-    osver: {ios: {min: "10.0"}}
     permission: read-only
 
   - name: AUTOFILL_TYPE_ADDRESS_CITY_STATE
@@ -1034,7 +1021,6 @@ properties:
     type: String
     platforms: [iphone, ipad, macos]
     since: "6.3.0"
-    osver: {ios: {min: "10.0"}}
     permission: read-only
 
   - name: AUTOFILL_TYPE_SUBLOCALITY
@@ -1042,7 +1028,6 @@ properties:
     type: String
     platforms: [iphone, ipad, macos]
     since: "6.3.0"
-    osver: {ios: {min: "10.0"}}
     permission: read-only
 
   - name: AUTOFILL_TYPE_COUNTRY_NAME
@@ -1050,28 +1035,27 @@ properties:
     type: String
     platforms: [iphone, ipad, macos]
     since: "6.3.0"
-    osver: {ios: {min: "10.0"}}
     permission: read-only
 
   - name: AUTOFILL_TYPE_POSTAL_CODE
     summary: Specifies the expectation of a postal code.
     type: String
     since: "6.3.0"
-    osver: {ios: {min: "10.0"}, android: {min: "8.0"}}
+    osver: { android: { min: "8.0" } }
     permission: read-only
 
   - name: AUTOFILL_TYPE_PHONE
     summary: Specifies the expectation of a telephone number.
     type: String
     since: "6.3.0"
-    osver: {ios: {min: "10.0"}, android: {min: "8.0"}}
+    osver: { android: { min: "8.0" } }
     permission: read-only
 
   - name: AUTOFILL_TYPE_EMAIL
     summary: Specifies the expectation of an email address.
     type: String
     since: "6.3.0"
-    osver: {ios: {min: "10.0"}, android: {min: "8.0"}}
+    osver: { android: { min: "8.0" } }
     permission: read-only
 
   - name: AUTOFILL_TYPE_URL
@@ -1079,14 +1063,13 @@ properties:
     type: String
     platforms: [iphone, ipad, macos]
     since: "6.3.0"
-    osver: {ios: {min: "10.0"}}
     permission: read-only
 
   - name: AUTOFILL_TYPE_CARD_NUMBER
     summary: Specifies the expectation of a card number.
     type: String
     since: "6.3.0"
-    osver: {ios: {min: "10.0"}, android: {min: "8.0"}}
+    osver: { android: { min: "8.0" } }
     permission: read-only
 
   - name: AUTOFILL_TYPE_CARD_SECURITY_CODE
@@ -1134,7 +1117,6 @@ properties:
     type: String
     platforms: [iphone, ipad, macos]
     since: "7.4.0"
-    osver: { ios: { min: "12.0" } }
     permission: read-only
 
   - name: AUTOFILL_TYPE_ONE_TIME_CODE
@@ -1142,7 +1124,6 @@ properties:
     type: String
     platforms: [iphone, ipad, macos]
     since: "7.4.0"
-    osver: { ios: { min: "12.0" } }
     permission: read-only
 
   - name: AUTOLINK_MAP_ADDRESSES
@@ -2282,7 +2263,6 @@ properties:
     type: String
     permission: read-only
     platforms: [iphone, ipad, macos]
-    osver: {ios: {min: "10.0"}}
     since: "5.5.0"
 
   - name: CLIPBOARD_OPTION_EXPIRATION_DATE
@@ -2293,7 +2273,6 @@ properties:
     type: String
     permission: read-only
     platforms: [iphone, ipad, macos]
-    osver: {ios: {min: "10.0"}}
     since: "5.5.0"
 
   - name: PICKER_TYPE_COUNT_DOWN_TIMER
@@ -2729,7 +2708,6 @@ properties:
     type: String
     permission: read-only
     platforms: [iphone, ipad, macos]
-    osver: {ios: {min: "11.0"}}
     since: "8.1.0"
 
   - name: TEXT_VERTICAL_ALIGNMENT_BOTTOM

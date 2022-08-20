@@ -964,7 +964,6 @@ properties:
     default: false
     platforms: [iphone, ipad, macos]
     since: {iphone: "7.3.0", ipad: "7.3.0", macos: "9.2.0"}
-    osver: {ios: {min: "11.0"}}
 
   - name: hideShadow
     summary: Set this to true to hide the shadow image of the navigation bar.
@@ -1032,7 +1031,6 @@ properties:
     type: Boolean
     platforms: [iphone, ipad, macos]
     since: {iphone: "6.3.0", ipad: "6.3.0", macos: "9.2.0"}
-    osver: {ios: {min: "11.0"}}
 
   - name: hidesSearchBarWhenScrolling
     summary: A Boolean value indicating whether the integrated search bar is hidden when scrolling any underlying content.
@@ -1047,7 +1045,6 @@ properties:
     type: Boolean
     platforms: [iphone, ipad, macos]
     since: {iphone: "8.1.0", ipad: "8.1.0", macos: "9.2.0"}
-    osver: {ios: {min: "11.0"}}
 
   - name: largeTitleDisplayMode
     summary: The mode to use when displaying the title of the navigation bar.
@@ -1063,7 +1060,6 @@ properties:
     default: Titanium.UI.iOS.LARGE_TITLE_DISPLAY_MODE_AUTOMATIC
     platforms: [iphone, ipad, macos]
     since: {iphone: "6.3.0", ipad: "6.3.0", macos: "9.2.0"}
-    osver: {ios: {min: "11.0"}}
 
   - name: left
     summary: Window's left position, in platform-specific units.

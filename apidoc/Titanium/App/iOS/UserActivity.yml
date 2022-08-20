@@ -82,7 +82,6 @@ properties:
         user activity current. To make the user activity current, call the becomeCurrent method of activity.
         For more information, see https://developer.apple.com/documentation/sirikit/donating_shortcuts?language=objc.    
     type: Boolean
-    osver: { ios: { min: "12.0" } }
     default: false
     since: "7.4.0"
     availability: creation
@@ -93,7 +92,6 @@ properties:
         Set this property to a unique value that identifies the user activity so you can later delete it with 
         Ti.App.iOS.UserActivity.deleteSavedUserActivitiesForPersistentIdentifiers method.
     type: String
-    osver: { ios: { min: "12.0" } }
     since: "7.4.0"
     availability: creation
 
@@ -198,7 +196,6 @@ methods:
       - name: persistentIdentifiers
         summary: Array of persistent identifiers of user activity.
         type: Array<String>
-    osver: { ios: { min: "12.0" } }
     since: "7.4.0"
 
   - name: deleteAllSavedUserActivities
@@ -207,7 +204,6 @@ methods:
         The <Titanium.App.iOS.UserActivity.useractivitydeleted> event is fired after deteting the 
         user activities. Listen and wait for this event to fired to ensure that the system deletes 
         the activities (or marks them for deletion).
-    osver: { ios: { min: "12.0" } }
     since: "7.4.0"
 
 events:
@@ -264,7 +260,6 @@ events:
     summary: |
         Fired when the user activity get deleted using the <Titanium.App.iOS.UserActivity.deleteAllSavedUserActivities> or 
         <Titanium.App.iOS.UserActivity.deleteSavedUserActivitiesForPersistentIdentifiers> methods.
-    osver: { ios: { min: "12.0" } }
     since: "7.4.0"
 
 examples:

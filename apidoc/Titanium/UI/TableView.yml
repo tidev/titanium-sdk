@@ -1435,7 +1435,6 @@ properties:
     default: false
     since: 8.1.0
     platforms: [iphone, ipad, macos]
-    osver: {ios: {min: "11.0"}}
     availability: creation
 
   - name: searchAsChild

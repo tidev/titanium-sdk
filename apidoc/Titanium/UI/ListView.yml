@@ -478,7 +478,6 @@ events:
         Fired when new list items are prefetched. The items are ordered ascending by geometric distance
         from the list view. Note that this event is only available on iOS 10 and later.
     since: 6.1.0
-    osver: {ios: {min: "10.0"}}
     platforms: [iphone, ipad, macos]
     description: |
         Use the `sectionIndex` and `itemIndex`, or the `itemId` to determine the list item that generated
@@ -493,7 +492,6 @@ events:
         Fired when list items that previously were considered as candidates for pre-fetching were not
         actually used. Note that this event is only available on iOS 10 and later
     since: 6.1.0
-    osver: {ios: {min: "10.0"}}
     platforms: [iphone, ipad, macos]
     description: |
         Use the `sectionIndex` and `itemIndex`, or the `itemId` to determine the list item that generated
@@ -1146,7 +1144,6 @@ properties:
     default: false
     since: 8.1.0
     platforms: [iphone, ipad, macos]
-    osver: {ios: {min: "11.0"}}
     availability: creation
 
   - name: resultsBackgroundColor
