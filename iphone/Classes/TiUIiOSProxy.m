@@ -306,7 +306,7 @@
   if (![TiUtils isIOSVersionOrGreater:@"16.0"]) {
     return @(-1);
   }
-  
+
   return @(UIAlertControllerSeverityDefault);
 }
 
@@ -315,11 +315,10 @@
   if (![TiUtils isIOSVersionOrGreater:@"16.0"]) {
     return @(-1);
   }
-  
+
   return @(UIAlertControllerSeverityCritical);
 }
 #endif
-
 
 #ifdef USE_TI_UIIOSANIMATIONSTYLE
 - (TiUIiOSAnimationStyleProxy *)AnimationStyle

@@ -1164,6 +1164,58 @@ properties:
     permission: read-only
     since: "3.0.0"
 
+  - name: AUTOLINK_SHIPMENT_TRACKING_NUMBER
+    summary: An option to detect strings with the format of a tracking number from a package delivery company.
+    description: |
+        Two or more autolink constants can be combined using bitwise or.
+        Use with the <Titanium.UI.TextArea.autoLink> property.
+    type: Number
+    permission: read-only
+    since: "12.0.0"
+    platforms: [iphone, ipad, macos]
+
+  - name: AUTOLINK_FLIGHT_NUMBER
+    summary: An option to detect strings with the format of a flight number from an airline.
+    description: |
+        Two or more autolink constants can be combined using bitwise or.
+        Use with the <Titanium.UI.TextArea.autoLink> property.
+    type: Number
+    permission: read-only
+    since: "12.0.0"
+    platforms: [iphone, ipad, macos]
+
+  - name: AUTOLINK_LOOKUP_SUGGESTION
+    summary: An option to detect strings with the format of information that the user might want to look up.
+    description: |
+        Two or more autolink constants can be combined using bitwise or.
+        Use with the <Titanium.UI.TextArea.autoLink> property.
+    type: Number
+    permission: read-only
+    since: "12.0.0"
+    platforms: [iphone, ipad, macos]
+
+  - name: AUTOLINK_MONEY
+    summary: An option to detect strings with the format of money amounts.
+    description: |
+        Two or more autolink constants can be combined using bitwise or.
+        Use with the <Titanium.UI.TextArea.autoLink> property.
+    type: Number
+    permission: read-only
+    since: "12.0.0"
+    osver: { ios: { min: "16.0" } }    
+    platforms: [iphone, ipad, macos]
+
+  - name: AUTOLINK_PHYSICAL_VALUE
+    summary: An option to detect strings with the format of physical values (length, temperatures, etc...)
+    description: |
+        Two or more autolink constants can be combined using bitwise or.
+        Use with the <Titanium.UI.TextArea.autoLink> property.
+    type: Number
+    permission: read-only
+    since: "12.0.0"
+    osver: { ios: { min: "16.0" } }    
+    platforms: [iphone, ipad, macos]
+
   - name: AUTOLINK_EMAIL_ADDRESSES
     summary: Converts strings formatted as email addresses into clickable links.
     description: |

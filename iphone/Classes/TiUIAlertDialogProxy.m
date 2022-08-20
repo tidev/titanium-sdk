@@ -114,7 +114,7 @@ static BOOL alertShowing = NO;
   if (tintColor != nil) {
     [[alertController view] setTintColor:[[TiUtils colorValue:tintColor] color]];
   }
-  
+
 #if IS_SDK_IOS_16
   if ([TiUtils isIOSVersionOrGreater:@"16.0"]) {
     UIAlertControllerSeverity severity = [TiUtils intValue:[self valueForKey:@"severity"] def:UIAlertControllerSeverityDefault];
