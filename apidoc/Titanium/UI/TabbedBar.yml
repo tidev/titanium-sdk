@@ -39,17 +39,17 @@ properties:
         enabled state for each button.
     type: [Array<String>, Array<BarItemType>]
   - name: textColor
-    summary: Color of the unselected item
+    summary: Color of the text
     type: [ String, Titanium.UI.Color ]
     availability: creation
-    platforms: [android]
-    since: { android: "12.0.0" }
+    platforms: [iphone, ipad, android, macos]
+    since: {iphone: "9.0.0", ipad: "9.0.0", android: "12.0.0"}
   - name: selectedTextColor
-    summary: Color of the selected item
+    summary: Color of the selected text
     type: [ String, Titanium.UI.Color ]
     availability: creation
-    platforms: [android]
-    since: { android: "12.0.0" }
+    platforms: [iphone, ipad, android, macos]
+    since: {iphone: "9.0.0", ipad: "9.0.0", android: "12.0.0"}
   - name: style
     summary: Style of the tabbed bar.
     description: |

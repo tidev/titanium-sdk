@@ -129,6 +129,9 @@ public class TiUITabbedBar extends TiUIView implements MenuItem.OnMenuItemClickL
 			if (getProxy().hasPropertyAndNotNull(TiC.PROPERTY_SELECTED_TEXT_COLOR)) {
 				selectedTextColor =
 					TiConvert.toColor(getProxy().getProperties().getString(TiC.PROPERTY_SELECTED_TEXT_COLOR), activity);
+			} else if (getProxy().hasPropertyAndNotNull(TiC.PROPERTY_TEXT_COLOR)) {
+				// no selected color specified but a text color -> use that
+				selectedTextColor = textColor;
 			}
 
 			this.tabLayout.setTabTextColors(textColor, selectedTextColor);
