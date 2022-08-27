@@ -1090,6 +1090,10 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
 
 - (nonnull NSArray<UIDragItem *> *)tableView:(nonnull UITableView *)tableView itemsForBeginningDragSession:(nonnull id<UIDragSession>)session atIndexPath:(nonnull NSIndexPath *)indexPath
 {
+  if (![self canMoveRowAtIndexPath:indexPath]) {
+    return @[];
+  }
+
   NSItemProvider *itemProvider = [NSItemProvider new];
   NSString *identifier = [NSString stringWithFormat:@"%lu_%lu", indexPath.section, indexPath.row];
 
