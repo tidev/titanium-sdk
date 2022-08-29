@@ -84,7 +84,7 @@ properties:
     type: Boolean
     default: false,
     platforms: [android]
-    since: "10.2.0"
+    since: "11.1.0"
 
   - name: backgroundPaddingBottom
     summary: Number of pixels to extend the background image past the label on the bottom.
