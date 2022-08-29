@@ -269,6 +269,7 @@ public class TiC
 	public static final String PROPERTY_AUTOREVERSE = "autoreverse";
 	public static final String PROPERTY_AUTOROTATE = "autorotate";
 	public static final String PROPERTY_AUTO_REDIRECT = "autoRedirect";
+	public static final String PROPERTY_AUTOSIZE = "autoSize";
 	public static final String PROPERTY_AUTO_ENCODE_URL = "autoEncodeUrl";
 	public static final String PROPERTY_AUTO_TAB_TITLE = "autoTabTitle";
 
