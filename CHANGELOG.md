@@ -1,4 +1,4 @@
-# [11.1.0](https://github.com/tidev/titanium_mobile/compare/11_0_X...11.1.0) (2022-08-29)
+# [11.1.0](https://github.com/tidev/titanium_mobile/compare/11_0_X...11.1.0) (2022-09-07)
 
 ## About this release
 
@@ -8,8 +8,9 @@ Titanium SDK 11.1.0 is a minor release of the SDK, addressing high-priority issu
 ## Community Credits
 
 * Michael Gangolf
-  * add autoSize to label ([703c760](https://github.com/tidev/titanium_mobile/commit/703c760aa64799cfed49926af2af46cea1e4261a))
-  * snackbar ([59fd9fe](https://github.com/tidev/titanium_mobile/commit/59fd9fe764a0299f781ce0b6d30c8cb824bd983b))
+  * null check in getVibrationPattern ([1cf5c43](https://github.com/tidev/titanium_mobile/commit/1cf5c4396e15b20383bffe9c029db79c4f99d29a))
+  * add autoSize to label ([ea1095f](https://github.com/tidev/titanium_mobile/commit/ea1095f605ebfd3b2d4998c18ef07988a6daf9e2))
+  * snackbar ([86c7c20](https://github.com/tidev/titanium_mobile/commit/86c7c20108c22aa4b3e797404efcd7611ceadacd))
   * continuous update for ListView scrolling event ([74b00ce](https://github.com/tidev/titanium_mobile/commit/74b00ce2b37f3fab45d5fe0c53b0033a2b999b53))
   * add headingTime, fix headingFilter ([6170a1e](https://github.com/tidev/titanium_mobile/commit/6170a1e007ca76cf017e8459afa16c5567234ef1))
   * add position to TableView scrollToIndex ([bed6382](https://github.com/tidev/titanium_mobile/commit/bed638257360ae8f4ef0079930f3717f6e3b01b6))
@@ -24,8 +25,12 @@ Titanium SDK 11.1.0 is a minor release of the SDK, addressing high-priority issu
   * update node-appc ([10c2332](https://github.com/tidev/titanium_mobile/commit/10c2332060a884b813aa38e605a519053a28d4d1))
 
 * Hans Knöchel
+  * do not hard-crash on invalid string URLs ([7dba199](https://github.com/tidev/titanium_mobile/commit/7dba199afa771a7f1b7696f76dfdf57e89e99e02))
+  * fix gradient checks for tailwind-based classes ([f0f73f6](https://github.com/tidev/titanium_mobile/commit/f0f73f6944567c2a748e497dc1857b964fdcf264))
+  * add 11.1.0 changelog ([bc3a5ef](https://github.com/tidev/titanium_mobile/commit/bc3a5ef93ffe937d53897d31d76dcdfa0459c83b))
   * require “canMove” property to be true ([f202a6e](https://github.com/tidev/titanium_mobile/commit/f202a6edba1292bcfcead562274f3319ec868edc))
   * move “movestart” event call to a better place ([be725e2](https://github.com/tidev/titanium_mobile/commit/be725e204b7f0141d45ccc09e3149c8830307c79))
+  * Revert "feat(ios): redesigned error view (#12163)" ([24c9faf](https://github.com/tidev/titanium_mobile/commit/24c9faf601bc3678c8fef7c324bfe6be0b53c151))
   * fix navigation items in tab group layout ([d02580b](https://github.com/tidev/titanium_mobile/commit/d02580b2cf3b57e436840b09b4a6e09c4e6cd4c9))
   * fix tabgroup layout on iOS 16+ ([5afeee0](https://github.com/tidev/titanium_mobile/commit/5afeee071c1e95de03290fa25c28e48a6a2a1d59))
   * add more context to list view cell warning ([43faca2](https://github.com/tidev/titanium_mobile/commit/43faca25468de87664996998db91ce3b78368d37))
@@ -44,24 +49,27 @@ Titanium SDK 11.1.0 is a minor release of the SDK, addressing high-priority issu
 
 ## Bug Fixes
 
-### iOS platform
-
-* require “canMove” property to be true ([f202a6e](https://github.com/tidev/titanium_mobile/commit/f202a6edba1292bcfcead562274f3319ec868edc))
-* fix asset catalog regression ([48208e3](https://github.com/tidev/titanium_mobile/commit/48208e3647ab6ac7b33fefa6e3a692ddc589d548))
-* fix tabgroup layout on iOS 16+ ([5afeee0](https://github.com/tidev/titanium_mobile/commit/5afeee071c1e95de03290fa25c28e48a6a2a1d59))
-
-### Multiple platforms
-
-* move “movestart” event call to a better place ([be725e2](https://github.com/tidev/titanium_mobile/commit/be725e204b7f0141d45ccc09e3149c8830307c79))
-* fix navigation items in tab group layout ([d02580b](https://github.com/tidev/titanium_mobile/commit/d02580b2cf3b57e436840b09b4a6e09c4e6cd4c9))
-* fix nil-check for remote cache ([2e2cff4](https://github.com/tidev/titanium_mobile/commit/2e2cff4a5f7e1cec0b4eefcc0e841e6cc49c4fe8))
-* fix some tests ([8dac17b](https://github.com/tidev/titanium_mobile/commit/8dac17bd087a50988b577cda2e1df5a360c9242d))
-
 ### Android platform
 
 * fix Ti.UI.ListView scroll state restoration ([6f96424](https://github.com/tidev/titanium_mobile/commit/6f964247458bbb86528ca037d9582a6bde3004b9))
 * null check in DisplayCapsProxy ([d60baec](https://github.com/tidev/titanium_mobile/commit/d60baeca1cd105b74c2ca225c370458ba4dcfe7c))
+* null check in getVibrationPattern ([1cf5c43](https://github.com/tidev/titanium_mobile/commit/1cf5c4396e15b20383bffe9c029db79c4f99d29a))
 * textfield padding ([dcdfce5](https://github.com/tidev/titanium_mobile/commit/dcdfce50f823b90dd7fff4dc92a74e798acf86e7))
+
+### iOS platform
+
+* do not hard-crash on invalid string URLs ([7dba199](https://github.com/tidev/titanium_mobile/commit/7dba199afa771a7f1b7696f76dfdf57e89e99e02))
+* fix asset catalog regression ([48208e3](https://github.com/tidev/titanium_mobile/commit/48208e3647ab6ac7b33fefa6e3a692ddc589d548))
+* fix gradient checks for tailwind-based classes ([f0f73f6](https://github.com/tidev/titanium_mobile/commit/f0f73f6944567c2a748e497dc1857b964fdcf264))
+* fix tabgroup layout on iOS 16+ ([5afeee0](https://github.com/tidev/titanium_mobile/commit/5afeee071c1e95de03290fa25c28e48a6a2a1d59))
+* require “canMove” property to be true ([f202a6e](https://github.com/tidev/titanium_mobile/commit/f202a6edba1292bcfcead562274f3319ec868edc))
+
+### Multiple platforms
+
+* fix nil-check for remote cache ([2e2cff4](https://github.com/tidev/titanium_mobile/commit/2e2cff4a5f7e1cec0b4eefcc0e841e6cc49c4fe8))
+* move “movestart” event call to a better place ([be725e2](https://github.com/tidev/titanium_mobile/commit/be725e204b7f0141d45ccc09e3149c8830307c79))
+* fix navigation items in tab group layout ([d02580b](https://github.com/tidev/titanium_mobile/commit/d02580b2cf3b57e436840b09b4a6e09c4e6cd4c9))
+* fix some tests ([8dac17b](https://github.com/tidev/titanium_mobile/commit/8dac17bd087a50988b577cda2e1df5a360c9242d))
 
 ## Features
 
@@ -76,10 +84,10 @@ Titanium SDK 11.1.0 is a minor release of the SDK, addressing high-priority issu
 
 ### Android platform
 
-* add autoSize to label ([703c760](https://github.com/tidev/titanium_mobile/commit/703c760aa64799cfed49926af2af46cea1e4261a))
+* add autoSize to label ([ea1095f](https://github.com/tidev/titanium_mobile/commit/ea1095f605ebfd3b2d4998c18ef07988a6daf9e2))
 * add headingTime, fix headingFilter ([6170a1e](https://github.com/tidev/titanium_mobile/commit/6170a1e007ca76cf017e8459afa16c5567234ef1))
 * add position to TableView scrollToIndex ([bed6382](https://github.com/tidev/titanium_mobile/commit/bed638257360ae8f4ef0079930f3717f6e3b01b6))
-* snackbar ([59fd9fe](https://github.com/tidev/titanium_mobile/commit/59fd9fe764a0299f781ce0b6d30c8cb824bd983b))
+* snackbar ([86c7c20](https://github.com/tidev/titanium_mobile/commit/86c7c20108c22aa4b3e797404efcd7611ceadacd))
 * update support libraries ([2958575](https://github.com/tidev/titanium_mobile/commit/29585759c29e524a531c3af2f7b4a23462d5ea28))
 * viewShadowColor parity ([63b70fd](https://github.com/tidev/titanium_mobile/commit/63b70fdde57c7453653f8e10ae2b9955632fe5ee))
 
@@ -87,9 +95,6 @@ Titanium SDK 11.1.0 is a minor release of the SDK, addressing high-priority issu
 
 * add install failed error message ([e5c8391](https://github.com/tidev/titanium_mobile/commit/e5c83912ffe83ef4e67a12954869957d15b771cf))
 * redesigned error view ([b8a14b3](https://github.com/tidev/titanium_mobile/commit/b8a14b3d6af920694a2bf0837d2e741a6ae13d19))
-
-## BREAKING CHANGES
-
 
 ## SDK Module Versions
 
