@@ -374,11 +374,15 @@ methods:
   - name: registerForPushNotifications
     summary: Registers for push notifications with the Apple Push Notification Service.
     description: |
-        Call this method at application startup.
+        Call this method to allow remote push notifications. It should usually be called on application start.
 
+        **iOS Notes**:
         Before calling this method, the application needs to call the [Titanium.App.iOS.registerUserNotificationSettings](Titanium.App.iOS.registerUserNotificationSettings)
         method and pass it the notification types to use. Setting the notification types with this
         method will have no effect and throws a warning.
+
+        **Android Notes**:
+        Make sure to also add the `<uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>` permission in the `<manifest>` tag of your tiapp.xml.
     platforms: [iphone, ipad, macos, android]
     parameters:
       - name: config
