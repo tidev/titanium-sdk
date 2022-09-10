@@ -1972,9 +1972,8 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
           [eventArgs setValue:section forKey:@"firstVisibleSection"];
           [eventArgs setValue:[section itemAtIndex:[indexPath row]] forKey:@"firstVisibleItem"];
 
-          if (lastVisibleItem == [indexPath row] && lastVisibleSection == [indexPath section]) {
-            // skip event - still the same item at the top
-          } else {
+          if (lastVisibleItem != [indexPath row] || lastVisibleSection != [indexPath section]) {
+            // only log if the item changes
             [self.proxy fireEvent:@"scrolling" withObject:eventArgs propagate:NO];
             lastVisibleItem = [indexPath row];
             lastVisibleSection = [indexPath section];
