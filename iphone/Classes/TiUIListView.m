@@ -79,6 +79,8 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
   BOOL isSearched;
   UIView *dimmingView;
   BOOL isSearchBarInNavigation;
+  int lastVisibleItem;
+  int lastVisibleSection;
 }
 
 #ifdef TI_USE_AUTOLAYOUT
@@ -1969,6 +1971,13 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
           [eventArgs setValue:NUMINTEGER([indexPath section]) forKey:@"firstVisibleSectionIndex"];
           [eventArgs setValue:section forKey:@"firstVisibleSection"];
           [eventArgs setValue:[section itemAtIndex:[indexPath row]] forKey:@"firstVisibleItem"];
+
+          if (lastVisibleItem != [indexPath row] || lastVisibleSection != [indexPath section]) {
+            // only log if the item changes
+            [self.proxy fireEvent:@"scrolling" withObject:eventArgs propagate:NO];
+            lastVisibleItem = [indexPath row];
+            lastVisibleSection = [indexPath section];
+          }
         } else {
           section = [[self listViewProxy] sectionForIndex:0];
 
@@ -1978,8 +1987,6 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
           [eventArgs setValue:section forKey:@"firstVisibleSection"];
           [eventArgs setValue:NUMINTEGER(-1) forKey:@"firstVisibleItem"];
         }
-
-        [self.proxy fireEvent:@"scrolling" withObject:eventArgs propagate:NO];
       });
     }
   }
