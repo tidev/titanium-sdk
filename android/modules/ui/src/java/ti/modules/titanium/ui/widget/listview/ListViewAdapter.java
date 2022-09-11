@@ -16,6 +16,8 @@ import org.appcelerator.titanium.util.TiRHelper;
 
 import android.content.Context;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.RelativeLayout;
 
 import androidx.annotation.NonNull;
@@ -92,6 +94,10 @@ public class ListViewAdapter extends TiRecyclerViewAdapter<ListViewHolder, ListI
 			}
 		}
 
+		if (holder != null && holder.animationId != -1) {
+			Animation animation = AnimationUtils.loadAnimation(getContext(), holder.animationId);
+			holder.itemView.startAnimation(animation);
+		}
 		// Notify item of its selected status.
 		// This is necessary to maintain selection status on theme change.
 		item.setSelected(selected);

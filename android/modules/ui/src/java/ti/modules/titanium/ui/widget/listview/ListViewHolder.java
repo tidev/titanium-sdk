@@ -58,6 +58,8 @@ public class ListViewHolder extends TiRecyclerViewHolder<ListItemProxy>
 	private final TiCompositeLayout footer;
 	private final TextView footerTitle;
 
+	public int animationId = -1;
+
 	public ListViewHolder(final Context context, final ViewGroup viewGroup)
 	{
 		super(context, viewGroup);
@@ -118,6 +120,10 @@ public class ListViewHolder extends TiRecyclerViewHolder<ListItemProxy>
 		final String rawMinHeight = properties.optString(TiC.PROPERTY_MIN_ROW_HEIGHT, "0");
 		final int minHeight = TiConvert.toTiDimension(rawMinHeight, TiDimension.TYPE_HEIGHT).getAsPixels(itemView);
 		this.content.setMinimumHeight(minHeight);
+
+		if (listViewProperties.containsKeyAndNotNull("animation")) {
+			animationId = listViewProperties.getInt("animation");
+		}
 
 		boolean canEdit = listViewProperties.optBoolean(TiC.PROPERTY_EDITING, false)
 			|| !listViewProperties.optBoolean(TiC.PROPERTY_REQUIRES_EDITING_TO_MOVE, true);
