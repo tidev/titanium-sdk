@@ -1460,7 +1460,6 @@ properties:
         `backgroundColor` with a small amount of transparency: `backgroundColor:"rgba(255,255,255,254)"`.
     type: [Number, String, Array<Number>, Array<String>]
     default: 0
-    osver: {android: {min: "5.0"}}
 
   - name: borderWidth
     summary: Border width of the view.
@@ -1913,7 +1912,6 @@ properties:
     type: Boolean
     default: false
     platforms: [android]
-    osver: {android: {min: "5.0"}}
     since: "6.1.0"
 
   - name: touchFeedbackColor
@@ -1921,7 +1919,6 @@ properties:
     description: Defaults to provided theme color.
     type: String
     platforms: [android]
-    osver: {android: {min: "5.0"}}
     since: "6.1.0"
 
   - name: transform

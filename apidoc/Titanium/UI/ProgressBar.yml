@@ -66,7 +66,6 @@ properties:
     type: [String, Titanium.UI.Color]
     platforms: [iphone, ipad, android, macos]
     since: {iphone: "5.2.0", ipad: "5.2.0", android: "8.0.0"}
-    osver: {android: {min: "5.0"}}
 
   - name: min
     summary: Minimum value of the progress bar.

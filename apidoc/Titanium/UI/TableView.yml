@@ -1516,7 +1516,6 @@ properties:
     type: Boolean
     default: true
     platforms: [android]
-    osver: {android: {min: "5.0"}}
     since: "10.0.0"
 
   - name: tableSeparatorInsets
