@@ -142,7 +142,6 @@ methods:
         summary: Contact identifier.
         type: Number
     since: "5.0.0"
-    osver: {ios: {min: "9.0"}}
 
   - name: removeGroup
     summary: Removes a group from the address book.
@@ -173,11 +172,6 @@ methods:
       - name: person
         summary: Contact.
         type: Titanium.Contacts.Person
-
-  - name: revert
-    summary: Reverts all changes made by the previous save to the address book. Deprecated for >= iOS9.
-    exclude-platforms: [android]
-    osver: {ios: {max: "8.0"}}
 
   - name: save
     summary: Commits all pending changes to the underlying contacts database.

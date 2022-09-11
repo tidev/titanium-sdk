@@ -56,7 +56,6 @@ properties:
         <Titanium.UI.Window.largeTitleEnabled> set to `true`.
     type: Number
     since: "6.3.0"
-    osver: {ios: {min: "11.0"}}
     permission: read-only
 
   - name: LARGE_TITLE_DISPLAY_MODE_ALWAYS
@@ -64,7 +63,6 @@ properties:
     description: Use with <Titanium.UI.Window.largeTitleDisplayMode>.
     type: Number
     since: "6.3.0"
-    osver: {ios: {min: "11.0"}}
     permission: read-only
 
   - name: LARGE_TITLE_DISPLAY_MODE_NEVER
@@ -72,7 +70,6 @@ properties:
     description: Use with <Titanium.UI.Window.largeTitleDisplayMode>.
     type: Number
     since: "6.3.0"
-    osver: {ios: {min: "11.0"}}
     permission: read-only
 
   - name: LIVEPHOTO_BADGE_OPTIONS_OVER_CONTENT
@@ -97,6 +94,30 @@ properties:
     type: Number
     since: "5.2.0"
     osver: {ios: {min: "9.1"}}
+    permission: read-only
+    
+  - name: ALERT_SEVERITY_DEFAULT
+    summary: |
+        Indicates that the system should present the alert using the standard
+        alert style.
+    description: |
+        Use with <Titanium.UI.iOS.createAlertDialog> to specify
+        the alert dialog severity on macOS Catalyst.
+    type: Number
+    since: "12.0.0"
+    osver: {ios: {min: "16.0"}}
+    permission: read-only
+    
+  - name: ALERT_SEVERITY_CRITICAL
+    summary: |
+        Indicates that the system should present the alert using the
+        critical, or caution, style.
+    description: |
+        Use with <Titanium.UI.iOS.createAlertDialog> to specify
+        the alert dialog severity on macOS Catalyst.
+    type: Number
+    since: "12.0.0"
+    osver: {ios: {min: "16.0"}}
     permission: read-only
 
   - name: BLEND_MODE_CLEAR
@@ -471,7 +492,6 @@ properties:
     type: Number
     permission: read-only
     since: "5.4.0"
-    osver: {ios: {min: "8.0"}}
 
   - name: BLUR_EFFECT_STYLE_LIGHT
     summary: |
@@ -482,7 +502,6 @@ properties:
     type: Number
     permission: read-only
     since: "5.4.0"
-    osver: {ios: {min: "8.0"}}
 
   - name: BLUR_EFFECT_STYLE_DARK
     summary: |
@@ -492,7 +511,6 @@ properties:
     type: Number
     permission: read-only
     since: "5.4.0"
-    osver: {ios: {min: "8.0"}}
 
   - name: BLUR_EFFECT_STYLE_REGULAR
     summary: |
@@ -502,7 +520,6 @@ properties:
     type: Number
     permission: read-only
     since: "6.0.0"
-    osver: {ios: {min: "10.0"}}
 
   - name: BLUR_EFFECT_STYLE_PROMINENT
     summary: |
@@ -512,7 +529,6 @@ properties:
     type: Number
     permission: read-only
     since: "6.0.0"
-    osver: {ios: {min: "10.0"}}
 
   - name: BLUR_EFFECT_STYLE_SYSTEM_ULTRA_THIN_MATERIAL
     summary: |
@@ -692,7 +708,6 @@ properties:
     type: Number
     permission: read-only
     since: "3.2.0"
-    osver: {ios: {min: "7.0"}}
 
   - name: COLLISION_MODE_BOUNDARY
     summary: |
@@ -701,7 +716,6 @@ properties:
     type: Number
     permission: read-only
     since: "3.2.0"
-    osver: {ios: {min: "7.0"}}
 
   - name: COLLISION_MODE_ITEM
     summary: |
@@ -709,7 +723,6 @@ properties:
     type: Number
     permission: read-only
     since: "3.2.0"
-    osver: {ios: {min: "7.0"}}
 
   - name: DATE_PICKER_STYLE_AUTOMATIC
     summary: |
@@ -764,49 +777,42 @@ properties:
         Returns `true` if the device supports 3D-Touch (iPhone 6S / iPhone 6S Plus and later) or `false` if not.
     type: Boolean
     since: "5.1.0"
-    osver: {ios: {min: "9.0"}}
     permission: read-only
 
   - name: FEEDBACK_GENERATOR_TYPE_SELECTION
     summary: The feedback type to be used when specifying a selection in <Titanium.UI.iOS.FeedbackGenerator>.
     type: Number
     since: "6.0.0"
-    osver: {ios: {min: "10.0"}}
     permission: read-only
 
   - name: FEEDBACK_GENERATOR_TYPE_IMPACT
     summary: The feedback type to be used when specifying an impact in <Titanium.UI.iOS.FeedbackGenerator>.
     type: Number
     since: "6.0.0"
-    osver: {ios: {min: "10.0"}}
     permission: read-only
 
   - name: FEEDBACK_GENERATOR_TYPE_NOTIFICATION
     summary: The feedback type to be used when specifying a received notification in <Titanium.UI.iOS.FeedbackGenerator>.
     type: Number
     since: "6.0.0"
-    osver: {ios: {min: "10.0"}}
     permission: read-only
 
   - name: FEEDBACK_GENERATOR_NOTIFICATION_TYPE_SUCCESS
     summary: The success notification type used as the argument in <Titanium.UI.iOS.FeedbackGenerator.notificationOccurred>.
     type: Number
     since: "6.0.0"
-    osver: {ios: {min: "10.0"}}
     permission: read-only
 
   - name: FEEDBACK_GENERATOR_NOTIFICATION_TYPE_WARNING
     summary: The warning notification type used as the argument in <Titanium.UI.iOS.FeedbackGenerator.notificationOccurred>.
     type: Number
     since: "6.0.0"
-    osver: {ios: {min: "10.0"}}
     permission: read-only
 
   - name: FEEDBACK_GENERATOR_NOTIFICATION_TYPE_ERROR
     summary: The error notification type used as the argument in <Titanium.UI.iOS.FeedbackGenerator.notificationOccurred>.
     type: Number
     since: "6.0.0"
-    osver: {ios: {min: "10.0"}}
     permission: read-only
 
   - name: FEEDBACK_GENERATOR_IMPACT_STYLE_LIGHT
@@ -815,7 +821,6 @@ properties:
         type <Titanium.UI.iOS.FEEDBACK_GENERATOR_TYPE_IMPACT>.
     type: Number
     since: "6.0.0"
-    osver: {ios: {min: "10.0"}}
     permission: read-only
 
   - name: FEEDBACK_GENERATOR_IMPACT_STYLE_MEDIUM
@@ -824,7 +829,6 @@ properties:
         type <Titanium.UI.iOS.FEEDBACK_GENERATOR_TYPE_IMPACT>.
     type: Number
     since: "6.0.0"
-    osver: {ios: {min: "10.0"}}
     permission: read-only
 
   - name: FEEDBACK_GENERATOR_IMPACT_STYLE_HEAVY
@@ -833,7 +837,6 @@ properties:
         type <Titanium.UI.iOS.FEEDBACK_GENERATOR_TYPE_IMPACT>.
     type: Number
     since: "6.0.0"
-    osver: {ios: {min: "10.0"}}
     permission: read-only
 
   - name: LIVEPHOTO_PLAYBACK_STYLE_FULL
@@ -1065,7 +1068,6 @@ properties:
     type: Number
     permission: read-only
     since: "3.2.0"
-    osver: {ios: {min: "7.0"}}
 
   - name: PUSH_MODE_INSTANTANEOUS
     summary: |
@@ -1073,7 +1075,6 @@ properties:
     type: Number
     permission: read-only
     since: "3.2.0"
-    osver: {ios: {min: "7.0"}}
 
   - name: PREVIEW_ACTION_STYLE_DEFAULT
     summary: |
@@ -1084,7 +1085,6 @@ properties:
     type: Number
     permission: read-only
     since: "5.1.0"
-    osver: {ios: {min: "9.0"}}
 
   - name: PREVIEW_ACTION_STYLE_SELECTED
     summary: The selected style for preview actions.
@@ -1094,7 +1094,6 @@ properties:
     type: Number
     permission: read-only
     since: "5.1.0"
-    osver: {ios: {min: "9.0"}}
 
   - name: PREVIEW_ACTION_STYLE_DESTRUCTIVE
     summary: The destructive style for preview actions.
@@ -1104,7 +1103,6 @@ properties:
     type: Number
     permission: read-only
     since: "5.1.0"
-    osver: {ios: {min: "9.0"}}
 
   - name: ROW_ACTION_STYLE_DEFAULT
     summary: The default style for <RowActionType>.
@@ -1113,7 +1111,6 @@ properties:
     type: Number
     permission: read-only
     since: "4.1.0"
-    osver: {ios: {min: "8.0"}}
 
   - name: ROW_ACTION_STYLE_DESTRUCTIVE
     summary: The destructive style for <RowActionType>.
@@ -1122,7 +1119,6 @@ properties:
     type: Number
     permission: read-only
     since: "4.1.0"
-    osver: {ios: {min: "8.0"}}
 
   - name: ROW_ACTION_STYLE_NORMAL
     summary: The normal style for <RowActionType>.
@@ -1131,7 +1127,6 @@ properties:
     type: Number
     permission: read-only
     since: "4.1.0"
-    osver: {ios: {min: "8.0"}}
 
   - name: SCROLL_DECELERATION_RATE_FAST
     summary: |
@@ -1296,7 +1291,6 @@ properties:
         An icon for a quick action that lets a user compose new content.
     type: Number
     permission: read-only
-    osver: {ios: {min: "9.0"}}
     since: "5.1.0"
 
   - name: SHORTCUT_ICON_TYPE_PLAY
@@ -1305,7 +1299,6 @@ properties:
         An icon for a quick action that plays media.
     type: Number
     permission: read-only
-    osver: {ios: {min: "9.0"}}
     since: "5.1.0"
 
   - name: SHORTCUT_ICON_TYPE_PAUSE
@@ -1314,7 +1307,6 @@ properties:
         An icon for a quick action that pauses media playback.
     type: Number
     permission: read-only
-    osver: {ios: {min: "9.0"}}
     since: "5.1.0"
 
   - name: SHORTCUT_ICON_TYPE_ADD
@@ -1323,7 +1315,6 @@ properties:
         An icon for a quick action that adds an item.
     type: Number
     permission: read-only
-    osver: {ios: {min: "9.0"}}
     since: "5.1.0"
 
   - name: SHORTCUT_ICON_TYPE_LOCATION
@@ -1333,7 +1324,6 @@ properties:
         This should generally only be used as the first title in the index.
     type: Number
     permission: read-only
-    osver: {ios: {min: "9.0"}}
     since: "5.1.0"
 
   - name: SHORTCUT_ICON_TYPE_SEARCH
@@ -1342,7 +1332,6 @@ properties:
         An icon for a quick action that accesses the user's current location.
     type: Number
     permission: read-only
-    osver: {ios: {min: "9.0"}}
     since: "5.1.0"
 
   - name: SHORTCUT_ICON_TYPE_SHARE
@@ -1351,7 +1340,6 @@ properties:
         An icon for a quick action that offers content sharing.
     type: Number
     permission: read-only
-    osver: {ios: {min: "9.0"}}
     since: "5.1.0"
 
   - name: SHORTCUT_ICON_TYPE_PROHIBIT

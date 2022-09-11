@@ -37,7 +37,6 @@ methods:
     summary: Selects the text in range (start, end).
     platforms: [android, iphone, ipad, macos]
     since: 3.0.0
-    osver: {ios: {min: "5.0"}}
     parameters:
       - name: start
         summary: Start index for selection. Value ranges from 0 to the text's length.
@@ -197,7 +196,6 @@ properties:
     constants: Titanium.UI.AUTOFILL_TYPE_*
     default: undefined
     since: "6.3.0"
-    osver: {ios: {min: "10.0"}, android: {min: "8.0"}}
     platforms: [iphone, ipad, android, macos]
 
   - name: autoLink
@@ -355,7 +353,6 @@ properties:
     type: Boolean
     default: false
     platforms: [iphone,ipad, macos]
-    osver: {ios: {min: "7.0"}}
     since: 3.2.0
 
   - name: keyboardToolbar
@@ -450,7 +447,6 @@ properties:
     type: Boolean
     default: true
     platforms: [ipad, macos]
-    osver: {ios: {min: "9.0"}}
     since: 5.0.0
 
   - name: suppressReturn
@@ -547,7 +543,6 @@ events:
         summary: This is false. This event does not bubble.
         type: Boolean
     platforms: [iphone,ipad, macos]
-    osver: {ios: {min: "7.0"}}
     since: 3.2.0
 
   - name: return
