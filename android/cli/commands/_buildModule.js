@@ -252,7 +252,11 @@ AndroidModuleBuilder.prototype.validate = function validate(logger, config, cli)
 			}
 
 			// get javac params
-			this.javacMaxMemory = cli.timodule.properties['android.javac.maxmemory'] && cli.timodule.properties['android.javac.maxmemory'].value || config.get('android.javac.maxMemory', '3072M');
+			if (cli.timodule.properties['android.javac.maxmemory'] && cli.timodule.properties['android.javac.maxmemory'].value) {
+				logger.error(__('android.javac.maxmemory is deprecated. Please use android.javac.maxMemory') + '\n');
+				process.exit(1);
+			}
+			this.javacMaxMemory = cli.timodule.properties['android.javac.maxMemory'] && cli.timodule.properties['android.javac.maxMemory'].value || config.get('android.javac.maxMemory', '3072M');
 
 			// detect java development kit
 			appc.jdk.detect(config, null, function (jdkInfo) {
