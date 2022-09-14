@@ -464,7 +464,6 @@ events:
         type: Number
         constants: Titanium.Geolocation.AUTHORIZATION_*
     platforms: [iphone, ipad, macos]
-    osver: {ios: {min: "8.0"}}
     since: "3.4.0"
 
 properties:
@@ -621,7 +620,6 @@ properties:
     type: Number
     permission: read-only
     platforms: [iphone, ipad, macos]
-    osver: {ios: {min: "8.0"}}
     since: "3.4.0"
 
   - name: AUTHORIZATION_WHEN_IN_USE
@@ -631,7 +629,6 @@ properties:
     type: Number
     permission: read-only
     platforms: [iphone, ipad, macos]
-    osver: {ios: {min: "8.0"}}
     since: "3.4.0"
 
   - name: ERROR_DENIED
@@ -880,7 +877,6 @@ properties:
     type: Boolean
     default: false
     since: "7.3.0"
-    osver: { ios: { min: "11.0" } }
     platforms: [iphone, ipad, macos]
 
   - name: trackSignificantLocationChange
@@ -911,7 +907,6 @@ properties:
     type: Boolean
     default: false
     platforms: [iphone, ipad, macos]
-    osver: {ios: {min: "9.0"}}
     since: "5.0.0"
 
   - name: activityType
@@ -1035,7 +1030,6 @@ properties:
   - name: floor
     summary: The floor of the building on which the user is located.
     type: LocationCoordinatesFloor
-    osver: {ios: {min: "8.0"}}
     since: { iphone: "3.6.0", ipad: "3.6.0" }
     platforms: [iphone, ipad, macos]
 

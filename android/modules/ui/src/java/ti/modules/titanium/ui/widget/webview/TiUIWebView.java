@@ -304,12 +304,6 @@ public class TiUIWebView extends TiUIView
 			settings.setDatabaseEnabled(true);
 		}
 
-		File cacheDir = TiApplication.getInstance().getCacheDir();
-		if (cacheDir != null) {
-			settings.setAppCacheEnabled(true);
-			settings.setAppCachePath(cacheDir.getAbsolutePath());
-		}
-
 		// Enable mixed content mode to allow loading HTTP resources within an HTTPS page.
 		// Note: This is an API Level 21 method. Use reflection to invoke it on older API Levels.
 		boolean mixedContentMode = TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_MIXED_CONTENT_MODE), false);

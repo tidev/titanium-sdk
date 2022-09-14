@@ -604,7 +604,6 @@ properties:
     platforms: [iphone, ipad, macos]
     type: Boolean
     default: true
-    osver: {ios: {min: "9.0"}}
 
   - name: playableDuration
     summary: |

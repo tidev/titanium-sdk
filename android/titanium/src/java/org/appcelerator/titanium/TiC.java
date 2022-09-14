@@ -23,6 +23,7 @@ public class TiC
 	public static final int PERMISSION_CODE_LOCATION = 104;
 	public static final int PERMISSION_CODE_OLD_CALENDAR = 105;
 	public static final int PERMISSION_CODE_MICROPHONE = 106;
+	public static final int PERMISSION_CODE_PUSH_NOTIFICATIONS = 107;
 
 	public static final String PERMISSION_CALENDAR = "calendar";
 	public static final String PERMISSION_CAMERA = "camera";
@@ -696,6 +697,7 @@ public class TiC
 	public static final String PROPERTY_SELECTION_INDICATOR = "selectionIndicator";
 	public static final String PROPERTY_SELECTION_OPENS = "selectionOpens";
 	public static final String PROPERTY_SELECTED_ROWS = "selectedRows";
+	public static final String PROPERTY_SELECTED_TEXT_COLOR = "selectedTextColor";
 	public static final String PROPERTY_SELECTION_STYLE = "selectionStyle";
 	public static final String PROPERTY_SEPARATOR_COLOR = "separatorColor";
 	public static final String PROPERTY_SEPARATOR_HEIGHT = "separatorHeight";
@@ -749,6 +751,7 @@ public class TiC
 	public static final String PROPERTY_TEMPLATE = "template";
 	public static final String PROPERTY_TEMPLATES = "templates";
 	public static final String PROPERTY_TEXT = "text";
+	public static final String PROPERTY_TEXT_COLOR = "textColor";
 	public static final String PROPERTY_TEXTID = "textid";
 	public static final String PROPERTY_THEME = "theme";
 	public static final String PROPERTY_TEXT_ALIGN = "textAlign";

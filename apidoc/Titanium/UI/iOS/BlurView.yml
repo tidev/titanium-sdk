@@ -11,7 +11,6 @@ summary: |
 extends: Titanium.UI.View
 platforms: [iphone, ipad, macos]
 since: {iphone: "5.4.0", ipad: "5.4.0", macos: "9.2.0"}
-osver: {ios:{min: "8.0"}}
 properties:
   - name: effect
     summary: The effect you provide for the view.
