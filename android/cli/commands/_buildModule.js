@@ -413,6 +413,7 @@ AndroidModuleBuilder.prototype.loginfo = async function loginfo() {
 AndroidModuleBuilder.prototype.cleanup = async function cleanup() {
 	// Clean last packaged build in "dist" directory in case this build fails.
 	await fs.emptyDir(this.distDir);
+	await fs.emptyDir(this.buildDir);
 
 	// Delete entire "build" directory tree if we can't find a gradle "module" project directory under it.
 	// This assumes last built module was using older version of Titanium that did not support gradle.
@@ -709,12 +710,14 @@ AndroidModuleBuilder.prototype.packageZip = async function () {
 	}
 
 	// Add the "example" app project files to the archive.
-	if (await fs.exists(this.exampleDir)) {
+	/*
+  if (await fs.exists(this.exampleDir)) {
 		await this.dirWalker(this.exampleDir, (filePath) => {
 			const zipEntryName = path.join(moduleFolder, 'example', path.relative(this.exampleDir, filePath));
 			dest.append(fs.createReadStream(filePath), { name: zipEntryName });
 		});
 	}
+  */
 
 	// Add the event hook plugin scripts to the archive.
 	const hookFiles = {};
