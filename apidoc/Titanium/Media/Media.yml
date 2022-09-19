@@ -304,7 +304,6 @@ methods:
       type: Promise<RequestCameraAccessResult>
     platforms: [iphone, ipad, android, macos]
     since: "5.1.0"
-    osver: {ios: {min: "7.0"}}
 
   - name: hasPhotoGalleryPermissions
     summary: Returns `true` if the app has photo gallery permissions.
@@ -341,7 +340,6 @@ methods:
         android: "9.3.0"
         iphone: "6.0.0"
         ipad: "6.0.0"
-    osver: {ios: {min: "8.0"}}
 
   - name: requestCameraAccess
     deprecated:
@@ -360,7 +358,6 @@ methods:
         type: Callback<RequestCameraAccessResult>
     platforms: [iphone, ipad]
     since: "4.0.0"
-    osver: {ios: {min: "7.0"}}
 
   - name: takeScreenshot
     summary: Takes a screen shot of the visible UI on the device.
@@ -799,7 +796,6 @@ properties:
     permission: read-only
     platforms: [iphone, ipad, macos]
     since: "3.4.2"
-    osver: {ios: {min: "7.0"}}
 
   - name: AUDIO_SESSION_PORT_CARAUDIO
     summary: Constant for Input or output via Car Audio. This can be both an input and output port. This is available on iOS7 and later.
@@ -807,7 +803,6 @@ properties:
     permission: read-only
     platforms: [iphone, ipad, macos]
     since: "3.4.2"
-    osver: {ios: {min: "7.0"}}
 
   - name: AUDIO_STATE_BUFFERING
     summary: Audio data is being buffered from the network.
@@ -902,7 +897,6 @@ properties:
     permission: read-only
     exclude-platforms: [android]
     since: "4.0.0"
-    osver: {ios: {min: "7.0"}}
 
   - name: CAMERA_AUTHORIZATION_DENIED
     summary: Constant specifying that app is denied usage of camera. This is available on iOS7 and later.
@@ -910,7 +904,6 @@ properties:
     permission: read-only
     exclude-platforms: [android]
     since: "4.0.0"
-    osver: {ios: {min: "7.0"}}
 
   - name: CAMERA_AUTHORIZATION_RESTRICTED
     summary: Constant specifying that app is restricted from using camera. This is available on iOS7 and later.
@@ -918,7 +911,6 @@ properties:
     permission: read-only
     exclude-platforms: [android]
     since: "4.0.0"
-    osver: {ios: {min: "7.0"}}
 
   - name: CAMERA_AUTHORIZATION_UNKNOWN
     summary: Constant specifying that app is not yet authorized to use camera. This is available on iOS7 and later.
@@ -926,7 +918,6 @@ properties:
     permission: read-only
     exclude-platforms: [android]
     since: "5.2.0"
-    osver: {ios: {min: "7.0"}}
 
   - name: DEVICE_BUSY
     summary: Constant for media device busy error.
@@ -1721,7 +1712,6 @@ properties:
     platforms: [iphone, ipad, macos]
     permission: read-only
     since: "5.2.0"
-    osver: {ios: {min: "7.0"}}
 
   - name: maxZoomLevel
     summary: |
@@ -2195,7 +2185,6 @@ properties:
     default: true
     platforms: [iphone, ipad, macos]
     since: "8.1.0"
-    osver: {ios: {min: "11.0"}}
 
 ---
 name: CameraMediaMultipleItemsType

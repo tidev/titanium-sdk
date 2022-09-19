@@ -11,10 +11,6 @@
  * - Load the app developer's main "app.js" script after doing all of the above.
  */
 
-// Attempt to load crash analytics module.
-// NOTE: This should always be the first module that loads on startup.
-import './ti.internal/aca';
-
 // Log the app name, app version, and Titanium version on startup.
 Ti.API.info(`${Ti.App.name} ${Ti.App.version} (Powered by Titanium ${Ti.version}.${Ti.buildHash})`);
 

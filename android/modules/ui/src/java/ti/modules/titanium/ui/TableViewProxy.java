@@ -12,6 +12,7 @@ import java.util.List;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.proxy.TiViewProxy;
@@ -21,6 +22,8 @@ import android.app.Activity;
 import android.view.View;
 
 import androidx.recyclerview.selection.SelectionTracker;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.LinearSmoothScroller;
 import androidx.recyclerview.widget.RecyclerView;
 
 import ti.modules.titanium.ui.widget.TiUITableView;
@@ -324,6 +327,21 @@ public class TableViewProxy extends RecyclerViewProxy
 				rowProxy.fireEvent(TiC.EVENT_MOVE, null);
 			}
 		}
+	}
+	/**
+	 * Called when starting a drag-and-drop gesture (touch start)
+	 */
+	public void onMoveGestureStarted()
+	{
+		fireEvent(TiC.EVENT_MOVE_START, null);
+	}
+
+	/**
+	 * Called when starting a drag-and-drop gesture (touch end)
+	 */
+	public void onMoveGestureEnded()
+	{
+		fireEvent(TiC.EVENT_MOVE_END, null);
 	}
 
 	/**
@@ -797,6 +815,14 @@ public class TableViewProxy extends RecyclerViewProxy
 	{
 		final TiTableView tableView = getTableView();
 		final boolean animated = animation == null || animation.optBoolean(TiC.PROPERTY_ANIMATED, true);
+		final int position = animation != null ? animation.optInt(TiC.PROPERTY_POSITION, 0) : 0;
+		final RecyclerView.SmoothScroller smoothScrollerToTop =
+			new LinearSmoothScroller(TiApplication.getAppCurrentActivity())
+			{
+				@Override
+				protected int getVerticalSnapPreference()
+				{ return LinearSmoothScroller.SNAP_TO_START; }
+			};
 
 		if (tableView != null) {
 			final RecyclerView recyclerView = tableView.getRecyclerView();
@@ -808,9 +834,19 @@ public class TableViewProxy extends RecyclerViewProxy
 					final int rowAdapterIndex = tableView.getAdapterIndex(index);
 					final Runnable action = () -> {
 						if (animated) {
-							recyclerView.smoothScrollToPosition(rowAdapterIndex);
+							if (position == ListViewScrollPositionModule.TOP) {
+								smoothScrollerToTop.setTargetPosition(rowAdapterIndex);
+								recyclerView.getLayoutManager().startSmoothScroll(smoothScrollerToTop);
+							} else {
+								recyclerView.smoothScrollToPosition(rowAdapterIndex);
+							}
 						} else {
-							recyclerView.scrollToPosition(rowAdapterIndex);
+							if (position == ListViewScrollPositionModule.TOP) {
+								((LinearLayoutManager) recyclerView.getLayoutManager())
+									.scrollToPositionWithOffset(rowAdapterIndex, 0);
+							} else {
+								recyclerView.scrollToPosition(rowAdapterIndex);
+							}
 						}
 					};
 
@@ -948,7 +984,7 @@ public class TableViewProxy extends RecyclerViewProxy
 		if (name.equals(TiC.PROPERTY_DATA) || name.equals(TiC.PROPERTY_SECTIONS)) {
 			setData((Object[]) value);
 
-		} else if (name.equals(TiC.PROPERTY_EDITING)) {
+		} else if (name.equals(TiC.PROPERTY_EDITING) || name.equals(TiC.PROPERTY_REQUIRES_EDITING_TO_MOVE)) {
 			final TiViewProxy parent = getParent();
 
 			if (parent != null) {
