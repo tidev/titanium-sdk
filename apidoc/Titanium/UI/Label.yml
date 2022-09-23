@@ -136,6 +136,8 @@ properties:
 
   - name: html
     summary: Simple HTML formatting.
+    description: |
+        For iOS parity you can use Attributed String [html](Titanium.UI.AttributedString.html)
     platforms: [android]
     type: String
 

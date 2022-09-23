@@ -22,6 +22,14 @@ properties:
     description: |
         The `text` property must be set in the constructor and cannot be changed.
     type: String
+    
+  - name: html
+    summary: |
+        HTML string which will be transformed in attributed string. You can apply other attributes too.
+    description: |
+        The `html` property must be set in the constructor and cannot be changed. For Android you can use html attribute in Label [html](Titanium.UI.Label.html)
+    platforms: [android]
+    type: String
 
   - name: attributes
     summary: |
