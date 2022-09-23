@@ -2184,6 +2184,7 @@ AndroidBuilder.prototype.generateRootProjectFiles = async function generateRootP
 	const gradleProperties = await gradlew.fetchDefaultGradleProperties();
 	gradleProperties.push({ key: 'android.useAndroidX', value: 'true' });
 	gradleProperties.push({ key: 'android.enableJetifier', value: 'true' });
+	gradleProperties.push({ key: 'android.suppressUnsupportedCompileSdk', value: '33' });
 	gradleProperties.push({ key: 'org.gradle.jvmargs', value: `-Xmx${this.javacMaxMemory}` });
 	await gradlew.writeGradlePropertiesFile(gradleProperties);
 
