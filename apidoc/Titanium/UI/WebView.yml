@@ -507,7 +507,6 @@ events:
       - name: navigationType
         summary: Constant indicating the user's action.
         type: Number
-        constants: Titanium.UI.iOS.WEBVIEW_NAVIGATIONTYPE_*
         platforms: [ipad, iphone, macos]
 
       - name: isMainFrame
