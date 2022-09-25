@@ -374,12 +374,16 @@ methods:
   - name: registerForPushNotifications
     summary: Registers for push notifications with the Apple Push Notification Service.
     description: |
-        Call this method at application startup.
+        Call this method to allow remote push notifications. It should usually be called on application start.
 
+        **iOS Notes**:
         Before calling this method, the application needs to call the [Titanium.App.iOS.registerUserNotificationSettings](Titanium.App.iOS.registerUserNotificationSettings)
         method and pass it the notification types to use. Setting the notification types with this
         method will have no effect and throws a warning.
-    platforms: [iphone, ipad, macos]
+
+        **Android Notes**:
+        Make sure to also add the `<uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>` permission in the `<manifest>` tag of your tiapp.xml.
+    platforms: [iphone, ipad, macos, android]
     parameters:
       - name: config
         summary: Dictionary specifying push-notification related options.
@@ -568,7 +572,7 @@ properties:
     permission: read-only
     since: {android: "3.6.0", iphone: "1.8.0.1", ipad: "1.8.0.1"}
     platforms: [android, iphone, ipad, macos]
-    osver: {android: {min: "4.1"}, ios: {min: "5.0"}}
+    osver: {android: {min: "4.1"}}
 
   - name: TLS_VERSION_1_2
     summary: Constant value specifying TLS version 1.2 for SSL.
@@ -576,7 +580,7 @@ properties:
     permission: read-only
     since: {android: "3.6.0", iphone: "1.8.0.1", ipad: "1.8.0.1"}
     platforms: [android, iphone, ipad, macos]
-    osver: {android: {min: "4.1"}, ios: {min: "5.0"}}
+    osver: {android: {min: "4.1"}}
 
   - name: TLS_VERSION_1_3
     summary: Constant value specifying TLS version 1.3 for SSL.
@@ -643,7 +647,8 @@ properties:
     summary: |
         Indicates whether push  notifications have been enabled using
         [registerForPushNotifications](Titanium.Network.registerForPushNotifications).
-    platforms: [iphone, ipad, macos]
+    platforms: [android, iphone, ipad, macos]
+    since: {android: "12.0.0", iphone: "3.3.0", ipad: "3.3.0"}
     type: Boolean
     permission: read-only
 
@@ -654,6 +659,7 @@ summary: |
     [registerForPushNotifications](Titanium.Network.registerForPushNotifications).
 properties:
   - name: types
+    platforms: [iphone, ipad, macos]
     summary: Array of `NOTIFICATION_TYPE` constants that the application would like to receive.
     description: |
         Setting the `types` property with the <Titanium.Network.registerForPushNotifications> method has no effect.
@@ -670,6 +676,7 @@ properties:
         Callback function called when an error occurs during registration.
     type: Callback<PushNotificationErrorArg>
   - name: callback
+    platforms: [iphone, ipad, macos]
     summary: Callback function invoked upon receiving a new push notification.
     type: Callback<PushNotificationData>
 
@@ -683,9 +690,11 @@ properties:
   - name: type
     summary: The value of this string is always "remote".
     type: String
+
   - name: deviceToken
     summary: The device token which this device was registered for.
     type: String
+    platforms: [iphone, ipad, macos]
 
   - name: success
     summary: Indicates if the operation succeeded. Returns `true`.
@@ -698,12 +707,14 @@ properties:
     description: Will be undefined.
     type: String
     since: "3.1.0"
+    platforms: [iphone, ipad, macos]
 
   - name: code
     summary: Error code. Returns 0.
     description: Error code will be 0.
     type: Number
     since: "3.1.0"
+    platforms: [iphone, ipad, macos]
 
 ---
 name: PushNotificationErrorArg
@@ -715,6 +726,7 @@ properties:
   - name: type
     summary: The value of this string is always "remote".
     type: String
+
   - name: success
     summary: Indicates if the operation succeeded. Returns `false`.
     description: Returns `false`.
@@ -728,6 +740,7 @@ properties:
         is used. Otherwise, this value will be -1.
     type: Number
     since: "3.1.0"
+    platforms: [iphone, ipad, macos]
 
 ---
 name: PushNotificationData

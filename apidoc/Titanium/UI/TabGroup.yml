@@ -406,7 +406,6 @@ properties:
     type: [String, Titanium.UI.Color]
     since: "3.3.0"
     default: null
-    osver: {ios: {min: "7.0"}}
     platforms: [iphone,ipad, macos]
 
   - name: editButtonTitle
@@ -589,7 +588,6 @@ properties:
     type: String
     platforms: [iphone, ipad, macos]
     since: { iphone: "3.1.0", ipad: "3.1.0" }
-    osver: {ios: {min: "5.0"}}
 
   - name: unselectedItemTintColor
     summary: |
@@ -599,7 +597,6 @@ properties:
         For information about color values, see the "Colors" section of <Titanium.UI>.
     type: [String, Titanium.UI.Color]
     since: 6.1.0
-    osver: {ios: {min: "10.0"}}
     platforms: [iphone, ipad, macos]
     deprecated:
         since: "9.0.3"
@@ -620,7 +617,6 @@ properties:
         For information about color values, see the "Colors" section of <Titanium.UI>.
     type: [String, Titanium.UI.Color]
     since: {iphone: "3.1.0", ipad: "3.1.0" }
-    osver: {ios: {min: "5.0"}}
     platforms: [iphone, ipad, macos]
     deprecated:
         since: "9.0.3"
@@ -645,7 +641,6 @@ properties:
     type: String
     platforms: [iphone, ipad, macos]
     since: { iphone: "3.1.0", ipad: "3.1.0" }
-    osver: {ios: {min: "5.0"}}
 
 examples:
   - title: Alloy XML Markup

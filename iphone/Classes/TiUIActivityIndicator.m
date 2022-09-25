@@ -187,7 +187,7 @@
   textColor = [newColor retain];
   if (messageLabel != nil) {
     if (textColor == nil) {
-      [messageLabel setTextColor:[TiUtils isIOSVersionOrGreater:@"13.0"] ? UIColor.labelColor : UIColor.blackColor];
+      [messageLabel setTextColor:UIColor.labelColor];
     } else {
       [messageLabel setTextColor:textColor];
     }

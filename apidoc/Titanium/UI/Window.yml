@@ -872,7 +872,6 @@ properties:
     constants: Titanium.UI.EXTEND_EDGE_*
     platforms: [iphone, ipad, macos]
     since: {iphone: "3.1.3", ipad: "3.1.3", macos: "9.2.0"}
-    osver: {ios: {min: "7.0"}}
 
   - name: flagSecure
     summary: |
@@ -903,7 +902,6 @@ properties:
     type: Boolean
     platforms: [iphone, ipad, macos]
     since: {iphone: "3.1.3", ipad: "3.1.3", macos: "9.2.0"}
-    osver: {ios: {min: "7.0"}}
 
   - name: autoAdjustScrollViewInsets
     summary: |
@@ -916,7 +914,6 @@ properties:
     type: Boolean
     platforms: [iphone, ipad, macos]
     since: {iphone: "3.1.3", ipad: "3.1.3", macos: "9.2.0"}
-    osver: {ios: {min: "7.0"}}
 
   - name: extendSafeArea
     summary: |
@@ -964,7 +961,6 @@ properties:
     default: false
     platforms: [iphone, ipad, macos]
     since: {iphone: "7.3.0", ipad: "7.3.0", macos: "9.2.0"}
-    osver: {ios: {min: "11.0"}}
 
   - name: hideShadow
     summary: Set this to true to hide the shadow image of the navigation bar.
@@ -985,7 +981,6 @@ properties:
     default: false
     platforms: [iphone, ipad, macos]
     since: {iphone: "6.0.0", ipad: "6.0.0", macos: "9.2.0"}
-    osver: {ios: {min: "8.0"}}
     availability: creation
 
   - name: hidesBarsOnTap
@@ -998,7 +993,6 @@ properties:
     default: false
     platforms: [iphone, ipad, macos]
     since: {iphone: "6.0.0", ipad: "6.0.0", macos: "9.2.0"}
-    osver: {ios: {min: "8.0"}}
     availability: creation
 
   - name: hidesBarsWhenKeyboardAppears
@@ -1010,7 +1004,6 @@ properties:
     default: false
     platforms: [iphone, ipad, macos]
     since: {iphone: "6.0.0", ipad: "6.0.0", macos: "9.2.0"}
-    osver: {ios: {min: "8.0"}}
     availability: creation
 
   - name: hidesBackButton
@@ -1032,7 +1025,6 @@ properties:
     type: Boolean
     platforms: [iphone, ipad, macos]
     since: {iphone: "6.3.0", ipad: "6.3.0", macos: "9.2.0"}
-    osver: {ios: {min: "11.0"}}
 
   - name: hidesSearchBarWhenScrolling
     summary: A Boolean value indicating whether the integrated search bar is hidden when scrolling any underlying content.
@@ -1047,7 +1039,6 @@ properties:
     type: Boolean
     platforms: [iphone, ipad, macos]
     since: {iphone: "8.1.0", ipad: "8.1.0", macos: "9.2.0"}
-    osver: {ios: {min: "11.0"}}
 
   - name: largeTitleDisplayMode
     summary: The mode to use when displaying the title of the navigation bar.
@@ -1063,7 +1054,6 @@ properties:
     default: Titanium.UI.iOS.LARGE_TITLE_DISPLAY_MODE_AUTOMATIC
     platforms: [iphone, ipad, macos]
     since: {iphone: "6.3.0", ipad: "6.3.0", macos: "9.2.0"}
-    osver: {ios: {min: "11.0"}}
 
   - name: left
     summary: Window's left position, in platform-specific units.
@@ -1148,7 +1138,6 @@ properties:
         This property is a direct correspondant of the tintColor property of NavigationBar on iOS.
     type: [String, Titanium.UI.Color]
     default: null
-    osver: {ios: {min: "7.0"}}
     platforms: [iphone, ipad, macos]
     since: {iphone: "3.1.3", ipad: "3.1.3", macos: "9.2.0"}
 
@@ -1567,7 +1556,6 @@ properties:
     type: Titanium.Proxy
     platforms: [iphone, ipad, macos]
     since: {iphone: "3.2.0", ipad: "3.2.0", macos: "9.2.0"}
-    osver: {ios: {min: "7.0"}}
 
   - name: translucent
     summary: Boolean value indicating if the nav bar is translucent.

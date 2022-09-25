@@ -18,10 +18,7 @@
 
 - (NSNumber *)INSET_GROUPED
 {
-  if ([TiUtils isIOSVersionOrGreater:@"13.0"]) {
-    return NUMINT(UITableViewStyleInsetGrouped);
-  }
-  return NUMINT(0);
+  return NUMINT(UITableViewStyleInsetGrouped);
 }
 
 MAKE_SYSTEM_PROP(PLAIN, UITableViewStylePlain);

@@ -342,7 +342,6 @@ properties:
         unless the [color](Titanium.UI.Button.color) property is set.
     type: String
     platforms: [android,iphone,ipad, macos]
-    osver: {ios: {min: "7.0"}}
     since:
         android: 5.4.0
         iphone: 3.1.3
