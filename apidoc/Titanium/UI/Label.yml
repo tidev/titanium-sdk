@@ -152,6 +152,13 @@ properties:
     type: Number
     since: "4.1.0"
 
+  - name: lineCount
+    summary: Returns the amount of lines the content is acually using. Is equal or lower than `maxLines`.
+    platforms: [android]
+    type: Number
+    permission: read-only
+    since: {android: "12.0.0"}
+
   - name: lineSpacing
     summary: Line spacing of the [text](Titanium.UI.Label.text), as a dictionary with the properties `add` and `multiply`.
     platforms: [android]
@@ -224,6 +231,12 @@ properties:
     description: Only one of `text` or `textid` should be specified.
     type: String
 
+  - name: visibleText
+    summary: Returns the actual text seen on the screen. If the text is ellipsized it will be different to the normal `text`.
+    platforms: [android]
+    type: String
+    permission: read-only
+    since: {android: "12.0.0"}
 
   - name: wordWrap
     summary: Enable or disable word wrapping in the label.
