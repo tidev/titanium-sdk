@@ -13,6 +13,7 @@ import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.widget.TiUILabel;
+
 import android.app.Activity;
 
 @Kroll.proxy(creatableInModule = UIModule.class,
@@ -56,6 +57,26 @@ public class LabelProxy extends TiViewProxy
 		KrollDict table = new KrollDict();
 		table.put(TiC.PROPERTY_TEXT, TiC.PROPERTY_TEXTID);
 		return table;
+	}
+
+	@Kroll.getProperty
+	public int getLineCount()
+	{
+		TiUIView v = getOrCreateView();
+		if (v instanceof TiUILabel) {
+			return ((TiUILabel) v).getLineCount();
+		}
+		return 0;
+	}
+
+	@Kroll.getProperty
+	public String getVisibleText()
+	{
+		TiUIView v = getOrCreateView();
+		if (v instanceof TiUILabel) {
+			return ((TiUILabel) v).getVisibleText();
+		}
+		return "";
 	}
 
 	@Override
