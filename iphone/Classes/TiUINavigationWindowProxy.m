@@ -400,7 +400,7 @@
 - (void)viewWillDisappear:(BOOL)animated
 {
   if ([self viewAttached]) {
-    [navController beginAppearanceTransition:NO animated:animated];
+    [navController endAppearanceTransition];
   }
   [super viewWillDisappear:animated];
 }
@@ -415,7 +415,7 @@
 - (void)viewDidDisappear:(BOOL)animated
 {
   if ([self viewAttached]) {
-    [navController beginAppearanceTransition:NO animated:animated];
+    [navController endAppearanceTransition];
   }
   [super viewDidDisappear:animated];
 }
