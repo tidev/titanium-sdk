@@ -303,15 +303,6 @@ properties:
     summary: Socket that experienced the error.
     type: Titanium.Network.Socket.TCP
 
-  - name: errorCode
-    summary: The error code of the error (potentially system-dependent).
-    type: Number
-    exclude-platforms: [macos]
-    deprecated:
-        since: "3.1.0"
-        removed: "9.0.0"
-        notes: Use the `code` property for a numeric error code.
-
   - name: success
     summary: Indicates if the operation succeeded. Returns `false`.
     description: Returns `false`.

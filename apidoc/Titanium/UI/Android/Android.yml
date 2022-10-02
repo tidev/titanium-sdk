@@ -260,51 +260,6 @@ properties:
     permission: read-only
     since: "5.4.0"
 
-  - name: LINKIFY_ALL
-    deprecated:
-        since: "3.0.0"
-        notes: Use [Titanium.UI.AUTOLINK_ALL](Titanium.UI.AUTOLINK_ALL) instead.
-        removed: "9.0.0"
-    summary: Converts all detectable types of data into clickable links.
-    type: Number
-    permission: read-only
-
-  - name: LINKIFY_EMAIL_ADDRESSES
-    deprecated:
-        since: "3.0.0"
-        notes: Use [Titanium.UI.AUTOLINK_EMAIL_ADDRESSES](Titanium.UI.AUTOLINK_EMAIL_ADDRESSES) instead.
-        removed: "9.0.0"
-    summary: Converts strings formatted as email addresses into clickable links.
-    type: Number
-    permission: read-only
-
-  - name: LINKIFY_MAP_ADDRESSES
-    deprecated:
-        since: "3.0.0"
-        notes: Use [Titanium.UI.AUTOLINK_MAP_ADDRESSES](Titanium.UI.AUTOLINK_MAP_ADDRESSES) instead.
-        removed: "9.0.0"
-    summary: Converts strings formatted as addresses into clickable links.
-    type: Number
-    permission: read-only
-
-  - name: LINKIFY_PHONE_NUMBERS
-    deprecated:
-        since: "3.0.0"
-        notes: Use [Titanium.UI.AUTOLINK_PHONE_NUMBERS](Titanium.UI.AUTOLINK_PHONE_NUMBERS) instead.
-        removed: "9.0.0"
-    summary: Converts strings formatted as phone numbers into clickable links.
-    type: Number
-    permission: read-only
-
-  - name: LINKIFY_WEB_URLS
-    deprecated:
-        since: "3.0.0"
-        notes: Use [Titanium.UI.AUTOLINK_URLS](Titanium.UI.AUTOLINK_URLS) instead.
-        removed: "9.0.0"
-    summary: Converts strings formatted as URLs into clickable links.
-    type: Number
-    permission: read-only
-
   - name: OVER_SCROLL_ALWAYS
     summary: Always allow a user to over-scroll this view, provided it is a view that can scroll.
     description: |
