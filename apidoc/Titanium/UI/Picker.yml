@@ -3,9 +3,9 @@ name: Titanium.UI.Picker
 summary: |
     A control used to select one or more fixed values.
 description: |
-    | Android | iOS | Windows |
-    | ------- | --- | ------- |
-    | ![Android](./picker_android.png) | ![iOS](./picker_ios.png) | ![Windows](./picker_wp.gif) |
+    | Android | iOS |
+    | ------- | --- |
+    | ![Android](./picker_android.png) | ![iOS](./picker_ios.png) |
 
     Use the <Titanium.UI.createPicker> method or Alloy **`<Picker>`** element to create a picker control.
 
