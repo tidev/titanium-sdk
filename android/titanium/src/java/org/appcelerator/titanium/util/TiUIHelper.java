@@ -451,28 +451,33 @@ public class TiUIHelper
 
 					Typeface tf;
 					if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-						Typeface.Builder builder = new Typeface.Builder(mgr, customFontPath + "/" + f);
-						if (fontWeight != null && !fontWeight.equals("")) {
-							int fontValue = 400;
-							if (fontWeight.equals("bold")) {
-								fontValue = 700;
-							} else if (fontWeight.equals("medium")) {
-								fontValue = 500;
-							} else if (fontWeight.equals("semiBold")) {
-								fontValue = 600;
-							} else if (fontWeight.equals("extraBold")) {
-								fontValue = 800;
-							} else if (fontWeight.equals("light")) {
-								fontValue = 300;
-							} else if (fontWeight.equals("thin")) {
-								fontValue = 200;
+						try {
+							Typeface.Builder builder = new Typeface.Builder(mgr, customFontPath + "/" + f);
+							if (fontWeight != null && !fontWeight.equals("")) {
+								int fontValue = 400;
+								if (fontWeight.equals("bold")) {
+									fontValue = 700;
+								} else if (fontWeight.equals("medium")) {
+									fontValue = 500;
+								} else if (fontWeight.equals("semiBold")) {
+									fontValue = 600;
+								} else if (fontWeight.equals("extraBold")) {
+									fontValue = 800;
+								} else if (fontWeight.equals("light")) {
+									fontValue = 300;
+								} else if (fontWeight.equals("thin")) {
+									fontValue = 200;
+								}
+								try {
+									fontValue = Integer.parseInt(fontWeight);
+								} catch (NumberFormatException nfe) {
+								}
+								builder.setFontVariationSettings("'wght' " + fontValue);
 							}
-							try {
-								fontValue = Integer.parseInt(fontWeight);
-							} catch (NumberFormatException nfe) {}
-							builder.setFontVariationSettings("'wght' " + fontValue);
+							tf = builder.build();
+						} catch (Error er) {
+							return null;
 						}
-						tf = builder.build();
 					} else {
 						tf = Typeface.createFromAsset(mgr, customFontPath + "/" + f);
 					}
