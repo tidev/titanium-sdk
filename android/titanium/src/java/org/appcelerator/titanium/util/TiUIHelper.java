@@ -371,7 +371,7 @@ public class TiUIHelper
 	public static void styleText(TextView tv, String fontFamily, String fontSize, String fontWeight, String fontStyle)
 	{
 		Typeface tf = tv.getTypeface();
-		tf = toTypeface(tv.getContext(), fontFamily);
+		tf = toTypeface(tv.getContext(), fontFamily, fontWeight);
 		tv.setTypeface(tf, toTypefaceStyle(fontWeight, fontStyle));
 		tv.setTextSize(getSizeUnits(fontSize), getSize(fontSize));
 	}
@@ -392,6 +392,11 @@ public class TiUIHelper
 
 	public static Typeface toTypeface(Context context, String fontFamily)
 	{
+		return toTypeface(context, fontFamily, "");
+	}
+
+	public static Typeface toTypeface(Context context, String fontFamily, String fontWeight)
+	{
 		Typeface tf = Typeface.SANS_SERIF; // default
 
 		if (fontFamily != null) {
@@ -404,7 +409,7 @@ public class TiUIHelper
 			} else {
 				Typeface loadedTf = null;
 				if (context != null) {
-					loadedTf = loadTypeface(context, fontFamily);
+					loadedTf = loadTypeface(context, fontFamily, fontWeight);
 				}
 				if (loadedTf == null) {
 					Log.w(TAG,
@@ -423,24 +428,58 @@ public class TiUIHelper
 		return toTypeface(null, fontFamily);
 	}
 
-	private static Typeface loadTypeface(Context context, String fontFamily)
+	private static Typeface loadTypeface(Context context, String fontFamily, String fontWeight)
 	{
 		if (context == null) {
 			return null;
 		}
-		if (mCustomTypeFaces.containsKey(fontFamily)) {
-			return mCustomTypeFaces.get(fontFamily);
+		String fontFamilyName = fontFamily;
+
+		if (fontWeight != null && !fontWeight.equals("")) {
+			fontFamilyName = fontFamily + "_" + fontWeight;
 		}
+		if (mCustomTypeFaces.containsKey(fontFamilyName)) {
+			return mCustomTypeFaces.get(fontFamilyName);
+		}
+
 		AssetManager mgr = context.getAssets();
 		try {
 			String[] fontFiles = mgr.list(customFontPath);
 			for (String f : fontFiles) {
 				if (f.toLowerCase().equals(fontFamily.toLowerCase())
 					|| f.toLowerCase().startsWith(fontFamily.toLowerCase() + ".")) {
-					Typeface tf = Typeface.createFromAsset(mgr, customFontPath + "/" + f);
+
+					Typeface tf;
+					if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+						Typeface.Builder builder = new Typeface.Builder(mgr, customFontPath + "/" + f);
+						if (fontWeight != null && !fontWeight.equals("")) {
+							int fontValue = 400;
+							if (fontWeight.equals("bold")) {
+								fontValue = 700;
+							} else if (fontWeight.equals("medium")) {
+								fontValue = 500;
+							} else if (fontWeight.equals("semiBold")) {
+								fontValue = 600;
+							} else if (fontWeight.equals("extraBold")) {
+								fontValue = 800;
+							} else if (fontWeight.equals("light")) {
+								fontValue = 300;
+							} else if (fontWeight.equals("thin")) {
+								fontValue = 200;
+							}
+							try {
+								fontValue = Integer.parseInt(fontWeight);
+							} catch (NumberFormatException nfe) {}
+							builder.setFontVariationSettings("'wght' " + fontValue);
+						}
+						tf = builder.build();
+					} else {
+						tf = Typeface.createFromAsset(mgr, customFontPath + "/" + f);
+					}
+
 					synchronized (mCustomTypeFaces)
 					{
-						mCustomTypeFaces.put(fontFamily, tf);
+						mCustomTypeFaces.put(fontFamilyName, tf);
 					}
 					return tf;
 				}
