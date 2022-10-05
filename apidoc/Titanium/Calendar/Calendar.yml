@@ -6,8 +6,16 @@ description: |
     This module supports retrieving information about existing events and creating new events.
     Modifying or deleting existing events and creating recurring events are only supported on iOS.
 
-    Currently, on Android, calendar permissions must be explicitly configured in `tiapp.xml` in order to access the
-    calendar. See "Common Requirements" in
+    #### Android
+    On Android, calendar permissions must be explicitly configured in `tiapp.xml` in order to access the
+    calendar and you have to use [requestCalendarPermissions](Titanium.Calendar.requestcalendarpermissions)
+    to request runtime permissions.
+
+    ``` xml
+    <uses-permission android:name="android.permission.READ_CALENDAR"/>
+    <uses-permission android:name="android.permission.WRITE_CALENDAR"/>
+    ```
+    See "Common Requirements" in
     [tiapp.xml and timodule.xml Reference](https://titaniumsdk.com/guide/Titanium_SDK/Titanium_SDK_Guide/Appendices/tiapp.xml_and_timodule.xml_Reference.html).
 
 extends: Titanium.Module
