@@ -4,9 +4,9 @@ summary: |
     A list view is used to present information, organized in to sections and items,
     in a vertically-scrolling view.
 description: |
-    | Android | iOS | Windows |
-    | ------- | --- | ------- |
-    | ![Android](./listview_android.png) | ![iOS](./listview_ios.png) | ![Windows](./listview_wp.png) |
+    | Android | iOS |
+    | ------- | --- |
+    | ![Android](./listview_android.png) | ![iOS](./listview_ios.png) |
 
     Use the <Titanium.UI.createListView> method or **`<ListView>`** Alloy element to create a `ListView`.
 
@@ -191,7 +191,7 @@ description: |
 
         - [editing](Titanium.UI.ListView.editing) - Determines if the List View is in a state where items can
           be deleted or reordered.
-          
+
         - [requiresEditingToMove](Titanium.UI.ListView.requiresEditingToMove) - Determines if the ListView
           should be able to drag-and-drop without explicitely enabling editing support (like drag bars).
 

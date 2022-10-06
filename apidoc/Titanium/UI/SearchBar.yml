@@ -2,9 +2,9 @@
 name: Titanium.UI.SearchBar
 summary: A specialized text field for entering search text.
 description: |
-    | Android | iOS | Windows |
-    | ------- | --- | ------- |
-    | ![Android](./searchbar_android.png) | ![iOS](./searchbar_ios.png) | ![Windows](./searchbar_windows.png) |
+    | Android | iOS |
+    | ------- | --- |
+    | ![Android](./searchbar_android.png) | ![iOS](./searchbar_ios.png) |
 
     Search bars are most commonly used for filtering the rows in a [TableView](Titanium.UI.TableView) and
     [ListView](Titanium.UI.ListView). You can add a search bar to a table view via its
@@ -61,7 +61,7 @@ methods:
         type: AnimatedOptions
         optional: true
         default: "{ animated: false }"
-  
+
   - name: insertTokenAtIndex
     summary: Inserts a new search token at the specified index.
     parameters:

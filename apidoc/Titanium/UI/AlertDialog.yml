@@ -4,9 +4,9 @@ summary: |
     An alert dialog is a modal view that includes an optional title, a message and buttons,
     positioned in the middle of the display.
 description: |
-    | Android | iOS | Windows |
-    | ------- | --- | ------- |
-    | ![Android](./alertdialog_android.png) | ![iOS](./alertdialog_ios.png) | ![Windows](./alertdialog_wp.png) |
+    | Android | iOS |
+    | ------- | --- |
+    | ![Android](./alertdialog_android.png) | ![iOS](./alertdialog_ios.png) |
 
     An alert dialog is created using <Titanium.UI.createAlertDialog> or **`<AlertDialog>`** Alloy element.
 
@@ -478,10 +478,10 @@ properties:
         determines the style of the presented alert. A <Titanium.UI.iOS.ALERT_SEVERITY_CRITICAL>
         alert appears with a caution icon, and an alert with a <Titanium.UI.iOS.ALERT_SEVERITY_DEFAULT>
         severity doesn’t. UIKit ignores the alert severity on iOS.
-        
+
         You should only use the <Titanium.UI.iOS.ALERT_SEVERITY_CRITICAL> severity if an alert truly requires
         special attention from the user.
-        
+
         For more information, see the [Human Interface Guidelines](https://developer.apple.com/design/human-interface-guidelines/macos/windows-and-views/alerts/) on alerts.
     type: Number
     constants: Titanium.UI.iOS.ALERT_SEVERITY_*
