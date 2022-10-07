@@ -256,7 +256,7 @@ GETTER_IMPL(NSString *, identifierForVendor, IdentifierForVendor);
 }
 #endif
 
-- (bool)isRunningOnAppleSilicon
+- (bool)isTranslatedBinaryOnAppleSilicon
 {
   // As noted by Apple in https://developer.apple.com/documentation/apple-silicon/about-the-rosetta-translation-environment
   int ret = 0;
@@ -270,7 +270,7 @@ GETTER_IMPL(NSString *, identifierForVendor, IdentifierForVendor);
   return ret;
 }
 
-GETTER_IMPL(bool, isRunningOnAppleSilicon, IsRunningOnAppleSilicon);
+GETTER_IMPL(bool, isTranslatedBinaryOnAppleSilicon, IsTranslatedBinaryOnAppleSilicon);
 GETTER_IMPL(bool, isAdvertisingTrackingEnabled, IsAdvertisingTrackingEnabled);
 GETTER_IMPL(NSString *, identifierForAdvertising, IdentifierForAdvertising);
 
