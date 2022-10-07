@@ -39,5 +39,5 @@ function createTab(title, message, icon) {
         title,
         icon,
         window
-    });;
+    });
 }
