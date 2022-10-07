@@ -256,6 +256,21 @@ GETTER_IMPL(NSString *, identifierForVendor, IdentifierForVendor);
 }
 #endif
 
+- (bool)isRunningOnAppleSilicon
+{
+  // As noted by Apple in https://developer.apple.com/documentation/apple-silicon/about-the-rosetta-translation-environment
+  int ret = 0;
+  size_t size = sizeof(ret);
+  if (sysctlbyname("sysctl.proc_translated", &ret, &size, NULL, 0) == -1) {
+    if (errno == ENOENT) {
+      return 0;
+    }
+    return -1;
+  }
+  return ret;
+}
+
+GETTER_IMPL(bool, isRunningOnAppleSilicon, IsRunningOnAppleSilicon);
 GETTER_IMPL(bool, isAdvertisingTrackingEnabled, IsAdvertisingTrackingEnabled);
 GETTER_IMPL(NSString *, identifierForAdvertising, IdentifierForAdvertising);
 
