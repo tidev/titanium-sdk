@@ -246,11 +246,11 @@ methods:
   - name: pauseVideoCapture
     summary: Pauses video capturing.
     platforms: [android]
-    since: {android: "10.3.0"}
+    since: {android: "12.0.0"}
   - name: resumeVideoCapture
     summary: Resumes video capturing.
     platforms: [android]
-    since: {android: "10.3.0"}
+    since: {android: "12.0.0"}
   - name: switchCamera
     summary: |
         Switches between front and rear-facing cameras. Make sure to set one of the below constants to determine
@@ -1101,28 +1101,28 @@ properties:
     type: Number
     permission: read-only
     platforms: [android]
-    since: { android: "10.3.0" }
+    since: { android: "12.0.0" }
 
   - name: QUALITY_HD
     summary: Media type constant for HD video recording.
     type: Number
     permission: read-only
     platforms: [android]
-    since: { android: "10.3.0" }
+    since: { android: "12.0.0" }
 
   - name: QUALITY_FHD
     summary: Media type constant for FHD video recording.
     type: Number
     permission: read-only
     platforms: [android]
-    since: { android: "10.3.0" }
+    since: { android: "12.0.0" }
 
   - name: QUALITY_UHD
     summary: Media type constant for UHD video recording.
     type: Number
     permission: read-only
     platforms: [android]
-    since: { android: "10.3.0" }
+    since: { android: "12.0.0" }
 
   - name: QUALITY_HIGH
     summary: Media type constant for high-quality video recording.
@@ -1655,7 +1655,7 @@ properties:
     type: Number
     platforms: [android]
     permission: read-only
-    since: "11.1.0"
+    since: "12.0.0"
 
   - name: minZoomLevel
     summary: |
@@ -1663,7 +1663,7 @@ properties:
     type: Number
     platforms: [android]
     permission: read-only
-    since: "11.1.0"
+    since: "12.0.0"
 
   - name: peakMicrophonePower
     summary: Current microphone level peak power in dB or -1 if microphone monitoring is disabled.
@@ -1693,7 +1693,7 @@ properties:
         Sets the zoom level of the camera.
     type: Number
     platforms: [android]
-    since: "11.1.0"
+    since: "12.0.0"
 # Pseudo-type for showMusicLibrary argument
 
 ---
@@ -1884,7 +1884,7 @@ properties:
     summary: Function to call during recording. Returns size and duration.
     type: Callback<CameraRecordingCallback>
     platforms: [android]
-    since: { android: "10.3.0" }
+    since: { android: "12.0.0" }
 
   - name: androidback
     summary: Function to call if the user presses the back button.
@@ -1930,7 +1930,7 @@ properties:
     type: Boolean
     platforms: [android]
     default: false
-    since: { android: "10.3.0" }
+    since: { android: "12.0.0" }
 
   - name: mediaTypes
     summary: |

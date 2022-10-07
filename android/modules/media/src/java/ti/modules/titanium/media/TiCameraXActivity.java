@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2012-2020 by Axway, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -129,41 +129,42 @@ public class TiCameraXActivity extends TiBaseActivity implements CameraXConfig.P
 				@Override
 				public void onImageSaved(ImageCapture.OutputFileResults outputFileResults)
 				{
-					if (successCallback != null) {
-						Uri outputUri = outputFileResults.getSavedUri();
-						if (outputUri.toString().startsWith("content://")) {
-							String name = "";
-							String path = "";
+					if (successCallback == null) {
+						return;
+					}
+					Uri outputUri = outputFileResults.getSavedUri();
+					if (outputUri.toString().startsWith("content://")) {
+						String name = "";
+						String path = "";
 
-							Uri mediaUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
-							String[] columns = {
-								MediaStore.Images.Media.DISPLAY_NAME,
-								MediaStore.Images.Media.DATA
-							};
-							String[] selectionArgs = { imageName };
-							String queryString = MediaStore.Images.ImageColumns.DISPLAY_NAME + " = ? ";
-							Cursor cursor = contentResolver.query(mediaUri, columns, queryString, selectionArgs, null);
-							if ((cursor != null) && cursor.moveToNext()) {
-								name = getStringFrom(cursor, 0);
-								path = getStringFrom(cursor, 1);
-							}
+						Uri mediaUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
+						String[] columns = {
+							MediaStore.Images.Media.DISPLAY_NAME,
+							MediaStore.Images.Media.DATA
+						};
+						String[] selectionArgs = { imageName };
+						String queryString = MediaStore.Images.ImageColumns.DISPLAY_NAME + " = ? ";
+						Cursor cursor = contentResolver.query(mediaUri, columns, queryString, selectionArgs, null);
+						if ((cursor != null) && cursor.moveToNext()) {
+							name = getStringFrom(cursor, 0);
+							path = getStringFrom(cursor, 1);
+						}
 
-							if (name != null && !name.equals("")) {
-								TiBlob blob = TiBlob.blobFromFile(TiFileFactory.createTitaniumFile(path, false));
-								KrollDict response = MediaModule.createDictForImage(blob, blob.getMimeType());
-								successCallback.callAsync(callbackContext, response);
-							}
-						} else {
-							// normal file
-							File file = new File(outputUri.getPath());
-							TiBlob blob = TiBlob.blobFromFile(TiFileFactory.createTitaniumFile(file.getPath(), false));
+						if (name != null && !name.equals("")) {
+							TiBlob blob = TiBlob.blobFromFile(TiFileFactory.createTitaniumFile(path, false));
 							KrollDict response = MediaModule.createDictForImage(blob, blob.getMimeType());
 							successCallback.callAsync(callbackContext, response);
 						}
+					} else {
+						// normal file
+						File file = new File(outputUri.getPath());
+						TiBlob blob = TiBlob.blobFromFile(TiFileFactory.createTitaniumFile(file.getPath(), false));
+						KrollDict response = MediaModule.createDictForImage(blob, blob.getMimeType());
+						successCallback.callAsync(callbackContext, response);
+					}
 
-						if (cameraActivity != null && autohide) {
-							cameraActivity.finish();
-						}
+					if (cameraActivity != null && autohide) {
+						cameraActivity.finish();
 					}
 				}
 
@@ -350,7 +351,6 @@ public class TiCameraXActivity extends TiBaseActivity implements CameraXConfig.P
 			}
 			startCamera();
 		} catch (TiRHelper.ResourceNotFoundException e) {
-			//
 			Log.e(TAG, "Can't create camera.");
 		}
 	}
@@ -514,7 +514,7 @@ public class TiCameraXActivity extends TiBaseActivity implements CameraXConfig.P
 		} else {
 			if (cancelCallback != null) {
 				KrollDict response = new KrollDict();
-				response.putCodeAndMessage(-1, "User cancelled the request");
+				response.putCodeAndMessage(-1, "User canceled the request");
 				cancelCallback.callAsync(callbackContext, response);
 			}
 			finish();
