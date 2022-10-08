@@ -1,5 +1,5 @@
 name: Android Build
-description: Installs required dependencies and then builds the Android side of the SDK 
+description: Installs required dependencies and then builds the Android side of the SDK
 
 inputs:
   node-version:
@@ -48,6 +48,10 @@ runs:
     - name: Lint
       run: npm run lint:android
       shell: bash
+
+    - name: Set up Homebrew
+      id: set-up-homebrew
+      uses: Homebrew/actions/setup-homebrew@master
 
     - name: Install ccache
       run: brew install ccache
@@ -101,4 +105,3 @@ runs:
         rm -f ~/.gradle/caches/modules-2/modules-2.lock
         rm -f ~/.gradle/caches/modules-2/gc.properties
       shell: bash
-

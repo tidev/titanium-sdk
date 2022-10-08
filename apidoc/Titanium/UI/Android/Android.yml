@@ -85,7 +85,6 @@ properties:
     type: Number
     permission: read-only
     since: "7.5.0"
-    osver: {android: {min: "4.4"}}
 
   - name: FLAG_TRANSLUCENT_STATUS
     summary: Window flag which makes the Android system's top status bar semi-transparent.
@@ -98,7 +97,6 @@ properties:
     type: Number
     permission: read-only
     since: "7.5.0"
-    osver: {android: {min: "4.4"}}
 
   - name: GRAVITY_AXIS_CLIP
     summary: Raw bit controlling whether the right/bottom edge is clipped to its container, based on the gravity direction being applied.
