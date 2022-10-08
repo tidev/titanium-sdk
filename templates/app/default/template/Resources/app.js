@@ -36,8 +36,8 @@ function createTab(title, message, icon) {
     window.add(label);
 
     return Ti.UI.createTab({
-        title,
-        icon,
-        window
+        title: title,
+        icon: icon,
+        window: window
     });
 }
