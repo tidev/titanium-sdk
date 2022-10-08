@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2014 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -420,7 +420,7 @@
 
 - (BOOL)shouldUseNavBarApperance
 {
-  return ([TiUtils isIOSVersionOrGreater:@"13.0"] && (controller != nil) && !(controller.edgesForExtendedLayout == UIRectEdgeTop || controller.edgesForExtendedLayout == UIRectEdgeAll));
+  return controller != nil && !(controller.edgesForExtendedLayout == UIRectEdgeTop || controller.edgesForExtendedLayout == UIRectEdgeAll);
 }
 
 - (void)updateBarImage
@@ -1058,18 +1058,16 @@
 
 - (void)updateStatusBarView
 {
-  if ([TiUtils isIOSVersionOrGreater:@"13.0"]) {
-    UIWindow *keyWindow = UIApplication.sharedApplication.keyWindow;
-    CGRect frame = keyWindow.windowScene.statusBarManager.statusBarFrame;
-    UIView *view = [keyWindow viewWithTag:TI_STATUSBAR_TAG];
-    if (view) {
-      id top = [[self safeAreaViewProxy] valueForKey:@"top"];
-      if (top && [top floatValue] != frame.size.height) {
-        //TIMOB-28323: Once fixed by apple, remove it.
-        frame = CGRectMake(frame.origin.x, frame.origin.y, frame.size.width, [top floatValue]);
-      }
-      view.frame = frame;
+  UIWindow *keyWindow = UIApplication.sharedApplication.keyWindow;
+  CGRect frame = keyWindow.windowScene.statusBarManager.statusBarFrame;
+  UIView *view = [keyWindow viewWithTag:TI_STATUSBAR_TAG];
+  if (view) {
+    id top = [[self safeAreaViewProxy] valueForKey:@"top"];
+    if (top && [top floatValue] != frame.size.height) {
+      //TIMOB-28323: Once fixed by apple, remove it.
+      frame = CGRectMake(frame.origin.x, frame.origin.y, frame.size.width, [top floatValue]);
     }
+    view.frame = frame;
   }
 }
 

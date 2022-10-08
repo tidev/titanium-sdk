@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2018 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -335,15 +335,29 @@ DEFINE_EXCEPTIONS
 {
   [super traitCollectionDidChange:previousTraitCollection];
 
-  // Redraw the border- and view shadow color since they're using CGColor references
+  // Redraw the border color
   id borderColor = [self.proxy valueForKey:@"borderColor"];
   if (borderColor != nil) {
     [self setBorderColor_:borderColor];
   }
 
+  // Redraw the view shadow color
   id viewShadowColor = [self.proxy valueForKey:@"viewShadowColor"];
   if (viewShadowColor != nil) {
     [self setViewShadowColor_:viewShadowColor];
+  }
+
+  // Redraw the background gradient
+  TiGradient *backgroundGradient = [self.proxy valueForKey:@"backgroundGradient"];
+  if (backgroundGradient != nil) {
+    // Guard the colors to handle a case where gradients have no custom
+    // colors applied
+    id colors = [backgroundGradient valueForKey:@"colors"];
+    if (colors != nil) {
+      [backgroundGradient clearCache];
+      [backgroundGradient setColors:colors];
+      [self setBackgroundGradient_:backgroundGradient];
+    }
   }
 }
 
@@ -1565,10 +1579,14 @@ DEFINE_EXCEPTIONS
       [self handleControlEvents:UIControlEventTouchCancel];
     }
 
+    // NOTE: The "!touch.tapCount" fixes an issue on Apple Silicon Simulator
+    // where touches are not received.
+    BOOL shouldFireClickEvent = [touch tapCount] == 1 || !touch.tapCount;
+
     // Click handling is special; don't propagate if we have a delegate,
     // but DO invoke the touch delegate.
     // clicks should also be handled by any control the view is embedded in.
-    if ([touch tapCount] == 1 && [proxy _hasListeners:@"click"]) {
+    if (shouldFireClickEvent && [proxy _hasListeners:@"click"]) {
       if (touchDelegate == nil) {
         [proxy fireEvent:@"click" withObject:evt propagate:YES];
         return;

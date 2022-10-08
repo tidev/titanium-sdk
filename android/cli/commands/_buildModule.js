@@ -4,7 +4,7 @@
  * @module cli/_buildModule
  *
  * @copyright
- * Copyright (c) 2014-2018 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright TiDev, Inc. 04/07/2022-Present
  *
  * @license
  * Licensed under the terms of the Apache Public License
@@ -194,6 +194,8 @@ AndroidModuleBuilder.prototype.validate = function validate(logger, config, cli)
 	return function (finished) {
 		this.projectDir = cli.argv['project-dir'];
 		this.buildOnly = cli.argv['build-only'];
+		this.target = cli.argv['target'];
+		this.deviceId = cli.argv['device-id'];
 
 		this.cli = cli;
 		this.logger = logger;
@@ -250,7 +252,17 @@ AndroidModuleBuilder.prototype.validate = function validate(logger, config, cli)
 			}
 
 			// get javac params
-			this.javacMaxMemory = cli.timodule.properties['android.javac.maxmemory'] && cli.timodule.properties['android.javac.maxmemory'].value || config.get('android.javac.maxMemory', '3072M');
+			this.javacMaxMemory = config.get('android.javac.maxMemory', '3072M');
+
+			// TODO remove in the next SDK
+			if (cli.timodule.properties['android.javac.maxmemory'] && cli.timodule.properties['android.javac.maxmemory'].value) {
+				logger.error(__('android.javac.maxmemory is deprecated and will be removed in the next version. Please use android.javac.maxMemory') + '\n');
+				this.javacMaxMemory = cli.timodule.properties['android.javac.maxmemory'].value;
+			}
+
+			if (cli.timodule.properties['android.javac.maxMemory'] && cli.timodule.properties['android.javac.maxMemory'].value) {
+				this.javacMaxMemory = cli.timodule.properties['android.javac.maxMemory'].value;
+			}
 
 			// detect java development kit
 			appc.jdk.detect(config, null, function (jdkInfo) {
@@ -411,6 +423,7 @@ AndroidModuleBuilder.prototype.loginfo = async function loginfo() {
 AndroidModuleBuilder.prototype.cleanup = async function cleanup() {
 	// Clean last packaged build in "dist" directory in case this build fails.
 	await fs.emptyDir(this.distDir);
+	await fs.emptyDir(this.buildDir);
 
 	// Delete entire "build" directory tree if we can't find a gradle "module" project directory under it.
 	// This assumes last built module was using older version of Titanium that did not support gradle.
@@ -707,12 +720,14 @@ AndroidModuleBuilder.prototype.packageZip = async function () {
 	}
 
 	// Add the "example" app project files to the archive.
-	if (await fs.exists(this.exampleDir)) {
+	/*
+  if (await fs.exists(this.exampleDir)) {
 		await this.dirWalker(this.exampleDir, (filePath) => {
 			const zipEntryName = path.join(moduleFolder, 'example', path.relative(this.exampleDir, filePath));
 			dest.append(fs.createReadStream(filePath), { name: zipEntryName });
 		});
 	}
+  */
 
 	// Add the event hook plugin scripts to the archive.
 	const hookFiles = {};
@@ -889,7 +904,15 @@ AndroidModuleBuilder.prototype.runModule = async function (cli) {
 
 	// Run the temp app.
 	this.logger.debug(__('Running example project...', tmpDir.cyan));
-	const buildArgs = [ process.argv[1], 'build', '-p', 'android', '-d', tmpProjectDir ];
+	let buildArgs = [ process.argv[1], 'build', '-p', 'android', '-d', tmpProjectDir ];
+	if (this.target) {
+		buildArgs.push('-T');
+		buildArgs.push(this.target);
+	}
+	if (this.deviceId) {
+		buildArgs.push('-C');
+		buildArgs.push(this.deviceId);
+	}
 	await runTiCommand(process.execPath, buildArgs, this.logger);
 };
 

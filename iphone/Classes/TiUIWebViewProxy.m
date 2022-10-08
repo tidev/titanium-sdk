@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2019 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -310,11 +310,9 @@ static NSArray *webViewKeySequence;
 
 - (NSNumber *)zoomLevel
 {
-#if IS_SDK_IOS_14
   if ([TiUtils isIOSVersionOrGreater:@"14.0"]) {
     return @([self wkWebView].pageZoom);
   }
-#endif
 
   NSString *zoomLevel = [self evalJS:@[ @"document.body.style.zoom" ]];
 
@@ -426,7 +424,6 @@ static NSArray *webViewKeySequence;
   [[self wkWebView] goBack];
 }
 
-#if IS_SDK_IOS_14
 - (void)findString:(id)args
 {
   NSString *searchString = [args objectAtIndex:0];
@@ -500,7 +497,6 @@ static NSArray *webViewKeySequence;
     [callback call:@[ @{ @"success" : NUMBOOL(YES), @"data" : blob } ] thisObject:self];
   }];
 }
-#endif
 
 - (void)goForward:(id)unused
 {

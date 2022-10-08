@@ -1,6 +1,6 @@
 /**
  * Axway Titanium
- * Copyright (c) 2018-present by Appcelerator, Inc. All Rights Reserved.
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -232,9 +232,7 @@
     [theWindow windowWillOpen];
     [theWindow windowDidOpen];
   }
-  if ([TiUtils isIOSVersionOrGreater:@"13.0"]) {
-    navController.view.backgroundColor = theWindow.view.backgroundColor;
-  }
+  navController.view.backgroundColor = theWindow.view.backgroundColor;
 }
 
 - (void)navigationController:(UINavigationController *)navigationController didShowViewController:(UIViewController *)viewController animated:(BOOL)animated

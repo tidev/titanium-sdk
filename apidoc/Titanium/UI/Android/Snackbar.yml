@@ -1,0 +1,86 @@
+---
+name: Titanium.UI.Android.Snackbar
+summary: Snackbars provide brief messages about app processes at the bottom of the screen.
+description: |
+    For design guidelines, see
+    [Material design: Snackbars](https://material.io/components/snackbars)
+since: "11.1.0"
+platforms: [android]
+
+methods:
+  - name: show
+    summary: Show the Snackbar
+
+events:
+  - name: click
+    summary: Fired when the action button is clicked
+    properties:
+      - name: action
+        summary: The text of the action button.
+        type: String
+
+properties:
+  - name: LENGTH_SHORT
+    summary: |
+        Use with `length` to specify the display time.
+    type: Number
+    permission: read-only
+
+  - name: LENGTH_LONG
+    summary: |
+        Use with `length` to specify the display time.
+    type: Number
+    permission: read-only
+
+  - name: LENGTH_INDEFINITE
+    summary: |
+        Use with `length` to specify the display time.
+    type: Number
+    permission: read-only
+
+  - name: length
+    summary: Display time of the Snackbar
+    description: |
+        Use with on of the constants: `Ti.UI.Android.Snackbar.LENGTH_SHORT`,
+        `Ti.UI.Android.Snackbar.LENGTH_LONG` or
+        `Ti.UI.Android.Snackbar.LENGTH_INDEFINITE`
+    type: Number
+    default: LENGTH_SHORT
+    since: "10.2.0"
+
+  - name: action
+    summary: Text of the right hand action button
+    type: String
+    since: "10.2.0"
+
+  - name: message
+    summary: Text of Snackbar
+    type: String
+    since: "10.2.0"
+
+examples:
+  - title: Show a Snackbar
+    example: |
+        Display a Snackbar with an action button.
+
+        ``` js
+        const win = Ti.UI.createWindow();
+        const btn = Ti.UI.createButton({
+          title: 'show message'
+        });
+        btn.addEventListener('click', function() {
+          snack.show();
+        });
+
+        const snack = Ti.UI.Android.createSnackbar({
+          message: 'Hello Snackbar!',
+          length: Ti.UI.Android.Snackbar.LENGTH_INDEFINITE,
+          action: 'click me'
+        });
+        snack.addEventListener('click', function(e) {
+          console.log(e.action);
+        });
+
+        win.add([btn, snack]);
+        win.open();
+        ```

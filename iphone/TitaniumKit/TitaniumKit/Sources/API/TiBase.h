@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2015 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -320,6 +320,15 @@ void TiExceptionThrowWithNameAndReason(NSString *exceptionName, NSString *reason
   -(NSNumber *)name                      \
   {                                      \
     return [NSNumber numberWithInt:map]; \
+  }
+
+#define MAKE_SYSTEM_PROP_MIN_IOS(name, map, iosVersion) \
+  -(NSNumber *)name                                     \
+  {                                                     \
+    if ([TiUtils isIOSVersionOrGreater:iosVersion]) {   \
+      return [NSNumber numberWithInt:map];              \
+    }                                                   \
+    return @(-1);                                       \
   }
 
 #define MAKE_SYSTEM_PROP_UINTEGER(name, map)         \

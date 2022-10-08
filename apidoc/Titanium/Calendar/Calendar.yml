@@ -72,22 +72,6 @@ methods:
     platforms: [iphone, ipad, android, macos]
     since: "5.1.0"
 
-  - name: requestEventsAuthorization
-    deprecated:
-        since: "5.1.0"
-        removed: "8.1.0"
-        notes: Use [Titanium.Calendar.requestCalendarPermissions](Titanium.Calendar.requestCalendarPermissions) instead.
-    summary: If authorization is unknown, the system will bring up a dialog requesting permission.
-    description: |
-        Note that the callback may be synchronous or asynchronous. That is, it may be called
-        during requestEventsAuthorization or much later. See the "Request access to the events"
-        example on how to best use this method.
-    parameters:
-      - name: callback
-        summary: Callback function to execute when when authorization is no longer unknown.
-        type: Callback<EventsAuthorizationResponse>
-    platforms: [iphone, ipad]
-
 properties:
   - name: METHOD_ALERT
     summary: Reminder alert delivery method.
@@ -712,19 +696,6 @@ properties:
     platforms: [iphone, ipad, macos]
     since: "6.1.0"
 
-  - name: eventsAuthorization
-    summary: Returns an authorization constant indicating if the application has access to the events in the EventKit.
-    description: |
-         Always returns `AUTHORIZATION_AUTHORIZED` on iOS pre-6.0.
-    deprecated:
-        since: "5.2.0"
-        removed: "8.1.0"
-        notes: Use the [Titanium.Calendar.calendarAuthorization](Titanium.Calendar.calendarAuthorization) property instead.
-    type: Number
-    constants: Titanium.Calendar.AUTHORIZATION_*
-    permission: read-only
-    platforms: [iphone, ipad]
-
   - name: calendarAuthorization
     summary: Returns an authorization constant indicating if the application has access to the events in the EventKit.
     description: |
@@ -776,7 +747,7 @@ properties:
     type: Titanium.Calendar.Calendar
     permission: read-only
     platforms: [android, iphone, ipad, macos]
-    since: {android: "10.2.0", iphone: "3.1.0", ipad: "3.1.0"}
+    since: {android: "11.0.0", iphone: "3.1.0", ipad: "3.1.0"}
 
 examples:
   - title: All Calendars vs Selectable Calendars

@@ -507,7 +507,6 @@ events:
       - name: navigationType
         summary: Constant indicating the user's action.
         type: Number
-        constants: Titanium.UI.iOS.WEBVIEW_NAVIGATIONTYPE_*
         platforms: [ipad, iphone, macos]
 
       - name: isMainFrame
@@ -544,23 +543,6 @@ events:
         summary: URL of the web document.
         type: String
         platforms: [iphone, ipad, android, macos]
-      - name: message
-        summary: Error message. Use error instead.
-        type: String
-        platforms: [iphone, ipad, android]
-        deprecated:
-            since: "3.1.0"
-            removed: "9.0.0"
-            notes: Use the `error` property instead. Removed on ios in 8.0.0. Removed on android in 9.0.0.
-      - name: errorCode
-        summary: A constant or underlying platform specific error code. Use code instead.
-        type: Number
-        constants: Titanium.UI.URL_ERROR_*
-        platforms: [iphone, ipad, android]
-        deprecated:
-            since: "3.1.0"
-            removed: "9.0.0"
-            notes: Use the `code` property instead. Removed on ios in 8.0.0. Removed on android in 9.0.0.
 
   - name: load
     summary: Fired when the web view content is loaded.
@@ -592,19 +574,6 @@ events:
         summary: SSL error code.
         type: Number
         platforms: [android]
-
-  - name: onStopBlacklistedUrl
-    summary: Fired when a blacklisted URL is stopped.
-    platforms: [android]
-    since: 5.4.0
-    properties:
-      - name: url
-        summary: The URL of the web document that is stopped.
-        type: String
-    deprecated:
-        since: "6.1.0"
-        removed: "9.0.0"
-        notes: Use the  cross-platform `blacklisturl` event instead.
 
   - name: blacklisturl
     summary: Fired when a blacklisted URL is stopped.
@@ -708,7 +677,6 @@ properties:
         Safari, it is opt-in, by way of this property, rather default behavior for this class.
     type: Boolean
     default: false
-    osver: {ios: {min: "9.0"}}
     platforms: [iphone, ipad, macos]
     since: {iphone: "5.4.0", ipad: "5.4.0", macos: "9.2.0"}
 

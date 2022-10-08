@@ -244,7 +244,7 @@ properties:
   - name: image
     summary: Image to display next to the button title.
     description: |
-        As of Titanium 10.2.0, the [imageIsMask](Titanium.UI.Button.imageIsMask) property determines how
+        As of Titanium 11.0.0, the [imageIsMask](Titanium.UI.Button.imageIsMask) property determines how
         this image is displayed. If set `true`, this image will be tinted using the color assigned to the
         [tintColor](Titanium.UI.Button.tintColor) property. If set `false`, the image is displayed as-is.
 
@@ -256,7 +256,7 @@ properties:
     summary: Set true to tint the button image. Set false to show the image as-is.
     type: Boolean
     default: true
-    since: "10.2.0"
+    since: "11.0.0"
 
   - name: selectedColor
     summary: Button text color used to indicate the selected state, as a color name or hex triplet.
@@ -342,7 +342,6 @@ properties:
         unless the [color](Titanium.UI.Button.color) property is set.
     type: String
     platforms: [android,iphone,ipad, macos]
-    osver: {ios: {min: "7.0"}}
     since:
         android: 5.4.0
         iphone: 3.1.3

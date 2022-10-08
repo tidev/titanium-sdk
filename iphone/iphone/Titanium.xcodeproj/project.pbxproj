@@ -160,6 +160,7 @@
 		3A275F3E1BA881B300EC4912 /* TiUIActivityIndicatorStyleProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 3A275F3D1BA881B300EC4912 /* TiUIActivityIndicatorStyleProxy.m */; };
 		3A38F30424D6EBBD00CC6EFB /* TiUtils+Addons.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A38F30324D6EBBD00CC6EFB /* TiUtils+Addons.swift */; };
 		3A3BBAF51D3E2F0F008450DF /* TiAppiOSUserNotificationCenterProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 3A3BBAF41D3E2F0F008450DF /* TiAppiOSUserNotificationCenterProxy.m */; };
+		3A527EB327E0F77700A470D6 /* TiUITableViewScrollPositionProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 3A527EB227E0F77700A470D6 /* TiUITableViewScrollPositionProxy.m */; };
 		3A5AD7261BB9A6E4005B408B /* TiUIiOSPreviewActionGroupProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 3A5AD7251BB9A6E4005B408B /* TiUIiOSPreviewActionGroupProxy.m */; };
 		3A5AD7291BB9BEA8005B408B /* TiUIiOSPreviewContextProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 3A5AD7281BB9BEA8005B408B /* TiUIiOSPreviewContextProxy.m */; };
 		3A811CD01C2C21E50023468C /* TiUIiOSBlurViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 3A811CCF1C2C21E50023468C /* TiUIiOSBlurViewProxy.m */; };
@@ -605,6 +606,8 @@
 		3A38F30324D6EBBD00CC6EFB /* TiUtils+Addons.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TiUtils+Addons.swift"; sourceTree = "<group>"; };
 		3A3BBAF31D3E2F0F008450DF /* TiAppiOSUserNotificationCenterProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiAppiOSUserNotificationCenterProxy.h; sourceTree = "<group>"; };
 		3A3BBAF41D3E2F0F008450DF /* TiAppiOSUserNotificationCenterProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiAppiOSUserNotificationCenterProxy.m; sourceTree = "<group>"; };
+		3A527EB027E0F77700A470D6 /* TiUITableViewScrollPositionProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUITableViewScrollPositionProxy.h; sourceTree = "<group>"; };
+		3A527EB227E0F77700A470D6 /* TiUITableViewScrollPositionProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUITableViewScrollPositionProxy.m; sourceTree = "<group>"; };
 		3A5AD7241BB9A6E4005B408B /* TiUIiOSPreviewActionGroupProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIiOSPreviewActionGroupProxy.h; sourceTree = "<group>"; };
 		3A5AD7251BB9A6E4005B408B /* TiUIiOSPreviewActionGroupProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIiOSPreviewActionGroupProxy.m; sourceTree = "<group>"; };
 		3A5AD7271BB9BEA8005B408B /* TiUIiOSPreviewContextProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIiOSPreviewContextProxy.h; sourceTree = "<group>"; };
@@ -1278,9 +1281,11 @@
 			isa = PBXGroup;
 			children = (
 				3AA4EC1B232034FE00703A20 /* ListView */,
+				DB769E00210F0D92004D9338 /* TableView */,
 				84C3870017417CB800970D26 /* TiSelectedCellbackgroundView.h */,
 				84C3870117417CB800970D26 /* TiSelectedCellbackgroundView.m */,
-				DB769E00210F0D92004D9338 /* TableView */,
+				3A527EB027E0F77700A470D6 /* TiUITableViewScrollPositionProxy.h */,
+				3A527EB227E0F77700A470D6 /* TiUITableViewScrollPositionProxy.m */,
 			);
 			name = "TableView & ListView";
 			sourceTree = "<group>";
@@ -2272,6 +2277,7 @@
 				DA864E3211A2314A00B9CD68 /* TiMediaMusicPlayer.m in Sources */,
 				823CC8AC1B7F0E4D00D220C7 /* WatchSessionModule.m in Sources */,
 				DAA905CE11A359F10030B119 /* TiMediaItem.m in Sources */,
+				3A527EB327E0F77700A470D6 /* TiUITableViewScrollPositionProxy.m in Sources */,
 				84EB08011A71932D00D35815 /* TiUIiOSSplitWindowProxy.m in Sources */,
 				242E967711BAD2F20046A0D0 /* AsyncSocket.m in Sources */,
 				242E967811BAD2F20046A0D0 /* AsyncUdpSocket.m in Sources */,
@@ -2378,7 +2384,7 @@
 				);
 				GCC_THUMB_SUPPORT = NO;
 				INFOPLIST_FILE = Titanium.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				LD_DEPENDENCY_INFO_FILE = "$(OBJECT_FILE_DIR_$(CURRENT_VARIANT))/$(CURRENT_ARCH)/$(PRODUCT_NAME)_dependency_info.dat";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -2435,7 +2441,7 @@
 				);
 				GCC_THUMB_SUPPORT = NO;
 				INFOPLIST_FILE = Titanium.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				LD_DEPENDENCY_INFO_FILE = "$(OBJECT_FILE_DIR_$(CURRENT_VARIANT))/$(CURRENT_ARCH)/$(PRODUCT_NAME)_dependency_info.dat";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -2519,7 +2525,7 @@
 					"${\"SDKROOT\"}/usr/include/libxml2",
 					../headers,
 				);
-				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CFLAGS = "-DDEBUG";
 				OTHER_LDFLAGS = "-ObjC";
@@ -2584,7 +2590,7 @@
 					"${\"SDKROOT\"}/usr/include/libxml2",
 					../headers,
 				);
-				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				OTHER_LDFLAGS = "-ObjC";
 				PROVISIONING_PROFILE = "";
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";

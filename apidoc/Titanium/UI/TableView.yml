@@ -1161,7 +1161,7 @@ properties:
     type: Boolean
     default: false
     availability: creation
-    since: 10.2.0
+    since: 11.0.0
     platforms: [android]
 
   - name: footerDividersEnabled
@@ -1435,7 +1435,6 @@ properties:
     default: false
     since: 8.1.0
     platforms: [iphone, ipad, macos]
-    osver: {ios: {min: "11.0"}}
     availability: creation
 
   - name: searchAsChild
@@ -1508,7 +1507,6 @@ properties:
         ```
     type: HorizontalInsets
     since: 3.2.0
-    osver: {ios: {min: "7.0"}}
     platforms: [iphone, ipad, macos]
 
   - name: touchFeedback
@@ -1537,7 +1535,6 @@ properties:
         ```
     type: HorizontalInsets
     since: "5.2.0"
-    osver: {ios: {min: "7.0"}}
     platforms: [iphone, ipad, macos]
 
   - name: rowSeparatorInsets
@@ -1556,7 +1553,6 @@ properties:
         ```
     type: HorizontalInsets
     since: "5.2.0"
-    osver: {ios: {min: "7.0"}}
     platforms: [iphone, ipad, macos]
 
   - name: separatorStyle
@@ -1711,50 +1707,50 @@ examples:
 
         for (var i=1; i<=20; i++){
           var row = Ti.UI.createTableViewRow({
-            className:'forumEvent', // used to improve table performance
-            selectedBackgroundColor:'white',
-            rowIndex:i, // custom property, useful for determining the row during events
-            height:110
+            className: 'forumEvent', // used to improve table performance
+            backgroundSelectedColor: 'white',
+            rowIndex: i, // custom property, useful for determining the row during events
+            height: 110
           });
 
           var imageAvatar = Ti.UI.createImageView({
             image: IMG_BASE + 'custom_tableview/user.png',
-            left:10, top:5,
-            width:50, height:50
+            left: 10, top: 5,
+            width: 50, height: 50
           });
           row.add(imageAvatar);
 
           var labelUserName = Ti.UI.createLabel({
-            color:'#576996',
-            font:{fontFamily:'Arial', fontSize:defaultFontSize+6, fontWeight:'bold'},
-            text:'Fred Smith ' + i,
-            left:70, top: 6,
-            width:200, height: 30
+            color: '#576996',
+            font: {fontFamily:'Arial', fontSize: defaultFontSize+6, fontWeight: 'bold'},
+            text: 'Fred Smith ' + i,
+            left: 70, top: 6,
+            width: 200, height: 30
           });
           row.add(labelUserName);
 
           var labelDetails = Ti.UI.createLabel({
-            color:'#222',
-            font:{fontFamily:'Arial', fontSize:defaultFontSize+2, fontWeight:'normal'},
-            text:'Replied to post with id ' + randomInt(1000) + '.',
-            left:70, top:44,
-            width:360
+            color: '#222',
+            font: {fontFamily:'Arial', fontSize: defaultFontSize+2, fontWeight: 'normal'},
+            text: 'Replied to post with id ' + randomInt(1000) + '.',
+            left: 70, top: 44,
+            width: 360
           });
           row.add(labelDetails);
 
           var imageCalendar = Ti.UI.createImageView({
-            image:IMG_BASE + 'custom_tableview/eventsButton.png',
-            left:70, bottom: 2,
-            width:32, height: 32
+            image: IMG_BASE + 'custom_tableview/eventsButton.png',
+            left: 70, bottom: 2,
+            width: 32, height: 32
           });
           row.add(imageCalendar);
 
           var labelDate = Ti.UI.createLabel({
-            color:'#999',
-            font:{fontFamily:'Arial', fontSize:defaultFontSize, fontWeight:'normal'},
-            text:'on ' + randomInt(30) + ' Nov 2012',
-            left:105, bottom:10,
-            width:200, height:20
+            color: '#999',
+            font: {fontFamily:'Arial', fontSize: defaultFontSize, fontWeight: 'normal'},
+            text: 'on ' + randomInt(30) + ' Nov 2012',
+            left: 105, bottom: 10,
+            width: 200, height: 20
           });
           row.add(labelDate);
 
@@ -1762,8 +1758,8 @@ examples:
         }
 
         var tableView = Ti.UI.createTableView({
-          backgroundColor:'white',
-          data:tableData
+          backgroundColor: 'white',
+          data: tableData
         });
 
         win.add(tableView);
@@ -1823,8 +1819,8 @@ properties:
   - name: position
     summary: Specifies what position to scroll the selected row to.
     type: Number
-    constants: Titanium.UI.iOS.TableViewScrollPosition.*
-    default: <Titanium.UI.iOS.TableViewScrollPosition.NONE>
+    constants: Titanium.UI.TableViewScrollPosition.*
+    default: <Titanium.UI.TableViewScrollPosition.NONE>
 
 ---
 name: TableViewIndexEntry

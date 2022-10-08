@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2021 by Axway, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -224,6 +224,10 @@ public class PickerProxy extends TiViewProxy implements PickerColumnProxy.OnChan
 		}
 		textInputLayout.addView(editText, new TextInputLayout.LayoutParams(
 			TextInputLayout.LayoutParams.MATCH_PARENT, TextInputLayout.LayoutParams.MATCH_PARENT));
+
+		if (hasPropertyAndNotNull(TiC.PROPERTY_COLOR)) {
+			editText.setTextColor(TiConvert.toColor(getProperty(TiC.PROPERTY_COLOR).toString()));
+		}
 
 		return textInputLayout;
 	}

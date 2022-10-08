@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2020 by Axway. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License.
  * Please see the LICENSE included with this distribution for details.
  */
@@ -9,11 +9,11 @@ apply plugin: 'com.android.application'
 
 // Set up Android app project.
 android {
-	compileSdkVersion 31
+	compileSdkVersion 33
 	defaultConfig {
 		applicationId 'com.titanium.test'
 		minSdkVersion 21
-		targetSdkVersion 31
+		targetSdkVersion 33
 		versionCode 1
 		versionName '1.0'
 		manifestPlaceholders = project.ext.tiManifestPlaceholders
