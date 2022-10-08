@@ -198,36 +198,6 @@ methods:
         optional: true
         type: Dictionary<Titanium.Network.BonjourService>
 
-  - name: createTCPSocket
-    deprecated:
-        since: "1.7.0"
-        removed: "9.0.0"
-        notes: Use [Titanium.Network.Socket.createTCP](Titanium.Network.Socket.createTCP) instead.
-    summary: |
-        Legacy method to create and return an instance of <Titanium.Network.TCPSocket>.
-    description: |
-        Note that `TCPSocket` is still used with the Bonjour services. For other uses,
-        see <Titanium.Network.Socket.TCP>.
-    platforms: [iphone, ipad]
-    returns:
-        type: Titanium.Network.TCPSocket
-    parameters:
-      - name: hostName
-        summary: Host name to connect to/listen on.
-        type: String
-      - name: port
-        summary: Port for the socket.
-        type: Number
-      - name: mode
-        summary: |
-            Socket's mode; one of <Titanium.Network.READ_MODE>, <Titanium.Network.WRITE_MODE>,
-            <Titanium.Network.READ_WRITE_MODE>.
-        type: Number
-      - name: parameters
-        summary: |
-            Dictionary object with properties defined in <Titanium.Network.TCPSocket>.
-        type: Dictionary<Titanium.Network.TCPSocket>
-
   - name: decodeURIComponent
     summary: Returns a decoded version of a URI encoded value.
 
@@ -418,16 +388,6 @@ events:
         type: String
         platforms: [android]
 properties:
-  - name: INADDR_ANY
-    summary: |
-        Special hostname value for listening sockets, representing all
-        locally available network interfaces.
-    type: String
-    permission: read-only
-    platforms: [iphone, ipad]
-    deprecated:
-        since: "1.7.0"
-        removed: "7.0.0"
 
   - name: NETWORK_LAN
     summary: |
@@ -503,62 +463,6 @@ properties:
     permission: read-only
     platforms: [iphone, ipad, macos]
 
-  - name: READ_MODE
-    deprecated:
-        since: "1.7.0"
-        removed: "9.0.0"
-        notes: |
-            Used with the deprecated [Titanium.Network.TCPSocket](Titanium.Network.TCPSocket) only.
-
-            See [Socket](Titanium.Network.Socket) for constants used with
-            [TCP](Titanium.Network.Socket.TCP) sockets.
-    summary: Constant value specifying read-only mode for sockets.
-    type: Number
-    permission: read-only
-    platforms: [iphone, ipad]
-
-  - name: READ_WRITE_MODE
-    deprecated:
-        since: "1.7.0"
-        removed: "9.0.0"
-        notes: |
-            Used with the deprecated [Titanium.Network.TCPSocket](Titanium.Network.TCPSocket) only.
-
-            See [Socket](Titanium.Network.Socket) for constants used with
-            [TCP](Titanium.Network.Socket.TCP) sockets.
-    summary: Constant value specifying read-write mode for sockets.
-    type: Number
-    permission: read-only
-    platforms: [iphone, ipad]
-
-  - name: SOCKET_LISTENING
-    deprecated:
-        since: "1.7.0"
-        removed: "9.0.0"
-        notes: |
-            Used with the deprecated [Titanium.Network.TCPSocket](Titanium.Network.TCPSocket) only.
-
-            See [Socket](Titanium.Network.Socket) for constants used with
-            [TCP](Titanium.Network.Socket.TCP) sockets.
-    summary: Constant value representing a socket in the LISTENING state.
-    type: Number
-    permission: read-only
-    platforms: [iphone, ipad]
-
-  - name: WRITE_MODE
-    deprecated:
-        since: "1.7.0"
-        removed: "9.0.0"
-        notes: |
-            Used with the deprecated [Titanium.Network.TCPSocket](Titanium.Network.TCPSocket) only.
-
-            See [Socket](Titanium.Network.Socket) for constants used with
-            [TCP](Titanium.Network.Socket.TCP) sockets.
-    summary: Constant value specifying write-only mode for sockets.
-    type: Number
-    permission: read-only
-    platforms: [iphone, ipad]
-
   - name: TLS_VERSION_1_0
     summary: Constant value specifying TLS version 1.0 for SSL.
     type: Number
@@ -572,7 +476,6 @@ properties:
     permission: read-only
     since: {android: "3.6.0", iphone: "1.8.0.1", ipad: "1.8.0.1"}
     platforms: [android, iphone, ipad, macos]
-    osver: {android: {min: "4.1"}}
 
   - name: TLS_VERSION_1_2
     summary: Constant value specifying TLS version 1.2 for SSL.
@@ -580,7 +483,6 @@ properties:
     permission: read-only
     since: {android: "3.6.0", iphone: "1.8.0.1", ipad: "1.8.0.1"}
     platforms: [android, iphone, ipad, macos]
-    osver: {android: {min: "4.1"}}
 
   - name: TLS_VERSION_1_3
     summary: Constant value specifying TLS version 1.3 for SSL.

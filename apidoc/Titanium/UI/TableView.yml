@@ -4,9 +4,9 @@ summary: |
     A table view is used to present information, organized in sections and rows, in a
     vertically-scrolling view.
 description: |
-    | Android | iOS | Windows |
-    | ------- | --- | ------- |
-    | ![Android](./tableview_android.png) | ![iOS](./tableview_ios.png) | ![Windows](./tableview_wp.png) |
+    | Android | iOS |
+    | ------- | --- |
+    | ![Android](./tableview_android.png) | ![iOS](./tableview_ios.png) |
 
     A `TableView` object is a container for [TableViewSection](Titanium.UI.TableViewSection)
     objects that are, in turn, containers for [TableViewRow](Titanium.UI.TableViewRow) objects.
@@ -1516,7 +1516,6 @@ properties:
     type: Boolean
     default: true
     platforms: [android]
-    osver: {android: {min: "5.0"}}
     since: "10.0.0"
 
   - name: tableSeparatorInsets
