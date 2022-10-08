@@ -22,7 +22,7 @@ methods:
 
   - name: harmonizerColor
     summary: Creates a harmonizing color
-    summary: |
+    description: |
       Shifts the hue of the input color towards the hue of colorPrimary and returns a new color
       as a hex string. Usage: `Ti.Media.harmonizerColor("#ff0000");`
     parameters:
