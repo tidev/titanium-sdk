@@ -1,18 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-	<!-- Material You light theme colors. -->
-	<color name="ti_light_primary">@android:color/system_accent1_600</color>
-	<color name="ti_light_primary_dark">@android:color/system_accent1_900</color>
-	<color name="ti_light_accent">@android:color/system_accent1_600</color>
-	<color name="ti_light_surface">@android:color/system_neutral1_10</color>
-	<color name="ti_light_background">@android:color/system_neutral1_50</color>
-
-	<!-- Material You dark theme colors. -->
-	<color name="ti_dark_primary">@android:color/system_accent1_100</color>
-	<color name="ti_dark_primary_dark">@android:color/system_accent1_300</color>
-	<color name="ti_dark_accent">@android:color/system_accent1_100</color>
-	<color name="ti_dark_surface">@android:color/system_neutral1_800</color>
-	<color name="ti_dark_background">@android:color/system_neutral1_900</color>
 
 	<style name="Base.Theme.Titanium.Splash" parent="Theme.AppDerived">
 		<item name="android:navigationBarColor">?android:attr/colorBackground</item>
