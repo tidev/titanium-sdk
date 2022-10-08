@@ -95,6 +95,7 @@ public class TiCameraXActivity extends TiBaseActivity implements CameraXConfig.P
 	static PendingRecording pendingRecording;
 	static String mediaTitle = "";
 	static ContentResolver contentResolver = TiApplication.getInstance().getContentResolver();
+	static Camera camera;
 	private static ImageCapture imageCapture;
 	private static VideoCapture videoCapture;
 	private static boolean isRecording = false;
@@ -102,91 +103,92 @@ public class TiCameraXActivity extends TiBaseActivity implements CameraXConfig.P
 	Preview preview;
 	int lensFacing = CameraSelector.LENS_FACING_BACK;
 	FrameLayout layout;
-	static Camera camera;
 	private TiViewProxy localOverlayProxy = null;
 	private ProcessCameraProvider cameraProvider;
 
 	public static void takePicture()
 	{
-		try {
-			File file = null;
-			String imageName = createExternalMediaName() + ".jpg";
-			OutputFileOptions outputFileOptions = null;
-			if (saveToPhotoGallery) {
-				ContentValues contentValues = new ContentValues();
-				contentValues.put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg");
-				contentValues.put(MediaStore.Images.Media.DISPLAY_NAME, imageName);
-				outputFileOptions = new ImageCapture.OutputFileOptions.Builder(contentResolver,
-					MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues).build();
+		File file = null;
+		String imageName = createExternalMediaName() + ".jpg";
+		OutputFileOptions outputFileOptions = null;
+		if (saveToPhotoGallery) {
+			ContentValues contentValues = new ContentValues();
+			contentValues.put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg");
+			contentValues.put(MediaStore.Images.Media.DISPLAY_NAME, imageName);
+			outputFileOptions = new ImageCapture.OutputFileOptions.Builder(contentResolver,
+				MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues).build();
 
-			} else {
+		} else {
+			try {
 				file = TiFileHelper.getInstance().getTempFile(".jpg", true);
 				outputFileOptions = new OutputFileOptions.Builder(file).build();
+			} catch (Exception ex) {
+				KrollDict dict = new KrollDict();
+				dict.put(TiC.PROPERTY_MESSAGE, "Error taking a picture");
+				errorCallback.callAsync(callbackContext, dict);
+				return;
 			}
+		}
 
-			imageCapture.takePicture(outputFileOptions, executor, new OnImageSavedCallback()
+		imageCapture.takePicture(outputFileOptions, executor, new OnImageSavedCallback()
+		{
+			@Override
+			public void onImageSaved(ImageCapture.OutputFileResults outputFileResults)
 			{
-				@Override
-				public void onImageSaved(ImageCapture.OutputFileResults outputFileResults)
-				{
-					if (successCallback == null) {
-						return;
+				if (successCallback == null) {
+					return;
+				}
+				Uri outputUri = outputFileResults.getSavedUri();
+				if (outputUri.toString().startsWith("content://")) {
+					String name = "";
+					String path = "";
+
+					Uri mediaUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
+					String[] columns = {
+						MediaStore.Images.Media.DISPLAY_NAME,
+						MediaStore.Images.Media.DATA
+					};
+					String[] selectionArgs = { imageName };
+					String queryString = MediaStore.Images.ImageColumns.DISPLAY_NAME + " = ? ";
+					Cursor cursor = contentResolver.query(mediaUri, columns, queryString, selectionArgs, null);
+					if ((cursor != null) && cursor.moveToNext()) {
+						name = getStringFrom(cursor, 0);
+						path = getStringFrom(cursor, 1);
 					}
-					Uri outputUri = outputFileResults.getSavedUri();
-					if (outputUri.toString().startsWith("content://")) {
-						String name = "";
-						String path = "";
 
-						Uri mediaUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
-						String[] columns = {
-							MediaStore.Images.Media.DISPLAY_NAME,
-							MediaStore.Images.Media.DATA
-						};
-						String[] selectionArgs = { imageName };
-						String queryString = MediaStore.Images.ImageColumns.DISPLAY_NAME + " = ? ";
-						Cursor cursor = contentResolver.query(mediaUri, columns, queryString, selectionArgs, null);
-						if ((cursor != null) && cursor.moveToNext()) {
-							name = getStringFrom(cursor, 0);
-							path = getStringFrom(cursor, 1);
-						}
-
-						if (name != null && !name.equals("")) {
-							TiBlob blob = TiBlob.blobFromFile(TiFileFactory.createTitaniumFile(path, false));
-							KrollDict response = MediaModule.createDictForImage(blob, blob.getMimeType());
-							successCallback.callAsync(callbackContext, response);
-						}
-					} else {
-						// normal file
-						File file = new File(outputUri.getPath());
-						TiBlob blob = TiBlob.blobFromFile(TiFileFactory.createTitaniumFile(file.getPath(), false));
+					if (name != null && !name.equals("")) {
+						TiBlob blob = TiBlob.blobFromFile(TiFileFactory.createTitaniumFile(path, false));
 						KrollDict response = MediaModule.createDictForImage(blob, blob.getMimeType());
 						successCallback.callAsync(callbackContext, response);
 					}
-
-					if (cameraActivity != null && autohide) {
-						cameraActivity.finish();
-					}
+				} else {
+					// normal file
+					File file = new File(outputUri.getPath());
+					TiBlob blob = TiBlob.blobFromFile(TiFileFactory.createTitaniumFile(file.getPath(), false));
+					KrollDict response = MediaModule.createDictForImage(blob, blob.getMimeType());
+					successCallback.callAsync(callbackContext, response);
 				}
 
-				@Override
-				public void onError(ImageCaptureException error)
-				{
-					if (errorCallback == null) {
-						Log.e(TAG, error.toString());
-						return;
-					}
-
-					KrollDict dict = new KrollDict();
-					dict.putCodeAndMessage(error.getImageCaptureError(), error.toString());
-					dict.put(TiC.PROPERTY_MESSAGE, error.toString());
-					errorCallback.callAsync(callbackContext, dict);
+				if (cameraActivity != null && autohide) {
+					cameraActivity.finish();
 				}
-			});
-		} catch (Exception ex) {
-			KrollDict dict = new KrollDict();
-			dict.put(TiC.PROPERTY_MESSAGE, "Error taking a picture");
-			errorCallback.callAsync(callbackContext, dict);
-		}
+			}
+
+			@Override
+			public void onError(ImageCaptureException error)
+			{
+				if (errorCallback == null) {
+					Log.e(TAG, error.toString());
+					return;
+				}
+
+				KrollDict dict = new KrollDict();
+				dict.putCodeAndMessage(error.getImageCaptureError(), error.toString());
+				dict.put(TiC.PROPERTY_MESSAGE, error.toString());
+				errorCallback.callAsync(callbackContext, dict);
+			}
+		});
+
 	}
 
 	@SuppressLint("MissingPermission")
@@ -325,6 +327,21 @@ public class TiCameraXActivity extends TiBaseActivity implements CameraXConfig.P
 			}
 		}
 		return result;
+	}
+
+	public static void setZoomLevel(float value)
+	{
+		camera.getCameraControl().setZoomRatio(value);
+	}
+
+	public static float getMaxZoom()
+	{
+		return camera.getCameraInfo().getZoomState().getValue().getMaxZoomRatio();
+	}
+
+	public static float getMinZoom()
+	{
+		return camera.getCameraInfo().getZoomState().getValue().getMinZoomRatio();
 	}
 
 	@Override
@@ -519,20 +536,6 @@ public class TiCameraXActivity extends TiBaseActivity implements CameraXConfig.P
 			}
 			finish();
 		}
-	}
-
-	public static void setZoomLevel(float value)
-	{
-		camera.getCameraControl().setZoomRatio(value);
-	}
-
-	public static float getMaxZoom()
-	{
-		return camera.getCameraInfo().getZoomState().getValue().getMaxZoomRatio();
-	}
-	public static float getMinZoom()
-	{
-		return camera.getCameraInfo().getZoomState().getValue().getMinZoomRatio();
 	}
 
 	protected void switchCamera(int whichCamera)
