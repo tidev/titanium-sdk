@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2015 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -14,21 +14,20 @@
 
 @implementation AppDelegate
 
+- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
+{
+  self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
+  // Override point for customization after application launch.
+  self.window.backgroundColor = [UIColor whiteColor];
 
-- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
-    self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
-    // Override point for customization after application launch.
-    self.window.backgroundColor = [UIColor whiteColor];
-    
-    
-//    UINavigationController* stackedViewControllers = [[UINavigationController alloc] init];
-//    [stackedViewControllers setNavigationBarHidden:YES];
-//    [stackedViewControllers pushViewController:[[ViewController alloc] init] animated:NO];
-//    self.window.rootViewController = stackedViewControllers;
+  //    UINavigationController* stackedViewControllers = [[UINavigationController alloc] init];
+  //    [stackedViewControllers setNavigationBarHidden:YES];
+  //    [stackedViewControllers pushViewController:[[ViewController alloc] init] animated:NO];
+  //    self.window.rootViewController = stackedViewControllers;
 
-    self.window.rootViewController = [[ViewController alloc] init];
-    [self.window makeKeyAndVisible];
-    return YES;
+  self.window.rootViewController = [[ViewController alloc] init];
+  [self.window makeKeyAndVisible];
+  return YES;
 }
 
 @end

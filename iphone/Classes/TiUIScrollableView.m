@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -650,7 +650,6 @@
   }
 }
 
-#if IS_SDK_IOS_14
 - (void)setPreferredIndicatorImage_:(id)args
 {
   if (![TiUtils isIOSVersionOrGreater:@"14.0"]) {
@@ -673,7 +672,6 @@
     [[self pagecontrol] setIndicatorImage:image forPage:page];
   }
 }
-#endif
 
 - (void)setPagingControlOnTop_:(id)args
 {

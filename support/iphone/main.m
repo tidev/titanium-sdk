@@ -1,5 +1,5 @@
 //
-//  Appcelerator Titanium Mobile
+//  TiDev Titanium Mobile
 //  WARNING: this is a generated file and should not be modified
 //
 

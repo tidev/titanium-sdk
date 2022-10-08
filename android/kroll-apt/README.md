@@ -15,9 +15,9 @@ Implementation
 --------------
 The majority of the code lives in two places:
 
-1. [KrollBindingGenerator.java](http://github.com/appcelerator/titanium_mobile/blob/master/android/kroll-apt/src/org/appcelerator/kroll/annotations/generator/KrollBindingGenerator.java)
+1. [KrollBindingGenerator.java](http://github.com/tidev/titanium_mobile/blob/master/android/kroll-apt/src/org/appcelerator/kroll/annotations/generator/KrollBindingGenerator.java)
     - This is the main class that implements AnnotationProcessor, builds/manages the JSON model, and invokes Freemarker for each proxy/module.
-2. [ProxyBinding.fm](http://github.com/appcelerator/titanium_mobile/blob/master/android/kroll-apt/src/org/appcelerator/kroll/annotations/generator/ProxyBinding.fm)
+2. [ProxyBinding.fm](http://github.com/tidev/titanium_mobile/blob/master/android/kroll-apt/src/org/appcelerator/kroll/annotations/generator/ProxyBinding.fm)
     - This is a [Freemarker](http://freemarker.sourceforge.net/docs/index.html) template that reads from the JSON model and generates a binding class that binds all of a proxy's methods and properties
 
 Running the Annotation processor

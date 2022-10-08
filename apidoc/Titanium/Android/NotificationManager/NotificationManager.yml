@@ -47,6 +47,15 @@ methods:
     returns:
         type: Titanium.Android.NotificationChannel
 
+  - name: deleteNotificationChannel
+    osver: {android: {min: "8.0"}}
+    summary: Deletes a notification channel.
+    since: "12.0.0"
+    parameters:
+      - name: id
+        summary: The id of the channel
+        type: String
+
   - name: areNotificationsEnabled
     summary: Returns whether showing notifications is enabled for the application.
     returns:

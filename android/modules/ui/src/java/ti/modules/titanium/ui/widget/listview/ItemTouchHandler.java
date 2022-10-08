@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2020 by Axway, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -39,6 +39,7 @@ public class ItemTouchHandler extends ItemTouchHelper.SimpleCallback
 	private int moveEndIndex = -1;
 	private Drawable icon;
 	private final ColorDrawable background;
+	private boolean hasMoveStarted = false;
 
 	@SuppressLint("ClickableViewAccessibility")
 	public ItemTouchHandler(@NonNull TiRecyclerViewAdapter adapter,
@@ -56,7 +57,13 @@ public class ItemTouchHandler extends ItemTouchHelper.SimpleCallback
 			@Override
 			public boolean onTouch(View v, MotionEvent event)
 			{
-				if (event.getAction() == MotionEvent.ACTION_UP) {
+				if (event.getAction() == MotionEvent.ACTION_MOVE && !hasMoveStarted) {
+					recyclerViewProxy.onMoveGestureStarted();
+					hasMoveStarted = true;
+				} else if (event.getAction() == MotionEvent.ACTION_UP) {
+					recyclerViewProxy.onMoveGestureEnded();
+					hasMoveStarted = false;
+
 					if (moveEndIndex >= 0) {
 						// Notify owner that item movement has ended. Will fire a "move" event.
 						recyclerViewProxy.onMoveItemEnded(moveEndIndex);
@@ -242,7 +249,11 @@ public class ItemTouchHandler extends ItemTouchHelper.SimpleCallback
 	 */
 	private boolean isEditing()
 	{
-		return this.recyclerViewProxy.getProperties().optBoolean(TiC.PROPERTY_EDITING, false);
+		boolean isEditing = this.recyclerViewProxy.getProperties().optBoolean(TiC.PROPERTY_EDITING, false);
+		boolean requiresEditingToMove =
+			this.recyclerViewProxy.getProperties().optBoolean(TiC.PROPERTY_REQUIRES_EDITING_TO_MOVE, true);
+
+		return isEditing || !requiresEditingToMove;
 	}
 
 	/**
