@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
 	<style name="Base.Theme.Titanium.Splash" parent="Theme.AppDerived">
 		<item name="android:navigationBarColor">?android:attr/colorBackground</item>
 		<item name="android:statusBarColor">?android:attr/colorBackground</item>
