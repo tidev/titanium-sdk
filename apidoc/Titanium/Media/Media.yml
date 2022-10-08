@@ -1688,6 +1688,14 @@ properties:
     platforms: [iphone, ipad, macos]
     permission: read-only
 
+  - name: torch
+    summary: |
+        Enable or disable the camera torch.
+    type: Boolean
+    platforms: [android]
+    since:
+        android: "12.0.0"
+
   - name: zoomLevel
     summary: |
         Sets the zoom level of the camera.

@@ -88,6 +88,7 @@ public class TiCameraXActivity extends TiBaseActivity implements CameraXConfig.P
 	public static String mediaType = MediaModule.MEDIA_TYPE_PHOTO;
 	public static boolean saveToPhotoGallery = false;
 	public static boolean allowZoom = false;
+	public static boolean torchEnabled = false;
 	public static int videoMaximumDuration = 0;
 	public static long videoMaximumSize = 0;
 	public static int videoQuality = MediaModule.QUALITY_HD;
@@ -108,6 +109,9 @@ public class TiCameraXActivity extends TiBaseActivity implements CameraXConfig.P
 
 	public static void takePicture()
 	{
+		if (imageCapture == null) {
+			return;
+		}
 		File file = null;
 		String imageName = createExternalMediaName() + ".jpg";
 		OutputFileOptions outputFileOptions = null;
@@ -292,8 +296,12 @@ public class TiCameraXActivity extends TiBaseActivity implements CameraXConfig.P
 		isRecording = false;
 	}
 
-	public static void setFlashMode(int cameraFlashMode)
+	public static void setFlashMode(int value)
 	{
+		cameraFlashMode = value;
+		if (imageCapture != null) {
+			imageCapture.setFlashMode(cameraFlashMode);
+		}
 	}
 
 	public static void hide()
@@ -318,7 +326,7 @@ public class TiCameraXActivity extends TiBaseActivity implements CameraXConfig.P
 	private static String getStringFrom(Cursor cursor, int columnIndex)
 	{
 		String result = null;
-		if ((cursor != null) && (columnIndex >= 0)) {
+		if (cursor != null && columnIndex >= 0) {
 			try {
 				if (cursor.getType(columnIndex) == Cursor.FIELD_TYPE_STRING) {
 					result = cursor.getString(columnIndex);
@@ -332,6 +340,14 @@ public class TiCameraXActivity extends TiBaseActivity implements CameraXConfig.P
 	public static void setZoomLevel(float value)
 	{
 		camera.getCameraControl().setZoomRatio(value);
+	}
+
+	public static void setTorch(Boolean value)
+	{
+		if (camera.getCameraInfo().hasFlashUnit()) {
+			torchEnabled = value;
+			camera.getCameraControl().enableTorch(value);
+		}
 	}
 
 	public static float getMaxZoom()
@@ -447,7 +463,6 @@ public class TiCameraXActivity extends TiBaseActivity implements CameraXConfig.P
 					camera = cameraProvider.bindToLifecycle(this, cameraSelector, imageCapture, preview);
 				}
 				preview.setSurfaceProvider(viewFinder.getSurfaceProvider());
-
 				if (allowZoom) {
 					// zoom gesture
 					ScaleGestureDetector scaleGestureDetector = new ScaleGestureDetector(activity,

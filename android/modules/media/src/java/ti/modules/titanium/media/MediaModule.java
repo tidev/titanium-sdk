@@ -880,6 +880,18 @@ public class MediaModule extends KrollModule implements Handler.Callback
 		TiCameraXActivity.setFlashMode(flashMode);
 	}
 
+	@Kroll.setProperty
+	public void setTorch(Boolean value)
+	{
+		TiCameraXActivity.setTorch(value);
+	}
+
+	@Kroll.getProperty
+	public Boolean getTorch()
+	{
+		return TiCameraXActivity.torchEnabled;
+	}
+
 	@Kroll.getProperty
 	public int getCameraFlashMode()
 	{
