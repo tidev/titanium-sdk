@@ -151,10 +151,6 @@ GETTER_IMPL(NSUInteger, size, Size);
 
 - (id)initWithSystemImage:(NSString *)imageName andParameters:(NSDictionary *)parameters
 {
-  if (![TiUtils isIOSVersionOrGreater:@"13.0"]) {
-    return nil;
-  }
-
   if (self = [super init]) {
     if (parameters == nil) {
       image = [[UIImage systemImageNamed:imageName] retain];

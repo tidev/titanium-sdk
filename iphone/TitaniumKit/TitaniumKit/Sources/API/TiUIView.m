@@ -350,9 +350,14 @@ DEFINE_EXCEPTIONS
   // Redraw the background gradient
   TiGradient *backgroundGradient = [self.proxy valueForKey:@"backgroundGradient"];
   if (backgroundGradient != nil) {
-    [backgroundGradient clearCache];
-    [backgroundGradient setColors:[backgroundGradient valueForKey:@"colors"]];
-    [self setBackgroundGradient_:backgroundGradient];
+    // Guard the colors to handle a case where gradients have no custom
+    // colors applied
+    id colors = [backgroundGradient valueForKey:@"colors"];
+    if (colors != nil) {
+      [backgroundGradient clearCache];
+      [backgroundGradient setColors:colors];
+      [self setBackgroundGradient_:backgroundGradient];
+    }
   }
 }
 
@@ -1574,10 +1579,14 @@ DEFINE_EXCEPTIONS
       [self handleControlEvents:UIControlEventTouchCancel];
     }
 
+    // NOTE: The "!touch.tapCount" fixes an issue on Apple Silicon Simulator
+    // where touches are not received.
+    BOOL shouldFireClickEvent = [touch tapCount] == 1 || !touch.tapCount;
+
     // Click handling is special; don't propagate if we have a delegate,
     // but DO invoke the touch delegate.
     // clicks should also be handled by any control the view is embedded in.
-    if ([touch tapCount] == 1 && [proxy _hasListeners:@"click"]) {
+    if (shouldFireClickEvent && [proxy _hasListeners:@"click"]) {
       if (touchDelegate == nil) {
         [proxy fireEvent:@"click" withObject:evt propagate:YES];
         return;

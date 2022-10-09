@@ -15,24 +15,34 @@ import java.util.Date;
 import java.util.List;
 
 import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.KrollModule;
+import org.appcelerator.kroll.KrollObject;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
+import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.util.TiConvert;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.webkit.CookieManager;
 import android.webkit.CookieSyncManager;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.AppCompatActivity;
 
 @SuppressWarnings("deprecation")
 @Kroll.module
@@ -477,6 +487,74 @@ public class NetworkModule extends KrollModule
 	{
 		java.net.CookieStore cookieStore = getCookieManagerInstance().getCookieStore();
 		cookieStore.removeAll();
+	}
+
+	/**
+	 * Returns true if push notifications are allowed in the app settings
+	 * @return boolean if push notifications are allowed in the app settings
+	 */
+	@RequiresApi(api = Build.VERSION_CODES.TIRAMISU)
+	@Kroll.getProperty
+	public boolean remoteNotificationsEnabled()
+	{
+		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+			return true;
+		}
+
+		Context context = TiApplication.getInstance();
+		int result = context.checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS);
+		return (result == PackageManager.PERMISSION_GRANTED);
+	}
+
+	/**
+	 * Registers for push notifications. This is necessary on Android 13+ due to privacy changes
+	 *
+	 * @param params The parameters containing the success- and error-callback
+	 */
+	@RequiresApi(api = Build.VERSION_CODES.TIRAMISU)
+	@Kroll.method
+	public void registerForPushNotifications(KrollDict params)
+	{
+		KrollFunction successCallback = (KrollFunction) params.get("success");
+		KrollFunction errorCallback = (KrollFunction) params.get("error");
+
+		if (this.remoteNotificationsEnabled()) {
+			KrollDict event = new KrollDict();
+			event.put("success", true);
+			event.put("type", "remote");
+			successCallback.callAsync(getKrollObject(), new KrollDict());
+			return;
+		}
+
+		AppCompatActivity activity = (AppCompatActivity) TiApplication.getAppCurrentActivity();
+		KrollObject mKrollObject = getKrollObject();
+
+		TiBaseActivity.OnRequestPermissionsResultCallback activityCallback;
+		activityCallback = new TiBaseActivity.OnRequestPermissionsResultCallback() {
+			@Override
+			public void onRequestPermissionsResult(
+				@NonNull TiBaseActivity activity, int requestCode,
+				@NonNull String[] permissions, @NonNull int[] grantResults)
+			{
+				Boolean isGranted = grantResults[0] == PackageManager.PERMISSION_GRANTED;
+				
+				KrollDict event = new KrollDict();
+				event.put("success", isGranted);
+				event.put("type", "remote");
+
+				if (isGranted) {
+					successCallback.callAsync(getKrollObject(), event);
+				} else {
+					errorCallback.callAsync(getKrollObject(), event);
+				}
+
+				// Unregister this callback.
+				TiBaseActivity.unregisterPermissionRequestCallback(TiC.PERMISSION_CODE_PUSH_NOTIFICATIONS);
+			}
+		};
+		TiBaseActivity.registerPermissionRequestCallback(TiC.PERMISSION_CODE_PUSH_NOTIFICATIONS, activityCallback);
+		String[] permissions = new String[] { Manifest.permission.POST_NOTIFICATIONS };
+		activity.requestPermissions(permissions, TiC.PERMISSION_CODE_PUSH_NOTIFICATIONS);
 	}
 
 	/**

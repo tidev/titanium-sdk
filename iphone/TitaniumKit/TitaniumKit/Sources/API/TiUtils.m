@@ -797,19 +797,7 @@ static NSDictionary *sizeMap = nil;
 
 + (UIImage *)imageWithTint:(UIImage *)image tintColor:(UIColor *)tintColor
 {
-  if ([TiUtils isIOSVersionOrGreater:@"13.0"]) {
-    return [image imageWithTintColor:tintColor renderingMode:UIImageRenderingModeAlwaysOriginal];
-  }
-  UIImage *imageNew = [image imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
-  UIImageView *imageView = [[UIImageView alloc] initWithImage:imageNew];
-  imageView.tintColor = tintColor;
-
-  UIGraphicsBeginImageContextWithOptions(imageView.bounds.size, NO, 0.0);
-  [imageView.layer renderInContext:UIGraphicsGetCurrentContext()];
-  UIImage *tintedImage = UIGraphicsGetImageFromCurrentImageContext();
-  UIGraphicsEndImageContext();
-
-  return [tintedImage imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal];
+  return [image imageWithTintColor:tintColor renderingMode:UIImageRenderingModeAlwaysOriginal];
 }
 
 + (NSURL *)checkFor2XImage:(NSURL *)url

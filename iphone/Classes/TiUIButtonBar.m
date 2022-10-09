@@ -158,9 +158,6 @@
 
 - (void)setSelectedButtonColor_:(id)value
 {
-  if (![TiUtils isIOSVersionOrGreater:@"13.0"]) {
-    return;
-  }
   UIColor *color = [[TiUtils colorValue:value] color];
   [[self segmentedControl] setSelectedSegmentTintColor:color];
 }
