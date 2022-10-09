@@ -6,27 +6,15 @@
  */
 package ti.modules.titanium.media;
 
-import android.Manifest;
-import android.app.Activity;
-import android.content.ClipData;
-import android.content.ContentResolver;
-import android.content.ContentValues;
-import android.content.Context;
-import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.graphics.BitmapFactory;
-import android.hardware.Camera;
-import android.hardware.Camera.CameraInfo;
-import android.media.CamcorderProfile;
-import android.media.MediaMetadataRetriever;
-import android.net.Uri;
-import android.os.Build;
-import android.os.Environment;
-import android.os.Handler;
-import android.os.Message;
-import android.os.Vibrator;
-import android.provider.MediaStore;
-import android.view.Window;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.InputStream;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollFunction;
@@ -52,15 +40,27 @@ import org.appcelerator.titanium.util.TiFileHelper;
 import org.appcelerator.titanium.util.TiIntentWrapper;
 import org.appcelerator.titanium.util.TiUIHelper;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.InputStream;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
+import android.Manifest;
+import android.app.Activity;
+import android.content.ClipData;
+import android.content.ContentResolver;
+import android.content.ContentValues;
+import android.content.Context;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.graphics.BitmapFactory;
+import android.hardware.Camera;
+import android.hardware.Camera.CameraInfo;
+import android.media.CamcorderProfile;
+import android.media.MediaMetadataRetriever;
+import android.net.Uri;
+import android.os.Build;
+import android.os.Environment;
+import android.os.Handler;
+import android.os.Message;
+import android.os.Vibrator;
+import android.provider.MediaStore;
+import android.view.Window;
 
 @SuppressWarnings("deprecation")
 @Kroll.module
