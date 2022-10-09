@@ -15,6 +15,20 @@ extends: Titanium.Module
 since: "1.0"
 platforms: [android]
 methods:
+  - name: harmonizedColor
+    summary: Creates a harmonizing color
+    description: |
+      Shifts the hue of the input color towards the hue of colorPrimary and returns a new color
+      as a hex string. Usage: `Ti.UI.Android.harmonizedColor("#ff0000");`
+    parameters:
+      - name: color
+        summary: Input Color
+        type: [ String, Titanium.UI.Color ]
+    platforms: [android]
+    returns:
+        type: String
+    since: { android: "12.0.0" }
+
   - name: hideSoftKeyboard
     summary: |
         Hides the soft keyboard.
