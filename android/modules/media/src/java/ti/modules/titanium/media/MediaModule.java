@@ -28,8 +28,6 @@ import android.os.Vibrator;
 import android.provider.MediaStore;
 import android.view.Window;
 
-import com.google.android.material.color.MaterialColors;
-
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.KrollModule;
@@ -867,14 +865,6 @@ public class MediaModule extends KrollModule implements Handler.Callback
 				cameraDir.mkdirs();
 			}
 		}
-	}
-
-	@Kroll.method
-	public String harmonizerColor(String value)
-	{
-		int color = TiConvert.toColor(value);
-		return String.format("#%06X",
-			(0xFFFFFF & MaterialColors.harmonizeWithPrimary(TiApplication.getAppCurrentActivity(), color)));
 	}
 
 	@Kroll.setProperty
