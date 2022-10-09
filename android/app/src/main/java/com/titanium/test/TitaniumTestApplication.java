@@ -29,7 +29,6 @@ public final class TitaniumTestApplication extends TiApplication
 
 		V8Runtime runtime = new V8Runtime();
 		KrollRuntime.init(this, runtime);
-		postAppInfo();
 		postOnCreate();
 	}
 }

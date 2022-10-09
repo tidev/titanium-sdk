@@ -82,7 +82,6 @@ public final class <%= classname %>Application extends TiApplication
 <% }); %>
 
 		KrollRuntime.init(this, runtime);
-		postAppInfo();
 		postOnCreate();
 
 <% if (customModules.length) { %>

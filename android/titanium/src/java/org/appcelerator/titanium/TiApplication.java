@@ -21,9 +21,6 @@ import android.view.accessibility.AccessibilityManager;
 
 import androidx.annotation.NonNull;
 
-import com.appcelerator.aps.APSAnalytics;
-import com.appcelerator.aps.APSAnalyticsMeta;
-
 import org.appcelerator.kroll.KrollApplication;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.KrollProxy;
@@ -440,28 +437,6 @@ public abstract class TiApplication extends Application implements KrollApplicat
 			}
 		}
 		super.onTrimMemory(level);
-	}
-
-	public void postAppInfo()
-	{
-		deployData = new TiDeployData(this);
-
-		String deployType = this.appProperties.getString("ti.deploytype", "unknown");
-		if ("unknown".equals(deployType)) {
-			deployType = this.appInfo.getDeployType();
-		}
-
-		String buildType = this.appInfo.getBuildType();
-		if (buildType != null && !buildType.equals("")) {
-			APSAnalyticsMeta.setBuildType(buildType);
-		}
-
-		APSAnalyticsMeta.setAppId(this.appInfo.getId());
-		APSAnalyticsMeta.setAppName(this.appInfo.getName());
-		APSAnalyticsMeta.setAppVersion(this.appInfo.getVersion());
-		APSAnalyticsMeta.setDeployType(deployType);
-		APSAnalyticsMeta.setSdkVersion(getTiBuildVersion());
-		APSAnalytics.getInstance().setMachineId(this);
 	}
 
 	public void postOnCreate()
