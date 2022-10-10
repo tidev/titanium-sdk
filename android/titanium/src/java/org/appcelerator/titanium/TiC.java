@@ -841,6 +841,7 @@ public class TiC
 	public static final String PROPERTY_JOBTITLE = "jobTitle";
 	public static final String PROPERTY_DEPARTMENT = "department";
 	public static final String PROPERTY_FIXED_SIZE = "fixedSize";
+	public static final String PROPERTY_ANIMATION = "animation";
 
 	public static final String SIZE_AUTO = "auto";
 	public static final String URL_APP_PREFIX = "app://";

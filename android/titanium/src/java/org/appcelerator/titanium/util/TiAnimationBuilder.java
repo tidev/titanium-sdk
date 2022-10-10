@@ -35,6 +35,7 @@ import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.view.animation.AnimationSet;
 import android.view.animation.Transformation;
 import android.widget.TextView;
@@ -117,6 +118,7 @@ public class TiAnimationBuilder
 	protected Integer backgroundColor = null;
 	protected Integer color = null;
 	protected TiAnimationCurve curve = TiAnimationBuilder.DEFAULT_CURVE;
+	protected Integer animationId = -1;
 
 	protected TiAnimation animationProxy;
 	protected KrollFunction callback;
@@ -238,6 +240,10 @@ public class TiAnimationBuilder
 
 		if (options.containsKey(TiC.PROPERTY_ELEVATION)) {
 			elevation = TiConvert.toFloat(options, TiC.PROPERTY_ELEVATION, -1);
+		}
+
+		if (options.containsKey(TiC.PROPERTY_ANIMATION)) {
+			animationId = TiConvert.toInt(options, TiC.PROPERTY_ANIMATION);
 		}
 
 		this.options = options;
@@ -891,7 +897,7 @@ public class TiAnimationBuilder
 			if (animator instanceof AnimatorSet) {
 				setAnimationRunningFor(view, false);
 				if (autoreverse == null || !autoreverse.booleanValue()) {
-					// Update the underlying properties post-animation if not auto-reversing
+				// Update the underlying properties post-animation if not auto-reversing
 					for (Object key : options.keySet()) {
 						String name = TiConvert.toString(key);
 						Object value = options.get(key);
@@ -1013,7 +1019,12 @@ public class TiAnimationBuilder
 		this.view = view;
 		this.viewProxy = viewProxy;
 
-		if (tdm == null || tdm.canUsePropertyAnimators()) {
+		if (animationId != -1) {
+			Animation animation = AnimationUtils.loadAnimation(view.getContext(), animationId);
+			animation.setAnimationListener(new AnimationListener());
+			view.startAnimation(animation);
+		}
+		else if (tdm == null || tdm.canUsePropertyAnimators()) {
 			buildPropertyAnimators().start();
 		}
 	}
