@@ -255,7 +255,7 @@ dependencies {
 	implementation "androidx.fragment:fragment:${project.ext.tiAndroidXFragmentLibVersion}"
 	implementation 'androidx.media:media:1.6.0'
 	implementation 'androidx.recyclerview:recyclerview:1.2.1'
-	implementation 'androidx.recyclerview:recyclerview-selection:1.2.1'
+	implementation 'androidx.recyclerview:recyclerview-selection:1.1.0'
 	implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
 	implementation 'androidx.transition:transition:1.4.1'
 	implementation 'androidx.vectordrawable:vectordrawable:1.1.0'
