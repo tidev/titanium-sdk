@@ -2,15 +2,15 @@
 name: Titanium.UI.TextField
 summary: A single line text field.
 description: |
-    | Android | iOS | Windows |
-    | ------- | --- | ------- |
-    | ![Android](./textfield_android.png) | ![iOS](./textfield_ios.png) | ![Windows](./textfield_wp.png) |
+    | Android | iOS |
+    | ------- | --- |
+    | ![Android](./textfield_android.png) | ![iOS](./textfield_ios.png) |
 
     Use the <Titanium.UI.createTextField> method or **`<TextField>`** Alloy element to create a text field.
 
     #### `click` event in iOS
 
-    In iOS 11+, `click` event in text field is not fired due to changes from apple. 
+    In iOS 11+, `click` event in text field is not fired due to changes from apple.
     Use `touchstart` event instead of `click` event.
 extends: Titanium.UI.View
 since: "0.8"
@@ -50,16 +50,6 @@ methods:
          On iOS, soft keyboard would show when text is selected.
 
 properties:
-  - name: appearance
-    summary: Determines the appearance of the keyboard displayed when this field is focused.
-    type: Number
-    constants: Titanium.UI.KEYBOARD_APPEARANCE_*
-    default: <Titanium.UI.KEYBOARD_APPEARANCE_DEFAULT>
-    platforms: [iphone, ipad]
-    deprecated:
-        since: "5.2.0"
-        removed: "9.0.0"
-        notes: Use [Titanium.UI.TextField.keyboardAppearance](Titanium.UI.TextField.keyboardAppearance) instead.
 
   - name: keyboardAppearance
     summary: Determines the appearance of the keyboard displayed when this field is focused.
@@ -472,24 +462,6 @@ properties:
     type: TextFieldPadding
     platforms: [android, iphone, ipad, macos]
     since: "6.0.0"
-
-  - name: paddingLeft
-    summary: Left padding of this text field.
-    type: Number
-    platforms: [iphone, ipad]
-    deprecated:
-        since: "6.1.0"
-        removed: "9.0.0"
-        notes: Use [Titanium.UI.TextField.padding](Titanium.UI.TextField.padding) for parity instead.
-
-  - name: paddingRight
-    summary: Right padding of this text field.
-    type: Number
-    platforms: [iphone, ipad]
-    deprecated:
-        since: "6.1.0"
-        removed: "9.0.0"
-        notes: Use [Titanium.UI.TextField.padding](Titanium.UI.TextField.padding) for parity instead.
 
   - name: passwordMask
     summary: Obscure the input text from the user.

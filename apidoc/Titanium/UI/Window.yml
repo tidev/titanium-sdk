@@ -394,29 +394,65 @@ description: |
     since the system needs the source element and connects the destination element from the shared transition name once window B is created
     and shown.
 
-    For example to transition a title label in window A to a title label in window B.
+    For example to transition a preview ImageView in window A to a full-width ImageView in window B.
 
     ``` js
-    // Create label in window A with a unique transitionName.
-    var titleInWinA = new Ti.UI.createLabel({
-        text:'Top 10 pics from Mars!',
-        left:70, top: 6,
-        width:200, height: 30,
-        transitionName: 'title'
-    });
-    windowA.add(titleInWinA);
-
-    // Creating label in window B, note that the same transitionName is used.
-    var titleInWinB = new Ti.UI.createLabel({
-        text:'Top 10 pics from Mars!',
-        left:50, top: 10,
-        width:200, height: 30,
-        transitionName: 'title'
+    const windowA = Ti.UI.createWindow({
+      title: "overview"
     });
 
-    // Before opening window B specify the common UI elements.
-    windowB.addSharedElement(titleInWinA, "title");
-    windowB.open();
+    // Create an item in window A with a unique transitionName.
+    const viewA = Ti.UI.createImageView({
+      top: 10,
+      left: 10,
+      scalingMode: Titanium.Media.IMAGE_SCALING_ASPECT_FILL,
+      image: "https://api.lorem.space/image/shoes?w=500&h=500",
+      height: 100,
+      width: 100,
+      transitionName: 'title'
+    });
+
+    const btn = Ti.UI.createButton({
+      bottom: 10,
+      title: "open new window"
+    })
+
+    btn.addEventListener("click", function() {
+      // Before opening window B specify the common UI elements.
+      windowB.addSharedElement(viewA, "title");
+      windowB.open();
+
+      windowB.activity.onCreate = () => {
+        const actionBar = windowB.activity.actionBar;
+        if (actionBar) {
+          actionBar.displayHomeAsUp = true;
+          actionBar.title = "New Title";
+          actionBar.onHomeIconItemSelected = () => {
+            windowB.close();
+          };
+        }
+      };
+    })
+    windowA.add([viewA, btn]);
+    windowA.open();
+
+    // Creating an item in window B, note that the same transitionName is used.
+    const windowB = Ti.UI.createWindow({});
+    const viewB = Ti.UI.createImageView({
+      scalingMode: Titanium.Media.IMAGE_SCALING_ASPECT_FILL,
+      top: 0,
+      left: 0,
+      image: "https://api.lorem.space/image/shoes?w=500&h=500",
+      height: 200,
+      width: Ti.UI.FILL,
+      transitionName: 'title'
+    });
+    const labelB = Ti.UI.createLabel({
+      top: 210,
+      left: 10,
+      text: "Detail window"
+    })
+    windowB.add([viewB, labelB]);
     ```
 
     Further you can use `activityEnterTransition`, `activityExitTransition`, `activityReenterTransition`
@@ -591,77 +627,6 @@ methods:
     since: {iphone: "5.4.0", ipad: "5.4.0", macos: "9.2.0"}
 
 events:
-  - name: android:back
-    deprecated:
-        since: "3.0.0"
-        removed: "9.0.0"
-        notes: Use the [Titanium.UI.Window.androidback](Titanium.UI.Window.androidback) event instead.
-    platforms: [android]
-    summary: Fired when the Back button is released.
-    description: |
-        Setting a listener disables the default key handling for the Back button.
-        To restore default behavior, remove the listener. It is recommended that you only
-        have one handler per window.
-
-  - name: android:camera
-    deprecated:
-        since: "3.0.0"
-        removed: "9.0.0"
-        notes: Use the [Titanium.UI.Window.androidcamera](Titanium.UI.Window.androidcamera) event instead.
-    summary: Fired when the Camera button is released.
-    description: |
-        Setting a listener disables the default key handling for this button. To restore
-        default behavior, remove the listener. It is recommended that you only have one
-        handler per window.
-    platforms: [android]
-
-  - name: android:focus
-    deprecated:
-        since: "3.0.0"
-        removed: "9.0.0"
-        notes: Use the [Titanium.UI.Window.androidfocus](Titanium.UI.Window.androidfocus) event instead.
-    summary: Fired when the Camera button is half-pressed then released.
-    description: |
-        Setting a listener disables the default key handling for this button. To restore
-        default behavior, remove the listener. It is recommended that you only have one
-        handler per window.
-    platforms: [android]
-
-  - name: android:search
-    deprecated:
-        since: "3.0.0"
-        removed: "9.0.0"
-        notes: Use the [Titanium.UI.Window.androidsearch](Titanium.UI.Window.androidsearch) event instead.
-    summary: Fired when the Search button is released.
-    description: |
-        Setting a listener disables the default key handling for this button. To restore
-        default behavior, remove the listener. It is recommended that you only have
-        one handler per window.
-    platforms: [android]
-
-  - name: android:voldown
-    deprecated:
-        since: "3.0.0"
-        removed: "9.0.0"
-        notes: Use the [Titanium.UI.Window.androidvoldown](Titanium.UI.Window.androidvoldown) event instead.
-    summary: Fired when the volume down button is released.
-    description: |
-        Setting a listener disables the default key handling for this button. To restore
-        default behavior, remove the listener. It is recommended that you only have one
-        handler per window.
-    platforms: [android]
-
-  - name: android:volup
-    deprecated:
-        since: "3.0.0"
-        removed: "9.0.0"
-        notes: Use the [Titanium.UI.Window.androidvolup](Titanium.UI.Window.androidvolup) event instead.
-    summary: Fired when the volume up button is released.
-    description: |
-        Setting a listener disables the default key handling for this button. To restore
-        default behavior, remove the listener. It is recommended that you only have one
-        handler per window.
-    platforms: [android]
 
   - name: androidback
     platforms: [android]
@@ -935,7 +900,6 @@ properties:
     default: '`false` on Android, `true` on iOS.'
     since: {android: "7.5.0", iphone: "6.3.0", ipad: "6.3.0", macos: "9.2.0"}
     availability: creation
-    osver: {android: {min: "4.4"}}
 
   - name: fullscreen
     summary: Boolean value indicating if the window is fullscreen.

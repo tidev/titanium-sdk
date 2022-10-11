@@ -3,8 +3,8 @@ name: Titanium.Stream
 summary: Stream module containing stream utility methods.
 description: |
     This module provides a set of methods for interacting with
-    [IOStream](Titanium.IOStream) objects, including asynchronous versions of the 
-    `read` and `write` methods offered by all stream objects. These 
+    [IOStream](Titanium.IOStream) objects, including asynchronous versions of the
+    `read` and `write` methods offered by all stream objects. These
     methods should be used in any place where reading from or writing
     to a stream might block.
 
@@ -18,17 +18,17 @@ description: |
 extends: Titanium.Module
 since: "1.7"
 platforms: [android, iphone, ipad, macos]
-examples: 
+examples:
   - title: Stream.pump Example
     example: |
         The following example shows how to use the [pump](Titanium.Stream.pump) method.
-        
+
         ``` js
         var pumpCallback = function(arg) {
             if(arg.bytesProcessed == -1) {
                 Ti.API.info("At end of stream.");
             } else {
-                Ti.API.info(String.format("Received %.0f bytes. Total: %.0f bytes.", 
+                Ti.API.info(String.format("Received %.0f bytes. Total: %.0f bytes.",
                             arg.bytesProcessed, arg.totalBytesProcessed));
                 // do something useful with the data in arg.buffer
             }
@@ -40,14 +40,14 @@ examples:
         The following example uses the [writeStream](Titanium.Stream.writeStream) method
         to copy the contents of an input stream to a file. This can be used for any kind
         of input stream -- `BufferStream`, `FileStream`, or `Socket.TCP`.
-        
+
         ``` js
         var outFileStream = Ti.Filesystem.getFile('outfile.txt').open(Ti.Filesystem.MODE_WRITE);
-        
+
         // writes all data from inputStream to outFileStream in chunks of 1024 bytes
         var bytesWritten = Ti.Stream.writeStream(inputStream, outFileStream, 1024);
         Ti.API.info('Wrote ' + bytesWritten + ' bytes, closing both streams.');
-        
+
         inputStream.close();
         outFileStream.close();
         ```
@@ -81,10 +81,10 @@ methods:
     summary: Creates stream from a `Buffer` or `Blob` object.
     description: |
         Returns <Titanium.BufferStream> or <Titanium.BlobStream> depending on whether a
-        `Buffer` or `Blob` is provided as the `source` property in `params`.  
-        
-       
-        `Blob` obects are read only. Throws an exception if `MODE_WRITE` or `MODE_APPEND` is 
+        `Buffer` or `Blob` is provided as the `source` property in `params`.
+
+
+        `Blob` obects are read only. Throws an exception if `MODE_WRITE` or `MODE_APPEND` is
         specified along with a blob object.
     parameters:
 
@@ -97,10 +97,10 @@ methods:
         Asynchronously reads data from an [IOStream](Titanium.IOStream) into a buffer.
     description: |
         Reads data from the stream and writes it to the buffer. The first byte is
-        written to `buffer[offset]`. Reads until the provided buffer is full, the end of 
-        the stream is detected, or the requested number of bytes have been read. Does not 
+        written to `buffer[offset]`. Reads until the provided buffer is full, the end of
+        the stream is detected, or the requested number of bytes have been read. Does not
         resize the supplied buffer.
-        
+
         A request must include both `offset` and `length` parameters, or omit them both.
 
         If the stream is not readable, an error is reported:
@@ -108,7 +108,7 @@ methods:
         * On iOS, throws an exception.
 
         * On Android, calls the callback with an error.
-        
+
         If `offset` is past the last byte of the buffer, throws an exception.
     parameters:
       - name: sourceStream
@@ -144,13 +144,13 @@ methods:
     description: |
         Reads data from the stream, either synchronously or asynchronously.
 
-        Throws an exception if a read error is encountered or data can't be written to the 
+        Throws an exception if a read error is encountered or data can't be written to the
         buffer.
 
-        If the optional `buffer` and `resultsCallback` arguments are specified, the read operation 
+        If the optional `buffer` and `resultsCallback` arguments are specified, the read operation
         takes place asynchronously, and the results are passed to the callback.
         The data is written to the provided buffer, which is resized if necessary.
-        
+
         If the `buffer` and `resultsCallback` arguments are omitted, a new buffer is
         allocated and returned.
     parameters:
@@ -178,12 +178,12 @@ methods:
   - name: write
     summary: Asynchronously writes data from a buffer to an [IOStream](Titanium.IOStream).
     description: |
-        Data is read from the buffer and written to the stream. 
+        Data is read from the buffer and written to the stream.
 
         If the `offset` and `length` arguments are specified, data is read from the buffer
         starting at `offset`, up to `offset+length-1` or the end of the buffer, whichever
         comes first.
-        
+
         If `offset` and `length` are omitted, the entire buffer is written to the stream.
 
         If the output stream is not writable, an error is reported:
@@ -222,10 +222,10 @@ methods:
   - name: writeStream
     summary: Writes all data from an input stream to an output stream.
     description: |
-        If the optional `resultsCallback` argument is supplied, the operation is 
+        If the optional `resultsCallback` argument is supplied, the operation is
         performed asynchronously.
-        
-        If the callback is omitted, this method is synchronous, and blocks until all data has been written.  
+
+        If the callback is omitted, this method is synchronous, and blocks until all data has been written.
         The synchronous version Returns the total number of bytes written.
 
         If no data can be read from the input stream because the input
@@ -245,7 +245,7 @@ methods:
 
       - name: maxChunkSize
         summary: |
-            Maximum number of bytes to copy from `inputStream` to `outputStream` in a 
+            Maximum number of bytes to copy from `inputStream` to `outputStream` in a
             single operation.
         type: Number
 
@@ -257,7 +257,7 @@ methods:
   - name: pump
     summary: Reads data from input stream and passes it to a handler method.
     description: |
-        After the end of the input stream is reached, the handler is called 
+        After the end of the input stream is reached, the handler is called
         a final time with no data and `bytesProcessed` set to -1 to indicate
         the end of the input data.
     parameters:
@@ -314,26 +314,6 @@ properties:
     summary: Number of bytes processed, or -1 in the event of an error or end of stream.
     type: Number
 
-  - name: errorState
-    summary: |
-        Whether an error was encountered. Set to 1 in the case of an error, 0
-        otherwise.
-    type: Number
-    platforms: [android]
-    deprecated:
-        since: "3.1.0"
-        notes: Use the `success` or `code` property values to determine error conditions.
-        removed: "9.0.0"
-
-  - name: errorDescription
-    summary: Text description of the error.
-    type: String
-    exclude-platforms: [macos]
-    deprecated:
-        since: "3.1.0"
-        notes: Use the `error` property to determine error message.
-        removed: "9.0.0"
-
   - name: success
     summary: Indicates if the operation succeeded.
     description: Returns `true` if request succeeded, `false` otherwise.
@@ -345,7 +325,7 @@ properties:
     description: Will be undefined if `success` is `true`.
     type: String
     since: "3.1.0"
-    
+
   - name: code
     summary: Error code. Returns 0 if `success` is `true`.
     description: |
@@ -373,26 +353,6 @@ properties:
     summary: Number of bytes processed, or -1 in the event of an error or end of stream.
     type: Number
 
-  - name: errorState
-    summary: |
-        Whether an error was encountered. Set to 1 in the case of an error, 0
-        otherwise.
-    type: Number
-    platforms: [android]
-    deprecated:
-        since: "3.1.0"
-        notes: Use the `success` or `code` property values to determine error conditions.
-        removed: "9.0.0"
-
-  - name: errorDescription
-    summary: Text description of the error.
-    type: String
-    exclude-platforms: [macos]
-    deprecated:
-        since: "3.1.0"
-        notes: Use the `error` property to determine the error message.
-        removed: "9.0.0"
-
   - name: success
     summary: Indicates if the operation succeeded.
     description: Returns `true` if request succeeded, `false` otherwise.
@@ -404,7 +364,7 @@ properties:
     description: Will be undefined if `success` is `true`.
     type: String
     since: "3.1.0"
-    
+
   - name: code
     summary: Error code. Returns 0 if `success` is `true`.
     description: |
@@ -435,34 +395,14 @@ properties:
     summary: Number of bytes processed, or -1 in the event of an error or end of stream.
     type: Number
 
-  - name: errorState
-    summary: |
-        Whether an error was encountered. Set to 1 in the case of an error, 0
-        otherwise.
-    type: Number
-    platforms: [android]
-    deprecated:
-        since: "3.1.0"
-        notes: Use success or code values to determine error conditions
-        removed: "9.0.0"
-
-  - name: errorDescription
-    summary: Text description of the error.
-    type: String
-    exclude-platforms: [macos]
-    deprecated:
-        since: "3.1.0"
-        notes: Use error property to determine error message
-        removed: "9.0.0"
-
 ---
 name: PumpCallbackArgs
 platforms: [android, iphone, ipad, macos]
 summary: |
-    Argument passed to the callback each time the 
+    Argument passed to the callback each time the
     [pump](Titanium.Stream.pump) operation has new data to deliver.
 description: |
-    A callback with `bytesProcessed` set to -1 indicates the end of the 
+    A callback with `bytesProcessed` set to -1 indicates the end of the
     pump operation, either because of an error or because the end of the
     stream has been reached.
 since: "1.7"
@@ -478,35 +418,15 @@ properties:
 
   - name: bytesProcessed
     summary: |
-        Number of bytes being passed to this invocation of the handler, or 
+        Number of bytes being passed to this invocation of the handler, or
         -1 in the event of an error or end of stream.
     type: Number
 
   - name: totalBytesProcessed
     summary: |
-        Total number of bytes read from the stream so far, 
+        Total number of bytes read from the stream so far,
         including the data passed to this current invocation of the handler.
     type: Number
-
-  - name: errorState
-    summary: |
-        Whether an error was encountered. Set to 1 in the case of an error, 0
-        otherwise.
-    type: Number
-    platforms: [android]
-    deprecated:
-        since: "3.1.0"
-        notes: Use success or code values to determine error conditions
-        removed: "9.0.0"
-
-  - name: errorDescription
-    summary: Text description of the error.
-    type: String
-    exclude-platforms: [macos]
-    deprecated:
-        since: "3.1.0"
-        notes: Use error property to determine error message
-        removed: "9.0.0"
 
   - name: success
     summary: Indicates if the operation succeeded.
@@ -519,7 +439,7 @@ properties:
     description: Will be undefined if `success` is `true`.
     type: String
     since: "3.1.0"
-    
+
   - name: code
     summary: Error code. Returns 0 if `success` is `true`.
     description: |
