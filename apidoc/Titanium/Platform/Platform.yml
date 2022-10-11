@@ -271,6 +271,18 @@ properties:
     permission: read-only
     since: "7.0.0"
 
+  - name: isRunningOnAppleSilicon
+    summary: |
+        A Boolean value that indicates whether the current app is running as a translated
+        binary using Rosetta on an Apple Silicon device.
+    description: |
+        Use this utility property to guard API's that may not be available on a non-iOS
+        device, e.g. motion activity or some authorization components.
+    platforms: [iphone, ipad, macos]
+    type: Boolean
+    permission: read-only
+    since: "12.0.0"
+
   - name: locale
     summary: System's default language.
     description: |
