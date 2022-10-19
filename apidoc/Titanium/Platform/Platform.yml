@@ -271,7 +271,7 @@ properties:
     permission: read-only
     since: "7.0.0"
 
-  - name: isRunningOnAppleSilicon
+  - name: isTranslatedBinaryOnAppleSilicon
     summary: |
         A Boolean value that indicates whether the current app is running as a translated
         binary using Rosetta on an Apple Silicon device.
