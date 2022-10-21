@@ -23,8 +23,7 @@ import android.app.Activity;
 		TiC.PROPERTY_FOOTER_TITLE,
 		TiC.PROPERTY_FOOTER_VIEW,
 		TiC.PROPERTY_HEADER_TITLE,
-		TiC.PROPERTY_HEADER_VIEW,
-		TiC.PROPERTY_ITEMS
+		TiC.PROPERTY_HEADER_VIEW
 	})
 public class ListSectionProxy extends TiViewProxy
 {
