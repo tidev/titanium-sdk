@@ -198,6 +198,12 @@ public class ListSectionProxy extends TiViewProxy
 		return dataItems;
 	}
 
+	@Kroll.setProperty
+	public void setItems(Object value)
+	{
+		setItems(value, null);
+	}
+
 	/**
 	 * Obtain ListItemProxy from index in section.
 	 *

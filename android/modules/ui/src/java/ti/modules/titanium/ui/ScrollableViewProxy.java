@@ -369,8 +369,7 @@ public class ScrollableViewProxy extends TiViewProxy
 	public void setCurrentPage(int currentPage)
 	{
 		if (scrollableView != null) {
-			if (currentPage >= this.views.size()) {
-				// Last view removed, set to valid view.
+			if (currentPage >= 0 && currentPage < this.views.size()) {
 				scrollableView.setCurrentPage(currentPage);
 			}
 		}
