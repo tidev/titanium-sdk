@@ -144,27 +144,17 @@ public class TiCameraXActivity extends TiBaseActivity implements CameraXConfig.P
 				}
 				Uri outputUri = outputFileResults.getSavedUri();
 				if (outputUri.toString().startsWith("content://")) {
-					String name = "";
-					String path = "";
-
-					Uri mediaUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
 					String[] columns = {
 						MediaStore.Images.Media.DISPLAY_NAME,
 						MediaStore.Images.Media.DATA
 					};
 					String[] selectionArgs = { imageName };
-					String queryString = MediaStore.Images.ImageColumns.DISPLAY_NAME + " = ? ";
-					Cursor cursor = contentResolver.query(mediaUri, columns, queryString, selectionArgs, null);
-					if ((cursor != null) && cursor.moveToNext()) {
-						name = getStringFrom(cursor, 0);
-						path = getStringFrom(cursor, 1);
-					}
-
-					if (name != null && !name.equals("")) {
-						TiBlob blob = TiBlob.blobFromFile(TiFileFactory.createTitaniumFile(path, false));
-						KrollDict response = MediaModule.createDictForImage(blob, blob.getMimeType());
-						successCallback.callAsync(callbackContext, response);
-					}
+					createFile(
+						MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+						columns,
+						MediaStore.Images.ImageColumns.DISPLAY_NAME + " = ? ",
+						selectionArgs
+					);
 				} else {
 					// normal file
 					File file = new File(outputUri.getPath());
@@ -195,6 +185,24 @@ public class TiCameraXActivity extends TiBaseActivity implements CameraXConfig.P
 
 	}
 
+	private static void createFile(Uri mediaUri, String[] columns, String queryString, String[] selectionArgs)
+	{
+		String name = "";
+		String path = "";
+
+		Cursor cursor = contentResolver.query(mediaUri, columns, queryString, selectionArgs, null);
+		if ((cursor != null) && cursor.moveToNext()) {
+			name = getStringFrom(cursor, 0);
+			path = getStringFrom(cursor, 1);
+		}
+
+		if (path != null && !path.equals("")) {
+			TiBlob blob = TiBlob.blobFromFile(TiFileFactory.createTitaniumFile(path, false));
+			KrollDict response = MediaModule.createDictForImage(blob, blob.getMimeType());
+			successCallback.callAsync(callbackContext, response);
+		}
+	}
+
 	@SuppressLint("MissingPermission")
 	public static void startVideoCapture()
 	{
@@ -218,27 +226,17 @@ public class TiCameraXActivity extends TiBaseActivity implements CameraXConfig.P
 				Uri uri = finalizeEvent.getOutputResults().getOutputUri();
 
 				if (uri.toString().startsWith("content://")) {
-					String path = "";
-					String name = "";
-
-					Uri mediaUri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI;
 					String[] columns = {
 						MediaStore.Video.VideoColumns.TITLE,
 						MediaStore.Video.VideoColumns.DATA
 					};
 					String[] selectionArgs = { mediaTitle };
-					String queryString = MediaStore.Video.VideoColumns.TITLE + " = ? ";
-					Cursor cursor = contentResolver.query(mediaUri, columns, queryString, selectionArgs, null);
-					if ((cursor != null) && cursor.moveToNext()) {
-						name = getStringFrom(cursor, 0);
-						path = getStringFrom(cursor, 1);
-					}
-
-					if (path != null && !path.equals("")) {
-						TiBlob blob = TiBlob.blobFromFile(TiFileFactory.createTitaniumFile(path, false));
-						KrollDict response = MediaModule.createDictForImage(blob, blob.getMimeType());
-						successCallback.callAsync(callbackContext, response);
-					}
+					createFile(
+						MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
+						columns,
+						MediaStore.Video.VideoColumns.TITLE + " = ? ",
+						selectionArgs
+					);
 				} else {
 					// normal file
 					File file = new File(uri.getPath());
