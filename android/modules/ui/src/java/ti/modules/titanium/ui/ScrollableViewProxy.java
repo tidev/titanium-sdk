@@ -368,10 +368,10 @@ public class ScrollableViewProxy extends TiViewProxy
 	@Kroll.setProperty
 	public void setCurrentPage(int currentPage)
 	{
+		setProperty(TiC.PROPERTY_CURRENT_PAGE, currentPage);
+
 		if (scrollableView != null) {
-			if (currentPage >= 0 && currentPage < this.views.size()) {
-				scrollableView.setCurrentPage(currentPage);
-			}
+			scrollableView.setCurrentPage(currentPage);
 		}
 	}
 
