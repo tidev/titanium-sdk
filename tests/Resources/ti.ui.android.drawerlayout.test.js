@@ -172,7 +172,7 @@ describe.android('Titanium.UI.Android.DrawerLayout', () => {
 			drawerWindow = Ti.UI.createWindow();
 			centerView = Ti.UI.createView();
 			menuView = Ti.UI.createView({
-				backgroundColor: "red"
+				backgroundColor: 'red'
 			});
 		});
 
@@ -181,15 +181,15 @@ describe.android('Titanium.UI.Android.DrawerLayout', () => {
 				centerView: centerView,
 				leftView: menuView,
 			});
-			drawer.addEventListener("open", function(e) {
+			drawer.addEventListener('open', function (e) {
 				should(e.drawer).eql('left');
 				finish();
 			});
 			drawerWindow.add(drawer);
 			drawerWindow.open();
-			drawerWindow.addEventListener("open", function(){
-				setTimeout(function(){
-					drawer.toggleLeft()
+			drawerWindow.addEventListener('open', function () {
+				setTimeout(function () {
+					drawer.toggleLeft();
 				}, 500);
 			});
 		});
@@ -199,16 +199,16 @@ describe.android('Titanium.UI.Android.DrawerLayout', () => {
 				centerView: centerView,
 				rightView: menuView,
 			});
-			drawer.addEventListener("open", function(e) {
+			drawer.addEventListener('open', function (e) {
 				should(e.drawer).eql('right');
 				finish();
 			});
 			drawerWindow.add(drawer);
-			drawerWindow.addEventListener("open", function(){
-				setTimeout(function(){
-					drawer.toggleRight()
+			drawerWindow.addEventListener('open', function () {
+				setTimeout(function () {
+					drawer.toggleRight();
 				}, 500);
-			})
+			});
 			drawerWindow.open();
 		});
 	});
