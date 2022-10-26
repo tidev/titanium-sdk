@@ -301,6 +301,10 @@ public class TiUIDrawerLayout extends TiUIView
 		rightFrame.setLayoutParams(frameLayout);
 
 		layout.addView(rightFrame);
+
+		if (drawerToggle == null) {
+			initDrawerToggle();
+		}
 	}
 
 	public void setCenterView(TiViewProxy viewProxy)
