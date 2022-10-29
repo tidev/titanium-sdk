@@ -21,20 +21,22 @@
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
+		3A5653FE290D787900452263 /* TiActivityAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A5653FD290D787900452263 /* TiActivityAttributes.swift */; };
+		3A565402290D78D400452263 /* TiAppiOSActivityAttributesProxy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A565401290D78D400452263 /* TiAppiOSActivityAttributesProxy.swift */; };
 		4A175276218B64E70094C7B6 /* KrollTimerManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A175274218B64E70094C7B6 /* KrollTimerManager.h */; };
 		4A175277218B64E70094C7B6 /* KrollTimerManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A175275218B64E70094C7B6 /* KrollTimerManager.m */; };
 		B106A6FD24535CB800B1305E /* JSValue+Addons.h in Headers */ = {isa = PBXBuildFile; fileRef = B106A6FB24535CB800B1305E /* JSValue+Addons.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		B106A6FE24535CB800B1305E /* JSValue+Addons.m in Sources */ = {isa = PBXBuildFile; fileRef = B106A6FC24535CB800B1305E /* JSValue+Addons.m */; };
 		B10E8D502408559300578E8F /* APSHTTPClient.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = B10E8D4F2408559300578E8F /* APSHTTPClient.xcframework */; };
 		B10E8D5824085E1E00578E8F /* APSAnalytics.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = B10E8D5724085E1E00578E8F /* APSAnalytics.xcframework */; };
+		B70ABB8424B79C9C0007D07A /* KrollPromise.h in Headers */ = {isa = PBXBuildFile; fileRef = B70ABB8324B79C9C0007D07A /* KrollPromise.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		B70ABB8624B79DCF0007D07A /* KrollPromise.m in Sources */ = {isa = PBXBuildFile; fileRef = B70ABB8524B79DCF0007D07A /* KrollPromise.m */; };
 		B7385F50246593B7007DB1F2 /* ScriptModule.m in Sources */ = {isa = PBXBuildFile; fileRef = B7385F4F246593B7007DB1F2 /* ScriptModule.m */; };
 		B7385F52246593BF007DB1F2 /* ScriptModule.h in Headers */ = {isa = PBXBuildFile; fileRef = B7385F51246593BF007DB1F2 /* ScriptModule.h */; };
 		B7385F5524659F83007DB1F2 /* AssetsModule.m in Sources */ = {isa = PBXBuildFile; fileRef = B7385F5324659F83007DB1F2 /* AssetsModule.m */; };
 		B7385F5624659F83007DB1F2 /* AssetsModule.h in Headers */ = {isa = PBXBuildFile; fileRef = B7385F5424659F83007DB1F2 /* AssetsModule.h */; };
 		B7385F592465A4B3007DB1F2 /* KrollModule.m in Sources */ = {isa = PBXBuildFile; fileRef = B7385F572465A4B3007DB1F2 /* KrollModule.m */; };
 		B7385F5A2465A4B3007DB1F2 /* KrollModule.h in Headers */ = {isa = PBXBuildFile; fileRef = B7385F582465A4B3007DB1F2 /* KrollModule.h */; };
-		B70ABB8424B79C9C0007D07A /* KrollPromise.h in Headers */ = {isa = PBXBuildFile; fileRef = B70ABB8324B79C9C0007D07A /* KrollPromise.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		B70ABB8624B79DCF0007D07A /* KrollPromise.m in Sources */ = {isa = PBXBuildFile; fileRef = B70ABB8524B79DCF0007D07A /* KrollPromise.m */; };
 		B7624B6C216663C7000C365A /* ObjcProxy.h in Headers */ = {isa = PBXBuildFile; fileRef = B7624B6A216663C7000C365A /* ObjcProxy.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		B7624B6D216663C7000C365A /* ObjcProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = B7624B6B216663C7000C365A /* ObjcProxy.m */; };
 		B7D114DB2465F48600B95107 /* Module.h in Headers */ = {isa = PBXBuildFile; fileRef = B7D114DA2465F48600B95107 /* Module.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -190,6 +192,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		3A5653FD290D787900452263 /* TiActivityAttributes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TiActivityAttributes.swift; sourceTree = "<group>"; };
+		3A565401290D78D400452263 /* TiAppiOSActivityAttributesProxy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TiAppiOSActivityAttributesProxy.swift; sourceTree = "<group>"; };
 		4A175274218B64E70094C7B6 /* KrollTimerManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KrollTimerManager.h; sourceTree = "<group>"; };
 		4A175275218B64E70094C7B6 /* KrollTimerManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KrollTimerManager.m; sourceTree = "<group>"; };
 		B106A6FB24535CB800B1305E /* JSValue+Addons.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "JSValue+Addons.h"; sourceTree = "<group>"; };
@@ -204,8 +208,6 @@
 		B7385F5424659F83007DB1F2 /* AssetsModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AssetsModule.h; sourceTree = "<group>"; };
 		B7385F572465A4B3007DB1F2 /* KrollModule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KrollModule.m; sourceTree = "<group>"; };
 		B7385F582465A4B3007DB1F2 /* KrollModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KrollModule.h; sourceTree = "<group>"; };
-		B70ABB8324B79C9C0007D07A /* KrollPromise.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = KrollPromise.h; sourceTree = "<group>"; };
-		B70ABB8524B79DCF0007D07A /* KrollPromise.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = KrollPromise.m; sourceTree = "<group>"; };
 		B7624B6A216663C7000C365A /* ObjcProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ObjcProxy.h; sourceTree = "<group>"; };
 		B7624B6B216663C7000C365A /* ObjcProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ObjcProxy.m; sourceTree = "<group>"; };
 		B7D114DA2465F48600B95107 /* Module.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Module.h; sourceTree = "<group>"; };
@@ -638,6 +640,8 @@
 				DB5813E62075FCF200CA1437 /* TiDefines.h */,
 				DB24E04E2076824C0033B2B1 /* TiSharedConfig.h */,
 				DB24E04F2076824C0033B2B1 /* TiSharedConfig.m */,
+				3A5653FD290D787900452263 /* TiActivityAttributes.swift */,
+				3A565401290D78D400452263 /* TiAppiOSActivityAttributesProxy.swift */,
 			);
 			name = Misc;
 			path = Sources/Misc;
@@ -773,6 +777,7 @@
 				TargetAttributes = {
 					DB258CCC1F09757E000D0D8D = {
 						CreatedOnToolsVersion = 8.3.3;
+						LastSwiftMigration = 1410;
 					};
 					DB9635BE1F0AB4AC00C41B20 = {
 						CreatedOnToolsVersion = 8.3.3;
@@ -832,6 +837,7 @@
 			files = (
 				DB15FD091F0A892500A82C45 /* Ti3DMatrix.m in Sources */,
 				DB15FCB91F0A874F00A82C45 /* TopTiModule.m in Sources */,
+				3A5653FE290D787900452263 /* TiActivityAttributes.swift in Sources */,
 				DB15FC4E1F0A848200A82C45 /* TiApp.m in Sources */,
 				DB15FCB11F0A86E600A82C45 /* TiBindingTiValue.m in Sources */,
 				DB15FC461F0A838E00A82C45 /* TiColor.m in Sources */,
@@ -844,6 +850,7 @@
 				DB15FCA51F0A864A00A82C45 /* TiGradient.m in Sources */,
 				DB15FD311F0A948B00A82C45 /* TiUIiOSTransitionAnimationProxy.m in Sources */,
 				DB15FD351F0A95C500A82C45 /* TiUIViewProxy.m in Sources */,
+				3A565402290D78D400452263 /* TiAppiOSActivityAttributesProxy.swift in Sources */,
 				DB15FC911F0A85EE00A82C45 /* TiFilesystemFileProxy.m in Sources */,
 				DB258D891F097680000D0D8D /* TiModule.m in Sources */,
 				DB15FD1B1F0A89A400A82C45 /* TiUIWindow.m in Sources */,
@@ -1029,6 +1036,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CLANG_ALLOW_NON_MODULAR_INCLUDES_IN_FRAMEWORK_MODULES = NO;
+				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = NO;
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
@@ -1071,6 +1079,8 @@
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "";
 				SKIP_INSTALL = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
 				VALID_ARCHS = "$(ARCHS_STANDARD)";
 			};
 			name = Debug;
@@ -1079,6 +1089,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CLANG_ALLOW_NON_MODULAR_INCLUDES_IN_FRAMEWORK_MODULES = NO;
+				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = NO;
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
@@ -1119,6 +1130,7 @@
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "";
 				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 5.0;
 				VALID_ARCHS = "$(ARCHS_STANDARD)";
 			};
 			name = Release;

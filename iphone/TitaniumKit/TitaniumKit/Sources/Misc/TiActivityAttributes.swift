@@ -1,0 +1,18 @@
+/**
+ * Appcelerator Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
+ * Licensed under the terms of the Apache Public License
+ * Please see the LICENSE included with this distribution for details.
+ */
+
+#if canImport(ActivityKit)
+import Foundation
+import ActivityKit
+
+struct TiAttributesSample: ActivityAttributes {
+  public typealias Status = ContentState
+  public struct ContentState: Codable, Hashable {
+    var value: [String: String]
+  }
+}
+#endif
