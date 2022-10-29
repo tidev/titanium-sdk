@@ -250,6 +250,7 @@ properties:
 
         On Android, you can set this to a numeric resource drawable ID via `Ti.App.Android.R.drawable.*`
         which lets you use native vector drawbles that are commonly used as icons.
+        If you use just an image without a title you can use the `padding` to move the image around.
     type: [String, Number, Titanium.Blob]
 
   - name: imageIsMask
@@ -257,6 +258,12 @@ properties:
     type: Boolean
     default: true
     since: "11.0.0"
+
+  - name: padding
+    summary: Sets the padding of icon when using an image.
+    type: ButtonPadding
+    platforms: [android]
+    since: "12.0.0"
 
   - name: selectedColor
     summary: Button text color used to indicate the selected state, as a color name or hex triplet.
@@ -403,3 +410,30 @@ examples:
             Titanium.API.info("You clicked the button");
         };
         ```
+
+---
+name: ButtonPadding
+extends: Padding
+summary: Dictionary object of parameters for the <Titanium.UI.Button.padding> that describes the padding.
+since: "12.0.0"
+platforms: [android]
+properties:
+  - name: left
+    type: Number
+    summary: Left padding
+    platforms: [android]
+
+  - name: right
+    type: Number
+    summary: Right padding
+    platforms: [android]
+
+  - name: top
+    type: Number
+    summary: Top padding
+    platforms: [android]
+
+  - name: bottom
+    type: Number
+    summary: Bottom padding
+    platforms: [android]

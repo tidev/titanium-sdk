@@ -48,6 +48,10 @@ public class TiUIButton extends TiUIView
 	private float shadowX = 0f;
 	private float shadowY = 0f;
 	private int shadowColor = Color.TRANSPARENT;
+	private int paddingLeft = 0;
+	private int paddingRight = 0;
+	private int paddingTop = 0;
+	private int paddingBottom = 0;
 
 	public TiUIButton(final TiViewProxy proxy)
 	{
@@ -209,6 +213,28 @@ public class TiUIButton extends TiUIView
 		if (needShadow) {
 			btn.setShadowLayer(shadowRadius, shadowX, shadowY, shadowColor);
 		}
+
+		if (d.containsKey(TiC.PROPERTY_PADDING)) {
+
+			if (d.get(TiC.PROPERTY_PADDING) instanceof HashMap) {
+				HashMap dict = (HashMap) d.get(TiC.PROPERTY_PADDING);
+				if (dict.containsKey(TiC.PROPERTY_LEFT)) {
+					paddingLeft = TiConvert.toInt(dict.get(TiC.PROPERTY_LEFT), 0);
+				}
+
+				if (dict.containsKey(TiC.PROPERTY_RIGHT)) {
+					paddingRight = TiConvert.toInt(dict.get(TiC.PROPERTY_RIGHT), 0);
+				}
+
+				if (dict.containsKey(TiC.PROPERTY_TOP)) {
+					paddingTop = TiConvert.toInt(dict.get(TiC.PROPERTY_TOP), 0);
+				}
+
+				if (dict.containsKey(TiC.PROPERTY_BOTTOM)) {
+					paddingBottom = TiConvert.toInt(dict.get(TiC.PROPERTY_BOTTOM), 0);
+				}
+			}
+		}
 		updateButtonImage();
 		btn.invalidate();
 	}
@@ -220,7 +246,6 @@ public class TiUIButton extends TiUIView
 			Log.d(TAG, "Property: " + key + " old: " + oldValue + " new: " + newValue, Log.DEBUG_MODE);
 		}
 		Activity activity = proxy.getActivity();
-
 		AppCompatButton btn = (AppCompatButton) getNativeView();
 		if (key.equals(TiC.PROPERTY_TITLE)) {
 			btn.setText((String) newValue);
@@ -274,6 +299,26 @@ public class TiUIButton extends TiUIView
 		} else if (key.equals(TiC.PROPERTY_SHADOW_COLOR)) {
 			shadowColor = TiConvert.toColor(TiConvert.toString(newValue), activity);
 			btn.setShadowLayer(shadowRadius, shadowX, shadowY, shadowColor);
+		} else if (key.equals(TiC.PROPERTY_PADDING)) {
+			if (newValue instanceof HashMap) {
+				HashMap d = (HashMap) newValue;
+				if (d.containsKey(TiC.PROPERTY_LEFT)) {
+					paddingLeft = TiConvert.toInt(d.get(TiC.PROPERTY_LEFT), 0);
+				}
+
+				if (d.containsKey(TiC.PROPERTY_RIGHT)) {
+					paddingRight = TiConvert.toInt(d.get(TiC.PROPERTY_RIGHT), 0);
+				}
+
+				if (d.containsKey(TiC.PROPERTY_TOP)) {
+					paddingTop = TiConvert.toInt(d.get(TiC.PROPERTY_TOP), 0);
+				}
+
+				if (d.containsKey(TiC.PROPERTY_BOTTOM)) {
+					paddingBottom = TiConvert.toInt(d.get(TiC.PROPERTY_BOTTOM), 0);
+				}
+				updateButtonImage();
+			}
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
@@ -338,12 +383,24 @@ public class TiUIButton extends TiUIView
 				materialButton.setIcon(drawable);
 				materialButton.setIconTintMode(imageIsMask ? Mode.SRC_IN : Mode.DST);
 				materialButton.setIconTint(ColorStateList.valueOf(colorValue));
+
+				if (materialButton.getText().length() == 0) {
+					materialButton.setIconPadding(0);
+					materialButton.setIconGravity(MaterialButton.ICON_GRAVITY_TEXT_TOP);
+				}
 			} else {
 				if (imageIsMask) {
 					drawable = drawable.mutate();
 					drawable.setColorFilter(colorValue, Mode.SRC_IN);
 				}
-				button.setCompoundDrawablesRelativeWithIntrinsicBounds(drawable, null, null, null);
+
+				if (button.getText().length() == 0) {
+					button.setPadding(paddingLeft, paddingTop, paddingRight, paddingBottom);
+					button.setGravity(Gravity.CENTER_VERTICAL | Gravity.CENTER_HORIZONTAL);
+					button.setCompoundDrawablesRelativeWithIntrinsicBounds(null, drawable, null, null);
+				} else {
+					button.setCompoundDrawablesRelativeWithIntrinsicBounds(drawable, null, null, null);
+				}
 			}
 		} else {
 			if (button instanceof MaterialButton) {
