@@ -14,6 +14,7 @@ import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
+import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiDrawableReference;
@@ -45,15 +46,42 @@ public class TiUIFab extends TiUIView
 				TiConvert.toColor(d, TiC.PROPERTY_BACKGROUND_COLOR, proxy.getActivity())));
 		}
 		if (d.containsKey(TiC.PROPERTY_IMAGE)) {
-			TiDrawableReference source = TiDrawableReference.fromObject(getProxy(), d.get(TiC.PROPERTY_IMAGE));
-			fab.setImageDrawable(source.getDrawable());
+			setImage(d.get(TiC.PROPERTY_IMAGE));
 		}
-		if (d.containsKey(TiC.EVENT_PROPERTY_SIZE)) {
-			if (d.getString(TiC.EVENT_PROPERTY_SIZE).equals("mini")) {
+		if (d.containsKey("customSize")) {
+			setCustomSize(TiConvert.toInt(d.get("customSize")));
+		}
+		if (d.containsKey("maxImageSize")) {
+			setMaxImageSize(TiConvert.toInt(d.get("maxImageSize")));
+		}
+		if (d.containsKey("iconSize")) {
+			if (d.getString("iconSize").equals("mini")) {
 				fab.setSize(FloatingActionButton.SIZE_MINI);
 			} else {
 				fab.setSize(FloatingActionButton.SIZE_NORMAL);
 			}
+		}
+	}
+
+	private void setMaxImageSize(int value)
+	{
+		TiDimension dim = TiConvert.toTiDimension(value, TiDimension.TYPE_WIDTH);
+		fab.setMaxImageSize(dim.getAsPixels(fab));
+	}
+
+	private void setCustomSize(int value)
+	{
+		TiDimension dim = TiConvert.toTiDimension(value, TiDimension.TYPE_WIDTH);
+		fab.setCustomSize(dim.getAsPixels(fab));
+	}
+
+	private void setImage(Object obj)
+	{
+		if (obj == null) {
+			fab.setImageDrawable(null);
+		} else {
+			TiDrawableReference source = TiDrawableReference.fromObject(getProxy(), obj);
+			fab.setImageDrawable(source.getDrawable());
 		}
 	}
 
@@ -63,14 +91,11 @@ public class TiUIFab extends TiUIView
 		if (key.equals(TiC.PROPERTY_BACKGROUND_COLOR)) {
 			fab.setBackgroundTintList(ColorStateList.valueOf(TiConvert.toColor(newValue, proxy.getActivity())));
 		} else if (key.equals(TiC.PROPERTY_IMAGE)) {
-			TiDrawableReference source = TiDrawableReference.fromObject(getProxy(), newValue);
-			fab.setImageDrawable(source.getDrawable());
-		} else if (key.equals(TiC.EVENT_PROPERTY_SIZE)) {
-			if (newValue.equals("mini")) {
-				fab.setSize(FloatingActionButton.SIZE_MINI);
-			} else {
-				fab.setSize(FloatingActionButton.SIZE_NORMAL);
-			}
+			setImage(newValue);
+		} else if (key.equals("customSize")) {
+			setCustomSize(TiConvert.toInt(newValue));
+		} else if (key.equals("maxImageSize")) {
+			setMaxImageSize(TiConvert.toInt(newValue));
 		}
 	}
 }
