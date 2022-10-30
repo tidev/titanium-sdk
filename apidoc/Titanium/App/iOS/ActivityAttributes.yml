@@ -13,9 +13,9 @@ methods:
     summary: Starts a new activity (aka the Dynamic Island) with the provided parameters
     parameters:
       - name: value
-        summary: The values to pass to your extension.
-        description: |
-            For maximum flexibility, this parameter should be passed as a String-based Object, e.g.
+        summary: |
+            The values to pass to your extension. For maximum flexibility, this parameter should be passed
+            as a String-based Object, e.g.
             ```
             {
               "param1": "Hello",
