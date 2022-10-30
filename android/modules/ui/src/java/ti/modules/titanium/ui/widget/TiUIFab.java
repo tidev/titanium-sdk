@@ -12,7 +12,6 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
-import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
@@ -45,22 +44,33 @@ public class TiUIFab extends TiUIView
 			fab.setBackgroundTintList(ColorStateList.valueOf(
 				TiConvert.toColor(d, TiC.PROPERTY_BACKGROUND_COLOR, proxy.getActivity())));
 		}
-
 		if (d.containsKey(TiC.PROPERTY_IMAGE)) {
 			TiDrawableReference source = TiDrawableReference.fromObject(getProxy(), d.get(TiC.PROPERTY_IMAGE));
 			fab.setImageDrawable(source.getDrawable());
+		}
+		if (d.containsKey(TiC.EVENT_PROPERTY_SIZE)) {
+			if (d.getString(TiC.EVENT_PROPERTY_SIZE).equals("mini")) {
+				fab.setSize(FloatingActionButton.SIZE_MINI);
+			} else {
+				fab.setSize(FloatingActionButton.SIZE_NORMAL);
+			}
 		}
 	}
 
 	@Override
 	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy)
 	{
-		Log.i("---", key);
 		if (key.equals(TiC.PROPERTY_BACKGROUND_COLOR)) {
 			fab.setBackgroundTintList(ColorStateList.valueOf(TiConvert.toColor(newValue, proxy.getActivity())));
 		} else if (key.equals(TiC.PROPERTY_IMAGE)) {
 			TiDrawableReference source = TiDrawableReference.fromObject(getProxy(), newValue);
 			fab.setImageDrawable(source.getDrawable());
+		} else if (key.equals(TiC.EVENT_PROPERTY_SIZE)) {
+			if (newValue.equals("mini")) {
+				fab.setSize(FloatingActionButton.SIZE_MINI);
+			} else {
+				fab.setSize(FloatingActionButton.SIZE_NORMAL);
+			}
 		}
 	}
 }

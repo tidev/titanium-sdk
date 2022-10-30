@@ -26,10 +26,4 @@ public class FabProxy extends TiViewProxy
 		fab = new TiUIFab(this);
 		return fab;
 	}
-/*
-	@Kroll.method
-	public void show()
-	{
-		fab.show();
-	}*/
 }
