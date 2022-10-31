@@ -1,0 +1,54 @@
+---
+name: Titanium.UI.Android.Fab
+summary: Androids Floating Action Button (FAB)
+description: |
+    For design guidelines, see
+    [Material design: Snackbars](https://material.io/components/buttons-floating-action-button)
+since: "12.0.0"
+platforms: [android]
+
+events:
+  - name: click
+    summary: Fired when the button is clicked
+
+properties:
+  - name: customSize
+    summary: Size of the button
+    type: Number
+    since: "12.0.0"
+
+  - name: maxImageSize
+    summary: Size of the image inside the button
+    type: Number
+    since: "12.0.0"
+
+  - name: image
+    summary: Image inside the button (the icon)
+    type: [String, Number, Titanium.Blob]
+    since: "12.0.0"
+
+  - name: iconSize
+    summary: Predefined button size
+    description: |
+        Android offers default icon sizes for a FAB. This can either be "default" or "mini".
+        You can use `customSize` the set a custom width/height and `maxImageSize` to resize the
+        image inside the button.
+    type: String
+    permission: read-only
+    since: "12.0.0"
+
+examples:
+  - title: Show a floating action button (FAB)
+    example: |
+        Show a floating action button (FAB).
+
+        ``` js
+        const win = Ti.UI.createWindow();
+        const fab = Ti.UI.Android.createFab({
+          bottom: 10,
+          right: 10,
+          image: "/appicon.png"
+        });
+        win.add(fab);
+        win.open();
+        ```
