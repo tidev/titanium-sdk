@@ -94,7 +94,7 @@
     "colors": "^1.4.0",
     "ejs": "^3.1.8",
     "fields": "0.1.24",
-    "fs-extra": "^10.0.0",
+    "fs-extra": "^10.1.0",
     "ioslib": "^1.7.29",
     "liveview": "^1.5.5",
     "lodash.merge": "^4.6.2",
