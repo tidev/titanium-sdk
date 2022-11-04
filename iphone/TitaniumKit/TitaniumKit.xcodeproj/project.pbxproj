@@ -21,8 +21,6 @@
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
-		3A5653FE290D787900452263 /* TiActivityAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A5653FD290D787900452263 /* TiActivityAttributes.swift */; };
-		3A565402290D78D400452263 /* TiAppiOSActivityAttributesProxy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A565401290D78D400452263 /* TiAppiOSActivityAttributesProxy.swift */; };
 		4A175276218B64E70094C7B6 /* KrollTimerManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A175274218B64E70094C7B6 /* KrollTimerManager.h */; };
 		4A175277218B64E70094C7B6 /* KrollTimerManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A175275218B64E70094C7B6 /* KrollTimerManager.m */; };
 		B106A6FD24535CB800B1305E /* JSValue+Addons.h in Headers */ = {isa = PBXBuildFile; fileRef = B106A6FB24535CB800B1305E /* JSValue+Addons.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -192,8 +190,6 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		3A5653FD290D787900452263 /* TiActivityAttributes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TiActivityAttributes.swift; sourceTree = "<group>"; };
-		3A565401290D78D400452263 /* TiAppiOSActivityAttributesProxy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TiAppiOSActivityAttributesProxy.swift; sourceTree = "<group>"; };
 		4A175274218B64E70094C7B6 /* KrollTimerManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KrollTimerManager.h; sourceTree = "<group>"; };
 		4A175275218B64E70094C7B6 /* KrollTimerManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KrollTimerManager.m; sourceTree = "<group>"; };
 		B106A6FB24535CB800B1305E /* JSValue+Addons.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "JSValue+Addons.h"; sourceTree = "<group>"; };
@@ -640,8 +636,6 @@
 				DB5813E62075FCF200CA1437 /* TiDefines.h */,
 				DB24E04E2076824C0033B2B1 /* TiSharedConfig.h */,
 				DB24E04F2076824C0033B2B1 /* TiSharedConfig.m */,
-				3A5653FD290D787900452263 /* TiActivityAttributes.swift */,
-				3A565401290D78D400452263 /* TiAppiOSActivityAttributesProxy.swift */,
 			);
 			name = Misc;
 			path = Sources/Misc;
@@ -837,7 +831,6 @@
 			files = (
 				DB15FD091F0A892500A82C45 /* Ti3DMatrix.m in Sources */,
 				DB15FCB91F0A874F00A82C45 /* TopTiModule.m in Sources */,
-				3A5653FE290D787900452263 /* TiActivityAttributes.swift in Sources */,
 				DB15FC4E1F0A848200A82C45 /* TiApp.m in Sources */,
 				DB15FCB11F0A86E600A82C45 /* TiBindingTiValue.m in Sources */,
 				DB15FC461F0A838E00A82C45 /* TiColor.m in Sources */,
@@ -850,7 +843,6 @@
 				DB15FCA51F0A864A00A82C45 /* TiGradient.m in Sources */,
 				DB15FD311F0A948B00A82C45 /* TiUIiOSTransitionAnimationProxy.m in Sources */,
 				DB15FD351F0A95C500A82C45 /* TiUIViewProxy.m in Sources */,
-				3A565402290D78D400452263 /* TiAppiOSActivityAttributesProxy.swift in Sources */,
 				DB15FC911F0A85EE00A82C45 /* TiFilesystemFileProxy.m in Sources */,
 				DB258D891F097680000D0D8D /* TiModule.m in Sources */,
 				DB15FD1B1F0A89A400A82C45 /* TiUIWindow.m in Sources */,
