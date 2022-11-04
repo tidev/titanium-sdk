@@ -1,5 +1,5 @@
 ---
-name: Titanium.UI.Android.Fab
+name: Titanium.UI.Android.FloatingActionButton
 summary: Androids Floating Action Button (FAB)
 description: |
     For design guidelines, see
@@ -44,7 +44,7 @@ examples:
 
         ``` js
         const win = Ti.UI.createWindow();
-        const fab = Ti.UI.Android.createFab({
+        const fab = Ti.UI.Android.createFloatingActionButton({
           bottom: 10,
           right: 10,
           image: "/appicon.png"

@@ -12,18 +12,18 @@ import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.view.TiUIView;
 
-import ti.modules.titanium.ui.widget.TiUIFab;
+import ti.modules.titanium.ui.widget.TiUIFloatingActionButton;
 
 @Kroll.proxy(creatableInModule = AndroidModule.class)
-public class FabProxy extends TiViewProxy
+public class FloatingActionButtonProxy extends TiViewProxy
 {
-	private static final String TAG = "FabProxy";
-	private TiUIFab fab;
+	private static final String TAG = "FloatingActionButtonProxy";
+	private TiUIFloatingActionButton fab;
 
 	@Override
 	public TiUIView createView(Activity activity)
 	{
-		fab = new TiUIFab(this);
+		fab = new TiUIFloatingActionButton(this);
 		return fab;
 	}
 }

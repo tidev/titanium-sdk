@@ -20,12 +20,12 @@ import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiDrawableReference;
 import org.appcelerator.titanium.view.TiUIView;
 
-public class TiUIFab extends TiUIView
+public class TiUIFloatingActionButton extends TiUIView
 {
-	private static final String TAG = "TiUIFab";
+	private static final String TAG = "TiUIFloatingActionButton";
 	FloatingActionButton fab;
 
-	public TiUIFab(TiViewProxy proxy)
+	public TiUIFloatingActionButton(TiViewProxy proxy)
 	{
 		super(proxy);
 		fab = new FloatingActionButton(TiApplication.getAppCurrentActivity());
