@@ -13,6 +13,7 @@ import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.proxy.ColorProxy;
 import org.appcelerator.titanium.util.TiColorHelper;
+import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiUIView;
 
@@ -31,6 +32,8 @@ import android.webkit.WebSettings;
 import androidx.annotation.ColorInt;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
+
+import com.google.android.material.color.MaterialColors;
 
 @SuppressWarnings("deprecation")
 @Kroll.module(parentModule = UIModule.class)
@@ -295,6 +298,14 @@ public class AndroidModule extends KrollModule
 			// ignore
 		}
 		return null;
+	}
+
+	@Kroll.method
+	public String harmonizedColor(String value)
+	{
+		int color = TiConvert.toColor(value, TiApplication.getAppCurrentActivity());
+		return String.format("#%06X",
+			(0xFFFFFF & MaterialColors.harmonizeWithPrimary(TiApplication.getAppCurrentActivity(), color)));
 	}
 
 	@Override

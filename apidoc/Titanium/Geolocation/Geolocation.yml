@@ -464,7 +464,6 @@ events:
         type: Number
         constants: Titanium.Geolocation.AUTHORIZATION_*
     platforms: [iphone, ipad, macos]
-    osver: {ios: {min: "8.0"}}
     since: "3.4.0"
 
 properties:
@@ -621,7 +620,6 @@ properties:
     type: Number
     permission: read-only
     platforms: [iphone, ipad, macos]
-    osver: {ios: {min: "8.0"}}
     since: "3.4.0"
 
   - name: AUTHORIZATION_WHEN_IN_USE
@@ -631,7 +629,6 @@ properties:
     type: Number
     permission: read-only
     platforms: [iphone, ipad, macos]
-    osver: {ios: {min: "8.0"}}
     since: "3.4.0"
 
   - name: ERROR_DENIED
@@ -768,25 +765,6 @@ properties:
     default: 0
     platforms: [iphone, ipad, macos]
 
-  - name: frequency
-    deprecated:
-        since: "2.0.0"
-        removed: "8.0.0"
-        notes: |
-            Android legacy mode operation is deprecated. For new development, use
-            either simple mode or manual mode. See "Configurating Location Updates on Android"
-            in the main description of this class for more information.
-    summary: Requested frequency for location updates, in milliseconds.
-    description: |
-        Setting a frequency value enables legacy location mode on Android.
-        Note that only a single provider can be active at one time in legacy mode.
-         Note that the frequency value is used as a guideline: there are no guarantees
-        that the device will provide updates at the specified frequency.
-         A lower frequency value generally increases power consumption.
-        A value of 0 means that updates should be generated as quickly as possible.
-    type: Number
-    platforms: [android]
-
   - name: hasCompass
     summary: Indicates whether the current device supports a compass.
     type: Boolean
@@ -833,27 +811,6 @@ properties:
     type: Boolean
     permission: read-only
 
-  - name: preferredProvider
-    deprecated:
-        since: "2.0.0"
-        removed: "8.0.0"
-        notes: |
-            Android legacy mode operation is deprecated. For new development, use
-            either simple mode or manual mode. See "Configurating Location Updates on Android"
-            in the main description of this class for more information.
-    summary: |
-        Determines the preferred location provider.
-    description: |
-        Setting a preferred provider enables legacy location mode on Android.
-        Note that only a single provider can be active at one time in legacy mode.
-         The preferred provider affects power consumption. In general, `PROVIDER_GPS`
-        requires the most power, and `PROVIDER_PASSIVE` requires the least.
-         If `undefined`, the preferred provider is auto-detected.
-    type: String
-    constants: Titanium.Geolocation.Android.PROVIDER_*
-    platforms: [android]
-    default: <Titanium.Geolocation.Android.PROVIDER_NETWORK>
-
   - name: showCalibration
     summary: Determines whether the compass calibration UI is shown if needed.
     description: |
@@ -880,7 +837,6 @@ properties:
     type: Boolean
     default: false
     since: "7.3.0"
-    osver: { ios: { min: "11.0" } }
     platforms: [iphone, ipad, macos]
 
   - name: trackSignificantLocationChange
@@ -911,7 +867,6 @@ properties:
     type: Boolean
     default: false
     platforms: [iphone, ipad, macos]
-    osver: {ios: {min: "9.0"}}
     since: "5.0.0"
 
   - name: activityType
@@ -1035,7 +990,6 @@ properties:
   - name: floor
     summary: The floor of the building on which the user is located.
     type: LocationCoordinatesFloor
-    osver: {ios: {min: "8.0"}}
     since: { iphone: "3.6.0", ipad: "3.6.0" }
     platforms: [iphone, ipad, macos]
 
@@ -1331,15 +1285,6 @@ properties:
         This property may return the full name or abbreviated name.
     type: String
 
-  - name: zipcode
-    summary: Postal code. To be replaced by `postalCode`
-    type: String
-    platforms: [iphone, ipad]
-    deprecated:
-        since: {iphone: "8.0.0", ipad: "8.0.0"}
-        removed: "9.0.0"
-        notes: Use the `postalCode` property for parity.
-
   - name: country
     summary: Country name.
     type: String
@@ -1348,15 +1293,6 @@ properties:
     summary: Country code.
     type: String
 
-  - name: country_code
-    summary: Country code. To be replaced by `countryCode`.
-    type: String
-    platforms: [android, iphone, ipad]
-    deprecated:
-        since: {android: "8.0.0", iphone: "8.0.0", ipad: "8.0.0"}
-        removed: "9.0.0"
-        notes: Use the `countryCode` property for parity.
-
   - name: longitude
     summary: Longitude of the geocoded point.
     type: Number
@@ -1364,15 +1300,6 @@ properties:
   - name: latitude
     summary: Latitude of the geocoded point.
     type: Number
-
-  - name: displayAddress
-    summary: Display address. Identical to `address`.
-    type: String
-    platforms: [android]
-    deprecated:
-        since: {android: "8.0.0"}
-        removed: "9.0.0"
-        notes: Use the `address` property for parity.
 
   - name: address
     summary: Full address.

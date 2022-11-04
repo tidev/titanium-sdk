@@ -75,6 +75,17 @@ properties:
     constants: Titanium.UI.AUTOLINK_*
     platforms: [android]
 
+  - name: autoSize
+    summary: Automatically scales the label into its size.
+    description: |
+        To use `autoSize` you have to set a `width` and `height` to the label and it will
+        automatically increase the font size to fill up the space. The actual `fontSize`
+        value stays the same.
+    type: Boolean
+    default: false,
+    platforms: [android]
+    since: "11.1.0"
+
   - name: backgroundPaddingBottom
     summary: Number of pixels to extend the background image past the label on the bottom.
     type: Number
@@ -261,7 +272,6 @@ events:
         summary: This is false. This event does not bubble
         type: Boolean
     platforms: [iphone,ipad, android, macos]
-    osver: {ios: {min: "7.0"}}
     since: {iphone: "3.2.0", ipad: "3.2.0", android: "4.0.0"}
 
 examples:

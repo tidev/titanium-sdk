@@ -31,6 +31,7 @@ READONLY_PROPERTY(TiPlatformDisplayCaps *, displayCaps, DisplayCaps);
 READONLY_PROPERTY(NSString *, id, Id);
 READONLY_PROPERTY(NSString *, identifierForAdvertising, IdentifierForAdvertising);
 READONLY_PROPERTY(NSString *, identifierForVendor, IdentifierForVendor);
+READONLY_PROPERTY(bool, isTranslatedBinaryOnAppleSilicon, IsTranslatedBinaryOnAppleSilicon);
 READONLY_PROPERTY(bool, isAdvertisingTrackingEnabled, IsAdvertisingTrackingEnabled);
 READONLY_PROPERTY(NSString *, locale, Locale);
 READONLY_PROPERTY(NSString *, macaddress, Macaddress);

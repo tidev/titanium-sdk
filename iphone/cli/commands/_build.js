@@ -7096,7 +7096,7 @@ iOSBuilder.prototype.invokeXcodeBuild = async function invokeXcodeBuild(next) {
 			args.push('ONLY_ACTIVE_ARCH=1');
 		}
 		// Exclude arm64 architecture from simulator build in XCode 12+ - TIMOB-28042
-		if (this.legacyModules.size > 0 && parseFloat(this.xcodeEnv.version) >= 12.0) {
+		if (this.legacyModules.size > 0) {
 			if (await processArchitecture() === 'arm64') {
 				return next(new Error(`The app is using native modules that do not support arm64 simulators and you are on an arm64 device:\n- ${Array.from(this.legacyModules).join('\n- ')}`));
 			}
