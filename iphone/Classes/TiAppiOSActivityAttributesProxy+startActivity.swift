@@ -5,28 +5,30 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-#if canImport(ActivityKit)
 import TitaniumKit
+#if canImport(ActivityKit)
 import ActivityKit
+#endif
 
-@objc(TiAppiOSActivityAttributesProxy)
-public class TiAppiOSActivityAttributesProxy: TiProxy {
+extension TiAppiOSActivityAttributesProxy {
 
   @objc(startActivity:)
-  @available(iOS 16.1, *)
-  func startActivity(args: [Any]) {
+  class func startActivity(args: [Any]) {
     guard let params = args.first as? [String: String] else {
       fatalError("Missing required parameters")
     }
 
+#if canImport(ActivityKit)
     let attributes = TiActivityAttributes()
     let contentState = TiActivityAttributes.Status(value: params)
 
     do {
-      _ = try Activity<TiActivityAttributes>.request(attributes: attributes, contentState: contentState)
+      if #available(iOS 16.1, *) {
+        _ = try Activity<TiActivityAttributes>.request(attributes: attributes, contentState: contentState)
+      }
     } catch let error {
       NSLog("[ERROR] Cannot start activity: \(error.localizedDescription)")
     }
+#endif
   }
 }
-#endif

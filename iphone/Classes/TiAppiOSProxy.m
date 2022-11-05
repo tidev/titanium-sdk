@@ -20,6 +20,7 @@
 #import "TiAppiOSUserDefaultsProxy.h"
 #import "TiAppiOSUserNotificationActionProxy.h"
 #import "TiAppiOSUserNotificationCategoryProxy.h"
+#import "TiAppiOSActivityAttributesProxy.h"
 
 #if defined(USE_TI_APPIOSUSERNOTIFICATIONCENTER)
 #import "TiAppiOSUserNotificationCenterProxy.h"
@@ -500,6 +501,11 @@
 - (TiAppiOSUserNotificationActionProxy *)createUserNotificationAction:(id)args
 {
   return [[[TiAppiOSUserNotificationActionProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
+}
+
+- (TiAppiOSActivityAttributesProxy *)createActivityAttributes:(id)args
+{
+  return [[[TiAppiOSActivityAttributesProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
 }
 
 - (TiAppiOSUserNotificationCategoryProxy *)createUserNotificationCategory:(id)args
