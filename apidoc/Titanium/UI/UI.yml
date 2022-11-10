@@ -167,6 +167,9 @@ description:  |
       * logo-dark@3x.png
 
     And you would reference the image as before using `logo-dark.png`
+
+    Android:
+    You can use the native `assets/android/images/res-night` folder (extend them with e.g. `res-night-xxhdpi` if needed) for dark-mode images.
 extends: Titanium.Module
 since: "0.4"
 platforms: [android, iphone, ipad, macos]
