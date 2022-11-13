@@ -2,6 +2,10 @@
 name: Titanium.UI.Android.Snackbar
 summary: Snackbars provide brief messages about app processes at the bottom of the screen.
 description: |
+    | Android |
+    | ------- |
+    | ![Android](./snackbar_android.png) |
+
     For design guidelines, see
     [Material design: Snackbars](https://material.io/components/snackbars)
 since: "11.1.0"
