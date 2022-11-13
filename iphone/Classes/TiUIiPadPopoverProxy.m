@@ -461,7 +461,7 @@ static NSArray *popoverSequence;
 
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary<NSKeyValueChangeKey, id> *)change context:(void *)context
 {
-  if ([TiUtils isIOSVersionOrGreater:@"13.0"] && object == viewController.view && [keyPath isEqualToString:@"safeAreaInsets"]) {
+  if (object == viewController.view && [keyPath isEqualToString:@"safeAreaInsets"]) {
     UIEdgeInsets newInsets = [[change objectForKey:@"new"] UIEdgeInsetsValue];
     UIEdgeInsets oldInsets = [[change objectForKey:@"old"] UIEdgeInsetsValue];
     NSValue *insetsValue = [NSValue valueWithUIEdgeInsets:newInsets];

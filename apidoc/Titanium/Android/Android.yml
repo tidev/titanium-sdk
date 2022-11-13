@@ -1655,7 +1655,6 @@ properties:
     type: String
     permission: read-only
     since: "3.6.0"
-    osver: {android: {min: "5.0"}}
 
   - name: CATEGORY_CALL
     summary: |
@@ -1668,7 +1667,6 @@ properties:
     type: String
     permission: read-only
     since: "3.6.0"
-    osver: {android: {min: "5.0"}}
 
   - name: CATEGORY_EMAIL
     summary: Notification category indicating an asynchronous bulk message (email).
@@ -1679,7 +1677,6 @@ properties:
     type: String
     permission: read-only
     since: "3.6.0"
-    osver: {android: {min: "5.0"}}
 
   - name: CATEGORY_ERROR
     summary: Notification category indicating an error in background operation or authentication status.
@@ -1690,7 +1687,6 @@ properties:
     type: String
     permission: read-only
     since: "3.6.0"
-    osver: {android: {min: "5.0"}}
 
   - name: CATEGORY_EVENT
     summary: Notification category indicating a calendar event.
@@ -1701,7 +1697,6 @@ properties:
     type: String
     permission: read-only
     since: "3.6.0"
-    osver: {android: {min: "5.0"}}
 
   - name: CATEGORY_MESSAGE
     summary: Notification category indicating an incoming direct message (SMS, instant message, etc.).
@@ -1712,7 +1707,6 @@ properties:
     type: String
     permission: read-only
     since: "3.6.0"
-    osver: {android: {min: "5.0"}}
 
   - name: CATEGORY_PROGRESS
     summary: Notification category indicating the progress of a long-running background operation.
@@ -1723,7 +1717,6 @@ properties:
     type: String
     permission: read-only
     since: "3.6.0"
-    osver: {android: {min: "5.0"}}
 
   - name: CATEGORY_PROMO
     summary: Notification category indicating a promotion or advertisement.
@@ -1734,7 +1727,6 @@ properties:
     type: String
     permission: read-only
     since: "3.6.0"
-    osver: {android: {min: "5.0"}}
 
   - name: CATEGORY_RECOMMENDATION
     summary: Notification category indicating a specific, timely recommendation for a single thing.
@@ -1745,7 +1737,6 @@ properties:
     type: String
     permission: read-only
     since: "3.6.0"
-    osver: {android: {min: "5.0"}}
 
   - name: CATEGORY_SERVICE
     summary: Notification category for a running background service.
@@ -1756,7 +1747,6 @@ properties:
     type: String
     permission: read-only
     since: "3.6.0"
-    osver: {android: {min: "5.0"}}
 
   - name: CATEGORY_SOCIAL
     summary: Notification category for a social network or sharing update.
@@ -1767,7 +1757,6 @@ properties:
     type: String
     permission: read-only
     since: "3.6.0"
-    osver: {android: {min: "5.0"}}
 
   - name: CATEGORY_STATUS
     summary: Notification category indicating ongoing information about device or contextual status.
@@ -1778,7 +1767,6 @@ properties:
     type: String
     permission: read-only
     since: "3.6.0"
-    osver: {android: {min: "5.0"}}
 
   - name: CATEGORY_TRANSPORT
     summary: Notification category indicating media transport control for playback.
@@ -1789,7 +1777,6 @@ properties:
     type: String
     permission: read-only
     since: "3.6.0"
-    osver: {android: {min: "5.0"}}
 
   - name: DEFAULT_ALL
     summary: |
@@ -2091,7 +2078,6 @@ properties:
     type: Number
     permission: read-only
     since: "3.6.0"
-    osver: {android: {min: "4.1"}}
 
   - name: PRIORITY_HIGH
     summary: Use for high priority notifications like real-time chat messages.
@@ -2102,7 +2088,6 @@ properties:
     type: Number
     permission: read-only
     since: "3.6.0"
-    osver: {android: {min: "4.1"}}
 
   - name: PRIORITY_DEFAULT
     summary: Default priority if it does not fit into another priority category.
@@ -2113,7 +2098,6 @@ properties:
     type: Number
     permission: read-only
     since: "3.6.0"
-    osver: {android: {min: "4.1"}}
 
   - name: PRIORITY_LOW
     summary: Use for low priority notifications like software updates.
@@ -2124,7 +2108,6 @@ properties:
     type: Number
     permission: read-only
     since: "3.6.0"
-    osver: {android: {min: "4.1"}}
 
   - name: PRIORITY_MIN
     summary: Use for expired events.
@@ -2138,7 +2121,6 @@ properties:
     type: Number
     permission: read-only
     since: "3.6.0"
-    osver: {android: {min: "4.1"}}
 
   - name: VISIBILITY_PRIVATE
     summary: Shows basic information about the notification.
@@ -2151,7 +2133,6 @@ properties:
     type: Number
     permission: read-only
     since: "3.6.0"
-    osver: {android: {min: "5.0"}}
 
   - name: VISIBILITY_PUBLIC
     summary: Shows the notification's full content on the lockscreen. This is the system default if visibility is left unspecified.
@@ -2162,7 +2143,6 @@ properties:
     type: Number
     permission: read-only
     since: "3.6.0"
-    osver: {android: {min: "5.0"}}
 
   - name: VISIBILITY_SECRET
     summary: Shows the most minimal information of the notification on the lockscreen.
@@ -2173,7 +2153,6 @@ properties:
     type: Number
     permission: read-only
     since: "3.6.0"
-    osver: {android: {min: "5.0"}}
 
   - name: TILE_STATE_UNAVAILABLE
     summary: QuickSettings tile is unavailble.

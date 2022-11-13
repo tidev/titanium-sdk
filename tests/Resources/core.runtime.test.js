@@ -64,7 +64,7 @@ describe.windowsBroken('Core', () => {
 						if (OS_IOS) {
 							should.not.exist(Ti.Geolocation.lastGeolocation);
 						} else {
-							should(Ti.Geolocation.lastGeolocation).be.equal('{}');
+							should.exist(Ti.Geolocation.lastGeolocation);
 						}
 					});
 				});

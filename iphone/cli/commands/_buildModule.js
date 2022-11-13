@@ -904,9 +904,11 @@ iOSModuleBuilder.prototype.packageModule = function packageModule(next) {
 		}
 
 		// 2. example folder
-		this.dirWalker(this.exampleDir, function (file) {
-			dest.append(fs.createReadStream(file), { name: path.join(moduleFolders, 'example', path.relative(this.exampleDir, file)) });
-		}.bind(this));
+		if (fs.existsSync(this.exampleDir)) {
+			this.dirWalker(this.exampleDir, function (file) {
+				dest.append(fs.createReadStream(file), { name: path.join(moduleFolders, 'example', path.relative(this.exampleDir, file)) });
+			}.bind(this));
+		}
 
 		// 3. platform folder
 		if (fs.existsSync(this.platformDir)) {
@@ -959,7 +961,11 @@ iOSModuleBuilder.prototype.packageModule = function packageModule(next) {
 		dest.directory(binarylibFile, path.join(moduleFolders, binarylibName));
 
 		// 8. LICENSE file
-		dest.append(fs.createReadStream(this.licenseFile), { name: path.join(moduleFolders, 'LICENSE') });
+		if (fs.existsSync(this.licenseFile)) {
+			dest.append(fs.createReadStream(this.licenseFile), { name: path.join(moduleFolders, 'LICENSE') });
+		} else {
+			this.logger.warn(__('Missing LICENSE file in the module\'s project root. We recommend to include the file to ensure proper OSS compliance.'));
+		}
 
 		// 9. manifest
 		dest.append(fs.createReadStream(this.manifestFile), { name: path.join(moduleFolders, 'manifest') });

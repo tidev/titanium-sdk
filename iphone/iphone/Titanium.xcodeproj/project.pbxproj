@@ -2384,7 +2384,7 @@
 				);
 				GCC_THUMB_SUPPORT = NO;
 				INFOPLIST_FILE = Titanium.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				LD_DEPENDENCY_INFO_FILE = "$(OBJECT_FILE_DIR_$(CURRENT_VARIANT))/$(CURRENT_ARCH)/$(PRODUCT_NAME)_dependency_info.dat";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -2398,6 +2398,8 @@
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-lxml2",
+					"-weak_framework",
+					SwiftUI,
 				);
 				"OTHER_LDFLAGS[sdk=iphoneos*]" = "$(inherited)";
 				"OTHER_LDFLAGS[sdk=iphonesimulator*]" = "$(inherited)";
@@ -2441,7 +2443,7 @@
 				);
 				GCC_THUMB_SUPPORT = NO;
 				INFOPLIST_FILE = Titanium.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				LD_DEPENDENCY_INFO_FILE = "$(OBJECT_FILE_DIR_$(CURRENT_VARIANT))/$(CURRENT_ARCH)/$(PRODUCT_NAME)_dependency_info.dat";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -2455,6 +2457,8 @@
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-lxml2",
+					"-weak_framework",
+					SwiftUI,
 				);
 				"OTHER_LDFLAGS[sdk=iphoneos*]" = "$(inherited)";
 				"OTHER_LDFLAGS[sdk=iphonesimulator*]" = "$(inherited)";
@@ -2525,7 +2529,7 @@
 					"${\"SDKROOT\"}/usr/include/libxml2",
 					../headers,
 				);
-				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CFLAGS = "-DDEBUG";
 				OTHER_LDFLAGS = "-ObjC";
@@ -2590,7 +2594,7 @@
 					"${\"SDKROOT\"}/usr/include/libxml2",
 					../headers,
 				);
-				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				OTHER_LDFLAGS = "-ObjC";
 				PROVISIONING_PROFILE = "";
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";

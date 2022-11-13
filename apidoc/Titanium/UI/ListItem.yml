@@ -249,7 +249,6 @@ properties:
         For more information see the "Editing Support" section of <Titanium.UI.ListView>.
     type: Array<RowActionType>
     since: 4.1.0
-    osver: {ios: {min: "8.0"}}
     platforms: [iphone, ipad, macos]
 
   - name: searchableText
@@ -682,7 +681,6 @@ description: |
     [editaction](Titanium.UI.ListView.editaction) event. 
 platforms: [ipad, iphone, macos]
 since: '4.1.0' 
-osver: {ios: {min: "8.0"}}
 properties:
   - name: title
     type: String

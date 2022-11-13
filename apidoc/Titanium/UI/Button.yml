@@ -3,9 +3,9 @@ name: Titanium.UI.Button
 summary: |
     A button widget that has four states: normal, disabled, focused and selected.
 description: |
-    | Android | iOS | Windows |
-    | ------- | --- | ------- |
-    | ![Android](./button_android.png) | ![iOS](./button_ios.png) | ![Windows](./button_wp.png) |
+    | Android | iOS |
+    | ------- | --- |
+    | ![Android](./button_android.png) | ![iOS](./button_ios.png) |
 
     A button displays its  selected state while it is being pressed. The focused state is
     only used on Android devices that have navigation keys or a keyboard, to indicate
@@ -342,7 +342,6 @@ properties:
         unless the [color](Titanium.UI.Button.color) property is set.
     type: String
     platforms: [android,iphone,ipad, macos]
-    osver: {ios: {min: "7.0"}}
     since:
         android: 5.4.0
         iphone: 3.1.3

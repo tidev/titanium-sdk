@@ -23,6 +23,7 @@ public class TiC
 	public static final int PERMISSION_CODE_LOCATION = 104;
 	public static final int PERMISSION_CODE_OLD_CALENDAR = 105;
 	public static final int PERMISSION_CODE_MICROPHONE = 106;
+	public static final int PERMISSION_CODE_PUSH_NOTIFICATIONS = 107;
 
 	public static final String PERMISSION_CALENDAR = "calendar";
 	public static final String PERMISSION_CAMERA = "camera";
@@ -484,6 +485,7 @@ public class TiC
 	public static final String PROPERTY_HTML = "html";
 	public static final String PROPERTY_HTTP_ONLY = "httponly";
 	public static final String PROPERTY_ICON = "icon";
+	public static final String PROPERTY_ICON_COLOR = "iconColor";
 	public static final String PROPERTY_ICON_LEVEL = "iconLevel";
 	public static final String PROPERTY_ICONIFIED = "iconified";
 	public static final String PROPERTY_ICONIFIED_BY_DEFAULT = "iconifiedByDefault";
