@@ -1579,14 +1579,10 @@ DEFINE_EXCEPTIONS
       [self handleControlEvents:UIControlEventTouchCancel];
     }
 
-    // NOTE: The "!touch.tapCount" fixes an issue on Apple Silicon Simulator
-    // where touches are not received.
-    BOOL shouldFireClickEvent = [touch tapCount] == 1 || !touch.tapCount;
-
     // Click handling is special; don't propagate if we have a delegate,
     // but DO invoke the touch delegate.
     // clicks should also be handled by any control the view is embedded in.
-    if (shouldFireClickEvent && [proxy _hasListeners:@"click"]) {
+    if ([touch tapCount] == 1 && [proxy _hasListeners:@"click"]) {
       if (touchDelegate == nil) {
         [proxy fireEvent:@"click" withObject:evt propagate:YES];
         return;
