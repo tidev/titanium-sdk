@@ -11,7 +11,7 @@ win.add(label);
 win.open();
 
 // TODO: write your module tests here
-const <%- moduleNameJSSafe %> = require('<%- moduleId %>');
+import <%- moduleNameJSSafe %>  from '<%- moduleId %>';
 Ti.API.info("module is => " + <%- moduleNameJSSafe %>);
 
 label.text = <%- moduleNameJSSafe %>.example();
