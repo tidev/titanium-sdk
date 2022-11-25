@@ -50,8 +50,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.BitmapFactory;
+import android.graphics.ImageFormat;
 import android.hardware.Camera;
 import android.hardware.Camera.CameraInfo;
+import android.hardware.camera2.CameraCharacteristics;
+import android.hardware.camera2.CameraManager;
 import android.media.CamcorderProfile;
 import android.media.MediaMetadataRetriever;
 import android.net.Uri;
@@ -61,6 +64,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.os.Vibrator;
 import android.provider.MediaStore;
+import android.util.Size;
 import android.view.Window;
 
 @Kroll.module
@@ -241,6 +245,43 @@ public class MediaModule extends KrollModule implements Handler.Callback
 		Vibrator vibrator = (Vibrator) TiApplication.getInstance().getSystemService(Context.VIBRATOR_SERVICE);
 		if (vibrator != null) {
 			vibrator.vibrate(pattern, -1);
+		}
+	}
+
+	@SuppressLint("MissingPermission")
+	@Kroll.getProperty
+	public KrollDict[] getCameraOutputSizes()
+	{
+		CameraManager cameraManager =
+			(CameraManager) TiApplication.getInstance().getSystemService(Context.CAMERA_SERVICE);
+		try {
+			String[] cameraIds = cameraManager.getCameraIdList();
+			KrollDict[] kdOut = new KrollDict[cameraIds.length];
+			int camCount = 0;
+			for (String cameraId : cameraIds) {
+				CameraCharacteristics characteristics = cameraManager.getCameraCharacteristics(cameraId);
+				Size[] sizes = characteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP)
+					.getOutputSizes(ImageFormat.JPEG);
+
+				KrollDict[] kdCamera = new KrollDict[sizes.length];
+				int resCount = 0;
+				for (Size s : sizes) {
+					KrollDict kd = new KrollDict();
+					kd.put("width", s.getWidth());
+					kd.put("height", s.getHeight());
+					kdCamera[resCount] = kd;
+					resCount++;
+				}
+				KrollDict kdCam = new KrollDict();
+				kdCam.put("cameraType", characteristics.get(CameraCharacteristics.LENS_FACING)
+					.equals(CameraCharacteristics.LENS_FACING_FRONT) ? "front" : "back");
+				kdCam.put("values", kdCamera);
+				kdOut[camCount] = kdCam;
+				camCount++;
+			}
+			return kdOut;
+		} catch (Exception e) {
+			return null;
 		}
 	}
 
@@ -431,6 +472,12 @@ public class MediaModule extends KrollModule implements Handler.Callback
 		}
 		if (cameraOptions.containsKeyAndNotNull(TiC.PROPERTY_ZOOM_ENABLED)) {
 			TiCameraXActivity.allowZoom = cameraOptions.getBoolean(TiC.PROPERTY_ZOOM_ENABLED);
+		}
+		if (cameraOptions.containsKeyAndNotNull("targetImageWidth")) {
+			TiCameraXActivity.targetResolutionWidth = cameraOptions.getInt("targetImageWidth");
+		}
+		if (cameraOptions.containsKeyAndNotNull("targetImageHeight")) {
+			TiCameraXActivity.targetResolutionHeight = cameraOptions.getInt("targetImageHeight");
 		}
 
 		// VIDEO

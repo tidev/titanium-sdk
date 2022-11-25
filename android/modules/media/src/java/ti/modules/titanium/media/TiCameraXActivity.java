@@ -18,6 +18,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.util.Size;
 import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.view.ViewGroup;
@@ -106,6 +107,8 @@ public class TiCameraXActivity extends TiBaseActivity implements CameraXConfig.P
 	FrameLayout layout;
 	private TiViewProxy localOverlayProxy = null;
 	private ProcessCameraProvider cameraProvider;
+	static int targetResolutionWidth = -1;
+	static int targetResolutionHeight = -1;
 
 	public static void takePicture()
 	{
@@ -455,9 +458,16 @@ public class TiCameraXActivity extends TiBaseActivity implements CameraXConfig.P
 					camera = cameraProvider.bindToLifecycle(this, cameraSelector, videoCapture, preview);
 				} else {
 					// photo
-					imageCapture =
-						new ImageCapture.Builder().setFlashMode(cameraFlashMode).setTargetRotation(rotation).build();
+					ImageCapture.Builder imageCaptureBuilder = new ImageCapture.Builder()
+						.setFlashMode(cameraFlashMode)
+						.setTargetRotation(rotation);
 
+					if (targetResolutionWidth != -1 && targetResolutionHeight != -1) {
+						imageCaptureBuilder.setTargetResolution(
+							new Size(targetResolutionWidth, targetResolutionHeight));
+					}
+
+					imageCapture = imageCaptureBuilder.build();
 					camera = cameraProvider.bindToLifecycle(this, cameraSelector, imageCapture, preview);
 				}
 				preview.setSurfaceProvider(viewFinder.getSurfaceProvider());

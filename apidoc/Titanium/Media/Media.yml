@@ -1649,6 +1649,17 @@ properties:
     permission: read-only
     since: "5.2.0"
 
+  - name: cameraOutputSizes
+    summary: |
+        Returns an object of possible `targetImageWidth` and `targetImageHeight` values. The output
+        contains a `cameraType` (front or back) and object of width/height values. You have to set
+        `targetImageWidth` and `targetImageHeight` if you want to change the camera image output size.
+        Note: depeneding on your phone and camera the values won't be used or can be different.
+    type: Object
+    platforms: [android]
+    permission: read-only
+    since: "12.0.0"
+
   - name: maxZoomLevel
     summary: |
         Returns the max zoom level of the camera.
@@ -1936,6 +1947,24 @@ properties:
   - name: zoomEnabled
     summary: Specifies if pinch to zoom is enabled or not.
     type: Boolean
+    platforms: [android]
+    default: false
+    since: { android: "12.0.0" }
+
+  - name: targetImageWidth
+    summary: |
+        Maximum width of the saved image. Depending on your phone and your value this might not be
+        exactly the value you specify. Check `Ti.Media.cameraOutputSizes` first.
+    type: Number
+    platforms: [android]
+    default: false
+    since: { android: "12.0.0" }
+
+  - name: targetImageHeight
+    summary: |
+        Maximum height of the saved image. Depending on your phone and your value this might not be
+        exactly the value you specify. Check `Ti.Media.cameraOutputSizes` first.
+    type: Number
     platforms: [android]
     default: false
     since: { android: "12.0.0" }
