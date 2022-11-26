@@ -11,6 +11,7 @@
 #import <TitaniumKit/TiUtils.h>
 
 #ifdef USE_TI_APPIOS
+#import "TiAppiOSActivityAttributesProxy.h"
 #import "TiAppiOSBackgroundServiceProxy.h"
 #import "TiAppiOSLocalNotificationProxy.h"
 #import "TiAppiOSSearchableIndexProxy.h"
@@ -20,7 +21,6 @@
 #import "TiAppiOSUserDefaultsProxy.h"
 #import "TiAppiOSUserNotificationActionProxy.h"
 #import "TiAppiOSUserNotificationCategoryProxy.h"
-#import "TiAppiOSActivityAttributesProxy.h"
 
 #if defined(USE_TI_APPIOSUSERNOTIFICATIONCENTER)
 #import "TiAppiOSUserNotificationCenterProxy.h"

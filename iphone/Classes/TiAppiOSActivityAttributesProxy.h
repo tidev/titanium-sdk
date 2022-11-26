@@ -7,9 +7,7 @@
 
 #import <TitaniumKit/TitaniumKit.h>
 
-@interface TiAppiOSActivityAttributesProxy : TiProxy {
-
-}
+@interface TiAppiOSActivityAttributesProxy : TiProxy
 
 - (void)startActivity:(id)args;
 
