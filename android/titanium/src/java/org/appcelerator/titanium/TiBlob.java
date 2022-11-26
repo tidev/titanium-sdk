@@ -221,7 +221,11 @@ public class TiBlob extends KrollProxy
 
 			switch (type) {
 				case TYPE_FILE:
-					BitmapFactory.decodeStream(getInputStream(), null, opts);
+					try {
+						BitmapFactory.decodeStream(getInputStream(), null, opts);
+					} catch (Exception e) {
+						Log.e(TAG, "Error decoding stream: " + e.getMessage());
+					}
 					break;
 				case TYPE_DATA:
 					byte[] byteArray = (byte[]) data;
