@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2014 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -119,34 +119,32 @@ int toASCIIHexValue(unichar c) { return (c & 0xF) + (c < 'A' ? 0 : 9); }
       @"darktextcolor" : UIColor.darkTextColor
     }];
 
-    if ([TiUtils isIOSVersionOrGreater:@"13.0"]) {
-      [colorLookup addEntriesFromDictionary:@{
-        @"systemindigocolor" : UIColor.systemIndigoColor,
-        @"systemgray2color" : UIColor.systemGray2Color,
-        @"systemgray3color" : UIColor.systemGray3Color,
-        @"systemgray4color" : UIColor.systemGray4Color,
-        @"systemgray5color" : UIColor.systemGray5Color,
-        @"systemgray6color" : UIColor.systemGray6Color,
-        @"labelcolor" : UIColor.labelColor,
-        @"secondarylabelcolor" : UIColor.secondaryLabelColor,
-        @"tertiarylabelcolor" : UIColor.tertiaryLabelColor,
-        @"quaternarylabelcolor" : UIColor.quaternaryLabelColor,
-        @"linkcolor" : UIColor.linkColor,
-        @"placeholdertextcolor" : UIColor.placeholderTextColor,
-        @"separatorcolor" : UIColor.separatorColor,
-        @"opaqueseparatorcolor" : UIColor.opaqueSeparatorColor,
-        @"systembackgroundcolor" : UIColor.systemBackgroundColor,
-        @"secondarysystembackgroundcolor" : UIColor.secondarySystemBackgroundColor,
-        @"tertiarysystembackgroundcolor" : UIColor.tertiarySystemBackgroundColor,
-        @"systemgroupedbackgroundcolor" : UIColor.systemGroupedBackgroundColor,
-        @"secondarysystemgroupedbackgroundcolor" : UIColor.secondarySystemGroupedBackgroundColor,
-        @"tertiarysystemgroupedbackgroundcolor" : UIColor.tertiarySystemGroupedBackgroundColor,
-        @"systemfillcolor" : UIColor.systemFillColor,
-        @"secondarysystemfillcolor" : UIColor.secondarySystemFillColor,
-        @"tertiarysystemfillcolor" : UIColor.tertiarySystemFillColor,
-        @"quaternarysystemfillcolor" : UIColor.quaternarySystemFillColor
-      }];
-    }
+    [colorLookup addEntriesFromDictionary:@{
+      @"systemindigocolor" : UIColor.systemIndigoColor,
+      @"systemgray2color" : UIColor.systemGray2Color,
+      @"systemgray3color" : UIColor.systemGray3Color,
+      @"systemgray4color" : UIColor.systemGray4Color,
+      @"systemgray5color" : UIColor.systemGray5Color,
+      @"systemgray6color" : UIColor.systemGray6Color,
+      @"labelcolor" : UIColor.labelColor,
+      @"secondarylabelcolor" : UIColor.secondaryLabelColor,
+      @"tertiarylabelcolor" : UIColor.tertiaryLabelColor,
+      @"quaternarylabelcolor" : UIColor.quaternaryLabelColor,
+      @"linkcolor" : UIColor.linkColor,
+      @"placeholdertextcolor" : UIColor.placeholderTextColor,
+      @"separatorcolor" : UIColor.separatorColor,
+      @"opaqueseparatorcolor" : UIColor.opaqueSeparatorColor,
+      @"systembackgroundcolor" : UIColor.systemBackgroundColor,
+      @"secondarysystembackgroundcolor" : UIColor.secondarySystemBackgroundColor,
+      @"tertiarysystembackgroundcolor" : UIColor.tertiarySystemBackgroundColor,
+      @"systemgroupedbackgroundcolor" : UIColor.systemGroupedBackgroundColor,
+      @"secondarysystemgroupedbackgroundcolor" : UIColor.secondarySystemGroupedBackgroundColor,
+      @"tertiarysystemgroupedbackgroundcolor" : UIColor.tertiarySystemGroupedBackgroundColor,
+      @"systemfillcolor" : UIColor.systemFillColor,
+      @"secondarysystemfillcolor" : UIColor.secondarySystemFillColor,
+      @"tertiarysystemfillcolor" : UIColor.tertiarySystemFillColor,
+      @"quaternarysystemfillcolor" : UIColor.quaternarySystemFillColor
+    }];
   }
   if ([colorName hasPrefix:@"#"]) {
     colorName = [colorName substringFromIndex:1];

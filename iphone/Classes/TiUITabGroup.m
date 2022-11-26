@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2014 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -9,6 +9,7 @@
 #import "TiUITabGroup.h"
 #import "TiUITabGroupProxy.h"
 #import "TiUITabProxy.h"
+#import <TitaniumKit/TiApp.h>
 #import <TitaniumKit/TiColor.h>
 #import <TitaniumKit/TiUtils.h>
 
@@ -618,16 +619,27 @@ DEFINE_EXCEPTIONS
 
 - (void)open:(id)args
 {
-  UIView *view = [self tabController].view;
-  [view setFrame:[self bounds]];
-  [self addSubview:view];
+  TiThreadPerformOnMainThread(
+      ^{
+        [self.tabController willMoveToParentViewController:TiApp.controller.topPresentedController];
+
+        self.tabController.view.frame = self.bounds;
+        [self addSubview:self.tabController.view];
+
+        [TiApp.controller.topPresentedController addChildViewController:self.tabController];
+      },
+      NO);
 }
 
 - (void)close:(id)args
 {
   if (controller != nil) {
     controller.viewControllers = nil;
+    [controller willMoveToParentViewController:nil];
+    [controller.view removeFromSuperview];
+    [controller removeFromParentViewController];
   }
+
   RELEASE_TO_NIL(controller);
 }
 

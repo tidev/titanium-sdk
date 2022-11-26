@@ -2,15 +2,15 @@
 name: Titanium.UI.TextArea
 summary: A multiline text field that supports editing and scrolling.
 description: |
-    | Android | iOS | Windows |
-    | ------- | --- | ------- |
-    | ![Android](./textarea_android.png) | ![iOS](./textarea_ios.png) | ![Windows](./textarea_wp.png) |
+    | Android | iOS |
+    | ------- | --- |
+    | ![Android](./textarea_android.png) | ![iOS](./textarea_ios.png) |
 
     Use the <Titanium.UI.createTextArea> method or **&lt;TextArea&gt;** Alloy element to create a text area.
 
     #### `click` event in iOS
 
-    In iOS 11+, `click` event in text area is not fired due to changes from apple. 
+    In iOS 11+, `click` event in text area is not fired due to changes from apple.
     Use `touchstart` event instead of `click` event.
 
 extends: Titanium.UI.View
@@ -37,7 +37,6 @@ methods:
     summary: Selects the text in range (start, end).
     platforms: [android, iphone, ipad, macos]
     since: 3.0.0
-    osver: {ios: {min: "5.0"}}
     parameters:
       - name: start
         summary: Start index for selection. Value ranges from 0 to the text's length.
@@ -53,16 +52,6 @@ methods:
           On iOS, soft keyboard would show when text is selected.
 
 properties:
-  - name: appearance
-    summary: Determines the appearance of the keyboard displayed when this text area is focused.
-    type: Number
-    constants: Titanium.UI.KEYBOARD_APPEARANCE_*
-    default: <Titanium.UI.KEYBOARD_APPEARANCE_DEFAULT>
-    platforms: [iphone, ipad]
-    deprecated:
-        since: "5.2.0"
-        removed: "9.0.0"
-        notes: Use [Titanium.UI.TextArea.keyboardAppearance](Titanium.UI.TextArea.keyboardAppearance) instead.
 
   - name: keyboardAppearance
     summary: Determines the appearance of the keyboard displayed when this text area is focused.
@@ -197,7 +186,6 @@ properties:
     constants: Titanium.UI.AUTOFILL_TYPE_*
     default: undefined
     since: "6.3.0"
-    osver: {ios: {min: "10.0"}, android: {min: "8.0"}}
     platforms: [iphone, ipad, android, macos]
 
   - name: autoLink
@@ -355,7 +343,6 @@ properties:
     type: Boolean
     default: false
     platforms: [iphone,ipad, macos]
-    osver: {ios: {min: "7.0"}}
     since: 3.2.0
 
   - name: keyboardToolbar
@@ -450,7 +437,6 @@ properties:
     type: Boolean
     default: true
     platforms: [ipad, macos]
-    osver: {ios: {min: "9.0"}}
     since: 5.0.0
 
   - name: suppressReturn
@@ -518,6 +504,11 @@ events:
       - name: value
         summary: New value of this text area.
         type: String
+      - name: contentHeight
+        summary: Content height value of this text area
+        type: Number
+        platforms: [iphone, ipad, macos]
+        since: {iphone: "11.0.0", ipad: "11.0.0", macos: "11.0.0"}
 
   - name: focus
     summary: Fired when this text area gains focus.
@@ -542,7 +533,6 @@ events:
         summary: This is false. This event does not bubble.
         type: Boolean
     platforms: [iphone,ipad, macos]
-    osver: {ios: {min: "7.0"}}
     since: 3.2.0
 
   - name: return

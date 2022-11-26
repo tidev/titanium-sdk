@@ -169,7 +169,7 @@ class Builder {
 				commonjs(),
 				babel(determineBabelOptions(babelOptions))
 			],
-			external: [ './app', 'com.appcelerator.aca' ]
+			external: [ './app' ]
 		});
 
 		const tiMainJs = path.join(outDir,  'ti.main.js');

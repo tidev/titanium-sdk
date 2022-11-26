@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -114,6 +114,13 @@ static BOOL alertShowing = NO;
   if (tintColor != nil) {
     [[alertController view] setTintColor:[[TiUtils colorValue:tintColor] color]];
   }
+
+#if IS_SDK_IOS_16
+  if ([TiUtils isIOSVersionOrGreater:@"16.0"]) {
+    UIAlertControllerSeverity severity = [TiUtils intValue:[self valueForKey:@"severity"] def:UIAlertControllerSeverityDefault];
+    alertController.severity = severity;
+  }
+#endif
 
   // Configure the Buttons
   for (id btn in buttonNames) {

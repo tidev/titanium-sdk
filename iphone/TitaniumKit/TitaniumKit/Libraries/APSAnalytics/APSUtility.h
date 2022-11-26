@@ -1,6 +1,6 @@
 /**
  * Appcelerator Platform SDK
- * Copyright (c) 2014 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Proprietary and Confidential - This source code is not for redistribution
  */
 

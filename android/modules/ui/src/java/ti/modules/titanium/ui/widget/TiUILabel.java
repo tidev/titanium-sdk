@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -37,6 +37,8 @@ import android.text.TextPaint;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import androidx.annotation.NonNull;
+import androidx.core.widget.TextViewCompat;
+
 import com.google.android.material.textview.MaterialTextView;
 
 public class TiUILabel extends TiUIView
@@ -58,6 +60,7 @@ public class TiUILabel extends TiUIView
 	private float unscaledFontSizeInPixels = -1.0f;
 	private CharSequence originalText = "";
 	private boolean isInvalidationAndLayoutsEnabled = true;
+	private float oldFontSize = -1.0f;
 
 	public TiUILabel(final TiViewProxy proxy)
 	{
@@ -460,6 +463,13 @@ public class TiUILabel extends TiUIView
 			tv.setShadowLayer(shadowRadius, shadowX, shadowY, shadowColor);
 		}
 
+		if (d.containsKey(TiC.PROPERTY_AUTOSIZE)) {
+			if (TiConvert.toBoolean(d, TiC.PROPERTY_AUTOSIZE, false)) {
+				oldFontSize = tv.getTextSize();
+				TextViewCompat.setAutoSizeTextTypeWithDefaults(tv, TextViewCompat.AUTO_SIZE_TEXT_TYPE_UNIFORM);
+			}
+		}
+
 		// This needs to be the last operation.
 		updateLabelText();
 		tv.invalidate();
@@ -580,6 +590,18 @@ public class TiUILabel extends TiUIView
 			if (hadFixedSize && isAutoSized) {
 				updateLabelText();
 			}
+		} else if (key.equals(TiC.PROPERTY_AUTOSIZE)) {
+			if (TiConvert.toBoolean(newValue, false)) {
+				oldFontSize = tv.getTextSize();
+				TextViewCompat.setAutoSizeTextTypeWithDefaults(tv, TextViewCompat.AUTO_SIZE_TEXT_TYPE_UNIFORM);
+			} else {
+				TextViewCompat.setAutoSizeTextTypeWithDefaults(tv, TextViewCompat.AUTO_SIZE_TEXT_TYPE_NONE);
+				if (oldFontSize != -1) {
+					tv.setTextSize(android.util.TypedValue.COMPLEX_UNIT_PX, oldFontSize);
+					tv.requestLayout();
+				}
+			}
+
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}

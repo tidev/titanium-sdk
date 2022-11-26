@@ -126,7 +126,6 @@ methods:
       - name: rule
         summary: The recurrence rule to be added.
         type: Titanium.Calendar.RecurrenceRule
-    osver: {ios: {min: "5.0"}}
     platforms: [iphone, ipad, macos]
 
   - name: removeRecurrenceRule
@@ -135,7 +134,6 @@ methods:
       - name: rule
         summary: The recurrence rule to be removed.
         type: Titanium.Calendar.RecurrenceRule
-    osver: {ios: {min: "5.0"}}
     platforms: [iphone, ipad, macos]
 
 properties:
@@ -248,7 +246,6 @@ properties:
         On Android, only the first element of the recurrenceRules is taken into account
         due to the way it handles conditions for recurrence rules.
     type: Array<Titanium.Calendar.RecurrenceRule>
-    osver: {ios: {min: "5.0"}}
     platforms: [android, iphone, ipad, macos]
     since: {android: "7.1.0", iphone: "3.1.0", ipad: "3.1.0"}
 

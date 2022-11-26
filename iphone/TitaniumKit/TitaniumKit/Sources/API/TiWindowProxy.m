@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2021 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -594,10 +594,9 @@
         }
       }
 
-      if ([TiUtils isIOSVersionOrGreater:@"13.0"]) {
-        forceModal = [TiUtils boolValue:@"forceModal" properties:dict def:NO];
-        theController.modalInPresentation = forceModal;
-      }
+      forceModal = [TiUtils boolValue:@"forceModal" properties:dict def:NO];
+      theController.modalInPresentation = forceModal;
+
       BOOL animated = [TiUtils boolValue:@"animated" properties:dict def:YES];
       [[TiApp app] showModalController:theController animated:animated];
     } else {

@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2020 by Axway, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -302,12 +302,6 @@ public class TiUIWebView extends TiUIView
 		if (path != null) {
 			settings.setDatabasePath(path.getAbsolutePath());
 			settings.setDatabaseEnabled(true);
-		}
-
-		File cacheDir = TiApplication.getInstance().getCacheDir();
-		if (cacheDir != null) {
-			settings.setAppCacheEnabled(true);
-			settings.setAppCachePath(cacheDir.getAbsolutePath());
 		}
 
 		// Enable mixed content mode to allow loading HTTP resources within an HTTPS page.

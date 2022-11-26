@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2020 by Appcelerator, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -221,7 +221,11 @@ public class TiBlob extends KrollProxy
 
 			switch (type) {
 				case TYPE_FILE:
-					BitmapFactory.decodeStream(getInputStream(), null, opts);
+					try {
+						BitmapFactory.decodeStream(getInputStream(), null, opts);
+					} catch (Exception e) {
+						Log.e(TAG, "Error decoding stream: " + e.getMessage());
+					}
 					break;
 				case TYPE_DATA:
 					byte[] byteArray = (byte[]) data;
