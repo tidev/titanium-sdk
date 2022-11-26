@@ -3252,7 +3252,7 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 		},
 		legacySwift = version.lt(this.xcodeEnv.version, '8.0.0');
 
-	if (this.excludeARM64) {
+	if (this.excludeARM64 && this.deployType !== 'production') {
 		buildSettings['EXCLUDED_ARCHS'] = 'arm64';
 	}
 
