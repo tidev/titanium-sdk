@@ -4874,11 +4874,16 @@ iOSBuilder.prototype.copyTitaniumiOSFiles = function copyTitaniumiOSFiles() {
 		path.join(this.platformPath, 'iphone', 'Titanium.xcodeproj', 'xcshareddata', 'xcschemes', 'Titanium.xcscheme'),
 		path.join(this.buildDir, this.tiapp.name + '.xcodeproj', 'xcshareddata', 'xcschemes', name + '.xcscheme')
 	);
-	copyAndReplaceFile.call(
-		this,
-		path.join(this.platformPath, 'iphone', 'Titanium.xcodeproj', 'xcshareddata', 'WorkspaceSettings.xcsettings'),
-		path.join(this.buildDir, this.tiapp.name + '.xcodeproj', 'project.xcworkspace', 'xcuserdata', `${require('os').userInfo().username}.xcuserdatad`, 'WorkspaceSettings.xcsettings')
-	);
+
+	// For non-production builds, be able to open the generated Xcode project
+	if (this.deployType !== 'production') {
+		copyAndReplaceFile.call(
+			this,
+			path.join(this.platformPath, 'iphone', 'Titanium.xcodeproj', 'xcshareddata', 'WorkspaceSettings.xcsettings'),
+			path.join(this.buildDir, this.tiapp.name + '.xcodeproj', 'project.xcworkspace', 'xcuserdata', `${require('os').userInfo().username}.xcuserdatad`, 'WorkspaceSettings.xcsettings')
+		);
+	}
+
 	copyAndReplaceFile.call(
 		this,
 		path.join(this.platformPath, 'iphone', 'Titanium.xcodeproj', 'project.xcworkspace', 'contents.xcworkspacedata'),
@@ -7166,6 +7171,23 @@ iOSBuilder.prototype.sanitizedAppName = function sanitizedAppName() {
 
 function sha1(value) {
 	return crypto.createHash('sha1').update(value).digest('hex');
+}
+
+// This function has the advantage to detect bridges architectures
+// like x86_64 in Rosetta mode (process.arch would still print "arm64" in that case)
+async function processArchitecture() {
+	return new Promise((resolve, reject) => {
+		// eslint-disable-next-line security/detect-child-process
+		const exec = require('child_process').exec;
+
+		exec('uname -m', function (error, stdout) {
+			if (error) {
+				reject(error);
+				return;
+			}
+			resolve(stdout.trim());
+		});
+	});
 }
 
 // create the builder instance and expose the public api
