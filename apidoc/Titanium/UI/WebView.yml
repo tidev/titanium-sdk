@@ -1121,6 +1121,64 @@ properties:
     since: {iphone: "8.0.0", ipad: "8.0.0", macos: "9.2.0"}
     permission: read-only
 
+examples:
+  - title: Basic Web View to External URL
+    example: |
+        Create a web view to a remote URL and open the window as modal.
+
+        ``` js
+        var webview = Titanium.UI.createWebView({url:'http://www.titaniumsdk.com'});
+        var window = Titanium.UI.createWindow();
+        window.add(webview);
+        window.open({modal:true});
+        ```
+  - title: Alloy XML Markup
+    example: |
+        Previous example as an Alloy view.
+
+        ``` xml
+        <Alloy>
+            <Window id="win" modal="true">
+                <WebView id="webview" url="http://www.titaniumsdk.com" />
+            </Window>
+        </Alloy>
+        ```
+  - title: Listening to Web View properties in iOS
+    example: |
+        Create a web view and listen 'title' property of web view.
+
+        ``` js
+        var webview = Ti.UI.createWebView({
+            url:'http://www.titaniumsdk.com'
+        });
+        webview.startListeningToProperties([ 'title' ]);
+        webview.addEventListener('title', function(e) {
+            alert('Title is : -' +e.value);
+        });
+        var window = Ti.UI.createWindow();
+        window.add(webview);
+        window.open();
+        ```
+  - title: Usage of allowedURLSchemes and handleurl in iOS
+    example: |
+        Create a web view and listen 'handleurl' event to open url from Titanium platform.
+
+        ``` js
+        var webview = Ti.UI.createWebView({
+            url: 'https://www.google.com',
+            allowedURLSchemes: [ 'https', 'http' ]
+        });
+
+        webview.addEventListener('handleurl', function(e) {
+            var handler = e.handler;
+            Ti.Platform.openURL(e.url);
+            handler.invoke(Ti.UI.iOS.ACTION_POLICY_CANCEL);
+        });
+        var window = Ti.UI.createWindow();
+        window.add(webview);
+        window.open();
+        ```
+
 ---
 name: SnapshotResult
 summary: The parameter passed to the <Titanium.UI.WebView.takeSnapshot> callback.
@@ -1239,64 +1297,6 @@ properties:
   - name: title
     summary: The title of the webpage represented by this item.
     type: String
-
-examples:
-  - title: Basic Web View to External URL
-    example: |
-        Create a web view to a remote URL and open the window as modal.
-
-        ``` js
-        var webview = Titanium.UI.createWebView({url:'http://www.titaniumsdk.com'});
-        var window = Titanium.UI.createWindow();
-        window.add(webview);
-        window.open({modal:true});
-        ```
-  - title: Alloy XML Markup
-    example: |
-        Previous example as an Alloy view.
-
-        ``` xml
-        <Alloy>
-            <Window id="win" modal="true">
-                <WebView id="webview" url="http://www.titaniumsdk.com" />
-            </Window>
-        </Alloy>
-        ```
-  - title: Listening to Web View properties in iOS
-    example: |
-        Create a web view and listen 'title' property of web view.
-
-        ``` js
-        var webview = Ti.UI.createWebView({
-            url:'http://www.titaniumsdk.com'
-        });
-        webview.startListeningToProperties([ 'title' ]);
-        webview.addEventListener('title', function(e) {
-            alert('Title is : -' +e.value);
-        });
-        var window = Ti.UI.createWindow();
-        window.add(webview);
-        window.open();
-        ```
-  - title: Usage of allowedURLSchemes and handleurl in iOS
-    example: |
-        Create a web view and listen 'handleurl' event to open url from Titanium platform.
-
-        ``` js
-        var webview = Ti.UI.createWebView({
-            url: 'https://www.google.com',
-            allowedURLSchemes: [ 'https', 'http' ]
-        });
-
-        webview.addEventListener('handleurl', function(e) {
-            var handler = e.handler;
-            Ti.Platform.openURL(e.url);
-            handler.invoke(Ti.UI.iOS.ACTION_POLICY_CANCEL);
-        });
-        var window = Ti.UI.createWindow();
-        window.add(webview);
-        window.open();
-        ```
 
 ---
 name: OnLinkURLResponse

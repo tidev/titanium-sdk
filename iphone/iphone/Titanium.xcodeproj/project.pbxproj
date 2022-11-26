@@ -2412,6 +2412,8 @@
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-lxml2",
+					"-weak_framework",
+					SwiftUI,
 				);
 				"OTHER_LDFLAGS[sdk=iphoneos*]" = "$(inherited)";
 				"OTHER_LDFLAGS[sdk=iphonesimulator*]" = "$(inherited)";
@@ -2469,6 +2471,8 @@
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-lxml2",
+					"-weak_framework",
+					SwiftUI,
 				);
 				"OTHER_LDFLAGS[sdk=iphoneos*]" = "$(inherited)";
 				"OTHER_LDFLAGS[sdk=iphonesimulator*]" = "$(inherited)";
