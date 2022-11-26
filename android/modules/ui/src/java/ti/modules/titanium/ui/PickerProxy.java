@@ -226,7 +226,7 @@ public class PickerProxy extends TiViewProxy implements PickerColumnProxy.OnChan
 			TextInputLayout.LayoutParams.MATCH_PARENT, TextInputLayout.LayoutParams.MATCH_PARENT));
 
 		if (hasPropertyAndNotNull(TiC.PROPERTY_COLOR)) {
-			editText.setTextColor(TiConvert.toColor(getProperty(TiC.PROPERTY_COLOR).toString()));
+			editText.setTextColor(TiConvert.toColor(getProperty(TiC.PROPERTY_COLOR).toString(), activity));
 		}
 
 		return textInputLayout;

@@ -493,7 +493,7 @@ enum {
 // display a warning and set it to 0.0.0
 
 #ifndef TI_VERSION
-#define TI_VERSION 0.0.0
+#define TI_VERSION @"0.0.0"
 #endif
 
 #define _QUOTEME(x) #x
