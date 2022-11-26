@@ -12,10 +12,10 @@ import ActivityKit
 
 extension TiAppiOSActivityAttributesProxy {
 
-  @objc(startActivity:)
-  class func startActivity(args: [Any]) {
-    guard let params = args.first as? [String: String] else {
-      fatalError("Missing required parameters")
+  @objc(_startActivity:)
+  class func _startActivity(args: Any) {
+    guard let params = args as? [String: String] else {
+      fatalError("Invalid parameters passed to \"startActivity\" method!")
     }
 
 #if canImport(ActivityKit)
@@ -29,6 +29,8 @@ extension TiAppiOSActivityAttributesProxy {
     } catch let error {
       NSLog("[ERROR] Cannot start activity: \(error.localizedDescription)")
     }
+#else
+    NSLog("[ERROR] Cannot call \"startActivity\" on iOS < 16.1. Please add a guard to prevent this error log!")
 #endif
   }
 }

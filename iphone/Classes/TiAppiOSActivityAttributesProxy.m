@@ -9,4 +9,10 @@
 
 @implementation TiAppiOSActivityAttributesProxy
 
+- (void)startActivity:(id)args
+{
+  ENSURE_SINGLE_ARG(args, NSDictionary);
+  [TiAppiOSActivityAttributesProxy _startActivity:args];
+}
+
 @end
