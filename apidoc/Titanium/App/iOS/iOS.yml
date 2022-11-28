@@ -150,7 +150,7 @@ methods:
         summary: |
             Parameters used to create the background task.
         type: BackgroundTaskObject
-    since: "10.2.0"
+    since: "12.0.0"
     osver: { ios: { min: "13.0" } }
     platforms: [iphone, ipad, macos]
 
@@ -536,7 +536,7 @@ properties:
         such as the latest stock values.
     type: String
     permission: read-only
-    since: "10.2.0"
+    since: "12.0.0"
     osver: { ios: { min: "13.0" } }
     value: "refresh"
 
@@ -548,7 +548,7 @@ properties:
         processing data, and app maintenance.
     type: String
     permission: read-only
-    since: "10.2.0"
+    since: "12.0.0"
     osver: { ios: { min: "13.0" } }
     value: "process"
 
@@ -1051,7 +1051,7 @@ events:
         type: String
     platforms: [iphone, ipad, macos]
     osver: {ios: {min: "7.0"}}
-    since: {iphone: "3.2.0", ipad: "3.2.0", macos: "10.2.0"}
+    since: {iphone: "3.2.0", ipad: "3.2.0", macos: "12.0.0"}
 
   - name: backgroundprocess
     summary: Fired when the application is woken up for a processing operation. Available on macOS and iOS 13+ .
