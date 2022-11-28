@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2021 by Axway, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -115,6 +115,9 @@ public class TiUIOptionBar extends TiUIView
 					((Checkable) view).setChecked(true);
 					this.isIgnoringCheckEvent = oldValue;
 				}
+			} else if (index == -1) {
+				// unselect all
+				getButtonGroup().clearChecked();
 			}
 		}
 	}
@@ -231,7 +234,6 @@ public class TiUIOptionBar extends TiUIView
 				if (((Checkable) childView).isChecked()) {
 					// Update the proxy's "index" property.
 					this.proxy.setProperty(TiC.PROPERTY_INDEX, index);
-
 					// Fire a "click" event for selected option.
 					if (!this.isIgnoringCheckEvent) {
 						KrollDict data = new KrollDict();

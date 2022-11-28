@@ -1,21 +1,22 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2020 by Axway. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License.
  * Please see the LICENSE included with this distribution for details.
  */
 
 buildscript {
-	ext.kotlin_version = '1.6.10'
+	ext.kotlin_version = '1.6.21'
 
 	repositories {
 		google()
 		mavenCentral()
 	}
 	dependencies {
-		classpath 'com.android.tools.build:gradle:7.0.1'
+		classpath 'com.android.tools.build:gradle:7.0.4'
 		classpath 'com.google.gms:google-services:4.3.10'
 		classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+		classpath 'org.codehaus.groovy:groovy-json:3.0.11'
 	}
 }
 

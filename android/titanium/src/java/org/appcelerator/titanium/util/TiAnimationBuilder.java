@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -14,6 +14,7 @@ import java.util.List;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.common.Log;
+import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.proxy.TiViewProxy;
@@ -229,11 +230,12 @@ public class TiAnimationBuilder
 		}
 
 		if (options.containsKey(TiC.PROPERTY_BACKGROUND_COLOR)) {
-			backgroundColor = TiConvert.toColor(options, TiC.PROPERTY_BACKGROUND_COLOR);
+			backgroundColor = TiConvert.toColor(options, TiC.PROPERTY_BACKGROUND_COLOR,
+				TiApplication.getAppCurrentActivity());
 		}
 
 		if (options.containsKey(TiC.PROPERTY_COLOR)) {
-			color = TiConvert.toColor(options, TiC.PROPERTY_COLOR);
+			color = TiConvert.toColor(options, TiC.PROPERTY_COLOR, TiApplication.getAppCurrentActivity());
 		}
 
 		if (options.containsKey(TiC.PROPERTY_ELEVATION)) {

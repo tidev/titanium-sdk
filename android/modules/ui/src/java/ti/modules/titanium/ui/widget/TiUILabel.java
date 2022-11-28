@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -37,6 +37,8 @@ import android.text.TextPaint;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import androidx.annotation.NonNull;
+import androidx.core.widget.TextViewCompat;
+
 import com.google.android.material.textview.MaterialTextView;
 
 public class TiUILabel extends TiUIView
@@ -58,6 +60,7 @@ public class TiUILabel extends TiUIView
 	private float unscaledFontSizeInPixels = -1.0f;
 	private CharSequence originalText = "";
 	private boolean isInvalidationAndLayoutsEnabled = true;
+	private float oldFontSize = -1.0f;
 
 	public TiUILabel(final TiViewProxy proxy)
 	{
@@ -397,11 +400,11 @@ public class TiUILabel extends TiUIView
 			if (color == null) {
 				tv.setTextColor(defaultColor);
 			} else {
-				tv.setTextColor(TiConvert.toColor(d, TiC.PROPERTY_COLOR));
+				tv.setTextColor(TiConvert.toColor(d, TiC.PROPERTY_COLOR, proxy.getActivity()));
 			}
 		}
 		if (d.containsKey(TiC.PROPERTY_HIGHLIGHTED_COLOR)) {
-			tv.setHighlightColor(TiConvert.toColor(d, TiC.PROPERTY_HIGHLIGHTED_COLOR));
+			tv.setHighlightColor(TiConvert.toColor(d, TiC.PROPERTY_HIGHLIGHTED_COLOR, proxy.getActivity()));
 		}
 		if (d.containsKey(TiC.PROPERTY_FONT)) {
 			TiUIHelper.styleText(tv, d.getKrollDict(TiC.PROPERTY_FONT));
@@ -454,10 +457,17 @@ public class TiUILabel extends TiUIView
 		}
 		if (d.containsKey(TiC.PROPERTY_SHADOW_COLOR)) {
 			needShadow = true;
-			shadowColor = TiConvert.toColor(d, TiC.PROPERTY_SHADOW_COLOR);
+			shadowColor = TiConvert.toColor(d, TiC.PROPERTY_SHADOW_COLOR, proxy.getActivity());
 		}
 		if (needShadow) {
 			tv.setShadowLayer(shadowRadius, shadowX, shadowY, shadowColor);
+		}
+
+		if (d.containsKey(TiC.PROPERTY_AUTOSIZE)) {
+			if (TiConvert.toBoolean(d, TiC.PROPERTY_AUTOSIZE, false)) {
+				oldFontSize = tv.getTextSize();
+				TextViewCompat.setAutoSizeTextTypeWithDefaults(tv, TextViewCompat.AUTO_SIZE_TEXT_TYPE_UNIFORM);
+			}
 		}
 
 		// This needs to be the last operation.
@@ -496,10 +506,11 @@ public class TiUILabel extends TiUIView
 			if (newValue == null) {
 				tv.setTextColor(defaultColor);
 			} else {
-				tv.setTextColor(TiConvert.toColor((String) newValue));
+				tv.setTextColor(TiConvert.toColor(newValue, proxy.getActivity()));
 			}
 		} else if (key.equals(TiC.PROPERTY_HIGHLIGHTED_COLOR)) {
-			tv.setHighlightColor(TiConvert.toColor((String) newValue));
+			// TODO: reset to default value when property is null
+			tv.setHighlightColor(TiConvert.toColor(newValue, proxy.getActivity()));
 		} else if (key.equals(TiC.PROPERTY_TEXT_ALIGN)) {
 			TiUIHelper.setAlignment(tv, TiConvert.toString(newValue), null);
 			tv.requestLayout();
@@ -548,7 +559,7 @@ public class TiUILabel extends TiUIView
 			shadowRadius = TiConvert.toFloat(newValue, DEFAULT_SHADOW_RADIUS);
 			tv.setShadowLayer(shadowRadius, shadowX, shadowY, shadowColor);
 		} else if (key.equals(TiC.PROPERTY_SHADOW_COLOR)) {
-			shadowColor = TiConvert.toColor(TiConvert.toString(newValue));
+			shadowColor = TiConvert.toColor(newValue, proxy.getActivity());
 			tv.setShadowLayer(shadowRadius, shadowX, shadowY, shadowColor);
 		} else if (key.equals(TiC.PROPERTY_LINES)) {
 			this.viewHeightInLines = TiConvert.toInt(newValue, 0);
@@ -579,6 +590,18 @@ public class TiUILabel extends TiUIView
 			if (hadFixedSize && isAutoSized) {
 				updateLabelText();
 			}
+		} else if (key.equals(TiC.PROPERTY_AUTOSIZE)) {
+			if (TiConvert.toBoolean(newValue, false)) {
+				oldFontSize = tv.getTextSize();
+				TextViewCompat.setAutoSizeTextTypeWithDefaults(tv, TextViewCompat.AUTO_SIZE_TEXT_TYPE_UNIFORM);
+			} else {
+				TextViewCompat.setAutoSizeTextTypeWithDefaults(tv, TextViewCompat.AUTO_SIZE_TEXT_TYPE_NONE);
+				if (oldFontSize != -1) {
+					tv.setTextSize(android.util.TypedValue.COMPLEX_UNIT_PX, oldFontSize);
+					tv.requestLayout();
+				}
+			}
+
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}

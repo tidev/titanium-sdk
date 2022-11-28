@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2014 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -55,7 +55,9 @@
 
 - (void)dealloc
 {
-  [proxy setCallbackCell:nil];
+  if (proxy != nil && [proxy callbackCell] == self) {
+    [proxy setCallbackCell:nil];
+  }
 
   RELEASE_TO_NIL(proxy);
   RELEASE_TO_NIL(gradientLayer);
@@ -1442,7 +1444,10 @@
   if (isSearchBarInNavigation) {
     dimmingView.frame = CGRectMake(0, 0, self.frame.size.width, self.frame.size.height);
   } else {
-    [dimmingView setFrame:CGRectMake(0, searchController.searchBar.frame.size.height, self.frame.size.width, self.frame.size.height - searchController.searchBar.frame.size.height)];
+    CGFloat dimmingViewTopMargin = searchController.searchBar.frame.size.height + searchController.view.safeAreaInsets.top;
+    CGFloat dimmingViewHeight = self.frame.size.height - searchController.searchBar.frame.size.height;
+
+    [dimmingView setFrame:CGRectMake(0, dimmingViewTopMargin, self.frame.size.width, dimmingViewHeight)];
     CGPoint convertedOrigin = [self.superview convertPoint:self.frame.origin toView:searchControllerPresenter.view];
 
     UIView *searchSuperView = [searchController.view superview];
@@ -1875,6 +1880,7 @@
     [self createDimmingView];
   } else {
     _dimsBackgroundDuringPresentation = [TiUtils boolValue:arg def:YES];
+    dimmingView = nil;
   }
 }
 
@@ -2426,7 +2432,7 @@
 - (void)createDimmingView
 {
   if (dimmingView == nil) {
-    dimmingView = [[UIView alloc] initWithFrame:CGRectMake(0, searchController.searchBar.frame.size.height, self.frame.size.width, self.frame.size.height - searchController.searchBar.frame.size.height)];
+    dimmingView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.frame.size.width, self.frame.size.height - searchController.searchBar.frame.size.height)];
     dimmingView.backgroundColor = [UIColor blackColor];
     dimmingView.alpha = .2;
     UITapGestureRecognizer *tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(dismissSearchController)];
@@ -2437,7 +2443,7 @@
 
 - (void)showDimmingView
 {
-  dimmingView.frame = CGRectMake(0, searchController.searchBar.frame.size.height, self.frame.size.width, self.frame.size.height - searchController.searchBar.frame.size.height);
+  dimmingView.frame = CGRectMake(0, 0, self.frame.size.width, self.frame.size.height);
   if (!dimmingView.superview) {
     [self addSubview:dimmingView];
     [self bringSubviewToFront:dimmingView];

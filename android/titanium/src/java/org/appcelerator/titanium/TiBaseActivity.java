@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2018 by Axway, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -99,7 +99,7 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 	private Intent launchIntent = null;
 	private TiActionBarStyleHandler actionBarStyleHandler;
 	private TiActivitySafeAreaMonitor safeAreaMonitor;
-
+	private Context baseContext;
 	/**
 	 * Callback to be invoked when the TiBaseActivity.onRequestPermissionsResult() has been called,
 	 * providing the results of a requestPermissions() call. Instances of this interface are to
@@ -631,6 +631,7 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 	@Override
 	protected void attachBaseContext(Context newBase)
 	{
+		baseContext = newBase;
 		super.attachBaseContext(TiLocaleManager.getLocalizedContext(newBase));
 	}
 
@@ -1618,6 +1619,10 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 			activityProxy = null;
 		}
 
+		if (baseContext != null) {
+			baseContext = null;
+		}
+
 		// Remove this activity from the app-wide Titanium UI stack.
 		TiApplication.removeFromActivityStack(this);
 
@@ -1850,5 +1855,10 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 		if (this.safeAreaMonitor != null) {
 			this.safeAreaMonitor.removeInsetsProvider(provider);
 		}
+	}
+
+	public Context getInitialBaseContext()
+	{
+		return baseContext;
 	}
 }

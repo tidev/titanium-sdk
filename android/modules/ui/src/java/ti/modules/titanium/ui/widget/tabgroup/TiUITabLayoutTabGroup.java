@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2018-Present by Axway, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -327,10 +327,11 @@ public class TiUITabLayoutTabGroup extends TiUIAbstractTabGroup implements TabLa
 			return;
 		}
 
-		if (tabProxy.getProperty(TiC.PROPERTY_BADGE_COLOR) != null) {
+		// TODO: reset to default value when property is null
+		if (tabProxy.hasPropertyAndNotNull(TiC.PROPERTY_BADGE_COLOR)) {
 			BadgeDrawable badgeDrawable = this.mTabLayout.getTabAt(index).getOrCreateBadge();
 			badgeDrawable.setBackgroundColor(
-				TiConvert.toColor((String) tabProxy.getProperty(TiC.PROPERTY_BADGE_COLOR)));
+				TiConvert.toColor(tabProxy.getProperty(TiC.PROPERTY_BADGE_COLOR), tabProxy.getActivity()));
 		}
 	}
 

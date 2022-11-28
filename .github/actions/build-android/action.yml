@@ -1,0 +1,107 @@
+name: Android Build
+description: Installs required dependencies and then builds the Android side of the SDK
+
+inputs:
+  node-version:
+    description: The version of Node.js to use
+    required: true
+  java-version:
+    description: The version of Java to use
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Dependencies including 32-bit support
+      run: |
+        sudo dpkg --add-architecture i386
+        sudo apt-get update -y -qq
+        sudo apt-get install -y -qq gperf libatomic1:i386 libc6:i386 libncurses5:i386 libstdc++6:i386
+      shell: bash
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: ${{ inputs.node-version }}
+        cache: 'npm'
+
+    - name: Setup Java
+      uses: actions/setup-java@v2
+      with:
+        distribution: 'adopt'
+        java-version: ${{ inputs.java-version }}
+
+    - name: Install dependencies
+      run: npm ci
+      shell: bash
+
+    - name: Cache Gradle packages
+      uses: actions/cache@v2
+      with:
+        path: |
+          ~/.gradle/caches
+          ~/.gradle/wrapper
+        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+        restore-keys: |
+          ${{ runner.os }}-gradle-
+
+    - name: Lint
+      run: npm run lint:android
+      shell: bash
+
+    - name: Set up Homebrew
+      id: set-up-homebrew
+      uses: Homebrew/actions/setup-homebrew@master
+
+    - name: Install ccache
+      run: brew install ccache
+      shell: bash
+
+    - name: Retrieve ccache
+      uses: actions/cache@v2
+      with:
+        path: ${{ env.CCACHE_DIR }}
+        key: ${{ runner.os }}-ccache-${{ github.sha }}
+        restore-keys: |
+          ${{ runner.os }}-ccache-
+
+    - name: Cache V8
+      uses: actions/cache@v2
+      with:
+        path: dist/android/libv8
+        key: libv8-${{ hashFiles('dist/android/libv8/**') }}
+        restore-keys: |
+          libv8-
+
+    - name: Build
+      run: npm run build:android
+      shell: bash
+
+    - name: Show summary of ccache configuration and statistics counters
+      run: ccache --show-stats
+      shell: bash
+
+    - name: 'Package build output'
+      run: >
+        tar -czvf android-build.tar.gz
+        android/kroll-apt/build/libs/kroll-apt.jar
+        android/runtime/v8/generated/
+        android/titanium/build/outputs/
+        dist/android/libv8/
+        dist/android/titanium.bindings.json
+        dist/tmp/common
+      shell: bash
+
+    - uses: actions/upload-artifact@v2
+      with:
+        name: android-build
+        retention-days: 1
+        path: android-build.tar.gz
+
+    - name: Cleanup Gradle Cache
+      # Remove some files from the Gradle cache, so they aren't cached by GitHub Actions.
+      # Restoring these files from a GitHub Actions cache might cause problems for future builds.
+      run: |
+        rm -f ~/.gradle/caches/modules-2/modules-2.lock
+        rm -f ~/.gradle/caches/modules-2/gc.properties
+      shell: bash

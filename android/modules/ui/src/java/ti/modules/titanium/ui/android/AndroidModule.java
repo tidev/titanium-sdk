@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2020 by Appcelerator, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -13,6 +13,7 @@ import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.proxy.ColorProxy;
 import org.appcelerator.titanium.util.TiColorHelper;
+import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiUIView;
 
@@ -21,6 +22,7 @@ import ti.modules.titanium.ui.widget.TiUIProgressIndicator;
 import ti.modules.titanium.ui.widget.webview.TiUIWebView;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.PixelFormat;
 import android.view.Gravity;
@@ -30,6 +32,8 @@ import android.webkit.WebSettings;
 import androidx.annotation.ColorInt;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
+
+import com.google.android.material.color.MaterialColors;
 
 @SuppressWarnings("deprecation")
 @Kroll.module(parentModule = UIModule.class)
@@ -277,7 +281,11 @@ public class AndroidModule extends KrollModule
 			// Color by resource id
 			if (idOrName instanceof Number) {
 				int colorResId = ((Number) idOrName).intValue();
-				@ColorInt int packedColorInt = ContextCompat.getColor(TiApplication.getInstance(), colorResId);
+				Context context = TiApplication.getAppRootOrCurrentActivity();
+				if (context == null) {
+					context = TiApplication.getInstance();
+				}
+				@ColorInt int packedColorInt = ContextCompat.getColor(context, colorResId);
 				return new ColorProxy(packedColorInt);
 			}
 			// Color by name
@@ -290,6 +298,14 @@ public class AndroidModule extends KrollModule
 			// ignore
 		}
 		return null;
+	}
+
+	@Kroll.method
+	public String harmonizedColor(String value)
+	{
+		int color = TiConvert.toColor(value, TiApplication.getAppCurrentActivity());
+		return String.format("#%06X",
+			(0xFFFFFF & MaterialColors.harmonizeWithPrimary(TiApplication.getAppCurrentActivity(), color)));
 	}
 
 	@Override

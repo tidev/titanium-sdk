@@ -35,6 +35,22 @@ description: |
     [evalJS](Titanium.UI.WebView.evalJS) method to execute a JavaScript expression
     inside the web view and retrieve the value of an expression.
 
+    You can inject the local `Ti.App.fireEvent` bindings yourself by adding a script element using
+    evalJS.
+
+    ```js
+    webview.evalJS(
+      'javascript=(function addBinding(){' +
+        'var s=document.createElement("script");' +
+        's.setAttribute("type","text/javascript");' +
+        's.innerHTML="' + require('/binding.js') + '";'
+        +
+        'document.getElementsByTagName("body")[0].appendChild(s);' +
+      '})()'
+    );
+    ```
+    The `binding.min.js` is available in the [repository](https://github.com/tidev/titanium_mobile/tree/master/android/modules/ui/assets/Resources/ti.internal/webview).
+
     #### Local JavaScript Files
 
     During the build process for creating a package, all JavaScript files, that is, any file with a
@@ -159,14 +175,14 @@ description: |
     ### Ti.UI.SIZE and WebViews
 
     With Titanium 8.0.0+, <Titanium.UI.SIZE> does not work for WebViews. We recommend to give a **fixed height**
-    to <Titanium.UI.WebView> (as noted in [TIDOC-3355](https://jira.appcelerator.org/browse/TIDOC-3355)).
+    to <Titanium.UI.WebView> (as noted in [TIDOC-3355](https://jira-archive.titaniumsdk.com/TIDOC-3355)).
 
     As a workaround you can try to get the `document.body.scrollHeight` inside <Titanium.UI.WebView.load> event
     of webview and set the height to webview. See following example.
 
     ``` js
     var win = Ti.UI.createWindow({
-      backgroundColor: 'white';
+      backgroundColor: 'white'
     });
 
     var verticalView = Ti.UI.createView({layout: 'vertical', width: "100%", height: "100%"});
@@ -491,7 +507,6 @@ events:
       - name: navigationType
         summary: Constant indicating the user's action.
         type: Number
-        constants: Titanium.UI.iOS.WEBVIEW_NAVIGATIONTYPE_*
         platforms: [ipad, iphone, macos]
 
       - name: isMainFrame
@@ -528,23 +543,6 @@ events:
         summary: URL of the web document.
         type: String
         platforms: [iphone, ipad, android, macos]
-      - name: message
-        summary: Error message. Use error instead.
-        type: String
-        platforms: [iphone, ipad, android]
-        deprecated:
-            since: "3.1.0"
-            removed: "9.0.0"
-            notes: Use the `error` property instead. Removed on ios in 8.0.0. Removed on android in 9.0.0.
-      - name: errorCode
-        summary: A constant or underlying platform specific error code. Use code instead.
-        type: Number
-        constants: Titanium.UI.URL_ERROR_*
-        platforms: [iphone, ipad, android]
-        deprecated:
-            since: "3.1.0"
-            removed: "9.0.0"
-            notes: Use the `code` property instead. Removed on ios in 8.0.0. Removed on android in 9.0.0.
 
   - name: load
     summary: Fired when the web view content is loaded.
@@ -576,19 +574,6 @@ events:
         summary: SSL error code.
         type: Number
         platforms: [android]
-
-  - name: onStopBlacklistedUrl
-    summary: Fired when a blacklisted URL is stopped.
-    platforms: [android]
-    since: 5.4.0
-    properties:
-      - name: url
-        summary: The URL of the web document that is stopped.
-        type: String
-    deprecated:
-        since: "6.1.0"
-        removed: "9.0.0"
-        notes: Use the  cross-platform `blacklisturl` event instead.
 
   - name: blacklisturl
     summary: Fired when a blacklisted URL is stopped.
@@ -692,7 +677,6 @@ properties:
         Safari, it is opt-in, by way of this property, rather default behavior for this class.
     type: Boolean
     default: false
-    osver: {ios: {min: "9.0"}}
     platforms: [iphone, ipad, macos]
     since: {iphone: "5.4.0", ipad: "5.4.0", macos: "9.2.0"}
 
@@ -954,7 +938,6 @@ properties:
     constants: Titanium.UI.Android.WEBVIEW_PLUGINS_*
     platforms: [android]
     since: "1.8.0"
-    osver: {android: {min: "2.2"}}
     default: <Titanium.UI.Android.WEBVIEW_PLUGINS_OFF>
 
   - name: scrollsToTop
@@ -1138,6 +1121,64 @@ properties:
     since: {iphone: "8.0.0", ipad: "8.0.0", macos: "9.2.0"}
     permission: read-only
 
+examples:
+  - title: Basic Web View to External URL
+    example: |
+        Create a web view to a remote URL and open the window as modal.
+
+        ``` js
+        var webview = Titanium.UI.createWebView({url:'http://www.titaniumsdk.com'});
+        var window = Titanium.UI.createWindow();
+        window.add(webview);
+        window.open({modal:true});
+        ```
+  - title: Alloy XML Markup
+    example: |
+        Previous example as an Alloy view.
+
+        ``` xml
+        <Alloy>
+            <Window id="win" modal="true">
+                <WebView id="webview" url="http://www.titaniumsdk.com" />
+            </Window>
+        </Alloy>
+        ```
+  - title: Listening to Web View properties in iOS
+    example: |
+        Create a web view and listen 'title' property of web view.
+
+        ``` js
+        var webview = Ti.UI.createWebView({
+            url:'http://www.titaniumsdk.com'
+        });
+        webview.startListeningToProperties([ 'title' ]);
+        webview.addEventListener('title', function(e) {
+            alert('Title is : -' +e.value);
+        });
+        var window = Ti.UI.createWindow();
+        window.add(webview);
+        window.open();
+        ```
+  - title: Usage of allowedURLSchemes and handleurl in iOS
+    example: |
+        Create a web view and listen 'handleurl' event to open url from Titanium platform.
+
+        ``` js
+        var webview = Ti.UI.createWebView({
+            url: 'https://www.google.com',
+            allowedURLSchemes: [ 'https', 'http' ]
+        });
+
+        webview.addEventListener('handleurl', function(e) {
+            var handler = e.handler;
+            Ti.Platform.openURL(e.url);
+            handler.invoke(Ti.UI.iOS.ACTION_POLICY_CANCEL);
+        });
+        var window = Ti.UI.createWindow();
+        window.add(webview);
+        window.open();
+        ```
+
 ---
 name: SnapshotResult
 summary: The parameter passed to the <Titanium.UI.WebView.takeSnapshot> callback.
@@ -1256,64 +1297,6 @@ properties:
   - name: title
     summary: The title of the webpage represented by this item.
     type: String
-
-examples:
-  - title: Basic Web View to External URL
-    example: |
-        Create a web view to a remote URL and open the window as modal.
-
-        ``` js
-        var webview = Titanium.UI.createWebView({url:'http://www.titaniumsdk.com'});
-        var window = Titanium.UI.createWindow();
-        window.add(webview);
-        window.open({modal:true});
-        ```
-  - title: Alloy XML Markup
-    example: |
-        Previous example as an Alloy view.
-
-        ``` xml
-        <Alloy>
-            <Window id="win" modal="true">
-                <WebView id="webview" url="http://www.titaniumsdk.com" />
-            </Window>
-        </Alloy>
-        ```
-  - title: Listening to Web View properties in iOS
-    example: |
-        Create a web view and listen 'title' property of web view.
-
-        ``` js
-        var webview = Ti.UI.createWebView({
-            url:'http://www.titaniumsdk.com'
-        });
-        webview.startListeningToProperties([ 'title' ]);
-        webview.addEventListener('title', function(e) {
-            alert('Title is : -' +e.value);
-        });
-        var window = Ti.UI.createWindow();
-        window.add(webview);
-        window.open();
-        ```
-  - title: Usage of allowedURLSchemes and handleurl in iOS
-    example: |
-        Create a web view and listen 'handleurl' event to open url from Titanium platform.
-
-        ``` js
-        var webview = Ti.UI.createWebView({
-            url: 'https://www.google.com',
-            allowedURLSchemes: [ 'https', 'http' ]
-        });
-
-        webview.addEventListener('handleurl', function(e) {
-            var handler = e.handler;
-            Ti.Platform.openURL(e.url);
-            handler.invoke(Ti.UI.iOS.ACTION_POLICY_CANCEL);
-        });
-        var window = Ti.UI.createWindow();
-        window.add(webview);
-        window.open();
-        ```
 
 ---
 name: OnLinkURLResponse

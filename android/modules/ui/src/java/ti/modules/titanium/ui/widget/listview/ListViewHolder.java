@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2020 by Axway, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -27,10 +27,13 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.PaintDrawable;
 import android.os.Build;
 import android.util.TypedValue;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import androidx.recyclerview.widget.RecyclerView;
 
 import java.lang.ref.WeakReference;
 
@@ -116,9 +119,12 @@ public class ListViewHolder extends TiRecyclerViewHolder<ListItemProxy>
 		final int minHeight = TiConvert.toTiDimension(rawMinHeight, TiDimension.TYPE_HEIGHT).getAsPixels(itemView);
 		this.content.setMinimumHeight(minHeight);
 
+		boolean canEdit = listViewProperties.optBoolean(TiC.PROPERTY_EDITING, false)
+			|| !listViewProperties.optBoolean(TiC.PROPERTY_REQUIRES_EDITING_TO_MOVE, true);
+
 		// Handle selection checkmark.
 		if (listViewProperties.optBoolean(TiC.PROPERTY_SHOW_SELECTION_CHECK, false)
-			&& listViewProperties.optBoolean(TiC.PROPERTY_EDITING, false)
+			&& canEdit
 			&& listViewProperties.optBoolean(TiC.PROPERTY_ALLOWS_SELECTION_DURING_EDITING, false)
 			&& listViewProperties.optBoolean(TiC.PROPERTY_ALLOWS_MULTIPLE_SELECTION_DURING_EDITING, false)
 			&& !proxy.isPlaceholder()) {
@@ -157,6 +163,23 @@ public class ListViewHolder extends TiRecyclerViewHolder<ListItemProxy>
 		if (isEditing && canMove) {
 			this.rightImage.setImageDrawable(dragDrawable);
 			this.rightImage.setVisibility(View.VISIBLE);
+
+			RecyclerView.ViewHolder mViewHolder = this;
+
+			this.rightImage.setOnTouchListener(new View.OnTouchListener()
+			{
+				@Override
+				public boolean onTouch(View view, MotionEvent motionEvent)
+				{
+					if (motionEvent.getActionMasked() == MotionEvent.ACTION_DOWN) {
+						TiListView listView = listViewProxy.getListView();
+						listView.startDragging(mViewHolder);
+					}
+					return false;
+				}
+			});
+		} else {
+			this.rightImage.setOnTouchListener(null);
 		}
 
 		if (proxy != null) {

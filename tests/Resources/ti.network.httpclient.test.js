@@ -222,7 +222,7 @@ describe('Titanium.Network.HTTPClient', function () {
 		});
 		xhr.onload = function () {
 			try {
-				const allHeaders = xhr.getAllResponseHeaders();
+				const allHeaders = xhr.allResponseHeaders;
 				should(allHeaders.toLowerCase().indexOf('server:')).be.within(0, 1 / 0);
 				const header = xhr.getResponseHeader('Server');
 				should(header.length).be.greaterThan(0);
@@ -749,7 +749,8 @@ describe('Titanium.Network.HTTPClient', function () {
 			onload: e => {
 				const html = e.source.responseText;
 				try {
-					should(html).match(/id="protocol_tls1_3">(\s*<span\s+title="RFC 8446"\s*>\s*)?(<font color=green>)?Yes/);
+					// should(html).match(/id="protocol_tls1_3">(\s*<span\s+title="RFC 8446"\s*>\s*)?(<font color=green>)?Yes/);
+					should(html).match(/id="protocol_tls1_3">(<font color=green>)?Yes/);
 				} catch (err) {
 					return finish(err);
 				}

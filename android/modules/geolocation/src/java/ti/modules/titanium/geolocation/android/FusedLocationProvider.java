@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2017 by Axway, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -11,6 +11,7 @@ import ti.modules.titanium.geolocation.android.LocationProviderProxy.LocationPro
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.location.Location;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -27,6 +28,7 @@ import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 
 import org.appcelerator.kroll.common.Log;
@@ -141,6 +143,7 @@ public class FusedLocationProvider
 		private static final ArrayList<LocationProviderProxy> fusedLocationQueue = new ArrayList<>();
 		private static final ArrayList<LocationProviderProxy> fusedLocationProviders = new ArrayList<>();
 
+		@SuppressLint("MissingPermission")
 		public static void init(Context context, final GeolocationModule geolocationModule)
 		{
 			// requires Google Play Services 11.0.0+ or later
@@ -177,6 +180,20 @@ public class FusedLocationProvider
 
 				if (fusedLocationClient == null) {
 					fusedLocationClient = LocationServices.getFusedLocationProviderClient(context);
+
+					// try to get last known location
+					if (geolocationModule.hasLocationPermissions()) {
+						fusedLocationClient.getLastLocation().addOnSuccessListener(new OnSuccessListener<Location>()
+						{
+							@Override
+							public void onSuccess(Location location)
+							{
+								if (location != null) {
+									geolocationModule.onLocationChanged(location);
+								}
+							}
+						});
+					}
 				}
 			}
 		}
