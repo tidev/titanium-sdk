@@ -96,7 +96,7 @@ public class NetworkModule extends KrollModule
 		NOT_CONNECTED
 	}
 
-	class NetInfo
+	static class NetInfo
 	{
 		public State state;
 		public boolean failover;
@@ -537,7 +537,7 @@ public class NetworkModule extends KrollModule
 				@NonNull String[] permissions, @NonNull int[] grantResults)
 			{
 				Boolean isGranted = grantResults[0] == PackageManager.PERMISSION_GRANTED;
-				
+
 				KrollDict event = new KrollDict();
 				event.put("success", isGranted);
 				event.put("type", "remote");
