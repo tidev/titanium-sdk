@@ -1108,7 +1108,21 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
   UIDragItem *dragItem = [[UIDragItem alloc] initWithItemProvider:itemProvider];
   dragItem.localObject = identifier;
 
-  [[self proxy] fireEvent:@"movestart"];
+  // Fire an event to react to the move start
+  NSIndexPath *realIndexPath = [self pathForSearchPath:indexPath];
+  TiUIListSectionProxy *theSection = [[self.listViewProxy sectionForIndex:realIndexPath.section] retain];
+  NSDictionary *theItem = [[theSection itemAtIndex:realIndexPath.row] retain];
+  NSMutableDictionary *eventObject = [[NSMutableDictionary alloc] initWithObjectsAndKeys:
+                                                                      theSection, @"section",
+                                                                  NUMINTEGER(realIndexPath.section), @"sectionIndex",
+                                                                  NUMINTEGER(realIndexPath.row), @"itemIndex",
+                                                                  nil];
+
+  [[self proxy] fireEvent:@"movestart" withObject:eventObject];
+
+  [eventObject release];
+  [theItem release];
+  [theSection release];
 
   return @[ dragItem ];
 }
