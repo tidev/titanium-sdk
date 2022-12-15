@@ -466,37 +466,31 @@ methods:
         ```
         You can use either `pageWidth`/`pageHeight` or a `pageSize` constant like DIN_A4.
     platforms: [android, iphone, ipad]
-    since: {android: "12.1.0", iphone: "9.2.0", ipad: "9.2.0", macos: "9.2.0"}
+    since: {android: "12.1.0", iphone: "9.2.0", ipad: "9.2.0"}
     osver: {ios: {min: "14.0"}}
     parameters:
       - name: pageWidth
-        summary: The width in mils (thousandths of an inch) of the PDF
+        summary: The width in mils (thousandths of an inch) of the PDF (Android only)
         type: Number
-        platforms: [andorid]
       - name: pageHeight
-        summary: The height in mils (thousandths of an inch) of the PDF
+        summary: The height in mils (thousandths of an inch) of the PDF (Android only)
         type: Number
       - name: pageSize
-        summary: Predfined size.
+        summary: Predfined size. (Android only)
         type: Number
         constants: Titanium.UI.WebView.DIN_*
-        platforms: [andorid]
       - name: showMenu
-        summary:  Will show Androids printing menu. No sucess callback afterwards.
+        summary:  Will show Androids printing menu. No sucess callback afterwards. (Android only)
         type: Boolean
-        platforms: [andorid]
       - name: firstPageOnly
-        summary: Only print first page
+        summary: Only print first page (Android only)
         type: Boolean
-        platforms: [andorid]
       - name: success
-        summary: Function to call upon pdf creation.
+        summary: Function to call upon pdf creation. (Android only)
         type: Callback<DataCreationResultAndroid>
-        platforms: [andorid]
       - name: callback
-        summary: Function to call upon pdf creation.
+        summary: Function to call upon pdf creation. (iOS only)
         type: Callback<DataCreationResult>
-        platforms: [ipad, iphone, macos]
 
   - name: createWebArchive
     summary: Create WebKit web archive data representing the current web content of the WebView.
