@@ -2,9 +2,26 @@
 name: Titanium.UI.Android.Snackbar
 summary: Snackbars provide brief messages about app processes at the bottom of the screen.
 description: |
+    | Android |
+    | ------- |
+    | ![Android](./snackbar_android.png) |
+
     For design guidelines, see
     [Material design: Snackbars](https://material.io/components/snackbars)
 since: "11.1.0"
+extends: Titanium.UI.View
+excludes:
+    events: [dblclick, doubletap, focus, keypressed, longclick, longpress, pinch, postlayout,
+             singletap, swipe, touchcancel, touchend, touchmove, touchstart, twofingertap]
+    methods: [add, animate, convertPointToView, remove, removeAllChildren, toImage]
+    properties: [accessibilityHidden, accessibilityHint, accessibilityLabel, accessibilityValue,
+                 anchorPoint, animatedCenter, backgroundColor, backgroundDisabledColor,
+                 backgroundDisabledImage, backgroundFocusedColor, backgroundFocusedImage, backgroundGradient,
+                 backgroundImage, backgroundLeftCap, backgroundRepeat, backgroundSelectedColor,
+                 backgroundSelectedImage, backgroundTopCap, borderColor, borderRadius, borderWidth, bottom,center,
+                 children, clipMode, focusable, height, horizontalWrap, keepScreenOn, layout, left, opacity,overrideCurrentAnimation,
+                 pullBackgroundColor, rect, right, size, softKeyboardOnFocus, tintColor, top, touchEnabled, transform,
+                 viewShadowColor, viewShadowOffset, viewShadowRadius, visible, width, zIndex]
 platforms: [android]
 
 methods:

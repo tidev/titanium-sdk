@@ -4,6 +4,10 @@ summary: |
     A view that encapsulates a horizontally-scrolling set of child views, known as pages, navigable
     using its built-in horizontal swipe gestures.
 description: |
+    | Android | iOS |
+    | ------- | --- |
+    | ![Android](./scrollableview_android.png) |  |
+
     Use the <Titanium.UI.createScrollableView> method or **`<ScrollableView>`** Alloy element to create
     a scrollable view.
 

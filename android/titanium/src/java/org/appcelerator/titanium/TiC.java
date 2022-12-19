@@ -485,6 +485,7 @@ public class TiC
 	public static final String PROPERTY_HTML = "html";
 	public static final String PROPERTY_HTTP_ONLY = "httponly";
 	public static final String PROPERTY_ICON = "icon";
+	public static final String PROPERTY_ICON_COLOR = "iconColor";
 	public static final String PROPERTY_ICON_LEVEL = "iconLevel";
 	public static final String PROPERTY_ICONIFIED = "iconified";
 	public static final String PROPERTY_ICONIFIED_BY_DEFAULT = "iconifiedByDefault";

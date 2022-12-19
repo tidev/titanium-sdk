@@ -3,6 +3,10 @@ name: Titanium.UI.OptionBar
 
 summary: A bar of selectable buttons where only 1 can be selected at a time.
 description: |
+    | Android | iOS |
+    | ------- | --- |
+    | ![Android](./optionbar_android.png) |  |
+
     This is a view which shows a list of options where only 1 option is selectable by the user.
 
     On iOS, this displays a
