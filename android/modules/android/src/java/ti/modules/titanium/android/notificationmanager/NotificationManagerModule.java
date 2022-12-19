@@ -14,6 +14,7 @@ import org.appcelerator.kroll.common.Log;
 
 import ti.modules.titanium.android.AndroidModule;
 
+import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.Notification;
@@ -84,6 +85,7 @@ public class NotificationManagerModule extends KrollModule
 		return notificationManager;
 	}
 
+	@TargetApi(26)
 	public static boolean useDefaultChannel()
 	{
 		// use default channel if we are targeting API 26+
@@ -119,6 +121,15 @@ public class NotificationManagerModule extends KrollModule
 		return notificationChannelProxy;
 	}
 
+	@TargetApi(26)
+	@Kroll.method
+	public void deleteNotificationChannel(String notificationId)
+	{
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+			getManager().deleteNotificationChannel(notificationId);
+		}
+	}
+
 	@Kroll.method
 	public void cancel(int id)
 	{
@@ -131,6 +142,7 @@ public class NotificationManagerModule extends KrollModule
 		getManager().cancelAll();
 	}
 
+	@SuppressLint("InvalidWakeLockTag")
 	@Kroll.method
 	public void notify(int id, NotificationProxy notificationProxy)
 	{

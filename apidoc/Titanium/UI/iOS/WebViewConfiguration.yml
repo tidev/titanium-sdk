@@ -26,7 +26,6 @@ properties:
     summary: Determines which media types require a user gesture to begin playing.
     type: Number
     constants: Titanium.UI.iOS.AUDIOVISUAL_MEDIA_TYPE_*
-    osver: {ios: {min: "10.0"}}
     default: Titanium.UI.iOS.AUDIOVISUAL_MEDIA_TYPE_NONE
 
   - name: suppressesIncrementalRendering
