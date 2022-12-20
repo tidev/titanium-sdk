@@ -668,9 +668,11 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 
 					// Maintain true row index.
 					row.index = index++;
+					boolean alwaysInclude = row.getProperties()
+						.optBoolean(TiC.PROPERTY_FILTER_ALWAYS_INCLUDE, false);
 
 					// Handle search query.
-					if (query != null) {
+					if (query != null && !alwaysInclude) {
 						String attribute = row.getProperties().optString(filterAttribute, null);
 
 						if (attribute != null) {

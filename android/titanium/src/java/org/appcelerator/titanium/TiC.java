@@ -430,6 +430,7 @@ public class TiC
 	public static final String PROPERTY_FILTER_ANCHORED = "filterAnchored";
 	public static final String PROPERTY_FILTER_CASE_INSENSITIVE = "filterCaseInsensitive";
 	public static final String PROPERTY_FILTER_TOUCHES_WHEN_OBSCURED = "filterTouchesWhenObscured";
+	public static final String PROPERTY_FILTER_ALWAYS_INCLUDE = "filterAlwaysInclude";
 	public static final String PROPERTY_FIRSTNAME = "firstName";
 	public static final String PROPERTY_FIRST_VISIBLE_ITEM = "firstVisibleItem";
 	public static final String PROPERTY_FIRST_VISIBLE_ITEM_INDEX = "firstVisibleItemIndex";
