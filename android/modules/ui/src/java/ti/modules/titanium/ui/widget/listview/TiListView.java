@@ -689,8 +689,10 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 			int filteredIndex = 0;
 			for (final ListItemProxy item : sectionItems) {
 
+				boolean alwaysInclude = item.getProperties()
+					.optBoolean(TiC.PROPERTY_FILTER_ALWAYS_INCLUDE, false);
 				// Handle search query.
-				if (query != null) {
+				if (query != null && !alwaysInclude) {
 					String searchableText = item.getProperties().optString(TiC.PROPERTY_SEARCHABLE_TEXT, null);
 					if (searchableText != null) {
 						if (caseInsensitive) {
