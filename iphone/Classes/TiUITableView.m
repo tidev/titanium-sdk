@@ -1357,7 +1357,8 @@
     int cellIndex = 0;
     for (TiUITableViewRowProxy *row in [thisSection rows]) {
       id value = [row valueForKey:ourSearchAttribute];
-      if (value != nil && [[TiUtils stringValue:value] rangeOfString:searchString options:searchOpts].location != NSNotFound) {
+      BOOL alwaysInclude = [TiUtils boolValue:[row valueForKey:@"filterAlwaysInclude"] def:NO];
+      if (alwaysInclude || (value != nil && [[TiUtils stringValue:value] rangeOfString:searchString options:searchOpts].location != NSNotFound)) {
         [thisIndexSet addIndex:cellIndex];
       }
       cellIndex++;
