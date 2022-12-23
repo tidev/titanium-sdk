@@ -301,7 +301,7 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 					}
 					if (paused && !Thread.currentThread().isInterrupted()) {
 						try {
-							Log.i(TAG, "Pausing", Log.DEBUG_MODE);
+							Log.d(TAG, "Pausing", Log.DEBUG_MODE);
 							// User backed-out while animation running
 							if (loader == null) {
 								break;
@@ -312,7 +312,7 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 								wait();
 							}
 
-							Log.i(TAG, "Waking from pause.", Log.DEBUG_MODE);
+							Log.d(TAG, "Waking from pause.", Log.DEBUG_MODE);
 							// In the meantime, while paused, user could have backed out, which leads
 							// to release(), which in turn leads to nullified imageSources.
 							if (imageSources == null) {

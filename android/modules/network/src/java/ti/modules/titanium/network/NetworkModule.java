@@ -753,7 +753,7 @@ public class NetworkModule extends KrollModule
 			return true;
 		}
 		if (s1 != null && s2 != null) {
-			if ((isCaseSensitive && s1.equals(s2)) || (!isCaseSensitive && s1.toLowerCase().equals(s2.toLowerCase()))) {
+			if ((isCaseSensitive && s1.equals(s2)) || (!isCaseSensitive && s1.equalsIgnoreCase(s2))) {
 				return true;
 			}
 		}
