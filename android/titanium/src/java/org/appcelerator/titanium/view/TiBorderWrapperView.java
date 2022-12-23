@@ -43,7 +43,6 @@ public class TiBorderWrapperView extends FrameLayout
 	private Rect bounds;
 	private ViewOutlineProvider viewOutlineProvider;
 	Path outerPath;
-	Path innerPath;
 
 	public TiBorderWrapperView(Context context)
 	{
