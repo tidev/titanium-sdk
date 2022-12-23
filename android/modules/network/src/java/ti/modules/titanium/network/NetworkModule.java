@@ -537,7 +537,7 @@ public class NetworkModule extends KrollModule
 				@NonNull String[] permissions, @NonNull int[] grantResults)
 			{
 				Boolean isGranted = grantResults[0] == PackageManager.PERMISSION_GRANTED;
-				
+
 				KrollDict event = new KrollDict();
 				event.put("success", isGranted);
 				event.put("type", "remote");
@@ -753,7 +753,7 @@ public class NetworkModule extends KrollModule
 			return true;
 		}
 		if (s1 != null && s2 != null) {
-			if ((isCaseSensitive && s1.equals(s2)) || (!isCaseSensitive && s1.toLowerCase().equals(s2.toLowerCase()))) {
+			if ((isCaseSensitive && s1.equals(s2)) || (!isCaseSensitive && s1.equalsIgnoreCase(s2))) {
 				return true;
 			}
 		}

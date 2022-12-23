@@ -946,7 +946,7 @@ public class TiHTTPClient
 			setRequestHeader("X-Requested-With", "XMLHttpRequest");
 
 		} else {
-			Log.i(TAG, "Twitter: not sending X-Requested-With header", Log.DEBUG_MODE);
+			Log.d(TAG, "Twitter: not sending X-Requested-With header", Log.DEBUG_MODE);
 		}
 	}
 
@@ -1517,7 +1517,7 @@ public class TiHTTPClient
 
 		public void completeSendingMultipart()
 		{
-			printWriter.append("--" + boundary + "--").append(LINE_FEED);
+			printWriter.append("--").append(boundary).append("--").append(LINE_FEED);
 		}
 
 		private void handleURLEncodedData(UrlEncodedFormEntity form) throws IOException
