@@ -137,6 +137,12 @@ properties:
     type: String
     platforms: [android]
 
+  - name: tintColor
+    summary: Tint color of the navigation icon (e.g. home arrow)
+    type: String
+    since: "12.1.0"
+    platforms: [android]
+
 methods:
   - name: collapseActionViews
     summary: Collapses expanded ActionViews if there is any
@@ -269,7 +275,7 @@ examples:
 
   - title: Toolbar (iOS) with extended background
     example: |
-        The following code excerpt creates a simple toolbar, placed at the top of the window which extends its background under the status bar. 
+        The following code excerpt creates a simple toolbar, placed at the top of the window which extends its background under the status bar.
 
         ``` js
         var win = Ti.UI.createWindow({
