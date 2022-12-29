@@ -6,20 +6,7 @@
  */
 package ti.modules.titanium.ui.widget;
 
-import android.app.Activity;
-import android.content.res.ColorStateList;
-import android.graphics.Color;
-import android.graphics.PorterDuff.Mode;
-import android.graphics.drawable.Drawable;
-import android.text.TextUtils;
-import android.view.Gravity;
-import android.view.MotionEvent;
-import android.view.View;
-
-import androidx.annotation.NonNull;
-import androidx.appcompat.widget.AppCompatButton;
-
-import com.google.android.material.button.MaterialButton;
+import java.util.HashMap;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
@@ -32,10 +19,22 @@ import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiUIView;
 
-import java.util.HashMap;
-
 import ti.modules.titanium.ui.AttributedStringProxy;
 import ti.modules.titanium.ui.UIModule;
+
+import android.app.Activity;
+import android.content.res.ColorStateList;
+import android.graphics.Color;
+import android.graphics.PorterDuff.Mode;
+import android.graphics.drawable.Drawable;
+import android.text.TextUtils;
+import android.view.Gravity;
+import android.view.MotionEvent;
+import android.view.View;
+import androidx.annotation.NonNull;
+import androidx.appcompat.widget.AppCompatButton;
+
+import com.google.android.material.button.MaterialButton;
 
 public class TiUIButton extends TiUIView
 {
@@ -82,7 +81,7 @@ public class TiUIButton extends TiUIView
 
 		// Determine if a background drawable will be applied to the button.
 		boolean hasCustomBackground
-			= hasImage(proxy.getProperties())
+			=  hasImage(proxy.getProperties())
 			|| hasColorState(proxy.getProperties())
 			|| hasBorder(proxy.getProperties())
 			|| hasGradient(proxy.getProperties());
@@ -91,8 +90,7 @@ public class TiUIButton extends TiUIView
 		// Note: MaterialButton does not support replacing its background drawable. Will log a nasty warning.
 		AppCompatButton btn;
 		if (hasCustomBackground) {
-			btn = new AppCompatButton(proxy.getActivity())
-			{
+			btn = new AppCompatButton(proxy.getActivity()) {
 				@Override
 				public boolean onFilterTouchEventForSecurity(MotionEvent event)
 				{
@@ -104,8 +102,7 @@ public class TiUIButton extends TiUIView
 				}
 			};
 		} else {
-			btn = new MaterialButton(proxy.getActivity(), null, styleId)
-			{
+			btn = new MaterialButton(proxy.getActivity(), null, styleId) {
 				@Override
 				public boolean onFilterTouchEventForSecurity(MotionEvent event)
 				{
@@ -118,8 +115,7 @@ public class TiUIButton extends TiUIView
 			};
 			this.defaultRippleColor = ((MaterialButton) btn).getRippleColor();
 		}
-		btn.addOnLayoutChangeListener(new View.OnLayoutChangeListener()
-		{
+		btn.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
 			@Override
 			public void onLayoutChange(
 				View v, int left, int top, int right, int bottom,

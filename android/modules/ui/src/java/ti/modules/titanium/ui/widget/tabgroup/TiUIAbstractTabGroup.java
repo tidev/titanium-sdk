@@ -380,21 +380,21 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 
 		// If the TabGroup has backgroundColor property, use it. If not - use the primaryColor of the theme.
 		colorInt = properties.containsKeyAndNotNull(TiC.PROPERTY_TABS_BACKGROUND_COLOR)
-					   ? TiColorHelper.parseColor(properties.getString(TiC.PROPERTY_TABS_BACKGROUND_COLOR), activity)
+					   ? TiColorHelper.parseColor(properties.get(TiC.PROPERTY_TABS_BACKGROUND_COLOR), activity)
 					   : this.colorSurfaceInt;
 		// If the Tab has its own backgroundColor property, use it instead.
 		colorInt = tabProperties.containsKeyAndNotNull(TiC.PROPERTY_BACKGROUND_COLOR)
-					   ? TiColorHelper.parseColor(tabProperties.getString(TiC.PROPERTY_BACKGROUND_COLOR), activity)
+					   ? TiColorHelper.parseColor(tabProperties.get(TiC.PROPERTY_BACKGROUND_COLOR), activity)
 					   : colorInt;
 		stateListDrawable.addState(new int[] { -stateToUse }, new ColorDrawable(colorInt));
 
 		// Take the TabGroup tabsBackgroundSelectedProperty.
 		colorInt = properties.containsKeyAndNotNull(TiC.PROPERTY_TABS_BACKGROUND_SELECTED_COLOR)
-				? TiColorHelper.parseColor(properties.getString(TiC.PROPERTY_TABS_BACKGROUND_SELECTED_COLOR), activity)
+				? TiColorHelper.parseColor(properties.get(TiC.PROPERTY_TABS_BACKGROUND_SELECTED_COLOR), activity)
 				: colorInt;
 		// If a tab specific background color is defined for selected state, use it instead.
 		colorInt = tabProperties.containsKeyAndNotNull(TiC.PROPERTY_BACKGROUND_FOCUSED_COLOR)
-				? TiColorHelper.parseColor(tabProperties.getString(TiC.PROPERTY_BACKGROUND_FOCUSED_COLOR), activity)
+				? TiColorHelper.parseColor(tabProperties.get(TiC.PROPERTY_BACKGROUND_FOCUSED_COLOR), activity)
 				: colorInt;
 		stateListDrawable.addState(new int[] { stateToUse }, new ColorDrawable(colorInt));
 		return stateListDrawable;
@@ -511,7 +511,7 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 			for (TiUITab tabView : tabs) {
 				updateTabBackgroundDrawable(tabs.indexOf(tabView));
 			}
-			setBackgroundColor(TiColorHelper.parseColor(newValue.toString(), proxy.getActivity()));
+			setBackgroundColor(TiColorHelper.parseColor(newValue, proxy.getActivity()));
 		} else if (key.equals(TiC.PROPERTY_TABS_BACKGROUND_SELECTED_COLOR)) {
 			for (TiUITab tabView : tabs) {
 				updateTabBackgroundDrawable(tabs.indexOf(tabView));
@@ -605,14 +605,14 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 	@ColorInt
 	protected int getActiveColor(TiViewProxy tabProxy)
 	{
-		String colorString = null;
+		Object colorObject = null;
 		if ((tabProxy != null) && tabProxy.hasPropertyAndNotNull(TiC.PROPERTY_ACTIVE_TINT_COLOR)) {
-			colorString = tabProxy.getProperty(TiC.PROPERTY_ACTIVE_TINT_COLOR).toString();
+			colorObject = tabProxy.getProperty(TiC.PROPERTY_ACTIVE_TINT_COLOR);
 		} else if ((this.proxy != null) && this.proxy.hasPropertyAndNotNull(TiC.PROPERTY_ACTIVE_TINT_COLOR)) {
-			colorString = this.proxy.getProperty(TiC.PROPERTY_ACTIVE_TINT_COLOR).toString();
+			colorObject = this.proxy.getProperty(TiC.PROPERTY_ACTIVE_TINT_COLOR);
 		}
 		Activity activity = getProxy().getActivity();
-		return (colorString != null) ? TiColorHelper.parseColor(colorString, activity) : this.colorPrimaryInt;
+		return (colorObject != null) ? TiColorHelper.parseColor(colorObject, activity) : this.colorPrimaryInt;
 	}
 
 	public static ColorStateList createRippleColorStateListFrom(@ColorInt int colorInt)

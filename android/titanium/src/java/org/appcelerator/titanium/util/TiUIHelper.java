@@ -630,7 +630,7 @@ public class TiUIHelper
 		return buildBackgroundDrawable(color, imageDrawable, tileImage, gradientDrawable, null);
 	}
 
-	public static Drawable buildBackgroundDrawable(String color, Drawable imageDrawable, boolean tileImage,
+	public static Drawable buildBackgroundDrawable(Object color, Drawable imageDrawable, boolean tileImage,
 												   Drawable gradientDrawable, Context context)
 	{
 		// Create an array of the layers that will compose this background.

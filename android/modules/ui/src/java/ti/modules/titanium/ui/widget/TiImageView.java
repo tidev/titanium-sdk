@@ -395,9 +395,9 @@ public class TiImageView extends ViewGroup
 		updateScaleType();
 	}
 
-	public void setTintColor(String color)
+	public void setTintColor(Object color)
 	{
-		if (color == null || color.isEmpty()) {
+		if (color == null) {
 			imageView.clearColorFilter();
 			return;
 		}
