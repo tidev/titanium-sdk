@@ -355,9 +355,8 @@ TI_INLINE void waitForMemoryPanicCleared(void); //WARNING: This must never be ru
   NSDictionary *userActivityDictionary = launchOptions[UIApplicationLaunchOptionsUserActivityDictionaryKey];
 
   // Map user activity if exists
-  if (userActivityDictionary != nil) {
-    NSUserActivity *userActivity = userActivityDictionary[@"UIApplicationLaunchOptionsUserActivityKey"];
-
+  NSUserActivity *userActivity = userActivityDictionary[@"UIApplicationLaunchOptionsUserActivityKey"];
+  if (userActivity != nil && [userActivity isKindOfClass:[NSUserActivity class]]) {
     NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithDictionary:@{ @"activityType" : [userActivity activityType] }];
 
     if ([TiUtils isIOSVersionOrGreater:@"9.0"] && [[userActivity activityType] isEqualToString:CSSearchableItemActionType]) {
