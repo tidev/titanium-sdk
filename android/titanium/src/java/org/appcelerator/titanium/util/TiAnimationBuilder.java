@@ -13,6 +13,7 @@ import java.util.List;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollFunction;
+import org.appcelerator.kroll.KrollPromise;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
@@ -121,6 +122,7 @@ public class TiAnimationBuilder
 
 	protected TiAnimation animationProxy;
 	protected KrollFunction callback;
+	protected KrollPromise promise;
 	protected boolean relayoutChild = false, applyOpacity = false;
 	@SuppressWarnings("rawtypes")
 	protected HashMap options;
@@ -254,6 +256,11 @@ public class TiAnimationBuilder
 	public void setCallback(KrollFunction callback)
 	{
 		this.callback = callback;
+	}
+
+	public void setPromise(KrollPromise promise)
+	{
+		this.promise = promise;
 	}
 
 	/**
@@ -902,6 +909,9 @@ public class TiAnimationBuilder
 				}
 				if (callback != null) {
 					callback.callAsync(viewProxy.getKrollObject(), new Object[] { new KrollDict() });
+				}
+				if (promise != null) {
+					promise.resolve(new KrollDict());
 				}
 
 				if (animationProxy != null) {
