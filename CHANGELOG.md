@@ -20,6 +20,7 @@ Titanium SDK 12.0.0 is a major release of the SDK, addressing high-priority issu
   * add Xcode 14 guards, bump minimum iOS version to 13.0 ([0ab0163](https://github.com/tidev/titanium_mobile/commit/0ab01636c3f2a4ddc20d0b84e8fc0e532365b2d1))
   * fix rare crash in Ti.UI.TableView ([10f084f](https://github.com/tidev/titanium_mobile/commit/10f084f9ce60a64ee52f038b19fea5940bc230c7))
   * bump master to 12.0.0 ([3af83a5](https://github.com/tidev/titanium_mobile/commit/3af83a5f2adde0d1cab19febe4edc87f32dbb2e3))
+  * guard holder proxy when moving cells ([5c56845](https://github.com/tidev/titanium_mobile/commit/5c56845e2311096e2053da97fe0dee9eb5fd19c7))
 
 * Michael Gangolf
   * fixing filenames for titanium-docs ([84eed15](https://github.com/tidev/titanium_mobile/commit/84eed159fb65b39752288f423c8e09bdf2a0d392))
@@ -54,6 +55,7 @@ Titanium SDK 12.0.0 is a major release of the SDK, addressing high-priority issu
   * Android 13 updates ([fa604fa](https://github.com/tidev/titanium_mobile/commit/fa604fac971579225c156a51f749011a416b2c74))
   * optimize ListView continuousUpdate ([ca73559](https://github.com/tidev/titanium_mobile/commit/ca7355975f2f1e3724fd8359f69bc9c2fb9f464f))
   * tabbedbar color properties ([2453af6](https://github.com/tidev/titanium_mobile/commit/2453af6f27fc9a15520c4a2b3d8ca73ad58bb395))
+  * fix duplicate lifecycle issue ([6d2dd82](https://github.com/tidev/titanium_mobile/commit/6d2dd826debb512fa8fbc3b603b4ef05d50d03fe)) 
 
 * Jan Vennemann
   * correct method name for isTranslatedBinaryOnAppleSilicon ([bb89d44](https://github.com/tidev/titanium_mobile/commit/bb89d449ce9d17da0cbbd2587bd3a3529b9e3ca7))
