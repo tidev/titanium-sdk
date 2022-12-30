@@ -191,7 +191,7 @@ class GradleWrapper {
 				// Log the received messages, split by newline. (Strip out carriage returns on Windows.)
 				const messageArray = stringBuffer.substr(0, index).split('\n');
 				for (const nextMessage of messageArray) {
-					var logMethod = (logType === 'info') ? 'info' : nextMessage.includes('Warning: ') ? 'warn' : 'error';
+					let logMethod = (logType === 'info') ? 'info' : nextMessage.includes('Warning: ') ? 'warn' : 'error';
 					logFunction[logMethod]('[GRADLE] ' + nextMessage.replace(/\r/g, ''));
 				}
 
