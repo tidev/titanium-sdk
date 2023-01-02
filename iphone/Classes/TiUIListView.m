@@ -508,7 +508,8 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
       for (int j = 0; j < maxItems; j++) {
         NSIndexPath *thePath = [NSIndexPath indexPathForRow:j inSection:i];
         id theValue = [self valueWithKey:@"searchableText" atIndexPath:thePath];
-        if (theValue != nil && [[TiUtils stringValue:theValue] rangeOfString:self.searchString options:searchOpts].location != NSNotFound) {
+        BOOL alwaysInclude = [TiUtils boolValue:[self valueWithKey:@"filterAlwaysInclude" atIndexPath:thePath] def:NO];
+        if (alwaysInclude || (theValue != nil && [[TiUtils stringValue:theValue] rangeOfString:self.searchString options:searchOpts].location != NSNotFound)) {
           (thisSection != nil) ? [thisSection addObject:thePath] : [singleSection addObject:thePath];
           hasResults = YES;
         }
