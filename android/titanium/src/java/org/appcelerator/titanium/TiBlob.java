@@ -657,7 +657,7 @@ public class TiBlob extends KrollProxy
 			int scaleWidth = imgWidth / dstWidth;
 			int scaleHeight = imgHeight / dstHeight;
 
-			int targetScale = (scaleWidth < scaleHeight) ? scaleWidth : scaleHeight;
+			int targetScale = Math.min(scaleWidth, scaleHeight);
 			int sampleSize = 1;
 			while (targetScale >= 2) {
 				sampleSize *= 2;

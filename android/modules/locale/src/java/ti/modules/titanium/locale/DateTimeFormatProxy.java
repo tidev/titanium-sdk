@@ -152,24 +152,23 @@ public class DateTimeFormatProxy extends KrollProxy
 		if (hasCustomDateSettings || hasCustomTimeSettings) {
 			try {
 				// Generate a "skeleton" pattern without any separators using given options.
-				StringBuilder stringBuilder = new StringBuilder(32);
-				stringBuilder.append(getPatternForWeekdayId(weekdayFormatId));
-				stringBuilder.append(getPatternForYearId(yearFormatId));
-				stringBuilder.append(getPatternForMonthId(monthFormatId));
-				stringBuilder.append(getPatternForDayId(dayFormatId));
-				stringBuilder.append(getPatternForEraId(eraFormatId));
-				stringBuilder.append(getPatternForHourId(hourFormatId, hourCycleFormatId));
-				stringBuilder.append(getPatternForMinuteId(minuteFormatId));
-				stringBuilder.append(getPatternForSecondId(secondFormatId));
-				stringBuilder.append(getPatternForMillisecondDigits(millisecondDigits));
-				stringBuilder.append(getPatternForDayPeriodId(dayPeriodFormatId));
-				stringBuilder.append(getPatternForTimeZoneId(timeZoneFormatId));
+				String stringBuilder = getPatternForWeekdayId(weekdayFormatId)
+					+ getPatternForYearId(yearFormatId)
+					+ getPatternForMonthId(monthFormatId)
+					+ getPatternForDayId(dayFormatId)
+					+ getPatternForEraId(eraFormatId)
+					+ getPatternForHourId(hourFormatId, hourCycleFormatId)
+					+ getPatternForMinuteId(minuteFormatId)
+					+ getPatternForSecondId(secondFormatId)
+					+ getPatternForMillisecondDigits(millisecondDigits)
+					+ getPatternForDayPeriodId(dayPeriodFormatId)
+					+ getPatternForTimeZoneId(timeZoneFormatId);
 
 				// Have Android generate a localized date/time pattern string from above skeleton pattern.
 				// This will inject needed separators and auto-swap components like month/day according to locale.
 				// Note: Android 8 sometimes inserts invalid pattern char 'b' for AM/PM. Should be 'a' instead.
 				String datePattern = android.text.format.DateFormat.getBestDateTimePattern(
-					locale, stringBuilder.toString());
+					locale, stringBuilder);
 				datePattern = datePattern.replace('b', 'a');
 				this.dateFormat = new SimpleDateFormat(datePattern, locale);
 			} catch (Exception ex) {
