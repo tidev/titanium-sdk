@@ -49,13 +49,12 @@ public class TiArrowView extends View
 			path.moveTo(0.0f, 1.0f);
 			path.lineTo(1.0f, 2.0f);
 			path.lineTo(1.0f, 0.0f);
-			path.close();
 		} else {
 			path.lineTo(1.0f, 1.0f);
 			path.lineTo(0.0f, 2.0f);
 			path.lineTo(0.0f, 0.0f);
-			path.close();
 		}
+		path.close();
 
 		setWillNotDraw(false);
 	}

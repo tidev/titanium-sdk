@@ -303,7 +303,7 @@ public class AndroidModule extends KrollModule
 	@Kroll.method
 	public String harmonizedColor(String value)
 	{
-		int color = TiConvert.toColor(value);
+		int color = TiConvert.toColor(value, TiApplication.getAppCurrentActivity());
 		return String.format("#%06X",
 			(0xFFFFFF & MaterialColors.harmonizeWithPrimary(TiApplication.getAppCurrentActivity(), color)));
 	}

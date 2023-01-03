@@ -387,9 +387,22 @@ events:
   - name: movestart
     summary: Fired when a list row has started moving.
     description: |
-      This property can be used to change the UI once a new drag-and-drop interaction starts.
+      This event can be used to change the UI once a new drag-and-drop interaction starts.
+      The event properties are available in Titanium SDK 12.0.0+ 
     since: "11.1.0"
     platforms: [android, iphone, ipad, macos]
+    properties:
+      - name: section
+        summary: List section from which the item is moved.
+        type: Titanium.UI.ListSection
+
+      - name: sectionIndex
+        summary: section index of the reference item.
+        type: Number
+
+      - name: itemIndex
+        summary: section item index of the reference item.
+        type: Number
 
   - name: moveend
     summary: Fired when a list row has ended moving.
