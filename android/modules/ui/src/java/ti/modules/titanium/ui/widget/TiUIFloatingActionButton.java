@@ -54,6 +54,12 @@ public class TiUIFloatingActionButton extends TiUIView
 		if (d.containsKey("maxImageSize")) {
 			setMaxImageSize(TiConvert.toInt(d.get("maxImageSize")));
 		}
+		if (d.containsKeyAndNotNull(TiC.PROPERTY_TOUCH_FEEDBACK_COLOR)) {
+			ColorStateList colorStateList = null;
+			colorStateList = ColorStateList.valueOf(
+				TiConvert.toColor(d, TiC.PROPERTY_TOUCH_FEEDBACK_COLOR, proxy.getActivity()));
+			fab.setRippleColor(colorStateList);
+		}
 		if (d.containsKey("iconSize")) {
 			if (d.getString("iconSize").equals("mini")) {
 				fab.setSize(FloatingActionButton.SIZE_MINI);
@@ -96,6 +102,10 @@ public class TiUIFloatingActionButton extends TiUIView
 			setCustomSize(TiConvert.toInt(newValue));
 		} else if (key.equals("maxImageSize")) {
 			setMaxImageSize(TiConvert.toInt(newValue));
+		} else if (key.equals(TiC.PROPERTY_TOUCH_FEEDBACK_COLOR)) {
+			ColorStateList colorStateList = null;
+			colorStateList = ColorStateList.valueOf(TiConvert.toColor(newValue, proxy.getActivity()));
+			fab.setRippleColor(colorStateList);
 		}
 	}
 }
