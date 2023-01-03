@@ -1880,6 +1880,7 @@
     [self createDimmingView];
   } else {
     _dimsBackgroundDuringPresentation = [TiUtils boolValue:arg def:YES];
+    dimmingView = nil;
   }
 }
 
