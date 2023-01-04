@@ -122,10 +122,12 @@
   NSArray *items = args;
   UITableViewRowAnimation animation = [TiUIListView animationStyleForProperties:properties];
   id<TiUIListViewDelegate> theDispatcher = self.dispatcher;
+  [self forgetProxiesInItems:_items];
 
   if (animation == UITableViewRowAnimationNone) {
     [theDispatcher dispatchBlock:^(UITableView *tableView) {
       [_items setArray:items];
+      [self rememberProxiesInItems:_items];
       id<TiUIListViewDelegateView> theDelegate = [theDispatcher delegateView];
       if (theDelegate != nil) {
         [theDelegate updateSearchResults:nil];
@@ -137,8 +139,49 @@
   } else {
     [theDispatcher dispatchUpdateAction:^(UITableView *tableView) {
       [_items setArray:items];
+      [self rememberProxiesInItems:_items];
       [tableView reloadSections:[NSIndexSet indexSetWithIndex:_sectionIndex] withRowAnimation:animation];
     }];
+  }
+}
+
+- (void)rememberProxiesInItems:(NSArray<NSDictionary *> *)items
+{
+  for (NSDictionary *item in items) {
+    for (NSString *key in item) {
+      if ([key isEqualToString:@"template"] || [key isEqualToString:@"properties"]) {
+        continue;
+      }
+      id itemPropertyValue = item[key];
+      if ([itemPropertyValue isKindOfClass:NSDictionary.class]) {
+        for (NSString *bindPropertyName in itemPropertyValue) {
+          id propertyValue = itemPropertyValue[bindPropertyName];
+          if ([propertyValue isKindOfClass:TiProxy.class]) {
+            [self rememberProxy:propertyValue];
+          }
+        }
+      }
+    }
+  }
+}
+
+- (void)forgetProxiesInItems:(NSArray<NSDictionary *> *)items
+{
+  for (NSDictionary *item in items) {
+    for (NSString *key in item) {
+      if ([key isEqualToString:@"template"] || [key isEqualToString:@"properties"]) {
+        continue;
+      }
+      id itemPropertyValue = item[key];
+      if ([itemPropertyValue isKindOfClass:NSDictionary.class]) {
+        for (NSString *bindPropertyName in itemPropertyValue) {
+          id propertyValue = itemPropertyValue[bindPropertyName];
+          if ([propertyValue isKindOfClass:TiProxy.class]) {
+            [self forgetProxy:propertyValue];
+          }
+        }
+      }
+    }
   }
 }
 
@@ -153,6 +196,7 @@
   NSDictionary *properties = [args count] > 1 ? [args objectAtIndex:1] : nil;
   UITableViewRowAnimation animation = [TiUIListView animationStyleForProperties:properties];
   id<TiUIListViewDelegate> theDispatcher = self.dispatcher;
+  [self rememberProxiesInItems:items];
 
   if (animation == UITableViewRowAnimationNone) {
     [theDispatcher dispatchBlock:^(UITableView *tableView) {
@@ -203,6 +247,7 @@
         DebugLog(@"[WARN] ListView: Insert item index is out of range");
         return;
       }
+      [self rememberProxiesInItems:items];
       [_items replaceObjectsInRange:NSMakeRange(insertIndex, 0) withObjectsFromArray:items];
       id<TiUIListViewDelegateView> theDelegate = [theDispatcher delegateView];
       if (theDelegate != nil) {
@@ -218,6 +263,7 @@
         DebugLog(@"[WARN] ListView: Insert item index is out of range");
         return;
       }
+      [self rememberProxiesInItems:items];
       [_items replaceObjectsInRange:NSMakeRange(insertIndex, 0) withObjectsFromArray:items];
       NSUInteger count = [items count];
       NSMutableArray *indexPaths = [[NSMutableArray alloc] initWithCapacity:count];
@@ -248,7 +294,10 @@
         return;
       }
       NSUInteger actualReplaceCount = MIN(replaceCount, [_items count] - insertIndex);
-      [_items replaceObjectsInRange:NSMakeRange(insertIndex, actualReplaceCount) withObjectsFromArray:items];
+      NSRange range = NSMakeRange(insertIndex, actualReplaceCount);
+      [self forgetProxiesInItems:[_items objectsAtIndexes:[[NSIndexSet alloc] initWithIndexesInRange:range]]];
+      [self rememberProxiesInItems:items];
+      [_items replaceObjectsInRange:range withObjectsFromArray:items];
       id<TiUIListViewDelegateView> theDelegate = [theDispatcher delegateView];
       if (theDelegate != nil) {
         [theDelegate updateSearchResults:nil];
@@ -264,7 +313,10 @@
         return;
       }
       NSUInteger actualReplaceCount = MIN(replaceCount, [_items count] - insertIndex);
-      [_items replaceObjectsInRange:NSMakeRange(insertIndex, actualReplaceCount) withObjectsFromArray:items];
+      NSRange range = NSMakeRange(insertIndex, actualReplaceCount);
+      [self forgetProxiesInItems:[_items objectsAtIndexes:[[NSIndexSet alloc] initWithIndexesInRange:range]]];
+      [self rememberProxiesInItems:items];
+      [_items replaceObjectsInRange:range withObjectsFromArray:items];
       NSUInteger count = [items count];
       NSMutableArray *indexPaths = [[NSMutableArray alloc] initWithCapacity:MAX(count, actualReplaceCount)];
       for (NSUInteger i = 0; i < actualReplaceCount; ++i) {
@@ -307,7 +359,9 @@
       if (actualDeleteCount == 0) {
         return;
       }
-      [_items removeObjectsInRange:NSMakeRange(deleteIndex, actualDeleteCount)];
+      NSRange range = NSMakeRange(deleteIndex, actualDeleteCount);
+      [self forgetProxiesInItems:[_items objectsAtIndexes:[[NSIndexSet alloc] initWithIndexesInRange:range]]];
+      [_items removeObjectsInRange:range];
       id<TiUIListViewDelegateView> theDelegate = [theDispatcher delegateView];
       if (theDelegate != nil) {
         [theDelegate updateSearchResults:nil];
@@ -326,7 +380,9 @@
       if (actualDeleteCount == 0) {
         return;
       }
-      [_items removeObjectsInRange:NSMakeRange(deleteIndex, actualDeleteCount)];
+      NSRange range = NSMakeRange(deleteIndex, actualDeleteCount);
+      [self forgetProxiesInItems:[_items objectsAtIndexes:[[NSIndexSet alloc] initWithIndexesInRange:range]]];
+      [_items removeObjectsInRange:range];
       NSMutableArray *indexPaths = [[NSMutableArray alloc] initWithCapacity:actualDeleteCount];
       for (NSUInteger i = 0; i < actualDeleteCount; ++i) {
         [indexPaths addObject:[NSIndexPath indexPathForRow:deleteIndex + i inSection:_sectionIndex]];
@@ -354,7 +410,9 @@
         return;
       }
       if (item != nil) {
+        [self forgetProxiesInItems:@[ _items[itemIndex] ]];
         [_items replaceObjectAtIndex:itemIndex withObject:item];
+        [self rememberProxiesInItems:@[ item ]];
       }
       id<TiUIListViewDelegateView> theDelegate = [theDispatcher delegateView];
       if (theDelegate != nil) {
@@ -371,7 +429,9 @@
         return;
       }
       if (item != nil) {
+        [self forgetProxiesInItems:@[ _items[itemIndex] ]];
         [_items replaceObjectAtIndex:itemIndex withObject:item];
+        [self rememberProxiesInItems:@[ item ]];
       }
       NSArray *indexPaths = [[NSArray alloc] initWithObjects:[NSIndexPath indexPathForRow:itemIndex inSection:_sectionIndex], nil];
       [tableView reloadRowsAtIndexPaths:indexPaths withRowAnimation:animation];
