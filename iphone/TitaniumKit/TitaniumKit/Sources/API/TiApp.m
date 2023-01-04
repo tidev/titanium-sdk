@@ -1134,8 +1134,9 @@ TI_INLINE void waitForMemoryPanicCleared(void); //WARNING: This must never be ru
 //TODO: this should be compiled out in production mode
 - (void)showModalError:(NSString *)message
 {
+  NSLog(@"[ERROR] Application received error: %@", message);
+
   if ([[TiSharedConfig defaultConfig] showErrorController] == NO) {
-    NSLog(@"[ERROR] Application received error: %@", message);
     return;
   }
   ENSURE_UI_THREAD(showModalError, message);
