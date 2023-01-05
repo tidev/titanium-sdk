@@ -149,30 +149,30 @@
 {
   __weak TiUIListSectionProxy *weakSelf = self;
 
-  [self findProxyInItems:items
-       completionHandler:^(TiProxy *proxy) {
-         TiUIListSectionProxy *strongSelf = weakSelf;
-         if (strongSelf == nil) {
-           return;
-         }
+  [self enumerateProxiesInItems:items
+                     usingBlock:^(TiProxy *proxy) {
+                       TiUIListSectionProxy *strongSelf = weakSelf;
+                       if (strongSelf == nil) {
+                         return;
+                       }
 
-         [strongSelf rememberProxy:proxy];
-       }];
+                       [strongSelf rememberProxy:proxy];
+                     }];
 }
 
 - (void)forgetProxiesInItems:(NSArray<NSDictionary *> *)items
 {
   __weak TiUIListSectionProxy *weakSelf = self;
 
-  [self findProxyInItems:items
-       completionHandler:^(TiProxy *proxy) {
-         TiUIListSectionProxy *strongSelf = weakSelf;
-         if (strongSelf == nil) {
-           return;
-         }
+  [self enumerateProxiesInItems:items
+                     usingBlock:^(TiProxy *proxy) {
+                       TiUIListSectionProxy *strongSelf = weakSelf;
+                       if (strongSelf == nil) {
+                         return;
+                       }
 
-         [strongSelf forgetProxy:proxy];
-       }];
+                       [strongSelf forgetProxy:proxy];
+                     }];
 }
 
 - (void)appendItems:(id)args
@@ -454,7 +454,7 @@
 
 #pragma mark - Utilities
 
-- (void)findProxyInItems:(NSArray<NSDictionary *> *)items completionHandler:(void (^)(TiProxy *proxy))completionHandler
+- (void)enumerateProxiesInItems:(NSArray<NSDictionary *> *)items usingBlock:(void (^)(TiProxy *proxy))block
 {
   for (NSDictionary *item in items) {
     for (NSString *key in item) {
@@ -466,7 +466,7 @@
         for (NSString *bindPropertyName in itemPropertyValue) {
           id propertyValue = itemPropertyValue[bindPropertyName];
           if ([propertyValue isKindOfClass:TiProxy.class]) {
-            completionHandler(propertyValue);
+            block(propertyValue);
           }
         }
       }
