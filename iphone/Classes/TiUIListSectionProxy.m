@@ -147,42 +147,32 @@
 
 - (void)rememberProxiesInItems:(NSArray<NSDictionary *> *)items
 {
-  for (NSDictionary *item in items) {
-    for (NSString *key in item) {
-      if ([key isEqualToString:@"template"] || [key isEqualToString:@"properties"]) {
-        continue;
-      }
-      id itemPropertyValue = item[key];
-      if ([itemPropertyValue isKindOfClass:NSDictionary.class]) {
-        for (NSString *bindPropertyName in itemPropertyValue) {
-          id propertyValue = itemPropertyValue[bindPropertyName];
-          if ([propertyValue isKindOfClass:TiProxy.class]) {
-            [self rememberProxy:propertyValue];
-          }
-        }
-      }
-    }
-  }
+  __weak TiUIListSectionProxy *weakSelf = self;
+
+  [self findProxyInItems:items
+       completionHandler:^(TiProxy *proxy) {
+         TiUIListSectionProxy *strongSelf = weakSelf;
+         if (strongSelf == nil) {
+           return;
+         }
+
+         [strongSelf rememberProxy:proxy];
+       }];
 }
 
 - (void)forgetProxiesInItems:(NSArray<NSDictionary *> *)items
 {
-  for (NSDictionary *item in items) {
-    for (NSString *key in item) {
-      if ([key isEqualToString:@"template"] || [key isEqualToString:@"properties"]) {
-        continue;
-      }
-      id itemPropertyValue = item[key];
-      if ([itemPropertyValue isKindOfClass:NSDictionary.class]) {
-        for (NSString *bindPropertyName in itemPropertyValue) {
-          id propertyValue = itemPropertyValue[bindPropertyName];
-          if ([propertyValue isKindOfClass:TiProxy.class]) {
-            [self forgetProxy:propertyValue];
-          }
-        }
-      }
-    }
-  }
+  __weak TiUIListSectionProxy *weakSelf = self;
+
+  [self findProxyInItems:items
+       completionHandler:^(TiProxy *proxy) {
+         TiUIListSectionProxy *strongSelf = weakSelf;
+         if (strongSelf == nil) {
+           return;
+         }
+
+         [strongSelf forgetProxy:proxy];
+       }];
 }
 
 - (void)appendItems:(id)args
@@ -461,6 +451,29 @@
 {
   return nil;
 }
+
+#pragma mark - Utilities
+
+- (void)findProxyInItems:(NSArray<NSDictionary *> *)items completionHandler:(void (^)(TiProxy *proxy))completionHandler
+{
+  for (NSDictionary *item in items) {
+    for (NSString *key in item) {
+      if ([key isEqualToString:@"template"] || [key isEqualToString:@"properties"]) {
+        continue;
+      }
+      id itemPropertyValue = item[key];
+      if ([itemPropertyValue isKindOfClass:NSDictionary.class]) {
+        for (NSString *bindPropertyName in itemPropertyValue) {
+          id propertyValue = itemPropertyValue[bindPropertyName];
+          if ([propertyValue isKindOfClass:TiProxy.class]) {
+            completionHandler(propertyValue);
+          }
+        }
+      }
+    }
+  }
+}
+
 @end
 
 #endif
