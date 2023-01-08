@@ -35,7 +35,9 @@ import android.app.Activity;
 		TiC.PROPERTY_MAX_LINES,
 		TiC.PROPERTY_LINE_SPACING,
 		TiC.PROPERTY_INCLUDE_FONT_PADDING,
-		TiC.PROPERTY_MINIMUM_FONT_SIZE
+		TiC.PROPERTY_MINIMUM_FONT_SIZE,
+		"breakStrategy",
+		"hyphenationFrequency"
 })
 public class LabelProxy extends TiViewProxy
 {
