@@ -1,4 +1,4 @@
-<p align="center"><a href="https://titaniumsdk.com" target="_blank"><img width="120" src=".github/logo-titanium.png"></a></p>
+<p align="center"><a href="https://titaniumsdk.com" target="_blank"><img width="120" src=".github/icon-titanium-red.svg"></a></p>
 
 <h1 align="center">Titanium SDK<a href="https://github.com/tidev/titanium_mobile/actions/workflows/build.yml?query=branch%3Amaster" target="_blank"><img src="https://github.com/tidev/titanium_mobile/actions/workflows/build.yml/badge.svg?branch=master" /></a></h1>
 
