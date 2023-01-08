@@ -472,15 +472,15 @@ public class TiUILabel extends TiUIView
 			}
 		}
 
-		if (d.containsKey("breakStrategy")) {
+		if (d.containsKey(TiC.PROPERTY_BREAK_STRATEGY)) {
 			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-				tv.setBreakStrategy(TiConvert.toInt(d.get("breakStrategy")));
+				tv.setBreakStrategy(TiConvert.toInt(d.get(TiC.PROPERTY_BREAK_STRATEGY)));
 			}
 		}
 
-		if (d.containsKey("hyphenationFrequency")) {
+		if (d.containsKey(TiC.PROPERTY_HYPHENATION_FREQUENCY)) {
 			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-				tv.setHyphenationFrequency(TiConvert.toInt(d.get("hyphenationFrequency")));
+				tv.setHyphenationFrequency(TiConvert.toInt(d.get(TiC.PROPERTY_HYPHENATION_FREQUENCY)));
 			}
 		}
 
@@ -616,11 +616,11 @@ public class TiUILabel extends TiUIView
 				}
 			}
 
-		} else if (key.equals("breakStrategy")) {
+		} else if (key.equals(TiC.PROPERTY_BREAK_STRATEGY)) {
 			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
 				tv.setBreakStrategy(TiConvert.toInt(newValue));
 			}
-		} else if (key.equals("hyphenationFrequency")) {
+		} else if (key.equals(TiC.PROPERTY_HYPHENATION_FREQUENCY)) {
 			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
 				tv.setHyphenationFrequency(TiConvert.toInt(newValue));
 			}

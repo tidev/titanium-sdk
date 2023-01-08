@@ -315,6 +315,7 @@ public class TiC
 	public static final String PROPERTY_BORDER_WIDTH = "borderWidth";
 	public static final String PROPERTY_BOTTOM = "bottom";
 	public static final String PROPERTY_BROTHER = "brother";
+	public static final String PROPERTY_BREAK_STRATEGY = "breakStrategy";
 	public static final String PROPERTY_BUTTON = "button";
 	public static final String PROPERTY_BUBBLE_PARENT = "bubbleParent";
 	public static final String PROPERTY_BUBBLES = "bubbles";
@@ -455,6 +456,7 @@ public class TiC
 	public static final String PROPERTY_FRAGMENT_ONLY = "fragmentOnly";
 	public static final String PROPERTY_HIDDEN_BEHAVIOR = "hiddenBehavior";
 	public static final String PROPERTY_HIDES_BACK_BUTTON = "hidesBackButton";
+	public static final String PROPERTY_HYPHENATION_FREQUENCY = "hyphenationFrequency";
 	public static final String PROPERTY_FREQUENCY = "frequency";
 	public static final String PROPERTY_FRIEND = "friend";
 	public static final String PROPERTY_FROM = "from";
