@@ -12,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.widget.ImageView;
+import androidx.appcompat.widget.Toolbar;
 
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 
@@ -19,7 +20,9 @@ import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.appbar.CollapsingToolbarLayout;
 
 import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.common.Log;
+import org.appcelerator.titanium.R;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiDimension;
@@ -33,7 +36,6 @@ import org.appcelerator.titanium.view.TiUIView;
 public class TiUICollapseToolbar extends TiUIView
 {
 	private static final String TAG = "TiUICollapseToolbar";
-	//ImageView imageView;
 	TiCompositeLayout content;
 	AppBarLayout appBarLayout;
 	CollapsingToolbarLayout collapseToolbarLayout;
@@ -41,6 +43,9 @@ public class TiUICollapseToolbar extends TiUIView
 	int barColor = -1;
 	int scrollFlags = -1;
 	ImageView imageView = null;
+	Toolbar toolbar = null;
+	KrollFunction homeIconFunction = null;
+	boolean homeAsUp = false;
 
 	public TiUICollapseToolbar(TiViewProxy proxy)
 	{
@@ -52,12 +57,14 @@ public class TiUICollapseToolbar extends TiUIView
 			int id_imageView = TiRHelper.getResource("id.collapseImageView");
 			int id_content = TiRHelper.getResource("id.collapseContent");
 			int id_appbar = TiRHelper.getResource("id.appBarLayout");
-			int id_toolbar = TiRHelper.getResource("id.collapseToolbarLayout");
+			int id_toolbarLayout = TiRHelper.getResource("id.collapseToolbarLayout");
+			int id_toolbar = TiRHelper.getResource("id.toolbar");
 			LayoutInflater inflater = LayoutInflater.from(TiApplication.getAppCurrentActivity());
 			CoordinatorLayout layout = (CoordinatorLayout) inflater.inflate(id_collapse_toolbar, null);
 			imageView = layout.findViewById(id_imageView);
 			appBarLayout = layout.findViewById(id_appbar);
-			collapseToolbarLayout = appBarLayout.findViewById(id_toolbar);
+			toolbar = appBarLayout.findViewById(id_toolbar);
+			collapseToolbarLayout = appBarLayout.findViewById(id_toolbarLayout);
 
 			content = layout.findViewById(id_content);
 			if (barColor != -1) {
@@ -68,6 +75,9 @@ public class TiUICollapseToolbar extends TiUIView
 			}
 			if (scrollFlags != -1) {
 				setFlags(scrollFlags);
+			}
+			if (homeAsUp) {
+				setDisplayHomeAsUp(homeAsUp);
 			}
 			setNativeView(layout);
 		} catch (Exception e) {
@@ -107,9 +117,27 @@ public class TiUICollapseToolbar extends TiUIView
 		}
 	}
 
+	public void setonHomeIconItemSelected(KrollFunction value)
+	{
+		homeIconFunction = value;
+	}
+
 	public void setTitle(String title)
 	{
 		if (collapseToolbarLayout != null) collapseToolbarLayout.setTitle(title);
+	}
+
+	public void setDisplayHomeAsUp(boolean value)
+	{
+		if (collapseToolbarLayout != null && toolbar != null && value) {
+			toolbar.setNavigationIcon(R.drawable.ic_action_back);
+			toolbar.setNavigationOnClickListener(v -> {
+				if (homeIconFunction != null) {
+					homeIconFunction.callAsync(proxy.getKrollObject(), new Object[] {});
+				}
+			});
+		}
+		homeAsUp = value;
 	}
 
 	public void setImage(Bitmap bitmap)

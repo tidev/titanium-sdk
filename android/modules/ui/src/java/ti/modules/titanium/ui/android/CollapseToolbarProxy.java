@@ -8,6 +8,7 @@ package ti.modules.titanium.ui.android;
 
 import android.app.Activity;
 
+import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.proxy.TiViewProxy;
@@ -62,7 +63,16 @@ public class CollapseToolbarProxy extends TiViewProxy
 	{
 		collapseToolbar.setContentScrimColor(TiConvert.toColor(value, TiApplication.getAppCurrentActivity()));
 	}
-
+	@Kroll.setProperty
+	public void setDisplayHomeAsUp(boolean value)
+	{
+		collapseToolbar.setDisplayHomeAsUp(value);
+	}
+	@Kroll.setProperty
+	public void setonHomeIconItemSelected(KrollFunction value)
+	{
+		collapseToolbar.setonHomeIconItemSelected(value);
+	}
 	@Kroll.setProperty
 	public void setFlags(int value)
 	{
