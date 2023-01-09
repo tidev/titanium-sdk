@@ -252,6 +252,43 @@ public class AttributedStringProxy extends KrollProxy
 											new BackgroundColorSpan(TiConvert.toColor(attrValue, activity)),
 											range[0], range[0] + range[1], Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 										break;
+									case UIModule.ATTRIBUTE_ROUNDED_BACKGROUND_COLOR:
+										KrollDict borderValues = new KrollDict((HashMap<String, Object>) attrValue);
+										int fontSize = 14;
+
+										if (borderValues.containsKeyAndNotNull(TiC.PROPERTY_FONT)) {
+											KrollDict borderFontProp = new KrollDict((HashMap<String, Object>)
+												borderValues.get(TiC.PROPERTY_FONT));
+
+											String[] fontProperties =
+												TiUIHelper.getFontProperties((KrollDict) borderFontProp);
+											if (fontProperties[TiUIHelper.FONT_SIZE_POSITION] != null) {
+												fontSize = TiConvert.toInt(
+													fontProperties[TiUIHelper.FONT_SIZE_POSITION]);
+											}
+										}
+
+										KrollDict paddingDict = null;
+										if (borderValues.containsKeyAndNotNull(TiC.PROPERTY_PADDING)) {
+											paddingDict = new KrollDict((HashMap<String, Object>)
+												borderValues.get(TiC.PROPERTY_PADDING));
+										}
+
+										spannableText.setSpan(
+											new AttributedStringRoundBackground(
+												TiConvert.toColor(TiConvert.toString(
+													borderValues.get(TiC.PROPERTY_BACKGROUND_COLOR),
+													"#fff")),
+												TiConvert.toColor(
+													TiConvert.toString(borderValues.get(TiC.PROPERTY_COLOR),
+													"#000")),
+												TiConvert.toInt(borderValues.get(TiC.PROPERTY_BORDER_RADIUS),
+													4),
+												fontSize,
+												paddingDict
+											),
+											range[0], range[0] + range[1], Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+										break;
 									case UIModule.ATTRIBUTE_FOREGROUND_COLOR:
 										spannableText.setSpan(
 											new ForegroundColorSpan(TiConvert.toColor(attrValue, activity)),
