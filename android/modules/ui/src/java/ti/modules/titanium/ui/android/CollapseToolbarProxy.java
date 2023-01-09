@@ -9,6 +9,7 @@ package ti.modules.titanium.ui.android;
 import android.app.Activity;
 
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiDrawableReference;
@@ -26,6 +27,8 @@ public class CollapseToolbarProxy extends TiViewProxy
 	public TiUIView createView(Activity activity)
 	{
 		collapseToolbar = new TiUICollapseToolbar(this);
+		collapseToolbar.getLayoutParams().autoFillsHeight = true;
+		collapseToolbar.getLayoutParams().autoFillsWidth = true;
 		return collapseToolbar;
 	}
 
@@ -33,6 +36,11 @@ public class CollapseToolbarProxy extends TiViewProxy
 	public void setImage(Object obj)
 	{
 		collapseToolbar.setImage(TiDrawableReference.fromObject(this, obj).getBitmap(false));
+	}
+	@Kroll.setProperty
+	public void setTitle(String text)
+	{
+		collapseToolbar.setTitle(text);
 	}
 
 	@Kroll.setProperty
@@ -46,6 +54,12 @@ public class CollapseToolbarProxy extends TiViewProxy
 	@Kroll.setProperty
 	public void setBarColor(String value)
 	{
-		collapseToolbar.setBarColor(TiConvert.toColor(value));
+		collapseToolbar.setBarColor(TiConvert.toColor(value, TiApplication.getAppCurrentActivity()));
+	}
+
+	@Kroll.setProperty
+	public void setContentScrimColor(String value)
+	{
+		collapseToolbar.setContentScrimColor(TiConvert.toColor(value, TiApplication.getAppCurrentActivity()));
 	}
 }

@@ -30,14 +30,15 @@
 			android:id="@+id/collapseToolbarLayout"
 			>
 
-<!--
+
 			<ImageView
 				android:id="@+id/collapseImageView"
 				android:layout_width="match_parent"
 				android:layout_height="250dp"
 				android:scaleType="centerCrop"
+				android:visibility="invisible"
 				app:layout_collapseMode="parallax" />
--->
+
 
 			<androidx.appcompat.widget.Toolbar
 				android:layout_width="match_parent"

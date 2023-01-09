@@ -37,8 +37,9 @@ public class TiUICollapseToolbar extends TiUIView
 	TiCompositeLayout content;
 	AppBarLayout appBarLayout;
 	CollapsingToolbarLayout collapseToolbarLayout;
+	int contentScrimColor = -1;
 	int barColor = -1;
-	ImageView img = null;
+	ImageView imageView = null;
 
 	public TiUICollapseToolbar(TiViewProxy proxy)
 	{
@@ -47,19 +48,22 @@ public class TiUICollapseToolbar extends TiUIView
 
 		try {
 			int id_collapse_toolbar = TiRHelper.getResource("layout.titanium_ui_collapse_toolbar");
-			//int id_imageView = TiRHelper.getResource("id.collapseImageView");
+			int id_imageView = TiRHelper.getResource("id.collapseImageView");
 			int id_content = TiRHelper.getResource("id.collapseContent");
 			int id_appbar = TiRHelper.getResource("id.appBarLayout");
 			int id_toolbar = TiRHelper.getResource("id.collapseToolbarLayout");
 			LayoutInflater inflater = LayoutInflater.from(TiApplication.getAppCurrentActivity());
 			CoordinatorLayout layout = (CoordinatorLayout) inflater.inflate(id_collapse_toolbar, null);
-			//imageView = layout.findViewById(id_imageView);
+			imageView = layout.findViewById(id_imageView);
 			appBarLayout = layout.findViewById(id_appbar);
 			collapseToolbarLayout = appBarLayout.findViewById(id_toolbar);
 
 			content = layout.findViewById(id_content);
 			if (barColor != -1) {
-				collapseToolbarLayout.setBackgroundColor(barColor);
+				setBarColor(barColor);
+			}
+			if (contentScrimColor != -1) {
+				setContentScrimColor(contentScrimColor);
 			}
 			setNativeView(layout);
 		} catch (Exception e) {
@@ -78,6 +82,9 @@ public class TiUICollapseToolbar extends TiUIView
 		ViewParent viewParent = view.getParent();
 		if (viewParent != null && viewParent != content && viewParent instanceof ViewGroup) {
 			((ViewGroup) viewParent).removeView(view);
+
+			contentView.getLayoutParams().autoFillsHeight = true;
+			contentView.getLayoutParams().autoFillsWidth = true;
 		}
 		content.addView(view, contentView.getLayoutParams());
 	}
@@ -86,6 +93,14 @@ public class TiUICollapseToolbar extends TiUIView
 	{
 		barColor = color;
 		if (collapseToolbarLayout != null) collapseToolbarLayout.setBackgroundColor(color);
+	}
+
+	public void setContentScrimColor(int color)
+	{
+		contentScrimColor = color;
+		if (collapseToolbarLayout != null) {
+			collapseToolbarLayout.setContentScrimColor(color);
+		}
 	}
 
 	public void setTitle(String title)
@@ -99,18 +114,8 @@ public class TiUICollapseToolbar extends TiUIView
 			Log.e(TAG, "Bitmap empty");
 			return;
 		}
-
-		if (img == null) {
-			img = new ImageView(TiApplication.getAppCurrentActivity());
-			//ViewGroup.LayoutParams layout = img.getLayoutParams();
-			//layout.height = collapseToolbarLayout.getHeight();
-			//CollapsingToolbarLayout.LayoutParams newParams = (CollapsingToolbarLayout.LayoutParams) layout;
-			//newParams.setCollapseMode(CollapsingToolbarLayout.LayoutParams.COLLAPSE_MODE_PARALLAX);
-			//img.setLayoutParams(layout);
-			collapseToolbarLayout.addView(img, 0);
-		}
-		img.setImageBitmap(bitmap);
-		img.setScaleType(ImageView.ScaleType.CENTER_CROP);
+		imageView.setImageBitmap(bitmap);
+		imageView.setVisibility(View.VISIBLE);
 	}
 
 	private void setContainerHeight(int height)
@@ -137,6 +142,10 @@ public class TiUICollapseToolbar extends TiUIView
 		}
 		if (d.containsKey(TiC.PROPERTY_HEIGHT)) {
 			setContainerHeight(d.getInt(TiC.PROPERTY_HEIGHT));
+		}
+		if (d.containsKey("contentScrimColor")) {
+			setContentScrimColor(TiConvert.toColor(
+				d.getString("contentScrimColor"), TiApplication.getAppCurrentActivity()));
 		}
 	}
 }
