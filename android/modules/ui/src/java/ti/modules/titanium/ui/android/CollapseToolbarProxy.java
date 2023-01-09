@@ -62,4 +62,10 @@ public class CollapseToolbarProxy extends TiViewProxy
 	{
 		collapseToolbar.setContentScrimColor(TiConvert.toColor(value, TiApplication.getAppCurrentActivity()));
 	}
+
+	@Kroll.setProperty
+	public void setFlags(int value)
+	{
+		collapseToolbar.setFlags(value);
+	}
 }

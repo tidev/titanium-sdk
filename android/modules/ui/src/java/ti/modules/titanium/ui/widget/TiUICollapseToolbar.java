@@ -39,6 +39,7 @@ public class TiUICollapseToolbar extends TiUIView
 	CollapsingToolbarLayout collapseToolbarLayout;
 	int contentScrimColor = -1;
 	int barColor = -1;
+	int scrollFlags = -1;
 	ImageView imageView = null;
 
 	public TiUICollapseToolbar(TiViewProxy proxy)
@@ -64,6 +65,9 @@ public class TiUICollapseToolbar extends TiUIView
 			}
 			if (contentScrimColor != -1) {
 				setContentScrimColor(contentScrimColor);
+			}
+			if (scrollFlags != -1) {
+				setFlags(scrollFlags);
 			}
 			setNativeView(layout);
 		} catch (Exception e) {
@@ -124,6 +128,16 @@ public class TiUICollapseToolbar extends TiUIView
 		TiDimension nativeSize = TiConvert.toTiDimension(TiConvert.toString(height), TiDimension.TYPE_HEIGHT);
 		layout.height = nativeSize.getAsPixels(collapseToolbarLayout);
 		collapseToolbarLayout.setLayoutParams(layout);
+	}
+
+	public void setFlags(int value)
+	{
+		if (collapseToolbarLayout != null) {
+			AppBarLayout.LayoutParams params =
+				(AppBarLayout.LayoutParams) collapseToolbarLayout.getLayoutParams();
+			params.setScrollFlags(value);
+		}
+		scrollFlags = value;
 	}
 
 	@Override
