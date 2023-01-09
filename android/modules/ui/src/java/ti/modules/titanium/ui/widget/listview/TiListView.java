@@ -765,6 +765,12 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 		final Activity activity = TiApplication.getAppCurrentActivity();
 		final View previousFocus = activity != null ? activity.getCurrentFocus() : null;
 
+		// The activity may be not available anymore, e.g. when a HTTP request started to update the list, but the containing window
+		// was closed before the operation could be completed.
+		if (activity == null) {
+			return;
+		}
+
 		activity.runOnUiThread(new Runnable()
 		{
 			@Override

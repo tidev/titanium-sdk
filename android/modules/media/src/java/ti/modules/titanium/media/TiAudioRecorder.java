@@ -136,7 +136,7 @@ public class TiAudioRecorder
 						totalFileBytes - WAV_FILE_HEADER_RIFF_SUBCHUNK_BYTE_COUNT,
 						RECORDER_SAMPLE_RATE,
 						channelCount,
-						RECORDER_BPP * RECORDER_SAMPLE_RATE * channelCount / 8);
+						(long) RECORDER_BPP * RECORDER_SAMPLE_RATE * channelCount / 8);
 					resultFile = this.tempFileReference;
 				}
 			} catch (Exception ex) {

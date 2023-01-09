@@ -106,9 +106,16 @@ describe.android('Titanium.UI.Android.DrawerLayout', () => {
 		});
 
 		it('.toolbar', finish => {
-			const window = Ti.UI.createWindow({ theme: 'Theme.Titanium.NoTitleBar' });
-			const toolbar = Ti.UI.createToolbar({ titleTextColor: 'red', backgroundColor: 'cyan' });
-			drawerLayout = Ti.UI.Android.createDrawerLayout({ toolbar: toolbar });
+			const window = Ti.UI.createWindow({
+				theme: 'Theme.Titanium.NoTitleBar'
+			});
+			const toolbar = Ti.UI.createToolbar({
+				titleTextColor: 'red',
+				backgroundColor: 'cyan'
+			});
+			drawerLayout = Ti.UI.Android.createDrawerLayout({
+				toolbar: toolbar
+			});
 			window.add(drawerLayout);
 			window.addEventListener('open', () => {
 				try {
@@ -135,7 +142,9 @@ describe.android('Titanium.UI.Android.DrawerLayout', () => {
 
 			// Test for theme with disabled default ActionBar
 			it('for Theme.Titanium.NoTitleBar', () => {
-				const window = Ti.UI.createWindow({ theme: 'Theme.Titanium.NoTitleBar' });
+				const window = Ti.UI.createWindow({
+					theme: 'Theme.Titanium.NoTitleBar'
+				});
 				drawerLayout = Titanium.UI.Android.createDrawerLayout();
 				window.add(drawerLayout);
 				should(drawerLayout.toolbarEnabled).be.true(); // default value
@@ -144,6 +153,63 @@ describe.android('Titanium.UI.Android.DrawerLayout', () => {
 				drawerLayout.toolbarEnabled = true;
 				should(drawerLayout.toolbarEnabled).be.true();
 			});
+		});
+	});
+
+	describe('events', () => {
+
+		let drawerWindow;
+		let centerView;
+		let menuView;
+
+		afterEach(() => {
+			drawerWindow = null;
+			centerView = null;
+			menuView = null;
+		});
+
+		beforeEach(() => {
+			drawerWindow = Ti.UI.createWindow();
+			centerView = Ti.UI.createView();
+			menuView = Ti.UI.createView({
+				backgroundColor: 'red'
+			});
+		});
+
+		it('check left open event', finish => {
+			const drawer = Ti.UI.Android.createDrawerLayout({
+				centerView: centerView,
+				leftView: menuView,
+			});
+			drawer.addEventListener('open', function (e) {
+				should(e.drawer).eql('left');
+				finish();
+			});
+			drawerWindow.add(drawer);
+			drawerWindow.open();
+			drawerWindow.addEventListener('open', function () {
+				setTimeout(function () {
+					drawer.toggleLeft();
+				}, 500);
+			});
+		});
+
+		it('check right open event', finish => {
+			const drawer = Ti.UI.Android.createDrawerLayout({
+				centerView: centerView,
+				rightView: menuView,
+			});
+			drawer.addEventListener('open', function (e) {
+				should(e.drawer).eql('right');
+				finish();
+			});
+			drawerWindow.add(drawer);
+			drawerWindow.addEventListener('open', function () {
+				setTimeout(function () {
+					drawer.toggleRight();
+				}, 500);
+			});
+			drawerWindow.open();
 		});
 	});
 });

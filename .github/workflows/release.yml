@@ -35,7 +35,7 @@ jobs:
           PACKAGE_VERSION=$(sed -n 's/^ *"version": *"//p' package.json | tr -d '"' | tr -d ',' | tr -d '[[:space:]]')
           VTAG="${PACKAGE_VERSION}.${{ github.event.inputs.release-type }}"
           echo "vtag=${VTAG}" >> $GITHUB_ENV
-          echo "::set-output name=vtag::${VTAG}"
+          echo "vtag=${VTAG}" >> $GITHUB_OUTPUT
       - name: Validate version
         uses: actions/github-script@v5
         env:
