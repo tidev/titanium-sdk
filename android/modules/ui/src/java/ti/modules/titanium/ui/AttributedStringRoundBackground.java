@@ -3,6 +3,7 @@ package ti.modules.titanium.ui;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.RectF;
+import android.text.style.LineHeightSpan;
 import android.text.style.ReplacementSpan;
 
 import org.appcelerator.kroll.KrollDict;
@@ -10,7 +11,7 @@ import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.util.TiConvert;
 
-public class AttributedStringRoundBackground extends ReplacementSpan
+public class AttributedStringRoundBackground extends ReplacementSpan implements LineHeightSpan
 {
 
 	private static int cornerRadius = 12;
@@ -19,6 +20,8 @@ public class AttributedStringRoundBackground extends ReplacementSpan
 	int paddingRight = 8;
 	int paddingBottom = 2;
 	int paddingLeft = 8;
+	int offset = 0;
+	int topMargin = 10;
 
 	private static final float MAGIC_NUMBER = convertDptoPx(2);
 
@@ -29,9 +32,11 @@ public class AttributedStringRoundBackground extends ReplacementSpan
 	/**
 	 * @param backgroundColor color value, not res id
 	 * @param textSize        in pixels
+	 * @param offset
+	 * @param topMargin
 	 */
 	public AttributedStringRoundBackground(int backgroundColor, int textColor, int radius,
-										   float textSize, KrollDict padding)
+										   float textSize, KrollDict padding, int offset, int topMargin)
 	{
 		if (padding != null) {
 			paddingLeft = convertDptoPx(TiConvert.toInt(padding.get(TiC.PROPERTY_LEFT), paddingLeft));
@@ -43,6 +48,8 @@ public class AttributedStringRoundBackground extends ReplacementSpan
 		mBackgroundColor = backgroundColor;
 		mTextColor = textColor;
 		mTextSize = convertDptoPx((int) textSize);
+		this.offset = offset;
+		this.topMargin = topMargin;
 	}
 
 	public static int convertDptoPx(int dp)
@@ -64,13 +71,13 @@ public class AttributedStringRoundBackground extends ReplacementSpan
 		//float textHeightWrapping = convertDptoPx(4);
 		float tagBottom = top + paddingTop + mTextSize + paddingBottom;
 		float tagRight = x + getTagWidth(text, start, end, paint);
-		RectF rect = new RectF(x, top - paddingTop - paddingBottom, tagRight, tagBottom);
+		RectF rect = new RectF(x, top - paddingTop - paddingBottom + topMargin, tagRight, tagBottom + topMargin);
 		canvas.drawRoundRect(rect, cornerRadius, cornerRadius, paint);
 
 		// Draw the text
 		paint.setColor(mTextColor);
 		canvas.drawText(text, start, end, x + paddingLeft,
-			tagBottom - paddingBottom - paddingTop - MAGIC_NUMBER, paint);
+			tagBottom - paddingBottom - paddingTop - MAGIC_NUMBER + topMargin, paint);
 	}
 
 	private int getTagWidth(CharSequence text, int start, int end, Paint paint)
@@ -84,5 +91,13 @@ public class AttributedStringRoundBackground extends ReplacementSpan
 		paint = new Paint(paint); // make a copy for not editing the referenced paint
 		paint.setTextSize(mTextSize);
 		return getTagWidth(text, start, end, paint);
+	}
+
+	@Override
+	public void chooseHeight(CharSequence text, int start, int end, int spanstartv,
+							 int lineHeight, Paint.FontMetricsInt fm)
+	{
+		fm.bottom = offset * 2;
+		fm.descent = offset * 2;
 	}
 }

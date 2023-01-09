@@ -253,41 +253,52 @@ public class AttributedStringProxy extends KrollProxy
 											range[0], range[0] + range[1], Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 										break;
 									case UIModule.ATTRIBUTE_ROUNDED_BACKGROUND_COLOR:
-										KrollDict borderValues = new KrollDict((HashMap<String, Object>) attrValue);
-										int fontSize = 14;
+										if (attrValue instanceof HashMap) {
+											KrollDict borderValues = new KrollDict((HashMap<String, Object>) attrValue);
+											int fontSize = 14;
 
-										if (borderValues.containsKeyAndNotNull(TiC.PROPERTY_FONT)) {
-											KrollDict borderFontProp = new KrollDict((HashMap<String, Object>)
-												borderValues.get(TiC.PROPERTY_FONT));
+											if (borderValues.containsKeyAndNotNull(TiC.PROPERTY_FONT)) {
+												KrollDict borderFontProp = new KrollDict((HashMap<String, Object>)
+													borderValues.get(TiC.PROPERTY_FONT));
 
-											String[] fontProperties =
-												TiUIHelper.getFontProperties((KrollDict) borderFontProp);
-											if (fontProperties[TiUIHelper.FONT_SIZE_POSITION] != null) {
-												fontSize = TiConvert.toInt(
-													fontProperties[TiUIHelper.FONT_SIZE_POSITION]);
+												String[] fontProperties =
+													TiUIHelper.getFontProperties((KrollDict) borderFontProp);
+												if (fontProperties[TiUIHelper.FONT_SIZE_POSITION] != null) {
+													fontSize = TiConvert.toInt(
+														fontProperties[TiUIHelper.FONT_SIZE_POSITION]);
+												}
 											}
-										}
 
-										KrollDict paddingDict = null;
-										if (borderValues.containsKeyAndNotNull(TiC.PROPERTY_PADDING)) {
-											paddingDict = new KrollDict((HashMap<String, Object>)
-												borderValues.get(TiC.PROPERTY_PADDING));
-										}
+											KrollDict paddingDict = null;
+											if (borderValues.containsKeyAndNotNull(TiC.PROPERTY_PADDING)) {
+												paddingDict = new KrollDict((HashMap<String, Object>)
+													borderValues.get(TiC.PROPERTY_PADDING));
+											}
 
-										spannableText.setSpan(
-											new AttributedStringRoundBackground(
-												TiConvert.toColor(TiConvert.toString(
-													borderValues.get(TiC.PROPERTY_BACKGROUND_COLOR),
-													"#fff")),
-												TiConvert.toColor(
-													TiConvert.toString(borderValues.get(TiC.PROPERTY_COLOR),
-													"#000")),
-												TiConvert.toInt(borderValues.get(TiC.PROPERTY_BORDER_RADIUS),
-													4),
-												fontSize,
-												paddingDict
-											),
-											range[0], range[0] + range[1], Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+											int offset = 0;
+											if (borderValues.containsKeyAndNotNull("offset")) {
+												offset = TiConvert.toInt(borderValues.get("offset"));
+											}
+											int topMargin = 0;
+											if (borderValues.containsKeyAndNotNull("topMargin")) {
+												topMargin = TiConvert.toInt(borderValues.get("topMargin"));
+											}
+
+											spannableText.setSpan(
+												new AttributedStringRoundBackground(
+													TiConvert.toColor(TiConvert.toString(
+														borderValues.get(TiC.PROPERTY_BACKGROUND_COLOR), "#fff")
+													),
+													TiConvert.toColor(TiConvert.toString(
+														borderValues.get(TiC.PROPERTY_COLOR), "#000"), activity),
+													TiConvert.toInt(borderValues.get(TiC.PROPERTY_BORDER_RADIUS), 4),
+													fontSize,
+													paddingDict,
+													offset,
+													topMargin
+												),
+												range[0], range[0] + range[1], Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+										}
 										break;
 									case UIModule.ATTRIBUTE_FOREGROUND_COLOR:
 										spannableText.setSpan(
