@@ -59,6 +59,7 @@ public class TiBlob extends KrollProxy
 	private int height;
 	private int uprightWidth;
 	private int uprightHeight;
+	private int rotation;
 
 	// This handles the memory cache of images.
 	private final TiBlobLruCache mMemoryCache = TiBlobLruCache.getInstance();
@@ -74,6 +75,7 @@ public class TiBlob extends KrollProxy
 		this.height = 0;
 		this.uprightWidth = 0;
 		this.uprightHeight = 0;
+		this.rotation = 0;
 	}
 
 	/**
@@ -142,6 +144,7 @@ public class TiBlob extends KrollProxy
 		blob.height = image.getHeight();
 		blob.uprightWidth = blob.width;
 		blob.uprightHeight = blob.height;
+		blob.rotation = -1;
 		return blob;
 	}
 
@@ -239,6 +242,7 @@ public class TiBlob extends KrollProxy
 				this.height = opts.outHeight;
 
 				int rotation = getImageOrientation();
+				this.rotation = rotation;
 				if ((rotation == 90) || (rotation == 270)) {
 					this.uprightWidth = opts.outHeight;
 					this.uprightHeight = opts.outWidth;
@@ -409,6 +413,12 @@ public class TiBlob extends KrollProxy
 	public int getUprightWidth()
 	{
 		return this.uprightWidth;
+	}
+
+	@Kroll.getProperty
+	public int getRotation()
+	{
+		return this.rotation;
 	}
 
 	@Kroll.getProperty
