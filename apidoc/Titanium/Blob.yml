@@ -145,7 +145,7 @@ properties:
   - name: rotation
     type: Number
     summary: EXIF rotation of the image if available.
-    since: "12.1.0"
+    platforms: [android]
     since: {android: "12.1.0"}
     permission: read-only
 
