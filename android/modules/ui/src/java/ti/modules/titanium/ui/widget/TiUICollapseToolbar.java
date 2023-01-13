@@ -12,8 +12,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.widget.ImageView;
-import androidx.appcompat.widget.Toolbar;
 
+import androidx.appcompat.widget.Toolbar;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 
 import com.google.android.material.appbar.AppBarLayout;
@@ -26,8 +26,8 @@ import org.appcelerator.titanium.R;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiDimension;
-import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.proxy.TiViewProxy;
+import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiRHelper;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiDrawableReference;
@@ -36,7 +36,7 @@ import org.appcelerator.titanium.view.TiUIView;
 public class TiUICollapseToolbar extends TiUIView
 {
 	private static final String TAG = "TiUICollapseToolbar";
-	TiCompositeLayout content;
+	TiCompositeLayout content = null;
 	AppBarLayout appBarLayout;
 	CollapsingToolbarLayout collapseToolbarLayout;
 	int contentScrimColor = -1;
@@ -46,6 +46,7 @@ public class TiUICollapseToolbar extends TiUIView
 	Toolbar toolbar = null;
 	KrollFunction homeIconFunction = null;
 	boolean homeAsUp = false;
+	TiViewProxy localContentView = null;
 
 	public TiUICollapseToolbar(TiViewProxy proxy)
 	{
@@ -79,6 +80,9 @@ public class TiUICollapseToolbar extends TiUIView
 			if (homeAsUp) {
 				setDisplayHomeAsUp(homeAsUp);
 			}
+			if (localContentView != null) {
+				setContentView(localContentView);
+			}
 			setNativeView(layout);
 		} catch (Exception e) {
 			Log.i(TAG, "Layout error: " + e.getMessage());
@@ -87,7 +91,8 @@ public class TiUICollapseToolbar extends TiUIView
 
 	public void setContentView(TiViewProxy viewProxy)
 	{
-		if (viewProxy == null) {
+		localContentView = viewProxy;
+		if (viewProxy == null || content == null) {
 			return;
 		}
 		viewProxy.setActivity(proxy.getActivity());
@@ -184,6 +189,9 @@ public class TiUICollapseToolbar extends TiUIView
 		}
 		if (d.containsKey(TiC.PROPERTY_HEIGHT)) {
 			setContainerHeight(d.getInt(TiC.PROPERTY_HEIGHT));
+		}
+		if (d.containsKey(TiC.PROPERTY_CONTENT_VIEW)) {
+			setContentView((TiViewProxy) d.get(TiC.PROPERTY_CONTENT_VIEW));
 		}
 		if (d.containsKey("contentScrimColor")) {
 			setContentScrimColor(TiConvert.toColor(

@@ -38,6 +38,7 @@ public class CollapseToolbarProxy extends TiViewProxy
 	{
 		collapseToolbar.setImage(TiDrawableReference.fromObject(this, obj).getBitmap(false));
 	}
+
 	@Kroll.setProperty
 	public void setTitle(String text)
 	{
@@ -63,16 +64,19 @@ public class CollapseToolbarProxy extends TiViewProxy
 	{
 		collapseToolbar.setContentScrimColor(TiConvert.toColor(value, TiApplication.getAppCurrentActivity()));
 	}
+
 	@Kroll.setProperty
 	public void setDisplayHomeAsUp(boolean value)
 	{
 		collapseToolbar.setDisplayHomeAsUp(value);
 	}
+
 	@Kroll.setProperty
 	public void setonHomeIconItemSelected(KrollFunction value)
 	{
 		collapseToolbar.setonHomeIconItemSelected(value);
 	}
+
 	@Kroll.setProperty
 	public void setFlags(int value)
 	{
