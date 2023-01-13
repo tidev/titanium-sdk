@@ -21,7 +21,7 @@ excludes:
                  backgroundDisabledImage, backgroundFocusedColor, backgroundFocusedImage, backgroundGradient,
                  backgroundImage, backgroundLeftCap, backgroundRepeat, backgroundSelectedColor,
                  backgroundSelectedImage, backgroundTopCap, borderColor, borderRadius, borderWidth, bottom,center,
-                 children, clipMode, focusable, height, horizontalWrap, keepScreenOn, layout, left, opacity,overrideCurrentAnimation,
+                 children, clipMode, focusable, horizontalWrap, keepScreenOn, layout, left, opacity,overrideCurrentAnimation,
                  pullBackgroundColor, rect, right, size, softKeyboardOnFocus, tintColor, touchEnabled, transform,
                  viewShadowColor, viewShadowOffset, viewShadowRadius, visible, width, zIndex, elevation, rotation, rotationX,
                  rotationY, rotationZ, scaleX, scaleY, scaleZ, translationX, translationY, translationZ, transitionName,
@@ -36,7 +36,7 @@ properties:
     type: String
 
   - name: imageHeight
-    summary: Height of the image.
+    summary: Height of the image. Use `height` for the height of the extended toolbar.
     type: Number
     default: 250
 

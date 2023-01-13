@@ -42,6 +42,7 @@ public class TiUICollapseToolbar extends TiUIView
 	int contentScrimColor = -1;
 	int barColor = -1;
 	int scrollFlags = -1;
+	int imageHeight = -1;
 	ImageView imageView = null;
 	Toolbar toolbar = null;
 	KrollFunction homeIconFunction = null;
@@ -77,12 +78,16 @@ public class TiUICollapseToolbar extends TiUIView
 			if (scrollFlags != -1) {
 				setFlags(scrollFlags);
 			}
+			if (imageHeight != -1) {
+				setImageHeight(imageHeight);
+			}
 			if (homeAsUp) {
 				setDisplayHomeAsUp(homeAsUp);
 			}
 			if (localContentView != null) {
 				setContentView(localContentView);
 			}
+
 			setNativeView(layout);
 		} catch (Exception e) {
 			Log.i(TAG, "Layout error: " + e.getMessage());
@@ -175,7 +180,13 @@ public class TiUICollapseToolbar extends TiUIView
 
 	public void setImageHeight(int height)
 	{
-		imageView.setMaxHeight(height);
+		if (imageView != null) {
+			TiDimension wDimension = TiConvert.toTiDimension(height, TiDimension.TYPE_WIDTH);
+			ViewGroup.LayoutParams layout = imageView.getLayoutParams();
+			layout.height = wDimension.getAsPixels(imageView);
+			imageView.setLayoutParams(layout);
+		}
+		imageHeight = height;
 	}
 
 	@Override
