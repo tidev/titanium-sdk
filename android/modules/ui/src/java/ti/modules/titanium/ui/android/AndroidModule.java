@@ -231,6 +231,21 @@ public class AndroidModule extends KrollModule
 	public static final int OVER_SCROLL_IF_CONTENT_SCROLLS = 1; //android.view.View.OVER_SCROLL_IF_CONTENT_SCROLLS;
 	@Kroll.constant
 	public static final int OVER_SCROLL_NEVER = 2; //android.view.View.OVER_SCROLL_NEVER;
+	
+	@Kroll.constant
+	public static final int SCROLL_FLAG_ENTER_ALWAYS = 4;
+	@Kroll.constant
+	public static final int SCROLL_FLAG_ENTER_ALWAYS_COLLAPSED = 8;
+	@Kroll.constant
+	public static final int SCROLL_FLAG_EXIT_UNTIL_COLLAPSED = 2;
+	@Kroll.constant
+	public static final int SCROLL_FLAG_NO_SCROLL = 0;
+	@Kroll.constant
+	public static final int SCROLL_FLAG_SCROLL = 1;
+	@Kroll.constant
+	public static final int SCROLL_FLAG_SNAP = 16;
+	@Kroll.constant
+	public static final int SCROLL_FLAG_SNAP_MARGINS = 32;
 
 	public AndroidModule()
 	{

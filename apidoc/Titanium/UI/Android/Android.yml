@@ -884,6 +884,55 @@ properties:
     platforms: [android]
     since: "8.0.0"
 
+  - name: SCROLL_FLAG_ENTER_ALWAYS
+    summary: When entering (scrolling on screen) the view will scroll on any downwards scroll event, regardless of whether the scrolling view is also scrolling. This is commonly referred to as the 'quick return' pattern.
+    type: Number
+    permission: read-only
+    platforms: [android]
+    since: "12.1.0"
+
+  - name: SCROLL_FLAG_ENTER_ALWAYS_COLLAPSED
+    summary: An additional flag for 'enterAlways' which modifies the returning view to only initially scroll back to it's collapsed height. Once the scrolling view has reached the end of it's scroll range, the remainder of this view will be scrolled into view. The collapsed height is defined by the view's minimum height.
+    type: Number
+    permission: read-only
+    platforms: [android]
+    since: "12.1.0"
+
+  - name: SCROLL_FLAG_EXIT_UNTIL_COLLAPSED
+    summary: When exiting (scrolling off screen) the view will be scrolled until it is 'collapsed'. The collapsed height is defined by the view's minimum height.
+    type: Number
+    permission: read-only
+    platforms: [android]
+    since: "12.1.0"
+
+  - name: SCROLL_FLAG_NO_SCROLL
+    summary: Disable scrolling on the view. This flag should not be combined with any of the other scroll flags.
+    type: Number
+    permission: read-only
+    platforms: [android]
+    since: "12.1.0"
+
+  - name: SCROLL_FLAG_SCROLL
+    summary: The view will be scroll in direct relation to scroll events. This flag needs to be set for any of the other flags to take effect. If any sibling views before this one do not have this flag, then this value has no effect.
+    type: Number
+    permission: read-only
+    platforms: [android]
+    since: "12.1.0"
+
+  - name: SCROLL_FLAG_SNAP
+    summary: Upon a scroll ending, if the view is only partially visible then it will be snapped and scrolled to its closest edge. For example, if the view only has its bottom 25% displayed, it will be scrolled off screen completely. Conversely, if its bottom 75% is visible then it will be scrolled fully into view.
+    type: Number
+    permission: read-only
+    platforms: [android]
+    since: "12.1.0"
+
+  - name: SCROLL_FLAG_SNAP_MARGINS
+    summary: An additional flag to be used with 'snap'. If set, the view will be snapped to its top and bottom margins, as opposed to the edges of the view itself. 
+    type: Number
+    permission: read-only
+    platforms: [android]
+    since: "12.1.0"
+
 examples:
   - title: Android Preferences Example
     example: |

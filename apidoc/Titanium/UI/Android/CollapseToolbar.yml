@@ -1,0 +1,94 @@
+---
+name: Titanium.UI.Android.CollapseToolbar
+summary: A collapsing toolbar layout.
+description: |
+    | Android |
+    | ------- |
+    | ![Android](./collpasetoolbar_android.jpg) |
+
+    CollapseToolbar acts as a top-level container for window content that allows to set a parallax image and title
+    in the toolbar.
+extends: Titanium.UI.View
+since: "12.1.0"
+platforms: [android]
+
+properties:
+  - name: contentScrimColor
+    summary: Background color of the small toolbar (when scrolled up)
+    type: String
+
+  - name: image
+    summary: Background image for the full size toolbar. Has a parallax effect when scrolling upwards.
+    type: String
+
+  - name: title
+    summary: Title of the toolbar
+    type: String
+
+  - name: contentView
+    summary: Main view below the toolbar
+    type: Titanium.UI.View
+
+  - name: displayHomeAsUp
+    summary: Displays an "up" affordance on the "home" area of the action bar.
+    description: |
+        See also: [setDisplayHomeAsUpEnabled](https://developer.android.com/reference/android/app/ActionBar.html#setDisplayHomeAsUpEnabled(boolean))
+        in the Android Developer Reference.
+    type: Boolean
+    permission: write-only
+
+  - name: flags
+    summary: Scroll flags. Check [Android documentation](https://developer.android.com/reference/com/google/android/material/appbar/AppBarLayout.LayoutParams#constants_1) for more details.
+    type: Number
+    constants: Titanium.UI.Android.SCROLL_FLAG_*
+
+methods:
+  - name: onHomeIconItemSelected
+    summary: Callback function called when the home icon is clicked.
+    type: Callback
+    permission: write-only
+
+events:
+
+examples:
+  - title: Simple setup
+    example: |
+        The following code shows a simple drawer-layout usage.
+
+        ``` js
+        const win = Ti.UI.createWindow({
+        	theme: "Theme.Titanium.DayNight.NoTitleBar"
+        });
+
+        const centerView = Ti.UI.createView({
+        	layout: "vertical",
+        	height: Ti.UI.SIZE
+        });
+
+        for (let i = 0; i < 40; ++i) {
+        	let lbl = Ti.UI.createLabel({
+        		text: "test " + i,
+        		height: 40
+        	});
+        	centerView.add(lbl);
+        }
+
+        const collapsingToolbar = Ti.UI.Android.createCollapseToolbar({
+        	contentScrimColor: "#333",
+        	top: 0,
+        	image: "default.png",
+        	title: "Collapsing toolbar"
+        });
+
+
+        win.addEventListener('open', function() {
+        	collapsingToolbar.contentView = centerView;
+        	collapsingToolbar.onHomeIconItemSelected = function() {
+        		alert("click click");
+        	};
+        	collapsingToolbar.displayHomeAsUp = true;
+        });
+
+        win.add(collapsingToolbar);
+        win.open();
+        ```
