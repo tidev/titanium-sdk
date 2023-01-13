@@ -1090,12 +1090,10 @@ properties:
     summary: Value of the badge for the application's springboard icon.
     description: |
         In order to change the app icon badge number you will need to register for notifications.
-        Normally this is done by using local notifications or a push service like FCM.
+        Normally this is done by using local notifications or a push service like [Firebase Cloud Messaging](https://firebase.google.com/docs/cloud-messaging) (FCM).
         ``` js
         Ti.App.iOS.registerUserNotificationSettings({
           types: [
-                Ti.App.iOS.USER_NOTIFICATION_TYPE_ALERT,
-                Ti.App.iOS.USER_NOTIFICATION_TYPE_SOUND,
                 Ti.App.iOS.USER_NOTIFICATION_TYPE_BADGE
             ]
         });
