@@ -72,6 +72,12 @@ public class CollapseToolbarProxy extends TiViewProxy
 	}
 
 	@Kroll.setProperty
+	public void setImageHeight(int value)
+	{
+		collapseToolbar.setImageHeight(value);
+	}
+
+	@Kroll.setProperty
 	public void setonHomeIconItemSelected(KrollFunction value)
 	{
 		collapseToolbar.setonHomeIconItemSelected(value);

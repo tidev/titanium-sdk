@@ -173,6 +173,11 @@ public class TiUICollapseToolbar extends TiUIView
 		scrollFlags = value;
 	}
 
+	public void setImageHeight(int height)
+	{
+		imageView.setMaxHeight(height);
+	}
+
 	@Override
 	public void processProperties(KrollDict d)
 	{
@@ -196,6 +201,9 @@ public class TiUICollapseToolbar extends TiUIView
 		if (d.containsKey("contentScrimColor")) {
 			setContentScrimColor(TiConvert.toColor(
 				d.getString("contentScrimColor"), TiApplication.getAppCurrentActivity()));
+		}
+		if (d.containsKey("imageHeight")) {
+			setImageHeight(d.getInt("imageHeight"));
 		}
 	}
 }

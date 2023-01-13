@@ -35,6 +35,11 @@ properties:
     summary: Background image for the full size toolbar. Has a parallax effect when scrolling upwards.
     type: String
 
+  - name: imageHeight
+    summary: Height of the image.
+    type: Number
+    default: 250
+
   - name: title
     summary: Title of the toolbar
     type: String
