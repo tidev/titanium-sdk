@@ -42,13 +42,10 @@ properties:
     type: Number
     constants: Titanium.UI.Android.SCROLL_FLAG_*
 
-methods:
   - name: onHomeIconItemSelected
     summary: Callback function called when the home icon is clicked.
     type: Callback
     permission: write-only
-
-events:
 
 examples:
   - title: Simple setup
