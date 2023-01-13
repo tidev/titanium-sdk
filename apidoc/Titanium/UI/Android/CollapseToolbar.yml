@@ -11,7 +11,21 @@ description: |
 extends: Titanium.UI.View
 since: "12.1.0"
 platforms: [android]
-
+excludes:
+    events: [click, dblclick, doubletap, focus, keypressed, longclick, longpress, pinch, postlayout,
+             singletap, swipe, touchcancel, touchend, touchmove, touchstart, twofingertap]
+    methods: [add, animate, convertPointToView, remove, removeAllChildren, toImage, addEventListener, applyProperties,
+              fireEvent, getViewById, hide, insertAt, removeEventListener, replaceAt, show, startLayout, updateLayout]
+    properties: [accessibilityHidden, accessibilityHint, accessibilityLabel, accessibilityValue,
+                 anchorPoint, animatedCenter, backgroundColor, backgroundDisabledColor,
+                 backgroundDisabledImage, backgroundFocusedColor, backgroundFocusedImage, backgroundGradient,
+                 backgroundImage, backgroundLeftCap, backgroundRepeat, backgroundSelectedColor,
+                 backgroundSelectedImage, backgroundTopCap, borderColor, borderRadius, borderWidth, bottom,center,
+                 children, clipMode, focusable, height, horizontalWrap, keepScreenOn, layout, left, opacity,overrideCurrentAnimation,
+                 pullBackgroundColor, rect, right, size, softKeyboardOnFocus, tintColor, touchEnabled, transform,
+                 viewShadowColor, viewShadowOffset, viewShadowRadius, visible, width, zIndex, elevation, rotation, rotationX,
+                 rotationY, rotationZ, scaleX, scaleY, scaleZ, translationX, translationY, translationZ, transitionName,
+                 touchFeedback, touchFeedbackColor, lifecycleContainer, hiddenBehavior, filterTouchesWhenObscured, bubbleParent]
 properties:
   - name: contentScrimColor
     summary: Background color of the small toolbar (when scrolled up)
