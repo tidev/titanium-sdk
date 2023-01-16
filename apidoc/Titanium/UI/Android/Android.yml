@@ -537,6 +537,16 @@ properties:
     availability: creation
     permission: read-only
 
+  - name: SOFT_INPUT_ADJUST_NOTHING
+    summary: |
+        The window will not be resized, and it will not be panned to make its focus visible.
+    description: |
+        Used with the <Titanium.UI.Window.windowSoftInputMode> property.
+    type: Number
+    availability: creation
+    permission: read-only
+    since: 12.1.0
+
   - name: SOFT_INPUT_ADJUST_UNSPECIFIED
     summary: |
         Use the system-default behavior to determine how the soft input area (ie software keyboard)
