@@ -715,5 +715,6 @@ properties:
     description: |
         You can combine this property with the `color` property to apply an icon + background color in combination.
         Note: When using this property, the `title` property is ignored.
-        Available since Titanium SDK 12.1.0
     optional: true
+    since: 12.1.0
+    platforms: [iphone, ipad, macos]
