@@ -70,8 +70,8 @@ public class TiUICollapseToolbar extends TiUIView
 			appBarLayout = layout.findViewById(id_appbar);
 			toolbar = appBarLayout.findViewById(id_toolbar);
 			collapseToolbarLayout = appBarLayout.findViewById(id_toolbarLayout);
-
 			content = layout.findViewById(id_content);
+
 			if (barColor != -1) {
 				setBarColor(barColor);
 			}
@@ -134,7 +134,6 @@ public class TiUICollapseToolbar extends TiUIView
 			collapseToolbarLayout.setExpandedTitleColor(color);
 			collapseToolbarLayout.setCollapsedTitleTextColor(color);
 		}
-
 	}
 
 	public void setNavigationIconColor(int color)
@@ -213,6 +212,7 @@ public class TiUICollapseToolbar extends TiUIView
 
 	public void setImageHeight(int height)
 	{
+		// height of the image inside the CollapsingToolbarLayout
 		if (imageView != null) {
 			TiDimension wDimension = TiConvert.toTiDimension(height, TiDimension.TYPE_WIDTH);
 			ViewGroup.LayoutParams layout = imageView.getLayoutParams();

@@ -7,7 +7,7 @@
 
 	<androidx.core.widget.NestedScrollView
 		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
+		android:layout_height="match_parent"
 		app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
 		<org.appcelerator.titanium.view.TiCompositeLayout
@@ -26,11 +26,10 @@
 		<!-- toolbar -->
 
 		<com.google.android.material.appbar.CollapsingToolbarLayout
+			android:id="@+id/collapseToolbarLayout"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			app:layout_scrollFlags="scroll|snap|exitUntilCollapsed"
-			android:id="@+id/collapseToolbarLayout"
-			>
+			app:layout_scrollFlags="scroll|snap|exitUntilCollapsed">
 
 			<ImageView
 				android:id="@+id/collapseImageView"
