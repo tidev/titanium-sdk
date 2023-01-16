@@ -6,6 +6,7 @@
  */
 package ti.modules.titanium.ui.widget;
 
+import android.app.Activity;
 import android.graphics.Bitmap;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,11 +14,11 @@ import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.widget.ImageView;
 
-import androidx.appcompat.widget.Toolbar;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.appbar.CollapsingToolbarLayout;
+import com.google.android.material.appbar.MaterialToolbar;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollFunction;
@@ -41,10 +42,12 @@ public class TiUICollapseToolbar extends TiUIView
 	CollapsingToolbarLayout collapseToolbarLayout;
 	int contentScrimColor = -1;
 	int barColor = -1;
+	int textColor = -1;
+	int navigationColor = -1;
 	int scrollFlags = -1;
 	int imageHeight = -1;
 	ImageView imageView = null;
-	Toolbar toolbar = null;
+	MaterialToolbar toolbar = null;
 	KrollFunction homeIconFunction = null;
 	boolean homeAsUp = false;
 	TiViewProxy localContentView = null;
@@ -84,6 +87,9 @@ public class TiUICollapseToolbar extends TiUIView
 			if (homeAsUp) {
 				setDisplayHomeAsUp(homeAsUp);
 			}
+			if (textColor != -1) {
+				setColor(textColor);
+			}
 			if (localContentView != null) {
 				setContentView(localContentView);
 			}
@@ -115,12 +121,34 @@ public class TiUICollapseToolbar extends TiUIView
 
 	public void setBarColor(int color)
 	{
+		// background of the extended CollapsingToolbarLayout if no image is visible
 		barColor = color;
 		if (collapseToolbarLayout != null) collapseToolbarLayout.setBackgroundColor(color);
 	}
 
+	public void setColor(int color)
+	{
+		// color of the text
+		textColor = color;
+		if (collapseToolbarLayout != null) {
+			collapseToolbarLayout.setExpandedTitleColor(color);
+			collapseToolbarLayout.setCollapsedTitleTextColor(color);
+		}
+
+	}
+
+	public void setNavigationIconColor(int color)
+	{
+		// color of the text
+		navigationColor = color;
+		if (toolbar != null && navigationColor != -1) {
+			toolbar.setNavigationIconTint(navigationColor);
+		}
+	}
+
 	public void setContentScrimColor(int color)
 	{
+		// color of the collapsed toolbar
 		contentScrimColor = color;
 		if (collapseToolbarLayout != null) {
 			collapseToolbarLayout.setContentScrimColor(color);
@@ -141,6 +169,9 @@ public class TiUICollapseToolbar extends TiUIView
 	{
 		if (collapseToolbarLayout != null && toolbar != null && value) {
 			toolbar.setNavigationIcon(R.drawable.ic_action_back);
+			if (navigationColor != -1) {
+				setNavigationIconColor(navigationColor);
+			}
 			toolbar.setNavigationOnClickListener(v -> {
 				if (homeIconFunction != null) {
 					homeIconFunction.callAsync(proxy.getKrollObject(), new Object[] {});
@@ -153,15 +184,17 @@ public class TiUICollapseToolbar extends TiUIView
 	public void setImage(Bitmap bitmap)
 	{
 		if (bitmap == null) {
-			Log.e(TAG, "Bitmap empty");
+			imageView.setVisibility(View.INVISIBLE);
 			return;
 		}
+		// if there is an image: set it and show it
 		imageView.setImageBitmap(bitmap);
 		imageView.setVisibility(View.VISIBLE);
 	}
 
 	private void setContainerHeight(int height)
 	{
+		// height of the extended CollapsingToolbarLayout
 		ViewGroup.LayoutParams layout = collapseToolbarLayout.getLayoutParams();
 		TiDimension nativeSize = TiConvert.toTiDimension(TiConvert.toString(height), TiDimension.TYPE_HEIGHT);
 		layout.height = nativeSize.getAsPixels(collapseToolbarLayout);
@@ -192,11 +225,13 @@ public class TiUICollapseToolbar extends TiUIView
 	@Override
 	public void processProperties(KrollDict d)
 	{
-		if (d.containsKey("barColor")) {
-			setBarColor(TiConvert.toColor(d.getString("barColor")));
+		Activity activity = TiApplication.getAppCurrentActivity();
+
+		if (d.containsKey(TiC.PROPERTY_BAR_COLOR)) {
+			setBarColor(TiConvert.toColor(d.getString(TiC.PROPERTY_BAR_COLOR), activity));
 		}
 		if (d.containsKey(TiC.PROPERTY_IMAGE)) {
-			Bitmap bmp = TiDrawableReference.fromObject(TiApplication.getAppCurrentActivity(),
+			Bitmap bmp = TiDrawableReference.fromObject(activity,
 				d.get(TiC.PROPERTY_IMAGE)).getBitmap(false);
 			setImage(bmp);
 		}
@@ -210,11 +245,16 @@ public class TiUICollapseToolbar extends TiUIView
 			setContentView((TiViewProxy) d.get(TiC.PROPERTY_CONTENT_VIEW));
 		}
 		if (d.containsKey("contentScrimColor")) {
-			setContentScrimColor(TiConvert.toColor(
-				d.getString("contentScrimColor"), TiApplication.getAppCurrentActivity()));
+			setContentScrimColor(TiConvert.toColor(d.getString("contentScrimColor"), activity));
 		}
 		if (d.containsKey("imageHeight")) {
 			setImageHeight(d.getInt("imageHeight"));
+		}
+		if (d.containsKey(TiC.PROPERTY_COLOR)) {
+			setColor(TiConvert.toColor(d.getString(TiC.PROPERTY_COLOR), activity));
+		}
+		if (d.containsKey(TiC.PROPERTY_NAVIGATION_ICON_COLOR)) {
+			setNavigationIconColor(TiConvert.toColor(d.getString(TiC.PROPERTY_NAVIGATION_ICON_COLOR), activity));
 		}
 	}
 }

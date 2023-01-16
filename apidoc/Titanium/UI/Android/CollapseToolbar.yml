@@ -7,7 +7,7 @@ description: |
     | ![Android](./collpasetoolbar_android.jpg) |
 
     CollapseToolbar acts as a top-level container for window content that allows to set a parallax image and title
-    in the toolbar.
+    in the toolbar. The main content goes into `centerView` and will automatically be scrollable.
 extends: Titanium.UI.View
 since: "12.1.0"
 platforms: [android]
@@ -27,8 +27,12 @@ excludes:
                  rotationY, rotationZ, scaleX, scaleY, scaleZ, translationX, translationY, translationZ, transitionName,
                  touchFeedback, touchFeedbackColor, lifecycleContainer, hiddenBehavior, filterTouchesWhenObscured, bubbleParent]
 properties:
+  - name: barColor
+    summary: Background color of the extended toolbar when no image is shown.
+    type: String
+
   - name: contentScrimColor
-    summary: Background color of the small toolbar (when scrolled up)
+    summary: Background color of the small toolbar when the content is scrolled up.
     type: String
 
   - name: image
@@ -41,11 +45,19 @@ properties:
     default: 250
 
   - name: title
-    summary: Title of the toolbar
+    summary: Title of the toolbar.
+    type: String
+
+  - name: color
+    summary: Color of the title.
+    type: String
+
+  - name: navigationIconColor
+    summary: Color of the back arrow.
     type: String
 
   - name: contentView
-    summary: Main view below the toolbar
+    summary: Main view below the toolbar.
     type: Titanium.UI.View
 
   - name: displayHomeAsUp

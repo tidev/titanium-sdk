@@ -9,11 +9,13 @@
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		app:layout_behavior="@string/appbar_scrolling_view_behavior">
-		<!-- main content -->
+
 		<org.appcelerator.titanium.view.TiCompositeLayout
 			android:id="@+id/collapseContent"
 			android:layout_width="match_parent"
-			android:layout_height="match_parent" />
+			android:layout_height="match_parent">
+			<!-- main content -->
+		</org.appcelerator.titanium.view.TiCompositeLayout>
 
 	</androidx.core.widget.NestedScrollView>
 
@@ -38,7 +40,7 @@
 				android:visibility="invisible"
 				app:layout_collapseMode="parallax" />
 
-			<androidx.appcompat.widget.Toolbar
+			<com.google.android.material.appbar.MaterialToolbar
 				android:id="@+id/toolbar"
 				android:layout_width="match_parent"
 				android:layout_height="?attr/actionBarSize"
