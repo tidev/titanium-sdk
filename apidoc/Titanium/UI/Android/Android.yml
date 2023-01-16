@@ -545,6 +545,7 @@ properties:
     type: Number
     availability: creation
     permission: read-only
+    since: 12.1.0
 
   - name: SOFT_INPUT_ADJUST_UNSPECIFIED
     summary: |
