@@ -53,7 +53,7 @@ NSArray *moviePlayerKeys = nil;
 - (NSArray *)keySequence
 {
   if (moviePlayerKeys == nil) {
-    moviePlayerKeys = [[NSArray alloc] initWithObjects:@"url", nil];
+    moviePlayerKeys = [[NSArray alloc] initWithObjects:@"fairPlayConfiguration", @"url", nil];
   }
   return moviePlayerKeys;
 }
@@ -187,6 +187,18 @@ NSArray *moviePlayerKeys = nil;
 }
 
 #pragma mark Public APIs
+
+- (void)setFairPlayConfiguration:(id)params
+{
+  ENSURE_SINGLE_ARG(params, NSDictionary);
+
+  fairPlayCertificate = [[params[@"certificate"] dataUsingEncoding:NSUTF8StringEncoding] retain];
+  fairPlayCallback = [params[@"callback"] retain];
+
+  if (fairPlayCertificate == nil || fairPlayCallback == nil) {
+    [self throwException:@"Invalid method call!" subreason:@"Missing certificate or callback" location:CODELOCATION];
+  }
+}
 
 - (void)setOverlayView:(id)proxy
 {
@@ -334,7 +346,15 @@ NSArray *moviePlayerKeys = nil;
   loaded = NO;
   sizeSet = NO;
   if (movie != nil) {
-    AVPlayerItem *newVideoItem = [AVPlayerItem playerItemWithURL:url];
+    AVURLAsset *urlAsset = [AVURLAsset URLAssetWithURL:url options:nil];
+
+    // Apply DRM validation if configuration is provided
+    if (fairPlayCallback != nil) {
+      dispatch_queue_t queue = dispatch_queue_create("license-queue", NULL);
+      [urlAsset.resourceLoader setDelegate:self queue:queue];
+    }
+
+    AVPlayerItem *newVideoItem = [AVPlayerItem playerItemWithAsset:urlAsset];
     [[movie player] replaceCurrentItemWithPlayerItem:newVideoItem];
     [self removeNotificationObserver]; // Remove old observers
     [self addNotificationObserver]; // Add new oberservers
@@ -976,6 +996,41 @@ NSArray *moviePlayerKeys = nil;
   if ([keyPath isEqualToString:@"player.timeControlStatus"]) {
     [self handleTimeControlStatusNotification:nil];
   }
+}
+
+#pragma mark AVAssetResourceLoaderDelegate
+
+- (BOOL)resourceLoader:(AVAssetResourceLoader *)resourceLoader shouldWaitForLoadingOfRequestedResource:(AVAssetResourceLoadingRequest *)loadingRequest
+{
+  AVAssetResourceLoadingDataRequest *dataRequest = loadingRequest.dataRequest;
+  if (dataRequest == nil) {
+    return NO;
+  }
+
+  NSString *licenseURL = [loadingRequest.request.URL.absoluteString ?: @"" stringByReplacingOccurrencesOfString:@"skd" withString:@"https"];
+  id contentIdData = [loadingRequest.request.URL.host ?: @"" dataUsingEncoding:NSUTF8StringEncoding];
+  NSError *error = nil;
+  id spcData = [loadingRequest streamingContentKeyRequestDataForApp:fairPlayCertificate
+                                                  contentIdentifier:contentIdData
+                                                            options:nil
+                                                              error:&error];
+  if (spcData == nil) {
+    return NO;
+  }
+
+  NSString *spc = [spcData base64EncodedStringWithOptions:0];
+  NSString *ckcString = [fairPlayCallback call:@[ @{ @"spc" : spc, @"licenseURL" : licenseURL } ] thisObject:self];
+
+  NSData *ckc = [[NSData alloc] initWithBase64EncodedString:ckcString options:0];
+  [dataRequest respondWithData:ckc];
+
+  loadingRequest.contentInformationRequest.contentType = AVStreamingKeyDeliveryContentKeyType;
+  [loadingRequest finishLoadingWithError:error];
+
+  [fairPlayCallback release];
+  [fairPlayCertificate release];
+
+  return YES;
 }
 
 @end
