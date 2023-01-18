@@ -641,7 +641,7 @@ public class TiBlob extends KrollProxy
 	@Kroll.method
 	public TiBlob imageAsResized(Number width, Number height)
 	{
-		boolean valid = (image != null) || (image == null && (this.width > 0 && this.height > 0));
+		boolean valid = (image != null) || (this.width > 0 && this.height > 0);
 		if (!valid) {
 			return null;
 		}
@@ -719,6 +719,11 @@ public class TiBlob extends KrollProxy
 					// non squared image
 					imageResized = Bitmap.createScaledBitmap(img, dstWidth, dstHeight, true);
 				}
+			}
+
+			if (imageResized.getHeight() != dstHeight || imageResized.getWidth() != dstWidth) {
+				// image didn't resize - fallback
+				imageResized = Bitmap.createScaledBitmap(img, dstWidth, dstHeight, true);
 			}
 			if (img != image && img != imageResized) {
 				img.recycle();
