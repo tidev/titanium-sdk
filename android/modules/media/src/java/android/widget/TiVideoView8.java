@@ -107,6 +107,7 @@ public class TiVideoView8 extends SurfaceView implements MediaPlayerControl
 								   // preparing
 	@SuppressWarnings("unused")
 	private int mStateWhenSuspended; // state before calling suspend()
+	private boolean autoHide = false;
 
 	// TITANIUM
 	private TiPlaybackListener mPlaybackListener;
@@ -492,6 +493,7 @@ public class TiVideoView8 extends SurfaceView implements MediaPlayerControl
 					// so
 					// start the video here instead of in the callback.
 					if (mTargetState == STATE_PLAYING) {
+						if (autoHide) setAlpha(1);
 						start();
 						if (mMediaController != null) {
 							mMediaController.show();
@@ -636,6 +638,7 @@ public class TiVideoView8 extends SurfaceView implements MediaPlayerControl
 			if (mCurrentState != STATE_SUSPEND) {
 				release(true);
 			}
+			if (autoHide) setAlpha(0);
 		}
 	};
 
@@ -883,5 +886,13 @@ public class TiVideoView8 extends SurfaceView implements MediaPlayerControl
 	{
 		// TODO Auto-generated method stub
 		return 0;
+	}
+
+	public void setAutoHide(boolean value)
+	{
+		if (value) {
+			setAlpha(0);
+		}
+		autoHide = value;
 	}
 }
