@@ -27,6 +27,7 @@ public class TiActivitySafeAreaMonitor
 	 */
 	public interface OnChangedListener {
 		void onChanged(TiActivitySafeAreaMonitor monitor);
+		void onKeyboardChanged(boolean keyboardVisible);
 	}
 
 	/** The activity to be monitored. */
@@ -105,6 +106,10 @@ public class TiActivitySafeAreaMonitor
 			@Override
 			public WindowInsets onApplyWindowInsets(View view, WindowInsets insets)
 			{
+				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+					boolean keyboardVisible = insets.isVisible(WindowInsets.Type.ime());
+					changeListener.onKeyboardChanged(keyboardVisible);
+				}
 				// Validate.
 				if (view == null) {
 					return insets;

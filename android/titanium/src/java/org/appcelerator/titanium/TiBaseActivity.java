@@ -100,6 +100,7 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 	private TiActionBarStyleHandler actionBarStyleHandler;
 	private TiActivitySafeAreaMonitor safeAreaMonitor;
 	private Context baseContext;
+	private boolean oldKeyboardValue = false;
 	/**
 	 * Callback to be invoked when the TiBaseActivity.onRequestPermissionsResult() has been called,
 	 * providing the results of a requestPermissions() call. Instances of this interface are to
@@ -758,6 +759,21 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 				TiWindowProxy windowProxy = TiBaseActivity.this.window;
 				if (windowProxy != null) {
 					windowProxy.fireSafeAreaChangedEvent();
+				}
+			}
+
+			@Override
+			public void onKeyboardChanged(boolean keyboardVisible)
+			{
+				if (keyboardVisible != oldKeyboardValue) {
+					KrollDict kd = new KrollDict();
+					kd.put("keyboardVisible", keyboardVisible);
+					TiWindowProxy windowProxy = TiBaseActivity.this.window;
+					if (windowProxy != null) {
+						windowProxy.fireSafeAreaChangedEvent();
+					}
+					windowProxy.fireEvent("keyboardChanged", kd);
+					oldKeyboardValue = keyboardVisible;
 				}
 			}
 		});
