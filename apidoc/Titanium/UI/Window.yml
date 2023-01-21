@@ -742,7 +742,7 @@ events:
   - name: keyboardChanged
     summary: Fired when the soft keyboard is shown or hidden.
     description: |
-        Will fire on Android R and up if the keyboard is shown or hidden. Check
+        Will fire on Android 11 and up if the keyboard is shown or hidden. Check
         `keyboardVisible` in the event for the status.
     platforms: [android]
     since: '12.1.0'
