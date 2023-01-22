@@ -552,6 +552,9 @@ public class TiVideoView8 extends SurfaceView implements MediaPlayerControl
 			public void onBufferingUpdate(MediaPlayer mp, int percent)
 			{
 				mCurrentBufferPercentage = percent;
+				if (mPlaybackListener != null) {
+					mPlaybackListener.onBuffer(percent);
+				}
 			}
 		};
 
