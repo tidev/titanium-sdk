@@ -372,6 +372,12 @@ public class TiUIVideoView
 	}
 
 	@Override
+	public void onBuffer(int value)
+	{
+		getPlayerProxy().onBuffer(value);
+	}
+
+	@Override
 	public void onSeekingBackward()
 	{
 		getPlayerProxy().onSeekingBackward();

@@ -205,6 +205,16 @@ methods:
     summary: Stops playing the video.
 
 events:
+  - name: buffer
+    summary: |
+        Fired when the video is loading/buffering.
+    properties:
+      - name: percentage
+        summary: Percentage of the video that is buffered/loaded.
+        type: Number
+    since: '12.1.0'
+    platforms: [android]
+
   - name: complete
     summary: Fired when movie playback ends or a user exits playback.
     description: |
