@@ -54,6 +54,7 @@ import android.content.IntentSender;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
+import android.graphics.Insets;
 import android.graphics.PixelFormat;
 import android.graphics.Rect;
 import android.os.Build;
@@ -763,18 +764,34 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 			}
 
 			@Override
-			public void onKeyboardChanged(boolean isVisible)
+			public void onKeyboardChanged(boolean isVisible, int width, int height, Insets keyboardSize)
 			{
-				if (isVisible != keyboardVisible) {
-					TiWindowProxy windowProxy = TiBaseActivity.this.window;
-					if (windowProxy != null) {
-						windowProxy.fireSafeAreaChangedEvent();
+				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+					if (isVisible != keyboardVisible) {
+						TiWindowProxy windowProxy = TiBaseActivity.this.window;
+						if (windowProxy != null) {
+							windowProxy.fireSafeAreaChangedEvent();
+						}
+						KrollDict kdAll = new KrollDict();
+						KrollDict kdFrame = new KrollDict();
+
+						KrollDict kdX = new KrollDict();
+						kdX.put("left", keyboardSize.left);
+						kdX.put("right", keyboardSize.right);
+
+						KrollDict kdY = new KrollDict();
+						kdX.put("top", keyboardSize.top);
+						kdX.put("bottom", keyboardSize.bottom);
+						kdFrame.put("x", kdX);
+						kdFrame.put("y", kdY);
+						kdFrame.put("height", keyboardSize.bottom);
+						kdFrame.put("width", width - keyboardSize.left - keyboardSize.right);
+						kdAll.put("keyboardFrame", kdFrame);
+						kdAll.put("animationDuration", 0);
+						
+						tiApp.fireAppEvent("keyboardframechanged", kdAll);
+						keyboardVisible = isVisible;
 					}
-					KrollDict kd = new KrollDict();
-					kd.put("keyboardFrame", null);
-					kd.put("animationDuration", 0);
-					tiApp.fireAppEvent("keyboardframechanged", kd);
-					keyboardVisible = isVisible;
 				}
 			}
 		});

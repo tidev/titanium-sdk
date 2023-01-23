@@ -7,10 +7,12 @@
 
 package org.appcelerator.titanium.view;
 
+import android.graphics.Insets;
 import android.graphics.Rect;
 import android.os.Build;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+
 import android.view.View;
 import android.view.Window;
 import android.view.WindowInsets;
@@ -27,7 +29,7 @@ public class TiActivitySafeAreaMonitor
 	 */
 	public interface OnChangedListener {
 		void onChanged(TiActivitySafeAreaMonitor monitor);
-		void onKeyboardChanged(boolean keyboardVisible);
+		void onKeyboardChanged(boolean keyboardVisible, int width, int height, Insets keyboardSize);
 	}
 
 	/** The activity to be monitored. */
@@ -108,7 +110,9 @@ public class TiActivitySafeAreaMonitor
 			{
 				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
 					boolean keyboardVisible = insets.isVisible(WindowInsets.Type.ime());
-					changeListener.onKeyboardChanged(keyboardVisible);
+					Insets keyboardSize = insets.getInsets(WindowInsets.Type.ime());
+
+					changeListener.onKeyboardChanged(keyboardVisible, view.getWidth(), view.getHeight(), keyboardSize);
 				}
 				// Validate.
 				if (view == null) {
