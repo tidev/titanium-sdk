@@ -739,14 +739,6 @@ events:
         The listener for this event must be defined before this window
         is opened.
 
-  - name: keyboardChanged
-    summary: Fired when the soft keyboard is shown or hidden.
-    description: |
-        Will fire on Android 11 and up if the keyboard is shown or hidden. Check
-        `keyboardVisible` in the event for the status.
-    platforms: [android]
-    since: '12.1.0'
-
 properties:
   - name: activity
     summary: |

@@ -378,7 +378,7 @@ events:
     summary: Fired when the soft keyboard is presented, on and off the screen.
     description: |
         This event fires when the application presents the soft keyboard on/off the screen . The
-        event returns the dictionary `keyboardFrame` containing `x`, `y`, `height` and `width` keys,
+        event on iOS returns the dictionary `keyboardFrame` containing `x`, `y`, `height` and `width` keys,
         corresponding to the frame of the keyboard with respect to the screen coordinates.
 
         On Titanium SDK 4.0.0 and later the event also contains a second parameter `animationDuration` representing
@@ -394,8 +394,8 @@ events:
       - name: animationDuration
         summary: The duration of the keyboard animation. This parameter is only available on Titanium SDK 4.0.0 and later.
         type: Number
-    platforms: [iphone, ipad, macos]
-    since: {iphone: "3.0.0", ipad: "3.0.0", macos: "9.2.0"}
+    platforms: [android, iphone, ipad, macos]
+    since: {android: "12.1.0", iphone: "3.0.0", ipad: "3.0.0", macos: "9.2.0"}
 
   - name: significanttimechange
     summary: Fired when there is a significant change in the time.
@@ -611,7 +611,8 @@ properties:
     summary: Indicates whether or not the soft keyboard is visible.
     type: Boolean
     permission: read-only
-    platforms: [iphone, ipad, macos]
+    since: {android: "12.1.0", iphone: "7.5.0", ipad: "7.5.0", macos: "9.2.0"}
+    platforms: [android, iphone, ipad, macos]
 
   - name: trackUserInteraction
     summary: Indicates whether or not the user interaction shoud be tracked.
