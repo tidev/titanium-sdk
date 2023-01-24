@@ -112,7 +112,8 @@ public class TiActivitySafeAreaMonitor
 					boolean keyboardVisible = insets.isVisible(WindowInsets.Type.ime());
 					Insets keyboardSize = insets.getInsets(WindowInsets.Type.ime());
 					if (changeListener != null && view != null) {
-						changeListener.onKeyboardChanged(keyboardVisible, view.getWidth(), view.getHeight(), keyboardSize);
+						changeListener.onKeyboardChanged(keyboardVisible, view.getWidth(),
+							view.getHeight(), keyboardSize);
 					}
 				}
 				// Validate.
