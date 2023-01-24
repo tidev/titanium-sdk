@@ -768,7 +768,8 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 			{
 				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q
 					&& isVisible != keyboardVisible
-					&& tiApp != null) {
+					&& tiApp != null
+					&& tiApp.hasListener("keyboardframechanged")) {
 					KrollDict kdAll = new KrollDict();
 					KrollDict kdFrame = new KrollDict();
 
