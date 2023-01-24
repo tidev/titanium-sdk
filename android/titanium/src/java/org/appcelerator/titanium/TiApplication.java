@@ -679,9 +679,10 @@ public abstract class TiApplication extends Application implements KrollApplicat
 			if (appEventProxy == null) {
 				continue;
 			}
-
-			boolean proxyHandled = appEventProxy.fireEvent(eventName, data);
-			handled = handled || proxyHandled;
+			if (appEventProxy.hasListeners(eventName)) {
+				boolean proxyHandled = appEventProxy.fireEvent(eventName, data);
+				handled = handled || proxyHandled;
+			}
 		}
 
 		return handled;
