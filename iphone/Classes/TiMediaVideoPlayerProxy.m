@@ -144,7 +144,15 @@ NSArray *moviePlayerKeys = nil;
       return nil;
     }
     movie = [[AVPlayerViewController alloc] init];
-    [movie setPlayer:[AVPlayer playerWithURL:url]];
+    AVURLAsset *urlAsset = [AVURLAsset URLAssetWithURL:url options:nil];
+
+    // Apply DRM validation if configuration is provided
+    if (fairPlayCallback != nil) {
+      [urlAsset.resourceLoader setDelegate:self queue:dispatch_get_main_queue()];
+    }
+
+    AVPlayerItem *newVideoItem = [AVPlayerItem playerItemWithAsset:urlAsset];
+    [movie setPlayer:[AVPlayer playerWithPlayerItem:newVideoItem]];
     [self configurePlayer];
   }
   [playerLock unlock];
@@ -192,7 +200,9 @@ NSArray *moviePlayerKeys = nil;
 {
   ENSURE_SINGLE_ARG(params, NSDictionary);
 
-  fairPlayCertificate = [[params[@"certificate"] dataUsingEncoding:NSUTF8StringEncoding] retain];
+  NSLog(@"[WARN] Setting \"fairPlayConfiguration\" property …");
+
+  fairPlayCertificate = [[(TiBlob *)params[@"certificate"] data] retain];
   fairPlayCallback = [params[@"callback"] retain];
 
   if (fairPlayCertificate == nil || fairPlayCallback == nil) {
@@ -350,8 +360,8 @@ NSArray *moviePlayerKeys = nil;
 
     // Apply DRM validation if configuration is provided
     if (fairPlayCallback != nil) {
-      dispatch_queue_t queue = dispatch_queue_create("license-queue", NULL);
-      [urlAsset.resourceLoader setDelegate:self queue:queue];
+      NSLog(@"[WARN] Setting native resourceLoader delegate …");
+      [urlAsset.resourceLoader setDelegate:self queue:dispatch_get_main_queue()];
     }
 
     AVPlayerItem *newVideoItem = [AVPlayerItem playerItemWithAsset:urlAsset];
@@ -1000,10 +1010,19 @@ NSArray *moviePlayerKeys = nil;
 
 #pragma mark AVAssetResourceLoaderDelegate
 
+- (void)resourceLoader:(AVAssetResourceLoader *)resourceLoader didCancelAuthenticationChallenge:(NSURLAuthenticationChallenge *)authenticationChallenge
+{
+  NSLog(@"[WARN] Called delegate resourceLoader:didCancelAuthenticationChallenge:");
+}
+
 - (BOOL)resourceLoader:(AVAssetResourceLoader *)resourceLoader shouldWaitForLoadingOfRequestedResource:(AVAssetResourceLoadingRequest *)loadingRequest
 {
+  NSLog(@"[WARN] Called delegate resourceLoader:shouldWaitForLoadingOfRequestedResource:");
+
   AVAssetResourceLoadingDataRequest *dataRequest = loadingRequest.dataRequest;
   if (dataRequest == nil) {
+    NSLog(@"[ERROR] No data request available!");
+
     return NO;
   }
 
@@ -1015,20 +1034,35 @@ NSArray *moviePlayerKeys = nil;
                                                             options:nil
                                                               error:&error];
   if (spcData == nil) {
+    NSLog(@"[ERROR] SPC Data is null (received via streamingContentKeyRequestDataForApp:contentIdentifier:options:error)");
+    if (error != nil) {
+      NSLog(@"[ERROR] %@", error.localizedDescription);
+    }
+
     return NO;
   }
 
   NSString *spc = [spcData base64EncodedStringWithOptions:0];
+  NSLog(@"[WARN] SPC String: %@", spc);
+  NSLog(@"[WARN] Calling previously set \"callback\" function …");
   NSString *ckcString = [fairPlayCallback call:@[ @{ @"spc" : spc, @"licenseURL" : licenseURL } ] thisObject:self];
+  NSLog(@"[WARN] Callback returned the CKC String: %@", ckcString);
 
   NSData *ckc = [[NSData alloc] initWithBase64EncodedString:ckcString options:0];
+  NSError *loadingRequestError = nil;
   [dataRequest respondWithData:ckc];
 
   loadingRequest.contentInformationRequest.contentType = AVStreamingKeyDeliveryContentKeyType;
-  [loadingRequest finishLoadingWithError:error];
+  [loadingRequest finishLoadingWithError:loadingRequestError];
+
+  if (error != nil) {
+    NSLog(@"[ERROR] Loading request error: %@", error.localizedDescription);
+  }
 
   [fairPlayCallback release];
   [fairPlayCertificate release];
+
+  NSLog(@"[WARN] Handshake successfully completed!");
 
   return YES;
 }
