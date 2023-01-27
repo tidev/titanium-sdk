@@ -132,7 +132,7 @@
     "commander": "^8.2.0",
     "commitizen": "^4.2.4",
     "conventional-changelog-cli": "^2.1.1",
-    "core-js": "^3.23.4",
+    "core-js": "^3.27.2",
     "cz-conventional-changelog": "^3.3.0",
     "danger": "^10.6.6",
     "eslint": "^8.13.0",
