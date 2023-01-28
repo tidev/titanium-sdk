@@ -2872,13 +2872,13 @@ summary: Dictionary object of parameters for the <Titanium.UI.cutoutSize>.
 since: "12.1.0"
 platforms: [android]
 properties:
+  - name: top
+    type: Number
+    summary: The top position of the cutout.
+
   - name: left
     type: Number
-    summary: The left margin of the cutout.
-
-  - name: right
-    type: Number
-    summary: The left margin of the cutout.
+    summary: The left position of the cutout.
 
   - name: width
     type: Number
