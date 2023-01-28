@@ -492,6 +492,11 @@ MAKE_SYSTEM_PROP(EXTEND_EDGE_ALL, 15); //UIEdgeRectAll
   return tiColor;
 }
 
+- (NSNumber *)statusBarHeight
+{
+  return @(UIApplication.sharedApplication.keyWindow.windowScene.statusBarManager.statusBarFrame.size.height);
+}
+
 #pragma mark iPhone namespace
 
 #ifdef USE_TI_UIIPAD
