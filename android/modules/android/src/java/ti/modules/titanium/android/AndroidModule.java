@@ -12,7 +12,6 @@ import java.util.List;
 
 import android.content.pm.PackageManager;
 import android.content.pm.ServiceInfo;
-import android.graphics.Rect;
 import android.os.Build;
 import android.service.quicksettings.Tile;
 import org.appcelerator.kroll.KrollDict;
@@ -47,11 +46,8 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.ActivityInfo;
 import android.media.AudioManager;
-import android.view.DisplayCutout;
 import android.view.MenuItem;
 import android.os.PowerManager;
-import android.view.View;
-import android.view.Window;
 
 @SuppressWarnings("deprecation")
 @Kroll.module
@@ -790,33 +786,6 @@ public class AndroidModule extends KrollModule
 	public ServiceProxy createService(IntentProxy intentProxy)
 	{
 		return new ServiceProxy(intentProxy);
-	}
-
-	@Kroll.method
-	public void getCutout()
-	{
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-			Window w = TiApplication.getAppCurrentActivity().getWindow();
-			if (w == null) return;
-			View dv = w.getDecorView();
-			if (dv == null) return;
-			DisplayCutout dpc = dv.getRootWindowInsets().getDisplayCutout();
-			if (dpc == null) return;
-			List<Rect> rects = dpc.getBoundingRects();
-
-			int cutouts = rects.size();
-			int[] result = new int[cutouts * 4];
-			int index = 0;
-
-			for (Rect rect : rects) {
-				KrollDict kd = new KrollDict();
-				kd.put("left", rect.left);
-				kd.put("top", rect.top);
-				kd.put("width", rect.width());
-				kd.put("height", rect.height());
-				fireEvent("cutout", kd);
-			}
-		}
 	}
 
 	@Override
