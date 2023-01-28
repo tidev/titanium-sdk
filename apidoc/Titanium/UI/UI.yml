@@ -2807,7 +2807,7 @@ properties:
     osver: {ios: {min: "13.0"}}
     since: "9.1.0"
 
- - name: cutoutSize
+  - name: cutoutSize
     summary: Position and shape of the Android notch
     description: |
         Using Android 9+ it will return the bounding box of the Android notch. It will return `top`,`left` and `width`, `height`.
