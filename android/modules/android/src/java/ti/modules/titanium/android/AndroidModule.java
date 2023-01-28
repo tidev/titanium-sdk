@@ -40,7 +40,6 @@ import android.app.Service;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 import androidx.appcompat.app.ActionBar;
-
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
