@@ -2814,7 +2814,7 @@ properties:
         when allowing rotation, we recommend using the <Titanium.UI.Window.safeAreaPadding> property of the related window.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, macos]
+    platforms: [iphone, ipad, macos, android]
     since: "12.1.0"
 
 examples:
