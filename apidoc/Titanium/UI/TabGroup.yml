@@ -2,6 +2,10 @@
 name: Titanium.UI.TabGroup
 summary: A tabbed group of windows.
 description: |
+    | Android | iOS |
+    | ------- | --- |
+    | ![Android](./tabgroup_android.png) |  |
+
     A tab group can contain one or more [Tab](Titanium.UI.Tab) objects, each of which has an
     associated tab control that is used to bring it into focus.
 

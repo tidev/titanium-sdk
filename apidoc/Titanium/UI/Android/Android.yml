@@ -15,6 +15,20 @@ extends: Titanium.Module
 since: "1.0"
 platforms: [android]
 methods:
+  - name: harmonizedColor
+    summary: Creates a harmonizing color
+    description: |
+      Shifts the hue of the input color towards the hue of colorPrimary and returns a new color
+      as a hex string. Usage: `Ti.UI.Android.harmonizedColor("#ff0000");`
+    parameters:
+      - name: color
+        summary: Input Color
+        type: [ String, Titanium.UI.Color ]
+    platforms: [android]
+    returns:
+        type: String
+    since: { android: "12.0.0" }
+
   - name: hideSoftKeyboard
     summary: |
         Hides the soft keyboard.
@@ -522,6 +536,16 @@ properties:
     type: Number
     availability: creation
     permission: read-only
+
+  - name: SOFT_INPUT_ADJUST_NOTHING
+    summary: |
+        The window will not be resized, and it will not be panned to make its focus visible.
+    description: |
+        Used with the <Titanium.UI.Window.windowSoftInputMode> property.
+    type: Number
+    availability: creation
+    permission: read-only
+    since: 12.1.0
 
   - name: SOFT_INPUT_ADJUST_UNSPECIFIED
     summary: |

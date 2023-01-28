@@ -223,11 +223,7 @@
     touchStarted = NO;
     fireEvent = @"touchend";
     if (stepper.highlighted) {
-      // NOTE: The "!touch.tapCount" fixes an issue on Apple Silicon Simulator
-      // where touches are not received.
-      BOOL shouldFireClickEvent = [touch tapCount] == 1 || !touch.tapCount;
-
-      fireActionEvent = shouldFireClickEvent ? @"click" : ([touch tapCount] == 2 ? @"dblclick" : nil);
+      fireActionEvent = [touch tapCount] == 1 ? @"click" : ([touch tapCount] == 2 ? @"dblclick" : nil);
     }
     break;
   case UITouchPhaseCancelled:

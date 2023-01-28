@@ -335,10 +335,17 @@ DEFINE_EXCEPTIONS
 {
   [super traitCollectionDidChange:previousTraitCollection];
 
+  BOOL isInBackground = UIApplication.sharedApplication.applicationState == UIApplicationStateBackground;
+  BOOL isDifferentColor = [self.traitCollection hasDifferentColorAppearanceComparedToTraitCollection:previousTraitCollection];
+
+  if (!isDifferentColor || isInBackground) {
+    return;
+  }
+
   // Redraw the border color
   id borderColor = [self.proxy valueForKey:@"borderColor"];
   if (borderColor != nil) {
-    [self setBorderColor_:borderColor];
+    [self refreshBorder:[TiUtils colorValue:borderColor]._color shouldRefreshWidth:NO];
   }
 
   // Redraw the view shadow color
@@ -547,14 +554,22 @@ DEFINE_EXCEPTIONS
 
 - (void)setBorderColor_:(id)color
 {
-  TiColor *ticolor = [TiUtils colorValue:color];
+  [self refreshBorder:[TiUtils colorValue:color]._color shouldRefreshWidth:YES];
+}
+
+- (void)refreshBorder:(UIColor *)color shouldRefreshWidth:(BOOL)shouldRefreshWidth
+{
   CAShapeLayer *layer = [self borderLayer];
   if (layer == self.layer) {
-    layer.borderWidth = MAX(layer.borderWidth, 1);
-    layer.borderColor = [ticolor _color].CGColor;
+    if (shouldRefreshWidth) {
+      layer.borderWidth = MAX(layer.borderWidth, 1);
+    }
+    layer.borderColor = color.CGColor;
   } else {
-    layer.lineWidth = MAX(layer.lineWidth * 2, 1 * 2);
-    layer.strokeColor = [ticolor _color].CGColor;
+    if (shouldRefreshWidth) {
+      layer.lineWidth = MAX(layer.lineWidth * 2, 1 * 2);
+    }
+    layer.strokeColor = color.CGColor;
   }
 }
 
@@ -1579,14 +1594,10 @@ DEFINE_EXCEPTIONS
       [self handleControlEvents:UIControlEventTouchCancel];
     }
 
-    // NOTE: The "!touch.tapCount" fixes an issue on Apple Silicon Simulator
-    // where touches are not received.
-    BOOL shouldFireClickEvent = [touch tapCount] == 1 || !touch.tapCount;
-
     // Click handling is special; don't propagate if we have a delegate,
     // but DO invoke the touch delegate.
     // clicks should also be handled by any control the view is embedded in.
-    if (shouldFireClickEvent && [proxy _hasListeners:@"click"]) {
+    if ([touch tapCount] == 1 && [proxy _hasListeners:@"click"]) {
       if (touchDelegate == nil) {
         [proxy fireEvent:@"click" withObject:evt propagate:YES];
         return;

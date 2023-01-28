@@ -485,6 +485,7 @@ public class TiC
 	public static final String PROPERTY_HTML = "html";
 	public static final String PROPERTY_HTTP_ONLY = "httponly";
 	public static final String PROPERTY_ICON = "icon";
+	public static final String PROPERTY_ICON_COLOR = "iconColor";
 	public static final String PROPERTY_ICON_LEVEL = "iconLevel";
 	public static final String PROPERTY_ICONIFIED = "iconified";
 	public static final String PROPERTY_ICONIFIED_BY_DEFAULT = "iconifiedByDefault";
@@ -581,6 +582,7 @@ public class TiC
 	public static final String PROPERTY_NAME = "name";
 	public static final String PROPERTY_NATIVE_SPINNER = "nativeSpinner";
 	public static final String PROPERTY_NAVIGATION_ICON = "navigationIcon";
+	public static final String PROPERTY_NAVIGATION_ICON_COLOR = "navigationIconColor";
 	public static final String PROPERTY_NICKNAME = "nickname";
 	public static final String PROPERTY_NOTE = "note";
 	public static final String PROPERTY_NUMBER = "number";

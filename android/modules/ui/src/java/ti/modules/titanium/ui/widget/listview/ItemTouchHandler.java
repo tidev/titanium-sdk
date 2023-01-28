@@ -86,6 +86,10 @@ public class ItemTouchHandler extends ItemTouchHelper.SimpleCallback
 	 */
 	private boolean canMove(TiViewProxy holderProxy)
 	{
+		if (holderProxy == null) {
+			return false;
+		}
+
 		final KrollDict recyclerProperties = this.recyclerViewProxy.getProperties();
 		final KrollDict holderProperties = holderProxy.getProperties();
 
