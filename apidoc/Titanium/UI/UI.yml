@@ -2807,6 +2807,16 @@ properties:
     osver: {ios: {min: "13.0"}}
     since: "9.1.0"
 
+  - name: statusBarHeight
+    summary: The total height of the status bar including safe area padding.
+    description: |
+        Use this property to determine an absolute spacing to the top in full screen windows. Note: For a more flexible approach, e.g.
+        when allowing rotation, we recommend using the <Titanium.UI.Window.safeAreaPadding> property of the related window.
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad, macos, android]
+    since: "12.1.0"
+
 examples:
   - title: Color Demo
     example: |
