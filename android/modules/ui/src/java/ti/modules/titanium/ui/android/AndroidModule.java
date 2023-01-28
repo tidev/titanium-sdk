@@ -85,7 +85,8 @@ public class AndroidModule extends KrollModule
 	public static final int SOFT_INPUT_ADJUST_RESIZE = WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE;
 	@Kroll.constant
 	public static final int SOFT_INPUT_ADJUST_UNSPECIFIED = WindowManager.LayoutParams.SOFT_INPUT_ADJUST_UNSPECIFIED;
-
+	@Kroll.constant
+	public static final int SOFT_INPUT_ADJUST_NOTHING = WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING;
 	@Kroll.constant
 	public static final int SOFT_INPUT_STATE_ALWAYS_HIDDEN = WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN;
 	@Kroll.constant
@@ -303,7 +304,7 @@ public class AndroidModule extends KrollModule
 	@Kroll.method
 	public String harmonizedColor(String value)
 	{
-		int color = TiConvert.toColor(value);
+		int color = TiConvert.toColor(value, TiApplication.getAppCurrentActivity());
 		return String.format("#%06X",
 			(0xFFFFFF & MaterialColors.harmonizeWithPrimary(TiApplication.getAppCurrentActivity(), color)));
 	}

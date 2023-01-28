@@ -1108,7 +1108,21 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
   UIDragItem *dragItem = [[UIDragItem alloc] initWithItemProvider:itemProvider];
   dragItem.localObject = identifier;
 
-  [[self proxy] fireEvent:@"movestart"];
+  // Fire an event to react to the move start
+  NSIndexPath *realIndexPath = [self pathForSearchPath:indexPath];
+  TiUIListSectionProxy *theSection = [[self.listViewProxy sectionForIndex:realIndexPath.section] retain];
+  NSDictionary *theItem = [[theSection itemAtIndex:realIndexPath.row] retain];
+  NSMutableDictionary *eventObject = [[NSMutableDictionary alloc] initWithObjectsAndKeys:
+                                                                      theSection, @"section",
+                                                                  NUMINTEGER(realIndexPath.section), @"sectionIndex",
+                                                                  NUMINTEGER(realIndexPath.row), @"itemIndex",
+                                                                  nil];
+
+  [[self proxy] fireEvent:@"movestart" withObject:eventObject];
+
+  [eventObject release];
+  [theItem release];
+  [theSection release];
 
   return @[ dragItem ];
 }
@@ -1140,6 +1154,7 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
     NSString *identifier = [TiUtils stringValue:@"identifier" properties:prop];
     int actionStyle = [TiUtils intValue:@"style" properties:prop def:UITableViewRowActionStyleDefault];
     TiColor *color = [TiUtils colorValue:@"color" properties:prop];
+    id image = [prop objectForKey:@"image"];
 
     UITableViewRowAction *theAction = [UITableViewRowAction rowActionWithStyle:actionStyle
                                                                          title:title
@@ -1178,6 +1193,14 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
     if (color) {
       theAction.backgroundColor = [color color];
     }
+    if (image) {
+      NSURL *url = [TiUtils toURL:image proxy:(TiProxy *)self.proxy];
+      UIImage *nativeImage = [[ImageLoader sharedLoader] loadImmediateImage:url];
+      if (color) {
+        nativeImage = [self generateImage:nativeImage withBackgroundColor:[color color]];
+      }
+      theAction.backgroundColor = [UIColor colorWithPatternImage:nativeImage];
+    }
     if (!returnArray) {
       returnArray = [NSMutableArray arrayWithObject:theAction];
     } else {
@@ -1186,6 +1209,24 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
   }
 
   return returnArray;
+}
+
+- (UIImage *)generateImage:(UIImage *)image withBackgroundColor:(UIColor *)bgColor
+{
+  CGRect imageRect = CGRectMake(0, 0, image.size.width, image.size.height);
+  UIGraphicsBeginImageContextWithOptions(imageRect.size, false, [UIScreen mainScreen].scale);
+
+  CGContextRef context = UIGraphicsGetCurrentContext();
+  CGContextSaveGState(context);
+
+  [bgColor setFill];
+  CGContextFillRect(context, imageRect);
+  [image drawInRect:imageRect];
+
+  UIImage *result = UIGraphicsGetImageFromCurrentImageContext();
+  UIGraphicsEndImageContext();
+
+  return result;
 }
 
 #pragma mark - Editing Support Datasource methods.
