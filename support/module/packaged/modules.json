@@ -35,8 +35,8 @@
 			"integrity": "sha512-RhHIP6xq+KDx1/ErTfLaEK1gdX8UqfXm7//zxiwXLLWmhDwPa5SXDAlpXgkGeqS089bJIUiwD2e1k9gwhUZYCQ=="
 		},
 		"ti.map": {
-			"url": "https://github.com/tidev/ti.map/releases/download/v5.5.0-android/ti.map-android-5.5.0.zip",
-			"integrity": "sha512-aYK53IqQlYXVVuGX23OagO83hEgnxxaWxPI1FKuGzMq+8AO0p7UPHDtHrtOiMdDIrDz744RMz0rMwE7yb6gZgQ=="
+			"url": "https://github.com/tidev/ti.map/releases/download/v5.5.1-android/ti.map-android-5.5.1.zip",
+			"integrity": "sha512-v2wyc+RUgfNUpj/44VQnw1+F/EWh8eOK55Us0SnkaUXRMTv/IslPVla6WvvLNRZtUymFH7TKwoLYq66MxE/6Hg=="
 		},
 		"ti.webdialog": {
 			"url": "https://github.com/tidev/titanium-web-dialog/releases/download/v2.2.0-android/ti.webdialog-android-2.2.0.zip",
