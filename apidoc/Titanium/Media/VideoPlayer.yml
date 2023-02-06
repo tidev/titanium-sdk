@@ -413,7 +413,7 @@ properties:
     description: |
         On Andorid the background of the video player is black. When switching on `autoHide` it will
         hide the player until the video is loaded. Then it will automatically show the player. In a
-        ListView it will hide it again when it is outside the viewport.
+        <Titanium.UI.ListView> it will hide it again when it is outside the viewport.
     type: Boolean
     platforms: [android]
     since: 12.1.0

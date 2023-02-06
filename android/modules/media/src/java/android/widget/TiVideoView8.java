@@ -493,7 +493,9 @@ public class TiVideoView8 extends SurfaceView implements MediaPlayerControl
 					// so
 					// start the video here instead of in the callback.
 					if (mTargetState == STATE_PLAYING) {
-						if (autoHide) setAlpha(1);
+						if (autoHide) {
+							setAlpha(1);
+						}
 						start();
 						if (mMediaController != null) {
 							mMediaController.show();
@@ -638,7 +640,9 @@ public class TiVideoView8 extends SurfaceView implements MediaPlayerControl
 			if (mCurrentState != STATE_SUSPEND) {
 				release(true);
 			}
-			if (autoHide) setAlpha(0);
+			if (autoHide) {
+				setAlpha(0);
+			}
 		}
 	};
 
