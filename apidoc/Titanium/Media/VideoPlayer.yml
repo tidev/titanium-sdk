@@ -411,9 +411,10 @@ properties:
   - name: autoHide
     summary: Indicates if player is hidden by default and shown when its ready.
     description: |
-        On Andorid the background of the video player is black. When switching on `autoHide` it will
-        hide the player until the video is loaded. Then it will automatically show the player. In a
-        <Titanium.UI.ListView> it will hide it again when it is outside the viewport.
+        On Android the background of the video player is set to the primary background color.
+        When switching on `autoHide` it will hide the player until the video is loaded.
+        Then it will automatically show the player. In a <Titanium.UI.ListView> it will hide
+        it again when it is outside the viewport.
     type: Boolean
     platforms: [android]
     since: 12.1.0
