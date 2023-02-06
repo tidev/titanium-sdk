@@ -649,7 +649,11 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 
 		this.inForeground = true;
 		this.launchIntent = getIntent();
-		this.safeAreaMonitor = new TiActivitySafeAreaMonitor(this);
+
+		TiApplication tiApp = getTiApp();
+		TiApplication.addToActivityStack(this);
+
+		this.safeAreaMonitor = new TiActivitySafeAreaMonitor(this, tiApp);
 
 		// Fetch the current UI mode flags. Used to determine light/dark theme being used.
 		Configuration config = getResources().getConfiguration();
@@ -669,9 +673,6 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 				this.launchIntent.putExtras(oldExtras);
 			}
 		}
-
-		TiApplication tiApp = getTiApp();
-		TiApplication.addToActivityStack(this);
 
 		// Increment the Titanium activity reference count. To be decremented in onDestroy() method.
 		// Titanium's JavaScript runtime is created when we have at least 1 activity and destroyed when we have 0.
