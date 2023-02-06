@@ -15,6 +15,20 @@ extends: Titanium.Module
 since: "1.0"
 platforms: [android]
 methods:
+  - name: harmonizedColor
+    summary: Creates a harmonizing color
+    description: |
+      Shifts the hue of the input color towards the hue of colorPrimary and returns a new color
+      as a hex string. Usage: `Ti.UI.Android.harmonizedColor("#ff0000");`
+    parameters:
+      - name: color
+        summary: Input Color
+        type: [ String, Titanium.UI.Color ]
+    platforms: [android]
+    returns:
+        type: String
+    since: { android: "12.0.0" }
+
   - name: hideSoftKeyboard
     summary: |
         Hides the soft keyboard.
@@ -85,7 +99,6 @@ properties:
     type: Number
     permission: read-only
     since: "7.5.0"
-    osver: {android: {min: "4.4"}}
 
   - name: FLAG_TRANSLUCENT_STATUS
     summary: Window flag which makes the Android system's top status bar semi-transparent.
@@ -98,7 +111,6 @@ properties:
     type: Number
     permission: read-only
     since: "7.5.0"
-    osver: {android: {min: "4.4"}}
 
   - name: GRAVITY_AXIS_CLIP
     summary: Raw bit controlling whether the right/bottom edge is clipped to its container, based on the gravity direction being applied.
@@ -525,6 +537,16 @@ properties:
     availability: creation
     permission: read-only
 
+  - name: SOFT_INPUT_ADJUST_NOTHING
+    summary: |
+        The window will not be resized, and it will not be panned to make its focus visible.
+    description: |
+        Used with the <Titanium.UI.Window.windowSoftInputMode> property.
+    type: Number
+    availability: creation
+    permission: read-only
+    since: 12.1.0
+
   - name: SOFT_INPUT_ADJUST_UNSPECIFIED
     summary: |
         Use the system-default behavior to determine how the soft input area (ie software keyboard)
@@ -871,6 +893,55 @@ properties:
     permission: read-only
     platforms: [android]
     since: "8.0.0"
+
+  - name: SCROLL_FLAG_ENTER_ALWAYS
+    summary: When entering (scrolling on screen) the view will scroll on any downwards scroll event, regardless of whether the scrolling view is also scrolling. This is commonly referred to as the 'quick return' pattern.
+    type: Number
+    permission: read-only
+    platforms: [android]
+    since: "12.1.0"
+
+  - name: SCROLL_FLAG_ENTER_ALWAYS_COLLAPSED
+    summary: An additional flag for 'enterAlways' which modifies the returning view to only initially scroll back to it's collapsed height. Once the scrolling view has reached the end of it's scroll range, the remainder of this view will be scrolled into view. The collapsed height is defined by the view's minimum height.
+    type: Number
+    permission: read-only
+    platforms: [android]
+    since: "12.1.0"
+
+  - name: SCROLL_FLAG_EXIT_UNTIL_COLLAPSED
+    summary: When exiting (scrolling off screen) the view will be scrolled until it is 'collapsed'. The collapsed height is defined by the view's minimum height.
+    type: Number
+    permission: read-only
+    platforms: [android]
+    since: "12.1.0"
+
+  - name: SCROLL_FLAG_NO_SCROLL
+    summary: Disable scrolling on the view. This flag should not be combined with any of the other scroll flags.
+    type: Number
+    permission: read-only
+    platforms: [android]
+    since: "12.1.0"
+
+  - name: SCROLL_FLAG_SCROLL
+    summary: The view will be scroll in direct relation to scroll events. This flag needs to be set for any of the other flags to take effect. If any sibling views before this one do not have this flag, then this value has no effect.
+    type: Number
+    permission: read-only
+    platforms: [android]
+    since: "12.1.0"
+
+  - name: SCROLL_FLAG_SNAP
+    summary: Upon a scroll ending, if the view is only partially visible then it will be snapped and scrolled to its closest edge. For example, if the view only has its bottom 25% displayed, it will be scrolled off screen completely. Conversely, if its bottom 75% is visible then it will be scrolled fully into view.
+    type: Number
+    permission: read-only
+    platforms: [android]
+    since: "12.1.0"
+
+  - name: SCROLL_FLAG_SNAP_MARGINS
+    summary: An additional flag to be used with 'snap'. If set, the view will be snapped to its top and bottom margins, as opposed to the edges of the view itself. 
+    type: Number
+    permission: read-only
+    platforms: [android]
+    since: "12.1.0"
 
 examples:
   - title: Android Preferences Example

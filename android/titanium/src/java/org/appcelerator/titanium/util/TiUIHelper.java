@@ -435,7 +435,7 @@ public class TiUIHelper
 		try {
 			String[] fontFiles = mgr.list(customFontPath);
 			for (String f : fontFiles) {
-				if (f.toLowerCase().equals(fontFamily.toLowerCase())
+				if (f.equalsIgnoreCase(fontFamily)
 					|| f.toLowerCase().startsWith(fontFamily.toLowerCase() + ".")) {
 					Typeface tf = Typeface.createFromAsset(mgr, customFontPath + "/" + f);
 					synchronized (mCustomTypeFaces)
@@ -852,7 +852,7 @@ public class TiUIHelper
 			}
 
 			if (view.getParent() == null) {
-				Log.i(TAG, "View does not have parent, calling layout", Log.DEBUG_MODE);
+				Log.d(TAG, "View does not have parent, calling layout", Log.DEBUG_MODE);
 				view.layout(0, 0, width, height);
 			}
 

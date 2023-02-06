@@ -167,6 +167,9 @@ description:  |
       * logo-dark@3x.png
 
     And you would reference the image as before using `logo-dark.png`
+
+    Android:
+    You can use the native `app/assets/android/images/res-night` folder (extend them with e.g. `res-night-xxhdpi` if needed) for dark-mode images.
 extends: Titanium.Module
 since: "0.4"
 platforms: [android, iphone, ipad, macos]
@@ -2804,6 +2807,25 @@ properties:
     osver: {ios: {min: "13.0"}}
     since: "9.1.0"
 
+  - name: cutoutSize
+    summary:  Returns the position and shape of the Android notch. Read more about the notch [here](https://developer.android.com/develop/ui/views/layout/display-cutout).
+    description: |
+        Using Android 9+ it will return the bounding box of the Android notch. It will return `top`,`left, `width` and `height`.
+    type: CutoutSize
+    permission: read-only
+    platforms: [android]
+    since: "12.1.0"
+
+  - name: statusBarHeight
+    summary: The total height of the status bar including safe area padding.
+    description: |
+        Use this property to determine an absolute spacing to the top in full screen windows. Note: For a more flexible approach, e.g.
+        when allowing rotation, we recommend using the <Titanium.UI.Window.safeAreaPadding> property of the related window.
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad, macos, android]
+    since: "12.1.0"
+
 examples:
   - title: Color Demo
     example: |
@@ -2843,3 +2865,25 @@ examples:
         win.add(table);
         win.open();
         ```
+
+---
+name: CutoutSize
+summary: Dictionary object of parameters for the <Titanium.UI.cutoutSize>.
+since: "12.1.0"
+platforms: [android]
+properties:
+  - name: top
+    type: Number
+    summary: The top position of the cutout.
+
+  - name: left
+    type: Number
+    summary: The left position of the cutout.
+
+  - name: width
+    type: Number
+    summary: The width of the cutout
+
+  - name: height
+    type: Number
+    summary: The height of the cutout

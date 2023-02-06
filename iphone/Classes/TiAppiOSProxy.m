@@ -11,6 +11,7 @@
 #import <TitaniumKit/TiUtils.h>
 
 #ifdef USE_TI_APPIOS
+#import "TiAppiOSActivityAttributesProxy.h"
 #import "TiAppiOSBackgroundServiceProxy.h"
 #import "TiAppiOSLocalNotificationProxy.h"
 #import "TiAppiOSSearchableIndexProxy.h"
@@ -500,6 +501,11 @@
 - (TiAppiOSUserNotificationActionProxy *)createUserNotificationAction:(id)args
 {
   return [[[TiAppiOSUserNotificationActionProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
+}
+
+- (TiAppiOSActivityAttributesProxy *)createActivityAttributes:(id)args
+{
+  return [[[TiAppiOSActivityAttributesProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
 }
 
 - (TiAppiOSUserNotificationCategoryProxy *)createUserNotificationCategory:(id)args

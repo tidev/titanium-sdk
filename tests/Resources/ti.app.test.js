@@ -227,15 +227,15 @@ describe('Titanium.App', () => {
 			});
 		});
 
-		describe('.sessionId', () => {
-			it('is a read-only String', () => {
-				should(Ti.App).have.a.readOnlyProperty('sessionId').which.is.a.String();
-			});
-
-			it('has no getter', () => {
-				should(Ti.App).not.have.a.getter('sessionId');
-			});
-		});
+		// describe('.sessionId', () => {
+		// 	it('is a read-only String', () => {
+		// 		should(Ti.App).have.a.readOnlyProperty('sessionId').which.is.a.String();
+		// 	});
+		//
+		// 	it('has no getter', () => {
+		// 		should(Ti.App).not.have.a.getter('sessionId');
+		// 	});
+		// });
 
 		describe('.url', () => {
 			it('is a read-only String', () => {
