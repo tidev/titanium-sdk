@@ -1,6 +1,6 @@
 ---
 name: Titanium.UI.Android.FloatingActionButton
-summary: Androids Floating Action Button (FAB)
+summary: A floating action button (FAB) is a circular button that triggers the primary action in your app's UI.
 description: |
     For design guidelines, see
     [Material design: Snackbars](https://material.io/components/buttons-floating-action-button)
@@ -53,8 +53,6 @@ properties:
 examples:
   - title: Show a floating action button (FAB)
     example: |
-        Show a floating action button (FAB).
-
         ``` js
         const win = Ti.UI.createWindow();
         const fab = Ti.UI.Android.createFloatingActionButton({
