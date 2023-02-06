@@ -342,15 +342,15 @@ public class WebViewProxy extends ViewProxy implements Handler.Callback, OnLifec
 
 				PrintAttributes.MediaSize mediaSize;
 				if (krollObject.containsKeyAndNotNull("pageSize")) {
-					if (krollObject.getInt("pageSize") == TiUIWebView.DIN_A5) {
+					if (krollObject.getInt("pageSize") == TiUIWebView.PDF_PAGE_DIN_A5) {
 						mediaSize = PrintAttributes.MediaSize.ISO_A5;
-					} else if (krollObject.getInt("pageSize") == TiUIWebView.DIN_A3) {
+					} else if (krollObject.getInt("pageSize") == TiUIWebView.PDF_PAGE_DIN_A3) {
 						mediaSize = PrintAttributes.MediaSize.ISO_A3;
-					} else if (krollObject.getInt("pageSize") == TiUIWebView.DIN_A2) {
+					} else if (krollObject.getInt("pageSize") == TiUIWebView.PDF_PAGE_DIN_A2) {
 						mediaSize = PrintAttributes.MediaSize.ISO_A2;
-					} else if (krollObject.getInt("pageSize") == TiUIWebView.DIN_A1) {
+					} else if (krollObject.getInt("pageSize") == TiUIWebView.PDF_PAGE_DIN_A1) {
 						mediaSize = PrintAttributes.MediaSize.ISO_A1;
-					} else if (krollObject.getInt("pageSize") == TiUIWebView.AUTO) {
+					} else if (krollObject.getInt("pageSize") == TiUIWebView.PDF_PAGE_AUTO) {
 						DisplayMetrics metrics = TiApplication.getAppCurrentActivity()
 							.getResources().getDisplayMetrics();
 						int pdfHeight = (int) ((webView.getContentHeight()) / 90.0 * 1000) + 1000;

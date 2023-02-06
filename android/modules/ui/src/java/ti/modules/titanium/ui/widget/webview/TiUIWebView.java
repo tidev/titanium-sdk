@@ -69,17 +69,17 @@ public class TiUIWebView extends TiUIView
 	public static final int PLUGIN_STATE_ON_DEMAND = 2;
 
 	@Kroll.constant
-	public static final int DIN_A4 = 0;
+	public static final int PDF_PAGE_DIN_A4 = 0;
 	@Kroll.constant
-	public static final int DIN_A5 = 1;
+	public static final int PDF_PAGE_DIN_A5 = 1;
 	@Kroll.constant
-	public static final int DIN_A3 = 2;
+	public static final int PDF_PAGE_DIN_A3 = 2;
 	@Kroll.constant
-	public static final int DIN_A2 = 3;
+	public static final int PDF_PAGE_DIN_A2 = 3;
 	@Kroll.constant
-	public static final int DIN_A1 = 4;
+	public static final int PDF_PAGE_DIN_A1 = 4;
 	@Kroll.constant
-	public static final int AUTO = 5;
+	public static final int PDF_PAGE_AUTO = 5;
 
 	private static enum reloadTypes { DEFAULT, DATA, HTML, URL }
 

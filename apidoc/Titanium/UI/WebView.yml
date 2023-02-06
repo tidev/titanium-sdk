@@ -464,7 +464,7 @@ methods:
           }
         });
         ```
-        You can use either `pageWidth`/`pageHeight` or a `pageSize` constant like DIN_A4.
+        You can use either `pageWidth`/`pageHeight` or a `pageSize` constant like PDF_PAGE_DIN_A4.
     platforms: [android, iphone, ipad]
     since: {android: "12.1.0", iphone: "9.2.0", ipad: "9.2.0"}
     osver: {ios: {min: "14.0"}}
@@ -478,7 +478,7 @@ methods:
       - name: pageSize
         summary: Predfined size. (Android only)
         type: Number
-        constants: Titanium.UI.WebView.DIN_*
+        constants: Titanium.UI.WebView.PDF_PAGE_*
       - name: showMenu
         summary:  Will show Androids printing menu. No sucess callback afterwards. (Android only)
         type: Boolean
@@ -1152,35 +1152,35 @@ properties:
     since: {iphone: "8.0.0", ipad: "8.0.0", macos: "9.2.0"}
     permission: read-only
 
-  - name: DIN_A5
+  - name: PDF_PAGE_DIN_A5
     summary: PDF paper size
     type: Number
     platforms: [android]
     permission: read-only
     since: "12.1.0"
 
-  - name: DIN_A4
+  - name: PDF_PAGE_DIN_A4
     summary: PDF paper size
     type: Number
     platforms: [android]
     permission: read-only
     since: "12.1.0"
 
-  - name: DIN_A3
+  - name: PDF_PAGE_DIN_A3
     summary: PDF paper size
     type: Number
     platforms: [android]
     permission: read-only
     since: "12.1.0"
 
-  - name: DIN_A2
+  - name: PDF_PAGE_DIN_A2
     summary: PDF paper size
     type: Number
     platforms: [android]
     permission: read-only
     since: "12.1.0"
 
-  - name: DIN_A1
+  - name: PDF_PAGE_DIN_A1
     summary: PDF paper size
     type: Number
     platforms: [android]
