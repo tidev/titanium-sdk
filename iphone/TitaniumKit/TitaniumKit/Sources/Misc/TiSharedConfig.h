@@ -95,8 +95,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  Indicates whether or not the error screen should be shown if an
- error occurs. Defaults to `true` for `production` and `test` deploy types,
- `false` for deploy type `development`. Can be overriden by the `hide-error-controller`
+ error occurs. Defaults to `false` for `production` and `true` for `development` and `test`
+ deploy types. Can be overriden by the `hide-error-controller`
  CLI parameter.
  */
 @property (nonatomic, assign) BOOL showErrorController;

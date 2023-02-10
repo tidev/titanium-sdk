@@ -961,24 +961,6 @@ methods:
     since: "8.2.0"
     platforms: [iphone, ipad, macos]
 
-  - name: finishLayout
-    since: "2.0.0"
-    exclude-platforms: [macos]
-    deprecated:
-        since: "3.0.0"
-        removed: "9.0.0"
-        notes: Use the [applyProperties](Titanium.Proxy.applyProperties) method to batch-update layout properties.
-    summary: |
-        Finishes a batch update of the View's layout properties and schedules a layout pass of the
-        view tree.
-    description: |
-        Since the layout pass scheduled is asynchronous, the [rect](Titanium.UI.View.rect)
-        and [size](Titanium.UI.View.size) values may not be available immediately after
-        `finishLayout` is called.
-
-        To be notified when the layout pass completes, add a listener for the
-        [postlayout](Titanium.UI.View.postlayout) event.
-
   - name: hide
     summary: Hides this view.
     parameters:
@@ -1201,11 +1183,6 @@ properties:
     platforms: [android, iphone, ipad, macos]
     type: Boolean
     default: false
-    osver:
-        android:
-            min: "4.0"
-        ios:
-            min: "5.0"
 
   - name: accessibilityHint
     summary: Briefly describes what performing an action (such as a click) on the view will do.
@@ -1472,7 +1449,6 @@ properties:
         `backgroundColor` with a small amount of transparency: `backgroundColor:"rgba(255,255,255,254)"`.
     type: [Number, String, Array<Number>, Array<String>]
     default: 0
-    osver: {android: {min: "5.0"}}
 
   - name: borderWidth
     summary: Border width of the view.
@@ -1797,7 +1773,6 @@ properties:
     platforms: [iphone]
     since: "5.1.0"
     type: Titanium.UI.iOS.PreviewContext
-    osver: {ios: {min: "9.0"}}
 
   - name: right
     summary: View's right position, in platform-specific units.
@@ -1896,7 +1871,6 @@ properties:
     type: [String, Titanium.UI.Color]
     since: "3.1.3"
     default: null
-    osver: {ios: {min: "7.0"}}
     platforms: [iphone, ipad, macos]
 
   - name: top
@@ -1927,7 +1901,6 @@ properties:
     type: Boolean
     default: false
     platforms: [android]
-    osver: {android: {min: "5.0"}}
     since: "6.1.0"
 
   - name: touchFeedbackColor
@@ -1935,7 +1908,6 @@ properties:
     description: Defaults to provided theme color.
     type: String
     platforms: [android]
-    osver: {android: {min: "5.0"}}
     since: "6.1.0"
 
   - name: transform

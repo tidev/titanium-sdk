@@ -23,6 +23,7 @@ import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.view.TiUIView;
+import org.appcelerator.titanium.util.TiConvert;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -40,6 +41,7 @@ import ti.modules.titanium.ui.widget.TiUIListView;
 	propertyAccessors = {
 		TiC.PROPERTY_CAN_SCROLL,
 		TiC.PROPERTY_CASE_INSENSITIVE_SEARCH,
+		TiC.PROPERTY_CONTINUOUS_UPDATE,
 		TiC.PROPERTY_DEFAULT_ITEM_TEMPLATE,
 		TiC.PROPERTY_EDITING,
 		TiC.PROPERTY_FAST_SCROLL,
@@ -48,6 +50,7 @@ import ti.modules.titanium.ui.widget.TiUIListView;
 		TiC.PROPERTY_HEADER_TITLE,
 		TiC.PROPERTY_HEADER_VIEW,
 		TiC.PROPERTY_REFRESH_CONTROL,
+		TiC.PROPERTY_REQUIRES_EDITING_TO_MOVE,
 		TiC.PROPERTY_SEARCH_TEXT,
 		TiC.PROPERTY_SEARCH_VIEW,
 		TiC.PROPERTY_SEPARATOR_COLOR,
@@ -271,6 +274,22 @@ public class ListViewProxy extends RecyclerViewProxy
 
 		// Clear last "move" event info.
 		this.moveEventInfo.clear();
+	}
+
+	/**
+	 * Called when starting a drag-and-drop gesture (touch start)
+	 */
+	public void onMoveGestureStarted()
+	{
+		fireEvent(TiC.EVENT_MOVE_START, null);
+	}
+
+	/**
+	 * Called when starting a drag-and-drop gesture (touch end)
+	 */
+	public void onMoveGestureEnded()
+	{
+		fireEvent(TiC.EVENT_MOVE_END, null);
 	}
 
 	/**
@@ -524,7 +543,8 @@ public class ListViewProxy extends RecyclerViewProxy
 			// Set list sections.
 			setSections((Object[]) value);
 
-		} else if (name.equals(TiC.PROPERTY_EDITING) || name.equals(TiC.PROPERTY_VISIBLE)) {
+		} else if (name.equals(TiC.PROPERTY_EDITING) || name.equals(TiC.PROPERTY_REQUIRES_EDITING_TO_MOVE)
+			|| name.equals(TiC.PROPERTY_VISIBLE)) {
 			final TiViewProxy parent = getParent();
 
 			if (parent != null) {
@@ -535,9 +555,13 @@ public class ListViewProxy extends RecyclerViewProxy
 			}
 
 		} else if (name.equals(TiC.PROPERTY_SHOW_SELECTION_CHECK)) {
-
 			// Update and refresh list.
 			update(true);
+		} else if (name.equals(TiC.PROPERTY_CONTINUOUS_UPDATE)) {
+			final TiListView listView = getListView();
+			if (listView != null) {
+				listView.setContinousUpdate(TiConvert.toBoolean(value, false));
+			}
 		}
 	}
 

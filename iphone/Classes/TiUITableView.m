@@ -55,7 +55,9 @@
 
 - (void)dealloc
 {
-  [proxy setCallbackCell:nil];
+  if (proxy != nil && [proxy callbackCell] == self) {
+    [proxy setCallbackCell:nil];
+  }
 
   RELEASE_TO_NIL(proxy);
   RELEASE_TO_NIL(gradientLayer);
@@ -1878,6 +1880,7 @@
     [self createDimmingView];
   } else {
     _dimsBackgroundDuringPresentation = [TiUtils boolValue:arg def:YES];
+    dimmingView = nil;
   }
 }
 
