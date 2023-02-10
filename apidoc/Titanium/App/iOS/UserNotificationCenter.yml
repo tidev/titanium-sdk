@@ -6,7 +6,6 @@ summary: |
 
 extends: Titanium.Module
 platforms: [iphone, ipad, macos]
-osver: {ios: {min: "8.0"}}
 since: "7.3.0"
 excludes:
     properties: [bubbleParent]
@@ -31,7 +30,6 @@ methods:
             The function that is being called after the notifications
             have been fetched.
         type: Callback<UserNotificationCallbackResponse>
-    osver: {ios: {min: "10.0"}}
     since: "7.3.0"
 
   - name: removePendingNotifications
@@ -56,7 +54,6 @@ methods:
     description: |
         Delivered notifications can be obtained via a call to the <Titanium.App.iOS.UserNotificationCenter.getDeliveredNotifications>
         method.
-    osver: {ios: {min: "10.0"}}
     since: "7.3.0"
     parameters:
       - name: notifications
@@ -103,7 +100,6 @@ properties:
   - name: alertSubtitle
     summary: Subtitle of the notification.
     type: String
-    osver: {ios: {min: "10.0"}}
 
   - name: alertAction
     summary: |
@@ -142,7 +138,6 @@ properties:
   - name: category
     summary: Category identifier of the notification.
     type: String
-    osver: {ios: {min: "8.0"}}
 
   - name: identifier
     summary: The notification identifier.
@@ -164,7 +159,6 @@ properties:
           - radius: The radius of the region.
           - identifier: The identifier of the region.
     type: Dictionary
-    osver: {ios: {min: "10.0"}}
 
 ---
 name: GetUserNotificationSettings
@@ -193,43 +187,36 @@ properties:
     summary: The current authorization status for using notifications.
     type: Number
     constants: [Titanium.App.iOS.USER_NOTIFICATION_AUTHORIZATION_STATUS_*]
-    osver: {ios: {min: "10.0"}}
 
   - name: soundSetting
     summary: The current sound settings.
     type: Number
     constants: [Titanium.App.iOS.USER_NOTIFICATION_SETTING_*]
-    osver: {ios: {min: "10.0"}}
 
   - name: badgeSetting
     summary: The current badge settings.
     type: Number
     constants: [Titanium.App.iOS.USER_NOTIFICATION_SETTING_*]
-    osver: {ios: {min: "10.0"}}
 
   - name: alertSetting
     summary: The current alert settings.
     type: Number
     constants: [Titanium.App.iOS.USER_NOTIFICATION_SETTING_*]
-    osver: {ios: {min: "10.0"}}
 
   - name: notificationCenterSetting
     summary: The current notication-center settings.
     type: Number
     constants: [Titanium.App.iOS.USER_NOTIFICATION_SETTING_*]
-    osver: {ios: {min: "10.0"}}
 
   - name: lockScreenSetting
     summary: The current lock-screen settings.
     type: Number
     constants: [Titanium.App.iOS.USER_NOTIFICATION_SETTING_*]
-    osver: {ios: {min: "10.0"}}
 
   - name: carPlaySetting
     summary: The current CarPlay settings.
     type: Number
     constants: [Titanium.App.iOS.USER_NOTIFICATION_SETTING_*]
-    osver: {ios: {min: "10.0"}}
 
   - name: criticalAlertSetting
     summary: |
@@ -237,7 +224,6 @@ properties:
         Available in Titanium SDK 7.4.0 and later.
     type: Number
     constants: [Titanium.App.iOS.USER_NOTIFICATION_SETTING_*]
-    osver: { ios: { min: "12.0" } }
 
   - name: providesAppNotificationSettings
     summary: |
@@ -245,10 +231,8 @@ properties:
         Available in Titanium SDK 7.4.0 and later.
     type: Number
     constants: [Titanium.App.iOS.USER_NOTIFICATION_SETTING_*]
-    osver: { ios: { min: "12.0" } }
 
   - name: alertStyle
     summary: The current alert style used to display notifications.
     type: Number
     constants: [Titanium.App.iOS.USER_NOTIFICATION_ALERT_STYLE_*]
-    osver: {ios: {min: "10.0"}}

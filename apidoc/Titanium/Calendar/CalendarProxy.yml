@@ -104,7 +104,6 @@ properties:
     summary: Identifier of this calendar.
     type: String
     permission: read-only
-    osver: {ios: {min: "5.0"}}
     platforms: [android, iphone, ipad, macos]
 
   - name: name

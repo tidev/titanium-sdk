@@ -79,7 +79,7 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
       [(UIDatePicker *)picker setDatePickerMode:type];
       [picker addTarget:self action:@selector(valueChanged:) forControlEvents:UIControlEventValueChanged];
     }
-    [picker setBackgroundColor:[TiUtils isIOSVersionOrGreater:@"13.0"] ? UIColor.systemBackgroundColor : UIColor.whiteColor];
+    [picker setBackgroundColor:UIColor.systemBackgroundColor];
 
     [self addSubview:picker];
   }
@@ -174,7 +174,6 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
   }
 }
 
-#if IS_SDK_IOS_13_4
 - (void)setDatePickerStyle_:(id)style
 {
   if (![TiUtils isIOSVersionOrGreater:@"13.4"]) {
@@ -186,7 +185,6 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
     [(UIDatePicker *)picker setPreferredDatePickerStyle:[TiUtils intValue:style]];
   }
 }
-#endif
 
 // We're order-dependent on type being set first, so we need to make sure that anything that relies
 // on whether or not this is a date picker needs to be set AFTER the initial configuration.
@@ -233,11 +231,9 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
   if (![self isDatePicker] || [TiUtils isMacOS]) {
     return;
   }
-#if IS_SDK_IOS_13_4
   if (((UIDatePicker *)[self picker]).preferredDatePickerStyle != UIDatePickerStyleWheels) {
     return;
   }
-#endif
 
   [[self proxy] replaceValue:value
                       forKey:@"dateTimeColor"

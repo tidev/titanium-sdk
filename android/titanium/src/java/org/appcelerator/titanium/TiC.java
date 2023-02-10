@@ -23,6 +23,7 @@ public class TiC
 	public static final int PERMISSION_CODE_LOCATION = 104;
 	public static final int PERMISSION_CODE_OLD_CALENDAR = 105;
 	public static final int PERMISSION_CODE_MICROPHONE = 106;
+	public static final int PERMISSION_CODE_PUSH_NOTIFICATIONS = 107;
 
 	public static final String PERMISSION_CALENDAR = "calendar";
 	public static final String PERMISSION_CAMERA = "camera";
@@ -269,6 +270,7 @@ public class TiC
 	public static final String PROPERTY_AUTOREVERSE = "autoreverse";
 	public static final String PROPERTY_AUTOROTATE = "autorotate";
 	public static final String PROPERTY_AUTO_REDIRECT = "autoRedirect";
+	public static final String PROPERTY_AUTOSIZE = "autoSize";
 	public static final String PROPERTY_AUTO_ENCODE_URL = "autoEncodeUrl";
 	public static final String PROPERTY_AUTO_TAB_TITLE = "autoTabTitle";
 
@@ -361,6 +363,7 @@ public class TiC
 	public static final String PROPERTY_CONTENT_INSET_START_WITH_NAVIGATION = "contentInsetStartWithNavigation";
 	public static final String PROPERTY_CONTENT_INTENT = "contentIntent";
 	public static final String PROPERTY_CONTENT_OFFSET = "contentOffset";
+	public static final String PROPERTY_CONTINUOUS_UPDATE = "continuousUpdate";
 	public static final String PROPERTY_PADDING = "padding";
 	public static final String PROPERTY_PADDING_BOTTOM = "paddingBottom";
 	public static final String PROPERTY_PADDING_LEFT = "paddingLeft";
@@ -470,7 +473,6 @@ public class TiC
 	public static final String PROPERTY_HEADER_TITLE = "headerTitle";
 	public static final String PROPERTY_HEADER_VIEW = "headerView";
 	public static final String PROPERTY_HEADING = "heading";
-	public static final String PROPERTY_HEADING_FILTER = "headingFilter";
 	public static final String PROPERTY_HEIGHT = "height";
 	public static final String PROPERTY_HIDE_ANNOTATION_WHEN_TOUCH_MAP = "hideAnnotationWhenTouchMap";
 	public static final String PROPERTY_HIGHLIGHTED_COLOR = "highlightedColor";
@@ -483,6 +485,7 @@ public class TiC
 	public static final String PROPERTY_HTML = "html";
 	public static final String PROPERTY_HTTP_ONLY = "httponly";
 	public static final String PROPERTY_ICON = "icon";
+	public static final String PROPERTY_ICON_COLOR = "iconColor";
 	public static final String PROPERTY_ICON_LEVEL = "iconLevel";
 	public static final String PROPERTY_ICONIFIED = "iconified";
 	public static final String PROPERTY_ICONIFIED_BY_DEFAULT = "iconifiedByDefault";
@@ -579,6 +582,7 @@ public class TiC
 	public static final String PROPERTY_NAME = "name";
 	public static final String PROPERTY_NATIVE_SPINNER = "nativeSpinner";
 	public static final String PROPERTY_NAVIGATION_ICON = "navigationIcon";
+	public static final String PROPERTY_NAVIGATION_ICON_COLOR = "navigationIconColor";
 	public static final String PROPERTY_NICKNAME = "nickname";
 	public static final String PROPERTY_NOTE = "note";
 	public static final String PROPERTY_NUMBER = "number";
@@ -694,6 +698,7 @@ public class TiC
 	public static final String PROPERTY_SELECTION_INDICATOR = "selectionIndicator";
 	public static final String PROPERTY_SELECTION_OPENS = "selectionOpens";
 	public static final String PROPERTY_SELECTED_ROWS = "selectedRows";
+	public static final String PROPERTY_SELECTED_TEXT_COLOR = "selectedTextColor";
 	public static final String PROPERTY_SELECTION_STYLE = "selectionStyle";
 	public static final String PROPERTY_SEPARATOR_COLOR = "separatorColor";
 	public static final String PROPERTY_SEPARATOR_HEIGHT = "separatorHeight";
@@ -747,6 +752,7 @@ public class TiC
 	public static final String PROPERTY_TEMPLATE = "template";
 	public static final String PROPERTY_TEMPLATES = "templates";
 	public static final String PROPERTY_TEXT = "text";
+	public static final String PROPERTY_TEXT_COLOR = "textColor";
 	public static final String PROPERTY_TEXTID = "textid";
 	public static final String PROPERTY_THEME = "theme";
 	public static final String PROPERTY_TEXT_ALIGN = "textAlign";

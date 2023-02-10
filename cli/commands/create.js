@@ -20,6 +20,7 @@ const appc = require('node-appc'),
 	i18n = appc.i18n(__dirname),
 	path = require('path'),
 	ti = require('node-titanium-sdk'),
+	{ execSync } = require('child_process'),
 	__ = i18n.__;
 
 exports.cliVersion = '>=3.2.1';
@@ -181,6 +182,11 @@ CreateCommand.prototype.run = function run(logger, config, cli, finished) {
 			} else {
 				logger.info(__('Project created successfully in %s', appc.time.prettyDiff(cli.startTime, Date.now())) + '\n');
 			}
+
+			if (cli.argv.alloy !== undefined) {
+				execSync('alloy new ' + cli.argv['workspace-dir'] + '/' + cli.argv.name);
+			}
+
 			finished(err);
 		});
 	});

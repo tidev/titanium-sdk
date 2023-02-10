@@ -248,4 +248,3 @@ properties:
       by the system is dependent on the font, line width, and other factors. The default value of 
       this property is false.
     type: Boolean
-    osver: {ios: {min: "9.0"}}
