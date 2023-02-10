@@ -50,7 +50,7 @@ platforms: [android, iphone, ipad, macos]
 events:
   - name: cancel
     summary: Fired when the animation is canceled.
-    since: "10.2.0"
+    since: "12.1.0"
     platforms: [android]
 
   - name: complete
