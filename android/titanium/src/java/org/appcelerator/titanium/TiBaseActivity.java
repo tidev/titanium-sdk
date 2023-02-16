@@ -519,7 +519,6 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 		int softInputMode = getIntentInt(TiC.PROPERTY_WINDOW_SOFT_INPUT_MODE, -1);
 		int windowFlags = getIntentInt(TiC.PROPERTY_WINDOW_FLAGS, 0);
 		boolean hasSoftInputMode = softInputMode != -1;
-
 		setFullscreen(fullscreen);
 
 		// Add additional window flags to better handle fullscreen support on devices with notches.

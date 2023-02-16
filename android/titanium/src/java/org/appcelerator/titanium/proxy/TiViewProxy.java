@@ -725,16 +725,15 @@ public abstract class TiViewProxy extends KrollProxy
 			return;
 		}
 
-		if (peekView() != null) {
-			handleRemove(child);
-		} else {
+		if (peekView() == null) {
 			if (children != null) {
 				children.remove(child);
 			}
+			return;
 		}
-		if (child.parent != null && child.parent.get() == this) {
-			child.parent = null;
-		}
+
+		handleRemove(child);
+		child.parent = null;
 	}
 
 	/**
@@ -743,7 +742,7 @@ public abstract class TiViewProxy extends KrollProxy
 	@Kroll.method
 	public void removeAllChildren()
 	{
-		if (children != null) {
+		if (children != null && !children.isEmpty()) {
 			//children might be altered while we loop through it (threading)
 			//so we first copy children as it was when asked to remove all children
 			ArrayList<TiViewProxy> childViews = new ArrayList<TiViewProxy>();
@@ -956,32 +955,28 @@ public abstract class TiViewProxy extends KrollProxy
 	public TiBlob toImage(final @Kroll.argument(optional = true) KrollFunction callback)
 	{
 		final boolean waitForFinish = (callback == null);
-		TiBlob blob;
-
 		/*
 		 * Callback don't exist. Just render on main thread and return blob.
 		 */
 		if (waitForFinish) {
-			blob = handleToImage();
+			return handleToImage();
 		}
 
 		/*
 		 * Callback exists. Perform async rendering and return an empty blob.
 		 */
-		else {
-			// Create a non-null empty blob to return.
-			blob = TiBlob.blobFromImage(Bitmap.createBitmap(1, 1, Config.ARGB_8888));
-			Runnable renderRunnable = new Runnable() {
-				public void run()
-				{
-					callback.callAsync(getKrollObject(), new Object[] { handleToImage() });
-				}
-			};
+		// Create a non-null empty blob to return.
+		TiBlob blob = TiBlob.blobFromImage(Bitmap.createBitmap(1, 1, Config.ARGB_8888));
+		Runnable renderRunnable = new Runnable() {
+			public void run()
+			{
+				callback.callAsync(getKrollObject(), new Object[] { handleToImage() });
+			}
+		};
 
-			Thread renderThread = new Thread(renderRunnable);
-			renderThread.setPriority(Thread.MAX_PRIORITY);
-			renderThread.start();
-		}
+		Thread renderThread = new Thread(renderRunnable);
+		renderThread.setPriority(Thread.MAX_PRIORITY);
+		renderThread.start();
 
 		return blob;
 	}

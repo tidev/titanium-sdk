@@ -6,7 +6,7 @@
  */
 package ti.modules.titanium.ui.widget.listview;
 
-import java.util.LinkedList;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.TreeMap;
 
@@ -24,7 +24,7 @@ public class ListViewAdapter extends TiRecyclerViewAdapter<ListViewHolder, ListI
 {
 	private static final String TAG = "ListViewAdapter";
 
-	private final TreeMap<String, LinkedList<ListItemProxy>> recyclableItemsMap = new TreeMap<>();
+	private final TreeMap<String, LinkedHashSet<ListItemProxy>> recyclableItemsMap = new TreeMap<>();
 
 	public ListViewAdapter(@NonNull Context context, @NonNull List<ListItemProxy> models)
 	{
@@ -74,7 +74,7 @@ public class ListViewAdapter extends TiRecyclerViewAdapter<ListViewHolder, ListI
 		final boolean selected = this.tracker != null ? this.tracker.isSelected(item) : false;
 
 		// Check if we have any recyclable items for the current template.
-		LinkedList<ListItemProxy> recyclableItems = this.recyclableItemsMap.get(item.getTemplateId());
+		LinkedHashSet<ListItemProxy> recyclableItems = this.recyclableItemsMap.get(item.getTemplateId());
 		if (recyclableItems != null) {
 			// If item is in recycle collection, then remove it.
 			recyclableItems.remove(item);
@@ -82,10 +82,10 @@ public class ListViewAdapter extends TiRecyclerViewAdapter<ListViewHolder, ListI
 			// If item has no child proxies/views, then take the children from a recyclable item.
 			// This significantly boosts scroll performance by avoiding creating new views.
 			if (!item.hasChildren()) {
-				while (!recyclableItems.isEmpty()) {
-					ListItemProxy oldItem = recyclableItems.poll();
+				for (ListItemProxy oldItem : recyclableItems) {
 					if ((oldItem != null) && (oldItem.getHolder() == null) && oldItem.hasChildren()) {
 						oldItem.moveChildrenTo(item);
+						recyclableItems.remove(oldItem);
 						break;
 					}
 				}
@@ -132,9 +132,9 @@ public class ListViewAdapter extends TiRecyclerViewAdapter<ListViewHolder, ListI
 			// Add item to recycle list so that it's child proxies/views can be re-used by another item.
 			ListItemProxy item = (ListItemProxy) view;
 			if (item.hasChildren() && (item.getHolder() == holder)) {
-				LinkedList<ListItemProxy> recyclableItems = this.recyclableItemsMap.get(item.getTemplateId());
+				LinkedHashSet<ListItemProxy> recyclableItems = this.recyclableItemsMap.get(item.getTemplateId());
 				if (recyclableItems == null) {
-					recyclableItems = new LinkedList<>();
+					recyclableItems = new LinkedHashSet<>();
 					this.recyclableItemsMap.put(item.getTemplateId(), recyclableItems);
 				}
 				if (!recyclableItems.contains(item)) {
