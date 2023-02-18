@@ -99,12 +99,17 @@ description: |
 
     Starting from Android 6.0 (API level 23), users need to grant certain permissions to apps while the
     app is running. You can read it more [here](https://developer.android.com/training/permissions/requesting.html).
+    Starting with Android 13 you have to use more granular media permissions. Check the [official documentation](https://developer.android.com/about/versions/13/behavior-changes-13#granular-media-permissions).
 
     In Titanium SDK, to support this, we have the <Titanium.Android.requestPermissions> method. It is used to
     request any permission you may need. An example of using it is shown below:
 
     ``` js
     var permissions = [ 'android.permission.CAMERA', 'android.permission.READ_EXTERNAL_STORAGE', 'android.permission.WRITE_EXTERNAL_STORAGE' ];
+    if (Ti.Platform.versionMajor >= 13) {
+      // example for camera and image permission on Android 13
+      permissions = [ 'android.permission.CAMERA', 'android.permission.READ_MEDIA_IMAGES' ]
+    }
     Ti.Android.requestPermissions(permissions, function (e) {
         if (e.success) {
             Ti.API.info('SUCCESS');
