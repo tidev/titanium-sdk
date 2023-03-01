@@ -896,6 +896,16 @@ AndroidModuleBuilder.prototype.runModule = async function (cli) {
 		}
 	);
 
+	// Copy example/platform to tmp/platform to use a custom build.gradle
+	appc.fs.copyDirSyncRecursive(
+		this.exampleDir + '/platform',
+		path.join(tmpProjectDir, 'platform'),
+		{
+			preserve: true,
+			logger: this.logger.debug
+		}
+	);
+
 	// Unzip module into temp app's "modules" directory.
 	await util.promisify(appc.zip.unzip)(this.moduleZipPath, tmpProjectDir, null);
 
