@@ -3209,6 +3209,12 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 		}
 	});
 
+	// If we're building for macOS catalyst, set the "Optimize for Mac" flag
+	let deviceFamily = this.deviceFamilies[this.deviceFamily];
+	if (this.target === 'macos') {
+		deviceFamily = [ ...deviceFamily.split(','), '6' ].join(',');
+	}
+
 	const projectUuid = xcodeProject.hash.project.rootObject,
 		pbxProject = xobjs.PBXProject[projectUuid],
 		mainTargetUuid = pbxProject.targets.filter(function (t) { return t.comment.replace(/^"/, '').replace(/"$/, '') === appName; })[0].value,
@@ -3229,7 +3235,7 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 		caps = this.tiapp.ios.capabilities,
 		buildSettings = {
 			IPHONEOS_DEPLOYMENT_TARGET: appc.version.format(this.minIosVer, 2),
-			TARGETED_DEVICE_FAMILY: '"' + this.deviceFamilies[this.deviceFamily] + '"',
+			TARGETED_DEVICE_FAMILY: '"' + deviceFamily + '"',
 			ONLY_ACTIVE_ARCH: 'NO',
 			DEAD_CODE_STRIPPING: 'YES',
 			SDKROOT: 'iphoneos',
