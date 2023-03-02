@@ -600,6 +600,12 @@ DEFINE_EXCEPTIONS
   }
 }
 
+- (void)setTooltip_:(id)value
+{
+  UIToolTipInteraction *toolTipInteraction = [[UIToolTipInteraction alloc] initWithDefaultToolTip:[TiUtils stringValue:value]];
+  [self addInteraction:toolTipInteraction];
+}
+
 - (void)setOpacity_:(id)opacity
 {
   self.alpha = [TiUtils floatValue:opacity];
