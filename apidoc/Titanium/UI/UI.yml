@@ -2753,7 +2753,7 @@ properties:
   - name: availableSystemFontFamilies
     summary: Returns a list of font families that are provided by the system.
     type: Array<String>
-    permissions: read-only
+    permission: read-only
     platforms: [iphone, ipad, macos]
     since: "12.1.0"
 
