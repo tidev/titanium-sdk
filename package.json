@@ -139,7 +139,7 @@
     "eslint-config-axway": "^7.0.0",
     "eslint-plugin-mocha": "^10.0.0",
     "folder-hash": "^4.0.1",
-    "glob": "^7.2.0",
+    "glob": "^9.2.1",
     "husky": "^7.0.2",
     "lint-staged": "^11.1.2",
     "lockfile-lint": "^4.7.4",
