@@ -1290,6 +1290,20 @@ properties:
     summary: Table view header title.
     type: String
 
+  - name: headerColor
+    summary: Text color of the table view header title.
+    type: [String, Titanium.UI.Color]
+    default: platform-specific default color
+    since: 12.1.0
+    platforms: [android]
+
+  - name: headerBackgroundColor
+    summary: Background color of the table view header title.
+    type: [String, Titanium.UI.Color]
+    default: platform-specific default color
+    since: 12.1.0
+    platforms: [android]
+
   - name: headerView
     summary: Table view header as a view that will be rendered instead of a label.
     description: |
