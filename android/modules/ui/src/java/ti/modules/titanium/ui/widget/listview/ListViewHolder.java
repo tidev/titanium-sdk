@@ -337,6 +337,13 @@ public class ListViewHolder extends TiRecyclerViewHolder<ListItemProxy>
 
 				// Handle header title.
 				this.headerTitle.setText(properties.getString(TiC.PROPERTY_HEADER_TITLE));
+				if (properties.containsKeyAndNotNull("headerBackgroundColor")) {
+					this.headerTitle.setBackgroundColor(
+						TiConvert.toColor(properties.get("headerBackgroundColor"), context));
+				}
+				if (properties.containsKeyAndNotNull(TiC.PROPERTY_COLOR)) {
+					this.headerTitle.setTextColor(TiConvert.toColor(properties.get(TiC.PROPERTY_COLOR), context));
+				}
 				this.headerTitle.setVisibility(View.VISIBLE);
 
 			} else if (properties.containsKeyAndNotNull(TiC.PROPERTY_HEADER_VIEW)) {
