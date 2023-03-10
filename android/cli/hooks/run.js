@@ -18,6 +18,7 @@ exports.cliVersion = '>=3.2';
 
 exports.init = function (logger, config, cli) {
 	let deviceInfo = [];
+	const ignoreLog = config.cli.ignoreLog || [];
 
 	cli.on('build.pre.compile', {
 		priority: 8000,
@@ -264,6 +265,13 @@ exports.init = function (logger, config, cli) {
 						// if it begins with something like "E/SQLiteLog( 1659):" it's not a contination, don't log it.
 						} else if (nonTiLogRegexp.test(line)) {
 							return;
+						}
+
+						// ignore some Android logs in info log level
+						for (let i = 0, len = ignoreLog.length; i < len; ++i) {
+							if (line.includes(ignoreLog[i])) {
+								return;
+							}
 						}
 
 						switch (logLevel) {

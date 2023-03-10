@@ -650,7 +650,6 @@
   }
 }
 
-#if IS_SDK_IOS_14
 - (void)setPreferredIndicatorImage_:(id)args
 {
   if (![TiUtils isIOSVersionOrGreater:@"14.0"]) {
@@ -673,7 +672,6 @@
     [[self pagecontrol] setIndicatorImage:image forPage:page];
   }
 }
-#endif
 
 - (void)setPagingControlOnTop_:(id)args
 {

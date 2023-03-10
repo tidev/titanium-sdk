@@ -82,7 +82,7 @@ public final class TiDeviceOrientationMonitor
 		if (value instanceof SensorManager) {
 			this.sensorManager = (SensorManager) value;
 		} else {
-			Log.i(TAG, "Unable to aquire SensorManager.");
+			Log.w(TAG, "Unable to aquire SensorManager.");
 		}
 
 		// Create an event handler for the Android "OrientationEventListener".

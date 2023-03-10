@@ -554,7 +554,6 @@ properties:
     default: false
     type: Boolean
     platforms: [iphone, ipad]
-    osver: {ios: {min: "11.0"}}
     since: '9.2.0'
 
   - name: username

@@ -26,15 +26,21 @@ import android.app.Activity;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.Color;
+import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.text.InputType;
 import android.text.util.Linkify;
+import android.view.DisplayCutout;
 import android.view.View;
+import android.view.Window;
 import android.webkit.WebViewClient;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatDelegate;
+
+import java.util.List;
 
 @Kroll.module
 public class UIModule extends KrollModule implements TiApplication.ConfigurationChangedListener
@@ -569,6 +575,64 @@ public class UIModule extends KrollModule implements TiApplication.Configuration
 	public int getUserInterfaceStyle()
 	{
 		return getUserInterfaceStyle(TiApplication.getInstance().getResources().getConfiguration());
+	}
+
+	@Kroll.getProperty
+	public int statusBarHeight()
+	{
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+			Window w = TiApplication.getAppCurrentActivity().getWindow();
+			if (w == null) return 0;
+			View dv = w.getDecorView();
+			if (dv == null) return 0;
+			if (dv.getRootWindowInsets() == null) return 0;
+			DisplayCutout dpc = dv.getRootWindowInsets().getDisplayCutout();
+			if (dpc == null) return 0;
+			List<Rect> rects = dpc.getBoundingRects();
+			if (rects.size() > 0) {
+				int h = dpc.getBoundingRects().get(0).height();
+				return (int) new TiDimension(h, TiDimension.TYPE_HEIGHT).getAsDefault(dv);
+			}
+		}
+		return 0;
+	}
+
+	@Kroll.getProperty
+	public KrollDict getCutoutSize()
+	{
+		KrollDict returnValue = new KrollDict();
+		returnValue.put("top", 0);
+		returnValue.put("left", 0);
+		returnValue.put("height", 0);
+		returnValue.put("width", 0);
+
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+			Window w = TiApplication.getAppCurrentActivity().getWindow();
+			if (w == null) return returnValue;
+			View dv = w.getDecorView();
+			if (dv == null) return returnValue;
+			if (dv.getRootWindowInsets() == null) return returnValue;
+			DisplayCutout dpc = dv.getRootWindowInsets().getDisplayCutout();
+			if (dpc == null) return returnValue;
+			List<Rect> rects = dpc.getBoundingRects();
+
+			int cutouts = rects.size();
+			int[] result = new int[cutouts * 4];
+			int index = 0;
+
+			if (rects.size() > 0) {
+				int dh = dpc.getBoundingRects().get(0).height();
+				int dw = dpc.getBoundingRects().get(0).width();
+				int dt = dpc.getBoundingRects().get(0).top;
+				int dl = dpc.getBoundingRects().get(0).left;
+
+				returnValue.put("left", (int) new TiDimension(dl, TiDimension.TYPE_LEFT).getAsDefault(dv));
+				returnValue.put("top", (int) new TiDimension(dt, TiDimension.TYPE_TOP).getAsDefault(dv));
+				returnValue.put("width", (int) new TiDimension(dw, TiDimension.TYPE_WIDTH).getAsDefault(dv));
+				returnValue.put("height", (int) new TiDimension(dh, TiDimension.TYPE_HEIGHT).getAsDefault(dv));
+			}
+		}
+		return returnValue;
 	}
 
 	@Override

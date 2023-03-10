@@ -1180,7 +1180,7 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 						background.setBackgroundDrawable(currentDrawable);
 
 					} else {
-						nativeView.setBackgroundDrawable(null);
+						nativeView.setBackground(null);
 						currentDrawable.setCallback(null);
 						if (currentDrawable instanceof TiBackgroundDrawable) {
 							((TiBackgroundDrawable) currentDrawable).releaseDelegate();
@@ -1188,7 +1188,7 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 					}
 				}
 			}
-			nativeView.setBackgroundDrawable(background);
+			nativeView.setBackground(background);
 		}
 	}
 
