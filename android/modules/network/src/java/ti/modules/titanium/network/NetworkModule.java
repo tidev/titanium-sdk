@@ -522,7 +522,9 @@ public class NetworkModule extends KrollModule
 			KrollDict event = new KrollDict();
 			event.put("success", true);
 			event.put("type", "remote");
-			successCallback.callAsync(getKrollObject(), new KrollDict());
+			if (successCallback != null) {
+				successCallback.callAsync(getKrollObject(), new KrollDict());
+			}
 			return;
 		}
 
@@ -543,9 +545,13 @@ public class NetworkModule extends KrollModule
 				event.put("type", "remote");
 
 				if (isGranted) {
-					successCallback.callAsync(getKrollObject(), event);
+					if (successCallback != null) {
+						successCallback.callAsync(getKrollObject(), event);
+					}
 				} else {
-					errorCallback.callAsync(getKrollObject(), event);
+					if (errorCallback != null) {
+						errorCallback.callAsync(getKrollObject(), event);
+					}
 				}
 
 				// Unregister this callback.
