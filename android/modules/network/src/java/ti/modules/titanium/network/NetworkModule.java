@@ -538,7 +538,10 @@ public class NetworkModule extends KrollModule
 				@NonNull TiBaseActivity activity, int requestCode,
 				@NonNull String[] permissions, @NonNull int[] grantResults)
 			{
-				Boolean isGranted = grantResults[0] == PackageManager.PERMISSION_GRANTED;
+				Boolean isGranted = false;
+				if (grantResults.length > 0) {
+					isGranted = grantResults[0] == PackageManager.PERMISSION_GRANTED;
+				}
 
 				KrollDict event = new KrollDict();
 				event.put("success", isGranted);
