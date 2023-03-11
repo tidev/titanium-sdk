@@ -51,6 +51,8 @@ description: |
     ```
     The `binding.min.js` is available in the [repository](https://github.com/tidev/titanium_mobile/tree/master/android/modules/ui/assets/Resources/ti.internal/webview).
 
+    For iOS check the example in <Titanium.UI.WebView.addScriptMessageHandler>.
+
     #### Local JavaScript Files
 
     During the build process for creating a package, all JavaScript files, that is, any file with a
@@ -421,7 +423,24 @@ methods:
     description: |
         Adding a script message handler with name 'name' causes the JavaScript function
         window.webkit.messageHandlers.name.postMessage(messageBody) to be defined in all
-        frames in the web view.
+        frames in the web view. You use the same 'name' in your webview's html.
+        Example JS code for the webview page:
+        ```
+        <script type="text/javascript">
+            window.webkit.messageHandlers.yourHandlerName.postMessage({
+                message: 'This is an example string.'
+            });
+        </script>
+        ```
+        Connection to the webview:
+        ```js
+        webView.addScriptMessageHandler('yourHandlerName');
+        webView.addEventListener('message', ({ name }) => {
+            if (name === 'yourHandlerName') {
+                console.log(e.body.message);
+            }
+        });
+        ```
     platforms: [iphone, ipad, macos]
     since: {iphone: "8.0.0", ipad: "8.0.0", macos: "9.2.0"}
     parameters:
