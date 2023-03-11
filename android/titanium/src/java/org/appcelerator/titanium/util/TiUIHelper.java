@@ -864,14 +864,17 @@ public class TiUIHelper
 			Bitmap bitmap = Bitmap.createBitmap(width, height, Config.ARGB_8888);
 			Canvas canvas = new Canvas(bitmap);
 
-			ViewOutlineProvider viewOutlineProvider = view.getOutlineProvider();
-			Outline outline = new Outline();
-			viewOutlineProvider.getOutline(view, outline);
-			Path clipPath = new Path();
-			clipPath.addRoundRect(new RectF(canvas.getClipBounds()), outline.getRadius(),
-				outline.getRadius(), Path.Direction.CW);
-			canvas.clipPath(clipPath);
-
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+				ViewOutlineProvider viewOutlineProvider = view.getOutlineProvider();
+				Outline outline = new Outline();
+				viewOutlineProvider.getOutline(view, outline);
+				if (outline.getRadius() > 0) {
+					Path clipPath = new Path();
+					clipPath.addRoundRect(new RectF(canvas.getClipBounds()), outline.getRadius(),
+						outline.getRadius(), Path.Direction.CW);
+					canvas.clipPath(clipPath);
+				}
+			}
 			view.draw(canvas);
 
 			ByteArrayOutputStream bos = new ByteArrayOutputStream();

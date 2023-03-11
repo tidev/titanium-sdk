@@ -16,6 +16,7 @@ import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
 import android.graphics.RectF;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -83,6 +84,8 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 	private static final int START = 10002;
 	private static final int STOP = 10003;
 	private static final int SET_TINT = 10004;
+
+	Paint borderPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
 
 	public TiUIImageView(final TiViewProxy proxy)
 	{
@@ -890,19 +893,17 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 		this.reverse = reverse;
 	}
 
-	public static Bitmap getRoundedCornerBitmap(Bitmap bitmap, int w, int h, int roundPixelSize)
+	public Bitmap getRoundedCornerBitmap(Bitmap bitmap, int w, int h, int roundPixelSize)
 	{
 		Bitmap output = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
 		Canvas canvas = new Canvas(output);
-		final Paint paint = new Paint();
-		final Rect rectS = new Rect(0, 0, bitmap.getWidth(), bitmap.getHeight());
-		final Rect rect = new Rect(0, 0, w, h);
-		final RectF rectF = new RectF(rect);
-		final float roundPx = roundPixelSize;
-		paint.setAntiAlias(true);
-		canvas.drawRoundRect(rectF, roundPx, roundPx, paint);
-		paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_IN));
-		canvas.drawBitmap(bitmap, rectS, rect, paint);
+		Rect rectS = new Rect(0, 0, bitmap.getWidth(), bitmap.getHeight());
+		Rect rect = new Rect(0, 0, w, h);
+		RectF rectF = new RectF(rect);
+		float roundPx = roundPixelSize;
+		canvas.drawRoundRect(rectF, roundPx, roundPx, borderPaint);
+		borderPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_IN));
+		canvas.drawBitmap(bitmap, rectS, rect, borderPaint);
 		return output;
 	}
 
@@ -911,45 +912,51 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 		TiDrawableReference imageReference =
 			imageSources != null && imageSources.size() == 1 ? imageSources.get(0) : null;
 		Bitmap cachedBitmap = imageReference != null ? TiImageCache.getBitmap(imageReference.getKey()) : null;
+		TiImageView view = getView();
 
 		if (cachedBitmap != null && !cachedBitmap.isRecycled()) {
-			TiImageView view = getView();
-			ViewOutlineProvider viewOutlineProvider = view.getOutlineProvider();
-			Outline outline = new Outline();
-			viewOutlineProvider.getOutline(view, outline);
-			if (outline.getRadius() > 0) {
-				Bitmap workingBitmap = Bitmap.createBitmap(cachedBitmap);
-				Bitmap mutableBitmap = workingBitmap.copy(Bitmap.Config.ARGB_8888, true);
-
-				Bitmap newBmp = getRoundedCornerBitmap(mutableBitmap,
-					view.getWidth(), view.getHeight(), (int) outline.getRadius());
-				return TiBlob.blobFromImage(newBmp);
-			} else {
-				return TiBlob.blobFromImage(cachedBitmap);
-			}
-
-		} else {
-			TiImageView view = getView();
-			if (view != null) {
-
-				Bitmap bitmap = view.getImageBitmap();
-				if (bitmap == null && imageSources != null && imageSources.size() == 1) {
-					bitmap = imageSources.get(0).getBitmap(true);
-				}
+			if (view != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
 				ViewOutlineProvider viewOutlineProvider = view.getOutlineProvider();
 				Outline outline = new Outline();
 				viewOutlineProvider.getOutline(view, outline);
 				if (outline.getRadius() > 0) {
-					Canvas canvas = new Canvas(bitmap);
-					Path clipPath = new Path();
-					clipPath.addRoundRect(new RectF(canvas.getClipBounds()), outline.getRadius(),
-						outline.getRadius(), Path.Direction.CW);
-					canvas.clipPath(clipPath);
-					view.draw(canvas);
-					canvas = null;
+					// has viewOutlineProvider - apply rounded corners to bitmap
+					Bitmap workingBitmap = Bitmap.createBitmap(cachedBitmap);
+					Bitmap mutableBitmap = workingBitmap.copy(Bitmap.Config.ARGB_8888, true);
+
+					Bitmap newBmp = getRoundedCornerBitmap(mutableBitmap,
+						view.getWidth(), view.getHeight(), (int) outline.getRadius());
+					return TiBlob.blobFromImage(newBmp);
+				} else {
+					return TiBlob.blobFromImage(cachedBitmap);
+				}
+			} else {
+				return TiBlob.blobFromImage(cachedBitmap);
+			}
+		} else {
+			if (view != null) {
+				Bitmap bitmap = view.getImageBitmap();
+				if (bitmap == null && imageSources != null && imageSources.size() == 1) {
+					bitmap = imageSources.get(0).getBitmap(true);
 				}
 
 				if (bitmap != null) {
+					if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+						ViewOutlineProvider viewOutlineProvider = view.getOutlineProvider();
+						Outline outline = new Outline();
+						viewOutlineProvider.getOutline(view, outline);
+						if (outline.getRadius() > 0) {
+							// has viewOutlineProvider - apply rounded corners to bitmap
+							Canvas canvas = new Canvas(bitmap);
+							Path clipPath = new Path();
+							clipPath.addRoundRect(new RectF(canvas.getClipBounds()), outline.getRadius(),
+								outline.getRadius(), Path.Direction.CW);
+							canvas.clipPath(clipPath);
+							view.draw(canvas);
+							canvas = null;
+						}
+					}
+					
 					if (imageReference != null) {
 						var key = imageReference.getKey();
 						TiExifOrientation orientation = imageReference.getExifOrientation();
