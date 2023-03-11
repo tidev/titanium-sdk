@@ -6,11 +6,25 @@
  */
 package ti.modules.titanium.ui.widget;
 
-import java.util.ArrayList;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.atomic.AtomicBoolean;
+import android.app.Activity;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Outline;
+import android.graphics.Paint;
+import android.graphics.Path;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffXfermode;
+import android.graphics.Rect;
+import android.graphics.RectF;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
+import android.view.View;
+import android.view.ViewOutlineProvider;
+import android.view.ViewParent;
+
+import androidx.annotation.NonNull;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
@@ -29,18 +43,15 @@ import org.appcelerator.titanium.util.TiLoadImageManager;
 import org.appcelerator.titanium.view.TiDrawableReference;
 import org.appcelerator.titanium.view.TiUIView;
 
+import java.util.ArrayList;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.atomic.AtomicBoolean;
+
 import ti.modules.titanium.filesystem.FileProxy;
 import ti.modules.titanium.media.MediaModule;
 import ti.modules.titanium.ui.ImageViewProxy;
-import android.app.Activity;
-import android.graphics.Bitmap;
-import android.os.Handler;
-import android.os.Looper;
-import android.os.Message;
-import android.os.Bundle;
-import android.view.View;
-import android.view.ViewParent;
-import androidx.annotation.NonNull;
 
 public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler.Callback
 {
@@ -879,6 +890,22 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 		this.reverse = reverse;
 	}
 
+	public static Bitmap getRoundedCornerBitmap(Bitmap bitmap, int w, int h, int roundPixelSize)
+	{
+		Bitmap output = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
+		Canvas canvas = new Canvas(output);
+		final Paint paint = new Paint();
+		final Rect rectS = new Rect(0, 0, bitmap.getWidth(), bitmap.getHeight());
+		final Rect rect = new Rect(0, 0, w, h);
+		final RectF rectF = new RectF(rect);
+		final float roundPx = roundPixelSize;
+		paint.setAntiAlias(true);
+		canvas.drawRoundRect(rectF, roundPx, roundPx, paint);
+		paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_IN));
+		canvas.drawBitmap(bitmap, rectS, rect, paint);
+		return output;
+	}
+
 	public TiBlob toBlob()
 	{
 		TiDrawableReference imageReference =
@@ -886,15 +913,42 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 		Bitmap cachedBitmap = imageReference != null ? TiImageCache.getBitmap(imageReference.getKey()) : null;
 
 		if (cachedBitmap != null && !cachedBitmap.isRecycled()) {
-			return TiBlob.blobFromImage(cachedBitmap);
+			TiImageView view = getView();
+			ViewOutlineProvider viewOutlineProvider = view.getOutlineProvider();
+			Outline outline = new Outline();
+			viewOutlineProvider.getOutline(view, outline);
+			if (outline.getRadius() > 0) {
+				Bitmap workingBitmap = Bitmap.createBitmap(cachedBitmap);
+				Bitmap mutableBitmap = workingBitmap.copy(Bitmap.Config.ARGB_8888, true);
+
+				Bitmap newBmp = getRoundedCornerBitmap(mutableBitmap,
+					view.getWidth(), view.getHeight(), (int) outline.getRadius());
+				return TiBlob.blobFromImage(newBmp);
+			} else {
+				return TiBlob.blobFromImage(cachedBitmap);
+			}
 
 		} else {
 			TiImageView view = getView();
 			if (view != null) {
+
 				Bitmap bitmap = view.getImageBitmap();
 				if (bitmap == null && imageSources != null && imageSources.size() == 1) {
 					bitmap = imageSources.get(0).getBitmap(true);
 				}
+				ViewOutlineProvider viewOutlineProvider = view.getOutlineProvider();
+				Outline outline = new Outline();
+				viewOutlineProvider.getOutline(view, outline);
+				if (outline.getRadius() > 0) {
+					Canvas canvas = new Canvas(bitmap);
+					Path clipPath = new Path();
+					clipPath.addRoundRect(new RectF(canvas.getClipBounds()), outline.getRadius(),
+						outline.getRadius(), Path.Direction.CW);
+					canvas.clipPath(clipPath);
+					view.draw(canvas);
+					canvas = null;
+				}
+
 				if (bitmap != null) {
 					if (imageReference != null) {
 						var key = imageReference.getKey();
