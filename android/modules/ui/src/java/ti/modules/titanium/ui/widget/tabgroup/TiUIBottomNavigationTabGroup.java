@@ -7,6 +7,8 @@
 package ti.modules.titanium.ui.widget.tabgroup;
 
 import java.util.ArrayList;
+
+import android.animation.LayoutTransition;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.res.ColorStateList;
@@ -206,6 +208,15 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 			TiCompositeLayout.LayoutParams params = new TiCompositeLayout.LayoutParams();
 			params.autoFillsWidth = true;
 			params.optionBottom = new TiDimension(disable ? 0 : mBottomNavigationHeightValue, TiDimension.TYPE_BOTTOM);
+			if (animated) {
+				LayoutTransition lt = new LayoutTransition();
+				lt.enableTransitionType(LayoutTransition.CHANGING);
+				lt.setDuration(200);
+				if (disable) {
+					lt.setStartDelay(LayoutTransition.CHANGING, 200);
+				}
+				this.tabGroupViewPager.setLayoutTransition(lt);
+			}
 			this.tabGroupViewPager.setLayoutParams(params);
 		}
 
