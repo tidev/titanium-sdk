@@ -89,18 +89,6 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 	{
 		boolean ani = TiConvert.toBoolean(animated, false);
 
-		if (TiApplication.isUIThread()) {
-			handleDisableTabNavigation(disable, ani);
-
-			return;
-		}
-
-		Object[] obj = new Object[]{ disable, ani };
-		TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_DISABLE_TAB_NAVIGATION), obj);
-	}
-
-	private void handleDisableTabNavigation(boolean disable, boolean animated)
-	{
 		TiUIAbstractTabGroup tabGroup = (TiUIAbstractTabGroup) view;
 		if (tabGroup != null) {
 			tabGroup.disableTabNavigation(disable, animated);
