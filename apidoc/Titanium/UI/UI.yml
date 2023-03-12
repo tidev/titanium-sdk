@@ -2754,7 +2754,7 @@ properties:
     summary: Returns a list of font families that are provided by the system.
     type: Array<String>
     permission: read-only
-    platforms: [iphone, ipad, macos]
+    platforms: [android, iphone, ipad, macos]
     since: "12.1.0"
 
   - name: backgroundColor
