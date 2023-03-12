@@ -29,7 +29,6 @@ import org.appcelerator.titanium.util.TiUIHelper;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Message;
 import android.view.LayoutInflater;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
