@@ -363,6 +363,15 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 		this.mBottomNavigationView.getMenu().getItem(index).setTitle(title);
 	}
 
+	public void setTabBarVisible(boolean visible)
+	{
+		if (visible) {
+			mBottomNavigationView.animate().translationY(0f);
+		} else {
+			mBottomNavigationView.animate().translationY(mBottomNavigationView.getHeight());
+		}
+	}
+
 	@SuppressLint("RestrictedApi")
 	@Override
 	public void updateBadge(int index)
