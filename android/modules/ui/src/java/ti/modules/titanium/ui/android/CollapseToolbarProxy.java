@@ -11,6 +11,7 @@ import android.app.Activity;
 import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiApplication;
+import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiDrawableReference;
@@ -49,7 +50,7 @@ public class CollapseToolbarProxy extends TiViewProxy
 	public void setContentView(Object obj)
 	{
 		if (obj instanceof TiViewProxy) {
-			collapseToolbar.setContentView((TiViewProxy) obj);
+			setPropertyAndFire(TiC.PROPERTY_CONTENT_VIEW, (TiViewProxy) obj);
 		}
 	}
 
