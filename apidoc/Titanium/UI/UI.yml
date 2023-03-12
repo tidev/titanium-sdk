@@ -2750,6 +2750,13 @@ properties:
     osver: {ios: {min: "13.0"}}
     since: "9.1.0"
 
+  - name: availableSystemFontFamilies
+    summary: Returns a list of font families that are provided by the system.
+    type: Array<String>
+    permission: read-only
+    platforms: [android, iphone, ipad, macos]
+    since: "12.1.0"
+
   - name: backgroundColor
     summary: |
         Sets the background color of the master view (when there are no windows or other top-level
