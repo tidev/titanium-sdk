@@ -356,6 +356,16 @@ properties:
     description: Only one of `title` or `titleid` should be specified.
     type: String
     since: "1.5"
+  
+  - name: tooltip
+    summary: The default text to display in the control's tooltip.
+    description: |
+         Assigning a value to this property causes the tool tip to be displayed for the view.
+         Setting the property to `null` cancels the display of the tool tip for the view.
+         Note: This property is only used for apps targeting macOS Catalyst.
+    type: String
+    osver: { ios: { min: "15.0" } }
+    since: "12.1.0"
 
   - name: verticalAlign
     summary: |

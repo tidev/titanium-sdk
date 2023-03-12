@@ -553,6 +553,11 @@ MAKE_SYSTEM_PROP(EXTEND_EDGE_ALL, 15); //UIEdgeRectAll
   return [self createMatrix3D:args];
 }
 
+- (id)availableSystemFontFamilies
+{
+  return [UIFont familyNames];
+}
+
 #ifdef USE_TI_UICLIPBOARD
 - (id)Clipboard
 {
