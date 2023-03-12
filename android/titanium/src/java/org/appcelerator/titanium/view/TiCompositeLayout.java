@@ -69,7 +69,7 @@ public class TiCompositeLayout extends ViewGroup implements OnHierarchyChangeLis
 	private int horiztonalLayoutPreviousRight = 0;
 	int[] horizontal = new int[2];
 	int[] vertical = new int[2];
-	
+
 	/**
 	 * Custom pixel width to be used by child views when calculating percentage based lengths/positions.
 	 * Set to a negative value if child should be relative to the parent view.

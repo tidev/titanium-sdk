@@ -342,7 +342,10 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 			final TableViewHolder firstVisibleHolder =
 				(TableViewHolder) recyclerView.getChildViewHolder(firstVisibleView);
 			final TableViewRowProxy firstVisibleProxy = (TableViewRowProxy) firstVisibleHolder.getProxy();
-			final int firstVisibleIndex = firstVisibleProxy.getIndexInSection();
+			int firstVisibleIndex = -1;
+			if (firstVisibleProxy != null) {
+				firstVisibleIndex = firstVisibleProxy.getIndexInSection();
+			}
 			payload.put(TiC.PROPERTY_FIRST_VISIBLE_ITEM, firstVisibleIndex);
 		}
 
@@ -746,7 +749,12 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 		}
 
 		// Notify adapter of changes on UI thread.
-		this.adapter.update(this.rows, force);
+		recyclerView.post(new Runnable() {
+			public void run()
+			{
+				adapter.update(rows, force);
+			}
+		});
 
 		// FIXME: This is not an ideal workaround for an issue where recycled items that were in focus
 		//        lose their focus when the data set changes. There are improvements to be made here.
