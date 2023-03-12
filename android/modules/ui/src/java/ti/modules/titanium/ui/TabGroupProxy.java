@@ -114,6 +114,16 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		}
 	}
 
+	@Kroll.setProperty
+	public void setTabBarVisible(boolean visible)
+	{
+		TiUIBottomNavigationTabGroup tabGroup = (TiUIBottomNavigationTabGroup) view;
+
+		if (tabGroup != null) {
+			tabGroup.setTabBarVisible(visible);
+		}
+	}
+
 	@Kroll.method
 	public void removeTab(TabProxy tab)
 	{

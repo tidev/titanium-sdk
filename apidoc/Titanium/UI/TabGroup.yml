@@ -593,6 +593,12 @@ properties:
     platforms: [iphone, ipad, macos]
     since: { iphone: "3.1.0", ipad: "3.1.0" }
 
+  - name: tabBarVisible
+    summary: Programmatically shows / hides the bottom tab bar of the tab group.
+    type: Boolean
+    platforms: [android, iphone, ipad, macos]
+    since: "12.1.0"
+
 examples:
   - title: Alloy XML Markup
     example: |
