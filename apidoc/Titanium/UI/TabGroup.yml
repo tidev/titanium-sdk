@@ -591,8 +591,8 @@ properties:
   - name: tabBarVisible
     summary: Programmatically shows / hides the bottom tab bar of the tab group.
     type: Boolean
-    platforms: [iphone, ipad, macos]
-    since: "11.1.0"
+    platforms: [android, iphone, ipad, macos]
+    since: "12.1.0"
 
 examples:
   - title: Alloy XML Markup
