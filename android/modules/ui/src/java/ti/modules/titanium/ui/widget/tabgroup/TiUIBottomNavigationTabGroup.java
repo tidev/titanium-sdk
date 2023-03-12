@@ -209,12 +209,11 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 			params.autoFillsWidth = true;
 			params.optionBottom = new TiDimension(disable ? 0 : mBottomNavigationHeightValue, TiDimension.TYPE_BOTTOM);
 			if (animated) {
+				// make it a bit slower when moving up again so it won't show the background
+				int duration = disable ? 200 : 400;
 				LayoutTransition lt = new LayoutTransition();
 				lt.enableTransitionType(LayoutTransition.CHANGING);
-				lt.setDuration(200);
-				if (disable) {
-					lt.setStartDelay(LayoutTransition.CHANGING, 200);
-				}
+				lt.setDuration(duration);
 				this.tabGroupViewPager.setLayoutTransition(lt);
 			}
 			this.tabGroupViewPager.setLayoutParams(params);
