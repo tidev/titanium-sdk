@@ -39,7 +39,6 @@ import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 
-import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.view.MenuItem;
 import android.view.View;
